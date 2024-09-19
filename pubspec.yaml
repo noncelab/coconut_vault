@@ -1,0 +1,187 @@
+name: coconut_vault
+description: "에어갭 환경에서 동작하는 콜드 월렛으로, 니모닉 문구를 안전하게 관리하고 트랜잭션에 서명을 해요."
+# The following line prevents the package from being accidentally published to
+# pub.dev using `flutter pub publish`. This is preferred for private packages.
+publish_to: "none" # Remove this line if you wish to publish to pub.dev
+
+# The following defines the version and build number for your application.
+# A version number is three numbers separated by dots, like 1.2.43
+# followed by an optional build number separated by a +.
+# Both the version and the builder number may be overridden in flutter
+# build by specifying --build-name and --build-number, respectively.
+# In Android, build-name is used as versionName while build-number used as versionCode.
+# Read more about Android versioning at https://developer.android.com/studio/publish/versioning
+# In iOS, build-name is used as CFBundleShortVersionString while build-number is used as CFBundleVersion.
+# Read more about iOS versioning at
+# https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
+# In Windows, build-name is used as the major, minor, and patch parts
+# of the product and file versions while build-number is used as the build suffix.
+
+# iOS
+version: 1.0.0+13
+
+# AOS
+# version: 1.0.0+7
+
+environment:
+  sdk: ">=3.3.4 <4.0.0"
+
+# Dependencies specify other packages that your package needs in order to work.
+# To automatically upgrade your package dependencies to the latest versions
+# consider running `flutter pub upgrade --major-versions`. Alternatively,
+# dependencies can be manually updated by changing the version numbers below to
+# the latest version available on pub.dev. To see which dependencies have newer
+# versions available, run `flutter pub outdated`.
+dependencies:
+  flutter:
+    sdk: flutter
+
+  # The following adds the Cupertino Icons font to your application.
+  # Use with the CupertinoIcons class for iOS style icons.
+  cupertino_icons: ^1.0.6
+  intl: ^0.19.0
+  provider: ^6.1.2
+  scoped_model: ^2.0.0
+  flutter_secure_storage: ^9.0.0
+  json_annotation: ^4.9.0
+  shared_preferences: ^2.2.2
+  coconut_lib: ^0.6.1
+  fluttertoast: ^8.2.4
+  realm: ^3.1.0
+  qr_flutter: ^4.1.0
+  qr_code_scanner: ^1.0.1
+  flutter_svg: ^2.0.10+1
+  carousel_slider: ^4.2.1
+  convert: ^3.1.1
+  connectivity_plus: ^6.0.3
+  flutter_blue_plus: ^1.32.7
+  modal_bottom_sheet: ^3.0.0
+  local_auth: ^2.2.0
+  loader_overlay: ^4.0.0
+  objectbox_flutter_libs: any
+  path: ^1.9.0
+  path_provider: ^2.1.3
+  lottie: ^3.1.2
+  shimmer: ^3.0.0
+  vibration: ^1.9.0
+  device_info_plus: ^10.1.1
+  package_info_plus: ^8.0.1
+  screen_protector: ^1.4.2+1
+  url_launcher: ^6.2.6
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_oss_licenses: ^3.0.2
+  
+  json_serializable: ^6.7.1
+  build_runner: ^2.4.8
+
+  # The "flutter_lints" package below contains a set of recommended lints to
+  # encourage good coding practices. The lint set provided by the package is
+  # activated in the `analysis_options.yaml` file located at the root of your
+  # package. See that file for information about deactivating specific lint
+  # rules and activating additional ones.
+  flutter_lints: ^3.0.0
+
+# For information on the generic Dart part of this file, see the
+# following page: https://dart.dev/tools/pub/pubspec
+
+# The following section is specific to Flutter packages.
+flutter:
+  # The following line ensures that the Material Icons font is
+  # included with your application, so that you can use the icons in
+  # the material Icons class.
+  uses-material-design: true
+
+  # To add assets to your application, add an assets section, like this:
+  assets:
+    - assets/png/splash_logo.png
+    - assets/svg/menu/details.svg
+    - assets/svg/menu/key.svg
+    - assets/svg/menu/key-outline.svg
+    - assets/svg/menu/list.svg
+    - assets/svg/menu/address.svg
+    - assets/svg/menu/out.svg
+    - assets/svg/number/one.svg
+    - assets/svg/number/two.svg
+    - assets/svg/number/three.svg
+    - assets/svg/number/four.svg
+    - assets/svg/tooltip/info.svg
+    - assets/svg/tooltip/normal.svg
+    - assets/svg/tooltip/success.svg
+    - assets/svg/tooltip/warning.svg
+    - assets/svg/tooltip/error.svg
+    - assets/svg/wallet-icons/bank.svg
+    - assets/svg/wallet-icons/building.svg
+    - assets/svg/wallet-icons/car.svg
+    - assets/svg/wallet-icons/carrot.svg
+    - assets/svg/wallet-icons/child-head.svg
+    - assets/svg/wallet-icons/couch.svg
+    - assets/svg/wallet-icons/croissant.svg
+    - assets/svg/wallet-icons/cursor-finger.svg
+    - assets/svg/wallet-icons/diamond.svg
+    - assets/svg/wallet-icons/envelope.svg
+    - assets/svg/wallet-icons/flower.svg
+    - assets/svg/wallet-icons/gift.svg
+    - assets/svg/wallet-icons/hamburger.svg
+    - assets/svg/wallet-icons/hand-holding-heart.svg
+    - assets/svg/wallet-icons/heart.svg
+    - assets/svg/wallet-icons/home-heart.svg
+    - assets/svg/wallet-icons/man-head.svg
+    - assets/svg/wallet-icons/music.svg
+    - assets/svg/wallet-icons/paper-plane.svg
+    - assets/svg/wallet-icons/paw.svg
+    - assets/svg/wallet-icons/piggy-bank.svg
+    - assets/svg/wallet-icons/pizza-slice.svg
+    - assets/svg/wallet-icons/rocket-lunch.svg
+    - assets/svg/wallet-icons/shop.svg
+    - assets/svg/wallet-icons/smile-beam.svg
+    - assets/svg/wallet-icons/star.svg
+    - assets/svg/wallet-icons/woman-head.svg
+    - assets/svg/wallet-icons/turkey.svg
+    - assets/svg/wallet-icons/umbrella.svg
+    - assets/svg/wallet-icons/shrimp.svg
+    - assets/svg/wallet-icons/crab.svg
+    - assets/svg/wallet-icons/fish.svg
+    - assets/svg/wallet-icons/squid.svg
+    - assets/svg/wallet-icons/dolphin.svg
+    - assets/svg/wallet-icons/whale.svg
+    - assets/svg/arrow-right.svg
+    - assets/svg/back.svg
+    - assets/svg/bluetooth.svg
+    - assets/svg/coconut.svg
+    - assets/svg/coconut-security.svg
+    - assets/svg/cross-circle.svg
+    - assets/svg/curved-arrow-right.svg
+    - assets/svg/stethoscope.svg
+    - assets/svg/scan-vault-qr.svg
+    - assets/svg/trash.svg
+    - assets/svg/face-id.svg
+    - assets/svg/fingerprint.svg
+    - assets/svg/book.svg
+    - assets/lottie/loading-coconut.json
+    - assets/lottie/pin-locked-success.json
+    - assets/png/pow-logo.png
+    - assets/jpg/pow-full-logo.jpg
+    - assets/jpg/x-logo.jpg
+    - assets/png/telegram-logo.png
+    - assets/png/telegram-circle-logo.png
+    - assets/png/mail-icon.png
+    - assets/png/browser.png
+    - assets/svg/github-logo-white.svg
+    - assets/svg/github-logo.svg
+    - assets/files/LICENSE
+    - assets/files/CONTRIBUTING.md
+
+  fonts:
+    - family: SpaceGrotesk
+      fonts:
+        - asset: assets/fonts/SpaceGrotesk-Bold.ttf
+        - asset: assets/fonts/SpaceGrotesk-Regular.ttf
+        - asset: assets/fonts/SpaceGrotesk-Medium.ttf
+        - asset: assets/fonts/SpaceGrotesk-Light.ttf
+    - family: Pretendard
+      fonts:
+        - asset: assets/fonts/Pretendard-Bold.ttf
+        - asset: assets/fonts/Pretendard-Regular.ttf
