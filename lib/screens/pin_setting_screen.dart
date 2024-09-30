@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:coconut_vault/model/app_model.dart';
 import 'package:coconut_vault/styles.dart';
@@ -7,7 +9,9 @@ import 'package:coconut_vault/widgets/appbar/custom_appbar.dart';
 import 'package:coconut_vault/widgets/button/custom_buttons.dart';
 import 'package:coconut_vault/widgets/pin/pin_input_screen.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
+import '../constants/shared_preferences_constants.dart';
 import '../widgets/custom_dialog.dart';
 
 class PinSettingScreen extends StatefulWidget {
@@ -117,6 +121,18 @@ class _PinSettingScreenState extends State<PinSettingScreen> {
         }
 
         errorMessage = '';
+
+        if (Platform.isIOS) {
+          /// 최초 비밀번호 설정시에만 FaceId 요청
+          final prefs = await SharedPreferences.getInstance();
+          bool isPinSet =
+              prefs.getBool(SharedPreferencesConstants.isPinEnabled) ?? false;
+          if (!isPinSet &&
+              !_appModel.hasAlreadyRequestedBioPermission &&
+              mounted) {
+            await _appModel.authenticateWithBiometrics(context, isSave: true);
+          }
+        }
         _finishPinSetting();
       }
     }

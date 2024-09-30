@@ -2,8 +2,11 @@ import 'dart:async';
 import 'dart:io';
 import 'dart:math';
 
+import 'package:coconut_vault/styles.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 import 'package:local_auth/local_auth.dart';
@@ -12,7 +15,9 @@ import 'package:coconut_vault/constants/shared_preferences_constants.dart';
 import 'package:coconut_vault/services/secure_storage_service.dart';
 import 'package:coconut_vault/utils/hash_util.dart';
 import 'package:coconut_vault/utils/logger.dart';
+import 'package:path/path.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 // ignore: constant_identifier_names
 const String VAULT_PIN = "VAULT_PIN";
@@ -21,7 +26,7 @@ enum ConnectivityState { off, on, bluetoothUnauthorized }
 
 class AppModel with ChangeNotifier {
   AppModel({required this.onConnectivityStateChanged}) {
-    setInitData(isSetListener: true);
+    setInitData();
   }
 
   /// ConnectActivity ----------------------------------------------------------
@@ -42,47 +47,64 @@ class AppModel with ChangeNotifier {
 
   static const MethodChannel _channel = MethodChannel(methodChannelOS);
 
-  _setConnectActivity() {
-    // 블루투스 상태
-    if (Platform.isIOS) {
-      // showPowerAlert: false 설정 해줘야, 앱 재접속 시 블루투스 권한 없을 때 CBCentralManagerOptionShowPowerAlertKey 관련 prompt가 뜨지 않음
-      FlutterBluePlus.setOptions(showPowerAlert: false).then((_) {
+  Future<void> setConnectActivity(
+      {bool bothCheck = false,
+      bool networkOnly = false,
+      bool bluetoothOnly = false}) async {
+    bool networkOnly0 = networkOnly;
+    bool bluetoothOnly0 = bluetoothOnly;
+    if (bothCheck) {
+      networkOnly0 = true;
+      bluetoothOnly0 = true;
+    }
+    if (bluetoothOnly0) {
+      final prefs = await SharedPreferences.getInstance();
+      prefs.setBool(
+          SharedPreferencesConstants.hasAlreadyRequestedBluetoothPermission,
+          true);
+      // 블루투스 상태
+      if (Platform.isIOS) {
+        // showPowerAlert: false 설정 해줘야, 앱 재접속 시 블루투스 권한 없을 때 CBCentralManagerOptionShowPowerAlertKey 관련 prompt가 뜨지 않음
+        FlutterBluePlus.setOptions(showPowerAlert: false).then((_) {
+          _bluetoothSubscription = FlutterBluePlus.adapterState
+              .listen((BluetoothAdapterState state) {
+            if (state == BluetoothAdapterState.on) {
+              _isBluetoothOn = true;
+            } else if (state == BluetoothAdapterState.off) {
+              _isBluetoothOn = false;
+            } else if (state == BluetoothAdapterState.unauthorized) {
+              // iOS only
+              _isBluetoothUnauthorized = true;
+            }
+            _onConnectivityChanged();
+          });
+        });
+      } else if (Platform.isAndroid) {
         _bluetoothSubscription =
             FlutterBluePlus.adapterState.listen((BluetoothAdapterState state) {
           if (state == BluetoothAdapterState.on) {
             _isBluetoothOn = true;
           } else if (state == BluetoothAdapterState.off) {
             _isBluetoothOn = false;
-          } else if (state == BluetoothAdapterState.unauthorized) {
-            // iOS only
-            _isBluetoothUnauthorized = true;
           }
           _onConnectivityChanged();
         });
-      });
-    } else if (Platform.isAndroid) {
-      _bluetoothSubscription =
-          FlutterBluePlus.adapterState.listen((BluetoothAdapterState state) {
-        if (state == BluetoothAdapterState.on) {
-          _isBluetoothOn = true;
-        } else if (state == BluetoothAdapterState.off) {
-          _isBluetoothOn = false;
+      }
+    }
+
+    // 네트워크 상태
+    if (networkOnly0) {
+      _networkSubscription = Connectivity()
+          .onConnectivityChanged
+          .listen((List<ConnectivityResult> result) {
+        if (result.contains(ConnectivityResult.none)) {
+          _isNetworkOn = false;
+        } else {
+          _isNetworkOn = true;
         }
         _onConnectivityChanged();
       });
     }
-
-    // 네트워크 상태
-    _networkSubscription = Connectivity()
-        .onConnectivityChanged
-        .listen((List<ConnectivityResult> result) {
-      if (result.contains(ConnectivityResult.none)) {
-        _isNetworkOn = false;
-      } else {
-        _isNetworkOn = true;
-      }
-      _onConnectivityChanged();
-    });
 
     // 개발자모드 상태 확인, 릴리즈버전일 경우에만 상태체크
     if (Platform.isAndroid && kReleaseMode) {
@@ -112,27 +134,32 @@ class AppModel with ChangeNotifier {
   }
 
   void _onConnectivityChanged() {
-    notifyListeners();
-    if (_isBluetoothOn == true ||
+    if (Platform.isIOS && _isBluetoothUnauthorized == true) {
+      onConnectivityStateChanged.call(ConnectivityState.bluetoothUnauthorized);
+    } else if (_isBluetoothOn == true ||
         _isNetworkOn == true ||
         (Platform.isAndroid && _isDeveloperModeOn == true)) {
       if (_hasSeenGuide) {
         onConnectivityStateChanged.call(ConnectivityState.on);
       }
-    } else if (_isBluetoothUnauthorized == true) {
-      onConnectivityStateChanged.call(ConnectivityState.bluetoothUnauthorized);
     }
+    notifyListeners();
   }
 
   /// AuthState ----------------------------------------------------------------
   final SecureStorageService _storageService = SecureStorageService();
   final LocalAuthentication _auth = LocalAuthentication();
 
-  /// 앱 첫 진입 여부
+  /// 비밀번호 설정 여부
   bool _isPinEnabled = false;
   bool get isPinEnabled => _isPinEnabled;
 
-  /// 비밀번호 설정 여부
+  /// 리셋 여부
+  bool _hasAlreadyRequestedBioPermission = false;
+  bool get hasAlreadyRequestedBioPermission =>
+      _hasAlreadyRequestedBioPermission;
+
+  /// 첫 실행 가이드 확인 여부
   bool _hasSeenGuide = false;
   bool get hasSeenGuide => _hasSeenGuide;
 
@@ -143,6 +170,10 @@ class AppModel with ChangeNotifier {
   /// 사용자 생체 인증 on/off 여부
   bool _isBiometricEnabled = false;
   bool get isBiometricEnabled => _isBiometricEnabled;
+
+  /// 사용자 생체인증 권한 허용 여부
+  bool _hasBiometricsPermission = false;
+  bool get hasBiometricsPermission => _hasBiometricsPermission;
 
   /// true = 핀 초기화 진행 후 홈 화면 설정창 노출
   bool _isResetVault = false;
@@ -164,7 +195,7 @@ class AppModel with ChangeNotifier {
   List<String> _pinShuffleNumbers = [];
   List<String> get pinShuffleNumbers => _pinShuffleNumbers;
 
-  Future setInitData({bool isSetListener = false}) async {
+  Future setInitData() async {
     await checkDeviceBiometrics();
     final prefs = await SharedPreferences.getInstance();
     _hasSeenGuide =
@@ -173,14 +204,25 @@ class AppModel with ChangeNotifier {
         prefs.getBool(SharedPreferencesConstants.isPinEnabled) == true;
     _isBiometricEnabled =
         prefs.getBool(SharedPreferencesConstants.isBiometricEnabled) == true;
+    _hasBiometricsPermission =
+        prefs.getBool(SharedPreferencesConstants.hasBiometricsPermission) ==
+            true;
     _isNotEmptyVaultList =
         prefs.getBool(SharedPreferencesConstants.isNotEmptyVaultList) == true;
+    _hasAlreadyRequestedBioPermission = prefs.getBool(
+            SharedPreferencesConstants.hasAlreadyRequestedBioPermission) ==
+        true;
     shuffleNumbers();
 
-    if (isSetListener) _setConnectActivity();
+    /// true 인 경우, 첫 실행이 아님
+    if (_hasSeenGuide) {
+      setConnectActivity(bothCheck: true);
+    } else {
+      setConnectActivity(networkOnly: true);
+    }
   }
 
-  /// 초기화 이후 홈화면 진입시 비밀번호 설정창 노출하기 위함
+  /// 초기화 이후 홈화면 진입시 비밀번`호 설정창 노출하기 위함
   void offResetVault() {
     _isResetVault = false;
   }
@@ -230,7 +272,8 @@ class AppModel with ChangeNotifier {
   }
 
   /// 생체인증 진행 후 성공 여부 반환
-  Future<bool> authenticateWithBiometrics({bool isSave = false}) async {
+  Future<bool> authenticateWithBiometrics(BuildContext context,
+      {bool requestPermissionDialog = true, bool isSave = false}) async {
     bool authenticated = false;
     try {
       authenticated = await _auth.authenticate(
@@ -241,13 +284,33 @@ class AppModel with ChangeNotifier {
         ),
       );
 
+      if (Platform.isIOS && !authenticated) {
+        if (context.mounted) {
+          await _showAuthenticationFailedDialog(context);
+        }
+      }
+
       if (isSave) {
         saveIsBiometricEnabled(authenticated);
+        setBioRequested();
       }
 
       return authenticated;
     } on PlatformException catch (e) {
       Logger.log(e);
+
+      if (isSave) {
+        saveIsBiometricEnabled(false);
+        if (Platform.isIOS &&
+            !authenticated &&
+            e.message == 'Biometry is not available.' &&
+            requestPermissionDialog) {
+          if (context.mounted) {
+            await _showAuthenticationFailedDialog(context);
+          }
+        }
+        setBioRequested();
+      }
     }
     return false;
   }
@@ -264,9 +327,19 @@ class AppModel with ChangeNotifier {
   /// 사용자 생체인증 활성화 여부 저장
   Future<void> saveIsBiometricEnabled(bool value) async {
     _isBiometricEnabled = value;
+    _hasBiometricsPermission = value;
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool(SharedPreferencesConstants.isBiometricEnabled, value);
+    await prefs.setBool(
+        SharedPreferencesConstants.hasBiometricsPermission, value);
     shuffleNumbers();
+  }
+
+  Future<void> setBioRequested() async {
+    _hasAlreadyRequestedBioPermission = true;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(
+        SharedPreferencesConstants.hasAlreadyRequestedBioPermission, true);
   }
 
   /// 비밀번호 저장
@@ -322,8 +395,70 @@ class AppModel with ChangeNotifier {
     _pinShuffleNumbers.shuffle(random);
     _pinShuffleNumbers.insert(_pinShuffleNumbers.length - 1,
         !isSettings && _isBiometricEnabled ? 'bio' : '');
+
     _pinShuffleNumbers.add('<');
     notifyListeners();
+  }
+
+  Future<void> _openAppSettings() async {
+    const url = 'app-settings:';
+    if (await canLaunchUrl(Uri.parse(url))) {
+      await launchUrl(Uri.parse(url));
+    }
+  }
+
+  Future<void> _showAuthenticationFailedDialog(BuildContext context) async {
+    await showCupertinoDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return CupertinoAlertDialog(
+          title: Text(
+            _hasAlreadyRequestedBioPermission == true
+                ? '생체 인증 권한이 필요합니다'
+                : '생체 인증 권한이 거부되었습니다',
+            style: const TextStyle(
+              color: MyColors.black,
+            ),
+          ),
+          content: const Text(
+            '생체 인증을 통한 잠금 해제를 하시려면\n설정 > 코코넛 볼트에서 FaceID 권한을 허용해 주세요.',
+            style: TextStyle(
+              color: MyColors.black,
+            ),
+          ),
+          actions: <Widget>[
+            CupertinoDialogAction(
+              isDestructiveAction: true,
+              child: Text(
+                '닫기',
+                style: Styles.label.merge(
+                  const TextStyle(
+                    color: MyColors.black,
+                  ),
+                ),
+              ),
+              onPressed: () async {
+                Navigator.of(context).pop();
+              },
+            ),
+            CupertinoDialogAction(
+              isDefaultAction: true,
+              child: Text(
+                '설정화면으로 이동',
+                style: Styles.label.merge(
+                  const TextStyle(
+                      color: Colors.blueAccent, fontWeight: FontWeight.bold),
+                ),
+              ),
+              onPressed: () async {
+                Navigator.of(context).pop();
+                await _openAppSettings();
+              },
+            ),
+          ],
+        );
+      },
+    );
   }
 
   // Be sure to cancel subscription after you are done

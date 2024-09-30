@@ -1,6 +1,5 @@
 import 'dart:io';
 
-import 'package:coconut_vault/app.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:coconut_vault/model/app_model.dart';

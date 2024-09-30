@@ -28,10 +28,12 @@
 	<false/>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+	<key>NSLocalNetworkUsageDescription</key>
+	<string>앱에서 네트워크 연결 상태를 감지하기 위해 권한이 필요합니다.</string>
 	<key>NSBluetoothAlwaysUsageDescription</key>
 	<string>이 앱은 보안 강화를 위해 Bluetooth가 활성화되어 있는지 감지하고, Bluetooth가 활성화 된 경우 무단 장치와의 연결로 중요 정보가 유출되는 것을 방지하기 위해 앱 기능에 접근을 제한합니다.</string>
 	<key>NSBluetoothPeripheralUsageDescription</key>
-	<string>이 앱은 보안 강화를 위해 Bluetooth가 활성화되어 있는지 감지하고, Bluetooth가 활성화 된 경우 무단 장치와의 연결로 중요 정보가 유출되는 것을 방지하기 위해 앱 기능에 접근을 제한합니다.</string>
+	<string>이 앱은 보안 강화를 위해 Bluetooth가 활성화되어 있는지 감지하고, Bluetooth가 활성화 된 경우 무단 장치와의 연결로 중요 정보가 유출되는 것을 방지하기 위해 앱 기능에 접근을 제한합니다. </string>
 	<key>NSCameraUsageDescription</key>
 	<string>QR코드 스캔을 위해 카메라 사용이 필요합니다.</string>
 	<key>NSFaceIDUsageDescription</key>
