@@ -122,17 +122,16 @@ class _PinSettingScreenState extends State<PinSettingScreen> {
 
         errorMessage = '';
 
-        if (Platform.isIOS) {
-          /// 최초 비밀번호 설정시에만 FaceId 요청
-          final prefs = await SharedPreferences.getInstance();
-          bool isPinSet =
-              prefs.getBool(SharedPreferencesConstants.isPinEnabled) ?? false;
-          if (!isPinSet &&
-              !_appModel.hasAlreadyRequestedBioPermission &&
-              mounted) {
-            await _appModel.authenticateWithBiometrics(context, isSave: true);
-          }
+        /// 최초 비밀번호 설정시에 생체 인증 사용 여부 확인
+        final prefs = await SharedPreferences.getInstance();
+        bool isPinSet =
+            prefs.getBool(SharedPreferencesConstants.isPinEnabled) ?? false;
+        if (!isPinSet &&
+            !_appModel.hasAlreadyRequestedBioPermission &&
+            mounted) {
+          await _appModel.authenticateWithBiometrics(context, isSave: true);
         }
+
         _finishPinSetting();
       }
     }

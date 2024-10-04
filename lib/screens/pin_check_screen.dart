@@ -164,7 +164,7 @@ class _PinCheckScreenState extends State<PinCheckScreen>
 
   void _verifyBiometric() async {
     if (await _appModel.authenticateWithBiometrics(context,
-        requestPermissionDialog: false)) {
+        showAuthenticationFailedDialog: false)) {
       _verifySwitch();
     }
   }

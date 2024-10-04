@@ -47,17 +47,19 @@ class AppModel with ChangeNotifier {
 
   static const MethodChannel _channel = MethodChannel(methodChannelOS);
 
+
+  /// 보안상의 이유로 기기가 네트워크, 블루투스, 개발자 모드가 켜져있을 때 볼트 사용을 막아야 합니다.
+  /// 따라서 위 요소들의 상태를 모니터링합니다.
+  /// 앱 실행 후 최초 1번만 구독 되도록 호출해야 합니다. (! 별도 체크 로직은 없음)
+  /// 
+  /// 매개변수로 모니터링 할 요소를 선택할 수 있습니다.
+  /// 
+  /// * 단, iOS에서는 개발자모드 여부를 제공하지 않기 때문에 제외합니다.
   Future<void> setConnectActivity(
-      {bool bothCheck = false,
-      bool networkOnly = false,
-      bool bluetoothOnly = false}) async {
-    bool networkOnly0 = networkOnly;
-    bool bluetoothOnly0 = bluetoothOnly;
-    if (bothCheck) {
-      networkOnly0 = true;
-      bluetoothOnly0 = true;
-    }
-    if (bluetoothOnly0) {
+      {required bool network,
+      required bool bluetooth,
+      required bool developerMode}) async {
+    if (bluetooth) {
       final prefs = await SharedPreferences.getInstance();
       prefs.setBool(
           SharedPreferencesConstants.hasAlreadyRequestedBluetoothPermission,
@@ -93,7 +95,7 @@ class AppModel with ChangeNotifier {
     }
 
     // 네트워크 상태
-    if (networkOnly0) {
+    if (network) {
       _networkSubscription = Connectivity()
           .onConnectivityChanged
           .listen((List<ConnectivityResult> result) {
@@ -107,7 +109,7 @@ class AppModel with ChangeNotifier {
     }
 
     // 개발자모드 상태 확인, 릴리즈버전일 경우에만 상태체크
-    if (Platform.isAndroid && kReleaseMode) {
+    if (developerMode && Platform.isAndroid && kReleaseMode) {
       _checkDeveloperMode();
 
       // 개발자모드 상태 변화 감지
@@ -216,9 +218,10 @@ class AppModel with ChangeNotifier {
 
     /// true 인 경우, 첫 실행이 아님
     if (_hasSeenGuide) {
-      setConnectActivity(bothCheck: true);
+      setConnectActivity(network: true, bluetooth: true, developerMode: true);
     } else {
-      setConnectActivity(networkOnly: true);
+      // 앱 첫 실행인 경우 가이드 화면 끝난 후 bluetooth 모니터링 시작.
+      setConnectActivity(network: true, bluetooth: false, developerMode: true);
     }
   }
 
@@ -273,11 +276,11 @@ class AppModel with ChangeNotifier {
 
   /// 생체인증 진행 후 성공 여부 반환
   Future<bool> authenticateWithBiometrics(BuildContext context,
-      {bool requestPermissionDialog = true, bool isSave = false}) async {
+      {bool showAuthenticationFailedDialog = true, bool isSave = false}) async {
     bool authenticated = false;
     try {
       authenticated = await _auth.authenticate(
-        localizedReason: '생체 인증을 진행해주세요',
+      localizedReason: '잠금 해제 시 생체 인증을 사용하시겠습니까?', // 이 문구는 aos, iOS(touch ID)에서 사용됩니다. ios face ID는 info.plist string을 사용합니다.
         options: const AuthenticationOptions(
           stickyAuth: true,
           biometricOnly: true,
@@ -292,7 +295,7 @@ class AppModel with ChangeNotifier {
 
       if (isSave) {
         saveIsBiometricEnabled(authenticated);
-        setBioRequested();
+        _setBioRequestedInSharedPrefs();
       }
 
       return authenticated;
@@ -304,12 +307,12 @@ class AppModel with ChangeNotifier {
         if (Platform.isIOS &&
             !authenticated &&
             e.message == 'Biometry is not available.' &&
-            requestPermissionDialog) {
+            showAuthenticationFailedDialog) {
           if (context.mounted) {
             await _showAuthenticationFailedDialog(context);
           }
         }
-        setBioRequested();
+        _setBioRequestedInSharedPrefs();
       }
     }
     return false;
@@ -335,7 +338,7 @@ class AppModel with ChangeNotifier {
     shuffleNumbers();
   }
 
-  Future<void> setBioRequested() async {
+  Future<void> _setBioRequestedInSharedPrefs() async {
     _hasAlreadyRequestedBioPermission = true;
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool(
@@ -421,7 +424,7 @@ class AppModel with ChangeNotifier {
             ),
           ),
           content: const Text(
-            '생체 인증을 통한 잠금 해제를 하시려면\n설정 > 코코넛 볼트에서 FaceID 권한을 허용해 주세요.',
+            '생체 인증을 통한 잠금 해제를 하시려면\n설정 > 코코넛 볼트에서 생체 인증 권한을 허용해 주세요.',
             style: TextStyle(
               color: MyColors.black,
             ),
