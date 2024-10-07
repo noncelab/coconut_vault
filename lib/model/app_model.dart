@@ -2,6 +2,8 @@ import 'dart:async';
 import 'dart:io';
 import 'dart:math';
 
+import 'package:coconut_vault/services/shared_preferences_keys.dart';
+import 'package:coconut_vault/services/shared_preferences_service.dart';
 import 'package:coconut_vault/styles.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/cupertino.dart';
@@ -11,12 +13,9 @@ import 'package:flutter/services.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 import 'package:local_auth/local_auth.dart';
 import 'package:coconut_vault/constants/method_channel.dart';
-import 'package:coconut_vault/constants/shared_preferences_constants.dart';
 import 'package:coconut_vault/services/secure_storage_service.dart';
 import 'package:coconut_vault/utils/hash_util.dart';
 import 'package:coconut_vault/utils/logger.dart';
-import 'package:path/path.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 // ignore: constant_identifier_names
@@ -55,14 +54,13 @@ class AppModel with ChangeNotifier {
   /// 매개변수로 모니터링 할 요소를 선택할 수 있습니다.
   /// 
   /// * 단, iOS에서는 개발자모드 여부를 제공하지 않기 때문에 제외합니다.
-  Future<void> setConnectActivity(
+  void setConnectActivity(
       {required bool network,
       required bool bluetooth,
-      required bool developerMode}) async {
+      required bool developerMode}) {
     if (bluetooth) {
-      final prefs = await SharedPreferences.getInstance();
-      prefs.setBool(
-          SharedPreferencesConstants.hasAlreadyRequestedBluetoothPermission,
+      SharedPrefsService().setBool(
+          SharedPrefsKeys.hasAlreadyRequestedBluetoothPermission,
           true);
       // 블루투스 상태
       if (Platform.isIOS) {
@@ -199,20 +197,20 @@ class AppModel with ChangeNotifier {
 
   Future setInitData() async {
     await checkDeviceBiometrics();
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = SharedPrefsService();
     _hasSeenGuide =
-        prefs.getBool(SharedPreferencesConstants.hasShownStartGuide) == true;
+        prefs.getBool(SharedPrefsKeys.hasShownStartGuide) == true;
     _isPinEnabled =
-        prefs.getBool(SharedPreferencesConstants.isPinEnabled) == true;
+        prefs.getBool(SharedPrefsKeys.isPinEnabled) == true;
     _isBiometricEnabled =
-        prefs.getBool(SharedPreferencesConstants.isBiometricEnabled) == true;
+        prefs.getBool(SharedPrefsKeys.isBiometricEnabled) == true;
     _hasBiometricsPermission =
-        prefs.getBool(SharedPreferencesConstants.hasBiometricsPermission) ==
+        prefs.getBool(SharedPrefsKeys.hasBiometricsPermission) ==
             true;
     _isNotEmptyVaultList =
-        prefs.getBool(SharedPreferencesConstants.isNotEmptyVaultList) == true;
+        prefs.getBool(SharedPrefsKeys.isNotEmptyVaultList) == true;
     _hasAlreadyRequestedBioPermission = prefs.getBool(
-            SharedPreferencesConstants.hasAlreadyRequestedBioPermission) ==
+            SharedPrefsKeys.hasAlreadyRequestedBioPermission) ==
         true;
     shuffleNumbers();
 
@@ -236,15 +234,14 @@ class AppModel with ChangeNotifier {
   }
 
   Future<void> setHasSeenGuide() async {
-    final prefs = await SharedPreferences.getInstance();
     _hasSeenGuide = true;
-    prefs.setBool(SharedPreferencesConstants.hasShownStartGuide, true);
+    SharedPrefsService().setBool(SharedPrefsKeys.hasShownStartGuide, true);
     notifyListeners();
   }
 
   /// 기기의 생체인증 가능 여부 업데이트
   Future<void> checkDeviceBiometrics() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = SharedPrefsService();
     List<BiometricType> availableBiometrics = [];
 
     try {
@@ -255,11 +252,11 @@ class AppModel with ChangeNotifier {
           isEnabledBiometrics && availableBiometrics.isNotEmpty;
 
       prefs.setBool(
-          SharedPreferencesConstants.canCheckBiometrics, _canCheckBiometrics);
+          SharedPrefsKeys.canCheckBiometrics, _canCheckBiometrics);
 
       if (!_canCheckBiometrics) {
         _isBiometricEnabled = false;
-        prefs.setBool(SharedPreferencesConstants.isBiometricEnabled, false);
+        prefs.setBool(SharedPrefsKeys.isBiometricEnabled, false);
       }
 
       notifyListeners();
@@ -267,9 +264,9 @@ class AppModel with ChangeNotifier {
       // 생체 인식 기능 비활성화, 사용자가 권한 거부, 기기 하드웨어에 문제가 있는 경우, 기기 호환성 문제, 플랫폼 제한
       Logger.log(e);
       _canCheckBiometrics = false;
-      prefs.setBool(SharedPreferencesConstants.canCheckBiometrics, false);
+      prefs.setBool(SharedPrefsKeys.canCheckBiometrics, false);
       _isBiometricEnabled = false;
-      prefs.setBool(SharedPreferencesConstants.isBiometricEnabled, false);
+      prefs.setBool(SharedPrefsKeys.isBiometricEnabled, false);
       notifyListeners();
     }
   }
@@ -321,9 +318,8 @@ class AppModel with ChangeNotifier {
   /// WalletList isNotEmpty 상태 저장
   Future<void> saveNotEmptyVaultList(bool isNotEmpty) async {
     _isNotEmptyVaultList = isNotEmpty;
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool(
-        SharedPreferencesConstants.isNotEmptyVaultList, isNotEmpty);
+    await SharedPrefsService().setBool(
+        SharedPrefsKeys.isNotEmptyVaultList, isNotEmpty);
     notifyListeners();
   }
 
@@ -331,33 +327,32 @@ class AppModel with ChangeNotifier {
   Future<void> saveIsBiometricEnabled(bool value) async {
     _isBiometricEnabled = value;
     _hasBiometricsPermission = value;
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool(SharedPreferencesConstants.isBiometricEnabled, value);
+    final prefs = SharedPrefsService();
+    await prefs.setBool(SharedPrefsKeys.isBiometricEnabled, value);
     await prefs.setBool(
-        SharedPreferencesConstants.hasBiometricsPermission, value);
+        SharedPrefsKeys.hasBiometricsPermission, value);
     shuffleNumbers();
   }
 
   Future<void> _setBioRequestedInSharedPrefs() async {
     _hasAlreadyRequestedBioPermission = true;
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool(
-        SharedPreferencesConstants.hasAlreadyRequestedBioPermission, true);
+    await SharedPrefsService().setBool(
+        SharedPrefsKeys.hasAlreadyRequestedBioPermission, true);
   }
 
   /// 비밀번호 저장
   Future<void> savePin(String pin) async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = SharedPrefsService();
 
     if (_canCheckBiometrics && !_isPinEnabled) {
       _isBiometricEnabled = true;
-      prefs.setBool(SharedPreferencesConstants.isBiometricEnabled, true);
+      prefs.setBool(SharedPrefsKeys.isBiometricEnabled, true);
     }
 
     String hashed = hashString(pin);
     await _storageService.write(key: VAULT_PIN, value: hashed);
     _isPinEnabled = true;
-    prefs.setBool(SharedPreferencesConstants.isPinEnabled, true);
+    prefs.setBool(SharedPrefsKeys.isPinEnabled, true);
     shuffleNumbers();
   }
 
@@ -376,10 +371,10 @@ class AppModel with ChangeNotifier {
     _isPinEnabled = false;
 
     await _storageService.delete(key: VAULT_PIN);
-    final prefs = await SharedPreferences.getInstance();
-    prefs.setBool(SharedPreferencesConstants.isBiometricEnabled, false);
-    prefs.setBool(SharedPreferencesConstants.isPinEnabled, false);
-    prefs.setBool(SharedPreferencesConstants.isNotEmptyVaultList, false);
+    final prefs = SharedPrefsService();
+    prefs.setBool(SharedPrefsKeys.isBiometricEnabled, false);
+    prefs.setBool(SharedPrefsKeys.isPinEnabled, false);
+    prefs.setBool(SharedPrefsKeys.isNotEmptyVaultList, false);
   }
 
   void showIndicator() {
