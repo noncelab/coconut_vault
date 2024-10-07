@@ -82,10 +82,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 SingleButton(
                   title: '생체 인증 사용하기',
                   rightElement: CupertinoSwitch(
-                    value: appModel.isBiometricEnabled,
+                    value: appModel.hasBiometricsPermission
+                        ? appModel.isBiometricEnabled
+                        : false,
                     activeColor: MyColors.primary,
                     onChanged: (isOn) async {
-                      if (isOn && await appModel.authenticateWithBiometrics()) {
+                      if (isOn &&
+                          await appModel.authenticateWithBiometrics(context,
+                              isSave: true)) {
                         appModel.saveIsBiometricEnabled(true);
                       } else {
                         appModel.saveIsBiometricEnabled(false);

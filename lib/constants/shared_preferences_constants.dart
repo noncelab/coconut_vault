@@ -4,4 +4,9 @@ class SharedPreferencesConstants {
   static const String isBiometricEnabled = "IS_BIOMETRIC_ENABLED";
   static const String isNotEmptyVaultList = "IS_NOT_EMPTY_VAULT_LIST";
   static const String isPinEnabled = "IS_PIN_ENABLED";
+  static const String hasAlreadyRequestedBluetoothPermission =
+      "HAS_ALREADY_REQUESTED_BLUETOOTH_PERMISSION";
+  static const String hasAlreadyRequestedBioPermission =
+      "HAS_ALREADY_REQUESTED_BIO_PERMISSION";
+  static const String hasBiometricsPermission = "HAS_BIOMETRICS_PERMISSION";
 }

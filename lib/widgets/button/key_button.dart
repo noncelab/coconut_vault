@@ -42,6 +42,10 @@ class _KeyButtonState extends State<KeyButton> {
           setState(() {
             _isFaceRecognition = true;
           });
+        } else if (availableBiometrics.contains(BiometricType.fingerprint)) {
+          setState(() {
+            _isFaceRecognition = false;
+          });
         }
       } else {
         // aos fingerprint included case
