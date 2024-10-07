@@ -2,10 +2,6 @@ import 'dart:async';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class SharedPrefsService {
-  static const String kHasShownStartGuide = "HAS_SHOWN_START_GUIDE";
-  static const String kIsPinEnabled = "IS_PIN_ENABLED";
-  static const String kIsNotEmptyVaultList = "IS_NOT_EMPTY_VAULT_LIST";
-
   late SharedPreferences _sharedPrefs;
   SharedPreferences get sharedPrefs => _sharedPrefs;
 
@@ -33,16 +29,16 @@ class SharedPrefsService {
     await _sharedPrefs.remove(key);
   }
 
-  bool getBool(String key) {
-    return _sharedPrefs.getBool(key) ?? false;
+  bool? getBool(String key) {
+    return _sharedPrefs.getBool(key);
   }
 
   Future setBool(String key, bool value) async {
     await _sharedPrefs.setBool(key, value);
   }
 
-  int getInt(String key) {
-    return _sharedPrefs.getInt(key) ?? 0;
+  int? getInt(String key) {
+    return _sharedPrefs.getInt(key);
   }
 
   Future setInt(String key, int value) async {

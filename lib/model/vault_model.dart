@@ -1,8 +1,9 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:coconut_vault/services/shared_preferences_keys.dart';
+import 'package:coconut_vault/services/shared_preferences_service.dart';
 import 'package:flutter/foundation.dart';
-import 'package:coconut_vault/constants/shared_preferences_constants.dart';
 import 'package:coconut_vault/model/app_model.dart';
 import 'package:coconut_vault/services/isolate_service.dart';
 import 'package:coconut_vault/utils/isolate_handler.dart';
@@ -225,9 +226,8 @@ class VaultModel extends ChangeNotifier {
     await _storageService.write(key: VAULT_LIST, value: jsonString);
     _realmService.updateKeyValue(key: VAULT_LIST, value: jsonString);
 
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool(
-        SharedPreferencesConstants.isNotEmptyVaultList, _vaultList.isNotEmpty);
+    await SharedPrefsService().setBool(
+        SharedPrefsKeys.isNotEmptyVaultList, _vaultList.isNotEmpty);
     _appModel.saveNotEmptyVaultList(_vaultList.isNotEmpty);
   }
 
