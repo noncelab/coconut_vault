@@ -1,5 +1,5 @@
-import 'dart:io';
-
+import 'package:coconut_vault/services/shared_preferences_keys.dart';
+import 'package:coconut_vault/services/shared_preferences_service.dart';
 import 'package:flutter/material.dart';
 import 'package:coconut_vault/model/app_model.dart';
 import 'package:coconut_vault/styles.dart';
@@ -11,7 +11,6 @@ import 'package:coconut_vault/widgets/pin/pin_input_screen.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import '../constants/shared_preferences_constants.dart';
 import '../widgets/custom_dialog.dart';
 
 class PinSettingScreen extends StatefulWidget {
@@ -123,9 +122,8 @@ class _PinSettingScreenState extends State<PinSettingScreen> {
         errorMessage = '';
 
         /// 최초 비밀번호 설정시에 생체 인증 사용 여부 확인
-        final prefs = await SharedPreferences.getInstance();
         bool isPinSet =
-            prefs.getBool(SharedPreferencesConstants.isPinEnabled) ?? false;
+            SharedPrefsService().getBool(SharedPrefsKeys.isPinEnabled) ?? false;
         if (!isPinSet &&
             !_appModel.hasAlreadyRequestedBioPermission &&
             mounted) {

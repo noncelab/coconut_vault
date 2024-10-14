@@ -151,8 +151,8 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
               height: 20,
             ),
             CupertinoButton(
-                onPressed: () async {
-                  await _appModel.setConnectActivity(bluetooth: true, network: false, developerMode: false);
+                onPressed: () {
+                  _appModel.setConnectActivity(bluetooth: true, network: false, developerMode: false);
                   Navigator.pushNamed(context, '/connectivity-guide');
                 },
                 child: Text(
