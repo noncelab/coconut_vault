@@ -46,13 +46,12 @@ class AppModel with ChangeNotifier {
 
   static const MethodChannel _channel = MethodChannel(methodChannelOS);
 
-
   /// 보안상의 이유로 기기가 네트워크, 블루투스, 개발자 모드가 켜져있을 때 볼트 사용을 막아야 합니다.
   /// 따라서 위 요소들의 상태를 모니터링합니다.
   /// 앱 실행 후 최초 1번만 구독 되도록 호출해야 합니다. (! 별도 체크 로직은 없음)
-  /// 
+  ///
   /// 매개변수로 모니터링 할 요소를 선택할 수 있습니다.
-  /// 
+  ///
   /// * 단, iOS에서는 개발자모드 여부를 제공하지 않기 때문에 제외합니다.
   void setConnectActivity(
       {required bool network,
@@ -60,8 +59,7 @@ class AppModel with ChangeNotifier {
       required bool developerMode}) {
     if (bluetooth) {
       SharedPrefsService().setBool(
-          SharedPrefsKeys.hasAlreadyRequestedBluetoothPermission,
-          true);
+          SharedPrefsKeys.hasAlreadyRequestedBluetoothPermission, true);
       // 블루투스 상태
       if (Platform.isIOS) {
         // showPowerAlert: false 설정 해줘야, 앱 재접속 시 블루투스 권한 없을 때 CBCentralManagerOptionShowPowerAlertKey 관련 prompt가 뜨지 않음
@@ -198,20 +196,16 @@ class AppModel with ChangeNotifier {
   Future setInitData() async {
     await checkDeviceBiometrics();
     final prefs = SharedPrefsService();
-    _hasSeenGuide =
-        prefs.getBool(SharedPrefsKeys.hasShownStartGuide) == true;
-    _isPinEnabled =
-        prefs.getBool(SharedPrefsKeys.isPinEnabled) == true;
+    _hasSeenGuide = prefs.getBool(SharedPrefsKeys.hasShownStartGuide) == true;
+    _isPinEnabled = prefs.getBool(SharedPrefsKeys.isPinEnabled) == true;
     _isBiometricEnabled =
         prefs.getBool(SharedPrefsKeys.isBiometricEnabled) == true;
     _hasBiometricsPermission =
-        prefs.getBool(SharedPrefsKeys.hasBiometricsPermission) ==
-            true;
+        prefs.getBool(SharedPrefsKeys.hasBiometricsPermission) == true;
     _isNotEmptyVaultList =
         prefs.getBool(SharedPrefsKeys.isNotEmptyVaultList) == true;
-    _hasAlreadyRequestedBioPermission = prefs.getBool(
-            SharedPrefsKeys.hasAlreadyRequestedBioPermission) ==
-        true;
+    _hasAlreadyRequestedBioPermission =
+        prefs.getBool(SharedPrefsKeys.hasAlreadyRequestedBioPermission) == true;
     shuffleNumbers();
 
     /// true 인 경우, 첫 실행이 아님
@@ -251,8 +245,7 @@ class AppModel with ChangeNotifier {
       _canCheckBiometrics =
           isEnabledBiometrics && availableBiometrics.isNotEmpty;
 
-      prefs.setBool(
-          SharedPrefsKeys.canCheckBiometrics, _canCheckBiometrics);
+      prefs.setBool(SharedPrefsKeys.canCheckBiometrics, _canCheckBiometrics);
 
       if (!_canCheckBiometrics) {
         _isBiometricEnabled = false;
@@ -277,7 +270,8 @@ class AppModel with ChangeNotifier {
     bool authenticated = false;
     try {
       authenticated = await _auth.authenticate(
-      localizedReason: '잠금 해제 시 생체 인증을 사용하시겠습니까?', // 이 문구는 aos, iOS(touch ID)에서 사용됩니다. ios face ID는 info.plist string을 사용합니다.
+        localizedReason:
+            '잠금 해제 시 생체 인증을 사용하시겠습니까?', // 이 문구는 aos, iOS(touch ID)에서 사용됩니다. ios face ID는 info.plist string을 사용합니다.
         options: const AuthenticationOptions(
           stickyAuth: true,
           biometricOnly: true,
@@ -318,8 +312,8 @@ class AppModel with ChangeNotifier {
   /// WalletList isNotEmpty 상태 저장
   Future<void> saveNotEmptyVaultList(bool isNotEmpty) async {
     _isNotEmptyVaultList = isNotEmpty;
-    await SharedPrefsService().setBool(
-        SharedPrefsKeys.isNotEmptyVaultList, isNotEmpty);
+    await SharedPrefsService()
+        .setBool(SharedPrefsKeys.isNotEmptyVaultList, isNotEmpty);
     notifyListeners();
   }
 
@@ -329,15 +323,14 @@ class AppModel with ChangeNotifier {
     _hasBiometricsPermission = value;
     final prefs = SharedPrefsService();
     await prefs.setBool(SharedPrefsKeys.isBiometricEnabled, value);
-    await prefs.setBool(
-        SharedPrefsKeys.hasBiometricsPermission, value);
+    await prefs.setBool(SharedPrefsKeys.hasBiometricsPermission, value);
     shuffleNumbers();
   }
 
   Future<void> _setBioRequestedInSharedPrefs() async {
     _hasAlreadyRequestedBioPermission = true;
-    await SharedPrefsService().setBool(
-        SharedPrefsKeys.hasAlreadyRequestedBioPermission, true);
+    await SharedPrefsService()
+        .setBool(SharedPrefsKeys.hasAlreadyRequestedBioPermission, true);
   }
 
   /// 비밀번호 저장

@@ -16,7 +16,6 @@ import 'package:coconut_vault/screens/vault_detail/address_list_screen.dart';
 import 'package:coconut_vault/screens/vault_detail/sync_to_wallet_screen.dart';
 import 'package:coconut_vault/screens/vault_detail/vault_detail_screen.dart';
 import 'package:coconut_vault/screens/vault_detail/vault_settings.dart';
-import 'package:coconut_vault/utils/logger.dart';
 import 'package:coconut_vault/utils/router_util.dart';
 import 'package:coconut_vault/vault_list_tab.dart';
 import 'package:flutter/cupertino.dart';

@@ -2,7 +2,7 @@ import 'dart:io';
 
 import 'package:coconut_vault/app.dart';
 import 'package:coconut_vault/screens/pin_check_screen.dart';
-import 'package:coconut_vault/utils/logger.dart';
+import 'package:coconut_vault/widgets/coconut_dropdown.dart';
 import 'package:flutter/material.dart';
 import 'package:coconut_vault/model/app_model.dart';
 import 'package:coconut_vault/screens/setting/settings_screen.dart';
@@ -13,7 +13,6 @@ import 'package:coconut_vault/widgets/custom_tooltip.dart';
 import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:provider/provider.dart';
-import 'package:shimmer/shimmer.dart';
 
 import 'model/vault_model.dart';
 import 'widgets/vault_row_item.dart';
@@ -33,6 +32,7 @@ class _VaultListTabState extends State<VaultListTab>
     with WidgetsBindingObserver {
   late AppModel _appModel;
   late VaultModel _vaultModel;
+  bool _isSeeMoreDropdown = false;
 
   DateTime? _lastPressedAt;
 
@@ -104,15 +104,21 @@ class _VaultListTabState extends State<VaultListTab>
                 }
               }
             },
-            child: Container(
-              color: MyColors.lightgrey,
-              child: Stack(
+            child: Scaffold(
+              backgroundColor: MyColors.lightgrey,
+              body: Stack(
                 children: [
                   CustomScrollView(
                     semanticChildCount:
                         model.isVaultListLoading ? 1 : vaults.length,
                     slivers: <Widget>[
-                      const FrostedAppBar(),
+                      FrostedAppBar(
+                        onTapSeeMore: () {
+                          setState(() {
+                            _isSeeMoreDropdown = true;
+                          });
+                        },
+                      ),
                       SliverPadding(
                         padding: const EdgeInsets.symmetric(horizontal: 8),
                         sliver: SliverList.builder(
@@ -144,6 +150,50 @@ class _VaultListTabState extends State<VaultListTab>
                         ),
                       ),
                     ],
+                  ),
+                  Visibility(
+                    visible: _isSeeMoreDropdown,
+                    child: Stack(
+                      children: [
+                        GestureDetector(
+                          onTapDown: (details) {
+                            setState(() {
+                              _isSeeMoreDropdown = false;
+                            });
+                          },
+                          child: Container(
+                            width: double.maxFinite,
+                            height: double.maxFinite,
+                            color: Colors.transparent,
+                          ),
+                        ),
+                        Align(
+                          alignment: Alignment.topRight,
+                          child: CoconutDropdown(
+                            buttons: const ['니모닉 문구 단어집', '설정', '앱 정보 보기'],
+                            onTapButton: (index) {
+                              setState(() {
+                                _isSeeMoreDropdown = false;
+                              });
+                              switch (index) {
+                                case 0: // 니모닉 문구 단어집
+                                  Navigator.pushNamed(
+                                      context, '/mnemonic-word-list');
+                                  break;
+                                case 1: // 설정
+                                  MyBottomSheet.showBottomSheet_90(
+                                      context: context,
+                                      child: const SettingsScreen());
+                                  break;
+                                case 2: // 앱 정보 보기
+                                  Navigator.pushNamed(context, '/app-info');
+                                  break;
+                              }
+                            },
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                   Visibility(
                       visible: vaultListLoading,
