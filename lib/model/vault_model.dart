@@ -9,7 +9,6 @@ import 'package:coconut_vault/services/isolate_service.dart';
 import 'package:coconut_vault/utils/isolate_handler.dart';
 import 'package:coconut_vault/utils/logger.dart';
 import 'package:coconut_vault/utils/vibration_util.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 import '../services/realm_service.dart';
 import '../services/secure_storage_service.dart';
@@ -226,8 +225,8 @@ class VaultModel extends ChangeNotifier {
     await _storageService.write(key: VAULT_LIST, value: jsonString);
     _realmService.updateKeyValue(key: VAULT_LIST, value: jsonString);
 
-    await SharedPrefsService().setBool(
-        SharedPrefsKeys.isNotEmptyVaultList, _vaultList.isNotEmpty);
+    await SharedPrefsService()
+        .setBool(SharedPrefsKeys.isNotEmptyVaultList, _vaultList.isNotEmpty);
     _appModel.saveNotEmptyVaultList(_vaultList.isNotEmpty);
   }
 

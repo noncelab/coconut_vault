@@ -152,7 +152,8 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
             ),
             CupertinoButton(
                 onPressed: () {
-                  _appModel.setConnectActivity(bluetooth: true, network: false, developerMode: false);
+                  _appModel.setConnectActivity(
+                      bluetooth: true, network: false, developerMode: false);
                   Navigator.pushNamed(context, '/connectivity-guide');
                 },
                 child: Text(

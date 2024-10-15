@@ -7,14 +7,14 @@ import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:coconut_vault/model/app_model.dart';
 import 'package:coconut_vault/screens/pin_setting_screen.dart';
-import 'package:coconut_vault/screens/setting/settings_screen.dart';
 import 'package:coconut_vault/styles.dart';
 import 'package:coconut_vault/widgets/bottom_sheet.dart';
 import 'package:coconut_vault/widgets/label_testnet.dart';
 import 'package:provider/provider.dart';
 
 class FrostedAppBar extends StatefulWidget {
-  const FrostedAppBar({super.key});
+  final Function onTapSeeMore;
+  const FrostedAppBar({super.key, required this.onTapSeeMore});
 
   @override
   State<FrostedAppBar> createState() => _FrostedAppBarState();
@@ -143,8 +143,7 @@ class _FrostedAppBarState extends State<FrostedAppBar> {
                       child: IconButton(
                         icon: const Icon(CupertinoIcons.ellipsis, size: 18),
                         onPressed: () {
-                          MyBottomSheet.showBottomSheet_90(
-                              context: context, child: const SettingsScreen());
+                          widget.onTapSeeMore.call();
                         },
                         color: MyColors.darkgrey,
                       ),

@@ -2,7 +2,6 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 abstract class MyColors {
@@ -61,6 +60,8 @@ abstract class MyColors {
   static const skeletonHighlightColor = Color.fromARGB(255, 245, 245, 245);
 
   static const cyanblue = Color.fromRGBO(69, 204, 238, 1);
+
+  static const Color dropdownGrey = Color(0xFFEBEBEC);
 }
 
 // LIGHT MODE

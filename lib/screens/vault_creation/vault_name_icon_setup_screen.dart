@@ -6,7 +6,6 @@ import 'package:flutter/material.dart';
 import 'package:coconut_vault/widgets/appbar/custom_appbar.dart';
 import 'package:coconut_vault/widgets/custom_toast.dart';
 import 'package:coconut_vault/widgets/vault_name_icon_edit_palette.dart';
-import 'package:flutter/scheduler.dart';
 import 'package:provider/provider.dart';
 
 import '../../model/vault_model.dart';
