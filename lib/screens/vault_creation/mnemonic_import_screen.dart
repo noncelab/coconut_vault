@@ -1,3 +1,4 @@
+import 'package:coconut_lib/coconut_lib.dart';
 import 'package:coconut_vault/utils/lower_case_text_input_formatter.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -32,7 +33,7 @@ class _MnemonicImportState extends State<MnemonicImport> {
   bool isNextButtonActive = false;
   bool isValid = true;
   bool isFinishing = false;
-  String errorMessage = '';
+  String? errorMessage = null;
 
   final TextEditingController _mnemonicController = TextEditingController();
   final TextEditingController _passphraseController = TextEditingController();
@@ -45,13 +46,48 @@ class _MnemonicImportState extends State<MnemonicImport> {
       if (isMnemonicValid != null) {
         setState(() {
           isMnemonicValid = null;
+          errorMessage = null;
         });
       }
       return;
     }
 
-    List<String> words = inputText.trim().split(RegExp(r'\s+'));
-    if (words.length < 12 || (words.length > 12 && words.length < 24)) {
+    String normalizedInputText =
+        inputText.trim().replaceAll(RegExp(r'\s+'), ' ');
+    List<String> words = normalizedInputText.split(' ');
+    List<String> filtered = [];
+
+    for (int i = 0; i < words.length; i++) {
+      // 유효 길이 미만의 마지막 입력 중인 단어는 유효성 체크에서 임시로 제외
+      if (i == words.length - 1 &&
+          !inputText.endsWith(' ') &&
+          (i != 11 && i != 14 && i != 17 && i != 20 && i != 23)) {
+        continue;
+      }
+
+      // bip-39에 없는 단어가 있으면, 목록에 추가
+      if (!WalletUtility.isInMnemonicWordList(words[i])) {
+        filtered.add(words[i]);
+      }
+    }
+
+    if (filtered.isNotEmpty) {
+      setState(() {
+        isMnemonicValid = false;
+        errorMessage = '잘못된 단어예요. $filtered';
+      });
+      return;
+    } else {
+      isMnemonicValid = null;
+      errorMessage = null;
+    }
+
+    // 유효한 길이가 아닌 니모닉 문구는 검증하지 않음
+    if (words.length < 12 ||
+        (words.length > 12 && words.length < 15) ||
+        (words.length > 15 && words.length < 18) ||
+        (words.length > 18 && words.length < 21) ||
+        (words.length > 21 && words.length < 24)) {
       if (isMnemonicValid != null) {
         setState(() {
           isMnemonicValid = null;
@@ -61,12 +97,11 @@ class _MnemonicImportState extends State<MnemonicImport> {
     }
 
     // 12자리 또는 24자리 일 때 검증
-    //setState(() {
     inputText = inputText.toLowerCase().replaceAll(RegExp(r'\s+'), ' ').trim();
-    //});
 
     if (words.last.length < 3) {
       isMnemonicValid = null;
+      errorMessage = null;
       return;
     }
 
@@ -218,7 +253,7 @@ class _MnemonicImportState extends State<MnemonicImport> {
                         maxLines: 5,
                         padding: const EdgeInsets.fromLTRB(16, 20, 16, 20),
                         valid: isMnemonicValid,
-                        errorMessage: '잘못된 니모닉 문구예요'),
+                        errorMessage: errorMessage ?? '잘못된 니모닉 문구예요'),
                     const SizedBox(height: 30),
                     Row(
                       children: [

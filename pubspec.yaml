@@ -45,13 +45,17 @@ dependencies:
   flutter_secure_storage: ^9.0.0
   json_annotation: ^4.9.0
   shared_preferences: ^2.2.2
-  coconut_lib: ^0.6.1
+#  coconut_lib: ^0.6.2
+  coconut_lib:
+    git:
+      url: https://github.com/noncelab/coconut_lib.git
+      ref: v0.6.2
   fluttertoast: ^8.2.4
   realm: ^3.1.0
   qr_flutter: ^4.1.0
   qr_code_scanner: ^1.0.1
   flutter_svg: ^2.0.10+1
-  carousel_slider: ^4.2.1
+  carousel_slider: ^5.0.0
   convert: ^3.1.1
   connectivity_plus: ^6.0.3
   flutter_blue_plus: ^1.32.7
