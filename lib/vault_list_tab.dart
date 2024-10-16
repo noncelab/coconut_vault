@@ -3,13 +3,13 @@ import 'dart:io';
 import 'package:coconut_vault/app.dart';
 import 'package:coconut_vault/screens/pin_check_screen.dart';
 import 'package:coconut_vault/widgets/coconut_dropdown.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:coconut_vault/model/app_model.dart';
 import 'package:coconut_vault/screens/setting/settings_screen.dart';
 import 'package:coconut_vault/styles.dart';
 import 'package:coconut_vault/widgets/appbar/frosted_appbar.dart';
 import 'package:coconut_vault/widgets/bottom_sheet.dart';
-import 'package:coconut_vault/widgets/custom_tooltip.dart';
 import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:provider/provider.dart';
@@ -130,18 +130,64 @@ class _VaultListTabState extends State<VaultListTab>
 
                             if (index == vaults.length && vaults.isEmpty) {
                               if (!vaultListLoading) {
-                                return CustomTooltip(
-                                    richText: RichText(
-                                        text: TextSpan(
-                                            text:
-                                                '안녕하세요. 코코넛 볼트예요!\n\n오른쪽 위 + 버튼을 눌러 니모닉 문구를 추가해 주세요.',
-                                            style: Styles.subLabel.merge(
-                                                const TextStyle(
-                                                    fontFamily: 'Pretendard',
-                                                    color:
-                                                        MyColors.darkgrey)))),
-                                    showIcon: true,
-                                    type: TooltipType.normal);
+                                return Container(
+                                  width: double.maxFinite,
+                                  decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(16),
+                                      color: MyColors.white),
+                                  padding: const EdgeInsets.only(
+                                      top: 26, bottom: 24, left: 26, right: 26),
+                                  margin:
+                                      const EdgeInsets.symmetric(horizontal: 8),
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      const Text(
+                                        '지갑을 추가해 주세요',
+                                        style: TextStyle(
+                                            fontFamily: 'Pretendard',
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.bold,
+                                            color: MyColors.black),
+                                      ),
+                                      const Text(
+                                        '오른쪽 위 + 버튼을 눌러도 추가할 수 있어요',
+                                        style: TextStyle(
+                                            fontFamily: 'Pretendard',
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.normal,
+                                            color: MyColors.black),
+                                      ),
+                                      const SizedBox(height: 16),
+                                      CupertinoButton(
+                                        onPressed: () {
+                                          Navigator.pushNamed(context,
+                                              '/vault-creation-options');
+                                        },
+                                        borderRadius: BorderRadius.circular(10),
+                                        padding: EdgeInsets.zero,
+                                        color: MyColors.primary,
+                                        child: Container(
+                                          padding: const EdgeInsets.symmetric(
+                                            horizontal: 28,
+                                            vertical: 12,
+                                          ),
+                                          child: Text(
+                                            '바로 추가하기',
+                                            style: Styles.label.merge(
+                                              const TextStyle(
+                                                color: MyColors.black,
+                                                fontWeight: FontWeight.w700,
+                                                fontSize: 12,
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                );
                               }
                             }
 
