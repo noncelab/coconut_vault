@@ -9,7 +9,6 @@ import 'package:coconut_vault/model/vault_model.dart';
 import 'package:coconut_vault/model/app_model.dart';
 import 'package:coconut_vault/screens/pin_setting_screen.dart';
 import 'package:coconut_vault/styles.dart';
-import 'package:coconut_vault/utils/vibration_util.dart';
 import 'package:coconut_vault/widgets/custom_dialog.dart';
 import 'package:coconut_vault/widgets/bottom_sheet.dart';
 import 'package:coconut_vault/services/pin_attempt_service.dart';
@@ -87,10 +86,6 @@ class _PinCheckScreenState extends State<PinCheckScreen>
     errorMessage = '';
     _loadAttemptCountFromStorage();
     _checkPinLocked();
-
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _checkBiometrics();
-    });
   }
 
   void _loadAttemptCountFromStorage() async {
@@ -109,36 +104,16 @@ class _PinCheckScreenState extends State<PinCheckScreen>
       _isPause = true;
     } else if (AppLifecycleState.resumed == state && _isPause) {
       _isPause = false;
-      _checkBiometrics();
     }
   }
 
-  /// vault_list_tab screen, this screen pause -> Bio 체크
-  void _checkBiometrics() async {
-    if (widget.screenStatus == PinCheckScreenStatus.lock) {
-      /// 생체인증 정보 체크
-      await _appModel.setInitData();
-    }
-
-    _appModel.shuffleNumbers();
-
-    if (_appModel.isBiometricEnabled && _appModel.canCheckBiometrics) {
-      _verifyBiometric();
-    }
-  }
 
   void moveToMain() async {
-    await _appModel.checkDeviceBiometrics();
     Navigator.pushNamedAndRemoveUntil(
         context, '/', (Route<dynamic> route) => false);
   }
 
   void _onKeyTap(String value) async {
-    // if (value != '<' && value != 'bio' && value != '') vibrateShort();
-    if (value == 'bio') {
-      _verifyBiometric();
-      return;
-    }
 
     if ((widget.screenStatus == PinCheckScreenStatus.entrance ||
             widget.screenStatus == PinCheckScreenStatus.lock) &&
@@ -162,13 +137,6 @@ class _PinCheckScreenState extends State<PinCheckScreen>
     });
   }
 
-  void _verifyBiometric() async {
-    if (await _appModel.authenticateWithBiometrics(context,
-        showAuthenticationFailedDialog: false)) {
-      _verifySwitch();
-    }
-  }
-
   void _verifyPin() async {
     if (await _appModel.verifyPin(pin)) {
       context.loaderOverlay.hide();
@@ -184,15 +152,12 @@ class _PinCheckScreenState extends State<PinCheckScreen>
             errorMessage = '${MAX_NUMBER_OF_ATTEMPTS - attempt}번 다시 시도할 수 있어요';
           });
           _appModel.shuffleNumbers();
-          vibrateMediumDouble();
         } else {
-          vibrateMedium();
           _checkPinLockout();
         }
       } else {
         errorMessage = '비밀번호가 일치하지 않아요';
         _appModel.shuffleNumbers();
-        vibrateMediumDouble();
       }
       setState(() {
         pin = '';
@@ -323,7 +288,6 @@ class _PinCheckScreenState extends State<PinCheckScreen>
   void _verifySwitch() {
     switch (widget.screenStatus) {
       case PinCheckScreenStatus.entrance:
-        _appModel.changeIsAuthChecked(true);
         _pinAttemptService.setLockoutDuration(0);
         _pinAttemptService.setPinAttemptTimes(0);
         widget.onComplete?.call();

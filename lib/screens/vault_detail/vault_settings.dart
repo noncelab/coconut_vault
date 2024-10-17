@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:coconut_lib/coconut_lib.dart';
-import 'package:coconut_vault/utils/vibration_util.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:coconut_vault/model/app_model.dart';
@@ -185,7 +184,6 @@ class _VaultSettingsState extends State<VaultSettings> {
       default:
         {
           _vaultModel.deleteVault(int.parse(widget.id));
-          vibrateLight();
           Navigator.popUntil(context, (route) => route.isFirst);
         }
     }

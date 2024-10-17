@@ -61,6 +61,8 @@ class PowVaultApp extends StatefulWidget {
 }
 
 class _PowVaultAppState extends State<PowVaultApp> {
+  HomeScreen homeScreen = HomeScreen.splash;
+
   Widget getHomeScreenRoute(HomeScreen status) {
     if (status == HomeScreen.splash) {
       return StartScreen(onComplete: (status) {

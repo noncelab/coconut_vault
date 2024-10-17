@@ -3,7 +3,6 @@ import 'package:coconut_vault/services/shared_preferences_service.dart';
 import 'package:flutter/material.dart';
 import 'package:coconut_vault/model/app_model.dart';
 import 'package:coconut_vault/styles.dart';
-import 'package:coconut_vault/utils/vibration_util.dart';
 import 'package:coconut_vault/widgets/animated_dialog.dart';
 import 'package:coconut_vault/widgets/appbar/custom_appbar.dart';
 import 'package:coconut_vault/widgets/button/custom_buttons.dart';
@@ -53,11 +52,8 @@ class _PinSettingScreenState extends State<PinSettingScreen> {
       }
     });
     if (isError) {
-      vibrateMedium();
       return;
     }
-
-    vibrateMediumDouble();
   }
 
   Future<bool> _comparePin(String input) async {
@@ -115,20 +111,11 @@ class _PinSettingScreenState extends State<PinSettingScreen> {
           errorMessage = '비밀번호가 일치하지 않아요';
           pinConfirm = '';
           _appModel.shuffleNumbers(isSettings: true);
-          vibrateMediumDouble();
           return;
         }
 
         errorMessage = '';
 
-        /// 최초 비밀번호 설정시에 생체 인증 사용 여부 확인
-        bool isPinSet =
-            SharedPrefsService().getBool(SharedPrefsKeys.isPinEnabled) ?? false;
-        if (!isPinSet &&
-            !_appModel.hasAlreadyRequestedBioPermission &&
-            mounted) {
-          await _appModel.authenticateWithBiometrics(context, isSave: true);
-        }
 
         _finishPinSetting();
       }
@@ -136,7 +123,6 @@ class _PinSettingScreenState extends State<PinSettingScreen> {
   }
 
   void _finishPinSetting() async {
-    vibrateLight();
     showGeneralDialog(
       context: context,
       barrierDismissible: false,

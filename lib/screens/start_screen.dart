@@ -26,7 +26,8 @@ class _StartScreenState extends State<StartScreen> {
   void initState() {
     super.initState();
     _hasSeenGuide =
-        SharedPrefsService().getBool(SharedPrefsKeys.hasShownStartGuide) ?? false;
+        SharedPrefsService().getBool(SharedPrefsKeys.hasShownStartGuide) ??
+            false;
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       /// Splash 딜레이
       await Future.delayed(const Duration(seconds: 2));
@@ -34,6 +35,8 @@ class _StartScreenState extends State<StartScreen> {
       /// 한번도 튜토리얼을 보지 않은 경우
       if (!_hasSeenGuide) {
         _goTutorialScreen();
+      } else {
+        _goNextScreen();
       }
     });
   }
@@ -42,7 +45,8 @@ class _StartScreenState extends State<StartScreen> {
     await Future.delayed(const Duration(seconds: 2));
 
     bool isNotEmpty =
-        SharedPrefsService().getBool(SharedPrefsKeys.isNotEmptyVaultList) ?? false;
+        SharedPrefsService().getBool(SharedPrefsKeys.isNotEmptyVaultList) ??
+            false;
     bool isPinEnabled =
         SharedPrefsService().getBool(SharedPrefsKeys.isPinEnabled) ?? false;
 
@@ -56,10 +60,10 @@ class _StartScreenState extends State<StartScreen> {
   }
 
   Future _goTutorialScreen() async {
-    if (Platform.isIOS) {
-      // iOS는 앱을 삭제해도 secure storage에 데이터가 남아있음
-      await SecureStorageService().deleteAll();
-    }
+    // if (Platform.isIOS) {
+    //   // iOS는 앱을 삭제해도 secure storage에 데이터가 남아있음
+    //   await SecureStorageService().deleteAll();
+    // }
     widget.onComplete(HomeScreen.tutorial); // 가이드
   }
 
@@ -76,45 +80,6 @@ class _StartScreenState extends State<StartScreen> {
               ),
             ),
           ),
-          Selector<AppModel, Map<String, bool?>>(
-            selector: (context, provider) => {
-              'isNetworkOn': provider.isNetworkOn,
-              'isBluetoothOn': provider.isBluetoothOn,
-              'isDeveloperModeOn': provider.isDeveloperModeOn,
-            },
-            builder: (context, selectedValues, child) {
-              if (!_hasSeenGuide) {
-                return Container();
-              }
-
-              final isNetworkOn = selectedValues['isNetworkOn'];
-              final isBluetoothOn = selectedValues['isBluetoothOn'];
-              final isDeveloperModeOn = selectedValues['isDeveloperModeOn'];
-
-              bool hasConnectivitySet = isNetworkOn != null &&
-                  isBluetoothOn != null &&
-                  isDeveloperModeOn != null;
-              // 아직 연결 상태 체크가 완료되지 않음
-              if (!hasConnectivitySet) return Container();
-
-              // 연결 상태 체크 완료
-              bool isConnectivityOn = true;
-              if (Platform.isAndroid) {
-                isConnectivityOn =
-                    isNetworkOn || isBluetoothOn || isDeveloperModeOn;
-              } else {
-                isConnectivityOn = isNetworkOn || isBluetoothOn;
-              }
-
-              if (!isConnectivityOn) {
-                WidgetsBinding.instance.addPostFrameCallback((_) {
-                  _goNextScreen();
-                });
-              }
-
-              return Container();
-            },
-          )
         ],
       ),
     );

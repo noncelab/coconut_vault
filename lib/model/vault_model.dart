@@ -5,13 +5,8 @@ import 'package:coconut_vault/services/shared_preferences_keys.dart';
 import 'package:coconut_vault/services/shared_preferences_service.dart';
 import 'package:flutter/foundation.dart';
 import 'package:coconut_vault/model/app_model.dart';
-import 'package:coconut_vault/services/isolate_service.dart';
 import 'package:coconut_vault/utils/isolate_handler.dart';
 import 'package:coconut_vault/utils/logger.dart';
-import 'package:coconut_vault/utils/vibration_util.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-
-import '../services/realm_service.dart';
 import '../services/secure_storage_service.dart';
 import 'vault_list_item.dart';
 
@@ -21,7 +16,6 @@ const String VAULT_LIST = "VAULT_LIST";
 class VaultModel extends ChangeNotifier {
   AppModel _appModel;
   late final SecureStorageService _storageService;
-  late final RealmService _realmService;
 
   // 비동기 작업 Isolate
   IsolateHandler<void, List<VaultListItem>>? _vaultListIsolateHandler;
@@ -30,7 +24,6 @@ class VaultModel extends ChangeNotifier {
 
   VaultModel(this._appModel) {
     _storageService = SecureStorageService();
-    _realmService = RealmService();
     // loadVaultList();
     //_initializeServicesAndHandler();
   }
@@ -48,6 +41,8 @@ class VaultModel extends ChangeNotifier {
   bool get isVaultListLoading => _isVaultListLoading; // 상태 접근자 추가
   // double get vaultListLoadingProgress => _vaultListLoadingProgress;
   // static int itemSize = 0;
+  bool _vaultInitialized = false;
+  bool get vaultInitialized => _vaultInitialized;
 
   // addVault
   bool _isAddVaultCompleted = false;
@@ -76,7 +71,6 @@ class VaultModel extends ChangeNotifier {
   /// pin or biometric 인증 실패후 지갑 초기화
   Future<void> resetVault() async {
     await _storageService.deleteAll();
-    _realmService.deleteAll();
     _importingSecret = null;
     _importingPassphrase = '';
     _waitingForSignaturePsbtBase64 = null;
@@ -105,22 +99,22 @@ class VaultModel extends ChangeNotifier {
 
   Future<void> addVault(Map<String, dynamic> vaultData) async {
     _setAddVaultCompleted(false);
-    if (_addVaultIsolateHandler == null) {
-      _addVaultIsolateHandler =
-          IsolateHandler<Map<String, dynamic>, List<VaultListItem>>(
-              addVaultIsolate);
-      await _addVaultIsolateHandler!
-          .initialize(initialType: InitializeType.addVault);
-    }
+    // web에서는 Isolate를 지원하지 않으므로,
+    // vaultData를 이용해서 새로운 vaultListResult를 만들어야 합니다.
+    VaultListItem newItem = await VaultListItem.create(
+      name: vaultData['inputText'],
+      colorIndex: vaultData['selectedIconIndex'],
+      iconIndex: vaultData['selectedColorIndex'],
+      secret: vaultData['importingSecret'],
+      passphrase: vaultData['importingPassphrase'],
+    );
 
-    final vaultListResult =
-        await _addVaultIsolateHandler!.runAddVault(vaultData);
-    _vaultList.addAll(vaultListResult);
+    _vaultList.addAll([newItem]);
     _setAddVaultCompleted(true);
     await updateVaultInStorage();
+
     notifyListeners();
     stopImporting();
-    // vibrateLight();
   }
 
   Future<void> updateVault(
@@ -177,18 +171,19 @@ class VaultModel extends ChangeNotifier {
 
     _setVaultListLoading(true);
     try {
-      if (_vaultListIsolateHandler == null) {
-        _vaultListIsolateHandler =
-            IsolateHandler<void, List<VaultListItem>>(_loadVaultListIsolate);
-        await _vaultListIsolateHandler!.initialize();
+      List<VaultListItem> vaultList = [];
+      String? jsonArrayString = await _storageService.read(key: VAULT_LIST);
+
+      if (jsonArrayString != null) {
+        List<dynamic> jsonList = jsonDecode(jsonArrayString);
+        int totalItems = jsonList.length;
+        for (int i = 0; i < totalItems; i++) {
+          vaultList.add(VaultListItem.fromJson(jsonList[i]));
+        }
       }
 
-      if (_vaultListIsolateHandler!.isInitialized) {
-        _vaultList = await _vaultListIsolateHandler!.run(null);
-        vibrateLight();
-      } else {
-        throw Exception("IsolateHandler not initialized");
-      }
+      _vaultList = vaultList;
+      _vaultInitialized = true;
     } catch (e) {
       Logger.log('[loadVaultList] Exception : ${e.toString()}');
     } finally {
@@ -202,12 +197,7 @@ class VaultModel extends ChangeNotifier {
     List<VaultListItem> vaultList = [];
     String? jsonArrayString;
     final SecureStorageService storageService = SecureStorageService();
-    final RealmService realmService = RealmService();
-    try {
-      jsonArrayString = await storageService.read(key: VAULT_LIST);
-    } catch (_) {
-      jsonArrayString = realmService.getValue(key: VAULT_LIST);
-    }
+    jsonArrayString = await storageService.read(key: VAULT_LIST);
 
     if (jsonArrayString != null) {
       List<dynamic> jsonList = jsonDecode(jsonArrayString);
@@ -224,10 +214,9 @@ class VaultModel extends ChangeNotifier {
     final jsonString =
         jsonEncode(_vaultList.map((item) => item.toJson()).toList());
     await _storageService.write(key: VAULT_LIST, value: jsonString);
-    _realmService.updateKeyValue(key: VAULT_LIST, value: jsonString);
 
-    await SharedPrefsService().setBool(
-        SharedPrefsKeys.isNotEmptyVaultList, _vaultList.isNotEmpty);
+    await SharedPrefsService()
+        .setBool(SharedPrefsKeys.isNotEmptyVaultList, _vaultList.isNotEmpty);
     _appModel.saveNotEmptyVaultList(_vaultList.isNotEmpty);
   }
 

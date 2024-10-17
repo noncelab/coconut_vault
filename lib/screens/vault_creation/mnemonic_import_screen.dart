@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:coconut_vault/model/vault_model.dart';
 import 'package:coconut_vault/screens/vault_creation/mnemonic_confirm_screen.dart';
 import 'package:coconut_vault/styles.dart';
-import 'package:coconut_vault/utils/vibration_util.dart';
 import 'package:coconut_vault/utils/wallet_utils.dart';
 import 'package:coconut_vault/widgets/appbar/custom_appbar.dart';
 import 'package:coconut_vault/widgets/bottom_sheet.dart';
@@ -168,7 +167,6 @@ class _MnemonicImportState extends State<MnemonicImport> {
                 onInactivePressed: () {
                   CustomToast.showToast(
                       context: context, text: "스크롤을 내려서 모두 확인해 주세요");
-                  vibrateMediumDouble();
                 },
                 mnemonic: inputText
                     .trim()
