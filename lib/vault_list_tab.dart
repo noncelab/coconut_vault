@@ -145,19 +145,11 @@ class _VaultListTabState extends State<VaultListTab>
                                     children: [
                                       const Text(
                                         '지갑을 추가해 주세요',
-                                        style: TextStyle(
-                                            fontFamily: 'Pretendard',
-                                            fontSize: 16,
-                                            fontWeight: FontWeight.bold,
-                                            color: MyColors.black),
+                                        style: Styles.title5,
                                       ),
                                       const Text(
                                         '오른쪽 위 + 버튼을 눌러도 추가할 수 있어요',
-                                        style: TextStyle(
-                                            fontFamily: 'Pretendard',
-                                            fontSize: 14,
-                                            fontWeight: FontWeight.normal,
-                                            color: MyColors.black),
+                                        style: Styles.label,
                                       ),
                                       const SizedBox(height: 16),
                                       CupertinoButton(
@@ -179,7 +171,6 @@ class _VaultListTabState extends State<VaultListTab>
                                               const TextStyle(
                                                 color: MyColors.black,
                                                 fontWeight: FontWeight.w700,
-                                                fontSize: 12,
                                               ),
                                             ),
                                           ),

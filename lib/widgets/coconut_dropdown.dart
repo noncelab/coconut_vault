@@ -17,7 +17,7 @@ class CoconutDropdown extends StatefulWidget {
 
 class _CoconutDropdownState extends State<CoconutDropdown> {
   int _selectedIndex = 0;
-  final buttonHeight = 40.0;
+  final buttonHeight = 44.0;
 
   @override
   void initState() {
@@ -84,7 +84,7 @@ class _CoconutDropdownState extends State<CoconutDropdown> {
           splashColor: Colors.transparent,
           child: Container(
             width: double.maxFinite,
-            height: buttonHeight,
+            height: isFirst || isLast ? buttonHeight + 4 : buttonHeight,
             padding: const EdgeInsets.symmetric(horizontal: 16),
             alignment: Alignment.centerLeft,
             decoration: BoxDecoration(

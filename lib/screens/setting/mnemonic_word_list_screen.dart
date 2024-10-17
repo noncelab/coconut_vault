@@ -132,7 +132,8 @@ class _MnemonicWordListScreenState extends State<MnemonicWordListScreen> {
             title: _titleText,
             context: context,
             hasRightIcon: false,
-            showTestnetLabel: false),
+            showTestnetLabel: false,
+            isBottom: true),
         floatingActionButton: Visibility(
           visible: _isFabShown,
           child: FloatingActionButton(
