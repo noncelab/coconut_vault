@@ -213,10 +213,8 @@ class _AppInfoScreenState extends State<AppInfoScreen> {
                       width: 2.0,
                     ),
                   ),
-                  child: ClipOval(
-                    child: Image.asset(
-                      'assets/png/splash_logo.png',
-                    ),
+                  child: Image.asset(
+                    'assets/png/splash_logo.png',
                   ),
                 ),
                 const SizedBox(
