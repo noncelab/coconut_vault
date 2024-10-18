@@ -26,7 +26,8 @@ class _StartScreenState extends State<StartScreen> {
   void initState() {
     super.initState();
     _hasSeenGuide =
-        SharedPrefsService().getBool(SharedPrefsKeys.hasShownStartGuide) ?? false;
+        SharedPrefsService().getBool(SharedPrefsKeys.hasShownStartGuide) ??
+            false;
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       /// Splash 딜레이
       await Future.delayed(const Duration(seconds: 2));
@@ -42,7 +43,8 @@ class _StartScreenState extends State<StartScreen> {
     await Future.delayed(const Duration(seconds: 2));
 
     bool isNotEmpty =
-        SharedPrefsService().getBool(SharedPrefsKeys.isNotEmptyVaultList) ?? false;
+        SharedPrefsService().getBool(SharedPrefsKeys.isNotEmptyVaultList) ??
+            false;
     bool isPinEnabled =
         SharedPrefsService().getBool(SharedPrefsKeys.isPinEnabled) ?? false;
 
