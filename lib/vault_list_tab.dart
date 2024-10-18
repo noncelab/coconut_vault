@@ -83,7 +83,6 @@ class _VaultListTabState extends State<VaultListTab>
     return Consumer<VaultModel>(
       builder: (context, model, child) {
         final vaults = model.getVaults();
-        final vaultListLoading = model.isVaultListLoading;
 
         return PopScope(
             canPop: false,
@@ -129,7 +128,7 @@ class _VaultListTabState extends State<VaultListTab>
                             }
 
                             if (index == vaults.length && vaults.isEmpty) {
-                              if (!vaultListLoading) {
+                              if (model.isLoadVaultList) {
                                 return Container(
                                   width: double.maxFinite,
                                   decoration: BoxDecoration(
@@ -233,7 +232,7 @@ class _VaultListTabState extends State<VaultListTab>
                     ),
                   ),
                   Visibility(
-                      visible: vaultListLoading,
+                      visible: model.isVaultListLoading,
                       child: SizedBox(
                         width: MediaQuery.of(context).size.width,
                         height: MediaQuery.of(context).size.height,
