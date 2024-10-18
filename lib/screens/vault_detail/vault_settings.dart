@@ -364,7 +364,7 @@ class _VaultSettingsState extends State<VaultSettings> {
                                     children: [
                                       Text(
                                         _vaultListItem
-                                            .coconutVault.keyStore.fingerprint,
+                                            .coconutVault.keyStore.masterFingerprint,
                                         style: Styles.h3.merge(TextStyle(
                                             fontFamily: CustomFonts
                                                 .number.getFontFamily)),
