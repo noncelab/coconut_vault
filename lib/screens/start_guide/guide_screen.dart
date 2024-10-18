@@ -79,21 +79,19 @@ class _GuideScreenState extends State<GuideScreen> {
                                 : const Text('OFF', style: Styles.subLabel)
                           ],
                         ),
-                        if (Platform.isAndroid) ...[
-                          const SizedBox(height: 12),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              const Text('개발자 옵션', style: Styles.body2Bold),
-                              const SizedBox(width: 40),
-                              appModel.isDeveloperModeOn != null &&
-                                      appModel.isDeveloperModeOn == true
-                                  ? const HighLightedText('ON',
-                                      color: MyColors.warningText)
-                                  : const Text('OFF', style: Styles.subLabel)
-                            ],
-                          ),
-                        ]
+                        const SizedBox(height: 12),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            const Text('개발자 옵션', style: Styles.body2Bold),
+                            const SizedBox(width: 40),
+                            appModel.isDeveloperModeOn != null &&
+                                    appModel.isDeveloperModeOn == true
+                                ? const HighLightedText('ON',
+                                    color: MyColors.warningText)
+                                : const Text('OFF', style: Styles.subLabel)
+                          ],
+                        ),
                       ],
                     )),
                 const SizedBox(height: 32),
@@ -106,19 +104,11 @@ class _GuideScreenState extends State<GuideScreen> {
                               const TextStyle(color: MyColors.warningText))),
                     ],
                   ),
-                if (appModel.isDeveloperModeOn == true && Platform.isAndroid)
-                  Text("개발자 옵션을 비활성화 해주세요",
-                      style: Styles.body2Bold
-                          .merge(const TextStyle(color: MyColors.warningText))),
                 const SizedBox(
                   height: 40,
                 ),
                 GestureDetector(
-                    onTap: appModel.isNetworkOn == false &&
-                            appModel.isBluetoothOn == false &&
-                            (!Platform.isAndroid ||
-                                appModel.isDeveloperModeOn == false)
-                        ? () async {
+                    onTap:  () async {
                             await appModel.setHasSeenGuide();
                             widget.onComplete!();
                             Navigator.pushNamedAndRemoveUntil(
@@ -126,19 +116,13 @@ class _GuideScreenState extends State<GuideScreen> {
                               '/',
                               (Route<dynamic> route) => false,
                             );
-                          }
-                        : null,
+                          },
                     child: Container(
                         padding: const EdgeInsets.symmetric(
                             horizontal: 24, vertical: 12),
                         decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(14),
-                            color: appModel.isNetworkOn == false &&
-                                    appModel.isBluetoothOn == false &&
-                                    (!Platform.isAndroid ||
-                                        appModel.isDeveloperModeOn == false)
-                                ? MyColors.black
-                                : MyColors.transparentBlack_06),
+                            color: MyColors.black),
                         child: Text(
                           '시작하기',
                           style: Styles.label

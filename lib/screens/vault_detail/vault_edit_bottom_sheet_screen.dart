@@ -1,4 +1,5 @@
 import 'package:coconut_vault/model/app_model.dart';
+import 'package:coconut_vault/widgets/message_screen_for_web.dart';
 import 'package:flutter/material.dart';
 import 'package:coconut_vault/styles.dart';
 import 'package:coconut_vault/widgets/vault_name_icon_edit_palette.dart';
@@ -73,14 +74,13 @@ class _VaultInfoEditBottomSheetState extends State<VaultInfoEditBottomSheet> {
                       setState(() {
                         isSaving = hasChanged;
                       });
-                      // CustomDialogs.showLoadingDialog(context);
                       if (hasChanged) {
                         appModel.showIndicator();
                         await Future.delayed(const Duration(seconds: 1));
-                        appModel.hideIndicator();
                       }
                       widget.onUpdate(_name.isEmpty ? widget.name : _name,
                           _iconIndex, _colorIndex);
+                      appModel.hideIndicator();
                       Navigator.of(context).pop();
                     },
                     child: Container(
@@ -136,19 +136,9 @@ class _VaultInfoEditBottomSheetState extends State<VaultInfoEditBottomSheet> {
             ),
           ),
           Visibility(
-            visible: appModel.isLoading,
-            child: Container(
-              width: MediaQuery.of(context).size.width,
-              height: MediaQuery.of(context).size.height,
-              decoration:
-                  const BoxDecoration(color: MyColors.transparentBlack_30),
-              child: const Center(
-                child: CircularProgressIndicator(
-                  color: MyColors.darkgrey,
-                ),
-              ),
-            ),
-          ),
+              visible: appModel.isLoading,
+              child: const MessageScreenForWeb(
+                  message: "지갑 수정 중...\n웹 브라우저에서 1분 이상 걸릴 수 있으니 기다려 주세요.")),
         ],
       ),
     );

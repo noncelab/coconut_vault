@@ -1,12 +1,11 @@
 import 'package:coconut_vault/app.dart';
 import 'package:coconut_vault/model/app_model.dart';
-import 'package:coconut_vault/styles.dart';
 import 'package:coconut_vault/utils/logger.dart';
+import 'package:coconut_vault/widgets/message_screen_for_web.dart';
 import 'package:flutter/material.dart';
 import 'package:coconut_vault/widgets/appbar/custom_appbar.dart';
 import 'package:coconut_vault/widgets/custom_toast.dart';
 import 'package:coconut_vault/widgets/vault_name_icon_edit_palette.dart';
-import 'package:flutter/scheduler.dart';
 import 'package:provider/provider.dart';
 
 import '../../model/vault_model.dart';
@@ -52,7 +51,7 @@ class _VaultNameIconSetupState extends State<VaultNameIconSetup> {
   }
 
   Future<void> saveNewVaultName(BuildContext context) async {
-    _appModel.showIndicator();
+    //_appModel.showIndicator();
     setState(() {
       isSaving = true;
     });
@@ -62,7 +61,7 @@ class _VaultNameIconSetupState extends State<VaultNameIconSetup> {
       setState(() {
         isSaving = false;
       });
-      _appModel.hideIndicator();
+      //_appModel.hideIndicator();
       return;
     }
 
@@ -73,23 +72,24 @@ class _VaultNameIconSetupState extends State<VaultNameIconSetup> {
       'importingSecret': _vaultModel.importingSecret,
       'importingPassphrase': _vaultModel.importingPassphrase,
     };
+
+    // delay for 1 second to show loading indicator
+    await Future.delayed(const Duration(seconds: 2));
     // ignore: void_checks
     await _vaultModel.addVault(vaultData);
 
     if (_vaultModel.isAddVaultCompleted) {
-      _appModel.hideIndicator();
-      Logger.log('finish creating vault. return to home.');
-      Logger.log('Homeroute = ${HomeScreenStatus().screenStatus}');
+      //_appModel.hideIndicator();
       Navigator.pushNamedAndRemoveUntil(
         context,
         '/',
         (Route<dynamic> route) => false,
       );
+    } else {
+      setState(() {
+        isSaving = false;
+      });
     }
-
-    setState(() {
-      isSaving = false;
-    });
   }
 
   void updateName(String name) {
@@ -141,19 +141,9 @@ class _VaultNameIconSetupState extends State<VaultNameIconSetup> {
               ),
             ),
             Visibility(
-              visible: _appModel.isLoading,
-              child: Container(
-                width: MediaQuery.of(context).size.width,
-                height: MediaQuery.of(context).size.height,
-                decoration:
-                    const BoxDecoration(color: MyColors.transparentBlack_30),
-                child: const Center(
-                  child: CircularProgressIndicator(
-                    color: MyColors.darkgrey,
-                  ),
-                ),
-              ),
-            ),
+                visible: isSaving,
+                child: const MessageScreenForWeb(
+                    message: "지갑 추가 중...\n웹 브라우저에서 1분 이상 걸릴 수 있으니 기다려 주세요")),
           ],
         );
       },

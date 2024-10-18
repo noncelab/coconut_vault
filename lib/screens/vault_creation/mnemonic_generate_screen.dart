@@ -5,7 +5,6 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:coconut_vault/model/vault_model.dart';
 import 'package:coconut_vault/screens/vault_creation/mnemonic_confirm_screen.dart';
 import 'package:coconut_vault/styles.dart';
-import 'package:coconut_vault/utils/vibration_util.dart';
 import 'package:coconut_vault/widgets/appbar/custom_appbar.dart';
 import 'package:coconut_vault/widgets/bottom_sheet.dart';
 import 'package:coconut_vault/widgets/button/custom_buttons.dart';
@@ -97,7 +96,6 @@ class _MnemonicGenerateScreenState extends State<MnemonicGenerateScreen> {
             Navigator.pushNamed(context, '/vault-name-setup'),
         onInactivePressed: () {
           CustomToast.showToast(context: context, text: "스크롤을 내려서 모두 확인해주세요");
-          vibrateMediumDouble();
         },
         mnemonic:
             mnemonicWords.trim().toLowerCase().replaceAll(RegExp(r'\s+'), ' '),

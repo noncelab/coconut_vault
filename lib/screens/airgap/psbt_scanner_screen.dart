@@ -7,7 +7,6 @@ import 'package:flutter/material.dart';
 import 'package:coconut_vault/model/vault_model.dart';
 import 'package:coconut_vault/model/vault_list_item.dart';
 import 'package:coconut_vault/styles.dart';
-import 'package:coconut_vault/utils/vibration_util.dart';
 import 'package:coconut_vault/widgets/appbar/custom_appbar.dart';
 import 'package:coconut_vault/widgets/custom_tooltip.dart';
 import 'package:provider/provider.dart';
@@ -57,23 +56,25 @@ class _PsbtScannerScreenState extends State<PsbtScannerScreen> {
     if (_isProcessing) return;
     _isProcessing = true;
 
-    vibrateLight();
     _vaultModel.setWaitingForSignaturePsbtBase64(psbtBase64);
 
     controller?.pauseCamera();
     await _stopCamera();
+
     if (mounted) {
-      /// Go-router 제거 이후로 ios에서는 정상 작동하지만 안드로이드에서는 pushNamed로 화면 이동 시 카메라 컨트롤러 남아있는 이슈
-      if (Platform.isAndroid) {
-        Navigator.pushReplacementNamed(context, "/psbt-confirmation",
+      Navigator.pushReplacementNamed(context, "/psbt-confirmation",
             arguments: {'id': widget.id});
-      } else if (Platform.isIOS) {
-        Navigator.pushNamed(context, "/psbt-confirmation",
-            arguments: {'id': widget.id}).then((o) {
-          // 뒤로가기로 다시 돌아왔을 때
-          _isProcessing = false;
-        });
-      }
+      /// Go-router 제거 이후로 ios에서는 정상 작동하지만 안드로이드에서는 pushNamed로 화면 이동 시 카메라 컨트롤러 남아있는 이슈
+      // if (Platform.isAndroid) {
+      //   Navigator.pushReplacementNamed(context, "/psbt-confirmation",
+      //       arguments: {'id': widget.id});
+      // } else if (Platform.isIOS) {
+      //   Navigator.pushNamed(context, "/psbt-confirmation",
+      //       arguments: {'id': widget.id}).then((o) {
+      //     // 뒤로가기로 다시 돌아왔을 때
+      //     _isProcessing = false;
+      //   });
+      // }
     }
   }
 
@@ -115,68 +116,71 @@ class _PsbtScannerScreenState extends State<PsbtScannerScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: CustomAppBar.build(
-        title: _vaultListItem.name,
-        context: context,
-        hasRightIcon: false,
-        isBottom: true,
-      ),
-      body: Stack(
-        children: [
-          Container(
-            color: MyColors.white,
-            child: AnimatedQrScanner(
-              setQRViewController: (QRViewController qrViewcontroller) {
-                controller = qrViewcontroller;
-              },
-              onComplete: onCompleteScanning,
-              onFailed: onFailedScanning,
+    return SizedBox(
+      width: 480,
+      child: Scaffold(
+        appBar: CustomAppBar.build(
+          title: _vaultListItem.name,
+          context: context,
+          hasRightIcon: false,
+          isBottom: true,
+        ),
+        body: Stack(
+          children: [
+            Container(
+              color: MyColors.white,
+              child: AnimatedQrScanner(
+                setQRViewController: (QRViewController qrViewcontroller) {
+                  controller = qrViewcontroller;
+                },
+                onComplete: onCompleteScanning,
+                onFailed: onFailedScanning,
+              ),
             ),
-          ),
-          Padding(
-            padding: const EdgeInsets.only(top: 20),
-            child: CustomTooltip(
-              richText: RichText(
-                text: const TextSpan(
-                  text: '[2] ',
-                  style: TextStyle(
-                    fontFamily: 'Pretendard',
-                    fontWeight: FontWeight.bold,
-                    fontSize: 15,
-                    height: 1.4,
-                    letterSpacing: 0.5,
-                    color: MyColors.black,
-                  ),
-                  children: <TextSpan>[
-                    TextSpan(
-                      text: '월렛에서 만든 보내기 정보를 스캔해 주세요. 반드시 지갑 이름이 같아야 해요.',
-                      style: TextStyle(
-                        fontWeight: FontWeight.normal,
-                      ),
+            Padding(
+              padding: const EdgeInsets.only(top: 20),
+              child: CustomTooltip(
+                richText: RichText(
+                  text: const TextSpan(
+                    text: '[2] ',
+                    style: TextStyle(
+                      fontFamily: 'Pretendard',
+                      fontWeight: FontWeight.bold,
+                      fontSize: 15,
+                      height: 1.4,
+                      letterSpacing: 0.5,
+                      color: MyColors.black,
                     ),
-                  ],
+                    children: <TextSpan>[
+                      TextSpan(
+                        text: '월렛에서 만든 보내기 정보를 스캔해 주세요. 반드시 지갑 이름이 같아야 해요.',
+                        style: TextStyle(
+                          fontWeight: FontWeight.normal,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-              showIcon: true,
-              type: TooltipType.info,
-            ),
-          ),
-          Visibility(
-            visible: _appModel.isLoading,
-            child: Container(
-              width: MediaQuery.of(context).size.width,
-              height: MediaQuery.of(context).size.height,
-              decoration:
-                  const BoxDecoration(color: MyColors.transparentBlack_30),
-              child: const Center(
-                child: CircularProgressIndicator(
-                  color: MyColors.darkgrey,
-                ),
+                showIcon: true,
+                type: TooltipType.info,
               ),
             ),
-          ),
-        ],
+            Visibility(
+              visible: _appModel.isLoading,
+              child: Container(
+                width: MediaQuery.of(context).size.width,
+                height: MediaQuery.of(context).size.height,
+                decoration:
+                    const BoxDecoration(color: MyColors.transparentBlack_30),
+                child: const Center(
+                  child: CircularProgressIndicator(
+                    color: MyColors.darkgrey,
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

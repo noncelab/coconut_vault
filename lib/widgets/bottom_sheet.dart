@@ -18,6 +18,7 @@ class MyBottomSheet {
         enableDrag: enableDrag,
         useSafeArea: true,
         constraints: BoxConstraints(
+            maxWidth: 480,
             maxHeight: MediaQuery.of(context).size.height * 0.9));
   }
 
@@ -37,6 +38,7 @@ class MyBottomSheet {
         enableDrag: enableDrag,
         useSafeArea: true,
         constraints: BoxConstraints(
+          maxWidth: 480,
             maxHeight: MediaQuery.of(context).size.height * 0.95));
   }
 
@@ -80,6 +82,8 @@ class MyBottomSheet {
       isScrollControlled: true,
       enableDrag: enableDrag,
       useSafeArea: true,
+      constraints: const BoxConstraints(
+          maxWidth: 480)
     );
   }
 }

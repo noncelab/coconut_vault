@@ -1,5 +1,4 @@
 import 'package:coconut_vault/model/app_model.dart';
-import 'package:coconut_vault/services/realm_service.dart';
 import 'package:coconut_vault/services/secure_storage_service.dart';
 
 class VaultStorageService {
@@ -8,7 +7,6 @@ class VaultStorageService {
   static final VaultStorageService _instance = VaultStorageService._internal();
 
   static final SecureStorageService _secureStorage = SecureStorageService();
-  static final RealmService _realmService = RealmService();
 
   factory VaultStorageService() {
     return _instance;
@@ -18,7 +16,6 @@ class VaultStorageService {
 
   Future<void> reset(AppModel appModel) async {
     await _secureStorage.deleteAll();
-    _realmService.deleteAll();
     appModel.resetPassword();
   }
 }

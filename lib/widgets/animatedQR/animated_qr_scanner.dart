@@ -3,6 +3,7 @@ import 'package:coconut_vault/utils/logger.dart';
 import 'package:coconut_vault/widgets/animatedQR/animated_qr_data_handler.dart';
 import 'package:flutter/material.dart';
 import 'package:qr_code_scanner/qr_code_scanner.dart';
+import 'package:qrcode_reader_web/qrcode_reader_web.dart';
 
 class AnimatedQrScanner extends StatefulWidget {
   final Function(QRViewController) setQRViewController;
@@ -96,17 +97,70 @@ class _AnimatedQrScannerState extends State<AnimatedQrScanner> {
     );
   }
 
+  double getSquareSize() {
+    return (MediaQuery.of(context).size.width < 400 ||
+              MediaQuery.of(context).size.height < 400)
+          ? 320.0
+          : MediaQuery.of(context).size.width * 0.85;
+  }
+
+  void _onDetect(QRCodeCapture capture) {
+    if (capture.raw.isEmpty) return;
+
+      try {
+        if (!capture.raw.startsWith(AnimatedQRDataHandler.psbtUrType)) {
+          throw 'No psbtUrType';
+        }
+
+        // 배열 insert를 위해서 scannedData Size 설정
+        if (scannedData == null) {
+          int totalCount =
+              AnimatedQRDataHandler.parseTotalCount(capture.raw);
+          scannedData = List<String>.filled(totalCount, '');
+          setState(() {
+            _totalCount = totalCount;
+          });
+        }
+
+        final index = AnimatedQRDataHandler.parseIndex(capture.raw);
+        // 이미 저장된 경우
+        if (scannedData![index - 1].isNotEmpty) return;
+
+        scannedData![index - 1] = capture.raw;
+        setState(() {
+          _insertCount++;
+        });
+        if (scannedData!.length == _insertCount) {
+          String psbt = AnimatedQRDataHandler.joinData(scannedData!);
+          reset();
+          widget.onComplete(psbt);
+        }
+      } catch (e) {
+        Logger.log(e.toString());
+        reset();
+        widget.onFailed("Invalid Scheme");
+      }
+  }
+
   @override
   Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (BuildContext context, BoxConstraints constraints) {
         return Stack(
           children: [
-            QRView(
-              key: qrKey,
-              onQRViewCreated: _onQRViewCreated,
-              overlay: _getOverlayShape(),
+            // for web
+            QRCodeReaderSquareWidget(
+              onDetect: _onDetect,
+              size: getSquareSize(),
+              borderRadius: BorderRadius.circular(8),
+              targetColor: Colors.white38,
             ),
+            // for app
+            // QRView(
+            //   key: qrKey,
+            //   onQRViewCreated: _onQRViewCreated,
+            //   overlay: _getOverlayShape(),
+            // ),
             Positioned(
               bottom: (MediaQuery.of(context).size.width < 400 ||
                       MediaQuery.of(context).size.height < 400)
@@ -122,7 +176,7 @@ class _AnimatedQrScannerState extends State<AnimatedQrScanner> {
                 child: Text(
                   _totalCount != null ? '$_insertCount / $_totalCount' : '',
                   style:
-                      Styles.body1.merge(const TextStyle(color: Colors.white)),
+                      Styles.body1.merge(const TextStyle(color: Colors.black)),
                 ),
               ),
             )
@@ -130,5 +184,10 @@ class _AnimatedQrScannerState extends State<AnimatedQrScanner> {
         );
       },
     );
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
   }
 }

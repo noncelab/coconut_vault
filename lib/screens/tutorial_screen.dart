@@ -76,55 +76,37 @@ class _TutorialScreenState extends State<TutorialScreen> {
                           style: Styles.title5,
                           textAlign: TextAlign.center,
                         ),
-                        Selector<AppModel, bool?>(
-                            selector: (context, model) => model.isNetworkOn,
-                            builder: (context, networkOn, _) {
-                              if (networkOn!) {
-                                // 네트워크 연결 상태일 때
-                                return Column(
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  children: [
-                                    const SizedBox(height: 26),
-                                    _browserImage(),
-                                    const SizedBox(height: 30),
-                                    ShrinkAnimationButton(
-                                      onPressed: () => launchURL(
-                                        'https://noncelab.gitbook.io/coconut.onl',
-                                        defaultMode: false,
-                                      ),
-                                      defaultColor: MyColors.darkgrey,
-                                      pressedColor: MyColors.borderGrey,
-                                      borderRadius: 12,
-                                      child: Padding(
-                                        padding: const EdgeInsets.symmetric(
-                                          horizontal: 40,
-                                          vertical: 12,
-                                        ),
-                                        child: Text(
-                                          '튜토리얼 보기',
-                                          style: Styles.caption.merge(
-                                            const TextStyle(
-                                                color: MyColors.white,
-                                                fontWeight: FontWeight.w700),
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                );
-                              }
-
-                              /// 네트워크 연결 되지 않은 상태일 때
-                              return Column(
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                children: [
-                                  const SizedBox(height: 20),
-                                  _splitTextWidget(splitTexts),
-                                  const SizedBox(height: 20),
-                                  _browserImage(),
-                                ],
-                              );
-                            })
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            const SizedBox(height: 26),
+                            _browserImage(),
+                            const SizedBox(height: 30),
+                            ShrinkAnimationButton(
+                              onPressed: () => launchURL(
+                                'https://noncelab.gitbook.io/coconut.onl',
+                                defaultMode: false,
+                              ),
+                              defaultColor: MyColors.darkgrey,
+                              pressedColor: MyColors.borderGrey,
+                              borderRadius: 12,
+                              child: Padding(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 40,
+                                  vertical: 12,
+                                ),
+                                child: Text(
+                                  '튜토리얼 보기',
+                                  style: Styles.caption.merge(
+                                    const TextStyle(
+                                        color: MyColors.white,
+                                        fontWeight: FontWeight.w700),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        )
                       ],
                     ),
                   )

@@ -99,7 +99,6 @@ class VaultListItem {
       'iconIndex': iconIndex,
       'descriptor': coconutVault.descriptor
     };
-
     return jsonEncode(json);
   }
 }

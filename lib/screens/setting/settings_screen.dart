@@ -78,25 +78,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
         Consumer<AppModel>(builder: (context, appModel, child) {
           return ButtonGroup(buttons: [
             if (appModel.isPinEnabled) ...{
-              if (appModel.canCheckBiometrics)
-                SingleButton(
-                  title: '생체 인증 사용하기',
-                  rightElement: CupertinoSwitch(
-                    value: appModel.hasBiometricsPermission
-                        ? appModel.isBiometricEnabled
-                        : false,
-                    activeColor: MyColors.primary,
-                    onChanged: (isOn) async {
-                      if (isOn &&
-                          await appModel.authenticateWithBiometrics(context,
-                              isSave: true)) {
-                        appModel.saveIsBiometricEnabled(true);
-                      } else {
-                        appModel.saveIsBiometricEnabled(false);
-                      }
-                    },
-                  ),
-                ),
               SingleButton(
                 title: '비밀번호 바꾸기',
                 onPressed: () async {

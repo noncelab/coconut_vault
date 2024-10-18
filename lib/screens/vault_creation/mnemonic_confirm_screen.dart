@@ -1,7 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:coconut_vault/styles.dart';
-import 'package:coconut_vault/utils/vibration_util.dart';
 
 class MnemonicConfirm extends StatefulWidget {
   final VoidCallback onConfirmPressed;
@@ -26,12 +25,11 @@ class MnemonicConfirm extends StatefulWidget {
 
 class _MnemonicConfirmState extends State<MnemonicConfirm> {
   final ScrollController _scrollController = ScrollController();
-  bool _isBottom = false;
+  bool _isBottom = true;
 
   @override
   void initState() {
     super.initState();
-    vibrateLight();
     if (widget.passphrase == null) _isBottom = true;
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (widget.passphrase != null) {
@@ -67,37 +65,38 @@ class _MnemonicConfirmState extends State<MnemonicConfirm> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16.0),
       height: MediaQuery.of(context).size.height * 0.85,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          _topText(),
-          const SizedBox(height: 20),
-          _mnemonicWidget(),
-          const SizedBox(height: 20),
-          Visibility(
-            visible: widget.passphrase != null,
-            child: Row(
+      child: CustomScrollView(
+        slivers: [
+          SliverToBoxAdapter(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text('패스프레이즈', style: Styles.body2Bold),
-                Text(
-                  ' (총 ${widget.passphrase?.length} 글자)',
-                  style: TextStyle(
-                    fontFamily: CustomFonts.text.getFontFamily,
-                    fontSize: 13.0,
-                    fontWeight: FontWeight.w400,
-                    letterSpacing: 0.2,
-                    color: MyColors.darkgrey,
+                _topText(),
+                const SizedBox(height: 20),
+                _mnemonicWidget(),
+                const SizedBox(height: 20),
+                Visibility(
+                  visible: widget.passphrase != null,
+                  child: Row(
+                    children: [
+                      const Text('패스프레이즈', style: Styles.body2Bold),
+                      Text(
+                        ' (총 ${widget.passphrase?.length} 글자)',
+                        style: TextStyle(
+                          fontFamily: CustomFonts.text.getFontFamily,
+                          fontSize: 13.0,
+                          fontWeight: FontWeight.w400,
+                          letterSpacing: 0.2,
+                          color: MyColors.darkgrey,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-              ],
-            ),
-          ),
-          _hintText(),
-          const SizedBox(height: 8),
-          Expanded(
-            child: Stack(
-              children: [
+                _hintText(),
+                const SizedBox(height: 8),
                 _passphraseGridViewWidget(),
+                const SizedBox(height: 8),
                 _bottomButton(),
               ],
             ),
@@ -228,117 +227,110 @@ class _MnemonicConfirmState extends State<MnemonicConfirm> {
   }
 
   Widget _bottomButton() {
-    return Positioned(
-      bottom: 0,
-      left: 0,
-      right: 0,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 4),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: [
-            Expanded(
-              child: CupertinoButton(
-                onPressed: widget.onCancelPressed,
-                padding:
-                    const EdgeInsets.symmetric(vertical: 16, horizontal: 4),
-                color: MyColors.lightgrey,
-                alignment: Alignment.center,
-                child: Text('취소',
-                    style: Styles.label.merge(const TextStyle(
-                      color: MyColors.black,
-                      fontWeight: FontWeight.w600,
-                    ))),
-              ),
-            ),
-            const SizedBox(width: 10),
-            Expanded(
-              child: CupertinoButton(
-                onPressed: _isBottom
-                    ? widget.onConfirmPressed
-                    : (widget.onInactivePressed ?? () {}),
-                padding:
-                    const EdgeInsets.symmetric(vertical: 16, horizontal: 4),
-                color: MyColors.darkgrey,
-                alignment: Alignment.center,
-                child: const Text(
-                  '확인 완료',
-                  style: TextStyle(
-                    fontFamily: 'Pretendard',
-                    fontSize: 14.0,
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: [
+          Expanded(
+            child: CupertinoButton(
+              onPressed: widget.onCancelPressed,
+              padding:
+                  const EdgeInsets.symmetric(vertical: 16, horizontal: 4),
+              color: MyColors.lightgrey,
+              alignment: Alignment.center,
+              child: Text('취소',
+                  style: Styles.label.merge(const TextStyle(
+                    color: MyColors.black,
                     fontWeight: FontWeight.w600,
-                    letterSpacing: 0.2,
-                    color: Colors.white,
-                  ),
+                  ))),
+            ),
+          ),
+          const SizedBox(width: 10),
+          Expanded(
+            child: CupertinoButton(
+              onPressed: _isBottom
+                  ? widget.onConfirmPressed
+                  : (widget.onInactivePressed ?? () {}),
+              padding:
+                  const EdgeInsets.symmetric(vertical: 16, horizontal: 4),
+              color: MyColors.darkgrey,
+              alignment: Alignment.center,
+              child: const Text(
+                '확인 완료',
+                style: TextStyle(
+                  fontFamily: 'Pretendard',
+                  fontSize: 14.0,
+                  fontWeight: FontWeight.w600,
+                  letterSpacing: 0.2,
+                  color: Colors.white,
                 ),
               ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
 
   Widget _passphraseGridViewWidget() {
     if (widget.passphrase == null) return Container();
-    return Scrollbar(
-      child: GridView.count(
-        controller: _scrollController,
-        crossAxisCount: 10,
-        crossAxisSpacing: 3.0,
-        mainAxisSpacing: 10.0,
-        shrinkWrap: true,
-        children: List.generate((widget.passphrase!.length + 20), (index) {
-          // 가장 아래에 빈 공간을 배치하기 위한 조건문
-          if (index < widget.passphrase!.length) {
-            return Container(
-              alignment: Alignment.center,
-              decoration: BoxDecoration(
-                color: MyColors.white,
-                border: Border.all(
-                  width: 1,
-                  color: MyColors.black,
-                ),
-                borderRadius: BorderRadius.circular(8),
+    return GridView.count(
+      controller: _scrollController,
+      crossAxisCount: 10,
+      crossAxisSpacing: 3.0,
+      mainAxisSpacing: 10.0,
+      shrinkWrap: true,
+      children: List.generate((widget.passphrase!.length), (index) {
+        // 가장 아래에 빈 공간을 배치하기 위한 조건문
+        if (index < widget.passphrase!.length) {
+          return Container(
+            alignment: Alignment.center,
+            decoration: BoxDecoration(
+              color: MyColors.white,
+              border: Border.all(
+                width: 1,
+                color: MyColors.black,
               ),
-              child: Stack(
-                children: [
-                  Visibility(
-                    visible: index % 10 == 0,
-                    child: Positioned(
-                      top: 3,
-                      left: 3,
-                      child: Text(
-                        '${index + 1}',
-                        style: const TextStyle(
-                            color: MyColors.borderGrey,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 6),
-                      ),
-                    ),
-                  ),
-                  SizedBox(
-                    width: double.infinity,
-                    height: double.infinity,
-                    child: Center(
-                      child: Text(
-                        widget.passphrase![index],
-                        style: const TextStyle(
-                          color: MyColors.black,
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Stack(
+              children: [
+                Visibility(
+                  visible: index % 10 == 0,
+                  child: Positioned(
+                    top: 3,
+                    left: 3,
+                    child: Text(
+                      '${index + 1}',
+                      style: const TextStyle(
+                          color: MyColors.borderGrey,
                           fontWeight: FontWeight.bold,
-                        ),
+                          fontSize: 6),
+                    ),
+                  ),
+                ),
+                SizedBox(
+                  width: double.infinity,
+                  height: double.infinity,
+                  child: Center(
+                    child: Text(
+                      widget.passphrase![index],
+                      style: const TextStyle(
+                        color: MyColors.black,
+                        fontWeight: FontWeight.bold,
                       ),
                     ),
                   ),
-                ],
-              ),
-            );
-          } else {
-            // 빈 공간을 추가하기 위해 빈 컨테이너를 반환
-            return Container();
-          }
-        }),
-      ),
+                ),
+              ],
+            ),
+          );
+        } else {
+          // 빈 공간을 추가하기 위해 빈 컨테이너를 반환
+          return Container();
+        }
+      }),
     );
   }
 }

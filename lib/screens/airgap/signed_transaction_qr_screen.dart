@@ -97,7 +97,7 @@ class _SignedTransactionQrScreenState extends State<SignedTransactionQrScreen> {
                   decoration: BoxDecorations.shadowBoxDecoration,
                   child: AnimatedQrView(
                     data: AnimatedQRDataHandler.splitData(_signedRawTx),
-                    size: MediaQuery.of(context).size.width * 0.8,
+                    size: 480,
                   ),
                 ),
               ],

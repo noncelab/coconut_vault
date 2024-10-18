@@ -1,9 +1,8 @@
+import 'package:coconut_vault/widgets/message_screen_for_web.dart';
 import 'package:flutter/material.dart';
 import 'package:coconut_vault/model/vault_model.dart';
-import 'package:coconut_vault/services/isolate_service.dart';
 import 'package:coconut_vault/styles.dart';
 import 'package:coconut_vault/utils/alert_util.dart';
-import 'package:coconut_vault/utils/isolate_handler.dart';
 import 'package:coconut_vault/utils/logger.dart';
 import 'package:coconut_vault/utils/unit_utils.dart';
 import 'package:coconut_vault/widgets/appbar/custom_appbar.dart';
@@ -111,6 +110,7 @@ class _PsbtConfirmationScreenState extends State<PsbtConfirmationScreen> {
       setState(() {
         _showLoading = true;
       });
+      await Future.delayed(const Duration(milliseconds: 1500));
       bool canSignResult =
           await canSignToPsbt(_vault, _waitingForSignaturePsbtBase64!);
       if (!canSignResult) {
@@ -277,17 +277,7 @@ class _PsbtConfirmationScreenState extends State<PsbtConfirmationScreen> {
             ),
             Visibility(
               visible: _showLoading,
-              child: Container(
-                width: MediaQuery.of(context).size.width,
-                height: MediaQuery.of(context).size.height,
-                decoration:
-                    const BoxDecoration(color: MyColors.transparentBlack_30),
-                child: const Center(
-                  child: CircularProgressIndicator(
-                    color: MyColors.darkgrey,
-                  ),
-                ),
-              ),
+              child: const MessageScreenForWeb(message: "서명 중...\n웹 브라우저에서 10초 이상 걸릴 수 있으니 기다려주세요.")
             ),
           ],
         ),
@@ -298,36 +288,19 @@ class _PsbtConfirmationScreenState extends State<PsbtConfirmationScreen> {
 
 Future<String> addSignatureToPsbt(
     SingleSignatureVault vault, String data) async {
-  final addSignatureToPsbtHandler =
-      IsolateHandler<List<dynamic>, String>(addSignatureToPsbtIsolate);
   try {
-    await addSignatureToPsbtHandler.initialize(
-        initialType: InitializeType.addSign);
-
-    String signedPsbt = await addSignatureToPsbtHandler.run([vault, data]);
-    Logger.log(signedPsbt);
-    return signedPsbt;
+    return vault.addSignatureToPsbt(data);
   } catch (e) {
     Logger.log('[addSignatureToPsbtIsolate] ${e.toString()}');
-    throw (e.toString());
-  } finally {
-    addSignatureToPsbtHandler.dispose();
+    rethrow;
   }
 }
 
 Future<bool> canSignToPsbt(SingleSignatureVault vault, String data) async {
-  final canSignToPsbtHandler =
-      IsolateHandler<List<dynamic>, bool>(canSignToPsbtIsolate);
   try {
-    await canSignToPsbtHandler.initialize(initialType: InitializeType.canSign);
-
-    bool canSignToPsbt = await canSignToPsbtHandler.run([vault, data]);
-    Logger.log('canSignToPsbt: $canSignToPsbt');
-    return canSignToPsbt;
+    return vault.canSignToPsbt(data);
   } catch (e) {
     Logger.log('[canSignToPsbtIsolate] ${e.toString()}');
-    throw (e.toString());
-  } finally {
-    canSignToPsbtHandler.dispose();
+    rethrow;
   }
 }

@@ -45,18 +45,16 @@ dependencies:
   flutter_secure_storage: ^9.0.0
   json_annotation: ^4.9.0
   shared_preferences: ^2.2.2
-  coconut_lib: ^0.6.1
+  coconut_lib: ^0.7.0
   fluttertoast: ^8.2.4
-  realm: ^3.1.0
   qr_flutter: ^4.1.0
   qr_code_scanner: ^1.0.1
   flutter_svg: ^2.0.10+1
-  carousel_slider: ^4.2.1
+  carousel_slider: ^5.0.0
   convert: ^3.1.1
   connectivity_plus: ^6.0.3
   flutter_blue_plus: ^1.32.7
   modal_bottom_sheet: ^3.0.0
-  local_auth: ^2.2.0
   loader_overlay: ^4.0.0
   objectbox_flutter_libs: any
   path: ^1.9.0
@@ -66,8 +64,9 @@ dependencies:
   vibration: ^1.9.0
   device_info_plus: ^10.1.1
   package_info_plus: ^8.0.1
-  screen_protector: ^1.4.2+1
   url_launcher: ^6.2.6
+  qrcode_reader_web: ^1.1.1
+  universal_html: ^2.2.4
 
 dev_dependencies:
   flutter_test:
