@@ -80,7 +80,7 @@ class _VaultInfoEditBottomSheetState extends State<VaultInfoEditBottomSheet> {
                       }
                       widget.onUpdate(_name.isEmpty ? widget.name : _name,
                           _iconIndex, _colorIndex);
-                        appModel.hideIndicator();
+                      appModel.hideIndicator();
                       Navigator.of(context).pop();
                     },
                     child: Container(
@@ -136,9 +136,9 @@ class _VaultInfoEditBottomSheetState extends State<VaultInfoEditBottomSheet> {
             ),
           ),
           Visibility(
-            visible: appModel.isLoading,
-            child: const MessageScreenForWeb(message: "지갑 수정 중...\n(웹 브라우저에서 1분 이상 걸릴 수 있으니 기다려주세요.)")
-          ),
+              visible: appModel.isLoading,
+              child: const MessageScreenForWeb(
+                  message: "지갑 수정 중...\n웹 브라우저에서 1분 이상 걸릴 수 있으니 기다려 주세요.")),
         ],
       ),
     );

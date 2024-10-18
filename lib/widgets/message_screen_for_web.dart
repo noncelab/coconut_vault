@@ -25,15 +25,20 @@ class MessageScreenForWeb extends StatelessWidget {
             color: MyColors.white,
             boxShadow: [
               BoxShadow(
-                color: MyColors.grey.withOpacity(0.5),
-                spreadRadius: 5,
-                blurRadius: 7,
-                offset: const Offset(0, 3), // changes position of shadow
+                color: MyColors.grey.withOpacity(0.3),
+                spreadRadius: 10,
+                blurRadius: 10, // changes position of shadow
               ),
             ],
           ),
           padding: const EdgeInsets.all(16),
-          child: Center(child: Text(message, style: Styles.body1)),
+          child: Center(
+              child: Text(
+            message,
+            style: Styles.h3
+                .merge(const TextStyle(color: MyColors.darkgrey, height: 1.5)),
+            textAlign: TextAlign.center,
+          )),
         ),
       ),
     );

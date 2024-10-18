@@ -144,7 +144,8 @@ class _VaultNameIconSetupState extends State<VaultNameIconSetup> {
             ),
             Visibility(
                 visible: isSaving,
-                child: const MessageScreenForWeb(message: "지갑 추가 중...\n(웹 브라우저에서 1분 이상 걸릴 수 있으니 기다려주세요.)")),
+                child: const MessageScreenForWeb(
+                    message: "지갑 추가 중...\n웹 브라우저에서 1분 이상 걸릴 수 있으니 기다려 주세요")),
           ],
         );
       },

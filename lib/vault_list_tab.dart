@@ -113,7 +113,7 @@ class _VaultListTabState extends State<VaultListTab>
                     visible: vaultListLoading,
                     child: const MessageScreenForWeb(
                         message:
-                            "지갑 불러오는 중...\n(웹 브라우저에서 1분 이상 걸릴 수 있으니 기다려주세요.)")),
+                            "지갑 불러오는 중...\n웹 브라우저에서 1분 이상 걸릴 수 있으니 기다려 주세요.")),
               ],
             ),
           ),
