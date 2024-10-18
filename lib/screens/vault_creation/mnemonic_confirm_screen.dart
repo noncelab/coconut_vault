@@ -96,6 +96,7 @@ class _MnemonicConfirmState extends State<MnemonicConfirm> {
                 _hintText(),
                 const SizedBox(height: 8),
                 _passphraseGridViewWidget(),
+                const SizedBox(height: 8),
                 _bottomButton(),
               ],
             ),
@@ -280,7 +281,7 @@ class _MnemonicConfirmState extends State<MnemonicConfirm> {
       crossAxisSpacing: 3.0,
       mainAxisSpacing: 10.0,
       shrinkWrap: true,
-      children: List.generate((widget.passphrase!.length + 20), (index) {
+      children: List.generate((widget.passphrase!.length), (index) {
         // 가장 아래에 빈 공간을 배치하기 위한 조건문
         if (index < widget.passphrase!.length) {
           return Container(
