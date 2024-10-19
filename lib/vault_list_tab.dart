@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:coconut_vault/app.dart';
 import 'package:coconut_vault/screens/pin_check_screen.dart';
+import 'package:coconut_vault/screens/pin_setting_screen.dart';
 import 'package:coconut_vault/widgets/coconut_dropdown.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -153,8 +154,15 @@ class _VaultListTabState extends State<VaultListTab>
                                       const SizedBox(height: 16),
                                       CupertinoButton(
                                         onPressed: () {
-                                          Navigator.pushNamed(context,
-                                              '/vault-creation-options');
+                                          if (!_appModel.isPinEnabled) {
+                                            MyBottomSheet.showBottomSheet_90(
+                                                context: context,
+                                                child: const PinSettingScreen(
+                                                    greetingVisible: true));
+                                          } else {
+                                            Navigator.pushNamed(context,
+                                                '/vault-creation-options');
+                                          }
                                         },
                                         borderRadius: BorderRadius.circular(10),
                                         padding: EdgeInsets.zero,
