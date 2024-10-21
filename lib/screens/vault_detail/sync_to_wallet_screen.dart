@@ -1,3 +1,5 @@
+import 'package:coconut_vault/screens/vault_detail/export_detail_screen.dart';
+import 'package:coconut_vault/widgets/bottom_sheet.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:coconut_vault/model/vault_model.dart';
@@ -105,7 +107,27 @@ class _SyncToWalletScreenState extends State<SyncToWalletScreen> {
                       decoration: BoxDecorations.shadowBoxDecoration,
                       child: QrImageView(
                         data: qrData,
-                      )))
+                      ))),
+              const SizedBox(height: 32),
+              GestureDetector(
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 16, vertical: 12),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(4.0),
+                      color: MyColors.borderGrey,
+                    ),
+                    child: Text('상세 정보 보기',
+                        style: Styles.caption
+                            .merge(const TextStyle(color: MyColors.white))),
+                  ),
+                  onTap: () {
+                    MyBottomSheet.showBottomSheet_90(
+                        context: context,
+                        child: ExportDetailScreen(
+                          exportDetail: qrData,
+                        ));
+                  })
             ],
           ),
         ),
