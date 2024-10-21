@@ -330,28 +330,6 @@ class _AppInfoScreenState extends State<AppInfoScreen> {
                     ));
               },
             ),
-            SingleButton(
-                title: '이메일로 문의하기',
-                leftElement: ClipRRect(
-                  borderRadius: BorderRadius.circular(8.0),
-                  child: Image.asset(
-                    'assets/png/mail-icon.png',
-                    width: 24,
-                    height: 24,
-                    fit: BoxFit.cover,
-                  ),
-                ),
-                onPressed: () async {
-                  String info = await _getDeviceInfo(_packageInfoFuture);
-                  MyBottomSheet.showBottomSheet_90(
-                      context: context,
-                      child: QrcodeBottomSheetScreen(
-                        qrData:
-                            'mailto:$CONTACT_EMAIL_ADDRESS?subject=$EMAIL_SUBJECT&body=$info',
-                        title: '이메일로 문의하기',
-                        fromAppInfo: true,
-                      ));
-                }),
           ]),
         ],
       ),
