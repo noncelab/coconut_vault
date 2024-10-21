@@ -45,7 +45,7 @@ dependencies:
   flutter_secure_storage: ^9.0.0
   json_annotation: ^4.9.0
   shared_preferences: ^2.2.2
-  coconut_lib: ^0.6.1
+  coconut_lib: ^0.6.2
   fluttertoast: ^8.2.4
   realm: ^3.1.0
   qr_flutter: ^4.1.0
