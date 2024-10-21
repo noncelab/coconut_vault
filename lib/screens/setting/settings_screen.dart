@@ -51,8 +51,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
               const SizedBox(
                 height: 40,
               ),
-              _informationPart(),
-              const SizedBox(height: 32),
+              /*_informationPart(),
+              const SizedBox(height: 32),*/
             ],
           ),
         ),
@@ -112,7 +112,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
-  Widget _informationPart() {
+  /*Widget _informationPart() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -154,5 +154,5 @@ class _SettingsScreenState extends State<SettingsScreen> {
         ),
       ],
     );
-  }
+  }*/
 }

@@ -1,14 +1,11 @@
 import 'dart:async';
-import 'dart:io';
 import 'dart:math';
 
 import 'package:coconut_vault/services/shared_preferences_keys.dart';
 import 'package:coconut_vault/services/shared_preferences_service.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/foundation.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
-import 'package:coconut_vault/constants/method_channel.dart';
 import 'package:coconut_vault/services/secure_storage_service.dart';
 import 'package:coconut_vault/utils/hash_util.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -78,9 +75,8 @@ class AppModel with ChangeNotifier {
         prefs.getBool(SharedPrefsKeys.isPinEnabled) == true;
     _isNotEmptyVaultList =
         prefs.getBool(SharedPrefsKeys.isNotEmptyVaultList) == true;
-    _hasAlreadyRequestedBioPermission = prefs.getBool(
-            SharedPrefsKeys.hasAlreadyRequestedBioPermission) ==
-        true;
+    _hasAlreadyRequestedBioPermission =
+        prefs.getBool(SharedPrefsKeys.hasAlreadyRequestedBioPermission) == true;
     shuffleNumbers();
 
     /// true 인 경우, 첫 실행이 아님
@@ -106,8 +102,8 @@ class AppModel with ChangeNotifier {
   /// WalletList isNotEmpty 상태 저장
   Future<void> saveNotEmptyVaultList(bool isNotEmpty) async {
     _isNotEmptyVaultList = isNotEmpty;
-    await SharedPrefsService().setBool(
-        SharedPrefsKeys.isNotEmptyVaultList, isNotEmpty);
+    await SharedPrefsService()
+        .setBool(SharedPrefsKeys.isNotEmptyVaultList, isNotEmpty);
     notifyListeners();
   }
 

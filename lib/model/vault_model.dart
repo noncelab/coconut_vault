@@ -35,10 +35,14 @@ class VaultModel extends ChangeNotifier {
 
   // Vault list
   List<VaultListItem> _vaultList = [];
-  bool _isVaultListLoading = false;
-  // double _vaultListLoadingProgress = 0.0;
   List<VaultListItem> get vaultList => _vaultList;
-  bool get isVaultListLoading => _isVaultListLoading; // 상태 접근자 추가
+  // 리스트 로딩중 여부 (indicator 표시 및 중복 방지)
+  bool _isVaultListLoading = false;
+  bool get isVaultListLoading => _isVaultListLoading;
+  // 리스트 로딩 완료 여부 (로딩작업 완료 후 바로 추가하기 표시)
+  bool _isLoadVaultList = false;
+  bool get isLoadVaultList => _isLoadVaultList;
+  // double _vaultListLoadingProgress = 0.0;
   // double get vaultListLoadingProgress => _vaultListLoadingProgress;
   // static int itemSize = 0;
   bool _vaultInitialized = false;
@@ -239,6 +243,7 @@ class VaultModel extends ChangeNotifier {
 
   void _setVaultListLoading(bool value) {
     _isVaultListLoading = value;
+    _isLoadVaultList = !value;
     notifyListeners();
   }
 
