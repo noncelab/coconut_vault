@@ -404,16 +404,16 @@ class _VaultSettingsState extends State<VaultSettings> {
                                       horizontal: 24),
                                   child: Column(
                                     children: [
-                                      InformationRowItem(
-                                          label: '확장 공개키 보기',
-                                          showIcon: true,
-                                          onPressed: () {
-                                            _removeTooltip();
-                                            _verifyBiometric(0);
-                                          }),
-                                      const Divider(
-                                          color: MyColors.borderLightgrey,
-                                          height: 1),
+                                      // InformationRowItem(
+                                      //     label: '확장 공개키 보기',
+                                      //     showIcon: true,
+                                      //     onPressed: () {
+                                      //       _removeTooltip();
+                                      //       _verifyBiometric(0);
+                                      //     }),
+                                      // const Divider(
+                                      //     color: MyColors.borderLightgrey,
+                                      //     height: 1),
                                       InformationRowItem(
                                         label: '니모닉 문구 보기',
                                         showIcon: true,
