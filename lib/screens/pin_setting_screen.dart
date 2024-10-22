@@ -124,6 +124,7 @@ class _PinSettingScreenState extends State<PinSettingScreen> {
         bool isPinSet =
             SharedPrefsService().getBool(SharedPrefsKeys.isPinEnabled) ?? false;
         if (!isPinSet &&
+            _appModel.canCheckBiometrics &&
             !_appModel.hasAlreadyRequestedBioPermission &&
             mounted) {
           await _appModel.authenticateWithBiometrics(context, isSave: true);
