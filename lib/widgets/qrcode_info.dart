@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:coconut_vault/utils/logger.dart';
+import 'package:coconut_vault/widgets/toast.dart';
 import 'package:flutter/material.dart';
 import 'package:coconut_vault/constants/method_channel.dart';
 import 'package:coconut_vault/styles.dart';
@@ -23,7 +24,7 @@ class _QRCodeInfoState extends State<QRCodeInfo> {
   static const MethodChannel _channel = MethodChannel(methodChannelOS);
   Timer? _toastTimer;
   OverlayEntry? _currentToast;
-  final GlobalKey<_ToastWidgetState> _toastKey = GlobalKey<_ToastWidgetState>();
+  final GlobalKey<ToastWidgetState> _toastKey = GlobalKey<ToastWidgetState>();
 
   @override
   Widget build(BuildContext context) {
@@ -142,88 +143,16 @@ class _QRCodeInfoState extends State<QRCodeInfo> {
         bottom: 10.0,
         left: 20.0,
         right: 20.0,
-        child: _ToastWidget(
+        child: ToastWidget(
           key: _toastKey,
           onClose: () {
             _hideToast();
           },
+          message: '니모닉 문구가 복사됐어요',
         ),
       ),
     );
   }
 }
 
-class _ToastWidget extends StatefulWidget {
-  final VoidCallback onClose;
 
-  const _ToastWidget({required this.onClose, super.key});
-
-  @override
-  _ToastWidgetState createState() => _ToastWidgetState();
-}
-
-class _ToastWidgetState extends State<_ToastWidget>
-    with SingleTickerProviderStateMixin {
-  late AnimationController _controller;
-  late Animation<Offset> _animation;
-
-  @override
-  void initState() {
-    super.initState();
-    _controller = AnimationController(
-      duration: const Duration(milliseconds: 300),
-      vsync: this,
-    );
-
-    _animation = Tween<Offset>(
-      begin: const Offset(0.0, 1.0),
-      end: const Offset(0.0, 0.0),
-    ).animate(CurvedAnimation(
-      parent: _controller,
-      curve: Curves.easeInOut,
-    ));
-
-    _controller.forward();
-  }
-
-  void hide(VoidCallback onAnimationEnd) {
-    _controller.reverse().then((value) {
-      onAnimationEnd();
-    });
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return SlideTransition(
-      position: _animation,
-      child: Container(
-        margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 30),
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-        decoration: BoxDecoration(
-          color: MyColors.transparentBlack_30,
-          borderRadius: BorderRadius.circular(16.0),
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(
-              '니모닉 문구가 복사됐어요',
-              style: Styles.body2Bold
-                  .merge(const TextStyle(color: MyColors.white)),
-            ),
-            const Icon(
-              Icons.check,
-              color: MyColors.white,
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
