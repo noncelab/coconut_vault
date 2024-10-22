@@ -27,7 +27,7 @@ class _QRCodeInfoState extends State<QRCodeInfo> {
 
   @override
   Widget build(BuildContext context) {
-    final double qrSize = MediaQuery.of(context).size.width * 275 / 375;
+    const double qrSize = 375;
 
     return Container(
         padding: const EdgeInsets.symmetric(horizontal: 36),

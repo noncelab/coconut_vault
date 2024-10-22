@@ -93,7 +93,7 @@ class _MnemonicViewScreen extends State<MnemonicViewScreen> {
   }
 
   Widget _buildSkeleton() {
-    final double qrSize = MediaQuery.of(context).size.width * 275 / 375;
+    const double qrSize = 375;
     final int skeletonTextLines = calculateNumberOfLines(
         context, widget.mnemonic, Styles.body2, qrSize, 36);
     List<Widget> textWidgets = [];
