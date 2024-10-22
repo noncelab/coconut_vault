@@ -141,6 +141,7 @@ class _MnemonicViewScreen extends State<MnemonicViewScreen> {
   Widget _buildContent() {
     return QRCodeInfo(
       qrData: widget.mnemonic,
+      toastMessage: '니모닉 문구가 복사됐어요.',
     );
   }
 

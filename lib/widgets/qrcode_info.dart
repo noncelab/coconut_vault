@@ -1,10 +1,7 @@
 import 'dart:async';
-import 'dart:io';
 
-import 'package:coconut_vault/utils/logger.dart';
 import 'package:coconut_vault/widgets/toast.dart';
 import 'package:flutter/material.dart';
-import 'package:coconut_vault/constants/method_channel.dart';
 import 'package:coconut_vault/styles.dart';
 import 'package:coconut_vault/widgets/button/shrink_animation_button.dart';
 import 'package:qr_flutter/qr_flutter.dart';
@@ -13,15 +10,15 @@ import 'package:flutter/services.dart';
 class QRCodeInfo extends StatefulWidget {
   final String qrData;
   final Widget? qrcodeTopWidget;
+  final String toastMessage;
 
-  const QRCodeInfo({super.key, required this.qrData, this.qrcodeTopWidget});
+  const QRCodeInfo({super.key, required this.qrData, required this.toastMessage, this.qrcodeTopWidget});
 
   @override
   State<QRCodeInfo> createState() => _QRCodeInfoState();
 }
 
 class _QRCodeInfoState extends State<QRCodeInfo> {
-  static const MethodChannel _channel = MethodChannel(methodChannelOS);
   Timer? _toastTimer;
   OverlayEntry? _currentToast;
   final GlobalKey<ToastWidgetState> _toastKey = GlobalKey<ToastWidgetState>();
@@ -100,20 +97,6 @@ class _QRCodeInfoState extends State<QRCodeInfo> {
   }
 
   void _showToast() async {
-    if (Platform.isAndroid) {
-      try {
-        final String version =
-            await _channel.invokeMethod('getPlatformVersion');
-
-        // 안드로이드13 부터는 클립보드 복사 메세지가 나오기 때문에 예외 적용
-        if (int.parse(version) > 12) {
-          return;
-        }
-      } on PlatformException catch (e) {
-        Logger.log("Failed to get platform version: '${e.message}'.");
-      }
-    }
-
     if (_currentToast != null) {
       _currentToast!.remove();
       _toastTimer?.cancel();
@@ -148,7 +131,7 @@ class _QRCodeInfoState extends State<QRCodeInfo> {
           onClose: () {
             _hideToast();
           },
-          message: '니모닉 문구가 복사됐어요',
+          message: widget.toastMessage,
         ),
       ),
     );

@@ -30,20 +30,6 @@ class _ExportDetailScreen extends State<ExportDetailScreen> {
   }
 
   void _showToast() async {
-    if (Platform.isAndroid) {
-      try {
-        final String version =
-            await _channel.invokeMethod('getPlatformVersion');
-
-        // 안드로이드13 부터는 클립보드 복사 메세지가 나오기 때문에 예외 적용
-        if (int.parse(version) > 12) {
-          return;
-        }
-      } on PlatformException catch (e) {
-        Logger.log("Failed to get platform version: '${e.message}'.");
-      }
-    }
-
     if (_currentToast != null) {
       _currentToast!.remove();
       _toastTimer?.cancel();

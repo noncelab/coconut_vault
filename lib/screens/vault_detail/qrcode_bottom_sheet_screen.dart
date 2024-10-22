@@ -35,7 +35,7 @@ class _QrcodeBottomSheetScreenState extends State<QrcodeBottomSheetScreen> {
             qrcodeTopWidget: widget.qrcodeTopWidget,
           )
         : QRCodeInfo(
-            qrData: widget.qrData, qrcodeTopWidget: widget.qrcodeTopWidget);
+            qrData: widget.qrData, qrcodeTopWidget: widget.qrcodeTopWidget, toastMessage: '클립보드에 복사되었어요.',);
   }
 
   @override
