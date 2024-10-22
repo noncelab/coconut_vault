@@ -271,7 +271,7 @@ class AppModel with ChangeNotifier {
     try {
       authenticated = await _auth.authenticate(
         localizedReason:
-            '잠금 해제 시 생체 인증을 사용하시겠습니까?', // 이 문구는 aos, iOS(touch ID)에서 사용됩니다. ios face ID는 info.plist string을 사용합니다.
+            isSave ? '잠금 해제 시 생체 인증을 사용하시겠습니까?' : '생체 인증을 진행해 주세요.', // 이 문구는 aos, iOS(touch ID)에서 사용됩니다. ios face ID는 info.plist string을 사용합니다.
         options: const AuthenticationOptions(
           stickyAuth: true,
           biometricOnly: true,
