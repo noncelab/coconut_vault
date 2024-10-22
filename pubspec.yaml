@@ -24,7 +24,7 @@ publish_to: "none" # Remove this line if you wish to publish to pub.dev
 # version: 1.0.0+7
 
 # web
-version: 1.0.0
+version: 1.0.1
 
 environment:
   sdk: ">=3.3.4 <4.0.0"
