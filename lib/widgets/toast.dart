@@ -5,7 +5,8 @@ class ToastWidget extends StatefulWidget {
   final VoidCallback onClose;
   final String message;
 
-  const ToastWidget({super.key, required this.onClose, this.message = '클립보드에 복사되었어요.'});
+  const ToastWidget(
+      {super.key, required this.onClose, this.message = '클립보드에 복사되었어요.'});
 
   @override
   ToastWidgetState createState() => ToastWidgetState();

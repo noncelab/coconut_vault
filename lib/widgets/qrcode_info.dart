@@ -154,5 +154,3 @@ class _QRCodeInfoState extends State<QRCodeInfo> {
     );
   }
 }
-
-

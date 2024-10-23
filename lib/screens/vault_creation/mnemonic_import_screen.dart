@@ -33,7 +33,7 @@ class _MnemonicImportState extends State<MnemonicImport> {
   bool isNextButtonActive = false;
   bool isValid = true;
   bool isFinishing = false;
-  String? errorMessage = null;
+  String? errorMessage;
 
   final TextEditingController _mnemonicController = TextEditingController();
   final TextEditingController _passphraseController = TextEditingController();
@@ -167,7 +167,7 @@ class _MnemonicImportState extends State<MnemonicImport> {
   Widget build(BuildContext context) {
     return PopScope(
       canPop: false,
-      onPopInvoked: (didPop) {
+      onPopInvokedWithResult: (didPop, _) {
         if (!isFinishing) _onBackPressed(context);
       },
       child: Scaffold(

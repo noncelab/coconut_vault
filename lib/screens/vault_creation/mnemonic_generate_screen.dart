@@ -162,7 +162,7 @@ class _WordsLengthSelectionState extends State<WordsLengthSelection> {
   Widget build(BuildContext context) {
     return PopScope(
       canPop: false,
-      onPopInvoked: (didPop) {
+      onPopInvokedWithResult: (didPop, _) {
         widget.onShowStopDialog();
       },
       child: Padding(
@@ -226,7 +226,7 @@ class _PassphraseSelectionState extends State<PassphraseSelection> {
   Widget build(BuildContext context) {
     return PopScope(
       canPop: false,
-      onPopInvoked: (didPop) {
+      onPopInvokedWithResult: (didPop, _) {
         widget.onShowStopDialog();
       },
       child: Padding(
@@ -334,7 +334,7 @@ class _MnemonicWordsState extends State<MnemonicWords> {
     bool gridviewColumnFlag = false;
     return PopScope(
       canPop: false,
-      onPopInvoked: (didPop) {
+      onPopInvokedWithResult: (didPop, _) {
         widget.onShowStopDialog();
       },
       child: Padding(
