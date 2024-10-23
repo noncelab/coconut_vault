@@ -161,7 +161,7 @@ class _FlipCoinState extends State<FlipCoin> {
   Widget build(BuildContext context) {
     return PopScope(
         canPop: false,
-        onPopInvoked: (didPop) {
+        onPopInvokedWithResult: (didPop, _) {
           widget.onShowStopDialog();
         },
         child: Padding(

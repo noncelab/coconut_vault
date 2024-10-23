@@ -87,7 +87,7 @@ class _VaultListTabState extends State<VaultListTab>
 
         return PopScope(
             canPop: false,
-            onPopInvoked: (didPop) async {
+            onPopInvokedWithResult: (didPop, _) async {
               if (Platform.isAndroid) {
                 final now = DateTime.now();
                 if (_lastPressedAt == null ||

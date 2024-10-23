@@ -258,7 +258,7 @@ class _VaultSettingsState extends State<VaultSettings> {
   Widget build(BuildContext context) {
     return PopScope(
       canPop: true,
-      onPopInvoked: (_) {
+      onPopInvokedWithResult: (didPop, _) {
         _removeTooltip();
       },
       child: Scaffold(
