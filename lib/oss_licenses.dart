@@ -1105,7 +1105,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.''',
     isSdk: false,
     dependencies: [PackageRef('meta'), PackageRef('collection')]);
 
-/// carousel_slider 4.2.1
+/// carousel_slider 5.0.0
 const _carousel_slider = Package(
     name: 'carousel_slider',
     description:
@@ -1113,7 +1113,7 @@ const _carousel_slider = Package(
     homepage: 'https://github.com/serenader2014/flutter_carousel_slider',
     repository: 'https://github.com/serenader2014/flutter_carousel_slider',
     authors: [],
-    version: '4.2.1',
+    version: '5.0.0',
     license: '''MIT License
 
 Copyright (c) 2017 serenader
@@ -1433,33 +1433,21 @@ const _clock = Package(
     isSdk: false,
     dependencies: []);
 
-/// coconut_lib 0.5.9
+/// coconut_lib 0.6.2
 const _coconut_lib = Package(
     name: 'coconut_lib',
-    description: 'This is a library for Coconut Vault, Coconut Wallet.',
+    description:
+        'The coconut_lib is a development tool for mobile air gap Bitcoin wallets. It is written in Dart. Coconut Vault and Coconut Wallet were created using this library.',
     repository: 'https://github.com/noncelab/coconut_lib.git',
     authors: [],
-    version: '0.5.9',
+    version: '0.6.2',
     license: '''Copyright 2024 Nonce Lab
 
-Permission is hereby granted, free of charge, to any person obtaining
-a copy of this software and associated documentation files (the
-“Software”), to deal in the Software without restriction, including
-without limitation the rights to use, copy, modify, merge, publish,
-distribute, sublicense, and/or sell copies of the Software, and to
-permit persons to whom the Software is furnished to do so, subject to
-the following conditions:
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the “Software”), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
 
-The above copyright notice and this permission notice shall be
-included in all copies or substantial portions of the Software.
+The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
 
-THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND,
-EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
 
@@ -1484,7 +1472,7 @@ this Commons Clause License Condition notice.
 Software: All files associated with Coconut Wallet.
 License: MIT
 Licensor: Nonce Lab''',
-    isMarkdown: true,
+    isMarkdown: false,
     isSdk: false,
     dependencies: [
       PackageRef('hex'),
@@ -1495,7 +1483,8 @@ Licensor: Nonce Lab''',
       PackageRef('json_annotation'),
       PackageRef('objectbox'),
       PackageRef('bech32m_i'),
-      PackageRef('decimal')
+      PackageRef('decimal'),
+      PackageRef('flat_buffers')
     ]);
 
 /// code_builder 4.10.0
@@ -1714,14 +1703,14 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.''',
     isSdk: false,
     dependencies: [PackageRef('typed_data')]);
 
-/// crypto 3.0.3
+/// crypto 3.0.5
 const _crypto = Package(
     name: 'crypto',
     description:
         'Implementations of SHA, MD5, and HMAC cryptographic functions.',
     repository: 'https://github.com/dart-lang/crypto',
     authors: [],
-    version: '3.0.3',
+    version: '3.0.5',
     license: '''Copyright 2015, the Dart project authors.
 
 Redistribution and use in source and binary forms, with or without
@@ -2569,14 +2558,14 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.''',
       PackageRef('plugin_platform_interface')
     ]);
 
-/// ejson 0.3.1
+/// ejson 0.4.0
 const _ejson = Package(
     name: 'ejson',
     description: '''EJSON serialization.
 BSON is a binary format used to store JSON-like documents efficiently.  EJSON extends JSON defining how all BSON types should be represented in JSON.''',
     repository: 'https://github.com/realm/realm-dart/ejson/packages/ejson',
     authors: [],
-    version: '0.3.1',
+    version: '0.4.0',
     license: '''Apache License
                            Version 2.0, January 2004
                         http://www.apache.org/licenses/
@@ -2763,7 +2752,7 @@ BSON is a binary format used to store JSON-like documents efficiently.  EJSON ex
       PackageRef('type_plus')
     ]);
 
-/// ejson_annotation 0.3.1
+/// ejson_annotation 0.4.0
 const _ejson_annotation = Package(
     name: 'ejson_annotation',
     description: '''Annotation for EJSON serialization.
@@ -2771,7 +2760,7 @@ BSON is a binary format used to store JSON-like documents efficiently.  EJSON ex
     repository:
         'https://github.com/realm/realm-dart/ejson/packages/ejson_annotation',
     authors: [],
-    version: '0.3.1',
+    version: '0.4.0',
     license: '''Apache License
                            Version 2.0, January 2004
                         http://www.apache.org/licenses/
@@ -3494,13 +3483,13 @@ const _flat_buffers = Package(
     isSdk: false,
     dependencies: []);
 
-/// flutter 3.22.2
+/// flutter 3.24.3
 const _flutter = Package(
     name: 'flutter',
     description: 'A framework for writing Flutter applications',
     homepage: 'https://flutter.dev',
     authors: [],
-    version: '3.22.2',
+    version: '3.24.3',
     license: '''Copyright 2014 The Flutter Authors. All rights reserved.
 
 Redistribution and use in source and binary forms, with or without modification,
@@ -3536,14 +3525,14 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.''',
       PackageRef('vector_math')
     ]);
 
-/// flutter_blue_plus 1.32.11
+/// flutter_blue_plus 1.33.5
 const _flutter_blue_plus = Package(
     name: 'flutter_blue_plus',
     description:
         'Flutter plugin for connecting and communicationg with Bluetooth Low Energy devices, on Android, iOS, and MacOS.',
     homepage: 'https://github.com/boskokg/flutter_blue_plus',
     authors: [],
-    version: '1.32.11',
+    version: '1.33.5',
     license:
         '''Copyright 2017-2023, Paul DeMarco, Bosko Popovic, & Charles Weinberger.
 All rights reserved.
@@ -3656,7 +3645,7 @@ SOFTWARE.''',
       PackageRef('args')
     ]);
 
-/// flutter_plugin_android_lifecycle 2.0.21
+/// flutter_plugin_android_lifecycle 2.0.22
 const _flutter_plugin_android_lifecycle = Package(
     name: 'flutter_plugin_android_lifecycle',
     description:
@@ -3664,7 +3653,7 @@ const _flutter_plugin_android_lifecycle = Package(
     repository:
         'https://github.com/flutter/packages/tree/main/packages/flutter_plugin_android_lifecycle',
     authors: [],
-    version: '2.0.21',
+    version: '2.0.22',
     license: '''Copyright 2013 The Flutter Authors. All rights reserved.
 
 Redistribution and use in source and binary forms, with or without modification,
@@ -4005,14 +3994,14 @@ SOFTWARE.''',
       PackageRef('vector_graphics_compiler')
     ]);
 
-/// fluttertoast 8.2.6
+/// fluttertoast 8.2.8
 const _fluttertoast = Package(
     name: 'fluttertoast',
     description:
         'Toast Library for Flutter, Easily create toast messages in single line of code',
     homepage: 'https://github.com/PonnamKarthik/FlutterToast',
     authors: [],
-    version: '8.2.6',
+    version: '8.2.8',
     license: '''MIT License
 
 Copyright (c) 2020 Karthik Ponnam
@@ -4536,7 +4525,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.''',
       PackageRef('source_helper')
     ]);
 
-/// leak_tracker 10.0.4
+/// leak_tracker 10.0.5
 const _leak_tracker = Package(
     name: 'leak_tracker',
     description:
@@ -4544,7 +4533,7 @@ const _leak_tracker = Package(
     repository:
         'https://github.com/dart-lang/leak_tracker/tree/main/pkgs/leak_tracker',
     authors: [],
-    version: '10.0.4',
+    version: '10.0.5',
     license: '''Copyright 2022, the Dart project authors.
 
 Redistribution and use in source and binary forms, with or without
@@ -4576,14 +4565,14 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.''',
     isSdk: false,
     dependencies: []);
 
-/// leak_tracker_flutter_testing 3.0.3
+/// leak_tracker_flutter_testing 3.0.5
 const _leak_tracker_flutter_testing = Package(
     name: 'leak_tracker_flutter_testing',
     description: 'An internal package to test leak tracking with Flutter.',
     repository:
         'https://github.com/dart-lang/leak_tracker/tree/main/pkgs/leak_tracker_flutter_testing',
     authors: [],
-    version: '3.0.3',
+    version: '3.0.5',
     license: '''Copyright 2022, the Dart project authors.
 
 Redistribution and use in source and binary forms, with or without
@@ -4694,14 +4683,14 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.''',
     isSdk: false,
     dependencies: []);
 
-/// loader_overlay 4.0.1
+/// loader_overlay 4.0.2+1
 const _loader_overlay = Package(
     name: 'loader_overlay',
     description:
         'A simple package to simplify screen management. When loading any async task, this package prevent the user from interacting with the screen until the async task finishes.',
     homepage: 'https://github.com/rodrigobastosv/loading_overlay',
     authors: [],
-    version: '4.0.1',
+    version: '4.0.2+1',
     license: '''MIT License
 
 Copyright (c) 2018 Felix Angelov
@@ -4816,14 +4805,14 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.''',
       PackageRef('local_auth_platform_interface')
     ]);
 
-/// local_auth_darwin 1.4.0
+/// local_auth_darwin 1.4.1
 const _local_auth_darwin = Package(
     name: 'local_auth_darwin',
     description: 'iOS implementation of the local_auth plugin.',
     repository:
         'https://github.com/flutter/packages/tree/main/packages/local_auth/local_auth_darwin',
     authors: [],
-    version: '1.4.0',
+    version: '1.4.1',
     license: '''Copyright 2013 The Flutter Authors. All rights reserved.
 
 Redistribution and use in source and binary forms, with or without modification,
@@ -5060,7 +5049,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.''',
       PackageRef('test_api')
     ]);
 
-/// material_color_utilities 0.8.0
+/// material_color_utilities 0.11.1
 const _material_color_utilities = Package(
     name: 'material_color_utilities',
     description:
@@ -5068,7 +5057,7 @@ const _material_color_utilities = Package(
     repository:
         'https://github.com/material-foundation/material-color-utilities/tree/main/dart',
     authors: [],
-    version: '0.8.0',
+    version: '0.11.1',
     license: '''Apache License
                            Version 2.0, January 2004
                         http://www.apache.org/licenses/
@@ -5246,6 +5235,17 @@ const _material_color_utilities = Package(
 
    END OF TERMS AND CONDITIONS
 
+   APPENDIX: How to apply the Apache License to your work.
+
+   To apply the Apache License to your work, attach the following
+   boilerplate notice, with the fields enclosed by brackets "[]"
+   replaced with your own identifying information. (Don't include
+   the brackets!)  The text should be enclosed in the appropriate
+   comment syntax for the file format. We also recommend that a
+   file or class name and description of purpose be included on the
+   same "printed page" as the copyright notice for easier
+   identification within third-party archives.
+
    Copyright 2021 Google LLC
 
    Licensed under the Apache License, Version 2.0 (the "License");
@@ -5263,14 +5263,14 @@ const _material_color_utilities = Package(
     isSdk: false,
     dependencies: [PackageRef('collection')]);
 
-/// meta 1.12.0
+/// meta 1.15.0
 const _meta = Package(
     name: 'meta',
     description:
         "Annotations used to express developer intentions that can't otherwise be deduced by statically analyzing source code.",
     repository: 'https://github.com/dart-lang/sdk/tree/main/pkg/meta',
     authors: [],
-    version: '1.12.0',
+    version: '1.15.0',
     license: '''Copyright 2016, the Dart project authors.
 
 Redistribution and use in source and binary forms, with or without
@@ -5302,14 +5302,14 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.''',
     isSdk: false,
     dependencies: []);
 
-/// mime 1.0.5
+/// mime 1.0.6
 const _mime = Package(
     name: 'mime',
     description:
         'Utilities for handling media (MIME) types, including determining a type from a file extension and file contents.',
-    repository: 'https://github.com/dart-lang/mime',
+    repository: 'https://github.com/dart-lang/tools/tree/main/pkgs/mime',
     authors: [],
-    version: '1.0.5',
+    version: '1.0.6',
     license: '''Copyright 2015, the Dart project authors. 
 
 Redistribution and use in source and binary forms, with or without
@@ -5792,7 +5792,7 @@ Exhibit B - "Incompatible With Secondary Licenses" Notice
     isSdk: false,
     dependencies: [PackageRef('dbus')]);
 
-/// objectbox 4.0.1
+/// objectbox 4.0.2
 const _objectbox = Package(
     name: 'objectbox',
     description:
@@ -5801,7 +5801,7 @@ const _objectbox = Package(
     repository:
         'https://github.com/objectbox/objectbox-dart/tree/main/objectbox',
     authors: [],
-    version: '4.0.1',
+    version: '4.0.2',
     license: '''Apache License
                            Version 2.0, January 2004
                         http://www.apache.org/licenses/
@@ -6013,7 +6013,7 @@ const _objectbox = Package(
       PackageRef('path')
     ]);
 
-/// objectbox_flutter_libs 4.0.1
+/// objectbox_flutter_libs 4.0.2
 const _objectbox_flutter_libs = Package(
     name: 'objectbox_flutter_libs',
     description:
@@ -6022,7 +6022,7 @@ const _objectbox_flutter_libs = Package(
     repository:
         'https://github.com/objectbox/objectbox-dart/tree/main/flutter_libs',
     authors: [],
-    version: '4.0.1',
+    version: '4.0.2',
     license: '''Apache License
                            Version 2.0, January 2004
                         http://www.apache.org/licenses/
@@ -6232,7 +6232,7 @@ const _objectbox_flutter_libs = Package(
       PackageRef('path_provider')
     ]);
 
-/// objectid 3.0.0
+/// objectid 3.1.0
 const _objectid = Package(
     name: 'objectid',
     description:
@@ -6240,7 +6240,7 @@ const _objectid = Package(
     homepage: 'https://github.com/gonuit/dart_objectid',
     repository: 'https://github.com/gonuit/dart_objectid',
     authors: [],
-    version: '3.0.0',
+    version: '3.1.0',
     license: '''MIT License
 
 Copyright (c) 2020 Kamil Klyta
@@ -7345,7 +7345,7 @@ const _rational = Package(
     isSdk: false,
     dependencies: []);
 
-/// realm 3.3.0
+/// realm 3.4.1
 const _realm = Package(
     name: 'realm',
     description:
@@ -7353,7 +7353,7 @@ const _realm = Package(
     homepage: 'https://www.realm.io',
     repository: 'https://github.com/realm/realm-dart',
     authors: [],
-    version: '3.3.0',
+    version: '3.4.1',
     license: '''Apache License
                            Version 2.0, January 2004
                         http://www.apache.org/licenses/
@@ -7534,7 +7534,7 @@ const _realm = Package(
     isSdk: false,
     dependencies: [PackageRef('flutter'), PackageRef('realm_dart')]);
 
-/// realm_common 3.3.0
+/// realm_common 3.4.1
 const _realm_common = Package(
     name: 'realm_common',
     description:
@@ -7542,7 +7542,7 @@ const _realm_common = Package(
     homepage: 'https://www.realm.io',
     repository: 'https://github.com/realm/realm-dart',
     authors: [],
-    version: '3.3.0',
+    version: '3.4.1',
     license: '''Apache License
                            Version 2.0, January 2004
                         http://www.apache.org/licenses/
@@ -7727,7 +7727,7 @@ const _realm_common = Package(
       PackageRef('sane_uuid')
     ]);
 
-/// realm_dart 3.3.0
+/// realm_dart 3.4.1
 const _realm_dart = Package(
     name: 'realm_dart',
     description:
@@ -7735,7 +7735,7 @@ const _realm_dart = Package(
     homepage: 'https://www.realm.io',
     repository: 'https://github.com/realm/realm-dart',
     authors: [],
-    version: '3.3.0',
+    version: '3.4.1',
     license: '''Apache License
                            Version 2.0, January 2004
                         http://www.apache.org/licenses/
@@ -7935,10 +7935,11 @@ const _realm_dart = Package(
       PackageRef('http'),
       PackageRef('cancellation_token'),
       PackageRef('decimal'),
-      PackageRef('rational')
+      PackageRef('rational'),
+      PackageRef('type_plus')
     ]);
 
-/// realm_generator 3.3.0
+/// realm_generator 3.4.1
 const _realm_generator = Package(
     name: 'realm_generator',
     description:
@@ -7946,7 +7947,7 @@ const _realm_generator = Package(
     homepage: 'https://www.realm.io',
     repository: 'https://github.com/realm/realm-dart',
     authors: [],
-    version: '3.3.0',
+    version: '3.4.1',
     license: '''Apache License
                            Version 2.0, January 2004
                         http://www.apache.org/licenses/
@@ -8242,7 +8243,7 @@ SOFTWARE.''',
     isSdk: false,
     dependencies: [PackageRef('flutter')]);
 
-/// shared_preferences 2.3.1
+/// shared_preferences 2.3.2
 const _shared_preferences = Package(
     name: 'shared_preferences',
     description:
@@ -8250,7 +8251,7 @@ const _shared_preferences = Package(
     repository:
         'https://github.com/flutter/packages/tree/main/packages/shared_preferences/shared_preferences',
     authors: [],
-    version: '2.3.1',
+    version: '2.3.2',
     license: '''Copyright 2013 The Flutter Authors. All rights reserved.
 
 Redistribution and use in source and binary forms, with or without modification,
@@ -8288,14 +8289,14 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.''',
       PackageRef('shared_preferences_windows')
     ]);
 
-/// shared_preferences_android 2.3.1
+/// shared_preferences_android 2.3.2
 const _shared_preferences_android = Package(
     name: 'shared_preferences_android',
     description: 'Android implementation of the shared_preferences plugin',
     repository:
         'https://github.com/flutter/packages/tree/main/packages/shared_preferences/shared_preferences_android',
     authors: [],
-    version: '2.3.1',
+    version: '2.3.2',
     license: '''Copyright 2013 The Flutter Authors. All rights reserved.
 
 Redistribution and use in source and binary forms, with or without modification,
@@ -8328,7 +8329,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.''',
       PackageRef('shared_preferences_platform_interface')
     ]);
 
-/// shared_preferences_foundation 2.5.2
+/// shared_preferences_foundation 2.5.3
 const _shared_preferences_foundation = Package(
     name: 'shared_preferences_foundation',
     description:
@@ -8336,7 +8337,7 @@ const _shared_preferences_foundation = Package(
     repository:
         'https://github.com/flutter/packages/tree/main/packages/shared_preferences/shared_preferences_foundation',
     authors: [],
-    version: '2.5.2',
+    version: '2.5.3',
     license: '''Copyright 2013 The Flutter Authors. All rights reserved.
 
 Redistribution and use in source and binary forms, with or without modification,
@@ -9209,14 +9210,14 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.''',
     isSdk: false,
     dependencies: []);
 
-/// test_api 0.7.0
+/// test_api 0.7.2
 const _test_api = Package(
     name: 'test_api',
     description:
         'The user facing API for structuring Dart tests and checking expectations.',
     repository: 'https://github.com/dart-lang/test/tree/master/pkgs/test_api',
     authors: [],
-    version: '0.7.0',
+    version: '0.7.2',
     license: '''Copyright 2018, the Dart project authors. 
 
 Redistribution and use in source and binary forms, with or without
@@ -9536,14 +9537,14 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.''',
       PackageRef('url_launcher_platform_interface')
     ]);
 
-/// url_launcher_macos 3.2.0
+/// url_launcher_macos 3.2.1
 const _url_launcher_macos = Package(
     name: 'url_launcher_macos',
     description: 'macOS implementation of the url_launcher plugin.',
     repository:
         'https://github.com/flutter/packages/tree/main/packages/url_launcher/url_launcher_macos',
     authors: [],
-    version: '3.2.0',
+    version: '3.2.1',
     license: '''Copyright 2013 The Flutter Authors. All rights reserved.
 
 Redistribution and use in source and binary forms, with or without modification,
@@ -10159,14 +10160,14 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.''',
       PackageRef('device_info_plus')
     ]);
 
-/// vm_service 14.2.1
+/// vm_service 14.2.5
 const _vm_service = Package(
     name: 'vm_service',
     description:
         'A library to communicate with a service implementing the Dart VM service protocol.',
     repository: 'https://github.com/dart-lang/sdk/tree/main/pkg/vm_service',
     authors: [],
-    version: '14.2.1',
+    version: '14.2.5',
     license: '''Copyright 2015, the Dart project authors.
 
 Redistribution and use in source and binary forms, with or without
@@ -10237,14 +10238,13 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.''',
     isSdk: false,
     dependencies: [PackageRef('async'), PackageRef('path')]);
 
-/// web 0.5.1
+/// web 1.1.0
 const _web = Package(
     name: 'web',
-    description:
-        'Lightweight browser API bindings built around JS static interop.',
+    description: 'Lightweight browser API bindings built around JS interop.',
     repository: 'https://github.com/dart-lang/web',
     authors: [],
-    version: '0.5.1',
+    version: '1.1.0',
     license: '''Copyright 2023, the Dart project authors.
 
 Redistribution and use in source and binary forms, with or without
@@ -10401,14 +10401,14 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.''',
     isSdk: false,
     dependencies: [PackageRef('ffi')]);
 
-/// win32_registry 1.1.4
+/// win32_registry 1.1.5
 const _win32_registry = Package(
     name: 'win32_registry',
     description:
         'A package that provides a friendly Dart API for accessing the Windows Registry.',
     repository: 'https://github.com/halildurmus/win32_registry',
     authors: [],
-    version: '1.1.4',
+    version: '1.1.5',
     license: '''BSD 3-Clause License
 
 Copyright (c) 2023, Halil Durmus
@@ -10441,7 +10441,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.''',
     isSdk: false,
     dependencies: [PackageRef('ffi'), PackageRef('win32')]);
 
-/// xdg_directories 1.0.4
+/// xdg_directories 1.1.0
 const _xdg_directories = Package(
     name: 'xdg_directories',
     description:
@@ -10449,7 +10449,7 @@ const _xdg_directories = Package(
     repository:
         'https://github.com/flutter/packages/tree/main/packages/xdg_directories',
     authors: [],
-    version: '1.0.4',
+    version: '1.1.0',
     license: '''Copyright 2013 The Flutter Authors. All rights reserved.
 
 Redistribution and use in source and binary forms, with or without modification,
