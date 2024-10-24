@@ -87,10 +87,8 @@ class _MnemonicGenerateScreenState extends State<MnemonicGenerateScreen> {
   }
 
   void _showConfirmBottomSheet() {
-    MyBottomSheet.showBottomSheet(
-      title: '',
+    MyBottomSheet.showBottomSheet_90(
       context: context,
-      titlePadding: const EdgeInsets.only(bottom: 20),
       child: MnemonicConfirm(
         onCancelPressed: () => Navigator.pop(context),
         onConfirmPressed: () =>
@@ -592,7 +590,8 @@ class _MnemonicWordsState extends State<MnemonicWords> {
                       }
                     },
                     label: '완료',
-                    disabled: passphrase.isEmpty)
+                    disabled: passphrase.isEmpty),
+              const SizedBox(height: 40),
             ],
           )),
     );
