@@ -193,8 +193,13 @@ class AppModel with ChangeNotifier {
   List<String> _pinShuffleNumbers = [];
   List<String> get pinShuffleNumbers => _pinShuffleNumbers;
 
+  /// 안드로이드8 대응
+  bool _isAndroid8 = false;
+  bool get isAndroid8 => _isAndroid8;
+
   Future setInitData() async {
     await checkDeviceBiometrics();
+    _isAndroid8 = await checkIfAndroidVersion8();
     final prefs = SharedPrefsService();
     _hasSeenGuide = prefs.getBool(SharedPrefsKeys.hasShownStartGuide) == true;
     _isPinEnabled = prefs.getBool(SharedPrefsKeys.isPinEnabled) == true;
@@ -231,6 +236,25 @@ class AppModel with ChangeNotifier {
     _hasSeenGuide = true;
     SharedPrefsService().setBool(SharedPrefsKeys.hasShownStartGuide, true);
     notifyListeners();
+  }
+
+  /// 기기의 OS 버전이 안드로이드 OS 8.0 인지 체크
+  Future<bool> checkIfAndroidVersion8() async {
+    debugPrint('OS Version Check!!!');
+    if (Platform.isAndroid) {
+      try {
+        final int version = await const MethodChannel(methodChannelOS)
+            .invokeMethod('getSdkVersion');
+        if (version == 26) {
+          debugPrint('OS Version Checked! is Android 8');
+          return true;
+        }
+      } on PlatformException catch (e) {
+        Logger.log("Failed to get platform version: '${e.message}'.");
+        return false;
+      }
+    }
+    return false;
   }
 
   /// 기기의 생체인증 가능 여부 업데이트

@@ -20,7 +20,10 @@ class MainActivity: FlutterFragmentActivity() {
             if (call.method == "getPlatformVersion") {
                 val version = Build.VERSION.RELEASE
                 result.success(version)
-            } else if (call.method == "isDeveloperModeEnabled") {
+            } else if(call.method == "getSdkVersion"){
+                result.success(Build.VERSION.SDK_INT)
+            }
+            else if (call.method == "isDeveloperModeEnabled") {
                     result.success(isDeveloperModeEnabled())
             }
             else {
