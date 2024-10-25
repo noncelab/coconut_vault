@@ -64,48 +64,48 @@ class _MnemonicConfirmState extends State<MnemonicConfirm> {
 
   @override
   Widget build(BuildContext context) {
-      return ClipRRect(
-        borderRadius: BorderRadius.circular(24),
-        child: Scaffold(
-          body: Padding(
-            padding: Paddings.container,
-            child: SingleChildScrollView(
-              controller: _scrollController,
-              child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    _topText(),
-                    const SizedBox(height: 20),
-                    _mnemonicWidget(),
-                    const SizedBox(height: 20),
-                    Visibility(
-                      visible: widget.passphrase != null,
-                      child: Row(
-                        children: [
-                          const Text('패스프레이즈', style: Styles.body2Bold),
-                          Text(
-                            ' (총 ${widget.passphrase?.length} 글자)',
-                            style: TextStyle(
-                              fontFamily: CustomFonts.text.getFontFamily,
-                              fontSize: 13.0,
-                              fontWeight: FontWeight.w400,
-                              letterSpacing: 0.2,
-                              color: MyColors.darkgrey,
-                            ),
-                          ),
-                        ],
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(24),
+      child: Scaffold(
+        body: Padding(
+          padding: Paddings.container,
+          child: SingleChildScrollView(
+            controller: _scrollController,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _topText(),
+                const SizedBox(height: 20),
+                _mnemonicWidget(),
+                const SizedBox(height: 20),
+                Visibility(
+                  visible: widget.passphrase != null,
+                  child: Row(
+                    children: [
+                      const Text('패스프레이즈', style: Styles.body2Bold),
+                      Text(
+                        ' (총 ${widget.passphrase?.length} 글자)',
+                        style: TextStyle(
+                          fontFamily: CustomFonts.text.getFontFamily,
+                          fontSize: 13.0,
+                          fontWeight: FontWeight.w400,
+                          letterSpacing: 0.2,
+                          color: MyColors.darkgrey,
+                        ),
                       ),
-                    ),
-                    _hintText(),
-                    const SizedBox(height: 8),
-                    _passphraseGridViewWidget(),
-                  ],
+                    ],
+                  ),
                 ),
+                _hintText(),
+                const SizedBox(height: 8),
+                _passphraseGridViewWidget(),
+              ],
             ),
           ),
-          bottomNavigationBar: _bottomButton(),
         ),
-      );
+        bottomNavigationBar: _bottomButton(),
+      ),
+    );
     //);
   }
 
@@ -168,9 +168,11 @@ class _MnemonicConfirmState extends State<MnemonicConfirm> {
         GridView.builder(
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
-          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
             crossAxisCount: 3, // Number of columns
-            childAspectRatio: 2.7, // Aspect ratio for grid items
+            childAspectRatio: MediaQuery.of(context).size.height > 640
+                ? 2.7
+                : 2, // Aspect ratio for grid items
             crossAxisSpacing: 0, // Space between columns
             mainAxisSpacing: 1, // Space between rows
           ),

@@ -132,9 +132,7 @@ class _MnemonicGenerateScreenState extends State<MnemonicGenerateScreen> {
           hasRightIcon: false,
         ),
         body: SafeArea(
-          child: SingleChildScrollView(
-            child: screens[step],
-          ),
+          child: screens[step],
         ));
   }
 }
@@ -335,265 +333,273 @@ class _MnemonicWordsState extends State<MnemonicWords> {
       onPopInvokedWithResult: (didPop, _) {
         widget.onShowStopDialog();
       },
-      child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16.0),
-          child: Column(
-            children: [
-              Padding(
-                padding: const EdgeInsets.only(top: 20.0, bottom: 12),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    HighLightedText(widget.wordsCount.toString(),
-                        color: MyColors.darkgrey),
-                    const Text(' 단어, 패스프레이즈 '),
-                    widget.usePassphrase
-                        ? const HighLightedText('사용', color: MyColors.darkgrey)
-                        : const Row(
-                            children: [
-                              Text('사용 '),
-                              HighLightedText('안함', color: MyColors.darkgrey),
-                            ],
-                          ),
-                    GestureDetector(
-                        onTap: widget.onReset,
-                        child: Container(
-                            margin: const EdgeInsets.only(left: 8),
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 8, vertical: 4),
-                            decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(8),
-                                border: Border.all(color: MyColors.borderGrey)),
-                            child: const Text(
-                              '다시 고르기',
-                              style: Styles.caption,
-                            )))
-                  ],
-                ),
-              ),
-              if (widget.usePassphrase)
+      child: SingleChildScrollView(
+        child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16.0),
+            child: Column(
+              children: [
                 Padding(
-                  padding: const EdgeInsets.only(top: 20),
+                  padding: const EdgeInsets.only(top: 20.0, bottom: 12),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      NumberWidget(
-                          number: 1,
-                          assetPath: 'assets/svg/number/one.svg',
-                          selected: step == 0,
-                          onSelected: () {
-                            setState(() {
-                              step = 0;
-                            });
-                          }),
-                      const Text('•••'),
-                      NumberWidget(
-                          number: 2,
-                          assetPath: 'assets/svg/number/two.svg',
-                          selected: step == 1,
-                          onSelected: () {
-                            setState(() {
-                              step = 1;
-                            });
-                          }),
+                      HighLightedText(widget.wordsCount.toString(),
+                          color: MyColors.darkgrey),
+                      const Text(' 단어, 패스프레이즈 '),
+                      widget.usePassphrase
+                          ? const HighLightedText('사용',
+                              color: MyColors.darkgrey)
+                          : const Row(
+                              children: [
+                                Text('사용 '),
+                                HighLightedText('안함', color: MyColors.darkgrey),
+                              ],
+                            ),
+                      GestureDetector(
+                          onTap: widget.onReset,
+                          child: Container(
+                              margin: const EdgeInsets.only(left: 8),
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 8, vertical: 4),
+                              decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(8),
+                                  border:
+                                      Border.all(color: MyColors.borderGrey)),
+                              child: const Text(
+                                '다시 고르기',
+                                style: Styles.caption,
+                              )))
                     ],
                   ),
                 ),
-              Container(
-                  margin: const EdgeInsets.symmetric(vertical: 12),
-                  width: MediaQuery.of(context).size.width,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(24),
-                    color: MyColors.white,
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.grey.withOpacity(0.3),
-                        spreadRadius: 4,
-                        blurRadius: 30,
-                      ),
-                    ],
+                if (widget.usePassphrase)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 20),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        NumberWidget(
+                            number: 1,
+                            assetPath: 'assets/svg/number/one.svg',
+                            selected: step == 0,
+                            onSelected: () {
+                              setState(() {
+                                step = 0;
+                              });
+                            }),
+                        const Text('•••'),
+                        NumberWidget(
+                            number: 2,
+                            assetPath: 'assets/svg/number/two.svg',
+                            selected: step == 1,
+                            onSelected: () {
+                              setState(() {
+                                step = 1;
+                              });
+                            }),
+                      ],
+                    ),
                   ),
-                  child: step == 0
-                      ? Container(
-                          padding: const EdgeInsets.fromLTRB(0, 24, 0, 32),
-                          child: Column(
-                            children: [
-                              GestureDetector(
-                                  onTap: _generateMnemonicPhrase,
-                                  child: const Padding(
-                                    padding: EdgeInsets.fromLTRB(0, 0, 24, 0),
-                                    child: Row(children: [
-                                      Spacer(),
-                                      Icon(
-                                        Icons.refresh_rounded,
-                                        color: MyColors.borderGrey,
-                                      )
-                                    ]),
-                                  )),
-                              const SizedBox(height: 8),
-                              GridView.builder(
-                                shrinkWrap: true,
-                                physics: const NeverScrollableScrollPhysics(),
-                                gridDelegate:
-                                    const SliverGridDelegateWithFixedCrossAxisCount(
-                                  crossAxisCount: 3, // Number of columns
-                                  childAspectRatio:
-                                      2.5, // Aspect ratio for grid items
-                                  crossAxisSpacing: 0, // Space between columns
-                                  mainAxisSpacing: 0, // Space between rows
+                Container(
+                    margin: const EdgeInsets.symmetric(vertical: 12),
+                    width: MediaQuery.of(context).size.width,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(24),
+                      color: MyColors.white,
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.grey.withOpacity(0.3),
+                          spreadRadius: 4,
+                          blurRadius: 30,
+                        ),
+                      ],
+                    ),
+                    child: step == 0
+                        ? Container(
+                            padding: const EdgeInsets.fromLTRB(0, 24, 0, 32),
+                            child: Column(
+                              children: [
+                                GestureDetector(
+                                    onTap: _generateMnemonicPhrase,
+                                    child: const Padding(
+                                      padding: EdgeInsets.fromLTRB(0, 0, 24, 0),
+                                      child: Row(children: [
+                                        Spacer(),
+                                        Icon(
+                                          Icons.refresh_rounded,
+                                          color: MyColors.borderGrey,
+                                        )
+                                      ]),
+                                    )),
+                                //const SizedBox(height: 8),
+                                GridView.builder(
+                                  shrinkWrap: true,
+                                  physics: const NeverScrollableScrollPhysics(),
+                                  gridDelegate:
+                                      SliverGridDelegateWithFixedCrossAxisCount(
+                                    crossAxisCount: 3, // Number of columns
+                                    childAspectRatio:
+                                        MediaQuery.of(context).size.height > 640
+                                            ? 2.5
+                                            : 2, // Aspect ratio for grid items
+                                    crossAxisSpacing:
+                                        0, // Space between columns
+                                    mainAxisSpacing: 0, // Space between rows
+                                  ),
+                                  itemCount: mnemonic.split(' ').length,
+                                  itemBuilder:
+                                      (BuildContext context, int index) {
+                                    if (index % 3 == 0) {
+                                      gridviewColumnFlag = !gridviewColumnFlag;
+                                    }
+
+                                    return Container(
+                                      alignment: Alignment.center,
+                                      child: Column(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          Text(
+                                            (index + 1).toString(),
+                                            style: Styles.body2.merge(
+                                              TextStyle(
+                                                fontFamily: CustomFonts
+                                                    .number.getFontFamily,
+                                                color: MyColors.darkgrey,
+                                                fontSize: 12,
+                                              ),
+                                            ),
+                                          ),
+                                          Text(
+                                            mnemonic.split(' ')[index],
+                                            style: Styles.body2.merge(
+                                              const TextStyle(
+                                                fontSize: 16,
+                                              ),
+                                            ),
+                                            overflow: TextOverflow.visible,
+                                          ),
+                                        ],
+                                      ),
+                                    );
+                                  },
                                 ),
-                                itemCount: mnemonic.split(' ').length,
-                                itemBuilder: (BuildContext context, int index) {
-                                  if (index % 3 == 0) {
-                                    gridviewColumnFlag = !gridviewColumnFlag;
-                                  }
-
-                                  return Container(
-                                    alignment: Alignment.center,
-                                    child: Column(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.center,
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: [
-                                        Text(
-                                          (index + 1).toString(),
-                                          style: Styles.body2.merge(
-                                            TextStyle(
-                                              fontFamily: CustomFonts
-                                                  .number.getFontFamily,
-                                              color: MyColors.darkgrey,
-                                              fontSize: 12,
-                                            ),
-                                          ),
-                                        ),
-                                        Text(
-                                          mnemonic.split(' ')[index],
-                                          style: Styles.body2.merge(
-                                            const TextStyle(
-                                              fontSize: 16,
-                                            ),
-                                          ),
-                                          overflow: TextOverflow.ellipsis,
-                                        ),
-                                      ],
-                                    ),
-                                  );
-                                },
-                              ),
-                            ],
-                          ),
-                        )
-                      : Container(
-                          padding: const EdgeInsets.fromLTRB(24, 24, 24, 32),
-                          child: Column(
-                            children: [
-                              Padding(
-                                padding: const EdgeInsets.only(top: 12),
-                                child: SizedBox(
-                                  child: CustomTextField(
-                                    controller: _passphraseController,
-                                    placeholder: "패스프레이즈를 입력해 주세요",
-                                    onChanged: (text) {
-                                      setState(() {
-                                        passphrase = text;
-                                      });
-
-                                      if (!widget.usePassphrase) {
-                                        widget.onFinished(
-                                            mnemonic, text, false);
-                                      }
-                                    },
-                                    maxLines: 1,
-                                    obscureText: passphraseObscured,
-                                    suffix: CupertinoButton(
-                                      onPressed: () {
+                              ],
+                            ),
+                          )
+                        : Container(
+                            padding: const EdgeInsets.fromLTRB(24, 24, 24, 32),
+                            child: Column(
+                              children: [
+                                Padding(
+                                  padding: const EdgeInsets.only(top: 12),
+                                  child: SizedBox(
+                                    child: CustomTextField(
+                                      controller: _passphraseController,
+                                      placeholder: "패스프레이즈를 입력해 주세요",
+                                      onChanged: (text) {
                                         setState(() {
-                                          passphraseObscured =
-                                              !passphraseObscured;
+                                          passphrase = text;
                                         });
-                                      },
-                                      child: passphraseObscured
-                                          ? const Icon(
-                                              CupertinoIcons.eye_slash,
-                                              color: MyColors.darkgrey,
-                                              size: 18,
-                                            )
-                                          : const Icon(
-                                              CupertinoIcons.eye,
-                                              color: MyColors.darkgrey,
-                                              size: 18,
-                                            ),
-                                    ),
-                                    maxLength: 100,
-                                  ),
-                                ),
-                              ),
-                              Padding(
-                                padding:
-                                    const EdgeInsets.only(top: 4, right: 4),
-                                child: Align(
-                                  alignment: Alignment.topRight,
-                                  child: Text(
-                                    '(${passphrase.length} / 100)',
-                                    style: TextStyle(
-                                        color: passphrase.length == 100
-                                            ? MyColors.transparentBlack
-                                            : MyColors.transparentBlack_50,
-                                        fontSize: 12,
-                                        fontFamily:
-                                            CustomFonts.text.getFontFamily),
-                                  ),
-                                ),
-                              )
-                            ],
-                          ),
-                        )),
-              if (step == 0)
-                const Text('안전한 장소에서 니모닉 문구를 백업해 주세요', style: Styles.warning),
-              if (step == 0 && stepCount == 2)
-                CompleteButton(
-                    onPressed: () {
-                      setState(() {
-                        step = 1;
-                      });
-                    },
-                    label: '백업 완료',
-                    disabled: false),
-              if (step == 1)
-                SizedBox(
-                  width: MediaQuery.of(context).size.width - 32,
-                  child: const Text(
-                    '입력하신 패스프레이즈는 보관과 유출에 유의해 주세요',
-                    style: Styles.warning,
-                    textAlign: TextAlign.center,
-                  ),
-                ),
-              if (!widget.usePassphrase)
-                CompleteButton(
-                    onPressed: () {
-                      vaultModel.startImporting(mnemonic, passphrase);
-                      widget.onFinished(mnemonic, passphrase, true);
 
-                      widget.onShowConfirmBottomSheet();
-                    },
-                    label: '백업 완료',
-                    disabled: false),
-              if (widget.usePassphrase && step == 1)
-                CompleteButton(
-                    onPressed: () {
-                      if (passphrase.isNotEmpty) {
+                                        if (!widget.usePassphrase) {
+                                          widget.onFinished(
+                                              mnemonic, text, false);
+                                        }
+                                      },
+                                      maxLines: 1,
+                                      obscureText: passphraseObscured,
+                                      suffix: CupertinoButton(
+                                        onPressed: () {
+                                          setState(() {
+                                            passphraseObscured =
+                                                !passphraseObscured;
+                                          });
+                                        },
+                                        child: passphraseObscured
+                                            ? const Icon(
+                                                CupertinoIcons.eye_slash,
+                                                color: MyColors.darkgrey,
+                                                size: 18,
+                                              )
+                                            : const Icon(
+                                                CupertinoIcons.eye,
+                                                color: MyColors.darkgrey,
+                                                size: 18,
+                                              ),
+                                      ),
+                                      maxLength: 100,
+                                    ),
+                                  ),
+                                ),
+                                Padding(
+                                  padding:
+                                      const EdgeInsets.only(top: 4, right: 4),
+                                  child: Align(
+                                    alignment: Alignment.topRight,
+                                    child: Text(
+                                      '(${passphrase.length} / 100)',
+                                      style: TextStyle(
+                                          color: passphrase.length == 100
+                                              ? MyColors.transparentBlack
+                                              : MyColors.transparentBlack_50,
+                                          fontSize: 12,
+                                          fontFamily:
+                                              CustomFonts.text.getFontFamily),
+                                    ),
+                                  ),
+                                )
+                              ],
+                            ),
+                          )),
+                if (step == 0)
+                  const Text('안전한 장소에서 니모닉 문구를 백업해 주세요', style: Styles.warning),
+                if (step == 0 && stepCount == 2)
+                  CompleteButton(
+                      onPressed: () {
+                        setState(() {
+                          step = 1;
+                        });
+                      },
+                      label: '백업 완료',
+                      disabled: false),
+                if (step == 1)
+                  SizedBox(
+                    width: MediaQuery.of(context).size.width - 32,
+                    child: const Text(
+                      '입력하신 패스프레이즈는 보관과 유출에 유의해 주세요',
+                      style: Styles.warning,
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                if (!widget.usePassphrase)
+                  CompleteButton(
+                      onPressed: () {
                         vaultModel.startImporting(mnemonic, passphrase);
                         widget.onFinished(mnemonic, passphrase, true);
+
                         widget.onShowConfirmBottomSheet();
-                      } else {
-                        widget.onFinished(mnemonic, passphrase, false);
-                      }
-                    },
-                    label: '완료',
-                    disabled: passphrase.isEmpty),
-              const SizedBox(height: 40),
-            ],
-          )),
+                      },
+                      label: '백업 완료',
+                      disabled: false),
+                if (widget.usePassphrase && step == 1)
+                  CompleteButton(
+                      onPressed: () {
+                        if (passphrase.isNotEmpty) {
+                          vaultModel.startImporting(mnemonic, passphrase);
+                          widget.onFinished(mnemonic, passphrase, true);
+                          widget.onShowConfirmBottomSheet();
+                        } else {
+                          widget.onFinished(mnemonic, passphrase, false);
+                        }
+                      },
+                      label: '완료',
+                      disabled: passphrase.isEmpty),
+                const SizedBox(height: 40),
+              ],
+            )),
+      ),
     );
   }
 }
