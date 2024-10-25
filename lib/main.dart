@@ -1,5 +1,9 @@
+import 'dart:io';
+
 import 'package:coconut_lib/coconut_lib.dart';
+import 'package:coconut_vault/constants/method_channel.dart';
 import 'package:coconut_vault/services/shared_preferences_service.dart';
+import 'package:coconut_vault/utils/logger.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'package:coconut_vault/app.dart';
@@ -15,8 +19,22 @@ void main() async {
   // Isolate 토큰 생성 및 초기화
   final RootIsolateToken rootIsolateToken = RootIsolateToken.instance!;
   BackgroundIsolateBinaryMessenger.ensureInitialized(rootIsolateToken);
-  SystemChrome.setPreferredOrientations(
-      [DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]);
+  if (Platform.isAndroid) {
+    try {
+      const MethodChannel channel = MethodChannel(methodChannelOS);
+
+      final int version = await channel.invokeMethod('getSdkVersion');
+      if (version != 26) {
+        SystemChrome.setPreferredOrientations(
+            [DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]);
+      }
+    } on PlatformException catch (e) {
+      Logger.log("Failed to get platform version: '${e.message}'.");
+    }
+  } else {
+    SystemChrome.setPreferredOrientations(
+        [DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]);
+  }
 
   Provider.debugCheckInvalidValueType = null;
   final dbDirectory = await getAppDocumentDirectory(paths: ['objectbox']);

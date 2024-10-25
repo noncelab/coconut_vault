@@ -1,7 +1,7 @@
+import 'package:coconut_vault/widgets/button/clipboard_button.dart';
 import 'package:flutter/material.dart';
 import 'package:coconut_vault/styles.dart';
 import 'package:coconut_vault/utils/calc_textlines.dart';
-import 'package:coconut_vault/widgets/qrcode_info.dart';
 import 'package:shimmer/shimmer.dart';
 
 class MnemonicViewScreen extends StatefulWidget {
@@ -139,9 +139,7 @@ class _MnemonicViewScreen extends State<MnemonicViewScreen> {
   }
 
   Widget _buildContent() {
-    return QRCodeInfo(
-      qrData: widget.mnemonic,
-    );
+    return ClipboardButton(text: widget.mnemonic);
   }
 
   Widget _passphraseButton() {

@@ -389,6 +389,7 @@ class _FlipCoinState extends State<FlipCoin> {
                       label: '완료',
                       disabled:
                           passphrase.isEmpty || _bits.length < _totalBits),
+                const SizedBox(height: 80),
               ],
             )));
   }
@@ -593,8 +594,7 @@ class _FlipCoinState extends State<FlipCoin> {
   void _showConfirmBottomSheet(String message) {
     Provider.of<VaultModel>(context, listen: false)
         .startImporting(mnemonic, passphrase);
-    MyBottomSheet.showBottomSheet(
-      title: '',
+    MyBottomSheet.showBottomSheet_90(
       context: context,
       child: MnemonicConfirm(
         onCancelPressed: () => Navigator.pop(context),

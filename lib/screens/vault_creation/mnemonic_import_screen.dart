@@ -192,10 +192,8 @@ class _MnemonicImportState extends State<MnemonicImport> {
             model.startImporting(
                 inputText.trim().toLowerCase().replaceAll(RegExp(r'\s+'), ' '),
                 usePassphrase ? passphrase.trim() : '');
-            MyBottomSheet.showBottomSheet(
-              title: '',
+            MyBottomSheet.showBottomSheet_90(
               context: context,
-              titlePadding: const EdgeInsets.only(bottom: 20),
               child: MnemonicConfirm(
                 onCancelPressed: () => Navigator.pop(context),
                 onConfirmPressed: () =>

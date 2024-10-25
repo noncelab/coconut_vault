@@ -125,10 +125,11 @@ class _VaultNameIconSetupState extends State<VaultNameIconSetup> {
                   Navigator.pop(context);
                 },
                 onNextPressed: () {
+                  if (inputText.trim().isEmpty) return;
                   _closeKeyboard();
                   saveNewVaultName(context);
                 },
-                isActive: inputText.isNotEmpty && !isSaving,
+                isActive: inputText.trim().isNotEmpty && !isSaving,
               ),
               body: VaultNameIconEditPalette(
                 name: inputText,

@@ -7,20 +7,18 @@ import 'package:flutter/material.dart';
 import 'package:coconut_vault/constants/method_channel.dart';
 import 'package:coconut_vault/styles.dart';
 import 'package:coconut_vault/widgets/button/shrink_animation_button.dart';
-import 'package:qr_flutter/qr_flutter.dart';
 import 'package:flutter/services.dart';
 
-class QRCodeInfo extends StatefulWidget {
-  final String qrData;
-  final Widget? qrcodeTopWidget;
+class ClipboardButton extends StatefulWidget {
+  final String text;
 
-  const QRCodeInfo({super.key, required this.qrData, this.qrcodeTopWidget});
+  const ClipboardButton({super.key, required this.text});
 
   @override
-  State<QRCodeInfo> createState() => _QRCodeInfoState();
+  State<ClipboardButton> createState() => _ClipboardButtonState();
 }
 
-class _QRCodeInfoState extends State<QRCodeInfo> {
+class _ClipboardButtonState extends State<ClipboardButton> {
   static const MethodChannel _channel = MethodChannel(methodChannelOS);
   Timer? _toastTimer;
   OverlayEntry? _currentToast;
@@ -28,36 +26,16 @@ class _QRCodeInfoState extends State<QRCodeInfo> {
 
   @override
   Widget build(BuildContext context) {
-    final double qrSize = MediaQuery.of(context).size.width * 275 / 375;
-
     return Container(
         padding: const EdgeInsets.symmetric(horizontal: 36),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            if (widget.qrcodeTopWidget != null) ...[
-              widget.qrcodeTopWidget!,
-              const SizedBox(height: 25)
-            ],
-            Stack(
-              children: [
-                Container(
-                    width: qrSize,
-                    height: qrSize,
-                    decoration: BoxDecorations.shadowBoxDecoration),
-                QrImageView(
-                  data: widget.qrData,
-                  version: QrVersions.auto,
-                  size: qrSize,
-                ),
-              ],
-            ),
-            const SizedBox(height: 32),
             ShrinkAnimationButton(
               defaultColor: MyColors.lightgrey,
               pressedColor: MyColors.grey.withOpacity(0.1),
               onPressed: () {
-                Clipboard.setData(ClipboardData(text: widget.qrData))
+                Clipboard.setData(ClipboardData(text: widget.text))
                     .then((value) => null);
                 _showToast();
               },
@@ -76,7 +54,7 @@ class _QRCodeInfoState extends State<QRCodeInfo> {
                         children: [
                           Padding(
                             padding: const EdgeInsets.only(top: 7, right: 6),
-                            child: Text(widget.qrData,
+                            child: Text(widget.text,
                                 style: Styles.body1,
                                 textAlign: TextAlign.center),
                           ),

@@ -137,6 +137,7 @@ class _PinSettingScreenState extends State<PinSettingScreen> {
 
   void _finishPinSetting() async {
     vibrateLight();
+
     showGeneralDialog(
       context: context,
       barrierDismissible: false,
@@ -164,6 +165,7 @@ class _PinSettingScreenState extends State<PinSettingScreen> {
         );
       },
     );
+
     await Future.delayed(const Duration(seconds: 3));
     widget.onComplete?.call();
     await _appModel.savePin(pinConfirm);
@@ -174,7 +176,7 @@ class _PinSettingScreenState extends State<PinSettingScreen> {
     }
   }
 
-  void _showDialog() {
+  void showDialog() {
     if (!_appModel.isPinEnabled) {
       Navigator.of(context).pop();
     } else {
@@ -240,7 +242,7 @@ class _PinSettingScreenState extends State<PinSettingScreen> {
         isCloseIcon: !widget.greetingVisible,
         onClosePressed: step == 0
             ? () {
-                _showDialog();
+                showDialog();
               }
             : () {
                 setState(() {
