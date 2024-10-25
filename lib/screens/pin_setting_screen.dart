@@ -8,7 +8,6 @@ import 'package:coconut_vault/widgets/animated_dialog.dart';
 import 'package:coconut_vault/widgets/appbar/custom_appbar.dart';
 import 'package:coconut_vault/widgets/button/custom_buttons.dart';
 import 'package:coconut_vault/widgets/pin/pin_input_screen.dart';
-import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
 import '../widgets/custom_dialog.dart';

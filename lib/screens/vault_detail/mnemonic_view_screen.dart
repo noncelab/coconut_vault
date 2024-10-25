@@ -2,7 +2,6 @@ import 'package:coconut_vault/widgets/button/clipboard_button.dart';
 import 'package:flutter/material.dart';
 import 'package:coconut_vault/styles.dart';
 import 'package:coconut_vault/utils/calc_textlines.dart';
-import 'package:coconut_vault/widgets/qrcode_info.dart';
 import 'package:shimmer/shimmer.dart';
 
 class MnemonicViewScreen extends StatefulWidget {
