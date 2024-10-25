@@ -362,7 +362,7 @@ class AppModel with ChangeNotifier {
   Future<void> savePin(String pin) async {
     final prefs = SharedPrefsService();
 
-    if (_canCheckBiometrics && !_isPinEnabled) {
+    if (_isBiometricEnabled && _canCheckBiometrics && !_isPinEnabled) {
       _isBiometricEnabled = true;
       prefs.setBool(SharedPrefsKeys.isBiometricEnabled, true);
     }
