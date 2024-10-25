@@ -1,8 +1,8 @@
 import 'dart:convert';
 
 import 'package:coconut_lib/coconut_lib.dart';
+import 'package:coconut_vault/services/shared_preferences_service.dart';
 import 'package:json_annotation/json_annotation.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 part 'vault_list_item.g.dart'; // 생성될 파일 이름 $ dart run build_runner build
 
@@ -40,14 +40,12 @@ class VaultListItem {
   late SingleSignatureVault coconutVault;
 
   // 다음 일련번호를 저장하고 불러오는 메서드
-  static Future<int> _loadNextId() async {
-    final prefs = await SharedPreferences.getInstance();
-    return prefs.getInt('nextId') ?? 1;
+  static int _loadNextId() {
+    return SharedPrefsService().getInt('nextId') ?? 1;
   }
 
   static Future<void> _saveNextId(int nextId) async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setInt('nextId', nextId);
+    await SharedPrefsService().setInt('nextId', nextId);
   }
 
   static Future<VaultListItem> create(
@@ -57,7 +55,7 @@ class VaultListItem {
       required String secret,
       String passphrase = '',
       List<AddressType>? addressTypes}) async {
-    final nextId = await _loadNextId();
+    final nextId = _loadNextId();
 
     final newItem = VaultListItem(
         id: nextId,

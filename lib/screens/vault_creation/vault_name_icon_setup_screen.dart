@@ -6,7 +6,6 @@ import 'package:flutter/material.dart';
 import 'package:coconut_vault/widgets/appbar/custom_appbar.dart';
 import 'package:coconut_vault/widgets/custom_toast.dart';
 import 'package:coconut_vault/widgets/vault_name_icon_edit_palette.dart';
-import 'package:flutter/scheduler.dart';
 import 'package:provider/provider.dart';
 
 import '../../model/vault_model.dart';
@@ -126,10 +125,11 @@ class _VaultNameIconSetupState extends State<VaultNameIconSetup> {
                   Navigator.pop(context);
                 },
                 onNextPressed: () {
+                  if (inputText.trim().isEmpty) return;
                   _closeKeyboard();
                   saveNewVaultName(context);
                 },
-                isActive: inputText.isNotEmpty && !isSaving,
+                isActive: inputText.trim().isNotEmpty && !isSaving,
               ),
               body: VaultNameIconEditPalette(
                 name: inputText,

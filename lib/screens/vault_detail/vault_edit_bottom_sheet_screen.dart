@@ -69,6 +69,7 @@ class _VaultInfoEditBottomSheetState extends State<VaultInfoEditBottomSheet> {
                       vertical: 10, horizontal: 16.0),
                   child: GestureDetector(
                     onTap: () async {
+                      if (_name.trim().isEmpty) return;
                       _closeKeyboard();
                       setState(() {
                         isSaving = hasChanged;
@@ -86,11 +87,25 @@ class _VaultInfoEditBottomSheetState extends State<VaultInfoEditBottomSheet> {
                     child: Container(
                       padding: const EdgeInsets.symmetric(horizontal: 12.0),
                       decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(14.0),
-                          border: Border.all(color: Colors.transparent),
-                          color: MyColors.transparentBlack_06),
-                      child: const Center(
-                        child: Text('완료', style: Styles.headerButtonLabel),
+                        borderRadius: BorderRadius.circular(14.0),
+                        border: Border.all(
+                          color: _name.trim().isNotEmpty
+                              ? Colors.transparent
+                              : MyColors.transparentBlack_06,
+                        ),
+                        color: _name.trim().isNotEmpty
+                            ? MyColors.transparentBlack_06
+                            : MyColors.lightgrey,
+                      ),
+                      child: Center(
+                        child: Text('완료',
+                            style: _name.trim().isNotEmpty
+                                ? Styles.headerButtonLabel
+                                : Styles.headerButtonLabel
+                                    .merge(const TextStyle(
+                                    color: MyColors.transparentBlack_30,
+                                    fontWeight: FontWeight.normal,
+                                  ))),
                       ),
                     ),
                   ),

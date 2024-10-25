@@ -13,7 +13,6 @@ import 'package:coconut_vault/utils/vibration_util.dart';
 import 'package:coconut_vault/widgets/custom_dialog.dart';
 import 'package:coconut_vault/widgets/bottom_sheet.dart';
 import 'package:coconut_vault/services/pin_attempt_service.dart';
-import 'package:coconut_vault/utils/logger.dart';
 import 'package:provider/provider.dart';
 
 import '../widgets/pin/pin_input_screen.dart';
@@ -164,7 +163,8 @@ class _PinCheckScreenState extends State<PinCheckScreen>
   }
 
   void _verifyBiometric() async {
-    if (await _appModel.authenticateWithBiometrics()) {
+    if (await _appModel.authenticateWithBiometrics(context,
+        showAuthenticationFailedDialog: false)) {
       _verifySwitch();
     }
   }
@@ -388,7 +388,7 @@ class _PinCheckScreenState extends State<PinCheckScreen>
             color: MyColors.white,
             child: PopScope(
               canPop: false,
-              onPopInvoked: (didPop) async {
+              onPopInvokedWithResult: (didPop, _) async {
                 if (Platform.isAndroid) {
                   final now = DateTime.now();
                   if (_lastPressedAt == null ||

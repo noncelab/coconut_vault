@@ -2,18 +2,18 @@ import 'dart:io';
 
 import 'package:coconut_vault/app.dart';
 import 'package:coconut_vault/screens/pin_check_screen.dart';
-import 'package:coconut_vault/utils/logger.dart';
+import 'package:coconut_vault/screens/pin_setting_screen.dart';
+import 'package:coconut_vault/widgets/coconut_dropdown.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:coconut_vault/model/app_model.dart';
 import 'package:coconut_vault/screens/setting/settings_screen.dart';
 import 'package:coconut_vault/styles.dart';
 import 'package:coconut_vault/widgets/appbar/frosted_appbar.dart';
 import 'package:coconut_vault/widgets/bottom_sheet.dart';
-import 'package:coconut_vault/widgets/custom_tooltip.dart';
 import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:provider/provider.dart';
-import 'package:shimmer/shimmer.dart';
 
 import 'model/vault_model.dart';
 import 'widgets/vault_row_item.dart';
@@ -33,6 +33,7 @@ class _VaultListTabState extends State<VaultListTab>
     with WidgetsBindingObserver {
   late AppModel _appModel;
   late VaultModel _vaultModel;
+  bool _isSeeMoreDropdown = false;
 
   DateTime? _lastPressedAt;
 
@@ -83,11 +84,10 @@ class _VaultListTabState extends State<VaultListTab>
     return Consumer<VaultModel>(
       builder: (context, model, child) {
         final vaults = model.getVaults();
-        final vaultListLoading = model.isVaultListLoading;
 
         return PopScope(
             canPop: false,
-            onPopInvoked: (didPop) async {
+            onPopInvokedWithResult: (didPop, _) async {
               if (Platform.isAndroid) {
                 final now = DateTime.now();
                 if (_lastPressedAt == null ||
@@ -104,15 +104,21 @@ class _VaultListTabState extends State<VaultListTab>
                 }
               }
             },
-            child: Container(
-              color: MyColors.lightgrey,
-              child: Stack(
+            child: Scaffold(
+              backgroundColor: MyColors.lightgrey,
+              body: Stack(
                 children: [
                   CustomScrollView(
                     semanticChildCount:
                         model.isVaultListLoading ? 1 : vaults.length,
                     slivers: <Widget>[
-                      const FrostedAppBar(),
+                      FrostedAppBar(
+                        onTapSeeMore: () {
+                          setState(() {
+                            _isSeeMoreDropdown = true;
+                          });
+                        },
+                      ),
                       SliverPadding(
                         padding: const EdgeInsets.symmetric(horizontal: 8),
                         sliver: SliverList.builder(
@@ -123,19 +129,63 @@ class _VaultListTabState extends State<VaultListTab>
                             }
 
                             if (index == vaults.length && vaults.isEmpty) {
-                              if (!vaultListLoading) {
-                                return CustomTooltip(
-                                    richText: RichText(
-                                        text: TextSpan(
-                                            text:
-                                                '안녕하세요. 코코넛 볼트예요!\n\n오른쪽 위 + 버튼을 눌러 니모닉 문구를 추가해 주세요.',
-                                            style: Styles.subLabel.merge(
-                                                const TextStyle(
-                                                    fontFamily: 'Pretendard',
-                                                    color:
-                                                        MyColors.darkgrey)))),
-                                    showIcon: true,
-                                    type: TooltipType.normal);
+                              if (model.isLoadVaultList) {
+                                return Container(
+                                  width: double.maxFinite,
+                                  decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(16),
+                                      color: MyColors.white),
+                                  padding: const EdgeInsets.only(
+                                      top: 26, bottom: 24, left: 26, right: 26),
+                                  margin:
+                                      const EdgeInsets.symmetric(horizontal: 8),
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      const Text(
+                                        '지갑을 추가해 주세요',
+                                        style: Styles.title5,
+                                      ),
+                                      const Text(
+                                        '오른쪽 위 + 버튼을 눌러도 추가할 수 있어요',
+                                        style: Styles.label,
+                                      ),
+                                      const SizedBox(height: 16),
+                                      CupertinoButton(
+                                        onPressed: () {
+                                          if (!_appModel.isPinEnabled) {
+                                            MyBottomSheet.showBottomSheet_90(
+                                                context: context,
+                                                child: const PinSettingScreen(
+                                                    greetingVisible: true));
+                                          } else {
+                                            Navigator.pushNamed(context,
+                                                '/vault-creation-options');
+                                          }
+                                        },
+                                        borderRadius: BorderRadius.circular(10),
+                                        padding: EdgeInsets.zero,
+                                        color: MyColors.primary,
+                                        child: Container(
+                                          padding: const EdgeInsets.symmetric(
+                                            horizontal: 28,
+                                            vertical: 12,
+                                          ),
+                                          child: Text(
+                                            '바로 추가하기',
+                                            style: Styles.label.merge(
+                                              const TextStyle(
+                                                color: MyColors.black,
+                                                fontWeight: FontWeight.w700,
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                );
                               }
                             }
 
@@ -146,7 +196,51 @@ class _VaultListTabState extends State<VaultListTab>
                     ],
                   ),
                   Visibility(
-                      visible: vaultListLoading,
+                    visible: _isSeeMoreDropdown,
+                    child: Stack(
+                      children: [
+                        GestureDetector(
+                          onTapDown: (details) {
+                            setState(() {
+                              _isSeeMoreDropdown = false;
+                            });
+                          },
+                          child: Container(
+                            width: double.maxFinite,
+                            height: double.maxFinite,
+                            color: Colors.transparent,
+                          ),
+                        ),
+                        Align(
+                          alignment: Alignment.topRight,
+                          child: CoconutDropdown(
+                            buttons: const ['니모닉 문구 단어집', '설정', '앱 정보 보기'],
+                            onTapButton: (index) {
+                              setState(() {
+                                _isSeeMoreDropdown = false;
+                              });
+                              switch (index) {
+                                case 0: // 니모닉 문구 단어집
+                                  Navigator.pushNamed(
+                                      context, '/mnemonic-word-list');
+                                  break;
+                                case 1: // 설정
+                                  MyBottomSheet.showBottomSheet_90(
+                                      context: context,
+                                      child: const SettingsScreen());
+                                  break;
+                                case 2: // 앱 정보 보기
+                                  Navigator.pushNamed(context, '/app-info');
+                                  break;
+                              }
+                            },
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Visibility(
+                      visible: model.isVaultListLoading,
                       child: SizedBox(
                         width: MediaQuery.of(context).size.width,
                         height: MediaQuery.of(context).size.height,

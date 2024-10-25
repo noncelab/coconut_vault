@@ -1,14 +1,34 @@
 import 'dart:io';
 
 import 'package:carousel_slider/carousel_slider.dart';
+import 'package:coconut_vault/model/app_model.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:coconut_vault/styles.dart';
 import 'package:coconut_vault/widgets/high-lighted-text.dart';
+import 'package:provider/provider.dart';
 
-class WelcomeScreen extends StatelessWidget {
+class WelcomeScreen extends StatefulWidget {
   const WelcomeScreen({super.key});
+
+  @override
+  State<WelcomeScreen> createState() => _WelcomeScreenState();
+}
+
+class _WelcomeScreenState extends State<WelcomeScreen> {
+  late AppModel _appModel;
+
+  @override
+  void initState() {
+    super.initState();
+    _appModel = Provider.of<AppModel>(context, listen: false);
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -131,8 +151,11 @@ class WelcomeScreen extends StatelessWidget {
               height: 20,
             ),
             CupertinoButton(
-                onPressed: () =>
-                    Navigator.pushNamed(context, '/connectivity-guide'),
+                onPressed: () {
+                  _appModel.setConnectActivity(
+                      bluetooth: true, network: false, developerMode: false);
+                  Navigator.pushNamed(context, '/connectivity-guide');
+                },
                 child: Text(
                   '모두 이해했어요 :)',
                   style: Styles.label.merge(const TextStyle(

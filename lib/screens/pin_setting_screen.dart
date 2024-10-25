@@ -1,3 +1,5 @@
+import 'package:coconut_vault/services/shared_preferences_keys.dart';
+import 'package:coconut_vault/services/shared_preferences_service.dart';
 import 'package:flutter/material.dart';
 import 'package:coconut_vault/model/app_model.dart';
 import 'package:coconut_vault/styles.dart';
@@ -117,6 +119,17 @@ class _PinSettingScreenState extends State<PinSettingScreen> {
         }
 
         errorMessage = '';
+
+        /// 최초 비밀번호 설정시에 생체 인증 사용 여부 확인
+        bool isPinSet =
+            SharedPrefsService().getBool(SharedPrefsKeys.isPinEnabled) ?? false;
+        if (!isPinSet &&
+            _appModel.canCheckBiometrics &&
+            !_appModel.hasAlreadyRequestedBioPermission &&
+            mounted) {
+          await _appModel.authenticateWithBiometrics(context, isSave: true);
+        }
+
         _finishPinSetting();
       }
     }
@@ -124,6 +137,7 @@ class _PinSettingScreenState extends State<PinSettingScreen> {
 
   void _finishPinSetting() async {
     vibrateLight();
+
     showGeneralDialog(
       context: context,
       barrierDismissible: false,
@@ -151,6 +165,7 @@ class _PinSettingScreenState extends State<PinSettingScreen> {
         );
       },
     );
+
     await Future.delayed(const Duration(seconds: 3));
     widget.onComplete?.call();
     await _appModel.savePin(pinConfirm);
@@ -161,7 +176,7 @@ class _PinSettingScreenState extends State<PinSettingScreen> {
     }
   }
 
-  void _showDialog() {
+  void showDialog() {
     if (!_appModel.isPinEnabled) {
       Navigator.of(context).pop();
     } else {
@@ -227,7 +242,7 @@ class _PinSettingScreenState extends State<PinSettingScreen> {
         isCloseIcon: !widget.greetingVisible,
         onClosePressed: step == 0
             ? () {
-                _showDialog();
+                showDialog();
               }
             : () {
                 setState(() {
