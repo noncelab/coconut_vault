@@ -70,56 +70,55 @@ class PinInputScreenState extends State<PinInputScreen> {
             )
           : null,
       body: SafeArea(
-        child: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: [
-              SizedBox(height: widget.initOptionVisible ? 60 : 24),
-              Text(
-                widget.title,
-                style: Styles.body1
-                    .merge(const TextStyle(fontWeight: FontWeight.bold)),
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 16),
-              Align(
-                alignment: Alignment.center,
-                child: widget.descriptionTextWidget ?? const Text(''),
-              ),
-              const SizedBox(height: 20),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  PinBox(isSet: widget.pin.isNotEmpty),
-                  const SizedBox(width: 8),
-                  PinBox(isSet: widget.pin.length > 1),
-                  const SizedBox(width: 8),
-                  PinBox(isSet: widget.pin.length > 2),
-                  const SizedBox(width: 8),
-                  PinBox(isSet: widget.pin.length > 3),
-                ],
-              ),
-              const SizedBox(height: 16),
-              Text(
-                widget.errorMessage,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.end,
+          children: [
+            SizedBox(height: widget.initOptionVisible ? 60 : 24),
+            Text(
+              widget.title,
+              style: Styles.body1
+                  .merge(const TextStyle(fontWeight: FontWeight.bold)),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 10),
+            Align(
+              alignment: Alignment.center,
+              child: widget.descriptionTextWidget ?? const Text(''),
+            ),
+            const SizedBox(height: 10),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                PinBox(isSet: widget.pin.isNotEmpty),
+                const SizedBox(width: 8),
+                PinBox(isSet: widget.pin.length > 1),
+                const SizedBox(width: 8),
+                PinBox(isSet: widget.pin.length > 2),
+                const SizedBox(width: 8),
+                PinBox(isSet: widget.pin.length > 3),
+              ],
+            ),
+            const SizedBox(height: 16),
+            Text(
+              widget.errorMessage,
+              style: Styles.warning,
+              textAlign: TextAlign.center,
+            ),
+            Visibility(
+              visible: widget.lastChance,
+              child: Text(
+                widget.lastChanceMessage ?? '',
                 style: Styles.warning,
                 textAlign: TextAlign.center,
               ),
-              Visibility(
-                visible: widget.lastChance,
-                child: Text(
-                  widget.lastChanceMessage ?? '',
-                  style: Styles.warning,
-                  textAlign: TextAlign.center,
-                ),
-              ),
-              SizedBox(
-                  height: MediaQuery.of(context).size.height <= 640 ? 0 : 40),
-              Selector<AppModel, List<String>>(
-                selector: (context, model) => model.pinShuffleNumbers,
-                builder: (context, numbers, child) {
-                  return Align(
+            ),
+            const SizedBox(height: 40),
+            Selector<AppModel, List<String>>(
+              selector: (context, model) => model.pinShuffleNumbers,
+              builder: (context, numbers, child) {
+                return Expanded(
+                  child: Align(
                     alignment: Alignment.bottomCenter,
                     child: GridView.count(
                       crossAxisCount: 3,
@@ -136,27 +135,35 @@ class PinInputScreenState extends State<PinInputScreen> {
                         );
                       }).toList(),
                     ),
-                  );
-                },
-              ),
-              SizedBox(height: widget.initOptionVisible ? 60 : 80),
-              if (widget.initOptionVisible)
-                Padding(
-                    padding: const EdgeInsets.only(bottom: 60.0),
-                    child: GestureDetector(
-                      onTap: () {
-                        widget.onReset?.call();
-                      },
-                      child: Text(
-                        '비밀번호가 기억나지 않나요?',
-                        style: Styles.body2.merge(const TextStyle(
-                            fontWeight: FontWeight.bold,
-                            color: MyColors.transparentBlack_50)),
-                        textAlign: TextAlign.center,
-                      ),
-                    )),
-            ],
-          ),
+                  ),
+                );
+              },
+            ),
+            SizedBox(
+                height: widget.initOptionVisible
+                    ? 60
+                    : MediaQuery.sizeOf(context).height <= 640
+                        ? 30
+                        : 100),
+            Visibility(
+              visible: widget.initOptionVisible,
+              replacement: Container(),
+              child: Padding(
+                  padding: const EdgeInsets.only(bottom: 60.0),
+                  child: GestureDetector(
+                    onTap: () {
+                      widget.onReset?.call();
+                    },
+                    child: Text(
+                      '비밀번호가 기억나지 않나요?',
+                      style: Styles.body2.merge(const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          color: MyColors.transparentBlack_50)),
+                      textAlign: TextAlign.center,
+                    ),
+                  )),
+            ),
+          ],
         ),
       ),
     );

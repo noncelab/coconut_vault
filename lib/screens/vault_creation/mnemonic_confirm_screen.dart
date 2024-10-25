@@ -36,7 +36,7 @@ class _MnemonicConfirmState extends State<MnemonicConfirm> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (widget.passphrase != null) {
         if (_scrollController.position.pixels >
-            _scrollController.position.maxScrollExtent - 30) {
+            _scrollController.position.maxScrollExtent - 300) {
           setState(() {
             _isBottom = true;
           });
@@ -134,8 +134,8 @@ class _MnemonicConfirmState extends State<MnemonicConfirm> {
               style: Styles.warning,
             ),
           ),
-          Visibility(
-            visible: !_isBottom,
+          Opacity(
+            opacity: !_isBottom ? 1.0 : 0.0,
             child: Text(
               '⚠︎ 긴 패스프레이즈: 스크롤을 끝까지 내려 모두 확인해 주세요.',
               style: TextStyle(
