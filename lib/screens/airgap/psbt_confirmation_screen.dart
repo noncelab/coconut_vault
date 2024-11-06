@@ -32,6 +32,9 @@ class _PsbtConfirmationScreenState extends State<PsbtConfirmationScreen> {
   bool _isSendingToMyAddress = false;
   bool _showLoading = true;
 
+  String _bitcoinString = '';
+  String _sendAddress = '';
+
   @override
   void initState() {
     _vaultModel = Provider.of<VaultModel>(context, listen: false);
@@ -99,6 +102,15 @@ class _PsbtConfirmationScreenState extends State<PsbtConfirmationScreen> {
           _isSendingToMyAddress = true;
         });
       }
+
+      setState(() {
+        _bitcoinString = _psbt != null
+            ? satoshiToBitcoinString(_sendingAmountWhenAddressIsMyChange != null
+                ? _sendingAmountWhenAddressIsMyChange!
+                : _psbt!.sendingAmount)
+            : '';
+        _sendAddress = _output != null ? _output!.getAddress() : '';
+      });
     } catch (_) {
       if (context.mounted) {
         showAlertDialog(context: context, content: "psbt 파싱 실패: $_");
@@ -127,8 +139,19 @@ class _PsbtConfirmationScreenState extends State<PsbtConfirmationScreen> {
       }
 
       if (mounted) {
-        Navigator.pushNamed(context, '/signed-transaction',
-            arguments: {'id': widget.id});
+        if (_vaultModel.isMultiSig) {
+          Navigator.pushNamed(
+            context,
+            '/multi-signature',
+            arguments: {
+              'sendAddress': _sendAddress,
+              'bitcoinString': _bitcoinString,
+            },
+          );
+        } else {
+          Navigator.pushNamed(context, '/signed-transaction',
+              arguments: {'id': widget.id});
+        }
       }
     } catch (_) {
       if (mounted) {
@@ -161,9 +184,9 @@ class _PsbtConfirmationScreenState extends State<PsbtConfirmationScreen> {
                   const SizedBox(height: 20),
                   CustomTooltip(
                     richText: RichText(
-                      text: const TextSpan(
-                        text: '[3]',
-                        style: TextStyle(
+                      text: TextSpan(
+                        text: _vaultModel.isMultiSig ? '' : '[3]',
+                        style: const TextStyle(
                           fontFamily: 'Pretendard',
                           fontWeight: FontWeight.bold,
                           fontSize: 15,
@@ -173,8 +196,10 @@ class _PsbtConfirmationScreenState extends State<PsbtConfirmationScreen> {
                         ),
                         children: <TextSpan>[
                           TextSpan(
-                            text: ' 월렛에서 스캔한 정보가 맞는지 다시 한번 확인해 주세요.',
-                            style: TextStyle(
+                            text: _vaultModel.isMultiSig
+                                ? '스캔한 정보가 맞는지 다시 한번 확인해 주세요.'
+                                : ' 월렛에서 스캔한 정보가 맞는지 다시 한번 확인해 주세요.',
+                            style: const TextStyle(
                               fontWeight: FontWeight.normal,
                             ),
                           ),
@@ -189,12 +214,7 @@ class _PsbtConfirmationScreenState extends State<PsbtConfirmationScreen> {
                     child: Center(
                       child: Text.rich(
                         TextSpan(
-                          text: _psbt != null
-                              ? satoshiToBitcoinString(
-                                  _sendingAmountWhenAddressIsMyChange != null
-                                      ? _sendingAmountWhenAddressIsMyChange!
-                                      : _psbt!.sendingAmount)
-                              : "",
+                          text: _bitcoinString,
                           children: const <TextSpan>[
                             TextSpan(text: ' BTC', style: Styles.unit),
                           ],
@@ -216,8 +236,7 @@ class _PsbtConfirmationScreenState extends State<PsbtConfirmationScreen> {
                           children: [
                             InformationRowItem(
                               label: '보낼 주소',
-                              value:
-                                  _output != null ? _output!.getAddress() : "",
+                              value: _sendAddress,
                               isNumber: true,
                             ),
                             const Divider(

@@ -117,7 +117,7 @@ class _PsbtScannerScreenState extends State<PsbtScannerScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: CustomAppBar.build(
-        title: _vaultListItem.name,
+        title: _vaultModel.isMultiSig ? '다중 서명 지갑' : _vaultListItem.name,
         context: context,
         hasRightIcon: false,
         isBottom: true,
@@ -138,9 +138,9 @@ class _PsbtScannerScreenState extends State<PsbtScannerScreen> {
             padding: const EdgeInsets.only(top: 20),
             child: CustomTooltip(
               richText: RichText(
-                text: const TextSpan(
-                  text: '[2] ',
-                  style: TextStyle(
+                text: TextSpan(
+                  text: _vaultModel.isMultiSig ? '' : '[2] ',
+                  style: const TextStyle(
                     fontFamily: 'Pretendard',
                     fontWeight: FontWeight.bold,
                     fontSize: 15,
@@ -150,8 +150,10 @@ class _PsbtScannerScreenState extends State<PsbtScannerScreen> {
                   ),
                   children: <TextSpan>[
                     TextSpan(
-                      text: '월렛에서 만든 보내기 정보를 스캔해 주세요. 반드시 지갑 이름이 같아야 해요.',
-                      style: TextStyle(
+                      text: _vaultModel.isMultiSig
+                          ? '월렛에서 만든 보내기 정보 또는 외부 볼트에서 다중 서명 중인 정보를 스캔해주세요.'
+                          : '월렛에서 만든 보내기 정보를 스캔해 주세요. 반드시 지갑 이름이 같아야 해요.',
+                      style: const TextStyle(
                         fontWeight: FontWeight.normal,
                       ),
                     ),

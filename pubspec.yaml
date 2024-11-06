@@ -171,6 +171,8 @@ flutter:
     - assets/svg/github-logo.svg
     - assets/files/LICENSE
     - assets/files/CONTRIBUTING.md
+    - assets/svg/download.svg
+    - assets/svg/circle-check.svg
 
   fonts:
     - family: SpaceGrotesk
