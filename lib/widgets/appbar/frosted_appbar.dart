@@ -123,7 +123,7 @@ class _FrostedAppBarState extends State<FrostedAppBar> {
                                             greetingVisible: true));
                                   } else {
                                     Navigator.pushNamed(
-                                        context, '/vault-creation-options');
+                                        context, '/select-vault-type');
                                   }
                                 },
                                 color: MyColors.white,

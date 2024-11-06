@@ -7,9 +7,12 @@ import 'package:coconut_vault/screens/setting/mnemonic_word_list_screen.dart';
 import 'package:coconut_vault/screens/start_guide/guide_screen.dart';
 import 'package:coconut_vault/screens/start_guide/welcome_screen.dart';
 import 'package:coconut_vault/screens/tutorial_screen.dart';
+import 'package:coconut_vault/screens/vault_creation/assign_key_screen.dart';
 import 'package:coconut_vault/screens/vault_creation/mnemonic_coin_flip_screen.dart';
 import 'package:coconut_vault/screens/vault_creation/mnemonic_generate_screen.dart';
 import 'package:coconut_vault/screens/vault_creation/mnemonic_import_screen.dart';
+import 'package:coconut_vault/screens/vault_creation/select_key_options_screen.dart';
+import 'package:coconut_vault/screens/vault_creation/select_vault_type_screen.dart';
 import 'package:coconut_vault/screens/vault_creation/vault_creation_options_screen.dart';
 import 'package:coconut_vault/screens/vault_creation/vault_name_icon_setup_screen.dart';
 import 'package:coconut_vault/screens/vault_detail/address_list_screen.dart';
@@ -158,6 +161,13 @@ class _PowVaultAppState extends State<PowVaultApp> {
                     ),
                   ),
                 ),
+            '/select-vault-type': (context) => const SelectVaultTypeScreen(),
+            '/select-key-options': (context) => const SelectKeyOptionsScreen(),
+            '/assign-key': (context) => buildScreenWithArguments(
+                context,
+                (args) => AssignKeyScreen(
+                    nKeyCount: args['nKeyCount'],
+                    mKeyCount: args['mKeyCount'])),
             '/vault-creation-options': (context) =>
                 const VaultCreationOptions(),
             '/mnemonic-import': (context) => const MnemonicImport(),

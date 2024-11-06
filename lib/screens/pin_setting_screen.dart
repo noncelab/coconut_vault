@@ -172,7 +172,7 @@ class _PinSettingScreenState extends State<PinSettingScreen> {
     Navigator.pop(context);
     Navigator.pop(context);
     if (widget.greetingVisible) {
-      Navigator.pushNamed(context, '/vault-creation-options');
+      Navigator.pushNamed(context, '/select-vault-type');
     }
   }
 
