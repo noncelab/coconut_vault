@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:coconut_lib/coconut_lib.dart';
 import 'package:coconut_vault/services/shared_preferences_keys.dart';
 import 'package:coconut_vault/services/shared_preferences_service.dart';
 import 'package:flutter/foundation.dart';
@@ -202,6 +203,7 @@ class VaultModel extends ChangeNotifier {
 
   static Future<List<VaultListItem>> _loadVaultListIsolate(
       void _, void Function(List<dynamic>)? setVaultListLoadingProgress) async {
+    BitcoinNetwork.setNetwork(BitcoinNetwork.regtest);
     List<VaultListItem> vaultList = [];
     String? jsonArrayString;
     final SecureStorageService storageService = SecureStorageService();

@@ -365,8 +365,8 @@ class _VaultSettingsState extends State<VaultSettings> {
                                     crossAxisAlignment: CrossAxisAlignment.end,
                                     children: [
                                       Text(
-                                        _vaultListItem
-                                            .coconutVault.keyStore.fingerprint,
+                                        _vaultListItem.coconutVault.keyStore
+                                            .masterFingerprint,
                                         style: Styles.h3.merge(TextStyle(
                                             fontFamily: CustomFonts
                                                 .number.getFontFamily)),

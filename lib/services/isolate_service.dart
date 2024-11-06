@@ -6,6 +6,7 @@ import 'package:coconut_vault/services/shared_preferences_service.dart';
 
 Future<List<VaultListItem>> addVaultIsolate(
     Map<String, dynamic> data, void Function(dynamic)? progressCallback) async {
+  BitcoinNetwork.setNetwork(BitcoinNetwork.regtest);
   await SharedPrefsService().init();
   List<VaultListItem> vaultList = [];
 
@@ -28,6 +29,7 @@ Future<List<VaultListItem>> addVaultIsolate(
 
 Future<String> addSignatureToPsbtIsolate(
     List<dynamic> dataList, void Function(dynamic)? replyTo) async {
+  BitcoinNetwork.setNetwork(BitcoinNetwork.regtest);
   SingleSignatureVault vault = dataList[0] as SingleSignatureVault;
   String psbtBase64 = dataList[1] as String;
   String signedPsbt = vault.addSignatureToPsbt(psbtBase64);
@@ -40,6 +42,7 @@ Future<String> addSignatureToPsbtIsolate(
 
 Future<bool> canSignToPsbtIsolate(
     List<dynamic> dataList, void Function(dynamic)? replyTo) async {
+  BitcoinNetwork.setNetwork(BitcoinNetwork.regtest);
   SingleSignatureVault vault = dataList[0] as SingleSignatureVault;
   String psbtBase64 = dataList[1] as String;
   bool canSign = vault.canSignToPsbt(psbtBase64);
