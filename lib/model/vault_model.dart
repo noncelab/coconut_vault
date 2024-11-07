@@ -52,6 +52,8 @@ class VaultModel extends ChangeNotifier {
   // double _vaultListLoadingProgress = 0.0;
   // double get vaultListLoadingProgress => _vaultListLoadingProgress;
   // static int itemSize = 0;
+  bool _vaultInitialized = false;
+  bool get vaultInitialized => _vaultInitialized;
 
   // addVault
   bool _isAddVaultCompleted = false;
@@ -193,6 +195,8 @@ class VaultModel extends ChangeNotifier {
       } else {
         throw Exception("IsolateHandler not initialized");
       }
+
+      _vaultInitialized = true;
     } catch (e) {
       Logger.log('[loadVaultList] Exception : ${e.toString()}');
     } finally {
