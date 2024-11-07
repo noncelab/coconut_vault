@@ -97,10 +97,12 @@ flutter:
     - assets/png/splash_logo.png
     - assets/svg/menu/details.svg
     - assets/svg/menu/key.svg
+    - assets/svg/menu/3keys.svg
     - assets/svg/menu/key-outline.svg
     - assets/svg/menu/list.svg
     - assets/svg/menu/address.svg
     - assets/svg/menu/out.svg
+    - assets/svg/menu/in.svg
     - assets/svg/number/one.svg
     - assets/svg/number/two.svg
     - assets/svg/number/three.svg

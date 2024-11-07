@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:coconut_vault/screens/vault_detail/vault_detail_screen.dart';
+import 'package:coconut_vault/screens/vault_detail/vault_menu_screen.dart';
 import 'package:coconut_vault/utils/icon_util.dart';
 import 'package:coconut_vault/widgets/bottom_sheet.dart';
 import 'package:coconut_vault/widgets/button/shrink_animation_button.dart';
@@ -29,7 +29,7 @@ class _VaultRowItemState extends State<VaultRowItem> {
               title: widget.vault.name.length > 20
                   ? '${widget.vault.name.substring(0, 17)}...'
                   : widget.vault.name,
-              child: VaultDetails(id: widget.vault.id.toString()));
+              child: VaultMenuScreen(id: widget.vault.id.toString()));
         },
         child: Container(
             decoration: BoxDecoration(
