@@ -23,7 +23,7 @@ class MultiSignatureScreen extends StatefulWidget {
 
 class _MultiSignatureScreenState extends State<MultiSignatureScreen> {
   // late AppModel _appModel;
-  late VaultModel _vaultModel;
+  // late VaultModel _vaultModel;
   final _signedSignatureList = [false, false, false];
   int _requiredSignatureCount = 0;
   String _sendAddress = '';
@@ -63,7 +63,7 @@ class _MultiSignatureScreenState extends State<MultiSignatureScreen> {
   @override
   void initState() {
     // _appModel = Provider.of<AppModel>(context, listen: false);
-    _vaultModel = Provider.of<VaultModel>(context, listen: false);
+    // _vaultModel = Provider.of<VaultModel>(context, listen: false);
 
     // TODO: 지정된 서명 숫자 가져오기
     _requiredSignatureCount = 2;
