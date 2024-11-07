@@ -62,6 +62,9 @@ abstract class MyColors {
   static const cyanblue = Color.fromRGBO(69, 204, 238, 1);
 
   static const Color dropdownGrey = Color(0xFFEBEBEC);
+  static const Color body2Grey = Color(0xFF706D6D);
+  static const Color greyEC = Color(0xFFECECEC);
+  static const Color greyE9 = Color(0xFFE9E9E9);
 }
 
 // LIGHT MODE
