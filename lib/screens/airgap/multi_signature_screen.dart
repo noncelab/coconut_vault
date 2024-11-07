@@ -65,7 +65,7 @@ class _MultiSignatureScreenState extends State<MultiSignatureScreen> {
     // _appModel = Provider.of<AppModel>(context, listen: false);
     _vaultModel = Provider.of<VaultModel>(context, listen: false);
 
-    // TODO: 요구되는 서명 숫자 가져오기
+    // TODO: 지정된 서명 숫자 가져오기
     _requiredSignatureCount = 2;
 
     _sendAddress =
@@ -95,10 +95,8 @@ class _MultiSignatureScreenState extends State<MultiSignatureScreen> {
             child: GestureDetector(
               onTap: () {
                 // TODO: 서명하기 다음 절차 구현
-                Navigator.pop(context);
-                Navigator.pop(context);
-                Navigator.pop(context);
-                _vaultModel.testChangeMultiSig(false);
+                Navigator.pushNamed(context, '/signed-transaction',
+                    arguments: {'id': 1});
               },
               child: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 12.0),
@@ -120,25 +118,33 @@ class _MultiSignatureScreenState extends State<MultiSignatureScreen> {
       ),
       body: Column(
         children: [
-          // Todo: Common Progress bar 적용
-          Container(
+          AnimatedContainer(
             margin: const EdgeInsets.only(top: 8),
-            width: double.maxFinite,
-            height: 6,
-            color: MyColors.grey219,
+            duration: const Duration(seconds: 1),
+            child: LinearProgressIndicator(
+              value: _signedSignatureList.where((item) => item).length /
+                  _requiredSignatureCount,
+              minHeight: 6,
+              backgroundColor: MyColors.transparentBlack_06,
+              borderRadius: _signedSignatureList.where((item) => item).length >=
+                      _requiredSignatureCount
+                  ? BorderRadius.zero
+                  : const BorderRadius.only(
+                      topRight: Radius.circular(6),
+                      bottomRight: Radius.circular(6)),
+              valueColor: const AlwaysStoppedAnimation<Color>(MyColors.black),
+            ),
           ),
-
           Padding(
             padding: const EdgeInsets.only(top: 24),
             child: Text(
               _requiredSignatureCount <=
                       _signedSignatureList.where((item) => item).length
-                  ? '서명이 완료되었습니다'
+                  ? '서명을 완료했습니다'
                   : '${_requiredSignatureCount - _signedSignatureList.where((item) => item).length}개의 서명이 필요합니다',
               style: Styles.body2Bold,
             ),
           ),
-
           Padding(
             padding: const EdgeInsets.only(top: 32, left: 20, right: 20),
             child: Column(
@@ -173,7 +179,6 @@ class _MultiSignatureScreenState extends State<MultiSignatureScreen> {
               ],
             ),
           ),
-
           Container(
             margin: const EdgeInsets.only(top: 32, left: 20, right: 20),
             child: ListView.builder(
@@ -258,7 +263,10 @@ class _MultiSignatureScreenState extends State<MultiSignatureScreen> {
                                   ),
                                 ],
                               ),
-                            } else ...{
+                            } else if (_requiredSignatureCount >
+                                _signedSignatureList
+                                    .where((item) => item)
+                                    .length) ...{
                               GestureDetector(
                                 onTap: () {
                                   if (isVaultWallet) {
