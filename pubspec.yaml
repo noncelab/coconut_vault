@@ -43,7 +43,6 @@ dependencies:
   flutter_secure_storage: ^9.0.0
   json_annotation: ^4.9.0
   shared_preferences: ^2.2.2
-  coconut_lib: ^0.6.2
   fluttertoast: ^8.2.4
   realm: ^3.1.0
   qr_flutter: ^4.1.0
@@ -66,6 +65,10 @@ dependencies:
   package_info_plus: ^8.0.1
   screen_protector: ^1.4.2+1
   url_launcher: ^6.2.6
+  coconut_lib:
+    git:
+      url: https://github.com/noncelab/coconut_lib
+      ref: develop
 
 dev_dependencies:
   flutter_test:
