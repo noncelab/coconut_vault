@@ -15,7 +15,7 @@ import 'package:coconut_vault/screens/vault_creation/vault_name_icon_setup_scree
 import 'package:coconut_vault/screens/vault_detail/address_list_screen.dart';
 import 'package:coconut_vault/screens/vault_detail/multisig_setting_screen.dart';
 import 'package:coconut_vault/screens/vault_detail/sync_to_wallet_screen.dart';
-import 'package:coconut_vault/screens/vault_detail/vault_detail_screen.dart';
+import 'package:coconut_vault/screens/vault_detail/vault_menu_screen.dart';
 import 'package:coconut_vault/screens/vault_detail/vault_settings.dart';
 import 'package:coconut_vault/utils/router_util.dart';
 import 'package:coconut_vault/vault_list_tab.dart';
@@ -165,7 +165,7 @@ class _PowVaultAppState extends State<PowVaultApp> {
             '/vault-name-setup': (context) => const VaultNameIconSetup(),
             '/vault-details': (context) => buildScreenWithArguments(
                   context,
-                  (args) => VaultDetails(id: args['id']),
+                  (args) => VaultMenuScreen(id: args['id']),
                 ),
             '/vault-settings': (context) => buildScreenWithArguments(
                   context,
