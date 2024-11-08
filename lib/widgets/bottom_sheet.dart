@@ -40,14 +40,17 @@ class MyBottomSheet {
             maxHeight: MediaQuery.of(context).size.height * 0.95));
   }
 
-  static void showBottomSheet(
-      {required String title,
-      required BuildContext context,
-      required Widget child,
-      bool isDismissible = true,
-      bool enableDrag = true,
-      EdgeInsetsGeometry titlePadding =
-          const EdgeInsets.symmetric(vertical: 20, horizontal: 20)}) {
+  static void showBottomSheet({
+    required String title,
+    required BuildContext context,
+    required Widget child,
+    TextStyle titleTextStyle = Styles.body2Bold,
+    bool isDismissible = true,
+    bool enableDrag = true,
+    bool isCloseButton = false,
+    EdgeInsetsGeometry titlePadding =
+        const EdgeInsets.symmetric(vertical: 20, horizontal: 20),
+  }) {
     showModalBottomSheet(
       context: context,
       shape: const RoundedRectangleBorder(
@@ -62,15 +65,40 @@ class MyBottomSheet {
             child: Wrap(
               children: <Widget>[
                 Padding(
-                    padding: titlePadding,
-                    child: Center(
-                        child: Text(
-                      title,
-                      style: Styles.body2Bold,
-                      textAlign: TextAlign.center,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ))),
+                  padding: titlePadding,
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      GestureDetector(
+                        onTap: isCloseButton
+                            ? () {
+                                Navigator.pop(context);
+                              }
+                            : null,
+                        child: Container(
+                          padding: const EdgeInsets.all(4),
+                          color: Colors.transparent,
+                          child: isCloseButton
+                              ? const Icon(Icons.close_rounded,
+                                  color: MyColors.black)
+                              : Container(width: 16),
+                        ),
+                      ),
+                      Text(
+                        title,
+                        style: titleTextStyle,
+                        textAlign: TextAlign.center,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      Container(
+                        padding: const EdgeInsets.all(4),
+                        child: Container(width: 16),
+                      ),
+                    ],
+                  ),
+                ),
                 child
               ],
             ));

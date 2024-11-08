@@ -13,7 +13,8 @@ import 'package:coconut_vault/screens/vault_creation/mnemonic_import_screen.dart
 import 'package:coconut_vault/screens/vault_creation/vault_creation_options_screen.dart';
 import 'package:coconut_vault/screens/vault_creation/vault_name_icon_setup_screen.dart';
 import 'package:coconut_vault/screens/vault_detail/address_list_screen.dart';
-import 'package:coconut_vault/screens/vault_detail/multisig_setting_screen.dart';
+import 'package:coconut_vault/screens/vault_detail/multi_sig_bsms_screen.dart';
+import 'package:coconut_vault/screens/vault_detail/multi_sig_setting_screen.dart';
 import 'package:coconut_vault/screens/vault_detail/sync_to_wallet_screen.dart';
 import 'package:coconut_vault/screens/vault_detail/vault_menu_screen.dart';
 import 'package:coconut_vault/screens/vault_detail/vault_settings.dart';
@@ -173,7 +174,12 @@ class _PowVaultAppState extends State<PowVaultApp> {
                 ),
             '/multisig-setting': (context) => buildScreenWithArguments(
                   context,
-                  (args) => MultisigSettingScreen(id: args['id']),
+                  (args) => MultiSigSettingScreen(id: args['id']),
+                ),
+            '/multisig-bsms': (context) => buildScreenWithArguments(
+                  context,
+                  (args) =>
+                      MultiSigBsmsScreen(exportDetail: args['exportDetail']),
                 ),
             '/mnemonic-word-list': (context) => const MnemonicWordListScreen(),
             '/address-list': (context) => buildScreenWithArguments(

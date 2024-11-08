@@ -91,8 +91,8 @@ class _VaultListTabState extends State<VaultListTab>
           VaultListItem(
             id: 5,
             name: '다중지갑',
-            colorIndex: 4,
-            iconIndex: 4,
+            colorIndex: 7,
+            iconIndex: 7,
             secret:
                 'gravity ranch badge scorpion remind involve able mimic warrior buffalo outdoor air',
             passphrase: '',

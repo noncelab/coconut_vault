@@ -35,7 +35,7 @@ class _VaultRowItemState extends State<VaultRowItem> {
               ]
             : null,
         onPressed: () {
-           // TODO: 다중지갑 분기처리 bottom sheet 추가 필요함
+          // TODO: UI 확인용, 추후 변경 필요함
           if (widget.isMultiSig) {
             Navigator.pushNamed(context, '/multisig-setting',
                 arguments: {'id': '${widget.vault.id}'});
@@ -45,7 +45,10 @@ class _VaultRowItemState extends State<VaultRowItem> {
               title: widget.vault.name.length > 20
                   ? '${widget.vault.name.substring(0, 17)}...'
                   : widget.vault.name,
-              child: VaultMenuScreen(id: widget.vault.id.toString()));
+              child: VaultMenuScreen(
+                  id: widget.vault.id.toString(),
+                  isMultisig: widget.isMultiSig),
+            );
           }
         },
         child: Container(
