@@ -416,62 +416,67 @@ class _VaultSettingsState extends State<VaultSettings> {
                                 end: Alignment.centerRight,
                               ),
                             ),
-                            child: Container(
-                              margin: const EdgeInsets.all(1),
-                              padding: const EdgeInsets.only(
-                                  left: 20, right: 20, top: 20, bottom: 14),
-                              decoration: BoxDecoration(
-                                color: MyColors.white,
-                                borderRadius: BorderRadius.circular(21),
-                              ),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  // 아이콘
-                                  Row(
-                                    children: [
-                                      SvgPicture.asset(
-                                        'assets/svg/vault-grey.svg',
-                                        width: 18,
-                                      ),
-                                      const SizedBox(width: 10),
-                                      RichText(
-                                        text: TextSpan(
-                                          style: Styles.body2,
-                                          children: [
-                                            const TextSpan(text: '다중 서명 지갑 '),
-                                            TextSpan(
-                                              text: '$_multiSigName 지갑',
-                                              style:
-                                                  Styles.body2Bold.copyWith(),
-                                            ),
-                                            const TextSpan(text: '의 '),
-                                            TextSpan(
-                                              text: '$_multiSigIndex번 키',
-                                              style: Styles.body2Bold,
-                                            ),
-                                            const TextSpan(text: '로 사용 중'),
-                                          ],
+                            child: GestureDetector(
+                              onTap: () {
+                                // TODO: 다중 지갑으로 이동 구현
+                              },
+                              child: Container(
+                                margin: const EdgeInsets.all(1),
+                                padding: const EdgeInsets.only(
+                                    left: 20, right: 20, top: 20, bottom: 14),
+                                decoration: BoxDecoration(
+                                  color: MyColors.white,
+                                  borderRadius: BorderRadius.circular(21),
+                                ),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    // 아이콘
+                                    Row(
+                                      children: [
+                                        SvgPicture.asset(
+                                          'assets/svg/vault-grey.svg',
+                                          width: 18,
                                         ),
-                                      ),
-                                    ],
-                                  ),
-
-                                  const Padding(
-                                    padding: EdgeInsets.only(
-                                        top: 4, bottom: 4, left: 28),
-                                    child: Divider(),
-                                  ),
-
-                                  Padding(
-                                    padding: const EdgeInsets.only(left: 28),
-                                    child: Text(
-                                      '$_multiSigName 지갑으로 이동',
-                                      style: Styles.body2
-                                          .copyWith(color: MyColors.linkBlue),
+                                        const SizedBox(width: 10),
+                                        RichText(
+                                          text: TextSpan(
+                                            style: Styles.body2,
+                                            children: [
+                                              const TextSpan(text: '다중 서명 지갑 '),
+                                              TextSpan(
+                                                text: '$_multiSigName 지갑',
+                                                style:
+                                                    Styles.body2Bold.copyWith(),
+                                              ),
+                                              const TextSpan(text: '의 '),
+                                              TextSpan(
+                                                text: '$_multiSigIndex번 키',
+                                                style: Styles.body2Bold,
+                                              ),
+                                              const TextSpan(text: '로 사용 중'),
+                                            ],
+                                          ),
+                                        ),
+                                      ],
                                     ),
-                                  ),
-                                ],
+
+                                    const Padding(
+                                      padding: EdgeInsets.only(
+                                          top: 4, bottom: 4, left: 28),
+                                      child: Divider(),
+                                    ),
+
+                                    Padding(
+                                      padding: const EdgeInsets.only(left: 28),
+                                      child: Text(
+                                        '$_multiSigName 지갑으로 이동',
+                                        style: Styles.body2
+                                            .copyWith(color: MyColors.linkBlue),
+                                      ),
+                                    ),
+                                  ],
+                                ),
                               ),
                             ),
                           ),
