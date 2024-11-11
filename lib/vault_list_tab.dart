@@ -266,6 +266,33 @@ class _VaultListTabState extends State<VaultListTab>
                           ),
                         ),
                       )),
+
+                  // TODO: 서명하기 UI TEST 버튼
+                  Positioned(
+                    left: 16,
+                    bottom: 32,
+                    right: 16,
+                    child: ElevatedButton(
+                      onPressed: () {
+                        _vaultModel.testChangeMultiSig(true);
+                        // Navigator.pushNamed(
+                        //   context,
+                        //   '/psbt-scanner',
+                        //   arguments: {'id': '${vaults.first.id}'},
+                        // );
+                        Navigator.pushNamed(
+                          context,
+                          '/multi-signature',
+                          arguments: {
+                            'sendAddress':
+                                'bcrt1qr97x085t309sfya99yc0mc0p4yx8x4rmm4mncz',
+                            'bitcoinString': '0.0100 0000',
+                          },
+                        );
+                      },
+                      child: const Text('다중 서명하기 TEST'),
+                    ),
+                  ),
                 ],
               ),
             ));
