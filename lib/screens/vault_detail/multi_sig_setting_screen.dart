@@ -467,6 +467,8 @@ class _MultiSigSettingScreenState extends State<MultiSigSettingScreen> {
                           const SizedBox(height: 8),
                       itemBuilder: (context, index) {
                         final item = testVaultList[index];
+                        // TODO: 외부, 내부 지갑 구분값
+                        final isVaultKey = item.name != '외부지갑';
 
                         return GestureDetector(
                           onTap: () {
@@ -507,30 +509,31 @@ class _MultiSigSettingScreenState extends State<MultiSigSettingScreen> {
                                       children: [
                                         // 아이콘
                                         Container(
-                                          padding: const EdgeInsets.all(8),
-                                          decoration: BoxDecoration(
-                                            color: item.name != '외부지갑'
-                                                ? BackgroundColorPalette[
-                                                    item.colorIndex]
-                                                : MyColors.greyEC,
-                                            borderRadius:
-                                                BorderRadius.circular(8),
-                                          ),
-                                          child: item.name != '외부지갑'
-                                              ? SvgPicture.asset(
-                                                  CustomIcons.getPathByIndex(
-                                                      item.iconIndex),
-                                                  colorFilter: ColorFilter.mode(
-                                                      ColorPalette[
-                                                          item.colorIndex],
-                                                      BlendMode.srcIn),
-                                                  width: 20,
-                                                )
-                                              : const Icon(Icons.download,
-                                                  size: 20,
-                                                  color: MyColors
-                                                      .body2Grey), //TODO:
-                                        ),
+                                            padding: EdgeInsets.all(
+                                                isVaultKey ? 8 : 10),
+                                            decoration: BoxDecoration(
+                                              color: isVaultKey
+                                                  ? BackgroundColorPalette[
+                                                      item.colorIndex]
+                                                  : MyColors.greyEC,
+                                              borderRadius:
+                                                  BorderRadius.circular(8),
+                                            ),
+                                            child: SvgPicture.asset(
+                                              isVaultKey
+                                                  ? CustomIcons.getPathByIndex(
+                                                      item.iconIndex)
+                                                  : 'assets/svg/download.svg',
+                                              colorFilter: ColorFilter.mode(
+                                                isVaultKey
+                                                    ? ColorPalette[
+                                                        item.colorIndex]
+                                                    : MyColors.black,
+                                                BlendMode.srcIn,
+                                              ),
+                                              width:
+                                              isVaultKey ? 20 : 15,
+                                            )),
 
                                         const SizedBox(width: 12),
 
