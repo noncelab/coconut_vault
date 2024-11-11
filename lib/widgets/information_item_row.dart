@@ -8,15 +8,18 @@ class InformationRowItem extends StatelessWidget {
   final bool showIcon;
   final bool isNumber;
   final Widget? rightIcon;
+  final Color? textColor;
 
-  const InformationRowItem(
-      {super.key,
-      required this.label,
-      this.value,
-      this.onPressed,
-      this.showIcon = false,
-      this.isNumber = true,
-      this.rightIcon});
+  const InformationRowItem({
+    super.key,
+    required this.label,
+    this.value,
+    this.onPressed,
+    this.showIcon = false,
+    this.isNumber = true,
+    this.rightIcon,
+    this.textColor,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -28,7 +31,7 @@ class InformationRowItem extends StatelessWidget {
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                Text(label, style: Styles.body2Bold),
+                Text(label, style: Styles.body2Bold.copyWith(color: textColor)),
                 showIcon ? const Spacer() : const SizedBox(width: 32),
                 if (value != null)
                   Expanded(

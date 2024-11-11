@@ -99,11 +99,12 @@ flutter:
   assets:
     - assets/png/splash_logo.png
     - assets/svg/menu/details.svg
-    - assets/svg/menu/key.svg
+    - assets/svg/menu/2keys.svg
     - assets/svg/menu/key-outline.svg
     - assets/svg/menu/list.svg
     - assets/svg/menu/address.svg
     - assets/svg/menu/out.svg
+    - assets/svg/menu/in.svg
     - assets/svg/number/one.svg
     - assets/svg/number/two.svg
     - assets/svg/number/three.svg
@@ -176,6 +177,7 @@ flutter:
     - assets/files/CONTRIBUTING.md
     - assets/svg/download.svg
     - assets/svg/circle-check.svg
+    - assets/svg/vault-grey.svg
 
   fonts:
     - family: SpaceGrotesk

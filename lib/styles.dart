@@ -62,11 +62,21 @@ abstract class MyColors {
   static const cyanblue = Color.fromRGBO(69, 204, 238, 1);
 
   static const Color dropdownGrey = Color(0xFFEBEBEC);
+  static const Color body2Grey = Color(0xFF706D6D);
+  static const Color greyEC = Color(0xFFECECEC);
+  static const Color greyE9 = Color(0xFFE9E9E9);
   static const Color grey57 = Color(0xFF575757);
   static const Color grey236 = Color(0xFFECECEC);
   static const Color grey219 = Color(0xFFDBDBDB);
   static const Color black19 = Color(0xFF0F0F0F);
+  
   static const Color divider = Color(0xFFEBEBEB);
+  static const Color disabledGrey = Color(0xFF232323);
+
+  static const Color multiSigGradient1 = Color(0xFFB2E774);
+  static const Color multiSigGradient2 = Color(0xFF6373EB);
+  static const Color multiSigGradient3 = Color(0xFF2ACEC3);
+  static const Color linkBlue = Color(0xFF4E83FF);
 }
 
 // LIGHT MODE

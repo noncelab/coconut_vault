@@ -11,8 +11,10 @@ import 'package:flutter/services.dart';
 
 class ClipboardButton extends StatefulWidget {
   final String text;
+  final String toastMessage;
 
-  const ClipboardButton({super.key, required this.text});
+  const ClipboardButton(
+      {super.key, required this.text, required this.toastMessage});
 
   @override
   State<ClipboardButton> createState() => _ClipboardButtonState();
@@ -125,7 +127,7 @@ class _ClipboardButtonState extends State<ClipboardButton> {
           onClose: () {
             _hideToast();
           },
-          message: '니모닉 문구가 복사됐어요',
+          message: widget.toastMessage,
         ),
       ),
     );
