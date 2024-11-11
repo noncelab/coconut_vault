@@ -66,7 +66,7 @@ class _SignedTransactionQrScreenState extends State<SignedTransactionQrScreen> {
                 CustomTooltip(
                   richText: RichText(
                     text: TextSpan(
-                      text: '[4]',
+                      text: _vaultModel.isMultiSig ? '' : '[4]',
                       style: const TextStyle(
                         fontFamily: 'Pretendard',
                         fontWeight: FontWeight.bold,
@@ -77,8 +77,9 @@ class _SignedTransactionQrScreenState extends State<SignedTransactionQrScreen> {
                       ),
                       children: <TextSpan>[
                         TextSpan(
-                          text:
-                              ' 월렛의 \'$_walletName 지갑\'에서 만든 보내기 정보에 서명을 완료했어요. 월렛으로 아래 QR 코드를 스캔해 주세요.',
+                          text: _vaultModel.isMultiSig
+                              ? '다중 서명을 완료했어요. 보내기 정보를 생성한 월렛으로 아래 QR 코드를 스캔해 주세요.'
+                              : ' 월렛의 \'$_walletName 지갑\'에서 만든 보내기 정보에 서명을 완료했어요. 월렛으로 아래 QR 코드를 스캔해 주세요.',
                           style: const TextStyle(
                             fontWeight: FontWeight.normal,
                           ),

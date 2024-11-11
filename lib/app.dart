@@ -1,3 +1,4 @@
+import 'package:coconut_vault/screens/airgap/multi_signature_screen.dart';
 import 'package:coconut_vault/screens/airgap/psbt_confirmation_screen.dart';
 import 'package:coconut_vault/screens/airgap/psbt_scanner_screen.dart';
 import 'package:coconut_vault/screens/airgap/signed_transaction_qr_screen.dart';
@@ -190,6 +191,13 @@ class _PowVaultAppState extends State<PowVaultApp> {
             '/sync-to-wallet': (context) => buildScreenWithArguments(
                   context,
                   (args) => SyncToWalletScreen(id: args['id']),
+                ),
+            '/multi-signature': (context) => buildScreenWithArguments(
+                  context,
+                  (args) => MultiSignatureScreen(
+                    sendAddress: args['sendAddress'],
+                    bitcoinString: args['bitcoinString'],
+                  ),
                 ),
             '/security-self-check': (context) {
               final VoidCallback? onNextPressed =
