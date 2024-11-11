@@ -92,15 +92,19 @@ class MyBottomSheet {
     Color backgroundColor = Colors.transparent,
     bool isDismissible = true,
     bool isScrollControlled = true,
+    DraggableScrollableController? controller,
     bool useSafeArea = true,
     bool expand = true,
     bool snap = true,
     double initialChildSize = 1,
     double maxChildSize = 1,
-    double minChildSize = 0.9,
+    double minChildSize = 0.95,
     double maxHeight = 0.9,
     bool topWidget = false,
+    bool enableSingleChildScroll = true,
+    ScrollPhysics? physics,
     VoidCallback? onTopWidgetButtonClicked,
+    VoidCallback? onBackPressed,
   }) async {
     return showModalBottomSheet<T>(
         context: context,
@@ -111,6 +115,7 @@ class MyBottomSheet {
             initialChildSize: initialChildSize,
             maxChildSize: maxChildSize,
             minChildSize: minChildSize,
+            controller: controller,
             builder: (_, controller) {
               return ClipRRect(
                 borderRadius: const BorderRadius.only(
@@ -137,15 +142,31 @@ class MyBottomSheet {
                             },
                           );
                         },
+                      )
+                    else if (topWidget)
+                      CustomAppBar.buildWithClose(
+                        hasNextButton: true,
+                        context: context,
+                        title: '가져오기',
+                        backgroundColor: MyColors.white,
+                        onBackPressed: () {
+                          if (onBackPressed != null) {
+                            onBackPressed();
+                          } else {
+                            Navigator.pop(context);
+                          }
+                        },
                       ),
                     Expanded(
                       child: Container(
                         color: MyColors.white,
-                        child: SingleChildScrollView(
-                          // physics: const ClampingScrollPhysics(),
-                          controller: controller,
-                          child: child,
-                        ),
+                        child: enableSingleChildScroll
+                            ? SingleChildScrollView(
+                                physics: physics,
+                                controller: controller,
+                                child: child,
+                              )
+                            : child,
                       ),
                     ),
                   ],

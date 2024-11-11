@@ -19,6 +19,7 @@ class CustomTextField extends StatefulWidget {
   final FocusNode? focusNode;
   final int? maxLength;
   final List<TextInputFormatter>? inputFormatter;
+  final Color focusedBorderColor;
 
   const CustomTextField({
     super.key,
@@ -38,6 +39,7 @@ class CustomTextField extends StatefulWidget {
     this.focusNode,
     this.maxLength,
     this.inputFormatter,
+    this.focusedBorderColor = MyColors.black,
   });
 
   @override
@@ -88,7 +90,7 @@ class _CustomTextFieldState extends State<CustomTextField> {
                   border: Border.all(
                       color: widget.valid != false
                           ? (isFocused
-                              ? MyColors.black
+                              ? widget.focusedBorderColor
                               : MyColors.transparentBlack_06)
                           : MyColors.red),
                   borderRadius: BorderRadius.circular(16.0),

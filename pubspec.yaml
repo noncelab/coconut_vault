@@ -158,6 +158,7 @@ flutter:
     - assets/svg/face-id.svg
     - assets/svg/fingerprint.svg
     - assets/svg/book.svg
+    - assets/svg/download.svg
     - assets/svg/circle-check.svg
     - assets/lottie/loading-coconut.json
     - assets/lottie/pin-locked-success.json
