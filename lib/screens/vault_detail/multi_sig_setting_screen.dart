@@ -467,7 +467,7 @@ class _MultiSigSettingScreenState extends State<MultiSigSettingScreen> {
                           const SizedBox(height: 8),
                       itemBuilder: (context, index) {
                         final item = testVaultList[index];
-                        // TODO: 외부, 내부 지갑 구분값
+                        // TODO: 외부, 내부 지갑 구분값 적용
                         final isVaultKey = item.name != '외부지갑';
 
                         return GestureDetector(
@@ -531,8 +531,7 @@ class _MultiSigSettingScreenState extends State<MultiSigSettingScreen> {
                                                     : MyColors.black,
                                                 BlendMode.srcIn,
                                               ),
-                                              width:
-                                              isVaultKey ? 20 : 15,
+                                              width: isVaultKey ? 20 : 15,
                                             )),
 
                                         const SizedBox(width: 12),

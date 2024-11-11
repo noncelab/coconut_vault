@@ -1,7 +1,6 @@
 import 'dart:io';
 
 import 'package:coconut_vault/app.dart';
-import 'package:coconut_vault/model/vault_list_item.dart';
 import 'package:coconut_vault/screens/pin_check_screen.dart';
 import 'package:coconut_vault/screens/pin_setting_screen.dart';
 import 'package:coconut_vault/widgets/coconut_dropdown.dart';
@@ -86,19 +85,6 @@ class _VaultListTabState extends State<VaultListTab>
       builder: (context, model, child) {
         final vaults = model.getVaults();
 
-        // TODO: test용 다중 지갑
-        vaults.add(
-          VaultListItem(
-            id: 5,
-            name: '다중지갑',
-            colorIndex: 7,
-            iconIndex: 7,
-            secret:
-                'gravity ranch badge scorpion remind involve able mimic warrior buffalo outdoor air',
-            passphrase: '',
-          ),
-        );
-
         return PopScope(
             canPop: false,
             onPopInvokedWithResult: (didPop, _) async {
@@ -139,9 +125,9 @@ class _VaultListTabState extends State<VaultListTab>
                           itemCount: vaults.length + (vaults.isEmpty ? 1 : 0),
                           itemBuilder: (ctx, index) {
                             if (index < vaults.length) {
+                              // TODO: 다중 지갑 구분 구현
                               return VaultRowItem(
-                                  vault: vaults[index],
-                                  isMultiSig: vaults.length - 1 == index);
+                                  vault: vaults[index], isMultiSig: true);
                             }
 
                             if (index == vaults.length && vaults.isEmpty) {

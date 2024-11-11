@@ -1,4 +1,3 @@
-import 'package:coconut_vault/model/vault_model.dart';
 import 'package:coconut_vault/screens/pin_check_screen.dart';
 import 'package:coconut_vault/styles.dart';
 import 'package:coconut_vault/utils/icon_util.dart';
@@ -6,7 +5,6 @@ import 'package:coconut_vault/widgets/bottom_sheet.dart';
 import 'package:coconut_vault/widgets/custom_loading_overlay.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:provider/provider.dart';
 
 class MultiSignatureScreen extends StatefulWidget {
   final String sendAddress;
