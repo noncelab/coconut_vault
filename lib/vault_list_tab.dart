@@ -251,24 +251,30 @@ class _VaultListTabState extends State<VaultListTab>
                         ),
                       )),
 
-                  // TODO: 서명하기 UI TEST 버튼, 지갑 1개이상 생성되어 있어야 확인 가능, 라이브러리 연동 후 삭제
+                  // TODO: 서명하기 UI TEST 버튼
                   Positioned(
                     left: 16,
                     bottom: 32,
                     right: 16,
-                    child: Visibility(
-                      visible: vaults.isNotEmpty,
-                      child: ElevatedButton(
-                        onPressed: () {
-                          _vaultModel.testChangeMultiSig(true);
-                          Navigator.pushNamed(
-                            context,
-                            '/psbt-scanner',
-                            arguments: {'id': '${vaults.first.id}'},
-                          );
-                        },
-                        child: const Text('다중 서명하기 TEST'),
-                      ),
+                    child: ElevatedButton(
+                      onPressed: () {
+                        _vaultModel.testChangeMultiSig(true);
+                        // Navigator.pushNamed(
+                        //   context,
+                        //   '/psbt-scanner',
+                        //   arguments: {'id': '${vaults.first.id}'},
+                        // );
+                        Navigator.pushNamed(
+                          context,
+                          '/multi-signature',
+                          arguments: {
+                            'sendAddress':
+                                'bcrt1qr97x085t309sfya99yc0mc0p4yx8x4rmm4mncz',
+                            'bitcoinString': '0.0100 0000',
+                          },
+                        );
+                      },
+                      child: const Text('다중 서명하기 TEST'),
                     ),
                   ),
                 ],

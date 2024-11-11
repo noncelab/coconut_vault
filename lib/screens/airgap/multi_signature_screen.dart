@@ -95,8 +95,9 @@ class _MultiSignatureScreenState extends State<MultiSignatureScreen> {
             child: GestureDetector(
               onTap: () {
                 // TODO: 서명하기 다음 절차 구현
-                Navigator.pushNamed(context, '/signed-transaction',
-                    arguments: {'id': 1});
+                Navigator.popUntil(context, (route) => route.isFirst);
+                // Navigator.pushNamed(context, '/signed-transaction',
+                //     arguments: {'id': 1});
               },
               child: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 12.0),
