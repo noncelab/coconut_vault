@@ -65,6 +65,12 @@ abstract class MyColors {
   static const Color body2Grey = Color(0xFF706D6D);
   static const Color greyEC = Color(0xFFECECEC);
   static const Color greyE9 = Color(0xFFE9E9E9);
+  static const Color disabledGrey = Color(0xFF232323);
+
+  static const Color multiSigGradient1 = Color(0xFFB2E774);
+  static const Color multiSigGradient2 = Color(0xFF6373EB);
+  static const Color multiSigGradient3 = Color(0xFF2ACEC3);
+  static const Color linkBlue = Color(0xFF4E83FF);
 }
 
 // LIGHT MODE

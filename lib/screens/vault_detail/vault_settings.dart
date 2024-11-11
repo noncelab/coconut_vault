@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:coconut_lib/coconut_lib.dart';
+import 'package:coconut_vault/utils/text_utils.dart';
 import 'package:coconut_vault/utils/vibration_util.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -50,6 +51,11 @@ class _VaultSettingsState extends State<VaultSettings> {
   Timer? _tooltipTimer;
   int _tooltipRemainingTime = 5;
 
+  // TODO: 다중 지갑 정보
+  String _multiSigName = '';
+  int _multiSigIndex = 0;
+  bool _isUsedToMultiSig = true;
+
   @override
   void initState() {
     _appModel = Provider.of<AppModel>(context, listen: false);
@@ -59,7 +65,7 @@ class _VaultSettingsState extends State<VaultSettings> {
     _vaultListItem = _vaultModel.getVaultById(int.parse(widget.id));
     _nameTextController = TextEditingController(text: _vaultListItem.name);
     _name = _vaultListItem.name;
-    _titleName = _getEllipsedNameIfOver10(_name);
+    _titleName = TextUtils.ellipsisNameIfOver10(_name);
     _iconIndex = _vaultListItem.iconIndex;
     _colorIndex = _vaultListItem.colorIndex;
 
@@ -68,10 +74,11 @@ class _VaultSettingsState extends State<VaultSettings> {
           _tooltipIconKey.currentContext?.findRenderObject() as RenderBox;
       _tooltipIconPosition = _tooltipIconRendBox.localToGlobal(Offset.zero);
     });
-  }
 
-  static String _getEllipsedNameIfOver10(String name) {
-    return name.length > 10 ? '${name.substring(0, 7)}...' : name;
+    // TODO: 다중 지갑 정보 가져오기
+    _multiSigIndex = 1;
+    _multiSigName = TextUtils.ellipsisIfLonger('다중다중다중', 4);
+    _isUsedToMultiSig = true;
   }
 
   @override
@@ -121,7 +128,7 @@ class _VaultSettingsState extends State<VaultSettings> {
 
       setState(() {
         _name = newName;
-        _titleName = _getEllipsedNameIfOver10(newName);
+        _titleName = TextUtils.ellipsisNameIfOver10(newName);
         _iconIndex = newIconIndex;
         _colorIndex = newColorIndex;
       });
@@ -279,8 +286,9 @@ class _VaultSettingsState extends State<VaultSettings> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Padding(
+                        Container(
                           padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                          margin: const EdgeInsets.only(bottom: 12),
                           child: Container(
                               padding: const EdgeInsets.symmetric(
                                   horizontal: 24, vertical: 20),
@@ -391,7 +399,85 @@ class _VaultSettingsState extends State<VaultSettings> {
                                 ],
                               )),
                         ),
-                        const SizedBox(height: 32),
+                        if (_isUsedToMultiSig) ...{
+                          Container(
+                            margin: const EdgeInsets.only(
+                                bottom: 12, left: 16, right: 16),
+                            decoration: BoxDecoration(
+                              color: MyColors.white,
+                              borderRadius: BorderRadius.circular(22),
+                              gradient: const LinearGradient(
+                                colors: [
+                                  MyColors.multiSigGradient1,
+                                  MyColors.multiSigGradient2,
+                                  MyColors.multiSigGradient3,
+                                ],
+                                begin: Alignment.centerLeft,
+                                end: Alignment.centerRight,
+                              ),
+                            ),
+                            child: Container(
+                              margin: const EdgeInsets.all(1),
+                              padding: const EdgeInsets.only(
+                                  left: 20, right: 20, top: 20, bottom: 14),
+                              decoration: BoxDecoration(
+                                color: MyColors.white,
+                                borderRadius: BorderRadius.circular(21),
+                              ),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  // 아이콘
+                                  Row(
+                                    children: [
+                                      SvgPicture.asset(
+                                        'assets/svg/vault-grey.svg',
+                                        width: 18,
+                                      ),
+                                      const SizedBox(width: 10),
+                                      RichText(
+                                        text: TextSpan(
+                                          style: Styles.body2,
+                                          children: [
+                                            const TextSpan(text: '다중 서명 지갑 '),
+                                            TextSpan(
+                                              text: '$_multiSigName 지갑',
+                                              style:
+                                                  Styles.body2Bold.copyWith(),
+                                            ),
+                                            const TextSpan(text: '의 '),
+                                            TextSpan(
+                                              text: '$_multiSigIndex번 키',
+                                              style: Styles.body2Bold,
+                                            ),
+                                            const TextSpan(text: '로 사용 중'),
+                                          ],
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+
+                                  const Padding(
+                                    padding: EdgeInsets.only(
+                                        top: 4, bottom: 4, left: 28),
+                                    child: Divider(),
+                                  ),
+
+                                  Padding(
+                                    padding: const EdgeInsets.only(left: 28),
+                                    child: Text(
+                                      '$_multiSigName 지갑으로 이동',
+                                      style: Styles.body2
+                                          .copyWith(color: MyColors.linkBlue),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        } else ...{
+                          const SizedBox(height: 20),
+                        },
                         Padding(
                             padding: const EdgeInsets.symmetric(horizontal: 16),
                             child: Container(
@@ -440,35 +526,52 @@ class _VaultSettingsState extends State<VaultSettings> {
                                     InformationRowItem(
                                       label: '삭제하기',
                                       showIcon: true,
+                                      textColor: _isUsedToMultiSig
+                                          ? MyColors.disabledGrey
+                                              .withOpacity(0.15)
+                                          : null,
                                       rightIcon: Container(
-                                          padding: const EdgeInsets.all(8),
-                                          decoration: BoxDecoration(
-                                              color:
-                                                  MyColors.transparentWhite_70,
-                                              borderRadius:
-                                                  BorderRadius.circular(10)),
-                                          child: SvgPicture.asset(
-                                              'assets/svg/trash.svg',
-                                              width: 16,
-                                              colorFilter:
-                                                  const ColorFilter.mode(
-                                                      MyColors.warningText,
-                                                      BlendMode.srcIn))),
+                                        padding: const EdgeInsets.all(8),
+                                        decoration: BoxDecoration(
+                                          color: MyColors.transparentWhite_70,
+                                          borderRadius:
+                                              BorderRadius.circular(10),
+                                        ),
+                                        child: SvgPicture.asset(
+                                          'assets/svg/trash.svg',
+                                          width: 16,
+                                          colorFilter: ColorFilter.mode(
+                                            _isUsedToMultiSig
+                                                ? MyColors.disabledGrey
+                                                    .withOpacity(0.15)
+                                                : MyColors.warningText,
+                                            BlendMode.srcIn,
+                                          ),
+                                        ),
+                                      ),
                                       onPressed: () {
                                         _removeTooltip();
-                                        showConfirmDialog(
+                                        if (_isUsedToMultiSig) {
+                                          CustomToast.showToast(
                                             context: context,
-                                            title: '확인',
-                                            content:
-                                                '정말로 볼트에서 $_name 정보를 삭제하시겠어요?',
-                                            onConfirmPressed: () async {
-                                              _appModel.showIndicator();
-                                              await Future.delayed(
-                                                  const Duration(seconds: 1));
-                                              _verifyBiometric(2);
-                                              _appModel.hideIndicator();
-                                              //context.go('/');
-                                            });
+                                            text:
+                                                '$_multiSigName 지갑에 사용되고 있어 삭제할 수 없어요.',
+                                          );
+                                        } else {
+                                          showConfirmDialog(
+                                              context: context,
+                                              title: '확인',
+                                              content:
+                                                  '정말로 볼트에서 $_name 정보를 삭제하시겠어요?',
+                                              onConfirmPressed: () async {
+                                                _appModel.showIndicator();
+                                                await Future.delayed(
+                                                    const Duration(seconds: 1));
+                                                _verifyBiometric(2);
+                                                _appModel.hideIndicator();
+                                                //context.go('/');
+                                              });
+                                        }
                                       },
                                     ),
                                   ],
