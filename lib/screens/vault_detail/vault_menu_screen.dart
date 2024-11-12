@@ -1,3 +1,4 @@
+import 'package:coconut_vault/utils/text_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:coconut_vault/model/vault_model.dart';
@@ -26,9 +27,9 @@ const iconBackgroundColorList = <Color>[
 
 class VaultMenuScreen extends StatefulWidget {
   final String id;
-  final bool isMultisig;
+  final bool isMultiSig;
 
-  const VaultMenuScreen({super.key, required this.id, this.isMultisig = false});
+  const VaultMenuScreen({super.key, required this.id, this.isMultiSig = false});
 
   @override
   State<VaultMenuScreen> createState() => _VaultMenuScreenState();
@@ -43,18 +44,21 @@ class _VaultMenuScreenState extends State<VaultMenuScreen> {
       final VaultListItem vaultListItem =
           model.getVaultById(int.parse(widget.id));
 
-      if (!widget.isMultisig) {
+      if (!widget.isMultiSig) {
         return Container(
           padding: const EdgeInsets.only(left: 8, right: 8),
           child: Column(children: [
             bottomMenuButton(
                 SvgPicture.asset('assets/svg/menu/details.svg',
                     width: iconSize, colorFilter: iconColorList[1]),
-                '${vaultListItem.name.length > 10 ? '${vaultListItem.name.substring(0, 7)}...' : vaultListItem.name} 정보',
+                '${TextUtils.ellipsisIfLonger(vaultListItem.name)} 정보',
                 '저장된 니모닉 문구 등을 확인할 수 있어요', () {
               Navigator.pop(context);
-              Navigator.pushNamed(context, '/vault-settings',
-                  arguments: {'id': widget.id});
+              Navigator.pushNamed(
+                context,
+                '/vault-settings',
+                arguments: {'id': widget.id},
+              );
             }, iconBackgroundColorList[1]),
             bottomMenuDivider(),
             bottomMenuButton(
@@ -71,7 +75,7 @@ class _VaultMenuScreenState extends State<VaultMenuScreen> {
                 SvgPicture.asset('assets/svg/menu/address.svg',
                     width: iconSize, colorFilter: iconColorList[3]),
                 '주소 보기',
-                '${vaultListItem.name.length > 10 ? '${vaultListItem.name.substring(0, 7)}...' : vaultListItem.name}에서 추출한 주소를 확인해요',
+                '${TextUtils.ellipsisIfLonger(vaultListItem.name)}에서 추출한 주소를 확인해요',
                 () {
               Navigator.pop(context);
               Navigator.pushNamed(context, '/address-list',
@@ -109,23 +113,34 @@ class _VaultMenuScreenState extends State<VaultMenuScreen> {
             bottomMenuButton(
                 SvgPicture.asset('assets/svg/menu/details.svg',
                     width: iconSize, colorFilter: iconColorList[1]),
-                '${vaultListItem.name.length > 10 ? '${vaultListItem.name.substring(0, 7)}...' : vaultListItem.name} 정보',
+                '${TextUtils.ellipsisIfLonger(vaultListItem.name)} 정보',
                 '다중 서명 지갑의 정보를 확인할 수 있어요 ', () {
               Navigator.pop(context);
-              // TODO:
-              // Navigator.pushNamed(context, '/vault-settings',
-              //     arguments: {'id': widget.id});
+              Navigator.pushNamed(context, '/multisig-setting',
+                  arguments: {'id': widget.id});
             }, iconBackgroundColorList[1]),
             bottomMenuDivider(),
             bottomMenuButton(
-                SvgPicture.asset('assets/svg/menu/3keys.svg',
+                SvgPicture.asset('assets/svg/menu/2keys.svg',
                     width: iconSize, colorFilter: iconColorList[2]),
                 '다중 서명하기',
                 '전송 정보를 스캔하고 서명해요', () {
               Navigator.pop(context);
-              // TODO:
-              // Navigator.pushNamed(context, '/psbt-scanner',
-              //     arguments: {'id': widget.id});
+              // TODO: 스캐너 이동 로직 추가 필요함
+              model.testChangeMultiSig(true);
+              // Navigator.pushNamed(
+              //   context,
+              //   '/psbt-scanner',
+              //   arguments: {'id': '${vaults.first.id}'},
+              // );
+              Navigator.pushNamed(
+                context,
+                '/multi-signature',
+                arguments: {
+                  'sendAddress': 'bcrt1qr97x085t309sfya99yc0mc0p4yx8x4rmm4mncz',
+                  'bitcoinString': '0.0100 0000',
+                },
+              );
             }, iconBackgroundColorList[2]),
             bottomMenuDivider(),
             bottomMenuButton(

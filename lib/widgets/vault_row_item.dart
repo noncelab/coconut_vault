@@ -1,3 +1,4 @@
+import 'package:coconut_vault/utils/colors_util.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:coconut_vault/screens/vault_detail/vault_menu_screen.dart';
@@ -32,7 +33,7 @@ class _VaultRowItemState extends State<VaultRowItem> {
   bool isPressing = false;
 
   // TODO : 추후 로직 변경될 수 있음
-  bool _isMultiSig = false;
+  bool _isMultiSig = true;
   bool _isUsedToMultiSig = false;
 
   @override
@@ -40,8 +41,16 @@ class _VaultRowItemState extends State<VaultRowItem> {
     super.initState();
 
     // TODO : 볼트 속성 업데이트
-    _isMultiSig = false;
-    _isUsedToMultiSig = true;
+    if (widget.vault.name == '다중지갑') {
+      _isMultiSig = true;
+      _isUsedToMultiSig = false;
+    } else if (widget.vault.name == '다중키지갑') {
+      _isMultiSig = false;
+      _isUsedToMultiSig = true;
+    } else {
+      _isMultiSig = false;
+      _isUsedToMultiSig = false;
+    }
   }
 
   @override
@@ -71,6 +80,13 @@ class _VaultRowItemState extends State<VaultRowItem> {
           )
         : ShrinkAnimationButton(
             pressedColor: MyColors.darkgrey.withOpacity(0.05),
+            borderGradientColors: _isMultiSig
+                ? [
+                    CustomColorHelper.getColorByIndex(0),
+                    MyColors.borderLightgrey,
+                    CustomColorHelper.getColorByIndex(4),
+                  ]
+                : null,
             onPressed: () {
               MyBottomSheet.showBottomSheet(
                 context: context,
@@ -78,9 +94,7 @@ class _VaultRowItemState extends State<VaultRowItem> {
                     ? '${widget.vault.name.substring(0, 17)}...'
                     : widget.vault.name,
                 child: VaultMenuScreen(
-                  id: widget.vault.id.toString(),
-                  isMultisig: _isMultiSig,
-                ),
+                    id: widget.vault.id.toString(), isMultiSig: _isMultiSig),
               );
             },
             child: _vaultContainerWidget());
@@ -131,16 +145,33 @@ class _VaultRowItemState extends State<VaultRowItem> {
           const SizedBox(width: 8.0),
           // 2) 이름
           Expanded(
-            child: Text(
-              widget.vault.name,
-              style: const TextStyle(
-                  fontFamily: 'Pretendard',
-                  fontSize: 14.0,
-                  fontWeight: FontWeight.w600,
-                  color: MyColors.black,
-                  letterSpacing: 0.2),
-              maxLines: 3,
-              overflow: TextOverflow.ellipsis,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // TODO: M/N, 다중 지갑의 N키 처리 필요 (지갑명 10글자 말줄임)
+                if (_isMultiSig) ...{
+                  Text(
+                    '2/3',
+                    style: Styles.body2.copyWith(color: MyColors.body2Grey),
+                  ),
+                } else if (_isUsedToMultiSig) ...{
+                  Text(
+                    '다중다중 지갑의 2번 키',
+                    style: Styles.body2.copyWith(color: MyColors.body2Grey),
+                  ),
+                },
+                Text(
+                  widget.vault.name,
+                  style: const TextStyle(
+                      fontFamily: 'Pretendard',
+                      fontSize: 14.0,
+                      fontWeight: FontWeight.w600,
+                      color: MyColors.black,
+                      letterSpacing: 0.2),
+                  maxLines: 3,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ],
             ),
           ),
           const SizedBox(

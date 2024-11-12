@@ -52,9 +52,11 @@ class _VaultSettingsState extends State<VaultSettings> {
   int _tooltipRemainingTime = 5;
 
   // TODO: 다중 지갑 정보
-  String _multiSigName = '';
-  int _multiSigIndex = 0;
-  bool _isUsedToMultiSig = true;
+  // String _multiSigName = '';
+  // int _multiSigIndex = 0;
+  // bool _isUsedToMultiSig = false;
+
+  final List<TestMultiSig> _testMultiSigList = [];
 
   @override
   void initState() {
@@ -65,7 +67,7 @@ class _VaultSettingsState extends State<VaultSettings> {
     _vaultListItem = _vaultModel.getVaultById(int.parse(widget.id));
     _nameTextController = TextEditingController(text: _vaultListItem.name);
     _name = _vaultListItem.name;
-    _titleName = TextUtils.ellipsisNameIfOver10(_name);
+    _titleName = TextUtils.ellipsisIfLonger(_name);
     _iconIndex = _vaultListItem.iconIndex;
     _colorIndex = _vaultListItem.colorIndex;
 
@@ -76,9 +78,34 @@ class _VaultSettingsState extends State<VaultSettings> {
     });
 
     // TODO: 다중 지갑 정보 가져오기
-    _multiSigIndex = 1;
-    _multiSigName = TextUtils.ellipsisIfLonger('다중다중다중', 4);
-    _isUsedToMultiSig = true;
+    if (_name == '다중키지갑') {
+      _testMultiSigList.add(TestMultiSig(
+          id: 11,
+          name: '다중이',
+          colorIndex: 0,
+          iconIndex: 0,
+          secret: '',
+          passphrase: '',
+          vaultJsonString: ''));
+
+      _testMultiSigList.add(TestMultiSig(
+          id: 12,
+          name: '열글자 넘어 버리는 다중이',
+          colorIndex: 0,
+          iconIndex: 0,
+          secret: '',
+          passphrase: '',
+          vaultJsonString: ''));
+
+      _testMultiSigList.add(TestMultiSig(
+          id: 14,
+          name: '다중다중',
+          colorIndex: 0,
+          iconIndex: 0,
+          secret: '',
+          passphrase: '',
+          vaultJsonString: ''));
+    }
   }
 
   @override
@@ -128,7 +155,7 @@ class _VaultSettingsState extends State<VaultSettings> {
 
       setState(() {
         _name = newName;
-        _titleName = TextUtils.ellipsisNameIfOver10(newName);
+        _titleName = TextUtils.ellipsisIfLonger(newName);
         _iconIndex = newIconIndex;
         _colorIndex = newColorIndex;
       });
@@ -399,7 +426,8 @@ class _VaultSettingsState extends State<VaultSettings> {
                                 ],
                               )),
                         ),
-                        if (_isUsedToMultiSig) ...{
+                        // TODO: 다중지갑 키 사용여부 체크
+                        if (_testMultiSigList.isNotEmpty) ...{
                           Container(
                             margin: const EdgeInsets.only(
                                 bottom: 12, left: 16, right: 16),
@@ -416,67 +444,83 @@ class _VaultSettingsState extends State<VaultSettings> {
                                 end: Alignment.centerRight,
                               ),
                             ),
-                            child: GestureDetector(
-                              onTap: () {
-                                // TODO: 다중 지갑으로 이동 구현
-                              },
-                              child: Container(
-                                margin: const EdgeInsets.all(1),
-                                padding: const EdgeInsets.only(
-                                    left: 20, right: 20, top: 20, bottom: 14),
-                                decoration: BoxDecoration(
-                                  color: MyColors.white,
-                                  borderRadius: BorderRadius.circular(21),
-                                ),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    // 아이콘
-                                    Row(
-                                      children: [
-                                        SvgPicture.asset(
-                                          'assets/svg/vault-grey.svg',
-                                          width: 18,
-                                        ),
-                                        const SizedBox(width: 10),
-                                        RichText(
-                                          text: TextSpan(
-                                            style: Styles.body2,
-                                            children: [
-                                              const TextSpan(text: '다중 서명 지갑 '),
-                                              TextSpan(
-                                                text: '$_multiSigName 지갑',
-                                                style:
-                                                    Styles.body2Bold.copyWith(),
+                            child: Container(
+                              margin: const EdgeInsets.all(1),
+                              padding: const EdgeInsets.only(
+                                  left: 20, right: 20, top: 20, bottom: 14),
+                              decoration: BoxDecoration(
+                                color: MyColors.white,
+                                borderRadius: BorderRadius.circular(21),
+                              ),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  // 아이콘
+                                  Row(
+                                    children: [
+                                      SvgPicture.asset(
+                                        'assets/svg/vault-grey.svg',
+                                        width: 18,
+                                      ),
+                                      const SizedBox(width: 10),
+                                      const Text(
+                                        '다중 서명 지갑에서 사용 중입니다',
+                                        style: Styles.body2,
+                                      ),
+                                    ],
+                                  ),
+
+                                  const Padding(
+                                    padding: EdgeInsets.only(
+                                        top: 4, bottom: 4, left: 28),
+                                    child: Divider(),
+                                  ),
+
+                                  ListView.builder(
+                                    itemCount: _testMultiSigList.length,
+                                    shrinkWrap: true,
+                                    itemBuilder: (context, index) {
+                                      final multiSig = _testMultiSigList[index];
+                                      return InkWell(
+                                        onTap: () {
+                                          // TODO: 다중 지갑으로 이동 구현
+                                          print(multiSig.name);
+                                        },
+                                        child: Container(
+                                          padding: const EdgeInsets.only(
+                                              left: 28, bottom: 4),
+                                          color: Colors.transparent,
+                                          child: RichText(
+                                            text: TextSpan(
+                                              style: Styles.body2.copyWith(
+                                                color: MyColors.linkBlue,
                                               ),
-                                              const TextSpan(text: '의 '),
-                                              TextSpan(
-                                                text: '$_multiSigIndex번 키',
-                                                style: Styles.body2Bold,
-                                              ),
-                                              const TextSpan(text: '로 사용 중'),
-                                            ],
+                                              children: [
+                                                TextSpan(
+                                                  text:
+                                                      '${TextUtils.ellipsisIfLonger(multiSig.name)} 지갑',
+                                                  style:
+                                                      Styles.body2Bold.copyWith(
+                                                    color: MyColors.linkBlue,
+                                                  ),
+                                                ),
+                                                const TextSpan(text: '의 '),
+                                                TextSpan(
+                                                  text: '${index + 1}번',
+                                                  style:
+                                                      Styles.body2Bold.copyWith(
+                                                    color: MyColors.linkBlue,
+                                                  ),
+                                                ),
+                                                const TextSpan(text: ' 키'),
+                                              ],
+                                            ),
                                           ),
                                         ),
-                                      ],
-                                    ),
-
-                                    const Padding(
-                                      padding: EdgeInsets.only(
-                                          top: 4, bottom: 4, left: 28),
-                                      child: Divider(),
-                                    ),
-
-                                    Padding(
-                                      padding: const EdgeInsets.only(left: 28),
-                                      child: Text(
-                                        '$_multiSigName 지갑으로 이동',
-                                        style: Styles.body2
-                                            .copyWith(color: MyColors.linkBlue),
-                                      ),
-                                    ),
-                                  ],
-                                ),
+                                      );
+                                    },
+                                  ),
+                                ],
                               ),
                             ),
                           ),
@@ -531,7 +575,7 @@ class _VaultSettingsState extends State<VaultSettings> {
                                     InformationRowItem(
                                       label: '삭제하기',
                                       showIcon: true,
-                                      textColor: _isUsedToMultiSig
+                                      textColor: _testMultiSigList.isNotEmpty
                                           ? MyColors.disabledGrey
                                               .withOpacity(0.15)
                                           : null,
@@ -546,7 +590,7 @@ class _VaultSettingsState extends State<VaultSettings> {
                                           'assets/svg/trash.svg',
                                           width: 16,
                                           colorFilter: ColorFilter.mode(
-                                            _isUsedToMultiSig
+                                            _testMultiSigList.isNotEmpty
                                                 ? MyColors.disabledGrey
                                                     .withOpacity(0.15)
                                                 : MyColors.warningText,
@@ -556,11 +600,11 @@ class _VaultSettingsState extends State<VaultSettings> {
                                       ),
                                       onPressed: () {
                                         _removeTooltip();
-                                        if (_isUsedToMultiSig) {
+                                        if (_testMultiSigList.isNotEmpty) {
                                           CustomToast.showToast(
                                             context: context,
                                             text:
-                                                '$_multiSigName 지갑에 사용되고 있어 삭제할 수 없어요.',
+                                                '다중 서명 지갑에 사용되고 있어 삭제할 수 없어요.',
                                           );
                                         } else {
                                           showConfirmDialog(
@@ -592,4 +636,25 @@ class _VaultSettingsState extends State<VaultSettings> {
       ),
     );
   }
+}
+
+// TODO: 개발 완료후 삭제
+class TestMultiSig {
+  final int id;
+  final String name;
+  final int colorIndex;
+  final int iconIndex;
+  final String secret;
+  final String passphrase;
+  String? vaultJsonString;
+
+  TestMultiSig({
+    required this.id,
+    required this.name,
+    required this.colorIndex,
+    required this.iconIndex,
+    required this.secret,
+    required this.passphrase,
+    this.vaultJsonString,
+  });
 }

@@ -27,7 +27,7 @@ class _MultiSignatureScreenState extends State<MultiSignatureScreen> {
   String _sendAddress = '';
 
   final testSignatureList = [
-    TestMultiSignature(
+    TestMultiSig(
         id: 1,
         name: 'qwer',
         colorIndex: 0,
@@ -37,7 +37,7 @@ class _MultiSignatureScreenState extends State<MultiSignatureScreen> {
         passphrase: '',
         vaultJsonString:
             '''{"keyStore":"{"fingerprint":"ED8D1A16","hdWallet":"{\\"privateKey\\":\\"c800e15734782112ce1c39b95dfaae6f00a3cd4adc32701909e1c32c1bcf7c9f\\",\\"publicKey\\":\\"034f9728039cd80c090c36a506cd8b2b501eea20cac00e9cba944b9bd05e2b9bcf\\",\\"chainCode\\":\\"2af691cac33131f23da7df840bc6bdf863b7710a8fb95262b7e5f2e4a2fb6c5a\\"}","extendedPublicKey":"vpub5YGaouVZqpfDLquULQ6yeSAkKiq8NWepeiP8YJyJeFyCMvH4mwiRBw1NzN6cg8S4mKxNMxyN1Sdfckn7h91FwPEEJVfVVQDWoATyABdPbmX","seed":"{\\"entropy\\":\\"\\",\\"mnemonic\\":[\\"control\\",\\"wonder\\",\\"horse\\",\\"expect\\",\\"notable\\",\\"proud\\",\\"eternal\\",\\"mountain\\",\\"swim\\",\\"path\\",\\"toe\\",\\"warm\\"],\\"passphrase\\":\\"\\"}"}","addressType":"P2WPKH","derivationPath":"m/84'/1'/0'"}'''),
-    TestMultiSignature(
+    TestMultiSig(
         id: 2,
         name: '외부지갑',
         colorIndex: 0,
@@ -46,7 +46,7 @@ class _MultiSignatureScreenState extends State<MultiSignatureScreen> {
             'gravity ranch badge scorpion remind involve able mimic warrior buffalo outdoor air',
         passphrase: '',
         vaultJsonString: null),
-    TestMultiSignature(
+    TestMultiSig(
         id: 3,
         name: 'go',
         colorIndex: 4,
@@ -328,7 +328,8 @@ class _MultiSignatureScreenState extends State<MultiSignatureScreen> {
   }
 }
 
-class TestMultiSignature {
+// TODO: 개발 완료후 삭제
+class TestMultiSig {
   final int id;
   final String name;
   final int colorIndex;
@@ -337,7 +338,7 @@ class TestMultiSignature {
   final String passphrase;
   String? vaultJsonString;
 
-  TestMultiSignature({
+  TestMultiSig({
     required this.id,
     required this.name,
     required this.colorIndex,

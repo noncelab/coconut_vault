@@ -694,6 +694,7 @@ class _MultiSigSettingScreenState extends State<MultiSigSettingScreen> {
   }
 }
 
+// TODO: 개발 완료후 삭제
 class TestMultiSig {
   final int id;
   final String name;
