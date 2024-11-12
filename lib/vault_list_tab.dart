@@ -45,15 +45,19 @@ class _VaultListTabState extends State<VaultListTab>
     super.initState();
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (widget.reload == null || widget.reload == true) {
-        _vaultModel.loadVaultList();
-      }
-
       // 초기화 이후 홈화면 진입시 설정창 노출
       if (_appModel.isResetVault) {
         MyBottomSheet.showBottomSheet_90(
             context: context, child: const SettingsScreen());
         _appModel.offResetVault();
+      }
+      // 지갑 추가, 지갑 삭제, 서명완료 후 불필요하게 loadVaultList() 호출되는 것을 막음
+      if (_vaultModel.vaultInitialized) {
+        return;
+      }
+
+      if (widget.reload == null || widget.reload == true) {
+        _vaultModel.loadVaultList();
       }
     });
   }
