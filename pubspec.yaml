@@ -154,6 +154,7 @@ flutter:
     - assets/svg/bluetooth.svg
     - assets/svg/coconut.svg
     - assets/svg/coconut-security.svg
+    - assets/svg/coconut-security-gradient.svg
     - assets/svg/cross-circle.svg
     - assets/svg/curved-arrow-right.svg
     - assets/svg/stethoscope.svg
@@ -162,6 +163,10 @@ flutter:
     - assets/svg/face-id.svg
     - assets/svg/fingerprint.svg
     - assets/svg/book.svg
+    - assets/svg/download.svg
+    - assets/svg/circle-check-gradient.svg
+    - assets/svg/key-icon.svg
+    - assets/svg/key-icon-color.svg
     - assets/lottie/loading-coconut.json
     - assets/lottie/pin-locked-success.json
     - assets/png/pow-logo.png

@@ -9,6 +9,7 @@ abstract class MyColors {
   static const transparentBlack = Color.fromRGBO(0, 0, 0, 0.7);
   static const transparentBlack_03 = Color.fromRGBO(0, 0, 0, 0.03);
   static const transparentBlack_06 = Color.fromRGBO(0, 0, 0, 0.06);
+  static const transparentBlack_15 = Color.fromRGBO(0, 0, 0, 0.15);
   static const transparentBlack_30 = Color.fromRGBO(0, 0, 0, 0.3);
   static const transparentBlack_50 = Color.fromRGBO(0, 0, 0, 0.5);
   static const transparentBlack_70 = Color.fromRGBO(0, 0, 0, 0.7);
@@ -62,6 +63,7 @@ abstract class MyColors {
   static const cyanblue = Color.fromRGBO(69, 204, 238, 1);
 
   static const Color dropdownGrey = Color(0xFFEBEBEC);
+  static const Color whiteSmoke = Color(0xFFF8F8F8);
   static const Color body2Grey = Color(0xFF706D6D);
   static const Color greyEC = Color(0xFFECECEC);
   static const Color greyE9 = Color(0xFFE9E9E9);

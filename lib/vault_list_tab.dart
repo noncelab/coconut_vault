@@ -160,8 +160,8 @@ class _VaultListTabState extends State<VaultListTab>
                                                 child: const PinSettingScreen(
                                                     greetingVisible: true));
                                           } else {
-                                            Navigator.pushNamed(context,
-                                                '/vault-creation-options');
+                                            Navigator.pushNamed(
+                                                context, '/select-vault-type');
                                           }
                                         },
                                         borderRadius: BorderRadius.circular(10),

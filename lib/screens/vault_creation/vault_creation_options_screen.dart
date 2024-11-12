@@ -36,7 +36,7 @@ class VaultCreationOptions extends StatelessWidget {
     return Scaffold(
       backgroundColor: MyColors.white,
       appBar: CustomAppBar.build(
-        title: '추가하기',
+        title: '일반 지갑',
         context: context,
         hasRightIcon: false,
         showTestnetLabel: false,
