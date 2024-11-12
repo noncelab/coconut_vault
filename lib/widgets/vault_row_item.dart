@@ -11,23 +11,33 @@ import '../model/vault_list_item.dart';
 import '../styles.dart';
 
 class VaultRowItem extends StatefulWidget {
-  const VaultRowItem({super.key, required this.vault, this.isMultiSig = false});
+  const VaultRowItem({super.key, required this.vault});
 
   final VaultListItem vault;
-
-  // TODO : 추후 로직 변경될 수 있음
-  final bool isMultiSig;
 
   @override
   State<VaultRowItem> createState() => _VaultRowItemState();
 }
 
 class _VaultRowItemState extends State<VaultRowItem> {
+  // TODO : 추후 로직 변경될 수 있음
+  bool _isMultiSig = false;
+  bool _isUsedToMultiSig = false;
+
+  @override
+  void initState() {
+    super.initState();
+
+    // TODO : 볼트 속성 업데이트
+    _isMultiSig = false;
+    _isUsedToMultiSig = true;
+  }
+
   @override
   Widget build(BuildContext context) {
     final row = ShrinkAnimationButton(
         pressedColor: MyColors.darkgrey.withOpacity(0.05),
-        borderGradientColors: widget.isMultiSig
+        borderGradientColors: _isMultiSig
             ? [
                 CustomColorHelper.getColorByIndex(0),
                 MyColors.borderLightgrey,
@@ -36,7 +46,7 @@ class _VaultRowItemState extends State<VaultRowItem> {
             : null,
         onPressed: () {
           // TODO: UI 확인용, 추후 변경 필요함
-          if (widget.isMultiSig) {
+          if (_isMultiSig) {
             Navigator.pushNamed(context, '/multisig-setting',
                 arguments: {'id': '${widget.vault.id}'});
           } else {
@@ -46,8 +56,7 @@ class _VaultRowItemState extends State<VaultRowItem> {
                   ? '${widget.vault.name.substring(0, 17)}...'
                   : widget.vault.name,
               child: VaultMenuScreen(
-                  id: widget.vault.id.toString(),
-                  isMultisig: widget.isMultiSig),
+                  id: widget.vault.id.toString(), isMultisig: _isMultiSig),
             );
           }
         },
@@ -77,14 +86,18 @@ class _VaultRowItemState extends State<VaultRowItem> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // TODO: M/N 처리 필요
-                    Visibility(
-                      visible: widget.isMultiSig,
-                      child: Text(
+                    // TODO: M/N, 다중 지갑의 N키 처리 필요 (지갑명 10글자 말줄임)
+                    if (_isMultiSig) ...{
+                      Text(
                         '2/3',
                         style: Styles.body2.copyWith(color: MyColors.body2Grey),
                       ),
-                    ),
+                    } else if (_isUsedToMultiSig) ...{
+                      Text(
+                        '다중다중 지갑의 2번 키',
+                        style: Styles.body2.copyWith(color: MyColors.body2Grey),
+                      ),
+                    },
                     Text(
                       widget.vault.name,
                       style: const TextStyle(

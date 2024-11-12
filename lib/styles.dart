@@ -69,7 +69,7 @@ abstract class MyColors {
   static const Color grey236 = Color(0xFFECECEC);
   static const Color grey219 = Color(0xFFDBDBDB);
   static const Color black19 = Color(0xFF0F0F0F);
-  
+
   static const Color divider = Color(0xFFEBEBEB);
   static const Color disabledGrey = Color(0xFF232323);
 

@@ -125,9 +125,7 @@ class _VaultListTabState extends State<VaultListTab>
                           itemCount: vaults.length + (vaults.isEmpty ? 1 : 0),
                           itemBuilder: (ctx, index) {
                             if (index < vaults.length) {
-                              // TODO: 다중 지갑 구분 구현
-                              return VaultRowItem(
-                                  vault: vaults[index], isMultiSig: true);
+                              return VaultRowItem(vault: vaults[index]);
                             }
 
                             if (index == vaults.length && vaults.isEmpty) {
