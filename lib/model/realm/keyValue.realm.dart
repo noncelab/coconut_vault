@@ -49,6 +49,7 @@ class KeyValue extends _KeyValue
 
   static EJsonValue _toEJson(KeyValue value) => value.toEJson();
   static KeyValue _fromEJson(EJsonValue ejson) {
+    if (ejson is! Map<String, dynamic>) return raiseInvalidEJson(ejson);
     return switch (ejson) {
       {
         'key': EJsonValue key,
@@ -65,7 +66,7 @@ class KeyValue extends _KeyValue
   static final schema = () {
     RealmObjectBase.registerFactory(KeyValue._);
     register(_toEJson, _fromEJson);
-    return SchemaObject(ObjectType.realmObject, KeyValue, 'KeyValue', [
+    return const SchemaObject(ObjectType.realmObject, KeyValue, 'KeyValue', [
       SchemaProperty('key', RealmPropertyType.string, primaryKey: true),
       SchemaProperty('value', RealmPropertyType.string),
     ]);

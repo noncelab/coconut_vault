@@ -2,6 +2,8 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:coconut_lib/coconut_lib.dart';
+import 'package:coconut_vault/model/singlesig_vault_list_item.dart';
+import 'package:coconut_vault/model/singlesig_vault_list_item_factory.dart';
 import 'package:coconut_vault/services/shared_preferences_keys.dart';
 import 'package:coconut_vault/services/shared_preferences_service.dart';
 import 'package:flutter/foundation.dart';
@@ -227,6 +229,11 @@ class VaultModel extends ChangeNotifier {
       int totalItems = jsonList.length;
       for (int i = 0; i < totalItems; i++) {
         vaultList.add(VaultListItem.fromJson(jsonList[i]));
+
+        // TEST
+        SinglesigVaultListItem singlesigVaultListItem =
+            SinglesigVaultListItemFactory().createFromJson(jsonList[i]);
+        print(">> single: ${singlesigVaultListItem.toString()}");
       }
     }
 
