@@ -573,7 +573,7 @@ class _AssignKeyScreenState extends State<AssignKeyScreen> {
                 ),
               ),
               SvgPicture.asset(
-                'assets/svg/circle-check.svg',
+                'assets/svg/circle-check-gradient.svg',
                 width: 18,
                 height: 18,
               ),
@@ -598,7 +598,7 @@ class _AssignKeyScreenState extends State<AssignKeyScreen> {
                 ),
               ),
               SvgPicture.asset(
-                'assets/svg/circle-check.svg',
+                'assets/svg/circle-check-gradient.svg',
                 width: 18,
                 height: 18,
                 colorFilter: const ColorFilter.mode(
