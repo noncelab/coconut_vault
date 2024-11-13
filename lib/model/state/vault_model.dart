@@ -53,6 +53,8 @@ class VaultModel extends ChangeNotifier {
   // double _vaultListLoadingProgress = 0.0;
   // double get vaultListLoadingProgress => _vaultListLoadingProgress;
   // static int itemSize = 0;
+  bool _vaultInitialized = false;
+  bool get vaultInitialized => _vaultInitialized;
 
   // TODO: 다중서명 구분값, 추후 라이브러리 연동 때 변경될 수 있음
   bool _isMultiSig = false;
@@ -203,6 +205,8 @@ class VaultModel extends ChangeNotifier {
       } else {
         throw Exception("IsolateHandler not initialized");
       }
+
+      _vaultInitialized = true;
     } catch (e) {
       Logger.log('[loadVaultList] Exception : ${e.toString()}');
     } finally {
