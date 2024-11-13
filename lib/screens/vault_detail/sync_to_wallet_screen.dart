@@ -1,3 +1,4 @@
+import 'package:coconut_lib/coconut_lib.dart';
 import 'package:coconut_vault/screens/vault_detail/export_detail_screen.dart';
 import 'package:coconut_vault/widgets/bottom_sheet.dart';
 import 'package:flutter/cupertino.dart';
@@ -11,8 +12,10 @@ import 'package:qr_flutter/qr_flutter.dart';
 
 class SyncToWalletScreen extends StatefulWidget {
   final String id;
+  final bool isMultiSignatureSync;
 
-  const SyncToWalletScreen({super.key, required this.id});
+  const SyncToWalletScreen(
+      {super.key, required this.id, this.isMultiSignatureSync = false});
 
   @override
   State<SyncToWalletScreen> createState() => _SyncToWalletScreenState();
@@ -20,6 +23,7 @@ class SyncToWalletScreen extends StatefulWidget {
 
 class _SyncToWalletScreenState extends State<SyncToWalletScreen> {
   String qrData = '';
+  String pubString = '';
   late String _name;
 
   @override
@@ -30,6 +34,26 @@ class _SyncToWalletScreenState extends State<SyncToWalletScreen> {
     _name = vaultListItem.name;
 
     try {
+      if (widget.isMultiSignatureSync) {
+        qrData =
+            vaultListItem.coconutVault.getSignerBsms(AddressType.p2wsh, _name);
+        if (qrData.isNotEmpty) {
+          if (qrData.contains('Vpub')) {
+            pubString = qrData.substring(qrData.indexOf('Vpub'));
+          }
+          if (qrData.contains('Xpub')) {
+            pubString = qrData.substring(qrData.indexOf('Xpub'));
+          }
+          if (qrData.contains('Zpub')) {
+            pubString = qrData.substring(qrData.indexOf('Zpub'));
+          }
+          pubString = pubString.substring(0, pubString.indexOf('\n'));
+        }
+
+        debugPrint(qrData);
+        debugPrint(pubString);
+        return;
+      }
       qrData = vaultListItem.getWalletSyncString();
     } catch (_) {
       showDialog(
@@ -65,41 +89,88 @@ class _SyncToWalletScreenState extends State<SyncToWalletScreen> {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               CustomTooltip(
-                  type: TooltipType.info,
-                  showIcon: true,
-                  richText: RichText(
-                    text: const TextSpan(
-                      text: '월렛',
-                      style: TextStyle(
-                        fontFamily: 'Pretendard',
-                        fontWeight: FontWeight.bold,
-                        fontSize: 15,
-                        height: 1.4,
-                        letterSpacing: 0.5,
-                        color: MyColors.black,
-                      ),
-                      children: <TextSpan>[
-                        TextSpan(
-                          text: '에서 + 버튼을 누르고, 아래 ',
+                type: TooltipType.info,
+                showIcon: true,
+                richText: widget.isMultiSignatureSync
+                    ? RichText(
+                        text: const TextSpan(
+                          text: '다른 볼트',
                           style: TextStyle(
-                            fontWeight: FontWeight.normal,
-                          ),
-                        ),
-                        TextSpan(
-                          text: 'QR 코드를 스캔',
-                          style: TextStyle(
+                            fontFamily: 'Pretendard',
                             fontWeight: FontWeight.bold,
+                            fontSize: 15,
+                            height: 1.4,
+                            letterSpacing: 0.5,
+                            color: MyColors.black,
                           ),
+                          children: <TextSpan>[
+                            TextSpan(
+                              text: '에서 다중 서명 지갑을 생성 중이시군요! 다른 볼트에서 ',
+                              style: TextStyle(
+                                fontWeight: FontWeight.normal,
+                              ),
+                            ),
+                            TextSpan(
+                              text: '가져오기 + 버튼',
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            TextSpan(
+                              text: '을 누른 후 나타난 가져오기 화면에서, 아래 ',
+                              style: TextStyle(
+                                fontWeight: FontWeight.normal,
+                              ),
+                            ),
+                            TextSpan(
+                              text: 'QR 코드를 스캔',
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            TextSpan(
+                              text: '해 주세요.',
+                              style: TextStyle(
+                                fontWeight: FontWeight.normal,
+                              ),
+                            ),
+                          ],
                         ),
-                        TextSpan(
-                          text: '해 주세요. 안전한 보기 전용 지갑을 사용하실 수 있어요.',
+                      )
+                    : RichText(
+                        text: const TextSpan(
+                          text: '월렛',
                           style: TextStyle(
-                            fontWeight: FontWeight.normal,
+                            fontFamily: 'Pretendard',
+                            fontWeight: FontWeight.bold,
+                            fontSize: 15,
+                            height: 1.4,
+                            letterSpacing: 0.5,
+                            color: MyColors.black,
                           ),
+                          children: <TextSpan>[
+                            TextSpan(
+                              text: '에서 + 버튼을 누르고, 아래 ',
+                              style: TextStyle(
+                                fontWeight: FontWeight.normal,
+                              ),
+                            ),
+                            TextSpan(
+                              text: 'QR 코드를 스캔',
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            TextSpan(
+                              text: '해 주세요. 안전한 보기 전용 지갑을 사용하실 수 있어요.',
+                              style: TextStyle(
+                                fontWeight: FontWeight.normal,
+                              ),
+                            ),
+                          ],
                         ),
-                      ],
-                    ),
-                  )),
+                      ),
+              ),
               const SizedBox(height: 32),
               Center(
                   child: Container(
@@ -109,7 +180,8 @@ class _SyncToWalletScreenState extends State<SyncToWalletScreen> {
                         data: qrData,
                       ))),
               const SizedBox(height: 32),
-              GestureDetector(
+              if (!widget.isMultiSignatureSync)
+                GestureDetector(
                   child: Container(
                     padding: const EdgeInsets.symmetric(
                         horizontal: 16, vertical: 12),
@@ -127,7 +199,40 @@ class _SyncToWalletScreenState extends State<SyncToWalletScreen> {
                         child: ExportDetailScreen(
                           exportDetail: qrData,
                         ));
-                  })
+                  },
+                ),
+              if (widget.isMultiSignatureSync)
+                Column(
+                  children: [
+                    const Text(
+                      '내보낼 정보',
+                      style: Styles.body2Bold,
+                    ),
+                    const SizedBox(
+                      height: 15,
+                    ),
+                    Container(
+                      width: double.infinity,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(16),
+                        color: MyColors.white,
+                        boxShadow: const [
+                          BoxShadow(
+                            color: MyColors.transparentBlack_15,
+                            offset: Offset(4, 4),
+                            blurRadius: 30,
+                            spreadRadius: 0,
+                          ),
+                        ],
+                      ),
+                      padding: const EdgeInsets.all(
+                        30,
+                      ),
+                      // TODO: 내보낼 정보 배치
+                      child: Text(pubString),
+                    ),
+                  ],
+                )
             ],
           ),
         ),

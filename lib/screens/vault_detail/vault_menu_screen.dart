@@ -86,10 +86,10 @@ class _VaultMenuScreenState extends State<VaultMenuScreen> {
                 SvgPicture.asset('assets/svg/menu/out.svg',
                     width: iconSize, colorFilter: iconColorList[4]),
                 '내보내기',
-                '보기 전용 지갑을 월렛에 추가해요', () {
+                '보기 전용 지갑을 추가하거나 다중 서명 지갑에 키를 사용해요', () {
               Navigator.pop(context);
 
-              Navigator.pushNamed(context, '/sync-to-wallet',
+              Navigator.pushNamed(context, '/select-sync-type',
                   arguments: {'id': widget.id});
             }, iconBackgroundColorList[4]),
             bottomMenuDivider(),
