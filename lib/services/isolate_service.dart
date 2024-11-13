@@ -1,14 +1,15 @@
 import 'dart:async';
 
 import 'package:coconut_lib/coconut_lib.dart';
-import 'package:coconut_vault/model/data/vault_list_item.dart';
+import 'package:coconut_vault/model/data/singlesig_vault_list_item.dart';
+import 'package:coconut_vault/model/data/singlesig_vault_list_item_factory.dart';
 import 'package:coconut_vault/services/shared_preferences_service.dart';
 
-Future<List<VaultListItem>> addVaultIsolate(
+Future<List<SinglesigVaultListItem>> addVaultIsolate(
     Map<String, dynamic> data, void Function(dynamic)? progressCallback) async {
   BitcoinNetwork.setNetwork(BitcoinNetwork.regtest);
   await SharedPrefsService().init();
-  List<VaultListItem> vaultList = [];
+  List<SinglesigVaultListItem> vaultList = [];
 
   final params = data;
   String inputText = params['inputText'];
@@ -16,12 +17,18 @@ Future<List<VaultListItem>> addVaultIsolate(
   int selectedColorIndex = params['selectedColorIndex'];
   String importingSecret = params['importingSecret'];
   String importingPassphrase = params['importingPassphrase'];
-  VaultListItem newItem = await VaultListItem.create(
+
+  final factory = SinglesigVaultListItemFactory();
+  final secrets = {
+    SinglesigVaultListItemFactory.secretField: importingSecret,
+    SinglesigVaultListItemFactory.passphraseField: importingPassphrase,
+  };
+
+  SinglesigVaultListItem newItem = await factory.create(
     name: inputText,
     colorIndex: selectedColorIndex,
     iconIndex: selectedIconIndex,
-    secret: importingSecret,
-    passphrase: importingPassphrase,
+    secrets: secrets,
   );
   vaultList.add(newItem);
   return vaultList;

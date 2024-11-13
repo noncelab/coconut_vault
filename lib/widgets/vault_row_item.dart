@@ -1,3 +1,4 @@
+import 'package:coconut_vault/model/data/singlesig_vault_list_item.dart';
 import 'package:coconut_vault/utils/colors_util.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -6,7 +7,6 @@ import 'package:coconut_vault/utils/icon_util.dart';
 import 'package:coconut_vault/widgets/bottom_sheet.dart';
 import 'package:coconut_vault/widgets/button/shrink_animation_button.dart';
 
-import '../model/data/vault_list_item.dart';
 import '../styles.dart';
 
 class VaultRowItem extends StatefulWidget {
@@ -19,7 +19,7 @@ class VaultRowItem extends StatefulWidget {
     this.isPressed = false,
   });
 
-  final VaultListItem vault;
+  final SinglesigVaultListItem vault;
   final bool isSelectable;
   final VoidCallback? onSelected;
   final VoidCallback? resetSelected;
@@ -33,7 +33,7 @@ class _VaultRowItemState extends State<VaultRowItem> {
   bool isPressing = false;
 
   // TODO : 추후 로직 변경될 수 있음
-  bool _isMultiSig = true;
+  bool _isMultiSig = false;
   bool _isUsedToMultiSig = false;
 
   @override
@@ -41,7 +41,7 @@ class _VaultRowItemState extends State<VaultRowItem> {
     super.initState();
 
     // TODO : 볼트 속성 업데이트
-    if (widget.vault.name == '다중지갑') {
+    /*if (widget.vault.name == '다중지갑') {
       _isMultiSig = true;
       _isUsedToMultiSig = false;
     } else if (widget.vault.name == '다중키지갑') {
@@ -50,7 +50,7 @@ class _VaultRowItemState extends State<VaultRowItem> {
     } else {
       _isMultiSig = false;
       _isUsedToMultiSig = false;
-    }
+    }*/
   }
 
   @override

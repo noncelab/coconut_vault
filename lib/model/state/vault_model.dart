@@ -15,7 +15,6 @@ import 'package:coconut_vault/utils/vibration_util.dart';
 
 import '../../services/realm_service.dart';
 import '../../services/secure_storage_service.dart';
-import '../data/vault_list_item.dart';
 
 // ignore: constant_identifier_names
 const String VAULT_LIST = "VAULT_LIST";
@@ -26,8 +25,8 @@ class VaultModel extends ChangeNotifier {
   late final RealmService _realmService;
 
   // 비동기 작업 Isolate
-  IsolateHandler<void, List<VaultListItem>>? _vaultListIsolateHandler;
-  IsolateHandler<Map<String, dynamic>, List<VaultListItem>>?
+  IsolateHandler<void, List<SinglesigVaultListItem>>? _vaultListIsolateHandler;
+  IsolateHandler<Map<String, dynamic>, List<SinglesigVaultListItem>>?
       _addVaultIsolateHandler;
 
   VaultModel(this._appModel) {
@@ -43,8 +42,8 @@ class VaultModel extends ChangeNotifier {
   }
 
   // Vault list
-  List<VaultListItem> _vaultList = [];
-  List<VaultListItem> get vaultList => _vaultList;
+  List<SinglesigVaultListItem> _vaultList = [];
+  List<SinglesigVaultListItem> get vaultList => _vaultList;
   // 리스트 로딩중 여부 (indicator 표시 및 중복 방지)
   bool _isVaultListLoading = false;
   bool get isVaultListLoading => _isVaultListLoading;
@@ -101,7 +100,7 @@ class VaultModel extends ChangeNotifier {
   }
 
   // Returns a copy of the list of vault list.
-  List<VaultListItem> getVaults() {
+  List<SinglesigVaultListItem> getVaults() {
     if (_vaultList.isEmpty) {
       return [];
     }
@@ -109,11 +108,11 @@ class VaultModel extends ChangeNotifier {
     return List.from(_vaultList);
   }
 
-  VaultListItem getVaultById(int id) {
+  SinglesigVaultListItem getVaultById(int id) {
     return _vaultList.firstWhere((element) => element.id == id);
   }
 
-  VaultListItem getVaultByName(String name) {
+  SinglesigVaultListItem getVaultByName(String name) {
     return _vaultList.firstWhere((element) => element.name == name);
   }
 
@@ -121,7 +120,7 @@ class VaultModel extends ChangeNotifier {
     _setAddVaultCompleted(false);
     if (_addVaultIsolateHandler == null) {
       _addVaultIsolateHandler =
-          IsolateHandler<Map<String, dynamic>, List<VaultListItem>>(
+          IsolateHandler<Map<String, dynamic>, List<SinglesigVaultListItem>>(
               addVaultIsolate);
       await _addVaultIsolateHandler!
           .initialize(initialType: InitializeType.addVault);
@@ -147,7 +146,7 @@ class VaultModel extends ChangeNotifier {
 
     // _vaultList[index].vault!.name = newName;
 
-    _vaultList[index] = VaultListItem(
+    _vaultList[index] = SinglesigVaultListItem(
       id: _vaultList[index].id,
       name: newName,
       colorIndex: colorIndex,
@@ -193,7 +192,8 @@ class VaultModel extends ChangeNotifier {
     try {
       if (_vaultListIsolateHandler == null) {
         _vaultListIsolateHandler =
-            IsolateHandler<void, List<VaultListItem>>(_loadVaultListIsolate);
+            IsolateHandler<void, List<SinglesigVaultListItem>>(
+                _loadVaultListIsolate);
         await _vaultListIsolateHandler!.initialize();
       }
 
@@ -211,10 +211,10 @@ class VaultModel extends ChangeNotifier {
     }
   }
 
-  static Future<List<VaultListItem>> _loadVaultListIsolate(
+  static Future<List<SinglesigVaultListItem>> _loadVaultListIsolate(
       void _, void Function(List<dynamic>)? setVaultListLoadingProgress) async {
     BitcoinNetwork.setNetwork(BitcoinNetwork.regtest);
-    List<VaultListItem> vaultList = [];
+    List<SinglesigVaultListItem> vaultList = [];
     String? jsonArrayString;
     final SecureStorageService storageService = SecureStorageService();
     final RealmService realmService = RealmService();
@@ -228,7 +228,7 @@ class VaultModel extends ChangeNotifier {
       List<dynamic> jsonList = jsonDecode(jsonArrayString);
       int totalItems = jsonList.length;
       for (int i = 0; i < totalItems; i++) {
-        vaultList.add(VaultListItem.fromJson(jsonList[i]));
+        vaultList.add(SinglesigVaultListItem.fromJson(jsonList[i]));
 
         // TEST
         SinglesigVaultListItem singlesigVaultListItem =

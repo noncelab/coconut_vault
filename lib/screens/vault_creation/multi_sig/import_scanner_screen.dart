@@ -5,7 +5,6 @@ import 'package:coconut_vault/model/state/app_model.dart';
 import 'package:coconut_vault/utils/alert_util.dart';
 import 'package:flutter/material.dart';
 import 'package:coconut_vault/model/state/vault_model.dart';
-import 'package:coconut_vault/model/data/vault_list_item.dart';
 import 'package:coconut_vault/styles.dart';
 import 'package:coconut_vault/utils/vibration_util.dart';
 import 'package:coconut_vault/widgets/custom_tooltip.dart';
@@ -23,7 +22,6 @@ class _ImportScannerScreenState extends State<ImportScannerScreen> {
   late AppModel _appModel;
   late VaultModel _vaultModel;
   final GlobalKey qrKey = GlobalKey(debugLabel: 'QR');
-  VaultListItem? _vaultListItem;
 
   QRViewController? controller;
   bool isCameraActive = false;

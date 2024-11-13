@@ -1,4 +1,4 @@
-import 'package:coconut_vault/model/data/vault_list_item.dart';
+import 'package:coconut_vault/model/data/singlesig_vault_list_item.dart';
 import 'package:coconut_vault/model/state/vault_model.dart';
 import 'package:coconut_vault/screens/vault_creation/multi_sig/confirm_importing_screen.dart';
 import 'package:coconut_vault/screens/vault_creation/multi_sig/import_scanner_screen.dart';
@@ -33,8 +33,8 @@ class _AssignKeyScreenState extends State<AssignKeyScreen> {
   late int nCount; // 전체 키의 수
   late int mCount; // 필요한 서명 수
   late List<AssignedVaultListItem> assignedVaultList; // 키 가져오기에서 선택 완료한 객체
-  late VaultListItem? selectingVaultList; // 키 가져오기 목록에서 선택중인 객체
-  late List<VaultListItem> vaultList;
+  late SinglesigVaultListItem? selectingVaultList; // 키 가져오기 목록에서 선택중인 객체
+  late List<SinglesigVaultListItem> vaultList;
   late VaultModel _vaultModel;
   bool isFinishing = false;
   bool alreadyDialogShown = false;
@@ -439,8 +439,8 @@ class _AssignKeyScreenState extends State<AssignKeyScreen> {
                                                 isButtonActiveNotifier,
                                             context: context,
                                             child: KeyListBottomScreen(
-                                              onPressed:
-                                                  (VaultListItem selectedItem) {
+                                              onPressed: (SinglesigVaultListItem
+                                                  selectedItem) {
                                                 selectingVaultList =
                                                     selectedItem;
                                                 isButtonActiveNotifier.value =
@@ -610,7 +610,7 @@ class _AssignKeyScreenState extends State<AssignKeyScreen> {
 
 class AssignedVaultListItem {
   final int index;
-  VaultListItem? item;
+  SinglesigVaultListItem? item;
   String? zPubString;
   String? memo;
   bool isExpanded;

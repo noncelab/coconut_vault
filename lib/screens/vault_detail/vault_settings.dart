@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:coconut_lib/coconut_lib.dart';
+import 'package:coconut_vault/model/data/singlesig_vault_list_item.dart';
 import 'package:coconut_vault/utils/text_utils.dart';
 import 'package:coconut_vault/utils/vibration_util.dart';
 import 'package:flutter/material.dart';
@@ -23,7 +24,6 @@ import 'package:coconut_vault/widgets/information_item_row.dart';
 import 'package:provider/provider.dart';
 
 import '../../model/state/vault_model.dart';
-import '../../model/data/vault_list_item.dart';
 
 class VaultSettings extends StatefulWidget {
   final String id;
@@ -39,7 +39,8 @@ class _VaultSettingsState extends State<VaultSettings> {
   late VaultModel _vaultModel;
   OverlayEntry? _overlayEntry;
   late TextEditingController _nameTextController;
-  late VaultListItem _vaultListItem;
+  late SinglesigVaultListItem _vaultListItem;
+  late SingleSignatureVault _singleSignatureVault;
   late String _name;
   late String _titleName;
   late int _iconIndex;
@@ -65,6 +66,12 @@ class _VaultSettingsState extends State<VaultSettings> {
     super.initState();
     // id 접근: widget.id
     _vaultListItem = _vaultModel.getVaultById(int.parse(widget.id));
+
+    if (_vaultListItem.coconutVault is SingleSignatureVault) {
+      _singleSignatureVault =
+          _vaultListItem.coconutVault as SingleSignatureVault;
+    }
+
     _nameTextController = TextEditingController(text: _vaultListItem.name);
     _name = _vaultListItem.name;
     _titleName = TextUtils.ellipsisIfLonger(_name);
@@ -78,7 +85,7 @@ class _VaultSettingsState extends State<VaultSettings> {
     });
 
     // TODO: 다중 지갑 정보 가져오기
-    if (_name == '다중키지갑') {
+    /*if (_name == '다중키지갑') {
       _testMultiSigList.add(TestMultiSig(
           id: 11,
           name: '다중이',
@@ -105,7 +112,7 @@ class _VaultSettingsState extends State<VaultSettings> {
           secret: '',
           passphrase: '',
           vaultJsonString: ''));
-    }
+    }*/
   }
 
   @override
@@ -201,9 +208,10 @@ class _VaultSettingsState extends State<VaultSettings> {
     switch (status) {
       case 0:
         {
-          SingleSignatureVault vault = _vaultListItem.coconutVault;
           _showModalBottomSheetWithQrImage(
-              '확장 공개키', vault.keyStore.extendedPublicKey.serialize(), null);
+              '확장 공개키',
+              _singleSignatureVault.keyStore.extendedPublicKey.serialize(),
+              null);
         }
       case 1:
         {
@@ -400,8 +408,8 @@ class _VaultSettingsState extends State<VaultSettings> {
                                     crossAxisAlignment: CrossAxisAlignment.end,
                                     children: [
                                       Text(
-                                        _vaultListItem.coconutVault.keyStore
-                                            .masterFingerprint,
+                                        _singleSignatureVault
+                                            .keyStore.masterFingerprint,
                                         style: Styles.h3.merge(TextStyle(
                                             fontFamily: CustomFonts
                                                 .number.getFontFamily)),

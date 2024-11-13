@@ -23,7 +23,7 @@ class PsbtConfirmationScreen extends StatefulWidget {
 
 class _PsbtConfirmationScreenState extends State<PsbtConfirmationScreen> {
   late VaultModel _vaultModel;
-  late SingleSignatureVault _vault;
+  late WalletBase _vault;
   String? _waitingForSignaturePsbtBase64;
   PSBT? _psbt;
   final bool _showWarning = false;
@@ -315,8 +315,7 @@ class _PsbtConfirmationScreenState extends State<PsbtConfirmationScreen> {
   }
 }
 
-Future<String> addSignatureToPsbt(
-    SingleSignatureVault vault, String data) async {
+Future<String> addSignatureToPsbt(WalletBase vault, String data) async {
   final addSignatureToPsbtHandler =
       IsolateHandler<List<dynamic>, String>(addSignatureToPsbtIsolate);
   try {
@@ -334,7 +333,7 @@ Future<String> addSignatureToPsbt(
   }
 }
 
-Future<bool> canSignToPsbt(SingleSignatureVault vault, String data) async {
+Future<bool> canSignToPsbt(WalletBase vault, String data) async {
   final canSignToPsbtHandler =
       IsolateHandler<List<dynamic>, bool>(canSignToPsbtIsolate);
   try {
