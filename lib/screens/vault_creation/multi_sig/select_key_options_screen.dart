@@ -1,12 +1,14 @@
 import 'dart:async';
 import 'dart:collection';
 
+import 'package:coconut_vault/model/state/vault_model.dart';
 import 'package:coconut_vault/widgets/button/custom_buttons.dart';
 import 'package:coconut_vault/widgets/high-lighted-text.dart';
 import 'package:flutter/material.dart';
 import 'package:coconut_vault/styles.dart';
 import 'package:coconut_vault/widgets/appbar/custom_appbar.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:provider/provider.dart';
 
 class SelectKeyOptionsScreen extends StatefulWidget {
   const SelectKeyOptionsScreen({super.key});
@@ -19,6 +21,7 @@ class _SelectKeyOptionsScreenState extends State<SelectKeyOptionsScreen> {
   late int mCount; // 필요한 서명 수
   late int nCount; // 전체 키의 수
   bool nextButtonEnabled = false;
+  bool isNextButtonClicked = false;
 
   /// 하단 애니메이션 관련 변수
   double animatedOpacityValue = 0.0;
@@ -89,7 +92,7 @@ class _SelectKeyOptionsScreenState extends State<SelectKeyOptionsScreen> {
   }
 
   bool _checkNextButtonActiveState() {
-    if (!nextButtonEnabled) return false;
+    if (!nextButtonEnabled || isNextButtonClicked) return false;
     if (mCount > 0 && mCount <= nCount && nCount > 1 && nCount <= 3) {
       return true;
     }
@@ -152,235 +155,278 @@ class _SelectKeyOptionsScreenState extends State<SelectKeyOptionsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: MyColors.white,
-      appBar: CustomAppBar.buildWithNext(
-        title: '다중 서명 지갑',
-        context: context,
-        onNextPressed: () {
-          _stopProgress();
-          Navigator.pushNamed(context, '/assign-key',
-              arguments: {'nKeyCount': nCount, 'mKeyCount': mCount});
-        },
-        isActive: _checkNextButtonActiveState(),
-      ),
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 32),
-          child: Column(
+    return Selector<VaultModel, bool>(
+      selector: (context, vaultModel) => vaultModel.isVaultListLoading,
+      builder: (context, isVaultListLoading, child) {
+        if (!isVaultListLoading && isNextButtonClicked) {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            // assign-key-screen에서 '이 볼트에 있는 키 사용하기'를 하려면 vaultModel의 로딩이 완전히 끝나야 합니다.
+            if (isNextButtonClicked) {
+              // 한 번만 호출되도록 플래그를 초기화
+              setState(() {
+                isNextButtonClicked = false;
+              });
+              debugPrint('aksjdkljalksdjlkasj');
+
+              _stopProgress();
+              Navigator.pushNamed(context, '/assign-key',
+                  arguments: {'nKeyCount': nCount, 'mKeyCount': mCount});
+            }
+          });
+        }
+        return Scaffold(
+          backgroundColor: MyColors.white,
+          appBar: CustomAppBar.buildWithNext(
+            title: '다중 서명 지갑',
+            context: context,
+            onNextPressed: () {
+              setState(() {
+                isNextButtonClicked = true;
+              });
+            },
+            isActive: _checkNextButtonActiveState(),
+          ),
+          body: Stack(
             children: [
-              const SizedBox(height: 30),
-              Row(
-                children: [
-                  const Expanded(
-                    child: Center(
-                      child: Text(
-                        '전체 키의 수',
-                        style: Styles.body2Bold,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  CountingRowButton(
-                    onMinusPressed: () =>
-                        onCountButtonClicked(ChangeCountButtonType.nCountMinus),
-                    onPlusPressed: () =>
-                        onCountButtonClicked(ChangeCountButtonType.nCountPlus),
-                    countText: nCount.toString(),
-                    isMinusButtonDisabled: nCount <= 2,
-                    isPlusButtonDisabled: nCount >= 3,
-                  ),
-                  const SizedBox(
-                    width: 18,
-                  ),
-                ],
-              ),
-              const SizedBox(height: 15),
-              Row(
-                children: [
-                  const Expanded(
-                    child: Center(
-                      child: Text(
-                        '필요한 서명 수',
-                        style: Styles.body2Bold,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  CountingRowButton(
-                    onMinusPressed: () =>
-                        onCountButtonClicked(ChangeCountButtonType.mCountMinus),
-                    onPlusPressed: () =>
-                        onCountButtonClicked(ChangeCountButtonType.mCountPlus),
-                    countText: mCount.toString(),
-                    isMinusButtonDisabled: mCount <= 1,
-                    isPlusButtonDisabled: mCount == nCount,
-                  ),
-                  const SizedBox(
-                    width: 18,
-                  ),
-                ],
-              ),
-              const SizedBox(
-                height: 50,
-              ),
-              Center(
-                child: HighLightedText(
-                  '$mCount/$nCount',
-                  color: MyColors.darkgrey,
-                  fontSize: 18,
-                ),
-              ),
-              const SizedBox(
-                height: 20,
-              ),
-              Text(
-                _buildQuorumMessage(),
-                style: Styles.unit.merge(TextStyle(
-                  height: mCount == nCount ? 32.4 / 18 : 23.4 / 18,
-                  letterSpacing: -0.01,
-                )),
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(
-                height: 30,
-              ),
-              IntrinsicHeight(
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    Expanded(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.spaceAround,
+              SingleChildScrollView(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 16.0, vertical: 32),
+                  child: Column(
+                    children: [
+                      const SizedBox(height: 30),
+                      Row(
                         children: [
-                          Row(
-                            children: [
-                              keyActive_1
-                                  ? SvgPicture.asset(
-                                      'assets/svg/key-icon-color.svg',
-                                      width: 36,
-                                    )
-                                  : SvgPicture.asset(
-                                      'assets/svg/key-icon.svg',
-                                      width: 36,
-                                    ),
-                              const SizedBox(
-                                width: 30,
+                          const Expanded(
+                            child: Center(
+                              child: Text(
+                                '전체 키의 수',
+                                style: Styles.body2Bold,
                               ),
-                              Expanded(child: _buildProgressBar(0)),
-                            ],
-                          ),
-                          const SizedBox(
-                            height: 30,
-                          ),
-                          Visibility(
-                            visible: nCount == 3,
-                            child: Row(
-                              children: [
-                                keyActive_2
-                                    ? SvgPicture.asset(
-                                        'assets/svg/key-icon-color.svg',
-                                        width: 36,
-                                      )
-                                    : SvgPicture.asset(
-                                        'assets/svg/key-icon.svg',
-                                        width: 36,
-                                      ),
-                                const SizedBox(
-                                  width: 30,
-                                ),
-                                Expanded(child: _buildProgressBar(1)),
-                              ],
                             ),
                           ),
+                          const SizedBox(width: 8),
+                          CountingRowButton(
+                            onMinusPressed: () => onCountButtonClicked(
+                                ChangeCountButtonType.nCountMinus),
+                            onPlusPressed: () => onCountButtonClicked(
+                                ChangeCountButtonType.nCountPlus),
+                            countText: nCount.toString(),
+                            isMinusButtonDisabled: nCount <= 2,
+                            isPlusButtonDisabled: nCount >= 3,
+                          ),
                           const SizedBox(
-                            height: 30,
+                            width: 18,
                           ),
-                          Row(
-                            children: [
-                              keyActive_3
-                                  ? SvgPicture.asset(
-                                      'assets/svg/key-icon-color.svg',
-                                      width: 36,
-                                    )
-                                  : SvgPicture.asset(
-                                      'assets/svg/key-icon.svg',
-                                      width: 36,
-                                    ),
-                              const SizedBox(
-                                width: 30,
+                        ],
+                      ),
+                      const SizedBox(height: 15),
+                      Row(
+                        children: [
+                          const Expanded(
+                            child: Center(
+                              child: Text(
+                                '필요한 서명 수',
+                                style: Styles.body2Bold,
                               ),
-                              Expanded(child: _buildProgressBar(2)),
-                            ],
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          CountingRowButton(
+                            onMinusPressed: () => onCountButtonClicked(
+                                ChangeCountButtonType.mCountMinus),
+                            onPlusPressed: () => onCountButtonClicked(
+                                ChangeCountButtonType.mCountPlus),
+                            countText: mCount.toString(),
+                            isMinusButtonDisabled: mCount <= 1,
+                            isPlusButtonDisabled: mCount == nCount,
+                          ),
+                          const SizedBox(
+                            width: 18,
                           ),
                         ],
                       ),
-                    ),
-                    const SizedBox(
-                      width: 20,
-                    ),
-                    Container(
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(20),
-                        color: MyColors.white,
-                        boxShadow: const [
-                          BoxShadow(
-                            color: MyColors.transparentBlack_15,
-                            offset: Offset(0, 0),
-                            blurRadius: 12,
-                            spreadRadius: 0,
-                          ),
-                        ],
+                      const SizedBox(
+                        height: 50,
                       ),
-                      width: 100,
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(20),
-                        child: Stack(
+                      Center(
+                        child: HighLightedText(
+                          '$mCount/$nCount',
+                          color: MyColors.darkgrey,
+                          fontSize: 18,
+                        ),
+                      ),
+                      const SizedBox(
+                        height: 20,
+                      ),
+                      Text(
+                        _buildQuorumMessage(),
+                        style: Styles.unit.merge(TextStyle(
+                          height: mCount == nCount ? 32.4 / 18 : 23.4 / 18,
+                          letterSpacing: -0.01,
+                        )),
+                        textAlign: TextAlign.center,
+                      ),
+                      const SizedBox(
+                        height: 30,
+                      ),
+                      IntrinsicHeight(
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
-                            Center(
-                              child: SvgPicture.asset(
-                                'assets/svg/coconut-security-gradient.svg',
-                                width: 50,
+                            Expanded(
+                              child: Column(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceAround,
+                                children: [
+                                  Row(
+                                    children: [
+                                      keyActive_1
+                                          ? SvgPicture.asset(
+                                              'assets/svg/key-icon-color.svg',
+                                              width: 36,
+                                            )
+                                          : SvgPicture.asset(
+                                              'assets/svg/key-icon.svg',
+                                              width: 36,
+                                            ),
+                                      const SizedBox(
+                                        width: 30,
+                                      ),
+                                      Expanded(child: _buildProgressBar(0)),
+                                    ],
+                                  ),
+                                  const SizedBox(
+                                    height: 30,
+                                  ),
+                                  Visibility(
+                                    visible: nCount == 3,
+                                    child: Row(
+                                      children: [
+                                        keyActive_2
+                                            ? SvgPicture.asset(
+                                                'assets/svg/key-icon-color.svg',
+                                                width: 36,
+                                              )
+                                            : SvgPicture.asset(
+                                                'assets/svg/key-icon.svg',
+                                                width: 36,
+                                              ),
+                                        const SizedBox(
+                                          width: 30,
+                                        ),
+                                        Expanded(child: _buildProgressBar(1)),
+                                      ],
+                                    ),
+                                  ),
+                                  const SizedBox(
+                                    height: 30,
+                                  ),
+                                  Row(
+                                    children: [
+                                      keyActive_3
+                                          ? SvgPicture.asset(
+                                              'assets/svg/key-icon-color.svg',
+                                              width: 36,
+                                            )
+                                          : SvgPicture.asset(
+                                              'assets/svg/key-icon.svg',
+                                              width: 36,
+                                            ),
+                                      const SizedBox(
+                                        width: 30,
+                                      ),
+                                      Expanded(child: _buildProgressBar(2)),
+                                    ],
+                                  ),
+                                ],
                               ),
                             ),
-                            Positioned(
-                              left: 0,
-                              right: 0,
-                              top: 0,
-                              bottom: 0,
-                              child: AnimatedOpacity(
-                                opacity: animatedOpacityValue,
-                                duration: const Duration(milliseconds: 300),
-                                child: Container(
-                                  color: MyColors.transparentBlack_30,
-                                ),
-                              ),
+                            const SizedBox(
+                              width: 20,
                             ),
-                            Positioned(
-                              left: 0,
-                              right: 0,
-                              bottom: 20,
-                              child: AnimatedOpacity(
-                                opacity: animatedOpacityValue,
-                                duration: const Duration(milliseconds: 300),
-                                child: const Icon(
-                                  Icons.check_circle,
-                                  color: MyColors.greenyellow,
-                                  size: 30,
+                            Container(
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(20),
+                                color: MyColors.white,
+                                boxShadow: const [
+                                  BoxShadow(
+                                    color: MyColors.transparentBlack_15,
+                                    offset: Offset(0, 0),
+                                    blurRadius: 12,
+                                    spreadRadius: 0,
+                                  ),
+                                ],
+                              ),
+                              width: 100,
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(20),
+                                child: Stack(
+                                  children: [
+                                    Center(
+                                      child: SvgPicture.asset(
+                                        'assets/svg/coconut-security-gradient.svg',
+                                        width: 50,
+                                      ),
+                                    ),
+                                    Positioned(
+                                      left: 0,
+                                      right: 0,
+                                      top: 0,
+                                      bottom: 0,
+                                      child: AnimatedOpacity(
+                                        opacity: animatedOpacityValue,
+                                        duration:
+                                            const Duration(milliseconds: 300),
+                                        child: Container(
+                                          color: MyColors.transparentBlack_30,
+                                        ),
+                                      ),
+                                    ),
+                                    Positioned(
+                                      left: 0,
+                                      right: 0,
+                                      bottom: 20,
+                                      child: AnimatedOpacity(
+                                        opacity: animatedOpacityValue,
+                                        duration:
+                                            const Duration(milliseconds: 300),
+                                        child: const Icon(
+                                          Icons.check_circle,
+                                          color: MyColors.greenyellow,
+                                          size: 30,
+                                        ),
+                                      ),
+                                    )
+                                  ],
                                 ),
                               ),
                             )
                           ],
                         ),
-                      ),
-                    )
-                  ],
+                      )
+                    ],
+                  ),
                 ),
-              )
+              ),
+              Visibility(
+                visible: isNextButtonClicked && isVaultListLoading,
+                child: Container(
+                  width: MediaQuery.of(context).size.width,
+                  height: MediaQuery.of(context).size.height,
+                  decoration:
+                      const BoxDecoration(color: MyColors.transparentBlack_30),
+                  child: const Center(
+                    child: CircularProgressIndicator(
+                      color: MyColors.darkgrey,
+                    ),
+                  ),
+                ),
+              ),
             ],
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 
