@@ -39,7 +39,6 @@ class _SelectKeyOptionsScreenState extends State<SelectKeyOptionsScreen> {
     super.initState();
     mCount = 1;
     nCount = 2;
-    progressQueue.add(QueueEntity.n2m1);
     _startProgress(nCount, mCount);
     Future.delayed(const Duration(milliseconds: 2000), () {
       if (mounted) {
@@ -602,7 +601,6 @@ class _SelectKeyOptionsScreenState extends State<SelectKeyOptionsScreen> {
     _stopProgress();
     progressQueue.add(_getQueueEntity(n, m));
     if (n == 2 && m == 1) {
-      progressQueue.add(QueueEntity.n2m1);
       setState(() {
         keyActive_1 = true;
       });
@@ -618,6 +616,10 @@ class _SelectKeyOptionsScreenState extends State<SelectKeyOptionsScreen> {
       // 2초 대기 후 체크표시 해제
       await Future.delayed(const Duration(milliseconds: 2000));
       _changeOpacityValue(false, QueueEntity.n2m1);
+
+      if (progressQueue.isEmpty || progressQueue.first != QueueEntity.n2m1) {
+        return;
+      }
       setState(() {
         keyActive_3 = true;
       });
@@ -633,7 +635,6 @@ class _SelectKeyOptionsScreenState extends State<SelectKeyOptionsScreen> {
       setState(() {
         keyActive_1 = true;
       });
-      progressQueue.add(QueueEntity.n2m2);
 
       await Future.delayed(const Duration(milliseconds: 1000));
       // 첫번 째 프로그레스 진행
@@ -660,7 +661,6 @@ class _SelectKeyOptionsScreenState extends State<SelectKeyOptionsScreen> {
       setState(() {
         keyActive_1 = true;
       });
-      progressQueue.add(QueueEntity.n3m1);
 
       await Future.delayed(const Duration(milliseconds: 1000));
 
@@ -674,6 +674,10 @@ class _SelectKeyOptionsScreenState extends State<SelectKeyOptionsScreen> {
       // 2초 대기 후 체크표시 해제
       await Future.delayed(const Duration(milliseconds: 2000));
       _changeOpacityValue(false, QueueEntity.n3m1);
+
+      if (progressQueue.isEmpty || progressQueue.first != QueueEntity.n3m1) {
+        return;
+      }
       setState(() {
         keyActive_2 = true;
       });
@@ -710,7 +714,6 @@ class _SelectKeyOptionsScreenState extends State<SelectKeyOptionsScreen> {
       setState(() {
         keyActive_1 = true;
       });
-      progressQueue.add(QueueEntity.n3m2);
 
       await Future.delayed(const Duration(milliseconds: 1000));
       // 첫 번째 프로그레스 실행
@@ -786,7 +789,6 @@ class _SelectKeyOptionsScreenState extends State<SelectKeyOptionsScreen> {
       setState(() {
         keyActive_1 = true;
       });
-      progressQueue.add(QueueEntity.n3m3);
 
       await Future.delayed(const Duration(milliseconds: 1000));
       // 첫 번째 프로그레스 진행
