@@ -1,7 +1,7 @@
 import 'package:coconut_vault/services/shared_preferences_keys.dart';
 import 'package:coconut_vault/services/shared_preferences_service.dart';
 import 'package:flutter/material.dart';
-import 'package:coconut_vault/model/app_model.dart';
+import 'package:coconut_vault/model/state/app_model.dart';
 import 'package:coconut_vault/styles.dart';
 import 'package:coconut_vault/utils/vibration_util.dart';
 import 'package:coconut_vault/widgets/animated_dialog.dart';

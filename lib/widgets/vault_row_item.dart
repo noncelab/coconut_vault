@@ -6,7 +6,7 @@ import 'package:coconut_vault/utils/icon_util.dart';
 import 'package:coconut_vault/widgets/bottom_sheet.dart';
 import 'package:coconut_vault/widgets/button/shrink_animation_button.dart';
 
-import '../model/vault_list_item.dart';
+import '../model/data/vault_list_item.dart';
 import '../styles.dart';
 
 class VaultRowItem extends StatefulWidget {

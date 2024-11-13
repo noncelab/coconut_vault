@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:coconut_vault/model/vault_model.dart';
+import 'package:coconut_vault/model/state/vault_model.dart';
 import 'package:coconut_vault/services/isolate_service.dart';
 import 'package:coconut_vault/styles.dart';
 import 'package:coconut_vault/utils/alert_util.dart';

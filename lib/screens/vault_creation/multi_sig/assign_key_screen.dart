@@ -1,5 +1,5 @@
-import 'package:coconut_vault/model/vault_list_item.dart';
-import 'package:coconut_vault/model/vault_model.dart';
+import 'package:coconut_vault/model/data/vault_list_item.dart';
+import 'package:coconut_vault/model/state/vault_model.dart';
 import 'package:coconut_vault/screens/vault_creation/multi_sig/confirm_importing_screen.dart';
 import 'package:coconut_vault/screens/vault_creation/multi_sig/import_scanner_screen.dart';
 import 'package:coconut_vault/screens/vault_creation/multi_sig/key_list_bottom_screen.dart';

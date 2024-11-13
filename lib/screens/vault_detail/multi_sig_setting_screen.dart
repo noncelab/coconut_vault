@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:coconut_vault/model/app_model.dart';
+import 'package:coconut_vault/model/state/app_model.dart';
 import 'package:coconut_vault/screens/pin_check_screen.dart';
 import 'package:coconut_vault/screens/vault_detail/mnemonic_view_screen.dart';
 import 'package:coconut_vault/screens/vault_detail/multi_sig_memo_bottom_sheet.dart';

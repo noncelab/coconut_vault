@@ -2,20 +2,20 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:coconut_lib/coconut_lib.dart';
-import 'package:coconut_vault/model/singlesig_vault_list_item.dart';
-import 'package:coconut_vault/model/singlesig_vault_list_item_factory.dart';
+import 'package:coconut_vault/model/data/singlesig_vault_list_item.dart';
+import 'package:coconut_vault/model/data/singlesig_vault_list_item_factory.dart';
 import 'package:coconut_vault/services/shared_preferences_keys.dart';
 import 'package:coconut_vault/services/shared_preferences_service.dart';
 import 'package:flutter/foundation.dart';
-import 'package:coconut_vault/model/app_model.dart';
+import 'package:coconut_vault/model/state/app_model.dart';
 import 'package:coconut_vault/services/isolate_service.dart';
 import 'package:coconut_vault/utils/isolate_handler.dart';
 import 'package:coconut_vault/utils/logger.dart';
 import 'package:coconut_vault/utils/vibration_util.dart';
 
-import '../services/realm_service.dart';
-import '../services/secure_storage_service.dart';
-import 'vault_list_item.dart';
+import '../../services/realm_service.dart';
+import '../../services/secure_storage_service.dart';
+import '../data/vault_list_item.dart';
 
 // ignore: constant_identifier_names
 const String VAULT_LIST = "VAULT_LIST";

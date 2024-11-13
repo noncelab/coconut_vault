@@ -1,11 +1,11 @@
 import 'dart:convert';
 
 import 'package:coconut_lib/coconut_lib.dart';
-import 'package:coconut_vault/model/vault_list_item_base.dart';
-import 'package:coconut_vault/model/vault_type.dart';
+import 'package:coconut_vault/model/data/vault_list_item_base.dart';
+import 'package:coconut_vault/model/data/vault_type.dart';
 import 'package:json_annotation/json_annotation.dart';
 
-part 'singlesig_vault_list_item.g.dart';
+part 'singlesig_vault_list_item.g.dart'; // 생성될 파일 이름 $ dart run build_runner build
 
 @JsonSerializable(ignoreUnannotated: true)
 class SinglesigVaultListItem extends VaultListItemBase {

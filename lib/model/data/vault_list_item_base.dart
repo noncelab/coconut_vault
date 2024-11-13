@@ -1,5 +1,5 @@
 import 'package:coconut_lib/coconut_lib.dart';
-import 'package:coconut_vault/model/vault_type.dart';
+import 'package:coconut_vault/model/data/vault_type.dart';
 import 'package:json_annotation/json_annotation.dart';
 
 @JsonSerializable(ignoreUnannotated: true)

@@ -1,5 +1,5 @@
 import 'package:coconut_vault/app.dart';
-import 'package:coconut_vault/model/app_model.dart';
+import 'package:coconut_vault/model/state/app_model.dart';
 import 'package:coconut_vault/styles.dart';
 import 'package:coconut_vault/utils/logger.dart';
 import 'package:flutter/material.dart';
@@ -8,7 +8,7 @@ import 'package:coconut_vault/widgets/custom_toast.dart';
 import 'package:coconut_vault/widgets/vault_name_icon_edit_palette.dart';
 import 'package:provider/provider.dart';
 
-import '../../model/vault_model.dart';
+import '../../model/state/vault_model.dart';
 
 class VaultNameIconSetup extends StatefulWidget {
   final String name;

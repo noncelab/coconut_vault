@@ -1,7 +1,7 @@
 import 'package:coconut_lib/coconut_lib.dart';
-import 'package:coconut_vault/model/singlesig_vault_list_item.dart';
-import 'package:coconut_vault/model/vault_list_item_base.dart';
-import 'package:coconut_vault/model/vault_list_item_factory.dart';
+import 'package:coconut_vault/model/data/singlesig_vault_list_item.dart';
+import 'package:coconut_vault/model/data/vault_list_item_base.dart';
+import 'package:coconut_vault/model/data/vault_list_item_factory.dart';
 
 class SinglesigVaultListItemFactory implements VaultListItemFactory {
   static const String secretField = 'secret';

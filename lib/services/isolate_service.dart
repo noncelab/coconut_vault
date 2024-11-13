@@ -1,7 +1,7 @@
 import 'dart:async';
 
 import 'package:coconut_lib/coconut_lib.dart';
-import 'package:coconut_vault/model/vault_list_item.dart';
+import 'package:coconut_vault/model/data/vault_list_item.dart';
 import 'package:coconut_vault/services/shared_preferences_service.dart';
 
 Future<List<VaultListItem>> addVaultIsolate(

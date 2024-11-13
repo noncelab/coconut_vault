@@ -1,4 +1,4 @@
-import 'package:coconut_vault/model/app_model.dart';
+import 'package:coconut_vault/model/state/app_model.dart';
 import 'package:coconut_vault/services/realm_service.dart';
 import 'package:coconut_vault/services/secure_storage_service.dart';
 

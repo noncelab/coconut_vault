@@ -1,6 +1,6 @@
 import 'dart:async';
 import 'dart:isolate';
-import 'package:coconut_vault/model/vault_list_item.dart';
+import 'package:coconut_vault/model/data/vault_list_item.dart';
 import 'package:flutter/services.dart';
 
 enum InitializeType {
