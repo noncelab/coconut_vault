@@ -14,6 +14,7 @@ MultisigVaultListItem _$MultisigVaultListItemFromJson(
       colorIndex: (json['colorIndex'] as num).toInt(),
       iconIndex: (json['iconIndex'] as num).toInt(),
       vaultJsonString: json['vaultJsonString'] as String?,
+      coordinatorBsms: json['coordinatorBsms'] as String,
       signers: (json['signers'] as List<dynamic>)
           .map((e) => MultisigSigner.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -29,6 +30,7 @@ Map<String, dynamic> _$MultisigVaultListItemToJson(
       'vaultJsonString': instance.vaultJsonString,
       'vaultType': _$VaultTypeEnumMap[instance.vaultType]!,
       'signers': instance.signers,
+      'coordinatorBsms': instance.coordinatorBsms,
     };
 
 const _$VaultTypeEnumMap = {

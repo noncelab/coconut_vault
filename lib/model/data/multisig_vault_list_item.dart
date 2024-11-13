@@ -13,6 +13,7 @@ class MultisigVaultListItem extends VaultListItemBase {
       required super.colorIndex,
       required super.iconIndex,
       super.vaultJsonString,
+      required this.coordinatorBsms,
       required this.signers})
       : super(vaultType: VaultType.multiSignature) {
     //Seed seed = Seed.fromMnemonic(secret, passphrase: passphrase);
@@ -23,6 +24,9 @@ class MultisigVaultListItem extends VaultListItemBase {
 
   @JsonKey(name: "signers")
   final List<MultisigSigner> signers;
+
+  @JsonKey(name: "coordinatorBsms")
+  final String coordinatorBsms;
 
   @override
   String getWalletSyncString() {
