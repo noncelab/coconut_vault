@@ -1,3 +1,4 @@
+import 'package:coconut_lib/coconut_lib.dart';
 import 'package:coconut_vault/model/data/multisig_signer.dart';
 import 'package:coconut_vault/model/data/vault_list_item_base.dart';
 import 'package:coconut_vault/model/data/vault_type.dart';
@@ -12,21 +13,44 @@ class MultisigVaultListItem extends VaultListItemBase {
       required super.name,
       required super.colorIndex,
       required super.iconIndex,
-      super.vaultJsonString,
-      required this.coordinatorBsms,
-      required this.signers})
+      required this.signers,
+      required this.requiredSignatureCount})
       : super(vaultType: VaultType.multiSignature) {
-    //Seed seed = Seed.fromMnemonic(secret, passphrase: passphrase);
-    //coconutVault = SingleSignatureVault.fromSeed(seed, AddressType.p2wpkh);
+    coconutVault = MultisignatureVault.fromKeyStoreList(
+        signers.map((signer) => signer.keyStore).toList(),
+        requiredSignatureCount,
+        AddressType.p2wsh);
 
-    //vaultJsonString = (coconutVault as SingleSignatureVault).toJson();
+    // TODO: 시간 너무 오래 걸리면 생략
+    coordinatorBsms =
+        (coconutVault as MultisignatureVault).getBsmsCoordinator();
+
+    vaultJsonString = (coconutVault as MultisignatureVault).toJson();
+  }
+
+  MultisigVaultListItem.fromCoordinatorBsms(
+      {required super.id,
+      required super.name,
+      required super.colorIndex,
+      required super.iconIndex,
+      required this.coordinatorBsms,
+      required this.signers,
+      MultisignatureVault? coconutVault})
+      : super(vaultType: VaultType.multiSignature) {
+    coconutVault = MultisignatureVault.fromCoordinatorBsms(coordinatorBsms!);
+    requiredSignatureCount = coconutVault.requiredSignature;
+    vaultJsonString = coconutVault.toJson();
   }
 
   @JsonKey(name: "signers")
-  final List<MultisigSigner> signers;
+  late final List<MultisigSigner> signers;
 
   @JsonKey(name: "coordinatorBsms")
-  final String coordinatorBsms;
+  late final String? coordinatorBsms;
+
+  // json_serialization가 기본 생성자를 사용해서 추가함
+  @JsonKey(name: "requiredSignatureCount")
+  late final int requiredSignatureCount;
 
   @override
   String getWalletSyncString() {
