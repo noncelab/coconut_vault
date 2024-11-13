@@ -10,7 +10,7 @@ class MultisigSigner {
   @JsonKey()
   int id;
   @JsonKey()
-  String signerBsms; // 외부 지갑인 경우 bsms 정보
+  String signerBsms; // bsms 정보는 내부 외부 지갑 모두 필수
   @JsonKey()
   int? innerVaultId; // 내부 지갑이 Key로 사용된 경우 앱 내 id
   @JsonKey()
