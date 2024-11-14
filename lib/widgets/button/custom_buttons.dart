@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:coconut_vault/styles.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 class CompleteButton extends StatefulWidget {
   final VoidCallback onPressed;
@@ -165,6 +166,7 @@ class _CountingRowButtonState extends State<CountingRowButton> {
             },
             child: Container(
               width: 50,
+              height: 50,
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
@@ -172,15 +174,15 @@ class _CountingRowButtonState extends State<CountingRowButton> {
                     isMinusTapDown ? MyColors.dropdownGrey : Colors.transparent,
               ),
               child: Center(
-                child: Text(
-                  '-',
-                  style: TextStyle(
-                    color: widget.isMinusButtonDisabled
-                        ? MyColors.defaultIcon
-                        : MyColors.black,
-                    fontSize: 30,
-                    fontWeight: FontWeight.bold,
-                  ),
+                child: SvgPicture.asset(
+                  'assets/svg/minus.svg',
+                  width: 20,
+                  colorFilter: widget.isMinusButtonDisabled
+                      ? const ColorFilter.mode(
+                          MyColors.defaultIcon,
+                          BlendMode.srcIn,
+                        )
+                      : null,
                 ),
               ),
             ),
@@ -229,6 +231,7 @@ class _CountingRowButtonState extends State<CountingRowButton> {
             },
             child: Container(
               width: 50,
+              height: 50,
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
@@ -236,15 +239,15 @@ class _CountingRowButtonState extends State<CountingRowButton> {
                     isPlusTapDown ? MyColors.dropdownGrey : Colors.transparent,
               ),
               child: Center(
-                child: Text(
-                  '+',
-                  style: TextStyle(
-                    color: widget.isPlusButtonDisabled
-                        ? MyColors.defaultIcon
-                        : MyColors.black,
-                    fontSize: 30,
-                    fontWeight: FontWeight.bold,
-                  ),
+                child: SvgPicture.asset(
+                  'assets/svg/plus.svg',
+                  width: 20,
+                  colorFilter: widget.isPlusButtonDisabled
+                      ? const ColorFilter.mode(
+                          MyColors.defaultIcon,
+                          BlendMode.srcIn,
+                        )
+                      : null,
                 ),
               ),
             ),

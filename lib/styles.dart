@@ -79,6 +79,9 @@ abstract class MyColors {
   static const Color multiSigGradient2 = Color(0xFF6373EB);
   static const Color multiSigGradient3 = Color(0xFF2ACEC3);
   static const Color linkBlue = Color(0xFF4E83FF);
+
+  static const Color progressbarColorEnabled = Color(0xFF2D2D2D);
+  static const Color progressbarColorDisabled = Color(0xFFCFCFCF);
 }
 
 // LIGHT MODE

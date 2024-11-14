@@ -22,6 +22,7 @@ class _SelectKeyOptionsScreenState extends State<SelectKeyOptionsScreen> {
   late int nCount; // 전체 키의 수
   bool nextButtonEnabled = false;
   bool isNextButtonClicked = false;
+  int buttonClickedCount = 0;
 
   /// 하단 애니메이션 관련 변수
   double animatedOpacityValue = 0.0;
@@ -35,14 +36,14 @@ class _SelectKeyOptionsScreenState extends State<SelectKeyOptionsScreen> {
   Timer? _progressTimer_2;
   Timer? _progressTimer_3;
   bool isProgressCanceled = false;
-  Queue progressQueue = Queue<QueueEntity>();
+  Queue progressQueue = Queue<QueueDataClass>();
 
   @override
   void initState() {
     super.initState();
-    mCount = 1;
-    nCount = 2;
-    _startProgress(nCount, mCount);
+    mCount = 2;
+    nCount = 3;
+    _startProgress(nCount, mCount, buttonClickedCount);
     Future.delayed(const Duration(milliseconds: 2000), () {
       if (mounted) {
         setState(() {
@@ -75,9 +76,9 @@ class _SelectKeyOptionsScreenState extends State<SelectKeyOptionsScreen> {
 
   void _stopProgress() {
     progressQueue.clear();
-    _progressTimer_1?.cancel();
-    _progressTimer_2?.cancel();
-    _progressTimer_3?.cancel();
+    _progressTimer_1 = null;
+    _progressTimer_2 = null;
+    _progressTimer_3 = null;
     if (mounted) {
       setState(() {
         keyActive_1 = false;
@@ -85,6 +86,7 @@ class _SelectKeyOptionsScreenState extends State<SelectKeyOptionsScreen> {
         keyActive_3 = false;
         animatedOpacityValue = 0.0;
         progressValue_1 = 0.0;
+
         progressValue_2 = 0.0;
         progressValue_3 = 0.0;
       });
@@ -113,6 +115,7 @@ class _SelectKeyOptionsScreenState extends State<SelectKeyOptionsScreen> {
             mCount--;
           });
 
+          buttonClickedCount++;
           changeKeyCounts();
           break;
         }
@@ -123,6 +126,7 @@ class _SelectKeyOptionsScreenState extends State<SelectKeyOptionsScreen> {
             mCount++;
           });
 
+          buttonClickedCount++;
           changeKeyCounts();
           break;
         }
@@ -137,6 +141,7 @@ class _SelectKeyOptionsScreenState extends State<SelectKeyOptionsScreen> {
             nCount--;
           });
 
+          buttonClickedCount++;
           changeKeyCounts();
           break;
         }
@@ -147,6 +152,7 @@ class _SelectKeyOptionsScreenState extends State<SelectKeyOptionsScreen> {
             nCount++;
           });
 
+          buttonClickedCount++;
           changeKeyCounts();
           break;
         }
@@ -166,7 +172,6 @@ class _SelectKeyOptionsScreenState extends State<SelectKeyOptionsScreen> {
               setState(() {
                 isNextButtonClicked = false;
               });
-              debugPrint('aksjdkljalksdjlkasj');
 
               _stopProgress();
               Navigator.pushNamed(context, '/assign-key',
@@ -253,156 +258,129 @@ class _SelectKeyOptionsScreenState extends State<SelectKeyOptionsScreen> {
                         child: HighLightedText(
                           '$mCount/$nCount',
                           color: MyColors.darkgrey,
-                          fontSize: 18,
+                          fontSize: 24,
                         ),
                       ),
                       const SizedBox(
                         height: 20,
                       ),
-                      Text(
-                        _buildQuorumMessage(),
-                        style: Styles.unit.merge(TextStyle(
-                          height: mCount == nCount ? 32.4 / 18 : 23.4 / 18,
-                          letterSpacing: -0.01,
-                        )),
-                        textAlign: TextAlign.center,
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 24),
+                        child: Text(
+                          _buildQuorumMessage(),
+                          style: Styles.unit.merge(TextStyle(
+                              height: mCount == nCount ? 32.4 / 18 : 23.4 / 18,
+                              letterSpacing: -0.01,
+                              fontSize: 14)),
+                          textAlign: TextAlign.center,
+                        ),
                       ),
                       const SizedBox(
                         height: 30,
                       ),
-                      IntrinsicHeight(
-                        child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            Expanded(
-                              child: Column(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceAround,
-                                children: [
-                                  Row(
-                                    children: [
-                                      keyActive_1
-                                          ? SvgPicture.asset(
-                                              'assets/svg/key-icon-color.svg',
-                                              width: 36,
-                                            )
-                                          : SvgPicture.asset(
-                                              'assets/svg/key-icon.svg',
-                                              width: 36,
-                                            ),
-                                      const SizedBox(
-                                        width: 30,
-                                      ),
-                                      Expanded(child: _buildProgressBar(0)),
-                                    ],
-                                  ),
-                                  const SizedBox(
-                                    height: 30,
-                                  ),
-                                  Visibility(
-                                    visible: nCount == 3,
-                                    child: Row(
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 64),
+                        child: IntrinsicHeight(
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              Expanded(
+                                child: Column(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceAround,
+                                  children: [
+                                    Row(
                                       children: [
-                                        keyActive_2
+                                        keyActive_1
                                             ? SvgPicture.asset(
-                                                'assets/svg/key-icon-color.svg',
-                                                width: 36,
+                                                'assets/svg/key-icon.svg',
+                                                width: 20,
                                               )
                                             : SvgPicture.asset(
                                                 'assets/svg/key-icon.svg',
-                                                width: 36,
+                                                width: 20,
+                                                colorFilter: const ColorFilter
+                                                    .mode(
+                                                    MyColors
+                                                        .progressbarColorDisabled,
+                                                    BlendMode.srcIn),
                                               ),
                                         const SizedBox(
                                           width: 30,
                                         ),
-                                        Expanded(child: _buildProgressBar(1)),
+                                        Expanded(child: _buildProgressBar(0)),
                                       ],
                                     ),
-                                  ),
-                                  const SizedBox(
-                                    height: 30,
-                                  ),
-                                  Row(
-                                    children: [
-                                      keyActive_3
-                                          ? SvgPicture.asset(
-                                              'assets/svg/key-icon-color.svg',
-                                              width: 36,
-                                            )
-                                          : SvgPicture.asset(
-                                              'assets/svg/key-icon.svg',
-                                              width: 36,
-                                            ),
-                                      const SizedBox(
-                                        width: 30,
-                                      ),
-                                      Expanded(child: _buildProgressBar(2)),
-                                    ],
-                                  ),
-                                ],
-                              ),
-                            ),
-                            const SizedBox(
-                              width: 20,
-                            ),
-                            Container(
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(20),
-                                color: MyColors.white,
-                                boxShadow: const [
-                                  BoxShadow(
-                                    color: MyColors.transparentBlack_15,
-                                    offset: Offset(0, 0),
-                                    blurRadius: 12,
-                                    spreadRadius: 0,
-                                  ),
-                                ],
-                              ),
-                              width: 100,
-                              child: ClipRRect(
-                                borderRadius: BorderRadius.circular(20),
-                                child: Stack(
-                                  children: [
-                                    Center(
-                                      child: SvgPicture.asset(
-                                        'assets/svg/coconut-security-gradient.svg',
-                                        width: 50,
+                                    const SizedBox(
+                                      height: 24,
+                                    ),
+                                    Visibility(
+                                      visible: nCount == 3,
+                                      child: Row(
+                                        children: [
+                                          keyActive_2
+                                              ? SvgPicture.asset(
+                                                  'assets/svg/key-icon.svg',
+                                                  width: 20,
+                                                )
+                                              : SvgPicture.asset(
+                                                  'assets/svg/key-icon.svg',
+                                                  width: 20,
+                                                  colorFilter: const ColorFilter
+                                                      .mode(
+                                                      MyColors
+                                                          .progressbarColorDisabled,
+                                                      BlendMode.srcIn),
+                                                ),
+                                          const SizedBox(
+                                            width: 30,
+                                          ),
+                                          Expanded(child: _buildProgressBar(1)),
+                                        ],
                                       ),
                                     ),
-                                    Positioned(
-                                      left: 0,
-                                      right: 0,
-                                      top: 0,
-                                      bottom: 0,
-                                      child: AnimatedOpacity(
-                                        opacity: animatedOpacityValue,
-                                        duration:
-                                            const Duration(milliseconds: 300),
-                                        child: Container(
-                                          color: MyColors.transparentBlack_30,
+                                    nCount == 3
+                                        ? const SizedBox(
+                                            height: 24,
+                                          )
+                                        : Container(),
+                                    Row(
+                                      children: [
+                                        keyActive_3
+                                            ? SvgPicture.asset(
+                                                'assets/svg/key-icon.svg',
+                                                width: 20,
+                                              )
+                                            : SvgPicture.asset(
+                                                'assets/svg/key-icon.svg',
+                                                width: 20,
+                                                colorFilter: const ColorFilter
+                                                    .mode(
+                                                    MyColors
+                                                        .progressbarColorDisabled,
+                                                    BlendMode.srcIn),
+                                              ),
+                                        const SizedBox(
+                                          width: 30,
                                         ),
-                                      ),
+                                        Expanded(child: _buildProgressBar(2)),
+                                      ],
                                     ),
-                                    Positioned(
-                                      left: 0,
-                                      right: 0,
-                                      bottom: 20,
-                                      child: AnimatedOpacity(
-                                        opacity: animatedOpacityValue,
-                                        duration:
-                                            const Duration(milliseconds: 300),
-                                        child: const Icon(
-                                          Icons.check_circle,
-                                          color: MyColors.greenyellow,
-                                          size: 30,
-                                        ),
-                                      ),
-                                    )
                                   ],
                                 ),
                               ),
-                            )
-                          ],
+                              const SizedBox(
+                                width: 20,
+                              ),
+                              animatedOpacityValue == 1
+                                  ? SvgPicture.asset(
+                                      'assets/svg/safe-bit.svg',
+                                      width: 50,
+                                    )
+                                  : SvgPicture.asset('assets/svg/safe.svg',
+                                      width: 50)
+                            ],
+                          ),
                         ),
                       )
                     ],
@@ -475,20 +453,18 @@ class _SelectKeyOptionsScreenState extends State<SelectKeyOptionsScreen> {
   }
 
   void changeKeyCounts() {
-    progressQueue.clear();
+    _stopProgress();
     switch (nCount) {
       case 2:
         {
           if (mCount == 1) {
             {
-              progressQueue.add(QueueEntity.n2m1);
-              _startProgress(2, 1);
+              _startProgress(2, 1, buttonClickedCount);
               break;
             }
           } else {
             {
-              progressQueue.add(QueueEntity.n2m2);
-              _startProgress(2, 2);
+              _startProgress(2, 2, buttonClickedCount);
               break;
             }
           }
@@ -497,20 +473,17 @@ class _SelectKeyOptionsScreenState extends State<SelectKeyOptionsScreen> {
         {
           if (mCount == 1) {
             {
-              progressQueue.add(QueueEntity.n3m1);
-              _startProgress(3, 1);
+              _startProgress(3, 1, buttonClickedCount);
               break;
             }
           } else if (mCount == 2) {
             {
-              progressQueue.add(QueueEntity.n3m2);
-              _startProgress(3, 2);
+              _startProgress(3, 2, buttonClickedCount);
               break;
             }
           } else {
             {
-              progressQueue.add(QueueEntity.n3m3);
-              _startProgress(3, 3);
+              _startProgress(3, 3, buttonClickedCount);
               break;
             }
           }
@@ -520,19 +493,16 @@ class _SelectKeyOptionsScreenState extends State<SelectKeyOptionsScreen> {
 
   Widget _buildProgressBar(int key) {
     return SizedBox(
-      height: 10,
-      child: GradientProgressBar(
+      height: 4,
+      child: LinearProgressIndicator(
+        borderRadius: BorderRadius.circular(12),
         value: key == 0
             ? progressValue_1
             : key == 1
                 ? progressValue_2
                 : progressValue_3,
-        height: 10,
-        gradient: const LinearGradient(
-          colors: [MyColors.cyanblue, Colors.purple], // 그라데이션 색상
-          begin: Alignment.centerLeft,
-          end: Alignment.centerRight,
-        ),
+        color: MyColors.progressbarColorEnabled,
+        backgroundColor: MyColors.progressbarColorDisabled,
       ),
     );
   }
@@ -547,15 +517,23 @@ class _SelectKeyOptionsScreenState extends State<SelectKeyOptionsScreen> {
   }
 
   void _runProgress(int num, QueueEntity queueEntity) {
-    if (progressQueue.isEmpty || progressQueue.first != queueEntity) {
+    if (progressQueue.isEmpty ||
+        progressQueue.last.entity != queueEntity &&
+            progressQueue.last.count != buttonClickedCount) {
+      _stopProgress();
       return;
     }
+    debugPrint(
+        'count : $buttonClickedCount queueCount : ${progressQueue.last.count}');
     switch (num) {
       case 1:
         {
           _progressTimer_1 =
               Timer.periodic(const Duration(milliseconds: 10), (timer) {
-            if (progressQueue.isEmpty || progressQueue.first != queueEntity) {
+            if (progressQueue.isEmpty ||
+                (progressQueue.last.entity != queueEntity &&
+                    progressQueue.last.count != buttonClickedCount)) {
+              timer.cancel();
               return;
             }
             if (progressValue_1 >= 1.0) {
@@ -572,7 +550,10 @@ class _SelectKeyOptionsScreenState extends State<SelectKeyOptionsScreen> {
         {
           _progressTimer_2 =
               Timer.periodic(const Duration(milliseconds: 10), (timer) {
-            if (progressQueue.isEmpty || progressQueue.first != queueEntity) {
+            if (progressQueue.isEmpty ||
+                progressQueue.last.entity != queueEntity ||
+                progressQueue.last.count != buttonClickedCount) {
+              timer.cancel();
               return;
             }
             if (progressValue_2 >= 1.0) {
@@ -589,7 +570,10 @@ class _SelectKeyOptionsScreenState extends State<SelectKeyOptionsScreen> {
         {
           _progressTimer_3 =
               Timer.periodic(const Duration(milliseconds: 10), (timer) {
-            if (progressQueue.isEmpty || progressQueue.first != queueEntity) {
+            if (progressQueue.isEmpty ||
+                progressQueue.last.entity != queueEntity ||
+                progressQueue.last.count != buttonClickedCount) {
+              timer.cancel();
               return;
             }
             if (progressValue_3 >= 1.0) {
@@ -605,10 +589,7 @@ class _SelectKeyOptionsScreenState extends State<SelectKeyOptionsScreen> {
     }
   }
 
-  void _changeOpacityValue(bool value, QueueEntity entity) {
-    if (progressQueue.isEmpty || progressQueue.first != entity) {
-      return;
-    }
+  void _changeOpacityValue(bool value) {
     if (!value) {
       setState(() {
         animatedOpacityValue = 0;
@@ -627,10 +608,16 @@ class _SelectKeyOptionsScreenState extends State<SelectKeyOptionsScreen> {
     }
   }
 
-  void _activeKey(int num, QueueEntity entity) {
-    if (progressQueue.isEmpty || progressQueue.first != entity) {
-      return;
+  bool _canRunCurrentProgress(int buttonCountAtStart, QueueEntity entity) {
+    if (progressQueue.isEmpty ||
+        buttonCountAtStart != buttonClickedCount ||
+        entity != progressQueue.last.entity) {
+      return false;
     }
+    return true;
+  }
+
+  void _activeKey(int num) {
     setState(() {
       if (num == 1) {
         keyActive_1 = true;
@@ -643,63 +630,70 @@ class _SelectKeyOptionsScreenState extends State<SelectKeyOptionsScreen> {
   }
 
   /// TODO: 로직 개선 필요
-  void _startProgress(int n, int m) async {
+  void _startProgress(int n, int m, int buttonCountAtStart) async {
     _stopProgress();
-    progressQueue.add(_getQueueEntity(n, m));
+    progressQueue.add(QueueDataClass(
+        count: buttonClickedCount, entity: _getQueueEntity(n, m)));
+
+    debugPrint(
+        'buttonClickedCount : $buttonClickedCount  << count : ${progressQueue.last.count}  << current N : $n  << current M : $m  << queueLastEntity : ${progressQueue.last.entity}  ');
     if (n == 2 && m == 1) {
       setState(() {
         keyActive_1 = true;
       });
       await Future.delayed(const Duration(milliseconds: 1000));
-
+      if (!_canRunCurrentProgress(buttonCountAtStart, QueueEntity.n2m1)) return;
       // 첫번 째 프로그레스 진행
       _runProgress(1, QueueEntity.n2m1);
 
       await Future.delayed(const Duration(milliseconds: 1000));
+      if (!_canRunCurrentProgress(buttonCountAtStart, QueueEntity.n2m1)) return;
       // 1초 대기 후 체크표시
-      _changeOpacityValue(true, QueueEntity.n2m1);
+      _changeOpacityValue(true);
 
       // 2초 대기 후 체크표시 해제
       await Future.delayed(const Duration(milliseconds: 2000));
-      _changeOpacityValue(false, QueueEntity.n2m1);
+      if (!_canRunCurrentProgress(buttonCountAtStart, QueueEntity.n2m1)) return;
+      _changeOpacityValue(false);
 
-      if (progressQueue.isEmpty || progressQueue.first != QueueEntity.n2m1) {
-        return;
-      }
       setState(() {
         keyActive_3 = true;
       });
 
       // 1초 대기 후 세번 째 프로그레스 진행
       await Future.delayed(const Duration(milliseconds: 1000));
+      if (!_canRunCurrentProgress(buttonCountAtStart, QueueEntity.n2m1)) return;
       _runProgress(3, QueueEntity.n2m1);
 
       // 1초 대기 후 체크표시
       await Future.delayed(const Duration(milliseconds: 1000));
-      _changeOpacityValue(true, QueueEntity.n2m1);
+      if (!_canRunCurrentProgress(buttonCountAtStart, QueueEntity.n2m1)) return;
+      _changeOpacityValue(true);
     } else if (n == 2 && m == 2) {
       setState(() {
         keyActive_1 = true;
       });
 
       await Future.delayed(const Duration(milliseconds: 1000));
+      if (!_canRunCurrentProgress(buttonCountAtStart, QueueEntity.n2m2)) return;
       // 첫번 째 프로그레스 진행
       _runProgress(1, QueueEntity.n2m2);
 
       await Future.delayed(const Duration(milliseconds: 1000));
+      if (!_canRunCurrentProgress(buttonCountAtStart, QueueEntity.n2m2)) return;
       // 1초 대기 후 세 번재 프로그레스 진행
-      if (progressQueue.isEmpty || progressQueue.first != QueueEntity.n2m2) {
-        return;
-      }
       setState(() {
         keyActive_3 = true;
       });
+
       await Future.delayed(const Duration(milliseconds: 1000));
+      if (!_canRunCurrentProgress(buttonCountAtStart, QueueEntity.n2m2)) return;
       _runProgress(3, QueueEntity.n2m2);
 
       // 1초 대기 후 체크표시
       await Future.delayed(const Duration(milliseconds: 1000));
-      _changeOpacityValue(true, QueueEntity.n2m2);
+      if (!_canRunCurrentProgress(buttonCountAtStart, QueueEntity.n2m2)) return;
+      _changeOpacityValue(true);
     } else if (n == 3 && m == 1) {
       /// n = 3 , m = 1
       ///
@@ -709,50 +703,53 @@ class _SelectKeyOptionsScreenState extends State<SelectKeyOptionsScreen> {
       });
 
       await Future.delayed(const Duration(milliseconds: 1000));
+      if (!_canRunCurrentProgress(buttonCountAtStart, QueueEntity.n3m1)) return;
 
       // 첫번 째 프로그레스 진행
       _runProgress(1, QueueEntity.n3m1);
 
       await Future.delayed(const Duration(milliseconds: 1000));
+      if (!_canRunCurrentProgress(buttonCountAtStart, QueueEntity.n3m1)) return;
       // 1초 대기 후 체크표시
-      _changeOpacityValue(true, QueueEntity.n3m1);
+      _changeOpacityValue(true);
 
       // 2초 대기 후 체크표시 해제
       await Future.delayed(const Duration(milliseconds: 2000));
-      _changeOpacityValue(false, QueueEntity.n3m1);
+      if (!_canRunCurrentProgress(buttonCountAtStart, QueueEntity.n3m1)) return;
+      _changeOpacityValue(false);
 
-      if (progressQueue.isEmpty || progressQueue.first != QueueEntity.n3m1) {
-        return;
-      }
       setState(() {
         keyActive_2 = true;
       });
 
       // 1초 대기 후 두번 째 프로그레스 진행
       await Future.delayed(const Duration(milliseconds: 1000));
+      if (!_canRunCurrentProgress(buttonCountAtStart, QueueEntity.n3m1)) return;
       _runProgress(2, QueueEntity.n3m1);
 
       // 1초 대기 후 체크표시
       await Future.delayed(const Duration(milliseconds: 1000));
-      _changeOpacityValue(true, QueueEntity.n3m1);
+      if (!_canRunCurrentProgress(buttonCountAtStart, QueueEntity.n3m1)) return;
+      _changeOpacityValue(true);
 
       // 2초 대기 후 체크표시 해제
       await Future.delayed(const Duration(milliseconds: 2000));
-      if (progressQueue.isEmpty || progressQueue.first != QueueEntity.n3m1) {
-        return;
-      }
-      _changeOpacityValue(false, QueueEntity.n3m1);
+      if (!_canRunCurrentProgress(buttonCountAtStart, QueueEntity.n3m1)) return;
+
+      _changeOpacityValue(false);
       setState(() {
         keyActive_3 = true;
       });
 
       // 1초 대기 후 세번 째 프로그레스 진행
       await Future.delayed(const Duration(milliseconds: 1000));
+      if (!_canRunCurrentProgress(buttonCountAtStart, QueueEntity.n3m1)) return;
       _runProgress(3, QueueEntity.n3m1);
 
       // 1초 대기 후 체크표시
       await Future.delayed(const Duration(milliseconds: 1000));
-      _changeOpacityValue(true, QueueEntity.n3m1);
+      if (!_canRunCurrentProgress(buttonCountAtStart, QueueEntity.n3m1)) return;
+      _changeOpacityValue(true);
     } else if (n == 3 && m == 2) {
       /// n = 3 , m = 2
       ///
@@ -762,72 +759,82 @@ class _SelectKeyOptionsScreenState extends State<SelectKeyOptionsScreen> {
       });
 
       await Future.delayed(const Duration(milliseconds: 1000));
+      if (!_canRunCurrentProgress(buttonCountAtStart, QueueEntity.n3m2)) return;
       // 첫 번째 프로그레스 실행
       _runProgress(1, QueueEntity.n3m2);
 
       // 1초 대기 후 두 번째 키 활성화
       await Future.delayed(const Duration(milliseconds: 1000));
-      _activeKey(2, QueueEntity.n3m2);
+      if (!_canRunCurrentProgress(buttonCountAtStart, QueueEntity.n3m2)) return;
+      _activeKey(2);
 
       // 1초 대기 후 두번 째 프로그레스 진행
       await Future.delayed(const Duration(milliseconds: 1000));
+      if (!_canRunCurrentProgress(buttonCountAtStart, QueueEntity.n3m2)) return;
       _runProgress(2, QueueEntity.n3m2);
 
       // 1초 대기 후 체크표시
       await Future.delayed(const Duration(milliseconds: 1000));
-      _changeOpacityValue(true, QueueEntity.n3m2);
+      if (!_canRunCurrentProgress(buttonCountAtStart, QueueEntity.n3m2)) return;
+      _changeOpacityValue(true);
 
       // 2초 대기 후 체크표시 해제
       await Future.delayed(const Duration(milliseconds: 2000));
-      if (progressQueue.isEmpty || progressQueue.first != QueueEntity.n3m2) {
-        return;
-      }
-      _changeOpacityValue(false, QueueEntity.n3m2);
+      if (!_canRunCurrentProgress(buttonCountAtStart, QueueEntity.n3m2)) return;
+
+      _changeOpacityValue(false);
       setState(() {
         keyActive_1 = true;
       });
 
       // 1초 대기 후 첫번 째 프로그레스 진행
       await Future.delayed(const Duration(milliseconds: 1000));
+      if (!_canRunCurrentProgress(buttonCountAtStart, QueueEntity.n3m2)) return;
       _runProgress(1, QueueEntity.n3m2);
 
       // 1초 대기 후 세번 키 활성화
       await Future.delayed(const Duration(milliseconds: 1000));
-      _activeKey(3, QueueEntity.n3m2);
+      if (!_canRunCurrentProgress(buttonCountAtStart, QueueEntity.n3m2)) return;
+      _activeKey(3);
 
       // 1초 대기 후 세번 째 프로그레스 진행
       await Future.delayed(const Duration(milliseconds: 1000));
+      if (!_canRunCurrentProgress(buttonCountAtStart, QueueEntity.n3m2)) return;
       _runProgress(3, QueueEntity.n3m2);
 
       // 1초 대기 후 체크표시
       await Future.delayed(const Duration(milliseconds: 1000));
-      _changeOpacityValue(true, QueueEntity.n3m2);
+      if (!_canRunCurrentProgress(buttonCountAtStart, QueueEntity.n3m2)) return;
+      _changeOpacityValue(true);
 
       // 2초 대기 후 체크표시 해제
       await Future.delayed(const Duration(milliseconds: 2000));
-      if (progressQueue.isEmpty || progressQueue.first != QueueEntity.n3m2) {
-        return;
-      }
-      _changeOpacityValue(false, QueueEntity.n3m2);
+      if (!_canRunCurrentProgress(buttonCountAtStart, QueueEntity.n3m2)) return;
+
+      _changeOpacityValue(false);
       setState(() {
         keyActive_2 = true;
       });
 
       // 1초 대기 후 두번 째 프로그레스 진행
       await Future.delayed(const Duration(milliseconds: 1000));
+      if (!_canRunCurrentProgress(buttonCountAtStart, QueueEntity.n3m2)) return;
       _runProgress(2, QueueEntity.n3m2);
 
       // 1초 대기 후 세번 째 키 활성화
       await Future.delayed(const Duration(milliseconds: 1000));
-      _activeKey(3, QueueEntity.n3m2);
+      if (!_canRunCurrentProgress(buttonCountAtStart, QueueEntity.n3m2)) return;
+      _activeKey(3);
 
       // 1초 대기 후 세번 째 프로그레스 진행
       await Future.delayed(const Duration(milliseconds: 1000));
+      if (!_canRunCurrentProgress(buttonCountAtStart, QueueEntity.n3m2)) return;
       _runProgress(3, QueueEntity.n3m2);
 
       // 1초 대기 후 체크표시
       await Future.delayed(const Duration(milliseconds: 1000));
-      _changeOpacityValue(true, QueueEntity.n3m2);
+      if (!_canRunCurrentProgress(buttonCountAtStart, QueueEntity.n3m2)) return;
+      _changeOpacityValue(true);
     } else if (n == 3 && m == 3) {
       /// n = 3 , m = 3
       ///
@@ -837,28 +844,34 @@ class _SelectKeyOptionsScreenState extends State<SelectKeyOptionsScreen> {
       });
 
       await Future.delayed(const Duration(milliseconds: 1000));
+      if (!_canRunCurrentProgress(buttonCountAtStart, QueueEntity.n3m3)) return;
       // 첫 번째 프로그레스 진행
       _runProgress(1, QueueEntity.n3m3);
 
       await Future.delayed(const Duration(milliseconds: 1000));
+      if (!_canRunCurrentProgress(buttonCountAtStart, QueueEntity.n3m3)) return;
       // 1초 대기 후 두 번재 키 활성화
-      _activeKey(2, QueueEntity.n3m3);
+      _activeKey(2);
 
       // 1초 대기 후 두 번째 프로그레스 진행
       await Future.delayed(const Duration(milliseconds: 1000));
+      if (!_canRunCurrentProgress(buttonCountAtStart, QueueEntity.n3m3)) return;
       _runProgress(2, QueueEntity.n3m3);
 
       // 1초 대기 후 세 번재 키 활성화
       await Future.delayed(const Duration(milliseconds: 1000));
-      _activeKey(3, QueueEntity.n3m3);
+      if (!_canRunCurrentProgress(buttonCountAtStart, QueueEntity.n3m3)) return;
+      _activeKey(3);
 
       // 1초 대기 후 세 번재 프로그레스 진행
       await Future.delayed(const Duration(milliseconds: 1000));
+      if (!_canRunCurrentProgress(buttonCountAtStart, QueueEntity.n3m3)) return;
       _runProgress(3, QueueEntity.n3m3);
 
       // 1초 대기 후 체크표시
       await Future.delayed(const Duration(milliseconds: 1000));
-      _changeOpacityValue(true, QueueEntity.n3m3);
+      if (!_canRunCurrentProgress(buttonCountAtStart, QueueEntity.n3m3)) return;
+      _changeOpacityValue(true);
     }
   }
 }
@@ -866,6 +879,16 @@ class _SelectKeyOptionsScreenState extends State<SelectKeyOptionsScreen> {
 enum ChangeCountButtonType { nCountMinus, nCountPlus, mCountMinus, mCountPlus }
 
 enum QueueEntity { n2m1, n2m2, n3m1, n3m2, n3m3 }
+
+class QueueDataClass {
+  final int count;
+  final QueueEntity entity;
+
+  const QueueDataClass({
+    required this.count,
+    required this.entity,
+  });
+}
 
 class GradientProgressBar extends StatelessWidget {
   final double value;

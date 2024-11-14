@@ -49,7 +49,7 @@ class _SelectVaultTypeScreenState extends State<SelectVaultTypeScreen> {
                     onTap: () {
                       setState(() {
                         nextPath = '/vault-creation-options';
-                        guideText = '하나의 니모닉 문구를 보관하는 단일 서명 지갑이예요';
+                        guideText = '하나의 니모닉 문구를 보관하는 단일 서명 지갑이에요';
                         isSingleSigClicked = true;
                         isMultiSigClicked = false;
                       });
@@ -64,7 +64,7 @@ class _SelectVaultTypeScreenState extends State<SelectVaultTypeScreen> {
                     onTap: () {
                       setState(() {
                         nextPath = '/select-key-options';
-                        guideText = '지정한 수 만큼 여러 번 서명해야 하는 지갑이예요';
+                        guideText = '지정한 수의 서명이 필요한 지갑이에요';
                         isMultiSigClicked = true;
                         isSingleSigClicked = false;
                       });
