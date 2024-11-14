@@ -2,8 +2,11 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:coconut_lib/coconut_lib.dart';
+import 'package:coconut_vault/model/data/multisig_vault_list_item.dart';
 import 'package:coconut_vault/model/data/singlesig_vault_list_item.dart';
 import 'package:coconut_vault/model/data/singlesig_vault_list_item_factory.dart';
+import 'package:coconut_vault/model/data/vault_list_item_base.dart';
+import 'package:coconut_vault/model/data/vault_type.dart';
 import 'package:coconut_vault/services/shared_preferences_keys.dart';
 import 'package:coconut_vault/services/shared_preferences_service.dart';
 import 'package:flutter/foundation.dart';
@@ -42,8 +45,8 @@ class VaultModel extends ChangeNotifier {
   }
 
   // Vault list
-  List<SinglesigVaultListItem> _vaultList = [];
-  List<SinglesigVaultListItem> get vaultList => _vaultList;
+  List<VaultListItemBase> _vaultList = [];
+  List<VaultListItemBase> get vaultList => _vaultList;
   // 리스트 로딩중 여부 (indicator 표시 및 중복 방지)
   bool _isVaultListLoading = false;
   bool get isVaultListLoading => _isVaultListLoading;
@@ -110,11 +113,11 @@ class VaultModel extends ChangeNotifier {
     return List.from(_vaultList);
   }
 
-  SinglesigVaultListItem getVaultById(int id) {
+  VaultListItemBase getVaultById(int id) {
     return _vaultList.firstWhere((element) => element.id == id);
   }
 
-  SinglesigVaultListItem getVaultByName(String name) {
+  VaultListItemBase getVaultByName(String name) {
     return _vaultList.firstWhere((element) => element.name == name);
   }
 
@@ -146,26 +149,54 @@ class VaultModel extends ChangeNotifier {
       throw Exception('updateVaultName: no vault id is "$id"');
     }
 
-    // _vaultList[index].vault!.name = newName;
-
-    _vaultList[index] = SinglesigVaultListItem(
-      id: _vaultList[index].id,
-      name: newName,
-      colorIndex: colorIndex,
-      iconIndex: iconIndex,
-      secret: _vaultList[index].secret,
-      passphrase: _vaultList[index].passphrase,
-    );
+    // TODO: test 필요
+    if (_vaultList[index].vaultType == VaultType.singleSignature) {
+      SinglesigVaultListItem ssv = _vaultList[index] as SinglesigVaultListItem;
+      _vaultList[index] = SinglesigVaultListItem(
+        id: ssv.id,
+        name: newName,
+        colorIndex: colorIndex,
+        iconIndex: iconIndex,
+        secret: ssv.secret,
+        passphrase: ssv.passphrase,
+      );
+    } else if (_vaultList[index].vaultType == VaultType.singleSignature) {
+      MultisigVaultListItem ssv = _vaultList[index] as MultisigVaultListItem;
+      _vaultList[index] = MultisigVaultListItem(
+          id: ssv.id,
+          name: newName,
+          colorIndex: colorIndex,
+          iconIndex: iconIndex,
+          signers: ssv.signers,
+          requiredSignatureCount: ssv.requiredSignatureCount);
+    } else {
+      throw "[vault_model/updateVault] _vaultList[$index] has wrong type: ${_vaultList[index].vaultType}";
+    }
 
     // 해당 항목의 name을 newName으로 변경
     await updateVaultInStorage();
     notifyListeners();
   }
 
+  /// SiglesigVaultListItem의 seed 중복 여부 확인
   bool isSeedDuplicated(String secret, String passphrase) {
-    final vaultIndex = _vaultList.indexWhere((element) =>
-        element.secret == secret && element.passphrase == passphrase);
+    final vaultIndex = _vaultList.indexWhere((element) {
+      if (element is SinglesigVaultListItem) {
+        return element.secret == secret && element.passphrase == passphrase;
+      }
 
+      return false;
+    });
+
+    return vaultIndex != -1;
+  }
+
+  /// MultisigVaultListItem의 coordinatorBsms 중복 여부 확인
+  bool isMultisigVaultDuplicated(String coordinatorBsms) {
+    final vaultIndex = _vaultList.indexWhere((element) =>
+        (element is MultisigVaultListItem &&
+            element.coordinatorBsms == coordinatorBsms));
+    print(">>> vaultIndex: ${vaultIndex}");
     return vaultIndex != -1;
   }
 

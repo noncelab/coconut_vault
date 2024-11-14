@@ -20,7 +20,7 @@ MultisigVaultListItem _$MultisigVaultListItemFromJson(
     )
       ..vaultJsonString = json['vaultJsonString'] as String?
       ..vaultType = $enumDecode(_$VaultTypeEnumMap, json['vaultType'])
-      ..coordinatorBsms = json['coordinatorBsms'] as String?;
+      ..coordinatorBsms = json['coordinatorBsms'] as String;
 
 Map<String, dynamic> _$MultisigVaultListItemToJson(
         MultisigVaultListItem instance) =>

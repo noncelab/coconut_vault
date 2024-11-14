@@ -21,7 +21,6 @@ class MultisigVaultListItem extends VaultListItemBase {
         requiredSignatureCount,
         AddressType.p2wsh);
 
-    // TODO: 시간 너무 오래 걸리면 생략
     coordinatorBsms =
         (coconutVault as MultisignatureVault).getBsmsCoordinator();
 
@@ -34,19 +33,26 @@ class MultisigVaultListItem extends VaultListItemBase {
       required super.colorIndex,
       required super.iconIndex,
       required this.coordinatorBsms,
-      required this.signers,
-      MultisignatureVault? coconutVault})
+      required this.signers})
       : super(vaultType: VaultType.multiSignature) {
-    coconutVault = MultisignatureVault.fromCoordinatorBsms(coordinatorBsms!);
-    requiredSignatureCount = coconutVault.requiredSignature;
-    vaultJsonString = coconutVault.toJson();
+    coconutVault = MultisignatureVault.fromCoordinatorBsms(coordinatorBsms);
+    for (int i = 0; i < signers.length; i++) {
+      if (signers[i].keyStore.hasSeed) {
+        (coconutVault as MultisignatureVault)
+            .bindSeedToKeyStore(signers[i].keyStore.seed, i);
+      }
+    }
+
+    requiredSignatureCount =
+        (coconutVault as MultisignatureVault).requiredSignature;
+    vaultJsonString = (coconutVault as MultisignatureVault).toJson();
   }
 
   @JsonKey(name: "signers")
-  late final List<MultisigSigner> signers;
+  final List<MultisigSigner> signers;
 
   @JsonKey(name: "coordinatorBsms")
-  late final String? coordinatorBsms;
+  late final String coordinatorBsms;
 
   // json_serialization가 기본 생성자를 사용해서 추가함
   @JsonKey(name: "requiredSignatureCount")
@@ -65,6 +71,7 @@ class MultisigVaultListItem extends VaultListItemBase {
     // return jsonEncode(json);
   }
 
+  @override
   Map<String, dynamic> toJson() => _$MultisigVaultListItemToJson(this);
 
   factory MultisigVaultListItem.fromJson(Map<String, dynamic> json) {

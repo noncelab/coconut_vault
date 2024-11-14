@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:coconut_lib/coconut_lib.dart';
 import 'package:coconut_vault/model/data/singlesig_vault_list_item.dart';
+import 'package:coconut_vault/model/data/vault_list_item_base.dart';
 import 'package:coconut_vault/utils/text_utils.dart';
 import 'package:coconut_vault/utils/vibration_util.dart';
 import 'package:flutter/material.dart';
@@ -39,7 +40,7 @@ class _VaultSettingsState extends State<VaultSettings> {
   late VaultModel _vaultModel;
   OverlayEntry? _overlayEntry;
   late TextEditingController _nameTextController;
-  late SinglesigVaultListItem _vaultListItem;
+  late VaultListItemBase _vaultListItem;
   late SingleSignatureVault _singleSignatureVault;
   late String _name;
   late String _titleName;
@@ -218,8 +219,9 @@ class _VaultSettingsState extends State<VaultSettings> {
           MyBottomSheet.showBottomSheet_90(
               context: context,
               child: MnemonicViewScreen(
-                mnemonic: _vaultListItem.secret,
-                passphrase: _vaultListItem.passphrase,
+                mnemonic: (_vaultListItem as SinglesigVaultListItem).secret,
+                passphrase:
+                    (_vaultListItem as SinglesigVaultListItem).passphrase,
                 title: '니모닉 문구 보기',
                 subtitle: '패스프레이즈 보기',
               ));

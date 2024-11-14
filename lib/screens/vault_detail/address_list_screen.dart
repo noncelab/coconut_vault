@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:coconut_lib/coconut_lib.dart';
 import 'package:coconut_vault/model/data/singlesig_vault_list_item.dart';
+import 'package:coconut_vault/model/data/vault_list_item_base.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:coconut_vault/model/state/vault_model.dart';
@@ -33,7 +34,7 @@ class _AddressListScreenState extends State<AddressListScreen> {
   List<Address> _receivingAddressList = [];
   List<Address> _changeAddressList = [];
   late ScrollController _controller;
-  late SinglesigVaultListItem _vaultListItem;
+  late VaultListItemBase _vaultListItem;
   late WalletBase _coconutVault;
   bool isReceivingSelected = true;
 
