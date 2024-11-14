@@ -1,13 +1,13 @@
 import 'package:coconut_lib/coconut_lib.dart';
-import 'package:coconut_vault/model/data/vault_list_item.dart';
+import 'package:coconut_vault/model/data/singlesig_vault_list_item.dart';
 import 'package:coconut_vault/screens/vault_creation/multi_sig/assign_key_screen.dart';
 import 'package:coconut_vault/widgets/vault_row_item.dart';
 import 'package:flutter/material.dart';
 
 class KeyListBottomScreen extends StatefulWidget {
-  final List<VaultListItem> vaultList;
+  final List<SinglesigVaultListItem> vaultList;
   final List<AssignedVaultListItem> assignedList;
-  final void Function(VaultListItem) onPressed;
+  final void Function(SinglesigVaultListItem) onPressed;
 
   const KeyListBottomScreen({
     super.key,
@@ -40,7 +40,7 @@ class _KeyListBottomScreenState extends State<KeyListBottomScreen> {
     widget.onPressed(widget.vaultList[index]);
   }
 
-  bool _checkAssignedItem(VaultListItem item) {
+  bool _checkAssignedItem(SinglesigVaultListItem item) {
     for (var assignedItem in widget.assignedList) {
       if (item == assignedItem.item) {
         return true;
@@ -54,7 +54,7 @@ class _KeyListBottomScreenState extends State<KeyListBottomScreen> {
       String bsmsString = '';
       if (widget.assignedList[i].importKeyType == ImportKeyType.internal) {
         bsmsString = _extractOnlyPubString(
-            widget.assignedList[i].item!.coconutVault.getSignerBsms(
+            (widget.assignedList[i].item!.coconutVault as SingleSignatureVault).getSignerBsms(
                 AddressType.p2wsh, widget.assignedList[i].item!.name));
       } else if (widget.assignedList[i].importKeyType ==
           ImportKeyType.external) {
@@ -96,8 +96,8 @@ class _KeyListBottomScreenState extends State<KeyListBottomScreen> {
           height: 20,
         ),
         ...List.generate(widget.vaultList.length, (index) {
-          bool isAlreadyImported = _isAlreadyImportedInternalItem(widget
-              .vaultList[index].coconutVault
+          bool isAlreadyImported = _isAlreadyImportedInternalItem((widget
+                  .vaultList[index].coconutVault as SingleSignatureVault)
               .getSignerBsms(AddressType.p2wsh, widget.vaultList[index].name));
 
           if (_checkAssignedItem(widget.vaultList[index]) ||

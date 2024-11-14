@@ -1,6 +1,6 @@
 import 'dart:async';
 import 'dart:isolate';
-import 'package:coconut_vault/model/data/vault_list_item.dart';
+import 'package:coconut_vault/model/data/singlesig_vault_list_item.dart';
 import 'package:flutter/services.dart';
 
 enum InitializeType {
@@ -92,7 +92,7 @@ class IsolateHandler<T, R> {
   static void _entryPointAddVault(List<dynamic> args) {
     final SendPort mainSendPort = args[0];
     final RootIsolateToken rootIsolateToken = args[1];
-    final handler = args[2] as FutureOr<List<VaultListItem>> Function(
+    final handler = args[2] as FutureOr<List<SinglesigVaultListItem>> Function(
         Map<String, dynamic>, void Function(dynamic)?);
     final port = ReceivePort();
     mainSendPort.send(port.sendPort);

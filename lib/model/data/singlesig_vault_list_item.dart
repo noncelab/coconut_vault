@@ -44,6 +44,7 @@ class SinglesigVaultListItem extends VaultListItemBase {
     return jsonEncode(json);
   }
 
+  @override
   Map<String, dynamic> toJson() => _$SinglesigVaultListItemToJson(this);
 
   factory SinglesigVaultListItem.fromJson(Map<String, dynamic> json) {

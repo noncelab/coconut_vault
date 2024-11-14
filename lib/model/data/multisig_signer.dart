@@ -10,27 +10,20 @@ class MultisigSigner {
   @JsonKey()
   int id;
   @JsonKey()
-  String signerBsms; // bsms 정보는 내부 외부 지갑 모두 필수
+  String? signerBsms; // 외부에서 import한 경우 null
   @JsonKey()
   int? innerVaultId; // 내부 지갑이 Key로 사용된 경우 앱 내 id
   @JsonKey()
   String? memo; // 외부 지갑에 설정되는 메모
-
-  late KeyStore keyStore;
+  @JsonKey()
+  final KeyStore keyStore;
 
   MultisigSigner(
       {required this.id,
-      required this.signerBsms,
+      this.signerBsms,
       this.innerVaultId,
       this.memo,
-      KeyStore? keyStore}) {
-    if (innerVaultId != null && keyStore == null) {
-      throw ArgumentError('[MultisigSigner] innerVault has to pass keyStore');
-    }
-    if (keyStore == null) {
-      this.keyStore = KeyStore.fromSignerBsms(signerBsms);
-    }
-  }
+      required this.keyStore});
 
   Map<String, dynamic> toJson() => _$MultisigSignerToJson(this);
 

@@ -1,6 +1,8 @@
 import 'package:coconut_lib/coconut_lib.dart';
 import 'package:coconut_vault/model/data/multisig_signer.dart';
+import 'package:coconut_vault/model/data/multisig_signer_factory.dart';
 import 'package:coconut_vault/model/data/multisig_vault_list_item.dart';
+import 'package:coconut_vault/model/data/vault_list_item_base.dart';
 import 'package:coconut_vault/model/data/vault_list_item_factory.dart';
 
 class MultisigVaultListItemFactory implements VaultListItemFactory {
@@ -8,6 +10,7 @@ class MultisigVaultListItemFactory implements VaultListItemFactory {
   static const String signersField = 'signers';
   static const String requiredSignatureCountField = 'requiredSignatureCount';
   static const String bsmsField = 'bsms';
+  static const String vaultListField = 'vaultList';
 
   // 새로 생성 시
   @override
@@ -51,13 +54,18 @@ class MultisigVaultListItemFactory implements VaultListItemFactory {
     if (!secrets.containsKey(bsmsField)) {
       throw ArgumentError("The 'secrets' map must contain a 'bsms' key.");
     }
-    // TODO: field로 vault_model의 vaultList 전달해야 할지도 모름
+    if (!secrets.containsKey(vaultListField)) {
+      throw ArgumentError("The 'secrets' map must contain a 'vaultList' key.");
+    }
 
     String bsms = secrets[bsmsField];
-    List<MultisigSigner> signers = secrets[signersField];
+    List<VaultListItemBase> vaultList = secrets[vaultListField];
 
-    // TODO: 기존 지갑 정보와 bsms 값 비교해서, 일치하는 게 한개라도 있는지 확인해야 합니다.
-    // TODO: 하나라도 있으면 VaultListItem 목록의 정보를 참조하여 signer 리스트를 만듭니다.
+    // signer 리스트 생성
+    List<MultisigSigner> signers =
+        MultisigSignerFactory.createSignersForMultisignatureVaultWhenImport(
+            multisigVault: MultisignatureVault.fromCoordinatorBsms(bsms),
+            vaultList: vaultList);
 
     final nextId = VaultListItemFactory.loadNextId();
     final newVault = MultisigVaultListItem.fromCoordinatorBsms(
@@ -67,7 +75,6 @@ class MultisigVaultListItemFactory implements VaultListItemFactory {
       iconIndex: iconIndex,
       coordinatorBsms: bsms,
       signers: signers,
-      // coconutVault 추가
     );
     await VaultListItemFactory.saveNextId(nextId + 1);
 

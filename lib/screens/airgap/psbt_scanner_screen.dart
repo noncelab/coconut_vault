@@ -1,11 +1,12 @@
 import 'dart:io';
 
+import 'package:coconut_vault/model/data/singlesig_vault_list_item.dart';
+import 'package:coconut_vault/model/data/vault_list_item_base.dart';
 import 'package:coconut_vault/model/state/app_model.dart';
 import 'package:coconut_vault/utils/alert_util.dart';
 import 'package:coconut_vault/widgets/animatedQR/animated_qr_scanner.dart';
 import 'package:flutter/material.dart';
 import 'package:coconut_vault/model/state/vault_model.dart';
-import 'package:coconut_vault/model/data/vault_list_item.dart';
 import 'package:coconut_vault/styles.dart';
 import 'package:coconut_vault/utils/vibration_util.dart';
 import 'package:coconut_vault/widgets/appbar/custom_appbar.dart';
@@ -26,7 +27,7 @@ class _PsbtScannerScreenState extends State<PsbtScannerScreen> {
   late AppModel _appModel;
   late VaultModel _vaultModel;
   final GlobalKey qrKey = GlobalKey(debugLabel: 'QR');
-  late VaultListItem _vaultListItem;
+  late VaultListItemBase _vaultListItem;
 
   QRViewController? controller;
   bool isCameraActive = false;

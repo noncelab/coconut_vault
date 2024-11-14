@@ -1,6 +1,7 @@
 import 'package:coconut_lib/coconut_lib.dart';
 import 'package:coconut_vault/model/data/multisig_signer.dart';
-import 'package:coconut_vault/model/data/vault_list_item.dart';
+import 'package:coconut_vault/model/data/singlesig_vault_list_item.dart';
+import 'package:coconut_vault/model/data/vault_list_item_base.dart';
 import 'package:coconut_vault/model/state/vault_model.dart';
 import 'package:coconut_vault/screens/vault_creation/multi_sig/confirm_importing_screen.dart';
 import 'package:coconut_vault/screens/vault_creation/multi_sig/import_scanner_screen.dart';
@@ -37,16 +38,20 @@ class _AssignKeyScreenState extends State<AssignKeyScreen> {
   late int nCount; // 전체 키의 수
   late int mCount; // 필요한 서명 수
   late List<AssignedVaultListItem> assignedVaultList; // 키 가져오기에서 선택 완료한 객체
-  late VaultListItem? selectingVaultList; // 키 가져오기 목록에서 선택중인 객체
-  late List<VaultListItem> vaultList;
+  //late VaultListItem? selectingVaultList; // 키 가져오기 목록에서 선택중인 객체
+  //late List<VaultListItem> vaultList;
   late List<String> pubStringList;
+
+  late SinglesigVaultListItem? selectingVaultList; // 키 가져오기 목록에서 선택중인 객체
+  late List<SinglesigVaultListItem> vaultList;
   late VaultModel _vaultModel;
   bool isFinishing = false;
   bool alreadyDialogShown = false;
   late DraggableScrollableController draggableController;
   bool isCompleteToExtractBsms = false;
 
-  IsolateHandler<List<VaultListItem>, List<String>>? _extractBsmsIsolateHandler;
+  IsolateHandler<List<VaultListItemBase>, List<String>>?
+      _extractBsmsIsolateHandler;
 
   @override
   void initState() {
@@ -77,7 +82,8 @@ class _AssignKeyScreenState extends State<AssignKeyScreen> {
     debugPrint('pubStringList ${pubStringList.toString()}');
     if (_extractBsmsIsolateHandler == null) {
       _extractBsmsIsolateHandler =
-          IsolateHandler<List<VaultListItem>, List<String>>(extractBsmsIsolate);
+          IsolateHandler<List<VaultListItemBase>, List<String>>(
+              extractBsmsIsolate);
       await _extractBsmsIsolateHandler!
           .initialize(initialType: InitializeType.extractBsms);
     }
@@ -137,10 +143,10 @@ class _AssignKeyScreenState extends State<AssignKeyScreen> {
     for (int i = 0; i < assignedVaultList.length; i++) {
       String bsmsString = '';
       if (assignedVaultList[i].importKeyType == ImportKeyType.internal) {
-        bsmsString = _extractOnlyPubString(assignedVaultList[i]
-            .item!
-            .coconutVault
-            .getSignerBsms(AddressType.p2wsh, assignedVaultList[i].item!.name));
+        SingleSignatureVault sVault =
+            (assignedVaultList[i].item!.coconutVault) as SingleSignatureVault;
+        bsmsString = _extractOnlyPubString(sVault.getSignerBsms(
+            AddressType.p2wsh, assignedVaultList[i].item!.name));
       } else if (assignedVaultList[i].importKeyType == ImportKeyType.external) {
         bsmsString = _extractOnlyPubString(assignedVaultList[i].bsms ?? '');
       }
@@ -499,16 +505,16 @@ class _AssignKeyScreenState extends State<AssignKeyScreen> {
                                                       assignedVaultList[i]
                                                           .toString());
                                                   debugPrint(
-                                                      '------------BSMS Info-----------\n${assignedVaultList[i].item!.coconutVault.getSignerBsms(AddressType.p2wsh, assignedVaultList[i].item!.name)}');
+                                                      '------------BSMS Info-----------\n${(assignedVaultList[i].item!.coconutVault as SingleSignatureVault).getSignerBsms(AddressType.p2wsh, assignedVaultList[i].item!.name)}');
                                                 },
                                                 isButtonActiveNotifier:
                                                     isButtonActiveNotifier,
                                                 context: context,
                                                 child: KeyListBottomScreen(
-                                                  onPressed: (VaultListItem
+                                                  onPressed: (VaultListItemBase
                                                       selectedItem) {
                                                     selectingVaultList =
-                                                        selectedItem;
+                                                        selectedItem as SinglesigVaultListItem;
                                                     isButtonActiveNotifier
                                                         .value = true;
                                                   },
@@ -699,8 +705,8 @@ class _AssignKeyScreenState extends State<AssignKeyScreen> {
 
 class AssignedVaultListItem {
   final int index;
-  VaultListItem? item;
   String? bsms;
+  SinglesigVaultListItem? item;
   String? memo;
   bool isExpanded;
   ImportKeyType? importKeyType;
