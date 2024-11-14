@@ -64,7 +64,7 @@ class _SelectSyncTypeScreenState extends State<SelectSyncTypeScreen> {
                 const SizedBox(width: 8),
                 Expanded(
                   child: SelectableButton(
-                    text: '다른 볼트에\n다중 서명 지갑 추가',
+                    text: '다른 볼트에서\n다중 서명 키로 사용',
                     onTap: () {
                       setState(() {
                         isSyncToWalletClicked = false;

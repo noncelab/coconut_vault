@@ -8,7 +8,8 @@ enum InitializeType {
   loadVaultList,
   getAddressList,
   canSign,
-  addSign
+  addSign,
+  extractBsms,
 }
 
 class IsolateHandler<T, R> {
@@ -40,6 +41,10 @@ class IsolateHandler<T, R> {
         break;
       case InitializeType.addSign:
         _isolate = await Isolate.spawn(_entryPointAddSign,
+            [_receivePort.sendPort, _rootIsolateToken, _handler]);
+        break;
+      case InitializeType.extractBsms:
+        _isolate = await Isolate.spawn(_entryPointExtractBsms,
             [_receivePort.sendPort, _rootIsolateToken, _handler]);
         break;
       default:
@@ -128,6 +133,26 @@ class IsolateHandler<T, R> {
     final SendPort mainSendPort = args[0];
     final RootIsolateToken rootIsolateToken = args[1];
     final handler = args[2] as FutureOr<String> Function(
+        List<dynamic>, void Function(dynamic)?);
+    final port = ReceivePort();
+    mainSendPort.send(port.sendPort);
+
+    port.listen((message) async {
+      final data = message[0];
+      final sendPort = message[1] as SendPort;
+
+      // Ensure the background isolate is properly initialized
+      BackgroundIsolateBinaryMessenger.ensureInitialized(rootIsolateToken);
+
+      final result = await handler(data, null);
+      sendPort.send(result);
+    });
+  }
+
+  static void _entryPointExtractBsms(List<dynamic> args) {
+    final SendPort mainSendPort = args[0];
+    final RootIsolateToken rootIsolateToken = args[1];
+    final handler = args[2] as FutureOr<List<String>> Function(
         List<dynamic>, void Function(dynamic)?);
     final port = ReceivePort();
     mainSendPort.send(port.sendPort);

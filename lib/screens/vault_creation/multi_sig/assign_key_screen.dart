@@ -1,9 +1,13 @@
+import 'package:coconut_lib/coconut_lib.dart';
+import 'package:coconut_vault/model/data/multisig_signer.dart';
 import 'package:coconut_vault/model/data/vault_list_item.dart';
 import 'package:coconut_vault/model/state/vault_model.dart';
 import 'package:coconut_vault/screens/vault_creation/multi_sig/confirm_importing_screen.dart';
 import 'package:coconut_vault/screens/vault_creation/multi_sig/import_scanner_screen.dart';
 import 'package:coconut_vault/screens/vault_creation/multi_sig/key_list_bottom_screen.dart';
+import 'package:coconut_vault/services/isolate_service.dart';
 import 'package:coconut_vault/utils/icon_util.dart';
+import 'package:coconut_vault/utils/isolate_handler.dart';
 import 'package:coconut_vault/widgets/bottom_sheet.dart';
 import 'package:coconut_vault/widgets/custom_dialog.dart';
 import 'package:coconut_vault/widgets/custom_expansion_panel.dart';
@@ -35,10 +39,14 @@ class _AssignKeyScreenState extends State<AssignKeyScreen> {
   late List<AssignedVaultListItem> assignedVaultList; // 키 가져오기에서 선택 완료한 객체
   late VaultListItem? selectingVaultList; // 키 가져오기 목록에서 선택중인 객체
   late List<VaultListItem> vaultList;
+  late List<String> pubStringList;
   late VaultModel _vaultModel;
   bool isFinishing = false;
   bool alreadyDialogShown = false;
   late DraggableScrollableController draggableController;
+  bool isCompleteToExtractBsms = false;
+
+  IsolateHandler<List<VaultListItem>, List<String>>? _extractBsmsIsolateHandler;
 
   @override
   void initState() {
@@ -46,6 +54,8 @@ class _AssignKeyScreenState extends State<AssignKeyScreen> {
     _vaultModel = Provider.of<VaultModel>(context, listen: false);
     _initAssigendVaultList();
     vaultList = _vaultModel.getVaults();
+
+    _initBsmsList();
 
     draggableController = DraggableScrollableController();
     draggableController.addListener(() {
@@ -60,6 +70,24 @@ class _AssignKeyScreenState extends State<AssignKeyScreen> {
     isButtonActiveNotifier.dispose();
     draggableController.dispose();
     super.dispose();
+  }
+
+  Future<void> _initBsmsList() async {
+    pubStringList = List<String>.filled(vaultList.length, '');
+    debugPrint('pubStringList ${pubStringList.toString()}');
+    if (_extractBsmsIsolateHandler == null) {
+      _extractBsmsIsolateHandler =
+          IsolateHandler<List<VaultListItem>, List<String>>(extractBsmsIsolate);
+      await _extractBsmsIsolateHandler!
+          .initialize(initialType: InitializeType.extractBsms);
+    }
+
+    pubStringList = await _extractBsmsIsolateHandler!.run(vaultList);
+
+    debugPrint('pubStringList ${pubStringList.toString()}');
+    setState(() {
+      isCompleteToExtractBsms = true;
+    });
   }
 
   bool _isAssignedKeyCompletely() {
@@ -106,15 +134,39 @@ class _AssignKeyScreenState extends State<AssignKeyScreen> {
   }
 
   bool _isAlreadyImportedExternalItem(String data) {
-    // TODO : 기존 추가된 키들과 동일한 pubkey인지 확인 필요..
-
     for (int i = 0; i < assignedVaultList.length; i++) {
-      if (assignedVaultList[i].importKeyType == ImportKeyType.external &&
-          assignedVaultList[i].zPubString == data) {
+      String bsmsString = '';
+      if (assignedVaultList[i].importKeyType == ImportKeyType.internal) {
+        bsmsString = _extractOnlyPubString(assignedVaultList[i]
+            .item!
+            .coconutVault
+            .getSignerBsms(AddressType.p2wsh, assignedVaultList[i].item!.name));
+      } else if (assignedVaultList[i].importKeyType == ImportKeyType.external) {
+        bsmsString = _extractOnlyPubString(assignedVaultList[i].bsms ?? '');
+      }
+
+      if (bsmsString == _extractOnlyPubString(data)) {
         return true;
       }
     }
     return false;
+  }
+
+  String _extractOnlyPubString(String bsms) {
+    String pubString = '';
+    if (bsms.isNotEmpty) {
+      if (bsms.contains('Vpub')) {
+        pubString = bsms.substring(bsms.indexOf('Vpub'));
+      }
+      if (bsms.contains('Xpub')) {
+        pubString = bsms.substring(bsms.indexOf('Xpub'));
+      }
+      if (bsms.contains('Zpub')) {
+        pubString = bsms.substring(bsms.indexOf('Zpub'));
+      }
+      return pubString.substring(0, pubString.indexOf('\n'));
+    }
+    return '';
   }
 
   void _showDialog(DialogType type, {int keyIndex = 0}) {
@@ -161,7 +213,7 @@ class _AssignKeyScreenState extends State<AssignKeyScreen> {
       case DialogType.quit:
         {
           title = '다중 서명 지갑 만들기 중단';
-          message = '정말 만들기를 그만하시겠어요?';
+          message = '정말 지갑 생성을 그만하시겠어요?';
           cancelButtonText = '취소';
           confirmButtonText = '그만하기';
           confirmButtonColor = MyColors.warningText;
@@ -284,240 +336,277 @@ class _AssignKeyScreenState extends State<AssignKeyScreen> {
           isActive: _isAssignedKeyCompletely(),
           hasBackdropFilter: false,
         ),
-        body: Column(
+        body: Stack(
           children: [
-            const SizedBox(
-              height: 10,
-            ),
-            Stack(
+            Column(
               children: [
-                ClipRRect(
-                  child: Container(
-                    height: 6,
-                    color: MyColors.transparentBlack_06,
-                  ),
+                const SizedBox(
+                  height: 10,
                 ),
-                LayoutBuilder(
-                  builder: (context, constraints) {
-                    return ClipRRect(
-                      borderRadius: _getAssignedVaultListLength() / nCount == 1
-                          ? BorderRadius.zero
-                          : const BorderRadius.only(
-                              topRight: Radius.circular(6),
-                              bottomRight: Radius.circular(6)),
-                      child: AnimatedContainer(
-                        duration: const Duration(milliseconds: 500),
-                        curve: Curves.easeInOut,
+                Stack(
+                  children: [
+                    ClipRRect(
+                      child: Container(
                         height: 6,
-                        width: (constraints.maxWidth) *
-                            (_getAssignedVaultListLength() == 0
-                                ? 0
-                                : _getAssignedVaultListLength() / nCount),
-                        color: MyColors.black,
+                        color: MyColors.transparentBlack_06,
                       ),
-                    );
-                  },
+                    ),
+                    LayoutBuilder(
+                      builder: (context, constraints) {
+                        return ClipRRect(
+                          borderRadius:
+                              _getAssignedVaultListLength() / nCount == 1
+                                  ? BorderRadius.zero
+                                  : const BorderRadius.only(
+                                      topRight: Radius.circular(6),
+                                      bottomRight: Radius.circular(6)),
+                          child: AnimatedContainer(
+                            duration: const Duration(milliseconds: 500),
+                            curve: Curves.easeInOut,
+                            height: 6,
+                            width: (constraints.maxWidth) *
+                                (_getAssignedVaultListLength() == 0
+                                    ? 0
+                                    : _getAssignedVaultListLength() / nCount),
+                            color: MyColors.black,
+                          ),
+                        );
+                      },
+                    ),
+                  ],
+                ),
+                SingleChildScrollView(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 16.0, vertical: 25),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            HighLightedText('$mCount/$nCount',
+                                color: MyColors.darkgrey),
+                            const SizedBox(
+                              width: 2,
+                            ),
+                            const Text(
+                              '선택',
+                              style: Styles.body1,
+                            ),
+                            const SizedBox(
+                              width: 10,
+                            ),
+                            GestureDetector(
+                              onTap: () {
+                                _getAssignedVaultListLength() != 0
+                                    ? _showDialog(DialogType.reSelect)
+                                    : _onBackPressed(context);
+                              },
+                              child: Container(
+                                margin: const EdgeInsets.only(left: 8),
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 8, vertical: 4),
+                                decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(8),
+                                    border:
+                                        Border.all(color: MyColors.borderGrey)),
+                                child: const Text(
+                                  '다시 고르기',
+                                  style: Styles.caption,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 38),
+                        Container(
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(20),
+                            color: MyColors.white,
+                            boxShadow: const [
+                              BoxShadow(
+                                color: MyColors.transparentBlack_15,
+                                offset: Offset(0, 0),
+                                blurRadius: 12,
+                                spreadRadius: 0,
+                              ),
+                            ],
+                          ),
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(20),
+                            child: Column(
+                              children: [
+                                for (int i = 0;
+                                    i < assignedVaultList.length;
+                                    i++) ...[
+                                  if (i > 0)
+                                    const Padding(
+                                      padding:
+                                          EdgeInsets.symmetric(horizontal: 10),
+                                      child: Divider(
+                                          height: 1,
+                                          color: MyColors.dropdownGrey),
+                                    ),
+                                  CustomExpansionPanel(
+                                    isExpanded: assignedVaultList[i].isExpanded,
+                                    isAssigned:
+                                        assignedVaultList[i].importKeyType !=
+                                            null,
+                                    onAssignedClicked: () {
+                                      _showDialog(DialogType.deleteKey,
+                                          keyIndex: i);
+                                    },
+                                    onExpansionChanged: () {
+                                      setState(() {
+                                        assignedVaultList[i].changeExpanded();
+                                      });
+                                    },
+                                    unExpansionWidget:
+                                        assignedVaultList[i].importKeyType ==
+                                                null
+                                            ? _unExpansionWidget(i)
+                                            : _unExpansionWidget(i,
+                                                isAssigned: true),
+                                    expansionWidget: Column(
+                                      children: [
+                                        ExpansionChildWidget(
+                                            type: ImportKeyType.internal,
+                                            onPressed: () {
+                                              if (_checkEmptyList()) {
+                                                _showDialog(
+                                                    DialogType.notAvailable);
+                                                return;
+                                              }
+
+                                              isButtonActiveNotifier.value =
+                                                  false;
+                                              selectingVaultList = null;
+                                              MyBottomSheet
+                                                  .showDraggableScrollableSheet(
+                                                topWidget: true,
+                                                onTopWidgetButtonClicked: () {
+                                                  setState(() {
+                                                    assignedVaultList[i]
+                                                      ..item =
+                                                          selectingVaultList
+                                                      ..isExpanded = false
+                                                      ..importKeyType =
+                                                          ImportKeyType
+                                                              .internal;
+                                                  });
+                                                  debugPrint(
+                                                      assignedVaultList[i]
+                                                          .toString());
+                                                  debugPrint(
+                                                      '------------BSMS Info-----------\n${assignedVaultList[i].item!.coconutVault.getSignerBsms(AddressType.p2wsh, assignedVaultList[i].item!.name)}');
+                                                },
+                                                isButtonActiveNotifier:
+                                                    isButtonActiveNotifier,
+                                                context: context,
+                                                child: KeyListBottomScreen(
+                                                  onPressed: (VaultListItem
+                                                      selectedItem) {
+                                                    selectingVaultList =
+                                                        selectedItem;
+                                                    isButtonActiveNotifier
+                                                        .value = true;
+                                                  },
+                                                  vaultList: vaultList,
+                                                  assignedList:
+                                                      assignedVaultList,
+                                                ),
+                                              );
+                                            }),
+                                        ExpansionChildWidget(
+                                          type: ImportKeyType.external,
+                                          onPressed: () async {
+                                            if (_isAllAssignedFromExternal()) {
+                                              _showDialog(DialogType.alert);
+                                              return;
+                                            }
+
+                                            final externalImported =
+                                                await MyBottomSheet
+                                                    .showDraggableScrollableSheet(
+                                              topWidget: true,
+                                              context: context,
+                                              physics:
+                                                  const ClampingScrollPhysics(),
+                                              enableSingleChildScroll: false,
+                                              child:
+                                                  const ImportScannerScreen(),
+                                            );
+
+                                            if (externalImported != null) {
+                                              /// 이미 추가된 signer와 중복 비교
+                                              if (_isAlreadyImportedExternalItem(
+                                                  externalImported)) {
+                                                return _showDialog(
+                                                    DialogType.alreadyExist);
+                                              }
+                                              final confirmedExternalZPub =
+                                                  await MyBottomSheet
+                                                      .showDraggableScrollableSheet(
+                                                topWidget: true,
+                                                context: context,
+                                                isScrollControlled: true,
+                                                controller: draggableController,
+                                                minChildSize: 0.7,
+                                                isDismissible: false,
+                                                enableDrag: true,
+                                                snap: true,
+                                                onBackPressed: () =>
+                                                    _showDialog(DialogType
+                                                        .cancelImport),
+                                                physics:
+                                                    const ClampingScrollPhysics(),
+                                                enableSingleChildScroll: true,
+                                                child: ConfirmImportingScreen(
+                                                  importingBsms:
+                                                      externalImported,
+                                                ),
+                                              );
+                                              if (confirmedExternalZPub !=
+                                                  null) {
+                                                assignedVaultList[i]
+                                                  ..importKeyType =
+                                                      ImportKeyType.external
+                                                  ..isExpanded = false
+                                                  ..bsms =
+                                                      externalImported // TODO: zpub만 따로 가져올 경우 처리 필요
+                                                  ..memo =
+                                                      confirmedExternalZPub[
+                                                          'memo'];
+                                              }
+                                            }
+                                          },
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ],
+                            ),
+                          ),
+                        )
+                      ],
+                    ),
+                  ),
                 ),
               ],
             ),
-            SingleChildScrollView(
-              child: Padding(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 16.0, vertical: 25),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        HighLightedText('$mCount/$nCount',
-                            color: MyColors.darkgrey),
-                        const SizedBox(
-                          width: 2,
-                        ),
-                        const Text(
-                          '선택',
-                          style: Styles.body1,
-                        ),
-                        const SizedBox(
-                          width: 10,
-                        ),
-                        GestureDetector(
-                          onTap: () {
-                            _getAssignedVaultListLength() != 0
-                                ? _showDialog(DialogType.reSelect)
-                                : _onBackPressed(context);
-                          },
-                          child: Container(
-                            margin: const EdgeInsets.only(left: 8),
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 8, vertical: 4),
-                            decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(8),
-                                border: Border.all(color: MyColors.borderGrey)),
-                            child: const Text(
-                              '다시 고르기',
-                              style: Styles.caption,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 38),
-                    Container(
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(20),
-                        color: MyColors.white,
-                        boxShadow: const [
-                          BoxShadow(
-                            color: MyColors.transparentBlack_15,
-                            offset: Offset(0, 0),
-                            blurRadius: 12,
-                            spreadRadius: 0,
-                          ),
-                        ],
-                      ),
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(20),
-                        child: Column(
-                          children: [
-                            for (int i = 0;
-                                i < assignedVaultList.length;
-                                i++) ...[
-                              if (i > 0)
-                                const Padding(
-                                  padding: EdgeInsets.symmetric(horizontal: 10),
-                                  child: Divider(
-                                      height: 1, color: MyColors.dropdownGrey),
-                                ),
-                              CustomExpansionPanel(
-                                isExpanded: assignedVaultList[i].isExpanded,
-                                isAssigned:
-                                    assignedVaultList[i].importKeyType != null,
-                                onAssignedClicked: () {
-                                  _showDialog(DialogType.deleteKey,
-                                      keyIndex: i);
-                                },
-                                onExpansionChanged: () {
-                                  setState(() {
-                                    assignedVaultList[i].changeExpanded();
-                                  });
-                                },
-                                unExpansionWidget: assignedVaultList[i]
-                                            .importKeyType ==
-                                        null
-                                    ? _unExpansionWidget(i)
-                                    : _unExpansionWidget(i, isAssigned: true),
-                                expansionWidget: Column(
-                                  children: [
-                                    ExpansionChildWidget(
-                                        type: ImportKeyType.internal,
-                                        onPressed: () {
-                                          if (_checkEmptyList()) {
-                                            _showDialog(
-                                                DialogType.notAvailable);
-                                            return;
-                                          }
-
-                                          isButtonActiveNotifier.value = false;
-                                          selectingVaultList = null;
-                                          MyBottomSheet
-                                              .showDraggableScrollableSheet(
-                                            topWidget: true,
-                                            onTopWidgetButtonClicked: () {
-                                              setState(() {
-                                                assignedVaultList[i]
-                                                  ..item = selectingVaultList
-                                                  ..isExpanded = false
-                                                  ..importKeyType =
-                                                      ImportKeyType.internal;
-                                              });
-                                              debugPrint(assignedVaultList[i]
-                                                  .toString());
-                                            },
-                                            isButtonActiveNotifier:
-                                                isButtonActiveNotifier,
-                                            context: context,
-                                            child: KeyListBottomScreen(
-                                              onPressed:
-                                                  (VaultListItem selectedItem) {
-                                                selectingVaultList =
-                                                    selectedItem;
-                                                isButtonActiveNotifier.value =
-                                                    true;
-                                              },
-                                              vaultList: vaultList,
-                                              assignedList: assignedVaultList,
-                                            ),
-                                          );
-                                        }),
-                                    ExpansionChildWidget(
-                                      type: ImportKeyType.external,
-                                      onPressed: () async {
-                                        if (_isAllAssignedFromExternal()) {
-                                          _showDialog(DialogType.alert);
-                                          return;
-                                        }
-
-                                        final externalImported =
-                                            await MyBottomSheet
-                                                .showDraggableScrollableSheet(
-                                          topWidget: true,
-                                          context: context,
-                                          physics:
-                                              const ClampingScrollPhysics(),
-                                          enableSingleChildScroll: false,
-                                          child: const ImportScannerScreen(),
-                                        );
-
-                                        if (externalImported != null) {
-                                          if (_isAlreadyImportedExternalItem(
-                                              externalImported)) {
-                                            return _showDialog(
-                                                DialogType.alreadyExist);
-                                          }
-                                          final confirmedExternalZPub =
-                                              await MyBottomSheet
-                                                  .showDraggableScrollableSheet(
-                                            topWidget: true,
-                                            context: context,
-                                            isScrollControlled: true,
-                                            controller: draggableController,
-                                            minChildSize: 0.7,
-                                            isDismissible: false,
-                                            enableDrag: true,
-                                            snap: true,
-                                            onBackPressed: () => _showDialog(
-                                                DialogType.cancelImport),
-                                            physics:
-                                                const ClampingScrollPhysics(),
-                                            enableSingleChildScroll: true,
-                                            child: ConfirmImportingScreen(
-                                              importingZpub: externalImported,
-                                            ),
-                                          );
-                                          if (confirmedExternalZPub != null) {
-                                            assignedVaultList[i]
-                                              ..importKeyType =
-                                                  ImportKeyType.external
-                                              ..isExpanded = false
-                                              ..zPubString =
-                                                  externalImported // TODO: zpub만 따로 가져올 경우 처리 필요
-                                              ..memo =
-                                                  confirmedExternalZPub['memo'];
-                                          }
-                                        }
-                                      },
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ],
-                          ],
-                        ),
-                      ),
-                    )
-                  ],
+            Visibility(
+              visible: !isCompleteToExtractBsms,
+              child: Container(
+                width: MediaQuery.of(context).size.width,
+                height: MediaQuery.of(context).size.height,
+                decoration:
+                    const BoxDecoration(color: MyColors.transparentBlack_30),
+                child: const Center(
+                  child: CircularProgressIndicator(
+                    color: MyColors.darkgrey,
+                  ),
                 ),
               ),
             ),
@@ -540,7 +629,7 @@ class _AssignKeyScreenState extends State<AssignKeyScreen> {
               ),
               const SizedBox(width: 8),
               Container(
-                padding: const EdgeInsets.all(10),
+                padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
                   color: BackgroundColorPalette[isExternalImported
                       ? 8
@@ -558,7 +647,7 @@ class _AssignKeyScreenState extends State<AssignKeyScreen> {
                         : ColorPalette[assignedVaultList[i].item!.colorIndex],
                     BlendMode.srcIn,
                   ),
-                  width: 12.0,
+                  width: 16.0,
                 ),
               ),
               const SizedBox(width: 6),
@@ -611,7 +700,7 @@ class _AssignKeyScreenState extends State<AssignKeyScreen> {
 class AssignedVaultListItem {
   final int index;
   VaultListItem? item;
-  String? zPubString;
+  String? bsms;
   String? memo;
   bool isExpanded;
   ImportKeyType? importKeyType;
@@ -620,7 +709,7 @@ class AssignedVaultListItem {
     required this.index,
     required this.importKeyType,
     required this.item,
-    this.zPubString,
+    this.bsms,
     this.isExpanded = false,
   });
 

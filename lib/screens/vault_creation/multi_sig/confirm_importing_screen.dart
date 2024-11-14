@@ -5,8 +5,8 @@ import 'package:coconut_vault/styles.dart';
 import 'package:coconut_vault/widgets/custom_tooltip.dart';
 
 class ConfirmImportingScreen extends StatefulWidget {
-  const ConfirmImportingScreen({super.key, required this.importingZpub});
-  final String importingZpub;
+  const ConfirmImportingScreen({super.key, required this.importingBsms});
+  final String importingBsms;
 
   @override
   State<ConfirmImportingScreen> createState() => _ConfirmImportingScreenState();
@@ -134,8 +134,7 @@ class _ConfirmImportingScreenState extends State<ConfirmImportingScreen>
                           30,
                         ),
                         // TODO: 내보낼 정보 배치
-                        child: Text(
-                            'zpub.... TODO: 내보낼 정보 배치\n${widget.importingZpub}'),
+                        child: Text(widget.importingBsms),
                       ),
                       const SizedBox(height: 36),
                       Text(
@@ -202,7 +201,7 @@ class _ConfirmImportingScreenState extends State<ConfirmImportingScreen>
                               isPressing = false;
                             });
                             Navigator.pop(context, {
-                              'zpub': widget.importingZpub,
+                              'zpub': widget.importingBsms,
                               'memo': _controller.text
                             });
                           },

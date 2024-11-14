@@ -1,3 +1,4 @@
+import 'package:coconut_lib/coconut_lib.dart';
 import 'package:coconut_vault/model/data/vault_list_item.dart';
 import 'package:coconut_vault/screens/vault_creation/multi_sig/assign_key_screen.dart';
 import 'package:coconut_vault/widgets/vault_row_item.dart';
@@ -48,6 +49,42 @@ class _KeyListBottomScreenState extends State<KeyListBottomScreen> {
     return false;
   }
 
+  bool _isAlreadyImportedInternalItem(String data) {
+    for (int i = 0; i < widget.assignedList.length; i++) {
+      String bsmsString = '';
+      if (widget.assignedList[i].importKeyType == ImportKeyType.internal) {
+        bsmsString = _extractOnlyPubString(
+            widget.assignedList[i].item!.coconutVault.getSignerBsms(
+                AddressType.p2wsh, widget.assignedList[i].item!.name));
+      } else if (widget.assignedList[i].importKeyType ==
+          ImportKeyType.external) {
+        bsmsString = _extractOnlyPubString(widget.assignedList[i].bsms ?? '');
+      }
+
+      if (bsmsString == _extractOnlyPubString(data)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  String _extractOnlyPubString(String bsms) {
+    String pubString = '';
+    if (bsms.isNotEmpty) {
+      if (bsms.contains('Vpub')) {
+        pubString = bsms.substring(bsms.indexOf('Vpub'));
+      }
+      if (bsms.contains('Xpub')) {
+        pubString = bsms.substring(bsms.indexOf('Xpub'));
+      }
+      if (bsms.contains('Zpub')) {
+        pubString = bsms.substring(bsms.indexOf('Zpub'));
+      }
+      return pubString.substring(0, pubString.indexOf('\n'));
+    }
+    return '';
+  }
+
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -59,7 +96,14 @@ class _KeyListBottomScreenState extends State<KeyListBottomScreen> {
           height: 20,
         ),
         ...List.generate(widget.vaultList.length, (index) {
-          if (_checkAssignedItem(widget.vaultList[index])) return Container();
+          bool isAlreadyImported = _isAlreadyImportedInternalItem(widget
+              .vaultList[index].coconutVault
+              .getSignerBsms(AddressType.p2wsh, widget.vaultList[index].name));
+
+          if (_checkAssignedItem(widget.vaultList[index]) ||
+              isAlreadyImported) {
+            return Container();
+          }
           return VaultRowItem(
             vault: widget.vaultList[index],
             isSelectable: true,

@@ -1,13 +1,10 @@
-import 'dart:convert';
 import 'dart:io';
 
 import 'package:coconut_vault/model/state/app_model.dart';
 import 'package:coconut_vault/utils/alert_util.dart';
 import 'package:flutter/material.dart';
 import 'package:coconut_vault/model/state/vault_model.dart';
-import 'package:coconut_vault/model/data/vault_list_item.dart';
 import 'package:coconut_vault/styles.dart';
-import 'package:coconut_vault/utils/vibration_util.dart';
 import 'package:coconut_vault/widgets/custom_tooltip.dart';
 import 'package:provider/provider.dart';
 import 'package:qr_code_scanner/qr_code_scanner.dart';
@@ -21,9 +18,7 @@ class ImportScannerScreen extends StatefulWidget {
 
 class _ImportScannerScreenState extends State<ImportScannerScreen> {
   late AppModel _appModel;
-  late VaultModel _vaultModel;
   final GlobalKey qrKey = GlobalKey(debugLabel: 'QR');
-  VaultListItem? _vaultListItem;
 
   QRViewController? controller;
   bool isCameraActive = false;
@@ -43,7 +38,6 @@ class _ImportScannerScreenState extends State<ImportScannerScreen> {
   @override
   void initState() {
     _appModel = Provider.of<AppModel>(context, listen: false);
-    _vaultModel = Provider.of<VaultModel>(context, listen: false);
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       _appModel.showIndicator();
@@ -57,20 +51,6 @@ class _ImportScannerScreenState extends State<ImportScannerScreen> {
   void dispose() {
     controller?.dispose();
     super.dispose();
-  }
-
-  Future onCompleteScanning(String psbtBase64) async {
-    if (_isProcessing) return;
-    _isProcessing = true;
-
-    vibrateLight();
-    _vaultModel.setWaitingForSignaturePsbtBase64(psbtBase64);
-
-    controller?.pauseCamera();
-    await _stopCamera();
-    if (mounted) {
-      Navigator.pop(context);
-    }
   }
 
   void onFailedScanning(String message) {
@@ -127,7 +107,7 @@ class _ImportScannerScreenState extends State<ImportScannerScreen> {
           child: CustomTooltip(
             richText: RichText(
               text: TextSpan(
-                text: '다른 볼트 앱',
+                text: '키를 보관 중인 볼트',
                 style: Styles.body1.merge(
                   const TextStyle(
                     fontWeight: FontWeight.bold,
@@ -137,7 +117,7 @@ class _ImportScannerScreenState extends State<ImportScannerScreen> {
                 ),
                 children: <TextSpan>[
                   TextSpan(
-                    text: '의 홈 화면 - 내보내기에서 ',
+                    text: '에서 QR 코드를 생성해야 해요. 홈 화면 - 내보내기 화면에서 ',
                     style: Styles.body1.merge(
                       const TextStyle(
                         height: 20.8 / 16,
@@ -146,7 +126,7 @@ class _ImportScannerScreenState extends State<ImportScannerScreen> {
                     ),
                   ),
                   TextSpan(
-                    text: '다중 서명 지갑 추가',
+                    text: '다른 볼트에서 다중 서명 키로 사용',
                     style: Styles.body1.merge(
                       const TextStyle(
                         fontWeight: FontWeight.bold,
@@ -156,7 +136,7 @@ class _ImportScannerScreenState extends State<ImportScannerScreen> {
                     ),
                   ),
                   TextSpan(
-                    text: '를 선택해 주세요. 다른 볼트 화면에 나타난 QR 코드를 스캔해 주세요.',
+                    text: '을 선택해 주세요. 화면에 보이는 QR 코드를 스캔합니다.',
                     style: Styles.body1.merge(
                       const TextStyle(
                         height: 20.8 / 16,
@@ -202,14 +182,21 @@ class _ImportScannerScreenState extends State<ImportScannerScreen> {
     controller.scannedDataStream.listen((scanData) {
       if (_isProcessing || scanData.code == null) return;
 
+      debugPrint(scanData.code!);
+      debugPrint(scanData.code!.contains('\n').toString());
+      List<String> data = scanData.code!.split('\n');
+
+      if (!scanData.code!.contains('\n') ||
+          !data[0].contains('BSMS') ||
+          !(data[2].contains('Vpub') ||
+              data[2].contains('Xpub') ||
+              data[2].contains('Zpub'))) {
+        onFailedScanning('Invalid Scheme');
+        return;
+      }
       _isProcessing = true;
 
-      Map<String, dynamic> jsonData = jsonDecode(scanData.code!);
-      debugPrint(jsonData.toString());
-
-      // TODO: 라이브러리 구현이 되고 나면 pub키를 반환해야 합니다.
-      // 현재는 볼트-내보내기와 같은 형식의 QR코드가 아닌이상 에러 발생합니다.
-      Navigator.pop(context, jsonData.toString());
+      Navigator.pop(context, scanData.code!);
     });
   }
 }

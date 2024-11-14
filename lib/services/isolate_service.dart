@@ -52,3 +52,20 @@ Future<bool> canSignToPsbtIsolate(
   }
   return canSign;
 }
+
+Future<List<String>> extractBsmsIsolate(
+    List<dynamic> vaultList, void Function(dynamic)? replyTo) async {
+  BitcoinNetwork.setNetwork(BitcoinNetwork.regtest);
+  List<String> pubStringList = List<String>.filled(vaultList.length, '');
+
+  for (int i = 0; i < vaultList.length; i++) {
+    VaultListItem vaultListItem = vaultList[i] as VaultListItem;
+    pubStringList[i] = vaultListItem.coconutVault
+        .getSignerBsms(AddressType.p2wsh, vaultListItem.name);
+  }
+
+  if (replyTo != null) {
+    replyTo(pubStringList);
+  }
+  return pubStringList;
+}
