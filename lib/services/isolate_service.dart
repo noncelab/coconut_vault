@@ -66,8 +66,9 @@ Future<List<String>> extractBsmsIsolate(
   List<String> pubStringList = List<String>.filled(vaultList.length, '');
 
   for (int i = 0; i < vaultList.length; i++) {
-    VaultListItem vaultListItem = vaultList[i] as VaultListItem;
-    pubStringList[i] = vaultListItem.coconutVault
+    SinglesigVaultListItem vaultListItem =
+        vaultList[i] as SinglesigVaultListItem;
+    pubStringList[i] = (vaultListItem.coconutVault as SingleSignatureVault)
         .getSignerBsms(AddressType.p2wsh, vaultListItem.name);
   }
 

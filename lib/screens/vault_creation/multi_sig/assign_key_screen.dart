@@ -514,7 +514,8 @@ class _AssignKeyScreenState extends State<AssignKeyScreen> {
                                                   onPressed: (VaultListItemBase
                                                       selectedItem) {
                                                     selectingVaultList =
-                                                        selectedItem as SinglesigVaultListItem;
+                                                        selectedItem
+                                                            as SinglesigVaultListItem;
                                                     isButtonActiveNotifier
                                                         .value = true;
                                                   },

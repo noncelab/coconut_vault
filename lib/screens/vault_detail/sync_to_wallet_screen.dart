@@ -35,8 +35,8 @@ class _SyncToWalletScreenState extends State<SyncToWalletScreen> {
 
     try {
       if (widget.isMultiSignatureSync) {
-        qrData =
-            vaultListItem.coconutVault.getSignerBsms(AddressType.p2wsh, _name);
+        qrData = (vaultListItem.coconutVault as SingleSignatureVault)
+            .getSignerBsms(AddressType.p2wsh, _name);
         if (qrData.isNotEmpty) {
           if (qrData.contains('Vpub')) {
             pubString = qrData.substring(qrData.indexOf('Vpub'));

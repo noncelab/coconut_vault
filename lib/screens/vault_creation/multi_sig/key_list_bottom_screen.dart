@@ -54,8 +54,9 @@ class _KeyListBottomScreenState extends State<KeyListBottomScreen> {
       String bsmsString = '';
       if (widget.assignedList[i].importKeyType == ImportKeyType.internal) {
         bsmsString = _extractOnlyPubString(
-            (widget.assignedList[i].item!.coconutVault as SingleSignatureVault).getSignerBsms(
-                AddressType.p2wsh, widget.assignedList[i].item!.name));
+            (widget.assignedList[i].item!.coconutVault as SingleSignatureVault)
+                .getSignerBsms(
+                    AddressType.p2wsh, widget.assignedList[i].item!.name));
       } else if (widget.assignedList[i].importKeyType ==
           ImportKeyType.external) {
         bsmsString = _extractOnlyPubString(widget.assignedList[i].bsms ?? '');
