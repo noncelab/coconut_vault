@@ -3,10 +3,12 @@ import 'dart:convert';
 
 import 'package:coconut_lib/coconut_lib.dart';
 import 'package:coconut_vault/model/data/multisig_vault_list_item.dart';
+import 'package:coconut_vault/model/data/multisig_vault_list_item_factory.dart';
 import 'package:coconut_vault/model/data/singlesig_vault_list_item.dart';
 import 'package:coconut_vault/model/data/singlesig_vault_list_item_factory.dart';
 import 'package:coconut_vault/model/data/vault_list_item_base.dart';
 import 'package:coconut_vault/model/data/vault_type.dart';
+import 'package:coconut_vault/model/state/multisig_creation_model.dart';
 import 'package:coconut_vault/services/shared_preferences_keys.dart';
 import 'package:coconut_vault/services/shared_preferences_service.dart';
 import 'package:flutter/foundation.dart';
@@ -24,6 +26,8 @@ const String VAULT_LIST = "VAULT_LIST";
 
 class VaultModel extends ChangeNotifier {
   AppModel _appModel;
+  final MultisigCreationModel _multisigCreationModel;
+
   late final SecureStorageService _storageService;
   late final RealmService _realmService;
 
@@ -32,7 +36,7 @@ class VaultModel extends ChangeNotifier {
   IsolateHandler<Map<String, dynamic>, List<SinglesigVaultListItem>>?
       _addVaultIsolateHandler;
 
-  VaultModel(this._appModel) {
+  VaultModel(this._appModel, this._multisigCreationModel) {
     _storageService = SecureStorageService();
     _realmService = RealmService();
     // loadVaultList();
@@ -139,6 +143,27 @@ class VaultModel extends ChangeNotifier {
     notifyListeners();
     stopImporting();
     // vibrateLight();
+  }
+
+  // TODO: 빠른 구현을 위해 isolate 사용은 뒤로 미뤘습니다.
+  Future<void> addMultisigVault(String name, int color, int icon) async {
+    _setAddVaultCompleted(false);
+    var newMultisigVault = await MultisigVaultListItemFactory()
+        .create(name: name, colorIndex: color, iconIndex: icon, secrets: {
+      'signers': _multisigCreationModel.signers,
+      'requiredSignatureCount': _multisigCreationModel.requiredSignatureCount!
+    });
+
+    // TODO: Unhandled Exception: type 'MultisigVaultListItem' is not a subtype of type 'SinglesigVaultListItem' of 'value'
+    try {
+      _vaultList.add(newMultisigVault as VaultListItemBase);
+    } catch (e) {
+      print(">>>>> 여기서 나는거 맞아? $e");
+    }
+    _setAddVaultCompleted(true);
+    await updateVaultInStorage();
+    notifyListeners();
+    _multisigCreationModel.reset();
   }
 
   Future<void> updateVault(
@@ -263,12 +288,8 @@ class VaultModel extends ChangeNotifier {
       List<dynamic> jsonList = jsonDecode(jsonArrayString);
       int totalItems = jsonList.length;
       for (int i = 0; i < totalItems; i++) {
-        vaultList.add(SinglesigVaultListItem.fromJson(jsonList[i]));
-
-        // TEST
-        SinglesigVaultListItem singlesigVaultListItem =
-            SinglesigVaultListItemFactory().createFromJson(jsonList[i]);
-        print(">> single: ${singlesigVaultListItem.toString()}");
+        vaultList
+            .add(SinglesigVaultListItemFactory().createFromJson(jsonList[i]));
       }
     }
 

@@ -6,7 +6,7 @@ import 'package:coconut_vault/model/data/multisig_vault_list_item_factory.dart';
 import 'package:coconut_vault/model/data/singlesig_vault_list_item.dart';
 import 'package:coconut_vault/model/data/vault_list_item_base.dart';
 import 'package:coconut_vault/utils/alert_util.dart';
-import 'package:coconut_vault/utils/coconut_lib/multisig_utils.dart';
+import 'package:coconut_vault/utils/coconut/multisig_utils.dart';
 import 'package:coconut_vault/utils/text_utils.dart';
 import 'package:coconut_vault/widgets/custom_dialog.dart';
 import 'package:flutter/material.dart';

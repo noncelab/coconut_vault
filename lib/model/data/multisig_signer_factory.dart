@@ -1,5 +1,6 @@
 import 'package:coconut_lib/coconut_lib.dart';
 import 'package:coconut_vault/model/data/multisig_signer.dart';
+import 'package:coconut_vault/model/data/singlesig_vault_list_item.dart';
 import 'package:coconut_vault/model/data/vault_list_item_base.dart';
 import 'package:coconut_vault/model/data/vault_type.dart';
 
@@ -20,23 +21,35 @@ class MultisigSignerFactory {
         .toList();
 
     List<MultisigSigner> signers = [];
+
     outerLoop:
     for (int i = 0; i < keystoreList.length; i++) {
       for (int j = 0; j < singlesigVaults.length; j++) {
+        // 변수 정의
+        SinglesigVaultListItem singlesigVaultListItem =
+            singlesigVaults[j] as SinglesigVaultListItem;
         SingleSignatureVault singlesigVault =
-            singlesigVaults[j].coconutVault as SingleSignatureVault;
+            singlesigVaultListItem.coconutVault as SingleSignatureVault;
+        // p2wsh용 keyStore 생성. 기존 SinglesigVaultListItem의 addressType은 p2wpkh여서 바로 사용하면 안됨.
+        KeyStore wshKeyStore =
+            KeyStore.fromSeed(singlesigVault.keyStore.seed, AddressType.p2wsh);
 
+        // 1. 내부 지갑인 경우
         if (keystoreList[i].masterFingerprint ==
             singlesigVault.keyStore.masterFingerprint) {
           signers.add(MultisigSigner(
-              id: i,
-              signerBsms: singlesigVault.getSignerBsms(AddressType.p2wsh, ''),
-              innerVaultId: singlesigVaults[j].id,
-              keyStore: singlesigVault.keyStore));
+            id: i,
+            signerBsms: singlesigVault.getSignerBsms(AddressType.p2wsh, ''),
+            innerVaultId: singlesigVaults[j].id,
+            keyStore: wshKeyStore, // AddressType.p2wsh로 설정해서 만든 KeyStore
+            name: singlesigVaultListItem.name,
+            iconIndex: singlesigVaultListItem.iconIndex,
+            colorIndex: singlesigVaultListItem.colorIndex,
+          ));
           continue outerLoop;
         }
       }
-      // 외부지갑
+      // 2. 외부지갑인 경우
       signers
           .add(MultisigSigner(id: i, keyStore: multisigVault.keyStoreList[i]));
     }

@@ -9,8 +9,11 @@ part of 'multisig_signer.dart';
 MultisigSigner _$MultisigSignerFromJson(Map<String, dynamic> json) =>
     MultisigSigner(
       id: (json['id'] as num).toInt(),
-      signerBsms: json['signerBsms'] as String?,
       innerVaultId: (json['innerVaultId'] as num?)?.toInt(),
+      name: json['name'] as String?,
+      iconIndex: (json['iconIndex'] as num?)?.toInt(),
+      colorIndex: (json['colorIndex'] as num?)?.toInt(),
+      signerBsms: json['signerBsms'] as String?,
       memo: json['memo'] as String?,
       keyStore: KeyStore.fromJson(json['keyStore'] as String),
     );
@@ -18,8 +21,11 @@ MultisigSigner _$MultisigSignerFromJson(Map<String, dynamic> json) =>
 Map<String, dynamic> _$MultisigSignerToJson(MultisigSigner instance) =>
     <String, dynamic>{
       'id': instance.id,
-      'signerBsms': instance.signerBsms,
       'innerVaultId': instance.innerVaultId,
+      'name': instance.name,
+      'iconIndex': instance.iconIndex,
+      'colorIndex': instance.colorIndex,
+      'signerBsms': instance.signerBsms,
       'memo': instance.memo,
       'keyStore': instance.keyStore,
     };

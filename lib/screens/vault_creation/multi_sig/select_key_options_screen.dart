@@ -1,7 +1,9 @@
 import 'dart:async';
 import 'dart:collection';
 
+import 'package:coconut_vault/model/state/multisig_creation_model.dart';
 import 'package:coconut_vault/model/state/vault_model.dart';
+import 'package:coconut_vault/utils/coconut/multisig_utils.dart';
 import 'package:coconut_vault/widgets/button/custom_buttons.dart';
 import 'package:coconut_vault/widgets/high-lighted-text.dart';
 import 'package:flutter/material.dart';
@@ -18,8 +20,8 @@ class SelectKeyOptionsScreen extends StatefulWidget {
 }
 
 class _SelectKeyOptionsScreenState extends State<SelectKeyOptionsScreen> {
-  late int mCount; // 필요한 서명 수
-  late int nCount; // 전체 키의 수
+  late int requiredCount; // 필요한 서명 수
+  late int totalCount; // 전체 키의 수
   bool nextButtonEnabled = false;
   bool isNextButtonClicked = false;
   int buttonClickedCount = 0;
@@ -41,9 +43,9 @@ class _SelectKeyOptionsScreenState extends State<SelectKeyOptionsScreen> {
   @override
   void initState() {
     super.initState();
-    mCount = 2;
-    nCount = 3;
-    _startProgress(nCount, mCount, buttonClickedCount);
+    requiredCount = 2;
+    totalCount = 3;
+    _startProgress(totalCount, requiredCount, buttonClickedCount);
     Future.delayed(const Duration(milliseconds: 2000), () {
       if (mounted) {
         setState(() {
@@ -95,10 +97,8 @@ class _SelectKeyOptionsScreenState extends State<SelectKeyOptionsScreen> {
 
   bool _checkNextButtonActiveState() {
     if (!nextButtonEnabled || isNextButtonClicked) return false;
-    if (mCount > 0 && mCount <= nCount && nCount > 1 && nCount <= 3) {
-      return true;
-    }
-    return false;
+
+    return MultisigUtils.validateQuoramRequirement(requiredCount, totalCount);
   }
 
   void onCountButtonClicked(ChangeCountButtonType buttonType) {
@@ -110,9 +110,9 @@ class _SelectKeyOptionsScreenState extends State<SelectKeyOptionsScreen> {
     switch (buttonType) {
       case ChangeCountButtonType.mCountMinus:
         {
-          if (mCount == 1) return;
+          if (requiredCount == 1) return;
           setState(() {
-            mCount--;
+            requiredCount--;
           });
 
           buttonClickedCount++;
@@ -121,9 +121,9 @@ class _SelectKeyOptionsScreenState extends State<SelectKeyOptionsScreen> {
         }
       case ChangeCountButtonType.mCountPlus:
         {
-          if (mCount == nCount) return;
+          if (requiredCount == totalCount) return;
           setState(() {
-            mCount++;
+            requiredCount++;
           });
 
           buttonClickedCount++;
@@ -133,12 +133,12 @@ class _SelectKeyOptionsScreenState extends State<SelectKeyOptionsScreen> {
 
       case ChangeCountButtonType.nCountMinus:
         {
-          if (nCount == 2) return;
+          if (totalCount == 2) return;
           setState(() {
-            if (nCount == mCount) {
-              mCount--;
+            if (totalCount == requiredCount) {
+              requiredCount--;
             }
-            nCount--;
+            totalCount--;
           });
 
           buttonClickedCount++;
@@ -147,9 +147,9 @@ class _SelectKeyOptionsScreenState extends State<SelectKeyOptionsScreen> {
         }
       case ChangeCountButtonType.nCountPlus:
         {
-          if (nCount == 3) return;
+          if (totalCount == 3) return;
           setState(() {
-            nCount++;
+            totalCount++;
           });
 
           buttonClickedCount++;
@@ -173,9 +173,11 @@ class _SelectKeyOptionsScreenState extends State<SelectKeyOptionsScreen> {
                 isNextButtonClicked = false;
               });
 
+              Provider.of<MultisigCreationModel>(context, listen: false)
+                  .setQuoramRequirement(requiredCount, totalCount);
+
               _stopProgress();
-              Navigator.pushNamed(context, '/assign-key',
-                  arguments: {'nKeyCount': nCount, 'mKeyCount': mCount});
+              Navigator.pushNamed(context, '/assign-key');
             }
           });
         }
@@ -216,9 +218,9 @@ class _SelectKeyOptionsScreenState extends State<SelectKeyOptionsScreen> {
                                 ChangeCountButtonType.nCountMinus),
                             onPlusPressed: () => onCountButtonClicked(
                                 ChangeCountButtonType.nCountPlus),
-                            countText: nCount.toString(),
-                            isMinusButtonDisabled: nCount <= 2,
-                            isPlusButtonDisabled: nCount >= 3,
+                            countText: totalCount.toString(),
+                            isMinusButtonDisabled: totalCount <= 2,
+                            isPlusButtonDisabled: totalCount >= 3,
                           ),
                           const SizedBox(
                             width: 18,
@@ -242,9 +244,9 @@ class _SelectKeyOptionsScreenState extends State<SelectKeyOptionsScreen> {
                                 ChangeCountButtonType.mCountMinus),
                             onPlusPressed: () => onCountButtonClicked(
                                 ChangeCountButtonType.mCountPlus),
-                            countText: mCount.toString(),
-                            isMinusButtonDisabled: mCount <= 1,
-                            isPlusButtonDisabled: mCount == nCount,
+                            countText: requiredCount.toString(),
+                            isMinusButtonDisabled: requiredCount <= 1,
+                            isPlusButtonDisabled: requiredCount == totalCount,
                           ),
                           const SizedBox(
                             width: 18,
@@ -256,7 +258,7 @@ class _SelectKeyOptionsScreenState extends State<SelectKeyOptionsScreen> {
                       ),
                       Center(
                         child: HighLightedText(
-                          '$mCount/$nCount',
+                          '$requiredCount/$totalCount',
                           color: MyColors.darkgrey,
                           fontSize: 24,
                         ),
@@ -269,7 +271,9 @@ class _SelectKeyOptionsScreenState extends State<SelectKeyOptionsScreen> {
                         child: Text(
                           _buildQuorumMessage(),
                           style: Styles.unit.merge(TextStyle(
-                              height: mCount == nCount ? 32.4 / 18 : 23.4 / 18,
+                              height: requiredCount == totalCount
+                                  ? 32.4 / 18
+                                  : 23.4 / 18,
                               letterSpacing: -0.01,
                               fontSize: 14)),
                           textAlign: TextAlign.center,
@@ -315,7 +319,7 @@ class _SelectKeyOptionsScreenState extends State<SelectKeyOptionsScreen> {
                                       height: 24,
                                     ),
                                     Visibility(
-                                      visible: nCount == 3,
+                                      visible: totalCount == 3,
                                       child: Row(
                                         children: [
                                           keyActive_2
@@ -339,7 +343,7 @@ class _SelectKeyOptionsScreenState extends State<SelectKeyOptionsScreen> {
                                         ],
                                       ),
                                     ),
-                                    nCount == 3
+                                    totalCount == 3
                                         ? const SizedBox(
                                             height: 24,
                                           )
@@ -411,10 +415,10 @@ class _SelectKeyOptionsScreenState extends State<SelectKeyOptionsScreen> {
   String _buildQuorumMessage() {
     String result = '';
 
-    switch (nCount) {
+    switch (totalCount) {
       case 2:
         {
-          if (mCount == 1) {
+          if (requiredCount == 1) {
             {
               result = '하나의 키를 분실하거나 키 보관자 중 한 명이 부재중이더라도 비트코인을 보낼 수 있어요.';
               break;
@@ -429,13 +433,13 @@ class _SelectKeyOptionsScreenState extends State<SelectKeyOptionsScreen> {
         }
       case 3:
         {
-          if (mCount == 1) {
+          if (requiredCount == 1) {
             {
               result =
                   '하나의 키만 있어도 비트코인을 이동시킬 수 있어요. 상대적으로 보안성이 낮기 때문에 권장하지 않아요.';
               break;
             }
-          } else if (mCount == 2) {
+          } else if (requiredCount == 2) {
             {
               result = '하나의 키를 분실하거나 키 보관자 중 한 명이 부재중이더라도 비트코인을 보낼 수 있어요.';
               break;
@@ -454,10 +458,10 @@ class _SelectKeyOptionsScreenState extends State<SelectKeyOptionsScreen> {
 
   void changeKeyCounts() {
     _stopProgress();
-    switch (nCount) {
+    switch (totalCount) {
       case 2:
         {
-          if (mCount == 1) {
+          if (requiredCount == 1) {
             {
               _startProgress(2, 1, buttonClickedCount);
               break;
@@ -471,12 +475,12 @@ class _SelectKeyOptionsScreenState extends State<SelectKeyOptionsScreen> {
         }
       case 3:
         {
-          if (mCount == 1) {
+          if (requiredCount == 1) {
             {
               _startProgress(3, 1, buttonClickedCount);
               break;
             }
-          } else if (mCount == 2) {
+          } else if (requiredCount == 2) {
             {
               _startProgress(3, 2, buttonClickedCount);
               break;

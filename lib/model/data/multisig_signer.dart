@@ -10,20 +10,31 @@ class MultisigSigner {
   @JsonKey()
   int id;
   @JsonKey()
-  String? signerBsms; // 외부에서 import한 경우 null
-  @JsonKey()
   int? innerVaultId; // 내부 지갑이 Key로 사용된 경우 앱 내 id
   @JsonKey()
+  String? name; // 내부 지갑 이름
+  @JsonKey()
+  int? iconIndex; // 내부 지갑이 Key로 사용된 경우 앱 내 id
+  @JsonKey()
+  int? colorIndex; // 내부 지갑이 Key로 사용된 경우 앱 내 id
+  @JsonKey()
+  String? signerBsms; // 외부에서 import
+  @JsonKey()
   String? memo; // 외부 지갑에 설정되는 메모
+
   @JsonKey()
   final KeyStore keyStore;
 
-  MultisigSigner(
-      {required this.id,
-      this.signerBsms,
-      this.innerVaultId,
-      this.memo,
-      required this.keyStore});
+  MultisigSigner({
+    required this.id,
+    this.innerVaultId,
+    this.name,
+    this.iconIndex,
+    this.colorIndex,
+    this.signerBsms,
+    this.memo,
+    required this.keyStore,
+  });
 
   Map<String, dynamic> toJson() => _$MultisigSignerToJson(this);
 

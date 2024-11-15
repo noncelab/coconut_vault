@@ -1,5 +1,7 @@
 import 'package:coconut_vault/app.dart';
+import 'package:coconut_vault/model/data/multisig_vault_list_item_factory.dart';
 import 'package:coconut_vault/model/state/app_model.dart';
+import 'package:coconut_vault/model/state/multisig_creation_model.dart';
 import 'package:coconut_vault/styles.dart';
 import 'package:coconut_vault/utils/logger.dart';
 import 'package:flutter/material.dart';
@@ -29,6 +31,7 @@ class VaultNameIconSetup extends StatefulWidget {
 class _VaultNameIconSetupState extends State<VaultNameIconSetup> {
   late AppModel _appModel;
   late VaultModel _vaultModel;
+  late MultisigCreationModel _multisigCreationState;
   String inputText = '';
   late int selectedIconIndex;
   late int selectedColorIndex;
@@ -39,6 +42,8 @@ class _VaultNameIconSetupState extends State<VaultNameIconSetup> {
   void initState() {
     _appModel = Provider.of<AppModel>(context, listen: false);
     _vaultModel = Provider.of<VaultModel>(context, listen: false);
+    _multisigCreationState =
+        Provider.of<MultisigCreationModel>(context, listen: false);
     super.initState();
     inputText = widget.name;
     selectedIconIndex = widget.iconIndex;
@@ -51,44 +56,57 @@ class _VaultNameIconSetupState extends State<VaultNameIconSetup> {
   }
 
   Future<void> saveNewVaultName(BuildContext context) async {
-    _appModel.showIndicator();
-    setState(() {
-      isSaving = true;
-    });
-
-    if (_vaultModel.isNameDuplicated(inputText)) {
-      CustomToast.showToast(text: "이미 사용 중인 이름은 설정할 수 없어요", context: context);
+    try {
+      print("${_multisigCreationState.signers}");
+      _appModel.showIndicator();
       setState(() {
-        isSaving = false;
+        isSaving = true;
       });
-      _appModel.hideIndicator();
-      return;
-    }
 
-    final Map<String, dynamic> vaultData = {
-      'inputText': inputText,
-      'selectedIconIndex': selectedIconIndex,
-      'selectedColorIndex': selectedColorIndex,
-      'importingSecret': _vaultModel.importingSecret,
-      'importingPassphrase': _vaultModel.importingPassphrase,
-    };
-    // ignore: void_checks
-    await _vaultModel.addVault(vaultData);
+      if (_vaultModel.isNameDuplicated(inputText)) {
+        CustomToast.showToast(text: "이미 사용 중인 이름은 설정할 수 없어요", context: context);
+        setState(() {
+          isSaving = false;
+        });
+        _appModel.hideIndicator();
+        return;
+      }
 
-    if (_vaultModel.isAddVaultCompleted) {
-      _appModel.hideIndicator();
-      Logger.log('finish creating vault. return to home.');
-      Logger.log('Homeroute = ${HomeScreenStatus().screenStatus}');
+      if (_vaultModel.importingSecret != null) {
+        final Map<String, dynamic> vaultData = {
+          'inputText': inputText,
+          'selectedIconIndex': selectedIconIndex,
+          'selectedColorIndex': selectedColorIndex,
+          'importingSecret': _vaultModel.importingSecret,
+          'importingPassphrase': _vaultModel.importingPassphrase,
+        };
+        // ignore: void_checks
+        await _vaultModel.addVault(vaultData);
+
+        if (_vaultModel.isAddVaultCompleted) {
+          _appModel.hideIndicator();
+          Logger.log('finish creating vault. return to home.');
+          Logger.log('Homeroute = ${HomeScreenStatus().screenStatus}');
+        }
+      } else if (_multisigCreationState.signers != null) {
+        // 새로운 멀티시그 지갑 리스트 아이템을 생성.
+        await _vaultModel.addMultisigVault(
+            inputText, selectedColorIndex, selectedIconIndex);
+      }
+
       Navigator.pushNamedAndRemoveUntil(
         context,
         '/',
         (Route<dynamic> route) => false,
       );
+    } catch (e) {
+      print(">>>>> $e");
+    } finally {
+      _appModel.hideIndicator();
+      setState(() {
+        isSaving = false;
+      });
     }
-
-    setState(() {
-      isSaving = false;
-    });
   }
 
   void updateName(String name) {

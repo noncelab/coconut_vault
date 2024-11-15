@@ -55,6 +55,7 @@ class MultisigVaultListItem extends VaultListItemBase {
   late final String coordinatorBsms;
 
   // json_serialization가 기본 생성자를 사용해서 추가함
+  // 필요 서명 개수
   @JsonKey(name: "requiredSignatureCount")
   late final int requiredSignatureCount;
 

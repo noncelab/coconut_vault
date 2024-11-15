@@ -1,3 +1,4 @@
+import 'package:coconut_vault/model/state/multisig_creation_model.dart';
 import 'package:coconut_vault/screens/airgap/multi_signature_screen.dart';
 import 'package:coconut_vault/screens/airgap/psbt_confirmation_screen.dart';
 import 'package:coconut_vault/screens/airgap/psbt_scanner_screen.dart';
@@ -116,8 +117,14 @@ class _PowVaultAppState extends State<PowVaultApp> {
             },
           ),
         ),
+        Provider<MultisigCreationModel>(create: (_) => MultisigCreationModel()),
         ChangeNotifierProxyProvider<AppModel, VaultModel>(
-          create: (_) => VaultModel(Provider.of<AppModel>(_, listen: false)),
+          create: (_) => VaultModel(
+              Provider.of<AppModel>(
+                _,
+                listen: false,
+              ),
+              Provider.of<MultisigCreationModel>(_, listen: false)),
           update: (_, appModel, vaultModel) =>
               vaultModel!..updateAppModel(appModel),
         ),
@@ -167,11 +174,7 @@ class _PowVaultAppState extends State<PowVaultApp> {
                 ),
             '/select-vault-type': (context) => const SelectVaultTypeScreen(),
             '/select-key-options': (context) => const SelectKeyOptionsScreen(),
-            '/assign-key': (context) => buildScreenWithArguments(
-                context,
-                (args) => AssignKeyScreen(
-                    nKeyCount: args['nKeyCount'],
-                    mKeyCount: args['mKeyCount'])),
+            '/assign-key': (context) => const AssignKeyScreen(),
             '/vault-creation-options': (context) =>
                 const VaultCreationOptions(),
             '/mnemonic-import': (context) => const MnemonicImport(),

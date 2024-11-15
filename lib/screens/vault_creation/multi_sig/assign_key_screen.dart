@@ -1,12 +1,15 @@
 import 'package:coconut_lib/coconut_lib.dart';
 import 'package:coconut_vault/model/data/multisig_signer.dart';
+import 'package:coconut_vault/model/data/multisig_signer_factory.dart';
 import 'package:coconut_vault/model/data/singlesig_vault_list_item.dart';
 import 'package:coconut_vault/model/data/vault_list_item_base.dart';
+import 'package:coconut_vault/model/state/multisig_creation_model.dart';
 import 'package:coconut_vault/model/state/vault_model.dart';
 import 'package:coconut_vault/screens/vault_creation/multi_sig/confirm_importing_screen.dart';
 import 'package:coconut_vault/screens/vault_creation/multi_sig/import_scanner_screen.dart';
 import 'package:coconut_vault/screens/vault_creation/multi_sig/key_list_bottom_screen.dart';
 import 'package:coconut_vault/services/isolate_service.dart';
+import 'package:coconut_vault/utils/alert_util.dart';
 import 'package:coconut_vault/utils/icon_util.dart';
 import 'package:coconut_vault/utils/isolate_handler.dart';
 import 'package:coconut_vault/widgets/bottom_sheet.dart';
@@ -20,13 +23,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
 
 class AssignKeyScreen extends StatefulWidget {
-  final int nKeyCount;
-  final int mKeyCount;
-  const AssignKeyScreen({
-    super.key,
-    required this.nKeyCount,
-    required this.mKeyCount,
-  });
+  const AssignKeyScreen({super.key});
 
   @override
   State<AssignKeyScreen> createState() => _AssignKeyScreenState();
@@ -53,10 +50,17 @@ class _AssignKeyScreenState extends State<AssignKeyScreen> {
   IsolateHandler<List<VaultListItemBase>, List<String>>?
       _extractBsmsIsolateHandler;
 
+  late MultisigCreationModel _multisigCreationState;
+
   @override
   void initState() {
     super.initState();
     _vaultModel = Provider.of<VaultModel>(context, listen: false);
+    _multisigCreationState =
+        Provider.of<MultisigCreationModel>(context, listen: false);
+    mCount = _multisigCreationState.requiredSignatureCount!;
+    nCount = _multisigCreationState.totalSignatureCount!;
+
     _initAssigendVaultList();
     vaultList = _vaultModel.getVaults();
 
@@ -109,8 +113,6 @@ class _AssignKeyScreenState extends State<AssignKeyScreen> {
   }
 
   void _initAssigendVaultList() {
-    nCount = widget.nKeyCount;
-    mCount = widget.mKeyCount;
     assignedVaultList = List.generate(
       nCount,
       (index) => AssignedVaultListItem(
@@ -324,6 +326,48 @@ class _AssignKeyScreenState extends State<AssignKeyScreen> {
     }
   }
 
+  // 외부지갑은 추가 시 올바른 signerBsms 인지 미리 확인이 되어 있어야 합니다.
+  void onNextPressed() {
+    List<KeyStore> keyStores = [];
+    List<MultisigSigner> signers = [];
+
+    for (int i = 0; i < assignedVaultList.length; i++) {
+      var data = assignedVaultList[i];
+      keyStores.add(KeyStore.fromSignerBsms(data.bsms!));
+      switch (data.importKeyType!) {
+        case ImportKeyType.internal:
+          signers.add(MultisigSigner(
+              id: i,
+              innerVaultId: data.item!.id,
+              name: data.item!.name,
+              iconIndex: data.item!.iconIndex,
+              colorIndex: data.item!.colorIndex,
+              signerBsms: data.bsms!,
+              keyStore: keyStores[i]));
+          break;
+        case ImportKeyType.external:
+          signers.add(MultisigSigner(
+              id: i, signerBsms: data.bsms!, keyStore: keyStores[i]));
+          break;
+        default:
+          throw ArgumentError("wrong importKeyType: ${data.importKeyType!}");
+      }
+    }
+    assert(signers.length == nCount);
+    // 올바른 Signer 정보를 받았는지 확인합니다.
+    try {
+      MultisignatureVault.fromKeyStoreList(
+          keyStores, nCount, AddressType.p2wsh);
+    } catch (error) {
+      showAlertDialog(
+          context: context, title: '지갑 생성 실패', content: '유효하지 않은 정보입니다.');
+    }
+
+    _multisigCreationState.setSigners(signers);
+
+    Navigator.pushNamed(context, '/vault-name-setup');
+  }
+
   @override
   Widget build(BuildContext context) {
     return PopScope(
@@ -337,8 +381,8 @@ class _AssignKeyScreenState extends State<AssignKeyScreen> {
           title: '다중 서명 지갑',
           context: context,
           onBackPressed: () => _onBackPressed(context),
-          onNextPressed: () => Navigator.pushNamed(context,
-              '/vault-name-setup'), // TODO: VaultNameIconSetup 클래스에서 일반 지갑과 다중서명 지갑 생성 분리 필요
+          onNextPressed:
+              onNextPressed, // TODO: VaultNameIconSetup 클래스에서 일반 지갑과 다중서명 지갑 생성 분리 필요
           isActive: _isAssignedKeyCompletely(),
           hasBackdropFilter: false,
         ),
@@ -493,9 +537,16 @@ class _AssignKeyScreenState extends State<AssignKeyScreen> {
                                                 topWidget: true,
                                                 onTopWidgetButtonClicked: () {
                                                   setState(() {
+                                                    // TODO: 내부 지갑 선택 완료
                                                     assignedVaultList[i]
                                                       ..item =
                                                           selectingVaultList
+                                                      ..bsms = (selectingVaultList!
+                                                                  .coconutVault
+                                                              as SingleSignatureVault)
+                                                          .getSignerBsms(
+                                                              AddressType.p2wsh,
+                                                              '')
                                                       ..isExpanded = false
                                                       ..importKeyType =
                                                           ImportKeyType
@@ -576,6 +627,7 @@ class _AssignKeyScreenState extends State<AssignKeyScreen> {
                                               );
                                               if (confirmedExternalZPub !=
                                                   null) {
+                                                // 외부 지갑 추가
                                                 assignedVaultList[i]
                                                   ..importKeyType =
                                                       ImportKeyType.external
