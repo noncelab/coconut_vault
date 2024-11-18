@@ -1,8 +1,8 @@
 import 'package:coconut_lib/coconut_lib.dart';
 import 'package:coconut_vault/model/data/multisig_signer.dart';
-import 'package:coconut_vault/model/data/multisig_signer_factory.dart';
 import 'package:coconut_vault/model/data/singlesig_vault_list_item.dart';
 import 'package:coconut_vault/model/data/vault_list_item_base.dart';
+import 'package:coconut_vault/model/data/vault_type.dart';
 import 'package:coconut_vault/model/state/multisig_creation_model.dart';
 import 'package:coconut_vault/model/state/vault_model.dart';
 import 'package:coconut_vault/screens/vault_creation/multi_sig/confirm_importing_screen.dart';
@@ -40,7 +40,7 @@ class _AssignKeyScreenState extends State<AssignKeyScreen> {
   late List<String> pubStringList;
 
   late SinglesigVaultListItem? selectingVaultList; // 키 가져오기 목록에서 선택중인 객체
-  late List<SinglesigVaultListItem> vaultList;
+  late List<SinglesigVaultListItem> singlesigVaultList;
   late VaultModel _vaultModel;
   bool isFinishing = false;
   bool alreadyDialogShown = false;
@@ -62,7 +62,11 @@ class _AssignKeyScreenState extends State<AssignKeyScreen> {
     nCount = _multisigCreationState.totalSignatureCount!;
 
     _initAssigendVaultList();
-    vaultList = _vaultModel.getVaults();
+    singlesigVaultList = _vaultModel
+        .getVaults()
+        .where((vault) => vault.vaultType == VaultType.singleSignature)
+        .map((vault) => vault as SinglesigVaultListItem)
+        .toList();
 
     _initBsmsList();
 
@@ -82,7 +86,7 @@ class _AssignKeyScreenState extends State<AssignKeyScreen> {
   }
 
   Future<void> _initBsmsList() async {
-    pubStringList = List<String>.filled(vaultList.length, '');
+    pubStringList = List<String>.filled(singlesigVaultList.length, '');
     debugPrint('pubStringList ${pubStringList.toString()}');
     if (_extractBsmsIsolateHandler == null) {
       _extractBsmsIsolateHandler =
@@ -92,7 +96,7 @@ class _AssignKeyScreenState extends State<AssignKeyScreen> {
           .initialize(initialType: InitializeType.extractBsms);
     }
 
-    pubStringList = await _extractBsmsIsolateHandler!.run(vaultList);
+    pubStringList = await _extractBsmsIsolateHandler!.run(singlesigVaultList);
 
     debugPrint('pubStringList ${pubStringList.toString()}');
     setState(() {
@@ -128,8 +132,8 @@ class _AssignKeyScreenState extends State<AssignKeyScreen> {
   }
 
   bool _checkEmptyList() {
-    if (vaultList.isEmpty ||
-        _getAssignedVaultListLength() >= vaultList.length) {
+    if (singlesigVaultList.isEmpty ||
+        _getAssignedVaultListLength() >= singlesigVaultList.length) {
       return true;
     }
     return false;
@@ -570,7 +574,7 @@ class _AssignKeyScreenState extends State<AssignKeyScreen> {
                                                     isButtonActiveNotifier
                                                         .value = true;
                                                   },
-                                                  vaultList: vaultList,
+                                                  vaultList: singlesigVaultList,
                                                   assignedList:
                                                       assignedVaultList,
                                                 ),

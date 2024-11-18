@@ -1,5 +1,4 @@
 import 'package:coconut_vault/app.dart';
-import 'package:coconut_vault/model/data/multisig_vault_list_item_factory.dart';
 import 'package:coconut_vault/model/state/app_model.dart';
 import 'package:coconut_vault/model/state/multisig_creation_model.dart';
 import 'package:coconut_vault/styles.dart';

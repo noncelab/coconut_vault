@@ -90,6 +90,7 @@ class MultisigVaultListItemFactory implements VaultListItemFactory {
       String vaultJson = result.vaultJsonString!;
       result.coconutVault = MultisignatureVault.fromJson(vaultJson);
     } else {
+      throw "[multisig_vault_list_item_factory] createFromJson";
       // TODO:
       //String bsms = result.coordinatorBsms;
       //result.coconutVault = MultisignatureVault.fromCoordinatorBsms(bsms);

@@ -32,7 +32,7 @@ class VaultModel extends ChangeNotifier {
   late final RealmService _realmService;
 
   // 비동기 작업 Isolate
-  IsolateHandler<void, List<SinglesigVaultListItem>>? _vaultListIsolateHandler;
+  IsolateHandler<void, List<VaultListItemBase>>? _vaultListIsolateHandler;
   IsolateHandler<Map<String, dynamic>, List<SinglesigVaultListItem>>?
       _addVaultIsolateHandler;
 
@@ -109,7 +109,7 @@ class VaultModel extends ChangeNotifier {
   }
 
   // Returns a copy of the list of vault list.
-  List<SinglesigVaultListItem> getVaults() {
+  List<VaultListItemBase> getVaults() {
     if (_vaultList.isEmpty) {
       return [];
     }
@@ -185,7 +185,7 @@ class VaultModel extends ChangeNotifier {
         secret: ssv.secret,
         passphrase: ssv.passphrase,
       );
-    } else if (_vaultList[index].vaultType == VaultType.singleSignature) {
+    } else if (_vaultList[index].vaultType == VaultType.multiSignature) {
       MultisigVaultListItem ssv = _vaultList[index] as MultisigVaultListItem;
       _vaultList[index] = MultisigVaultListItem(
           id: ssv.id,
@@ -221,7 +221,6 @@ class VaultModel extends ChangeNotifier {
     final vaultIndex = _vaultList.indexWhere((element) =>
         (element is MultisigVaultListItem &&
             element.coordinatorBsms == coordinatorBsms));
-    print(">>> vaultIndex: ${vaultIndex}");
     return vaultIndex != -1;
   }
 
@@ -250,7 +249,7 @@ class VaultModel extends ChangeNotifier {
     try {
       if (_vaultListIsolateHandler == null) {
         _vaultListIsolateHandler =
-            IsolateHandler<void, List<SinglesigVaultListItem>>(
+            IsolateHandler<void, List<VaultListItemBase>>(
                 _loadVaultListIsolate);
         await _vaultListIsolateHandler!.initialize();
       }
@@ -271,10 +270,10 @@ class VaultModel extends ChangeNotifier {
     }
   }
 
-  static Future<List<SinglesigVaultListItem>> _loadVaultListIsolate(
+  static Future<List<VaultListItemBase>> _loadVaultListIsolate(
       void _, void Function(List<dynamic>)? setVaultListLoadingProgress) async {
     BitcoinNetwork.setNetwork(BitcoinNetwork.regtest);
-    List<SinglesigVaultListItem> vaultList = [];
+    List<VaultListItemBase> vaultList = [];
     String? jsonArrayString;
     final SecureStorageService storageService = SecureStorageService();
     final RealmService realmService = RealmService();
@@ -288,8 +287,17 @@ class VaultModel extends ChangeNotifier {
       List<dynamic> jsonList = jsonDecode(jsonArrayString);
       int totalItems = jsonList.length;
       for (int i = 0; i < totalItems; i++) {
-        vaultList
-            .add(SinglesigVaultListItemFactory().createFromJson(jsonList[i]));
+        // TODO: singleSignature, multiSignature 하드코딩 필요 없도록 수정하기
+        if (jsonList[i]['vaultType'] == 'singleSignature') {
+          vaultList
+              .add(SinglesigVaultListItemFactory().createFromJson(jsonList[i]));
+        } else if (jsonList[i]['vaultType'] == 'multiSignature') {
+          vaultList
+              .add(MultisigVaultListItemFactory().createFromJson(jsonList[i]));
+        } else {
+          throw ArgumentError(
+              "[vault_model] wrong vaultType: ${jsonList[i]['vaultType']}");
+        }
       }
     }
 

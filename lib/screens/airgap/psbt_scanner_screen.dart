@@ -1,6 +1,5 @@
 import 'dart:io';
 
-import 'package:coconut_vault/model/data/singlesig_vault_list_item.dart';
 import 'package:coconut_vault/model/data/vault_list_item_base.dart';
 import 'package:coconut_vault/model/state/app_model.dart';
 import 'package:coconut_vault/utils/alert_util.dart';

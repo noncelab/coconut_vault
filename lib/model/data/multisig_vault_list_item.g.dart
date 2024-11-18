@@ -17,24 +17,33 @@ MultisigVaultListItem _$MultisigVaultListItemFromJson(
           .map((e) => MultisigSigner.fromJson(e as Map<String, dynamic>))
           .toList(),
       requiredSignatureCount: (json['requiredSignatureCount'] as num).toInt(),
+      coordinatorBsms: json['coordinatorBsms'] as String?,
     )
       ..vaultJsonString = json['vaultJsonString'] as String?
-      ..vaultType = $enumDecode(_$VaultTypeEnumMap, json['vaultType'])
-      ..coordinatorBsms = json['coordinatorBsms'] as String;
+      ..vaultType = $enumDecode(_$VaultTypeEnumMap, json['vaultType']);
 
 Map<String, dynamic> _$MultisigVaultListItemToJson(
-        MultisigVaultListItem instance) =>
-    <String, dynamic>{
-      'id': instance.id,
-      'name': instance.name,
-      'colorIndex': instance.colorIndex,
-      'iconIndex': instance.iconIndex,
-      'vaultJsonString': instance.vaultJsonString,
-      'vaultType': _$VaultTypeEnumMap[instance.vaultType]!,
-      'signers': instance.signers,
-      'coordinatorBsms': instance.coordinatorBsms,
-      'requiredSignatureCount': instance.requiredSignatureCount,
-    };
+    MultisigVaultListItem instance) {
+  final val = <String, dynamic>{
+    'id': instance.id,
+    'name': instance.name,
+    'colorIndex': instance.colorIndex,
+    'iconIndex': instance.iconIndex,
+    'vaultJsonString': instance.vaultJsonString,
+    'vaultType': _$VaultTypeEnumMap[instance.vaultType]!,
+    'signers': instance.signers,
+  };
+
+  void writeNotNull(String key, dynamic value) {
+    if (value != null) {
+      val[key] = value;
+    }
+  }
+
+  writeNotNull('coordinatorBsms', instance.coordinatorBsms);
+  val['requiredSignatureCount'] = instance.requiredSignatureCount;
+  return val;
+}
 
 const _$VaultTypeEnumMap = {
   VaultType.singleSignature: 'singleSignature',

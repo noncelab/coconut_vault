@@ -1,6 +1,4 @@
 import 'package:coconut_lib/coconut_lib.dart';
-import 'package:coconut_vault/model/data/multisig_signer.dart';
-import 'package:coconut_vault/model/data/multisig_signer_factory.dart';
 import 'package:coconut_vault/model/data/multisig_vault_list_item.dart';
 import 'package:coconut_vault/model/data/multisig_vault_list_item_factory.dart';
 import 'package:coconut_vault/model/data/singlesig_vault_list_item.dart';
@@ -8,7 +6,6 @@ import 'package:coconut_vault/model/data/vault_list_item_base.dart';
 import 'package:coconut_vault/utils/alert_util.dart';
 import 'package:coconut_vault/utils/coconut/multisig_utils.dart';
 import 'package:coconut_vault/utils/text_utils.dart';
-import 'package:coconut_vault/widgets/custom_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:coconut_vault/model/state/vault_model.dart';
