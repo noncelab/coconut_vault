@@ -1,6 +1,7 @@
 import 'package:coconut_vault/app.dart';
 import 'package:coconut_vault/model/state/app_model.dart';
 import 'package:coconut_vault/model/state/multisig_creation_model.dart';
+import 'package:coconut_vault/services/shared_preferences_service.dart';
 import 'package:coconut_vault/styles.dart';
 import 'package:coconut_vault/utils/logger.dart';
 import 'package:flutter/material.dart';
@@ -71,8 +72,12 @@ class _VaultNameIconSetupState extends State<VaultNameIconSetup> {
         return;
       }
 
+      final sharedService = SharedPrefsService();
+      final nextId = sharedService.getInt('nextId') ?? 1;
+
       if (_vaultModel.importingSecret != null) {
         final Map<String, dynamic> vaultData = {
+          'nextId': nextId,
           'inputText': inputText,
           'selectedIconIndex': selectedIconIndex,
           'selectedColorIndex': selectedColorIndex,
@@ -90,8 +95,10 @@ class _VaultNameIconSetupState extends State<VaultNameIconSetup> {
       } else if (_multisigCreationState.signers != null) {
         // 새로운 멀티시그 지갑 리스트 아이템을 생성.
         await _vaultModel.addMultisigVault(
-            inputText, selectedColorIndex, selectedIconIndex);
+            nextId, inputText, selectedColorIndex, selectedIconIndex);
       }
+
+      sharedService.setInt('nextId', nextId + 1);
 
       Navigator.pushNamedAndRemoveUntil(
         context,

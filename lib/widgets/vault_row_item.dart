@@ -1,4 +1,7 @@
+import 'package:coconut_vault/model/data/multisig_signer.dart';
+import 'package:coconut_vault/model/data/multisig_vault_list_item.dart';
 import 'package:coconut_vault/model/data/vault_list_item_base.dart';
+import 'package:coconut_vault/model/data/vault_type.dart';
 import 'package:coconut_vault/utils/colors_util.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -33,24 +36,21 @@ class _VaultRowItemState extends State<VaultRowItem> {
   bool isPressing = false;
 
   // TODO : 추후 로직 변경될 수 있음
-  final bool _isMultiSig = false;
+  bool _isMultiSig = false;
+  String _mnText = '';
   final bool _isUsedToMultiSig = false;
+  List<MultisigSigner>? _multiSigners;
 
   @override
   void initState() {
     super.initState();
 
-    // TODO : 볼트 속성 업데이트
-    /*if (widget.vault.name == '다중지갑') {
+    if (widget.vault.vaultType == VaultType.multiSignature) {
       _isMultiSig = true;
-      _isUsedToMultiSig = false;
-    } else if (widget.vault.name == '다중키지갑') {
-      _isMultiSig = false;
-      _isUsedToMultiSig = true;
-    } else {
-      _isMultiSig = false;
-      _isUsedToMultiSig = false;
-    }*/
+      final multi = widget.vault as MultisigVaultListItem;
+      _mnText = '${multi.requiredSignatureCount}/${multi.signers.length}';
+      _multiSigners = multi.signers;
+    }
   }
 
   @override
@@ -80,12 +80,8 @@ class _VaultRowItemState extends State<VaultRowItem> {
           )
         : ShrinkAnimationButton(
             pressedColor: MyColors.darkgrey.withOpacity(0.05),
-            borderGradientColors: _isMultiSig
-                ? [
-                    CustomColorHelper.getColorByIndex(0),
-                    MyColors.borderLightgrey,
-                    CustomColorHelper.getColorByIndex(4),
-                  ]
+            borderGradientColors: _isMultiSig && _multiSigners != null
+                ? CustomColorHelper.getGradientColors(_multiSigners!)
                 : null,
             onPressed: () {
               MyBottomSheet.showBottomSheet(
@@ -148,10 +144,10 @@ class _VaultRowItemState extends State<VaultRowItem> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // TODO: M/N, 다중 지갑의 N키 처리 필요 (지갑명 10글자 말줄임)
+                // TODO: 다중 지갑의 N키 처리 필요 (지갑명 10글자 말줄임)
                 if (_isMultiSig) ...{
                   Text(
-                    '2/3',
+                    _mnText,
                     style: Styles.body2.copyWith(color: MyColors.body2Grey),
                   ),
                 } else if (_isUsedToMultiSig) ...{

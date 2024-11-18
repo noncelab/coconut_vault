@@ -3,6 +3,7 @@ import 'package:coconut_vault/model/data/multisig_vault_list_item.dart';
 import 'package:coconut_vault/model/data/multisig_vault_list_item_factory.dart';
 import 'package:coconut_vault/model/data/singlesig_vault_list_item.dart';
 import 'package:coconut_vault/model/data/vault_list_item_base.dart';
+import 'package:coconut_vault/services/shared_preferences_service.dart';
 import 'package:coconut_vault/utils/alert_util.dart';
 import 'package:coconut_vault/utils/coconut/multisig_utils.dart';
 import 'package:coconut_vault/utils/text_utils.dart';
@@ -49,6 +50,8 @@ class _VaultMenuScreenState extends State<VaultMenuScreen> {
     return Consumer<VaultModel>(builder: (context, model, child) {
       final VaultListItemBase vaultListItem =
           model.getVaultById(int.parse(widget.id));
+
+      // print(vaultListItem);
 
       if (!widget.isMultiSig) {
         return Container(
@@ -132,6 +135,7 @@ bcrt1qym2yhgdm5hrvehd79yaejamz5een2ldptnr79nesau4vldtumtyqwq8ndn
 
               MultisigVaultListItem newMultisigVault =
                   await MultisigVaultListItemFactory().createFromBsms(
+                      nextId: SharedPrefsService().getInt('nextId') ?? 1,
                       name: "multisig",
                       colorIndex: 9,
                       iconIndex: 9,

@@ -15,6 +15,7 @@ class MultisigVaultListItemFactory implements VaultListItemFactory {
   // 새로 생성 시
   @override
   Future<MultisigVaultListItem> create({
+    required int nextId,
     required String name,
     required int colorIndex,
     required int iconIndex,
@@ -31,7 +32,7 @@ class MultisigVaultListItemFactory implements VaultListItemFactory {
     List<MultisigSigner> signers = secrets[signersField];
     int requiredSignatureCount = secrets[requiredSignatureCountField];
 
-    final nextId = VaultListItemFactory.loadNextId();
+    // final nextId = VaultListItemFactory.loadNextId();
     final newVault = MultisigVaultListItem(
         id: nextId,
         name: name,
@@ -39,13 +40,14 @@ class MultisigVaultListItemFactory implements VaultListItemFactory {
         iconIndex: iconIndex,
         signers: signers,
         requiredSignatureCount: requiredSignatureCount);
-    await VaultListItemFactory.saveNextId(nextId + 1);
+    // await VaultListItemFactory.saveNextId(nextId + 1);
 
     return newVault;
   }
 
   // 다른 볼트에서 복사 시
   Future<MultisigVaultListItem> createFromBsms({
+    required int nextId,
     required String name,
     required int colorIndex,
     required int iconIndex,
@@ -67,7 +69,7 @@ class MultisigVaultListItemFactory implements VaultListItemFactory {
             multisigVault: MultisignatureVault.fromCoordinatorBsms(bsms),
             vaultList: vaultList);
 
-    final nextId = VaultListItemFactory.loadNextId();
+    // final nextId = VaultListItemFactory.loadNextId();
     final newVault = MultisigVaultListItem.fromCoordinatorBsms(
       id: nextId,
       name: name,
@@ -76,7 +78,7 @@ class MultisigVaultListItemFactory implements VaultListItemFactory {
       coordinatorBsms: bsms,
       signers: signers,
     );
-    await VaultListItemFactory.saveNextId(nextId + 1);
+    // await VaultListItemFactory.saveNextId(nextId + 1);
 
     return newVault;
   }
