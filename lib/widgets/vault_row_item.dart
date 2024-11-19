@@ -18,14 +18,12 @@ class VaultRowItem extends StatefulWidget {
     required this.vault,
     this.isSelectable = false,
     this.onSelected,
-    this.resetSelected,
     this.isPressed = false,
   });
 
   final VaultListItemBase vault;
   final bool isSelectable;
   final VoidCallback? onSelected;
-  final VoidCallback? resetSelected;
   final bool isPressed;
 
   @override
@@ -61,8 +59,7 @@ class _VaultRowItemState extends State<VaultRowItem> {
               setState(() {
                 isPressing = false;
               });
-              if (widget.onSelected != null && widget.resetSelected != null) {
-                widget.resetSelected!();
+              if (widget.onSelected != null) {
                 widget.onSelected!();
               }
             },
