@@ -57,7 +57,6 @@ class _VaultNameIconSetupState extends State<VaultNameIconSetup> {
 
   Future<void> saveNewVaultName(BuildContext context) async {
     try {
-      print("${_multisigCreationState.signers}");
       _appModel.showIndicator();
       setState(() {
         isSaving = true;

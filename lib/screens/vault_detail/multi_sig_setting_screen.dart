@@ -55,8 +55,6 @@ class _MultiSigSettingScreenState extends State<MultiSigSettingScreen> {
   _updateMultiVaultListItem() {
     final vaultBasItem = _vaultModel.getVaultById(int.parse(widget.id));
     _multiVault = vaultBasItem as MultisigVaultListItem;
-
-    print(_multiVault);
   }
 
   _showTooltip(BuildContext context) {
@@ -195,7 +193,7 @@ class _MultiSigSettingScreenState extends State<MultiSigSettingScreen> {
                 }
                 break;
               default:
-                _vaultModel.deleteVault(int.parse(widget.id));
+                _vaultModel.deleteVault(int.parse(widget.id), isMultisig: true);
                 vibrateLight();
                 Navigator.popUntil(context, (route) => route.isFirst);
             }
@@ -205,12 +203,11 @@ class _MultiSigSettingScreenState extends State<MultiSigSettingScreen> {
     );
   }
 
-  // TODO: 메모 추가 및 외부지갑 구분값 변경
   Future _selectedKeyBottomSheet(MultisigSigner vault) async {
-    final isCoconutVault = vault.name != '외부지갑';
+    final isCoconutVault = vault.innerVaultId != null;
     final name = vault.name ?? '';
 
-    // bool isCreatedMemo = false;
+    bool isCreatedMemo = !isCoconutVault && vault.memo != null;
 
     MyBottomSheet.showBottomSheet(
       context: context,
@@ -234,7 +231,9 @@ class _MultiSigSettingScreenState extends State<MultiSigSettingScreen> {
             _bottomSheetButton(
               isCoconutVault
                   ? '니모닉 문구 보기'
-                  : /*isCreatedMemo ? '메모 수정' :*/ '메모 추가',
+                  : isCreatedMemo
+                      ? '메모 수정'
+                      : '메모 추가',
               onPressed: () {
                 if (isCoconutVault) {
                   _verifyBiometric(1, selectedVault: vault);
@@ -431,9 +430,8 @@ class _MultiSigSettingScreenState extends State<MultiSigSettingScreen> {
                           const SizedBox(height: 8),
                       itemBuilder: (context, index) {
                         final item = _multiVault.signers[index];
-                        // TODO: 외부, 내부 지갑 구분값 적용
-                        final isVaultKey = item.name != '외부지갑';
 
+                        final isVaultKey = item.innerVaultId != null;
                         final name = item.name ?? '';
                         final colorIndex = item.colorIndex ?? 0;
                         final iconIndex = item.iconIndex ?? 0;
