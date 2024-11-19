@@ -20,7 +20,8 @@ import 'package:coconut_vault/screens/vault_creation/vault_name_icon_setup_scree
 import 'package:coconut_vault/screens/vault_detail/address_list_screen.dart';
 import 'package:coconut_vault/screens/vault_detail/multi_sig_bsms_screen.dart';
 import 'package:coconut_vault/screens/vault_detail/multi_sig_setting_screen.dart';
-import 'package:coconut_vault/screens/vault_detail/select_sync_type_screen.dart';
+import 'package:coconut_vault/screens/vault_detail/select_export_type_screen.dart';
+import 'package:coconut_vault/screens/vault_detail/signer_bsms_screen.dart';
 import 'package:coconut_vault/screens/vault_detail/sync_to_wallet_screen.dart';
 import 'package:coconut_vault/screens/vault_detail/vault_menu_screen.dart';
 import 'package:coconut_vault/screens/vault_detail/vault_settings.dart';
@@ -215,14 +216,17 @@ class _PowVaultAppState extends State<PowVaultApp> {
                 ),
             '/sync-to-wallet': (context) => buildScreenWithArguments(
                   context,
-                  (args) => SyncToWalletScreen(
+                  (args) => SyncToWalletScreen(id: args['id']),
+                ),
+            '/signer-bsms': (context) => buildScreenWithArguments(
+                  context,
+                  (args) => SignerBsmsScreen(
                     id: args['id'],
-                    isMultiSignatureSync: args['isMultiSignatureSync'],
                   ),
                 ),
             '/select-sync-type': (context) => buildScreenWithArguments(
                   context,
-                  (args) => SelectSyncTypeScreen(id: args['id']),
+                  (args) => SelectExportTypeScreen(id: args['id']),
                 ),
             '/multi-signature': (context) => buildScreenWithArguments(
                   context,

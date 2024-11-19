@@ -1,3 +1,5 @@
+import 'package:coconut_lib/coconut_lib.dart';
+import 'package:coconut_vault/widgets/multisig/card/signer_bsms_info_card.dart';
 import 'package:coconut_vault/widgets/textfield/custom_textfield.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -106,7 +108,7 @@ class _ConfirmImportingScreenState extends State<ConfirmImportingScreen>
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        '가져온 정보',
+                        '스캔한 정보',
                         style: Styles.body1.merge(
                           const TextStyle(
                             fontWeight: FontWeight.bold,
@@ -116,26 +118,8 @@ class _ConfirmImportingScreenState extends State<ConfirmImportingScreen>
                         ),
                       ),
                       const SizedBox(height: 14),
-                      Container(
-                        width: maxWidth,
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(16),
-                          color: MyColors.white,
-                          boxShadow: const [
-                            BoxShadow(
-                              color: MyColors.transparentBlack_15,
-                              offset: Offset(4, 4),
-                              blurRadius: 30,
-                              spreadRadius: 0,
-                            ),
-                          ],
-                        ),
-                        padding: const EdgeInsets.all(
-                          30,
-                        ),
-                        // TODO: 내보낼 정보 배치
-                        child: Text(widget.importingBsms),
-                      ),
+                      SignerBsmsInfoCard(
+                          bsms: BSMS.parseSigner(widget.importingBsms)),
                       const SizedBox(height: 36),
                       Text(
                         '메모',
