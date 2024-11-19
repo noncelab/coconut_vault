@@ -9,11 +9,13 @@ class SinglesigVaultListItemFactory implements VaultListItemFactory {
   static const String passphraseField = 'passphrase';
 
   @override
-  Future<SinglesigVaultListItem> create(
-      {required String name,
-      required int colorIndex,
-      required int iconIndex,
-      required Map<String, dynamic> secrets}) async {
+  Future<SinglesigVaultListItem> create({
+    required int nextId,
+    required String name,
+    required int colorIndex,
+    required int iconIndex,
+    required Map<String, dynamic> secrets,
+  }) async {
     if (!secrets.containsKey(secretField)) {
       throw ArgumentError("The 'secrets' map must contain a 'secret' key.");
     }
@@ -21,7 +23,7 @@ class SinglesigVaultListItemFactory implements VaultListItemFactory {
     String secret = secrets[secretField];
     String passphrase = secrets[passphraseField] ?? '';
 
-    final nextId = VaultListItemFactory.loadNextId();
+    // final nextId = VaultListItemFactory.loadNextId();
     final newVault = SinglesigVaultListItem(
         id: nextId,
         name: name,
@@ -29,7 +31,7 @@ class SinglesigVaultListItemFactory implements VaultListItemFactory {
         iconIndex: iconIndex,
         secret: secret,
         passphrase: passphrase);
-    await VaultListItemFactory.saveNextId(nextId + 1);
+    // await VaultListItemFactory.saveNextId(nextId + 1);
 
     return newVault;
   }

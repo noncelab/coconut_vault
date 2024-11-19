@@ -146,17 +146,28 @@ class VaultModel extends ChangeNotifier {
   }
 
   // TODO: 빠른 구현을 위해 isolate 사용은 뒤로 미뤘습니다.
-  Future<void> addMultisigVault(String name, int color, int icon) async {
+  Future<void> addMultisigVault(
+      int nextId, String name, int color, int icon) async {
     _setAddVaultCompleted(false);
-    var newMultisigVault = await MultisigVaultListItemFactory()
-        .create(name: name, colorIndex: color, iconIndex: icon, secrets: {
-      'signers': _multisigCreationModel.signers,
-      'requiredSignatureCount': _multisigCreationModel.requiredSignatureCount!
-    });
+    var newMultisigVault = await MultisigVaultListItemFactory().create(
+        nextId: nextId,
+        name: name,
+        colorIndex: color,
+        iconIndex: icon,
+        secrets: {
+          'signers': _multisigCreationModel.signers,
+          'requiredSignatureCount':
+              _multisigCreationModel.requiredSignatureCount!
+        });
+
+    print('------------------------------------');
+    print(newMultisigVault);
+    print(newMultisigVault as VaultListItemBase);
+    print('------------------------------------');
 
     // TODO: Unhandled Exception: type 'MultisigVaultListItem' is not a subtype of type 'SinglesigVaultListItem' of 'value'
     try {
-      _vaultList.add(newMultisigVault as VaultListItemBase);
+      _vaultList.add(newMultisigVault);
     } catch (e) {
       print(">>>>> 여기서 나는거 맞아? $e");
     }

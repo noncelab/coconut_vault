@@ -3,15 +3,14 @@ import 'dart:async';
 import 'package:coconut_lib/coconut_lib.dart';
 import 'package:coconut_vault/model/data/singlesig_vault_list_item.dart';
 import 'package:coconut_vault/model/data/singlesig_vault_list_item_factory.dart';
-import 'package:coconut_vault/services/shared_preferences_service.dart';
 
 Future<List<SinglesigVaultListItem>> addVaultIsolate(
     Map<String, dynamic> data, void Function(dynamic)? progressCallback) async {
   BitcoinNetwork.setNetwork(BitcoinNetwork.regtest);
-  await SharedPrefsService().init();
   List<SinglesigVaultListItem> vaultList = [];
 
   final params = data;
+  int nextId = params['nextId'];
   String inputText = params['inputText'];
   int selectedIconIndex = params['selectedIconIndex'];
   int selectedColorIndex = params['selectedColorIndex'];
@@ -25,6 +24,7 @@ Future<List<SinglesigVaultListItem>> addVaultIsolate(
   };
 
   SinglesigVaultListItem newItem = await factory.create(
+    nextId: nextId,
     name: inputText,
     colorIndex: selectedColorIndex,
     iconIndex: selectedIconIndex,
