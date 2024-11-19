@@ -22,14 +22,14 @@ import 'package:coconut_vault/widgets/appbar/custom_appbar.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
 
-class AssignKeyScreen extends StatefulWidget {
-  const AssignKeyScreen({super.key});
+class AssignSignersScreen extends StatefulWidget {
+  const AssignSignersScreen({super.key});
 
   @override
-  State<AssignKeyScreen> createState() => _AssignKeyScreenState();
+  State<AssignSignersScreen> createState() => _AssignSignersScreenState();
 }
 
-class _AssignKeyScreenState extends State<AssignKeyScreen> {
+class _AssignSignersScreenState extends State<AssignSignersScreen> {
   ValueNotifier<bool> isButtonActiveNotifier = ValueNotifier<bool>(false);
   // TODO: 다중서명 데이터들 모델로 분리 필요
   late int nCount; // 전체 키의 수
@@ -131,7 +131,7 @@ class _AssignKeyScreenState extends State<AssignKeyScreen> {
     selectingVaultList = null;
   }
 
-  bool _checkEmptyList() {
+  bool _existsSinglsigVault() {
     if (singlesigVaultList.isEmpty ||
         _getAssignedVaultListLength() >= singlesigVaultList.length) {
       return true;
@@ -202,7 +202,7 @@ class _AssignKeyScreenState extends State<AssignKeyScreen> {
           onConfirm = () {
             isFinishing = true;
             Navigator.popUntil(context,
-                (route) => route.settings.name == '/select-key-options');
+                (route) => route.settings.name == '/select-multisig-quoram');
           };
           break;
         }
@@ -230,6 +230,7 @@ class _AssignKeyScreenState extends State<AssignKeyScreen> {
           confirmButtonText = '그만하기';
           confirmButtonColor = MyColors.warningText;
           onConfirm = () {
+            _multisigCreationState.reset();
             Navigator.pop(context);
             Navigator.pushNamedAndRemoveUntil(
                 context, '/', (Route<dynamic> route) => false);
@@ -325,6 +326,7 @@ class _AssignKeyScreenState extends State<AssignKeyScreen> {
     if (_getAssignedVaultListLength() > 0) {
       _showDialog(DialogType.quit);
     } else {
+      _multisigCreationState.reset();
       isFinishing = true;
       Navigator.pop(context);
     }
@@ -527,7 +529,8 @@ class _AssignKeyScreenState extends State<AssignKeyScreen> {
                                         ExpansionChildWidget(
                                             type: ImportKeyType.internal,
                                             onPressed: () {
-                                              if (_checkEmptyList()) {
+                                              // 등록된 singlesig vault가 없으면 멀티시그 지갑 생성 불가
+                                              if (_existsSinglsigVault()) {
                                                 _showDialog(
                                                     DialogType.notAvailable);
                                                 return;
@@ -785,6 +788,7 @@ class AssignedVaultListItem {
   }
 }
 
+// 확장형 메뉴의 선택지
 class ExpansionChildWidget extends StatefulWidget {
   final ImportKeyType type;
   final VoidCallback? onPressed;

@@ -165,12 +165,7 @@ class VaultModel extends ChangeNotifier {
     print(newMultisigVault as VaultListItemBase);
     print('------------------------------------');
 
-    // TODO: Unhandled Exception: type 'MultisigVaultListItem' is not a subtype of type 'SinglesigVaultListItem' of 'value'
-    try {
-      _vaultList.add(newMultisigVault);
-    } catch (e) {
-      print(">>>>> 여기서 나는거 맞아? $e");
-    }
+    _vaultList.add(newMultisigVault);
     _setAddVaultCompleted(true);
     await updateVaultInStorage();
     notifyListeners();

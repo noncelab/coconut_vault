@@ -12,14 +12,16 @@ import 'package:coconut_vault/widgets/appbar/custom_appbar.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
 
-class SelectKeyOptionsScreen extends StatefulWidget {
-  const SelectKeyOptionsScreen({super.key});
+class SelectMultisigQuoramScreen extends StatefulWidget {
+  const SelectMultisigQuoramScreen({super.key});
 
   @override
-  State<SelectKeyOptionsScreen> createState() => _SelectKeyOptionsScreenState();
+  State<SelectMultisigQuoramScreen> createState() =>
+      _SelectMultisigQuoramScreenState();
 }
 
-class _SelectKeyOptionsScreenState extends State<SelectKeyOptionsScreen> {
+class _SelectMultisigQuoramScreenState
+    extends State<SelectMultisigQuoramScreen> {
   late int requiredCount; // 필요한 서명 수
   late int totalCount; // 전체 키의 수
   bool nextButtonEnabled = false;
@@ -71,7 +73,7 @@ class _SelectKeyOptionsScreenState extends State<SelectKeyOptionsScreen> {
     String? currentRoute = ModalRoute.of(context)?.settings.name;
     debugPrint('currentRoute: $currentRoute');
     if (currentRoute != null &&
-        currentRoute.startsWith('/select-key-options')) {
+        currentRoute.startsWith('/select-multisig-quoram')) {
       // _startProgress(nCount, mCount);
     }
   }
@@ -166,7 +168,7 @@ class _SelectKeyOptionsScreenState extends State<SelectKeyOptionsScreen> {
       builder: (context, isVaultListLoading, child) {
         if (!isVaultListLoading && isNextButtonClicked) {
           WidgetsBinding.instance.addPostFrameCallback((_) {
-            // assign-key-screen에서 '이 볼트에 있는 키 사용하기'를 하려면 vaultModel의 로딩이 완전히 끝나야 합니다.
+            // assign-signers-screen에서 '이 볼트에 있는 키 사용하기'를 하려면 vaultModel의 로딩이 완전히 끝나야 합니다.
             if (isNextButtonClicked) {
               // 한 번만 호출되도록 플래그를 초기화
               setState(() {
@@ -177,7 +179,7 @@ class _SelectKeyOptionsScreenState extends State<SelectKeyOptionsScreen> {
                   .setQuoramRequirement(requiredCount, totalCount);
 
               _stopProgress();
-              Navigator.pushNamed(context, '/assign-key');
+              Navigator.pushNamed(context, '/assign-signers');
             }
           });
         }

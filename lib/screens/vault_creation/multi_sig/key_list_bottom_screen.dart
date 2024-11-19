@@ -1,6 +1,6 @@
 import 'package:coconut_lib/coconut_lib.dart';
 import 'package:coconut_vault/model/data/singlesig_vault_list_item.dart';
-import 'package:coconut_vault/screens/vault_creation/multi_sig/assign_key_screen.dart';
+import 'package:coconut_vault/screens/vault_creation/multi_sig/assign_signers_screen.dart';
 import 'package:coconut_vault/widgets/vault_row_item.dart';
 import 'package:flutter/material.dart';
 
