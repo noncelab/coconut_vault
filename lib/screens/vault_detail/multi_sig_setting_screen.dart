@@ -1,25 +1,32 @@
 import 'dart:async';
 
+import 'package:coconut_lib/coconut_lib.dart';
+import 'package:coconut_vault/model/data/multisig_signer.dart';
+import 'package:coconut_vault/model/data/multisig_vault_list_item.dart';
+import 'package:coconut_vault/model/data/singlesig_vault_list_item.dart';
 import 'package:coconut_vault/model/state/app_model.dart';
+import 'package:coconut_vault/model/state/vault_model.dart';
 import 'package:coconut_vault/screens/pin_check_screen.dart';
 import 'package:coconut_vault/screens/vault_detail/mnemonic_view_screen.dart';
 import 'package:coconut_vault/screens/vault_detail/multi_sig_memo_bottom_sheet.dart';
+import 'package:coconut_vault/screens/vault_detail/qrcode_bottom_sheet_screen.dart';
 import 'package:coconut_vault/screens/vault_detail/vault_edit_bottom_sheet_screen.dart';
 import 'package:coconut_vault/styles.dart';
 import 'package:coconut_vault/utils/alert_util.dart';
 import 'package:coconut_vault/utils/colors_util.dart';
 import 'package:coconut_vault/utils/icon_util.dart';
+import 'package:coconut_vault/utils/vibration_util.dart';
 import 'package:coconut_vault/widgets/appbar/custom_appbar.dart';
 import 'package:coconut_vault/widgets/bottom_sheet.dart';
 import 'package:coconut_vault/widgets/bubble_clipper.dart';
 import 'package:coconut_vault/widgets/button/tooltip_button.dart';
 import 'package:coconut_vault/widgets/custom_loading_overlay.dart';
+import 'package:coconut_vault/widgets/custom_toast.dart';
 import 'package:coconut_vault/widgets/information_item_row.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
 
-// TODO: VaultSettings 에 병합 할 것인지 따로 관리할 것인지 협의 필요
 class MultiSigSettingScreen extends StatefulWidget {
   final String id;
   const MultiSigSettingScreen({super.key, required this.id});
@@ -30,103 +37,26 @@ class MultiSigSettingScreen extends StatefulWidget {
 
 class _MultiSigSettingScreenState extends State<MultiSigSettingScreen> {
   late AppModel _appModel;
+  late VaultModel _vaultModel;
+  late MultisigVaultListItem _multiVault;
   final GlobalKey _tooltipIconKey = GlobalKey();
 
   Timer? _tooltipTimer;
   int _tooltipRemainingTime = 0;
 
-  // TODO: TEST용
-  late TestMultiSig testVault;
-  String _address = '';
-  String _masterFingerPrint = '';
-  int _requiredSignatureCount = 0;
-  final testVaultList = [
-    TestMultiSig(
-        id: 1,
-        name: 'qwer',
-        colorIndex: 0,
-        iconIndex: 0,
-        secret:
-            'control wonder horse expect notable proud eternal mountain swim path toe warm',
-        passphrase: '',
-        vaultJsonString:
-            '''{"keyStore":"{"fingerprint":"ED8D1A16","hdWallet":"{\\"privateKey\\":\\"c800e15734782112ce1c39b95dfaae6f00a3cd4adc32701909e1c32c1bcf7c9f\\",\\"publicKey\\":\\"034f9728039cd80c090c36a506cd8b2b501eea20cac00e9cba944b9bd05e2b9bcf\\",\\"chainCode\\":\\"2af691cac33131f23da7df840bc6bdf863b7710a8fb95262b7e5f2e4a2fb6c5a\\"}","extendedPublicKey":"vpub5YGaouVZqpfDLquULQ6yeSAkKiq8NWepeiP8YJyJeFyCMvH4mwiRBw1NzN6cg8S4mKxNMxyN1Sdfckn7h91FwPEEJVfVVQDWoATyABdPbmX","seed":"{\\"entropy\\":\\"\\",\\"mnemonic\\":[\\"control\\",\\"wonder\\",\\"horse\\",\\"expect\\",\\"notable\\",\\"proud\\",\\"eternal\\",\\"mountain\\",\\"swim\\",\\"path\\",\\"toe\\",\\"warm\\"],\\"passphrase\\":\\"\\"}"}","addressType":"P2WPKH","derivationPath":"m/84'/1'/0'"}'''),
-    TestMultiSig(
-        id: 2,
-        name: '외부지갑',
-        colorIndex: 0,
-        iconIndex: 0,
-        secret:
-            'gravity ranch badge scorpion remind involve able mimic warrior buffalo outdoor air',
-        passphrase: '',
-        vaultJsonString: null),
-    TestMultiSig(
-        id: 3,
-        name: 'go',
-        colorIndex: 4,
-        iconIndex: 4,
-        secret:
-            'garlic concert text street avoid flavor rare mechanic hand hurry smile market',
-        passphrase: '',
-        vaultJsonString:
-            '''{"keyStore":"{"fingerprint":"4638011E","hdWallet":"{\\"privateKey\\":\\"e8d63f05b7cfd54a7376576fad92dd6539e273867b0c7ee5cd9abaf962367f0f\\",\\"publicKey\\":\\"0357585c4682c23956be78e5ff867f2d3a1c57fa1c403a3b71a006e09cab438b54\\",\\"chainCode\\":\\"40bc2e20c426afe351fe035f2ea41646fce0f23de68ab3e9175462690981eb16\\"}","extendedPublicKey":"vpub5Y8gaU6obBfenCiBB4GoneXQqV2EXvZWpToCPi8j24XtuLFYvMiYPu53RRNkgyPdpBRwVFCLFVDqBEAkjUi4ySqFnYosnFJyuxmW9vsar7d","seed":"{\\"entropy\\":\\"\\",\\"mnemonic\\":[\\"garlic\\",\\"concert\\",\\"text\\",\\"street\\",\\"avoid\\",\\"flavor\\",\\"rare\\",\\"mechanic\\",\\"hand\\",\\"hurry\\",\\"smile\\",\\"market\\"],\\"passphrase\\":\\"\\"}"}","addressType":"P2WPKH","derivationPath":"m/84'/1'/0'"}'''),
-  ];
-
-  // TODO: 외부 지갑 구분에 따른 로직 수정 필요함
-  List<Color> getGradientColors(List<TestMultiSig> list) {
-    // 빈 리스트 처리
-    if (list.isEmpty) {
-      return [MyColors.borderLightgrey];
-    }
-
-    // 색상 가져오는 헬퍼 함수
-    Color getColor(TestMultiSig item) {
-      return item.name != '외부지갑'
-          ? CustomColorHelper.getColorByIndex(item.colorIndex)
-          : MyColors.borderLightgrey;
-    }
-
-    // 1개인 경우
-    if (list.length == 1) {
-      final color = getColor(testVaultList[0]);
-      return [color, MyColors.borderLightgrey, color];
-    }
-
-    // 2개인 경우
-    if (testVaultList.length == 2) {
-      return [
-        getColor(testVaultList[0]),
-        MyColors.borderLightgrey,
-        getColor(testVaultList[1]),
-      ];
-    }
-
-    // 3개 이상인 경우
-    return [
-      getColor(testVaultList[0]),
-      getColor(testVaultList[1]),
-      getColor(testVaultList[2]),
-    ];
-  }
-
   @override
   void initState() {
     _appModel = Provider.of<AppModel>(context, listen: false);
+    _vaultModel = Provider.of<VaultModel>(context, listen: false);
+    _updateMultiVaultListItem();
     super.initState();
+  }
 
-    // TODO: 다중지갑 정보 가져오기
-    testVault = TestMultiSig(
-      id: 5,
-      name: '다중지갑',
-      colorIndex: 7,
-      iconIndex: 7,
-      secret:
-          'gravity ranch badge scorpion remind involve able mimic warrior buffalo outdoor air',
-      passphrase: '',
-    );
-    _address = '다중 서명 주소';
-    _masterFingerPrint = 'MFP000';
-    _requiredSignatureCount = 2;
+  _updateMultiVaultListItem() {
+    final vaultBasItem = _vaultModel.getVaultById(int.parse(widget.id));
+    _multiVault = vaultBasItem as MultisigVaultListItem;
+
+    print(_multiVault);
   }
 
   _showTooltip(BuildContext context) {
@@ -155,6 +85,39 @@ class _MultiSigSettingScreenState extends State<MultiSigSettingScreen> {
     _tooltipTimer?.cancel();
   }
 
+  void _updateVaultInfo(
+      String newName, int newColorIndex, int newIconIndex) async {
+    // 변경 사항이 없는 경우
+    if (newName == _multiVault.name &&
+        newIconIndex == _multiVault.iconIndex &&
+        newColorIndex == _multiVault.colorIndex) {
+      return;
+    }
+
+    bool hasChanges = false;
+
+    if (newName != _multiVault.name ||
+        newIconIndex != _multiVault.iconIndex ||
+        newColorIndex != _multiVault.colorIndex) {
+      hasChanges = true;
+    }
+
+    if (newName != _multiVault.name && _vaultModel.isNameDuplicated(newName)) {
+      CustomToast.showToast(
+          context: context, text: '이미 사용하고 있는 이름으로는 바꿀 수 없어요');
+      return;
+    }
+
+    if (hasChanges) {
+      await _vaultModel.updateVault(
+          int.parse(widget.id), newName, newColorIndex, newIconIndex);
+
+      _updateMultiVaultListItem();
+      setState(() {});
+      CustomToast.showToast(context: context, text: '정보를 수정했어요');
+    }
+  }
+
   _showModalBottomSheetForEditingNameAndIcon(
       String name, int colorIndex, int iconIndex) {
     MyBottomSheet.showBottomSheet_90(
@@ -164,14 +127,14 @@ class _MultiSigSettingScreenState extends State<MultiSigSettingScreen> {
         iconIndex: iconIndex,
         colorIndex: colorIndex,
         onUpdate: (String newName, int newIconIndex, int newColorIndex) {
-          // TODO: icon update
+          _updateVaultInfo(newName, newColorIndex, newIconIndex);
         },
       ),
     );
   }
 
-  _showEditMemoBottomSheet(TestMultiSig selectedVault) {
-    // TODO: 기존 메모 전송, 임시로 name 전송
+  // TODO: 메모 업데이트 처리
+  _showEditMemoBottomSheet(MultisigSigner selectedVault) {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -179,14 +142,14 @@ class _MultiSigSettingScreenState extends State<MultiSigSettingScreen> {
       builder: (context) => MultiSigMemoBottomSheet(
         memo: '',
         onUpdate: (memo) {
-          // TODO: 메모 업데이트 처리
           Navigator.pop(context);
         },
       ),
     );
   }
 
-  /*void _showModalBottomSheetWithQrImage(String appBarTitle, String data, Widget? qrcodeTopWidget) {
+  void _showModalBottomSheetWithQrImage(
+      String appBarTitle, String data, Widget? qrcodeTopWidget) {
     MyBottomSheet.showBottomSheet_90(
       context: context,
       child: QrcodeBottomSheetScreen(
@@ -195,9 +158,9 @@ class _MultiSigSettingScreenState extends State<MultiSigSettingScreen> {
         qrcodeTopWidget: qrcodeTopWidget,
       ),
     );
-  }*/
+  }
 
-  Future _verifyBiometric(int status, {TestMultiSig? selectedVault}) async {
+  Future _verifyBiometric(int status, {MultisigSigner? selectedVault}) async {
     MyBottomSheet.showBottomSheet_90(
       context: context,
       child: CustomLoadingOverlay(
@@ -206,25 +169,25 @@ class _MultiSigSettingScreenState extends State<MultiSigSettingScreen> {
           isDeleteScreen: true,
           onComplete: () async {
             Navigator.pop(context);
-            // TODO: 0 -> 확장 공개키, 1 -> 니모닉, 2 -> 삭제
             switch (status) {
               case 0:
                 if (selectedVault != null) {
-                  // SingleSignatureVault vault = selectedVault.coconutVault;
-                  // _showModalBottomSheetWithQrImage(
-                  //   '확장 공개키',
-                  //   vault.keyStore.extendedPublicKey.serialize(),
-                  //   null,
-                  // );
+                  _showModalBottomSheetWithQrImage(
+                    '확장 공개키',
+                    selectedVault.keyStore.extendedPublicKey.serialize(),
+                    null,
+                  );
                 }
                 break;
               case 1:
                 if (selectedVault != null) {
+                  final base = _vaultModel.getVaultById(selectedVault.id + 1);
+                  final single = base as SinglesigVaultListItem;
                   MyBottomSheet.showBottomSheet_90(
                     context: context,
                     child: MnemonicViewScreen(
-                      mnemonic: selectedVault.secret,
-                      passphrase: selectedVault.passphrase,
+                      mnemonic: single.secret,
+                      passphrase: single.passphrase,
                       title: '니모닉 문구 보기',
                       subtitle: '패스프레이즈 보기',
                     ),
@@ -232,9 +195,9 @@ class _MultiSigSettingScreenState extends State<MultiSigSettingScreen> {
                 }
                 break;
               default:
-              // _vaultModel.deleteVault(int.parse(widget.id));
-              // vibrateLight();
-              // Navigator.popUntil(context, (route) => route.isFirst);
+                _vaultModel.deleteVault(int.parse(widget.id));
+                vibrateLight();
+                Navigator.popUntil(context, (route) => route.isFirst);
             }
           },
         ),
@@ -242,15 +205,16 @@ class _MultiSigSettingScreenState extends State<MultiSigSettingScreen> {
     );
   }
 
-  Future _selectedKeyBottomSheet(TestMultiSig vault) async {
-    // TODO: 로직 수정 필요함
+  // TODO: 메모 추가 및 외부지갑 구분값 변경
+  Future _selectedKeyBottomSheet(MultisigSigner vault) async {
     final isCoconutVault = vault.name != '외부지갑';
+    final name = vault.name ?? '';
+
     // bool isCreatedMemo = false;
+
     MyBottomSheet.showBottomSheet(
       context: context,
-      title: vault.name.length > 20
-          ? '${vault.name.substring(0, 17)}...'
-          : vault.name,
+      title: name.length > 20 ? '${name.substring(0, 17)}...' : name,
       titleTextStyle: Styles.body1.copyWith(
         fontSize: 18,
       ),
@@ -263,7 +227,6 @@ class _MultiSigSettingScreenState extends State<MultiSigSettingScreen> {
             _bottomSheetButton(
               '다중 서명용 확장 공개키 보기',
               onPressed: () {
-                // TODO: 확장 공개키
                 _verifyBiometric(0, selectedVault: vault);
               },
             ),
@@ -274,10 +237,8 @@ class _MultiSigSettingScreenState extends State<MultiSigSettingScreen> {
                   : /*isCreatedMemo ? '메모 수정' :*/ '메모 추가',
               onPressed: () {
                 if (isCoconutVault) {
-                  // TODO: 니모닉 문구 보기
                   _verifyBiometric(1, selectedVault: vault);
                 } else {
-                  // TODO: 메모하기
                   _showEditMemoBottomSheet(vault);
                 }
               },
@@ -313,6 +274,7 @@ class _MultiSigSettingScreenState extends State<MultiSigSettingScreen> {
   @override
   Widget build(BuildContext context) {
     final tooltipTop = MediaQuery.of(context).padding.top + 46;
+
     return PopScope(
       canPop: true,
       onPopInvokedWithResult: (didPop, _) {
@@ -321,7 +283,7 @@ class _MultiSigSettingScreenState extends State<MultiSigSettingScreen> {
       child: Scaffold(
         backgroundColor: MyColors.white,
         appBar: CustomAppBar.build(
-          title: '${testVault.name} 정보',
+          title: '${_multiVault.name} 정보',
           context: context,
           hasRightIcon: false,
           isBottom: false,
@@ -343,7 +305,8 @@ class _MultiSigSettingScreenState extends State<MultiSigSettingScreen> {
                         color: MyColors.white,
                         borderRadius: BorderRadius.circular(30),
                         gradient: LinearGradient(
-                          colors: getGradientColors(testVaultList),
+                          colors: CustomColorHelper.getGradientColors(
+                              _multiVault.signers),
                           begin: Alignment.centerLeft,
                           end: Alignment.centerRight,
                         ),
@@ -364,13 +327,14 @@ class _MultiSigSettingScreenState extends State<MultiSigSettingScreen> {
                               padding: const EdgeInsets.all(12),
                               decoration: BoxDecoration(
                                 color: BackgroundColorPalette[
-                                    testVault.colorIndex],
+                                    _multiVault.colorIndex],
                                 borderRadius: BorderRadius.circular(18.0),
                               ),
                               child: SvgPicture.asset(
-                                CustomIcons.getPathByIndex(testVault.iconIndex),
+                                CustomIcons.getPathByIndex(
+                                    _multiVault.iconIndex),
                                 colorFilter: ColorFilter.mode(
-                                    ColorPalette[testVault.iconIndex],
+                                    ColorPalette[_multiVault.colorIndex],
                                     BlendMode.srcIn),
                                 width: 28.0,
                               ),
@@ -385,7 +349,7 @@ class _MultiSigSettingScreenState extends State<MultiSigSettingScreen> {
                                   Row(children: [
                                     Flexible(
                                         child: Text(
-                                      testVault.name,
+                                      _multiVault.name,
                                       style: Styles.h3,
                                       maxLines: 1,
                                       overflow: TextOverflow.ellipsis,
@@ -395,9 +359,9 @@ class _MultiSigSettingScreenState extends State<MultiSigSettingScreen> {
                                         onTap: () {
                                           _removeTooltip();
                                           _showModalBottomSheetForEditingNameAndIcon(
-                                            testVault.name,
-                                            testVault.iconIndex,
-                                            testVault.colorIndex,
+                                            _multiVault.name,
+                                            _multiVault.colorIndex,
+                                            _multiVault.iconIndex,
                                           );
                                         },
                                         child: Container(
@@ -416,7 +380,7 @@ class _MultiSigSettingScreenState extends State<MultiSigSettingScreen> {
                                         ))
                                   ]),
                                   Text(
-                                    _address,
+                                    '다중 서명 주소',
                                     style: Styles.body2Bold.merge(
                                         const TextStyle(
                                             color:
@@ -435,13 +399,13 @@ class _MultiSigSettingScreenState extends State<MultiSigSettingScreen> {
                               crossAxisAlignment: CrossAxisAlignment.end,
                               children: [
                                 Text(
-                                  _masterFingerPrint,
+                                  '${_multiVault.requiredSignatureCount}개 서명 가능',
                                   style: Styles.body1Bold,
                                 ),
                                 TooltipButton(
                                   isSelected: false,
                                   text:
-                                      '$_requiredSignatureCount/${testVaultList.length}',
+                                      '${_multiVault.requiredSignatureCount}/${_multiVault.signers.length}',
                                   isLeft: true,
                                   iconkey: _tooltipIconKey,
                                   containerMargin: EdgeInsets.zero,
@@ -462,13 +426,18 @@ class _MultiSigSettingScreenState extends State<MultiSigSettingScreen> {
                       shrinkWrap: true,
                       padding: const EdgeInsets.symmetric(
                           vertical: 8, horizontal: 16),
-                      itemCount: testVaultList.length,
+                      itemCount: _multiVault.signers.length,
                       separatorBuilder: (context, index) =>
                           const SizedBox(height: 8),
                       itemBuilder: (context, index) {
-                        final item = testVaultList[index];
+                        final item = _multiVault.signers[index];
                         // TODO: 외부, 내부 지갑 구분값 적용
                         final isVaultKey = item.name != '외부지갑';
+
+                        final name = item.name ?? '';
+                        final colorIndex = item.colorIndex ?? 0;
+                        final iconIndex = item.iconIndex ?? 0;
+                        final mfp = item.keyStore.masterFingerprint;
 
                         return GestureDetector(
                           onTap: () {
@@ -514,7 +483,7 @@ class _MultiSigSettingScreenState extends State<MultiSigSettingScreen> {
                                             decoration: BoxDecoration(
                                               color: isVaultKey
                                                   ? BackgroundColorPalette[
-                                                      item.colorIndex]
+                                                      colorIndex]
                                                   : MyColors.greyEC,
                                               borderRadius:
                                                   BorderRadius.circular(8),
@@ -522,12 +491,11 @@ class _MultiSigSettingScreenState extends State<MultiSigSettingScreen> {
                                             child: SvgPicture.asset(
                                               isVaultKey
                                                   ? CustomIcons.getPathByIndex(
-                                                      item.iconIndex)
+                                                      iconIndex)
                                                   : 'assets/svg/download.svg',
                                               colorFilter: ColorFilter.mode(
                                                 isVaultKey
-                                                    ? ColorPalette[
-                                                        item.colorIndex]
+                                                    ? ColorPalette[colorIndex]
                                                     : MyColors.black,
                                                 BlendMode.srcIn,
                                               ),
@@ -539,17 +507,16 @@ class _MultiSigSettingScreenState extends State<MultiSigSettingScreen> {
                                         // 이름
                                         Expanded(
                                           child: Text(
-                                            item.name,
+                                            name,
                                             style: Styles.body2,
                                             maxLines: 1,
                                             overflow: TextOverflow.ellipsis,
                                           ),
                                         ),
 
-                                        // MFP 텍스트
-                                        // TODO: MFP 가져오기 변경
+                                        // mfp
                                         Text(
-                                          'MFP${index + 1}',
+                                          mfp,
                                           style: Styles.body1.copyWith(
                                               color: MyColors.darkgrey),
                                         ),
@@ -576,16 +543,19 @@ class _MultiSigSettingScreenState extends State<MultiSigSettingScreen> {
                           padding: const EdgeInsets.symmetric(horizontal: 24),
                           child: Column(
                             children: [
-                              // TODO: exportDetail
                               InformationRowItem(
                                 label: '지갑 설정 정보 보기',
                                 showIcon: true,
                                 onPressed: () {
                                   _removeTooltip();
+
+                                  final vault = _multiVault.coconutVault
+                                      as MultisignatureVault;
+
                                   Navigator.pushNamed(context, '/multisig-bsms',
                                       arguments: {
                                         'exportDetail':
-                                            '''{"name":"qo","colorIndex":4,"iconIndex":4,"descriptor":"wpkh([4638011E/84'/1'/0']vpub5Y8gaU6obBfenCiBB4GoneXQqV2EXvZWpToCPi8j24XtuLFYvMiYPu53RRNkgyPdpBRwVFCLFVDqBEAkjUi4ySqFnYosnFJyuxmW9vsar7d/<0;1>/*)#a35u9ufu"}'''
+                                            vault.getCoordinatorBsms(),
                                       });
                                 },
                               ),
@@ -625,7 +595,7 @@ class _MultiSigSettingScreenState extends State<MultiSigSettingScreen> {
                                   context: context,
                                   title: '확인',
                                   content:
-                                      '정말로 볼트에서 ${testVault.name} 정보를 삭제하시겠어요?',
+                                      '정말로 볼트에서 ${_multiVault.name} 정보를 삭제하시겠어요?',
                                   onConfirmPressed: () async {
                                     _appModel.showIndicator();
                                     await Future.delayed(
@@ -665,7 +635,7 @@ class _MultiSigSettingScreenState extends State<MultiSigSettingScreen> {
                             mainAxisSize: MainAxisSize.min,
                             children: [
                               Text(
-                                '${testVaultList.length}개의 키 중 $_requiredSignatureCount개로 서명해야 하는\n다중 서명 지갑이예요.',
+                                '${_multiVault.signers.length}개의 키 중 ${_multiVault.requiredSignatureCount}개로 서명해야 하는\n다중 서명 지갑이예요.',
                                 style: Styles.caption.merge(TextStyle(
                                   height: 1.3,
                                   fontFamily: CustomFonts.text.getFontFamily,
@@ -692,25 +662,4 @@ class _MultiSigSettingScreenState extends State<MultiSigSettingScreen> {
     _tooltipTimer?.cancel();
     super.dispose();
   }
-}
-
-// TODO: 개발 완료후 삭제
-class TestMultiSig {
-  final int id;
-  final String name;
-  final int colorIndex;
-  final int iconIndex;
-  final String secret;
-  final String passphrase;
-  String? vaultJsonString;
-
-  TestMultiSig({
-    required this.id,
-    required this.name,
-    required this.colorIndex,
-    required this.iconIndex,
-    required this.secret,
-    required this.passphrase,
-    this.vaultJsonString,
-  });
 }

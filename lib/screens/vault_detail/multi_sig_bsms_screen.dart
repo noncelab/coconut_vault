@@ -3,6 +3,7 @@ import 'package:coconut_vault/widgets/appbar/custom_appbar.dart';
 import 'package:coconut_vault/widgets/bottom_sheet.dart';
 import 'package:coconut_vault/widgets/button/clipboard_button.dart';
 import 'package:flutter/material.dart';
+import 'package:qr_flutter/qr_flutter.dart';
 
 class MultiSigBsmsScreen extends StatefulWidget {
   final String exportDetail;
@@ -95,17 +96,17 @@ class _MultiSigBsmsScreenState extends State<MultiSigBsmsScreen> {
             ),
           ),
 
-          // TODO: QR
           Center(
             child: Container(
               margin: const EdgeInsets.symmetric(vertical: 36),
-              color: MyColors.borderLightgrey,
               width: qrWidth,
               height: qrWidth,
+              child: QrImageView(
+                data: widget.exportDetail,
+              ),
             ),
           ),
 
-          // TODO: 상세 정보 보기
           GestureDetector(
             onTap: _showMultiSigDetail,
             child: Container(

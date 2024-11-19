@@ -133,16 +133,16 @@ bcrt1qym2yhgdm5hrvehd79yaejamz5een2ldptnr79nesau4vldtumtyqwq8ndn
                 throw "이 키가 포함된 다중 서명 지갑이 아닙니다.";
               }
 
-              MultisigVaultListItem newMultisigVault =
-                  await MultisigVaultListItemFactory().createFromBsms(
-                      nextId: SharedPrefsService().getInt('nextId') ?? 1,
-                      name: "multisig",
-                      colorIndex: 9,
-                      iconIndex: 9,
-                      secrets: {
-                    "bsms": coordinatorBsms,
-                    "vaultList": model.vaultList
-                  });
+              // MultisigVaultListItem newMultisigVault =
+              //     await MultisigVaultListItemFactory().createFromBsms(
+              //         nextId: SharedPrefsService().getInt('nextId') ?? 1,
+              //         name: "multisig",
+              //         colorIndex: 9,
+              //         iconIndex: 9,
+              //         secrets: {
+              //       "bsms": coordinatorBsms,
+              //       "vaultList": model.vaultList
+              //     });
 
               // TODO:
               // vaultList에 추가하고 홈 화면으로 이동 하기
@@ -205,9 +205,9 @@ bcrt1qym2yhgdm5hrvehd79yaejamz5een2ldptnr79nesau4vldtumtyqwq8ndn
                 '내보내기',
                 '보기 전용 지갑을 월렛에 추가해요', () {
               Navigator.pop(context);
-
-              Navigator.pushNamed(context, '/sync-to-wallet',
-                  arguments: {'id': widget.id});
+              // TODO: multisig 내보내기
+              // Navigator.pushNamed(context, '/sync-to-wallet',
+              //     arguments: {'id': widget.id});
             }, iconBackgroundColorList[4]),
           ]),
         );
