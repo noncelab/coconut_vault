@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:coconut_lib/coconut_lib.dart';
 import 'package:coconut_vault/model/data/multisig_signer.dart';
 import 'package:coconut_vault/model/data/vault_list_item_base.dart';
@@ -59,15 +61,16 @@ class MultisigVaultListItem extends VaultListItemBase {
 
   @override
   String getWalletSyncString() {
-    throw UnimplementedError("multisig getWalletSyncString");
-    // Map<String, dynamic> json = {
-    //   'name': name,
-    //   'colorIndex': colorIndex,
-    //   'iconIndex': iconIndex,
-    //   'descriptor': coconutVault.descriptor
-    // };
+    // throw UnimplementedError("multisig getWalletSyncString");
+    Map<String, dynamic> json = {
+      'id': id,
+      'name': name,
+      'colorIndex': colorIndex,
+      'iconIndex': iconIndex,
+      'descriptor': coconutVault.descriptor
+    };
 
-    // return jsonEncode(json);
+    return jsonEncode(json);
   }
 
   @override

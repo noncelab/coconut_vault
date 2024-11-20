@@ -13,6 +13,7 @@ import 'package:coconut_vault/screens/vault_creation/multi_sig/assign_key_screen
 import 'package:coconut_vault/screens/vault_creation/mnemonic_coin_flip_screen.dart';
 import 'package:coconut_vault/screens/vault_creation/mnemonic_generate_screen.dart';
 import 'package:coconut_vault/screens/vault_creation/mnemonic_import_screen.dart';
+import 'package:coconut_vault/screens/vault_creation/multi_sig/import_scanner_screen.dart';
 import 'package:coconut_vault/screens/vault_creation/multi_sig/select_key_options_screen.dart';
 import 'package:coconut_vault/screens/vault_creation/select_vault_type_screen.dart';
 import 'package:coconut_vault/screens/vault_creation/vault_creation_options_screen.dart';
@@ -194,13 +195,17 @@ class _PowVaultAppState extends State<PowVaultApp> {
                 ),
             '/multisig-bsms': (context) => buildScreenWithArguments(
                   context,
-                  (args) =>
-                      MultiSigBsmsScreen(exportDetail: args['exportDetail']),
+                  (args) => MultiSigBsmsScreen(id: args['id']),
                 ),
             '/mnemonic-word-list': (context) => const MnemonicWordListScreen(),
             '/address-list': (context) => buildScreenWithArguments(
                   context,
                   (args) => AddressListScreen(id: int.parse(args['id'])),
+                ),
+            '/import-scanner': (context) => buildScreenWithArguments(
+                  context,
+                  (args) => ImportScannerScreen(
+                      id: int.parse(args['id']), isCopy: args['isCopy']),
                 ),
             '/psbt-scanner': (context) => buildScreenWithArguments(
                   context,

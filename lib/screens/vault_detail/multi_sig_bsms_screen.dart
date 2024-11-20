@@ -1,18 +1,44 @@
+import 'dart:convert';
+
+import 'package:coconut_lib/coconut_lib.dart';
+import 'package:coconut_vault/model/state/vault_model.dart';
 import 'package:coconut_vault/styles.dart';
 import 'package:coconut_vault/widgets/appbar/custom_appbar.dart';
 import 'package:coconut_vault/widgets/bottom_sheet.dart';
 import 'package:coconut_vault/widgets/button/clipboard_button.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:qr_flutter/qr_flutter.dart';
 
 class MultiSigBsmsScreen extends StatefulWidget {
-  final String exportDetail;
-  const MultiSigBsmsScreen({super.key, required this.exportDetail});
+  final String id;
+  const MultiSigBsmsScreen({super.key, required this.id});
 
   @override
   State<MultiSigBsmsScreen> createState() => _MultiSigBsmsScreenState();
 }
 
 class _MultiSigBsmsScreenState extends State<MultiSigBsmsScreen> {
+  late Map<String, dynamic> qrData;
+
+  @override
+  void initState() {
+    super.initState();
+    final model = Provider.of<VaultModel>(context, listen: false);
+    final vaultListItem = model.getVaultById(int.parse(widget.id));
+    String coordinatorBsms = (vaultListItem.coconutVault as MultisignatureVault)
+        .getCoordinatorBsms();
+    Map<String, dynamic> walletSyncString =
+        jsonDecode(vaultListItem.getWalletSyncString());
+    qrData = {
+      'id': walletSyncString['id'],
+      'name': walletSyncString['name'],
+      'colorIndex': walletSyncString['colorIndex'],
+      'iconIndex': walletSyncString['iconIndex'],
+      'coordinatorBSMS': coordinatorBsms,
+    };
+  }
+
   _showMultiSigDetail() {
     MyBottomSheet.showBottomSheet_90(
       context: context,
@@ -41,7 +67,7 @@ class _MultiSigBsmsScreenState extends State<MultiSigBsmsScreen> {
           ),
           body: SingleChildScrollView(
             child: ClipboardButton(
-              text: widget.exportDetail,
+              text: qrData['coordinatorBSMS'],
               toastMessage: '지갑 상세 정보가 복사됐어요',
             ),
           ),
@@ -52,7 +78,7 @@ class _MultiSigBsmsScreenState extends State<MultiSigBsmsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final qrWidth = MediaQuery.of(context).size.width - 80;
+    final qrWidth = MediaQuery.of(context).size.width * 0.76;
     return Scaffold(
       backgroundColor: MyColors.white,
       appBar: CustomAppBar.build(
@@ -95,16 +121,16 @@ class _MultiSigBsmsScreenState extends State<MultiSigBsmsScreen> {
             ),
           ),
 
-          // TODO: QR
           Center(
-            child: Container(
-              margin: const EdgeInsets.symmetric(vertical: 36),
-              color: MyColors.borderLightgrey,
-              width: qrWidth,
-              height: qrWidth,
-            ),
+              child: Container(
+                  width: qrWidth,
+                  decoration: BoxDecorations.shadowBoxDecoration,
+                  child: QrImageView(
+                    data: jsonEncode(qrData),
+                  ))),
+          const SizedBox(
+            height: 30,
           ),
-
           // TODO: 상세 정보 보기
           GestureDetector(
             onTap: _showMultiSigDetail,

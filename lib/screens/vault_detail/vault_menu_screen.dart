@@ -1,11 +1,5 @@
-import 'package:coconut_lib/coconut_lib.dart';
-import 'package:coconut_vault/model/data/multisig_vault_list_item.dart';
-import 'package:coconut_vault/model/data/multisig_vault_list_item_factory.dart';
-import 'package:coconut_vault/model/data/singlesig_vault_list_item.dart';
 import 'package:coconut_vault/model/data/vault_list_item_base.dart';
-import 'package:coconut_vault/services/shared_preferences_service.dart';
-import 'package:coconut_vault/utils/alert_util.dart';
-import 'package:coconut_vault/utils/coconut/multisig_utils.dart';
+
 import 'package:coconut_vault/utils/text_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -109,45 +103,8 @@ class _VaultMenuScreenState extends State<VaultMenuScreen> {
                 '이 키가 포함된 다중 서명 지갑 정보를 추가해요', () async {
               Navigator.pop(context);
 
-              // TODO: 임시 구현
-              // 이 지갑이 키로 사용된 멀티시그지갑의 coordinatorBsms
-              String coordinatorBsms = '''
-              BSMS 1.0
-wsh(sortedmulti(2,[B928B226/48'/1'/0'/2']Vpub5mHQNgTYgzTpc85RnEQkA4yA5zC2vX4uDS3w7H8B6RKkNnD93Yb3QinD8NBa9oQrcg2NwTGjh3hKyToUn7PSPZcVyiSbbEJCkFcN8ub6aRM/<0;1>/*,[BAD41B33/48'/1'/0'/2']Vpub5mQcGAR1SLrnugDSZ8GNVCwgJZJfYgR9TMpJxoQw4mHnQm9FC7JXjuCZbnf9wjiLzsmnWKA3fQCZ68JqntXYwGBrNc8zRCEeUcHXu9Bs9ZY/<0;1>/*,[62A936C3/48'/1'/0'/2']Vpub5nJPDy5rAwoiBH3yiGuABQT8KXzfiq1YWexHeYs3RN2vui8Whp3JsqbWjiEqN5joJWMH7jsjp81CD8AZsaNGhd6DrdNUTneAEEBDaXt1N5d/<0;1>/*))#sa8g8d06
-/0/*,/1/*
-bcrt1qym2yhgdm5hrvehd79yaejamz5een2ldptnr79nesau4vldtumtyqwq8ndn
-''';
-              // 이 지갑이 이미 포함된 멀티시그 지갑이 아닌지 확인하기, 포함된 경우 alert
-              if (model.isMultisigVaultDuplicated(coordinatorBsms)) {
-                showAlertDialog(context: context, content: "이미 등록된 지갑입니다.");
-                return;
-              }
-
-              // 이 지갑이 위 멀티시그 지갑의 일부인지 확인하기, 아닌 경우 alert
-              MultisignatureVault multisigVault =
-                  MultisignatureVault.fromCoordinatorBsms(coordinatorBsms);
-              // 이 지갑의 signerBsms
-              int signerIndex = MultisigUtils.getSignerIndexUsedInMultisig(
-                  multisigVault, vaultListItem as SinglesigVaultListItem);
-              if (signerIndex == -1) {
-                throw "이 키가 포함된 다중 서명 지갑이 아닙니다.";
-              }
-
-              MultisigVaultListItem newMultisigVault =
-                  await MultisigVaultListItemFactory().createFromBsms(
-                      nextId: SharedPrefsService().getInt('nextId') ?? 1,
-                      name: "multisig",
-                      colorIndex: 9,
-                      iconIndex: 9,
-                      secrets: {
-                    "bsms": coordinatorBsms,
-                    "vaultList": model.vaultList
-                  });
-
-              // TODO:
-              // vaultList에 추가하고 홈 화면으로 이동 하기
-              // Navigator.pushNamed(context, '/sync-to-wallet',
-              //     arguments: {'id': widget.id});
+              Navigator.pushNamed(context, '/import-scanner',
+                  arguments: {'id': widget.id, 'isCopy': true});
             }, iconBackgroundColorList[0]),
           ]),
         );

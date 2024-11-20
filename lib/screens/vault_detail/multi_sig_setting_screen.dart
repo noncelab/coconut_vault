@@ -584,8 +584,7 @@ class _MultiSigSettingScreenState extends State<MultiSigSettingScreen> {
                                   _removeTooltip();
                                   Navigator.pushNamed(context, '/multisig-bsms',
                                       arguments: {
-                                        'exportDetail':
-                                            '''{"name":"qo","colorIndex":4,"iconIndex":4,"descriptor":"wpkh([4638011E/84'/1'/0']vpub5Y8gaU6obBfenCiBB4GoneXQqV2EXvZWpToCPi8j24XtuLFYvMiYPu53RRNkgyPdpBRwVFCLFVDqBEAkjUi4ySqFnYosnFJyuxmW9vsar7d/<0;1>/*)#a35u9ufu"}'''
+                                        'id': widget.id,
                                       });
                                 },
                               ),

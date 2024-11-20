@@ -1,7 +1,17 @@
+import 'dart:convert';
 import 'dart:io';
 
+import 'package:coconut_lib/coconut_lib.dart';
+import 'package:coconut_vault/app.dart';
+import 'package:coconut_vault/model/data/singlesig_vault_list_item.dart';
+import 'package:coconut_vault/model/data/vault_list_item_base.dart';
 import 'package:coconut_vault/model/state/app_model.dart';
+import 'package:coconut_vault/model/state/vault_model.dart';
 import 'package:coconut_vault/utils/alert_util.dart';
+import 'package:coconut_vault/utils/coconut/MultisigUtils.dart';
+import 'package:coconut_vault/utils/logger.dart';
+import 'package:coconut_vault/widgets/appbar/custom_appbar.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:coconut_vault/styles.dart';
 import 'package:coconut_vault/widgets/custom_tooltip.dart';
@@ -9,7 +19,9 @@ import 'package:provider/provider.dart';
 import 'package:qr_code_scanner/qr_code_scanner.dart';
 
 class ImportScannerScreen extends StatefulWidget {
-  const ImportScannerScreen({super.key});
+  final int? id;
+  final bool isCopy;
+  const ImportScannerScreen({super.key, this.id, this.isCopy = false});
 
   @override
   State<ImportScannerScreen> createState() => _ImportScannerScreenState();
@@ -17,6 +29,7 @@ class ImportScannerScreen extends StatefulWidget {
 
 class _ImportScannerScreenState extends State<ImportScannerScreen> {
   late AppModel _appModel;
+  late VaultModel _vaultModel;
   final GlobalKey qrKey = GlobalKey(debugLabel: 'QR');
 
   QRViewController? controller;
@@ -37,6 +50,7 @@ class _ImportScannerScreenState extends State<ImportScannerScreen> {
   @override
   void initState() {
     _appModel = Provider.of<AppModel>(context, listen: false);
+    _vaultModel = Provider.of<VaultModel>(context, listen: false);
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       _appModel.showIndicator();
@@ -53,12 +67,21 @@ class _ImportScannerScreenState extends State<ImportScannerScreen> {
   }
 
   void onFailedScanning(String message) {
-    if (_isProcessing) return;
-    _isProcessing = true;
-
     String errorMessage;
     if (message.contains('Invalid Scheme')) {
-      errorMessage = '잘못된 QR이에요. 다시 시도해 주세요.';
+      errorMessage = widget.isCopy
+          ? '다중 서명 지갑에 포함된 키가 이 볼트에 없기 때문에 지갑을 가져올 수 없어요.'
+          : '잘못된 QR이에요. 다시 시도해 주세요.';
+    } else if (message.contains('Invalid address')) {
+      errorMessage = '잘못된 주소 형식이에요. 다시 확인해 주세요.';
+    } else if (message.contains('Invalid value')) {
+      errorMessage =
+          '잘못된 QR 코드예요.\n가져올 다중 서명 지갑의 정보 화면에서 "지갑 설정 정보 보기"에 나오는 QR 코드를 스캔해 주세요.';
+    } else if (message.contains('Unsupported BSMS version')) {
+      errorMessage = '지원되지 않는 BSMS 버전이에요. BSMS 1.0만 지원됩니다.';
+    } else if (message.contains('Not support customized path')) {
+      errorMessage =
+          '커스텀 파생 경로는 지원되지 않아요. 허용된 경로는 "No path restrictions" 또는 "/0/*,/1/*"입니다.';
     } else {
       errorMessage = '[스캔 실패] $message';
     }
@@ -67,7 +90,9 @@ class _ImportScannerScreenState extends State<ImportScannerScreen> {
         context: context,
         content: errorMessage,
         onConfirmPressed: () {
-          _isProcessing = false;
+          setState(() {
+            _isProcessing = false;
+          });
         });
   }
 
@@ -79,6 +104,20 @@ class _ImportScannerScreenState extends State<ImportScannerScreen> {
 
   @override
   Widget build(BuildContext context) {
+    return widget.isCopy
+        ? Scaffold(
+            appBar: CustomAppBar.build(
+              title: '다중 서명 지갑 가져오기',
+              context: context,
+              hasRightIcon: false,
+              isBottom: true,
+            ),
+            body: _buildStack(context),
+          )
+        : _buildStack(context);
+  }
+
+  Stack _buildStack(BuildContext context) {
     return Stack(
       children: [
         Container(
@@ -86,6 +125,9 @@ class _ImportScannerScreenState extends State<ImportScannerScreen> {
           child: QRView(
             key: qrKey,
             onQRViewCreated: _onQRViewCreated,
+            overlayMargin: !widget.isCopy
+                ? const EdgeInsets.only(top: 50)
+                : EdgeInsets.zero,
             overlay: QrScannerOverlayShape(
                 borderColor: MyColors.white,
                 borderRadius: 8,
@@ -101,57 +143,20 @@ class _ImportScannerScreenState extends State<ImportScannerScreen> {
             onPermissionSet: (ctrl, p) => _onPermissionSet(context, ctrl, p),
           ),
         ),
+        Container(
+          height: !widget.isCopy ? 50.1 : 0,
+          color: MyColors.transparentBlack_50,
+        ),
         Padding(
           padding: const EdgeInsets.only(top: 20),
           child: CustomTooltip(
-            richText: RichText(
-              text: TextSpan(
-                text: '키를 보관 중인 볼트',
-                style: Styles.body1.merge(
-                  const TextStyle(
-                    fontWeight: FontWeight.bold,
-                    height: 20.8 / 16,
-                    letterSpacing: -0.01,
-                  ),
-                ),
-                children: <TextSpan>[
-                  TextSpan(
-                    text: '에서 QR 코드를 생성해야 해요. 홈 화면 - 내보내기 화면에서 ',
-                    style: Styles.body1.merge(
-                      const TextStyle(
-                        height: 20.8 / 16,
-                        letterSpacing: -0.01,
-                      ),
-                    ),
-                  ),
-                  TextSpan(
-                    text: '다른 볼트에서 다중 서명 키로 사용',
-                    style: Styles.body1.merge(
-                      const TextStyle(
-                        fontWeight: FontWeight.bold,
-                        height: 20.8 / 16,
-                        letterSpacing: -0.01,
-                      ),
-                    ),
-                  ),
-                  TextSpan(
-                    text: '을 선택해 주세요. 화면에 보이는 QR 코드를 스캔합니다.',
-                    style: Styles.body1.merge(
-                      const TextStyle(
-                        height: 20.8 / 16,
-                        letterSpacing: -0.01,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
+            richText: _infoRichText(),
             showIcon: true,
             type: TooltipType.info,
           ),
         ),
         Visibility(
-          visible: _appModel.isLoading,
+          visible: _isProcessing,
           child: Container(
             width: MediaQuery.of(context).size.width,
             height: MediaQuery.of(context).size.height,
@@ -163,7 +168,7 @@ class _ImportScannerScreenState extends State<ImportScannerScreen> {
               ),
             ),
           ),
-        ),
+        )
       ],
     );
   }
@@ -178,24 +183,195 @@ class _ImportScannerScreenState extends State<ImportScannerScreen> {
 
   void _onQRViewCreated(QRViewController controller) {
     this.controller = controller;
-    controller.scannedDataStream.listen((scanData) {
-      if (_isProcessing || scanData.code == null) return;
 
+    controller.scannedDataStream.listen((scanData) async {
+      if (_isProcessing || scanData.code == null) return;
       debugPrint(scanData.code!);
       debugPrint(scanData.code!.contains('\n').toString());
-      List<String> data = scanData.code!.split('\n');
 
-      if (!scanData.code!.contains('\n') ||
-          !data[0].contains('BSMS') ||
-          !(data[2].contains('Vpub') ||
-              data[2].contains('Xpub') ||
-              data[2].contains('Zpub'))) {
-        onFailedScanning('Invalid Scheme');
+      if (!widget.isCopy) {
+        // 외부에서 키 가져오기
+        setState(() {
+          _isProcessing = true;
+        });
+        try {
+          // Signer 형식이 맞는지 체크, 형식에 벗어나면 Exception이 날라옵니다.
+          BSMS.parseSigner(scanData.code!);
+        } catch (e) {
+          onFailedScanning('Invalid Scheme');
+          _appModel.hideIndicator();
+          return;
+        }
+
+        Navigator.pop(context, scanData.code!);
         return;
       }
-      _isProcessing = true;
 
-      Navigator.pop(context, scanData.code!);
+      // 다중 서명 지갑 가져오기
+      if (widget.id == null) return;
+
+      setState(() {
+        _isProcessing = true;
+      });
+      VaultListItemBase vaultListItem = _vaultModel.getVaultById(widget.id!);
+      Map<String, dynamic> decodedData;
+      String coordinatorBsms;
+      try {
+        // CoordinatorBSMS 형식이 맞는지 체크, 형식에 벗어나면 Exception이 날라옵니다.
+
+        // CoordinatorBsms와 getWalletSync()의 데이터를 분리하기 위해 아래 문자열 기준으로 분리 했습니다.
+        // 변경이 필요하면 MultiSigBsmsScreen의 qrData도 함께 변경해 주어야 합니다.
+        decodedData = jsonDecode(scanData.code!);
+        coordinatorBsms = decodedData['coordinatorBSMS'];
+        BSMS.parseCoordinator(coordinatorBsms);
+      } catch (e) {
+        print('e ======= : ${e.toString()}');
+        if (e.toString().contains('Invalid address')) {
+          onFailedScanning('Invalid address');
+        } else if (e.toString().contains('Invalid value')) {
+          onFailedScanning('Invalid value');
+        } else if (e.toString().contains('Unsupported BSMS version')) {
+          onFailedScanning('Unsupported BSMS version');
+        } else if (e.toString().contains('Not support customized path')) {
+          onFailedScanning('Not support customized path');
+        } else if (e.toString().contains('is not a subtype')) {
+          onFailedScanning('Invalid value');
+        }
+        _appModel.hideIndicator();
+
+        return;
+      }
+      // 이 지갑이 키로 사용된 멀티시그지갑의 coordinatorBsms = decodedCoordinatorBsms
+      debugPrint('-----------------------\n$coordinatorBsms');
+      // 이 지갑이 이미 포함된 멀티시그 지갑이 아닌지 확인하기, 포함된 경우 alert
+      if (_vaultModel.isMultisigVaultDuplicated(coordinatorBsms)) {
+        showAlertDialog(
+            context: context,
+            content: '이미 등록된 다중 서명 지갑입니다.',
+            onConfirmPressed: () {
+              setState(() {
+                _isProcessing = false;
+              });
+            });
+        _appModel.hideIndicator();
+
+        return;
+      }
+
+      // 이 지갑이 위 멀티시그 지갑의 일부인지 확인하기, 아닌 경우 alert
+      MultisignatureVault multisigVault =
+          MultisignatureVault.fromCoordinatorBsms(coordinatorBsms);
+      // 이 지갑의 signerBsms, isolate 실행
+      int signerIndex = await _vaultModel.getSignerIndexAsync(
+          multisigVault, vaultListItem as SinglesigVaultListItem);
+
+      debugPrint('signerIndex = $signerIndex');
+      if (signerIndex == -1) {
+        showAlertDialog(
+            context: context,
+            content: '이 키가 포함된 다중 서명 지갑이 아닙니다.',
+            onConfirmPressed: () {
+              setState(() {
+                _isProcessing = false;
+              });
+            });
+        _appModel.hideIndicator();
+
+        return;
+      }
+
+      // multisigVault 가져오기, isolate 실행
+      await _vaultModel.importMultisigVaultAsync(decodedData['name'],
+          decodedData['colorIndex'], decodedData['iconIndex'], coordinatorBsms);
+
+      if (_vaultModel.isAddVaultCompleted) {
+        _appModel.hideIndicator();
+        Logger.log('finish creating vault. return to home.');
+        Logger.log('Homeroute = ${HomeScreenStatus().screenStatus}');
+        Navigator.pushNamedAndRemoveUntil(
+          context,
+          '/',
+          (Route<dynamic> route) => false,
+        );
+      }
     });
+  }
+
+  RichText _infoRichText() {
+    return widget.isCopy
+        ? RichText(
+            text: TextSpan(
+              text: '다른 볼트에서 만든 다중 서명 지갑을 추가할 수 있어요. 추가 하시려는 다중 서명 지갑의 ',
+              style: Styles.body1.merge(
+                const TextStyle(
+                  height: 20.8 / 16,
+                  letterSpacing: -0.01,
+                ),
+              ),
+              children: <TextSpan>[
+                TextSpan(
+                  text: '지갑 설정 정보 ',
+                  style: Styles.body1.merge(
+                    const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      height: 20.8 / 16,
+                      letterSpacing: -0.01,
+                    ),
+                  ),
+                ),
+                TextSpan(
+                  text: '화면에 나타나는 QR 코드를 스캔해 주세요.',
+                  style: Styles.body1.merge(
+                    const TextStyle(
+                      height: 20.8 / 16,
+                      letterSpacing: -0.01,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          )
+        : RichText(
+            text: TextSpan(
+              text: '키를 보관 중인 볼트',
+              style: Styles.body1.merge(
+                const TextStyle(
+                  fontWeight: FontWeight.bold,
+                  height: 20.8 / 16,
+                  letterSpacing: -0.01,
+                ),
+              ),
+              children: <TextSpan>[
+                TextSpan(
+                  text: '에서 QR 코드를 생성해야 해요. 홈 화면 - 내보내기 화면에서 ',
+                  style: Styles.body1.merge(
+                    const TextStyle(
+                      height: 20.8 / 16,
+                      letterSpacing: -0.01,
+                    ),
+                  ),
+                ),
+                TextSpan(
+                  text: '다른 볼트에서 다중 서명 키로 사용',
+                  style: Styles.body1.merge(
+                    const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      height: 20.8 / 16,
+                      letterSpacing: -0.01,
+                    ),
+                  ),
+                ),
+                TextSpan(
+                  text: '을 선택해 주세요. 화면에 보이는 QR 코드를 스캔합니다.',
+                  style: Styles.body1.merge(
+                    const TextStyle(
+                      height: 20.8 / 16,
+                      letterSpacing: -0.01,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          );
   }
 }
