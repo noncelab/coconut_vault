@@ -6,7 +6,7 @@ import 'package:coconut_vault/model/data/vault_type.dart';
 import 'package:coconut_vault/model/state/multisig_creation_model.dart';
 import 'package:coconut_vault/model/state/vault_model.dart';
 import 'package:coconut_vault/screens/vault_creation/multi_sig/confirm_importing_screen.dart';
-import 'package:coconut_vault/screens/vault_creation/multi_sig/import_scanner_screen.dart';
+import 'package:coconut_vault/screens/vault_creation/multi_sig/signer_scanner_screen.dart';
 import 'package:coconut_vault/screens/vault_creation/multi_sig/key_list_bottom_screen.dart';
 import 'package:coconut_vault/services/isolate_service.dart';
 import 'package:coconut_vault/utils/alert_util.dart';
@@ -112,6 +112,7 @@ class _AssignSignersScreenState extends State<AssignSignersScreen> {
     setState(() {
       isCompleteToExtractSignerBsms = true;
     });
+    _extractBsmsIsolateHandler!.dispose();
   }
 
   bool _isAssignedKeyCompletely() {
@@ -148,8 +149,9 @@ class _AssignSignersScreenState extends State<AssignSignersScreen> {
   }
 
   bool _isAllAssignedFromExternal() {
-    return assignedVaultList
-            .every((vault) => vault.importKeyType == ImportKeyType.external) &&
+    return assignedVaultList.every((vault) =>
+            vault.importKeyType == null ||
+            vault.importKeyType == ImportKeyType.external) &&
         _getAssignedVaultListLength() >= nCount - 1;
   }
 
@@ -163,7 +165,15 @@ class _AssignSignersScreenState extends State<AssignSignersScreen> {
     return false;
   }
 
-  void _showDialog(DialogType type, {int keyIndex = 0}) {
+  /// bsms를 비교하여 이미 보유한 볼트 지갑 중 하나인 경우 이름을 반환
+  String? _findVaultNameByBsms(String signerBsms) {
+    int result =
+        signerOptions.indexWhere((element) => element.signerBsms == signerBsms);
+    if (result == -1) return null;
+    return signerOptions[result].singlesigVaultListItem.name;
+  }
+
+  void _showDialog(DialogType type, {int keyIndex = 0, String? vaultName}) {
     String title = '';
     String message = '';
     String cancelButtonText = '';
@@ -244,9 +254,7 @@ class _AssignSignersScreenState extends State<AssignSignersScreen> {
             }
 
             setState(() {
-              assignedVaultList[keyIndex].item = null;
-              assignedVaultList[keyIndex].isExpanded = true;
-              assignedVaultList[keyIndex].importKeyType = null;
+              assignedVaultList[keyIndex].reset();
             });
             Navigator.pop(context);
           };
@@ -292,9 +300,20 @@ class _AssignSignersScreenState extends State<AssignSignersScreen> {
           };
           break;
         }
+      case DialogType.sameWithInternalOne:
+        {
+          title = "보유하신 지갑 중 하나입니다.";
+          message = "'$vaultName'와 같은 지갑입니다.";
+          confirmButtonText = '확인';
+          confirmButtonColor = MyColors.black;
+          onConfirm = () {
+            Navigator.pop(context);
+          };
+          break;
+        }
       default:
         {
-          title = '더이상 가져올 수 없어요';
+          title = '외부 지갑 개수 초과';
           message = '적어도 1개는 이 볼트에 있는 키를 사용해 주세요';
           cancelButtonText = '';
           confirmButtonText = '확인';
@@ -314,8 +333,9 @@ class _AssignSignersScreenState extends State<AssignSignersScreen> {
       confirmButtonText: confirmButtonText,
       confirmButtonColor: confirmButtonColor,
       barrierDismissible: barrierDismissible,
-      isSingleButton:
-          type == DialogType.alert || type == DialogType.alreadyExist,
+      isSingleButton: type == DialogType.alert ||
+          type == DialogType.alreadyExist ||
+          type == DialogType.sameWithInternalOne,
       onCancel: onCancel ?? () => Navigator.pop(context),
       onConfirm: () => onConfirm(),
     );
@@ -352,7 +372,10 @@ class _AssignSignersScreenState extends State<AssignSignersScreen> {
           break;
         case ImportKeyType.external:
           signers.add(MultisigSigner(
-              id: i, signerBsms: data.bsms!, keyStore: keyStores[i]));
+              id: i,
+              signerBsms: data.bsms!,
+              memo: data.memo,
+              keyStore: keyStores[i]));
           break;
         default:
           throw ArgumentError("wrong importKeyType: ${data.importKeyType!}");
@@ -600,7 +623,7 @@ class _AssignSignersScreenState extends State<AssignSignersScreen> {
                                                   const ClampingScrollPhysics(),
                                               enableSingleChildScroll: false,
                                               child:
-                                                  const ImportScannerScreen(),
+                                                  const SignerScannerScreen(),
                                             );
 
                                             if (externalImported != null) {
@@ -610,7 +633,20 @@ class _AssignSignersScreenState extends State<AssignSignersScreen> {
                                                 return _showDialog(
                                                     DialogType.alreadyExist);
                                               }
-                                              final confirmedExternalZPub =
+
+                                              String? sameVaultName =
+                                                  _findVaultNameByBsms(
+                                                      externalImported);
+                                              if (sameVaultName != null) {
+                                                _showDialog(
+                                                    DialogType
+                                                        .sameWithInternalOne,
+                                                    vaultName: sameVaultName);
+                                                return;
+                                              }
+
+                                              final Map<String, String>
+                                                  bsmsAndMemo =
                                                   await MyBottomSheet
                                                       .showDraggableScrollableSheet(
                                                 topWidget: true,
@@ -632,18 +668,18 @@ class _AssignSignersScreenState extends State<AssignSignersScreen> {
                                                       externalImported,
                                                 ),
                                               );
-                                              if (confirmedExternalZPub !=
-                                                  null) {
-                                                // 외부 지갑 추가
+                                              assert(bsmsAndMemo['bsms']!
+                                                  .isNotEmpty);
+
+                                              // 외부 지갑 추가
+                                              setState(() {
                                                 assignedVaultList[i]
                                                   ..importKeyType =
                                                       ImportKeyType.external
                                                   ..isExpanded = false
                                                   ..bsms = externalImported
-                                                  ..memo =
-                                                      confirmedExternalZPub[
-                                                          'memo'];
-                                              }
+                                                  ..memo = bsmsAndMemo['memo'];
+                                              });
                                             }
                                           },
                                         ),
@@ -786,6 +822,11 @@ class AssignedVaultListItem {
   void changeExpanded() {
     isExpanded = !isExpanded;
   }
+
+  void reset() {
+    bsms = item = importKeyType = memo = null;
+    isExpanded = true;
+  }
 }
 
 // 확장형 메뉴의 선택지
@@ -873,4 +914,5 @@ enum DialogType {
   deleteKey,
   alreadyExist,
   cancelImport,
+  sameWithInternalOne // '가져오기' 한 지갑이 내부에 있는 지갑 중 하나일 때
 }

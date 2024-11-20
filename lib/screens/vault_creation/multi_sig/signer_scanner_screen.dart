@@ -8,14 +8,14 @@ import 'package:coconut_vault/widgets/custom_tooltip.dart';
 import 'package:provider/provider.dart';
 import 'package:qr_code_scanner/qr_code_scanner.dart';
 
-class ImportScannerScreen extends StatefulWidget {
-  const ImportScannerScreen({super.key});
+class SignerScannerScreen extends StatefulWidget {
+  const SignerScannerScreen({super.key});
 
   @override
-  State<ImportScannerScreen> createState() => _ImportScannerScreenState();
+  State<SignerScannerScreen> createState() => _SignerScannerScreenState();
 }
 
-class _ImportScannerScreenState extends State<ImportScannerScreen> {
+class _SignerScannerScreenState extends State<SignerScannerScreen> {
   late AppModel _appModel;
   final GlobalKey qrKey = GlobalKey(debugLabel: 'QR');
 
