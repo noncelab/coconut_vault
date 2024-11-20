@@ -15,6 +15,7 @@ import 'package:coconut_vault/styles.dart';
 import 'package:coconut_vault/utils/alert_util.dart';
 import 'package:coconut_vault/utils/colors_util.dart';
 import 'package:coconut_vault/utils/icon_util.dart';
+import 'package:coconut_vault/utils/text_utils.dart';
 import 'package:coconut_vault/utils/vibration_util.dart';
 import 'package:coconut_vault/widgets/appbar/custom_appbar.dart';
 import 'package:coconut_vault/widgets/bottom_sheet.dart';
@@ -505,7 +506,7 @@ class _MultiSigSettingScreenState extends State<MultiSigSettingScreen> {
                                         // 이름
                                         Expanded(
                                           child: Text(
-                                            name,
+                                            TextUtils.ellipsisIfLonger(name),
                                             style: Styles.body2,
                                             maxLines: 1,
                                             overflow: TextOverflow.ellipsis,
