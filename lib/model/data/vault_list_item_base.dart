@@ -12,20 +12,21 @@ abstract class VaultListItemBase {
   final int colorIndex;
   @JsonKey(name: "iconIndex")
   final int iconIndex;
-  @JsonKey(name: "vaultJsonString")
-  String? vaultJsonString;
   @JsonKey(name: "vaultType")
   VaultType vaultType;
+  @JsonKey(name: "vaultJsonString")
+  String? vaultJsonString;
 
   late WalletBase coconutVault;
 
-  VaultListItemBase(
-      {required this.id,
-      required this.name,
-      required this.colorIndex,
-      required this.iconIndex,
-      this.vaultJsonString,
-      required this.vaultType});
+  VaultListItemBase({
+    required this.id,
+    required this.name,
+    required this.colorIndex,
+    required this.iconIndex,
+    required this.vaultType,
+    this.vaultJsonString,
+  });
 
   String getWalletSyncString();
 

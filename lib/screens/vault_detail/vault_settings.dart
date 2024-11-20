@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:coconut_lib/coconut_lib.dart';
 import 'package:coconut_vault/model/data/singlesig_vault_list_item.dart';
-import 'package:coconut_vault/model/data/vault_list_item_base.dart';
 import 'package:coconut_vault/utils/text_utils.dart';
 import 'package:coconut_vault/utils/vibration_util.dart';
 import 'package:flutter/material.dart';
@@ -40,7 +39,7 @@ class _VaultSettingsState extends State<VaultSettings> {
   late VaultModel _vaultModel;
   OverlayEntry? _overlayEntry;
   late TextEditingController _nameTextController;
-  late VaultListItemBase _vaultListItem;
+  late SinglesigVaultListItem _singleVaultItem;
   late SingleSignatureVault _singleSignatureVault;
   late String _name;
   late String _titleName;
@@ -53,67 +52,31 @@ class _VaultSettingsState extends State<VaultSettings> {
   Timer? _tooltipTimer;
   int _tooltipRemainingTime = 5;
 
-  // TODO: 다중 지갑 정보
-  // String _multiSigName = '';
-  // int _multiSigIndex = 0;
-  // bool _isUsedToMultiSig = false;
-
-  final List<TestMultiSig> _testMultiSigList = [];
-
   @override
   void initState() {
     _appModel = Provider.of<AppModel>(context, listen: false);
     _vaultModel = Provider.of<VaultModel>(context, listen: false);
     super.initState();
     // id 접근: widget.id
-    _vaultListItem = _vaultModel.getVaultById(int.parse(widget.id));
+    _singleVaultItem = _vaultModel.getVaultById(int.parse(widget.id))
+        as SinglesigVaultListItem;
 
-    if (_vaultListItem.coconutVault is SingleSignatureVault) {
+    if (_singleVaultItem.coconutVault is SingleSignatureVault) {
       _singleSignatureVault =
-          _vaultListItem.coconutVault as SingleSignatureVault;
+          _singleVaultItem.coconutVault as SingleSignatureVault;
     }
 
-    _nameTextController = TextEditingController(text: _vaultListItem.name);
-    _name = _vaultListItem.name;
+    _nameTextController = TextEditingController(text: _singleVaultItem.name);
+    _name = _singleVaultItem.name;
     _titleName = TextUtils.ellipsisIfLonger(_name);
-    _iconIndex = _vaultListItem.iconIndex;
-    _colorIndex = _vaultListItem.colorIndex;
+    _iconIndex = _singleVaultItem.iconIndex;
+    _colorIndex = _singleVaultItem.colorIndex;
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _tooltipIconRendBox =
           _tooltipIconKey.currentContext?.findRenderObject() as RenderBox;
       _tooltipIconPosition = _tooltipIconRendBox.localToGlobal(Offset.zero);
     });
-
-    // TODO: 다중 지갑 정보 가져오기
-    /*if (_name == '다중키지갑') {
-      _testMultiSigList.add(TestMultiSig(
-          id: 11,
-          name: '다중이',
-          colorIndex: 0,
-          iconIndex: 0,
-          secret: '',
-          passphrase: '',
-          vaultJsonString: ''));
-
-      _testMultiSigList.add(TestMultiSig(
-          id: 12,
-          name: '열글자 넘어 버리는 다중이',
-          colorIndex: 0,
-          iconIndex: 0,
-          secret: '',
-          passphrase: '',
-          vaultJsonString: ''));
-
-      _testMultiSigList.add(TestMultiSig(
-          id: 14,
-          name: '다중다중',
-          colorIndex: 0,
-          iconIndex: 0,
-          secret: '',
-          passphrase: '',
-          vaultJsonString: ''));
-    }*/
   }
 
   @override
@@ -149,7 +112,7 @@ class _VaultSettingsState extends State<VaultSettings> {
       hasChanges = true;
     }
 
-    if (_name != newName && (newName != _vaultListItem.name)) {
+    if (_name != newName && (newName != _singleVaultItem.name)) {
       if (_vaultModel.isNameDuplicated(newName)) {
         CustomToast.showToast(
             context: context, text: '이미 사용하고 있는 이름으로는 바꿀 수 없어요');
@@ -160,6 +123,18 @@ class _VaultSettingsState extends State<VaultSettings> {
     if (hasChanges) {
       await _vaultModel.updateVault(
           int.parse(widget.id), newName, newColorIndex, newIconIndex);
+
+      if (_singleVaultItem.multisigKey?.entries.isNotEmpty == true) {
+        for (var entry in _singleVaultItem.multisigKey!.entries) {
+          await _vaultModel.updateVault(
+            int.parse(entry.key),
+            newName,
+            newColorIndex,
+            newIconIndex,
+            signerIndex: entry.value,
+          );
+        }
+      }
 
       setState(() {
         _name = newName;
@@ -219,9 +194,8 @@ class _VaultSettingsState extends State<VaultSettings> {
           MyBottomSheet.showBottomSheet_90(
               context: context,
               child: MnemonicViewScreen(
-                mnemonic: (_vaultListItem as SinglesigVaultListItem).secret,
-                passphrase:
-                    (_vaultListItem as SinglesigVaultListItem).passphrase,
+                mnemonic: _singleVaultItem.secret,
+                passphrase: _singleVaultItem.passphrase,
                 title: '니모닉 문구 보기',
                 subtitle: '패스프레이즈 보기',
               ));
@@ -311,7 +285,7 @@ class _VaultSettingsState extends State<VaultSettings> {
             title: '$_titleName 정보',
             context: context,
             hasRightIcon: false,
-            isBottom: true),
+            isBottom: _singleVaultItem.multisigKey?.keys.isNotEmpty == true),
         body: GestureDetector(
           onTap: () => FocusScope.of(context).unfocus(),
           child: SafeArea(
@@ -372,9 +346,10 @@ class _VaultSettingsState extends State<VaultSettings> {
                                               onTap: () {
                                                 _removeTooltip();
                                                 _showModalBottomSheetForEditingNameAndIcon(
-                                                    _name,
-                                                    _colorIndex,
-                                                    _iconIndex);
+                                                  _name,
+                                                  _colorIndex,
+                                                  _iconIndex,
+                                                );
                                               },
                                               child: Container(
                                                 decoration: BoxDecoration(
@@ -437,7 +412,8 @@ class _VaultSettingsState extends State<VaultSettings> {
                               )),
                         ),
                         // TODO: 다중지갑 키 사용여부 체크
-                        if (_testMultiSigList.isNotEmpty) ...{
+                        if (_singleVaultItem.multisigKey?.entries.isNotEmpty ==
+                            true) ...{
                           Container(
                             margin: const EdgeInsets.only(
                                 bottom: 12, left: 16, right: 16),
@@ -487,14 +463,24 @@ class _VaultSettingsState extends State<VaultSettings> {
                                   ),
 
                                   ListView.builder(
-                                    itemCount: _testMultiSigList.length,
+                                    itemCount: _singleVaultItem
+                                        .multisigKey!.keys.length,
                                     shrinkWrap: true,
                                     itemBuilder: (context, index) {
-                                      final multiSig = _testMultiSigList[index];
+                                      final id = _singleVaultItem
+                                          .multisigKey!.keys
+                                          .elementAt(index);
+                                      final idx = _singleVaultItem
+                                          .multisigKey!.values
+                                          .elementAt(index);
+                                      final multisig = _vaultModel
+                                          .getVaultById(int.parse(id));
+
                                       return InkWell(
                                         onTap: () {
-                                          // TODO: 다중 지갑으로 이동 구현
-                                          print(multiSig.name);
+                                          Navigator.pushNamed(
+                                              context, '/multisig-setting',
+                                              arguments: {'id': id});
                                         },
                                         child: Container(
                                           padding: const EdgeInsets.only(
@@ -508,7 +494,7 @@ class _VaultSettingsState extends State<VaultSettings> {
                                               children: [
                                                 TextSpan(
                                                   text:
-                                                      '${TextUtils.ellipsisIfLonger(multiSig.name)} 지갑',
+                                                      '${TextUtils.ellipsisIfLonger(multisig.name)} 지갑',
                                                   style:
                                                       Styles.body2Bold.copyWith(
                                                     color: MyColors.linkBlue,
@@ -516,7 +502,7 @@ class _VaultSettingsState extends State<VaultSettings> {
                                                 ),
                                                 const TextSpan(text: '의 '),
                                                 TextSpan(
-                                                  text: '${index + 1}번',
+                                                  text: '${idx + 1}번',
                                                   style:
                                                       Styles.body2Bold.copyWith(
                                                     color: MyColors.linkBlue,
@@ -585,7 +571,9 @@ class _VaultSettingsState extends State<VaultSettings> {
                                     InformationRowItem(
                                       label: '삭제하기',
                                       showIcon: true,
-                                      textColor: _testMultiSigList.isNotEmpty
+                                      textColor: _singleVaultItem.multisigKey
+                                                  ?.entries.isNotEmpty ==
+                                              true
                                           ? MyColors.disabledGrey
                                               .withOpacity(0.15)
                                           : null,
@@ -600,7 +588,9 @@ class _VaultSettingsState extends State<VaultSettings> {
                                           'assets/svg/trash.svg',
                                           width: 16,
                                           colorFilter: ColorFilter.mode(
-                                            _testMultiSigList.isNotEmpty
+                                            _singleVaultItem.multisigKey
+                                                        ?.entries.isNotEmpty ==
+                                                    true
                                                 ? MyColors.disabledGrey
                                                     .withOpacity(0.15)
                                                 : MyColors.warningText,
@@ -610,7 +600,9 @@ class _VaultSettingsState extends State<VaultSettings> {
                                       ),
                                       onPressed: () {
                                         _removeTooltip();
-                                        if (_testMultiSigList.isNotEmpty) {
+                                        if (_singleVaultItem.multisigKey
+                                                ?.entries.isNotEmpty ==
+                                            true) {
                                           CustomToast.showToast(
                                             context: context,
                                             text:
@@ -646,25 +638,4 @@ class _VaultSettingsState extends State<VaultSettings> {
       ),
     );
   }
-}
-
-// TODO: 개발 완료후 삭제
-class TestMultiSig {
-  final int id;
-  final String name;
-  final int colorIndex;
-  final int iconIndex;
-  final String secret;
-  final String passphrase;
-  String? vaultJsonString;
-
-  TestMultiSig({
-    required this.id,
-    required this.name,
-    required this.colorIndex,
-    required this.iconIndex,
-    required this.secret,
-    required this.passphrase,
-    this.vaultJsonString,
-  });
 }

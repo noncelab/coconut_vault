@@ -149,21 +149,30 @@ class VaultModel extends ChangeNotifier {
   Future<void> addMultisigVault(
       int nextId, String name, int color, int icon) async {
     _setAddVaultCompleted(false);
+
+    final signers = _multisigCreationModel.signers ?? [];
+    final requiredSignatureCount =
+        _multisigCreationModel.requiredSignatureCount ?? 0;
     var newMultisigVault = await MultisigVaultListItemFactory().create(
         nextId: nextId,
         name: name,
         colorIndex: color,
         iconIndex: icon,
         secrets: {
-          'signers': _multisigCreationModel.signers,
-          'requiredSignatureCount':
-              _multisigCreationModel.requiredSignatureCount!
+          'signers': signers,
+          'requiredSignatureCount': requiredSignatureCount,
         });
 
-    print('------------------------------------');
-    print(newMultisigVault);
-    print(newMultisigVault as VaultListItemBase);
-    print('------------------------------------');
+    for (var signer in signers) {
+      if (signer.innerVaultId == null) return;
+      final id = signer.innerVaultId ?? 0;
+      final name = signer.name ?? '';
+      final colorIndex = signer.colorIndex ?? 0;
+      final iconIndex = signer.iconIndex ?? 0;
+      final multiSigIndex = signers.indexOf(signer);
+      await updateVault(id, name, colorIndex, iconIndex,
+          addMultisigKey: nextId, addMultisigIndex: multiSigIndex);
+    }
 
     _vaultList.add(newMultisigVault);
     _setAddVaultCompleted(true);
@@ -172,17 +181,34 @@ class VaultModel extends ChangeNotifier {
     _multisigCreationModel.reset();
   }
 
+  /// addMultisigKey, addMultisigIndex -> 다중 지갑이 추가될 때 일반 지갑의 multisigKey 업데이트
+  /// removeMultisigKey -> 다중 지갑이 삭제될 때 일반 지갑의 multisigKey 삭제
+  /// singlesigIndex -> 일반 지갑이 변경될 때 다중 지갑의 signer 업데이트
   Future<void> updateVault(
-      int id, String newName, int colorIndex, int iconIndex) async {
+      int id, String newName, int colorIndex, int iconIndex,
+      {int? addMultisigKey,
+      int? addMultisigIndex,
+      String? removeMultisigKey,
+      int? signerIndex}) async {
     // _vaultList에서 name이 'name'인 항목을 찾아서 그 항목의 name을 newName으로 변경한다.
     final index = _vaultList.indexWhere((item) => item.id == id);
     if (index == -1) {
       throw Exception('updateVaultName: no vault id is "$id"');
     }
 
-    // TODO: test 필요
     if (_vaultList[index].vaultType == VaultType.singleSignature) {
       SinglesigVaultListItem ssv = _vaultList[index] as SinglesigVaultListItem;
+      Map<String, dynamic>? updateMultisigKey = ssv.multisigKey != null
+          ? Map<String, dynamic>.from(ssv.multisigKey!)
+          : {};
+      if (addMultisigKey != null) {
+        updateMultisigKey.addAll({'$addMultisigKey': addMultisigIndex});
+      }
+
+      if (removeMultisigKey != null) {
+        updateMultisigKey.remove(removeMultisigKey);
+      }
+
       _vaultList[index] = SinglesigVaultListItem(
         id: ssv.id,
         name: newName,
@@ -190,14 +216,22 @@ class VaultModel extends ChangeNotifier {
         iconIndex: iconIndex,
         secret: ssv.secret,
         passphrase: ssv.passphrase,
+        multisigKey: updateMultisigKey,
       );
     } else if (_vaultList[index].vaultType == VaultType.multiSignature) {
       MultisigVaultListItem ssv = _vaultList[index] as MultisigVaultListItem;
+
+      if (signerIndex != null) {
+        ssv.signers[signerIndex].name = newName;
+        ssv.signers[signerIndex].colorIndex = colorIndex;
+        ssv.signers[signerIndex].iconIndex = iconIndex;
+      }
+
       _vaultList[index] = MultisigVaultListItem(
           id: ssv.id,
-          name: newName,
-          colorIndex: colorIndex,
-          iconIndex: iconIndex,
+          name: signerIndex != null ? ssv.name : newName,
+          colorIndex: signerIndex != null ? ssv.colorIndex : colorIndex,
+          iconIndex: signerIndex != null ? ssv.iconIndex : iconIndex,
           signers: ssv.signers,
           requiredSignatureCount: ssv.requiredSignatureCount);
     } else {
@@ -236,10 +270,29 @@ class VaultModel extends ChangeNotifier {
     return vaultIndex != -1;
   }
 
-  Future<void> deleteVault(int id) async {
+  Future<void> deleteVault(int id, {isMultisig = false}) async {
     final index = _vaultList.indexWhere((item) => item.id == id);
     if (index == -1) {
       throw Exception('deleteVault: no vault id is "$id"');
+    }
+
+    if (isMultisig) {
+      final multi = getVaultById(id) as MultisigVaultListItem;
+      for (var signer in multi.signers) {
+        if (signer.innerVaultId != null) {
+          final innerVaultId = signer.innerVaultId ?? 0;
+          final name = signer.name ?? '';
+          final colorIndex = signer.colorIndex ?? 0;
+          final iconIndex = signer.iconIndex ?? 0;
+          await updateVault(
+            innerVaultId,
+            name,
+            colorIndex,
+            iconIndex,
+            removeMultisigKey: '$id',
+          );
+        }
+      }
     }
 
     _vaultList.removeAt(index);
