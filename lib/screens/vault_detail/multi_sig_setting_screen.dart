@@ -131,16 +131,28 @@ class _MultiSigSettingScreenState extends State<MultiSigSettingScreen> {
     );
   }
 
-  // TODO: 메모 업데이트 처리
   _showEditMemoBottomSheet(MultisigSigner selectedVault) {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (context) => MultiSigMemoBottomSheet(
-        memo: '',
+        memo: selectedVault.memo!,
         onUpdate: (memo) {
-          Navigator.pop(context);
+          if (selectedVault.memo == memo) return;
+
+          _vaultModel
+              .updateMemo(int.parse(widget.id), selectedVault.id, memo)
+              .then((_) {
+            setState(() {
+              String? finalMemo = memo;
+              if (memo.isEmpty) {
+                finalMemo = null;
+              }
+              _multiVault.signers[selectedVault.id].memo = finalMemo;
+            });
+            Navigator.pop(context);
+          });
         },
       ),
     );
@@ -158,7 +170,7 @@ class _MultiSigSettingScreenState extends State<MultiSigSettingScreen> {
     );
   }
 
-  Future _verifyBiometric(int status, {MultisigSigner? selectedVault}) async {
+  Future _verifyBiometric(int status, {MultisigSigner? multisigSigner}) async {
     MyBottomSheet.showBottomSheet_90(
       context: context,
       child: CustomLoadingOverlay(
@@ -169,17 +181,17 @@ class _MultiSigSettingScreenState extends State<MultiSigSettingScreen> {
             Navigator.pop(context);
             switch (status) {
               case 0:
-                if (selectedVault != null) {
+                if (multisigSigner != null) {
                   _showModalBottomSheetWithQrImage(
                     '확장 공개키',
-                    selectedVault.keyStore.extendedPublicKey.serialize(),
+                    multisigSigner.keyStore.extendedPublicKey.serialize(),
                     null,
                   );
                 }
                 break;
               case 1:
-                if (selectedVault != null) {
-                  final base = _vaultModel.getVaultById(selectedVault.id + 1);
+                if (multisigSigner != null) {
+                  final base = _vaultModel.getVaultById(multisigSigner.id + 1);
                   final single = base as SinglesigVaultListItem;
                   MyBottomSheet.showBottomSheet_90(
                     context: context,
@@ -203,11 +215,11 @@ class _MultiSigSettingScreenState extends State<MultiSigSettingScreen> {
     );
   }
 
-  Future _selectedKeyBottomSheet(MultisigSigner vault) async {
-    final isCoconutVault = vault.innerVaultId != null;
-    final name = vault.name ?? '';
+  Future _selectedKeyBottomSheet(MultisigSigner multisigSigner) async {
+    final isInnerVault = multisigSigner.innerVaultId != null;
+    final name = multisigSigner.name ?? '';
 
-    bool isCreatedMemo = !isCoconutVault && vault.memo != null;
+    bool existsMemo = !isInnerVault && multisigSigner.memo != null;
 
     MyBottomSheet.showBottomSheet(
       context: context,
@@ -224,21 +236,21 @@ class _MultiSigSettingScreenState extends State<MultiSigSettingScreen> {
             _bottomSheetButton(
               '다중 서명용 확장 공개키 보기',
               onPressed: () {
-                _verifyBiometric(0, selectedVault: vault);
+                _verifyBiometric(0, multisigSigner: multisigSigner);
               },
             ),
             const Divider(),
             _bottomSheetButton(
-              isCoconutVault
+              isInnerVault
                   ? '니모닉 문구 보기'
-                  : isCreatedMemo
+                  : existsMemo
                       ? '메모 수정'
                       : '메모 추가',
               onPressed: () {
-                if (isCoconutVault) {
-                  _verifyBiometric(1, selectedVault: vault);
+                if (isInnerVault) {
+                  _verifyBiometric(1, multisigSigner: multisigSigner);
                 } else {
-                  _showEditMemoBottomSheet(vault);
+                  _showEditMemoBottomSheet(multisigSigner);
                 }
               },
             ),
@@ -432,7 +444,8 @@ class _MultiSigSettingScreenState extends State<MultiSigSettingScreen> {
                         final item = _multiVault.signers[index];
 
                         final isVaultKey = item.innerVaultId != null;
-                        final name = item.name ?? '';
+                        final name = isVaultKey ? item.name! : '외부 지갑';
+                        final memo = isVaultKey ? null : item.memo;
                         final colorIndex = item.colorIndex ?? 0;
                         final iconIndex = item.iconIndex ?? 0;
                         final mfp = item.keyStore.masterFingerprint;
@@ -500,15 +513,34 @@ class _MultiSigSettingScreenState extends State<MultiSigSettingScreen> {
                                               width: isVaultKey ? 20 : 15,
                                             )),
 
-                                        const SizedBox(width: 12),
-
-                                        // 이름
+                                        const SizedBox(width: 10),
+                                        // 이름, 메모
                                         Expanded(
-                                          child: Text(
-                                            name,
-                                            style: Styles.body2,
-                                            maxLines: 1,
-                                            overflow: TextOverflow.ellipsis,
+                                          child: Column(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.center,
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              // 이름
+                                              Text(
+                                                name,
+                                                style: Styles.body2,
+                                                maxLines: 1,
+                                                overflow: TextOverflow.ellipsis,
+                                              ),
+                                              Visibility(
+                                                visible: memo != null &&
+                                                    memo.isNotEmpty,
+                                                child: Text(
+                                                  memo ?? '',
+                                                  style: Styles.caption2,
+                                                  maxLines: 2,
+                                                  overflow:
+                                                      TextOverflow.ellipsis,
+                                                ),
+                                              )
+                                            ],
                                           ),
                                         ),
 

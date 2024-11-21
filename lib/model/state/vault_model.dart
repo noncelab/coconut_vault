@@ -150,9 +150,9 @@ class VaultModel extends ChangeNotifier {
       int nextId, String name, int color, int icon) async {
     _setAddVaultCompleted(false);
 
-    final signers = _multisigCreationModel.signers ?? [];
+    final signers = _multisigCreationModel.signers!;
     final requiredSignatureCount =
-        _multisigCreationModel.requiredSignatureCount ?? 0;
+        _multisigCreationModel.requiredSignatureCount!;
     var newMultisigVault = await MultisigVaultListItemFactory().create(
         nextId: nextId,
         name: name,
@@ -163,8 +163,9 @@ class VaultModel extends ChangeNotifier {
           'requiredSignatureCount': requiredSignatureCount,
         });
 
+    // for SinglesigVaultListItem multsig key map update
     for (var signer in signers) {
-      if (signer.innerVaultId == null) return;
+      if (signer.innerVaultId != null) break;
       final id = signer.innerVaultId ?? 0;
       final name = signer.name ?? '';
       final colorIndex = signer.colorIndex ?? 0;
@@ -241,6 +242,21 @@ class VaultModel extends ChangeNotifier {
     // 해당 항목의 name을 newName으로 변경
     await updateVaultInStorage();
     notifyListeners();
+  }
+
+  /// 다중서명 지갑의 [singerIndex]번째 키로 사용한 외부 지갑의 메모를 업데이트
+  Future updateMemo(int id, int signerIndex, String? newMemo) async {
+    final i = _vaultList.indexWhere((item) => item.id == id);
+    assert(i != -1 && _vaultList[i].vaultType == VaultType.multiSignature);
+    assert((_vaultList[i] as MultisigVaultListItem)
+            .signers[signerIndex]
+            .innerVaultId ==
+        null);
+
+    (_vaultList[i] as MultisigVaultListItem).signers[signerIndex].memo =
+        newMemo;
+
+    await updateVaultInStorage();
   }
 
   /// SiglesigVaultListItem의 seed 중복 여부 확인
