@@ -170,7 +170,7 @@ class VaultModel extends ChangeNotifier {
       'iconIndex': icon,
       'secrets': {
         'signers': jsonEncode(signers.map((item) => item.toJson()).toList()),
-        'requiredSignatureCount': _multisigCreationModel.requiredSignatureCount,
+        'requiredSignatureCount': requiredSignatureCount,
       }
     };
 
@@ -236,6 +236,7 @@ class VaultModel extends ChangeNotifier {
           .initialize(initialType: InitializeType.importMultisigVault);
     }
 
+    // isolate 내부에서 멀티시그 지갑 signer들의 정보 입력 (MultisigKey,MultisigIndex), innerVault == null이면 외부지갑
     MultisigVaultListItem newMultisigVault =
         await _importMultisigVaultIsolateHandler!.run(data);
 
@@ -420,17 +421,22 @@ class VaultModel extends ChangeNotifier {
     } catch (e) {
       Logger.log('[loadVaultList] Exception : ${e.toString()}');
     } finally {
+      if (_vaultListIsolateHandler != null &&
+          _vaultListIsolateHandler!.isInitialized) {
+        try {
+          _vaultListIsolateHandler!.dispose();
+          _vaultListIsolateHandler = null;
+        } catch (e) {
+          Logger.log('[loadVaultList] Dispose Exception: ${e.toString()}');
+        }
+      }
       _appModel.saveNotEmptyVaultList(_vaultList.isNotEmpty);
       setVaultListLoading(false);
-      if (_vaultListIsolateHandler != null) {
-        _vaultListIsolateHandler!.dispose();
-        _vaultListIsolateHandler = null;
-      }
     }
   }
 
-  Future<List<VaultListItemBase>> loadVaultListIsolate(
-      void _, void Function(List<dynamic>)? setVaultListLoadingProgress) async {
+  static Future<List<VaultListItemBase>> loadVaultListIsolate(
+      void _, void Function(dynamic)? setVaultListLoadingProgress) async {
     BitcoinNetwork.setNetwork(BitcoinNetwork.regtest);
     List<VaultListItemBase> vaultList = [];
     String? jsonArrayString;

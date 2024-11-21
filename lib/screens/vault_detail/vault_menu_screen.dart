@@ -101,7 +101,7 @@ class _VaultMenuScreenState extends State<VaultMenuScreen> {
                 '이 키가 포함된 다중 서명 지갑 정보를 추가해요', () async {
               Navigator.pop(context);
 
-              Navigator.pushNamed(context, '/import-scanner',
+              Navigator.pushNamed(context, '/signer-scanner',
                   arguments: {'id': widget.id, 'isCopy': true});
             }, iconBackgroundColorList[0]),
           ]),

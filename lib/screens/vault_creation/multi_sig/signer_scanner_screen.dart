@@ -218,9 +218,6 @@ class _SignerScannerScreenState extends State<SignerScannerScreen> {
       String coordinatorBsms;
       try {
         // CoordinatorBSMS 형식이 맞는지 체크, 형식에 벗어나면 Exception이 날라옵니다.
-
-        // CoordinatorBsms와 getWalletSync()의 데이터를 분리하기 위해 아래 문자열 기준으로 분리 했습니다.
-        // 변경이 필요하면 MultiSigBsmsScreen의 qrData도 함께 변경해 주어야 합니다.
         decodedData = jsonDecode(scanData.code!);
         coordinatorBsms = decodedData['coordinatorBSMS'];
         BSMS.parseCoordinator(coordinatorBsms);

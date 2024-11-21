@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:coconut_lib/coconut_lib.dart';
 import 'package:coconut_vault/model/data/multisig_signer.dart';
 import 'package:coconut_vault/model/data/singlesig_vault_list_item.dart';
@@ -7,6 +9,7 @@ import 'package:coconut_vault/model/state/multisig_creation_model.dart';
 import 'package:coconut_vault/model/state/vault_model.dart';
 import 'package:coconut_vault/screens/vault_creation/multi_sig/confirm_importing_screen.dart';
 import 'package:coconut_vault/screens/vault_creation/multi_sig/key_list_bottom_screen.dart';
+import 'package:coconut_vault/screens/vault_creation/multi_sig/signer_scanner_screen.dart';
 import 'package:coconut_vault/services/isolate_service.dart';
 import 'package:coconut_vault/utils/alert_util.dart';
 import 'package:coconut_vault/utils/icon_util.dart';
@@ -48,12 +51,15 @@ class _AssignSignersScreenState extends State<AssignSignersScreen> {
   late List<SinglesigVaultListItem> singlesigVaultList;
   late VaultModel _vaultModel;
   bool isFinishing = false;
+  bool isNextProcessing = false;
   bool alreadyDialogShown = false;
   late DraggableScrollableController draggableController;
   bool isCompleteToExtractSignerBsms = false; // use for loading indicator
 
   IsolateHandler<List<VaultListItemBase>, List<String>>?
       _extractBsmsIsolateHandler;
+  IsolateHandler<Map<String, dynamic>, MultisignatureVault>?
+      _fromKeyStoreListIsolateHandler;
 
   late MultisigCreationModel _multisigCreationState;
 
@@ -88,6 +94,39 @@ class _AssignSignersScreenState extends State<AssignSignersScreen> {
     isButtonActiveNotifier.dispose();
     draggableController.dispose();
     super.dispose();
+  }
+
+  Future<void> _fromKeyStoreListAsync(
+      List<KeyStore> keyStores, int nCount) async {
+    try {
+      if (_fromKeyStoreListIsolateHandler == null) {
+        _fromKeyStoreListIsolateHandler =
+            IsolateHandler<Map<String, dynamic>, MultisignatureVault>(
+                fromKeyStoreIsolate);
+        await _fromKeyStoreListIsolateHandler!
+            .initialize(initialType: InitializeType.fromKeyStore);
+      }
+
+      Map<String, dynamic> data = {
+        'keyStores':
+            jsonEncode(keyStores.map((item) => item.toJson()).toList()),
+        'nCount': nCount,
+      };
+
+      MultisignatureVault multisignatureVault =
+          await _fromKeyStoreListIsolateHandler!.run(data);
+    } catch (error) {
+      setState(() {
+        isNextProcessing = false;
+      });
+      showAlertDialog(
+          context: context, title: '지갑 생성 실패', content: '유효하지 않은 정보입니다.');
+    } finally {
+      if (_fromKeyStoreListIsolateHandler != null) {
+        _fromKeyStoreListIsolateHandler!.dispose();
+        _fromKeyStoreListIsolateHandler = null;
+      }
+    }
   }
 
   Future<void> _initSignerOptionList(
@@ -351,7 +390,10 @@ class _AssignSignersScreenState extends State<AssignSignersScreen> {
   }
 
   // 외부지갑은 추가 시 올바른 signerBsms 인지 미리 확인이 되어 있어야 합니다.
-  void onNextPressed() {
+  void onNextPressed() async {
+    setState(() {
+      isNextProcessing = true;
+    });
     List<KeyStore> keyStores = [];
     List<MultisigSigner> signers = [];
 
@@ -382,16 +424,13 @@ class _AssignSignersScreenState extends State<AssignSignersScreen> {
     }
     assert(signers.length == nCount);
     // 검증: 올바른 Signer 정보를 받았는지 확인합니다.
-    try {
-      MultisignatureVault.fromKeyStoreList(
-          keyStores, nCount, AddressType.p2wsh);
-    } catch (error) {
-      showAlertDialog(
-          context: context, title: '지갑 생성 실패', content: '유효하지 않은 정보입니다.');
-    }
+    await _fromKeyStoreListAsync(keyStores, nCount);
 
     _multisigCreationState.setSigners(signers);
 
+    setState(() {
+      isNextProcessing = false;
+    });
     Navigator.pushNamed(context, '/vault-name-setup');
   }
 
@@ -410,7 +449,7 @@ class _AssignSignersScreenState extends State<AssignSignersScreen> {
           onBackPressed: () => _onBackPressed(context),
           onNextPressed:
               onNextPressed, // TODO: VaultNameIconSetup 클래스에서 일반 지갑과 다중서명 지갑 생성 분리 필요
-          isActive: _isAssignedKeyCompletely(),
+          isActive: _isAssignedKeyCompletely() && !isNextProcessing,
           hasBackdropFilter: false,
         ),
         body: Stack(
@@ -697,7 +736,7 @@ class _AssignSignersScreenState extends State<AssignSignersScreen> {
               ],
             ),
             Visibility(
-              visible: !isCompleteToExtractSignerBsms,
+              visible: !isCompleteToExtractSignerBsms || isNextProcessing,
               child: Container(
                 width: MediaQuery.of(context).size.width,
                 height: MediaQuery.of(context).size.height,

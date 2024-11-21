@@ -8,7 +8,6 @@ import 'package:coconut_vault/model/data/multisig_vault_list_item_factory.dart';
 import 'package:coconut_vault/model/data/singlesig_vault_list_item.dart';
 import 'package:coconut_vault/model/data/singlesig_vault_list_item_factory.dart';
 import 'package:coconut_vault/model/data/vault_list_item_base.dart';
-import 'package:coconut_vault/model/data/vault_type.dart';
 import 'package:coconut_vault/services/shared_preferences_service.dart';
 import 'package:coconut_vault/utils/coconut/multisig_utils.dart';
 
@@ -46,7 +45,6 @@ Future<MultisigVaultListItem> addMultisigVaultIsolate(
     Map<String, dynamic> data, void Function(dynamic)? replyTo) async {
   BitcoinNetwork.setNetwork(BitcoinNetwork.regtest);
   await SharedPrefsService().init();
-  List<MultisigVaultListItem> vaultList = [];
 
   int nextId = data['nextId'];
   String name = data['name'];
