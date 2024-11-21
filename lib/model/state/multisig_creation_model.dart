@@ -23,6 +23,6 @@ class MultisigCreationModel {
   }
 
   void reset() {
-    _requiredSignatureCount = _totalSignatureCount = null;
+    _requiredSignatureCount = _totalSignatureCount = signers = null;
   }
 }

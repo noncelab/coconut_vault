@@ -9,12 +9,12 @@ import 'package:coconut_vault/screens/setting/mnemonic_word_list_screen.dart';
 import 'package:coconut_vault/screens/start_guide/guide_screen.dart';
 import 'package:coconut_vault/screens/start_guide/welcome_screen.dart';
 import 'package:coconut_vault/screens/tutorial_screen.dart';
-import 'package:coconut_vault/screens/vault_creation/multi_sig/assign_key_screen.dart';
+import 'package:coconut_vault/screens/vault_creation/multi_sig/assign_signers_screen.dart';
 import 'package:coconut_vault/screens/vault_creation/mnemonic_coin_flip_screen.dart';
 import 'package:coconut_vault/screens/vault_creation/mnemonic_generate_screen.dart';
 import 'package:coconut_vault/screens/vault_creation/mnemonic_import_screen.dart';
-import 'package:coconut_vault/screens/vault_creation/multi_sig/import_scanner_screen.dart';
-import 'package:coconut_vault/screens/vault_creation/multi_sig/select_key_options_screen.dart';
+import 'package:coconut_vault/screens/vault_creation/multi_sig/select_multisig_quoram_screen.dart';
+import 'package:coconut_vault/screens/vault_creation/multi_sig/signer_scanner_screen.dart';
 import 'package:coconut_vault/screens/vault_creation/select_vault_type_screen.dart';
 import 'package:coconut_vault/screens/vault_creation/vault_creation_options_screen.dart';
 import 'package:coconut_vault/screens/vault_creation/vault_name_icon_setup_screen.dart';
@@ -175,8 +175,9 @@ class _PowVaultAppState extends State<PowVaultApp> {
                   ),
                 ),
             '/select-vault-type': (context) => const SelectVaultTypeScreen(),
-            '/select-key-options': (context) => const SelectKeyOptionsScreen(),
-            '/assign-key': (context) => const AssignKeyScreen(),
+            '/select-multisig-quoram': (context) =>
+                const SelectMultisigQuoramScreen(),
+            '/assign-signers': (context) => const AssignSignersScreen(),
             '/vault-creation-options': (context) =>
                 const VaultCreationOptions(),
             '/mnemonic-import': (context) => const MnemonicImport(),
@@ -202,9 +203,9 @@ class _PowVaultAppState extends State<PowVaultApp> {
                   context,
                   (args) => AddressListScreen(id: int.parse(args['id'])),
                 ),
-            '/import-scanner': (context) => buildScreenWithArguments(
+            '/signer-scanner': (context) => buildScreenWithArguments(
                   context,
-                  (args) => ImportScannerScreen(
+                  (args) => SignerScannerScreen(
                       id: int.parse(args['id']), isCopy: args['isCopy']),
                 ),
             '/psbt-scanner': (context) => buildScreenWithArguments(

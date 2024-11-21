@@ -1,5 +1,7 @@
 import 'dart:convert';
 
+import 'dart:convert';
+
 import 'package:coconut_lib/coconut_lib.dart';
 import 'package:coconut_vault/model/data/multisig_signer.dart';
 import 'package:coconut_vault/model/data/vault_list_item_base.dart';
@@ -61,13 +63,23 @@ class MultisigVaultListItem extends VaultListItemBase {
 
   @override
   String getWalletSyncString() {
-    // throw UnimplementedError("multisig getWalletSyncString");
+    final newSigners = signers
+        .map((signer) => {
+              'innerVaultId': signer.innerVaultId,
+              'name': signer.name,
+              'iconIndex': signer.iconIndex,
+              'colorIndex': signer.colorIndex,
+              'memo': signer.memo,
+            })
+        .toList();
+
     Map<String, dynamic> json = {
-      'id': id,
       'name': name,
       'colorIndex': colorIndex,
       'iconIndex': iconIndex,
-      'descriptor': coconutVault.descriptor
+      'descriptor': coconutVault.descriptor,
+      'requiredSignatureCount': requiredSignatureCount,
+      'signers': newSigners,
     };
 
     return jsonEncode(json);

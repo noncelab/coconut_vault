@@ -20,30 +20,31 @@ class CustomTextField extends StatefulWidget {
   final int? maxLength;
   final List<TextInputFormatter>? inputFormatter;
   final Color focusedBorderColor;
+  final void Function()? onFocused;
 
-  const CustomTextField({
-    super.key,
-    required this.controller,
-    required this.placeholder,
-    required this.onChanged,
-    this.style = Styles.body1,
-    this.placeholderStyle = Styles.body2Grey,
-    this.maxLines,
-    this.minLines,
-    this.padding = const EdgeInsets.fromLTRB(16, 20, 16, 20),
-    this.obscureText = false,
-    this.suffix,
-    this.valid,
-    this.errorMessage = '',
-    this.clearButtonMode = OverlayVisibilityMode.never,
-    this.focusNode,
-    this.maxLength,
-    this.inputFormatter,
-    this.focusedBorderColor = MyColors.black,
-  });
+  const CustomTextField(
+      {super.key,
+      required this.controller,
+      required this.placeholder,
+      required this.onChanged,
+      this.style = Styles.body1,
+      this.placeholderStyle = Styles.body2Grey,
+      this.maxLines,
+      this.minLines,
+      this.padding = const EdgeInsets.fromLTRB(16, 20, 16, 20),
+      this.obscureText = false,
+      this.suffix,
+      this.valid,
+      this.errorMessage = '',
+      this.clearButtonMode = OverlayVisibilityMode.never,
+      this.focusNode,
+      this.maxLength,
+      this.inputFormatter,
+      this.focusedBorderColor = MyColors.black,
+      this.onFocused});
 
   @override
-  _CustomTextFieldState createState() => _CustomTextFieldState();
+  State<CustomTextField> createState() => _CustomTextFieldState();
 }
 
 class _CustomTextFieldState extends State<CustomTextField> {
@@ -80,6 +81,10 @@ class _CustomTextFieldState extends State<CustomTextField> {
               setState(() {
                 isFocused = focus;
               });
+              //print('---> focus && widget.onFocused: ${focus} ${widget.onFocused != null}');
+              if (focus && widget.onFocused != null) {
+                widget.onFocused!();
+              }
             },
             child: Container(
                 padding: EdgeInsets.only(

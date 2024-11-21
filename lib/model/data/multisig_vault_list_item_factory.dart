@@ -69,7 +69,6 @@ class MultisigVaultListItemFactory implements VaultListItemFactory {
             multisigVault: MultisignatureVault.fromCoordinatorBsms(bsms),
             vaultList: vaultList);
 
-    // final nextId = VaultListItemFactory.loadNextId();
     final newVault = MultisigVaultListItem.fromCoordinatorBsms(
       id: nextId,
       name: name,
@@ -78,7 +77,6 @@ class MultisigVaultListItemFactory implements VaultListItemFactory {
       coordinatorBsms: bsms,
       signers: signers,
     );
-    // await VaultListItemFactory.saveNextId(nextId + 1);
 
     return newVault;
   }

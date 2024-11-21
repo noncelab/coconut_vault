@@ -11,17 +11,14 @@ class SelectVaultTypeScreen extends StatefulWidget {
 }
 
 class _SelectVaultTypeScreenState extends State<SelectVaultTypeScreen> {
-  late var nextPath;
-  late var guideText;
-  late var isSingleSigClicked;
-  late var isMultiSigClicked;
+  String? nextPath;
+  late String guideText;
+  List<String> options = ['/vault-creation-options', '/select-multisig-quoram'];
+
   @override
   void initState() {
     super.initState();
-    nextPath = '';
     guideText = '';
-    isSingleSigClicked = false;
-    isMultiSigClicked = false;
   }
 
   @override
@@ -32,9 +29,9 @@ class _SelectVaultTypeScreenState extends State<SelectVaultTypeScreen> {
           title: '지갑 만들기',
           context: context,
           onNextPressed: () {
-            Navigator.pushNamed(context, nextPath);
+            Navigator.pushNamed(context, nextPath!);
           },
-          isActive: nextPath != ''),
+          isActive: nextPath != null && nextPath!.isNotEmpty),
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 32),
         child: Column(
@@ -48,13 +45,11 @@ class _SelectVaultTypeScreenState extends State<SelectVaultTypeScreen> {
                     text: '일반 지갑',
                     onTap: () {
                       setState(() {
-                        nextPath = '/vault-creation-options';
+                        nextPath = options[0];
                         guideText = '하나의 니모닉 문구를 보관하는 단일 서명 지갑이에요';
-                        isSingleSigClicked = true;
-                        isMultiSigClicked = false;
                       });
                     },
-                    isPressed: isSingleSigClicked,
+                    isPressed: nextPath == options[0],
                   ),
                 ),
                 const SizedBox(width: 8),
@@ -63,13 +58,11 @@ class _SelectVaultTypeScreenState extends State<SelectVaultTypeScreen> {
                     text: '다중 서명 지갑',
                     onTap: () {
                       setState(() {
-                        nextPath = '/select-key-options';
+                        nextPath = options[1];
                         guideText = '지정한 수의 서명이 필요한 지갑이에요';
-                        isMultiSigClicked = true;
-                        isSingleSigClicked = false;
                       });
                     },
-                    isPressed: isMultiSigClicked,
+                    isPressed: nextPath == options[1],
                   ),
                 ),
               ],

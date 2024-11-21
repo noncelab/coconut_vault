@@ -104,14 +104,11 @@ class CustomColorHelper {
 
   // TODO: item.keyStore.hasSeed false -> 외부지갑
   static List<Color> getGradientColors(List<MultisigSigner> list) {
-    // 빈 리스트 처리
     if (list.isEmpty) {
       return [MyColors.borderLightgrey];
     }
 
-    // 색상 가져오는 헬퍼 함수
     Color getColor(MultisigSigner item) {
-      print(item.keyStore.hasSeed);
       return item.name != '외부지갑'
           ? CustomColorHelper.getColorByIndex(item.colorIndex ?? 0)
           : MyColors.borderLightgrey;
@@ -125,7 +122,6 @@ class CustomColorHelper {
       ];
     }
 
-    // 3개 이상인 경우
     return [
       getColor(list[0]),
       getColor(list[1]),

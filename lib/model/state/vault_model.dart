@@ -269,17 +269,99 @@ class VaultModel extends ChangeNotifier {
     return signerIndex;
   }
 
+  Future<void> importMultisigVaultAsync(
+      String name, int color, int icon, String coordinatorBsms) async {
+    _setAddVaultCompleted(false);
+    final nextId = SharedPrefsService().getInt('nextId') ?? 1;
+
+    Map<String, dynamic> data = {
+      'nextId': nextId,
+      'name': name,
+      'colorIndex': color,
+      'iconIndex': icon,
+      'secrets': {
+        'bsms': coordinatorBsms,
+        'vaultList':
+            jsonEncode(_vaultList.map((item) => item.toJson()).toList()),
+      }
+    };
+    if (_importMultisigVaultIsolateHandler == null) {
+      _importMultisigVaultIsolateHandler =
+          IsolateHandler<Map<String, dynamic>, MultisigVaultListItem>(
+              importMultisigVaultIsolate);
+      await _importMultisigVaultIsolateHandler!
+          .initialize(initialType: InitializeType.importMultisigVault);
+    }
+
+    MultisigVaultListItem newMultisigVault =
+        await _importMultisigVaultIsolateHandler!.run(data);
+
+    if (_importMultisigVaultIsolateHandler != null) {
+      _importMultisigVaultIsolateHandler!.dispose();
+      _importMultisigVaultIsolateHandler = null;
+    }
+
+    try {
+      _vaultList.add(newMultisigVault);
+    } catch (e) {
+      print("[importMultisigVaultAsync Exception] $e");
+    }
+    _setAddVaultCompleted(true);
+    await updateVaultInStorage();
+    notifyListeners();
+  }
+
+  Future<int> getSignerIndexAsync(MultisignatureVault multisigVault,
+      SinglesigVaultListItem singlesigVaultListItem) async {
+    Map<String, dynamic> data = {
+      'multisigVault': multisigVault.toJson(),
+      'singlesigVault': singlesigVaultListItem.toJson(),
+    };
+    if (_getSignerIndexIsolateHandler == null) {
+      _getSignerIndexIsolateHandler =
+          IsolateHandler<Map<String, dynamic>, int>(getSignerIndexIsolate);
+      await _getSignerIndexIsolateHandler!
+          .initialize(initialType: InitializeType.getSignerIndex);
+    }
+
+    final signerIndex = await _getSignerIndexIsolateHandler!.run(data);
+
+    if (_getSignerIndexIsolateHandler != null) {
+      _getSignerIndexIsolateHandler!.dispose();
+      _getSignerIndexIsolateHandler = null;
+    }
+
+    return signerIndex;
+  }
+
+  /// addMultisigKey, addMultisigIndex -> 다중 지갑이 추가될 때 일반 지갑의 multisigKey 업데이트
+  /// removeMultisigKey -> 다중 지갑이 삭제될 때 일반 지갑의 multisigKey 삭제
+  /// signerIndex -> 일반 지갑이 변경될 때 다중 지갑의 signer 업데이트
   Future<void> updateVault(
-      int id, String newName, int colorIndex, int iconIndex) async {
+      int id, String newName, int colorIndex, int iconIndex,
+      {int? addMultisigKey,
+      int? addMultisigIndex,
+      String? removeMultisigKey,
+      int? signerIndex}) async {
     // _vaultList에서 name이 'name'인 항목을 찾아서 그 항목의 name을 newName으로 변경한다.
     final index = _vaultList.indexWhere((item) => item.id == id);
     if (index == -1) {
       throw Exception('updateVaultName: no vault id is "$id"');
     }
 
-    // TODO: test 필요
     if (_vaultList[index].vaultType == VaultType.singleSignature) {
       SinglesigVaultListItem ssv = _vaultList[index] as SinglesigVaultListItem;
+      Map<String, dynamic>? updateMultisigKey = ssv.multisigKey != null
+          ? Map<String, dynamic>.from(ssv.multisigKey!)
+          : {};
+      if (addMultisigKey != null) {
+        updateMultisigKey.addAll({'$addMultisigKey': addMultisigIndex});
+      }
+
+      if (removeMultisigKey != null) {
+        updateMultisigKey.remove(removeMultisigKey);
+      }
+
       _vaultList[index] = SinglesigVaultListItem(
         id: ssv.id,
         name: newName,
@@ -287,14 +369,22 @@ class VaultModel extends ChangeNotifier {
         iconIndex: iconIndex,
         secret: ssv.secret,
         passphrase: ssv.passphrase,
+        multisigKey: updateMultisigKey,
       );
     } else if (_vaultList[index].vaultType == VaultType.multiSignature) {
       MultisigVaultListItem ssv = _vaultList[index] as MultisigVaultListItem;
+
+      if (signerIndex != null) {
+        ssv.signers[signerIndex].name = newName;
+        ssv.signers[signerIndex].colorIndex = colorIndex;
+        ssv.signers[signerIndex].iconIndex = iconIndex;
+      }
+
       _vaultList[index] = MultisigVaultListItem(
           id: ssv.id,
-          name: newName,
-          colorIndex: colorIndex,
-          iconIndex: iconIndex,
+          name: signerIndex != null ? ssv.name : newName,
+          colorIndex: signerIndex != null ? ssv.colorIndex : colorIndex,
+          iconIndex: signerIndex != null ? ssv.iconIndex : iconIndex,
           signers: ssv.signers,
           requiredSignatureCount: ssv.requiredSignatureCount);
     } else {
@@ -334,10 +424,29 @@ class VaultModel extends ChangeNotifier {
     return vaultIndex != -1;
   }
 
-  Future<void> deleteVault(int id) async {
+  Future<void> deleteVault(int id, {isMultisig = false}) async {
     final index = _vaultList.indexWhere((item) => item.id == id);
     if (index == -1) {
       throw Exception('deleteVault: no vault id is "$id"');
+    }
+
+    if (isMultisig) {
+      final multi = getVaultById(id) as MultisigVaultListItem;
+      for (var signer in multi.signers) {
+        if (signer.innerVaultId != null) {
+          final innerVaultId = signer.innerVaultId ?? 0;
+          final name = signer.name ?? '';
+          final colorIndex = signer.colorIndex ?? 0;
+          final iconIndex = signer.iconIndex ?? 0;
+          await updateVault(
+            innerVaultId,
+            name,
+            colorIndex,
+            iconIndex,
+            removeMultisigKey: '$id',
+          );
+        }
+      }
     }
 
     _vaultList.removeAt(index);

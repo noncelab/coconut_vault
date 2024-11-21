@@ -13,10 +13,10 @@ enum InitializeType {
   getAddressList,
   canSign,
   addSign,
-  extractBsms,
   getSignerIndex,
   importMultisigVault,
   fromKeyStore,
+  extractSignerBsms,
 }
 
 class IsolateHandler<T, R> {
@@ -54,7 +54,7 @@ class IsolateHandler<T, R> {
         _isolate = await Isolate.spawn(_entryPointAddSign,
             [_receivePort.sendPort, _rootIsolateToken, _handler]);
         break;
-      case InitializeType.extractBsms:
+      case InitializeType.extractSignerBsms:
         _isolate = await Isolate.spawn(_entryPointExtractBsms,
             [_receivePort.sendPort, _rootIsolateToken, _handler]);
         break;

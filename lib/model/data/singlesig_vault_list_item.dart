@@ -9,15 +9,16 @@ part 'singlesig_vault_list_item.g.dart'; // 생성될 파일 이름 $ dart run b
 
 @JsonSerializable(ignoreUnannotated: true)
 class SinglesigVaultListItem extends VaultListItemBase {
-  SinglesigVaultListItem(
-      {required super.id,
-      required super.name,
-      required super.colorIndex,
-      required super.iconIndex,
-      required this.secret,
-      required this.passphrase,
-      String? vaultJsonString})
-      : super(
+  SinglesigVaultListItem({
+    required super.id,
+    required super.name,
+    required super.colorIndex,
+    required super.iconIndex,
+    required this.secret,
+    required this.passphrase,
+    this.multisigKey,
+    String? vaultJsonString,
+  }) : super(
             vaultJsonString: vaultJsonString,
             vaultType: VaultType.singleSignature) {
     Seed seed = Seed.fromMnemonic(secret, passphrase: passphrase);
@@ -31,6 +32,9 @@ class SinglesigVaultListItem extends VaultListItemBase {
 
   @JsonKey(name: "passphrase")
   final String passphrase;
+
+  @JsonKey(name: "multisigKey")
+  final Map<String, dynamic>? multisigKey;
 
   @override
   String getWalletSyncString() {
@@ -51,4 +55,8 @@ class SinglesigVaultListItem extends VaultListItemBase {
     json['vaultType'] = _$VaultTypeEnumMap[VaultType.singleSignature];
     return _$SinglesigVaultListItemFromJson(json);
   }
+
+  @override
+  String toString() =>
+      'Vault($id) / type=$vaultType / multisigKey=$multisigKey / name=$name / colorIndex=$colorIndex / iconIndex=$iconIndex';
 }

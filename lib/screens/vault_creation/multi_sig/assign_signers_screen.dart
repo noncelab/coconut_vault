@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 import 'package:coconut_lib/coconut_lib.dart';
 import 'package:coconut_vault/model/data/multisig_signer.dart';
 import 'package:coconut_vault/model/data/singlesig_vault_list_item.dart';
@@ -8,7 +6,6 @@ import 'package:coconut_vault/model/data/vault_type.dart';
 import 'package:coconut_vault/model/state/multisig_creation_model.dart';
 import 'package:coconut_vault/model/state/vault_model.dart';
 import 'package:coconut_vault/screens/vault_creation/multi_sig/confirm_importing_screen.dart';
-import 'package:coconut_vault/screens/vault_creation/multi_sig/import_scanner_screen.dart';
 import 'package:coconut_vault/screens/vault_creation/multi_sig/key_list_bottom_screen.dart';
 import 'package:coconut_vault/services/isolate_service.dart';
 import 'package:coconut_vault/utils/alert_util.dart';
@@ -24,36 +21,39 @@ import 'package:coconut_vault/widgets/appbar/custom_appbar.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
 
-class AssignKeyScreen extends StatefulWidget {
-  const AssignKeyScreen({super.key});
+class SignerOption {
+  final SinglesigVaultListItem singlesigVaultListItem;
+  final String signerBsms;
 
-  @override
-  State<AssignKeyScreen> createState() => _AssignKeyScreenState();
+  const SignerOption(this.singlesigVaultListItem, this.signerBsms);
 }
 
-class _AssignKeyScreenState extends State<AssignKeyScreen> {
+class AssignSignersScreen extends StatefulWidget {
+  const AssignSignersScreen({super.key});
+
+  @override
+  State<AssignSignersScreen> createState() => _AssignSignersScreenState();
+}
+
+class _AssignSignersScreenState extends State<AssignSignersScreen> {
   ValueNotifier<bool> isButtonActiveNotifier = ValueNotifier<bool>(false);
-  // TODO: 다중서명 데이터들 모델로 분리 필요
   late int nCount; // 전체 키의 수
   late int mCount; // 필요한 서명 수
   late List<AssignedVaultListItem> assignedVaultList; // 키 가져오기에서 선택 완료한 객체
-  //late VaultListItem? selectingVaultList; // 키 가져오기 목록에서 선택중인 객체
-  //late List<VaultListItem> vaultList;
-  late List<String> pubStringList;
+  late List<SignerOption> signerOptions = [];
+  late List<SignerOption> unselectedSignerOptions;
+  // 내부 지갑 중 Signer 선택하는 순간에만 사용함
+  int? selectedSignerOptionIndex;
 
-  late SinglesigVaultListItem? selectingVaultList; // 키 가져오기 목록에서 선택중인 객체
   late List<SinglesigVaultListItem> singlesigVaultList;
   late VaultModel _vaultModel;
   bool isFinishing = false;
-  bool isNextProcessing = false;
   bool alreadyDialogShown = false;
   late DraggableScrollableController draggableController;
-  bool isCompleteToExtractBsms = false;
+  bool isCompleteToExtractSignerBsms = false; // use for loading indicator
 
   IsolateHandler<List<VaultListItemBase>, List<String>>?
       _extractBsmsIsolateHandler;
-  IsolateHandler<Map<String, dynamic>, MultisignatureVault>?
-      _fromKeyStoreListIsolateHandler;
 
   late MultisigCreationModel _multisigCreationState;
 
@@ -67,14 +67,14 @@ class _AssignKeyScreenState extends State<AssignKeyScreen> {
     nCount = _multisigCreationState.totalSignatureCount!;
 
     _initAssigendVaultList();
+
     singlesigVaultList = _vaultModel
         .getVaults()
         .where((vault) => vault.vaultType == VaultType.singleSignature)
         .map((vault) => vault as SinglesigVaultListItem)
         .toList();
 
-    _initBsmsList();
-
+    _initSignerOptionList(singlesigVaultList);
     draggableController = DraggableScrollableController();
     draggableController.addListener(() {
       if (draggableController.size <= 0.71 && !alreadyDialogShown) {
@@ -90,61 +90,28 @@ class _AssignKeyScreenState extends State<AssignKeyScreen> {
     super.dispose();
   }
 
-  Future<void> _fromKeyStoreListAsync(
-      List<KeyStore> keyStores, int nCount) async {
-    try {
-      if (_fromKeyStoreListIsolateHandler == null) {
-        _fromKeyStoreListIsolateHandler =
-            IsolateHandler<Map<String, dynamic>, MultisignatureVault>(
-                fromKeyStoreIsolate);
-        await _fromKeyStoreListIsolateHandler!
-            .initialize(initialType: InitializeType.fromKeyStore);
-      }
-
-      Map<String, dynamic> data = {
-        'keyStores':
-            jsonEncode(keyStores.map((item) => item.toJson()).toList()),
-        'nCount': nCount,
-      };
-
-      MultisignatureVault multisignatureVault =
-          await _fromKeyStoreListIsolateHandler!.run(data);
-    } catch (error) {
-      setState(() {
-        isNextProcessing = false;
-      });
-      showAlertDialog(
-          context: context, title: '지갑 생성 실패', content: '유효하지 않은 정보입니다.');
-    } finally {
-      if (_fromKeyStoreListIsolateHandler != null) {
-        _fromKeyStoreListIsolateHandler!.dispose();
-        _fromKeyStoreListIsolateHandler = null;
-      }
-    }
-  }
-
-  Future<void> _initBsmsList() async {
-    pubStringList = List<String>.filled(singlesigVaultList.length, '');
-    debugPrint('pubStringList ${pubStringList.toString()}');
+  Future<void> _initSignerOptionList(
+      List<SinglesigVaultListItem> singlesigVaultList) async {
     if (_extractBsmsIsolateHandler == null) {
       _extractBsmsIsolateHandler =
-          IsolateHandler<List<VaultListItemBase>, List<String>>(
-              extractBsmsIsolate);
+          IsolateHandler<List<SinglesigVaultListItem>, List<String>>(
+              extractSignerBsmsIsolate);
       await _extractBsmsIsolateHandler!
-          .initialize(initialType: InitializeType.extractBsms);
+          .initialize(initialType: InitializeType.extractSignerBsms);
     }
 
-    pubStringList = await _extractBsmsIsolateHandler!.run(singlesigVaultList);
+    List<String> bsmses =
+        await _extractBsmsIsolateHandler!.run(singlesigVaultList);
 
-    if (_extractBsmsIsolateHandler != null) {
-      _extractBsmsIsolateHandler!.dispose();
-      _extractBsmsIsolateHandler = null;
+    for (int i = 0; i < singlesigVaultList.length; i++) {
+      signerOptions.add(SignerOption(singlesigVaultList[i], bsmses[i]));
     }
 
-    debugPrint('pubStringList ${pubStringList.toString()}');
+    unselectedSignerOptions = signerOptions.toList();
     setState(() {
-      isCompleteToExtractBsms = true;
+      isCompleteToExtractSignerBsms = true;
     });
+    _extractBsmsIsolateHandler!.dispose();
   }
 
   bool _isAssignedKeyCompletely() {
@@ -171,60 +138,41 @@ class _AssignKeyScreenState extends State<AssignKeyScreen> {
     setState(() {
       assignedVaultList[0].isExpanded = true;
     });
-    selectingVaultList = null;
   }
 
-  bool _checkEmptyList() {
-    if (singlesigVaultList.isEmpty ||
-        _getAssignedVaultListLength() >= singlesigVaultList.length) {
+  bool _existsSinglsigVault() {
+    if (singlesigVaultList.isEmpty || nCount >= singlesigVaultList.length) {
       return true;
     }
     return false;
   }
 
   bool _isAllAssignedFromExternal() {
-    return _getAssignedVaultListLength() >= nCount - 1 &&
-        assignedVaultList
-            .every((vault) => vault.importKeyType != ImportKeyType.internal);
+    return assignedVaultList.every((vault) =>
+            vault.importKeyType == null ||
+            vault.importKeyType == ImportKeyType.external) &&
+        _getAssignedVaultListLength() >= nCount - 1;
   }
 
-  bool _isAlreadyImportedExternalItem(String data) {
+  bool _isAlreadyImported(String signerBsms) {
     for (int i = 0; i < assignedVaultList.length; i++) {
-      String bsmsString = '';
-      if (assignedVaultList[i].importKeyType == ImportKeyType.internal) {
-        SingleSignatureVault sVault =
-            (assignedVaultList[i].item!.coconutVault) as SingleSignatureVault;
-        bsmsString = _extractOnlyPubString(sVault.getSignerBsms(
-            AddressType.p2wsh, assignedVaultList[i].item!.name));
-      } else if (assignedVaultList[i].importKeyType == ImportKeyType.external) {
-        bsmsString = _extractOnlyPubString(assignedVaultList[i].bsms ?? '');
-      }
-
-      if (bsmsString == _extractOnlyPubString(data)) {
+      if (assignedVaultList[i].bsms == signerBsms) {
         return true;
       }
     }
+
     return false;
   }
 
-  String _extractOnlyPubString(String bsms) {
-    String pubString = '';
-    if (bsms.isNotEmpty) {
-      if (bsms.contains('Vpub')) {
-        pubString = bsms.substring(bsms.indexOf('Vpub'));
-      }
-      if (bsms.contains('Xpub')) {
-        pubString = bsms.substring(bsms.indexOf('Xpub'));
-      }
-      if (bsms.contains('Zpub')) {
-        pubString = bsms.substring(bsms.indexOf('Zpub'));
-      }
-      return pubString.substring(0, pubString.indexOf('\n'));
-    }
-    return '';
+  /// bsms를 비교하여 이미 보유한 볼트 지갑 중 하나인 경우 이름을 반환
+  String? _findVaultNameByBsms(String signerBsms) {
+    int result =
+        signerOptions.indexWhere((element) => element.signerBsms == signerBsms);
+    if (result == -1) return null;
+    return signerOptions[result].singlesigVaultListItem.name;
   }
 
-  void _showDialog(DialogType type, {int keyIndex = 0}) {
+  void _showDialog(DialogType type, {int keyIndex = 0, String? vaultName}) {
     String title = '';
     String message = '';
     String cancelButtonText = '';
@@ -245,7 +193,7 @@ class _AssignKeyScreenState extends State<AssignKeyScreen> {
           onConfirm = () {
             isFinishing = true;
             Navigator.popUntil(context,
-                (route) => route.settings.name == '/select-key-options');
+                (route) => route.settings.name == '/select-multisig-quoram');
           };
           break;
         }
@@ -273,6 +221,7 @@ class _AssignKeyScreenState extends State<AssignKeyScreen> {
           confirmButtonText = '그만하기';
           confirmButtonColor = MyColors.warningText;
           onConfirm = () {
+            _multisigCreationState.reset();
             Navigator.pop(context);
             Navigator.pushNamedAndRemoveUntil(
                 context, '/', (Route<dynamic> route) => false);
@@ -287,10 +236,24 @@ class _AssignKeyScreenState extends State<AssignKeyScreen> {
           confirmButtonText = '네';
           confirmButtonColor = MyColors.warningText;
           onConfirm = () {
+            // 내부 지갑인 경우
+            if (assignedVaultList[keyIndex].importKeyType ==
+                ImportKeyType.internal) {
+              int insertIndex = 0;
+              for (int i = 0; i < unselectedSignerOptions.length; i++) {
+                if (assignedVaultList[keyIndex].item!.id >
+                    unselectedSignerOptions[i].singlesigVaultListItem.id) {
+                  insertIndex++;
+                }
+              }
+              unselectedSignerOptions.insert(
+                  insertIndex,
+                  SignerOption(assignedVaultList[keyIndex].item!,
+                      assignedVaultList[keyIndex].bsms!));
+            }
+
             setState(() {
-              assignedVaultList[keyIndex].item = null;
-              assignedVaultList[keyIndex].isExpanded = true;
-              assignedVaultList[keyIndex].importKeyType = null;
+              assignedVaultList[keyIndex].reset();
             });
             Navigator.pop(context);
           };
@@ -336,9 +299,20 @@ class _AssignKeyScreenState extends State<AssignKeyScreen> {
           };
           break;
         }
+      case DialogType.sameWithInternalOne:
+        {
+          title = "보유하신 지갑 중 하나입니다.";
+          message = "'$vaultName'와 같은 지갑입니다.";
+          confirmButtonText = '확인';
+          confirmButtonColor = MyColors.black;
+          onConfirm = () {
+            Navigator.pop(context);
+          };
+          break;
+        }
       default:
         {
-          title = '더이상 가져올 수 없어요';
+          title = '외부 지갑 개수 초과';
           message = '적어도 1개는 이 볼트에 있는 키를 사용해 주세요';
           cancelButtonText = '';
           confirmButtonText = '확인';
@@ -349,6 +323,7 @@ class _AssignKeyScreenState extends State<AssignKeyScreen> {
           break;
         }
     }
+
     CustomDialogs.showCustomAlertDialog(
       context,
       title: title,
@@ -357,8 +332,9 @@ class _AssignKeyScreenState extends State<AssignKeyScreen> {
       confirmButtonText: confirmButtonText,
       confirmButtonColor: confirmButtonColor,
       barrierDismissible: barrierDismissible,
-      isSingleButton:
-          type == DialogType.alert || type == DialogType.alreadyExist,
+      isSingleButton: type == DialogType.alert ||
+          type == DialogType.alreadyExist ||
+          type == DialogType.sameWithInternalOne,
       onCancel: onCancel ?? () => Navigator.pop(context),
       onConfirm: () => onConfirm(),
     );
@@ -368,16 +344,14 @@ class _AssignKeyScreenState extends State<AssignKeyScreen> {
     if (_getAssignedVaultListLength() > 0) {
       _showDialog(DialogType.quit);
     } else {
+      _multisigCreationState.reset();
       isFinishing = true;
       Navigator.pop(context);
     }
   }
 
   // 외부지갑은 추가 시 올바른 signerBsms 인지 미리 확인이 되어 있어야 합니다.
-  void onNextPressed() async {
-    setState(() {
-      isNextProcessing = true;
-    });
+  void onNextPressed() {
     List<KeyStore> keyStores = [];
     List<MultisigSigner> signers = [];
 
@@ -397,22 +371,27 @@ class _AssignKeyScreenState extends State<AssignKeyScreen> {
           break;
         case ImportKeyType.external:
           signers.add(MultisigSigner(
-              id: i, signerBsms: data.bsms!, keyStore: keyStores[i]));
+              id: i,
+              signerBsms: data.bsms!,
+              memo: data.memo,
+              keyStore: keyStores[i]));
           break;
         default:
           throw ArgumentError("wrong importKeyType: ${data.importKeyType!}");
       }
     }
     assert(signers.length == nCount);
-
-    // 올바른 Signer 정보를 받았는지 확인합니다.
-    await _fromKeyStoreListAsync(keyStores, nCount);
+    // 검증: 올바른 Signer 정보를 받았는지 확인합니다.
+    try {
+      MultisignatureVault.fromKeyStoreList(
+          keyStores, nCount, AddressType.p2wsh);
+    } catch (error) {
+      showAlertDialog(
+          context: context, title: '지갑 생성 실패', content: '유효하지 않은 정보입니다.');
+    }
 
     _multisigCreationState.setSigners(signers);
 
-    setState(() {
-      isNextProcessing = false;
-    });
     Navigator.pushNamed(context, '/vault-name-setup');
   }
 
@@ -431,7 +410,7 @@ class _AssignKeyScreenState extends State<AssignKeyScreen> {
           onBackPressed: () => _onBackPressed(context),
           onNextPressed:
               onNextPressed, // TODO: VaultNameIconSetup 클래스에서 일반 지갑과 다중서명 지갑 생성 분리 필요
-          isActive: _isAssignedKeyCompletely() && !isNextProcessing,
+          isActive: _isAssignedKeyCompletely(),
           hasBackdropFilter: false,
         ),
         body: Stack(
@@ -568,10 +547,12 @@ class _AssignKeyScreenState extends State<AssignKeyScreen> {
                                                 isAssigned: true),
                                     expansionWidget: Column(
                                       children: [
+                                        // 이 볼트에 있는 키 사용하기
                                         ExpansionChildWidget(
                                             type: ImportKeyType.internal,
                                             onPressed: () {
-                                              if (_checkEmptyList()) {
+                                              // 등록된 singlesig vault가 없으면 멀티시그 지갑 생성 불가
+                                              if (_existsSinglsigVault()) {
                                                 _showDialog(
                                                     DialogType.notAvailable);
                                                 return;
@@ -579,51 +560,51 @@ class _AssignKeyScreenState extends State<AssignKeyScreen> {
 
                                               isButtonActiveNotifier.value =
                                                   false;
-                                              selectingVaultList = null;
                                               MyBottomSheet
                                                   .showDraggableScrollableSheet(
                                                 topWidget: true,
-                                                onTopWidgetButtonClicked: () {
-                                                  setState(() {
-                                                    // TODO: 내부 지갑 선택 완료
-                                                    assignedVaultList[i]
-                                                      ..item =
-                                                          selectingVaultList
-                                                      ..bsms = (selectingVaultList!
-                                                                  .coconutVault
-                                                              as SingleSignatureVault)
-                                                          .getSignerBsms(
-                                                              AddressType.p2wsh,
-                                                              '')
-                                                      ..isExpanded = false
-                                                      ..importKeyType =
-                                                          ImportKeyType
-                                                              .internal;
-                                                  });
-                                                  debugPrint(
-                                                      assignedVaultList[i]
-                                                          .toString());
-                                                  debugPrint(
-                                                      '------------BSMS Info-----------\n${(assignedVaultList[i].item!.coconutVault as SingleSignatureVault).getSignerBsms(AddressType.p2wsh, assignedVaultList[i].item!.name)}');
-                                                },
                                                 isButtonActiveNotifier:
                                                     isButtonActiveNotifier,
                                                 context: context,
                                                 child: KeyListBottomScreen(
-                                                  onPressed: (VaultListItemBase
-                                                      selectedItem) {
-                                                    selectingVaultList =
-                                                        selectedItem
-                                                            as SinglesigVaultListItem;
+                                                  // 키 옵션 중 하나 선택했을 때
+                                                  onPressed: (int index) {
+                                                    selectedSignerOptionIndex =
+                                                        index;
                                                     isButtonActiveNotifier
                                                         .value = true;
                                                   },
-                                                  vaultList: singlesigVaultList,
-                                                  assignedList:
-                                                      assignedVaultList,
+                                                  vaultList: unselectedSignerOptions
+                                                      .map((o) => o
+                                                          .singlesigVaultListItem)
+                                                      .toList(),
                                                 ),
+                                                onTopWidgetButtonClicked: () {
+                                                  setState(() {
+                                                    // 내부 지갑 선택 완료
+                                                    assignedVaultList[i]
+                                                      ..item = unselectedSignerOptions[
+                                                              selectedSignerOptionIndex!]
+                                                          .singlesigVaultListItem
+                                                      ..bsms =
+                                                          unselectedSignerOptions[
+                                                                  selectedSignerOptionIndex!]
+                                                              .signerBsms
+                                                      ..isExpanded = false
+                                                      ..importKeyType =
+                                                          ImportKeyType
+                                                              .internal;
+
+                                                    unselectedSignerOptions
+                                                        .removeAt(
+                                                            selectedSignerOptionIndex!);
+                                                  });
+                                                  selectedSignerOptionIndex =
+                                                      null;
+                                                },
                                               );
                                             }),
+                                        // 가져오기
                                         ExpansionChildWidget(
                                           type: ImportKeyType.external,
                                           onPressed: () async {
@@ -641,17 +622,30 @@ class _AssignKeyScreenState extends State<AssignKeyScreen> {
                                                   const ClampingScrollPhysics(),
                                               enableSingleChildScroll: false,
                                               child:
-                                                  const ImportScannerScreen(),
+                                                  const SignerScannerScreen(),
                                             );
 
                                             if (externalImported != null) {
                                               /// 이미 추가된 signer와 중복 비교
-                                              if (_isAlreadyImportedExternalItem(
+                                              if (_isAlreadyImported(
                                                   externalImported)) {
                                                 return _showDialog(
                                                     DialogType.alreadyExist);
                                               }
-                                              final confirmedExternalZPub =
+
+                                              String? sameVaultName =
+                                                  _findVaultNameByBsms(
+                                                      externalImported);
+                                              if (sameVaultName != null) {
+                                                _showDialog(
+                                                    DialogType
+                                                        .sameWithInternalOne,
+                                                    vaultName: sameVaultName);
+                                                return;
+                                              }
+
+                                              final Map<String, String>
+                                                  bsmsAndMemo =
                                                   await MyBottomSheet
                                                       .showDraggableScrollableSheet(
                                                 topWidget: true,
@@ -673,19 +667,18 @@ class _AssignKeyScreenState extends State<AssignKeyScreen> {
                                                       externalImported,
                                                 ),
                                               );
-                                              if (confirmedExternalZPub !=
-                                                  null) {
-                                                // 외부 지갑 추가
+                                              assert(bsmsAndMemo['bsms']!
+                                                  .isNotEmpty);
+
+                                              // 외부 지갑 추가
+                                              setState(() {
                                                 assignedVaultList[i]
                                                   ..importKeyType =
                                                       ImportKeyType.external
                                                   ..isExpanded = false
-                                                  ..bsms =
-                                                      externalImported // TODO: zpub만 따로 가져올 경우 처리 필요
-                                                  ..memo =
-                                                      confirmedExternalZPub[
-                                                          'memo'];
-                                              }
+                                                  ..bsms = externalImported
+                                                  ..memo = bsmsAndMemo['memo'];
+                                              });
                                             }
                                           },
                                         ),
@@ -704,7 +697,7 @@ class _AssignKeyScreenState extends State<AssignKeyScreen> {
               ],
             ),
             Visibility(
-              visible: !isCompleteToExtractBsms || isNextProcessing,
+              visible: !isCompleteToExtractSignerBsms,
               child: Container(
                 width: MediaQuery.of(context).size.width,
                 height: MediaQuery.of(context).size.height,
@@ -723,6 +716,7 @@ class _AssignKeyScreenState extends State<AssignKeyScreen> {
     );
   }
 
+  // 확장형 메뉴 펼쳐져 있지 않을 때
   Row _unExpansionWidget(int i, {bool isAssigned = false}) {
     bool isExternalImported =
         assignedVaultList[i].importKeyType == ImportKeyType.external;
@@ -809,7 +803,7 @@ class AssignedVaultListItem {
   String? bsms;
   SinglesigVaultListItem? item;
   String? memo;
-  bool isExpanded;
+  bool isExpanded; // UI
   ImportKeyType? importKeyType;
 
   AssignedVaultListItem({
@@ -827,8 +821,14 @@ class AssignedVaultListItem {
   void changeExpanded() {
     isExpanded = !isExpanded;
   }
+
+  void reset() {
+    bsms = item = importKeyType = memo = null;
+    isExpanded = true;
+  }
 }
 
+// 확장형 메뉴의 선택지
 class ExpansionChildWidget extends StatefulWidget {
   final ImportKeyType type;
   final VoidCallback? onPressed;
@@ -913,4 +913,5 @@ enum DialogType {
   deleteKey,
   alreadyExist,
   cancelImport,
+  sameWithInternalOne // '가져오기' 한 지갑이 내부에 있는 지갑 중 하나일 때
 }

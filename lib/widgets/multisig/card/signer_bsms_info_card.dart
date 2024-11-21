@@ -26,7 +26,7 @@ class SignerBsmsInfoCard extends StatelessWidget {
         ],
       ),
       padding: const EdgeInsets.all(
-        30,
+        20,
       ),
       child: RichText(
         text: TextSpan(
@@ -34,7 +34,7 @@ class SignerBsmsInfoCard extends StatelessWidget {
           style: const TextStyle(
             fontFamily: 'Pretendard',
             fontWeight: FontWeight.normal,
-            fontSize: 15,
+            fontSize: 12,
             height: 1.4,
             letterSpacing: 0.5,
             color: MyColors.black,

@@ -45,8 +45,6 @@ class _VaultMenuScreenState extends State<VaultMenuScreen> {
       final VaultListItemBase vaultListItem =
           model.getVaultById(int.parse(widget.id));
 
-      // print(vaultListItem);
-
       if (!widget.isMultiSig) {
         return Container(
           padding: const EdgeInsets.only(left: 8, right: 8),
@@ -162,7 +160,6 @@ class _VaultMenuScreenState extends State<VaultMenuScreen> {
                 '내보내기',
                 '보기 전용 지갑을 월렛에 추가해요', () {
               Navigator.pop(context);
-
               Navigator.pushNamed(context, '/sync-to-wallet',
                   arguments: {'id': widget.id});
             }, iconBackgroundColorList[4]),

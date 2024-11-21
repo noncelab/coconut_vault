@@ -1,5 +1,6 @@
 import 'package:coconut_vault/model/data/multisig_signer.dart';
 import 'package:coconut_vault/model/data/multisig_vault_list_item.dart';
+import 'package:coconut_vault/model/data/singlesig_vault_list_item.dart';
 import 'package:coconut_vault/model/data/vault_list_item_base.dart';
 import 'package:coconut_vault/model/data/vault_type.dart';
 import 'package:coconut_vault/utils/colors_util.dart';
@@ -9,8 +10,11 @@ import 'package:coconut_vault/screens/vault_detail/vault_menu_screen.dart';
 import 'package:coconut_vault/utils/icon_util.dart';
 import 'package:coconut_vault/widgets/bottom_sheet.dart';
 import 'package:coconut_vault/widgets/button/shrink_animation_button.dart';
+import 'package:provider/provider.dart';
 
+import '../model/state/vault_model.dart';
 import '../styles.dart';
+import '../utils/text_utils.dart';
 
 class VaultRowItem extends StatefulWidget {
   const VaultRowItem({
@@ -18,14 +22,12 @@ class VaultRowItem extends StatefulWidget {
     required this.vault,
     this.isSelectable = false,
     this.onSelected,
-    this.resetSelected,
     this.isPressed = false,
   });
 
   final VaultListItemBase vault;
   final bool isSelectable;
   final VoidCallback? onSelected;
-  final VoidCallback? resetSelected;
   final bool isPressed;
 
   @override
@@ -35,34 +37,51 @@ class VaultRowItem extends StatefulWidget {
 class _VaultRowItemState extends State<VaultRowItem> {
   bool isPressing = false;
 
-  // TODO : 추후 로직 변경될 수 있음
   bool _isMultiSig = false;
-  String _mnText = '';
-  final bool _isUsedToMultiSig = false;
+  String _subtitleText = '';
+  bool _isUsedToMultiSig = false;
   List<MultisigSigner>? _multiSigners;
 
-  @override
-  void initState() {
-    super.initState();
+  void _updateVault() {
+    _isMultiSig = false;
+    _subtitleText = '';
+    _isUsedToMultiSig = false;
+    _multiSigners = null;
 
     if (widget.vault.vaultType == VaultType.multiSignature) {
       _isMultiSig = true;
       final multi = widget.vault as MultisigVaultListItem;
-      _mnText = '${multi.requiredSignatureCount}/${multi.signers.length}';
+      _subtitleText = '${multi.requiredSignatureCount}/${multi.signers.length}';
       _multiSigners = multi.signers;
+    } else {
+      final single = widget.vault as SinglesigVaultListItem;
+      if (single.multisigKey != null) {
+        final multisigKey = single.multisigKey!;
+        if (multisigKey.keys.isNotEmpty) {
+          final model = Provider.of<VaultModel>(context, listen: false);
+          // TODO: No Element
+          try {
+            final multisig =
+                model.getVaultById(int.parse(multisigKey.keys.first));
+            _subtitleText = '${TextUtils.ellipsisIfLonger(multisig.name)} 지갑의 '
+                '${multisigKey.values.first + 1}번 키';
+            _isUsedToMultiSig = true;
+          } catch (_) {}
+        }
+      }
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    _updateVault();
     final row = widget.isSelectable
         ? GestureDetector(
             onTap: () {
               setState(() {
                 isPressing = false;
               });
-              if (widget.onSelected != null && widget.resetSelected != null) {
-                widget.resetSelected!();
+              if (widget.onSelected != null) {
                 widget.onSelected!();
               }
             },
@@ -144,15 +163,9 @@ class _VaultRowItemState extends State<VaultRowItem> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // TODO: 다중 지갑의 N키 처리 필요 (지갑명 10글자 말줄임)
-                if (_isMultiSig) ...{
+                if (_isMultiSig || _isUsedToMultiSig) ...{
                   Text(
-                    _mnText,
-                    style: Styles.body2.copyWith(color: MyColors.body2Grey),
-                  ),
-                } else if (_isUsedToMultiSig) ...{
-                  Text(
-                    '다중다중 지갑의 2번 키',
+                    _subtitleText,
                     style: Styles.body2.copyWith(color: MyColors.body2Grey),
                   ),
                 },
