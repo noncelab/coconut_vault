@@ -68,14 +68,6 @@ class VaultModel extends ChangeNotifier {
   bool _vaultInitialized = false;
   bool get vaultInitialized => _vaultInitialized;
 
-  // TODO: 다중서명 구분값, 추후 라이브러리 연동 때 변경될 수 있음
-  bool _isMultiSig = false;
-  bool get isMultiSig => _isMultiSig;
-  void testChangeMultiSig(bool value) {
-    _isMultiSig = value;
-    notifyListeners();
-  }
-
   // addVault
   bool _isAddVaultCompleted = false;
   bool get isAddVaultCompleted => _isAddVaultCompleted;

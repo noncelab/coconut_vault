@@ -126,28 +126,15 @@ class _VaultMenuScreenState extends State<VaultMenuScreen> {
                 '다중 서명하기',
                 '전송 정보를 스캔하고 서명해요', () {
               Navigator.pop(context);
-              // TODO: 스캐너 이동 로직 추가 필요함
-              model.testChangeMultiSig(true);
-              // Navigator.pushNamed(
-              //   context,
-              //   '/psbt-scanner',
-              //   arguments: {'id': '${vaults.first.id}'},
-              // );
-              Navigator.pushNamed(
-                context,
-                '/multi-signature',
-                arguments: {
-                  'sendAddress': 'bcrt1qr97x085t309sfya99yc0mc0p4yx8x4rmm4mncz',
-                  'bitcoinString': '0.0100 0000',
-                },
-              );
+              Navigator.pushNamed(context, '/psbt-scanner',
+                  arguments: {'id': widget.id});
             }, iconBackgroundColorList[2]),
             bottomMenuDivider(),
             bottomMenuButton(
                 SvgPicture.asset('assets/svg/menu/address.svg',
                     width: iconSize, colorFilter: iconColorList[3]),
                 '주소 보기',
-                '${vaultListItem.name.length > 10 ? '${vaultListItem.name.substring(0, 7)}...' : vaultListItem.name}에서 추출한 주소를 확인해요',
+                '${TextUtils.ellipsisIfLonger(vaultListItem.name)}에서 추출한 주소를 확인해요',
                 () {
               Navigator.pop(context);
               Navigator.pushNamed(context, '/address-list',

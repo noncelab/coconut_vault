@@ -1,3 +1,4 @@
+import 'package:coconut_vault/model/data/vault_type.dart';
 import 'package:flutter/material.dart';
 import 'package:coconut_vault/model/state/vault_model.dart';
 import 'package:coconut_vault/services/isolate_service.dart';
@@ -31,6 +32,7 @@ class _PsbtConfirmationScreenState extends State<PsbtConfirmationScreen> {
   int? _sendingAmountWhenAddressIsMyChange; // 내 지갑의 change address로 보내는 경우 잔액
   bool _isSendingToMyAddress = false;
   bool _showLoading = true;
+  bool _isMultisig = false;
 
   String _bitcoinString = '';
   String _sendAddress = '';
@@ -44,7 +46,9 @@ class _PsbtConfirmationScreenState extends State<PsbtConfirmationScreen> {
     }
 
     _waitingForSignaturePsbtBase64 = _vaultModel.waitingForSignaturePsbtBase64;
-    _vault = _vaultModel.getVaultById(widget.id).coconutVault;
+    final vaultBaseItem = _vaultModel.getVaultById(widget.id);
+    _vault = vaultBaseItem.coconutVault;
+    _isMultisig = vaultBaseItem.vaultType == VaultType.multiSignature;
 
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
       setTxInfo(_vaultModel.waitingForSignaturePsbtBase64!);
@@ -54,6 +58,7 @@ class _PsbtConfirmationScreenState extends State<PsbtConfirmationScreen> {
     });
   }
 
+  // TODO: 예상 수수료, 총 소요 수량 관련 수정 필요함
   void setTxInfo(String psbtBase64) {
     try {
       var psbt = PSBT.parse(psbtBase64);
@@ -119,10 +124,25 @@ class _PsbtConfirmationScreenState extends State<PsbtConfirmationScreen> {
   }
 
   void sign() async {
+    if (_isMultisig) {
+      Navigator.pushNamed(
+        context,
+        '/multi-signature',
+        arguments: {
+          'id': '${widget.id}',
+          'sendAddress': _sendAddress,
+          'bitcoinString': _bitcoinString,
+        },
+      );
+
+      return;
+    }
+
     try {
       setState(() {
         _showLoading = true;
       });
+
       bool canSignResult =
           await canSignToPsbt(_vault, _waitingForSignaturePsbtBase64!);
       if (!canSignResult) {
@@ -139,19 +159,8 @@ class _PsbtConfirmationScreenState extends State<PsbtConfirmationScreen> {
       }
 
       if (mounted) {
-        if (_vaultModel.isMultiSig) {
-          Navigator.pushNamed(
-            context,
-            '/multi-signature',
-            arguments: {
-              'sendAddress': _sendAddress,
-              'bitcoinString': _bitcoinString,
-            },
-          );
-        } else {
-          Navigator.pushNamed(context, '/signed-transaction',
-              arguments: {'id': widget.id});
-        }
+        Navigator.pushNamed(context, '/signed-transaction',
+            arguments: {'id': widget.id});
       }
     } catch (_) {
       if (mounted) {
@@ -184,9 +193,9 @@ class _PsbtConfirmationScreenState extends State<PsbtConfirmationScreen> {
                   const SizedBox(height: 20),
                   CustomTooltip(
                     richText: RichText(
-                      text: TextSpan(
-                        text: _vaultModel.isMultiSig ? '' : '[3]',
-                        style: const TextStyle(
+                      text: const TextSpan(
+                        text: '[3] ',
+                        style: TextStyle(
                           fontFamily: 'Pretendard',
                           fontWeight: FontWeight.bold,
                           fontSize: 15,
@@ -196,10 +205,8 @@ class _PsbtConfirmationScreenState extends State<PsbtConfirmationScreen> {
                         ),
                         children: <TextSpan>[
                           TextSpan(
-                            text: _vaultModel.isMultiSig
-                                ? '스캔한 정보가 맞는지 다시 한번 확인해 주세요.'
-                                : ' 월렛에서 스캔한 정보가 맞는지 다시 한번 확인해 주세요.',
-                            style: const TextStyle(
+                            text: '월렛에서 스캔한 정보가 맞는지 다시 한번 확인해 주세요.',
+                            style: TextStyle(
                               fontWeight: FontWeight.normal,
                             ),
                           ),

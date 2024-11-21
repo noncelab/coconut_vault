@@ -1,16 +1,22 @@
+import 'package:coconut_vault/model/data/multisig_vault_list_item.dart';
+import 'package:coconut_vault/model/state/vault_model.dart';
 import 'package:coconut_vault/screens/pin_check_screen.dart';
 import 'package:coconut_vault/styles.dart';
 import 'package:coconut_vault/utils/icon_util.dart';
+import 'package:coconut_vault/utils/text_utils.dart';
 import 'package:coconut_vault/widgets/bottom_sheet.dart';
 import 'package:coconut_vault/widgets/custom_loading_overlay.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:provider/provider.dart';
 
 class MultiSignatureScreen extends StatefulWidget {
+  final String id;
   final String sendAddress;
   final String bitcoinString;
   const MultiSignatureScreen({
     super.key,
+    required this.id,
     required this.sendAddress,
     required this.bitcoinString,
   });
@@ -21,55 +27,35 @@ class MultiSignatureScreen extends StatefulWidget {
 
 class _MultiSignatureScreenState extends State<MultiSignatureScreen> {
   // late AppModel _appModel;
-  // late VaultModel _vaultModel;
-  final _signedSignatureList = [false, false, false];
+  late VaultModel _vaultModel;
+  late MultisigVaultListItem _multisigVault;
+  late List<bool> _signers;
   int _requiredSignatureCount = 0;
-  String _sendAddress = '';
-
-  final testSignatureList = [
-    TestMultiSig(
-        id: 1,
-        name: 'qwer',
-        colorIndex: 0,
-        iconIndex: 0,
-        secret:
-            'control wonder horse expect notable proud eternal mountain swim path toe warm',
-        passphrase: '',
-        vaultJsonString:
-            '''{"keyStore":"{"fingerprint":"ED8D1A16","hdWallet":"{\\"privateKey\\":\\"c800e15734782112ce1c39b95dfaae6f00a3cd4adc32701909e1c32c1bcf7c9f\\",\\"publicKey\\":\\"034f9728039cd80c090c36a506cd8b2b501eea20cac00e9cba944b9bd05e2b9bcf\\",\\"chainCode\\":\\"2af691cac33131f23da7df840bc6bdf863b7710a8fb95262b7e5f2e4a2fb6c5a\\"}","extendedPublicKey":"vpub5YGaouVZqpfDLquULQ6yeSAkKiq8NWepeiP8YJyJeFyCMvH4mwiRBw1NzN6cg8S4mKxNMxyN1Sdfckn7h91FwPEEJVfVVQDWoATyABdPbmX","seed":"{\\"entropy\\":\\"\\",\\"mnemonic\\":[\\"control\\",\\"wonder\\",\\"horse\\",\\"expect\\",\\"notable\\",\\"proud\\",\\"eternal\\",\\"mountain\\",\\"swim\\",\\"path\\",\\"toe\\",\\"warm\\"],\\"passphrase\\":\\"\\"}"}","addressType":"P2WPKH","derivationPath":"m/84'/1'/0'"}'''),
-    TestMultiSig(
-        id: 2,
-        name: '외부지갑',
-        colorIndex: 0,
-        iconIndex: 0,
-        secret:
-            'gravity ranch badge scorpion remind involve able mimic warrior buffalo outdoor air',
-        passphrase: '',
-        vaultJsonString: null),
-    TestMultiSig(
-        id: 3,
-        name: 'go',
-        colorIndex: 4,
-        iconIndex: 4,
-        secret:
-            'garlic concert text street avoid flavor rare mechanic hand hurry smile market',
-        passphrase: '',
-        vaultJsonString:
-            '''{"keyStore":"{"fingerprint":"4638011E","hdWallet":"{\\"privateKey\\":\\"e8d63f05b7cfd54a7376576fad92dd6539e273867b0c7ee5cd9abaf962367f0f\\",\\"publicKey\\":\\"0357585c4682c23956be78e5ff867f2d3a1c57fa1c403a3b71a006e09cab438b54\\",\\"chainCode\\":\\"40bc2e20c426afe351fe035f2ea41646fce0f23de68ab3e9175462690981eb16\\"}","extendedPublicKey":"vpub5Y8gaU6obBfenCiBB4GoneXQqV2EXvZWpToCPi8j24XtuLFYvMiYPu53RRNkgyPdpBRwVFCLFVDqBEAkjUi4ySqFnYosnFJyuxmW9vsar7d","seed":"{\\"entropy\\":\\"\\",\\"mnemonic\\":[\\"garlic\\",\\"concert\\",\\"text\\",\\"street\\",\\"avoid\\",\\"flavor\\",\\"rare\\",\\"mechanic\\",\\"hand\\",\\"hurry\\",\\"smile\\",\\"market\\"],\\"passphrase\\":\\"\\"}"}","addressType":"P2WPKH","derivationPath":"m/84'/1'/0'"}'''),
-  ];
 
   @override
   void initState() {
-    // _appModel = Provider.of<AppModel>(context, listen: false);
-    // _vaultModel = Provider.of<VaultModel>(context, listen: false);
-
-    // TODO: 지정된 서명 숫자 가져오기
-    _requiredSignatureCount = 2;
-
-    _sendAddress =
-        '${widget.sendAddress.substring(0, 15)}...${widget.sendAddress.substring(widget.sendAddress.length - 10, widget.sendAddress.length)}';
-
+    _vaultModel = Provider.of<VaultModel>(context, listen: false);
     super.initState();
+    _multisigVault =
+        _vaultModel.getVaultById(int.parse(widget.id)) as MultisigVaultListItem;
+    _signers = List<bool>.filled(_multisigVault.signers.length, false);
+    _requiredSignatureCount = _multisigVault.requiredSignatureCount;
+
+    // TODO: sign()
+
+    // final vaultBaseItem = _vaultModel.getVaultById(widget.id);
+    // final multiVaultItem = vaultBaseItem as MultisigVaultListItem;
+    // final multiVault = multiVaultItem.coconutVault as MultisignatureVault;
+    // if (_isMultisig) {
+    //   for (var signer in multiVaultItem.signers) {
+    //     if (signer.innerVaultId != null) {
+    //       final singleVaultItem = _vaultModel.getVaultById(signer.innerVaultId!) as SinglesigVaultListItem;
+    //       final index = singleVaultItem.multisigKey?['${widget.id}'];
+    //       final singleVault = singleVaultItem.coconutVault as SingleSignatureVault;
+    //       multiVault.bindSeedToKeyStore(singleVault.keyStore.seed, index);
+    //     }
+    //   }
+    // }
   }
 
   @override
@@ -92,16 +78,15 @@ class _MultiSignatureScreenState extends State<MultiSignatureScreen> {
             padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
             child: GestureDetector(
               onTap: () {
-                // TODO: 서명하기 다음 절차 구현
-                Navigator.popUntil(context, (route) => route.isFirst);
+                // TODO 서명완료 후 이동
                 // Navigator.pushNamed(context, '/signed-transaction',
-                //     arguments: {'id': 1});
+                //     arguments: {'id': int.parse(widget.id)});
               },
               child: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 12.0),
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(9),
-                  color: _signedSignatureList.where((item) => item).length >=
+                  color: _signers.where((item) => item).length >=
                           _requiredSignatureCount
                       ? MyColors.black19
                       : MyColors.grey219,
@@ -121,11 +106,11 @@ class _MultiSignatureScreenState extends State<MultiSignatureScreen> {
             margin: const EdgeInsets.only(top: 8),
             duration: const Duration(seconds: 1),
             child: LinearProgressIndicator(
-              value: _signedSignatureList.where((item) => item).length /
+              value: _signers.where((item) => item).length /
                   _requiredSignatureCount,
               minHeight: 6,
               backgroundColor: MyColors.transparentBlack_06,
-              borderRadius: _signedSignatureList.where((item) => item).length >=
+              borderRadius: _signers.where((item) => item).length >=
                       _requiredSignatureCount
                   ? BorderRadius.zero
                   : const BorderRadius.only(
@@ -137,10 +122,9 @@ class _MultiSignatureScreenState extends State<MultiSignatureScreen> {
           Padding(
             padding: const EdgeInsets.only(top: 24),
             child: Text(
-              _requiredSignatureCount <=
-                      _signedSignatureList.where((item) => item).length
+              _requiredSignatureCount <= _signers.where((item) => item).length
                   ? '서명을 완료했습니다'
-                  : '${_requiredSignatureCount - _signedSignatureList.where((item) => item).length}개의 서명이 필요합니다',
+                  : '${_requiredSignatureCount - _signers.where((item) => item).length}개의 서명이 필요합니다',
               style: Styles.body2Bold,
             ),
           ),
@@ -156,7 +140,7 @@ class _MultiSignatureScreenState extends State<MultiSignatureScreen> {
                       style: Styles.body2.copyWith(color: MyColors.grey57),
                     ),
                     Text(
-                      _sendAddress,
+                      TextUtils.truncateNameMax25(widget.sendAddress),
                       style: Styles.body1,
                     ),
                   ],
@@ -183,14 +167,15 @@ class _MultiSignatureScreenState extends State<MultiSignatureScreen> {
             child: ListView.builder(
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
-              itemCount: testSignatureList.length,
+              itemCount: _multisigVault.signers.length,
               itemBuilder: (context, index) {
-                final length = testSignatureList.length - 1;
-                final name = testSignatureList[index].name;
-                final iconIndex = testSignatureList[index].iconIndex;
-                final colorIndex = testSignatureList[index].colorIndex;
-                final isVaultWallet =
-                    testSignatureList[index].vaultJsonString != null;
+                final length = _multisigVault.signers.length - 1;
+                final name = _multisigVault.signers[index].name ?? '';
+                final iconIndex = _multisigVault.signers[index].iconIndex ?? 0;
+                final colorIndex =
+                    _multisigVault.signers[index].colorIndex ?? 0;
+                final isVaultKey =
+                    _multisigVault.signers[index].innerVaultId != null;
 
                 return Container(
                   alignment: Alignment.centerLeft,
@@ -221,25 +206,24 @@ class _MultiSignatureScreenState extends State<MultiSignatureScreen> {
                             Row(
                               children: [
                                 Container(
-                                  padding:
-                                      EdgeInsets.all(isVaultWallet ? 10 : 12),
+                                  padding: EdgeInsets.all(isVaultKey ? 10 : 12),
                                   decoration: BoxDecoration(
-                                    color: isVaultWallet
+                                    color: isVaultKey
                                         ? BackgroundColorPalette[colorIndex]
                                         : MyColors.grey236,
                                     borderRadius: BorderRadius.circular(16.0),
                                   ),
                                   child: SvgPicture.asset(
-                                    isVaultWallet
+                                    isVaultKey
                                         ? CustomIcons.getPathByIndex(iconIndex)
                                         : 'assets/svg/download.svg',
                                     colorFilter: ColorFilter.mode(
-                                      isVaultWallet
+                                      isVaultKey
                                           ? ColorPalette[colorIndex]
                                           : MyColors.black,
                                       BlendMode.srcIn,
                                     ),
-                                    width: isVaultWallet ? 20 : 15,
+                                    width: isVaultKey ? 20 : 15,
                                   ),
                                 ),
                                 const SizedBox(width: 8),
@@ -247,7 +231,7 @@ class _MultiSignatureScreenState extends State<MultiSignatureScreen> {
                               ],
                             ),
                             const Spacer(),
-                            if (_signedSignatureList[index]) ...{
+                            if (_signers[index]) ...{
                               Row(
                                 children: [
                                   Text(
@@ -263,12 +247,10 @@ class _MultiSignatureScreenState extends State<MultiSignatureScreen> {
                                 ],
                               ),
                             } else if (_requiredSignatureCount >
-                                _signedSignatureList
-                                    .where((item) => item)
-                                    .length) ...{
+                                _signers.where((item) => item).length) ...{
                               GestureDetector(
                                 onTap: () {
-                                  if (isVaultWallet) {
+                                  if (isVaultKey) {
                                     MyBottomSheet.showBottomSheet_90(
                                       context: context,
                                       child: CustomLoadingOverlay(
@@ -279,8 +261,7 @@ class _MultiSignatureScreenState extends State<MultiSignatureScreen> {
                                           onComplete: () async {
                                             setState(() {
                                               Navigator.pop(context);
-                                              _signedSignatureList[index] =
-                                                  true;
+                                              _signers[index] = true;
                                             });
                                           },
                                         ),
@@ -326,25 +307,4 @@ class _MultiSignatureScreenState extends State<MultiSignatureScreen> {
       ),
     );
   }
-}
-
-// TODO: 개발 완료후 삭제
-class TestMultiSig {
-  final int id;
-  final String name;
-  final int colorIndex;
-  final int iconIndex;
-  final String secret;
-  final String passphrase;
-  String? vaultJsonString;
-
-  TestMultiSig({
-    required this.id,
-    required this.name,
-    required this.colorIndex,
-    required this.iconIndex,
-    required this.secret,
-    required this.passphrase,
-    this.vaultJsonString,
-  });
 }

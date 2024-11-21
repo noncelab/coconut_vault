@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:coconut_vault/model/data/vault_list_item_base.dart';
+import 'package:coconut_vault/model/data/vault_type.dart';
 import 'package:coconut_vault/model/state/app_model.dart';
 import 'package:coconut_vault/utils/alert_util.dart';
 import 'package:coconut_vault/widgets/animatedQR/animated_qr_scanner.dart';
@@ -32,6 +33,7 @@ class _PsbtScannerScreenState extends State<PsbtScannerScreen> {
   bool isCameraActive = false;
   bool isAlreadyVibrateScanFailed = false;
   bool _isProcessing = false;
+  bool _isMultisig = false;
 
   @override
   void initState() {
@@ -39,6 +41,7 @@ class _PsbtScannerScreenState extends State<PsbtScannerScreen> {
     _vaultModel = Provider.of<VaultModel>(context, listen: false);
     super.initState();
     _vaultListItem = _vaultModel.getVaultById(widget.id);
+    _isMultisig = _vaultListItem.vaultType == VaultType.multiSignature;
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       _appModel.showIndicator();
       await Future.delayed(const Duration(milliseconds: 1000));
@@ -117,7 +120,7 @@ class _PsbtScannerScreenState extends State<PsbtScannerScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: CustomAppBar.build(
-        title: _vaultModel.isMultiSig ? '다중 서명 지갑' : _vaultListItem.name,
+        title: _vaultListItem.name,
         context: context,
         hasRightIcon: false,
         isBottom: true,
@@ -139,7 +142,7 @@ class _PsbtScannerScreenState extends State<PsbtScannerScreen> {
             child: CustomTooltip(
               richText: RichText(
                 text: TextSpan(
-                  text: _vaultModel.isMultiSig ? '' : '[2] ',
+                  text: '[2] ',
                   style: const TextStyle(
                     fontFamily: 'Pretendard',
                     fontWeight: FontWeight.bold,
@@ -150,7 +153,7 @@ class _PsbtScannerScreenState extends State<PsbtScannerScreen> {
                   ),
                   children: <TextSpan>[
                     TextSpan(
-                      text: _vaultModel.isMultiSig
+                      text: _isMultisig
                           ? '월렛에서 만든 보내기 정보 또는 외부 볼트에서 다중 서명 중인 정보를 스캔해주세요.'
                           : '월렛에서 만든 보내기 정보를 스캔해 주세요. 반드시 지갑 이름이 같아야 해요.',
                       style: const TextStyle(

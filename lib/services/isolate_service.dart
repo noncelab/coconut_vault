@@ -78,27 +78,51 @@ Future<MultisigVaultListItem> addMultisigVaultIsolate(
 Future<String> addSignatureToPsbtIsolate(
     List<dynamic> dataList, void Function(dynamic)? replyTo) async {
   BitcoinNetwork.setNetwork(BitcoinNetwork.regtest);
-  SingleSignatureVault vault = dataList[0] as SingleSignatureVault;
-  String psbtBase64 = dataList[1] as String;
-  String signedPsbt = vault.addSignatureToPsbt(psbtBase64);
 
-  if (replyTo != null) {
-    replyTo(signedPsbt);
+  if (dataList[0] is MultisignatureVault) {
+    final vault = dataList[0] as MultisignatureVault;
+    String psbtBase64 = dataList[1] as String;
+    String signedPsbt = vault.addSignatureToPsbt(psbtBase64);
+
+    if (replyTo != null) {
+      replyTo(signedPsbt);
+    }
+    return signedPsbt;
+  } else {
+    final vault = dataList[0] as SingleSignatureVault;
+    String psbtBase64 = dataList[1] as String;
+    String signedPsbt = vault.addSignatureToPsbt(psbtBase64);
+
+    if (replyTo != null) {
+      replyTo(signedPsbt);
+    }
+    return signedPsbt;
   }
-  return signedPsbt;
 }
 
 Future<bool> canSignToPsbtIsolate(
     List<dynamic> dataList, void Function(dynamic)? replyTo) async {
   BitcoinNetwork.setNetwork(BitcoinNetwork.regtest);
-  SingleSignatureVault vault = dataList[0] as SingleSignatureVault;
-  String psbtBase64 = dataList[1] as String;
-  bool canSign = vault.canSignToPsbt(psbtBase64);
 
-  if (replyTo != null) {
-    replyTo(canSign);
+  if (dataList[0] is MultisignatureVault) {
+    final vault = dataList[0] as MultisignatureVault;
+    String psbtBase64 = dataList[1] as String;
+    bool canSign = vault.canSignToPsbt(psbtBase64);
+
+    if (replyTo != null) {
+      replyTo(canSign);
+    }
+    return canSign;
+  } else {
+    final vault = dataList[0] as SingleSignatureVault;
+    String psbtBase64 = dataList[1] as String;
+    bool canSign = vault.canSignToPsbt(psbtBase64);
+
+    if (replyTo != null) {
+      replyTo(canSign);
+    }
+    return canSign;
   }
-  return canSign;
 }
 
 Future<List<String>> extractSignerBsmsIsolate(
