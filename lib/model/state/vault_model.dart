@@ -131,7 +131,7 @@ class VaultModel extends ChangeNotifier {
   }
 
   Future<void> addVault(Map<String, dynamic> vaultData) async {
-    _setAddVaultCompleted(false);
+    setAddVaultCompleted(false);
     if (_addVaultIsolateHandler == null) {
       _addVaultIsolateHandler =
           IsolateHandler<Map<String, dynamic>, List<SinglesigVaultListItem>>(
@@ -149,7 +149,7 @@ class VaultModel extends ChangeNotifier {
     }
 
     _vaultList.addAll(vaultListResult);
-    _setAddVaultCompleted(true);
+    setAddVaultCompleted(true);
     await updateVaultInStorage();
     notifyListeners();
     stopImporting();
@@ -159,17 +159,18 @@ class VaultModel extends ChangeNotifier {
   Future<void> addMultisigVaultAsync(
       int nextId, String name, int color, int icon) async {
     if (_multisigCreationModel.signers == null) return;
-    _setAddVaultCompleted(false);
+    setAddVaultCompleted(false);
+    final signers = _multisigCreationModel.signers ?? [];
+    final requiredSignatureCount =
+        _multisigCreationModel.requiredSignatureCount ?? 0;
     Map<String, dynamic> data = {
       'nextId': nextId,
       'name': name,
       'colorIndex': color,
       'iconIndex': icon,
       'secrets': {
-        'signers': jsonEncode(_multisigCreationModel.signers
-            ?.map((item) => item.toJson())
-            .toList()),
-        'requiredSignatureCount': _multisigCreationModel.requiredSignatureCount!
+        'signers': jsonEncode(signers.map((item) => item.toJson()).toList()),
+        'requiredSignatureCount': _multisigCreationModel.requiredSignatureCount,
       }
     };
 
@@ -189,16 +190,23 @@ class VaultModel extends ChangeNotifier {
       _addMultisigVaultIsolateHandler = null;
     }
 
-    print('------------------------------------');
-    print(newMultisigVault);
-    print(newMultisigVault as VaultListItemBase);
-    print('------------------------------------');
+    for (var signer in signers) {
+      if (signer.innerVaultId == null) return;
+      final id = signer.innerVaultId ?? 0;
+      final name = signer.name ?? '';
+      final colorIndex = signer.colorIndex ?? 0;
+      final iconIndex = signer.iconIndex ?? 0;
+      final multiSigIndex = signers.indexOf(signer);
+      await updateVault(id, name, colorIndex, iconIndex,
+          addMultisigKey: nextId, addMultisigIndex: multiSigIndex);
+    }
+
     try {
       _vaultList.add(newMultisigVault);
     } catch (e) {
       print("[addMultisigVaultAsync Exception] $e");
     }
-    _setAddVaultCompleted(true);
+    setAddVaultCompleted(true);
     await updateVaultInStorage();
     notifyListeners();
     _multisigCreationModel.reset();
@@ -206,7 +214,7 @@ class VaultModel extends ChangeNotifier {
 
   Future<void> importMultisigVaultAsync(
       String name, int color, int icon, String coordinatorBsms) async {
-    _setAddVaultCompleted(false);
+    setAddVaultCompleted(false);
     final nextId = SharedPrefsService().getInt('nextId') ?? 1;
 
     Map<String, dynamic> data = {
@@ -241,72 +249,7 @@ class VaultModel extends ChangeNotifier {
     } catch (e) {
       print("[importMultisigVaultAsync Exception] $e");
     }
-    _setAddVaultCompleted(true);
-    await updateVaultInStorage();
-    notifyListeners();
-  }
-
-  Future<int> getSignerIndexAsync(MultisignatureVault multisigVault,
-      SinglesigVaultListItem singlesigVaultListItem) async {
-    Map<String, dynamic> data = {
-      'multisigVault': multisigVault.toJson(),
-      'singlesigVault': singlesigVaultListItem.toJson(),
-    };
-    if (_getSignerIndexIsolateHandler == null) {
-      _getSignerIndexIsolateHandler =
-          IsolateHandler<Map<String, dynamic>, int>(getSignerIndexIsolate);
-      await _getSignerIndexIsolateHandler!
-          .initialize(initialType: InitializeType.getSignerIndex);
-    }
-
-    final signerIndex = await _getSignerIndexIsolateHandler!.run(data);
-
-    if (_getSignerIndexIsolateHandler != null) {
-      _getSignerIndexIsolateHandler!.dispose();
-      _getSignerIndexIsolateHandler = null;
-    }
-
-    return signerIndex;
-  }
-
-  Future<void> importMultisigVaultAsync(
-      String name, int color, int icon, String coordinatorBsms) async {
-    _setAddVaultCompleted(false);
-    final nextId = SharedPrefsService().getInt('nextId') ?? 1;
-
-    Map<String, dynamic> data = {
-      'nextId': nextId,
-      'name': name,
-      'colorIndex': color,
-      'iconIndex': icon,
-      'secrets': {
-        'bsms': coordinatorBsms,
-        'vaultList':
-            jsonEncode(_vaultList.map((item) => item.toJson()).toList()),
-      }
-    };
-    if (_importMultisigVaultIsolateHandler == null) {
-      _importMultisigVaultIsolateHandler =
-          IsolateHandler<Map<String, dynamic>, MultisigVaultListItem>(
-              importMultisigVaultIsolate);
-      await _importMultisigVaultIsolateHandler!
-          .initialize(initialType: InitializeType.importMultisigVault);
-    }
-
-    MultisigVaultListItem newMultisigVault =
-        await _importMultisigVaultIsolateHandler!.run(data);
-
-    if (_importMultisigVaultIsolateHandler != null) {
-      _importMultisigVaultIsolateHandler!.dispose();
-      _importMultisigVaultIsolateHandler = null;
-    }
-
-    try {
-      _vaultList.add(newMultisigVault);
-    } catch (e) {
-      print("[importMultisigVaultAsync Exception] $e");
-    }
-    _setAddVaultCompleted(true);
+    setAddVaultCompleted(true);
     await updateVaultInStorage();
     notifyListeners();
   }
@@ -458,12 +401,11 @@ class VaultModel extends ChangeNotifier {
   Future<void> loadVaultList() async {
     if (_isVaultListLoading) return;
 
-    _setVaultListLoading(true);
+    setVaultListLoading(true);
     try {
       if (_vaultListIsolateHandler == null) {
         _vaultListIsolateHandler =
-            IsolateHandler<void, List<VaultListItemBase>>(
-                _loadVaultListIsolate);
+            IsolateHandler<void, List<VaultListItemBase>>(loadVaultListIsolate);
         await _vaultListIsolateHandler!.initialize();
       }
 
@@ -479,7 +421,7 @@ class VaultModel extends ChangeNotifier {
       Logger.log('[loadVaultList] Exception : ${e.toString()}');
     } finally {
       _appModel.saveNotEmptyVaultList(_vaultList.isNotEmpty);
-      _setVaultListLoading(false);
+      setVaultListLoading(false);
       if (_vaultListIsolateHandler != null) {
         _vaultListIsolateHandler!.dispose();
         _vaultListIsolateHandler = null;
@@ -487,7 +429,7 @@ class VaultModel extends ChangeNotifier {
     }
   }
 
-  static Future<List<VaultListItemBase>> _loadVaultListIsolate(
+  Future<List<VaultListItemBase>> loadVaultListIsolate(
       void _, void Function(List<dynamic>)? setVaultListLoadingProgress) async {
     BitcoinNetwork.setNetwork(BitcoinNetwork.regtest);
     List<VaultListItemBase> vaultList = [];
@@ -549,13 +491,13 @@ class VaultModel extends ChangeNotifier {
     _waitingForSignaturePsbtBase64 = null;
   }
 
-  void _setVaultListLoading(bool value) {
+  void setVaultListLoading(bool value) {
     _isVaultListLoading = value;
     _isLoadVaultList = !value;
     notifyListeners();
   }
 
-  void _setAddVaultCompleted(bool value) {
+  void setAddVaultCompleted(bool value) {
     _isAddVaultCompleted = value;
     notifyListeners();
   }
