@@ -184,7 +184,7 @@ class VaultModel extends ChangeNotifier {
 
   /// addMultisigKey, addMultisigIndex -> 다중 지갑이 추가될 때 일반 지갑의 multisigKey 업데이트
   /// removeMultisigKey -> 다중 지갑이 삭제될 때 일반 지갑의 multisigKey 삭제
-  /// singlesigIndex -> 일반 지갑이 변경될 때 다중 지갑의 signer 업데이트
+  /// signerIndex -> 일반 지갑이 변경될 때 다중 지갑의 signer 업데이트
   Future<void> updateVault(
       int id, String newName, int colorIndex, int iconIndex,
       {int? addMultisigKey,

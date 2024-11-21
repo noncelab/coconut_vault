@@ -200,9 +200,8 @@ bcrt1qym2yhgdm5hrvehd79yaejamz5een2ldptnr79nesau4vldtumtyqwq8ndn
                 '내보내기',
                 '보기 전용 지갑을 월렛에 추가해요', () {
               Navigator.pop(context);
-              // TODO: multisig 내보내기
-              // Navigator.pushNamed(context, '/sync-to-wallet',
-              //     arguments: {'id': widget.id});
+              Navigator.pushNamed(context, '/sync-to-wallet',
+                  arguments: {'id': widget.id});
             }, iconBackgroundColorList[4]),
           ]),
         );
