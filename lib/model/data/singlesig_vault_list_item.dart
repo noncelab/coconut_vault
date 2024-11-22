@@ -58,5 +58,5 @@ class SinglesigVaultListItem extends VaultListItemBase {
 
   @override
   String toString() =>
-      'Vault($id) / type=$vaultType / multisigKey=$linkedMultisigInfo / name=$name / colorIndex=$colorIndex / iconIndex=$iconIndex';
+      'Vault($id) / type=$vaultType / linkedMultisigInfo=$linkedMultisigInfo / name=$name / colorIndex=$colorIndex / iconIndex=$iconIndex';
 }
