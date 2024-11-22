@@ -1,7 +1,11 @@
+import 'package:coconut_lib/coconut_lib.dart';
 import 'package:coconut_vault/model/data/multisig_vault_list_item.dart';
+import 'package:coconut_vault/model/data/singlesig_vault_list_item.dart';
 import 'package:coconut_vault/model/state/vault_model.dart';
+import 'package:coconut_vault/screens/airgap/psbt_confirmation_screen.dart';
 import 'package:coconut_vault/screens/pin_check_screen.dart';
 import 'package:coconut_vault/styles.dart';
+import 'package:coconut_vault/utils/alert_util.dart';
 import 'package:coconut_vault/utils/icon_util.dart';
 import 'package:coconut_vault/utils/text_utils.dart';
 import 'package:coconut_vault/widgets/bottom_sheet.dart';
@@ -12,11 +16,13 @@ import 'package:provider/provider.dart';
 
 class MultiSignatureScreen extends StatefulWidget {
   final String id;
+  final String psbtBase64;
   final String sendAddress;
   final String bitcoinString;
   const MultiSignatureScreen({
     super.key,
     required this.id,
+    required this.psbtBase64,
     required this.sendAddress,
     required this.bitcoinString,
   });
@@ -28,34 +34,68 @@ class MultiSignatureScreen extends StatefulWidget {
 class _MultiSignatureScreenState extends State<MultiSignatureScreen> {
   // late AppModel _appModel;
   late VaultModel _vaultModel;
-  late MultisigVaultListItem _multisigVault;
+  late MultisigVaultListItem _multisigVaultItem;
+  late MultisignatureVault _multisigVault;
   late List<bool> _signers;
   int _requiredSignatureCount = 0;
+  bool _showLoading = false;
 
   @override
   void initState() {
     _vaultModel = Provider.of<VaultModel>(context, listen: false);
     super.initState();
-    _multisigVault =
+    _multisigVaultItem =
         _vaultModel.getVaultById(int.parse(widget.id)) as MultisigVaultListItem;
-    _signers = List<bool>.filled(_multisigVault.signers.length, false);
-    _requiredSignatureCount = _multisigVault.requiredSignatureCount;
+    _multisigVault = _multisigVaultItem.coconutVault as MultisignatureVault;
+    _signers = List<bool>.filled(_multisigVaultItem.signers.length, false);
+    _requiredSignatureCount = _multisigVaultItem.requiredSignatureCount;
+  }
 
-    // TODO: sign()
+  _bindSeedToKeyStore(int id, int index) {
+    final singleVaultItem =
+        _vaultModel.getVaultById(id) as SinglesigVaultListItem;
+    final seed =
+        (singleVaultItem.coconutVault as SingleSignatureVault).keyStore.seed;
+    _multisigVault.bindSeedToKeyStore(seed, index);
+    _signers[index] = true;
+  }
 
-    // final vaultBaseItem = _vaultModel.getVaultById(widget.id);
-    // final multiVaultItem = vaultBaseItem as MultisigVaultListItem;
-    // final multiVault = multiVaultItem.coconutVault as MultisignatureVault;
-    // if (_isMultisig) {
-    //   for (var signer in multiVaultItem.signers) {
-    //     if (signer.innerVaultId != null) {
-    //       final singleVaultItem = _vaultModel.getVaultById(signer.innerVaultId!) as SinglesigVaultListItem;
-    //       final index = singleVaultItem.multisigKey?['${widget.id}'];
-    //       final singleVault = singleVaultItem.coconutVault as SingleSignatureVault;
-    //       multiVault.bindSeedToKeyStore(singleVault.keyStore.seed, index);
-    //     }
-    //   }
-    // }
+  _sign() async {
+    try {
+      setState(() {
+        _showLoading = true;
+      });
+
+      bool canSignResult =
+          await canSignToPsbt(_multisigVault, widget.psbtBase64);
+
+      if (!canSignResult) {
+        if (mounted) {
+          showAlertDialog(context: context, content: "서명할 수 없는 트랜잭션입니다.");
+        }
+        return;
+      }
+
+      String signedPsbt =
+          await addSignatureToPsbt(_multisigVault, widget.psbtBase64);
+
+      _vaultModel.signedRawTx = signedPsbt;
+      if (_vaultModel.signedRawTx == null) {
+        throw "signedRawTx is null";
+      }
+    } catch (_) {
+      if (mounted) {
+        showAlertDialog(context: context, content: "서명 실패: $_");
+      }
+    } finally {
+      setState(() {
+        _showLoading = false;
+      });
+      if (mounted) {
+        Navigator.pushNamed(context, '/signed-transaction',
+            arguments: {'id': int.parse(widget.id)});
+      }
+    }
   }
 
   @override
@@ -77,11 +117,7 @@ class _MultiSignatureScreenState extends State<MultiSignatureScreen> {
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
             child: GestureDetector(
-              onTap: () {
-                // TODO 서명완료 후 이동
-                // Navigator.pushNamed(context, '/signed-transaction',
-                //     arguments: {'id': int.parse(widget.id)});
-              },
+              onTap: _sign,
               child: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 12.0),
                 decoration: BoxDecoration(
@@ -100,207 +136,235 @@ class _MultiSignatureScreenState extends State<MultiSignatureScreen> {
           ),
         ],
       ),
-      body: Column(
+      body: Stack(
         children: [
-          AnimatedContainer(
-            margin: const EdgeInsets.only(top: 8),
-            duration: const Duration(seconds: 1),
-            child: LinearProgressIndicator(
-              value: _signers.where((item) => item).length /
-                  _requiredSignatureCount,
-              minHeight: 6,
-              backgroundColor: MyColors.transparentBlack_06,
-              borderRadius: _signers.where((item) => item).length >=
-                      _requiredSignatureCount
-                  ? BorderRadius.zero
-                  : const BorderRadius.only(
-                      topRight: Radius.circular(6),
-                      bottomRight: Radius.circular(6)),
-              valueColor: const AlwaysStoppedAnimation<Color>(MyColors.black),
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.only(top: 24),
-            child: Text(
-              _requiredSignatureCount <= _signers.where((item) => item).length
-                  ? '서명을 완료했습니다'
-                  : '${_requiredSignatureCount - _signers.where((item) => item).length}개의 서명이 필요합니다',
-              style: Styles.body2Bold,
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.only(top: 32, left: 20, right: 20),
-            child: Column(
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      '보낼 주소',
-                      style: Styles.body2.copyWith(color: MyColors.grey57),
-                    ),
-                    Text(
-                      TextUtils.truncateNameMax25(widget.sendAddress),
-                      style: Styles.body1,
-                    ),
-                  ],
+          Column(
+            children: [
+              AnimatedContainer(
+                margin: const EdgeInsets.only(top: 8),
+                duration: const Duration(seconds: 1),
+                child: LinearProgressIndicator(
+                  value: _signers.where((item) => item).length /
+                      _requiredSignatureCount,
+                  minHeight: 6,
+                  backgroundColor: MyColors.transparentBlack_06,
+                  borderRadius: _signers.where((item) => item).length >=
+                          _requiredSignatureCount
+                      ? BorderRadius.zero
+                      : const BorderRadius.only(
+                          topRight: Radius.circular(6),
+                          bottomRight: Radius.circular(6)),
+                  valueColor:
+                      const AlwaysStoppedAnimation<Color>(MyColors.black),
                 ),
-                const SizedBox(height: 20),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      '보낼 수량',
-                      style: Styles.body2.copyWith(color: MyColors.grey57),
-                    ),
-                    Text(
-                      '${widget.bitcoinString} BTC',
-                      style: Styles.body1,
-                    ),
-                  ],
+              ),
+              Padding(
+                padding: const EdgeInsets.only(top: 24),
+                child: Text(
+                  _requiredSignatureCount <=
+                          _signers.where((item) => item).length
+                      ? '서명을 완료했습니다'
+                      : '${_requiredSignatureCount - _signers.where((item) => item).length}개의 서명이 필요합니다',
+                  style: Styles.body2Bold,
                 ),
-              ],
-            ),
-          ),
-          Container(
-            margin: const EdgeInsets.only(top: 32, left: 20, right: 20),
-            child: ListView.builder(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              itemCount: _multisigVault.signers.length,
-              itemBuilder: (context, index) {
-                final length = _multisigVault.signers.length - 1;
-                final name = _multisigVault.signers[index].name ?? '';
-                final iconIndex = _multisigVault.signers[index].iconIndex ?? 0;
-                final colorIndex =
-                    _multisigVault.signers[index].colorIndex ?? 0;
-                final isVaultKey =
-                    _multisigVault.signers[index].innerVaultId != null;
-
-                return Container(
-                  alignment: Alignment.centerLeft,
-                  padding: const EdgeInsets.symmetric(horizontal: 8),
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.only(
-                      topLeft: Radius.circular(index == 0 ? 19 : 0),
-                      topRight: Radius.circular(index == 0 ? 19 : 0),
-                      bottomLeft: Radius.circular(index == length ? 19 : 0),
-                      bottomRight: Radius.circular(index == length ? 19 : 0),
-                    ),
-                    color: MyColors.white,
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Padding(
-                        padding: EdgeInsets.only(
-                          left: 10,
-                          right: 10,
-                          top: index == 0 ? 22 : 18,
-                          bottom: index == length ? 22 : 18,
+              ),
+              Padding(
+                padding: const EdgeInsets.only(top: 32, left: 20, right: 20),
+                child: Column(
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          '보낼 주소',
+                          style: Styles.body2.copyWith(color: MyColors.grey57),
                         ),
-                        child: Row(
-                          children: [
-                            Text('${index + 1}번 키 -', style: Styles.body1),
-                            const SizedBox(width: 8),
-                            Row(
-                              children: [
-                                Container(
-                                  padding: EdgeInsets.all(isVaultKey ? 10 : 12),
-                                  decoration: BoxDecoration(
-                                    color: isVaultKey
-                                        ? BackgroundColorPalette[colorIndex]
-                                        : MyColors.grey236,
-                                    borderRadius: BorderRadius.circular(16.0),
-                                  ),
-                                  child: SvgPicture.asset(
-                                    isVaultKey
-                                        ? CustomIcons.getPathByIndex(iconIndex)
-                                        : 'assets/svg/download.svg',
-                                    colorFilter: ColorFilter.mode(
-                                      isVaultKey
-                                          ? ColorPalette[colorIndex]
-                                          : MyColors.black,
-                                      BlendMode.srcIn,
-                                    ),
-                                    width: isVaultKey ? 20 : 15,
-                                  ),
-                                ),
-                                const SizedBox(width: 8),
-                                Text(name, style: Styles.body2),
-                              ],
+                        Text(
+                          TextUtils.truncateNameMax25(widget.sendAddress),
+                          style: Styles.body1,
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 20),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          '보낼 수량',
+                          style: Styles.body2.copyWith(color: MyColors.grey57),
+                        ),
+                        Text(
+                          '${widget.bitcoinString} BTC',
+                          style: Styles.body1,
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+              Container(
+                margin: const EdgeInsets.only(top: 32, left: 20, right: 20),
+                child: ListView.builder(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  itemCount: _multisigVaultItem.signers.length,
+                  itemBuilder: (context, index) {
+                    final length = _multisigVaultItem.signers.length - 1;
+                    final name = _multisigVaultItem.signers[index].name ?? '';
+                    final iconIndex =
+                        _multisigVaultItem.signers[index].iconIndex ?? 0;
+                    final innerVaultId =
+                        _multisigVaultItem.signers[index].innerVaultId ?? 0;
+                    final colorIndex =
+                        _multisigVaultItem.signers[index].colorIndex ?? 0;
+                    final isVaultKey =
+                        _multisigVaultItem.signers[index].innerVaultId != null;
+
+                    return Container(
+                      alignment: Alignment.centerLeft,
+                      padding: const EdgeInsets.symmetric(horizontal: 8),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.only(
+                          topLeft: Radius.circular(index == 0 ? 19 : 0),
+                          topRight: Radius.circular(index == 0 ? 19 : 0),
+                          bottomLeft: Radius.circular(index == length ? 19 : 0),
+                          bottomRight:
+                              Radius.circular(index == length ? 19 : 0),
+                        ),
+                        color: MyColors.white,
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Padding(
+                            padding: EdgeInsets.only(
+                              left: 10,
+                              right: 10,
+                              top: index == 0 ? 22 : 18,
+                              bottom: index == length ? 22 : 18,
                             ),
-                            const Spacer(),
-                            if (_signers[index]) ...{
-                              Row(
-                                children: [
-                                  Text(
-                                    '서명완료',
-                                    style: Styles.body1Bold.copyWith(
-                                        fontSize: 12, color: Colors.black),
+                            child: Row(
+                              children: [
+                                Text('${index + 1}번 키 -', style: Styles.body1),
+                                const SizedBox(width: 8),
+                                Row(
+                                  children: [
+                                    Container(
+                                      padding:
+                                          EdgeInsets.all(isVaultKey ? 10 : 12),
+                                      decoration: BoxDecoration(
+                                        color: isVaultKey
+                                            ? BackgroundColorPalette[colorIndex]
+                                            : MyColors.grey236,
+                                        borderRadius:
+                                            BorderRadius.circular(16.0),
+                                      ),
+                                      child: SvgPicture.asset(
+                                        isVaultKey
+                                            ? CustomIcons.getPathByIndex(
+                                                iconIndex)
+                                            : 'assets/svg/download.svg',
+                                        colorFilter: ColorFilter.mode(
+                                          isVaultKey
+                                              ? ColorPalette[colorIndex]
+                                              : MyColors.black,
+                                          BlendMode.srcIn,
+                                        ),
+                                        width: isVaultKey ? 20 : 15,
+                                      ),
+                                    ),
+                                    const SizedBox(width: 8),
+                                    Text(name, style: Styles.body2),
+                                  ],
+                                ),
+                                const Spacer(),
+                                if (_signers[index]) ...{
+                                  Row(
+                                    children: [
+                                      Text(
+                                        '서명완료',
+                                        style: Styles.body1Bold.copyWith(
+                                            fontSize: 12, color: Colors.black),
+                                      ),
+                                      const SizedBox(width: 4),
+                                      SvgPicture.asset(
+                                        'assets/svg/circle-check.svg',
+                                        width: 12,
+                                      ),
+                                    ],
                                   ),
-                                  const SizedBox(width: 4),
-                                  SvgPicture.asset(
-                                    'assets/svg/circle-check.svg',
-                                    width: 12,
-                                  ),
-                                ],
-                              ),
-                            } else if (_requiredSignatureCount >
-                                _signers.where((item) => item).length) ...{
-                              GestureDetector(
-                                onTap: () {
-                                  if (isVaultKey) {
-                                    MyBottomSheet.showBottomSheet_90(
-                                      context: context,
-                                      child: CustomLoadingOverlay(
-                                        child: PinCheckScreen(
-                                          screenStatus:
-                                              PinCheckScreenStatus.info,
-                                          isDeleteScreen: true,
-                                          onComplete: () async {
-                                            setState(() {
-                                              Navigator.pop(context);
-                                              _signers[index] = true;
-                                            });
-                                          },
+                                } else if (_requiredSignatureCount >
+                                    _signers.where((item) => item).length) ...{
+                                  GestureDetector(
+                                    onTap: () {
+                                      if (isVaultKey) {
+                                        MyBottomSheet.showBottomSheet_90(
+                                          context: context,
+                                          child: CustomLoadingOverlay(
+                                            child: PinCheckScreen(
+                                              screenStatus:
+                                                  PinCheckScreenStatus.info,
+                                              isDeleteScreen: true,
+                                              onComplete: () async {
+                                                setState(() {
+                                                  Navigator.pop(context);
+                                                  _bindSeedToKeyStore(
+                                                      innerVaultId, index);
+                                                });
+                                              },
+                                            ),
+                                          ),
+                                        );
+                                      } else {
+                                        // TODO: 외부지갑 검증 구현
+                                      }
+                                    },
+                                    child: Container(
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 8, vertical: 4),
+                                      decoration: BoxDecoration(
+                                        color: MyColors.white,
+                                        borderRadius: BorderRadius.circular(5),
+                                        border: Border.all(
+                                            color: MyColors.black19, width: 1),
+                                      ),
+                                      child: Center(
+                                        child: Text(
+                                          '서명',
+                                          style: Styles.caption.copyWith(
+                                              color: MyColors
+                                                  .black19), // 텍스트 색상도 검정으로 변경
                                         ),
                                       ),
-                                    );
-                                  } else {
-                                    // TODO: 외부지갑 검증 구현
-                                  }
-                                },
-                                child: Container(
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 8, vertical: 4),
-                                  decoration: BoxDecoration(
-                                    color: MyColors.white,
-                                    borderRadius: BorderRadius.circular(5),
-                                    border: Border.all(
-                                        color: MyColors.black19, width: 1),
-                                  ),
-                                  child: Center(
-                                    child: Text(
-                                      '서명',
-                                      style: Styles.caption.copyWith(
-                                          color: MyColors
-                                              .black19), // 텍스트 색상도 검정으로 변경
                                     ),
                                   ),
-                                ),
-                              ),
-                            },
-                          ],
-                        ),
+                                },
+                              ],
+                            ),
+                          ),
+                          if (index < length) ...{
+                            const Divider(color: MyColors.divider, height: 1),
+                          }
+                        ],
                       ),
-                      if (index < length) ...{
-                        const Divider(color: MyColors.divider, height: 1),
-                      }
-                    ],
-                  ),
-                );
-              },
+                    );
+                  },
+                ),
+              ),
+            ],
+          ),
+          Visibility(
+            visible: _showLoading,
+            child: Container(
+              width: MediaQuery.of(context).size.width,
+              height: MediaQuery.of(context).size.height,
+              decoration:
+                  const BoxDecoration(color: MyColors.transparentBlack_30),
+              child: const Center(
+                child: CircularProgressIndicator(
+                  color: MyColors.darkgrey,
+                ),
+              ),
             ),
           ),
         ],

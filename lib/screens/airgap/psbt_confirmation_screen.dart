@@ -58,7 +58,6 @@ class _PsbtConfirmationScreenState extends State<PsbtConfirmationScreen> {
     });
   }
 
-  // TODO: 예상 수수료, 총 소요 수량 관련 수정 필요함
   void setTxInfo(String psbtBase64) {
     try {
       var psbt = PSBT.parse(psbtBase64);
@@ -124,20 +123,6 @@ class _PsbtConfirmationScreenState extends State<PsbtConfirmationScreen> {
   }
 
   void sign() async {
-    if (_isMultisig) {
-      Navigator.pushNamed(
-        context,
-        '/multi-signature',
-        arguments: {
-          'id': '${widget.id}',
-          'sendAddress': _sendAddress,
-          'bitcoinString': _bitcoinString,
-        },
-      );
-
-      return;
-    }
-
     try {
       setState(() {
         _showLoading = true;
@@ -181,7 +166,22 @@ class _PsbtConfirmationScreenState extends State<PsbtConfirmationScreen> {
         title: '스캔 정보 확인',
         context: context,
         isActive: !_showLoading,
-        onNextPressed: sign,
+        onNextPressed: () {
+          if (_isMultisig) {
+            Navigator.pushNamed(
+              context,
+              '/multi-signature',
+              arguments: {
+                'id': '${widget.id}',
+                'psbtBase64': _waitingForSignaturePsbtBase64!,
+                'sendAddress': _sendAddress,
+                'bitcoinString': _bitcoinString,
+              },
+            );
+          } else {
+            sign();
+          }
+        },
         isBottom: true,
       ),
       body: SafeArea(

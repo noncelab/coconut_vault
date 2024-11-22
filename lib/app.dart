@@ -238,6 +238,7 @@ class _PowVaultAppState extends State<PowVaultApp> {
                   context,
                   (args) => MultiSignatureScreen(
                     id: args['id'],
+                    psbtBase64: args['psbtBase64'],
                     sendAddress: args['sendAddress'],
                     bitcoinString: args['bitcoinString'],
                   ),
