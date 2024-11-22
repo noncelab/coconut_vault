@@ -55,14 +55,13 @@ class _VaultRowItemState extends State<VaultRowItem> {
       _multiSigners = multi.signers;
     } else {
       final single = widget.vault as SinglesigVaultListItem;
-      if (single.multisigKey != null) {
-        final multisigKey = single.multisigKey!;
+      if (single.linkedMultisigInfo != null) {
+        final multisigKey = single.linkedMultisigInfo!;
         if (multisigKey.keys.isNotEmpty) {
           final model = Provider.of<VaultModel>(context, listen: false);
           // TODO: No Element
           try {
-            final multisig =
-                model.getVaultById(int.parse(multisigKey.keys.first));
+            final multisig = model.getVaultById(multisigKey.keys.first);
             _subtitleText = '${TextUtils.ellipsisIfLonger(multisig.name)} 지갑의 '
                 '${multisigKey.values.first + 1}번 키';
             _isUsedToMultiSig = true;

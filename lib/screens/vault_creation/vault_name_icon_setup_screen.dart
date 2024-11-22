@@ -57,7 +57,7 @@ class _VaultNameIconSetupState extends State<VaultNameIconSetup> {
 
   Future<void> saveNewVaultName(BuildContext context) async {
     try {
-      _appModel.showIndicator();
+      //_appModel.showIndicator();
       setState(() {
         isSaving = true;
       });
@@ -164,7 +164,7 @@ class _VaultNameIconSetupState extends State<VaultNameIconSetup> {
               ),
             ),
             Visibility(
-              visible: _appModel.isLoading,
+              visible: isSaving,
               child: Container(
                 width: MediaQuery.of(context).size.width,
                 height: MediaQuery.of(context).size.height,

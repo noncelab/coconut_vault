@@ -14,9 +14,11 @@ import 'package:coconut_vault/services/isolate_service.dart';
 import 'package:coconut_vault/utils/alert_util.dart';
 import 'package:coconut_vault/utils/icon_util.dart';
 import 'package:coconut_vault/utils/isolate_handler.dart';
+import 'package:coconut_vault/utils/print_util.dart';
 import 'package:coconut_vault/widgets/bottom_sheet.dart';
 import 'package:coconut_vault/widgets/custom_dialog.dart';
 import 'package:coconut_vault/widgets/custom_expansion_panel.dart';
+import 'package:coconut_vault/widgets/custom_toast.dart';
 import 'package:coconut_vault/widgets/high-lighted-text.dart';
 import 'package:flutter/material.dart';
 import 'package:coconut_vault/styles.dart';
@@ -40,8 +42,8 @@ class AssignSignersScreen extends StatefulWidget {
 
 class _AssignSignersScreenState extends State<AssignSignersScreen> {
   ValueNotifier<bool> isButtonActiveNotifier = ValueNotifier<bool>(false);
-  late int nCount; // 전체 키의 수
-  late int mCount; // 필요한 서명 수
+  late int totalSignatureCount; // 전체 키의 수
+  late int requiredSignatureCount; // 필요한 서명 수
   late List<AssignedVaultListItem> assignedVaultList; // 키 가져오기에서 선택 완료한 객체
   late List<SignerOption> signerOptions = [];
   late List<SignerOption> unselectedSignerOptions;
@@ -69,8 +71,8 @@ class _AssignSignersScreenState extends State<AssignSignersScreen> {
     _vaultModel = Provider.of<VaultModel>(context, listen: false);
     _multisigCreationState =
         Provider.of<MultisigCreationModel>(context, listen: false);
-    mCount = _multisigCreationState.requiredSignatureCount!;
-    nCount = _multisigCreationState.totalSignatureCount!;
+    requiredSignatureCount = _multisigCreationState.requiredSignatureCount!;
+    totalSignatureCount = _multisigCreationState.totalSignatureCount!;
 
     _initAssigendVaultList();
 
@@ -96,37 +98,25 @@ class _AssignSignersScreenState extends State<AssignSignersScreen> {
     super.dispose();
   }
 
-  Future<void> _fromKeyStoreListAsync(
-      List<KeyStore> keyStores, int nCount) async {
-    try {
-      if (_fromKeyStoreListIsolateHandler == null) {
-        _fromKeyStoreListIsolateHandler =
-            IsolateHandler<Map<String, dynamic>, MultisignatureVault>(
-                fromKeyStoreIsolate);
-        await _fromKeyStoreListIsolateHandler!
-            .initialize(initialType: InitializeType.fromKeyStore);
-      }
-
-      Map<String, dynamic> data = {
-        'keyStores':
-            jsonEncode(keyStores.map((item) => item.toJson()).toList()),
-        'nCount': nCount,
-      };
-
-      MultisignatureVault multisignatureVault =
-          await _fromKeyStoreListIsolateHandler!.run(data);
-    } catch (error) {
-      setState(() {
-        isNextProcessing = false;
-      });
-      showAlertDialog(
-          context: context, title: '지갑 생성 실패', content: '유효하지 않은 정보입니다.');
-    } finally {
-      if (_fromKeyStoreListIsolateHandler != null) {
-        _fromKeyStoreListIsolateHandler!.dispose();
-        _fromKeyStoreListIsolateHandler = null;
-      }
+  Future<MultisignatureVault> _createMultisignatureVault(
+      List<KeyStore> keyStores) async {
+    if (_fromKeyStoreListIsolateHandler == null) {
+      _fromKeyStoreListIsolateHandler =
+          IsolateHandler<Map<String, dynamic>, MultisignatureVault>(
+              fromKeyStoreIsolate);
+      await _fromKeyStoreListIsolateHandler!
+          .initialize(initialType: InitializeType.fromKeyStore);
     }
+
+    Map<String, dynamic> data = {
+      'keyStores': jsonEncode(keyStores.map((item) => item.toJson()).toList()),
+      'requiredSignatureCount': requiredSignatureCount,
+    };
+
+    MultisignatureVault multisignatureVault =
+        await _fromKeyStoreListIsolateHandler!.run(data);
+
+    return multisignatureVault;
   }
 
   Future<void> _initSignerOptionList(
@@ -155,7 +145,7 @@ class _AssignSignersScreenState extends State<AssignSignersScreen> {
 
   bool _isAssignedKeyCompletely() {
     int assignedCount = _getAssignedVaultListLength();
-    if (assignedCount >= nCount) {
+    if (assignedCount >= totalSignatureCount) {
       return true;
     }
     return false;
@@ -167,7 +157,7 @@ class _AssignSignersScreenState extends State<AssignSignersScreen> {
 
   void _initAssigendVaultList() {
     assignedVaultList = List.generate(
-      nCount,
+      totalSignatureCount,
       (index) => AssignedVaultListItem(
         item: null,
         index: index,
@@ -179,18 +169,11 @@ class _AssignSignersScreenState extends State<AssignSignersScreen> {
     });
   }
 
-  bool _existsSinglsigVault() {
-    if (singlesigVaultList.isEmpty || nCount >= singlesigVaultList.length) {
-      return true;
-    }
-    return false;
-  }
-
   bool _isAllAssignedFromExternal() {
     return assignedVaultList.every((vault) =>
             vault.importKeyType == null ||
             vault.importKeyType == ImportKeyType.external) &&
-        _getAssignedVaultListLength() >= nCount - 1;
+        _getAssignedVaultListLength() >= totalSignatureCount - 1;
   }
 
   bool _isAlreadyImported(String signerBsms) {
@@ -422,11 +405,39 @@ class _AssignSignersScreenState extends State<AssignSignersScreen> {
           throw ArgumentError("wrong importKeyType: ${data.importKeyType!}");
       }
     }
-    assert(signers.length == nCount);
+    assert(signers.length == totalSignatureCount);
     // 검증: 올바른 Signer 정보를 받았는지 확인합니다.
-    await _fromKeyStoreListAsync(keyStores, nCount);
+    MultisignatureVault newMultisigVault;
+    try {
+      newMultisigVault = await _createMultisignatureVault(keyStores);
+    } catch (error) {
+      setState(() {
+        isNextProcessing = false;
+      });
+      showAlertDialog(
+          context: context, title: '지갑 생성 실패', content: '유효하지 않은 정보입니다.');
+      return;
+    }
+
+    // multisig 지갑 리스트 가져오기
+    var multisigVaults = _vaultModel.getMultisigVaults();
+    for (int i = 0; i < multisigVaults.length; i++) {
+      printLongString(
+          "descriptors ---> ${multisigVaults[i].coconutVault.descriptor} , ${newMultisigVault.descriptor}");
+      if (multisigVaults[i].coconutVault.descriptor ==
+          newMultisigVault.descriptor) {
+        CustomToast.showToast(context: context, text: "이미 추가되어 있는 다중 서명 지갑이에요");
+        setState(() {
+          isNextProcessing = false;
+        });
+        return;
+      }
+    }
 
     _multisigCreationState.setSigners(signers);
+
+    _fromKeyStoreListIsolateHandler!.dispose();
+    _fromKeyStoreListIsolateHandler = null;
 
     setState(() {
       isNextProcessing = false;
@@ -470,12 +481,13 @@ class _AssignSignersScreenState extends State<AssignSignersScreen> {
                     LayoutBuilder(
                       builder: (context, constraints) {
                         return ClipRRect(
-                          borderRadius:
-                              _getAssignedVaultListLength() / nCount == 1
-                                  ? BorderRadius.zero
-                                  : const BorderRadius.only(
-                                      topRight: Radius.circular(6),
-                                      bottomRight: Radius.circular(6)),
+                          borderRadius: _getAssignedVaultListLength() /
+                                      totalSignatureCount ==
+                                  1
+                              ? BorderRadius.zero
+                              : const BorderRadius.only(
+                                  topRight: Radius.circular(6),
+                                  bottomRight: Radius.circular(6)),
                           child: AnimatedContainer(
                             duration: const Duration(milliseconds: 500),
                             curve: Curves.easeInOut,
@@ -483,7 +495,8 @@ class _AssignSignersScreenState extends State<AssignSignersScreen> {
                             width: (constraints.maxWidth) *
                                 (_getAssignedVaultListLength() == 0
                                     ? 0
-                                    : _getAssignedVaultListLength() / nCount),
+                                    : _getAssignedVaultListLength() /
+                                        totalSignatureCount),
                             color: MyColors.black,
                           ),
                         );
@@ -501,7 +514,8 @@ class _AssignSignersScreenState extends State<AssignSignersScreen> {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            HighLightedText('$mCount/$nCount',
+                            HighLightedText(
+                                '$requiredSignatureCount/$totalSignatureCount',
                                 color: MyColors.darkgrey),
                             const SizedBox(
                               width: 2,
@@ -591,7 +605,8 @@ class _AssignSignersScreenState extends State<AssignSignersScreen> {
                                             type: ImportKeyType.internal,
                                             onPressed: () {
                                               // 등록된 singlesig vault가 없으면 멀티시그 지갑 생성 불가
-                                              if (_existsSinglsigVault()) {
+                                              if (unselectedSignerOptions
+                                                  .isEmpty) {
                                                 _showDialog(
                                                     DialogType.notAvailable);
                                                 return;

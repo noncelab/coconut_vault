@@ -102,14 +102,13 @@ class CustomColorHelper {
     return BackgroundColorPalette[index % ColorPalette.length];
   }
 
-  // TODO: item.keyStore.hasSeed false -> 외부지갑
   static List<Color> getGradientColors(List<MultisigSigner> list) {
     if (list.isEmpty) {
       return [MyColors.borderLightgrey];
     }
 
     Color getColor(MultisigSigner item) {
-      return item.name != '외부지갑'
+      return item.innerVaultId != null
           ? CustomColorHelper.getColorByIndex(item.colorIndex ?? 0)
           : MyColors.borderLightgrey;
     }

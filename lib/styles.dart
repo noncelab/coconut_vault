@@ -271,6 +271,13 @@ abstract class Styles {
       fontStyle: FontStyle.normal,
       fontWeight: FontWeight.w400);
 
+  static const TextStyle caption2 = TextStyle(
+      fontFamily: _fontText,
+      color: MyColors.searchbarHint,
+      fontSize: 10,
+      fontStyle: FontStyle.normal,
+      fontWeight: FontWeight.w400);
+
   static const TextStyle title5 = TextStyle(
       fontFamily: _fontText,
       color: MyColors.black,

@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:coconut_vault/styles.dart';
 
 class MultiSigMemoBottomSheet extends StatefulWidget {
-  final String memo;
+  final String? memo;
   final Function(String) onUpdate;
 
   const MultiSigMemoBottomSheet({
@@ -18,14 +18,14 @@ class MultiSigMemoBottomSheet extends StatefulWidget {
 }
 
 class _MultiSigMemoBottomSheetState extends State<MultiSigMemoBottomSheet> {
-  String _memo = '';
+  late String _memo;
   bool hasChanged = false;
   final TextEditingController _controller = TextEditingController();
 
   @override
   void initState() {
-    // TODO: memo 설정
-    _memo = widget.memo;
+    _controller.text = widget.memo ?? '';
+    _memo = widget.memo ?? '';
     super.initState();
   }
 
@@ -141,27 +141,21 @@ class _MultiSigMemoBottomSheetState extends State<MultiSigMemoBottomSheet> {
                     // 완료 버튼
                     Expanded(
                       child: GestureDetector(
-                        onTap: _memo.isEmpty
-                            ? null
-                            : () {
-                                FocusScope.of(context).unfocus();
-                                widget.onUpdate(_memo);
-                              },
+                        onTap: () {
+                          FocusScope.of(context).unfocus();
+                          widget.onUpdate(_memo);
+                        },
                         child: Container(
                           padding: const EdgeInsets.symmetric(vertical: 16),
                           decoration: BoxDecoration(
-                            color: _memo.isNotEmpty
-                                ? MyColors.black
-                                : MyColors.lightgrey,
+                            color: MyColors.black,
                             borderRadius: BorderRadius.circular(5),
                           ),
                           child: Center(
                             child: Text(
                               '완료',
                               style: TextStyle(
-                                color: _memo.isNotEmpty
-                                    ? Colors.white
-                                    : MyColors.transparentBlack_30,
+                                color: Colors.white,
                                 fontSize: 14,
                                 fontWeight: _memo.isNotEmpty
                                     ? FontWeight.bold

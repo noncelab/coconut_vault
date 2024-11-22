@@ -124,18 +124,6 @@ class _VaultSettingsState extends State<VaultSettings> {
       await _vaultModel.updateVault(
           int.parse(widget.id), newName, newColorIndex, newIconIndex);
 
-      if (_singleVaultItem.multisigKey?.entries.isNotEmpty == true) {
-        for (var entry in _singleVaultItem.multisigKey!.entries) {
-          await _vaultModel.updateVault(
-            int.parse(entry.key),
-            newName,
-            newColorIndex,
-            newIconIndex,
-            signerIndex: entry.value,
-          );
-        }
-      }
-
       setState(() {
         _name = newName;
         _titleName = TextUtils.ellipsisIfLonger(newName);
@@ -285,7 +273,8 @@ class _VaultSettingsState extends State<VaultSettings> {
             title: '$_titleName 정보',
             context: context,
             hasRightIcon: false,
-            isBottom: _singleVaultItem.multisigKey?.keys.isNotEmpty == true),
+            isBottom:
+                _singleVaultItem.linkedMultisigInfo?.keys.isNotEmpty == true),
         body: GestureDetector(
           onTap: () => FocusScope.of(context).unfocus(),
           child: SafeArea(
@@ -411,8 +400,8 @@ class _VaultSettingsState extends State<VaultSettings> {
                                 ],
                               )),
                         ),
-                        // TODO: 다중지갑 키 사용여부 체크
-                        if (_singleVaultItem.multisigKey?.entries.isNotEmpty ==
+                        if (_singleVaultItem
+                                .linkedMultisigInfo?.entries.isNotEmpty ==
                             true) ...{
                           Container(
                             margin: const EdgeInsets.only(
@@ -464,17 +453,17 @@ class _VaultSettingsState extends State<VaultSettings> {
 
                                   ListView.builder(
                                     itemCount: _singleVaultItem
-                                        .multisigKey!.keys.length,
+                                        .linkedMultisigInfo!.keys.length,
                                     shrinkWrap: true,
                                     itemBuilder: (context, index) {
                                       final id = _singleVaultItem
-                                          .multisigKey!.keys
+                                          .linkedMultisigInfo!.keys
                                           .elementAt(index);
                                       final idx = _singleVaultItem
-                                          .multisigKey!.values
+                                          .linkedMultisigInfo!.values
                                           .elementAt(index);
-                                      final multisig = _vaultModel
-                                          .getVaultById(int.parse(id));
+                                      final multisig =
+                                          _vaultModel.getVaultById(id);
 
                                       return InkWell(
                                         onTap: () {
@@ -571,8 +560,10 @@ class _VaultSettingsState extends State<VaultSettings> {
                                     InformationRowItem(
                                       label: '삭제하기',
                                       showIcon: true,
-                                      textColor: _singleVaultItem.multisigKey
-                                                  ?.entries.isNotEmpty ==
+                                      textColor: _singleVaultItem
+                                                  .linkedMultisigInfo
+                                                  ?.entries
+                                                  .isNotEmpty ==
                                               true
                                           ? MyColors.disabledGrey
                                               .withOpacity(0.15)
@@ -588,7 +579,7 @@ class _VaultSettingsState extends State<VaultSettings> {
                                           'assets/svg/trash.svg',
                                           width: 16,
                                           colorFilter: ColorFilter.mode(
-                                            _singleVaultItem.multisigKey
+                                            _singleVaultItem.linkedMultisigInfo
                                                         ?.entries.isNotEmpty ==
                                                     true
                                                 ? MyColors.disabledGrey
@@ -600,7 +591,7 @@ class _VaultSettingsState extends State<VaultSettings> {
                                       ),
                                       onPressed: () {
                                         _removeTooltip();
-                                        if (_singleVaultItem.multisigKey
+                                        if (_singleVaultItem.linkedMultisigInfo
                                                 ?.entries.isNotEmpty ==
                                             true) {
                                           CustomToast.showToast(

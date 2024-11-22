@@ -202,7 +202,7 @@ Future<MultisignatureVault> fromKeyStoreIsolate(
 
   List<KeyStore> keyStores = [];
   List<dynamic> decodedKeyStoresJson = jsonDecode(data['keyStores']);
-  final int nCount = data['nCount'];
+  final int requiredSignatureCount = data['requiredSignatureCount'];
 
   for (var keyStore in decodedKeyStoresJson) {
     keyStores.add(KeyStore.fromJson(keyStore));
@@ -210,7 +210,7 @@ Future<MultisignatureVault> fromKeyStoreIsolate(
 
   MultisignatureVault multisignatureVault =
       MultisignatureVault.fromKeyStoreList(
-          keyStores, nCount, AddressType.p2wsh);
+          keyStores, requiredSignatureCount, AddressType.p2wsh);
 
   if (replyTo != null) {
     replyTo(multisignatureVault);
