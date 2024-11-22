@@ -36,6 +36,11 @@ class VaultModel extends ChangeNotifier {
   IsolateHandler<void, List<VaultListItemBase>>? _vaultListIsolateHandler;
   IsolateHandler<Map<String, dynamic>, List<SinglesigVaultListItem>>?
       _addVaultIsolateHandler;
+  IsolateHandler<Map<String, dynamic>, MultisigVaultListItem>?
+      _addMultisigVaultIsolateHandler;
+  IsolateHandler<void, int>? _getSignerIndexIsolateHandler;
+  IsolateHandler<Map<String, dynamic>, MultisigVaultListItem>?
+      _importMultisigVaultIsolateHandler;
 
   VaultModel(this._appModel, this._multisigCreationModel) {
     _storageService = SecureStorageService();
@@ -131,7 +136,7 @@ class VaultModel extends ChangeNotifier {
   }
 
   Future<void> addVault(Map<String, dynamic> vaultData) async {
-    _setAddVaultCompleted(false);
+    setAddVaultCompleted(false);
     if (_addVaultIsolateHandler == null) {
       _addVaultIsolateHandler =
           IsolateHandler<Map<String, dynamic>, List<SinglesigVaultListItem>>(
@@ -142,31 +147,66 @@ class VaultModel extends ChangeNotifier {
 
     final vaultListResult =
         await _addVaultIsolateHandler!.runAddVault(vaultData);
+
+    if (_addVaultIsolateHandler != null) {
+      _addVaultIsolateHandler!.dispose();
+      _addVaultIsolateHandler = null;
+    }
+
     _vaultList.addAll(vaultListResult);
-    _setAddVaultCompleted(true);
+    setAddVaultCompleted(true);
     await updateVaultInStorage();
     notifyListeners();
     stopImporting();
     // vibrateLight();
   }
 
-  // TODO: 빠른 구현을 위해 isolate 사용은 뒤로 미뤘습니다.
-  Future<void> addMultisigVault(
+  Future<void> addMultisigVaultAsync(
       int nextId, String name, int color, int icon) async {
-    _setAddVaultCompleted(false);
+    // _setAddVaultCompleted(false);
 
+    // final signers = _multisigCreationModel.signers!;
+    // final requiredSignatureCount =
+    //     _multisigCreationModel.requiredSignatureCount!;
+    // var newMultisigVault = await MultisigVaultListItemFactory().create(
+    //     nextId: nextId,
+    //     name: name,
+    //     colorIndex: color,
+    //     iconIndex: icon,
+    //     secrets: {
+    //       'signers': signers,
+    //       'requiredSignatureCount': requiredSignatureCount,
+    //     });
+    setAddVaultCompleted(false);
     final signers = _multisigCreationModel.signers!;
     final requiredSignatureCount =
         _multisigCreationModel.requiredSignatureCount!;
-    var newMultisigVault = await MultisigVaultListItemFactory().create(
-        nextId: nextId,
-        name: name,
-        colorIndex: color,
-        iconIndex: icon,
-        secrets: {
-          'signers': signers,
-          'requiredSignatureCount': requiredSignatureCount,
-        });
+    Map<String, dynamic> data = {
+      'nextId': nextId,
+      'name': name,
+      'colorIndex': color,
+      'iconIndex': icon,
+      'secrets': {
+        'signers': jsonEncode(signers.map((item) => item.toJson()).toList()),
+        'requiredSignatureCount': requiredSignatureCount,
+      }
+    };
+
+    if (_addMultisigVaultIsolateHandler == null) {
+      _addMultisigVaultIsolateHandler =
+          IsolateHandler<Map<String, dynamic>, MultisigVaultListItem>(
+              addMultisigVaultIsolate);
+      await _addMultisigVaultIsolateHandler!
+          .initialize(initialType: InitializeType.addMultisigVault);
+    }
+
+    MultisigVaultListItem newMultisigVault =
+        await _addMultisigVaultIsolateHandler!.run(data);
+
+    if (_addMultisigVaultIsolateHandler != null) {
+      _addMultisigVaultIsolateHandler!.dispose();
+      _addMultisigVaultIsolateHandler = null;
+    }
 
     // for SinglesigVaultListItem multsig key map update
     for (int i = 0; i < signers.length; i++) {
@@ -183,11 +223,81 @@ class VaultModel extends ChangeNotifier {
       }
     }
 
-    _vaultList.add(newMultisigVault);
-    _setAddVaultCompleted(true);
+    try {
+      _vaultList.add(newMultisigVault);
+    } catch (e) {
+      print("[addMultisigVaultAsync Exception] $e");
+    }
+    setAddVaultCompleted(true);
     await updateVaultInStorage();
     notifyListeners();
     _multisigCreationModel.reset();
+  }
+
+  Future<void> importMultisigVaultAsync(
+      String name, int color, int icon, String coordinatorBsms) async {
+    setAddVaultCompleted(false);
+    final nextId = SharedPrefsService().getInt('nextId') ?? 1;
+
+    Map<String, dynamic> data = {
+      'nextId': nextId,
+      'name': name,
+      'colorIndex': color,
+      'iconIndex': icon,
+      'secrets': {
+        'bsms': coordinatorBsms,
+        'vaultList':
+            jsonEncode(_vaultList.map((item) => item.toJson()).toList()),
+      }
+    };
+    if (_importMultisigVaultIsolateHandler == null) {
+      _importMultisigVaultIsolateHandler =
+          IsolateHandler<Map<String, dynamic>, MultisigVaultListItem>(
+              importMultisigVaultIsolate);
+      await _importMultisigVaultIsolateHandler!
+          .initialize(initialType: InitializeType.importMultisigVault);
+    }
+
+    // isolate 내부에서 멀티시그 지갑 signer들의 정보 입력 (MultisigKey,MultisigIndex), innerVault == null이면 외부지갑
+    MultisigVaultListItem newMultisigVault =
+        await _importMultisigVaultIsolateHandler!.run(data);
+
+    if (_importMultisigVaultIsolateHandler != null) {
+      _importMultisigVaultIsolateHandler!.dispose();
+      _importMultisigVaultIsolateHandler = null;
+    }
+
+    try {
+      _vaultList.add(newMultisigVault);
+    } catch (e) {
+      print("[importMultisigVaultAsync Exception] $e");
+    }
+    setAddVaultCompleted(true);
+    await updateVaultInStorage();
+    notifyListeners();
+  }
+
+  Future<int> getSignerIndexAsync(MultisignatureVault multisigVault,
+      SinglesigVaultListItem singlesigVaultListItem) async {
+    Map<String, dynamic> data = {
+      'multisigVault': multisigVault.toJson(),
+      'singlesigVault': singlesigVaultListItem.toJson(),
+    };
+    if (_getSignerIndexIsolateHandler == null) {
+      _getSignerIndexIsolateHandler =
+          IsolateHandler<Map<String, dynamic>, int>(getSignerIndexIsolate);
+      await _getSignerIndexIsolateHandler!
+          .initialize(initialType: InitializeType.getSignerIndex);
+    }
+
+    final signerIndex = await _getSignerIndexIsolateHandler!.run(data);
+
+    if (_getSignerIndexIsolateHandler != null) {
+      _getSignerIndexIsolateHandler!.dispose();
+      _getSignerIndexIsolateHandler = null;
+    }
+
+    return signerIndex;
   }
 
   /// addMultisigKey, addMultisigIndex -> 다중 지갑이 추가될 때 일반 지갑의 multisigKey 업데이트
@@ -277,6 +387,7 @@ class VaultModel extends ChangeNotifier {
     final vaultIndex = _vaultList.indexWhere((element) =>
         (element is MultisigVaultListItem &&
             element.coordinatorBsms == coordinatorBsms));
+    print(">>> vaultIndex: $vaultIndex");
     return vaultIndex != -1;
   }
 
@@ -312,12 +423,11 @@ class VaultModel extends ChangeNotifier {
   Future<void> loadVaultList() async {
     if (_isVaultListLoading) return;
 
-    _setVaultListLoading(true);
+    setVaultListLoading(true);
     try {
       if (_vaultListIsolateHandler == null) {
         _vaultListIsolateHandler =
-            IsolateHandler<void, List<VaultListItemBase>>(
-                _loadVaultListIsolate);
+            IsolateHandler<void, List<VaultListItemBase>>(loadVaultListIsolate);
         await _vaultListIsolateHandler!.initialize();
       }
 
@@ -332,13 +442,22 @@ class VaultModel extends ChangeNotifier {
     } catch (e) {
       Logger.log('[loadVaultList] Exception : ${e.toString()}');
     } finally {
+      if (_vaultListIsolateHandler != null &&
+          _vaultListIsolateHandler!.isInitialized) {
+        try {
+          _vaultListIsolateHandler!.dispose();
+          _vaultListIsolateHandler = null;
+        } catch (e) {
+          Logger.log('[loadVaultList] Dispose Exception: ${e.toString()}');
+        }
+      }
       _appModel.saveNotEmptyVaultList(_vaultList.isNotEmpty);
-      _setVaultListLoading(false);
+      setVaultListLoading(false);
     }
   }
 
-  static Future<List<VaultListItemBase>> _loadVaultListIsolate(
-      void _, void Function(List<dynamic>)? setVaultListLoadingProgress) async {
+  static Future<List<VaultListItemBase>> loadVaultListIsolate(
+      void _, void Function(dynamic)? setVaultListLoadingProgress) async {
     BitcoinNetwork.setNetwork(BitcoinNetwork.regtest);
     List<VaultListItemBase> vaultList = [];
     String? jsonArrayString;
@@ -402,13 +521,13 @@ class VaultModel extends ChangeNotifier {
     _waitingForSignaturePsbtBase64 = null;
   }
 
-  void _setVaultListLoading(bool value) {
+  void setVaultListLoading(bool value) {
     _isVaultListLoading = value;
     _isLoadVaultList = !value;
     notifyListeners();
   }
 
-  void _setAddVaultCompleted(bool value) {
+  void setAddVaultCompleted(bool value) {
     _isAddVaultCompleted = value;
     notifyListeners();
   }
@@ -417,9 +536,23 @@ class VaultModel extends ChangeNotifier {
   void dispose() {
     if (_vaultListIsolateHandler != null) {
       _vaultListIsolateHandler!.dispose();
+      _vaultListIsolateHandler = null;
     }
     if (_addVaultIsolateHandler != null) {
       _addVaultIsolateHandler!.dispose();
+      _addVaultIsolateHandler = null;
+    }
+    if (_addMultisigVaultIsolateHandler != null) {
+      _addMultisigVaultIsolateHandler!.dispose();
+      _addMultisigVaultIsolateHandler = null;
+    }
+    if (_getSignerIndexIsolateHandler != null) {
+      _getSignerIndexIsolateHandler!.dispose();
+      _getSignerIndexIsolateHandler = null;
+    }
+    if (_importMultisigVaultIsolateHandler != null) {
+      _importMultisigVaultIsolateHandler!.dispose();
+      _importMultisigVaultIsolateHandler = null;
     }
     super.dispose();
   }

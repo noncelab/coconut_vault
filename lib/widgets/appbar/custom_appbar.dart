@@ -251,7 +251,7 @@ class CustomAppBar {
             child: GestureDetector(
               onTap: isNextButtonActive ? onNextPressed : null,
               child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                padding: const EdgeInsets.symmetric(horizontal: 12.0),
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(16.0),
                   border: Border.all(

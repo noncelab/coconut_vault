@@ -1,3 +1,4 @@
+import 'package:coconut_vault/model/data/vault_type.dart';
 import 'package:coconut_vault/screens/vault_detail/export_detail_screen.dart';
 import 'package:coconut_vault/widgets/bottom_sheet.dart';
 import 'package:flutter/cupertino.dart';

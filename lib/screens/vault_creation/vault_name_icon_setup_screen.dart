@@ -93,7 +93,7 @@ class _VaultNameIconSetupState extends State<VaultNameIconSetup> {
         }
       } else if (_multisigCreationState.signers != null) {
         // 새로운 멀티시그 지갑 리스트 아이템을 생성.
-        await _vaultModel.addMultisigVault(
+        await _vaultModel.addMultisigVaultAsync(
             nextId, inputText, selectedColorIndex, selectedIconIndex);
       }
 

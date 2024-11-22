@@ -589,11 +589,7 @@ class _MultiSigSettingScreenState extends State<MultiSigSettingScreen> {
 
                                   Navigator.pushNamed(context, '/multisig-bsms',
                                       arguments: {
-                                        'exportDetail':
-                                            _multiVault.coordinatorBsms ??
-                                                (_multiVault.coconutVault
-                                                        as MultisignatureVault)
-                                                    .getCoordinatorBsms(),
+                                        'id': widget.id,
                                       });
                                 },
                               ),
