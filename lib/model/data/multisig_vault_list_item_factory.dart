@@ -85,16 +85,10 @@ class MultisigVaultListItemFactory implements VaultListItemFactory {
   @override
   MultisigVaultListItem createFromJson(Map<String, dynamic> json) {
     final result = MultisigVaultListItem.fromJson(json);
-    // TODO: vaultJsonString이 nullable 할 수 있는 상황이 있을 수 있는지 확인하기
-    if (result.vaultJsonString != null) {
-      String vaultJson = result.vaultJsonString!;
-      result.coconutVault = MultisignatureVault.fromJson(vaultJson);
-    } else {
-      throw "[multisig_vault_list_item_factory] createFromJson";
-      // TODO:
-      //String bsms = result.coordinatorBsms;
-      //result.coconutVault = MultisignatureVault.fromCoordinatorBsms(bsms);
-    }
+
+    assert(result.vaultJsonString != null);
+
+    result.coconutVault = MultisignatureVault.fromJson(result.vaultJsonString!);
 
     return result;
   }

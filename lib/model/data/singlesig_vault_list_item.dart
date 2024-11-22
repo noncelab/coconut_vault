@@ -17,14 +17,12 @@ class SinglesigVaultListItem extends VaultListItemBase {
     required this.secret,
     required this.passphrase,
     this.linkedMultisigInfo,
-    String? vaultJsonString,
-  }) : super(
-            vaultJsonString: vaultJsonString,
-            vaultType: VaultType.singleSignature) {
+    super.vaultJsonString,
+  }) : super(vaultType: VaultType.singleSignature) {
     Seed seed = Seed.fromMnemonic(secret, passphrase: passphrase);
     coconutVault = SingleSignatureVault.fromSeed(seed, AddressType.p2wpkh);
 
-    vaultJsonString = (coconutVault as SingleSignatureVault).toJson();
+    vaultJsonString ??= (coconutVault as SingleSignatureVault).toJson();
   }
 
   @JsonKey(name: "secret")

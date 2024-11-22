@@ -332,8 +332,7 @@ class VaultModel extends ChangeNotifier {
           iconIndex: iconIndex,
           secret: ssv.secret,
           passphrase: ssv.passphrase,
-          linkedMultisigInfo: ssv.linkedMultisigInfo,
-          vaultJsonString: ssv.vaultJsonString);
+          linkedMultisigInfo: ssv.linkedMultisigInfo);
     } else if (_vaultList[index].vaultType == VaultType.multiSignature) {
       MultisigVaultListItem ssv = _vaultList[index] as MultisigVaultListItem;
 
@@ -469,12 +468,11 @@ class VaultModel extends ChangeNotifier {
       jsonArrayString = realmService.getValue(key: VAULT_LIST);
     }
 
-    printLongString('jsonArrayString--> ${jsonArrayString}');
+    printLongString('jsonArrayString--> $jsonArrayString');
 
     if (jsonArrayString != null) {
       List<dynamic> jsonList = jsonDecode(jsonArrayString);
-      int totalItems = jsonList.length;
-      for (int i = 0; i < totalItems; i++) {
+      for (int i = 0; i < jsonList.length; i++) {
         // TODO: singleSignature, multiSignature 하드코딩 필요 없도록 수정하기
         if (jsonList[i]['vaultType'] == 'singleSignature') {
           vaultList
