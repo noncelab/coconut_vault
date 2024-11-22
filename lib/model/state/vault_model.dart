@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:coconut_lib/coconut_lib.dart';
+import 'package:coconut_vault/model/data/multisig_signer.dart';
 import 'package:coconut_vault/model/data/multisig_vault_list_item.dart';
 import 'package:coconut_vault/model/data/multisig_vault_list_item_factory.dart';
 import 'package:coconut_vault/model/data/singlesig_vault_list_item.dart';
@@ -135,6 +136,44 @@ class VaultModel extends ChangeNotifier {
     return _vaultList.whereType<MultisigVaultListItem>().toList();
   }
 
+  SinglesigVaultListItem updateMultisigWithImportedKey(
+      SinglesigVaultListItem singlesigVaultItem) {
+    SinglesigVaultListItem ssv = singlesigVaultItem;
+
+    /// 니모닉 문구를 통해 볼트를 추가했을 때, 가지고 있는 다중서명지갑에서 이 볼트를 키로 사용하고 있으면 정보를 변경합니다.
+    for (int i = 0; i < _vaultList.length; i++) {
+      VaultListItemBase vault = _vaultList[i];
+      // 싱글 시그는 스킵
+      if (vault.vaultType == VaultType.singleSignature) continue;
+
+      List<MultisigSigner> signers = (vault as MultisigVaultListItem).signers;
+      // 멀티 시그만 판단
+      for (int j = 0; j < signers.length; j++) {
+        String signerMfp = signers[j].keyStore.masterFingerprint;
+        String importedMfp = (ssv.coconutVault as SingleSignatureVault)
+            .keyStore
+            .masterFingerprint;
+
+        if (signerMfp == importedMfp) {
+          // 다중 서명 지갑에서 signer로 사용되고 있는 mfp와 새로 추가된 볼트의 mfp가 같으면 정보를 변경
+          final signer = (_vaultList[i] as MultisigVaultListItem).signers[j];
+          signer
+            ..innerVaultId = ssv.id
+            ..name = ssv.name
+            ..iconIndex = ssv.iconIndex
+            ..colorIndex = ssv.colorIndex
+            ..memo = '';
+          if (ssv.linkedMultisigInfo == null) {
+            ssv.linkedMultisigInfo = {vault.id: j};
+          } else {
+            ssv.linkedMultisigInfo!.addAll({i + 1: j});
+          }
+        }
+      }
+    }
+    return ssv;
+  }
+
   Future<void> addVault(Map<String, dynamic> vaultData) async {
     setAddVaultCompleted(false);
     if (_addVaultIsolateHandler == null) {
@@ -145,8 +184,10 @@ class VaultModel extends ChangeNotifier {
           .initialize(initialType: InitializeType.addVault);
     }
 
-    final vaultListResult =
+    List<SinglesigVaultListItem> vaultListResult =
         await _addVaultIsolateHandler!.runAddVault(vaultData);
+    vaultListResult.first =
+        updateMultisigWithImportedKey(vaultListResult.first);
 
     if (_addVaultIsolateHandler != null) {
       _addVaultIsolateHandler!.dispose();
@@ -469,7 +510,7 @@ class VaultModel extends ChangeNotifier {
       jsonArrayString = realmService.getValue(key: VAULT_LIST);
     }
 
-    printLongString('jsonArrayString--> ${jsonArrayString}');
+    printLongString('jsonArrayString--> $jsonArrayString');
 
     if (jsonArrayString != null) {
       List<dynamic> jsonList = jsonDecode(jsonArrayString);
