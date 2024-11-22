@@ -44,12 +44,18 @@ class _MultiSigSettingScreenState extends State<MultiSigSettingScreen> {
 
   Timer? _tooltipTimer;
   int _tooltipRemainingTime = 0;
+  late int signAvailableCount;
 
   @override
   void initState() {
     _appModel = Provider.of<AppModel>(context, listen: false);
     _vaultModel = Provider.of<VaultModel>(context, listen: false);
     _updateMultiVaultListItem();
+    int innerVaultCount =
+        _multiVault.signers.where((s) => s.innerVaultId != null).length;
+    signAvailableCount = innerVaultCount > _multiVault.requiredSignatureCount
+        ? _multiVault.requiredSignatureCount
+        : innerVaultCount;
     super.initState();
   }
 
@@ -411,7 +417,7 @@ class _MultiSigSettingScreenState extends State<MultiSigSettingScreen> {
                               crossAxisAlignment: CrossAxisAlignment.end,
                               children: [
                                 Text(
-                                  '${_multiVault.requiredSignatureCount}개 서명 가능',
+                                  '$signAvailableCount개 서명 가능',
                                   style: Styles.body1Bold,
                                 ),
                                 TooltipButton(
@@ -581,13 +587,13 @@ class _MultiSigSettingScreenState extends State<MultiSigSettingScreen> {
                                 onPressed: () {
                                   _removeTooltip();
 
-                                  final vault = _multiVault.coconutVault
-                                      as MultisignatureVault;
-
                                   Navigator.pushNamed(context, '/multisig-bsms',
                                       arguments: {
                                         'exportDetail':
-                                            vault.getCoordinatorBsms(),
+                                            _multiVault.coordinatorBsms ??
+                                                (_multiVault.coconutVault
+                                                        as MultisignatureVault)
+                                                    .getCoordinatorBsms(),
                                       });
                                 },
                               ),

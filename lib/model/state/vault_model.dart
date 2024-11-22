@@ -11,6 +11,7 @@ import 'package:coconut_vault/model/data/vault_type.dart';
 import 'package:coconut_vault/model/state/multisig_creation_model.dart';
 import 'package:coconut_vault/services/shared_preferences_keys.dart';
 import 'package:coconut_vault/services/shared_preferences_service.dart';
+import 'package:coconut_vault/utils/print_util.dart';
 import 'package:flutter/foundation.dart';
 import 'package:coconut_vault/model/state/app_model.dart';
 import 'package:coconut_vault/services/isolate_service.dart';
@@ -125,6 +126,10 @@ class VaultModel extends ChangeNotifier {
     return _vaultList.firstWhere((element) => element.name == name);
   }
 
+  List<MultisigVaultListItem> getMultisigVaults() {
+    return _vaultList.whereType<MultisigVaultListItem>().toList();
+  }
+
   Future<void> addVault(Map<String, dynamic> vaultData) async {
     _setAddVaultCompleted(false);
     if (_addVaultIsolateHandler == null) {
@@ -164,15 +169,18 @@ class VaultModel extends ChangeNotifier {
         });
 
     // for SinglesigVaultListItem multsig key map update
-    for (var signer in signers) {
-      if (signer.innerVaultId != null) break;
-      final id = signer.innerVaultId ?? 0;
-      final name = signer.name ?? '';
-      final colorIndex = signer.colorIndex ?? 0;
-      final iconIndex = signer.iconIndex ?? 0;
-      final multiSigIndex = signers.indexOf(signer);
-      await updateVault(id, name, colorIndex, iconIndex,
-          addMultisigKey: nextId, addMultisigIndex: multiSigIndex);
+    for (int i = 0; i < signers.length; i++) {
+      var signer = signers[i];
+      if (signers[i].innerVaultId == null) continue;
+      SinglesigVaultListItem ssv =
+          getVaultById(signer.innerVaultId!) as SinglesigVaultListItem;
+
+      var keyMap = {nextId: i};
+      if (ssv.linkedMultisigInfo != null) {
+        ssv.linkedMultisigInfo!.addAll(keyMap);
+      } else {
+        ssv.linkedMultisigInfo = keyMap;
+      }
     }
 
     _vaultList.add(newMultisigVault);
@@ -186,11 +194,7 @@ class VaultModel extends ChangeNotifier {
   /// removeMultisigKey -> 다중 지갑이 삭제될 때 일반 지갑의 multisigKey 삭제
   /// signerIndex -> 일반 지갑이 변경될 때 다중 지갑의 signer 업데이트
   Future<void> updateVault(
-      int id, String newName, int colorIndex, int iconIndex,
-      {int? addMultisigKey,
-      int? addMultisigIndex,
-      String? removeMultisigKey,
-      int? signerIndex}) async {
+      int id, String newName, int colorIndex, int iconIndex) async {
     // _vaultList에서 name이 'name'인 항목을 찾아서 그 항목의 name을 newName으로 변경한다.
     final index = _vaultList.indexWhere((item) => item.id == id);
     if (index == -1) {
@@ -199,42 +203,38 @@ class VaultModel extends ChangeNotifier {
 
     if (_vaultList[index].vaultType == VaultType.singleSignature) {
       SinglesigVaultListItem ssv = _vaultList[index] as SinglesigVaultListItem;
-      Map<String, dynamic>? updateMultisigKey = ssv.multisigKey != null
-          ? Map<String, dynamic>.from(ssv.multisigKey!)
-          : {};
-      if (addMultisigKey != null) {
-        updateMultisigKey.addAll({'$addMultisigKey': addMultisigIndex});
-      }
-
-      if (removeMultisigKey != null) {
-        updateMultisigKey.remove(removeMultisigKey);
+      Map<int, int>? linkedMultisigInfo = ssv.linkedMultisigInfo;
+      // 연결된 MultisigVaultListItem의 signers 객체도 UI 업데이트가 필요
+      if (linkedMultisigInfo != null && linkedMultisigInfo.isNotEmpty) {
+        for (var entry in linkedMultisigInfo.entries) {
+          MultisigVaultListItem msv =
+              getVaultById(entry.key) as MultisigVaultListItem;
+          msv.signers[entry.value].name = newName;
+          msv.signers[entry.value].colorIndex = colorIndex;
+          msv.signers[entry.value].iconIndex = iconIndex;
+        }
       }
 
       _vaultList[index] = SinglesigVaultListItem(
-        id: ssv.id,
-        name: newName,
-        colorIndex: colorIndex,
-        iconIndex: iconIndex,
-        secret: ssv.secret,
-        passphrase: ssv.passphrase,
-        multisigKey: updateMultisigKey,
-      );
+          id: ssv.id,
+          name: newName,
+          colorIndex: colorIndex,
+          iconIndex: iconIndex,
+          secret: ssv.secret,
+          passphrase: ssv.passphrase,
+          linkedMultisigInfo: ssv.linkedMultisigInfo,
+          vaultJsonString: ssv.vaultJsonString);
     } else if (_vaultList[index].vaultType == VaultType.multiSignature) {
       MultisigVaultListItem ssv = _vaultList[index] as MultisigVaultListItem;
 
-      if (signerIndex != null) {
-        ssv.signers[signerIndex].name = newName;
-        ssv.signers[signerIndex].colorIndex = colorIndex;
-        ssv.signers[signerIndex].iconIndex = iconIndex;
-      }
-
       _vaultList[index] = MultisigVaultListItem(
           id: ssv.id,
-          name: signerIndex != null ? ssv.name : newName,
-          colorIndex: signerIndex != null ? ssv.colorIndex : colorIndex,
-          iconIndex: signerIndex != null ? ssv.iconIndex : iconIndex,
+          name: newName,
+          colorIndex: colorIndex,
+          iconIndex: iconIndex,
           signers: ssv.signers,
-          requiredSignatureCount: ssv.requiredSignatureCount);
+          requiredSignatureCount: ssv.requiredSignatureCount,
+          coordinatorBsms: ssv.coordinatorBsms);
     } else {
       throw "[vault_model/updateVault] _vaultList[$index] has wrong type: ${_vaultList[index].vaultType}";
     }
@@ -296,17 +296,9 @@ class VaultModel extends ChangeNotifier {
       final multi = getVaultById(id) as MultisigVaultListItem;
       for (var signer in multi.signers) {
         if (signer.innerVaultId != null) {
-          final innerVaultId = signer.innerVaultId ?? 0;
-          final name = signer.name ?? '';
-          final colorIndex = signer.colorIndex ?? 0;
-          final iconIndex = signer.iconIndex ?? 0;
-          await updateVault(
-            innerVaultId,
-            name,
-            colorIndex,
-            iconIndex,
-            removeMultisigKey: '$id',
-          );
+          SinglesigVaultListItem ssv =
+              getVaultById(signer.innerVaultId!) as SinglesigVaultListItem;
+          ssv.linkedMultisigInfo!.remove(id);
         }
       }
     }
@@ -358,6 +350,8 @@ class VaultModel extends ChangeNotifier {
       jsonArrayString = realmService.getValue(key: VAULT_LIST);
     }
 
+    printLongString('jsonArrayString--> ${jsonArrayString}');
+
     if (jsonArrayString != null) {
       List<dynamic> jsonList = jsonDecode(jsonArrayString);
       int totalItems = jsonList.length;
@@ -382,6 +376,7 @@ class VaultModel extends ChangeNotifier {
   Future<void> updateVaultInStorage() async {
     final jsonString =
         jsonEncode(_vaultList.map((item) => item.toJson()).toList());
+    printLongString('updateVaultInStorage ---> $jsonString');
     await _storageService.write(key: VAULT_LIST, value: jsonString);
     _realmService.updateKeyValue(key: VAULT_LIST, value: jsonString);
 

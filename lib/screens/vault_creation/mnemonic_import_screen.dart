@@ -185,7 +185,7 @@ class _MnemonicImportState extends State<MnemonicImport> {
                 inputText.trim().toLowerCase().replaceAll(RegExp(r'\s+'), ' '),
                 usePassphrase ? passphrase.trim() : '')) {
               CustomToast.showToast(
-                  context: context, text: "이미 추가되어 있는 니모닉이예요");
+                  context: context, text: "이미 추가되어 있는 니모닉이에요");
               return;
             }
 

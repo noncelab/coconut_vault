@@ -15,7 +15,7 @@ class SinglesigVaultListItemFactory implements VaultListItemFactory {
     required int colorIndex,
     required int iconIndex,
     required Map<String, dynamic> secrets,
-    Map<String, dynamic>? multisigKey,
+    Map<int, int>? multisigKey,
   }) async {
     if (!secrets.containsKey(secretField)) {
       throw ArgumentError("The 'secrets' map must contain a 'secret' key.");
@@ -31,7 +31,7 @@ class SinglesigVaultListItemFactory implements VaultListItemFactory {
       iconIndex: iconIndex,
       secret: secret,
       passphrase: passphrase,
-      multisigKey: multisigKey,
+      linkedMultisigInfo: multisigKey,
     );
 
     return newVault;

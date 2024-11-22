@@ -12,9 +12,11 @@ import 'package:coconut_vault/services/isolate_service.dart';
 import 'package:coconut_vault/utils/alert_util.dart';
 import 'package:coconut_vault/utils/icon_util.dart';
 import 'package:coconut_vault/utils/isolate_handler.dart';
+import 'package:coconut_vault/utils/print_util.dart';
 import 'package:coconut_vault/widgets/bottom_sheet.dart';
 import 'package:coconut_vault/widgets/custom_dialog.dart';
 import 'package:coconut_vault/widgets/custom_expansion_panel.dart';
+import 'package:coconut_vault/widgets/custom_toast.dart';
 import 'package:coconut_vault/widgets/high-lighted-text.dart';
 import 'package:flutter/material.dart';
 import 'package:coconut_vault/styles.dart';
@@ -139,13 +141,6 @@ class _AssignSignersScreenState extends State<AssignSignersScreen> {
     setState(() {
       assignedVaultList[0].isExpanded = true;
     });
-  }
-
-  bool _existsSinglsigVault() {
-    if (singlesigVaultList.isEmpty || nCount >= singlesigVaultList.length) {
-      return true;
-    }
-    return false;
   }
 
   bool _isAllAssignedFromExternal() {
@@ -383,12 +378,27 @@ class _AssignSignersScreenState extends State<AssignSignersScreen> {
     }
     assert(signers.length == nCount);
     // 검증: 올바른 Signer 정보를 받았는지 확인합니다.
+
+    MultisignatureVault newMultisigVault;
     try {
-      MultisignatureVault.fromKeyStoreList(
-          keyStores, nCount, AddressType.p2wsh);
+      newMultisigVault = MultisignatureVault.fromKeyStoreList(
+          keyStores, mCount, AddressType.p2wsh);
     } catch (error) {
       showAlertDialog(
           context: context, title: '지갑 생성 실패', content: '유효하지 않은 정보입니다.');
+      return;
+    }
+
+    // multisig 지갑 리스트 가져오기
+    var multisigVaults = _vaultModel.getMultisigVaults();
+    for (int i = 0; i < multisigVaults.length; i++) {
+      printLongString(
+          "descriptors ---> ${multisigVaults[i].coconutVault.descriptor} , ${newMultisigVault.descriptor}");
+      if (multisigVaults[i].coconutVault.descriptor ==
+          newMultisigVault.descriptor) {
+        CustomToast.showToast(context: context, text: "이미 추가되어 있는 다중 서명 지갑이에요");
+        return;
+      }
     }
 
     _multisigCreationState.setSigners(signers);
@@ -553,7 +563,8 @@ class _AssignSignersScreenState extends State<AssignSignersScreen> {
                                             type: ImportKeyType.internal,
                                             onPressed: () {
                                               // 등록된 singlesig vault가 없으면 멀티시그 지갑 생성 불가
-                                              if (_existsSinglsigVault()) {
+                                              if (unselectedSignerOptions
+                                                  .isEmpty) {
                                                 _showDialog(
                                                     DialogType.notAvailable);
                                                 return;

@@ -16,7 +16,7 @@ class SinglesigVaultListItem extends VaultListItemBase {
     required super.iconIndex,
     required this.secret,
     required this.passphrase,
-    this.multisigKey,
+    this.linkedMultisigInfo,
     String? vaultJsonString,
   }) : super(
             vaultJsonString: vaultJsonString,
@@ -33,8 +33,8 @@ class SinglesigVaultListItem extends VaultListItemBase {
   @JsonKey(name: "passphrase")
   final String passphrase;
 
-  @JsonKey(name: "multisigKey")
-  final Map<String, dynamic>? multisigKey;
+  @JsonKey(name: "linkedMultisigInfo")
+  Map<int, int>? linkedMultisigInfo;
 
   @override
   String getWalletSyncString() {
@@ -58,5 +58,5 @@ class SinglesigVaultListItem extends VaultListItemBase {
 
   @override
   String toString() =>
-      'Vault($id) / type=$vaultType / multisigKey=$multisigKey / name=$name / colorIndex=$colorIndex / iconIndex=$iconIndex';
+      'Vault($id) / type=$vaultType / multisigKey=$linkedMultisigInfo / name=$name / colorIndex=$colorIndex / iconIndex=$iconIndex';
 }
