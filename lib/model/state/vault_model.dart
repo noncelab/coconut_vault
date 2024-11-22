@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:coconut_lib/coconut_lib.dart';
+import 'package:coconut_vault/model/data/multisig_signer.dart';
 import 'package:coconut_vault/model/data/multisig_vault_list_item.dart';
 import 'package:coconut_vault/model/data/multisig_vault_list_item_factory.dart';
 import 'package:coconut_vault/model/data/singlesig_vault_list_item.dart';
@@ -209,29 +210,34 @@ class VaultModel extends ChangeNotifier {
     }
 
     // for SinglesigVaultListItem multsig key map update
+    updateLinkedMultisigInfo(signers, nextId);
+
+    _vaultList.add(newMultisigVault);
+    setAddVaultCompleted(true);
+    await updateVaultInStorage();
+    notifyListeners();
+    _multisigCreationModel.reset();
+  }
+
+  /// 멀티시그 지갑이 추가될 때 (생성 또는 복사) 사용된 키들의 linkedMultisigInfo를 업데이트 합니다.
+  void updateLinkedMultisigInfo(
+    List<MultisigSigner> signers,
+    int newVaultId,
+  ) {
+// for SinglesigVaultListItem multsig key map update
     for (int i = 0; i < signers.length; i++) {
       var signer = signers[i];
       if (signers[i].innerVaultId == null) continue;
       SinglesigVaultListItem ssv =
           getVaultById(signer.innerVaultId!) as SinglesigVaultListItem;
 
-      var keyMap = {nextId: i};
+      var keyMap = {newVaultId: i};
       if (ssv.linkedMultisigInfo != null) {
         ssv.linkedMultisigInfo!.addAll(keyMap);
       } else {
         ssv.linkedMultisigInfo = keyMap;
       }
     }
-
-    try {
-      _vaultList.add(newMultisigVault);
-    } catch (e) {
-      print("[addMultisigVaultAsync Exception] $e");
-    }
-    setAddVaultCompleted(true);
-    await updateVaultInStorage();
-    notifyListeners();
-    _multisigCreationModel.reset();
   }
 
   Future<void> importMultisigVaultAsync(
@@ -262,16 +268,13 @@ class VaultModel extends ChangeNotifier {
     MultisigVaultListItem newMultisigVault =
         await _importMultisigVaultIsolateHandler!.run(data);
 
-    if (_importMultisigVaultIsolateHandler != null) {
-      _importMultisigVaultIsolateHandler!.dispose();
-      _importMultisigVaultIsolateHandler = null;
-    }
+    // for SinglesigVaultListItem multsig key map update
+    updateLinkedMultisigInfo(newMultisigVault.signers, nextId);
 
-    try {
-      _vaultList.add(newMultisigVault);
-    } catch (e) {
-      print("[importMultisigVaultAsync Exception] $e");
-    }
+    _vaultList.add(newMultisigVault);
+
+    _importMultisigVaultIsolateHandler!.dispose();
+    _importMultisigVaultIsolateHandler = null;
     setAddVaultCompleted(true);
     await updateVaultInStorage();
     notifyListeners();
@@ -473,11 +476,10 @@ class VaultModel extends ChangeNotifier {
     if (jsonArrayString != null) {
       List<dynamic> jsonList = jsonDecode(jsonArrayString);
       for (int i = 0; i < jsonList.length; i++) {
-        // TODO: singleSignature, multiSignature 하드코딩 필요 없도록 수정하기
-        if (jsonList[i]['vaultType'] == 'singleSignature') {
+        if (jsonList[i]['vaultType'] == VaultType.singleSignature.name) {
           vaultList
               .add(SinglesigVaultListItemFactory().createFromJson(jsonList[i]));
-        } else if (jsonList[i]['vaultType'] == 'multiSignature') {
+        } else if (jsonList[i]['vaultType'] == VaultType.multiSignature.name) {
           vaultList
               .add(MultisigVaultListItemFactory().createFromJson(jsonList[i]));
         } else {
