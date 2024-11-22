@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:coconut_lib/coconut_lib.dart';
+import 'package:coconut_vault/model/data/multisig_vault_list_item.dart';
 import 'package:coconut_vault/model/state/vault_model.dart';
 import 'package:coconut_vault/styles.dart';
 import 'package:coconut_vault/widgets/appbar/custom_appbar.dart';
@@ -25,9 +26,11 @@ class _MultiSigBsmsScreenState extends State<MultiSigBsmsScreen> {
   void initState() {
     super.initState();
     final model = Provider.of<VaultModel>(context, listen: false);
-    final vaultListItem = model.getVaultById(int.parse(widget.id));
-    String coordinatorBsms = (vaultListItem.coconutVault as MultisignatureVault)
-        .getCoordinatorBsms();
+    final vaultListItem =
+        model.getVaultById(int.parse(widget.id)) as MultisigVaultListItem;
+    String coordinatorBsms = vaultListItem.coordinatorBsms ??
+        (vaultListItem.coconutVault as MultisignatureVault)
+            .getCoordinatorBsms();
     Map<String, dynamic> walletSyncString =
         jsonDecode(vaultListItem.getWalletSyncString());
     qrData = {
