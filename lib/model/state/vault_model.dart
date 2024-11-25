@@ -136,7 +136,7 @@ class VaultModel extends ChangeNotifier {
     return _vaultList.whereType<MultisigVaultListItem>().toList();
   }
 
-  SinglesigVaultListItem updateMultisigWithImportedKey(
+  void linkNewSinglesigVaultAndMultisigVaults(
       SinglesigVaultListItem singlesigVaultItem) {
     SinglesigVaultListItem ssv = singlesigVaultItem;
 
@@ -148,11 +148,10 @@ class VaultModel extends ChangeNotifier {
 
       List<MultisigSigner> signers = (vault as MultisigVaultListItem).signers;
       // 멀티 시그만 판단
+      String importedMfp =
+          (ssv.coconutVault as SingleSignatureVault).keyStore.masterFingerprint;
       for (int j = 0; j < signers.length; j++) {
         String signerMfp = signers[j].keyStore.masterFingerprint;
-        String importedMfp = (ssv.coconutVault as SingleSignatureVault)
-            .keyStore
-            .masterFingerprint;
 
         if (signerMfp == importedMfp) {
           // 다중 서명 지갑에서 signer로 사용되고 있는 mfp와 새로 추가된 볼트의 mfp가 같으면 정보를 변경
@@ -162,16 +161,16 @@ class VaultModel extends ChangeNotifier {
             ..name = ssv.name
             ..iconIndex = ssv.iconIndex
             ..colorIndex = ssv.colorIndex
-            ..memo = '';
+            ..memo = null;
+          Map<int, int> linkedMultisigInfo = {vault.id: j};
           if (ssv.linkedMultisigInfo == null) {
-            ssv.linkedMultisigInfo = {vault.id: j};
+            ssv.linkedMultisigInfo = linkedMultisigInfo;
           } else {
-            ssv.linkedMultisigInfo!.addAll({i + 1: j});
+            ssv.linkedMultisigInfo!.addAll(linkedMultisigInfo);
           }
         }
       }
     }
-    return ssv;
   }
 
   Future<void> addVault(Map<String, dynamic> vaultData) async {
@@ -186,8 +185,7 @@ class VaultModel extends ChangeNotifier {
 
     List<SinglesigVaultListItem> vaultListResult =
         await _addVaultIsolateHandler!.runAddVault(vaultData);
-    vaultListResult.first =
-        updateMultisigWithImportedKey(vaultListResult.first);
+    linkNewSinglesigVaultAndMultisigVaults(vaultListResult.first);
 
     if (_addVaultIsolateHandler != null) {
       _addVaultIsolateHandler!.dispose();
