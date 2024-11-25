@@ -28,7 +28,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
 
 class MultiSigSettingScreen extends StatefulWidget {
-  final String id;
+  final int id;
   const MultiSigSettingScreen({super.key, required this.id});
 
   @override
@@ -59,7 +59,7 @@ class _MultiSigSettingScreenState extends State<MultiSigSettingScreen> {
   }
 
   _updateMultiVaultListItem() {
-    final vaultBasItem = _vaultModel.getVaultById(int.parse(widget.id));
+    final vaultBasItem = _vaultModel.getVaultById(widget.id);
     _multiVault = vaultBasItem as MultisigVaultListItem;
   }
 
@@ -114,7 +114,7 @@ class _MultiSigSettingScreenState extends State<MultiSigSettingScreen> {
 
     if (hasChanges) {
       await _vaultModel.updateVault(
-          int.parse(widget.id), newName, newColorIndex, newIconIndex);
+          widget.id, newName, newColorIndex, newIconIndex);
 
       _updateMultiVaultListItem();
       setState(() {});
@@ -147,9 +147,7 @@ class _MultiSigSettingScreenState extends State<MultiSigSettingScreen> {
         onUpdate: (memo) {
           if (selectedVault.memo == memo) return;
 
-          _vaultModel
-              .updateMemo(int.parse(widget.id), selectedVault.id, memo)
-              .then((_) {
+          _vaultModel.updateMemo(widget.id, selectedVault.id, memo).then((_) {
             setState(() {
               String? finalMemo = memo;
               if (memo.isEmpty) {
@@ -211,7 +209,7 @@ class _MultiSigSettingScreenState extends State<MultiSigSettingScreen> {
                 }
                 break;
               default:
-                _vaultModel.deleteVault(int.parse(widget.id), isMultisig: true);
+                _vaultModel.deleteVault(widget.id, isMultisig: true);
                 vibrateLight();
                 Navigator.popUntil(context, (route) => route.isFirst);
             }

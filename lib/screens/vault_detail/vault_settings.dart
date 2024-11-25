@@ -26,7 +26,7 @@ import 'package:provider/provider.dart';
 import '../../model/state/vault_model.dart';
 
 class VaultSettings extends StatefulWidget {
-  final String id;
+  final int id;
 
   const VaultSettings({super.key, required this.id});
 
@@ -58,8 +58,8 @@ class _VaultSettingsState extends State<VaultSettings> {
     _vaultModel = Provider.of<VaultModel>(context, listen: false);
     super.initState();
     // id 접근: widget.id
-    _singleVaultItem = _vaultModel.getVaultById(int.parse(widget.id))
-        as SinglesigVaultListItem;
+    _singleVaultItem =
+        _vaultModel.getVaultById(widget.id) as SinglesigVaultListItem;
 
     if (_singleVaultItem.coconutVault is SingleSignatureVault) {
       _singleSignatureVault =
@@ -122,7 +122,7 @@ class _VaultSettingsState extends State<VaultSettings> {
 
     if (hasChanges) {
       await _vaultModel.updateVault(
-          int.parse(widget.id), newName, newColorIndex, newIconIndex);
+          widget.id, newName, newColorIndex, newIconIndex);
 
       setState(() {
         _name = newName;
@@ -190,7 +190,7 @@ class _VaultSettingsState extends State<VaultSettings> {
         }
       default:
         {
-          _vaultModel.deleteVault(int.parse(widget.id));
+          _vaultModel.deleteVault(widget.id);
           vibrateLight();
           Navigator.popUntil(context, (route) => route.isFirst);
         }

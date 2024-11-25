@@ -10,7 +10,7 @@ import 'package:provider/provider.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 
 class SignerBsmsScreen extends StatefulWidget {
-  final String id;
+  final int id;
 
   const SignerBsmsScreen({super.key, required this.id});
 
@@ -26,7 +26,7 @@ class _SignerBsmsScreenState extends State<SignerBsmsScreen> {
   void initState() {
     super.initState();
     final model = Provider.of<VaultModel>(context, listen: false);
-    final vaultListItem = model.getVaultById(int.parse(widget.id));
+    final vaultListItem = model.getVaultById(widget.id);
     _name = vaultListItem.name;
 
     try {
