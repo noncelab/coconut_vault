@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:coconut_lib/coconut_lib.dart';
 import 'package:coconut_vault/model/data/multisig_signer.dart';
 import 'package:coconut_vault/model/data/multisig_vault_list_item.dart';
 import 'package:coconut_vault/model/data/singlesig_vault_list_item.dart';

@@ -19,10 +19,8 @@ import 'model/state/vault_model.dart';
 import 'widgets/vault_row_item.dart';
 
 class VaultListTab extends StatefulWidget {
-  final bool? reload;
   const VaultListTab({
     super.key,
-    this.reload = true,
   });
 
   @override
@@ -56,9 +54,7 @@ class _VaultListTabState extends State<VaultListTab>
       //   return;
       // }
 
-      if (widget.reload == null || widget.reload == true) {
-        _vaultModel.loadVaultList();
-      }
+      _vaultModel.loadVaultList();
     });
   }
 

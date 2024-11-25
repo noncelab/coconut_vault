@@ -8,6 +8,7 @@ import 'package:coconut_vault/model/data/multisig_vault_list_item_factory.dart';
 import 'package:coconut_vault/model/data/singlesig_vault_list_item.dart';
 import 'package:coconut_vault/model/data/singlesig_vault_list_item_factory.dart';
 import 'package:coconut_vault/model/data/vault_list_item_base.dart';
+import 'package:coconut_vault/model/data/vault_type.dart';
 import 'package:coconut_vault/services/shared_preferences_service.dart';
 import 'package:coconut_vault/utils/coconut/multisig_utils.dart';
 
@@ -172,9 +173,9 @@ Future<MultisigVaultListItem> importMultisigVaultIsolate(
   List<dynamic> decodedVaultListJson = jsonDecode(secrets['vaultList']);
 
   for (var vaultJson in decodedVaultListJson) {
-    if (vaultJson['type'] == 'VaultType.multiSignature') {
+    if (vaultJson['vaultType'] == VaultType.multiSignature.name) {
       vaultList.add(MultisigVaultListItem.fromJson(vaultJson));
-    } else if (vaultJson['type'] == 'VaultType.singleSignature') {
+    } else if (vaultJson['vaultType'] == VaultType.singleSignature.name) {
       vaultList.add(SinglesigVaultListItem.fromJson(vaultJson));
     }
   }
