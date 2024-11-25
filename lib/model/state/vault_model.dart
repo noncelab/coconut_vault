@@ -100,6 +100,7 @@ class VaultModel extends ChangeNotifier {
     _waitingForSignaturePsbtBase64 = null;
     signedRawTx = null;
     _vaultList.clear();
+    _vaultInitialized = false;
   }
 
   /// pin or biometric 인증 실패후 지갑 초기화
@@ -111,6 +112,7 @@ class VaultModel extends ChangeNotifier {
     _waitingForSignaturePsbtBase64 = null;
     signedRawTx = null;
     _vaultList.clear();
+    _vaultInitialized = false;
     await _appModel.resetPassword();
     notifyListeners();
   }

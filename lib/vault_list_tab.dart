@@ -50,9 +50,9 @@ class _VaultListTabState extends State<VaultListTab>
         _appModel.offResetVault();
       }
       // 지갑 추가, 지갑 삭제, 서명완료 후 불필요하게 loadVaultList() 호출되는 것을 막음
-      // if (_vaultModel.vaultInitialized) {
-      //   return;
-      // }
+      if (_vaultModel.vaultInitialized) {
+        return;
+      }
 
       _vaultModel.loadVaultList();
     });
