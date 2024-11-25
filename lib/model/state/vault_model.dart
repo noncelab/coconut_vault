@@ -267,6 +267,8 @@ class VaultModel extends ChangeNotifier {
 
     _importMultisigVaultIsolateHandler!.dispose();
     _importMultisigVaultIsolateHandler = null;
+
+    SharedPrefsService().setInt('nextId', nextId + 1);
     setAddVaultCompleted(true);
     await updateVaultInStorage();
     notifyListeners();
