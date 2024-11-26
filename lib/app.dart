@@ -14,7 +14,6 @@ import 'package:coconut_vault/screens/vault_creation/mnemonic_coin_flip_screen.d
 import 'package:coconut_vault/screens/vault_creation/mnemonic_generate_screen.dart';
 import 'package:coconut_vault/screens/vault_creation/mnemonic_import_screen.dart';
 import 'package:coconut_vault/screens/vault_creation/multi_sig/select_multisig_quoram_screen.dart';
-import 'package:coconut_vault/screens/vault_creation/multi_sig/signer_qr_screen.dart';
 import 'package:coconut_vault/screens/vault_creation/multi_sig/signer_scanner_screen.dart';
 import 'package:coconut_vault/screens/vault_creation/select_vault_type_screen.dart';
 import 'package:coconut_vault/screens/vault_creation/vault_creation_options_screen.dart';
@@ -205,7 +204,7 @@ class _PowVaultAppState extends State<PowVaultApp> {
             '/signer-scanner': (context) => buildScreenWithArguments(
                   context,
                   (args) => SignerScannerScreen(
-                      id: int.parse(args['id']),
+                      id: args['id'],
                       screenType: args['screenType']),
                 ),
             '/signer-qr': (context) => buildScreenWithArguments(
@@ -214,7 +213,7 @@ class _PowVaultAppState extends State<PowVaultApp> {
                 ),
             '/psbt-scanner': (context) => buildScreenWithArguments(
                   context,
-                  (args) => PsbtScannerScreen(id: int.parse(args['id'])),
+                  (args) => PsbtScannerScreen(id: args['id']),
                 ),
             '/psbt-confirmation': (context) => buildScreenWithArguments(
                   context,

@@ -185,28 +185,25 @@ class _MultiSigSettingScreenState extends State<MultiSigSettingScreen> {
             Navigator.pop(context);
             switch (status) {
               case 0:
-                if (multisigSigner != null) {
-                  _showModalBottomSheetWithQrImage(
-                    '확장 공개키',
-                    multisigSigner.keyStore.extendedPublicKey.serialize(),
-                    null,
-                  );
-                }
+                _showModalBottomSheetWithQrImage(
+                  '확장 공개키',
+                  multisigSigner!.keyStore.extendedPublicKey.serialize(),
+                  null,
+                );
                 break;
               case 1:
-                if (multisigSigner != null) {
-                  final base = _vaultModel.getVaultById(multisigSigner.id + 1);
-                  final single = base as SinglesigVaultListItem;
-                  MyBottomSheet.showBottomSheet_90(
-                    context: context,
-                    child: MnemonicViewScreen(
-                      mnemonic: single.secret,
-                      passphrase: single.passphrase,
-                      title: '니모닉 문구 보기',
-                      subtitle: '패스프레이즈 보기',
-                    ),
-                  );
-                }
+                final base =
+                    _vaultModel.getVaultById(multisigSigner!.innerVaultId!);
+                final single = base as SinglesigVaultListItem;
+                MyBottomSheet.showBottomSheet_90(
+                  context: context,
+                  child: MnemonicViewScreen(
+                    mnemonic: single.secret,
+                    passphrase: single.passphrase,
+                    title: '니모닉 문구 보기',
+                    subtitle: '패스프레이즈 보기',
+                  ),
+                );
                 break;
               default:
                 _vaultModel.deleteVault(widget.id, isMultisig: true);
@@ -450,8 +447,8 @@ class _MultiSigSettingScreenState extends State<MultiSigSettingScreen> {
                         final isVaultKey = item.innerVaultId != null;
                         final name = isVaultKey ? item.name! : '외부 지갑';
                         final memo = isVaultKey ? null : item.memo;
-                        final colorIndex = item.colorIndex ?? 0;
-                        final iconIndex = item.iconIndex ?? 0;
+                        final colorIndex = item.colorIndex;
+                        final iconIndex = item.iconIndex;
                         final mfp = item.keyStore.masterFingerprint;
 
                         return GestureDetector(
@@ -498,7 +495,7 @@ class _MultiSigSettingScreenState extends State<MultiSigSettingScreen> {
                                             decoration: BoxDecoration(
                                               color: isVaultKey
                                                   ? BackgroundColorPalette[
-                                                      colorIndex]
+                                                      colorIndex!]
                                                   : MyColors.greyEC,
                                               borderRadius:
                                                   BorderRadius.circular(8),
@@ -506,11 +503,11 @@ class _MultiSigSettingScreenState extends State<MultiSigSettingScreen> {
                                             child: SvgPicture.asset(
                                               isVaultKey
                                                   ? CustomIcons.getPathByIndex(
-                                                      iconIndex)
+                                                      iconIndex!)
                                                   : 'assets/svg/download.svg',
                                               colorFilter: ColorFilter.mode(
                                                 isVaultKey
-                                                    ? ColorPalette[colorIndex]
+                                                    ? ColorPalette[colorIndex!]
                                                     : MyColors.black,
                                                 BlendMode.srcIn,
                                               ),

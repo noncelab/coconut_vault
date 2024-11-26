@@ -150,9 +150,22 @@ class _SelectVaultTypeScreenState extends State<SelectVaultTypeScreen> {
                   width: MediaQuery.of(context).size.width,
                   height: MediaQuery.of(context).size.height,
                   color: MyColors.transparentBlack_30,
-                  child: const Center(
-                    child: CircularProgressIndicator(
-                      color: MyColors.darkgrey,
+                  child: Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const CircularProgressIndicator(
+                          color: MyColors.darkgrey,
+                        ),
+                        const SizedBox(
+                          height: 30,
+                        ),
+                        Text(
+                          '가지고 있는 볼트를 불러오는 중이에요',
+                          style: Styles.body2
+                              .merge(const TextStyle(color: MyColors.darkgrey)),
+                        )
+                      ],
                     ),
                   ),
                 ),
