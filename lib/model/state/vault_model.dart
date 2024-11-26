@@ -92,6 +92,7 @@ class VaultModel extends ChangeNotifier {
     _waitingForSignaturePsbtBase64 = null;
     signedRawTx = null;
     _vaultList.clear();
+    _vaultInitialized = false;
   }
 
   /// pin or biometric 인증 실패후 지갑 초기화
@@ -103,6 +104,7 @@ class VaultModel extends ChangeNotifier {
     _waitingForSignaturePsbtBase64 = null;
     signedRawTx = null;
     _vaultList.clear();
+    _vaultInitialized = false;
     await _appModel.resetPassword();
     notifyListeners();
   }
@@ -468,17 +470,21 @@ class VaultModel extends ChangeNotifier {
     printLongString('jsonArrayString--> $jsonArrayString');
 
     if (jsonArrayString != null) {
+      const String vaultTypeField = 'vaultType';
       List<dynamic> jsonList = jsonDecode(jsonArrayString);
       for (int i = 0; i < jsonList.length; i++) {
-        if (jsonList[i]['vaultType'] == VaultType.singleSignature.name) {
+        if (jsonList[i][vaultTypeField] == VaultType.singleSignature.name) {
           vaultList
               .add(SinglesigVaultListItemFactory().createFromJson(jsonList[i]));
-        } else if (jsonList[i]['vaultType'] == VaultType.multiSignature.name) {
+        } else if (jsonList[i][vaultTypeField] ==
+            VaultType.multiSignature.name) {
           vaultList
               .add(MultisigVaultListItemFactory().createFromJson(jsonList[i]));
         } else {
-          throw ArgumentError(
-              "[vault_model] wrong vaultType: ${jsonList[i]['vaultType']}");
+          // coconut_vault 1.0.1 -> 2.0.0 업데이트 되면서 vaultType이 추가됨
+          jsonList[i][vaultTypeField] = VaultType.singleSignature.name;
+          vaultList
+              .add(SinglesigVaultListItemFactory().createFromJson(jsonList[i]));
         }
       }
     }

@@ -27,7 +27,7 @@ const iconBackgroundColorList = <Color>[
 ];
 
 class VaultMenuScreen extends StatefulWidget {
-  final String id;
+  final int id;
   final bool isMultiSig;
 
   const VaultMenuScreen({super.key, required this.id, this.isMultiSig = false});
@@ -42,8 +42,7 @@ class _VaultMenuScreenState extends State<VaultMenuScreen> {
   @override
   Widget build(BuildContext context) {
     return Consumer<VaultModel>(builder: (context, model, child) {
-      final VaultListItemBase vaultListItem =
-          model.getVaultById(int.parse(widget.id));
+      final VaultListItemBase vaultListItem = model.getVaultById(widget.id);
 
       if (!widget.isMultiSig) {
         return Container(

@@ -12,7 +12,7 @@ import 'package:provider/provider.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 
 class MultiSigBsmsScreen extends StatefulWidget {
-  final String id;
+  final int id;
   const MultiSigBsmsScreen({super.key, required this.id});
 
   @override
@@ -27,7 +27,7 @@ class _MultiSigBsmsScreenState extends State<MultiSigBsmsScreen> {
     super.initState();
     final model = Provider.of<VaultModel>(context, listen: false);
     final vaultListItem =
-        model.getVaultById(int.parse(widget.id)) as MultisigVaultListItem;
+        model.getVaultById(widget.id) as MultisigVaultListItem;
     String coordinatorBsms = vaultListItem.coordinatorBsms ??
         (vaultListItem.coconutVault as MultisignatureVault)
             .getCoordinatorBsms();
