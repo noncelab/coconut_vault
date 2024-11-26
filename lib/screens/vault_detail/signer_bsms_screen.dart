@@ -38,12 +38,12 @@ class _SignerBsmsScreenState extends State<SignerBsmsScreen> {
   }
 
   Future<void> setSignerBsms() async {
-    try {
-      IsolateHandler<List<VaultListItemBase>, List<String>>
-          extractBsmsIsolateHandler = IsolateHandler(extractSignerBsmsIsolate);
-      await extractBsmsIsolateHandler.initialize(
-          initialType: InitializeType.extractSignerBsms);
+    IsolateHandler<List<VaultListItemBase>, List<String>>
+        extractBsmsIsolateHandler = IsolateHandler(extractSignerBsmsIsolate);
+    await extractBsmsIsolateHandler.initialize(
+        initialType: InitializeType.extractSignerBsms);
 
+    try {
       List<String> bsmses =
           await extractBsmsIsolateHandler.run([_vaultListItem]);
 
@@ -71,6 +71,8 @@ class _SignerBsmsScreenState extends State<SignerBsmsScreen> {
                   ),
                 ]);
           });
+    } finally {
+      extractBsmsIsolateHandler.dispose();
     }
   }
 
