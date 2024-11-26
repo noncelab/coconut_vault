@@ -108,7 +108,7 @@ class _VaultRowItemState extends State<VaultRowItem> {
                     ? '${widget.vault.name.substring(0, 17)}...'
                     : widget.vault.name,
                 child: VaultMenuScreen(
-                    id: widget.vault.id.toString(), isMultiSig: _isMultiSig),
+                    id: widget.vault.id, isMultiSig: _isMultiSig),
               );
             },
             child: _vaultContainerWidget());

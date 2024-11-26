@@ -187,6 +187,7 @@ class _SignerScannerScreenState extends State<SignerScannerScreen> {
       debugPrint(scanData.code!);
       debugPrint(scanData.code!.contains('\n').toString());
 
+      // 다중서명지갑 '생성'
       if (!widget.isCopy) {
         // 외부에서 키 가져오기
         setState(() {
@@ -205,8 +206,8 @@ class _SignerScannerScreenState extends State<SignerScannerScreen> {
         return;
       }
 
-      // 다중 서명 지갑 가져오기
-      if (widget.id == null) return;
+      // 다중서명지갑 '복사하기'
+      assert(widget.id != null);
 
       setState(() {
         _isProcessing = true;

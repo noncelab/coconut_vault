@@ -187,9 +187,7 @@ class _PowVaultAppState extends State<PowVaultApp> {
                   (args) => VaultMenuScreen(id: args['id']),
                 ),
             '/vault-settings': (context) => buildScreenWithArguments(
-                  context,
-                  (args) => VaultSettings(id: args['id']),
-                ),
+                context, (args) => VaultSettings(id: args['id'])),
             '/multisig-setting': (context) => buildScreenWithArguments(
                   context,
                   (args) => MultiSigSettingScreen(id: args['id']),

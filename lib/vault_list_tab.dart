@@ -19,10 +19,8 @@ import 'model/state/vault_model.dart';
 import 'widgets/vault_row_item.dart';
 
 class VaultListTab extends StatefulWidget {
-  final bool? reload;
   const VaultListTab({
     super.key,
-    this.reload = true,
   });
 
   @override
@@ -52,13 +50,11 @@ class _VaultListTabState extends State<VaultListTab>
         _appModel.offResetVault();
       }
       // 지갑 추가, 지갑 삭제, 서명완료 후 불필요하게 loadVaultList() 호출되는 것을 막음
-      // if (_vaultModel.vaultInitialized) {
-      //   return;
-      // }
-
-      if (widget.reload == null || widget.reload == true) {
-        _vaultModel.loadVaultList();
+      if (_vaultModel.vaultInitialized) {
+        return;
       }
+
+      _vaultModel.loadVaultList();
     });
   }
 
