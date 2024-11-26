@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:coconut_lib/coconut_lib.dart';
+import 'package:coconut_vault/model/data/multisig_signer.dart';
 import 'package:coconut_vault/model/data/multisig_vault_list_item.dart';
 import 'package:coconut_vault/model/state/vault_model.dart';
 import 'package:coconut_vault/styles.dart';
@@ -21,6 +22,7 @@ class MultiSigBsmsScreen extends StatefulWidget {
 
 class _MultiSigBsmsScreenState extends State<MultiSigBsmsScreen> {
   late Map<String, dynamic> qrData;
+  List<int> outSideWalletIdList = [];
 
   @override
   void initState() {
@@ -40,6 +42,16 @@ class _MultiSigBsmsScreenState extends State<MultiSigBsmsScreen> {
       'iconIndex': walletSyncString['iconIndex'],
       'coordinatorBSMS': coordinatorBsms,
     };
+
+    _getOutsideWalletIdList(vaultListItem);
+  }
+
+  void _getOutsideWalletIdList(MultisigVaultListItem item) {
+    for (MultisigSigner signer in item.signers) {
+      if (signer.innerVaultId == null) {
+        outSideWalletIdList.add(signer.id + 1);
+      }
+    }
   }
 
   _showMultiSigDetail() {
@@ -77,6 +89,11 @@ class _MultiSigBsmsScreenState extends State<MultiSigBsmsScreen> {
         ),
       ),
     );
+  }
+
+  String _generateOutsideWalletDescription(List<int> idList) {
+    if (idList.length == 1) return '${idList.first}';
+    return '${idList.first} 또는 ${idList.last}';
   }
 
   @override
@@ -119,7 +136,14 @@ class _MultiSigBsmsScreenState extends State<MultiSigBsmsScreen> {
                 _description(
                     '가져오기를 통해 추가된 지갑은 자신의 키가 다른 다중 서명 지갑에 사용되고 있는지 알 수 없습니다.'),
                 const SizedBox(height: 4),
-                _description('따라서, 2번 키를 보관한 볼트에서 아래 QR을 읽어 주세요.'),
+                if (outSideWalletIdList.isEmpty) ...[
+                  _description('모든 키가 볼트에 저장되어 있습니다.'),
+                  const SizedBox(height: 4),
+                  _description(
+                      '같은 키를 보관하고 있는 다른 볼트에서도 이 QR을 읽어 다중 서명 지갑을 추가할 수 있습니다.'),
+                ] else
+                  _description(
+                      '따라서, ${_generateOutsideWalletDescription(outSideWalletIdList)}번 키를 보관한 볼트에서 아래 QR을 읽어 주세요.'),
               ],
             ),
           ),
