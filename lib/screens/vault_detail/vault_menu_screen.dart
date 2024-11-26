@@ -1,4 +1,5 @@
 import 'package:coconut_vault/model/data/vault_list_item_base.dart';
+import 'package:coconut_vault/screens/vault_creation/multi_sig/signer_scanner_screen.dart';
 
 import 'package:coconut_vault/utils/text_utils.dart';
 import 'package:flutter/material.dart';
@@ -100,8 +101,14 @@ class _VaultMenuScreenState extends State<VaultMenuScreen> {
                 '이 키가 포함된 다중 서명 지갑 정보를 추가해요', () async {
               Navigator.pop(context);
 
-              Navigator.pushNamed(context, '/signer-scanner',
-                  arguments: {'id': widget.id, 'isCopy': true});
+              Navigator.pushNamed(
+                context,
+                '/signer-scanner',
+                arguments: {
+                  'id': widget.id,
+                  'screenType': SignerScannerScreenType.copy,
+                },
+              );
             }, iconBackgroundColorList[0]),
           ]),
         );

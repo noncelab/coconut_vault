@@ -1,4 +1,5 @@
 import 'package:coconut_lib/coconut_lib.dart';
+import 'package:coconut_vault/model/data/multisig_signer.dart';
 import 'package:coconut_vault/model/data/multisig_vault_list_item.dart';
 import 'package:coconut_vault/model/data/singlesig_vault_list_item.dart';
 import 'package:coconut_vault/model/state/vault_model.dart';
@@ -32,7 +33,6 @@ class MultiSignatureScreen extends StatefulWidget {
 }
 
 class _MultiSignatureScreenState extends State<MultiSignatureScreen> {
-  // late AppModel _appModel;
   late VaultModel _vaultModel;
   late MultisigVaultListItem _multisigVaultItem;
   late MultisignatureVault _multisigVault;
@@ -49,25 +49,58 @@ class _MultiSignatureScreenState extends State<MultiSignatureScreen> {
     _multisigVault = _multisigVaultItem.coconutVault as MultisignatureVault;
     _signers = List<bool>.filled(_multisigVaultItem.signers.length, false);
     _requiredSignatureCount = _multisigVaultItem.requiredSignatureCount;
+    _vaultModel.signedRawTx = null;
+    _bindSeedToKeyStore();
   }
 
-  _bindSeedToKeyStore(int id, int index) {
-    final singleVaultItem =
-        _vaultModel.getVaultById(id) as SinglesigVaultListItem;
-    final seed =
-        (singleVaultItem.coconutVault as SingleSignatureVault).keyStore.seed;
-    _multisigVault.bindSeedToKeyStore(seed, index);
-    _signers[index] = true;
+  _bindSeedToKeyStore() {
+    for (MultisigSigner signer in _multisigVaultItem.signers) {
+      if (signer.innerVaultId != null) {
+        final singleVaultItem = _vaultModel.getVaultById(signer.innerVaultId!)
+            as SinglesigVaultListItem;
+        final seed = (singleVaultItem.coconutVault as SingleSignatureVault)
+            .keyStore
+            .seed;
+        _multisigVault.bindSeedToKeyStore(seed);
+      }
+    }
   }
 
-  _sign() async {
+  _signStep1(bool isVaultKey, int innerVaultId, int index) async {
+    if (isVaultKey) {
+      MyBottomSheet.showBottomSheet_90(
+        context: context,
+        child: CustomLoadingOverlay(
+          child: PinCheckScreen(
+            screenStatus: PinCheckScreenStatus.info,
+            isDeleteScreen: true,
+            onComplete: () {
+              Navigator.pop(context);
+              //_bindSeedToKeyStore(innerVaultId, index);
+              _signStep2(index);
+            },
+          ),
+        ),
+      );
+    } else {
+      _vaultModel.signedRawTx ??= widget.psbtBase64;
+      Navigator.pushNamed(context, '/signer-qr',
+          arguments: {'memo': _multisigVaultItem.signers[index].memo ?? ''});
+    }
+  }
+
+  _signStep2(int index) async {
     try {
       setState(() {
         _showLoading = true;
       });
 
+      final psbt = _vaultModel.signedRawTx == null
+          ? widget.psbtBase64
+          : _vaultModel.signedRawTx!;
+
       bool canSignResult =
-          await canSignToPsbt(_multisigVault, widget.psbtBase64);
+          await canSignToPsbt(_multisigVaultItem.coconutVault, psbt);
 
       if (!canSignResult) {
         if (mounted) {
@@ -76,13 +109,19 @@ class _MultiSignatureScreenState extends State<MultiSignatureScreen> {
         return;
       }
 
-      String signedPsbt =
-          await addSignatureToPsbt(_multisigVault, widget.psbtBase64);
+      final signedTx =
+          _multisigVault.keyStoreList[index].addSignatureToPsbt(psbt);
 
-      _vaultModel.signedRawTx = signedPsbt;
+      _vaultModel.signedRawTx = signedTx;
       if (_vaultModel.signedRawTx == null) {
-        throw "signedRawTx is null";
+        if (mounted) {
+          throw 'signedRawTx is null.';
+        }
       }
+
+      setState(() {
+        _signers[index] = true;
+      });
     } catch (_) {
       if (mounted) {
         showAlertDialog(context: context, content: "서명 실패: $_");
@@ -91,10 +130,6 @@ class _MultiSignatureScreenState extends State<MultiSignatureScreen> {
       setState(() {
         _showLoading = false;
       });
-      if (mounted) {
-        Navigator.pushNamed(context, '/signed-transaction',
-            arguments: {'id': int.parse(widget.id)});
-      }
     }
   }
 
@@ -117,7 +152,15 @@ class _MultiSignatureScreenState extends State<MultiSignatureScreen> {
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
             child: GestureDetector(
-              onTap: _sign,
+              onTap: _requiredSignatureCount >
+                      _signers.where((item) => item).length
+                  ? null
+                  : () {
+                      if (mounted) {
+                        Navigator.pushNamed(context, '/signed-transaction',
+                            arguments: {'id': int.parse(widget.id)});
+                      }
+                    },
               child: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 12.0),
                 decoration: BoxDecoration(
@@ -209,16 +252,15 @@ class _MultiSignatureScreenState extends State<MultiSignatureScreen> {
                   physics: const NeverScrollableScrollPhysics(),
                   itemCount: _multisigVaultItem.signers.length,
                   itemBuilder: (context, index) {
+                    final signer = _multisigVaultItem.signers[index];
                     final length = _multisigVaultItem.signers.length - 1;
-                    final name = _multisigVaultItem.signers[index].name ?? '';
-                    final iconIndex =
-                        _multisigVaultItem.signers[index].iconIndex ?? 0;
-                    final innerVaultId =
-                        _multisigVaultItem.signers[index].innerVaultId ?? 0;
+                    final isVaultKey = signer.innerVaultId != null;
+                    final name = isVaultKey ? signer.name ?? '' : '외부지갑';
+                    final memo = signer.memo ?? '';
+                    final iconIndex = signer.iconIndex ?? 0;
+                    final innerVaultId = signer.innerVaultId ?? 0;
                     final colorIndex =
                         _multisigVaultItem.signers[index].colorIndex ?? 0;
-                    final isVaultKey =
-                        _multisigVaultItem.signers[index].innerVaultId != null;
 
                     return Container(
                       alignment: Alignment.centerLeft,
@@ -274,7 +316,21 @@ class _MultiSignatureScreenState extends State<MultiSignatureScreen> {
                                       ),
                                     ),
                                     const SizedBox(width: 8),
-                                    Text(name, style: Styles.body2),
+                                    Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(name, style: Styles.body2),
+                                        if (memo.isNotEmpty) ...{
+                                          Text(
+                                            memo,
+                                            style: Styles.caption2.copyWith(
+                                              fontSize: 11,
+                                            ),
+                                          ),
+                                        }
+                                      ],
+                                    ),
                                   ],
                                 ),
                                 const Spacer(),
@@ -297,27 +353,8 @@ class _MultiSignatureScreenState extends State<MultiSignatureScreen> {
                                     _signers.where((item) => item).length) ...{
                                   GestureDetector(
                                     onTap: () {
-                                      if (isVaultKey) {
-                                        MyBottomSheet.showBottomSheet_90(
-                                          context: context,
-                                          child: CustomLoadingOverlay(
-                                            child: PinCheckScreen(
-                                              screenStatus:
-                                                  PinCheckScreenStatus.info,
-                                              isDeleteScreen: true,
-                                              onComplete: () async {
-                                                setState(() {
-                                                  Navigator.pop(context);
-                                                  _bindSeedToKeyStore(
-                                                      innerVaultId, index);
-                                                });
-                                              },
-                                            ),
-                                          ),
-                                        );
-                                      } else {
-                                        // TODO: 외부지갑 검증 구현
-                                      }
+                                      _signStep1(
+                                          isVaultKey, innerVaultId, index);
                                     },
                                     child: Container(
                                       padding: const EdgeInsets.symmetric(

@@ -24,7 +24,7 @@ class PsbtConfirmationScreen extends StatefulWidget {
 
 class _PsbtConfirmationScreenState extends State<PsbtConfirmationScreen> {
   late VaultModel _vaultModel;
-  late WalletBase _vault;
+  late WalletBase _walletBase;
   String? _waitingForSignaturePsbtBase64;
   PSBT? _psbt;
   final bool _showWarning = false;
@@ -47,7 +47,7 @@ class _PsbtConfirmationScreenState extends State<PsbtConfirmationScreen> {
 
     _waitingForSignaturePsbtBase64 = _vaultModel.waitingForSignaturePsbtBase64;
     final vaultBaseItem = _vaultModel.getVaultById(widget.id);
-    _vault = vaultBaseItem.coconutVault;
+    _walletBase = vaultBaseItem.coconutVault;
     _isMultisig = vaultBaseItem.vaultType == VaultType.multiSignature;
 
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
@@ -129,14 +129,14 @@ class _PsbtConfirmationScreenState extends State<PsbtConfirmationScreen> {
       });
 
       bool canSignResult =
-          await canSignToPsbt(_vault, _waitingForSignaturePsbtBase64!);
+          await canSignToPsbt(_walletBase, _waitingForSignaturePsbtBase64!);
       if (!canSignResult) {
         showAlertDialog(context: context, content: "서명할 수 없는 트랜잭션입니다.");
         return;
       }
 
-      String signedPsbt =
-          await addSignatureToPsbt(_vault, _waitingForSignaturePsbtBase64!);
+      String signedPsbt = await addSignatureToPsbt(
+          _walletBase, _waitingForSignaturePsbtBase64!);
 
       _vaultModel.signedRawTx = signedPsbt;
       if (_vaultModel.signedRawTx == null) {

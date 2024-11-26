@@ -467,7 +467,7 @@ class VaultModel extends ChangeNotifier {
       jsonArrayString = realmService.getValue(key: VAULT_LIST);
     }
 
-    printLongString('jsonArrayString--> $jsonArrayString');
+    // printLongString('jsonArrayString--> $jsonArrayString');
 
     if (jsonArrayString != null) {
       const String vaultTypeField = 'vaultType';
