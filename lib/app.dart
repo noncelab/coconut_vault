@@ -207,10 +207,6 @@ class _PowVaultAppState extends State<PowVaultApp> {
                       id: args['id'],
                       screenType: args['screenType']),
                 ),
-            '/signer-qr': (context) => buildScreenWithArguments(
-                  context,
-                  (args) => SignerQrScreen(memo: args['memo']),
-                ),
             '/psbt-scanner': (context) => buildScreenWithArguments(
                   context,
                   (args) => PsbtScannerScreen(id: args['id']),
