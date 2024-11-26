@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:coconut_lib/coconut_lib.dart';
 import 'package:coconut_vault/model/data/multisig_signer.dart';
 import 'package:coconut_vault/model/data/multisig_vault_list_item.dart';
 import 'package:coconut_vault/model/data/singlesig_vault_list_item.dart';
@@ -29,7 +28,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
 
 class MultiSigSettingScreen extends StatefulWidget {
-  final String id;
+  final int id;
   const MultiSigSettingScreen({super.key, required this.id});
 
   @override
@@ -60,7 +59,7 @@ class _MultiSigSettingScreenState extends State<MultiSigSettingScreen> {
   }
 
   _updateMultiVaultListItem() {
-    final vaultBasItem = _vaultModel.getVaultById(int.parse(widget.id));
+    final vaultBasItem = _vaultModel.getVaultById(widget.id);
     _multiVault = vaultBasItem as MultisigVaultListItem;
   }
 
@@ -115,7 +114,7 @@ class _MultiSigSettingScreenState extends State<MultiSigSettingScreen> {
 
     if (hasChanges) {
       await _vaultModel.updateVault(
-          int.parse(widget.id), newName, newColorIndex, newIconIndex);
+          widget.id, newName, newColorIndex, newIconIndex);
 
       _updateMultiVaultListItem();
       setState(() {});
@@ -148,9 +147,7 @@ class _MultiSigSettingScreenState extends State<MultiSigSettingScreen> {
         onUpdate: (memo) {
           if (selectedVault.memo == memo) return;
 
-          _vaultModel
-              .updateMemo(int.parse(widget.id), selectedVault.id, memo)
-              .then((_) {
+          _vaultModel.updateMemo(widget.id, selectedVault.id, memo).then((_) {
             setState(() {
               String? finalMemo = memo;
               if (memo.isEmpty) {
@@ -188,31 +185,28 @@ class _MultiSigSettingScreenState extends State<MultiSigSettingScreen> {
             Navigator.pop(context);
             switch (status) {
               case 0:
-                if (multisigSigner != null) {
-                  _showModalBottomSheetWithQrImage(
-                    '확장 공개키',
-                    multisigSigner.keyStore.extendedPublicKey.serialize(),
-                    null,
-                  );
-                }
+                _showModalBottomSheetWithQrImage(
+                  '확장 공개키',
+                  multisigSigner!.keyStore.extendedPublicKey.serialize(),
+                  null,
+                );
                 break;
               case 1:
-                if (multisigSigner != null) {
-                  final base = _vaultModel.getVaultById(multisigSigner.id + 1);
-                  final single = base as SinglesigVaultListItem;
-                  MyBottomSheet.showBottomSheet_90(
-                    context: context,
-                    child: MnemonicViewScreen(
-                      mnemonic: single.secret,
-                      passphrase: single.passphrase,
-                      title: '니모닉 문구 보기',
-                      subtitle: '패스프레이즈 보기',
-                    ),
-                  );
-                }
+                final base =
+                    _vaultModel.getVaultById(multisigSigner!.innerVaultId!);
+                final single = base as SinglesigVaultListItem;
+                MyBottomSheet.showBottomSheet_90(
+                  context: context,
+                  child: MnemonicViewScreen(
+                    mnemonic: single.secret,
+                    passphrase: single.passphrase,
+                    title: '니모닉 문구 보기',
+                    subtitle: '패스프레이즈 보기',
+                  ),
+                );
                 break;
               default:
-                _vaultModel.deleteVault(int.parse(widget.id), isMultisig: true);
+                _vaultModel.deleteVault(widget.id, isMultisig: true);
                 vibrateLight();
                 Navigator.popUntil(context, (route) => route.isFirst);
             }
@@ -453,8 +447,8 @@ class _MultiSigSettingScreenState extends State<MultiSigSettingScreen> {
                         final isVaultKey = item.innerVaultId != null;
                         final name = isVaultKey ? item.name! : '외부 지갑';
                         final memo = isVaultKey ? null : item.memo;
-                        final colorIndex = item.colorIndex ?? 0;
-                        final iconIndex = item.iconIndex ?? 0;
+                        final colorIndex = item.colorIndex;
+                        final iconIndex = item.iconIndex;
                         final mfp = item.keyStore.masterFingerprint;
 
                         return GestureDetector(
@@ -501,7 +495,7 @@ class _MultiSigSettingScreenState extends State<MultiSigSettingScreen> {
                                             decoration: BoxDecoration(
                                               color: isVaultKey
                                                   ? BackgroundColorPalette[
-                                                      colorIndex]
+                                                      colorIndex!]
                                                   : MyColors.greyEC,
                                               borderRadius:
                                                   BorderRadius.circular(8),
@@ -509,11 +503,11 @@ class _MultiSigSettingScreenState extends State<MultiSigSettingScreen> {
                                             child: SvgPicture.asset(
                                               isVaultKey
                                                   ? CustomIcons.getPathByIndex(
-                                                      iconIndex)
+                                                      iconIndex!)
                                                   : 'assets/svg/download.svg',
                                               colorFilter: ColorFilter.mode(
                                                 isVaultKey
-                                                    ? ColorPalette[colorIndex]
+                                                    ? ColorPalette[colorIndex!]
                                                     : MyColors.black,
                                                 BlendMode.srcIn,
                                               ),

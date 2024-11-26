@@ -17,14 +17,15 @@ class MultisigVaultListItem extends VaultListItemBase {
       required super.iconIndex,
       required this.signers,
       required this.requiredSignatureCount,
-      this.coordinatorBsms})
+      this.coordinatorBsms,
+      super.vaultJsonString})
       : super(vaultType: VaultType.multiSignature) {
     coconutVault = MultisignatureVault.fromKeyStoreList(
         signers.map((signer) => signer.keyStore).toList(),
         requiredSignatureCount,
         AddressType.p2wsh);
 
-    vaultJsonString = (coconutVault as MultisignatureVault).toJson();
+    vaultJsonString ??= (coconutVault as MultisignatureVault).toJson();
   }
 
   MultisigVaultListItem.fromCoordinatorBsms(

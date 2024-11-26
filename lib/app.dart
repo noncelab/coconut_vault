@@ -187,9 +187,7 @@ class _PowVaultAppState extends State<PowVaultApp> {
                   (args) => VaultMenuScreen(id: args['id']),
                 ),
             '/vault-settings': (context) => buildScreenWithArguments(
-                  context,
-                  (args) => VaultSettings(id: args['id']),
-                ),
+                context, (args) => VaultSettings(id: args['id'])),
             '/multisig-setting': (context) => buildScreenWithArguments(
                   context,
                   (args) => MultiSigSettingScreen(id: args['id']),
@@ -206,7 +204,7 @@ class _PowVaultAppState extends State<PowVaultApp> {
             '/signer-scanner': (context) => buildScreenWithArguments(
                   context,
                   (args) => SignerScannerScreen(
-                      id: int.parse(args['id']), isCopy: args['isCopy']),
+                      id: args['id'], isCopy: args['isCopy']),
                 ),
             '/psbt-scanner': (context) => buildScreenWithArguments(
                   context,

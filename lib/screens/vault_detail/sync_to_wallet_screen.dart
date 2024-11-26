@@ -1,4 +1,3 @@
-import 'package:coconut_vault/model/data/vault_type.dart';
 import 'package:coconut_vault/screens/vault_detail/export_detail_screen.dart';
 import 'package:coconut_vault/widgets/bottom_sheet.dart';
 import 'package:flutter/cupertino.dart';
@@ -11,7 +10,7 @@ import 'package:provider/provider.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 
 class SyncToWalletScreen extends StatefulWidget {
-  final String id;
+  final int id;
 
   const SyncToWalletScreen({super.key, required this.id});
 
@@ -28,7 +27,7 @@ class _SyncToWalletScreenState extends State<SyncToWalletScreen> {
   void initState() {
     super.initState();
     final model = Provider.of<VaultModel>(context, listen: false);
-    final vaultListItem = model.getVaultById(int.parse(widget.id));
+    final vaultListItem = model.getVaultById(widget.id);
     _name = vaultListItem.name;
 
     try {

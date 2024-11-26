@@ -41,27 +41,21 @@ class SinglesigVaultListItemFactory implements VaultListItemFactory {
   SinglesigVaultListItem createFromJson(Map<String, dynamic> json) {
     final result = SinglesigVaultListItem.fromJson(json);
 
-    if (result.vaultJsonString != null) {
-      String vaultJson = result.vaultJsonString!;
-      String? migrationResult = migrateVaultJsonStringForUpdate(vaultJson);
-      if (migrationResult != null) {
-        vaultJson = migrationResult;
-      }
-      result.coconutVault = SingleSignatureVault.fromJson(vaultJson);
-    } else {
-      Seed seed =
-          Seed.fromMnemonic(result.secret, passphrase: result.passphrase);
-      result.coconutVault = SingleSignatureVault.fromSeed(
-        seed,
-        AddressType.p2wpkh,
-      );
+    assert(result.vaultJsonString != null);
+
+    String vaultJson = result.vaultJsonString!;
+    String? migrationResult =
+        migrateVaultJsonStringForCoconutLibUpdate(vaultJson);
+    if (migrationResult != null) {
+      vaultJson = migrationResult;
     }
+    result.coconutVault = SingleSignatureVault.fromJson(vaultJson);
 
     return result;
   }
 
   // coconut_lib 0.7 -> 0.8, KeyStore에 addressType 프로퍼티가 추가되었습니다.
-  static String? migrateVaultJsonStringForUpdate(String vaultJson) {
+  static String? migrateVaultJsonStringForCoconutLibUpdate(String vaultJson) {
     Map<String, dynamic> vaultMap = jsonDecode(vaultJson);
     Map<String, dynamic> keyStoreMap = jsonDecode(vaultMap['keyStore']);
     if (keyStoreMap['addressType'] == null) {

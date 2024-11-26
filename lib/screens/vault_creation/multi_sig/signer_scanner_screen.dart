@@ -8,10 +8,8 @@ import 'package:coconut_vault/model/data/vault_list_item_base.dart';
 import 'package:coconut_vault/model/state/app_model.dart';
 import 'package:coconut_vault/model/state/vault_model.dart';
 import 'package:coconut_vault/utils/alert_util.dart';
-import 'package:coconut_vault/utils/coconut/MultisigUtils.dart';
 import 'package:coconut_vault/utils/logger.dart';
 import 'package:coconut_vault/widgets/appbar/custom_appbar.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:coconut_vault/styles.dart';
 import 'package:coconut_vault/widgets/custom_tooltip.dart';
@@ -189,6 +187,7 @@ class _SignerScannerScreenState extends State<SignerScannerScreen> {
       debugPrint(scanData.code!);
       debugPrint(scanData.code!.contains('\n').toString());
 
+      // 다중서명지갑 '생성'
       if (!widget.isCopy) {
         // 외부에서 키 가져오기
         setState(() {
@@ -207,8 +206,8 @@ class _SignerScannerScreenState extends State<SignerScannerScreen> {
         return;
       }
 
-      // 다중 서명 지갑 가져오기
-      if (widget.id == null) return;
+      // 다중서명지갑 '복사하기'
+      assert(widget.id != null);
 
       setState(() {
         _isProcessing = true;

@@ -4,7 +4,7 @@ import 'package:coconut_vault/styles.dart';
 import 'package:coconut_vault/widgets/appbar/custom_appbar.dart';
 
 class SelectExportTypeScreen extends StatefulWidget {
-  final String id;
+  final int id;
 
   const SelectExportTypeScreen({super.key, required this.id});
 
