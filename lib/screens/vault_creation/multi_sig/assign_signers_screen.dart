@@ -16,10 +16,12 @@ import 'package:coconut_vault/utils/icon_util.dart';
 import 'package:coconut_vault/utils/isolate_handler.dart';
 import 'package:coconut_vault/utils/print_util.dart';
 import 'package:coconut_vault/widgets/bottom_sheet.dart';
+import 'package:coconut_vault/widgets/button/custom_buttons.dart';
 import 'package:coconut_vault/widgets/custom_dialog.dart';
 import 'package:coconut_vault/widgets/custom_expansion_panel.dart';
 import 'package:coconut_vault/widgets/custom_toast.dart';
 import 'package:coconut_vault/widgets/high-lighted-text.dart';
+import 'package:coconut_vault/widgets/indicator/message_activity_indicator.dart';
 import 'package:flutter/material.dart';
 import 'package:coconut_vault/styles.dart';
 import 'package:coconut_vault/widgets/appbar/custom_appbar.dart';
@@ -64,6 +66,9 @@ class _AssignSignersScreenState extends State<AssignSignersScreen> {
       _fromKeyStoreListIsolateHandler;
 
   late MultisigCreationModel _multisigCreationState;
+
+  String? loadingMessage;
+  bool hasValidationCompleted = false;
 
   @override
   void initState() {
@@ -276,6 +281,9 @@ class _AssignSignersScreenState extends State<AssignSignersScreen> {
 
             setState(() {
               assignedVaultList[keyIndex].reset();
+              if (hasValidationCompleted) {
+                hasValidationCompleted = false;
+              }
             });
             Navigator.pop(context);
           };
@@ -373,8 +381,9 @@ class _AssignSignersScreenState extends State<AssignSignersScreen> {
   }
 
   // 외부지갑은 추가 시 올바른 signerBsms 인지 미리 확인이 되어 있어야 합니다.
-  void onNextPressed() async {
+  void onSelectionCompleted() async {
     setState(() {
+      loadingMessage = '데이터 검증 중이에요';
       isNextProcessing = true;
     });
     List<KeyStore> keyStores = [];
@@ -419,7 +428,7 @@ class _AssignSignersScreenState extends State<AssignSignersScreen> {
       return;
     }
 
-    // multisig 지갑 리스트 가져오기
+    // multisig 지갑 리스트에서 중복 체크 하기
     var multisigVaults = _vaultModel.getMultisigVaults();
     for (int i = 0; i < multisigVaults.length; i++) {
       printLongString(
@@ -434,14 +443,36 @@ class _AssignSignersScreenState extends State<AssignSignersScreen> {
       }
     }
 
+    // signer mfp 기준으로 재정렬하기
+    setState(() {
+      loadingMessage = '동일한 순서를 유지하도록 키 순서를 정렬 할게요';
+    });
+
+    await Future.delayed(const Duration(seconds: 4));
+
+    List<int> indices = List.generate(keyStores.length, (i) => i);
+    indices.sort((a, b) => keyStores[a]
+        .masterFingerprint
+        .compareTo(keyStores[b].masterFingerprint));
+
+    keyStores = [for (var i in indices) keyStores[i]];
+    signers = [for (var i in indices) signers[i]];
+    setState(() {
+      assignedVaultList = [for (var i in indices) assignedVaultList[i]];
+    });
+
     _multisigCreationState.setSigners(signers);
 
     _fromKeyStoreListIsolateHandler!.dispose();
     _fromKeyStoreListIsolateHandler = null;
 
     setState(() {
+      hasValidationCompleted = true;
       isNextProcessing = false;
     });
+  }
+
+  void onNextPressed() {
     Navigator.pushNamed(context, '/vault-name-setup');
   }
 
@@ -458,9 +489,8 @@ class _AssignSignersScreenState extends State<AssignSignersScreen> {
           title: '다중 서명 지갑',
           context: context,
           onBackPressed: () => _onBackPressed(context),
-          onNextPressed:
-              onNextPressed, // TODO: VaultNameIconSetup 클래스에서 일반 지갑과 다중서명 지갑 생성 분리 필요
-          isActive: _isAssignedKeyCompletely() && !isNextProcessing,
+          onNextPressed: onNextPressed,
+          isActive: hasValidationCompleted,
           hasBackdropFilter: false,
         ),
         body: Stack(
@@ -743,7 +773,18 @@ class _AssignSignersScreenState extends State<AssignSignersScreen> {
                               ],
                             ),
                           ),
-                        )
+                        ),
+                        Visibility(
+                            visible: _isAssignedKeyCompletely() &&
+                                !hasValidationCompleted,
+                            child: Container(
+                              margin: const EdgeInsets.only(top: 40),
+                              child: CompleteButton(
+                                  onPressed: onSelectionCompleted,
+                                  label: '선택 완료',
+                                  disabled: _isAssignedKeyCompletely() &&
+                                      isNextProcessing),
+                            ))
                       ],
                     ),
                   ),
@@ -753,15 +794,10 @@ class _AssignSignersScreenState extends State<AssignSignersScreen> {
             Visibility(
               visible: !isCompleteToExtractSignerBsms || isNextProcessing,
               child: Container(
-                width: MediaQuery.of(context).size.width,
-                height: MediaQuery.of(context).size.height,
                 decoration:
                     const BoxDecoration(color: MyColors.transparentBlack_30),
-                child: const Center(
-                  child: CircularProgressIndicator(
-                    color: MyColors.darkgrey,
-                  ),
-                ),
+                child: Center(
+                    child: MessageActivityIndicator(message: loadingMessage)),
               ),
             ),
           ],
