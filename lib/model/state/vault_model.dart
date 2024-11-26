@@ -171,7 +171,7 @@ class VaultModel extends ChangeNotifier {
           } else {
             ssv.linkedMultisigInfo!.addAll(linkedMultisigInfo);
           }
-          continue outerLoop;
+          continue outerLoop; // 같은 singlesig가 하나의 multisig 지갑에 2번 이상 signer로 등록될 수 없으므로
         }
       }
     }
