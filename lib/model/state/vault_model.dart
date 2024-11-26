@@ -143,6 +143,7 @@ class VaultModel extends ChangeNotifier {
     SinglesigVaultListItem ssv = singlesigVaultItem;
 
     /// 니모닉 문구를 통해 볼트를 추가했을 때, 가지고 있는 다중서명지갑에서 이 볼트를 키로 사용하고 있으면 정보를 변경합니다.
+    outerLoop:
     for (int i = 0; i < _vaultList.length; i++) {
       VaultListItemBase vault = _vaultList[i];
       // 싱글 시그는 스킵
@@ -170,6 +171,7 @@ class VaultModel extends ChangeNotifier {
           } else {
             ssv.linkedMultisigInfo!.addAll(linkedMultisigInfo);
           }
+          continue outerLoop;
         }
       }
     }
