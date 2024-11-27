@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:coconut_lib/coconut_lib.dart';
 import 'package:coconut_vault/model/data/multisig_signer.dart';
 import 'package:coconut_vault/model/data/multisig_vault_list_item.dart';
@@ -145,8 +143,7 @@ class _MultiSignatureScreenState extends State<MultiSignatureScreen> {
     }
   }
 
-  void _delayedUpdateSigner(int index) async {
-    await Future.delayed(Duration(milliseconds: Platform.isIOS ? 500 : 0));
+  void _delayedUpdateSigner(int index) {
     setState(() {
       _signers[index] = true;
     });
@@ -237,7 +234,7 @@ class _MultiSignatureScreenState extends State<MultiSignatureScreen> {
                     end: _signers.where((item) => item).length /
                         _requiredSignatureCount,
                   ),
-                  duration: const Duration(milliseconds: 500),
+                  duration: const Duration(milliseconds: 1500),
                   builder: (context, value, child) {
                     if (value == 1.0) {
                       _isProgressCompleted = true;
