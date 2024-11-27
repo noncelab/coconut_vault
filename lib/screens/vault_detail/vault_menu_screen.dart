@@ -46,7 +46,7 @@ class _VaultMenuScreenState extends State<VaultMenuScreen> {
 
       if (!widget.isMultiSig) {
         return Container(
-          padding: const EdgeInsets.only(left: 8, right: 8),
+          padding: const EdgeInsets.only(left: 8),
           child: Column(children: [
             bottomMenuButton(
                 SvgPicture.asset('assets/svg/menu/details.svg',
@@ -183,7 +183,7 @@ Widget bottomMenuButton(SvgPicture icon, String title, String description,
         defaultColor: MyColors.white,
         pressedColor: MyColors.grey.withOpacity(0.07),
         child: Container(
-            padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+            padding: const EdgeInsets.only(top: 8, bottom: 8, left: 16),
             child: Row(children: [
               Container(
                   padding: const EdgeInsets.all(12),
