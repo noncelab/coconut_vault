@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:coconut_lib/coconut_lib.dart';
 import 'package:coconut_vault/model/data/multisig_signer.dart';
 import 'package:coconut_vault/model/data/multisig_vault_list_item.dart';
@@ -41,6 +43,7 @@ class _MultiSignatureScreenState extends State<MultiSignatureScreen> {
   late List<bool> _signers;
   int _requiredSignatureCount = 0;
   bool _showLoading = false;
+  bool _isProgressCompleted = false;
 
   @override
   void initState() {
@@ -75,7 +78,7 @@ class _MultiSignatureScreenState extends State<MultiSignatureScreen> {
     for (KeyStore keyStore in _multisigVault.keyStoreList) {
       if (psbt.isSigned(keyStore)) {
         final index = _multisigVault.keyStoreList.indexOf(keyStore);
-        _signers[index] = true;
+        _delayedUpdateSigner(index);
       }
     }
   }
@@ -130,9 +133,7 @@ class _MultiSignatureScreenState extends State<MultiSignatureScreen> {
         }
       }
 
-      setState(() {
-        _signers[index] = true;
-      });
+      _delayedUpdateSigner(index);
     } catch (_) {
       if (mounted) {
         showAlertDialog(context: context, content: "서명 실패: $_");
@@ -142,6 +143,13 @@ class _MultiSignatureScreenState extends State<MultiSignatureScreen> {
         _showLoading = false;
       });
     }
+  }
+
+  void _delayedUpdateSigner(int index) async {
+    await Future.delayed(Duration(milliseconds: Platform.isIOS ? 500 : 0));
+    setState(() {
+      _signers[index] = true;
+    });
   }
 
   void _showQrBottomSheet(int index) {
@@ -223,23 +231,35 @@ class _MultiSignatureScreenState extends State<MultiSignatureScreen> {
             Column(
               children: [
                 // progress
-                AnimatedContainer(
-                  margin: const EdgeInsets.only(top: 8),
-                  duration: const Duration(seconds: 1),
-                  child: LinearProgressIndicator(
-                    value: _signers.where((item) => item).length /
+                TweenAnimationBuilder<double>(
+                  tween: Tween<double>(
+                    begin: 0.0,
+                    end: _signers.where((item) => item).length /
                         _requiredSignatureCount,
-                    minHeight: 6,
-                    backgroundColor: MyColors.transparentBlack_06,
-                    borderRadius: _signers.where((item) => item).length >=
-                            _requiredSignatureCount
-                        ? BorderRadius.zero
-                        : const BorderRadius.only(
-                            topRight: Radius.circular(6),
-                            bottomRight: Radius.circular(6)),
-                    valueColor:
-                        const AlwaysStoppedAnimation<Color>(MyColors.black),
                   ),
+                  duration: const Duration(milliseconds: 500),
+                  builder: (context, value, child) {
+                    if (value == 1.0) {
+                      _isProgressCompleted = true;
+                    } else {
+                      _isProgressCompleted = false;
+                    }
+                    return Container(
+                      margin: const EdgeInsets.only(top: 8),
+                      child: LinearProgressIndicator(
+                        value: value,
+                        minHeight: 6,
+                        backgroundColor: MyColors.transparentBlack_06,
+                        borderRadius: _isProgressCompleted
+                            ? BorderRadius.zero
+                            : const BorderRadius.only(
+                                topRight: Radius.circular(6),
+                                bottomRight: Radius.circular(6)),
+                        valueColor:
+                            const AlwaysStoppedAnimation<Color>(MyColors.black),
+                      ),
+                    );
+                  },
                 ),
                 // 보낼 수량
                 Padding(
