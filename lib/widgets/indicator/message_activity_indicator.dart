@@ -1,5 +1,5 @@
 import 'package:coconut_vault/styles.dart';
-import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 
 class MessageActivityIndicator extends StatelessWidget {
   final String? message;
@@ -13,15 +13,14 @@ class MessageActivityIndicator extends StatelessWidget {
         borderRadius: MyBorder.defaultRadius,
         color: message != null ? MyColors.white : null,
       ),
-      width: MediaQuery.of(context).size.width / 2,
-      padding: const EdgeInsets.all(20),
+      width: MediaQuery.of(context).size.width / 2 + 30,
+      padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 25),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          CupertinoActivityIndicator(
-            color: MyColors.black,
-            radius: MediaQuery.of(context).size.width / 16,
+          const CircularProgressIndicator(
+            color: MyColors.darkgrey,
           ),
           Visibility(
               visible: message != null,
