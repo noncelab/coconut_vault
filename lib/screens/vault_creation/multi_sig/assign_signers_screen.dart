@@ -698,7 +698,7 @@ class _AssignSignersScreenState extends State<AssignSignersScreen> {
                                                 return;
                                               }
 
-                                              final Map<String, String>
+                                              final Map<String, String>?
                                                   bsmsAndMemo =
                                                   await MyBottomSheet
                                                       .showDraggableScrollableSheet(
@@ -721,18 +721,22 @@ class _AssignSignersScreenState extends State<AssignSignersScreen> {
                                                       externalImported,
                                                 ),
                                               );
-                                              assert(bsmsAndMemo['bsms']!
-                                                  .isNotEmpty);
 
                                               // 외부 지갑 추가
-                                              setState(() {
-                                                assignedVaultList[i]
-                                                  ..importKeyType =
-                                                      ImportKeyType.external
-                                                  ..isExpanded = false
-                                                  ..bsms = externalImported
-                                                  ..memo = bsmsAndMemo['memo'];
-                                              });
+                                              if (bsmsAndMemo != null) {
+                                                assert(bsmsAndMemo['bsms']!
+                                                    .isNotEmpty);
+
+                                                setState(() {
+                                                  assignedVaultList[i]
+                                                    ..importKeyType =
+                                                        ImportKeyType.external
+                                                    ..isExpanded = false
+                                                    ..bsms = externalImported
+                                                    ..memo =
+                                                        bsmsAndMemo['memo'];
+                                                });
+                                              }
                                             }
                                           },
                                         ),
