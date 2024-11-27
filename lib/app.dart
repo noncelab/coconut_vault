@@ -204,7 +204,8 @@ class _PowVaultAppState extends State<PowVaultApp> {
             '/signer-scanner': (context) => buildScreenWithArguments(
                   context,
                   (args) => SignerScannerScreen(
-                      id: args['id'], isCopy: args['isCopy']),
+                      id: args['id'],
+                      isCoordinatorScan: args['isCoordinatorScan']),
                 ),
             '/psbt-scanner': (context) => buildScreenWithArguments(
                   context,
