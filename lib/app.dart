@@ -199,7 +199,7 @@ class _PowVaultAppState extends State<PowVaultApp> {
             '/mnemonic-word-list': (context) => const MnemonicWordListScreen(),
             '/address-list': (context) => buildScreenWithArguments(
                   context,
-                  (args) => AddressListScreen(id: int.parse(args['id'])),
+                  (args) => AddressListScreen(id: args['id']),
                 ),
             '/signer-scanner': (context) => buildScreenWithArguments(
                   context,
