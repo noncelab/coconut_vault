@@ -1,14 +1,12 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
 import 'package:coconut_lib/coconut_lib.dart';
-import 'package:coconut_vault/app.dart';
 import 'package:coconut_vault/model/data/singlesig_vault_list_item.dart';
 import 'package:coconut_vault/model/data/vault_list_item_base.dart';
-import 'package:coconut_vault/model/state/app_model.dart';
 import 'package:coconut_vault/model/state/vault_model.dart';
 import 'package:coconut_vault/utils/alert_util.dart';
-import 'package:coconut_vault/utils/logger.dart';
 import 'package:coconut_vault/widgets/appbar/custom_appbar.dart';
 import 'package:flutter/material.dart';
 import 'package:coconut_vault/styles.dart';
@@ -18,23 +16,29 @@ import 'package:qr_code_scanner/qr_code_scanner.dart';
 
 class SignerScannerScreen extends StatefulWidget {
   final int? id;
-  final bool isCopy;
-  const SignerScannerScreen({super.key, this.id, this.isCopy = false});
+  final bool isCoordinatorScan;
+  const SignerScannerScreen(
+      {super.key, this.id, this.isCoordinatorScan = false});
 
   @override
   State<SignerScannerScreen> createState() => _SignerScannerScreenState();
 }
 
 class _SignerScannerScreenState extends State<SignerScannerScreen> {
-  late AppModel _appModel;
+  static String wrongFormatMessage1 = '잘못된 QR이에요. 다시 시도해 주세요.';
+  static String wrongFormatMessage2 =
+      '잘못된 QR이예요.\n가져올 다중 서명 지갑의 정보 화면에서 "지갑 설정 정보 보기"에 나오는 QR 코드를 스캔해 주세요.';
+
   late VaultModel _vaultModel;
   final GlobalKey qrKey = GlobalKey(debugLabel: 'QR');
 
   QRViewController? controller;
   bool isCameraActive = false;
   bool isAlreadyVibrateScanFailed = false;
-  bool _isProcessing = false;
+  bool _isProcessing = true;
 
+  /// for hot reload (not work in prod)
+  /// 카메라가 실행 중일 때 Hot reload로 인해 중단되는 문제를 해결하기 위해 사용
   @override
   void reassemble() {
     super.reassemble();
@@ -47,14 +51,14 @@ class _SignerScannerScreenState extends State<SignerScannerScreen> {
 
   @override
   void initState() {
-    _appModel = Provider.of<AppModel>(context, listen: false);
     _vaultModel = Provider.of<VaultModel>(context, listen: false);
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      _appModel.showIndicator();
       await Future.delayed(const Duration(milliseconds: 1000));
       // fixme 추후 QRCodeScanner가 개선되면 QRCodeScanner 의 카메라 뷰 생성 완료된 콜백 찾아 progress hide 합니다. 현재는 1초 후 hide
-      _appModel.hideIndicator();
+      setState(() {
+        _isProcessing = false;
+      });
     });
   }
 
@@ -65,44 +69,21 @@ class _SignerScannerScreenState extends State<SignerScannerScreen> {
   }
 
   void onFailedScanning(String message) {
-    String errorMessage;
-    if (message.contains('Invalid Scheme')) {
-      errorMessage = widget.isCopy
-          ? '다중 서명 지갑에 포함된 키가 이 볼트에 없기 때문에 지갑을 가져올 수 없어요.'
-          : '잘못된 QR이에요. 다시 시도해 주세요.';
-    } else if (message.contains('Invalid address')) {
-      errorMessage = '잘못된 주소 형식이에요. 다시 확인해 주세요.';
-    } else if (message.contains('Invalid value')) {
-      errorMessage =
-          '잘못된 QR 코드예요.\n가져올 다중 서명 지갑의 정보 화면에서 "지갑 설정 정보 보기"에 나오는 QR 코드를 스캔해 주세요.';
-    } else if (message.contains('Unsupported BSMS version')) {
-      errorMessage = '지원되지 않는 BSMS 버전이에요. BSMS 1.0만 지원됩니다.';
-    } else if (message.contains('Not support customized path')) {
-      errorMessage =
-          '커스텀 파생 경로는 지원되지 않아요. 허용된 경로는 "No path restrictions" 또는 "/0/*,/1/*"입니다.';
-    } else {
-      errorMessage = '[스캔 실패] $message';
-    }
-
     showAlertDialog(
         context: context,
-        content: errorMessage,
+        content: message,
         onConfirmPressed: () {
-          setState(() {
-            _isProcessing = false;
+          controller!.resumeCamera().then((_) {
+            setState(() {
+              _isProcessing = false;
+            });
           });
         });
   }
 
-  Future<void> _stopCamera() async {
-    if (controller != null) {
-      await controller?.pauseCamera();
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
-    return widget.isCopy
+    return widget.isCoordinatorScan
         ? Scaffold(
             appBar: CustomAppBar.build(
               title: '다중 서명 지갑 가져오기',
@@ -122,8 +103,10 @@ class _SignerScannerScreenState extends State<SignerScannerScreen> {
           color: MyColors.white,
           child: QRView(
             key: qrKey,
-            onQRViewCreated: _onQRViewCreated,
-            overlayMargin: !widget.isCopy
+            onQRViewCreated: !widget.isCoordinatorScan
+                ? _onQRViewCreatedWhenScanSigner
+                : _onQRViewCreatedWhenScanCoordinator,
+            overlayMargin: !widget.isCoordinatorScan
                 ? const EdgeInsets.only(top: 50)
                 : EdgeInsets.zero,
             overlay: QrScannerOverlayShape(
@@ -142,7 +125,7 @@ class _SignerScannerScreenState extends State<SignerScannerScreen> {
           ),
         ),
         Container(
-          height: !widget.isCopy ? 50.1 : 0,
+          height: !widget.isCoordinatorScan ? 50.1 : 0,
           color: MyColors.transparentBlack_50,
         ),
         Padding(
@@ -179,122 +162,110 @@ class _SignerScannerScreenState extends State<SignerScannerScreen> {
     }
   }
 
-  void _onQRViewCreated(QRViewController controller) {
+  /// 다중서명지갑 생성 시 외부에서 Signer를 스캔합니다.
+  void _onQRViewCreatedWhenScanSigner(QRViewController controller) {
     this.controller = controller;
 
     controller.scannedDataStream.listen((scanData) async {
       if (_isProcessing || scanData.code == null) return;
-      debugPrint(scanData.code!);
-      debugPrint(scanData.code!.contains('\n').toString());
 
-      // 다중서명지갑 '생성'
-      if (!widget.isCopy) {
-        // 외부에서 키 가져오기
-        setState(() {
-          _isProcessing = true;
-        });
-        try {
-          // Signer 형식이 맞는지 체크, 형식에 벗어나면 Exception이 날라옵니다.
-          BSMS.parseSigner(scanData.code!);
-        } catch (e) {
-          onFailedScanning('Invalid Scheme');
-          _appModel.hideIndicator();
-          return;
-        }
+      controller.pauseCamera();
+      setState(() {
+        _isProcessing = true;
+      });
 
-        Navigator.pop(context, scanData.code!);
+      try {
+        // Signer 형식이 맞는지 체크
+        BSMS.parseSigner(scanData.code!);
+      } catch (e) {
+        onFailedScanning(wrongFormatMessage1);
         return;
       }
+
+      Navigator.pop(context, scanData.code!);
+      return;
+    });
+  }
+
+  /// 다른 볼트에 있는 다중서명지갑을 복사합니다.
+  void _onQRViewCreatedWhenScanCoordinator(QRViewController controller) {
+    this.controller = controller;
+
+    controller.scannedDataStream.listen((scanData) async {
+      if (_isProcessing || scanData.code == null) return;
 
       // 다중서명지갑 '복사하기'
       assert(widget.id != null);
 
+      controller.pauseCamera();
+
       setState(() {
         _isProcessing = true;
       });
+
       VaultListItemBase vaultListItem = _vaultModel.getVaultById(widget.id!);
       Map<String, dynamic> decodedData;
-      String coordinatorBsms;
+      String name, coordinatorBsms;
+      int colorIndex, iconIndex;
+      // CoordinatorBSMS 형식이 맞는지 체크
       try {
-        // CoordinatorBSMS 형식이 맞는지 체크, 형식에 벗어나면 Exception이 날라옵니다.
         decodedData = jsonDecode(scanData.code!);
+        name = decodedData['name'];
+        colorIndex = decodedData['colorIndex'];
+        iconIndex = decodedData['iconIndex'];
         coordinatorBsms = decodedData['coordinatorBSMS'];
         BSMS.parseCoordinator(coordinatorBsms);
       } catch (e) {
-        print('e ======= : ${e.toString()}');
-        if (e.toString().contains('Invalid address')) {
-          onFailedScanning('Invalid address');
-        } else if (e.toString().contains('Invalid value')) {
-          onFailedScanning('Invalid value');
-        } else if (e.toString().contains('Unsupported BSMS version')) {
-          onFailedScanning('Unsupported BSMS version');
-        } else if (e.toString().contains('Not support customized path')) {
-          onFailedScanning('Not support customized path');
-        } else if (e.toString().contains('is not a subtype')) {
-          onFailedScanning('Invalid value');
+        String errorMessage = e.toString();
+        if (errorMessage.contains('Unsupported BSMS version')) {
+          onFailedScanning('지원하지 않는 BSMS 버전이에요. BSMS 1.0만 지원됩니다.');
+        } else if (errorMessage.contains('Not support customized path')) {
+          onFailedScanning('커스텀 파생 경로는 지원되지 않아요.');
+        } else {
+          onFailedScanning(wrongFormatMessage2);
         }
-        _appModel.hideIndicator();
-
         return;
       }
-      // 이 지갑이 키로 사용된 멀티시그지갑의 coordinatorBsms = decodedCoordinatorBsms
-      debugPrint('-----------------------\n$coordinatorBsms');
-      // 이 지갑이 이미 포함된 멀티시그 지갑이 아닌지 확인하기, 포함된 경우 alert
+
       if (_vaultModel.isMultisigVaultDuplicated(coordinatorBsms)) {
-        showAlertDialog(
-            context: context,
-            content: '이미 등록된 다중 서명 지갑입니다.',
-            onConfirmPressed: () {
-              setState(() {
-                _isProcessing = false;
-              });
-            });
-        _appModel.hideIndicator();
-
+        onFailedScanning('이미 등록된 다중 서명 지갑입니다.');
         return;
       }
 
-      // 이 지갑이 위 멀티시그 지갑의 일부인지 확인하기, 아닌 경우 alert
-      MultisignatureVault multisigVault =
-          MultisignatureVault.fromCoordinatorBsms(coordinatorBsms);
-      // 이 지갑의 signerBsms, isolate 실행
-      int signerIndex = await _vaultModel.getSignerIndexAsync(
-          multisigVault, vaultListItem as SinglesigVaultListItem);
+      try {
+        // 이 지갑이 위 멀티시그 지갑의 일부인지 확인하기, 아닌 경우 alert
+        MultisignatureVault multisigVault =
+            MultisignatureVault.fromCoordinatorBsms(coordinatorBsms);
+        // 이 지갑의 signerBsms, isolate 실행
+        int signerIndex = await _vaultModel.getSignerIndexAsync(
+            multisigVault, vaultListItem as SinglesigVaultListItem);
 
-      debugPrint('signerIndex = $signerIndex');
-      if (signerIndex == -1) {
-        showAlertDialog(
-            context: context,
-            content: '이 키가 포함된 다중 서명 지갑이 아닙니다.',
-            onConfirmPressed: () {
-              setState(() {
-                _isProcessing = false;
-              });
-            });
-        _appModel.hideIndicator();
+        //Logger.log('signerIndex = $signerIndex');
+        if (signerIndex == -1) {
+          onFailedScanning('이 지갑을 키로 사용한 다중 서명 지갑이 아닙니다.');
+          return;
+        }
 
-        return;
-      }
+        // multisigVault 가져오기, isolate 실행
+        await _vaultModel.importMultisigVaultAsync(
+            name, colorIndex, iconIndex, coordinatorBsms);
 
-      // multisigVault 가져오기, isolate 실행
-      await _vaultModel.importMultisigVaultAsync(decodedData['name'],
-          decodedData['colorIndex'], decodedData['iconIndex'], coordinatorBsms);
+        assert(_vaultModel.isAddVaultCompleted);
 
-      if (_vaultModel.isAddVaultCompleted) {
-        _appModel.hideIndicator();
-        Logger.log('finish creating vault. return to home.');
-        Logger.log('Homeroute = ${HomeScreenStatus().screenStatus}');
+        //Logger.log('---> Homeroute = ${HomeScreenStatus().screenStatus}');
         Navigator.pushNamedAndRemoveUntil(
           context,
           '/',
           (Route<dynamic> route) => false,
         );
+      } catch (error) {
+        onFailedScanning(error.toString());
       }
     });
   }
 
   RichText _infoRichText() {
-    return widget.isCopy
+    return widget.isCoordinatorScan
         ? RichText(
             text: TextSpan(
               text: '다른 볼트에서 만든 다중 서명 지갑을 추가할 수 있어요. 추가 하시려는 다중 서명 지갑의 ',

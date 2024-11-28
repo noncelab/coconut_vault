@@ -22,7 +22,7 @@ class _CompleteButtonState extends State<CompleteButton> {
   Widget build(BuildContext context) {
     return Center(
         child: GestureDetector(
-            onTap: widget.onPressed,
+            onTap: widget.disabled ? null : widget.onPressed,
             child: Container(
                 margin: const EdgeInsets.only(top: 40),
                 padding:

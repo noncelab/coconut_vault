@@ -101,7 +101,7 @@ class _VaultMenuScreenState extends State<VaultMenuScreen> {
               Navigator.pop(context);
 
               Navigator.pushNamed(context, '/signer-scanner',
-                  arguments: {'id': widget.id, 'isCopy': true});
+                  arguments: {'id': widget.id, 'isCoordinatorScan': true});
             }, iconBackgroundColorList[0]),
           ]),
         );

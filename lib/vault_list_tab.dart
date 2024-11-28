@@ -1,7 +1,6 @@
 import 'dart:io';
 
 import 'package:coconut_vault/app.dart';
-import 'package:coconut_vault/model/data/vault_list_item_base.dart';
 import 'package:coconut_vault/screens/pin_check_screen.dart';
 import 'package:coconut_vault/screens/pin_setting_screen.dart';
 import 'package:coconut_vault/widgets/coconut_dropdown.dart';
