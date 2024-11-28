@@ -620,7 +620,9 @@ class _AssignSignersScreenState extends State<AssignSignersScreen> {
                                                 isButtonActiveNotifier:
                                                     isButtonActiveNotifier,
                                                 context: context,
-                                                child: KeyListBottomScreen(
+                                                childBuilder:
+                                                    (sheetController) =>
+                                                        KeyListBottomScreen(
                                                   // 키 옵션 중 하나 선택했을 때
                                                   onPressed: (int index) {
                                                     selectedSignerOptionIndex =
@@ -716,17 +718,20 @@ class _AssignSignersScreenState extends State<AssignSignersScreen> {
                                                 physics:
                                                     const ClampingScrollPhysics(),
                                                 enableSingleChildScroll: true,
-                                                child: ConfirmImportingScreen(
+                                                childBuilder:
+                                                    (sheetController) =>
+                                                        ConfirmImportingScreen(
                                                   importingBsms:
                                                       externalImported,
+                                                  scrollController:
+                                                      sheetController,
                                                 ),
                                               );
-
-                                              // 외부 지갑 추가
                                               if (bsmsAndMemo != null) {
                                                 assert(bsmsAndMemo['bsms']!
                                                     .isNotEmpty);
 
+                                                // 외부 지갑 추가
                                                 setState(() {
                                                   assignedVaultList[i]
                                                     ..importKeyType =
