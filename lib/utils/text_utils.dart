@@ -6,6 +6,10 @@ class TextUtils {
         : text;
   }
 
+  static String replaceNewlineWithSpace(String text) {
+    return text.replaceAll('\n', ' ');
+  }
+
   static String truncateNameMax25(String name) {
     if (name.length <= 25) {
       return name;
