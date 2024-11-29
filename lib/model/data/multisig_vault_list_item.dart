@@ -39,8 +39,9 @@ class MultisigVaultListItem extends VaultListItemBase {
     coconutVault = MultisignatureVault.fromCoordinatorBsms(coordinatorBsms!);
     for (int i = 0; i < signers.length; i++) {
       if (signers[i].keyStore.hasSeed) {
-        (coconutVault as MultisignatureVault)
-            .bindSeedToKeyStore(signers[i].keyStore.seed, i);
+        (coconutVault as MultisignatureVault).bindSeedToKeyStore(
+          signers[i].keyStore.seed,
+        );
       }
     }
 

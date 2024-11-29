@@ -101,6 +101,7 @@ flutter:
     - assets/svg/menu/details.svg
     - assets/svg/menu/2keys.svg
     - assets/svg/menu/key-outline.svg
+    - assets/svg/menu/key-out.svg
     - assets/svg/menu/list.svg
     - assets/svg/menu/address.svg
     - assets/svg/menu/out.svg
