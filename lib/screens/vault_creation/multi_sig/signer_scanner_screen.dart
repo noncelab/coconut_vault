@@ -14,11 +14,16 @@ import 'package:coconut_vault/widgets/custom_tooltip.dart';
 import 'package:provider/provider.dart';
 import 'package:qr_code_scanner/qr_code_scanner.dart';
 
+enum SignerScannerScreenType { add, copy, sign }
+
 class SignerScannerScreen extends StatefulWidget {
   final int? id;
-  final bool isCoordinatorScan;
-  const SignerScannerScreen(
-      {super.key, this.id, this.isCoordinatorScan = false});
+  final SignerScannerScreenType screenType;
+  const SignerScannerScreen({
+    super.key,
+    this.id,
+    this.screenType = SignerScannerScreenType.add,
+  });
 
   @override
   State<SignerScannerScreen> createState() => _SignerScannerScreenState();
@@ -35,7 +40,8 @@ class _SignerScannerScreenState extends State<SignerScannerScreen> {
   QRViewController? controller;
   bool isCameraActive = false;
   bool isAlreadyVibrateScanFailed = false;
-  bool _isProcessing = true;
+  bool _isProcessing = false;
+  bool _isSetScaffold = false;
 
   /// for hot reload (not work in prod)
   /// 카메라가 실행 중일 때 Hot reload로 인해 중단되는 문제를 해결하기 위해 사용
@@ -53,6 +59,7 @@ class _SignerScannerScreenState extends State<SignerScannerScreen> {
   void initState() {
     _vaultModel = Provider.of<VaultModel>(context, listen: false);
     super.initState();
+    _isSetScaffold = widget.screenType != SignerScannerScreenType.add;
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       await Future.delayed(const Duration(milliseconds: 1000));
       // fixme 추후 QRCodeScanner가 개선되면 QRCodeScanner 의 카메라 뷰 생성 완료된 콜백 찾아 progress hide 합니다. 현재는 1초 후 hide
@@ -81,12 +88,20 @@ class _SignerScannerScreenState extends State<SignerScannerScreen> {
         });
   }
 
+  // Future<void> _stopCamera() async {
+  //   if (controller != null) {
+  //     await controller?.pauseCamera();
+  //   }
+  // }
+
   @override
   Widget build(BuildContext context) {
-    return widget.isCoordinatorScan
+    return _isSetScaffold
         ? Scaffold(
             appBar: CustomAppBar.build(
-              title: '다중 서명 지갑 가져오기',
+              title: widget.screenType == SignerScannerScreenType.copy
+                  ? '다중 서명 지갑 가져오기'
+                  : '외부 지갑 서명하기',
               context: context,
               hasRightIcon: false,
               isBottom: true,
@@ -103,10 +118,10 @@ class _SignerScannerScreenState extends State<SignerScannerScreen> {
           color: MyColors.white,
           child: QRView(
             key: qrKey,
-            onQRViewCreated: !widget.isCoordinatorScan
+            onQRViewCreated: !_isSetScaffold
                 ? _onQRViewCreatedWhenScanSigner
                 : _onQRViewCreatedWhenScanCoordinator,
-            overlayMargin: !widget.isCoordinatorScan
+            overlayMargin: !_isSetScaffold
                 ? const EdgeInsets.only(top: 50)
                 : EdgeInsets.zero,
             overlay: QrScannerOverlayShape(
@@ -125,7 +140,7 @@ class _SignerScannerScreenState extends State<SignerScannerScreen> {
           ),
         ),
         Container(
-          height: !widget.isCoordinatorScan ? 50.1 : 0,
+          height: !_isSetScaffold ? 50.1 : 0,
           color: MyColors.transparentBlack_50,
         ),
         Padding(
@@ -265,80 +280,57 @@ class _SignerScannerScreenState extends State<SignerScannerScreen> {
   }
 
   RichText _infoRichText() {
-    return widget.isCoordinatorScan
-        ? RichText(
-            text: TextSpan(
-              text: '다른 볼트에서 만든 다중 서명 지갑을 추가할 수 있어요. 추가 하시려는 다중 서명 지갑의 ',
-              style: Styles.body1.merge(
-                const TextStyle(
-                  height: 20.8 / 16,
-                  letterSpacing: -0.01,
-                ),
-              ),
-              children: <TextSpan>[
-                TextSpan(
-                  text: '지갑 설정 정보 ',
-                  style: Styles.body1.merge(
-                    const TextStyle(
-                      fontWeight: FontWeight.bold,
-                      height: 20.8 / 16,
-                      letterSpacing: -0.01,
-                    ),
-                  ),
-                ),
-                TextSpan(
-                  text: '화면에 나타나는 QR 코드를 스캔해 주세요.',
-                  style: Styles.body1.merge(
-                    const TextStyle(
-                      height: 20.8 / 16,
-                      letterSpacing: -0.01,
-                    ),
-                  ),
-                ),
-              ],
+    TextSpan buildTextSpan(String text, {bool isBold = false}) {
+      return TextSpan(
+        text: text,
+        style: Styles.body1.merge(
+          TextStyle(
+            fontWeight: isBold ? FontWeight.bold : FontWeight.normal,
+            height: 20.8 / 16,
+            letterSpacing: -0.01,
+          ),
+        ),
+      );
+    }
+
+    if (widget.screenType == SignerScannerScreenType.copy) {
+      return RichText(
+        text: TextSpan(
+          text: '다른 볼트에서 만든 다중 서명 지갑을 추가할 수 있어요. 추가 하시려는 다중 서명 지갑의 ',
+          style: Styles.body1.merge(
+            const TextStyle(
+              height: 20.8 / 16,
+              letterSpacing: -0.01,
             ),
-          )
-        : RichText(
-            text: TextSpan(
-              text: '키를 보관 중인 볼트',
-              style: Styles.body1.merge(
-                const TextStyle(
-                  fontWeight: FontWeight.bold,
-                  height: 20.8 / 16,
-                  letterSpacing: -0.01,
-                ),
-              ),
-              children: <TextSpan>[
-                TextSpan(
-                  text: '에서 QR 코드를 생성해야 해요. 홈 화면 - 내보내기 화면에서 ',
-                  style: Styles.body1.merge(
-                    const TextStyle(
-                      height: 20.8 / 16,
-                      letterSpacing: -0.01,
-                    ),
-                  ),
-                ),
-                TextSpan(
-                  text: '다른 볼트에서 다중 서명 키로 사용',
-                  style: Styles.body1.merge(
-                    const TextStyle(
-                      fontWeight: FontWeight.bold,
-                      height: 20.8 / 16,
-                      letterSpacing: -0.01,
-                    ),
-                  ),
-                ),
-                TextSpan(
-                  text: '을 선택해 주세요. 화면에 보이는 QR 코드를 스캔합니다.',
-                  style: Styles.body1.merge(
-                    const TextStyle(
-                      height: 20.8 / 16,
-                      letterSpacing: -0.01,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          );
+          ),
+          children: <TextSpan>[
+            buildTextSpan('지갑 설정 정보 ', isBold: true),
+            buildTextSpan('화면에 나타나는 QR 코드를 스캔해 주세요.'),
+          ],
+        ),
+      );
+    } else if (widget.screenType == SignerScannerScreenType.sign) {
+      return RichText(
+        text: TextSpan(
+          text: '외부 지갑 서명하기 텍스트',
+          style: buildTextSpan('외부 지갑 서명하기 텍스트', isBold: true).style,
+          children: <TextSpan>[
+            buildTextSpan('TODO'),
+          ],
+        ),
+      );
+    } else {
+      return RichText(
+        text: TextSpan(
+          text: '키를 보관 중인 볼트',
+          style: buildTextSpan('키를 보관 중인 볼트', isBold: true).style,
+          children: <TextSpan>[
+            buildTextSpan('에서 QR 코드를 생성해야 해요. 홈 화면 - 내보내기 화면에서 '),
+            buildTextSpan('다른 볼트에서 다중 서명 키로 사용', isBold: true),
+            buildTextSpan('을 선택해 주세요. 화면에 보이는 QR 코드를 스캔합니다.'),
+          ],
+        ),
+      );
+    }
   }
 }

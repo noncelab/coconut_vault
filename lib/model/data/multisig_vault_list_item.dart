@@ -37,12 +37,6 @@ class MultisigVaultListItem extends VaultListItemBase {
       required this.signers})
       : super(vaultType: VaultType.multiSignature) {
     coconutVault = MultisignatureVault.fromCoordinatorBsms(coordinatorBsms!);
-    for (int i = 0; i < signers.length; i++) {
-      if (signers[i].keyStore.hasSeed) {
-        (coconutVault as MultisignatureVault)
-            .bindSeedToKeyStore(signers[i].keyStore.seed);
-      }
-    }
 
     requiredSignatureCount =
         (coconutVault as MultisignatureVault).requiredSignature;

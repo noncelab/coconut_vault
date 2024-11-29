@@ -204,12 +204,11 @@ class _PowVaultAppState extends State<PowVaultApp> {
             '/signer-scanner': (context) => buildScreenWithArguments(
                   context,
                   (args) => SignerScannerScreen(
-                      id: args['id'],
-                      isCoordinatorScan: args['isCoordinatorScan']),
+                      id: args['id'], screenType: args['screenType']),
                 ),
             '/psbt-scanner': (context) => buildScreenWithArguments(
                   context,
-                  (args) => PsbtScannerScreen(id: int.parse(args['id'])),
+                  (args) => PsbtScannerScreen(id: args['id']),
                 ),
             '/psbt-confirmation': (context) => buildScreenWithArguments(
                   context,
@@ -236,6 +235,8 @@ class _PowVaultAppState extends State<PowVaultApp> {
             '/multi-signature': (context) => buildScreenWithArguments(
                   context,
                   (args) => MultiSignatureScreen(
+                    id: args['id'],
+                    psbtBase64: args['psbtBase64'],
                     sendAddress: args['sendAddress'],
                     bitcoinString: args['bitcoinString'],
                   ),

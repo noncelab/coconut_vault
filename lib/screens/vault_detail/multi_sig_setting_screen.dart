@@ -138,14 +138,15 @@ class _MultiSigSettingScreenState extends State<MultiSigSettingScreen> {
   }
 
   _showEditMemoBottomSheet(MultisigSigner selectedVault) {
+    final selectedMemo = selectedVault.memo ?? '';
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (context) => MultiSigMemoBottomSheet(
-        memo: selectedVault.memo!,
+        memo: selectedMemo,
         onUpdate: (memo) {
-          if (selectedVault.memo == memo) return;
+          if (selectedMemo == memo) return;
 
           _vaultModel.updateMemo(widget.id, selectedVault.id, memo).then((_) {
             setState(() {
@@ -155,7 +156,9 @@ class _MultiSigSettingScreenState extends State<MultiSigSettingScreen> {
               }
               _multiVault.signers[selectedVault.id].memo = finalMemo;
             });
-            Navigator.pop(context);
+            if (mounted) {
+              Navigator.pop(context);
+            }
           });
         },
       ),
