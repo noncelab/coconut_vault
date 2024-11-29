@@ -541,7 +541,7 @@ class _MultiSigSettingScreenState extends State<MultiSigSettingScreen> {
                                                   overflow:
                                                       TextOverflow.ellipsis,
                                                 ),
-                                              )
+                                              ),
                                             ],
                                           ),
                                         ),

@@ -7,7 +7,6 @@ import 'package:coconut_vault/model/data/singlesig_vault_list_item.dart';
 import 'package:coconut_vault/model/data/vault_list_item_base.dart';
 import 'package:coconut_vault/model/state/vault_model.dart';
 import 'package:coconut_vault/utils/alert_util.dart';
-import 'package:coconut_vault/utils/logger.dart';
 import 'package:coconut_vault/widgets/appbar/custom_appbar.dart';
 import 'package:flutter/material.dart';
 import 'package:coconut_vault/styles.dart';

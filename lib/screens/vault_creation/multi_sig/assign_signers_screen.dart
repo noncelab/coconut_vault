@@ -845,12 +845,28 @@ class _AssignSignersScreenState extends State<AssignSignersScreen> {
               ),
               const SizedBox(width: 6),
               Expanded(
-                child: Text(
-                  isExternalImported
-                      ? '외부 지갑'
-                      : ' ${assignedVaultList[i].item!.name}',
-                  style: Styles.body1,
-                  overflow: TextOverflow.ellipsis,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      isExternalImported
+                          ? '외부 지갑'
+                          : ' ${assignedVaultList[i].item!.name}',
+                      style: Styles.body1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    Visibility(
+                      visible: assignedVaultList[i].memo != null &&
+                          assignedVaultList[i].memo!.isNotEmpty,
+                      child: Text(
+                        assignedVaultList[i].memo ?? '',
+                        style: Styles.caption2,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                  ],
                 ),
               ),
               SvgPicture.asset(
