@@ -159,7 +159,7 @@ class _VaultMenuScreenState extends State<VaultMenuScreen> {
                 SvgPicture.asset('assets/svg/menu/address.svg',
                     width: iconSize, colorFilter: iconColorList[3]),
                 '주소 보기',
-                '${vaultListItem.name.length > 10 ? '${vaultListItem.name.substring(0, 7)}...' : vaultListItem.name}에서 추출한 주소를 확인해요',
+                '${TextUtils.ellipsisIfLonger(vaultListItem.name)}에서 추출한 주소를 확인해요',
                 () {
               Navigator.pop(context);
               Navigator.pushNamed(context, '/address-list',
@@ -207,10 +207,12 @@ Widget bottomMenuButton(SvgPicture icon, String title, String description,
                   child: Center(child: icon)),
               Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                 Text(title,
+                    maxLines: 1,
                     style: Styles.body2.merge(const TextStyle(
                         fontFamily: 'Pretendard',
                         color: MyColors.black,
                         fontSize: 13,
+                        overflow: TextOverflow.ellipsis,
                         fontWeight: FontWeight.w500))),
                 Text(description,
                     style: const TextStyle(
