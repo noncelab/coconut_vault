@@ -55,7 +55,7 @@ class _SignerQrBottomSheetState extends State<SignerQrBottomSheet> {
                         ),
                         children: <TextSpan>[
                           const TextSpan(
-                            text: "아래 QR 코드는 다음 화면에서 사용하실 수 있어요.\n",
+                            text: "아래 QR 코드는 다음 중 하나의 화면에서 사용하실 수 있어요.\n",
                             style: TextStyle(
                               fontWeight: FontWeight.normal,
                             ),
@@ -86,7 +86,7 @@ class _SignerQrBottomSheetState extends State<SignerQrBottomSheet> {
                             ),
                           ),
                           const TextSpan(
-                            text: ' 화면 \n② 서명 절차 중',
+                            text: ' 화면 \n② 다른 볼트의',
                             style: TextStyle(
                               fontWeight: FontWeight.normal,
                             ),
