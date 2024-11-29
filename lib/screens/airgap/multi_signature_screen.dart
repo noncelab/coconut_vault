@@ -78,6 +78,7 @@ class _MultiSignatureScreenState extends State<MultiSignatureScreen> {
       backgroundColor: MyColors.lightgrey,
       appBar: AppBar(
         title: const Text('서명하기', style: Styles.body1),
+        centerTitle: true,
         backgroundColor: MyColors.lightgrey,
         titleTextStyle:
             Styles.navHeader.merge(const TextStyle(color: MyColors.black)),
@@ -100,7 +101,7 @@ class _MultiSignatureScreenState extends State<MultiSignatureScreen> {
               child: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 12.0),
                 decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(9),
+                  borderRadius: BorderRadius.circular(16),
                   color: _signedSignatureList.where((item) => item).length >=
                           _requiredSignatureCount
                       ? MyColors.black19
