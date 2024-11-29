@@ -218,13 +218,13 @@ class _MultiSigSettingScreenState extends State<MultiSigSettingScreen> {
 
   Future _selectedKeyBottomSheet(MultisigSigner multisigSigner) async {
     final isInnerVault = multisigSigner.innerVaultId != null;
-    final name = multisigSigner.name ?? '';
+    final name = multisigSigner.name ?? '외부지갑';
 
     bool existsMemo = !isInnerVault && multisigSigner.memo != null;
 
     MyBottomSheet.showBottomSheet(
       context: context,
-      title: name.length > 20 ? '${name.substring(0, 17)}...' : name,
+      title: TextUtils.ellipsisIfLonger(name), // overflow
       titleTextStyle: Styles.body1.copyWith(
         fontSize: 18,
       ),
@@ -361,7 +361,8 @@ class _MultiSigSettingScreenState extends State<MultiSigSettingScreen> {
                                   Row(children: [
                                     Flexible(
                                         child: Text(
-                                      _multiVault.name,
+                                      TextUtils.replaceNewlineWithSpace(
+                                          _multiVault.name),
                                       style: Styles.h3,
                                       maxLines: 1,
                                       overflow: TextOverflow.ellipsis,
@@ -525,8 +526,9 @@ class _MultiSigSettingScreenState extends State<MultiSigSettingScreen> {
                                             children: [
                                               // 이름
                                               Text(
-                                                TextUtils.ellipsisIfLonger(
-                                                    name),
+                                                TextUtils
+                                                    .replaceNewlineWithSpace(
+                                                        name),
                                                 style: Styles.body2,
                                                 maxLines: 1,
                                                 overflow: TextOverflow.ellipsis,
@@ -623,7 +625,7 @@ class _MultiSigSettingScreenState extends State<MultiSigSettingScreen> {
                                   context: context,
                                   title: '확인',
                                   content:
-                                      '정말로 볼트에서 ${_multiVault.name} 정보를 삭제하시겠어요?',
+                                      '정말로 볼트에서 ${TextUtils.replaceNewlineWithSpace(_multiVault.name)} 정보를 삭제하시겠어요?',
                                   onConfirmPressed: () async {
                                     _appModel.showIndicator();
                                     await Future.delayed(

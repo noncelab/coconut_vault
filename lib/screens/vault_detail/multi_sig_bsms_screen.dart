@@ -110,70 +110,76 @@ class _MultiSigBsmsScreenState extends State<MultiSigBsmsScreen> {
           Navigator.pop(context);
         },
       ),
-      body: Column(
-        children: [
-          // Description
-          Container(
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(10),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.grey.withOpacity(0.15),
-                  spreadRadius: 4,
-                  blurRadius: 6,
-                  offset: const Offset(0, 3),
-                ),
-              ],
-            ),
-            margin: const EdgeInsets.all(16),
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              children: [
-                _description(
-                    '안전한 다중 서명 지갑 관리를 위한 표준에 따라 지갑 설정 정보를 관리하고 공유합니다.'),
-                const SizedBox(height: 4),
-                _description(
-                    '가져오기를 통해 추가된 지갑은 자신의 키가 다른 다중 서명 지갑에 사용되고 있는지 알 수 없습니다.'),
-                const SizedBox(height: 4),
-                if (outSideWalletIdList.isEmpty) ...[
-                  _description('모든 키가 볼트에 저장되어 있습니다.'),
+      body: SingleChildScrollView(
+        child: Column(
+          children: [
+            // Description
+            Container(
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(10),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.grey.withOpacity(0.15),
+                    spreadRadius: 4,
+                    blurRadius: 6,
+                    offset: const Offset(0, 3),
+                  ),
+                ],
+              ),
+              margin: const EdgeInsets.all(16),
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                children: [
+                  _description(
+                      '안전한 다중 서명 지갑 관리를 위한 표준에 따라 지갑 설정 정보를 관리하고 공유합니다.'),
                   const SizedBox(height: 4),
                   _description(
-                      '같은 키를 보관하고 있는 다른 볼트에서도 이 QR을 읽어 다중 서명 지갑을 추가할 수 있습니다.'),
-                ] else
-                  _description(
-                      '따라서, ${_generateOutsideWalletDescription(outSideWalletIdList)}번 키를 보관한 볼트에서 아래 QR을 읽어 주세요.'),
-              ],
+                      '가져오기를 통해 추가된 지갑은 자신의 키가 다른 다중 서명 지갑에 사용되고 있는지 알 수 없습니다.'),
+                  const SizedBox(height: 4),
+                  if (outSideWalletIdList.isEmpty) ...[
+                    _description('모든 키가 볼트에 저장되어 있습니다.'),
+                    const SizedBox(height: 4),
+                    _description(
+                        '같은 키를 보관하고 있는 다른 볼트에서도 이 QR을 읽어 다중 서명 지갑을 추가할 수 있습니다.'),
+                  ] else
+                    _description(
+                        '따라서, ${_generateOutsideWalletDescription(outSideWalletIdList)}번 키를 보관한 볼트에서 아래 QR을 읽어 주세요.'),
+                ],
+              ),
             ),
-          ),
 
-          Center(
+            Center(
+                child: Container(
+                    width: qrWidth,
+                    decoration: BoxDecorations.shadowBoxDecoration,
+                    child: QrImageView(
+                      data: jsonEncode(qrData),
+                    ))),
+            const SizedBox(
+              height: 30,
+            ),
+            // TODO: 상세 정보 보기
+            GestureDetector(
+              onTap: _showMultiSigDetail,
               child: Container(
-                  width: qrWidth,
-                  decoration: BoxDecorations.shadowBoxDecoration,
-                  child: QrImageView(
-                    data: jsonEncode(qrData),
-                  ))),
-          const SizedBox(
-            height: 30,
-          ),
-          // TODO: 상세 정보 보기
-          GestureDetector(
-            onTap: _showMultiSigDetail,
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(4.0),
-                color: MyColors.borderGrey,
-              ),
-              child: Text(
-                '상세 정보 보기',
-                style: Styles.body2.copyWith(color: MyColors.white),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(4.0),
+                  color: MyColors.borderGrey,
+                ),
+                child: Text(
+                  '상세 정보 보기',
+                  style: Styles.body2.copyWith(color: MyColors.white),
+                ),
               ),
             ),
-          )
-        ],
+            const SizedBox(
+              height: 100,
+            ),
+          ],
+        ),
       ),
     );
   }

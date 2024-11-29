@@ -28,32 +28,63 @@ class VaultListTab extends StatefulWidget {
 }
 
 class _VaultListTabState extends State<VaultListTab>
-    with WidgetsBindingObserver {
+    with WidgetsBindingObserver, TickerProviderStateMixin {
   late AppModel _appModel;
   late VaultModel _vaultModel;
   bool _isSeeMoreDropdown = false;
 
   DateTime? _lastPressedAt;
 
+  late final AnimationController _newVaultAddAnimController;
+  late final Animation<Offset> _newVaultAddAnimation;
+  late ScrollController _scrollController;
+
   @override
   void initState() {
     WidgetsBinding.instance.addObserver(this);
+    super.initState();
     _appModel = Provider.of<AppModel>(context, listen: false);
     _vaultModel = Provider.of<VaultModel>(context, listen: false);
-    super.initState();
 
-    WidgetsBinding.instance.addPostFrameCallback((_) {
+    _scrollController = ScrollController();
+    _newVaultAddAnimController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 500),
+    );
+
+    _newVaultAddAnimation = Tween<Offset>(
+      begin: const Offset(1.0, 0.0),
+      end: Offset.zero,
+    ).animate(
+      CurvedAnimation(
+        parent: _newVaultAddAnimController,
+        curve: Curves.easeOut,
+      ),
+    );
+
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
       // 초기화 이후 홈화면 진입시 설정창 노출
       if (_appModel.isResetVault) {
         MyBottomSheet.showBottomSheet_90(
             context: context, child: const SettingsScreen());
         _appModel.offResetVault();
       }
+      if (_vaultModel.animatedVaultFlags.isNotEmpty &&
+          _vaultModel.animatedVaultFlags.last) {
+        /// 리스트에 추가되는 애니메이션 보여줍니다.
+        /// animatedVaultFlags last가 가장 최근에 추가된 항목이며, 이는 VaultModel의 addVault, addMultisigVaultAsync, importMultisigVaultAsync에서 적용됩니다.
+        /// 애니메이션을 보여준 뒤에는 setAnimatedVaultFlags()를 실행해서 animatedVaultFlags를 모두 false로 설정해야 합니다.
+        await Future.delayed(const Duration(milliseconds: 500));
+        _scrollToBottom();
+        await Future.delayed(const Duration(milliseconds: 500));
+        _newVaultAddAnimController.forward();
+        _vaultModel.setAnimatedVaultFlags();
+      }
+
       // 지갑 추가, 지갑 삭제, 서명완료 후 불필요하게 loadVaultList() 호출되는 것을 막음
       if (_vaultModel.vaultInitialized) {
         return;
       }
-
       _vaultModel.loadVaultList();
     });
   }
@@ -79,11 +110,22 @@ class _VaultListTabState extends State<VaultListTab>
     }
   }
 
+  void _scrollToBottom() async {
+    if (_scrollController.hasClients) {
+      await _scrollController.animateTo(
+        _scrollController.position.maxScrollExtent,
+        duration: const Duration(milliseconds: 500),
+        curve: Curves.easeInOut,
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Consumer<VaultModel>(
       builder: (context, model, child) {
-        final vaults = model.getVaults();
+        final vaults = model
+            .getVaults(); // 여기서 _animatedVaultFlags = List.filled(_vaultList.length, false);
         return PopScope(
             canPop: false,
             onPopInvokedWithResult: (didPop, _) async {
@@ -108,6 +150,8 @@ class _VaultListTabState extends State<VaultListTab>
               body: Stack(
                 children: [
                   CustomScrollView(
+                    controller: _scrollController,
+                    physics: const AlwaysScrollableScrollPhysics(),
                     semanticChildCount:
                         model.isVaultListLoading ? 1 : vaults.length,
                     slivers: <Widget>[
@@ -124,7 +168,16 @@ class _VaultListTabState extends State<VaultListTab>
                           itemCount: vaults.length + (vaults.isEmpty ? 1 : 0),
                           itemBuilder: (ctx, index) {
                             if (index < vaults.length) {
-                              return VaultRowItem(vault: vaults[index]);
+                              return model.animatedVaultFlags[index]
+                                  ? SlideTransition(
+                                      position: _newVaultAddAnimation,
+                                      child: VaultRowItem(
+                                        vault: vaults[index],
+                                      ),
+                                    )
+                                  : VaultRowItem(
+                                      vault: vaults[index],
+                                    );
                             }
 
                             if (index == vaults.length && vaults.isEmpty) {
@@ -258,6 +311,8 @@ class _VaultListTabState extends State<VaultListTab>
 
   @override
   void dispose() {
+    _scrollController.dispose();
+    _newVaultAddAnimController.dispose();
     WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }

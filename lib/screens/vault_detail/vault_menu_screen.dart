@@ -16,6 +16,7 @@ const iconColorList = <ColorFilter>[
   ColorFilter.mode(Color.fromRGBO(17, 114, 0, 1.0), BlendMode.srcIn),
   ColorFilter.mode(Color.fromRGBO(153, 43, 0, 1.0), BlendMode.srcIn),
   ColorFilter.mode(Color.fromRGBO(126, 15, 19, 1.0), BlendMode.srcIn),
+  ColorFilter.mode(Color.fromRGBO(59, 81, 120, 1.0), BlendMode.srcIn),
 ];
 
 const iconBackgroundColorList = <Color>[
@@ -24,6 +25,7 @@ const iconBackgroundColorList = <Color>[
   Color.fromRGBO(219, 242, 201, 1.0),
   Color.fromRGBO(254, 231, 213, 1.0),
   Color.fromRGBO(254, 216, 217, 1.0),
+  Color.fromRGBO(208, 232, 255, 1.0),
 ];
 
 class VaultMenuScreen extends StatefulWidget {
@@ -46,7 +48,7 @@ class _VaultMenuScreenState extends State<VaultMenuScreen> {
 
       if (!widget.isMultiSig) {
         return Container(
-          padding: const EdgeInsets.only(left: 8, right: 8),
+          padding: const EdgeInsets.only(left: 8),
           child: Column(children: [
             bottomMenuButton(
                 SvgPicture.asset('assets/svg/menu/details.svg',
@@ -85,24 +87,35 @@ class _VaultMenuScreenState extends State<VaultMenuScreen> {
             bottomMenuButton(
                 SvgPicture.asset('assets/svg/menu/out.svg',
                     width: iconSize, colorFilter: iconColorList[4]),
-                '내보내기',
-                '보기 전용 지갑을 추가하거나 다중 서명 지갑의 키로 사용해요', () {
+                '지갑 정보 내보내기',
+                '월렛에 보기 전용 지갑을 추가해요', () {
               Navigator.pop(context);
 
-              Navigator.pushNamed(context, '/select-sync-type',
+              Navigator.pushNamed(context, '/sync-to-wallet',
                   arguments: {'id': widget.id});
             }, iconBackgroundColorList[4]),
             bottomMenuDivider(),
             bottomMenuButton(
-                SvgPicture.asset('assets/svg/menu/in.svg',
+                SvgPicture.asset('assets/svg/menu/key-out.svg',
                     width: iconSize, colorFilter: iconColorList[0]),
+                '다중 서명 키로 사용하기',
+                '다른 볼트에 내 키를 다중 서명 키로 등록해요', () {
+              Navigator.pop(context);
+
+              Navigator.pushNamed(context, '/signer-bsms',
+                  arguments: {'id': widget.id});
+            }, iconBackgroundColorList[0]),
+            bottomMenuDivider(),
+            bottomMenuButton(
+                SvgPicture.asset('assets/svg/menu/in.svg',
+                    width: iconSize, colorFilter: iconColorList[5]),
                 '다중 서명 지갑 가져오기',
                 '이 키가 포함된 다중 서명 지갑 정보를 추가해요', () async {
               Navigator.pop(context);
 
               Navigator.pushNamed(context, '/signer-scanner',
                   arguments: {'id': widget.id, 'isCoordinatorScan': true});
-            }, iconBackgroundColorList[0]),
+            }, iconBackgroundColorList[5]),
           ]),
         );
       } else {
@@ -146,7 +159,7 @@ class _VaultMenuScreenState extends State<VaultMenuScreen> {
                 SvgPicture.asset('assets/svg/menu/address.svg',
                     width: iconSize, colorFilter: iconColorList[3]),
                 '주소 보기',
-                '${vaultListItem.name.length > 10 ? '${vaultListItem.name.substring(0, 7)}...' : vaultListItem.name}에서 추출한 주소를 확인해요',
+                '${TextUtils.ellipsisIfLonger(vaultListItem.name)}에서 추출한 주소를 확인해요',
                 () {
               Navigator.pop(context);
               Navigator.pushNamed(context, '/address-list',
@@ -183,7 +196,7 @@ Widget bottomMenuButton(SvgPicture icon, String title, String description,
         defaultColor: MyColors.white,
         pressedColor: MyColors.grey.withOpacity(0.07),
         child: Container(
-            padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+            padding: const EdgeInsets.only(top: 8, bottom: 8, left: 16),
             child: Row(children: [
               Container(
                   padding: const EdgeInsets.all(12),
@@ -194,10 +207,12 @@ Widget bottomMenuButton(SvgPicture icon, String title, String description,
                   child: Center(child: icon)),
               Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                 Text(title,
+                    maxLines: 1,
                     style: Styles.body2.merge(const TextStyle(
                         fontFamily: 'Pretendard',
                         color: MyColors.black,
                         fontSize: 13,
+                        overflow: TextOverflow.ellipsis,
                         fontWeight: FontWeight.w500))),
                 Text(description,
                     style: const TextStyle(

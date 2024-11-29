@@ -114,7 +114,8 @@ class MyBottomSheet {
 
   static Future<T?> showDraggableScrollableSheet<T>({
     required BuildContext context,
-    required Widget child,
+    Widget? child,
+    Widget Function(ScrollController)? childBuilder,
     ValueNotifier<bool>? isButtonActiveNotifier,
     bool enableDrag = true,
     Color backgroundColor = Colors.transparent,
@@ -192,7 +193,7 @@ class MyBottomSheet {
                             ? SingleChildScrollView(
                                 physics: physics,
                                 controller: controller,
-                                child: child,
+                                child: childBuilder!(controller),
                               )
                             : child,
                       ),

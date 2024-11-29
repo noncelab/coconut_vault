@@ -82,6 +82,10 @@ class VaultModel extends ChangeNotifier {
   bool _isAddVaultCompleted = false;
   bool get isAddVaultCompleted => _isAddVaultCompleted;
 
+  // 리스트에 추가되는 애니메이션이 동작해야하면 true, 아니면 false를 담습니다.
+  List<bool> _animatedVaultFlags = [];
+  List<bool> get animatedVaultFlags => _animatedVaultFlags;
+
   // 지갑 import 중에 입력한 니모닉
   String? _importingSecret;
   String? get importingSecret => _importingSecret;
@@ -106,6 +110,7 @@ class VaultModel extends ChangeNotifier {
   /// pin or biometric 인증 실패후 지갑 초기화
   Future<void> resetVault() async {
     await _storageService.deleteAll();
+    _animatedVaultFlags = [];
     _realmService.deleteAll();
     _importingSecret = null;
     _importingPassphrase = '';
@@ -120,7 +125,15 @@ class VaultModel extends ChangeNotifier {
   // Returns a copy of the list of vault list.
   List<VaultListItemBase> getVaults() {
     if (_vaultList.isEmpty) {
+      _animatedVaultFlags = [];
+
       return [];
+    }
+
+    if (_animatedVaultFlags.isNotEmpty && _animatedVaultFlags.last) {
+      setAnimatedVaultFlags(index: _vaultList.length);
+    } else {
+      _animatedVaultFlags = List.filled(_vaultList.length, false);
     }
 
     return List.from(_vaultList);
@@ -136,6 +149,13 @@ class VaultModel extends ChangeNotifier {
 
   List<MultisigVaultListItem> getMultisigVaults() {
     return _vaultList.whereType<MultisigVaultListItem>().toList();
+  }
+
+  void setAnimatedVaultFlags({int? index}) {
+    _animatedVaultFlags = List.filled(_vaultList.length, false);
+    if (index != null) {
+      _animatedVaultFlags[index - 1] = true;
+    }
   }
 
   void linkNewSinglesigVaultAndMultisigVaults(
@@ -197,8 +217,10 @@ class VaultModel extends ChangeNotifier {
     }
 
     _vaultList.addAll(vaultListResult);
+    setAnimatedVaultFlags(index: _vaultList.length);
     setAddVaultCompleted(true);
     await updateVaultInStorage();
+
     notifyListeners();
     stopImporting();
     // vibrateLight();
@@ -255,6 +277,7 @@ class VaultModel extends ChangeNotifier {
     updateLinkedMultisigInfo(signers, nextId);
 
     _vaultList.add(newMultisigVault);
+    setAnimatedVaultFlags(index: _vaultList.length);
     setAddVaultCompleted(true);
     await updateVaultInStorage();
     notifyListeners();
@@ -314,6 +337,7 @@ class VaultModel extends ChangeNotifier {
     updateLinkedMultisigInfo(newMultisigVault.signers, nextId);
 
     _vaultList.add(newMultisigVault);
+    setAnimatedVaultFlags(index: _vaultList.length);
 
     _importMultisigVaultIsolateHandler!.dispose();
     _importMultisigVaultIsolateHandler = null;

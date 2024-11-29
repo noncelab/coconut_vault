@@ -650,7 +650,9 @@ class _AssignSignersScreenState extends State<AssignSignersScreen> {
                                                 isButtonActiveNotifier:
                                                     isButtonActiveNotifier,
                                                 context: context,
-                                                child: KeyListBottomScreen(
+                                                childBuilder:
+                                                    (sheetController) =>
+                                                        KeyListBottomScreen(
                                                   // 키 옵션 중 하나 선택했을 때
                                                   onPressed: (int index) {
                                                     selectedSignerOptionIndex =
@@ -690,84 +692,89 @@ class _AssignSignersScreenState extends State<AssignSignersScreen> {
                                             }),
                                         // 가져오기
                                         ExpansionChildWidget(
-                                          type: ImportKeyType.external,
-                                          onPressed: () async {
-                                            if (_isAllAssignedFromExternal()) {
-                                              _showDialog(DialogType.alert);
-                                              return;
-                                            }
-
-                                            final externalImported =
-                                                await MyBottomSheet
-                                                    .showDraggableScrollableSheet(
-                                              topWidget: true,
-                                              context: context,
-                                              physics:
-                                                  const ClampingScrollPhysics(),
-                                              enableSingleChildScroll: false,
-                                              child:
-                                                  const SignerScannerScreen(),
-                                            );
-
-                                            if (externalImported != null) {
-                                              /// 이미 추가된 signer와 중복 비교
-                                              if (_isAlreadyImported(
-                                                  externalImported)) {
-                                                return _showDialog(
-                                                    DialogType.alreadyExist);
-                                              }
-
-                                              String? sameVaultName =
-                                                  _findVaultNameByBsms(
-                                                      externalImported);
-                                              if (sameVaultName != null) {
-                                                _showDialog(
-                                                    DialogType
-                                                        .sameWithInternalOne,
-                                                    vaultName: sameVaultName);
+                                            type: ImportKeyType.external,
+                                            onPressed: () async {
+                                              if (_isAllAssignedFromExternal()) {
+                                                _showDialog(DialogType.alert);
                                                 return;
                                               }
 
-                                              final Map<String, String>?
-                                                  bsmsAndMemo =
+                                              final externalImported =
                                                   await MyBottomSheet
                                                       .showDraggableScrollableSheet(
                                                 topWidget: true,
                                                 context: context,
-                                                isScrollControlled: true,
-                                                controller: draggableController,
-                                                minChildSize: 0.7,
-                                                isDismissible: false,
-                                                enableDrag: true,
-                                                snap: true,
-                                                onBackPressed: () =>
-                                                    _showDialog(DialogType
-                                                        .cancelImport),
                                                 physics:
                                                     const ClampingScrollPhysics(),
-                                                enableSingleChildScroll: true,
-                                                child: ConfirmImportingScreen(
-                                                  importingBsms:
-                                                      externalImported,
-                                                ),
+                                                enableSingleChildScroll: false,
+                                                child:
+                                                    const SignerScannerScreen(),
                                               );
-                                              if (bsmsAndMemo != null) {
-                                                assert(bsmsAndMemo['bsms']!
-                                                    .isNotEmpty);
 
-                                                setState(() {
-                                                  assignedVaultList[i]
-                                                    ..importKeyType =
-                                                        ImportKeyType.external
-                                                    ..isExpanded = false
-                                                    ..bsms = externalImported
-                                                    ..memo =
-                                                        bsmsAndMemo['memo'];
-                                                });
+                                              if (externalImported != null) {
+                                                /// 이미 추가된 signer와 중복 비교
+                                                if (_isAlreadyImported(
+                                                    externalImported)) {
+                                                  return _showDialog(
+                                                      DialogType.alreadyExist);
+                                                }
+
+                                                String? sameVaultName =
+                                                    _findVaultNameByBsms(
+                                                        externalImported);
+                                                if (sameVaultName != null) {
+                                                  _showDialog(
+                                                      DialogType
+                                                          .sameWithInternalOne,
+                                                      vaultName: sameVaultName);
+                                                  return;
+                                                }
+
+                                                final Map<String, String>?
+                                                    bsmsAndMemo =
+                                                    await MyBottomSheet
+                                                        .showDraggableScrollableSheet(
+                                                  topWidget: true,
+                                                  context: context,
+                                                  isScrollControlled: true,
+                                                  controller:
+                                                      draggableController,
+                                                  minChildSize: 0.7,
+                                                  isDismissible: false,
+                                                  enableDrag: true,
+                                                  snap: true,
+                                                  onBackPressed: () =>
+                                                      _showDialog(DialogType
+                                                          .cancelImport),
+                                                  physics:
+                                                      const ClampingScrollPhysics(),
+                                                  enableSingleChildScroll: true,
+                                                  childBuilder:
+                                                      (sheetController) =>
+                                                          ConfirmImportingScreen(
+                                                    importingBsms:
+                                                        externalImported,
+                                                    scrollController:
+                                                        sheetController,
+                                                  ),
+                                                );
+                                                if (bsmsAndMemo != null) {
+                                                  assert(bsmsAndMemo['bsms']!
+                                                      .isNotEmpty);
+
+                                                  // 외부 지갑 추가
+                                                  setState(() {
+                                                    assignedVaultList[i]
+                                                      ..importKeyType =
+                                                          ImportKeyType.external
+                                                      ..isExpanded = false
+                                                      ..bsms = externalImported
+                                                      ..memo =
+                                                          bsmsAndMemo['memo'];
+                                                  });
+                                                }
                                               }
-                                            }
-                                          },
-                                        ),
+                                            }),
                                       ],
                                     ),
                                   ),

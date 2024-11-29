@@ -68,7 +68,7 @@ class _VaultSettingsState extends State<VaultSettings> {
 
     _nameTextController = TextEditingController(text: _singleVaultItem.name);
     _name = _singleVaultItem.name;
-    _titleName = TextUtils.ellipsisIfLonger(_name);
+    _titleName = TextUtils.replaceNewlineWithSpace(_name);
     _iconIndex = _singleVaultItem.iconIndex;
     _colorIndex = _singleVaultItem.colorIndex;
 
@@ -126,7 +126,7 @@ class _VaultSettingsState extends State<VaultSettings> {
 
       setState(() {
         _name = newName;
-        _titleName = TextUtils.ellipsisIfLonger(newName);
+        _titleName = TextUtils.replaceNewlineWithSpace(newName);
         _iconIndex = newIconIndex;
         _colorIndex = newColorIndex;
       });
@@ -325,7 +325,7 @@ class _VaultSettingsState extends State<VaultSettings> {
                                         Row(children: [
                                           Flexible(
                                               child: Text(
-                                            _name,
+                                            _titleName,
                                             style: Styles.h3,
                                             maxLines: 1,
                                             overflow: TextOverflow.ellipsis,
@@ -604,7 +604,7 @@ class _VaultSettingsState extends State<VaultSettings> {
                                               context: context,
                                               title: '확인',
                                               content:
-                                                  '정말로 볼트에서 $_name 정보를 삭제하시겠어요?',
+                                                  '정말로 볼트에서 ${TextUtils.replaceNewlineWithSpace(_name)} 정보를 삭제하시겠어요?',
                                               onConfirmPressed: () async {
                                                 _appModel.showIndicator();
                                                 await Future.delayed(

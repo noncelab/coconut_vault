@@ -104,9 +104,8 @@ class _VaultRowItemState extends State<VaultRowItem> {
             onPressed: () {
               MyBottomSheet.showBottomSheet(
                 context: context,
-                title: widget.vault.name.length > 20
-                    ? '${widget.vault.name.substring(0, 17)}...'
-                    : widget.vault.name,
+                title:
+                    TextUtils.ellipsisIfLonger(widget.vault.name), // overflow
                 child: VaultMenuScreen(
                     id: widget.vault.id, isMultiSig: _isMultiSig),
               );
@@ -169,14 +168,14 @@ class _VaultRowItemState extends State<VaultRowItem> {
                   ),
                 },
                 Text(
-                  widget.vault.name,
+                  TextUtils.replaceNewlineWithSpace(widget.vault.name),
                   style: const TextStyle(
                       fontFamily: 'Pretendard',
                       fontSize: 14.0,
                       fontWeight: FontWeight.w600,
                       color: MyColors.black,
                       letterSpacing: 0.2),
-                  maxLines: 3,
+                  maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
               ],
