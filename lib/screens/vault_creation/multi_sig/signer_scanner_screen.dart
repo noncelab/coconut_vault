@@ -14,7 +14,7 @@ import 'package:coconut_vault/widgets/custom_tooltip.dart';
 import 'package:provider/provider.dart';
 import 'package:qr_code_scanner/qr_code_scanner.dart';
 
-enum SignerScannerScreenType { add, copy, sign }
+enum SignerScannerScreenType { add, copy }
 
 class SignerScannerScreen extends StatefulWidget {
   final int? id;
@@ -309,17 +309,7 @@ class _SignerScannerScreenState extends State<SignerScannerScreen> {
           ],
         ),
       );
-    } else if (widget.screenType == SignerScannerScreenType.sign) {
-      return RichText(
-        text: TextSpan(
-          text: '외부 지갑 서명하기 텍스트',
-          style: buildTextSpan('외부 지갑 서명하기 텍스트', isBold: true).style,
-          children: <TextSpan>[
-            buildTextSpan('TODO'),
-          ],
-        ),
-      );
-    } else {
+    } else if (widget.screenType == SignerScannerScreenType.add) {
       return RichText(
         text: TextSpan(
           text: '키를 보관 중인 볼트',
@@ -331,6 +321,8 @@ class _SignerScannerScreenState extends State<SignerScannerScreen> {
           ],
         ),
       );
+    } else {
+      throw ArgumentError('[SignerScanner] ${widget.screenType}');
     }
   }
 }
