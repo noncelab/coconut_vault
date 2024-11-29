@@ -184,7 +184,8 @@ class _SignerScannerScreenState extends State<SignerScannerScreen> {
     controller.scannedDataStream.listen((scanData) async {
       if (_isProcessing || scanData.code == null) return;
 
-      controller.pauseCamera();
+      controller.pauseCamera(); // only works in iOS
+
       setState(() {
         _isProcessing = true;
       });
@@ -212,7 +213,7 @@ class _SignerScannerScreenState extends State<SignerScannerScreen> {
       // 다중서명지갑 '복사하기'
       assert(widget.id != null);
 
-      controller.pauseCamera();
+      controller.pauseCamera(); // only works in iOS
 
       setState(() {
         _isProcessing = true;
@@ -313,11 +314,14 @@ class _SignerScannerScreenState extends State<SignerScannerScreen> {
       return RichText(
         text: TextSpan(
           text: '키를 보관 중인 볼트',
-          style: buildTextSpan('키를 보관 중인 볼트', isBold: true).style,
+          style: Styles.body1.merge(const TextStyle(
+            height: 20.8 / 16,
+            letterSpacing: -0.01,
+          )),
           children: <TextSpan>[
-            buildTextSpan('에서 QR 코드를 생성해야 해요. 홈 화면 - '),
-            buildTextSpan('다중 서명 키로 사용하기', isBold: true),
-            buildTextSpan('를 선택해 주세요. 화면에 보이는 QR 코드를 스캔합니다.'),
+            buildTextSpan('의 홈 화면에서 지갑 선택 - '),
+            buildTextSpan('다중 서명 키로 사용하기 ', isBold: true),
+            buildTextSpan('메뉴를 선택해 주세요. 화면에 보이는 QR 코드를 스캔합니다.'),
           ],
         ),
       );
