@@ -325,9 +325,9 @@ class _SignerScannerScreenState extends State<SignerScannerScreen> {
           text: '키를 보관 중인 볼트',
           style: buildTextSpan('키를 보관 중인 볼트', isBold: true).style,
           children: <TextSpan>[
-            buildTextSpan('에서 QR 코드를 생성해야 해요. 홈 화면 - 내보내기 화면에서 '),
-            buildTextSpan('다른 볼트에서 다중 서명 키로 사용', isBold: true),
-            buildTextSpan('을 선택해 주세요. 화면에 보이는 QR 코드를 스캔합니다.'),
+            buildTextSpan('에서 QR 코드를 생성해야 해요. 홈 화면 - '),
+            buildTextSpan('다중 서명 키로 사용하기', isBold: true),
+            buildTextSpan('를 선택해 주세요. 화면에 보이는 QR 코드를 스캔합니다.'),
           ],
         ),
       );
