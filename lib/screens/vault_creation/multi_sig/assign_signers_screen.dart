@@ -472,10 +472,18 @@ class _AssignSignersScreenState extends State<AssignSignersScreen> {
     keyStores = [for (var i in indices) keyStores[i]];
     signers = [for (var i in indices) signers[i]];
 
+    print(signers[0].name);
+    print(signers[1].name);
+    print(signers[2].name);
+
     // 오래 걸리는 작업 뒤에 setState가 있으면 mounted 체크를 해주어햐 에러가 나지 않습니다.
     if (!mounted) return;
     setState(() {
       assignedVaultList = [for (var i in indices) assignedVaultList[i]];
+
+      for (int i = 0; i < assignedVaultList.length; i++) {
+        assignedVaultList[i].index = i;
+      }
     });
 
     _multisigCreationState.setSigners(signers);
@@ -933,7 +941,7 @@ class _AssignSignersScreenState extends State<AssignSignersScreen> {
 }
 
 class AssignedVaultListItem {
-  final int index;
+  int index;
   String? bsms;
   SinglesigVaultListItem? item;
   String? memo;

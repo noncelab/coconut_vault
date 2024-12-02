@@ -6,7 +6,6 @@ import 'package:coconut_vault/model/data/multisig_signer.dart';
 import 'package:coconut_vault/model/data/multisig_vault_list_item.dart';
 import 'package:coconut_vault/model/state/vault_model.dart';
 import 'package:coconut_vault/styles.dart';
-import 'package:coconut_vault/utils/print_util.dart';
 import 'package:coconut_vault/widgets/appbar/custom_appbar.dart';
 import 'package:coconut_vault/widgets/bottom_sheet.dart';
 import 'package:coconut_vault/widgets/button/clipboard_button.dart';

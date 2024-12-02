@@ -137,7 +137,7 @@ class _MultiSigSettingScreenState extends State<MultiSigSettingScreen> {
     );
   }
 
-  _showEditMemoBottomSheet(MultisigSigner selectedVault) {
+  _showEditMemoBottomSheet(MultisigSigner selectedVault, int index) {
     final selectedMemo = selectedVault.memo ?? '';
     showModalBottomSheet(
       context: context,
@@ -148,13 +148,13 @@ class _MultiSigSettingScreenState extends State<MultiSigSettingScreen> {
         onUpdate: (memo) {
           if (selectedMemo == memo) return;
 
-          _vaultModel.updateMemo(widget.id, selectedVault.id, memo).then((_) {
+          _vaultModel.updateMemo(widget.id, index, memo).then((_) {
             setState(() {
               String? finalMemo = memo;
               if (memo.isEmpty) {
                 finalMemo = null;
               }
-              _multiVault.signers[selectedVault.id].memo = finalMemo;
+              _multiVault.signers[index].memo = finalMemo;
             });
             if (mounted) {
               Navigator.pop(context);
@@ -219,9 +219,10 @@ class _MultiSigSettingScreenState extends State<MultiSigSettingScreen> {
     );
   }
 
-  Future _selectedKeyBottomSheet(MultisigSigner multisigSigner) async {
+  Future _selectedKeyBottomSheet(
+      MultisigSigner multisigSigner, int index) async {
     final isInnerVault = multisigSigner.innerVaultId != null;
-    final name = multisigSigner.name ?? '외부지갑';
+    final name = multisigSigner.name ?? '';
 
     bool existsMemo = !isInnerVault && multisigSigner.memo != null;
 
@@ -254,7 +255,7 @@ class _MultiSigSettingScreenState extends State<MultiSigSettingScreen> {
                 if (isInnerVault) {
                   _verifyBiometric(1, multisigSigner: multisigSigner);
                 } else {
-                  _showEditMemoBottomSheet(multisigSigner);
+                  _showEditMemoBottomSheet(multisigSigner, index);
                 }
               },
             ),
@@ -457,7 +458,7 @@ class _MultiSigSettingScreenState extends State<MultiSigSettingScreen> {
 
                         return GestureDetector(
                           onTap: () {
-                            _selectedKeyBottomSheet(item);
+                            _selectedKeyBottomSheet(item, index);
                           },
                           child: Container(
                             color: Colors.transparent,

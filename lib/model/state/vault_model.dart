@@ -13,7 +13,6 @@ import 'package:coconut_vault/model/data/vault_type.dart';
 import 'package:coconut_vault/model/state/multisig_creation_model.dart';
 import 'package:coconut_vault/services/shared_preferences_keys.dart';
 import 'package:coconut_vault/services/shared_preferences_service.dart';
-import 'package:coconut_vault/utils/print_util.dart';
 import 'package:flutter/foundation.dart';
 import 'package:coconut_vault/model/state/app_model.dart';
 import 'package:coconut_vault/services/isolate_service.dart';
@@ -425,10 +424,8 @@ class VaultModel extends ChangeNotifier {
             .signers[signerIndex]
             .innerVaultId ==
         null);
-
     (_vaultList[i] as MultisigVaultListItem).signers[signerIndex].memo =
         newMemo;
-
     await updateVaultInStorage();
   }
 
@@ -560,7 +557,7 @@ class VaultModel extends ChangeNotifier {
   Future<void> updateVaultInStorage() async {
     final jsonString =
         jsonEncode(_vaultList.map((item) => item.toJson()).toList());
-    printLongString('updateVaultInStorage ---> $jsonString');
+    // printLongString('updateVaultInStorage ---> $jsonString');
     await _storageService.write(key: VAULT_LIST, value: jsonString);
     _realmService.updateKeyValue(key: VAULT_LIST, value: jsonString);
 
