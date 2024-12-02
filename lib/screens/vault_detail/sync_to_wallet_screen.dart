@@ -1,4 +1,5 @@
 import 'package:coconut_vault/screens/vault_detail/export_detail_screen.dart';
+import 'package:coconut_vault/utils/text_utils.dart';
 import 'package:coconut_vault/widgets/bottom_sheet.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -55,7 +56,7 @@ class _SyncToWalletScreenState extends State<SyncToWalletScreen> {
     return Scaffold(
       backgroundColor: MyColors.white,
       appBar: CustomAppBar.build(
-          title: '$_name 내보내기',
+          title: '${TextUtils.replaceNewlineWithSpace(_name)} 내보내기',
           context: context,
           hasRightIcon: false,
           isBottom: true),
