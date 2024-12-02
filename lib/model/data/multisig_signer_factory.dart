@@ -13,6 +13,7 @@ class MultisigSignerFactory {
   /// 반환값은 생성된 `MultisigSigner`의 리스트입니다.
   static List<MultisigSigner> createSignersForMultisignatureVaultWhenImport({
     required MultisignatureVault multisigVault,
+    required Map<String, String> namesMap,
     required List<VaultListItemBase> vaultList,
   }) {
     List<KeyStore> keystoreList = multisigVault.keyStoreList;
@@ -50,8 +51,12 @@ class MultisigSignerFactory {
         }
       }
       // 2. 외부지갑인 경우
-      signers
-          .add(MultisigSigner(id: i, keyStore: multisigVault.keyStoreList[i]));
+      String? externalName =
+          namesMap[multisigVault.keyStoreList[i].masterFingerprint];
+      signers.add(MultisigSigner(
+          id: i,
+          name: externalName ?? '외부 지갑',
+          keyStore: multisigVault.keyStoreList[i]));
     }
 
     return signers;

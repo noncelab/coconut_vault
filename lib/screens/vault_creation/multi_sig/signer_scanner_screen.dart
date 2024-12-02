@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:coconut_lib/coconut_lib.dart';
+import 'package:coconut_vault/model/data/multisig_import_detail.dart';
 import 'package:coconut_vault/model/data/singlesig_vault_list_item.dart';
 import 'package:coconut_vault/model/data/vault_list_item_base.dart';
 import 'package:coconut_vault/model/state/vault_model.dart';
@@ -220,16 +221,14 @@ class _SignerScannerScreenState extends State<SignerScannerScreen> {
       });
 
       VaultListItemBase vaultListItem = _vaultModel.getVaultById(widget.id!);
-      Map<String, dynamic> decodedData;
-      String name, coordinatorBsms;
-      int colorIndex, iconIndex;
+      MultisigImportDetail decodedData;
+      String coordinatorBsms;
+      Map<String, dynamic> decodedJson;
       // CoordinatorBSMS 형식이 맞는지 체크
       try {
-        decodedData = jsonDecode(scanData.code!);
-        name = decodedData['name'];
-        colorIndex = decodedData['colorIndex'];
-        iconIndex = decodedData['iconIndex'];
-        coordinatorBsms = decodedData['coordinatorBSMS'];
+        decodedJson = jsonDecode(scanData.code!);
+        decodedData = MultisigImportDetail.fromJson(decodedJson);
+        coordinatorBsms = decodedData.coordinatorBsms;
         BSMS.parseCoordinator(coordinatorBsms);
       } catch (e) {
         String errorMessage = e.toString();
@@ -263,8 +262,7 @@ class _SignerScannerScreenState extends State<SignerScannerScreen> {
         }
 
         // multisigVault 가져오기, isolate 실행
-        await _vaultModel.importMultisigVaultAsync(
-            name, colorIndex, iconIndex, coordinatorBsms);
+        await _vaultModel.importMultisigVaultAsync(decodedData);
 
         assert(_vaultModel.isAddVaultCompleted);
 

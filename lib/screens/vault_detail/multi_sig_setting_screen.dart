@@ -449,7 +449,7 @@ class _MultiSigSettingScreenState extends State<MultiSigSettingScreen> {
                         final item = _multiVault.signers[index];
 
                         final isVaultKey = item.innerVaultId != null;
-                        final name = isVaultKey ? item.name! : '외부 지갑';
+                        final name = item.name;
                         final memo = isVaultKey ? null : item.memo;
                         final colorIndex = item.colorIndex;
                         final iconIndex = item.iconIndex;
@@ -531,7 +531,7 @@ class _MultiSigSettingScreenState extends State<MultiSigSettingScreen> {
                                               Text(
                                                 TextUtils
                                                     .replaceNewlineWithSpace(
-                                                        name),
+                                                        name ?? '외부 지갑'),
                                                 style: Styles.body2,
                                                 maxLines: 1,
                                                 overflow: TextOverflow.ellipsis,
@@ -586,9 +586,17 @@ class _MultiSigSettingScreenState extends State<MultiSigSettingScreen> {
                                 onPressed: () {
                                   _removeTooltip();
 
+                                  Map<String, String> namesMap = {};
+                                  for (var signer in _multiVault.signers) {
+                                    namesMap[
+                                            signer.keyStore.masterFingerprint] =
+                                        signer.name ?? '외부 지갑';
+                                  }
+
                                   Navigator.pushNamed(context, '/multisig-bsms',
                                       arguments: {
                                         'id': widget.id,
+                                        'names': namesMap
                                       });
                                 },
                               ),

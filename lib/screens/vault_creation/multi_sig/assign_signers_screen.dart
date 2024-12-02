@@ -142,9 +142,12 @@ class _AssignSignersScreenState extends State<AssignSignersScreen> {
     }
 
     unselectedSignerOptions = signerOptions.toList();
-    setState(() {
-      isCompleteToExtractSignerBsms = true;
-    });
+
+    if (mounted) {
+      setState(() {
+        isCompleteToExtractSignerBsms = true;
+      });
+    }
     _extractBsmsIsolateHandler!.dispose();
   }
 
@@ -169,9 +172,12 @@ class _AssignSignersScreenState extends State<AssignSignersScreen> {
         importKeyType: null,
       ),
     );
-    setState(() {
-      assignedVaultList[0].isExpanded = true;
-    });
+
+    if (mounted) {
+      setState(() {
+        assignedVaultList[0].isExpanded = true;
+      });
+    }
   }
 
   bool _isAllAssignedFromExternal() {
@@ -407,6 +413,7 @@ class _AssignSignersScreenState extends State<AssignSignersScreen> {
           signers.add(MultisigSigner(
               id: i,
               signerBsms: data.bsms!,
+              name: data.bsms?.split('\n')[3] ?? '외부 지갑',
               memo: data.memo,
               keyStore: keyStores[i]));
           break;
@@ -420,11 +427,13 @@ class _AssignSignersScreenState extends State<AssignSignersScreen> {
     try {
       newMultisigVault = await _createMultisignatureVault(keyStores);
     } catch (error) {
-      setState(() {
-        isNextProcessing = false;
-      });
-      showAlertDialog(
-          context: context, title: '지갑 생성 실패', content: '유효하지 않은 정보입니다.');
+      if (mounted) {
+        setState(() {
+          isNextProcessing = false;
+        });
+        showAlertDialog(
+            context: context, title: '지갑 생성 실패', content: '유효하지 않은 정보입니다.');
+      }
       return;
     }
 
@@ -435,18 +444,23 @@ class _AssignSignersScreenState extends State<AssignSignersScreen> {
           "descriptors ---> ${multisigVaults[i].coconutVault.descriptor} , ${newMultisigVault.descriptor}");
       if (multisigVaults[i].coconutVault.descriptor ==
           newMultisigVault.descriptor) {
-        CustomToast.showToast(context: context, text: "이미 추가되어 있는 다중 서명 지갑이에요");
-        setState(() {
-          isNextProcessing = false;
-        });
+        if (mounted) {
+          CustomToast.showToast(
+              context: context, text: "이미 추가되어 있는 다중 서명 지갑이에요");
+          setState(() {
+            isNextProcessing = false;
+          });
+        }
         return;
       }
     }
 
     // signer mfp 기준으로 재정렬하기
-    setState(() {
-      loadingMessage = '동일한 순서를 유지하도록 키 순서를 정렬 할게요';
-    });
+    if (mounted) {
+      setState(() {
+        loadingMessage = '동일한 순서를 유지하도록 키 순서를 정렬 할게요';
+      });
+    }
 
     await Future.delayed(const Duration(seconds: 4));
 
@@ -457,6 +471,9 @@ class _AssignSignersScreenState extends State<AssignSignersScreen> {
 
     keyStores = [for (var i in indices) keyStores[i]];
     signers = [for (var i in indices) signers[i]];
+
+    // 오래 걸리는 작업 뒤에 setState가 있으면 mounted 체크를 해주어햐 에러가 나지 않습니다.
+    if (!mounted) return;
     setState(() {
       assignedVaultList = [for (var i in indices) assignedVaultList[i]];
     });
@@ -466,10 +483,12 @@ class _AssignSignersScreenState extends State<AssignSignersScreen> {
     _fromKeyStoreListIsolateHandler!.dispose();
     _fromKeyStoreListIsolateHandler = null;
 
-    setState(() {
-      hasValidationCompleted = true;
-      isNextProcessing = false;
-    });
+    if (mounted) {
+      setState(() {
+        hasValidationCompleted = true;
+        isNextProcessing = false;
+      });
+    }
   }
 
   void onNextPressed() {
@@ -858,7 +877,7 @@ class _AssignSignersScreenState extends State<AssignSignersScreen> {
                   children: [
                     Text(
                       isExternalImported
-                          ? '외부 지갑'
+                          ? ' ${assignedVaultList[i].bsms?.split('\n')[3] ?? '외부 지갑'}'
                           : ' ${assignedVaultList[i].item!.name}',
                       style: Styles.body1,
                       overflow: TextOverflow.ellipsis,

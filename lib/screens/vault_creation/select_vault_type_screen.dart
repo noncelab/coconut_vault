@@ -58,6 +58,7 @@ class _SelectVaultTypeScreenState extends State<SelectVaultTypeScreen> {
   }
 
   void onVaultListLoadingChanged() {
+    if (!mounted) return;
     setState(() {
       if (!model.isVaultListLoading) {
         if (model.vaultList.isNotEmpty && _processingNextPage) {

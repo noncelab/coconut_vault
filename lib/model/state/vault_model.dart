@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:coconut_lib/coconut_lib.dart';
+import 'package:coconut_vault/model/data/multisig_import_detail.dart';
 import 'package:coconut_vault/model/data/multisig_signer.dart';
 import 'package:coconut_vault/model/data/multisig_vault_list_item.dart';
 import 'package:coconut_vault/model/data/multisig_vault_list_item_factory.dart';
@@ -297,18 +298,18 @@ class VaultModel extends ChangeNotifier {
     }
   }
 
-  Future<void> importMultisigVaultAsync(
-      String name, int color, int icon, String coordinatorBsms) async {
+  Future<void> importMultisigVaultAsync(MultisigImportDetail details) async {
     setAddVaultCompleted(false);
     final nextId = SharedPrefsService().getInt('nextId') ?? 1;
 
     Map<String, dynamic> data = {
       'nextId': nextId,
-      'name': name,
-      'colorIndex': color,
-      'iconIndex': icon,
+      'name': details.name,
+      'colorIndex': details.colorIndex,
+      'iconIndex': details.iconIndex,
+      'namesMap': details.namesMap,
       'secrets': {
-        'bsms': coordinatorBsms,
+        'bsms': details.coordinatorBsms,
         'vaultList':
             jsonEncode(_vaultList.map((item) => item.toJson()).toList()),
       }
