@@ -320,7 +320,7 @@ class _MultiSignatureScreenState extends State<MultiSignatureScreen> {
                       final signer = _multisigVaultItem.signers[index];
                       final length = _multisigVaultItem.signers.length - 1;
                       final isVaultKey = signer.innerVaultId != null;
-                      final name = isVaultKey ? signer.name ?? '' : '외부지갑';
+                      final name = signer.name ?? '외부지갑';
                       final memo = signer.memo ?? '';
                       final iconIndex = signer.iconIndex ?? 0;
                       final colorIndex =
