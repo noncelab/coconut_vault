@@ -168,6 +168,7 @@ Future<MultisigVaultListItem> importMultisigVaultIsolate(
   final String name = data['name'];
   final int colorIndex = data['colorIndex'];
   final int iconIndex = data['iconIndex'];
+  final Map<String, String> namesMap = data['namesMap'];
   final Map<String, dynamic> secrets = data['secrets'];
   List<VaultListItemBase> vaultList = [];
   List<dynamic> decodedVaultListJson = jsonDecode(secrets['vaultList']);
@@ -186,6 +187,7 @@ Future<MultisigVaultListItem> importMultisigVaultIsolate(
           name: name,
           colorIndex: colorIndex,
           iconIndex: iconIndex,
+          namesMap: namesMap,
           secrets: {
         "bsms": secrets['bsms'],
         "vaultList": vaultList,

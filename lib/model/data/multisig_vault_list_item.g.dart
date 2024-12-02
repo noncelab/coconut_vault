@@ -18,9 +18,8 @@ MultisigVaultListItem _$MultisigVaultListItemFromJson(
           .toList(),
       requiredSignatureCount: (json['requiredSignatureCount'] as num).toInt(),
       coordinatorBsms: json['coordinatorBsms'] as String?,
-    )
-      ..vaultType = $enumDecode(_$VaultTypeEnumMap, json['vaultType'])
-      ..vaultJsonString = json['vaultJsonString'] as String?;
+      vaultJsonString: json['vaultJsonString'] as String?,
+    )..vaultType = $enumDecode(_$VaultTypeEnumMap, json['vaultType']);
 
 Map<String, dynamic> _$MultisigVaultListItemToJson(
     MultisigVaultListItem instance) {

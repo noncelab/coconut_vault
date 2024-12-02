@@ -194,7 +194,10 @@ class _PowVaultAppState extends State<PowVaultApp> {
                 ),
             '/multisig-bsms': (context) => buildScreenWithArguments(
                   context,
-                  (args) => MultiSigBsmsScreen(id: args['id']),
+                  (args) => MultiSigBsmsScreen(
+                    id: args['id'],
+                    namesMap: args['names'],
+                  ),
                 ),
             '/mnemonic-word-list': (context) => const MnemonicWordListScreen(),
             '/address-list': (context) => buildScreenWithArguments(

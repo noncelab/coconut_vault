@@ -1,10 +1,12 @@
 import 'dart:convert';
 
 import 'package:coconut_lib/coconut_lib.dart';
+import 'package:coconut_vault/model/data/multisig_import_detail.dart';
 import 'package:coconut_vault/model/data/multisig_signer.dart';
 import 'package:coconut_vault/model/data/multisig_vault_list_item.dart';
 import 'package:coconut_vault/model/state/vault_model.dart';
 import 'package:coconut_vault/styles.dart';
+import 'package:coconut_vault/utils/print_util.dart';
 import 'package:coconut_vault/widgets/appbar/custom_appbar.dart';
 import 'package:coconut_vault/widgets/bottom_sheet.dart';
 import 'package:coconut_vault/widgets/button/clipboard_button.dart';
@@ -14,14 +16,16 @@ import 'package:qr_flutter/qr_flutter.dart';
 
 class MultiSigBsmsScreen extends StatefulWidget {
   final int id;
-  const MultiSigBsmsScreen({super.key, required this.id});
+  final Map<String, String> namesMap;
+  const MultiSigBsmsScreen(
+      {super.key, required this.id, required this.namesMap});
 
   @override
   State<MultiSigBsmsScreen> createState() => _MultiSigBsmsScreenState();
 }
 
 class _MultiSigBsmsScreenState extends State<MultiSigBsmsScreen> {
-  late Map<String, dynamic> qrData;
+  late MultisigImportDetail qrData;
   List<int> outSideWalletIdList = [];
 
   @override
@@ -35,14 +39,15 @@ class _MultiSigBsmsScreenState extends State<MultiSigBsmsScreen> {
             .getCoordinatorBsms();
     Map<String, dynamic> walletSyncString =
         jsonDecode(vaultListItem.getWalletSyncString());
-    qrData = {
-      'id': walletSyncString['id'],
-      'name': walletSyncString['name'],
-      'colorIndex': walletSyncString['colorIndex'],
-      'iconIndex': walletSyncString['iconIndex'],
-      'coordinatorBSMS': coordinatorBsms,
-    };
 
+    qrData = MultisigImportDetail(
+      id: walletSyncString['id'],
+      name: walletSyncString['name'],
+      colorIndex: walletSyncString['colorIndex'],
+      iconIndex: walletSyncString['iconIndex'],
+      namesMap: widget.namesMap,
+      coordinatorBsms: coordinatorBsms,
+    );
     _getOutsideWalletIdList(vaultListItem);
   }
 
@@ -63,7 +68,7 @@ class _MultiSigBsmsScreenState extends State<MultiSigBsmsScreen> {
           backgroundColor: MyColors.white,
           appBar: AppBar(
             title: Text(
-              '자갑 상세 정보',
+              '지갑 상세 정보',
               style: Styles.body1.copyWith(
                 fontSize: 18,
               ),
@@ -82,7 +87,7 @@ class _MultiSigBsmsScreenState extends State<MultiSigBsmsScreen> {
           ),
           body: SingleChildScrollView(
             child: ClipboardButton(
-              text: qrData['coordinatorBSMS'],
+              text: jsonEncode(qrData),
               toastMessage: '지갑 상세 정보가 복사됐어요',
             ),
           ),

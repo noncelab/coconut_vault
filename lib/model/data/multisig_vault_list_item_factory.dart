@@ -51,6 +51,7 @@ class MultisigVaultListItemFactory implements VaultListItemFactory {
     required String name,
     required int colorIndex,
     required int iconIndex,
+    required Map<String, String> namesMap,
     required Map<String, dynamic> secrets,
   }) async {
     if (!secrets.containsKey(bsmsField)) {
@@ -67,6 +68,7 @@ class MultisigVaultListItemFactory implements VaultListItemFactory {
     List<MultisigSigner> signers =
         MultisigSignerFactory.createSignersForMultisignatureVaultWhenImport(
             multisigVault: MultisignatureVault.fromCoordinatorBsms(bsms),
+            namesMap: namesMap,
             vaultList: vaultList);
 
     final newVault = MultisigVaultListItem.fromCoordinatorBsms(
