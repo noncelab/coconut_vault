@@ -298,7 +298,7 @@ class _MultiSigSettingScreenState extends State<MultiSigSettingScreen> {
       child: Scaffold(
         backgroundColor: MyColors.white,
         appBar: CustomAppBar.build(
-          title: '${_multiVault.name} 정보',
+          title: '${TextUtils.replaceNewlineWithSpace(_multiVault.name)} 정보',
           context: context,
           hasRightIcon: false,
           isBottom: false,
