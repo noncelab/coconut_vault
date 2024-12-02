@@ -55,7 +55,7 @@ class MultisigSignerFactory {
           namesMap[multisigVault.keyStoreList[i].masterFingerprint];
       signers.add(MultisigSigner(
           id: i,
-          name: externalName ?? '외부 지갑',
+          name: externalName ?? '',
           keyStore: multisigVault.keyStoreList[i]));
     }
 

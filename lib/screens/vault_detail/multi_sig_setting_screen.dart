@@ -532,7 +532,7 @@ class _MultiSigSettingScreenState extends State<MultiSigSettingScreen> {
                                               Text(
                                                 TextUtils
                                                     .replaceNewlineWithSpace(
-                                                        name ?? '외부 지갑'),
+                                                        name ?? ''),
                                                 style: Styles.body2,
                                                 maxLines: 1,
                                                 overflow: TextOverflow.ellipsis,
@@ -589,9 +589,8 @@ class _MultiSigSettingScreenState extends State<MultiSigSettingScreen> {
 
                                   Map<String, String> namesMap = {};
                                   for (var signer in _multiVault.signers) {
-                                    namesMap[
-                                            signer.keyStore.masterFingerprint] =
-                                        signer.name ?? '외부 지갑';
+                                    namesMap[signer.keyStore
+                                        .masterFingerprint] = signer.name ?? '';
                                   }
 
                                   Navigator.pushNamed(context, '/multisig-bsms',

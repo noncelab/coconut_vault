@@ -413,7 +413,7 @@ class _AssignSignersScreenState extends State<AssignSignersScreen> {
           signers.add(MultisigSigner(
               id: i,
               signerBsms: data.bsms!,
-              name: data.bsms?.split('\n')[3] ?? '외부 지갑',
+              name: data.bsms?.split('\n')[3] ?? '',
               memo: data.memo,
               keyStore: keyStores[i]));
           break;
@@ -885,7 +885,7 @@ class _AssignSignersScreenState extends State<AssignSignersScreen> {
                   children: [
                     Text(
                       isExternalImported
-                          ? ' ${assignedVaultList[i].bsms?.split('\n')[3] ?? '외부 지갑'}'
+                          ? ' ${assignedVaultList[i].bsms?.split('\n')[3] ?? ''}'
                           : ' ${assignedVaultList[i].item!.name}',
                       style: Styles.body1,
                       overflow: TextOverflow.ellipsis,
