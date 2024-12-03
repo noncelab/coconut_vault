@@ -35,7 +35,7 @@ class MultisigVaultListItemFactory implements VaultListItemFactory {
     // final nextId = VaultListItemFactory.loadNextId();
     final newVault = MultisigVaultListItem(
         id: nextId,
-        name: name,
+        name: name.replaceAll('\n', ' '),
         colorIndex: colorIndex,
         iconIndex: iconIndex,
         signers: signers,
@@ -73,7 +73,7 @@ class MultisigVaultListItemFactory implements VaultListItemFactory {
 
     final newVault = MultisigVaultListItem.fromCoordinatorBsms(
       id: nextId,
-      name: name,
+      name: name.replaceAll('\n', ' '),
       colorIndex: colorIndex,
       iconIndex: iconIndex,
       coordinatorBsms: bsms,
@@ -90,6 +90,7 @@ class MultisigVaultListItemFactory implements VaultListItemFactory {
 
     assert(result.vaultJsonString != null);
 
+    result.name = result.name.replaceAll('\n', ' ');
     result.coconutVault = MultisignatureVault.fromJson(result.vaultJsonString!);
 
     return result;

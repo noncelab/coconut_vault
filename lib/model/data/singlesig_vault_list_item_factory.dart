@@ -26,7 +26,7 @@ class SinglesigVaultListItemFactory implements VaultListItemFactory {
 
     final newVault = SinglesigVaultListItem(
       id: nextId,
-      name: name,
+      name: name.replaceAll('\n', ' '),
       colorIndex: colorIndex,
       iconIndex: iconIndex,
       secret: secret,
@@ -49,6 +49,8 @@ class SinglesigVaultListItemFactory implements VaultListItemFactory {
     if (migrationResult != null) {
       vaultJson = migrationResult;
     }
+
+    result.name = result.name.replaceAll('\n', ' ');
     result.coconutVault = SingleSignatureVault.fromJson(vaultJson);
 
     return result;

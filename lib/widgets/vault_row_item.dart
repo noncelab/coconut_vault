@@ -168,7 +168,7 @@ class _VaultRowItemState extends State<VaultRowItem> {
                   ),
                 },
                 Text(
-                  TextUtils.replaceNewlineWithSpace(widget.vault.name),
+                  widget.vault.name,
                   style: const TextStyle(
                       fontFamily: 'Pretendard',
                       fontSize: 14.0,

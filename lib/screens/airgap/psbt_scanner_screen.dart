@@ -4,7 +4,6 @@ import 'package:coconut_vault/model/data/vault_list_item_base.dart';
 import 'package:coconut_vault/model/data/vault_type.dart';
 import 'package:coconut_vault/model/state/app_model.dart';
 import 'package:coconut_vault/utils/alert_util.dart';
-import 'package:coconut_vault/utils/text_utils.dart';
 import 'package:coconut_vault/widgets/animatedQR/animated_qr_scanner.dart';
 import 'package:flutter/material.dart';
 import 'package:coconut_vault/model/state/vault_model.dart';
@@ -121,7 +120,7 @@ class _PsbtScannerScreenState extends State<PsbtScannerScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: CustomAppBar.build(
-        title: TextUtils.replaceNewlineWithSpace(_vaultListItem.name),
+        title: _vaultListItem.name,
         context: context,
         hasRightIcon: false,
         isBottom: true,

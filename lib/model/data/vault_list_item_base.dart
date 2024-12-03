@@ -6,12 +6,12 @@ import 'package:json_annotation/json_annotation.dart';
 abstract class VaultListItemBase {
   @JsonKey(name: "id")
   final int id;
-  @JsonKey(name: "name")
-  final String name;
   @JsonKey(name: "colorIndex")
   final int colorIndex;
   @JsonKey(name: "iconIndex")
   final int iconIndex;
+  @JsonKey(name: "name")
+  String name;
   @JsonKey(name: "vaultType")
   VaultType vaultType;
   @JsonKey(name: "vaultJsonString")

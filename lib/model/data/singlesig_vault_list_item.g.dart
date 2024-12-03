@@ -26,9 +26,9 @@ Map<String, dynamic> _$SinglesigVaultListItemToJson(
         SinglesigVaultListItem instance) =>
     <String, dynamic>{
       'id': instance.id,
-      'name': instance.name,
       'colorIndex': instance.colorIndex,
       'iconIndex': instance.iconIndex,
+      'name': instance.name,
       'vaultType': _$VaultTypeEnumMap[instance.vaultType]!,
       'vaultJsonString': instance.vaultJsonString,
       'secret': instance.secret,
