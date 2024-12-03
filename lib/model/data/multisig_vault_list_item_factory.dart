@@ -71,6 +71,10 @@ class MultisigVaultListItemFactory implements VaultListItemFactory {
             namesMap: namesMap,
             vaultList: vaultList);
 
+    for (var signer in signers) {
+      signer.name = signer.name?.replaceAll('\n', ' ');
+    }
+
     final newVault = MultisigVaultListItem.fromCoordinatorBsms(
       id: nextId,
       name: name.replaceAll('\n', ' '),
@@ -89,6 +93,10 @@ class MultisigVaultListItemFactory implements VaultListItemFactory {
     final result = MultisigVaultListItem.fromJson(json);
 
     assert(result.vaultJsonString != null);
+
+    for (var signer in result.signers) {
+      signer.name = signer.name?.replaceAll('\n', ' ');
+    }
 
     result.name = result.name.replaceAll('\n', ' ');
     result.coconutVault = MultisignatureVault.fromJson(result.vaultJsonString!);
