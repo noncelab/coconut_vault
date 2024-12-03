@@ -137,7 +137,7 @@ class _MultiSigSettingScreenState extends State<MultiSigSettingScreen> {
     );
   }
 
-  _showEditMemoBottomSheet(MultisigSigner selectedVault, int index) {
+  _showEditMemoBottomSheet(MultisigSigner selectedVault) {
     final selectedMemo = selectedVault.memo ?? '';
     showModalBottomSheet(
       context: context,
@@ -148,13 +148,13 @@ class _MultiSigSettingScreenState extends State<MultiSigSettingScreen> {
         onUpdate: (memo) {
           if (selectedMemo == memo) return;
 
-          _vaultModel.updateMemo(widget.id, index, memo).then((_) {
+          _vaultModel.updateMemo(widget.id, selectedVault.id, memo).then((_) {
             setState(() {
               String? finalMemo = memo;
               if (memo.isEmpty) {
                 finalMemo = null;
               }
-              _multiVault.signers[index].memo = finalMemo;
+              _multiVault.signers[selectedVault.id].memo = finalMemo;
             });
             if (mounted) {
               Navigator.pop(context);
@@ -219,12 +219,11 @@ class _MultiSigSettingScreenState extends State<MultiSigSettingScreen> {
     );
   }
 
-  Future _selectedKeyBottomSheet(
-      MultisigSigner multisigSigner, int index) async {
+  Future _selectedKeyBottomSheet(MultisigSigner multisigSigner) async {
     final isInnerVault = multisigSigner.innerVaultId != null;
     final name = multisigSigner.name ?? '';
 
-    bool existsMemo = !isInnerVault && multisigSigner.memo != null;
+    bool existsMemo = !isInnerVault && multisigSigner.memo?.isNotEmpty == true;
 
     MyBottomSheet.showBottomSheet(
       context: context,
@@ -255,7 +254,7 @@ class _MultiSigSettingScreenState extends State<MultiSigSettingScreen> {
                 if (isInnerVault) {
                   _verifyBiometric(1, multisigSigner: multisigSigner);
                 } else {
-                  _showEditMemoBottomSheet(multisigSigner, index);
+                  _showEditMemoBottomSheet(multisigSigner);
                 }
               },
             ),
@@ -458,7 +457,7 @@ class _MultiSigSettingScreenState extends State<MultiSigSettingScreen> {
 
                         return GestureDetector(
                           onTap: () {
-                            _selectedKeyBottomSheet(item, index);
+                            _selectedKeyBottomSheet(item);
                           },
                           child: Container(
                             color: Colors.transparent,

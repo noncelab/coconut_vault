@@ -470,11 +470,8 @@ class _AssignSignersScreenState extends State<AssignSignersScreen> {
         .compareTo(keyStores[b].masterFingerprint));
 
     keyStores = [for (var i in indices) keyStores[i]];
-    signers = [for (var i in indices) signers[i]];
-
-    print(signers[0].name);
-    print(signers[1].name);
-    print(signers[2].name);
+    signers = [for (var i in indices) signers[i]]
+      ..asMap().forEach((i, signer) => signer.id = i);
 
     // 오래 걸리는 작업 뒤에 setState가 있으면 mounted 체크를 해주어햐 에러가 나지 않습니다.
     if (!mounted) return;
