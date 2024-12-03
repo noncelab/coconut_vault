@@ -220,3 +220,18 @@ Future<MultisignatureVault> fromKeyStoreIsolate(
   }
   return multisignatureVault;
 }
+
+Future<VaultListItemBase> initializeWallet(Map<String, dynamic> data,
+    void Function(dynamic)? setVaultListLoadingProgress) async {
+  BitcoinNetwork.setNetwork(BitcoinNetwork.regtest);
+  String? vaultType = data[VaultListItemBase.vaultTypeField];
+
+  // coconut_vault 1.0.1 -> 2.0.0 업데이트 되면서 vaultType이 추가됨
+  if (vaultType == null || vaultType == VaultType.singleSignature.name) {
+    return SinglesigVaultListItemFactory().createFromJson(data);
+  } else if (vaultType == VaultType.multiSignature.name) {
+    return MultisigVaultListItemFactory().createFromJson(data);
+  } else {
+    throw ArgumentError('[initializeWallet] vaultType: $vaultType');
+  }
+}

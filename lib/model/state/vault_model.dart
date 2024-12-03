@@ -10,6 +10,7 @@ import 'package:coconut_vault/model/data/singlesig_vault_list_item.dart';
 import 'package:coconut_vault/model/data/singlesig_vault_list_item_factory.dart';
 import 'package:coconut_vault/model/data/vault_list_item_base.dart';
 import 'package:coconut_vault/model/data/vault_type.dart';
+import 'package:coconut_vault/model/manager/wallet_list_manager.dart';
 import 'package:coconut_vault/model/state/multisig_creation_model.dart';
 import 'package:coconut_vault/services/shared_preferences_keys.dart';
 import 'package:coconut_vault/services/shared_preferences_service.dart';
@@ -32,9 +33,10 @@ class VaultModel extends ChangeNotifier {
 
   late final SecureStorageService _storageService;
   late final RealmService _realmService;
+  late final WalletListManager _walletManager;
 
   // 비동기 작업 Isolate
-  IsolateHandler<void, List<VaultListItemBase>>? _vaultListIsolateHandler;
+  // IsolateHandler<void, List<VaultListItemBase>>? _vaultListIsolateHandler;
   IsolateHandler<Map<String, dynamic>, List<SinglesigVaultListItem>>?
       _addVaultIsolateHandler;
   IsolateHandler<Map<String, dynamic>, MultisigVaultListItem>?
@@ -46,6 +48,7 @@ class VaultModel extends ChangeNotifier {
   VaultModel(this._appModel, this._multisigCreationModel) {
     _storageService = SecureStorageService();
     _realmService = RealmService();
+    _walletManager = WalletListManager();
     // loadVaultList();
     //_initializeServicesAndHandler();
   }
@@ -483,37 +486,23 @@ class VaultModel extends ChangeNotifier {
   Future<void> loadVaultList() async {
     if (_isVaultListLoading) return;
 
-    setVaultListLoading(true);
+    // setVaultListLoading(true); // TODO: 스켈레톤으로 대체됨
+
     try {
-      if (_vaultListIsolateHandler == null) {
-        _vaultListIsolateHandler =
-            IsolateHandler<void, List<VaultListItemBase>>(loadVaultListIsolate);
-        await _vaultListIsolateHandler!.initialize();
-      }
+      _walletManager.loadAndEmitEachWallet((VaultListItemBase wallet) {
+        _vaultList.add(wallet);
+        notifyListeners();
+      });
 
-      if (_vaultListIsolateHandler!.isInitialized) {
-        _vaultList = await _vaultListIsolateHandler!.run(null);
-        vibrateLight();
-      } else {
-        throw Exception("IsolateHandler not initialized");
-      }
-
+      vibrateLight();
       _vaultInitialized = true;
     } catch (e) {
       Logger.log('[loadVaultList] Exception : ${e.toString()}');
     } finally {
-      if (_vaultListIsolateHandler != null &&
-          _vaultListIsolateHandler!.isInitialized) {
-        try {
-          _vaultListIsolateHandler!.dispose();
-          _vaultListIsolateHandler = null;
-        } catch (e) {
-          Logger.log('[loadVaultList] Dispose Exception: ${e.toString()}');
-        }
-      }
       _appModel.saveNotEmptyVaultList(_vaultList.isNotEmpty);
       setVaultListLoading(false);
     }
+    return;
   }
 
   static Future<List<VaultListItemBase>> loadVaultListIsolate(
@@ -596,10 +585,10 @@ class VaultModel extends ChangeNotifier {
 
   @override
   void dispose() {
-    if (_vaultListIsolateHandler != null) {
-      _vaultListIsolateHandler!.dispose();
-      _vaultListIsolateHandler = null;
-    }
+    // if (_vaultListIsolateHandler != null) {
+    //   _vaultListIsolateHandler!.dispose();
+    //   _vaultListIsolateHandler = null;
+    // }
     if (_addVaultIsolateHandler != null) {
       _addVaultIsolateHandler!.dispose();
       _addVaultIsolateHandler = null;

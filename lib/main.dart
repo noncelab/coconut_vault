@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:coconut_lib/coconut_lib.dart';
 import 'package:coconut_vault/constants/method_channel.dart';
+import 'package:coconut_vault/model/manager/wallet_list_manager.dart';
 import 'package:coconut_vault/services/shared_preferences_service.dart';
 import 'package:coconut_vault/utils/logger.dart';
 import 'package:flutter/cupertino.dart';
@@ -16,6 +17,7 @@ void main() async {
   // orientations to portrait up and down.
   WidgetsFlutterBinding.ensureInitialized();
   await SharedPrefsService().init();
+  await WalletListManager().init();
   // Isolate 토큰 생성 및 초기화
   final RootIsolateToken rootIsolateToken = RootIsolateToken.instance!;
   BackgroundIsolateBinaryMessenger.ensureInitialized(rootIsolateToken);
