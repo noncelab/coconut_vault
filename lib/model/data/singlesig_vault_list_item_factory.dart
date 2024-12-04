@@ -9,35 +9,6 @@ class SinglesigVaultListItemFactory implements VaultListItemFactory {
   static const String passphraseField = 'passphrase';
 
   @override
-  Future<SinglesigVaultListItem> create({
-    required int nextId,
-    required String name,
-    required int colorIndex,
-    required int iconIndex,
-    required Map<String, dynamic> secrets,
-    Map<int, int>? multisigKey,
-  }) async {
-    if (!secrets.containsKey(secretField)) {
-      throw ArgumentError("The 'secrets' map must contain a 'secret' key.");
-    }
-
-    String secret = secrets[secretField];
-    String passphrase = secrets[passphraseField] ?? '';
-
-    final newVault = SinglesigVaultListItem(
-      id: nextId,
-      name: name,
-      colorIndex: colorIndex,
-      iconIndex: iconIndex,
-      secret: secret,
-      passphrase: passphrase,
-      linkedMultisigInfo: multisigKey,
-    );
-
-    return newVault;
-  }
-
-  @override
   SinglesigVaultListItem createFromJson(Map<String, dynamic> json) {
     final result = SinglesigVaultListItem.fromJson(json);
 

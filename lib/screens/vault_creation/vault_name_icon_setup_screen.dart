@@ -148,7 +148,7 @@ class _VaultNameIconSetupState extends State<VaultNameIconSetup> {
                 title: '이름 설정',
                 context: context,
                 onBackPressed: () {
-                  _vaultModel.stopImporting();
+                  _vaultModel.completeSinglesigImporting();
                   Navigator.pop(context);
                 },
                 onNextPressed: () {

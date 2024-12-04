@@ -9,6 +9,7 @@ import 'package:coconut_vault/model/data/singlesig_vault_list_item.dart';
 import 'package:coconut_vault/model/data/singlesig_vault_list_item_factory.dart';
 import 'package:coconut_vault/model/data/vault_list_item_base.dart';
 import 'package:coconut_vault/model/data/vault_type.dart';
+import 'package:coconut_vault/model/manager/multisig_wallet.dart';
 import 'package:coconut_vault/model/manager/singlesig_wallet.dart';
 import 'package:coconut_vault/services/shared_preferences_service.dart';
 import 'package:coconut_vault/utils/coconut/multisig_utils.dart';
@@ -37,28 +38,15 @@ Future<MultisigVaultListItem> addMultisigVaultIsolate(
   BitcoinNetwork.setNetwork(BitcoinNetwork.regtest);
   await SharedPrefsService().init();
 
-  int nextId = data['nextId'];
-  String name = data['name'];
-  int colorIndex = data['colorIndex'];
-  int iconIndex = data['iconIndex'];
-  final Map<String, dynamic> secrets = data['secrets'];
-  List<MultisigSigner> signers = [];
-  List<dynamic> decodedSignersJson = jsonDecode(secrets['signers']);
-  int requiredSignatureCount = secrets['requiredSignatureCount'];
-
-  for (var signer in decodedSignersJson) {
-    signers.add(MultisigSigner.fromJson(signer));
-  }
-
-  var newMultisigVault = await MultisigVaultListItemFactory().create(
-      nextId: nextId,
-      name: name,
-      colorIndex: colorIndex,
-      iconIndex: iconIndex,
-      secrets: {
-        'signers': signers,
-        'requiredSignatureCount': requiredSignatureCount,
-      });
+  var walletData = MultisigWallet.fromJson(data);
+  var newMultisigVault = MultisigVaultListItem(
+    id: walletData.id!,
+    name: walletData.name!,
+    colorIndex: walletData.color!,
+    iconIndex: walletData.icon!,
+    signers: walletData.signers!,
+    requiredSignatureCount: walletData.requiredSignatureCount!,
+  );
 
   if (replyTo != null) {
     replyTo(newMultisigVault);

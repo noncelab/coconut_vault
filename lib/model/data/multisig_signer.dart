@@ -22,8 +22,10 @@ class MultisigSigner {
   @JsonKey()
   String? memo; // 외부 지갑에 설정되는 메모
 
-  @JsonKey()
+  @JsonKey(toJson: _customKeyStoreToJson)
   final KeyStore keyStore;
+
+  static String _customKeyStoreToJson(KeyStore keyStore) => keyStore.toJson();
 
   MultisigSigner({
     required this.id,

@@ -27,5 +27,5 @@ Map<String, dynamic> _$MultisigSignerToJson(MultisigSigner instance) =>
       'colorIndex': instance.colorIndex,
       'signerBsms': instance.signerBsms,
       'memo': instance.memo,
-      'keyStore': instance.keyStore,
+      'keyStore': MultisigSigner._customKeyStoreToJson(instance.keyStore),
     };

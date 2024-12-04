@@ -121,7 +121,7 @@ class _MnemonicImportState extends State<MnemonicImport> {
   void _onBackPressed(BuildContext context) {
     if (inputText.isEmpty && passphrase.isEmpty) {
       final model = Provider.of<VaultModel>(context, listen: false);
-      model.stopImporting();
+      model.completeSinglesigImporting();
       isFinishing = true;
       Navigator.pop(context);
     } else {

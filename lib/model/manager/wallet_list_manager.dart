@@ -4,11 +4,10 @@ import 'dart:convert';
 import 'package:coconut_lib/coconut_lib.dart';
 import 'package:coconut_vault/model/data/multisig_signer.dart';
 import 'package:coconut_vault/model/data/multisig_vault_list_item.dart';
-import 'package:coconut_vault/model/data/multisig_vault_list_item_factory.dart';
 import 'package:coconut_vault/model/data/singlesig_vault_list_item.dart';
-import 'package:coconut_vault/model/data/singlesig_vault_list_item_factory.dart';
 import 'package:coconut_vault/model/data/vault_list_item_base.dart';
 import 'package:coconut_vault/model/data/vault_type.dart';
+import 'package:coconut_vault/model/manager/multisig_wallet.dart';
 import 'package:coconut_vault/model/manager/secret.dart';
 import 'package:coconut_vault/model/manager/singlesig_wallet.dart';
 import 'package:coconut_vault/services/isolate_service.dart';
@@ -62,6 +61,8 @@ class WalletListManager {
       jsonArrayString = _realmService.getValue(key: vaultListField);
     }
 
+    printLongString('--> $jsonArrayString');
+
     if (jsonArrayString == null) {
       _vaultList = [];
       return;
@@ -87,43 +88,48 @@ class WalletListManager {
     _vaultList = vaultList;
   }
 
-  /// 저장소에까지 저장 완료 후 최종 생성 결과를 반환해준다. 그럼 vault_model에서는 리스트에 추가하면 됨
   Future<SinglesigVaultListItem> addSinglesigWallet(
       SinglesigWallet wallet) async {
     if (_vaultList == null) {
-      throw "[wallet_list_manager/addSinglesigWallet()] _vaultList is null";
+      throw "[wallet_list_manager/addSinglesigWallet()] _vaultList is null. Load first.";
     }
-
-    final int nextId = _sharedPrefs.getInt('nextId') ?? 1;
-    wallet.id = nextId;
-    final Map<String, dynamic> vaultData = wallet.toJson();
-
-    var addVaultIsolateHandler =
-        IsolateHandler<Map<String, dynamic>, List<SinglesigVaultListItem>>(
-            addVaultIsolate);
-    await addVaultIsolateHandler.initialize(
-        initialType: InitializeType.addVault);
-    List<SinglesigVaultListItem> vaultListResult =
-        await addVaultIsolateHandler.runAddVault(vaultData);
-    addVaultIsolateHandler.dispose();
-
-    _linkNewSinglesigVaultAndMultisigVaults(vaultListResult.first);
-
-    String keyString =
-        _createWalletKeyString(nextId, VaultType.singleSignature);
-    _storageService.write(
-        key: keyString,
-        value:
-            jsonEncode(Secret(wallet.mnemonic!, wallet.passphrase!).toJson()));
 
     try {
-      savePublicInfo();
-    } catch (error) {
-      _storageService.delete(key: keyString);
-    }
+      final int nextId = _getNextWalletId();
+      wallet.id = nextId;
+      final Map<String, dynamic> vaultData = wallet.toJson();
 
-    _vaultList!.add(vaultListResult[0]);
-    return vaultListResult[0];
+      var addVaultIsolateHandler =
+          IsolateHandler<Map<String, dynamic>, List<SinglesigVaultListItem>>(
+              addVaultIsolate);
+      await addVaultIsolateHandler.initialize(
+          initialType: InitializeType.addVault);
+      List<SinglesigVaultListItem> vaultListResult =
+          await addVaultIsolateHandler.runAddVault(vaultData);
+      addVaultIsolateHandler.dispose();
+
+      _linkNewSinglesigVaultAndMultisigVaults(vaultListResult.first);
+
+      String keyString =
+          _createWalletKeyString(nextId, VaultType.singleSignature);
+      _storageService.write(
+          key: keyString,
+          value: jsonEncode(
+              Secret(wallet.mnemonic!, wallet.passphrase!).toJson()));
+
+      try {
+        savePublicInfo();
+      } catch (error) {
+        _storageService.delete(key: keyString);
+        rethrow;
+      }
+
+      _vaultList!.add(vaultListResult[0]);
+      _recordNextWalletId();
+      return vaultListResult[0];
+    } catch (_) {
+      rethrow;
+    }
   }
 
   String _createWalletKeyString(int id, VaultType type) {
@@ -178,9 +184,54 @@ class WalletListManager {
     }
   }
 
-  /// 저장소에까지 저장 완료 후 최종 생성 결과를 반환해준다. 그럼 vault_model에서는 리스트에 추가하면 됨
-  Future addMultisigWallet() async {
-    //
+  Future<MultisigVaultListItem> addMultisigWallet(MultisigWallet wallet) async {
+    if (_vaultList == null) {
+      throw "[wallet_list_manager/addMultisigWallet()] _vaultList is null. Load first.";
+    }
+
+    final int nextId = _getNextWalletId();
+    wallet.id = nextId;
+    final Map<String, dynamic> data = wallet.toJson();
+
+    var addMultisigVaultIsolateHandler =
+        IsolateHandler<Map<String, dynamic>, MultisigVaultListItem>(
+            addMultisigVaultIsolate);
+    await addMultisigVaultIsolateHandler.initialize(
+        initialType: InitializeType.addMultisigVault);
+    MultisigVaultListItem newMultisigVault =
+        await addMultisigVaultIsolateHandler.run(data);
+    addMultisigVaultIsolateHandler.dispose();
+
+    // for SinglesigVaultListItem multsig key map update
+    updateLinkedMultisigInfo(wallet.signers!, nextId);
+
+    savePublicInfo();
+
+    _vaultList!.add(newMultisigVault);
+    _recordNextWalletId();
+    return newMultisigVault;
+  }
+
+  /// 멀티시그 지갑이 추가될 때 (생성 또는 복사) 사용된 싱글시그 지갑들의 linkedMultisigInfo를 업데이트 합니다.
+  void updateLinkedMultisigInfo(
+    List<MultisigSigner> signers,
+    int newWalletId,
+  ) {
+    // for SinglesigVaultListItem multsig key map update
+    for (int i = 0; i < signers.length; i++) {
+      var signer = signers[i];
+      if (signers[i].innerVaultId == null) continue;
+      SinglesigVaultListItem ssv = _vaultList!
+              .firstWhere((element) => element.id == signer.innerVaultId!)
+          as SinglesigVaultListItem;
+
+      var keyMap = {newWalletId: i};
+      if (ssv.linkedMultisigInfo != null) {
+        ssv.linkedMultisigInfo!.addAll(keyMap);
+      } else {
+        ssv.linkedMultisigInfo = keyMap;
+      }
+    }
   }
 
   int _getNextWalletId() {
@@ -200,7 +251,6 @@ class WalletListManager {
   }
 
   // getWallet(String key)
-  // addWallet()
   // deleteWallet()
   // updateWallet()
   // resetAll()

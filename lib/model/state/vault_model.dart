@@ -10,6 +10,7 @@ import 'package:coconut_vault/model/data/singlesig_vault_list_item.dart';
 import 'package:coconut_vault/model/data/singlesig_vault_list_item_factory.dart';
 import 'package:coconut_vault/model/data/vault_list_item_base.dart';
 import 'package:coconut_vault/model/data/vault_type.dart';
+import 'package:coconut_vault/model/manager/multisig_wallet.dart';
 import 'package:coconut_vault/model/manager/singlesig_wallet.dart';
 import 'package:coconut_vault/model/manager/wallet_list_manager.dart';
 import 'package:coconut_vault/model/state/multisig_creation_model.dart';
@@ -204,61 +205,21 @@ class VaultModel extends ChangeNotifier {
     await updateVaultInStorage();
 
     notifyListeners();
-    stopImporting();
+    completeSinglesigImporting();
     // vibrateLight();
   }
 
   Future<void> addMultisigVaultAsync(
       int nextId, String name, int color, int icon) async {
-    // _setAddVaultCompleted(false);
-
-    // final signers = _multisigCreationModel.signers!;
-    // final requiredSignatureCount =
-    //     _multisigCreationModel.requiredSignatureCount!;
-    // var newMultisigVault = await MultisigVaultListItemFactory().create(
-    //     nextId: nextId,
-    //     name: name,
-    //     colorIndex: color,
-    //     iconIndex: icon,
-    //     secrets: {
-    //       'signers': signers,
-    //       'requiredSignatureCount': requiredSignatureCount,
-    //     });
     setAddVaultCompleted(false);
+
     final signers = _multisigCreationModel.signers!;
     final requiredSignatureCount =
         _multisigCreationModel.requiredSignatureCount!;
-    Map<String, dynamic> data = {
-      'nextId': nextId,
-      'name': name,
-      'colorIndex': color,
-      'iconIndex': icon,
-      'secrets': {
-        'signers': jsonEncode(signers.map((item) => item.toJson()).toList()),
-        'requiredSignatureCount': requiredSignatureCount,
-      }
-    };
 
-    if (_addMultisigVaultIsolateHandler == null) {
-      _addMultisigVaultIsolateHandler =
-          IsolateHandler<Map<String, dynamic>, MultisigVaultListItem>(
-              addMultisigVaultIsolate);
-      await _addMultisigVaultIsolateHandler!
-          .initialize(initialType: InitializeType.addMultisigVault);
-    }
-
-    MultisigVaultListItem newMultisigVault =
-        await _addMultisigVaultIsolateHandler!.run(data);
-
-    if (_addMultisigVaultIsolateHandler != null) {
-      _addMultisigVaultIsolateHandler!.dispose();
-      _addMultisigVaultIsolateHandler = null;
-    }
-
-    // for SinglesigVaultListItem multsig key map update
-    updateLinkedMultisigInfo(signers, nextId);
-
-    _vaultList.add(newMultisigVault);
+    await _walletManager.addMultisigWallet(MultisigWallet(
+        null, name, icon, color, signers, requiredSignatureCount));
+    _vaultList = _walletManager.vaultList;
     setAnimatedVaultFlags(index: _vaultList.length);
     setAddVaultCompleted(true);
     await updateVaultInStorage();
@@ -547,7 +508,7 @@ class VaultModel extends ChangeNotifier {
     _importingPassphrase = passphrase;
   }
 
-  void stopImporting() {
+  void completeSinglesigImporting() {
     _importingSecret = null;
   }
 
