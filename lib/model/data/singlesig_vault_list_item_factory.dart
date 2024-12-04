@@ -41,15 +41,15 @@ class SinglesigVaultListItemFactory implements VaultListItemFactory {
   SinglesigVaultListItem createFromJson(Map<String, dynamic> json) {
     final result = SinglesigVaultListItem.fromJson(json);
 
-    assert(result.vaultJsonString != null);
+    // assert(result.vaultJsonString != null);
 
-    String vaultJson = result.vaultJsonString!;
-    String? migrationResult =
-        migrateVaultJsonStringForCoconutLibUpdate(vaultJson);
-    if (migrationResult != null) {
-      vaultJson = migrationResult;
-    }
-    result.coconutVault = SingleSignatureVault.fromJson(vaultJson);
+    // String vaultJson = result.vaultJsonString!;
+    // String? migrationResult =
+    //     migrateVaultJsonStringForCoconutLibUpdate(vaultJson);
+    // if (migrationResult != null) {
+    //   vaultJson = migrationResult;
+    // }
+    // result.coconutVault = SingleSignatureVault.fromJson(vaultJson);
 
     return result;
   }

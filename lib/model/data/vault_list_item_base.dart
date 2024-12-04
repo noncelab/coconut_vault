@@ -16,7 +16,8 @@ abstract class VaultListItemBase {
   final int iconIndex;
   @JsonKey(name: vaultTypeField)
   VaultType vaultType;
-  @JsonKey(name: "vaultJsonString")
+  // Deprecated
+  //@JsonKey(name: "vaultJsonString")
   String? vaultJsonString;
 
   late WalletBase coconutVault;

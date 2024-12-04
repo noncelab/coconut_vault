@@ -88,9 +88,9 @@ class MultisigVaultListItemFactory implements VaultListItemFactory {
   MultisigVaultListItem createFromJson(Map<String, dynamic> json) {
     final result = MultisigVaultListItem.fromJson(json);
 
-    assert(result.vaultJsonString != null);
+    // assert(result.vaultJsonString != null);
 
-    result.coconutVault = MultisignatureVault.fromJson(result.vaultJsonString!);
+    // result.coconutVault = MultisignatureVault.fromJson(result.vaultJsonString!);
 
     return result;
   }

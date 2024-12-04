@@ -22,7 +22,7 @@ class SinglesigVaultListItem extends VaultListItemBase {
     Seed seed = Seed.fromMnemonic(secret, passphrase: passphrase);
     coconutVault = SingleSignatureVault.fromSeed(seed, AddressType.p2wpkh);
 
-    vaultJsonString ??= (coconutVault as SingleSignatureVault).toJson();
+    //vaultJsonString ??= (coconutVault as SingleSignatureVault).toJson();
   }
 
   @JsonKey(name: "secret")

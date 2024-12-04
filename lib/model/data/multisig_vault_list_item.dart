@@ -25,7 +25,7 @@ class MultisigVaultListItem extends VaultListItemBase {
         requiredSignatureCount,
         AddressType.p2wsh);
 
-    vaultJsonString ??= (coconutVault as MultisignatureVault).toJson();
+    //vaultJsonString ??= (coconutVault as MultisignatureVault).toJson();
   }
 
   MultisigVaultListItem.fromCoordinatorBsms(
@@ -40,7 +40,7 @@ class MultisigVaultListItem extends VaultListItemBase {
 
     requiredSignatureCount =
         (coconutVault as MultisignatureVault).requiredSignature;
-    vaultJsonString = (coconutVault as MultisignatureVault).toJson();
+    //vaultJsonString = (coconutVault as MultisignatureVault).toJson();
   }
 
   @JsonKey(name: "signers")
