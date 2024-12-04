@@ -60,7 +60,7 @@ class VaultModel extends ChangeNotifier {
   }
 
   // Vault list
-  final List<VaultListItemBase> _vaultList = [];
+  List<VaultListItemBase> _vaultList = [];
   List<VaultListItemBase> get vaultList => _vaultList;
   // 지갑 Skeleton 표시 개수
   int _vaultSkeletonLength = 0;
@@ -216,6 +216,7 @@ class VaultModel extends ChangeNotifier {
 
     await _walletManager.addMultisigWallet(MultisigWallet(
         null, name, icon, color, signers, requiredSignatureCount));
+
     _vaultList = _walletManager.vaultList;
     setAnimatedVaultFlags(index: _vaultList.length);
     setAddVaultCompleted(true);
