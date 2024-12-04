@@ -1,14 +1,8 @@
 import 'dart:async';
 import 'dart:convert';
 
-import 'package:coconut_lib/coconut_lib.dart';
-import 'package:coconut_vault/model/data/multisig_signer.dart';
-import 'package:coconut_vault/model/data/multisig_vault_list_item.dart';
-import 'package:coconut_vault/model/data/multisig_vault_list_item_factory.dart';
 import 'package:coconut_vault/model/data/singlesig_vault_list_item.dart';
-import 'package:coconut_vault/model/data/singlesig_vault_list_item_factory.dart';
 import 'package:coconut_vault/model/data/vault_list_item_base.dart';
-import 'package:coconut_vault/model/data/vault_type.dart';
 import 'package:coconut_vault/services/isolate_service.dart';
 import 'package:coconut_vault/services/realm_service.dart';
 import 'package:coconut_vault/services/secure_storage_service.dart';
@@ -49,18 +43,29 @@ class WalletListManager {
   // }
 
   Future loadAndEmitEachWallet(
-      Function(VaultListItemBase wallet) emitOneItem) async {
+      Function(VaultListItemBase? wallet, int length) emitOneItem) async {
     List<VaultListItemBase> vaultList = [];
     String? jsonArrayString;
+    int length = 0;
     try {
       jsonArrayString = await _storageService.read(key: vaultListField);
     } catch (_) {
       jsonArrayString = _realmService.getValue(key: vaultListField);
     }
 
-    if (jsonArrayString == null) return;
+    if (jsonArrayString == null) {
+      emitOneItem(null, length);
+      return;
+    }
 
     List<dynamic> jsonList = jsonDecode(jsonArrayString);
+
+    length = jsonList.length;
+
+    if (length == 0) {
+      emitOneItem(null, length);
+      return;
+    }
 
     var initIsolateHandler =
         IsolateHandler<Map<String, dynamic>, VaultListItemBase>(
@@ -70,7 +75,7 @@ class WalletListManager {
 
     for (int i = 0; i < jsonList.length; i++) {
       VaultListItemBase item = await initIsolateHandler.run(jsonList[i]);
-      emitOneItem(item);
+      emitOneItem(item, length);
       vaultList.add(item);
     }
 

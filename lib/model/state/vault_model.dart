@@ -59,8 +59,11 @@ class VaultModel extends ChangeNotifier {
   }
 
   // Vault list
-  List<VaultListItemBase> _vaultList = [];
+  final List<VaultListItemBase> _vaultList = [];
   List<VaultListItemBase> get vaultList => _vaultList;
+  // Vault list length
+  int _vaultListLength = 0;
+  int get vaultListLength => _vaultListLength;
   // 리스트 로딩중 여부 (indicator 표시 및 중복 방지)
   bool _isVaultListLoading = false;
   bool get isVaultListLoading => _isVaultListLoading;
@@ -486,11 +489,20 @@ class VaultModel extends ChangeNotifier {
   Future<void> loadVaultList() async {
     if (_isVaultListLoading) return;
 
-    // setVaultListLoading(true); // TODO: 스켈레톤으로 대체됨
-
+    setVaultListLoading(true);
+    _vaultListLength = 0;
     try {
-      _walletManager.loadAndEmitEachWallet((VaultListItemBase wallet) {
-        _vaultList.add(wallet);
+      _walletManager
+          .loadAndEmitEachWallet((VaultListItemBase? wallet, int length) {
+        if (wallet != null) {
+          _vaultList.add(wallet);
+          if (_vaultListLength == 0) {
+            _vaultListLength = length - 1;
+          } else {
+            _vaultListLength = _vaultListLength - 1;
+          }
+        }
+        setVaultListLoading(false);
         notifyListeners();
       });
 
@@ -498,9 +510,9 @@ class VaultModel extends ChangeNotifier {
       _vaultInitialized = true;
     } catch (e) {
       Logger.log('[loadVaultList] Exception : ${e.toString()}');
+      setVaultListLoading(false);
     } finally {
       _appModel.saveNotEmptyVaultList(_vaultList.isNotEmpty);
-      setVaultListLoading(false);
     }
     return;
   }

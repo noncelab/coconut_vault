@@ -14,6 +14,7 @@ import 'package:coconut_vault/widgets/bottom_sheet.dart';
 import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:provider/provider.dart';
+import 'package:shimmer/shimmer.dart';
 
 import 'model/state/vault_model.dart';
 import 'widgets/vault_row_item.dart';
@@ -120,6 +121,72 @@ class _VaultListTabState extends State<VaultListTab>
     }
   }
 
+  Widget _vaultContainerSkeleton() {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white, // 배경색 유지
+        borderRadius: BorderRadius.circular(28),
+        boxShadow: const [
+          BoxShadow(
+            color: MyColors.transparentBlack_15,
+            offset: Offset(0, 0),
+            blurRadius: 12,
+            spreadRadius: 0,
+          ),
+        ],
+      ),
+      padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 28.0),
+      child: Row(
+        children: [
+          // 1) 아이콘 스켈레톤
+          Shimmer.fromColors(
+            baseColor: Colors.grey[300]!,
+            highlightColor: Colors.grey[100]!,
+            child: Container(
+              width: 40.0,
+              height: 40.0,
+              decoration: BoxDecoration(
+                color: Colors.grey[300],
+                borderRadius: BorderRadius.circular(16.0),
+              ),
+            ),
+          ),
+          const SizedBox(width: 8.0),
+          // 2) 텍스트 영역
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // 첫 번째 텍스트
+                Shimmer.fromColors(
+                  baseColor: Colors.grey[300]!,
+                  highlightColor: Colors.grey[100]!,
+                  child: Container(
+                    height: 14.0,
+                    width: 100.0,
+                    color: Colors.grey[300],
+                  ),
+                ),
+                const SizedBox(height: 8.0),
+                // 두 번째 텍스트
+                Shimmer.fromColors(
+                  baseColor: Colors.grey[300]!,
+                  highlightColor: Colors.grey[100]!,
+                  child: Container(
+                    height: 14.0,
+                    width: 150.0,
+                    color: Colors.grey[300],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  int _count = 0;
   @override
   Widget build(BuildContext context) {
     return Consumer<VaultModel>(
@@ -168,6 +235,7 @@ class _VaultListTabState extends State<VaultListTab>
                           itemCount: vaults.length + (vaults.isEmpty ? 1 : 0),
                           itemBuilder: (ctx, index) {
                             if (index < vaults.length) {
+                              _count = index + 1;
                               return model.animatedVaultFlags[index]
                                   ? SlideTransition(
                                       position: _newVaultAddAnimation,
@@ -180,7 +248,8 @@ class _VaultListTabState extends State<VaultListTab>
                                     );
                             }
 
-                            if (index == vaults.length && vaults.isEmpty) {
+                            // 바로 추가하기
+                            if (vaults.isEmpty && !model.isVaultListLoading) {
                               if (model.isLoadVaultList) {
                                 return Container(
                                   width: double.maxFinite,
@@ -242,6 +311,22 @@ class _VaultListTabState extends State<VaultListTab>
                             }
 
                             return null;
+                          },
+                        ),
+                      ),
+                      SliverPadding(
+                        padding: const EdgeInsets.symmetric(horizontal: 8),
+                        sliver: SliverList.builder(
+                          itemCount: model.vaultListLength,
+                          itemBuilder: (ctx, index) {
+                            return Column(
+                              children: [
+                                ClipRRect(
+                                    borderRadius: BorderRadius.circular(30),
+                                    child: _vaultContainerSkeleton()),
+                                const SizedBox(height: 10),
+                              ],
+                            );
                           },
                         ),
                       ),
