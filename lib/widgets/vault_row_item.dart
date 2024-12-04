@@ -114,7 +114,10 @@ class _VaultRowItemState extends State<VaultRowItem> {
 
     return Column(
       children: [
-        row,
+        Container(
+          constraints: const BoxConstraints(minHeight: 100),
+          child: row,
+        ),
         const SizedBox(
           height: 10,
         )

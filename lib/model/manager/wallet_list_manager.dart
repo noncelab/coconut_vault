@@ -42,11 +42,10 @@ class WalletListManager {
   //   return jsonDecode(keys);
   // }
 
-  Future loadAndEmitEachWallet(
-      Function(VaultListItemBase? wallet, int length) emitOneItem) async {
-    List<VaultListItemBase> vaultList = [];
+  Future loadVaultListJsonArrayString(
+      Function(List<dynamic>? jsonList) callbackVaultJsonList) async {
     String? jsonArrayString;
-    int length = 0;
+
     try {
       jsonArrayString = await _storageService.read(key: vaultListField);
     } catch (_) {
@@ -54,18 +53,18 @@ class WalletListManager {
     }
 
     if (jsonArrayString == null) {
-      emitOneItem(null, length);
+      callbackVaultJsonList(null);
       return;
     }
 
     List<dynamic> jsonList = jsonDecode(jsonArrayString);
 
-    length = jsonList.length;
+    callbackVaultJsonList(jsonList);
+  }
 
-    if (length == 0) {
-      emitOneItem(null, length);
-      return;
-    }
+  Future loadAndEmitEachWallet(List<dynamic> jsonList,
+      Function(VaultListItemBase wallet) emitOneItem) async {
+    List<VaultListItemBase> vaultList = [];
 
     var initIsolateHandler =
         IsolateHandler<Map<String, dynamic>, VaultListItemBase>(
@@ -75,7 +74,7 @@ class WalletListManager {
 
     for (int i = 0; i < jsonList.length; i++) {
       VaultListItemBase item = await initIsolateHandler.run(jsonList[i]);
-      emitOneItem(item, length);
+      emitOneItem(item);
       vaultList.add(item);
     }
 
