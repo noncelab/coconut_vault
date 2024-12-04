@@ -14,7 +14,6 @@ import 'package:coconut_vault/model/manager/multisig_wallet.dart';
 import 'package:coconut_vault/model/manager/singlesig_wallet.dart';
 import 'package:coconut_vault/model/manager/wallet_list_manager.dart';
 import 'package:coconut_vault/model/state/multisig_creation_model.dart';
-import 'package:coconut_vault/services/shared_preferences_keys.dart';
 import 'package:coconut_vault/services/shared_preferences_service.dart';
 import 'package:flutter/foundation.dart';
 import 'package:coconut_vault/model/state/app_model.dart';
@@ -61,17 +60,15 @@ class VaultModel extends ChangeNotifier {
   }
 
   // Vault list
-  List<VaultListItemBase> _vaultList = [];
+  final List<VaultListItemBase> _vaultList = [];
   List<VaultListItemBase> get vaultList => _vaultList;
+  // 지갑 Skeleton 표시 개수
+  int _vaultSkeletonLength = 0;
+  int get vaultSkeletonLength => _vaultSkeletonLength;
   // 리스트 로딩중 여부 (indicator 표시 및 중복 방지)
   bool _isVaultListLoading = false;
   bool get isVaultListLoading => _isVaultListLoading;
-  // 리스트 로딩 완료 여부 (로딩작업 완료 후 바로 추가하기 표시)
-  bool _isLoadVaultList = false;
-  bool get isLoadVaultList => _isLoadVaultList;
-  // double _vaultListLoadingProgress = 0.0;
-  // double get vaultListLoadingProgress => _vaultListLoadingProgress;
-  // static int itemSize = 0;
+  // 지갑 추가, 지갑 삭제, 서명완료 후 불필요하게 loadVaultList() 호출되는 것을 막음
   bool _vaultInitialized = false;
   bool get vaultInitialized => _vaultInitialized;
 
@@ -434,12 +431,26 @@ class VaultModel extends ChangeNotifier {
   Future<void> loadVaultList() async {
     if (_isVaultListLoading) return;
 
-    // setVaultListLoading(true); // TODO: 스켈레톤으로 대체됨
+    _isVaultListLoading = true;
+    _vaultSkeletonLength = _appModel.vaultListLength;
+    notifyListeners();
 
     try {
-      _walletManager.loadAndEmitEachWallet((VaultListItemBase wallet) {
-        _vaultList.add(wallet);
-        notifyListeners();
+      await _walletManager
+          .loadVaultListJsonArrayString((List<dynamic>? jsonList) async {
+        if (jsonList != null) {
+          if (_vaultSkeletonLength == 0) {
+            // 이전 버전 사용자는 vault개수가 로컬에 없으므로 업데이트
+            _vaultSkeletonLength = jsonList.length;
+            notifyListeners();
+          }
+          await _walletManager.loadAndEmitEachWallet(jsonList,
+              (VaultListItemBase wallet) {
+            _vaultList.add(wallet);
+            _vaultSkeletonLength = _vaultSkeletonLength - 1;
+            notifyListeners();
+          });
+        }
       });
 
       vibrateLight();
@@ -447,8 +458,8 @@ class VaultModel extends ChangeNotifier {
     } catch (e) {
       Logger.log('[loadVaultList] Exception : ${e.toString()}');
     } finally {
-      _appModel.saveNotEmptyVaultList(_vaultList.isNotEmpty);
-      setVaultListLoading(false);
+      _isVaultListLoading = false;
+      notifyListeners();
     }
     return;
   }
@@ -497,10 +508,7 @@ class VaultModel extends ChangeNotifier {
     // printLongString('updateVaultInStorage ---> $jsonString');
     await _storageService.write(key: VAULT_LIST, value: jsonString);
     _realmService.updateKeyValue(key: VAULT_LIST, value: jsonString);
-
-    await SharedPrefsService()
-        .setBool(SharedPrefsKeys.isNotEmptyVaultList, _vaultList.isNotEmpty);
-    _appModel.saveNotEmptyVaultList(_vaultList.isNotEmpty);
+    _appModel.saveVaultListLength(_vaultList.length);
   }
 
   void startImporting(String secret, String passphrase) {
@@ -518,12 +526,6 @@ class VaultModel extends ChangeNotifier {
 
   void clearWaitingForSignaturePsbt() {
     _waitingForSignaturePsbtBase64 = null;
-  }
-
-  void setVaultListLoading(bool value) {
-    _isVaultListLoading = value;
-    _isLoadVaultList = !value;
-    notifyListeners();
   }
 
   void setAddVaultCompleted(bool value) {

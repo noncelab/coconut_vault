@@ -43,8 +43,7 @@ class _StartScreenState extends State<StartScreen> {
     await Future.delayed(const Duration(seconds: 2));
 
     bool isNotEmpty =
-        SharedPrefsService().getBool(SharedPrefsKeys.isNotEmptyVaultList) ??
-            false;
+        (SharedPrefsService().getInt(SharedPrefsKeys.vaultListLength) ?? 0) > 0;
     bool isPinEnabled =
         SharedPrefsService().getBool(SharedPrefsKeys.isPinEnabled) ?? false;
 

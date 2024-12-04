@@ -177,9 +177,9 @@ class AppModel with ChangeNotifier {
   bool _isResetVault = false;
   bool get isResetVault => _isResetVault;
 
-  ///  지갑 생성 여부
-  bool _isNotEmptyVaultList = false;
-  bool get isNotEmptyVaultList => _isNotEmptyVaultList;
+  ///  생성된 지갑 개수
+  int _vaultListLength = 0;
+  int get vaultListLength => _vaultListLength;
 
   /// 팬 or 생체인증 성공 여부
   bool _isAuthChecked = false;
@@ -207,8 +207,7 @@ class AppModel with ChangeNotifier {
         prefs.getBool(SharedPrefsKeys.isBiometricEnabled) == true;
     _hasBiometricsPermission =
         prefs.getBool(SharedPrefsKeys.hasBiometricsPermission) == true;
-    _isNotEmptyVaultList =
-        prefs.getBool(SharedPrefsKeys.isNotEmptyVaultList) == true;
+    _vaultListLength = prefs.getInt(SharedPrefsKeys.vaultListLength) ?? 0;
     _hasAlreadyRequestedBioPermission =
         prefs.getBool(SharedPrefsKeys.hasAlreadyRequestedBioPermission) == true;
     shuffleNumbers();
@@ -335,10 +334,9 @@ class AppModel with ChangeNotifier {
   }
 
   /// WalletList isNotEmpty 상태 저장
-  Future<void> saveNotEmptyVaultList(bool isNotEmpty) async {
-    _isNotEmptyVaultList = isNotEmpty;
-    await SharedPrefsService()
-        .setBool(SharedPrefsKeys.isNotEmptyVaultList, isNotEmpty);
+  Future<void> saveVaultListLength(int length) async {
+    _vaultListLength = length;
+    await SharedPrefsService().setInt(SharedPrefsKeys.vaultListLength, length);
     notifyListeners();
   }
 
@@ -385,14 +383,14 @@ class AppModel with ChangeNotifier {
   Future<void> resetPassword() async {
     _isResetVault = true;
     _isBiometricEnabled = false;
-    _isNotEmptyVaultList = false;
     _isPinEnabled = false;
+    _vaultListLength = 0;
 
     await _storageService.delete(key: VAULT_PIN);
     final prefs = SharedPrefsService();
     prefs.setBool(SharedPrefsKeys.isBiometricEnabled, false);
     prefs.setBool(SharedPrefsKeys.isPinEnabled, false);
-    prefs.setBool(SharedPrefsKeys.isNotEmptyVaultList, false);
+    prefs.setInt(SharedPrefsKeys.vaultListLength, 0);
   }
 
   void showIndicator() {
