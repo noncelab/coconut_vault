@@ -469,7 +469,10 @@ class _VaultSettingsState extends State<VaultSettings> {
                                                 .linkedMultisigInfo!.values
                                                 .elementAt(index);
 
-                                            if (isLoadVaultList) {
+                                            if (isLoadVaultList &&
+                                                _vaultModel.vaultList.any(
+                                                    (element) =>
+                                                        element.id == id)) {
                                               final multisig =
                                                   _vaultModel.getVaultById(id);
                                               return InkWell(
