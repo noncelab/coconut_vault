@@ -1,9 +1,11 @@
 import 'package:coconut_vault/app.dart';
+import 'package:coconut_vault/model/manager/singlesig_wallet.dart';
 import 'package:coconut_vault/model/state/app_model.dart';
 import 'package:coconut_vault/model/state/multisig_creation_model.dart';
 import 'package:coconut_vault/services/shared_preferences_service.dart';
 import 'package:coconut_vault/styles.dart';
 import 'package:coconut_vault/utils/logger.dart';
+import 'package:coconut_vault/widgets/custom_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:coconut_vault/widgets/appbar/custom_appbar.dart';
 import 'package:coconut_vault/widgets/custom_toast.dart';
@@ -57,7 +59,6 @@ class _VaultNameIconSetupState extends State<VaultNameIconSetup> {
 
   Future<void> saveNewVaultName(BuildContext context) async {
     try {
-      //_appModel.showIndicator();
       setState(() {
         isSaving = true;
       });
@@ -75,16 +76,13 @@ class _VaultNameIconSetupState extends State<VaultNameIconSetup> {
       final nextId = sharedService.getInt('nextId') ?? 1;
 
       if (_vaultModel.importingSecret != null) {
-        final Map<String, dynamic> vaultData = {
-          'nextId': nextId,
-          'inputText': inputText,
-          'selectedIconIndex': selectedIconIndex,
-          'selectedColorIndex': selectedColorIndex,
-          'importingSecret': _vaultModel.importingSecret,
-          'importingPassphrase': _vaultModel.importingPassphrase,
-        };
-        // ignore: void_checks
-        await _vaultModel.addVault(vaultData);
+        await _vaultModel.addVault(SinglesigWallet(
+            null,
+            inputText,
+            selectedIconIndex,
+            selectedColorIndex,
+            _vaultModel.importingSecret!,
+            _vaultModel.importingPassphrase));
 
         if (_vaultModel.isAddVaultCompleted) {
           _appModel.hideIndicator();
@@ -105,7 +103,13 @@ class _VaultNameIconSetupState extends State<VaultNameIconSetup> {
         (Route<dynamic> route) => false,
       );
     } catch (e) {
-      print(">>>>> $e");
+      Logger.log("$e");
+      CustomDialogs.showCustomAlertDialog(context,
+          title: '생성 실패',
+          onConfirm: () => Navigator.of(context).pop(),
+          message: e.toString(),
+          isSingleButton: true,
+          confirmButtonColor: MyColors.black);
     } finally {
       _appModel.hideIndicator();
       setState(() {

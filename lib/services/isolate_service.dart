@@ -9,6 +9,7 @@ import 'package:coconut_vault/model/data/singlesig_vault_list_item.dart';
 import 'package:coconut_vault/model/data/singlesig_vault_list_item_factory.dart';
 import 'package:coconut_vault/model/data/vault_list_item_base.dart';
 import 'package:coconut_vault/model/data/vault_type.dart';
+import 'package:coconut_vault/model/manager/singlesig_wallet.dart';
 import 'package:coconut_vault/services/shared_preferences_service.dart';
 import 'package:coconut_vault/utils/coconut/multisig_utils.dart';
 
@@ -17,28 +18,17 @@ Future<List<SinglesigVaultListItem>> addVaultIsolate(
   BitcoinNetwork.setNetwork(BitcoinNetwork.regtest);
   List<SinglesigVaultListItem> vaultList = [];
 
-  final params = data;
-  int nextId = params['nextId'];
-  String inputText = params['inputText'];
-  int selectedIconIndex = params['selectedIconIndex'];
-  int selectedColorIndex = params['selectedColorIndex'];
-  String importingSecret = params['importingSecret'];
-  String importingPassphrase = params['importingPassphrase'];
+  var wallet = SinglesigWallet.fromJson(data);
+  SinglesigVaultListItem newItem = SinglesigVaultListItem(
+      id: wallet.id!,
+      name: wallet.name!,
+      colorIndex: wallet.color!,
+      iconIndex: wallet.icon!,
+      secret: wallet.mnemonic!,
+      passphrase: wallet.passphrase!);
 
-  final factory = SinglesigVaultListItemFactory();
-  final secrets = {
-    SinglesigVaultListItemFactory.secretField: importingSecret,
-    SinglesigVaultListItemFactory.passphraseField: importingPassphrase,
-  };
-
-  SinglesigVaultListItem newItem = await factory.create(
-    nextId: nextId,
-    name: inputText,
-    colorIndex: selectedColorIndex,
-    iconIndex: selectedIconIndex,
-    secrets: secrets,
-  );
   vaultList.add(newItem);
+
   return vaultList;
 }
 

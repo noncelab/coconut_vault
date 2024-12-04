@@ -10,6 +10,7 @@ import 'package:coconut_vault/model/data/singlesig_vault_list_item.dart';
 import 'package:coconut_vault/model/data/singlesig_vault_list_item_factory.dart';
 import 'package:coconut_vault/model/data/vault_list_item_base.dart';
 import 'package:coconut_vault/model/data/vault_type.dart';
+import 'package:coconut_vault/model/manager/singlesig_wallet.dart';
 import 'package:coconut_vault/model/manager/wallet_list_manager.dart';
 import 'package:coconut_vault/model/state/multisig_creation_model.dart';
 import 'package:coconut_vault/services/shared_preferences_keys.dart';
@@ -37,8 +38,8 @@ class VaultModel extends ChangeNotifier {
 
   // 비동기 작업 Isolate
   // IsolateHandler<void, List<VaultListItemBase>>? _vaultListIsolateHandler;
-  IsolateHandler<Map<String, dynamic>, List<SinglesigVaultListItem>>?
-      _addVaultIsolateHandler;
+  // IsolateHandler<Map<String, dynamic>, List<SinglesigVaultListItem>>?
+  //     _addVaultIsolateHandler;
   IsolateHandler<Map<String, dynamic>, MultisigVaultListItem>?
       _addMultisigVaultIsolateHandler;
   IsolateHandler<void, int>? _getSignerIndexIsolateHandler;
@@ -192,26 +193,12 @@ class VaultModel extends ChangeNotifier {
     }
   }
 
-  Future<void> addVault(Map<String, dynamic> vaultData) async {
+  Future<void> addVault(SinglesigWallet wallet) async {
     setAddVaultCompleted(false);
-    if (_addVaultIsolateHandler == null) {
-      _addVaultIsolateHandler =
-          IsolateHandler<Map<String, dynamic>, List<SinglesigVaultListItem>>(
-              addVaultIsolate);
-      await _addVaultIsolateHandler!
-          .initialize(initialType: InitializeType.addVault);
-    }
 
-    List<SinglesigVaultListItem> vaultListResult =
-        await _addVaultIsolateHandler!.runAddVault(vaultData);
-    linkNewSinglesigVaultAndMultisigVaults(vaultListResult.first);
+    await _walletManager.addSinglesigWallet(wallet);
+    _vaultList = _walletManager.vaultList;
 
-    if (_addVaultIsolateHandler != null) {
-      _addVaultIsolateHandler!.dispose();
-      _addVaultIsolateHandler = null;
-    }
-
-    _vaultList.addAll(vaultListResult);
     setAnimatedVaultFlags(index: _vaultList.length);
     setAddVaultCompleted(true);
     await updateVaultInStorage();
@@ -589,10 +576,10 @@ class VaultModel extends ChangeNotifier {
     //   _vaultListIsolateHandler!.dispose();
     //   _vaultListIsolateHandler = null;
     // }
-    if (_addVaultIsolateHandler != null) {
-      _addVaultIsolateHandler!.dispose();
-      _addVaultIsolateHandler = null;
-    }
+    // if (_addVaultIsolateHandler != null) {
+    //   _addVaultIsolateHandler!.dispose();
+    //   _addVaultIsolateHandler = null;
+    // }
     if (_addMultisigVaultIsolateHandler != null) {
       _addMultisigVaultIsolateHandler!.dispose();
       _addMultisigVaultIsolateHandler = null;

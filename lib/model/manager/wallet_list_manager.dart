@@ -9,11 +9,15 @@ import 'package:coconut_vault/model/data/singlesig_vault_list_item.dart';
 import 'package:coconut_vault/model/data/singlesig_vault_list_item_factory.dart';
 import 'package:coconut_vault/model/data/vault_list_item_base.dart';
 import 'package:coconut_vault/model/data/vault_type.dart';
+import 'package:coconut_vault/model/manager/secret.dart';
+import 'package:coconut_vault/model/manager/singlesig_wallet.dart';
 import 'package:coconut_vault/services/isolate_service.dart';
 import 'package:coconut_vault/services/realm_service.dart';
 import 'package:coconut_vault/services/secure_storage_service.dart';
 import 'package:coconut_vault/services/shared_preferences_service.dart';
+import 'package:coconut_vault/utils/hash_util.dart';
 import 'package:coconut_vault/utils/isolate_handler.dart';
+import 'package:coconut_vault/utils/print_util.dart';
 
 /// 지갑의 public 정보는 shared prefs, 비밀 정보는 secure storage에 저장하는 역할을 하는 클래스입니다.
 class WalletListManager {
@@ -32,6 +36,7 @@ class WalletListManager {
   late List<String> _keys;
 
   List<VaultListItemBase>? _vaultList;
+  get vaultList => _vaultList;
 
   WalletListManager._internal();
 
@@ -50,7 +55,6 @@ class WalletListManager {
 
   Future loadAndEmitEachWallet(
       Function(VaultListItemBase wallet) emitOneItem) async {
-    List<VaultListItemBase> vaultList = [];
     String? jsonArrayString;
     try {
       jsonArrayString = await _storageService.read(key: vaultListField);
@@ -58,8 +62,12 @@ class WalletListManager {
       jsonArrayString = _realmService.getValue(key: vaultListField);
     }
 
-    if (jsonArrayString == null) return;
+    if (jsonArrayString == null) {
+      _vaultList = [];
+      return;
+    }
 
+    List<VaultListItemBase> vaultList = [];
     List<dynamic> jsonList = jsonDecode(jsonArrayString);
 
     var initIsolateHandler =
@@ -81,21 +89,14 @@ class WalletListManager {
 
   /// 저장소에까지 저장 완료 후 최종 생성 결과를 반환해준다. 그럼 vault_model에서는 리스트에 추가하면 됨
   Future<SinglesigVaultListItem> addSinglesigWallet(
-      {required String name,
-      required int iconIndex,
-      required int colorIndex,
-      required String mnemonic,
-      required String passphrase}) async {
-    final int nextId = _sharedPrefs.getInt('nextId') ?? 1;
+      SinglesigWallet wallet) async {
+    if (_vaultList == null) {
+      throw "[wallet_list_manager/addSinglesigWallet()] _vaultList is null";
+    }
 
-    final Map<String, dynamic> vaultData = {
-      'id': nextId,
-      'name': name,
-      'iconIndex': iconIndex,
-      'colorIndex': colorIndex,
-      'importingSecret': mnemonic,
-      'importingPassphrase': passphrase,
-    };
+    final int nextId = _sharedPrefs.getInt('nextId') ?? 1;
+    wallet.id = nextId;
+    final Map<String, dynamic> vaultData = wallet.toJson();
 
     var addVaultIsolateHandler =
         IsolateHandler<Map<String, dynamic>, List<SinglesigVaultListItem>>(
@@ -106,49 +107,75 @@ class WalletListManager {
         await addVaultIsolateHandler.runAddVault(vaultData);
     addVaultIsolateHandler.dispose();
 
-    // TODO: linkNewSinglesigVaultAndMultisigVaults(vaultListResult.first);
-    // TODO: add to storage
-    // secret 정보는 secure storage에 저장
-    // ui 요소 local storage에 저장
-    // 만약 여기서 실패하면 위 secure storage에 저장했던 것도 rollback 해야 함.
+    _linkNewSinglesigVaultAndMultisigVaults(vaultListResult.first);
 
+    String keyString =
+        _createWalletKeyString(nextId, VaultType.singleSignature);
+    _storageService.write(
+        key: keyString,
+        value:
+            jsonEncode(Secret(wallet.mnemonic!, wallet.passphrase!).toJson()));
+
+    try {
+      savePublicInfo();
+    } catch (error) {
+      _storageService.delete(key: keyString);
+    }
+
+    _vaultList!.add(vaultListResult[0]);
     return vaultListResult[0];
+  }
+
+  String _createWalletKeyString(int id, VaultType type) {
+    return hashString("${id.toString()} - ${type.name}");
+  }
+
+  Future savePublicInfo() async {
+    if (_vaultList == null) return;
+
+    final jsonString =
+        jsonEncode(_vaultList!.map((item) => item.toJson()).toList());
+    _sharedPrefs.setString(vaultListField, jsonString);
   }
 
   void _linkNewSinglesigVaultAndMultisigVaults(
       SinglesigVaultListItem singlesigItem) {
-    // outerLoop:
-    // for (int i = 0; i < _vaultList.length; i++) {
-    //   VaultListItemBase vault = _vaultList[i];
-    //   // 싱글 시그는 스킵
-    //   if (vault.vaultType == VaultType.singleSignature) continue;
+    outerLoop:
+    for (int i = 0; i < _vaultList!.length; i++) {
+      VaultListItemBase vault = _vaultList![i];
+      // 싱글 시그는 스킵
+      if (vault.vaultType == VaultType.singleSignature) continue;
 
-    //   List<MultisigSigner> signers = (vault as MultisigVaultListItem).signers;
-    //   // 멀티 시그만 판단
-    //   String importedMfp =
-    //       (singlesigItem.coconutVault as SingleSignatureVault).keyStore.masterFingerprint;
-    //   for (int j = 0; j < signers.length; j++) {
-    //     String signerMfp = signers[j].keyStore.masterFingerprint;
+      List<MultisigSigner> signers = (vault as MultisigVaultListItem).signers;
+      // 멀티 시그만 판단
+      String importedMfp = (singlesigItem.coconutVault as SingleSignatureVault)
+          .keyStore
+          .masterFingerprint;
+      for (int j = 0; j < signers.length; j++) {
+        String signerMfp = signers[j].keyStore.masterFingerprint;
 
-    //     if (signerMfp == importedMfp) {
-    //       // 다중 서명 지갑에서 signer로 사용되고 있는 mfp와 새로 추가된 볼트의 mfp가 같으면 정보를 변경
-    //       final signer = (_vaultList[i] as MultisigVaultListItem).signers[j];
-    //       signer
-    //         ..innerVaultId = singlesigItem.id
-    //         ..name = singlesigItem.name
-    //         ..iconIndex = singlesigItem.iconIndex
-    //         ..colorIndex = singlesigItem.colorIndex
-    //         ..memo = null;
-    //       Map<int, int> linkedMultisigInfo = {vault.id: j};
-    //       if (singlesigItem.linkedMultisigInfo == null) {
-    //         singlesigItem.linkedMultisigInfo = linkedMultisigInfo;
-    //       } else {
-    //         singlesigItem.linkedMultisigInfo!.addAll(linkedMultisigInfo);
-    //       }
-    //       continue outerLoop; // 같은 singlesig가 하나의 multisig 지갑에 2번 이상 signer로 등록될 수 없으므로
-    //     }
-    //   }
-    // }
+        if (signerMfp == importedMfp) {
+          // 다중 서명 지갑에서 signer로 사용되고 있는 mfp와 새로 추가된 볼트의 mfp가 같으면 정보를 변경
+          // 멀티시그 지갑 정보 변경
+          final signer = (_vaultList![i] as MultisigVaultListItem).signers[j];
+          signer
+            ..innerVaultId = singlesigItem.id
+            ..name = singlesigItem.name
+            ..iconIndex = singlesigItem.iconIndex
+            ..colorIndex = singlesigItem.colorIndex
+            ..memo = null;
+
+          // 싱글시그 지갑 정보 변경
+          Map<int, int> linkedMultisigInfo = {vault.id: j};
+          if (singlesigItem.linkedMultisigInfo == null) {
+            singlesigItem.linkedMultisigInfo = linkedMultisigInfo;
+          } else {
+            singlesigItem.linkedMultisigInfo!.addAll(linkedMultisigInfo);
+          }
+          continue outerLoop; // 같은 singlesig가 하나의 multisig 지갑에 2번 이상 signer로 등록될 수 없으므로
+        }
+      }
+    }
   }
 
   /// 저장소에까지 저장 완료 후 최종 생성 결과를 반환해준다. 그럼 vault_model에서는 리스트에 추가하면 됨
