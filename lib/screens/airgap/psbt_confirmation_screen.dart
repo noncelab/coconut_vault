@@ -128,6 +128,14 @@ class _PsbtConfirmationScreenState extends State<PsbtConfirmationScreen> {
         _showLoading = true;
       });
 
+      var secret = await _vaultModel.getSecret(widget.id);
+      Seed seed =
+          Seed.fromMnemonic(secret.mnemonic, passphrase: secret.passphrase);
+      print('--> seed: ${(_walletBase as SingleSignatureVault).keyStore.seed}');
+      print(
+          '--> seed: ${(_walletBase as SingleSignatureVault).keyStore.hasSeed}');
+      (_walletBase as SingleSignatureVault).keyStore.seed = seed;
+
       bool canSignResult =
           await canSignToPsbt(_walletBase, _waitingForSignaturePsbtBase64!);
       if (!canSignResult) {
@@ -152,6 +160,7 @@ class _PsbtConfirmationScreenState extends State<PsbtConfirmationScreen> {
         showAlertDialog(context: context, content: "서명 실패: $_");
       }
     } finally {
+      (_walletBase as SingleSignatureVault).keyStore.seed = null;
       setState(() {
         _showLoading = false;
       });

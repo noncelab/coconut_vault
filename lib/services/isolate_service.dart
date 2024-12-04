@@ -206,9 +206,9 @@ Future<VaultListItemBase> initializeWallet(Map<String, dynamic> data,
 
   // coconut_vault 1.0.1 -> 2.0.0 업데이트 되면서 vaultType이 추가됨
   if (vaultType == null || vaultType == VaultType.singleSignature.name) {
-    return SinglesigVaultListItemFactory().createFromJson(data);
+    return SinglesigVaultListItem.fromJson(data);
   } else if (vaultType == VaultType.multiSignature.name) {
-    return MultisigVaultListItemFactory().createFromJson(data);
+    return MultisigVaultListItem.fromJson(data);
   } else {
     throw ArgumentError('[initializeWallet] vaultType: $vaultType');
   }

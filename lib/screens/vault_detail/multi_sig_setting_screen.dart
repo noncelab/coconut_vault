@@ -201,8 +201,7 @@ class _MultiSigSettingScreenState extends State<MultiSigSettingScreen> {
                 MyBottomSheet.showBottomSheet_90(
                   context: context,
                   child: MnemonicViewScreen(
-                    mnemonic: single.secret,
-                    passphrase: single.passphrase,
+                    walletId: single.id,
                     title: '니모닉 문구 보기',
                     subtitle: '패스프레이즈 보기',
                   ),

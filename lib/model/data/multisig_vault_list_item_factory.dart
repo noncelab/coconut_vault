@@ -3,9 +3,8 @@ import 'package:coconut_vault/model/data/multisig_signer.dart';
 import 'package:coconut_vault/model/data/multisig_signer_factory.dart';
 import 'package:coconut_vault/model/data/multisig_vault_list_item.dart';
 import 'package:coconut_vault/model/data/vault_list_item_base.dart';
-import 'package:coconut_vault/model/data/vault_list_item_factory.dart';
 
-class MultisigVaultListItemFactory implements VaultListItemFactory {
+class MultisigVaultListItemFactory {
   static const String coordinatorBsmsField = 'coordinatorBsms';
   static const String signersField = 'signers';
   static const String requiredSignatureCountField = 'requiredSignatureCount';
@@ -48,17 +47,5 @@ class MultisigVaultListItemFactory implements VaultListItemFactory {
     );
 
     return newVault;
-  }
-
-  // SecureStorage에서 복원 시
-  @override
-  MultisigVaultListItem createFromJson(Map<String, dynamic> json) {
-    final result = MultisigVaultListItem.fromJson(json);
-
-    // assert(result.vaultJsonString != null);
-
-    // result.coconutVault = MultisignatureVault.fromJson(result.vaultJsonString!);
-
-    return result;
   }
 }

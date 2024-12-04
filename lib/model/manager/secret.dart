@@ -4,9 +4,10 @@ part 'secret.g.dart'; // 생성될 파일 이름 $ dart run build_runner build
 
 @JsonSerializable()
 class Secret {
-  @JsonKey(name: "mnemonic")
+  @JsonKey()
   late final String mnemonic;
-  @JsonKey(name: "passphrase")
+
+  @JsonKey()
   late final String passphrase;
 
   Secret(this.mnemonic, this.passphrase);

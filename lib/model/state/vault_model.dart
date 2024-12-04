@@ -11,6 +11,7 @@ import 'package:coconut_vault/model/data/singlesig_vault_list_item_factory.dart'
 import 'package:coconut_vault/model/data/vault_list_item_base.dart';
 import 'package:coconut_vault/model/data/vault_type.dart';
 import 'package:coconut_vault/model/manager/multisig_wallet.dart';
+import 'package:coconut_vault/model/manager/secret.dart';
 import 'package:coconut_vault/model/manager/singlesig_wallet.dart';
 import 'package:coconut_vault/model/manager/wallet_list_manager.dart';
 import 'package:coconut_vault/model/state/multisig_creation_model.dart';
@@ -337,14 +338,14 @@ class VaultModel extends ChangeNotifier {
         }
       }
 
-      _vaultList[index] = SinglesigVaultListItem(
-          id: ssv.id,
-          name: newName,
-          colorIndex: colorIndex,
-          iconIndex: iconIndex,
-          secret: ssv.secret,
-          passphrase: ssv.passphrase,
-          linkedMultisigInfo: ssv.linkedMultisigInfo);
+      // _vaultList[index] = SinglesigVaultListItem(
+      //     id: ssv.id,
+      //     name: newName,
+      //     colorIndex: colorIndex,
+      //     iconIndex: iconIndex,
+      //     secret: ssv.secret,
+      //     passphrase: ssv.passphrase,
+      //     linkedMultisigInfo: ssv.linkedMultisigInfo);
     } else if (_vaultList[index].vaultType == VaultType.multiSignature) {
       MultisigVaultListItem ssv = _vaultList[index] as MultisigVaultListItem;
 
@@ -466,44 +467,6 @@ class VaultModel extends ChangeNotifier {
     return;
   }
 
-  static Future<List<VaultListItemBase>> loadVaultListIsolate(
-      void _, void Function(dynamic)? setVaultListLoadingProgress) async {
-    BitcoinNetwork.setNetwork(BitcoinNetwork.regtest);
-    List<VaultListItemBase> vaultList = [];
-    String? jsonArrayString;
-    final SecureStorageService storageService = SecureStorageService();
-    final RealmService realmService = RealmService();
-    try {
-      jsonArrayString = await storageService.read(key: VAULT_LIST);
-    } catch (_) {
-      jsonArrayString = realmService.getValue(key: VAULT_LIST);
-    }
-
-    // printLongString('jsonArrayString--> $jsonArrayString');
-
-    if (jsonArrayString != null) {
-      const String vaultTypeField = 'vaultType';
-      List<dynamic> jsonList = jsonDecode(jsonArrayString);
-      for (int i = 0; i < jsonList.length; i++) {
-        if (jsonList[i][vaultTypeField] == VaultType.singleSignature.name) {
-          vaultList
-              .add(SinglesigVaultListItemFactory().createFromJson(jsonList[i]));
-        } else if (jsonList[i][vaultTypeField] ==
-            VaultType.multiSignature.name) {
-          vaultList
-              .add(MultisigVaultListItemFactory().createFromJson(jsonList[i]));
-        } else {
-          // coconut_vault 1.0.1 -> 2.0.0 업데이트 되면서 vaultType이 추가됨
-          jsonList[i][vaultTypeField] = VaultType.singleSignature.name;
-          vaultList
-              .add(SinglesigVaultListItemFactory().createFromJson(jsonList[i]));
-        }
-      }
-    }
-
-    return vaultList;
-  }
-
   Future<void> updateVaultInStorage() async {
     final jsonString =
         jsonEncode(_vaultList.map((item) => item.toJson()).toList());
@@ -533,6 +496,10 @@ class VaultModel extends ChangeNotifier {
   void setAddVaultCompleted(bool value) {
     _isAddVaultCompleted = value;
     notifyListeners();
+  }
+
+  Future<Secret> getSecret(int id) async {
+    return await _walletManager.getSecret(id);
   }
 
   @override

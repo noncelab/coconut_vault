@@ -85,6 +85,12 @@ class WalletListManager {
         initialType: InitializeType.initializeWallet);
 
     for (int i = 0; i < jsonList.length; i++) {
+      if (jsonList[i][vaultTypeField] == VaultType.singleSignature.name) {
+        var secret = await getSecret(jsonList[i]['id']);
+        jsonList[i][SinglesigVaultListItem.secretField] = secret.mnemonic;
+        jsonList[i][SinglesigVaultListItem.passphraseField] = secret.passphrase;
+      }
+
       VaultListItemBase item = await initIsolateHandler.run(jsonList[i]);
       emitOneItem(item);
       vaultList.add(item);
@@ -255,6 +261,12 @@ class WalletListManager {
     if (nextId == 1) return;
 
     _sharedPrefs.setInt(nextIdField, nextId - 1);
+  }
+
+  Future<Secret> getSecret(int id) async {
+    var secretString = await _storageService.read(
+        key: _createWalletKeyString(id, VaultType.singleSignature));
+    return Secret.fromJson(jsonDecode(secretString!));
   }
 
   // getWallet(String key)

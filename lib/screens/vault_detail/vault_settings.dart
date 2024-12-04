@@ -182,8 +182,7 @@ class _VaultSettingsState extends State<VaultSettings> {
           MyBottomSheet.showBottomSheet_90(
               context: context,
               child: MnemonicViewScreen(
-                mnemonic: _singleVaultItem.secret,
-                passphrase: _singleVaultItem.passphrase,
+                walletId: widget.id,
                 title: '니모닉 문구 보기',
                 subtitle: '패스프레이즈 보기',
               ));

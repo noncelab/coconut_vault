@@ -9,27 +9,31 @@ part 'singlesig_vault_list_item.g.dart'; // 생성될 파일 이름 $ dart run b
 
 @JsonSerializable(ignoreUnannotated: true)
 class SinglesigVaultListItem extends VaultListItemBase {
+  static const String secretField = 'secret';
+  static const String passphraseField = 'passphrase';
+
   SinglesigVaultListItem({
     required super.id,
     required super.name,
     required super.colorIndex,
     required super.iconIndex,
-    required this.secret,
-    required this.passphrase,
+    required String secret,
+    required String passphrase,
     this.linkedMultisigInfo,
     super.vaultJsonString,
   }) : super(vaultType: VaultType.singleSignature) {
     Seed seed = Seed.fromMnemonic(secret, passphrase: passphrase);
     coconutVault = SingleSignatureVault.fromSeed(seed, AddressType.p2wpkh);
-
-    //vaultJsonString ??= (coconutVault as SingleSignatureVault).toJson();
+    //TODO: (coconutVault as SingleSignatureVault).keyStore.seed = null;
   }
 
-  @JsonKey(name: "secret")
-  final String secret;
+  /// @Deprecated
+  @JsonKey(name: secretField)
+  String? secret;
 
-  @JsonKey(name: "passphrase")
-  final String passphrase;
+  /// @Deprecated
+  @JsonKey(name: passphraseField)
+  String? passphrase;
 
   @JsonKey(name: "linkedMultisigInfo")
   Map<int, int>? linkedMultisigInfo;
