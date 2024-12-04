@@ -11,6 +11,7 @@ import 'package:coconut_vault/utils/icon_util.dart';
 import 'package:coconut_vault/widgets/bottom_sheet.dart';
 import 'package:coconut_vault/widgets/button/shrink_animation_button.dart';
 import 'package:provider/provider.dart';
+import 'package:shimmer/shimmer.dart';
 
 import '../model/state/vault_model.dart';
 import '../styles.dart';
@@ -23,12 +24,14 @@ class VaultRowItem extends StatefulWidget {
     this.isSelectable = false,
     this.onSelected,
     this.isPressed = false,
+    this.isLoadCompletedAnimation = false,
   });
 
   final VaultListItemBase vault;
   final bool isSelectable;
   final VoidCallback? onSelected;
   final bool isPressed;
+  final bool isLoadCompletedAnimation;
 
   @override
   State<VaultRowItem> createState() => _VaultRowItemState();
@@ -40,6 +43,7 @@ class _VaultRowItemState extends State<VaultRowItem> {
   bool _isMultiSig = false;
   String _subtitleText = '';
   bool _isUsedToMultiSig = false;
+  bool _isLoadCompletedAnimation = false;
   List<MultisigSigner>? _multiSigners;
 
   void _updateVault() {
@@ -71,9 +75,52 @@ class _VaultRowItemState extends State<VaultRowItem> {
     }
   }
 
+  _setLoadCompletedAnimation() async {
+    setState(() {
+      _isLoadCompletedAnimation = widget.isLoadCompletedAnimation;
+    });
+
+    await Future.delayed(const Duration(milliseconds: 1000));
+
+    setState(() {
+      _isLoadCompletedAnimation = false;
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+
+    if (widget.vault.vaultType == VaultType.multiSignature) {
+      _isMultiSig = true;
+      final multi = widget.vault as MultisigVaultListItem;
+      _subtitleText = '${multi.requiredSignatureCount}/${multi.signers.length}';
+      _multiSigners = multi.signers;
+    } else {
+      final single = widget.vault as SinglesigVaultListItem;
+      if (single.linkedMultisigInfo != null) {
+        final multisigKey = single.linkedMultisigInfo!;
+        if (multisigKey.keys.isNotEmpty) {
+          final model = Provider.of<VaultModel>(context, listen: false);
+          // TODO: No Element
+          try {
+            final multisig = model.getVaultById(multisigKey.keys.first);
+            _subtitleText = '${TextUtils.ellipsisIfLonger(multisig.name)} 지갑의 '
+                '${multisigKey.values.first + 1}번 키';
+            _isUsedToMultiSig = true;
+          } catch (_) {}
+        }
+      }
+    }
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _setLoadCompletedAnimation();
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
-    _updateVault();
+    // _updateVault();
     final row = widget.isSelectable
         ? GestureDetector(
             onTap: () {
@@ -112,15 +159,41 @@ class _VaultRowItemState extends State<VaultRowItem> {
             },
             child: _vaultContainerWidget());
 
-    return Column(
+    return Stack(
       children: [
-        Container(
-          constraints: const BoxConstraints(minHeight: 100),
-          child: row,
+        Column(
+          children: [
+            Container(
+              constraints: const BoxConstraints(minHeight: 100),
+              child: row,
+            ),
+            const SizedBox(
+              height: 10,
+            )
+          ],
         ),
-        const SizedBox(
-          height: 10,
-        )
+        Visibility(
+          visible: _isLoadCompletedAnimation,
+          child: Container(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(28),
+            ),
+            child: Shimmer.fromColors(
+              baseColor: MyColors.transparentBlack_15,
+              highlightColor: MyColors.transparentWhite_20,
+              period: const Duration(milliseconds: 1000),
+              direction: ShimmerDirection.ltr,
+              child: Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(28),
+                  color: MyColors.transparentWhite_20,
+                ),
+                width: double.maxFinite,
+                height: 100,
+              ),
+            ),
+          ),
+        ),
       ],
     );
   }

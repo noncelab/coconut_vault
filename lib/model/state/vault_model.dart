@@ -443,6 +443,7 @@ class VaultModel extends ChangeNotifier {
           if (_vaultSkeletonLength == 0) {
             // 이전 버전 사용자는 vault개수가 로컬에 없으므로 업데이트
             _vaultSkeletonLength = jsonList.length;
+            _appModel.saveVaultListLength(jsonList.length);
             notifyListeners();
           }
           await _walletManager.loadAndEmitEachWallet(jsonList,

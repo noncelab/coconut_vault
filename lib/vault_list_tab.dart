@@ -309,7 +309,7 @@ class _VaultListTabState extends State<VaultListTab>
                                     )
                                   : VaultRowItem(
                                       vault: vaults[index],
-                                    )
+                                      isLoadCompletedAnimation: true)
                               : Container(),
                         ),
                       ),
