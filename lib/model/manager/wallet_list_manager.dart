@@ -16,7 +16,6 @@ import 'package:coconut_vault/services/secure_storage_service.dart';
 import 'package:coconut_vault/services/shared_preferences_service.dart';
 import 'package:coconut_vault/utils/hash_util.dart';
 import 'package:coconut_vault/utils/isolate_handler.dart';
-import 'package:coconut_vault/utils/print_util.dart';
 
 /// 지갑의 public 정보는 shared prefs, 비밀 정보는 secure storage에 저장하는 역할을 하는 클래스입니다.
 class WalletListManager {
@@ -52,8 +51,7 @@ class WalletListManager {
   //   return jsonDecode(keys);
   // }
 
-  Future loadVaultListJsonArrayString(
-      Function(List<dynamic>? jsonList) callbackVaultJsonList) async {
+  Future<List<dynamic>?> loadVaultListJsonArrayString() async {
     String? jsonArrayString;
 
     try {
@@ -62,16 +60,13 @@ class WalletListManager {
       jsonArrayString = _realmService.getValue(key: vaultListField);
     }
 
-    printLongString('--> $jsonArrayString');
+    // printLongString('--> $jsonArrayString');
     if (jsonArrayString == null) {
       _vaultList = [];
-      callbackVaultJsonList(null);
-      return;
+      return null;
     }
 
-    List<dynamic> jsonList = jsonDecode(jsonArrayString);
-
-    callbackVaultJsonList(jsonList);
+    return jsonDecode(jsonArrayString);
   }
 
   Future loadAndEmitEachWallet(List<dynamic> jsonList,

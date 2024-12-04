@@ -68,6 +68,9 @@ class VaultModel extends ChangeNotifier {
   // 리스트 로딩중 여부 (indicator 표시 및 중복 방지)
   bool _isVaultListLoading = false;
   bool get isVaultListLoading => _isVaultListLoading;
+  // 리스트 로딩 완료 여부 (로딩작업 완료 후 바로 추가하기 표시)
+  bool _isLoadVaultList = false;
+  bool get isLoadVaultList => _isLoadVaultList;
   // 지갑 추가, 지갑 삭제, 서명완료 후 불필요하게 loadVaultList() 호출되는 것을 막음
   bool _vaultInitialized = false;
   bool get vaultInitialized => _vaultInitialized;
@@ -437,23 +440,22 @@ class VaultModel extends ChangeNotifier {
     notifyListeners();
 
     try {
-      await _walletManager
-          .loadVaultListJsonArrayString((List<dynamic>? jsonList) async {
-        if (jsonList != null) {
-          if (_vaultSkeletonLength == 0) {
-            // 이전 버전 사용자는 vault개수가 로컬에 없으므로 업데이트
-            _vaultSkeletonLength = jsonList.length;
-            _appModel.saveVaultListLength(jsonList.length);
-            notifyListeners();
-          }
-          await _walletManager.loadAndEmitEachWallet(jsonList,
-              (VaultListItemBase wallet) {
-            _vaultList.add(wallet);
-            _vaultSkeletonLength = _vaultSkeletonLength - 1;
-            notifyListeners();
-          });
+      final jsonList = await _walletManager.loadVaultListJsonArrayString();
+
+      if (jsonList != null) {
+        if (_vaultSkeletonLength == 0) {
+          // 이전 버전 사용자는 vault개수가 로컬에 없으므로 업데이트
+          _vaultSkeletonLength = jsonList.length;
+          _appModel.saveVaultListLength(jsonList.length);
+          notifyListeners();
         }
-      });
+        await _walletManager.loadAndEmitEachWallet(jsonList,
+            (VaultListItemBase wallet) {
+          _vaultList.add(wallet);
+          _vaultSkeletonLength = _vaultSkeletonLength - 1;
+          notifyListeners();
+        });
+      }
 
       vibrateLight();
       _vaultInitialized = true;
@@ -461,6 +463,7 @@ class VaultModel extends ChangeNotifier {
       Logger.log('[loadVaultList] Exception : ${e.toString()}');
     } finally {
       _isVaultListLoading = false;
+      _isLoadVaultList = true;
       notifyListeners();
     }
     return;
