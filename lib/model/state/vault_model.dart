@@ -14,6 +14,7 @@ import 'package:coconut_vault/model/manager/multisig_wallet.dart';
 import 'package:coconut_vault/model/manager/secret.dart';
 import 'package:coconut_vault/model/manager/singlesig_wallet.dart';
 import 'package:coconut_vault/model/manager/wallet_list_manager.dart';
+import 'package:coconut_vault/model/state/exception/not_related_multisig_wallet_exception.dart';
 import 'package:coconut_vault/model/state/multisig_creation_model.dart';
 import 'package:coconut_vault/services/shared_preferences_service.dart';
 import 'package:flutter/foundation.dart';
@@ -209,8 +210,7 @@ class VaultModel extends ChangeNotifier {
     // vibrateLight();
   }
 
-  Future<void> addMultisigVaultAsync(
-      int nextId, String name, int color, int icon) async {
+  Future<void> addMultisigVaultAsync(String name, int color, int icon) async {
     setAddVaultCompleted(false);
 
     final signers = _multisigCreationModel.signers!;
@@ -249,46 +249,126 @@ class VaultModel extends ChangeNotifier {
     }
   }
 
-  Future<void> importMultisigVaultAsync(MultisigImportDetail details) async {
+  Future<void> importMultisigVaultAsync(
+      MultisigImportDetail details, int walletId) async {
     setAddVaultCompleted(false);
-    final nextId = SharedPrefsService().getInt('nextId') ?? 1;
 
-    Map<String, dynamic> data = {
-      'nextId': nextId,
-      'name': details.name,
-      'colorIndex': details.colorIndex,
-      'iconIndex': details.iconIndex,
-      'namesMap': details.namesMap,
-      'secrets': {
-        'bsms': details.coordinatorBsms,
-        'vaultList':
-            jsonEncode(_vaultList.map((item) => item.toJson()).toList()),
+    // 이 지갑이 위 멀티시그 지갑의 일부인지 확인하기
+    MultisignatureVault multisigVault =
+        MultisignatureVault.fromCoordinatorBsms(details.coordinatorBsms);
+
+    // 중복 코드 확인
+    List<SinglesigVaultListItem?> linkedWalletList = [];
+    bool isRelated = false;
+    outerLoop:
+    for (var wallet in _vaultList) {
+      if (wallet.vaultType == VaultType.multiSignature) continue;
+      for (var keyStore in multisigVault.keyStoreList) {
+        var singlesigVaultListItem = wallet as SinglesigVaultListItem;
+        if ((singlesigVaultListItem.coconutVault as SingleSignatureVault)
+                .keyStore
+                .masterFingerprint ==
+            keyStore.masterFingerprint) {
+          linkedWalletList.add(wallet);
+          if (singlesigVaultListItem.id == walletId) {
+            isRelated = true;
+          }
+          continue outerLoop;
+        }
+        linkedWalletList.add(null);
       }
-    };
-    if (_importMultisigVaultIsolateHandler == null) {
-      _importMultisigVaultIsolateHandler =
-          IsolateHandler<Map<String, dynamic>, MultisigVaultListItem>(
-              importMultisigVaultIsolate);
-      await _importMultisigVaultIsolateHandler!
-          .initialize(initialType: InitializeType.importMultisigVault);
     }
 
+    if (!isRelated) {
+      throw NotRelatedMultisigWalletException();
+    }
+
+    List<MultisigSigner> signers = [];
+    for (int i = 0; i < multisigVault.keyStoreList.length; i++) {
+      // 외부 지갑
+      if (linkedWalletList[i] == null) {
+        signers.add(MultisigSigner(
+            id: i,
+            name: details
+                .namesMap[multisigVault.keyStoreList[i].masterFingerprint],
+            keyStore: multisigVault.keyStoreList[i]));
+      } else {
+        // 내부 지갑
+        signers.add(MultisigSigner(
+          id: i,
+          // TODO: signerBsms: linkedWalletList[i].signerBsms,
+          signerBsms: 'signerBSMS',
+          innerVaultId: linkedWalletList[i]!.id,
+          keyStore: KeyStore.fromSignerBsms(
+              'signerBsms'), //TODO: linkedWalletList[i].signerBsms
+          name: linkedWalletList[i]!.name,
+          iconIndex: linkedWalletList[i]!.iconIndex,
+          colorIndex: linkedWalletList[i]!.colorIndex,
+        ));
+      }
+    }
+
+    _multisigCreationModel.signers = signers;
+    _multisigCreationModel.setQuoramRequirement(
+        multisigVault.requiredSignature, multisigVault.keyStoreList.length);
+    await addMultisigVaultAsync(
+        details.name, details.colorIndex, details.iconIndex);
+    // return multisigVault.keyStoreList.indexWhere((keyStore) =>
+    //     keyStore.masterFingerprint ==
+    //     (singlesigVaultListItem.coconutVault as SingleSignatureVault)
+    //         .keyStore
+    //         .masterFingerprint);
+
+    // // 이 지갑의 signerBsms, isolate 실행
+    // int signerIndex = await _vaultModel.getSignerIndexAsync(
+    //     multisigVault, vaultListItem as SinglesigVaultListItem);
+
+    // //Logger.log('signerIndex = $signerIndex');
+    // if (signerIndex == -1) {
+    //   onFailedScanning('이 지갑을 키로 사용한 다중 서명 지갑이 아닙니다.');
+    //   return;
+    // }
+
+    // TODO: details를 가지고 MultisigWallet을 생성해야한다.
+
+    // final nextId = SharedPrefsService().getInt('nextId') ?? 1;
+
+    // Map<String, dynamic> data = {
+    //   'nextId': nextId,
+    //   'name': details.name,
+    //   'colorIndex': details.colorIndex,
+    //   'iconIndex': details.iconIndex,
+    //   'namesMap': details.namesMap,
+    //   'secrets': {
+    //     'bsms': details.coordinatorBsms,
+    //     'vaultList':
+    //         jsonEncode(_vaultList.map((item) => item.toJson()).toList()),
+    //   }
+    // };
+    // if (_importMultisigVaultIsolateHandler == null) {
+    //   _importMultisigVaultIsolateHandler =
+    //       IsolateHandler<Map<String, dynamic>, MultisigVaultListItem>(
+    //           importMultisigVaultIsolate);
+    //   await _importMultisigVaultIsolateHandler!
+    //       .initialize(initialType: InitializeType.importMultisigVault);
+    // }
+
     // isolate 내부에서 멀티시그 지갑 signer들의 정보 입력 (MultisigKey,MultisigIndex), innerVault == null이면 외부지갑
-    MultisigVaultListItem newMultisigVault =
-        await _importMultisigVaultIsolateHandler!.run(data);
+    // MultisigVaultListItem newMultisigVault =
+    //     await _importMultisigVaultIsolateHandler!.run(data);
 
     // for SinglesigVaultListItem multsig key map update
-    updateLinkedMultisigInfo(newMultisigVault.signers, nextId);
+    // updateLinkedMultisigInfo(newMultisigVault.signers, nextId);
 
-    _vaultList.add(newMultisigVault);
-    setAnimatedVaultFlags(index: _vaultList.length);
+    // _vaultList.add(newMultisigVault);
+    // setAnimatedVaultFlags(index: _vaultList.length);
 
-    _importMultisigVaultIsolateHandler!.dispose();
-    _importMultisigVaultIsolateHandler = null;
+    // _importMultisigVaultIsolateHandler!.dispose();
+    // _importMultisigVaultIsolateHandler = null;
 
-    SharedPrefsService().setInt('nextId', nextId + 1);
+    // SharedPrefsService().setInt('nextId', nextId + 1);
     setAddVaultCompleted(true);
-    await updateVaultInStorage();
+    //await updateVaultInStorage();
     notifyListeners();
   }
 

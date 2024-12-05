@@ -6,6 +6,7 @@ import 'package:coconut_lib/coconut_lib.dart';
 import 'package:coconut_vault/model/data/multisig_import_detail.dart';
 import 'package:coconut_vault/model/data/singlesig_vault_list_item.dart';
 import 'package:coconut_vault/model/data/vault_list_item_base.dart';
+import 'package:coconut_vault/model/state/exception/not_related_multisig_wallet_exception.dart';
 import 'package:coconut_vault/model/state/vault_model.dart';
 import 'package:coconut_vault/utils/alert_util.dart';
 import 'package:coconut_vault/widgets/appbar/custom_appbar.dart';
@@ -262,8 +263,7 @@ class _SignerScannerScreenState extends State<SignerScannerScreen> {
         }
 
         // multisigVault 가져오기, isolate 실행
-        await _vaultModel.importMultisigVaultAsync(decodedData);
-
+        await _vaultModel.importMultisigVaultAsync(decodedData, widget.id!);
         assert(_vaultModel.isAddVaultCompleted);
 
         //Logger.log('---> Homeroute = ${HomeScreenStatus().screenStatus}');
@@ -272,8 +272,13 @@ class _SignerScannerScreenState extends State<SignerScannerScreen> {
           '/',
           (Route<dynamic> route) => false,
         );
-      } catch (error) {
-        onFailedScanning(error.toString());
+      } catch (e) {
+        if (e is NotRelatedMultisigWalletException) {
+          onFailedScanning(e.message);
+          return;
+        }
+
+        onFailedScanning(e.toString());
       }
     });
   }
