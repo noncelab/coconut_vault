@@ -4,8 +4,6 @@ import 'dart:io';
 
 import 'package:coconut_lib/coconut_lib.dart';
 import 'package:coconut_vault/model/data/multisig_import_detail.dart';
-import 'package:coconut_vault/model/data/singlesig_vault_list_item.dart';
-import 'package:coconut_vault/model/data/vault_list_item_base.dart';
 import 'package:coconut_vault/model/state/exception/not_related_multisig_wallet_exception.dart';
 import 'package:coconut_vault/model/state/vault_model.dart';
 import 'package:coconut_vault/utils/alert_util.dart';
@@ -221,7 +219,6 @@ class _SignerScannerScreenState extends State<SignerScannerScreen> {
         _isProcessing = true;
       });
 
-      VaultListItemBase vaultListItem = _vaultModel.getVaultById(widget.id!);
       MultisigImportDetail decodedData;
       String coordinatorBsms;
       Map<String, dynamic> decodedJson;
@@ -249,19 +246,6 @@ class _SignerScannerScreenState extends State<SignerScannerScreen> {
       }
 
       try {
-        // 이 지갑이 위 멀티시그 지갑의 일부인지 확인하기, 아닌 경우 alert
-        MultisignatureVault multisigVault =
-            MultisignatureVault.fromCoordinatorBsms(coordinatorBsms);
-        // 이 지갑의 signerBsms, isolate 실행
-        int signerIndex = await _vaultModel.getSignerIndexAsync(
-            multisigVault, vaultListItem as SinglesigVaultListItem);
-
-        //Logger.log('signerIndex = $signerIndex');
-        if (signerIndex == -1) {
-          onFailedScanning('이 지갑을 키로 사용한 다중 서명 지갑이 아닙니다.');
-          return;
-        }
-
         // multisigVault 가져오기, isolate 실행
         await _vaultModel.importMultisigVaultAsync(decodedData, widget.id!);
         assert(_vaultModel.isAddVaultCompleted);

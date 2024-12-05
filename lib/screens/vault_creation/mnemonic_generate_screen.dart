@@ -576,7 +576,8 @@ class _MnemonicWordsState extends State<MnemonicWords> {
                 if (!widget.usePassphrase)
                   CompleteButton(
                       onPressed: () {
-                        vaultModel.startImporting(mnemonic, passphrase);
+                        vaultModel.startSinglesigImporting(
+                            mnemonic, passphrase);
                         widget.onFinished(mnemonic, passphrase, true);
 
                         widget.onShowConfirmBottomSheet();
@@ -587,7 +588,8 @@ class _MnemonicWordsState extends State<MnemonicWords> {
                   CompleteButton(
                       onPressed: () {
                         if (passphrase.isNotEmpty) {
-                          vaultModel.startImporting(mnemonic, passphrase);
+                          vaultModel.startSinglesigImporting(
+                              mnemonic, passphrase);
                           widget.onFinished(mnemonic, passphrase, true);
                           widget.onShowConfirmBottomSheet();
                         } else {

@@ -189,7 +189,7 @@ class _MnemonicImportState extends State<MnemonicImport> {
               return;
             }
 
-            model.startImporting(
+            model.startSinglesigImporting(
                 inputText.trim().toLowerCase().replaceAll(RegExp(r'\s+'), ' '),
                 usePassphrase ? passphrase.trim() : '');
             MyBottomSheet.showBottomSheet_90(

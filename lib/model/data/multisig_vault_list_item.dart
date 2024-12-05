@@ -17,7 +17,7 @@ class MultisigVaultListItem extends VaultListItemBase {
       required super.iconIndex,
       required this.signers,
       required this.requiredSignatureCount,
-      this.coordinatorBsms,
+      String? coordinatorBsms,
       super.vaultJsonString})
       : super(vaultType: VaultType.multiSignature) {
     coconutVault = MultisignatureVault.fromKeyStoreList(
@@ -26,29 +26,15 @@ class MultisigVaultListItem extends VaultListItemBase {
         AddressType.p2wsh);
 
     name = name.replaceAll('\n', ' ');
-    //vaultJsonString ??= (coconutVault as MultisignatureVault).toJson();
-  }
-
-  MultisigVaultListItem.fromCoordinatorBsms(
-      {required super.id,
-      required super.name,
-      required super.colorIndex,
-      required super.iconIndex,
-      required this.coordinatorBsms,
-      required this.signers})
-      : super(vaultType: VaultType.multiSignature) {
-    coconutVault = MultisignatureVault.fromCoordinatorBsms(coordinatorBsms!);
-
-    requiredSignatureCount =
-        (coconutVault as MultisignatureVault).requiredSignature;
-    //vaultJsonString = (coconutVault as MultisignatureVault).toJson();
+    this.coordinatorBsms = coordinatorBsms ??
+        (coconutVault as MultisignatureVault).getCoordinatorBsms();
   }
 
   @JsonKey(name: "signers")
   final List<MultisigSigner> signers;
 
   @JsonKey(name: "coordinatorBsms", includeIfNull: false)
-  final String? coordinatorBsms;
+  late final String? coordinatorBsms;
 
   // json_serialization가 기본 생성자를 사용해서 추가함
   // 필요 서명 개수

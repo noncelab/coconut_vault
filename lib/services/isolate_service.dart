@@ -3,7 +3,6 @@ import 'dart:convert';
 
 import 'package:coconut_lib/coconut_lib.dart';
 import 'package:coconut_vault/model/data/multisig_vault_list_item.dart';
-import 'package:coconut_vault/model/data/multisig_vault_list_item_factory.dart';
 import 'package:coconut_vault/model/data/singlesig_vault_list_item.dart';
 import 'package:coconut_vault/model/data/vault_list_item_base.dart';
 import 'package:coconut_vault/model/data/vault_type.dart';
@@ -119,61 +118,6 @@ Future<List<String>> extractSignerBsmsIsolate(
     replyTo(bsmses);
   }
   return bsmses;
-}
-
-Future<int> getSignerIndexIsolate(
-    Map<String, dynamic> data, void Function(dynamic)? replyTo) async {
-  BitcoinNetwork.setNetwork(BitcoinNetwork.regtest);
-  MultisignatureVault multisignatureVault =
-      MultisignatureVault.fromJson(data['multisigVault']);
-  SinglesigVaultListItem singlesigVaultListItem =
-      SinglesigVaultListItem.fromJson(data['singlesigVault']);
-
-  int signerIndex = MultisigUtils.getSignerIndexUsedInMultisig(
-      multisignatureVault, singlesigVaultListItem);
-
-  if (replyTo != null) {
-    replyTo(signerIndex);
-  }
-  return signerIndex;
-}
-
-Future<MultisigVaultListItem> importMultisigVaultIsolate(
-    Map<String, dynamic> data, void Function(dynamic)? replyTo) async {
-  BitcoinNetwork.setNetwork(BitcoinNetwork.regtest);
-  final int nextId = data['nextId'];
-  final String name = data['name'];
-  final int colorIndex = data['colorIndex'];
-  final int iconIndex = data['iconIndex'];
-  final Map<String, String> namesMap = data['namesMap'];
-  final Map<String, dynamic> secrets = data['secrets'];
-  List<VaultListItemBase> vaultList = [];
-  List<dynamic> decodedVaultListJson = jsonDecode(secrets['vaultList']);
-
-  for (var vaultJson in decodedVaultListJson) {
-    if (vaultJson['vaultType'] == VaultType.multiSignature.name) {
-      vaultList.add(MultisigVaultListItem.fromJson(vaultJson));
-    } else if (vaultJson['vaultType'] == VaultType.singleSignature.name) {
-      vaultList.add(SinglesigVaultListItem.fromJson(vaultJson));
-    }
-  }
-
-  MultisigVaultListItem newMultisigVault = await MultisigVaultListItemFactory()
-      .createFromBsms(
-          nextId: nextId,
-          name: name,
-          colorIndex: colorIndex,
-          iconIndex: iconIndex,
-          namesMap: namesMap,
-          secrets: {
-        "bsms": secrets['bsms'],
-        "vaultList": vaultList,
-      });
-
-  if (replyTo != null) {
-    replyTo(newMultisigVault);
-  }
-  return newMultisigVault;
 }
 
 Future<MultisignatureVault> fromKeyStoreIsolate(

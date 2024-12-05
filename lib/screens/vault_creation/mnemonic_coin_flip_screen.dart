@@ -593,7 +593,7 @@ class _FlipCoinState extends State<FlipCoin> {
 
   void _showConfirmBottomSheet(String message) {
     Provider.of<VaultModel>(context, listen: false)
-        .startImporting(mnemonic, passphrase);
+        .startSinglesigImporting(mnemonic, passphrase);
     MyBottomSheet.showBottomSheet_90(
       context: context,
       child: MnemonicConfirm(
