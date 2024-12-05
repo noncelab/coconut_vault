@@ -245,15 +245,9 @@ class VaultModel extends ChangeNotifier {
 
   /// 다중서명 지갑의 [singerIndex]번째 키로 사용한 외부 지갑의 메모를 업데이트
   Future updateMemo(int id, int signerIndex, String? newMemo) async {
-    final i = _vaultList.indexWhere((item) => item.id == id);
-    assert(i != -1 && _vaultList[i].vaultType == VaultType.multiSignature);
-    assert((_vaultList[i] as MultisigVaultListItem)
-            .signers[signerIndex]
-            .innerVaultId ==
-        null);
-    (_vaultList[i] as MultisigVaultListItem).signers[signerIndex].memo =
-        newMemo;
-    await updateVaultInStorage();
+    int index = _vaultList.indexWhere((wallet) => wallet.id == id);
+    _vaultList[index] =
+        await _walletManager.updateMemo(id, signerIndex, newMemo);
   }
 
   /// SiglesigVaultListItem의 seed 중복 여부 확인

@@ -269,8 +269,6 @@ class WalletListManager {
     return Secret.fromJson(jsonDecode(secretString!));
   }
 
-  // getWallet(String key)
-
   Future<bool> deleteWallet(int id) async {
     if (_vaultList == null) {
       throw Exception('[wallet_list_manager/deleteWallet]: vaultList is empty');
@@ -350,6 +348,16 @@ class WalletListManager {
 
   VaultListItemBase? getVaultById(int id) {
     return _vaultList?.firstWhere((element) => element.id == id);
+  }
+
+  Future<MultisigVaultListItem> updateMemo(
+      int walletId, int signerIndex, String? newMemo) async {
+    var wallet = getVaultById(walletId);
+    assert(wallet != null);
+    (wallet as MultisigVaultListItem).signers[signerIndex].memo = newMemo;
+
+    await savePublicInfo();
+    return wallet;
   }
 
   Future<void> resetAll() async {
