@@ -254,6 +254,67 @@ class WalletListManager {
 
   // getWallet(String key)
   // deleteWallet()
-  // updateWallet()
+
+  Future<bool> updateWallet(
+      int id, String newName, int colorIndex, int iconIndex) async {
+    if (_vaultList == null) {
+      throw Exception('[wallet_list_manager/updateWallet]: vaultList is empty');
+    }
+
+    final index = _vaultList!.indexWhere((item) => item.id == id);
+    if (index == -1) {
+      throw Exception('[wallet_list_manager/updateWallet]: no vault id is "$id"');
+    }
+
+    if (_vaultList![index].vaultType == VaultType.singleSignature) {
+      SinglesigVaultListItem ssv = _vaultList![index] as SinglesigVaultListItem;
+      Map<int, int>? linkedMultisigInfo = ssv.linkedMultisigInfo;
+      // 연결된 MultisigVaultListItem의 signers 객체도 UI 업데이트가 필요
+      if (linkedMultisigInfo != null && linkedMultisigInfo.isNotEmpty) {
+        for (var entry in linkedMultisigInfo.entries) {
+          if (getVaultById(id) != null) {
+            MultisigVaultListItem msv =
+                getVaultById(entry.key) as MultisigVaultListItem;
+            msv.signers[entry.value].name = newName;
+            msv.signers[entry.value].colorIndex = colorIndex;
+            msv.signers[entry.value].iconIndex = iconIndex;
+          }
+        }
+      }
+
+      _vaultList![index] = SinglesigVaultListItem(
+        id: ssv.id,
+        name: newName,
+        colorIndex: colorIndex,
+        iconIndex: iconIndex,
+        secret: ssv.secret,
+        passphrase: ssv.passphrase,
+        linkedMultisigInfo: ssv.linkedMultisigInfo,
+      );
+    } else if (_vaultList![index].vaultType == VaultType.multiSignature) {
+      MultisigVaultListItem ssv = _vaultList![index] as MultisigVaultListItem;
+
+      _vaultList![index] = MultisigVaultListItem(
+        id: ssv.id,
+        name: newName,
+        colorIndex: colorIndex,
+        iconIndex: iconIndex,
+        signers: ssv.signers,
+        requiredSignatureCount: ssv.requiredSignatureCount,
+        coordinatorBsms: ssv.coordinatorBsms,
+      );
+    } else {
+      throw Exception(
+          '[wallet_list_manager/updateWallet]: _vaultList[$index] has wrong type: ${_vaultList![index].vaultType}');
+    }
+
+    savePublicInfo();
+    return true;
+  }
+
+  VaultListItemBase? getVaultById(int id) {
+    return _vaultList?.firstWhere((element) => element.id == id);
+  }
+
   // resetAll()
 }

@@ -315,57 +315,13 @@ class VaultModel extends ChangeNotifier {
     return signerIndex;
   }
 
-  /// addMultisigKey, addMultisigIndex -> 다중 지갑이 추가될 때 일반 지갑의 multisigKey 업데이트
-  /// removeMultisigKey -> 다중 지갑이 삭제될 때 일반 지갑의 multisigKey 삭제
-  /// signerIndex -> 일반 지갑이 변경될 때 다중 지갑의 signer 업데이트
+  /// [id]에 해당하는 지갑의 UI 정보 업데이트
   Future<void> updateVault(
       int id, String newName, int colorIndex, int iconIndex) async {
-    // _vaultList에서 name이 'name'인 항목을 찾아서 그 항목의 name을 newName으로 변경한다.
-    final index = _vaultList.indexWhere((item) => item.id == id);
-    if (index == -1) {
-      throw Exception('updateVaultName: no vault id is "$id"');
+    if (await _walletManager.updateWallet(id, newName, colorIndex, iconIndex)) {
+      _vaultList = _walletManager.vaultList;
+      notifyListeners();
     }
-
-    if (_vaultList[index].vaultType == VaultType.singleSignature) {
-      SinglesigVaultListItem ssv = _vaultList[index] as SinglesigVaultListItem;
-      Map<int, int>? linkedMultisigInfo = ssv.linkedMultisigInfo;
-      // 연결된 MultisigVaultListItem의 signers 객체도 UI 업데이트가 필요
-      if (linkedMultisigInfo != null && linkedMultisigInfo.isNotEmpty) {
-        for (var entry in linkedMultisigInfo.entries) {
-          MultisigVaultListItem msv =
-              getVaultById(entry.key) as MultisigVaultListItem;
-          msv.signers[entry.value].name = newName;
-          msv.signers[entry.value].colorIndex = colorIndex;
-          msv.signers[entry.value].iconIndex = iconIndex;
-        }
-      }
-
-      _vaultList[index] = SinglesigVaultListItem(
-          id: ssv.id,
-          name: newName,
-          colorIndex: colorIndex,
-          iconIndex: iconIndex,
-          secret: ssv.secret,
-          passphrase: ssv.passphrase,
-          linkedMultisigInfo: ssv.linkedMultisigInfo);
-    } else if (_vaultList[index].vaultType == VaultType.multiSignature) {
-      MultisigVaultListItem ssv = _vaultList[index] as MultisigVaultListItem;
-
-      _vaultList[index] = MultisigVaultListItem(
-          id: ssv.id,
-          name: newName,
-          colorIndex: colorIndex,
-          iconIndex: iconIndex,
-          signers: ssv.signers,
-          requiredSignatureCount: ssv.requiredSignatureCount,
-          coordinatorBsms: ssv.coordinatorBsms);
-    } else {
-      throw "[vault_model/updateVault] _vaultList[$index] has wrong type: ${_vaultList[index].vaultType}";
-    }
-
-    // 해당 항목의 name을 newName으로 변경
-    await updateVaultInStorage();
-    notifyListeners();
   }
 
   /// 다중서명 지갑의 [singerIndex]번째 키로 사용한 외부 지갑의 메모를 업데이트
