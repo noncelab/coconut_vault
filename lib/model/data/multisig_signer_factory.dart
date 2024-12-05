@@ -32,8 +32,9 @@ class MultisigSignerFactory {
         SingleSignatureVault singlesigVault =
             singlesigVaultListItem.coconutVault as SingleSignatureVault;
         // p2wsh용 keyStore 생성. 기존 SinglesigVaultListItem의 addressType은 p2wpkh여서 바로 사용하면 안됨.
+        // TODO:
         KeyStore wshKeyStore =
-            KeyStore.fromSeed(singlesigVault.keyStore.seed, AddressType.p2wsh);
+            KeyStore.fromSeed(singlesigVault.keyStore.seed!, AddressType.p2wsh);
 
         // 1. 내부 지갑인 경우
         if (keystoreList[i].masterFingerprint ==

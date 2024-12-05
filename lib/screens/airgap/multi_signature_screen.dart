@@ -53,30 +53,29 @@ class _MultiSignatureScreenState extends State<MultiSignatureScreen> {
     _signers = List<bool>.filled(_multisigVaultItem.signers.length, false);
     _requiredSignatureCount = _multisigVaultItem.requiredSignatureCount;
     _vaultModel.signedRawTx = null;
-    _bindSeedToKeyStore(); // TODO: 비동기로 변경됨, 로딩 효과 필요함
     _checkSignedPsbt(widget.psbtBase64);
   }
 
-  _bindSeedToKeyStore() async {
-    for (MultisigSigner signer in _multisigVaultItem.signers) {
-      if (signer.innerVaultId != null) {
-        // final singleVaultItem = _vaultModel.getVaultById(signer.innerVaultId!)
-        //     as SinglesigVaultListItem;
-        // final keyStore =
-        //     (singleVaultItem.coconutVault as SingleSignatureVault).keyStore;
-        var secret = await _vaultModel.getSecret(signer.innerVaultId!);
-        final seed =
-            Seed.fromMnemonic(secret.mnemonic, passphrase: secret.passphrase);
-        _multisigVault.bindSeedToKeyStore(seed);
-      }
-    }
-  }
+  // _bindSeedToKeyStore() async {
+  //   for (MultisigSigner signer in _multisigVaultItem.signers) {
+  //     if (signer.innerVaultId != null) {
+  //       // final singleVaultItem = _vaultModel.getVaultById(signer.innerVaultId!)
+  //       //     as SinglesigVaultListItem;
+  //       // final keyStore =
+  //       //     (singleVaultItem.coconutVault as SingleSignatureVault).keyStore;
+  //       var secret = await _vaultModel.getSecret(signer.innerVaultId!);
+  //       final seed =
+  //           Seed.fromMnemonic(secret.mnemonic, passphrase: secret.passphrase);
+  //       _multisigVault.bindSeedToKeyStore(seed);
+  //     }
+  //   }
+  // }
 
-  _unbindSeedFromKeyStore() {
-    for (var keyStore in _multisigVault.keyStoreList) {
-      keyStore.seed = null;
-    }
-  }
+  // _unbindSeedFromKeyStore() {
+  //   for (var keyStore in _multisigVault.keyStoreList) {
+  //     keyStore.seed = null;
+  //   }
+  // }
 
   _checkSignedPsbt(String psbtBase64) {
     PSBT psbt = PSBT.parse(psbtBase64);
@@ -84,7 +83,7 @@ class _MultiSignatureScreenState extends State<MultiSignatureScreen> {
     for (KeyStore keyStore in _multisigVault.keyStoreList) {
       if (psbt.isSigned(keyStore)) {
         final index = _multisigVault.keyStoreList.indexOf(keyStore);
-        _delayedUpdateSigner(index);
+        _updateSignState(index);
       }
     }
   }
@@ -109,11 +108,18 @@ class _MultiSignatureScreenState extends State<MultiSignatureScreen> {
     }
   }
 
+  /// @param index: signer index
   _signStep2(int index) async {
     try {
       setState(() {
         _showLoading = true;
       });
+
+      var secret = await _vaultModel
+          .getSecret(_multisigVaultItem.signers[index].innerVaultId!);
+      final seed =
+          Seed.fromMnemonic(secret.mnemonic, passphrase: secret.passphrase);
+      _multisigVault.bindSeedToKeyStore(seed);
 
       final psbt = _vaultModel.signedRawTx == null
           ? widget.psbtBase64
@@ -139,19 +145,21 @@ class _MultiSignatureScreenState extends State<MultiSignatureScreen> {
         }
       }
 
-      _delayedUpdateSigner(index);
+      _updateSignState(index);
     } catch (_) {
       if (mounted) {
         showAlertDialog(context: context, content: "서명 실패: $_");
       }
     } finally {
+      // unbind
+      _multisigVault.keyStoreList[index].seed = null;
       setState(() {
         _showLoading = false;
       });
     }
   }
 
-  void _delayedUpdateSigner(int index) {
+  void _updateSignState(int index) {
     setState(() {
       _signers[index] = true;
     });
@@ -558,7 +566,6 @@ class _MultiSignatureScreenState extends State<MultiSignatureScreen> {
 
   @override
   void dispose() {
-    _unbindSeedFromKeyStore();
     super.dispose();
   }
 }

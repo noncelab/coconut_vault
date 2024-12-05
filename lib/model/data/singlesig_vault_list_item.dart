@@ -24,7 +24,7 @@ class SinglesigVaultListItem extends VaultListItemBase {
   }) : super(vaultType: VaultType.singleSignature) {
     Seed seed = Seed.fromMnemonic(secret, passphrase: passphrase);
     coconutVault = SingleSignatureVault.fromSeed(seed, AddressType.p2wpkh);
-    //TODO: (coconutVault as SingleSignatureVault).keyStore.seed = null;
+    (coconutVault as SingleSignatureVault).keyStore.seed = null;
   }
 
   /// @Deprecated
