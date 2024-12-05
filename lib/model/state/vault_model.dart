@@ -365,27 +365,11 @@ class VaultModel extends ChangeNotifier {
     return vaultIndex != -1;
   }
 
-  Future<void> deleteVault(int id, {isMultisig = false}) async {
-    final index = _vaultList.indexWhere((item) => item.id == id);
-    if (index == -1) {
-      throw Exception('deleteVault: no vault id is "$id"');
+  Future<void> deleteVault(int id) async {
+    if (await _walletManager.deleteWallet(id)) {
+      _vaultList = _walletManager.vaultList;
+      notifyListeners();
     }
-
-    if (isMultisig) {
-      final multi = getVaultById(id) as MultisigVaultListItem;
-      for (var signer in multi.signers) {
-        if (signer.innerVaultId != null) {
-          SinglesigVaultListItem ssv =
-              getVaultById(signer.innerVaultId!) as SinglesigVaultListItem;
-          ssv.linkedMultisigInfo!.remove(id);
-        }
-      }
-    }
-
-    _vaultList.removeAt(index);
-
-    await updateVaultInStorage();
-    notifyListeners();
   }
 
   Future<void> loadVaultList() async {

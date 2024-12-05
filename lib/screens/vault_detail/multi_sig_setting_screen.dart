@@ -209,7 +209,7 @@ class _MultiSigSettingScreenState extends State<MultiSigSettingScreen> {
                 );
                 break;
               default:
-                _vaultModel.deleteVault(widget.id, isMultisig: true);
+                _vaultModel.deleteVault(widget.id);
                 vibrateLight();
                 Navigator.popUntil(context, (route) => route.isFirst);
             }

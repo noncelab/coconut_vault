@@ -253,7 +253,38 @@ class WalletListManager {
   }
 
   // getWallet(String key)
-  // deleteWallet()
+  Future<bool> deleteWallet(int id) async {
+    if (_vaultList == null) {
+      throw Exception('[wallet_list_manager/deleteWallet]: vaultList is empty');
+    }
+
+    final index = _vaultList!.indexWhere((item) => item.id == id);
+    if (index == -1) {
+      throw Exception(
+          '[wallet_list_manager/deleteWallet]: no vault id is "$id"');
+    }
+
+    final vaultType = _vaultList![index].vaultType;
+
+    if (vaultType == VaultType.multiSignature) {
+      final multi = getVaultById(id) as MultisigVaultListItem;
+      for (var signer in multi.signers) {
+        if (signer.innerVaultId != null) {
+          SinglesigVaultListItem ssv =
+              getVaultById(signer.innerVaultId!) as SinglesigVaultListItem;
+          ssv.linkedMultisigInfo!.remove(id);
+        }
+      }
+    }
+
+    _vaultList!.removeAt(index);
+
+    String keyString = _createWalletKeyString(id, vaultType);
+    await _storageService.delete(key: keyString);
+    await savePublicInfo();
+
+    return true;
+  }
 
   Future<bool> updateWallet(
       int id, String newName, int colorIndex, int iconIndex) async {
@@ -263,7 +294,8 @@ class WalletListManager {
 
     final index = _vaultList!.indexWhere((item) => item.id == id);
     if (index == -1) {
-      throw Exception('[wallet_list_manager/updateWallet]: no vault id is "$id"');
+      throw Exception(
+          '[wallet_list_manager/updateWallet]: no vault id is "$id"');
     }
 
     if (_vaultList![index].vaultType == VaultType.singleSignature) {
