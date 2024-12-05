@@ -172,23 +172,26 @@ class VaultModel extends ChangeNotifier {
 
     // 중복 코드 확인
     List<SinglesigVaultListItem?> linkedWalletList = [];
+    linkedWalletList.insertAll(
+        0, List.filled(multisigVault.keyStoreList.length, null));
     bool isRelated = false;
     outerLoop:
     for (var wallet in _vaultList) {
       if (wallet.vaultType == VaultType.multiSignature) continue;
-      for (var keyStore in multisigVault.keyStoreList) {
-        var singlesigVaultListItem = wallet as SinglesigVaultListItem;
-        if ((singlesigVaultListItem.coconutVault as SingleSignatureVault)
-                .keyStore
-                .masterFingerprint ==
-            keyStore.masterFingerprint) {
-          linkedWalletList.add(wallet);
+
+      var singlesigVaultListItem = wallet as SinglesigVaultListItem;
+      var walletMFP =
+          (singlesigVaultListItem.coconutVault as SingleSignatureVault)
+              .keyStore
+              .masterFingerprint;
+      for (int i = 0; i < multisigVault.keyStoreList.length; i++) {
+        if (walletMFP == multisigVault.keyStoreList[i].masterFingerprint) {
+          linkedWalletList[i] = wallet;
           if (singlesigVaultListItem.id == walletId) {
             isRelated = true;
           }
           continue outerLoop;
         }
-        linkedWalletList.add(null);
       }
     }
 
