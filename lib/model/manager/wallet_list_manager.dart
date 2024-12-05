@@ -315,7 +315,6 @@ class WalletListManager {
       throw Exception(
           '[wallet_list_manager/updateWallet]: no vault id is "$id"');
     }
-
     if (_vaultList![index].vaultType == VaultType.singleSignature) {
       SinglesigVaultListItem ssv = _vaultList![index] as SinglesigVaultListItem;
       Map<int, int>? linkedMultisigInfo = ssv.linkedMultisigInfo;
@@ -332,33 +331,14 @@ class WalletListManager {
         }
       }
 
-      // TODO: TEST
-      var targetWallet = _vaultList![index] as SinglesigVaultListItem;
-      targetWallet.name = newName;
-      targetWallet.colorIndex = colorIndex;
-      targetWallet.iconIndex = iconIndex;
-
-      // _vaultList![index] = SinglesigVaultListItem(
-      //   id: ssv.id,
-      //   name: newName,
-      //   colorIndex: colorIndex,
-      //   iconIndex: iconIndex,
-      //   secret: ssv.secret ,
-      //   passphrase: ssv.passphrase,
-      //   linkedMultisigInfo: ssv.linkedMultisigInfo,
-      // );
+      ssv.name = newName;
+      ssv.colorIndex = colorIndex;
+      ssv.iconIndex = iconIndex;
     } else if (_vaultList![index].vaultType == VaultType.multiSignature) {
       MultisigVaultListItem ssv = _vaultList![index] as MultisigVaultListItem;
-
-      _vaultList![index] = MultisigVaultListItem(
-        id: ssv.id,
-        name: newName,
-        colorIndex: colorIndex,
-        iconIndex: iconIndex,
-        signers: ssv.signers,
-        requiredSignatureCount: ssv.requiredSignatureCount,
-        coordinatorBsms: ssv.coordinatorBsms,
-      );
+      ssv.name = newName;
+      ssv.colorIndex = colorIndex;
+      ssv.iconIndex = iconIndex;
     } else {
       throw Exception(
           '[wallet_list_manager/updateWallet]: _vaultList[$index] has wrong type: ${_vaultList![index].vaultType}');
