@@ -16,6 +16,7 @@ import 'package:coconut_vault/services/secure_storage_service.dart';
 import 'package:coconut_vault/services/shared_preferences_service.dart';
 import 'package:coconut_vault/utils/hash_util.dart';
 import 'package:coconut_vault/utils/isolate_handler.dart';
+import 'package:coconut_vault/utils/print_util.dart';
 
 /// 지갑의 public 정보는 shared prefs, 비밀 정보는 secure storage에 저장하는 역할을 하는 클래스입니다.
 class WalletListManager {
@@ -55,13 +56,17 @@ class WalletListManager {
     String? jsonArrayString;
 
     try {
-      jsonArrayString = await _storageService.read(key: vaultListField);
+      jsonArrayString = _sharedPrefs.getString(vaultListField);
     } catch (_) {
-      jsonArrayString = _realmService.getValue(key: vaultListField);
+      //jsonArrayString = _realmService.getValue(key: vaultListField) ?? '';
     }
 
-    // printLongString('--> $jsonArrayString');
+    printLongString('--> $jsonArrayString ${jsonArrayString == null}');
     if (jsonArrayString == null) {
+      _vaultList = [];
+      return null;
+    }
+    if (jsonArrayString.isEmpty || jsonArrayString == '[]') {
       _vaultList = [];
       return null;
     }
@@ -125,14 +130,13 @@ class WalletListManager {
           value: jsonEncode(
               Secret(wallet.mnemonic!, wallet.passphrase!).toJson()));
 
+      _vaultList!.add(vaultListResult[0]);
       try {
         savePublicInfo();
       } catch (error) {
         _storageService.delete(key: keyString);
         rethrow;
       }
-
-      _vaultList!.add(vaultListResult[0]);
       _recordNextWalletId();
       return vaultListResult[0];
     } catch (_) {
@@ -149,6 +153,8 @@ class WalletListManager {
 
     final jsonString =
         jsonEncode(_vaultList!.map((item) => item.toJson()).toList());
+
+    printLongString("--> 저장: $jsonString");
     _sharedPrefs.setString(vaultListField, jsonString);
   }
 
@@ -213,9 +219,8 @@ class WalletListManager {
     // for SinglesigVaultListItem multsig key map update
     updateLinkedMultisigInfo(wallet.signers!, nextId);
 
-    savePublicInfo();
-
     _vaultList!.add(newMultisigVault);
+    savePublicInfo();
     _recordNextWalletId();
     return newMultisigVault;
   }
@@ -327,15 +332,21 @@ class WalletListManager {
         }
       }
 
-      _vaultList![index] = SinglesigVaultListItem(
-        id: ssv.id,
-        name: newName,
-        colorIndex: colorIndex,
-        iconIndex: iconIndex,
-        secret: ssv.secret,
-        passphrase: ssv.passphrase,
-        linkedMultisigInfo: ssv.linkedMultisigInfo,
-      );
+      // TODO: TEST
+      var targetWallet = _vaultList![index] as SinglesigVaultListItem;
+      targetWallet.name = newName;
+      targetWallet.colorIndex = colorIndex;
+      targetWallet.iconIndex = iconIndex;
+
+      // _vaultList![index] = SinglesigVaultListItem(
+      //   id: ssv.id,
+      //   name: newName,
+      //   colorIndex: colorIndex,
+      //   iconIndex: iconIndex,
+      //   secret: ssv.secret ,
+      //   passphrase: ssv.passphrase,
+      //   linkedMultisigInfo: ssv.linkedMultisigInfo,
+      // );
     } else if (_vaultList![index].vaultType == VaultType.multiSignature) {
       MultisigVaultListItem ssv = _vaultList![index] as MultisigVaultListItem;
 

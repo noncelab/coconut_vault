@@ -9,11 +9,11 @@ abstract class VaultListItemBase {
   @JsonKey(name: "id")
   final int id;
   @JsonKey(name: "name")
-  final String name;
+  String name;
   @JsonKey(name: "colorIndex")
-  final int colorIndex;
+  int colorIndex;
   @JsonKey(name: "iconIndex")
-  final int iconIndex;
+  int iconIndex;
   @JsonKey(name: vaultTypeField)
   VaultType vaultType;
   // Deprecated
