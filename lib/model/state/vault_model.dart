@@ -5,9 +5,7 @@ import 'package:coconut_lib/coconut_lib.dart';
 import 'package:coconut_vault/model/data/multisig_import_detail.dart';
 import 'package:coconut_vault/model/data/multisig_signer.dart';
 import 'package:coconut_vault/model/data/multisig_vault_list_item.dart';
-import 'package:coconut_vault/model/data/multisig_vault_list_item_factory.dart';
 import 'package:coconut_vault/model/data/singlesig_vault_list_item.dart';
-import 'package:coconut_vault/model/data/singlesig_vault_list_item_factory.dart';
 import 'package:coconut_vault/model/data/vault_list_item_base.dart';
 import 'package:coconut_vault/model/data/vault_type.dart';
 import 'package:coconut_vault/model/manager/multisig_wallet.dart';
@@ -109,7 +107,7 @@ class VaultModel extends ChangeNotifier {
   /// pin or biometric 인증 실패후 지갑 초기화
   Future<void> resetVault() async {
     _vaultList.clear();
-    _animatedVaultFlags.clear();
+    _animatedVaultFlags = [];
     _importingSecret = null;
     _importingPassphrase = '';
     _waitingForSignaturePsbtBase64 = null;

@@ -1,5 +1,4 @@
 import 'package:coconut_vault/model/state/app_model.dart';
-import 'package:coconut_vault/utils/text_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:coconut_vault/styles.dart';
 import 'package:coconut_vault/widgets/vault_name_icon_edit_palette.dart';
@@ -34,7 +33,7 @@ class _VaultInfoEditBottomSheetState extends State<VaultInfoEditBottomSheet> {
   @override
   void initState() {
     super.initState();
-    _name = TextUtils.replaceNewlineWithSpace(widget.name);
+    _name = widget.name;
     _iconIndex = widget.iconIndex;
     _colorIndex = widget.colorIndex;
   }
