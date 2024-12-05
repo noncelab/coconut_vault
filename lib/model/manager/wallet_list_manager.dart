@@ -11,7 +11,6 @@ import 'package:coconut_vault/model/manager/multisig_wallet.dart';
 import 'package:coconut_vault/model/manager/secret.dart';
 import 'package:coconut_vault/model/manager/singlesig_wallet.dart';
 import 'package:coconut_vault/services/isolate_service.dart';
-import 'package:coconut_vault/services/realm_service.dart';
 import 'package:coconut_vault/services/secure_storage_service.dart';
 import 'package:coconut_vault/services/shared_preferences_service.dart';
 import 'package:coconut_vault/utils/hash_util.dart';
@@ -21,18 +20,14 @@ import 'package:coconut_vault/utils/print_util.dart';
 /// 지갑의 public 정보는 shared prefs, 비밀 정보는 secure storage에 저장하는 역할을 하는 클래스입니다.
 class WalletListManager {
   static String vaultListField = 'VAULT_LIST';
-  // static String keyListField = 'keyList';
   static String nextIdField = 'nextId';
   static String vaultTypeField = VaultListItemBase.vaultTypeField;
 
   final SecureStorageService _storageService = SecureStorageService();
-  final RealmService _realmService = RealmService(); // TODO:
   final SharedPrefsService _sharedPrefs = SharedPrefsService();
 
   static final WalletListManager _instance = WalletListManager._internal();
   factory WalletListManager() => _instance;
-
-  late List<String> _keys;
 
   List<VaultListItemBase>? _vaultList;
   get vaultList => _vaultList;
@@ -41,31 +36,14 @@ class WalletListManager {
 
   Future<void> init() async {
     // init in main.dart
-    //_keys = await getKeys();
   }
-
-  // Future<List<String>> getKeys() async {
-  //   String? keys = await _storageService.read(key: keyListField);
-
-  //   if (keys == null) return [];
-
-  //   return jsonDecode(keys);
-  // }
 
   Future<List<dynamic>?> loadVaultListJsonArrayString() async {
     String? jsonArrayString;
 
-    try {
-      jsonArrayString = _sharedPrefs.getString(vaultListField);
-    } catch (_) {
-      //jsonArrayString = _realmService.getValue(key: vaultListField) ?? '';
-    }
+    jsonArrayString = _sharedPrefs.getString(vaultListField);
 
-    printLongString('--> $jsonArrayString ${jsonArrayString == null}');
-    if (jsonArrayString == null) {
-      _vaultList = [];
-      return null;
-    }
+    printLongString('--> $jsonArrayString');
     if (jsonArrayString.isEmpty || jsonArrayString == '[]') {
       _vaultList = [];
       return null;
@@ -107,48 +85,44 @@ class WalletListManager {
       throw "[wallet_list_manager/addSinglesigWallet()] _vaultList is null. Load first.";
     }
 
+    final int nextId = _getNextWalletId();
+    wallet.id = nextId;
+    final Map<String, dynamic> vaultData = wallet.toJson();
+
+    var addVaultIsolateHandler =
+        IsolateHandler<Map<String, dynamic>, List<SinglesigVaultListItem>>(
+            addVaultIsolate);
+    await addVaultIsolateHandler.initialize(
+        initialType: InitializeType.addVault);
+    List<SinglesigVaultListItem> vaultListResult =
+        await addVaultIsolateHandler.runAddVault(vaultData);
+    addVaultIsolateHandler.dispose();
+
+    _linkNewSinglesigVaultAndMultisigVaults(vaultListResult.first);
+
+    String keyString =
+        _createWalletKeyString(nextId, VaultType.singleSignature);
+    _storageService.write(
+        key: keyString,
+        value: jsonEncode(
+            Secret(wallet.mnemonic!, wallet.passphrase ?? '').toJson()));
+
+    _vaultList!.add(vaultListResult[0]);
     try {
-      final int nextId = _getNextWalletId();
-      wallet.id = nextId;
-      final Map<String, dynamic> vaultData = wallet.toJson();
-
-      var addVaultIsolateHandler =
-          IsolateHandler<Map<String, dynamic>, List<SinglesigVaultListItem>>(
-              addVaultIsolate);
-      await addVaultIsolateHandler.initialize(
-          initialType: InitializeType.addVault);
-      List<SinglesigVaultListItem> vaultListResult =
-          await addVaultIsolateHandler.runAddVault(vaultData);
-      addVaultIsolateHandler.dispose();
-
-      _linkNewSinglesigVaultAndMultisigVaults(vaultListResult.first);
-
-      String keyString =
-          _createWalletKeyString(nextId, VaultType.singleSignature);
-      _storageService.write(
-          key: keyString,
-          value: jsonEncode(
-              Secret(wallet.mnemonic!, wallet.passphrase!).toJson()));
-
-      _vaultList!.add(vaultListResult[0]);
-      try {
-        savePublicInfo();
-      } catch (error) {
-        _storageService.delete(key: keyString);
-        rethrow;
-      }
-      _recordNextWalletId();
-      return vaultListResult[0];
-    } catch (_) {
+      _savePublicInfo();
+    } catch (error) {
+      _storageService.delete(key: keyString);
       rethrow;
     }
+    _recordNextWalletId();
+    return vaultListResult[0];
   }
 
   String _createWalletKeyString(int id, VaultType type) {
     return hashString("${id.toString()} - ${type.name}");
   }
 
-  Future savePublicInfo() async {
+  Future _savePublicInfo() async {
     if (_vaultList == null) return;
 
     final jsonString =
@@ -220,7 +194,7 @@ class WalletListManager {
     updateLinkedMultisigInfo(wallet.signers!, nextId);
 
     _vaultList!.add(newMultisigVault);
-    savePublicInfo();
+    _savePublicInfo();
     _recordNextWalletId();
     return newMultisigVault;
   }
@@ -271,15 +245,10 @@ class WalletListManager {
 
   Future<bool> deleteWallet(int id) async {
     if (_vaultList == null) {
-      throw Exception('[wallet_list_manager/deleteWallet]: vaultList is empty');
+      throw '[wallet_list_manager/deleteWallet]: vaultList is empty';
     }
 
     final index = _vaultList!.indexWhere((item) => item.id == id);
-    if (index == -1) {
-      throw Exception(
-          '[wallet_list_manager/deleteWallet]: no vault id is "$id"');
-    }
-
     final vaultType = _vaultList![index].vaultType;
 
     if (vaultType == VaultType.multiSignature) {
@@ -295,9 +264,11 @@ class WalletListManager {
 
     _vaultList!.removeAt(index);
 
-    String keyString = _createWalletKeyString(id, vaultType);
-    await _storageService.delete(key: keyString);
-    await savePublicInfo();
+    if (vaultType == VaultType.singleSignature) {
+      String keyString = _createWalletKeyString(id, vaultType);
+      await _storageService.delete(key: keyString);
+    }
+    await _savePublicInfo();
 
     return true;
   }
@@ -309,10 +280,6 @@ class WalletListManager {
     }
 
     final index = _vaultList!.indexWhere((item) => item.id == id);
-    if (index == -1) {
-      throw Exception(
-          '[wallet_list_manager/updateWallet]: no vault id is "$id"');
-    }
     if (_vaultList![index].vaultType == VaultType.singleSignature) {
       SinglesigVaultListItem ssv = _vaultList![index] as SinglesigVaultListItem;
       Map<int, int>? linkedMultisigInfo = ssv.linkedMultisigInfo;
@@ -338,11 +305,10 @@ class WalletListManager {
       ssv.colorIndex = colorIndex;
       ssv.iconIndex = iconIndex;
     } else {
-      throw Exception(
-          '[wallet_list_manager/updateWallet]: _vaultList[$index] has wrong type: ${_vaultList![index].vaultType}');
+      throw '[wallet_list_manager/updateWallet]: _vaultList[$index] has wrong type: ${_vaultList![index].vaultType}';
     }
 
-    savePublicInfo();
+    _savePublicInfo();
     return true;
   }
 
@@ -356,14 +322,13 @@ class WalletListManager {
     assert(wallet != null);
     (wallet as MultisigVaultListItem).signers[signerIndex].memo = newMemo;
 
-    await savePublicInfo();
+    await _savePublicInfo();
     return wallet;
   }
 
   Future<void> resetAll() async {
     _vaultList?.clear();
-    _realmService.deleteAll();
     await _storageService.deleteAll();
-    await savePublicInfo();
+    await _savePublicInfo();
   }
 }

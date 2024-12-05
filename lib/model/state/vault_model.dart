@@ -18,9 +18,6 @@ import 'package:coconut_vault/model/state/app_model.dart';
 import 'package:coconut_vault/utils/logger.dart';
 import 'package:coconut_vault/utils/vibration_util.dart';
 
-// ignore: constant_identifier_names
-const String VAULT_LIST = "VAULT_LIST";
-
 class VaultModel extends ChangeNotifier {
   AppModel _appModel;
   final MultisigCreationModel _multisigCreationModel;
@@ -29,8 +26,6 @@ class VaultModel extends ChangeNotifier {
 
   VaultModel(this._appModel, this._multisigCreationModel) {
     _walletManager = WalletListManager();
-    // loadVaultList();
-    //_initializeServicesAndHandler();
   }
 
   /// [_appModel]의 변동사항 업데이트
@@ -94,6 +89,7 @@ class VaultModel extends ChangeNotifier {
     _vaultInitialized = false;
     await _walletManager.resetAll();
     await _appModel.resetPassword();
+    _updateWalletLength();
     notifyListeners();
   }
 
@@ -141,7 +137,7 @@ class VaultModel extends ChangeNotifier {
 
     setAnimatedVaultFlags(index: _vaultList.length);
     setAddVaultCompleted(true);
-    await updateVaultInStorage();
+    await _updateWalletLength();
 
     notifyListeners();
     completeSinglesigImporting();
@@ -161,7 +157,7 @@ class VaultModel extends ChangeNotifier {
     _vaultList = _walletManager.vaultList;
     setAnimatedVaultFlags(index: _vaultList.length);
     setAddVaultCompleted(true);
-    await updateVaultInStorage();
+    await _updateWalletLength();
     notifyListeners();
     _multisigCreationModel.reset();
   }
@@ -237,10 +233,9 @@ class VaultModel extends ChangeNotifier {
   /// [id]에 해당하는 지갑의 UI 정보 업데이트
   Future<void> updateVault(
       int id, String newName, int colorIndex, int iconIndex) async {
-    if (await _walletManager.updateWallet(id, newName, colorIndex, iconIndex)) {
-      _vaultList = _walletManager.vaultList;
-      notifyListeners();
-    }
+    await _walletManager.updateWallet(id, newName, colorIndex, iconIndex);
+    _vaultList = _walletManager.vaultList;
+    notifyListeners();
   }
 
   /// 다중서명 지갑의 [singerIndex]번째 키로 사용한 외부 지갑의 메모를 업데이트
@@ -281,6 +276,7 @@ class VaultModel extends ChangeNotifier {
     if (await _walletManager.deleteWallet(id)) {
       _vaultList = _walletManager.vaultList;
       notifyListeners();
+      _updateWalletLength();
     }
   }
 
@@ -322,12 +318,7 @@ class VaultModel extends ChangeNotifier {
     return;
   }
 
-  Future<void> updateVaultInStorage() async {
-    // final jsonString =
-    //     jsonEncode(_vaultList.map((item) => item.toJson()).toList());
-    // printLongString('updateVaultInStorage ---> $jsonString');
-    //await _storageService.write(key: VAULT_LIST, value: jsonString);
-    //_realmService.updateKeyValue(key: VAULT_LIST, value: jsonString);
+  _updateWalletLength() {
     _appModel.saveVaultListLength(_vaultList.length);
   }
 
