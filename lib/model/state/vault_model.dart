@@ -106,15 +106,14 @@ class VaultModel extends ChangeNotifier {
 
   /// pin or biometric 인증 실패후 지갑 초기화
   Future<void> resetVault() async {
-    await _storageService.deleteAll();
-    _animatedVaultFlags = [];
-    _realmService.deleteAll();
+    _vaultList.clear();
+    _animatedVaultFlags.clear();
     _importingSecret = null;
     _importingPassphrase = '';
     _waitingForSignaturePsbtBase64 = null;
     signedRawTx = null;
-    _vaultList.clear();
     _vaultInitialized = false;
+    await _walletManager.resetAll();
     await _appModel.resetPassword();
     notifyListeners();
   }

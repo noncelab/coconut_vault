@@ -348,5 +348,10 @@ class WalletListManager {
     return _vaultList?.firstWhere((element) => element.id == id);
   }
 
-  // resetAll()
+  Future<void> resetAll() async {
+    _vaultList?.clear();
+    _realmService.deleteAll();
+    await _storageService.deleteAll();
+    await savePublicInfo();
+  }
 }
