@@ -27,11 +27,14 @@ class SinglesigVaultListItem extends VaultListItemBase {
     Seed seed = Seed.fromMnemonic(secret, passphrase: passphrase);
     coconutVault = SingleSignatureVault.fromSeed(seed, AddressType.p2wpkh);
     final singlesigVault = coconutVault as SingleSignatureVault;
-
-    /// 추후 속도 개선을 위한 로직 고려
-    signerBsms = singlesigVault.getSignerBsms(AddressType.p2wsh, name);
-    name = name.replaceAll('\n', ' ');
     singlesigVault.keyStore.seed = null;
+
+    /// signerBsms 추출: 추후 속도 개선을 위한 로직 고려
+    var coconutVaultForSigner =
+        SingleSignatureVault.fromSeed(seed, AddressType.p2wsh);
+    signerBsms = coconutVaultForSigner.getSignerBsms(AddressType.p2wsh, name);
+
+    name = name.replaceAll('\n', ' ');
   }
 
   /// @Deprecated
