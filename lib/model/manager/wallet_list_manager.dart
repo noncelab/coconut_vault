@@ -253,6 +253,7 @@ class WalletListManager {
   }
 
   // getWallet(String key)
+
   Future<bool> deleteWallet(int id) async {
     if (_vaultList == null) {
       throw Exception('[wallet_list_manager/deleteWallet]: vaultList is empty');
