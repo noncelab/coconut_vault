@@ -2,7 +2,6 @@ import 'package:coconut_lib/coconut_lib.dart';
 import 'package:coconut_vault/model/data/vault_list_item_base.dart';
 import 'package:coconut_vault/services/isolate_service.dart';
 import 'package:coconut_vault/utils/isolate_handler.dart';
-import 'package:coconut_vault/utils/text_utils.dart';
 import 'package:coconut_vault/widgets/multisig/card/signer_bsms_info_card.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -82,7 +81,7 @@ class _SignerBsmsScreenState extends State<SignerBsmsScreen> {
     return Scaffold(
       backgroundColor: MyColors.white,
       appBar: CustomAppBar.build(
-        title: TextUtils.replaceNewlineWithSpace(_name),
+        title: _name,
         context: context,
         hasRightIcon: false,
         isBottom: true,

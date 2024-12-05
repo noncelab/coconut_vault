@@ -298,7 +298,7 @@ class _MultiSigSettingScreenState extends State<MultiSigSettingScreen> {
       child: Scaffold(
         backgroundColor: MyColors.white,
         appBar: CustomAppBar.build(
-          title: '${TextUtils.replaceNewlineWithSpace(_multiVault.name)} 정보',
+          title: '${_multiVault.name} 정보',
           context: context,
           hasRightIcon: false,
           isBottom: false,
@@ -364,8 +364,7 @@ class _MultiSigSettingScreenState extends State<MultiSigSettingScreen> {
                                   Row(children: [
                                     Flexible(
                                         child: Text(
-                                      TextUtils.replaceNewlineWithSpace(
-                                          _multiVault.name),
+                                      _multiVault.name,
                                       style: Styles.h3,
                                       maxLines: 1,
                                       overflow: TextOverflow.ellipsis,
@@ -529,9 +528,7 @@ class _MultiSigSettingScreenState extends State<MultiSigSettingScreen> {
                                             children: [
                                               // 이름
                                               Text(
-                                                TextUtils
-                                                    .replaceNewlineWithSpace(
-                                                        name ?? ''),
+                                                name ?? '',
                                                 style: Styles.body2,
                                                 maxLines: 1,
                                                 overflow: TextOverflow.ellipsis,
@@ -635,7 +632,7 @@ class _MultiSigSettingScreenState extends State<MultiSigSettingScreen> {
                                   context: context,
                                   title: '확인',
                                   content:
-                                      '정말로 볼트에서 ${TextUtils.replaceNewlineWithSpace(_multiVault.name)} 정보를 삭제하시겠어요?',
+                                      '정말로 볼트에서 ${_multiVault.name} 정보를 삭제하시겠어요?',
                                   onConfirmPressed: () async {
                                     _appModel.showIndicator();
                                     await Future.delayed(

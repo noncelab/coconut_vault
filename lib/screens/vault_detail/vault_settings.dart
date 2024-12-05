@@ -69,7 +69,7 @@ class _VaultSettingsState extends State<VaultSettings> {
 
     _nameTextController = TextEditingController(text: _singleVaultItem.name);
     _name = _singleVaultItem.name;
-    _titleName = TextUtils.replaceNewlineWithSpace(_name);
+    _titleName = _name;
     _iconIndex = _singleVaultItem.iconIndex;
     _colorIndex = _singleVaultItem.colorIndex;
 
@@ -127,7 +127,7 @@ class _VaultSettingsState extends State<VaultSettings> {
 
       setState(() {
         _name = newName;
-        _titleName = TextUtils.replaceNewlineWithSpace(newName);
+        _titleName = newName;
         _iconIndex = newIconIndex;
         _colorIndex = newColorIndex;
       });
@@ -639,7 +639,7 @@ class _VaultSettingsState extends State<VaultSettings> {
                                               context: context,
                                               title: '확인',
                                               content:
-                                                  '정말로 볼트에서 ${TextUtils.replaceNewlineWithSpace(_name)} 정보를 삭제하시겠어요?',
+                                                  '정말로 볼트에서 $_name 정보를 삭제하시겠어요?',
                                               onConfirmPressed: () async {
                                                 _appModel.showIndicator();
                                                 await Future.delayed(

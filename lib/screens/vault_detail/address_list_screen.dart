@@ -101,7 +101,7 @@ class _AddressListScreenState extends State<AddressListScreen> {
     return Scaffold(
       backgroundColor: MyColors.white,
       appBar: CustomAppBar.build(
-        title: '${TextUtils.replaceNewlineWithSpace(_vaultListItem.name)}의 주소',
+        title: '${_vaultListItem.name}의 주소',
         context: context,
         hasRightIcon: false,
         isBottom: true,

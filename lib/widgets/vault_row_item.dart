@@ -117,8 +117,10 @@ class _VaultRowItemState extends State<VaultRowItem> {
             child: _vaultContainerWidget());
 
     return ShakeWidget(
+      key: ValueKey(
+          '${widget.vault.name}_$_subtitleText'), // _subTitle 이 바뀌면 Shake 재시작
       curve: Curves.easeInOut,
-      deltaX: widget.isLoadCompletedAnimation ? 5 : 0,
+      deltaX: 5,
       child: Column(
         children: [
           Container(
@@ -179,7 +181,7 @@ class _VaultRowItemState extends State<VaultRowItem> {
                   ),
                 },
                 Text(
-                  TextUtils.replaceNewlineWithSpace(widget.vault.name),
+                  widget.vault.name,
                   style: const TextStyle(
                       fontFamily: 'Pretendard',
                       fontSize: 14.0,

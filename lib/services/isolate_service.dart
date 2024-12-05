@@ -5,7 +5,6 @@ import 'package:coconut_lib/coconut_lib.dart';
 import 'package:coconut_vault/model/data/multisig_vault_list_item.dart';
 import 'package:coconut_vault/model/data/multisig_vault_list_item_factory.dart';
 import 'package:coconut_vault/model/data/singlesig_vault_list_item.dart';
-import 'package:coconut_vault/model/data/singlesig_vault_list_item_factory.dart';
 import 'package:coconut_vault/model/data/vault_list_item_base.dart';
 import 'package:coconut_vault/model/data/vault_type.dart';
 import 'package:coconut_vault/model/manager/multisig_wallet.dart';
@@ -111,8 +110,9 @@ Future<List<String>> extractSignerBsmsIsolate(
   for (int i = 0; i < vaultList.length; i++) {
     SinglesigVaultListItem vaultListItem =
         vaultList[i] as SinglesigVaultListItem;
-    bsmses.add((vaultListItem.coconutVault as SingleSignatureVault)
-        .getSignerBsms(AddressType.p2wsh, vaultListItem.name));
+    if (vaultListItem.signerBsms != null) {
+      bsmses.add(vaultListItem.signerBsms!);
+    }
   }
 
   if (replyTo != null) {

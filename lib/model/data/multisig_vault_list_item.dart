@@ -25,6 +25,7 @@ class MultisigVaultListItem extends VaultListItemBase {
         requiredSignatureCount,
         AddressType.p2wsh);
 
+    name = name.replaceAll('\n', ' ');
     //vaultJsonString ??= (coconutVault as MultisignatureVault).toJson();
   }
 

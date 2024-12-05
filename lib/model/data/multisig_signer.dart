@@ -36,7 +36,9 @@ class MultisigSigner {
     this.signerBsms,
     this.memo,
     required this.keyStore,
-  });
+  }) {
+    name = name?.replaceAll('\n', ' ');
+  }
 
   Map<String, dynamic> toJson() => _$MultisigSignerToJson(this);
 

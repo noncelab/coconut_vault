@@ -11,6 +11,7 @@ part 'singlesig_vault_list_item.g.dart'; // 생성될 파일 이름 $ dart run b
 class SinglesigVaultListItem extends VaultListItemBase {
   static const String secretField = 'secret';
   static const String passphraseField = 'passphrase';
+  static const String signerBsmsField = 'signerBsms';
 
   SinglesigVaultListItem({
     required super.id,
@@ -19,12 +20,18 @@ class SinglesigVaultListItem extends VaultListItemBase {
     required super.iconIndex,
     required String secret,
     required String passphrase,
+    this.signerBsms,
     this.linkedMultisigInfo,
     super.vaultJsonString,
   }) : super(vaultType: VaultType.singleSignature) {
     Seed seed = Seed.fromMnemonic(secret, passphrase: passphrase);
     coconutVault = SingleSignatureVault.fromSeed(seed, AddressType.p2wpkh);
-    (coconutVault as SingleSignatureVault).keyStore.seed = null;
+    final singlesigVault = coconutVault as SingleSignatureVault;
+
+    /// 추후 속도 개선을 위한 로직 고려
+    signerBsms = singlesigVault.getSignerBsms(AddressType.p2wsh, name);
+    name = name.replaceAll('\n', ' ');
+    singlesigVault.keyStore.seed = null;
   }
 
   /// @Deprecated
@@ -37,6 +44,9 @@ class SinglesigVaultListItem extends VaultListItemBase {
 
   @JsonKey(name: "linkedMultisigInfo")
   Map<int, int>? linkedMultisigInfo;
+
+  @JsonKey(name: signerBsmsField)
+  String? signerBsms;
 
   @override
   String getWalletSyncString() {
