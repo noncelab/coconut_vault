@@ -16,7 +16,6 @@ import 'package:coconut_vault/services/secure_storage_service.dart';
 import 'package:coconut_vault/services/shared_preferences_service.dart';
 import 'package:coconut_vault/utils/hash_util.dart';
 import 'package:coconut_vault/utils/isolate_handler.dart';
-import 'package:coconut_vault/utils/print_util.dart';
 
 /// 지갑의 public 정보는 shared prefs, 비밀 정보는 secure storage에 저장하는 역할을 하는 클래스입니다.
 class WalletListManager {
@@ -52,8 +51,7 @@ class WalletListManager {
   //   return jsonDecode(keys);
   // }
 
-  Future loadVaultListJsonArrayString(
-      Function(List<dynamic>? jsonList) callbackVaultJsonList) async {
+  Future<List<dynamic>?> loadVaultListJsonArrayString() async {
     String? jsonArrayString;
 
     try {
@@ -62,16 +60,13 @@ class WalletListManager {
       jsonArrayString = _realmService.getValue(key: vaultListField);
     }
 
-    printLongString('--> $jsonArrayString');
+    // printLongString('--> $jsonArrayString');
     if (jsonArrayString == null) {
       _vaultList = [];
-      callbackVaultJsonList(null);
-      return;
+      return null;
     }
 
-    List<dynamic> jsonList = jsonDecode(jsonArrayString);
-
-    callbackVaultJsonList(jsonList);
+    return jsonDecode(jsonArrayString);
   }
 
   Future loadAndEmitEachWallet(List<dynamic> jsonList,
@@ -270,7 +265,106 @@ class WalletListManager {
   }
 
   // getWallet(String key)
-  // deleteWallet()
-  // updateWallet()
-  // resetAll()
+
+  Future<bool> deleteWallet(int id) async {
+    if (_vaultList == null) {
+      throw Exception('[wallet_list_manager/deleteWallet]: vaultList is empty');
+    }
+
+    final index = _vaultList!.indexWhere((item) => item.id == id);
+    if (index == -1) {
+      throw Exception(
+          '[wallet_list_manager/deleteWallet]: no vault id is "$id"');
+    }
+
+    final vaultType = _vaultList![index].vaultType;
+
+    if (vaultType == VaultType.multiSignature) {
+      final multi = getVaultById(id) as MultisigVaultListItem;
+      for (var signer in multi.signers) {
+        if (signer.innerVaultId != null) {
+          SinglesigVaultListItem ssv =
+              getVaultById(signer.innerVaultId!) as SinglesigVaultListItem;
+          ssv.linkedMultisigInfo!.remove(id);
+        }
+      }
+    }
+
+    _vaultList!.removeAt(index);
+
+    String keyString = _createWalletKeyString(id, vaultType);
+    await _storageService.delete(key: keyString);
+    await savePublicInfo();
+
+    return true;
+  }
+
+  Future<bool> updateWallet(
+      int id, String newName, int colorIndex, int iconIndex) async {
+    if (_vaultList == null) {
+      throw Exception('[wallet_list_manager/updateWallet]: vaultList is empty');
+    }
+
+    final index = _vaultList!.indexWhere((item) => item.id == id);
+    if (index == -1) {
+      throw Exception(
+          '[wallet_list_manager/updateWallet]: no vault id is "$id"');
+    }
+
+    if (_vaultList![index].vaultType == VaultType.singleSignature) {
+      SinglesigVaultListItem ssv = _vaultList![index] as SinglesigVaultListItem;
+      Map<int, int>? linkedMultisigInfo = ssv.linkedMultisigInfo;
+      // 연결된 MultisigVaultListItem의 signers 객체도 UI 업데이트가 필요
+      if (linkedMultisigInfo != null && linkedMultisigInfo.isNotEmpty) {
+        for (var entry in linkedMultisigInfo.entries) {
+          if (getVaultById(id) != null) {
+            MultisigVaultListItem msv =
+                getVaultById(entry.key) as MultisigVaultListItem;
+            msv.signers[entry.value].name = newName;
+            msv.signers[entry.value].colorIndex = colorIndex;
+            msv.signers[entry.value].iconIndex = iconIndex;
+          }
+        }
+      }
+
+      _vaultList![index] = SinglesigVaultListItem(
+        id: ssv.id,
+        name: newName,
+        colorIndex: colorIndex,
+        iconIndex: iconIndex,
+        secret: ssv.secret,
+        passphrase: ssv.passphrase,
+        linkedMultisigInfo: ssv.linkedMultisigInfo,
+      );
+    } else if (_vaultList![index].vaultType == VaultType.multiSignature) {
+      MultisigVaultListItem ssv = _vaultList![index] as MultisigVaultListItem;
+
+      _vaultList![index] = MultisigVaultListItem(
+        id: ssv.id,
+        name: newName,
+        colorIndex: colorIndex,
+        iconIndex: iconIndex,
+        signers: ssv.signers,
+        requiredSignatureCount: ssv.requiredSignatureCount,
+        coordinatorBsms: ssv.coordinatorBsms,
+      );
+    } else {
+      throw Exception(
+          '[wallet_list_manager/updateWallet]: _vaultList[$index] has wrong type: ${_vaultList![index].vaultType}');
+    }
+
+    savePublicInfo();
+    return true;
+  }
+
+  VaultListItemBase? getVaultById(int id) {
+    return _vaultList?.firstWhere((element) => element.id == id);
+  }
+
+  Future<void> resetAll() async {
+    _vaultList?.clear();
+    _realmService.deleteAll();
+    await _storageService.deleteAll();
+    await savePublicInfo();
+  }
 }

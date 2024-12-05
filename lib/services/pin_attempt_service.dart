@@ -1,42 +1,40 @@
-import 'package:coconut_vault/services/secure_storage_service.dart';
+import 'package:coconut_vault/services/shared_preferences_service.dart';
 
 /// 앱 진입 시 잠금 해제를 위해 PIN 번호 입력 횟수를 제한하기 위한 보조 함수들
 class PinAttemptService {
-  final SecureStorageService _storageService = SecureStorageService();
+  final SharedPrefsService _sharedPrefs = SharedPrefsService();
+  static String kLockoutEndTime = 'LOCKOUT_END_TIME';
+  static String kTotalPinAttempt = 'TOTAL_PIN_ATTEMPT';
+  static String kPinAttempt = 'PIN_ATTEMPT';
 
-  Future<Map<String, String>> loadLockoutDuration() async {
-    final lockoutEndTimeString =
-        await _storageService.read(key: 'lockout_end_time');
-    final totalAttemptTimes =
-        await _storageService.read(key: 'total_pin_attempt');
-    final attemptTime = await _storageService.read(key: 'pin_attempt');
+  Map<String, String> loadLockoutDuration() {
+    final lockoutEndTimeString = _sharedPrefs.getString(kLockoutEndTime);
+    final totalAttemptTimes = _sharedPrefs.getString(kTotalPinAttempt);
+    final attemptTime = _sharedPrefs.getString(kPinAttempt);
 
     return {
-      'lockoutEndTime': lockoutEndTimeString ?? '',
-      'totalAttemptString': totalAttemptTimes ?? '0',
-      'attemptString': attemptTime ?? '0',
+      'lockoutEndTime': lockoutEndTimeString,
+      'totalAttemptString': totalAttemptTimes.isEmpty ? '0' : totalAttemptTimes,
+      'attemptString': attemptTime.isEmpty ? '0' : attemptTime,
     };
   }
 
+  // TODO: 딜레이 발생 이유
   Future<void> setLockoutDuration(int minutes, {int totalAttempt = 0}) async {
     final lockoutEndTime = DateTime.now().add(Duration(minutes: minutes));
     final attemptTimes = (totalAttempt).toString();
-    await _storageService.write(
-        key: 'lockout_end_time',
-        value: minutes != 0 ? lockoutEndTime.toIso8601String() : '');
-    await _storageService.write(key: 'total_pin_attempt', value: attemptTimes);
+    await _sharedPrefs.setString(
+        kLockoutEndTime, minutes != 0 ? lockoutEndTime.toIso8601String() : '');
+    await _sharedPrefs.setString(kTotalPinAttempt, attemptTimes);
   }
 
-  Future<String> loadPinAttemptTimes() async {
-    final attemptTimes = await _storageService.read(key: 'pin_attempt') ?? '0';
-    return attemptTimes;
+  String loadPinAttemptTimes() {
+    final attemptTimes = _sharedPrefs.getString(kPinAttempt);
+    return attemptTimes.isEmpty ? '0' : attemptTimes;
   }
 
   Future<void> setPinAttemptTimes(int time) async {
     final attemptTimes = time.toString();
-    await _storageService.write(
-      key: 'pin_attempt',
-      value: attemptTimes,
-    );
+    await _sharedPrefs.setString(kPinAttempt, attemptTimes);
   }
 }

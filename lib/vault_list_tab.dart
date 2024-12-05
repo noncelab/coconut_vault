@@ -238,7 +238,7 @@ class _VaultListTabState extends State<VaultListTab>
                       // 바로 추가하기
                       SliverToBoxAdapter(
                         child: Visibility(
-                          visible: !_vaultModel.isVaultListLoading &&
+                          visible: _vaultModel.isLoadVaultList &&
                               _appModel.vaultListLength == 0,
                           child: Container(
                             width: double.maxFinite,
@@ -323,6 +323,7 @@ class _VaultListTabState extends State<VaultListTab>
                       ),
                     ],
                   ),
+                  // 더보기
                   Visibility(
                     visible: _isSeeMoreDropdown,
                     child: Stack(
@@ -367,17 +368,6 @@ class _VaultListTabState extends State<VaultListTab>
                       ],
                     ),
                   ),
-                  /*Visibility(
-                      visible: model.isVaultListLoading,
-                      child: SizedBox(
-                        width: MediaQuery.of(context).size.width,
-                        height: MediaQuery.of(context).size.height,
-                        child: const Center(
-                          child: CircularProgressIndicator(
-                            color: MyColors.darkgrey,
-                          ),
-                        ),
-                      )),*/
                 ],
               ),
             ));
