@@ -899,11 +899,14 @@ class _AssignSignersScreenState extends State<AssignSignersScreen> {
                     Visibility(
                       visible: assignedVaultList[i].memo != null &&
                           assignedVaultList[i].memo!.isNotEmpty,
-                      child: Text(
-                        assignedVaultList[i].memo ?? '',
-                        style: Styles.caption2,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
+                      child: Padding(
+                        padding: const EdgeInsets.only(left: 5),
+                        child: Text(
+                          assignedVaultList[i].memo ?? '',
+                          style: Styles.caption2,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
                       ),
                     ),
                   ],
