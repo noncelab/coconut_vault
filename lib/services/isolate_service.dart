@@ -9,7 +9,6 @@ import 'package:coconut_vault/model/data/vault_type.dart';
 import 'package:coconut_vault/model/manager/multisig_wallet.dart';
 import 'package:coconut_vault/model/manager/singlesig_wallet.dart';
 import 'package:coconut_vault/services/shared_preferences_service.dart';
-import 'package:coconut_vault/utils/coconut/multisig_utils.dart';
 
 Future<List<SinglesigVaultListItem>> addVaultIsolate(
     Map<String, dynamic> data, void Function(dynamic)? progressCallback) async {

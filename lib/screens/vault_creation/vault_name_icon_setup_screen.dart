@@ -2,7 +2,6 @@ import 'package:coconut_vault/app.dart';
 import 'package:coconut_vault/model/manager/singlesig_wallet.dart';
 import 'package:coconut_vault/model/state/app_model.dart';
 import 'package:coconut_vault/model/state/multisig_creation_model.dart';
-import 'package:coconut_vault/services/shared_preferences_service.dart';
 import 'package:coconut_vault/styles.dart';
 import 'package:coconut_vault/utils/logger.dart';
 import 'package:coconut_vault/widgets/custom_dialog.dart';

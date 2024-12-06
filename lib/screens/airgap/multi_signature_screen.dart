@@ -510,16 +510,14 @@ class _MultiSignatureScreenState extends State<MultiSignatureScreen> {
                       Expanded(
                         child: GestureDetector(
                           onTap: _signers.where((item) => item).length >=
-                                      _requiredSignatureCount ||
-                                  _signers.where((item) => item).isEmpty
+                                  _requiredSignatureCount
                               ? null
                               : _showScannerBottomSheet,
                           child: Container(
                             padding: const EdgeInsets.symmetric(vertical: 14),
                             decoration: BoxDecoration(
                               color: _signers.where((item) => item).length >=
-                                          _requiredSignatureCount ||
-                                      _signers.where((item) => item).isEmpty
+                                      _requiredSignatureCount
                                   ? MyColors.transparentBlack_30
                                   : MyColors.black,
                               borderRadius: BorderRadius.circular(5),
