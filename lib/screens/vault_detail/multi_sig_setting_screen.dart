@@ -583,16 +583,9 @@ class _MultiSigSettingScreenState extends State<MultiSigSettingScreen> {
                                 onPressed: () {
                                   _removeTooltip();
 
-                                  Map<String, String> namesMap = {};
-                                  for (var signer in _multiVault.signers) {
-                                    namesMap[signer.keyStore
-                                        .masterFingerprint] = signer.name ?? '';
-                                  }
-
                                   Navigator.pushNamed(context, '/multisig-bsms',
                                       arguments: {
                                         'id': widget.id,
-                                        'names': namesMap
                                       });
                                 },
                               ),
