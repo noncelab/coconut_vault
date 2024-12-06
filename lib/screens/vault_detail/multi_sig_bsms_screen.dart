@@ -51,7 +51,6 @@ class _MultiSigBsmsScreenState extends State<MultiSigBsmsScreen> {
       coordinatorBsms: coordinatorBsms,
     ));
 
-    print('--> jsonEncode: ${jsonEncode(qrData)}');
     _getOutsideWalletIdList(vaultListItem);
   }
 
