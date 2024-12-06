@@ -4,17 +4,20 @@ import 'package:json_annotation/json_annotation.dart';
 
 @JsonSerializable(ignoreUnannotated: true)
 abstract class VaultListItemBase {
+  static const String vaultTypeField = 'vaultType';
+
   @JsonKey(name: "id")
   final int id;
-  @JsonKey(name: "colorIndex")
-  final int colorIndex;
-  @JsonKey(name: "iconIndex")
-  final int iconIndex;
   @JsonKey(name: "name")
   String name;
-  @JsonKey(name: "vaultType")
+  @JsonKey(name: "colorIndex")
+  int colorIndex;
+  @JsonKey(name: "iconIndex")
+  int iconIndex;
+  @JsonKey(name: vaultTypeField)
   VaultType vaultType;
-  @JsonKey(name: "vaultJsonString")
+  // Deprecated
+  //@JsonKey(name: "vaultJsonString")
   String? vaultJsonString;
 
   late WalletBase coconutVault;

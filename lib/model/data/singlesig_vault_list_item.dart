@@ -9,30 +9,45 @@ part 'singlesig_vault_list_item.g.dart'; // 생성될 파일 이름 $ dart run b
 
 @JsonSerializable(ignoreUnannotated: true)
 class SinglesigVaultListItem extends VaultListItemBase {
+  static const String secretField = 'secret';
+  static const String passphraseField = 'passphrase';
+  static const String signerBsmsField = 'signerBsms';
+
   SinglesigVaultListItem({
     required super.id,
     required super.name,
     required super.colorIndex,
     required super.iconIndex,
-    required this.secret,
-    required this.passphrase,
+    required String secret,
+    required String passphrase,
+    this.signerBsms,
     this.linkedMultisigInfo,
     super.vaultJsonString,
   }) : super(vaultType: VaultType.singleSignature) {
     Seed seed = Seed.fromMnemonic(secret, passphrase: passphrase);
     coconutVault = SingleSignatureVault.fromSeed(seed, AddressType.p2wpkh);
+    final singlesigVault = coconutVault as SingleSignatureVault;
 
-    vaultJsonString ??= (coconutVault as SingleSignatureVault).toJson();
+    /// 추후 속도 개선을 위한 로직 고려
+    signerBsms = singlesigVault.getSignerBsms(AddressType.p2wsh, name);
+    singlesigVault.keyStore.seed = null;
+
+    name = name.replaceAll('\n', ' ');
   }
 
-  @JsonKey(name: "secret")
-  final String secret;
+  /// @Deprecated
+  @JsonKey(name: secretField)
+  String? secret;
 
-  @JsonKey(name: "passphrase")
-  final String passphrase;
+  /// @Deprecated
+  @JsonKey(name: passphraseField)
+  String? passphrase;
 
   @JsonKey(name: "linkedMultisigInfo")
   Map<int, int>? linkedMultisigInfo;
+
+  @JsonKey(name: signerBsmsField)
+  String? signerBsms;
 
   @override
   String getWalletSyncString() {

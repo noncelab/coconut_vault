@@ -6,8 +6,6 @@ part 'multisig_import_detail.g.dart'; // 생성될 파일 이름 $ dart run buil
 @JsonSerializable(ignoreUnannotated: true)
 class MultisigImportDetail {
   @JsonKey()
-  int? id;
-  @JsonKey()
   String name;
   @JsonKey()
   int colorIndex;
@@ -19,7 +17,6 @@ class MultisigImportDetail {
   String coordinatorBsms;
 
   MultisigImportDetail({
-    this.id,
     required this.name,
     required this.colorIndex,
     required this.iconIndex,

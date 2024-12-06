@@ -99,10 +99,10 @@ class _FrostedAppBarState extends State<FrostedAppBar> {
                     Selector<AppModel, bool>(
                       selector: (context, model) => model.isPinEnabled,
                       builder: (context, isPinEnabled, child) {
-                        return Selector<AppModel, bool>(
-                          selector: (context, model) =>
-                              model.isNotEmptyVaultList,
-                          builder: (context, isNotEmptyVaultList, child) {
+                        return Selector<AppModel, int>(
+                          selector: (context, model) => model.vaultListLength,
+                          builder: (context, vaultListLength, child) {
+                            final isNotEmptyVaultList = vaultListLength > 0;
                             return Container(
                               margin: const EdgeInsets.only(top: 32),
                               height: 40,

@@ -1,7 +1,5 @@
 import 'package:coconut_lib/coconut_lib.dart';
-import 'package:coconut_vault/model/data/multisig_signer.dart';
 import 'package:coconut_vault/model/data/multisig_vault_list_item.dart';
-import 'package:coconut_vault/model/data/singlesig_vault_list_item.dart';
 import 'package:coconut_vault/model/state/vault_model.dart';
 import 'package:coconut_vault/screens/airgap/psbt_confirmation_screen.dart';
 import 'package:coconut_vault/screens/pin_check_screen.dart';
@@ -53,22 +51,29 @@ class _MultiSignatureScreenState extends State<MultiSignatureScreen> {
     _signers = List<bool>.filled(_multisigVaultItem.signers.length, false);
     _requiredSignatureCount = _multisigVaultItem.requiredSignatureCount;
     _vaultModel.signedRawTx = null;
-    _bindSeedToKeyStore();
     _checkSignedPsbt(widget.psbtBase64);
   }
 
-  _bindSeedToKeyStore() {
-    for (MultisigSigner signer in _multisigVaultItem.signers) {
-      if (signer.innerVaultId != null) {
-        final singleVaultItem = _vaultModel.getVaultById(signer.innerVaultId!)
-            as SinglesigVaultListItem;
-        final keyStore =
-            (singleVaultItem.coconutVault as SingleSignatureVault).keyStore;
-        final seed = keyStore.seed;
-        _multisigVault.bindSeedToKeyStore(seed);
-      }
-    }
-  }
+  // _bindSeedToKeyStore() async {
+  //   for (MultisigSigner signer in _multisigVaultItem.signers) {
+  //     if (signer.innerVaultId != null) {
+  //       // final singleVaultItem = _vaultModel.getVaultById(signer.innerVaultId!)
+  //       //     as SinglesigVaultListItem;
+  //       // final keyStore =
+  //       //     (singleVaultItem.coconutVault as SingleSignatureVault).keyStore;
+  //       var secret = await _vaultModel.getSecret(signer.innerVaultId!);
+  //       final seed =
+  //           Seed.fromMnemonic(secret.mnemonic, passphrase: secret.passphrase);
+  //       _multisigVault.bindSeedToKeyStore(seed);
+  //     }
+  //   }
+  // }
+
+  // _unbindSeedFromKeyStore() {
+  //   for (var keyStore in _multisigVault.keyStoreList) {
+  //     keyStore.seed = null;
+  //   }
+  // }
 
   _checkSignedPsbt(String psbtBase64) {
     PSBT psbt = PSBT.parse(psbtBase64);
@@ -76,7 +81,7 @@ class _MultiSignatureScreenState extends State<MultiSignatureScreen> {
     for (KeyStore keyStore in _multisigVault.keyStoreList) {
       if (psbt.isSigned(keyStore)) {
         final index = _multisigVault.keyStoreList.indexOf(keyStore);
-        _delayedUpdateSigner(index);
+        _updateSignState(index);
       }
     }
   }
@@ -101,11 +106,18 @@ class _MultiSignatureScreenState extends State<MultiSignatureScreen> {
     }
   }
 
+  /// @param index: signer index
   _signStep2(int index) async {
     try {
       setState(() {
         _showLoading = true;
       });
+
+      var secret = await _vaultModel
+          .getSecret(_multisigVaultItem.signers[index].innerVaultId!);
+      final seed =
+          Seed.fromMnemonic(secret.mnemonic, passphrase: secret.passphrase);
+      _multisigVault.bindSeedToKeyStore(seed);
 
       final psbt = _vaultModel.signedRawTx == null
           ? widget.psbtBase64
@@ -131,19 +143,21 @@ class _MultiSignatureScreenState extends State<MultiSignatureScreen> {
         }
       }
 
-      _delayedUpdateSigner(index);
+      _updateSignState(index);
     } catch (_) {
       if (mounted) {
         showAlertDialog(context: context, content: "서명 실패: $_");
       }
     } finally {
+      // unbind
+      _multisigVault.keyStoreList[index].seed = null;
       setState(() {
         _showLoading = false;
       });
     }
   }
 
-  void _delayedUpdateSigner(int index) {
+  void _updateSignState(int index) {
     setState(() {
       _signers[index] = true;
     });
@@ -496,16 +510,14 @@ class _MultiSignatureScreenState extends State<MultiSignatureScreen> {
                       Expanded(
                         child: GestureDetector(
                           onTap: _signers.where((item) => item).length >=
-                                      _requiredSignatureCount ||
-                                  _signers.where((item) => item).isEmpty
+                                  _requiredSignatureCount
                               ? null
                               : _showScannerBottomSheet,
                           child: Container(
                             padding: const EdgeInsets.symmetric(vertical: 14),
                             decoration: BoxDecoration(
                               color: _signers.where((item) => item).length >=
-                                          _requiredSignatureCount ||
-                                      _signers.where((item) => item).isEmpty
+                                      _requiredSignatureCount
                                   ? MyColors.transparentBlack_30
                                   : MyColors.black,
                               borderRadius: BorderRadius.circular(5),
@@ -546,5 +558,10 @@ class _MultiSignatureScreenState extends State<MultiSignatureScreen> {
         ),
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
   }
 }

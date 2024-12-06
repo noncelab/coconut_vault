@@ -15,16 +15,15 @@ import 'package:qr_flutter/qr_flutter.dart';
 
 class MultiSigBsmsScreen extends StatefulWidget {
   final int id;
-  final Map<String, String> namesMap;
-  const MultiSigBsmsScreen(
-      {super.key, required this.id, required this.namesMap});
+
+  const MultiSigBsmsScreen({super.key, required this.id});
 
   @override
   State<MultiSigBsmsScreen> createState() => _MultiSigBsmsScreenState();
 }
 
 class _MultiSigBsmsScreenState extends State<MultiSigBsmsScreen> {
-  late MultisigImportDetail qrData;
+  late String qrData;
   List<int> outSideWalletIdList = [];
 
   @override
@@ -39,14 +38,20 @@ class _MultiSigBsmsScreenState extends State<MultiSigBsmsScreen> {
     Map<String, dynamic> walletSyncString =
         jsonDecode(vaultListItem.getWalletSyncString());
 
-    qrData = MultisigImportDetail(
-      id: walletSyncString['id'],
+    Map<String, String> namesMap = {};
+    for (var signer in vaultListItem.signers) {
+      namesMap[signer.keyStore.masterFingerprint] = signer.name!;
+    }
+
+    qrData = jsonEncode(MultisigImportDetail(
       name: walletSyncString['name'],
       colorIndex: walletSyncString['colorIndex'],
       iconIndex: walletSyncString['iconIndex'],
-      namesMap: widget.namesMap,
+      namesMap: namesMap,
       coordinatorBsms: coordinatorBsms,
-    );
+    ));
+
+    print('--> jsonEncode: ${jsonEncode(qrData)}');
     _getOutsideWalletIdList(vaultListItem);
   }
 
@@ -66,13 +71,11 @@ class _MultiSigBsmsScreenState extends State<MultiSigBsmsScreen> {
         child: Scaffold(
           backgroundColor: MyColors.white,
           appBar: AppBar(
-            title: Text(
-              '지갑 상세 정보',
-              style: Styles.body1.copyWith(
-                fontSize: 18,
-              ),
-            ),
+            title: const Text('지갑 상세 정보'),
+            centerTitle: true,
             backgroundColor: MyColors.white,
+            titleTextStyle: Styles.body1Bold,
+            toolbarTextStyle: Styles.body1Bold,
             leading: IconButton(
               icon: const Icon(
                 Icons.close_rounded,
@@ -86,7 +89,7 @@ class _MultiSigBsmsScreenState extends State<MultiSigBsmsScreen> {
           ),
           body: SingleChildScrollView(
             child: ClipboardButton(
-              text: jsonEncode(qrData),
+              text: qrData,
               toastMessage: '지갑 상세 정보가 복사됐어요',
             ),
           ),
@@ -158,7 +161,7 @@ class _MultiSigBsmsScreenState extends State<MultiSigBsmsScreen> {
                     width: qrWidth,
                     decoration: BoxDecorations.shadowBoxDecoration,
                     child: QrImageView(
-                      data: jsonEncode(qrData),
+                      data: qrData,
                     ))),
             const SizedBox(
               height: 30,

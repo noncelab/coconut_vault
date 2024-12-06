@@ -22,6 +22,7 @@ import 'package:coconut_vault/widgets/custom_loading_overlay.dart';
 import 'package:coconut_vault/widgets/custom_toast.dart';
 import 'package:coconut_vault/widgets/information_item_row.dart';
 import 'package:provider/provider.dart';
+import 'package:shimmer/shimmer.dart';
 
 import '../../model/state/vault_model.dart';
 
@@ -182,8 +183,7 @@ class _VaultSettingsState extends State<VaultSettings> {
           MyBottomSheet.showBottomSheet_90(
               context: context,
               child: MnemonicViewScreen(
-                mnemonic: _singleVaultItem.secret,
-                passphrase: _singleVaultItem.passphrase,
+                walletId: widget.id,
                 title: '니모닉 문구 보기',
                 subtitle: '패스프레이즈 보기',
               ));
@@ -451,60 +451,95 @@ class _VaultSettingsState extends State<VaultSettings> {
                                     child: Divider(),
                                   ),
 
-                                  ListView.builder(
-                                    itemCount: _singleVaultItem
-                                        .linkedMultisigInfo!.keys.length,
-                                    shrinkWrap: true,
-                                    itemBuilder: (context, index) {
-                                      final id = _singleVaultItem
-                                          .linkedMultisigInfo!.keys
-                                          .elementAt(index);
-                                      final idx = _singleVaultItem
-                                          .linkedMultisigInfo!.values
-                                          .elementAt(index);
-                                      final multisig =
-                                          _vaultModel.getVaultById(id);
+                                  Selector<VaultModel, bool>(
+                                      selector: (context, model) =>
+                                          model.isLoadVaultList,
+                                      builder:
+                                          (context, isLoadVaultList, child) {
+                                        return ListView.builder(
+                                          itemCount: _singleVaultItem
+                                              .linkedMultisigInfo!.keys.length,
+                                          shrinkWrap: true,
+                                          itemBuilder: (context, index) {
+                                            final id = _singleVaultItem
+                                                .linkedMultisigInfo!.keys
+                                                .elementAt(index);
+                                            final idx = _singleVaultItem
+                                                .linkedMultisigInfo!.values
+                                                .elementAt(index);
 
-                                      return InkWell(
-                                        onTap: () {
-                                          Navigator.pushNamed(
-                                              context, '/multisig-setting',
-                                              arguments: {'id': id});
-                                        },
-                                        child: Container(
-                                          padding: const EdgeInsets.only(
-                                              left: 28, bottom: 4),
-                                          color: Colors.transparent,
-                                          child: RichText(
-                                            text: TextSpan(
-                                              style: Styles.body2.copyWith(
-                                                color: MyColors.linkBlue,
-                                              ),
-                                              children: [
-                                                TextSpan(
-                                                  text:
-                                                      '${TextUtils.ellipsisIfLonger(multisig.name)} 지갑',
-                                                  style:
-                                                      Styles.body2Bold.copyWith(
-                                                    color: MyColors.linkBlue,
+                                            if (isLoadVaultList &&
+                                                _vaultModel.vaultList.any(
+                                                    (element) =>
+                                                        element.id == id)) {
+                                              final multisig =
+                                                  _vaultModel.getVaultById(id);
+                                              return InkWell(
+                                                onTap: () {
+                                                  Navigator.pushNamed(context,
+                                                      '/multisig-setting',
+                                                      arguments: {'id': id});
+                                                },
+                                                child: Container(
+                                                  padding:
+                                                      const EdgeInsets.only(
+                                                          left: 28, bottom: 4),
+                                                  color: Colors.transparent,
+                                                  child: RichText(
+                                                    text: TextSpan(
+                                                      style:
+                                                          Styles.body2.copyWith(
+                                                        color:
+                                                            MyColors.linkBlue,
+                                                      ),
+                                                      children: [
+                                                        TextSpan(
+                                                          text:
+                                                              '${TextUtils.ellipsisIfLonger(multisig.name)} 지갑',
+                                                          style: Styles
+                                                              .body2Bold
+                                                              .copyWith(
+                                                            color: MyColors
+                                                                .linkBlue,
+                                                          ),
+                                                        ),
+                                                        const TextSpan(
+                                                            text: '의 '),
+                                                        TextSpan(
+                                                          text: '${idx + 1}번',
+                                                          style: Styles
+                                                              .body2Bold
+                                                              .copyWith(
+                                                            color: MyColors
+                                                                .linkBlue,
+                                                          ),
+                                                        ),
+                                                        const TextSpan(
+                                                            text: ' 키'),
+                                                      ],
+                                                    ),
                                                   ),
                                                 ),
-                                                const TextSpan(text: '의 '),
-                                                TextSpan(
-                                                  text: '${idx + 1}번',
-                                                  style:
-                                                      Styles.body2Bold.copyWith(
-                                                    color: MyColors.linkBlue,
+                                              );
+                                            } else {
+                                              return Container(
+                                                padding: const EdgeInsets.only(
+                                                    left: 28, bottom: 4),
+                                                child: Shimmer.fromColors(
+                                                  baseColor: Colors.grey[300]!,
+                                                  highlightColor:
+                                                      Colors.grey[100]!,
+                                                  child: Container(
+                                                    height: 17,
+                                                    width: double.maxFinite,
+                                                    color: Colors.grey[300],
                                                   ),
                                                 ),
-                                                const TextSpan(text: ' 키'),
-                                              ],
-                                            ),
-                                          ),
-                                        ),
-                                      );
-                                    },
-                                  ),
+                                              );
+                                            }
+                                          },
+                                        );
+                                      }),
                                 ],
                               ),
                             ),

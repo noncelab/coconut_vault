@@ -44,7 +44,6 @@ dependencies:
   json_annotation: ^4.9.0
   shared_preferences: ^2.2.2
   fluttertoast: ^8.2.4
-  realm: ^3.1.0
   qr_flutter: ^4.1.0
   qr_code_scanner: ^1.0.1
   flutter_svg: ^2.0.10+1
@@ -69,6 +68,7 @@ dependencies:
     git:
       url: https://github.com/noncelab/coconut_lib
       ref: multisig
+  crypto: ^3.0.6
 
 dev_dependencies:
   flutter_test:
@@ -84,6 +84,7 @@ dev_dependencies:
   # package. See that file for information about deactivating specific lint
   # rules and activating additional ones.
   flutter_lints: ^3.0.0
+  test: ^1.25.7
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec

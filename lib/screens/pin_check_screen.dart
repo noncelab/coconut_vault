@@ -94,7 +94,7 @@ class _PinCheckScreenState extends State<PinCheckScreen>
   }
 
   void _loadAttemptCountFromStorage() async {
-    attempt = int.parse(await _pinAttemptService.loadPinAttemptTimes());
+    attempt = int.parse(_pinAttemptService.loadPinAttemptTimes());
     if (attempt != 0 && attempt < MAX_NUMBER_OF_ATTEMPTS) {
       setState(() {
         errorMessage = '${MAX_NUMBER_OF_ATTEMPTS - attempt}번 다시 시도할 수 있어요';
@@ -251,8 +251,7 @@ class _PinCheckScreenState extends State<PinCheckScreen>
   void _checkPinLocked() async {
     /// 처음 시작시 잠금 상태 확인하는 함수
     /// 잠금 정보를 로드
-    Map<String, String> lockout =
-        await _pinAttemptService.loadLockoutDuration();
+    Map<String, String> lockout = _pinAttemptService.loadLockoutDuration();
     final totalAttempt = int.parse(lockout['totalAttemptString']!);
 
     /// 시도 횟수가 0이고 현재 시도 횟수가 3이 아니라면, 아무 작업도 하지 않음
@@ -294,8 +293,7 @@ class _PinCheckScreenState extends State<PinCheckScreen>
 
   void _checkPinLockout() async {
     /// Pin 틀릴 시 잠금처리
-    Map<String, String> lockout =
-        await _pinAttemptService.loadLockoutDuration();
+    Map<String, String> lockout = _pinAttemptService.loadLockoutDuration();
     final totalAttempt = int.parse(lockout['totalAttemptString']!);
 
     int awaitDuration = lockoutDurations[totalAttempt];
@@ -307,7 +305,7 @@ class _PinCheckScreenState extends State<PinCheckScreen>
       return;
     }
 
-    lockout = await _pinAttemptService.loadLockoutDuration();
+    lockout = _pinAttemptService.loadLockoutDuration();
     final lockoutEndTime = DateTime.parse(lockout['lockoutEndTime']!);
     _startLockoutTimer(lockoutEndTime, totalAttempt + 1);
   }

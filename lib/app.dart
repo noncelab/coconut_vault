@@ -196,7 +196,6 @@ class _PowVaultAppState extends State<PowVaultApp> {
                   context,
                   (args) => MultiSigBsmsScreen(
                     id: args['id'],
-                    namesMap: args['names'],
                   ),
                 ),
             '/mnemonic-word-list': (context) => const MnemonicWordListScreen(),

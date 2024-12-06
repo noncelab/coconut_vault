@@ -201,15 +201,14 @@ class _MultiSigSettingScreenState extends State<MultiSigSettingScreen> {
                 MyBottomSheet.showBottomSheet_90(
                   context: context,
                   child: MnemonicViewScreen(
-                    mnemonic: single.secret,
-                    passphrase: single.passphrase,
+                    walletId: single.id,
                     title: '니모닉 문구 보기',
                     subtitle: '패스프레이즈 보기',
                   ),
                 );
                 break;
               default:
-                _vaultModel.deleteVault(widget.id, isMultisig: true);
+                _vaultModel.deleteVault(widget.id);
                 vibrateLight();
                 Navigator.popUntil(context, (route) => route.isFirst);
             }
@@ -363,13 +362,12 @@ class _MultiSigSettingScreenState extends State<MultiSigSettingScreen> {
                                 children: [
                                   Row(children: [
                                     Flexible(
-                                      child: Text(
-                                        _multiVault.name,
-                                        style: Styles.h3,
-                                        maxLines: 1,
-                                        overflow: TextOverflow.ellipsis,
-                                      ),
-                                    ),
+                                        child: Text(
+                                      _multiVault.name,
+                                      style: Styles.h3,
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                    )),
                                     const SizedBox(width: 7),
                                     GestureDetector(
                                         onTap: () {
@@ -584,16 +582,9 @@ class _MultiSigSettingScreenState extends State<MultiSigSettingScreen> {
                                 onPressed: () {
                                   _removeTooltip();
 
-                                  Map<String, String> namesMap = {};
-                                  for (var signer in _multiVault.signers) {
-                                    namesMap[signer.keyStore
-                                        .masterFingerprint] = signer.name ?? '';
-                                  }
-
                                   Navigator.pushNamed(context, '/multisig-bsms',
                                       arguments: {
                                         'id': widget.id,
-                                        'names': namesMap
                                       });
                                 },
                               ),

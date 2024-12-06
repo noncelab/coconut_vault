@@ -14,6 +14,7 @@ import 'package:coconut_vault/widgets/bottom_sheet.dart';
 import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:provider/provider.dart';
+import 'package:shimmer/shimmer.dart';
 
 import 'model/state/vault_model.dart';
 import 'widgets/vault_row_item.dart';
@@ -81,7 +82,6 @@ class _VaultListTabState extends State<VaultListTab>
         _vaultModel.setAnimatedVaultFlags();
       }
 
-      // 지갑 추가, 지갑 삭제, 서명완료 후 불필요하게 loadVaultList() 호출되는 것을 막음
       if (_vaultModel.vaultInitialized) {
         return;
       }
@@ -89,10 +89,83 @@ class _VaultListTabState extends State<VaultListTab>
     });
   }
 
+  Widget _vaultSkeletonItem() => Column(
+        children: [
+          ClipRRect(
+            borderRadius: BorderRadius.circular(30),
+            child: Container(
+              constraints: const BoxConstraints(minHeight: 100),
+              decoration: BoxDecoration(
+                color: Colors.white, // 배경색 유지
+                borderRadius: BorderRadius.circular(28),
+                boxShadow: const [
+                  BoxShadow(
+                    color: MyColors.transparentBlack_15,
+                    offset: Offset(0, 0),
+                    blurRadius: 12,
+                    spreadRadius: 0,
+                  ),
+                ],
+              ),
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 24.0, vertical: 28.0),
+              child: Row(
+                children: [
+                  // 1) 아이콘 스켈레톤
+                  Shimmer.fromColors(
+                    baseColor: Colors.grey[300]!,
+                    highlightColor: Colors.grey[100]!,
+                    child: Container(
+                      width: 40.0,
+                      height: 40.0,
+                      decoration: BoxDecoration(
+                        color: Colors.grey[300],
+                        borderRadius: BorderRadius.circular(16.0),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 8.0),
+                  // 2) 텍스트 영역
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // 첫 번째 텍스트
+                        Shimmer.fromColors(
+                          baseColor: Colors.grey[300]!,
+                          highlightColor: Colors.grey[100]!,
+                          child: Container(
+                            height: 14.0,
+                            width: 100.0,
+                            color: Colors.grey[300],
+                          ),
+                        ),
+                        const SizedBox(height: 8.0),
+                        // 두 번째 텍스트
+                        Shimmer.fromColors(
+                          baseColor: Colors.grey[300]!,
+                          highlightColor: Colors.grey[100]!,
+                          child: Container(
+                            height: 14.0,
+                            width: 150.0,
+                            color: Colors.grey[300],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          const SizedBox(height: 10),
+        ],
+      );
+
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     /// 앱이 pause 되면 pin or bio 확인창 이동
-    if (AppLifecycleState.paused == state && _appModel.isNotEmptyVaultList) {
+    if (AppLifecycleState.paused == state && _appModel.vaultListLength > 0) {
       _vaultModel.lockClear();
       Navigator.pushNamedAndRemoveUntil(
           context, '/vault-lock', (Route<dynamic> route) => false,
@@ -152,8 +225,8 @@ class _VaultListTabState extends State<VaultListTab>
                   CustomScrollView(
                     controller: _scrollController,
                     physics: const AlwaysScrollableScrollPhysics(),
-                    semanticChildCount:
-                        model.isVaultListLoading ? 1 : vaults.length,
+                    // semanticChildCount:
+                    //     model.isVaultListLoading ? 1 : vaults.length,
                     slivers: <Widget>[
                       FrostedAppBar(
                         onTapSeeMore: () {
@@ -162,91 +235,95 @@ class _VaultListTabState extends State<VaultListTab>
                           });
                         },
                       ),
+                      // 바로 추가하기
+                      SliverToBoxAdapter(
+                        child: Visibility(
+                          visible: _vaultModel.isLoadVaultList &&
+                              _appModel.vaultListLength == 0,
+                          child: Container(
+                            width: double.maxFinite,
+                            decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(16),
+                                color: MyColors.white),
+                            padding: const EdgeInsets.only(
+                                top: 26, bottom: 24, left: 26, right: 26),
+                            margin: const EdgeInsets.symmetric(horizontal: 8),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const Text(
+                                  '지갑을 추가해 주세요',
+                                  style: Styles.title5,
+                                ),
+                                const Text(
+                                  '오른쪽 위 + 버튼을 눌러도 추가할 수 있어요',
+                                  style: Styles.label,
+                                ),
+                                const SizedBox(height: 16),
+                                CupertinoButton(
+                                  onPressed: () {
+                                    if (!_appModel.isPinEnabled) {
+                                      MyBottomSheet.showBottomSheet_90(
+                                          context: context,
+                                          child: const PinSettingScreen(
+                                              greetingVisible: true));
+                                    } else {
+                                      Navigator.pushNamed(
+                                          context, '/select-vault-type');
+                                    }
+                                  },
+                                  borderRadius: BorderRadius.circular(10),
+                                  padding: EdgeInsets.zero,
+                                  color: MyColors.primary,
+                                  child: Container(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 28,
+                                      vertical: 12,
+                                    ),
+                                    child: Text(
+                                      '바로 추가하기',
+                                      style: Styles.label.merge(
+                                        const TextStyle(
+                                          color: MyColors.black,
+                                          fontWeight: FontWeight.w700,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                      // 지갑 목록
                       SliverPadding(
                         padding: const EdgeInsets.symmetric(horizontal: 8),
                         sliver: SliverList.builder(
                           itemCount: vaults.length + (vaults.isEmpty ? 1 : 0),
-                          itemBuilder: (ctx, index) {
-                            if (index < vaults.length) {
-                              return model.animatedVaultFlags[index]
+                          itemBuilder: (ctx, index) => index < vaults.length
+                              ? model.animatedVaultFlags[index]
                                   ? SlideTransition(
                                       position: _newVaultAddAnimation,
-                                      child: VaultRowItem(
-                                        vault: vaults[index],
-                                      ),
+                                      child: VaultRowItem(vault: vaults[index]),
                                     )
                                   : VaultRowItem(
                                       vault: vaults[index],
-                                    );
-                            }
-
-                            if (index == vaults.length && vaults.isEmpty) {
-                              if (model.isLoadVaultList) {
-                                return Container(
-                                  width: double.maxFinite,
-                                  decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(16),
-                                      color: MyColors.white),
-                                  padding: const EdgeInsets.only(
-                                      top: 26, bottom: 24, left: 26, right: 26),
-                                  margin:
-                                      const EdgeInsets.symmetric(horizontal: 8),
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      const Text(
-                                        '지갑을 추가해 주세요',
-                                        style: Styles.title5,
-                                      ),
-                                      const Text(
-                                        '오른쪽 위 + 버튼을 눌러도 추가할 수 있어요',
-                                        style: Styles.label,
-                                      ),
-                                      const SizedBox(height: 16),
-                                      CupertinoButton(
-                                        onPressed: () {
-                                          if (!_appModel.isPinEnabled) {
-                                            MyBottomSheet.showBottomSheet_90(
-                                                context: context,
-                                                child: const PinSettingScreen(
-                                                    greetingVisible: true));
-                                          } else {
-                                            Navigator.pushNamed(
-                                                context, '/select-vault-type');
-                                          }
-                                        },
-                                        borderRadius: BorderRadius.circular(10),
-                                        padding: EdgeInsets.zero,
-                                        color: MyColors.primary,
-                                        child: Container(
-                                          padding: const EdgeInsets.symmetric(
-                                            horizontal: 28,
-                                            vertical: 12,
-                                          ),
-                                          child: Text(
-                                            '바로 추가하기',
-                                            style: Styles.label.merge(
-                                              const TextStyle(
-                                                color: MyColors.black,
-                                                fontWeight: FontWeight.w700,
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                );
-                              }
-                            }
-
-                            return null;
-                          },
+                                      isLoadCompletedAnimation: true)
+                              : Container(),
+                        ),
+                      ),
+                      // Skeleton 목록
+                      SliverPadding(
+                        padding: const EdgeInsets.symmetric(horizontal: 8),
+                        sliver: SliverList.builder(
+                          itemBuilder: (ctx, index) => _vaultSkeletonItem(),
+                          itemCount: _vaultModel.vaultSkeletonLength,
                         ),
                       ),
                     ],
                   ),
+                  // 더보기
                   Visibility(
                     visible: _isSeeMoreDropdown,
                     child: Stack(
@@ -291,17 +368,6 @@ class _VaultListTabState extends State<VaultListTab>
                       ],
                     ),
                   ),
-                  Visibility(
-                      visible: model.isVaultListLoading,
-                      child: SizedBox(
-                        width: MediaQuery.of(context).size.width,
-                        height: MediaQuery.of(context).size.height,
-                        child: const Center(
-                          child: CircularProgressIndicator(
-                            color: MyColors.darkgrey,
-                          ),
-                        ),
-                      )),
                 ],
               ),
             ));

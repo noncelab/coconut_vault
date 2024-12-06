@@ -4,6 +4,7 @@ import 'package:coconut_vault/model/data/singlesig_vault_list_item.dart';
 import 'package:coconut_vault/model/data/vault_list_item_base.dart';
 import 'package:coconut_vault/model/data/vault_type.dart';
 import 'package:coconut_vault/utils/colors_util.dart';
+import 'package:coconut_vault/widgets/animation/shake_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:coconut_vault/screens/vault_detail/vault_menu_screen.dart';
@@ -23,12 +24,14 @@ class VaultRowItem extends StatefulWidget {
     this.isSelectable = false,
     this.onSelected,
     this.isPressed = false,
+    this.isLoadCompletedAnimation = false,
   });
 
   final VaultListItemBase vault;
   final bool isSelectable;
   final VoidCallback? onSelected;
   final bool isPressed;
+  final bool isLoadCompletedAnimation;
 
   @override
   State<VaultRowItem> createState() => _VaultRowItemState();
@@ -40,6 +43,7 @@ class _VaultRowItemState extends State<VaultRowItem> {
   bool _isMultiSig = false;
   String _subtitleText = '';
   bool _isUsedToMultiSig = false;
+  final bool _isLoadCompletedAnimation = false;
   List<MultisigSigner>? _multiSigners;
 
   void _updateVault() {
@@ -112,13 +116,22 @@ class _VaultRowItemState extends State<VaultRowItem> {
             },
             child: _vaultContainerWidget());
 
-    return Column(
-      children: [
-        row,
-        const SizedBox(
-          height: 10,
-        )
-      ],
+    return ShakeWidget(
+      key: ValueKey(
+          '${widget.vault.name}_$_subtitleText'), // _subTitle 이 바뀌면 Shake 재시작
+      curve: Curves.easeInOut,
+      deltaX: 5,
+      child: Column(
+        children: [
+          Container(
+            constraints: const BoxConstraints(minHeight: 100),
+            child: row,
+          ),
+          const SizedBox(
+            height: 10,
+          )
+        ],
+      ),
     );
   }
 

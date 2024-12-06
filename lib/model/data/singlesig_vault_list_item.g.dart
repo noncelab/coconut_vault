@@ -15,11 +15,11 @@ SinglesigVaultListItem _$SinglesigVaultListItemFromJson(
       iconIndex: (json['iconIndex'] as num).toInt(),
       secret: json['secret'] as String,
       passphrase: json['passphrase'] as String,
+      signerBsms: json['signerBsms'] as String?,
       linkedMultisigInfo:
           (json['linkedMultisigInfo'] as Map<String, dynamic>?)?.map(
         (k, e) => MapEntry(int.parse(k), (e as num).toInt()),
       ),
-      vaultJsonString: json['vaultJsonString'] as String?,
     )..vaultType = $enumDecode(_$VaultTypeEnumMap, json['vaultType']);
 
 Map<String, dynamic> _$SinglesigVaultListItemToJson(
@@ -30,11 +30,11 @@ Map<String, dynamic> _$SinglesigVaultListItemToJson(
       'iconIndex': instance.iconIndex,
       'name': instance.name,
       'vaultType': _$VaultTypeEnumMap[instance.vaultType]!,
-      'vaultJsonString': instance.vaultJsonString,
       'secret': instance.secret,
       'passphrase': instance.passphrase,
       'linkedMultisigInfo':
           instance.linkedMultisigInfo?.map((k, e) => MapEntry(k.toString(), e)),
+      'signerBsms': instance.signerBsms,
     };
 
 const _$VaultTypeEnumMap = {

@@ -121,7 +121,7 @@ class _MnemonicImportState extends State<MnemonicImport> {
   void _onBackPressed(BuildContext context) {
     if (inputText.isEmpty && passphrase.isEmpty) {
       final model = Provider.of<VaultModel>(context, listen: false);
-      model.stopImporting();
+      model.completeSinglesigImporting();
       isFinishing = true;
       Navigator.pop(context);
     } else {
@@ -189,7 +189,7 @@ class _MnemonicImportState extends State<MnemonicImport> {
               return;
             }
 
-            model.startImporting(
+            model.startSinglesigImporting(
                 inputText.trim().toLowerCase().replaceAll(RegExp(r'\s+'), ' '),
                 usePassphrase ? passphrase.trim() : '');
             MyBottomSheet.showBottomSheet_90(
