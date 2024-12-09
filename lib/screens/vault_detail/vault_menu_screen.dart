@@ -49,7 +49,7 @@ class _VaultMenuScreenState extends State<VaultMenuScreen> {
 
       if (!widget.isMultiSig) {
         return Container(
-          padding: const EdgeInsets.only(left: 8),
+          padding: const EdgeInsets.only(left: 8, bottom: 10),
           child: Column(children: [
             bottomMenuButton(
                 SvgPicture.asset('assets/svg/menu/details.svg',
@@ -122,12 +122,12 @@ class _VaultMenuScreenState extends State<VaultMenuScreen> {
                   'screenType': SignerScannerScreenType.copy,
                 },
               );
-            }, iconBackgroundColorList[0]),
+            }, iconBackgroundColorList[5]),
           ]),
         );
       } else {
         return Container(
-          padding: const EdgeInsets.only(left: 8, right: 8),
+          padding: const EdgeInsets.only(left: 8, right: 8, bottom: 10),
           child: Column(children: [
             bottomMenuButton(
                 SvgPicture.asset('assets/svg/menu/details.svg',
