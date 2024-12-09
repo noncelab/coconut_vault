@@ -48,6 +48,7 @@ class _VaultInfoEditBottomSheetState extends State<VaultInfoEditBottomSheet> {
         children: [
           Scaffold(
             backgroundColor: MyColors.white,
+            // TODO: custom_appber.buildWithSave로 대체
             appBar: AppBar(
               backgroundColor: MyColors.white,
               title: Text(_name, maxLines: 1),
@@ -94,18 +95,16 @@ class _VaultInfoEditBottomSheetState extends State<VaultInfoEditBottomSheet> {
                               : MyColors.transparentBlack_06,
                         ),
                         color: _name.trim().isNotEmpty
-                            ? MyColors.transparentBlack_06
+                            ? MyColors.darkgrey
                             : MyColors.lightgrey,
                       ),
                       child: Center(
                         child: Text('완료',
-                            style: _name.trim().isNotEmpty
-                                ? Styles.headerButtonLabel
-                                : Styles.headerButtonLabel
-                                    .merge(const TextStyle(
-                                    color: MyColors.transparentBlack_30,
-                                    fontWeight: FontWeight.normal,
-                                  ))),
+                            style: Styles.subLabel.merge(TextStyle(
+                                color: _name.trim().isNotEmpty
+                                    ? Colors.white
+                                    : MyColors.transparentBlack_30,
+                                fontSize: 11))),
                       ),
                     ),
                   ),
