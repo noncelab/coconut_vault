@@ -317,13 +317,10 @@ class _MultiSigSettingScreenState extends State<MultiSigSettingScreen> {
                           const EdgeInsets.only(top: 20, left: 16, right: 16),
                       decoration: BoxDecoration(
                         color: MyColors.white,
-                        borderRadius: BorderRadius.circular(30),
-                        gradient: LinearGradient(
-                          colors: CustomColorHelper.getGradientColors(
-                              _multiVault.signers),
-                          begin: Alignment.centerLeft,
-                          end: Alignment.centerRight,
-                        ),
+                        borderRadius: MyBorder.defaultRadius,
+                        gradient: BoxDecorations.getMultisigLinearGradient(
+                            CustomColorHelper.getGradientColors(
+                                _multiVault.signers)),
                       ),
                       child: Container(
                         margin: const EdgeInsets.all(2),
@@ -331,7 +328,8 @@ class _MultiSigSettingScreenState extends State<MultiSigSettingScreen> {
                             left: 24, right: 24, top: 30, bottom: 24),
                         decoration: BoxDecoration(
                           color: MyColors.white,
-                          borderRadius: BorderRadius.circular(28),
+                          borderRadius: BorderRadius.circular(
+                              22), // defaultRadius로 통일하면 border 넓이가 균일해보이지 않음
                         ),
                         child: Row(
                           crossAxisAlignment: CrossAxisAlignment.center,
@@ -484,7 +482,7 @@ class _MultiSigSettingScreenState extends State<MultiSigSettingScreen> {
                                     padding: const EdgeInsets.all(20),
                                     decoration: BoxDecoration(
                                       color: MyColors.white,
-                                      borderRadius: BorderRadius.circular(17),
+                                      borderRadius: MyBorder.defaultRadius,
                                       border:
                                           Border.all(color: MyColors.greyE9),
                                     ),
@@ -550,8 +548,7 @@ class _MultiSigSettingScreenState extends State<MultiSigSettingScreen> {
                                         // mfp
                                         Text(
                                           mfp,
-                                          style: Styles.body1.copyWith(
-                                              color: MyColors.darkgrey),
+                                          style: Styles.mfpH3,
                                         ),
                                       ],
                                     ),
@@ -569,7 +566,7 @@ class _MultiSigSettingScreenState extends State<MultiSigSettingScreen> {
                       padding: const EdgeInsets.symmetric(horizontal: 16),
                       child: Container(
                         decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(28.0),
+                          borderRadius: MyBorder.defaultRadius,
                           color: MyColors.transparentBlack_03,
                         ),
                         child: Container(
@@ -599,7 +596,7 @@ class _MultiSigSettingScreenState extends State<MultiSigSettingScreen> {
                       child: Container(
                         padding: const EdgeInsets.symmetric(horizontal: 24),
                         decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(28.0),
+                          borderRadius: MyBorder.defaultRadius,
                           color: MyColors.transparentBlack_03,
                         ),
                         child: Column(

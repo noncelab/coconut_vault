@@ -293,7 +293,7 @@ class _VaultSettingsState extends State<VaultSettings> {
                               padding: const EdgeInsets.symmetric(
                                   horizontal: 24, vertical: 20),
                               decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(28),
+                                  borderRadius: MyBorder.defaultRadius,
                                   border: Border.all(
                                       color: MyColors.borderLightgrey,
                                       width: 0.5)),

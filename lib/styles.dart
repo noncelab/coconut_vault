@@ -3,6 +3,7 @@
 // found in the LICENSE file.
 
 import 'package:flutter/material.dart';
+import 'dart:math' as math;
 
 abstract class MyColors {
   static const black = Color.fromRGBO(20, 19, 24, 1);
@@ -321,6 +322,13 @@ abstract class Styles {
     fontStyle: FontStyle.normal,
     fontWeight: FontWeight.w400,
   );
+
+  static const TextStyle mfpH3 = TextStyle(
+      fontFamily: _fontNumber,
+      color: MyColors.black,
+      fontSize: 16,
+      fontStyle: FontStyle.normal,
+      fontWeight: FontWeight.w400);
 }
 
 abstract class MyBorder {
@@ -357,4 +365,12 @@ class BoxDecorations {
     borderRadius: MyBorder.defaultRadius,
     color: MyColors.transparentBlack_06,
   );
+
+  static LinearGradient getMultisigLinearGradient(List<Color> colors) {
+    return LinearGradient(
+        colors: colors,
+        begin: Alignment.topLeft,
+        end: Alignment.bottomRight,
+        transform: const GradientRotation(math.pi / 10));
+  }
 }
