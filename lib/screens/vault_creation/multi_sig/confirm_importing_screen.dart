@@ -1,4 +1,5 @@
 import 'package:coconut_lib/coconut_lib.dart';
+import 'package:coconut_vault/widgets/button/custom_buttons.dart';
 import 'package:coconut_vault/widgets/multisig/card/signer_bsms_info_card.dart';
 import 'package:coconut_vault/widgets/textfield/custom_textfield.dart';
 import 'package:flutter/cupertino.dart';
@@ -195,57 +196,67 @@ class _ConfirmImportingScreenState extends State<ConfirmImportingScreen>
                       ],
                     ),
                     const SizedBox(height: 40),
-                    Center(
-                      child: GestureDetector(
-                        onTap: () {
-                          setState(() {
-                            isPressing = false;
-                          });
-                          Navigator.pop(context, {
-                            'bsms': widget.importingBsms,
-                            'memo': _controller.text
-                          });
-                        },
-                        onTapDown: (details) {
-                          setState(() {
-                            isPressing = true;
-                          });
-                        },
-                        onTapCancel: () {
-                          setState(() {
-                            isPressing = false;
-                          });
-                        },
-                        child: Container(
-                          width: 90,
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 30.0,
-                            vertical: 12,
-                          ),
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(4.0),
-                            border: Border.all(
-                              color: isPressing
-                                  ? MyColors.transparentBlack_03
-                                  : MyColors.transparentBlack_06,
-                            ),
-                            color: isPressing
-                                ? MyColors.transparentBlack_70
-                                : MyColors.darkgrey,
-                          ),
-                          child: const Center(
-                            child: Text(
-                              '완 료',
-                              style: TextStyle(
-                                fontSize: 12,
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
+                    CompleteButton(
+                      onPressed: () {
+                        Navigator.pop(context, {
+                          'bsms': widget.importingBsms,
+                          'memo': _controller.text
+                        });
+                      },
+                      label: '완료',
+                      disabled: false,
                     ),
+                    // Center(
+                    //   child: GestureDetector(
+                    //     onTap: () {
+                    //       setState(() {
+                    //         isPressing = false;
+                    //       });
+                    //       Navigator.pop(context, {
+                    //         'bsms': widget.importingBsms,
+                    //         'memo': _controller.text
+                    //       });
+                    //     },
+                    //     onTapDown: (details) {
+                    //       setState(() {
+                    //         isPressing = true;
+                    //       });
+                    //     },
+                    //     onTapCancel: () {
+                    //       setState(() {
+                    //         isPressing = false;
+                    //       });
+                    //     },
+                    //     child: Container(
+                    //       width: 90,
+                    //       padding: const EdgeInsets.symmetric(
+                    //         horizontal: 30.0,
+                    //         vertical: 12,
+                    //       ),
+                    //       decoration: BoxDecoration(
+                    //         borderRadius: BorderRadius.circular(4.0),
+                    //         border: Border.all(
+                    //           color: isPressing
+                    //               ? MyColors.transparentBlack_03
+                    //               : MyColors.transparentBlack_06,
+                    //         ),
+                    //         color: isPressing
+                    //             ? MyColors.transparentBlack_70
+                    //             : MyColors.darkgrey,
+                    //       ),
+                    //       child: const Center(
+                    //         child: Text(
+                    //           '완 료',
+                    //           style: TextStyle(
+                    //             fontSize: 12,
+                    //             color: Colors.white,
+                    //             fontWeight: FontWeight.bold,
+                    //           ),
+                    //         ),
+                    //       ),
+                    //     ),
+                    //   ),
+                    // ),
                     const SizedBox(height: 20),
                   ],
                 ),

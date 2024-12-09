@@ -329,6 +329,14 @@ abstract class Styles {
       fontSize: 16,
       fontStyle: FontStyle.normal,
       fontWeight: FontWeight.w400);
+
+  static const TextStyle tertiaryButtonText = TextStyle(
+      fontFamily: _fontText,
+      color: MyColors.black,
+      fontSize: 12,
+      fontStyle: FontStyle.normal,
+      fontWeight: FontWeight.w400,
+      decoration: TextDecoration.underline);
 }
 
 abstract class MyBorder {
