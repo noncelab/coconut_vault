@@ -218,11 +218,11 @@ class _MultiSigSettingScreenState extends State<MultiSigSettingScreen> {
     );
   }
 
-  Future _selectedKeyBottomSheet(MultisigSigner multisigSigner) async {
-    final isInnerVault = multisigSigner.innerVaultId != null;
+  Future _openOutsideWalletBottomMenu(MultisigSigner multisigSigner) async {
+    assert(multisigSigner.innerVaultId == null);
     final name = multisigSigner.name ?? '';
 
-    bool existsMemo = !isInnerVault && multisigSigner.memo?.isNotEmpty == true;
+    bool existsMemo = multisigSigner.memo?.isNotEmpty == true;
 
     MyBottomSheet.showBottomSheet(
       context: context,
@@ -236,25 +236,17 @@ class _MultiSigSettingScreenState extends State<MultiSigSettingScreen> {
         padding: const EdgeInsets.only(bottom: 84),
         child: Column(
           children: [
+            // _bottomSheetButton(
+            //   '다중 서명용 확장 공개키 보기',
+            //   onPressed: () {
+            //     _verifyBiometric(0, multisigSigner: multisigSigner);
+            //   },
+            // ),
+            // const Divider(),
             _bottomSheetButton(
-              '다중 서명용 확장 공개키 보기',
+              existsMemo ? '메모 수정' : '메모 추가',
               onPressed: () {
-                _verifyBiometric(0, multisigSigner: multisigSigner);
-              },
-            ),
-            const Divider(),
-            _bottomSheetButton(
-              isInnerVault
-                  ? '니모닉 문구 보기'
-                  : existsMemo
-                      ? '메모 수정'
-                      : '메모 추가',
-              onPressed: () {
-                if (isInnerVault) {
-                  _verifyBiometric(1, multisigSigner: multisigSigner);
-                } else {
-                  _showEditMemoBottomSheet(multisigSigner);
-                }
+                _showEditMemoBottomSheet(multisigSigner);
               },
             ),
           ],
@@ -444,16 +436,23 @@ class _MultiSigSettingScreenState extends State<MultiSigSettingScreen> {
                       itemBuilder: (context, index) {
                         final item = _multiVault.signers[index];
 
-                        final isVaultKey = item.innerVaultId != null;
+                        final isInnerWallet = item.innerVaultId != null;
                         final name = item.name;
-                        final memo = isVaultKey ? null : item.memo;
+                        final memo = isInnerWallet ? null : item.memo;
                         final colorIndex = item.colorIndex;
                         final iconIndex = item.iconIndex;
                         final mfp = item.keyStore.masterFingerprint;
 
                         return GestureDetector(
                           onTap: () {
-                            _selectedKeyBottomSheet(item);
+                            if (isInnerWallet) {
+                              Navigator.pushNamed(context, '/vault-settings',
+                                  arguments: {
+                                    'id': item.innerVaultId,
+                                  });
+                            } else {
+                              _openOutsideWalletBottomMenu(item);
+                            }
                           },
                           child: Container(
                             color: Colors.transparent,
@@ -491,9 +490,9 @@ class _MultiSigSettingScreenState extends State<MultiSigSettingScreen> {
                                         // 아이콘
                                         Container(
                                             padding: EdgeInsets.all(
-                                                isVaultKey ? 8 : 10),
+                                                isInnerWallet ? 8 : 10),
                                             decoration: BoxDecoration(
-                                              color: isVaultKey
+                                              color: isInnerWallet
                                                   ? BackgroundColorPalette[
                                                       colorIndex!]
                                                   : MyColors.greyEC,
@@ -501,17 +500,17 @@ class _MultiSigSettingScreenState extends State<MultiSigSettingScreen> {
                                                   BorderRadius.circular(8),
                                             ),
                                             child: SvgPicture.asset(
-                                              isVaultKey
+                                              isInnerWallet
                                                   ? CustomIcons.getPathByIndex(
                                                       iconIndex!)
                                                   : 'assets/svg/download.svg',
                                               colorFilter: ColorFilter.mode(
-                                                isVaultKey
+                                                isInnerWallet
                                                     ? ColorPalette[colorIndex!]
                                                     : MyColors.black,
                                                 BlendMode.srcIn,
                                               ),
-                                              width: isVaultKey ? 20 : 15,
+                                              width: isInnerWallet ? 20 : 15,
                                             )),
 
                                         const SizedBox(width: 10),
