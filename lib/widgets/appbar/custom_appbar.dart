@@ -228,7 +228,6 @@ class CustomAppBar {
     return AppBar(
       centerTitle: true,
       backgroundColor: backgroundColor ?? Colors.transparent,
-      toolbarHeight: 62,
       title: Text(title),
       titleTextStyle:
           Styles.navHeader.merge(const TextStyle(color: MyColors.black)),
