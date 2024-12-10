@@ -122,42 +122,6 @@ class _PsbtConfirmationScreenState extends State<PsbtConfirmationScreen> {
     }
   }
 
-  void sign() async {
-    try {
-      setState(() {
-        _showLoading = true;
-      });
-
-      var secret = await _vaultModel.getSecret(widget.id);
-      Seed seed =
-          Seed.fromMnemonic(secret.mnemonic, passphrase: secret.passphrase);
-      (_walletBase as SingleSignatureVault).keyStore.seed = seed;
-
-      String signedPsbt = await addSignatureToPsbt(
-          _walletBase, _waitingForSignaturePsbtBase64!);
-
-      _vaultModel.signedRawTx = signedPsbt;
-      if (_vaultModel.signedRawTx == null) {
-        throw "signedRawTx is null";
-      }
-
-      if (mounted) {
-        Navigator.pushNamed(context, '/signed-transaction',
-            arguments: {'id': widget.id});
-      }
-    } catch (_) {
-      if (mounted) {
-        rethrow;
-        // showAlertDialog(context: context, content: "서명 실패: $_");
-      }
-    } finally {
-      (_walletBase as SingleSignatureVault).keyStore.seed = null;
-      setState(() {
-        _showLoading = false;
-      });
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -172,14 +136,24 @@ class _PsbtConfirmationScreenState extends State<PsbtConfirmationScreen> {
               context,
               '/multi-signature',
               arguments: {
-                'id': '${widget.id}',
+                'id': widget.id,
                 'psbtBase64': _waitingForSignaturePsbtBase64!,
                 'sendAddress': _sendAddress,
                 'bitcoinString': _bitcoinString,
               },
             );
           } else {
-            sign();
+            Navigator.pushNamed(
+              context,
+              '/singlesig-sign',
+              arguments: {
+                'id': widget.id,
+                'psbtBase64': _waitingForSignaturePsbtBase64!,
+                'sendAddress': _sendAddress,
+                'bitcoinString': _bitcoinString,
+              },
+            );
+            //sign();
           }
         },
         isBottom: true,
