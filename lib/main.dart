@@ -52,10 +52,10 @@ void main() async {
 
   BitcoinNetwork.setNetwork(BitcoinNetwork.regtest);
 
-  await ScreenProtector.protectDataLeakageWithImage(
-      'ScreenProtectImage'); // iOS
-  await ScreenProtector.protectDataLeakageOn(); // Android
-  await ScreenProtector.preventScreenshotOn(); // iOS and Android
+  // await ScreenProtector.protectDataLeakageWithImage(
+  //     'ScreenProtectImage'); // iOS
+  // await ScreenProtector.protectDataLeakageOn(); // Android
+  // await ScreenProtector.preventScreenshotOn(); // iOS and Android
 
   return runApp(const PowVaultApp());
 }
