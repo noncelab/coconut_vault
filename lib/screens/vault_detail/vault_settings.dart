@@ -356,13 +356,6 @@ class _VaultSettingsState extends State<VaultSettings> {
                                                 ),
                                               ))
                                         ]),
-                                        Text(
-                                          "bc1주소",
-                                          style: Styles.body2Bold.merge(
-                                              const TextStyle(
-                                                  color: MyColors
-                                                      .transparentBlack_30)),
-                                        ),
                                       ],
                                     ),
                                   ),
@@ -494,8 +487,10 @@ class _VaultSettingsState extends State<VaultSettings> {
                                                       ),
                                                       children: [
                                                         TextSpan(
-                                                          text:
-                                                              '${TextUtils.ellipsisIfLonger(multisig.name)} 지갑',
+                                                          text: TextUtils
+                                                              .ellipsisIfLonger(
+                                                                  multisig
+                                                                      .name),
                                                           style: Styles
                                                               .body2Bold
                                                               .copyWith(

@@ -65,7 +65,7 @@ class _VaultRowItemState extends State<VaultRowItem> {
           final model = Provider.of<VaultModel>(context, listen: false);
           try {
             final multisig = model.getVaultById(multisigKey.keys.first);
-            _subtitleText = '${TextUtils.ellipsisIfLonger(multisig.name)} 지갑의 '
+            _subtitleText = '${TextUtils.ellipsisIfLonger(multisig.name)}의 '
                 '${multisigKey.values.first + 1}번 키';
             _isUsedToMultiSig = true;
           } catch (_) {}

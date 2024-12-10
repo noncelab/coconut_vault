@@ -316,8 +316,8 @@ class _MultiSigSettingScreenState extends State<MultiSigSettingScreen> {
                       ),
                       child: Container(
                         margin: const EdgeInsets.all(2),
-                        padding: const EdgeInsets.only(
-                            left: 24, right: 24, top: 30, bottom: 24),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 24, vertical: 20),
                         decoration: BoxDecoration(
                           color: MyColors.white,
                           borderRadius: BorderRadius.circular(
@@ -332,7 +332,7 @@ class _MultiSigSettingScreenState extends State<MultiSigSettingScreen> {
                               decoration: BoxDecoration(
                                 color: BackgroundColorPalette[
                                     _multiVault.colorIndex],
-                                borderRadius: BorderRadius.circular(18.0),
+                                borderRadius: BorderRadius.circular(14.0),
                               ),
                               child: SvgPicture.asset(
                                 CustomIcons.getPathByIndex(
@@ -383,13 +383,6 @@ class _MultiSigSettingScreenState extends State<MultiSigSettingScreen> {
                                           ),
                                         ))
                                   ]),
-                                  Text(
-                                    '다중 서명 주소',
-                                    style: Styles.body2Bold.merge(
-                                        const TextStyle(
-                                            color:
-                                                MyColors.transparentBlack_30)),
-                                  ),
                                 ],
                               ),
                             ),
@@ -497,7 +490,7 @@ class _MultiSigSettingScreenState extends State<MultiSigSettingScreen> {
                                                       colorIndex!]
                                                   : MyColors.greyEC,
                                               borderRadius:
-                                                  BorderRadius.circular(8),
+                                                  BorderRadius.circular(10.0),
                                             ),
                                             child: SvgPicture.asset(
                                               isInnerWallet
