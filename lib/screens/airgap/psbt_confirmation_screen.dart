@@ -133,13 +133,6 @@ class _PsbtConfirmationScreenState extends State<PsbtConfirmationScreen> {
           Seed.fromMnemonic(secret.mnemonic, passphrase: secret.passphrase);
       (_walletBase as SingleSignatureVault).keyStore.seed = seed;
 
-      bool canSignResult =
-          await canSignToPsbt(_walletBase, _waitingForSignaturePsbtBase64!);
-      if (!canSignResult) {
-        showAlertDialog(context: context, content: "서명할 수 없는 트랜잭션입니다.");
-        return;
-      }
-
       String signedPsbt = await addSignatureToPsbt(
           _walletBase, _waitingForSignaturePsbtBase64!);
 
@@ -344,22 +337,5 @@ Future<String> addSignatureToPsbt(WalletBase vault, String data) async {
     throw (e.toString());
   } finally {
     addSignatureToPsbtHandler.dispose();
-  }
-}
-
-Future<bool> canSignToPsbt(WalletBase vault, String data) async {
-  final canSignToPsbtHandler =
-      IsolateHandler<List<dynamic>, bool>(canSignToPsbtIsolate);
-  try {
-    await canSignToPsbtHandler.initialize(initialType: InitializeType.canSign);
-
-    bool canSignToPsbt = await canSignToPsbtHandler.run([vault, data]);
-    Logger.log('canSignToPsbt: $canSignToPsbt');
-    return canSignToPsbt;
-  } catch (e) {
-    Logger.log('[canSignToPsbtIsolate] ${e.toString()}');
-    throw (e.toString());
-  } finally {
-    canSignToPsbtHandler.dispose();
   }
 }

@@ -1,5 +1,7 @@
 import 'dart:io';
 
+import 'package:coconut_vault/model/data/multisig_vault_list_item.dart';
+import 'package:coconut_vault/model/data/singlesig_vault_list_item.dart';
 import 'package:coconut_vault/model/data/vault_list_item_base.dart';
 import 'package:coconut_vault/model/data/vault_type.dart';
 import 'package:coconut_vault/model/state/app_model.dart';
@@ -56,9 +58,24 @@ class _PsbtScannerScreenState extends State<PsbtScannerScreen> {
     super.dispose();
   }
 
+  void showError(String message) {
+    showAlertDialog(
+        context: context,
+        content: message,
+        onConfirmPressed: () {
+          _isProcessing = false;
+        });
+  }
+
   Future onCompleteScanning(String psbtBase64) async {
     if (_isProcessing) return;
     _isProcessing = true;
+
+    if (!await _vaultListItem.canSign(psbtBase64)) {
+      vibrateLight();
+      showError('서명할 수 없는 트랜잭션이에요.');
+      return;
+    }
 
     vibrateLight();
     _vaultModel.setWaitingForSignaturePsbtBase64(psbtBase64);
@@ -91,12 +108,7 @@ class _PsbtScannerScreenState extends State<PsbtScannerScreen> {
       errorMessage = '[스캔 실패] $message';
     }
 
-    showAlertDialog(
-        context: context,
-        content: errorMessage,
-        onConfirmPressed: () {
-          _isProcessing = false;
-        });
+    showError(errorMessage);
   }
 
   Future<void> _stopCamera() async {
