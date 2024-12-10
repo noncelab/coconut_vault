@@ -54,8 +54,7 @@ class _MultiSignatureScreenState extends State<MultiSignatureScreen> {
     _signersApproved =
         List<bool>.filled(_multisigVaultItem.signers.length, false);
     _requiredSignatureCount = _multisigVaultItem.requiredSignatureCount;
-    _vaultModel.signedRawTx = null;
-    _checkSignedPsbt(widget.psbtBase64);
+    _vaultModel.signedRawTx = _checkSignedPsbt(widget.psbtBase64);
   }
 
   // _bindSeedToKeyStore() async {
@@ -79,15 +78,18 @@ class _MultiSignatureScreenState extends State<MultiSignatureScreen> {
   //   }
   // }
 
-  _checkSignedPsbt(String psbtBase64) {
+  String? _checkSignedPsbt(String psbtBase64) {
     PSBT psbt = PSBT.parse(psbtBase64);
-
+    int signedCount = 0;
     for (KeyStore keyStore in _multisigVault.keyStoreList) {
       if (psbt.isSigned(keyStore)) {
         final index = _multisigVault.keyStoreList.indexOf(keyStore);
         _updateSignState(index);
+        signedCount++;
       }
     }
+
+    return signedCount == _requiredSignatureCount ? psbtBase64 : null;
   }
 
   _signStep1(bool isVaultKey, int index) async {
