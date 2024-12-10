@@ -1,7 +1,6 @@
 import 'package:coconut_lib/coconut_lib.dart';
 import 'package:coconut_vault/model/data/multisig_vault_list_item.dart';
 import 'package:coconut_vault/model/state/vault_model.dart';
-import 'package:coconut_vault/screens/airgap/psbt_confirmation_screen.dart';
 import 'package:coconut_vault/screens/pin_check_screen.dart';
 import 'package:coconut_vault/screens/vault_creation/multi_sig/signer_qr_bottom_sheet.dart';
 import 'package:coconut_vault/screens/vault_creation/multi_sig/signer_scanner_bottom_sheet.dart';
@@ -128,16 +127,6 @@ class _MultiSignatureScreenState extends State<MultiSignatureScreen> {
       final psbt = _vaultModel.signedRawTx == null
           ? widget.psbtBase64
           : _vaultModel.signedRawTx!;
-
-      bool canSignResult =
-          await canSignToPsbt(_multisigVaultItem.coconutVault, psbt);
-
-      if (!canSignResult) {
-        if (mounted) {
-          showAlertDialog(context: context, content: "서명할 수 없는 트랜잭션입니다.");
-        }
-        return;
-      }
 
       final signedTx =
           _multisigVault.keyStoreList[index].addSignatureToPsbt(psbt);
