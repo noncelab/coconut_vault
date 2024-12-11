@@ -54,50 +54,31 @@ Future<String> addSignatureToPsbtIsolate(
     List<dynamic> dataList, void Function(dynamic)? replyTo) async {
   BitcoinNetwork.setNetwork(BitcoinNetwork.regtest);
 
-  if (dataList[0] is MultisignatureVault) {
-    final vault = dataList[0] as MultisignatureVault;
-    String psbtBase64 = dataList[1] as String;
-    String signedPsbt = vault.addSignatureToPsbt(psbtBase64);
+  String psbtBase64 = dataList[1] as String;
+  String signedPsbt = dataList[0] is MultisignatureVault
+      ? (dataList[0] as MultisignatureVault).addSignatureToPsbt(psbtBase64)
+      : (dataList[0] as SingleSignatureVault).addSignatureToPsbt(psbtBase64);
 
-    if (replyTo != null) {
-      replyTo(signedPsbt);
-    }
-    return signedPsbt;
-  } else {
-    final vault = dataList[0] as SingleSignatureVault;
-    String psbtBase64 = dataList[1] as String;
-    String signedPsbt = vault.addSignatureToPsbt(psbtBase64);
 
-    if (replyTo != null) {
-      replyTo(signedPsbt);
-    }
-    return signedPsbt;
+  if (replyTo != null) {
+    replyTo(signedPsbt);
   }
+  return signedPsbt;
 }
 
 Future<bool> canSignToPsbtIsolate(
     List<dynamic> dataList, void Function(dynamic)? replyTo) async {
   BitcoinNetwork.setNetwork(BitcoinNetwork.regtest);
 
-  if (dataList[0] is MultisignatureVault) {
-    final vault = dataList[0] as MultisignatureVault;
-    String psbtBase64 = dataList[1] as String;
-    bool canSign = vault.canSignToPsbt(psbtBase64);
+  String psbtBase64 = dataList[1] as String;
+  bool canSign = dataList[0] is MultisignatureVault
+      ? (dataList[0] as MultisignatureVault).canSignToPsbt(psbtBase64)
+      : (dataList[0] as SingleSignatureVault).canSignToPsbt(psbtBase64);
 
-    if (replyTo != null) {
-      replyTo(canSign);
-    }
-    return canSign;
-  } else {
-    final vault = dataList[0] as SingleSignatureVault;
-    String psbtBase64 = dataList[1] as String;
-    bool canSign = vault.canSignToPsbt(psbtBase64);
-
-    if (replyTo != null) {
-      replyTo(canSign);
-    }
-    return canSign;
+  if (replyTo != null) {
+    replyTo(canSign);
   }
+  return canSign;
 }
 
 Future<List<String>> extractSignerBsmsIsolate(
@@ -131,14 +112,14 @@ Future<MultisignatureVault> fromKeyStoreIsolate(
     keyStores.add(KeyStore.fromJson(keyStore));
   }
 
-  MultisignatureVault multisignatureVault =
+  MultisignatureVault multiSignatureVault =
       MultisignatureVault.fromKeyStoreList(
           keyStores, requiredSignatureCount, AddressType.p2wsh);
 
   if (replyTo != null) {
-    replyTo(multisignatureVault);
+    replyTo(multiSignatureVault);
   }
-  return multisignatureVault;
+  return multiSignatureVault;
 }
 
 Future<VaultListItemBase> initializeWallet(Map<String, dynamic> data,
