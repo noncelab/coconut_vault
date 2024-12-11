@@ -117,13 +117,13 @@ class CustomAppBar {
             : null,
         actions: [
           Padding(
-            padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+            padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 16),
             child: GestureDetector(
               onTap: isActive ? onNextPressed : null,
               child: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 12.0),
                 decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(16.0),
+                  borderRadius: BorderRadius.circular(14.0),
                   border: Border.all(
                       color: isActive
                           ? Colors.transparent
