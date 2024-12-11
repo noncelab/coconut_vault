@@ -219,7 +219,9 @@ class _MultiSignatureScreenState extends State<MultiSignatureScreen> {
                   arguments: {'id': widget.id});
             },
             isActive: _requiredSignatureCount ==
-                _signersApproved.where((bool isApproved) => isApproved).length),
+                _signersApproved.where((bool isApproved) => isApproved).length,
+            backgroundColor: MyColors.lightgrey,
+            hasBackdropFilter: false),
         body: SafeArea(
           child: Stack(
             children: [

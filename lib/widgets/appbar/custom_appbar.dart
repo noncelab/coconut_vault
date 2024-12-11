@@ -83,19 +83,21 @@ class CustomAppBar {
                 ))));
   }
 
-  static AppBar buildWithNext(
-      {required String title,
-      required BuildContext context,
-      required VoidCallback onNextPressed,
-      VoidCallback? onBackPressed,
-      bool hasBackdropFilter = true,
-      bool isActive = true,
-      bool isBottom = false,
-      String buttonName = '다음'}) {
+  static AppBar buildWithNext({
+    required String title,
+    required BuildContext context,
+    required VoidCallback onNextPressed,
+    VoidCallback? onBackPressed,
+    bool hasBackdropFilter = true,
+    bool isActive = true,
+    bool isBottom = false,
+    String buttonName = '다음',
+    Color backgroundColor = MyColors.white,
+  }) {
     return AppBar(
         title: Text(title),
         centerTitle: true,
-        backgroundColor: MyColors.white,
+        backgroundColor: backgroundColor,
         titleTextStyle:
             Styles.navHeader.merge(const TextStyle(color: MyColors.black)),
         toolbarTextStyle: Styles.appbarTitle,
