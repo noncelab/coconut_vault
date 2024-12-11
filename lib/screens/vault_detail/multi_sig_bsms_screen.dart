@@ -192,7 +192,8 @@ class _MultiSigBsmsScreenState extends State<MultiSigBsmsScreen> {
 
   Widget _description(String description) {
     return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.baseline,
+      textBaseline: TextBaseline.alphabetic,
       children: [
         Text(
           '•',
