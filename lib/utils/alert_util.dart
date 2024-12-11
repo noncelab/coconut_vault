@@ -19,6 +19,7 @@ void showAlertDialog(
   _isDialogVisible = true;
   showCupertinoModalPopup<void>(
     context: context,
+    barrierDismissible: onConfirmPressed == null,
     builder: (BuildContext context) => CupertinoAlertDialog(
       title: title != null ? Text(title, style: titleStyle) : null,
       content: content != null ? Text(content) : null,
