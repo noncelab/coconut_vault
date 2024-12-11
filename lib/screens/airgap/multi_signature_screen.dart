@@ -181,8 +181,8 @@ class _MultiSignatureScreenState extends State<MultiSignatureScreen> {
       context,
       title: '서명하기 중단',
       message: '서명 내역이 사라져요.\n정말 그만하시겠어요?',
-      confirmButtonText: '뒤로가기',
-      confirmButtonColor: MyColors.darkgrey,
+      confirmButtonText: '그만하기',
+      confirmButtonColor: MyColors.warningText,
       onCancel: () => Navigator.pop(context),
       onConfirm: () {
         Navigator.pop(context); // 1) close dialog
