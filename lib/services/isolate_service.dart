@@ -59,7 +59,6 @@ Future<String> addSignatureToPsbtIsolate(
       ? (dataList[0] as MultisignatureVault).addSignatureToPsbt(psbtBase64)
       : (dataList[0] as SingleSignatureVault).addSignatureToPsbt(psbtBase64);
 
-
   if (replyTo != null) {
     replyTo(signedPsbt);
   }
