@@ -97,9 +97,14 @@ class _MultiSigBsmsScreenState extends State<MultiSigBsmsScreen> {
     );
   }
 
-  String _generateOutsideWalletDescription(List<int> idList) {
-    if (idList.length == 1) return '${idList.first}';
-    return '${idList.first} 또는 ${idList.last}';
+  String _generateOutsideWalletDescription(List<int> idList,
+      {bool isAnd = false}) {
+    if (idList.length == 1) return '${idList.first}번';
+    if (isAnd) {
+      return '${idList.first}번과 ${idList.last}번';
+    }
+
+    return '${idList.first}번 또는 ${idList.last}번';
   }
 
   @override
@@ -140,17 +145,18 @@ class _MultiSigBsmsScreenState extends State<MultiSigBsmsScreen> {
                   _description(
                       '안전한 다중 서명 지갑 관리를 위한 표준에 따라 지갑 설정 정보를 관리하고 공유합니다.'),
                   const SizedBox(height: 4),
-                  _description(
-                      '가져오기를 통해 추가된 지갑은 자신의 키가 다른 다중 서명 지갑에 사용되고 있는지 알 수 없습니다.'),
-                  const SizedBox(height: 4),
                   if (outSideWalletIdList.isEmpty) ...[
                     _description('모든 키가 볼트에 저장되어 있습니다.'),
                     const SizedBox(height: 4),
                     _description(
                         '같은 키를 보관하고 있는 다른 볼트에서도 이 QR을 읽어 다중 서명 지갑을 추가할 수 있습니다.'),
-                  ] else
+                  ] else ...{
                     _description(
-                        '따라서, ${_generateOutsideWalletDescription(outSideWalletIdList)}번 키를 보관한 볼트에서 아래 QR을 읽어 주세요.'),
+                        '이 다중 서명 지갑에 지정된 **${_generateOutsideWalletDescription(outSideWalletIdList, isAnd: true)}** 키의 니모닉 문구는 현재 다른 볼트에 있습니다.'),
+                    const SizedBox(height: 4),
+                    _description(
+                        '**${_generateOutsideWalletDescription(outSideWalletIdList)}** 키 보관 지갑 - **다중 서명 지갑 가져오기**에서 아래 QR 코드를 읽어 주세요. 다중 서명 트랜잭션에 **${_generateOutsideWalletDescription(outSideWalletIdList)}** 키로 서명하기 위해 이 절차가 반드시 필요합니다.'),
+                  }
                 ],
               ),
             ),
@@ -203,14 +209,33 @@ class _MultiSigBsmsScreenState extends State<MultiSigBsmsScreen> {
         ),
         const SizedBox(width: 8),
         Expanded(
-          child: Text(
-            description,
-            style: Styles.body1.copyWith(
-              fontSize: 14,
+          child: RichText(
+            text: TextSpan(
+              style: Styles.body1.copyWith(
+                fontSize: 14,
+              ),
+              children: _parseDescription(description),
             ),
           ),
         ),
       ],
     );
+  }
+
+  List<TextSpan> _parseDescription(String description) {
+    // ** 로 감싸져 있는 문구 볼트체 적용
+    List<TextSpan> spans = [];
+    description.split("**").asMap().forEach((index, part) {
+      spans.add(
+        TextSpan(
+          text: part,
+          style: index.isEven
+              ? Styles.body1.copyWith(fontSize: 14)
+              : Styles.body1
+                  .copyWith(fontSize: 14, fontWeight: FontWeight.bold),
+        ),
+      );
+    });
+    return spans;
   }
 }
