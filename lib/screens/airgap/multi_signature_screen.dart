@@ -408,7 +408,7 @@ class _MultiSignatureScreenState extends State<MultiSignatureScreen> {
                                       Row(
                                         children: [
                                           Text(
-                                            '서명완료',
+                                            '서명 완료',
                                             style: Styles.body1Bold.copyWith(
                                                 fontSize: 12,
                                                 color: Colors.black),
