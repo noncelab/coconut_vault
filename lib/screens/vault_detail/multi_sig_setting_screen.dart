@@ -39,12 +39,13 @@ class _MultiSigSettingScreenState extends State<MultiSigSettingScreen> {
   late AppModel _appModel;
   late VaultModel _vaultModel;
   late MultisigVaultListItem _multiVault;
+  OverlayEntry? _overlayEntry;
   final GlobalKey _tooltipIconKey = GlobalKey();
   late RenderBox _tooltipIconRenderBox;
   Offset _tooltipIconPosition = Offset.zero;
 
   Timer? _tooltipTimer;
-  int _tooltipRemainingTime = 0;
+  int _tooltipRemainingTime = 5;
   late int signAvailableCount;
 
   @override
@@ -71,13 +72,10 @@ class _MultiSigSettingScreenState extends State<MultiSigSettingScreen> {
     _multiVault = vaultBasItem as MultisigVaultListItem;
   }
 
-  _showTooltip(BuildContext context) {
+  _showTooltip(BuildContext context, Offset position, String tip) {
     _removeTooltip();
 
-    setState(() {
-      _tooltipRemainingTime = 5;
-    });
-
+    _tooltipRemainingTime = 5;
     _tooltipTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
       setState(() {
         if (_tooltipRemainingTime > 0) {
@@ -88,13 +86,53 @@ class _MultiSigSettingScreenState extends State<MultiSigSettingScreen> {
         }
       });
     });
+
+    final overlay = Overlay.of(context);
+    _overlayEntry = OverlayEntry(
+      builder: (context) => Positioned(
+          top: position.dy + 16,
+          right: MediaQuery.of(context).size.width - position.dx - 48,
+          child: GestureDetector(
+            onTap: () => _removeTooltip(),
+            child: ClipPath(
+              clipper: RightTriangleBubbleClipper(),
+              child: Container(
+                padding: const EdgeInsets.only(
+                  top: 25,
+                  left: 10,
+                  right: 10,
+                  bottom: 10,
+                ),
+                color: MyColors.darkgrey,
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      tip,
+                      style: Styles.caption.merge(TextStyle(
+                        height: 1.3,
+                        fontFamily: CustomFonts.text.getFontFamily,
+                        color: MyColors.white,
+                      )),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          )),
+    );
+
+    overlay.insert(_overlayEntry!);
   }
 
-  _removeTooltip() {
-    setState(() {
-      _tooltipRemainingTime = 0;
-    });
-    _tooltipTimer?.cancel();
+  void _removeTooltip() {
+    if (_overlayEntry != null) {
+      if (_tooltipTimer != null) {
+        _tooltipTimer!.cancel();
+      }
+      _overlayEntry!.remove();
+      _overlayEntry = null;
+    }
   }
 
   void _updateVaultInfo(
@@ -266,6 +304,7 @@ class _MultiSigSettingScreenState extends State<MultiSigSettingScreen> {
   Widget _bottomSheetButton(String title, {required VoidCallback onPressed}) {
     return GestureDetector(
       onTap: () {
+        _removeTooltip();
         onPressed.call();
       },
       child: Container(
@@ -292,7 +331,7 @@ class _MultiSigSettingScreenState extends State<MultiSigSettingScreen> {
     return PopScope(
       canPop: true,
       onPopInvokedWithResult: (didPop, _) {
-        _tooltipTimer?.cancel();
+        _removeTooltip();
       },
       child: Scaffold(
         backgroundColor: MyColors.white,
@@ -416,7 +455,11 @@ class _MultiSigSettingScreenState extends State<MultiSigSettingScreen> {
                                   containerMargin: EdgeInsets.zero,
                                   onTap: () {},
                                   onTapDown: (details) {
-                                    _showTooltip(context);
+                                    _showTooltip(
+                                      context,
+                                      _tooltipIconPosition,
+                                      '${_multiVault.signers.length}개의 키 중 ${_multiVault.requiredSignatureCount}개로 서명해야 하는\n다중 서명 지갑이예요.',
+                                    );
                                   },
                                 ),
                               ],
@@ -446,6 +489,7 @@ class _MultiSigSettingScreenState extends State<MultiSigSettingScreen> {
 
                         return GestureDetector(
                           onTap: () {
+                            _removeTooltip();
                             if (isInnerWallet) {
                               Navigator.pushNamed(context, '/vault-settings',
                                   arguments: {
@@ -639,44 +683,44 @@ class _MultiSigSettingScreenState extends State<MultiSigSettingScreen> {
                     ),
                   ],
                 ),
-                // ToolTip
-                Visibility(
-                  visible: _tooltipRemainingTime > 0,
-                  child: Positioned(
-                    top: _tooltipIconPosition.dy - tooltipTop,
-                    right: MediaQuery.sizeOf(context).width -
-                        _tooltipIconPosition.dx -
-                        48,
-                    child: GestureDetector(
-                      onTap: () => _removeTooltip(),
-                      child: ClipPath(
-                        clipper: RightTriangleBubbleClipper(),
-                        child: Container(
-                          padding: const EdgeInsets.only(
-                            top: 25,
-                            left: 10,
-                            right: 10,
-                            bottom: 10,
-                          ),
-                          color: MyColors.darkgrey,
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Text(
-                                '${_multiVault.signers.length}개의 키 중 ${_multiVault.requiredSignatureCount}개로 서명해야 하는\n다중 서명 지갑이예요.',
-                                style: Styles.caption.merge(TextStyle(
-                                  height: 1.3,
-                                  fontFamily: CustomFonts.text.getFontFamily,
-                                  color: MyColors.white,
-                                )),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                )
+                // // ToolTip
+                // Visibility(
+                //   visible: _tooltipRemainingTime > 0,
+                //   child: Positioned(
+                //     top: _tooltipIconPosition.dy - tooltipTop + 8,
+                //     right: MediaQuery.sizeOf(context).width -
+                //         _tooltipIconPosition.dx -
+                //         48,
+                //     child: GestureDetector(
+                //       onTap: () => _removeTooltip(),
+                //       child: ClipPath(
+                //         clipper: RightTriangleBubbleClipper(),
+                //         child: Container(
+                //           padding: const EdgeInsets.only(
+                //             top: 25,
+                //             left: 10,
+                //             right: 10,
+                //             bottom: 10,
+                //           ),
+                //           color: MyColors.darkgrey,
+                //           child: Row(
+                //             mainAxisSize: MainAxisSize.min,
+                //             children: [
+                //               Text(
+                //                 '${_multiVault.signers.length}개의 키 중 ${_multiVault.requiredSignatureCount}개로 서명해야 하는\n다중 서명 지갑이예요.',
+                //                 style: Styles.caption.merge(TextStyle(
+                //                   height: 1.3,
+                //                   fontFamily: CustomFonts.text.getFontFamily,
+                //                   color: MyColors.white,
+                //                 )),
+                //               ),
+                //             ],
+                //           ),
+                //         ),
+                //       ),
+                //     ),
+                //   ),
+                // )
               ],
             ),
           ),
