@@ -2,7 +2,6 @@ import 'package:coconut_lib/coconut_lib.dart';
 import 'package:coconut_vault/model/data/singlesig_vault_list_item.dart';
 import 'package:coconut_vault/model/state/vault_model.dart';
 import 'package:coconut_vault/screens/pin_check_screen.dart';
-import 'package:coconut_vault/screens/vault_creation/multi_sig/signer_qr_bottom_sheet.dart';
 import 'package:coconut_vault/styles.dart';
 import 'package:coconut_vault/utils/alert_util.dart';
 import 'package:coconut_vault/utils/icon_util.dart';
@@ -36,6 +35,7 @@ class _SinglesigSignScreenState extends State<SinglesigSignScreen> {
   late SinglesigVaultListItem _wallet;
   late SingleSignatureVault _coconutVault;
   late List<bool> _signersApproved;
+  late bool _isAlreadySigned;
   //bool _isSigned;
   final int _requiredSignatureCount = 1;
   bool _showLoading = false;
@@ -48,7 +48,20 @@ class _SinglesigSignScreenState extends State<SinglesigSignScreen> {
     _wallet = _vaultModel.getVaultById(widget.id) as SinglesigVaultListItem;
     _coconutVault = _wallet.coconutVault as SingleSignatureVault;
     _signersApproved = List<bool>.filled(1, false);
-    //_vaultModel.signedRawTx = _checkSignedPsbt(widget.psbtBase64);
+    _isAlreadySigned = _checkSignedPsbt(widget.psbtBase64);
+    if (_isAlreadySigned) {
+      _vaultModel.signedRawTx = widget.psbtBase64;
+    }
+  }
+
+  bool _checkSignedPsbt(String psbtBase64) {
+    PSBT psbt = PSBT.parse(psbtBase64);
+    if (psbt.isSigned(_coconutVault.keyStore)) {
+      _updateSignState(0);
+      return true;
+    }
+
+    return false;
   }
 
   _signStep1(bool isVaultKey, int index) async {
@@ -170,7 +183,7 @@ class _SinglesigSignScreenState extends State<SinglesigSignScreen> {
                   child: Text(
                     _requiredSignatureCount <=
                             _signersApproved.where((item) => item).length
-                        ? '서명을 완료했습니다'
+                        ? (_isAlreadySigned ? '이미 서명된 트랜잭션입니다' : '서명을 완료했습니다')
                         : '${_requiredSignatureCount - _signersApproved.where((item) => item).length}개의 서명이 필요합니다',
                     style: Styles.body2Bold,
                   ),
