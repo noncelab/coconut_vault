@@ -1,7 +1,6 @@
 import 'package:coconut_lib/coconut_lib.dart';
 import 'package:coconut_vault/model/data/multisig_vault_list_item.dart';
 import 'package:coconut_vault/model/state/vault_model.dart';
-import 'package:coconut_vault/screens/airgap/psbt_confirmation_screen.dart';
 import 'package:coconut_vault/screens/pin_check_screen.dart';
 import 'package:coconut_vault/screens/vault_creation/multi_sig/signer_qr_bottom_sheet.dart';
 import 'package:coconut_vault/screens/vault_creation/multi_sig/signer_scanner_bottom_sheet.dart';
@@ -19,7 +18,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
 
 class MultiSignatureScreen extends StatefulWidget {
-  final String id;
+  final int id;
   final String psbtBase64;
   final String sendAddress;
   final String bitcoinString;
@@ -40,7 +39,7 @@ class _MultiSignatureScreenState extends State<MultiSignatureScreen> {
   late MultisigVaultListItem _multisigVaultItem;
   late MultisignatureVault _multisigVault;
   late List<bool> _signersApproved;
-  int _requiredSignatureCount = 0;
+  late int _requiredSignatureCount;
   bool _showLoading = false;
   bool _isProgressCompleted = false;
 
@@ -49,45 +48,26 @@ class _MultiSignatureScreenState extends State<MultiSignatureScreen> {
     _vaultModel = Provider.of<VaultModel>(context, listen: false);
     super.initState();
     _multisigVaultItem =
-        _vaultModel.getVaultById(int.parse(widget.id)) as MultisigVaultListItem;
+        _vaultModel.getVaultById(widget.id) as MultisigVaultListItem;
     _multisigVault = _multisigVaultItem.coconutVault as MultisignatureVault;
     _signersApproved =
         List<bool>.filled(_multisigVaultItem.signers.length, false);
     _requiredSignatureCount = _multisigVaultItem.requiredSignatureCount;
-    _vaultModel.signedRawTx = null;
-    _checkSignedPsbt(widget.psbtBase64);
+    _vaultModel.signedRawTx = _checkSignedPsbt(widget.psbtBase64);
   }
 
-  // _bindSeedToKeyStore() async {
-  //   for (MultisigSigner signer in _multisigVaultItem.signers) {
-  //     if (signer.innerVaultId != null) {
-  //       // final singleVaultItem = _vaultModel.getVaultById(signer.innerVaultId!)
-  //       //     as SinglesigVaultListItem;
-  //       // final keyStore =
-  //       //     (singleVaultItem.coconutVault as SingleSignatureVault).keyStore;
-  //       var secret = await _vaultModel.getSecret(signer.innerVaultId!);
-  //       final seed =
-  //           Seed.fromMnemonic(secret.mnemonic, passphrase: secret.passphrase);
-  //       _multisigVault.bindSeedToKeyStore(seed);
-  //     }
-  //   }
-  // }
-
-  // _unbindSeedFromKeyStore() {
-  //   for (var keyStore in _multisigVault.keyStoreList) {
-  //     keyStore.seed = null;
-  //   }
-  // }
-
-  _checkSignedPsbt(String psbtBase64) {
+  String? _checkSignedPsbt(String psbtBase64) {
     PSBT psbt = PSBT.parse(psbtBase64);
-
+    int signedCount = 0;
     for (KeyStore keyStore in _multisigVault.keyStoreList) {
       if (psbt.isSigned(keyStore)) {
         final index = _multisigVault.keyStoreList.indexOf(keyStore);
         _updateSignState(index);
+        signedCount++;
       }
     }
+
+    return signedCount == _requiredSignatureCount ? psbtBase64 : null;
   }
 
   _signStep1(bool isVaultKey, int index) async {
@@ -126,16 +106,6 @@ class _MultiSignatureScreenState extends State<MultiSignatureScreen> {
       final psbt = _vaultModel.signedRawTx == null
           ? widget.psbtBase64
           : _vaultModel.signedRawTx!;
-
-      bool canSignResult =
-          await canSignToPsbt(_multisigVaultItem.coconutVault, psbt);
-
-      if (!canSignResult) {
-        if (mounted) {
-          showAlertDialog(context: context, content: "서명할 수 없는 트랜잭션입니다.");
-        }
-        return;
-      }
 
       final signedTx =
           _multisigVault.keyStoreList[index].addSignatureToPsbt(psbt);
@@ -211,8 +181,8 @@ class _MultiSignatureScreenState extends State<MultiSignatureScreen> {
       context,
       title: '서명하기 중단',
       message: '서명 내역이 사라져요.\n정말 그만하시겠어요?',
-      confirmButtonText: '뒤로가기',
-      confirmButtonColor: MyColors.darkgrey,
+      confirmButtonText: '그만하기',
+      confirmButtonColor: MyColors.warningText,
       onCancel: () => Navigator.pop(context),
       onConfirm: () {
         Navigator.pop(context); // 1) close dialog
@@ -246,10 +216,12 @@ class _MultiSignatureScreenState extends State<MultiSignatureScreen> {
             onBackPressed: _onBackPressed,
             onNextPressed: () {
               Navigator.pushNamed(context, '/signed-transaction',
-                  arguments: {'id': int.parse(widget.id)});
+                  arguments: {'id': widget.id});
             },
             isActive: _requiredSignatureCount ==
-                _signersApproved.where((bool isApproved) => isApproved).length),
+                _signersApproved.where((bool isApproved) => isApproved).length,
+            backgroundColor: MyColors.lightgrey,
+            hasBackdropFilter: false),
         body: SafeArea(
           child: Stack(
             children: [
@@ -436,7 +408,7 @@ class _MultiSignatureScreenState extends State<MultiSignatureScreen> {
                                       Row(
                                         children: [
                                           Text(
-                                            '서명완료',
+                                            '서명 완료',
                                             style: Styles.body1Bold.copyWith(
                                                 fontSize: 12,
                                                 color: Colors.black),

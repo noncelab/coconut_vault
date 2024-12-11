@@ -129,7 +129,7 @@ extension FontsExtension on CustomFonts {
 
 abstract class Styles {
   static const _fontNumber = 'SpaceGrotesk';
-  static const _fontText = 'Pretendard';
+  static const _fontText = 'Pretendard'; // w500 변화 없음
 
   static const TextStyle h1 = TextStyle(
       fontFamily: _fontText,
@@ -157,8 +157,7 @@ abstract class Styles {
       fontFamily: _fontText,
       color: MyColors.black,
       fontSize: 18,
-      fontStyle: FontStyle.normal,
-      fontWeight: FontWeight.w500);
+      fontStyle: FontStyle.normal);
 
   static const TextStyle label = TextStyle(
       fontFamily: _fontText,

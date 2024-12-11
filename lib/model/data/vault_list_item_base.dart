@@ -31,6 +31,8 @@ abstract class VaultListItemBase {
     this.vaultJsonString,
   });
 
+  Future<bool> canSign(String psbt);
+
   String getWalletSyncString();
 
   Map<String, dynamic> toJson();

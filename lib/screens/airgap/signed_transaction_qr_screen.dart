@@ -32,7 +32,7 @@ class _SignedTransactionQrScreenState extends State<SignedTransactionQrScreen> {
     _vaultModel = Provider.of<VaultModel>(context, listen: false);
     super.initState();
     if (_vaultModel.signedRawTx == null) {
-      throw "[SignedTransactionScreen] _model.waitingForSignaturePsbtBase64 is null";
+      throw "[SignedTransactionScreen] _model.signedRawTx is null";
     }
 
     _signedRawTx = _vaultModel.signedRawTx!;

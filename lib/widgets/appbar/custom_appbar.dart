@@ -83,19 +83,21 @@ class CustomAppBar {
                 ))));
   }
 
-  static AppBar buildWithNext(
-      {required String title,
-      required BuildContext context,
-      required VoidCallback onNextPressed,
-      VoidCallback? onBackPressed,
-      bool hasBackdropFilter = true,
-      bool isActive = true,
-      bool isBottom = false,
-      String buttonName = '다음'}) {
+  static AppBar buildWithNext({
+    required String title,
+    required BuildContext context,
+    required VoidCallback onNextPressed,
+    VoidCallback? onBackPressed,
+    bool hasBackdropFilter = true,
+    bool isActive = true,
+    bool isBottom = false,
+    String buttonName = '다음',
+    Color backgroundColor = MyColors.white,
+  }) {
     return AppBar(
         title: Text(title),
         centerTitle: true,
-        backgroundColor: MyColors.white,
+        backgroundColor: backgroundColor,
         titleTextStyle:
             Styles.navHeader.merge(const TextStyle(color: MyColors.black)),
         toolbarTextStyle: Styles.appbarTitle,
@@ -115,13 +117,13 @@ class CustomAppBar {
             : null,
         actions: [
           Padding(
-            padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+            padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 16),
             child: GestureDetector(
               onTap: isActive ? onNextPressed : null,
               child: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 12.0),
                 decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(16.0),
+                  borderRadius: BorderRadius.circular(14.0),
                   border: Border.all(
                       color: isActive
                           ? Colors.transparent

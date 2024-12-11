@@ -3,6 +3,7 @@ import 'package:coconut_vault/screens/airgap/multi_signature_screen.dart';
 import 'package:coconut_vault/screens/airgap/psbt_confirmation_screen.dart';
 import 'package:coconut_vault/screens/airgap/psbt_scanner_screen.dart';
 import 'package:coconut_vault/screens/airgap/signed_transaction_qr_screen.dart';
+import 'package:coconut_vault/screens/airgap/singlesig_sign_screen.dart';
 import 'package:coconut_vault/screens/security_self_check_screen.dart';
 import 'package:coconut_vault/screens/setting/app_info_screen.dart';
 import 'package:coconut_vault/screens/setting/mnemonic_word_list_screen.dart';
@@ -237,6 +238,15 @@ class _PowVaultAppState extends State<PowVaultApp> {
             '/multi-signature': (context) => buildScreenWithArguments(
                   context,
                   (args) => MultiSignatureScreen(
+                    id: args['id'],
+                    psbtBase64: args['psbtBase64'],
+                    sendAddress: args['sendAddress'],
+                    bitcoinString: args['bitcoinString'],
+                  ),
+                ),
+            '/singlesig-sign': (context) => buildScreenWithArguments(
+                  context,
+                  (args) => SinglesigSignScreen(
                     id: args['id'],
                     psbtBase64: args['psbtBase64'],
                     sendAddress: args['sendAddress'],

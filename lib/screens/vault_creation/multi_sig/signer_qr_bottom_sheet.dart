@@ -44,7 +44,7 @@ class _SignerQrBottomSheetState extends State<SignerQrBottomSheet> {
                   CustomTooltip(
                     richText: RichText(
                       text: TextSpan(
-                        text: '[1] ',
+                        text: '[1] ${widget.keyIndex}',
                         style: const TextStyle(
                           fontFamily: 'Pretendard',
                           fontWeight: FontWeight.bold,
@@ -55,52 +55,33 @@ class _SignerQrBottomSheetState extends State<SignerQrBottomSheet> {
                         ),
                         children: <TextSpan>[
                           const TextSpan(
-                            text: "아래 QR 코드는 다음 중 하나의 화면에서 사용하실 수 있어요.\n",
-                            style: TextStyle(
-                              fontWeight: FontWeight.normal,
-                            ),
-                          ),
-                          const TextSpan(
-                            text: "① ",
+                            text: "번 키가 보관된 볼트에서 다중 서명 지갑 ",
                             style: TextStyle(
                               fontWeight: FontWeight.normal,
                             ),
                           ),
                           TextSpan(
-                            text: widget.keyIndex,
+                            text: widget.multisigName,
                             style: const TextStyle(
                               fontWeight: FontWeight.bold,
                             ),
                           ),
-                          TextSpan(
-                            text:
-                                "번 키가 보관된 볼트에서 다중 서명 지갑 '${widget.multisigName} 지갑'을 선택 - ",
-                            style: const TextStyle(
+                          const TextSpan(
+                            text: ' 선택 - ',
+                            style: TextStyle(
                               fontWeight: FontWeight.normal,
                             ),
                           ),
                           const TextSpan(
-                            text: '다중 서명하기',
+                            text: "다중 서명하기",
                             style: TextStyle(
                               fontWeight: FontWeight.bold,
                             ),
                           ),
                           const TextSpan(
-                            text: ' 화면 \n② 다른 볼트의',
-                            style: TextStyle(
-                              fontWeight: FontWeight.normal,
-                            ),
-                          ),
-                          const TextSpan(
-                            text: ' 서명 업데이트',
+                            text: '를 눌러 아래 QR 코드를 스캔해 주세요.',
                             style: TextStyle(
                               fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          const TextSpan(
-                            text: ' 화면',
-                            style: TextStyle(
-                              fontWeight: FontWeight.normal,
                             ),
                           ),
                         ],

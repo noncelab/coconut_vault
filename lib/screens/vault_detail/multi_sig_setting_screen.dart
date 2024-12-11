@@ -40,6 +40,8 @@ class _MultiSigSettingScreenState extends State<MultiSigSettingScreen> {
   late VaultModel _vaultModel;
   late MultisigVaultListItem _multiVault;
   final GlobalKey _tooltipIconKey = GlobalKey();
+  late RenderBox _tooltipIconRenderBox;
+  Offset _tooltipIconPosition = Offset.zero;
 
   Timer? _tooltipTimer;
   int _tooltipRemainingTime = 0;
@@ -47,6 +49,7 @@ class _MultiSigSettingScreenState extends State<MultiSigSettingScreen> {
 
   @override
   void initState() {
+    super.initState();
     _appModel = Provider.of<AppModel>(context, listen: false);
     _vaultModel = Provider.of<VaultModel>(context, listen: false);
     _updateMultiVaultListItem();
@@ -55,7 +58,12 @@ class _MultiSigSettingScreenState extends State<MultiSigSettingScreen> {
     signAvailableCount = innerVaultCount > _multiVault.requiredSignatureCount
         ? _multiVault.requiredSignatureCount
         : innerVaultCount;
-    super.initState();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _tooltipIconRenderBox =
+          _tooltipIconKey.currentContext?.findRenderObject() as RenderBox;
+      _tooltipIconPosition = _tooltipIconRenderBox.localToGlobal(Offset.zero);
+    });
   }
 
   _updateMultiVaultListItem() {
@@ -635,8 +643,10 @@ class _MultiSigSettingScreenState extends State<MultiSigSettingScreen> {
                 Visibility(
                   visible: _tooltipRemainingTime > 0,
                   child: Positioned(
-                    top: tooltipTop,
-                    right: 16,
+                    top: _tooltipIconPosition.dy - tooltipTop,
+                    right: MediaQuery.sizeOf(context).width -
+                        _tooltipIconPosition.dx -
+                        48,
                     child: GestureDetector(
                       onTap: () => _removeTooltip(),
                       child: ClipPath(
