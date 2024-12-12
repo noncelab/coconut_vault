@@ -339,7 +339,7 @@ class _MnemonicImportState extends State<MnemonicImport> {
           ),
           // TODO: isolate
           Visibility(
-            visible: isProcessing,
+            visible: false,
             child: Container(
               width: MediaQuery.of(context).size.width,
               height: MediaQuery.of(context).size.height,

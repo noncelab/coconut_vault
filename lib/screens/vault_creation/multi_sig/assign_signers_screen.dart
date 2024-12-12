@@ -31,8 +31,14 @@ import 'package:provider/provider.dart';
 class SignerOption {
   final SinglesigVaultListItem singlesigVaultListItem;
   final String signerBsms;
+  late final String masterFingerprint;
 
-  const SignerOption(this.singlesigVaultListItem, this.signerBsms);
+  SignerOption(this.singlesigVaultListItem, this.signerBsms) {
+    masterFingerprint =
+        (singlesigVaultListItem.coconutVault as SingleSignatureVault)
+            .keyStore
+            .masterFingerprint;
+  }
 }
 
 class AssignSignersScreen extends StatefulWidget {
@@ -188,10 +194,18 @@ class _AssignSignersScreenState extends State<AssignSignersScreen> {
   }
 
   bool _isAlreadyImported(String signerBsms) {
+    List<String> splitedOne = signerBsms.split('\n');
     for (int i = 0; i < assignedVaultList.length; i++) {
-      if (assignedVaultList[i].bsms == signerBsms) {
+      if (assignedVaultList[i].bsms == null) continue;
+      List<String> splitedTwo = assignedVaultList[i].bsms!.split('\n');
+      if (splitedOne[0] == splitedTwo[0] &&
+          splitedOne[1] == splitedTwo[1] &&
+          splitedOne[2] == splitedTwo[2]) {
         return true;
       }
+      // if (assignedVaultList[i].bsms == signerBsms) {
+      //   return true;
+      // }
     }
 
     return false;
@@ -199,8 +213,11 @@ class _AssignSignersScreenState extends State<AssignSignersScreen> {
 
   /// bsms를 비교하여 이미 보유한 볼트 지갑 중 하나인 경우 이름을 반환
   String? _findVaultNameByBsms(String signerBsms) {
-    int result =
-        signerOptions.indexWhere((element) => element.signerBsms == signerBsms);
+    var mfp = BSMS.parseSigner(signerBsms).signer!.masterFingerPrint;
+
+    int result = signerOptions.indexWhere((element) {
+      return element.masterFingerprint == mfp;
+    });
     if (result == -1) return null;
     return signerOptions[result].singlesigVaultListItem.name;
   }
