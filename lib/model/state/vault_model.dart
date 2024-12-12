@@ -250,9 +250,13 @@ class VaultModel extends ChangeNotifier {
 
   /// SiglesigVaultListItem의 seed 중복 여부 확인
   bool isSeedDuplicated(String secret, String passphrase) {
+    var coconutVault = SingleSignatureVault.fromMnemonic(
+        secret, AddressType.p2wpkh,
+        passphrase: passphrase);
     final vaultIndex = _vaultList.indexWhere((element) {
       if (element is SinglesigVaultListItem) {
-        return element.secret == secret && element.passphrase == passphrase;
+        return (element.coconutVault as SingleSignatureVault).descriptor ==
+            coconutVault.descriptor;
       }
 
       return false;

@@ -170,160 +170,189 @@ class _MnemonicImportState extends State<MnemonicImport> {
       onPopInvokedWithResult: (didPop, _) {
         if (!isFinishing) _onBackPressed(context);
       },
-      child: Scaffold(
-        backgroundColor: Colors.white,
-        appBar: CustomAppBar.buildWithNext(
-          title: '복원하기',
-          context: context,
-          onBackPressed: () {
-            _onBackPressed(context);
-          },
-          onNextPressed: () {
-            final model = Provider.of<VaultModel>(context, listen: false);
-
-            if (model.isSeedDuplicated(
-                inputText.trim().toLowerCase().replaceAll(RegExp(r'\s+'), ' '),
-                usePassphrase ? passphrase.trim() : '')) {
-              CustomToast.showToast(
-                  context: context, text: "이미 추가되어 있는 니모닉이에요");
-              return;
-            }
-
-            model.startSinglesigImporting(
-                inputText.trim().toLowerCase().replaceAll(RegExp(r'\s+'), ' '),
-                usePassphrase ? passphrase.trim() : '');
-            MyBottomSheet.showBottomSheet_90(
+      child: Stack(
+        children: [
+          Scaffold(
+            backgroundColor: Colors.white,
+            appBar: CustomAppBar.buildWithNext(
+              title: '복원하기',
               context: context,
-              child: MnemonicConfirm(
-                onCancelPressed: () => Navigator.pop(context),
-                onConfirmPressed: () =>
-                    Navigator.pushNamed(context, '/vault-name-setup'),
-                onInactivePressed: () {
+              onBackPressed: () {
+                _onBackPressed(context);
+              },
+              onNextPressed: () {
+                final model = Provider.of<VaultModel>(context, listen: false);
+
+                if (model.isSeedDuplicated(
+                    inputText
+                        .trim()
+                        .toLowerCase()
+                        .replaceAll(RegExp(r'\s+'), ' '),
+                    usePassphrase ? passphrase.trim() : '')) {
                   CustomToast.showToast(
-                      context: context, text: "스크롤을 내려서 모두 확인해 주세요");
-                  vibrateMediumDouble();
-                },
-                mnemonic: inputText
-                    .trim()
-                    .toLowerCase()
-                    .replaceAll(RegExp(r'\s+'), ' '),
-                passphrase: usePassphrase ? passphrase : null,
-              ),
-            );
-          },
-          isActive: usePassphrase
-              ? inputText.isNotEmpty &&
-                  isMnemonicValid == true &&
-                  passphrase.isNotEmpty
-              : inputText.isNotEmpty && isMnemonicValid == true,
-        ),
-        body: GestureDetector(
-          onTap: () => FocusScope.of(context).unfocus(),
-          child: SafeArea(
-            child: SingleChildScrollView(
-              child: Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 20, vertical: 30),
-                child: Column(
-                  children: <Widget>[
-                    const Text('니모닉 문구를 입력해 주세요', style: Styles.body1Bold),
-                    const SizedBox(height: 30),
-                    CustomTextField(
-                        controller: _mnemonicController,
-                        inputFormatter: [
-                          LowerCaseTextInputFormatter(),
-                        ],
-                        placeholder: "단어 사이에 띄어쓰기를 넣어주세요",
-                        onChanged: (text) {
-                          inputText = text.toLowerCase();
-                          setState(() {
-                            _mnemonicController.value =
-                                _mnemonicController.value.copyWith(
-                              text: inputText,
-                              selection: TextSelection.collapsed(
-                                offset: _mnemonicController.selection.baseOffset
-                                    .clamp(0, inputText.length),
-                              ),
-                            );
-                          });
-                          validateInput();
-                        },
-                        maxLines: 5,
-                        padding: const EdgeInsets.fromLTRB(16, 20, 16, 20),
-                        valid: isMnemonicValid,
-                        errorMessage: errorMessage ?? '잘못된 니모닉 문구예요'),
-                    const SizedBox(height: 30),
-                    Row(
-                      children: [
-                        const Text('패스프레이즈 사용', style: Styles.body2Bold),
-                        const Spacer(),
-                        CupertinoSwitch(
-                          value: usePassphrase,
-                          activeColor: MyColors.darkgrey,
-                          onChanged: (value) {
-                            setState(() {
-                              usePassphrase = value;
-                            });
-                          },
+                      context: context, text: "이미 추가되어 있는 니모닉이에요");
+                  return;
+                }
+
+                model.startSinglesigImporting(
+                    inputText
+                        .trim()
+                        .toLowerCase()
+                        .replaceAll(RegExp(r'\s+'), ' '),
+                    usePassphrase ? passphrase.trim() : '');
+
+                MyBottomSheet.showBottomSheet_90(
+                  context: context,
+                  child: MnemonicConfirm(
+                    onCancelPressed: () => Navigator.pop(context),
+                    onConfirmPressed: () =>
+                        Navigator.pushNamed(context, '/vault-name-setup'),
+                    onInactivePressed: () {
+                      CustomToast.showToast(
+                          context: context, text: "스크롤을 내려서 모두 확인해 주세요");
+                      vibrateMediumDouble();
+                    },
+                    mnemonic: inputText
+                        .trim()
+                        .toLowerCase()
+                        .replaceAll(RegExp(r'\s+'), ' '),
+                    passphrase: usePassphrase ? passphrase : null,
+                  ),
+                );
+              },
+              isActive: usePassphrase
+                  ? inputText.isNotEmpty &&
+                      isMnemonicValid == true &&
+                      passphrase.isNotEmpty
+                  : inputText.isNotEmpty && isMnemonicValid == true,
+            ),
+            body: GestureDetector(
+              onTap: () => FocusScope.of(context).unfocus(),
+              child: SafeArea(
+                child: SingleChildScrollView(
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 20, vertical: 30),
+                    child: Column(
+                      children: <Widget>[
+                        const Text('니모닉 문구를 입력해 주세요', style: Styles.body1Bold),
+                        const SizedBox(height: 30),
+                        CustomTextField(
+                            controller: _mnemonicController,
+                            inputFormatter: [
+                              LowerCaseTextInputFormatter(),
+                            ],
+                            placeholder: "단어 사이에 띄어쓰기를 넣어주세요",
+                            onChanged: (text) {
+                              inputText = text.toLowerCase();
+                              setState(() {
+                                _mnemonicController.value =
+                                    _mnemonicController.value.copyWith(
+                                  text: inputText,
+                                  selection: TextSelection.collapsed(
+                                    offset: _mnemonicController
+                                        .selection.baseOffset
+                                        .clamp(0, inputText.length),
+                                  ),
+                                );
+                              });
+                              validateInput();
+                            },
+                            maxLines: 5,
+                            padding: const EdgeInsets.fromLTRB(16, 20, 16, 20),
+                            valid: isMnemonicValid,
+                            errorMessage: errorMessage ?? '잘못된 니모닉 문구예요'),
+                        const SizedBox(height: 30),
+                        Row(
+                          children: [
+                            const Text('패스프레이즈 사용', style: Styles.body2Bold),
+                            const Spacer(),
+                            CupertinoSwitch(
+                              value: usePassphrase,
+                              activeColor: MyColors.darkgrey,
+                              onChanged: (value) {
+                                setState(() {
+                                  usePassphrase = value;
+                                });
+                              },
+                            ),
+                          ],
                         ),
+                        if (usePassphrase)
+                          Column(children: [
+                            Padding(
+                                padding: const EdgeInsets.only(top: 12),
+                                child: SizedBox(
+                                  child: CustomTextField(
+                                    controller: _passphraseController,
+                                    placeholder: "패스프레이즈를 입력해 주세요",
+                                    onChanged: (text) {},
+                                    valid: passphrase.length <= 100,
+                                    maxLines: 1,
+                                    obscureText: passphraseObscured,
+                                    suffix: CupertinoButton(
+                                      onPressed: () {
+                                        setState(() {
+                                          passphraseObscured =
+                                              !passphraseObscured;
+                                        });
+                                      },
+                                      child: passphraseObscured
+                                          ? const Icon(
+                                              CupertinoIcons.eye_slash,
+                                              color: MyColors.darkgrey,
+                                              size: 18,
+                                            )
+                                          : const Icon(
+                                              CupertinoIcons.eye,
+                                              color: MyColors.darkgrey,
+                                              size: 18,
+                                            ),
+                                    ),
+                                    maxLength: 100,
+                                  ),
+                                )),
+                            Padding(
+                              padding: const EdgeInsets.only(top: 4, right: 4),
+                              child: Align(
+                                alignment: Alignment.topRight,
+                                child: Text(
+                                  '(${passphrase.length} / 100)',
+                                  style: TextStyle(
+                                      color: passphrase.length == 100
+                                          ? MyColors.transparentBlack
+                                          : MyColors.transparentBlack_50,
+                                      fontSize: 12,
+                                      fontFamily:
+                                          CustomFonts.text.getFontFamily),
+                                ),
+                              ),
+                            )
+                          ]),
+                        const SizedBox(height: 80),
                       ],
                     ),
-                    if (usePassphrase)
-                      Column(children: [
-                        Padding(
-                            padding: const EdgeInsets.only(top: 12),
-                            child: SizedBox(
-                              child: CustomTextField(
-                                controller: _passphraseController,
-                                placeholder: "패스프레이즈를 입력해 주세요",
-                                onChanged: (text) {},
-                                valid: passphrase.length <= 100,
-                                maxLines: 1,
-                                obscureText: passphraseObscured,
-                                suffix: CupertinoButton(
-                                  onPressed: () {
-                                    setState(() {
-                                      passphraseObscured = !passphraseObscured;
-                                    });
-                                  },
-                                  child: passphraseObscured
-                                      ? const Icon(
-                                          CupertinoIcons.eye_slash,
-                                          color: MyColors.darkgrey,
-                                          size: 18,
-                                        )
-                                      : const Icon(
-                                          CupertinoIcons.eye,
-                                          color: MyColors.darkgrey,
-                                          size: 18,
-                                        ),
-                                ),
-                                maxLength: 100,
-                              ),
-                            )),
-                        Padding(
-                          padding: const EdgeInsets.only(top: 4, right: 4),
-                          child: Align(
-                            alignment: Alignment.topRight,
-                            child: Text(
-                              '(${passphrase.length} / 100)',
-                              style: TextStyle(
-                                  color: passphrase.length == 100
-                                      ? MyColors.transparentBlack
-                                      : MyColors.transparentBlack_50,
-                                  fontSize: 12,
-                                  fontFamily: CustomFonts.text.getFontFamily),
-                            ),
-                          ),
-                        )
-                      ]),
-                    const SizedBox(height: 80),
-                  ],
+                  ),
                 ),
               ),
             ),
           ),
-        ),
+          // TODO: isolate
+          Visibility(
+            visible: isProcessing,
+            child: Container(
+              width: MediaQuery.of(context).size.width,
+              height: MediaQuery.of(context).size.height,
+              decoration:
+                  const BoxDecoration(color: MyColors.transparentBlack_30),
+              child: const Center(
+                child: CircularProgressIndicator(
+                  color: MyColors.darkgrey,
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
