@@ -12,14 +12,13 @@ import 'package:coconut_vault/screens/vault_detail/qrcode_bottom_sheet_screen.da
 import 'package:coconut_vault/screens/vault_detail/vault_edit_bottom_sheet_screen.dart';
 import 'package:coconut_vault/styles.dart';
 import 'package:coconut_vault/utils/alert_util.dart';
-import 'package:coconut_vault/utils/colors_util.dart';
 import 'package:coconut_vault/utils/icon_util.dart';
 import 'package:coconut_vault/utils/text_utils.dart';
 import 'package:coconut_vault/utils/vibration_util.dart';
 import 'package:coconut_vault/widgets/appbar/custom_appbar.dart';
 import 'package:coconut_vault/widgets/bottom_sheet.dart';
 import 'package:coconut_vault/widgets/bubble_clipper.dart';
-import 'package:coconut_vault/widgets/button/tooltip_button.dart';
+import 'package:coconut_vault/widgets/card/vault_item_card.dart';
 import 'package:coconut_vault/widgets/custom_loading_overlay.dart';
 import 'package:coconut_vault/widgets/custom_toast.dart';
 import 'package:coconut_vault/widgets/information_item_row.dart';
@@ -39,13 +38,14 @@ class _MultiSigSettingScreenState extends State<MultiSigSettingScreen> {
   late AppModel _appModel;
   late VaultModel _vaultModel;
   late MultisigVaultListItem _multiVault;
-  OverlayEntry? _overlayEntry;
+
   final GlobalKey _tooltipIconKey = GlobalKey();
-  late RenderBox _tooltipIconRenderBox;
+  RenderBox? _tooltipIconRenderBox;
   Offset _tooltipIconPosition = Offset.zero;
+  double _tooltipTopPadding = 0;
 
   Timer? _tooltipTimer;
-  int _tooltipRemainingTime = 5;
+  int _tooltipRemainingTime = 0;
   late int signAvailableCount;
 
   @override
@@ -63,7 +63,10 @@ class _MultiSigSettingScreenState extends State<MultiSigSettingScreen> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _tooltipIconRenderBox =
           _tooltipIconKey.currentContext?.findRenderObject() as RenderBox;
-      _tooltipIconPosition = _tooltipIconRenderBox.localToGlobal(Offset.zero);
+      _tooltipIconPosition = _tooltipIconRenderBox!.localToGlobal(Offset.zero);
+
+      _tooltipTopPadding =
+          MediaQuery.paddingOf(context).top + kToolbarHeight - 14;
     });
   }
 
@@ -72,10 +75,13 @@ class _MultiSigSettingScreenState extends State<MultiSigSettingScreen> {
     _multiVault = vaultBasItem as MultisigVaultListItem;
   }
 
-  _showTooltip(BuildContext context, Offset position, String tip) {
+  _showTooltip(BuildContext context) {
     _removeTooltip();
 
-    _tooltipRemainingTime = 5;
+    setState(() {
+      _tooltipRemainingTime = 5;
+    });
+
     _tooltipTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
       setState(() {
         if (_tooltipRemainingTime > 0) {
@@ -86,53 +92,13 @@ class _MultiSigSettingScreenState extends State<MultiSigSettingScreen> {
         }
       });
     });
-
-    final overlay = Overlay.of(context);
-    _overlayEntry = OverlayEntry(
-      builder: (context) => Positioned(
-          top: position.dy + 16,
-          right: MediaQuery.of(context).size.width - position.dx - 48,
-          child: GestureDetector(
-            onTap: () => _removeTooltip(),
-            child: ClipPath(
-              clipper: RightTriangleBubbleClipper(),
-              child: Container(
-                padding: const EdgeInsets.only(
-                  top: 25,
-                  left: 10,
-                  right: 10,
-                  bottom: 10,
-                ),
-                color: MyColors.darkgrey,
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(
-                      tip,
-                      style: Styles.caption.merge(TextStyle(
-                        height: 1.3,
-                        fontFamily: CustomFonts.text.getFontFamily,
-                        color: MyColors.white,
-                      )),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          )),
-    );
-
-    overlay.insert(_overlayEntry!);
   }
 
-  void _removeTooltip() {
-    if (_overlayEntry != null) {
-      if (_tooltipTimer != null) {
-        _tooltipTimer!.cancel();
-      }
-      _overlayEntry!.remove();
-      _overlayEntry = null;
-    }
+  _removeTooltip() {
+    setState(() {
+      _tooltipRemainingTime = 0;
+    });
+    _tooltipTimer?.cancel();
   }
 
   void _updateVaultInfo(
@@ -326,8 +292,6 @@ class _MultiSigSettingScreenState extends State<MultiSigSettingScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final tooltipTop = MediaQuery.of(context).padding.top + 46;
-
     return PopScope(
       canPop: true,
       onPopInvokedWithResult: (didPop, _) {
@@ -351,123 +315,18 @@ class _MultiSigSettingScreenState extends State<MultiSigSettingScreen> {
                 Column(
                   children: [
                     // 다중 서명 지갑
-                    Container(
-                      margin:
-                          const EdgeInsets.only(top: 20, left: 16, right: 16),
-                      decoration: BoxDecoration(
-                        color: MyColors.white,
-                        borderRadius: MyBorder.defaultRadius,
-                        gradient: BoxDecorations.getMultisigLinearGradient(
-                            CustomColorHelper.getGradientColors(
-                                _multiVault.signers)),
-                      ),
-                      child: Container(
-                        margin: const EdgeInsets.all(2),
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 24, vertical: 20),
-                        decoration: BoxDecoration(
-                          color: MyColors.white,
-                          borderRadius: BorderRadius.circular(
-                              22), // defaultRadius로 통일하면 border 넓이가 균일해보이지 않음
-                        ),
-                        child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            // 아이콘
-                            Container(
-                              padding: const EdgeInsets.all(12),
-                              decoration: BoxDecoration(
-                                color: BackgroundColorPalette[
-                                    _multiVault.colorIndex],
-                                borderRadius: BorderRadius.circular(14.0),
-                              ),
-                              child: SvgPicture.asset(
-                                CustomIcons.getPathByIndex(
-                                    _multiVault.iconIndex),
-                                colorFilter: ColorFilter.mode(
-                                    ColorPalette[_multiVault.colorIndex],
-                                    BlendMode.srcIn),
-                                width: 28.0,
-                              ),
-                            ),
-                            const SizedBox(width: 8.0),
-                            // 이름, 편집버튼, 주소
-                            Flexible(
-                              flex: 4,
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Row(children: [
-                                    Flexible(
-                                        child: Text(
-                                      _multiVault.name,
-                                      style: Styles.h3,
-                                      maxLines: 1,
-                                      overflow: TextOverflow.ellipsis,
-                                    )),
-                                    const SizedBox(width: 7),
-                                    GestureDetector(
-                                        onTap: () {
-                                          _removeTooltip();
-                                          _showModalBottomSheetForEditingNameAndIcon(
-                                            _multiVault.name,
-                                            _multiVault.colorIndex,
-                                            _multiVault.iconIndex,
-                                          );
-                                        },
-                                        child: Container(
-                                          decoration: BoxDecoration(
-                                              borderRadius:
-                                                  BorderRadius.circular(8),
-                                              color: MyColors.lightgrey),
-                                          child: const Padding(
-                                            padding: EdgeInsets.all(5.0),
-                                            child: Icon(
-                                              Icons.edit,
-                                              color: MyColors.darkgrey,
-                                              size: 14,
-                                            ),
-                                          ),
-                                        ))
-                                  ]),
-                                ],
-                              ),
-                            ),
-                            const Spacer(
-                              flex: 1,
-                            ),
-
-                            // MFP, M/N, 볼트로 N개 서명 가능
-                            Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              crossAxisAlignment: CrossAxisAlignment.end,
-                              children: [
-                                Text(
-                                  '$signAvailableCount개 서명 가능',
-                                  style: Styles.body1Bold,
-                                ),
-                                TooltipButton(
-                                  isSelected: false,
-                                  text:
-                                      '${_multiVault.requiredSignatureCount}/${_multiVault.signers.length}',
-                                  isLeft: true,
-                                  iconkey: _tooltipIconKey,
-                                  containerMargin: EdgeInsets.zero,
-                                  onTap: () {},
-                                  onTapDown: (details) {
-                                    _showTooltip(
-                                      context,
-                                      _tooltipIconPosition,
-                                      '${_multiVault.signers.length}개의 키 중 ${_multiVault.requiredSignatureCount}개로 서명해야 하는\n다중 서명 지갑이예요.',
-                                    );
-                                  },
-                                ),
-                              ],
-                            )
-                          ],
-                        ),
-                      ),
-                    ),
+                    VaultItemCard(
+                        vaultItem: _multiVault,
+                        onTooltipClicked: () => _showTooltip(context),
+                        onNameChangeClicked: () {
+                          _removeTooltip();
+                          _showModalBottomSheetForEditingNameAndIcon(
+                            _multiVault.name,
+                            _multiVault.colorIndex,
+                            _multiVault.iconIndex,
+                          );
+                        },
+                        tooltipKey: _tooltipIconKey),
                     // 상세 지갑 리스트
                     ListView.separated(
                       physics: const NeverScrollableScrollPhysics(),
@@ -542,7 +401,7 @@ class _MultiSigSettingScreenState extends State<MultiSigSettingScreen> {
                                                       colorIndex!]
                                                   : MyColors.greyEC,
                                               borderRadius:
-                                                  BorderRadius.circular(10.0),
+                                                  BorderRadius.circular(14.0),
                                             ),
                                             child: SvgPicture.asset(
                                               isInnerWallet
@@ -683,44 +542,43 @@ class _MultiSigSettingScreenState extends State<MultiSigSettingScreen> {
                     ),
                   ],
                 ),
-                // // ToolTip
-                // Visibility(
-                //   visible: _tooltipRemainingTime > 0,
-                //   child: Positioned(
-                //     top: _tooltipIconPosition.dy - tooltipTop + 8,
-                //     right: MediaQuery.sizeOf(context).width -
-                //         _tooltipIconPosition.dx -
-                //         48,
-                //     child: GestureDetector(
-                //       onTap: () => _removeTooltip(),
-                //       child: ClipPath(
-                //         clipper: RightTriangleBubbleClipper(),
-                //         child: Container(
-                //           padding: const EdgeInsets.only(
-                //             top: 25,
-                //             left: 10,
-                //             right: 10,
-                //             bottom: 10,
-                //           ),
-                //           color: MyColors.darkgrey,
-                //           child: Row(
-                //             mainAxisSize: MainAxisSize.min,
-                //             children: [
-                //               Text(
-                //                 '${_multiVault.signers.length}개의 키 중 ${_multiVault.requiredSignatureCount}개로 서명해야 하는\n다중 서명 지갑이예요.',
-                //                 style: Styles.caption.merge(TextStyle(
-                //                   height: 1.3,
-                //                   fontFamily: CustomFonts.text.getFontFamily,
-                //                   color: MyColors.white,
-                //                 )),
-                //               ),
-                //             ],
-                //           ),
-                //         ),
-                //       ),
-                //     ),
-                //   ),
-                // )
+                Visibility(
+                  visible: _tooltipRemainingTime > 0,
+                  child: Positioned(
+                    top: _tooltipIconPosition.dy - _tooltipTopPadding,
+                    right: MediaQuery.sizeOf(context).width -
+                        _tooltipIconPosition.dx -
+                        48,
+                    child: GestureDetector(
+                      onTap: () => _removeTooltip(),
+                      child: ClipPath(
+                        clipper: RightTriangleBubbleClipper(),
+                        child: Container(
+                          padding: const EdgeInsets.only(
+                            top: 25,
+                            left: 10,
+                            right: 10,
+                            bottom: 10,
+                          ),
+                          color: MyColors.darkgrey,
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Text(
+                                '${_multiVault.signers.length}개의 키 중 ${_multiVault.requiredSignatureCount}개로 서명해야 하는\n다중 서명 지갑이예요.',
+                                style: Styles.caption.merge(TextStyle(
+                                  height: 1.3,
+                                  fontFamily: CustomFonts.text.getFontFamily,
+                                  color: MyColors.white,
+                                )),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                )
               ],
             ),
           ),

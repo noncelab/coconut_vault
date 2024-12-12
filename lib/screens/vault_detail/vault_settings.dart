@@ -4,6 +4,7 @@ import 'package:coconut_lib/coconut_lib.dart';
 import 'package:coconut_vault/model/data/singlesig_vault_list_item.dart';
 import 'package:coconut_vault/utils/text_utils.dart';
 import 'package:coconut_vault/utils/vibration_util.dart';
+import 'package:coconut_vault/widgets/card/vault_item_card.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:coconut_vault/model/state/app_model.dart';
@@ -13,11 +14,9 @@ import 'package:coconut_vault/screens/vault_detail/qrcode_bottom_sheet_screen.da
 import 'package:coconut_vault/screens/vault_detail/vault_edit_bottom_sheet_screen.dart';
 import 'package:coconut_vault/styles.dart';
 import 'package:coconut_vault/utils/alert_util.dart';
-import 'package:coconut_vault/utils/icon_util.dart';
 import 'package:coconut_vault/widgets/appbar/custom_appbar.dart';
 import 'package:coconut_vault/widgets/bottom_sheet.dart';
 import 'package:coconut_vault/widgets/bubble_clipper.dart';
-import 'package:coconut_vault/widgets/button/tooltip_button.dart';
 import 'package:coconut_vault/widgets/custom_loading_overlay.dart';
 import 'package:coconut_vault/widgets/custom_toast.dart';
 import 'package:coconut_vault/widgets/information_item_row.dart';
@@ -38,20 +37,21 @@ class VaultSettings extends StatefulWidget {
 class _VaultSettingsState extends State<VaultSettings> {
   late AppModel _appModel;
   late VaultModel _vaultModel;
-  OverlayEntry? _overlayEntry;
   late TextEditingController _nameTextController;
   late SinglesigVaultListItem _singleVaultItem;
   late SingleSignatureVault _singleSignatureVault;
+  double _tooltipTopPadding = 0;
+
   late String _name;
   late String _titleName;
   late int _iconIndex;
   late int _colorIndex;
 
   final GlobalKey _tooltipIconKey = GlobalKey();
-  late RenderBox _tooltipIconRendBox;
-  late Offset _tooltipIconPosition;
+  RenderBox? _tooltipIconRendBox;
+  Offset _tooltipIconPosition = Offset.zero;
   Timer? _tooltipTimer;
-  int _tooltipRemainingTime = 5;
+  int _tooltipRemainingTime = 0;
 
   @override
   void initState() {
@@ -76,13 +76,16 @@ class _VaultSettingsState extends State<VaultSettings> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _tooltipIconRendBox =
           _tooltipIconKey.currentContext?.findRenderObject() as RenderBox;
-      _tooltipIconPosition = _tooltipIconRendBox.localToGlobal(Offset.zero);
+      _tooltipIconPosition = _tooltipIconRendBox!.localToGlobal(Offset.zero);
+      _tooltipTopPadding =
+          MediaQuery.paddingOf(context).top + kToolbarHeight - 14;
     });
   }
 
   @override
   void dispose() {
     _nameTextController.dispose();
+    _tooltipTimer?.cancel();
     super.dispose();
   }
 
@@ -197,10 +200,13 @@ class _VaultSettingsState extends State<VaultSettings> {
     }
   }
 
-  void _showTooltip(BuildContext context, Offset position, String tip) {
+  _showTooltip(BuildContext context) {
     _removeTooltip();
 
-    _tooltipRemainingTime = 5;
+    setState(() {
+      _tooltipRemainingTime = 5;
+    });
+
     _tooltipTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
       setState(() {
         if (_tooltipRemainingTime > 0) {
@@ -211,53 +217,13 @@ class _VaultSettingsState extends State<VaultSettings> {
         }
       });
     });
-
-    final overlay = Overlay.of(context);
-    _overlayEntry = OverlayEntry(
-      builder: (context) => Positioned(
-          top: position.dy + 16,
-          right: MediaQuery.of(context).size.width - position.dx - 48,
-          child: GestureDetector(
-            onTap: () => _removeTooltip(),
-            child: ClipPath(
-              clipper: RightTriangleBubbleClipper(),
-              child: Container(
-                padding: const EdgeInsets.only(
-                  top: 25,
-                  left: 10,
-                  right: 10,
-                  bottom: 10,
-                ),
-                color: MyColors.darkgrey,
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(
-                      tip,
-                      style: Styles.caption.merge(TextStyle(
-                        height: 1.3,
-                        fontFamily: CustomFonts.text.getFontFamily,
-                        color: MyColors.white,
-                      )),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          )),
-    );
-
-    overlay.insert(_overlayEntry!);
   }
 
-  void _removeTooltip() {
-    if (_overlayEntry != null) {
-      if (_tooltipTimer != null) {
-        _tooltipTimer!.cancel();
-      }
-      _overlayEntry!.remove();
-      _overlayEntry = null;
-    }
+  _removeTooltip() {
+    setState(() {
+      _tooltipRemainingTime = 0;
+    });
+    _tooltipTimer?.cancel();
   }
 
   @override
@@ -286,112 +252,19 @@ class _VaultSettingsState extends State<VaultSettings> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                          margin: const EdgeInsets.only(bottom: 12),
-                          child: Container(
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 24, vertical: 20),
-                              decoration: BoxDecoration(
-                                  borderRadius: MyBorder.defaultRadius,
-                                  border: Border.all(
-                                      color: MyColors.borderLightgrey,
-                                      width: 0.5)),
-                              child: Row(
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                children: [
-                                  Container(
-                                      padding: const EdgeInsets.all(12),
-                                      decoration: BoxDecoration(
-                                        color:
-                                            BackgroundColorPalette[_colorIndex],
-                                        borderRadius:
-                                            BorderRadius.circular(18.0),
-                                      ),
-                                      child: SvgPicture.asset(
-                                          CustomIcons.getPathByIndex(
-                                              _iconIndex),
-                                          colorFilter: ColorFilter.mode(
-                                              ColorPalette[_colorIndex],
-                                              BlendMode.srcIn),
-                                          width: 28.0)),
-                                  const SizedBox(width: 8.0),
-                                  Flexible(
-                                    flex: 4,
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Row(children: [
-                                          Flexible(
-                                              child: Text(
-                                            _titleName,
-                                            style: Styles.h3,
-                                            maxLines: 1,
-                                            overflow: TextOverflow.ellipsis,
-                                          )),
-                                          const SizedBox(width: 7),
-                                          GestureDetector(
-                                              onTap: () {
-                                                _removeTooltip();
-                                                _showModalBottomSheetForEditingNameAndIcon(
-                                                  _name,
-                                                  _colorIndex,
-                                                  _iconIndex,
-                                                );
-                                              },
-                                              child: Container(
-                                                decoration: BoxDecoration(
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            8),
-                                                    color: MyColors.lightgrey),
-                                                child: const Padding(
-                                                  padding: EdgeInsets.all(5.0),
-                                                  child: Icon(
-                                                    Icons.edit,
-                                                    color: MyColors.darkgrey,
-                                                    size: 14,
-                                                  ),
-                                                ),
-                                              ))
-                                        ]),
-                                      ],
-                                    ),
-                                  ),
-                                  const Spacer(
-                                    flex: 1,
-                                  ),
-                                  Column(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    crossAxisAlignment: CrossAxisAlignment.end,
-                                    children: [
-                                      Text(
-                                        _singleSignatureVault
-                                            .keyStore.masterFingerprint,
-                                        style: Styles.h3.merge(TextStyle(
-                                            fontFamily: CustomFonts
-                                                .number.getFontFamily)),
-                                      ),
-                                      TooltipButton(
-                                        isSelected: false,
-                                        text: '지갑 ID',
-                                        isLeft: true,
-                                        iconkey: _tooltipIconKey,
-                                        containerMargin: EdgeInsets.zero,
-                                        onTap: () {},
-                                        onTapDown: (details) {
-                                          _showTooltip(
-                                            context,
-                                            _tooltipIconPosition,
-                                            '지갑의 고유 값이예요.\n마스터 핑거프린트(MFP)라고도 해요.',
-                                          );
-                                        },
-                                      ),
-                                    ],
-                                  )
-                                ],
-                              )),
+                        /// 볼트 네임 카드
+                        VaultItemCard(
+                          vaultItem: _singleVaultItem,
+                          onTooltipClicked: () => _showTooltip(context),
+                          onNameChangeClicked: () {
+                            _removeTooltip();
+                            _showModalBottomSheetForEditingNameAndIcon(
+                              _name,
+                              _colorIndex,
+                              _iconIndex,
+                            );
+                          },
+                          tooltipKey: _tooltipIconKey,
                         ),
                         if (_singleVaultItem
                                 .linkedMultisigInfo?.entries.isNotEmpty ==
@@ -651,6 +524,43 @@ class _VaultSettingsState extends State<VaultSettings> {
                       ],
                     ),
                   ),
+                  Visibility(
+                    visible: _tooltipRemainingTime > 0,
+                    child: Positioned(
+                      top: _tooltipIconPosition.dy - _tooltipTopPadding,
+                      right: MediaQuery.sizeOf(context).width -
+                          _tooltipIconPosition.dx -
+                          48,
+                      child: GestureDetector(
+                        onTap: () => _removeTooltip(),
+                        child: ClipPath(
+                          clipper: RightTriangleBubbleClipper(),
+                          child: Container(
+                            padding: const EdgeInsets.only(
+                              top: 25,
+                              left: 10,
+                              right: 10,
+                              bottom: 10,
+                            ),
+                            color: MyColors.darkgrey,
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Text(
+                                  '지갑의 고유 값이에요.\n마스터 핑거프린트(MFP)라고도 해요.',
+                                  style: Styles.caption.merge(TextStyle(
+                                    height: 1.3,
+                                    fontFamily: CustomFonts.text.getFontFamily,
+                                    color: MyColors.white,
+                                  )),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  )
                 ],
               ),
             ),
