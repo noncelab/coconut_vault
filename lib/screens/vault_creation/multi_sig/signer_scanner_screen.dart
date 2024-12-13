@@ -240,7 +240,8 @@ class _SignerScannerScreenState extends State<SignerScannerScreen> {
         return;
       }
 
-      if (_vaultModel.isMultisigVaultDuplicated(coordinatorBsms)) {
+      if (_vaultModel.findMultisigWalletByCoordinatorBsms(coordinatorBsms) !=
+          null) {
         onFailedScanning('이미 등록된 다중 서명 지갑입니다.');
         return;
       }

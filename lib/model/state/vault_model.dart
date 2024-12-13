@@ -266,11 +266,22 @@ class VaultModel extends ChangeNotifier {
   }
 
   /// MultisigVaultListItem의 coordinatorBsms 중복 여부 확인
-  bool isMultisigVaultDuplicated(String coordinatorBsms) {
+  MultisigVaultListItem? findMultisigWalletByCoordinatorBsms(
+      String coordinatorBsms) {
     final vaultIndex = _vaultList.indexWhere((element) =>
         (element is MultisigVaultListItem &&
             element.coordinatorBsms == coordinatorBsms));
-    return vaultIndex != -1;
+
+    return vaultIndex != -1
+        ? _vaultList[vaultIndex] as MultisigVaultListItem
+        : null;
+  }
+
+  VaultListItemBase? findWalletByDescriptor(String descriptor) {
+    final vaultIndex = _vaultList
+        .indexWhere((element) => element.coconutVault.descriptor == descriptor);
+
+    return vaultIndex != -1 ? _vaultList[vaultIndex] : null;
   }
 
   bool isNameDuplicated(String name) {

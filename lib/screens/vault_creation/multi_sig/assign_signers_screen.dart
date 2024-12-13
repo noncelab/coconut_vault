@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:coconut_lib/coconut_lib.dart';
 import 'package:coconut_vault/model/data/multisig_signer.dart';
+import 'package:coconut_vault/model/data/multisig_vault_list_item.dart';
 import 'package:coconut_vault/model/data/singlesig_vault_list_item.dart';
 import 'package:coconut_vault/model/data/vault_list_item_base.dart';
 import 'package:coconut_vault/model/data/vault_type.dart';
@@ -406,81 +407,44 @@ class _AssignSignersScreenState extends State<AssignSignersScreen> {
   // 외부지갑은 추가 시 올바른 signerBsms 인지 미리 확인이 되어 있어야 합니다.
   void onSelectionCompleted() async {
     setState(() {
-      loadingMessage = '데이터 검증 중이에요';
+      loadingMessage = '동일한 순서를 유지하도록 키 순서를 정렬 할게요';
       isNextProcessing = true;
     });
+
+    await Future.delayed(const Duration(seconds: 3));
+
     List<KeyStore> keyStores = [];
     List<MultisigSigner> signers = [];
 
     for (int i = 0; i < assignedVaultList.length; i++) {
-      var data = assignedVaultList[i];
-      keyStores.add(KeyStore.fromSignerBsms(data.bsms!));
-      switch (data.importKeyType!) {
+      keyStores.add(KeyStore.fromSignerBsms(assignedVaultList[i].bsms!));
+      switch (assignedVaultList[i].importKeyType!) {
         case ImportKeyType.internal:
           signers.add(MultisigSigner(
               id: i,
-              innerVaultId: data.item!.id,
-              name: data.item!.name,
-              iconIndex: data.item!.iconIndex,
-              colorIndex: data.item!.colorIndex,
-              signerBsms: data.bsms!,
+              innerVaultId: assignedVaultList[i].item!.id,
+              name: assignedVaultList[i].item!.name,
+              iconIndex: assignedVaultList[i].item!.iconIndex,
+              colorIndex: assignedVaultList[i].item!.colorIndex,
+              signerBsms: assignedVaultList[i].bsms!,
               keyStore: keyStores[i]));
           break;
         case ImportKeyType.external:
           signers.add(MultisigSigner(
               id: i,
-              signerBsms: data.bsms!,
-              name: data.bsms?.split('\n')[3] ?? '',
-              memo: data.memo,
+              signerBsms: assignedVaultList[i].bsms!,
+              name: assignedVaultList[i].bsms?.split('\n')[3] ?? '',
+              memo: assignedVaultList[i].memo,
               keyStore: keyStores[i]));
           break;
         default:
-          throw ArgumentError("wrong importKeyType: ${data.importKeyType!}");
+          throw ArgumentError(
+              "wrong importKeyType: ${assignedVaultList[i].importKeyType!}");
       }
     }
+
     assert(signers.length == totalSignatureCount);
-    // 검증: 올바른 Signer 정보를 받았는지 확인합니다.
-    MultisignatureVault newMultisigVault;
-    try {
-      newMultisigVault = await _createMultisignatureVault(keyStores);
-    } catch (error) {
-      if (mounted) {
-        setState(() {
-          isNextProcessing = false;
-        });
-        showAlertDialog(
-            context: context, title: '지갑 생성 실패', content: '유효하지 않은 정보입니다.');
-      }
-      return;
-    }
-
-    // multisig 지갑 리스트에서 중복 체크 하기
-    var multisigVaults = _vaultModel.getMultisigVaults();
-    for (int i = 0; i < multisigVaults.length; i++) {
-      printLongString(
-          "descriptors ---> ${multisigVaults[i].coconutVault.descriptor} , ${newMultisigVault.descriptor}");
-      if (multisigVaults[i].coconutVault.descriptor ==
-          newMultisigVault.descriptor) {
-        if (mounted) {
-          CustomToast.showToast(
-              context: context, text: "이미 추가되어 있는 다중 서명 지갑이에요");
-          setState(() {
-            isNextProcessing = false;
-          });
-        }
-        return;
-      }
-    }
-
     // signer mfp 기준으로 재정렬하기
-    if (mounted) {
-      setState(() {
-        loadingMessage = '동일한 순서를 유지하도록 키 순서를 정렬 할게요';
-      });
-    }
-
-    await Future.delayed(const Duration(seconds: 4));
-
     List<int> indices = List.generate(keyStores.length, (i) => i);
     indices.sort((a, b) => keyStores[a]
         .masterFingerprint
@@ -498,7 +462,39 @@ class _AssignSignersScreenState extends State<AssignSignersScreen> {
       for (int i = 0; i < assignedVaultList.length; i++) {
         assignedVaultList[i].index = i;
       }
+
+      loadingMessage = '데이터 검증 중이에요';
     });
+
+    // 검증: 올바른 Signer 정보를 받았는지 확인합니다.
+    MultisignatureVault newMultisigVault;
+    try {
+      newMultisigVault = await _createMultisignatureVault(keyStores);
+    } catch (error) {
+      if (mounted) {
+        setState(() {
+          isNextProcessing = false;
+        });
+        showAlertDialog(
+            context: context, title: '지갑 생성 실패', content: '유효하지 않은 정보입니다.');
+      }
+      return;
+    }
+
+    // multisig 지갑 리스트에서 중복 체크 하기
+    VaultListItemBase? findResult =
+        _vaultModel.findWalletByDescriptor(newMultisigVault.descriptor);
+    if (findResult != null) {
+      if (mounted) {
+        CustomToast.showToast(
+            context: context,
+            text: "이미 추가되어 있는 다중 서명 지갑이에요. (${findResult.name})");
+        setState(() {
+          isNextProcessing = false;
+        });
+      }
+      return;
+    }
 
     _multisigCreationState.setSigners(signers);
 
