@@ -39,7 +39,11 @@ class VaultItemCard extends StatelessWidget {
       signers = multiVault.signers;
       colorIndex = multiVault.colorIndex;
       iconIndex = multiVault.iconIndex;
-      rightText = '${multiVault.requiredSignatureCount}개 서명 가능';
+      int innerSignerCount =
+          multiVault.signers.where((s) => s.innerVaultId != null).length;
+      rightText =
+          '${innerSignerCount > multiVault.requiredSignatureCount ? multiVault.requiredSignatureCount : innerSignerCount}개 서명 가능';
+
       tooltipText =
           '${multiVault.requiredSignatureCount}/${multiVault.signers.length}';
       isMultisig = true;
