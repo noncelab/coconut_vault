@@ -1,5 +1,6 @@
 import 'package:coconut_vault/model/state/vault_model.dart';
 import 'package:coconut_vault/widgets/button/custom_buttons.dart';
+import 'package:coconut_vault/widgets/indicator/message_activity_indicator.dart';
 import 'package:flutter/material.dart';
 import 'package:coconut_vault/styles.dart';
 import 'package:coconut_vault/widgets/appbar/custom_appbar.dart';
@@ -14,16 +15,17 @@ class SelectVaultTypeScreen extends StatefulWidget {
 
 class _SelectVaultTypeScreenState extends State<SelectVaultTypeScreen> {
   String? nextPath;
-  bool _processingNextPage = false;
+  late bool _showWalletLoading = false;
   bool _nextButtonEnabled = true;
   late String guideText;
   List<String> options = ['/vault-creation-options', '/select-multisig-quoram'];
-  late final model;
+  late final VaultModel model;
 
   @override
   void initState() {
     super.initState();
     model = Provider.of<VaultModel>(context, listen: false);
+    _showWalletLoading = model.isVaultListLoading;
     guideText = '';
     model.addListener(onVaultListLoadingChanged);
   }
@@ -38,7 +40,7 @@ class _SelectVaultTypeScreenState extends State<SelectVaultTypeScreen> {
     if (nextPath == options[0]) {
       // '일반 지갑' 선택 시
       setState(() {
-        _processingNextPage = false;
+        _showWalletLoading = false;
       });
       Navigator.pushNamed(context, nextPath!);
     } else if (nextPath == options[1]) {
@@ -46,11 +48,11 @@ class _SelectVaultTypeScreenState extends State<SelectVaultTypeScreen> {
       if (model.isVaultListLoading) {
         setState(() {
           _nextButtonEnabled = false;
-          _processingNextPage = true;
+          _showWalletLoading = true;
         });
       } else if (!model.isVaultListLoading && model.vaultList.isNotEmpty) {
         setState(() {
-          _processingNextPage = false;
+          _showWalletLoading = false;
         });
         Navigator.pushNamed(context, nextPath!);
       }
@@ -59,16 +61,27 @@ class _SelectVaultTypeScreenState extends State<SelectVaultTypeScreen> {
 
   void onVaultListLoadingChanged() {
     if (!mounted) return;
+
     setState(() {
-      if (!model.isVaultListLoading) {
-        if (model.vaultList.isNotEmpty && _processingNextPage) {
-          _processingNextPage = false;
-          Navigator.pushNamed(context, nextPath!);
-        } else {
-          _processingNextPage = false;
-        }
-      } else {
-        _processingNextPage = true;
+      _showWalletLoading = model.isVaultListLoading;
+    });
+  }
+
+  void onTapSinglesigWallet() {
+    setState(() {
+      nextPath = options[0];
+      guideText = '하나의 니모닉 문구를 보관하는 단일 서명 지갑이에요';
+      _nextButtonEnabled = true;
+    });
+  }
+
+  void onTapMultisigsigWallet() {
+    setState(() {
+      nextPath = options[1];
+      guideText = '지정한 수의 서명이 필요한 지갑이에요';
+      if (_showWalletLoading ||
+          (!model.isVaultListLoading && model.vaultList.isEmpty)) {
+        _nextButtonEnabled = false;
       }
     });
   }
@@ -112,13 +125,7 @@ class _SelectVaultTypeScreenState extends State<SelectVaultTypeScreen> {
                         Expanded(
                           child: SelectableButton(
                             text: '일반 지갑',
-                            onTap: () {
-                              setState(() {
-                                nextPath = options[0];
-                                guideText = '하나의 니모닉 문구를 보관하는 단일 서명 지갑이에요';
-                                _nextButtonEnabled = true;
-                              });
-                            },
+                            onTap: onTapSinglesigWallet,
                             isPressed: nextPath == options[0],
                           ),
                         ),
@@ -126,17 +133,7 @@ class _SelectVaultTypeScreenState extends State<SelectVaultTypeScreen> {
                         Expanded(
                           child: SelectableButton(
                             text: '다중 서명 지갑',
-                            onTap: () {
-                              setState(() {
-                                nextPath = options[1];
-                                guideText = '지정한 수의 서명이 필요한 지갑이에요';
-                                if (_processingNextPage ||
-                                    (!model.isVaultListLoading &&
-                                        model.vaultList.isEmpty)) {
-                                  _nextButtonEnabled = false;
-                                }
-                              });
-                            },
+                            onTap: onTapMultisigsigWallet,
                             isPressed: nextPath == options[1],
                           ),
                         ),
@@ -146,29 +143,13 @@ class _SelectVaultTypeScreenState extends State<SelectVaultTypeScreen> {
                 ),
               ),
               Visibility(
-                visible: _processingNextPage,
+                visible: _showWalletLoading,
                 child: Container(
-                  width: MediaQuery.of(context).size.width,
-                  height: MediaQuery.of(context).size.height,
-                  color: MyColors.transparentBlack_30,
-                  child: Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const CircularProgressIndicator(
-                          color: MyColors.darkgrey,
-                        ),
-                        const SizedBox(
-                          height: 30,
-                        ),
-                        Text(
-                          '가지고 있는 볼트를 불러오는 중이에요',
-                          style: Styles.body2
-                              .merge(const TextStyle(color: MyColors.darkgrey)),
-                        )
-                      ],
-                    ),
-                  ),
+                  decoration:
+                      const BoxDecoration(color: MyColors.transparentBlack_30),
+                  child: const Center(
+                      child: MessageActivityIndicator(
+                          message: '가지고 있는 볼트를 불러오는 중이에요')),
                 ),
               ),
             ],
