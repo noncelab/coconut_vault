@@ -9,6 +9,7 @@ import 'package:coconut_vault/model/data/vault_type.dart';
 import 'package:coconut_vault/model/manager/multisig_wallet.dart';
 import 'package:coconut_vault/model/manager/singlesig_wallet.dart';
 import 'package:coconut_vault/services/shared_preferences_service.dart';
+import 'package:coconut_vault/utils/logger.dart';
 
 Future<List<SinglesigVaultListItem>> addVaultIsolate(
     Map<String, dynamic> data, void Function(dynamic)? progressCallback) async {
@@ -70,9 +71,25 @@ Future<bool> canSignToPsbtIsolate(
   BitcoinNetwork.setNetwork(BitcoinNetwork.regtest);
 
   String psbtBase64 = dataList[1] as String;
-  bool canSign = dataList[0] is MultisignatureVault
+
+  var isMultisig = dataList[0] is MultisignatureVault;
+
+  bool canSign = isMultisig
       ? (dataList[0] as MultisignatureVault).canSignToPsbt(psbtBase64)
       : (dataList[0] as SingleSignatureVault).canSignToPsbt(psbtBase64);
+
+  if (!isMultisig || !canSign) return canSign;
+
+  // quoram 확인
+  PSBT psbtObj = PSBT.parse(psbtBase64);
+  var multisigWallet = dataList[0] as MultisignatureVault;
+  Logger.log(
+      '--> psbtR: ${psbtObj.inputs[0].requiredSignature} psbtT: ${psbtObj.inputs[0].derivationPathList.length}');
+  if (multisigWallet.requiredSignature != psbtObj.inputs[0].requiredSignature ||
+      multisigWallet.keyStoreList.length !=
+          psbtObj.inputs[0].derivationPathList.length) {
+    return false;
+  }
 
   if (replyTo != null) {
     replyTo(canSign);

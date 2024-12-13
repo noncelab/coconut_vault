@@ -64,11 +64,8 @@ dependencies:
   package_info_plus: ^8.0.1
   screen_protector: ^1.4.2+1
   url_launcher: ^6.2.6
-  coconut_lib:
-    git:
-      url: https://github.com/noncelab/coconut_lib
-      ref: multisig
   crypto: ^3.0.6
+  coconut_lib: ^0.8.1
 
 dev_dependencies:
   flutter_test:
