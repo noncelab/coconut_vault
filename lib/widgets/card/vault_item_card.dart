@@ -140,8 +140,14 @@ class VaultItemCard extends StatelessWidget {
               children: [
                 Text(
                   rightText,
-                  style: Styles.h3.merge(
-                      TextStyle(fontFamily: CustomFonts.number.getFontFamily)),
+                  style: isMultisig
+                      ? TextStyle(
+                          fontFamily: CustomFonts.number.getFontFamily,
+                          color: MyColors.black,
+                          fontSize: 12,
+                          fontWeight: FontWeight.w700)
+                      : Styles.h3.merge(TextStyle(
+                          fontFamily: CustomFonts.number.getFontFamily)),
                 ),
                 TooltipButton(
                   isSelected: false,
