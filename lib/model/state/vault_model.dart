@@ -42,6 +42,10 @@ class VaultModel extends ChangeNotifier {
   // 리스트 로딩중 여부 (indicator 표시 및 중복 방지)
   bool _isVaultListLoading = false;
   bool get isVaultListLoading => _isVaultListLoading;
+  // select_vault_type_screen.dart, vault_name_icon_setup_screen 에서 사용
+  // 다음 버튼 클릭시 loadVaultList()가 아직 진행중인 경우 완료 시점을 캐치하기 위함
+  final ValueNotifier<bool> isVaultListLoadingNotifier =
+      ValueNotifier<bool>(false);
   // 리스트 로딩 완료 여부 (로딩작업 완료 후 바로 추가하기 표시)
   bool _isLoadVaultList = false;
   bool get isLoadVaultList => _isLoadVaultList;
@@ -302,6 +306,7 @@ class VaultModel extends ChangeNotifier {
     if (_isVaultListLoading) return;
 
     _isVaultListLoading = true;
+    isVaultListLoadingNotifier.value = true;
     _vaultSkeletonLength = _appModel.vaultListLength;
     notifyListeners();
 
@@ -330,6 +335,7 @@ class VaultModel extends ChangeNotifier {
       rethrow;
     } finally {
       _isVaultListLoading = false;
+      isVaultListLoadingNotifier.value = false;
       _isLoadVaultList = true;
       notifyListeners();
     }

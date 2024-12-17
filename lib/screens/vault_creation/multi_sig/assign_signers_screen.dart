@@ -2,7 +2,6 @@ import 'dart:convert';
 
 import 'package:coconut_lib/coconut_lib.dart';
 import 'package:coconut_vault/model/data/multisig_signer.dart';
-import 'package:coconut_vault/model/data/multisig_vault_list_item.dart';
 import 'package:coconut_vault/model/data/singlesig_vault_list_item.dart';
 import 'package:coconut_vault/model/data/vault_list_item_base.dart';
 import 'package:coconut_vault/model/data/vault_type.dart';
@@ -15,7 +14,6 @@ import 'package:coconut_vault/services/isolate_service.dart';
 import 'package:coconut_vault/utils/alert_util.dart';
 import 'package:coconut_vault/utils/icon_util.dart';
 import 'package:coconut_vault/utils/isolate_handler.dart';
-import 'package:coconut_vault/utils/print_util.dart';
 import 'package:coconut_vault/widgets/bottom_sheet.dart';
 import 'package:coconut_vault/widgets/button/custom_buttons.dart';
 import 'package:coconut_vault/widgets/custom_dialog.dart';
@@ -65,7 +63,6 @@ class _AssignSignersScreenState extends State<AssignSignersScreen> {
   bool isNextProcessing = false;
   bool alreadyDialogShown = false;
   late DraggableScrollableController draggableController;
-  bool isCompleteToExtractSignerBsms = false; // use for loading indicator
 
   IsolateHandler<List<VaultListItemBase>, List<String>>?
       _extractBsmsIsolateHandler;
@@ -150,11 +147,6 @@ class _AssignSignersScreenState extends State<AssignSignersScreen> {
 
     unselectedSignerOptions = signerOptions.toList();
 
-    if (mounted) {
-      setState(() {
-        isCompleteToExtractSignerBsms = true;
-      });
-    }
     _extractBsmsIsolateHandler!.dispose();
   }
 
@@ -848,7 +840,7 @@ class _AssignSignersScreenState extends State<AssignSignersScreen> {
               ),
             ),
             Visibility(
-              visible: !isCompleteToExtractSignerBsms || isNextProcessing,
+              visible: isNextProcessing,
               child: Container(
                 decoration:
                     const BoxDecoration(color: MyColors.transparentBlack_30),

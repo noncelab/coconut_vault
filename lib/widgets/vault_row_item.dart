@@ -24,14 +24,12 @@ class VaultRowItem extends StatefulWidget {
     this.isSelectable = false,
     this.onSelected,
     this.isPressed = false,
-    this.isLoadCompletedAnimation = false,
   });
 
   final VaultListItemBase vault;
   final bool isSelectable;
   final VoidCallback? onSelected;
   final bool isPressed;
-  final bool isLoadCompletedAnimation;
 
   @override
   State<VaultRowItem> createState() => _VaultRowItemState();
@@ -43,7 +41,6 @@ class _VaultRowItemState extends State<VaultRowItem> {
   bool _isMultiSig = false;
   String _subtitleText = '';
   bool _isUsedToMultiSig = false;
-  final bool _isLoadCompletedAnimation = false;
   List<MultisigSigner>? _multiSigners;
 
   void _updateVault() {
