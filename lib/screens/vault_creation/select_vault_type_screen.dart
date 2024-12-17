@@ -15,8 +15,8 @@ class SelectVaultTypeScreen extends StatefulWidget {
 
 class _SelectVaultTypeScreenState extends State<SelectVaultTypeScreen> {
   String? nextPath;
-  late bool _showWalletLoading = false;
   bool _nextButtonEnabled = true;
+  bool _showLoading = false;
   late String guideText;
   List<String> options = ['/vault-creation-options', '/select-multisig-quoram'];
   late final VaultModel model;
@@ -25,46 +25,46 @@ class _SelectVaultTypeScreenState extends State<SelectVaultTypeScreen> {
   void initState() {
     super.initState();
     model = Provider.of<VaultModel>(context, listen: false);
-    _showWalletLoading = model.isVaultListLoading;
+    model.isVaultListLoadingNotifier.addListener(_loadingListener);
     guideText = '';
-    model.addListener(onVaultListLoadingChanged);
   }
 
   @override
   void dispose() {
-    model.removeListener(onVaultListLoadingChanged);
+    model.isVaultListLoadingNotifier.removeListener(_loadingListener);
     super.dispose();
+  }
+
+  void _loadingListener() {
+    if (!mounted) return;
+
+    if (!model.isVaultListLoadingNotifier.value) {
+      if (_showLoading && nextPath != null) {
+        setState(() {
+          _nextButtonEnabled = true;
+          _showLoading = false;
+        });
+
+        Navigator.pushNamed(context, nextPath!);
+      }
+    }
   }
 
   void onNextPressed() async {
     if (nextPath == options[0]) {
       // '일반 지갑' 선택 시
-      setState(() {
-        _showWalletLoading = false;
-      });
       Navigator.pushNamed(context, nextPath!);
     } else if (nextPath == options[1]) {
       // '다중 서명 지갑' 선택 시
       if (model.isVaultListLoading) {
         setState(() {
           _nextButtonEnabled = false;
-          _showWalletLoading = true;
+          _showLoading = true;
         });
-      } else if (!model.isVaultListLoading && model.vaultList.isNotEmpty) {
-        setState(() {
-          _showWalletLoading = false;
-        });
+      } else if (model.vaultList.isNotEmpty) {
         Navigator.pushNamed(context, nextPath!);
       }
     }
-  }
-
-  void onVaultListLoadingChanged() {
-    if (!mounted) return;
-
-    setState(() {
-      _showWalletLoading = model.isVaultListLoading;
-    });
   }
 
   void onTapSinglesigWallet() {
@@ -75,12 +75,11 @@ class _SelectVaultTypeScreenState extends State<SelectVaultTypeScreen> {
     });
   }
 
-  void onTapMultisigsigWallet() {
+  void onTapMultisigWallet() {
     setState(() {
       nextPath = options[1];
       guideText = '지정한 수의 서명이 필요한 지갑이에요';
-      if (_showWalletLoading ||
-          (!model.isVaultListLoading && model.vaultList.isEmpty)) {
+      if (!model.isVaultListLoading && model.vaultList.isEmpty) {
         _nextButtonEnabled = false;
       }
     });
@@ -133,7 +132,7 @@ class _SelectVaultTypeScreenState extends State<SelectVaultTypeScreen> {
                         Expanded(
                           child: SelectableButton(
                             text: '다중 서명 지갑',
-                            onTap: onTapMultisigsigWallet,
+                            onTap: onTapMultisigWallet,
                             isPressed: nextPath == options[1],
                           ),
                         ),
@@ -143,7 +142,7 @@ class _SelectVaultTypeScreenState extends State<SelectVaultTypeScreen> {
                 ),
               ),
               Visibility(
-                visible: _showWalletLoading,
+                visible: _showLoading,
                 child: Container(
                   decoration:
                       const BoxDecoration(color: MyColors.transparentBlack_30),
