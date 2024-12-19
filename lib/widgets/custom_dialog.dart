@@ -11,10 +11,13 @@ class CustomDialogs {
       String confirmButtonText = '확인',
       String cancelButtonText = '취소',
       String message = '',
+      bool isSingleButton = false,
+      bool barrierDismissible = true,
       Text? textWidget,
       Color confirmButtonColor = MyColors.white}) {
     showDialog(
       context: context,
+      barrierDismissible: barrierDismissible,
       builder: (BuildContext context) {
         return CupertinoAlertDialog(
             title: Padding(
@@ -28,10 +31,12 @@ class CustomDialogs {
                   textAlign: TextAlign.center,
                 ),
             actions: [
-              CupertinoDialogAction(
+              if (!isSingleButton)
+                CupertinoDialogAction(
                   isDefaultAction: true,
                   onPressed: onCancel,
-                  child: Text(cancelButtonText, style: Styles.label)),
+                  child: Text(cancelButtonText, style: Styles.label),
+                ),
               CupertinoDialogAction(
                   isDefaultAction: true,
                   onPressed: onConfirm,

@@ -55,9 +55,9 @@ class AppModel with ChangeNotifier {
   bool _isResetVault = false;
   bool get isResetVault => _isResetVault;
 
-  ///  지갑 생성 여부
-  bool _isNotEmptyVaultList = false;
-  bool get isNotEmptyVaultList => _isNotEmptyVaultList;
+  ///  생성된 지갑 개수
+  int _vaultListLength = 0;
+  int get vaultListLength => _vaultListLength;
 
   /// 로딩
   bool _isLoading = false;
@@ -69,12 +69,9 @@ class AppModel with ChangeNotifier {
 
   Future setInitData() async {
     final prefs = SharedPrefsService();
-    _hasSeenGuide =
-        prefs.getBool(SharedPrefsKeys.hasShownStartGuide) == true;
-    _isPinEnabled =
-        prefs.getBool(SharedPrefsKeys.isPinEnabled) == true;
-    _isNotEmptyVaultList =
-        prefs.getBool(SharedPrefsKeys.isNotEmptyVaultList) == true;
+    _hasSeenGuide = prefs.getBool(SharedPrefsKeys.hasShownStartGuide) == true;
+    _isPinEnabled = prefs.getBool(SharedPrefsKeys.isPinEnabled) == true;
+    _vaultListLength = prefs.getInt(SharedPrefsKeys.vaultListLength) ?? 0;
     _hasAlreadyRequestedBioPermission =
         prefs.getBool(SharedPrefsKeys.hasAlreadyRequestedBioPermission) == true;
     shuffleNumbers();
@@ -100,10 +97,9 @@ class AppModel with ChangeNotifier {
   }
 
   /// WalletList isNotEmpty 상태 저장
-  Future<void> saveNotEmptyVaultList(bool isNotEmpty) async {
-    _isNotEmptyVaultList = isNotEmpty;
-    await SharedPrefsService()
-        .setBool(SharedPrefsKeys.isNotEmptyVaultList, isNotEmpty);
+  Future<void> saveVaultListLength(int length) async {
+    _vaultListLength = length;
+    await SharedPrefsService().setInt(SharedPrefsKeys.vaultListLength, length);
     notifyListeners();
   }
 
@@ -128,14 +124,14 @@ class AppModel with ChangeNotifier {
   /// 비밀번호 초기화
   Future<void> resetPassword() async {
     _isResetVault = true;
-    _isNotEmptyVaultList = false;
     _isPinEnabled = false;
+    _vaultListLength = 0;
 
     await _storageService.delete(key: VAULT_PIN);
     final prefs = SharedPrefsService();
     prefs.setBool(SharedPrefsKeys.isBiometricEnabled, false);
     prefs.setBool(SharedPrefsKeys.isPinEnabled, false);
-    prefs.setBool(SharedPrefsKeys.isNotEmptyVaultList, false);
+    prefs.setInt(SharedPrefsKeys.vaultListLength, 0);
   }
 
   void showIndicator() {
@@ -156,13 +152,6 @@ class AppModel with ChangeNotifier {
 
     _pinShuffleNumbers.add('<');
     notifyListeners();
-  }
-
-  Future<void> _openAppSettings() async {
-    const url = 'app-settings:';
-    if (await canLaunchUrl(Uri.parse(url))) {
-      await launchUrl(Uri.parse(url));
-    }
   }
 
   // Be sure to cancel subscription after you are done

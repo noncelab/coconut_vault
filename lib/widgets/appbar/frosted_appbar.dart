@@ -5,7 +5,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:coconut_vault/model/app_model.dart';
+import 'package:coconut_vault/model/state/app_model.dart';
 import 'package:coconut_vault/screens/pin_setting_screen.dart';
 import 'package:coconut_vault/styles.dart';
 import 'package:coconut_vault/widgets/bottom_sheet.dart';
@@ -99,10 +99,10 @@ class _FrostedAppBarState extends State<FrostedAppBar> {
                     Selector<AppModel, bool>(
                       selector: (context, model) => model.isPinEnabled,
                       builder: (context, isPinEnabled, child) {
-                        return Selector<AppModel, bool>(
-                          selector: (context, model) =>
-                              model.isNotEmptyVaultList,
-                          builder: (context, isNotEmptyVaultList, child) {
+                        return Selector<AppModel, int>(
+                          selector: (context, model) => model.vaultListLength,
+                          builder: (context, vaultListLength, child) {
+                            final isNotEmptyVaultList = vaultListLength > 0;
                             return Container(
                               margin: const EdgeInsets.only(top: 32),
                               height: 40,
@@ -123,7 +123,7 @@ class _FrostedAppBarState extends State<FrostedAppBar> {
                                             greetingVisible: true));
                                   } else {
                                     Navigator.pushNamed(
-                                        context, '/vault-creation-options');
+                                        context, '/select-vault-type');
                                   }
                                 },
                                 color: MyColors.white,

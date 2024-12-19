@@ -1,6 +1,8 @@
 import 'package:coconut_vault/widgets/message_screen_for_web.dart';
+import 'package:coconut_vault/model/data/vault_type.dart';
 import 'package:flutter/material.dart';
-import 'package:coconut_vault/model/vault_model.dart';
+import 'package:coconut_vault/model/state/vault_model.dart';
+import 'package:coconut_vault/services/isolate_service.dart';
 import 'package:coconut_vault/styles.dart';
 import 'package:coconut_vault/utils/alert_util.dart';
 import 'package:coconut_vault/utils/logger.dart';
@@ -22,7 +24,7 @@ class PsbtConfirmationScreen extends StatefulWidget {
 
 class _PsbtConfirmationScreenState extends State<PsbtConfirmationScreen> {
   late VaultModel _vaultModel;
-  late SingleSignatureVault _vault;
+  late WalletBase _walletBase;
   String? _waitingForSignaturePsbtBase64;
   PSBT? _psbt;
   final bool _showWarning = false;
@@ -30,6 +32,10 @@ class _PsbtConfirmationScreenState extends State<PsbtConfirmationScreen> {
   int? _sendingAmountWhenAddressIsMyChange; // 내 지갑의 change address로 보내는 경우 잔액
   bool _isSendingToMyAddress = false;
   bool _showLoading = true;
+  bool _isMultisig = false;
+
+  String _bitcoinString = '';
+  String _sendAddress = '';
 
   @override
   void initState() {
@@ -40,12 +46,14 @@ class _PsbtConfirmationScreenState extends State<PsbtConfirmationScreen> {
     }
 
     _waitingForSignaturePsbtBase64 = _vaultModel.waitingForSignaturePsbtBase64;
-    _vault = _vaultModel.getVaultById(widget.id).coconutVault;
+    final vaultBaseItem = _vaultModel.getVaultById(widget.id);
+    _walletBase = vaultBaseItem.coconutVault;
+    _isMultisig = vaultBaseItem.vaultType == VaultType.multiSignature;
 
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
       setTxInfo(_vaultModel.waitingForSignaturePsbtBase64!);
       setState(
-        () => _showLoading = false,
+            () => _showLoading = false,
       );
     });
   }
@@ -98,46 +106,19 @@ class _PsbtConfirmationScreenState extends State<PsbtConfirmationScreen> {
           _isSendingToMyAddress = true;
         });
       }
+
+      setState(() {
+        _bitcoinString = _psbt != null
+            ? satoshiToBitcoinString(_sendingAmountWhenAddressIsMyChange != null
+            ? _sendingAmountWhenAddressIsMyChange!
+            : _psbt!.sendingAmount)
+            : '';
+        _sendAddress = _output != null ? _output!.getAddress() : '';
+      });
     } catch (_) {
       if (context.mounted) {
         showAlertDialog(context: context, content: "psbt 파싱 실패: $_");
       }
-    }
-  }
-
-  void sign() async {
-    try {
-      setState(() {
-        _showLoading = true;
-      });
-      await Future.delayed(const Duration(milliseconds: 1500));
-      bool canSignResult =
-          await canSignToPsbt(_vault, _waitingForSignaturePsbtBase64!);
-      if (!canSignResult) {
-        showAlertDialog(context: context, content: "서명할 수 없는 트랜잭션입니다.");
-        return;
-      }
-
-      String signedPsbt =
-          await addSignatureToPsbt(_vault, _waitingForSignaturePsbtBase64!);
-
-      _vaultModel.signedRawTx = signedPsbt;
-      if (_vaultModel.signedRawTx == null) {
-        throw "signedRawTx is null";
-      }
-
-      if (mounted) {
-        Navigator.pushNamed(context, '/signed-transaction',
-            arguments: {'id': widget.id});
-      }
-    } catch (_) {
-      if (mounted) {
-        showAlertDialog(context: context, content: "서명 실패: $_");
-      }
-    } finally {
-      setState(() {
-        _showLoading = false;
-      });
     }
   }
 
@@ -149,7 +130,32 @@ class _PsbtConfirmationScreenState extends State<PsbtConfirmationScreen> {
         title: '스캔 정보 확인',
         context: context,
         isActive: !_showLoading,
-        onNextPressed: sign,
+        onNextPressed: () {
+          if (_isMultisig) {
+            Navigator.pushNamed(
+              context,
+              '/multi-signature',
+              arguments: {
+                'id': widget.id,
+                'psbtBase64': _waitingForSignaturePsbtBase64!,
+                'sendAddress': _sendAddress,
+                'bitcoinString': _bitcoinString,
+              },
+            );
+          } else {
+            Navigator.pushNamed(
+              context,
+              '/singlesig-sign',
+              arguments: {
+                'id': widget.id,
+                'psbtBase64': _waitingForSignaturePsbtBase64!,
+                'sendAddress': _sendAddress,
+                'bitcoinString': _bitcoinString,
+              },
+            );
+            //sign();
+          }
+        },
         isBottom: true,
       ),
       body: SafeArea(
@@ -162,7 +168,7 @@ class _PsbtConfirmationScreenState extends State<PsbtConfirmationScreen> {
                   CustomTooltip(
                     richText: RichText(
                       text: const TextSpan(
-                        text: '[3]',
+                        text: '[3] ',
                         style: TextStyle(
                           fontFamily: 'Pretendard',
                           fontWeight: FontWeight.bold,
@@ -173,7 +179,7 @@ class _PsbtConfirmationScreenState extends State<PsbtConfirmationScreen> {
                         ),
                         children: <TextSpan>[
                           TextSpan(
-                            text: ' 월렛에서 스캔한 정보가 맞는지 다시 한번 확인해 주세요.',
+                            text: '월렛에서 스캔한 정보가 맞는지 다시 한번 확인해 주세요.',
                             style: TextStyle(
                               fontWeight: FontWeight.normal,
                             ),
@@ -189,12 +195,7 @@ class _PsbtConfirmationScreenState extends State<PsbtConfirmationScreen> {
                     child: Center(
                       child: Text.rich(
                         TextSpan(
-                          text: _psbt != null
-                              ? satoshiToBitcoinString(
-                                  _sendingAmountWhenAddressIsMyChange != null
-                                      ? _sendingAmountWhenAddressIsMyChange!
-                                      : _psbt!.sendingAmount)
-                              : "",
+                          text: _bitcoinString,
                           children: const <TextSpan>[
                             TextSpan(text: ' BTC', style: Styles.unit),
                           ],
@@ -216,8 +217,7 @@ class _PsbtConfirmationScreenState extends State<PsbtConfirmationScreen> {
                           children: [
                             InformationRowItem(
                               label: '보낼 주소',
-                              value:
-                                  _output != null ? _output!.getAddress() : "",
+                              value: _sendAddress,
                               isNumber: true,
                             ),
                             const Divider(
@@ -276,8 +276,8 @@ class _PsbtConfirmationScreenState extends State<PsbtConfirmationScreen> {
               ),
             ),
             Visibility(
-              visible: _showLoading,
-              child: const MessageScreenForWeb(message: "서명 중...\n웹 브라우저에서 10초 이상 걸릴 수 있으니 기다려주세요.")
+                visible: _showLoading,
+                child: const MessageScreenForWeb(message: "서명 중...\n웹 브라우저에서 10초 이상 걸릴 수 있으니 기다려주세요.")
             ),
           ],
         ),
@@ -285,6 +285,24 @@ class _PsbtConfirmationScreenState extends State<PsbtConfirmationScreen> {
     );
   }
 }
+
+// Future<String> addSignatureToPsbt(WalletBase vault, String data) async {
+//   final addSignatureToPsbtHandler =
+//   IsolateHandler<List<dynamic>, String>(addSignatureToPsbtIsolate);
+//   try {
+//     await addSignatureToPsbtHandler.initialize(
+//         initialType: InitializeType.addSign);
+//
+//     String signedPsbt = await addSignatureToPsbtHandler.run([vault, data]);
+//     Logger.log(signedPsbt);
+//     return signedPsbt;
+//   } catch (e) {
+//     Logger.log('[addSignatureToPsbtIsolate] ${e.toString()}');
+//     throw (e.toString());
+//   } finally {
+//     addSignatureToPsbtHandler.dispose();
+//   }
+// }
 
 Future<String> addSignatureToPsbt(
     SingleSignatureVault vault, String data) async {

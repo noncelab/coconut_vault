@@ -1,27 +1,38 @@
+import 'package:coconut_vault/model/state/multisig_creation_model.dart';
+import 'package:coconut_vault/screens/airgap/multi_signature_screen.dart';
 import 'package:coconut_vault/screens/airgap/psbt_confirmation_screen.dart';
 import 'package:coconut_vault/screens/airgap/psbt_scanner_screen.dart';
 import 'package:coconut_vault/screens/airgap/signed_transaction_qr_screen.dart';
+import 'package:coconut_vault/screens/airgap/singlesig_sign_screen.dart';
 import 'package:coconut_vault/screens/security_self_check_screen.dart';
 import 'package:coconut_vault/screens/setting/app_info_screen.dart';
 import 'package:coconut_vault/screens/setting/mnemonic_word_list_screen.dart';
 import 'package:coconut_vault/screens/start_guide/guide_screen.dart';
 import 'package:coconut_vault/screens/start_guide/welcome_screen.dart';
 import 'package:coconut_vault/screens/tutorial_screen.dart';
+import 'package:coconut_vault/screens/vault_creation/multi_sig/assign_signers_screen.dart';
 import 'package:coconut_vault/screens/vault_creation/mnemonic_coin_flip_screen.dart';
 import 'package:coconut_vault/screens/vault_creation/mnemonic_generate_screen.dart';
 import 'package:coconut_vault/screens/vault_creation/mnemonic_import_screen.dart';
+import 'package:coconut_vault/screens/vault_creation/multi_sig/select_multisig_quoram_screen.dart';
+import 'package:coconut_vault/screens/vault_creation/multi_sig/signer_scanner_screen.dart';
+import 'package:coconut_vault/screens/vault_creation/select_vault_type_screen.dart';
 import 'package:coconut_vault/screens/vault_creation/vault_creation_options_screen.dart';
 import 'package:coconut_vault/screens/vault_creation/vault_name_icon_setup_screen.dart';
 import 'package:coconut_vault/screens/vault_detail/address_list_screen.dart';
+import 'package:coconut_vault/screens/vault_detail/multi_sig_bsms_screen.dart';
+import 'package:coconut_vault/screens/vault_detail/multi_sig_setting_screen.dart';
+import 'package:coconut_vault/screens/vault_detail/select_export_type_screen.dart';
+import 'package:coconut_vault/screens/vault_detail/signer_bsms_screen.dart';
 import 'package:coconut_vault/screens/vault_detail/sync_to_wallet_screen.dart';
-import 'package:coconut_vault/screens/vault_detail/vault_detail_screen.dart';
+import 'package:coconut_vault/screens/vault_detail/vault_menu_screen.dart';
 import 'package:coconut_vault/screens/vault_detail/vault_settings.dart';
 import 'package:coconut_vault/utils/router_util.dart';
 import 'package:coconut_vault/vault_list_tab.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:coconut_vault/model/vault_model.dart';
-import 'package:coconut_vault/model/app_model.dart';
+import 'package:coconut_vault/model/state/vault_model.dart';
+import 'package:coconut_vault/model/state/app_model.dart';
 import 'package:coconut_vault/screens/pin_check_screen.dart';
 import 'package:coconut_vault/screens/start_screen.dart';
 import 'package:coconut_vault/styles.dart';
@@ -109,8 +120,14 @@ class _PowVaultAppState extends State<PowVaultApp> {
             },
           ),
         ),
+        Provider<MultisigCreationModel>(create: (_) => MultisigCreationModel()),
         ChangeNotifierProxyProvider<AppModel, VaultModel>(
-          create: (_) => VaultModel(Provider.of<AppModel>(_, listen: false)),
+          create: (_) => VaultModel(
+              Provider.of<AppModel>(
+                _,
+                listen: false,
+              ),
+              Provider.of<MultisigCreationModel>(_, listen: false)),
           update: (_, appModel, vaultModel) =>
               vaultModel!..updateAppModel(appModel),
         ),
@@ -158,26 +175,43 @@ class _PowVaultAppState extends State<PowVaultApp> {
                     ),
                   ),
                 ),
+            '/select-vault-type': (context) => const SelectVaultTypeScreen(),
+            '/select-multisig-quoram': (context) =>
+                const SelectMultisigQuoramScreen(),
+            '/assign-signers': (context) => const AssignSignersScreen(),
             '/vault-creation-options': (context) =>
                 const VaultCreationOptions(),
             '/mnemonic-import': (context) => const MnemonicImport(),
             '/vault-name-setup': (context) => const VaultNameIconSetup(),
             '/vault-details': (context) => buildScreenWithArguments(
                   context,
-                  (args) => VaultDetails(id: args['id']),
+                  (args) => VaultMenuScreen(id: args['id']),
                 ),
             '/vault-settings': (context) => buildScreenWithArguments(
+                context, (args) => VaultSettings(id: args['id'])),
+            '/multisig-setting': (context) => buildScreenWithArguments(
                   context,
-                  (args) => VaultSettings(id: args['id']),
+                  (args) => MultiSigSettingScreen(id: args['id']),
+                ),
+            '/multisig-bsms': (context) => buildScreenWithArguments(
+                  context,
+                  (args) => MultiSigBsmsScreen(
+                    id: args['id'],
+                  ),
                 ),
             '/mnemonic-word-list': (context) => const MnemonicWordListScreen(),
             '/address-list': (context) => buildScreenWithArguments(
                   context,
-                  (args) => AddressListScreen(id: int.parse(args['id'])),
+                  (args) => AddressListScreen(id: args['id']),
+                ),
+            '/signer-scanner': (context) => buildScreenWithArguments(
+                  context,
+                  (args) => SignerScannerScreen(
+                      id: args['id'], screenType: args['screenType']),
                 ),
             '/psbt-scanner': (context) => buildScreenWithArguments(
                   context,
-                  (args) => PsbtScannerScreen(id: int.parse(args['id'])),
+                  (args) => PsbtScannerScreen(id: args['id']),
                 ),
             '/psbt-confirmation': (context) => buildScreenWithArguments(
                   context,
@@ -190,6 +224,34 @@ class _PowVaultAppState extends State<PowVaultApp> {
             '/sync-to-wallet': (context) => buildScreenWithArguments(
                   context,
                   (args) => SyncToWalletScreen(id: args['id']),
+                ),
+            '/signer-bsms': (context) => buildScreenWithArguments(
+                  context,
+                  (args) => SignerBsmsScreen(
+                    id: args['id'],
+                  ),
+                ),
+            '/select-sync-type': (context) => buildScreenWithArguments(
+                  context,
+                  (args) => SelectExportTypeScreen(id: args['id']),
+                ),
+            '/multi-signature': (context) => buildScreenWithArguments(
+                  context,
+                  (args) => MultiSignatureScreen(
+                    id: args['id'],
+                    psbtBase64: args['psbtBase64'],
+                    sendAddress: args['sendAddress'],
+                    bitcoinString: args['bitcoinString'],
+                  ),
+                ),
+            '/singlesig-sign': (context) => buildScreenWithArguments(
+                  context,
+                  (args) => SinglesigSignScreen(
+                    id: args['id'],
+                    psbtBase64: args['psbtBase64'],
+                    sendAddress: args['sendAddress'],
+                    bitcoinString: args['bitcoinString'],
+                  ),
                 ),
             '/security-self-check': (context) {
               final VoidCallback? onNextPressed =
@@ -209,6 +271,25 @@ class _PowVaultAppState extends State<PowVaultApp> {
 
               return GuideScreen(onComplete: onComplete);
             }
+          },
+          builder: (context, child) {
+            return Center(
+              child: Container(
+                width: 430, // iPhone Pro Max 너비
+                height: 932, // iPhone Pro Max 높이
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(40),
+                  border: Border.all(
+                    color: MyColors.transparentBlack_70,
+                    width: 5,
+                  ),
+                ),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(36),
+                  child: child,
+                ),
+              ),
+            );
           },
         ),
       ),

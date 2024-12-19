@@ -3,12 +3,14 @@
 // found in the LICENSE file.
 
 import 'package:flutter/material.dart';
+import 'dart:math' as math;
 
 abstract class MyColors {
   static const black = Color.fromRGBO(20, 19, 24, 1);
   static const transparentBlack = Color.fromRGBO(0, 0, 0, 0.7);
   static const transparentBlack_03 = Color.fromRGBO(0, 0, 0, 0.03);
   static const transparentBlack_06 = Color.fromRGBO(0, 0, 0, 0.06);
+  static const transparentBlack_15 = Color.fromRGBO(0, 0, 0, 0.15);
   static const transparentBlack_30 = Color.fromRGBO(0, 0, 0, 0.3);
   static const transparentBlack_50 = Color.fromRGBO(0, 0, 0, 0.5);
   static const transparentBlack_70 = Color.fromRGBO(0, 0, 0, 0.7);
@@ -62,6 +64,25 @@ abstract class MyColors {
   static const cyanblue = Color.fromRGBO(69, 204, 238, 1);
 
   static const Color dropdownGrey = Color(0xFFEBEBEC);
+  static const Color whiteSmoke = Color(0xFFF8F8F8);
+  static const Color body2Grey = Color(0xFF706D6D);
+  static const Color greyEC = Color(0xFFECECEC);
+  static const Color greyE9 = Color(0xFFE9E9E9);
+  static const Color grey57 = Color(0xFF575757);
+  static const Color grey236 = Color(0xFFECECEC);
+  static const Color grey219 = Color(0xFFDBDBDB);
+  static const Color black19 = Color(0xFF0F0F0F);
+
+  static const Color divider = Color(0xFFEBEBEB);
+  static const Color disabledGrey = Color(0xFF232323);
+
+  static const Color multiSigGradient1 = Color(0xFFB2E774);
+  static const Color multiSigGradient2 = Color(0xFF6373EB);
+  static const Color multiSigGradient3 = Color(0xFF2ACEC3);
+  static const Color linkBlue = Color(0xFF4E83FF);
+
+  static const Color progressbarColorEnabled = Color(0xFF2D2D2D);
+  static const Color progressbarColorDisabled = Color(0xFFCFCFCF);
 }
 
 // LIGHT MODE
@@ -108,7 +129,7 @@ extension FontsExtension on CustomFonts {
 
 abstract class Styles {
   static const _fontNumber = 'SpaceGrotesk';
-  static const _fontText = 'Pretendard';
+  static const _fontText = 'Pretendard'; // w500 변화 없음
 
   static const TextStyle h1 = TextStyle(
       fontFamily: _fontText,
@@ -136,8 +157,7 @@ abstract class Styles {
       fontFamily: _fontText,
       color: MyColors.black,
       fontSize: 18,
-      fontStyle: FontStyle.normal,
-      fontWeight: FontWeight.w500);
+      fontStyle: FontStyle.normal);
 
   static const TextStyle label = TextStyle(
       fontFamily: _fontText,
@@ -251,6 +271,13 @@ abstract class Styles {
       fontStyle: FontStyle.normal,
       fontWeight: FontWeight.w400);
 
+  static const TextStyle caption2 = TextStyle(
+      fontFamily: _fontText,
+      color: MyColors.searchbarHint,
+      fontSize: 10,
+      fontStyle: FontStyle.normal,
+      fontWeight: FontWeight.w400);
+
   static const TextStyle title5 = TextStyle(
       fontFamily: _fontText,
       color: MyColors.black,
@@ -294,6 +321,21 @@ abstract class Styles {
     fontStyle: FontStyle.normal,
     fontWeight: FontWeight.w400,
   );
+
+  static const TextStyle mfpH3 = TextStyle(
+      fontFamily: _fontNumber,
+      color: MyColors.black,
+      fontSize: 16,
+      fontStyle: FontStyle.normal,
+      fontWeight: FontWeight.w400);
+
+  static const TextStyle tertiaryButtonText = TextStyle(
+      fontFamily: _fontText,
+      color: MyColors.black,
+      fontSize: 12,
+      fontStyle: FontStyle.normal,
+      fontWeight: FontWeight.w400,
+      decoration: TextDecoration.underline);
 }
 
 abstract class MyBorder {
@@ -330,4 +372,12 @@ class BoxDecorations {
     borderRadius: MyBorder.defaultRadius,
     color: MyColors.transparentBlack_06,
   );
+
+  static LinearGradient getMultisigLinearGradient(List<Color> colors) {
+    return LinearGradient(
+        colors: colors,
+        begin: Alignment.topLeft,
+        end: Alignment.bottomRight,
+        transform: const GradientRotation(math.pi / 10));
+  }
 }

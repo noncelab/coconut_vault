@@ -1,5 +1,5 @@
-import 'package:coconut_vault/model/app_model.dart';
 import 'package:coconut_vault/widgets/message_screen_for_web.dart';
+import 'package:coconut_vault/model/state/app_model.dart';
 import 'package:flutter/material.dart';
 import 'package:coconut_vault/styles.dart';
 import 'package:coconut_vault/widgets/vault_name_icon_edit_palette.dart';
@@ -49,9 +49,10 @@ class _VaultInfoEditBottomSheetState extends State<VaultInfoEditBottomSheet> {
         children: [
           Scaffold(
             backgroundColor: MyColors.white,
+            // TODO: custom_appber.buildWithSave로 대체
             appBar: AppBar(
               backgroundColor: MyColors.white,
-              title: Text(widget.name),
+              title: Text(_name, maxLines: 1),
               centerTitle: true,
               titleTextStyle: Styles.body1Bold,
               leading: IconButton(
@@ -70,6 +71,7 @@ class _VaultInfoEditBottomSheetState extends State<VaultInfoEditBottomSheet> {
                       vertical: 10, horizontal: 16.0),
                   child: GestureDetector(
                     onTap: () async {
+                      if (_name.trim().isEmpty) return;
                       _closeKeyboard();
                       setState(() {
                         isSaving = hasChanged;
@@ -86,11 +88,23 @@ class _VaultInfoEditBottomSheetState extends State<VaultInfoEditBottomSheet> {
                     child: Container(
                       padding: const EdgeInsets.symmetric(horizontal: 12.0),
                       decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(14.0),
-                          border: Border.all(color: Colors.transparent),
-                          color: MyColors.transparentBlack_06),
-                      child: const Center(
-                        child: Text('완료', style: Styles.headerButtonLabel),
+                        borderRadius: BorderRadius.circular(14.0),
+                        border: Border.all(
+                          color: _name.trim().isNotEmpty
+                              ? Colors.transparent
+                              : MyColors.transparentBlack_06,
+                        ),
+                        color: _name.trim().isNotEmpty
+                            ? MyColors.darkgrey
+                            : MyColors.lightgrey,
+                      ),
+                      child: Center(
+                        child: Text('완료',
+                            style: Styles.subLabel.merge(TextStyle(
+                                color: _name.trim().isNotEmpty
+                                    ? Colors.white
+                                    : MyColors.transparentBlack_30,
+                                fontSize: 11))),
                       ),
                     ),
                   ),

@@ -5,7 +5,7 @@ import 'package:coconut_vault/app.dart';
 import 'package:coconut_vault/services/shared_preferences_keys.dart';
 import 'package:coconut_vault/services/shared_preferences_service.dart';
 import 'package:flutter/material.dart';
-import 'package:coconut_vault/model/app_model.dart';
+import 'package:coconut_vault/model/state/app_model.dart';
 import 'package:coconut_vault/services/secure_storage_service.dart';
 import 'package:coconut_vault/styles.dart';
 import 'package:provider/provider.dart';
@@ -45,8 +45,7 @@ class _StartScreenState extends State<StartScreen> {
     await Future.delayed(const Duration(seconds: 2));
 
     bool isNotEmpty =
-        SharedPrefsService().getBool(SharedPrefsKeys.isNotEmptyVaultList) ??
-            false;
+        (SharedPrefsService().getInt(SharedPrefsKeys.vaultListLength) ?? 0) > 0;
     bool isPinEnabled =
         SharedPrefsService().getBool(SharedPrefsKeys.isPinEnabled) ?? false;
 

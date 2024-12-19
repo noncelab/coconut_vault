@@ -1,20 +1,16 @@
+import 'package:coconut_vault/model/state/vault_model.dart';
+import 'package:coconut_vault/widgets/button/clipboard_button.dart';
 import 'package:flutter/material.dart';
 import 'package:coconut_vault/styles.dart';
-import 'package:coconut_vault/utils/calc_textlines.dart';
-import 'package:coconut_vault/widgets/qrcode_info.dart';
+import 'package:provider/provider.dart';
 import 'package:shimmer/shimmer.dart';
 
 class MnemonicViewScreen extends StatefulWidget {
   const MnemonicViewScreen(
-      {super.key,
-      required this.mnemonic,
-      this.passphrase = '',
-      this.title = '',
-      this.subtitle = ''});
+      {super.key, required this.walletId, this.title = '', this.subtitle = ''});
 
+  final int walletId;
   final String title;
-  final String mnemonic;
-  final String passphrase;
   final String subtitle;
 
   @override
@@ -24,23 +20,34 @@ class MnemonicViewScreen extends StatefulWidget {
 class _MnemonicViewScreen extends State<MnemonicViewScreen> {
   bool _isPressed = false;
   bool _isLoading = true;
-  late List<Widget> _passphraseGridItems;
+  List<Widget> _passphraseGridItems = [];
+  late VaultModel _vaultModel;
+  String? mnemonic;
+  String? passphrase;
 
   @override
   void initState() {
     super.initState();
-    _passphraseGridItems = _buildPassphraseGridItems();
-    Future.delayed(const Duration(seconds: 1), () {
-      setState(() {
-        _isLoading = false;
+    _vaultModel = Provider.of<VaultModel>(context, listen: false);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _vaultModel.getSecret(widget.walletId).then((secret) async {
+        await Future.delayed(const Duration(seconds: 1));
+        setState(() {
+          mnemonic = secret.mnemonic;
+          passphrase = secret.passphrase;
+          if (secret.passphrase.isNotEmpty) {
+            _passphraseGridItems = _buildPassphraseGridItems();
+          }
+          _isLoading = false;
+        });
       });
     });
   }
 
   List<Widget> _buildPassphraseGridItems() {
     List<Widget> gridItems = [];
-    for (int index = 0; index < widget.passphrase.length + 20; index++) {
-      if (index < widget.passphrase.length) {
+    for (int index = 0; index < passphrase!.length + 20; index++) {
+      if (index < passphrase!.length) {
         gridItems.add(
           Container(
             alignment: Alignment.center,
@@ -73,7 +80,7 @@ class _MnemonicViewScreen extends State<MnemonicViewScreen> {
                   height: double.infinity,
                   child: Center(
                     child: Text(
-                      widget.passphrase[index],
+                      passphrase![index],
                       style: const TextStyle(
                         color: MyColors.black,
                         fontWeight: FontWeight.bold,
@@ -94,8 +101,7 @@ class _MnemonicViewScreen extends State<MnemonicViewScreen> {
 
   Widget _buildSkeleton() {
     const double qrSize = 375;
-    final int skeletonTextLines = calculateNumberOfLines(
-        context, widget.mnemonic, Styles.body2, qrSize, 36);
+    const int skeletonTextLines = 4;
     List<Widget> textWidgets = [];
     for (int i = 0; i < skeletonTextLines; i++) {
       textWidgets.add(
@@ -139,9 +145,9 @@ class _MnemonicViewScreen extends State<MnemonicViewScreen> {
   }
 
   Widget _buildContent() {
-    return QRCodeInfo(
-      qrData: widget.mnemonic,
-      toastMessage: '니모닉 문구가 복사됐어요.',
+    return ClipboardButton(
+      text: mnemonic!,
+      toastMessage: '니모닉 문구가 복사됐어요',
     );
   }
 
@@ -188,7 +194,7 @@ class _MnemonicViewScreen extends State<MnemonicViewScreen> {
   }
 
   Widget _buildPassphraseGridViewWidget() {
-    if (widget.passphrase.isEmpty) return Container();
+    //if (passphrase.isEmpty) return Container();
     return GridView.count(
       crossAxisCount: 10,
       crossAxisSpacing: 3.0,
@@ -238,7 +244,8 @@ class _MnemonicViewScreen extends State<MnemonicViewScreen> {
                     child: Column(
                       children: [
                         Visibility(
-                          visible: widget.passphrase.contains(' '),
+                          visible:
+                          passphrase != null && passphrase!.contains(' '),
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
@@ -260,12 +267,15 @@ class _MnemonicViewScreen extends State<MnemonicViewScreen> {
                         const SizedBox(
                           height: 30,
                         ),
-                        _buildPassphraseGridViewWidget(),
+                        if (passphrase != null)
+                          _buildPassphraseGridViewWidget(),
                       ],
                     ),
                   ),
                   Visibility(
-                      visible: widget.passphrase.isNotEmpty && !_isLoading,
+                      visible: passphrase != null &&
+                          passphrase!.isNotEmpty &&
+                          !_isLoading,
                       child: Align(
                         alignment: Alignment.bottomCenter,
                         child: Padding(

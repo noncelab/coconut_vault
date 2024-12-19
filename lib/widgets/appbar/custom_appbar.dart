@@ -7,6 +7,8 @@ import 'package:coconut_vault/styles.dart';
 import 'package:coconut_vault/widgets/label_testnet.dart';
 
 class CustomAppBar {
+  ValueNotifier<bool> isButtonActiveNotifier = ValueNotifier<bool>(false);
+
   static AppBar build({
     required String title,
     required BuildContext context,
@@ -81,18 +83,21 @@ class CustomAppBar {
                 ))));
   }
 
-  static AppBar buildWithNext(
-      {required String title,
-      required BuildContext context,
-      required VoidCallback onNextPressed,
-      VoidCallback? onBackPressed,
-      bool isActive = true,
-      bool isBottom = false,
-      String buttonName = '다음'}) {
+  static AppBar buildWithNext({
+    required String title,
+    required BuildContext context,
+    required VoidCallback onNextPressed,
+    VoidCallback? onBackPressed,
+    bool hasBackdropFilter = true,
+    bool isActive = true,
+    bool isBottom = false,
+    String buttonName = '다음',
+    Color backgroundColor = MyColors.white,
+  }) {
     return AppBar(
         title: Text(title),
         centerTitle: true,
-        backgroundColor: MyColors.white,
+        backgroundColor: backgroundColor,
         titleTextStyle:
             Styles.navHeader.merge(const TextStyle(color: MyColors.black)),
         toolbarTextStyle: Styles.appbarTitle,
@@ -112,37 +117,47 @@ class CustomAppBar {
             : null,
         actions: [
           Padding(
-              padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
-              child: GestureDetector(
-                  onTap: isActive ? onNextPressed : null,
-                  child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 12.0),
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(16.0),
-                        border: Border.all(
-                            color: isActive
-                                ? Colors.transparent
-                                : MyColors.transparentBlack_06),
-                        color:
-                            isActive ? MyColors.darkgrey : MyColors.lightgrey,
+            padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 16),
+            child: GestureDetector(
+              onTap: isActive ? onNextPressed : null,
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 12.0),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(14.0),
+                  border: Border.all(
+                      color: isActive
+                          ? Colors.transparent
+                          : MyColors.transparentBlack_06),
+                  color: isActive ? MyColors.darkgrey : MyColors.lightgrey,
+                ),
+                child: Center(
+                  child: Text(
+                    buttonName,
+                    style: Styles.label2.merge(
+                      TextStyle(
+                        color: isActive
+                            ? Colors.white
+                            : MyColors.transparentBlack_30,
+                        fontWeight:
+                            isActive ? FontWeight.bold : FontWeight.normal,
                       ),
-                      child: Center(
-                          child: Text(buttonName,
-                              style: Styles.label2.merge(TextStyle(
-                                color: isActive
-                                    ? Colors.white
-                                    : MyColors.transparentBlack_30,
-                                fontWeight: isActive
-                                    ? FontWeight.bold
-                                    : FontWeight.normal,
-                              )))))))
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
         ],
-        flexibleSpace: ClipRect(
-            child: BackdropFilter(
-                filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
-                child: Container(
-                  color: Colors.transparent,
-                ))));
+        flexibleSpace: hasBackdropFilter
+            ? ClipRect(
+                child: BackdropFilter(
+                  filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
+                  child: Container(
+                    color: Colors.transparent,
+                  ),
+                ),
+              )
+            : Container());
   }
 
   static AppBar buildWithSave(
@@ -205,25 +220,68 @@ class CustomAppBar {
   static AppBar buildWithClose({
     required String title,
     required BuildContext context,
+    Color? backgroundColor,
     VoidCallback? onBackPressed,
+    bool hasNextButton = false,
+    bool isNextButtonActive = false,
+    String nextButtonText = '선택',
+    VoidCallback? onNextPressed,
   }) {
     return AppBar(
-        centerTitle: true,
-        backgroundColor: Colors.transparent,
-        toolbarHeight: 62,
-        title: Text(title),
-        titleTextStyle:
-            Styles.navHeader.merge(const TextStyle(color: MyColors.black)),
-        toolbarTextStyle: Styles.appbarTitle,
-        leading: IconButton(
-            onPressed: onBackPressed ??
-                () {
-                  Navigator.pop(context);
-                },
-            icon: const Icon(
-              Icons.close_rounded,
-              color: MyColors.black,
-              size: 22,
-            )));
+      centerTitle: true,
+      backgroundColor: backgroundColor ?? Colors.transparent,
+      title: Text(title),
+      titleTextStyle:
+          Styles.navHeader.merge(const TextStyle(color: MyColors.black)),
+      toolbarTextStyle: Styles.appbarTitle,
+      leading: IconButton(
+        onPressed: onBackPressed ??
+            () {
+              Navigator.pop(context);
+            },
+        icon: const Icon(
+          Icons.close_rounded,
+          color: MyColors.black,
+          size: 22,
+        ),
+      ),
+      actions: [
+        if (hasNextButton && onNextPressed != null)
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+            child: GestureDetector(
+              onTap: isNextButtonActive ? onNextPressed : null,
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 12.0),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(16.0),
+                  border: Border.all(
+                      color: isNextButtonActive
+                          ? Colors.transparent
+                          : MyColors.transparentBlack_06),
+                  color: isNextButtonActive
+                      ? MyColors.darkgrey
+                      : MyColors.lightgrey,
+                ),
+                child: Center(
+                  child: Text(
+                    nextButtonText,
+                    style: Styles.label2.merge(
+                      TextStyle(
+                        color: isNextButtonActive
+                            ? Colors.white
+                            : MyColors.transparentBlack_30,
+                        fontWeight: isNextButtonActive
+                            ? FontWeight.bold
+                            : FontWeight.normal,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+      ],
+    );
   }
 }

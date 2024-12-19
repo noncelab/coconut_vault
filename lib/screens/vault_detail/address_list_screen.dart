@@ -1,10 +1,11 @@
 import 'dart:async';
 
 import 'package:coconut_lib/coconut_lib.dart';
+import 'package:coconut_vault/model/data/vault_list_item_base.dart';
+import 'package:coconut_vault/utils/text_utils.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:coconut_vault/model/vault_model.dart';
-import 'package:coconut_vault/model/vault_list_item.dart';
+import 'package:coconut_vault/model/state/vault_model.dart';
 import 'package:coconut_vault/screens/vault_detail/qrcode_bottom_sheet_screen.dart';
 import 'package:coconut_vault/styles.dart';
 import 'package:coconut_vault/utils/logger.dart';
@@ -33,8 +34,8 @@ class _AddressListScreenState extends State<AddressListScreen> {
   List<Address> _receivingAddressList = [];
   List<Address> _changeAddressList = [];
   late ScrollController _controller;
-  late VaultListItem _vaultListItem;
-  late SingleSignatureVault _coconutVault;
+  late VaultListItemBase _vaultListItem;
+  late WalletBase _coconutVault;
   bool isReceivingSelected = true;
 
   @override
@@ -291,7 +292,7 @@ class AddressCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  '${address.substring(0, 15)}...${address.substring(address.length - 10, address.length)}',
+                  TextUtils.truncateNameMax25(address),
                   style: Styles.body1,
                 ),
               ],

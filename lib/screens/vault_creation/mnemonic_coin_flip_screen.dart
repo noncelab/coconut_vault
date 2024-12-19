@@ -1,7 +1,7 @@
 import 'package:coconut_lib/coconut_lib.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:coconut_vault/model/vault_model.dart';
+import 'package:coconut_vault/model/state/vault_model.dart';
 import 'package:coconut_vault/screens/vault_creation/mnemonic_confirm_screen.dart';
 import 'package:coconut_vault/screens/vault_creation/mnemonic_generate_screen.dart';
 import 'package:coconut_vault/styles.dart';
@@ -161,7 +161,7 @@ class _FlipCoinState extends State<FlipCoin> {
   Widget build(BuildContext context) {
     return PopScope(
         canPop: false,
-        onPopInvoked: (didPop) {
+        onPopInvokedWithResult: (didPop, _) {
           widget.onShowStopDialog();
         },
         child: Padding(
@@ -389,6 +389,7 @@ class _FlipCoinState extends State<FlipCoin> {
                       label: '완료',
                       disabled:
                           passphrase.isEmpty || _bits.length < _totalBits),
+                const SizedBox(height: 80),
               ],
             )));
   }
@@ -592,9 +593,8 @@ class _FlipCoinState extends State<FlipCoin> {
 
   void _showConfirmBottomSheet(String message) {
     Provider.of<VaultModel>(context, listen: false)
-        .startImporting(mnemonic, passphrase);
-    MyBottomSheet.showBottomSheet(
-      title: '',
+        .startSinglesigImporting(mnemonic, passphrase);
+    MyBottomSheet.showBottomSheet_90(
       context: context,
       child: MnemonicConfirm(
         onCancelPressed: () => Navigator.pop(context),

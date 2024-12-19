@@ -16,15 +16,12 @@ publish_to: "none" # Remove this line if you wish to publish to pub.dev
 # https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
 # In Windows, build-name is used as the major, minor, and patch parts
 # of the product and file versions while build-number is used as the build suffix.
-
 # iOS
-# version: 1.0.0+13
-
+#version: 2.0.0+6
 # AOS
-# version: 1.0.0+7
-
+#version: 2.0.0+12
 # web
-version: 1.0.1
+version: 2.0.0
 
 environment:
   sdk: ">=3.3.4 <4.0.0"
@@ -48,7 +45,6 @@ dependencies:
   flutter_secure_storage: ^9.0.0
   json_annotation: ^4.9.0
   shared_preferences: ^2.2.2
-  coconut_lib: ^0.7.0
   fluttertoast: ^8.2.4
   qr_flutter: ^4.1.0
   qr_code_scanner: ^1.0.1
@@ -68,6 +64,8 @@ dependencies:
   device_info_plus: ^10.1.1
   package_info_plus: ^8.0.1
   url_launcher: ^6.2.6
+  crypto: ^3.0.6
+  coconut_lib: ^0.8.1
   qrcode_reader_web: ^1.1.1
   universal_html: ^2.2.4
 
@@ -85,6 +83,7 @@ dev_dependencies:
   # package. See that file for information about deactivating specific lint
   # rules and activating additional ones.
   flutter_lints: ^3.0.0
+  test: ^1.25.7
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
@@ -100,11 +99,13 @@ flutter:
   assets:
     - assets/png/splash_logo.png
     - assets/svg/menu/details.svg
-    - assets/svg/menu/key.svg
+    - assets/svg/menu/2keys.svg
     - assets/svg/menu/key-outline.svg
+    - assets/svg/menu/key-out.svg
     - assets/svg/menu/list.svg
     - assets/svg/menu/address.svg
     - assets/svg/menu/out.svg
+    - assets/svg/menu/in.svg
     - assets/svg/number/one.svg
     - assets/svg/number/two.svg
     - assets/svg/number/three.svg
@@ -154,14 +155,22 @@ flutter:
     - assets/svg/bluetooth.svg
     - assets/svg/coconut.svg
     - assets/svg/coconut-security.svg
+    - assets/svg/coconut-security-gradient.svg
     - assets/svg/cross-circle.svg
     - assets/svg/curved-arrow-right.svg
+    - assets/svg/safe.svg
+    - assets/svg/safe-bit.svg
     - assets/svg/stethoscope.svg
     - assets/svg/scan-vault-qr.svg
     - assets/svg/trash.svg
     - assets/svg/face-id.svg
     - assets/svg/fingerprint.svg
     - assets/svg/book.svg
+    - assets/svg/download.svg
+    - assets/svg/circle-check-gradient.svg
+    - assets/svg/key-icon.svg
+    - assets/svg/plus.svg
+    - assets/svg/minus.svg
     - assets/lottie/loading-coconut.json
     - assets/lottie/pin-locked-success.json
     - assets/png/pow-logo.png
@@ -175,6 +184,9 @@ flutter:
     - assets/svg/github-logo.svg
     - assets/files/LICENSE
     - assets/files/CONTRIBUTING.md
+    - assets/svg/download.svg
+    - assets/svg/circle-check.svg
+    - assets/svg/vault-grey.svg
 
   fonts:
     - family: SpaceGrotesk

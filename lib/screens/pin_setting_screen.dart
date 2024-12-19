@@ -1,7 +1,5 @@
-import 'package:coconut_vault/services/shared_preferences_keys.dart';
-import 'package:coconut_vault/services/shared_preferences_service.dart';
 import 'package:flutter/material.dart';
-import 'package:coconut_vault/model/app_model.dart';
+import 'package:coconut_vault/model/state/app_model.dart';
 import 'package:coconut_vault/styles.dart';
 import 'package:coconut_vault/widgets/animated_dialog.dart';
 import 'package:coconut_vault/widgets/appbar/custom_appbar.dart';
@@ -112,10 +110,7 @@ class _PinSettingScreenState extends State<PinSettingScreen> {
           _appModel.shuffleNumbers(isSettings: true);
           return;
         }
-
         errorMessage = '';
-
-
         _finishPinSetting();
       }
     }
@@ -149,17 +144,18 @@ class _PinSettingScreenState extends State<PinSettingScreen> {
         );
       },
     );
+
     await Future.delayed(const Duration(seconds: 3));
     widget.onComplete?.call();
     await _appModel.savePin(pinConfirm);
     Navigator.pop(context);
     Navigator.pop(context);
     if (widget.greetingVisible) {
-      Navigator.pushNamed(context, '/vault-creation-options');
+      Navigator.pushNamed(context, '/select-vault-type');
     }
   }
 
-  void _showDialog() {
+  void showDialog() {
     if (!_appModel.isPinEnabled) {
       Navigator.of(context).pop();
     } else {
@@ -225,7 +221,7 @@ class _PinSettingScreenState extends State<PinSettingScreen> {
         isCloseIcon: !widget.greetingVisible,
         onClosePressed: step == 0
             ? () {
-                _showDialog();
+                showDialog();
               }
             : () {
                 setState(() {

@@ -64,7 +64,10 @@ class _MnemonicConfirmState extends State<MnemonicConfirm> {
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16.0),
-      height: MediaQuery.of(context).size.height * 0.85,
+      height: MediaQuery
+          .of(context)
+          .size
+          .height * 0.85,
       child: CustomScrollView(
         slivers: [
           SliverToBoxAdapter(
@@ -131,8 +134,8 @@ class _MnemonicConfirmState extends State<MnemonicConfirm> {
               style: Styles.warning,
             ),
           ),
-          Visibility(
-            visible: !_isBottom,
+          Opacity(
+            opacity: !_isBottom ? 1.0 : 0.0,
             child: Text(
               '⚠︎ 긴 패스프레이즈: 스크롤을 끝까지 내려 모두 확인해 주세요.',
               style: TextStyle(
@@ -165,9 +168,11 @@ class _MnemonicConfirmState extends State<MnemonicConfirm> {
         GridView.builder(
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
-          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
             crossAxisCount: 3, // Number of columns
-            childAspectRatio: 2.7, // Aspect ratio for grid items
+            childAspectRatio: MediaQuery.of(context).size.height > 640
+                ? 2.7
+                : 2, // Aspect ratio for grid items
             crossAxisSpacing: 0, // Space between columns
             mainAxisSpacing: 1, // Space between rows
           ),
@@ -228,15 +233,14 @@ class _MnemonicConfirmState extends State<MnemonicConfirm> {
 
   Widget _bottomButton() {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4),
+      padding: const EdgeInsets.fromLTRB(10, 0, 10, 20),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
           Expanded(
             child: CupertinoButton(
               onPressed: widget.onCancelPressed,
-              padding:
-                  const EdgeInsets.symmetric(vertical: 16, horizontal: 4),
+              padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 4),
               color: MyColors.lightgrey,
               alignment: Alignment.center,
               child: Text('취소',
@@ -252,8 +256,7 @@ class _MnemonicConfirmState extends State<MnemonicConfirm> {
               onPressed: _isBottom
                   ? widget.onConfirmPressed
                   : (widget.onInactivePressed ?? () {}),
-              padding:
-                  const EdgeInsets.symmetric(vertical: 16, horizontal: 4),
+              padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 4),
               color: MyColors.darkgrey,
               alignment: Alignment.center,
               child: const Text(
@@ -276,12 +279,12 @@ class _MnemonicConfirmState extends State<MnemonicConfirm> {
   Widget _passphraseGridViewWidget() {
     if (widget.passphrase == null) return Container();
     return GridView.count(
-      controller: _scrollController,
+      physics: const NeverScrollableScrollPhysics(),
       crossAxisCount: 10,
       crossAxisSpacing: 3.0,
       mainAxisSpacing: 10.0,
       shrinkWrap: true,
-      children: List.generate((widget.passphrase!.length), (index) {
+      children: List.generate((widget.passphrase!.length + 20), (index) {
         // 가장 아래에 빈 공간을 배치하기 위한 조건문
         if (index < widget.passphrase!.length) {
           return Container(

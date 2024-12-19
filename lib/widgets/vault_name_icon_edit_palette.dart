@@ -152,6 +152,7 @@ class _VaultNameIconEditPaletteState extends State<VaultNameIconEditPalette> {
                 CustomTextField(
                   placeholder: '이름',
                   maxLength: 20,
+                  maxLines: 1,
                   controller: _controller,
                   clearButtonMode: OverlayVisibilityMode.always,
                   onChanged: (text) {

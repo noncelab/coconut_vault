@@ -1,6 +1,8 @@
-import 'package:coconut_vault/app.dart';
-import 'package:coconut_vault/model/app_model.dart';
-import 'package:coconut_vault/utils/logger.dart';
+import 'package:coconut_vault/model/manager/singlesig_wallet.dart';
+import 'package:coconut_vault/model/state/app_model.dart';
+import 'package:coconut_vault/model/state/multisig_creation_model.dart';
+import 'package:coconut_vault/styles.dart';
+import 'package:coconut_vault/widgets/custom_dialog.dart';
 import 'package:coconut_vault/widgets/message_screen_for_web.dart';
 import 'package:flutter/material.dart';
 import 'package:coconut_vault/widgets/appbar/custom_appbar.dart';
@@ -8,7 +10,7 @@ import 'package:coconut_vault/widgets/custom_toast.dart';
 import 'package:coconut_vault/widgets/vault_name_icon_edit_palette.dart';
 import 'package:provider/provider.dart';
 
-import '../../model/vault_model.dart';
+import '../../model/state/vault_model.dart';
 
 class VaultNameIconSetup extends StatefulWidget {
   final String name;
@@ -29,6 +31,7 @@ class VaultNameIconSetup extends StatefulWidget {
 class _VaultNameIconSetupState extends State<VaultNameIconSetup> {
   late AppModel _appModel;
   late VaultModel _vaultModel;
+  late MultisigCreationModel _multisigCreationState;
   String inputText = '';
   late int selectedIconIndex;
   late int selectedColorIndex;
@@ -39,6 +42,8 @@ class _VaultNameIconSetupState extends State<VaultNameIconSetup> {
   void initState() {
     _appModel = Provider.of<AppModel>(context, listen: false);
     _vaultModel = Provider.of<VaultModel>(context, listen: false);
+    _multisigCreationState =
+        Provider.of<MultisigCreationModel>(context, listen: false);
     super.initState();
     inputText = widget.name;
     selectedIconIndex = widget.iconIndex;
@@ -46,46 +51,50 @@ class _VaultNameIconSetupState extends State<VaultNameIconSetup> {
     _controller.text = inputText;
   }
 
-  void _closeKeyboard() {
-    FocusScope.of(context).unfocus();
-  }
-
   Future<void> saveNewVaultName(BuildContext context) async {
-    //_appModel.showIndicator();
-    setState(() {
-      isSaving = true;
-    });
-
-    if (_vaultModel.isNameDuplicated(inputText)) {
-      CustomToast.showToast(text: "이미 사용 중인 이름은 설정할 수 없어요", context: context);
+    try {
       setState(() {
-        isSaving = false;
+        isSaving = true;
       });
-      //_appModel.hideIndicator();
-      return;
-    }
 
-    final Map<String, dynamic> vaultData = {
-      'inputText': inputText,
-      'selectedIconIndex': selectedIconIndex,
-      'selectedColorIndex': selectedColorIndex,
-      'importingSecret': _vaultModel.importingSecret,
-      'importingPassphrase': _vaultModel.importingPassphrase,
-    };
+      if (_vaultModel.isNameDuplicated(inputText)) {
+        CustomToast.showToast(text: "이미 사용 중인 이름은 설정할 수 없어요", context: context);
+        setState(() {
+          isSaving = false;
+        });
+        return;
+      }
 
-    // delay for 1 second to show loading indicator
-    await Future.delayed(const Duration(seconds: 2));
-    // ignore: void_checks
-    await _vaultModel.addVault(vaultData);
+      // delay for 1 second to show loading indicator
+      await Future.delayed(const Duration(seconds: 2));
 
-    if (_vaultModel.isAddVaultCompleted) {
-      //_appModel.hideIndicator();
+      if (_vaultModel.importingSecret != null) {
+        await _vaultModel.addVault(SinglesigWallet(
+            null,
+            inputText,
+            selectedIconIndex,
+            selectedColorIndex,
+            _vaultModel.importingSecret!,
+            _vaultModel.importingPassphrase));
+      } else if (_multisigCreationState.signers != null) {
+        // 새로운 멀티시그 지갑 리스트 아이템을 생성.
+        await _vaultModel.addMultisigVaultAsync(
+            inputText, selectedColorIndex, selectedIconIndex);
+      }
+
       Navigator.pushNamedAndRemoveUntil(
         context,
         '/',
         (Route<dynamic> route) => false,
       );
-    } else {
+    } catch (e) {
+      CustomDialogs.showCustomAlertDialog(context,
+          title: '생성 실패',
+          onConfirm: () => Navigator.of(context).pop(),
+          message: e.toString(),
+          isSingleButton: true,
+          confirmButtonColor: MyColors.black);
+
       setState(() {
         isSaving = false;
       });
@@ -122,14 +131,14 @@ class _VaultNameIconSetupState extends State<VaultNameIconSetup> {
                 title: '이름 설정',
                 context: context,
                 onBackPressed: () {
-                  _vaultModel.stopImporting();
+                  _vaultModel.completeSinglesigImporting();
                   Navigator.pop(context);
                 },
                 onNextPressed: () {
-                  _closeKeyboard();
+                  if (inputText.trim().isEmpty) return;
                   saveNewVaultName(context);
                 },
-                isActive: inputText.isNotEmpty && !isSaving,
+                isActive: inputText.trim().isNotEmpty && !isSaving,
               ),
               body: VaultNameIconEditPalette(
                 name: inputText,
