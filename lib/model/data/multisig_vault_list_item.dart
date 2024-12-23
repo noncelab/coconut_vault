@@ -45,15 +45,20 @@ class MultisigVaultListItem extends VaultListItemBase {
 
   @override
   Future<bool> canSign(String psbt) async {
-    var isolateHandler =
-        IsolateHandler<List<dynamic>, bool>(canSignToPsbtIsolate);
-    try {
-      await isolateHandler.initialize(initialType: InitializeType.canSign);
-      bool canSignToPsbt = await isolateHandler.run([coconutVault, psbt]);
-      return canSignToPsbt;
-    } finally {
-      isolateHandler.dispose();
+    bool canSign = (coconutVault as MultisignatureVault).canSignToPsbt(psbt);
+
+    if (!canSign) return canSign;
+
+    final psbtObj = PSBT.parse(psbt);
+    final multisigWallet = coconutVault as MultisignatureVault;
+
+    if (multisigWallet.requiredSignature != psbtObj.inputs[0].requiredSignature ||
+        multisigWallet.keyStoreList.length !=
+            psbtObj.inputs[0].derivationPathList.length) {
+      return false;
     }
+
+    return canSign;
   }
 
   @override

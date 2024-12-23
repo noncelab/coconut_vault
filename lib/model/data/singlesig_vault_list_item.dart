@@ -53,15 +53,7 @@ class SinglesigVaultListItem extends VaultListItemBase {
 
   @override
   Future<bool> canSign(String psbt) async {
-    var isolateHandler =
-        IsolateHandler<List<dynamic>, bool>(canSignToPsbtIsolate);
-    try {
-      await isolateHandler.initialize(initialType: InitializeType.canSign);
-      bool canSignToPsbt = await isolateHandler.run([coconutVault, psbt]);
-      return canSignToPsbt;
-    } finally {
-      isolateHandler.dispose();
-    }
+    return (coconutVault as SingleSignatureVault).canSignToPsbt(psbt);
   }
 
   @override

@@ -15,9 +15,11 @@ import 'package:coconut_vault/widgets/bottom_sheet.dart';
 import 'package:coconut_vault/widgets/button/custom_buttons.dart';
 import 'package:coconut_vault/widgets/custom_dialog.dart';
 import 'package:coconut_vault/widgets/custom_expansion_panel.dart';
+import 'package:coconut_vault/widgets/custom_message_screen_for_web.dart';
 import 'package:coconut_vault/widgets/custom_toast.dart';
 import 'package:coconut_vault/widgets/high-lighted-text.dart';
 import 'package:coconut_vault/widgets/indicator/message_activity_indicator.dart';
+import 'package:coconut_vault/widgets/message_screen_for_web.dart';
 import 'package:flutter/material.dart';
 import 'package:coconut_vault/styles.dart';
 import 'package:coconut_vault/widgets/appbar/custom_appbar.dart';
@@ -839,12 +841,7 @@ class _AssignSignersScreenState extends State<AssignSignersScreen> {
             ),
             Visibility(
               visible: !isCompleteToExtractSignerBsms || isNextProcessing,
-              child: Container(
-                decoration:
-                    const BoxDecoration(color: MyColors.transparentBlack_30),
-                child: Center(
-                    child: MessageActivityIndicator(message: loadingMessage)),
-              ),
+              child: CustomMessageScreenForWeb(message: loadingMessage ?? ''),
             ),
           ],
         ),

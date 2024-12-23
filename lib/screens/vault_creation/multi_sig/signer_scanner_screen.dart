@@ -8,6 +8,7 @@ import 'package:coconut_vault/model/state/exception/not_related_multisig_wallet_
 import 'package:coconut_vault/model/state/vault_model.dart';
 import 'package:coconut_vault/utils/alert_util.dart';
 import 'package:coconut_vault/widgets/appbar/custom_appbar.dart';
+import 'package:coconut_vault/widgets/custom_message_screen_for_web.dart';
 import 'package:flutter/material.dart';
 import 'package:coconut_vault/styles.dart';
 import 'package:coconut_vault/widgets/custom_tooltip.dart';
@@ -153,18 +154,8 @@ class _SignerScannerScreenState extends State<SignerScannerScreen> {
         ),
         Visibility(
           visible: _isProcessing,
-          child: Container(
-            width: MediaQuery.of(context).size.width,
-            height: MediaQuery.of(context).size.height,
-            decoration:
-                const BoxDecoration(color: MyColors.transparentBlack_30),
-            child: const Center(
-              child: CircularProgressIndicator(
-                color: MyColors.darkgrey,
-              ),
-            ),
-          ),
-        )
+          child: const CustomMessageScreenForWeb(message: '스캔중'),
+        ),
       ],
     );
   }
@@ -218,6 +209,8 @@ class _SignerScannerScreenState extends State<SignerScannerScreen> {
       setState(() {
         _isProcessing = true;
       });
+
+      await Future.delayed(const Duration(seconds: 2));
 
       MultisigImportDetail decodedData;
       String coordinatorBsms;

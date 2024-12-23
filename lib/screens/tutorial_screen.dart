@@ -1,10 +1,11 @@
-import 'package:coconut_vault/model/state/app_model.dart';
+import 'package:coconut_vault/services/shared_preferences_service.dart';
 import 'package:coconut_vault/styles.dart';
 import 'package:coconut_vault/utils/uri_launcher.dart';
 import 'package:coconut_vault/widgets/appbar/custom_appbar.dart';
 import 'package:coconut_vault/widgets/button/shrink_animation_button.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+
+import '../services/shared_preferences_keys.dart';
 
 enum TutorialScreenStatus {
   entrance, // 앱 최초 실행
@@ -13,9 +14,11 @@ enum TutorialScreenStatus {
 
 class TutorialScreen extends StatefulWidget {
   final TutorialScreenStatus screenStatus;
+  final Function? onComplete;
   const TutorialScreen({
     super.key,
     required this.screenStatus,
+    this.onComplete,
   });
 
   @override
@@ -57,7 +60,11 @@ class _TutorialScreenState extends State<TutorialScreen> {
                     right: 16,
                     top: 30,
                     child: TextButton(
-                      onPressed: () => Navigator.pushNamed(context, '/welcome'),
+                      onPressed: () async {
+                        //Navigator.pushNamed(context, '/welcome');
+                        await SharedPrefsService().setBool(SharedPrefsKeys.hasShownStartGuide, true);
+                        widget.onComplete?.call();
+                      },
                       style: TextButton.styleFrom(
                         foregroundColor: MyColors.darkgrey,
                       ),

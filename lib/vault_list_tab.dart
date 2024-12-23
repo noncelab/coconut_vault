@@ -1,3 +1,4 @@
+import 'package:coconut_vault/widgets/custom_message_screen_for_web.dart';
 import 'package:coconut_vault/widgets/message_screen_for_web.dart';
 import 'package:coconut_vault/screens/pin_setting_screen.dart';
 import 'package:coconut_vault/widgets/coconut_dropdown.dart';
@@ -322,10 +323,9 @@ class _VaultListTabState extends State<VaultListTab>
                 ),
               ),
               Visibility(
-                  visible: model.isVaultListLoading,
-                  child: const MessageScreenForWeb(
-                      message:
-                      "지갑 불러오는 중...\n웹 브라우저에서 1분 이상 걸릴 수 있으니 기다려 주세요.")),
+                visible: model.isVaultListLoading,
+                child: const CustomMessageScreenForWeb(message: '지갑 불러오는 중'),
+              ),
             ],
           ),
         );

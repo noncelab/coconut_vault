@@ -1,3 +1,4 @@
+import 'package:coconut_vault/widgets/custom_message_screen_for_web.dart';
 import 'package:coconut_vault/widgets/message_screen_for_web.dart';
 import 'package:coconut_vault/model/data/vault_type.dart';
 import 'package:flutter/material.dart';
@@ -276,8 +277,8 @@ class _PsbtConfirmationScreenState extends State<PsbtConfirmationScreen> {
               ),
             ),
             Visibility(
-                visible: _showLoading,
-                child: const MessageScreenForWeb(message: "서명 중...\n웹 브라우저에서 10초 이상 걸릴 수 있으니 기다려주세요.")
+              visible: _showLoading,
+              child: const CustomMessageScreenForWeb(message: '서명 중'),
             ),
           ],
         ),

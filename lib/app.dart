@@ -27,7 +27,6 @@ import 'package:coconut_vault/screens/vault_detail/signer_bsms_screen.dart';
 import 'package:coconut_vault/screens/vault_detail/sync_to_wallet_screen.dart';
 import 'package:coconut_vault/screens/vault_detail/vault_menu_screen.dart';
 import 'package:coconut_vault/screens/vault_detail/vault_settings.dart';
-import 'package:coconut_vault/utils/router_util.dart';
 import 'package:coconut_vault/vault_list_tab.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -79,8 +78,13 @@ class _PowVaultAppState extends State<PowVaultApp> {
         });
       });
     } else if (status == HomeScreen.tutorial) {
-      return const TutorialScreen(
+      return TutorialScreen(
         screenStatus: TutorialScreenStatus.entrance,
+        onComplete: () {
+          setState(() {
+            HomeScreenStatus().updateScreenStatus(HomeScreen.vaultlist);
+          });
+        },
       );
     } else if (status == HomeScreen.pincheck) {
       return CustomLoadingOverlay(
@@ -112,11 +116,11 @@ class _PowVaultAppState extends State<PowVaultApp> {
           create: (_) => AppModel(
             onConnectivityStateChanged: (ConnectivityState state) {
               // Bluetooth, Network, Developer mode 리스너
-              if (state == ConnectivityState.on) {
-                goAppUnavailableNotificationScreen(context);
-              } else if (state == ConnectivityState.bluetoothUnauthorized) {
-                goBluetoothAuthNotificationScreen(context);
-              }
+              // if (state == ConnectivityState.on) {
+              //   goAppUnavailableNotificationScreen(context);
+              // } else if (state == ConnectivityState.bluetoothUnauthorized) {
+              //   goBluetoothAuthNotificationScreen(context);
+              // }
             },
           ),
         ),

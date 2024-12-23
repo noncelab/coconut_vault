@@ -1,5 +1,7 @@
 import 'package:coconut_lib/coconut_lib.dart';
 import 'package:coconut_vault/utils/lower_case_text_input_formatter.dart';
+import 'package:coconut_vault/widgets/custom_message_screen_for_web.dart';
+import 'package:coconut_vault/widgets/message_screen_for_web.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:coconut_vault/model/state/vault_model.dart';
@@ -32,6 +34,7 @@ class _MnemonicImportState extends State<MnemonicImport> {
   bool isNextButtonActive = false;
   bool isValid = true;
   bool isFinishing = false;
+  bool isLoading = false;
   String? errorMessage;
 
   final TextEditingController _mnemonicController = TextEditingController();
@@ -179,7 +182,12 @@ class _MnemonicImportState extends State<MnemonicImport> {
               onBackPressed: () {
                 _onBackPressed(context);
               },
-              onNextPressed: () {
+              onNextPressed: () async {
+                setState(() {
+                  isLoading = true;
+                });
+                await Future.delayed(const Duration(seconds: 2));
+
                 final model = Provider.of<VaultModel>(context, listen: false);
 
                 if (model.isSeedDuplicated(
@@ -190,6 +198,9 @@ class _MnemonicImportState extends State<MnemonicImport> {
                     usePassphrase ? passphrase.trim() : '')) {
                   CustomToast.showToast(
                       context: context, text: "이미 추가되어 있는 니모닉이에요");
+                  setState(() {
+                    isLoading = false;
+                  });
                   return;
                 }
 
@@ -199,6 +210,10 @@ class _MnemonicImportState extends State<MnemonicImport> {
                         .toLowerCase()
                         .replaceAll(RegExp(r'\s+'), ' '),
                     usePassphrase ? passphrase.trim() : '');
+
+                setState(() {
+                  isLoading = false;
+                });
 
                 MyBottomSheet.showBottomSheet_90(
                   context: context,
@@ -335,20 +350,9 @@ class _MnemonicImportState extends State<MnemonicImport> {
               ),
             ),
           ),
-          // TODO: isolate
           Visibility(
-            visible: false,
-            child: Container(
-              width: MediaQuery.of(context).size.width,
-              height: MediaQuery.of(context).size.height,
-              decoration:
-              const BoxDecoration(color: MyColors.transparentBlack_30),
-              child: const Center(
-                child: CircularProgressIndicator(
-                  color: MyColors.darkgrey,
-                ),
-              ),
-            ),
+            visible: isLoading,
+            child: const CustomMessageScreenForWeb(message: '니모닉 확인 중'),
           ),
         ],
       ),

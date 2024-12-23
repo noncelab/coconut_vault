@@ -3,6 +3,7 @@ import 'package:coconut_vault/model/state/app_model.dart';
 import 'package:coconut_vault/model/state/multisig_creation_model.dart';
 import 'package:coconut_vault/styles.dart';
 import 'package:coconut_vault/widgets/custom_dialog.dart';
+import 'package:coconut_vault/widgets/custom_message_screen_for_web.dart';
 import 'package:coconut_vault/widgets/message_screen_for_web.dart';
 import 'package:flutter/material.dart';
 import 'package:coconut_vault/widgets/appbar/custom_appbar.dart';
@@ -150,9 +151,9 @@ class _VaultNameIconSetupState extends State<VaultNameIconSetup> {
               ),
             ),
             Visibility(
-                visible: isSaving,
-                child: const MessageScreenForWeb(
-                    message: "지갑 추가 중...\n웹 브라우저에서 1분 이상 걸릴 수 있으니 기다려 주세요")),
+              visible: isSaving,
+              child: const CustomMessageScreenForWeb(message: '지갑 추가 중'),
+            ),
           ],
         );
       },
