@@ -107,14 +107,12 @@ class _PinCheckScreenState extends State<PinCheckScreen>
     }
   }
 
-
   void moveToMain() async {
     Navigator.pushNamedAndRemoveUntil(
         context, '/', (Route<dynamic> route) => false);
   }
 
   void _onKeyTap(String value) async {
-
     if ((widget.screenStatus == PinCheckScreenStatus.entrance ||
             widget.screenStatus == PinCheckScreenStatus.lock) &&
         attempt == MAX_NUMBER_OF_ATTEMPTS) {

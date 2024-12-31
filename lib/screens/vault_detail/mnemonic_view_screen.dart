@@ -245,7 +245,7 @@ class _MnemonicViewScreen extends State<MnemonicViewScreen> {
                       children: [
                         Visibility(
                           visible:
-                          passphrase != null && passphrase!.contains(' '),
+                              passphrase != null && passphrase!.contains(' '),
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [

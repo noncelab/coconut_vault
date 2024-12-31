@@ -64,10 +64,7 @@ class _MnemonicConfirmState extends State<MnemonicConfirm> {
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16.0),
-      height: MediaQuery
-          .of(context)
-          .size
-          .height * 0.85,
+      height: MediaQuery.of(context).size.height * 0.85,
       child: CustomScrollView(
         slivers: [
           SliverToBoxAdapter(

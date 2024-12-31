@@ -52,7 +52,8 @@ class MultisigVaultListItem extends VaultListItemBase {
     final psbtObj = PSBT.parse(psbt);
     final multisigWallet = coconutVault as MultisignatureVault;
 
-    if (multisigWallet.requiredSignature != psbtObj.inputs[0].requiredSignature ||
+    if (multisigWallet.requiredSignature !=
+            psbtObj.inputs[0].requiredSignature ||
         multisigWallet.keyStoreList.length !=
             psbtObj.inputs[0].derivationPathList.length) {
       return false;

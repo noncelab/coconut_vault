@@ -86,77 +86,77 @@ class _VaultListTabState extends State<VaultListTab>
   }
 
   Widget _vaultSkeletonItem() => Column(
-    children: [
-      ClipRRect(
-        borderRadius: BorderRadius.circular(30),
-        child: Container(
-          constraints: const BoxConstraints(minHeight: 100),
-          decoration: BoxDecoration(
-            color: Colors.white, // 배경색 유지
-            borderRadius: BorderRadius.circular(28),
-            boxShadow: const [
-              BoxShadow(
-                color: MyColors.transparentBlack_15,
-                offset: Offset(0, 0),
-                blurRadius: 12,
-                spreadRadius: 0,
-              ),
-            ],
-          ),
-          padding:
-          const EdgeInsets.symmetric(horizontal: 24.0, vertical: 28.0),
-          child: Row(
-            children: [
-              // 1) 아이콘 스켈레톤
-              Shimmer.fromColors(
-                baseColor: Colors.grey[300]!,
-                highlightColor: Colors.grey[100]!,
-                child: Container(
-                  width: 40.0,
-                  height: 40.0,
-                  decoration: BoxDecoration(
-                    color: Colors.grey[300],
-                    borderRadius: BorderRadius.circular(16.0),
+        children: [
+          ClipRRect(
+            borderRadius: BorderRadius.circular(30),
+            child: Container(
+              constraints: const BoxConstraints(minHeight: 100),
+              decoration: BoxDecoration(
+                color: Colors.white, // 배경색 유지
+                borderRadius: BorderRadius.circular(28),
+                boxShadow: const [
+                  BoxShadow(
+                    color: MyColors.transparentBlack_15,
+                    offset: Offset(0, 0),
+                    blurRadius: 12,
+                    spreadRadius: 0,
                   ),
-                ),
+                ],
               ),
-              const SizedBox(width: 8.0),
-              // 2) 텍스트 영역
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // 첫 번째 텍스트
-                    Shimmer.fromColors(
-                      baseColor: Colors.grey[300]!,
-                      highlightColor: Colors.grey[100]!,
-                      child: Container(
-                        height: 14.0,
-                        width: 100.0,
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 24.0, vertical: 28.0),
+              child: Row(
+                children: [
+                  // 1) 아이콘 스켈레톤
+                  Shimmer.fromColors(
+                    baseColor: Colors.grey[300]!,
+                    highlightColor: Colors.grey[100]!,
+                    child: Container(
+                      width: 40.0,
+                      height: 40.0,
+                      decoration: BoxDecoration(
                         color: Colors.grey[300],
+                        borderRadius: BorderRadius.circular(16.0),
                       ),
                     ),
-                    const SizedBox(height: 8.0),
-                    // 두 번째 텍스트
-                    Shimmer.fromColors(
-                      baseColor: Colors.grey[300]!,
-                      highlightColor: Colors.grey[100]!,
-                      child: Container(
-                        height: 14.0,
-                        width: 150.0,
-                        color: Colors.grey[300],
-                      ),
+                  ),
+                  const SizedBox(width: 8.0),
+                  // 2) 텍스트 영역
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // 첫 번째 텍스트
+                        Shimmer.fromColors(
+                          baseColor: Colors.grey[300]!,
+                          highlightColor: Colors.grey[100]!,
+                          child: Container(
+                            height: 14.0,
+                            width: 100.0,
+                            color: Colors.grey[300],
+                          ),
+                        ),
+                        const SizedBox(height: 8.0),
+                        // 두 번째 텍스트
+                        Shimmer.fromColors(
+                          baseColor: Colors.grey[300]!,
+                          highlightColor: Colors.grey[100]!,
+                          child: Container(
+                            height: 14.0,
+                            width: 150.0,
+                            color: Colors.grey[300],
+                          ),
+                        ),
+                      ],
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
-            ],
+            ),
           ),
-        ),
-      ),
-      const SizedBox(height: 10),
-    ],
-  );
+          const SizedBox(height: 10),
+        ],
+      );
 
   void _scrollToBottom() async {
     if (_scrollController.hasClients) {
@@ -257,13 +257,13 @@ class _VaultListTabState extends State<VaultListTab>
                       itemCount: vaults.length + (vaults.isEmpty ? 1 : 0),
                       itemBuilder: (ctx, index) => index < vaults.length
                           ? model.animatedVaultFlags[index]
-                          ? SlideTransition(
-                        position: _newVaultAddAnimation,
-                        child: VaultRowItem(vault: vaults[index]),
-                      )
-                          : VaultRowItem(
-                          vault: vaults[index],
-                          isLoadCompletedAnimation: true)
+                              ? SlideTransition(
+                                  position: _newVaultAddAnimation,
+                                  child: VaultRowItem(vault: vaults[index]),
+                                )
+                              : VaultRowItem(
+                                  vault: vaults[index],
+                                  isLoadCompletedAnimation: true)
                           : Container(),
                     ),
                   ),

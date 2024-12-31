@@ -55,7 +55,7 @@ class _MnemonicImportState extends State<MnemonicImport> {
     }
 
     String normalizedInputText =
-    inputText.trim().replaceAll(RegExp(r'\s+'), ' ');
+        inputText.trim().replaceAll(RegExp(r'\s+'), ' ');
     List<String> words = normalizedInputText.split(' ');
     List<String> filtered = [];
 
@@ -235,8 +235,8 @@ class _MnemonicImportState extends State<MnemonicImport> {
               },
               isActive: usePassphrase
                   ? inputText.isNotEmpty &&
-                  isMnemonicValid == true &&
-                  passphrase.isNotEmpty
+                      isMnemonicValid == true &&
+                      passphrase.isNotEmpty
                   : inputText.isNotEmpty && isMnemonicValid == true,
             ),
             body: GestureDetector(
@@ -261,13 +261,13 @@ class _MnemonicImportState extends State<MnemonicImport> {
                               setState(() {
                                 _mnemonicController.value =
                                     _mnemonicController.value.copyWith(
-                                      text: inputText,
-                                      selection: TextSelection.collapsed(
-                                        offset: _mnemonicController
-                                            .selection.baseOffset
-                                            .clamp(0, inputText.length),
-                                      ),
-                                    );
+                                  text: inputText,
+                                  selection: TextSelection.collapsed(
+                                    offset: _mnemonicController
+                                        .selection.baseOffset
+                                        .clamp(0, inputText.length),
+                                  ),
+                                );
                               });
                               validateInput();
                             },
@@ -307,20 +307,20 @@ class _MnemonicImportState extends State<MnemonicImport> {
                                       onPressed: () {
                                         setState(() {
                                           passphraseObscured =
-                                          !passphraseObscured;
+                                              !passphraseObscured;
                                         });
                                       },
                                       child: passphraseObscured
                                           ? const Icon(
-                                        CupertinoIcons.eye_slash,
-                                        color: MyColors.darkgrey,
-                                        size: 18,
-                                      )
+                                              CupertinoIcons.eye_slash,
+                                              color: MyColors.darkgrey,
+                                              size: 18,
+                                            )
                                           : const Icon(
-                                        CupertinoIcons.eye,
-                                        color: MyColors.darkgrey,
-                                        size: 18,
-                                      ),
+                                              CupertinoIcons.eye,
+                                              color: MyColors.darkgrey,
+                                              size: 18,
+                                            ),
                                     ),
                                     maxLength: 100,
                                   ),
@@ -337,7 +337,7 @@ class _MnemonicImportState extends State<MnemonicImport> {
                                           : MyColors.transparentBlack_50,
                                       fontSize: 12,
                                       fontFamily:
-                                      CustomFonts.text.getFontFamily),
+                                          CustomFonts.text.getFontFamily),
                                 ),
                               ),
                             )

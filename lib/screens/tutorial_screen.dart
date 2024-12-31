@@ -62,7 +62,8 @@ class _TutorialScreenState extends State<TutorialScreen> {
                     child: TextButton(
                       onPressed: () async {
                         //Navigator.pushNamed(context, '/welcome');
-                        await SharedPrefsService().setBool(SharedPrefsKeys.hasShownStartGuide, true);
+                        await SharedPrefsService()
+                            .setBool(SharedPrefsKeys.hasShownStartGuide, true);
                         widget.onComplete?.call();
                       },
                       style: TextButton.styleFrom(

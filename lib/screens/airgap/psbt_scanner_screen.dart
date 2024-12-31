@@ -159,7 +159,7 @@ class _PsbtScannerScreenState extends State<PsbtScannerScreen> {
                 width: MediaQuery.of(context).size.width,
                 height: MediaQuery.of(context).size.height,
                 decoration:
-                const BoxDecoration(color: MyColors.transparentBlack_30),
+                    const BoxDecoration(color: MyColors.transparentBlack_30),
                 child: const Center(
                   child: CircularProgressIndicator(
                     color: MyColors.darkgrey,

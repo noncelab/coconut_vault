@@ -54,7 +54,7 @@ class _PsbtConfirmationScreenState extends State<PsbtConfirmationScreen> {
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
       setTxInfo(_vaultModel.waitingForSignaturePsbtBase64!);
       setState(
-            () => _showLoading = false,
+        () => _showLoading = false,
       );
     });
   }
@@ -111,8 +111,8 @@ class _PsbtConfirmationScreenState extends State<PsbtConfirmationScreen> {
       setState(() {
         _bitcoinString = _psbt != null
             ? satoshiToBitcoinString(_sendingAmountWhenAddressIsMyChange != null
-            ? _sendingAmountWhenAddressIsMyChange!
-            : _psbt!.sendingAmount)
+                ? _sendingAmountWhenAddressIsMyChange!
+                : _psbt!.sendingAmount)
             : '';
         _sendAddress = _output != null ? _output!.getAddress() : '';
       });

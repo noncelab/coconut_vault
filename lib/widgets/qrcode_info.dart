@@ -12,7 +12,11 @@ class QRCodeInfo extends StatefulWidget {
   final Widget? qrcodeTopWidget;
   final String toastMessage;
 
-  const QRCodeInfo({super.key, required this.qrData, required this.toastMessage, this.qrcodeTopWidget});
+  const QRCodeInfo(
+      {super.key,
+      required this.qrData,
+      required this.toastMessage,
+      this.qrcodeTopWidget});
 
   @override
   State<QRCodeInfo> createState() => _QRCodeInfoState();
@@ -137,5 +141,3 @@ class _QRCodeInfoState extends State<QRCodeInfo> {
     );
   }
 }
-
-

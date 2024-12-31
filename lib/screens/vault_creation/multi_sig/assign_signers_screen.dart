@@ -1,4 +1,3 @@
-
 import 'package:coconut_lib/coconut_lib.dart';
 import 'package:coconut_vault/model/data/multisig_signer.dart';
 import 'package:coconut_vault/model/data/singlesig_vault_list_item.dart';
@@ -112,22 +111,18 @@ class _AssignSignersScreenState extends State<AssignSignersScreen> {
     //       .initialize(initialType: InitializeType.fromKeyStore);
     // }
 
-
-
-
     // MultisignatureVault multisignatureVault =
     //     await _fromKeyStoreListIsolateHandler!.run(data);
 
     MultisignatureVault multiSignatureVault =
-    MultisignatureVault.fromKeyStoreList(
-        keyStores, requiredSignatureCount, AddressType.p2wsh);
+        MultisignatureVault.fromKeyStoreList(
+            keyStores, requiredSignatureCount, AddressType.p2wsh);
 
     return multiSignatureVault;
   }
 
   Future<void> _initSignerOptionList(
       List<SinglesigVaultListItem> singlesigVaultList) async {
-
     List<String> bsmses = [];
 
     for (int i = 0; i < singlesigVaultList.length; i++) {

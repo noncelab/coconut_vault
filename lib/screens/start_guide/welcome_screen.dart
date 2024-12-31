@@ -35,31 +35,31 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
         body: SafeArea(
             child: Center(
                 child: ConstrainedBox(
-                  constraints: const BoxConstraints(maxWidth: 480),
-                  child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              SvgPicture.asset(
-                                'assets/svg/coconut-security.svg',
-                                width: 80,
-                              ),
-                              const SizedBox(height: 20),
-                              const Text(
-                                "원활한 코코넛 볼트 사용을 위해\n잠깐만 시간을 내주세요",
-                                style: Styles.body2Bold,
-                                textAlign: TextAlign.center,
-                              ),
-                              const SizedBox(
-                                height: 24,
-                              ),
-                              CarouselSlider(
-                                options: CarouselOptions(
+          constraints: const BoxConstraints(maxWidth: 480),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              SvgPicture.asset(
+                'assets/svg/coconut-security.svg',
+                width: 80,
+              ),
+              const SizedBox(height: 20),
+              const Text(
+                "원활한 코코넛 볼트 사용을 위해\n잠깐만 시간을 내주세요",
+                style: Styles.body2Bold,
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(
+                height: 24,
+              ),
+              CarouselSlider(
+                options: CarouselOptions(
                   aspectRatio: 16 / 12,
                   autoPlay: true,
                   autoPlayInterval: const Duration(seconds: 10),
                   enlargeCenterPage: true,
-                                ),
-                                items: [
+                ),
+                items: [
                   // Guide1
                   Column(
                     mainAxisAlignment: MainAxisAlignment.center,
@@ -72,8 +72,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                       ),
                       const SizedBox(height: 20),
                       const Text('볼트는', style: Styles.subLabel),
-                      const HighLightedText(
-                          '네트워크, 블루투스 연결, 개발자 옵션이 ',
+                      const HighLightedText('네트워크, 블루투스 연결, 개발자 옵션이 ',
                           color: MyColors.darkgrey),
                       const Row(
                         mainAxisAlignment: MainAxisAlignment.center,
@@ -125,7 +124,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                       const Text('사용 시 유의해 주세요', style: Styles.subLabel),
                     ],
                   ),
-                                ].map((item) {
+                ].map((item) {
                   return Container(
                     padding: const EdgeInsets.all(20),
                     margin: const EdgeInsets.symmetric(
@@ -145,25 +144,26 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                     child: ClipRRect(
                         borderRadius: BorderRadius.circular(8.0), child: item),
                   );
-                                }).toList(),
-                              ),
-                              const SizedBox(
-                                height: 20,
-                              ),
-                              CupertinoButton(
+                }).toList(),
+              ),
+              const SizedBox(
+                height: 20,
+              ),
+              CupertinoButton(
                   onPressed: () {
                     Navigator.pushNamed(context, '/connectivity-guide');
                   },
                   child: Text(
                     '모두 이해했어요 :)',
                     style: Styles.label.merge(const TextStyle(
-                        color: MyColors.secondary, fontWeight: FontWeight.bold)),
+                        color: MyColors.secondary,
+                        fontWeight: FontWeight.bold)),
                   )),
-                              const SizedBox(
-                                height: 60,
-                              ),
-                            ],
-                          ),
-                ))));
+              const SizedBox(
+                height: 60,
+              ),
+            ],
+          ),
+        ))));
   }
 }

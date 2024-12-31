@@ -43,7 +43,7 @@ class _SignerBsmsScreenState extends State<SignerBsmsScreen> {
       String bsms = '';
 
       SinglesigVaultListItem vaultListItem =
-      _vaultListItem as SinglesigVaultListItem;
+          _vaultListItem as SinglesigVaultListItem;
 
       if (vaultListItem.signerBsms != null) {
         bsms = vaultListItem.signerBsms ?? '';

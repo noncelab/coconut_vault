@@ -108,15 +108,15 @@ class _GuideScreenState extends State<GuideScreen> {
                   height: 40,
                 ),
                 GestureDetector(
-                    onTap:  () async {
-                            await appModel.setHasSeenGuide();
-                            widget.onComplete!();
-                            Navigator.pushNamedAndRemoveUntil(
-                              context,
-                              '/',
-                              (Route<dynamic> route) => false,
-                            );
-                          },
+                    onTap: () async {
+                      await appModel.setHasSeenGuide();
+                      widget.onComplete!();
+                      Navigator.pushNamedAndRemoveUntil(
+                        context,
+                        '/',
+                        (Route<dynamic> route) => false,
+                      );
+                    },
                     child: Container(
                         padding: const EdgeInsets.symmetric(
                             horizontal: 24, vertical: 12),
