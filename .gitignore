@@ -142,3 +142,6 @@ app.*.symbols
 
 wallet_lib
 coconut_lib
+
+# FVM Version Cache
+.fvm/

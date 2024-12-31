@@ -132,7 +132,7 @@ class _ToastWidgetState extends State<ToastWidget>
               },
               child: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 12.0),
-                width: MediaQuery.of(context).size.width,
+                width: 410,
                 color: Colors.transparent,
                 child: Container(
                     padding: const EdgeInsets.symmetric(
