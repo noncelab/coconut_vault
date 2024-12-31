@@ -43,6 +43,7 @@ class _SignerScannerScreenState extends State<SignerScannerScreen> {
   bool isAlreadyVibrateScanFailed = false;
   bool _isProcessing = false;
   bool _isSetScaffold = false;
+  bool _isValidating = false;
 
   /// for hot reload (not work in prod)
   /// 카메라가 실행 중일 때 Hot reload로 인해 중단되는 문제를 해결하기 위해 사용
@@ -50,24 +51,17 @@ class _SignerScannerScreenState extends State<SignerScannerScreen> {
   void reassemble() {
     super.reassemble();
     if (Platform.isAndroid) {
-      controller!.pauseCamera();
+      controller?.pauseCamera();
     } else if (Platform.isIOS) {
-      controller!.resumeCamera();
+      controller?.resumeCamera();
     }
   }
 
   @override
   void initState() {
-    _vaultModel = Provider.of<VaultModel>(context, listen: false);
     super.initState();
+    _vaultModel = Provider.of<VaultModel>(context, listen: false);
     _isSetScaffold = widget.screenType != SignerScannerScreenType.add;
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
-      await Future.delayed(const Duration(milliseconds: 1000));
-      // fixme 추후 QRCodeScanner가 개선되면 QRCodeScanner 의 카메라 뷰 생성 완료된 콜백 찾아 progress hide 합니다. 현재는 1초 후 hide
-      setState(() {
-        _isProcessing = false;
-      });
-    });
   }
 
   @override
@@ -77,15 +71,18 @@ class _SignerScannerScreenState extends State<SignerScannerScreen> {
   }
 
   void onFailedScanning(String message) {
+    setState(() {
+      _isValidating = false;
+    });
+
     showAlertDialog(
         context: context,
         content: message,
         onConfirmPressed: () {
-          controller!.resumeCamera().then((_) {
-            setState(() {
-              _isProcessing = false;
-            });
-          });
+          // web에서는 UnimplementedError가 발생
+          //controller?.resumeCamera().then((_) {
+          _isProcessing = false;
+          //});
         });
   }
 
@@ -153,8 +150,8 @@ class _SignerScannerScreenState extends State<SignerScannerScreen> {
           ),
         ),
         Visibility(
-          visible: _isProcessing,
-          child: const CustomMessageScreenForWeb(message: '스캔중'),
+          visible: _isValidating,
+          child: const CustomMessageScreenForWeb(message: '스캔한 정보 확인 중'),
         ),
       ],
     );
@@ -177,10 +174,10 @@ class _SignerScannerScreenState extends State<SignerScannerScreen> {
 
       // controller.pauseCamera(); // only works in iOS
 
+      _isProcessing = true;
       setState(() {
-        _isProcessing = true;
+        _isValidating = true;
       });
-
       try {
         // Signer 형식이 맞는지 체크
         BSMS.parseSigner(scanData.code!);
@@ -206,10 +203,10 @@ class _SignerScannerScreenState extends State<SignerScannerScreen> {
 
       // controller.pauseCamera(); // only works in iOS
 
+      _isProcessing = true;
       setState(() {
-        _isProcessing = true;
+        _isValidating = true;
       });
-
       await Future.delayed(const Duration(seconds: 2));
 
       MultisigImportDetail decodedData;

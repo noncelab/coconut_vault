@@ -59,7 +59,7 @@ class _PsbtScannerScreenState extends State<PsbtScannerScreen> {
         content: message,
         onConfirmPressed: () {
           _isProcessing = false;
-          controller!.resumeCamera();
+          controller?.resumeCamera();
         });
   }
 
