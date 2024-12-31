@@ -544,9 +544,7 @@ class _MultiSigSettingScreenState extends State<MultiSigSettingScreen> {
                   visible: _tooltipRemainingTime > 0,
                   child: Positioned(
                     top: _tooltipIconPosition.dy - _tooltipTopPadding,
-                    right: MediaQuery.sizeOf(context).width -
-                        _tooltipIconPosition.dx -
-                        48,
+                    right: 17,
                     child: GestureDetector(
                       onTap: () => _removeTooltip(),
                       child: ClipPath(
