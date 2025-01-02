@@ -1,17 +1,16 @@
 import 'package:coconut_vault/app.dart';
 import 'package:coconut_vault/model/manager/singlesig_wallet.dart';
-import 'package:coconut_vault/model/state/app_model.dart';
 import 'package:coconut_vault/model/state/multisig_creation_model.dart';
+import 'package:coconut_vault/model/state/vault_model.dart';
 import 'package:coconut_vault/styles.dart';
 import 'package:coconut_vault/utils/logger.dart';
 import 'package:coconut_vault/widgets/custom_dialog.dart';
+import 'package:coconut_vault/widgets/indicator/message_activity_indicator.dart';
 import 'package:flutter/material.dart';
 import 'package:coconut_vault/widgets/appbar/custom_appbar.dart';
 import 'package:coconut_vault/widgets/custom_toast.dart';
 import 'package:coconut_vault/widgets/vault_name_icon_edit_palette.dart';
 import 'package:provider/provider.dart';
-
-import '../../model/state/vault_model.dart';
 
 class VaultNameIconSetup extends StatefulWidget {
   final String name;
@@ -30,19 +29,18 @@ class VaultNameIconSetup extends StatefulWidget {
 }
 
 class _VaultNameIconSetupState extends State<VaultNameIconSetup> {
-  late AppModel _appModel;
   late VaultModel _vaultModel;
   late MultisigCreationModel _multisigCreationState;
   String inputText = '';
   late int selectedIconIndex;
   late int selectedColorIndex;
   final TextEditingController _controller = TextEditingController();
-  bool isSaving = false;
+  bool _showLoading = false;
 
   @override
   void initState() {
-    _appModel = Provider.of<AppModel>(context, listen: false);
     _vaultModel = Provider.of<VaultModel>(context, listen: false);
+    _vaultModel.isVaultListLoadingNotifier.addListener(_onVaultListLoading);
     _multisigCreationState =
         Provider.of<MultisigCreationModel>(context, listen: false);
     super.initState();
@@ -52,6 +50,22 @@ class _VaultNameIconSetupState extends State<VaultNameIconSetup> {
     _controller.text = inputText;
   }
 
+  @override
+  void dispose() {
+    _vaultModel.isVaultListLoadingNotifier.removeListener(_onVaultListLoading);
+    super.dispose();
+  }
+
+  void _onVaultListLoading() {
+    if (!mounted) return;
+
+    if (!_vaultModel.isVaultListLoadingNotifier.value) {
+      if (_showLoading) {
+        saveNewVaultName(context);
+      }
+    }
+  }
+
   void _closeKeyboard() {
     FocusScope.of(context).unfocus();
   }
@@ -59,15 +73,14 @@ class _VaultNameIconSetupState extends State<VaultNameIconSetup> {
   Future<void> saveNewVaultName(BuildContext context) async {
     try {
       setState(() {
-        isSaving = true;
+        _showLoading = true;
       });
 
       if (_vaultModel.isNameDuplicated(inputText)) {
         CustomToast.showToast(text: "이미 사용 중인 이름은 설정할 수 없어요", context: context);
         setState(() {
-          isSaving = false;
+          _showLoading = false;
         });
-        _appModel.hideIndicator();
         return;
       }
 
@@ -81,7 +94,6 @@ class _VaultNameIconSetupState extends State<VaultNameIconSetup> {
             _vaultModel.importingPassphrase));
 
         if (_vaultModel.isAddVaultCompleted) {
-          _appModel.hideIndicator();
           Logger.log('finish creating vault. return to home.');
           Logger.log('Homeroute = ${HomeScreenStatus().screenStatus}');
         }
@@ -105,9 +117,8 @@ class _VaultNameIconSetupState extends State<VaultNameIconSetup> {
           isSingleButton: true,
           confirmButtonColor: MyColors.black);
     } finally {
-      _appModel.hideIndicator();
       setState(() {
-        isSaving = false;
+        _showLoading = false;
       });
     }
   }
@@ -132,52 +143,55 @@ class _VaultNameIconSetupState extends State<VaultNameIconSetup> {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<VaultModel>(
-      builder: (context, model, child) {
-        return Stack(
-          children: [
-            Scaffold(
-              backgroundColor: Colors.white,
-              appBar: CustomAppBar.buildWithNext(
-                title: '이름 설정',
-                context: context,
-                onBackPressed: () {
-                  _vaultModel.completeSinglesigImporting();
-                  Navigator.pop(context);
-                },
-                onNextPressed: () {
-                  if (inputText.trim().isEmpty) return;
-                  _closeKeyboard();
-                  saveNewVaultName(context);
-                },
-                isActive: inputText.trim().isNotEmpty && !isSaving,
-              ),
-              body: VaultNameIconEditPalette(
-                name: inputText,
-                iconIndex: selectedIconIndex,
-                colorIndex: selectedColorIndex,
-                onNameChanged: updateName,
-                onIconSelected: updateIcon,
-                onColorSelected: updateColor,
-              ),
+    return Stack(
+      children: [
+        Scaffold(
+          backgroundColor: Colors.white,
+          appBar: CustomAppBar.buildWithNext(
+            title: '이름 설정',
+            context: context,
+            onBackPressed: () {
+              _vaultModel.completeSinglesigImporting();
+              Navigator.pop(context);
+            },
+            onNextPressed: () {
+              if (inputText.trim().isEmpty) return;
+              _closeKeyboard();
+              if (_vaultModel.isVaultListLoading) {
+                setState(() {
+                  _showLoading = true;
+                });
+              } else {
+                saveNewVaultName(context);
+              }
+            },
+            isActive: inputText.trim().isNotEmpty && !_showLoading,
+          ),
+          body: VaultNameIconEditPalette(
+            name: inputText,
+            iconIndex: selectedIconIndex,
+            colorIndex: selectedColorIndex,
+            onNameChanged: updateName,
+            onIconSelected: updateIcon,
+            onColorSelected: updateColor,
+          ),
+        ),
+        Visibility(
+          visible: _showLoading,
+          child: Container(
+            width: MediaQuery.of(context).size.width,
+            height: MediaQuery.of(context).size.height,
+            decoration:
+                const BoxDecoration(color: MyColors.transparentBlack_30),
+            child: Center(
+              child: _vaultModel.isVaultListLoading
+                  ? const MessageActivityIndicator(
+                      message: '저장 중이에요.') // 기존 볼트들 불러오는 중
+                  : const CircularProgressIndicator(color: MyColors.darkgrey),
             ),
-            Visibility(
-              visible: isSaving,
-              child: Container(
-                width: MediaQuery.of(context).size.width,
-                height: MediaQuery.of(context).size.height,
-                decoration:
-                    const BoxDecoration(color: MyColors.transparentBlack_30),
-                child: const Center(
-                  child: CircularProgressIndicator(
-                    color: MyColors.darkgrey,
-                  ),
-                ),
-              ),
-            ),
-          ],
-        );
-      },
+          ),
+        ),
+      ],
     );
   }
 }
