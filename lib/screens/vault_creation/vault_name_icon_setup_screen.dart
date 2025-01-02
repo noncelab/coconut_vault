@@ -1,7 +1,7 @@
 import 'package:coconut_vault/app.dart';
 import 'package:coconut_vault/model/manager/singlesig_wallet.dart';
-import 'package:coconut_vault/model/state/app_model.dart';
 import 'package:coconut_vault/model/state/multisig_creation_model.dart';
+import 'package:coconut_vault/model/state/vault_model.dart';
 import 'package:coconut_vault/styles.dart';
 import 'package:coconut_vault/utils/logger.dart';
 import 'package:coconut_vault/widgets/custom_dialog.dart';
@@ -11,8 +11,6 @@ import 'package:coconut_vault/widgets/appbar/custom_appbar.dart';
 import 'package:coconut_vault/widgets/custom_toast.dart';
 import 'package:coconut_vault/widgets/vault_name_icon_edit_palette.dart';
 import 'package:provider/provider.dart';
-
-import '../../model/state/vault_model.dart';
 
 class VaultNameIconSetup extends StatefulWidget {
   final String name;
@@ -31,7 +29,6 @@ class VaultNameIconSetup extends StatefulWidget {
 }
 
 class _VaultNameIconSetupState extends State<VaultNameIconSetup> {
-  late AppModel _appModel;
   late VaultModel _vaultModel;
   late MultisigCreationModel _multisigCreationState;
   String inputText = '';
@@ -42,9 +39,8 @@ class _VaultNameIconSetupState extends State<VaultNameIconSetup> {
 
   @override
   void initState() {
-    _appModel = Provider.of<AppModel>(context, listen: false);
     _vaultModel = Provider.of<VaultModel>(context, listen: false);
-    _vaultModel.isVaultListLoadingNotifier.addListener(_loadingListener);
+    _vaultModel.isVaultListLoadingNotifier.addListener(_onVaultListLoading);
     _multisigCreationState =
         Provider.of<MultisigCreationModel>(context, listen: false);
     super.initState();
@@ -56,11 +52,11 @@ class _VaultNameIconSetupState extends State<VaultNameIconSetup> {
 
   @override
   void dispose() {
-    _vaultModel.isVaultListLoadingNotifier.removeListener(_loadingListener);
+    _vaultModel.isVaultListLoadingNotifier.removeListener(_onVaultListLoading);
     super.dispose();
   }
 
-  void _loadingListener() {
+  void _onVaultListLoading() {
     if (!mounted) return;
 
     if (!_vaultModel.isVaultListLoadingNotifier.value) {
@@ -85,7 +81,6 @@ class _VaultNameIconSetupState extends State<VaultNameIconSetup> {
         setState(() {
           _showLoading = false;
         });
-        _appModel.hideIndicator();
         return;
       }
 
@@ -99,7 +94,6 @@ class _VaultNameIconSetupState extends State<VaultNameIconSetup> {
             _vaultModel.importingPassphrase));
 
         if (_vaultModel.isAddVaultCompleted) {
-          _appModel.hideIndicator();
           Logger.log('finish creating vault. return to home.');
           Logger.log('Homeroute = ${HomeScreenStatus().screenStatus}');
         }
@@ -123,7 +117,6 @@ class _VaultNameIconSetupState extends State<VaultNameIconSetup> {
           isSingleButton: true,
           confirmButtonColor: MyColors.black);
     } finally {
-      _appModel.hideIndicator();
       setState(() {
         _showLoading = false;
       });
@@ -193,7 +186,7 @@ class _VaultNameIconSetupState extends State<VaultNameIconSetup> {
             child: Center(
               child: _vaultModel.isVaultListLoading
                   ? const MessageActivityIndicator(
-                      message: '가지고 있는 볼트를 불러오는 중이에요')
+                      message: '저장 중이에요.') // 기존 볼트들 불러오는 중
                   : const CircularProgressIndicator(color: MyColors.darkgrey),
             ),
           ),
