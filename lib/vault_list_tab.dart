@@ -307,9 +307,7 @@ class _VaultListTabState extends State<VaultListTab>
                                       position: _newVaultAddAnimation,
                                       child: VaultRowItem(vault: vaults[index]),
                                     )
-                                  : VaultRowItem(
-                                      vault: vaults[index],
-                                      isLoadCompletedAnimation: true)
+                                  : VaultRowItem(vault: vaults[index])
                               : Container(),
                         ),
                       ),
