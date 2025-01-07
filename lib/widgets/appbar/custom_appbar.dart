@@ -18,7 +18,7 @@ class CustomAppBar {
     IconButton? rightIconButton,
     bool isBottom = false,
     Color? backgroundColor = MyColors.white,
-    bool showTestnetLabel = true,
+    bool showTestnetLabel = false,
     bool? setSearchBar = false,
   }) {
     Widget? titleWidget = Column(
