@@ -3090,14 +3090,14 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.''',
       PackageRef('vector_math')
     ]);
 
-/// flutter_blue_plus 1.32.12
+/// flutter_blue_plus 1.33.5
 const _flutter_blue_plus = Package(
     name: 'flutter_blue_plus',
     description:
         'Flutter plugin for connecting and communicationg with Bluetooth Low Energy devices, on Android, iOS, and MacOS.',
     homepage: 'https://github.com/boskokg/flutter_blue_plus',
     authors: [],
-    version: '1.32.12',
+    version: '1.33.5',
     license:
         '''Copyright 2017-2023, Paul DeMarco, Bosko Popovic, & Charles Weinberger.
 All rights reserved.
@@ -3210,7 +3210,7 @@ SOFTWARE.''',
       PackageRef('args')
     ]);
 
-/// flutter_plugin_android_lifecycle 2.0.23
+/// flutter_plugin_android_lifecycle 2.0.24
 const _flutter_plugin_android_lifecycle = Package(
     name: 'flutter_plugin_android_lifecycle',
     description:
@@ -3218,7 +3218,7 @@ const _flutter_plugin_android_lifecycle = Package(
     repository:
         'https://github.com/flutter/packages/tree/main/packages/flutter_plugin_android_lifecycle',
     authors: [],
-    version: '2.0.23',
+    version: '2.0.24',
     license: '''Copyright 2013 The Flutter Authors. All rights reserved.
 
 Redistribution and use in source and binary forms, with or without modification,
@@ -4370,14 +4370,14 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.''',
       PackageRef('local_auth_platform_interface')
     ]);
 
-/// local_auth_darwin 1.4.1
+/// local_auth_darwin 1.4.2
 const _local_auth_darwin = Package(
     name: 'local_auth_darwin',
     description: 'iOS implementation of the local_auth plugin.',
     repository:
         'https://github.com/flutter/packages/tree/main/packages/local_auth/local_auth_darwin',
     authors: [],
-    version: '1.4.1',
+    version: '1.4.2',
     license: '''Copyright 2013 The Flutter Authors. All rights reserved.
 
 Redistribution and use in source and binary forms, with or without modification,
@@ -7094,7 +7094,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.''',
       PackageRef('shared_preferences_platform_interface')
     ]);
 
-/// shared_preferences_foundation 2.5.2
+/// shared_preferences_foundation 2.5.3
 const _shared_preferences_foundation = Package(
     name: 'shared_preferences_foundation',
     description:
@@ -7102,7 +7102,7 @@ const _shared_preferences_foundation = Package(
     repository:
         'https://github.com/flutter/packages/tree/main/packages/shared_preferences/shared_preferences_foundation',
     authors: [],
-    version: '2.5.2',
+    version: '2.5.3',
     license: '''Copyright 2013 The Flutter Authors. All rights reserved.
 
 Redistribution and use in source and binary forms, with or without modification,
@@ -7834,13 +7834,13 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.''',
       PackageRef('stack_trace')
     ]);
 
-/// source_maps 0.10.12
+/// source_maps 0.10.13
 const _source_maps = Package(
     name: 'source_maps',
     description: 'A library to programmatically manipulate source map files.',
-    repository: 'https://github.com/dart-lang/source_maps',
+    repository: 'https://github.com/dart-lang/tools/tree/main/pkgs/source_maps',
     authors: [],
-    version: '0.10.12',
+    version: '0.10.13',
     license: '''Copyright 2014, the Dart project authors.
 
 Redistribution and use in source and binary forms, with or without
@@ -8529,14 +8529,14 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.''',
       PackageRef('url_launcher_platform_interface')
     ]);
 
-/// url_launcher_macos 3.2.0
+/// url_launcher_macos 3.2.1
 const _url_launcher_macos = Package(
     name: 'url_launcher_macos',
     description: 'macOS implementation of the url_launcher plugin.',
     repository:
         'https://github.com/flutter/packages/tree/main/packages/url_launcher/url_launcher_macos',
     authors: [],
-    version: '3.2.0',
+    version: '3.2.1',
     license: '''Copyright 2013 The Flutter Authors. All rights reserved.
 
 Redistribution and use in source and binary forms, with or without modification,
@@ -9230,13 +9230,13 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.''',
     isSdk: false,
     dependencies: [PackageRef('async'), PackageRef('path')]);
 
-/// web 1.0.0
+/// web 1.1.0
 const _web = Package(
     name: 'web',
     description: 'Lightweight browser API bindings built around JS interop.',
     repository: 'https://github.com/dart-lang/web',
     authors: [],
-    version: '1.0.0',
+    version: '1.1.0',
     license: '''Copyright 2023, the Dart project authors.
 
 Redistribution and use in source and binary forms, with or without
@@ -9474,7 +9474,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.''',
     isSdk: false,
     dependencies: [PackageRef('ffi'), PackageRef('win32')]);
 
-/// xdg_directories 1.0.4
+/// xdg_directories 1.1.0
 const _xdg_directories = Package(
     name: 'xdg_directories',
     description:
@@ -9482,7 +9482,7 @@ const _xdg_directories = Package(
     repository:
         'https://github.com/flutter/packages/tree/main/packages/xdg_directories',
     authors: [],
-    version: '1.0.4',
+    version: '1.1.0',
     license: '''Copyright 2013 The Flutter Authors. All rights reserved.
 
 Redistribution and use in source and binary forms, with or without modification,
