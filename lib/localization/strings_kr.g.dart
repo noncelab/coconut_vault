@@ -152,12 +152,12 @@ class Translations implements BaseTranslations<AppLocale, Translations> {
 	late final TranslationsSyncToWalletScreenKr sync_to_wallet_screen = TranslationsSyncToWalletScreenKr.internal(_root);
 	late final TranslationsVaultMenuScreenKr vault_menu_screen = TranslationsVaultMenuScreenKr.internal(_root);
 	late final TranslationsVaultSettingsKr vault_settings = TranslationsVaultSettingsKr.internal(_root);
-	late final TranslationsSnackbarKr snackbar = TranslationsSnackbarKr.internal(_root);
-	late final TranslationsTooltipKr tooltip = TranslationsTooltipKr.internal(_root);
 	late final TranslationsBottomSheetKr bottom_sheet = TranslationsBottomSheetKr.internal(_root);
 	late final TranslationsAlertKr alert = TranslationsAlertKr.internal(_root);
 	late final TranslationsToastKr toast = TranslationsToastKr.internal(_root);
 	late final TranslationsErrorKr error = TranslationsErrorKr.internal(_root);
+	late final TranslationsSnackbarKr snackbar = TranslationsSnackbarKr.internal(_root);
+	late final TranslationsTooltipKr tooltip = TranslationsTooltipKr.internal(_root);
 }
 
 // Path: vault_list_tab
@@ -764,26 +764,6 @@ class TranslationsVaultSettingsKr {
 	String get text2_3 => ' 키';
 }
 
-// Path: snackbar
-class TranslationsSnackbarKr {
-	TranslationsSnackbarKr.internal(this._root);
-
-	final Translations _root; // ignore: unused_field
-
-	// Translations
-	String get camera_permission => '카메라 권한이 없습니다.';
-}
-
-// Path: tooltip
-class TranslationsTooltipKr {
-	TranslationsTooltipKr.internal(this._root);
-
-	final Translations _root; // ignore: unused_field
-
-	// Translations
-	String get mfp => '지갑의 고유 값이에요.\n마스터 핑거프린트(MFP)라고도 해요.';
-}
-
 // Path: bottom_sheet
 class TranslationsBottomSheetKr {
 	TranslationsBottomSheetKr.internal(this._root);
@@ -900,6 +880,26 @@ class TranslationsErrorKr {
 	String get mnemonic_invalid_phrase => '잘못된 니모닉 문구예요';
 	String get data_loading_failed => '데이터를 불러오는 중 오류가 발생했습니다.';
 	String get data_not_found => '데이터가 없습니다.';
+}
+
+// Path: snackbar
+class TranslationsSnackbarKr {
+	TranslationsSnackbarKr.internal(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+	String get camera_permission => '카메라 권한이 없습니다.';
+}
+
+// Path: tooltip
+class TranslationsTooltipKr {
+	TranslationsTooltipKr.internal(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+	String get mfp => '지갑의 고유 값이에요.\n마스터 핑거프린트(MFP)라고도 해요.';
 }
 
 /// Flat map(s) containing all translations.
@@ -1196,8 +1196,6 @@ extension on Translations {
 			case 'vault_settings.text2_1': return '의 ';
 			case 'vault_settings.text2_2': return ({required Object index}) => '${index} 번';
 			case 'vault_settings.text2_3': return ' 키';
-			case 'snackbar.camera_permission': return '카메라 권한이 없습니다.';
-			case 'tooltip.mfp': return '지갑의 고유 값이에요.\n마스터 핑거프린트(MFP)라고도 해요.';
 			case 'bottom_sheet.license1_title': return 'MIT 라이선스 전문 보기';
 			case 'bottom_sheet.license2_title': return '이메일 문의';
 			case 'bottom_sheet.license2_qr_subject': return '[볼트] 라이선스 문의';
@@ -1280,6 +1278,8 @@ extension on Translations {
 			case 'error.mnemonic_invalid_phrase': return '잘못된 니모닉 문구예요';
 			case 'error.data_loading_failed': return '데이터를 불러오는 중 오류가 발생했습니다.';
 			case 'error.data_not_found': return '데이터가 없습니다.';
+			case 'snackbar.camera_permission': return '카메라 권한이 없습니다.';
+			case 'tooltip.mfp': return '지갑의 고유 값이에요.\n마스터 핑거프린트(MFP)라고도 해요.';
 			default: return null;
 		}
 	}

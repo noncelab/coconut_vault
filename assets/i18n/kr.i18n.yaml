@@ -356,12 +356,6 @@ vault_settings:
   text2_2: "$index 번"
   text2_3: " 키"
 
-snackbar:
-  camera_permission: "카메라 권한이 없습니다."
-
-tooltip:
-  mfp: "지갑의 고유 값이에요.\n마스터 핑거프린트(MFP)라고도 해요."
-
 bottom_sheet:
   license1_title: "MIT 라이선스 전문 보기"
   license2_title: "이메일 문의"
@@ -451,3 +445,9 @@ error:
   mnemonic_invalid_phrase: "잘못된 니모닉 문구예요"
   data_loading_failed: "데이터를 불러오는 중 오류가 발생했습니다."
   data_not_found: "데이터가 없습니다."
+
+snackbar:
+  camera_permission: "카메라 권한이 없습니다."
+
+tooltip:
+  mfp: "지갑의 고유 값이에요.\n마스터 핑거프린트(MFP)라고도 해요."
