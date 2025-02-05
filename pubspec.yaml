@@ -66,6 +66,8 @@ dependencies:
   url_launcher: ^6.2.6
   crypto: ^3.0.6
   coconut_lib: ^0.8.1
+  slang: ^4.4.1
+  slang_flutter: ^4.4.0
 
 dev_dependencies:
   flutter_test:
