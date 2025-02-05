@@ -4,10 +4,6 @@
 # t.error.pcs_error1(count: kMaxNumberOfAttempts - attempt);
 
 # common
-coconut_vault: "Coconut Vault"
-on: "ON"
-off: "OFF"
-btc: "BTC"
 hour: "시간"
 minute: "분"
 second: "초"
@@ -16,10 +12,10 @@ confirm: "확인"
 complete: "완료"
 cancel: "취소"
 next: "다음"
+save: "저장"
 select: "선택"
 warning: "주의"
 security: "보안"
-re_select: "다시 고르기"
 yes: "네"
 no: "아니오"
 front: "앞"
@@ -27,37 +23,63 @@ back: "뒤"
 memo: "메모"
 close: "닫기"
 delete: "지우기"
-delete_all: "모두 지우기"
-delete_one: "하나 지우기"
+remove: "삭제하기"
 stop: "그만하기"
 start: "시작하기"
 sign: "서명하기"
 quit: "종료하기"
+import: "가져오기"
+export: "내보내기"
 signature: "서명"
 passphrase: "패스프레이즈"
 mnemonic: "니모닉 문구"
+testnet: "테스트넷"
+license: "라이선스"
+name: "이름"
+skip: "건너뛰기"
+restore: "복원하기"
+change: "잔돈"
+deposit: "입금"
+
+sign_tx: "서명 트랜잭션"
+select_completed: "선택 완료"
+inf_checklist: "확인 사항"
+wallet_id: "지갑 ID"
 mnemonic_wordlist: "니모닉 문구 단어집"
 multisig_wallet: "다중 서명 지갑"
 standard_wallet: "일반 지갑"
 extended_public_key: "확장 공개키"
-name_info: "$name 정보"
 app_info : "앱 정보"
 inquiry_details: "문의 내용"
 license_details: "라이선스 안내"
-bitcoin_text: "$bitcoin BTC"
 external_wallet: "외부 지갑"
 send_address: "보낼 주소"
 send_amount: "보낼 수량"
 estimated_fee: "예상 수수료"
 total_amount: "총 소요 수량"
-sign_step1: "$count개의 서명이 필요합니다"
-sign_step2: "서명을 완료했습니다"
+key_list: "키 목록"
+
 view_mnemonic: "니모닉 문구 보기"
 view_passphrase: "패스프레이즈 보기"
 view_app_info: "앱 정보 보기"
 view_all: "전체 보기"
-view_detail_info: "상세 정보 보기"
+view_details_info: "상세 정보 보기"
 view_address: "주소 보기"
+view_tutorial: "튜토리얼 보기"
+delete_all: "모두 지우기"
+delete_one: "하나 지우기"
+re_select: "다시 고르기"
+
+name_info: "$name 정보"
+name_wallet: "$name 지갑"
+bitcoin_text: "$bitcoin BTC"
+sign_required: "$count개의 서명이 필요합니다"
+name_text_count: "($count / 20)"
+wallet_subtitle: "$name의 $index번 키"
+
+forgot_password: "비밀번호가 기억나지 않나요?"
+sign_completed: "서명을 완료했습니다"
+qr_link: "네트워크가 활성화된 기기에서 QR 코드를 스캔하시거나 위의 URL 주소로 접속해 주세요."
 
 # lib
 vault_list_tab:
@@ -103,21 +125,17 @@ security_self_check_screen:
   check7: "니모닉 문구와 패스프레이즈를 함께 보관하지 않습니다."
   check8: "소액으로 보내기 테스트를 한 후 지갑 사용을 시작합니다."
   check9: "위 사항을 주기적으로 점검하고, 안전하게 니모닉 문구를 보관하겠습니다."
-  text1: "확인 사항"
-  text2: "아래 자가 점검 항목을 숙지하고 니모닉 문구를 반드시 안전하게 보관합니다."
+  text: "아래 자가 점검 항목을 숙지하고 니모닉 문구를 반드시 안전하게 보관합니다."
 tutorial_screen:
   title1: "튜토리얼을 참고하시면\n더욱 쉽게 사용할 수 있어요"
   title2: "도움이 필요하신가요?"
   subtitle1: "튜토리얼을 참고하시면\n더욱 쉽게 사용할 수 있어요"
   subtitle2: "튜토리얼과 함께 사용해 보세요"
   content: "인터넷 주소창에 입력해 주세요\ncoconut.onl"
-  text1: "건너뛰기"
-  text2: "튜토리얼 보기"
 
 # lib/screens/airgap
 account_selection_bottom_sheet_screen:
-  text1: "서명할 계정을 선택해주세요."
-  text2: "$name 지갑"
+  text: "서명할 계정을 선택해주세요."
 multi_signature_screen:
   text: "$index번 키 -"
 psbt_confirmation_screen:
@@ -129,13 +147,10 @@ psbt_scanner_screen:
   text1: "월렛에서 만든 보내기 정보 또는 외부 볼트에서 다중 서명 중인 정보를 스캔해주세요."
   text2: "월렛에서 만든 보내기 정보를 스캔해 주세요. 반드시 지갑 이름이 같아야 해요."
 signed_transaction_qr_screen:
-  text1: "서명 트랜잭션"
-  text2: "다중 서명을 완료했어요. 보내기 정보를 생성한 월렛으로 아래 QR 코드를 스캔해 주세요."
-  text3: "월렛의 '$name 지갑'에서 만든 보내기 정보에 서명을 완료했어요. 월렛으로 아래 QR 코드를 스캔해 주세요."
+  text1: "다중 서명을 완료했어요. 보내기 정보를 생성한 월렛으로 아래 QR 코드를 스캔해 주세요."
+  text2: "월렛의 '$name 지갑'에서 만든 보내기 정보에 서명을 완료했어요. 월렛으로 아래 QR 코드를 스캔해 주세요."
 singlesig_sign_screen:
-  text1: "이미 서명된 트랜잭션입니다"
-  text2: "서명을 완료했습니다"
-  text3: "$count개의 서명이 필요합니다"
+  text: "이미 서명된 트랜잭션입니다"
 
 # lib/screens/setting
 app_info_screen:
@@ -218,12 +233,11 @@ mnemonic_generate_screen:
   text11: "백업 완료"
   text12: "입력하신 패스프레이즈는 보관과 유출에 유의해 주세요"
 mnemonic_import_screen:
-  text1: "복원하기"
-  text2: "니모닉 문구를 입력해 주세요"
-  text3: "단어 사이에 띄어쓰기를 넣어주세요"
-  text4: "패스프레이즈 사용"
-  text5: "패스프레이즈를 입력해 주세요"
-  text6: "($count / 100)"
+  text1: "니모닉 문구를 입력해 주세요"
+  text2: "단어 사이에 띄어쓰기를 넣어주세요"
+  text3: "패스프레이즈 사용"
+  text4: "패스프레이즈를 입력해 주세요"
+  text5: "($count / 100)"
 select_vault_type_screen:
   text1: "하나의 니모닉 문구를 보관하는 단일 서명 지갑이에요"
   text2: "지정한 수의 서명이 필요한 지갑이에요"
@@ -241,8 +255,6 @@ vault_name_icon_setup_screen:
 assign_signers_screen:
   text1: "동일한 순서를 유지하도록 키 순서를 정렬 할게요"
   text2: "데이터 검증 중이에요"
-  text3: "선택 완료"
-  toast: "이미 추가되어 있는 다중 서명 지갑이에요. ($name)"
 confirm_importing_screen:
   text1_1: "다른 볼트에서 가져온 "
   text1_2: "정보가 일치하는지 "
@@ -279,9 +291,7 @@ signer_scanner_screen:
 # lib/screens/vault_detail
 address_list_screen:
   text1: "$name의 주소"
-  text2: "입금"
-  text3: "잔돈"
-  text4: "주소 - $index"
+  text2: "주소 - $index"
 export_detail_screen:
   text: "내보내기 상세 정보"
 mnemonic_view_screen:
@@ -311,9 +321,8 @@ multi_sig_setting_screen:
   text4: "$total개의 키 중 $count개로 서명해야 하는\n다중 서명 지갑이예요."
 select_export_type_screen:
   text1: "어떤 용도로 사용하시나요?"
-  text2: "내보내기"
-  text3: "월렛에\n보기 전용 지갑 추가"
-  text4: "다른 볼트에서\n다중 서명 키로 사용"
+  text2: "월렛에\n보기 전용 지갑 추가"
+  text3: "다른 볼트에서\n다중 서명 키로 사용"
 signer_bsms_screen:
   text1_1: "다른 볼트"
   text1_2: "에서 다중 서명 지갑을 생성 중이시군요! 다른 볼트에서 "
@@ -330,8 +339,7 @@ sync_to_wallet_screen:
   text2_4: "해 주세요. 안전한 보기 전용 지갑을 사용하실 수 있어요."
 vault_menu_screen:
   text1: "저장된 니모닉 문구 등을 확인할 수 있어요"
-  text2_1: "서명하기"
-  text2_2: "월렛에서 만든 정보를 스캔하고 서명해요"
+  text2: "월렛에서 만든 정보를 스캔하고 서명해요"
   text3: "$name에서 추출한 주소를 확인해요"
   text4_1: "지갑 정보 내보내기"
   text4_2: "월렛에 보기 전용 지갑을 추가해요"
@@ -347,7 +355,6 @@ vault_settings:
   text2_1: "의 "
   text2_2: "$index 번"
   text2_3: " 키"
-  text3: "삭제하기"
 
 snackbar:
   camera_permission: "카메라 권한이 없습니다."
@@ -416,6 +423,7 @@ alert:
   confirm: "정말로 진행하시겠어요?"
 
 toast:
+  clipboard_copied: "클립보드에 복사되었어요."
   back_exit: "뒤로 가기 버튼을 한 번 더 누르면 종료됩니다."
   scroll_down: "스크롤을 내려서 모두 확인해주세요"
   data_updated: "정보를 수정했어요"
@@ -424,6 +432,7 @@ toast:
   name_multisig_in_use: "다중 서명 지갑에 사용되고 있어 삭제할 수 없어요."
   mnemonic_already_added: "이미 추가되어 있는 니모닉이에요"
   mnemonic_copied: "니모닉 문구가 복사됐어요"
+  multisig_already_added: "이미 추가되어 있는 다중 서명 지갑이에요. ($name)"
 
 error:
   wallet_invalid_qr1: "잘못된 QR이에요. 다시 시도해 주세요."
