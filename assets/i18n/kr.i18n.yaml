@@ -43,7 +43,7 @@ deposit: "입금"
 
 sign_tx: "서명 트랜잭션"
 select_completed: "선택 완료"
-inf_checklist: "확인 사항"
+checklist: "확인 사항"
 wallet_id: "지갑 ID"
 mnemonic_wordlist: "니모닉 문구 단어집"
 multisig_wallet: "다중 서명 지갑"
