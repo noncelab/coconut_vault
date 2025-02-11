@@ -19,7 +19,7 @@ class _SelectVaultTypeScreenState extends State<SelectVaultTypeScreen> {
   bool _nextButtonEnabled = true;
   bool _showLoading = false;
   late String guideText;
-  List<String> options = ['/vault-creation-options', '/select-multisig-quoram'];
+  List<String> options = ['/vault-creation-options', '/select-multisig-quorum'];
   late final VaultModel model;
 
   @override

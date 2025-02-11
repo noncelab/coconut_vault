@@ -9,14 +9,14 @@ class MultisigCreationModel {
   int? get requiredSignatureCount => _requiredSignatureCount;
   int? get totalSignatureCount => _totalSignatureCount;
 
-  void setQuoramRequirement(
+  void setQuorumRequirement(
       int requiredSignatureCount, int totalSignatureCount) {
     _requiredSignatureCount = requiredSignatureCount;
     _totalSignatureCount = totalSignatureCount;
   }
 
   void setSigners(List<MultisigSigner> signers) {
-    assert(MultisigUtils.validateQuoramRequirement(
+    assert(MultisigUtils.validateQuorumRequirement(
         _requiredSignatureCount!, _totalSignatureCount!));
 
     this.signers = signers;

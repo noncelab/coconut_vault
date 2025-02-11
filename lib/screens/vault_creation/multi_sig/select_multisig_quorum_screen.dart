@@ -12,16 +12,16 @@ import 'package:coconut_vault/widgets/appbar/custom_appbar.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
 
-class SelectMultisigQuoramScreen extends StatefulWidget {
-  const SelectMultisigQuoramScreen({super.key});
+class SelectMultisigQuorumScreen extends StatefulWidget {
+  const SelectMultisigQuorumScreen({super.key});
 
   @override
-  State<SelectMultisigQuoramScreen> createState() =>
-      _SelectMultisigQuoramScreenState();
+  State<SelectMultisigQuorumScreen> createState() =>
+      _SelectMultisigQuorumScreenState();
 }
 
-class _SelectMultisigQuoramScreenState
-    extends State<SelectMultisigQuoramScreen> {
+class _SelectMultisigQuorumScreenState
+    extends State<SelectMultisigQuorumScreen> {
   late int requiredCount; // 필요한 서명 수
   late int totalCount; // 전체 키의 수
   bool nextButtonEnabled = false;
@@ -72,7 +72,7 @@ class _SelectMultisigQuoramScreenState
     String? currentRoute = ModalRoute.of(context)?.settings.name;
     debugPrint('currentRoute: $currentRoute');
     if (currentRoute != null &&
-        currentRoute.startsWith('/select-multisig-quoram')) {
+        currentRoute.startsWith('/select-multisig-quorum')) {
       // _startProgress(nCount, mCount);
     }
   }
@@ -99,7 +99,7 @@ class _SelectMultisigQuoramScreenState
   bool _checkNextButtonActiveState() {
     if (!nextButtonEnabled) return false;
 
-    return MultisigUtils.validateQuoramRequirement(requiredCount, totalCount);
+    return MultisigUtils.validateQuorumRequirement(requiredCount, totalCount);
   }
 
   void onCountButtonClicked(ChangeCountButtonType buttonType) {
@@ -169,7 +169,7 @@ class _SelectMultisigQuoramScreenState
         context: context,
         onNextPressed: () {
           Provider.of<MultisigCreationModel>(context, listen: false)
-              .setQuoramRequirement(requiredCount, totalCount);
+              .setQuorumRequirement(requiredCount, totalCount);
 
           _stopProgress();
           Navigator.pushNamed(context, '/assign-signers');

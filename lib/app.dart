@@ -176,8 +176,8 @@ class _PowVaultAppState extends State<PowVaultApp> {
                   ),
                 ),
             '/select-vault-type': (context) => const SelectVaultTypeScreen(),
-            '/select-multisig-quoram': (context) =>
-                const SelectMultisigQuoramScreen(),
+            '/select-multisig-quorum': (context) =>
+                const SelectMultisigQuorumScreen(),
             '/assign-signers': (context) => const AssignSignersScreen(),
             '/vault-creation-options': (context) =>
                 const VaultCreationOptions(),

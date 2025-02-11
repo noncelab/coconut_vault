@@ -237,7 +237,7 @@ class _AssignSignersScreenState extends State<AssignSignersScreen> {
           onConfirm = () {
             isFinishing = true;
             Navigator.popUntil(context,
-                (route) => route.settings.name == '/select-multisig-quoram');
+                (route) => route.settings.name == '/select-multisig-quorum');
           };
           break;
         }
