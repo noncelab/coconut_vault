@@ -2,7 +2,7 @@ import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:coconut_vault/styles.dart';
-import 'package:coconut_vault/widgets/high-lighted-text.dart';
+import 'package:coconut_vault/widgets/highlighted_text.dart';
 
 class IosBluetoothAuthNotificationScreen extends StatefulWidget {
   const IosBluetoothAuthNotificationScreen({super.key});

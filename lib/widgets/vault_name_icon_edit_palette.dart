@@ -1,3 +1,4 @@
+import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:coconut_vault/styles.dart';
@@ -150,7 +151,7 @@ class _VaultNameIconEditPaletteState extends State<VaultNameIconEditPalette> {
             child: Column(
               children: [
                 CustomTextField(
-                  placeholder: '이름',
+                  placeholder: t.name,
                   maxLength: 20,
                   maxLines: 1,
                   controller: _controller,
