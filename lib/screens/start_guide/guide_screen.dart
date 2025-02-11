@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:coconut_vault/model/state/app_model.dart';
@@ -32,8 +33,8 @@ class _GuideScreenState extends State<GuideScreen> {
                   width: 48,
                 ),
                 const SizedBox(height: 20),
-                const Text(
-                  "안전한 비트코인 보관을 위해,\n항상 연결 상태를 OFF로 유지해주세요",
+                Text(
+                  t.guide_screen.keep_network_off,
                   style: Styles.body2Bold,
                   textAlign: TextAlign.center,
                 ),
@@ -57,26 +58,30 @@ class _GuideScreenState extends State<GuideScreen> {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            const Text('네트워크 상태', style: Styles.body2Bold),
+                            Text(t.guide_screen.network_status,
+                                style: Styles.body2Bold),
                             const SizedBox(width: 40),
                             appModel.isNetworkOn != null &&
                                     appModel.isNetworkOn == true
-                                ? const HighLightedText('ON',
+                                ? HighLightedText(t.guide_screen.on,
                                     color: MyColors.warningText)
-                                : const Text('OFF', style: Styles.subLabel)
+                                : Text(t.guide_screen.off,
+                                    style: Styles.subLabel)
                           ],
                         ),
                         const SizedBox(height: 12),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            const Text('블루투스 상태', style: Styles.body2Bold),
+                            Text(t.guide_screen.bluetooth_status,
+                                style: Styles.body2Bold),
                             const SizedBox(width: 40),
                             appModel.isBluetoothOn != null &&
                                     appModel.isBluetoothOn == true
-                                ? const HighLightedText('ON',
+                                ? HighLightedText(t.guide_screen.on,
                                     color: MyColors.warningText)
-                                : const Text('OFF', style: Styles.subLabel)
+                                : Text(t.guide_screen.off,
+                                    style: Styles.subLabel)
                           ],
                         ),
                         if (Platform.isAndroid) ...[
@@ -84,13 +89,15 @@ class _GuideScreenState extends State<GuideScreen> {
                           Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              const Text('개발자 옵션', style: Styles.body2Bold),
+                              Text(t.guide_screen.developer_option,
+                                  style: Styles.body2Bold),
                               const SizedBox(width: 40),
                               appModel.isDeveloperModeOn != null &&
                                       appModel.isDeveloperModeOn == true
-                                  ? const HighLightedText('ON',
+                                  ? HighLightedText(t.guide_screen.on,
                                       color: MyColors.warningText)
-                                  : const Text('OFF', style: Styles.subLabel)
+                                  : Text(t.guide_screen.off,
+                                      style: Styles.subLabel)
                             ],
                           ),
                         ]
@@ -101,13 +108,13 @@ class _GuideScreenState extends State<GuideScreen> {
                     appModel.isBluetoothOn == true)
                   Column(
                     children: [
-                      Text("네트워크와 블루투스를 모두 꺼주세요",
+                      Text(t.guide_screen.turn_off_network_and_bluetooth,
                           style: Styles.body2Bold.merge(
                               const TextStyle(color: MyColors.warningText))),
                     ],
                   ),
                 if (appModel.isDeveloperModeOn == true && Platform.isAndroid)
-                  Text("개발자 옵션을 비활성화 해주세요",
+                  Text(t.guide_screen.disable_developer_option,
                       style: Styles.body2Bold
                           .merge(const TextStyle(color: MyColors.warningText))),
                 const SizedBox(
@@ -140,7 +147,7 @@ class _GuideScreenState extends State<GuideScreen> {
                                 ? MyColors.black
                                 : MyColors.transparentBlack_06),
                         child: Text(
-                          '시작하기',
+                          t.start,
                           style: Styles.label
                               .merge(const TextStyle(color: MyColors.white)),
                         ))),

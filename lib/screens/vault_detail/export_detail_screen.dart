@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:coconut_vault/constants/method_channel.dart';
+import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/utils/logger.dart';
 import 'package:coconut_vault/widgets/button/shrink_animation_button.dart';
 import 'package:coconut_vault/widgets/toast.dart';
@@ -89,7 +90,7 @@ class _ExportDetailScreen extends State<ExportDetailScreen> {
       child: Scaffold(
         backgroundColor: MyColors.white,
         appBar: AppBar(
-          title: const Text('내보내기 상세 정보'),
+          title: Text(t.export_detail_screen.title),
           centerTitle: true,
           backgroundColor: MyColors.white,
           titleTextStyle: Styles.body1Bold,

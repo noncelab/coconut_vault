@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:coconut_lib/coconut_lib.dart';
+import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/model/data/vault_list_item_base.dart';
 import 'package:coconut_vault/utils/text_utils.dart';
 import 'package:flutter/cupertino.dart';
@@ -11,8 +12,6 @@ import 'package:coconut_vault/styles.dart';
 import 'package:coconut_vault/utils/logger.dart';
 import 'package:coconut_vault/widgets/appbar/custom_appbar.dart';
 import 'package:coconut_vault/widgets/bottom_sheet.dart';
-// import 'package:pow_wallet_lib/entity/address.dart';
-// import 'package:pow_wallet_lib/pow_wallet_lib.dart';
 import 'package:provider/provider.dart';
 
 class AddressListScreen extends StatefulWidget {
@@ -101,7 +100,7 @@ class _AddressListScreenState extends State<AddressListScreen> {
     return Scaffold(
       backgroundColor: MyColors.white,
       appBar: CustomAppBar.build(
-        title: '${_vaultListItem.name}의 주소',
+        title: t.address_list_screen.title(name: _vaultListItem.name),
         context: context,
         hasRightIcon: false,
         isBottom: true,
@@ -140,7 +139,7 @@ class _AddressListScreenState extends State<AddressListScreen> {
                               ),
                               child: Center(
                                 child: Text(
-                                  '입금',
+                                  t.receiving,
                                   style: Styles.label.merge(TextStyle(
                                     color: isReceivingSelected
                                         ? MyColors.white
@@ -172,7 +171,7 @@ class _AddressListScreenState extends State<AddressListScreen> {
                               ),
                               child: Center(
                                 child: Text(
-                                  '잔돈',
+                                  t.change,
                                   style: Styles.label.merge(TextStyle(
                                     color: !isReceivingSelected
                                         ? MyColors.white
@@ -201,7 +200,8 @@ class _AddressListScreenState extends State<AddressListScreen> {
                                 context: context,
                                 child: QrcodeBottomSheetScreen(
                                   qrData: addressList[index].address,
-                                  title: '주소 - $index',
+                                  title: t.address_list_screen
+                                      .address_index(index: index),
                                   qrcodeTopWidget: Text(
                                     addressList[index].derivationPath,
                                     style: Styles.body2.merge(const TextStyle(

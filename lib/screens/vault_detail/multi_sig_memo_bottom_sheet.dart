@@ -1,3 +1,4 @@
+import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:coconut_vault/styles.dart';
@@ -53,7 +54,7 @@ class _MultiSigMemoBottomSheetState extends State<MultiSigMemoBottomSheet> {
               children: [
                 Center(
                   child: Text(
-                    '외부 지갑 메모',
+                    t.multi_sig_memo_bottom_sheet.imported_wallet_memo,
                     style: Styles.body1.copyWith(
                       fontSize: 18,
                     ),
@@ -70,7 +71,7 @@ class _MultiSigMemoBottomSheetState extends State<MultiSigMemoBottomSheet> {
                   ),
                   child: CupertinoTextField(
                     controller: _controller,
-                    placeholder: '메모를 작성해주세요.',
+                    placeholder: t.multi_sig_memo_bottom_sheet.placeholder,
                     padding: const EdgeInsets.fromLTRB(16, 20, 16, 20),
                     style: Styles.body1,
                     placeholderStyle: Styles.body2Grey,
@@ -153,7 +154,7 @@ class _MultiSigMemoBottomSheetState extends State<MultiSigMemoBottomSheet> {
                           ),
                           child: Center(
                             child: Text(
-                              '완료',
+                              t.complete,
                               style: TextStyle(
                                 color: Colors.white,
                                 fontSize: 14,
@@ -200,7 +201,7 @@ class MemoTextField extends StatelessWidget {
       ),
       child: CupertinoTextField(
         controller: controller,
-        placeholder: '메모를 작성해주세요.',
+        placeholder: t.multi_sig_memo_bottom_sheet.placeholder,
         padding: const EdgeInsets.fromLTRB(16, 20, 16, 20),
         style: Styles.body1,
         placeholderStyle: Styles.body2Grey,

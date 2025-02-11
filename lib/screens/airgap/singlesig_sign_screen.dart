@@ -1,4 +1,5 @@
 import 'package:coconut_lib/coconut_lib.dart';
+import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/model/data/singlesig_vault_list_item.dart';
 import 'package:coconut_vault/model/state/vault_model.dart';
 import 'package:coconut_vault/screens/pin_check_screen.dart';
@@ -36,7 +37,6 @@ class _SinglesigSignScreenState extends State<SinglesigSignScreen> {
   late SingleSignatureVault _coconutVault;
   late List<bool> _signersApproved;
   late bool _isAlreadySigned;
-  //bool _isSigned;
   final int _requiredSignatureCount = 1;
   bool _showLoading = false;
   bool _isProgressCompleted = false;
@@ -107,7 +107,8 @@ class _SinglesigSignScreenState extends State<SinglesigSignScreen> {
       _updateSignState(index);
     } catch (_) {
       if (mounted) {
-        showAlertDialog(context: context, content: "서명 실패: $_");
+        showAlertDialog(
+            context: context, content: t.errors.sign_error(error: _));
       }
     } finally {
       // unbind

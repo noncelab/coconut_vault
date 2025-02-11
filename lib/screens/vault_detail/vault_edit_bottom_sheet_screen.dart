@@ -1,3 +1,4 @@
+import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/model/state/app_model.dart';
 import 'package:flutter/material.dart';
 import 'package:coconut_vault/styles.dart';
@@ -99,7 +100,7 @@ class _VaultInfoEditBottomSheetState extends State<VaultInfoEditBottomSheet> {
                             : MyColors.lightgrey,
                       ),
                       child: Center(
-                        child: Text('완료',
+                        child: Text(t.complete,
                             style: Styles.subLabel.merge(TextStyle(
                                 color: _name.trim().isNotEmpty
                                     ? Colors.white

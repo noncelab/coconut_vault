@@ -1,4 +1,5 @@
 import 'package:coconut_lib/coconut_lib.dart';
+import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/widgets/button/custom_buttons.dart';
 import 'package:coconut_vault/widgets/multisig/card/signer_bsms_info_card.dart';
 import 'package:coconut_vault/widgets/textfield/custom_textfield.dart';
@@ -21,6 +22,7 @@ class ConfirmImportingScreen extends StatefulWidget {
 
 class _ConfirmImportingScreenState extends State<ConfirmImportingScreen>
     with WidgetsBindingObserver {
+  static const int kMaxTextLength = 15;
   late TextEditingController _controller;
   late FocusNode _focusNode;
 
@@ -86,7 +88,7 @@ class _ConfirmImportingScreenState extends State<ConfirmImportingScreen>
               CustomTooltip(
                 richText: RichText(
                   text: TextSpan(
-                    text: '다른 볼트에서 가져온 ',
+                    text: t.confirm_importing_screen.guide1,
                     style: Styles.body1.merge(
                       const TextStyle(
                         height: 20.8 / 16,
@@ -95,7 +97,7 @@ class _ConfirmImportingScreenState extends State<ConfirmImportingScreen>
                     ),
                     children: <TextSpan>[
                       TextSpan(
-                        text: '정보가 일치하는지 ',
+                        text: t.confirm_importing_screen.guide2,
                         style: Styles.body1.merge(
                           const TextStyle(
                             fontWeight: FontWeight.bold,
@@ -105,7 +107,7 @@ class _ConfirmImportingScreenState extends State<ConfirmImportingScreen>
                         ),
                       ),
                       TextSpan(
-                        text: '확인해 주세요.',
+                        text: t.confirm_importing_screen.guide3,
                         style: Styles.body1.merge(
                           const TextStyle(
                             height: 20.8 / 16,
@@ -126,7 +128,7 @@ class _ConfirmImportingScreenState extends State<ConfirmImportingScreen>
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      '스캔한 정보',
+                      t.confirm_importing_screen.scan_info,
                       style: Styles.body1.merge(
                         const TextStyle(
                           fontWeight: FontWeight.bold,
@@ -140,7 +142,7 @@ class _ConfirmImportingScreenState extends State<ConfirmImportingScreen>
                         bsms: BSMS.parseSigner(widget.importingBsms)),
                     const SizedBox(height: 36),
                     Text(
-                      '메모',
+                      t.confirm_importing_screen.memo,
                       style: Styles.body1.merge(
                         const TextStyle(
                           fontWeight: FontWeight.bold,
@@ -166,7 +168,7 @@ class _ConfirmImportingScreenState extends State<ConfirmImportingScreen>
                             ],
                           ),
                           child: CustomTextField(
-                            placeholder: '키에 대한 간단한 메모를 추가하세요',
+                            placeholder: t.confirm_importing_screen.placeholder,
                             maxLength: 15,
                             controller: _controller,
                             clearButtonMode: OverlayVisibilityMode.never,
@@ -182,11 +184,12 @@ class _ConfirmImportingScreenState extends State<ConfirmImportingScreen>
                           child: Align(
                             alignment: Alignment.topRight,
                             child: Text(
-                              '${_controller.text.length} / 15',
+                              '${_controller.text.length} / $kMaxTextLength',
                               style: TextStyle(
-                                  color: _controller.text.length == 15
-                                      ? MyColors.transparentBlack
-                                      : MyColors.transparentBlack_50,
+                                  color:
+                                      _controller.text.length == kMaxTextLength
+                                          ? MyColors.transparentBlack
+                                          : MyColors.transparentBlack_50,
                                   fontSize: 12,
                                   fontFamily: CustomFonts.text.getFontFamily),
                             ),
@@ -202,60 +205,9 @@ class _ConfirmImportingScreenState extends State<ConfirmImportingScreen>
                           'memo': _controller.text
                         });
                       },
-                      label: '완료',
+                      label: t.complete,
                       disabled: false,
                     ),
-                    // Center(
-                    //   child: GestureDetector(
-                    //     onTap: () {
-                    //       setState(() {
-                    //         isPressing = false;
-                    //       });
-                    //       Navigator.pop(context, {
-                    //         'bsms': widget.importingBsms,
-                    //         'memo': _controller.text
-                    //       });
-                    //     },
-                    //     onTapDown: (details) {
-                    //       setState(() {
-                    //         isPressing = true;
-                    //       });
-                    //     },
-                    //     onTapCancel: () {
-                    //       setState(() {
-                    //         isPressing = false;
-                    //       });
-                    //     },
-                    //     child: Container(
-                    //       width: 90,
-                    //       padding: const EdgeInsets.symmetric(
-                    //         horizontal: 30.0,
-                    //         vertical: 12,
-                    //       ),
-                    //       decoration: BoxDecoration(
-                    //         borderRadius: BorderRadius.circular(4.0),
-                    //         border: Border.all(
-                    //           color: isPressing
-                    //               ? MyColors.transparentBlack_03
-                    //               : MyColors.transparentBlack_06,
-                    //         ),
-                    //         color: isPressing
-                    //             ? MyColors.transparentBlack_70
-                    //             : MyColors.darkgrey,
-                    //       ),
-                    //       child: const Center(
-                    //         child: Text(
-                    //           '완 료',
-                    //           style: TextStyle(
-                    //             fontSize: 12,
-                    //             color: Colors.white,
-                    //             fontWeight: FontWeight.bold,
-                    //           ),
-                    //         ),
-                    //       ),
-                    //     ),
-                    //   ),
-                    // ),
                     const SizedBox(height: 20),
                   ],
                 ),

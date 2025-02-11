@@ -1,3 +1,4 @@
+import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/model/data/vault_list_item_base.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -51,7 +52,7 @@ class _AccountSelectionBottomSheetScreenState
                     const SizedBox(
                       height: 10,
                     ),
-                    const Text("서명할 계정을 선택해주세요."),
+                    Text(t.account_selection_bottom_sheet_screen.text),
                     const SizedBox(
                       height: 10,
                     ),
@@ -100,7 +101,7 @@ class _SelectionItem extends StatelessWidget {
         ),
         padding: Paddings.widgetContainer,
         child: Text(
-          "${params.name} 지갑",
+          t.name_wallet(name: params.name),
           style: Styles.h3,
         ),
       ),

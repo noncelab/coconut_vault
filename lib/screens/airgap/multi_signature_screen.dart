@@ -1,4 +1,5 @@
 import 'package:coconut_lib/coconut_lib.dart';
+import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/model/data/multisig_vault_list_item.dart';
 import 'package:coconut_vault/model/state/vault_model.dart';
 import 'package:coconut_vault/screens/pin_check_screen.dart';
@@ -120,7 +121,8 @@ class _MultiSignatureScreenState extends State<MultiSignatureScreen> {
       _updateSignState(index);
     } catch (_) {
       if (mounted) {
-        showAlertDialog(context: context, content: "서명 실패: $_");
+        showAlertDialog(
+            context: context, content: t.errors.sign_error(error: _));
       }
     } finally {
       // unbind
@@ -167,9 +169,9 @@ class _MultiSignatureScreenState extends State<MultiSignatureScreen> {
   void _askIfSureToQuit() {
     CustomDialogs.showCustomAlertDialog(
       context,
-      title: '서명하기 종료',
-      message: '서명을 종료하고 홈화면으로 이동해요.\n정말 종료하시겠어요?',
-      confirmButtonText: '종료하기',
+      title: t.alert.exit_sign.title,
+      message: t.alert.exit_sign.description,
+      confirmButtonText: t.quit,
       confirmButtonColor: MyColors.warningText,
       onCancel: () => Navigator.pop(context),
       onConfirm: () => Navigator.popUntil(context, (route) => route.isFirst),
@@ -179,9 +181,9 @@ class _MultiSignatureScreenState extends State<MultiSignatureScreen> {
   void _askIfSureToGoBack() {
     CustomDialogs.showCustomAlertDialog(
       context,
-      title: '서명하기 중단',
-      message: '서명 내역이 사라져요.\n정말 그만하시겠어요?',
-      confirmButtonText: '그만하기',
+      title: t.alert.stop_sign.title,
+      message: t.alert.stop_sign.description,
+      confirmButtonText: t.quit,
       confirmButtonColor: MyColors.warningText,
       onCancel: () => Navigator.pop(context),
       onConfirm: () {
@@ -211,7 +213,7 @@ class _MultiSignatureScreenState extends State<MultiSignatureScreen> {
       child: Scaffold(
         backgroundColor: MyColors.lightgrey,
         appBar: CustomAppBar.buildWithNext(
-            title: '서명하기',
+            title: t.sign,
             context: context,
             onBackPressed: _onBackPressed,
             onNextPressed: () {
@@ -265,7 +267,7 @@ class _MultiSignatureScreenState extends State<MultiSignatureScreen> {
                     child: Text(
                       _requiredSignatureCount <=
                               _signersApproved.where((item) => item).length
-                          ? '서명을 완료했습니다'
+                          ? t.sign_completed
                           : '${_requiredSignatureCount - _signersApproved.where((item) => item).length}개의 서명이 필요합니다',
                       style: Styles.body2Bold,
                     ),
@@ -280,7 +282,7 @@ class _MultiSignatureScreenState extends State<MultiSignatureScreen> {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Text(
-                              '보낼 주소',
+                              t.recipient,
                               style:
                                   Styles.body2.copyWith(color: MyColors.grey57),
                             ),
@@ -295,12 +297,12 @@ class _MultiSignatureScreenState extends State<MultiSignatureScreen> {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Text(
-                              '보낼 수량',
+                              t.send_amount,
                               style:
                                   Styles.body2.copyWith(color: MyColors.grey57),
                             ),
                             Text(
-                              '${widget.bitcoinString} BTC',
+                              '${widget.bitcoinString} ${t.btc}',
                               style: Styles.balance2.copyWith(
                                 fontSize: 16,
                               ),
@@ -321,7 +323,7 @@ class _MultiSignatureScreenState extends State<MultiSignatureScreen> {
                         final signer = _multisigVaultItem.signers[index];
                         final length = _multisigVaultItem.signers.length - 1;
                         final isVaultKey = signer.innerVaultId != null;
-                        final name = signer.name ?? '외부지갑';
+                        final name = signer.name ?? t.external_wallet;
                         final memo = signer.memo ?? '';
                         final iconIndex = signer.iconIndex ?? 0;
                         final colorIndex =
@@ -355,7 +357,8 @@ class _MultiSignatureScreenState extends State<MultiSignatureScreen> {
                                   children: [
                                     SizedBox(
                                       width: 60,
-                                      child: Text('${index + 1}번 키 -',
+                                      child: Text(
+                                          t.multisig.nth_key(index: index + 1),
                                           style: Styles.body1),
                                     ),
                                     Row(
@@ -408,7 +411,7 @@ class _MultiSignatureScreenState extends State<MultiSignatureScreen> {
                                       Row(
                                         children: [
                                           Text(
-                                            '서명 완료',
+                                            t.sign_completion,
                                             style: Styles.body1Bold.copyWith(
                                                 fontSize: 12,
                                                 color: Colors.black),
@@ -441,7 +444,7 @@ class _MultiSignatureScreenState extends State<MultiSignatureScreen> {
                                           ),
                                           child: Center(
                                             child: Text(
-                                              '서명',
+                                              t.signature,
                                               style: Styles.caption.copyWith(
                                                   color: MyColors
                                                       .black19), // 텍스트 색상도 검정으로 변경
@@ -468,8 +471,8 @@ class _MultiSignatureScreenState extends State<MultiSignatureScreen> {
                   CupertinoButton(
                       padding: const EdgeInsets.only(bottom: 50),
                       onPressed: _askIfSureToQuit,
-                      child: const Text(
-                        '서명 종료하기',
+                      child: Text(
+                        t.stop_sign,
                         style: Styles.tertiaryButtonText,
                       )),
                 ],

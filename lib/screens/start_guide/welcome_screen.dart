@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:carousel_slider/carousel_slider.dart';
+import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/model/state/app_model.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -44,8 +45,8 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
               width: 80,
             ),
             const SizedBox(height: 20),
-            const Text(
-              "원활한 코코넛 볼트 사용을 위해\n잠깐만 시간을 내주세요",
+            Text(
+              t.welcome_screen.greeting,
               style: Styles.body2Bold,
               textAlign: TextAlign.center,
             ),
@@ -71,18 +72,21 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                           MyColors.darkgrey, BlendMode.srcIn),
                     ),
                     const SizedBox(height: 20),
-                    const Text('볼트는', style: Styles.subLabel),
+                    Text(t.welcome_screen.guide1_1, style: Styles.subLabel),
                     HighLightedText(
-                        '네트워크, 블루투스 연결${Platform.isAndroid ? ', 개발자 옵션이 ' : '이 '}',
+                        t.welcome_screen.guide1_2(
+                            suffix:
+                                Platform.isAndroid ? t.developer_option : ''),
                         color: MyColors.darkgrey),
-                    const Row(
+                    Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        HighLightedText('꺼져있는 상태', color: MyColors.darkgrey),
-                        Text('에서만', style: Styles.subLabel),
+                        HighLightedText(t.welcome_screen.guide1_3,
+                            color: MyColors.darkgrey),
+                        Text(t.welcome_screen.guide1_4, style: Styles.subLabel),
                       ],
                     ),
-                    const Text('사용하실 수 있어요', style: Styles.subLabel),
+                    Text(t.welcome_screen.guide1_5, style: Styles.subLabel),
                   ],
                 ),
                 // Guide2
@@ -96,11 +100,11 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                           MyColors.darkgrey, BlendMode.srcIn),
                     ),
                     const SizedBox(height: 20),
-                    const Text('즉,', style: Styles.subLabel),
-                    const Text('연결이 감지되면', style: Styles.subLabel),
-                    const HighLightedText('앱을 사용하실 수 없게',
+                    Text(t.welcome_screen.guide2_1, style: Styles.subLabel),
+                    Text(t.welcome_screen.guide2_2, style: Styles.subLabel),
+                    HighLightedText(t.welcome_screen.guide2_3,
                         color: MyColors.darkgrey),
-                    const Text('설계되어 있어요', style: Styles.subLabel),
+                    Text(t.welcome_screen.guide2_4, style: Styles.subLabel),
                   ],
                 ),
                 // Guide3
@@ -114,15 +118,16 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                           MyColors.darkgrey, BlendMode.srcIn),
                     ),
                     const SizedBox(height: 20),
-                    const Row(
+                    Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        HighLightedText('안전한 사용', color: MyColors.darkgrey),
-                        Text('을 위한', style: Styles.subLabel),
+                        HighLightedText(t.welcome_screen.guide3_1,
+                            color: MyColors.darkgrey),
+                        Text(t.welcome_screen.guide3_2, style: Styles.subLabel),
                       ],
                     ),
-                    const Text('조치이오니', style: Styles.subLabel),
-                    const Text('사용 시 유의해 주세요', style: Styles.subLabel),
+                    Text(t.welcome_screen.guide3_3, style: Styles.subLabel),
+                    Text(t.welcome_screen.guide3_4, style: Styles.subLabel),
                   ],
                 ),
               ].map((item) {
@@ -157,7 +162,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                   Navigator.pushNamed(context, '/connectivity-guide');
                 },
                 child: Text(
-                  '모두 이해했어요 :)',
+                  t.welcome_screen.understood,
                   style: Styles.label.merge(const TextStyle(
                       color: MyColors.secondary, fontWeight: FontWeight.bold)),
                 )),

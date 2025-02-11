@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:coconut_lib/coconut_lib.dart';
+import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/model/data/multisig_signer.dart';
 import 'package:coconut_vault/model/data/singlesig_vault_list_item.dart';
 import 'package:coconut_vault/model/data/vault_list_item_base.dart';
@@ -228,10 +229,10 @@ class _AssignSignersScreenState extends State<AssignSignersScreen> {
     switch (type) {
       case DialogType.reSelect:
         {
-          title = '다시 고르기';
-          message = '지금까지 입력한 정보가 모두 지워져요.\n정말로 다시 선택하시겠어요?';
-          cancelButtonText = '취소';
-          confirmButtonText = '지우기';
+          title = t.alert.reselect.title;
+          message = t.alert.reselect.description;
+          cancelButtonText = t.cancel;
+          confirmButtonText = t.delete;
           confirmButtonColor = MyColors.warningText;
           onConfirm = () {
             isFinishing = true;
@@ -242,10 +243,10 @@ class _AssignSignersScreenState extends State<AssignSignersScreen> {
         }
       case DialogType.notAvailable:
         {
-          title = '볼트에 저장된 키가 없어요';
-          message = '키를 사용하기 위해 일반 지갑을 먼저 만드시겠어요?';
-          cancelButtonText = '아니오';
-          confirmButtonText = '네';
+          title = t.alert.empty_vault.title;
+          message = t.alert.empty_vault.description;
+          cancelButtonText = t.no;
+          confirmButtonText = t.yes;
           confirmButtonColor = MyColors.black;
           onConfirm = () {
             Navigator.pushNamedAndRemoveUntil(
@@ -258,10 +259,10 @@ class _AssignSignersScreenState extends State<AssignSignersScreen> {
         }
       case DialogType.quit:
         {
-          title = '다중 서명 지갑 만들기 중단';
-          message = '정말 지갑 생성을 그만하시겠어요?';
-          cancelButtonText = '취소';
-          confirmButtonText = '그만하기';
+          title = t.alert.quit_creating_mutisig_wallet.title;
+          message = t.alert.quit_creating_mutisig_wallet.description;
+          cancelButtonText = t.cancel;
+          confirmButtonText = t.stop;
           confirmButtonColor = MyColors.warningText;
           onConfirm = () {
             _multisigCreationState.reset();
@@ -273,10 +274,10 @@ class _AssignSignersScreenState extends State<AssignSignersScreen> {
         }
       case DialogType.deleteKey:
         {
-          title = '${keyIndex + 1}번 키 초기화';
-          message = '지정한 키 정보를 삭제하시겠어요?';
-          cancelButtonText = '아니오';
-          confirmButtonText = '네';
+          title = t.alert.reset_nth_key.title(index: keyIndex + 1);
+          message = t.alert.reset_nth_key.description;
+          cancelButtonText = t.no;
+          confirmButtonText = t.yes;
           confirmButtonColor = MyColors.warningText;
           onConfirm = () {
             // 내부 지갑인 경우
@@ -308,10 +309,10 @@ class _AssignSignersScreenState extends State<AssignSignersScreen> {
         {
           if (alreadyDialogShown) return;
           alreadyDialogShown = true;
-          title = '가져오기 중단';
-          message = '스캔된 정보가 사라집니다.\n정말 가져오기를 그만하시겠어요?';
-          cancelButtonText = '취소';
-          confirmButtonText = '그만하기';
+          title = t.alert.stop_importing.title;
+          message = t.alert.stop_importing.description;
+          cancelButtonText = t.cancel;
+          confirmButtonText = t.stop;
           confirmButtonColor = MyColors.warningText;
           barrierDismissible = false;
           onCancel = () {
@@ -335,10 +336,10 @@ class _AssignSignersScreenState extends State<AssignSignersScreen> {
         }
       case DialogType.alreadyExist:
         {
-          title = '이미 추가된 키입니다';
-          message = '중복되지 않는 다른 키로 가져와 주세요';
+          title = t.alert.duplicate_key.title;
+          message = t.alert.duplicate_key.description;
           cancelButtonText = '';
-          confirmButtonText = '확인';
+          confirmButtonText = t.confirm;
           confirmButtonColor = MyColors.black;
           onConfirm = () {
             Navigator.pop(context);
@@ -347,9 +348,9 @@ class _AssignSignersScreenState extends State<AssignSignersScreen> {
         }
       case DialogType.sameWithInternalOne:
         {
-          title = "보유하신 지갑 중 하나입니다.";
-          message = "'$vaultName'와 같은 지갑입니다.";
-          confirmButtonText = '확인';
+          title = t.alert.same_wallet.title;
+          message = t.alert.same_wallet.description(name: vaultName!);
+          confirmButtonText = t.confirm;
           confirmButtonColor = MyColors.black;
           onConfirm = () {
             Navigator.pop(context);
@@ -358,10 +359,10 @@ class _AssignSignersScreenState extends State<AssignSignersScreen> {
         }
       default:
         {
-          title = '외부 지갑 개수 초과';
-          message = '적어도 1개는 이 볼트에 있는 키를 사용해 주세요';
+          title = t.alert.include_internal_key.title;
+          message = t.alert.include_internal_key.description;
           cancelButtonText = '';
-          confirmButtonText = '확인';
+          confirmButtonText = t.confirm;
           confirmButtonColor = MyColors.black;
           onConfirm = () {
             Navigator.pop(context);
@@ -399,7 +400,7 @@ class _AssignSignersScreenState extends State<AssignSignersScreen> {
   // 외부지갑은 추가 시 올바른 signerBsms 인지 미리 확인이 되어 있어야 합니다.
   void onSelectionCompleted() async {
     setState(() {
-      loadingMessage = '동일한 순서를 유지하도록 키 순서를 정렬 할게요';
+      loadingMessage = t.assign_signers_screen.order_keys;
       isNextProcessing = true;
     });
 
@@ -455,7 +456,7 @@ class _AssignSignersScreenState extends State<AssignSignersScreen> {
         assignedVaultList[i].index = i;
       }
 
-      loadingMessage = '데이터 검증 중이에요';
+      loadingMessage = t.assign_signers_screen.data_verifying;
     });
 
     // 검증: 올바른 Signer 정보를 받았는지 확인합니다.
@@ -468,7 +469,9 @@ class _AssignSignersScreenState extends State<AssignSignersScreen> {
           isNextProcessing = false;
         });
         showAlertDialog(
-            context: context, title: '지갑 생성 실패', content: '유효하지 않은 정보입니다.');
+            context: context,
+            title: t.alert.wallet_creation_failed.title,
+            content: t.alert.wallet_creation_failed.description);
       }
       return;
     }
@@ -480,7 +483,7 @@ class _AssignSignersScreenState extends State<AssignSignersScreen> {
       if (mounted) {
         CustomToast.showToast(
             context: context,
-            text: "이미 추가되어 있는 다중 서명 지갑이에요. (${findResult.name})");
+            text: t.toast.multisig_already_added(name: findResult.name));
         setState(() {
           isNextProcessing = false;
         });
@@ -515,7 +518,7 @@ class _AssignSignersScreenState extends State<AssignSignersScreen> {
       child: Scaffold(
         backgroundColor: MyColors.white,
         appBar: CustomAppBar.buildWithNext(
-          title: '다중 서명 지갑',
+          title: t.multisig_wallet,
           context: context,
           onBackPressed: () => _onBackPressed(context),
           onNextPressed: onNextPressed,
@@ -580,8 +583,8 @@ class _AssignSignersScreenState extends State<AssignSignersScreen> {
                               const SizedBox(
                                 width: 2,
                               ),
-                              const Text(
-                                '선택',
+                              Text(
+                                t.select,
                                 style: Styles.body1,
                               ),
                               const SizedBox(
@@ -601,8 +604,8 @@ class _AssignSignersScreenState extends State<AssignSignersScreen> {
                                       borderRadius: BorderRadius.circular(8),
                                       border: Border.all(
                                           color: MyColors.borderGrey)),
-                                  child: const Text(
-                                    '다시 고르기',
+                                  child: Text(
+                                    t.re_select,
                                     style: Styles.caption,
                                   ),
                                 ),
@@ -828,7 +831,7 @@ class _AssignSignersScreenState extends State<AssignSignersScreen> {
                                 margin: const EdgeInsets.only(top: 40),
                                 child: CompleteButton(
                                     onPressed: onSelectionCompleted,
-                                    label: '선택 완료',
+                                    label: t.select_completed,
                                     disabled: _isAssignedKeyCompletely() &&
                                         isNextProcessing),
                               ))
@@ -973,7 +976,7 @@ class AssignedVaultListItem {
 
   @override
   String toString() =>
-      '[index]: ${index + 1}번 키\n[item]: ${item.toString()}\nmemo: $memo';
+      '[index]: ${t.multisig.nth_key(index: index + 1)}\n[item]: ${item.toString()}\nmemo: $memo';
 
   void changeExpanded() {
     isExpanded = !isExpanded;
@@ -1041,8 +1044,8 @@ class _ExpansionChildWidgetState extends State<ExpansionChildWidget> {
               Expanded(
                 child: Text(
                   widget.type == ImportKeyType.internal
-                      ? '이 볼트에 있는 키 사용하기'
-                      : '가져오기',
+                      ? t.assign_signers_screen.use_internal_key
+                      : t.import,
                   style: Styles.body1,
                 ),
               ),

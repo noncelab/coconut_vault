@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:collection';
 
+import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/model/state/multisig_creation_model.dart';
 import 'package:coconut_vault/utils/coconut/multisig_utils.dart';
 import 'package:coconut_vault/widgets/button/custom_buttons.dart';
@@ -164,7 +165,7 @@ class _SelectMultisigQuoramScreenState
     return Scaffold(
       backgroundColor: MyColors.white,
       appBar: CustomAppBar.buildWithNext(
-        title: '다중 서명 지갑',
+        title: t.multisig_wallet,
         context: context,
         onNextPressed: () {
           Provider.of<MultisigCreationModel>(context, listen: false)
@@ -183,10 +184,10 @@ class _SelectMultisigQuoramScreenState
               const SizedBox(height: 30),
               Row(
                 children: [
-                  const Expanded(
+                  Expanded(
                     child: Center(
                       child: Text(
-                        '전체 키의 수',
+                        t.select_multisig_quoram_screen.total_key_count,
                         style: Styles.body2Bold,
                       ),
                     ),
@@ -209,10 +210,11 @@ class _SelectMultisigQuoramScreenState
               const SizedBox(height: 15),
               Row(
                 children: [
-                  const Expanded(
+                  Expanded(
                     child: Center(
                       child: Text(
-                        '필요한 서명 수',
+                        t.select_multisig_quoram_screen
+                            .required_signature_count,
                         style: Styles.body2Bold,
                       ),
                     ),
@@ -372,13 +374,12 @@ class _SelectMultisigQuoramScreenState
         {
           if (requiredCount == 1) {
             {
-              result = '하나의 키를 분실하거나 키 보관자 중 한 명이 부재중이더라도 비트코인을 보낼 수 있어요.';
+              result = t.select_multisig_quoram_screen.one_or_two_of_n;
               break;
             }
           } else {
             {
-              result =
-                  '모든 키가 있어야만 비트코인을 보낼 수 있어요. 단 하나의 키만 잃어버려도 자금에 접근할 수 없게 되니 분실에 각별히 신경써 주세요.';
+              result = t.select_multisig_quoram_screen.n_of_n;
               break;
             }
           }
@@ -387,19 +388,17 @@ class _SelectMultisigQuoramScreenState
         {
           if (requiredCount == 1) {
             {
-              result =
-                  '하나의 키만 있어도 비트코인을 이동시킬 수 있어요. 상대적으로 보안성이 낮기 때문에 권장하지 않아요.';
+              result = t.select_multisig_quoram_screen.one_of_n;
               break;
             }
           } else if (requiredCount == 2) {
             {
-              result = '하나의 키를 분실하거나 키 보관자 중 한 명이 부재중이더라도 비트코인을 보낼 수 있어요.';
+              result = t.select_multisig_quoram_screen.one_or_two_of_n;
               break;
             }
           } else {
             {
-              result =
-                  '모든 키가 있어야만 비트코인을 보낼 수 있어요. 단 하나의 키만 잃어버려도 자금에 접근할 수 없게 되니 분실에 각별히 신경써 주세요.';
+              result = t.select_multisig_quoram_screen.one_of_n;
               break;
             }
           }

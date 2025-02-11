@@ -1,3 +1,4 @@
+import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:coconut_vault/styles.dart';
@@ -35,7 +36,7 @@ class _ReadFileViewScreenState extends State<ReadFileViewScreen> {
     switch (widget.fileType) {
       case FileType.license:
         text = await rootBundle.loadString('assets/files/LICENSE');
-        titleText = 'MIT LICENSE';
+        titleText = t.read_file_view_screen.mit_license;
         break;
       case FileType.contributing:
         text = await rootBundle.loadString('assets/files/CONTRIBUTING.md');
@@ -68,7 +69,7 @@ class _ReadFileViewScreenState extends State<ReadFileViewScreen> {
             );
           }
         }
-        titleText = '오픈소스 개발 참여하기';
+        titleText = t.read_file_view_screen.contribution;
         break;
     }
     setState(() {

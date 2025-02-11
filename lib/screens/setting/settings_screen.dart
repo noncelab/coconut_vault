@@ -1,3 +1,4 @@
+import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:loader_overlay/loader_overlay.dart';
@@ -27,7 +28,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         centerTitle: true,
         backgroundColor: Colors.transparent,
         toolbarHeight: 62,
-        title: const Text('설정'),
+        title: Text(t.settings),
         titleTextStyle:
             Styles.navHeader.merge(const TextStyle(color: MyColors.black)),
         toolbarTextStyle: Styles.appbarTitle,
@@ -66,8 +67,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
       children: [
         Container(
           padding: const EdgeInsets.symmetric(vertical: 12),
-          child: const Text('보안',
-              style: TextStyle(
+          child: Text(t.security,
+              style: const TextStyle(
                 fontFamily: 'Pretendard',
                 color: MyColors.black,
                 fontSize: 16,
@@ -80,7 +81,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             if (appModel.isPinEnabled) ...{
               if (appModel.canCheckBiometrics)
                 SingleButton(
-                  title: '생체 인증 사용하기',
+                  title: t.settings_screen.use_biometric,
                   rightElement: CupertinoSwitch(
                     value: appModel.hasBiometricsPermission
                         ? appModel.isBiometricEnabled
@@ -98,7 +99,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   ),
                 ),
               SingleButton(
-                title: '비밀번호 바꾸기',
+                title: t.settings_screen.change_password,
                 onPressed: () async {
                   MyBottomSheet.showBottomSheet_90(
                     context: context,
@@ -112,7 +113,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               )
             } else ...{
               SingleButton(
-                title: '비밀번호 설정하기',
+                title: t.settings_screen.set_password,
                 rightElement: CupertinoSwitch(
                   value: appModel.isPinEnabled,
                   activeColor: MyColors.primary,
@@ -130,48 +131,4 @@ class _SettingsScreenState extends State<SettingsScreen> {
       ],
     );
   }
-
-  /*Widget _informationPart() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Container(
-          padding: const EdgeInsets.symmetric(vertical: 12),
-          child: const Text('정보',
-              style: TextStyle(
-                fontFamily: 'Pretendard',
-                color: MyColors.black,
-                fontSize: 16,
-                fontStyle: FontStyle.normal,
-                fontWeight: FontWeight.bold,
-              )),
-        ),
-        Column(
-          children: [
-            ButtonGroup(buttons: [
-              SingleButton(
-                title: '니모닉 문구 단어집',
-                onPressed: () {
-                  if (mounted) {
-                    Navigator.pushNamed(context, '/mnemonic-word-list');
-                  }
-                },
-              ),
-              SingleButton(
-                title: '앱 정보 보기',
-                onPressed: () {
-                  if (mounted) {
-                    Navigator.pushNamed(context, '/app-info');
-                  }
-                },
-              )
-            ]),
-          ],
-        ),
-        const SizedBox(
-          height: 16,
-        ),
-      ],
-    );
-  }*/
 }

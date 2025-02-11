@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'dart:ui';
 
+import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -86,7 +87,7 @@ class _AppInfoScreenState extends State<AppInfoScreen> {
             'App Version: ${packageInfo.appName} ver.${packageInfo.version}\n'
             'Build Number: ${packageInfo.buildNumber}\n\n'
             '------------------------------------------------------------\n'
-            '문의 내용: \n\n\n\n\n';
+            '${t.inquiry_details}: \n\n\n\n\n';
       } else if (Platform.isIOS) {
         IosDeviceInfo iosInfo = await deviceInfoPlugin.iosInfo;
         return info = 'iOS Device Info:\n'
@@ -98,10 +99,10 @@ class _AppInfoScreenState extends State<AppInfoScreen> {
             'App Version: ${packageInfo.appName} ver.${packageInfo.version}\n'
             'Build Number: ${packageInfo.buildNumber}\n\n'
             '------------------------------------------------------------\n'
-            '문의 내용: \n\n';
+            '${t.inquiry_details}: \n\n';
       }
     } catch (e) {
-      throw '디바이스 정보를 불러올 수 없음 : $e';
+      throw t.errors.device_info_unavailable_error(error: e);
     }
     return info;
   }
@@ -141,8 +142,8 @@ class _AppInfoScreenState extends State<AppInfoScreen> {
         title: AnimatedOpacity(
           duration: const Duration(milliseconds: 200),
           opacity: _appbarTitleVisible ? 1 : 0,
-          child: const Text(
-            '앱 정보',
+          child: Text(
+            t.app_info,
             style: Styles.appbarTitle,
           ),
         ),
@@ -184,9 +185,9 @@ class _AppInfoScreenState extends State<AppInfoScreen> {
               color: MyColors.darkgrey,
             ));
           } else if (snapshot.hasError) {
-            return const Center(child: Text('데이터를 불러오는 중 오류가 발생했습니다.'));
+            return Center(child: Text(t.errors.data_loading_error));
           } else if (!snapshot.hasData) {
-            return const Center(child: Text('데이터가 없습니다.'));
+            return Center(child: Text(t.errors.data_not_found_error));
           }
 
           PackageInfo packageInfo = snapshot.data!;
@@ -240,7 +241,7 @@ class _AppInfoScreenState extends State<AppInfoScreen> {
                       ),
                     ),
                     Text(
-                      '포우팀이 만듭니다.',
+                      t.app_info_screen.made_by_team_pow,
                       style: Styles.body2.merge(
                         const TextStyle(
                           color: MyColors.transparentBlack_70,
@@ -263,10 +264,10 @@ class _AppInfoScreenState extends State<AppInfoScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _category('궁금한 점이 있으신가요?'),
+          _category(t.app_info_screen.category1_ask),
           ButtonGroup(buttons: [
             SingleButton(
-              title: 'POW 커뮤니티 바로가기',
+              title: t.app_info_screen.go_to_pow,
               leftElement: ClipRRect(
                 borderRadius: BorderRadius.circular(8.0),
                 child: Image.asset(
@@ -279,15 +280,15 @@ class _AppInfoScreenState extends State<AppInfoScreen> {
               onPressed: () {
                 MyBottomSheet.showBottomSheet_90(
                     context: context,
-                    child: const QrcodeBottomSheetScreen(
+                    child: QrcodeBottomSheetScreen(
                       qrData: POW_URL,
-                      title: 'POW 커뮤니티 바로가기',
+                      title: t.app_info_screen.go_to_pow,
                       fromAppInfo: true,
                     ));
               },
             ),
             SingleButton(
-              title: '텔레그램 채널로 문의하기',
+              title: t.app_info_screen.ask_to_telegram,
               leftElement: ClipRRect(
                 borderRadius: BorderRadius.circular(8.0),
                 child: Image.asset(
@@ -300,15 +301,15 @@ class _AppInfoScreenState extends State<AppInfoScreen> {
               onPressed: () {
                 MyBottomSheet.showBottomSheet_90(
                     context: context,
-                    child: const QrcodeBottomSheetScreen(
+                    child: QrcodeBottomSheetScreen(
                       qrData: TELEGRAM_POW,
-                      title: '텔레그램 채널로 문의하기',
+                      title: t.app_info_screen.ask_to_telegram,
                       fromAppInfo: true,
                     ));
               },
             ),
             SingleButton(
-              title: 'X로 문의하기',
+              title: t.app_info_screen.ask_to_x,
               leftElement: ClipRRect(
                 borderRadius: BorderRadius.circular(8.0),
                 child: Image.asset(
@@ -321,15 +322,15 @@ class _AppInfoScreenState extends State<AppInfoScreen> {
               onPressed: () {
                 MyBottomSheet.showBottomSheet_90(
                     context: context,
-                    child: const QrcodeBottomSheetScreen(
+                    child: QrcodeBottomSheetScreen(
                       qrData: X_POW,
-                      title: 'X로 문의하기',
+                      title: t.app_info_screen.ask_to_x,
                       fromAppInfo: true,
                     ));
               },
             ),
             SingleButton(
-                title: '이메일로 문의하기',
+                title: t.app_info_screen.ask_to_email,
                 leftElement: ClipRRect(
                   borderRadius: BorderRadius.circular(8.0),
                   child: Image.asset(
@@ -346,7 +347,7 @@ class _AppInfoScreenState extends State<AppInfoScreen> {
                       child: QrcodeBottomSheetScreen(
                         qrData:
                             'mailto:$CONTACT_EMAIL_ADDRESS?subject=$EMAIL_SUBJECT&body=$info',
-                        title: '이메일로 문의하기',
+                        title: t.app_info_screen.ask_to_email,
                         fromAppInfo: true,
                       ));
                 }),
@@ -370,62 +371,65 @@ class _AppInfoScreenState extends State<AppInfoScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _category('Coconut Vault는 오픈소스입니다'),
+          _category(t.app_info_screen.category2_opensource),
           ButtonGroup(buttons: [
             SingleButton(
-              title: 'coconut_lib',
+              title: t.app_info_screen.coconut_lib,
               leftElement: githubLogo,
               onPressed: () {
                 MyBottomSheet.showBottomSheet_90(
                     context: context,
-                    child: const QrcodeBottomSheetScreen(
+                    child: QrcodeBottomSheetScreen(
                       qrData: GITHUB_URL_COCONUT_LIBRARY,
-                      title: 'coconut_lib Github',
+                      title:
+                          '${t.app_info_screen.coconut_lib} ${t.app_info_screen.github}',
                       fromAppInfo: true,
                     ));
               },
             ),
             SingleButton(
-              title: 'coconut_wallet',
+              title: t.app_info_screen.coconut_wallet,
               leftElement: githubLogo,
               onPressed: () {
                 MyBottomSheet.showBottomSheet_90(
                     context: context,
-                    child: const QrcodeBottomSheetScreen(
+                    child: QrcodeBottomSheetScreen(
                       qrData: GITHUB_URL_WALLET,
-                      title: 'coconut_wallet Github',
+                      title:
+                          '${t.app_info_screen.coconut_wallet} ${t.app_info_screen.github}',
                       fromAppInfo: true,
                     ));
               },
             ),
             SingleButton(
-              title: 'coconut_vault',
+              title: t.app_info_screen.coconut_vault,
               leftElement: githubLogo,
               onPressed: () {
                 MyBottomSheet.showBottomSheet_90(
                     context: context,
-                    child: const QrcodeBottomSheetScreen(
+                    child: QrcodeBottomSheetScreen(
                       qrData: GITHUB_URL_VAULT,
-                      title: 'coconut_vault Github',
+                      title:
+                          '${t.app_info_screen.coconut_vault} ${t.app_info_screen.github}',
                       fromAppInfo: true,
                     ));
               },
             ),
             SingleButton(
-              title: '라이선스 안내',
+              title: t.app_info_screen.license,
               onPressed: () {
                 MyBottomSheet.showBottomSheet_95(
                     context: context, child: const LicenseScreen());
               },
             ),
             SingleButton(
-              title: '오픈소스 개발 참여하기',
+              title: t.app_info_screen.contribution,
               onPressed: () {
                 MyBottomSheet.showBottomSheet_90(
                     context: context,
-                    child: const QrcodeBottomSheetScreen(
+                    child: QrcodeBottomSheetScreen(
                       qrData: CONTRIBUTING_URL,
-                      title: 'MIT License',
+                      title: t.app_info_screen.mit_license,
                       fromAppInfo: true,
                     ));
               },
@@ -446,9 +450,9 @@ class _AppInfoScreenState extends State<AppInfoScreen> {
               color: MyColors.defaultBackground,
             ));
           } else if (snapshot.hasError) {
-            return const Center(child: Text('데이터를 불러오는 중 오류가 발생했습니다.'));
+            return Center(child: Text(t.errors.data_loading_error));
           } else if (!snapshot.hasData) {
-            return const Center(child: Text('데이터가 없습니다.'));
+            return Center(child: Text(t.errors.data_not_found_error));
           }
 
           PackageInfo packageInfo = snapshot.data!;
@@ -463,7 +467,9 @@ class _AppInfoScreenState extends State<AppInfoScreen> {
                   child: Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 16),
                     child: Text(
-                      'CoconutVault ver.${packageInfo.version}\n(released $RELEASE_DATE)\nCoconut.onl',
+                      t.app_info_screen.version_and_date(
+                          version: packageInfo.version,
+                          releasedAt: RELEASE_DATE),
                       style: Styles.body2.merge(
                         const TextStyle(
                           color: MyColors.transparentBlack_50,

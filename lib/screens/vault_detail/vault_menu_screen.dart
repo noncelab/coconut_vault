@@ -1,3 +1,4 @@
+import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/model/data/vault_list_item_base.dart';
 import 'package:coconut_vault/screens/vault_creation/multi_sig/signer_scanner_screen.dart';
 
@@ -54,8 +55,9 @@ class _VaultMenuScreenState extends State<VaultMenuScreen> {
             bottomMenuButton(
                 SvgPicture.asset('assets/svg/menu/details.svg',
                     width: iconSize, colorFilter: iconColorList[1]),
-                '${TextUtils.ellipsisIfLonger(vaultListItem.name)} 정보',
-                '저장된 니모닉 문구 등을 확인할 수 있어요', () {
+                t.vault_menu_screen.title.menu1(
+                    name: TextUtils.ellipsisIfLonger(vaultListItem.name)),
+                t.vault_menu_screen.description.menu1, () {
               Navigator.pop(context);
               Navigator.pushNamed(
                 context,
@@ -67,8 +69,8 @@ class _VaultMenuScreenState extends State<VaultMenuScreen> {
             bottomMenuButton(
                 SvgPicture.asset('assets/svg/menu/key-outline.svg',
                     width: iconSize, colorFilter: iconColorList[2]),
-                '서명하기',
-                '월렛에서 만든 정보를 스캔하고 서명해요', () {
+                t.vault_menu_screen.title.menu2,
+                t.vault_menu_screen.description.menu2, () {
               Navigator.pop(context);
               Navigator.pushNamed(context, '/psbt-scanner',
                   arguments: {'id': widget.id});
@@ -77,9 +79,9 @@ class _VaultMenuScreenState extends State<VaultMenuScreen> {
             bottomMenuButton(
                 SvgPicture.asset('assets/svg/menu/address.svg',
                     width: iconSize, colorFilter: iconColorList[3]),
-                '주소 보기',
-                '${TextUtils.ellipsisIfLonger(vaultListItem.name)}에서 추출한 주소를 확인해요',
-                () {
+                t.vault_menu_screen.title.menu3,
+                t.vault_menu_screen.description.menu3(
+                    name: TextUtils.ellipsisIfLonger(vaultListItem.name)), () {
               Navigator.pop(context);
               Navigator.pushNamed(context, '/address-list',
                   arguments: {'id': widget.id});
@@ -88,8 +90,8 @@ class _VaultMenuScreenState extends State<VaultMenuScreen> {
             bottomMenuButton(
                 SvgPicture.asset('assets/svg/menu/out.svg',
                     width: iconSize, colorFilter: iconColorList[4]),
-                '지갑 정보 내보내기',
-                '월렛에 보기 전용 지갑을 추가해요', () {
+                t.vault_menu_screen.title.menu4,
+                t.vault_menu_screen.description.menu4, () {
               Navigator.pop(context);
 
               Navigator.pushNamed(context, '/sync-to-wallet',
@@ -99,8 +101,8 @@ class _VaultMenuScreenState extends State<VaultMenuScreen> {
             bottomMenuButton(
                 SvgPicture.asset('assets/svg/menu/key-out.svg',
                     width: iconSize, colorFilter: iconColorList[0]),
-                '다중 서명 키로 사용하기',
-                '다른 볼트에 내 키를 다중 서명 키로 등록해요', () {
+                t.vault_menu_screen.title.menu5,
+                t.vault_menu_screen.description.menu5, () {
               Navigator.pop(context);
 
               Navigator.pushNamed(context, '/signer-bsms',
@@ -110,8 +112,8 @@ class _VaultMenuScreenState extends State<VaultMenuScreen> {
             bottomMenuButton(
                 SvgPicture.asset('assets/svg/menu/in.svg',
                     width: iconSize, colorFilter: iconColorList[5]),
-                '다중 서명 지갑 가져오기',
-                '이 키가 포함된 다중 서명 지갑 정보를 추가해요', () async {
+                t.vault_menu_screen.title.menu6,
+                t.vault_menu_screen.description.menu6, () async {
               Navigator.pop(context);
 
               Navigator.pushNamed(
@@ -132,8 +134,9 @@ class _VaultMenuScreenState extends State<VaultMenuScreen> {
             bottomMenuButton(
                 SvgPicture.asset('assets/svg/menu/details.svg',
                     width: iconSize, colorFilter: iconColorList[1]),
-                '${TextUtils.ellipsisIfLonger(vaultListItem.name)} 정보',
-                '다중 서명 지갑의 정보를 확인할 수 있어요 ', () {
+                t.vault_menu_screen.title.menu7(
+                    name: TextUtils.ellipsisIfLonger(vaultListItem.name)),
+                t.vault_menu_screen.description.menu7, () {
               Navigator.pop(context);
               Navigator.pushNamed(context, '/multisig-setting',
                   arguments: {'id': widget.id});
@@ -142,8 +145,8 @@ class _VaultMenuScreenState extends State<VaultMenuScreen> {
             bottomMenuButton(
                 SvgPicture.asset('assets/svg/menu/2keys.svg',
                     width: iconSize, colorFilter: iconColorList[2]),
-                '다중 서명하기',
-                '전송 정보를 스캔하고 서명해요', () {
+                t.vault_menu_screen.title.menu8,
+                t.vault_menu_screen.description.menu8, () {
               Navigator.pop(context);
               Navigator.pushNamed(context, '/psbt-scanner',
                   arguments: {'id': widget.id});
@@ -152,9 +155,9 @@ class _VaultMenuScreenState extends State<VaultMenuScreen> {
             bottomMenuButton(
                 SvgPicture.asset('assets/svg/menu/address.svg',
                     width: iconSize, colorFilter: iconColorList[3]),
-                '주소 보기',
-                '${TextUtils.ellipsisIfLonger(vaultListItem.name)}에서 추출한 주소를 확인해요',
-                () {
+                t.vault_menu_screen.title.menu3,
+                t.vault_menu_screen.description.menu3(
+                    name: TextUtils.ellipsisIfLonger(vaultListItem.name)), () {
               Navigator.pop(context);
               Navigator.pushNamed(context, '/address-list',
                   arguments: {'id': widget.id});
@@ -163,8 +166,8 @@ class _VaultMenuScreenState extends State<VaultMenuScreen> {
             bottomMenuButton(
                 SvgPicture.asset('assets/svg/menu/out.svg',
                     width: iconSize, colorFilter: iconColorList[4]),
-                '지갑 정보 내보내기',
-                '보기 전용 지갑을 월렛에 추가해요', () {
+                t.vault_menu_screen.title.menu4,
+                t.vault_menu_screen.description.menu4, () {
               Navigator.pop(context);
               Navigator.pushNamed(context, '/sync-to-wallet',
                   arguments: {'id': widget.id});

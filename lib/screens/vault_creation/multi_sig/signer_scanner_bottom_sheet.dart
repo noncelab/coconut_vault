@@ -1,3 +1,4 @@
+import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/model/state/app_model.dart';
 import 'package:coconut_vault/utils/alert_util.dart';
 import 'package:coconut_vault/utils/vibration_util.dart';
@@ -70,9 +71,9 @@ class _SignerScannerBottomSheetState extends State<SignerScannerBottomSheet> {
 
     String errorMessage;
     if (message.contains('Invalid Scheme')) {
-      errorMessage = '잘못된 서명 정보에요. 다시 시도해 주세요.';
+      errorMessage = t.errors.invalid_sign_error;
     } else {
-      errorMessage = '[스캔 실패] $message';
+      errorMessage = t.errors.scan_error(error: message);
     }
 
     showAlertDialog(
@@ -96,7 +97,7 @@ class _SignerScannerBottomSheetState extends State<SignerScannerBottomSheet> {
       child: Scaffold(
         backgroundColor: Colors.white,
         appBar: CustomAppBar.build(
-          title: '서명 업데이트',
+          title: t.signer_scanner_bottom_sheet.title,
           context: context,
           hasRightIcon: false,
           isBottom: true,
@@ -118,9 +119,9 @@ class _SignerScannerBottomSheetState extends State<SignerScannerBottomSheet> {
                 padding: const EdgeInsets.only(top: 20),
                 child: CustomTooltip(
                   richText: RichText(
-                    text: const TextSpan(
+                    text: TextSpan(
                       text: '',
-                      style: TextStyle(
+                      style: const TextStyle(
                         fontFamily: 'Pretendard',
                         fontWeight: FontWeight.bold,
                         fontSize: 15,
@@ -130,9 +131,8 @@ class _SignerScannerBottomSheetState extends State<SignerScannerBottomSheet> {
                       ),
                       children: <TextSpan>[
                         TextSpan(
-                          text:
-                              '다른 볼트에서 서명을 추가했나요? 정보를 업데이트 하기 위해 추가된 서명 트랜잭션의 QR 코드를 스캔해 주세요.',
-                          style: TextStyle(
+                          text: t.signer_scanner_bottom_sheet.guide,
+                          style: const TextStyle(
                             fontWeight: FontWeight.normal,
                           ),
                         ),

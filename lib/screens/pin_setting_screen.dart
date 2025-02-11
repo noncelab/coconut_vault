@@ -1,3 +1,4 @@
+import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/services/shared_preferences_keys.dart';
 import 'package:coconut_vault/services/shared_preferences_service.dart';
 import 'package:flutter/material.dart';
@@ -85,11 +86,12 @@ class _PinSettingScreenState extends State<PinSettingScreen> {
           bool isAlreadyUsingPin = await _comparePin(pin);
 
           if (isAlreadyUsingPin) {
-            returnToBackSequence('이미 사용중인 비밀번호예요', firstSequence: true);
+            returnToBackSequence(t.errors.duplicate_pin_error,
+                firstSequence: true);
             return;
           }
         } catch (error) {
-          returnToBackSequence('처리 중 문제가 발생했어요', isError: true);
+          returnToBackSequence(t.errors.pin_processing_error, isError: true);
           return;
         }
         setState(() {
@@ -111,7 +113,7 @@ class _PinSettingScreenState extends State<PinSettingScreen> {
 
       if (pinConfirm.length == 4) {
         if (pin != pinConfirm) {
-          errorMessage = '비밀번호가 일치하지 않아요';
+          errorMessage = t.errors.pin_incorrect_error;
           pinConfirm = '';
           _appModel.shuffleNumbers(isSettings: true);
           vibrateMediumDouble();
@@ -181,9 +183,9 @@ class _PinSettingScreenState extends State<PinSettingScreen> {
       Navigator.of(context).pop();
     } else {
       CustomDialogs.showCustomAlertDialog(context,
-          title: '비밀번호를 유지하시겠어요?',
-          message: '[그만하기]를 누르면 설정 화면으로 돌아갈게요.',
-          confirmButtonText: '그만하기',
+          title: t.alert.unchange_password.title,
+          message: t.alert.unchange_password.description,
+          confirmButtonText: t.stop,
           confirmButtonColor: MyColors.warningText, onConfirm: () {
         // 스택 두단계 뒤로 이동
         int count = 0;
@@ -207,9 +209,9 @@ class _PinSettingScreenState extends State<PinSettingScreen> {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               const SizedBox(height: 120),
-              const Center(
+              Center(
                   child: Text(
-                '안전한 볼트 사용을 위해\n먼저 비밀번호를 설정할게요',
+                t.pin_setting_screen.set_password,
                 style: Styles.h3,
                 textAlign: TextAlign.center,
               )),
@@ -221,17 +223,19 @@ class _PinSettingScreenState extends State<PinSettingScreen> {
                     });
                     _appModel.shuffleNumbers(isSettings: true);
                   },
-                  label: '확인',
+                  label: t.confirm,
                   disabled: false),
             ],
           )));
     }
 
     return PinInputScreen(
-        title: step == 0 ? '새로운 비밀번호를 눌러주세요' : '다시 한번 확인할게요',
-        descriptionTextWidget: const Text.rich(
+        title: step == 0
+            ? t.pin_setting_screen.new_password
+            : t.pin_setting_screen.enter_again,
+        descriptionTextWidget: Text.rich(
           TextSpan(
-            text: '반드시 기억할 수 있는 비밀번호로 설정해 주세요',
+            text: t.pin_setting_screen.keep_in_mind,
             style: Styles.warning,
           ),
           textAlign: TextAlign.center,

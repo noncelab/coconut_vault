@@ -1,3 +1,4 @@
+import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:coconut_vault/styles.dart';
@@ -129,15 +130,15 @@ class _MnemonicConfirmState extends State<MnemonicConfirm> {
         children: [
           Visibility(
             visible: widget.passphrase?.contains(' ') ?? false,
-            child: const Text(
-              '⚠︎ 공백 문자가 포함되어 있습니다.',
+            child: Text(
+              t.mnemonic_confirm_screen.warning.contains_space_character,
               style: Styles.warning,
             ),
           ),
           Opacity(
             opacity: !_isBottom ? 1.0 : 0.0,
             child: Text(
-              '⚠︎ 긴 패스프레이즈: 스크롤을 끝까지 내려 모두 확인해 주세요.',
+              t.mnemonic_confirm_screen.warning.long_passphrase,
               style: TextStyle(
                   color: MyColors.warningText,
                   fontSize: 12.0,
@@ -158,8 +159,8 @@ class _MnemonicConfirmState extends State<MnemonicConfirm> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
-          '니모닉 문구',
+        Text(
+          t.mnemonic,
           style: Styles.body2Bold,
         ),
         const SizedBox(
@@ -243,7 +244,7 @@ class _MnemonicConfirmState extends State<MnemonicConfirm> {
               padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 4),
               color: MyColors.lightgrey,
               alignment: Alignment.center,
-              child: Text('취소',
+              child: Text(t.cancel,
                   style: Styles.label.merge(const TextStyle(
                     color: MyColors.black,
                     fontWeight: FontWeight.w600,
@@ -259,9 +260,9 @@ class _MnemonicConfirmState extends State<MnemonicConfirm> {
               padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 4),
               color: MyColors.darkgrey,
               alignment: Alignment.center,
-              child: const Text(
-                '확인 완료',
-                style: TextStyle(
+              child: Text(
+                t.mnemonic_confirm_screen.btn_confirm_completed,
+                style: const TextStyle(
                   fontFamily: 'Pretendard',
                   fontSize: 14.0,
                   fontWeight: FontWeight.w600,

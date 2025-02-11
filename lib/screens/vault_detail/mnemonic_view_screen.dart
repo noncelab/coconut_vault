@@ -1,3 +1,4 @@
+import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/model/state/vault_model.dart';
 import 'package:coconut_vault/widgets/button/clipboard_button.dart';
 import 'package:flutter/material.dart';
@@ -149,7 +150,7 @@ class _MnemonicViewScreen extends State<MnemonicViewScreen> {
   Widget _buildContent() {
     return ClipboardButton(
       text: mnemonic!,
-      toastMessage: '니모닉 문구가 복사됐어요',
+      toastMessage: t.toast.mnemonic_copied,
     );
   }
 
@@ -179,15 +180,15 @@ class _MnemonicViewScreen extends State<MnemonicViewScreen> {
               borderRadius: BorderRadius.circular(4.0),
               color: _isPressed ? MyColors.borderGrey : MyColors.darkgrey,
             ),
-            child: Text('패스프레이즈 보기',
+            child: Text(t.mnemonic_view_screen.view_passphrase,
                 style: Styles.caption
                     .merge(const TextStyle(color: MyColors.white))),
           ),
           const SizedBox(
             height: 7,
           ),
-          const Text(
-            '누르는 동안 보여요',
+          Text(
+            t.mnemonic_view_screen.visible_while_pressing,
             style: Styles.caption,
           ),
         ],
@@ -257,7 +258,7 @@ class _MnemonicViewScreen extends State<MnemonicViewScreen> {
                                 size: 14,
                               ),
                               Text(
-                                ' 공백 문자는 빈칸으로 표시됩니다.',
+                                t.mnemonic_view_screen.space_as_blank,
                                 style: TextStyle(
                                     color: MyColors.grey,
                                     fontSize: 14.0,

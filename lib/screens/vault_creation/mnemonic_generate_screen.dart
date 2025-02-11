@@ -1,4 +1,5 @@
 import 'package:coconut_lib/coconut_lib.dart';
+import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -70,10 +71,10 @@ class _MnemonicGenerateScreenState extends State<MnemonicGenerateScreen> {
   void _showStopGeneratingMnemonicDialog() {
     CustomDialogs.showCustomAlertDialog(
       context,
-      title: '니모닉 생성 중단',
-      message: '정말 니모닉 생성을 그만하시겠어요?',
-      cancelButtonText: '취소',
-      confirmButtonText: '그만하기',
+      title: t.alert.stop_generating_mnemonic.title,
+      message: t.alert.stop_generating_mnemonic.description,
+      cancelButtonText: t.cancel,
+      confirmButtonText: t.stop,
       confirmButtonColor: MyColors.warningText,
       onCancel: () => Navigator.pop(context),
       onConfirm: () {
@@ -94,7 +95,7 @@ class _MnemonicGenerateScreenState extends State<MnemonicGenerateScreen> {
         onConfirmPressed: () =>
             Navigator.pushNamed(context, '/vault-name-setup'),
         onInactivePressed: () {
-          CustomToast.showToast(context: context, text: "스크롤을 내려서 모두 확인해주세요");
+          CustomToast.showToast(context: context, text: t.toast.scroll_down);
           vibrateMediumDouble();
         },
         mnemonic:
@@ -126,7 +127,7 @@ class _MnemonicGenerateScreenState extends State<MnemonicGenerateScreen> {
     return Scaffold(
         backgroundColor: MyColors.white,
         appBar: CustomAppBar.build(
-          title: '새 니모닉 문구',
+          title: t.mnemonic_generate_screen.title,
           context: context,
           onBackPressed: _showStopGeneratingMnemonicDialog,
           hasRightIcon: false,
@@ -165,13 +166,14 @@ class _WordsLengthSelectionState extends State<WordsLengthSelection> {
         padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 32),
         child: Column(
           children: [
-            const Text('단어 수를 고르세요', style: Styles.body1Bold),
+            Text(t.mnemonic_generate_screen.select_word_length,
+                style: Styles.body1Bold),
             const SizedBox(height: 20),
             Row(
               children: [
                 Expanded(
                   child: SelectableButton(
-                    text: '12 단어',
+                    text: t.mnemonic_generate_screen.twelve,
                     onTap: () {
                       setState(() {
                         selectedWordsCount = 12;
@@ -183,7 +185,7 @@ class _WordsLengthSelectionState extends State<WordsLengthSelection> {
                 const SizedBox(width: 8),
                 Expanded(
                   child: SelectableButton(
-                    text: '24 단어',
+                    text: t.mnemonic_generate_screen.twenty_four,
                     onTap: () {
                       setState(() {
                         selectedWordsCount = 24;
@@ -229,13 +231,14 @@ class _PassphraseSelectionState extends State<PassphraseSelection> {
         padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 32),
         child: Column(
           children: [
-            const Text('패스프레이즈를 사용하실 건가요?', style: Styles.body1Bold),
+            Text(t.mnemonic_generate_screen.use_passphrase,
+                style: Styles.body1Bold),
             const SizedBox(height: 20),
             Row(
               children: [
                 Expanded(
                   child: SelectableButton(
-                    text: '아니요',
+                    text: t.no,
                     onTap: () {
                       setState(() {
                         selected = false;
@@ -247,7 +250,7 @@ class _PassphraseSelectionState extends State<PassphraseSelection> {
                 const SizedBox(width: 8),
                 Expanded(
                   child: SelectableButton(
-                    text: '네',
+                    text: t.yes,
                     onTap: () {
                       setState(() {
                         selected = true;
@@ -299,7 +302,7 @@ class _MnemonicWordsState extends State<MnemonicWords> {
   String errorMessage = '';
 
   final List<ChecklistItem> checklistItem = [
-    ChecklistItem(title: '니모닉을 틀림없이 백업했습니다.')
+    ChecklistItem(title: t.mnemonic_generate_screen.ensure_backup)
   ];
 
   void _generateMnemonicPhrase() {
@@ -345,14 +348,16 @@ class _MnemonicWordsState extends State<MnemonicWords> {
                     children: [
                       HighLightedText(widget.wordsCount.toString(),
                           color: MyColors.darkgrey),
-                      const Text(' 단어, 패스프레이즈 '),
+                      Text(t.mnemonic_generate_screen.word_passphrase),
                       widget.usePassphrase
-                          ? const HighLightedText('사용',
+                          ? HighLightedText(t.mnemonic_generate_screen.use,
                               color: MyColors.darkgrey)
-                          : const Row(
+                          : Row(
                               children: [
-                                Text('사용 '),
-                                HighLightedText('안함', color: MyColors.darkgrey),
+                                Text('${t.mnemonic_generate_screen.use} '),
+                                HighLightedText(
+                                    t.mnemonic_generate_screen.do_not,
+                                    color: MyColors.darkgrey),
                               ],
                             ),
                       GestureDetector(
@@ -365,8 +370,8 @@ class _MnemonicWordsState extends State<MnemonicWords> {
                                   borderRadius: BorderRadius.circular(8),
                                   border:
                                       Border.all(color: MyColors.borderGrey)),
-                              child: const Text(
-                                '다시 고르기',
+                              child: Text(
+                                t.re_select,
                                 style: Styles.caption,
                               )))
                     ],
@@ -497,7 +502,8 @@ class _MnemonicWordsState extends State<MnemonicWords> {
                                   child: SizedBox(
                                     child: CustomTextField(
                                       controller: _passphraseController,
-                                      placeholder: "패스프레이즈를 입력해 주세요",
+                                      placeholder: t.mnemonic_generate_screen
+                                          .enter_passphrase,
                                       onChanged: (text) {
                                         setState(() {
                                           passphrase = text;
@@ -554,7 +560,8 @@ class _MnemonicWordsState extends State<MnemonicWords> {
                             ),
                           )),
                 if (step == 0)
-                  const Text('안전한 장소에서 니모닉 문구를 백업해 주세요', style: Styles.warning),
+                  Text(t.mnemonic_generate_screen.backup_guide,
+                      style: Styles.warning),
                 if (step == 0 && stepCount == 2)
                   CompleteButton(
                       onPressed: () {
@@ -562,13 +569,13 @@ class _MnemonicWordsState extends State<MnemonicWords> {
                           step = 1;
                         });
                       },
-                      label: '백업 완료',
+                      label: t.mnemonic_generate_screen.backup_complete,
                       disabled: false),
                 if (step == 1)
                   SizedBox(
                     width: MediaQuery.of(context).size.width - 32,
-                    child: const Text(
-                      '입력하신 패스프레이즈는 보관과 유출에 유의해 주세요',
+                    child: Text(
+                      t.mnemonic_generate_screen.warning,
                       style: Styles.warning,
                       textAlign: TextAlign.center,
                     ),
@@ -582,7 +589,7 @@ class _MnemonicWordsState extends State<MnemonicWords> {
 
                         widget.onShowConfirmBottomSheet();
                       },
-                      label: '백업 완료',
+                      label: t.mnemonic_generate_screen.backup_complete,
                       disabled: false),
                 if (widget.usePassphrase && step == 1)
                   CompleteButton(
@@ -596,7 +603,7 @@ class _MnemonicWordsState extends State<MnemonicWords> {
                           widget.onFinished(mnemonic, passphrase, false);
                         }
                       },
-                      label: '완료',
+                      label: t.complete,
                       disabled: passphrase.isEmpty),
                 const SizedBox(height: 40),
               ],
