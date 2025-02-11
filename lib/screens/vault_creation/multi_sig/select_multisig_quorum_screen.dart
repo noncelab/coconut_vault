@@ -187,7 +187,7 @@ class _SelectMultisigQuoramScreenState
                   Expanded(
                     child: Center(
                       child: Text(
-                        t.select_multisig_quoram_screen.total_key_count,
+                        t.select_multisig_quorum_screen.total_key_count,
                         style: Styles.body2Bold,
                       ),
                     ),
@@ -213,7 +213,7 @@ class _SelectMultisigQuoramScreenState
                   Expanded(
                     child: Center(
                       child: Text(
-                        t.select_multisig_quoram_screen
+                        t.select_multisig_quorum_screen
                             .required_signature_count,
                         style: Styles.body2Bold,
                       ),
@@ -374,12 +374,12 @@ class _SelectMultisigQuoramScreenState
         {
           if (requiredCount == 1) {
             {
-              result = t.select_multisig_quoram_screen.one_or_two_of_n;
+              result = t.select_multisig_quorum_screen.one_or_two_of_n;
               break;
             }
           } else {
             {
-              result = t.select_multisig_quoram_screen.n_of_n;
+              result = t.select_multisig_quorum_screen.n_of_n;
               break;
             }
           }
@@ -388,17 +388,17 @@ class _SelectMultisigQuoramScreenState
         {
           if (requiredCount == 1) {
             {
-              result = t.select_multisig_quoram_screen.one_of_n;
+              result = t.select_multisig_quorum_screen.one_of_n;
               break;
             }
           } else if (requiredCount == 2) {
             {
-              result = t.select_multisig_quoram_screen.one_or_two_of_n;
+              result = t.select_multisig_quorum_screen.one_or_two_of_n;
               break;
             }
           } else {
             {
-              result = t.select_multisig_quoram_screen.one_of_n;
+              result = t.select_multisig_quorum_screen.n_of_n;
               break;
             }
           }

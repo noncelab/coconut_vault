@@ -145,7 +145,7 @@ class Translations implements BaseTranslations<AppLocale, Translations> {
 	late final TranslationsVaultNameIconSetupScreenKr vault_name_icon_setup_screen = TranslationsVaultNameIconSetupScreenKr.internal(_root);
 	late final TranslationsAssignSignersScreenKr assign_signers_screen = TranslationsAssignSignersScreenKr.internal(_root);
 	late final TranslationsConfirmImportingScreenKr confirm_importing_screen = TranslationsConfirmImportingScreenKr.internal(_root);
-	late final TranslationsSelectMultisigQuoramScreenKr select_multisig_quoram_screen = TranslationsSelectMultisigQuoramScreenKr.internal(_root);
+	late final TranslationsSelectMultisigQuorumScreenKr select_multisig_quorum_screen = TranslationsSelectMultisigQuorumScreenKr.internal(_root);
 	late final TranslationsSignerQrBottomSheetKr signer_qr_bottom_sheet = TranslationsSignerQrBottomSheetKr.internal(_root);
 	late final TranslationsSignerScannerBottomSheetKr signer_scanner_bottom_sheet = TranslationsSignerScannerBottomSheetKr.internal(_root);
 	late final TranslationsSignerScannerScreenKr signer_scanner_screen = TranslationsSignerScannerScreenKr.internal(_root);
@@ -576,9 +576,9 @@ class TranslationsConfirmImportingScreenKr {
 	String get placeholder => '키에 대한 간단한 메모를 추가하세요';
 }
 
-// Path: select_multisig_quoram_screen
-class TranslationsSelectMultisigQuoramScreenKr {
-	TranslationsSelectMultisigQuoramScreenKr.internal(this._root);
+// Path: select_multisig_quorum_screen
+class TranslationsSelectMultisigQuorumScreenKr {
+	TranslationsSelectMultisigQuorumScreenKr.internal(this._root);
 
 	final Translations _root; // ignore: unused_field
 
@@ -1355,11 +1355,11 @@ extension on Translations {
 			case 'confirm_importing_screen.scan_info': return '스캔한 정보';
 			case 'confirm_importing_screen.memo': return '메모';
 			case 'confirm_importing_screen.placeholder': return '키에 대한 간단한 메모를 추가하세요';
-			case 'select_multisig_quoram_screen.total_key_count': return '전체 키의 수';
-			case 'select_multisig_quoram_screen.required_signature_count': return '필요한 서명 수';
-			case 'select_multisig_quoram_screen.one_or_two_of_n': return '하나의 키를 분실하거나 키 보관자 중 한 명이 부재중이더라도 비트코인을 보낼 수 있어요.';
-			case 'select_multisig_quoram_screen.n_of_n': return '모든 키가 있어야만 비트코인을 보낼 수 있어요. 단 하나의 키만 잃어버려도 자금에 접근할 수 없게 되니 분실에 각별히 신경써 주세요.';
-			case 'select_multisig_quoram_screen.one_of_n': return '하나의 키만 있어도 비트코인을 이동시킬 수 있어요. 상대적으로 보안성이 낮기 때문에 권장하지 않아요.';
+			case 'select_multisig_quorum_screen.total_key_count': return '전체 키의 수';
+			case 'select_multisig_quorum_screen.required_signature_count': return '필요한 서명 수';
+			case 'select_multisig_quorum_screen.one_or_two_of_n': return '하나의 키를 분실하거나 키 보관자 중 한 명이 부재중이더라도 비트코인을 보낼 수 있어요.';
+			case 'select_multisig_quorum_screen.n_of_n': return '모든 키가 있어야만 비트코인을 보낼 수 있어요. 단 하나의 키만 잃어버려도 자금에 접근할 수 없게 되니 분실에 각별히 신경써 주세요.';
+			case 'select_multisig_quorum_screen.one_of_n': return '하나의 키만 있어도 비트코인을 이동시킬 수 있어요. 상대적으로 보안성이 낮기 때문에 권장하지 않아요.';
 			case 'signer_qr_bottom_sheet.text1': return '서명 트랜잭션 내보내기';
 			case 'signer_qr_bottom_sheet.text2_1': return '번 키가 보관된 볼트에서 다중 서명 지갑 ';
 			case 'signer_qr_bottom_sheet.text2_2': return ' 선택 - ';

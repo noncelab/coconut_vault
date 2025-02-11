@@ -284,7 +284,7 @@ confirm_importing_screen:
   scan_info: "스캔한 정보"
   memo: "메모"
   placeholder: "키에 대한 간단한 메모를 추가하세요"
-select_multisig_quoram_screen:
+select_multisig_quorum_screen:
   total_key_count: "전체 키의 수"
   required_signature_count: "필요한 서명 수"
   one_or_two_of_n: "하나의 키를 분실하거나 키 보관자 중 한 명이 부재중이더라도 비트코인을 보낼 수 있어요."
