@@ -1,3 +1,4 @@
+import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/model/state/vault_model.dart';
 import 'package:coconut_vault/widgets/button/custom_buttons.dart';
 import 'package:coconut_vault/widgets/indicator/message_activity_indicator.dart';
@@ -18,7 +19,7 @@ class _SelectVaultTypeScreenState extends State<SelectVaultTypeScreen> {
   bool _nextButtonEnabled = true;
   bool _showLoading = false;
   late String guideText;
-  List<String> options = ['/vault-creation-options', '/select-multisig-quoram'];
+  List<String> options = ['/vault-creation-options', '/select-multisig-quorum'];
   late final VaultModel model;
 
   @override
@@ -70,7 +71,7 @@ class _SelectVaultTypeScreenState extends State<SelectVaultTypeScreen> {
   void onTapSinglesigWallet() {
     setState(() {
       nextPath = options[0];
-      guideText = '하나의 니모닉 문구를 보관하는 단일 서명 지갑이에요';
+      guideText = t.select_vault_type_screen.singlesig;
       _nextButtonEnabled = true;
     });
   }
@@ -78,7 +79,7 @@ class _SelectVaultTypeScreenState extends State<SelectVaultTypeScreen> {
   void onTapMultisigWallet() {
     setState(() {
       nextPath = options[1];
-      guideText = '지정한 수의 서명이 필요한 지갑이에요';
+      guideText = t.select_vault_type_screen.multisig;
       if (!model.isVaultListLoading && model.vaultList.isEmpty) {
         _nextButtonEnabled = false;
       }
@@ -92,7 +93,7 @@ class _SelectVaultTypeScreenState extends State<SelectVaultTypeScreen> {
         return Scaffold(
           backgroundColor: MyColors.white,
           appBar: CustomAppBar.buildWithNext(
-            title: '지갑 만들기',
+            title: t.select_vault_type_screen.title,
             context: context,
             onNextPressed: () => onNextPressed(),
             isActive: _nextButtonEnabled,
@@ -110,7 +111,7 @@ class _SelectVaultTypeScreenState extends State<SelectVaultTypeScreen> {
                       (nextPath == options[1] &&
                               !model.isVaultListLoading &&
                               model.vaultList.isEmpty)
-                          ? '현재 볼트에 사용할 수 있는 키가 없어요'
+                          ? t.select_vault_type_screen.empty_key
                           : '',
                       style: Styles.caption.merge(
                         const TextStyle(
@@ -123,7 +124,7 @@ class _SelectVaultTypeScreenState extends State<SelectVaultTypeScreen> {
                       children: [
                         Expanded(
                           child: SelectableButton(
-                            text: '일반 지갑',
+                            text: t.singlesig_wallet,
                             onTap: onTapSinglesigWallet,
                             isPressed: nextPath == options[0],
                           ),
@@ -131,7 +132,7 @@ class _SelectVaultTypeScreenState extends State<SelectVaultTypeScreen> {
                         const SizedBox(width: 8),
                         Expanded(
                           child: SelectableButton(
-                            text: '다중 서명 지갑',
+                            text: t.multisig_wallet,
                             onTap: onTapMultisigWallet,
                             isPressed: nextPath == options[1],
                           ),
@@ -146,9 +147,9 @@ class _SelectVaultTypeScreenState extends State<SelectVaultTypeScreen> {
                 child: Container(
                   decoration:
                       const BoxDecoration(color: MyColors.transparentBlack_30),
-                  child: const Center(
+                  child: Center(
                       child: MessageActivityIndicator(
-                          message: '가지고 있는 볼트를 불러오는 중이에요')),
+                          message: t.select_vault_type_screen.loading_keys)),
                 ),
               ),
             ],

@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:coconut_lib/coconut_lib.dart';
+import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/model/data/singlesig_vault_list_item.dart';
 import 'package:coconut_vault/utils/text_utils.dart';
 import 'package:coconut_vault/utils/vibration_util.dart';
@@ -119,7 +120,7 @@ class _VaultSettingsState extends State<VaultSettings> {
     if (_name != newName && (newName != _singleVaultItem.name)) {
       if (_vaultModel.isNameDuplicated(newName)) {
         CustomToast.showToast(
-            context: context, text: '이미 사용하고 있는 이름으로는 바꿀 수 없어요');
+            context: context, text: t.toast.name_already_used);
         return;
       }
     }
@@ -135,7 +136,7 @@ class _VaultSettingsState extends State<VaultSettings> {
         _colorIndex = newColorIndex;
       });
 
-      CustomToast.showToast(context: context, text: '정보를 수정했어요');
+      CustomToast.showToast(context: context, text: t.toast.data_updated);
     }
   }
 
@@ -177,7 +178,7 @@ class _VaultSettingsState extends State<VaultSettings> {
       case 0:
         {
           _showModalBottomSheetWithQrImage(
-              '확장 공개키',
+              t.extended_public_key,
               _singleSignatureVault.keyStore.extendedPublicKey.serialize(),
               null);
         }
@@ -187,8 +188,8 @@ class _VaultSettingsState extends State<VaultSettings> {
               context: context,
               child: MnemonicViewScreen(
                 walletId: widget.id,
-                title: '니모닉 문구 보기',
-                subtitle: '패스프레이즈 보기',
+                title: t.view_mnemonic,
+                subtitle: t.view_passphrase,
               ));
         }
       default:
@@ -236,7 +237,7 @@ class _VaultSettingsState extends State<VaultSettings> {
       child: Scaffold(
         backgroundColor: MyColors.white,
         appBar: CustomAppBar.build(
-            title: '$_titleName 정보',
+            title: '$_titleName ${t.info}',
             context: context,
             hasRightIcon: false,
             isBottom:
@@ -304,8 +305,8 @@ class _VaultSettingsState extends State<VaultSettings> {
                                         width: 18,
                                       ),
                                       const SizedBox(width: 10),
-                                      const Text(
-                                        '다중 서명 지갑에서 사용 중입니다',
+                                      Text(
+                                        t.vault_settings.used_in_multisig,
                                         style: Styles.body2,
                                       ),
                                     ],
@@ -371,10 +372,15 @@ class _VaultSettingsState extends State<VaultSettings> {
                                                                 .linkBlue,
                                                           ),
                                                         ),
-                                                        const TextSpan(
-                                                            text: '의 '),
                                                         TextSpan(
-                                                          text: '${idx + 1}번',
+                                                            text: t
+                                                                .vault_settings
+                                                                .of),
+                                                        TextSpan(
+                                                          text: t.vault_settings
+                                                              .nth(
+                                                                  index:
+                                                                      idx + 1),
                                                           style: Styles
                                                               .body2Bold
                                                               .copyWith(
@@ -382,8 +388,10 @@ class _VaultSettingsState extends State<VaultSettings> {
                                                                 .linkBlue,
                                                           ),
                                                         ),
-                                                        const TextSpan(
-                                                            text: ' 키'),
+                                                        TextSpan(
+                                                            text: t
+                                                                .vault_settings
+                                                                .key),
                                                       ],
                                                     ),
                                                   ),
@@ -438,7 +446,7 @@ class _VaultSettingsState extends State<VaultSettings> {
                                       //     color: MyColors.borderLightgrey,
                                       //     height: 1),
                                       InformationRowItem(
-                                        label: '니모닉 문구 보기',
+                                        label: t.view_mnemonic,
                                         showIcon: true,
                                         onPressed: () {
                                           _removeTooltip();
@@ -461,7 +469,7 @@ class _VaultSettingsState extends State<VaultSettings> {
                                 child: Column(
                                   children: [
                                     InformationRowItem(
-                                      label: '삭제하기',
+                                      label: t.delete,
                                       showIcon: true,
                                       textColor: _singleVaultItem
                                                   .linkedMultisigInfo
@@ -499,15 +507,14 @@ class _VaultSettingsState extends State<VaultSettings> {
                                             true) {
                                           CustomToast.showToast(
                                             context: context,
-                                            text:
-                                                '다중 서명 지갑에 사용되고 있어 삭제할 수 없어요.',
+                                            text: t.toast.name_multisig_in_use,
                                           );
                                         } else {
                                           showConfirmDialog(
                                               context: context,
-                                              title: '확인',
-                                              content:
-                                                  '정말로 볼트에서 $_name 정보를 삭제하시겠어요?',
+                                              title: t.confirm,
+                                              content: t.alert.confirm_deletion(
+                                                  name: _name),
                                               onConfirmPressed: () async {
                                                 _appModel.showIndicator();
                                                 await Future.delayed(
@@ -547,7 +554,7 @@ class _VaultSettingsState extends State<VaultSettings> {
                               mainAxisSize: MainAxisSize.min,
                               children: [
                                 Text(
-                                  '지갑의 고유 값이에요.\n마스터 핑거프린트(MFP)라고도 해요.',
+                                  t.tooltip.mfp,
                                   style: Styles.caption.merge(TextStyle(
                                     height: 1.3,
                                     fontFamily: CustomFonts.text.getFontFamily,

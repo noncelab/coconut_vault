@@ -80,7 +80,7 @@ Future<bool> canSignToPsbtIsolate(
 
   if (!isMultisig || !canSign) return canSign;
 
-  // quoram 확인
+  // quorum 확인
   PSBT psbtObj = PSBT.parse(psbtBase64);
   var multisigWallet = dataList[0] as MultisignatureVault;
   Logger.log(

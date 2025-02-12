@@ -1,3 +1,4 @@
+import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/styles.dart';
 import 'package:flutter/material.dart';
 
@@ -5,8 +6,7 @@ class ToastWidget extends StatefulWidget {
   final VoidCallback onClose;
   final String message;
 
-  const ToastWidget(
-      {super.key, required this.onClose, this.message = '클립보드에 복사되었어요.'});
+  const ToastWidget({super.key, required this.onClose, this.message = ''});
 
   @override
   ToastWidgetState createState() => ToastWidgetState();
@@ -50,6 +50,9 @@ class ToastWidgetState extends State<ToastWidget>
 
   @override
   Widget build(BuildContext context) {
+    final displayMessage =
+        widget.message.isEmpty ? t.toast.clipboard_copied : widget.message;
+
     return SlideTransition(
       position: _animation,
       child: Container(
@@ -63,7 +66,7 @@ class ToastWidgetState extends State<ToastWidget>
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(
-              widget.message,
+              displayMessage,
               style: Styles.body2Bold
                   .merge(const TextStyle(color: MyColors.white)),
             ),

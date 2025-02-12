@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -97,7 +98,8 @@ class _PinCheckScreenState extends State<PinCheckScreen>
     attempt = int.parse(_pinAttemptService.loadPinAttemptTimes());
     if (attempt != 0 && attempt < MAX_NUMBER_OF_ATTEMPTS) {
       setState(() {
-        errorMessage = '${MAX_NUMBER_OF_ATTEMPTS - attempt}번 다시 시도할 수 있어요';
+        errorMessage = t.errors.pin_incorrect_with_remaining_attempts_error(
+            count: MAX_NUMBER_OF_ATTEMPTS - attempt);
       });
     }
   }
@@ -181,7 +183,8 @@ class _PinCheckScreenState extends State<PinCheckScreen>
         await _pinAttemptService.setPinAttemptTimes(attempt);
         if (attempt < MAX_NUMBER_OF_ATTEMPTS) {
           setState(() {
-            errorMessage = '${MAX_NUMBER_OF_ATTEMPTS - attempt}번 다시 시도할 수 있어요';
+            errorMessage = t.errors.pin_incorrect_with_remaining_attempts_error(
+                count: MAX_NUMBER_OF_ATTEMPTS - attempt);
           });
           _appModel.shuffleNumbers();
           vibrateMediumDouble();
@@ -190,7 +193,7 @@ class _PinCheckScreenState extends State<PinCheckScreen>
           _checkPinLockout();
         }
       } else {
-        errorMessage = '비밀번호가 일치하지 않아요';
+        errorMessage = t.errors.pin_incorrect_error;
         _appModel.shuffleNumbers();
         vibrateMediumDouble();
       }
@@ -228,7 +231,7 @@ class _PinCheckScreenState extends State<PinCheckScreen>
       } else {
         final formattedTime = _formatRemainingTime(remainingSeconds);
         setState(() {
-          errorMessage = '$formattedTime 후 재시도 할 수 있어요';
+          errorMessage = t.errors.retry_after(time: formattedTime);
         });
       }
     });
@@ -241,9 +244,10 @@ class _PinCheckScreenState extends State<PinCheckScreen>
 
     List<String> timeComponents = [];
 
-    if (hours > 0) timeComponents.add('$hours시간');
-    if (minutes > 0) timeComponents.add('$minutes분');
-    if (seconds > 0 || timeComponents.isEmpty) timeComponents.add('$seconds초');
+    if (hours > 0) timeComponents.add('$hours${t.hour}');
+    if (minutes > 0) timeComponents.add('$minutes${t.minute}');
+    if (seconds > 0 || timeComponents.isEmpty)
+      timeComponents.add('$seconds${t.second}');
 
     return timeComponents.join(' ');
   }
@@ -312,7 +316,7 @@ class _PinCheckScreenState extends State<PinCheckScreen>
 
   void _handlePermanentLockout() {
     setState(() {
-      errorMessage = '더 이상 시도할 수 없어요\n앱을 초기화 한 후에 이용할 수 있어요';
+      errorMessage = t.errors.pin_max_attempts_exceeded_error;
       lastChanceToTry = false;
     });
     _showResetDialog();
@@ -341,24 +345,24 @@ class _PinCheckScreenState extends State<PinCheckScreen>
 
   void _showResetDialog() {
     CustomDialogs.showCustomAlertDialog(context,
-        title: '비밀번호를 잊으셨나요?',
-        textWidget: const Text.rich(
+        title: t.alert.forgot_password.title,
+        textWidget: Text.rich(
           TextSpan(
             children: [
               TextSpan(
-                text: '[초기화하기]를 눌러 비밀번호를 초기화할 수 있어요.\n',
+                text: t.alert.forgot_password.description1,
                 style: Styles.body2,
               ),
               TextSpan(
-                text: '비밀번호를 초기화하면 저장된 정보가 삭제돼요. 그래도 초기화 하시겠어요?',
+                text: t.alert.forgot_password.description2,
                 style: Styles.warning,
               ),
             ],
           ),
         ),
-        confirmButtonText: '초기화하기',
+        confirmButtonText: t.alert.forgot_password.btn_reset,
         confirmButtonColor: MyColors.warningText,
-        cancelButtonText: '닫기', onConfirm: () async {
+        cancelButtonText: t.close, onConfirm: () async {
       /*VaultStorageService()
           .reset(Provider.of<AppModel>(context, listen: false));
       _pinAttemptService.setLockoutDuration(0);
@@ -395,7 +399,7 @@ class _PinCheckScreenState extends State<PinCheckScreen>
                     _lastPressedAt = now;
                     Fluttertoast.showToast(
                       backgroundColor: MyColors.grey,
-                      msg: "뒤로 가기 버튼을 한 번 더 누르면 종료됩니다.",
+                      msg: t.toast.back_exit,
                       toastLength: Toast.LENGTH_SHORT,
                     );
                   } else {
@@ -424,7 +428,7 @@ class _PinCheckScreenState extends State<PinCheckScreen>
       title: widget.screenStatus == PinCheckScreenStatus.entrance ||
               widget.screenStatus == PinCheckScreenStatus.lock
           ? ''
-          : '비밀번호를 눌러주세요',
+          : t.pin_check_screen.enter_password,
       initOptionVisible: widget.screenStatus == PinCheckScreenStatus.entrance ||
           widget.screenStatus == PinCheckScreenStatus.lock,
       isCloseIcon: widget.isDeleteScreen,
@@ -440,7 +444,7 @@ class _PinCheckScreenState extends State<PinCheckScreen>
       onReset: isOnReset ? _showResetDialog : null,
       step: 0,
       lastChance: lastChanceToTry,
-      lastChanceMessage: '⚠︎ 3회 모두 틀리면 볼트를 초기화해야 합니다',
+      lastChanceMessage: t.pin_check_screen.warning,
     );
   }
 

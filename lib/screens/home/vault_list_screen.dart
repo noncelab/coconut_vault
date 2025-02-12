@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:coconut_vault/app.dart';
+import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/screens/pin_check_screen.dart';
 import 'package:coconut_vault/screens/pin_setting_screen.dart';
 import 'package:coconut_vault/widgets/coconut_dropdown.dart';
@@ -16,19 +17,19 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:provider/provider.dart';
 import 'package:shimmer/shimmer.dart';
 
-import 'model/state/vault_model.dart';
-import 'widgets/vault_row_item.dart';
+import '../../model/state/vault_model.dart';
+import '../../widgets/vault_row_item.dart';
 
-class VaultListTab extends StatefulWidget {
-  const VaultListTab({
+class VaultListScreen extends StatefulWidget {
+  const VaultListScreen({
     super.key,
   });
 
   @override
-  State<VaultListTab> createState() => _VaultListTabState();
+  State<VaultListScreen> createState() => _VaultListScreenState();
 }
 
-class _VaultListTabState extends State<VaultListTab>
+class _VaultListScreenState extends State<VaultListScreen>
     with WidgetsBindingObserver, TickerProviderStateMixin {
   late AppModel _appModel;
   late VaultModel _vaultModel;
@@ -210,7 +211,7 @@ class _VaultListTabState extends State<VaultListTab>
                   _lastPressedAt = now;
                   Fluttertoast.showToast(
                     backgroundColor: MyColors.grey,
-                    msg: "뒤로 가기 버튼을 한 번 더 누르면 종료됩니다.",
+                    msg: t.toast.back_exit,
                     toastLength: Toast.LENGTH_SHORT,
                   );
                 } else {
@@ -251,12 +252,12 @@ class _VaultListTabState extends State<VaultListTab>
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                const Text(
-                                  '지갑을 추가해 주세요',
+                                Text(
+                                  t.vault_list_tab.add_wallet,
                                   style: Styles.title5,
                                 ),
-                                const Text(
-                                  '오른쪽 위 + 버튼을 눌러도 추가할 수 있어요',
+                                Text(
+                                  t.vault_list_tab.top_right_icon,
                                   style: Styles.label,
                                 ),
                                 const SizedBox(height: 16),
@@ -281,7 +282,7 @@ class _VaultListTabState extends State<VaultListTab>
                                       vertical: 12,
                                     ),
                                     child: Text(
-                                      '바로 추가하기',
+                                      t.vault_list_tab.btn_add,
                                       style: Styles.label.merge(
                                         const TextStyle(
                                           color: MyColors.black,
@@ -341,7 +342,11 @@ class _VaultListTabState extends State<VaultListTab>
                         Align(
                           alignment: Alignment.topRight,
                           child: CoconutDropdown(
-                            buttons: const ['니모닉 문구 단어집', '설정', '앱 정보 보기'],
+                            buttons: [
+                              t.mnemonic_wordlist,
+                              t.settings,
+                              t.view_app_info
+                            ],
                             onTapButton: (index) {
                               setState(() {
                                 _isSeeMoreDropdown = false;

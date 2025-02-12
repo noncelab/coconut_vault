@@ -1,9 +1,10 @@
 import 'dart:io';
 
+import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:coconut_vault/styles.dart';
-import 'package:coconut_vault/widgets/high-lighted-text.dart';
+import 'package:coconut_vault/widgets/highlighted_text.dart';
 
 class AppUnavailableNotificationScreen extends StatefulWidget {
   const AppUnavailableNotificationScreen({super.key});
@@ -32,7 +33,8 @@ class _AppUnavailableNotificationScreenState
                 width: 80,
               ),
               const SizedBox(height: 20),
-              const Text("휴대폰이 외부와 연결된 상태예요", style: Styles.body2Bold),
+              Text(t.app_unavailable_notification_screen.network_on,
+                  style: Styles.body2Bold),
               const SizedBox(height: 20),
               Container(
                   padding: const EdgeInsets.symmetric(vertical: 32),
@@ -51,27 +53,36 @@ class _AppUnavailableNotificationScreenState
                   child: Column(
                     children: [
                       const Text('1', style: Styles.subLabel),
-                      const Text('안전한 사용을 위해', style: Styles.subLabel),
-                      const Row(
+                      Text(t.app_unavailable_notification_screen.text1_1,
+                          style: Styles.subLabel),
+                      Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Text('지금 바로 ', style: Styles.subLabel),
-                          HighLightedText('앱을 종료', color: MyColors.darkgrey),
-                          Text('해 주세요', style: Styles.subLabel),
+                          Text(t.app_unavailable_notification_screen.text1_2,
+                              style: Styles.subLabel),
+                          HighLightedText(
+                              t.app_unavailable_notification_screen.text1_3,
+                              color: MyColors.darkgrey),
+                          Text(t.app_unavailable_notification_screen.text1_4,
+                              style: Styles.subLabel),
                         ],
                       ),
                       const SizedBox(height: 24),
                       const Text('2', style: Styles.subLabel),
-                      const HighLightedText('네트워크 및 블루투스',
+                      HighLightedText(
+                          t.app_unavailable_notification_screen.text2,
                           color: MyColors.darkgrey),
-                      const Text('상태를 확인해 주세요', style: Styles.subLabel),
+                      Text(t.app_unavailable_notification_screen.check_status,
+                          style: Styles.subLabel),
                       const SizedBox(height: 24),
                       if (isAndroid) ...[
                         // Android only: iOS는 개발자 모드 on/off 확인 불가
                         const Text('3', style: Styles.subLabel),
-                        const HighLightedText('개발자 옵션 OFF',
+                        HighLightedText(
+                            t.app_unavailable_notification_screen.text3,
                             color: MyColors.darkgrey),
-                        const Text('상태를 확인해 주세요', style: Styles.subLabel),
+                        Text(t.app_unavailable_notification_screen.check_status,
+                            style: Styles.subLabel),
                       ]
                     ],
                   )),

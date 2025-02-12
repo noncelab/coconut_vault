@@ -1,3 +1,4 @@
+import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:coconut_vault/model/state/app_model.dart';
@@ -155,7 +156,7 @@ class PinInputScreenState extends State<PinInputScreen> {
                       widget.onReset?.call();
                     },
                     child: Text(
-                      '비밀번호가 기억나지 않나요?',
+                      t.forgot_password,
                       style: Styles.body2.merge(const TextStyle(
                           fontWeight: FontWeight.bold,
                           color: MyColors.transparentBlack_50)),

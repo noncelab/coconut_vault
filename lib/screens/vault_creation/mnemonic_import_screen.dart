@@ -1,4 +1,5 @@
 import 'package:coconut_lib/coconut_lib.dart';
+import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/utils/lower_case_text_input_formatter.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -74,7 +75,7 @@ class _MnemonicImportState extends State<MnemonicImport> {
     if (filtered.isNotEmpty) {
       setState(() {
         isMnemonicValid = false;
-        errorMessage = '잘못된 단어예요. $filtered';
+        errorMessage = t.errors.invalid_word_error(filter: filtered);
       });
       return;
     } else {
@@ -132,10 +133,10 @@ class _MnemonicImportState extends State<MnemonicImport> {
   void _showStopGeneratingMnemonicDialog() {
     CustomDialogs.showCustomAlertDialog(
       context,
-      title: '복원 중단',
-      message: '정말 복원하기를 그만하시겠어요?',
-      cancelButtonText: '취소',
-      confirmButtonText: '그만하기',
+      title: t.alert.stop_importing_mnemonic.title,
+      message: t.alert.stop_importing_mnemonic.description,
+      cancelButtonText: t.cancel,
+      confirmButtonText: t.stop,
       confirmButtonColor: MyColors.warningText,
       onCancel: () => Navigator.pop(context),
       onConfirm: () {
@@ -175,7 +176,7 @@ class _MnemonicImportState extends State<MnemonicImport> {
           Scaffold(
             backgroundColor: Colors.white,
             appBar: CustomAppBar.buildWithNext(
-              title: '복원하기',
+              title: t.mnemonic_import_screen.title,
               context: context,
               onBackPressed: () {
                 _onBackPressed(context);
@@ -190,7 +191,7 @@ class _MnemonicImportState extends State<MnemonicImport> {
                         .replaceAll(RegExp(r'\s+'), ' '),
                     usePassphrase ? passphrase.trim() : '')) {
                   CustomToast.showToast(
-                      context: context, text: "이미 추가되어 있는 니모닉이에요");
+                      context: context, text: t.toast.mnemonic_already_added);
                   return;
                 }
 
@@ -209,7 +210,7 @@ class _MnemonicImportState extends State<MnemonicImport> {
                         Navigator.pushNamed(context, '/vault-name-setup'),
                     onInactivePressed: () {
                       CustomToast.showToast(
-                          context: context, text: "스크롤을 내려서 모두 확인해 주세요");
+                          context: context, text: t.toast.scroll_down);
                       vibrateMediumDouble();
                     },
                     mnemonic: inputText
@@ -235,14 +236,16 @@ class _MnemonicImportState extends State<MnemonicImport> {
                         horizontal: 20, vertical: 30),
                     child: Column(
                       children: <Widget>[
-                        const Text('니모닉 문구를 입력해 주세요', style: Styles.body1Bold),
+                        Text(t.mnemonic_import_screen.enter_mnemonic_phrase,
+                            style: Styles.body1Bold),
                         const SizedBox(height: 30),
                         CustomTextField(
                             controller: _mnemonicController,
                             inputFormatter: [
                               LowerCaseTextInputFormatter(),
                             ],
-                            placeholder: "단어 사이에 띄어쓰기를 넣어주세요",
+                            placeholder: t.mnemonic_import_screen
+                                .put_spaces_between_words,
                             onChanged: (text) {
                               inputText = text.toLowerCase();
                               setState(() {
@@ -261,11 +264,13 @@ class _MnemonicImportState extends State<MnemonicImport> {
                             maxLines: 5,
                             padding: const EdgeInsets.fromLTRB(16, 20, 16, 20),
                             valid: isMnemonicValid,
-                            errorMessage: errorMessage ?? '잘못된 니모닉 문구예요'),
+                            errorMessage: errorMessage ??
+                                t.errors.invalid_mnemonic_phrase),
                         const SizedBox(height: 30),
                         Row(
                           children: [
-                            const Text('패스프레이즈 사용', style: Styles.body2Bold),
+                            Text(t.mnemonic_import_screen.use_passphrase,
+                                style: Styles.body2Bold),
                             const Spacer(),
                             CupertinoSwitch(
                               value: usePassphrase,
@@ -285,7 +290,8 @@ class _MnemonicImportState extends State<MnemonicImport> {
                                 child: SizedBox(
                                   child: CustomTextField(
                                     controller: _passphraseController,
-                                    placeholder: "패스프레이즈를 입력해 주세요",
+                                    placeholder: t.mnemonic_import_screen
+                                        .enter_passphrase,
                                     onChanged: (text) {},
                                     valid: passphrase.length <= 100,
                                     maxLines: 1,

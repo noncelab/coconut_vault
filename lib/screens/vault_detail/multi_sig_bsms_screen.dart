@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:coconut_lib/coconut_lib.dart';
+import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/model/data/multisig_import_detail.dart';
 import 'package:coconut_vault/model/data/multisig_signer.dart';
 import 'package:coconut_vault/model/data/multisig_vault_list_item.dart';
@@ -70,7 +71,7 @@ class _MultiSigBsmsScreenState extends State<MultiSigBsmsScreen> {
         child: Scaffold(
           backgroundColor: MyColors.white,
           appBar: AppBar(
-            title: const Text('지갑 상세 정보'),
+            title: Text(t.multi_sig_bsms_screen.bottom_sheet.title),
             centerTitle: true,
             backgroundColor: MyColors.white,
             titleTextStyle: Styles.body1Bold,
@@ -89,7 +90,7 @@ class _MultiSigBsmsScreenState extends State<MultiSigBsmsScreen> {
           body: SingleChildScrollView(
             child: ClipboardButton(
               text: qrData,
-              toastMessage: '지갑 상세 정보가 복사됐어요',
+              toastMessage: t.multi_sig_bsms_screen.bottom_sheet.info_copied,
             ),
           ),
         ),
@@ -99,12 +100,14 @@ class _MultiSigBsmsScreenState extends State<MultiSigBsmsScreen> {
 
   String _generateOutsideWalletDescription(List<int> idList,
       {bool isAnd = false}) {
-    if (idList.length == 1) return '${idList.first}번';
-    if (isAnd) {
-      return '${idList.first}번과 ${idList.last}번';
+    if (idList.length == 1) {
+      return t.multi_sig_bsms_screen.gen1(first: idList.first);
     }
-
-    return '${idList.first}번 또는 ${idList.last}번';
+    if (isAnd) {
+      return t.multi_sig_bsms_screen
+          .gen2(first: idList.first, last: idList.last);
+    }
+    return t.multi_sig_bsms_screen.gen3(first: idList.first, last: idList.last);
   }
 
   @override
@@ -113,7 +116,7 @@ class _MultiSigBsmsScreenState extends State<MultiSigBsmsScreen> {
     return Scaffold(
       backgroundColor: MyColors.white,
       appBar: CustomAppBar.build(
-        title: '지갑 설정 정보',
+        title: t.multi_sig_bsms_screen.title,
         context: context,
         hasRightIcon: false,
         isBottom: false,
@@ -142,20 +145,21 @@ class _MultiSigBsmsScreenState extends State<MultiSigBsmsScreen> {
               padding: const EdgeInsets.all(16),
               child: Column(
                 children: [
-                  _description(
-                      '안전한 다중 서명 지갑 관리를 위한 표준에 따라 지갑 설정 정보를 관리하고 공유합니다.'),
+                  _description(t.multi_sig_bsms_screen.text1),
                   const SizedBox(height: 4),
                   if (outSideWalletIdList.isEmpty) ...[
-                    _description('모든 키가 볼트에 저장되어 있습니다.'),
+                    _description(t.multi_sig_bsms_screen.text2),
                     const SizedBox(height: 4),
-                    _description(
-                        '같은 키를 보관하고 있는 다른 볼트에서도 이 QR을 읽어 다중 서명 지갑을 추가할 수 있습니다.'),
+                    _description(t.multi_sig_bsms_screen.text3),
                   ] else ...{
-                    _description(
-                        '이 다중 서명 지갑에 지정된 **${_generateOutsideWalletDescription(outSideWalletIdList, isAnd: true)}** 키의 니모닉 문구는 현재 다른 볼트에 있습니다.'),
+                    _description(t.multi_sig_bsms_screen.text4(
+                        gen: _generateOutsideWalletDescription(
+                            outSideWalletIdList,
+                            isAnd: true))),
                     const SizedBox(height: 4),
-                    _description(
-                        '**${_generateOutsideWalletDescription(outSideWalletIdList)}** 키 보관 지갑 - **다중 서명 지갑 가져오기**에서 아래 QR 코드를 읽어 주세요. 다중 서명 트랜잭션에 **${_generateOutsideWalletDescription(outSideWalletIdList)}** 키로 서명하기 위해 이 절차가 반드시 필요합니다.'),
+                    _description(t.multi_sig_bsms_screen.text5(
+                        gen: _generateOutsideWalletDescription(
+                            outSideWalletIdList))),
                   }
                 ],
               ),
@@ -182,7 +186,7 @@ class _MultiSigBsmsScreenState extends State<MultiSigBsmsScreen> {
                   color: MyColors.borderGrey,
                 ),
                 child: Text(
-                  '상세 정보 보기',
+                  t.multi_sig_bsms_screen.view_detail,
                   style: Styles.body2.copyWith(color: MyColors.white),
                 ),
               ),

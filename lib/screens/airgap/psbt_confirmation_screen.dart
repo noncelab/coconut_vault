@@ -1,3 +1,4 @@
+import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/model/data/vault_type.dart';
 import 'package:flutter/material.dart';
 import 'package:coconut_vault/model/state/vault_model.dart';
@@ -117,7 +118,8 @@ class _PsbtConfirmationScreenState extends State<PsbtConfirmationScreen> {
       });
     } catch (_) {
       if (context.mounted) {
-        showAlertDialog(context: context, content: "psbt 파싱 실패: $_");
+        showAlertDialog(
+            context: context, content: t.errors.psbt_parsing_error(error: _));
       }
     }
   }
@@ -127,7 +129,7 @@ class _PsbtConfirmationScreenState extends State<PsbtConfirmationScreen> {
     return Scaffold(
       backgroundColor: MyColors.white,
       appBar: CustomAppBar.buildWithNext(
-        title: '스캔 정보 확인',
+        title: t.psbt_confirmation_screen.title,
         context: context,
         isActive: !_showLoading,
         onNextPressed: () {
@@ -167,9 +169,9 @@ class _PsbtConfirmationScreenState extends State<PsbtConfirmationScreen> {
                   const SizedBox(height: 20),
                   CustomTooltip(
                     richText: RichText(
-                      text: const TextSpan(
+                      text: TextSpan(
                         text: '[3] ',
-                        style: TextStyle(
+                        style: const TextStyle(
                           fontFamily: 'Pretendard',
                           fontWeight: FontWeight.bold,
                           fontSize: 15,
@@ -179,8 +181,8 @@ class _PsbtConfirmationScreenState extends State<PsbtConfirmationScreen> {
                         ),
                         children: <TextSpan>[
                           TextSpan(
-                            text: '월렛에서 스캔한 정보가 맞는지 다시 한번 확인해 주세요.',
-                            style: TextStyle(
+                            text: t.psbt_confirmation_screen.guide,
+                            style: const TextStyle(
                               fontWeight: FontWeight.normal,
                             ),
                           ),
@@ -196,8 +198,8 @@ class _PsbtConfirmationScreenState extends State<PsbtConfirmationScreen> {
                       child: Text.rich(
                         TextSpan(
                           text: _bitcoinString,
-                          children: const <TextSpan>[
-                            TextSpan(text: ' BTC', style: Styles.unit),
+                          children: <TextSpan>[
+                            TextSpan(text: ' ${t.btc}', style: Styles.unit),
                           ],
                         ),
                         style: Styles.balance1,
@@ -216,7 +218,7 @@ class _PsbtConfirmationScreenState extends State<PsbtConfirmationScreen> {
                         child: Column(
                           children: [
                             InformationRowItem(
-                              label: '보낼 주소',
+                              label: t.recipient,
                               value: _sendAddress,
                               isNumber: true,
                             ),
@@ -225,9 +227,9 @@ class _PsbtConfirmationScreenState extends State<PsbtConfirmationScreen> {
                               height: 1,
                             ),
                             InformationRowItem(
-                              label: '예상 수수료',
+                              label: t.estimated_fee,
                               value: _psbt != null
-                                  ? "${satoshiToBitcoinString(_psbt!.fee)} BTC"
+                                  ? "${satoshiToBitcoinString(_psbt!.fee)} ${t.btc}"
                                   : "",
                               isNumber: true,
                             ),
@@ -236,9 +238,9 @@ class _PsbtConfirmationScreenState extends State<PsbtConfirmationScreen> {
                               height: 1,
                             ),
                             InformationRowItem(
-                              label: '총 소요 수량',
+                              label: t.total_amount,
                               value: _psbt != null
-                                  ? "${satoshiToBitcoinString(_psbt!.sendingAmount + _psbt!.fee)} BTC"
+                                  ? "${satoshiToBitcoinString(_psbt!.sendingAmount + _psbt!.fee)} ${t.btc}"
                                   : "",
                               isNumber: true,
                             ),
@@ -251,8 +253,8 @@ class _PsbtConfirmationScreenState extends State<PsbtConfirmationScreen> {
                     const SizedBox(
                       height: 20,
                     ),
-                    const Text(
-                      "내 지갑으로 보내는 트랜잭션입니다.",
+                    Text(
+                      t.psbt_confirmation_screen.self_sending,
                       textAlign: TextAlign.center,
                       style: Styles.caption,
                     ),
@@ -266,8 +268,8 @@ class _PsbtConfirmationScreenState extends State<PsbtConfirmationScreen> {
                       decoration: BoxDecoration(
                           borderRadius: MyBorder.defaultRadius,
                           color: MyColors.transparentBlack_30),
-                      child: const Text(
-                        "⚠️ 해당 지갑으로 만든 psbt가 아닐 수 있습니다. 또는 잔액이 없는 트랜잭션일 수 있습니다.",
+                      child: Text(
+                        t.psbt_confirmation_screen.warning,
                         textAlign: TextAlign.center,
                       ),
                     ),

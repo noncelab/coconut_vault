@@ -1,3 +1,4 @@
+import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/screens/vault_detail/export_detail_screen.dart';
 import 'package:coconut_vault/widgets/bottom_sheet.dart';
 import 'package:flutter/cupertino.dart';
@@ -37,13 +38,13 @@ class _SyncToWalletScreenState extends State<SyncToWalletScreen> {
           context: context,
           builder: (BuildContext context) {
             return CupertinoAlertDialog(
-                content: const Text("내보내기 실패"),
+                content: Text(t.errors.export_error),
                 actions: <CupertinoDialogAction>[
                   CupertinoDialogAction(
                     onPressed: () {
                       Navigator.pop(context);
                     },
-                    child: const Text('확인'),
+                    child: Text(t.confirm),
                   ),
                 ]);
           });
@@ -55,7 +56,7 @@ class _SyncToWalletScreenState extends State<SyncToWalletScreen> {
     return Scaffold(
       backgroundColor: MyColors.white,
       appBar: CustomAppBar.build(
-          title: '$_name 내보내기',
+          title: t.sync_to_wallet_screen.title(name: _name),
           context: context,
           hasRightIcon: false,
           isBottom: true),
@@ -69,9 +70,9 @@ class _SyncToWalletScreenState extends State<SyncToWalletScreen> {
                 type: TooltipType.info,
                 showIcon: true,
                 richText: RichText(
-                  text: const TextSpan(
-                    text: '월렛',
-                    style: TextStyle(
+                  text: TextSpan(
+                    text: t.sync_to_wallet_screen.guide1_1,
+                    style: const TextStyle(
                       fontFamily: 'Pretendard',
                       fontWeight: FontWeight.bold,
                       fontSize: 15,
@@ -81,20 +82,20 @@ class _SyncToWalletScreenState extends State<SyncToWalletScreen> {
                     ),
                     children: <TextSpan>[
                       TextSpan(
-                        text: '에서 + 버튼을 누르고, 아래 ',
-                        style: TextStyle(
+                        text: t.sync_to_wallet_screen.guide1_2,
+                        style: const TextStyle(
                           fontWeight: FontWeight.normal,
                         ),
                       ),
                       TextSpan(
-                        text: 'QR 코드를 스캔',
-                        style: TextStyle(
+                        text: t.sync_to_wallet_screen.guide1_3,
+                        style: const TextStyle(
                           fontWeight: FontWeight.bold,
                         ),
                       ),
                       TextSpan(
-                        text: '해 주세요. 안전한 보기 전용 지갑을 사용하실 수 있어요.',
-                        style: TextStyle(
+                        text: t.sync_to_wallet_screen.guide1_4,
+                        style: const TextStyle(
                           fontWeight: FontWeight.normal,
                         ),
                       ),
@@ -119,7 +120,7 @@ class _SyncToWalletScreenState extends State<SyncToWalletScreen> {
                     borderRadius: BorderRadius.circular(4.0),
                     color: MyColors.borderGrey,
                   ),
-                  child: Text('상세 정보 보기',
+                  child: Text(t.sync_to_wallet_screen.view_detail,
                       style: Styles.caption
                           .merge(const TextStyle(color: MyColors.white))),
                 ),

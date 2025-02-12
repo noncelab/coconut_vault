@@ -1,4 +1,5 @@
 import 'package:coconut_lib/coconut_lib.dart';
+import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:coconut_vault/model/state/vault_model.dart';
@@ -10,7 +11,7 @@ import 'package:coconut_vault/widgets/bottom_sheet.dart';
 import 'package:coconut_vault/widgets/button/custom_buttons.dart';
 import 'package:coconut_vault/widgets/custom_dialog.dart';
 import 'package:coconut_vault/widgets/custom_toast.dart';
-import 'package:coconut_vault/widgets/high-lighted-text.dart';
+import 'package:coconut_vault/widgets/highlighted_text.dart';
 import 'package:coconut_vault/widgets/textfield/custom_textfield.dart';
 import 'package:provider/provider.dart';
 
@@ -102,7 +103,7 @@ class _MnemonicFlipCoinScreenState extends State<MnemonicFlipCoinScreen> {
     return Scaffold(
         backgroundColor: MyColors.white,
         appBar: CustomAppBar.build(
-          title: '니모닉 문구 만들기',
+          title: t.mnemonic_coin_flip_screen.title,
           context: context,
           onBackPressed: _showStopGeneratingMnemonicDialog,
           hasRightIcon: false,
@@ -175,22 +176,23 @@ class _FlipCoinState extends State<FlipCoin> {
                     children: [
                       HighLightedText(widget.wordsCount.toString(),
                           color: MyColors.darkgrey),
-                      const Text(' 단어, 패스프레이즈 '),
+                      Text(t.mnemonic_coin_flip_screen.words_passphrase),
                       widget.usePassphrase
-                          ? const HighLightedText('사용',
+                          ? HighLightedText(t.mnemonic_coin_flip_screen.use,
                               color: MyColors.darkgrey)
-                          : const Row(
+                          : Row(
                               children: [
-                                Text('사용 '),
-                                HighLightedText('안함', color: MyColors.darkgrey),
+                                Text('${t.mnemonic_coin_flip_screen.use} '),
+                                HighLightedText(
+                                    t.mnemonic_coin_flip_screen.do_not,
+                                    color: MyColors.darkgrey),
                               ],
                             ),
                       GestureDetector(
                           onTap: _currentIndex != 0
                               ? () => _showConfirmResetDialog(
-                                  title: '다시 고르기',
-                                  message:
-                                      '지금까지 입력한 정보가 모두 지워져요.\n정말로 다시 선택하시겠어요?',
+                                  title: t.alert.reselect.title,
+                                  message: t.alert.reselect.description,
                                   action: () {
                                     widget.onReset();
                                     Navigator.pop(context);
@@ -204,8 +206,8 @@ class _FlipCoinState extends State<FlipCoin> {
                                   borderRadius: BorderRadius.circular(8),
                                   border:
                                       Border.all(color: MyColors.borderGrey)),
-                              child: const Text(
-                                '다시 고르기',
+                              child: Text(
+                                t.re_select,
                                 style: Styles.caption,
                               )))
                     ],
@@ -275,12 +277,12 @@ class _FlipCoinState extends State<FlipCoin> {
                                         borderRadius: MyBorder.defaultRadius,
                                         color: Colors.white,
                                       ),
-                                      child: const Padding(
-                                        padding: EdgeInsets.symmetric(
+                                      child: Padding(
+                                        padding: const EdgeInsets.symmetric(
                                           horizontal: 15,
                                           vertical: 10,
                                         ),
-                                        child: Text('전체 보기',
+                                        child: Text(t.view_all,
                                             style: Styles.caption),
                                       ),
                                     ),
@@ -300,7 +302,8 @@ class _FlipCoinState extends State<FlipCoin> {
                                 child: SizedBox(
                                   child: CustomTextField(
                                     controller: _passphraseController,
-                                    placeholder: "패스프레이즈를 입력해 주세요",
+                                    placeholder: t.mnemonic_coin_flip_screen
+                                        .enter_passphrase,
                                     onChanged: (text) {
                                       setState(() {
                                         passphrase = text;
@@ -359,11 +362,12 @@ class _FlipCoinState extends State<FlipCoin> {
                       onPressed: () {
                         setState(() {
                           if (_generateMnemonicPhrase()) {
-                            _showConfirmBottomSheet('생성된 니모닉 문구를\n백업해 주세요.');
+                            _showConfirmBottomSheet(
+                                t.bottom_sheet.mnemonic_backup);
                           }
                         });
                       },
-                      label: '완료',
+                      label: t.complete,
                       disabled: _bits.length < _totalBits),
                 if (step == 0 && stepCount == 2)
                   CompleteButton(
@@ -374,19 +378,19 @@ class _FlipCoinState extends State<FlipCoin> {
                           });
                         });
                       },
-                      label: '다음',
+                      label: t.next,
                       disabled: _bits.length < _totalBits),
                 if (widget.usePassphrase && step == 1)
                   CompleteButton(
                       onPressed: () {
                         setState(() {
                           if (_generateMnemonicPhrase()) {
-                            _showConfirmBottomSheet(
-                                '생성된 니모닉 문구를 백업하시고\n패스프레이즈를 확인해 주세요.');
+                            _showConfirmBottomSheet(t.bottom_sheet
+                                .mnemonic_backup_and_confirm_passphrase);
                           }
                         });
                       },
-                      label: '완료',
+                      label: t.complete,
                       disabled:
                           passphrase.isEmpty || _bits.length < _totalBits),
                 const SizedBox(height: 80),
@@ -463,7 +467,7 @@ class _FlipCoinState extends State<FlipCoin> {
                 onTap: _currentIndex < _totalBits ? () => _addBit(1) : null,
                 borderRadius: BorderRadius.circular(8),
                 child: Ink(
-                  child: _buildCoin('앞'),
+                  child: _buildCoin(t.mnemonic_coin_flip_screen.coin_head),
                 ),
               ),
             ),
@@ -474,7 +478,7 @@ class _FlipCoinState extends State<FlipCoin> {
                 borderRadius: BorderRadius.circular(8),
                 onTap: _currentIndex < _totalBits ? () => _addBit(0) : null,
                 child: Ink(
-                  child: _buildCoin('뒤'),
+                  child: _buildCoin(t.mnemonic_coin_flip_screen.coin_tail),
                 ),
               ),
             ),
@@ -486,14 +490,14 @@ class _FlipCoinState extends State<FlipCoin> {
           children: [
             GestureDetector(
               onTap: _removeLastBit,
-              child: Text('하나 지우기',
+              child: Text(t.delete_one,
                   style: Styles.subLabel.merge(TextStyle(
                       color: _bits.isEmpty ? MyColors.defaultText : null))),
             ),
             const SizedBox(width: 20),
             GestureDetector(
               onTap: _showConfirmResetDialog,
-              child: Text('모두 지우기',
+              child: Text(t.delete_all,
                   style: Styles.subLabel.merge(TextStyle(
                       color: _bits.isEmpty ? MyColors.defaultText : null))),
             ),
@@ -555,10 +559,10 @@ class _FlipCoinState extends State<FlipCoin> {
       {String? title, String? message, VoidCallback? action}) {
     CustomDialogs.showCustomAlertDialog(
       context,
-      title: title ?? '모두 지우기',
-      message: message ?? '정말로 지금까지 입력한 정보를\n모두 지우시겠어요?',
-      cancelButtonText: '취소',
-      confirmButtonText: '지우기',
+      title: title ?? t.delete_all,
+      message: message ?? t.alert.erase_all_entered_so_far,
+      cancelButtonText: t.cancel,
+      confirmButtonText: t.delete,
       confirmButtonColor: MyColors.warningText,
       onCancel: () => Navigator.pop(context),
       onConfirm: action ??
@@ -586,7 +590,7 @@ class _FlipCoinState extends State<FlipCoin> {
 
   void _showAllBitsBottomSheet() {
     MyBottomSheet.showBottomSheet(
-        title: '전체 보기(${_bits.length}/$_totalBits)',
+        title: '${t.view_all}(${_bits.length}/$_totalBits)',
         context: context,
         child: BinaryGrid(totalBits: _totalBits, bits: _bits));
   }
@@ -601,7 +605,7 @@ class _FlipCoinState extends State<FlipCoin> {
         onConfirmPressed: () =>
             Navigator.pushNamed(context, '/vault-name-setup'),
         onInactivePressed: () {
-          CustomToast.showToast(context: context, text: "스크롤을 내려서 모두 확인해주세요");
+          CustomToast.showToast(context: context, text: t.toast.scroll_down);
         },
         mnemonic: mnemonic.trim().toLowerCase().replaceAll(RegExp(r'\s+'), ' '),
         passphrase: widget.usePassphrase ? passphrase : null,

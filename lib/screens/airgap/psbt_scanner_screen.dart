@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/model/data/vault_list_item_base.dart';
 import 'package:coconut_vault/model/data/vault_type.dart';
 import 'package:coconut_vault/model/state/app_model.dart';
@@ -73,7 +74,7 @@ class _PsbtScannerScreenState extends State<PsbtScannerScreen> {
 
     if (!await _vaultListItem.canSign(psbtBase64)) {
       vibrateLight();
-      showError('서명할 수 없는 트랜잭션이에요.');
+      showError(t.errors.cannot_sign_error);
       return;
     }
 
@@ -102,9 +103,9 @@ class _PsbtScannerScreenState extends State<PsbtScannerScreen> {
 
     String errorMessage;
     if (message.contains('Invalid Scheme')) {
-      errorMessage = '잘못된 서명 정보에요. 다시 시도해 주세요.';
+      errorMessage = t.errors.invalid_sign_error;
     } else {
-      errorMessage = '[스캔 실패] $message';
+      errorMessage = t.errors.scan_error(error: message);
     }
 
     showError(errorMessage);
@@ -154,8 +155,8 @@ class _PsbtScannerScreenState extends State<PsbtScannerScreen> {
                   children: <TextSpan>[
                     TextSpan(
                       text: _isMultisig
-                          ? '월렛에서 만든 보내기 정보 또는 외부 볼트에서 다중 서명 중인 정보를 스캔해주세요.'
-                          : '월렛에서 만든 보내기 정보를 스캔해 주세요. 반드시 지갑 이름이 같아야 해요.',
+                          ? t.psbt_scanner_screen.guide_multisig
+                          : t.psbt_scanner_screen.guide_singlesig,
                       style: const TextStyle(
                         fontWeight: FontWeight.normal,
                       ),

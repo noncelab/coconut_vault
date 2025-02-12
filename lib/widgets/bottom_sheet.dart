@@ -1,3 +1,4 @@
+import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/widgets/appbar/custom_appbar.dart';
 import 'package:flutter/material.dart';
 import 'package:coconut_vault/styles.dart';
@@ -159,7 +160,7 @@ class MyBottomSheet {
                           return CustomAppBar.buildWithClose(
                             hasNextButton: true,
                             context: context,
-                            title: '키 목록',
+                            title: t.key_list, // fixme: 특정 화면 컨텍스트를 포함하고 있음
                             backgroundColor: MyColors.white,
                             isNextButtonActive: isButtonActiveNotifier.value,
                             onBackPressed: () => Navigator.pop(context),
@@ -176,7 +177,7 @@ class MyBottomSheet {
                       CustomAppBar.buildWithClose(
                         hasNextButton: true,
                         context: context,
-                        title: '가져오기',
+                        title: t.import,
                         backgroundColor: MyColors.white,
                         onBackPressed: () {
                           if (onBackPressed != null) {

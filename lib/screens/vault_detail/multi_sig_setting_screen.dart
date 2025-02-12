@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/model/data/multisig_signer.dart';
 import 'package:coconut_vault/model/data/multisig_vault_list_item.dart';
 import 'package:coconut_vault/model/data/singlesig_vault_list_item.dart';
@@ -119,8 +120,7 @@ class _MultiSigSettingScreenState extends State<MultiSigSettingScreen> {
     }
 
     if (newName != _multiVault.name && _vaultModel.isNameDuplicated(newName)) {
-      CustomToast.showToast(
-          context: context, text: '이미 사용하고 있는 이름으로는 바꿀 수 없어요');
+      CustomToast.showToast(context: context, text: t.toast.name_already_used);
       return;
     }
 
@@ -130,7 +130,7 @@ class _MultiSigSettingScreenState extends State<MultiSigSettingScreen> {
 
       _updateMultiVaultListItem();
       setState(() {});
-      CustomToast.showToast(context: context, text: '정보를 수정했어요');
+      CustomToast.showToast(context: context, text: t.toast.data_updated);
     }
   }
 
@@ -201,7 +201,7 @@ class _MultiSigSettingScreenState extends State<MultiSigSettingScreen> {
             switch (status) {
               case 0:
                 _showModalBottomSheetWithQrImage(
-                  '확장 공개키',
+                  t.extended_public_key,
                   multisigSigner!.keyStore.extendedPublicKey.serialize(),
                   null,
                 );
@@ -214,8 +214,8 @@ class _MultiSigSettingScreenState extends State<MultiSigSettingScreen> {
                   context: context,
                   child: MnemonicViewScreen(
                     walletId: single.id,
-                    title: '니모닉 문구 보기',
-                    subtitle: '패스프레이즈 보기',
+                    title: t.view_mnemonic,
+                    subtitle: t.view_passphrase,
                   ),
                 );
                 break;
@@ -256,7 +256,9 @@ class _MultiSigSettingScreenState extends State<MultiSigSettingScreen> {
             // ),
             // const Divider(),
             _bottomSheetButton(
-              existsMemo ? '메모 수정' : '메모 추가',
+              existsMemo
+                  ? t.multi_sig_setting_screen.edit_memo
+                  : t.multi_sig_setting_screen.add_memo,
               onPressed: () {
                 _showEditMemoBottomSheet(multisigSigner);
               },
@@ -300,7 +302,7 @@ class _MultiSigSettingScreenState extends State<MultiSigSettingScreen> {
       child: Scaffold(
         backgroundColor: MyColors.white,
         appBar: CustomAppBar.build(
-          title: '${_multiVault.name} 정보',
+          title: '${_multiVault.name} ${t.info}',
           context: context,
           hasRightIcon: false,
           isBottom: false,
@@ -477,7 +479,7 @@ class _MultiSigSettingScreenState extends State<MultiSigSettingScreen> {
                           child: Column(
                             children: [
                               InformationRowItem(
-                                label: '지갑 설정 정보 보기',
+                                label: t.multi_sig_setting_screen.view_bsms,
                                 showIcon: true,
                                 onPressed: () {
                                   _removeTooltip();
@@ -505,7 +507,7 @@ class _MultiSigSettingScreenState extends State<MultiSigSettingScreen> {
                         child: Column(
                           children: [
                             InformationRowItem(
-                              label: '삭제하기',
+                              label: t.delete,
                               showIcon: true,
                               rightIcon: Container(
                                   padding: const EdgeInsets.all(8),
@@ -522,9 +524,9 @@ class _MultiSigSettingScreenState extends State<MultiSigSettingScreen> {
                                 _removeTooltip();
                                 showConfirmDialog(
                                   context: context,
-                                  title: '확인',
-                                  content:
-                                      '정말로 볼트에서 ${_multiVault.name} 정보를 삭제하시겠어요?',
+                                  title: t.confirm,
+                                  content: t.alert
+                                      .confirm_deletion(name: _multiVault.name),
                                   onConfirmPressed: () async {
                                     _appModel.showIndicator();
                                     await Future.delayed(
@@ -565,7 +567,9 @@ class _MultiSigSettingScreenState extends State<MultiSigSettingScreen> {
                             mainAxisSize: MainAxisSize.min,
                             children: [
                               Text(
-                                '${_multiVault.signers.length}개의 키 중 ${_multiVault.requiredSignatureCount}개로 서명해야 하는\n다중 서명 지갑이예요.',
+                                t.multi_sig_setting_screen.tooltip(
+                                    total: _multiVault.signers.length,
+                                    count: _multiVault.requiredSignatureCount),
                                 style: Styles.caption.merge(TextStyle(
                                   height: 1.3,
                                   fontFamily: CustomFonts.text.getFontFamily,

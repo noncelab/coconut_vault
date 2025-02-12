@@ -228,7 +228,7 @@ class VaultModel extends ChangeNotifier {
     }
 
     _multisigCreationModel.signers = signers;
-    _multisigCreationModel.setQuoramRequirement(
+    _multisigCreationModel.setQuorumRequirement(
         multisigVault.requiredSignature, multisigVault.keyStoreList.length);
     await addMultisigVaultAsync(
         details.name, details.colorIndex, details.iconIndex);

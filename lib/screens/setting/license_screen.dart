@@ -1,3 +1,4 @@
+import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:coconut_vault/constants/app_info.dart';
@@ -47,7 +48,7 @@ class _LicenseScreenState extends State<LicenseScreen> {
       child: Scaffold(
         backgroundColor: MyColors.white,
         appBar: CustomAppBar.buildWithClose(
-          title: '라이선스 안내',
+          title: t.license_details,
           context: context,
         ),
         body: SafeArea(
@@ -55,12 +56,7 @@ class _LicenseScreenState extends State<LicenseScreen> {
             itemCount: dependencies.length + 1,
             itemBuilder: (context, index) {
               if (index == 0) {
-                String copyrightText =
-                    '코코넛 볼트는 MIT 라이선스를 따르며 저작권은 대한민국의 논스랩 주식회사에 있습니다. MIT 라이선스 전문은 ';
-                String copyrightTextMiddle =
-                    '에서 확인해 주세요.\n\n이 애플리케이션에 포함된 타사 소프트웨어에 대한 저작권을 다음과 같이 명시합니다. 이에 대해 궁금한 사항이 있으시면 ';
                 String mitFullTextLink = 'https://mit-license.org';
-                String copyrightTextLast = '으로 문의해 주시기 바랍니다.';
 
                 return Column(
                   children: [
@@ -74,7 +70,7 @@ class _LicenseScreenState extends State<LicenseScreen> {
                         color: MyColors.darkgrey,
                       ),
                       child: Text(
-                        'Coconut Vault',
+                        t.coconut_vault,
                         style: Styles.body2Bold.merge(
                           const TextStyle(
                             color: MyColors.white,
@@ -91,7 +87,7 @@ class _LicenseScreenState extends State<LicenseScreen> {
                       ),
                       child: RichText(
                         text: TextSpan(
-                          text: copyrightText,
+                          text: t.license_screen.text1,
                           style: Styles.caption,
                           children: <TextSpan>[
                             TextSpan(
@@ -108,11 +104,12 @@ class _LicenseScreenState extends State<LicenseScreen> {
                                         context: context,
                                         child: QrcodeBottomSheetScreen(
                                           qrData: mitFullTextLink,
-                                          title: 'MIT 라이선스 전문 보기',
+                                          title:
+                                              t.bottom_sheet.view_mit_license,
                                           fromAppInfo: true,
                                         ));
                                   }),
-                            TextSpan(text: copyrightTextMiddle),
+                            TextSpan(text: t.license_screen.text2),
                             TextSpan(
                                 text: CONTACT_EMAIL_ADDRESS, // 색상을 다르게 할 텍스트
                                 style: Styles.caption.merge(
@@ -125,15 +122,16 @@ class _LicenseScreenState extends State<LicenseScreen> {
                                   ..onTap = () async {
                                     MyBottomSheet.showBottomSheet_95(
                                         context: context,
-                                        child: const QrcodeBottomSheetScreen(
+                                        child: QrcodeBottomSheetScreen(
                                           qrData:
-                                              'mailto:$CONTACT_EMAIL_ADDRESS?subject=[볼트] 라이선스 문의',
-                                          title: '이메일 문의',
+                                              'mailto:$CONTACT_EMAIL_ADDRESS?subject=${t.bottom_sheet.ask_about_license}',
+                                          title:
+                                              t.bottom_sheet.contact_by_email,
                                           fromAppInfo: true,
                                         ));
                                   }),
                             TextSpan(
-                              text: copyrightTextLast,
+                              text: t.license_screen.text3,
                               style: Styles.caption,
                             ),
                           ],

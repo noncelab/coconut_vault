@@ -1,4 +1,5 @@
 import 'package:coconut_lib/coconut_lib.dart';
+import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/model/data/vault_list_item_base.dart';
 import 'package:coconut_vault/services/isolate_service.dart';
 import 'package:coconut_vault/utils/isolate_handler.dart';
@@ -60,14 +61,14 @@ class _SignerBsmsScreenState extends State<SignerBsmsScreen> {
           context: context,
           builder: (BuildContext context) {
             return CupertinoAlertDialog(
-                title: const Text('내보내기 실패'),
+                title: Text(t.errors.export_error),
                 content: Text(error.toString()),
                 actions: <CupertinoDialogAction>[
                   CupertinoDialogAction(
                     onPressed: () {
                       Navigator.pop(context);
                     },
-                    child: const Text('확인'),
+                    child: Text(t.confirm),
                   ),
                 ]);
           });
@@ -99,9 +100,9 @@ class _SignerBsmsScreenState extends State<SignerBsmsScreen> {
                     type: TooltipType.info,
                     showIcon: true,
                     richText: RichText(
-                      text: const TextSpan(
-                        text: '다른 볼트',
-                        style: TextStyle(
+                      text: TextSpan(
+                        text: t.signer_bsms_screen.guide1_1,
+                        style: const TextStyle(
                           fontFamily: 'Pretendard',
                           fontWeight: FontWeight.bold,
                           fontSize: 15,
@@ -111,32 +112,32 @@ class _SignerBsmsScreenState extends State<SignerBsmsScreen> {
                         ),
                         children: <TextSpan>[
                           TextSpan(
-                            text: '에서 다중 서명 지갑을 생성 중이시군요! 다른 볼트에서 ',
-                            style: TextStyle(
+                            text: t.signer_bsms_screen.guide1_2,
+                            style: const TextStyle(
                               fontWeight: FontWeight.normal,
                             ),
                           ),
                           TextSpan(
-                            text: '가져오기 + 버튼',
-                            style: TextStyle(
+                            text: t.signer_bsms_screen.guide1_3,
+                            style: const TextStyle(
                               fontWeight: FontWeight.bold,
                             ),
                           ),
                           TextSpan(
-                            text: '을 누른 후 나타난 가져오기 화면에서, 아래 ',
-                            style: TextStyle(
+                            text: t.signer_bsms_screen.guide1_4,
+                            style: const TextStyle(
                               fontWeight: FontWeight.normal,
                             ),
                           ),
                           TextSpan(
-                            text: 'QR 코드를 스캔',
-                            style: TextStyle(
+                            text: t.signer_bsms_screen.guide1_5,
+                            style: const TextStyle(
                               fontWeight: FontWeight.bold,
                             ),
                           ),
                           TextSpan(
-                            text: '해 주세요.',
-                            style: TextStyle(
+                            text: t.signer_bsms_screen.guide1_6,
+                            style: const TextStyle(
                               fontWeight: FontWeight.normal,
                             ),
                           ),
@@ -157,8 +158,8 @@ class _SignerBsmsScreenState extends State<SignerBsmsScreen> {
                     Container(
                       width: MediaQuery.of(context).size.width - 50,
                       alignment: Alignment.centerLeft,
-                      child: const Text(
-                        '내보낼 정보',
+                      child: Text(
+                        t.signer_bsms_screen.export_info,
                         style: Styles.body2Bold,
                       ),
                     ),

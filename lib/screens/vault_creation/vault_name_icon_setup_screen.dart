@@ -1,4 +1,5 @@
 import 'package:coconut_vault/app.dart';
+import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/model/manager/singlesig_wallet.dart';
 import 'package:coconut_vault/model/state/multisig_creation_model.dart';
 import 'package:coconut_vault/model/state/vault_model.dart';
@@ -77,7 +78,8 @@ class _VaultNameIconSetupState extends State<VaultNameIconSetup> {
       });
 
       if (_vaultModel.isNameDuplicated(inputText)) {
-        CustomToast.showToast(text: "이미 사용 중인 이름은 설정할 수 없어요", context: context);
+        CustomToast.showToast(
+            text: t.toast.name_already_used2, context: context);
         setState(() {
           _showLoading = false;
         });
@@ -111,7 +113,7 @@ class _VaultNameIconSetupState extends State<VaultNameIconSetup> {
     } catch (e) {
       Logger.log("$e");
       CustomDialogs.showCustomAlertDialog(context,
-          title: '생성 실패',
+          title: t.errors.creation_error,
           onConfirm: () => Navigator.of(context).pop(),
           message: e.toString(),
           isSingleButton: true,
@@ -148,7 +150,7 @@ class _VaultNameIconSetupState extends State<VaultNameIconSetup> {
         Scaffold(
           backgroundColor: Colors.white,
           appBar: CustomAppBar.buildWithNext(
-            title: '이름 설정',
+            title: t.vault_name_icon_setup_screen.title,
             context: context,
             onBackPressed: () {
               _vaultModel.completeSinglesigImporting();
@@ -185,8 +187,9 @@ class _VaultNameIconSetupState extends State<VaultNameIconSetup> {
                 const BoxDecoration(color: MyColors.transparentBlack_30),
             child: Center(
               child: _vaultModel.isVaultListLoading
-                  ? const MessageActivityIndicator(
-                      message: '저장 중이에요.') // 기존 볼트들 불러오는 중
+                  ? MessageActivityIndicator(
+                      message: t
+                          .vault_name_icon_setup_screen.saving) // 기존 볼트들 불러오는 중
                   : const CircularProgressIndicator(color: MyColors.darkgrey),
             ),
           ),

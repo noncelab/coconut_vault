@@ -1,3 +1,4 @@
+import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/widgets/button/custom_buttons.dart';
 import 'package:flutter/material.dart';
 import 'package:coconut_vault/styles.dart';
@@ -20,7 +21,7 @@ class _SelectExportTypeScreenState extends State<SelectExportTypeScreen> {
   @override
   void initState() {
     super.initState();
-    guideText = '어떤 용도로 사용하시나요?';
+    guideText = t.select_export_type_screen.export_type;
   }
 
   @override
@@ -28,7 +29,7 @@ class _SelectExportTypeScreenState extends State<SelectExportTypeScreen> {
     return Scaffold(
       backgroundColor: MyColors.white,
       appBar: CustomAppBar.buildWithNext(
-          title: '내보내기',
+          title: t.select_export_type_screen.title,
           context: context,
           onNextPressed: () {
             Navigator.pushReplacementNamed(context, nextPath!, arguments: {
@@ -46,7 +47,7 @@ class _SelectExportTypeScreenState extends State<SelectExportTypeScreen> {
               children: [
                 Expanded(
                   child: SelectableButton(
-                    text: '월렛에\n보기 전용 지갑 추가',
+                    text: t.select_export_type_screen.watch_only,
                     onTap: () {
                       setState(() {
                         nextPath = options[0];
@@ -58,7 +59,7 @@ class _SelectExportTypeScreenState extends State<SelectExportTypeScreen> {
                 const SizedBox(width: 8),
                 Expanded(
                   child: SelectableButton(
-                    text: '다른 볼트에서\n다중 서명 키로 사용',
+                    text: t.select_export_type_screen.multisig,
                     onTap: () {
                       setState(() {
                         nextPath = options[1];

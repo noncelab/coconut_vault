@@ -1,3 +1,4 @@
+import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/model/data/multisig_signer.dart';
 import 'package:coconut_vault/model/data/multisig_vault_list_item.dart';
 import 'package:coconut_vault/model/data/singlesig_vault_list_item.dart';
@@ -62,8 +63,9 @@ class _VaultRowItemState extends State<VaultRowItem> {
           final model = Provider.of<VaultModel>(context, listen: false);
           try {
             final multisig = model.getVaultById(multisigKey.keys.first);
-            _subtitleText = '${TextUtils.ellipsisIfLonger(multisig.name)}의 '
-                '${multisigKey.values.first + 1}번 키';
+            _subtitleText = t.wallet_subtitle(
+                name: TextUtils.ellipsisIfLonger(multisig.name),
+                index: multisigKey.values.first + 1);
             _isUsedToMultiSig = true;
           } catch (_) {}
         }

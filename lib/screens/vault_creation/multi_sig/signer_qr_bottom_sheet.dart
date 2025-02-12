@@ -1,3 +1,4 @@
+import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/widgets/animatedQR/animated_qr_data_handler.dart';
 import 'package:coconut_vault/widgets/animatedQR/animated_qr_view.dart';
 import 'package:flutter/material.dart';
@@ -54,9 +55,9 @@ class _SignerQrBottomSheetState extends State<SignerQrBottomSheet> {
                           color: MyColors.black,
                         ),
                         children: <TextSpan>[
-                          const TextSpan(
-                            text: "번 키가 보관된 볼트에서 다중 서명 지갑 ",
-                            style: TextStyle(
+                          TextSpan(
+                            text: t.signer_qr_bottom_sheet.text2_1,
+                            style: const TextStyle(
                               fontWeight: FontWeight.normal,
                             ),
                           ),
@@ -66,21 +67,21 @@ class _SignerQrBottomSheetState extends State<SignerQrBottomSheet> {
                               fontWeight: FontWeight.bold,
                             ),
                           ),
-                          const TextSpan(
-                            text: ' 선택 - ',
-                            style: TextStyle(
+                          TextSpan(
+                            text: t.signer_qr_bottom_sheet.text2_2,
+                            style: const TextStyle(
                               fontWeight: FontWeight.normal,
                             ),
                           ),
-                          const TextSpan(
-                            text: "다중 서명하기",
-                            style: TextStyle(
+                          TextSpan(
+                            text: t.signer_qr_bottom_sheet.text2_3,
+                            style: const TextStyle(
                               fontWeight: FontWeight.bold,
                             ),
                           ),
-                          const TextSpan(
-                            text: '를 눌러 아래 QR 코드를 스캔해 주세요.',
-                            style: TextStyle(
+                          TextSpan(
+                            text: t.signer_qr_bottom_sheet.text2_4,
+                            style: const TextStyle(
                               fontWeight: FontWeight.bold,
                             ),
                           ),

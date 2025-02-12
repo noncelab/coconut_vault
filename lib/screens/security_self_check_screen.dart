@@ -1,3 +1,4 @@
+import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:flutter/material.dart';
 import 'package:coconut_vault/styles.dart';
 import 'package:coconut_vault/widgets/appbar/custom_appbar.dart';
@@ -18,15 +19,15 @@ class SecuritySelfCheckScreen extends StatefulWidget {
 
 class _SecuritySelfCheckScreenState extends State<SecuritySelfCheckScreen> {
   final List<ChecklistItem> _items = [
-    ChecklistItem(title: '나의 개인키는 내가 스스로 책임집니다.'),
-    ChecklistItem(title: '니모닉 문구 화면을 캡처하거나 촬영하지 않습니다.'),
-    ChecklistItem(title: '니모닉 문구를 네트워크와 연결된 환경에 저장하지 않습니다.'),
-    ChecklistItem(title: '니모닉 문구의 순서와 단어의 철자를 확인합니다.'),
-    ChecklistItem(title: '패스프레이즈에 혹시 의도하지 않은 문자가 포함되지는 않았는지 한번 더 확인합니다.'),
-    ChecklistItem(title: '니모닉 문구와 패스프레이즈는 아무도 없는 안전한 곳에서 확인합니다.'),
-    ChecklistItem(title: '니모닉 문구와 패스프레이즈를 함께 보관하지 않습니다.'),
-    ChecklistItem(title: '소액으로 보내기 테스트를 한 후 지갑 사용을 시작합니다.'),
-    ChecklistItem(title: '위 사항을 주기적으로 점검하고, 안전하게 니모닉 문구를 보관하겠습니다.'),
+    ChecklistItem(title: t.security_self_check_screen.check1),
+    ChecklistItem(title: t.security_self_check_screen.check2),
+    ChecklistItem(title: t.security_self_check_screen.check3),
+    ChecklistItem(title: t.security_self_check_screen.check4),
+    ChecklistItem(title: t.security_self_check_screen.check5),
+    ChecklistItem(title: t.security_self_check_screen.check6),
+    ChecklistItem(title: t.security_self_check_screen.check7),
+    ChecklistItem(title: t.security_self_check_screen.check8),
+    ChecklistItem(title: t.security_self_check_screen.check9),
   ];
 
   bool get _allItemsChecked {
@@ -45,7 +46,7 @@ class _SecuritySelfCheckScreenState extends State<SecuritySelfCheckScreen> {
       backgroundColor: Colors.white,
       appBar: widget.onNextPressed != null
           ? CustomAppBar.buildWithNext(
-              title: '확인 사항',
+              title: t.checklist,
               context: context,
               onBackPressed: () {
                 Navigator.of(context).pop();
@@ -54,7 +55,7 @@ class _SecuritySelfCheckScreenState extends State<SecuritySelfCheckScreen> {
               isActive: _allItemsChecked, // 상태에 따라 'Next' 버튼 활성화
             )
           : CustomAppBar.build(
-              title: '확인 사항',
+              title: t.checklist,
               context: context,
               onBackPressed: () {
                 Navigator.of(context).pop();
@@ -72,7 +73,7 @@ class _SecuritySelfCheckScreenState extends State<SecuritySelfCheckScreen> {
                         horizontal: 24, vertical: 16),
                     decoration: BoxDecorations.boxDecorationGrey,
                     child: Text(
-                      '아래 자가 점검 항목을 숙지하고 니모닉 문구를 반드시 안전하게 보관합니다.',
+                      t.security_self_check_screen.guidance,
                       style: Styles.subLabel
                           .merge(const TextStyle(fontWeight: FontWeight.bold)),
                     )),
