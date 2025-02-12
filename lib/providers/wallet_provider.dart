@@ -1,30 +1,30 @@
 import 'dart:async';
 
 import 'package:coconut_lib/coconut_lib.dart';
-import 'package:coconut_vault/model/data/multisig_import_detail.dart';
-import 'package:coconut_vault/model/data/multisig_signer.dart';
-import 'package:coconut_vault/model/data/multisig_vault_list_item.dart';
-import 'package:coconut_vault/model/data/singlesig_vault_list_item.dart';
-import 'package:coconut_vault/model/data/vault_list_item_base.dart';
-import 'package:coconut_vault/model/data/vault_type.dart';
-import 'package:coconut_vault/model/manager/multisig_wallet.dart';
-import 'package:coconut_vault/model/manager/secret.dart';
-import 'package:coconut_vault/model/manager/singlesig_wallet.dart';
-import 'package:coconut_vault/model/manager/wallet_list_manager.dart';
-import 'package:coconut_vault/model/state/exception/not_related_multisig_wallet_exception.dart';
-import 'package:coconut_vault/model/state/multisig_creation_model.dart';
+import 'package:coconut_vault/model/multisig/multisig_import_detail.dart';
+import 'package:coconut_vault/model/multisig/multisig_signer.dart';
+import 'package:coconut_vault/model/multisig/multisig_vault_list_item.dart';
+import 'package:coconut_vault/model/singlesig/singlesig_vault_list_item.dart';
+import 'package:coconut_vault/model/common/vault_list_item_base.dart';
+import 'package:coconut_vault/enums/wallet_enums.dart';
+import 'package:coconut_vault/model/multisig/multisig_wallet.dart';
+import 'package:coconut_vault/model/common/secret.dart';
+import 'package:coconut_vault/model/singlesig/singlesig_wallet.dart';
+import 'package:coconut_vault/managers/wallet_list_manager.dart';
+import 'package:coconut_vault/model/exception/not_related_multisig_wallet_exception.dart';
+import 'package:coconut_vault/model/multisig/multisig_creation_model.dart';
 import 'package:flutter/foundation.dart';
-import 'package:coconut_vault/model/state/app_model.dart';
+import 'package:coconut_vault/providers/app_model.dart';
 import 'package:coconut_vault/utils/logger.dart';
 import 'package:coconut_vault/utils/vibration_util.dart';
 
-class VaultModel extends ChangeNotifier {
+class WalletProvider extends ChangeNotifier {
   AppModel _appModel;
   final MultisigCreationModel _multisigCreationModel;
 
   late final WalletListManager _walletManager;
 
-  VaultModel(this._appModel, this._multisigCreationModel) {
+  WalletProvider(this._appModel, this._multisigCreationModel) {
     _walletManager = WalletListManager();
   }
 
@@ -158,7 +158,7 @@ class VaultModel extends ChangeNotifier {
     bool isRelated = false;
     outerLoop:
     for (var wallet in _vaultList) {
-      if (wallet.vaultType == VaultType.multiSignature) continue;
+      if (wallet.vaultType == WalletType.multiSignature) continue;
 
       var singlesigVaultListItem = wallet as SinglesigVaultListItem;
       var walletMFP =

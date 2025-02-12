@@ -1,11 +1,11 @@
 import 'dart:async';
 
 import 'package:coconut_vault/localization/strings.g.dart';
-import 'package:coconut_vault/model/data/multisig_signer.dart';
-import 'package:coconut_vault/model/data/multisig_vault_list_item.dart';
-import 'package:coconut_vault/model/data/singlesig_vault_list_item.dart';
-import 'package:coconut_vault/model/state/app_model.dart';
-import 'package:coconut_vault/model/state/vault_model.dart';
+import 'package:coconut_vault/model/multisig/multisig_signer.dart';
+import 'package:coconut_vault/model/multisig/multisig_vault_list_item.dart';
+import 'package:coconut_vault/model/singlesig/singlesig_vault_list_item.dart';
+import 'package:coconut_vault/providers/app_model.dart';
+import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:coconut_vault/screens/pin_check_screen.dart';
 import 'package:coconut_vault/screens/vault_detail/mnemonic_view_screen.dart';
 import 'package:coconut_vault/screens/vault_detail/multi_sig_memo_bottom_sheet.dart';
@@ -37,7 +37,7 @@ class MultiSigSettingScreen extends StatefulWidget {
 
 class _MultiSigSettingScreenState extends State<MultiSigSettingScreen> {
   late AppModel _appModel;
-  late VaultModel _vaultModel;
+  late WalletProvider _vaultModel;
   late MultisigVaultListItem _multiVault;
 
   final GlobalKey _tooltipIconKey = GlobalKey();
@@ -53,7 +53,7 @@ class _MultiSigSettingScreenState extends State<MultiSigSettingScreen> {
   void initState() {
     super.initState();
     _appModel = Provider.of<AppModel>(context, listen: false);
-    _vaultModel = Provider.of<VaultModel>(context, listen: false);
+    _vaultModel = Provider.of<WalletProvider>(context, listen: false);
     _updateMultiVaultListItem();
     int innerVaultCount =
         _multiVault.signers.where((s) => s.innerVaultId != null).length;

@@ -1,8 +1,11 @@
-import 'package:coconut_vault/services/shared_preferences_service.dart';
+import 'package:coconut_vault/repository/shared_preferences_repository.dart';
 
 /// 앱 진입 시 잠금 해제를 위해 PIN 번호 입력 횟수를 제한하기 위한 보조 함수들
 class PinAttemptService {
-  final SharedPrefsService _sharedPrefs = SharedPrefsService();
+  final SharedPrefsRepository _sharedPrefs = SharedPrefsRepository();
+  // TODO:
+  // 입력 횟수인지, 시도 시점인지 구분하여 리네이밍
+  // constants로 이동할 필요가 있는지?
   static String kLockoutEndTime = 'LOCKOUT_END_TIME';
   static String kTotalPinAttempt = 'TOTAL_PIN_ATTEMPT';
   static String kPinAttempt = 'PIN_ATTEMPT';

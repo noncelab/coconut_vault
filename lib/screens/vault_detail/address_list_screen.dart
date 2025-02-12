@@ -2,11 +2,11 @@ import 'dart:async';
 
 import 'package:coconut_lib/coconut_lib.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
-import 'package:coconut_vault/model/data/vault_list_item_base.dart';
+import 'package:coconut_vault/model/common/vault_list_item_base.dart';
 import 'package:coconut_vault/utils/text_utils.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:coconut_vault/model/state/vault_model.dart';
+import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:coconut_vault/screens/vault_detail/qrcode_bottom_sheet_screen.dart';
 import 'package:coconut_vault/styles.dart';
 import 'package:coconut_vault/utils/logger.dart';
@@ -41,8 +41,8 @@ class _AddressListScreenState extends State<AddressListScreen> {
   void initState() {
     super.initState();
     _controller = ScrollController()..addListener(_nextLoad);
-    _vaultListItem =
-        Provider.of<VaultModel>(context, listen: false).getVaultById(widget.id);
+    _vaultListItem = Provider.of<WalletProvider>(context, listen: false)
+        .getVaultById(widget.id);
     _coconutVault = _vaultListItem.coconutVault;
     _receivingAddressList = _coconutVault.getAddressList(0, FIRST_COUNT, false);
     _changeAddressList = _coconutVault.getAddressList(0, FIRST_COUNT, true);

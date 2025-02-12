@@ -3,7 +3,7 @@ import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:coconut_vault/model/state/vault_model.dart';
+import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:coconut_vault/screens/vault_creation/mnemonic_confirm_screen.dart';
 import 'package:coconut_vault/styles.dart';
 import 'package:coconut_vault/utils/vibration_util.dart';
@@ -328,7 +328,7 @@ class _MnemonicWordsState extends State<MnemonicWords> {
 
   @override
   Widget build(BuildContext context) {
-    final vaultModel = Provider.of<VaultModel>(context, listen: false);
+    final vaultModel = Provider.of<WalletProvider>(context, listen: false);
 
     bool gridviewColumnFlag = false;
     return PopScope(

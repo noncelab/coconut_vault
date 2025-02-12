@@ -1,8 +1,8 @@
 import 'package:coconut_vault/localization/strings.g.dart';
-import 'package:coconut_vault/model/data/vault_type.dart';
+import 'package:coconut_vault/enums/wallet_enums.dart';
 import 'package:flutter/material.dart';
-import 'package:coconut_vault/model/state/vault_model.dart';
-import 'package:coconut_vault/services/isolate_service.dart';
+import 'package:coconut_vault/providers/wallet_provider.dart';
+import 'package:coconut_vault/managers/isolate_manager.dart';
 import 'package:coconut_vault/styles.dart';
 import 'package:coconut_vault/utils/alert_util.dart';
 import 'package:coconut_vault/utils/isolate_handler.dart';
@@ -24,7 +24,7 @@ class PsbtConfirmationScreen extends StatefulWidget {
 }
 
 class _PsbtConfirmationScreenState extends State<PsbtConfirmationScreen> {
-  late VaultModel _vaultModel;
+  late WalletProvider _vaultModel;
   late WalletBase _walletBase;
   String? _waitingForSignaturePsbtBase64;
   PSBT? _psbt;
@@ -40,7 +40,7 @@ class _PsbtConfirmationScreenState extends State<PsbtConfirmationScreen> {
 
   @override
   void initState() {
-    _vaultModel = Provider.of<VaultModel>(context, listen: false);
+    _vaultModel = Provider.of<WalletProvider>(context, listen: false);
     super.initState();
     if (_vaultModel.waitingForSignaturePsbtBase64 == null) {
       throw "[psbt_confirmation_screen] _model.waitingForSignaturePsbtBase64 is null";
@@ -49,7 +49,7 @@ class _PsbtConfirmationScreenState extends State<PsbtConfirmationScreen> {
     _waitingForSignaturePsbtBase64 = _vaultModel.waitingForSignaturePsbtBase64;
     final vaultBaseItem = _vaultModel.getVaultById(widget.id);
     _walletBase = vaultBaseItem.coconutVault;
-    _isMultisig = vaultBaseItem.vaultType == VaultType.multiSignature;
+    _isMultisig = vaultBaseItem.vaultType == WalletType.multiSignature;
 
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
       setTxInfo(_vaultModel.waitingForSignaturePsbtBase64!);

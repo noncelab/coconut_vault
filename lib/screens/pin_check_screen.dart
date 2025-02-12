@@ -2,18 +2,18 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:coconut_vault/localization/strings.g.dart';
-import 'package:coconut_vault/model/manager/wallet_list_manager.dart';
+import 'package:coconut_vault/managers/wallet_list_manager.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:loader_overlay/loader_overlay.dart';
-import 'package:coconut_vault/model/state/app_model.dart';
+import 'package:coconut_vault/providers/app_model.dart';
 import 'package:coconut_vault/screens/pin_setting_screen.dart';
 import 'package:coconut_vault/styles.dart';
 import 'package:coconut_vault/utils/vibration_util.dart';
 import 'package:coconut_vault/widgets/custom_dialog.dart';
 import 'package:coconut_vault/widgets/bottom_sheet.dart';
-import 'package:coconut_vault/services/pin_attempt_service.dart';
+import 'package:coconut_vault/managers/app_unlock_manager.dart';
 import 'package:provider/provider.dart';
 
 import '../widgets/pin/pin_input_screen.dart';

@@ -2,7 +2,7 @@ import 'dart:async';
 import 'dart:collection';
 
 import 'package:coconut_vault/localization/strings.g.dart';
-import 'package:coconut_vault/model/state/multisig_creation_model.dart';
+import 'package:coconut_vault/model/multisig/multisig_creation_model.dart';
 import 'package:coconut_vault/utils/coconut/multisig_utils.dart';
 import 'package:coconut_vault/widgets/button/custom_buttons.dart';
 import 'package:coconut_vault/widgets/highlighted_text.dart';

@@ -1,5 +1,5 @@
 import 'package:coconut_vault/localization/strings.g.dart';
-import 'package:coconut_vault/model/state/vault_model.dart';
+import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:coconut_vault/widgets/button/custom_buttons.dart';
 import 'package:coconut_vault/widgets/indicator/message_activity_indicator.dart';
 import 'package:flutter/material.dart';
@@ -20,12 +20,12 @@ class _SelectVaultTypeScreenState extends State<SelectVaultTypeScreen> {
   bool _showLoading = false;
   late String guideText;
   List<String> options = ['/vault-creation-options', '/select-multisig-quorum'];
-  late final VaultModel model;
+  late final WalletProvider model;
 
   @override
   void initState() {
     super.initState();
-    model = Provider.of<VaultModel>(context, listen: false);
+    model = Provider.of<WalletProvider>(context, listen: false);
     model.isVaultListLoadingNotifier.addListener(_loadingListener);
     guideText = '';
   }
@@ -88,7 +88,7 @@ class _SelectVaultTypeScreenState extends State<SelectVaultTypeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<VaultModel>(
+    return Consumer<WalletProvider>(
       builder: (context, model, child) {
         return Scaffold(
           backgroundColor: MyColors.white,

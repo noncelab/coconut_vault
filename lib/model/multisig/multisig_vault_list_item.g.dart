@@ -24,9 +24,9 @@ Map<String, dynamic> _$MultisigVaultListItemToJson(
     MultisigVaultListItem instance) {
   final val = <String, dynamic>{
     'id': instance.id,
+    'name': instance.name,
     'colorIndex': instance.colorIndex,
     'iconIndex': instance.iconIndex,
-    'name': instance.name,
     'vaultType': _$VaultTypeEnumMap[instance.vaultType]!,
     'signers': instance.signers,
   };
@@ -43,6 +43,6 @@ Map<String, dynamic> _$MultisigVaultListItemToJson(
 }
 
 const _$VaultTypeEnumMap = {
-  VaultType.singleSignature: 'singleSignature',
-  VaultType.multiSignature: 'multiSignature',
+  WalletType.singleSignature: 'singleSignature',
+  WalletType.multiSignature: 'multiSignature',
 };

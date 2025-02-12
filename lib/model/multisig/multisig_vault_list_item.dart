@@ -1,10 +1,10 @@
 import 'dart:convert';
 
 import 'package:coconut_lib/coconut_lib.dart';
-import 'package:coconut_vault/model/data/multisig_signer.dart';
-import 'package:coconut_vault/model/data/vault_list_item_base.dart';
-import 'package:coconut_vault/model/data/vault_type.dart';
-import 'package:coconut_vault/services/isolate_service.dart';
+import 'package:coconut_vault/model/multisig/multisig_signer.dart';
+import 'package:coconut_vault/model/common/vault_list_item_base.dart';
+import 'package:coconut_vault/enums/wallet_enums.dart';
+import 'package:coconut_vault/managers/isolate_manager.dart';
 import 'package:coconut_vault/utils/isolate_handler.dart';
 import 'package:json_annotation/json_annotation.dart';
 
@@ -21,7 +21,7 @@ class MultisigVaultListItem extends VaultListItemBase {
       required this.requiredSignatureCount,
       String? coordinatorBsms,
       super.vaultJsonString})
-      : super(vaultType: VaultType.multiSignature) {
+      : super(vaultType: WalletType.multiSignature) {
     coconutVault = MultisignatureVault.fromKeyStoreList(
         signers.map((signer) => signer.keyStore).toList(),
         requiredSignatureCount,
@@ -84,7 +84,7 @@ class MultisigVaultListItem extends VaultListItemBase {
   Map<String, dynamic> toJson() => _$MultisigVaultListItemToJson(this);
 
   factory MultisigVaultListItem.fromJson(Map<String, dynamic> json) {
-    json['vaultType'] = _$VaultTypeEnumMap[VaultType.multiSignature];
+    json['vaultType'] = _$VaultTypeEnumMap[WalletType.multiSignature];
     return _$MultisigVaultListItemFromJson(json);
   }
 }

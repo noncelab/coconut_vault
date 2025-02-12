@@ -2,13 +2,13 @@ import 'dart:async';
 
 import 'package:coconut_lib/coconut_lib.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
-import 'package:coconut_vault/model/data/singlesig_vault_list_item.dart';
+import 'package:coconut_vault/model/singlesig/singlesig_vault_list_item.dart';
 import 'package:coconut_vault/utils/text_utils.dart';
 import 'package:coconut_vault/utils/vibration_util.dart';
 import 'package:coconut_vault/widgets/card/vault_item_card.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:coconut_vault/model/state/app_model.dart';
+import 'package:coconut_vault/providers/app_model.dart';
 import 'package:coconut_vault/screens/pin_check_screen.dart';
 import 'package:coconut_vault/screens/vault_detail/mnemonic_view_screen.dart';
 import 'package:coconut_vault/screens/vault_detail/qrcode_bottom_sheet_screen.dart';
@@ -24,7 +24,7 @@ import 'package:coconut_vault/widgets/information_item_row.dart';
 import 'package:provider/provider.dart';
 import 'package:shimmer/shimmer.dart';
 
-import '../../model/state/vault_model.dart';
+import '../../providers/wallet_provider.dart';
 
 class VaultSettings extends StatefulWidget {
   final int id;
@@ -37,7 +37,7 @@ class VaultSettings extends StatefulWidget {
 
 class _VaultSettingsState extends State<VaultSettings> {
   late AppModel _appModel;
-  late VaultModel _vaultModel;
+  late WalletProvider _vaultModel;
   late TextEditingController _nameTextController;
   late SinglesigVaultListItem _singleVaultItem;
   late SingleSignatureVault _singleSignatureVault;
@@ -57,7 +57,7 @@ class _VaultSettingsState extends State<VaultSettings> {
   @override
   void initState() {
     _appModel = Provider.of<AppModel>(context, listen: false);
-    _vaultModel = Provider.of<VaultModel>(context, listen: false);
+    _vaultModel = Provider.of<WalletProvider>(context, listen: false);
     super.initState();
     // id 접근: widget.id
     _singleVaultItem =
@@ -318,7 +318,7 @@ class _VaultSettingsState extends State<VaultSettings> {
                                     child: Divider(),
                                   ),
 
-                                  Selector<VaultModel, bool>(
+                                  Selector<WalletProvider, bool>(
                                       selector: (context, model) =>
                                           model.isLoadVaultList,
                                       builder:

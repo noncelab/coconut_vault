@@ -3,7 +3,7 @@ import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/utils/lower_case_text_input_formatter.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:coconut_vault/model/state/vault_model.dart';
+import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:coconut_vault/screens/vault_creation/mnemonic_confirm_screen.dart';
 import 'package:coconut_vault/styles.dart';
 import 'package:coconut_vault/utils/vibration_util.dart';
@@ -121,7 +121,7 @@ class _MnemonicImportState extends State<MnemonicImport> {
 
   void _onBackPressed(BuildContext context) {
     if (inputText.isEmpty && passphrase.isEmpty) {
-      final model = Provider.of<VaultModel>(context, listen: false);
+      final model = Provider.of<WalletProvider>(context, listen: false);
       model.completeSinglesigImporting();
       isFinishing = true;
       Navigator.pop(context);
@@ -182,7 +182,8 @@ class _MnemonicImportState extends State<MnemonicImport> {
                 _onBackPressed(context);
               },
               onNextPressed: () {
-                final model = Provider.of<VaultModel>(context, listen: false);
+                final model =
+                    Provider.of<WalletProvider>(context, listen: false);
 
                 if (model.isSeedDuplicated(
                     inputText

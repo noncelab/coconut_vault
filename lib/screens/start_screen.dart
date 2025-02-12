@@ -2,11 +2,12 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:coconut_vault/app.dart';
-import 'package:coconut_vault/services/shared_preferences_keys.dart';
-import 'package:coconut_vault/services/shared_preferences_service.dart';
+import 'package:coconut_vault/constants/shared_preferences_keys.dart';
+import 'package:coconut_vault/repository/secure_storage_repository.dart';
+import 'package:coconut_vault/repository/shared_preferences_repository.dart';
 import 'package:flutter/material.dart';
-import 'package:coconut_vault/model/state/app_model.dart';
-import 'package:coconut_vault/services/secure_storage_service.dart';
+import 'package:coconut_vault/providers/app_model.dart';
+
 import 'package:coconut_vault/styles.dart';
 import 'package:provider/provider.dart';
 
@@ -26,7 +27,7 @@ class _StartScreenState extends State<StartScreen> {
   void initState() {
     super.initState();
     _hasSeenGuide =
-        SharedPrefsService().getBool(SharedPrefsKeys.hasShownStartGuide) ??
+        SharedPrefsRepository().getBool(SharedPrefsKeys.hasShownStartGuide) ??
             false;
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       /// Splash 딜레이
@@ -43,9 +44,10 @@ class _StartScreenState extends State<StartScreen> {
     await Future.delayed(const Duration(seconds: 2));
 
     bool isNotEmpty =
-        (SharedPrefsService().getInt(SharedPrefsKeys.vaultListLength) ?? 0) > 0;
+        (SharedPrefsRepository().getInt(SharedPrefsKeys.vaultListLength) ?? 0) >
+            0;
     bool isPinEnabled =
-        SharedPrefsService().getBool(SharedPrefsKeys.isPinEnabled) ?? false;
+        SharedPrefsRepository().getBool(SharedPrefsKeys.isPinEnabled) ?? false;
 
     /// 비밀번호 등록 되어 있더라도, 추가한 볼트가 없는 경우는 볼트 리스트 화면으로 이동합니다.
     if (isNotEmpty) {
@@ -59,7 +61,7 @@ class _StartScreenState extends State<StartScreen> {
   Future _goTutorialScreen() async {
     if (Platform.isIOS) {
       // iOS는 앱을 삭제해도 secure storage에 데이터가 남아있음
-      await SecureStorageService().deleteAll();
+      await SecureStorageRepository().deleteAll();
     }
     widget.onComplete(AppEntryFlow.tutorial); // 가이드
   }

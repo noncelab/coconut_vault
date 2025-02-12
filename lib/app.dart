@@ -1,5 +1,5 @@
 import 'package:coconut_vault/main_route_guard.dart';
-import 'package:coconut_vault/model/state/multisig_creation_model.dart';
+import 'package:coconut_vault/model/multisig/multisig_creation_model.dart';
 import 'package:coconut_vault/screens/airgap/multi_signature_screen.dart';
 import 'package:coconut_vault/screens/airgap/psbt_confirmation_screen.dart';
 import 'package:coconut_vault/screens/airgap/psbt_scanner_screen.dart';
@@ -32,8 +32,8 @@ import 'package:coconut_vault/screens/vault_detail/vault_settings.dart';
 import 'package:coconut_vault/utils/router_util.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:coconut_vault/model/state/vault_model.dart';
-import 'package:coconut_vault/model/state/app_model.dart';
+import 'package:coconut_vault/providers/wallet_provider.dart';
+import 'package:coconut_vault/providers/app_model.dart';
 import 'package:coconut_vault/screens/pin_check_screen.dart';
 import 'package:coconut_vault/screens/start_screen.dart';
 import 'package:coconut_vault/styles.dart';
@@ -115,8 +115,8 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> {
         if (_appEntryFlow == AppEntryFlow.vaultlist) ...{
           Provider<MultisigCreationModel>(
               create: (_) => MultisigCreationModel()),
-          ChangeNotifierProxyProvider<AppModel, VaultModel>(
-            create: (_) => VaultModel(
+          ChangeNotifierProxyProvider<AppModel, WalletProvider>(
+            create: (_) => WalletProvider(
                 Provider.of<AppModel>(
                   _,
                   listen: false,

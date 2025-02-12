@@ -2,13 +2,13 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:coconut_lib/coconut_lib.dart';
-import 'package:coconut_vault/model/data/multisig_vault_list_item.dart';
-import 'package:coconut_vault/model/data/singlesig_vault_list_item.dart';
-import 'package:coconut_vault/model/data/vault_list_item_base.dart';
-import 'package:coconut_vault/model/data/vault_type.dart';
-import 'package:coconut_vault/model/manager/multisig_wallet.dart';
-import 'package:coconut_vault/model/manager/singlesig_wallet.dart';
-import 'package:coconut_vault/services/shared_preferences_service.dart';
+import 'package:coconut_vault/model/multisig/multisig_vault_list_item.dart';
+import 'package:coconut_vault/model/singlesig/singlesig_vault_list_item.dart';
+import 'package:coconut_vault/model/common/vault_list_item_base.dart';
+import 'package:coconut_vault/enums/wallet_enums.dart';
+import 'package:coconut_vault/model/multisig/multisig_wallet.dart';
+import 'package:coconut_vault/model/singlesig/singlesig_wallet.dart';
+import 'package:coconut_vault/repository/shared_preferences_repository.dart';
 import 'package:coconut_vault/utils/logger.dart';
 
 Future<List<SinglesigVaultListItem>> addVaultIsolate(
@@ -33,7 +33,7 @@ Future<List<SinglesigVaultListItem>> addVaultIsolate(
 Future<MultisigVaultListItem> addMultisigVaultIsolate(
     Map<String, dynamic> data, void Function(dynamic)? replyTo) async {
   BitcoinNetwork.setNetwork(BitcoinNetwork.regtest);
-  await SharedPrefsService().init();
+  await SharedPrefsRepository().init();
 
   var walletData = MultisigWallet.fromJson(data);
   var newMultisigVault = MultisigVaultListItem(
@@ -144,9 +144,9 @@ Future<VaultListItemBase> initializeWallet(Map<String, dynamic> data,
   String? vaultType = data[VaultListItemBase.vaultTypeField];
 
   // coconut_vault 1.0.1 -> 2.0.0 업데이트 되면서 vaultType이 추가됨
-  if (vaultType == null || vaultType == VaultType.singleSignature.name) {
+  if (vaultType == null || vaultType == WalletType.singleSignature.name) {
     return SinglesigVaultListItem.fromJson(data);
-  } else if (vaultType == VaultType.multiSignature.name) {
+  } else if (vaultType == WalletType.multiSignature.name) {
     return MultisigVaultListItem.fromJson(data);
   } else {
     throw ArgumentError('[initializeWallet] vaultType: $vaultType');

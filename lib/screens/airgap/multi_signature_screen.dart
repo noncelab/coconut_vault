@@ -1,7 +1,7 @@
 import 'package:coconut_lib/coconut_lib.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
-import 'package:coconut_vault/model/data/multisig_vault_list_item.dart';
-import 'package:coconut_vault/model/state/vault_model.dart';
+import 'package:coconut_vault/model/multisig/multisig_vault_list_item.dart';
+import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:coconut_vault/screens/pin_check_screen.dart';
 import 'package:coconut_vault/screens/vault_creation/multi_sig/signer_qr_bottom_sheet.dart';
 import 'package:coconut_vault/screens/vault_creation/multi_sig/signer_scanner_bottom_sheet.dart';
@@ -36,7 +36,7 @@ class MultiSignatureScreen extends StatefulWidget {
 }
 
 class _MultiSignatureScreenState extends State<MultiSignatureScreen> {
-  late VaultModel _vaultModel;
+  late WalletProvider _vaultModel;
   late MultisigVaultListItem _multisigVaultItem;
   late MultisignatureVault _multisigVault;
   late List<bool> _signersApproved;
@@ -46,7 +46,7 @@ class _MultiSignatureScreenState extends State<MultiSignatureScreen> {
 
   @override
   void initState() {
-    _vaultModel = Provider.of<VaultModel>(context, listen: false);
+    _vaultModel = Provider.of<WalletProvider>(context, listen: false);
     super.initState();
     _multisigVaultItem =
         _vaultModel.getVaultById(widget.id) as MultisigVaultListItem;

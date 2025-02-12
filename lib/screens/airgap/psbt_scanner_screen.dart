@@ -1,13 +1,13 @@
 import 'dart:io';
 
 import 'package:coconut_vault/localization/strings.g.dart';
-import 'package:coconut_vault/model/data/vault_list_item_base.dart';
-import 'package:coconut_vault/model/data/vault_type.dart';
-import 'package:coconut_vault/model/state/app_model.dart';
+import 'package:coconut_vault/model/common/vault_list_item_base.dart';
+import 'package:coconut_vault/enums/wallet_enums.dart';
+import 'package:coconut_vault/providers/app_model.dart';
 import 'package:coconut_vault/utils/alert_util.dart';
 import 'package:coconut_vault/widgets/animatedQR/animated_qr_scanner.dart';
 import 'package:flutter/material.dart';
-import 'package:coconut_vault/model/state/vault_model.dart';
+import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:coconut_vault/styles.dart';
 import 'package:coconut_vault/utils/vibration_util.dart';
 import 'package:coconut_vault/widgets/appbar/custom_appbar.dart';
@@ -26,7 +26,7 @@ class PsbtScannerScreen extends StatefulWidget {
 
 class _PsbtScannerScreenState extends State<PsbtScannerScreen> {
   late AppModel _appModel;
-  late VaultModel _vaultModel;
+  late WalletProvider _vaultModel;
   final GlobalKey qrKey = GlobalKey(debugLabel: 'QR');
   late VaultListItemBase _vaultListItem;
 
@@ -39,10 +39,10 @@ class _PsbtScannerScreenState extends State<PsbtScannerScreen> {
   @override
   void initState() {
     _appModel = Provider.of<AppModel>(context, listen: false);
-    _vaultModel = Provider.of<VaultModel>(context, listen: false);
+    _vaultModel = Provider.of<WalletProvider>(context, listen: false);
     super.initState();
     _vaultListItem = _vaultModel.getVaultById(widget.id);
-    _isMultisig = _vaultListItem.vaultType == VaultType.multiSignature;
+    _isMultisig = _vaultListItem.vaultType == WalletType.multiSignature;
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       _appModel.showIndicator();
       await Future.delayed(const Duration(milliseconds: 1000));

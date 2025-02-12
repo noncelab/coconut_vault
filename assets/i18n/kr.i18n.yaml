@@ -41,6 +41,7 @@ restore: "복원하기"
 change: "잔돈"
 receiving: "입금"
 info: "정보"
+email_subject: "[코코넛 볼트] 이용 관련 문의"
 
 signature: "서명"
 sign_completion: "서명 완료"
@@ -492,6 +493,7 @@ errors:
   creation_error: "생성 실패"
   export_error: "내보내기 실패"
   psbt_parsing_error: "psbt 파싱 실패: $error"
+  not_related_multisig_wallet_error: "이 지갑을 키로 사용한 다중 서명 지갑이 아닙니다."
 
 tooltip:
   mfp: "지갑의 고유 값이에요.\n마스터 핑거프린트(MFP)라고도 해요."

@@ -1,4 +1,4 @@
-import 'package:coconut_vault/model/data/multisig_signer.dart';
+import 'package:coconut_vault/model/multisig/multisig_signer.dart';
 import 'package:json_annotation/json_annotation.dart';
 
 part 'multisig_wallet.g.dart'; // 생성될 파일 이름 $ dart run build_runner build

@@ -1,12 +1,12 @@
 import 'package:coconut_lib/coconut_lib.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
-import 'package:coconut_vault/model/data/vault_list_item_base.dart';
-import 'package:coconut_vault/services/isolate_service.dart';
+import 'package:coconut_vault/model/common/vault_list_item_base.dart';
+import 'package:coconut_vault/managers/isolate_manager.dart';
 import 'package:coconut_vault/utils/isolate_handler.dart';
 import 'package:coconut_vault/widgets/multisig/card/signer_bsms_info_card.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:coconut_vault/model/state/vault_model.dart';
+import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:coconut_vault/styles.dart';
 import 'package:coconut_vault/widgets/appbar/custom_appbar.dart';
 import 'package:coconut_vault/widgets/custom_tooltip.dart';
@@ -32,7 +32,7 @@ class _SignerBsmsScreenState extends State<SignerBsmsScreen> {
   @override
   void initState() {
     super.initState();
-    final model = Provider.of<VaultModel>(context, listen: false);
+    final model = Provider.of<WalletProvider>(context, listen: false);
     _vaultListItem = model.getVaultById(widget.id);
     _name = _vaultListItem.name;
     setSignerBsms();

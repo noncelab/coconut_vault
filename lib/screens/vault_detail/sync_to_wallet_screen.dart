@@ -3,7 +3,7 @@ import 'package:coconut_vault/screens/vault_detail/export_detail_screen.dart';
 import 'package:coconut_vault/widgets/bottom_sheet.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:coconut_vault/model/state/vault_model.dart';
+import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:coconut_vault/styles.dart';
 import 'package:coconut_vault/widgets/appbar/custom_appbar.dart';
 import 'package:coconut_vault/widgets/custom_tooltip.dart';
@@ -27,7 +27,7 @@ class _SyncToWalletScreenState extends State<SyncToWalletScreen> {
   @override
   void initState() {
     super.initState();
-    final model = Provider.of<VaultModel>(context, listen: false);
+    final model = Provider.of<WalletProvider>(context, listen: false);
     final vaultListItem = model.getVaultById(widget.id);
     _name = vaultListItem.name;
 

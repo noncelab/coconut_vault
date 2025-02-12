@@ -2,8 +2,9 @@ import 'dart:async';
 import 'dart:io';
 import 'dart:math';
 
-import 'package:coconut_vault/services/shared_preferences_keys.dart';
-import 'package:coconut_vault/services/shared_preferences_service.dart';
+import 'package:coconut_vault/constants/shared_preferences_keys.dart';
+import 'package:coconut_vault/repository/secure_storage_repository.dart';
+import 'package:coconut_vault/repository/shared_preferences_repository.dart';
 import 'package:coconut_vault/styles.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/cupertino.dart';
@@ -13,7 +14,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 import 'package:local_auth/local_auth.dart';
 import 'package:coconut_vault/constants/method_channel.dart';
-import 'package:coconut_vault/services/secure_storage_service.dart';
+
 import 'package:coconut_vault/utils/hash_util.dart';
 import 'package:coconut_vault/utils/logger.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -58,7 +59,7 @@ class AppModel with ChangeNotifier {
       required bool bluetooth,
       required bool developerMode}) {
     if (bluetooth) {
-      SharedPrefsService().setBool(
+      SharedPrefsRepository().setBool(
           SharedPrefsKeys.hasAlreadyRequestedBluetoothPermission, true);
       // 블루투스 상태
       if (Platform.isIOS) {
@@ -145,7 +146,7 @@ class AppModel with ChangeNotifier {
   }
 
   /// AuthState ----------------------------------------------------------------
-  final SecureStorageService _storageService = SecureStorageService();
+  final SecureStorageRepository _storageService = SecureStorageRepository();
   final LocalAuthentication _auth = LocalAuthentication();
 
   /// 비밀번호 설정 여부
@@ -200,7 +201,7 @@ class AppModel with ChangeNotifier {
   Future setInitData() async {
     await checkDeviceBiometrics();
     _isAndroid8 = await checkIfAndroidVersion8();
-    final prefs = SharedPrefsService();
+    final prefs = SharedPrefsRepository();
     _hasSeenGuide = prefs.getBool(SharedPrefsKeys.hasShownStartGuide) == true;
     _isPinEnabled = prefs.getBool(SharedPrefsKeys.isPinEnabled) == true;
     _isBiometricEnabled =
@@ -233,7 +234,7 @@ class AppModel with ChangeNotifier {
 
   Future<void> setHasSeenGuide() async {
     _hasSeenGuide = true;
-    SharedPrefsService().setBool(SharedPrefsKeys.hasShownStartGuide, true);
+    SharedPrefsRepository().setBool(SharedPrefsKeys.hasShownStartGuide, true);
     notifyListeners();
   }
 
@@ -258,7 +259,7 @@ class AppModel with ChangeNotifier {
 
   /// 기기의 생체인증 가능 여부 업데이트
   Future<void> checkDeviceBiometrics() async {
-    final prefs = SharedPrefsService();
+    final prefs = SharedPrefsRepository();
     List<BiometricType> availableBiometrics = [];
 
     try {
@@ -336,7 +337,8 @@ class AppModel with ChangeNotifier {
   /// WalletList isNotEmpty 상태 저장
   Future<void> saveVaultListLength(int length) async {
     _vaultListLength = length;
-    await SharedPrefsService().setInt(SharedPrefsKeys.vaultListLength, length);
+    await SharedPrefsRepository()
+        .setInt(SharedPrefsKeys.vaultListLength, length);
     notifyListeners();
   }
 
@@ -344,7 +346,7 @@ class AppModel with ChangeNotifier {
   Future<void> saveIsBiometricEnabled(bool value) async {
     _isBiometricEnabled = value;
     _hasBiometricsPermission = value;
-    final prefs = SharedPrefsService();
+    final prefs = SharedPrefsRepository();
     await prefs.setBool(SharedPrefsKeys.isBiometricEnabled, value);
     await prefs.setBool(SharedPrefsKeys.hasBiometricsPermission, value);
     shuffleNumbers();
@@ -352,13 +354,13 @@ class AppModel with ChangeNotifier {
 
   Future<void> _setBioRequestedInSharedPrefs() async {
     _hasAlreadyRequestedBioPermission = true;
-    await SharedPrefsService()
+    await SharedPrefsRepository()
         .setBool(SharedPrefsKeys.hasAlreadyRequestedBioPermission, true);
   }
 
   /// 비밀번호 저장
   Future<void> savePin(String pin) async {
-    final prefs = SharedPrefsService();
+    final prefs = SharedPrefsRepository();
 
     if (_isBiometricEnabled && _canCheckBiometrics && !_isPinEnabled) {
       _isBiometricEnabled = true;
@@ -387,7 +389,7 @@ class AppModel with ChangeNotifier {
     _vaultListLength = 0;
 
     await _storageService.delete(key: VAULT_PIN);
-    final prefs = SharedPrefsService();
+    final prefs = SharedPrefsRepository();
     prefs.setBool(SharedPrefsKeys.isBiometricEnabled, false);
     prefs.setBool(SharedPrefsKeys.isPinEnabled, false);
     prefs.setInt(SharedPrefsKeys.vaultListLength, 0);

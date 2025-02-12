@@ -1,9 +1,9 @@
 import 'package:coconut_vault/localization/strings.g.dart';
-import 'package:coconut_vault/model/data/vault_type.dart';
+import 'package:coconut_vault/enums/wallet_enums.dart';
 import 'package:coconut_vault/widgets/animatedQR/animated_qr_data_handler.dart';
 import 'package:coconut_vault/widgets/animatedQR/animated_qr_view.dart';
 import 'package:flutter/material.dart';
-import 'package:coconut_vault/model/state/vault_model.dart';
+import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:coconut_vault/styles.dart';
 import 'package:coconut_vault/widgets/appbar/custom_appbar.dart';
 import 'package:coconut_vault/widgets/custom_tooltip.dart';
@@ -25,12 +25,12 @@ class SignedTransactionQrScreen extends StatefulWidget {
 class _SignedTransactionQrScreenState extends State<SignedTransactionQrScreen> {
   late String _signedRawTx;
   late String _walletName;
-  late VaultModel _vaultModel;
+  late WalletProvider _vaultModel;
   bool _isMultisig = false;
 
   @override
   void initState() {
-    _vaultModel = Provider.of<VaultModel>(context, listen: false);
+    _vaultModel = Provider.of<WalletProvider>(context, listen: false);
     super.initState();
     if (_vaultModel.signedRawTx == null) {
       throw "[SignedTransactionScreen] _model.signedRawTx is null";
@@ -39,7 +39,7 @@ class _SignedTransactionQrScreenState extends State<SignedTransactionQrScreen> {
     _signedRawTx = _vaultModel.signedRawTx!;
 
     final vaultListItem = _vaultModel.getVaultById(widget.id);
-    _isMultisig = vaultListItem.vaultType == VaultType.multiSignature;
+    _isMultisig = vaultListItem.vaultType == WalletType.multiSignature;
     _walletName = vaultListItem.name;
   }
 
