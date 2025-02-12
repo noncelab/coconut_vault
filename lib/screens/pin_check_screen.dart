@@ -246,8 +246,9 @@ class _PinCheckScreenState extends State<PinCheckScreen>
 
     if (hours > 0) timeComponents.add('$hours${t.hour}');
     if (minutes > 0) timeComponents.add('$minutes${t.minute}');
-    if (seconds > 0 || timeComponents.isEmpty)
+    if (seconds > 0 || timeComponents.isEmpty) {
       timeComponents.add('$seconds${t.second}');
+    }
 
     return timeComponents.join(' ');
   }

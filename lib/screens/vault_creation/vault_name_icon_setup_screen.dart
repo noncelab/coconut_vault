@@ -1,4 +1,3 @@
-import 'package:coconut_vault/app.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/model/manager/singlesig_wallet.dart';
 import 'package:coconut_vault/model/state/multisig_creation_model.dart';

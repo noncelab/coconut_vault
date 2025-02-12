@@ -16,8 +16,6 @@ import 'package:coconut_vault/services/shared_preferences_service.dart';
 import 'package:coconut_vault/utils/hash_util.dart';
 import 'package:coconut_vault/utils/isolate_handler.dart';
 import 'package:coconut_vault/utils/logger.dart';
-import 'package:coconut_vault/utils/print_util.dart';
-import 'package:provider/provider.dart';
 
 /// 지갑의 public 정보는 shared prefs, 비밀 정보는 secure storage에 저장하는 역할을 하는 클래스입니다.
 class WalletListManager {

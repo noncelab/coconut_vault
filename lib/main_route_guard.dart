@@ -1,4 +1,3 @@
-import 'package:coconut_vault/model/state/app_model.dart';
 import 'package:coconut_vault/model/state/vault_model.dart';
 import 'package:coconut_vault/services/shared_preferences_keys.dart';
 import 'package:coconut_vault/services/shared_preferences_service.dart';
