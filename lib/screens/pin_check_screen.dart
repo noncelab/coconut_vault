@@ -2,11 +2,11 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:coconut_vault/localization/strings.g.dart';
+import 'package:coconut_vault/model/manager/wallet_list_manager.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:loader_overlay/loader_overlay.dart';
-import 'package:coconut_vault/model/state/vault_model.dart';
 import 'package:coconut_vault/model/state/app_model.dart';
 import 'package:coconut_vault/screens/pin_setting_screen.dart';
 import 'package:coconut_vault/styles.dart';
@@ -20,7 +20,7 @@ import '../widgets/pin/pin_input_screen.dart';
 
 enum PinCheckScreenStatus {
   entrance, // 앱 실행해서 pin 확인
-  lock, // 앱 켜져있는 상태에서 화면 껐다가 켜졌을 때 (AppLifecycleState.paused)
+  lock, // 앱 켜져있는 상태에서 화면 껐다가 켜졌을 때 (AppLifecycleState.paused) // TODO: lock은 Deprecated
   change, // 핀 변경
   info // 니모닉, 확장키, 삭제
 }
@@ -363,13 +363,12 @@ class _PinCheckScreenState extends State<PinCheckScreen>
         confirmButtonText: t.alert.forgot_password.btn_reset,
         confirmButtonColor: MyColors.warningText,
         cancelButtonText: t.close, onConfirm: () async {
-      /*VaultStorageService()
-          .reset(Provider.of<AppModel>(context, listen: false));
-      _pinAttemptService.setLockoutDuration(0);
-      _pinAttemptService.setPinAttemptTimes(0);
-      Navigator.pop(context);
-      widget.onReset?.call();*/
-      await Provider.of<VaultModel>(context, listen: false).resetVault();
+      WalletListManager().resetAll();
+      final appModel = Provider.of<AppModel>(context, listen: false);
+      appModel.resetPassword();
+      appModel.saveVaultListLength(0);
+      // TODO: 모든 저장소 초기화 필요(?)
+      // TODO: _pinAttemptService reset
 
       if (widget.screenStatus == PinCheckScreenStatus.entrance) {
         Navigator.of(context).pop();
