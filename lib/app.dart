@@ -39,7 +39,7 @@ import 'package:coconut_vault/styles.dart';
 import 'package:coconut_vault/widgets/custom_loading_overlay.dart';
 import 'package:provider/provider.dart';
 
-enum HomeScreen {
+enum AppEntryFlow {
   splash,
   tutorial,
   pincheck,
@@ -47,19 +47,19 @@ enum HomeScreen {
 }
 
 /// HomeScreen 상태 관리 싱글톤 객체
-class HomeScreenStatus {
-  static final HomeScreenStatus _instance = HomeScreenStatus._internal();
+class AppEntryState {
+  static final AppEntryState _instance = AppEntryState._internal();
 
-  factory HomeScreenStatus() {
+  factory AppEntryState() {
     return _instance;
   }
 
-  HomeScreenStatus._internal();
+  AppEntryState._internal();
 
-  HomeScreen screenStatus = HomeScreen.splash;
+  AppEntryFlow entryFlow = AppEntryFlow.splash;
 
-  void updateScreenStatus(HomeScreen status) {
-    screenStatus = status;
+  void updateState(AppEntryFlow appEntryFlow) {
+    entryFlow = appEntryFlow;
   }
 }
 
@@ -71,30 +71,30 @@ class PowVaultApp extends StatefulWidget {
 }
 
 class _PowVaultAppState extends State<PowVaultApp> {
-  Widget getHomeScreenRoute(HomeScreen status) {
-    if (status == HomeScreen.splash) {
+  Widget getHomeScreenRoute(AppEntryFlow status) {
+    if (status == AppEntryFlow.splash) {
       return StartScreen(onComplete: (status) {
         setState(() {
-          HomeScreenStatus().updateScreenStatus(status);
+          AppEntryState().updateState(status);
         });
       });
-    } else if (status == HomeScreen.tutorial) {
+    } else if (status == AppEntryFlow.tutorial) {
       return const TutorialScreen(
         screenStatus: TutorialScreenStatus.entrance,
       );
-    } else if (status == HomeScreen.pincheck) {
+    } else if (status == AppEntryFlow.pincheck) {
       return CustomLoadingOverlay(
         child: PinCheckScreen(
           screenStatus: PinCheckScreenStatus.entrance,
           onComplete: () {
             setState(() {
-              HomeScreenStatus().updateScreenStatus(HomeScreen.vaultlist);
+              AppEntryState().updateState(AppEntryFlow.vaultlist);
             });
           },
           onReset: () async {
             /// 초기화 이후 메인 라우터 이동
             setState(() {
-              HomeScreenStatus().updateScreenStatus(HomeScreen.vaultlist);
+              AppEntryState().updateState(AppEntryFlow.vaultlist);
             });
           },
         ),
@@ -161,7 +161,7 @@ class _PowVaultAppState extends State<PowVaultApp> {
             ),
           ),
           color: MyColors.black,
-          home: getHomeScreenRoute(HomeScreenStatus().screenStatus),
+          home: getHomeScreenRoute(AppEntryState().entryFlow),
           routes: {
             '/vault-lock': (context) => buildScreenWithArguments(
                   context,
@@ -169,8 +169,7 @@ class _PowVaultAppState extends State<PowVaultApp> {
                     child: PinCheckScreen(
                       screenStatus: PinCheckScreenStatus.lock,
                       onReset: () async {
-                        HomeScreenStatus()
-                            .updateScreenStatus(HomeScreen.vaultlist);
+                        AppEntryState().updateState(AppEntryFlow.vaultlist);
                       },
                     ),
                   ),
@@ -265,7 +264,7 @@ class _PowVaultAppState extends State<PowVaultApp> {
             '/connectivity-guide': (context) {
               onComplete() {
                 setState(() {
-                  HomeScreenStatus().updateScreenStatus(HomeScreen.vaultlist);
+                  AppEntryState().updateState(AppEntryFlow.vaultlist);
                 });
               }
 

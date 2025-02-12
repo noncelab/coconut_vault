@@ -97,7 +97,7 @@ class _VaultNameIconSetupState extends State<VaultNameIconSetup> {
 
         if (_vaultModel.isAddVaultCompleted) {
           Logger.log('finish creating vault. return to home.');
-          Logger.log('Homeroute = ${HomeScreenStatus().screenStatus}');
+          Logger.log('Homeroute = ${AppEntryState().entryFlow}');
         }
       } else if (_multisigCreationState.signers != null) {
         // 새로운 멀티시그 지갑 리스트 아이템을 생성.

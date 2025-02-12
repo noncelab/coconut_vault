@@ -45,7 +45,7 @@ class WalletListManager {
 
     jsonArrayString = _sharedPrefs.getString(vaultListField);
 
-    printLongString('--> $jsonArrayString');
+    //printLongString('--> $jsonArrayString');
     if (jsonArrayString.isEmpty || jsonArrayString == '[]') {
       _vaultList = [];
       return null;
@@ -130,7 +130,7 @@ class WalletListManager {
     final jsonString =
         jsonEncode(_vaultList!.map((item) => item.toJson()).toList());
 
-    printLongString("--> 저장: $jsonString");
+    //printLongString("--> 저장: $jsonString");
     _sharedPrefs.setString(vaultListField, jsonString);
   }
 

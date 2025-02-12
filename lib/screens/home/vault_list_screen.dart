@@ -173,7 +173,7 @@ class _VaultListScreenState extends State<VaultListScreen>
           arguments: {
             'screenStatus': PinCheckScreenStatus.lock,
             'onReset': () {
-              HomeScreenStatus().updateScreenStatus(HomeScreen.vaultlist);
+              AppEntryState().updateState(AppEntryFlow.vaultlist);
               Navigator.pushNamedAndRemoveUntil(
                 context,
                 '/',
