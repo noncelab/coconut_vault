@@ -15,7 +15,9 @@ import 'package:coconut_vault/services/secure_storage_service.dart';
 import 'package:coconut_vault/services/shared_preferences_service.dart';
 import 'package:coconut_vault/utils/hash_util.dart';
 import 'package:coconut_vault/utils/isolate_handler.dart';
+import 'package:coconut_vault/utils/logger.dart';
 import 'package:coconut_vault/utils/print_util.dart';
+import 'package:provider/provider.dart';
 
 /// 지갑의 public 정보는 shared prefs, 비밀 정보는 secure storage에 저장하는 역할을 하는 클래스입니다.
 class WalletListManager {
@@ -32,6 +34,8 @@ class WalletListManager {
   List<VaultListItemBase>? _vaultList;
   get vaultList => _vaultList;
 
+  Completer<void>? _walletLoadCancelToken;
+
   WalletListManager._internal();
 
   Future<void> init() async {
@@ -45,7 +49,7 @@ class WalletListManager {
 
     jsonArrayString = _sharedPrefs.getString(vaultListField);
 
-    printLongString('--> $jsonArrayString');
+    //printLongString('--> $jsonArrayString');
     if (jsonArrayString.isEmpty || jsonArrayString == '[]') {
       _vaultList = [];
       return null;
@@ -56,6 +60,8 @@ class WalletListManager {
 
   Future loadAndEmitEachWallet(List<dynamic> jsonList,
       Function(VaultListItemBase wallet) emitOneItem) async {
+    _walletLoadCancelToken = Completer<void>();
+
     List<VaultListItemBase> vaultList = [];
 
     var initIsolateHandler =
@@ -72,6 +78,12 @@ class WalletListManager {
       }
 
       VaultListItemBase item = await initIsolateHandler.run(jsonList[i]);
+
+      if (_walletLoadCancelToken?.isCompleted == true) {
+        initIsolateHandler.dispose();
+        return;
+      }
+
       emitOneItem(item);
       vaultList.add(item);
     }
@@ -130,7 +142,7 @@ class WalletListManager {
     final jsonString =
         jsonEncode(_vaultList!.map((item) => item.toJson()).toList());
 
-    printLongString("--> 저장: $jsonString");
+    //printLongString("--> 저장: $jsonString");
     _sharedPrefs.setString(vaultListField, jsonString);
   }
 
@@ -373,5 +385,13 @@ class WalletListManager {
     _storageService.delete(key: vaultListField);
 
     return true;
+  }
+
+  void dispose() {
+    try {
+      _walletLoadCancelToken?.complete();
+    } catch (e) {
+      Logger.error(e);
+    }
   }
 }

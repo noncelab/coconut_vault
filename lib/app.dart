@@ -1,3 +1,4 @@
+import 'package:coconut_vault/main_route_guard.dart';
 import 'package:coconut_vault/model/state/multisig_creation_model.dart';
 import 'package:coconut_vault/screens/airgap/multi_signature_screen.dart';
 import 'package:coconut_vault/screens/airgap/psbt_confirmation_screen.dart';
@@ -39,68 +40,59 @@ import 'package:coconut_vault/styles.dart';
 import 'package:coconut_vault/widgets/custom_loading_overlay.dart';
 import 'package:provider/provider.dart';
 
-enum HomeScreen {
+enum AppEntryFlow {
   splash,
   tutorial,
   pincheck,
   vaultlist,
 }
 
-/// HomeScreen 상태 관리 싱글톤 객체
-class HomeScreenStatus {
-  static final HomeScreenStatus _instance = HomeScreenStatus._internal();
-
-  factory HomeScreenStatus() {
-    return _instance;
-  }
-
-  HomeScreenStatus._internal();
-
-  HomeScreen screenStatus = HomeScreen.splash;
-
-  void updateScreenStatus(HomeScreen status) {
-    screenStatus = status;
-  }
-}
-
-class PowVaultApp extends StatefulWidget {
-  const PowVaultApp({super.key});
+class CoconutVaultApp extends StatefulWidget {
+  const CoconutVaultApp({super.key});
 
   @override
-  State<PowVaultApp> createState() => _PowVaultAppState();
+  State<CoconutVaultApp> createState() => _CoconutVaultAppState();
 }
 
-class _PowVaultAppState extends State<PowVaultApp> {
-  Widget getHomeScreenRoute(HomeScreen status) {
-    if (status == HomeScreen.splash) {
+class _CoconutVaultAppState extends State<CoconutVaultApp> {
+  AppEntryFlow _appEntryFlow = AppEntryFlow.splash;
+
+  void _updateEntryFlow(AppEntryFlow appEntryFlow) {
+    setState(() {
+      _appEntryFlow = appEntryFlow;
+    });
+  }
+
+  Widget _getHomeScreenRoute(AppEntryFlow status, BuildContext context) {
+    if (status == AppEntryFlow.splash) {
       return StartScreen(onComplete: (status) {
-        setState(() {
-          HomeScreenStatus().updateScreenStatus(status);
-        });
+        _updateEntryFlow(status);
       });
-    } else if (status == HomeScreen.tutorial) {
+    } else if (status == AppEntryFlow.tutorial) {
       return const TutorialScreen(
         screenStatus: TutorialScreenStatus.entrance,
       );
-    } else if (status == HomeScreen.pincheck) {
+    } else if (status == AppEntryFlow.pincheck) {
       return CustomLoadingOverlay(
         child: PinCheckScreen(
           screenStatus: PinCheckScreenStatus.entrance,
           onComplete: () {
-            setState(() {
-              HomeScreenStatus().updateScreenStatus(HomeScreen.vaultlist);
-            });
+            _updateEntryFlow(AppEntryFlow.vaultlist);
           },
           onReset: () async {
             /// 초기화 이후 메인 라우터 이동
-            setState(() {
-              HomeScreenStatus().updateScreenStatus(HomeScreen.vaultlist);
-            });
+            _updateEntryFlow(AppEntryFlow.vaultlist);
           },
         ),
       );
     }
-    return const VaultListScreen();
+
+    return MainRouteGuard(
+      onAppGoBackground: () {
+        _updateEntryFlow(AppEntryFlow.pincheck);
+      },
+      child: const VaultListScreen(),
+    );
   }
 
   @override
@@ -120,17 +112,20 @@ class _PowVaultAppState extends State<PowVaultApp> {
             },
           ),
         ),
-        Provider<MultisigCreationModel>(create: (_) => MultisigCreationModel()),
-        ChangeNotifierProxyProvider<AppModel, VaultModel>(
-          create: (_) => VaultModel(
-              Provider.of<AppModel>(
-                _,
-                listen: false,
-              ),
-              Provider.of<MultisigCreationModel>(_, listen: false)),
-          update: (_, appModel, vaultModel) =>
-              vaultModel!..updateAppModel(appModel),
-        ),
+        if (_appEntryFlow == AppEntryFlow.vaultlist) ...{
+          Provider<MultisigCreationModel>(
+              create: (_) => MultisigCreationModel()),
+          ChangeNotifierProxyProvider<AppModel, VaultModel>(
+            create: (_) => VaultModel(
+                Provider.of<AppModel>(
+                  _,
+                  listen: false,
+                ),
+                Provider.of<MultisigCreationModel>(_, listen: false)),
+            update: (_, appModel, vaultModel) =>
+                vaultModel!..updateAppModel(appModel),
+          ),
+        }
       ],
       child: Directionality(
         textDirection: TextDirection.ltr,
@@ -161,20 +156,8 @@ class _PowVaultAppState extends State<PowVaultApp> {
             ),
           ),
           color: MyColors.black,
-          home: getHomeScreenRoute(HomeScreenStatus().screenStatus),
+          home: _getHomeScreenRoute(_appEntryFlow, context),
           routes: {
-            '/vault-lock': (context) => buildScreenWithArguments(
-                  context,
-                  (args) => CustomLoadingOverlay(
-                    child: PinCheckScreen(
-                      screenStatus: PinCheckScreenStatus.lock,
-                      onReset: () async {
-                        HomeScreenStatus()
-                            .updateScreenStatus(HomeScreen.vaultlist);
-                      },
-                    ),
-                  ),
-                ),
             '/select-vault-type': (context) => const SelectVaultTypeScreen(),
             '/select-multisig-quorum': (context) =>
                 const SelectMultisigQuorumScreen(),
@@ -264,9 +247,7 @@ class _PowVaultAppState extends State<PowVaultApp> {
             '/welcome': (context) => const WelcomeScreen(),
             '/connectivity-guide': (context) {
               onComplete() {
-                setState(() {
-                  HomeScreenStatus().updateScreenStatus(HomeScreen.vaultlist);
-                });
+                _updateEntryFlow(AppEntryFlow.vaultlist);
               }
 
               return GuideScreen(onComplete: onComplete);

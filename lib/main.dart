@@ -57,5 +57,5 @@ void main() async {
   await ScreenProtector.protectDataLeakageOn(); // Android
   await ScreenProtector.preventScreenshotOn(); // iOS and Android
 
-  return runApp(const PowVaultApp());
+  return runApp(const CoconutVaultApp());
 }

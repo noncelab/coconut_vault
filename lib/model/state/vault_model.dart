@@ -72,30 +72,7 @@ class VaultModel extends ChangeNotifier {
 
   String? signedRawTx;
 
-  // lock 진입시 초기화
-  void lockClear() {
-    _importingSecret = null;
-    _importingPassphrase = '';
-    _waitingForSignaturePsbtBase64 = null;
-    signedRawTx = null;
-    _vaultList.clear();
-    _vaultInitialized = false;
-  }
-
-  /// pin or biometric 인증 실패후 지갑 초기화
-  Future<void> resetVault() async {
-    _vaultList.clear();
-    _animatedVaultFlags = [];
-    _importingSecret = null;
-    _importingPassphrase = '';
-    _waitingForSignaturePsbtBase64 = null;
-    signedRawTx = null;
-    _vaultInitialized = false;
-    await _walletManager.resetAll();
-    await _appModel.resetPassword();
-    _updateWalletLength();
-    notifyListeners();
-  }
+  bool _isDisposed = false;
 
   // Returns a copy of the list of vault list.
   List<VaultListItemBase> getVaults() {
@@ -322,10 +299,17 @@ class VaultModel extends ChangeNotifier {
         }
         await _walletManager.loadAndEmitEachWallet(jsonList,
             (VaultListItemBase wallet) {
+          if (_isDisposed) {
+            return;
+          }
           _vaultList.add(wallet);
           _vaultSkeletonLength = _vaultSkeletonLength - 1;
           notifyListeners();
         });
+      }
+
+      if (_isDisposed) {
+        return;
       }
 
       vibrateLight();
@@ -334,6 +318,10 @@ class VaultModel extends ChangeNotifier {
       Logger.log('[loadVaultList] Exception : ${e.toString()}');
       rethrow;
     } finally {
+      if (_isDisposed) {
+        // ignore: control_flow_in_finally
+        return;
+      }
       _isVaultListLoading = false;
       isVaultListLoadingNotifier.value = false;
       _isLoadVaultList = true;
@@ -370,5 +358,23 @@ class VaultModel extends ChangeNotifier {
 
   Future<Secret> getSecret(int id) async {
     return await _walletManager.getSecret(id);
+  }
+
+  @override
+  void dispose() {
+    if (_isDisposed) return;
+
+    // stop if loading
+    _isDisposed = true;
+    _walletManager.dispose();
+
+    _vaultList.clear();
+    _animatedVaultFlags = [];
+    _importingSecret = null;
+    _importingPassphrase = '';
+    _waitingForSignaturePsbtBase64 = null;
+    signedRawTx = null;
+    _vaultInitialized = false;
+    super.dispose();
   }
 }

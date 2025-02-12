@@ -1,8 +1,6 @@
 import 'dart:io';
 
-import 'package:coconut_vault/app.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
-import 'package:coconut_vault/screens/pin_check_screen.dart';
 import 'package:coconut_vault/screens/pin_setting_screen.dart';
 import 'package:coconut_vault/widgets/coconut_dropdown.dart';
 import 'package:flutter/cupertino.dart';
@@ -30,7 +28,7 @@ class VaultListScreen extends StatefulWidget {
 }
 
 class _VaultListScreenState extends State<VaultListScreen>
-    with WidgetsBindingObserver, TickerProviderStateMixin {
+    with TickerProviderStateMixin {
   late AppModel _appModel;
   late VaultModel _vaultModel;
   bool _isSeeMoreDropdown = false;
@@ -43,7 +41,6 @@ class _VaultListScreenState extends State<VaultListScreen>
 
   @override
   void initState() {
-    WidgetsBinding.instance.addObserver(this);
     super.initState();
     _appModel = Provider.of<AppModel>(context, listen: false);
     _vaultModel = Provider.of<VaultModel>(context, listen: false);
@@ -162,27 +159,6 @@ class _VaultListScreenState extends State<VaultListScreen>
           const SizedBox(height: 10),
         ],
       );
-
-  @override
-  void didChangeAppLifecycleState(AppLifecycleState state) {
-    /// 앱이 pause 되면 pin or bio 확인창 이동
-    if (AppLifecycleState.paused == state && _appModel.vaultListLength > 0) {
-      _vaultModel.lockClear();
-      Navigator.pushNamedAndRemoveUntil(
-          context, '/vault-lock', (Route<dynamic> route) => false,
-          arguments: {
-            'screenStatus': PinCheckScreenStatus.lock,
-            'onReset': () {
-              HomeScreenStatus().updateScreenStatus(HomeScreen.vaultlist);
-              Navigator.pushNamedAndRemoveUntil(
-                context,
-                '/',
-                (Route<dynamic> route) => false,
-              );
-            },
-          });
-    }
-  }
 
   void _scrollToBottom() async {
     if (_scrollController.hasClients) {
@@ -382,7 +358,6 @@ class _VaultListScreenState extends State<VaultListScreen>
   void dispose() {
     _scrollController.dispose();
     _newVaultAddAnimController.dispose();
-    WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }
 }

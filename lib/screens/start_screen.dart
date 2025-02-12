@@ -11,7 +11,7 @@ import 'package:coconut_vault/styles.dart';
 import 'package:provider/provider.dart';
 
 class StartScreen extends StatefulWidget {
-  final void Function(HomeScreen status) onComplete;
+  final void Function(AppEntryFlow status) onComplete;
 
   const StartScreen({super.key, required this.onComplete});
 
@@ -50,9 +50,9 @@ class _StartScreenState extends State<StartScreen> {
     /// 비밀번호 등록 되어 있더라도, 추가한 볼트가 없는 경우는 볼트 리스트 화면으로 이동합니다.
     if (isNotEmpty) {
       assert(isPinEnabled == true);
-      widget.onComplete(HomeScreen.pincheck);
+      widget.onComplete(AppEntryFlow.pincheck);
     } else {
-      widget.onComplete(HomeScreen.vaultlist);
+      widget.onComplete(AppEntryFlow.vaultlist);
     }
   }
 
@@ -61,7 +61,7 @@ class _StartScreenState extends State<StartScreen> {
       // iOS는 앱을 삭제해도 secure storage에 데이터가 남아있음
       await SecureStorageService().deleteAll();
     }
-    widget.onComplete(HomeScreen.tutorial); // 가이드
+    widget.onComplete(AppEntryFlow.tutorial); // 가이드
   }
 
   @override
