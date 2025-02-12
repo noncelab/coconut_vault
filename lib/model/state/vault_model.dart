@@ -368,8 +368,6 @@ class VaultModel extends ChangeNotifier {
     _isDisposed = true;
     _walletManager.dispose();
 
-    super.dispose();
-
     _vaultList.clear();
     _animatedVaultFlags = [];
     _importingSecret = null;
@@ -377,5 +375,6 @@ class VaultModel extends ChangeNotifier {
     _waitingForSignaturePsbtBase64 = null;
     signedRawTx = null;
     _vaultInitialized = false;
+    super.dispose();
   }
 }

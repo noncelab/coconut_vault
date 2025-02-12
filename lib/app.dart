@@ -47,14 +47,14 @@ enum AppEntryFlow {
   vaultlist,
 }
 
-class PowVaultApp extends StatefulWidget {
-  const PowVaultApp({super.key});
+class CoconutVaultApp extends StatefulWidget {
+  const CoconutVaultApp({super.key});
 
   @override
-  State<PowVaultApp> createState() => _PowVaultAppState();
+  State<CoconutVaultApp> createState() => _CoconutVaultAppState();
 }
 
-class _PowVaultAppState extends State<PowVaultApp> {
+class _CoconutVaultAppState extends State<CoconutVaultApp> {
   AppEntryFlow _appEntryFlow = AppEntryFlow.splash;
 
   void _updateEntryFlow(AppEntryFlow appEntryFlow) {
