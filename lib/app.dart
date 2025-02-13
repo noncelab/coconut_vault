@@ -1,5 +1,9 @@
 import 'package:coconut_vault/main_route_guard.dart';
 import 'package:coconut_vault/model/multisig/multisig_creation_model.dart';
+import 'package:coconut_vault/providers/auth_provider.dart';
+import 'package:coconut_vault/providers/connectivity_provider.dart'
+    as connectivityProvider;
+import 'package:coconut_vault/providers/visibility_provider.dart';
 import 'package:coconut_vault/screens/airgap/multi_signature_screen.dart';
 import 'package:coconut_vault/screens/airgap/psbt_confirmation_screen.dart';
 import 'package:coconut_vault/screens/airgap/psbt_scanner_screen.dart';
@@ -99,11 +103,17 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
+        ChangeNotifierProvider(create: (_) => AuthProvider()),
+        ChangeNotifierProvider(
+            create: (_) => connectivityProvider.ConnectivityProvider()),
+        ChangeNotifierProvider(create: (_) => VisibilityProvider()),
+
         /// splash, guide, main, pinCheck 에서 공통으로 사용하는 모델
         ChangeNotifierProvider(
           create: (_) => AppModel(
             onConnectivityStateChanged: (ConnectivityState state) {
               // Bluetooth, Network, Developer mode 리스너
+              // TODO: connectivityProvider로 아래 로직 이동시키기
               if (state == ConnectivityState.on) {
                 goAppUnavailableNotificationScreen(context);
               } else if (state == ConnectivityState.bluetoothUnauthorized) {
