@@ -221,7 +221,7 @@ welcome_screen:
   guide3_2: "을 위한"
   guide3_3: "조치이오니"
   guide3_4: "사용 시 유의해 주세요"
-  understood: "모두 이해했어요 :)"
+  understood: "모두 이해했어요"
 
 # lib/screens/vault_creation
 mnemonic_coin_flip_screen:

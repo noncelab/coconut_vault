@@ -76,7 +76,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                     HighLightedText(
                         t.welcome_screen.guide1_2(
                             suffix:
-                                Platform.isAndroid ? t.developer_option : ''),
+                                Platform.isAndroid ? ', ${t.developer_option}' : ''),
                         color: MyColors.darkgrey),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
