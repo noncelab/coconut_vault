@@ -148,6 +148,7 @@ class ConnectivityProvider extends ChangeNotifier {
             home: AppUnavailableNotificationScreen()));
       }
     }
+    notifyListeners();
   }
 
   void setOnConnectivityStateChanged(
