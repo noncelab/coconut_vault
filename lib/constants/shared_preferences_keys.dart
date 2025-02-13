@@ -9,4 +9,9 @@ class SharedPrefsKeys {
   static const String hasAlreadyRequestedBioPermission =
       "HAS_ALREADY_REQUESTED_BIO_PERMISSION";
   static const String hasBiometricsPermission = "HAS_BIOMETRICS_PERMISSION";
+
+  // AppUnlockManager
+  static String kLockoutEndDateTime = 'LOCKOUT_END_TIME';
+  static String kTotalPinInputAttemptCount = 'TOTAL_PIN_ATTEMPT';
+  static String kPinInputAttemptCount = 'PIN_ATTEMPT';
 }
