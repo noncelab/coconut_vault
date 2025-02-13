@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:coconut_vault/localization/strings.g.dart';
+import 'package:coconut_vault/providers/connectivity_provider.dart';
 import 'package:coconut_vault/screens/pin_setting_screen.dart';
 import 'package:coconut_vault/widgets/coconut_dropdown.dart';
 import 'package:flutter/cupertino.dart';
@@ -44,6 +45,8 @@ class _VaultListScreenState extends State<VaultListScreen>
     super.initState();
     _appModel = Provider.of<AppModel>(context, listen: false);
     _vaultModel = Provider.of<WalletProvider>(context, listen: false);
+    final connectivityProvider =
+        Provider.of<ConnectivityProvider>(context, listen: false);
 
     _scrollController = ScrollController();
     _newVaultAddAnimController = AnimationController(
