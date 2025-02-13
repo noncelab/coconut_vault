@@ -111,7 +111,7 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> {
               hasSeenGuide: visibilityProvider.hasSeenGuide),
           update: (_, visibilityProvider, connectivityProvider) {
             if (visibilityProvider.hasSeenGuide) {
-              connectivityProvider!.finishGuide();
+              connectivityProvider!.setHasSeenGuideTrue();
             }
 
             return connectivityProvider!;

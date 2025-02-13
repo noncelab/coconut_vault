@@ -155,7 +155,7 @@ class ConnectivityProvider extends ChangeNotifier {
     onConnectivityStateChanged = onChanged;
   }
 
-  void finishGuide() {
+  void setHasSeenGuideTrue() {
     _hasSeenGuide = true;
   }
 

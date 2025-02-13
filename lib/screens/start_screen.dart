@@ -34,20 +34,20 @@ class _StartScreenState extends State<StartScreen> {
 
       /// 한번도 튜토리얼을 보지 않은 경우
       if (!_viewModel.hasSeenGuide) {
-        _goTutorialScreen();
+        _showTutorialScreen();
       }
     });
   }
 
-  Future _goTutorialScreen() async {
+  Future _showTutorialScreen() async {
     widget.onComplete(AppEntryFlow.tutorial); // 가이드
   }
 
-  Future _goNextScreen() async {
+  Future _determineNextEntryFlow() async {
     await Future.delayed(const Duration(seconds: 2));
 
     /// 비밀번호 등록 되어 있더라도, 추가한 볼트가 없는 경우는 볼트 리스트 화면으로 이동합니다.
-    if (_viewModel.isWalletExist()) {
+    if (_viewModel.isWalletExistent()) {
       widget.onComplete(AppEntryFlow.pincheck);
     } else {
       widget.onComplete(AppEntryFlow.vaultlist);
@@ -83,7 +83,7 @@ class _StartScreenState extends State<StartScreen> {
                   if (viewModel.connectivityState == null) return Container();
                   if (!viewModel.connectivityState!) {
                     WidgetsBinding.instance.addPostFrameCallback((_) {
-                      _goNextScreen();
+                      _determineNextEntryFlow();
                     });
                   }
 

@@ -21,7 +21,7 @@ class StartViewModel extends ChangeNotifier {
   bool? get connectivityState => _connectivityState;
   bool get hasSeenGuide => _hasSeenGuide;
 
-  bool isWalletExist() {
+  bool isWalletExistent() {
     return (SharedPrefsRepository().getInt(SharedPrefsKeys.vaultListLength) ??
             0) >
         0;
@@ -46,8 +46,8 @@ class StartViewModel extends ChangeNotifier {
 
     if (Platform.isAndroid) {
       return isNetworkOn || isBluetoothOn || isDeveloperModeOn;
-    } else {
-      return isNetworkOn || isBluetoothOn;
     }
+
+    return isNetworkOn || isBluetoothOn;
   }
 }
