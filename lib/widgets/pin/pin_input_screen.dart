@@ -14,6 +14,7 @@ class PinInputScreen extends StatefulWidget {
   final String pin;
   final String errorMessage;
   final void Function(String) onKeyTap;
+  final List<String> pinShuffleNumbers;
   final Function? onReset;
   final VoidCallback onClosePressed;
   final VoidCallback? onBackPressed;
@@ -30,6 +31,7 @@ class PinInputScreen extends StatefulWidget {
     required this.pin,
     required this.errorMessage,
     required this.onKeyTap,
+    required this.pinShuffleNumbers,
     required this.onClosePressed,
     this.onReset,
     this.onBackPressed,
@@ -115,30 +117,25 @@ class PinInputScreenState extends State<PinInputScreen> {
               ),
             ),
             const SizedBox(height: 40),
-            Selector<AppModel, List<String>>(
-              selector: (context, model) => model.pinShuffleNumbers,
-              builder: (context, numbers, child) {
-                return Expanded(
-                  child: Align(
-                    alignment: Alignment.bottomCenter,
-                    child: GridView.count(
-                      crossAxisCount: 3,
-                      childAspectRatio: 2,
-                      shrinkWrap: true,
-                      physics: const NeverScrollableScrollPhysics(),
-                      children: numbers.map((key) {
-                        return Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 16),
-                          child: KeyButton(
-                            keyValue: key,
-                            onKeyTap: widget.onKeyTap,
-                          ),
-                        );
-                      }).toList(),
-                    ),
-                  ),
-                );
-              },
+            Expanded(
+              child: Align(
+                alignment: Alignment.bottomCenter,
+                child: GridView.count(
+                  crossAxisCount: 3,
+                  childAspectRatio: 2,
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  children: widget.pinShuffleNumbers.map((key) {
+                    return Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      child: KeyButton(
+                        keyValue: key,
+                        onKeyTap: widget.onKeyTap,
+                      ),
+                    );
+                  }).toList(),
+                ),
+              ),
             ),
             SizedBox(
                 height: widget.initOptionVisible

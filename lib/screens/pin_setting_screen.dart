@@ -30,15 +30,18 @@ class _PinSettingScreenState extends State<PinSettingScreen> {
   late String pinConfirm;
   late String errorMessage;
   late AppModel _appModel;
+  late List<String> _shuffledPinNumbers;
 
   @override
   void initState() {
-    _appModel = Provider.of<AppModel>(context, listen: false);
     super.initState();
-    greeting = widget.greetingVisible;
     pin = '';
     pinConfirm = '';
     errorMessage = '';
+    greeting = widget.greetingVisible;
+
+    _appModel = Provider.of<AppModel>(context, listen: false);
+    _shuffledPinNumbers = _appModel.getShuffledNumberList();
   }
 
   void returnToBackSequence(String message,
@@ -46,7 +49,7 @@ class _PinSettingScreenState extends State<PinSettingScreen> {
     setState(() {
       errorMessage = message;
       pinConfirm = '';
-      _appModel.shuffleNumbers(isSettings: true);
+      _shuffledPinNumbers = _appModel.getShuffledNumberList(isSettings: true);
       if (firstSequence) {
         step = 0;
         pin = '';
@@ -97,7 +100,8 @@ class _PinSettingScreenState extends State<PinSettingScreen> {
         setState(() {
           step = 1;
           errorMessage = '';
-          _appModel.shuffleNumbers(isSettings: true);
+          _shuffledPinNumbers =
+              _appModel.getShuffledNumberList(isSettings: true);
         });
       }
     } else if (step == 1) {
@@ -115,7 +119,8 @@ class _PinSettingScreenState extends State<PinSettingScreen> {
         if (pin != pinConfirm) {
           errorMessage = t.errors.pin_incorrect_error;
           pinConfirm = '';
-          _appModel.shuffleNumbers(isSettings: true);
+          _shuffledPinNumbers =
+              _appModel.getShuffledNumberList(isSettings: true);
           vibrateMediumDouble();
           return;
         }
@@ -222,7 +227,6 @@ class _PinSettingScreenState extends State<PinSettingScreen> {
                     setState(() {
                       greeting = false;
                     });
-                    _appModel.shuffleNumbers(isSettings: true);
                   },
                   label: t.confirm,
                   disabled: false),
@@ -244,6 +248,7 @@ class _PinSettingScreenState extends State<PinSettingScreen> {
         pin: step == 0 ? pin : pinConfirm,
         errorMessage: errorMessage,
         onKeyTap: _onKeyTap,
+        pinShuffleNumbers: _shuffledPinNumbers,
         isCloseIcon: !widget.greetingVisible,
         onClosePressed: step == 0
             ? () {

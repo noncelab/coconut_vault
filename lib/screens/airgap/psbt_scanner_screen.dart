@@ -44,12 +44,12 @@ class _PsbtScannerScreenState extends State<PsbtScannerScreen> {
     _isMultisig = _vaultListItem.vaultType == WalletType.multiSignature;
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       context.loaderOverlay.show();
-      
+
       Future.delayed(const Duration(milliseconds: 1000), () {
         // fixme 추후 QRCodeScanner가 개선되면 QRCodeScanner 의 카메라 뷰 생성 완료된 콜백 찾아 progress hide 합니다. 현재는 1초 후 hide
-        if(mounted) {
+        if (mounted) {
           context.loaderOverlay.hide();
-         }
+        }
       });
     });
   }

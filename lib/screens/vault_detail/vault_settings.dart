@@ -313,13 +313,13 @@ class _VaultSettingsState extends State<VaultSettings> {
                                         ),
                                       ],
                                     ),
-        
+
                                     const Padding(
                                       padding: EdgeInsets.only(
                                           top: 4, bottom: 4, left: 28),
                                       child: Divider(),
                                     ),
-        
+
                                     Selector<WalletProvider, bool>(
                                         selector: (context, model) =>
                                             model.isLoadVaultList,
@@ -327,7 +327,9 @@ class _VaultSettingsState extends State<VaultSettings> {
                                             (context, isLoadVaultList, child) {
                                           return ListView.builder(
                                             itemCount: _singleVaultItem
-                                                .linkedMultisigInfo!.keys.length,
+                                                .linkedMultisigInfo!
+                                                .keys
+                                                .length,
                                             shrinkWrap: true,
                                             itemBuilder: (context, index) {
                                               final id = _singleVaultItem
@@ -336,13 +338,13 @@ class _VaultSettingsState extends State<VaultSettings> {
                                               final idx = _singleVaultItem
                                                   .linkedMultisigInfo!.values
                                                   .elementAt(index);
-        
+
                                               if (isLoadVaultList &&
                                                   _vaultModel.vaultList.any(
                                                       (element) =>
                                                           element.id == id)) {
-                                                final multisig =
-                                                    _vaultModel.getVaultById(id);
+                                                final multisig = _vaultModel
+                                                    .getVaultById(id);
                                                 return InkWell(
                                                   onTap: () {
                                                     Navigator.pushNamed(context,
@@ -352,12 +354,13 @@ class _VaultSettingsState extends State<VaultSettings> {
                                                   child: Container(
                                                     padding:
                                                         const EdgeInsets.only(
-                                                            left: 28, bottom: 4),
+                                                            left: 28,
+                                                            bottom: 4),
                                                     color: Colors.transparent,
                                                     child: RichText(
                                                       text: TextSpan(
-                                                        style:
-                                                            Styles.body2.copyWith(
+                                                        style: Styles.body2
+                                                            .copyWith(
                                                           color:
                                                               MyColors.linkBlue,
                                                         ),
@@ -379,10 +382,11 @@ class _VaultSettingsState extends State<VaultSettings> {
                                                                   .vault_settings
                                                                   .of),
                                                           TextSpan(
-                                                            text: t.vault_settings
+                                                            text: t
+                                                                .vault_settings
                                                                 .nth(
-                                                                    index:
-                                                                        idx + 1),
+                                                                    index: idx +
+                                                                        1),
                                                             style: Styles
                                                                 .body2Bold
                                                                 .copyWith(
@@ -401,10 +405,12 @@ class _VaultSettingsState extends State<VaultSettings> {
                                                 );
                                               } else {
                                                 return Container(
-                                                  padding: const EdgeInsets.only(
-                                                      left: 28, bottom: 4),
+                                                  padding:
+                                                      const EdgeInsets.only(
+                                                          left: 28, bottom: 4),
                                                   child: Shimmer.fromColors(
-                                                    baseColor: Colors.grey[300]!,
+                                                    baseColor:
+                                                        Colors.grey[300]!,
                                                     highlightColor:
                                                         Colors.grey[100]!,
                                                     child: Container(
@@ -426,7 +432,8 @@ class _VaultSettingsState extends State<VaultSettings> {
                             const SizedBox(height: 20),
                           },
                           Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 16),
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 16),
                               child: Container(
                                   decoration: BoxDecoration(
                                     borderRadius: BorderRadius.circular(28.0),
@@ -460,10 +467,11 @@ class _VaultSettingsState extends State<VaultSettings> {
                                   ))),
                           const SizedBox(height: 32),
                           Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 16),
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 16),
                               child: Container(
-                                  padding:
-                                      const EdgeInsets.symmetric(horizontal: 24),
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 24),
                                   decoration: BoxDecoration(
                                     borderRadius: BorderRadius.circular(28.0),
                                     color: MyColors.transparentBlack_03,
@@ -492,8 +500,10 @@ class _VaultSettingsState extends State<VaultSettings> {
                                             'assets/svg/trash.svg',
                                             width: 16,
                                             colorFilter: ColorFilter.mode(
-                                              _singleVaultItem.linkedMultisigInfo
-                                                          ?.entries.isNotEmpty ==
+                                              _singleVaultItem
+                                                          .linkedMultisigInfo
+                                                          ?.entries
+                                                          .isNotEmpty ==
                                                       true
                                                   ? MyColors.disabledGrey
                                                       .withOpacity(0.15)
@@ -504,23 +514,28 @@ class _VaultSettingsState extends State<VaultSettings> {
                                         ),
                                         onPressed: () {
                                           _removeTooltip();
-                                          if (_singleVaultItem.linkedMultisigInfo
-                                                  ?.entries.isNotEmpty ==
+                                          if (_singleVaultItem
+                                                  .linkedMultisigInfo
+                                                  ?.entries
+                                                  .isNotEmpty ==
                                               true) {
                                             CustomToast.showToast(
                                               context: context,
-                                              text: t.toast.name_multisig_in_use,
+                                              text:
+                                                  t.toast.name_multisig_in_use,
                                             );
                                           } else {
                                             showConfirmDialog(
                                                 context: context,
                                                 title: t.confirm,
-                                                content: t.alert.confirm_deletion(
-                                                    name: _name),
+                                                content: t.alert
+                                                    .confirm_deletion(
+                                                        name: _name),
                                                 onConfirmPressed: () async {
                                                   context.loaderOverlay.show();
                                                   await Future.delayed(
-                                                      const Duration(seconds: 1));
+                                                      const Duration(
+                                                          seconds: 1));
                                                   _verifyBiometric(2);
                                                   context.loaderOverlay.hide();
                                                   //context.go('/');
@@ -559,7 +574,8 @@ class _VaultSettingsState extends State<VaultSettings> {
                                     t.tooltip.mfp,
                                     style: Styles.caption.merge(TextStyle(
                                       height: 1.3,
-                                      fontFamily: CustomFonts.text.getFontFamily,
+                                      fontFamily:
+                                          CustomFonts.text.getFontFamily,
                                       color: MyColors.white,
                                     )),
                                   ),

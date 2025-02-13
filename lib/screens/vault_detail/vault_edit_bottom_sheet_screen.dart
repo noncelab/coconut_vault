@@ -82,9 +82,9 @@ class _VaultInfoEditBottomSheetState extends State<VaultInfoEditBottomSheet> {
                         // CustomDialogs.showLoadingDialog(context);
                         if (hasChanged) {
                           context.loaderOverlay.show();
-                        
+
                           await Future.delayed(const Duration(seconds: 1));
-                        
+
                           context.loaderOverlay.hide();
                         }
                         widget.onUpdate(_name.isEmpty ? widget.name : _name,

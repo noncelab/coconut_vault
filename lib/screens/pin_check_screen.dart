@@ -48,6 +48,7 @@ class _PinCheckScreenState extends State<PinCheckScreen>
   late String pin;
   late String errorMessage;
   late AppModel _appModel;
+  late List<String> _shuffledPinNumbers;
 
   DateTime? _lastPressedAt;
 
@@ -82,14 +83,17 @@ class _PinCheckScreenState extends State<PinCheckScreen>
 
   @override
   void initState() {
-    WidgetsBinding.instance.addObserver(this);
-    _appModel = Provider.of<AppModel>(context, listen: false);
     super.initState();
     pin = '';
     errorMessage = '';
+
+    _appModel = Provider.of<AppModel>(context, listen: false);
+    _shuffledPinNumbers = _appModel.getShuffledNumberList();
+
     _loadAttemptCountFromStorage();
     _checkPinLocked();
 
+    WidgetsBinding.instance.addObserver(this);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _checkBiometrics();
     });
@@ -124,8 +128,6 @@ class _PinCheckScreenState extends State<PinCheckScreen>
       /// 생체인증 정보 체크
       await _appModel.setInitData();
     }
-
-    _appModel.shuffleNumbers();
 
     if (_appModel.isBiometricEnabled && _appModel.canCheckBiometrics) {
       _verifyBiometric();
@@ -189,19 +191,20 @@ class _PinCheckScreenState extends State<PinCheckScreen>
             errorMessage = t.errors.pin_incorrect_with_remaining_attempts_error(
                 count: MAX_NUMBER_OF_ATTEMPTS - attempt);
           });
-          _appModel.shuffleNumbers();
           vibrateMediumDouble();
         } else {
           vibrateMedium();
           _checkPinLockout();
         }
       } else {
-        errorMessage = t.errors.pin_incorrect_error;
-        _appModel.shuffleNumbers();
+        setState(() {
+          errorMessage = t.errors.pin_incorrect_error;
+        });
         vibrateMediumDouble();
       }
       setState(() {
         pin = '';
+        _shuffledPinNumbers = _appModel.getShuffledNumberList();
       });
     }
   }
@@ -340,7 +343,6 @@ class _PinCheckScreenState extends State<PinCheckScreen>
         _appUnlockManager.setPinInputAttemptCount(0);
         moveToMain();
       case PinCheckScreenStatus.change:
-        _appModel.shuffleNumbers(isSettings: true);
         Navigator.pop(context);
         MyBottomSheet.showBottomSheet_90(
             context: context, child: const PinSettingScreen());
@@ -440,6 +442,7 @@ class _PinCheckScreenState extends State<PinCheckScreen>
       pin: pin,
       errorMessage: errorMessage,
       onKeyTap: _onKeyTap,
+      pinShuffleNumbers: _shuffledPinNumbers,
       onClosePressed: () {
         Navigator.pop(context);
       },
