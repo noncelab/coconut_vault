@@ -2,7 +2,7 @@ import 'dart:io';
 
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
-import 'package:coconut_vault/providers/app_model.dart';
+import 'package:coconut_vault/providers/connectivity_provider.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -18,12 +18,13 @@ class WelcomeScreen extends StatefulWidget {
 }
 
 class _WelcomeScreenState extends State<WelcomeScreen> {
-  late AppModel _appModel;
+  late ConnectivityProvider _connectivityProvider;
 
   @override
   void initState() {
     super.initState();
-    _appModel = Provider.of<AppModel>(context, listen: false);
+    _connectivityProvider =
+        Provider.of<ConnectivityProvider>(context, listen: false);
   }
 
   @override
@@ -157,7 +158,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
             ),
             CupertinoButton(
                 onPressed: () {
-                  _appModel.setConnectActivity(
+                  _connectivityProvider.setConnectActivity(
                       bluetooth: true, network: false, developerMode: false);
                   Navigator.pushNamed(context, '/connectivity-guide');
                 },

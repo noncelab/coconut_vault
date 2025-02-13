@@ -9,10 +9,8 @@ import 'package:coconut_vault/screens/ios_bluetooth_auth_notification_screen.dar
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
-import 'package:path/path.dart';
 
 enum ConnectivityState { off, on, bluetoothUnauthorized }
 
@@ -42,10 +40,10 @@ class ConnectivityProvider extends ChangeNotifier {
       {required bool hasSeenGuide, this.onConnectivityStateChanged})
       : _hasSeenGuide = hasSeenGuide {
     if (_hasSeenGuide) {
-      _setConnectActivity(network: true, bluetooth: true, developerMode: true);
+      setConnectActivity(network: true, bluetooth: true, developerMode: true);
     } else {
-      // 앱 첫 실행인 경우 가이드 화면 끝난 후 bluetooth 모니터링 시작. // TODO: 블루투스 권한 요청 시점 때문에 이렇게 했나보다. 확인 필요
-      _setConnectActivity(network: true, bluetooth: false, developerMode: true);
+      // 앱 첫 실행인 경우 가이드 화면 끝난 후 welcome_screen에서 bluetooth 권한 요청 후 모니터링 시작.
+      setConnectActivity(network: true, bluetooth: false, developerMode: true);
     }
   }
 
@@ -56,7 +54,8 @@ class ConnectivityProvider extends ChangeNotifier {
   /// 매개변수로 모니터링 할 요소를 선택할 수 있습니다.
   ///
   /// * 단, iOS에서는 개발자모드 여부를 제공하지 않기 때문에 제외합니다.
-  void _setConnectActivity(
+  /// TODO: 리팩토링 필요함
+  void setConnectActivity(
       {required bool network,
       required bool bluetooth,
       required bool developerMode}) {

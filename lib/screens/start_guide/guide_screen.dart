@@ -1,15 +1,16 @@
 import 'dart:io';
 
 import 'package:coconut_vault/localization/strings.g.dart';
+import 'package:coconut_vault/providers/connectivity_provider.dart';
+import 'package:coconut_vault/providers/visibility_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:coconut_vault/providers/app_model.dart';
 import 'package:coconut_vault/styles.dart';
 import 'package:coconut_vault/widgets/highlighted_text.dart';
 import 'package:provider/provider.dart';
 
 class GuideScreen extends StatefulWidget {
-  final VoidCallback? onComplete;
+  final VoidCallback onComplete;
   const GuideScreen({super.key, required this.onComplete});
 
   @override
@@ -19,7 +20,7 @@ class GuideScreen extends StatefulWidget {
 class _GuideScreenState extends State<GuideScreen> {
   @override
   Widget build(BuildContext context) {
-    return Consumer<AppModel>(builder: (context, appModel, child) {
+    return Consumer<ConnectivityProvider>(builder: (context, provider, child) {
       return Scaffold(
         backgroundColor: MyColors.white,
         body: SafeArea(
@@ -61,8 +62,8 @@ class _GuideScreenState extends State<GuideScreen> {
                             Text(t.guide_screen.network_status,
                                 style: Styles.body2Bold),
                             const SizedBox(width: 40),
-                            appModel.isNetworkOn != null &&
-                                    appModel.isNetworkOn == true
+                            provider.isNetworkOn != null &&
+                                    provider.isNetworkOn == true
                                 ? HighLightedText(t.guide_screen.on,
                                     color: MyColors.warningText)
                                 : Text(t.guide_screen.off,
@@ -76,8 +77,8 @@ class _GuideScreenState extends State<GuideScreen> {
                             Text(t.guide_screen.bluetooth_status,
                                 style: Styles.body2Bold),
                             const SizedBox(width: 40),
-                            appModel.isBluetoothOn != null &&
-                                    appModel.isBluetoothOn == true
+                            provider.isBluetoothOn != null &&
+                                    provider.isBluetoothOn == true
                                 ? HighLightedText(t.guide_screen.on,
                                     color: MyColors.warningText)
                                 : Text(t.guide_screen.off,
@@ -92,8 +93,8 @@ class _GuideScreenState extends State<GuideScreen> {
                               Text(t.guide_screen.developer_option,
                                   style: Styles.body2Bold),
                               const SizedBox(width: 40),
-                              appModel.isDeveloperModeOn != null &&
-                                      appModel.isDeveloperModeOn == true
+                              provider.isDeveloperModeOn != null &&
+                                      provider.isDeveloperModeOn == true
                                   ? HighLightedText(t.guide_screen.on,
                                       color: MyColors.warningText)
                                   : Text(t.guide_screen.off,
@@ -104,8 +105,8 @@ class _GuideScreenState extends State<GuideScreen> {
                       ],
                     )),
                 const SizedBox(height: 32),
-                if (appModel.isNetworkOn == true ||
-                    appModel.isBluetoothOn == true)
+                if (provider.isNetworkOn == true ||
+                    provider.isBluetoothOn == true)
                   Column(
                     children: [
                       Text(t.guide_screen.turn_off_network_and_bluetooth,
@@ -113,7 +114,7 @@ class _GuideScreenState extends State<GuideScreen> {
                               const TextStyle(color: MyColors.warningText))),
                     ],
                   ),
-                if (appModel.isDeveloperModeOn == true && Platform.isAndroid)
+                if (provider.isDeveloperModeOn == true && Platform.isAndroid)
                   Text(t.guide_screen.disable_developer_option,
                       style: Styles.body2Bold
                           .merge(const TextStyle(color: MyColors.warningText))),
@@ -121,13 +122,15 @@ class _GuideScreenState extends State<GuideScreen> {
                   height: 40,
                 ),
                 GestureDetector(
-                    onTap: appModel.isNetworkOn == false &&
-                            appModel.isBluetoothOn == false &&
+                    onTap: provider.isNetworkOn == false &&
+                            provider.isBluetoothOn == false &&
                             (!Platform.isAndroid ||
-                                appModel.isDeveloperModeOn == false)
+                                provider.isDeveloperModeOn == false)
                         ? () async {
-                            await appModel.setHasSeenGuide();
-                            widget.onComplete!();
+                            await Provider.of<VisibilityProvider>(context,
+                                    listen: false)
+                                .setHasSeenGuide();
+                            widget.onComplete();
                             Navigator.pushNamedAndRemoveUntil(
                               context,
                               '/',
@@ -140,10 +143,10 @@ class _GuideScreenState extends State<GuideScreen> {
                             horizontal: 24, vertical: 12),
                         decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(14),
-                            color: appModel.isNetworkOn == false &&
-                                    appModel.isBluetoothOn == false &&
+                            color: provider.isNetworkOn == false &&
+                                    provider.isBluetoothOn == false &&
                                     (!Platform.isAndroid ||
-                                        appModel.isDeveloperModeOn == false)
+                                        provider.isDeveloperModeOn == false)
                                 ? MyColors.black
                                 : MyColors.transparentBlack_06),
                         child: Text(
