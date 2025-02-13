@@ -1,4 +1,4 @@
-import 'package:coconut_vault/model/data/multisig_signer.dart';
+import 'package:coconut_vault/model/multisig/multisig_signer.dart';
 import 'package:coconut_vault/utils/coconut/multisig_utils.dart';
 
 class MultisigCreationModel {

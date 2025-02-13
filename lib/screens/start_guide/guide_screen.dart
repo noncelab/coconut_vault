@@ -3,7 +3,7 @@ import 'dart:io';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:coconut_vault/model/state/app_model.dart';
+import 'package:coconut_vault/providers/app_model.dart';
 import 'package:coconut_vault/styles.dart';
 import 'package:coconut_vault/widgets/highlighted_text.dart';
 import 'package:provider/provider.dart';

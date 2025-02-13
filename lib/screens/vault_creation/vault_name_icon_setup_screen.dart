@@ -1,7 +1,7 @@
 import 'package:coconut_vault/localization/strings.g.dart';
-import 'package:coconut_vault/model/manager/singlesig_wallet.dart';
-import 'package:coconut_vault/model/state/multisig_creation_model.dart';
-import 'package:coconut_vault/model/state/vault_model.dart';
+import 'package:coconut_vault/model/singlesig/singlesig_wallet.dart';
+import 'package:coconut_vault/model/multisig/multisig_creation_model.dart';
+import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:coconut_vault/styles.dart';
 import 'package:coconut_vault/utils/logger.dart';
 import 'package:coconut_vault/widgets/custom_dialog.dart';
@@ -29,7 +29,7 @@ class VaultNameIconSetup extends StatefulWidget {
 }
 
 class _VaultNameIconSetupState extends State<VaultNameIconSetup> {
-  late VaultModel _vaultModel;
+  late WalletProvider _vaultModel;
   late MultisigCreationModel _multisigCreationState;
   String inputText = '';
   late int selectedIconIndex;
@@ -39,7 +39,7 @@ class _VaultNameIconSetupState extends State<VaultNameIconSetup> {
 
   @override
   void initState() {
-    _vaultModel = Provider.of<VaultModel>(context, listen: false);
+    _vaultModel = Provider.of<WalletProvider>(context, listen: false);
     _vaultModel.isVaultListLoadingNotifier.addListener(_onVaultListLoading);
     _multisigCreationState =
         Provider.of<MultisigCreationModel>(context, listen: false);

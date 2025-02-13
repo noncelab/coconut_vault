@@ -2,8 +2,8 @@ import 'dart:io';
 
 import 'package:coconut_lib/coconut_lib.dart';
 import 'package:coconut_vault/constants/method_channel.dart';
-import 'package:coconut_vault/model/manager/wallet_list_manager.dart';
-import 'package:coconut_vault/services/shared_preferences_service.dart';
+import 'package:coconut_vault/managers/wallet_list_manager.dart';
+import 'package:coconut_vault/repository/shared_preferences_repository.dart';
 import 'package:coconut_vault/utils/logger.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
@@ -16,7 +16,7 @@ void main() async {
   // This app is designed only to work vertically, so we limit
   // orientations to portrait up and down.
   WidgetsFlutterBinding.ensureInitialized();
-  await SharedPrefsService().init();
+  await SharedPrefsRepository().init();
   await WalletListManager().init();
   // Isolate 토큰 생성 및 초기화
   final RootIsolateToken rootIsolateToken = RootIsolateToken.instance!;

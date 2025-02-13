@@ -1,5 +1,5 @@
 import 'package:coconut_vault/localization/strings.g.dart';
-import 'package:coconut_vault/model/state/vault_model.dart';
+import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:coconut_vault/widgets/button/clipboard_button.dart';
 import 'package:flutter/material.dart';
 import 'package:coconut_vault/styles.dart';
@@ -22,14 +22,14 @@ class _MnemonicViewScreen extends State<MnemonicViewScreen> {
   bool _isPressed = false;
   bool _isLoading = true;
   List<Widget> _passphraseGridItems = [];
-  late VaultModel _vaultModel;
+  late WalletProvider _vaultModel;
   String? mnemonic;
   String? passphrase;
 
   @override
   void initState() {
     super.initState();
-    _vaultModel = Provider.of<VaultModel>(context, listen: false);
+    _vaultModel = Provider.of<WalletProvider>(context, listen: false);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _vaultModel.getSecret(widget.walletId).then((secret) async {
         await Future.delayed(const Duration(seconds: 1));

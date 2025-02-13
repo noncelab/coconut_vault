@@ -1,15 +1,16 @@
 import 'dart:async';
 import 'package:shared_preferences/shared_preferences.dart';
 
-class SharedPrefsService {
+class SharedPrefsRepository {
   late SharedPreferences _sharedPrefs;
   SharedPreferences get sharedPrefs => _sharedPrefs;
 
-  static final SharedPrefsService _instance = SharedPrefsService._internal();
+  static final SharedPrefsRepository _instance =
+      SharedPrefsRepository._internal();
 
-  factory SharedPrefsService() => _instance;
+  factory SharedPrefsRepository() => _instance;
 
-  SharedPrefsService._internal();
+  SharedPrefsRepository._internal();
 
   Future<void> init() async {
     // init in main.dart

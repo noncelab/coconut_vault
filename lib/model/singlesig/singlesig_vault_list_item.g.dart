@@ -26,9 +26,9 @@ Map<String, dynamic> _$SinglesigVaultListItemToJson(
         SinglesigVaultListItem instance) =>
     <String, dynamic>{
       'id': instance.id,
+      'name': instance.name,
       'colorIndex': instance.colorIndex,
       'iconIndex': instance.iconIndex,
-      'name': instance.name,
       'vaultType': _$VaultTypeEnumMap[instance.vaultType]!,
       'secret': instance.secret,
       'passphrase': instance.passphrase,
@@ -38,6 +38,6 @@ Map<String, dynamic> _$SinglesigVaultListItemToJson(
     };
 
 const _$VaultTypeEnumMap = {
-  VaultType.singleSignature: 'singleSignature',
-  VaultType.multiSignature: 'multiSignature',
+  WalletType.singleSignature: 'singleSignature',
+  WalletType.multiSignature: 'multiSignature',
 };

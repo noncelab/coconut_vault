@@ -2,18 +2,18 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:coconut_vault/localization/strings.g.dart';
-import 'package:coconut_vault/model/manager/wallet_list_manager.dart';
+import 'package:coconut_vault/managers/wallet_list_manager.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:loader_overlay/loader_overlay.dart';
-import 'package:coconut_vault/model/state/app_model.dart';
+import 'package:coconut_vault/providers/app_model.dart';
 import 'package:coconut_vault/screens/pin_setting_screen.dart';
 import 'package:coconut_vault/styles.dart';
 import 'package:coconut_vault/utils/vibration_util.dart';
 import 'package:coconut_vault/widgets/custom_dialog.dart';
 import 'package:coconut_vault/widgets/bottom_sheet.dart';
-import 'package:coconut_vault/services/pin_attempt_service.dart';
+import 'package:coconut_vault/managers/app_unlock_manager.dart';
 import 'package:provider/provider.dart';
 
 import '../widgets/pin/pin_input_screen.dart';
@@ -44,7 +44,7 @@ class PinCheckScreen extends StatefulWidget {
 
 class _PinCheckScreenState extends State<PinCheckScreen>
     with WidgetsBindingObserver {
-  final PinAttemptService _pinAttemptService = PinAttemptService();
+  final AppUnlockManager _appUnlockManager = AppUnlockManager();
   late String pin;
   late String errorMessage;
   late AppModel _appModel;
@@ -55,6 +55,7 @@ class _PinCheckScreenState extends State<PinCheckScreen>
   int attempt = 0;
   bool lastChanceToTry = false;
   static const MAX_NUMBER_OF_ATTEMPTS = 3;
+  static const LAST_UNLOCK_ATTEMPT_COUNT = 7;
   static const WRONG_PIN_AWAIT_TIME_1 = 1;
   static const WRONG_PIN_AWAIT_TIME_2 = 5;
   static const WRONG_PIN_AWAIT_TIME_3 = 15;
@@ -95,7 +96,7 @@ class _PinCheckScreenState extends State<PinCheckScreen>
   }
 
   void _loadAttemptCountFromStorage() async {
-    attempt = int.parse(_pinAttemptService.loadPinAttemptTimes());
+    attempt = int.parse(_appUnlockManager.loadPinInputAttemptCount());
     if (attempt != 0 && attempt < MAX_NUMBER_OF_ATTEMPTS) {
       setState(() {
         errorMessage = t.errors.pin_incorrect_with_remaining_attempts_error(
@@ -180,7 +181,7 @@ class _PinCheckScreenState extends State<PinCheckScreen>
       if (widget.screenStatus == PinCheckScreenStatus.entrance ||
           widget.screenStatus == PinCheckScreenStatus.lock) {
         attempt += 1;
-        await _pinAttemptService.setPinAttemptTimes(attempt);
+        await _appUnlockManager.setPinInputAttemptCount(attempt);
         if (attempt < MAX_NUMBER_OF_ATTEMPTS) {
           setState(() {
             errorMessage = t.errors.pin_incorrect_with_remaining_attempts_error(
@@ -217,16 +218,17 @@ class _PinCheckScreenState extends State<PinCheckScreen>
       if (remainingSeconds == 0) {
         timer.cancel();
         setState(() {
-          if (attempt == 3) {
+          if (attempt == MAX_NUMBER_OF_ATTEMPTS) {
             attempt = 0;
             errorMessage = '';
           }
 
-          /// 재시도 남은 횟수가 마지막 3회인 경우 경우 초기화 주의 문구 출력
-          if (totalAttempt == 7 && remainingSeconds <= 0) {
+          /// 마지막인 시도인 경우 "초기화 주의 문구" 출력
+          if (totalAttempt == LAST_UNLOCK_ATTEMPT_COUNT &&
+              remainingSeconds <= 0) {
             lastChanceToTry = true;
           }
-          _pinAttemptService.setPinAttemptTimes(attempt);
+          _appUnlockManager.setPinInputAttemptCount(attempt);
         });
       } else {
         final formattedTime = _formatRemainingTime(remainingSeconds);
@@ -256,11 +258,11 @@ class _PinCheckScreenState extends State<PinCheckScreen>
   void _checkPinLocked() async {
     /// 처음 시작시 잠금 상태 확인하는 함수
     /// 잠금 정보를 로드
-    Map<String, String> lockout = _pinAttemptService.loadLockoutDuration();
-    final totalAttempt = int.parse(lockout['totalAttemptString']!);
+    Map<String, String> lockout = _appUnlockManager.loadLockoutDuration();
+    final totalAttempt = int.parse(lockout[AppUnlockManager.totalAttemptKey]!);
 
-    /// 시도 횟수가 0이고 현재 시도 횟수가 3이 아니라면, 아무 작업도 하지 않음
-    if (totalAttempt == 0 && attempt != 3) {
+    /// 시도 횟수가 0이고 현재 시도 횟수가 {MAX_NUMBER_OF_ATTEMPTS}이 아니라면, 아무 작업도 하지 않음
+    if (totalAttempt == 0 && attempt != MAX_NUMBER_OF_ATTEMPTS) {
       return;
     }
 
@@ -271,7 +273,8 @@ class _PinCheckScreenState extends State<PinCheckScreen>
     }
 
     /// lockoutEndTime이 유효한 값인지 확인
-    final lockoutEndTime = DateTime.tryParse(lockout['lockoutEndTime']!);
+    final lockoutEndTime =
+        DateTime.tryParse(lockout[AppUnlockManager.lockoutEndTimeKey]!);
     if (lockoutEndTime == null) {
       return;
     }
@@ -284,12 +287,12 @@ class _PinCheckScreenState extends State<PinCheckScreen>
     /// 잠금 상태에 따라 타이머를 시작하거나 시도 횟수를 초기화
     if (remainingSeconds > 0) {
       _startLockoutTimer(lockoutEndTime, totalAttempt);
-    } else if (attempt == 3) {
+    } else if (attempt == MAX_NUMBER_OF_ATTEMPTS) {
       attempt = 0;
     }
 
-    /// 재시도 남은 횟수가 마지막 3회인 경우 경우 초기화 주의 문구 출력
-    if (totalAttempt == 7 && remainingSeconds <= 0) {
+    /// 마지막 재시도인 경우 초기화 주의 문구 출력
+    if (totalAttempt == LAST_UNLOCK_ATTEMPT_COUNT && remainingSeconds <= 0) {
       setState(() {
         lastChanceToTry = true;
       });
@@ -298,20 +301,21 @@ class _PinCheckScreenState extends State<PinCheckScreen>
 
   void _checkPinLockout() async {
     /// Pin 틀릴 시 잠금처리
-    Map<String, String> lockout = _pinAttemptService.loadLockoutDuration();
-    final totalAttempt = int.parse(lockout['totalAttemptString']!);
+    Map<String, String> lockout = _appUnlockManager.loadLockoutDuration();
+    final totalAttempt = int.parse(lockout[AppUnlockManager.totalAttemptKey]!);
 
     int awaitDuration = lockoutDurations[totalAttempt];
-    await _pinAttemptService.setLockoutDuration(awaitDuration,
-        totalAttempt: totalAttempt + 1);
+    await _appUnlockManager.setLockoutDuration(awaitDuration,
+        totalAttemptCount: totalAttempt + 1);
 
     if (awaitDuration == WRONG_PIN_AWAIT_TIME_FOREVER) {
       _handlePermanentLockout();
       return;
     }
 
-    lockout = _pinAttemptService.loadLockoutDuration();
-    final lockoutEndTime = DateTime.parse(lockout['lockoutEndTime']!);
+    lockout = _appUnlockManager.loadLockoutDuration();
+    final lockoutEndTime =
+        DateTime.parse(lockout[AppUnlockManager.lockoutEndTimeKey]!);
     _startLockoutTimer(lockoutEndTime, totalAttempt + 1);
   }
 
@@ -327,12 +331,12 @@ class _PinCheckScreenState extends State<PinCheckScreen>
     switch (widget.screenStatus) {
       case PinCheckScreenStatus.entrance:
         _appModel.changeIsAuthChecked(true);
-        _pinAttemptService.setLockoutDuration(0);
-        _pinAttemptService.setPinAttemptTimes(0);
+        _appUnlockManager.setLockoutDuration(0);
+        _appUnlockManager.setPinInputAttemptCount(0);
         widget.onComplete?.call();
       case PinCheckScreenStatus.lock:
-        _pinAttemptService.setLockoutDuration(0);
-        _pinAttemptService.setPinAttemptTimes(0);
+        _appUnlockManager.setLockoutDuration(0);
+        _appUnlockManager.setPinInputAttemptCount(0);
         moveToMain();
       case PinCheckScreenStatus.change:
         _appModel.shuffleNumbers(isSettings: true);

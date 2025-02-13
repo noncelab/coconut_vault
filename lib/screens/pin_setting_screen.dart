@@ -1,8 +1,8 @@
 import 'package:coconut_vault/localization/strings.g.dart';
-import 'package:coconut_vault/services/shared_preferences_keys.dart';
-import 'package:coconut_vault/services/shared_preferences_service.dart';
+import 'package:coconut_vault/constants/shared_preferences_keys.dart';
+import 'package:coconut_vault/repository/shared_preferences_repository.dart';
 import 'package:flutter/material.dart';
-import 'package:coconut_vault/model/state/app_model.dart';
+import 'package:coconut_vault/providers/app_model.dart';
 import 'package:coconut_vault/styles.dart';
 import 'package:coconut_vault/utils/vibration_util.dart';
 import 'package:coconut_vault/widgets/animated_dialog.dart';
@@ -124,7 +124,8 @@ class _PinSettingScreenState extends State<PinSettingScreen> {
 
         /// 최초 비밀번호 설정시에 생체 인증 사용 여부 확인
         bool isPinSet =
-            SharedPrefsService().getBool(SharedPrefsKeys.isPinEnabled) ?? false;
+            SharedPrefsRepository().getBool(SharedPrefsKeys.isPinEnabled) ??
+                false;
         if (!isPinSet &&
             _appModel.canCheckBiometrics &&
             !_appModel.hasAlreadyRequestedBioPermission &&

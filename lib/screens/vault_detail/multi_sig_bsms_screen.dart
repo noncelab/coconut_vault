@@ -2,10 +2,10 @@ import 'dart:convert';
 
 import 'package:coconut_lib/coconut_lib.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
-import 'package:coconut_vault/model/data/multisig_import_detail.dart';
-import 'package:coconut_vault/model/data/multisig_signer.dart';
-import 'package:coconut_vault/model/data/multisig_vault_list_item.dart';
-import 'package:coconut_vault/model/state/vault_model.dart';
+import 'package:coconut_vault/model/multisig/multisig_import_detail.dart';
+import 'package:coconut_vault/model/multisig/multisig_signer.dart';
+import 'package:coconut_vault/model/multisig/multisig_vault_list_item.dart';
+import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:coconut_vault/styles.dart';
 import 'package:coconut_vault/widgets/appbar/custom_appbar.dart';
 import 'package:coconut_vault/widgets/bottom_sheet.dart';
@@ -30,7 +30,7 @@ class _MultiSigBsmsScreenState extends State<MultiSigBsmsScreen> {
   @override
   void initState() {
     super.initState();
-    final model = Provider.of<VaultModel>(context, listen: false);
+    final model = Provider.of<WalletProvider>(context, listen: false);
     final vaultListItem =
         model.getVaultById(widget.id) as MultisigVaultListItem;
     String coordinatorBsms = vaultListItem.coordinatorBsms ??

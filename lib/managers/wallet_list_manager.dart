@@ -2,17 +2,17 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:coconut_lib/coconut_lib.dart';
-import 'package:coconut_vault/model/data/multisig_signer.dart';
-import 'package:coconut_vault/model/data/multisig_vault_list_item.dart';
-import 'package:coconut_vault/model/data/singlesig_vault_list_item.dart';
-import 'package:coconut_vault/model/data/vault_list_item_base.dart';
-import 'package:coconut_vault/model/data/vault_type.dart';
-import 'package:coconut_vault/model/manager/multisig_wallet.dart';
-import 'package:coconut_vault/model/manager/secret.dart';
-import 'package:coconut_vault/model/manager/singlesig_wallet.dart';
-import 'package:coconut_vault/services/isolate_service.dart';
-import 'package:coconut_vault/services/secure_storage_service.dart';
-import 'package:coconut_vault/services/shared_preferences_service.dart';
+import 'package:coconut_vault/model/multisig/multisig_signer.dart';
+import 'package:coconut_vault/model/multisig/multisig_vault_list_item.dart';
+import 'package:coconut_vault/model/singlesig/singlesig_vault_list_item.dart';
+import 'package:coconut_vault/model/common/vault_list_item_base.dart';
+import 'package:coconut_vault/enums/wallet_enums.dart';
+import 'package:coconut_vault/model/multisig/multisig_wallet.dart';
+import 'package:coconut_vault/model/common/secret.dart';
+import 'package:coconut_vault/model/singlesig/singlesig_wallet.dart';
+import 'package:coconut_vault/managers/isolate_manager.dart';
+import 'package:coconut_vault/repository/secure_storage_repository.dart';
+import 'package:coconut_vault/repository/shared_preferences_repository.dart';
 import 'package:coconut_vault/utils/hash_util.dart';
 import 'package:coconut_vault/utils/isolate_handler.dart';
 import 'package:coconut_vault/utils/logger.dart';
@@ -23,8 +23,8 @@ class WalletListManager {
   static String nextIdField = 'nextId';
   static String vaultTypeField = VaultListItemBase.vaultTypeField;
 
-  final SecureStorageService _storageService = SecureStorageService();
-  final SharedPrefsService _sharedPrefs = SharedPrefsService();
+  final SecureStorageRepository _storageService = SecureStorageRepository();
+  final SharedPrefsRepository _sharedPrefs = SharedPrefsRepository();
 
   static final WalletListManager _instance = WalletListManager._internal();
   factory WalletListManager() => _instance;
@@ -69,7 +69,7 @@ class WalletListManager {
         initialType: InitializeType.initializeWallet);
 
     for (int i = 0; i < jsonList.length; i++) {
-      if (jsonList[i][vaultTypeField] == VaultType.singleSignature.name) {
+      if (jsonList[i][vaultTypeField] == WalletType.singleSignature.name) {
         var secret = await getSecret(jsonList[i]['id']);
         jsonList[i][SinglesigVaultListItem.secretField] = secret.mnemonic;
         jsonList[i][SinglesigVaultListItem.passphraseField] = secret.passphrase;
@@ -113,7 +113,7 @@ class WalletListManager {
     _linkNewSinglesigVaultAndMultisigVaults(vaultListResult.first);
 
     String keyString =
-        _createWalletKeyString(nextId, VaultType.singleSignature);
+        _createWalletKeyString(nextId, WalletType.singleSignature);
     _storageService.write(
         key: keyString,
         value: jsonEncode(
@@ -130,7 +130,7 @@ class WalletListManager {
     return vaultListResult[0];
   }
 
-  String _createWalletKeyString(int id, VaultType type) {
+  String _createWalletKeyString(int id, WalletType type) {
     return hashString("${id.toString()} - ${type.name}");
   }
 
@@ -150,7 +150,7 @@ class WalletListManager {
     for (int i = 0; i < _vaultList!.length; i++) {
       VaultListItemBase vault = _vaultList![i];
       // 싱글 시그는 스킵
-      if (vault.vaultType == VaultType.singleSignature) continue;
+      if (vault.vaultType == WalletType.singleSignature) continue;
 
       List<MultisigSigner> signers = (vault as MultisigVaultListItem).signers;
       // 멀티 시그만 판단
@@ -251,7 +251,7 @@ class WalletListManager {
 
   Future<Secret> getSecret(int id) async {
     var secretString = await _storageService.read(
-        key: _createWalletKeyString(id, VaultType.singleSignature));
+        key: _createWalletKeyString(id, WalletType.singleSignature));
     return Secret.fromJson(jsonDecode(secretString!));
   }
 
@@ -263,7 +263,7 @@ class WalletListManager {
     final index = _vaultList!.indexWhere((item) => item.id == id);
     final vaultType = _vaultList![index].vaultType;
 
-    if (vaultType == VaultType.multiSignature) {
+    if (vaultType == WalletType.multiSignature) {
       final multi = getVaultById(id) as MultisigVaultListItem;
       for (var signer in multi.signers) {
         if (signer.innerVaultId != null) {
@@ -276,7 +276,7 @@ class WalletListManager {
 
     _vaultList!.removeAt(index);
 
-    if (vaultType == VaultType.singleSignature) {
+    if (vaultType == WalletType.singleSignature) {
       String keyString = _createWalletKeyString(id, vaultType);
       await _storageService.delete(key: keyString);
     }
@@ -292,7 +292,7 @@ class WalletListManager {
     }
 
     final index = _vaultList!.indexWhere((item) => item.id == id);
-    if (_vaultList![index].vaultType == VaultType.singleSignature) {
+    if (_vaultList![index].vaultType == WalletType.singleSignature) {
       SinglesigVaultListItem ssv = _vaultList![index] as SinglesigVaultListItem;
       Map<int, int>? linkedMultisigInfo = ssv.linkedMultisigInfo;
       // 연결된 MultisigVaultListItem의 signers 객체도 UI 업데이트가 필요
@@ -311,7 +311,7 @@ class WalletListManager {
       ssv.name = newName;
       ssv.colorIndex = colorIndex;
       ssv.iconIndex = iconIndex;
-    } else if (_vaultList![index].vaultType == VaultType.multiSignature) {
+    } else if (_vaultList![index].vaultType == WalletType.multiSignature) {
       MultisigVaultListItem ssv = _vaultList![index] as MultisigVaultListItem;
       ssv.name = newName;
       ssv.colorIndex = colorIndex;
@@ -363,7 +363,7 @@ class WalletListManager {
       String mnemonic = jsonList[i][SinglesigVaultListItem.secretField];
       String? passphrase = jsonList[i][SinglesigVaultListItem.passphraseField];
 
-      String keyString = _createWalletKeyString(id, VaultType.singleSignature);
+      String keyString = _createWalletKeyString(id, WalletType.singleSignature);
       _storageService.write(
           key: keyString,
           value: jsonEncode(Secret(mnemonic, passphrase ?? '').toJson()));
@@ -373,7 +373,7 @@ class WalletListManager {
         "name": jsonList[i]['name'],
         "colorIndex": jsonList[i]['colorIndex'],
         "iconIndex": jsonList[i]['iconIndex'],
-        "vaultType": VaultType.singleSignature.name,
+        "vaultType": WalletType.singleSignature.name,
       });
     }
 

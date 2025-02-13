@@ -4,9 +4,9 @@ import 'dart:io';
 
 import 'package:coconut_lib/coconut_lib.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
-import 'package:coconut_vault/model/data/multisig_import_detail.dart';
-import 'package:coconut_vault/model/state/exception/not_related_multisig_wallet_exception.dart';
-import 'package:coconut_vault/model/state/vault_model.dart';
+import 'package:coconut_vault/model/multisig/multisig_import_detail.dart';
+import 'package:coconut_vault/model/exception/not_related_multisig_wallet_exception.dart';
+import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:coconut_vault/utils/alert_util.dart';
 import 'package:coconut_vault/widgets/appbar/custom_appbar.dart';
 import 'package:flutter/material.dart';
@@ -34,7 +34,7 @@ class _SignerScannerScreenState extends State<SignerScannerScreen> {
   static String wrongFormatMessage1 = t.errors.invalid_singlesig_qr_error;
   static String wrongFormatMessage2 = t.errors.invalid_multisig_qr_error;
 
-  late VaultModel _vaultModel;
+  late WalletProvider _vaultModel;
   final GlobalKey qrKey = GlobalKey(debugLabel: 'QR');
 
   QRViewController? controller;
@@ -57,7 +57,7 @@ class _SignerScannerScreenState extends State<SignerScannerScreen> {
 
   @override
   void initState() {
-    _vaultModel = Provider.of<VaultModel>(context, listen: false);
+    _vaultModel = Provider.of<WalletProvider>(context, listen: false);
     super.initState();
     _isSetScaffold = widget.screenType != SignerScannerScreenType.add;
     WidgetsBinding.instance.addPostFrameCallback((_) async {

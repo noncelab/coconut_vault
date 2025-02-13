@@ -1,7 +1,7 @@
 import 'package:coconut_lib/coconut_lib.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
-import 'package:coconut_vault/model/data/singlesig_vault_list_item.dart';
-import 'package:coconut_vault/model/state/vault_model.dart';
+import 'package:coconut_vault/model/singlesig/singlesig_vault_list_item.dart';
+import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:coconut_vault/screens/pin_check_screen.dart';
 import 'package:coconut_vault/styles.dart';
 import 'package:coconut_vault/utils/alert_util.dart';
@@ -32,7 +32,7 @@ class SinglesigSignScreen extends StatefulWidget {
 }
 
 class _SinglesigSignScreenState extends State<SinglesigSignScreen> {
-  late VaultModel _vaultModel;
+  late WalletProvider _vaultModel;
   late SinglesigVaultListItem _wallet;
   late SingleSignatureVault _coconutVault;
   late List<bool> _signersApproved;
@@ -43,7 +43,7 @@ class _SinglesigSignScreenState extends State<SinglesigSignScreen> {
 
   @override
   void initState() {
-    _vaultModel = Provider.of<VaultModel>(context, listen: false);
+    _vaultModel = Provider.of<WalletProvider>(context, listen: false);
     super.initState();
     _wallet = _vaultModel.getVaultById(widget.id) as SinglesigVaultListItem;
     _coconutVault = _wallet.coconutVault as SingleSignatureVault;

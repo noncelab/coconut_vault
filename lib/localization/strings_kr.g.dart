@@ -81,6 +81,7 @@ class Translations implements BaseTranslations<AppLocale, Translations> {
   String get change => '잔돈';
   String get receiving => '입금';
   String get info => '정보';
+  String get email_subject => '[코코넛 볼트] 이용 관련 문의';
   String get signature => '서명';
   String get sign_completion => '서명 완료';
   String get sign => '서명하기';
@@ -986,6 +987,8 @@ class TranslationsErrorsKr {
   String get creation_error => '생성 실패';
   String get export_error => '내보내기 실패';
   String psbt_parsing_error({required Object error}) => 'psbt 파싱 실패: ${error}';
+  String get not_related_multisig_wallet_error =>
+      '이 지갑을 키로 사용한 다중 서명 지갑이 아닙니다.';
 }
 
 // Path: tooltip
@@ -1311,6 +1314,8 @@ extension on Translations {
         return '입금';
       case 'info':
         return '정보';
+      case 'email_subject':
+        return '[코코넛 볼트] 이용 관련 문의';
       case 'signature':
         return '서명';
       case 'sign_completion':
@@ -2029,6 +2034,8 @@ extension on Translations {
         return '내보내기 실패';
       case 'errors.psbt_parsing_error':
         return ({required Object error}) => 'psbt 파싱 실패: ${error}';
+      case 'errors.not_related_multisig_wallet_error':
+        return '이 지갑을 키로 사용한 다중 서명 지갑이 아닙니다.';
       case 'tooltip.mfp':
         return '지갑의 고유 값이에요.\n마스터 핑거프린트(MFP)라고도 해요.';
       default:

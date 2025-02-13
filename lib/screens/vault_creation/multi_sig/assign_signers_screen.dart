@@ -2,16 +2,16 @@ import 'dart:convert';
 
 import 'package:coconut_lib/coconut_lib.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
-import 'package:coconut_vault/model/data/multisig_signer.dart';
-import 'package:coconut_vault/model/data/singlesig_vault_list_item.dart';
-import 'package:coconut_vault/model/data/vault_list_item_base.dart';
-import 'package:coconut_vault/model/data/vault_type.dart';
-import 'package:coconut_vault/model/state/multisig_creation_model.dart';
-import 'package:coconut_vault/model/state/vault_model.dart';
+import 'package:coconut_vault/model/multisig/multisig_signer.dart';
+import 'package:coconut_vault/model/singlesig/singlesig_vault_list_item.dart';
+import 'package:coconut_vault/model/common/vault_list_item_base.dart';
+import 'package:coconut_vault/enums/wallet_enums.dart';
+import 'package:coconut_vault/model/multisig/multisig_creation_model.dart';
+import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:coconut_vault/screens/vault_creation/multi_sig/confirm_importing_screen.dart';
 import 'package:coconut_vault/screens/vault_creation/multi_sig/key_list_bottom_screen.dart';
 import 'package:coconut_vault/screens/vault_creation/multi_sig/signer_scanner_screen.dart';
-import 'package:coconut_vault/services/isolate_service.dart';
+import 'package:coconut_vault/managers/isolate_manager.dart';
 import 'package:coconut_vault/utils/alert_util.dart';
 import 'package:coconut_vault/utils/icon_util.dart';
 import 'package:coconut_vault/utils/isolate_handler.dart';
@@ -59,7 +59,7 @@ class _AssignSignersScreenState extends State<AssignSignersScreen> {
   int? selectedSignerOptionIndex;
 
   late List<SinglesigVaultListItem> singlesigVaultList;
-  late VaultModel _vaultModel;
+  late WalletProvider _vaultModel;
   bool isFinishing = false;
   bool isNextProcessing = false;
   bool alreadyDialogShown = false;
@@ -78,7 +78,7 @@ class _AssignSignersScreenState extends State<AssignSignersScreen> {
   @override
   void initState() {
     super.initState();
-    _vaultModel = Provider.of<VaultModel>(context, listen: false);
+    _vaultModel = Provider.of<WalletProvider>(context, listen: false);
     _multisigCreationState =
         Provider.of<MultisigCreationModel>(context, listen: false);
     requiredSignatureCount = _multisigCreationState.requiredSignatureCount!;
@@ -88,7 +88,7 @@ class _AssignSignersScreenState extends State<AssignSignersScreen> {
 
     singlesigVaultList = _vaultModel
         .getVaults()
-        .where((vault) => vault.vaultType == VaultType.singleSignature)
+        .where((vault) => vault.vaultType == WalletType.singleSignature)
         .map((vault) => vault as SinglesigVaultListItem)
         .toList();
 

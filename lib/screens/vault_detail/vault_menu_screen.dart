@@ -1,11 +1,11 @@
 import 'package:coconut_vault/localization/strings.g.dart';
-import 'package:coconut_vault/model/data/vault_list_item_base.dart';
+import 'package:coconut_vault/model/common/vault_list_item_base.dart';
 import 'package:coconut_vault/screens/vault_creation/multi_sig/signer_scanner_screen.dart';
 
 import 'package:coconut_vault/utils/text_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:coconut_vault/model/state/vault_model.dart';
+import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:coconut_vault/styles.dart';
 import 'package:coconut_vault/widgets/button/shrink_animation_button.dart';
 import 'package:provider/provider.dart';
@@ -45,7 +45,7 @@ class _VaultMenuScreenState extends State<VaultMenuScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<VaultModel>(builder: (context, model, child) {
+    return Consumer<WalletProvider>(builder: (context, model, child) {
       final VaultListItemBase vaultListItem = model.getVaultById(widget.id);
 
       if (!widget.isMultiSig) {

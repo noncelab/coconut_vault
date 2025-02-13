@@ -1,6 +1,6 @@
 import 'dart:ui';
 
-import 'package:coconut_vault/model/data/multisig_signer.dart';
+import 'package:coconut_vault/model/multisig/multisig_signer.dart';
 
 import '../styles.dart';
 

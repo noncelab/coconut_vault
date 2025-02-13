@@ -5,7 +5,7 @@ import 'package:coconut_vault/screens/pin_setting_screen.dart';
 import 'package:coconut_vault/widgets/coconut_dropdown.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:coconut_vault/model/state/app_model.dart';
+import 'package:coconut_vault/providers/app_model.dart';
 import 'package:coconut_vault/screens/setting/settings_screen.dart';
 import 'package:coconut_vault/styles.dart';
 import 'package:coconut_vault/widgets/appbar/frosted_appbar.dart';
@@ -15,7 +15,7 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:provider/provider.dart';
 import 'package:shimmer/shimmer.dart';
 
-import '../../model/state/vault_model.dart';
+import '../../providers/wallet_provider.dart';
 import '../../widgets/vault_row_item.dart';
 
 class VaultListScreen extends StatefulWidget {
@@ -30,7 +30,7 @@ class VaultListScreen extends StatefulWidget {
 class _VaultListScreenState extends State<VaultListScreen>
     with TickerProviderStateMixin {
   late AppModel _appModel;
-  late VaultModel _vaultModel;
+  late WalletProvider _vaultModel;
   bool _isSeeMoreDropdown = false;
 
   DateTime? _lastPressedAt;
@@ -43,7 +43,7 @@ class _VaultListScreenState extends State<VaultListScreen>
   void initState() {
     super.initState();
     _appModel = Provider.of<AppModel>(context, listen: false);
-    _vaultModel = Provider.of<VaultModel>(context, listen: false);
+    _vaultModel = Provider.of<WalletProvider>(context, listen: false);
 
     _scrollController = ScrollController();
     _newVaultAddAnimController = AnimationController(
@@ -172,7 +172,7 @@ class _VaultListScreenState extends State<VaultListScreen>
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<VaultModel>(
+    return Consumer<WalletProvider>(
       builder: (context, model, child) {
         final vaults = model
             .getVaults(); // 여기서 _animatedVaultFlags = List.filled(_vaultList.length, false);

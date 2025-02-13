@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'dart:ui';
 
+import 'package:coconut_vault/constants/external_links.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/material.dart';
@@ -346,7 +347,7 @@ class _AppInfoScreenState extends State<AppInfoScreen> {
                       context: context,
                       child: QrcodeBottomSheetScreen(
                         qrData:
-                            'mailto:$CONTACT_EMAIL_ADDRESS?subject=$EMAIL_SUBJECT&body=$info',
+                            'mailto:$CONTACT_EMAIL_ADDRESS?subject=${t.email_subject}}&body=$info',
                         title: t.app_info_screen.ask_to_email,
                         fromAppInfo: true,
                       ));

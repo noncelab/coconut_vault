@@ -1,5 +1,5 @@
 import 'package:coconut_lib/coconut_lib.dart';
-import 'package:coconut_vault/model/data/vault_type.dart';
+import 'package:coconut_vault/enums/wallet_enums.dart';
 import 'package:json_annotation/json_annotation.dart';
 
 @JsonSerializable(ignoreUnannotated: true)
@@ -15,7 +15,7 @@ abstract class VaultListItemBase {
   @JsonKey(name: "iconIndex")
   int iconIndex;
   @JsonKey(name: vaultTypeField)
-  VaultType vaultType;
+  WalletType vaultType;
   // Deprecated
   //@JsonKey(name: "vaultJsonString")
   String? vaultJsonString;
