@@ -6,7 +6,6 @@ import 'package:coconut_vault/constants/shared_preferences_keys.dart';
 import 'package:coconut_vault/repository/shared_preferences_repository.dart';
 import 'package:coconut_vault/screens/app_unavailable_notification_screen.dart';
 import 'package:coconut_vault/screens/ios_bluetooth_auth_notification_screen.dart';
-import 'package:coconut_vault/utils/router_util.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';

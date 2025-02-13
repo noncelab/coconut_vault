@@ -33,7 +33,6 @@ import 'package:coconut_vault/screens/vault_detail/signer_bsms_screen.dart';
 import 'package:coconut_vault/screens/vault_detail/sync_to_wallet_screen.dart';
 import 'package:coconut_vault/screens/vault_detail/vault_menu_screen.dart';
 import 'package:coconut_vault/screens/vault_detail/vault_settings.dart';
-import 'package:coconut_vault/utils/router_util.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
