@@ -181,10 +181,6 @@ class AppModel with ChangeNotifier {
   // bool _isLoading = false;
   // bool get isLoading => _isLoading;
 
-  /// 핀 입력 키
-  List<String> _pinShuffleNumbers = [];
-  List<String> get pinShuffleNumbers => _pinShuffleNumbers;
-
   Future setInitData() async {
     await checkDeviceBiometrics();
     final prefs = SharedPrefsRepository();
@@ -197,7 +193,6 @@ class AppModel with ChangeNotifier {
     _vaultListLength = prefs.getInt(SharedPrefsKeys.vaultListLength) ?? 0;
     _hasAlreadyRequestedBioPermission =
         prefs.getBool(SharedPrefsKeys.hasAlreadyRequestedBioPermission) == true;
-    shuffleNumbers();
 
     /// true 인 경우, 첫 실행이 아님
     if (_hasSeenGuide) {
@@ -306,7 +301,6 @@ class AppModel with ChangeNotifier {
     final prefs = SharedPrefsRepository();
     await prefs.setBool(SharedPrefsKeys.isBiometricEnabled, value);
     await prefs.setBool(SharedPrefsKeys.hasBiometricsPermission, value);
-    shuffleNumbers();
   }
 
   Future<void> _setBioRequestedInSharedPrefs() async {
@@ -328,7 +322,6 @@ class AppModel with ChangeNotifier {
     await _storageService.write(key: VAULT_PIN, value: hashed);
     _isPinEnabled = true;
     prefs.setBool(SharedPrefsKeys.isPinEnabled, true);
-    shuffleNumbers();
   }
 
   /// 비밀번호 검증
@@ -361,15 +354,15 @@ class AppModel with ChangeNotifier {
   //   notifyListeners();
   // }
 
-  void shuffleNumbers({isSettings = false}) {
+  List<String> getShuffledNumberList({isSettings = false}) {
     final random = Random();
-    _pinShuffleNumbers = List<String>.generate(10, (index) => index.toString());
-    _pinShuffleNumbers.shuffle(random);
-    _pinShuffleNumbers.insert(_pinShuffleNumbers.length - 1,
+    var randomNumberPad =
+        List<String>.generate(10, (index) => index.toString());
+    randomNumberPad.shuffle(random);
+    randomNumberPad.insert(randomNumberPad.length - 1,
         !isSettings && _isBiometricEnabled ? 'bio' : '');
-
-    _pinShuffleNumbers.add('<');
-    notifyListeners();
+    randomNumberPad.add('<');
+    return randomNumberPad;
   }
 
   Future<void> _openAppSettings() async {
