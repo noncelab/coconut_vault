@@ -4,7 +4,6 @@ import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/model/multisig/multisig_signer.dart';
 import 'package:coconut_vault/model/multisig/multisig_vault_list_item.dart';
 import 'package:coconut_vault/model/singlesig/singlesig_vault_list_item.dart';
-import 'package:coconut_vault/providers/app_model.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:coconut_vault/screens/pin_check_screen.dart';
 import 'package:coconut_vault/screens/vault_detail/mnemonic_view_screen.dart';
@@ -25,6 +24,7 @@ import 'package:coconut_vault/widgets/custom_toast.dart';
 import 'package:coconut_vault/widgets/information_item_row.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:loader_overlay/loader_overlay.dart';
 import 'package:provider/provider.dart';
 
 class MultiSigSettingScreen extends StatefulWidget {
@@ -36,7 +36,6 @@ class MultiSigSettingScreen extends StatefulWidget {
 }
 
 class _MultiSigSettingScreenState extends State<MultiSigSettingScreen> {
-  late AppModel _appModel;
   late WalletProvider _vaultModel;
   late MultisigVaultListItem _multiVault;
 
@@ -52,7 +51,6 @@ class _MultiSigSettingScreenState extends State<MultiSigSettingScreen> {
   @override
   void initState() {
     super.initState();
-    _appModel = Provider.of<AppModel>(context, listen: false);
     _vaultModel = Provider.of<WalletProvider>(context, listen: false);
     _updateMultiVaultListItem();
     int innerVaultCount =
@@ -528,11 +526,11 @@ class _MultiSigSettingScreenState extends State<MultiSigSettingScreen> {
                                   content: t.alert
                                       .confirm_deletion(name: _multiVault.name),
                                   onConfirmPressed: () async {
-                                    _appModel.showIndicator();
+                                    context.loaderOverlay.show();
                                     await Future.delayed(
                                         const Duration(seconds: 1));
                                     _verifyBiometric(2);
-                                    _appModel.hideIndicator();
+                                    context.loaderOverlay.hide();
                                     //context.go('/');
                                   },
                                 );

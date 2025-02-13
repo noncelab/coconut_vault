@@ -178,8 +178,8 @@ class AppModel with ChangeNotifier {
   int get vaultListLength => _vaultListLength;
 
   /// 로딩
-  bool _isLoading = false;
-  bool get isLoading => _isLoading;
+  // bool _isLoading = false;
+  // bool get isLoading => _isLoading;
 
   /// 핀 입력 키
   List<String> _pinShuffleNumbers = [];
@@ -351,15 +351,15 @@ class AppModel with ChangeNotifier {
     prefs.setInt(SharedPrefsKeys.vaultListLength, 0);
   }
 
-  void showIndicator() {
-    _isLoading = true;
-    notifyListeners();
-  }
+  // void showIndicator() {
+  //   _isLoading = true;
+  //   notifyListeners();
+  // }
 
-  void hideIndicator() {
-    _isLoading = false;
-    notifyListeners();
-  }
+  // void hideIndicator() {
+  //   _isLoading = false;
+  //   notifyListeners();
+  // }
 
   void shuffleNumbers({isSettings = false}) {
     final random = Random();
