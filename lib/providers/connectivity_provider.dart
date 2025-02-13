@@ -4,7 +4,10 @@ import 'dart:io';
 import 'package:coconut_vault/constants/method_channel.dart';
 import 'package:coconut_vault/constants/shared_preferences_keys.dart';
 import 'package:coconut_vault/repository/shared_preferences_repository.dart';
+import 'package:coconut_vault/screens/app_unavailable_notification_screen.dart';
+import 'package:coconut_vault/screens/ios_bluetooth_auth_notification_screen.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
@@ -33,15 +36,13 @@ class ConnectivityProvider extends ChangeNotifier {
 
   static const MethodChannel _channel = MethodChannel(methodChannelOS);
 
-  ConnectivityProvider({this.onConnectivityStateChanged}) {
-    final prefs = SharedPrefsRepository();
-    _hasSeenGuide = prefs.getBool(SharedPrefsKeys.hasShownStartGuide) == true;
-
-    /// true 인 경우, 첫 실행이 아님
+  ConnectivityProvider(
+      {required bool hasSeenGuide, this.onConnectivityStateChanged})
+      : _hasSeenGuide = hasSeenGuide {
     if (_hasSeenGuide) {
       setConnectActivity(network: true, bluetooth: true, developerMode: true);
     } else {
-      // 앱 첫 실행인 경우 가이드 화면 끝난 후 bluetooth 모니터링 시작. // TODO: 블루투스 권한 요청 시점 때문에 이렇게 했나보다. 확인 필요
+      // 앱 첫 실행인 경우 가이드 화면 끝난 후 welcome_screen에서 bluetooth 권한 요청 후 모니터링 시작.
       setConnectActivity(network: true, bluetooth: false, developerMode: true);
     }
   }
@@ -53,6 +54,7 @@ class ConnectivityProvider extends ChangeNotifier {
   /// 매개변수로 모니터링 할 요소를 선택할 수 있습니다.
   ///
   /// * 단, iOS에서는 개발자모드 여부를 제공하지 않기 때문에 제외합니다.
+  /// TODO: 리팩토링 필요함
   void setConnectActivity(
       {required bool network,
       required bool bluetooth,
@@ -133,12 +135,16 @@ class ConnectivityProvider extends ChangeNotifier {
 
   void _onConnectivityChanged() {
     if (Platform.isIOS && _isBluetoothUnauthorized == true) {
-      onConnectivityStateChanged?.call(ConnectivityState.bluetoothUnauthorized);
+      runApp(const CupertinoApp(
+          debugShowCheckedModeBanner: false,
+          home: IosBluetoothAuthNotificationScreen()));
     } else if (_isBluetoothOn == true ||
         _isNetworkOn == true ||
         (Platform.isAndroid && _isDeveloperModeOn == true)) {
       if (_hasSeenGuide) {
-        onConnectivityStateChanged?.call(ConnectivityState.on);
+        runApp(const CupertinoApp(
+            debugShowCheckedModeBanner: false,
+            home: AppUnavailableNotificationScreen()));
       }
     }
     notifyListeners();
@@ -147,6 +153,10 @@ class ConnectivityProvider extends ChangeNotifier {
   void setOnConnectivityStateChanged(
       void Function(ConnectivityState) onChanged) {
     onConnectivityStateChanged = onChanged;
+  }
+
+  void setHasSeenGuideTrue() {
+    _hasSeenGuide = true;
   }
 
   @override

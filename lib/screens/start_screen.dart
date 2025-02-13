@@ -1,12 +1,10 @@
 import 'dart:async';
-import 'dart:io';
 
 import 'package:coconut_vault/app.dart';
-import 'package:coconut_vault/constants/shared_preferences_keys.dart';
-import 'package:coconut_vault/repository/secure_storage_repository.dart';
-import 'package:coconut_vault/repository/shared_preferences_repository.dart';
+import 'package:coconut_vault/providers/connectivity_provider.dart';
+import 'package:coconut_vault/providers/view_model/start_view_model.dart';
+import 'package:coconut_vault/providers/visibility_provider.dart';
 import 'package:flutter/material.dart';
-import 'package:coconut_vault/providers/app_model.dart';
 
 import 'package:coconut_vault/styles.dart';
 import 'package:provider/provider.dart';
@@ -21,49 +19,39 @@ class StartScreen extends StatefulWidget {
 }
 
 class _StartScreenState extends State<StartScreen> {
-  late bool _hasSeenGuide;
+  late StartViewModel _viewModel;
 
   @override
   void initState() {
     super.initState();
-    _hasSeenGuide =
-        SharedPrefsRepository().getBool(SharedPrefsKeys.hasShownStartGuide) ??
-            false;
+    _viewModel = StartViewModel(
+        Provider.of<ConnectivityProvider>(context, listen: false),
+        Provider.of<VisibilityProvider>(context, listen: false).hasSeenGuide);
+
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       /// Splash 딜레이
       await Future.delayed(const Duration(seconds: 2));
 
       /// 한번도 튜토리얼을 보지 않은 경우
-      if (!_hasSeenGuide) {
-        _goTutorialScreen();
+      if (!_viewModel.hasSeenGuide) {
+        _showTutorialScreen();
       }
     });
   }
 
-  Future _goNextScreen() async {
+  Future _showTutorialScreen() async {
+    widget.onComplete(AppEntryFlow.tutorial); // 가이드
+  }
+
+  Future _determineNextEntryFlow() async {
     await Future.delayed(const Duration(seconds: 2));
 
-    bool isNotEmpty =
-        (SharedPrefsRepository().getInt(SharedPrefsKeys.vaultListLength) ?? 0) >
-            0;
-    bool isPinEnabled =
-        SharedPrefsRepository().getBool(SharedPrefsKeys.isPinEnabled) ?? false;
-
     /// 비밀번호 등록 되어 있더라도, 추가한 볼트가 없는 경우는 볼트 리스트 화면으로 이동합니다.
-    if (isNotEmpty) {
-      assert(isPinEnabled == true);
+    if (_viewModel.isWalletExistent()) {
       widget.onComplete(AppEntryFlow.pincheck);
     } else {
       widget.onComplete(AppEntryFlow.vaultlist);
     }
-  }
-
-  Future _goTutorialScreen() async {
-    if (Platform.isIOS) {
-      // iOS는 앱을 삭제해도 secure storage에 데이터가 남아있음
-      await SecureStorageRepository().deleteAll();
-    }
-    widget.onComplete(AppEntryFlow.tutorial); // 가이드
   }
 
   @override
@@ -79,45 +67,30 @@ class _StartScreenState extends State<StartScreen> {
               ),
             ),
           ),
-          Selector<AppModel, Map<String, bool?>>(
-            selector: (context, provider) => {
-              'isNetworkOn': provider.isNetworkOn,
-              'isBluetoothOn': provider.isBluetoothOn,
-              'isDeveloperModeOn': provider.isDeveloperModeOn,
-            },
-            builder: (context, selectedValues, child) {
-              if (!_hasSeenGuide) {
-                return Container();
-              }
+          ChangeNotifierProxyProvider<ConnectivityProvider, StartViewModel>(
+              create: (_) => _viewModel,
+              update: (_, connectivityProvider, startViewModel) {
+                startViewModel!.updateConnectivityState();
+                return startViewModel;
+              },
+              child: Consumer<StartViewModel>(
+                builder: (context, viewModel, child) {
+                  if (!viewModel.hasSeenGuide) {
+                    return Container();
+                  }
 
-              final isNetworkOn = selectedValues['isNetworkOn'];
-              final isBluetoothOn = selectedValues['isBluetoothOn'];
-              final isDeveloperModeOn = selectedValues['isDeveloperModeOn'];
+                  // 아직 연결 상태 체크가 완료되지 않음
+                  if (viewModel.connectivityState == null) return Container();
+                  if (!viewModel.connectivityState!) {
+                    WidgetsBinding.instance.addPostFrameCallback((_) {
+                      _determineNextEntryFlow();
+                    });
+                  }
 
-              bool hasConnectivitySet = isNetworkOn != null &&
-                  isBluetoothOn != null &&
-                  isDeveloperModeOn != null;
-              // 아직 연결 상태 체크가 완료되지 않음
-              if (!hasConnectivitySet) return Container();
-
-              // 연결 상태 체크 완료
-              bool isConnectivityOn = true;
-              if (Platform.isAndroid) {
-                isConnectivityOn =
-                    isNetworkOn || isBluetoothOn || isDeveloperModeOn;
-              } else {
-                isConnectivityOn = isNetworkOn || isBluetoothOn;
-              }
-
-              if (!isConnectivityOn) {
-                WidgetsBinding.instance.addPostFrameCallback((_) {
-                  _goNextScreen();
-                });
-              }
-
-              return Container();
-            },
-          )
+                  // 첫 실행이 아닌데 무엇인가 켜져 있는 경우, connectivityProvider에 의해서 알림 화면으로 자동 이동됨.
+                  return Container();
+                },
+              ))
         ],
       ),
     );

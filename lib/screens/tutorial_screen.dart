@@ -1,5 +1,5 @@
 import 'package:coconut_vault/localization/strings.g.dart';
-import 'package:coconut_vault/providers/app_model.dart';
+import 'package:coconut_vault/providers/connectivity_provider.dart';
 import 'package:coconut_vault/styles.dart';
 import 'package:coconut_vault/utils/uri_launcher.dart';
 import 'package:coconut_vault/widgets/appbar/custom_appbar.dart';
@@ -77,10 +77,11 @@ class _TutorialScreenState extends State<TutorialScreen> {
                           style: Styles.title5,
                           textAlign: TextAlign.center,
                         ),
-                        Selector<AppModel, bool?>(
-                            selector: (context, model) => model.isNetworkOn,
+                        Selector<ConnectivityProvider, bool>(
+                            selector: (context, model) =>
+                                model.isNetworkOn == true,
                             builder: (context, networkOn, _) {
-                              if (networkOn!) {
+                              if (networkOn) {
                                 // 네트워크 연결 상태일 때
                                 return Column(
                                   crossAxisAlignment: CrossAxisAlignment.center,

@@ -33,7 +33,6 @@ import 'package:coconut_vault/screens/vault_detail/signer_bsms_screen.dart';
 import 'package:coconut_vault/screens/vault_detail/sync_to_wallet_screen.dart';
 import 'package:coconut_vault/screens/vault_detail/vault_menu_screen.dart';
 import 'package:coconut_vault/screens/vault_detail/vault_settings.dart';
-import 'package:coconut_vault/utils/router_util.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
@@ -101,12 +100,23 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> {
 
   @override
   Widget build(BuildContext context) {
+    var visibilityProvider = VisibilityProvider();
     return MultiProvider(
       providers: [
+        ChangeNotifierProvider(create: (_) => visibilityProvider),
         ChangeNotifierProvider(create: (_) => AuthProvider()),
-        ChangeNotifierProvider(
-            create: (_) => connectivityProvider.ConnectivityProvider()),
-        ChangeNotifierProvider(create: (_) => VisibilityProvider()),
+        ChangeNotifierProxyProvider<VisibilityProvider,
+            connectivityProvider.ConnectivityProvider>(
+          create: (_) => connectivityProvider.ConnectivityProvider(
+              hasSeenGuide: visibilityProvider.hasSeenGuide),
+          update: (_, visibilityProvider, connectivityProvider) {
+            if (visibilityProvider.hasSeenGuide) {
+              connectivityProvider!.setHasSeenGuideTrue();
+            }
+
+            return connectivityProvider!;
+          },
+        ),
 
         /// splash, guide, main, pinCheck 에서 공통으로 사용하는 모델
         ChangeNotifierProvider(
@@ -114,11 +124,11 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> {
             onConnectivityStateChanged: (ConnectivityState state) {
               // Bluetooth, Network, Developer mode 리스너
               // TODO: connectivityProvider로 아래 로직 이동시키기
-              if (state == ConnectivityState.on) {
-                goAppUnavailableNotificationScreen(context);
-              } else if (state == ConnectivityState.bluetoothUnauthorized) {
-                goBluetoothAuthNotificationScreen(context);
-              }
+              // if (state == ConnectivityState.on) {
+              //   goAppUnavailableNotificationScreen();
+              // } else if (state == ConnectivityState.bluetoothUnauthorized) {
+              //   goBluetoothAuthNotificationScreen();
+              // }
             },
           ),
         ),
