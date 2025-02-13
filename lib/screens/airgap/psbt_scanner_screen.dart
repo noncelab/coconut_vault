@@ -3,7 +3,6 @@ import 'dart:io';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/model/common/vault_list_item_base.dart';
 import 'package:coconut_vault/enums/wallet_enums.dart';
-import 'package:coconut_vault/providers/app_model.dart';
 import 'package:coconut_vault/utils/alert_util.dart';
 import 'package:coconut_vault/widgets/animatedQR/animated_qr_scanner.dart';
 import 'package:coconut_vault/widgets/custom_loading_overlay.dart';
@@ -39,7 +38,6 @@ class _PsbtScannerScreenState extends State<PsbtScannerScreen> {
 
   @override
   void initState() {
-    _appModel = Provider.of<AppModel>(context, listen: false);
     _vaultModel = Provider.of<WalletProvider>(context, listen: false);
     super.initState();
     _vaultListItem = _vaultModel.getVaultById(widget.id);
