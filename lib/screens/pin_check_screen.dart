@@ -119,6 +119,8 @@ class _PinCheckScreenState extends State<PinCheckScreen>
   /// vault_list_tab screen, this screen pause -> Bio 체크
   void _checkBiometrics() async {
     if (widget.screenStatus == PinCheckScreenStatus.lock) {
+      // TODO: app_model의  await checkDeviceBiometrics(); 실행을 위해서 아래 함수를 실행한 것임
+      // TODO: 앱 백그라운드 -> 포그라운드 상태 변경 시 생체 정보를 업데이트 해주는 로직이 필요함
       /// 생체인증 정보 체크
       await _appModel.setInitData();
     }
@@ -330,7 +332,6 @@ class _PinCheckScreenState extends State<PinCheckScreen>
   void _verifySwitch() {
     switch (widget.screenStatus) {
       case PinCheckScreenStatus.entrance:
-        _appModel.changeIsAuthChecked(true);
         _appUnlockManager.setLockoutDuration(0);
         _appUnlockManager.setPinInputAttemptCount(0);
         widget.onComplete?.call();

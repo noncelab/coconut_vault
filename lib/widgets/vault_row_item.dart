@@ -21,7 +21,6 @@ import '../utils/text_utils.dart';
 class VaultRowItem extends StatefulWidget {
   const VaultRowItem({
     super.key,
-    
     required this.vault,
     this.isSelectable = false,
     this.onSelected,

@@ -160,7 +160,6 @@ class AppModel with ChangeNotifier {
 
   /// 첫 실행 가이드 확인 여부
   bool _hasSeenGuide = false;
-  bool get hasSeenGuide => _hasSeenGuide;
 
   /// 디바이스 생체인증 활성화 여부
   bool _canCheckBiometrics = false;
@@ -174,17 +173,9 @@ class AppModel with ChangeNotifier {
   bool _hasBiometricsPermission = false;
   bool get hasBiometricsPermission => _hasBiometricsPermission;
 
-  /// true = 핀 초기화 진행 후 홈 화면 설정창 노출
-  bool _isResetVault = false;
-  bool get isResetVault => _isResetVault;
-
   ///  생성된 지갑 개수
   int _vaultListLength = 0;
   int get vaultListLength => _vaultListLength;
-
-  /// 팬 or 생체인증 성공 여부
-  bool _isAuthChecked = false;
-  bool get isAuthChecked => _isAuthChecked;
 
   /// 로딩
   bool _isLoading = false;
@@ -194,13 +185,8 @@ class AppModel with ChangeNotifier {
   List<String> _pinShuffleNumbers = [];
   List<String> get pinShuffleNumbers => _pinShuffleNumbers;
 
-  /// 안드로이드8 대응
-  bool _isAndroid8 = false;
-  bool get isAndroid8 => _isAndroid8;
-
   Future setInitData() async {
     await checkDeviceBiometrics();
-    _isAndroid8 = await checkIfAndroidVersion8();
     final prefs = SharedPrefsRepository();
     _hasSeenGuide = prefs.getBool(SharedPrefsKeys.hasShownStartGuide) == true;
     _isPinEnabled = prefs.getBool(SharedPrefsKeys.isPinEnabled) == true;
@@ -217,44 +203,15 @@ class AppModel with ChangeNotifier {
     if (_hasSeenGuide) {
       setConnectActivity(network: true, bluetooth: true, developerMode: true);
     } else {
-      // 앱 첫 실행인 경우 가이드 화면 끝난 후 bluetooth 모니터링 시작.
+      // 앱 첫 실행인 경우 가이드 화면 끝난 후 bluetooth 모니터링 시작. // TODO: 블루투스 권한 요청 시점 때문에 이렇게 했나보다. 확인 필요
       setConnectActivity(network: true, bluetooth: false, developerMode: true);
     }
-  }
-
-  /// 초기화 이후 홈화면 진입시 비밀번`호 설정창 노출하기 위함
-  void offResetVault() {
-    _isResetVault = false;
-  }
-
-  /// 핀 or 생체인증 성공여부 변경
-  void changeIsAuthChecked(bool check) {
-    _isAuthChecked = check;
   }
 
   Future<void> setHasSeenGuide() async {
     _hasSeenGuide = true;
     SharedPrefsRepository().setBool(SharedPrefsKeys.hasShownStartGuide, true);
     notifyListeners();
-  }
-
-  /// 기기의 OS 버전이 안드로이드 OS 8.0 인지 체크
-  Future<bool> checkIfAndroidVersion8() async {
-    debugPrint('OS Version Check!!!');
-    if (Platform.isAndroid) {
-      try {
-        final int version = await const MethodChannel(methodChannelOS)
-            .invokeMethod('getSdkVersion');
-        if (version == 26) {
-          debugPrint('OS Version Checked! is Android 8');
-          return true;
-        }
-      } on PlatformException catch (e) {
-        Logger.log("Failed to get platform version: '${e.message}'.");
-        return false;
-      }
-    }
-    return false;
   }
 
   /// 기기의 생체인증 가능 여부 업데이트
@@ -381,9 +338,8 @@ class AppModel with ChangeNotifier {
     return savedPin == hashedInput;
   }
 
-  /// 비밀번호 초기화
+  /// 비밀번호 초기화 // TODO: pin_check_screen viewModel 안에서 처리
   Future<void> resetPassword() async {
-    _isResetVault = true;
     _isBiometricEnabled = false;
     _isPinEnabled = false;
     _vaultListLength = 0;

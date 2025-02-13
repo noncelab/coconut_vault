@@ -12,6 +12,10 @@ import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 enum ConnectivityState { off, on, bluetoothUnauthorized }
 
 class ConnectivityProvider extends ChangeNotifier {
+  /// 첫 실행 가이드 확인 여부
+  /// TODO: visibilityProvider 활용 방식으로 변경 필요
+  late bool _hasSeenGuide;
+
   bool? _isNetworkOn;
   bool? get isNetworkOn => _isNetworkOn;
   bool? _isBluetoothOn;
@@ -22,19 +26,24 @@ class ConnectivityProvider extends ChangeNotifier {
       Platform.isAndroid && kReleaseMode ? null : false; // Android only
   bool? get isDeveloperModeOn => _isDeveloperModeOn;
 
+  void Function(ConnectivityState)? onConnectivityStateChanged;
+
   late StreamSubscription<BluetoothAdapterState> _bluetoothSubscription;
   late StreamSubscription<List<ConnectivityResult>> _networkSubscription;
 
   static const MethodChannel _channel = MethodChannel(methodChannelOS);
 
-  void Function(ConnectivityState) onConnectivityStateChanged;
+  ConnectivityProvider({this.onConnectivityStateChanged}) {
+    final prefs = SharedPrefsRepository();
+    _hasSeenGuide = prefs.getBool(SharedPrefsKeys.hasShownStartGuide) == true;
 
-  ConnectivityProvider({required this.onConnectivityStateChanged}) {
-    setInitData();
-  }
-
-  Future setInitData() async {
-    setConnectActivity(network: true, bluetooth: false, developerMode: true);
+    /// true 인 경우, 첫 실행이 아님
+    if (_hasSeenGuide) {
+      setConnectActivity(network: true, bluetooth: true, developerMode: true);
+    } else {
+      // 앱 첫 실행인 경우 가이드 화면 끝난 후 bluetooth 모니터링 시작. // TODO: 블루투스 권한 요청 시점 때문에 이렇게 했나보다. 확인 필요
+      setConnectActivity(network: true, bluetooth: false, developerMode: true);
+    }
   }
 
   /// 보안상의 이유로 기기가 네트워크, 블루투스, 개발자 모드가 켜져있을 때 볼트 사용을 막아야 합니다.
@@ -124,14 +133,26 @@ class ConnectivityProvider extends ChangeNotifier {
 
   void _onConnectivityChanged() {
     if (Platform.isIOS && _isBluetoothUnauthorized == true) {
-      onConnectivityStateChanged.call(ConnectivityState.bluetoothUnauthorized);
+      onConnectivityStateChanged?.call(ConnectivityState.bluetoothUnauthorized);
     } else if (_isBluetoothOn == true ||
         _isNetworkOn == true ||
         (Platform.isAndroid && _isDeveloperModeOn == true)) {
-      // if (_hasSeenGuide) {
-      //   onConnectivityStateChanged.call(ConnectivityState.on);
-      // }
+      if (_hasSeenGuide) {
+        onConnectivityStateChanged?.call(ConnectivityState.on);
+      }
     }
     notifyListeners();
+  }
+
+  void setOnConnectivityStateChanged(
+      void Function(ConnectivityState) onChanged) {
+    onConnectivityStateChanged = onChanged;
+  }
+
+  @override
+  void dispose() {
+    _bluetoothSubscription.cancel();
+    _networkSubscription.cancel();
+    super.dispose();
   }
 }

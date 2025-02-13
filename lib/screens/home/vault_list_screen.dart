@@ -62,12 +62,6 @@ class _VaultListScreenState extends State<VaultListScreen>
     );
 
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      // 초기화 이후 홈화면 진입시 설정창 노출
-      if (_appModel.isResetVault) {
-        MyBottomSheet.showBottomSheet_90(
-            context: context, child: const SettingsScreen());
-        _appModel.offResetVault();
-      }
       if (_vaultModel.animatedVaultFlags.isNotEmpty &&
           _vaultModel.animatedVaultFlags.last) {
         /// 리스트에 추가되는 애니메이션 보여줍니다.
