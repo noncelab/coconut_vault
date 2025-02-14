@@ -2,7 +2,7 @@ import 'package:coconut_lib/coconut_lib.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/model/singlesig/singlesig_vault_list_item.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
-import 'package:coconut_vault/screens/pin_check_screen.dart';
+import 'package:coconut_vault/screens/common/pin_check_screen.dart';
 import 'package:coconut_vault/styles.dart';
 import 'package:coconut_vault/utils/alert_util.dart';
 import 'package:coconut_vault/utils/icon_util.dart';

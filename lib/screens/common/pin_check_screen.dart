@@ -1,8 +1,11 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:coconut_vault/constants/pin_constants.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/managers/wallet_list_manager.dart';
+import 'package:coconut_vault/providers/auth_provider.dart';
+import 'package:coconut_vault/screens/common/pin_check_auth_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -16,7 +19,7 @@ import 'package:coconut_vault/widgets/bottom_sheet.dart';
 import 'package:coconut_vault/managers/app_unlock_manager.dart';
 import 'package:provider/provider.dart';
 
-import '../widgets/pin/pin_input_screen.dart';
+import 'pin_input_screen.dart';
 
 enum PinCheckScreenStatus {
   entrance, // 앱 실행해서 pin 확인
@@ -47,7 +50,8 @@ class _PinCheckScreenState extends State<PinCheckScreen>
   final AppUnlockManager _appUnlockManager = AppUnlockManager();
   late String pin;
   late String errorMessage;
-  late AppModel _appModel;
+
+  late AuthProvider _authProvider;
   late List<String> _shuffledPinNumbers;
 
   DateTime? _lastPressedAt;
@@ -55,40 +59,34 @@ class _PinCheckScreenState extends State<PinCheckScreen>
   // when widget.appEntrance is true
   int attempt = 0;
   bool lastChanceToTry = false;
-  static const MAX_NUMBER_OF_ATTEMPTS = 3;
-  static const LAST_UNLOCK_ATTEMPT_COUNT = 7;
-  static const WRONG_PIN_AWAIT_TIME_1 = 1;
-  static const WRONG_PIN_AWAIT_TIME_2 = 5;
-  static const WRONG_PIN_AWAIT_TIME_3 = 15;
-  static const WRONG_PIN_AWAIT_TIME_4 = 30;
-  static const WRONG_PIN_AWAIT_TIME_5 = 60;
-  static const WRONG_PIN_AWAIT_TIME_6 = 180;
-  static const WRONG_PIN_AWAIT_TIME_7 = 480;
-  static const WRONG_PIN_AWAIT_TIME_8 = 600;
-  static const WRONG_PIN_AWAIT_TIME_FOREVER = -1;
-
   bool _isPause = false;
 
   final List<int> lockoutDurations = [
-    WRONG_PIN_AWAIT_TIME_1,
-    WRONG_PIN_AWAIT_TIME_2,
-    WRONG_PIN_AWAIT_TIME_3,
-    WRONG_PIN_AWAIT_TIME_4,
-    WRONG_PIN_AWAIT_TIME_5,
-    WRONG_PIN_AWAIT_TIME_6,
-    WRONG_PIN_AWAIT_TIME_7,
-    WRONG_PIN_AWAIT_TIME_8,
-    WRONG_PIN_AWAIT_TIME_FOREVER,
+    kPinInputDelayMinutes001,
+    kPinInputDelayMinutes005,
+    kPinInputDelayMinutes015,
+    kPinInputDelayMinutes030,
+    kPinInputDelayMinutes060,
+    kPinInputDelayMinutes180,
+    kPinInputDelayMinutes480,
+    kPinInputDelayMinutes600,
+    kPinInputDelayInfinite,
   ];
 
   @override
   void initState() {
     super.initState();
+
     pin = '';
     errorMessage = '';
 
-    _appModel = Provider.of<AppModel>(context, listen: false);
-    _shuffledPinNumbers = _appModel.getShuffledNumberList();
+    _authProvider = Provider.of<AuthProvider>(context, listen: false);
+    Future.microtask(() {
+      _authProvider.onRequestShowDialog = () {
+        showAuthenticationFailedDialog(
+            context, _authProvider.hasAlreadyRequestedBioPermission);
+      };
+    });
 
     _loadAttemptCountFromStorage();
     _checkPinLocked();
@@ -97,14 +95,16 @@ class _PinCheckScreenState extends State<PinCheckScreen>
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _checkBiometrics();
     });
+
+    _shuffledPinNumbers = _authProvider.getShuffledNumberList();
   }
 
   void _loadAttemptCountFromStorage() async {
     attempt = int.parse(_appUnlockManager.loadPinInputAttemptCount());
-    if (attempt != 0 && attempt < MAX_NUMBER_OF_ATTEMPTS) {
+    if (attempt != 0 && attempt < kMaxNumberOfAttempts) {
       setState(() {
         errorMessage = t.errors.pin_incorrect_with_remaining_attempts_error(
-            count: MAX_NUMBER_OF_ATTEMPTS - attempt);
+            count: kMaxNumberOfAttempts - attempt);
       });
     }
   }
@@ -126,43 +126,43 @@ class _PinCheckScreenState extends State<PinCheckScreen>
       // TODO: app_model의  await checkDeviceBiometrics(); 실행을 위해서 아래 함수를 실행한 것임
       // TODO: 앱 백그라운드 -> 포그라운드 상태 변경 시 생체 정보를 업데이트 해주는 로직이 필요함
       /// 생체인증 정보 체크
-      await _appModel.setInitData();
+      await _authProvider.setInitState();
     }
 
-    if (_appModel.isBiometricEnabled && _appModel.canCheckBiometrics) {
+    if (_authProvider.isBiometricEnabled && _authProvider.canCheckBiometrics) {
       _verifyBiometric();
     }
   }
 
   void moveToMain() async {
-    await _appModel.checkDeviceBiometrics();
+    await _authProvider.checkDeviceBiometrics();
     Navigator.pushNamedAndRemoveUntil(
         context, '/', (Route<dynamic> route) => false);
   }
 
   void _onKeyTap(String value) async {
     // if (value != '<' && value != 'bio' && value != '') vibrateShort();
-    if (value == 'bio') {
+    if (value == kBiometricIdentifier) {
       _verifyBiometric();
       return;
     }
 
     if ((widget.screenStatus == PinCheckScreenStatus.entrance ||
             widget.screenStatus == PinCheckScreenStatus.lock) &&
-        attempt == MAX_NUMBER_OF_ATTEMPTS) {
+        attempt == kMaxNumberOfAttempts) {
       return;
     }
 
     setState(() {
-      if (value == '<') {
+      if (value == kDeleteBtnIdentifier) {
         if (pin.isNotEmpty) {
           pin = pin.substring(0, pin.length - 1);
         }
-      } else if (pin.length < 4) {
+      } else if (pin.length < kExpectedPinLength) {
         pin += value;
       }
 
-      if (pin.length == 4) {
+      if (pin.length == kExpectedPinLength) {
         context.loaderOverlay.show();
         _verifyPin();
       }
@@ -170,14 +170,14 @@ class _PinCheckScreenState extends State<PinCheckScreen>
   }
 
   void _verifyBiometric() async {
-    if (await _appModel.authenticateWithBiometrics(context,
+    if (await _authProvider.authenticateWithBiometrics(context,
         showAuthenticationFailedDialog: false)) {
       _verifySwitch();
     }
   }
 
   void _verifyPin() async {
-    if (await _appModel.verifyPin(pin)) {
+    if (await _authProvider.verifyPin(pin)) {
       context.loaderOverlay.hide();
       _verifySwitch();
     } else {
@@ -186,10 +186,10 @@ class _PinCheckScreenState extends State<PinCheckScreen>
           widget.screenStatus == PinCheckScreenStatus.lock) {
         attempt += 1;
         await _appUnlockManager.setPinInputAttemptCount(attempt);
-        if (attempt < MAX_NUMBER_OF_ATTEMPTS) {
+        if (attempt < kMaxNumberOfAttempts) {
           setState(() {
             errorMessage = t.errors.pin_incorrect_with_remaining_attempts_error(
-                count: MAX_NUMBER_OF_ATTEMPTS - attempt);
+                count: kMaxNumberOfAttempts - attempt);
           });
           vibrateMediumDouble();
         } else {
@@ -204,7 +204,7 @@ class _PinCheckScreenState extends State<PinCheckScreen>
       }
       setState(() {
         pin = '';
-        _shuffledPinNumbers = _appModel.getShuffledNumberList();
+        _shuffledPinNumbers = _authProvider.getShuffledNumberList();
       });
     }
   }
@@ -223,13 +223,13 @@ class _PinCheckScreenState extends State<PinCheckScreen>
       if (remainingSeconds == 0) {
         timer.cancel();
         setState(() {
-          if (attempt == MAX_NUMBER_OF_ATTEMPTS) {
+          if (attempt == kMaxNumberOfAttempts) {
             attempt = 0;
             errorMessage = '';
           }
 
           /// 마지막인 시도인 경우 "초기화 주의 문구" 출력
-          if (totalAttempt == LAST_UNLOCK_ATTEMPT_COUNT &&
+          if (totalAttempt == kLastUnlockAttemptCount &&
               remainingSeconds <= 0) {
             lastChanceToTry = true;
           }
@@ -267,12 +267,12 @@ class _PinCheckScreenState extends State<PinCheckScreen>
     final totalAttempt = int.parse(lockout[AppUnlockManager.totalAttemptKey]!);
 
     /// 시도 횟수가 0이고 현재 시도 횟수가 {MAX_NUMBER_OF_ATTEMPTS}이 아니라면, 아무 작업도 하지 않음
-    if (totalAttempt == 0 && attempt != MAX_NUMBER_OF_ATTEMPTS) {
+    if (totalAttempt == 0 && attempt != kMaxNumberOfAttempts) {
       return;
     }
 
     /// 영구 잠금 상태를 처리
-    if (lockoutDurations[totalAttempt - 1] == WRONG_PIN_AWAIT_TIME_FOREVER) {
+    if (lockoutDurations[totalAttempt - 1] == kPinInputDelayInfinite) {
       _handlePermanentLockout();
       return;
     }
@@ -292,12 +292,12 @@ class _PinCheckScreenState extends State<PinCheckScreen>
     /// 잠금 상태에 따라 타이머를 시작하거나 시도 횟수를 초기화
     if (remainingSeconds > 0) {
       _startLockoutTimer(lockoutEndTime, totalAttempt);
-    } else if (attempt == MAX_NUMBER_OF_ATTEMPTS) {
+    } else if (attempt == kMaxNumberOfAttempts) {
       attempt = 0;
     }
 
     /// 마지막 재시도인 경우 초기화 주의 문구 출력
-    if (totalAttempt == LAST_UNLOCK_ATTEMPT_COUNT && remainingSeconds <= 0) {
+    if (totalAttempt == kLastUnlockAttemptCount && remainingSeconds <= 0) {
       setState(() {
         lastChanceToTry = true;
       });
@@ -313,7 +313,7 @@ class _PinCheckScreenState extends State<PinCheckScreen>
     await _appUnlockManager.setLockoutDuration(awaitDuration,
         totalAttemptCount: totalAttempt + 1);
 
-    if (awaitDuration == WRONG_PIN_AWAIT_TIME_FOREVER) {
+    if (awaitDuration == kPinInputDelayInfinite) {
       _handlePermanentLockout();
       return;
     }

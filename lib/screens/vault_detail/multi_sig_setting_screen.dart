@@ -5,7 +5,7 @@ import 'package:coconut_vault/model/multisig/multisig_signer.dart';
 import 'package:coconut_vault/model/multisig/multisig_vault_list_item.dart';
 import 'package:coconut_vault/model/singlesig/singlesig_vault_list_item.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
-import 'package:coconut_vault/screens/pin_check_screen.dart';
+import 'package:coconut_vault/screens/common/pin_check_screen.dart';
 import 'package:coconut_vault/screens/vault_detail/mnemonic_view_screen.dart';
 import 'package:coconut_vault/screens/vault_detail/multi_sig_memo_bottom_sheet.dart';
 import 'package:coconut_vault/screens/vault_detail/qrcode_bottom_sheet_screen.dart';

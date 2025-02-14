@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:coconut_vault/constants/pin_constants.dart';
 import 'package:coconut_vault/utils/logger.dart';
 import 'package:flutter/material.dart';
 import 'package:local_auth/local_auth.dart';
@@ -98,9 +99,9 @@ class _KeyButtonState extends State<KeyButton> {
                   : Colors.transparent // 버튼의 상태에 따라 색상 변경
               ),
           child: Center(
-              child: widget.keyValue == '<'
+              child: widget.keyValue == kDeleteBtnIdentifier
                   ? const Icon(Icons.backspace, color: MyColors.black, size: 20)
-                  : widget.keyValue == 'bio'
+                  : widget.keyValue == kBiometricIdentifier
                       ? _isFaceRecognition
                           ? SvgPicture.asset('assets/svg/face-id.svg',
                               width: 20,

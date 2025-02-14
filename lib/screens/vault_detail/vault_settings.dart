@@ -9,7 +9,7 @@ import 'package:coconut_vault/widgets/card/vault_item_card.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:coconut_vault/providers/app_model.dart';
-import 'package:coconut_vault/screens/pin_check_screen.dart';
+import 'package:coconut_vault/screens/common/pin_check_screen.dart';
 import 'package:coconut_vault/screens/vault_detail/mnemonic_view_screen.dart';
 import 'package:coconut_vault/screens/vault_detail/qrcode_bottom_sheet_screen.dart';
 import 'package:coconut_vault/screens/vault_detail/vault_edit_bottom_sheet_screen.dart';

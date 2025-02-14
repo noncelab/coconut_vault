@@ -3,7 +3,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:loader_overlay/loader_overlay.dart';
 import 'package:coconut_vault/providers/app_model.dart';
-import 'package:coconut_vault/screens/pin_check_screen.dart';
+import 'package:coconut_vault/screens/common/pin_check_screen.dart';
 import 'package:coconut_vault/screens/pin_setting_screen.dart';
 import 'package:coconut_vault/styles.dart';
 import 'package:coconut_vault/widgets/button/button_group.dart';

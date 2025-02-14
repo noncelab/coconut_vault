@@ -225,6 +225,8 @@ class Translations implements BaseTranslations<AppLocale, Translations> {
       TranslationsVaultSettingsKr.internal(_root);
   late final TranslationsBottomSheetKr bottom_sheet =
       TranslationsBottomSheetKr.internal(_root);
+  late final TranslationsPermissionKr permission =
+      TranslationsPermissionKr.internal(_root);
   late final TranslationsAlertKr alert = TranslationsAlertKr.internal(_root);
   late final TranslationsToastKr toast = TranslationsToastKr.internal(_root);
   late final TranslationsErrorsKr errors = TranslationsErrorsKr.internal(_root);
@@ -878,6 +880,17 @@ class TranslationsBottomSheetKr {
       '생성된 니모닉 문구를 백업하시고\n패스프레이즈를 확인해 주세요.';
 }
 
+// Path: permission
+class TranslationsPermissionKr {
+  TranslationsPermissionKr.internal(this._root);
+
+  final Translations _root; // ignore: unused_field
+
+  // Translations
+  late final TranslationsPermissionBiometricKr biometric =
+      TranslationsPermissionBiometricKr.internal(_root);
+}
+
 // Path: alert
 class TranslationsAlertKr {
   TranslationsAlertKr.internal(this._root);
@@ -887,13 +900,6 @@ class TranslationsAlertKr {
   // Translations
   String confirm_deletion({required Object name}) =>
       '정말로 볼트에서 ${name} 정보를 삭제하시겠어요?';
-  String get bio_title1 => '잠금 해제 시 생체 인증을 사용하시겠습니까?';
-  String get bio_title2 => '생체 인증을 진행해 주세요.';
-  String get bio_title3 => '생체 인증 권한이 필요합니다.';
-  String get bio_title4 => '생체 인증 권한이 거부되었습니다.';
-  String get bio_text =>
-      '생체 인증을 통한 잠금 해제를 하시려면\n설정 > 코코넛 볼트에서 생체 인증 권한을 허용해 주세요.';
-  String get bio_btn => '설정화면으로 이동';
   late final TranslationsAlertForgotPasswordKr forgot_password =
       TranslationsAlertForgotPasswordKr.internal(_root);
   late final TranslationsAlertUnchangePasswordKr unchange_password =
@@ -1055,6 +1061,22 @@ class TranslationsVaultMenuScreenDescriptionKr {
   String get menu6 => '이 키가 포함된 다중 서명 지갑 정보를 추가해요';
   String get menu7 => '다중 서명 지갑의 정보를 확인할 수 있어요';
   String get menu8 => '전송 정보를 스캔하고 서명해요';
+}
+
+// Path: permission.biometric
+class TranslationsPermissionBiometricKr {
+  TranslationsPermissionBiometricKr.internal(this._root);
+
+  final Translations _root; // ignore: unused_field
+
+  // Translations
+  String get ask_to_use => '잠금 해제 시 생체 인증을 사용하시겠습니까?';
+  String get proceed_biometric_auth => '생체 인증을 진행해 주세요.';
+  String get required => '생체 인증 권한이 필요합니다.';
+  String get denied => '생체 인증 권한이 거부되었습니다.';
+  String get how_to_allow =>
+      '생체 인증을 통한 잠금 해제를 하시려면\n설정 > 코코넛 볼트에서 생체 인증 권한을 허용해 주세요.';
+  String get btn_move_to_setting => '설정 화면으로 이동';
 }
 
 // Path: alert.forgot_password
@@ -1880,20 +1902,20 @@ extension on Translations {
         return '생성된 니모닉 문구를\n백업해 주세요.';
       case 'bottom_sheet.mnemonic_backup_and_confirm_passphrase':
         return '생성된 니모닉 문구를 백업하시고\n패스프레이즈를 확인해 주세요.';
+      case 'permission.biometric.ask_to_use':
+        return '잠금 해제 시 생체 인증을 사용하시겠습니까?';
+      case 'permission.biometric.proceed_biometric_auth':
+        return '생체 인증을 진행해 주세요.';
+      case 'permission.biometric.required':
+        return '생체 인증 권한이 필요합니다.';
+      case 'permission.biometric.denied':
+        return '생체 인증 권한이 거부되었습니다.';
+      case 'permission.biometric.how_to_allow':
+        return '생체 인증을 통한 잠금 해제를 하시려면\n설정 > 코코넛 볼트에서 생체 인증 권한을 허용해 주세요.';
+      case 'permission.biometric.btn_move_to_setting':
+        return '설정 화면으로 이동';
       case 'alert.confirm_deletion':
         return ({required Object name}) => '정말로 볼트에서 ${name} 정보를 삭제하시겠어요?';
-      case 'alert.bio_title1':
-        return '잠금 해제 시 생체 인증을 사용하시겠습니까?';
-      case 'alert.bio_title2':
-        return '생체 인증을 진행해 주세요.';
-      case 'alert.bio_title3':
-        return '생체 인증 권한이 필요합니다.';
-      case 'alert.bio_title4':
-        return '생체 인증 권한이 거부되었습니다.';
-      case 'alert.bio_text':
-        return '생체 인증을 통한 잠금 해제를 하시려면\n설정 > 코코넛 볼트에서 생체 인증 권한을 허용해 주세요.';
-      case 'alert.bio_btn':
-        return '설정화면으로 이동';
       case 'alert.forgot_password.title':
         return '비밀번호를 잊으셨나요?';
       case 'alert.forgot_password.description1':

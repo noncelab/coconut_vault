@@ -395,14 +395,17 @@ bottom_sheet:
   mnemonic_backup: "생성된 니모닉 문구를\n백업해 주세요."
   mnemonic_backup_and_confirm_passphrase: "생성된 니모닉 문구를 백업하시고\n패스프레이즈를 확인해 주세요."
 
+permission:
+  biometric: 
+    ask_to_use: "잠금 해제 시 생체 인증을 사용하시겠습니까?"
+    proceed_biometric_auth: "생체 인증을 진행해 주세요."
+    required: "생체 인증 권한이 필요합니다."
+    denied: "생체 인증 권한이 거부되었습니다."
+    how_to_allow: "생체 인증을 통한 잠금 해제를 하시려면\n설정 > 코코넛 볼트에서 생체 인증 권한을 허용해 주세요."
+    btn_move_to_setting: "설정 화면으로 이동"
+
 alert:
   confirm_deletion: "정말로 볼트에서 $name 정보를 삭제하시겠어요?"
-  bio_title1: "잠금 해제 시 생체 인증을 사용하시겠습니까?"
-  bio_title2: "생체 인증을 진행해 주세요."
-  bio_title3: "생체 인증 권한이 필요합니다."
-  bio_title4: "생체 인증 권한이 거부되었습니다."
-  bio_text: "생체 인증을 통한 잠금 해제를 하시려면\n설정 > 코코넛 볼트에서 생체 인증 권한을 허용해 주세요."
-  bio_btn: "설정화면으로 이동"
   forgot_password:
     title: "비밀번호를 잊으셨나요?"
     description1: "[초기화하기]를 눌러 비밀번호를 초기화할 수 있어요.\n"
