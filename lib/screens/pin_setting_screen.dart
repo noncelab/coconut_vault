@@ -43,7 +43,8 @@ class _PinSettingScreenState extends State<PinSettingScreen> {
     greeting = widget.greetingVisible;
 
     _authProvider = Provider.of<AuthProvider>(context, listen: false);
-    _shuffledPinNumbers = _authProvider.getShuffledNumberList(isSettings: true);
+    _shuffledPinNumbers =
+        _authProvider.getShuffledNumberList(isPinSettingContext: true);
   }
 
   void returnToBackSequence(String message,
@@ -53,7 +54,7 @@ class _PinSettingScreenState extends State<PinSettingScreen> {
       pinConfirm = '';
 
       _shuffledPinNumbers =
-          _authProvider.getShuffledNumberList(isSettings: true);
+          _authProvider.getShuffledNumberList(isPinSettingContext: true);
       if (firstSequence) {
         step = 0;
         pin = '';
@@ -105,7 +106,7 @@ class _PinSettingScreenState extends State<PinSettingScreen> {
           step = 1;
           errorMessage = '';
           _shuffledPinNumbers =
-              _authProvider.getShuffledNumberList(isSettings: true);
+              _authProvider.getShuffledNumberList(isPinSettingContext: true);
         });
       }
     } else if (step == 1) {
@@ -124,7 +125,7 @@ class _PinSettingScreenState extends State<PinSettingScreen> {
           errorMessage = t.errors.pin_incorrect_error;
           pinConfirm = '';
           _shuffledPinNumbers =
-              _authProvider.getShuffledNumberList(isSettings: true);
+              _authProvider.getShuffledNumberList(isPinSettingContext: true);
           vibrateMediumDouble();
           return;
         }

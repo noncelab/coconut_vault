@@ -4,15 +4,27 @@ const kDeleteBtnIdentifier = '<';
 
 // pin check constants
 const kExpectedPinLength = 4;
-const kMaxNumberOfAttempts = 3;
-const kLastUnlockAttemptCount = 7;
+const kMaxAttemptPerTurn = 3;
+const kMaxTurn = 8;
 
-const kPinInputDelayMinutes001 = 1;
-const kPinInputDelayMinutes005 = 5;
-const kPinInputDelayMinutes015 = 15;
-const kPinInputDelayMinutes030 = 30;
-const kPinInputDelayMinutes060 = 60;
-const kPinInputDelayMinutes180 = 180;
-const kPinInputDelayMinutes480 = 480;
-const kPinInputDelayMinutes600 = 600;
+const kPinInputDelayMinutesTurn1 = 1;
+const kPinInputDelayMinutesTurn2 = 5;
+const kPinInputDelayMinutesTurn3 = 15;
+const kPinInputDelayMinutesTurn4 = 30;
+const kPinInputDelayMinutesTurn5 = 60;
+const kPinInputDelayMinutesTurn6 = 180;
+const kPinInputDelayMinutesTurn7 = 480;
+const kPinInputDelayMinutesTurn8 = 600;
 const kPinInputDelayInfinite = -1;
+
+const kLockoutDurationsPerTurn = [
+  kPinInputDelayMinutesTurn1,
+  kPinInputDelayMinutesTurn2,
+  kPinInputDelayMinutesTurn3,
+  kPinInputDelayMinutesTurn4,
+  kPinInputDelayMinutesTurn5,
+  kPinInputDelayMinutesTurn6,
+  kPinInputDelayMinutesTurn7,
+  kPinInputDelayMinutesTurn8,
+  kPinInputDelayInfinite,
+];

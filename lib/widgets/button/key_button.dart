@@ -10,11 +10,13 @@ import 'package:flutter_svg/flutter_svg.dart';
 class KeyButton extends StatefulWidget {
   final String keyValue;
   final ValueChanged<String> onKeyTap;
+  final bool disabled;
 
   const KeyButton({
     super.key,
     required this.keyValue,
     required this.onKeyTap,
+    this.disabled = false,
   });
 
   @override
@@ -94,29 +96,43 @@ class _KeyButtonState extends State<KeyButton> {
           margin: const EdgeInsets.symmetric(vertical: 8),
           decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(14),
-              color: _isPressed
-                  ? MyColors.borderLightgrey
-                  : Colors.transparent // 버튼의 상태에 따라 색상 변경
+              color: widget.disabled
+                  ? Colors.transparent
+                  : _isPressed
+                      ? MyColors.borderLightgrey
+                      : Colors.transparent // 버튼의 상태에 따라 색상 변경
               ),
           child: Center(
               child: widget.keyValue == kDeleteBtnIdentifier
-                  ? const Icon(Icons.backspace, color: MyColors.black, size: 20)
+                  ? Icon(Icons.backspace,
+                      color: widget.disabled
+                          ? MyColors.transparentBlack_30
+                          : MyColors.black,
+                      size: 20)
                   : widget.keyValue == kBiometricIdentifier
                       ? _isFaceRecognition
                           ? SvgPicture.asset('assets/svg/face-id.svg',
                               width: 20,
-                              colorFilter: const ColorFilter.mode(
-                                  Colors.black, BlendMode.srcIn))
+                              colorFilter: ColorFilter.mode(
+                                  widget.disabled
+                                      ? MyColors.transparentBlack_30
+                                      : Colors.black,
+                                  BlendMode.srcIn))
                           : SvgPicture.asset('assets/svg/fingerprint.svg',
                               width: 20,
-                              colorFilter: const ColorFilter.mode(
-                                  Colors.black, BlendMode.srcIn))
+                              colorFilter: ColorFilter.mode(
+                                  widget.disabled
+                                      ? MyColors.transparentBlack_30
+                                      : Colors.black,
+                                  BlendMode.srcIn))
                       : Text(
                           widget.keyValue,
-                          style: const TextStyle(
+                          style: TextStyle(
                               fontSize: 20,
                               fontWeight: FontWeight.w600,
-                              color: MyColors.black,
+                              color: widget.disabled
+                                  ? MyColors.transparentBlack_30
+                                  : MyColors.black,
                               fontFamily: 'SpaceGrotesk'),
                         )),
         ));

@@ -2,10 +2,12 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:coconut_vault/constants/pin_constants.dart';
+import 'package:coconut_vault/enums/pin_check_context_enum.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/managers/wallet_list_manager.dart';
 import 'package:coconut_vault/providers/auth_provider.dart';
 import 'package:coconut_vault/screens/common/pin_check_auth_dialog.dart';
+import 'package:coconut_vault/utils/logger.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -16,26 +18,18 @@ import 'package:coconut_vault/styles.dart';
 import 'package:coconut_vault/utils/vibration_util.dart';
 import 'package:coconut_vault/widgets/custom_dialog.dart';
 import 'package:coconut_vault/widgets/bottom_sheet.dart';
-import 'package:coconut_vault/managers/app_unlock_manager.dart';
 import 'package:provider/provider.dart';
 
 import 'pin_input_screen.dart';
-
-enum PinCheckScreenStatus {
-  entrance, // 앱 실행해서 pin 확인
-  lock, // 앱 켜져있는 상태에서 화면 껐다가 켜졌을 때 (AppLifecycleState.paused) // TODO: lock은 Deprecated
-  change, // 핀 변경
-  info // 니모닉, 확장키, 삭제
-}
 
 class PinCheckScreen extends StatefulWidget {
   final Function? onReset;
   final Function? onComplete;
   final bool isDeleteScreen;
-  final PinCheckScreenStatus screenStatus;
+  final PinCheckContextEnum pinCheckContext;
   const PinCheckScreen({
     super.key,
-    required this.screenStatus,
+    required this.pinCheckContext,
     this.onReset,
     this.onComplete,
     this.isDeleteScreen = false,
@@ -47,9 +41,9 @@ class PinCheckScreen extends StatefulWidget {
 
 class _PinCheckScreenState extends State<PinCheckScreen>
     with WidgetsBindingObserver {
-  final AppUnlockManager _appUnlockManager = AppUnlockManager();
-  late String pin;
-  late String errorMessage;
+  late bool _isEntranceOrLockContext;
+  late String _pin;
+  late String _errorMessage;
 
   late AuthProvider _authProvider;
   late List<String> _shuffledPinNumbers;
@@ -57,28 +51,21 @@ class _PinCheckScreenState extends State<PinCheckScreen>
   DateTime? _lastPressedAt;
 
   // when widget.appEntrance is true
-  int attempt = 0;
-  bool lastChanceToTry = false;
   bool _isPause = false;
-
-  final List<int> lockoutDurations = [
-    kPinInputDelayMinutes001,
-    kPinInputDelayMinutes005,
-    kPinInputDelayMinutes015,
-    kPinInputDelayMinutes030,
-    kPinInputDelayMinutes060,
-    kPinInputDelayMinutes180,
-    kPinInputDelayMinutes480,
-    kPinInputDelayMinutes600,
-    kPinInputDelayInfinite,
-  ];
+  bool _isUnlockDisabled = false;
+  bool _isLastChanceToTry = false;
 
   @override
   void initState() {
     super.initState();
 
-    pin = '';
-    errorMessage = '';
+    _pin = '';
+    _errorMessage = '';
+
+    // todo: 이게 무슨 뜻??
+    _isEntranceOrLockContext =
+        widget.pinCheckContext == PinCheckContextEnum.entrance ||
+            widget.pinCheckContext == PinCheckContextEnum.lock;
 
     _authProvider = Provider.of<AuthProvider>(context, listen: false);
     Future.microtask(() {
@@ -86,10 +73,8 @@ class _PinCheckScreenState extends State<PinCheckScreen>
         showAuthenticationFailedDialog(
             context, _authProvider.hasAlreadyRequestedBioPermission);
       };
+      _authProvider.onAuthenticationSuccess = _handleAuthenticationSuccess;
     });
-
-    _loadAttemptCountFromStorage();
-    _checkPinLocked();
 
     WidgetsBinding.instance.addObserver(this);
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -97,15 +82,9 @@ class _PinCheckScreenState extends State<PinCheckScreen>
     });
 
     _shuffledPinNumbers = _authProvider.getShuffledNumberList();
-  }
 
-  void _loadAttemptCountFromStorage() async {
-    attempt = int.parse(_appUnlockManager.loadPinInputAttemptCount());
-    if (attempt != 0 && attempt < kMaxNumberOfAttempts) {
-      setState(() {
-        errorMessage = t.errors.pin_incorrect_with_remaining_attempts_error(
-            count: kMaxNumberOfAttempts - attempt);
-      });
+    if (_isEntranceOrLockContext && _authProvider.isPermanantlyLocked) {
+      _errorMessage = t.errors.pin_max_attempts_exceeded_error;
     }
   }
 
@@ -121,95 +100,128 @@ class _PinCheckScreenState extends State<PinCheckScreen>
   }
 
   /// vault_list_tab screen, this screen pause -> Bio 체크
-  void _checkBiometrics() async {
-    if (widget.screenStatus == PinCheckScreenStatus.lock) {
+  void _checkBiometrics() {
+    if (widget.pinCheckContext == PinCheckContextEnum.lock) {
       // TODO: app_model의  await checkDeviceBiometrics(); 실행을 위해서 아래 함수를 실행한 것임
       // TODO: 앱 백그라운드 -> 포그라운드 상태 변경 시 생체 정보를 업데이트 해주는 로직이 필요함
       /// 생체인증 정보 체크
-      await _authProvider.setInitState();
+      _authProvider.setInitState();
     }
 
-    if (_authProvider.isBiometricEnabled && _authProvider.canCheckBiometrics) {
-      _verifyBiometric();
+    if (_authProvider.canCheckBiometrics) {
+      _authProvider.verifyBiometric(context);
     }
   }
 
   void moveToMain() async {
-    await _authProvider.checkDeviceBiometrics();
+    await _authProvider.updateBiometricAvailability(); // TODO: 이거 여기서 왜하지?
     Navigator.pushNamedAndRemoveUntil(
         context, '/', (Route<dynamic> route) => false);
   }
 
   void _onKeyTap(String value) async {
-    // if (value != '<' && value != 'bio' && value != '') vibrateShort();
+    if (_isUnlockDisabled) return;
+
     if (value == kBiometricIdentifier) {
-      _verifyBiometric();
+      _authProvider.verifyBiometric(context);
       return;
     }
 
-    if ((widget.screenStatus == PinCheckScreenStatus.entrance ||
-            widget.screenStatus == PinCheckScreenStatus.lock) &&
-        attempt == kMaxNumberOfAttempts) {
+    if (_isEntranceOrLockContext && _authProvider.isPermanantlyLocked) {
       return;
     }
 
     setState(() {
       if (value == kDeleteBtnIdentifier) {
-        if (pin.isNotEmpty) {
-          pin = pin.substring(0, pin.length - 1);
+        if (_pin.isNotEmpty) {
+          _pin = _pin.substring(0, _pin.length - 1);
         }
-      } else if (pin.length < kExpectedPinLength) {
-        pin += value;
+      } else if (_pin.length < kExpectedPinLength) {
+        _pin += value;
       }
 
-      if (pin.length == kExpectedPinLength) {
-        context.loaderOverlay.show();
+      if (_pin.length == kExpectedPinLength) {
         _verifyPin();
       }
     });
   }
 
-  void _verifyBiometric() async {
-    if (await _authProvider.authenticateWithBiometrics(context,
-        showAuthenticationFailedDialog: false)) {
-      _verifySwitch();
+  void _handleAuthenticationSuccess() {
+    _authProvider.resetAuthenticationState();
+
+    switch (widget.pinCheckContext) {
+      case PinCheckContextEnum.entrance:
+        widget.onComplete?.call();
+        break;
+      case PinCheckContextEnum.lock:
+        moveToMain();
+        break;
+      case PinCheckContextEnum.change:
+        Navigator.pop(context);
+        MyBottomSheet.showBottomSheet_90(
+            context: context, child: const PinSettingScreen());
+        break;
+      default: // vaultInfo
+        widget.onComplete?.call();
     }
   }
 
   void _verifyPin() async {
-    if (await _authProvider.verifyPin(pin)) {
-      context.loaderOverlay.hide();
-      _verifySwitch();
-    } else {
-      context.loaderOverlay.hide();
-      if (widget.screenStatus == PinCheckScreenStatus.entrance ||
-          widget.screenStatus == PinCheckScreenStatus.lock) {
-        attempt += 1;
-        await _appUnlockManager.setPinInputAttemptCount(attempt);
-        if (attempt < kMaxNumberOfAttempts) {
-          setState(() {
-            errorMessage = t.errors.pin_incorrect_with_remaining_attempts_error(
-                count: kMaxNumberOfAttempts - attempt);
-          });
-          vibrateMediumDouble();
-        } else {
-          vibrateMedium();
-          _checkPinLockout();
-        }
-      } else {
-        setState(() {
-          errorMessage = t.errors.pin_incorrect_error;
-        });
-        vibrateMediumDouble();
+    context.loaderOverlay.show();
+    bool isAuthenticated = await _authProvider.verifyPin(_pin);
+    context.loaderOverlay.hide();
+
+    if (isAuthenticated) {
+      _handleAuthenticationSuccess();
+      return;
+    }
+
+    if (_isEntranceOrLockContext) {
+      if (_authProvider.isPermanantlyLocked) {
+        Logger.log('1 - _handlePermanentLockout');
+        vibrateMedium();
+        _handlePermanentLockout();
+        return;
       }
+
+      if (_authProvider.remainingAttemptCount > 0 &&
+          _authProvider.remainingAttemptCount < kMaxAttemptPerTurn) {
+        vibrateMediumDouble();
+        setState(() {
+          final remainingTimes = _authProvider.remainingAttemptCount;
+          _errorMessage = _isLastChanceToTry
+              ? t.errors
+                  .remaining_times_away_from_reset_error(count: remainingTimes)
+              : t.errors.pin_incorrect_with_remaining_attempts_error(
+                  count: remainingTimes);
+        });
+      } else {
+        vibrateMedium();
+        setState(() {
+          _errorMessage = '';
+          _isUnlockDisabled = true;
+        });
+
+        // if (!_authProvider.isLastChanceToTry) {
+        final nextUnlockTime = _authProvider.unlockAvailableAt;
+        Logger.log('lockoutEndTime $nextUnlockTime');
+        if (nextUnlockTime != null) _startCountdownTimerUntil(nextUnlockTime);
+        // }
+      }
+    } else {
+      vibrateMediumDouble();
       setState(() {
-        pin = '';
-        _shuffledPinNumbers = _authProvider.getShuffledNumberList();
+        _errorMessage = t.errors.pin_incorrect_error;
       });
     }
+
+    setState(() {
+      _pin = '';
+      _shuffledPinNumbers = _authProvider.getShuffledNumberList();
+    });
   }
 
-  void _startLockoutTimer(DateTime lockoutEndTime, int totalAttempt) {
+  void _startCountdownTimerUntil(DateTime lockoutEndTime) {
     Timer.periodic(const Duration(seconds: 1), (timer) {
       if (!mounted) {
         timer.cancel();
@@ -223,22 +235,17 @@ class _PinCheckScreenState extends State<PinCheckScreen>
       if (remainingSeconds == 0) {
         timer.cancel();
         setState(() {
-          if (attempt == kMaxNumberOfAttempts) {
-            attempt = 0;
-            errorMessage = '';
-          }
+          _errorMessage = '';
+          _isUnlockDisabled = false;
 
-          /// 마지막인 시도인 경우 "초기화 주의 문구" 출력
-          if (totalAttempt == kLastUnlockAttemptCount &&
-              remainingSeconds <= 0) {
-            lastChanceToTry = true;
+          if (_authProvider.currentTurn + 1 == kMaxTurn) {
+            _isLastChanceToTry = true;
           }
-          _appUnlockManager.setPinInputAttemptCount(attempt);
         });
       } else {
         final formattedTime = _formatRemainingTime(remainingSeconds);
         setState(() {
-          errorMessage = t.errors.retry_after(time: formattedTime);
+          _errorMessage = t.errors.retry_after(time: formattedTime);
         });
       }
     });
@@ -260,95 +267,12 @@ class _PinCheckScreenState extends State<PinCheckScreen>
     return timeComponents.join(' ');
   }
 
-  void _checkPinLocked() async {
-    /// 처음 시작시 잠금 상태 확인하는 함수
-    /// 잠금 정보를 로드
-    Map<String, String> lockout = _appUnlockManager.loadLockoutDuration();
-    final totalAttempt = int.parse(lockout[AppUnlockManager.totalAttemptKey]!);
-
-    /// 시도 횟수가 0이고 현재 시도 횟수가 {MAX_NUMBER_OF_ATTEMPTS}이 아니라면, 아무 작업도 하지 않음
-    if (totalAttempt == 0 && attempt != kMaxNumberOfAttempts) {
-      return;
-    }
-
-    /// 영구 잠금 상태를 처리
-    if (lockoutDurations[totalAttempt - 1] == kPinInputDelayInfinite) {
-      _handlePermanentLockout();
-      return;
-    }
-
-    /// lockoutEndTime이 유효한 값인지 확인
-    final lockoutEndTime =
-        DateTime.tryParse(lockout[AppUnlockManager.lockoutEndTimeKey]!);
-    if (lockoutEndTime == null) {
-      return;
-    }
-
-    /// 남은 시간을 계산
-    final remainingDuration = lockoutEndTime.difference(DateTime.now());
-    final remainingSeconds =
-        remainingDuration.inSeconds > 0 ? remainingDuration.inSeconds : 0;
-
-    /// 잠금 상태에 따라 타이머를 시작하거나 시도 횟수를 초기화
-    if (remainingSeconds > 0) {
-      _startLockoutTimer(lockoutEndTime, totalAttempt);
-    } else if (attempt == kMaxNumberOfAttempts) {
-      attempt = 0;
-    }
-
-    /// 마지막 재시도인 경우 초기화 주의 문구 출력
-    if (totalAttempt == kLastUnlockAttemptCount && remainingSeconds <= 0) {
-      setState(() {
-        lastChanceToTry = true;
-      });
-    }
-  }
-
-  void _checkPinLockout() async {
-    /// Pin 틀릴 시 잠금처리
-    Map<String, String> lockout = _appUnlockManager.loadLockoutDuration();
-    final totalAttempt = int.parse(lockout[AppUnlockManager.totalAttemptKey]!);
-
-    int awaitDuration = lockoutDurations[totalAttempt];
-    await _appUnlockManager.setLockoutDuration(awaitDuration,
-        totalAttemptCount: totalAttempt + 1);
-
-    if (awaitDuration == kPinInputDelayInfinite) {
-      _handlePermanentLockout();
-      return;
-    }
-
-    lockout = _appUnlockManager.loadLockoutDuration();
-    final lockoutEndTime =
-        DateTime.parse(lockout[AppUnlockManager.lockoutEndTimeKey]!);
-    _startLockoutTimer(lockoutEndTime, totalAttempt + 1);
-  }
-
   void _handlePermanentLockout() {
     setState(() {
-      errorMessage = t.errors.pin_max_attempts_exceeded_error;
-      lastChanceToTry = false;
+      _isLastChanceToTry = false;
+      _errorMessage = t.errors.pin_max_attempts_exceeded_error;
     });
     _showResetDialog();
-  }
-
-  void _verifySwitch() {
-    switch (widget.screenStatus) {
-      case PinCheckScreenStatus.entrance:
-        _appUnlockManager.setLockoutDuration(0);
-        _appUnlockManager.setPinInputAttemptCount(0);
-        widget.onComplete?.call();
-      case PinCheckScreenStatus.lock:
-        _appUnlockManager.setLockoutDuration(0);
-        _appUnlockManager.setPinInputAttemptCount(0);
-        moveToMain();
-      case PinCheckScreenStatus.change:
-        Navigator.pop(context);
-        MyBottomSheet.showBottomSheet_90(
-            context: context, child: const PinSettingScreen());
-      default: // vaultInfo
-        widget.onComplete?.call();
-    }
   }
 
   void _showResetDialog() {
@@ -378,7 +302,7 @@ class _PinCheckScreenState extends State<PinCheckScreen>
       // TODO: 모든 저장소 초기화 필요(?)
       // TODO: _pinAttemptService reset
 
-      if (widget.screenStatus == PinCheckScreenStatus.entrance) {
+      if (widget.pinCheckContext == PinCheckContextEnum.entrance) {
         Navigator.of(context).pop();
         widget.onReset?.call();
       } else {
@@ -391,8 +315,7 @@ class _PinCheckScreenState extends State<PinCheckScreen>
 
   @override
   Widget build(BuildContext context) {
-    return widget.screenStatus == PinCheckScreenStatus.entrance ||
-            widget.screenStatus == PinCheckScreenStatus.lock
+    return _isEntranceOrLockContext
         ? Material(
             color: MyColors.white,
             child: PopScope(
@@ -428,19 +351,12 @@ class _PinCheckScreenState extends State<PinCheckScreen>
 
   Widget _pinInputScreen({isOnReset = false}) {
     return PinInputScreen(
-      appBarVisible: widget.screenStatus == PinCheckScreenStatus.entrance ||
-              widget.screenStatus == PinCheckScreenStatus.lock
-          ? false
-          : true,
-      title: widget.screenStatus == PinCheckScreenStatus.entrance ||
-              widget.screenStatus == PinCheckScreenStatus.lock
-          ? ''
-          : t.pin_check_screen.enter_password,
-      initOptionVisible: widget.screenStatus == PinCheckScreenStatus.entrance ||
-          widget.screenStatus == PinCheckScreenStatus.lock,
+      appBarVisible: _isEntranceOrLockContext ? false : true,
+      title: _isEntranceOrLockContext ? '' : t.pin_check_screen.enter_password,
+      initOptionVisible: _isEntranceOrLockContext,
       isCloseIcon: widget.isDeleteScreen,
-      pin: pin,
-      errorMessage: errorMessage,
+      pin: _pin,
+      errorMessage: _errorMessage,
       onKeyTap: _onKeyTap,
       pinShuffleNumbers: _shuffledPinNumbers,
       onClosePressed: () {
@@ -451,8 +367,9 @@ class _PinCheckScreenState extends State<PinCheckScreen>
       },
       onReset: isOnReset ? _showResetDialog : null,
       step: 0,
-      lastChance: lastChanceToTry,
+      lastChance: _isLastChanceToTry,
       lastChanceMessage: t.pin_check_screen.warning,
+      disabled: _authProvider.isPermanantlyLocked || _isUnlockDisabled,
     );
   }
 

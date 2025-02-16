@@ -22,25 +22,26 @@ class PinInputScreen extends StatefulWidget {
   final bool isCloseIcon;
   final bool lastChance;
   final String? lastChanceMessage;
+  final bool disabled;
 
-  const PinInputScreen({
-    super.key,
-    required this.title,
-    required this.pin,
-    required this.errorMessage,
-    required this.onKeyTap,
-    required this.pinShuffleNumbers,
-    required this.onClosePressed,
-    this.onReset,
-    this.onBackPressed,
-    required this.step,
-    this.isCloseIcon = false,
-    this.appBarVisible = true,
-    this.initOptionVisible = false,
-    this.descriptionTextWidget,
-    this.lastChance = false,
-    this.lastChanceMessage,
-  });
+  const PinInputScreen(
+      {super.key,
+      required this.title,
+      required this.pin,
+      required this.errorMessage,
+      required this.onKeyTap,
+      required this.pinShuffleNumbers,
+      required this.onClosePressed,
+      this.onReset,
+      this.onBackPressed,
+      required this.step,
+      this.isCloseIcon = false,
+      this.appBarVisible = true,
+      this.initOptionVisible = false,
+      this.descriptionTextWidget,
+      this.lastChance = false,
+      this.lastChanceMessage,
+      this.disabled = false});
 
   @override
   PinInputScreenState createState() => PinInputScreenState();
@@ -91,13 +92,13 @@ class PinInputScreenState extends State<PinInputScreen> {
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                PinBox(isSet: widget.pin.isNotEmpty),
+                PinBox(isSet: widget.pin.isNotEmpty, disabled: widget.disabled),
                 const SizedBox(width: 8),
-                PinBox(isSet: widget.pin.length > 1),
+                PinBox(isSet: widget.pin.length > 1, disabled: widget.disabled),
                 const SizedBox(width: 8),
-                PinBox(isSet: widget.pin.length > 2),
+                PinBox(isSet: widget.pin.length > 2, disabled: widget.disabled),
                 const SizedBox(width: 8),
-                PinBox(isSet: widget.pin.length > 3),
+                PinBox(isSet: widget.pin.length > 3, disabled: widget.disabled),
               ],
             ),
             const SizedBox(height: 16),
@@ -129,6 +130,7 @@ class PinInputScreenState extends State<PinInputScreen> {
                       child: KeyButton(
                         keyValue: key,
                         onKeyTap: widget.onKeyTap,
+                        disabled: widget.disabled,
                       ),
                     );
                   }).toList(),

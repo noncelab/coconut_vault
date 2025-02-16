@@ -1,3 +1,4 @@
+import 'package:coconut_vault/enums/pin_check_context_enum.dart';
 import 'package:coconut_vault/main_route_guard.dart';
 import 'package:coconut_vault/model/multisig/multisig_creation_model.dart';
 import 'package:coconut_vault/providers/auth_provider.dart';
@@ -78,7 +79,7 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> {
     } else if (status == AppEntryFlow.pincheck) {
       return CustomLoadingOverlay(
         child: PinCheckScreen(
-          screenStatus: PinCheckScreenStatus.entrance,
+          pinCheckContext: PinCheckContextEnum.entrance,
           onComplete: () {
             _updateEntryFlow(AppEntryFlow.vaultlist);
           },

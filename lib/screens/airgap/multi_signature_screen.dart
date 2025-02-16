@@ -1,4 +1,5 @@
 import 'package:coconut_lib/coconut_lib.dart';
+import 'package:coconut_vault/enums/pin_check_context_enum.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/model/multisig/multisig_vault_list_item.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
@@ -77,7 +78,7 @@ class _MultiSignatureScreenState extends State<MultiSignatureScreen> {
         context: context,
         child: CustomLoadingOverlay(
           child: PinCheckScreen(
-            screenStatus: PinCheckScreenStatus.info,
+            pinCheckContext: PinCheckContextEnum.info,
             isDeleteScreen: true,
             onComplete: () {
               Navigator.pop(context);
