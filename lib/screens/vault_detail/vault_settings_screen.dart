@@ -9,7 +9,6 @@ import 'package:coconut_vault/utils/vibration_util.dart';
 import 'package:coconut_vault/widgets/card/vault_item_card.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:coconut_vault/providers/app_model.dart';
 import 'package:coconut_vault/screens/common/pin_check_screen.dart';
 import 'package:coconut_vault/screens/vault_detail/mnemonic_view_screen.dart';
 import 'package:coconut_vault/screens/vault_detail/qrcode_bottom_sheet_screen.dart';
@@ -28,17 +27,16 @@ import 'package:shimmer/shimmer.dart';
 
 import '../../providers/wallet_provider.dart';
 
-class VaultSettings extends StatefulWidget {
+class VaultSettingsScreen extends StatefulWidget {
   final int id;
 
-  const VaultSettings({super.key, required this.id});
+  const VaultSettingsScreen({super.key, required this.id});
 
   @override
-  State<VaultSettings> createState() => _VaultSettingsState();
+  State<VaultSettingsScreen> createState() => _VaultSettingsScreenState();
 }
 
-class _VaultSettingsState extends State<VaultSettings> {
-  late AppModel _appModel;
+class _VaultSettingsScreenState extends State<VaultSettingsScreen> {
   late WalletProvider _vaultModel;
   late TextEditingController _nameTextController;
   late SinglesigVaultListItem _singleVaultItem;
@@ -58,7 +56,6 @@ class _VaultSettingsState extends State<VaultSettings> {
 
   @override
   void initState() {
-    _appModel = Provider.of<AppModel>(context, listen: false);
     _vaultModel = Provider.of<WalletProvider>(context, listen: false);
     super.initState();
     // id 접근: widget.id

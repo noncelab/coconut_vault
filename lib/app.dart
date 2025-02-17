@@ -33,7 +33,7 @@ import 'package:coconut_vault/screens/vault_detail/select_export_type_screen.dar
 import 'package:coconut_vault/screens/vault_detail/signer_bsms_screen.dart';
 import 'package:coconut_vault/screens/vault_detail/sync_to_wallet_screen.dart';
 import 'package:coconut_vault/screens/vault_detail/vault_menu_screen.dart';
-import 'package:coconut_vault/screens/vault_detail/vault_settings.dart';
+import 'package:coconut_vault/screens/vault_detail/vault_settings_screen.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
@@ -192,7 +192,7 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> {
                   (args) => VaultMenuScreen(id: args['id']),
                 ),
             '/vault-settings': (context) => buildScreenWithArguments(
-                context, (args) => VaultSettings(id: args['id'])),
+                context, (args) => VaultSettingsScreen(id: args['id'])),
             '/multisig-setting': (context) => buildScreenWithArguments(
                   context,
                   (args) => MultiSigSettingScreen(id: args['id']),
