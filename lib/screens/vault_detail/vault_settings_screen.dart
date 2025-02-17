@@ -38,7 +38,7 @@ class VaultSettingsScreen extends StatefulWidget {
 }
 
 class _VaultSettingsScreenState extends State<VaultSettingsScreen> {
-  late WalletProvider _vaultModel;
+  late WalletProvider _walletProvider;
   late TextEditingController _nameTextController;
   late SinglesigVaultListItem _singleVaultItem;
   late SingleSignatureVault _singleSignatureVault;
@@ -57,11 +57,11 @@ class _VaultSettingsScreenState extends State<VaultSettingsScreen> {
 
   @override
   void initState() {
-    _vaultModel = Provider.of<WalletProvider>(context, listen: false);
+    _walletProvider = Provider.of<WalletProvider>(context, listen: false);
     super.initState();
     // id 접근: widget.id
     _singleVaultItem =
-        _vaultModel.getVaultById(widget.id) as SinglesigVaultListItem;
+        _walletProvider.getVaultById(widget.id) as SinglesigVaultListItem;
 
     if (_singleVaultItem.coconutVault is SingleSignatureVault) {
       _singleSignatureVault =
@@ -118,7 +118,7 @@ class _VaultSettingsScreenState extends State<VaultSettingsScreen> {
     }
 
     if (_name != newName && (newName != _singleVaultItem.name)) {
-      if (_vaultModel.isNameDuplicated(newName)) {
+      if (_walletProvider.isNameDuplicated(newName)) {
         CustomToast.showToast(
             context: context, text: t.toast.name_already_used);
         return;
@@ -126,7 +126,7 @@ class _VaultSettingsScreenState extends State<VaultSettingsScreen> {
     }
 
     if (hasChanges) {
-      await _vaultModel.updateVault(
+      await _walletProvider.updateVault(
           widget.id, newName, newColorIndex, newIconIndex);
 
       setState(() {
@@ -194,7 +194,7 @@ class _VaultSettingsScreenState extends State<VaultSettingsScreen> {
         }
       default:
         {
-          _vaultModel.deleteVault(widget.id);
+          _walletProvider.deleteVault(widget.id);
           vibrateLight();
           Navigator.popUntil(context, (route) => route.isFirst);
         }
@@ -340,10 +340,10 @@ class _VaultSettingsScreenState extends State<VaultSettingsScreen> {
                                                   .elementAt(index);
 
                                               if (isLoadVaultList &&
-                                                  _vaultModel.vaultList.any(
+                                                  _walletProvider.vaultList.any(
                                                       (element) =>
                                                           element.id == id)) {
-                                                final multisig = _vaultModel
+                                                final multisig = _walletProvider
                                                     .getVaultById(id);
                                                 return InkWell(
                                                   onTap: () {

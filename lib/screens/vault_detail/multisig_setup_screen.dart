@@ -38,7 +38,7 @@ class MultisigSetupScreen extends StatefulWidget {
 }
 
 class _MultisigSetupScreenState extends State<MultisigSetupScreen> {
-  late WalletProvider _vaultModel;
+  late WalletProvider _walletProvider;
   late MultisigVaultListItem _multiVault;
 
   final GlobalKey _tooltipIconKey = GlobalKey();
@@ -53,7 +53,7 @@ class _MultisigSetupScreenState extends State<MultisigSetupScreen> {
   @override
   void initState() {
     super.initState();
-    _vaultModel = Provider.of<WalletProvider>(context, listen: false);
+    _walletProvider = Provider.of<WalletProvider>(context, listen: false);
     _updateMultiVaultListItem();
     int innerVaultCount =
         _multiVault.signers.where((s) => s.innerVaultId != null).length;
@@ -72,7 +72,7 @@ class _MultisigSetupScreenState extends State<MultisigSetupScreen> {
   }
 
   _updateMultiVaultListItem() {
-    final vaultBasItem = _vaultModel.getVaultById(widget.id);
+    final vaultBasItem = _walletProvider.getVaultById(widget.id);
     _multiVault = vaultBasItem as MultisigVaultListItem;
   }
 
@@ -119,13 +119,14 @@ class _MultisigSetupScreenState extends State<MultisigSetupScreen> {
       hasChanges = true;
     }
 
-    if (newName != _multiVault.name && _vaultModel.isNameDuplicated(newName)) {
+    if (newName != _multiVault.name &&
+        _walletProvider.isNameDuplicated(newName)) {
       CustomToast.showToast(context: context, text: t.toast.name_already_used);
       return;
     }
 
     if (hasChanges) {
-      await _vaultModel.updateVault(
+      await _walletProvider.updateVault(
           widget.id, newName, newColorIndex, newIconIndex);
 
       _updateMultiVaultListItem();
@@ -160,7 +161,9 @@ class _MultisigSetupScreenState extends State<MultisigSetupScreen> {
         onUpdate: (memo) {
           if (selectedMemo == memo) return;
 
-          _vaultModel.updateMemo(widget.id, selectedVault.id, memo).then((_) {
+          _walletProvider
+              .updateMemo(widget.id, selectedVault.id, memo)
+              .then((_) {
             setState(() {
               String? finalMemo = memo;
               if (memo.isEmpty) {
@@ -208,7 +211,7 @@ class _MultisigSetupScreenState extends State<MultisigSetupScreen> {
                 break;
               case 1:
                 final base =
-                    _vaultModel.getVaultById(multisigSigner!.innerVaultId!);
+                    _walletProvider.getVaultById(multisigSigner!.innerVaultId!);
                 final single = base as SinglesigVaultListItem;
                 MyBottomSheet.showBottomSheet_90(
                   context: context,
@@ -220,7 +223,7 @@ class _MultisigSetupScreenState extends State<MultisigSetupScreen> {
                 );
                 break;
               default:
-                _vaultModel.deleteVault(widget.id);
+                _walletProvider.deleteVault(widget.id);
                 vibrateLight();
                 Navigator.popUntil(context, (route) => route.isFirst);
             }
