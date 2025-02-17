@@ -1,3 +1,4 @@
+import 'package:coconut_vault/constants/app_routes.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/enums/wallet_enums.dart';
 import 'package:flutter/material.dart';
@@ -136,7 +137,7 @@ class _PsbtConfirmationScreenState extends State<PsbtConfirmationScreen> {
           if (_isMultisig) {
             Navigator.pushNamed(
               context,
-              '/multi-signature',
+              AppRoutes.multiSignature,
               arguments: {
                 'id': widget.id,
                 'psbtBase64': _waitingForSignaturePsbtBase64!,
@@ -147,7 +148,7 @@ class _PsbtConfirmationScreenState extends State<PsbtConfirmationScreen> {
           } else {
             Navigator.pushNamed(
               context,
-              '/singlesig-sign',
+              AppRoutes.singleSignature,
               arguments: {
                 'id': widget.id,
                 'psbtBase64': _waitingForSignaturePsbtBase64!,

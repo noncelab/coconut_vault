@@ -1,13 +1,14 @@
 import 'dart:io';
 
+import 'package:coconut_vault/constants/app_routes.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/providers/connectivity_provider.dart';
-import 'package:coconut_vault/screens/pin_setting_screen.dart';
+import 'package:coconut_vault/screens/settings/pin_setting_screen.dart';
 import 'package:coconut_vault/widgets/coconut_dropdown.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:coconut_vault/providers/app_model.dart';
-import 'package:coconut_vault/screens/setting/settings_screen.dart';
+import 'package:coconut_vault/screens/settings/settings_screen.dart';
 import 'package:coconut_vault/styles.dart';
 import 'package:coconut_vault/widgets/appbar/frosted_appbar.dart';
 import 'package:coconut_vault/widgets/bottom_sheet.dart';
@@ -242,8 +243,8 @@ class _VaultListScreenState extends State<VaultListScreen>
                                           child: const PinSettingScreen(
                                               greetingVisible: true));
                                     } else {
-                                      Navigator.pushNamed(
-                                          context, '/select-vault-type');
+                                      Navigator.pushNamed(context,
+                                          AppRoutes.vaultTypeSelection);
                                     }
                                   },
                                   borderRadius: BorderRadius.circular(10),
@@ -327,7 +328,7 @@ class _VaultListScreenState extends State<VaultListScreen>
                               switch (index) {
                                 case 0: // 니모닉 문구 단어집
                                   Navigator.pushNamed(
-                                      context, '/mnemonic-word-list');
+                                      context, AppRoutes.mnemonicWordList);
                                   break;
                                 case 1: // 설정
                                   MyBottomSheet.showBottomSheet_90(
@@ -335,7 +336,8 @@ class _VaultListScreenState extends State<VaultListScreen>
                                       child: const SettingsScreen());
                                   break;
                                 case 2: // 앱 정보 보기
-                                  Navigator.pushNamed(context, '/app-info');
+                                  Navigator.pushNamed(
+                                      context, AppRoutes.appInfo);
                                   break;
                               }
                             },

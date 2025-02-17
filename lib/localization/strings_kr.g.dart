@@ -599,7 +599,7 @@ class TranslationsSignerQrBottomSheetKr {
 	final Translations _root; // ignore: unused_field
 
 	// Translations
-	String get text1 => '서명 트랜잭션 내보내기';
+	String get title => '서명 트랜잭션 내보내기';
 	String get text2_1 => '번 키가 보관된 볼트에서 다중 서명 지갑 ';
 	String get text2_2 => ' 선택 - ';
 	String get text2_3 => '다중 서명하기';
@@ -1383,7 +1383,7 @@ extension on Translations {
 			case 'select_multisig_quorum_screen.one_or_two_of_n': return '하나의 키를 분실하거나 키 보관자 중 한 명이 부재중이더라도 비트코인을 보낼 수 있어요.';
 			case 'select_multisig_quorum_screen.n_of_n': return '모든 키가 있어야만 비트코인을 보낼 수 있어요. 단 하나의 키만 잃어버려도 자금에 접근할 수 없게 되니 분실에 각별히 신경써 주세요.';
 			case 'select_multisig_quorum_screen.one_of_n': return '하나의 키만 있어도 비트코인을 이동시킬 수 있어요. 상대적으로 보안성이 낮기 때문에 권장하지 않아요.';
-			case 'signer_qr_bottom_sheet.text1': return '서명 트랜잭션 내보내기';
+			case 'signer_qr_bottom_sheet.title': return '서명 트랜잭션 내보내기';
 			case 'signer_qr_bottom_sheet.text2_1': return '번 키가 보관된 볼트에서 다중 서명 지갑 ';
 			case 'signer_qr_bottom_sheet.text2_2': return ' 선택 - ';
 			case 'signer_qr_bottom_sheet.text2_3': return '다중 서명하기';
