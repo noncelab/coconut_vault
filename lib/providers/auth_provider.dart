@@ -5,7 +5,7 @@ import 'dart:math';
 import 'package:coconut_vault/constants/pin_constants.dart';
 import 'package:coconut_vault/constants/shared_preferences_keys.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
-import 'package:coconut_vault/providers/app_model.dart';
+import 'package:coconut_vault/managers/wallet_list_manager.dart';
 import 'package:coconut_vault/repository/secure_storage_repository.dart';
 import 'package:coconut_vault/repository/shared_preferences_repository.dart';
 import 'package:coconut_vault/utils/hash_util.dart';
@@ -14,9 +14,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:local_auth/local_auth.dart';
-
-typedef CountdownTimerCallback = void Function(
-    DateTime remainingTime, int totalAttempt);
 
 class AuthProvider extends ChangeNotifier {
   static String unlockAvailableAtKey = SharedPrefsKeys.kUnlockAvailableAt;
@@ -67,7 +64,7 @@ class AuthProvider extends ChangeNotifier {
   int get remainingAttemptCount => kMaxAttemptPerTurn - _currentAttemptInTurn;
   bool get isPermanantlyLocked => _currentTurn == kMaxTurn;
 
-  VoidCallback? onRequestShowDialog;
+  VoidCallback? onRequestShowAuthenticationFailedDialog;
   VoidCallback? onBiometricAuthFailed;
   VoidCallback? onAuthenticationSuccess;
 
@@ -125,7 +122,7 @@ class AuthProvider extends ChangeNotifier {
 
       if (Platform.isIOS && !authenticated) {
         if (context.mounted) {
-          onRequestShowDialog!();
+          onRequestShowAuthenticationFailedDialog!();
         }
       }
 
@@ -145,7 +142,7 @@ class AuthProvider extends ChangeNotifier {
             e.message == 'Biometry is not available.' &&
             showAuthenticationFailedDialog) {
           if (context.mounted) {
-            onRequestShowDialog!();
+            onRequestShowAuthenticationFailedDialog!();
           }
         }
         _setHasAlreadyRequestedBioPermissionTrue();
@@ -228,7 +225,7 @@ class AuthProvider extends ChangeNotifier {
   /// 비밀번호 검증
   Future<bool> verifyPin(String inputPin) async {
     String hashedInput = hashString(inputPin);
-    final savedPin = await _storageService.read(key: VAULT_PIN);
+    final savedPin = await _storageService.read(key: SharedPrefsKeys.kVaultPin);
 
     if (savedPin == hashedInput) {
       resetAuthenticationState();
@@ -247,22 +244,26 @@ class AuthProvider extends ChangeNotifier {
     }
 
     String hashed = hashString(pin);
-    await _storageService.write(key: VAULT_PIN, value: hashed);
+    await _storageService.write(key: SharedPrefsKeys.kVaultPin, value: hashed);
     _isPinSet = true;
     _sharedPrefs.setBool(SharedPrefsKeys.isPinEnabled, true);
   }
 
   /// 비밀번호 초기화
   Future<void> resetPin() async {
+    final WalletListManager walletListManager = WalletListManager();
+    await walletListManager.resetAll();
+
     // TODO: _isResetVault = true;
+
     _isBiometricEnabled = false;
     _isPinSet = false;
-    // TODO: _vaultListLength = 0;
-
-    await _storageService.delete(key: VAULT_PIN);
+    await _storageService.delete(key: SharedPrefsKeys.kVaultPin);
     _sharedPrefs.setBool(SharedPrefsKeys.isBiometricEnabled, false);
     _sharedPrefs.setBool(SharedPrefsKeys.isPinEnabled, false);
     _sharedPrefs.setInt(SharedPrefsKeys.vaultListLength, 0);
+
+    resetAuthenticationState();
   }
 
   // TODO: 딜레이 발생 이유

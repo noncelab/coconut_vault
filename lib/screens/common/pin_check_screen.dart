@@ -4,7 +4,6 @@ import 'dart:io';
 import 'package:coconut_vault/constants/pin_constants.dart';
 import 'package:coconut_vault/enums/pin_check_context_enum.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
-import 'package:coconut_vault/managers/wallet_list_manager.dart';
 import 'package:coconut_vault/providers/auth_provider.dart';
 import 'package:coconut_vault/screens/common/pin_check_auth_dialog.dart';
 import 'package:coconut_vault/utils/logger.dart';
@@ -12,7 +11,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:loader_overlay/loader_overlay.dart';
-import 'package:coconut_vault/providers/app_model.dart';
 import 'package:coconut_vault/screens/pin_setting_screen.dart';
 import 'package:coconut_vault/styles.dart';
 import 'package:coconut_vault/utils/vibration_util.dart';
@@ -41,7 +39,7 @@ class PinCheckScreen extends StatefulWidget {
 
 class _PinCheckScreenState extends State<PinCheckScreen>
     with WidgetsBindingObserver {
-  late bool _isEntranceOrLockContext;
+  late bool _isAppLaunchedOrResumed;
   late String _pin;
   late String _errorMessage;
 
@@ -51,7 +49,7 @@ class _PinCheckScreenState extends State<PinCheckScreen>
   DateTime? _lastPressedAt;
 
   // when widget.appEntrance is true
-  bool _isPause = false;
+  bool _isPaused = false;
   bool _isUnlockDisabled = false;
   bool _isLastChanceToTry = false;
 
@@ -62,14 +60,13 @@ class _PinCheckScreenState extends State<PinCheckScreen>
     _pin = '';
     _errorMessage = '';
 
-    // todo: 이게 무슨 뜻??
-    _isEntranceOrLockContext =
-        widget.pinCheckContext == PinCheckContextEnum.entrance ||
-            widget.pinCheckContext == PinCheckContextEnum.lock;
+    _isAppLaunchedOrResumed =
+        widget.pinCheckContext == PinCheckContextEnum.appLaunch ||
+            widget.pinCheckContext == PinCheckContextEnum.appResume;
 
     _authProvider = Provider.of<AuthProvider>(context, listen: false);
     Future.microtask(() {
-      _authProvider.onRequestShowDialog = () {
+      _authProvider.onRequestShowAuthenticationFailedDialog = () {
         showAuthenticationFailedDialog(
             context, _authProvider.hasAlreadyRequestedBioPermission);
       };
@@ -83,7 +80,7 @@ class _PinCheckScreenState extends State<PinCheckScreen>
 
     _shuffledPinNumbers = _authProvider.getShuffledNumberList();
 
-    if (_isEntranceOrLockContext && _authProvider.isPermanantlyLocked) {
+    if (_isAppLaunchedOrResumed && _authProvider.isPermanantlyLocked) {
       _errorMessage = t.errors.pin_max_attempts_exceeded_error;
     }
   }
@@ -92,16 +89,16 @@ class _PinCheckScreenState extends State<PinCheckScreen>
   void didChangeAppLifecycleState(AppLifecycleState state) {
     /// 스크린 Pause -> 생체인증 변동사항 체크
     if (AppLifecycleState.paused == state) {
-      _isPause = true;
-    } else if (AppLifecycleState.resumed == state && _isPause) {
-      _isPause = false;
+      _isPaused = true;
+    } else if (AppLifecycleState.resumed == state && _isPaused) {
+      _isPaused = false;
       _checkBiometrics();
     }
   }
 
   /// vault_list_tab screen, this screen pause -> Bio 체크
   void _checkBiometrics() {
-    if (widget.pinCheckContext == PinCheckContextEnum.lock) {
+    if (widget.pinCheckContext == PinCheckContextEnum.appResume) {
       // TODO: app_model의  await checkDeviceBiometrics(); 실행을 위해서 아래 함수를 실행한 것임
       // TODO: 앱 백그라운드 -> 포그라운드 상태 변경 시 생체 정보를 업데이트 해주는 로직이 필요함
       /// 생체인증 정보 체크
@@ -120,14 +117,11 @@ class _PinCheckScreenState extends State<PinCheckScreen>
   }
 
   void _onKeyTap(String value) async {
-    if (_isUnlockDisabled) return;
+    if (_isUnlockDisabled ||
+        _isAppLaunchedOrResumed && _authProvider.isPermanantlyLocked) return;
 
     if (value == kBiometricIdentifier) {
       _authProvider.verifyBiometric(context);
-      return;
-    }
-
-    if (_isEntranceOrLockContext && _authProvider.isPermanantlyLocked) {
       return;
     }
 
@@ -150,10 +144,10 @@ class _PinCheckScreenState extends State<PinCheckScreen>
     _authProvider.resetAuthenticationState();
 
     switch (widget.pinCheckContext) {
-      case PinCheckContextEnum.entrance:
+      case PinCheckContextEnum.appLaunch:
         widget.onComplete?.call();
         break;
-      case PinCheckContextEnum.lock:
+      case PinCheckContextEnum.appResume:
         moveToMain();
         break;
       case PinCheckContextEnum.change:
@@ -176,7 +170,7 @@ class _PinCheckScreenState extends State<PinCheckScreen>
       return;
     }
 
-    if (_isEntranceOrLockContext) {
+    if (_isAppLaunchedOrResumed) {
       if (_authProvider.isPermanantlyLocked) {
         Logger.log('1 - _handlePermanentLockout');
         vibrateMedium();
@@ -202,11 +196,8 @@ class _PinCheckScreenState extends State<PinCheckScreen>
           _isUnlockDisabled = true;
         });
 
-        // if (!_authProvider.isLastChanceToTry) {
         final nextUnlockTime = _authProvider.unlockAvailableAt;
-        Logger.log('lockoutEndTime $nextUnlockTime');
         if (nextUnlockTime != null) _startCountdownTimerUntil(nextUnlockTime);
-        // }
       }
     } else {
       vibrateMediumDouble();
@@ -295,14 +286,9 @@ class _PinCheckScreenState extends State<PinCheckScreen>
         confirmButtonText: t.alert.forgot_password.btn_reset,
         confirmButtonColor: MyColors.warningText,
         cancelButtonText: t.close, onConfirm: () async {
-      WalletListManager().resetAll();
-      final appModel = Provider.of<AppModel>(context, listen: false);
-      appModel.resetPassword();
-      appModel.saveVaultListLength(0);
-      // TODO: 모든 저장소 초기화 필요(?)
-      // TODO: _pinAttemptService reset
+      await _authProvider.resetPin();
 
-      if (widget.pinCheckContext == PinCheckContextEnum.entrance) {
+      if (widget.pinCheckContext == PinCheckContextEnum.appLaunch) {
         Navigator.of(context).pop();
         widget.onReset?.call();
       } else {
@@ -315,7 +301,7 @@ class _PinCheckScreenState extends State<PinCheckScreen>
 
   @override
   Widget build(BuildContext context) {
-    return _isEntranceOrLockContext
+    return _isAppLaunchedOrResumed
         ? Material(
             color: MyColors.white,
             child: PopScope(
@@ -351,9 +337,9 @@ class _PinCheckScreenState extends State<PinCheckScreen>
 
   Widget _pinInputScreen({isOnReset = false}) {
     return PinInputScreen(
-      appBarVisible: _isEntranceOrLockContext ? false : true,
-      title: _isEntranceOrLockContext ? '' : t.pin_check_screen.enter_password,
-      initOptionVisible: _isEntranceOrLockContext,
+      appBarVisible: _isAppLaunchedOrResumed ? false : true,
+      title: _isAppLaunchedOrResumed ? '' : t.pin_check_screen.enter_password,
+      initOptionVisible: _isAppLaunchedOrResumed,
       isCloseIcon: widget.isDeleteScreen,
       pin: _pin,
       errorMessage: _errorMessage,

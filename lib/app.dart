@@ -79,7 +79,7 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> {
     } else if (status == AppEntryFlow.pincheck) {
       return CustomLoadingOverlay(
         child: PinCheckScreen(
-          pinCheckContext: PinCheckContextEnum.entrance,
+          pinCheckContext: PinCheckContextEnum.appLaunch,
           onComplete: () {
             _updateEntryFlow(AppEntryFlow.vaultlist);
           },

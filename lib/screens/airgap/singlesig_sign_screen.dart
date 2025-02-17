@@ -71,7 +71,7 @@ class _SinglesigSignScreenState extends State<SinglesigSignScreen> {
         context: context,
         child: CustomLoadingOverlay(
           child: PinCheckScreen(
-            pinCheckContext: PinCheckContextEnum.info,
+            pinCheckContext: PinCheckContextEnum.securityCheck,
             isDeleteScreen: true,
             onComplete: () {
               Navigator.pop(context);

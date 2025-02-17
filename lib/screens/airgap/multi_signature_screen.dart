@@ -78,7 +78,7 @@ class _MultiSignatureScreenState extends State<MultiSignatureScreen> {
         context: context,
         child: CustomLoadingOverlay(
           child: PinCheckScreen(
-            pinCheckContext: PinCheckContextEnum.info,
+            pinCheckContext: PinCheckContextEnum.securityCheck,
             isDeleteScreen: true,
             onComplete: () {
               Navigator.pop(context);
