@@ -1,21 +1,17 @@
-import 'dart:convert';
-
 import 'package:coconut_lib/coconut_lib.dart';
 import 'package:coconut_vault/constants/app_routes.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/model/multisig/multisig_signer.dart';
 import 'package:coconut_vault/model/singlesig/singlesig_vault_list_item.dart';
 import 'package:coconut_vault/model/common/vault_list_item_base.dart';
-import 'package:coconut_vault/enums/wallet_enums.dart';
 import 'package:coconut_vault/model/multisig/multisig_creation_model.dart';
+import 'package:coconut_vault/providers/view_model/signer_assignment_view_model.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:coconut_vault/screens/vault_creation/multisig/import_confirmation_screen.dart';
 import 'package:coconut_vault/screens/vault_creation/multisig/signer_assignment_key_list_bottom_sheet.dart';
 import 'package:coconut_vault/screens/vault_creation/multisig/signer_scan_screen.dart';
-import 'package:coconut_vault/managers/isolate_manager.dart';
 import 'package:coconut_vault/utils/alert_util.dart';
 import 'package:coconut_vault/utils/icon_util.dart';
-import 'package:coconut_vault/utils/isolate_handler.dart';
 import 'package:coconut_vault/widgets/bottom_sheet.dart';
 import 'package:coconut_vault/widgets/button/custom_buttons.dart';
 import 'package:coconut_vault/widgets/custom_dialog.dart';
@@ -50,28 +46,12 @@ class SignerAssignmentScreen extends StatefulWidget {
 }
 
 class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
+  late SignerAssignmentViewModel _viewModel;
   ValueNotifier<bool> isButtonActiveNotifier = ValueNotifier<bool>(false);
-  late int totalSignatureCount; // 전체 키의 수
-  late int requiredSignatureCount; // 필요한 서명 수
-  late List<AssignedVaultListItem> assignedVaultList; // 키 가져오기에서 선택 완료한 객체
-  late List<SignerOption> signerOptions = [];
-  late List<SignerOption> unselectedSignerOptions;
-  // 내부 지갑 중 Signer 선택하는 순간에만 사용함
-  int? selectedSignerOptionIndex;
-
-  late List<SinglesigVaultListItem> singlesigVaultList;
-  late WalletProvider _vaultModel;
   bool isFinishing = false;
   bool isNextProcessing = false;
   bool alreadyDialogShown = false;
   late DraggableScrollableController draggableController;
-
-  IsolateHandler<List<VaultListItemBase>, List<String>>?
-      _extractBsmsIsolateHandler;
-  IsolateHandler<Map<String, dynamic>, MultisignatureVault>?
-      _fromKeyStoreListIsolateHandler;
-
-  late MultisigCreationModel _multisigCreationState;
 
   String? loadingMessage;
   bool hasValidationCompleted = false;
@@ -79,21 +59,11 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
   @override
   void initState() {
     super.initState();
-    _vaultModel = Provider.of<WalletProvider>(context, listen: false);
-    _multisigCreationState =
-        Provider.of<MultisigCreationModel>(context, listen: false);
-    requiredSignatureCount = _multisigCreationState.requiredSignatureCount!;
-    totalSignatureCount = _multisigCreationState.totalSignatureCount!;
+    _viewModel = SignerAssignmentViewModel(
+      Provider.of<WalletProvider>(context, listen: false),
+      Provider.of<MultisigCreationModel>(context, listen: false),
+    );
 
-    _initAssigendVaultList();
-
-    singlesigVaultList = _vaultModel
-        .getVaults()
-        .where((vault) => vault.vaultType == WalletType.singleSignature)
-        .map((vault) => vault as SinglesigVaultListItem)
-        .toList();
-
-    _initSignerOptionList(singlesigVaultList);
     draggableController = DraggableScrollableController();
     draggableController.addListener(() {
       if (draggableController.size <= 0.71 && !alreadyDialogShown) {
@@ -107,114 +77,6 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
     isButtonActiveNotifier.dispose();
     draggableController.dispose();
     super.dispose();
-  }
-
-  Future<MultisignatureVault> _createMultisignatureVault(
-      List<KeyStore> keyStores) async {
-    if (_fromKeyStoreListIsolateHandler == null) {
-      _fromKeyStoreListIsolateHandler =
-          IsolateHandler<Map<String, dynamic>, MultisignatureVault>(
-              fromKeyStoreIsolate);
-      await _fromKeyStoreListIsolateHandler!
-          .initialize(initialType: InitializeType.fromKeyStore);
-    }
-
-    Map<String, dynamic> data = {
-      'keyStores': jsonEncode(keyStores.map((item) => item.toJson()).toList()),
-      'requiredSignatureCount': requiredSignatureCount,
-    };
-
-    MultisignatureVault multisignatureVault =
-        await _fromKeyStoreListIsolateHandler!.run(data);
-
-    return multisignatureVault;
-  }
-
-  Future<void> _initSignerOptionList(
-      List<SinglesigVaultListItem> singlesigVaultList) async {
-    if (_extractBsmsIsolateHandler == null) {
-      _extractBsmsIsolateHandler =
-          IsolateHandler<List<SinglesigVaultListItem>, List<String>>(
-              extractSignerBsmsIsolate);
-      await _extractBsmsIsolateHandler!
-          .initialize(initialType: InitializeType.extractSignerBsms);
-    }
-
-    List<String> bsmses =
-        await _extractBsmsIsolateHandler!.run(singlesigVaultList);
-
-    for (int i = 0; i < singlesigVaultList.length; i++) {
-      signerOptions.add(SignerOption(singlesigVaultList[i], bsmses[i]));
-    }
-
-    unselectedSignerOptions = signerOptions.toList();
-
-    _extractBsmsIsolateHandler!.dispose();
-  }
-
-  bool _isAssignedKeyCompletely() {
-    int assignedCount = _getAssignedVaultListLength();
-    if (assignedCount >= totalSignatureCount) {
-      return true;
-    }
-    return false;
-  }
-
-  int _getAssignedVaultListLength() {
-    return assignedVaultList.where((e) => e.importKeyType != null).length;
-  }
-
-  void _initAssigendVaultList() {
-    assignedVaultList = List.generate(
-      totalSignatureCount,
-      (index) => AssignedVaultListItem(
-        item: null,
-        index: index,
-        importKeyType: null,
-      ),
-    );
-
-    if (mounted) {
-      setState(() {
-        assignedVaultList[0].isExpanded = true;
-      });
-    }
-  }
-
-  bool _isAllAssignedFromExternal() {
-    return assignedVaultList.every((vault) =>
-            vault.importKeyType == null ||
-            vault.importKeyType == ImportKeyType.external) &&
-        _getAssignedVaultListLength() >= totalSignatureCount - 1;
-  }
-
-  bool _isAlreadyImported(String signerBsms) {
-    List<String> splitedOne = signerBsms.split('\n');
-    for (int i = 0; i < assignedVaultList.length; i++) {
-      if (assignedVaultList[i].bsms == null) continue;
-      List<String> splitedTwo = assignedVaultList[i].bsms!.split('\n');
-      if (splitedOne[0] == splitedTwo[0] &&
-          splitedOne[1] == splitedTwo[1] &&
-          splitedOne[2] == splitedTwo[2]) {
-        return true;
-      }
-      // if (assignedVaultList[i].bsms == signerBsms) {
-      //   return true;
-      // }
-    }
-
-    return false;
-  }
-
-  /// bsms를 비교하여 이미 보유한 볼트 지갑 중 하나인 경우 이름을 반환
-  String? _findVaultNameByBsms(String signerBsms) {
-    var mfp = BSMS.parseSigner(signerBsms).signer!.masterFingerPrint;
-
-    int result = signerOptions.indexWhere((element) {
-      return element.masterFingerprint == mfp;
-    });
-    if (result == -1) return null;
-    return signerOptions[result].singlesigVaultListItem.name;
   }
 
   void _showDialog(DialogType type, {int keyIndex = 0, String? vaultName}) {
@@ -268,7 +130,7 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
           confirmButtonText = t.stop;
           confirmButtonColor = MyColors.warningText;
           onConfirm = () {
-            _multisigCreationState.reset();
+            _viewModel.multisigCreationModel.reset();
             Navigator.pop(context);
             Navigator.pushNamedAndRemoveUntil(
                 context, '/', (Route<dynamic> route) => false);
@@ -284,23 +146,26 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
           confirmButtonColor = MyColors.warningText;
           onConfirm = () {
             // 내부 지갑인 경우
-            if (assignedVaultList[keyIndex].importKeyType ==
+            if (_viewModel.assignedVaultList[keyIndex].importKeyType ==
                 ImportKeyType.internal) {
               int insertIndex = 0;
-              for (int i = 0; i < unselectedSignerOptions.length; i++) {
-                if (assignedVaultList[keyIndex].item!.id >
-                    unselectedSignerOptions[i].singlesigVaultListItem.id) {
+              for (int i = 0;
+                  i < _viewModel.unselectedSignerOptions.length;
+                  i++) {
+                if (_viewModel.assignedVaultList[keyIndex].item!.id >
+                    _viewModel
+                        .unselectedSignerOptions[i].singlesigVaultListItem.id) {
                   insertIndex++;
                 }
               }
-              unselectedSignerOptions.insert(
+              _viewModel.unselectedSignerOptions.insert(
                   insertIndex,
-                  SignerOption(assignedVaultList[keyIndex].item!,
-                      assignedVaultList[keyIndex].bsms!));
+                  SignerOption(_viewModel.assignedVaultList[keyIndex].item!,
+                      _viewModel.assignedVaultList[keyIndex].bsms!));
             }
 
             setState(() {
-              assignedVaultList[keyIndex].reset();
+              _viewModel.assignedVaultList[keyIndex].reset();
               if (hasValidationCompleted) {
                 hasValidationCompleted = false;
               }
@@ -391,10 +256,10 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
   }
 
   void _onBackPressed(BuildContext context) {
-    if (_getAssignedVaultListLength() > 0) {
+    if (_viewModel.getAssignedVaultListLength() > 0) {
       _showDialog(DialogType.quit);
     } else {
-      _multisigCreationState.reset();
+      _viewModel.multisigCreationModel.reset();
       isFinishing = true;
       Navigator.pop(context);
     }
@@ -408,64 +273,9 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
     });
 
     await Future.delayed(const Duration(seconds: 3));
-
-    List<KeyStore> keyStores = [];
     List<MultisigSigner> signers = [];
-
-    for (int i = 0; i < assignedVaultList.length; i++) {
-      keyStores.add(KeyStore.fromSignerBsms(assignedVaultList[i].bsms!));
-      switch (assignedVaultList[i].importKeyType!) {
-        case ImportKeyType.internal:
-          signers.add(MultisigSigner(
-              id: i,
-              innerVaultId: assignedVaultList[i].item!.id,
-              name: assignedVaultList[i].item!.name,
-              iconIndex: assignedVaultList[i].item!.iconIndex,
-              colorIndex: assignedVaultList[i].item!.colorIndex,
-              signerBsms: assignedVaultList[i].bsms!,
-              keyStore: keyStores[i]));
-          break;
-        case ImportKeyType.external:
-          signers.add(MultisigSigner(
-              id: i,
-              signerBsms: assignedVaultList[i].bsms!,
-              name: assignedVaultList[i].bsms?.split('\n')[3] ?? '',
-              memo: assignedVaultList[i].memo,
-              keyStore: keyStores[i]));
-          break;
-        default:
-          throw ArgumentError(
-              "wrong importKeyType: ${assignedVaultList[i].importKeyType!}");
-      }
-    }
-
-    assert(signers.length == totalSignatureCount);
-    // signer mfp 기준으로 재정렬하기
-    List<int> indices = List.generate(keyStores.length, (i) => i);
-    indices.sort((a, b) => keyStores[a]
-        .masterFingerprint
-        .compareTo(keyStores[b].masterFingerprint));
-
-    keyStores = [for (var i in indices) keyStores[i]];
-    signers = [for (var i in indices) signers[i]]
-      ..asMap().forEach((i, signer) => signer.id = i);
-
-    // 오래 걸리는 작업 뒤에 setState가 있으면 mounted 체크를 해주어햐 에러가 나지 않습니다.
-    if (!mounted) return;
-    setState(() {
-      assignedVaultList = [for (var i in indices) assignedVaultList[i]];
-
-      for (int i = 0; i < assignedVaultList.length; i++) {
-        assignedVaultList[i].index = i;
-      }
-
-      loadingMessage = t.assign_signers_screen.data_verifying;
-    });
-
-    // 검증: 올바른 Signer 정보를 받았는지 확인합니다.
-    MultisignatureVault newMultisigVault;
     try {
-      newMultisigVault = await _createMultisignatureVault(keyStores);
+      signers = await _viewModel.onSelectionCompleted();
     } catch (error) {
       if (mounted) {
         setState(() {
@@ -480,8 +290,8 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
     }
 
     // multisig 지갑 리스트에서 중복 체크 하기
-    VaultListItemBase? findResult =
-        _vaultModel.findWalletByDescriptor(newMultisigVault.descriptor);
+    VaultListItemBase? findResult = _viewModel.walletProvider
+        .findWalletByDescriptor(_viewModel.newMultisigVault!.descriptor);
     if (findResult != null) {
       if (mounted) {
         CustomToast.showToast(
@@ -494,10 +304,9 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
       return;
     }
 
-    _multisigCreationState.setSigners(signers);
+    _viewModel.multisigCreationModel.setSigners(signers);
 
-    _fromKeyStoreListIsolateHandler!.dispose();
-    _fromKeyStoreListIsolateHandler = null;
+    _viewModel.clearFromKeyStoreListIsolateHandler();
 
     if (mounted) {
       setState(() {
@@ -518,343 +327,356 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
       onPopInvokedWithResult: (didPop, _) {
         if (!isFinishing) _onBackPressed(context);
       },
-      child: Scaffold(
-        backgroundColor: MyColors.white,
-        appBar: CustomAppBar.buildWithNext(
-          title: t.multisig_wallet,
-          context: context,
-          onBackPressed: () => _onBackPressed(context),
-          onNextPressed: onNextPressed,
-          isActive: hasValidationCompleted,
-          hasBackdropFilter: false,
-        ),
-        body: Stack(
-          children: [
-            SingleChildScrollView(
-              child: Column(
-                children: [
-                  const SizedBox(
-                    height: 10,
-                  ),
-                  Stack(
+      child: ChangeNotifierProxyProvider2<WalletProvider, MultisigCreationModel,
+          SignerAssignmentViewModel>(
+        create: (_) => _viewModel,
+        update: (_, walletProvider, multisigCreationModel, viewModel) {
+          return viewModel!;
+        },
+        child: Consumer<SignerAssignmentViewModel>(
+          builder: (context, viewModel, child) => Scaffold(
+            backgroundColor: MyColors.white,
+            appBar: CustomAppBar.buildWithNext(
+              title: t.multisig_wallet,
+              context: context,
+              onBackPressed: () => _onBackPressed(context),
+              onNextPressed: onNextPressed,
+              isActive: hasValidationCompleted,
+              hasBackdropFilter: false,
+            ),
+            body: Stack(
+              children: [
+                SingleChildScrollView(
+                  child: Column(
                     children: [
-                      ClipRRect(
-                        child: Container(
-                          height: 6,
-                          color: MyColors.transparentBlack_06,
-                        ),
+                      const SizedBox(
+                        height: 10,
                       ),
-                      LayoutBuilder(
-                        builder: (context, constraints) {
-                          return ClipRRect(
-                            borderRadius: _getAssignedVaultListLength() /
-                                        totalSignatureCount ==
-                                    1
-                                ? BorderRadius.zero
-                                : const BorderRadius.only(
-                                    topRight: Radius.circular(6),
-                                    bottomRight: Radius.circular(6)),
-                            child: AnimatedContainer(
-                              duration: const Duration(milliseconds: 500),
-                              curve: Curves.easeInOut,
-                              height: 6,
-                              width: (constraints.maxWidth) *
-                                  (_getAssignedVaultListLength() == 0
-                                      ? 0
-                                      : _getAssignedVaultListLength() /
-                                          totalSignatureCount),
-                              color: MyColors.black,
-                            ),
-                          );
-                        },
-                      ),
-                    ],
-                  ),
-                  SingleChildScrollView(
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 16.0, vertical: 25),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.center,
+                      Stack(
                         children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              HighLightedText(
-                                  '$requiredSignatureCount/$totalSignatureCount',
-                                  color: MyColors.darkgrey),
-                              const SizedBox(
-                                width: 2,
-                              ),
-                              Text(
-                                t.select,
-                                style: Styles.body1,
-                              ),
-                              const SizedBox(
-                                width: 10,
-                              ),
-                              GestureDetector(
-                                onTap: () {
-                                  _getAssignedVaultListLength() != 0
-                                      ? _showDialog(DialogType.reSelect)
-                                      : _onBackPressed(context);
-                                },
-                                child: Container(
-                                  margin: const EdgeInsets.only(left: 8),
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 8, vertical: 4),
-                                  decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(8),
-                                      border: Border.all(
-                                          color: MyColors.borderGrey)),
-                                  child: Text(
-                                    t.re_select,
-                                    style: Styles.caption,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 38),
-                          Container(
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(20),
-                              color: MyColors.white,
-                              boxShadow: const [
-                                BoxShadow(
-                                  color: MyColors.transparentBlack_15,
-                                  offset: Offset(0, 0),
-                                  blurRadius: 12,
-                                  spreadRadius: 0,
-                                ),
-                              ],
+                          ClipRRect(
+                            child: Container(
+                              height: 6,
+                              color: MyColors.transparentBlack_06,
                             ),
-                            child: ClipRRect(
-                              borderRadius: BorderRadius.circular(20),
-                              child: Column(
+                          ),
+                          LayoutBuilder(
+                            builder: (context, constraints) {
+                              return ClipRRect(
+                                borderRadius:
+                                    viewModel.getAssignedVaultListLength() /
+                                                viewModel.totalSignatureCount ==
+                                            1
+                                        ? BorderRadius.zero
+                                        : const BorderRadius.only(
+                                            topRight: Radius.circular(6),
+                                            bottomRight: Radius.circular(6)),
+                                child: AnimatedContainer(
+                                  duration: const Duration(milliseconds: 500),
+                                  curve: Curves.easeInOut,
+                                  height: 6,
+                                  width: (constraints.maxWidth) *
+                                      (viewModel.getAssignedVaultListLength() ==
+                                              0
+                                          ? 0
+                                          : viewModel
+                                                  .getAssignedVaultListLength() /
+                                              viewModel.totalSignatureCount),
+                                  color: MyColors.black,
+                                ),
+                              );
+                            },
+                          ),
+                        ],
+                      ),
+                      SingleChildScrollView(
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 16.0, vertical: 25),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
-                                  for (int i = 0;
-                                      i < assignedVaultList.length;
-                                      i++) ...[
-                                    if (i > 0)
-                                      const Padding(
-                                        padding: EdgeInsets.symmetric(
-                                            horizontal: 10),
-                                        child: Divider(
-                                            height: 1,
-                                            color: MyColors.dropdownGrey),
+                                  HighLightedText(
+                                      '${viewModel.requiredSignatureCount}/${viewModel.totalSignatureCount}',
+                                      color: MyColors.darkgrey),
+                                  const SizedBox(
+                                    width: 2,
+                                  ),
+                                  Text(
+                                    t.select,
+                                    style: Styles.body1,
+                                  ),
+                                  const SizedBox(
+                                    width: 10,
+                                  ),
+                                  GestureDetector(
+                                    onTap: () {
+                                      viewModel.getAssignedVaultListLength() !=
+                                              0
+                                          ? _showDialog(DialogType.reSelect)
+                                          : _onBackPressed(context);
+                                    },
+                                    child: Container(
+                                      margin: const EdgeInsets.only(left: 8),
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 8, vertical: 4),
+                                      decoration: BoxDecoration(
+                                          borderRadius:
+                                              BorderRadius.circular(8),
+                                          border: Border.all(
+                                              color: MyColors.borderGrey)),
+                                      child: Text(
+                                        t.re_select,
+                                        style: Styles.caption,
                                       ),
-                                    CustomExpansionPanel(
-                                      isExpanded:
-                                          assignedVaultList[i].isExpanded,
-                                      isAssigned:
-                                          assignedVaultList[i].importKeyType !=
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 38),
+                              Container(
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(20),
+                                  color: MyColors.white,
+                                  boxShadow: const [
+                                    BoxShadow(
+                                      color: MyColors.transparentBlack_15,
+                                      offset: Offset(0, 0),
+                                      blurRadius: 12,
+                                      spreadRadius: 0,
+                                    ),
+                                  ],
+                                ),
+                                child: ClipRRect(
+                                  borderRadius: BorderRadius.circular(20),
+                                  child: Column(
+                                    children: [
+                                      for (int i = 0;
+                                          i <
+                                              viewModel
+                                                  .assignedVaultList.length;
+                                          i++) ...[
+                                        if (i > 0)
+                                          const Padding(
+                                            padding: EdgeInsets.symmetric(
+                                                horizontal: 10),
+                                            child: Divider(
+                                                height: 1,
+                                                color: MyColors.dropdownGrey),
+                                          ),
+                                        CustomExpansionPanel(
+                                          isExpanded: viewModel
+                                              .assignedVaultList[i].isExpanded,
+                                          isAssigned: viewModel
+                                                  .assignedVaultList[i]
+                                                  .importKeyType !=
                                               null,
-                                      onAssignedClicked: () {
-                                        _showDialog(DialogType.deleteKey,
-                                            keyIndex: i);
-                                      },
-                                      onExpansionChanged: () {
-                                        setState(() {
-                                          assignedVaultList[i].changeExpanded();
-                                        });
-                                      },
-                                      unExpansionWidget:
-                                          assignedVaultList[i].importKeyType ==
+                                          onAssignedClicked: () {
+                                            _showDialog(DialogType.deleteKey,
+                                                keyIndex: i);
+                                          },
+                                          onExpansionChanged: () {
+                                            setState(() {
+                                              viewModel.assignedVaultList[i]
+                                                  .changeExpanded();
+                                            });
+                                          },
+                                          unExpansionWidget: viewModel
+                                                      .assignedVaultList[i]
+                                                      .importKeyType ==
                                                   null
                                               ? _unExpansionWidget(i)
                                               : _unExpansionWidget(i,
                                                   isAssigned: true),
-                                      expansionWidget: Column(
-                                        children: [
-                                          // 이 볼트에 있는 키 사용하기
-                                          ExpansionChildWidget(
-                                              type: ImportKeyType.internal,
-                                              onPressed: () {
-                                                // 등록된 singlesig vault가 없으면 멀티시그 지갑 생성 불가
-                                                if (unselectedSignerOptions
-                                                    .isEmpty) {
-                                                  _showDialog(
-                                                      DialogType.notAvailable);
-                                                  return;
-                                                }
+                                          expansionWidget: Column(
+                                            children: [
+                                              // 이 볼트에 있는 키 사용하기
+                                              ExpansionChildWidget(
+                                                  type: ImportKeyType.internal,
+                                                  onPressed: () {
+                                                    // 등록된 singlesig vault가 없으면 멀티시그 지갑 생성 불가
+                                                    if (viewModel
+                                                        .unselectedSignerOptions
+                                                        .isEmpty) {
+                                                      _showDialog(DialogType
+                                                          .notAvailable);
+                                                      return;
+                                                    }
 
-                                                isButtonActiveNotifier.value =
-                                                    false;
-                                                MyBottomSheet
-                                                    .showDraggableScrollableSheet(
-                                                  topWidget: true,
-                                                  isButtonActiveNotifier:
-                                                      isButtonActiveNotifier,
-                                                  context: context,
-                                                  childBuilder:
-                                                      (sheetController) =>
-                                                          KeyListBottomSheet(
-                                                    // 키 옵션 중 하나 선택했을 때
-                                                    onPressed: (int index) {
-                                                      selectedSignerOptionIndex =
-                                                          index;
-                                                      isButtonActiveNotifier
-                                                          .value = true;
-                                                    },
-                                                    vaultList:
-                                                        unselectedSignerOptions
+                                                    isButtonActiveNotifier
+                                                        .value = false;
+                                                    MyBottomSheet
+                                                        .showDraggableScrollableSheet(
+                                                      topWidget: true,
+                                                      isButtonActiveNotifier:
+                                                          isButtonActiveNotifier,
+                                                      context: context,
+                                                      childBuilder:
+                                                          (sheetController) =>
+                                                              KeyListBottomSheet(
+                                                        // 키 옵션 중 하나 선택했을 때
+                                                        onPressed: (int index) {
+                                                          viewModel
+                                                              .setSelectedSignerOptionIndex(
+                                                                  index);
+                                                          isButtonActiveNotifier
+                                                              .value = true;
+                                                        },
+                                                        vaultList: viewModel
+                                                            .unselectedSignerOptions
                                                             .map((o) => o
                                                                 .singlesigVaultListItem)
                                                             .toList(),
-                                                  ),
-                                                  onTopWidgetButtonClicked: () {
-                                                    setState(() {
-                                                      // 내부 지갑 선택 완료
-                                                      assignedVaultList[i]
-                                                        ..item = unselectedSignerOptions[
-                                                                selectedSignerOptionIndex!]
-                                                            .singlesigVaultListItem
-                                                        ..bsms =
-                                                            unselectedSignerOptions[
-                                                                    selectedSignerOptionIndex!]
-                                                                .signerBsms
-                                                        ..isExpanded = false
-                                                        ..importKeyType =
-                                                            ImportKeyType
-                                                                .internal;
+                                                      ),
+                                                      onTopWidgetButtonClicked:
+                                                          () {
+                                                        viewModel
+                                                            .onTopWidgetButtonClicked(i);
+                                                        viewModel
+                                                            .setSelectedSignerOptionIndex(
+                                                                null);
+                                                      },
+                                                    );
+                                                  }),
+                                              // 가져오기
+                                              ExpansionChildWidget(
+                                                  type: ImportKeyType.external,
+                                                  onPressed: () async {
+                                                    if (viewModel
+                                                        .isAllAssignedFromExternal()) {
+                                                      _showDialog(
+                                                          DialogType.alert);
+                                                      return;
+                                                    }
 
-                                                      unselectedSignerOptions
-                                                          .removeAt(
-                                                              selectedSignerOptionIndex!);
-                                                    });
-                                                    selectedSignerOptionIndex =
-                                                        null;
-                                                  },
-                                                );
-                                              }),
-                                          // 가져오기
-                                          ExpansionChildWidget(
-                                              type: ImportKeyType.external,
-                                              onPressed: () async {
-                                                if (_isAllAssignedFromExternal()) {
-                                                  _showDialog(DialogType.alert);
-                                                  return;
-                                                }
+                                                    final externalImported =
+                                                        await MyBottomSheet
+                                                            .showDraggableScrollableSheet(
+                                                      topWidget: true,
+                                                      context: context,
+                                                      physics:
+                                                          const ClampingScrollPhysics(),
+                                                      enableSingleChildScroll:
+                                                          false,
+                                                      child:
+                                                          const SignerScanScreen(),
+                                                    );
 
-                                                final externalImported =
-                                                    await MyBottomSheet
-                                                        .showDraggableScrollableSheet(
-                                                  topWidget: true,
-                                                  context: context,
-                                                  physics:
-                                                      const ClampingScrollPhysics(),
-                                                  enableSingleChildScroll:
-                                                      false,
-                                                  child:
-                                                      const SignerScanScreen(),
-                                                );
+                                                    if (externalImported !=
+                                                        null) {
+                                                      /// 이미 추가된 signer와 중복 비교
+                                                      if (viewModel
+                                                          .isAlreadyImported(
+                                                              externalImported)) {
+                                                        return _showDialog(
+                                                            DialogType
+                                                                .alreadyExist);
+                                                      }
 
-                                                if (externalImported != null) {
-                                                  /// 이미 추가된 signer와 중복 비교
-                                                  if (_isAlreadyImported(
-                                                      externalImported)) {
-                                                    return _showDialog(
-                                                        DialogType
-                                                            .alreadyExist);
-                                                  }
+                                                      String? sameVaultName = viewModel
+                                                          .findVaultNameByBsms(
+                                                              externalImported);
+                                                      if (sameVaultName !=
+                                                          null) {
+                                                        _showDialog(
+                                                            DialogType
+                                                                .sameWithInternalOne,
+                                                            vaultName:
+                                                                sameVaultName);
+                                                        return;
+                                                      }
 
-                                                  String? sameVaultName =
-                                                      _findVaultNameByBsms(
-                                                          externalImported);
-                                                  if (sameVaultName != null) {
-                                                    _showDialog(
-                                                        DialogType
-                                                            .sameWithInternalOne,
-                                                        vaultName:
-                                                            sameVaultName);
-                                                    return;
-                                                  }
+                                                      final Map<String, String>?
+                                                          bsmsAndMemo =
+                                                          await MyBottomSheet
+                                                              .showDraggableScrollableSheet(
+                                                        topWidget: true,
+                                                        context: context,
+                                                        isScrollControlled:
+                                                            true,
+                                                        controller:
+                                                            draggableController,
+                                                        minChildSize: 0.7,
+                                                        isDismissible: false,
+                                                        enableDrag: true,
+                                                        snap: true,
+                                                        onBackPressed: () =>
+                                                            _showDialog(DialogType
+                                                                .cancelImport),
+                                                        physics:
+                                                            const ClampingScrollPhysics(),
+                                                        enableSingleChildScroll:
+                                                            true,
+                                                        childBuilder:
+                                                            (sheetController) =>
+                                                                ImportConfirmationScreen(
+                                                          importingBsms:
+                                                              externalImported,
+                                                          scrollController:
+                                                              sheetController,
+                                                        ),
+                                                      );
+                                                      if (bsmsAndMemo != null) {
+                                                        assert(
+                                                            bsmsAndMemo['bsms']!
+                                                                .isNotEmpty);
 
-                                                  final Map<String, String>?
-                                                      bsmsAndMemo =
-                                                      await MyBottomSheet
-                                                          .showDraggableScrollableSheet(
-                                                    topWidget: true,
-                                                    context: context,
-                                                    isScrollControlled: true,
-                                                    controller:
-                                                        draggableController,
-                                                    minChildSize: 0.7,
-                                                    isDismissible: false,
-                                                    enableDrag: true,
-                                                    snap: true,
-                                                    onBackPressed: () =>
-                                                        _showDialog(DialogType
-                                                            .cancelImport),
-                                                    physics:
-                                                        const ClampingScrollPhysics(),
-                                                    enableSingleChildScroll:
-                                                        true,
-                                                    childBuilder:
-                                                        (sheetController) =>
-                                                            ImportConfirmationScreen(
-                                                      importingBsms:
-                                                          externalImported,
-                                                      scrollController:
-                                                          sheetController,
-                                                    ),
-                                                  );
-                                                  if (bsmsAndMemo != null) {
-                                                    assert(bsmsAndMemo['bsms']!
-                                                        .isNotEmpty);
-
-                                                    // 외부 지갑 추가
-                                                    setState(() {
-                                                      assignedVaultList[i]
-                                                        ..importKeyType =
-                                                            ImportKeyType
-                                                                .external
-                                                        ..isExpanded = false
-                                                        ..bsms =
-                                                            externalImported
-                                                        ..memo =
-                                                            bsmsAndMemo['memo'];
-                                                    });
-                                                  }
-                                                }
-                                              }),
-                                        ],
-                                      ),
-                                    ),
-                                  ],
-                                ],
+                                                        viewModel
+                                                            .setAssignedVaultList(
+                                                                i,
+                                                                ImportKeyType
+                                                                    .external,
+                                                                false,
+                                                                externalImported,
+                                                                bsmsAndMemo[
+                                                                    'memo']);
+                                                      }
+                                                    }
+                                                  }),
+                                            ],
+                                          ),
+                                        ),
+                                      ],
+                                    ],
+                                  ),
+                                ),
                               ),
-                            ),
+                              Visibility(
+                                  visible:
+                                      viewModel.isAssignedKeyCompletely() &&
+                                          !hasValidationCompleted,
+                                  child: Container(
+                                    margin: const EdgeInsets.only(top: 40),
+                                    child: CompleteButton(
+                                        onPressed: onSelectionCompleted,
+                                        label: t.select_completed,
+                                        disabled: viewModel
+                                                .isAssignedKeyCompletely() &&
+                                            isNextProcessing),
+                                  ))
+                            ],
                           ),
-                          Visibility(
-                              visible: _isAssignedKeyCompletely() &&
-                                  !hasValidationCompleted,
-                              child: Container(
-                                margin: const EdgeInsets.only(top: 40),
-                                child: CompleteButton(
-                                    onPressed: onSelectionCompleted,
-                                    label: t.select_completed,
-                                    disabled: _isAssignedKeyCompletely() &&
-                                        isNextProcessing),
-                              ))
-                        ],
+                        ),
                       ),
-                    ),
+                    ],
                   ),
-                ],
-              ),
+                ),
+                Visibility(
+                  visible: isNextProcessing,
+                  child: Container(
+                    decoration: const BoxDecoration(
+                        color: MyColors.transparentBlack_30),
+                    child: Center(
+                        child:
+                            MessageActivityIndicator(message: loadingMessage)),
+                  ),
+                ),
+              ],
             ),
-            Visibility(
-              visible: isNextProcessing,
-              child: Container(
-                decoration:
-                    const BoxDecoration(color: MyColors.transparentBlack_30),
-                child: Center(
-                    child: MessageActivityIndicator(message: loadingMessage)),
-              ),
-            ),
-          ],
+          ),
         ),
       ),
     );
@@ -863,13 +685,13 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
   // 확장형 메뉴 펼쳐져 있지 않을 때
   Row _unExpansionWidget(int i, {bool isAssigned = false}) {
     bool isExternalImported =
-        assignedVaultList[i].importKeyType == ImportKeyType.external;
+        _viewModel.assignedVaultList[i].importKeyType == ImportKeyType.external;
     return isAssigned
         ? Row(
             children: [
               const SizedBox(width: 8),
               Text(
-                '${assignedVaultList[i].index + 1}번 키 -',
+                '${_viewModel.assignedVaultList[i].index + 1}번 키 -',
                 style: Styles.body1,
               ),
               const SizedBox(width: 8),
@@ -878,18 +700,19 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
                 decoration: BoxDecoration(
                   color: BackgroundColorPalette[isExternalImported
                       ? 8
-                      : assignedVaultList[i].item!.colorIndex],
+                      : _viewModel.assignedVaultList[i].item!.colorIndex],
                   borderRadius: BorderRadius.circular(8.0),
                 ),
                 child: SvgPicture.asset(
                   isExternalImported
                       ? 'assets/svg/download.svg'
                       : CustomIcons.getPathByIndex(
-                          assignedVaultList[i].item!.iconIndex),
+                          _viewModel.assignedVaultList[i].item!.iconIndex),
                   colorFilter: ColorFilter.mode(
                     isExternalImported
                         ? MyColors.black
-                        : ColorPalette[assignedVaultList[i].item!.colorIndex],
+                        : ColorPalette[
+                            _viewModel.assignedVaultList[i].item!.colorIndex],
                     BlendMode.srcIn,
                   ),
                   width: 16.0,
@@ -903,18 +726,18 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
                   children: [
                     Text(
                       isExternalImported
-                          ? ' ${assignedVaultList[i].bsms?.split('\n')[3] ?? ''}'
-                          : ' ${assignedVaultList[i].item!.name}',
+                          ? ' ${_viewModel.assignedVaultList[i].bsms?.split('\n')[3] ?? ''}'
+                          : ' ${_viewModel.assignedVaultList[i].item!.name}',
                       style: Styles.body1,
                       overflow: TextOverflow.ellipsis,
                     ),
                     Visibility(
-                      visible: assignedVaultList[i].memo != null &&
-                          assignedVaultList[i].memo!.isNotEmpty,
+                      visible: _viewModel.assignedVaultList[i].memo != null &&
+                          _viewModel.assignedVaultList[i].memo!.isNotEmpty,
                       child: Padding(
                         padding: const EdgeInsets.only(left: 5),
                         child: Text(
-                          assignedVaultList[i].memo ?? '',
+                          _viewModel.assignedVaultList[i].memo ?? '',
                           style: Styles.caption2,
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
@@ -934,7 +757,7 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
         : Row(
             children: [
               AnimatedRotation(
-                turns: assignedVaultList[i].isExpanded ? 0 : -0.25,
+                turns: _viewModel.assignedVaultList[i].isExpanded ? 0 : -0.25,
                 duration: const Duration(milliseconds: 200),
                 child: const Icon(
                   Icons.expand_more,
@@ -945,7 +768,8 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
               const SizedBox(width: 15),
               Expanded(
                 child: Text(
-                  t.multisig.nth_key(index: assignedVaultList[i].index + 1),
+                  t.multisig.nth_key(
+                      index: _viewModel.assignedVaultList[i].index + 1),
                   style: Styles.body1,
                 ),
               ),
