@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:coconut_vault/constants/app_routes.dart';
 import 'package:coconut_vault/enums/pin_check_context_enum.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/model/multisig/multisig_signer.dart';
@@ -28,15 +29,15 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:loader_overlay/loader_overlay.dart';
 import 'package:provider/provider.dart';
 
-class MultisigSettingScreen extends StatefulWidget {
+class MultisigSetupScreen extends StatefulWidget {
   final int id;
-  const MultisigSettingScreen({super.key, required this.id});
+  const MultisigSetupScreen({super.key, required this.id});
 
   @override
-  State<MultisigSettingScreen> createState() => _MultisigSettingScreenState();
+  State<MultisigSetupScreen> createState() => _MultisigSetupScreenState();
 }
 
-class _MultisigSettingScreenState extends State<MultisigSettingScreen> {
+class _MultisigSetupScreenState extends State<MultisigSetupScreen> {
   late WalletProvider _vaultModel;
   late MultisigVaultListItem _multiVault;
 
@@ -256,8 +257,8 @@ class _MultisigSettingScreenState extends State<MultisigSettingScreen> {
             // const Divider(),
             _bottomSheetButton(
               existsMemo
-                  ? t.multisig_setting_screen.edit_memo
-                  : t.multisig_setting_screen.add_memo,
+                  ? t.multisig_setup_screen.edit_memo
+                  : t.multisig_setup_screen.add_memo,
               onPressed: () {
                 _showEditMemoBottomSheet(multisigSigner);
               },
@@ -351,7 +352,8 @@ class _MultisigSettingScreenState extends State<MultisigSettingScreen> {
                           onTap: () {
                             _removeTooltip();
                             if (isInnerWallet) {
-                              Navigator.pushNamed(context, '/vault-settings',
+                              Navigator.pushNamed(
+                                  context, AppRoutes.vaultSettings,
                                   arguments: {
                                     'id': item.innerVaultId,
                                   });
@@ -478,12 +480,13 @@ class _MultisigSettingScreenState extends State<MultisigSettingScreen> {
                           child: Column(
                             children: [
                               InformationRowItem(
-                                label: t.multisig_setting_screen.view_bsms,
+                                label: t.multisig_setup_screen.view_bsms,
                                 showIcon: true,
                                 onPressed: () {
                                   _removeTooltip();
 
-                                  Navigator.pushNamed(context, '/multisig-bsms',
+                                  Navigator.pushNamed(
+                                      context, AppRoutes.multisigBsms,
                                       arguments: {
                                         'id': widget.id,
                                       });
@@ -566,7 +569,7 @@ class _MultisigSettingScreenState extends State<MultisigSettingScreen> {
                             mainAxisSize: MainAxisSize.min,
                             children: [
                               Text(
-                                t.multisig_setting_screen.tooltip(
+                                t.multisig_setup_screen.tooltip(
                                     total: _multiVault.signers.length,
                                     count: _multiVault.requiredSignatureCount),
                                 style: Styles.caption.merge(TextStyle(

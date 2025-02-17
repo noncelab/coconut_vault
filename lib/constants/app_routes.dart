@@ -7,7 +7,7 @@ class AppRoutes {
   static const String vaultNameSetup = '/vault-name-setup';
   static const String vaultDetails = '/vault-details';
   static const String vaultSettings = '/vault-settings';
-  static const String multisigSetup = '/multisig-setting';
+  static const String multisigSetup = '/multisig-setup';
   static const String multisigBsms = '/multisig-bsms';
   static const String mnemonicWordList = '/mnemonic-word-list';
   static const String addressList = '/address-list';
