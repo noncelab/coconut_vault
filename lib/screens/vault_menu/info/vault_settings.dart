@@ -12,9 +12,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:coconut_vault/providers/app_model.dart';
 import 'package:coconut_vault/screens/common/pin_check_screen.dart';
-import 'package:coconut_vault/screens/vault_detail/mnemonic_view_screen.dart';
-import 'package:coconut_vault/screens/vault_detail/qrcode_bottom_sheet_screen.dart';
-import 'package:coconut_vault/screens/vault_detail/vault_edit_bottom_sheet_screen.dart';
+import 'package:coconut_vault/screens/vault_menu/info/mnemonic_view_screen.dart';
+import 'package:coconut_vault/screens/common/qrcode_bottom_sheet.dart';
+import 'package:coconut_vault/screens/vault_menu/vault_edit_bottom_sheet_screen.dart';
 import 'package:coconut_vault/styles.dart';
 import 'package:coconut_vault/utils/alert_util.dart';
 import 'package:coconut_vault/widgets/appbar/custom_appbar.dart';
@@ -27,8 +27,9 @@ import 'package:loader_overlay/loader_overlay.dart';
 import 'package:provider/provider.dart';
 import 'package:shimmer/shimmer.dart';
 
-import '../../providers/wallet_provider.dart';
+import '../../../providers/wallet_provider.dart';
 
+// todo: single sig setup info screen
 class VaultSettings extends StatefulWidget {
   final int id;
 
@@ -97,7 +98,7 @@ class _VaultSettingsState extends State<VaultSettings> {
       String appBarTitle, String data, Widget? qrcodeTopWidget) {
     MyBottomSheet.showBottomSheet_90(
         context: context,
-        child: QrcodeBottomSheetScreen(
+        child: QrcodeBottomSheet(
             qrData: data,
             title: appBarTitle,
             qrcodeTopWidget: qrcodeTopWidget));

@@ -5,16 +5,17 @@ import 'package:flutter/material.dart';
 import 'package:coconut_vault/styles.dart';
 import 'package:coconut_vault/widgets/appbar/custom_appbar.dart';
 
-class SelectExportTypeScreen extends StatefulWidget {
+class ExportTypeSelectionScreen extends StatefulWidget {
   final int id;
 
-  const SelectExportTypeScreen({super.key, required this.id});
+  const ExportTypeSelectionScreen({super.key, required this.id});
 
   @override
-  State<SelectExportTypeScreen> createState() => _SelectExportTypeScreenState();
+  State<ExportTypeSelectionScreen> createState() =>
+      _ExportTypeSelectionScreenState();
 }
 
-class _SelectExportTypeScreenState extends State<SelectExportTypeScreen> {
+class _ExportTypeSelectionScreenState extends State<ExportTypeSelectionScreen> {
   String? nextPath;
   late String guideText;
   List<String> options = [AppRoutes.syncToWallet, AppRoutes.signerBsms];

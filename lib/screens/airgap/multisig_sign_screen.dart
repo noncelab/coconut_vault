@@ -5,8 +5,8 @@ import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/model/multisig/multisig_vault_list_item.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:coconut_vault/screens/common/pin_check_screen.dart';
-import 'package:coconut_vault/screens/airgap/multi_signature_signer_qr_bottom_sheet.dart';
-import 'package:coconut_vault/screens/airgap/multi_signature_signer_scan_bottom_sheet.dart';
+import 'package:coconut_vault/screens/airgap/multisig_signer_qr_bottom_sheet.dart';
+import 'package:coconut_vault/screens/airgap/multisig_signer_scan_bottom_sheet.dart';
 import 'package:coconut_vault/styles.dart';
 import 'package:coconut_vault/utils/alert_util.dart';
 import 'package:coconut_vault/utils/icon_util.dart';
@@ -20,12 +20,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
 
-class MultiSignatureScreen extends StatefulWidget {
+class MultisigSignScreen extends StatefulWidget {
   final int id;
   final String psbtBase64;
   final String sendAddress;
   final String bitcoinString;
-  const MultiSignatureScreen({
+  const MultisigSignScreen({
     super.key,
     required this.id,
     required this.psbtBase64,
@@ -34,10 +34,10 @@ class MultiSignatureScreen extends StatefulWidget {
   });
 
   @override
-  State<MultiSignatureScreen> createState() => _MultiSignatureScreenState();
+  State<MultisigSignScreen> createState() => _MultisigSignScreenState();
 }
 
-class _MultiSignatureScreenState extends State<MultiSignatureScreen> {
+class _MultisigSignScreenState extends State<MultisigSignScreen> {
   late WalletProvider _vaultModel;
   late MultisigVaultListItem _multisigVaultItem;
   late MultisignatureVault _multisigVault;

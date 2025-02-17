@@ -159,6 +159,12 @@ signed_transaction_qr_screen:
   guide_singlesig: "월렛의 '$name 지갑'에서 만든 보내기 정보에 서명을 완료했어요. 월렛으로 아래 QR 코드를 스캔해 주세요."
 singlesig_sign_screen:
   text: "이미 서명된 트랜잭션입니다"
+signer_qr_bottom_sheet:
+  title: "서명 트랜잭션 내보내기"
+  text2_1: "번 키가 보관된 볼트에서 다중 서명 지갑 "
+  text2_2: " 선택 - "
+  text2_3: "다중 서명하기"
+  text2_4: "를 눌러 아래 QR 코드를 스캔해 주세요."
 
 # lib/screens/setting
 app_info_screen:
@@ -273,7 +279,7 @@ vault_name_icon_setup_screen:
   title: "이름 설정"
   saving: "저장 중이에요."
 
-# lib/screens/vault_creation/multi_sig
+# lib/screens/vault_creation/multisig
 assign_signers_screen:
   order_keys: "동일한 순서를 유지하도록 키 순서를 정렬 할게요"
   data_verifying: "데이터 검증 중이에요"
@@ -291,12 +297,6 @@ select_multisig_quorum_screen:
   one_or_two_of_n: "하나의 키를 분실하거나 키 보관자 중 한 명이 부재중이더라도 비트코인을 보낼 수 있어요."
   n_of_n: "모든 키가 있어야만 비트코인을 보낼 수 있어요. 단 하나의 키만 잃어버려도 자금에 접근할 수 없게 되니 분실에 각별히 신경써 주세요."
   one_of_n: "하나의 키만 있어도 비트코인을 이동시킬 수 있어요. 상대적으로 보안성이 낮기 때문에 권장하지 않아요."
-signer_qr_bottom_sheet:
-  text1: "서명 트랜잭션 내보내기"
-  text2_1: "번 키가 보관된 볼트에서 다중 서명 지갑 "
-  text2_2: " 선택 - "
-  text2_3: "다중 서명하기"
-  text2_4: "를 눌러 아래 QR 코드를 스캔해 주세요."
 signer_scanner_bottom_sheet:
   title: "서명 업데이트"
   guide: "다른 볼트에서 서명을 추가했나요? 정보를 업데이트 하기 위해 추가된 서명 트랜잭션의 QR 코드를 스캔해 주세요."

@@ -8,10 +8,10 @@ import 'package:coconut_vault/model/multisig/multisig_vault_list_item.dart';
 import 'package:coconut_vault/model/singlesig/singlesig_vault_list_item.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:coconut_vault/screens/common/pin_check_screen.dart';
-import 'package:coconut_vault/screens/vault_detail/mnemonic_view_screen.dart';
-import 'package:coconut_vault/screens/vault_detail/multi_sig_memo_bottom_sheet.dart';
-import 'package:coconut_vault/screens/vault_detail/qrcode_bottom_sheet_screen.dart';
-import 'package:coconut_vault/screens/vault_detail/vault_edit_bottom_sheet_screen.dart';
+import 'package:coconut_vault/screens/vault_menu/info/mnemonic_view_screen.dart';
+import 'package:coconut_vault/screens/vault_menu/multisig_memo_bottom_sheet.dart';
+import 'package:coconut_vault/screens/common/qrcode_bottom_sheet.dart';
+import 'package:coconut_vault/screens/vault_menu/info/vault_edit_bottom_sheet_screen.dart';
 import 'package:coconut_vault/styles.dart';
 import 'package:coconut_vault/utils/alert_util.dart';
 import 'package:coconut_vault/utils/icon_util.dart';
@@ -29,15 +29,16 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:loader_overlay/loader_overlay.dart';
 import 'package:provider/provider.dart';
 
-class MultiSigSetupScreen extends StatefulWidget {
+class MultisigSetupInfoScreen extends StatefulWidget {
   final int id;
-  const MultiSigSetupScreen({super.key, required this.id});
+  const MultisigSetupInfoScreen({super.key, required this.id});
 
   @override
-  State<MultiSigSetupScreen> createState() => _MultiSigSetupScreenState();
+  State<MultisigSetupInfoScreen> createState() =>
+      _MultisigSetupInfoScreenState();
 }
 
-class _MultiSigSetupScreenState extends State<MultiSigSetupScreen> {
+class _MultisigSetupInfoScreenState extends State<MultisigSetupInfoScreen> {
   late WalletProvider _vaultModel;
   late MultisigVaultListItem _multiVault;
 
@@ -155,7 +156,7 @@ class _MultiSigSetupScreenState extends State<MultiSigSetupScreen> {
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (context) => MultiSigMemoBottomSheet(
+      builder: (context) => MultisigMemoBottomSheet(
         memo: selectedMemo,
         onUpdate: (memo) {
           if (selectedMemo == memo) return;
@@ -181,7 +182,7 @@ class _MultiSigSetupScreenState extends State<MultiSigSetupScreen> {
       String appBarTitle, String data, Widget? qrcodeTopWidget) {
     MyBottomSheet.showBottomSheet_90(
       context: context,
-      child: QrcodeBottomSheetScreen(
+      child: QrcodeBottomSheet(
         qrData: data,
         title: appBarTitle,
         qrcodeTopWidget: qrcodeTopWidget,

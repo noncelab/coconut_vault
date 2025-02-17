@@ -16,12 +16,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
 
-class SingleSignatureScreen extends StatefulWidget {
+class SingleSigSignScreen extends StatefulWidget {
   final int id;
   final String psbtBase64;
   final String sendAddress;
   final String bitcoinString;
-  const SingleSignatureScreen({
+  const SingleSigSignScreen({
     super.key,
     required this.id,
     required this.psbtBase64,
@@ -30,10 +30,10 @@ class SingleSignatureScreen extends StatefulWidget {
   });
 
   @override
-  State<SingleSignatureScreen> createState() => _SingleSignatureScreenState();
+  State<SingleSigSignScreen> createState() => _SingleSigSignScreenState();
 }
 
-class _SingleSignatureScreenState extends State<SingleSignatureScreen> {
+class _SingleSigSignScreenState extends State<SingleSigSignScreen> {
   late WalletProvider _vaultModel;
   late SinglesigVaultListItem _wallet;
   late SingleSignatureVault _coconutVault;

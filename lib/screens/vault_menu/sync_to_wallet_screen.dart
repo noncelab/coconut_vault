@@ -1,5 +1,5 @@
 import 'package:coconut_vault/localization/strings.g.dart';
-import 'package:coconut_vault/screens/vault_detail/export_detail_screen.dart';
+import 'package:coconut_vault/screens/vault_menu/export_detail_screen.dart';
 import 'package:coconut_vault/widgets/bottom_sheet.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';

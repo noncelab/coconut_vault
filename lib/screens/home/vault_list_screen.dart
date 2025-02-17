@@ -8,7 +8,7 @@ import 'package:coconut_vault/widgets/coconut_dropdown.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:coconut_vault/providers/app_model.dart';
-import 'package:coconut_vault/screens/setting/settings_screen.dart';
+import 'package:coconut_vault/screens/settings/settings_screen.dart';
 import 'package:coconut_vault/styles.dart';
 import 'package:coconut_vault/widgets/appbar/frosted_appbar.dart';
 import 'package:coconut_vault/widgets/bottom_sheet.dart';

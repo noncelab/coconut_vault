@@ -4,8 +4,8 @@ import 'package:coconut_vault/widgets/appbar/custom_appbar.dart';
 import 'package:coconut_vault/widgets/qrcode_info.dart';
 import 'package:coconut_vault/widgets/qrcode_link_info.dart';
 
-class QrcodeBottomSheetScreen extends StatefulWidget {
-  const QrcodeBottomSheetScreen(
+class QrcodeBottomSheet extends StatefulWidget {
+  const QrcodeBottomSheet(
       {super.key,
       required this.qrData,
       this.qrcodeTopWidget,
@@ -18,11 +18,10 @@ class QrcodeBottomSheetScreen extends StatefulWidget {
   final bool fromAppInfo;
 
   @override
-  State<QrcodeBottomSheetScreen> createState() =>
-      _QrcodeBottomSheetScreenState();
+  State<QrcodeBottomSheet> createState() => _QrcodeBottomSheetState();
 }
 
-class _QrcodeBottomSheetScreenState extends State<QrcodeBottomSheetScreen> {
+class _QrcodeBottomSheetState extends State<QrcodeBottomSheet> {
   @override
   void initState() {
     super.initState();

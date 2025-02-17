@@ -31,17 +31,18 @@ const iconBackgroundColorList = <Color>[
   Color.fromRGBO(208, 232, 255, 1.0),
 ];
 
-class VaultMenuScreen extends StatefulWidget {
+class VaultMenuBottomSheet extends StatefulWidget {
   final int id;
   final bool isMultiSig;
 
-  const VaultMenuScreen({super.key, required this.id, this.isMultiSig = false});
+  const VaultMenuBottomSheet(
+      {super.key, required this.id, this.isMultiSig = false});
 
   @override
-  State<VaultMenuScreen> createState() => _VaultMenuScreenState();
+  State<VaultMenuBottomSheet> createState() => _VaultMenuBottomSheetState();
 }
 
-class _VaultMenuScreenState extends State<VaultMenuScreen> {
+class _VaultMenuBottomSheetState extends State<VaultMenuBottomSheet> {
   // usedAccounts: segwit / legacy
 
   @override
