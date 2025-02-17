@@ -13,7 +13,7 @@ import 'package:coconut_vault/widgets/button/custom_buttons.dart';
 import 'package:coconut_vault/screens/common/pin_input_screen.dart';
 import 'package:provider/provider.dart';
 
-import '../widgets/custom_dialog.dart';
+import '../../widgets/custom_dialog.dart';
 
 class PinSettingScreen extends StatefulWidget {
   final bool greetingVisible;

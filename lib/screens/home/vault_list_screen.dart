@@ -3,7 +3,7 @@ import 'dart:io';
 import 'package:coconut_vault/constants/app_routes.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/providers/connectivity_provider.dart';
-import 'package:coconut_vault/screens/pin_setting_screen.dart';
+import 'package:coconut_vault/screens/settings/pin_setting_screen.dart';
 import 'package:coconut_vault/widgets/coconut_dropdown.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';

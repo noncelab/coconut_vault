@@ -14,7 +14,7 @@ import 'package:coconut_vault/providers/app_model.dart';
 import 'package:coconut_vault/screens/common/pin_check_screen.dart';
 import 'package:coconut_vault/screens/vault_menu/info/mnemonic_view_screen.dart';
 import 'package:coconut_vault/screens/common/qrcode_bottom_sheet.dart';
-import 'package:coconut_vault/screens/vault_menu/vault_edit_bottom_sheet_screen.dart';
+import 'package:coconut_vault/screens/vault_menu/info/vault_edit_bottom_sheet_screen.dart';
 import 'package:coconut_vault/styles.dart';
 import 'package:coconut_vault/utils/alert_util.dart';
 import 'package:coconut_vault/widgets/appbar/custom_appbar.dart';
@@ -56,6 +56,7 @@ class _VaultSettingsState extends State<VaultSettings> {
   RenderBox? _tooltipIconRendBox;
   Offset _tooltipIconPosition = Offset.zero;
   Timer? _tooltipTimer;
+
   int _tooltipRemainingTime = 0;
 
   @override
