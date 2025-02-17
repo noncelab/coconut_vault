@@ -254,8 +254,6 @@ class AuthProvider extends ChangeNotifier {
     final WalletListManager walletListManager = WalletListManager();
     await walletListManager.resetAll();
 
-    // TODO: _isResetVault = true;
-
     _isBiometricEnabled = false;
     _isPinSet = false;
     await _storageService.delete(key: SharedPrefsKeys.kVaultPin);

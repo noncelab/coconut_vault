@@ -39,7 +39,7 @@ class PinCheckScreen extends StatefulWidget {
 
 class _PinCheckScreenState extends State<PinCheckScreen>
     with WidgetsBindingObserver {
-  late bool _isAppLaunchedOrResumed;
+  late final bool _isAppLaunched;
   late String _pin;
   late String _errorMessage;
 
@@ -60,9 +60,7 @@ class _PinCheckScreenState extends State<PinCheckScreen>
     _pin = '';
     _errorMessage = '';
 
-    _isAppLaunchedOrResumed =
-        widget.pinCheckContext == PinCheckContextEnum.appLaunch ||
-            widget.pinCheckContext == PinCheckContextEnum.appResume;
+    _isAppLaunched = widget.pinCheckContext == PinCheckContextEnum.appLaunch;
 
     _authProvider = Provider.of<AuthProvider>(context, listen: false);
     Future.microtask(() {
@@ -80,7 +78,7 @@ class _PinCheckScreenState extends State<PinCheckScreen>
 
     _shuffledPinNumbers = _authProvider.getShuffledNumberList();
 
-    if (_isAppLaunchedOrResumed && _authProvider.isPermanantlyLocked) {
+    if (_isAppLaunched && _authProvider.isPermanantlyLocked) {
       _errorMessage = t.errors.pin_max_attempts_exceeded_error;
     }
   }
@@ -98,27 +96,14 @@ class _PinCheckScreenState extends State<PinCheckScreen>
 
   /// vault_list_tab screen, this screen pause -> Bio 체크
   void _checkBiometrics() {
-    if (widget.pinCheckContext == PinCheckContextEnum.appResume) {
-      // TODO: app_model의  await checkDeviceBiometrics(); 실행을 위해서 아래 함수를 실행한 것임
-      // TODO: 앱 백그라운드 -> 포그라운드 상태 변경 시 생체 정보를 업데이트 해주는 로직이 필요함
-      /// 생체인증 정보 체크
-      _authProvider.setInitState();
-    }
-
     if (_authProvider.canCheckBiometrics) {
       _authProvider.verifyBiometric(context);
     }
   }
 
-  void moveToMain() async {
-    await _authProvider.updateBiometricAvailability(); // TODO: 이거 여기서 왜하지?
-    Navigator.pushNamedAndRemoveUntil(
-        context, '/', (Route<dynamic> route) => false);
-  }
-
   void _onKeyTap(String value) async {
     if (_isUnlockDisabled ||
-        _isAppLaunchedOrResumed && _authProvider.isPermanantlyLocked) return;
+        _isAppLaunched && _authProvider.isPermanantlyLocked) return;
 
     if (value == kBiometricIdentifier) {
       _authProvider.verifyBiometric(context);
@@ -147,9 +132,6 @@ class _PinCheckScreenState extends State<PinCheckScreen>
       case PinCheckContextEnum.appLaunch:
         widget.onComplete?.call();
         break;
-      case PinCheckContextEnum.appResume:
-        moveToMain();
-        break;
       case PinCheckContextEnum.change:
         Navigator.pop(context);
         MyBottomSheet.showBottomSheet_90(
@@ -170,7 +152,7 @@ class _PinCheckScreenState extends State<PinCheckScreen>
       return;
     }
 
-    if (_isAppLaunchedOrResumed) {
+    if (_isAppLaunched) {
       if (_authProvider.isPermanantlyLocked) {
         Logger.log('1 - _handlePermanentLockout');
         vibrateMedium();
@@ -288,12 +270,8 @@ class _PinCheckScreenState extends State<PinCheckScreen>
         cancelButtonText: t.close, onConfirm: () async {
       await _authProvider.resetPin();
 
-      if (widget.pinCheckContext == PinCheckContextEnum.appLaunch) {
-        Navigator.of(context).pop();
-        widget.onReset?.call();
-      } else {
-        moveToMain();
-      }
+      Navigator.of(context).pop();
+      widget.onReset?.call();
     }, onCancel: () {
       Navigator.of(context).pop();
     });
@@ -301,7 +279,7 @@ class _PinCheckScreenState extends State<PinCheckScreen>
 
   @override
   Widget build(BuildContext context) {
-    return _isAppLaunchedOrResumed
+    return _isAppLaunched
         ? Material(
             color: MyColors.white,
             child: PopScope(
@@ -337,9 +315,9 @@ class _PinCheckScreenState extends State<PinCheckScreen>
 
   Widget _pinInputScreen({isOnReset = false}) {
     return PinInputScreen(
-      appBarVisible: _isAppLaunchedOrResumed ? false : true,
-      title: _isAppLaunchedOrResumed ? '' : t.pin_check_screen.enter_password,
-      initOptionVisible: _isAppLaunchedOrResumed,
+      appBarVisible: _isAppLaunched ? false : true,
+      title: _isAppLaunched ? '' : t.pin_check_screen.enter_password,
+      initOptionVisible: _isAppLaunched,
       isCloseIcon: widget.isDeleteScreen,
       pin: _pin,
       errorMessage: _errorMessage,
