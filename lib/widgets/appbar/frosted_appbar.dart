@@ -101,7 +101,7 @@ class _FrostedAppBarState extends State<FrostedAppBar> {
                       selector: (context, model) => model.isPinEnabled,
                       builder: (context, isPinEnabled, child) {
                         return Selector<AppModel, int>(
-                          selector: (context, model) => model.vaultListLength,
+                          selector: (context, model) => model.walletCount,
                           builder: (context, vaultListLength, child) {
                             final isNotEmptyVaultList = vaultListLength > 0;
                             return Container(

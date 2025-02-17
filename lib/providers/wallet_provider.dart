@@ -47,8 +47,8 @@ class WalletProvider extends ChangeNotifier {
   final ValueNotifier<bool> isVaultListLoadingNotifier =
       ValueNotifier<bool>(false);
   // 리스트 로딩 완료 여부 (로딩작업 완료 후 바로 추가하기 표시)
-  bool _isLoadVaultList = false;
-  bool get isLoadVaultList => _isLoadVaultList;
+  bool _isLoadWalletListDone = false;
+  bool get isLoadWalletsDone => _isLoadWalletListDone;
   // 지갑 추가, 지갑 삭제, 서명완료 후 불필요하게 loadVaultList() 호출되는 것을 막음
   bool _vaultInitialized = false;
   bool get vaultInitialized => _vaultInitialized;
@@ -284,7 +284,7 @@ class WalletProvider extends ChangeNotifier {
 
     _isVaultListLoading = true;
     isVaultListLoadingNotifier.value = true;
-    _vaultSkeletonLength = _appModel.vaultListLength;
+    _vaultSkeletonLength = _appModel.walletCount;
     notifyListeners();
 
     try {
@@ -324,7 +324,7 @@ class WalletProvider extends ChangeNotifier {
       }
       _isVaultListLoading = false;
       isVaultListLoadingNotifier.value = false;
-      _isLoadVaultList = true;
+      _isLoadWalletListDone = true;
       notifyListeners();
     }
     return;

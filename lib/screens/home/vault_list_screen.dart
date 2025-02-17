@@ -2,12 +2,13 @@ import 'dart:io';
 
 import 'package:coconut_vault/constants/app_routes.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
+import 'package:coconut_vault/providers/auth_provider.dart';
 import 'package:coconut_vault/providers/connectivity_provider.dart';
+import 'package:coconut_vault/providers/view_model/home/vault_list_view_model.dart';
 import 'package:coconut_vault/screens/settings/pin_setting_screen.dart';
 import 'package:coconut_vault/widgets/coconut_dropdown.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:coconut_vault/providers/app_model.dart';
 import 'package:coconut_vault/screens/settings/settings_screen.dart';
 import 'package:coconut_vault/styles.dart';
 import 'package:coconut_vault/widgets/appbar/frosted_appbar.dart';
@@ -31,7 +32,8 @@ class VaultListScreen extends StatefulWidget {
 
 class _VaultListScreenState extends State<VaultListScreen>
     with TickerProviderStateMixin {
-  late AppModel _appModel;
+  late VaultListViewModel _viewModel;
+
   late WalletProvider _vaultModel;
   bool _isSeeMoreDropdown = false;
 
@@ -44,10 +46,12 @@ class _VaultListScreenState extends State<VaultListScreen>
   @override
   void initState() {
     super.initState();
-    _appModel = Provider.of<AppModel>(context, listen: false);
+    _viewModel =
+        VaultListViewModel(Provider.of<AuthProvider>(context, listen: false));
+
     _vaultModel = Provider.of<WalletProvider>(context, listen: false);
-    final connectivityProvider =
-        Provider.of<ConnectivityProvider>(context, listen: false);
+    // final connectivityProvider =
+    //     Provider.of<ConnectivityProvider>(context, listen: false);
 
     _scrollController = ScrollController();
     _newVaultAddAnimController = AnimationController(
@@ -193,160 +197,181 @@ class _VaultListScreenState extends State<VaultListScreen>
                 }
               }
             },
-            child: Scaffold(
-              backgroundColor: MyColors.lightgrey,
-              body: Stack(
-                children: [
-                  CustomScrollView(
-                    controller: _scrollController,
-                    physics: const AlwaysScrollableScrollPhysics(),
-                    // semanticChildCount:
-                    //     model.isVaultListLoading ? 1 : vaults.length,
-                    slivers: <Widget>[
-                      FrostedAppBar(
-                        onTapSeeMore: () {
-                          setState(() {
-                            _isSeeMoreDropdown = true;
-                          });
-                        },
-                      ),
-                      // 바로 추가하기
-                      SliverToBoxAdapter(
-                        child: Visibility(
-                          visible: _vaultModel.isLoadVaultList &&
-                              _appModel.vaultListLength == 0,
-                          child: Container(
-                            width: double.maxFinite,
-                            decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(16),
-                                color: MyColors.white),
-                            padding: const EdgeInsets.only(
-                                top: 26, bottom: 24, left: 26, right: 26),
-                            margin: const EdgeInsets.symmetric(horizontal: 8),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  t.vault_list_tab.add_wallet,
-                                  style: Styles.title5,
-                                ),
-                                Text(
-                                  t.vault_list_tab.top_right_icon,
-                                  style: Styles.label,
-                                ),
-                                const SizedBox(height: 16),
-                                CupertinoButton(
-                                  onPressed: () {
-                                    if (!_appModel.isPinEnabled) {
-                                      MyBottomSheet.showBottomSheet_90(
-                                          context: context,
-                                          child: const PinSettingScreen(
-                                              greetingVisible: true));
-                                    } else {
-                                      Navigator.pushNamed(context,
-                                          AppRoutes.vaultTypeSelection);
-                                    }
-                                  },
-                                  borderRadius: BorderRadius.circular(10),
-                                  padding: EdgeInsets.zero,
-                                  color: MyColors.primary,
-                                  child: Container(
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 28,
-                                      vertical: 12,
-                                    ),
-                                    child: Text(
-                                      t.vault_list_tab.btn_add,
-                                      style: Styles.label.merge(
-                                        const TextStyle(
-                                          color: MyColors.black,
-                                          fontWeight: FontWeight.w700,
+            child:
+                // ConnectivityProvider: 실제로 활용되지 않지만 참조해야, 네트워크/블루투스/개발자모드 연결 시 화면 전환이 됩니다.
+                ChangeNotifierProxyProvider2<AuthProvider, ConnectivityProvider,
+                    VaultListViewModel>(
+              create: (_) => _viewModel,
+              update: (_, authProvider, connectivityProvider, viewModel) {
+                return viewModel!;
+              },
+              child: Consumer<VaultListViewModel>(
+                builder: (context, viewModel, child) {
+                  return Scaffold(
+                    backgroundColor: MyColors.lightgrey,
+                    body: Stack(
+                      children: [
+                        CustomScrollView(
+                          controller: _scrollController,
+                          physics: const AlwaysScrollableScrollPhysics(),
+                          // semanticChildCount:
+                          //     model.isVaultListLoading ? 1 : vaults.length,
+                          slivers: <Widget>[
+                            FrostedAppBar(
+                              onTapSeeMore: () {
+                                setState(() {
+                                  _isSeeMoreDropdown = true;
+                                });
+                              },
+                            ),
+                            // 바로 추가하기
+                            SliverToBoxAdapter(
+                              child: Visibility(
+                                visible: viewModel.isLoadWalletsDone &&
+                                    viewModel.walletCount == 0,
+                                child: Container(
+                                  width: double.maxFinite,
+                                  decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(16),
+                                      color: MyColors.white),
+                                  padding: const EdgeInsets.only(
+                                      top: 26, bottom: 24, left: 26, right: 26),
+                                  margin:
+                                      const EdgeInsets.symmetric(horizontal: 8),
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        t.vault_list_tab.add_wallet,
+                                        style: Styles.title5,
+                                      ),
+                                      Text(
+                                        t.vault_list_tab.top_right_icon,
+                                        style: Styles.label,
+                                      ),
+                                      const SizedBox(height: 16),
+                                      CupertinoButton(
+                                        onPressed: () {
+                                          if (!viewModel.isPinSet) {
+                                            MyBottomSheet.showBottomSheet_90(
+                                                context: context,
+                                                child: const PinSettingScreen(
+                                                    greetingVisible: true));
+                                          } else {
+                                            Navigator.pushNamed(context,
+                                                AppRoutes.vaultTypeSelection);
+                                          }
+                                        },
+                                        borderRadius: BorderRadius.circular(10),
+                                        padding: EdgeInsets.zero,
+                                        color: MyColors.primary,
+                                        child: Container(
+                                          padding: const EdgeInsets.symmetric(
+                                            horizontal: 28,
+                                            vertical: 12,
+                                          ),
+                                          child: Text(
+                                            t.vault_list_tab.btn_add,
+                                            style: Styles.label.merge(
+                                              const TextStyle(
+                                                color: MyColors.black,
+                                                fontWeight: FontWeight.w700,
+                                              ),
+                                            ),
+                                          ),
                                         ),
                                       ),
-                                    ),
+                                    ],
                                   ),
                                 ),
-                              ],
+                              ),
                             ),
-                          ),
+                            // 지갑 목록
+                            SliverPadding(
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 8),
+                              sliver: SliverList.builder(
+                                itemCount:
+                                    vaults.length + (vaults.isEmpty ? 1 : 0),
+                                itemBuilder: (ctx, index) =>
+                                    index < vaults.length
+                                        ? model.animatedVaultFlags[index]
+                                            ? SlideTransition(
+                                                position: _newVaultAddAnimation,
+                                                child: VaultRowItem(
+                                                    vault: vaults[index]),
+                                              )
+                                            : VaultRowItem(vault: vaults[index])
+                                        : Container(),
+                              ),
+                            ),
+                            // Skeleton 목록
+                            SliverPadding(
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 8),
+                              sliver: SliverList.builder(
+                                itemBuilder: (ctx, index) =>
+                                    _vaultSkeletonItem(),
+                                itemCount: _vaultModel.vaultSkeletonLength,
+                              ),
+                            ),
+                          ],
                         ),
-                      ),
-                      // 지갑 목록
-                      SliverPadding(
-                        padding: const EdgeInsets.symmetric(horizontal: 8),
-                        sliver: SliverList.builder(
-                          itemCount: vaults.length + (vaults.isEmpty ? 1 : 0),
-                          itemBuilder: (ctx, index) => index < vaults.length
-                              ? model.animatedVaultFlags[index]
-                                  ? SlideTransition(
-                                      position: _newVaultAddAnimation,
-                                      child: VaultRowItem(vault: vaults[index]),
-                                    )
-                                  : VaultRowItem(vault: vaults[index])
-                              : Container(),
-                        ),
-                      ),
-                      // Skeleton 목록
-                      SliverPadding(
-                        padding: const EdgeInsets.symmetric(horizontal: 8),
-                        sliver: SliverList.builder(
-                          itemBuilder: (ctx, index) => _vaultSkeletonItem(),
-                          itemCount: _vaultModel.vaultSkeletonLength,
-                        ),
-                      ),
-                    ],
-                  ),
-                  // 더보기
-                  Visibility(
-                    visible: _isSeeMoreDropdown,
-                    child: Stack(
-                      children: [
-                        GestureDetector(
-                          onTapDown: (details) {
-                            setState(() {
-                              _isSeeMoreDropdown = false;
-                            });
-                          },
-                          child: Container(
-                            width: double.maxFinite,
-                            height: double.maxFinite,
-                            color: Colors.transparent,
-                          ),
-                        ),
-                        Align(
-                          alignment: Alignment.topRight,
-                          child: CoconutDropdown(
-                            buttons: [
-                              t.mnemonic_wordlist,
-                              t.settings,
-                              t.view_app_info
+                        // 더보기
+                        Visibility(
+                          visible: _isSeeMoreDropdown,
+                          child: Stack(
+                            children: [
+                              GestureDetector(
+                                onTapDown: (details) {
+                                  setState(() {
+                                    _isSeeMoreDropdown = false;
+                                  });
+                                },
+                                child: Container(
+                                  width: double.maxFinite,
+                                  height: double.maxFinite,
+                                  color: Colors.transparent,
+                                ),
+                              ),
+                              Align(
+                                alignment: Alignment.topRight,
+                                child: CoconutDropdown(
+                                  buttons: [
+                                    t.mnemonic_wordlist,
+                                    t.settings,
+                                    t.view_app_info
+                                  ],
+                                  onTapButton: (index) {
+                                    setState(() {
+                                      _isSeeMoreDropdown = false;
+                                    });
+                                    switch (index) {
+                                      case 0: // 니모닉 문구 단어집
+                                        Navigator.pushNamed(context,
+                                            AppRoutes.mnemonicWordList);
+                                        break;
+                                      case 1: // 설정
+                                        MyBottomSheet.showBottomSheet_90(
+                                            context: context,
+                                            child: const SettingsScreen());
+                                        break;
+                                      case 2: // 앱 정보 보기
+                                        Navigator.pushNamed(
+                                            context, AppRoutes.appInfo);
+                                        break;
+                                    }
+                                  },
+                                ),
+                              ),
                             ],
-                            onTapButton: (index) {
-                              setState(() {
-                                _isSeeMoreDropdown = false;
-                              });
-                              switch (index) {
-                                case 0: // 니모닉 문구 단어집
-                                  Navigator.pushNamed(
-                                      context, AppRoutes.mnemonicWordList);
-                                  break;
-                                case 1: // 설정
-                                  MyBottomSheet.showBottomSheet_90(
-                                      context: context,
-                                      child: const SettingsScreen());
-                                  break;
-                                case 2: // 앱 정보 보기
-                                  Navigator.pushNamed(
-                                      context, AppRoutes.appInfo);
-                                  break;
-                              }
-                            },
                           ),
                         ),
                       ],
                     ),
-                  ),
-                ],
+                  );
+                },
               ),
             ));
       },

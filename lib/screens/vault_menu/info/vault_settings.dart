@@ -326,7 +326,7 @@ class _VaultSettingsState extends State<VaultSettings> {
 
                                     Selector<WalletProvider, bool>(
                                         selector: (context, model) =>
-                                            model.isLoadVaultList,
+                                            model.isLoadWalletsDone,
                                         builder:
                                             (context, isLoadVaultList, child) {
                                           return ListView.builder(

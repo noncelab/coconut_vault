@@ -16,7 +16,6 @@ enum ConnectivityState { off, on, bluetoothUnauthorized }
 
 class ConnectivityProvider extends ChangeNotifier {
   /// 첫 실행 가이드 확인 여부
-  /// TODO: visibilityProvider 활용 방식으로 변경 필요
   late bool _hasSeenGuide;
 
   bool? _isNetworkOn;
@@ -133,6 +132,7 @@ class ConnectivityProvider extends ChangeNotifier {
     _onConnectivityChanged();
   }
 
+// TODO: _hasSeenGuide 없이 각 home 화면 별 이벤트 등록/해제하기!!!!!!
   void _onConnectivityChanged() {
     if (Platform.isIOS && _isBluetoothUnauthorized == true) {
       runApp(const CupertinoApp(
