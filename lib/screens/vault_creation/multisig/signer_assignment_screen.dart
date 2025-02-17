@@ -11,7 +11,7 @@ import 'package:coconut_vault/model/multisig/multisig_creation_model.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:coconut_vault/screens/vault_creation/multisig/import_confirmation_screen.dart';
 import 'package:coconut_vault/screens/vault_creation/multisig/signer_assignment_key_list_bottom_sheet.dart';
-import 'package:coconut_vault/screens/vault_creation/multisig/signer_scan_screen.dart';
+import 'package:coconut_vault/screens/common/multisig_bsms_scanner_screen.dart';
 import 'package:coconut_vault/managers/isolate_manager.dart';
 import 'package:coconut_vault/utils/alert_util.dart';
 import 'package:coconut_vault/utils/icon_util.dart';
@@ -747,7 +747,7 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
                                                   enableSingleChildScroll:
                                                       false,
                                                   child:
-                                                      const SignerScanScreen(),
+                                                      const MultisigBsmsScannerScreen(),
                                                 );
 
                                                 if (externalImported != null) {

@@ -3,22 +3,23 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:coconut_vault/styles.dart';
 
-class MultisigMemoBottomSheet extends StatefulWidget {
+class MultisigSignerMemoBottomSheet extends StatefulWidget {
   final String? memo;
   final Function(String) onUpdate;
 
-  const MultisigMemoBottomSheet({
+  const MultisigSignerMemoBottomSheet({
     super.key,
     required this.onUpdate,
     required this.memo,
   });
 
   @override
-  State<MultisigMemoBottomSheet> createState() =>
-      _MultisigMemoBottomSheetState();
+  State<MultisigSignerMemoBottomSheet> createState() =>
+      _MultisigSignerMemoBottomSheetState();
 }
 
-class _MultisigMemoBottomSheetState extends State<MultisigMemoBottomSheet> {
+class _MultisigSignerMemoBottomSheetState
+    extends State<MultisigSignerMemoBottomSheet> {
   late String _memo;
   bool hasChanged = false;
   final TextEditingController _controller = TextEditingController();

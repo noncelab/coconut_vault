@@ -5,6 +5,7 @@ import 'package:coconut_vault/constants/app_routes.dart';
 import 'package:coconut_vault/enums/pin_check_context_enum.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/model/singlesig/singlesig_vault_list_item.dart';
+import 'package:coconut_vault/screens/vault_menu/info/name_and_icon_edit_bottom_sheet.dart';
 import 'package:coconut_vault/utils/text_utils.dart';
 import 'package:coconut_vault/utils/vibration_util.dart';
 import 'package:coconut_vault/widgets/card/vault_item_card.dart';
@@ -14,7 +15,6 @@ import 'package:coconut_vault/providers/app_model.dart';
 import 'package:coconut_vault/screens/common/pin_check_screen.dart';
 import 'package:coconut_vault/screens/vault_menu/info/mnemonic_view_screen.dart';
 import 'package:coconut_vault/screens/common/qrcode_bottom_sheet.dart';
-import 'package:coconut_vault/screens/vault_menu/info/vault_edit_bottom_sheet_screen.dart';
 import 'package:coconut_vault/styles.dart';
 import 'package:coconut_vault/utils/alert_util.dart';
 import 'package:coconut_vault/widgets/appbar/custom_appbar.dart';
@@ -29,17 +29,18 @@ import 'package:shimmer/shimmer.dart';
 
 import '../../../providers/wallet_provider.dart';
 
-// todo: single sig setup info screen
-class VaultSettings extends StatefulWidget {
+// rename: VaultSettings -> SingleSigSetupInfoScreen(리뷰/머지 후 코멘트 삭제)
+class SingleSigSetupInfoScreen extends StatefulWidget {
   final int id;
 
-  const VaultSettings({super.key, required this.id});
+  const SingleSigSetupInfoScreen({super.key, required this.id});
 
   @override
-  State<VaultSettings> createState() => _VaultSettingsState();
+  State<SingleSigSetupInfoScreen> createState() =>
+      _SingleSigSetupInfoScreenState();
 }
 
-class _VaultSettingsState extends State<VaultSettings> {
+class _SingleSigSetupInfoScreenState extends State<SingleSigSetupInfoScreen> {
   late AppModel _appModel;
   late WalletProvider _vaultModel;
   late TextEditingController _nameTextController;
@@ -149,7 +150,7 @@ class _VaultSettingsState extends State<VaultSettings> {
       String name, int colorIndex, int iconIndex) {
     MyBottomSheet.showBottomSheet_90(
         context: context,
-        child: VaultInfoEditBottomSheet(
+        child: NameAndIconEditBottomSheet(
           name: name,
           iconIndex: iconIndex,
           colorIndex: colorIndex,
@@ -351,8 +352,10 @@ class _VaultSettingsState extends State<VaultSettings> {
                                                     .getVaultById(id);
                                                 return InkWell(
                                                   onTap: () {
-                                                    Navigator.pushNamed(context,
-                                                        AppRoutes.multisigSetup,
+                                                    Navigator.pushNamed(
+                                                        context,
+                                                        AppRoutes
+                                                            .multisigSetupInfo,
                                                         arguments: {'id': id});
                                                   },
                                                   child: Container(

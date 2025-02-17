@@ -8,7 +8,7 @@ import 'package:coconut_vault/utils/colors_util.dart';
 import 'package:coconut_vault/widgets/animation/shake_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:coconut_vault/screens/vault_menu/vault_menu_bottom_sheet.dart';
+import 'package:coconut_vault/screens/home/vault_menu_bottom_sheet.dart';
 import 'package:coconut_vault/utils/icon_util.dart';
 import 'package:coconut_vault/widgets/bottom_sheet.dart';
 import 'package:coconut_vault/widgets/button/shrink_animation_button.dart';
