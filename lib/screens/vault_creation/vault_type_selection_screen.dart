@@ -1,3 +1,4 @@
+import 'package:coconut_vault/constants/app_routes.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:coconut_vault/widgets/button/custom_buttons.dart';
@@ -20,7 +21,10 @@ class _VaultTypeSelectionScreenState extends State<VaultTypeSelectionScreen> {
   bool _nextButtonEnabled = true;
   bool _showLoading = false;
   late String guideText;
-  List<String> options = ['/vault-creation-options', '/select-multisig-quorum'];
+  List<String> options = [
+    AppRoutes.vaultCreationOptions,
+    AppRoutes.multisigQuorumSelection
+  ];
   late final WalletProvider model;
 
   @override

@@ -1,0 +1,29 @@
+class AppRoutes {
+  static const String vaultTypeSelection = '/select-vault-type';
+  static const String multisigQuorumSelection = '/select-multisig-quorum';
+  static const String signerAssignment = '/assign-signers';
+  static const String vaultCreationOptions = '/vault-creation-options';
+  static const String mnemonicImport = '/mnemonic-import';
+  static const String vaultNameSetup = '/vault-name-setup';
+  static const String vaultDetails = '/vault-details';
+  static const String vaultSettings = '/vault-settings';
+  static const String multisigSetup = '/multisig-setting';
+  static const String multisigBsms = '/multisig-bsms';
+  static const String mnemonicWordList = '/mnemonic-word-list';
+  static const String addressList = '/address-list';
+  static const String signerScanner = '/signer-scanner';
+  static const String psbtScanner = '/psbt-scanner';
+  static const String psbtConfirmation = '/psbt-confirmation';
+  static const String signedTransaction = '/signed-transaction';
+  static const String syncToWallet = '/sync-to-wallet';
+  static const String signerBsms = '/signer-bsms';
+  static const String syncTypeSelection = '/select-sync-type';
+  static const String multiSignature = '/multi-signature';
+  static const String singleSignature = '/singlesig-sign';
+  static const String securitySelfCheck = '/security-self-check';
+  static const String mnemonicGeneration = '/mnemonic-generate';
+  static const String mnemonicCoinflip = '/mnemonic-flip-coin';
+  static const String appInfo = '/app-info';
+  static const String welcome = '/welcome';
+  static const String connectivityGuide = '/connectivity-guide';
+}

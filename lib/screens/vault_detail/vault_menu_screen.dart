@@ -1,3 +1,4 @@
+import 'package:coconut_vault/constants/app_routes.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/model/common/vault_list_item_base.dart';
 import 'package:coconut_vault/screens/vault_creation/multisig/signer_scan_screen.dart';
@@ -61,7 +62,7 @@ class _VaultMenuScreenState extends State<VaultMenuScreen> {
               Navigator.pop(context);
               Navigator.pushNamed(
                 context,
-                '/vault-settings',
+                AppRoutes.vaultSettings,
                 arguments: {'id': widget.id},
               );
             }, iconBackgroundColorList[1]),
@@ -72,7 +73,7 @@ class _VaultMenuScreenState extends State<VaultMenuScreen> {
                 t.vault_menu_screen.title.menu2,
                 t.vault_menu_screen.description.menu2, () {
               Navigator.pop(context);
-              Navigator.pushNamed(context, '/psbt-scanner',
+              Navigator.pushNamed(context, AppRoutes.psbtScanner,
                   arguments: {'id': widget.id});
             }, iconBackgroundColorList[2]),
             bottomMenuDivider(),
@@ -83,7 +84,7 @@ class _VaultMenuScreenState extends State<VaultMenuScreen> {
                 t.vault_menu_screen.description.menu3(
                     name: TextUtils.ellipsisIfLonger(vaultListItem.name)), () {
               Navigator.pop(context);
-              Navigator.pushNamed(context, '/address-list',
+              Navigator.pushNamed(context, AppRoutes.addressList,
                   arguments: {'id': widget.id});
             }, iconBackgroundColorList[3]),
             bottomMenuDivider(),
@@ -93,8 +94,7 @@ class _VaultMenuScreenState extends State<VaultMenuScreen> {
                 t.vault_menu_screen.title.menu4,
                 t.vault_menu_screen.description.menu4, () {
               Navigator.pop(context);
-
-              Navigator.pushNamed(context, '/sync-to-wallet',
+              Navigator.pushNamed(context, AppRoutes.syncToWallet,
                   arguments: {'id': widget.id});
             }, iconBackgroundColorList[4]),
             bottomMenuDivider(),
@@ -104,8 +104,7 @@ class _VaultMenuScreenState extends State<VaultMenuScreen> {
                 t.vault_menu_screen.title.menu5,
                 t.vault_menu_screen.description.menu5, () {
               Navigator.pop(context);
-
-              Navigator.pushNamed(context, '/signer-bsms',
+              Navigator.pushNamed(context, AppRoutes.signerBsms,
                   arguments: {'id': widget.id});
             }, iconBackgroundColorList[0]),
             bottomMenuDivider(),
@@ -115,10 +114,9 @@ class _VaultMenuScreenState extends State<VaultMenuScreen> {
                 t.vault_menu_screen.title.menu6,
                 t.vault_menu_screen.description.menu6, () async {
               Navigator.pop(context);
-
               Navigator.pushNamed(
                 context,
-                '/signer-scanner',
+                AppRoutes.signerScanner,
                 arguments: {
                   'id': widget.id,
                   'screenType': SignerScanScreenType.copy,
@@ -138,7 +136,7 @@ class _VaultMenuScreenState extends State<VaultMenuScreen> {
                     name: TextUtils.ellipsisIfLonger(vaultListItem.name)),
                 t.vault_menu_screen.description.menu7, () {
               Navigator.pop(context);
-              Navigator.pushNamed(context, '/multisig-setting',
+              Navigator.pushNamed(context, AppRoutes.multisigSetup,
                   arguments: {'id': widget.id});
             }, iconBackgroundColorList[1]),
             bottomMenuDivider(),
@@ -148,7 +146,7 @@ class _VaultMenuScreenState extends State<VaultMenuScreen> {
                 t.vault_menu_screen.title.menu8,
                 t.vault_menu_screen.description.menu8, () {
               Navigator.pop(context);
-              Navigator.pushNamed(context, '/psbt-scanner',
+              Navigator.pushNamed(context, AppRoutes.psbtScanner,
                   arguments: {'id': widget.id});
             }, iconBackgroundColorList[2]),
             bottomMenuDivider(),
@@ -159,7 +157,7 @@ class _VaultMenuScreenState extends State<VaultMenuScreen> {
                 t.vault_menu_screen.description.menu3(
                     name: TextUtils.ellipsisIfLonger(vaultListItem.name)), () {
               Navigator.pop(context);
-              Navigator.pushNamed(context, '/address-list',
+              Navigator.pushNamed(context, AppRoutes.addressList,
                   arguments: {'id': widget.id});
             }, iconBackgroundColorList[3]),
             bottomMenuDivider(),
@@ -169,7 +167,7 @@ class _VaultMenuScreenState extends State<VaultMenuScreen> {
                 t.vault_menu_screen.title.menu4,
                 t.vault_menu_screen.description.menu4, () {
               Navigator.pop(context);
-              Navigator.pushNamed(context, '/sync-to-wallet',
+              Navigator.pushNamed(context, AppRoutes.syncToWallet,
                   arguments: {'id': widget.id});
             }, iconBackgroundColorList[4]),
           ]),

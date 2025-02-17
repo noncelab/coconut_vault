@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:coconut_lib/coconut_lib.dart';
+import 'package:coconut_vault/constants/app_routes.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/model/multisig/multisig_signer.dart';
 import 'package:coconut_vault/model/singlesig/singlesig_vault_list_item.dart';
@@ -236,8 +237,10 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
           confirmButtonColor = MyColors.warningText;
           onConfirm = () {
             isFinishing = true;
-            Navigator.popUntil(context,
-                (route) => route.settings.name == '/select-multisig-quorum');
+            Navigator.popUntil(
+                context,
+                (route) =>
+                    route.settings.name == AppRoutes.multisigQuorumSelection);
           };
           break;
         }
@@ -251,9 +254,9 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
           onConfirm = () {
             Navigator.pushNamedAndRemoveUntil(
                 context,
-                '/vault-creation-options',
+                AppRoutes.vaultCreationOptions,
                 (Route<dynamic> route) =>
-                    route.settings.name == '/select-vault-type');
+                    route.settings.name == AppRoutes.vaultTypeSelection);
           };
           break;
         }
@@ -505,7 +508,7 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
   }
 
   void onNextPressed() {
-    Navigator.pushNamed(context, '/vault-name-setup');
+    Navigator.pushNamed(context, AppRoutes.vaultNameSetup);
   }
 
   @override
@@ -942,7 +945,7 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
               const SizedBox(width: 15),
               Expanded(
                 child: Text(
-                  '${assignedVaultList[i].index + 1}번 키',
+                  t.multisig.nth_key(index: assignedVaultList[i].index + 1),
                   style: Styles.body1,
                 ),
               ),

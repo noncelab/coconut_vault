@@ -1,3 +1,4 @@
+import 'package:coconut_vault/constants/app_routes.dart';
 import 'package:coconut_vault/enums/pin_check_context_enum.dart';
 import 'package:coconut_vault/main_route_guard.dart';
 import 'package:coconut_vault/model/multisig/multisig_creation_model.dart';
@@ -9,7 +10,7 @@ import 'package:coconut_vault/screens/airgap/multi_signature_screen.dart';
 import 'package:coconut_vault/screens/airgap/psbt_confirmation_screen.dart';
 import 'package:coconut_vault/screens/airgap/psbt_scanner_screen.dart';
 import 'package:coconut_vault/screens/airgap/signed_transaction_qr_screen.dart';
-import 'package:coconut_vault/screens/airgap/singlesig_sign_screen.dart';
+import 'package:coconut_vault/screens/airgap/single_signature_screen.dart';
 import 'package:coconut_vault/screens/home/vault_list_screen.dart';
 import 'package:coconut_vault/screens/security_self_check_screen.dart';
 import 'package:coconut_vault/screens/setting/app_info_screen.dart';
@@ -28,7 +29,7 @@ import 'package:coconut_vault/screens/vault_creation/vault_creation_options_scre
 import 'package:coconut_vault/screens/vault_creation/vault_name_and_icon_setup_screen.dart';
 import 'package:coconut_vault/screens/vault_detail/address_list_screen.dart';
 import 'package:coconut_vault/screens/vault_detail/multi_sig_bsms_screen.dart';
-import 'package:coconut_vault/screens/vault_detail/multisig_setting_screen.dart';
+import 'package:coconut_vault/screens/vault_detail/multi_sig_setup_screen.dart';
 import 'package:coconut_vault/screens/vault_detail/select_export_type_screen.dart';
 import 'package:coconut_vault/screens/vault_detail/signer_bsms_screen.dart';
 import 'package:coconut_vault/screens/vault_detail/sync_to_wallet_screen.dart';
@@ -179,16 +180,18 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> {
           color: MyColors.black,
           home: _getHomeScreenRoute(_appEntryFlow, context),
           routes: {
-            '/select-vault-type': (context) => const VaultTypeSelectionScreen(),
-            '/select-multisig-quorum': (context) =>
+            AppRoutes.vaultTypeSelection: (context) =>
+                const VaultTypeSelectionScreen(),
+            AppRoutes.multisigQuorumSelection: (context) =>
                 const MultisigQuorumSelectionScreen(),
-            '/assign-signers': (context) => const SignerAssignmentScreen(),
-            '/vault-creation-options': (context) =>
+            AppRoutes.signerAssignment: (context) =>
+                const SignerAssignmentScreen(),
+            AppRoutes.vaultCreationOptions: (context) =>
                 const VaultCreationOptions(),
-            '/mnemonic-import': (context) => const MnemonicImport(),
-            '/vault-name-setup': (context) =>
+            AppRoutes.mnemonicImport: (context) => const MnemonicImport(),
+            AppRoutes.vaultNameSetup: (context) =>
                 const VaultNameAndIconSetupScreen(),
-            '/vault-details': (context) => buildScreenWithArguments(
+            AppRoutes.vaultDetails: (context) => buildScreenWithArguments(
                   context,
                   (args) => VaultMenuScreen(id: args['id']),
                 ),
@@ -196,51 +199,52 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> {
                 context, (args) => VaultSettingsScreen(id: args['id'])),
             '/multisig-setting': (context) => buildScreenWithArguments(
                   context,
-                  (args) => MultisigSettingScreen(id: args['id']),
+                  (args) => MultiSigSetu(id: args['id']),
                 ),
-            '/multisig-bsms': (context) => buildScreenWithArguments(
+            AppRoutes.multisigBsms: (context) => buildScreenWithArguments(
                   context,
                   (args) => MultiSigBsmsScreen(
                     id: args['id'],
                   ),
                 ),
-            '/mnemonic-word-list': (context) => const MnemonicWordListScreen(),
-            '/address-list': (context) => buildScreenWithArguments(
+            AppRoutes.mnemonicWordList: (context) =>
+                const MnemonicWordListScreen(),
+            AppRoutes.addressList: (context) => buildScreenWithArguments(
                   context,
                   (args) => AddressListScreen(id: args['id']),
                 ),
-            '/signer-scanner': (context) => buildScreenWithArguments(
+            AppRoutes.signerScanner: (context) => buildScreenWithArguments(
                   context,
                   (args) => SignerScanScreen(
                       id: args['id'], screenType: args['screenType']),
                 ),
-            '/psbt-scanner': (context) => buildScreenWithArguments(
+            AppRoutes.psbtScanner: (context) => buildScreenWithArguments(
                   context,
                   (args) => PsbtScannerScreen(id: args['id']),
                 ),
-            '/psbt-confirmation': (context) => buildScreenWithArguments(
+            AppRoutes.psbtConfirmation: (context) => buildScreenWithArguments(
                   context,
                   (args) => PsbtConfirmationScreen(id: args['id']),
                 ),
-            '/signed-transaction': (context) => buildScreenWithArguments(
+            AppRoutes.signedTransaction: (context) => buildScreenWithArguments(
                   context,
                   (args) => SignedTransactionQrScreen(id: args['id']),
                 ),
-            '/sync-to-wallet': (context) => buildScreenWithArguments(
+            AppRoutes.syncToWallet: (context) => buildScreenWithArguments(
                   context,
                   (args) => SyncToWalletScreen(id: args['id']),
                 ),
-            '/signer-bsms': (context) => buildScreenWithArguments(
+            AppRoutes.signerBsms: (context) => buildScreenWithArguments(
                   context,
                   (args) => SignerBsmsScreen(
                     id: args['id'],
                   ),
                 ),
-            '/select-sync-type': (context) => buildScreenWithArguments(
+            AppRoutes.syncTypeSelection: (context) => buildScreenWithArguments(
                   context,
                   (args) => SelectExportTypeScreen(id: args['id']),
                 ),
-            '/multi-signature': (context) => buildScreenWithArguments(
+            AppRoutes.multiSignature: (context) => buildScreenWithArguments(
                   context,
                   (args) => MultiSignatureScreen(
                     id: args['id'],
@@ -249,25 +253,27 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> {
                     bitcoinString: args['bitcoinString'],
                   ),
                 ),
-            '/singlesig-sign': (context) => buildScreenWithArguments(
+            AppRoutes.singleSignature: (context) => buildScreenWithArguments(
                   context,
-                  (args) => SinglesigSignScreen(
+                  (args) => SingleSignatureScreen(
                     id: args['id'],
                     psbtBase64: args['psbtBase64'],
                     sendAddress: args['sendAddress'],
                     bitcoinString: args['bitcoinString'],
                   ),
                 ),
-            '/security-self-check': (context) {
+            AppRoutes.securitySelfCheck: (context) {
               final VoidCallback? onNextPressed =
                   ModalRoute.of(context)?.settings.arguments as VoidCallback?;
               return SecuritySelfCheckScreen(onNextPressed: onNextPressed);
             },
-            '/mnemonic-generate': (context) => const MnemonicGenerationScreen(),
-            '/mnemonic-flip-coin': (context) => const MnemonicCoinflipScreen(),
-            '/app-info': (context) => const AppInfoScreen(),
-            '/welcome': (context) => const WelcomeScreen(),
-            '/connectivity-guide': (context) {
+            AppRoutes.mnemonicGeneration: (context) =>
+                const MnemonicGenerationScreen(),
+            AppRoutes.mnemonicCoinflip: (context) =>
+                const MnemonicCoinflipScreen(),
+            AppRoutes.appInfo: (context) => const AppInfoScreen(),
+            AppRoutes.welcome: (context) => const WelcomeScreen(),
+            AppRoutes.connectivityGuide: (context) {
               onComplete() {
                 _updateEntryFlow(AppEntryFlow.vaultlist);
               }

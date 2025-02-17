@@ -1,3 +1,4 @@
+import 'package:coconut_vault/constants/app_routes.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/providers/connectivity_provider.dart';
 import 'package:coconut_vault/styles.dart';
@@ -58,7 +59,8 @@ class _TutorialScreenState extends State<TutorialScreen> {
                     right: 16,
                     top: 30,
                     child: TextButton(
-                      onPressed: () => Navigator.pushNamed(context, '/welcome'),
+                      onPressed: () =>
+                          Navigator.pushNamed(context, AppRoutes.welcome),
                       style: TextButton.styleFrom(
                         foregroundColor: MyColors.darkgrey,
                       ),

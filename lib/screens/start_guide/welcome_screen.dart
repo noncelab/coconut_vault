@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:carousel_slider/carousel_slider.dart';
+import 'package:coconut_vault/constants/app_routes.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/providers/connectivity_provider.dart';
 import 'package:flutter/cupertino.dart';
@@ -160,7 +161,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                 onPressed: () {
                   _connectivityProvider.setConnectActivity(
                       bluetooth: true, network: false, developerMode: false);
-                  Navigator.pushNamed(context, '/connectivity-guide');
+                  Navigator.pushNamed(context, AppRoutes.connectivityGuide);
                 },
                 child: Text(
                   t.welcome_screen.understood,

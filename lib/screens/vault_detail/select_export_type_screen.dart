@@ -1,3 +1,4 @@
+import 'package:coconut_vault/constants/app_routes.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/widgets/button/custom_buttons.dart';
 import 'package:flutter/material.dart';
@@ -16,7 +17,7 @@ class SelectExportTypeScreen extends StatefulWidget {
 class _SelectExportTypeScreenState extends State<SelectExportTypeScreen> {
   String? nextPath;
   late String guideText;
-  List<String> options = ['/sync-to-wallet', '/signer-bsms'];
+  List<String> options = [AppRoutes.syncToWallet, AppRoutes.signerBsms];
 
   @override
   void initState() {

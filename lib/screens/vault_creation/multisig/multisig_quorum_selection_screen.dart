@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:collection';
 
+import 'package:coconut_vault/constants/app_routes.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/model/multisig/multisig_creation_model.dart';
 import 'package:coconut_vault/utils/coconut/multisig_utils.dart';
@@ -72,7 +73,7 @@ class _MultisigQuorumSelectionScreenState
     String? currentRoute = ModalRoute.of(context)?.settings.name;
     debugPrint('currentRoute: $currentRoute');
     if (currentRoute != null &&
-        currentRoute.startsWith('/select-multisig-quorum')) {
+        currentRoute.startsWith(AppRoutes.multisigQuorumSelection)) {
       // _startProgress(nCount, mCount);
     }
   }
@@ -172,7 +173,7 @@ class _MultisigQuorumSelectionScreenState
               .setQuorumRequirement(requiredCount, totalCount);
 
           _stopProgress();
-          Navigator.pushNamed(context, '/assign-signers');
+          Navigator.pushNamed(context, AppRoutes.signerAssignment);
         },
         isActive: _checkNextButtonActiveState(),
       ),
