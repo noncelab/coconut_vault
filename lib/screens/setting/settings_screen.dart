@@ -96,7 +96,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         Logger.log('Biometric authentication success');
                         provider.saveIsBiometricEnabled(true);
                       } else {
-                        Logger.log('Biometric authentication success');
+                        Logger.log('Biometric authentication fail');
                         provider.saveIsBiometricEnabled(false);
                       }
                     },
