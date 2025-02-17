@@ -8,7 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:coconut_vault/constants/app_info.dart';
-import 'package:coconut_vault/screens/settings/license_screen.dart';
+import 'package:coconut_vault/screens/settings/app_info_license_screen.dart';
 import 'package:coconut_vault/screens/common/qrcode_bottom_sheet.dart';
 import 'package:coconut_vault/styles.dart';
 import 'package:coconut_vault/widgets/bottom_sheet.dart';
