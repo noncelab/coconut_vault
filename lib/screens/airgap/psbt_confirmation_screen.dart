@@ -137,7 +137,7 @@ class _PsbtConfirmationScreenState extends State<PsbtConfirmationScreen> {
           if (_isMultisig) {
             Navigator.pushNamed(
               context,
-              AppRoutes.multiSignature,
+              AppRoutes.multisigSign,
               arguments: {
                 'id': widget.id,
                 'psbtBase64': _waitingForSignaturePsbtBase64!,
@@ -148,7 +148,7 @@ class _PsbtConfirmationScreenState extends State<PsbtConfirmationScreen> {
           } else {
             Navigator.pushNamed(
               context,
-              AppRoutes.singleSignature,
+              AppRoutes.singleSigSign,
               arguments: {
                 'id': widget.id,
                 'psbtBase64': _waitingForSignaturePsbtBase64!,

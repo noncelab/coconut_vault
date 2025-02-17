@@ -14,16 +14,16 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 
-class MultiSigBsmsScreen extends StatefulWidget {
+class MultisigBsmsViewScreen extends StatefulWidget {
   final int id;
 
-  const MultiSigBsmsScreen({super.key, required this.id});
+  const MultisigBsmsViewScreen({super.key, required this.id});
 
   @override
-  State<MultiSigBsmsScreen> createState() => _MultiSigBsmsScreenState();
+  State<MultisigBsmsViewScreen> createState() => _MultisigBsmsViewScreenState();
 }
 
-class _MultiSigBsmsScreenState extends State<MultiSigBsmsScreen> {
+class _MultisigBsmsViewScreenState extends State<MultisigBsmsViewScreen> {
   late String qrData;
   List<int> outSideWalletIdList = [];
 

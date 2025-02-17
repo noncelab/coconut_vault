@@ -3,7 +3,7 @@ import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:coconut_vault/oss_licenses.dart';
-import 'package:coconut_vault/screens/vault_detail/qrcode_bottom_sheet_screen.dart';
+import 'package:coconut_vault/screens/common/qrcode_bottom_sheet.dart';
 import 'package:coconut_vault/styles.dart';
 import 'package:coconut_vault/widgets/appbar/custom_appbar.dart';
 import 'package:coconut_vault/widgets/bottom_sheet.dart';
@@ -102,7 +102,7 @@ class _LicenseScreenState extends State<LicenseScreen> {
                                   ..onTap = () async {
                                     MyBottomSheet.showBottomSheet_95(
                                         context: context,
-                                        child: QrcodeBottomSheetScreen(
+                                        child: QrcodeBottomSheet(
                                           qrData: mitFullTextLink,
                                           title:
                                               t.bottom_sheet.view_mit_license,
@@ -122,7 +122,7 @@ class _LicenseScreenState extends State<LicenseScreen> {
                                   ..onTap = () async {
                                     MyBottomSheet.showBottomSheet_95(
                                         context: context,
-                                        child: QrcodeBottomSheetScreen(
+                                        child: QrcodeBottomSheet(
                                           qrData:
                                               'mailto:$CONTACT_EMAIL_ADDRESS?subject=${t.bottom_sheet.ask_about_license}',
                                           title:

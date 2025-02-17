@@ -8,8 +8,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:coconut_vault/constants/app_info.dart';
-import 'package:coconut_vault/screens/setting/license_screen.dart';
-import 'package:coconut_vault/screens/vault_detail/qrcode_bottom_sheet_screen.dart';
+import 'package:coconut_vault/screens/settings/license_screen.dart';
+import 'package:coconut_vault/screens/common/qrcode_bottom_sheet.dart';
 import 'package:coconut_vault/styles.dart';
 import 'package:coconut_vault/widgets/bottom_sheet.dart';
 import 'package:coconut_vault/widgets/button/button_group.dart';
@@ -281,7 +281,7 @@ class _AppInfoScreenState extends State<AppInfoScreen> {
               onPressed: () {
                 MyBottomSheet.showBottomSheet_90(
                     context: context,
-                    child: QrcodeBottomSheetScreen(
+                    child: QrcodeBottomSheet(
                       qrData: POW_URL,
                       title: t.app_info_screen.go_to_pow,
                       fromAppInfo: true,
@@ -302,7 +302,7 @@ class _AppInfoScreenState extends State<AppInfoScreen> {
               onPressed: () {
                 MyBottomSheet.showBottomSheet_90(
                     context: context,
-                    child: QrcodeBottomSheetScreen(
+                    child: QrcodeBottomSheet(
                       qrData: TELEGRAM_POW,
                       title: t.app_info_screen.ask_to_telegram,
                       fromAppInfo: true,
@@ -323,7 +323,7 @@ class _AppInfoScreenState extends State<AppInfoScreen> {
               onPressed: () {
                 MyBottomSheet.showBottomSheet_90(
                     context: context,
-                    child: QrcodeBottomSheetScreen(
+                    child: QrcodeBottomSheet(
                       qrData: X_POW,
                       title: t.app_info_screen.ask_to_x,
                       fromAppInfo: true,
@@ -345,7 +345,7 @@ class _AppInfoScreenState extends State<AppInfoScreen> {
                   String info = await _getDeviceInfo(_packageInfoFuture);
                   MyBottomSheet.showBottomSheet_90(
                       context: context,
-                      child: QrcodeBottomSheetScreen(
+                      child: QrcodeBottomSheet(
                         qrData:
                             'mailto:$CONTACT_EMAIL_ADDRESS?subject=${t.email_subject}}&body=$info',
                         title: t.app_info_screen.ask_to_email,
@@ -380,7 +380,7 @@ class _AppInfoScreenState extends State<AppInfoScreen> {
               onPressed: () {
                 MyBottomSheet.showBottomSheet_90(
                     context: context,
-                    child: QrcodeBottomSheetScreen(
+                    child: QrcodeBottomSheet(
                       qrData: GITHUB_URL_COCONUT_LIBRARY,
                       title:
                           '${t.app_info_screen.coconut_lib} ${t.app_info_screen.github}',
@@ -394,7 +394,7 @@ class _AppInfoScreenState extends State<AppInfoScreen> {
               onPressed: () {
                 MyBottomSheet.showBottomSheet_90(
                     context: context,
-                    child: QrcodeBottomSheetScreen(
+                    child: QrcodeBottomSheet(
                       qrData: GITHUB_URL_WALLET,
                       title:
                           '${t.app_info_screen.coconut_wallet} ${t.app_info_screen.github}',
@@ -408,7 +408,7 @@ class _AppInfoScreenState extends State<AppInfoScreen> {
               onPressed: () {
                 MyBottomSheet.showBottomSheet_90(
                     context: context,
-                    child: QrcodeBottomSheetScreen(
+                    child: QrcodeBottomSheet(
                       qrData: GITHUB_URL_VAULT,
                       title:
                           '${t.app_info_screen.coconut_vault} ${t.app_info_screen.github}',
@@ -428,7 +428,7 @@ class _AppInfoScreenState extends State<AppInfoScreen> {
               onPressed: () {
                 MyBottomSheet.showBottomSheet_90(
                     context: context,
-                    child: QrcodeBottomSheetScreen(
+                    child: QrcodeBottomSheet(
                       qrData: CONTRIBUTING_URL,
                       title: t.app_info_screen.mit_license,
                       fromAppInfo: true,

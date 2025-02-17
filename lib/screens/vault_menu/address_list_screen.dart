@@ -7,7 +7,7 @@ import 'package:coconut_vault/utils/text_utils.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
-import 'package:coconut_vault/screens/vault_detail/qrcode_bottom_sheet_screen.dart';
+import 'package:coconut_vault/screens/common/qrcode_bottom_sheet.dart';
 import 'package:coconut_vault/styles.dart';
 import 'package:coconut_vault/utils/logger.dart';
 import 'package:coconut_vault/widgets/appbar/custom_appbar.dart';
@@ -198,7 +198,7 @@ class _AddressListScreenState extends State<AddressListScreen> {
                             onPressed: () {
                               MyBottomSheet.showBottomSheet_90(
                                 context: context,
-                                child: QrcodeBottomSheetScreen(
+                                child: QrcodeBottomSheet(
                                   qrData: addressList[index].address,
                                   title: t.address_list_screen
                                       .address_index(index: index),

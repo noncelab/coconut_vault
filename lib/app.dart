@@ -6,41 +6,40 @@ import 'package:coconut_vault/providers/auth_provider.dart';
 import 'package:coconut_vault/providers/connectivity_provider.dart'
     as connectivityProvider;
 import 'package:coconut_vault/providers/visibility_provider.dart';
-import 'package:coconut_vault/screens/airgap/multi_signature_screen.dart';
+import 'package:coconut_vault/screens/airgap/multisig_sign_screen.dart';
 import 'package:coconut_vault/screens/airgap/psbt_confirmation_screen.dart';
 import 'package:coconut_vault/screens/airgap/psbt_scanner_screen.dart';
 import 'package:coconut_vault/screens/airgap/signed_transaction_qr_screen.dart';
-import 'package:coconut_vault/screens/airgap/single_signature_screen.dart';
+import 'package:coconut_vault/screens/airgap/single_sig_sign_screen.dart';
 import 'package:coconut_vault/screens/home/vault_list_screen.dart';
-import 'package:coconut_vault/screens/security_self_check_screen.dart';
-import 'package:coconut_vault/screens/setting/app_info_screen.dart';
-import 'package:coconut_vault/screens/setting/mnemonic_word_list_screen.dart';
+import 'package:coconut_vault/screens/vault_creation/single_sig/security_self_check_screen.dart';
+import 'package:coconut_vault/screens/settings/app_info_screen.dart';
+import 'package:coconut_vault/screens/settings/mnemonic_word_list_screen.dart';
 import 'package:coconut_vault/screens/start_guide/guide_screen.dart';
 import 'package:coconut_vault/screens/start_guide/welcome_screen.dart';
-import 'package:coconut_vault/screens/tutorial_screen.dart';
+import 'package:coconut_vault/screens/home/tutorial_screen.dart';
 import 'package:coconut_vault/screens/vault_creation/multisig/signer_assignment_screen.dart';
 import 'package:coconut_vault/screens/vault_creation/single_sig/mnemonic_coinflip_screen.dart';
 import 'package:coconut_vault/screens/vault_creation/single_sig/mnemonic_generation_screen.dart';
 import 'package:coconut_vault/screens/vault_creation/single_sig/mnemonic_import_screen.dart';
 import 'package:coconut_vault/screens/vault_creation/multisig/multisig_quorum_selection_screen.dart';
-import 'package:coconut_vault/screens/vault_creation/multisig/signer_scan_screen.dart';
+import 'package:coconut_vault/screens/common/multisig_bsms_scanner_screen.dart';
 import 'package:coconut_vault/screens/vault_creation/vault_type_selection_screen.dart';
 import 'package:coconut_vault/screens/vault_creation/vault_creation_options_screen.dart';
 import 'package:coconut_vault/screens/vault_creation/vault_name_and_icon_setup_screen.dart';
-import 'package:coconut_vault/screens/vault_detail/address_list_screen.dart';
-import 'package:coconut_vault/screens/vault_detail/multi_sig_bsms_screen.dart';
-import 'package:coconut_vault/screens/vault_detail/multisig_setup_screen.dart';
-import 'package:coconut_vault/screens/vault_detail/select_export_type_screen.dart';
-import 'package:coconut_vault/screens/vault_detail/signer_bsms_screen.dart';
-import 'package:coconut_vault/screens/vault_detail/sync_to_wallet_screen.dart';
-import 'package:coconut_vault/screens/vault_detail/vault_menu_screen.dart';
-import 'package:coconut_vault/screens/vault_detail/vault_settings_screen.dart';
+import 'package:coconut_vault/screens/vault_menu/address_list_screen.dart';
+import 'package:coconut_vault/screens/vault_menu/info/multisig_bsms_view_screen.dart';
+import 'package:coconut_vault/screens/vault_menu/info/multisig_setup_info_screen.dart';
+import 'package:coconut_vault/screens/vault_menu/multisig_signer_bsms_export_screen.dart';
+import 'package:coconut_vault/screens/vault_menu/sync_to_wallet/sync_to_wallet_screen.dart';
+import 'package:coconut_vault/screens/home/vault_menu_bottom_sheet.dart';
+import 'package:coconut_vault/screens/vault_menu/info/single_sig_setup_info_screen.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:coconut_vault/providers/app_model.dart';
 import 'package:coconut_vault/screens/common/pin_check_screen.dart';
-import 'package:coconut_vault/screens/start_screen.dart';
+import 'package:coconut_vault/screens/common/start_screen.dart';
 import 'package:coconut_vault/styles.dart';
 import 'package:coconut_vault/widgets/custom_loading_overlay.dart';
 import 'package:provider/provider.dart';
@@ -193,17 +192,17 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> {
                 const VaultNameAndIconSetupScreen(),
             AppRoutes.vaultDetails: (context) => buildScreenWithArguments(
                   context,
-                  (args) => VaultMenuScreen(id: args['id']),
+                  (args) => VaultMenuBottomSheet(id: args['id']),
                 ),
-            '/vault-settings': (context) => buildScreenWithArguments(
-                context, (args) => VaultSettingsScreen(id: args['id'])),
-            '/multisig-setup': (context) => buildScreenWithArguments(
+            AppRoutes.singleSigSetupInfo: (context) => buildScreenWithArguments(
+                context, (args) => SingleSigSetupInfoScreen(id: args['id'])),
+            AppRoutes.multisigSetupInfo: (context) => buildScreenWithArguments(
                   context,
-                  (args) => MultisigSetupScreen(id: args['id']),
+                  (args) => MultisigSetupInfoScreen(id: args['id']),
                 ),
-            AppRoutes.multisigBsms: (context) => buildScreenWithArguments(
+            AppRoutes.multisigBsmsView: (context) => buildScreenWithArguments(
                   context,
-                  (args) => MultiSigBsmsScreen(
+                  (args) => MultisigBsmsViewScreen(
                     id: args['id'],
                   ),
                 ),
@@ -213,9 +212,9 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> {
                   context,
                   (args) => AddressListScreen(id: args['id']),
                 ),
-            AppRoutes.signerScanner: (context) => buildScreenWithArguments(
+            AppRoutes.signerBsmsScanner: (context) => buildScreenWithArguments(
                   context,
-                  (args) => SignerScanScreen(
+                  (args) => MultisigBsmsScannerScreen(
                       id: args['id'], screenType: args['screenType']),
                 ),
             AppRoutes.psbtScanner: (context) => buildScreenWithArguments(
@@ -234,28 +233,25 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> {
                   context,
                   (args) => SyncToWalletScreen(id: args['id']),
                 ),
-            AppRoutes.signerBsms: (context) => buildScreenWithArguments(
+            AppRoutes.multisigSignerBsmsExport: (context) =>
+                buildScreenWithArguments(
                   context,
-                  (args) => SignerBsmsScreen(
+                  (args) => MultisigSignerBsmsExportScreen(
                     id: args['id'],
                   ),
                 ),
-            AppRoutes.syncTypeSelection: (context) => buildScreenWithArguments(
+            AppRoutes.multisigSign: (context) => buildScreenWithArguments(
                   context,
-                  (args) => SelectExportTypeScreen(id: args['id']),
-                ),
-            AppRoutes.multiSignature: (context) => buildScreenWithArguments(
-                  context,
-                  (args) => MultiSignatureScreen(
+                  (args) => MultisigSignScreen(
                     id: args['id'],
                     psbtBase64: args['psbtBase64'],
                     sendAddress: args['sendAddress'],
                     bitcoinString: args['bitcoinString'],
                   ),
                 ),
-            AppRoutes.singleSignature: (context) => buildScreenWithArguments(
+            AppRoutes.singleSigSign: (context) => buildScreenWithArguments(
                   context,
-                  (args) => SingleSignatureScreen(
+                  (args) => SingleSigSignScreen(
                     id: args['id'],
                     psbtBase64: args['psbtBase64'],
                     sendAddress: args['sendAddress'],

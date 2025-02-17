@@ -8,10 +8,10 @@ import 'package:coconut_vault/model/multisig/multisig_vault_list_item.dart';
 import 'package:coconut_vault/model/singlesig/singlesig_vault_list_item.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:coconut_vault/screens/common/pin_check_screen.dart';
-import 'package:coconut_vault/screens/vault_detail/mnemonic_view_screen.dart';
-import 'package:coconut_vault/screens/vault_detail/multi_sig_memo_bottom_sheet.dart';
-import 'package:coconut_vault/screens/vault_detail/qrcode_bottom_sheet_screen.dart';
-import 'package:coconut_vault/screens/vault_detail/vault_edit_bottom_sheet_screen.dart';
+import 'package:coconut_vault/screens/vault_menu/info/mnemonic_view_screen.dart';
+import 'package:coconut_vault/screens/common/qrcode_bottom_sheet.dart';
+import 'package:coconut_vault/screens/vault_menu/info/multisig_signer_memo_bottom_sheet.dart';
+import 'package:coconut_vault/screens/vault_menu/info/name_and_icon_edit_bottom_sheet.dart';
 import 'package:coconut_vault/styles.dart';
 import 'package:coconut_vault/utils/alert_util.dart';
 import 'package:coconut_vault/utils/icon_util.dart';
@@ -29,6 +29,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:loader_overlay/loader_overlay.dart';
 import 'package:provider/provider.dart';
 
+<<<<<<<< HEAD:lib/screens/vault_menu/info/multisig_setup_screen.dart
 class MultisigSetupScreen extends StatefulWidget {
   final int id;
   const MultisigSetupScreen({super.key, required this.id});
@@ -39,6 +40,19 @@ class MultisigSetupScreen extends StatefulWidget {
 
 class _MultisigSetupScreenState extends State<MultisigSetupScreen> {
   late WalletProvider _walletProvider;
+========
+class MultisigSetupInfoScreen extends StatefulWidget {
+  final int id;
+  const MultisigSetupInfoScreen({super.key, required this.id});
+
+  @override
+  State<MultisigSetupInfoScreen> createState() =>
+      _MultisigSetupInfoScreenState();
+}
+
+class _MultisigSetupInfoScreenState extends State<MultisigSetupInfoScreen> {
+  late WalletProvider _vaultModel;
+>>>>>>>> refactor/restructure:lib/screens/vault_menu/info/multisig_setup_info_screen.dart
   late MultisigVaultListItem _multiVault;
 
   final GlobalKey _tooltipIconKey = GlobalKey();
@@ -139,7 +153,7 @@ class _MultisigSetupScreenState extends State<MultisigSetupScreen> {
       String name, int colorIndex, int iconIndex) {
     MyBottomSheet.showBottomSheet_90(
       context: context,
-      child: VaultInfoEditBottomSheet(
+      child: NameAndIconEditBottomSheet(
         name: name,
         iconIndex: iconIndex,
         colorIndex: colorIndex,
@@ -156,7 +170,7 @@ class _MultisigSetupScreenState extends State<MultisigSetupScreen> {
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (context) => MultiSigMemoBottomSheet(
+      builder: (context) => MultisigSignerMemoBottomSheet(
         memo: selectedMemo,
         onUpdate: (memo) {
           if (selectedMemo == memo) return;
@@ -184,7 +198,7 @@ class _MultisigSetupScreenState extends State<MultisigSetupScreen> {
       String appBarTitle, String data, Widget? qrcodeTopWidget) {
     MyBottomSheet.showBottomSheet_90(
       context: context,
-      child: QrcodeBottomSheetScreen(
+      child: QrcodeBottomSheet(
         qrData: data,
         title: appBarTitle,
         qrcodeTopWidget: qrcodeTopWidget,
@@ -356,7 +370,7 @@ class _MultisigSetupScreenState extends State<MultisigSetupScreen> {
                             _removeTooltip();
                             if (isInnerWallet) {
                               Navigator.pushNamed(
-                                  context, AppRoutes.vaultSettings,
+                                  context, AppRoutes.singleSigSetupInfo,
                                   arguments: {
                                     'id': item.innerVaultId,
                                   });
@@ -489,7 +503,7 @@ class _MultisigSetupScreenState extends State<MultisigSetupScreen> {
                                   _removeTooltip();
 
                                   Navigator.pushNamed(
-                                      context, AppRoutes.multisigBsms,
+                                      context, AppRoutes.multisigBsmsView,
                                       arguments: {
                                         'id': widget.id,
                                       });

@@ -5,15 +5,15 @@ import 'package:coconut_vault/constants/app_routes.dart';
 import 'package:coconut_vault/enums/pin_check_context_enum.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/model/singlesig/singlesig_vault_list_item.dart';
+import 'package:coconut_vault/screens/vault_menu/info/name_and_icon_edit_bottom_sheet.dart';
 import 'package:coconut_vault/utils/text_utils.dart';
 import 'package:coconut_vault/utils/vibration_util.dart';
 import 'package:coconut_vault/widgets/card/vault_item_card.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:coconut_vault/screens/common/pin_check_screen.dart';
-import 'package:coconut_vault/screens/vault_detail/mnemonic_view_screen.dart';
-import 'package:coconut_vault/screens/vault_detail/qrcode_bottom_sheet_screen.dart';
-import 'package:coconut_vault/screens/vault_detail/vault_edit_bottom_sheet_screen.dart';
+import 'package:coconut_vault/screens/vault_menu/info/mnemonic_view_screen.dart';
+import 'package:coconut_vault/screens/common/qrcode_bottom_sheet.dart';
 import 'package:coconut_vault/styles.dart';
 import 'package:coconut_vault/utils/alert_util.dart';
 import 'package:coconut_vault/widgets/appbar/custom_appbar.dart';
@@ -26,8 +26,9 @@ import 'package:loader_overlay/loader_overlay.dart';
 import 'package:provider/provider.dart';
 import 'package:shimmer/shimmer.dart';
 
-import '../../providers/wallet_provider.dart';
+import '../../../providers/wallet_provider.dart';
 
+<<<<<<<< HEAD:lib/screens/vault_menu/info/vault_settings_screen.dart
 class VaultSettingsScreen extends StatefulWidget {
   final int id;
 
@@ -39,6 +40,22 @@ class VaultSettingsScreen extends StatefulWidget {
 
 class _VaultSettingsScreenState extends State<VaultSettingsScreen> {
   late WalletProvider _walletProvider;
+========
+// rename: VaultSettings -> SingleSigSetupInfoScreen(리뷰/머지 후 코멘트 삭제)
+class SingleSigSetupInfoScreen extends StatefulWidget {
+  final int id;
+
+  const SingleSigSetupInfoScreen({super.key, required this.id});
+
+  @override
+  State<SingleSigSetupInfoScreen> createState() =>
+      _SingleSigSetupInfoScreenState();
+}
+
+class _SingleSigSetupInfoScreenState extends State<SingleSigSetupInfoScreen> {
+  late AppModel _appModel;
+  late WalletProvider _vaultModel;
+>>>>>>>> refactor/restructure:lib/screens/vault_menu/info/single_sig_setup_info_screen.dart
   late TextEditingController _nameTextController;
   late SinglesigVaultListItem _singleVaultItem;
   late SingleSignatureVault _singleSignatureVault;
@@ -53,6 +70,7 @@ class _VaultSettingsScreenState extends State<VaultSettingsScreen> {
   RenderBox? _tooltipIconRendBox;
   Offset _tooltipIconPosition = Offset.zero;
   Timer? _tooltipTimer;
+
   int _tooltipRemainingTime = 0;
 
   @override
@@ -94,7 +112,7 @@ class _VaultSettingsScreenState extends State<VaultSettingsScreen> {
       String appBarTitle, String data, Widget? qrcodeTopWidget) {
     MyBottomSheet.showBottomSheet_90(
         context: context,
-        child: QrcodeBottomSheetScreen(
+        child: QrcodeBottomSheet(
             qrData: data,
             title: appBarTitle,
             qrcodeTopWidget: qrcodeTopWidget));
@@ -144,7 +162,7 @@ class _VaultSettingsScreenState extends State<VaultSettingsScreen> {
       String name, int colorIndex, int iconIndex) {
     MyBottomSheet.showBottomSheet_90(
         context: context,
-        child: VaultInfoEditBottomSheet(
+        child: NameAndIconEditBottomSheet(
           name: name,
           iconIndex: iconIndex,
           colorIndex: colorIndex,
@@ -347,8 +365,10 @@ class _VaultSettingsScreenState extends State<VaultSettingsScreen> {
                                                     .getVaultById(id);
                                                 return InkWell(
                                                   onTap: () {
-                                                    Navigator.pushNamed(context,
-                                                        AppRoutes.multisigSetup,
+                                                    Navigator.pushNamed(
+                                                        context,
+                                                        AppRoutes
+                                                            .multisigSetupInfo,
                                                         arguments: {'id': id});
                                                   },
                                                   child: Container(

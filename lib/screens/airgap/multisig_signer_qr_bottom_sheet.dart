@@ -31,7 +31,7 @@ class _SignerQrBottomSheetState extends State<SignerQrBottomSheet> {
         backgroundColor: Colors.white,
         appBar: CustomAppBar.buildWithClose(
           context: context,
-          title: '서명 트랜잭션 내보내기',
+          title: t.signer_qr_bottom_sheet.title,
         ),
         body: SafeArea(
           child: SingleChildScrollView(
