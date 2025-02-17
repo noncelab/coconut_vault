@@ -1,4 +1,5 @@
 import 'package:coconut_lib/coconut_lib.dart';
+import 'package:coconut_vault/constants/app_routes.dart';
 import 'package:coconut_vault/enums/pin_check_context_enum.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/model/singlesig/singlesig_vault_list_item.dart';
@@ -15,12 +16,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
 
-class SinglesigSignScreen extends StatefulWidget {
+class SingleSignatureScreen extends StatefulWidget {
   final int id;
   final String psbtBase64;
   final String sendAddress;
   final String bitcoinString;
-  const SinglesigSignScreen({
+  const SingleSignatureScreen({
     super.key,
     required this.id,
     required this.psbtBase64,
@@ -29,10 +30,10 @@ class SinglesigSignScreen extends StatefulWidget {
   });
 
   @override
-  State<SinglesigSignScreen> createState() => _SinglesigSignScreenState();
+  State<SingleSignatureScreen> createState() => _SingleSignatureScreenState();
 }
 
-class _SinglesigSignScreenState extends State<SinglesigSignScreen> {
+class _SingleSignatureScreenState extends State<SingleSignatureScreen> {
   late WalletProvider _vaultModel;
   late SinglesigVaultListItem _wallet;
   late SingleSignatureVault _coconutVault;
@@ -131,11 +132,11 @@ class _SinglesigSignScreenState extends State<SinglesigSignScreen> {
     return Scaffold(
       backgroundColor: MyColors.lightgrey,
       appBar: CustomAppBar.buildWithNext(
-          title: '서명하기',
+          title: t.sign,
           context: context,
           onBackPressed: () => Navigator.pop(context),
           onNextPressed: () {
-            Navigator.pushNamed(context, '/signed-transaction',
+            Navigator.pushNamed(context, AppRoutes.signedTransaction,
                 arguments: {'id': widget.id});
           },
           isActive: _requiredSignatureCount ==

@@ -1,3 +1,4 @@
+import 'package:coconut_vault/constants/app_routes.dart';
 import 'package:coconut_vault/constants/pin_constants.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/constants/shared_preferences_keys.dart';
@@ -185,7 +186,7 @@ class _PinSettingScreenState extends State<PinSettingScreen> {
     Navigator.pop(context);
     Navigator.pop(context);
     if (widget.greetingVisible) {
-      Navigator.pushNamed(context, '/select-vault-type');
+      Navigator.pushNamed(context, AppRoutes.vaultTypeSelection);
     }
   }
 

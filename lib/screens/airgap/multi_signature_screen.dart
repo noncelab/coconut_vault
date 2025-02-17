@@ -1,4 +1,5 @@
 import 'package:coconut_lib/coconut_lib.dart';
+import 'package:coconut_vault/constants/app_routes.dart';
 import 'package:coconut_vault/enums/pin_check_context_enum.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/model/multisig/multisig_vault_list_item.dart';
@@ -218,7 +219,7 @@ class _MultiSignatureScreenState extends State<MultiSignatureScreen> {
             context: context,
             onBackPressed: _onBackPressed,
             onNextPressed: () {
-              Navigator.pushNamed(context, '/signed-transaction',
+              Navigator.pushNamed(context, AppRoutes.signedTransaction,
                   arguments: {'id': widget.id});
             },
             isActive: _requiredSignatureCount ==

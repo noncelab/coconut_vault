@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:coconut_lib/coconut_lib.dart';
+import 'package:coconut_vault/constants/app_routes.dart';
 import 'package:coconut_vault/enums/pin_check_context_enum.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/model/singlesig/singlesig_vault_list_item.dart';
@@ -349,7 +350,7 @@ class _VaultSettingsState extends State<VaultSettings> {
                                                 return InkWell(
                                                   onTap: () {
                                                     Navigator.pushNamed(context,
-                                                        '/multisig-setting',
+                                                        AppRoutes.multisigSetup,
                                                         arguments: {'id': id});
                                                   },
                                                   child: Container(

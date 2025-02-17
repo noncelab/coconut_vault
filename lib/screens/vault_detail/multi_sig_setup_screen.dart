@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:coconut_vault/constants/app_routes.dart';
 import 'package:coconut_vault/enums/pin_check_context_enum.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/model/multisig/multisig_signer.dart';
@@ -28,15 +29,15 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:loader_overlay/loader_overlay.dart';
 import 'package:provider/provider.dart';
 
-class MultiSigSettingScreen extends StatefulWidget {
+class MultiSigSetupScreen extends StatefulWidget {
   final int id;
-  const MultiSigSettingScreen({super.key, required this.id});
+  const MultiSigSetupScreen({super.key, required this.id});
 
   @override
-  State<MultiSigSettingScreen> createState() => _MultiSigSettingScreenState();
+  State<MultiSigSetupScreen> createState() => _MultiSigSetupScreenState();
 }
 
-class _MultiSigSettingScreenState extends State<MultiSigSettingScreen> {
+class _MultiSigSetupScreenState extends State<MultiSigSetupScreen> {
   late WalletProvider _vaultModel;
   late MultisigVaultListItem _multiVault;
 
@@ -351,7 +352,8 @@ class _MultiSigSettingScreenState extends State<MultiSigSettingScreen> {
                           onTap: () {
                             _removeTooltip();
                             if (isInnerWallet) {
-                              Navigator.pushNamed(context, '/vault-settings',
+                              Navigator.pushNamed(
+                                  context, AppRoutes.vaultSettings,
                                   arguments: {
                                     'id': item.innerVaultId,
                                   });
@@ -483,7 +485,8 @@ class _MultiSigSettingScreenState extends State<MultiSigSettingScreen> {
                                 onPressed: () {
                                   _removeTooltip();
 
-                                  Navigator.pushNamed(context, '/multisig-bsms',
+                                  Navigator.pushNamed(
+                                      context, AppRoutes.multisigBsms,
                                       arguments: {
                                         'id': widget.id,
                                       });
