@@ -306,7 +306,8 @@ class _VaultSettingsScreenState extends State<VaultSettingsScreen> {
                                         ),
                                         const SizedBox(width: 10),
                                         Text(
-                                          t.vault_settings.used_in_multisig,
+                                          t.vault_settings_screen
+                                              .used_in_multisig,
                                           style: Styles.body2,
                                         ),
                                       ],
@@ -377,11 +378,11 @@ class _VaultSettingsScreenState extends State<VaultSettingsScreen> {
                                                           ),
                                                           TextSpan(
                                                               text: t
-                                                                  .vault_settings
+                                                                  .vault_settings_screen
                                                                   .of),
                                                           TextSpan(
                                                             text: t
-                                                                .vault_settings
+                                                                .vault_settings_screen
                                                                 .nth(
                                                                     index: idx +
                                                                         1),
@@ -394,7 +395,7 @@ class _VaultSettingsScreenState extends State<VaultSettingsScreen> {
                                                           ),
                                                           TextSpan(
                                                               text: t
-                                                                  .vault_settings
+                                                                  .vault_settings_screen
                                                                   .key),
                                                         ],
                                                       ),

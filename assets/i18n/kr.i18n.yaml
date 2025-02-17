@@ -338,7 +338,7 @@ multi_sig_bsms_screen:
 multi_sig_memo_bottom_sheet:
   imported_wallet_memo: "외부 지갑 메모"
   placeholder: "메모를 작성해주세요."
-multi_sig_setting_screen:
+multisig_setting_screen:
   edit_memo: "메모 수정"
   add_memo: "메모 추가"
   view_bsms: "지갑 설정 정보 보기"
@@ -382,7 +382,7 @@ vault_menu_screen:
     menu6: "이 키가 포함된 다중 서명 지갑 정보를 추가해요"
     menu7: "다중 서명 지갑의 정보를 확인할 수 있어요"
     menu8: "전송 정보를 스캔하고 서명해요"
-vault_settings:
+vault_settings_screen:
   used_in_multisig: "다중 서명 지갑에서 사용 중입니다"
   of: "의 "
   nth: "$index 번"

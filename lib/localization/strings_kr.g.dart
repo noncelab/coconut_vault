@@ -155,12 +155,12 @@ class Translations implements BaseTranslations<AppLocale, Translations> {
 	late final TranslationsMnemonicViewScreenKr mnemonic_view_screen = TranslationsMnemonicViewScreenKr.internal(_root);
 	late final TranslationsMultiSigBsmsScreenKr multi_sig_bsms_screen = TranslationsMultiSigBsmsScreenKr.internal(_root);
 	late final TranslationsMultiSigMemoBottomSheetKr multi_sig_memo_bottom_sheet = TranslationsMultiSigMemoBottomSheetKr.internal(_root);
-	late final TranslationsMultiSigSettingScreenKr multi_sig_setting_screen = TranslationsMultiSigSettingScreenKr.internal(_root);
+	late final TranslationsMultisigSettingScreenKr multisig_setting_screen = TranslationsMultisigSettingScreenKr.internal(_root);
 	late final TranslationsSelectExportTypeScreenKr select_export_type_screen = TranslationsSelectExportTypeScreenKr.internal(_root);
 	late final TranslationsSignerBsmsScreenKr signer_bsms_screen = TranslationsSignerBsmsScreenKr.internal(_root);
 	late final TranslationsSyncToWalletScreenKr sync_to_wallet_screen = TranslationsSyncToWalletScreenKr.internal(_root);
 	late final TranslationsVaultMenuScreenKr vault_menu_screen = TranslationsVaultMenuScreenKr.internal(_root);
-	late final TranslationsVaultSettingsKr vault_settings = TranslationsVaultSettingsKr.internal(_root);
+	late final TranslationsVaultSettingsScreenKr vault_settings_screen = TranslationsVaultSettingsScreenKr.internal(_root);
 	late final TranslationsBottomSheetKr bottom_sheet = TranslationsBottomSheetKr.internal(_root);
 	late final TranslationsPermissionKr permission = TranslationsPermissionKr.internal(_root);
 	late final TranslationsAlertKr alert = TranslationsAlertKr.internal(_root);
@@ -699,9 +699,9 @@ class TranslationsMultiSigMemoBottomSheetKr {
 	String get placeholder => '메모를 작성해주세요.';
 }
 
-// Path: multi_sig_setting_screen
-class TranslationsMultiSigSettingScreenKr {
-	TranslationsMultiSigSettingScreenKr.internal(this._root);
+// Path: multisig_setting_screen
+class TranslationsMultisigSettingScreenKr {
+	TranslationsMultisigSettingScreenKr.internal(this._root);
 
 	final Translations _root; // ignore: unused_field
 
@@ -767,9 +767,9 @@ class TranslationsVaultMenuScreenKr {
 	late final TranslationsVaultMenuScreenDescriptionKr description = TranslationsVaultMenuScreenDescriptionKr.internal(_root);
 }
 
-// Path: vault_settings
-class TranslationsVaultSettingsKr {
-	TranslationsVaultSettingsKr.internal(this._root);
+// Path: vault_settings_screen
+class TranslationsVaultSettingsScreenKr {
+	TranslationsVaultSettingsScreenKr.internal(this._root);
 
 	final Translations _root; // ignore: unused_field
 
@@ -1419,10 +1419,10 @@ extension on Translations {
 			case 'multi_sig_bsms_screen.view_detail': return '상세 정보 보기';
 			case 'multi_sig_memo_bottom_sheet.imported_wallet_memo': return '외부 지갑 메모';
 			case 'multi_sig_memo_bottom_sheet.placeholder': return '메모를 작성해주세요.';
-			case 'multi_sig_setting_screen.edit_memo': return '메모 수정';
-			case 'multi_sig_setting_screen.add_memo': return '메모 추가';
-			case 'multi_sig_setting_screen.view_bsms': return '지갑 설정 정보 보기';
-			case 'multi_sig_setting_screen.tooltip': return ({required Object total, required Object count}) => '${total}개의 키 중 ${count}개로 서명해야 하는\n다중 서명 지갑이예요.';
+			case 'multisig_setting_screen.edit_memo': return '메모 수정';
+			case 'multisig_setting_screen.add_memo': return '메모 추가';
+			case 'multisig_setting_screen.view_bsms': return '지갑 설정 정보 보기';
+			case 'multisig_setting_screen.tooltip': return ({required Object total, required Object count}) => '${total}개의 키 중 ${count}개로 서명해야 하는\n다중 서명 지갑이예요.';
 			case 'select_export_type_screen.title': return '내보내기';
 			case 'select_export_type_screen.export_type': return '어떤 용도로 사용하시나요?';
 			case 'select_export_type_screen.watch_only': return '월렛에\n보기 전용 지갑 추가';
@@ -1456,10 +1456,10 @@ extension on Translations {
 			case 'vault_menu_screen.description.menu6': return '이 키가 포함된 다중 서명 지갑 정보를 추가해요';
 			case 'vault_menu_screen.description.menu7': return '다중 서명 지갑의 정보를 확인할 수 있어요';
 			case 'vault_menu_screen.description.menu8': return '전송 정보를 스캔하고 서명해요';
-			case 'vault_settings.used_in_multisig': return '다중 서명 지갑에서 사용 중입니다';
-			case 'vault_settings.of': return '의 ';
-			case 'vault_settings.nth': return ({required Object index}) => '${index} 번';
-			case 'vault_settings.key': return ' 키';
+			case 'vault_settings_screen.used_in_multisig': return '다중 서명 지갑에서 사용 중입니다';
+			case 'vault_settings_screen.of': return '의 ';
+			case 'vault_settings_screen.nth': return ({required Object index}) => '${index} 번';
+			case 'vault_settings_screen.key': return ' 키';
 			case 'bottom_sheet.view_mit_license': return 'MIT 라이선스 전문 보기';
 			case 'bottom_sheet.contact_by_email': return '이메일 문의';
 			case 'bottom_sheet.ask_about_license': return '[볼트] 라이선스 문의';

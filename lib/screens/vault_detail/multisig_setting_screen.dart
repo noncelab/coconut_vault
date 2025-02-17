@@ -28,15 +28,15 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:loader_overlay/loader_overlay.dart';
 import 'package:provider/provider.dart';
 
-class MultiSigSettingScreen extends StatefulWidget {
+class MultisigSettingScreen extends StatefulWidget {
   final int id;
-  const MultiSigSettingScreen({super.key, required this.id});
+  const MultisigSettingScreen({super.key, required this.id});
 
   @override
-  State<MultiSigSettingScreen> createState() => _MultiSigSettingScreenState();
+  State<MultisigSettingScreen> createState() => _MultisigSettingScreenState();
 }
 
-class _MultiSigSettingScreenState extends State<MultiSigSettingScreen> {
+class _MultisigSettingScreenState extends State<MultisigSettingScreen> {
   late WalletProvider _vaultModel;
   late MultisigVaultListItem _multiVault;
 
@@ -256,8 +256,8 @@ class _MultiSigSettingScreenState extends State<MultiSigSettingScreen> {
             // const Divider(),
             _bottomSheetButton(
               existsMemo
-                  ? t.multi_sig_setting_screen.edit_memo
-                  : t.multi_sig_setting_screen.add_memo,
+                  ? t.multisig_setting_screen.edit_memo
+                  : t.multisig_setting_screen.add_memo,
               onPressed: () {
                 _showEditMemoBottomSheet(multisigSigner);
               },
@@ -478,7 +478,7 @@ class _MultiSigSettingScreenState extends State<MultiSigSettingScreen> {
                           child: Column(
                             children: [
                               InformationRowItem(
-                                label: t.multi_sig_setting_screen.view_bsms,
+                                label: t.multisig_setting_screen.view_bsms,
                                 showIcon: true,
                                 onPressed: () {
                                   _removeTooltip();
@@ -566,7 +566,7 @@ class _MultiSigSettingScreenState extends State<MultiSigSettingScreen> {
                             mainAxisSize: MainAxisSize.min,
                             children: [
                               Text(
-                                t.multi_sig_setting_screen.tooltip(
+                                t.multisig_setting_screen.tooltip(
                                     total: _multiVault.signers.length,
                                     count: _multiVault.requiredSignatureCount),
                                 style: Styles.caption.merge(TextStyle(
