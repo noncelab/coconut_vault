@@ -12,16 +12,16 @@ import 'package:coconut_vault/widgets/appbar/custom_appbar.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
 
-class SelectMultisigQuorumScreen extends StatefulWidget {
-  const SelectMultisigQuorumScreen({super.key});
+class MultisigQuorumSelectionScreen extends StatefulWidget {
+  const MultisigQuorumSelectionScreen({super.key});
 
   @override
-  State<SelectMultisigQuorumScreen> createState() =>
-      _SelectMultisigQuorumScreenState();
+  State<MultisigQuorumSelectionScreen> createState() =>
+      _MultisigQuorumSelectionScreenState();
 }
 
-class _SelectMultisigQuorumScreenState
-    extends State<SelectMultisigQuorumScreen> {
+class _MultisigQuorumSelectionScreenState
+    extends State<MultisigQuorumSelectionScreen> {
   late int requiredCount; // 필요한 서명 수
   late int totalCount; // 전체 키의 수
   bool nextButtonEnabled = false;

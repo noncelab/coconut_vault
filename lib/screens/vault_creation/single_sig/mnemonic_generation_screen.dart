@@ -4,7 +4,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
-import 'package:coconut_vault/screens/vault_creation/mnemonic_confirm_screen.dart';
+import 'package:coconut_vault/screens/vault_creation/single_sig/mnemonic_confirmation_bottom_sheet.dart';
 import 'package:coconut_vault/styles.dart';
 import 'package:coconut_vault/utils/vibration_util.dart';
 import 'package:coconut_vault/widgets/appbar/custom_appbar.dart';
@@ -17,14 +17,15 @@ import 'package:coconut_vault/widgets/highlighted_text.dart';
 import 'package:coconut_vault/widgets/textfield/custom_textfield.dart';
 import 'package:provider/provider.dart';
 
-class MnemonicGenerateScreen extends StatefulWidget {
-  const MnemonicGenerateScreen({super.key});
+class MnemonicGenerationScreen extends StatefulWidget {
+  const MnemonicGenerationScreen({super.key});
 
   @override
-  State<MnemonicGenerateScreen> createState() => _MnemonicGenerateScreenState();
+  State<MnemonicGenerationScreen> createState() =>
+      _MnemonicGenerationScreenState();
 }
 
-class _MnemonicGenerateScreenState extends State<MnemonicGenerateScreen> {
+class _MnemonicGenerationScreenState extends State<MnemonicGenerationScreen> {
   int step = 0;
   int selectedWordsCount = 0;
   bool usePassphrase = false;
@@ -90,7 +91,7 @@ class _MnemonicGenerateScreenState extends State<MnemonicGenerateScreen> {
   void _showConfirmBottomSheet() {
     MyBottomSheet.showBottomSheet_90(
       context: context,
-      child: MnemonicConfirm(
+      child: MnemonicConfirmationBottomSheet(
         onCancelPressed: () => Navigator.pop(context),
         onConfirmPressed: () =>
             Navigator.pushNamed(context, '/vault-name-setup'),

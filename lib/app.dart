@@ -17,15 +17,15 @@ import 'package:coconut_vault/screens/setting/mnemonic_word_list_screen.dart';
 import 'package:coconut_vault/screens/start_guide/guide_screen.dart';
 import 'package:coconut_vault/screens/start_guide/welcome_screen.dart';
 import 'package:coconut_vault/screens/tutorial_screen.dart';
-import 'package:coconut_vault/screens/vault_creation/multi_sig/assign_signers_screen.dart';
-import 'package:coconut_vault/screens/vault_creation/mnemonic_coin_flip_screen.dart';
-import 'package:coconut_vault/screens/vault_creation/mnemonic_generate_screen.dart';
-import 'package:coconut_vault/screens/vault_creation/mnemonic_import_screen.dart';
-import 'package:coconut_vault/screens/vault_creation/multi_sig/select_multisig_quorum_screen.dart';
-import 'package:coconut_vault/screens/vault_creation/multi_sig/signer_scanner_screen.dart';
-import 'package:coconut_vault/screens/vault_creation/select_vault_type_screen.dart';
+import 'package:coconut_vault/screens/vault_creation/multisig/signer_assignment_screen.dart';
+import 'package:coconut_vault/screens/vault_creation/single_sig/mnemonic_coinflip_screen.dart';
+import 'package:coconut_vault/screens/vault_creation/single_sig/mnemonic_generation_screen.dart';
+import 'package:coconut_vault/screens/vault_creation/single_sig/mnemonic_import_screen.dart';
+import 'package:coconut_vault/screens/vault_creation/multisig/multisig_quorum_selection_screen.dart';
+import 'package:coconut_vault/screens/vault_creation/multisig/signer_scan_screen.dart';
+import 'package:coconut_vault/screens/vault_creation/vault_type_selection_screen.dart';
 import 'package:coconut_vault/screens/vault_creation/vault_creation_options_screen.dart';
-import 'package:coconut_vault/screens/vault_creation/vault_name_icon_setup_screen.dart';
+import 'package:coconut_vault/screens/vault_creation/vault_name_and_icon_setup_screen.dart';
 import 'package:coconut_vault/screens/vault_detail/address_list_screen.dart';
 import 'package:coconut_vault/screens/vault_detail/multi_sig_bsms_screen.dart';
 import 'package:coconut_vault/screens/vault_detail/multisig_setting_screen.dart';
@@ -179,14 +179,15 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> {
           color: MyColors.black,
           home: _getHomeScreenRoute(_appEntryFlow, context),
           routes: {
-            '/select-vault-type': (context) => const SelectVaultTypeScreen(),
+            '/select-vault-type': (context) => const VaultTypeSelectionScreen(),
             '/select-multisig-quorum': (context) =>
-                const SelectMultisigQuorumScreen(),
-            '/assign-signers': (context) => const AssignSignersScreen(),
+                const MultisigQuorumSelectionScreen(),
+            '/assign-signers': (context) => const SignerAssignmentScreen(),
             '/vault-creation-options': (context) =>
                 const VaultCreationOptions(),
             '/mnemonic-import': (context) => const MnemonicImport(),
-            '/vault-name-setup': (context) => const VaultNameIconSetup(),
+            '/vault-name-setup': (context) =>
+                const VaultNameAndIconSetupScreen(),
             '/vault-details': (context) => buildScreenWithArguments(
                   context,
                   (args) => VaultMenuScreen(id: args['id']),
@@ -210,7 +211,7 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> {
                 ),
             '/signer-scanner': (context) => buildScreenWithArguments(
                   context,
-                  (args) => SignerScannerScreen(
+                  (args) => SignerScanScreen(
                       id: args['id'], screenType: args['screenType']),
                 ),
             '/psbt-scanner': (context) => buildScreenWithArguments(
@@ -262,8 +263,8 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> {
                   ModalRoute.of(context)?.settings.arguments as VoidCallback?;
               return SecuritySelfCheckScreen(onNextPressed: onNextPressed);
             },
-            '/mnemonic-generate': (context) => const MnemonicGenerateScreen(),
-            '/mnemonic-flip-coin': (context) => const MnemonicFlipCoinScreen(),
+            '/mnemonic-generate': (context) => const MnemonicGenerationScreen(),
+            '/mnemonic-flip-coin': (context) => const MnemonicCoinflipScreen(),
             '/app-info': (context) => const AppInfoScreen(),
             '/welcome': (context) => const WelcomeScreen(),
             '/connectivity-guide': (context) {

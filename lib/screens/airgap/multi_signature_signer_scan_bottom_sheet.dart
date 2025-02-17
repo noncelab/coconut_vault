@@ -10,19 +10,18 @@ import 'package:coconut_vault/widgets/custom_tooltip.dart';
 import 'package:loader_overlay/loader_overlay.dart';
 import 'package:qr_code_scanner/qr_code_scanner.dart';
 
-class SignerScannerBottomSheet extends StatefulWidget {
+class SignerScanBottomSheet extends StatefulWidget {
   final Function onScanComplete;
-  const SignerScannerBottomSheet({
+  const SignerScanBottomSheet({
     super.key,
     required this.onScanComplete,
   });
 
   @override
-  State<SignerScannerBottomSheet> createState() =>
-      _SignerScannerBottomSheetState();
+  State<SignerScanBottomSheet> createState() => _SignerScanBottomSheetState();
 }
 
-class _SignerScannerBottomSheetState extends State<SignerScannerBottomSheet> {
+class _SignerScanBottomSheetState extends State<SignerScanBottomSheet> {
   final GlobalKey qrKey = GlobalKey(debugLabel: 'QR');
 
   QRViewController? controller;

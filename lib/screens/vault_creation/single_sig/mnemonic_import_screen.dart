@@ -4,7 +4,7 @@ import 'package:coconut_vault/utils/lower_case_text_input_formatter.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
-import 'package:coconut_vault/screens/vault_creation/mnemonic_confirm_screen.dart';
+import 'package:coconut_vault/screens/vault_creation/single_sig/mnemonic_confirmation_bottom_sheet.dart';
 import 'package:coconut_vault/styles.dart';
 import 'package:coconut_vault/utils/vibration_util.dart';
 import 'package:coconut_vault/utils/wallet_utils.dart';
@@ -205,7 +205,7 @@ class _MnemonicImportState extends State<MnemonicImport> {
 
                 MyBottomSheet.showBottomSheet_90(
                   context: context,
-                  child: MnemonicConfirm(
+                  child: MnemonicConfirmationBottomSheet(
                     onCancelPressed: () => Navigator.pop(context),
                     onConfirmPressed: () =>
                         Navigator.pushNamed(context, '/vault-name-setup'),

@@ -8,9 +8,9 @@ import 'package:coconut_vault/model/common/vault_list_item_base.dart';
 import 'package:coconut_vault/enums/wallet_enums.dart';
 import 'package:coconut_vault/model/multisig/multisig_creation_model.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
-import 'package:coconut_vault/screens/vault_creation/multi_sig/confirm_importing_screen.dart';
-import 'package:coconut_vault/screens/vault_creation/multi_sig/key_list_bottom_screen.dart';
-import 'package:coconut_vault/screens/vault_creation/multi_sig/signer_scanner_screen.dart';
+import 'package:coconut_vault/screens/vault_creation/multisig/import_confirmation_screen.dart';
+import 'package:coconut_vault/screens/vault_creation/multisig/signer_assignment_key_list_bottom_sheet.dart';
+import 'package:coconut_vault/screens/vault_creation/multisig/signer_scan_screen.dart';
 import 'package:coconut_vault/managers/isolate_manager.dart';
 import 'package:coconut_vault/utils/alert_util.dart';
 import 'package:coconut_vault/utils/icon_util.dart';
@@ -41,14 +41,14 @@ class SignerOption {
   }
 }
 
-class AssignSignersScreen extends StatefulWidget {
-  const AssignSignersScreen({super.key});
+class SignerAssignmentScreen extends StatefulWidget {
+  const SignerAssignmentScreen({super.key});
 
   @override
-  State<AssignSignersScreen> createState() => _AssignSignersScreenState();
+  State<SignerAssignmentScreen> createState() => _SignerAssignmentScreenState();
 }
 
-class _AssignSignersScreenState extends State<AssignSignersScreen> {
+class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
   ValueNotifier<bool> isButtonActiveNotifier = ValueNotifier<bool>(false);
   late int totalSignatureCount; // 전체 키의 수
   late int requiredSignatureCount; // 필요한 서명 수
@@ -686,7 +686,7 @@ class _AssignSignersScreenState extends State<AssignSignersScreen> {
                                                   context: context,
                                                   childBuilder:
                                                       (sheetController) =>
-                                                          KeyListBottomScreen(
+                                                          KeyListBottomSheet(
                                                     // 키 옵션 중 하나 선택했을 때
                                                     onPressed: (int index) {
                                                       selectedSignerOptionIndex =
@@ -744,7 +744,7 @@ class _AssignSignersScreenState extends State<AssignSignersScreen> {
                                                   enableSingleChildScroll:
                                                       false,
                                                   child:
-                                                      const SignerScannerScreen(),
+                                                      const SignerScanScreen(),
                                                 );
 
                                                 if (externalImported != null) {
@@ -790,7 +790,7 @@ class _AssignSignersScreenState extends State<AssignSignersScreen> {
                                                         true,
                                                     childBuilder:
                                                         (sheetController) =>
-                                                            ConfirmImportingScreen(
+                                                            ImportConfirmationScreen(
                                                       importingBsms:
                                                           externalImported,
                                                       scrollController:

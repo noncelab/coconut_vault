@@ -2,21 +2,21 @@ import 'package:coconut_vault/model/singlesig/singlesig_vault_list_item.dart';
 import 'package:coconut_vault/widgets/vault_row_item.dart';
 import 'package:flutter/material.dart';
 
-class KeyListBottomScreen extends StatefulWidget {
+class KeyListBottomSheet extends StatefulWidget {
   final List<SinglesigVaultListItem> vaultList;
   final void Function(int) onPressed;
 
-  const KeyListBottomScreen({
+  const KeyListBottomSheet({
     super.key,
     required this.onPressed,
     required this.vaultList,
   });
 
   @override
-  State<KeyListBottomScreen> createState() => _KeyListBottomScreenState();
+  State<KeyListBottomSheet> createState() => _KeyListBottomSheetState();
 }
 
-class _KeyListBottomScreenState extends State<KeyListBottomScreen> {
+class _KeyListBottomSheetState extends State<KeyListBottomSheet> {
   int? selectedIndex;
 
   @override

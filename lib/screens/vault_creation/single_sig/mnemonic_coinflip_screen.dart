@@ -3,8 +3,8 @@ import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
-import 'package:coconut_vault/screens/vault_creation/mnemonic_confirm_screen.dart';
-import 'package:coconut_vault/screens/vault_creation/mnemonic_generate_screen.dart';
+import 'package:coconut_vault/screens/vault_creation/single_sig/mnemonic_confirmation_bottom_sheet.dart';
+import 'package:coconut_vault/screens/vault_creation/single_sig/mnemonic_generation_screen.dart';
 import 'package:coconut_vault/styles.dart';
 import 'package:coconut_vault/widgets/appbar/custom_appbar.dart';
 import 'package:coconut_vault/widgets/bottom_sheet.dart';
@@ -15,14 +15,14 @@ import 'package:coconut_vault/widgets/highlighted_text.dart';
 import 'package:coconut_vault/widgets/textfield/custom_textfield.dart';
 import 'package:provider/provider.dart';
 
-class MnemonicFlipCoinScreen extends StatefulWidget {
-  const MnemonicFlipCoinScreen({super.key});
+class MnemonicCoinflipScreen extends StatefulWidget {
+  const MnemonicCoinflipScreen({super.key});
 
   @override
-  State<MnemonicFlipCoinScreen> createState() => _MnemonicFlipCoinScreenState();
+  State<MnemonicCoinflipScreen> createState() => _MnemonicCoinflipScreenState();
 }
 
-class _MnemonicFlipCoinScreenState extends State<MnemonicFlipCoinScreen> {
+class _MnemonicCoinflipScreenState extends State<MnemonicCoinflipScreen> {
   int step = 0;
   int selectedWordsCount = 0;
   bool usePassphrase = false;
@@ -600,7 +600,7 @@ class _FlipCoinState extends State<FlipCoin> {
         .startSinglesigImporting(mnemonic, passphrase);
     MyBottomSheet.showBottomSheet_90(
       context: context,
-      child: MnemonicConfirm(
+      child: MnemonicConfirmationBottomSheet(
         onCancelPressed: () => Navigator.pop(context),
         onConfirmPressed: () =>
             Navigator.pushNamed(context, '/vault-name-setup'),

@@ -7,14 +7,15 @@ import 'package:coconut_vault/styles.dart';
 import 'package:coconut_vault/widgets/appbar/custom_appbar.dart';
 import 'package:provider/provider.dart';
 
-class SelectVaultTypeScreen extends StatefulWidget {
-  const SelectVaultTypeScreen({super.key});
+class VaultTypeSelectionScreen extends StatefulWidget {
+  const VaultTypeSelectionScreen({super.key});
 
   @override
-  State<SelectVaultTypeScreen> createState() => _SelectVaultTypeScreenState();
+  State<VaultTypeSelectionScreen> createState() =>
+      _VaultTypeSelectionScreenState();
 }
 
-class _SelectVaultTypeScreenState extends State<SelectVaultTypeScreen> {
+class _VaultTypeSelectionScreenState extends State<VaultTypeSelectionScreen> {
   String? nextPath;
   bool _nextButtonEnabled = true;
   bool _showLoading = false;

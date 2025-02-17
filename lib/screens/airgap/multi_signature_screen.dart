@@ -4,8 +4,8 @@ import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/model/multisig/multisig_vault_list_item.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:coconut_vault/screens/common/pin_check_screen.dart';
-import 'package:coconut_vault/screens/vault_creation/multi_sig/signer_qr_bottom_sheet.dart';
-import 'package:coconut_vault/screens/vault_creation/multi_sig/signer_scanner_bottom_sheet.dart';
+import 'package:coconut_vault/screens/airgap/multi_signature_signer_qr_bottom_sheet.dart';
+import 'package:coconut_vault/screens/airgap/multi_signature_signer_scan_bottom_sheet.dart';
 import 'package:coconut_vault/styles.dart';
 import 'package:coconut_vault/utils/alert_util.dart';
 import 'package:coconut_vault/utils/icon_util.dart';
@@ -157,7 +157,7 @@ class _MultiSignatureScreenState extends State<MultiSignatureScreen> {
   void _showScannerBottomSheet() {
     MyBottomSheet.showBottomSheet_90(
       context: context,
-      child: SignerScannerBottomSheet(
+      child: SignerScanBottomSheet(
         onScanComplete: (signedRawTx) {
           _vaultModel.signedRawTx = signedRawTx;
           _checkSignedPsbt(signedRawTx);
