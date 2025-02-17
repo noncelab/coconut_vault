@@ -4,8 +4,9 @@ import 'package:coconut_vault/styles.dart';
 
 class PinBox extends StatelessWidget {
   final bool isSet;
+  final bool disabled;
 
-  const PinBox({super.key, required this.isSet});
+  const PinBox({super.key, required this.isSet, this.disabled = false});
 
   @override
   Widget build(BuildContext context) {
@@ -14,7 +15,9 @@ class PinBox extends StatelessWidget {
         height: 50,
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(14),
-          color: MyColors.transparentBlack_06,
+          color: disabled
+              ? MyColors.transparentBlack_15
+              : MyColors.transparentBlack_06,
         ),
         child: isSet
             ? SvgPicture.asset(
@@ -22,8 +25,9 @@ class PinBox extends StatelessWidget {
                 width: 12,
                 height: 12,
                 fit: BoxFit.scaleDown,
-                colorFilter:
-                    const ColorFilter.mode(MyColors.black, BlendMode.srcIn),
+                colorFilter: ColorFilter.mode(
+                    disabled ? MyColors.transparentBlack_06 : MyColors.black,
+                    BlendMode.srcIn),
               )
             : null);
   }

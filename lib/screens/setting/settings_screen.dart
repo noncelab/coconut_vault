@@ -1,9 +1,11 @@
+import 'package:coconut_vault/enums/pin_check_context_enum.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
+import 'package:coconut_vault/providers/auth_provider.dart';
+import 'package:coconut_vault/utils/logger.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:loader_overlay/loader_overlay.dart';
-import 'package:coconut_vault/providers/app_model.dart';
-import 'package:coconut_vault/screens/pin_check_screen.dart';
+import 'package:coconut_vault/screens/common/pin_check_screen.dart';
 import 'package:coconut_vault/screens/pin_setting_screen.dart';
 import 'package:coconut_vault/styles.dart';
 import 'package:coconut_vault/widgets/button/button_group.dart';
@@ -76,24 +78,26 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 fontWeight: FontWeight.bold,
               )),
         ),
-        Consumer<AppModel>(builder: (context, appModel, child) {
+        Consumer<AuthProvider>(builder: (context, provider, child) {
           return ButtonGroup(buttons: [
-            if (appModel.isPinEnabled) ...{
-              if (appModel.canCheckBiometrics)
+            if (provider.isPinSet) ...{
+              if (provider.canCheckBiometrics)
                 SingleButton(
                   title: t.settings_screen.use_biometric,
                   rightElement: CupertinoSwitch(
-                    value: appModel.hasBiometricsPermission
-                        ? appModel.isBiometricEnabled
+                    value: provider.hasBiometricsPermission
+                        ? provider.isBiometricEnabled
                         : false,
                     activeColor: MyColors.primary,
                     onChanged: (isOn) async {
                       if (isOn &&
-                          await appModel.authenticateWithBiometrics(context,
-                              isSave: true)) {
-                        appModel.saveIsBiometricEnabled(true);
+                          await provider.authenticateWithBiometrics(context,
+                              isSaved: true)) {
+                        Logger.log('Biometric authentication success');
+                        provider.saveIsBiometricEnabled(true);
                       } else {
-                        appModel.saveIsBiometricEnabled(false);
+                        Logger.log('Biometric authentication fail');
+                        provider.saveIsBiometricEnabled(false);
                       }
                     },
                   ),
@@ -105,7 +109,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     context: context,
                     child: const LoaderOverlay(
                       child: PinCheckScreen(
-                        screenStatus: PinCheckScreenStatus.change,
+                        pinCheckContext: PinCheckContextEnum.change,
                       ),
                     ),
                   );
@@ -115,7 +119,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               SingleButton(
                 title: t.settings_screen.set_password,
                 rightElement: CupertinoSwitch(
-                  value: appModel.isPinEnabled,
+                  value: provider.isPinSet,
                   activeColor: MyColors.primary,
                   onChanged: (value) {
                     MyBottomSheet.showBottomSheet_90(

@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:coconut_lib/coconut_lib.dart';
+import 'package:coconut_vault/enums/pin_check_context_enum.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/model/singlesig/singlesig_vault_list_item.dart';
 import 'package:coconut_vault/utils/text_utils.dart';
@@ -9,7 +10,7 @@ import 'package:coconut_vault/widgets/card/vault_item_card.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:coconut_vault/providers/app_model.dart';
-import 'package:coconut_vault/screens/pin_check_screen.dart';
+import 'package:coconut_vault/screens/common/pin_check_screen.dart';
 import 'package:coconut_vault/screens/vault_detail/mnemonic_view_screen.dart';
 import 'package:coconut_vault/screens/vault_detail/qrcode_bottom_sheet_screen.dart';
 import 'package:coconut_vault/screens/vault_detail/vault_edit_bottom_sheet_screen.dart';
@@ -162,7 +163,7 @@ class _VaultSettingsState extends State<VaultSettings> {
       context: context,
       child: CustomLoadingOverlay(
         child: PinCheckScreen(
-          screenStatus: PinCheckScreenStatus.info,
+          pinCheckContext: PinCheckContextEnum.sensitiveAction,
           isDeleteScreen: true,
           onComplete: () async {
             Navigator.pop(context);
