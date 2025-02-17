@@ -29,18 +29,6 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:loader_overlay/loader_overlay.dart';
 import 'package:provider/provider.dart';
 
-<<<<<<<< HEAD:lib/screens/vault_menu/info/multisig_setup_screen.dart
-class MultisigSetupScreen extends StatefulWidget {
-  final int id;
-  const MultisigSetupScreen({super.key, required this.id});
-
-  @override
-  State<MultisigSetupScreen> createState() => _MultisigSetupScreenState();
-}
-
-class _MultisigSetupScreenState extends State<MultisigSetupScreen> {
-  late WalletProvider _walletProvider;
-========
 class MultisigSetupInfoScreen extends StatefulWidget {
   final int id;
   const MultisigSetupInfoScreen({super.key, required this.id});
@@ -52,7 +40,6 @@ class MultisigSetupInfoScreen extends StatefulWidget {
 
 class _MultisigSetupInfoScreenState extends State<MultisigSetupInfoScreen> {
   late WalletProvider _vaultModel;
->>>>>>>> refactor/restructure:lib/screens/vault_menu/info/multisig_setup_info_screen.dart
   late MultisigVaultListItem _multiVault;
 
   final GlobalKey _tooltipIconKey = GlobalKey();
@@ -67,7 +54,7 @@ class _MultisigSetupInfoScreenState extends State<MultisigSetupInfoScreen> {
   @override
   void initState() {
     super.initState();
-    _walletProvider = Provider.of<WalletProvider>(context, listen: false);
+    _vaultModel = Provider.of<WalletProvider>(context, listen: false);
     _updateMultiVaultListItem();
     int innerVaultCount =
         _multiVault.signers.where((s) => s.innerVaultId != null).length;
@@ -86,7 +73,7 @@ class _MultisigSetupInfoScreenState extends State<MultisigSetupInfoScreen> {
   }
 
   _updateMultiVaultListItem() {
-    final vaultBasItem = _walletProvider.getVaultById(widget.id);
+    final vaultBasItem = _vaultModel.getVaultById(widget.id);
     _multiVault = vaultBasItem as MultisigVaultListItem;
   }
 
@@ -133,14 +120,13 @@ class _MultisigSetupInfoScreenState extends State<MultisigSetupInfoScreen> {
       hasChanges = true;
     }
 
-    if (newName != _multiVault.name &&
-        _walletProvider.isNameDuplicated(newName)) {
+    if (newName != _multiVault.name && _vaultModel.isNameDuplicated(newName)) {
       CustomToast.showToast(context: context, text: t.toast.name_already_used);
       return;
     }
 
     if (hasChanges) {
-      await _walletProvider.updateVault(
+      await _vaultModel.updateVault(
           widget.id, newName, newColorIndex, newIconIndex);
 
       _updateMultiVaultListItem();
@@ -175,9 +161,7 @@ class _MultisigSetupInfoScreenState extends State<MultisigSetupInfoScreen> {
         onUpdate: (memo) {
           if (selectedMemo == memo) return;
 
-          _walletProvider
-              .updateMemo(widget.id, selectedVault.id, memo)
-              .then((_) {
+          _vaultModel.updateMemo(widget.id, selectedVault.id, memo).then((_) {
             setState(() {
               String? finalMemo = memo;
               if (memo.isEmpty) {
@@ -225,7 +209,7 @@ class _MultisigSetupInfoScreenState extends State<MultisigSetupInfoScreen> {
                 break;
               case 1:
                 final base =
-                    _walletProvider.getVaultById(multisigSigner!.innerVaultId!);
+                    _vaultModel.getVaultById(multisigSigner!.innerVaultId!);
                 final single = base as SinglesigVaultListItem;
                 MyBottomSheet.showBottomSheet_90(
                   context: context,
@@ -237,7 +221,7 @@ class _MultisigSetupInfoScreenState extends State<MultisigSetupInfoScreen> {
                 );
                 break;
               default:
-                _walletProvider.deleteVault(widget.id);
+                _vaultModel.deleteVault(widget.id);
                 vibrateLight();
                 Navigator.popUntil(context, (route) => route.isFirst);
             }
@@ -274,8 +258,8 @@ class _MultisigSetupInfoScreenState extends State<MultisigSetupInfoScreen> {
             // const Divider(),
             _bottomSheetButton(
               existsMemo
-                  ? t.multisig_setup_screen.edit_memo
-                  : t.multisig_setup_screen.add_memo,
+                  ? t.multi_sig_setting_screen.edit_memo
+                  : t.multi_sig_setting_screen.add_memo,
               onPressed: () {
                 _showEditMemoBottomSheet(multisigSigner);
               },
@@ -497,7 +481,7 @@ class _MultisigSetupInfoScreenState extends State<MultisigSetupInfoScreen> {
                           child: Column(
                             children: [
                               InformationRowItem(
-                                label: t.multisig_setup_screen.view_bsms,
+                                label: t.multi_sig_setting_screen.view_bsms,
                                 showIcon: true,
                                 onPressed: () {
                                   _removeTooltip();
@@ -586,7 +570,7 @@ class _MultisigSetupInfoScreenState extends State<MultisigSetupInfoScreen> {
                             mainAxisSize: MainAxisSize.min,
                             children: [
                               Text(
-                                t.multisig_setup_screen.tooltip(
+                                t.multi_sig_setting_screen.tooltip(
                                     total: _multiVault.signers.length,
                                     count: _multiVault.requiredSignatureCount),
                                 style: Styles.caption.merge(TextStyle(

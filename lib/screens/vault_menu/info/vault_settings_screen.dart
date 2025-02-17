@@ -28,19 +28,6 @@ import 'package:shimmer/shimmer.dart';
 
 import '../../../providers/wallet_provider.dart';
 
-<<<<<<<< HEAD:lib/screens/vault_menu/info/vault_settings_screen.dart
-class VaultSettingsScreen extends StatefulWidget {
-  final int id;
-
-  const VaultSettingsScreen({super.key, required this.id});
-
-  @override
-  State<VaultSettingsScreen> createState() => _VaultSettingsScreenState();
-}
-
-class _VaultSettingsScreenState extends State<VaultSettingsScreen> {
-  late WalletProvider _walletProvider;
-========
 // rename: VaultSettings -> SingleSigSetupInfoScreen(리뷰/머지 후 코멘트 삭제)
 class SingleSigSetupInfoScreen extends StatefulWidget {
   final int id;
@@ -53,9 +40,7 @@ class SingleSigSetupInfoScreen extends StatefulWidget {
 }
 
 class _SingleSigSetupInfoScreenState extends State<SingleSigSetupInfoScreen> {
-  late AppModel _appModel;
-  late WalletProvider _vaultModel;
->>>>>>>> refactor/restructure:lib/screens/vault_menu/info/single_sig_setup_info_screen.dart
+  late WalletProvider _walletProvider;
   late TextEditingController _nameTextController;
   late SinglesigVaultListItem _singleVaultItem;
   late SingleSignatureVault _singleSignatureVault;
@@ -325,8 +310,7 @@ class _SingleSigSetupInfoScreenState extends State<SingleSigSetupInfoScreen> {
                                         ),
                                         const SizedBox(width: 10),
                                         Text(
-                                          t.vault_settings_screen
-                                              .used_in_multisig,
+                                          t.vault_settings.used_in_multisig,
                                           style: Styles.body2,
                                         ),
                                       ],
@@ -399,11 +383,11 @@ class _SingleSigSetupInfoScreenState extends State<SingleSigSetupInfoScreen> {
                                                           ),
                                                           TextSpan(
                                                               text: t
-                                                                  .vault_settings_screen
+                                                                  .vault_settings
                                                                   .of),
                                                           TextSpan(
                                                             text: t
-                                                                .vault_settings_screen
+                                                                .vault_settings
                                                                 .nth(
                                                                     index: idx +
                                                                         1),
@@ -416,7 +400,7 @@ class _SingleSigSetupInfoScreenState extends State<SingleSigSetupInfoScreen> {
                                                           ),
                                                           TextSpan(
                                                               text: t
-                                                                  .vault_settings_screen
+                                                                  .vault_settings
                                                                   .key),
                                                         ],
                                                       ),

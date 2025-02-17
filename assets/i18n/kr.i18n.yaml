@@ -338,7 +338,7 @@ multi_sig_bsms_screen:
 multi_sig_memo_bottom_sheet:
   imported_wallet_memo: "외부 지갑 메모"
   placeholder: "메모를 작성해주세요."
-multisig_setup_screen:
+multi_sig_setting_screen:
   edit_memo: "메모 수정"
   add_memo: "메모 추가"
   view_bsms: "지갑 설정 정보 보기"

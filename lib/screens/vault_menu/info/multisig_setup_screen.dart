@@ -29,18 +29,6 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:loader_overlay/loader_overlay.dart';
 import 'package:provider/provider.dart';
 
-<<<<<<<< HEAD:lib/screens/vault_menu/info/multisig_setup_screen.dart
-class MultisigSetupScreen extends StatefulWidget {
-  final int id;
-  const MultisigSetupScreen({super.key, required this.id});
-
-  @override
-  State<MultisigSetupScreen> createState() => _MultisigSetupScreenState();
-}
-
-class _MultisigSetupScreenState extends State<MultisigSetupScreen> {
-  late WalletProvider _walletProvider;
-========
 class MultisigSetupInfoScreen extends StatefulWidget {
   final int id;
   const MultisigSetupInfoScreen({super.key, required this.id});
@@ -51,8 +39,7 @@ class MultisigSetupInfoScreen extends StatefulWidget {
 }
 
 class _MultisigSetupInfoScreenState extends State<MultisigSetupInfoScreen> {
-  late WalletProvider _vaultModel;
->>>>>>>> refactor/restructure:lib/screens/vault_menu/info/multisig_setup_info_screen.dart
+  late WalletProvider _walletProvider;
   late MultisigVaultListItem _multiVault;
 
   final GlobalKey _tooltipIconKey = GlobalKey();
@@ -274,8 +261,8 @@ class _MultisigSetupInfoScreenState extends State<MultisigSetupInfoScreen> {
             // const Divider(),
             _bottomSheetButton(
               existsMemo
-                  ? t.multisig_setup_screen.edit_memo
-                  : t.multisig_setup_screen.add_memo,
+                  ? t.multi_sig_setting_screen.edit_memo
+                  : t.multi_sig_setting_screen.add_memo,
               onPressed: () {
                 _showEditMemoBottomSheet(multisigSigner);
               },
@@ -497,7 +484,7 @@ class _MultisigSetupInfoScreenState extends State<MultisigSetupInfoScreen> {
                           child: Column(
                             children: [
                               InformationRowItem(
-                                label: t.multisig_setup_screen.view_bsms,
+                                label: t.multi_sig_setting_screen.view_bsms,
                                 showIcon: true,
                                 onPressed: () {
                                   _removeTooltip();
@@ -586,7 +573,7 @@ class _MultisigSetupInfoScreenState extends State<MultisigSetupInfoScreen> {
                             mainAxisSize: MainAxisSize.min,
                             children: [
                               Text(
-                                t.multisig_setup_screen.tooltip(
+                                t.multi_sig_setting_screen.tooltip(
                                     total: _multiVault.signers.length,
                                     count: _multiVault.requiredSignatureCount),
                                 style: Styles.caption.merge(TextStyle(
