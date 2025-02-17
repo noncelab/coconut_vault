@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:coconut_vault/styles.dart';
 import 'package:coconut_vault/utils/vibration_util.dart';
 
-class MnemonicConfirm extends StatefulWidget {
+class MnemonicConfirmationBottomSheet extends StatefulWidget {
   final VoidCallback onConfirmPressed;
   final VoidCallback onCancelPressed;
   final VoidCallback? onInactivePressed;
@@ -12,7 +12,7 @@ class MnemonicConfirm extends StatefulWidget {
   final String? passphrase;
   final String topMessage;
 
-  const MnemonicConfirm(
+  const MnemonicConfirmationBottomSheet(
       {super.key,
       required this.onConfirmPressed,
       required this.onCancelPressed,
@@ -22,10 +22,12 @@ class MnemonicConfirm extends StatefulWidget {
       this.topMessage = '입력하신 정보가 맞는지\n다시 한번 확인해 주세요.'});
 
   @override
-  State<MnemonicConfirm> createState() => _MnemonicConfirmState();
+  State<MnemonicConfirmationBottomSheet> createState() =>
+      _MnemonicConfirmationBottomSheetState();
 }
 
-class _MnemonicConfirmState extends State<MnemonicConfirm> {
+class _MnemonicConfirmationBottomSheetState
+    extends State<MnemonicConfirmationBottomSheet> {
   final ScrollController _scrollController = ScrollController();
   bool _isBottom = false;
 

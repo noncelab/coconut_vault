@@ -1,6 +1,6 @@
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/model/common/vault_list_item_base.dart';
-import 'package:coconut_vault/screens/vault_creation/multi_sig/signer_scanner_screen.dart';
+import 'package:coconut_vault/screens/vault_creation/multisig/signer_scan_screen.dart';
 
 import 'package:coconut_vault/utils/text_utils.dart';
 import 'package:flutter/material.dart';
@@ -121,7 +121,7 @@ class _VaultMenuScreenState extends State<VaultMenuScreen> {
                 '/signer-scanner',
                 arguments: {
                   'id': widget.id,
-                  'screenType': SignerScannerScreenType.copy,
+                  'screenType': SignerScanScreenType.copy,
                 },
               );
             }, iconBackgroundColorList[5]),

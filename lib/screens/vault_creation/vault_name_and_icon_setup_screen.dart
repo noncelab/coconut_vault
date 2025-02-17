@@ -12,12 +12,12 @@ import 'package:coconut_vault/widgets/custom_toast.dart';
 import 'package:coconut_vault/widgets/vault_name_icon_edit_palette.dart';
 import 'package:provider/provider.dart';
 
-class VaultNameIconSetup extends StatefulWidget {
+class VaultNameAndIconSetupScreen extends StatefulWidget {
   final String name;
   final int iconIndex;
   final int colorIndex;
 
-  const VaultNameIconSetup({
+  const VaultNameAndIconSetupScreen({
     super.key,
     this.name = '',
     this.iconIndex = 0,
@@ -25,10 +25,12 @@ class VaultNameIconSetup extends StatefulWidget {
   });
 
   @override
-  State<VaultNameIconSetup> createState() => _VaultNameIconSetupState();
+  State<VaultNameAndIconSetupScreen> createState() =>
+      _VaultNameAndIconSetupScreenState();
 }
 
-class _VaultNameIconSetupState extends State<VaultNameIconSetup> {
+class _VaultNameAndIconSetupScreenState
+    extends State<VaultNameAndIconSetupScreen> {
   late WalletProvider _vaultModel;
   late MultisigCreationModel _multisigCreationState;
   String inputText = '';

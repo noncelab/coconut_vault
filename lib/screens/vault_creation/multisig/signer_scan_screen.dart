@@ -15,22 +15,22 @@ import 'package:coconut_vault/widgets/custom_tooltip.dart';
 import 'package:provider/provider.dart';
 import 'package:qr_code_scanner/qr_code_scanner.dart';
 
-enum SignerScannerScreenType { add, copy }
+enum SignerScanScreenType { add, copy }
 
-class SignerScannerScreen extends StatefulWidget {
+class SignerScanScreen extends StatefulWidget {
   final int? id;
-  final SignerScannerScreenType screenType;
-  const SignerScannerScreen({
+  final SignerScanScreenType screenType;
+  const SignerScanScreen({
     super.key,
     this.id,
-    this.screenType = SignerScannerScreenType.add,
+    this.screenType = SignerScanScreenType.add,
   });
 
   @override
-  State<SignerScannerScreen> createState() => _SignerScannerScreenState();
+  State<SignerScanScreen> createState() => _SignerScanScreenState();
 }
 
-class _SignerScannerScreenState extends State<SignerScannerScreen> {
+class _SignerScanScreenState extends State<SignerScanScreen> {
   static String wrongFormatMessage1 = t.errors.invalid_singlesig_qr_error;
   static String wrongFormatMessage2 = t.errors.invalid_multisig_qr_error;
 
@@ -59,7 +59,7 @@ class _SignerScannerScreenState extends State<SignerScannerScreen> {
   void initState() {
     _vaultModel = Provider.of<WalletProvider>(context, listen: false);
     super.initState();
-    _isSetScaffold = widget.screenType != SignerScannerScreenType.add;
+    _isSetScaffold = widget.screenType != SignerScanScreenType.add;
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       await Future.delayed(const Duration(milliseconds: 1000));
       // fixme 추후 QRCodeScanner가 개선되면 QRCodeScanner 의 카메라 뷰 생성 완료된 콜백 찾아 progress hide 합니다. 현재는 1초 후 hide
@@ -93,7 +93,7 @@ class _SignerScannerScreenState extends State<SignerScannerScreen> {
     return _isSetScaffold
         ? Scaffold(
             appBar: CustomAppBar.build(
-              title: widget.screenType == SignerScannerScreenType.copy
+              title: widget.screenType == SignerScanScreenType.copy
                   ? t.signer_scanner_screen.title1
                   : t.signer_scanner_screen.title2,
               context: context,
@@ -276,7 +276,7 @@ class _SignerScannerScreenState extends State<SignerScannerScreen> {
       );
     }
 
-    if (widget.screenType == SignerScannerScreenType.copy) {
+    if (widget.screenType == SignerScanScreenType.copy) {
       return RichText(
         text: TextSpan(
           text: t.signer_scanner_screen.guide1_1,
@@ -294,7 +294,7 @@ class _SignerScannerScreenState extends State<SignerScannerScreen> {
           ],
         ),
       );
-    } else if (widget.screenType == SignerScannerScreenType.add) {
+    } else if (widget.screenType == SignerScanScreenType.add) {
       return RichText(
         text: TextSpan(
           text: t.signer_scanner_screen.guide2_1,

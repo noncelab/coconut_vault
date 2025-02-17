@@ -7,8 +7,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:coconut_vault/styles.dart';
 import 'package:coconut_vault/widgets/custom_tooltip.dart';
 
-class ConfirmImportingScreen extends StatefulWidget {
-  const ConfirmImportingScreen({
+class ImportConfirmationScreen extends StatefulWidget {
+  const ImportConfirmationScreen({
     super.key,
     required this.importingBsms,
     required this.scrollController,
@@ -17,10 +17,11 @@ class ConfirmImportingScreen extends StatefulWidget {
   final ScrollController scrollController;
 
   @override
-  State<ConfirmImportingScreen> createState() => _ConfirmImportingScreenState();
+  State<ImportConfirmationScreen> createState() =>
+      _ImportConfirmationScreenState();
 }
 
-class _ConfirmImportingScreenState extends State<ConfirmImportingScreen>
+class _ImportConfirmationScreenState extends State<ImportConfirmationScreen>
     with WidgetsBindingObserver {
   static const int kMaxTextLength = 15;
   late TextEditingController _controller;
