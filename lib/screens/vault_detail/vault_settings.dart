@@ -163,7 +163,7 @@ class _VaultSettingsState extends State<VaultSettings> {
       context: context,
       child: CustomLoadingOverlay(
         child: PinCheckScreen(
-          pinCheckContext: PinCheckContextEnum.securityCheck,
+          pinCheckContext: PinCheckContextEnum.sensitiveAction,
           isDeleteScreen: true,
           onComplete: () async {
             Navigator.pop(context);
