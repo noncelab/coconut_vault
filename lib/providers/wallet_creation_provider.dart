@@ -1,13 +1,19 @@
 import 'package:coconut_vault/model/multisig/multisig_signer.dart';
 import 'package:coconut_vault/utils/coconut/multisig_utils.dart';
 
-class MultisigCreationModel {
+class WalletCreationProvider {
   int? _requiredSignatureCount;
   int? _totalSignatureCount;
   List<MultisigSigner>? signers;
 
+  String? _secret;
+  String? _passphrase;
+
   int? get requiredSignatureCount => _requiredSignatureCount;
   int? get totalSignatureCount => _totalSignatureCount;
+
+  String? get secret => _secret;
+  String? get passphrase => _passphrase;
 
   void setQuorumRequirement(
       int requiredSignatureCount, int totalSignatureCount) {
@@ -24,5 +30,16 @@ class MultisigCreationModel {
 
   void reset() {
     _requiredSignatureCount = _totalSignatureCount = signers = null;
+  }
+
+  /// Singlesig
+  void setSecretAndPassphrase(String? secret, String? passphrase) {
+    _secret = secret;
+    _passphrase = passphrase;
+  }
+
+  void resetSecretAndPassphrase() {
+    _secret = null;
+    _passphrase = null;
   }
 }

@@ -24,6 +24,7 @@ class MnemonicImport extends StatefulWidget {
 }
 
 class _MnemonicImportState extends State<MnemonicImport> {
+  late WalletProvider _walletProvider;
   String inputText = '';
   bool usePassphrase = false;
   String passphrase = '';
@@ -122,8 +123,7 @@ class _MnemonicImportState extends State<MnemonicImport> {
 
   void _onBackPressed(BuildContext context) {
     if (inputText.isEmpty && passphrase.isEmpty) {
-      final model = Provider.of<WalletProvider>(context, listen: false);
-      model.completeSinglesigImporting();
+      _walletProvider.completeSinglesigImporting();
       isFinishing = true;
       Navigator.pop(context);
     } else {
@@ -151,8 +151,8 @@ class _MnemonicImportState extends State<MnemonicImport> {
   @override
   void initState() {
     super.initState();
-
     _initListeners();
+    _walletProvider = Provider.of<WalletProvider>(context, listen: false);
   }
 
   @override
@@ -183,26 +183,17 @@ class _MnemonicImportState extends State<MnemonicImport> {
                 _onBackPressed(context);
               },
               onNextPressed: () {
-                final model =
-                    Provider.of<WalletProvider>(context, listen: false);
+                final secret = inputText
+                    .trim()
+                    .toLowerCase()
+                    .replaceAll(RegExp(r'\s+'), ' ');
 
-                if (model.isSeedDuplicated(
-                    inputText
-                        .trim()
-                        .toLowerCase()
-                        .replaceAll(RegExp(r'\s+'), ' '),
-                    usePassphrase ? passphrase.trim() : '')) {
+                if (_walletProvider.isSeedDuplicated(
+                    secret, usePassphrase ? passphrase.trim() : '')) {
                   CustomToast.showToast(
                       context: context, text: t.toast.mnemonic_already_added);
                   return;
                 }
-
-                model.startSinglesigImporting(
-                    inputText
-                        .trim()
-                        .toLowerCase()
-                        .replaceAll(RegExp(r'\s+'), ' '),
-                    usePassphrase ? passphrase.trim() : '');
 
                 MyBottomSheet.showBottomSheet_90(
                   context: context,
@@ -215,10 +206,7 @@ class _MnemonicImportState extends State<MnemonicImport> {
                           context: context, text: t.toast.scroll_down);
                       vibrateMediumDouble();
                     },
-                    mnemonic: inputText
-                        .trim()
-                        .toLowerCase()
-                        .replaceAll(RegExp(r'\s+'), ' '),
+                    mnemonic: secret,
                     passphrase: usePassphrase ? passphrase : null,
                   ),
                 );

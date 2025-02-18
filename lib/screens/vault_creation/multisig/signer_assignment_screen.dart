@@ -7,7 +7,7 @@ import 'package:coconut_vault/model/multisig/multisig_signer.dart';
 import 'package:coconut_vault/model/singlesig/singlesig_vault_list_item.dart';
 import 'package:coconut_vault/model/common/vault_list_item_base.dart';
 import 'package:coconut_vault/enums/wallet_enums.dart';
-import 'package:coconut_vault/model/multisig/multisig_creation_model.dart';
+import 'package:coconut_vault/providers/wallet_creation_provider.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:coconut_vault/screens/vault_creation/multisig/import_confirmation_screen.dart';
 import 'package:coconut_vault/screens/vault_creation/multisig/signer_assignment_key_list_bottom_sheet.dart';
@@ -71,7 +71,7 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
   IsolateHandler<Map<String, dynamic>, MultisignatureVault>?
       _fromKeyStoreListIsolateHandler;
 
-  late MultisigCreationModel _multisigCreationState;
+  late WalletCreationProvider _multisigCreationState;
 
   String? loadingMessage;
   bool hasValidationCompleted = false;
@@ -81,7 +81,7 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
     super.initState();
     _vaultModel = Provider.of<WalletProvider>(context, listen: false);
     _multisigCreationState =
-        Provider.of<MultisigCreationModel>(context, listen: false);
+        Provider.of<WalletCreationProvider>(context, listen: false);
     requiredSignatureCount = _multisigCreationState.requiredSignatureCount!;
     totalSignatureCount = _multisigCreationState.totalSignatureCount!;
 

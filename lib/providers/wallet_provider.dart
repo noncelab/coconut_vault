@@ -12,7 +12,7 @@ import 'package:coconut_vault/model/common/secret.dart';
 import 'package:coconut_vault/model/singlesig/singlesig_wallet.dart';
 import 'package:coconut_vault/managers/wallet_list_manager.dart';
 import 'package:coconut_vault/model/exception/not_related_multisig_wallet_exception.dart';
-import 'package:coconut_vault/model/multisig/multisig_creation_model.dart';
+import 'package:coconut_vault/providers/wallet_creation_provider.dart';
 import 'package:coconut_vault/providers/visibility_provider.dart';
 import 'package:flutter/foundation.dart';
 import 'package:coconut_vault/utils/logger.dart';
@@ -20,10 +20,10 @@ import 'package:coconut_vault/utils/vibration_util.dart';
 
 class WalletProvider extends ChangeNotifier {
   late final VisibilityProvider _visibilityProvider;
-  late final MultisigCreationModel _multisigCreationModel;
+  late final WalletCreationProvider _walletCreationProvider;
   late final WalletListManager _walletManager;
 
-  WalletProvider(this._multisigCreationModel, this._visibilityProvider) {
+  WalletProvider(this._walletCreationProvider, this._visibilityProvider) {
     _walletManager = WalletListManager();
   }
 
@@ -50,11 +50,8 @@ class WalletProvider extends ChangeNotifier {
   List<bool> _animatedVaultFlags = [];
   List<bool> get animatedVaultFlags => _animatedVaultFlags;
 
-  // 지갑 import 중에 입력한 니모닉
-  String? _importingSecret;
-  String? get importingSecret => _importingSecret;
-  String? _importingPassphrase = '';
-  String? get importingPassphrase => _importingPassphrase;
+  String? get secret => _walletCreationProvider.secret;
+  String? get passphrase => _walletCreationProvider.passphrase;
 
   String? _waitingForSignaturePsbtBase64;
   String? get waitingForSignaturePsbtBase64 => _waitingForSignaturePsbtBase64;
@@ -117,9 +114,9 @@ class WalletProvider extends ChangeNotifier {
   Future<void> addMultisigVaultAsync(String name, int color, int icon) async {
     setAddVaultCompleted(false);
 
-    final signers = _multisigCreationModel.signers!;
+    final signers = _walletCreationProvider.signers!;
     final requiredSignatureCount =
-        _multisigCreationModel.requiredSignatureCount!;
+        _walletCreationProvider.requiredSignatureCount!;
 
     await _walletManager.addMultisigWallet(MultisigWallet(
         null, name, icon, color, signers, requiredSignatureCount));
@@ -129,7 +126,7 @@ class WalletProvider extends ChangeNotifier {
     setAddVaultCompleted(true);
     await _updateWalletLength();
     notifyListeners();
-    _multisigCreationModel.reset();
+    _walletCreationProvider.reset();
   }
 
   Future<void> importMultisigVaultAsync(
@@ -193,8 +190,8 @@ class WalletProvider extends ChangeNotifier {
       }
     }
 
-    _multisigCreationModel.signers = signers;
-    _multisigCreationModel.setQuorumRequirement(
+    _walletCreationProvider.signers = signers;
+    _walletCreationProvider.setQuorumRequirement(
         multisigVault.requiredSignature, multisigVault.keyStoreList.length);
     await addMultisigVaultAsync(
         details.name, details.colorIndex, details.iconIndex);
@@ -232,7 +229,13 @@ class WalletProvider extends ChangeNotifier {
       return false;
     });
 
-    return vaultIndex != -1;
+    if (vaultIndex != -1) {
+      _walletCreationProvider.resetSecretAndPassphrase();
+      return true;
+    }
+
+    _walletCreationProvider.setSecretAndPassphrase(secret, passphrase);
+    return false;
   }
 
   /// MultisigVaultListItem의 coordinatorBsms 중복 여부 확인
@@ -320,13 +323,8 @@ class WalletProvider extends ChangeNotifier {
     _visibilityProvider.saveWalletCount(_vaultList.length);
   }
 
-  void startSinglesigImporting(String secret, String passphrase) {
-    _importingSecret = secret;
-    _importingPassphrase = passphrase;
-  }
-
   void completeSinglesigImporting() {
-    _importingSecret = null;
+    _walletCreationProvider.resetSecretAndPassphrase();
   }
 
   void setWaitingForSignaturePsbtBase64(String psbt) {
@@ -356,8 +354,7 @@ class WalletProvider extends ChangeNotifier {
 
     _vaultList.clear();
     _animatedVaultFlags = [];
-    _importingSecret = null;
-    _importingPassphrase = '';
+    _walletCreationProvider.resetSecretAndPassphrase();
     _waitingForSignaturePsbtBase64 = null;
     signedRawTx = null;
     super.dispose();

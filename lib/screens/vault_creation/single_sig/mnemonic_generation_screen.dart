@@ -1,10 +1,10 @@
 import 'package:coconut_lib/coconut_lib.dart';
 import 'package:coconut_vault/constants/app_routes.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
+import 'package:coconut_vault/providers/wallet_creation_provider.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:coconut_vault/screens/vault_creation/single_sig/mnemonic_confirmation_bottom_sheet.dart';
 import 'package:coconut_vault/styles.dart';
 import 'package:coconut_vault/utils/vibration_util.dart';
@@ -293,6 +293,7 @@ class MnemonicWords extends StatefulWidget {
 }
 
 class _MnemonicWordsState extends State<MnemonicWords> {
+  late WalletCreationProvider _walletCreationProvider;
   late int stepCount; // 총 화면 단계
   int step = 0;
   String mnemonic = '';
@@ -318,6 +319,8 @@ class _MnemonicWordsState extends State<MnemonicWords> {
   @override
   void initState() {
     super.initState();
+    _walletCreationProvider =
+        Provider.of<WalletCreationProvider>(context, listen: false);
     stepCount = widget.usePassphrase ? 2 : 1;
     _generateMnemonicPhrase();
   }
@@ -330,8 +333,6 @@ class _MnemonicWordsState extends State<MnemonicWords> {
 
   @override
   Widget build(BuildContext context) {
-    final vaultModel = Provider.of<WalletProvider>(context, listen: false);
-
     bool gridviewColumnFlag = false;
     return PopScope(
       canPop: false,
@@ -585,7 +586,7 @@ class _MnemonicWordsState extends State<MnemonicWords> {
                 if (!widget.usePassphrase)
                   CompleteButton(
                       onPressed: () {
-                        vaultModel.startSinglesigImporting(
+                        _walletCreationProvider.setSecretAndPassphrase(
                             mnemonic, passphrase);
                         widget.onFinished(mnemonic, passphrase, true);
 
@@ -597,7 +598,7 @@ class _MnemonicWordsState extends State<MnemonicWords> {
                   CompleteButton(
                       onPressed: () {
                         if (passphrase.isNotEmpty) {
-                          vaultModel.startSinglesigImporting(
+                          _walletCreationProvider.setSecretAndPassphrase(
                               mnemonic, passphrase);
                           widget.onFinished(mnemonic, passphrase, true);
                           widget.onShowConfirmBottomSheet();

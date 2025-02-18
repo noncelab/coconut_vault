@@ -3,7 +3,7 @@ import 'dart:collection';
 
 import 'package:coconut_vault/constants/app_routes.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
-import 'package:coconut_vault/model/multisig/multisig_creation_model.dart';
+import 'package:coconut_vault/providers/wallet_creation_provider.dart';
 import 'package:coconut_vault/utils/coconut/multisig_utils.dart';
 import 'package:coconut_vault/widgets/button/custom_buttons.dart';
 import 'package:coconut_vault/widgets/highlighted_text.dart';
@@ -169,7 +169,7 @@ class _MultisigQuorumSelectionScreenState
         title: t.multisig_wallet,
         context: context,
         onNextPressed: () {
-          Provider.of<MultisigCreationModel>(context, listen: false)
+          Provider.of<WalletCreationProvider>(context, listen: false)
               .setQuorumRequirement(requiredCount, totalCount);
 
           _stopProgress();

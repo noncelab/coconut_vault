@@ -1,7 +1,7 @@
 import 'package:coconut_vault/app_routes_params.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/model/singlesig/singlesig_wallet.dart';
-import 'package:coconut_vault/model/multisig/multisig_creation_model.dart';
+import 'package:coconut_vault/providers/wallet_creation_provider.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:coconut_vault/styles.dart';
 import 'package:coconut_vault/utils/logger.dart';
@@ -33,7 +33,7 @@ class VaultNameAndIconSetupScreen extends StatefulWidget {
 class _VaultNameAndIconSetupScreenState
     extends State<VaultNameAndIconSetupScreen> {
   late WalletProvider _vaultModel;
-  late MultisigCreationModel _multisigCreationState;
+  late WalletCreationProvider _multisigCreationState;
   String inputText = '';
   late int selectedIconIndex;
   late int selectedColorIndex;
@@ -45,7 +45,7 @@ class _VaultNameAndIconSetupScreenState
     _vaultModel = Provider.of<WalletProvider>(context, listen: false);
     _vaultModel.isVaultListLoadingNotifier.addListener(_onVaultListLoading);
     _multisigCreationState =
-        Provider.of<MultisigCreationModel>(context, listen: false);
+        Provider.of<WalletCreationProvider>(context, listen: false);
     super.initState();
     inputText = widget.name;
     selectedIconIndex = widget.iconIndex;
@@ -88,14 +88,14 @@ class _VaultNameAndIconSetupScreenState
         return;
       }
 
-      if (_vaultModel.importingSecret != null) {
+      if (_vaultModel.secret != null) {
         await _vaultModel.addVault(SinglesigWallet(
             null,
             inputText,
             selectedIconIndex,
             selectedColorIndex,
-            _vaultModel.importingSecret!,
-            _vaultModel.importingPassphrase));
+            _vaultModel.secret!,
+            _vaultModel.passphrase));
 
         if (_vaultModel.isAddVaultCompleted) {
           Logger.log('finish creating vault. return to home.');
