@@ -239,8 +239,8 @@ mnemonic_coin_flip_screen:
   coin_head: "앞"
   coin_tail: "뒤"
 mnemonic_confirm_screen:
-  text1: "입력하신 정보가 맞는지\n다시 한번 확인해 주세요."
-  text2: " (총 $count 글자)"
+  title: "입력하신 정보가 맞는지\n다시 한번 확인해 주세요."
+  passphrase_character_total_count: " (총 $count 글자)"
   warning:
     contains_space_character: "⚠︎ 공백 문자가 포함되어 있습니다."
     long_passphrase: "⚠︎ 긴 패스프레이즈: 스크롤을 끝까지 내려 모두 확인해 주세요."

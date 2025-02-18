@@ -32,8 +32,8 @@ class VaultNameAndIconSetupScreen extends StatefulWidget {
 
 class _VaultNameAndIconSetupScreenState
     extends State<VaultNameAndIconSetupScreen> {
-  late WalletProvider _vaultModel;
-  late WalletCreationProvider _multisigCreationState;
+  late WalletProvider _walletProvider;
+  late WalletCreationProvider _walletCreationProvider;
   String inputText = '';
   late int selectedIconIndex;
   late int selectedColorIndex;
@@ -42,9 +42,9 @@ class _VaultNameAndIconSetupScreenState
 
   @override
   void initState() {
-    _vaultModel = Provider.of<WalletProvider>(context, listen: false);
-    _vaultModel.isVaultListLoadingNotifier.addListener(_onVaultListLoading);
-    _multisigCreationState =
+    _walletProvider = Provider.of<WalletProvider>(context, listen: false);
+    _walletProvider.isVaultListLoadingNotifier.addListener(_onVaultListLoading);
+    _walletCreationProvider =
         Provider.of<WalletCreationProvider>(context, listen: false);
     super.initState();
     inputText = widget.name;
@@ -55,14 +55,15 @@ class _VaultNameAndIconSetupScreenState
 
   @override
   void dispose() {
-    _vaultModel.isVaultListLoadingNotifier.removeListener(_onVaultListLoading);
+    _walletProvider.isVaultListLoadingNotifier
+        .removeListener(_onVaultListLoading);
     super.dispose();
   }
 
   void _onVaultListLoading() {
     if (!mounted) return;
 
-    if (!_vaultModel.isVaultListLoadingNotifier.value) {
+    if (!_walletProvider.isVaultListLoadingNotifier.value) {
       if (_showLoading) {
         saveNewVaultName(context);
       }
@@ -79,7 +80,7 @@ class _VaultNameAndIconSetupScreenState
         _showLoading = true;
       });
 
-      if (_vaultModel.isNameDuplicated(inputText)) {
+      if (_walletProvider.isNameDuplicated(inputText)) {
         CustomToast.showToast(
             text: t.toast.name_already_used2, context: context);
         setState(() {
@@ -88,21 +89,21 @@ class _VaultNameAndIconSetupScreenState
         return;
       }
 
-      if (_vaultModel.secret != null) {
-        await _vaultModel.addVault(SinglesigWallet(
+      if (_walletProvider.secret != null) {
+        await _walletProvider.addVault(SinglesigWallet(
             null,
             inputText,
             selectedIconIndex,
             selectedColorIndex,
-            _vaultModel.secret!,
-            _vaultModel.passphrase));
+            _walletProvider.secret!,
+            _walletProvider.passphrase));
 
-        if (_vaultModel.isAddVaultCompleted) {
+        if (_walletProvider.isAddVaultCompleted) {
           Logger.log('finish creating vault. return to home.');
         }
-      } else if (_multisigCreationState.signers != null) {
+      } else if (_walletCreationProvider.signers != null) {
         // 새로운 멀티시그 지갑 리스트 아이템을 생성.
-        await _vaultModel.addMultisigVaultAsync(
+        await _walletProvider.addMultisigVaultAsync(
             inputText, selectedColorIndex, selectedIconIndex);
       }
 
@@ -152,13 +153,13 @@ class _VaultNameAndIconSetupScreenState
             title: t.vault_name_icon_setup_screen.title,
             context: context,
             onBackPressed: () {
-              _vaultModel.completeSinglesigImporting();
+              _walletProvider.completeSinglesigImporting();
               Navigator.pop(context);
             },
             onNextPressed: () {
               if (inputText.trim().isEmpty) return;
               _closeKeyboard();
-              if (_vaultModel.isVaultListLoading) {
+              if (_walletProvider.isVaultListLoading) {
                 setState(() {
                   _showLoading = true;
                 });
@@ -185,7 +186,7 @@ class _VaultNameAndIconSetupScreenState
             decoration:
                 const BoxDecoration(color: MyColors.transparentBlack_30),
             child: Center(
-              child: _vaultModel.isVaultListLoading
+              child: _walletProvider.isVaultListLoading
                   ? MessageActivityIndicator(
                       message: t
                           .vault_name_icon_setup_screen.saving) // 기존 볼트들 불러오는 중

@@ -1,7 +1,7 @@
 import 'package:coconut_lib/coconut_lib.dart';
-import 'package:coconut_vault/constants/app_routes.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/providers/wallet_creation_provider.dart';
+import 'package:coconut_vault/screens/vault_creation/vault_name_and_icon_setup_screen.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:coconut_vault/screens/vault_creation/single_sig/mnemonic_confirmation_bottom_sheet.dart';
@@ -587,8 +587,10 @@ class _FlipCoinState extends State<FlipCoin> {
       context: context,
       child: MnemonicConfirmationBottomSheet(
         onCancelPressed: () => Navigator.pop(context),
-        onConfirmPressed: () =>
-            Navigator.pushNamed(context, AppRoutes.vaultNameSetup),
+        onConfirmPressed: () => Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+                builder: (context) => const VaultNameAndIconSetupScreen())),
         onInactivePressed: () {
           CustomToast.showToast(context: context, text: t.toast.scroll_down);
         },
