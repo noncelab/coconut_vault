@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 
 class VisibilityProvider extends ChangeNotifier {
   late bool _hasSeenGuide;
-  int _walletCount = 0;
+  late int _walletCount;
 
   bool get hasSeenGuide => _hasSeenGuide;
   int get walletCount => _walletCount;
@@ -16,6 +16,7 @@ class VisibilityProvider extends ChangeNotifier {
   VisibilityProvider() {
     final prefs = SharedPrefsRepository();
     _hasSeenGuide = prefs.getBool(SharedPrefsKeys.hasShownStartGuide) == true;
+    _walletCount = prefs.getInt(SharedPrefsKeys.vaultListLength) ?? 0;
   }
 
   void showIndicator() {

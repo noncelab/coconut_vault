@@ -13,32 +13,23 @@ import 'package:coconut_vault/model/singlesig/singlesig_wallet.dart';
 import 'package:coconut_vault/managers/wallet_list_manager.dart';
 import 'package:coconut_vault/model/exception/not_related_multisig_wallet_exception.dart';
 import 'package:coconut_vault/model/multisig/multisig_creation_model.dart';
+import 'package:coconut_vault/providers/visibility_provider.dart';
 import 'package:flutter/foundation.dart';
-import 'package:coconut_vault/providers/app_model.dart';
 import 'package:coconut_vault/utils/logger.dart';
 import 'package:coconut_vault/utils/vibration_util.dart';
 
 class WalletProvider extends ChangeNotifier {
-  AppModel _appModel;
-  final MultisigCreationModel _multisigCreationModel;
-
+  late final VisibilityProvider _visibilityProvider;
+  late final MultisigCreationModel _multisigCreationModel;
   late final WalletListManager _walletManager;
 
-  WalletProvider(this._appModel, this._multisigCreationModel) {
+  WalletProvider(this._multisigCreationModel, this._visibilityProvider) {
     _walletManager = WalletListManager();
-  }
-
-  /// [_appModel]의 변동사항 업데이트
-  void updateAppModel(AppModel appModel) {
-    _appModel = appModel;
   }
 
   // Vault list
   List<VaultListItemBase> _vaultList = [];
   List<VaultListItemBase> get vaultList => _vaultList;
-  // 지갑 Skeleton 표시 개수
-  int _vaultSkeletonLength = 0;
-  int get vaultSkeletonLength => _vaultSkeletonLength;
   // 리스트 로딩중 여부 (indicator 표시 및 중복 방지)
   bool _isVaultListLoading = false;
   bool get isVaultListLoading => _isVaultListLoading;
@@ -47,11 +38,9 @@ class WalletProvider extends ChangeNotifier {
   final ValueNotifier<bool> isVaultListLoadingNotifier =
       ValueNotifier<bool>(false);
   // 리스트 로딩 완료 여부 (로딩작업 완료 후 바로 추가하기 표시)
-  bool _isLoadWalletListDone = false;
-  bool get isLoadWalletsDone => _isLoadWalletListDone;
-  // 지갑 추가, 지갑 삭제, 서명완료 후 불필요하게 loadVaultList() 호출되는 것을 막음
-  bool _vaultInitialized = false;
-  bool get vaultInitialized => _vaultInitialized;
+  // 최초 한번 완료 후 재로드 없음
+  bool _isWalletsLoaded = false;
+  bool get isWalletsLoaded => _isWalletsLoaded;
 
   // addVault
   bool _isAddVaultCompleted = false;
@@ -284,26 +273,24 @@ class WalletProvider extends ChangeNotifier {
 
     _isVaultListLoading = true;
     isVaultListLoadingNotifier.value = true;
-    _vaultSkeletonLength = _appModel.walletCount;
     notifyListeners();
 
     try {
       final jsonList = await _walletManager.loadVaultListJsonArrayString();
 
       if (jsonList != null) {
-        if (_vaultSkeletonLength == 0) {
-          // 이전 버전 사용자는 vault개수가 로컬에 없으므로 업데이트
-          _vaultSkeletonLength = jsonList.length;
-          _appModel.saveVaultListLength(jsonList.length);
+        if (jsonList.isEmpty) {
+          _updateWalletLength();
           notifyListeners();
+          return;
         }
+
         await _walletManager.loadAndEmitEachWallet(jsonList,
             (VaultListItemBase wallet) {
           if (_isDisposed) {
             return;
           }
           _vaultList.add(wallet);
-          _vaultSkeletonLength = _vaultSkeletonLength - 1;
           notifyListeners();
         });
       }
@@ -313,7 +300,6 @@ class WalletProvider extends ChangeNotifier {
       }
 
       vibrateLight();
-      _vaultInitialized = true;
     } catch (e) {
       Logger.log('[loadVaultList] Exception : ${e.toString()}');
       rethrow;
@@ -324,14 +310,14 @@ class WalletProvider extends ChangeNotifier {
       }
       _isVaultListLoading = false;
       isVaultListLoadingNotifier.value = false;
-      _isLoadWalletListDone = true;
+      _isWalletsLoaded = true;
       notifyListeners();
     }
     return;
   }
 
   _updateWalletLength() {
-    _appModel.saveVaultListLength(_vaultList.length);
+    _visibilityProvider.saveWalletCount(_vaultList.length);
   }
 
   void startSinglesigImporting(String secret, String passphrase) {
@@ -374,7 +360,6 @@ class WalletProvider extends ChangeNotifier {
     _importingPassphrase = '';
     _waitingForSignaturePsbtBase64 = null;
     signedRawTx = null;
-    _vaultInitialized = false;
     super.dispose();
   }
 }

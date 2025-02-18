@@ -137,16 +137,11 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> {
         if (_appEntryFlow == AppEntryFlow.vaultlist) ...{
           Provider<MultisigCreationModel>(
               create: (_) => MultisigCreationModel()),
-          ChangeNotifierProxyProvider<AppModel, WalletProvider>(
+          ChangeNotifierProvider<WalletProvider>(
             create: (_) => WalletProvider(
-                Provider.of<AppModel>(
-                  _,
-                  listen: false,
-                ),
-                Provider.of<MultisigCreationModel>(_, listen: false)),
-            update: (_, appModel, vaultModel) =>
-                vaultModel!..updateAppModel(appModel),
-          ),
+                Provider.of<MultisigCreationModel>(_, listen: false),
+                Provider.of<VisibilityProvider>(_, listen: false)),
+          )
         }
       ],
       child: Directionality(

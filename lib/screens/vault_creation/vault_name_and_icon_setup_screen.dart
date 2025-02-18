@@ -1,3 +1,4 @@
+import 'package:coconut_vault/app_routes_params.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/model/singlesig/singlesig_wallet.dart';
 import 'package:coconut_vault/model/multisig/multisig_creation_model.dart';
@@ -106,10 +107,8 @@ class _VaultNameAndIconSetupScreenState
       }
 
       Navigator.pushNamedAndRemoveUntil(
-        context,
-        '/',
-        (Route<dynamic> route) => false,
-      );
+          context, '/', (Route<dynamic> route) => false,
+          arguments: VaultListNavArgs(isWalletAdded: true));
     } catch (e) {
       Logger.log("$e");
       CustomDialogs.showCustomAlertDialog(context,
