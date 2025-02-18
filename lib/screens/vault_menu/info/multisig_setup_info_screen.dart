@@ -9,9 +9,9 @@ import 'package:coconut_vault/model/singlesig/singlesig_vault_list_item.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:coconut_vault/screens/common/pin_check_screen.dart';
 import 'package:coconut_vault/screens/vault_menu/info/mnemonic_view_screen.dart';
-import 'package:coconut_vault/screens/vault_menu/multisig_memo_bottom_sheet.dart';
 import 'package:coconut_vault/screens/common/qrcode_bottom_sheet.dart';
-import 'package:coconut_vault/screens/vault_menu/info/vault_edit_bottom_sheet_screen.dart';
+import 'package:coconut_vault/screens/vault_menu/info/multisig_signer_memo_bottom_sheet.dart';
+import 'package:coconut_vault/screens/vault_menu/info/name_and_icon_edit_bottom_sheet.dart';
 import 'package:coconut_vault/styles.dart';
 import 'package:coconut_vault/utils/alert_util.dart';
 import 'package:coconut_vault/utils/icon_util.dart';
@@ -139,7 +139,7 @@ class _MultisigSetupInfoScreenState extends State<MultisigSetupInfoScreen> {
       String name, int colorIndex, int iconIndex) {
     MyBottomSheet.showBottomSheet_90(
       context: context,
-      child: VaultInfoEditBottomSheet(
+      child: NameAndIconEditBottomSheet(
         name: name,
         iconIndex: iconIndex,
         colorIndex: colorIndex,
@@ -156,7 +156,7 @@ class _MultisigSetupInfoScreenState extends State<MultisigSetupInfoScreen> {
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (context) => MultisigMemoBottomSheet(
+      builder: (context) => MultisigSignerMemoBottomSheet(
         memo: selectedMemo,
         onUpdate: (memo) {
           if (selectedMemo == memo) return;
@@ -354,7 +354,7 @@ class _MultisigSetupInfoScreenState extends State<MultisigSetupInfoScreen> {
                             _removeTooltip();
                             if (isInnerWallet) {
                               Navigator.pushNamed(
-                                  context, AppRoutes.vaultSettings,
+                                  context, AppRoutes.singleSigSetupInfo,
                                   arguments: {
                                     'id': item.innerVaultId,
                                   });
@@ -487,7 +487,7 @@ class _MultisigSetupInfoScreenState extends State<MultisigSetupInfoScreen> {
                                   _removeTooltip();
 
                                   Navigator.pushNamed(
-                                      context, AppRoutes.multisigBsms,
+                                      context, AppRoutes.multisigBsmsView,
                                       arguments: {
                                         'id': widget.id,
                                       });

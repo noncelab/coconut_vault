@@ -7,13 +7,13 @@ import 'package:coconut_vault/widgets/vault_name_icon_edit_palette.dart';
 import 'package:loader_overlay/loader_overlay.dart';
 import 'package:provider/provider.dart';
 
-class VaultInfoEditBottomSheet extends StatefulWidget {
+class NameAndIconEditBottomSheet extends StatefulWidget {
   final String name;
   final int colorIndex;
   final int iconIndex;
   final Function(String, int, int) onUpdate;
 
-  const VaultInfoEditBottomSheet({
+  const NameAndIconEditBottomSheet({
     super.key,
     required this.onUpdate,
     required this.name,
@@ -22,11 +22,12 @@ class VaultInfoEditBottomSheet extends StatefulWidget {
   });
 
   @override
-  State<VaultInfoEditBottomSheet> createState() =>
-      _VaultInfoEditBottomSheetState();
+  State<NameAndIconEditBottomSheet> createState() =>
+      _NameAndIconEditBottomSheetState();
 }
 
-class _VaultInfoEditBottomSheetState extends State<VaultInfoEditBottomSheet> {
+class _NameAndIconEditBottomSheetState
+    extends State<NameAndIconEditBottomSheet> {
   late String _name;
   late int _iconIndex;
   late int _colorIndex;

@@ -4,6 +4,11 @@ import 'package:coconut_vault/widgets/appbar/custom_appbar.dart';
 import 'package:coconut_vault/widgets/qrcode_info.dart';
 import 'package:coconut_vault/widgets/qrcode_link_info.dart';
 
+// Usage:
+// 1. settings/app_info_screen.dart
+// 2. settings/license_screen.dart
+// 3. vault_menu/info/multisig_setup_info_screen.dart
+// 4. vault_menu/info/single_sig_setup_info_screen.dart
 class QrcodeBottomSheet extends StatefulWidget {
   const QrcodeBottomSheet(
       {super.key,

@@ -130,6 +130,7 @@ class Translations implements BaseTranslations<AppLocale, Translations> {
 	late final TranslationsPsbtScannerScreenKr psbt_scanner_screen = TranslationsPsbtScannerScreenKr.internal(_root);
 	late final TranslationsSignedTransactionQrScreenKr signed_transaction_qr_screen = TranslationsSignedTransactionQrScreenKr.internal(_root);
 	late final TranslationsSinglesigSignScreenKr singlesig_sign_screen = TranslationsSinglesigSignScreenKr.internal(_root);
+	late final TranslationsSignerQrBottomSheetKr signer_qr_bottom_sheet = TranslationsSignerQrBottomSheetKr.internal(_root);
 	late final TranslationsAppInfoScreenKr app_info_screen = TranslationsAppInfoScreenKr.internal(_root);
 	late final TranslationsReadFileViewScreenKr read_file_view_screen = TranslationsReadFileViewScreenKr.internal(_root);
 	late final TranslationsLicenseScreenKr license_screen = TranslationsLicenseScreenKr.internal(_root);
@@ -147,7 +148,6 @@ class Translations implements BaseTranslations<AppLocale, Translations> {
 	late final TranslationsAssignSignersScreenKr assign_signers_screen = TranslationsAssignSignersScreenKr.internal(_root);
 	late final TranslationsConfirmImportingScreenKr confirm_importing_screen = TranslationsConfirmImportingScreenKr.internal(_root);
 	late final TranslationsSelectMultisigQuorumScreenKr select_multisig_quorum_screen = TranslationsSelectMultisigQuorumScreenKr.internal(_root);
-	late final TranslationsSignerQrBottomSheetKr signer_qr_bottom_sheet = TranslationsSignerQrBottomSheetKr.internal(_root);
 	late final TranslationsSignerScannerBottomSheetKr signer_scanner_bottom_sheet = TranslationsSignerScannerBottomSheetKr.internal(_root);
 	late final TranslationsSignerScannerScreenKr signer_scanner_screen = TranslationsSignerScannerScreenKr.internal(_root);
 	late final TranslationsAddressListScreenKr address_list_screen = TranslationsAddressListScreenKr.internal(_root);
@@ -334,6 +334,20 @@ class TranslationsSinglesigSignScreenKr {
 
 	// Translations
 	String get text => '이미 서명된 트랜잭션입니다';
+}
+
+// Path: signer_qr_bottom_sheet
+class TranslationsSignerQrBottomSheetKr {
+	TranslationsSignerQrBottomSheetKr.internal(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+	String get title => '서명 트랜잭션 내보내기';
+	String get text2_1 => '번 키가 보관된 볼트에서 다중 서명 지갑 ';
+	String get text2_2 => ' 선택 - ';
+	String get text2_3 => '다중 서명하기';
+	String get text2_4 => '를 눌러 아래 QR 코드를 스캔해 주세요.';
 }
 
 // Path: app_info_screen
@@ -590,20 +604,6 @@ class TranslationsSelectMultisigQuorumScreenKr {
 	String get one_or_two_of_n => '하나의 키를 분실하거나 키 보관자 중 한 명이 부재중이더라도 비트코인을 보낼 수 있어요.';
 	String get n_of_n => '모든 키가 있어야만 비트코인을 보낼 수 있어요. 단 하나의 키만 잃어버려도 자금에 접근할 수 없게 되니 분실에 각별히 신경써 주세요.';
 	String get one_of_n => '하나의 키만 있어도 비트코인을 이동시킬 수 있어요. 상대적으로 보안성이 낮기 때문에 권장하지 않아요.';
-}
-
-// Path: signer_qr_bottom_sheet
-class TranslationsSignerQrBottomSheetKr {
-	TranslationsSignerQrBottomSheetKr.internal(this._root);
-
-	final Translations _root; // ignore: unused_field
-
-	// Translations
-	String get title => '서명 트랜잭션 내보내기';
-	String get text2_1 => '번 키가 보관된 볼트에서 다중 서명 지갑 ';
-	String get text2_2 => ' 선택 - ';
-	String get text2_3 => '다중 서명하기';
-	String get text2_4 => '를 눌러 아래 QR 코드를 스캔해 주세요.';
 }
 
 // Path: signer_scanner_bottom_sheet
@@ -924,14 +924,13 @@ class TranslationsVaultMenuScreenTitleKr {
 	final Translations _root; // ignore: unused_field
 
 	// Translations
-	String menu1({required Object name}) => '${name} 정보';
-	String get menu2 => '서명하기';
-	String get menu3 => '주소 보기';
-	String get menu4 => '지갑 정보 내보내기';
-	String get menu5 => '다중 서명 키로 사용하기';
-	String get menu6 => '다중 서명 지갑 가져오기';
-	String menu7({required Object name}) => '${name} 정보';
-	String get menu8 => '다중 서명하기';
+	String view_info({required Object name}) => '${name} 정보';
+	String get view_address => '주소 보기';
+	String get export_xpub => '지갑 정보 내보내기';
+	String get single_sig_sign => '서명하기';
+	String get multisig_sign => '다중 서명하기';
+	String get use_as_multisig_signer => '다중 서명 키로 사용하기';
+	String get import_bsms => '다중 서명 지갑 가져오기';
 }
 
 // Path: vault_menu_screen.description
@@ -941,14 +940,13 @@ class TranslationsVaultMenuScreenDescriptionKr {
 	final Translations _root; // ignore: unused_field
 
 	// Translations
-	String get menu1 => '저장된 니모닉 문구 등을 확인할 수 있어요';
-	String get menu2 => '월렛에서 만든 정보를 스캔하고 서명해요';
-	String menu3({required Object name}) => '${name}에서 추출한 주소를 확인해요';
-	String get menu4 => '보기 전용 지갑을 월렛에 추가해요';
-	String get menu5 => '다른 볼트에 내 키를 다중 서명 키로 등록해요';
-	String get menu6 => '이 키가 포함된 다중 서명 지갑 정보를 추가해요';
-	String get menu7 => '다중 서명 지갑의 정보를 확인할 수 있어요';
-	String get menu8 => '전송 정보를 스캔하고 서명해요';
+	String get view_single_sig_info => '저장된 니모닉 문구 등을 확인할 수 있어요';
+	String get view_multisig_info => '다중 서명 지갑의 정보를 확인할 수 있어요';
+	String get import_bsms => '이 키가 포함된 다중 서명 지갑 정보를 추가해요';
+	String view_address({required Object name}) => '${name}의 주소를 확인해요';
+	String get export_xpub => '보기 전용 지갑을 월렛에 추가해요';
+	String get sign => '월렛에서 만든 정보를 스캔하고 서명해요';
+	String get use_as_multisig_signer => '다른 볼트에 내 키를 다중 서명 키로 등록해요';
 }
 
 // Path: permission.biometric
@@ -1279,6 +1277,11 @@ extension on Translations {
 			case 'signed_transaction_qr_screen.guide_multisig': return '다중 서명을 완료했어요. 보내기 정보를 생성한 월렛으로 아래 QR 코드를 스캔해 주세요.';
 			case 'signed_transaction_qr_screen.guide_singlesig': return ({required Object name}) => '월렛의 \'${name} 지갑\'에서 만든 보내기 정보에 서명을 완료했어요. 월렛으로 아래 QR 코드를 스캔해 주세요.';
 			case 'singlesig_sign_screen.text': return '이미 서명된 트랜잭션입니다';
+			case 'signer_qr_bottom_sheet.title': return '서명 트랜잭션 내보내기';
+			case 'signer_qr_bottom_sheet.text2_1': return '번 키가 보관된 볼트에서 다중 서명 지갑 ';
+			case 'signer_qr_bottom_sheet.text2_2': return ' 선택 - ';
+			case 'signer_qr_bottom_sheet.text2_3': return '다중 서명하기';
+			case 'signer_qr_bottom_sheet.text2_4': return '를 눌러 아래 QR 코드를 스캔해 주세요.';
 			case 'app_info_screen.made_by_team_pow': return '포우팀이 만듭니다.';
 			case 'app_info_screen.category1_ask': return '궁금한 점이 있으신가요?';
 			case 'app_info_screen.go_to_pow': return 'POW 커뮤니티 바로가기';
@@ -1383,11 +1386,6 @@ extension on Translations {
 			case 'select_multisig_quorum_screen.one_or_two_of_n': return '하나의 키를 분실하거나 키 보관자 중 한 명이 부재중이더라도 비트코인을 보낼 수 있어요.';
 			case 'select_multisig_quorum_screen.n_of_n': return '모든 키가 있어야만 비트코인을 보낼 수 있어요. 단 하나의 키만 잃어버려도 자금에 접근할 수 없게 되니 분실에 각별히 신경써 주세요.';
 			case 'select_multisig_quorum_screen.one_of_n': return '하나의 키만 있어도 비트코인을 이동시킬 수 있어요. 상대적으로 보안성이 낮기 때문에 권장하지 않아요.';
-			case 'signer_qr_bottom_sheet.title': return '서명 트랜잭션 내보내기';
-			case 'signer_qr_bottom_sheet.text2_1': return '번 키가 보관된 볼트에서 다중 서명 지갑 ';
-			case 'signer_qr_bottom_sheet.text2_2': return ' 선택 - ';
-			case 'signer_qr_bottom_sheet.text2_3': return '다중 서명하기';
-			case 'signer_qr_bottom_sheet.text2_4': return '를 눌러 아래 QR 코드를 스캔해 주세요.';
 			case 'signer_scanner_bottom_sheet.title': return '서명 업데이트';
 			case 'signer_scanner_bottom_sheet.guide': return '다른 볼트에서 서명을 추가했나요? 정보를 업데이트 하기 위해 추가된 서명 트랜잭션의 QR 코드를 스캔해 주세요.';
 			case 'signer_scanner_screen.title1': return '다중 서명 지갑 가져오기';
@@ -1440,22 +1438,20 @@ extension on Translations {
 			case 'sync_to_wallet_screen.guide1_3': return 'QR 코드를 스캔';
 			case 'sync_to_wallet_screen.guide1_4': return '해 주세요. 안전한 보기 전용 지갑을 사용하실 수 있어요.';
 			case 'sync_to_wallet_screen.view_detail': return '상세 정보 보기';
-			case 'vault_menu_screen.title.menu1': return ({required Object name}) => '${name} 정보';
-			case 'vault_menu_screen.title.menu2': return '서명하기';
-			case 'vault_menu_screen.title.menu3': return '주소 보기';
-			case 'vault_menu_screen.title.menu4': return '지갑 정보 내보내기';
-			case 'vault_menu_screen.title.menu5': return '다중 서명 키로 사용하기';
-			case 'vault_menu_screen.title.menu6': return '다중 서명 지갑 가져오기';
-			case 'vault_menu_screen.title.menu7': return ({required Object name}) => '${name} 정보';
-			case 'vault_menu_screen.title.menu8': return '다중 서명하기';
-			case 'vault_menu_screen.description.menu1': return '저장된 니모닉 문구 등을 확인할 수 있어요';
-			case 'vault_menu_screen.description.menu2': return '월렛에서 만든 정보를 스캔하고 서명해요';
-			case 'vault_menu_screen.description.menu3': return ({required Object name}) => '${name}에서 추출한 주소를 확인해요';
-			case 'vault_menu_screen.description.menu4': return '보기 전용 지갑을 월렛에 추가해요';
-			case 'vault_menu_screen.description.menu5': return '다른 볼트에 내 키를 다중 서명 키로 등록해요';
-			case 'vault_menu_screen.description.menu6': return '이 키가 포함된 다중 서명 지갑 정보를 추가해요';
-			case 'vault_menu_screen.description.menu7': return '다중 서명 지갑의 정보를 확인할 수 있어요';
-			case 'vault_menu_screen.description.menu8': return '전송 정보를 스캔하고 서명해요';
+			case 'vault_menu_screen.title.view_info': return ({required Object name}) => '${name} 정보';
+			case 'vault_menu_screen.title.view_address': return '주소 보기';
+			case 'vault_menu_screen.title.export_xpub': return '지갑 정보 내보내기';
+			case 'vault_menu_screen.title.single_sig_sign': return '서명하기';
+			case 'vault_menu_screen.title.multisig_sign': return '다중 서명하기';
+			case 'vault_menu_screen.title.use_as_multisig_signer': return '다중 서명 키로 사용하기';
+			case 'vault_menu_screen.title.import_bsms': return '다중 서명 지갑 가져오기';
+			case 'vault_menu_screen.description.view_single_sig_info': return '저장된 니모닉 문구 등을 확인할 수 있어요';
+			case 'vault_menu_screen.description.view_multisig_info': return '다중 서명 지갑의 정보를 확인할 수 있어요';
+			case 'vault_menu_screen.description.import_bsms': return '이 키가 포함된 다중 서명 지갑 정보를 추가해요';
+			case 'vault_menu_screen.description.view_address': return ({required Object name}) => '${name}의 주소를 확인해요';
+			case 'vault_menu_screen.description.export_xpub': return '보기 전용 지갑을 월렛에 추가해요';
+			case 'vault_menu_screen.description.sign': return '월렛에서 만든 정보를 스캔하고 서명해요';
+			case 'vault_menu_screen.description.use_as_multisig_signer': return '다른 볼트에 내 키를 다중 서명 키로 등록해요';
 			case 'vault_settings.used_in_multisig': return '다중 서명 지갑에서 사용 중입니다';
 			case 'vault_settings.of': return '의 ';
 			case 'vault_settings.nth': return ({required Object index}) => '${index} 번';

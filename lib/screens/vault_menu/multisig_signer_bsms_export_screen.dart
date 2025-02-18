@@ -13,16 +13,18 @@ import 'package:coconut_vault/widgets/custom_tooltip.dart';
 import 'package:provider/provider.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 
-class SignerBsmsScreen extends StatefulWidget {
+class MultisigSignerBsmsExportScreen extends StatefulWidget {
   final int id;
 
-  const SignerBsmsScreen({super.key, required this.id});
+  const MultisigSignerBsmsExportScreen({super.key, required this.id});
 
   @override
-  State<SignerBsmsScreen> createState() => _SignerBsmsScreenState();
+  State<MultisigSignerBsmsExportScreen> createState() =>
+      _MultisigSignerBsmsExportScreenState();
 }
 
-class _SignerBsmsScreenState extends State<SignerBsmsScreen> {
+class _MultisigSignerBsmsExportScreenState
+    extends State<MultisigSignerBsmsExportScreen> {
   String qrData = '';
   BSMS? _bsms;
   late String _name;
