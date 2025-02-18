@@ -5,6 +5,7 @@ import 'package:coconut_vault/model/multisig/multisig_creation_model.dart';
 import 'package:coconut_vault/providers/auth_provider.dart';
 import 'package:coconut_vault/providers/connectivity_provider.dart'
     as connectivityProvider;
+import 'package:coconut_vault/providers/sign_provider.dart';
 import 'package:coconut_vault/providers/visibility_provider.dart';
 import 'package:coconut_vault/screens/airgap/multisig_sign_screen.dart';
 import 'package:coconut_vault/screens/airgap/psbt_confirmation_screen.dart';
@@ -136,6 +137,7 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> {
         if (_appEntryFlow == AppEntryFlow.vaultlist) ...{
           Provider<MultisigCreationModel>(
               create: (_) => MultisigCreationModel()),
+          Provider<SignProvider>(create: (_) => SignProvider()),
           ChangeNotifierProvider<WalletProvider>(
             create: (_) => WalletProvider(
                 Provider.of<MultisigCreationModel>(_, listen: false),
