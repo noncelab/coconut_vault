@@ -244,15 +244,7 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> {
                     bitcoinString: args['bitcoinString'],
                   ),
                 ),
-            AppRoutes.singleSigSign: (context) => buildScreenWithArguments(
-                  context,
-                  (args) => SingleSigSignScreen(
-                    id: args['id'],
-                    psbtBase64: args['psbtBase64'],
-                    sendAddress: args['sendAddress'],
-                    bitcoinString: args['bitcoinString'],
-                  ),
-                ),
+            AppRoutes.singleSigSign: (context) => const SingleSigSignScreen(),
             AppRoutes.securitySelfCheck: (context) {
               final VoidCallback? onNextPressed =
                   ModalRoute.of(context)?.settings.arguments as VoidCallback?;

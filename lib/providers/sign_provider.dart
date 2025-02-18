@@ -1,46 +1,74 @@
+import 'package:coconut_lib/coconut_lib.dart';
 import 'package:coconut_vault/model/common/vault_list_item_base.dart';
 
 /// 서명 과정에서 사용하는 Provider
 class SignProvider {
-  int? _walletId;
   String? _unsignedPsbtBase64;
-  String? _recipientAddress;
   VaultListItemBase? _vaultListItem;
+
+  PSBT? _psbt;
+  String? _recipientAddress;
   int? _sendingAmount;
 
-  int? get walletId => _walletId;
+  String? _signedPsbtBase64;
+
+  int? get walletId => _vaultListItem?.id;
   String? get unsignedPsbtBase64 => _unsignedPsbtBase64;
   VaultListItemBase? get vaultListItem => _vaultListItem;
+
+  PSBT? get psbt => _psbt;
   String? get recipientAddress => _recipientAddress;
   int? get sendingAmount => _sendingAmount;
 
-  // psbt_scanner
+  String? get signedPsbtBase64 => _signedPsbtBase64;
+
+  // 1. psbt_scanner
   void setVaultListItem(VaultListItemBase vaultListItemBase) {
     _vaultListItem = vaultListItemBase;
   }
 
-  // psbt_scanner
+  // 1. psbt_scanner
   void saveUnsignedPsbt(String psbtBase64) {
     _unsignedPsbtBase64 = psbtBase64;
   }
 
-  // psbt_confirmation
+  // 2. psbt_confirmation
+  void savePsbt(PSBT psbt) {
+    _psbt = psbt;
+  }
+
+  // 2. psbt_confirmation
   void saveRecipientAddress(String address) {
     _recipientAddress = address;
   }
 
-  // psbt_confirmation
+  // 2. psbt_confirmation
   void saveSendingAmount(int amount) {
     _sendingAmount = amount;
   }
 
-  // psbt_confirmation
+  // 2. psbt_confirmation
+  void resetPsbt() {
+    _psbt = null;
+  }
+
+  // 2. psbt_confirmation
   void resetRecipientAddress() {
     _recipientAddress = null;
   }
 
-  // psbt_confirmation
+  // 2. psbt_confirmation
   void resetSendingAmount() {
     _sendingAmount = null;
+  }
+
+  // 3-1. single_sig_sign
+  void saveSignedPsbt(String psbtBase64) {
+    _signedPsbtBase64 = psbtBase64;
+  }
+
+  // 3-1. single_sig_sign
+  void resetSignedPsbt() {
+    _signedPsbtBase64 = null;
   }
 }

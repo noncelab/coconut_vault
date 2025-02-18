@@ -75,15 +75,17 @@ class PsbtConfirmationViewModel extends ChangeNotifier {
 
     notifyListeners();
 
-    _updateSignProvider(_recipientAddress!, _sendingAmount!);
+    _updateSignProvider(_psbt!, _recipientAddress!, _sendingAmount!);
   }
 
-  void _updateSignProvider(String recipient, int amount) {
+  void _updateSignProvider(PSBT psbt, String recipient, int amount) {
+    _signProvider.savePsbt(psbt);
     _signProvider.saveRecipientAddress(recipient);
     _signProvider.saveSendingAmount(amount);
   }
 
   void resetSignProvider() {
+    _signProvider.resetPsbt();
     _signProvider.resetRecipientAddress();
     _signProvider.resetSendingAmount();
   }

@@ -69,12 +69,6 @@ class _PsbtConfirmationScreenState extends State<PsbtConfirmationScreen> {
                 viewModel.isMultisig
                     ? AppRoutes.multisigSign
                     : AppRoutes.singleSigSign,
-                // arguments: {
-                //   'id': widget.id,
-                //   'psbtBase64': _waitingForSignaturePsbtBase64!,
-                //   'sendAddress': _recipientAddress,
-                //   'bitcoinString': _bitcoinString,
-                // },
               );
             },
             onBackPressed: () {
