@@ -38,7 +38,7 @@ class _MultisigBsmsScannerScreenState extends State<MultisigBsmsScannerScreen> {
   static String wrongFormatMessage1 = t.errors.invalid_singlesig_qr_error;
   static String wrongFormatMessage2 = t.errors.invalid_multisig_qr_error;
 
-  late WalletProvider _vaultModel;
+  late WalletProvider _walletProvider;
   final GlobalKey qrKey = GlobalKey(debugLabel: 'QR');
 
   QRViewController? controller;
@@ -61,7 +61,7 @@ class _MultisigBsmsScannerScreenState extends State<MultisigBsmsScannerScreen> {
 
   @override
   void initState() {
-    _vaultModel = Provider.of<WalletProvider>(context, listen: false);
+    _walletProvider = Provider.of<WalletProvider>(context, listen: false);
     super.initState();
     _isSetScaffold = widget.screenType != MultisigBsmsImportType.add;
     WidgetsBinding.instance.addPostFrameCallback((_) async {
@@ -238,7 +238,7 @@ class _MultisigBsmsScannerScreenState extends State<MultisigBsmsScannerScreen> {
         return;
       }
 
-      if (_vaultModel.findMultisigWalletByCoordinatorBsms(coordinatorBsms) !=
+      if (_walletProvider.findMultisigWalletByCoordinatorBsms(coordinatorBsms) !=
           null) {
         onFailedScanning(t.errors.duplicate_multisig_registered_error);
         return;
@@ -246,8 +246,8 @@ class _MultisigBsmsScannerScreenState extends State<MultisigBsmsScannerScreen> {
 
       try {
         // multisigVault 가져오기, isolate 실행
-        await _vaultModel.importMultisigVaultAsync(decodedData, widget.id!);
-        assert(_vaultModel.isAddVaultCompleted);
+        await _walletProvider.importMultisigVaultAsync(decodedData, widget.id!);
+        assert(_walletProvider.isAddVaultCompleted);
 
         //Logger.log('---> Homeroute = ${HomeScreenStatus().screenStatus}');
         Navigator.pushNamedAndRemoveUntil(
