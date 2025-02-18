@@ -256,4 +256,11 @@ class SignerAssignmentViewModel extends ChangeNotifier {
     unselectedSignerOptions.removeAt(selectedSignerOptionIndex!);
     notifyListeners();
   }
+
+  @override
+  void dispose() {
+    _extractBsmsIsolateHandler?.dispose();
+    _fromKeyStoreListIsolateHandler?.dispose();
+    super.dispose();
+  }
 }

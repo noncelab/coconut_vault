@@ -59,10 +59,6 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
   @override
   void initState() {
     super.initState();
-    _viewModel = SignerAssignmentViewModel(
-      Provider.of<WalletProvider>(context, listen: false),
-      Provider.of<MultisigCreationModel>(context, listen: false),
-    );
 
     draggableController = DraggableScrollableController();
     draggableController.addListener(() {
@@ -329,9 +325,14 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
       },
       child: ChangeNotifierProxyProvider2<WalletProvider, MultisigCreationModel,
           SignerAssignmentViewModel>(
-        create: (_) => _viewModel,
+        create: (context) => _viewModel = SignerAssignmentViewModel(
+          Provider.of<WalletProvider>(context, listen: false),
+          Provider.of<MultisigCreationModel>(context, listen: false),
+        ),
         update: (_, walletProvider, multisigCreationModel, viewModel) {
-          return viewModel!;
+          viewModel ??=
+              SignerAssignmentViewModel(walletProvider, multisigCreationModel);
+          return viewModel;
         },
         child: Consumer<SignerAssignmentViewModel>(
           builder: (context, viewModel, child) => Scaffold(
@@ -534,7 +535,8 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
                                                       onTopWidgetButtonClicked:
                                                           () {
                                                         viewModel
-                                                            .onTopWidgetButtonClicked(i);
+                                                            .onTopWidgetButtonClicked(
+                                                                i);
                                                         viewModel
                                                             .setSelectedSignerOptionIndex(
                                                                 null);
