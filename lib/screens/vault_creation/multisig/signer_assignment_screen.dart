@@ -1,17 +1,19 @@
 import 'package:coconut_lib/coconut_lib.dart';
 import 'package:coconut_vault/constants/app_routes.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
-import 'package:coconut_vault/model/multisig/multisig_signer.dart';
-import 'package:coconut_vault/model/singlesig/singlesig_vault_list_item.dart';
 import 'package:coconut_vault/model/common/vault_list_item_base.dart';
 import 'package:coconut_vault/model/multisig/multisig_creation_model.dart';
+import 'package:coconut_vault/model/multisig/multisig_signer.dart';
+import 'package:coconut_vault/model/singlesig/singlesig_vault_list_item.dart';
 import 'package:coconut_vault/providers/view_model/signer_assignment_view_model.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:coconut_vault/screens/common/multisig_bsms_scanner_screen.dart';
 import 'package:coconut_vault/screens/vault_creation/multisig/import_confirmation_screen.dart';
 import 'package:coconut_vault/screens/vault_creation/multisig/signer_assignment_key_list_bottom_sheet.dart';
+import 'package:coconut_vault/styles.dart';
 import 'package:coconut_vault/utils/alert_util.dart';
 import 'package:coconut_vault/utils/icon_util.dart';
+import 'package:coconut_vault/widgets/appbar/custom_appbar.dart';
 import 'package:coconut_vault/widgets/bottom_sheet.dart';
 import 'package:coconut_vault/widgets/button/custom_buttons.dart';
 import 'package:coconut_vault/widgets/custom_dialog.dart';
@@ -20,10 +22,76 @@ import 'package:coconut_vault/widgets/custom_toast.dart';
 import 'package:coconut_vault/widgets/highlighted_text.dart';
 import 'package:coconut_vault/widgets/indicator/message_activity_indicator.dart';
 import 'package:flutter/material.dart';
-import 'package:coconut_vault/styles.dart';
-import 'package:coconut_vault/widgets/appbar/custom_appbar.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
+
+class AssignedVaultListItem {
+  int index;
+  String? bsms;
+  SinglesigVaultListItem? item;
+  String? memo;
+  bool isExpanded; // UI
+  ImportKeyType? importKeyType;
+
+  AssignedVaultListItem({
+    required this.index,
+    required this.importKeyType,
+    required this.item,
+    this.bsms,
+    this.isExpanded = false,
+  });
+
+  void changeExpanded() {
+    isExpanded = !isExpanded;
+  }
+
+  void reset() {
+    bsms = item = importKeyType = memo = null;
+    isExpanded = true;
+  }
+
+  @override
+  String toString() =>
+      '[index]: ${t.multisig.nth_key(index: index + 1)}\n[item]: ${item.toString()}\nmemo: $memo';
+}
+
+enum DialogType {
+  reSelect,
+  quit,
+  alert,
+  notAvailable,
+  deleteKey,
+  alreadyExist,
+  cancelImport,
+  sameWithInternalOne // '가져오기' 한 지갑이 내부에 있는 지갑 중 하나일 때
+}
+
+// 확장형 메뉴의 선택지
+class ExpansionChildWidget extends StatefulWidget {
+  final ImportKeyType type;
+  final VoidCallback? onPressed;
+  final ValueNotifier<bool>? isButtonActiveNotifier;
+
+  const ExpansionChildWidget({
+    super.key,
+    required this.type,
+    this.onPressed,
+    this.isButtonActiveNotifier,
+  });
+
+  @override
+  State<ExpansionChildWidget> createState() => _ExpansionChildWidgetState();
+}
+
+// internal = 이 볼트에 있는 키 사용 external = 외부에서 가져오기
+enum ImportKeyType { internal, external }
+
+class SignerAssignmentScreen extends StatefulWidget {
+  const SignerAssignmentScreen({super.key});
+
+  @override
+  State<SignerAssignmentScreen> createState() => _SignerAssignmentScreenState();
+}
 
 class SignerOption {
   final SinglesigVaultListItem singlesigVaultListItem;
@@ -38,11 +106,61 @@ class SignerOption {
   }
 }
 
-class SignerAssignmentScreen extends StatefulWidget {
-  const SignerAssignmentScreen({super.key});
+class _ExpansionChildWidgetState extends State<ExpansionChildWidget> {
+  bool isPressed = false;
 
   @override
-  State<SignerAssignmentScreen> createState() => _SignerAssignmentScreenState();
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: EdgeInsets.only(
+          right: 8,
+          left: 65,
+          bottom: widget.type == ImportKeyType.external ? 10 : 0),
+      child: GestureDetector(
+        onTap: () {
+          setState(() {
+            isPressed = false;
+          });
+          if (widget.onPressed != null) widget.onPressed!();
+        },
+        onTapDown: (details) {
+          setState(() {
+            isPressed = true;
+          });
+        },
+        onTapCancel: () {
+          setState(() {
+            isPressed = false;
+          });
+        },
+        child: Container(
+          decoration: BoxDecoration(
+            color: isPressed ? MyColors.lightgrey : MyColors.white,
+            borderRadius: BorderRadius.circular(12),
+          ),
+          padding:
+              const EdgeInsets.only(left: 15, top: 16, bottom: 16, right: 8),
+          child: Row(
+            children: [
+              Expanded(
+                child: Text(
+                  widget.type == ImportKeyType.internal
+                      ? t.assign_signers_screen.use_internal_key
+                      : t.import,
+                  style: Styles.body1,
+                ),
+              ),
+              const Icon(
+                Icons.add_rounded,
+                color: MyColors.black,
+                size: 20,
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
 }
 
 class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
@@ -55,266 +173,6 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
 
   String? loadingMessage;
   bool hasValidationCompleted = false;
-
-  @override
-  void initState() {
-    super.initState();
-
-    draggableController = DraggableScrollableController();
-    draggableController.addListener(() {
-      if (draggableController.size <= 0.71 && !alreadyDialogShown) {
-        _showDialog(DialogType.cancelImport);
-      }
-    });
-  }
-
-  @override
-  void dispose() {
-    isButtonActiveNotifier.dispose();
-    draggableController.dispose();
-    super.dispose();
-  }
-
-  void _showDialog(DialogType type, {int keyIndex = 0, String? vaultName}) {
-    String title = '';
-    String message = '';
-    String cancelButtonText = '';
-    String confirmButtonText = '';
-    Color confirmButtonColor = MyColors.black;
-    VoidCallback? onCancel;
-    VoidCallback onConfirm;
-    bool barrierDismissible = true;
-
-    switch (type) {
-      case DialogType.reSelect:
-        {
-          title = t.alert.reselect.title;
-          message = t.alert.reselect.description;
-          cancelButtonText = t.cancel;
-          confirmButtonText = t.delete;
-          confirmButtonColor = MyColors.warningText;
-          onConfirm = () {
-            isFinishing = true;
-            Navigator.popUntil(
-                context,
-                (route) =>
-                    route.settings.name == AppRoutes.multisigQuorumSelection);
-          };
-          break;
-        }
-      case DialogType.notAvailable:
-        {
-          title = t.alert.empty_vault.title;
-          message = t.alert.empty_vault.description;
-          cancelButtonText = t.no;
-          confirmButtonText = t.yes;
-          confirmButtonColor = MyColors.black;
-          onConfirm = () {
-            Navigator.pushNamedAndRemoveUntil(
-                context,
-                AppRoutes.vaultCreationOptions,
-                (Route<dynamic> route) =>
-                    route.settings.name == AppRoutes.vaultTypeSelection);
-          };
-          break;
-        }
-      case DialogType.quit:
-        {
-          title = t.alert.quit_creating_mutisig_wallet.title;
-          message = t.alert.quit_creating_mutisig_wallet.description;
-          cancelButtonText = t.cancel;
-          confirmButtonText = t.stop;
-          confirmButtonColor = MyColors.warningText;
-          onConfirm = () {
-            _viewModel.multisigCreationModel.reset();
-            Navigator.pop(context);
-            Navigator.pushNamedAndRemoveUntil(
-                context, '/', (Route<dynamic> route) => false);
-          };
-          break;
-        }
-      case DialogType.deleteKey:
-        {
-          title = t.alert.reset_nth_key.title(index: keyIndex + 1);
-          message = t.alert.reset_nth_key.description;
-          cancelButtonText = t.no;
-          confirmButtonText = t.yes;
-          confirmButtonColor = MyColors.warningText;
-          onConfirm = () {
-            // 내부 지갑인 경우
-            if (_viewModel.assignedVaultList[keyIndex].importKeyType ==
-                ImportKeyType.internal) {
-              int insertIndex = 0;
-              for (int i = 0;
-                  i < _viewModel.unselectedSignerOptions.length;
-                  i++) {
-                if (_viewModel.assignedVaultList[keyIndex].item!.id >
-                    _viewModel
-                        .unselectedSignerOptions[i].singlesigVaultListItem.id) {
-                  insertIndex++;
-                }
-              }
-              _viewModel.unselectedSignerOptions.insert(
-                  insertIndex,
-                  SignerOption(_viewModel.assignedVaultList[keyIndex].item!,
-                      _viewModel.assignedVaultList[keyIndex].bsms!));
-            }
-
-            setState(() {
-              _viewModel.assignedVaultList[keyIndex].reset();
-              if (hasValidationCompleted) {
-                hasValidationCompleted = false;
-              }
-            });
-            Navigator.pop(context);
-          };
-        }
-      case DialogType.cancelImport:
-        {
-          if (alreadyDialogShown) return;
-          alreadyDialogShown = true;
-          title = t.alert.stop_importing.title;
-          message = t.alert.stop_importing.description;
-          cancelButtonText = t.cancel;
-          confirmButtonText = t.stop;
-          confirmButtonColor = MyColors.warningText;
-          barrierDismissible = false;
-          onCancel = () {
-            draggableController.animateTo(
-              1,
-              duration: const Duration(milliseconds: 300),
-              curve: Curves.easeInOut,
-            );
-
-            Navigator.pop(context);
-            Future.delayed(const Duration(milliseconds: 300), () {
-              alreadyDialogShown = false;
-            });
-          };
-          onConfirm = () {
-            alreadyDialogShown = false;
-            Navigator.pop(context);
-            Navigator.pop(context);
-          };
-          break;
-        }
-      case DialogType.alreadyExist:
-        {
-          title = t.alert.duplicate_key.title;
-          message = t.alert.duplicate_key.description;
-          cancelButtonText = '';
-          confirmButtonText = t.confirm;
-          confirmButtonColor = MyColors.black;
-          onConfirm = () {
-            Navigator.pop(context);
-          };
-          break;
-        }
-      case DialogType.sameWithInternalOne:
-        {
-          title = t.alert.same_wallet.title;
-          message = t.alert.same_wallet.description(name: vaultName!);
-          confirmButtonText = t.confirm;
-          confirmButtonColor = MyColors.black;
-          onConfirm = () {
-            Navigator.pop(context);
-          };
-          break;
-        }
-      default:
-        {
-          title = t.alert.include_internal_key.title;
-          message = t.alert.include_internal_key.description;
-          cancelButtonText = '';
-          confirmButtonText = t.confirm;
-          confirmButtonColor = MyColors.black;
-          onConfirm = () {
-            Navigator.pop(context);
-          };
-          break;
-        }
-    }
-
-    CustomDialogs.showCustomAlertDialog(
-      context,
-      title: title,
-      message: message,
-      cancelButtonText: cancelButtonText,
-      confirmButtonText: confirmButtonText,
-      confirmButtonColor: confirmButtonColor,
-      barrierDismissible: barrierDismissible,
-      isSingleButton: type == DialogType.alert ||
-          type == DialogType.alreadyExist ||
-          type == DialogType.sameWithInternalOne,
-      onCancel: onCancel ?? () => Navigator.pop(context),
-      onConfirm: () => onConfirm(),
-    );
-  }
-
-  void _onBackPressed(BuildContext context) {
-    if (_viewModel.getAssignedVaultListLength() > 0) {
-      _showDialog(DialogType.quit);
-    } else {
-      _viewModel.multisigCreationModel.reset();
-      isFinishing = true;
-      Navigator.pop(context);
-    }
-  }
-
-  // 외부지갑은 추가 시 올바른 signerBsms 인지 미리 확인이 되어 있어야 합니다.
-  void onSelectionCompleted() async {
-    setState(() {
-      loadingMessage = t.assign_signers_screen.order_keys;
-      isNextProcessing = true;
-    });
-
-    await Future.delayed(const Duration(seconds: 3));
-    List<MultisigSigner> signers = [];
-    try {
-      signers = await _viewModel.onSelectionCompleted();
-    } catch (error) {
-      if (mounted) {
-        setState(() {
-          isNextProcessing = false;
-        });
-        showAlertDialog(
-            context: context,
-            title: t.alert.wallet_creation_failed.title,
-            content: t.alert.wallet_creation_failed.description);
-      }
-      return;
-    }
-
-    // multisig 지갑 리스트에서 중복 체크 하기
-    VaultListItemBase? findResult = _viewModel.walletProvider
-        .findWalletByDescriptor(_viewModel.newMultisigVault!.descriptor);
-    if (findResult != null) {
-      if (mounted) {
-        CustomToast.showToast(
-            context: context,
-            text: t.toast.multisig_already_added(name: findResult.name));
-        setState(() {
-          isNextProcessing = false;
-        });
-      }
-      return;
-    }
-
-    _viewModel.multisigCreationModel.setSigners(signers);
-
-    _viewModel.clearFromKeyStoreListIsolateHandler();
-
-    if (mounted) {
-      setState(() {
-        hasValidationCompleted = true;
-        isNextProcessing = false;
-      });
-    }
-  }
-
-  void onNextPressed() {
-    Navigator.pushNamed(context, AppRoutes.vaultNameSetup);
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -684,6 +542,266 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
     );
   }
 
+  @override
+  void dispose() {
+    isButtonActiveNotifier.dispose();
+    draggableController.dispose();
+    super.dispose();
+  }
+
+  @override
+  void initState() {
+    super.initState();
+
+    draggableController = DraggableScrollableController();
+    draggableController.addListener(() {
+      if (draggableController.size <= 0.71 && !alreadyDialogShown) {
+        _showDialog(DialogType.cancelImport);
+      }
+    });
+  }
+
+  void onNextPressed() {
+    Navigator.pushNamed(context, AppRoutes.vaultNameSetup);
+  }
+
+  // 외부지갑은 추가 시 올바른 signerBsms 인지 미리 확인이 되어 있어야 합니다.
+  void onSelectionCompleted() async {
+    setState(() {
+      loadingMessage = t.assign_signers_screen.order_keys;
+      isNextProcessing = true;
+    });
+
+    await Future.delayed(const Duration(seconds: 3));
+    List<MultisigSigner> signers = [];
+    try {
+      signers = await _viewModel.onSelectionCompleted();
+    } catch (error) {
+      if (mounted) {
+        setState(() {
+          isNextProcessing = false;
+        });
+        showAlertDialog(
+            context: context,
+            title: t.alert.wallet_creation_failed.title,
+            content: t.alert.wallet_creation_failed.description);
+      }
+      return;
+    }
+
+    // multisig 지갑 리스트에서 중복 체크 하기
+    VaultListItemBase? findResult = _viewModel.walletProvider
+        .findWalletByDescriptor(_viewModel.newMultisigVault!.descriptor);
+    if (findResult != null) {
+      if (mounted) {
+        CustomToast.showToast(
+            context: context,
+            text: t.toast.multisig_already_added(name: findResult.name));
+        setState(() {
+          isNextProcessing = false;
+        });
+      }
+      return;
+    }
+
+    _viewModel.multisigCreationModel.setSigners(signers);
+
+    _viewModel.clearFromKeyStoreListIsolateHandler();
+
+    if (mounted) {
+      setState(() {
+        hasValidationCompleted = true;
+        isNextProcessing = false;
+      });
+    }
+  }
+
+  void _onBackPressed(BuildContext context) {
+    if (_viewModel.getAssignedVaultListLength() > 0) {
+      _showDialog(DialogType.quit);
+    } else {
+      _viewModel.multisigCreationModel.reset();
+      isFinishing = true;
+      Navigator.pop(context);
+    }
+  }
+
+  void _showDialog(DialogType type, {int keyIndex = 0, String? vaultName}) {
+    String title = '';
+    String message = '';
+    String cancelButtonText = '';
+    String confirmButtonText = '';
+    Color confirmButtonColor = MyColors.black;
+    VoidCallback? onCancel;
+    VoidCallback onConfirm;
+    bool barrierDismissible = true;
+
+    switch (type) {
+      case DialogType.reSelect:
+        {
+          title = t.alert.reselect.title;
+          message = t.alert.reselect.description;
+          cancelButtonText = t.cancel;
+          confirmButtonText = t.delete;
+          confirmButtonColor = MyColors.warningText;
+          onConfirm = () {
+            isFinishing = true;
+            Navigator.popUntil(
+                context,
+                (route) =>
+                    route.settings.name == AppRoutes.multisigQuorumSelection);
+          };
+          break;
+        }
+      case DialogType.notAvailable:
+        {
+          title = t.alert.empty_vault.title;
+          message = t.alert.empty_vault.description;
+          cancelButtonText = t.no;
+          confirmButtonText = t.yes;
+          confirmButtonColor = MyColors.black;
+          onConfirm = () {
+            Navigator.pushNamedAndRemoveUntil(
+                context,
+                AppRoutes.vaultCreationOptions,
+                (Route<dynamic> route) =>
+                    route.settings.name == AppRoutes.vaultTypeSelection);
+          };
+          break;
+        }
+      case DialogType.quit:
+        {
+          title = t.alert.quit_creating_mutisig_wallet.title;
+          message = t.alert.quit_creating_mutisig_wallet.description;
+          cancelButtonText = t.cancel;
+          confirmButtonText = t.stop;
+          confirmButtonColor = MyColors.warningText;
+          onConfirm = () {
+            _viewModel.multisigCreationModel.reset();
+            Navigator.pop(context);
+            Navigator.pushNamedAndRemoveUntil(
+                context, '/', (Route<dynamic> route) => false);
+          };
+          break;
+        }
+      case DialogType.deleteKey:
+        {
+          title = t.alert.reset_nth_key.title(index: keyIndex + 1);
+          message = t.alert.reset_nth_key.description;
+          cancelButtonText = t.no;
+          confirmButtonText = t.yes;
+          confirmButtonColor = MyColors.warningText;
+          onConfirm = () {
+            // 내부 지갑인 경우
+            if (_viewModel.assignedVaultList[keyIndex].importKeyType ==
+                ImportKeyType.internal) {
+              int insertIndex = 0;
+              for (int i = 0;
+                  i < _viewModel.unselectedSignerOptions.length;
+                  i++) {
+                if (_viewModel.assignedVaultList[keyIndex].item!.id >
+                    _viewModel
+                        .unselectedSignerOptions[i].singlesigVaultListItem.id) {
+                  insertIndex++;
+                }
+              }
+              _viewModel.unselectedSignerOptions.insert(
+                  insertIndex,
+                  SignerOption(_viewModel.assignedVaultList[keyIndex].item!,
+                      _viewModel.assignedVaultList[keyIndex].bsms!));
+            }
+
+            setState(() {
+              _viewModel.assignedVaultList[keyIndex].reset();
+              if (hasValidationCompleted) {
+                hasValidationCompleted = false;
+              }
+            });
+            Navigator.pop(context);
+          };
+        }
+      case DialogType.cancelImport:
+        {
+          if (alreadyDialogShown) return;
+          alreadyDialogShown = true;
+          title = t.alert.stop_importing.title;
+          message = t.alert.stop_importing.description;
+          cancelButtonText = t.cancel;
+          confirmButtonText = t.stop;
+          confirmButtonColor = MyColors.warningText;
+          barrierDismissible = false;
+          onCancel = () {
+            draggableController.animateTo(
+              1,
+              duration: const Duration(milliseconds: 300),
+              curve: Curves.easeInOut,
+            );
+
+            Navigator.pop(context);
+            Future.delayed(const Duration(milliseconds: 300), () {
+              alreadyDialogShown = false;
+            });
+          };
+          onConfirm = () {
+            alreadyDialogShown = false;
+            Navigator.pop(context);
+            Navigator.pop(context);
+          };
+          break;
+        }
+      case DialogType.alreadyExist:
+        {
+          title = t.alert.duplicate_key.title;
+          message = t.alert.duplicate_key.description;
+          cancelButtonText = '';
+          confirmButtonText = t.confirm;
+          confirmButtonColor = MyColors.black;
+          onConfirm = () {
+            Navigator.pop(context);
+          };
+          break;
+        }
+      case DialogType.sameWithInternalOne:
+        {
+          title = t.alert.same_wallet.title;
+          message = t.alert.same_wallet.description(name: vaultName!);
+          confirmButtonText = t.confirm;
+          confirmButtonColor = MyColors.black;
+          onConfirm = () {
+            Navigator.pop(context);
+          };
+          break;
+        }
+      default:
+        {
+          title = t.alert.include_internal_key.title;
+          message = t.alert.include_internal_key.description;
+          cancelButtonText = '';
+          confirmButtonText = t.confirm;
+          confirmButtonColor = MyColors.black;
+          onConfirm = () {
+            Navigator.pop(context);
+          };
+          break;
+        }
+    }
+
+    CustomDialogs.showCustomAlertDialog(
+      context,
+      title: title,
+      message: message,
+      cancelButtonText: cancelButtonText,
+      confirmButtonText: confirmButtonText,
+      confirmButtonColor: confirmButtonColor,
+      barrierDismissible: barrierDismissible,
+      isSingleButton: type == DialogType.alert ||
+          type == DialogType.alreadyExist ||
+          type == DialogType.sameWithInternalOne,
+      onCancel: onCancel ?? () => Navigator.pop(context),
+      onConfirm: () => onConfirm(),
+    );
+  }
+
   // 확장형 메뉴 펼쳐져 있지 않을 때
   Row _unExpansionWidget(int i, {bool isAssigned = false}) {
     bool isExternalImported =
@@ -785,122 +903,4 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
             ],
           );
   }
-}
-
-class AssignedVaultListItem {
-  int index;
-  String? bsms;
-  SinglesigVaultListItem? item;
-  String? memo;
-  bool isExpanded; // UI
-  ImportKeyType? importKeyType;
-
-  AssignedVaultListItem({
-    required this.index,
-    required this.importKeyType,
-    required this.item,
-    this.bsms,
-    this.isExpanded = false,
-  });
-
-  @override
-  String toString() =>
-      '[index]: ${t.multisig.nth_key(index: index + 1)}\n[item]: ${item.toString()}\nmemo: $memo';
-
-  void changeExpanded() {
-    isExpanded = !isExpanded;
-  }
-
-  void reset() {
-    bsms = item = importKeyType = memo = null;
-    isExpanded = true;
-  }
-}
-
-// 확장형 메뉴의 선택지
-class ExpansionChildWidget extends StatefulWidget {
-  final ImportKeyType type;
-  final VoidCallback? onPressed;
-  final ValueNotifier<bool>? isButtonActiveNotifier;
-
-  const ExpansionChildWidget({
-    super.key,
-    required this.type,
-    this.onPressed,
-    this.isButtonActiveNotifier,
-  });
-
-  @override
-  State<ExpansionChildWidget> createState() => _ExpansionChildWidgetState();
-}
-
-class _ExpansionChildWidgetState extends State<ExpansionChildWidget> {
-  bool isPressed = false;
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: EdgeInsets.only(
-          right: 8,
-          left: 65,
-          bottom: widget.type == ImportKeyType.external ? 10 : 0),
-      child: GestureDetector(
-        onTap: () {
-          setState(() {
-            isPressed = false;
-          });
-          if (widget.onPressed != null) widget.onPressed!();
-        },
-        onTapDown: (details) {
-          setState(() {
-            isPressed = true;
-          });
-        },
-        onTapCancel: () {
-          setState(() {
-            isPressed = false;
-          });
-        },
-        child: Container(
-          decoration: BoxDecoration(
-            color: isPressed ? MyColors.lightgrey : MyColors.white,
-            borderRadius: BorderRadius.circular(12),
-          ),
-          padding:
-              const EdgeInsets.only(left: 15, top: 16, bottom: 16, right: 8),
-          child: Row(
-            children: [
-              Expanded(
-                child: Text(
-                  widget.type == ImportKeyType.internal
-                      ? t.assign_signers_screen.use_internal_key
-                      : t.import,
-                  style: Styles.body1,
-                ),
-              ),
-              const Icon(
-                Icons.add_rounded,
-                color: MyColors.black,
-                size: 20,
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-// internal = 이 볼트에 있는 키 사용 external = 외부에서 가져오기
-enum ImportKeyType { internal, external }
-
-enum DialogType {
-  reSelect,
-  quit,
-  alert,
-  notAvailable,
-  deleteKey,
-  alreadyExist,
-  cancelImport,
-  sameWithInternalOne // '가져오기' 한 지갑이 내부에 있는 지갑 중 하나일 때
 }
