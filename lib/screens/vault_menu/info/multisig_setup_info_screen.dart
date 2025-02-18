@@ -42,7 +42,6 @@ class _MultisigSetupInfoScreenState extends State<MultisigSetupInfoScreen> {
 
   Timer? _tooltipTimer;
   int _tooltipRemainingTime = 0;
-  late int signAvailableCount;
 
   @override
   void initState() {
@@ -113,7 +112,7 @@ class _MultisigSetupInfoScreenState extends State<MultisigSetupInfoScreen> {
                         // 지갑설정 정보보기, 삭제하기
                         const SizedBox(height: 14),
                         _buildBsmsInfoActions(context),
-                        const SizedBox(height: 32),
+                        _buildDivider(),
                         _buildDeleteButton(context),
                       ],
                     ),
@@ -398,6 +397,21 @@ class _MultisigSetupInfoScreenState extends State<MultisigSetupInfoScreen> {
               },
             ),
           ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildDivider() {
+    return const Padding(
+      padding: EdgeInsets.symmetric(vertical: 16),
+      child: Center(
+        child: SizedBox(
+          width: 65,
+          child: Divider(
+            thickness: 1, // 선의 두께
+            color: MyColors.borderLightgrey,
+          ),
         ),
       ),
     );
