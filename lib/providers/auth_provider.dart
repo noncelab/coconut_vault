@@ -39,11 +39,12 @@ class AuthProvider extends ChangeNotifier {
   bool _canCheckBiometrics = false;
   bool get canCheckBiometrics => _canCheckBiometrics;
 
-  bool get canUseBiometrics => _isBiometricEnabled && _canCheckBiometrics;
-
   /// 사용자 생체 인증 on/off 여부
   bool _isBiometricEnabled = false;
   bool get isBiometricEnabled => _isBiometricEnabled;
+
+  bool get isBiometricAuthRequired =>
+      _isBiometricEnabled && _canCheckBiometrics;
 
   /// 사용자 생체인증 권한 허용 여부
   bool _hasBiometricsPermission = false;
@@ -163,12 +164,16 @@ class AuthProvider extends ChangeNotifier {
   /// Shared Preference의 canCheckBiometrics, isBiometricEnabled를 업데이트함
   Future<void> updateBiometricAvailability() async {
     try {
-      final isBiometricsEnabled = await _auth.canCheckBiometrics;
+      final hasBiometrics = await _auth.canCheckBiometrics;
+      if (!hasBiometrics) {
+        _canCheckBiometrics = false;
+        return;
+      }
+
       final List<BiometricType> availableBiometrics =
           await _auth.getAvailableBiometrics();
 
-      _canCheckBiometrics =
-          isBiometricsEnabled && availableBiometrics.isNotEmpty;
+      _canCheckBiometrics = availableBiometrics.isNotEmpty;
 
       if (!_canCheckBiometrics) {
         _isBiometricEnabled = false;
