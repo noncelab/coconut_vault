@@ -10,6 +10,7 @@ class PsbtScannerViewModel {
 
   PsbtScannerViewModel(this._walletProvider, this._signProvider, int walletId) {
     _vaultListItem = _walletProvider.getVaultById(walletId);
+    _signProvider.setVaultListItem(_vaultListItem);
   }
 
   bool get isMultisig => _vaultListItem.vaultType == WalletType.multiSignature;

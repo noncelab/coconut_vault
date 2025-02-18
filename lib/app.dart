@@ -218,10 +218,8 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> {
                   context,
                   (args) => PsbtScannerScreen(id: args['id']),
                 ),
-            AppRoutes.psbtConfirmation: (context) => buildScreenWithArguments(
-                  context,
-                  (args) => PsbtConfirmationScreen(id: args['id']),
-                ),
+            AppRoutes.psbtConfirmation: (context) =>
+                const PsbtConfirmationScreen(),
             AppRoutes.signedTransaction: (context) => buildScreenWithArguments(
                   context,
                   (args) => SignedTransactionQrScreen(id: args['id']),

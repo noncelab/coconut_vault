@@ -2,8 +2,6 @@ import 'dart:io';
 
 import 'package:coconut_vault/constants/app_routes.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
-import 'package:coconut_vault/model/common/vault_list_item_base.dart';
-import 'package:coconut_vault/enums/wallet_enums.dart';
 import 'package:coconut_vault/providers/sign_provider.dart';
 import 'package:coconut_vault/providers/view_model/airgap/psbt_scanner_view_model.dart';
 import 'package:coconut_vault/utils/alert_util.dart';
