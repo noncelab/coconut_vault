@@ -3,17 +3,17 @@ import 'dart:io';
 
 import 'package:coconut_vault/constants/method_channel.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
+import 'package:coconut_vault/styles.dart';
 import 'package:coconut_vault/utils/logger.dart';
 import 'package:coconut_vault/widgets/button/shrink_animation_button.dart';
 import 'package:coconut_vault/widgets/toast.dart';
 import 'package:flutter/material.dart';
-import 'package:coconut_vault/styles.dart';
 import 'package:flutter/services.dart';
 
 class ExportDetailScreen extends StatefulWidget {
-  const ExportDetailScreen({super.key, required this.exportDetail});
-
   final String exportDetail;
+
+  const ExportDetailScreen({super.key, required this.exportDetail});
 
   @override
   State<ExportDetailScreen> createState() => _ExportDetailScreen();
@@ -24,64 +24,6 @@ class _ExportDetailScreen extends State<ExportDetailScreen> {
   Timer? _toastTimer;
   OverlayEntry? _currentToast;
   final GlobalKey<ToastWidgetState> _toastKey = GlobalKey<ToastWidgetState>();
-
-  @override
-  void initState() {
-    super.initState();
-  }
-
-  void _showToast() async {
-    if (Platform.isAndroid) {
-      try {
-        final int version = await _channel.invokeMethod('getSdkVersion');
-
-        // 안드로이드13 부터는 클립보드 복사 메세지가 나오기 때문에 예외 적용
-        if (version > 31) {
-          return;
-        }
-      } on PlatformException catch (e) {
-        Logger.log("Failed to get platform version: '${e.message}'.");
-      }
-    }
-
-    if (_currentToast != null) {
-      _currentToast!.remove();
-      _toastTimer?.cancel();
-    }
-
-    _currentToast = _createToast();
-    if (mounted) Overlay.of(context).insert(_currentToast!);
-
-    _toastTimer = Timer(const Duration(seconds: 3), () {
-      _hideToast();
-    });
-  }
-
-  void _hideToast() {
-    if (_currentToast != null && _toastKey.currentState != null) {
-      _toastKey.currentState!.hide(() {
-        _currentToast!.remove();
-        _currentToast = null;
-        _toastTimer?.cancel();
-      });
-    }
-  }
-
-  OverlayEntry _createToast() {
-    return OverlayEntry(
-      builder: (context) => Positioned(
-        bottom: 10.0,
-        left: 20.0,
-        right: 20.0,
-        child: ToastWidget(
-          key: _toastKey,
-          onClose: () {
-            _hideToast();
-          },
-        ),
-      ),
-    );
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -165,5 +107,63 @@ class _ExportDetailScreen extends State<ExportDetailScreen> {
         ),
       ),
     );
+  }
+
+  @override
+  void initState() {
+    super.initState();
+  }
+
+  OverlayEntry _createToast() {
+    return OverlayEntry(
+      builder: (context) => Positioned(
+        bottom: 10.0,
+        left: 20.0,
+        right: 20.0,
+        child: ToastWidget(
+          key: _toastKey,
+          onClose: () {
+            _hideToast();
+          },
+        ),
+      ),
+    );
+  }
+
+  void _hideToast() {
+    if (_currentToast != null && _toastKey.currentState != null) {
+      _toastKey.currentState!.hide(() {
+        _currentToast!.remove();
+        _currentToast = null;
+        _toastTimer?.cancel();
+      });
+    }
+  }
+
+  void _showToast() async {
+    if (Platform.isAndroid) {
+      try {
+        final int version = await _channel.invokeMethod('getSdkVersion');
+
+        // 안드로이드13 부터는 클립보드 복사 메세지가 나오기 때문에 예외 적용
+        if (version > 31) {
+          return;
+        }
+      } on PlatformException catch (e) {
+        Logger.log("Failed to get platform version: '${e.message}'.");
+      }
+    }
+
+    if (_currentToast != null) {
+      _currentToast!.remove();
+      _toastTimer?.cancel();
+    }
+
+    _currentToast = _createToast();
+    if (mounted) Overlay.of(context).insert(_currentToast!);
+
+    _toastTimer = Timer(const Duration(seconds: 3), () {
+      _hideToast();
+    });
   }
 }

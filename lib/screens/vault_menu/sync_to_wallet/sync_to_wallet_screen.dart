@@ -1,12 +1,12 @@
 import 'package:coconut_vault/localization/strings.g.dart';
-import 'package:coconut_vault/screens/vault_menu/sync_to_wallet/export_detail_screen.dart';
-import 'package:coconut_vault/widgets/bottom_sheet.dart';
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
+import 'package:coconut_vault/screens/vault_menu/sync_to_wallet/export_detail_screen.dart';
 import 'package:coconut_vault/styles.dart';
 import 'package:coconut_vault/widgets/appbar/custom_appbar.dart';
+import 'package:coconut_vault/widgets/bottom_sheet.dart';
 import 'package:coconut_vault/widgets/custom_tooltip.dart';
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 
@@ -23,33 +23,6 @@ class _SyncToWalletScreenState extends State<SyncToWalletScreen> {
   String qrData = '';
   String pubString = '';
   late String _name;
-
-  @override
-  void initState() {
-    super.initState();
-    final model = Provider.of<WalletProvider>(context, listen: false);
-    final vaultListItem = model.getVaultById(widget.id);
-    _name = vaultListItem.name;
-
-    try {
-      qrData = vaultListItem.getWalletSyncString();
-    } catch (_) {
-      showDialog(
-          context: context,
-          builder: (BuildContext context) {
-            return CupertinoAlertDialog(
-                content: Text(t.errors.export_error),
-                actions: <CupertinoDialogAction>[
-                  CupertinoDialogAction(
-                    onPressed: () {
-                      Navigator.pop(context);
-                    },
-                    child: Text(t.confirm),
-                  ),
-                ]);
-          });
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -137,5 +110,32 @@ class _SyncToWalletScreenState extends State<SyncToWalletScreen> {
         ),
       ),
     );
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    final walletProvider = Provider.of<WalletProvider>(context, listen: false);
+    final vaultListItem = walletProvider.getVaultById(widget.id);
+    _name = vaultListItem.name;
+
+    try {
+      qrData = vaultListItem.getWalletSyncString();
+    } catch (_) {
+      showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return CupertinoAlertDialog(
+                content: Text(t.errors.export_error),
+                actions: <CupertinoDialogAction>[
+                  CupertinoDialogAction(
+                    onPressed: () {
+                      Navigator.pop(context);
+                    },
+                    child: Text(t.confirm),
+                  ),
+                ]);
+          });
+    }
   }
 }
