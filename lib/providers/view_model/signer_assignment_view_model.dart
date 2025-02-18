@@ -33,23 +33,6 @@ class SignerAssignmentViewModel extends ChangeNotifier {
   IsolateHandler<Map<String, dynamic>, MultisignatureVault>?
       _fromKeyStoreListIsolateHandler;
 
-  WalletProvider get walletProvider => _walletProvider;
-  MultisigCreationModel get multisigCreationModel => _multisigCreationModel;
-  int get totalSignatureCount => _totalSignatureCount;
-  int get requiredSignatureCount => _requiredSignatureCount;
-  List<AssignedVaultListItem> get assignedVaultList => _assignedVaultList;
-  List<SignerOption> get signerOptions => _signerOptions;
-  List<SignerOption> get unselectedSignerOptions => _unselectedSignerOptions;
-  List<SinglesigVaultListItem> get singlesigVaultList => _singlesigVaultList;
-  int? get selectedSignerOptionIndex => _selectedSignerOptionIndex;
-  String get loadingMessage => _loadingMessage;
-  MultisignatureVault? get newMultisigVault => _newMultisigVault;
-
-  IsolateHandler<List<VaultListItemBase>, List<String>>?
-      get extractBsmsIsolateHandler => _extractBsmsIsolateHandler;
-  IsolateHandler<Map<String, dynamic>, MultisignatureVault>?
-      get fromKeyStoreListIsolateHandler => _fromKeyStoreListIsolateHandler;
-
   SignerAssignmentViewModel(this._walletProvider, this._multisigCreationModel) {
     _totalSignatureCount = _multisigCreationModel.totalSignatureCount ?? 2;
     _requiredSignatureCount =
@@ -74,56 +57,45 @@ class SignerAssignmentViewModel extends ChangeNotifier {
 
     _initSignerOptionList(_singlesigVaultList);
   }
+  List<AssignedVaultListItem> get assignedVaultList => _assignedVaultList;
+  IsolateHandler<List<VaultListItemBase>, List<String>>?
+      get extractBsmsIsolateHandler => _extractBsmsIsolateHandler;
+  IsolateHandler<Map<String, dynamic>, MultisignatureVault>?
+      get fromKeyStoreListIsolateHandler => _fromKeyStoreListIsolateHandler;
+  String get loadingMessage => _loadingMessage;
+  MultisigCreationModel get multisigCreationModel => _multisigCreationModel;
+  MultisignatureVault? get newMultisigVault => _newMultisigVault;
+  int get requiredSignatureCount => _requiredSignatureCount;
+  int? get selectedSignerOptionIndex => _selectedSignerOptionIndex;
+  List<SignerOption> get signerOptions => _signerOptions;
+  List<SinglesigVaultListItem> get singlesigVaultList => _singlesigVaultList;
 
-  Future<void> _initSignerOptionList(
-      List<SinglesigVaultListItem> singlesigVaultList) async {
-    if (_extractBsmsIsolateHandler == null) {
-      _extractBsmsIsolateHandler =
-          IsolateHandler<List<SinglesigVaultListItem>, List<String>>(
-              extractSignerBsmsIsolate);
-      await _extractBsmsIsolateHandler!
-          .initialize(initialType: InitializeType.extractSignerBsms);
-    }
+  int get totalSignatureCount => _totalSignatureCount;
+  List<SignerOption> get unselectedSignerOptions => _unselectedSignerOptions;
 
-    List<String> bsmses =
-        await _extractBsmsIsolateHandler!.run(singlesigVaultList);
+  WalletProvider get walletProvider => _walletProvider;
 
-    for (int i = 0; i < singlesigVaultList.length; i++) {
-      _signerOptions.add(SignerOption(singlesigVaultList[i], bsmses[i]));
-    }
-
-    _unselectedSignerOptions = _signerOptions.toList();
-
-    _extractBsmsIsolateHandler!.dispose();
+  void clearFromKeyStoreListIsolateHandler() {
+    _fromKeyStoreListIsolateHandler!.dispose();
+    _fromKeyStoreListIsolateHandler = null;
   }
 
-  Future<MultisignatureVault> _createMultisignatureVault(
-      List<KeyStore> keyStores) async {
-    if (_fromKeyStoreListIsolateHandler == null) {
-      _fromKeyStoreListIsolateHandler =
-          IsolateHandler<Map<String, dynamic>, MultisignatureVault>(
-              fromKeyStoreIsolate);
-      await _fromKeyStoreListIsolateHandler!
-          .initialize(initialType: InitializeType.fromKeyStore);
-    }
-
-    Map<String, dynamic> data = {
-      'keyStores': jsonEncode(keyStores.map((item) => item.toJson()).toList()),
-      'requiredSignatureCount': requiredSignatureCount,
-    };
-
-    MultisignatureVault multisignatureVault =
-        await _fromKeyStoreListIsolateHandler!.run(data);
-
-    return multisignatureVault;
+  @override
+  void dispose() {
+    _extractBsmsIsolateHandler?.dispose();
+    _fromKeyStoreListIsolateHandler?.dispose();
+    super.dispose();
   }
 
-  bool isAssignedKeyCompletely() {
-    int assignedCount = getAssignedVaultListLength();
-    if (assignedCount >= _totalSignatureCount) {
-      return true;
-    }
-    return false;
+  /// bsms를 비교하여 이미 보유한 볼트 지갑 중 하나인 경우 이름을 반환
+  String? findVaultNameByBsms(String signerBsms) {
+    var mfp = BSMS.parseSigner(signerBsms).signer!.masterFingerPrint;
+
+    int result = signerOptions.indexWhere((element) {
+      return element.masterFingerprint == mfp;
+    });
+    if (result == -1) return null;
+    return signerOptions[result].singlesigVaultListItem.name;
   }
 
   int getAssignedVaultListLength() {
@@ -152,15 +124,12 @@ class SignerAssignmentViewModel extends ChangeNotifier {
     return false;
   }
 
-  /// bsms를 비교하여 이미 보유한 볼트 지갑 중 하나인 경우 이름을 반환
-  String? findVaultNameByBsms(String signerBsms) {
-    var mfp = BSMS.parseSigner(signerBsms).signer!.masterFingerPrint;
-
-    int result = signerOptions.indexWhere((element) {
-      return element.masterFingerprint == mfp;
-    });
-    if (result == -1) return null;
-    return signerOptions[result].singlesigVaultListItem.name;
+  bool isAssignedKeyCompletely() {
+    int assignedCount = getAssignedVaultListLength();
+    if (assignedCount >= _totalSignatureCount) {
+      return true;
+    }
+    return false;
   }
 
   Future<List<MultisigSigner>> onSelectionCompleted() async {
@@ -224,26 +193,6 @@ class SignerAssignmentViewModel extends ChangeNotifier {
     return signers;
   }
 
-  void clearFromKeyStoreListIsolateHandler() {
-    _fromKeyStoreListIsolateHandler!.dispose();
-    _fromKeyStoreListIsolateHandler = null;
-  }
-
-  void setSelectedSignerOptionIndex(int? value) {
-    _selectedSignerOptionIndex = value;
-  }
-
-  void setAssignedVaultList(int index, ImportKeyType importKeyType,
-      bool isExpanded, String bsms, String? memo) {
-    // 외부 지갑 추가
-    assignedVaultList[index]
-      ..importKeyType = importKeyType
-      ..isExpanded = isExpanded
-      ..bsms = bsms
-      ..memo = memo;
-    notifyListeners();
-  }
-
   void onTopWidgetButtonClicked(int index) {
     // 내부 지갑 선택 완료
     assignedVaultList[index]
@@ -257,10 +206,61 @@ class SignerAssignmentViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  @override
-  void dispose() {
-    _extractBsmsIsolateHandler?.dispose();
-    _fromKeyStoreListIsolateHandler?.dispose();
-    super.dispose();
+  void setAssignedVaultList(int index, ImportKeyType importKeyType,
+      bool isExpanded, String bsms, String? memo) {
+    // 외부 지갑 추가
+    assignedVaultList[index]
+      ..importKeyType = importKeyType
+      ..isExpanded = isExpanded
+      ..bsms = bsms
+      ..memo = memo;
+    notifyListeners();
+  }
+
+  void setSelectedSignerOptionIndex(int? value) {
+    _selectedSignerOptionIndex = value;
+  }
+
+  Future<MultisignatureVault> _createMultisignatureVault(
+      List<KeyStore> keyStores) async {
+    if (_fromKeyStoreListIsolateHandler == null) {
+      _fromKeyStoreListIsolateHandler =
+          IsolateHandler<Map<String, dynamic>, MultisignatureVault>(
+              fromKeyStoreIsolate);
+      await _fromKeyStoreListIsolateHandler!
+          .initialize(initialType: InitializeType.fromKeyStore);
+    }
+
+    Map<String, dynamic> data = {
+      'keyStores': jsonEncode(keyStores.map((item) => item.toJson()).toList()),
+      'requiredSignatureCount': requiredSignatureCount,
+    };
+
+    MultisignatureVault multisignatureVault =
+        await _fromKeyStoreListIsolateHandler!.run(data);
+
+    return multisignatureVault;
+  }
+
+  Future<void> _initSignerOptionList(
+      List<SinglesigVaultListItem> singlesigVaultList) async {
+    if (_extractBsmsIsolateHandler == null) {
+      _extractBsmsIsolateHandler =
+          IsolateHandler<List<SinglesigVaultListItem>, List<String>>(
+              extractSignerBsmsIsolate);
+      await _extractBsmsIsolateHandler!
+          .initialize(initialType: InitializeType.extractSignerBsms);
+    }
+
+    List<String> bsmses =
+        await _extractBsmsIsolateHandler!.run(singlesigVaultList);
+
+    for (int i = 0; i < singlesigVaultList.length; i++) {
+      _signerOptions.add(SignerOption(singlesigVaultList[i], bsmses[i]));
+    }
+
+    _unselectedSignerOptions = _signerOptions.toList();
+
+    _extractBsmsIsolateHandler!.dispose();
   }
 }
