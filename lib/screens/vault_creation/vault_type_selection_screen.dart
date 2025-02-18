@@ -25,26 +25,26 @@ class _VaultTypeSelectionScreenState extends State<VaultTypeSelectionScreen> {
     AppRoutes.vaultCreationOptions,
     AppRoutes.multisigQuorumSelection
   ];
-  late final WalletProvider model;
+  late final WalletProvider _walletProvider;
 
   @override
   void initState() {
     super.initState();
-    model = Provider.of<WalletProvider>(context, listen: false);
-    model.isVaultListLoadingNotifier.addListener(_loadingListener);
+    _walletProvider = Provider.of<WalletProvider>(context, listen: false);
+    _walletProvider.isVaultListLoadingNotifier.addListener(_loadingListener);
     guideText = '';
   }
 
   @override
   void dispose() {
-    model.isVaultListLoadingNotifier.removeListener(_loadingListener);
+    _walletProvider.isVaultListLoadingNotifier.removeListener(_loadingListener);
     super.dispose();
   }
 
   void _loadingListener() {
     if (!mounted) return;
 
-    if (!model.isVaultListLoadingNotifier.value) {
+    if (!_walletProvider.isVaultListLoadingNotifier.value) {
       if (_showLoading && nextPath != null) {
         setState(() {
           _nextButtonEnabled = true;
@@ -62,12 +62,12 @@ class _VaultTypeSelectionScreenState extends State<VaultTypeSelectionScreen> {
       Navigator.pushNamed(context, nextPath!);
     } else if (nextPath == options[1]) {
       // '다중 서명 지갑' 선택 시
-      if (model.isVaultListLoading) {
+      if (_walletProvider.isVaultListLoading) {
         setState(() {
           _nextButtonEnabled = false;
           _showLoading = true;
         });
-      } else if (model.vaultList.isNotEmpty) {
+      } else if (_walletProvider.vaultList.isNotEmpty) {
         Navigator.pushNamed(context, nextPath!);
       }
     }
@@ -85,7 +85,8 @@ class _VaultTypeSelectionScreenState extends State<VaultTypeSelectionScreen> {
     setState(() {
       nextPath = options[1];
       guideText = t.select_vault_type_screen.multisig;
-      if (!model.isVaultListLoading && model.vaultList.isEmpty) {
+      if (!_walletProvider.isVaultListLoading &&
+          _walletProvider.vaultList.isEmpty) {
         _nextButtonEnabled = false;
       }
     });
@@ -120,7 +121,7 @@ class _VaultTypeSelectionScreenState extends State<VaultTypeSelectionScreen> {
                           : '',
                       style: Styles.caption.merge(
                         const TextStyle(
-                          color: MyColors.red,
+                          color: MyColors.warningText,
                         ),
                       ),
                     ),

@@ -1,11 +1,9 @@
 import 'package:coconut_vault/localization/strings.g.dart';
-import 'package:coconut_vault/providers/app_model.dart';
 import 'package:coconut_vault/widgets/custom_loading_overlay.dart';
 import 'package:flutter/material.dart';
 import 'package:coconut_vault/styles.dart';
 import 'package:coconut_vault/widgets/vault_name_icon_edit_palette.dart';
 import 'package:loader_overlay/loader_overlay.dart';
-import 'package:provider/provider.dart';
 
 class NameAndIconEditBottomSheet extends StatefulWidget {
   final String name;
@@ -44,8 +42,6 @@ class _NameAndIconEditBottomSheetState
 
   @override
   Widget build(BuildContext context) {
-    Provider.of<AppModel>(context, listen: false);
-
     return CustomLoadingOverlay(
       child: ClipRRect(
         borderRadius: MyBorder.defaultRadius,
@@ -53,7 +49,7 @@ class _NameAndIconEditBottomSheetState
           children: [
             Scaffold(
               backgroundColor: MyColors.white,
-              // TODO: custom_appber.buildWithSave로 대체
+              // TODO: custom_appber.buildWithSave로 대체 --> builWithSave를 활용하려면 이 코드도 변경이 필요해 보이기 때문에, 이건 CDS 적용할 때 바꾸는게 좋을 것 같습니다.
               appBar: AppBar(
                 backgroundColor: MyColors.white,
                 title: Text(_name, maxLines: 1),

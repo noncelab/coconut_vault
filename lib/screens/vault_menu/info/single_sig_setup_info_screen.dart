@@ -11,7 +11,6 @@ import 'package:coconut_vault/utils/vibration_util.dart';
 import 'package:coconut_vault/widgets/card/vault_item_card.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:coconut_vault/providers/app_model.dart';
 import 'package:coconut_vault/screens/common/pin_check_screen.dart';
 import 'package:coconut_vault/screens/vault_menu/info/mnemonic_view_screen.dart';
 import 'package:coconut_vault/screens/common/qrcode_bottom_sheet.dart';
@@ -29,7 +28,6 @@ import 'package:shimmer/shimmer.dart';
 
 import '../../../providers/wallet_provider.dart';
 
-// rename: VaultSettings -> SingleSigSetupInfoScreen(리뷰/머지 후 코멘트 삭제)
 class SingleSigSetupInfoScreen extends StatefulWidget {
   final int id;
 
@@ -41,8 +39,7 @@ class SingleSigSetupInfoScreen extends StatefulWidget {
 }
 
 class _SingleSigSetupInfoScreenState extends State<SingleSigSetupInfoScreen> {
-  late AppModel _appModel;
-  late WalletProvider _vaultModel;
+  late WalletProvider _walletProvider;
   late TextEditingController _nameTextController;
   late SinglesigVaultListItem _singleVaultItem;
   late SingleSignatureVault _singleSignatureVault;
@@ -62,12 +59,11 @@ class _SingleSigSetupInfoScreenState extends State<SingleSigSetupInfoScreen> {
 
   @override
   void initState() {
-    _appModel = Provider.of<AppModel>(context, listen: false);
-    _vaultModel = Provider.of<WalletProvider>(context, listen: false);
+    _walletProvider = Provider.of<WalletProvider>(context, listen: false);
     super.initState();
     // id 접근: widget.id
     _singleVaultItem =
-        _vaultModel.getVaultById(widget.id) as SinglesigVaultListItem;
+        _walletProvider.getVaultById(widget.id) as SinglesigVaultListItem;
 
     if (_singleVaultItem.coconutVault is SingleSignatureVault) {
       _singleSignatureVault =
@@ -124,7 +120,7 @@ class _SingleSigSetupInfoScreenState extends State<SingleSigSetupInfoScreen> {
     }
 
     if (_name != newName && (newName != _singleVaultItem.name)) {
-      if (_vaultModel.isNameDuplicated(newName)) {
+      if (_walletProvider.isNameDuplicated(newName)) {
         CustomToast.showToast(
             context: context, text: t.toast.name_already_used);
         return;
@@ -132,7 +128,7 @@ class _SingleSigSetupInfoScreenState extends State<SingleSigSetupInfoScreen> {
     }
 
     if (hasChanges) {
-      await _vaultModel.updateVault(
+      await _walletProvider.updateVault(
           widget.id, newName, newColorIndex, newIconIndex);
 
       setState(() {
@@ -200,7 +196,7 @@ class _SingleSigSetupInfoScreenState extends State<SingleSigSetupInfoScreen> {
         }
       default:
         {
-          _vaultModel.deleteVault(widget.id);
+          _walletProvider.deleteVault(widget.id);
           vibrateLight();
           Navigator.popUntil(context, (route) => route.isFirst);
         }
@@ -345,10 +341,10 @@ class _SingleSigSetupInfoScreenState extends State<SingleSigSetupInfoScreen> {
                                                   .elementAt(index);
 
                                               if (isLoadVaultList &&
-                                                  _vaultModel.vaultList.any(
+                                                  _walletProvider.vaultList.any(
                                                       (element) =>
                                                           element.id == id)) {
-                                                final multisig = _vaultModel
+                                                final multisig = _walletProvider
                                                     .getVaultById(id);
                                                 return InkWell(
                                                   onTap: () {

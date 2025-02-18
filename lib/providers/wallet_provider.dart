@@ -42,7 +42,7 @@ class WalletProvider extends ChangeNotifier {
   // 리스트 로딩중 여부 (indicator 표시 및 중복 방지)
   bool _isVaultListLoading = false;
   bool get isVaultListLoading => _isVaultListLoading;
-  // select_vault_type_screen.dart, vault_name_icon_setup_screen 에서 사용
+  // vault_type_selection_screen.dart, vault_name_and_icon_setup_screen.dart 에서 사용
   // 다음 버튼 클릭시 loadVaultList()가 아직 진행중인 경우 완료 시점을 캐치하기 위함
   final ValueNotifier<bool> isVaultListLoadingNotifier =
       ValueNotifier<bool>(false);
