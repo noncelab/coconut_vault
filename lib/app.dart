@@ -28,7 +28,7 @@ import 'package:coconut_vault/screens/vault_creation/vault_type_selection_screen
 import 'package:coconut_vault/screens/vault_creation/vault_creation_options_screen.dart';
 import 'package:coconut_vault/screens/vault_creation/vault_name_and_icon_setup_screen.dart';
 import 'package:coconut_vault/screens/vault_menu/address_list_screen.dart';
-import 'package:coconut_vault/screens/vault_menu/info/multisig_bsms_view_screen.dart';
+import 'package:coconut_vault/screens/vault_menu/info/multisig_bsms_screen.dart';
 import 'package:coconut_vault/screens/vault_menu/info/multisig_setup_info_screen.dart';
 import 'package:coconut_vault/screens/vault_menu/multisig_signer_bsms_export_screen.dart';
 import 'package:coconut_vault/screens/vault_menu/sync_to_wallet/sync_to_wallet_screen.dart';
@@ -202,7 +202,7 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> {
                 ),
             AppRoutes.multisigBsmsView: (context) => buildScreenWithArguments(
                   context,
-                  (args) => MultisigBsmsViewScreen(
+                  (args) => MultisigBsmsScreen(
                     id: args['id'],
                   ),
                 ),
