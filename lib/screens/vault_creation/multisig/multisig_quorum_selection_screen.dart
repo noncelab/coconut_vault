@@ -3,11 +3,11 @@ import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/model/multisig/multisig_creation_model.dart';
 import 'package:coconut_vault/providers/view_model/mutlisig_quorum_selection_view_model.dart';
 import 'package:coconut_vault/styles.dart';
+import 'package:coconut_vault/widgets/animation/key_safe_animation_widget.dart';
 import 'package:coconut_vault/widgets/appbar/custom_appbar.dart';
 import 'package:coconut_vault/widgets/button/custom_buttons.dart';
 import 'package:coconut_vault/widgets/highlighted_text.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
 
 enum ChangeCountButtonType { nCountMinus, nCountPlus, mCountMinus, mCountPlus }
@@ -60,6 +60,7 @@ class MultisigQuorumSelectionScreen extends StatefulWidget {
 class _MultisigQuorumSelectionScreenState
     extends State<MultisigQuorumSelectionScreen> {
   late MultisigQuorumSelectionViewModel _viewModel;
+
   bool _mounted = true; // didChangeDependencies
   @override
   Widget build(BuildContext context) {
@@ -74,7 +75,7 @@ class _MultisigQuorumSelectionScreenState
               context: context,
               onNextPressed: () {
                 viewModel.setQuorumRequirementToModel();
-                viewModel.stopAnimationProgress();
+                viewModel.setProgressAnimationVisible(false);
                 _mounted = false;
                 Navigator.pushNamed(context, AppRoutes.signerAssignment);
               },
@@ -170,111 +171,13 @@ class _MultisigQuorumSelectionScreenState
                     const SizedBox(
                       height: 30,
                     ),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 64),
-                      child: IntrinsicHeight(
-                        child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            Expanded(
-                              child: Column(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceAround,
-                                children: [
-                                  Row(
-                                    children: [
-                                      viewModel.keyActive_1
-                                          ? SvgPicture.asset(
-                                              'assets/svg/key-icon.svg',
-                                              width: 20,
-                                            )
-                                          : SvgPicture.asset(
-                                              'assets/svg/key-icon.svg',
-                                              width: 20,
-                                              colorFilter: const ColorFilter
-                                                  .mode(
-                                                  MyColors
-                                                      .progressbarColorDisabled,
-                                                  BlendMode.srcIn),
-                                            ),
-                                      const SizedBox(
-                                        width: 30,
-                                      ),
-                                      Expanded(child: _buildProgressBar(0)),
-                                    ],
-                                  ),
-                                  const SizedBox(
-                                    height: 24,
-                                  ),
-                                  Visibility(
-                                    visible: viewModel.totalCount == 3,
-                                    child: Row(
-                                      children: [
-                                        viewModel.keyActive_2
-                                            ? SvgPicture.asset(
-                                                'assets/svg/key-icon.svg',
-                                                width: 20,
-                                              )
-                                            : SvgPicture.asset(
-                                                'assets/svg/key-icon.svg',
-                                                width: 20,
-                                                colorFilter: const ColorFilter
-                                                    .mode(
-                                                    MyColors
-                                                        .progressbarColorDisabled,
-                                                    BlendMode.srcIn),
-                                              ),
-                                        const SizedBox(
-                                          width: 30,
-                                        ),
-                                        Expanded(child: _buildProgressBar(1)),
-                                      ],
-                                    ),
-                                  ),
-                                  viewModel.totalCount == 3
-                                      ? const SizedBox(
-                                          height: 24,
-                                        )
-                                      : Container(),
-                                  Row(
-                                    children: [
-                                      viewModel.keyActive_3
-                                          ? SvgPicture.asset(
-                                              'assets/svg/key-icon.svg',
-                                              width: 20,
-                                            )
-                                          : SvgPicture.asset(
-                                              'assets/svg/key-icon.svg',
-                                              width: 20,
-                                              colorFilter: const ColorFilter
-                                                  .mode(
-                                                  MyColors
-                                                      .progressbarColorDisabled,
-                                                  BlendMode.srcIn),
-                                            ),
-                                      const SizedBox(
-                                        width: 30,
-                                      ),
-                                      Expanded(child: _buildProgressBar(2)),
-                                    ],
-                                  ),
-                                ],
-                              ),
-                            ),
-                            const SizedBox(
-                              width: 20,
-                            ),
-                            viewModel.animatedOpacityValue == 1
-                                ? SvgPicture.asset(
-                                    'assets/svg/safe-bit.svg',
-                                    width: 50,
-                                  )
-                                : SvgPicture.asset('assets/svg/safe.svg',
-                                    width: 50)
-                          ],
-                        ),
-                      ),
-                    )
+                    viewModel.isProgressAnimationVisible
+                        ? KeySafeAnimationWidget(
+                            requiredCount: viewModel.requiredCount,
+                            totalCount: viewModel.totalCount,
+                            buttonClickedCount: viewModel.buttonClickedCount,
+                          )
+                        : Container()
                   ],
                 ),
               ),
@@ -294,8 +197,10 @@ class _MultisigQuorumSelectionScreenState
     if (!_mounted &&
         currentRoute != null &&
         currentRoute.startsWith(AppRoutes.multisigQuorumSelection)) {
-      _viewModel.startAnimationProgress(_viewModel.totalCount,
-          _viewModel.requiredCount, _viewModel.buttonClickedCount);
+      _viewModel.setProgressAnimationVisible(false);
+      Future.delayed(const Duration(milliseconds: 100), () {
+        _viewModel.setProgressAnimationVisible(true);
+      });
       _mounted = true;
     }
   }
@@ -306,21 +211,10 @@ class _MultisigQuorumSelectionScreenState
     _viewModel = MultisigQuorumSelectionViewModel(
       Provider.of<MultisigCreationModel>(context, listen: false),
     );
-  }
-
-  Widget _buildProgressBar(int key) {
-    return SizedBox(
-      height: 4,
-      child: LinearProgressIndicator(
-        borderRadius: BorderRadius.circular(12),
-        value: key == 0
-            ? _viewModel.progressValue_1
-            : key == 1
-                ? _viewModel.progressValue_2
-                : _viewModel.progressValue_3,
-        color: MyColors.progressbarColorEnabled,
-        backgroundColor: MyColors.progressbarColorDisabled,
-      ),
-    );
+    Future.delayed(const Duration(milliseconds: 2000), () {
+      if (_mounted) {
+        _viewModel.setNextButtonEnabled(true);
+      }
+    });
   }
 }
