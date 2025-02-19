@@ -89,14 +89,14 @@ class _VaultNameAndIconSetupScreenState
         return;
       }
 
-      if (_walletProvider.secret != null) {
+      if (_walletCreationProvider.secret != null) {
         await _walletProvider.addVault(SinglesigWallet(
             null,
             inputText,
             selectedIconIndex,
             selectedColorIndex,
-            _walletProvider.secret!,
-            _walletProvider.passphrase));
+            _walletCreationProvider.secret!,
+            _walletCreationProvider.passphrase));
 
         if (_walletProvider.isAddVaultCompleted) {
           Logger.log('finish creating vault. return to home.');

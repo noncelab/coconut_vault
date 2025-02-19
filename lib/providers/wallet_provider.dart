@@ -50,9 +50,6 @@ class WalletProvider extends ChangeNotifier {
   List<bool> _animatedVaultFlags = [];
   List<bool> get animatedVaultFlags => _animatedVaultFlags;
 
-  String? get secret => _walletCreationProvider.secret;
-  String? get passphrase => _walletCreationProvider.passphrase;
-
   String? _waitingForSignaturePsbtBase64;
   String? get waitingForSignaturePsbtBase64 => _waitingForSignaturePsbtBase64;
 
