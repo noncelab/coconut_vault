@@ -20,8 +20,7 @@ class PsbtConfirmationViewModel extends ChangeNotifier {
     _unsignedPsbtBase64 = _signProvider.unsignedPsbtBase64!;
   }
 
-  bool get isMultisig =>
-      _signProvider.vaultListItem!.vaultType == WalletType.multiSignature;
+  bool get isMultisig => _signProvider.isMultisig!;
   bool get isSendingToMyAddress => _isSendingToMyAddress;
   String? get recipientAddress => _recipientAddress;
   int? get sendingAmount => _sendingAmount;

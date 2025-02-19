@@ -293,8 +293,9 @@ class WalletListManager {
 
     final index = _vaultList!.indexWhere((item) => item.id == id);
     if (_vaultList![index].vaultType == WalletType.singleSignature) {
-      SingleSigVaultListItem ssv = _vaultList![index] as SingleSigVaultListItem;
-      Map<int, int>? linkedMultisigInfo = ssv.linkedMultisigInfo;
+      SingleSigVaultListItem singleSigVault =
+          _vaultList![index] as SingleSigVaultListItem;
+      Map<int, int>? linkedMultisigInfo = singleSigVault.linkedMultisigInfo;
       // 연결된 MultisigVaultListItem의 signers 객체도 UI 업데이트가 필요
       if (linkedMultisigInfo != null && linkedMultisigInfo.isNotEmpty) {
         for (var entry in linkedMultisigInfo.entries) {
@@ -308,9 +309,9 @@ class WalletListManager {
         }
       }
 
-      ssv.name = newName;
-      ssv.colorIndex = colorIndex;
-      ssv.iconIndex = iconIndex;
+      singleSigVault.name = newName;
+      singleSigVault.colorIndex = colorIndex;
+      singleSigVault.iconIndex = iconIndex;
     } else if (_vaultList![index].vaultType == WalletType.multiSignature) {
       MultisigVaultListItem ssv = _vaultList![index] as MultisigVaultListItem;
       ssv.name = newName;

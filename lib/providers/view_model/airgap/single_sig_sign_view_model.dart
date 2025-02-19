@@ -60,4 +60,8 @@ class SingleSigSignViewModel extends ChangeNotifier {
   void resetSignProvider() {
     _signProvider.resetSignedPsbt();
   }
+
+  bool isApproved(int signerIndex) {
+    return _signersApproved[signerIndex];
+  }
 }

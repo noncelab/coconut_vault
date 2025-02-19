@@ -64,11 +64,10 @@ class _SignedTransactionQrScreenState extends State<SignedTransactionQrScreen> {
                       ),
                       children: <TextSpan>[
                         TextSpan(
-                          text: _signProvider.vaultListItem!.vaultType ==
-                                  WalletType.multiSignature
+                          text: _signProvider.isMultisig!
                               ? t.signed_transaction_qr_screen.guide_multisig
                               : t.signed_transaction_qr_screen.guide_single_sig(
-                                  name: _signProvider.vaultListItem!.name),
+                                  name: _signProvider.walletName!),
                           style: const TextStyle(
                             fontWeight: FontWeight.normal,
                           ),

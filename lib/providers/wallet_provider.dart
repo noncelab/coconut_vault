@@ -149,15 +149,15 @@ class WalletProvider extends ChangeNotifier {
     for (var wallet in _vaultList) {
       if (wallet.vaultType == WalletType.multiSignature) continue;
 
-      var singlesigVaultListItem = wallet as SingleSigVaultListItem;
-      var walletMFP =
-          (singlesigVaultListItem.coconutVault as SingleSignatureVault)
+      var singleSigVaultListItem = wallet as SingleSigVaultListItem;
+      var walletMfp =
+          (singleSigVaultListItem.coconutVault as SingleSignatureVault)
               .keyStore
               .masterFingerprint;
       for (int i = 0; i < multisigVault.keyStoreList.length; i++) {
-        if (walletMFP == multisigVault.keyStoreList[i].masterFingerprint) {
+        if (walletMfp == multisigVault.keyStoreList[i].masterFingerprint) {
           linkedWalletList[i] = wallet;
-          if (singlesigVaultListItem.id == walletId) {
+          if (singleSigVaultListItem.id == walletId) {
             isRelated = true;
           }
           continue outerLoop;

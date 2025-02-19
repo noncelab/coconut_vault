@@ -265,7 +265,7 @@ class _SingleSigSignScreenState extends State<SingleSigSignScreen> {
                                         ],
                                       ),
                                       const Spacer(),
-                                      if (viewModel.signersApproved[index]) ...{
+                                      if (viewModel.isApproved(index)) ...{
                                         Row(
                                           children: [
                                             Text(
@@ -281,11 +281,7 @@ class _SingleSigSignScreenState extends State<SingleSigSignScreen> {
                                             ),
                                           ],
                                         ),
-                                      } else if (viewModel
-                                              .requiredSignatureCount >
-                                          viewModel.signersApproved
-                                              .where((item) => item)
-                                              .length) ...{
+                                      } else ...{
                                         GestureDetector(
                                           onTap: _signStep1,
                                           child: Container(

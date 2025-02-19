@@ -50,8 +50,8 @@ class _MultisigSignScreenState extends State<MultisigSignScreen> {
     });
   }
 
-  _signStep1(bool isOwnWallet, int index) async {
-    if (isOwnWallet) {
+  void _signStep1(bool isKeyInsideVault, int index) {
+    if (isKeyInsideVault) {
       MyBottomSheet.showBottomSheet_90(
         context: context,
         child: CustomLoadingOverlay(
@@ -71,7 +71,7 @@ class _MultisigSignScreenState extends State<MultisigSignScreen> {
   }
 
   /// @param index: signer index
-  _signStep2(int index) async {
+  void _signStep2(int index) async {
     try {
       setState(() {
         _showLoading = true;
