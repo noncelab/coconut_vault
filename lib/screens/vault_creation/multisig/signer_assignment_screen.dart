@@ -393,7 +393,7 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
                                                       onTopWidgetButtonClicked:
                                                           () {
                                                         viewModel
-                                                            .onTopWidgetButtonClicked(
+                                                            .assignInternalSigner(
                                                                 i);
                                                         viewModel
                                                             .setSelectedSignerOptionIndex(

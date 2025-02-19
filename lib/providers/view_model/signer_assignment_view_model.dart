@@ -193,7 +193,7 @@ class SignerAssignmentViewModel extends ChangeNotifier {
     return signers;
   }
 
-  void onTopWidgetButtonClicked(int index) {
+  void assignInternalSigner(int index) {
     // 내부 지갑 선택 완료
     assignedVaultList[index]
       ..item = unselectedSignerOptions[selectedSignerOptionIndex!]
