@@ -7,31 +7,30 @@ import 'package:flutter/material.dart';
 
 class MultisigSignerBsmsExportViewModel extends ChangeNotifier {
   final WalletProvider _walletProvider;
-  late final int _id;
   late String _qrData;
-  late String _name;
-  String _errorMessage = '';
-  BSMS? _bsms;
-  late VaultListItemBase _vaultListItem;
+  late String _errorMessage;
   late bool _isLoading;
-  bool _isSignerBsmsSetCompleted = true;
+  late bool _isSignerBsmsSetCompleted;
+  late VaultListItemBase _vaultListItem;
+  BSMS? _bsms;
   IsolateHandler<List<VaultListItemBase>, List<String>>
       extractBsmsIsolateHandler = IsolateHandler(extractSignerBsmsIsolate);
 
-  MultisigSignerBsmsExportViewModel(this._walletProvider, this._id) {
+  MultisigSignerBsmsExportViewModel(this._walletProvider, id) {
     _qrData = '';
-    _vaultListItem = _walletProvider.getVaultById(_id);
-    _name = _vaultListItem.name;
+    _errorMessage = '';
     _isLoading = true;
+    _isSignerBsmsSetCompleted = true;
+    _vaultListItem = _walletProvider.getVaultById(id);
+    debugPrint('id:: $id');
     setSignerBsms();
   }
-  BSMS? get bsms => _bsms;
+  String get name => _vaultListItem.name;
+  String get qrData => _qrData;
   String get errorMessage => _errorMessage;
-  int get id => _id;
   bool get isLoading => _isLoading;
   bool get isSignerBsmsSetCompleted => _isSignerBsmsSetCompleted;
-  String get name => _name;
-  String get qrData => _qrData;
+  BSMS? get bsms => _bsms;
 
   VaultListItemBase get vaultListItem => _vaultListItem;
 

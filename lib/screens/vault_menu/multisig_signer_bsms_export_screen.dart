@@ -29,7 +29,8 @@ class _MultisigSignerBsmsExportScreenState
   Widget build(BuildContext context) {
     return ChangeNotifierProxyProvider<WalletProvider,
         MultisigSignerBsmsExportViewModel>(
-      create: (_) => _viewModel,
+      create: (_) => _viewModel = MultisigSignerBsmsExportViewModel(
+          Provider.of<WalletProvider>(context, listen: false), widget.id),
       update: (_, walletProvider, viewModel) {
         return viewModel!;
       },
@@ -174,17 +175,5 @@ class _MultisigSignerBsmsExportScreenState
         },
       ),
     );
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    _viewModel = MultisigSignerBsmsExportViewModel(
-        Provider.of<WalletProvider>(context, listen: false), widget.id);
   }
 }
