@@ -161,7 +161,7 @@ class _PsbtScannerScreenState extends State<PsbtScannerScreen> {
                       TextSpan(
                         text: _viewModel.isMultisig
                             ? t.psbt_scanner_screen.guide_multisig
-                            : t.psbt_scanner_screen.guide_singlesig,
+                            : t.psbt_scanner_screen.guide_single_sig,
                         style: const TextStyle(
                           fontWeight: FontWeight.normal,
                         ),

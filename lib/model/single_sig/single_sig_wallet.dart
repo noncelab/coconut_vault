@@ -1,6 +1,6 @@
 import 'package:json_annotation/json_annotation.dart';
 
-part 'singlesig_wallet.g.dart'; // 생성될 파일 이름 $ dart run build_runner build
+part 'single_sig_wallet.g.dart'; // 생성될 파일 이름 $ dart run build_runner build
 
 /// 생성
 @JsonSerializable()

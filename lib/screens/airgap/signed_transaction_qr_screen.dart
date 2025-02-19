@@ -67,7 +67,7 @@ class _SignedTransactionQrScreenState extends State<SignedTransactionQrScreen> {
                           text: _signProvider.vaultListItem!.vaultType ==
                                   WalletType.multiSignature
                               ? t.signed_transaction_qr_screen.guide_multisig
-                              : t.signed_transaction_qr_screen.guide_singlesig(
+                              : t.signed_transaction_qr_screen.guide_single_sig(
                                   name: _signProvider.vaultListItem!.name),
                           style: const TextStyle(
                             fontWeight: FontWeight.normal,

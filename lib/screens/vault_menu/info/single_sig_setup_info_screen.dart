@@ -4,7 +4,7 @@ import 'package:coconut_lib/coconut_lib.dart';
 import 'package:coconut_vault/constants/app_routes.dart';
 import 'package:coconut_vault/enums/pin_check_context_enum.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
-import 'package:coconut_vault/model/singlesig/singlesig_vault_list_item.dart';
+import 'package:coconut_vault/model/single_sig/single_sig_vault_list_item.dart';
 import 'package:coconut_vault/screens/vault_menu/info/name_and_icon_edit_bottom_sheet.dart';
 import 'package:coconut_vault/utils/text_utils.dart';
 import 'package:coconut_vault/utils/vibration_util.dart';
@@ -44,7 +44,7 @@ class _SingleSigSetupInfoScreenState extends State<SingleSigSetupInfoScreen> {
   late AppModel _appModel;
   late WalletProvider _vaultModel;
   late TextEditingController _nameTextController;
-  late SinglesigVaultListItem _singleVaultItem;
+  late SingleSigVaultListItem _singleVaultItem;
   late SingleSignatureVault _singleSignatureVault;
   double _tooltipTopPadding = 0;
 
@@ -67,7 +67,7 @@ class _SingleSigSetupInfoScreenState extends State<SingleSigSetupInfoScreen> {
     super.initState();
     // id 접근: widget.id
     _singleVaultItem =
-        _vaultModel.getVaultById(widget.id) as SinglesigVaultListItem;
+        _vaultModel.getVaultById(widget.id) as SingleSigVaultListItem;
 
     if (_singleVaultItem.coconutVault is SingleSignatureVault) {
       _singleSignatureVault =

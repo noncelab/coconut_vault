@@ -40,7 +40,7 @@ class VaultCreationOptions extends StatelessWidget {
     return Scaffold(
       backgroundColor: MyColors.white,
       appBar: CustomAppBar.build(
-        title: t.singlesig_wallet,
+        title: t.single_sig_wallet,
         context: context,
         hasRightIcon: false,
         showTestnetLabel: false,

@@ -1,7 +1,7 @@
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/model/multisig/multisig_signer.dart';
 import 'package:coconut_vault/model/multisig/multisig_vault_list_item.dart';
-import 'package:coconut_vault/model/singlesig/singlesig_vault_list_item.dart';
+import 'package:coconut_vault/model/single_sig/single_sig_vault_list_item.dart';
 import 'package:coconut_vault/model/common/vault_list_item_base.dart';
 import 'package:coconut_vault/enums/wallet_enums.dart';
 import 'package:coconut_vault/utils/colors_util.dart';
@@ -56,7 +56,7 @@ class _VaultRowItemState extends State<VaultRowItem> {
       _subtitleText = '${multi.requiredSignatureCount}/${multi.signers.length}';
       _multiSigners = multi.signers;
     } else {
-      final single = widget.vault as SinglesigVaultListItem;
+      final single = widget.vault as SingleSigVaultListItem;
       if (single.linkedMultisigInfo != null) {
         final multisigKey = single.linkedMultisigInfo!;
         if (multisigKey.keys.isNotEmpty) {

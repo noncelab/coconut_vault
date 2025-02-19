@@ -4,12 +4,12 @@ import 'package:coconut_lib/coconut_lib.dart';
 import 'package:coconut_vault/model/multisig/multisig_import_detail.dart';
 import 'package:coconut_vault/model/multisig/multisig_signer.dart';
 import 'package:coconut_vault/model/multisig/multisig_vault_list_item.dart';
-import 'package:coconut_vault/model/singlesig/singlesig_vault_list_item.dart';
+import 'package:coconut_vault/model/single_sig/single_sig_vault_list_item.dart';
 import 'package:coconut_vault/model/common/vault_list_item_base.dart';
 import 'package:coconut_vault/enums/wallet_enums.dart';
 import 'package:coconut_vault/model/multisig/multisig_wallet.dart';
 import 'package:coconut_vault/model/common/secret.dart';
-import 'package:coconut_vault/model/singlesig/singlesig_wallet.dart';
+import 'package:coconut_vault/model/single_sig/single_sig_wallet.dart';
 import 'package:coconut_vault/managers/wallet_list_manager.dart';
 import 'package:coconut_vault/model/exception/not_related_multisig_wallet_exception.dart';
 import 'package:coconut_vault/model/multisig/multisig_creation_model.dart';
@@ -141,7 +141,7 @@ class WalletProvider extends ChangeNotifier {
         MultisignatureVault.fromCoordinatorBsms(details.coordinatorBsms);
 
     // 중복 코드 확인
-    List<SinglesigVaultListItem?> linkedWalletList = [];
+    List<SingleSigVaultListItem?> linkedWalletList = [];
     linkedWalletList.insertAll(
         0, List.filled(multisigVault.keyStoreList.length, null));
     bool isRelated = false;
@@ -149,7 +149,7 @@ class WalletProvider extends ChangeNotifier {
     for (var wallet in _vaultList) {
       if (wallet.vaultType == WalletType.multiSignature) continue;
 
-      var singlesigVaultListItem = wallet as SinglesigVaultListItem;
+      var singlesigVaultListItem = wallet as SingleSigVaultListItem;
       var walletMFP =
           (singlesigVaultListItem.coconutVault as SingleSignatureVault)
               .keyStore
@@ -224,7 +224,7 @@ class WalletProvider extends ChangeNotifier {
         secret, AddressType.p2wpkh,
         passphrase: passphrase);
     final vaultIndex = _vaultList.indexWhere((element) {
-      if (element is SinglesigVaultListItem) {
+      if (element is SingleSigVaultListItem) {
         return (element.coconutVault as SingleSignatureVault).descriptor ==
             coconutVault.descriptor;
       }

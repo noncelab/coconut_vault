@@ -4,12 +4,12 @@ import 'dart:convert';
 import 'package:coconut_lib/coconut_lib.dart';
 import 'package:coconut_vault/model/multisig/multisig_signer.dart';
 import 'package:coconut_vault/model/multisig/multisig_vault_list_item.dart';
-import 'package:coconut_vault/model/singlesig/singlesig_vault_list_item.dart';
+import 'package:coconut_vault/model/single_sig/single_sig_vault_list_item.dart';
 import 'package:coconut_vault/model/common/vault_list_item_base.dart';
 import 'package:coconut_vault/enums/wallet_enums.dart';
 import 'package:coconut_vault/model/multisig/multisig_wallet.dart';
 import 'package:coconut_vault/model/common/secret.dart';
-import 'package:coconut_vault/model/singlesig/singlesig_wallet.dart';
+import 'package:coconut_vault/model/single_sig/single_sig_wallet.dart';
 import 'package:coconut_vault/managers/isolate_manager.dart';
 import 'package:coconut_vault/repository/secure_storage_repository.dart';
 import 'package:coconut_vault/repository/shared_preferences_repository.dart';
@@ -71,8 +71,8 @@ class WalletListManager {
     for (int i = 0; i < jsonList.length; i++) {
       if (jsonList[i][vaultTypeField] == WalletType.singleSignature.name) {
         var secret = await getSecret(jsonList[i]['id']);
-        jsonList[i][SinglesigVaultListItem.secretField] = secret.mnemonic;
-        jsonList[i][SinglesigVaultListItem.passphraseField] = secret.passphrase;
+        jsonList[i][SingleSigVaultListItem.secretField] = secret.mnemonic;
+        jsonList[i][SingleSigVaultListItem.passphraseField] = secret.passphrase;
       }
 
       VaultListItemBase item = await initIsolateHandler.run(jsonList[i]);
@@ -91,7 +91,7 @@ class WalletListManager {
     _vaultList = vaultList;
   }
 
-  Future<SinglesigVaultListItem> addSinglesigWallet(
+  Future<SingleSigVaultListItem> addSinglesigWallet(
       SinglesigWallet wallet) async {
     if (_vaultList == null) {
       throw "[wallet_list_manager/addSinglesigWallet()] _vaultList is null. Load first.";
@@ -102,11 +102,11 @@ class WalletListManager {
     final Map<String, dynamic> vaultData = wallet.toJson();
 
     var addVaultIsolateHandler =
-        IsolateHandler<Map<String, dynamic>, List<SinglesigVaultListItem>>(
+        IsolateHandler<Map<String, dynamic>, List<SingleSigVaultListItem>>(
             addVaultIsolate);
     await addVaultIsolateHandler.initialize(
         initialType: InitializeType.addVault);
-    List<SinglesigVaultListItem> vaultListResult =
+    List<SingleSigVaultListItem> vaultListResult =
         await addVaultIsolateHandler.runAddVault(vaultData);
     addVaultIsolateHandler.dispose();
 
@@ -145,7 +145,7 @@ class WalletListManager {
   }
 
   void _linkNewSinglesigVaultAndMultisigVaults(
-      SinglesigVaultListItem singlesigItem) {
+      SingleSigVaultListItem singlesigItem) {
     outerLoop:
     for (int i = 0; i < _vaultList!.length; i++) {
       VaultListItemBase vault = _vaultList![i];
@@ -220,9 +220,9 @@ class WalletListManager {
     for (int i = 0; i < signers.length; i++) {
       var signer = signers[i];
       if (signers[i].innerVaultId == null) continue;
-      SinglesigVaultListItem ssv = _vaultList!
+      SingleSigVaultListItem ssv = _vaultList!
               .firstWhere((element) => element.id == signer.innerVaultId!)
-          as SinglesigVaultListItem;
+          as SingleSigVaultListItem;
 
       var keyMap = {newWalletId: i};
       if (ssv.linkedMultisigInfo != null) {
@@ -267,8 +267,8 @@ class WalletListManager {
       final multi = getVaultById(id) as MultisigVaultListItem;
       for (var signer in multi.signers) {
         if (signer.innerVaultId != null) {
-          SinglesigVaultListItem ssv =
-              getVaultById(signer.innerVaultId!) as SinglesigVaultListItem;
+          SingleSigVaultListItem ssv =
+              getVaultById(signer.innerVaultId!) as SingleSigVaultListItem;
           ssv.linkedMultisigInfo!.remove(id);
         }
       }
@@ -293,7 +293,7 @@ class WalletListManager {
 
     final index = _vaultList!.indexWhere((item) => item.id == id);
     if (_vaultList![index].vaultType == WalletType.singleSignature) {
-      SinglesigVaultListItem ssv = _vaultList![index] as SinglesigVaultListItem;
+      SingleSigVaultListItem ssv = _vaultList![index] as SingleSigVaultListItem;
       Map<int, int>? linkedMultisigInfo = ssv.linkedMultisigInfo;
       // 연결된 MultisigVaultListItem의 signers 객체도 UI 업데이트가 필요
       if (linkedMultisigInfo != null && linkedMultisigInfo.isNotEmpty) {
@@ -360,8 +360,8 @@ class WalletListManager {
     List<dynamic> newJsonList = [];
     for (int i = 0; i < jsonList.length; i++) {
       int id = jsonList[i]['id'];
-      String mnemonic = jsonList[i][SinglesigVaultListItem.secretField];
-      String? passphrase = jsonList[i][SinglesigVaultListItem.passphraseField];
+      String mnemonic = jsonList[i][SingleSigVaultListItem.secretField];
+      String? passphrase = jsonList[i][SingleSigVaultListItem.passphraseField];
 
       String keyString = _createWalletKeyString(id, WalletType.singleSignature);
       _storageService.write(

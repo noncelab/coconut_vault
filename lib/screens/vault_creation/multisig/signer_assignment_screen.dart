@@ -4,7 +4,7 @@ import 'package:coconut_lib/coconut_lib.dart';
 import 'package:coconut_vault/constants/app_routes.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/model/multisig/multisig_signer.dart';
-import 'package:coconut_vault/model/singlesig/singlesig_vault_list_item.dart';
+import 'package:coconut_vault/model/single_sig/single_sig_vault_list_item.dart';
 import 'package:coconut_vault/model/common/vault_list_item_base.dart';
 import 'package:coconut_vault/enums/wallet_enums.dart';
 import 'package:coconut_vault/model/multisig/multisig_creation_model.dart';
@@ -30,7 +30,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
 
 class SignerOption {
-  final SinglesigVaultListItem singlesigVaultListItem;
+  final SingleSigVaultListItem singlesigVaultListItem;
   final String signerBsms;
   late final String masterFingerprint;
 
@@ -59,7 +59,7 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
   // 내부 지갑 중 Signer 선택하는 순간에만 사용함
   int? selectedSignerOptionIndex;
 
-  late List<SinglesigVaultListItem> singlesigVaultList;
+  late List<SingleSigVaultListItem> singlesigVaultList;
   late WalletProvider _vaultModel;
   bool isFinishing = false;
   bool isNextProcessing = false;
@@ -90,7 +90,7 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
     singlesigVaultList = _vaultModel
         .getVaults()
         .where((vault) => vault.vaultType == WalletType.singleSignature)
-        .map((vault) => vault as SinglesigVaultListItem)
+        .map((vault) => vault as SingleSigVaultListItem)
         .toList();
 
     _initSignerOptionList(singlesigVaultList);
@@ -131,10 +131,10 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
   }
 
   Future<void> _initSignerOptionList(
-      List<SinglesigVaultListItem> singlesigVaultList) async {
+      List<SingleSigVaultListItem> singlesigVaultList) async {
     if (_extractBsmsIsolateHandler == null) {
       _extractBsmsIsolateHandler =
-          IsolateHandler<List<SinglesigVaultListItem>, List<String>>(
+          IsolateHandler<List<SingleSigVaultListItem>, List<String>>(
               extractSignerBsmsIsolate);
       await _extractBsmsIsolateHandler!
           .initialize(initialType: InitializeType.extractSignerBsms);
@@ -671,7 +671,7 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
                                           ExpansionChildWidget(
                                               type: ImportKeyType.internal,
                                               onPressed: () {
-                                                // 등록된 singlesig vault가 없으면 멀티시그 지갑 생성 불가
+                                                // 등록된 single_sig vault가 없으면 멀티시그 지갑 생성 불가
                                                 if (unselectedSignerOptions
                                                     .isEmpty) {
                                                   _showDialog(
@@ -964,7 +964,7 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
 class AssignedVaultListItem {
   int index;
   String? bsms;
-  SinglesigVaultListItem? item;
+  SingleSigVaultListItem? item;
   String? memo;
   bool isExpanded; // UI
   ImportKeyType? importKeyType;

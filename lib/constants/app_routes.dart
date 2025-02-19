@@ -18,7 +18,7 @@ class AppRoutes {
   static const String syncToWallet = '/sync-to-wallet';
   static const String multisigSignerBsmsExport = '/signer-bsms';
   static const String multisigSign = '/multi-signature';
-  static const String singleSigSign = '/singlesig-sign';
+  static const String singleSigSign = '/single-sig-sign';
   static const String securitySelfCheck = '/security-self-check';
   static const String mnemonicGeneration = '/mnemonic-generate';
   static const String mnemonicCoinflip = '/mnemonic-flip-coin';

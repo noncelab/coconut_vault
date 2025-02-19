@@ -1,14 +1,14 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'singlesig_vault_list_item.dart';
+part of 'single_sig_vault_list_item.dart';
 
 // **************************************************************************
 // JsonSerializableGenerator
 // **************************************************************************
 
-SinglesigVaultListItem _$SinglesigVaultListItemFromJson(
+SingleSigVaultListItem _$SinglesigVaultListItemFromJson(
         Map<String, dynamic> json) =>
-    SinglesigVaultListItem(
+    SingleSigVaultListItem(
       id: (json['id'] as num).toInt(),
       name: json['name'] as String,
       colorIndex: (json['colorIndex'] as num).toInt(),
@@ -23,7 +23,7 @@ SinglesigVaultListItem _$SinglesigVaultListItemFromJson(
     )..vaultType = $enumDecode(_$VaultTypeEnumMap, json['vaultType']);
 
 Map<String, dynamic> _$SinglesigVaultListItemToJson(
-        SinglesigVaultListItem instance) =>
+        SingleSigVaultListItem instance) =>
     <String, dynamic>{
       'id': instance.id,
       'name': instance.name,

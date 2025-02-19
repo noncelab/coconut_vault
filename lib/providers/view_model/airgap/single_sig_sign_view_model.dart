@@ -1,5 +1,5 @@
 import 'package:coconut_lib/coconut_lib.dart';
-import 'package:coconut_vault/model/singlesig/singlesig_vault_list_item.dart';
+import 'package:coconut_vault/model/single_sig/single_sig_vault_list_item.dart';
 import 'package:coconut_vault/providers/sign_provider.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:flutter/foundation.dart';
@@ -14,7 +14,7 @@ class SingleSigSignViewModel extends ChangeNotifier {
       List<bool>.filled(requiredSignatureCount, false);
 
   SingleSigSignViewModel(this._walletProvider, this._signProvider) {
-    _coconutVault = (_signProvider.vaultListItem! as SinglesigVaultListItem)
+    _coconutVault = (_signProvider.vaultListItem! as SingleSigVaultListItem)
         .coconutVault as SingleSignatureVault;
 
     _isAlreadySigned = _isSigned();

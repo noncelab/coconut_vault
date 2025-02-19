@@ -7,15 +7,15 @@ import 'package:coconut_vault/managers/isolate_manager.dart';
 import 'package:coconut_vault/utils/isolate_handler.dart';
 import 'package:json_annotation/json_annotation.dart';
 
-part 'singlesig_vault_list_item.g.dart'; // 생성될 파일 이름 $ dart run build_runner build
+part 'single_sig_vault_list_item.g.dart'; // 생성될 파일 이름 $ dart run build_runner build
 
 @JsonSerializable(ignoreUnannotated: true)
-class SinglesigVaultListItem extends VaultListItemBase {
+class SingleSigVaultListItem extends VaultListItemBase {
   static const String secretField = 'secret';
   static const String passphraseField = 'passphrase';
   static const String signerBsmsField = 'signerBsms';
 
-  SinglesigVaultListItem({
+  SingleSigVaultListItem({
     required super.id,
     required super.name,
     required super.colorIndex,
@@ -79,7 +79,7 @@ class SinglesigVaultListItem extends VaultListItemBase {
   @override
   Map<String, dynamic> toJson() => _$SinglesigVaultListItemToJson(this);
 
-  factory SinglesigVaultListItem.fromJson(Map<String, dynamic> json) {
+  factory SingleSigVaultListItem.fromJson(Map<String, dynamic> json) {
     json['vaultType'] = _$VaultTypeEnumMap[WalletType.singleSignature];
     return _$SinglesigVaultListItemFromJson(json);
   }

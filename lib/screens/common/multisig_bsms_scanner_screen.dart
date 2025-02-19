@@ -36,7 +36,7 @@ class MultisigBsmsScannerScreen extends StatefulWidget {
 }
 
 class _MultisigBsmsScannerScreenState extends State<MultisigBsmsScannerScreen> {
-  static String wrongFormatMessage1 = t.errors.invalid_singlesig_qr_error;
+  static String wrongFormatMessage1 = t.errors.invalid_single_sig_qr_error;
   static String wrongFormatMessage2 = t.errors.invalid_multisig_qr_error;
 
   late WalletProvider _vaultModel;

@@ -1,9 +1,9 @@
-import 'package:coconut_vault/model/singlesig/singlesig_vault_list_item.dart';
+import 'package:coconut_vault/model/single_sig/single_sig_vault_list_item.dart';
 import 'package:coconut_vault/widgets/vault_row_item.dart';
 import 'package:flutter/material.dart';
 
 class KeyListBottomSheet extends StatefulWidget {
-  final List<SinglesigVaultListItem> vaultList;
+  final List<SingleSigVaultListItem> vaultList;
   final void Function(int) onPressed;
 
   const KeyListBottomSheet({

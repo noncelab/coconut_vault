@@ -1,6 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'singlesig_wallet.dart';
+part of 'single_sig_wallet.dart';
 
 // **************************************************************************
 // JsonSerializableGenerator

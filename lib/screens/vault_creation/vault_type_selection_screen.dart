@@ -76,7 +76,7 @@ class _VaultTypeSelectionScreenState extends State<VaultTypeSelectionScreen> {
   void onTapSinglesigWallet() {
     setState(() {
       nextPath = options[0];
-      guideText = t.select_vault_type_screen.singlesig;
+      guideText = t.select_vault_type_screen.single_sig;
       _nextButtonEnabled = true;
     });
   }
@@ -129,7 +129,7 @@ class _VaultTypeSelectionScreenState extends State<VaultTypeSelectionScreen> {
                       children: [
                         Expanded(
                           child: SelectableButton(
-                            text: t.singlesig_wallet,
+                            text: t.single_sig_wallet,
                             onTap: onTapSinglesigWallet,
                             isPressed: nextPath == options[0],
                           ),
