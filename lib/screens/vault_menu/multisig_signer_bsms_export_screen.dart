@@ -23,6 +23,7 @@ class MultisigSignerBsmsExportScreen extends StatefulWidget {
 class _MultisigSignerBsmsExportScreenState
     extends State<MultisigSignerBsmsExportScreen> {
   late MultisigSignerBsmsExportViewModel _viewModel;
+  bool _isDialogShown = false; // 다이얼로그가 두 번 호출 되는 현상 방지
 
   @override
   Widget build(BuildContext context) {
@@ -34,6 +35,29 @@ class _MultisigSignerBsmsExportScreenState
       },
       child: Consumer<MultisigSignerBsmsExportViewModel>(
         builder: (context, viewModel, child) {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (!_viewModel.isSignerBsmsSetCompleted && !_isDialogShown) {
+              _isDialogShown = true;
+              showDialog(
+                  context: context,
+                  builder: (BuildContext context) {
+                    return CupertinoAlertDialog(
+                        title: Text(t.errors.export_error),
+                        content: Text(_viewModel.errorMessage),
+                        actions: <CupertinoDialogAction>[
+                          CupertinoDialogAction(
+                            onPressed: () {
+                              viewModel.setSignerBsmsCompleted(true);
+                              _isDialogShown = false;
+                              Navigator.pop(context);
+                            },
+                            child: Text(t.confirm),
+                          ),
+                        ]);
+                  });
+            }
+          });
+
           return Scaffold(
             backgroundColor: MyColors.white,
             appBar: CustomAppBar.build(
@@ -162,25 +186,5 @@ class _MultisigSignerBsmsExportScreenState
     super.initState();
     _viewModel = MultisigSignerBsmsExportViewModel(
         Provider.of<WalletProvider>(context, listen: false), widget.id);
-
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (!_viewModel.isSignerBsmsSetCompleted) {
-        showDialog(
-            context: context,
-            builder: (BuildContext context) {
-              return CupertinoAlertDialog(
-                  title: Text(t.errors.export_error),
-                  content: Text(_viewModel.errorMessage),
-                  actions: <CupertinoDialogAction>[
-                    CupertinoDialogAction(
-                      onPressed: () {
-                        Navigator.pop(context);
-                      },
-                      child: Text(t.confirm),
-                    ),
-                  ]);
-            });
-      }
-    });
   }
 }

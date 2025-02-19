@@ -41,8 +41,13 @@ class MultisigSignerBsmsExportViewModel extends ChangeNotifier {
     super.dispose();
   }
 
-  void setLoading(bool value) {
-    _isLoading = value;
+  void _setLoading() {
+    _isLoading = _bsms == null;
+    notifyListeners();
+  }
+
+  void setSignerBsmsCompleted(bool value) {
+    _isSignerBsmsSetCompleted = value;
     notifyListeners();
   }
 
@@ -56,15 +61,12 @@ class MultisigSignerBsmsExportViewModel extends ChangeNotifier {
 
       _qrData = bsmses[0];
       _bsms = BSMS.parseSigner(_qrData);
-
-      setLoading(false);
     } catch (error) {
-      setLoading(false);
       _errorMessage = error.toString();
       _isSignerBsmsSetCompleted = false;
     } finally {
       extractBsmsIsolateHandler.dispose();
-      notifyListeners();
+      _setLoading();
     }
   }
 }
