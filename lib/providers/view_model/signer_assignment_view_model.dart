@@ -20,8 +20,8 @@ class SignerAssignmentViewModel extends ChangeNotifier {
   late int _totalSignatureCount; // 전체 키의 수
   late int _requiredSignatureCount; // 필요한 서명 수
   late List<AssignedVaultListItem> _assignedVaultList; // 키 가져오기에서 선택 완료한 객체
-  late List<SignerOption> _signerOptions;
   late List<SinglesigVaultListItem> _singlesigVaultList;
+  late List<SignerOption> _signerOptions;
   late List<SignerOption> _unselectedSignerOptions;
   // 내부 지갑 중 Signer 선택하는 순간에만 사용함
   int? _selectedSignerOptionIndex;
@@ -57,17 +57,14 @@ class SignerAssignmentViewModel extends ChangeNotifier {
 
     _initSignerOptionList(_singlesigVaultList);
   }
-  List<AssignedVaultListItem> get assignedVaultList => _assignedVaultList;
   String get loadingMessage => _loadingMessage;
-  MultisigCreationModel get multisigCreationModel => _multisigCreationModel;
-  MultisignatureVault? get newMultisigVault => _newMultisigVault;
-  int get requiredSignatureCount => _requiredSignatureCount;
-  int? get selectedSignerOptionIndex => _selectedSignerOptionIndex;
-  List<SignerOption> get signerOptions => _signerOptions;
-  List<SinglesigVaultListItem> get singlesigVaultList => _singlesigVaultList;
-
   int get totalSignatureCount => _totalSignatureCount;
+  int get requiredSignatureCount => _requiredSignatureCount;
+  MultisignatureVault? get newMultisigVault => _newMultisigVault;
+  List<SignerOption> get signerOptions => _signerOptions;
   List<SignerOption> get unselectedSignerOptions => _unselectedSignerOptions;
+  List<AssignedVaultListItem> get assignedVaultList => _assignedVaultList;
+  List<SinglesigVaultListItem> get singlesigVaultList => _singlesigVaultList;
 
   void clearFromKeyStoreListIsolateHandler() {
     _fromKeyStoreListIsolateHandler!.dispose();
@@ -188,13 +185,13 @@ class SignerAssignmentViewModel extends ChangeNotifier {
   void assignInternalSigner(int index) {
     // 내부 지갑 선택 완료
     assignedVaultList[index]
-      ..item = unselectedSignerOptions[selectedSignerOptionIndex!]
+      ..item = unselectedSignerOptions[_selectedSignerOptionIndex!]
           .singlesigVaultListItem
-      ..bsms = unselectedSignerOptions[selectedSignerOptionIndex!].signerBsms
+      ..bsms = unselectedSignerOptions[_selectedSignerOptionIndex!].signerBsms
       ..isExpanded = false
       ..importKeyType = ImportKeyType.internal;
 
-    unselectedSignerOptions.removeAt(selectedSignerOptionIndex!);
+    unselectedSignerOptions.removeAt(_selectedSignerOptionIndex!);
     notifyListeners();
   }
 
@@ -216,6 +213,14 @@ class SignerAssignmentViewModel extends ChangeNotifier {
 
   void setSelectedSignerOptionIndex(int? value) {
     _selectedSignerOptionIndex = value;
+  }
+
+  void setSigners(List<MultisigSigner> signers) {
+    _multisigCreationModel.setSigners(signers);
+  }
+
+  void resetMultisigCreationModel() {
+    _multisigCreationModel.reset();
   }
 
   VaultListItemBase? getWalletByDescriptor() =>

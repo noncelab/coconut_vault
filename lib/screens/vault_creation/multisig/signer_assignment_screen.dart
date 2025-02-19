@@ -596,7 +596,7 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
       return;
     }
 
-    _viewModel.multisigCreationModel.setSigners(signers);
+    _viewModel.setSigners(signers);
 
     _viewModel.clearFromKeyStoreListIsolateHandler();
 
@@ -612,7 +612,7 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
     if (_viewModel.getAssignedVaultListLength() > 0) {
       _showDialog(DialogType.quit);
     } else {
-      _viewModel.multisigCreationModel.reset();
+      _viewModel.resetMultisigCreationModel();
       _isFinishing = true;
       Navigator.pop(context);
     }
@@ -669,7 +669,7 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
           confirmButtonText = t.stop;
           confirmButtonColor = MyColors.warningText;
           onConfirm = () {
-            _viewModel.multisigCreationModel.reset();
+            _viewModel.resetMultisigCreationModel();
             Navigator.pop(context);
             Navigator.pushNamedAndRemoveUntil(
                 context, '/', (Route<dynamic> route) => false);
