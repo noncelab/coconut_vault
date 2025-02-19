@@ -181,17 +181,11 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
       onPopInvokedWithResult: (didPop, _) {
         if (!isFinishing) _onBackPressed(context);
       },
-      child: ChangeNotifierProxyProvider2<WalletProvider, MultisigCreationModel,
-          SignerAssignmentViewModel>(
+      child: ChangeNotifierProvider<SignerAssignmentViewModel>(
         create: (context) => _viewModel = SignerAssignmentViewModel(
           Provider.of<WalletProvider>(context, listen: false),
           Provider.of<MultisigCreationModel>(context, listen: false),
         ),
-        update: (_, walletProvider, multisigCreationModel, viewModel) {
-          viewModel ??=
-              SignerAssignmentViewModel(walletProvider, multisigCreationModel);
-          return viewModel;
-        },
         child: Consumer<SignerAssignmentViewModel>(
           builder: (context, viewModel, child) => Scaffold(
             backgroundColor: MyColors.white,
