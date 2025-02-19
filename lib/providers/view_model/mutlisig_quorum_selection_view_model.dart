@@ -2,11 +2,13 @@ import 'dart:async';
 import 'dart:collection';
 
 import 'package:coconut_vault/localization/strings.g.dart';
+import 'package:coconut_vault/model/multisig/multisig_creation_model.dart';
 import 'package:coconut_vault/screens/vault_creation/multisig/multisig_quorum_selection_screen.dart';
 import 'package:coconut_vault/utils/coconut/multisig_utils.dart';
 import 'package:flutter/material.dart';
 
 class MultisigQuorumSelectionViewModel extends ChangeNotifier {
+  final MultisigCreationModel _multisigCreationModel;
   late int _requiredCount;
   late int _totalCount;
   late int _buttonClickedCount;
@@ -27,13 +29,13 @@ class MultisigQuorumSelectionViewModel extends ChangeNotifier {
   Timer? _progressTimer_3;
   bool _mounted = true;
 
-  MultisigQuorumSelectionViewModel() {
+  MultisigQuorumSelectionViewModel(this._multisigCreationModel) {
     _requiredCount = 2;
     _totalCount = 3;
     _buttonClickedCount = 0;
     _nextButtonEnabled = false;
 
-    startProgress(_totalCount, _requiredCount, _buttonClickedCount);
+    startAnimationProgress(_totalCount, _requiredCount, _buttonClickedCount);
     Future.delayed(const Duration(milliseconds: 2000), () {
       if (_mounted) {
         setNextButtonEnabled(true);
@@ -47,6 +49,9 @@ class MultisigQuorumSelectionViewModel extends ChangeNotifier {
   bool get keyActive_2 => _keyActive_2;
   bool get keyActive_3 => _keyActive_3;
   bool get nextButtonEnabled => _nextButtonEnabled;
+  bool get isQuorumSettingValid =>
+      _nextButtonEnabled &&
+      MultisigUtils.validateQuorumRequirement(_requiredCount, _totalCount);
   double get progressValue_1 => _progressValue_1;
   double get progressValue_2 => _progressValue_2;
   double get progressValue_3 => _progressValue_3;
@@ -96,18 +101,18 @@ class MultisigQuorumSelectionViewModel extends ChangeNotifier {
   }
 
   void changeKeyCounts() {
-    stopProgress();
+    stopAnimationProgress();
     switch (totalCount) {
       case 2:
         {
           if (requiredCount == 1) {
             {
-              startProgress(2, 1, buttonClickedCount);
+              startAnimationProgress(2, 1, buttonClickedCount);
               break;
             }
           } else {
             {
-              startProgress(2, 2, buttonClickedCount);
+              startAnimationProgress(2, 2, buttonClickedCount);
               break;
             }
           }
@@ -116,28 +121,22 @@ class MultisigQuorumSelectionViewModel extends ChangeNotifier {
         {
           if (requiredCount == 1) {
             {
-              startProgress(3, 1, buttonClickedCount);
+              startAnimationProgress(3, 1, buttonClickedCount);
               break;
             }
           } else if (requiredCount == 2) {
             {
-              startProgress(3, 2, buttonClickedCount);
+              startAnimationProgress(3, 2, buttonClickedCount);
               break;
             }
           } else {
             {
-              startProgress(3, 3, buttonClickedCount);
+              startAnimationProgress(3, 3, buttonClickedCount);
               break;
             }
           }
         }
     }
-  }
-
-  bool checkNextButtonActiveState() {
-    if (!_nextButtonEnabled) return false;
-
-    return MultisigUtils.validateQuorumRequirement(_requiredCount, _totalCount);
   }
 
   @override
@@ -148,6 +147,10 @@ class MultisigQuorumSelectionViewModel extends ChangeNotifier {
     _progressTimer_2?.cancel();
     _progressTimer_3?.cancel();
     super.dispose();
+  }
+
+  void setQuorumRequirementToModel() {
+    _multisigCreationModel.setQuorumRequirement(_requiredCount, _totalCount);
   }
 
   void onCountButtonClicked(ChangeCountButtonType buttonType) {
@@ -207,8 +210,8 @@ class MultisigQuorumSelectionViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  void startProgress(int n, int m, int buttonCountAtStart) async {
-    stopProgress();
+  void startAnimationProgress(int n, int m, int buttonCountAtStart) async {
+    stopAnimationProgress();
     _progressQueue.add(QueueDataClass(
         count: buttonClickedCount, entity: _getQueueEntity(n, m)));
 
@@ -442,7 +445,7 @@ class MultisigQuorumSelectionViewModel extends ChangeNotifier {
     }
   }
 
-  void stopProgress() {
+  void stopAnimationProgress() {
     _progressQueue.clear();
     _progressTimer_1 = null;
     _progressTimer_2 = null;
@@ -510,7 +513,7 @@ class MultisigQuorumSelectionViewModel extends ChangeNotifier {
     if (_progressQueue.isEmpty ||
         _progressQueue.last.entity != queueEntity &&
             _progressQueue.last.count != buttonClickedCount) {
-      stopProgress();
+      stopAnimationProgress();
       return;
     }
     switch (num) {

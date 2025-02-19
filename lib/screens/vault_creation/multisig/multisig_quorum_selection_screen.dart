@@ -73,15 +73,12 @@ class _MultisigQuorumSelectionScreenState
               title: t.multisig_wallet,
               context: context,
               onNextPressed: () {
-                Provider.of<MultisigCreationModel>(context, listen: false)
-                    .setQuorumRequirement(
-                        viewModel.requiredCount, viewModel.totalCount);
-
-                viewModel.stopProgress();
+                viewModel.setQuorumRequirementToModel();
+                viewModel.stopAnimationProgress();
                 _mounted = false;
                 Navigator.pushNamed(context, AppRoutes.signerAssignment);
               },
-              isActive: viewModel.checkNextButtonActiveState(),
+              isActive: viewModel.isQuorumSettingValid,
             ),
             body: SingleChildScrollView(
               child: Padding(
@@ -297,8 +294,8 @@ class _MultisigQuorumSelectionScreenState
     if (!_mounted &&
         currentRoute != null &&
         currentRoute.startsWith(AppRoutes.multisigQuorumSelection)) {
-      _viewModel.startProgress(_viewModel.totalCount, _viewModel.requiredCount,
-          _viewModel.buttonClickedCount);
+      _viewModel.startAnimationProgress(_viewModel.totalCount,
+          _viewModel.requiredCount, _viewModel.buttonClickedCount);
       _mounted = true;
     }
   }
@@ -306,7 +303,9 @@ class _MultisigQuorumSelectionScreenState
   @override
   void initState() {
     super.initState();
-    _viewModel = MultisigQuorumSelectionViewModel();
+    _viewModel = MultisigQuorumSelectionViewModel(
+      Provider.of<MultisigCreationModel>(context, listen: false),
+    );
   }
 
   Widget _buildProgressBar(int key) {
