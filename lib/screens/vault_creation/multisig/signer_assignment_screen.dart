@@ -164,22 +164,22 @@ class _ExpansionChildWidgetState extends State<ExpansionChildWidget> {
 }
 
 class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
+  bool _isFinishing = false;
+  bool _isNextProcessing = false;
+  bool _alreadyDialogShown = false;
+  bool _hasValidationCompleted = false;
+  String? _loadingMessage;
   late SignerAssignmentViewModel _viewModel;
-  ValueNotifier<bool> isButtonActiveNotifier = ValueNotifier<bool>(false);
-  bool isFinishing = false;
-  bool isNextProcessing = false;
-  bool alreadyDialogShown = false;
-  late DraggableScrollableController draggableController;
-
-  String? loadingMessage;
-  bool hasValidationCompleted = false;
+  late DraggableScrollableController _draggableController;
+  final ValueNotifier<bool> _isButtonActiveNotifier =
+      ValueNotifier<bool>(false);
 
   @override
   Widget build(BuildContext context) {
     return PopScope(
       canPop: false,
       onPopInvokedWithResult: (didPop, _) {
-        if (!isFinishing) _onBackPressed(context);
+        if (!_isFinishing) _onBackPressed(context);
       },
       child: ChangeNotifierProvider<SignerAssignmentViewModel>(
         create: (context) => _viewModel = SignerAssignmentViewModel(
@@ -194,7 +194,7 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
               context: context,
               onBackPressed: () => _onBackPressed(context),
               onNextPressed: onNextPressed,
-              isActive: hasValidationCompleted,
+              isActive: _hasValidationCompleted,
               hasBackdropFilter: false,
             ),
             body: Stack(
@@ -359,13 +359,13 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
                                                       return;
                                                     }
 
-                                                    isButtonActiveNotifier
+                                                    _isButtonActiveNotifier
                                                         .value = false;
                                                     MyBottomSheet
                                                         .showDraggableScrollableSheet(
                                                       topWidget: true,
                                                       isButtonActiveNotifier:
-                                                          isButtonActiveNotifier,
+                                                          _isButtonActiveNotifier,
                                                       context: context,
                                                       childBuilder:
                                                           (sheetController) =>
@@ -375,7 +375,7 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
                                                           viewModel
                                                               .setSelectedSignerOptionIndex(
                                                                   index);
-                                                          isButtonActiveNotifier
+                                                          _isButtonActiveNotifier
                                                               .value = true;
                                                         },
                                                         vaultList: viewModel
@@ -452,7 +452,7 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
                                                         isScrollControlled:
                                                             true,
                                                         controller:
-                                                            draggableController,
+                                                            _draggableController,
                                                         minChildSize: 0.7,
                                                         isDismissible: false,
                                                         enableDrag: true,
@@ -501,7 +501,7 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
                               Visibility(
                                   visible:
                                       viewModel.isAssignedKeyCompletely() &&
-                                          !hasValidationCompleted,
+                                          !_hasValidationCompleted,
                                   child: Container(
                                     margin: const EdgeInsets.only(top: 40),
                                     child: CompleteButton(
@@ -509,7 +509,7 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
                                         label: t.select_completed,
                                         disabled: viewModel
                                                 .isAssignedKeyCompletely() &&
-                                            isNextProcessing),
+                                            _isNextProcessing),
                                   ))
                             ],
                           ),
@@ -519,13 +519,13 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
                   ),
                 ),
                 Visibility(
-                  visible: isNextProcessing,
+                  visible: _isNextProcessing,
                   child: Container(
                     decoration: const BoxDecoration(
                         color: MyColors.transparentBlack_30),
                     child: Center(
                         child:
-                            MessageActivityIndicator(message: loadingMessage)),
+                            MessageActivityIndicator(message: _loadingMessage)),
                   ),
                 ),
               ],
@@ -538,8 +538,8 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
 
   @override
   void dispose() {
-    isButtonActiveNotifier.dispose();
-    draggableController.dispose();
+    _isButtonActiveNotifier.dispose();
+    _draggableController.dispose();
     super.dispose();
   }
 
@@ -547,9 +547,9 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
   void initState() {
     super.initState();
 
-    draggableController = DraggableScrollableController();
-    draggableController.addListener(() {
-      if (draggableController.size <= 0.71 && !alreadyDialogShown) {
+    _draggableController = DraggableScrollableController();
+    _draggableController.addListener(() {
+      if (_draggableController.size <= 0.71 && !_alreadyDialogShown) {
         _showDialog(DialogType.cancelImport);
       }
     });
@@ -562,8 +562,8 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
   // 외부지갑은 추가 시 올바른 signerBsms 인지 미리 확인이 되어 있어야 합니다.
   void onSelectionCompleted() async {
     setState(() {
-      loadingMessage = t.assign_signers_screen.order_keys;
-      isNextProcessing = true;
+      _loadingMessage = t.assign_signers_screen.order_keys;
+      _isNextProcessing = true;
     });
 
     await Future.delayed(const Duration(seconds: 3));
@@ -573,7 +573,7 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
     } catch (error) {
       if (mounted) {
         setState(() {
-          isNextProcessing = false;
+          _isNextProcessing = false;
         });
         showAlertDialog(
             context: context,
@@ -591,7 +591,7 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
             context: context,
             text: t.toast.multisig_already_added(name: existingWallet.name));
         setState(() {
-          isNextProcessing = false;
+          _isNextProcessing = false;
         });
       }
       return;
@@ -603,8 +603,8 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
 
     if (mounted) {
       setState(() {
-        hasValidationCompleted = true;
-        isNextProcessing = false;
+        _hasValidationCompleted = true;
+        _isNextProcessing = false;
       });
     }
   }
@@ -614,7 +614,7 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
       _showDialog(DialogType.quit);
     } else {
       _viewModel.multisigCreationModel.reset();
-      isFinishing = true;
+      _isFinishing = true;
       Navigator.pop(context);
     }
   }
@@ -638,7 +638,7 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
           confirmButtonText = t.delete;
           confirmButtonColor = MyColors.warningText;
           onConfirm = () {
-            isFinishing = true;
+            _isFinishing = true;
             Navigator.popUntil(
                 context,
                 (route) =>
@@ -706,8 +706,8 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
 
             setState(() {
               _viewModel.assignedVaultList[keyIndex].reset();
-              if (hasValidationCompleted) {
-                hasValidationCompleted = false;
+              if (_hasValidationCompleted) {
+                _hasValidationCompleted = false;
               }
             });
             Navigator.pop(context);
@@ -715,8 +715,8 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
         }
       case DialogType.cancelImport:
         {
-          if (alreadyDialogShown) return;
-          alreadyDialogShown = true;
+          if (_alreadyDialogShown) return;
+          _alreadyDialogShown = true;
           title = t.alert.stop_importing.title;
           message = t.alert.stop_importing.description;
           cancelButtonText = t.cancel;
@@ -724,7 +724,7 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
           confirmButtonColor = MyColors.warningText;
           barrierDismissible = false;
           onCancel = () {
-            draggableController.animateTo(
+            _draggableController.animateTo(
               1,
               duration: const Duration(milliseconds: 300),
               curve: Curves.easeInOut,
@@ -732,11 +732,11 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
 
             Navigator.pop(context);
             Future.delayed(const Duration(milliseconds: 300), () {
-              alreadyDialogShown = false;
+              _alreadyDialogShown = false;
             });
           };
           onConfirm = () {
-            alreadyDialogShown = false;
+            _alreadyDialogShown = false;
             Navigator.pop(context);
             Navigator.pop(context);
           };
