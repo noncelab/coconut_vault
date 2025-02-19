@@ -6,11 +6,13 @@ import 'package:coconut_vault/styles.dart';
 class MultisigSignerMemoBottomSheet extends StatefulWidget {
   final String? memo;
   final Function(String) onUpdate;
+  final bool? autofocus;
 
   const MultisigSignerMemoBottomSheet({
     super.key,
     required this.onUpdate,
     required this.memo,
+    this.autofocus = false,
   });
 
   @override
@@ -71,6 +73,7 @@ class _MultisigSignerMemoBottomSheetState
                     borderRadius: BorderRadius.circular(16.0),
                   ),
                   child: CupertinoTextField(
+                    autofocus: widget.autofocus ?? false,
                     controller: _controller,
                     placeholder: t.multi_sig_memo_bottom_sheet.placeholder,
                     padding: const EdgeInsets.fromLTRB(16, 20, 16, 20),
