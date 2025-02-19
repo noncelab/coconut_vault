@@ -54,7 +54,7 @@ select_completed: "선택 완료"
 checklist: "확인 사항"
 wallet_id: "지갑 ID"
 mnemonic_wordlist: "니모닉 문구 단어집"
-singlesig_wallet: "일반 지갑"
+single_sig_wallet: "일반 지갑"
 multisig_wallet: "다중 서명 지갑"
 extended_public_key: "확장 공개키"
 app_info : "앱 정보"
@@ -153,12 +153,18 @@ psbt_confirmation_screen:
   warning: "⚠️ 해당 지갑으로 만든 psbt가 아닐 수 있습니다. 또는 잔액이 없는 트랜잭션일 수 있습니다."
 psbt_scanner_screen:
   guide_multisig: "월렛에서 만든 보내기 정보 또는 외부 볼트에서 다중 서명 중인 정보를 스캔해주세요."
-  guide_singlesig: "월렛에서 만든 보내기 정보를 스캔해 주세요. 반드시 지갑 이름이 같아야 해요."
+  guide_single_sig: "월렛에서 만든 보내기 정보를 스캔해 주세요. 반드시 지갑 이름이 같아야 해요."
 signed_transaction_qr_screen:
   guide_multisig: "다중 서명을 완료했어요. 보내기 정보를 생성한 월렛으로 아래 QR 코드를 스캔해 주세요."
-  guide_singlesig: "월렛의 '$name 지갑'에서 만든 보내기 정보에 서명을 완료했어요. 월렛으로 아래 QR 코드를 스캔해 주세요."
-singlesig_sign_screen:
+  guide_single_sig: "월렛의 '$name 지갑'에서 만든 보내기 정보에 서명을 완료했어요. 월렛으로 아래 QR 코드를 스캔해 주세요."
+single_sig_sign_screen:
   text: "이미 서명된 트랜잭션입니다"
+signer_qr_bottom_sheet:
+  title: "서명 트랜잭션 내보내기"
+  text2_1: "번 키가 보관된 볼트에서 다중 서명 지갑 "
+  text2_2: " 선택 - "
+  text2_3: "다중 서명하기"
+  text2_4: "를 눌러 아래 QR 코드를 스캔해 주세요."
 
 # lib/screens/setting
 app_info_screen:
@@ -261,7 +267,7 @@ mnemonic_import_screen:
   enter_passphrase: "패스프레이즈를 입력해 주세요"
 select_vault_type_screen:
   title: "지갑 만들기"
-  singlesig: "하나의 니모닉 문구를 보관하는 단일 서명 지갑이에요"
+  single_sig: "하나의 니모닉 문구를 보관하는 단일 서명 지갑이에요"
   multisig: "지정한 수의 서명이 필요한 지갑이에요"
   empty_key: "현재 볼트에 사용할 수 있는 키가 없어요"
   loading_keys: "볼트에 보관된 키를 불러오는 중이에요"
@@ -273,7 +279,7 @@ vault_name_icon_setup_screen:
   title: "이름 설정"
   saving: "저장 중이에요."
 
-# lib/screens/vault_creation/multi_sig
+# lib/screens/vault_creation/multisig
 assign_signers_screen:
   order_keys: "동일한 순서를 유지하도록 키 순서를 정렬 할게요"
   data_verifying: "데이터 검증 중이에요"
@@ -291,12 +297,6 @@ select_multisig_quorum_screen:
   one_or_two_of_n: "하나의 키를 분실하거나 키 보관자 중 한 명이 부재중이더라도 비트코인을 보낼 수 있어요."
   n_of_n: "모든 키가 있어야만 비트코인을 보낼 수 있어요. 단 하나의 키만 잃어버려도 자금에 접근할 수 없게 되니 분실에 각별히 신경써 주세요."
   one_of_n: "하나의 키만 있어도 비트코인을 이동시킬 수 있어요. 상대적으로 보안성이 낮기 때문에 권장하지 않아요."
-signer_qr_bottom_sheet:
-  text1: "서명 트랜잭션 내보내기"
-  text2_1: "번 키가 보관된 볼트에서 다중 서명 지갑 "
-  text2_2: " 선택 - "
-  text2_3: "다중 서명하기"
-  text2_4: "를 눌러 아래 QR 코드를 스캔해 주세요."
 signer_scanner_bottom_sheet:
   title: "서명 업데이트"
   guide: "다른 볼트에서 서명을 추가했나요? 정보를 업데이트 하기 위해 추가된 서명 트랜잭션의 QR 코드를 스캔해 주세요."
@@ -364,24 +364,22 @@ sync_to_wallet_screen:
   guide1_4: "해 주세요. 안전한 보기 전용 지갑을 사용하실 수 있어요."
   view_detail: "상세 정보 보기"
 vault_menu_screen:
-  title:
-    menu1: "$name 정보"
-    menu2: "서명하기"
-    menu3: "주소 보기"
-    menu4: "지갑 정보 내보내기"
-    menu5: "다중 서명 키로 사용하기"
-    menu6: "다중 서명 지갑 가져오기"
-    menu7: "$name 정보"
-    menu8: "다중 서명하기"
+  title:  
+    view_info: "$name 정보"
+    view_address: "주소 보기"
+    export_xpub: "지갑 정보 내보내기"
+    single_sig_sign: "서명하기"
+    multisig_sign: "다중 서명하기"
+    use_as_multisig_signer: "다중 서명 키로 사용하기"
+    import_bsms: "다중 서명 지갑 가져오기"
   description:
-    menu1: "저장된 니모닉 문구 등을 확인할 수 있어요"
-    menu2: "월렛에서 만든 정보를 스캔하고 서명해요"
-    menu3: "$name에서 추출한 주소를 확인해요"
-    menu4: "보기 전용 지갑을 월렛에 추가해요"
-    menu5: "다른 볼트에 내 키를 다중 서명 키로 등록해요"
-    menu6: "이 키가 포함된 다중 서명 지갑 정보를 추가해요"
-    menu7: "다중 서명 지갑의 정보를 확인할 수 있어요"
-    menu8: "전송 정보를 스캔하고 서명해요"
+    view_single_sig_info: "저장된 니모닉 문구 등을 확인할 수 있어요"
+    view_multisig_info: "다중 서명 지갑의 정보를 확인할 수 있어요"
+    import_bsms: "이 키가 포함된 다중 서명 지갑 정보를 추가해요"
+    view_address: "$name의 주소를 확인해요"
+    export_xpub: "보기 전용 지갑을 월렛에 추가해요"
+    sign: "월렛에서 만든 정보를 스캔하고 서명해요"
+    use_as_multisig_signer: "다른 볼트에 내 키를 다중 서명 키로 등록해요"
 vault_settings:
   used_in_multisig: "다중 서명 지갑에서 사용 중입니다"
   of: "의 "
@@ -471,7 +469,7 @@ toast:
   multisig_already_added: "이미 추가되어 있는 다중 서명 지갑이에요. ($name)"
 
 errors:
-  invalid_singlesig_qr_error: "잘못된 QR이에요. 다시 시도해 주세요."
+  invalid_single_sig_qr_error: "잘못된 QR이에요. 다시 시도해 주세요."
   invalid_multisig_qr_error: "잘못된 QR이예요.\n가져올 다중 서명 지갑의 정보 화면에서 \"지갑 설정 정보 보기\"에 나오는 QR 코드를 스캔해 주세요."
   unsupport_bsms_version_error: "지원하지 않는 BSMS 버전이에요. BSMS 1.0만 지원됩니다."
   unsupport_derivation_path_error: "커스텀 파생 경로는 지원되지 않아요."

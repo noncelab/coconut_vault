@@ -1,14 +1,14 @@
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/model/multisig/multisig_signer.dart';
 import 'package:coconut_vault/model/multisig/multisig_vault_list_item.dart';
-import 'package:coconut_vault/model/singlesig/singlesig_vault_list_item.dart';
+import 'package:coconut_vault/model/single_sig/single_sig_vault_list_item.dart';
 import 'package:coconut_vault/model/common/vault_list_item_base.dart';
 import 'package:coconut_vault/enums/wallet_enums.dart';
 import 'package:coconut_vault/utils/colors_util.dart';
 import 'package:coconut_vault/widgets/animation/shake_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:coconut_vault/screens/vault_detail/vault_menu_screen.dart';
+import 'package:coconut_vault/screens/home/vault_menu_bottom_sheet.dart';
 import 'package:coconut_vault/utils/icon_util.dart';
 import 'package:coconut_vault/widgets/bottom_sheet.dart';
 import 'package:coconut_vault/widgets/button/shrink_animation_button.dart';
@@ -56,7 +56,7 @@ class _VaultRowItemState extends State<VaultRowItem> {
       _subtitleText = '${multi.requiredSignatureCount}/${multi.signers.length}';
       _multiSigners = multi.signers;
     } else {
-      final single = widget.vault as SinglesigVaultListItem;
+      final single = widget.vault as SingleSigVaultListItem;
       if (single.linkedMultisigInfo != null) {
         final multisigKey = single.linkedMultisigInfo!;
         if (multisigKey.keys.isNotEmpty) {
@@ -108,7 +108,7 @@ class _VaultRowItemState extends State<VaultRowItem> {
                 context: context,
                 title:
                     TextUtils.ellipsisIfLonger(widget.vault.name), // overflow
-                child: VaultMenuScreen(
+                child: VaultMenuBottomSheet(
                     id: widget.vault.id, isMultiSig: _isMultiSig),
               );
             },

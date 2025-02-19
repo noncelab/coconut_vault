@@ -4,8 +4,8 @@ import 'dart:io';
 import 'package:coconut_vault/constants/method_channel.dart';
 import 'package:coconut_vault/constants/shared_preferences_keys.dart';
 import 'package:coconut_vault/repository/shared_preferences_repository.dart';
-import 'package:coconut_vault/screens/app_unavailable_notification_screen.dart';
-import 'package:coconut_vault/screens/ios_bluetooth_auth_notification_screen.dart';
+import 'package:coconut_vault/screens/common/app_unavailable_notification_screen.dart';
+import 'package:coconut_vault/screens/common/ios_bluetooth_auth_notification_screen.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
@@ -16,7 +16,6 @@ enum ConnectivityState { off, on, bluetoothUnauthorized }
 
 class ConnectivityProvider extends ChangeNotifier {
   /// 첫 실행 가이드 확인 여부
-  /// TODO: visibilityProvider 활용 방식으로 변경 필요
   late bool _hasSeenGuide;
 
   bool? _isNetworkOn;
@@ -133,6 +132,7 @@ class ConnectivityProvider extends ChangeNotifier {
     _onConnectivityChanged();
   }
 
+// TODO: _hasSeenGuide 없이 각 home 화면 별 이벤트 등록/해제하기!!!!!!
   void _onConnectivityChanged() {
     if (Platform.isIOS && _isBluetoothUnauthorized == true) {
       runApp(const CupertinoApp(

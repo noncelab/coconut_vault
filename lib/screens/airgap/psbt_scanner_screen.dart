@@ -1,8 +1,9 @@
 import 'dart:io';
 
+import 'package:coconut_vault/constants/app_routes.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
-import 'package:coconut_vault/model/common/vault_list_item_base.dart';
-import 'package:coconut_vault/enums/wallet_enums.dart';
+import 'package:coconut_vault/providers/sign_provider.dart';
+import 'package:coconut_vault/providers/view_model/airgap/psbt_scanner_view_model.dart';
 import 'package:coconut_vault/utils/alert_util.dart';
 import 'package:coconut_vault/widgets/animatedQR/animated_qr_scanner.dart';
 import 'package:coconut_vault/widgets/custom_loading_overlay.dart';
@@ -26,22 +27,22 @@ class PsbtScannerScreen extends StatefulWidget {
 }
 
 class _PsbtScannerScreenState extends State<PsbtScannerScreen> {
-  late WalletProvider _vaultModel;
+  late PsbtScannerViewModel _viewModel;
   final GlobalKey qrKey = GlobalKey(debugLabel: 'QR');
-  late VaultListItemBase _vaultListItem;
 
   QRViewController? controller;
   bool isCameraActive = false;
   bool isAlreadyVibrateScanFailed = false;
   bool _isProcessing = false;
-  bool _isMultisig = false;
 
   @override
   void initState() {
-    _vaultModel = Provider.of<WalletProvider>(context, listen: false);
+    _viewModel = PsbtScannerViewModel(
+        Provider.of<WalletProvider>(context, listen: false),
+        Provider.of<SignProvider>(context, listen: false),
+        widget.id);
+
     super.initState();
-    _vaultListItem = _vaultModel.getVaultById(widget.id);
-    _isMultisig = _vaultListItem.vaultType == WalletType.multiSignature;
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       context.loaderOverlay.show();
 
@@ -75,22 +76,22 @@ class _PsbtScannerScreenState extends State<PsbtScannerScreen> {
     if (_isProcessing) return;
     _isProcessing = true;
 
-    if (!await _vaultListItem.canSign(psbtBase64)) {
+    if (!await _viewModel.canSign(psbtBase64)) {
       vibrateLight();
       showError(t.errors.cannot_sign_error);
       return;
     }
 
     vibrateLight();
-    _vaultModel.setWaitingForSignaturePsbtBase64(psbtBase64);
+    _viewModel.saveUnsignedPsbt(psbtBase64);
 
     if (mounted) {
       /// Go-router 제거 이후로 ios에서는 정상 작동하지만 안드로이드에서는 pushNamed로 화면 이동 시 카메라 컨트롤러 남아있는 이슈
       if (Platform.isAndroid) {
-        Navigator.pushReplacementNamed(context, "/psbt-confirmation",
+        Navigator.pushReplacementNamed(context, AppRoutes.psbtConfirmation,
             arguments: {'id': widget.id});
       } else if (Platform.isIOS) {
-        Navigator.pushNamed(context, "/psbt-confirmation",
+        Navigator.pushNamed(context, AppRoutes.psbtConfirmation,
             arguments: {'id': widget.id}).then((o) {
           // 뒤로가기로 다시 돌아왔을 때
           _isProcessing = false;
@@ -125,7 +126,7 @@ class _PsbtScannerScreenState extends State<PsbtScannerScreen> {
     return CustomLoadingOverlay(
       child: Scaffold(
         appBar: CustomAppBar.build(
-          title: _vaultListItem.name,
+          title: _viewModel.walletName,
           context: context,
           hasRightIcon: false,
           isBottom: true,
@@ -158,9 +159,9 @@ class _PsbtScannerScreenState extends State<PsbtScannerScreen> {
                     ),
                     children: <TextSpan>[
                       TextSpan(
-                        text: _isMultisig
+                        text: _viewModel.isMultisig
                             ? t.psbt_scanner_screen.guide_multisig
-                            : t.psbt_scanner_screen.guide_singlesig,
+                            : t.psbt_scanner_screen.guide_single_sig,
                         style: const TextStyle(
                           fontWeight: FontWeight.normal,
                         ),
