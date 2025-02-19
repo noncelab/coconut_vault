@@ -33,6 +33,7 @@ class _MnemonicViewScreen extends State<MnemonicViewScreen> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _walletProvider.getSecret(widget.walletId).then((secret) async {
         await Future.delayed(const Duration(seconds: 1));
+        if (!mounted) return;
         setState(() {
           mnemonic = secret.mnemonic;
           passphrase = secret.passphrase;
