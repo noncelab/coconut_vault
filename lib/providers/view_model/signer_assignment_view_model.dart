@@ -34,9 +34,8 @@ class SignerAssignmentViewModel extends ChangeNotifier {
       _fromKeyStoreListIsolateHandler;
 
   SignerAssignmentViewModel(this._walletProvider, this._multisigCreationModel) {
-    _totalSignatureCount = _multisigCreationModel.totalSignatureCount ?? 2;
-    _requiredSignatureCount =
-        _multisigCreationModel.requiredSignatureCount ?? 1;
+    _totalSignatureCount = _multisigCreationModel.totalSignatureCount!;
+    _requiredSignatureCount = _multisigCreationModel.requiredSignatureCount!;
     _signerOptions = [];
     _assignedVaultList = List.generate(
       _totalSignatureCount,
