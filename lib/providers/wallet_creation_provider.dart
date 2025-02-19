@@ -32,12 +32,13 @@ class WalletCreationProvider {
     _requiredSignatureCount = _totalSignatureCount = signers = null;
   }
 
-  /// Singlesig
-  void setSecretAndPassphrase(String? secret, String? passphrase) {
+  /// SingleSig
+  void setSecretAndPassphrase(String secret, String? passphrase) {
     _secret = secret;
     _passphrase = passphrase;
   }
 
+  /// SingleSig
   void resetSecretAndPassphrase() {
     _secret = null;
     _passphrase = null;

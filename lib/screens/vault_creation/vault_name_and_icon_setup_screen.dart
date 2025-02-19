@@ -153,7 +153,7 @@ class _VaultNameAndIconSetupScreenState
             title: t.vault_name_icon_setup_screen.title,
             context: context,
             onBackPressed: () {
-              _walletProvider.completeSinglesigImporting();
+              _walletCreationProvider.resetSecretAndPassphrase();
               Navigator.pop(context);
             },
             onNextPressed: () {

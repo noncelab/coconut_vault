@@ -94,22 +94,22 @@ class WalletProvider extends ChangeNotifier {
   }
 
   Future<void> addVault(SinglesigWallet wallet) async {
-    setAddVaultCompleted(false);
+    _setAddVaultCompleted(false);
 
     await _walletManager.addSinglesigWallet(wallet);
     _vaultList = _walletManager.vaultList;
 
     setAnimatedVaultFlags(index: _vaultList.length);
-    setAddVaultCompleted(true);
+    _setAddVaultCompleted(true);
     await _updateWalletLength();
 
     notifyListeners();
-    completeSinglesigImporting();
+    _walletCreationProvider.resetSecretAndPassphrase();
     // vibrateLight();
   }
 
   Future<void> addMultisigVaultAsync(String name, int color, int icon) async {
-    setAddVaultCompleted(false);
+    _setAddVaultCompleted(false);
 
     final signers = _walletCreationProvider.signers!;
     final requiredSignatureCount =
@@ -120,7 +120,7 @@ class WalletProvider extends ChangeNotifier {
 
     _vaultList = _walletManager.vaultList;
     setAnimatedVaultFlags(index: _vaultList.length);
-    setAddVaultCompleted(true);
+    _setAddVaultCompleted(true);
     await _updateWalletLength();
     notifyListeners();
     _walletCreationProvider.reset();
@@ -128,7 +128,7 @@ class WalletProvider extends ChangeNotifier {
 
   Future<void> importMultisigVaultAsync(
       MultisigImportDetail details, int walletId) async {
-    setAddVaultCompleted(false);
+    _setAddVaultCompleted(false);
 
     // 이 지갑이 위 멀티시그 지갑의 일부인지 확인하기
     MultisignatureVault multisigVault =
@@ -193,7 +193,7 @@ class WalletProvider extends ChangeNotifier {
     await addMultisigVaultAsync(
         details.name, details.colorIndex, details.iconIndex);
 
-    setAddVaultCompleted(true);
+    _setAddVaultCompleted(true);
     notifyListeners();
   }
 
@@ -226,13 +226,7 @@ class WalletProvider extends ChangeNotifier {
       return false;
     });
 
-    if (vaultIndex != -1) {
-      _walletCreationProvider.resetSecretAndPassphrase();
-      return true;
-    }
-
-    _walletCreationProvider.setSecretAndPassphrase(secret, passphrase);
-    return false;
+    return vaultIndex != -1;
   }
 
   /// MultisigVaultListItem의 coordinatorBsms 중복 여부 확인
@@ -320,10 +314,6 @@ class WalletProvider extends ChangeNotifier {
     _visibilityProvider.saveWalletCount(_vaultList.length);
   }
 
-  void completeSinglesigImporting() {
-    _walletCreationProvider.resetSecretAndPassphrase();
-  }
-
   void setWaitingForSignaturePsbtBase64(String psbt) {
     _waitingForSignaturePsbtBase64 = psbt;
   }
@@ -332,7 +322,7 @@ class WalletProvider extends ChangeNotifier {
     _waitingForSignaturePsbtBase64 = null;
   }
 
-  void setAddVaultCompleted(bool value) {
+  void _setAddVaultCompleted(bool value) {
     _isAddVaultCompleted = value;
     notifyListeners();
   }

@@ -126,6 +126,7 @@ class FlipCoin extends StatefulWidget {
 }
 
 class _FlipCoinState extends State<FlipCoin> {
+  late WalletCreationProvider _walletCreationProvider;
   late int stepCount; // 총 화면 단계
   int step = 0;
   String mnemonic = '';
@@ -145,6 +146,7 @@ class _FlipCoinState extends State<FlipCoin> {
     super.initState();
     _totalBits = widget.wordsCount == 12 ? 128 : 256;
     stepCount = widget.usePassphrase ? 2 : 1;
+    _walletCreationProvider = Provider.of<WalletCreationProvider>(context);
   }
 
   @override
@@ -183,6 +185,8 @@ class _FlipCoinState extends State<FlipCoin> {
                                   title: t.alert.reselect.title,
                                   message: t.alert.reselect.description,
                                   action: () {
+                                    _walletCreationProvider
+                                        .resetSecretAndPassphrase();
                                     widget.onReset();
                                     Navigator.pop(context);
                                   })
@@ -552,6 +556,7 @@ class _FlipCoinState extends State<FlipCoin> {
       onCancel: () => Navigator.pop(context),
       onConfirm: action ??
           () {
+            _walletCreationProvider.resetSecretAndPassphrase();
             _resetBits();
             Navigator.pop(context);
           },
@@ -581,16 +586,18 @@ class _FlipCoinState extends State<FlipCoin> {
   }
 
   void _showConfirmBottomSheet(String message) {
-    Provider.of<WalletCreationProvider>(context, listen: false)
-        .setSecretAndPassphrase(mnemonic, passphrase);
     MyBottomSheet.showBottomSheet_90(
       context: context,
       child: MnemonicConfirmationBottomSheet(
         onCancelPressed: () => Navigator.pop(context),
-        onConfirmPressed: () => Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(
-                builder: (context) => const VaultNameAndIconSetupScreen())),
+        onConfirmPressed: () {
+          _walletCreationProvider.setSecretAndPassphrase(mnemonic, passphrase);
+
+          Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                  builder: (context) => const VaultNameAndIconSetupScreen()));
+        },
         onInactivePressed: () {
           CustomToast.showToast(context: context, text: t.toast.scroll_down);
         },
