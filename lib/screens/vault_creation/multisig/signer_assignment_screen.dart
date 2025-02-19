@@ -168,7 +168,6 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
   bool _isNextProcessing = false;
   bool _alreadyDialogShown = false;
   bool _hasValidationCompleted = false;
-  String? _loadingMessage;
   late SignerAssignmentViewModel _viewModel;
   late DraggableScrollableController _draggableController;
   final ValueNotifier<bool> _isButtonActiveNotifier =
@@ -524,8 +523,8 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
                     decoration: const BoxDecoration(
                         color: MyColors.transparentBlack_30),
                     child: Center(
-                        child:
-                            MessageActivityIndicator(message: _loadingMessage)),
+                        child: MessageActivityIndicator(
+                            message: viewModel.loadingMessage)),
                   ),
                 ),
               ],
@@ -562,9 +561,9 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
   // 외부지갑은 추가 시 올바른 signerBsms 인지 미리 확인이 되어 있어야 합니다.
   void onSelectionCompleted() async {
     setState(() {
-      _loadingMessage = t.assign_signers_screen.order_keys;
       _isNextProcessing = true;
     });
+    _viewModel.setLoadingMessage(t.assign_signers_screen.order_keys);
 
     await Future.delayed(const Duration(seconds: 3));
     List<MultisigSigner> signers = [];

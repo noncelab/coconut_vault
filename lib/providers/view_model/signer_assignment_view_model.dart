@@ -58,10 +58,6 @@ class SignerAssignmentViewModel extends ChangeNotifier {
     _initSignerOptionList(_singlesigVaultList);
   }
   List<AssignedVaultListItem> get assignedVaultList => _assignedVaultList;
-  IsolateHandler<List<VaultListItemBase>, List<String>>?
-      get extractBsmsIsolateHandler => _extractBsmsIsolateHandler;
-  IsolateHandler<Map<String, dynamic>, MultisignatureVault>?
-      get fromKeyStoreListIsolateHandler => _fromKeyStoreListIsolateHandler;
   String get loadingMessage => _loadingMessage;
   MultisigCreationModel get multisigCreationModel => _multisigCreationModel;
   MultisignatureVault? get newMultisigVault => _newMultisigVault;
@@ -177,9 +173,7 @@ class SignerAssignmentViewModel extends ChangeNotifier {
     for (int i = 0; i < assignedVaultList.length; i++) {
       assignedVaultList[i].index = i;
     }
-
-    _loadingMessage = t.assign_signers_screen.data_verifying;
-    notifyListeners();
+    setLoadingMessage(t.assign_signers_screen.data_verifying);
 
     // 검증: 올바른 Signer 정보를 받았는지 확인합니다.
 
@@ -201,6 +195,11 @@ class SignerAssignmentViewModel extends ChangeNotifier {
       ..importKeyType = ImportKeyType.internal;
 
     unselectedSignerOptions.removeAt(selectedSignerOptionIndex!);
+    notifyListeners();
+  }
+
+  void setLoadingMessage(String message) {
+    _loadingMessage = message;
     notifyListeners();
   }
 
