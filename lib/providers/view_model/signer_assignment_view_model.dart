@@ -73,8 +73,6 @@ class SignerAssignmentViewModel extends ChangeNotifier {
   int get totalSignatureCount => _totalSignatureCount;
   List<SignerOption> get unselectedSignerOptions => _unselectedSignerOptions;
 
-  WalletProvider get walletProvider => _walletProvider;
-
   void clearFromKeyStoreListIsolateHandler() {
     _fromKeyStoreListIsolateHandler!.dispose();
     _fromKeyStoreListIsolateHandler = null;
@@ -220,6 +218,9 @@ class SignerAssignmentViewModel extends ChangeNotifier {
   void setSelectedSignerOptionIndex(int? value) {
     _selectedSignerOptionIndex = value;
   }
+
+  VaultListItemBase? getWalletByDescriptor() =>
+      _walletProvider.findWalletByDescriptor(newMultisigVault!.descriptor);
 
   Future<MultisignatureVault> _createMultisignatureVault(
       List<KeyStore> keyStores) async {

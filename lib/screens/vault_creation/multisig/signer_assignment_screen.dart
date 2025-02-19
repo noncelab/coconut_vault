@@ -590,13 +590,12 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
     }
 
     // multisig 지갑 리스트에서 중복 체크 하기
-    VaultListItemBase? findResult = _viewModel.walletProvider
-        .findWalletByDescriptor(_viewModel.newMultisigVault!.descriptor);
-    if (findResult != null) {
+    VaultListItemBase? existingWallet = _viewModel.getWalletByDescriptor();
+    if (existingWallet != null) {
       if (mounted) {
         CustomToast.showToast(
             context: context,
-            text: t.toast.multisig_already_added(name: findResult.name));
+            text: t.toast.multisig_already_added(name: existingWallet.name));
         setState(() {
           isNextProcessing = false;
         });
