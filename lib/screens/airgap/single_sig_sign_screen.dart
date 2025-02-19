@@ -153,9 +153,13 @@ class _SingleSigSignScreenState extends State<SingleSigSignScreen> {
                                     .where((item) => item)
                                     .length
                             ? (viewModel.isAlreadySigned
-                                ? '이미 서명된 트랜잭션입니다'
-                                : '서명을 완료했습니다')
-                            : '${viewModel.requiredSignatureCount - viewModel.signersApproved.where((item) => item).length}개의 서명이 필요합니다',
+                                ? t.single_sig_sign_screen.text
+                                : t.sign_completed)
+                            : t.sign_required(
+                                count: viewModel.requiredSignatureCount -
+                                    viewModel.signersApproved
+                                        .where((item) => item)
+                                        .length),
                         style: Styles.body2Bold,
                       ),
                     ),
@@ -169,7 +173,7 @@ class _SingleSigSignScreenState extends State<SingleSigSignScreen> {
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               Text(
-                                '보낼 주소',
+                                t.recipient,
                                 style: Styles.body2
                                     .copyWith(color: MyColors.grey57),
                               ),
@@ -185,12 +189,12 @@ class _SingleSigSignScreenState extends State<SingleSigSignScreen> {
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               Text(
-                                '보낼 수량',
+                                t.send_amount,
                                 style: Styles.body2
                                     .copyWith(color: MyColors.grey57),
                               ),
                               Text(
-                                '${satoshiToBitcoinString(viewModel.sendingAmount)} BTC',
+                                '${satoshiToBitcoinString(viewModel.sendingAmount)} ${t.btc}',
                                 style: Styles.balance2.copyWith(
                                   fontSize: 16,
                                 ),
@@ -265,7 +269,7 @@ class _SingleSigSignScreenState extends State<SingleSigSignScreen> {
                                         Row(
                                           children: [
                                             Text(
-                                              '서명 완료',
+                                              t.sign_completion,
                                               style: Styles.body1Bold.copyWith(
                                                   fontSize: 12,
                                                   color: Colors.black),
@@ -297,7 +301,7 @@ class _SingleSigSignScreenState extends State<SingleSigSignScreen> {
                                             ),
                                             child: Center(
                                               child: Text(
-                                                '서명',
+                                                t.signature,
                                                 style: Styles.caption.copyWith(
                                                     color: MyColors
                                                         .black19), // 텍스트 색상도 검정으로 변경
