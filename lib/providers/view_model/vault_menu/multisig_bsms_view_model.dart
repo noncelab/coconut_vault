@@ -38,11 +38,11 @@ class MultisigBsmsViewModel extends ChangeNotifier {
       coordinatorBsms: coordinatorBsms,
     ));
 
-    _getOutsideWalletIdList(vaultListItem);
+    _initOutsideWalletIdList(vaultListItem);
     notifyListeners();
   }
 
-  void _getOutsideWalletIdList(MultisigVaultListItem item) {
+  void _initOutsideWalletIdList(MultisigVaultListItem item) {
     for (MultisigSigner signer in item.signers) {
       if (signer.innerVaultId == null) {
         outsideWalletIdList.add(signer.id + 1);
