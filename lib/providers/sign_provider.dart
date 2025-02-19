@@ -63,12 +63,19 @@ class SignProvider {
   }
 
   // 3-1. single_sig_sign
+  // 3-2. multisig_sign
   void saveSignedPsbt(String psbtBase64) {
     _signedPsbtBase64 = psbtBase64;
   }
 
   // 3-1. single_sig_sign
+  // 3-2. multisig_sign
   void resetSignedPsbt() {
     _signedPsbtBase64 = null;
+  }
+
+  void resetAll() {
+    _unsignedPsbtBase64 = _vaultListItem =
+        _psbt = _recipientAddress = _sendingAmount = _signedPsbtBase64 = null;
   }
 }

@@ -220,10 +220,8 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> {
                 ),
             AppRoutes.psbtConfirmation: (context) =>
                 const PsbtConfirmationScreen(),
-            AppRoutes.signedTransaction: (context) => buildScreenWithArguments(
-                  context,
-                  (args) => SignedTransactionQrScreen(id: args['id']),
-                ),
+            AppRoutes.signedTransaction: (context) =>
+                const SignedTransactionQrScreen(),
             AppRoutes.syncToWallet: (context) => buildScreenWithArguments(
                   context,
                   (args) => SyncToWalletScreen(id: args['id']),

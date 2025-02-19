@@ -1,20 +1,17 @@
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/enums/wallet_enums.dart';
+import 'package:coconut_vault/providers/sign_provider.dart';
 import 'package:coconut_vault/widgets/animatedQR/animated_qr_data_handler.dart';
 import 'package:coconut_vault/widgets/animatedQR/animated_qr_view.dart';
 import 'package:flutter/material.dart';
-import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:coconut_vault/styles.dart';
 import 'package:coconut_vault/widgets/appbar/custom_appbar.dart';
 import 'package:coconut_vault/widgets/custom_tooltip.dart';
 import 'package:provider/provider.dart';
 
 class SignedTransactionQrScreen extends StatefulWidget {
-  final int id;
-
   const SignedTransactionQrScreen({
     super.key,
-    required this.id,
   });
 
   @override
@@ -23,24 +20,12 @@ class SignedTransactionQrScreen extends StatefulWidget {
 }
 
 class _SignedTransactionQrScreenState extends State<SignedTransactionQrScreen> {
-  late String _signedRawTx;
-  late String _walletName;
-  late WalletProvider _vaultModel;
-  bool _isMultisig = false;
+  late SignProvider _signProvider;
 
   @override
   void initState() {
-    _vaultModel = Provider.of<WalletProvider>(context, listen: false);
     super.initState();
-    if (_vaultModel.signedRawTx == null) {
-      throw "[SignedTransactionScreen] _model.signedRawTx is null";
-    }
-
-    _signedRawTx = _vaultModel.signedRawTx!;
-
-    final vaultListItem = _vaultModel.getVaultById(widget.id);
-    _isMultisig = vaultListItem.vaultType == WalletType.multiSignature;
-    _walletName = vaultListItem.name;
+    _signProvider = Provider.of<SignProvider>(context, listen: false);
   }
 
   @override
@@ -51,8 +36,7 @@ class _SignedTransactionQrScreenState extends State<SignedTransactionQrScreen> {
           title: t.signed_tx,
           context: context,
           onNextPressed: () {
-            _vaultModel.clearWaitingForSignaturePsbt();
-            _vaultModel.signedRawTx = null;
+            _signProvider.resetAll();
             Navigator.pushNamedAndRemoveUntil(
                 context, '/', (Route<dynamic> route) => false);
           },
@@ -80,10 +64,11 @@ class _SignedTransactionQrScreenState extends State<SignedTransactionQrScreen> {
                       ),
                       children: <TextSpan>[
                         TextSpan(
-                          text: _isMultisig
+                          text: _signProvider.vaultListItem!.vaultType ==
+                                  WalletType.multiSignature
                               ? t.signed_transaction_qr_screen.guide_multisig
-                              : t.signed_transaction_qr_screen
-                                  .guide_singlesig(name: _walletName),
+                              : t.signed_transaction_qr_screen.guide_singlesig(
+                                  name: _signProvider.vaultListItem!.name),
                           style: const TextStyle(
                             fontWeight: FontWeight.normal,
                           ),
@@ -101,7 +86,8 @@ class _SignedTransactionQrScreenState extends State<SignedTransactionQrScreen> {
                   padding: const EdgeInsets.all(10),
                   decoration: BoxDecorations.shadowBoxDecoration,
                   child: AnimatedQrView(
-                    data: AnimatedQRDataHandler.splitData(_signedRawTx),
+                    data: AnimatedQRDataHandler.splitData(
+                        _signProvider.signedPsbtBase64!),
                     size: MediaQuery.of(context).size.width * 0.8,
                   ),
                 ),
