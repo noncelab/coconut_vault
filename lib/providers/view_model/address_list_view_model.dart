@@ -5,37 +5,33 @@ import 'package:flutter/material.dart';
 
 class AddressListViewModel extends ChangeNotifier {
   static const int kFirstCount = 20;
+  static const int kAddressFetchCount = 20;
   final WalletProvider _walletProvider;
-  final int _limit = 5;
 
-  late final int _id;
   late int _receivingAddressPage;
   late int _changeAddressPage;
   late bool _isReceivingSelected;
-  late String _name;
   late List<Address> _receivingAddressList;
   late List<Address> _changeAddressList;
   late VaultListItemBase _vaultListItem;
   late WalletBase _coconutVault;
 
-  AddressListViewModel(this._walletProvider, this._id) {
+  AddressListViewModel(this._walletProvider, id) {
     _receivingAddressPage = 0;
     _changeAddressPage = 0;
     _isReceivingSelected = true;
-    _vaultListItem = _walletProvider.getVaultById(_id);
+    _vaultListItem = _walletProvider.getVaultById(id);
     _coconutVault = _vaultListItem.coconutVault;
-    _name = _vaultListItem.name;
 
     _receivingAddressList = _coconutVault.getAddressList(0, kFirstCount, false);
     _changeAddressList = _coconutVault.getAddressList(0, kFirstCount, true);
   }
-  List<Address> get changeAddressList => _changeAddressList;
   int get changeAddressPage => _changeAddressPage;
-  bool get isReceivingSelected => _isReceivingSelected;
-  String get name => _name;
-  List<Address> get receivingAddressList => _receivingAddressList;
-
   int get receivingAddressPage => _receivingAddressPage;
+  bool get isReceivingSelected => _isReceivingSelected;
+  String get name => _vaultListItem.name;
+  List<Address> get receivingAddressList => _receivingAddressList;
+  List<Address> get changeAddressList => _changeAddressList;
 
   void nextLoad() {
     final newAddresses = _coconutVault.getAddressList(
@@ -43,8 +39,8 @@ class AddressListViewModel extends ChangeNotifier {
             (_isReceivingSelected
                     ? _receivingAddressPage
                     : _changeAddressPage) *
-                _limit,
-        _limit,
+                kAddressFetchCount,
+        kAddressFetchCount,
         !_isReceivingSelected);
     if (_isReceivingSelected) {
       _receivingAddressList.addAll(newAddresses);

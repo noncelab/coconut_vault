@@ -34,14 +34,18 @@ class AddressCard extends StatelessWidget {
       onPressed: onPressed,
       padding: EdgeInsets.zero,
       child: Container(
-        width: MediaQuery.of(context).size.width - 32,
+        width: MediaQuery.of(context).size.width,
         constraints: const BoxConstraints(minHeight: 72),
         decoration: BoxDecoration(
           borderRadius: MyBorder.defaultRadius,
           color: MyColors.lightgrey,
         ),
         padding: Paddings.widgetContainer,
-        margin: const EdgeInsets.only(bottom: 8),
+        margin: const EdgeInsets.only(
+          bottom: 8,
+          left: 16,
+          right: 16,
+        ),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
@@ -88,12 +92,13 @@ class _AddressListScreenState extends State<AddressListScreen> {
   bool _isLoadMoreRunning = false;
 
   late ScrollController _controller;
-  late AddressListViewModel _viewModel;
+  AddressListViewModel? _viewModel;
 
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProxyProvider<WalletProvider, AddressListViewModel>(
-      create: (BuildContext context) => _viewModel,
+      create: (BuildContext context) => _viewModel = AddressListViewModel(
+          Provider.of<WalletProvider>(context, listen: false), widget.id),
       update: (_, walletProvider, viewModel) {
         return viewModel!;
       },
@@ -106,20 +111,24 @@ class _AddressListScreenState extends State<AddressListScreen> {
           return Scaffold(
             backgroundColor: MyColors.white,
             appBar: CustomAppBar.build(
-              title: t.address_list_screen.title(name: _viewModel),
+              title: t.address_list_screen.title(name: viewModel.name),
               context: context,
               hasRightIcon: false,
               isBottom: true,
             ),
             body: SafeArea(
-              minimum: const EdgeInsets.symmetric(horizontal: 16),
               child: _isFirstLoadRunning
                   ? const Center(child: CircularProgressIndicator())
                   : Column(
                       children: [
                         Container(
                           height: 36,
-                          margin: const EdgeInsets.only(top: 10, bottom: 12),
+                          margin: const EdgeInsets.only(
+                            top: 10,
+                            bottom: 12,
+                            left: 16,
+                            right: 16,
+                          ),
                           decoration: BoxDecoration(
                             borderRadius: MyBorder.defaultRadius,
                             color: MyColors.transparentBlack_06,
@@ -195,29 +204,33 @@ class _AddressListScreenState extends State<AddressListScreen> {
                         Expanded(
                           child: Stack(
                             children: [
-                              ListView.builder(
+                              Scrollbar(
                                 controller: _controller,
-                                itemCount: addressList.length,
-                                itemBuilder: (context, index) => AddressCard(
-                                  onPressed: () {
-                                    MyBottomSheet.showBottomSheet_90(
-                                      context: context,
-                                      child: QrcodeBottomSheet(
-                                        qrData: addressList[index].address,
-                                        title: t.address_list_screen
-                                            .address_index(index: index),
-                                        qrcodeTopWidget: Text(
-                                          addressList[index].derivationPath,
-                                          style: Styles.body2.merge(
-                                              const TextStyle(
-                                                  color: MyColors.darkgrey)),
+                                radius: const Radius.circular(12),
+                                child: ListView.builder(
+                                  controller: _controller,
+                                  itemCount: addressList.length,
+                                  itemBuilder: (context, index) => AddressCard(
+                                    onPressed: () {
+                                      MyBottomSheet.showBottomSheet_90(
+                                        context: context,
+                                        child: QrcodeBottomSheet(
+                                          qrData: addressList[index].address,
+                                          title: t.address_list_screen
+                                              .address_index(index: index),
+                                          qrcodeTopWidget: Text(
+                                            addressList[index].derivationPath,
+                                            style: Styles.body2.merge(
+                                                const TextStyle(
+                                                    color: MyColors.darkgrey)),
+                                          ),
                                         ),
-                                      ),
-                                    );
-                                  },
-                                  address: addressList[index].address,
-                                  derivationPath:
-                                      addressList[index].derivationPath,
+                                      );
+                                    },
+                                    address: addressList[index].address,
+                                    derivationPath:
+                                        addressList[index].derivationPath,
+                                  ),
                                 ),
                               ),
                               if (_isLoadMoreRunning)
@@ -254,8 +267,6 @@ class _AddressListScreenState extends State<AddressListScreen> {
   @override
   void initState() {
     super.initState();
-    _viewModel = AddressListViewModel(
-        Provider.of<WalletProvider>(context, listen: false), widget.id);
     _controller = ScrollController()..addListener(_nextLoad);
     _isFirstLoadRunning = false;
   }
@@ -268,13 +279,14 @@ class _AddressListScreenState extends State<AddressListScreen> {
   void _nextLoad() {
     if (!_isFirstLoadRunning &&
         !_isLoadMoreRunning &&
-        _controller.position.extentAfter < 100) {
+        _controller.position.extentAfter < 50) {
       setState(() {
         _isLoadMoreRunning = true;
       });
 
       try {
-        _viewModel.nextLoad();
+        if (_viewModel == null) return;
+        _viewModel!.nextLoad();
       } catch (e) {
         Logger.log(e.toString());
       } finally {
