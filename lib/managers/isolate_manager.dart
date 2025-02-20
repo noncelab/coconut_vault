@@ -3,21 +3,21 @@ import 'dart:convert';
 
 import 'package:coconut_lib/coconut_lib.dart';
 import 'package:coconut_vault/model/multisig/multisig_vault_list_item.dart';
-import 'package:coconut_vault/model/singlesig/singlesig_vault_list_item.dart';
+import 'package:coconut_vault/model/single_sig/single_sig_vault_list_item.dart';
 import 'package:coconut_vault/model/common/vault_list_item_base.dart';
 import 'package:coconut_vault/enums/wallet_enums.dart';
 import 'package:coconut_vault/model/multisig/multisig_wallet.dart';
-import 'package:coconut_vault/model/singlesig/singlesig_wallet.dart';
+import 'package:coconut_vault/model/single_sig/single_sig_wallet.dart';
 import 'package:coconut_vault/repository/shared_preferences_repository.dart';
 import 'package:coconut_vault/utils/logger.dart';
 
-Future<List<SinglesigVaultListItem>> addVaultIsolate(
+Future<List<SingleSigVaultListItem>> addVaultIsolate(
     Map<String, dynamic> data, void Function(dynamic)? progressCallback) async {
   BitcoinNetwork.setNetwork(BitcoinNetwork.regtest);
-  List<SinglesigVaultListItem> vaultList = [];
+  List<SingleSigVaultListItem> vaultList = [];
 
   var wallet = SinglesigWallet.fromJson(data);
-  SinglesigVaultListItem newItem = SinglesigVaultListItem(
+  SingleSigVaultListItem newItem = SingleSigVaultListItem(
       id: wallet.id!,
       name: wallet.name!,
       colorIndex: wallet.color!,
@@ -103,8 +103,8 @@ Future<List<String>> extractSignerBsmsIsolate(
   List<String> bsmses = [];
 
   for (int i = 0; i < vaultList.length; i++) {
-    SinglesigVaultListItem vaultListItem =
-        vaultList[i] as SinglesigVaultListItem;
+    SingleSigVaultListItem vaultListItem =
+        vaultList[i] as SingleSigVaultListItem;
     if (vaultListItem.signerBsms != null) {
       bsmses.add(vaultListItem.signerBsms!);
     }
@@ -145,7 +145,7 @@ Future<VaultListItemBase> initializeWallet(Map<String, dynamic> data,
 
   // coconut_vault 1.0.1 -> 2.0.0 업데이트 되면서 vaultType이 추가됨
   if (vaultType == null || vaultType == WalletType.singleSignature.name) {
-    return SinglesigVaultListItem.fromJson(data);
+    return SingleSigVaultListItem.fromJson(data);
   } else if (vaultType == WalletType.multiSignature.name) {
     return MultisigVaultListItem.fromJson(data);
   } else {

@@ -1,3 +1,4 @@
+import 'package:coconut_vault/constants/app_routes.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -21,25 +22,25 @@ class VaultCreationOptions extends StatelessWidget {
     final List<Option> options = [
       Option(
           name: t.vault_creation_options_screen.coin_flip,
-          path: "/security-self-check",
+          path: AppRoutes.securitySelfCheck,
           onNextPressed: () {
-            Navigator.pushNamed(context, '/mnemonic-flip-coin');
+            Navigator.pushNamed(context, AppRoutes.mnemonicCoinflip);
           }),
       Option(
           name: t.vault_creation_options_screen.auto_generate,
-          path: "/security-self-check",
+          path: AppRoutes.securitySelfCheck,
           onNextPressed: () {
-            Navigator.pushNamed(context, '/mnemonic-generate');
+            Navigator.pushNamed(context, AppRoutes.mnemonicGeneration);
           }),
       Option(
           name: t.vault_creation_options_screen.import_mnemonic,
-          path: "/mnemonic-import"),
+          path: AppRoutes.mnemonicImport),
     ];
 
     return Scaffold(
       backgroundColor: MyColors.white,
       appBar: CustomAppBar.build(
-        title: t.singlesig_wallet,
+        title: t.single_sig_wallet,
         context: context,
         hasRightIcon: false,
         showTestnetLabel: false,

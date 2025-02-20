@@ -1,17 +1,19 @@
 import 'dart:io';
 
+import 'package:coconut_vault/constants/app_routes.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
-import 'package:coconut_vault/model/common/vault_list_item_base.dart';
-import 'package:coconut_vault/enums/wallet_enums.dart';
-import 'package:coconut_vault/providers/app_model.dart';
+import 'package:coconut_vault/providers/sign_provider.dart';
+import 'package:coconut_vault/providers/view_model/airgap/psbt_scanner_view_model.dart';
 import 'package:coconut_vault/utils/alert_util.dart';
 import 'package:coconut_vault/widgets/animatedQR/animated_qr_scanner.dart';
+import 'package:coconut_vault/widgets/custom_loading_overlay.dart';
 import 'package:flutter/material.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:coconut_vault/styles.dart';
 import 'package:coconut_vault/utils/vibration_util.dart';
 import 'package:coconut_vault/widgets/appbar/custom_appbar.dart';
 import 'package:coconut_vault/widgets/custom_tooltip.dart';
+import 'package:loader_overlay/loader_overlay.dart';
 import 'package:provider/provider.dart';
 import 'package:qr_code_scanner/qr_code_scanner.dart';
 
@@ -25,29 +27,31 @@ class PsbtScannerScreen extends StatefulWidget {
 }
 
 class _PsbtScannerScreenState extends State<PsbtScannerScreen> {
-  late AppModel _appModel;
-  late WalletProvider _vaultModel;
+  late PsbtScannerViewModel _viewModel;
   final GlobalKey qrKey = GlobalKey(debugLabel: 'QR');
-  late VaultListItemBase _vaultListItem;
 
   QRViewController? controller;
   bool isCameraActive = false;
   bool isAlreadyVibrateScanFailed = false;
   bool _isProcessing = false;
-  bool _isMultisig = false;
 
   @override
   void initState() {
-    _appModel = Provider.of<AppModel>(context, listen: false);
-    _vaultModel = Provider.of<WalletProvider>(context, listen: false);
+    _viewModel = PsbtScannerViewModel(
+        Provider.of<WalletProvider>(context, listen: false),
+        Provider.of<SignProvider>(context, listen: false),
+        widget.id);
+
     super.initState();
-    _vaultListItem = _vaultModel.getVaultById(widget.id);
-    _isMultisig = _vaultListItem.vaultType == WalletType.multiSignature;
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      _appModel.showIndicator();
-      await Future.delayed(const Duration(milliseconds: 1000));
-      // fixme 추후 QRCodeScanner가 개선되면 QRCodeScanner 의 카메라 뷰 생성 완료된 콜백 찾아 progress hide 합니다. 현재는 1초 후 hide
-      _appModel.hideIndicator();
+      context.loaderOverlay.show();
+
+      Future.delayed(const Duration(milliseconds: 1000), () {
+        // fixme 추후 QRCodeScanner가 개선되면 QRCodeScanner 의 카메라 뷰 생성 완료된 콜백 찾아 progress hide 합니다. 현재는 1초 후 hide
+        if (mounted) {
+          context.loaderOverlay.hide();
+        }
+      });
     });
   }
 
@@ -72,22 +76,22 @@ class _PsbtScannerScreenState extends State<PsbtScannerScreen> {
     if (_isProcessing) return;
     _isProcessing = true;
 
-    if (!await _vaultListItem.canSign(psbtBase64)) {
+    if (!await _viewModel.canSign(psbtBase64)) {
       vibrateLight();
       showError(t.errors.cannot_sign_error);
       return;
     }
 
     vibrateLight();
-    _vaultModel.setWaitingForSignaturePsbtBase64(psbtBase64);
+    _viewModel.saveUnsignedPsbt(psbtBase64);
 
     if (mounted) {
       /// Go-router 제거 이후로 ios에서는 정상 작동하지만 안드로이드에서는 pushNamed로 화면 이동 시 카메라 컨트롤러 남아있는 이슈
       if (Platform.isAndroid) {
-        Navigator.pushReplacementNamed(context, "/psbt-confirmation",
+        Navigator.pushReplacementNamed(context, AppRoutes.psbtConfirmation,
             arguments: {'id': widget.id});
       } else if (Platform.isIOS) {
-        Navigator.pushNamed(context, "/psbt-confirmation",
+        Navigator.pushNamed(context, AppRoutes.psbtConfirmation,
             arguments: {'id': widget.id}).then((o) {
           // 뒤로가기로 다시 돌아왔을 때
           _isProcessing = false;
@@ -119,70 +123,58 @@ class _PsbtScannerScreenState extends State<PsbtScannerScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: CustomAppBar.build(
-        title: _vaultListItem.name,
-        context: context,
-        hasRightIcon: false,
-        isBottom: true,
-      ),
-      body: Stack(
-        children: [
-          Container(
-            color: MyColors.white,
-            child: AnimatedQrScanner(
-              setQRViewController: (QRViewController qrViewcontroller) {
-                controller = qrViewcontroller;
-              },
-              onComplete: onCompleteScanning,
-              onFailed: onFailedScanning,
+    return CustomLoadingOverlay(
+      child: Scaffold(
+        appBar: CustomAppBar.build(
+          title: _viewModel.walletName,
+          context: context,
+          hasRightIcon: false,
+          isBottom: true,
+        ),
+        body: Stack(
+          children: [
+            Container(
+              color: MyColors.white,
+              child: AnimatedQrScanner(
+                setQRViewController: (QRViewController qrViewcontroller) {
+                  controller = qrViewcontroller;
+                },
+                onComplete: onCompleteScanning,
+                onFailed: onFailedScanning,
+              ),
             ),
-          ),
-          Padding(
-            padding: const EdgeInsets.only(top: 20),
-            child: CustomTooltip(
-              richText: RichText(
-                text: TextSpan(
-                  text: '[2] ',
-                  style: const TextStyle(
-                    fontFamily: 'Pretendard',
-                    fontWeight: FontWeight.bold,
-                    fontSize: 15,
-                    height: 1.4,
-                    letterSpacing: 0.5,
-                    color: MyColors.black,
-                  ),
-                  children: <TextSpan>[
-                    TextSpan(
-                      text: _isMultisig
-                          ? t.psbt_scanner_screen.guide_multisig
-                          : t.psbt_scanner_screen.guide_singlesig,
-                      style: const TextStyle(
-                        fontWeight: FontWeight.normal,
-                      ),
+            Padding(
+              padding: const EdgeInsets.only(top: 20),
+              child: CustomTooltip(
+                richText: RichText(
+                  text: TextSpan(
+                    text: '[2] ',
+                    style: const TextStyle(
+                      fontFamily: 'Pretendard',
+                      fontWeight: FontWeight.bold,
+                      fontSize: 15,
+                      height: 1.4,
+                      letterSpacing: 0.5,
+                      color: MyColors.black,
                     ),
-                  ],
+                    children: <TextSpan>[
+                      TextSpan(
+                        text: _viewModel.isMultisig
+                            ? t.psbt_scanner_screen.guide_multisig
+                            : t.psbt_scanner_screen.guide_single_sig,
+                        style: const TextStyle(
+                          fontWeight: FontWeight.normal,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-              showIcon: true,
-              type: TooltipType.info,
-            ),
-          ),
-          Visibility(
-            visible: _appModel.isLoading,
-            child: Container(
-              width: MediaQuery.of(context).size.width,
-              height: MediaQuery.of(context).size.height,
-              decoration:
-                  const BoxDecoration(color: MyColors.transparentBlack_30),
-              child: const Center(
-                child: CircularProgressIndicator(
-                  color: MyColors.darkgrey,
-                ),
+                showIcon: true,
+                type: TooltipType.info,
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
