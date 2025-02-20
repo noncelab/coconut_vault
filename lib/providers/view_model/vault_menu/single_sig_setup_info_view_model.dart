@@ -8,7 +8,7 @@ class SingleSigSetupInfoViewModel
   bool get hasLinkedMultisigVault =>
       vaultItem.linkedMultisigInfo?.entries.isNotEmpty == true;
   Map<int, int>? get linkedMultisigInfo => vaultItem.linkedMultisigInfo;
-  bool get isLoadedVaultList => walletProvider.isLoadVaultList;
+  bool get isLoadedVaultList => walletProvider.isWalletsLoaded;
   bool get isVaultListLoading => walletProvider.isVaultListLoading;
 
   SingleSigSetupInfoViewModel(super.walletProvider, super.id);
