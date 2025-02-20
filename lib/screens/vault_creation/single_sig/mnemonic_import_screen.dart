@@ -15,6 +15,7 @@ import 'package:coconut_vault/widgets/bottom_sheet.dart';
 import 'package:coconut_vault/widgets/custom_dialog.dart';
 import 'package:coconut_vault/widgets/custom_toast.dart';
 import 'package:coconut_vault/widgets/textfield/custom_textfield.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
 class MnemonicImport extends StatefulWidget {
@@ -34,7 +35,6 @@ class _MnemonicImportState extends State<MnemonicImport> {
   bool _passphraseObscured = false;
   // 니모닉이 유효한지 확인을 한 상황이면 true
   bool? _isMnemonicValid;
-  bool _isFinishing = false;
   String? _errorMessage;
 
   final TextEditingController _mnemonicController = TextEditingController();
@@ -121,11 +121,13 @@ class _MnemonicImportState extends State<MnemonicImport> {
     });
   }
 
-  void _onBackPressed(BuildContext context) {
+  Future<void> _onBackPressed(BuildContext context) async {
+    await SystemChannels.textInput.invokeMethod('TextInput.hide');
     if (_inputText.isEmpty && _passphrase.isEmpty) {
-      _walletCreationProvider.resetSecretAndPassphrase();
-      _isFinishing = true;
-      Navigator.pop(context);
+      if (Navigator.of(context).canPop()) {
+        _walletCreationProvider.resetSecretAndPassphrase();
+        Navigator.pop(context);
+      }
     } else {
       _showStopGeneratingMnemonicDialog();
     }
@@ -171,8 +173,10 @@ class _MnemonicImportState extends State<MnemonicImport> {
   Widget build(BuildContext context) {
     return PopScope(
       canPop: false,
-      onPopInvokedWithResult: (didPop, _) {
-        if (!_isFinishing) _onBackPressed(context);
+      onPopInvokedWithResult: (didPop, _) async {
+        if (!didPop) {
+          await _onBackPressed(context);
+        }
       },
       child: Stack(
         children: [
