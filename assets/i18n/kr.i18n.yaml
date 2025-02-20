@@ -179,7 +179,7 @@ app_info_screen:
   mit_license: "MIT License"
   coconut_lib: "coconut_lib"
   coconut_wallet: "coconut_wallet"
-  coconut_vault: "coconut_vuault"
+  coconut_vault: "coconut_vault"
   github: "Github"
   contribution: "오픈소스 개발 참여하기"
   version_and_date: "CoconutVault ver. $version (released at $releasedAt)"

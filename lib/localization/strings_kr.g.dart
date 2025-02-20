@@ -436,7 +436,7 @@ class TranslationsAppInfoScreenKr {
   String get mit_license => 'MIT License';
   String get coconut_lib => 'coconut_lib';
   String get coconut_wallet => 'coconut_wallet';
-  String get coconut_vault => 'coconut_vuault';
+  String get coconut_vault => 'coconut_vault';
   String get github => 'Github';
   String get contribution => '오픈소스 개발 참여하기';
   String version_and_date(
@@ -1569,7 +1569,7 @@ extension on Translations {
       case 'app_info_screen.coconut_wallet':
         return 'coconut_wallet';
       case 'app_info_screen.coconut_vault':
-        return 'coconut_vuault';
+        return 'coconut_vault';
       case 'app_info_screen.github':
         return 'Github';
       case 'app_info_screen.contribution':
