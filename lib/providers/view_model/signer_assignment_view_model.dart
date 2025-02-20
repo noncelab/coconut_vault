@@ -6,7 +6,7 @@ import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/managers/isolate_manager.dart';
 import 'package:coconut_vault/model/common/vault_list_item_base.dart';
 import 'package:coconut_vault/model/multisig/multisig_signer.dart';
-import 'package:coconut_vault/model/singlesig/singlesig_vault_list_item.dart';
+import 'package:coconut_vault/model/single_sig/single_sig_vault_list_item.dart';
 import 'package:coconut_vault/providers/wallet_creation_provider.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:coconut_vault/screens/vault_creation/multisig/signer_assignment_screen.dart';
@@ -20,7 +20,7 @@ class SignerAssignmentViewModel extends ChangeNotifier {
   late int _totalSignatureCount; // 전체 키의 수
   late int _requiredSignatureCount; // 필요한 서명 수
   late List<AssignedVaultListItem> _assignedVaultList; // 키 가져오기에서 선택 완료한 객체
-  late List<SinglesigVaultListItem> _singlesigVaultList;
+  late List<SingleSigVaultListItem> _singlesigVaultList;
   late List<SignerOption> _signerOptions;
   late List<SignerOption> _unselectedSignerOptions;
   // 내부 지갑 중 Signer 선택하는 순간에만 사용함
@@ -54,7 +54,7 @@ class SignerAssignmentViewModel extends ChangeNotifier {
     _singlesigVaultList = _walletProvider
         .getVaults()
         .where((vault) => vault.vaultType == WalletType.singleSignature)
-        .map((vault) => vault as SinglesigVaultListItem)
+        .map((vault) => vault as SingleSigVaultListItem)
         .toList();
 
     _initSignerOptionList(_singlesigVaultList);
@@ -66,7 +66,7 @@ class SignerAssignmentViewModel extends ChangeNotifier {
   List<SignerOption> get signerOptions => _signerOptions;
   List<SignerOption> get unselectedSignerOptions => _unselectedSignerOptions;
   List<AssignedVaultListItem> get assignedVaultList => _assignedVaultList;
-  List<SinglesigVaultListItem> get singlesigVaultList => _singlesigVaultList;
+  List<SingleSigVaultListItem> get singlesigVaultList => _singlesigVaultList;
 
   void clearFromKeyStoreListIsolateHandler() {
     _fromKeyStoreListIsolateHandler!.dispose();
@@ -255,10 +255,10 @@ class SignerAssignmentViewModel extends ChangeNotifier {
   }
 
   Future<void> _initSignerOptionList(
-      List<SinglesigVaultListItem> singlesigVaultList) async {
+      List<SingleSigVaultListItem> singlesigVaultList) async {
     if (_extractBsmsIsolateHandler == null) {
       _extractBsmsIsolateHandler =
-          IsolateHandler<List<SinglesigVaultListItem>, List<String>>(
+          IsolateHandler<List<SingleSigVaultListItem>, List<String>>(
               extractSignerBsmsIsolate);
       await _extractBsmsIsolateHandler!
           .initialize(initialType: InitializeType.extractSignerBsms);

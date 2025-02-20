@@ -1,9 +1,9 @@
 import 'package:coconut_vault/model/common/vault_list_item_base.dart';
-import 'package:coconut_vault/model/singlesig/singlesig_vault_list_item.dart';
+import 'package:coconut_vault/model/single_sig/single_sig_vault_list_item.dart';
 import 'package:coconut_vault/providers/view_model/vault_menu/vault_setup_info_view_model_base.dart';
 
 class SingleSigSetupInfoViewModel
-    extends VaultSetupInfoViewModelBase<SinglesigVaultListItem> {
+    extends VaultSetupInfoViewModelBase<SingleSigVaultListItem> {
   int get linkedMutlsigVaultCount => vaultItem.linkedMultisigInfo?.length ?? 0;
   bool get hasLinkedMultisigVault =>
       vaultItem.linkedMultisigInfo?.entries.isNotEmpty == true;

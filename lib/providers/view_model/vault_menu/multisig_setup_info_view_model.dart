@@ -1,6 +1,6 @@
 import 'package:coconut_vault/model/multisig/multisig_signer.dart';
 import 'package:coconut_vault/model/multisig/multisig_vault_list_item.dart';
-import 'package:coconut_vault/model/singlesig/singlesig_vault_list_item.dart';
+import 'package:coconut_vault/model/single_sig/single_sig_vault_list_item.dart';
 import 'package:coconut_vault/providers/view_model/vault_menu/vault_setup_info_view_model_base.dart';
 
 class MultisigSetupInfoViewModel
@@ -32,7 +32,7 @@ class MultisigSetupInfoViewModel
     return vaultItem.signers[signerIndex];
   }
 
-  SinglesigVaultListItem getInnerVaultListItem(int index) {
-    return vaultItem.signers[index] as SinglesigVaultListItem;
+  SingleSigVaultListItem getInnerVaultListItem(int index) {
+    return vaultItem.signers[index] as SingleSigVaultListItem;
   }
 }

@@ -5,7 +5,7 @@ import 'package:coconut_vault/enums/pin_check_context_enum.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/model/multisig/multisig_signer.dart';
 import 'package:coconut_vault/model/multisig/multisig_vault_list_item.dart';
-import 'package:coconut_vault/model/singlesig/singlesig_vault_list_item.dart';
+import 'package:coconut_vault/model/single_sig/single_sig_vault_list_item.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:coconut_vault/screens/common/pin_check_screen.dart';
 import 'package:coconut_vault/screens/vault_menu/info/mnemonic_view_screen.dart';
@@ -213,7 +213,7 @@ class _MultisigSetupInfoScreenState extends State<MultisigSetupInfoScreen> {
               case 1:
                 final base =
                     _walletProvider.getVaultById(multisigSigner!.innerVaultId!);
-                final single = base as SinglesigVaultListItem;
+                final single = base as SingleSigVaultListItem;
                 MyBottomSheet.showBottomSheet_90(
                   context: context,
                   child: MnemonicViewScreen(
