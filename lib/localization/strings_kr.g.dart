@@ -8,33 +8,40 @@ part of 'strings.g.dart';
 
 // Path: <root>
 typedef TranslationsKr = Translations; // ignore: unused_element
+
 class Translations implements BaseTranslations<AppLocale, Translations> {
-	/// Returns the current translations of the given [context].
-	///
-	/// Usage:
-	/// final t = Translations.of(context);
-	static Translations of(BuildContext context) => InheritedLocaleData.of<AppLocale, Translations>(context).translations;
+  /// Returns the current translations of the given [context].
+  ///
+  /// Usage:
+  /// final t = Translations.of(context);
+  static Translations of(BuildContext context) =>
+      InheritedLocaleData.of<AppLocale, Translations>(context).translations;
 
-	/// You can call this constructor and build your own translation instance of this locale.
-	/// Constructing via the enum [AppLocale.build] is preferred.
-	Translations({Map<String, Node>? overrides, PluralResolver? cardinalResolver, PluralResolver? ordinalResolver})
-		: assert(overrides == null, 'Set "translation_overrides: true" in order to enable this feature.'),
-		  $meta = TranslationMetadata(
-		    locale: AppLocale.kr,
-		    overrides: overrides ?? {},
-		    cardinalResolver: cardinalResolver,
-		    ordinalResolver: ordinalResolver,
-		  ) {
-		$meta.setFlatMapFunction(_flatMapFunction);
-	}
+  /// You can call this constructor and build your own translation instance of this locale.
+  /// Constructing via the enum [AppLocale.build] is preferred.
+  Translations(
+      {Map<String, Node>? overrides,
+      PluralResolver? cardinalResolver,
+      PluralResolver? ordinalResolver})
+      : assert(overrides == null,
+            'Set "translation_overrides: true" in order to enable this feature.'),
+        $meta = TranslationMetadata(
+          locale: AppLocale.kr,
+          overrides: overrides ?? {},
+          cardinalResolver: cardinalResolver,
+          ordinalResolver: ordinalResolver,
+        ) {
+    $meta.setFlatMapFunction(_flatMapFunction);
+  }
 
-	/// Metadata for the translations of <kr>.
-	@override final TranslationMetadata<AppLocale, Translations> $meta;
+  /// Metadata for the translations of <kr>.
+  @override
+  final TranslationMetadata<AppLocale, Translations> $meta;
 
-	/// Access flat map
-	dynamic operator[](String key) => $meta.getTranslation(key);
+  /// Access flat map
+  dynamic operator [](String key) => $meta.getTranslation(key);
 
-	late final Translations _root = this; // ignore: unused_field
+  late final Translations _root = this; // ignore: unused_field
 
   // Translations
   String get coconut_vault => 'Coconut Vault';
@@ -229,144 +236,145 @@ class Translations implements BaseTranslations<AppLocale, Translations> {
 
 // Path: vault_list_tab
 class TranslationsVaultListTabKr {
-	TranslationsVaultListTabKr.internal(this._root);
+  TranslationsVaultListTabKr.internal(this._root);
 
-	final Translations _root; // ignore: unused_field
+  final Translations _root; // ignore: unused_field
 
-	// Translations
-	String get add_wallet => '지갑을 추가해 주세요';
-	String get top_right_icon => '오른쪽 위 + 버튼을 눌러도 추가할 수 있어요';
-	String get btn_add => '바로 추가하기';
+  // Translations
+  String get add_wallet => '지갑을 추가해 주세요';
+  String get top_right_icon => '오른쪽 위 + 버튼을 눌러도 추가할 수 있어요';
+  String get btn_add => '바로 추가하기';
 }
 
 // Path: app_unavailable_notification_screen
 class TranslationsAppUnavailableNotificationScreenKr {
-	TranslationsAppUnavailableNotificationScreenKr.internal(this._root);
+  TranslationsAppUnavailableNotificationScreenKr.internal(this._root);
 
-	final Translations _root; // ignore: unused_field
+  final Translations _root; // ignore: unused_field
 
-	// Translations
-	String get network_on => '휴대폰이 외부와 연결된 상태예요';
-	String get text1_1 => '안전한 사용을 위해';
-	String get text1_2 => '지금 바로 ';
-	String get text1_3 => '앱을 종료';
-	String get text1_4 => '해 주세요';
-	String get text2 => '네트워크 및 블루투스';
-	String get text3 => '개발자 옵션 OFF';
-	String get check_status => '상태를 확인해 주세요';
+  // Translations
+  String get network_on => '휴대폰이 외부와 연결된 상태예요';
+  String get text1_1 => '안전한 사용을 위해';
+  String get text1_2 => '지금 바로 ';
+  String get text1_3 => '앱을 종료';
+  String get text1_4 => '해 주세요';
+  String get text2 => '네트워크 및 블루투스';
+  String get text3 => '개발자 옵션 OFF';
+  String get check_status => '상태를 확인해 주세요';
 }
 
 // Path: ios_bluetooth_auth_notification_screen
 class TranslationsIosBluetoothAuthNotificationScreenKr {
-	TranslationsIosBluetoothAuthNotificationScreenKr.internal(this._root);
+  TranslationsIosBluetoothAuthNotificationScreenKr.internal(this._root);
 
-	final Translations _root; // ignore: unused_field
+  final Translations _root; // ignore: unused_field
 
-	// Translations
-	String get allow_permission => '코코넛 볼트에 블루투스 권한을 허용해 주세요';
-	String get text1_1 => '안전한 사용을 위해';
-	String get text1_2 => '지금 바로 앱을 종료하신 후';
-	String get text1_3 => '설정 화면에서';
-	String get text1_4 => '코코넛 볼트의 ';
-	String get text1_5 => '블루투스 권한';
-	String get text1_6 => '을';
-	String get text1_7 => '허용해 주세요';
+  // Translations
+  String get allow_permission => '코코넛 볼트에 블루투스 권한을 허용해 주세요';
+  String get text1_1 => '안전한 사용을 위해';
+  String get text1_2 => '지금 바로 앱을 종료하신 후';
+  String get text1_3 => '설정 화면에서';
+  String get text1_4 => '코코넛 볼트의 ';
+  String get text1_5 => '블루투스 권한';
+  String get text1_6 => '을';
+  String get text1_7 => '허용해 주세요';
 }
 
 // Path: pin_check_screen
 class TranslationsPinCheckScreenKr {
-	TranslationsPinCheckScreenKr.internal(this._root);
+  TranslationsPinCheckScreenKr.internal(this._root);
 
-	final Translations _root; // ignore: unused_field
+  final Translations _root; // ignore: unused_field
 
-	// Translations
-	String get enter_password => '비밀번호를 눌러주세요';
-	String get warning => '⚠︎ 3회 모두 틀리면 볼트를 초기화해야 합니다';
+  // Translations
+  String get enter_password => '비밀번호를 눌러주세요';
+  String get warning => '⚠︎ 3회 모두 틀리면 볼트를 초기화해야 합니다';
 }
 
 // Path: pin_setting_screen
 class TranslationsPinSettingScreenKr {
-	TranslationsPinSettingScreenKr.internal(this._root);
+  TranslationsPinSettingScreenKr.internal(this._root);
 
-	final Translations _root; // ignore: unused_field
+  final Translations _root; // ignore: unused_field
 
-	// Translations
-	String get set_password => '안전한 볼트 사용을 위해\n먼저 비밀번호를 설정할게요';
-	String get enter_again => '다시 한번 확인할게요';
-	String get new_password => '새로운 비밀번호를 눌러주세요';
-	String get keep_in_mind => '반드시 기억할 수 있는 비밀번호로 설정해 주세요';
+  // Translations
+  String get set_password => '안전한 볼트 사용을 위해\n먼저 비밀번호를 설정할게요';
+  String get enter_again => '다시 한번 확인할게요';
+  String get new_password => '새로운 비밀번호를 눌러주세요';
+  String get keep_in_mind => '반드시 기억할 수 있는 비밀번호로 설정해 주세요';
 }
 
 // Path: security_self_check_screen
 class TranslationsSecuritySelfCheckScreenKr {
-	TranslationsSecuritySelfCheckScreenKr.internal(this._root);
+  TranslationsSecuritySelfCheckScreenKr.internal(this._root);
 
-	final Translations _root; // ignore: unused_field
+  final Translations _root; // ignore: unused_field
 
-	// Translations
-	String get check1 => '나의 개인키는 내가 스스로 책임집니다.';
-	String get check2 => '니모닉 문구 화면을 캡처하거나 촬영하지 않습니다.';
-	String get check3 => '니모닉 문구를 네트워크와 연결된 환경에 저장하지 않습니다.';
-	String get check4 => '니모닉 문구의 순서와 단어의 철자를 확인합니다.';
-	String get check5 => '패스프레이즈에 혹시 의도하지 않은 문자가 포함되지는 않았는지 한번 더 확인합니다.';
-	String get check6 => '니모닉 문구와 패스프레이즈는 아무도 없는 안전한 곳에서 확인합니다.';
-	String get check7 => '니모닉 문구와 패스프레이즈를 함께 보관하지 않습니다.';
-	String get check8 => '소액으로 보내기 테스트를 한 후 지갑 사용을 시작합니다.';
-	String get check9 => '위 사항을 주기적으로 점검하고, 안전하게 니모닉 문구를 보관하겠습니다.';
-	String get guidance => '아래 자가 점검 항목을 숙지하고 니모닉 문구를 반드시 안전하게 보관합니다.';
+  // Translations
+  String get check1 => '나의 개인키는 내가 스스로 책임집니다.';
+  String get check2 => '니모닉 문구 화면을 캡처하거나 촬영하지 않습니다.';
+  String get check3 => '니모닉 문구를 네트워크와 연결된 환경에 저장하지 않습니다.';
+  String get check4 => '니모닉 문구의 순서와 단어의 철자를 확인합니다.';
+  String get check5 => '패스프레이즈에 혹시 의도하지 않은 문자가 포함되지는 않았는지 한번 더 확인합니다.';
+  String get check6 => '니모닉 문구와 패스프레이즈는 아무도 없는 안전한 곳에서 확인합니다.';
+  String get check7 => '니모닉 문구와 패스프레이즈를 함께 보관하지 않습니다.';
+  String get check8 => '소액으로 보내기 테스트를 한 후 지갑 사용을 시작합니다.';
+  String get check9 => '위 사항을 주기적으로 점검하고, 안전하게 니모닉 문구를 보관하겠습니다.';
+  String get guidance => '아래 자가 점검 항목을 숙지하고 니모닉 문구를 반드시 안전하게 보관합니다.';
 }
 
 // Path: tutorial_screen
 class TranslationsTutorialScreenKr {
-	TranslationsTutorialScreenKr.internal(this._root);
+  TranslationsTutorialScreenKr.internal(this._root);
 
-	final Translations _root; // ignore: unused_field
+  final Translations _root; // ignore: unused_field
 
-	// Translations
-	String get title1 => '튜토리얼을 참고하시면\n더욱 쉽게 사용할 수 있어요';
-	String get title2 => '도움이 필요하신가요?';
-	String get subtitle => '튜토리얼과 함께 사용해 보세요';
-	String get content => '인터넷 주소창에 입력해 주세요\ncoconut.onl';
+  // Translations
+  String get title1 => '튜토리얼을 참고하시면\n더욱 쉽게 사용할 수 있어요';
+  String get title2 => '도움이 필요하신가요?';
+  String get subtitle => '튜토리얼과 함께 사용해 보세요';
+  String get content => '인터넷 주소창에 입력해 주세요\ncoconut.onl';
 }
 
 // Path: multisig
 class TranslationsMultisigKr {
-	TranslationsMultisigKr.internal(this._root);
+  TranslationsMultisigKr.internal(this._root);
 
-	final Translations _root; // ignore: unused_field
+  final Translations _root; // ignore: unused_field
 
-	// Translations
-	String nth_key({required Object index}) => '${index}번 키 -';
+  // Translations
+  String nth_key({required Object index}) => '${index}번 키 -';
 }
 
 // Path: account_selection_bottom_sheet_screen
 class TranslationsAccountSelectionBottomSheetScreenKr {
-	TranslationsAccountSelectionBottomSheetScreenKr.internal(this._root);
+  TranslationsAccountSelectionBottomSheetScreenKr.internal(this._root);
 
-	final Translations _root; // ignore: unused_field
+  final Translations _root; // ignore: unused_field
 
-	// Translations
-	String get text => '서명할 계정을 선택해주세요.';
+  // Translations
+  String get text => '서명할 계정을 선택해주세요.';
 }
 
 // Path: psbt_confirmation_screen
 class TranslationsPsbtConfirmationScreenKr {
-	TranslationsPsbtConfirmationScreenKr.internal(this._root);
+  TranslationsPsbtConfirmationScreenKr.internal(this._root);
 
-	final Translations _root; // ignore: unused_field
+  final Translations _root; // ignore: unused_field
 
-	// Translations
-	String get title => '스캔 정보 확인';
-	String get guide => '월렛에서 스캔한 정보가 맞는지 다시 한번 확인해 주세요.';
-	String get self_sending => '내 지갑으로 보내는 트랜잭션입니다.';
-	String get warning => '⚠️ 해당 지갑으로 만든 psbt가 아닐 수 있습니다. 또는 잔액이 없는 트랜잭션일 수 있습니다.';
+  // Translations
+  String get title => '스캔 정보 확인';
+  String get guide => '월렛에서 스캔한 정보가 맞는지 다시 한번 확인해 주세요.';
+  String get self_sending => '내 지갑으로 보내는 트랜잭션입니다.';
+  String get warning =>
+      '⚠️ 해당 지갑으로 만든 psbt가 아닐 수 있습니다. 또는 잔액이 없는 트랜잭션일 수 있습니다.';
 }
 
 // Path: psbt_scanner_screen
 class TranslationsPsbtScannerScreenKr {
-	TranslationsPsbtScannerScreenKr.internal(this._root);
+  TranslationsPsbtScannerScreenKr.internal(this._root);
 
-	final Translations _root; // ignore: unused_field
+  final Translations _root; // ignore: unused_field
 
   // Translations
   String get guide_multisig => '월렛에서 만든 보내기 정보 또는 외부 볼트에서 다중 서명 중인 정보를 스캔해주세요.';
@@ -375,9 +383,9 @@ class TranslationsPsbtScannerScreenKr {
 
 // Path: signed_transaction_qr_screen
 class TranslationsSignedTransactionQrScreenKr {
-	TranslationsSignedTransactionQrScreenKr.internal(this._root);
+  TranslationsSignedTransactionQrScreenKr.internal(this._root);
 
-	final Translations _root; // ignore: unused_field
+  final Translations _root; // ignore: unused_field
 
   // Translations
   String get guide_multisig =>
@@ -390,10 +398,10 @@ class TranslationsSignedTransactionQrScreenKr {
 class TranslationsSingleSigSignScreenKr {
   TranslationsSingleSigSignScreenKr.internal(this._root);
 
-	final Translations _root; // ignore: unused_field
+  final Translations _root; // ignore: unused_field
 
-	// Translations
-	String get text => '이미 서명된 트랜잭션입니다';
+  // Translations
+  String get text => '이미 서명된 트랜잭션입니다';
 }
 
 // Path: signer_qr_bottom_sheet
@@ -412,9 +420,9 @@ class TranslationsSignerQrBottomSheetKr {
 
 // Path: app_info_screen
 class TranslationsAppInfoScreenKr {
-	TranslationsAppInfoScreenKr.internal(this._root);
+  TranslationsAppInfoScreenKr.internal(this._root);
 
-	final Translations _root; // ignore: unused_field
+  final Translations _root; // ignore: unused_field
 
   // Translations
   String get made_by_team_pow => '포우팀이 만듭니다.';
@@ -439,113 +447,115 @@ class TranslationsAppInfoScreenKr {
 
 // Path: read_file_view_screen
 class TranslationsReadFileViewScreenKr {
-	TranslationsReadFileViewScreenKr.internal(this._root);
+  TranslationsReadFileViewScreenKr.internal(this._root);
 
-	final Translations _root; // ignore: unused_field
+  final Translations _root; // ignore: unused_field
 
-	// Translations
-	String get mit_license => 'MIT LICENSE';
-	String get contribution => '오픈소스 개발 참여하기';
+  // Translations
+  String get mit_license => 'MIT LICENSE';
+  String get contribution => '오픈소스 개발 참여하기';
 }
 
 // Path: license_screen
 class TranslationsLicenseScreenKr {
-	TranslationsLicenseScreenKr.internal(this._root);
+  TranslationsLicenseScreenKr.internal(this._root);
 
-	final Translations _root; // ignore: unused_field
+  final Translations _root; // ignore: unused_field
 
-	// Translations
-	String get text1 => '코코넛 볼트는 MIT 라이선스를 따르며 저작권은 대한민국의 논스랩 주식회사에 있습니다. MIT 라이선스 전문은 ';
-	String get text2 => '에서 확인해 주세요.\n\n이 애플리케이션에 포함된 타사 소프트웨어에 대한 저작권을 다음과 같이 명시합니다. 이에 대해 궁금한 사항이 있으시면 ';
-	String get text3 => '으로 문의해 주시기 바랍니다.';
+  // Translations
+  String get text1 =>
+      '코코넛 볼트는 MIT 라이선스를 따르며 저작권은 대한민국의 논스랩 주식회사에 있습니다. MIT 라이선스 전문은 ';
+  String get text2 =>
+      '에서 확인해 주세요.\n\n이 애플리케이션에 포함된 타사 소프트웨어에 대한 저작권을 다음과 같이 명시합니다. 이에 대해 궁금한 사항이 있으시면 ';
+  String get text3 => '으로 문의해 주시기 바랍니다.';
 }
 
 // Path: mnemonic_word_list_screen
 class TranslationsMnemonicWordListScreenKr {
-	TranslationsMnemonicWordListScreenKr.internal(this._root);
+  TranslationsMnemonicWordListScreenKr.internal(this._root);
 
-	final Translations _root; // ignore: unused_field
+  final Translations _root; // ignore: unused_field
 
-	// Translations
-	String get search_mnemonic_word => '영문으로 검색해 보세요';
-	String result({required Object text}) => '\'${text}\' 검색 결과';
-	String get such_no_result => '검색 결과가 없어요';
+  // Translations
+  String get search_mnemonic_word => '영문으로 검색해 보세요';
+  String result({required Object text}) => '\'${text}\' 검색 결과';
+  String get such_no_result => '검색 결과가 없어요';
 }
 
 // Path: settings_screen
 class TranslationsSettingsScreenKr {
-	TranslationsSettingsScreenKr.internal(this._root);
+  TranslationsSettingsScreenKr.internal(this._root);
 
-	final Translations _root; // ignore: unused_field
+  final Translations _root; // ignore: unused_field
 
-	// Translations
-	String get use_biometric => '생체 인증 사용하기';
-	String get change_password => '비밀번호 바꾸기';
-	String get set_password => '비밀번호 설정하기';
+  // Translations
+  String get use_biometric => '생체 인증 사용하기';
+  String get change_password => '비밀번호 바꾸기';
+  String get set_password => '비밀번호 설정하기';
 }
 
 // Path: guide_screen
 class TranslationsGuideScreenKr {
-	TranslationsGuideScreenKr.internal(this._root);
+  TranslationsGuideScreenKr.internal(this._root);
 
-	final Translations _root; // ignore: unused_field
+  final Translations _root; // ignore: unused_field
 
-	// Translations
-	String get keep_network_off => '안전한 비트코인 보관을 위해,\n항상 연결 상태를 OFF로 유지해주세요';
-	String get network_status => '네트워크 상태';
-	String get bluetooth_status => '블루투스 상태';
-	String get developer_option => '개발자 옵션';
-	String get turn_off_network_and_bluetooth => '네트워크와 블루투스를 모두 꺼주세요';
-	String get disable_developer_option => '개발자 옵션을 비활성화 해주세요';
-	String get on => 'ON';
-	String get off => 'OFF';
+  // Translations
+  String get keep_network_off => '안전한 비트코인 보관을 위해,\n항상 연결 상태를 OFF로 유지해주세요';
+  String get network_status => '네트워크 상태';
+  String get bluetooth_status => '블루투스 상태';
+  String get developer_option => '개발자 옵션';
+  String get turn_off_network_and_bluetooth => '네트워크와 블루투스를 모두 꺼주세요';
+  String get disable_developer_option => '개발자 옵션을 비활성화 해주세요';
+  String get on => 'ON';
+  String get off => 'OFF';
 }
 
 // Path: welcome_screen
 class TranslationsWelcomeScreenKr {
-	TranslationsWelcomeScreenKr.internal(this._root);
+  TranslationsWelcomeScreenKr.internal(this._root);
 
-	final Translations _root; // ignore: unused_field
+  final Translations _root; // ignore: unused_field
 
-	// Translations
-	String get greeting => '원활한 코코넛 볼트 사용을 위해\n잠깐만 시간을 내주세요';
-	String get guide1_1 => '볼트는';
-	String guide1_2({required Object suffix}) => '네트워크, 블루투스 연결${suffix}이';
-	String get guide1_3 => '꺼져있는 상태';
-	String get guide1_4 => '에서만';
-	String get guide1_5 => '사용하실 수 있어요';
-	String get guide2_1 => '즉,';
-	String get guide2_2 => '연결이 감지되면';
-	String get guide2_3 => '앱을 사용하실 수 없게';
-	String get guide2_4 => '설계되어 있어요';
-	String get guide3_1 => '안전한 사용';
-	String get guide3_2 => '을 위한';
-	String get guide3_3 => '조치이오니';
-	String get guide3_4 => '사용 시 유의해 주세요';
-	String get understood => '모두 이해했어요';
+  // Translations
+  String get greeting => '원활한 코코넛 볼트 사용을 위해\n잠깐만 시간을 내주세요';
+  String get guide1_1 => '볼트는';
+  String guide1_2({required Object suffix}) => '네트워크, 블루투스 연결${suffix}이';
+  String get guide1_3 => '꺼져있는 상태';
+  String get guide1_4 => '에서만';
+  String get guide1_5 => '사용하실 수 있어요';
+  String get guide2_1 => '즉,';
+  String get guide2_2 => '연결이 감지되면';
+  String get guide2_3 => '앱을 사용하실 수 없게';
+  String get guide2_4 => '설계되어 있어요';
+  String get guide3_1 => '안전한 사용';
+  String get guide3_2 => '을 위한';
+  String get guide3_3 => '조치이오니';
+  String get guide3_4 => '사용 시 유의해 주세요';
+  String get understood => '모두 이해했어요';
 }
 
 // Path: mnemonic_coin_flip_screen
 class TranslationsMnemonicCoinFlipScreenKr {
-	TranslationsMnemonicCoinFlipScreenKr.internal(this._root);
+  TranslationsMnemonicCoinFlipScreenKr.internal(this._root);
 
-	final Translations _root; // ignore: unused_field
+  final Translations _root; // ignore: unused_field
 
-	// Translations
-	String get title => '니모닉 문구 만들기';
-	String get words_passphrase => ' 단어, 패스프레이즈 ';
-	String get use => '사용';
-	String get do_not => '안함';
-	String get enter_passphrase => '패스프레이즈를 입력해 주세요';
-	String get coin_head => '앞';
-	String get coin_tail => '뒤';
+  // Translations
+  String get title => '니모닉 문구 만들기';
+  String get words_passphrase => ' 단어, 패스프레이즈 ';
+  String get use => '사용';
+  String get do_not => '안함';
+  String get enter_passphrase => '패스프레이즈를 입력해 주세요';
+  String get coin_head => '앞';
+  String get coin_tail => '뒤';
 }
 
 // Path: mnemonic_confirm_screen
 class TranslationsMnemonicConfirmScreenKr {
-	TranslationsMnemonicConfirmScreenKr.internal(this._root);
+  TranslationsMnemonicConfirmScreenKr.internal(this._root);
 
-	final Translations _root; // ignore: unused_field
+  final Translations _root; // ignore: unused_field
 
   // Translations
   String get title => '입력하신 정보가 맞는지\n다시 한번 확인해 주세요.';
@@ -558,45 +568,45 @@ class TranslationsMnemonicConfirmScreenKr {
 
 // Path: mnemonic_generate_screen
 class TranslationsMnemonicGenerateScreenKr {
-	TranslationsMnemonicGenerateScreenKr.internal(this._root);
+  TranslationsMnemonicGenerateScreenKr.internal(this._root);
 
-	final Translations _root; // ignore: unused_field
+  final Translations _root; // ignore: unused_field
 
-	// Translations
-	String get title => '새 니모닉 문구';
-	String get select_word_length => '단어 수를 고르세요';
-	String get twelve => '12 단어';
-	String get twenty_four => '24 단어';
-	String get use_passphrase => '패스프레이즈를 사용하실 건가요?';
-	String get ensure_backup => '니모닉을 틀림없이 백업했습니다.';
-	String get word_passphrase => ' 단어, 패스프레이즈 ';
-	String get use => '사용';
-	String get do_not => '안함';
-	String get enter_passphrase => '패스프레이즈를 입력해 주세요';
-	String get backup_guide => '안전한 장소에서 니모닉 문구를 백업해 주세요';
-	String get backup_complete => '백업 완료';
-	String get warning => '입력하신 패스프레이즈는 보관과 유출에 유의해 주세요';
+  // Translations
+  String get title => '새 니모닉 문구';
+  String get select_word_length => '단어 수를 고르세요';
+  String get twelve => '12 단어';
+  String get twenty_four => '24 단어';
+  String get use_passphrase => '패스프레이즈를 사용하실 건가요?';
+  String get ensure_backup => '니모닉을 틀림없이 백업했습니다.';
+  String get word_passphrase => ' 단어, 패스프레이즈 ';
+  String get use => '사용';
+  String get do_not => '안함';
+  String get enter_passphrase => '패스프레이즈를 입력해 주세요';
+  String get backup_guide => '안전한 장소에서 니모닉 문구를 백업해 주세요';
+  String get backup_complete => '백업 완료';
+  String get warning => '입력하신 패스프레이즈는 보관과 유출에 유의해 주세요';
 }
 
 // Path: mnemonic_import_screen
 class TranslationsMnemonicImportScreenKr {
-	TranslationsMnemonicImportScreenKr.internal(this._root);
+  TranslationsMnemonicImportScreenKr.internal(this._root);
 
-	final Translations _root; // ignore: unused_field
+  final Translations _root; // ignore: unused_field
 
-	// Translations
-	String get title => '복원하기';
-	String get enter_mnemonic_phrase => '니모닉 문구를 입력해 주세요';
-	String get put_spaces_between_words => '단어 사이에 띄어쓰기를 넣어주세요';
-	String get use_passphrase => '패스프레이즈 사용';
-	String get enter_passphrase => '패스프레이즈를 입력해 주세요';
+  // Translations
+  String get title => '복원하기';
+  String get enter_mnemonic_phrase => '니모닉 문구를 입력해 주세요';
+  String get put_spaces_between_words => '단어 사이에 띄어쓰기를 넣어주세요';
+  String get use_passphrase => '패스프레이즈 사용';
+  String get enter_passphrase => '패스프레이즈를 입력해 주세요';
 }
 
 // Path: select_vault_type_screen
 class TranslationsSelectVaultTypeScreenKr {
-	TranslationsSelectVaultTypeScreenKr.internal(this._root);
+  TranslationsSelectVaultTypeScreenKr.internal(this._root);
 
-	final Translations _root; // ignore: unused_field
+  final Translations _root; // ignore: unused_field
 
   // Translations
   String get title => '지갑 만들기';
@@ -608,135 +618,139 @@ class TranslationsSelectVaultTypeScreenKr {
 
 // Path: vault_creation_options_screen
 class TranslationsVaultCreationOptionsScreenKr {
-	TranslationsVaultCreationOptionsScreenKr.internal(this._root);
+  TranslationsVaultCreationOptionsScreenKr.internal(this._root);
 
-	final Translations _root; // ignore: unused_field
+  final Translations _root; // ignore: unused_field
 
-	// Translations
-	String get coin_flip => '동전을 던져 직접 만들게요';
-	String get auto_generate => '앱에서 만들어 주세요';
-	String get import_mnemonic => '사용 중인 니모닉 문구가 있어요';
+  // Translations
+  String get coin_flip => '동전을 던져 직접 만들게요';
+  String get auto_generate => '앱에서 만들어 주세요';
+  String get import_mnemonic => '사용 중인 니모닉 문구가 있어요';
 }
 
 // Path: vault_name_icon_setup_screen
 class TranslationsVaultNameIconSetupScreenKr {
-	TranslationsVaultNameIconSetupScreenKr.internal(this._root);
+  TranslationsVaultNameIconSetupScreenKr.internal(this._root);
 
-	final Translations _root; // ignore: unused_field
+  final Translations _root; // ignore: unused_field
 
-	// Translations
-	String get title => '이름 설정';
-	String get saving => '저장 중이에요.';
+  // Translations
+  String get title => '이름 설정';
+  String get saving => '저장 중이에요.';
 }
 
 // Path: assign_signers_screen
 class TranslationsAssignSignersScreenKr {
-	TranslationsAssignSignersScreenKr.internal(this._root);
+  TranslationsAssignSignersScreenKr.internal(this._root);
 
-	final Translations _root; // ignore: unused_field
+  final Translations _root; // ignore: unused_field
 
-	// Translations
-	String get order_keys => '동일한 순서를 유지하도록 키 순서를 정렬 할게요';
-	String get data_verifying => '데이터 검증 중이에요';
-	String get use_internal_key => '이 볼트에 있는 키 사용하기';
+  // Translations
+  String get order_keys => '동일한 순서를 유지하도록 키 순서를 정렬 할게요';
+  String get data_verifying => '데이터 검증 중이에요';
+  String get use_internal_key => '이 볼트에 있는 키 사용하기';
 }
 
 // Path: confirm_importing_screen
 class TranslationsConfirmImportingScreenKr {
-	TranslationsConfirmImportingScreenKr.internal(this._root);
+  TranslationsConfirmImportingScreenKr.internal(this._root);
 
-	final Translations _root; // ignore: unused_field
+  final Translations _root; // ignore: unused_field
 
-	// Translations
-	String get guide1 => '다른 볼트에서 가져온 ';
-	String get guide2 => '정보가 일치하는지 ';
-	String get guide3 => '확인해 주세요.';
-	String get scan_info => '스캔한 정보';
-	String get memo => '메모';
-	String get placeholder => '키에 대한 간단한 메모를 추가하세요';
+  // Translations
+  String get guide1 => '다른 볼트에서 가져온 ';
+  String get guide2 => '정보가 일치하는지 ';
+  String get guide3 => '확인해 주세요.';
+  String get scan_info => '스캔한 정보';
+  String get memo => '메모';
+  String get placeholder => '키에 대한 간단한 메모를 추가하세요';
 }
 
 // Path: select_multisig_quorum_screen
 class TranslationsSelectMultisigQuorumScreenKr {
-	TranslationsSelectMultisigQuorumScreenKr.internal(this._root);
+  TranslationsSelectMultisigQuorumScreenKr.internal(this._root);
 
-	final Translations _root; // ignore: unused_field
+  final Translations _root; // ignore: unused_field
 
-	// Translations
-	String get total_key_count => '전체 키의 수';
-	String get required_signature_count => '필요한 서명 수';
-	String get one_or_two_of_n => '하나의 키를 분실하거나 키 보관자 중 한 명이 부재중이더라도 비트코인을 보낼 수 있어요.';
-	String get n_of_n => '모든 키가 있어야만 비트코인을 보낼 수 있어요. 단 하나의 키만 잃어버려도 자금에 접근할 수 없게 되니 분실에 각별히 신경써 주세요.';
-	String get one_of_n => '하나의 키만 있어도 비트코인을 이동시킬 수 있어요. 상대적으로 보안성이 낮기 때문에 권장하지 않아요.';
+  // Translations
+  String get total_key_count => '전체 키의 수';
+  String get required_signature_count => '필요한 서명 수';
+  String get one_or_two_of_n =>
+      '하나의 키를 분실하거나 키 보관자 중 한 명이 부재중이더라도 비트코인을 보낼 수 있어요.';
+  String get n_of_n =>
+      '모든 키가 있어야만 비트코인을 보낼 수 있어요. 단 하나의 키만 잃어버려도 자금에 접근할 수 없게 되니 분실에 각별히 신경써 주세요.';
+  String get one_of_n =>
+      '하나의 키만 있어도 비트코인을 이동시킬 수 있어요. 상대적으로 보안성이 낮기 때문에 권장하지 않아요.';
 }
 
 // Path: signer_scanner_bottom_sheet
 class TranslationsSignerScannerBottomSheetKr {
-	TranslationsSignerScannerBottomSheetKr.internal(this._root);
+  TranslationsSignerScannerBottomSheetKr.internal(this._root);
 
-	final Translations _root; // ignore: unused_field
+  final Translations _root; // ignore: unused_field
 
-	// Translations
-	String get title => '서명 업데이트';
-	String get guide => '다른 볼트에서 서명을 추가했나요? 정보를 업데이트 하기 위해 추가된 서명 트랜잭션의 QR 코드를 스캔해 주세요.';
+  // Translations
+  String get title => '서명 업데이트';
+  String get guide =>
+      '다른 볼트에서 서명을 추가했나요? 정보를 업데이트 하기 위해 추가된 서명 트랜잭션의 QR 코드를 스캔해 주세요.';
 }
 
 // Path: signer_scanner_screen
 class TranslationsSignerScannerScreenKr {
-	TranslationsSignerScannerScreenKr.internal(this._root);
+  TranslationsSignerScannerScreenKr.internal(this._root);
 
-	final Translations _root; // ignore: unused_field
+  final Translations _root; // ignore: unused_field
 
-	// Translations
-	String get title1 => '다중 서명 지갑 가져오기';
-	String get title2 => '외부 지갑 서명하기';
-	String get guide1_1 => '다른 볼트에서 만든 다중 서명 지갑을 추가할 수 있어요. 추가 하시려는 다중 서명 지갑의 ';
-	String get guide1_2 => '지갑 설정 정보 ';
-	String get guide1_3 => '화면에 나타나는 QR 코드를 스캔해 주세요.';
-	String get guide2_1 => '키를 보관 중인 볼트';
-	String get guide2_2 => '의 홈 화면에서 지갑 선택 - ';
-	String get guide2_3 => '다중 서명 키로 사용하기 ';
-	String get guide2_4 => '메뉴를 선택해 주세요. 화면에 보이는 QR 코드를 스캔합니다.';
+  // Translations
+  String get title1 => '다중 서명 지갑 가져오기';
+  String get title2 => '외부 지갑 서명하기';
+  String get guide1_1 => '다른 볼트에서 만든 다중 서명 지갑을 추가할 수 있어요. 추가 하시려는 다중 서명 지갑의 ';
+  String get guide1_2 => '지갑 설정 정보 ';
+  String get guide1_3 => '화면에 나타나는 QR 코드를 스캔해 주세요.';
+  String get guide2_1 => '키를 보관 중인 볼트';
+  String get guide2_2 => '의 홈 화면에서 지갑 선택 - ';
+  String get guide2_3 => '다중 서명 키로 사용하기 ';
+  String get guide2_4 => '메뉴를 선택해 주세요. 화면에 보이는 QR 코드를 스캔합니다.';
 }
 
 // Path: address_list_screen
 class TranslationsAddressListScreenKr {
-	TranslationsAddressListScreenKr.internal(this._root);
+  TranslationsAddressListScreenKr.internal(this._root);
 
-	final Translations _root; // ignore: unused_field
+  final Translations _root; // ignore: unused_field
 
-	// Translations
-	String title({required Object name}) => '${name}의 주소';
-	String address_index({required Object index}) => '주소 - ${index}';
+  // Translations
+  String title({required Object name}) => '${name}의 주소';
+  String address_index({required Object index}) => '주소 - ${index}';
 }
 
 // Path: export_detail_screen
 class TranslationsExportDetailScreenKr {
-	TranslationsExportDetailScreenKr.internal(this._root);
+  TranslationsExportDetailScreenKr.internal(this._root);
 
-	final Translations _root; // ignore: unused_field
+  final Translations _root; // ignore: unused_field
 
-	// Translations
-	String get title => '내보내기 상세 정보';
+  // Translations
+  String get title => '내보내기 상세 정보';
 }
 
 // Path: mnemonic_view_screen
 class TranslationsMnemonicViewScreenKr {
-	TranslationsMnemonicViewScreenKr.internal(this._root);
+  TranslationsMnemonicViewScreenKr.internal(this._root);
 
-	final Translations _root; // ignore: unused_field
+  final Translations _root; // ignore: unused_field
 
-	// Translations
-	String get view_passphrase => '패스프레이즈 보기';
-	String get visible_while_pressing => '누르는 동안 보여요';
-	String get space_as_blank => ' 공백 문자는 빈칸으로 표시됩니다.';
+  // Translations
+  String get view_passphrase => '패스프레이즈 보기';
+  String get visible_while_pressing => '누르는 동안 보여요';
+  String get space_as_blank => ' 공백 문자는 빈칸으로 표시됩니다.';
 }
 
 // Path: multi_sig_bsms_screen
 class TranslationsMultiSigBsmsScreenKr {
-	TranslationsMultiSigBsmsScreenKr.internal(this._root);
+  TranslationsMultiSigBsmsScreenKr.internal(this._root);
 
-	final Translations _root; // ignore: unused_field
+  final Translations _root; // ignore: unused_field
 
   // Translations
   late final TranslationsMultiSigBsmsScreenBottomSheetKr bottom_sheet =
@@ -754,108 +768,112 @@ class TranslationsMultiSigBsmsScreenKr {
 
 // Path: multi_sig_memo_bottom_sheet
 class TranslationsMultiSigMemoBottomSheetKr {
-	TranslationsMultiSigMemoBottomSheetKr.internal(this._root);
+  TranslationsMultiSigMemoBottomSheetKr.internal(this._root);
 
-	final Translations _root; // ignore: unused_field
+  final Translations _root; // ignore: unused_field
 
-	// Translations
-	String get imported_wallet_memo => '외부 지갑 메모';
-	String get placeholder => '메모를 작성해주세요.';
+  // Translations
+  String get imported_wallet_memo => '외부 지갑 메모';
+  String get placeholder => '메모를 작성해주세요.';
 }
 
 // Path: multi_sig_setting_screen
 class TranslationsMultiSigSettingScreenKr {
-	TranslationsMultiSigSettingScreenKr.internal(this._root);
+  TranslationsMultiSigSettingScreenKr.internal(this._root);
 
-	final Translations _root; // ignore: unused_field
+  final Translations _root; // ignore: unused_field
 
-	// Translations
-	String get edit_memo => '메모 수정';
-	String get add_memo => '메모 추가';
-	String get view_bsms => '지갑 설정 정보 보기';
-	String tooltip({required Object total, required Object count}) => '${total}개의 키 중 ${count}개로 서명해야 하는\n다중 서명 지갑이예요.';
+  // Translations
+  String get edit_memo => '메모 수정';
+  String get add_memo => '메모 추가';
+  String get view_bsms => '지갑 설정 정보 보기';
+  String tooltip({required Object total, required Object count}) =>
+      '${total}개의 키 중 ${count}개로 서명해야 하는\n다중 서명 지갑이예요.';
 }
 
 // Path: select_export_type_screen
 class TranslationsSelectExportTypeScreenKr {
-	TranslationsSelectExportTypeScreenKr.internal(this._root);
+  TranslationsSelectExportTypeScreenKr.internal(this._root);
 
-	final Translations _root; // ignore: unused_field
+  final Translations _root; // ignore: unused_field
 
-	// Translations
-	String get title => '내보내기';
-	String get export_type => '어떤 용도로 사용하시나요?';
-	String get watch_only => '월렛에\n보기 전용 지갑 추가';
-	String get multisig => '다른 볼트에서\n다중 서명 키로 사용';
+  // Translations
+  String get title => '내보내기';
+  String get export_type => '어떤 용도로 사용하시나요?';
+  String get watch_only => '월렛에\n보기 전용 지갑 추가';
+  String get multisig => '다른 볼트에서\n다중 서명 키로 사용';
 }
 
 // Path: signer_bsms_screen
 class TranslationsSignerBsmsScreenKr {
-	TranslationsSignerBsmsScreenKr.internal(this._root);
+  TranslationsSignerBsmsScreenKr.internal(this._root);
 
-	final Translations _root; // ignore: unused_field
+  final Translations _root; // ignore: unused_field
 
-	// Translations
-	String get guide1_1 => '다른 볼트';
-	String get guide1_2 => '에서 다중 서명 지갑을 생성 중이시군요! 다른 볼트에서 ';
-	String get guide1_3 => '가져오기 + 버튼';
-	String get guide1_4 => '을 누른 후 나타난 가져오기 화면에서, 아래 ';
-	String get guide1_5 => 'QR 코드를 스캔';
-	String get guide1_6 => '해 주세요.';
-	String get export_info => '내보낼 정보';
+  // Translations
+  String get guide1_1 => '다른 볼트';
+  String get guide1_2 => '에서 다중 서명 지갑을 생성 중이시군요! 다른 볼트에서 ';
+  String get guide1_3 => '가져오기 + 버튼';
+  String get guide1_4 => '을 누른 후 나타난 가져오기 화면에서, 아래 ';
+  String get guide1_5 => 'QR 코드를 스캔';
+  String get guide1_6 => '해 주세요.';
+  String get export_info => '내보낼 정보';
 }
 
 // Path: sync_to_wallet_screen
 class TranslationsSyncToWalletScreenKr {
-	TranslationsSyncToWalletScreenKr.internal(this._root);
+  TranslationsSyncToWalletScreenKr.internal(this._root);
 
-	final Translations _root; // ignore: unused_field
+  final Translations _root; // ignore: unused_field
 
-	// Translations
-	String title({required Object name}) => '${name} 내보내기';
-	String get guide1_1 => '월렛';
-	String get guide1_2 => '에서 + 버튼을 누르고, 아래 ';
-	String get guide1_3 => 'QR 코드를 스캔';
-	String get guide1_4 => '해 주세요. 안전한 보기 전용 지갑을 사용하실 수 있어요.';
-	String get view_detail => '상세 정보 보기';
+  // Translations
+  String title({required Object name}) => '${name} 내보내기';
+  String get guide1_1 => '월렛';
+  String get guide1_2 => '에서 + 버튼을 누르고, 아래 ';
+  String get guide1_3 => 'QR 코드를 스캔';
+  String get guide1_4 => '해 주세요. 안전한 보기 전용 지갑을 사용하실 수 있어요.';
+  String get view_detail => '상세 정보 보기';
 }
 
 // Path: vault_menu_screen
 class TranslationsVaultMenuScreenKr {
-	TranslationsVaultMenuScreenKr.internal(this._root);
+  TranslationsVaultMenuScreenKr.internal(this._root);
 
-	final Translations _root; // ignore: unused_field
+  final Translations _root; // ignore: unused_field
 
-	// Translations
-	late final TranslationsVaultMenuScreenTitleKr title = TranslationsVaultMenuScreenTitleKr.internal(_root);
-	late final TranslationsVaultMenuScreenDescriptionKr description = TranslationsVaultMenuScreenDescriptionKr.internal(_root);
+  // Translations
+  late final TranslationsVaultMenuScreenTitleKr title =
+      TranslationsVaultMenuScreenTitleKr.internal(_root);
+  late final TranslationsVaultMenuScreenDescriptionKr description =
+      TranslationsVaultMenuScreenDescriptionKr.internal(_root);
 }
 
 // Path: vault_settings
 class TranslationsVaultSettingsKr {
-	TranslationsVaultSettingsKr.internal(this._root);
+  TranslationsVaultSettingsKr.internal(this._root);
 
-	final Translations _root; // ignore: unused_field
+  final Translations _root; // ignore: unused_field
 
-	// Translations
-	String get used_in_multisig => '다중 서명 지갑에서 사용 중입니다';
-	String get of => '의 ';
-	String nth({required Object index}) => '${index} 번';
-	String get key => ' 키';
+  // Translations
+  String get used_in_multisig => '다중 서명 지갑에서 사용 중입니다';
+  String get of => '의 ';
+  String nth({required Object index}) => '${index} 번';
+  String get key => ' 키';
 }
 
 // Path: bottom_sheet
 class TranslationsBottomSheetKr {
-	TranslationsBottomSheetKr.internal(this._root);
+  TranslationsBottomSheetKr.internal(this._root);
 
-	final Translations _root; // ignore: unused_field
+  final Translations _root; // ignore: unused_field
 
-	// Translations
-	String get view_mit_license => 'MIT 라이선스 전문 보기';
-	String get contact_by_email => '이메일 문의';
-	String get ask_about_license => '[볼트] 라이선스 문의';
-	String get mnemonic_backup => '생성된 니모닉 문구를\n백업해 주세요.';
-	String get mnemonic_backup_and_confirm_passphrase => '생성된 니모닉 문구를 백업하시고\n패스프레이즈를 확인해 주세요.';
+  // Translations
+  String get view_mit_license => 'MIT 라이선스 전문 보기';
+  String get contact_by_email => '이메일 문의';
+  String get ask_about_license => '[볼트] 라이선스 문의';
+  String get mnemonic_backup => '생성된 니모닉 문구를\n백업해 주세요.';
+  String get mnemonic_backup_and_confirm_passphrase =>
+      '생성된 니모닉 문구를 백업하시고\n패스프레이즈를 확인해 주세요.';
 }
 
 // Path: permission
@@ -871,9 +889,9 @@ class TranslationsPermissionKr {
 
 // Path: alert
 class TranslationsAlertKr {
-	TranslationsAlertKr.internal(this._root);
+  TranslationsAlertKr.internal(this._root);
 
-	final Translations _root; // ignore: unused_field
+  final Translations _root; // ignore: unused_field
 
   // Translations
   String confirm_deletion({required Object name}) =>
@@ -917,28 +935,29 @@ class TranslationsAlertKr {
 
 // Path: toast
 class TranslationsToastKr {
-	TranslationsToastKr.internal(this._root);
+  TranslationsToastKr.internal(this._root);
 
-	final Translations _root; // ignore: unused_field
+  final Translations _root; // ignore: unused_field
 
-	// Translations
-	String get clipboard_copied => '클립보드에 복사되었어요.';
-	String get back_exit => '뒤로 가기 버튼을 한 번 더 누르면 종료됩니다.';
-	String get scroll_down => '스크롤을 내려서 모두 확인해주세요';
-	String get data_updated => '정보를 수정했어요';
-	String get name_already_used => '이미 사용하고 있는 이름으로는 바꿀 수 없어요';
-	String get name_already_used2 => '이미 사용 중인 이름은 설정할 수 없어요';
-	String get name_multisig_in_use => '다중 서명 지갑에 사용되고 있어 삭제할 수 없어요.';
-	String get mnemonic_already_added => '이미 추가되어 있는 니모닉이에요';
-	String get mnemonic_copied => '니모닉 문구가 복사됐어요';
-	String multisig_already_added({required Object name}) => '이미 추가되어 있는 다중 서명 지갑이에요. (${name})';
+  // Translations
+  String get clipboard_copied => '클립보드에 복사되었어요.';
+  String get back_exit => '뒤로 가기 버튼을 한 번 더 누르면 종료됩니다.';
+  String get scroll_down => '스크롤을 내려서 모두 확인해주세요';
+  String get data_updated => '정보를 수정했어요';
+  String get name_already_used => '이미 사용하고 있는 이름으로는 바꿀 수 없어요';
+  String get name_already_used2 => '이미 사용 중인 이름은 설정할 수 없어요';
+  String get name_multisig_in_use => '다중 서명 지갑에 사용되고 있어 삭제할 수 없어요.';
+  String get mnemonic_already_added => '이미 추가되어 있는 니모닉이에요';
+  String get mnemonic_copied => '니모닉 문구가 복사됐어요';
+  String multisig_already_added({required Object name}) =>
+      '이미 추가되어 있는 다중 서명 지갑이에요. (${name})';
 }
 
 // Path: errors
 class TranslationsErrorsKr {
-	TranslationsErrorsKr.internal(this._root);
+  TranslationsErrorsKr.internal(this._root);
 
-	final Translations _root; // ignore: unused_field
+  final Translations _root; // ignore: unused_field
 
   // Translations
   String get invalid_single_sig_qr_error => '잘못된 QR이에요. 다시 시도해 주세요.';
@@ -978,34 +997,34 @@ class TranslationsErrorsKr {
 
 // Path: tooltip
 class TranslationsTooltipKr {
-	TranslationsTooltipKr.internal(this._root);
+  TranslationsTooltipKr.internal(this._root);
 
-	final Translations _root; // ignore: unused_field
+  final Translations _root; // ignore: unused_field
 
-	// Translations
-	String get mfp => '지갑의 고유 값이에요.\n마스터 핑거프린트(MFP)라고도 해요.';
+  // Translations
+  String get mfp => '지갑의 고유 값이에요.\n마스터 핑거프린트(MFP)라고도 해요.';
 }
 
 // Path: mnemonic_confirm_screen.warning
 class TranslationsMnemonicConfirmScreenWarningKr {
-	TranslationsMnemonicConfirmScreenWarningKr.internal(this._root);
+  TranslationsMnemonicConfirmScreenWarningKr.internal(this._root);
 
-	final Translations _root; // ignore: unused_field
+  final Translations _root; // ignore: unused_field
 
-	// Translations
-	String get contains_space_character => '⚠︎ 공백 문자가 포함되어 있습니다.';
-	String get long_passphrase => '⚠︎ 긴 패스프레이즈: 스크롤을 끝까지 내려 모두 확인해 주세요.';
+  // Translations
+  String get contains_space_character => '⚠︎ 공백 문자가 포함되어 있습니다.';
+  String get long_passphrase => '⚠︎ 긴 패스프레이즈: 스크롤을 끝까지 내려 모두 확인해 주세요.';
 }
 
 // Path: multi_sig_bsms_screen.bottom_sheet
 class TranslationsMultiSigBsmsScreenBottomSheetKr {
-	TranslationsMultiSigBsmsScreenBottomSheetKr.internal(this._root);
+  TranslationsMultiSigBsmsScreenBottomSheetKr.internal(this._root);
 
-	final Translations _root; // ignore: unused_field
+  final Translations _root; // ignore: unused_field
 
-	// Translations
-	String get title => '지갑 상세 정보';
-	String get info_copied => '지갑 상세 정보가 복사됐어요';
+  // Translations
+  String get title => '지갑 상세 정보';
+  String get info_copied => '지갑 상세 정보가 복사됐어요';
 }
 
 // Path: multi_sig_bsms_screen.guide
@@ -1026,9 +1045,9 @@ class TranslationsMultiSigBsmsScreenGuideKr {
 
 // Path: vault_menu_screen.title
 class TranslationsVaultMenuScreenTitleKr {
-	TranslationsVaultMenuScreenTitleKr.internal(this._root);
+  TranslationsVaultMenuScreenTitleKr.internal(this._root);
 
-	final Translations _root; // ignore: unused_field
+  final Translations _root; // ignore: unused_field
 
   // Translations
   String view_info({required Object name}) => '${name} 정보';
@@ -1042,9 +1061,9 @@ class TranslationsVaultMenuScreenTitleKr {
 
 // Path: vault_menu_screen.description
 class TranslationsVaultMenuScreenDescriptionKr {
-	TranslationsVaultMenuScreenDescriptionKr.internal(this._root);
+  TranslationsVaultMenuScreenDescriptionKr.internal(this._root);
 
-	final Translations _root; // ignore: unused_field
+  final Translations _root; // ignore: unused_field
 
   // Translations
   String get view_single_sig_info => '저장된 니모닉 문구 등을 확인할 수 있어요';
@@ -1074,180 +1093,180 @@ class TranslationsPermissionBiometricKr {
 
 // Path: alert.forgot_password
 class TranslationsAlertForgotPasswordKr {
-	TranslationsAlertForgotPasswordKr.internal(this._root);
+  TranslationsAlertForgotPasswordKr.internal(this._root);
 
-	final Translations _root; // ignore: unused_field
+  final Translations _root; // ignore: unused_field
 
-	// Translations
-	String get title => '비밀번호를 잊으셨나요?';
-	String get description1 => '[초기화하기]를 눌러 비밀번호를 초기화할 수 있어요.\n';
-	String get description2 => '비밀번호를 초기화하면 저장된 정보가 삭제돼요. 그래도 초기화 하시겠어요?';
-	String get btn_reset => '초기화하기';
+  // Translations
+  String get title => '비밀번호를 잊으셨나요?';
+  String get description1 => '[초기화하기]를 눌러 비밀번호를 초기화할 수 있어요.\n';
+  String get description2 => '비밀번호를 초기화하면 저장된 정보가 삭제돼요. 그래도 초기화 하시겠어요?';
+  String get btn_reset => '초기화하기';
 }
 
 // Path: alert.unchange_password
 class TranslationsAlertUnchangePasswordKr {
-	TranslationsAlertUnchangePasswordKr.internal(this._root);
+  TranslationsAlertUnchangePasswordKr.internal(this._root);
 
-	final Translations _root; // ignore: unused_field
+  final Translations _root; // ignore: unused_field
 
-	// Translations
-	String get title => '비밀번호를 유지하시겠어요?';
-	String get description => '[그만하기]를 누르면 설정 화면으로 돌아갈게요.';
+  // Translations
+  String get title => '비밀번호를 유지하시겠어요?';
+  String get description => '[그만하기]를 누르면 설정 화면으로 돌아갈게요.';
 }
 
 // Path: alert.exit_sign
 class TranslationsAlertExitSignKr {
-	TranslationsAlertExitSignKr.internal(this._root);
+  TranslationsAlertExitSignKr.internal(this._root);
 
-	final Translations _root; // ignore: unused_field
+  final Translations _root; // ignore: unused_field
 
-	// Translations
-	String get title => '서명하기 종료';
-	String get description => '서명을 종료하고 홈화면으로 이동해요.\n정말 종료하시겠어요?';
+  // Translations
+  String get title => '서명하기 종료';
+  String get description => '서명을 종료하고 홈화면으로 이동해요.\n정말 종료하시겠어요?';
 }
 
 // Path: alert.stop_sign
 class TranslationsAlertStopSignKr {
-	TranslationsAlertStopSignKr.internal(this._root);
+  TranslationsAlertStopSignKr.internal(this._root);
 
-	final Translations _root; // ignore: unused_field
+  final Translations _root; // ignore: unused_field
 
-	// Translations
-	String get title => '서명하기 중단';
-	String get description => '서명 내역이 사라져요.\n정말 그만하시겠어요?';
+  // Translations
+  String get title => '서명하기 중단';
+  String get description => '서명 내역이 사라져요.\n정말 그만하시겠어요?';
 }
 
 // Path: alert.reselect
 class TranslationsAlertReselectKr {
-	TranslationsAlertReselectKr.internal(this._root);
+  TranslationsAlertReselectKr.internal(this._root);
 
-	final Translations _root; // ignore: unused_field
+  final Translations _root; // ignore: unused_field
 
-	// Translations
-	String get title => '다시 고르기';
-	String get description => '지금까지 입력한 정보가 모두 지워져요.\n정말로 다시 선택하시겠어요?';
+  // Translations
+  String get title => '다시 고르기';
+  String get description => '지금까지 입력한 정보가 모두 지워져요.\n정말로 다시 선택하시겠어요?';
 }
 
 // Path: alert.empty_vault
 class TranslationsAlertEmptyVaultKr {
-	TranslationsAlertEmptyVaultKr.internal(this._root);
+  TranslationsAlertEmptyVaultKr.internal(this._root);
 
-	final Translations _root; // ignore: unused_field
+  final Translations _root; // ignore: unused_field
 
-	// Translations
-	String get title => '볼트에 저장된 키가 없어요';
-	String get description => '키를 사용하기 위해 일반 지갑을 먼저 만드시겠어요?';
+  // Translations
+  String get title => '볼트에 저장된 키가 없어요';
+  String get description => '키를 사용하기 위해 일반 지갑을 먼저 만드시겠어요?';
 }
 
 // Path: alert.quit_creating_mutisig_wallet
 class TranslationsAlertQuitCreatingMutisigWalletKr {
-	TranslationsAlertQuitCreatingMutisigWalletKr.internal(this._root);
+  TranslationsAlertQuitCreatingMutisigWalletKr.internal(this._root);
 
-	final Translations _root; // ignore: unused_field
+  final Translations _root; // ignore: unused_field
 
-	// Translations
-	String get title => '다중 서명 지갑 만들기 중단';
-	String get description => '정말 지갑 생성을 그만하시겠어요?';
+  // Translations
+  String get title => '다중 서명 지갑 만들기 중단';
+  String get description => '정말 지갑 생성을 그만하시겠어요?';
 }
 
 // Path: alert.reset_nth_key
 class TranslationsAlertResetNthKeyKr {
-	TranslationsAlertResetNthKeyKr.internal(this._root);
+  TranslationsAlertResetNthKeyKr.internal(this._root);
 
-	final Translations _root; // ignore: unused_field
+  final Translations _root; // ignore: unused_field
 
-	// Translations
-	String title({required Object index}) => '${index}번 키 초기화';
-	String get description => '지정한 키 정보를 삭제하시겠어요?';
+  // Translations
+  String title({required Object index}) => '${index}번 키 초기화';
+  String get description => '지정한 키 정보를 삭제하시겠어요?';
 }
 
 // Path: alert.stop_importing
 class TranslationsAlertStopImportingKr {
-	TranslationsAlertStopImportingKr.internal(this._root);
+  TranslationsAlertStopImportingKr.internal(this._root);
 
-	final Translations _root; // ignore: unused_field
+  final Translations _root; // ignore: unused_field
 
-	// Translations
-	String get title => '가져오기 중단';
-	String get description => '스캔된 정보가 사라집니다.\n정말 가져오기를 그만하시겠어요?';
+  // Translations
+  String get title => '가져오기 중단';
+  String get description => '스캔된 정보가 사라집니다.\n정말 가져오기를 그만하시겠어요?';
 }
 
 // Path: alert.duplicate_key
 class TranslationsAlertDuplicateKeyKr {
-	TranslationsAlertDuplicateKeyKr.internal(this._root);
+  TranslationsAlertDuplicateKeyKr.internal(this._root);
 
-	final Translations _root; // ignore: unused_field
+  final Translations _root; // ignore: unused_field
 
-	// Translations
-	String get title => '이미 추가된 키입니다';
-	String get description => '중복되지 않는 다른 키로 가져와 주세요';
+  // Translations
+  String get title => '이미 추가된 키입니다';
+  String get description => '중복되지 않는 다른 키로 가져와 주세요';
 }
 
 // Path: alert.same_wallet
 class TranslationsAlertSameWalletKr {
-	TranslationsAlertSameWalletKr.internal(this._root);
+  TranslationsAlertSameWalletKr.internal(this._root);
 
-	final Translations _root; // ignore: unused_field
+  final Translations _root; // ignore: unused_field
 
-	// Translations
-	String get title => '보유하신 지갑 중 하나입니다';
-	String description({required Object name}) => '\'${name}\'와 같은 지갑입니다';
+  // Translations
+  String get title => '보유하신 지갑 중 하나입니다';
+  String description({required Object name}) => '\'${name}\'와 같은 지갑입니다';
 }
 
 // Path: alert.include_internal_key
 class TranslationsAlertIncludeInternalKeyKr {
-	TranslationsAlertIncludeInternalKeyKr.internal(this._root);
+  TranslationsAlertIncludeInternalKeyKr.internal(this._root);
 
-	final Translations _root; // ignore: unused_field
+  final Translations _root; // ignore: unused_field
 
-	// Translations
-	String get title => '외부 지갑 개수 초과';
-	String get description => '적어도 1개는 이 볼트에 있는 키를 사용해 주세요';
+  // Translations
+  String get title => '외부 지갑 개수 초과';
+  String get description => '적어도 1개는 이 볼트에 있는 키를 사용해 주세요';
 }
 
 // Path: alert.wallet_creation_failed
 class TranslationsAlertWalletCreationFailedKr {
-	TranslationsAlertWalletCreationFailedKr.internal(this._root);
+  TranslationsAlertWalletCreationFailedKr.internal(this._root);
 
-	final Translations _root; // ignore: unused_field
+  final Translations _root; // ignore: unused_field
 
-	// Translations
-	String get title => '지갑 생성 실패';
-	String get description => '유효하지 않은 정보입니다.';
+  // Translations
+  String get title => '지갑 생성 실패';
+  String get description => '유효하지 않은 정보입니다.';
 }
 
 // Path: alert.stop_creating_mnemonic
 class TranslationsAlertStopCreatingMnemonicKr {
-	TranslationsAlertStopCreatingMnemonicKr.internal(this._root);
+  TranslationsAlertStopCreatingMnemonicKr.internal(this._root);
 
-	final Translations _root; // ignore: unused_field
+  final Translations _root; // ignore: unused_field
 
-	// Translations
-	String get title => '니모닉 만들기 중단';
-	String get description => '정말 니모닉 만들기를 그만하시겠어요?';
+  // Translations
+  String get title => '니모닉 만들기 중단';
+  String get description => '정말 니모닉 만들기를 그만하시겠어요?';
 }
 
 // Path: alert.stop_generating_mnemonic
 class TranslationsAlertStopGeneratingMnemonicKr {
-	TranslationsAlertStopGeneratingMnemonicKr.internal(this._root);
+  TranslationsAlertStopGeneratingMnemonicKr.internal(this._root);
 
-	final Translations _root; // ignore: unused_field
+  final Translations _root; // ignore: unused_field
 
-	// Translations
-	String get title => '니모닉 생성 중단';
-	String get description => '정말 니모닉 생성을 그만하시겠어요?';
+  // Translations
+  String get title => '니모닉 생성 중단';
+  String get description => '정말 니모닉 생성을 그만하시겠어요?';
 }
 
 // Path: alert.stop_importing_mnemonic
 class TranslationsAlertStopImportingMnemonicKr {
-	TranslationsAlertStopImportingMnemonicKr.internal(this._root);
+  TranslationsAlertStopImportingMnemonicKr.internal(this._root);
 
-	final Translations _root; // ignore: unused_field
+  final Translations _root; // ignore: unused_field
 
-	// Translations
-	String get title => '복원 중단';
-	String get description => '정말 복원하기를 그만하시겠어요?';
+  // Translations
+  String get title => '복원 중단';
+  String get description => '정말 복원하기를 그만하시겠어요?';
 }
 
 /// Flat map(s) containing all translations.
@@ -2054,4 +2073,3 @@ extension on Translations {
     }
   }
 }
-
