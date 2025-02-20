@@ -27,17 +27,13 @@ class _MultisigSignerBsmsExportScreenState
 
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProxyProvider<WalletProvider,
-        MultisigSignerBsmsExportViewModel>(
+    return ChangeNotifierProvider<MultisigSignerBsmsExportViewModel>(
       create: (_) => _viewModel = MultisigSignerBsmsExportViewModel(
           Provider.of<WalletProvider>(context, listen: false), widget.id),
-      update: (_, walletProvider, viewModel) {
-        return viewModel!;
-      },
       child: Consumer<MultisigSignerBsmsExportViewModel>(
         builder: (context, viewModel, child) {
           WidgetsBinding.instance.addPostFrameCallback((_) {
-            if (!_viewModel.isSignerBsmsSetCompleted && !_isDialogShown) {
+            if (_viewModel.isSignerBsmsSetFailed && !_isDialogShown) {
               _isDialogShown = true;
               showDialog(
                   context: context,
@@ -48,7 +44,7 @@ class _MultisigSignerBsmsExportScreenState
                         actions: <CupertinoDialogAction>[
                           CupertinoDialogAction(
                             onPressed: () {
-                              viewModel.setSignerBsmsCompleted(true);
+                              viewModel.setSignerBsmsStatus(false);
                               _isDialogShown = false;
                               Navigator.pop(context);
                             },

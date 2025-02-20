@@ -6,7 +6,6 @@ import 'package:flutter/material.dart';
 class AddressListViewModel extends ChangeNotifier {
   static const int kFirstCount = 20;
   static const int kAddressFetchCount = 20;
-  final WalletProvider _walletProvider;
 
   late int _receivingAddressPage;
   late int _changeAddressPage;
@@ -16,11 +15,11 @@ class AddressListViewModel extends ChangeNotifier {
   late VaultListItemBase _vaultListItem;
   late WalletBase _coconutVault;
 
-  AddressListViewModel(this._walletProvider, id) {
+  AddressListViewModel(WalletProvider walletProvider, int id) {
     _receivingAddressPage = 0;
     _changeAddressPage = 0;
     _isReceivingSelected = true;
-    _vaultListItem = _walletProvider.getVaultById(id);
+    _vaultListItem = walletProvider.getVaultById(id);
     _coconutVault = _vaultListItem.coconutVault;
 
     _receivingAddressList = _coconutVault.getAddressList(0, kFirstCount, false);

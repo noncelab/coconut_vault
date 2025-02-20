@@ -30,12 +30,9 @@ class _AddressListScreenState extends State<AddressListScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProxyProvider<WalletProvider, AddressListViewModel>(
+    return ChangeNotifierProvider<AddressListViewModel>(
       create: (BuildContext context) => _viewModel = AddressListViewModel(
           Provider.of<WalletProvider>(context, listen: false), widget.id),
-      update: (_, walletProvider, viewModel) {
-        return viewModel!;
-      },
       child: Consumer<AddressListViewModel>(
         builder: (context, viewModel, child) {
           var addressList = viewModel.isReceivingSelected
