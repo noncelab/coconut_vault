@@ -238,6 +238,7 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
           confirmButtonText = t.delete;
           confirmButtonColor = MyColors.warningText;
           onConfirm = () {
+            _walletCreationProvider.resetAll();
             _isFinishing = true;
             Navigator.popUntil(
                 context,
@@ -397,6 +398,7 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
     if (_getAssignedVaultListLength() > 0) {
       _showDialog(DialogType.quit);
     } else {
+      _walletCreationProvider.resetAll();
       _isFinishing = true;
       Navigator.pop(context);
     }

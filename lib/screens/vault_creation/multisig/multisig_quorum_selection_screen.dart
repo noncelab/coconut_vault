@@ -47,7 +47,7 @@ class _MultisigQuorumSelectionScreenState
   void initState() {
     super.initState();
     _walletCreationProvider =
-        Provider.of<WalletCreationProvider>(context, listen: false);
+        Provider.of<WalletCreationProvider>(context, listen: false)..resetAll();
     requiredCount = 2;
     totalCount = 3;
     _startProgress(totalCount, requiredCount, buttonClickedCount);
@@ -180,7 +180,6 @@ class _MultisigQuorumSelectionScreenState
           },
           isActive: _checkNextButtonActiveState(),
           onBackPressed: () {
-            _walletCreationProvider.resetAll();
             Navigator.pop(context);
           }),
       body: SingleChildScrollView(

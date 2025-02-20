@@ -107,6 +107,12 @@ class _MnemonicGenerationScreenState extends State<MnemonicGenerationScreen> {
   }
 
   @override
+  void initState() {
+    super.initState();
+    Provider.of<WalletCreationProvider>(context, listen: false).resetAll();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final List<Widget> screens = [
       WordsLengthSelection(

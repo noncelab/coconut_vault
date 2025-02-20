@@ -125,7 +125,6 @@ class _MnemonicImportState extends State<MnemonicImport> {
     await SystemChannels.textInput.invokeMethod('TextInput.hide');
     if (_inputText.isEmpty && _passphrase.isEmpty) {
       if (Navigator.of(context).canPop()) {
-        _walletCreationProvider.resetAll();
         Navigator.pop(context);
       }
     } else {
@@ -143,7 +142,6 @@ class _MnemonicImportState extends State<MnemonicImport> {
       confirmButtonColor: MyColors.warningText,
       onCancel: () => Navigator.pop(context),
       onConfirm: () {
-        _walletCreationProvider.resetAll();
         Navigator.pop(context);
         Navigator.pushNamedAndRemoveUntil(
             context, '/', (Route<dynamic> route) => false);
@@ -157,7 +155,7 @@ class _MnemonicImportState extends State<MnemonicImport> {
     _initListeners();
     _walletProvider = Provider.of<WalletProvider>(context, listen: false);
     _walletCreationProvider =
-        Provider.of<WalletCreationProvider>(context, listen: false);
+        Provider.of<WalletCreationProvider>(context, listen: false)..resetAll();
   }
 
   @override
