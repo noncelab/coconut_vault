@@ -4,8 +4,7 @@ import 'package:coconut_vault/main_route_guard.dart';
 import 'package:coconut_vault/providers/sign_provider.dart';
 import 'package:coconut_vault/providers/wallet_creation_provider.dart';
 import 'package:coconut_vault/providers/auth_provider.dart';
-import 'package:coconut_vault/providers/connectivity_provider.dart'
-    as connectivityProvider;
+import 'package:coconut_vault/providers/connectivity_provider.dart';
 import 'package:coconut_vault/providers/visibility_provider.dart';
 import 'package:coconut_vault/screens/airgap/multisig_sign_screen.dart';
 import 'package:coconut_vault/screens/airgap/psbt_confirmation_screen.dart';
@@ -38,7 +37,6 @@ import 'package:coconut_vault/screens/vault_menu/info/single_sig_setup_info_scre
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
-import 'package:coconut_vault/providers/app_model.dart';
 import 'package:coconut_vault/screens/common/pin_check_screen.dart';
 import 'package:coconut_vault/screens/common/start_screen.dart';
 import 'package:coconut_vault/styles.dart';
@@ -107,9 +105,8 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> {
       providers: [
         ChangeNotifierProvider(create: (_) => visibilityProvider),
         ChangeNotifierProvider(create: (_) => AuthProvider()),
-        ChangeNotifierProxyProvider<VisibilityProvider,
-            connectivityProvider.ConnectivityProvider>(
-          create: (_) => connectivityProvider.ConnectivityProvider(
+        ChangeNotifierProxyProvider<VisibilityProvider, ConnectivityProvider>(
+          create: (_) => ConnectivityProvider(
               hasSeenGuide: visibilityProvider.hasSeenGuide),
           update: (_, visibilityProvider, connectivityProvider) {
             if (visibilityProvider.hasSeenGuide) {
@@ -118,21 +115,6 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> {
 
             return connectivityProvider!;
           },
-        ),
-
-        /// splash, guide, main, pinCheck 에서 공통으로 사용하는 모델
-        ChangeNotifierProvider(
-          create: (_) => AppModel(
-            onConnectivityStateChanged: (ConnectivityState state) {
-              // Bluetooth, Network, Developer mode 리스너
-              // TODO: connectivityProvider로 아래 로직 이동시키기
-              // if (state == ConnectivityState.on) {
-              //   goAppUnavailableNotificationScreen();
-              // } else if (state == ConnectivityState.bluetoothUnauthorized) {
-              //   goBluetoothAuthNotificationScreen();
-              // }
-            },
-          ),
         ),
         if (_appEntryFlow == AppEntryFlow.vaultlist) ...{
           Provider<WalletCreationProvider>(

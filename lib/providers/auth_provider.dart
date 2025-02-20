@@ -3,6 +3,7 @@ import 'dart:io';
 import 'dart:math';
 
 import 'package:coconut_vault/constants/pin_constants.dart';
+import 'package:coconut_vault/constants/secure_storage_keys.dart';
 import 'package:coconut_vault/constants/shared_preferences_keys.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/managers/wallet_list_manager.dart';
@@ -230,7 +231,8 @@ class AuthProvider extends ChangeNotifier {
   /// 비밀번호 검증
   Future<bool> verifyPin(String inputPin) async {
     String hashedInput = hashString(inputPin);
-    final savedPin = await _storageService.read(key: SharedPrefsKeys.kVaultPin);
+    final savedPin =
+        await _storageService.read(key: SecureStorageKeys.kVaultPin);
 
     if (savedPin == hashedInput) {
       resetAuthenticationState();
@@ -249,7 +251,8 @@ class AuthProvider extends ChangeNotifier {
     }
 
     String hashed = hashString(pin);
-    await _storageService.write(key: SharedPrefsKeys.kVaultPin, value: hashed);
+    await _storageService.write(
+        key: SecureStorageKeys.kVaultPin, value: hashed);
     _isPinSet = true;
     _sharedPrefs.setBool(SharedPrefsKeys.isPinEnabled, true);
     notifyListeners();
@@ -262,7 +265,7 @@ class AuthProvider extends ChangeNotifier {
 
     _isBiometricEnabled = false;
     _isPinSet = false;
-    await _storageService.delete(key: SharedPrefsKeys.kVaultPin);
+    await _storageService.delete(key: SecureStorageKeys.kVaultPin);
     _sharedPrefs.setBool(SharedPrefsKeys.isBiometricEnabled, false);
     _sharedPrefs.setBool(SharedPrefsKeys.isPinEnabled, false);
     _sharedPrefs.setInt(SharedPrefsKeys.vaultListLength, 0);

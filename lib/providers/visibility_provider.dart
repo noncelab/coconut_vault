@@ -29,7 +29,6 @@ class VisibilityProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// WalletList isNotEmpty 상태 저장
   Future<void> saveWalletCount(int count) async {
     _walletCount = count;
     await SharedPrefsRepository()
