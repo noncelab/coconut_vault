@@ -239,7 +239,8 @@ class _MultisigBsmsScannerScreenState extends State<MultisigBsmsScannerScreen> {
         return;
       }
 
-      if (_walletProvider.findMultisigWalletByCoordinatorBsms(coordinatorBsms) !=
+      if (_walletProvider
+              .findMultisigWalletByCoordinatorBsms(coordinatorBsms) !=
           null) {
         onFailedScanning(t.errors.duplicate_multisig_registered_error);
         return;

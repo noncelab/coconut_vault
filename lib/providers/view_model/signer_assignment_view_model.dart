@@ -5,9 +5,9 @@ import 'package:coconut_vault/enums/wallet_enums.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/managers/isolate_manager.dart';
 import 'package:coconut_vault/model/common/vault_list_item_base.dart';
-import 'package:coconut_vault/model/multisig/multisig_creation_model.dart';
 import 'package:coconut_vault/model/multisig/multisig_signer.dart';
 import 'package:coconut_vault/model/singlesig/singlesig_vault_list_item.dart';
+import 'package:coconut_vault/providers/wallet_creation_provider.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:coconut_vault/screens/vault_creation/multisig/signer_assignment_screen.dart';
 import 'package:coconut_vault/utils/isolate_handler.dart';
@@ -15,7 +15,7 @@ import 'package:flutter/material.dart';
 
 class SignerAssignmentViewModel extends ChangeNotifier {
   final WalletProvider _walletProvider;
-  final MultisigCreationModel _multisigCreationModel;
+  final WalletCreationProvider _walletCreationProvider;
 
   late int _totalSignatureCount; // 전체 키의 수
   late int _requiredSignatureCount; // 필요한 서명 수
@@ -28,14 +28,17 @@ class SignerAssignmentViewModel extends ChangeNotifier {
   String _loadingMessage = '';
   MultisignatureVault? _newMultisigVault;
 
+  List<MultisigSigner>? _signers;
+
   IsolateHandler<List<VaultListItemBase>, List<String>>?
       _extractBsmsIsolateHandler;
   IsolateHandler<Map<String, dynamic>, MultisignatureVault>?
       _fromKeyStoreListIsolateHandler;
 
-  SignerAssignmentViewModel(this._walletProvider, this._multisigCreationModel) {
-    _totalSignatureCount = _multisigCreationModel.totalSignatureCount!;
-    _requiredSignatureCount = _multisigCreationModel.requiredSignatureCount!;
+  SignerAssignmentViewModel(
+      this._walletProvider, this._walletCreationProvider) {
+    _totalSignatureCount = _walletCreationProvider.totalSignatureCount!;
+    _requiredSignatureCount = _walletCreationProvider.requiredSignatureCount!;
     _signerOptions = [];
     _assignedVaultList = List.generate(
       _totalSignatureCount,
@@ -214,12 +217,17 @@ class SignerAssignmentViewModel extends ChangeNotifier {
     _selectedSignerOptionIndex = value;
   }
 
-  void setSigners(List<MultisigSigner> signers) {
-    _multisigCreationModel.setSigners(signers);
+  void setSigners(List<MultisigSigner>? signers) {
+    _signers = signers;
   }
 
-  void resetMultisigCreationModel() {
-    _multisigCreationModel.reset();
+  void saveSignersToProvider() {
+    assert(_signers != null);
+    _walletCreationProvider.setSigners(_signers!);
+  }
+
+  void resetWalletCreationProvider() {
+    _walletCreationProvider.resetAll();
   }
 
   VaultListItemBase? getWalletByDescriptor() =>

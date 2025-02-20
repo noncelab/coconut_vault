@@ -269,7 +269,8 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
                                     onTap: () {
                                       viewModel.getAssignedVaultListLength() !=
                                               0
-                                          ? _showDialog(DialogType.reselectQuorum)
+                                          ? _showDialog(
+                                              DialogType.reselectQuorum)
                                           : _onBackPressed(context);
                                     },
                                     child: Container(

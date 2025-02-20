@@ -1,18 +1,20 @@
 import 'package:coconut_vault/localization/strings.g.dart';
-import 'package:coconut_vault/model/multisig/multisig_creation_model.dart';
+import 'package:coconut_vault/providers/wallet_creation_provider.dart';
 import 'package:coconut_vault/screens/vault_creation/multisig/multisig_quorum_selection_screen.dart';
 import 'package:coconut_vault/utils/coconut/multisig_utils.dart';
 import 'package:flutter/material.dart';
 
 class MultisigQuorumSelectionViewModel extends ChangeNotifier {
-  final MultisigCreationModel _multisigCreationModel;
+  final WalletCreationProvider _walletCreationProvider;
   late int _requiredCount;
   late int _totalCount;
   late int _buttonClickedCount;
   late bool _isNextButtonEnabled;
   late bool _isProgressAnimationVisible;
 
-  MultisigQuorumSelectionViewModel(this._multisigCreationModel) {
+  MultisigQuorumSelectionViewModel(this._walletCreationProvider) {
+    _walletCreationProvider.resetAll();
+
     _requiredCount = 2;
     _totalCount = 3;
     _buttonClickedCount = 0;
@@ -118,13 +120,14 @@ class MultisigQuorumSelectionViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
+  // TODO: UI 관련 변수
   void setProgressAnimationVisible(bool value) {
     _isProgressAnimationVisible = value;
     notifyListeners();
   }
 
-  void setQuorumRequirementToModel() {
-    _multisigCreationModel.setQuorumRequirement(_requiredCount, _totalCount);
+  void saveQuorumRequirement() {
+    _walletCreationProvider.setQuorumRequirement(_requiredCount, _totalCount);
   }
 }
 
