@@ -90,22 +90,27 @@ class _VaultNameAndIconSetupScreenState
       }
 
       if (_walletCreationProvider.secret != null) {
-        await _walletProvider.addVault(SinglesigWallet(
+        await _walletProvider.addSingleSigVault(SinglesigWallet(
             null,
             inputText,
             selectedIconIndex,
             selectedColorIndex,
             _walletCreationProvider.secret!,
             _walletCreationProvider.passphrase));
-
-        if (_walletProvider.isAddVaultCompleted) {
-          Logger.log('finish creating vault. return to home.');
-        }
       } else if (_walletCreationProvider.signers != null) {
         // 새로운 멀티시그 지갑 리스트 아이템을 생성.
         await _walletProvider.addMultisigVaultAsync(
-            inputText, selectedColorIndex, selectedIconIndex);
+            inputText,
+            selectedColorIndex,
+            selectedIconIndex,
+            _walletCreationProvider.signers!,
+            _walletCreationProvider.requiredSignatureCount!);
+      } else {
+        throw '생성 가능 정보가 없음';
       }
+
+      assert(_walletProvider.isAddVaultCompleted);
+      _walletCreationProvider.resetAll();
 
       Navigator.pushNamedAndRemoveUntil(
           context, '/', (Route<dynamic> route) => false,
@@ -147,35 +152,44 @@ class _VaultNameAndIconSetupScreenState
   Widget build(BuildContext context) {
     return Stack(
       children: [
-        Scaffold(
-          backgroundColor: Colors.white,
-          appBar: CustomAppBar.buildWithNext(
-            title: t.vault_name_icon_setup_screen.title,
-            context: context,
-            onBackPressed: () {
+        PopScope(
+          canPop: true,
+          onPopInvokedWithResult: (didPop, result) {
+            if (_walletCreationProvider.secret != null) {
               _walletCreationProvider.resetSecretAndPassphrase();
-              Navigator.pop(context);
-            },
-            onNextPressed: () {
-              if (inputText.trim().isEmpty) return;
-              _closeKeyboard();
-              if (_walletProvider.isVaultListLoading) {
-                setState(() {
-                  _showLoading = true;
-                });
-              } else {
-                saveNewVaultName(context);
-              }
-            },
-            isActive: inputText.trim().isNotEmpty && !_showLoading,
-          ),
-          body: VaultNameIconEditPalette(
-            name: inputText,
-            iconIndex: selectedIconIndex,
-            colorIndex: selectedColorIndex,
-            onNameChanged: updateName,
-            onIconSelected: updateIcon,
-            onColorSelected: updateColor,
+            } else {
+              _walletCreationProvider.resetSigner();
+            }
+          },
+          child: Scaffold(
+            backgroundColor: Colors.white,
+            appBar: CustomAppBar.buildWithNext(
+              title: t.vault_name_icon_setup_screen.title,
+              context: context,
+              onBackPressed: () {
+                Navigator.pop(context);
+              },
+              onNextPressed: () {
+                if (inputText.trim().isEmpty) return;
+                _closeKeyboard();
+                if (_walletProvider.isVaultListLoading) {
+                  setState(() {
+                    _showLoading = true;
+                  });
+                } else {
+                  saveNewVaultName(context);
+                }
+              },
+              isActive: inputText.trim().isNotEmpty && !_showLoading,
+            ),
+            body: VaultNameIconEditPalette(
+              name: inputText,
+              iconIndex: selectedIconIndex,
+              colorIndex: selectedColorIndex,
+              onNameChanged: updateName,
+              onIconSelected: updateIcon,
+              onColorSelected: updateColor,
+            ),
           ),
         ),
         Visibility(

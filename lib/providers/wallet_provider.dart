@@ -12,7 +12,6 @@ import 'package:coconut_vault/model/common/secret.dart';
 import 'package:coconut_vault/model/singlesig/singlesig_wallet.dart';
 import 'package:coconut_vault/managers/wallet_list_manager.dart';
 import 'package:coconut_vault/model/exception/not_related_multisig_wallet_exception.dart';
-import 'package:coconut_vault/providers/wallet_creation_provider.dart';
 import 'package:coconut_vault/providers/visibility_provider.dart';
 import 'package:flutter/foundation.dart';
 import 'package:coconut_vault/utils/logger.dart';
@@ -20,10 +19,9 @@ import 'package:coconut_vault/utils/vibration_util.dart';
 
 class WalletProvider extends ChangeNotifier {
   late final VisibilityProvider _visibilityProvider;
-  late final WalletCreationProvider _walletCreationProvider;
   late final WalletListManager _walletManager;
 
-  WalletProvider(this._walletCreationProvider, this._visibilityProvider) {
+  WalletProvider(this._visibilityProvider) {
     _walletManager = WalletListManager();
   }
 
@@ -93,7 +91,7 @@ class WalletProvider extends ChangeNotifier {
     }
   }
 
-  Future<void> addVault(SinglesigWallet wallet) async {
+  Future<void> addSingleSigVault(SinglesigWallet wallet) async {
     _setAddVaultCompleted(false);
 
     await _walletManager.addSinglesigWallet(wallet);
@@ -104,16 +102,12 @@ class WalletProvider extends ChangeNotifier {
     await _updateWalletLength();
 
     notifyListeners();
-    _walletCreationProvider.resetSecretAndPassphrase();
     // vibrateLight();
   }
 
-  Future<void> addMultisigVaultAsync(String name, int color, int icon) async {
+  Future<void> addMultisigVaultAsync(String name, int color, int icon,
+      List<MultisigSigner> signers, int requiredSignatureCount) async {
     _setAddVaultCompleted(false);
-
-    final signers = _walletCreationProvider.signers!;
-    final requiredSignatureCount =
-        _walletCreationProvider.requiredSignatureCount!;
 
     await _walletManager.addMultisigWallet(MultisigWallet(
         null, name, icon, color, signers, requiredSignatureCount));
@@ -123,7 +117,6 @@ class WalletProvider extends ChangeNotifier {
     _setAddVaultCompleted(true);
     await _updateWalletLength();
     notifyListeners();
-    _walletCreationProvider.reset();
   }
 
   Future<void> importMultisigVaultAsync(
@@ -187,11 +180,8 @@ class WalletProvider extends ChangeNotifier {
       }
     }
 
-    _walletCreationProvider.signers = signers;
-    _walletCreationProvider.setQuorumRequirement(
-        multisigVault.requiredSignature, multisigVault.keyStoreList.length);
-    await addMultisigVaultAsync(
-        details.name, details.colorIndex, details.iconIndex);
+    await addMultisigVaultAsync(details.name, details.colorIndex,
+        details.iconIndex, signers, multisigVault.requiredSignature);
 
     _setAddVaultCompleted(true);
     notifyListeners();
@@ -341,7 +331,6 @@ class WalletProvider extends ChangeNotifier {
 
     _vaultList.clear();
     _animatedVaultFlags = [];
-    _walletCreationProvider.resetSecretAndPassphrase();
     _waitingForSignaturePsbtBase64 = null;
     signedRawTx = null;
     super.dispose();

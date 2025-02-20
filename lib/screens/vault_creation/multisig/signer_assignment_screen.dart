@@ -50,53 +50,55 @@ class SignerAssignmentScreen extends StatefulWidget {
 }
 
 class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
-  ValueNotifier<bool> isButtonActiveNotifier = ValueNotifier<bool>(false);
-  late int totalSignatureCount; // 전체 키의 수
-  late int requiredSignatureCount; // 필요한 서명 수
-  late List<AssignedVaultListItem> assignedVaultList; // 키 가져오기에서 선택 완료한 객체
-  late List<SignerOption> signerOptions = [];
-  late List<SignerOption> unselectedSignerOptions;
+  ValueNotifier<bool> _isButtonActiveNotifier = ValueNotifier<bool>(false);
+  late int _totalSignatureCount; // 전체 키의 수
+  late int _requiredSignatureCount; // 필요한 서명 수
+  late List<AssignedVaultListItem> _assignedVaultList; // 키 가져오기에서 선택 완료한 객체
+  late List<SignerOption> _signerOptions = [];
+  late List<SignerOption> _unselectedSignerOptions;
   // 내부 지갑 중 Signer 선택하는 순간에만 사용함
-  int? selectedSignerOptionIndex;
+  int? _selectedSignerOptionIndex;
 
-  late List<SinglesigVaultListItem> singlesigVaultList;
+  late List<SinglesigVaultListItem> _singlesigVaultList;
   late WalletProvider _vaultModel;
-  bool isFinishing = false;
-  bool isNextProcessing = false;
-  bool alreadyDialogShown = false;
-  late DraggableScrollableController draggableController;
+  bool _isFinishing = false;
+  bool _isNextProcessing = false;
+  bool _alreadyDialogShown = false;
+  late DraggableScrollableController _draggableController;
 
   IsolateHandler<List<VaultListItemBase>, List<String>>?
       _extractBsmsIsolateHandler;
   IsolateHandler<Map<String, dynamic>, MultisignatureVault>?
       _fromKeyStoreListIsolateHandler;
 
-  late WalletCreationProvider _multisigCreationState;
+  late WalletCreationProvider _walletCreationProvider;
 
-  String? loadingMessage;
-  bool hasValidationCompleted = false;
+  String? _loadingMessage;
+  bool _hasValidationCompleted = false;
+
+  List<MultisigSigner>? _signers;
 
   @override
   void initState() {
     super.initState();
     _vaultModel = Provider.of<WalletProvider>(context, listen: false);
-    _multisigCreationState =
+    _walletCreationProvider =
         Provider.of<WalletCreationProvider>(context, listen: false);
-    requiredSignatureCount = _multisigCreationState.requiredSignatureCount!;
-    totalSignatureCount = _multisigCreationState.totalSignatureCount!;
+    _requiredSignatureCount = _walletCreationProvider.requiredSignatureCount!;
+    _totalSignatureCount = _walletCreationProvider.totalSignatureCount!;
 
     _initAssigendVaultList();
 
-    singlesigVaultList = _vaultModel
+    _singlesigVaultList = _vaultModel
         .getVaults()
         .where((vault) => vault.vaultType == WalletType.singleSignature)
         .map((vault) => vault as SinglesigVaultListItem)
         .toList();
 
-    _initSignerOptionList(singlesigVaultList);
-    draggableController = DraggableScrollableController();
-    draggableController.addListener(() {
-      if (draggableController.size <= 0.71 && !alreadyDialogShown) {
+    _initSignerOptionList(_singlesigVaultList);
+    _draggableController = DraggableScrollableController();
+    _draggableController.addListener(() {
+      if (_draggableController.size <= 0.71 && !_alreadyDialogShown) {
         _showDialog(DialogType.cancelImport);
       }
     });
@@ -104,8 +106,8 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
 
   @override
   void dispose() {
-    isButtonActiveNotifier.dispose();
-    draggableController.dispose();
+    _isButtonActiveNotifier.dispose();
+    _draggableController.dispose();
     super.dispose();
   }
 
@@ -121,7 +123,7 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
 
     Map<String, dynamic> data = {
       'keyStores': jsonEncode(keyStores.map((item) => item.toJson()).toList()),
-      'requiredSignatureCount': requiredSignatureCount,
+      'requiredSignatureCount': _requiredSignatureCount,
     };
 
     MultisignatureVault multisignatureVault =
@@ -144,29 +146,29 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
         await _extractBsmsIsolateHandler!.run(singlesigVaultList);
 
     for (int i = 0; i < singlesigVaultList.length; i++) {
-      signerOptions.add(SignerOption(singlesigVaultList[i], bsmses[i]));
+      _signerOptions.add(SignerOption(singlesigVaultList[i], bsmses[i]));
     }
 
-    unselectedSignerOptions = signerOptions.toList();
+    _unselectedSignerOptions = _signerOptions.toList();
 
     _extractBsmsIsolateHandler!.dispose();
   }
 
   bool _isAssignedKeyCompletely() {
     int assignedCount = _getAssignedVaultListLength();
-    if (assignedCount >= totalSignatureCount) {
+    if (assignedCount >= _totalSignatureCount) {
       return true;
     }
     return false;
   }
 
   int _getAssignedVaultListLength() {
-    return assignedVaultList.where((e) => e.importKeyType != null).length;
+    return _assignedVaultList.where((e) => e.importKeyType != null).length;
   }
 
   void _initAssigendVaultList() {
-    assignedVaultList = List.generate(
-      totalSignatureCount,
+    _assignedVaultList = List.generate(
+      _totalSignatureCount,
       (index) => AssignedVaultListItem(
         item: null,
         index: index,
@@ -176,23 +178,23 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
 
     if (mounted) {
       setState(() {
-        assignedVaultList[0].isExpanded = true;
+        _assignedVaultList[0].isExpanded = true;
       });
     }
   }
 
   bool _isAllAssignedFromExternal() {
-    return assignedVaultList.every((vault) =>
+    return _assignedVaultList.every((vault) =>
             vault.importKeyType == null ||
             vault.importKeyType == ImportKeyType.external) &&
-        _getAssignedVaultListLength() >= totalSignatureCount - 1;
+        _getAssignedVaultListLength() >= _totalSignatureCount - 1;
   }
 
   bool _isAlreadyImported(String signerBsms) {
     List<String> splitedOne = signerBsms.split('\n');
-    for (int i = 0; i < assignedVaultList.length; i++) {
-      if (assignedVaultList[i].bsms == null) continue;
-      List<String> splitedTwo = assignedVaultList[i].bsms!.split('\n');
+    for (int i = 0; i < _assignedVaultList.length; i++) {
+      if (_assignedVaultList[i].bsms == null) continue;
+      List<String> splitedTwo = _assignedVaultList[i].bsms!.split('\n');
       if (splitedOne[0] == splitedTwo[0] &&
           splitedOne[1] == splitedTwo[1] &&
           splitedOne[2] == splitedTwo[2]) {
@@ -210,11 +212,11 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
   String? _findVaultNameByBsms(String signerBsms) {
     var mfp = BSMS.parseSigner(signerBsms).signer!.masterFingerPrint;
 
-    int result = signerOptions.indexWhere((element) {
+    int result = _signerOptions.indexWhere((element) {
       return element.masterFingerprint == mfp;
     });
     if (result == -1) return null;
-    return signerOptions[result].singlesigVaultListItem.name;
+    return _signerOptions[result].singlesigVaultListItem.name;
   }
 
   void _showDialog(DialogType type, {int keyIndex = 0, String? vaultName}) {
@@ -228,7 +230,7 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
     bool barrierDismissible = true;
 
     switch (type) {
-      case DialogType.reSelect:
+      case DialogType.reselectQuorum:
         {
           title = t.alert.reselect.title;
           message = t.alert.reselect.description;
@@ -236,7 +238,7 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
           confirmButtonText = t.delete;
           confirmButtonColor = MyColors.warningText;
           onConfirm = () {
-            isFinishing = true;
+            _isFinishing = true;
             Navigator.popUntil(
                 context,
                 (route) =>
@@ -268,7 +270,7 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
           confirmButtonText = t.stop;
           confirmButtonColor = MyColors.warningText;
           onConfirm = () {
-            _multisigCreationState.reset();
+            _walletCreationProvider.resetAll();
             Navigator.pop(context);
             Navigator.pushNamedAndRemoveUntil(
                 context, '/', (Route<dynamic> route) => false);
@@ -283,26 +285,27 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
           confirmButtonText = t.yes;
           confirmButtonColor = MyColors.warningText;
           onConfirm = () {
+            _signers = null;
             // 내부 지갑인 경우
-            if (assignedVaultList[keyIndex].importKeyType ==
+            if (_assignedVaultList[keyIndex].importKeyType ==
                 ImportKeyType.internal) {
               int insertIndex = 0;
-              for (int i = 0; i < unselectedSignerOptions.length; i++) {
-                if (assignedVaultList[keyIndex].item!.id >
-                    unselectedSignerOptions[i].singlesigVaultListItem.id) {
+              for (int i = 0; i < _unselectedSignerOptions.length; i++) {
+                if (_assignedVaultList[keyIndex].item!.id >
+                    _unselectedSignerOptions[i].singlesigVaultListItem.id) {
                   insertIndex++;
                 }
               }
-              unselectedSignerOptions.insert(
+              _unselectedSignerOptions.insert(
                   insertIndex,
-                  SignerOption(assignedVaultList[keyIndex].item!,
-                      assignedVaultList[keyIndex].bsms!));
+                  SignerOption(_assignedVaultList[keyIndex].item!,
+                      _assignedVaultList[keyIndex].bsms!));
             }
 
             setState(() {
-              assignedVaultList[keyIndex].reset();
-              if (hasValidationCompleted) {
-                hasValidationCompleted = false;
+              _assignedVaultList[keyIndex].reset();
+              if (_hasValidationCompleted) {
+                _hasValidationCompleted = false;
               }
             });
             Navigator.pop(context);
@@ -310,8 +313,8 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
         }
       case DialogType.cancelImport:
         {
-          if (alreadyDialogShown) return;
-          alreadyDialogShown = true;
+          if (_alreadyDialogShown) return;
+          _alreadyDialogShown = true;
           title = t.alert.stop_importing.title;
           message = t.alert.stop_importing.description;
           cancelButtonText = t.cancel;
@@ -319,7 +322,7 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
           confirmButtonColor = MyColors.warningText;
           barrierDismissible = false;
           onCancel = () {
-            draggableController.animateTo(
+            _draggableController.animateTo(
               1,
               duration: const Duration(milliseconds: 300),
               curve: Curves.easeInOut,
@@ -327,11 +330,11 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
 
             Navigator.pop(context);
             Future.delayed(const Duration(milliseconds: 300), () {
-              alreadyDialogShown = false;
+              _alreadyDialogShown = false;
             });
           };
           onConfirm = () {
-            alreadyDialogShown = false;
+            _alreadyDialogShown = false;
             Navigator.pop(context);
             Navigator.pop(context);
           };
@@ -394,8 +397,7 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
     if (_getAssignedVaultListLength() > 0) {
       _showDialog(DialogType.quit);
     } else {
-      _multisigCreationState.reset();
-      isFinishing = true;
+      _isFinishing = true;
       Navigator.pop(context);
     }
   }
@@ -403,8 +405,8 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
   // 외부지갑은 추가 시 올바른 signerBsms 인지 미리 확인이 되어 있어야 합니다.
   void onSelectionCompleted() async {
     setState(() {
-      loadingMessage = t.assign_signers_screen.order_keys;
-      isNextProcessing = true;
+      _loadingMessage = t.assign_signers_screen.order_keys;
+      _isNextProcessing = true;
     });
 
     await Future.delayed(const Duration(seconds: 3));
@@ -412,34 +414,34 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
     List<KeyStore> keyStores = [];
     List<MultisigSigner> signers = [];
 
-    for (int i = 0; i < assignedVaultList.length; i++) {
-      keyStores.add(KeyStore.fromSignerBsms(assignedVaultList[i].bsms!));
-      switch (assignedVaultList[i].importKeyType!) {
+    for (int i = 0; i < _assignedVaultList.length; i++) {
+      keyStores.add(KeyStore.fromSignerBsms(_assignedVaultList[i].bsms!));
+      switch (_assignedVaultList[i].importKeyType!) {
         case ImportKeyType.internal:
           signers.add(MultisigSigner(
               id: i,
-              innerVaultId: assignedVaultList[i].item!.id,
-              name: assignedVaultList[i].item!.name,
-              iconIndex: assignedVaultList[i].item!.iconIndex,
-              colorIndex: assignedVaultList[i].item!.colorIndex,
-              signerBsms: assignedVaultList[i].bsms!,
+              innerVaultId: _assignedVaultList[i].item!.id,
+              name: _assignedVaultList[i].item!.name,
+              iconIndex: _assignedVaultList[i].item!.iconIndex,
+              colorIndex: _assignedVaultList[i].item!.colorIndex,
+              signerBsms: _assignedVaultList[i].bsms!,
               keyStore: keyStores[i]));
           break;
         case ImportKeyType.external:
           signers.add(MultisigSigner(
               id: i,
-              signerBsms: assignedVaultList[i].bsms!,
-              name: assignedVaultList[i].bsms?.split('\n')[3] ?? '',
-              memo: assignedVaultList[i].memo,
+              signerBsms: _assignedVaultList[i].bsms!,
+              name: _assignedVaultList[i].bsms?.split('\n')[3] ?? '',
+              memo: _assignedVaultList[i].memo,
               keyStore: keyStores[i]));
           break;
         default:
           throw ArgumentError(
-              "wrong importKeyType: ${assignedVaultList[i].importKeyType!}");
+              "wrong importKeyType: ${_assignedVaultList[i].importKeyType!}");
       }
     }
 
-    assert(signers.length == totalSignatureCount);
+    assert(signers.length == _totalSignatureCount);
     // signer mfp 기준으로 재정렬하기
     List<int> indices = List.generate(keyStores.length, (i) => i);
     indices.sort((a, b) => keyStores[a]
@@ -453,13 +455,13 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
     // 오래 걸리는 작업 뒤에 setState가 있으면 mounted 체크를 해주어햐 에러가 나지 않습니다.
     if (!mounted) return;
     setState(() {
-      assignedVaultList = [for (var i in indices) assignedVaultList[i]];
+      _assignedVaultList = [for (var i in indices) _assignedVaultList[i]];
 
-      for (int i = 0; i < assignedVaultList.length; i++) {
-        assignedVaultList[i].index = i;
+      for (int i = 0; i < _assignedVaultList.length; i++) {
+        _assignedVaultList[i].index = i;
       }
 
-      loadingMessage = t.assign_signers_screen.data_verifying;
+      _loadingMessage = t.assign_signers_screen.data_verifying;
     });
 
     // 검증: 올바른 Signer 정보를 받았는지 확인합니다.
@@ -469,7 +471,7 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
     } catch (error) {
       if (mounted) {
         setState(() {
-          isNextProcessing = false;
+          _isNextProcessing = false;
         });
         showAlertDialog(
             context: context,
@@ -488,26 +490,28 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
             context: context,
             text: t.toast.multisig_already_added(name: findResult.name));
         setState(() {
-          isNextProcessing = false;
+          _isNextProcessing = false;
         });
       }
       return;
     }
 
-    _multisigCreationState.setSigners(signers);
+    _signers = signers;
 
     _fromKeyStoreListIsolateHandler!.dispose();
     _fromKeyStoreListIsolateHandler = null;
 
     if (mounted) {
       setState(() {
-        hasValidationCompleted = true;
-        isNextProcessing = false;
+        _hasValidationCompleted = true;
+        _isNextProcessing = false;
       });
     }
   }
 
   void onNextPressed() {
+    assert(_signers != null);
+    _walletCreationProvider.setSigners(_signers!);
     Navigator.pushNamed(context, AppRoutes.vaultNameSetup);
   }
 
@@ -516,7 +520,7 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
     return PopScope(
       canPop: false,
       onPopInvokedWithResult: (didPop, _) {
-        if (!isFinishing) _onBackPressed(context);
+        if (!_isFinishing) _onBackPressed(context);
       },
       child: Scaffold(
         backgroundColor: MyColors.white,
@@ -525,7 +529,7 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
           context: context,
           onBackPressed: () => _onBackPressed(context),
           onNextPressed: onNextPressed,
-          isActive: hasValidationCompleted,
+          isActive: _hasValidationCompleted,
           hasBackdropFilter: false,
         ),
         body: Stack(
@@ -548,7 +552,7 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
                         builder: (context, constraints) {
                           return ClipRRect(
                             borderRadius: _getAssignedVaultListLength() /
-                                        totalSignatureCount ==
+                                        _totalSignatureCount ==
                                     1
                                 ? BorderRadius.zero
                                 : const BorderRadius.only(
@@ -562,7 +566,7 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
                                   (_getAssignedVaultListLength() == 0
                                       ? 0
                                       : _getAssignedVaultListLength() /
-                                          totalSignatureCount),
+                                          _totalSignatureCount),
                               color: MyColors.black,
                             ),
                           );
@@ -581,7 +585,7 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               HighLightedText(
-                                  '$requiredSignatureCount/$totalSignatureCount',
+                                  '$_requiredSignatureCount/$_totalSignatureCount',
                                   color: MyColors.darkgrey),
                               const SizedBox(
                                 width: 2,
@@ -596,7 +600,7 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
                               GestureDetector(
                                 onTap: () {
                                   _getAssignedVaultListLength() != 0
-                                      ? _showDialog(DialogType.reSelect)
+                                      ? _showDialog(DialogType.reselectQuorum)
                                       : _onBackPressed(context);
                                 },
                                 child: Container(
@@ -634,7 +638,7 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
                               child: Column(
                                 children: [
                                   for (int i = 0;
-                                      i < assignedVaultList.length;
+                                      i < _assignedVaultList.length;
                                       i++) ...[
                                     if (i > 0)
                                       const Padding(
@@ -646,9 +650,9 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
                                       ),
                                     CustomExpansionPanel(
                                       isExpanded:
-                                          assignedVaultList[i].isExpanded,
+                                          _assignedVaultList[i].isExpanded,
                                       isAssigned:
-                                          assignedVaultList[i].importKeyType !=
+                                          _assignedVaultList[i].importKeyType !=
                                               null,
                                       onAssignedClicked: () {
                                         _showDialog(DialogType.deleteKey,
@@ -656,11 +660,12 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
                                       },
                                       onExpansionChanged: () {
                                         setState(() {
-                                          assignedVaultList[i].changeExpanded();
+                                          _assignedVaultList[i]
+                                              .changeExpanded();
                                         });
                                       },
                                       unExpansionWidget:
-                                          assignedVaultList[i].importKeyType ==
+                                          _assignedVaultList[i].importKeyType ==
                                                   null
                                               ? _unExpansionWidget(i)
                                               : _unExpansionWidget(i,
@@ -672,33 +677,33 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
                                               type: ImportKeyType.internal,
                                               onPressed: () {
                                                 // 등록된 singlesig vault가 없으면 멀티시그 지갑 생성 불가
-                                                if (unselectedSignerOptions
+                                                if (_unselectedSignerOptions
                                                     .isEmpty) {
                                                   _showDialog(
                                                       DialogType.notAvailable);
                                                   return;
                                                 }
 
-                                                isButtonActiveNotifier.value =
+                                                _isButtonActiveNotifier.value =
                                                     false;
                                                 MyBottomSheet
                                                     .showDraggableScrollableSheet(
                                                   topWidget: true,
                                                   isButtonActiveNotifier:
-                                                      isButtonActiveNotifier,
+                                                      _isButtonActiveNotifier,
                                                   context: context,
                                                   childBuilder:
                                                       (sheetController) =>
                                                           KeyListBottomSheet(
                                                     // 키 옵션 중 하나 선택했을 때
                                                     onPressed: (int index) {
-                                                      selectedSignerOptionIndex =
+                                                      _selectedSignerOptionIndex =
                                                           index;
-                                                      isButtonActiveNotifier
+                                                      _isButtonActiveNotifier
                                                           .value = true;
                                                     },
                                                     vaultList:
-                                                        unselectedSignerOptions
+                                                        _unselectedSignerOptions
                                                             .map((o) => o
                                                                 .singlesigVaultListItem)
                                                             .toList(),
@@ -706,24 +711,24 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
                                                   onTopWidgetButtonClicked: () {
                                                     setState(() {
                                                       // 내부 지갑 선택 완료
-                                                      assignedVaultList[i]
-                                                        ..item = unselectedSignerOptions[
-                                                                selectedSignerOptionIndex!]
+                                                      _assignedVaultList[i]
+                                                        ..item = _unselectedSignerOptions[
+                                                                _selectedSignerOptionIndex!]
                                                             .singlesigVaultListItem
                                                         ..bsms =
-                                                            unselectedSignerOptions[
-                                                                    selectedSignerOptionIndex!]
+                                                            _unselectedSignerOptions[
+                                                                    _selectedSignerOptionIndex!]
                                                                 .signerBsms
                                                         ..isExpanded = false
                                                         ..importKeyType =
                                                             ImportKeyType
                                                                 .internal;
 
-                                                      unselectedSignerOptions
+                                                      _unselectedSignerOptions
                                                           .removeAt(
-                                                              selectedSignerOptionIndex!);
+                                                              _selectedSignerOptionIndex!);
                                                     });
-                                                    selectedSignerOptionIndex =
+                                                    _selectedSignerOptionIndex =
                                                         null;
                                                   },
                                                 );
@@ -779,7 +784,7 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
                                                     context: context,
                                                     isScrollControlled: true,
                                                     controller:
-                                                        draggableController,
+                                                        _draggableController,
                                                     minChildSize: 0.7,
                                                     isDismissible: false,
                                                     enableDrag: true,
@@ -806,7 +811,7 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
 
                                                     // 외부 지갑 추가
                                                     setState(() {
-                                                      assignedVaultList[i]
+                                                      _assignedVaultList[i]
                                                         ..importKeyType =
                                                             ImportKeyType
                                                                 .external
@@ -829,14 +834,14 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
                           ),
                           Visibility(
                               visible: _isAssignedKeyCompletely() &&
-                                  !hasValidationCompleted,
+                                  !_hasValidationCompleted,
                               child: Container(
                                 margin: const EdgeInsets.only(top: 40),
                                 child: CompleteButton(
                                     onPressed: onSelectionCompleted,
                                     label: t.select_completed,
                                     disabled: _isAssignedKeyCompletely() &&
-                                        isNextProcessing),
+                                        _isNextProcessing),
                               ))
                         ],
                       ),
@@ -846,12 +851,12 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
               ),
             ),
             Visibility(
-              visible: isNextProcessing,
+              visible: _isNextProcessing,
               child: Container(
                 decoration:
                     const BoxDecoration(color: MyColors.transparentBlack_30),
                 child: Center(
-                    child: MessageActivityIndicator(message: loadingMessage)),
+                    child: MessageActivityIndicator(message: _loadingMessage)),
               ),
             ),
           ],
@@ -863,13 +868,13 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
   // 확장형 메뉴 펼쳐져 있지 않을 때
   Row _unExpansionWidget(int i, {bool isAssigned = false}) {
     bool isExternalImported =
-        assignedVaultList[i].importKeyType == ImportKeyType.external;
+        _assignedVaultList[i].importKeyType == ImportKeyType.external;
     return isAssigned
         ? Row(
             children: [
               const SizedBox(width: 8),
               Text(
-                '${assignedVaultList[i].index + 1}번 키 -',
+                '${_assignedVaultList[i].index + 1}번 키 -',
                 style: Styles.body1,
               ),
               const SizedBox(width: 8),
@@ -878,18 +883,18 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
                 decoration: BoxDecoration(
                   color: BackgroundColorPalette[isExternalImported
                       ? 8
-                      : assignedVaultList[i].item!.colorIndex],
+                      : _assignedVaultList[i].item!.colorIndex],
                   borderRadius: BorderRadius.circular(8.0),
                 ),
                 child: SvgPicture.asset(
                   isExternalImported
                       ? 'assets/svg/download.svg'
                       : CustomIcons.getPathByIndex(
-                          assignedVaultList[i].item!.iconIndex),
+                          _assignedVaultList[i].item!.iconIndex),
                   colorFilter: ColorFilter.mode(
                     isExternalImported
                         ? MyColors.black
-                        : ColorPalette[assignedVaultList[i].item!.colorIndex],
+                        : ColorPalette[_assignedVaultList[i].item!.colorIndex],
                     BlendMode.srcIn,
                   ),
                   width: 16.0,
@@ -903,18 +908,18 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
                   children: [
                     Text(
                       isExternalImported
-                          ? ' ${assignedVaultList[i].bsms?.split('\n')[3] ?? ''}'
-                          : ' ${assignedVaultList[i].item!.name}',
+                          ? ' ${_assignedVaultList[i].bsms?.split('\n')[3] ?? ''}'
+                          : ' ${_assignedVaultList[i].item!.name}',
                       style: Styles.body1,
                       overflow: TextOverflow.ellipsis,
                     ),
                     Visibility(
-                      visible: assignedVaultList[i].memo != null &&
-                          assignedVaultList[i].memo!.isNotEmpty,
+                      visible: _assignedVaultList[i].memo != null &&
+                          _assignedVaultList[i].memo!.isNotEmpty,
                       child: Padding(
                         padding: const EdgeInsets.only(left: 5),
                         child: Text(
-                          assignedVaultList[i].memo ?? '',
+                          _assignedVaultList[i].memo ?? '',
                           style: Styles.caption2,
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
@@ -934,7 +939,7 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
         : Row(
             children: [
               AnimatedRotation(
-                turns: assignedVaultList[i].isExpanded ? 0 : -0.25,
+                turns: _assignedVaultList[i].isExpanded ? 0 : -0.25,
                 duration: const Duration(milliseconds: 200),
                 child: const Icon(
                   Icons.expand_more,
@@ -945,7 +950,7 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
               const SizedBox(width: 15),
               Expanded(
                 child: Text(
-                  t.multisig.nth_key(index: assignedVaultList[i].index + 1),
+                  t.multisig.nth_key(index: _assignedVaultList[i].index + 1),
                   style: Styles.body1,
                 ),
               ),
@@ -1069,7 +1074,7 @@ class _ExpansionChildWidgetState extends State<ExpansionChildWidget> {
 enum ImportKeyType { internal, external }
 
 enum DialogType {
-  reSelect,
+  reselectQuorum,
   quit,
   alert,
   notAvailable,

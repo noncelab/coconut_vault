@@ -138,7 +138,6 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> {
               create: (_) => WalletCreationProvider()),
           ChangeNotifierProvider<WalletProvider>(
             create: (_) => WalletProvider(
-                Provider.of<WalletCreationProvider>(_, listen: false),
                 Provider.of<VisibilityProvider>(_, listen: false)),
           )
         }

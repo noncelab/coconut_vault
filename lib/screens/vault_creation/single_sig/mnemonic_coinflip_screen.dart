@@ -29,11 +29,6 @@ class _MnemonicCoinflipScreenState extends State<MnemonicCoinflipScreen> {
   bool _usePassphrase = false;
   bool finished = false;
 
-  @override
-  void initState() {
-    super.initState();
-  }
-
   void _onLengthSelected(int wordsCount) {
     setState(() {
       _selectedWordsCount = wordsCount;
@@ -126,10 +121,9 @@ class FlipCoin extends StatefulWidget {
 }
 
 class _FlipCoinState extends State<FlipCoin> {
-  late WalletCreationProvider _walletCreationProvider;
   late int stepCount; // 총 화면 단계
   int step = 0;
-  String mnemonic = '';
+  String _mnemonic = '';
   String passphrase = '';
   final TextEditingController _passphraseController = TextEditingController();
   bool passphraseObscured = false;
@@ -146,7 +140,6 @@ class _FlipCoinState extends State<FlipCoin> {
     super.initState();
     _totalBits = widget.wordsCount == 12 ? 128 : 256;
     stepCount = widget.usePassphrase ? 2 : 1;
-    _walletCreationProvider = Provider.of<WalletCreationProvider>(context);
   }
 
   @override
@@ -185,8 +178,6 @@ class _FlipCoinState extends State<FlipCoin> {
                                   title: t.alert.reselect.title,
                                   message: t.alert.reselect.description,
                                   action: () {
-                                    _walletCreationProvider
-                                        .resetSecretAndPassphrase();
                                     widget.onReset();
                                     Navigator.pop(context);
                                   })
@@ -556,7 +547,6 @@ class _FlipCoinState extends State<FlipCoin> {
       onCancel: () => Navigator.pop(context),
       onConfirm: action ??
           () {
-            _walletCreationProvider.resetSecretAndPassphrase();
             _resetBits();
             Navigator.pop(context);
           },
@@ -569,8 +559,11 @@ class _FlipCoinState extends State<FlipCoin> {
 
   bool _generateMnemonicPhrase() {
     try {
+      final mnemonic =
+          Seed.fromBinaryEntropy(listToBinaryString(_bits)).mnemonic;
       setState(() {
-        mnemonic = Seed.fromBinaryEntropy(listToBinaryString(_bits)).mnemonic;
+        _mnemonic =
+            mnemonic.trim().toLowerCase().replaceAll(RegExp(r'\s+'), ' ');
       });
       return true;
     } catch (e) {
@@ -591,8 +584,8 @@ class _FlipCoinState extends State<FlipCoin> {
       child: MnemonicConfirmationBottomSheet(
         onCancelPressed: () => Navigator.pop(context),
         onConfirmPressed: () {
-          _walletCreationProvider.setSecretAndPassphrase(mnemonic, passphrase);
-
+          Provider.of<WalletCreationProvider>(context, listen: false)
+              .setSecretAndPassphrase(_mnemonic, passphrase);
           Navigator.pushReplacement(
               context,
               MaterialPageRoute(
@@ -601,7 +594,7 @@ class _FlipCoinState extends State<FlipCoin> {
         onInactivePressed: () {
           CustomToast.showToast(context: context, text: t.toast.scroll_down);
         },
-        mnemonic: mnemonic.trim().toLowerCase().replaceAll(RegExp(r'\s+'), ' '),
+        mnemonic: _mnemonic,
         passphrase: widget.usePassphrase ? passphrase : null,
         topMessage: message,
       ),

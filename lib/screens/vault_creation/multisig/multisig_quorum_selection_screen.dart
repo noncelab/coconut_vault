@@ -23,6 +23,7 @@ class MultisigQuorumSelectionScreen extends StatefulWidget {
 
 class _MultisigQuorumSelectionScreenState
     extends State<MultisigQuorumSelectionScreen> {
+  late final WalletCreationProvider _walletCreationProvider;
   late int requiredCount; // 필요한 서명 수
   late int totalCount; // 전체 키의 수
   bool nextButtonEnabled = false;
@@ -45,6 +46,8 @@ class _MultisigQuorumSelectionScreenState
   @override
   void initState() {
     super.initState();
+    _walletCreationProvider =
+        Provider.of<WalletCreationProvider>(context, listen: false);
     requiredCount = 2;
     totalCount = 3;
     _startProgress(totalCount, requiredCount, buttonClickedCount);
@@ -166,17 +169,20 @@ class _MultisigQuorumSelectionScreenState
     return Scaffold(
       backgroundColor: MyColors.white,
       appBar: CustomAppBar.buildWithNext(
-        title: t.multisig_wallet,
-        context: context,
-        onNextPressed: () {
-          Provider.of<WalletCreationProvider>(context, listen: false)
-              .setQuorumRequirement(requiredCount, totalCount);
+          title: t.multisig_wallet,
+          context: context,
+          onNextPressed: () {
+            _walletCreationProvider.setQuorumRequirement(
+                requiredCount, totalCount);
 
-          _stopProgress();
-          Navigator.pushNamed(context, AppRoutes.signerAssignment);
-        },
-        isActive: _checkNextButtonActiveState(),
-      ),
+            _stopProgress();
+            Navigator.pushNamed(context, AppRoutes.signerAssignment);
+          },
+          isActive: _checkNextButtonActiveState(),
+          onBackPressed: () {
+            _walletCreationProvider.resetAll();
+            Navigator.pop(context);
+          }),
       body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 32),

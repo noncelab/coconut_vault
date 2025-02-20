@@ -27,46 +27,39 @@ class MnemonicGenerationScreen extends StatefulWidget {
 }
 
 class _MnemonicGenerationScreenState extends State<MnemonicGenerationScreen> {
-  int step = 0;
-  int selectedWordsCount = 0;
-  bool usePassphrase = false;
-  String mnemonicWords = '';
-  String passphrase = '';
-  bool finished = false;
-
-  @override
-  void initState() {
-    super.initState();
-  }
+  int _step = 0;
+  int _selectedWordsCount = 0;
+  bool _usePassphrase = false;
+  String _mnemonicWords = '';
+  String _passphrase = '';
 
   void _onLengthSelected(int wordsCount) {
     setState(() {
-      selectedWordsCount = wordsCount;
-      step = 1;
+      _selectedWordsCount = wordsCount;
+      _step = 1;
     });
   }
 
   void _onPassphraseSelected(bool selected) {
     setState(() {
-      usePassphrase = selected;
-      step = 2;
+      _usePassphrase = selected;
+      _step = 2;
     });
   }
 
   void _onReset() {
     setState(() {
-      step = 0;
-      selectedWordsCount = 0;
-      usePassphrase = false;
-      finished = false;
+      _step = 0;
+      _selectedWordsCount = 0;
+      _usePassphrase = false;
     });
   }
 
   void _onFinished(String mnemonicWords, String passphrase, bool finished) {
     setState(() {
-      this.mnemonicWords = mnemonicWords;
-      this.passphrase = passphrase;
-      this.finished = finished;
+      _mnemonicWords =
+          mnemonicWords.trim().toLowerCase().replaceAll(RegExp(r'\s+'), ' ');
+      _passphrase = passphrase;
     });
   }
 
@@ -94,17 +87,21 @@ class _MnemonicGenerationScreenState extends State<MnemonicGenerationScreen> {
       context: context,
       child: MnemonicConfirmationBottomSheet(
         onCancelPressed: () => Navigator.pop(context),
-        onConfirmPressed: () => Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(
-                builder: (context) => const VaultNameAndIconSetupScreen())),
+        onConfirmPressed: () {
+          Provider.of<WalletCreationProvider>(context, listen: false)
+              .setSecretAndPassphrase(
+                  _mnemonicWords, _usePassphrase ? _passphrase : null);
+          Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                  builder: (context) => const VaultNameAndIconSetupScreen()));
+        },
         onInactivePressed: () {
           CustomToast.showToast(context: context, text: t.toast.scroll_down);
           vibrateMediumDouble();
         },
-        mnemonic:
-            mnemonicWords.trim().toLowerCase().replaceAll(RegExp(r'\s+'), ' '),
-        passphrase: usePassphrase ? passphrase : null,
+        mnemonic: _mnemonicWords,
+        passphrase: _usePassphrase ? _passphrase : null,
       ),
     );
   }
@@ -119,8 +116,8 @@ class _MnemonicGenerationScreenState extends State<MnemonicGenerationScreen> {
           onSelected: _onPassphraseSelected,
           onShowStopDialog: _showStopGeneratingMnemonicDialog),
       MnemonicWords(
-        wordsCount: selectedWordsCount,
-        usePassphrase: usePassphrase,
+        wordsCount: _selectedWordsCount,
+        usePassphrase: _usePassphrase,
         onReset: _onReset,
         onFinished: _onFinished,
         onShowStopDialog: _showStopGeneratingMnemonicDialog,
@@ -137,7 +134,7 @@ class _MnemonicGenerationScreenState extends State<MnemonicGenerationScreen> {
           hasRightIcon: false,
         ),
         body: SafeArea(
-          child: screens[step],
+          child: screens[_step],
         ));
   }
 }
