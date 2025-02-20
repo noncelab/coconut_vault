@@ -1,6 +1,7 @@
 import 'package:coconut_vault/constants/app_routes.dart';
 import 'package:coconut_vault/enums/pin_check_context_enum.dart';
 import 'package:coconut_vault/main_route_guard.dart';
+import 'package:coconut_vault/providers/sign_provider.dart';
 import 'package:coconut_vault/providers/wallet_creation_provider.dart';
 import 'package:coconut_vault/providers/auth_provider.dart';
 import 'package:coconut_vault/providers/connectivity_provider.dart'
@@ -136,6 +137,7 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> {
         if (_appEntryFlow == AppEntryFlow.vaultlist) ...{
           Provider<WalletCreationProvider>(
               create: (_) => WalletCreationProvider()),
+          Provider<SignProvider>(create: (_) => SignProvider()),
           ChangeNotifierProvider<WalletProvider>(
             create: (_) => WalletProvider(
                 Provider.of<VisibilityProvider>(_, listen: false)),
