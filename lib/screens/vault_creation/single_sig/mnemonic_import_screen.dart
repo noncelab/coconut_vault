@@ -208,7 +208,7 @@ class _MnemonicImportState extends State<MnemonicImport> {
                     onCancelPressed: () => Navigator.pop(context),
                     onConfirmPressed: () {
                       _walletCreationProvider.setSecretAndPassphrase(
-                          secret, _usePassphrase ? _passphrase : null);
+                          secret, passphrase);
                       Navigator.pushReplacement(
                           context,
                           MaterialPageRoute(
