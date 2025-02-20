@@ -1,9 +1,9 @@
 import 'package:coconut_lib/coconut_lib.dart';
-import 'package:coconut_vault/constants/app_routes.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
+import 'package:coconut_vault/providers/wallet_creation_provider.dart';
+import 'package:coconut_vault/screens/vault_creation/vault_name_and_icon_setup_screen.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:coconut_vault/screens/vault_creation/single_sig/mnemonic_confirmation_bottom_sheet.dart';
 import 'package:coconut_vault/screens/vault_creation/single_sig/mnemonic_generation_screen.dart';
 import 'package:coconut_vault/styles.dart';
@@ -24,45 +24,31 @@ class MnemonicCoinflipScreen extends StatefulWidget {
 }
 
 class _MnemonicCoinflipScreenState extends State<MnemonicCoinflipScreen> {
-  int step = 0;
-  int selectedWordsCount = 0;
-  bool usePassphrase = false;
-  String mnemonicWords = '';
-  String passphrase = '';
+  int _step = 0;
+  int _selectedWordsCount = 0;
+  bool _usePassphrase = false;
   bool finished = false;
-
-  @override
-  void initState() {
-    super.initState();
-  }
 
   void _onLengthSelected(int wordsCount) {
     setState(() {
-      selectedWordsCount = wordsCount;
-      step = 1;
+      _selectedWordsCount = wordsCount;
+      _step = 1;
     });
   }
 
   void _onPassphraseSelected(bool selected) {
     setState(() {
-      usePassphrase = selected;
-      step = 2;
+      _usePassphrase = selected;
+      _step = 2;
     });
   }
 
   void _onReset() {
     setState(() {
-      step = 0;
-      selectedWordsCount = 0;
-      usePassphrase = false;
+      _step = 0;
+      _selectedWordsCount = 0;
+      _usePassphrase = false;
       finished = false;
-    });
-  }
-
-  void _onFinished(String mnemonicWords, String passphrase) {
-    setState(() {
-      mnemonicWords = mnemonicWords;
-      passphrase = passphrase;
     });
   }
 
@@ -84,6 +70,12 @@ class _MnemonicCoinflipScreenState extends State<MnemonicCoinflipScreen> {
   }
 
   @override
+  void initState() {
+    super.initState();
+    Provider.of<WalletCreationProvider>(context, listen: false).resetAll();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final List<Widget> screens = [
       WordsLengthSelection(
@@ -93,10 +85,9 @@ class _MnemonicCoinflipScreenState extends State<MnemonicCoinflipScreen> {
           onSelected: _onPassphraseSelected,
           onShowStopDialog: _showStopGeneratingMnemonicDialog),
       FlipCoin(
-        wordsCount: selectedWordsCount,
-        usePassphrase: usePassphrase,
+        wordsCount: _selectedWordsCount,
+        usePassphrase: _usePassphrase,
         onReset: _onReset,
-        onFinished: _onFinished,
         onShowStopDialog: _showStopGeneratingMnemonicDialog,
       )
     ];
@@ -111,7 +102,7 @@ class _MnemonicCoinflipScreenState extends State<MnemonicCoinflipScreen> {
         ),
         body: SafeArea(
           child: SingleChildScrollView(
-            child: screens[step],
+            child: screens[_step],
           ),
         ));
   }
@@ -121,7 +112,6 @@ class FlipCoin extends StatefulWidget {
   final int wordsCount;
   final bool usePassphrase;
   final Function() onReset;
-  final Function(String, String) onFinished;
   final VoidCallback onShowStopDialog;
 
   const FlipCoin({
@@ -129,7 +119,6 @@ class FlipCoin extends StatefulWidget {
     required this.wordsCount,
     required this.usePassphrase,
     required this.onReset,
-    required this.onFinished,
     required this.onShowStopDialog,
   });
 
@@ -140,7 +129,7 @@ class FlipCoin extends StatefulWidget {
 class _FlipCoinState extends State<FlipCoin> {
   late int stepCount; // 총 화면 단계
   int step = 0;
-  String mnemonic = '';
+  String _mnemonic = '';
   String passphrase = '';
   final TextEditingController _passphraseController = TextEditingController();
   bool passphraseObscured = false;
@@ -309,10 +298,6 @@ class _FlipCoinState extends State<FlipCoin> {
                                       setState(() {
                                         passphrase = text;
                                       });
-
-                                      if (!widget.usePassphrase) {
-                                        widget.onFinished(mnemonic, text);
-                                      }
                                     },
                                     maxLines: 1,
                                     obscureText: passphraseObscured,
@@ -580,8 +565,11 @@ class _FlipCoinState extends State<FlipCoin> {
 
   bool _generateMnemonicPhrase() {
     try {
+      final mnemonic =
+          Seed.fromBinaryEntropy(listToBinaryString(_bits)).mnemonic;
       setState(() {
-        mnemonic = Seed.fromBinaryEntropy(listToBinaryString(_bits)).mnemonic;
+        _mnemonic =
+            mnemonic.trim().toLowerCase().replaceAll(RegExp(r'\s+'), ' ');
       });
       return true;
     } catch (e) {
@@ -597,18 +585,22 @@ class _FlipCoinState extends State<FlipCoin> {
   }
 
   void _showConfirmBottomSheet(String message) {
-    Provider.of<WalletProvider>(context, listen: false)
-        .startSinglesigImporting(mnemonic, passphrase);
     MyBottomSheet.showBottomSheet_90(
       context: context,
       child: MnemonicConfirmationBottomSheet(
         onCancelPressed: () => Navigator.pop(context),
-        onConfirmPressed: () =>
-            Navigator.pushNamed(context, AppRoutes.vaultNameSetup),
+        onConfirmPressed: () {
+          Provider.of<WalletCreationProvider>(context, listen: false)
+              .setSecretAndPassphrase(_mnemonic, passphrase);
+          Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                  builder: (context) => const VaultNameAndIconSetupScreen()));
+        },
         onInactivePressed: () {
           CustomToast.showToast(context: context, text: t.toast.scroll_down);
         },
-        mnemonic: mnemonic.trim().toLowerCase().replaceAll(RegExp(r'\s+'), ' '),
+        mnemonic: _mnemonic,
         passphrase: widget.usePassphrase ? passphrase : null,
         topMessage: message,
       ),

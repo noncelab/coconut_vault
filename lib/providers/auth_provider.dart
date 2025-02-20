@@ -252,6 +252,7 @@ class AuthProvider extends ChangeNotifier {
     await _storageService.write(key: SharedPrefsKeys.kVaultPin, value: hashed);
     _isPinSet = true;
     _sharedPrefs.setBool(SharedPrefsKeys.isPinEnabled, true);
+    notifyListeners();
   }
 
   /// 비밀번호 초기화

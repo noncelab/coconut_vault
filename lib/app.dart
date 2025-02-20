@@ -1,7 +1,7 @@
 import 'package:coconut_vault/constants/app_routes.dart';
 import 'package:coconut_vault/enums/pin_check_context_enum.dart';
 import 'package:coconut_vault/main_route_guard.dart';
-import 'package:coconut_vault/model/multisig/multisig_creation_model.dart';
+import 'package:coconut_vault/providers/wallet_creation_provider.dart';
 import 'package:coconut_vault/providers/auth_provider.dart';
 import 'package:coconut_vault/providers/connectivity_provider.dart'
     as connectivityProvider;
@@ -134,18 +134,12 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> {
           ),
         ),
         if (_appEntryFlow == AppEntryFlow.vaultlist) ...{
-          Provider<MultisigCreationModel>(
-              create: (_) => MultisigCreationModel()),
-          ChangeNotifierProxyProvider<AppModel, WalletProvider>(
+          Provider<WalletCreationProvider>(
+              create: (_) => WalletCreationProvider()),
+          ChangeNotifierProvider<WalletProvider>(
             create: (_) => WalletProvider(
-                Provider.of<AppModel>(
-                  _,
-                  listen: false,
-                ),
-                Provider.of<MultisigCreationModel>(_, listen: false)),
-            update: (_, appModel, vaultModel) =>
-                vaultModel!..updateAppModel(appModel),
-          ),
+                Provider.of<VisibilityProvider>(_, listen: false)),
+          )
         }
       ],
       child: Directionality(

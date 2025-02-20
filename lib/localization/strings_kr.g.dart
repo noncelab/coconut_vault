@@ -486,8 +486,8 @@ class TranslationsMnemonicConfirmScreenKr {
 	final Translations _root; // ignore: unused_field
 
 	// Translations
-	String get text1 => '입력하신 정보가 맞는지\n다시 한번 확인해 주세요.';
-	String text2({required Object count}) => ' (총 ${count} 글자)';
+	String get title => '입력하신 정보가 맞는지\n다시 한번 확인해 주세요.';
+	String passphrase_character_total_count({required Object count}) => ' (총 ${count} 글자)';
 	late final TranslationsMnemonicConfirmScreenWarningKr warning = TranslationsMnemonicConfirmScreenWarningKr.internal(_root);
 	String get btn_confirm_completed => '확인 완료';
 }
@@ -1349,8 +1349,8 @@ extension on Translations {
 			case 'mnemonic_coin_flip_screen.enter_passphrase': return '패스프레이즈를 입력해 주세요';
 			case 'mnemonic_coin_flip_screen.coin_head': return '앞';
 			case 'mnemonic_coin_flip_screen.coin_tail': return '뒤';
-			case 'mnemonic_confirm_screen.text1': return '입력하신 정보가 맞는지\n다시 한번 확인해 주세요.';
-			case 'mnemonic_confirm_screen.text2': return ({required Object count}) => ' (총 ${count} 글자)';
+			case 'mnemonic_confirm_screen.title': return '입력하신 정보가 맞는지\n다시 한번 확인해 주세요.';
+			case 'mnemonic_confirm_screen.passphrase_character_total_count': return ({required Object count}) => ' (총 ${count} 글자)';
 			case 'mnemonic_confirm_screen.warning.contains_space_character': return '⚠︎ 공백 문자가 포함되어 있습니다.';
 			case 'mnemonic_confirm_screen.warning.long_passphrase': return '⚠︎ 긴 패스프레이즈: 스크롤을 끝까지 내려 모두 확인해 주세요.';
 			case 'mnemonic_confirm_screen.btn_confirm_completed': return '확인 완료';

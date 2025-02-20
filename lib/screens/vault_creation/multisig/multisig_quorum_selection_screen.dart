@@ -1,7 +1,7 @@
 import 'package:coconut_vault/constants/app_routes.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
-import 'package:coconut_vault/model/multisig/multisig_creation_model.dart';
 import 'package:coconut_vault/providers/view_model/mutlisig_quorum_selection_view_model.dart';
+import 'package:coconut_vault/providers/wallet_creation_provider.dart';
 import 'package:coconut_vault/styles.dart';
 import 'package:coconut_vault/widgets/animation/key_safe_animation_widget.dart';
 import 'package:coconut_vault/widgets/appbar/custom_appbar.dart';
@@ -74,8 +74,8 @@ class _MultisigQuorumSelectionScreenState
               title: t.multisig_wallet,
               context: context,
               onNextPressed: () {
-                viewModel.setQuorumRequirementToModel();
-                viewModel.setProgressAnimationVisible(false);
+                viewModel.saveQuorumRequirement();
+                viewModel.setProgressAnimationVisible(false); // TODO: UI
                 _mounted = false;
                 Navigator.pushNamed(context, AppRoutes.signerAssignment);
               },
@@ -209,7 +209,7 @@ class _MultisigQuorumSelectionScreenState
   void initState() {
     super.initState();
     _viewModel = MultisigQuorumSelectionViewModel(
-      Provider.of<MultisigCreationModel>(context, listen: false),
+      Provider.of<WalletCreationProvider>(context, listen: false),
     );
     Future.delayed(const Duration(milliseconds: 2000), () {
       if (_mounted) {

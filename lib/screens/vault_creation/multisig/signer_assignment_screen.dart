@@ -6,6 +6,7 @@ import 'package:coconut_vault/model/multisig/multisig_creation_model.dart';
 import 'package:coconut_vault/model/multisig/multisig_signer.dart';
 import 'package:coconut_vault/model/singlesig/singlesig_vault_list_item.dart';
 import 'package:coconut_vault/providers/view_model/signer_assignment_view_model.dart';
+import 'package:coconut_vault/providers/wallet_creation_provider.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:coconut_vault/screens/common/multisig_bsms_scanner_screen.dart';
 import 'package:coconut_vault/screens/vault_creation/multisig/import_confirmation_screen.dart';
@@ -56,7 +57,7 @@ class AssignedVaultListItem {
 }
 
 enum DialogType {
-  reSelect,
+  reselectQuorum,
   quit,
   alert,
   notAvailable,
@@ -183,7 +184,7 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
       child: ChangeNotifierProvider<SignerAssignmentViewModel>(
         create: (context) => _viewModel = SignerAssignmentViewModel(
           Provider.of<WalletProvider>(context, listen: false),
-          Provider.of<MultisigCreationModel>(context, listen: false),
+          Provider.of<WalletCreationProvider>(context, listen: false),
         ),
         child: Consumer<SignerAssignmentViewModel>(
           builder: (context, viewModel, child) => Scaffold(
@@ -268,7 +269,7 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
                                     onTap: () {
                                       viewModel.getAssignedVaultListLength() !=
                                               0
-                                          ? _showDialog(DialogType.reSelect)
+                                          ? _showDialog(DialogType.reselectQuorum)
                                           : _onBackPressed(context);
                                     },
                                     child: Container(
@@ -555,6 +556,7 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
   }
 
   void onNextPressed() {
+    _viewModel.saveSignersToProvider();
     Navigator.pushNamed(context, AppRoutes.vaultNameSetup);
   }
 
@@ -612,7 +614,7 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
     if (_viewModel.getAssignedVaultListLength() > 0) {
       _showDialog(DialogType.quit);
     } else {
-      _viewModel.resetMultisigCreationModel();
+      _viewModel.resetWalletCreationProvider();
       _isFinishing = true;
       Navigator.pop(context);
     }
@@ -629,7 +631,7 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
     bool barrierDismissible = true;
 
     switch (type) {
-      case DialogType.reSelect:
+      case DialogType.reselectQuorum:
         {
           title = t.alert.reselect.title;
           message = t.alert.reselect.description;
@@ -637,6 +639,7 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
           confirmButtonText = t.delete;
           confirmButtonColor = MyColors.warningText;
           onConfirm = () {
+            _viewModel.resetWalletCreationProvider();
             _isFinishing = true;
             Navigator.popUntil(
                 context,
@@ -669,7 +672,7 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
           confirmButtonText = t.stop;
           confirmButtonColor = MyColors.warningText;
           onConfirm = () {
-            _viewModel.resetMultisigCreationModel();
+            _viewModel.resetWalletCreationProvider();
             Navigator.pop(context);
             Navigator.pushNamedAndRemoveUntil(
                 context, '/', (Route<dynamic> route) => false);
@@ -684,6 +687,7 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
           confirmButtonText = t.yes;
           confirmButtonColor = MyColors.warningText;
           onConfirm = () {
+            _viewModel.setSigners(null);
             // 내부 지갑인 경우
             if (_viewModel.assignedVaultList[keyIndex].importKeyType ==
                 ImportKeyType.internal) {

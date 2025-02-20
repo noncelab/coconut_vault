@@ -10,7 +10,7 @@ class MnemonicConfirmationBottomSheet extends StatefulWidget {
   final VoidCallback? onInactivePressed;
   final String mnemonic;
   final String? passphrase;
-  final String topMessage;
+  final String? topMessage;
 
   const MnemonicConfirmationBottomSheet(
       {super.key,
@@ -19,7 +19,7 @@ class MnemonicConfirmationBottomSheet extends StatefulWidget {
       this.onInactivePressed,
       required this.mnemonic,
       this.passphrase,
-      this.topMessage = '입력하신 정보가 맞는지\n다시 한번 확인해 주세요.'});
+      this.topMessage});
 
   @override
   State<MnemonicConfirmationBottomSheet> createState() =>
@@ -34,6 +34,7 @@ class _MnemonicConfirmationBottomSheetState
   @override
   void initState() {
     super.initState();
+
     vibrateLight();
     if (widget.passphrase == null) _isBottom = true;
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -85,9 +86,13 @@ class _MnemonicConfirmationBottomSheetState
                   visible: widget.passphrase != null,
                   child: Row(
                     children: [
-                      const Text('패스프레이즈', style: Styles.body2Bold),
+                      Text(t.passphrase, style: Styles.body2Bold),
                       Text(
-                        ' (총 ${widget.passphrase?.length} 글자)',
+                        t.mnemonic_confirm_screen
+                            .passphrase_character_total_count(
+                                count: widget.passphrase != null
+                                    ? widget.passphrase!.length.toString()
+                                    : '0'),
                         style: TextStyle(
                           fontFamily: CustomFonts.text.getFontFamily,
                           fontSize: 13.0,
@@ -115,7 +120,7 @@ class _MnemonicConfirmationBottomSheetState
   Widget _topText() {
     return Align(
       alignment: Alignment.centerLeft,
-      child: Text(widget.topMessage,
+      child: Text(widget.topMessage ?? t.mnemonic_confirm_screen.title,
           style: Styles.appbarTitle.merge(
             const TextStyle(
               fontWeight: FontWeight.w600,

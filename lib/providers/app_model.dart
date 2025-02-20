@@ -175,7 +175,7 @@ class AppModel with ChangeNotifier {
 
   ///  생성된 지갑 개수
   int _vaultListLength = 0;
-  int get vaultListLength => _vaultListLength;
+  int get walletCount => _vaultListLength;
 
   /// 로딩
   // bool _isLoading = false;

@@ -4,10 +4,10 @@ import 'package:flutter/material.dart';
 
 class VisibilityProvider extends ChangeNotifier {
   late bool _hasSeenGuide;
-  int _vaultListLength = 0;
+  late int _walletCount;
 
   bool get hasSeenGuide => _hasSeenGuide;
-  int get vaultListLength => _vaultListLength;
+  int get walletCount => _walletCount;
 
   /// TODO: 제거
   bool _isLoading = false;
@@ -16,6 +16,7 @@ class VisibilityProvider extends ChangeNotifier {
   VisibilityProvider() {
     final prefs = SharedPrefsRepository();
     _hasSeenGuide = prefs.getBool(SharedPrefsKeys.hasShownStartGuide) == true;
+    _walletCount = prefs.getInt(SharedPrefsKeys.vaultListLength) ?? 0;
   }
 
   void showIndicator() {
@@ -29,15 +30,15 @@ class VisibilityProvider extends ChangeNotifier {
   }
 
   /// WalletList isNotEmpty 상태 저장
-  Future<void> saveVaultListLength(int length) async {
-    _vaultListLength = length;
+  Future<void> saveWalletCount(int count) async {
+    _walletCount = count;
     await SharedPrefsRepository()
-        .setInt(SharedPrefsKeys.vaultListLength, length);
+        .setInt(SharedPrefsKeys.vaultListLength, count);
     notifyListeners();
   }
 
   void reset() {
-    _vaultListLength = 0;
+    _walletCount = 0;
     final prefs = SharedPrefsRepository();
     prefs.setInt(SharedPrefsKeys.vaultListLength, 0);
   }

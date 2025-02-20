@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:coconut_lib/coconut_lib.dart';
+import 'package:coconut_vault/app_routes_params.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/model/multisig/multisig_import_detail.dart';
 import 'package:coconut_vault/model/exception/not_related_multisig_wallet_exception.dart';
@@ -251,10 +252,8 @@ class _MultisigBsmsScannerScreenState extends State<MultisigBsmsScannerScreen> {
 
         //Logger.log('---> Homeroute = ${HomeScreenStatus().screenStatus}');
         Navigator.pushNamedAndRemoveUntil(
-          context,
-          '/',
-          (Route<dynamic> route) => false,
-        );
+            context, '/', (Route<dynamic> route) => false,
+            arguments: VaultListNavArgs(isWalletAdded: true));
       } catch (e) {
         if (e is NotRelatedMultisigWalletException) {
           onFailedScanning(e.message);
