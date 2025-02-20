@@ -22,17 +22,18 @@ class _MnemonicViewScreen extends State<MnemonicViewScreen> {
   bool _isPressed = false;
   bool _isLoading = true;
   List<Widget> _passphraseGridItems = [];
-  late WalletProvider _vaultModel;
+  late WalletProvider _walletProvider;
   String? mnemonic;
   String? passphrase;
 
   @override
   void initState() {
     super.initState();
-    _vaultModel = Provider.of<WalletProvider>(context, listen: false);
+    _walletProvider = Provider.of<WalletProvider>(context, listen: false);
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      _vaultModel.getSecret(widget.walletId).then((secret) async {
+      _walletProvider.getSecret(widget.walletId).then((secret) async {
         await Future.delayed(const Duration(seconds: 1));
+        if (!mounted) return;
         setState(() {
           mnemonic = secret.mnemonic;
           passphrase = secret.passphrase;

@@ -1,4 +1,5 @@
 import 'package:coconut_vault/constants/app_routes.dart';
+import 'package:coconut_vault/constants/external_links.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/providers/connectivity_provider.dart';
 import 'package:coconut_vault/styles.dart';
@@ -93,7 +94,7 @@ class _TutorialScreenState extends State<TutorialScreen> {
                                     const SizedBox(height: 30),
                                     ShrinkAnimationButton(
                                       onPressed: () => launchURL(
-                                        'https://noncelab.gitbook.io/coconut.onl',
+                                        COCONUT_TUTORIAL_URL,
                                         defaultMode: false,
                                       ),
                                       defaultColor: MyColors.darkgrey,

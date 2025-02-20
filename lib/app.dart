@@ -1,11 +1,10 @@
 import 'package:coconut_vault/constants/app_routes.dart';
 import 'package:coconut_vault/enums/pin_check_context_enum.dart';
 import 'package:coconut_vault/main_route_guard.dart';
-import 'package:coconut_vault/model/multisig/multisig_creation_model.dart';
+import 'package:coconut_vault/providers/wallet_creation_provider.dart';
 import 'package:coconut_vault/providers/auth_provider.dart';
 import 'package:coconut_vault/providers/connectivity_provider.dart'
     as connectivityProvider;
-import 'package:coconut_vault/providers/sign_provider.dart';
 import 'package:coconut_vault/providers/visibility_provider.dart';
 import 'package:coconut_vault/screens/airgap/multisig_sign_screen.dart';
 import 'package:coconut_vault/screens/airgap/psbt_confirmation_screen.dart';
@@ -29,7 +28,7 @@ import 'package:coconut_vault/screens/vault_creation/vault_type_selection_screen
 import 'package:coconut_vault/screens/vault_creation/vault_creation_options_screen.dart';
 import 'package:coconut_vault/screens/vault_creation/vault_name_and_icon_setup_screen.dart';
 import 'package:coconut_vault/screens/vault_menu/address_list_screen.dart';
-import 'package:coconut_vault/screens/vault_menu/info/multisig_bsms_view_screen.dart';
+import 'package:coconut_vault/screens/vault_menu/info/multisig_bsms_screen.dart';
 import 'package:coconut_vault/screens/vault_menu/info/multisig_setup_info_screen.dart';
 import 'package:coconut_vault/screens/vault_menu/multisig_signer_bsms_export_screen.dart';
 import 'package:coconut_vault/screens/vault_menu/sync_to_wallet/sync_to_wallet_screen.dart';
@@ -135,12 +134,10 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> {
           ),
         ),
         if (_appEntryFlow == AppEntryFlow.vaultlist) ...{
-          Provider<MultisigCreationModel>(
-              create: (_) => MultisigCreationModel()),
-          Provider<SignProvider>(create: (_) => SignProvider()),
+          Provider<WalletCreationProvider>(
+              create: (_) => WalletCreationProvider()),
           ChangeNotifierProvider<WalletProvider>(
             create: (_) => WalletProvider(
-                Provider.of<MultisigCreationModel>(_, listen: false),
                 Provider.of<VisibilityProvider>(_, listen: false)),
           )
         }
@@ -199,7 +196,7 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> {
                 ),
             AppRoutes.multisigBsmsView: (context) => buildScreenWithArguments(
                   context,
-                  (args) => MultisigBsmsViewScreen(
+                  (args) => MultisigBsmsScreen(
                     id: args['id'],
                   ),
                 ),

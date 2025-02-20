@@ -1,6 +1,7 @@
 import 'package:coconut_lib/coconut_lib.dart';
-import 'package:coconut_vault/constants/app_routes.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
+import 'package:coconut_vault/providers/wallet_creation_provider.dart';
+import 'package:coconut_vault/screens/vault_creation/vault_name_and_icon_setup_screen.dart';
 import 'package:coconut_vault/utils/lower_case_text_input_formatter.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -14,6 +15,7 @@ import 'package:coconut_vault/widgets/bottom_sheet.dart';
 import 'package:coconut_vault/widgets/custom_dialog.dart';
 import 'package:coconut_vault/widgets/custom_toast.dart';
 import 'package:coconut_vault/widgets/textfield/custom_textfield.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
 class MnemonicImport extends StatefulWidget {
@@ -24,18 +26,16 @@ class MnemonicImport extends StatefulWidget {
 }
 
 class _MnemonicImportState extends State<MnemonicImport> {
-  String inputText = '';
-  bool usePassphrase = false;
-  String passphrase = '';
-  String passphraseConfirm = '';
-  bool passphraseObscured = false;
+  late WalletProvider _walletProvider;
+  late WalletCreationProvider _walletCreationProvider;
+  String _inputText = '';
+  bool _usePassphrase = false;
+  String _passphrase = '';
+  //String _passphraseConfirm = '';
+  bool _passphraseObscured = false;
   // 니모닉이 유효한지 확인을 한 상황이면 true
-  bool? isMnemonicValid;
-  // bool passphraseConfirmObscured = false;
-  bool isNextButtonActive = false;
-  bool isValid = true;
-  bool isFinishing = false;
-  String? errorMessage;
+  bool? _isMnemonicValid;
+  String? _errorMessage;
 
   final TextEditingController _mnemonicController = TextEditingController();
   final TextEditingController _passphraseController = TextEditingController();
@@ -44,25 +44,25 @@ class _MnemonicImportState extends State<MnemonicImport> {
   // final FocusNode _fcnodePassphrase = FocusNode();
 
   void validateInput() {
-    if (inputText.trim().isEmpty) {
-      if (isMnemonicValid != null) {
+    if (_inputText.trim().isEmpty) {
+      if (_isMnemonicValid != null) {
         setState(() {
-          isMnemonicValid = null;
-          errorMessage = null;
+          _isMnemonicValid = null;
+          _errorMessage = null;
         });
       }
       return;
     }
 
     String normalizedInputText =
-        inputText.trim().replaceAll(RegExp(r'\s+'), ' ');
+        _inputText.trim().replaceAll(RegExp(r'\s+'), ' ');
     List<String> words = normalizedInputText.split(' ');
     List<String> filtered = [];
 
     for (int i = 0; i < words.length; i++) {
       // 유효 길이 미만의 마지막 입력 중인 단어는 유효성 체크에서 임시로 제외
       if (i == words.length - 1 &&
-          !inputText.endsWith(' ') &&
+          !_inputText.endsWith(' ') &&
           (i != 11 && i != 14 && i != 17 && i != 20 && i != 23)) {
         continue;
       }
@@ -75,13 +75,13 @@ class _MnemonicImportState extends State<MnemonicImport> {
 
     if (filtered.isNotEmpty) {
       setState(() {
-        isMnemonicValid = false;
-        errorMessage = t.errors.invalid_word_error(filter: filtered);
+        _isMnemonicValid = false;
+        _errorMessage = t.errors.invalid_word_error(filter: filtered);
       });
       return;
     } else {
-      isMnemonicValid = null;
-      errorMessage = null;
+      _isMnemonicValid = null;
+      _errorMessage = null;
     }
 
     // 유효한 길이가 아닌 니모닉 문구는 검증하지 않음
@@ -90,42 +90,43 @@ class _MnemonicImportState extends State<MnemonicImport> {
         (words.length > 15 && words.length < 18) ||
         (words.length > 18 && words.length < 21) ||
         (words.length > 21 && words.length < 24)) {
-      if (isMnemonicValid != null) {
+      if (_isMnemonicValid != null) {
         setState(() {
-          isMnemonicValid = null;
+          _isMnemonicValid = null;
         });
       }
       return;
     }
 
     // 12자리 또는 24자리 일 때 검증
-    inputText = inputText.toLowerCase().replaceAll(RegExp(r'\s+'), ' ').trim();
+    _inputText =
+        _inputText.toLowerCase().replaceAll(RegExp(r'\s+'), ' ').trim();
 
     if (words.last.length < 3) {
-      isMnemonicValid = null;
-      errorMessage = null;
+      _isMnemonicValid = null;
+      _errorMessage = null;
       return;
     }
 
     setState(() {
-      isMnemonicValid = isValidMnemonic(inputText);
+      _isMnemonicValid = isValidMnemonic(_inputText);
     });
   }
 
   void _initListeners() {
     _passphraseController.addListener(() {
       setState(() {
-        passphrase = _passphraseController.text;
+        _passphrase = _passphraseController.text;
       });
     });
   }
 
-  void _onBackPressed(BuildContext context) {
-    if (inputText.isEmpty && passphrase.isEmpty) {
-      final model = Provider.of<WalletProvider>(context, listen: false);
-      model.completeSinglesigImporting();
-      isFinishing = true;
-      Navigator.pop(context);
+  Future<void> _onBackPressed(BuildContext context) async {
+    await SystemChannels.textInput.invokeMethod('TextInput.hide');
+    if (_inputText.isEmpty && _passphrase.isEmpty) {
+      if (Navigator.of(context).canPop()) {
+        Navigator.pop(context);
+      }
     } else {
       _showStopGeneratingMnemonicDialog();
     }
@@ -151,8 +152,10 @@ class _MnemonicImportState extends State<MnemonicImport> {
   @override
   void initState() {
     super.initState();
-
     _initListeners();
+    _walletProvider = Provider.of<WalletProvider>(context, listen: false);
+    _walletCreationProvider =
+        Provider.of<WalletCreationProvider>(context, listen: false)..resetAll();
   }
 
   @override
@@ -169,8 +172,10 @@ class _MnemonicImportState extends State<MnemonicImport> {
   Widget build(BuildContext context) {
     return PopScope(
       canPop: false,
-      onPopInvokedWithResult: (didPop, _) {
-        if (!isFinishing) _onBackPressed(context);
+      onPopInvokedWithResult: (didPop, _) async {
+        if (!didPop) {
+          await _onBackPressed(context);
+        }
       },
       child: Stack(
         children: [
@@ -183,51 +188,48 @@ class _MnemonicImportState extends State<MnemonicImport> {
                 _onBackPressed(context);
               },
               onNextPressed: () {
-                final model =
-                    Provider.of<WalletProvider>(context, listen: false);
+                final String secret = _inputText
+                    .trim()
+                    .toLowerCase()
+                    .replaceAll(RegExp(r'\s+'), ' ');
 
-                if (model.isSeedDuplicated(
-                    inputText
-                        .trim()
-                        .toLowerCase()
-                        .replaceAll(RegExp(r'\s+'), ' '),
-                    usePassphrase ? passphrase.trim() : '')) {
+                final String passphrase =
+                    _usePassphrase ? _passphrase.trim() : '';
+
+                if (_walletProvider.isSeedDuplicated(secret, passphrase)) {
                   CustomToast.showToast(
                       context: context, text: t.toast.mnemonic_already_added);
                   return;
                 }
 
-                model.startSinglesigImporting(
-                    inputText
-                        .trim()
-                        .toLowerCase()
-                        .replaceAll(RegExp(r'\s+'), ' '),
-                    usePassphrase ? passphrase.trim() : '');
-
                 MyBottomSheet.showBottomSheet_90(
                   context: context,
                   child: MnemonicConfirmationBottomSheet(
                     onCancelPressed: () => Navigator.pop(context),
-                    onConfirmPressed: () =>
-                        Navigator.pushNamed(context, AppRoutes.vaultNameSetup),
+                    onConfirmPressed: () {
+                      _walletCreationProvider.setSecretAndPassphrase(
+                          secret, passphrase);
+                      Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) =>
+                                  const VaultNameAndIconSetupScreen()));
+                    },
                     onInactivePressed: () {
                       CustomToast.showToast(
                           context: context, text: t.toast.scroll_down);
                       vibrateMediumDouble();
                     },
-                    mnemonic: inputText
-                        .trim()
-                        .toLowerCase()
-                        .replaceAll(RegExp(r'\s+'), ' '),
-                    passphrase: usePassphrase ? passphrase : null,
+                    mnemonic: secret,
+                    passphrase: _usePassphrase ? _passphrase : null,
                   ),
                 );
               },
-              isActive: usePassphrase
-                  ? inputText.isNotEmpty &&
-                      isMnemonicValid == true &&
-                      passphrase.isNotEmpty
-                  : inputText.isNotEmpty && isMnemonicValid == true,
+              isActive: _usePassphrase
+                  ? _inputText.isNotEmpty &&
+                      _isMnemonicValid == true &&
+                      _passphrase.isNotEmpty
+                  : _inputText.isNotEmpty && _isMnemonicValid == true,
             ),
             body: GestureDetector(
               onTap: () => FocusScope.of(context).unfocus(),
@@ -249,15 +251,15 @@ class _MnemonicImportState extends State<MnemonicImport> {
                             placeholder: t.mnemonic_import_screen
                                 .put_spaces_between_words,
                             onChanged: (text) {
-                              inputText = text.toLowerCase();
+                              _inputText = text.toLowerCase();
                               setState(() {
                                 _mnemonicController.value =
                                     _mnemonicController.value.copyWith(
-                                  text: inputText,
+                                  text: _inputText,
                                   selection: TextSelection.collapsed(
                                     offset: _mnemonicController
                                         .selection.baseOffset
-                                        .clamp(0, inputText.length),
+                                        .clamp(0, _inputText.length),
                                   ),
                                 );
                               });
@@ -265,8 +267,8 @@ class _MnemonicImportState extends State<MnemonicImport> {
                             },
                             maxLines: 5,
                             padding: const EdgeInsets.fromLTRB(16, 20, 16, 20),
-                            valid: isMnemonicValid,
-                            errorMessage: errorMessage ??
+                            valid: _isMnemonicValid,
+                            errorMessage: _errorMessage ??
                                 t.errors.invalid_mnemonic_phrase),
                         const SizedBox(height: 30),
                         Row(
@@ -275,17 +277,17 @@ class _MnemonicImportState extends State<MnemonicImport> {
                                 style: Styles.body2Bold),
                             const Spacer(),
                             CupertinoSwitch(
-                              value: usePassphrase,
+                              value: _usePassphrase,
                               activeColor: MyColors.darkgrey,
                               onChanged: (value) {
                                 setState(() {
-                                  usePassphrase = value;
+                                  _usePassphrase = value;
                                 });
                               },
                             ),
                           ],
                         ),
-                        if (usePassphrase)
+                        if (_usePassphrase)
                           Column(children: [
                             Padding(
                                 padding: const EdgeInsets.only(top: 12),
@@ -295,17 +297,17 @@ class _MnemonicImportState extends State<MnemonicImport> {
                                     placeholder: t.mnemonic_import_screen
                                         .enter_passphrase,
                                     onChanged: (text) {},
-                                    valid: passphrase.length <= 100,
+                                    valid: _passphrase.length <= 100,
                                     maxLines: 1,
-                                    obscureText: passphraseObscured,
+                                    obscureText: _passphraseObscured,
                                     suffix: CupertinoButton(
                                       onPressed: () {
                                         setState(() {
-                                          passphraseObscured =
-                                              !passphraseObscured;
+                                          _passphraseObscured =
+                                              !_passphraseObscured;
                                         });
                                       },
-                                      child: passphraseObscured
+                                      child: _passphraseObscured
                                           ? const Icon(
                                               CupertinoIcons.eye_slash,
                                               color: MyColors.darkgrey,
@@ -325,9 +327,9 @@ class _MnemonicImportState extends State<MnemonicImport> {
                               child: Align(
                                 alignment: Alignment.topRight,
                                 child: Text(
-                                  '(${passphrase.length} / 100)',
+                                  '(${_passphrase.length} / 100)',
                                   style: TextStyle(
-                                      color: passphrase.length == 100
+                                      color: _passphrase.length == 100
                                           ? MyColors.transparentBlack
                                           : MyColors.transparentBlack_50,
                                       fontSize: 12,

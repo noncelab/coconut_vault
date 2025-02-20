@@ -12,7 +12,6 @@ import 'package:coconut_vault/model/common/secret.dart';
 import 'package:coconut_vault/model/single_sig/single_sig_wallet.dart';
 import 'package:coconut_vault/managers/wallet_list_manager.dart';
 import 'package:coconut_vault/model/exception/not_related_multisig_wallet_exception.dart';
-import 'package:coconut_vault/model/multisig/multisig_creation_model.dart';
 import 'package:coconut_vault/providers/visibility_provider.dart';
 import 'package:flutter/foundation.dart';
 import 'package:coconut_vault/utils/logger.dart';
@@ -20,10 +19,9 @@ import 'package:coconut_vault/utils/vibration_util.dart';
 
 class WalletProvider extends ChangeNotifier {
   late final VisibilityProvider _visibilityProvider;
-  late final MultisigCreationModel _multisigCreationModel;
   late final WalletListManager _walletManager;
 
-  WalletProvider(this._multisigCreationModel, this._visibilityProvider) {
+  WalletProvider(this._visibilityProvider) {
     _walletManager = WalletListManager();
   }
 
@@ -33,7 +31,7 @@ class WalletProvider extends ChangeNotifier {
   // 리스트 로딩중 여부 (indicator 표시 및 중복 방지)
   bool _isVaultListLoading = false;
   bool get isVaultListLoading => _isVaultListLoading;
-  // select_vault_type_screen.dart, vault_name_icon_setup_screen 에서 사용
+  // vault_type_selection_screen.dart, vault_name_and_icon_setup_screen.dart 에서 사용
   // 다음 버튼 클릭시 loadVaultList()가 아직 진행중인 경우 완료 시점을 캐치하기 위함
   final ValueNotifier<bool> isVaultListLoadingNotifier =
       ValueNotifier<bool>(false);
@@ -49,12 +47,6 @@ class WalletProvider extends ChangeNotifier {
   // 리스트에 추가되는 애니메이션이 동작해야하면 true, 아니면 false를 담습니다.
   List<bool> _animatedVaultFlags = [];
   List<bool> get animatedVaultFlags => _animatedVaultFlags;
-
-  // 지갑 import 중에 입력한 니모닉
-  String? _importingSecret;
-  String? get importingSecret => _importingSecret;
-  String? _importingPassphrase = '';
-  String? get importingPassphrase => _importingPassphrase;
 
   String? _waitingForSignaturePsbtBase64;
   String? get waitingForSignaturePsbtBase64 => _waitingForSignaturePsbtBase64;
@@ -99,42 +91,37 @@ class WalletProvider extends ChangeNotifier {
     }
   }
 
-  Future<void> addVault(SinglesigWallet wallet) async {
-    setAddVaultCompleted(false);
+  Future<void> addSingleSigVault(SinglesigWallet wallet) async {
+    _setAddVaultCompleted(false);
 
     await _walletManager.addSinglesigWallet(wallet);
     _vaultList = _walletManager.vaultList;
 
     setAnimatedVaultFlags(index: _vaultList.length);
-    setAddVaultCompleted(true);
+    _setAddVaultCompleted(true);
     await _updateWalletLength();
 
     notifyListeners();
-    completeSinglesigImporting();
     // vibrateLight();
   }
 
-  Future<void> addMultisigVaultAsync(String name, int color, int icon) async {
-    setAddVaultCompleted(false);
-
-    final signers = _multisigCreationModel.signers!;
-    final requiredSignatureCount =
-        _multisigCreationModel.requiredSignatureCount!;
+  Future<void> addMultisigVaultAsync(String name, int color, int icon,
+      List<MultisigSigner> signers, int requiredSignatureCount) async {
+    _setAddVaultCompleted(false);
 
     await _walletManager.addMultisigWallet(MultisigWallet(
         null, name, icon, color, signers, requiredSignatureCount));
 
     _vaultList = _walletManager.vaultList;
     setAnimatedVaultFlags(index: _vaultList.length);
-    setAddVaultCompleted(true);
+    _setAddVaultCompleted(true);
     await _updateWalletLength();
     notifyListeners();
-    _multisigCreationModel.reset();
   }
 
   Future<void> importMultisigVaultAsync(
       MultisigImportDetail details, int walletId) async {
-    setAddVaultCompleted(false);
+    _setAddVaultCompleted(false);
 
     // 이 지갑이 위 멀티시그 지갑의 일부인지 확인하기
     MultisignatureVault multisigVault =
@@ -193,13 +180,10 @@ class WalletProvider extends ChangeNotifier {
       }
     }
 
-    _multisigCreationModel.signers = signers;
-    _multisigCreationModel.setQuorumRequirement(
-        multisigVault.requiredSignature, multisigVault.keyStoreList.length);
-    await addMultisigVaultAsync(
-        details.name, details.colorIndex, details.iconIndex);
+    await addMultisigVaultAsync(details.name, details.colorIndex,
+        details.iconIndex, signers, multisigVault.requiredSignature);
 
-    setAddVaultCompleted(true);
+    _setAddVaultCompleted(true);
     notifyListeners();
   }
 
@@ -320,15 +304,6 @@ class WalletProvider extends ChangeNotifier {
     _visibilityProvider.saveWalletCount(_vaultList.length);
   }
 
-  void startSinglesigImporting(String secret, String passphrase) {
-    _importingSecret = secret;
-    _importingPassphrase = passphrase;
-  }
-
-  void completeSinglesigImporting() {
-    _importingSecret = null;
-  }
-
   void setWaitingForSignaturePsbtBase64(String psbt) {
     _waitingForSignaturePsbtBase64 = psbt;
   }
@@ -337,7 +312,7 @@ class WalletProvider extends ChangeNotifier {
     _waitingForSignaturePsbtBase64 = null;
   }
 
-  void setAddVaultCompleted(bool value) {
+  void _setAddVaultCompleted(bool value) {
     _isAddVaultCompleted = value;
     notifyListeners();
   }
@@ -356,8 +331,6 @@ class WalletProvider extends ChangeNotifier {
 
     _vaultList.clear();
     _animatedVaultFlags = [];
-    _importingSecret = null;
-    _importingPassphrase = '';
     _waitingForSignaturePsbtBase64 = null;
     signedRawTx = null;
     super.dispose();

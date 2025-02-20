@@ -1,7 +1,7 @@
 import 'package:coconut_vault/app_routes_params.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/model/single_sig/single_sig_wallet.dart';
-import 'package:coconut_vault/model/multisig/multisig_creation_model.dart';
+import 'package:coconut_vault/providers/wallet_creation_provider.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:coconut_vault/styles.dart';
 import 'package:coconut_vault/utils/logger.dart';
@@ -32,8 +32,8 @@ class VaultNameAndIconSetupScreen extends StatefulWidget {
 
 class _VaultNameAndIconSetupScreenState
     extends State<VaultNameAndIconSetupScreen> {
-  late WalletProvider _vaultModel;
-  late MultisigCreationModel _multisigCreationState;
+  late WalletProvider _walletProvider;
+  late WalletCreationProvider _walletCreationProvider;
   String inputText = '';
   late int selectedIconIndex;
   late int selectedColorIndex;
@@ -42,11 +42,11 @@ class _VaultNameAndIconSetupScreenState
 
   @override
   void initState() {
-    _vaultModel = Provider.of<WalletProvider>(context, listen: false);
-    _vaultModel.isVaultListLoadingNotifier.addListener(_onVaultListLoading);
-    _multisigCreationState =
-        Provider.of<MultisigCreationModel>(context, listen: false);
     super.initState();
+    _walletProvider = Provider.of<WalletProvider>(context, listen: false);
+    _walletProvider.isVaultListLoadingNotifier.addListener(_onVaultListLoading);
+    _walletCreationProvider =
+        Provider.of<WalletCreationProvider>(context, listen: false);
     inputText = widget.name;
     selectedIconIndex = widget.iconIndex;
     selectedColorIndex = widget.colorIndex;
@@ -55,14 +55,15 @@ class _VaultNameAndIconSetupScreenState
 
   @override
   void dispose() {
-    _vaultModel.isVaultListLoadingNotifier.removeListener(_onVaultListLoading);
+    _walletProvider.isVaultListLoadingNotifier
+        .removeListener(_onVaultListLoading);
     super.dispose();
   }
 
   void _onVaultListLoading() {
     if (!mounted) return;
 
-    if (!_vaultModel.isVaultListLoadingNotifier.value) {
+    if (!_walletProvider.isVaultListLoadingNotifier.value) {
       if (_showLoading) {
         saveNewVaultName(context);
       }
@@ -79,7 +80,7 @@ class _VaultNameAndIconSetupScreenState
         _showLoading = true;
       });
 
-      if (_vaultModel.isNameDuplicated(inputText)) {
+      if (_walletProvider.isNameDuplicated(inputText)) {
         CustomToast.showToast(
             text: t.toast.name_already_used2, context: context);
         setState(() {
@@ -88,23 +89,28 @@ class _VaultNameAndIconSetupScreenState
         return;
       }
 
-      if (_vaultModel.importingSecret != null) {
-        await _vaultModel.addVault(SinglesigWallet(
+      if (_walletCreationProvider.secret != null) {
+        await _walletProvider.addSingleSigVault(SinglesigWallet(
             null,
             inputText,
             selectedIconIndex,
             selectedColorIndex,
-            _vaultModel.importingSecret!,
-            _vaultModel.importingPassphrase));
-
-        if (_vaultModel.isAddVaultCompleted) {
-          Logger.log('finish creating vault. return to home.');
-        }
-      } else if (_multisigCreationState.signers != null) {
+            _walletCreationProvider.secret!,
+            _walletCreationProvider.passphrase));
+      } else if (_walletCreationProvider.signers != null) {
         // 새로운 멀티시그 지갑 리스트 아이템을 생성.
-        await _vaultModel.addMultisigVaultAsync(
-            inputText, selectedColorIndex, selectedIconIndex);
+        await _walletProvider.addMultisigVaultAsync(
+            inputText,
+            selectedColorIndex,
+            selectedIconIndex,
+            _walletCreationProvider.signers!,
+            _walletCreationProvider.requiredSignatureCount!);
+      } else {
+        throw '생성 가능 정보가 없음';
       }
+
+      assert(_walletProvider.isAddVaultCompleted);
+      _walletCreationProvider.resetAll();
 
       Navigator.pushNamedAndRemoveUntil(
           context, '/', (Route<dynamic> route) => false,
@@ -146,35 +152,44 @@ class _VaultNameAndIconSetupScreenState
   Widget build(BuildContext context) {
     return Stack(
       children: [
-        Scaffold(
-          backgroundColor: Colors.white,
-          appBar: CustomAppBar.buildWithNext(
-            title: t.vault_name_icon_setup_screen.title,
-            context: context,
-            onBackPressed: () {
-              _vaultModel.completeSinglesigImporting();
-              Navigator.pop(context);
-            },
-            onNextPressed: () {
-              if (inputText.trim().isEmpty) return;
-              _closeKeyboard();
-              if (_vaultModel.isVaultListLoading) {
-                setState(() {
-                  _showLoading = true;
-                });
-              } else {
-                saveNewVaultName(context);
-              }
-            },
-            isActive: inputText.trim().isNotEmpty && !_showLoading,
-          ),
-          body: VaultNameIconEditPalette(
-            name: inputText,
-            iconIndex: selectedIconIndex,
-            colorIndex: selectedColorIndex,
-            onNameChanged: updateName,
-            onIconSelected: updateIcon,
-            onColorSelected: updateColor,
+        PopScope(
+          canPop: true,
+          onPopInvokedWithResult: (didPop, result) {
+            if (_walletCreationProvider.secret != null) {
+              _walletCreationProvider.resetSecretAndPassphrase();
+            } else {
+              _walletCreationProvider.resetSigner();
+            }
+          },
+          child: Scaffold(
+            backgroundColor: Colors.white,
+            appBar: CustomAppBar.buildWithNext(
+              title: t.vault_name_icon_setup_screen.title,
+              context: context,
+              onBackPressed: () {
+                Navigator.pop(context);
+              },
+              onNextPressed: () {
+                if (inputText.trim().isEmpty) return;
+                _closeKeyboard();
+                if (_walletProvider.isVaultListLoading) {
+                  setState(() {
+                    _showLoading = true;
+                  });
+                } else {
+                  saveNewVaultName(context);
+                }
+              },
+              isActive: inputText.trim().isNotEmpty && !_showLoading,
+            ),
+            body: VaultNameIconEditPalette(
+              name: inputText,
+              iconIndex: selectedIconIndex,
+              colorIndex: selectedColorIndex,
+              onNameChanged: updateName,
+              onIconSelected: updateIcon,
+              onColorSelected: updateColor,
+            ),
           ),
         ),
         Visibility(
@@ -185,7 +200,7 @@ class _VaultNameAndIconSetupScreenState
             decoration:
                 const BoxDecoration(color: MyColors.transparentBlack_30),
             child: Center(
-              child: _vaultModel.isVaultListLoading
+              child: _walletProvider.isVaultListLoading
                   ? MessageActivityIndicator(
                       message: t
                           .vault_name_icon_setup_screen.saving) // 기존 볼트들 불러오는 중

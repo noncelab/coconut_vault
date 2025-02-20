@@ -1,10 +1,10 @@
 import 'package:coconut_lib/coconut_lib.dart';
-import 'package:coconut_vault/constants/app_routes.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
+import 'package:coconut_vault/providers/wallet_creation_provider.dart';
+import 'package:coconut_vault/screens/vault_creation/vault_name_and_icon_setup_screen.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:coconut_vault/screens/vault_creation/single_sig/mnemonic_confirmation_bottom_sheet.dart';
 import 'package:coconut_vault/styles.dart';
 import 'package:coconut_vault/utils/vibration_util.dart';
@@ -27,46 +27,39 @@ class MnemonicGenerationScreen extends StatefulWidget {
 }
 
 class _MnemonicGenerationScreenState extends State<MnemonicGenerationScreen> {
-  int step = 0;
-  int selectedWordsCount = 0;
-  bool usePassphrase = false;
-  String mnemonicWords = '';
-  String passphrase = '';
-  bool finished = false;
-
-  @override
-  void initState() {
-    super.initState();
-  }
+  int _step = 0;
+  int _selectedWordsCount = 0;
+  bool _usePassphrase = false;
+  String _mnemonicWords = '';
+  String _passphrase = '';
 
   void _onLengthSelected(int wordsCount) {
     setState(() {
-      selectedWordsCount = wordsCount;
-      step = 1;
+      _selectedWordsCount = wordsCount;
+      _step = 1;
     });
   }
 
   void _onPassphraseSelected(bool selected) {
     setState(() {
-      usePassphrase = selected;
-      step = 2;
+      _usePassphrase = selected;
+      _step = 2;
     });
   }
 
   void _onReset() {
     setState(() {
-      step = 0;
-      selectedWordsCount = 0;
-      usePassphrase = false;
-      finished = false;
+      _step = 0;
+      _selectedWordsCount = 0;
+      _usePassphrase = false;
     });
   }
 
   void _onFinished(String mnemonicWords, String passphrase, bool finished) {
     setState(() {
-      this.mnemonicWords = mnemonicWords;
-      this.passphrase = passphrase;
-      this.finished = finished;
+      _mnemonicWords =
+          mnemonicWords.trim().toLowerCase().replaceAll(RegExp(r'\s+'), ' ');
+      _passphrase = passphrase;
     });
   }
 
@@ -94,17 +87,29 @@ class _MnemonicGenerationScreenState extends State<MnemonicGenerationScreen> {
       context: context,
       child: MnemonicConfirmationBottomSheet(
         onCancelPressed: () => Navigator.pop(context),
-        onConfirmPressed: () =>
-            Navigator.pushNamed(context, AppRoutes.vaultNameSetup),
+        onConfirmPressed: () {
+          Provider.of<WalletCreationProvider>(context, listen: false)
+              .setSecretAndPassphrase(
+                  _mnemonicWords, _usePassphrase ? _passphrase : null);
+          Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                  builder: (context) => const VaultNameAndIconSetupScreen()));
+        },
         onInactivePressed: () {
           CustomToast.showToast(context: context, text: t.toast.scroll_down);
           vibrateMediumDouble();
         },
-        mnemonic:
-            mnemonicWords.trim().toLowerCase().replaceAll(RegExp(r'\s+'), ' '),
-        passphrase: usePassphrase ? passphrase : null,
+        mnemonic: _mnemonicWords,
+        passphrase: _usePassphrase ? _passphrase : null,
       ),
     );
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    Provider.of<WalletCreationProvider>(context, listen: false).resetAll();
   }
 
   @override
@@ -117,8 +122,8 @@ class _MnemonicGenerationScreenState extends State<MnemonicGenerationScreen> {
           onSelected: _onPassphraseSelected,
           onShowStopDialog: _showStopGeneratingMnemonicDialog),
       MnemonicWords(
-        wordsCount: selectedWordsCount,
-        usePassphrase: usePassphrase,
+        wordsCount: _selectedWordsCount,
+        usePassphrase: _usePassphrase,
         onReset: _onReset,
         onFinished: _onFinished,
         onShowStopDialog: _showStopGeneratingMnemonicDialog,
@@ -135,7 +140,7 @@ class _MnemonicGenerationScreenState extends State<MnemonicGenerationScreen> {
           hasRightIcon: false,
         ),
         body: SafeArea(
-          child: screens[step],
+          child: screens[_step],
         ));
   }
 }
@@ -293,6 +298,7 @@ class MnemonicWords extends StatefulWidget {
 }
 
 class _MnemonicWordsState extends State<MnemonicWords> {
+  late WalletCreationProvider _walletCreationProvider;
   late int stepCount; // 총 화면 단계
   int step = 0;
   String mnemonic = '';
@@ -318,6 +324,8 @@ class _MnemonicWordsState extends State<MnemonicWords> {
   @override
   void initState() {
     super.initState();
+    _walletCreationProvider =
+        Provider.of<WalletCreationProvider>(context, listen: false);
     stepCount = widget.usePassphrase ? 2 : 1;
     _generateMnemonicPhrase();
   }
@@ -330,8 +338,6 @@ class _MnemonicWordsState extends State<MnemonicWords> {
 
   @override
   Widget build(BuildContext context) {
-    final vaultModel = Provider.of<WalletProvider>(context, listen: false);
-
     bool gridviewColumnFlag = false;
     return PopScope(
       canPop: false,
@@ -585,7 +591,7 @@ class _MnemonicWordsState extends State<MnemonicWords> {
                 if (!widget.usePassphrase)
                   CompleteButton(
                       onPressed: () {
-                        vaultModel.startSinglesigImporting(
+                        _walletCreationProvider.setSecretAndPassphrase(
                             mnemonic, passphrase);
                         widget.onFinished(mnemonic, passphrase, true);
 
@@ -597,7 +603,7 @@ class _MnemonicWordsState extends State<MnemonicWords> {
                   CompleteButton(
                       onPressed: () {
                         if (passphrase.isNotEmpty) {
-                          vaultModel.startSinglesigImporting(
+                          _walletCreationProvider.setSecretAndPassphrase(
                               mnemonic, passphrase);
                           widget.onFinished(mnemonic, passphrase, true);
                           widget.onShowConfirmBottomSheet();

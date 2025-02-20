@@ -558,8 +558,9 @@ class TranslationsMnemonicConfirmScreenKr {
   final Translations _root; // ignore: unused_field
 
   // Translations
-  String get text1 => '입력하신 정보가 맞는지\n다시 한번 확인해 주세요.';
-  String text2({required Object count}) => ' (총 ${count} 글자)';
+  String get title => '입력하신 정보가 맞는지\n다시 한번 확인해 주세요.';
+  String passphrase_character_total_count({required Object count}) =>
+      ' (총 ${count} 글자)';
   late final TranslationsMnemonicConfirmScreenWarningKr warning =
       TranslationsMnemonicConfirmScreenWarningKr.internal(_root);
   String get btn_confirm_completed => '확인 완료';
@@ -755,17 +756,12 @@ class TranslationsMultiSigBsmsScreenKr {
   late final TranslationsMultiSigBsmsScreenBottomSheetKr bottom_sheet =
       TranslationsMultiSigBsmsScreenBottomSheetKr.internal(_root);
   String get title => '지갑 설정 정보';
-  String get text1 => '안전한 다중 서명 지갑 관리를 위한 표준에 따라 지갑 설정 정보를 관리하고 공유합니다.';
-  String get text2 => '모든 키가 볼트에 저장되어 있습니다.';
-  String get text3 => '같은 키를 보관하고 있는 다른 볼트에서도 이 QR을 읽어 다중 서명 지갑을 추가할 수 있습니다.';
-  String text4({required Object gen}) =>
-      '이 다중 서명 지갑에 지정된 **${gen}** 키의 니모닉 문구는 현재 다른 볼트에 있습니다.';
-  String text5({required Object gen}) =>
-      '**${gen}** 키 보관 지갑 - **다중 서명 지갑 가져오기**에서 아래 QR 코드를 읽어 주세요. 다중 서명 트랜잭션에 **${gen}** 키로 서명하기 위해 이 절차가 반드시 필요합니다.';
-  String gen1({required Object first}) => '${first}번';
-  String gen2({required Object first, required Object last}) =>
+  late final TranslationsMultiSigBsmsScreenGuideKr guide =
+      TranslationsMultiSigBsmsScreenGuideKr.internal(_root);
+  String first_key({required Object first}) => '${first}번';
+  String first_and_last_keys({required Object first, required Object last}) =>
       '${first}번과 ${last}번';
-  String gen3({required Object first, required Object last}) =>
+  String first_or_last_key({required Object first, required Object last}) =>
       '${first}번 또는 ${last}번';
   String get view_detail => '상세 정보 보기';
 }
@@ -1029,6 +1025,22 @@ class TranslationsMultiSigBsmsScreenBottomSheetKr {
   // Translations
   String get title => '지갑 상세 정보';
   String get info_copied => '지갑 상세 정보가 복사됐어요';
+}
+
+// Path: multi_sig_bsms_screen.guide
+class TranslationsMultiSigBsmsScreenGuideKr {
+  TranslationsMultiSigBsmsScreenGuideKr.internal(this._root);
+
+  final Translations _root; // ignore: unused_field
+
+  // Translations
+  String get text1 => '안전한 다중 서명 지갑 관리를 위한 표준에 따라 지갑 설정 정보를 관리하고 공유합니다.';
+  String get text2 => '모든 키가 볼트에 저장되어 있습니다.';
+  String get text3 => '같은 키를 보관하고 있는 다른 볼트에서도 이 QR을 읽어 다중 서명 지갑을 추가할 수 있습니다.';
+  String text4({required Object gen}) =>
+      '이 다중 서명 지갑에 지정된 **${gen}** 키의 니모닉 문구는 현재 다른 볼트에 있습니다.';
+  String text5({required Object gen}) =>
+      '**${gen}** 키 보관 지갑 - **다중 서명 지갑 가져오기**에서 아래 QR 코드를 읽어 주세요. 다중 서명 트랜잭션에 **${gen}** 키로 서명하기 위해 이 절차가 반드시 필요합니다.';
 }
 
 // Path: vault_menu_screen.title
@@ -1649,9 +1661,9 @@ extension on Translations {
         return '앞';
       case 'mnemonic_coin_flip_screen.coin_tail':
         return '뒤';
-      case 'mnemonic_confirm_screen.text1':
+      case 'mnemonic_confirm_screen.title':
         return '입력하신 정보가 맞는지\n다시 한번 확인해 주세요.';
-      case 'mnemonic_confirm_screen.text2':
+      case 'mnemonic_confirm_screen.passphrase_character_total_count':
         return ({required Object count}) => ' (총 ${count} 글자)';
       case 'mnemonic_confirm_screen.warning.contains_space_character':
         return '⚠︎ 공백 문자가 포함되어 있습니다.';
@@ -1783,24 +1795,24 @@ extension on Translations {
         return '지갑 상세 정보가 복사됐어요';
       case 'multi_sig_bsms_screen.title':
         return '지갑 설정 정보';
-      case 'multi_sig_bsms_screen.text1':
+      case 'multi_sig_bsms_screen.guide.text1':
         return '안전한 다중 서명 지갑 관리를 위한 표준에 따라 지갑 설정 정보를 관리하고 공유합니다.';
-      case 'multi_sig_bsms_screen.text2':
+      case 'multi_sig_bsms_screen.guide.text2':
         return '모든 키가 볼트에 저장되어 있습니다.';
-      case 'multi_sig_bsms_screen.text3':
+      case 'multi_sig_bsms_screen.guide.text3':
         return '같은 키를 보관하고 있는 다른 볼트에서도 이 QR을 읽어 다중 서명 지갑을 추가할 수 있습니다.';
-      case 'multi_sig_bsms_screen.text4':
+      case 'multi_sig_bsms_screen.guide.text4':
         return ({required Object gen}) =>
             '이 다중 서명 지갑에 지정된 **${gen}** 키의 니모닉 문구는 현재 다른 볼트에 있습니다.';
-      case 'multi_sig_bsms_screen.text5':
+      case 'multi_sig_bsms_screen.guide.text5':
         return ({required Object gen}) =>
             '**${gen}** 키 보관 지갑 - **다중 서명 지갑 가져오기**에서 아래 QR 코드를 읽어 주세요. 다중 서명 트랜잭션에 **${gen}** 키로 서명하기 위해 이 절차가 반드시 필요합니다.';
-      case 'multi_sig_bsms_screen.gen1':
+      case 'multi_sig_bsms_screen.first_key':
         return ({required Object first}) => '${first}번';
-      case 'multi_sig_bsms_screen.gen2':
+      case 'multi_sig_bsms_screen.first_and_last_keys':
         return ({required Object first, required Object last}) =>
             '${first}번과 ${last}번';
-      case 'multi_sig_bsms_screen.gen3':
+      case 'multi_sig_bsms_screen.first_or_last_key':
         return ({required Object first, required Object last}) =>
             '${first}번 또는 ${last}번';
       case 'multi_sig_bsms_screen.view_detail':
