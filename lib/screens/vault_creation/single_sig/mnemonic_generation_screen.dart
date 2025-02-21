@@ -89,8 +89,7 @@ class _MnemonicGenerationScreenState extends State<MnemonicGenerationScreen> {
         onCancelPressed: () => Navigator.pop(context),
         onConfirmPressed: () {
           Provider.of<WalletCreationProvider>(context, listen: false)
-              .setSecretAndPassphrase(
-                  _mnemonicWords, _usePassphrase ? _passphrase : null);
+              .setSecretAndPassphrase(_mnemonicWords, _passphrase);
           Navigator.pushReplacement(
               context,
               MaterialPageRoute(
