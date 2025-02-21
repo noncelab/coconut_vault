@@ -807,7 +807,7 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
             children: [
               const SizedBox(width: 8),
               Text(
-                '${_viewModel.assignedVaultList[i].index + 1}번 키 -',
+                '${t.multisig.nth_key(index: _viewModel.assignedVaultList[i].index + 1)} -',
                 style: Styles.body1,
               ),
               const SizedBox(width: 8),

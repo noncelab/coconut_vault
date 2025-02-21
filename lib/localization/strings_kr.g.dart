@@ -343,7 +343,7 @@ class TranslationsMultisigKr {
   final Translations _root; // ignore: unused_field
 
   // Translations
-  String nth_key({required Object index}) => '${index}번 키 -';
+  String nth_key({required Object index}) => '${index}번 키';
 }
 
 // Path: account_selection_bottom_sheet_screen

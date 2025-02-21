@@ -305,8 +305,7 @@ class _MultisigSignScreenState extends State<MultisigSignScreen> {
                                         SizedBox(
                                           width: 60,
                                           child: Text(
-                                              t.multisig
-                                                  .nth_key(index: index + 1),
+                                              '${t.multisig.nth_key(index: index + 1)} -',
                                               style: Styles.body1),
                                         ),
                                         Row(
