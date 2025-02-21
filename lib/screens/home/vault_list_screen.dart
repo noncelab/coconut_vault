@@ -324,6 +324,9 @@ class _VaultListScreenState extends State<VaultListScreen>
                               itemCount: _initialWalletCount - wallets.length,
                             ),
                           ),
+                        const SliverToBoxAdapter(
+                          child: SizedBox(height: 30),
+                        ),
                       ],
                     ),
                     // 더보기
