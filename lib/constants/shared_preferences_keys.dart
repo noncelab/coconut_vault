@@ -13,4 +13,6 @@ class SharedPrefsKeys {
   static const String kUnlockAvailableAt = 'LOCKOUT_END_TIME';
   static const String kPinInputTurn = 'TOTAL_PIN_ATTEMPT';
   static const String kPinInputCurrentAttemptCount = 'PIN_ATTEMPT';
+
+  static String kAdvancedModeEnabled = 'ADVANCED_MODE_ENABLED';
 }

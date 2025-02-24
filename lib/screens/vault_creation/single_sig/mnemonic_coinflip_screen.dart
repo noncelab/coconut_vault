@@ -1,7 +1,9 @@
 import 'package:coconut_lib/coconut_lib.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
+import 'package:coconut_vault/providers/visibility_provider.dart';
 import 'package:coconut_vault/providers/wallet_creation_provider.dart';
 import 'package:coconut_vault/screens/vault_creation/vault_name_and_icon_setup_screen.dart';
+import 'package:coconut_vault/utils/logger.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:coconut_vault/screens/vault_creation/single_sig/mnemonic_confirmation_bottom_sheet.dart';
@@ -24,6 +26,7 @@ class MnemonicCoinflipScreen extends StatefulWidget {
 }
 
 class _MnemonicCoinflipScreenState extends State<MnemonicCoinflipScreen> {
+  late final int _totalStep;
   int _step = 0;
   int _selectedWordsCount = 0;
   bool _usePassphrase = false;
@@ -32,7 +35,7 @@ class _MnemonicCoinflipScreenState extends State<MnemonicCoinflipScreen> {
   void _onLengthSelected(int wordsCount) {
     setState(() {
       _selectedWordsCount = wordsCount;
-      _step = 1;
+      _step = _totalStep == 2 ? 1 : 2;
     });
   }
 
@@ -55,10 +58,10 @@ class _MnemonicCoinflipScreenState extends State<MnemonicCoinflipScreen> {
   void _showStopGeneratingMnemonicDialog() {
     CustomDialogs.showCustomAlertDialog(
       context,
-      title: '니모닉 만들기 중단',
-      message: '정말 니모닉 만들기를 그만하시겠어요?',
-      cancelButtonText: '취소',
-      confirmButtonText: '그만하기',
+      title: t.alert.stop_creating_mnemonic.title,
+      message: t.alert.stop_creating_mnemonic.description,
+      cancelButtonText: t.cancel,
+      confirmButtonText: t.stop,
       confirmButtonColor: MyColors.warningText,
       onCancel: () => Navigator.pop(context),
       onConfirm: () {
@@ -73,6 +76,11 @@ class _MnemonicCoinflipScreenState extends State<MnemonicCoinflipScreen> {
   void initState() {
     super.initState();
     Provider.of<WalletCreationProvider>(context, listen: false).resetAll();
+    _totalStep =
+        Provider.of<VisibilityProvider>(context, listen: false).isAdvancedUser
+            ? 2
+            : 1;
+    Logger.log(_totalStep);
   }
 
   @override
@@ -161,47 +169,59 @@ class _FlipCoinState extends State<FlipCoin> {
               children: [
                 Padding(
                   padding: const EdgeInsets.only(top: 20.0, bottom: 12),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      HighLightedText(widget.wordsCount.toString(),
-                          color: MyColors.darkgrey),
-                      Text(t.mnemonic_coin_flip_screen.words_passphrase),
-                      widget.usePassphrase
-                          ? HighLightedText(t.mnemonic_coin_flip_screen.use,
-                              color: MyColors.darkgrey)
-                          : Row(
-                              children: [
-                                Text('${t.mnemonic_coin_flip_screen.use} '),
-                                HighLightedText(
-                                    t.mnemonic_coin_flip_screen.do_not,
-                                    color: MyColors.darkgrey),
-                              ],
-                            ),
-                      GestureDetector(
-                          onTap: _currentIndex != 0
-                              ? () => _showConfirmResetDialog(
-                                  title: t.alert.reselect.title,
-                                  message: t.alert.reselect.description,
-                                  action: () {
-                                    widget.onReset();
-                                    Navigator.pop(context);
-                                  })
-                              : widget.onReset,
-                          child: Container(
-                              margin: const EdgeInsets.only(left: 8),
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 8, vertical: 4),
-                              decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(8),
-                                  border:
-                                      Border.all(color: MyColors.borderGrey)),
-                              child: Text(
-                                t.re_select,
-                                style: Styles.caption,
-                              )))
-                    ],
-                  ),
+                  child: Selector<VisibilityProvider, bool>(
+                      selector: (context, model) => model.isAdvancedUser,
+                      builder: (context, isAdvancedUser, _) {
+                        return Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            HighLightedText(
+                                widget.wordsCount == 12
+                                    ? t.mnemonic_generate_screen.twelve
+                                    : t.mnemonic_generate_screen.twenty_four,
+                                color: MyColors.darkgrey),
+                            Text(isAdvancedUser ? ', ${t.passphrase} ' : ''),
+                            isAdvancedUser
+                                ? widget.usePassphrase
+                                    ? HighLightedText(
+                                        t.mnemonic_coin_flip_screen.use,
+                                        color: MyColors.darkgrey)
+                                    : Row(
+                                        children: [
+                                          Text(
+                                              '${t.mnemonic_coin_flip_screen.use} '),
+                                          HighLightedText(
+                                              t.mnemonic_coin_flip_screen
+                                                  .do_not,
+                                              color: MyColors.darkgrey),
+                                        ],
+                                      )
+                                : Text(' ${t.mnemonic_coin_flip_screen.use}'),
+                            GestureDetector(
+                                onTap: _currentIndex != 0
+                                    ? () => _showConfirmResetDialog(
+                                        title: t.alert.reselect.title,
+                                        message: t.alert.reselect.description,
+                                        action: () {
+                                          widget.onReset();
+                                          Navigator.pop(context);
+                                        })
+                                    : widget.onReset,
+                                child: Container(
+                                    margin: const EdgeInsets.only(left: 8),
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 8, vertical: 4),
+                                    decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.circular(8),
+                                        border: Border.all(
+                                            color: MyColors.borderGrey)),
+                                    child: Text(
+                                      t.re_select,
+                                      style: Styles.caption,
+                                    )))
+                          ],
+                        );
+                      }),
                 ),
                 if (widget.usePassphrase)
                   Padding(
