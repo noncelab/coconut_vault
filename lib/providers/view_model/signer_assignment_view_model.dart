@@ -67,6 +67,11 @@ class SignerAssignmentViewModel extends ChangeNotifier {
   List<SignerOption> get unselectedSignerOptions => _unselectedSignerOptions;
   List<AssignedVaultListItem> get assignedVaultList => _assignedVaultList;
   List<SingleSigVaultListItem> get singlesigVaultList => _singlesigVaultList;
+  int? get _nextAvailableIndex {
+    int index =
+        assignedVaultList.indexWhere((item) => item.importKeyType == null);
+    return index == -1 ? null : index;
+  }
 
   void clearFromKeyStoreListIsolateHandler() {
     _fromKeyStoreListIsolateHandler!.dispose();
@@ -193,6 +198,12 @@ class SignerAssignmentViewModel extends ChangeNotifier {
       ..isExpanded = false
       ..importKeyType = ImportKeyType.internal;
 
+    // 다음 signer 펼치기
+    int? nextIndex = _nextAvailableIndex;
+    if (nextIndex != null) {
+      assignedVaultList[nextIndex].isExpanded = true;
+    }
+
     unselectedSignerOptions.removeAt(_selectedSignerOptionIndex!);
     notifyListeners();
   }
@@ -210,6 +221,13 @@ class SignerAssignmentViewModel extends ChangeNotifier {
       ..isExpanded = isExpanded
       ..bsms = bsms
       ..memo = memo;
+
+    // 다음 signer 펼치기
+    int? nextIndex = _nextAvailableIndex;
+    if (nextIndex != null) {
+      assignedVaultList[nextIndex].isExpanded = true;
+    }
+
     notifyListeners();
   }
 

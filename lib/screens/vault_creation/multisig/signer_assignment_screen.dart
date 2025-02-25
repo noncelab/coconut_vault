@@ -389,6 +389,7 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
                                                         viewModel
                                                             .assignInternalSigner(
                                                                 i);
+
                                                         viewModel
                                                             .setSelectedSignerOptionIndex(
                                                                 null);
