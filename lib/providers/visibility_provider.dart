@@ -1,16 +1,15 @@
 import 'package:coconut_vault/constants/shared_preferences_keys.dart';
 import 'package:coconut_vault/repository/shared_preferences_repository.dart';
-import 'package:coconut_vault/utils/logger.dart';
 import 'package:flutter/material.dart';
 
 class VisibilityProvider extends ChangeNotifier {
   late bool _hasSeenGuide;
   late int _walletCount;
-  late bool _isAdvancedModeEnabled;
+  late bool _isPassphraseUseEnabled;
 
   bool get hasSeenGuide => _hasSeenGuide;
   int get walletCount => _walletCount;
-  bool get isAdvancedUser => _isAdvancedModeEnabled;
+  bool get isPassphraseUseEnabled => _isPassphraseUseEnabled;
 
   /// TODO: 제거
   bool _isLoading = false;
@@ -20,8 +19,8 @@ class VisibilityProvider extends ChangeNotifier {
     final prefs = SharedPrefsRepository();
     _hasSeenGuide = prefs.getBool(SharedPrefsKeys.hasShownStartGuide) == true;
     _walletCount = prefs.getInt(SharedPrefsKeys.vaultListLength) ?? 0;
-    _isAdvancedModeEnabled =
-        prefs.getBool(SharedPrefsKeys.kAdvancedModeEnabled) ?? false;
+    _isPassphraseUseEnabled =
+        prefs.getBool(SharedPrefsKeys.kPassphraseUseEnabled) ?? false;
   }
 
   void showIndicator() {
@@ -54,9 +53,9 @@ class VisibilityProvider extends ChangeNotifier {
   }
 
   Future<void> setAdvancedMode(bool value) async {
-    _isAdvancedModeEnabled = value;
+    _isPassphraseUseEnabled = value;
     SharedPrefsRepository()
-        .setBool(SharedPrefsKeys.kAdvancedModeEnabled, value);
+        .setBool(SharedPrefsKeys.kPassphraseUseEnabled, value);
     notifyListeners();
   }
 }

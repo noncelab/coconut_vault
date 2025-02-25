@@ -14,5 +14,5 @@ class SharedPrefsKeys {
   static const String kPinInputTurn = 'TOTAL_PIN_ATTEMPT';
   static const String kPinInputCurrentAttemptCount = 'PIN_ATTEMPT';
 
-  static String kAdvancedModeEnabled = 'ADVANCED_MODE_ENABLED';
+  static String kPassphraseUseEnabled = 'PASSPHRASE_USE_ENABLED';
 }

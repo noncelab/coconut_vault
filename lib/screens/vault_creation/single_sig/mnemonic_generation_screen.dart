@@ -3,7 +3,6 @@ import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/providers/visibility_provider.dart';
 import 'package:coconut_vault/providers/wallet_creation_provider.dart';
 import 'package:coconut_vault/screens/vault_creation/vault_name_and_icon_setup_screen.dart';
-import 'package:coconut_vault/utils/logger.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -112,11 +111,10 @@ class _MnemonicGenerationScreenState extends State<MnemonicGenerationScreen> {
   void initState() {
     super.initState();
     Provider.of<WalletCreationProvider>(context, listen: false).resetAll();
-    _totalStep =
-        Provider.of<VisibilityProvider>(context, listen: false).isAdvancedUser
-            ? 2
-            : 1;
-    Logger.log(_totalStep);
+    _totalStep = Provider.of<VisibilityProvider>(context, listen: false)
+            .isPassphraseUseEnabled
+        ? 2
+        : 1;
   }
 
   @override
@@ -138,7 +136,6 @@ class _MnemonicGenerationScreenState extends State<MnemonicGenerationScreen> {
       ),
     ];
 
-    Logger.log("Step: $_step");
     return Scaffold(
         backgroundColor: MyColors.white,
         appBar: CustomAppBar.build(
@@ -360,7 +357,8 @@ class _MnemonicWordsState extends State<MnemonicWords> {
                 Padding(
                   padding: const EdgeInsets.only(top: 20.0, bottom: 12),
                   child: Selector<VisibilityProvider, bool>(
-                      selector: (context, model) => model.isAdvancedUser,
+                      selector: (context, model) =>
+                          model.isPassphraseUseEnabled,
                       builder: (context, isAdvancedUser, _) {
                         return Row(
                           mainAxisAlignment: MainAxisAlignment.center,

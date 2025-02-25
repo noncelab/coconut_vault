@@ -156,7 +156,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           SingleButton(
             title: t.settings_screen.use_passphase,
             rightElement: CupertinoSwitch(
-                value: provider.isAdvancedUser,
+                value: provider.isPassphraseUseEnabled,
                 activeColor: MyColors.black,
                 onChanged: (isOn) async {
                   await provider.setAdvancedMode(isOn);

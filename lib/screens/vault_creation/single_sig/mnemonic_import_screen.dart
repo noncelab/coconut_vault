@@ -268,7 +268,7 @@ class _MnemonicImportState extends State<MnemonicImport> {
 
   Widget _buildPassphraseToggle() {
     return Selector<VisibilityProvider, bool>(
-        selector: (context, provider) => provider.isAdvancedUser,
+        selector: (context, provider) => provider.isPassphraseUseEnabled,
         builder: (context, isAdvancedUser, child) {
           if (isAdvancedUser) {
             return Row(
