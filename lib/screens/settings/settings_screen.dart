@@ -1,6 +1,7 @@
 import 'package:coconut_vault/enums/pin_check_context_enum.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/providers/auth_provider.dart';
+import 'package:coconut_vault/providers/visibility_provider.dart';
 import 'package:coconut_vault/utils/logger.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -52,10 +53,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
             children: [
               _securityPart(context),
               const SizedBox(
-                height: 40,
+                height: 28,
               ),
               /*_informationPart(),
               const SizedBox(height: 32),*/
+              _advancedUserPart(context)
             ],
           ),
         ),
@@ -88,7 +90,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     value: provider.hasBiometricsPermission
                         ? provider.isBiometricEnabled
                         : false,
-                    activeColor: MyColors.primary,
+                    activeColor: MyColors.black,
                     onChanged: (isOn) async {
                       if (isOn &&
                           await provider.authenticateWithBiometrics(context,
@@ -134,5 +136,34 @@ class _SettingsScreenState extends State<SettingsScreen> {
         }),
       ],
     );
+  }
+
+  Widget _advancedUserPart(BuildContext context) {
+    return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+      Container(
+        padding: const EdgeInsets.symmetric(vertical: 12),
+        child: Text(t.advanced_user,
+            style: const TextStyle(
+              fontFamily: 'Pretendard',
+              color: MyColors.black,
+              fontSize: 16,
+              fontStyle: FontStyle.normal,
+              fontWeight: FontWeight.bold,
+            )),
+      ),
+      Consumer<VisibilityProvider>(builder: (context, provider, child) {
+        return ButtonGroup(buttons: [
+          SingleButton(
+            title: t.settings_screen.use_passphase,
+            rightElement: CupertinoSwitch(
+                value: provider.isPassphraseUseEnabled,
+                activeColor: MyColors.black,
+                onChanged: (isOn) async {
+                  await provider.setAdvancedMode(isOn);
+                }),
+          )
+        ]);
+      }),
+    ]);
   }
 }

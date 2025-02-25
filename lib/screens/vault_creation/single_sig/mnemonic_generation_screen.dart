@@ -1,5 +1,6 @@
 import 'package:coconut_lib/coconut_lib.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
+import 'package:coconut_vault/providers/visibility_provider.dart';
 import 'package:coconut_vault/providers/wallet_creation_provider.dart';
 import 'package:coconut_vault/screens/vault_creation/vault_name_and_icon_setup_screen.dart';
 import 'package:flutter/cupertino.dart';
@@ -27,6 +28,7 @@ class MnemonicGenerationScreen extends StatefulWidget {
 }
 
 class _MnemonicGenerationScreenState extends State<MnemonicGenerationScreen> {
+  late final int _totalStep;
   int _step = 0;
   int _selectedWordsCount = 0;
   bool _usePassphrase = false;
@@ -36,7 +38,7 @@ class _MnemonicGenerationScreenState extends State<MnemonicGenerationScreen> {
   void _onLengthSelected(int wordsCount) {
     setState(() {
       _selectedWordsCount = wordsCount;
-      _step = 1;
+      _step = _totalStep == 2 ? 1 : 2;
     });
   }
 
@@ -109,6 +111,10 @@ class _MnemonicGenerationScreenState extends State<MnemonicGenerationScreen> {
   void initState() {
     super.initState();
     Provider.of<WalletCreationProvider>(context, listen: false).resetAll();
+    _totalStep = Provider.of<VisibilityProvider>(context, listen: false)
+            .isPassphraseUseEnabled
+        ? 2
+        : 1;
   }
 
   @override
@@ -350,39 +356,52 @@ class _MnemonicWordsState extends State<MnemonicWords> {
               children: [
                 Padding(
                   padding: const EdgeInsets.only(top: 20.0, bottom: 12),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      HighLightedText(widget.wordsCount.toString(),
-                          color: MyColors.darkgrey),
-                      Text(t.mnemonic_generate_screen.word_passphrase),
-                      widget.usePassphrase
-                          ? HighLightedText(t.mnemonic_generate_screen.use,
-                              color: MyColors.darkgrey)
-                          : Row(
-                              children: [
-                                Text('${t.mnemonic_generate_screen.use} '),
-                                HighLightedText(
-                                    t.mnemonic_generate_screen.do_not,
-                                    color: MyColors.darkgrey),
-                              ],
-                            ),
-                      GestureDetector(
-                          onTap: widget.onReset,
-                          child: Container(
-                              margin: const EdgeInsets.only(left: 8),
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 8, vertical: 4),
-                              decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(8),
-                                  border:
-                                      Border.all(color: MyColors.borderGrey)),
-                              child: Text(
-                                t.re_select,
-                                style: Styles.caption,
-                              )))
-                    ],
-                  ),
+                  child: Selector<VisibilityProvider, bool>(
+                      selector: (context, model) =>
+                          model.isPassphraseUseEnabled,
+                      builder: (context, isAdvancedUser, _) {
+                        return Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            HighLightedText(
+                                widget.wordsCount == 12
+                                    ? t.mnemonic_generate_screen.twelve
+                                    : t.mnemonic_generate_screen.twenty_four,
+                                color: MyColors.darkgrey),
+                            Text(isAdvancedUser ? ', ${t.passphrase} ' : ''),
+                            isAdvancedUser
+                                ? widget.usePassphrase
+                                    ? HighLightedText(
+                                        t.mnemonic_generate_screen.use,
+                                        color: MyColors.darkgrey)
+                                    : Row(
+                                        children: [
+                                          Text(
+                                              '${t.mnemonic_generate_screen.use} '),
+                                          HighLightedText(
+                                              t.mnemonic_generate_screen.do_not,
+                                              color: MyColors.darkgrey),
+                                        ],
+                                      )
+                                : Text(' ${t.mnemonic_generate_screen.use}'),
+                            GestureDetector(
+                                onTap: widget.onReset,
+                                child: Container(
+                                    margin: const EdgeInsets.only(left: 8),
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 8, vertical: 4),
+                                    decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.circular(8),
+                                        border: Border.all(
+                                            color: MyColors.borderGrey)),
+                                    child: Text(
+                                      t.re_select,
+                                      style: Styles.caption,
+                                    )))
+                          ],
+                        );
+                      }),
                 ),
                 if (widget.usePassphrase)
                   Padding(
