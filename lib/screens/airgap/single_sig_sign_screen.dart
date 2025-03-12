@@ -1,3 +1,4 @@
+import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_vault/constants/app_routes.dart';
 import 'package:coconut_vault/enums/pin_check_context_enum.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
@@ -171,17 +172,33 @@ class _SingleSigSignScreenState extends State<SingleSigSignScreen> {
                         children: [
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
                                 t.recipient,
                                 style: Styles.body2
                                     .copyWith(color: MyColors.grey57),
                               ),
-                              Text(
-                                TextUtils.truncateNameMax25(
-                                    viewModel.recipientAddress),
-                                style: Styles.body1,
-                              ),
+                              Column(
+                                  crossAxisAlignment: CrossAxisAlignment.end,
+                                  children: viewModel.recipientAddress
+                                      .asMap()
+                                      .entries
+                                      .map((entry) {
+                                    final index = entry.key;
+                                    final item = entry.value;
+                                    final isLast = index ==
+                                        viewModel.recipientAddress.length - 1;
+
+                                    return Padding(
+                                      padding: EdgeInsets.only(
+                                          bottom: isLast ? 0 : Sizes.size4),
+                                      child: Text(
+                                        TextUtils.truncateNameMax25(item),
+                                        style: Styles.body1,
+                                      ),
+                                    );
+                                  }).toList())
                             ],
                           ),
                           const SizedBox(height: 20),

@@ -28,7 +28,9 @@ class SingleSigSignViewModel extends ChangeNotifier {
   List<bool> get signersApproved => _signersApproved;
   int get walletIconIndex => _signProvider.vaultListItem!.iconIndex;
   int get walletColorIndex => _signProvider.vaultListItem!.colorIndex;
-  String get recipientAddress => _signProvider.recipientAddress!;
+  List<String> get recipientAddress => _signProvider.recipientAddress != null
+      ? [_signProvider.recipientAddress!]
+      : _signProvider.recipientAmounts!.keys.toList();
   int get sendingAmount => _signProvider.sendingAmount!;
 
   bool _isSigned() {

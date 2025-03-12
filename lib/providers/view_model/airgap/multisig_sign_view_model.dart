@@ -24,7 +24,10 @@ class MultisigSignViewModel extends ChangeNotifier {
   int get requiredSignatureCount => _vaultListItem.requiredSignatureCount;
   String get walletName => _signProvider.vaultListItem!.name;
   List<bool> get signersApproved => _signerApproved;
-  String get recipientAddress => _signProvider.recipientAddress!;
+  List<String> get recipientAddress => _signProvider.recipientAddress != null
+      ? [_signProvider.recipientAddress!]
+      : _signProvider.recipientAmounts!.keys.toList();
+
   int get sendingAmount => _signProvider.sendingAmount!;
   int get remainingSignatures =>
       _vaultListItem.requiredSignatureCount -
@@ -81,6 +84,7 @@ class MultisigSignViewModel extends ChangeNotifier {
   void resetAll() {
     _signProvider.resetPsbt();
     _signProvider.resetRecipientAddress();
+    _signProvider.resetRecipientAmounts();
     _signProvider.resetSendingAmount();
     _signProvider.resetSignedPsbt();
   }

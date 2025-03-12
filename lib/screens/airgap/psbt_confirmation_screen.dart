@@ -139,7 +139,7 @@ class _PsbtConfirmationScreenState extends State<PsbtConfirmationScreen> {
                               children: [
                                 InformationItemCard(
                                   label: t.recipient,
-                                  value: [viewModel.recipientAddress ?? ""],
+                                  value: viewModel.recipientAddress,
                                   isNumber: true,
                                 ),
                                 const Divider(
