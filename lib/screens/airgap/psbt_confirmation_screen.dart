@@ -8,7 +8,7 @@ import 'package:coconut_vault/utils/alert_util.dart';
 import 'package:coconut_vault/utils/unit_utils.dart';
 import 'package:coconut_vault/widgets/appbar/custom_appbar.dart';
 import 'package:coconut_vault/widgets/custom_tooltip.dart';
-import 'package:coconut_vault/widgets/information_item_row.dart';
+import 'package:coconut_vault/widgets/card/information_item_card.dart';
 import 'package:provider/provider.dart';
 
 class PsbtConfirmationScreen extends StatefulWidget {
@@ -137,31 +137,35 @@ class _PsbtConfirmationScreenState extends State<PsbtConfirmationScreen> {
                             padding: const EdgeInsets.symmetric(horizontal: 24),
                             child: Column(
                               children: [
-                                InformationRowItem(
+                                InformationItemCard(
                                   label: t.recipient,
-                                  value: viewModel.recipientAddress,
+                                  value: [viewModel.recipientAddress ?? ""],
                                   isNumber: true,
                                 ),
                                 const Divider(
                                   color: MyColors.borderLightgrey,
                                   height: 1,
                                 ),
-                                InformationRowItem(
+                                InformationItemCard(
                                   label: t.estimated_fee,
-                                  value: viewModel.estimatedFee != null
-                                      ? "${satoshiToBitcoinString(viewModel.estimatedFee!)} ${t.btc}"
-                                      : "",
+                                  value: [
+                                    viewModel.estimatedFee != null
+                                        ? "${satoshiToBitcoinString(viewModel.estimatedFee!)} ${t.btc}"
+                                        : ""
+                                  ],
                                   isNumber: true,
                                 ),
                                 const Divider(
                                   color: MyColors.borderLightgrey,
                                   height: 1,
                                 ),
-                                InformationRowItem(
+                                InformationItemCard(
                                   label: t.total_amount,
-                                  value: viewModel.totalAmount != null
-                                      ? "${satoshiToBitcoinString(viewModel.totalAmount!)} ${t.btc}"
-                                      : "",
+                                  value: [
+                                    viewModel.totalAmount != null
+                                        ? "${satoshiToBitcoinString(viewModel.totalAmount!)} ${t.btc}"
+                                        : ""
+                                  ],
                                   isNumber: true,
                                 ),
                               ],
