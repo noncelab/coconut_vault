@@ -13,7 +13,7 @@ import 'package:coconut_vault/utils/logger.dart';
 
 Future<List<SingleSigVaultListItem>> addVaultIsolate(
     Map<String, dynamic> data, void Function(dynamic)? progressCallback) async {
-  BitcoinNetwork.setNetwork(BitcoinNetwork.regtest);
+  NetworkType.setNetworkType(NetworkType.regtest);
   List<SingleSigVaultListItem> vaultList = [];
 
   var wallet = SinglesigWallet.fromJson(data);
@@ -32,7 +32,7 @@ Future<List<SingleSigVaultListItem>> addVaultIsolate(
 
 Future<MultisigVaultListItem> addMultisigVaultIsolate(
     Map<String, dynamic> data, void Function(dynamic)? replyTo) async {
-  BitcoinNetwork.setNetwork(BitcoinNetwork.regtest);
+  NetworkType.setNetworkType(NetworkType.regtest);
   await SharedPrefsRepository().init();
 
   var walletData = MultisigWallet.fromJson(data);
@@ -53,7 +53,7 @@ Future<MultisigVaultListItem> addMultisigVaultIsolate(
 
 Future<String> addSignatureToPsbtIsolate(
     List<dynamic> dataList, void Function(dynamic)? replyTo) async {
-  BitcoinNetwork.setNetwork(BitcoinNetwork.regtest);
+  NetworkType.setNetworkType(NetworkType.regtest);
 
   String psbtBase64 = dataList[1] as String;
   String signedPsbt = dataList[0] is MultisignatureVault
@@ -68,7 +68,7 @@ Future<String> addSignatureToPsbtIsolate(
 
 Future<bool> canSignToPsbtIsolate(
     List<dynamic> dataList, void Function(dynamic)? replyTo) async {
-  BitcoinNetwork.setNetwork(BitcoinNetwork.regtest);
+  NetworkType.setNetworkType(NetworkType.regtest);
 
   String psbtBase64 = dataList[1] as String;
 
@@ -81,7 +81,7 @@ Future<bool> canSignToPsbtIsolate(
   if (!isMultisig || !canSign) return canSign;
 
   // quorum 확인
-  PSBT psbtObj = PSBT.parse(psbtBase64);
+  Psbt psbtObj = Psbt.parse(psbtBase64);
   var multisigWallet = dataList[0] as MultisignatureVault;
   Logger.log(
       '--> psbtR: ${psbtObj.inputs[0].requiredSignature} psbtT: ${psbtObj.inputs[0].derivationPathList.length}');
@@ -99,7 +99,7 @@ Future<bool> canSignToPsbtIsolate(
 
 Future<List<String>> extractSignerBsmsIsolate(
     List<dynamic> vaultList, void Function(dynamic)? replyTo) async {
-  BitcoinNetwork.setNetwork(BitcoinNetwork.regtest);
+  NetworkType.setNetworkType(NetworkType.regtest);
   List<String> bsmses = [];
 
   for (int i = 0; i < vaultList.length; i++) {
@@ -118,7 +118,7 @@ Future<List<String>> extractSignerBsmsIsolate(
 
 Future<MultisignatureVault> fromKeyStoreIsolate(
     Map<String, dynamic> data, void Function(dynamic)? replyTo) async {
-  BitcoinNetwork.setNetwork(BitcoinNetwork.regtest);
+  NetworkType.setNetworkType(NetworkType.regtest);
 
   List<KeyStore> keyStores = [];
   List<dynamic> decodedKeyStoresJson = jsonDecode(data['keyStores']);
@@ -129,8 +129,8 @@ Future<MultisignatureVault> fromKeyStoreIsolate(
   }
 
   MultisignatureVault multiSignatureVault =
-      MultisignatureVault.fromKeyStoreList(
-          keyStores, requiredSignatureCount, AddressType.p2wsh);
+      MultisignatureVault.fromKeyStoreList(keyStores, requiredSignatureCount,
+          addressType: AddressType.p2wsh);
 
   if (replyTo != null) {
     replyTo(multiSignatureVault);
@@ -140,7 +140,7 @@ Future<MultisignatureVault> fromKeyStoreIsolate(
 
 Future<VaultListItemBase> initializeWallet(Map<String, dynamic> data,
     void Function(dynamic)? setVaultListLoadingProgress) async {
-  BitcoinNetwork.setNetwork(BitcoinNetwork.regtest);
+  NetworkType.setNetworkType(NetworkType.regtest);
   String? vaultType = data[VaultListItemBase.vaultTypeField];
 
   // coconut_vault 1.0.1 -> 2.0.0 업데이트 되면서 vaultType이 추가됨

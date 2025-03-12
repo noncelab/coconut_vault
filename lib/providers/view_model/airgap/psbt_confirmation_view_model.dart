@@ -6,7 +6,7 @@ class PsbtConfirmationViewModel extends ChangeNotifier {
   late final SignProvider _signProvider;
   late final String _unsignedPsbtBase64;
 
-  PSBT? _psbt;
+  Psbt? _psbt;
   PsbtOutput? _output;
   int? _sendingAmountWhenAddressIsMyChange; // 내 지갑의 change address로 보내는 경우 잔액
   bool _isSendingToMyAddress = false;
@@ -30,7 +30,7 @@ class PsbtConfirmationViewModel extends ChangeNotifier {
       _psbt != null ? _psbt!.sendingAmount + _psbt!.fee : null;
 
   void setTxInfo() {
-    _psbt = PSBT.parse(_unsignedPsbtBase64);
+    _psbt = Psbt.parse(_unsignedPsbtBase64);
 
     List<PsbtOutput> outputs = _psbt!.outputs;
 
@@ -76,7 +76,7 @@ class PsbtConfirmationViewModel extends ChangeNotifier {
     _updateSignProvider(_psbt!, _recipientAddress!, _sendingAmount!);
   }
 
-  void _updateSignProvider(PSBT psbt, String recipient, int amount) {
+  void _updateSignProvider(Psbt psbt, String recipient, int amount) {
     _signProvider.savePsbt(psbt);
     _signProvider.saveRecipientAddress(recipient);
     _signProvider.saveSendingAmount(amount);

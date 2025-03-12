@@ -62,8 +62,8 @@ class MultisigSignViewModel extends ChangeNotifier {
           Seed.fromMnemonic(secret.mnemonic, passphrase: secret.passphrase);
       _coconutVault.bindSeedToKeyStore(seed);
 
-      _psbtForSigning =
-          _coconutVault.keyStoreList[index].addSignatureToPsbt(_psbtForSigning);
+      _psbtForSigning = _coconutVault.keyStoreList[index]
+          .addSignatureToPsbt(_psbtForSigning, AddressType.p2wsh);
     } finally {
       // unbind
       _coconutVault.keyStoreList[index].seed = null;

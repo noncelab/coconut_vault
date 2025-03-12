@@ -87,7 +87,7 @@ class SignerAssignmentViewModel extends ChangeNotifier {
 
   /// bsms를 비교하여 이미 보유한 볼트 지갑 중 하나인 경우 이름을 반환
   String? findVaultNameByBsms(String signerBsms) {
-    var mfp = BSMS.parseSigner(signerBsms).signer!.masterFingerPrint;
+    var mfp = Bsms.parseSigner(signerBsms).signer!.masterFingerPrint;
 
     int result = signerOptions.indexWhere((element) {
       return element.masterFingerprint == mfp;

@@ -204,9 +204,8 @@ class WalletProvider extends ChangeNotifier {
 
   /// SiglesigVaultListItem의 seed 중복 여부 확인
   bool isSeedDuplicated(String secret, String passphrase) {
-    var coconutVault = SingleSignatureVault.fromMnemonic(
-        secret, AddressType.p2wpkh,
-        passphrase: passphrase);
+    var coconutVault = SingleSignatureVault.fromMnemonic(secret,
+        addressType: AddressType.p2wpkh, passphrase: passphrase);
     final vaultIndex = _vaultList.indexWhere((element) {
       if (element is SingleSigVaultListItem) {
         return (element.coconutVault as SingleSignatureVault).descriptor ==

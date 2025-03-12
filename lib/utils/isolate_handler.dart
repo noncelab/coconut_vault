@@ -296,25 +296,6 @@ class IsolateHandler<T, R> {
       sendPort.send(result);
     });
   }
-  // static void _entryPointAddressList(List<dynamic> args) {
-  //   final SendPort mainSendPort = args[0];
-  //   final RootIsolateToken rootIsolateToken = args[1];
-  //   final port = ReceivePort();
-  //   mainSendPort.send(port.sendPort);
-
-  //   port.listen((message) async {
-  //     final data = message[0];
-  //     final sendPort = message[1] as SendPort;
-  //     final handler = message[2] as FutureOr<List<Address>> Function(
-  //         Map<String, dynamic>, void Function(dynamic)?);
-
-  //     // Ensure the background isolate is properly initialized
-  //     BackgroundIsolateBinaryMessenger.ensureInitialized(rootIsolateToken);
-
-  //     final result = await handler(data, null);
-  //     sendPort.send(result);
-  //   });
-  // }
 
   Future<R> run(T data,
       {void Function(List<dynamic>)? progressCallback}) async {

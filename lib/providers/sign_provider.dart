@@ -7,7 +7,7 @@ class SignProvider {
   String? _unsignedPsbtBase64;
   VaultListItemBase? _vaultListItem;
 
-  PSBT? _psbt;
+  Psbt? _psbt;
   String? _recipientAddress;
   int? _sendingAmount;
 
@@ -20,7 +20,7 @@ class SignProvider {
   bool? get isMultisig =>
       _vaultListItem?.vaultType == WalletType.multiSignature;
 
-  PSBT? get psbt => _psbt;
+  Psbt? get psbt => _psbt;
   String? get recipientAddress => _recipientAddress;
   int? get sendingAmount => _sendingAmount;
 
@@ -37,7 +37,7 @@ class SignProvider {
   }
 
   // 2. psbt_confirmation
-  void savePsbt(PSBT psbt) {
+  void savePsbt(Psbt psbt) {
     _psbt = psbt;
   }
 
