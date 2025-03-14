@@ -206,7 +206,6 @@ class _MultisigSignScreenState extends State<MultisigSignScreen> {
                           );
                         },
                       ),
-                      // 보낼 수량
                       Padding(
                         padding: const EdgeInsets.only(top: 24),
                         child: Text(
@@ -230,25 +229,15 @@ class _MultisigSignScreenState extends State<MultisigSignScreen> {
                                   style: Styles.body2
                                       .copyWith(color: MyColors.grey57),
                                 ),
-                                Column(
-                                    children: viewModel.recipientAddress
-                                        .asMap()
-                                        .entries
-                                        .map((entry) {
-                                  final index = entry.key;
-                                  final item = entry.value;
-                                  final isLast = index ==
-                                      viewModel.recipientAddress.length - 1;
-
-                                  return Padding(
-                                    padding: EdgeInsets.only(
-                                        bottom: isLast ? 0 : Sizes.size4),
-                                    child: Text(
-                                      TextUtils.truncateNameMax25(item),
-                                      style: Styles.body1,
-                                    ),
-                                  );
-                                }).toList())
+                                Text(
+                                  textAlign: TextAlign.end,
+                                  TextUtils.truncateNameMax25(
+                                          viewModel.firstRecipientAddress) +
+                                      (viewModel.recipientCount > 1
+                                          ? '\n${t.extra_count(count: viewModel.recipientCount - 1)}'
+                                          : ''),
+                                  style: Styles.body1,
+                                ),
                               ],
                             ),
                             const SizedBox(height: 20),
