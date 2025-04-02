@@ -37,6 +37,7 @@ const allDependencies = <Package>[
   _convert,
   _coverage,
   _crypto,
+  _csv,
   _cupertino_icons,
   _dart_pubspec_licenses,
   _dart_style,
@@ -72,6 +73,7 @@ const allDependencies = <Package>[
   _intl,
   _io,
   _js,
+  _json2yaml,
   _json_annotation,
   _json_serializable,
   _leak_tracker,
@@ -133,6 +135,8 @@ const allDependencies = <Package>[
   _shelf_static,
   _shelf_web_socket,
   _shimmer,
+  _slang,
+  _slang_flutter,
   _source_gen,
   _source_helper,
   _source_map_stack_trace,
@@ -206,6 +210,8 @@ const dependencies = <Package>[
   _screen_protector,
   _shared_preferences,
   _shimmer,
+  _slang,
+  _slang_flutter,
   _url_launcher,
   _vibration
 ];
@@ -1334,15 +1340,15 @@ const _clock = Package(
     isSdk: false,
     dependencies: []);
 
-/// coconut_lib 0.8.1
+/// coconut_lib 0.8.2
 const _coconut_lib = Package(
     name: 'coconut_lib',
     description:
         'The coconut_lib is a development tool for mobile air gap Bitcoin wallets. It is written in Dart. Coconut Vault and Coconut Wallet were created using this library.',
     repository: 'https://github.com/noncelab/coconut_lib.git',
     authors: [],
-    version: '0.8.1',
-    license: '''Copyright 2024 Nonce Lab
+    version: '0.8.2',
+    license: '''Copyright 2025 Nonce Lab
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the “Software”), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
 
@@ -1689,6 +1695,40 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.''',
     isMarkdown: false,
     isSdk: false,
     dependencies: [PackageRef('typed_data')]);
+
+/// csv 6.0.0
+const _csv = Package(
+    name: 'csv',
+    description: '''A codec to transform between a string and a list of values.
+
+The string must be comma (configurable) separated values.''',
+    homepage: 'https://github.com/close2/csv',
+    authors: [],
+    version: '6.0.0',
+    license: '''The MIT License (MIT)
+
+Copyright (c) 2014 Christian Loitsch
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.''',
+    isMarkdown: false,
+    isSdk: false,
+    dependencies: []);
 
 /// cupertino_icons 1.0.8
 const _cupertino_icons = Package(
@@ -3090,14 +3130,14 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.''',
       PackageRef('vector_math')
     ]);
 
-/// flutter_blue_plus 1.33.5
+/// flutter_blue_plus 1.32.12
 const _flutter_blue_plus = Package(
     name: 'flutter_blue_plus',
     description:
         'Flutter plugin for connecting and communicationg with Bluetooth Low Energy devices, on Android, iOS, and MacOS.',
     homepage: 'https://github.com/boskokg/flutter_blue_plus',
     authors: [],
-    version: '1.33.5',
+    version: '1.32.12',
     license:
         '''Copyright 2017-2023, Paul DeMarco, Bosko Popovic, & Charles Weinberger.
 All rights reserved.
@@ -3999,6 +4039,40 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.''',
     isSdk: false,
     dependencies: [PackageRef('meta')]);
 
+/// json2yaml 3.0.1
+const _json2yaml = Package(
+    name: 'json2yaml',
+    description:
+        '''Dart package to render JSON data to YAML with built-in automatic beautifier and
+support for Dart pubspec.yaml and pubspec.lock conventions''',
+    homepage: 'https://github.com/alexei-sintotski/json2yaml',
+    authors: [],
+    version: '3.0.1',
+    license: '''MIT License
+
+Copyright (c) 2019 Alexei Sintotski
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.''',
+    isMarkdown: false,
+    isSdk: false,
+    dependencies: [PackageRef('meta')]);
+
 /// json_annotation 4.9.0
 const _json_annotation = Package(
     name: 'json_annotation',
@@ -4370,14 +4444,14 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.''',
       PackageRef('local_auth_platform_interface')
     ]);
 
-/// local_auth_darwin 1.4.2
+/// local_auth_darwin 1.4.3
 const _local_auth_darwin = Package(
     name: 'local_auth_darwin',
     description: 'iOS implementation of the local_auth plugin.',
     repository:
         'https://github.com/flutter/packages/tree/main/packages/local_auth/local_auth_darwin',
     authors: [],
-    version: '1.4.2',
+    version: '1.4.3',
     license: '''Copyright 2013 The Flutter Authors. All rights reserved.
 
 Redistribution and use in source and binary forms, with or without modification,
@@ -7094,7 +7168,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.''',
       PackageRef('shared_preferences_platform_interface')
     ]);
 
-/// shared_preferences_foundation 2.5.3
+/// shared_preferences_foundation 2.5.2
 const _shared_preferences_foundation = Package(
     name: 'shared_preferences_foundation',
     description:
@@ -7102,7 +7176,7 @@ const _shared_preferences_foundation = Package(
     repository:
         'https://github.com/flutter/packages/tree/main/packages/shared_preferences/shared_preferences_foundation',
     authors: [],
-    version: '2.5.3',
+    version: '2.5.2',
     license: '''Copyright 2013 The Flutter Authors. All rights reserved.
 
 Redistribution and use in source and binary forms, with or without modification,
@@ -7524,6 +7598,79 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.''',
     isMarkdown: false,
     isSdk: false,
     dependencies: [PackageRef('flutter')]);
+
+/// slang 4.4.1
+const _slang = Package(
+    name: 'slang',
+    description:
+        'Localization / Internationalization (i18n) solution. Use JSON, YAML, CSV, or ARB files to create typesafe translations via source generation.',
+    repository: 'https://github.com/slang-i18n/slang',
+    authors: [],
+    version: '4.4.1',
+    license: '''MIT License
+
+Copyright (c) 2020-2024 Tien Do Nam
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.''',
+    isMarkdown: false,
+    isSdk: false,
+    dependencies: [
+      PackageRef('collection'),
+      PackageRef('csv'),
+      PackageRef('intl'),
+      PackageRef('json2yaml'),
+      PackageRef('watcher'),
+      PackageRef('yaml')
+    ]);
+
+/// slang_flutter 4.4.0
+const _slang_flutter = Package(
+    name: 'slang_flutter',
+    description:
+        'Flutter support for slang. This library provides helpful Flutter API.',
+    repository: 'https://github.com/slang-i18n/slang',
+    authors: [],
+    version: '4.4.0',
+    license: '''MIT License
+
+Copyright (c) 2020-2024 Tien Do Nam
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.''',
+    isMarkdown: false,
+    isSdk: false,
+    dependencies: [PackageRef('flutter'), PackageRef('slang')]);
 
 /// source_gen 1.5.0
 const _source_gen = Package(
@@ -8529,14 +8676,14 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.''',
       PackageRef('url_launcher_platform_interface')
     ]);
 
-/// url_launcher_macos 3.2.1
+/// url_launcher_macos 3.2.0
 const _url_launcher_macos = Package(
     name: 'url_launcher_macos',
     description: 'macOS implementation of the url_launcher plugin.',
     repository:
         'https://github.com/flutter/packages/tree/main/packages/url_launcher/url_launcher_macos',
     authors: [],
-    version: '3.2.1',
+    version: '3.2.0',
     license: '''Copyright 2013 The Flutter Authors. All rights reserved.
 
 Redistribution and use in source and binary forms, with or without modification,
@@ -9230,13 +9377,13 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.''',
     isSdk: false,
     dependencies: [PackageRef('async'), PackageRef('path')]);
 
-/// web 1.1.0
+/// web 1.0.0
 const _web = Package(
     name: 'web',
     description: 'Lightweight browser API bindings built around JS interop.',
     repository: 'https://github.com/dart-lang/web',
     authors: [],
-    version: '1.1.0',
+    version: '1.0.0',
     license: '''Copyright 2023, the Dart project authors.
 
 Redistribution and use in source and binary forms, with or without
@@ -9474,7 +9621,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.''',
     isSdk: false,
     dependencies: [PackageRef('ffi'), PackageRef('win32')]);
 
-/// xdg_directories 1.1.0
+/// xdg_directories 1.0.4
 const _xdg_directories = Package(
     name: 'xdg_directories',
     description:
@@ -9482,7 +9629,7 @@ const _xdg_directories = Package(
     repository:
         'https://github.com/flutter/packages/tree/main/packages/xdg_directories',
     authors: [],
-    version: '1.1.0',
+    version: '1.0.4',
     license: '''Copyright 2013 The Flutter Authors. All rights reserved.
 
 Redistribution and use in source and binary forms, with or without modification,
