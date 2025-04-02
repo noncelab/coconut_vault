@@ -885,8 +885,7 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
               const SizedBox(width: 15),
               Expanded(
                 child: Text(
-                  t.multisig.nth_key(
-                      index: _viewModel.assignedVaultList[i].index + 1),
+                  '${t.multisig.nth_key(index: _viewModel.assignedVaultList[i].index + 1)} -',
                   style: Styles.body1,
                 ),
               ),

@@ -29,6 +29,7 @@ const allDependencies = <Package>[
   _characters,
   _checked_yaml,
   _clock,
+  _coconut_design_system,
   _coconut_lib,
   _code_builder,
   _collection,
@@ -182,6 +183,7 @@ const allDependencies = <Package>[
 /// Direct `dependencies`.
 const dependencies = <Package>[
   _carousel_slider,
+  _coconut_design_system,
   _coconut_lib,
   _connectivity_plus,
   _convert,

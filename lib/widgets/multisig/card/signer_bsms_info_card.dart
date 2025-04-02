@@ -4,7 +4,7 @@ import 'package:flutter/cupertino.dart';
 
 /// bsms 카드에서 master fingerprint와 description으로 전달된 요소가 있는 경우
 class SignerBsmsInfoCard extends StatelessWidget {
-  final BSMS bsms;
+  final Bsms bsms;
   final double? width;
 
   const SignerBsmsInfoCard({super.key, required this.bsms, this.width});

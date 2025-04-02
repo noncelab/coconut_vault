@@ -24,7 +24,12 @@ class MultisigSignViewModel extends ChangeNotifier {
   int get requiredSignatureCount => _vaultListItem.requiredSignatureCount;
   String get walletName => _signProvider.vaultListItem!.name;
   List<bool> get signersApproved => _signerApproved;
-  String get recipientAddress => _signProvider.recipientAddress!;
+  String get firstRecipientAddress => _signProvider.recipientAddress != null
+      ? _signProvider.recipientAddress!
+      : _signProvider.recipientAmounts!.keys.first;
+  int get recipientCount => _signProvider.recipientAddress != null
+      ? 1
+      : _signProvider.recipientAmounts!.length;
   int get sendingAmount => _signProvider.sendingAmount!;
   int get remainingSignatures =>
       _vaultListItem.requiredSignatureCount -
@@ -62,8 +67,8 @@ class MultisigSignViewModel extends ChangeNotifier {
           Seed.fromMnemonic(secret.mnemonic, passphrase: secret.passphrase);
       _coconutVault.bindSeedToKeyStore(seed);
 
-      _psbtForSigning =
-          _coconutVault.keyStoreList[index].addSignatureToPsbt(_psbtForSigning);
+      _psbtForSigning = _coconutVault.keyStoreList[index]
+          .addSignatureToPsbt(_psbtForSigning, AddressType.p2wsh);
     } finally {
       // unbind
       _coconutVault.keyStoreList[index].seed = null;
@@ -81,6 +86,7 @@ class MultisigSignViewModel extends ChangeNotifier {
   void resetAll() {
     _signProvider.resetPsbt();
     _signProvider.resetRecipientAddress();
+    _signProvider.resetRecipientAmounts();
     _signProvider.resetSendingAmount();
     _signProvider.resetSignedPsbt();
   }

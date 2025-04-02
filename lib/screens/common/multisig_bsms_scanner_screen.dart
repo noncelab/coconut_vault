@@ -191,7 +191,7 @@ class _MultisigBsmsScannerScreenState extends State<MultisigBsmsScannerScreen> {
 
       try {
         // Signer 형식이 맞는지 체크
-        BSMS.parseSigner(scanData.code!);
+        Bsms.parseSigner(scanData.code!);
       } catch (e) {
         onFailedScanning(wrongFormatMessage1);
         return;
@@ -226,7 +226,7 @@ class _MultisigBsmsScannerScreenState extends State<MultisigBsmsScannerScreen> {
         decodedJson = jsonDecode(scanData.code!);
         decodedData = MultisigImportDetail.fromJson(decodedJson);
         coordinatorBsms = decodedData.coordinatorBsms;
-        BSMS.parseCoordinator(coordinatorBsms);
+        Bsms.parseCoordinator(coordinatorBsms);
       } catch (e) {
         String errorMessage = e.toString();
         if (errorMessage.contains('Unsupported BSMS version')) {
