@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/utils/logger.dart';
 import 'package:coconut_vault/widgets/toast.dart';
 import 'package:flutter/material.dart';
@@ -147,7 +148,7 @@ class _QRCodeInfoState extends State<QRCodeInfo> {
           onClose: () {
             _hideToast();
           },
-          message: '니모닉 문구가 복사됐어요',
+          message: t.toast.mnemonic_copied,
         ),
       ),
     );

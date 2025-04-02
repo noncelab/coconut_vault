@@ -1,19 +1,16 @@
-import 'package:coconut_vault/model/data/vault_type.dart';
+import 'package:coconut_vault/localization/strings.g.dart';
+import 'package:coconut_vault/providers/sign_provider.dart';
 import 'package:coconut_vault/widgets/animatedQR/animated_qr_data_handler.dart';
 import 'package:coconut_vault/widgets/animatedQR/animated_qr_view.dart';
 import 'package:flutter/material.dart';
-import 'package:coconut_vault/model/state/vault_model.dart';
 import 'package:coconut_vault/styles.dart';
 import 'package:coconut_vault/widgets/appbar/custom_appbar.dart';
 import 'package:coconut_vault/widgets/custom_tooltip.dart';
 import 'package:provider/provider.dart';
 
 class SignedTransactionQrScreen extends StatefulWidget {
-  final int id;
-
   const SignedTransactionQrScreen({
     super.key,
-    required this.id,
   });
 
   @override
@@ -22,24 +19,12 @@ class SignedTransactionQrScreen extends StatefulWidget {
 }
 
 class _SignedTransactionQrScreenState extends State<SignedTransactionQrScreen> {
-  late String _signedRawTx;
-  late String _walletName;
-  late VaultModel _vaultModel;
-  bool _isMultisig = false;
+  late SignProvider _signProvider;
 
   @override
   void initState() {
-    _vaultModel = Provider.of<VaultModel>(context, listen: false);
     super.initState();
-    if (_vaultModel.signedRawTx == null) {
-      throw "[SignedTransactionScreen] _model.signedRawTx is null";
-    }
-
-    _signedRawTx = _vaultModel.signedRawTx!;
-
-    final vaultListItem = _vaultModel.getVaultById(widget.id);
-    _isMultisig = vaultListItem.vaultType == VaultType.multiSignature;
-    _walletName = vaultListItem.name;
+    _signProvider = Provider.of<SignProvider>(context, listen: false);
   }
 
   @override
@@ -47,15 +32,14 @@ class _SignedTransactionQrScreenState extends State<SignedTransactionQrScreen> {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: CustomAppBar.buildWithNext(
-          title: '서명 트랜잭션',
+          title: t.signed_tx,
           context: context,
           onNextPressed: () {
-            _vaultModel.clearWaitingForSignaturePsbt();
-            _vaultModel.signedRawTx = null;
+            _signProvider.resetAll();
             Navigator.pushNamedAndRemoveUntil(
                 context, '/', (Route<dynamic> route) => false);
           },
-          buttonName: '완료'),
+          buttonName: t.complete),
       body: SafeArea(
         child: SingleChildScrollView(
           child: Container(
@@ -79,9 +63,10 @@ class _SignedTransactionQrScreenState extends State<SignedTransactionQrScreen> {
                       ),
                       children: <TextSpan>[
                         TextSpan(
-                          text: _isMultisig
-                              ? '다중 서명을 완료했어요. 보내기 정보를 생성한 월렛으로 아래 QR 코드를 스캔해 주세요.'
-                              : '월렛의 \'$_walletName 지갑\'에서 만든 보내기 정보에 서명을 완료했어요. 월렛으로 아래 QR 코드를 스캔해 주세요.',
+                          text: _signProvider.isMultisig!
+                              ? t.signed_transaction_qr_screen.guide_multisig
+                              : t.signed_transaction_qr_screen.guide_single_sig(
+                                  name: _signProvider.walletName!),
                           style: const TextStyle(
                             fontWeight: FontWeight.normal,
                           ),
@@ -99,7 +84,8 @@ class _SignedTransactionQrScreenState extends State<SignedTransactionQrScreen> {
                   padding: const EdgeInsets.all(10),
                   decoration: BoxDecorations.shadowBoxDecoration,
                   child: AnimatedQrView(
-                    data: AnimatedQRDataHandler.splitData(_signedRawTx),
+                    data: AnimatedQRDataHandler.splitData(
+                        _signProvider.signedPsbtBase64!),
                     size: MediaQuery.of(context).size.width * 0.8,
                   ),
                 ),

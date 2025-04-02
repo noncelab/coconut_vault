@@ -1,9 +1,9 @@
 import 'dart:async';
 import 'dart:isolate';
 import 'package:coconut_lib/coconut_lib.dart';
-import 'package:coconut_vault/model/data/multisig_vault_list_item.dart';
-import 'package:coconut_vault/model/data/singlesig_vault_list_item.dart';
-import 'package:coconut_vault/model/data/vault_list_item_base.dart';
+import 'package:coconut_vault/model/multisig/multisig_vault_list_item.dart';
+import 'package:coconut_vault/model/single_sig/single_sig_vault_list_item.dart';
+import 'package:coconut_vault/model/common/vault_list_item_base.dart';
 import 'package:flutter/services.dart';
 
 enum InitializeType {
@@ -120,7 +120,7 @@ class IsolateHandler<T, R> {
   static void _entryPointAddVault(List<dynamic> args) {
     final SendPort mainSendPort = args[0];
     final RootIsolateToken rootIsolateToken = args[1];
-    final handler = args[2] as FutureOr<List<SinglesigVaultListItem>> Function(
+    final handler = args[2] as FutureOr<List<SingleSigVaultListItem>> Function(
         Map<String, dynamic>, void Function(dynamic)?);
     final port = ReceivePort();
     mainSendPort.send(port.sendPort);
@@ -296,25 +296,6 @@ class IsolateHandler<T, R> {
       sendPort.send(result);
     });
   }
-  // static void _entryPointAddressList(List<dynamic> args) {
-  //   final SendPort mainSendPort = args[0];
-  //   final RootIsolateToken rootIsolateToken = args[1];
-  //   final port = ReceivePort();
-  //   mainSendPort.send(port.sendPort);
-
-  //   port.listen((message) async {
-  //     final data = message[0];
-  //     final sendPort = message[1] as SendPort;
-  //     final handler = message[2] as FutureOr<List<Address>> Function(
-  //         Map<String, dynamic>, void Function(dynamic)?);
-
-  //     // Ensure the background isolate is properly initialized
-  //     BackgroundIsolateBinaryMessenger.ensureInitialized(rootIsolateToken);
-
-  //     final result = await handler(data, null);
-  //     sendPort.send(result);
-  //   });
-  // }
 
   Future<R> run(T data,
       {void Function(List<dynamic>)? progressCallback}) async {

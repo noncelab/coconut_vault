@@ -1,136 +1,130 @@
-import 'package:coconut_vault/model/state/multisig_creation_model.dart';
-import 'package:coconut_vault/screens/airgap/multi_signature_screen.dart';
+import 'package:coconut_vault/constants/app_routes.dart';
+import 'package:coconut_vault/enums/pin_check_context_enum.dart';
+import 'package:coconut_vault/main_route_guard.dart';
+import 'package:coconut_vault/providers/sign_provider.dart';
+import 'package:coconut_vault/providers/wallet_creation_provider.dart';
+import 'package:coconut_vault/providers/auth_provider.dart';
+import 'package:coconut_vault/providers/connectivity_provider.dart';
+import 'package:coconut_vault/providers/visibility_provider.dart';
+import 'package:coconut_vault/screens/airgap/multisig_sign_screen.dart';
 import 'package:coconut_vault/screens/airgap/psbt_confirmation_screen.dart';
 import 'package:coconut_vault/screens/airgap/psbt_scanner_screen.dart';
 import 'package:coconut_vault/screens/airgap/signed_transaction_qr_screen.dart';
-import 'package:coconut_vault/screens/airgap/singlesig_sign_screen.dart';
-import 'package:coconut_vault/screens/security_self_check_screen.dart';
-import 'package:coconut_vault/screens/setting/app_info_screen.dart';
-import 'package:coconut_vault/screens/setting/mnemonic_word_list_screen.dart';
+import 'package:coconut_vault/screens/airgap/single_sig_sign_screen.dart';
+import 'package:coconut_vault/screens/home/vault_list_screen.dart';
+import 'package:coconut_vault/screens/vault_creation/single_sig/security_self_check_screen.dart';
+import 'package:coconut_vault/screens/settings/app_info_screen.dart';
+import 'package:coconut_vault/screens/settings/mnemonic_word_list_screen.dart';
 import 'package:coconut_vault/screens/start_guide/guide_screen.dart';
 import 'package:coconut_vault/screens/start_guide/welcome_screen.dart';
-import 'package:coconut_vault/screens/tutorial_screen.dart';
-import 'package:coconut_vault/screens/vault_creation/multi_sig/assign_signers_screen.dart';
-import 'package:coconut_vault/screens/vault_creation/mnemonic_coin_flip_screen.dart';
-import 'package:coconut_vault/screens/vault_creation/mnemonic_generate_screen.dart';
-import 'package:coconut_vault/screens/vault_creation/mnemonic_import_screen.dart';
-import 'package:coconut_vault/screens/vault_creation/multi_sig/select_multisig_quoram_screen.dart';
-import 'package:coconut_vault/screens/vault_creation/multi_sig/signer_scanner_screen.dart';
-import 'package:coconut_vault/screens/vault_creation/select_vault_type_screen.dart';
+import 'package:coconut_vault/screens/home/tutorial_screen.dart';
+import 'package:coconut_vault/screens/vault_creation/multisig/signer_assignment_screen.dart';
+import 'package:coconut_vault/screens/vault_creation/single_sig/mnemonic_coinflip_screen.dart';
+import 'package:coconut_vault/screens/vault_creation/single_sig/mnemonic_generation_screen.dart';
+import 'package:coconut_vault/screens/vault_creation/single_sig/mnemonic_import_screen.dart';
+import 'package:coconut_vault/screens/vault_creation/multisig/multisig_quorum_selection_screen.dart';
+import 'package:coconut_vault/screens/common/multisig_bsms_scanner_screen.dart';
+import 'package:coconut_vault/screens/vault_creation/vault_type_selection_screen.dart';
 import 'package:coconut_vault/screens/vault_creation/vault_creation_options_screen.dart';
-import 'package:coconut_vault/screens/vault_creation/vault_name_icon_setup_screen.dart';
-import 'package:coconut_vault/screens/vault_detail/address_list_screen.dart';
-import 'package:coconut_vault/screens/vault_detail/multi_sig_bsms_screen.dart';
-import 'package:coconut_vault/screens/vault_detail/multi_sig_setting_screen.dart';
-import 'package:coconut_vault/screens/vault_detail/select_export_type_screen.dart';
-import 'package:coconut_vault/screens/vault_detail/signer_bsms_screen.dart';
-import 'package:coconut_vault/screens/vault_detail/sync_to_wallet_screen.dart';
-import 'package:coconut_vault/screens/vault_detail/vault_menu_screen.dart';
-import 'package:coconut_vault/screens/vault_detail/vault_settings.dart';
-import 'package:coconut_vault/utils/router_util.dart';
-import 'package:coconut_vault/vault_list_tab.dart';
+import 'package:coconut_vault/screens/vault_creation/vault_name_and_icon_setup_screen.dart';
+import 'package:coconut_vault/screens/vault_menu/address_list_screen.dart';
+import 'package:coconut_vault/screens/vault_menu/info/multisig_bsms_screen.dart';
+import 'package:coconut_vault/screens/vault_menu/info/multisig_setup_info_screen.dart';
+import 'package:coconut_vault/screens/vault_menu/multisig_signer_bsms_export_screen.dart';
+import 'package:coconut_vault/screens/vault_menu/sync_to_wallet/sync_to_wallet_screen.dart';
+import 'package:coconut_vault/screens/home/vault_menu_bottom_sheet.dart';
+import 'package:coconut_vault/screens/vault_menu/info/single_sig_setup_info_screen.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:coconut_vault/model/state/vault_model.dart';
-import 'package:coconut_vault/model/state/app_model.dart';
-import 'package:coconut_vault/screens/pin_check_screen.dart';
-import 'package:coconut_vault/screens/start_screen.dart';
+import 'package:coconut_vault/providers/wallet_provider.dart';
+import 'package:coconut_vault/screens/common/pin_check_screen.dart';
+import 'package:coconut_vault/screens/common/start_screen.dart';
 import 'package:coconut_vault/styles.dart';
 import 'package:coconut_vault/widgets/custom_loading_overlay.dart';
 import 'package:provider/provider.dart';
 
-enum HomeScreen {
+enum AppEntryFlow {
   splash,
   tutorial,
   pincheck,
   vaultlist,
 }
 
-/// HomeScreen 상태 관리 싱글톤 객체
-class HomeScreenStatus {
-  static final HomeScreenStatus _instance = HomeScreenStatus._internal();
-
-  factory HomeScreenStatus() {
-    return _instance;
-  }
-
-  HomeScreenStatus._internal();
-
-  HomeScreen screenStatus = HomeScreen.splash;
-
-  void updateScreenStatus(HomeScreen status) {
-    screenStatus = status;
-  }
-}
-
-class PowVaultApp extends StatefulWidget {
-  const PowVaultApp({super.key});
+class CoconutVaultApp extends StatefulWidget {
+  const CoconutVaultApp({super.key});
 
   @override
-  State<PowVaultApp> createState() => _PowVaultAppState();
+  State<CoconutVaultApp> createState() => _CoconutVaultAppState();
 }
 
-class _PowVaultAppState extends State<PowVaultApp> {
-  Widget getHomeScreenRoute(HomeScreen status) {
-    if (status == HomeScreen.splash) {
+class _CoconutVaultAppState extends State<CoconutVaultApp> {
+  AppEntryFlow _appEntryFlow = AppEntryFlow.splash;
+
+  void _updateEntryFlow(AppEntryFlow appEntryFlow) {
+    setState(() {
+      _appEntryFlow = appEntryFlow;
+    });
+  }
+
+  Widget _getHomeScreenRoute(AppEntryFlow status, BuildContext context) {
+    if (status == AppEntryFlow.splash) {
       return StartScreen(onComplete: (status) {
-        setState(() {
-          HomeScreenStatus().updateScreenStatus(status);
-        });
+        _updateEntryFlow(status);
       });
-    } else if (status == HomeScreen.tutorial) {
+    } else if (status == AppEntryFlow.tutorial) {
       return const TutorialScreen(
         screenStatus: TutorialScreenStatus.entrance,
       );
-    } else if (status == HomeScreen.pincheck) {
+    } else if (status == AppEntryFlow.pincheck) {
       return CustomLoadingOverlay(
         child: PinCheckScreen(
-          screenStatus: PinCheckScreenStatus.entrance,
+          pinCheckContext: PinCheckContextEnum.appLaunch,
           onComplete: () {
-            setState(() {
-              HomeScreenStatus().updateScreenStatus(HomeScreen.vaultlist);
-            });
+            _updateEntryFlow(AppEntryFlow.vaultlist);
           },
           onReset: () async {
             /// 초기화 이후 메인 라우터 이동
-            setState(() {
-              HomeScreenStatus().updateScreenStatus(HomeScreen.vaultlist);
-            });
+            _updateEntryFlow(AppEntryFlow.vaultlist);
           },
         ),
       );
     }
-    return const VaultListTab();
+
+    return MainRouteGuard(
+      onAppGoBackground: () {
+        _updateEntryFlow(AppEntryFlow.pincheck);
+      },
+      child: const VaultListScreen(),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
+    var visibilityProvider = VisibilityProvider();
     return MultiProvider(
       providers: [
-        /// splash, guide, main, pinCheck 에서 공통으로 사용하는 모델
-        ChangeNotifierProvider(
-          create: (_) => AppModel(
-            onConnectivityStateChanged: (ConnectivityState state) {
-              // Bluetooth, Network, Developer mode 리스너
-              if (state == ConnectivityState.on) {
-                goAppUnavailableNotificationScreen(context);
-              } else if (state == ConnectivityState.bluetoothUnauthorized) {
-                goBluetoothAuthNotificationScreen(context);
-              }
-            },
-          ),
+        ChangeNotifierProvider(create: (_) => visibilityProvider),
+        ChangeNotifierProvider(create: (_) => AuthProvider()),
+        ChangeNotifierProxyProvider<VisibilityProvider, ConnectivityProvider>(
+          create: (_) => ConnectivityProvider(
+              hasSeenGuide: visibilityProvider.hasSeenGuide),
+          update: (_, visibilityProvider, connectivityProvider) {
+            if (visibilityProvider.hasSeenGuide) {
+              connectivityProvider!.setHasSeenGuideTrue();
+            }
+
+            return connectivityProvider!;
+          },
         ),
-        Provider<MultisigCreationModel>(create: (_) => MultisigCreationModel()),
-        ChangeNotifierProxyProvider<AppModel, VaultModel>(
-          create: (_) => VaultModel(
-              Provider.of<AppModel>(
-                _,
-                listen: false,
-              ),
-              Provider.of<MultisigCreationModel>(_, listen: false)),
-          update: (_, appModel, vaultModel) =>
-              vaultModel!..updateAppModel(appModel),
-        ),
+        if (_appEntryFlow == AppEntryFlow.vaultlist) ...{
+          Provider<WalletCreationProvider>(
+              create: (_) => WalletCreationProvider()),
+          Provider<SignProvider>(create: (_) => SignProvider()),
+          ChangeNotifierProvider<WalletProvider>(
+            create: (_) => WalletProvider(
+                Provider.of<VisibilityProvider>(_, listen: false)),
+          )
+        }
       ],
       child: Directionality(
         textDirection: TextDirection.ltr,
@@ -161,112 +155,81 @@ class _PowVaultAppState extends State<PowVaultApp> {
             ),
           ),
           color: MyColors.black,
-          home: getHomeScreenRoute(HomeScreenStatus().screenStatus),
+          home: _getHomeScreenRoute(_appEntryFlow, context),
           routes: {
-            '/vault-lock': (context) => buildScreenWithArguments(
-                  context,
-                  (args) => CustomLoadingOverlay(
-                    child: PinCheckScreen(
-                      screenStatus: PinCheckScreenStatus.lock,
-                      onReset: () async {
-                        HomeScreenStatus()
-                            .updateScreenStatus(HomeScreen.vaultlist);
-                      },
-                    ),
-                  ),
-                ),
-            '/select-vault-type': (context) => const SelectVaultTypeScreen(),
-            '/select-multisig-quoram': (context) =>
-                const SelectMultisigQuoramScreen(),
-            '/assign-signers': (context) => const AssignSignersScreen(),
-            '/vault-creation-options': (context) =>
+            AppRoutes.vaultTypeSelection: (context) =>
+                const VaultTypeSelectionScreen(),
+            AppRoutes.multisigQuorumSelection: (context) =>
+                const MultisigQuorumSelectionScreen(),
+            AppRoutes.signerAssignment: (context) =>
+                const SignerAssignmentScreen(),
+            AppRoutes.vaultCreationOptions: (context) =>
                 const VaultCreationOptions(),
-            '/mnemonic-import': (context) => const MnemonicImport(),
-            '/vault-name-setup': (context) => const VaultNameIconSetup(),
-            '/vault-details': (context) => buildScreenWithArguments(
+            AppRoutes.mnemonicImport: (context) => const MnemonicImport(),
+            AppRoutes.vaultNameSetup: (context) =>
+                const VaultNameAndIconSetupScreen(),
+            AppRoutes.vaultDetails: (context) => buildScreenWithArguments(
                   context,
-                  (args) => VaultMenuScreen(id: args['id']),
+                  (args) => VaultMenuBottomSheet(id: args['id']),
                 ),
-            '/vault-settings': (context) => buildScreenWithArguments(
-                context, (args) => VaultSettings(id: args['id'])),
-            '/multisig-setting': (context) => buildScreenWithArguments(
+            AppRoutes.singleSigSetupInfo: (context) => buildScreenWithArguments(
+                context, (args) => SingleSigSetupInfoScreen(id: args['id'])),
+            AppRoutes.multisigSetupInfo: (context) => buildScreenWithArguments(
                   context,
-                  (args) => MultiSigSettingScreen(id: args['id']),
+                  (args) => MultisigSetupInfoScreen(id: args['id']),
                 ),
-            '/multisig-bsms': (context) => buildScreenWithArguments(
+            AppRoutes.multisigBsmsView: (context) => buildScreenWithArguments(
                   context,
-                  (args) => MultiSigBsmsScreen(
+                  (args) => MultisigBsmsScreen(
                     id: args['id'],
                   ),
                 ),
-            '/mnemonic-word-list': (context) => const MnemonicWordListScreen(),
-            '/address-list': (context) => buildScreenWithArguments(
+            AppRoutes.mnemonicWordList: (context) =>
+                const MnemonicWordListScreen(),
+            AppRoutes.addressList: (context) => buildScreenWithArguments(
                   context,
                   (args) => AddressListScreen(id: args['id']),
                 ),
-            '/signer-scanner': (context) => buildScreenWithArguments(
+            AppRoutes.signerBsmsScanner: (context) => buildScreenWithArguments(
                   context,
-                  (args) => SignerScannerScreen(
+                  (args) => MultisigBsmsScannerScreen(
                       id: args['id'], screenType: args['screenType']),
                 ),
-            '/psbt-scanner': (context) => buildScreenWithArguments(
+            AppRoutes.psbtScanner: (context) => buildScreenWithArguments(
                   context,
                   (args) => PsbtScannerScreen(id: args['id']),
                 ),
-            '/psbt-confirmation': (context) => buildScreenWithArguments(
-                  context,
-                  (args) => PsbtConfirmationScreen(id: args['id']),
-                ),
-            '/signed-transaction': (context) => buildScreenWithArguments(
-                  context,
-                  (args) => SignedTransactionQrScreen(id: args['id']),
-                ),
-            '/sync-to-wallet': (context) => buildScreenWithArguments(
+            AppRoutes.psbtConfirmation: (context) =>
+                const PsbtConfirmationScreen(),
+            AppRoutes.signedTransaction: (context) =>
+                const SignedTransactionQrScreen(),
+            AppRoutes.syncToWallet: (context) => buildScreenWithArguments(
                   context,
                   (args) => SyncToWalletScreen(id: args['id']),
                 ),
-            '/signer-bsms': (context) => buildScreenWithArguments(
+            AppRoutes.multisigSignerBsmsExport: (context) =>
+                buildScreenWithArguments(
                   context,
-                  (args) => SignerBsmsScreen(
+                  (args) => MultisigSignerBsmsExportScreen(
                     id: args['id'],
                   ),
                 ),
-            '/select-sync-type': (context) => buildScreenWithArguments(
-                  context,
-                  (args) => SelectExportTypeScreen(id: args['id']),
-                ),
-            '/multi-signature': (context) => buildScreenWithArguments(
-                  context,
-                  (args) => MultiSignatureScreen(
-                    id: args['id'],
-                    psbtBase64: args['psbtBase64'],
-                    sendAddress: args['sendAddress'],
-                    bitcoinString: args['bitcoinString'],
-                  ),
-                ),
-            '/singlesig-sign': (context) => buildScreenWithArguments(
-                  context,
-                  (args) => SinglesigSignScreen(
-                    id: args['id'],
-                    psbtBase64: args['psbtBase64'],
-                    sendAddress: args['sendAddress'],
-                    bitcoinString: args['bitcoinString'],
-                  ),
-                ),
-            '/security-self-check': (context) {
+            AppRoutes.multisigSign: (context) => const MultisigSignScreen(),
+            AppRoutes.singleSigSign: (context) => const SingleSigSignScreen(),
+            AppRoutes.securitySelfCheck: (context) {
               final VoidCallback? onNextPressed =
                   ModalRoute.of(context)?.settings.arguments as VoidCallback?;
               return SecuritySelfCheckScreen(onNextPressed: onNextPressed);
             },
-            '/mnemonic-generate': (context) => const MnemonicGenerateScreen(),
-            '/mnemonic-flip-coin': (context) => const MnemonicFlipCoinScreen(),
-            '/app-info': (context) => const AppInfoScreen(),
-            '/welcome': (context) => const WelcomeScreen(),
-            '/connectivity-guide': (context) {
+            AppRoutes.mnemonicGeneration: (context) =>
+                const MnemonicGenerationScreen(),
+            AppRoutes.mnemonicCoinflip: (context) =>
+                const MnemonicCoinflipScreen(),
+            AppRoutes.appInfo: (context) => const AppInfoScreen(),
+            AppRoutes.welcome: (context) => const WelcomeScreen(),
+            AppRoutes.connectivityGuide: (context) {
               onComplete() {
-                setState(() {
-                  HomeScreenStatus().updateScreenStatus(HomeScreen.vaultlist);
-                });
+                _updateEntryFlow(AppEntryFlow.vaultlist);
               }
 
               return GuideScreen(onComplete: onComplete);

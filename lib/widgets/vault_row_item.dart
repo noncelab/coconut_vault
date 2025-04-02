@@ -1,19 +1,20 @@
-import 'package:coconut_vault/model/data/multisig_signer.dart';
-import 'package:coconut_vault/model/data/multisig_vault_list_item.dart';
-import 'package:coconut_vault/model/data/singlesig_vault_list_item.dart';
-import 'package:coconut_vault/model/data/vault_list_item_base.dart';
-import 'package:coconut_vault/model/data/vault_type.dart';
+import 'package:coconut_vault/localization/strings.g.dart';
+import 'package:coconut_vault/model/multisig/multisig_signer.dart';
+import 'package:coconut_vault/model/multisig/multisig_vault_list_item.dart';
+import 'package:coconut_vault/model/single_sig/single_sig_vault_list_item.dart';
+import 'package:coconut_vault/model/common/vault_list_item_base.dart';
+import 'package:coconut_vault/enums/wallet_enums.dart';
 import 'package:coconut_vault/utils/colors_util.dart';
 import 'package:coconut_vault/widgets/animation/shake_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:coconut_vault/screens/vault_detail/vault_menu_screen.dart';
+import 'package:coconut_vault/screens/home/vault_menu_bottom_sheet.dart';
 import 'package:coconut_vault/utils/icon_util.dart';
 import 'package:coconut_vault/widgets/bottom_sheet.dart';
 import 'package:coconut_vault/widgets/button/shrink_animation_button.dart';
 import 'package:provider/provider.dart';
 
-import '../model/state/vault_model.dart';
+import '../providers/wallet_provider.dart';
 import '../styles.dart';
 import '../utils/text_utils.dart';
 
@@ -49,21 +50,22 @@ class _VaultRowItemState extends State<VaultRowItem> {
     _isUsedToMultiSig = false;
     _multiSigners = null;
 
-    if (widget.vault.vaultType == VaultType.multiSignature) {
+    if (widget.vault.vaultType == WalletType.multiSignature) {
       _isMultiSig = true;
       final multi = widget.vault as MultisigVaultListItem;
       _subtitleText = '${multi.requiredSignatureCount}/${multi.signers.length}';
       _multiSigners = multi.signers;
     } else {
-      final single = widget.vault as SinglesigVaultListItem;
+      final single = widget.vault as SingleSigVaultListItem;
       if (single.linkedMultisigInfo != null) {
         final multisigKey = single.linkedMultisigInfo!;
         if (multisigKey.keys.isNotEmpty) {
-          final model = Provider.of<VaultModel>(context, listen: false);
+          final model = Provider.of<WalletProvider>(context, listen: false);
           try {
             final multisig = model.getVaultById(multisigKey.keys.first);
-            _subtitleText = '${TextUtils.ellipsisIfLonger(multisig.name)}의 '
-                '${multisigKey.values.first + 1}번 키';
+            _subtitleText = t.wallet_subtitle(
+                name: TextUtils.ellipsisIfLonger(multisig.name),
+                index: multisigKey.values.first + 1);
             _isUsedToMultiSig = true;
           } catch (_) {}
         }
@@ -106,7 +108,7 @@ class _VaultRowItemState extends State<VaultRowItem> {
                 context: context,
                 title:
                     TextUtils.ellipsisIfLonger(widget.vault.name), // overflow
-                child: VaultMenuScreen(
+                child: VaultMenuBottomSheet(
                     id: widget.vault.id, isMultiSig: _isMultiSig),
               );
             },

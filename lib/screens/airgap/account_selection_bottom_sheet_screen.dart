@@ -1,7 +1,8 @@
-import 'package:coconut_vault/model/data/vault_list_item_base.dart';
+import 'package:coconut_vault/localization/strings.g.dart';
+import 'package:coconut_vault/model/common/vault_list_item_base.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:coconut_vault/model/state/vault_model.dart';
+import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:coconut_vault/styles.dart';
 import 'package:provider/provider.dart';
 
@@ -24,7 +25,8 @@ class _AccountSelectionBottomSheetScreenState
   @override
   void initState() {
     super.initState();
-    _vaultList = Provider.of<VaultModel>(context, listen: false).getVaults();
+    _vaultList =
+        Provider.of<WalletProvider>(context, listen: false).getVaults();
     List<_SelectionItemParams> selections = [];
     for (var vault in _vaultList) {
       selections.add(_SelectionItemParams(
@@ -51,7 +53,7 @@ class _AccountSelectionBottomSheetScreenState
                     const SizedBox(
                       height: 10,
                     ),
-                    const Text("서명할 계정을 선택해주세요."),
+                    Text(t.account_selection_bottom_sheet_screen.text),
                     const SizedBox(
                       height: 10,
                     ),
@@ -100,7 +102,7 @@ class _SelectionItem extends StatelessWidget {
         ),
         padding: Paddings.widgetContainer,
         child: Text(
-          "${params.name} 지갑",
+          t.name_wallet(name: params.name),
           style: Styles.h3,
         ),
       ),

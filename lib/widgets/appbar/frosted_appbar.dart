@@ -1,20 +1,19 @@
 import 'dart:ui';
 
-import 'package:coconut_vault/screens/tutorial_screen.dart';
+import 'package:coconut_vault/screens/home/tutorial_screen.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:coconut_vault/model/state/app_model.dart';
-import 'package:coconut_vault/screens/pin_setting_screen.dart';
 import 'package:coconut_vault/styles.dart';
 import 'package:coconut_vault/widgets/bottom_sheet.dart';
 import 'package:coconut_vault/widgets/label_testnet.dart';
-import 'package:provider/provider.dart';
 
 class FrostedAppBar extends StatefulWidget {
-  final Function onTapSeeMore;
-  const FrostedAppBar({super.key, required this.onTapSeeMore});
+  final VoidCallback onTapPlus;
+  final VoidCallback onTapSeeMore;
+  const FrostedAppBar(
+      {super.key, required this.onTapPlus, required this.onTapSeeMore});
 
   @override
   State<FrostedAppBar> createState() => _FrostedAppBarState();
@@ -96,42 +95,21 @@ class _FrostedAppBarState extends State<FrostedAppBar> {
                         color: MyColors.darkgrey,
                       ),
                     ),
-                    Selector<AppModel, bool>(
-                      selector: (context, model) => model.isPinEnabled,
-                      builder: (context, isPinEnabled, child) {
-                        return Selector<AppModel, int>(
-                          selector: (context, model) => model.vaultListLength,
-                          builder: (context, vaultListLength, child) {
-                            final isNotEmptyVaultList = vaultListLength > 0;
-                            return Container(
-                              margin: const EdgeInsets.only(top: 32),
-                              height: 40,
-                              width: 40,
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(30),
-                              ),
-                              child: IconButton(
-                                icon: const Icon(
-                                  Icons.add_rounded,
-                                  color: MyColors.darkgrey,
-                                ),
-                                onPressed: () {
-                                  if (!isNotEmptyVaultList && !isPinEnabled) {
-                                    MyBottomSheet.showBottomSheet_90(
-                                        context: context,
-                                        child: const PinSettingScreen(
-                                            greetingVisible: true));
-                                  } else {
-                                    Navigator.pushNamed(
-                                        context, '/select-vault-type');
-                                  }
-                                },
-                                color: MyColors.white,
-                              ),
-                            );
-                          },
-                        );
-                      },
+                    Container(
+                      margin: const EdgeInsets.only(top: 32),
+                      height: 40,
+                      width: 40,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(30),
+                      ),
+                      child: IconButton(
+                        icon: const Icon(
+                          Icons.add_rounded,
+                          color: MyColors.darkgrey,
+                        ),
+                        onPressed: widget.onTapPlus,
+                        color: MyColors.white,
+                      ),
                     ),
                     Container(
                       margin: const EdgeInsets.only(top: 32),

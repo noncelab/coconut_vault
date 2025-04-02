@@ -1,14 +1,16 @@
 import 'dart:io';
 
+import 'package:coconut_vault/localization/strings.g.dart';
+import 'package:coconut_vault/providers/connectivity_provider.dart';
+import 'package:coconut_vault/providers/visibility_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:coconut_vault/model/state/app_model.dart';
 import 'package:coconut_vault/styles.dart';
-import 'package:coconut_vault/widgets/high-lighted-text.dart';
+import 'package:coconut_vault/widgets/highlighted_text.dart';
 import 'package:provider/provider.dart';
 
 class GuideScreen extends StatefulWidget {
-  final VoidCallback? onComplete;
+  final VoidCallback onComplete;
   const GuideScreen({super.key, required this.onComplete});
 
   @override
@@ -18,7 +20,7 @@ class GuideScreen extends StatefulWidget {
 class _GuideScreenState extends State<GuideScreen> {
   @override
   Widget build(BuildContext context) {
-    return Consumer<AppModel>(builder: (context, appModel, child) {
+    return Consumer<ConnectivityProvider>(builder: (context, provider, child) {
       return Scaffold(
         backgroundColor: MyColors.white,
         body: SafeArea(
@@ -32,8 +34,8 @@ class _GuideScreenState extends State<GuideScreen> {
                   width: 48,
                 ),
                 const SizedBox(height: 20),
-                const Text(
-                  "안전한 비트코인 보관을 위해,\n항상 연결 상태를 OFF로 유지해주세요",
+                Text(
+                  t.guide_screen.keep_network_off,
                   style: Styles.body2Bold,
                   textAlign: TextAlign.center,
                 ),
@@ -57,26 +59,30 @@ class _GuideScreenState extends State<GuideScreen> {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            const Text('네트워크 상태', style: Styles.body2Bold),
+                            Text(t.guide_screen.network_status,
+                                style: Styles.body2Bold),
                             const SizedBox(width: 40),
-                            appModel.isNetworkOn != null &&
-                                    appModel.isNetworkOn == true
-                                ? const HighLightedText('ON',
+                            provider.isNetworkOn != null &&
+                                    provider.isNetworkOn == true
+                                ? HighLightedText(t.guide_screen.on,
                                     color: MyColors.warningText)
-                                : const Text('OFF', style: Styles.subLabel)
+                                : Text(t.guide_screen.off,
+                                    style: Styles.subLabel)
                           ],
                         ),
                         const SizedBox(height: 12),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            const Text('블루투스 상태', style: Styles.body2Bold),
+                            Text(t.guide_screen.bluetooth_status,
+                                style: Styles.body2Bold),
                             const SizedBox(width: 40),
-                            appModel.isBluetoothOn != null &&
-                                    appModel.isBluetoothOn == true
-                                ? const HighLightedText('ON',
+                            provider.isBluetoothOn != null &&
+                                    provider.isBluetoothOn == true
+                                ? HighLightedText(t.guide_screen.on,
                                     color: MyColors.warningText)
-                                : const Text('OFF', style: Styles.subLabel)
+                                : Text(t.guide_screen.off,
+                                    style: Styles.subLabel)
                           ],
                         ),
                         if (Platform.isAndroid) ...[
@@ -84,43 +90,47 @@ class _GuideScreenState extends State<GuideScreen> {
                           Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              const Text('개발자 옵션', style: Styles.body2Bold),
+                              Text(t.guide_screen.developer_option,
+                                  style: Styles.body2Bold),
                               const SizedBox(width: 40),
-                              appModel.isDeveloperModeOn != null &&
-                                      appModel.isDeveloperModeOn == true
-                                  ? const HighLightedText('ON',
+                              provider.isDeveloperModeOn != null &&
+                                      provider.isDeveloperModeOn == true
+                                  ? HighLightedText(t.guide_screen.on,
                                       color: MyColors.warningText)
-                                  : const Text('OFF', style: Styles.subLabel)
+                                  : Text(t.guide_screen.off,
+                                      style: Styles.subLabel)
                             ],
                           ),
                         ]
                       ],
                     )),
                 const SizedBox(height: 32),
-                if (appModel.isNetworkOn == true ||
-                    appModel.isBluetoothOn == true)
+                if (provider.isNetworkOn == true ||
+                    provider.isBluetoothOn == true)
                   Column(
                     children: [
-                      Text("네트워크와 블루투스를 모두 꺼주세요",
+                      Text(t.guide_screen.turn_off_network_and_bluetooth,
                           style: Styles.body2Bold.merge(
                               const TextStyle(color: MyColors.warningText))),
                     ],
                   ),
-                if (appModel.isDeveloperModeOn == true && Platform.isAndroid)
-                  Text("개발자 옵션을 비활성화 해주세요",
+                if (provider.isDeveloperModeOn == true && Platform.isAndroid)
+                  Text(t.guide_screen.disable_developer_option,
                       style: Styles.body2Bold
                           .merge(const TextStyle(color: MyColors.warningText))),
                 const SizedBox(
                   height: 40,
                 ),
                 GestureDetector(
-                    onTap: appModel.isNetworkOn == false &&
-                            appModel.isBluetoothOn == false &&
+                    onTap: provider.isNetworkOn == false &&
+                            provider.isBluetoothOn == false &&
                             (!Platform.isAndroid ||
-                                appModel.isDeveloperModeOn == false)
+                                provider.isDeveloperModeOn == false)
                         ? () async {
-                            await appModel.setHasSeenGuide();
-                            widget.onComplete!();
+                            await Provider.of<VisibilityProvider>(context,
+                                    listen: false)
+                                .setHasSeenGuide();
+                            widget.onComplete();
                             Navigator.pushNamedAndRemoveUntil(
                               context,
                               '/',
@@ -133,14 +143,14 @@ class _GuideScreenState extends State<GuideScreen> {
                             horizontal: 24, vertical: 12),
                         decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(14),
-                            color: appModel.isNetworkOn == false &&
-                                    appModel.isBluetoothOn == false &&
+                            color: provider.isNetworkOn == false &&
+                                    provider.isBluetoothOn == false &&
                                     (!Platform.isAndroid ||
-                                        appModel.isDeveloperModeOn == false)
+                                        provider.isDeveloperModeOn == false)
                                 ? MyColors.black
                                 : MyColors.transparentBlack_06),
                         child: Text(
-                          '시작하기',
+                          t.start,
                           style: Styles.label
                               .merge(const TextStyle(color: MyColors.white)),
                         ))),

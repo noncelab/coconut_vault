@@ -1,3 +1,5 @@
+import 'package:coconut_vault/constants/app_routes.dart';
+import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:coconut_vault/styles.dart';
@@ -19,24 +21,26 @@ class VaultCreationOptions extends StatelessWidget {
   Widget build(BuildContext context) {
     final List<Option> options = [
       Option(
-          name: "동전을 던져 직접 만들게요",
-          path: "/security-self-check",
+          name: t.vault_creation_options_screen.coin_flip,
+          path: AppRoutes.securitySelfCheck,
           onNextPressed: () {
-            Navigator.pushNamed(context, '/mnemonic-flip-coin');
+            Navigator.pushNamed(context, AppRoutes.mnemonicCoinflip);
           }),
       Option(
-          name: "앱에서 만들어 주세요",
-          path: "/security-self-check",
+          name: t.vault_creation_options_screen.auto_generate,
+          path: AppRoutes.securitySelfCheck,
           onNextPressed: () {
-            Navigator.pushNamed(context, '/mnemonic-generate');
+            Navigator.pushNamed(context, AppRoutes.mnemonicGeneration);
           }),
-      Option(name: "사용 중인 니모닉 문구가 있어요", path: "/mnemonic-import"),
+      Option(
+          name: t.vault_creation_options_screen.import_mnemonic,
+          path: AppRoutes.mnemonicImport),
     ];
 
     return Scaffold(
       backgroundColor: MyColors.white,
       appBar: CustomAppBar.build(
-        title: '일반 지갑',
+        title: t.single_sig_wallet,
         context: context,
         hasRightIcon: false,
         showTestnetLabel: false,
