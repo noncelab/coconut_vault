@@ -1342,14 +1342,55 @@ const _clock = Package(
     isSdk: false,
     dependencies: []);
 
-/// coconut_lib 0.8.2
+/// coconut_design_system 0.7.1
+const _coconut_design_system = Package(
+    name: 'coconut_design_system',
+    description:
+        'The Coconut Design System For Coconut Vault/Wallet. Anyone who wants to use this design system is free to do so.',
+    homepage: 'https://www.noncelab.com',
+    repository: 'https://github.com/noncelab/coconut_design_system',
+    authors: [],
+    version: '0.7.1',
+    license: '''MIT License
+
+Copyright 2025 Nonce Lab
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the “Software”), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+---
+
+### **"Commons Clause" License Condition v1.0**
+
+The Software is provided to you by the Licensor under the License, as defined below, subject to the following condition.
+
+Without limiting other conditions in the License, the grant of rights under the License will not include, and the License does not grant to you, the right to **Sell** the Software.
+
+For purposes of the foregoing, **"Sell"** means practicing any or all of the rights granted to you under the License to provide to third parties, for a fee or other consideration (including without limitation fees for hosting or consulting/support services related to the Software), a product or service whose value derives, entirely or substantially, from the functionality of the Software. Any license notice or attribution required by the License must also include this **Commons Clause License Condition** notice.
+
+Software: All files associated with Coconut Design System.  
+License: MIT  
+Licensor: Nonce Lab''',
+    isMarkdown: false,
+    isSdk: false,
+    dependencies: [
+      PackageRef('flutter'),
+      PackageRef('provider'),
+      PackageRef('flutter_svg'),
+      PackageRef('lottie')
+    ]);
+
+/// coconut_lib 0.9.0
 const _coconut_lib = Package(
     name: 'coconut_lib',
     description:
         'The coconut_lib is a development tool for mobile air gap Bitcoin wallets. It is written in Dart. Coconut Vault and Coconut Wallet were created using this library.',
     repository: 'https://github.com/noncelab/coconut_lib.git',
     authors: [],
-    version: '0.8.2',
+    version: '0.9.0',
     license: '''Copyright 2025 Nonce Lab
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the “Software”), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
