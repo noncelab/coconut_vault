@@ -25,7 +25,7 @@ class MultisigVaultListItem extends VaultListItemBase {
     coconutVault = MultisignatureVault.fromKeyStoreList(
         signers.map((signer) => signer.keyStore).toList(),
         requiredSignatureCount,
-        AddressType.p2wsh);
+        addressType: AddressType.p2wsh);
 
     name = name.replaceAll('\n', ' ');
     this.coordinatorBsms = coordinatorBsms ??

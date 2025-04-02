@@ -50,7 +50,7 @@ void main() async {
     // ignore
   }
 
-  BitcoinNetwork.setNetwork(BitcoinNetwork.regtest);
+  NetworkType.setNetworkType(NetworkType.regtest);
 
   await ScreenProtector.protectDataLeakageWithImage(
       'ScreenProtectImage'); // iOS

@@ -140,7 +140,7 @@ class _ImportConfirmationScreenState extends State<ImportConfirmationScreen>
                     ),
                     const SizedBox(height: 14),
                     SignerBsmsInfoCard(
-                        bsms: BSMS.parseSigner(widget.importingBsms)),
+                        bsms: Bsms.parseSigner(widget.importingBsms)),
                     const SizedBox(height: 36),
                     Text(
                       t.confirm_importing_screen.memo,
