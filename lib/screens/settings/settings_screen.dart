@@ -1,3 +1,5 @@
+import 'package:coconut_design_system/coconut_design_system.dart';
+import 'package:coconut_vault/constants/app_routes.dart';
 import 'package:coconut_vault/enums/pin_check_context_enum.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/providers/auth_provider.dart';
@@ -69,14 +71,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       children: [
         Container(
           padding: const EdgeInsets.symmetric(vertical: 12),
-          child: Text(t.security,
-              style: const TextStyle(
-                fontFamily: 'Pretendard',
-                color: MyColors.black,
-                fontSize: 16,
-                fontStyle: FontStyle.normal,
-                fontWeight: FontWeight.bold,
-              )),
+          child: Text(t.security, style: CoconutTypography.body1_16_Bold),
         ),
         Consumer<AuthProvider>(builder: (context, provider, child) {
           return ButtonGroup(buttons: [
@@ -132,6 +127,42 @@ class _SettingsScreenState extends State<SettingsScreen> {
             }
           ]);
         }),
+        Container(
+          padding: const EdgeInsets.only(top: 45, bottom: 16),
+          child: Text(
+            t.settings_screen.update,
+            style: CoconutTypography.body1_16_Bold,
+          ),
+        ),
+        ButtonGroup(
+          buttons: [
+            SingleButton(
+              title: t.settings_screen.prepare_update,
+              onPressed: () async {
+                Navigator.pushNamed(context, AppRoutes.prepareUpdate);
+              },
+            ),
+          ],
+        ),
+        Container(
+          padding: const EdgeInsets.only(top: 45, bottom: 16),
+          child: Text(
+            t.settings_screen.advanced_user,
+            style: CoconutTypography.body1_16_Bold,
+          ),
+        ),
+        ButtonGroup(
+          buttons: [
+            SingleButton(
+              title: t.settings_screen.use_passphrase,
+              rightElement: CupertinoSwitch(
+                value: true,
+                activeColor: MyColors.primary,
+                onChanged: (isOn) async {},
+              ),
+            ),
+          ],
+        ),
       ],
     );
   }
