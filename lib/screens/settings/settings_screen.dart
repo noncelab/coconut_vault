@@ -4,6 +4,7 @@ import 'package:coconut_vault/enums/pin_check_context_enum.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/providers/auth_provider.dart';
 import 'package:coconut_vault/utils/logger.dart';
+import 'package:coconut_vault/widgets/custom_loading_overlay.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:loader_overlay/loader_overlay.dart';
@@ -139,7 +140,19 @@ class _SettingsScreenState extends State<SettingsScreen> {
             SingleButton(
               title: t.settings_screen.prepare_update,
               onPressed: () async {
-                Navigator.pushNamed(context, AppRoutes.prepareUpdate);
+                MyBottomSheet.showBottomSheet_90(
+                  context: context,
+                  child: CustomLoadingOverlay(
+                    child: PinCheckScreen(
+                      pinCheckContext: PinCheckContextEnum.sensitiveAction,
+                      isDeleteScreen: true,
+                      onComplete: () async {
+                        Navigator.pop(context);
+                        Navigator.pushNamed(context, AppRoutes.prepareUpdate);
+                      },
+                    ),
+                  ),
+                );
               },
             ),
           ],
