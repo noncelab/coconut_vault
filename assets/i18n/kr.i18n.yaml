@@ -203,6 +203,10 @@ settings_screen:
   use_biometric: "생체 인증 사용하기"
   change_password: "비밀번호 바꾸기"
   set_password: "비밀번호 설정하기"
+  update: "업데이트"
+  prepare_update: "업데이트 준비"
+  advanced_user: "고급 사용자"
+  use_passphrase: "패스프레이즈 사용하기"
 
 # lib/screens/start_guide
 guide_screen:
@@ -345,7 +349,7 @@ multi_sig_setting_screen:
   edit_memo: "메모 수정"
   add_memo: "메모 추가"
   view_bsms: "지갑 설정 정보 보기"
-  tooltip: "$total개의 키 중 $count개로 서명해야 하는\n다중 서명 지갑이예요."
+  tooltip: "$total개의 키 중 $count개로 서명해야 하는\n다중 서명 지갑이에요."
 select_export_type_screen:
   title: "내보내기"
   export_type: "어떤 용도로 사용하시나요?"
@@ -388,6 +392,40 @@ vault_settings:
   of: "의 "
   nth: "$index 번"
   key: " 키"
+
+# 업데이트 준비
+prepare_update:
+  title: "👉 니모닉 문구를 잘 백업했는지 확인할게요"
+  description: "만약 업데이트 중 문제가 생길 경우를 대비하여 니모닉 단어는 별도로 백업을 해두셔야 합니다"
+  enter_nth_word_of_wallet: "💡 ${wallet_name}의 $n번째 단어를 입력해 주세요"
+  enter_word: "단어를 입력해 주세요"
+  incorrect_input_try_again: "틀렸어요. 다시 입력해 주세요."
+  update_preparing_title: "➡️ 업데이트 준비를 시작합니다"
+  update_preparing_description: 
+    - "앱 업데이트에는 네트워크 연결이 필요해요"
+    - "업데이트 준비를 통해 니모닉 문구 노출 위험을 더 확실히 차단하고, 지갑을 안전하고 편리하게 복원할 수 있어요"
+    - "진행 중에는 앱을 사용할 수 없어요\n준비가 완료될 때까지 앱을 종료하지 마세요"
+  generating_secure_key: "🔑 안전한 키를 생성 중이에요"
+  generating_secure_key_description: "지갑 데이터를 보호하기 위해\n보안적으로 안전한 무작위 암호화 키를 생성합니다"
+  saving_wallet_data: "⏳ 지갑 데이터를 안전하게 저장 중이에요"
+  waiting_message: "잠시만 기다려 주세요\n이 과정은 몇 초 정도 걸릴 수 있습니다"
+  verifying_safe_storage: "✅ 안전하게 저장되었는지 확인하고 있어요"
+  update_recovery_info: "이 단계를 마치면\n앱 업데이트 후 지갑을 안전하고 편리하게\n복원할 수 있습니다"
+  completed_title: "🎉 업데이트 준비가 끝났어요!"
+  completed_description: "이제 볼트를 업데이트해 주세요"
+  steps:
+    - "앱을 종료하고 네트워크를 켜주세요."
+    - "앱스토어에서 업데이트를 진행해 주세요."
+    - "업데이트가 끝나면 네트워크를 끄고 볼트를 켜세요."
+  
+# 복원하기
+restore_vault:
+  "found_title": "🔎 복원 파일을 발견했어요"
+  "found_description": "앱 업데이트가 완료되지 않았어요\n앱을 업데이트 하시거나,\n계속 진행하시려면 지갑을 복원해주세요"
+  "in_progress_title": "⏳ 지갑을 복원 중이에요"
+  "in_progress_description": "잠시만 기다려 주세요.\n곧 완료됩니다!"
+  "completed_title": "🎉 지갑을 복원했어요!"
+  "completed_description": "지갑 $count개를 복원했어요"
 
 bottom_sheet:
   view_mit_license: "MIT 라이선스 전문 보기"
@@ -473,7 +511,7 @@ toast:
 
 errors:
   invalid_single_sig_qr_error: "잘못된 QR이에요. 다시 시도해 주세요."
-  invalid_multisig_qr_error: "잘못된 QR이예요.\n가져올 다중 서명 지갑의 정보 화면에서 \"지갑 설정 정보 보기\"에 나오는 QR 코드를 스캔해 주세요."
+  invalid_multisig_qr_error: "잘못된 QR이에요.\n가져올 다중 서명 지갑의 정보 화면에서 \"지갑 설정 정보 보기\"에 나오는 QR 코드를 스캔해 주세요."
   unsupport_bsms_version_error: "지원하지 않는 BSMS 버전이에요. BSMS 1.0만 지원됩니다."
   unsupport_derivation_path_error: "커스텀 파생 경로는 지원되지 않아요."
   duplicate_multisig_registered_error: "이미 등록된 다중 서명 지갑입니다."
