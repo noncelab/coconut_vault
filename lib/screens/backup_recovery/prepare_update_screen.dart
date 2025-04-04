@@ -138,12 +138,14 @@ class _PrepareUpdateScreenState extends State<PrepareUpdateScreen>
             return GestureDetector(
               onTap: () => _closeKeyboard(),
               child: Scaffold(
-                appBar: CoconutAppBar.build(
-                  title: t.settings_screen.prepare_update,
-                  context: context,
-                  onBackPressed: _onBackPressed,
-                  isLeadingVisible: !_isBlockedState(),
-                ),
+                appBar: !_isBlockedState()
+                    ? CoconutAppBar.build(
+                        title: t.settings_screen.prepare_update,
+                        context: context,
+                        onBackPressed: _onBackPressed,
+                        isLeadingVisible: !_isBlockedState(),
+                      )
+                    : null,
                 body: Container(
                   width: MediaQuery.sizeOf(context).width,
                   padding: const EdgeInsets.symmetric(
@@ -358,7 +360,7 @@ class _PrepareUpdateScreenState extends State<PrepareUpdateScreen>
           Positioned(
             left: 0,
             right: 0,
-            top: 52,
+            top: 162,
             bottom: 0,
             child:
                 // 이전 위젯 - Slide Out
@@ -370,7 +372,7 @@ class _PrepareUpdateScreenState extends State<PrepareUpdateScreen>
         Positioned(
           left: 0,
           right: 0,
-          top: 52,
+          top: 162,
           bottom: 0,
           child:
               // 현재 위젯 - Scale In
@@ -396,7 +398,7 @@ class _PrepareUpdateScreenState extends State<PrepareUpdateScreen>
           left: 0,
           right: 0,
           top: 0,
-          bottom: 52,
+          bottom: 32,
           child: Center(
             child: Stack(
               alignment: Alignment.center, // 중앙 정렬
@@ -472,7 +474,9 @@ class _PrepareUpdateScreenState extends State<PrepareUpdateScreen>
         children: [
           Column(
             children: [
-              CoconutLayout.spacing_1600h,
+              const SizedBox(
+                height: 162,
+              ),
               AnimatedBuilder(
                 animation: _animationController,
                 builder: (context, child) {
