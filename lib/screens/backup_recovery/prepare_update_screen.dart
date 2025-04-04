@@ -117,9 +117,9 @@ class _PrepareUpdateScreenState extends State<PrepareUpdateScreen>
   }
 
   void _onBackPressed() {
-    // if (!_isBlockedState()) {
-    Navigator.pop(context);
-    // }
+    if (!_isBlockedState()) {
+      Navigator.pop(context);
+    }
   }
 
   @override
@@ -142,7 +142,7 @@ class _PrepareUpdateScreenState extends State<PrepareUpdateScreen>
                   title: t.settings_screen.prepare_update,
                   context: context,
                   onBackPressed: _onBackPressed,
-                  // isLeadingVisible: !_isBlockedState(),
+                  isLeadingVisible: !_isBlockedState(),
                 ),
                 body: Container(
                   width: MediaQuery.sizeOf(context).width,
