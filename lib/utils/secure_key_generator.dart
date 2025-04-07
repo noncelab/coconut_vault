@@ -1,7 +1,10 @@
+import 'dart:convert';
 import 'dart:math';
 import 'dart:typed_data';
-import 'package:crypto/crypto.dart';
-import 'dart:convert';
+import 'package:pointycastle/key_derivators/api.dart';
+import 'package:pointycastle/key_derivators/pbkdf2.dart';
+import 'package:pointycastle/digests/sha256.dart';
+import 'package:pointycastle/macs/hmac.dart';
 
 class SecureKeyGenerator {
   /// 암호학적으로 안전한 랜덤 바이트 생성
@@ -17,7 +20,7 @@ class SecureKeyGenerator {
   /// 안전한 키 생성 (Base64 인코딩)
   static String generateSecureKey({int lengthInBytes = 32}) {
     final bytes = generateSecureRandomBytes(lengthInBytes);
-    return base64Url.encode(bytes);
+    return base64.encode(bytes);
   }
 
   /// 추가 엔트로피를 포함한 키 생성
@@ -25,17 +28,16 @@ class SecureKeyGenerator {
     int lengthInBytes = 32,
     String? additionalData,
   }) {
-    final timestamp = DateTime.now().millisecondsSinceEpoch.toString();
     final randomBytes = generateSecureRandomBytes(lengthInBytes);
-
-    // 추가 엔트로피 소스들을 결합
-    final entropy = utf8.encode(timestamp) +
-        randomBytes +
+    final entropy = randomBytes +
         (additionalData != null ? utf8.encode(additionalData) : []);
 
-    // SHA-256을 사용하여 해시
-    final hash = sha256.convert(entropy);
+    // PBKDF2 사용하여 키 스트레칭
+    final salt = generateSecureRandomBytes(16); // 랜덤 솔트
+    final pbkdf2 = PBKDF2KeyDerivator(HMac(SHA256Digest(), 64))
+      ..init(Pbkdf2Parameters(salt, 10000, lengthInBytes));
 
-    return base64.encode(hash.bytes);
+    final key = pbkdf2.process(Uint8List.fromList(entropy));
+    return base64.encode(key);
   }
 }

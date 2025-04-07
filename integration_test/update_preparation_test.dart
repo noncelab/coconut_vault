@@ -35,30 +35,9 @@ void main() {
       final savedPath = await UpdatePreparation.encryptAndSave(data: testData);
       expect(savedPath, isNotEmpty);
 
-      // Then: 저장된 파일 확인
-      final files = await UpdatePreparation.getEncryptedFiles();
-      expect(files.length, 1);
-      expect(files.first, savedPath);
-
       // And: 저장된 데이터 복호화 및 검증
-      final decryptedData =
-          await UpdatePreparation.readAndDecrypt(filePath: savedPath);
+      final decryptedData = await UpdatePreparation.readAndDecrypt();
       expect(decryptedData, testData);
-    });
-
-    testWidgets('Invalid file name test', (tester) async {
-      // Given
-      const invalidFileName = 'invalid_file_name.txt';
-
-      // When/Then
-      expect(
-        () => UpdatePreparation.readAndDecrypt(filePath: invalidFileName),
-        throwsA(isA<FormatException>().having(
-          (e) => e.message,
-          'message',
-          'Invalid backup file name',
-        )),
-      );
     });
   });
 }

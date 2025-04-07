@@ -17,6 +17,7 @@ class UpdatePreparation {
   static Future<String> encryptAndSave({
     required String data,
   }) async {
+    await deleteAllEncryptedFiles();
     final String keyString = SecureKeyGenerator.generateSecureKeyWithEntropy();
     Logger.log('keyString: $keyString');
     final encrypt.Key key = encrypt.Key.fromBase64(keyString);
@@ -41,18 +42,24 @@ class UpdatePreparation {
     await SecureStorageRepository()
         .write(key: SecureStorageKeys.kAes256Key, value: keyString);
 
+    Logger.log('savedPath: $savedPath');
     return savedPath;
   }
 
-  static Future<String> readAndDecrypt({
-    required String filePath,
-  }) async {
-    if (!regex.hasMatch(path.basename(filePath))) {
-      throw const FormatException('Invalid backup file name');
+  static Future<String> readAndDecrypt() async {
+    final file = await _getEncryptedFiles();
+
+    if (file.length != 1) {
+      throw AssertionError('Invalid number of encrypted files: ${file.length}');
+    }
+
+    final fileName = path.basename(file.first);
+    if (!regex.hasMatch(fileName)) {
+      throw FormatException('Invalid encrypted file format: $fileName');
     }
 
     final fileContent = await FileStorage.readFile(
-      fileName: filePath,
+      fileName: fileName,
       subDirectory: directory,
     );
 
@@ -79,13 +86,13 @@ class UpdatePreparation {
     return decryptedData;
   }
 
-  static Future<List<String>> getEncryptedFiles() async {
+  static Future<List<String>> _getEncryptedFiles() async {
     final files = await FileStorage.getFileList(subDirectory: directory);
     return files;
   }
 
   static Future<void> deleteAllEncryptedFiles() async {
-    final files = await getEncryptedFiles();
+    final files = await _getEncryptedFiles();
     for (final file in files) {
       await FileStorage.deleteFile(
         fileName: file,

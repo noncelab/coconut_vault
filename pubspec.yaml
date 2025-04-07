@@ -70,6 +70,7 @@ dependencies:
   slang_flutter: ^4.4.0
   coconut_lib: ^0.9.0
   coconut_design_system: ^0.7.1
+  pointycastle: ^3.9.1
 
 dev_dependencies:
   flutter_oss_licenses: ^3.0.2
