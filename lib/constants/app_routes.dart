@@ -26,4 +26,5 @@ class AppRoutes {
   static const String welcome = '/welcome';
   static const String connectivityGuide = '/connectivity-guide';
   static const String prepareUpdate = '/prepare-update';
+  static const String backupRecovery = "/backup-recovery";
 }
