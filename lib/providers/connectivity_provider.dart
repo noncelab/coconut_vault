@@ -30,8 +30,8 @@ class ConnectivityProvider extends ChangeNotifier {
 
   void Function(ConnectivityState)? onConnectivityStateChanged;
 
-  late StreamSubscription<BluetoothAdapterState> _bluetoothSubscription;
-  late StreamSubscription<List<ConnectivityResult>> _networkSubscription;
+  StreamSubscription<BluetoothAdapterState>? _bluetoothSubscription;
+  StreamSubscription<List<ConnectivityResult>>? _networkSubscription;
 
   static const MethodChannel _channel = MethodChannel(methodChannelOS);
 
@@ -161,8 +161,8 @@ class ConnectivityProvider extends ChangeNotifier {
 
   @override
   void dispose() {
-    _bluetoothSubscription.cancel();
-    _networkSubscription.cancel();
+    _bluetoothSubscription?.cancel();
+    _networkSubscription?.cancel();
     super.dispose();
   }
 }

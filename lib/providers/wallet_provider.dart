@@ -1,21 +1,23 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:coconut_lib/coconut_lib.dart';
+import 'package:coconut_vault/managers/wallet_list_manager.dart';
+import 'package:coconut_vault/model/common/secret.dart';
+import 'package:coconut_vault/model/common/vault_list_item_base.dart';
 import 'package:coconut_vault/model/multisig/multisig_import_detail.dart';
 import 'package:coconut_vault/model/multisig/multisig_signer.dart';
 import 'package:coconut_vault/model/multisig/multisig_vault_list_item.dart';
-import 'package:coconut_vault/model/single_sig/single_sig_vault_list_item.dart';
-import 'package:coconut_vault/model/common/vault_list_item_base.dart';
-import 'package:coconut_vault/enums/wallet_enums.dart';
 import 'package:coconut_vault/model/multisig/multisig_wallet.dart';
-import 'package:coconut_vault/model/common/secret.dart';
+import 'package:coconut_vault/model/single_sig/single_sig_vault_list_item.dart';
 import 'package:coconut_vault/model/single_sig/single_sig_wallet.dart';
-import 'package:coconut_vault/managers/wallet_list_manager.dart';
 import 'package:coconut_vault/model/exception/not_related_multisig_wallet_exception.dart';
 import 'package:coconut_vault/providers/visibility_provider.dart';
-import 'package:flutter/foundation.dart';
-import 'package:coconut_vault/utils/logger.dart';
+import 'package:coconut_vault/utils/coconut/update_preparation.dart';
 import 'package:coconut_vault/utils/vibration_util.dart';
+import 'package:coconut_vault/utils/logger.dart';
+import 'package:coconut_vault/enums/wallet_enums.dart';
+import 'package:flutter/foundation.dart';
 
 class WalletProvider extends ChangeNotifier {
   late final VisibilityProvider _visibilityProvider;
@@ -318,6 +320,25 @@ class WalletProvider extends ChangeNotifier {
 
   Future<Secret> getSecret(int id) async {
     return await _walletManager.getSecret(id);
+  }
+
+  Future<String> createBackupDataForAppUpdate() async {
+    final List<Map<String, dynamic>> backupData = [];
+
+    for (final vault in _vaultList) {
+      final vaultData = vault.toJson();
+
+      if (vault.vaultType == WalletType.singleSignature) {
+        final secret = await getSecret(vault.id);
+        vaultData['secret'] = secret.toJson();
+      }
+
+      backupData.add(vaultData);
+    }
+
+    final jsonData = jsonEncode(backupData);
+
+    return jsonData;
   }
 
   @override
