@@ -92,6 +92,8 @@ scan_qr_email_link: "네트워크가 활성화된 기기에서 QR 코드를 스�
 developer_option: "개발자 옵션"
 advanced_user: "고급 사용자"
 
+extra_count: "외 $count개"
+
 # lib
 vault_list_tab:
   add_wallet: "지갑을 추가해 주세요"
@@ -143,7 +145,7 @@ tutorial_screen:
   content: "인터넷 주소창에 입력해 주세요\ncoconut.onl"
 
 multisig:
-  nth_key: "$index번 키 -"
+  nth_key: "$index번 키"
 
 # lib/screens/airgap
 account_selection_bottom_sheet_screen:

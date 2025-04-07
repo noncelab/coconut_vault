@@ -67,7 +67,7 @@ class AuthProvider extends ChangeNotifier {
   bool get isPermanantlyLocked => _currentTurn == kMaxTurn;
 
   VoidCallback? onRequestShowAuthenticationFailedDialog;
-  VoidCallback? onBiometricAuthFailed;
+  VoidCallback? onBiometricAuthFailed; // 현재 사용하는 곳 없음
   VoidCallback? onAuthenticationSuccess;
 
   AuthProvider() {
@@ -123,7 +123,8 @@ class AuthProvider extends ChangeNotifier {
       );
 
       if (Platform.isIOS && !authenticated) {
-        if (context.mounted) {
+        if (context.mounted &&
+            onRequestShowAuthenticationFailedDialog != null) {
           onRequestShowAuthenticationFailedDialog!();
         }
       }
@@ -143,7 +144,8 @@ class AuthProvider extends ChangeNotifier {
             !authenticated &&
             e.message == 'Biometry is not available.' &&
             showAuthenticationFailedDialog) {
-          if (context.mounted) {
+          if (context.mounted &&
+              onRequestShowAuthenticationFailedDialog != null) {
             onRequestShowAuthenticationFailedDialog!();
           }
         }
@@ -208,7 +210,9 @@ class AuthProvider extends ChangeNotifier {
       showAuthenticationFailedDialog: false,
     );
     if (isAuthenticated) {
-      onAuthenticationSuccess!();
+      if (onAuthenticationSuccess != null) {
+        onAuthenticationSuccess!();
+      }
       resetAuthenticationState();
     }
   }

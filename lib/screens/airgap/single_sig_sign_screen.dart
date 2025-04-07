@@ -1,3 +1,4 @@
+import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_vault/constants/app_routes.dart';
 import 'package:coconut_vault/enums/pin_check_context_enum.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
@@ -171,6 +172,7 @@ class _SingleSigSignScreenState extends State<SingleSigSignScreen> {
                         children: [
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
                                 t.recipient,
@@ -178,10 +180,14 @@ class _SingleSigSignScreenState extends State<SingleSigSignScreen> {
                                     .copyWith(color: MyColors.grey57),
                               ),
                               Text(
+                                textAlign: TextAlign.end,
                                 TextUtils.truncateNameMax25(
-                                    viewModel.recipientAddress),
+                                        viewModel.firstRecipientAddress) +
+                                    (viewModel.recipientCount > 1
+                                        ? '\n${t.extra_count(count: viewModel.recipientCount - 1)}'
+                                        : ''),
                                 style: Styles.body1,
-                              ),
+                              )
                             ],
                           ),
                           const SizedBox(height: 20),

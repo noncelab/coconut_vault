@@ -12,7 +12,7 @@ class MultisigSignerBsmsExportViewModel extends ChangeNotifier {
   late bool _isLoading;
   late bool _isSignerBsmsSetFailed;
   late VaultListItemBase _vaultListItem;
-  BSMS? _bsms;
+  Bsms? _bsms;
   IsolateHandler<List<VaultListItemBase>, List<String>>
       extractBsmsIsolateHandler = IsolateHandler(extractSignerBsmsIsolate);
 
@@ -30,7 +30,7 @@ class MultisigSignerBsmsExportViewModel extends ChangeNotifier {
   String get errorMessage => _errorMessage;
   bool get isLoading => _isLoading;
   bool get isSignerBsmsSetFailed => _isSignerBsmsSetFailed;
-  BSMS? get bsms => _bsms;
+  Bsms? get bsms => _bsms;
 
   VaultListItemBase get vaultListItem => _vaultListItem;
 
@@ -60,7 +60,7 @@ class MultisigSignerBsmsExportViewModel extends ChangeNotifier {
           await extractBsmsIsolateHandler.run([_vaultListItem]);
 
       _qrData = bsmses[0];
-      _bsms = BSMS.parseSigner(_qrData);
+      _bsms = Bsms.parseSigner(_qrData);
     } catch (error) {
       _errorMessage = error.toString();
       _isSignerBsmsSetFailed = true;

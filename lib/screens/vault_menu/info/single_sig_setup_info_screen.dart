@@ -19,7 +19,7 @@ import 'package:coconut_vault/widgets/bottom_sheet.dart';
 import 'package:coconut_vault/widgets/bubble_clipper.dart';
 import 'package:coconut_vault/widgets/custom_loading_overlay.dart';
 import 'package:coconut_vault/widgets/custom_toast.dart';
-import 'package:coconut_vault/widgets/information_item_row.dart';
+import 'package:coconut_vault/widgets/card/information_item_card.dart';
 import 'package:loader_overlay/loader_overlay.dart';
 import 'package:provider/provider.dart';
 import 'package:shimmer/shimmer.dart';
@@ -323,7 +323,7 @@ class _SingleSigSetupInfoScreenState extends State<SingleSigSetupInfoScreen> {
                   // const Divider(
                   //     color: MyColors.borderLightgrey,
                   //     height: 1),
-                  InformationRowItem(
+                  InformationItemCard(
                     label: t.view_mnemonic,
                     showIcon: true,
                     onPressed: () {
@@ -355,7 +355,7 @@ class _SingleSigSetupInfoScreenState extends State<SingleSigSetupInfoScreen> {
                           walletName: viewModel.name,
                         ),
                     builder: (context, data, child) {
-                      return InformationRowItem(
+                      return InformationItemCard(
                         label: t.delete,
                         showIcon: true,
                         textColor: viewModel.hasLinkedMultisigVault

@@ -19,7 +19,7 @@ import 'package:coconut_vault/widgets/bubble_clipper.dart';
 import 'package:coconut_vault/widgets/card/vault_item_card.dart';
 import 'package:coconut_vault/widgets/custom_loading_overlay.dart';
 import 'package:coconut_vault/widgets/custom_toast.dart';
-import 'package:coconut_vault/widgets/information_item_row.dart';
+import 'package:coconut_vault/widgets/card/information_item_card.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:loader_overlay/loader_overlay.dart';
@@ -336,7 +336,7 @@ class _MultisigSetupInfoScreenState extends State<MultisigSetupInfoScreen> {
           padding: const EdgeInsets.symmetric(horizontal: 24),
           child: Column(
             children: [
-              InformationRowItem(
+              InformationItemCard(
                 label: t.multi_sig_setting_screen.view_bsms,
                 showIcon: true,
                 onPressed: () {
@@ -367,7 +367,7 @@ class _MultisigSetupInfoScreenState extends State<MultisigSetupInfoScreen> {
         ),
         child: Column(
           children: [
-            InformationRowItem(
+            InformationItemCard(
               label: t.delete,
               showIcon: true,
               rightIcon: Container(

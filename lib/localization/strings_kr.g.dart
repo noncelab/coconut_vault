@@ -129,6 +129,7 @@ class Translations implements BaseTranslations<AppLocale, Translations> {
       '네트워크가 활성화된 기기에서 QR 코드를 스캔하시거나 위의 주소로 메일을 전송해 주세요';
   String get developer_option => '개발자 옵션';
   String get advanced_user => '고급 사용자';
+  String extra_count({required Object count}) => '외 ${count}개';
   late final TranslationsVaultListTabKr vault_list_tab =
       TranslationsVaultListTabKr.internal(_root);
   late final TranslationsAppUnavailableNotificationScreenKr
@@ -1445,6 +1446,8 @@ extension on Translations {
         return '개발자 옵션';
       case 'advanced_user':
         return '고급 사용자';
+      case 'extra_count':
+        return ({required Object count}) => '외 ${count}개';
       case 'vault_list_tab.add_wallet':
         return '지갑을 추가해 주세요';
       case 'vault_list_tab.top_right_icon':
@@ -1524,7 +1527,7 @@ extension on Translations {
       case 'tutorial_screen.content':
         return '인터넷 주소창에 입력해 주세요\ncoconut.onl';
       case 'multisig.nth_key':
-        return ({required Object index}) => '${index}번 키 -';
+        return ({required Object index}) => '${index}번 키';
       case 'account_selection_bottom_sheet_screen.text':
         return '서명할 계정을 선택해주세요.';
       case 'psbt_confirmation_screen.title':
