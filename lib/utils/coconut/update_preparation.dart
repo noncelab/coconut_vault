@@ -43,23 +43,16 @@ class UpdatePreparation {
         .write(key: SecureStorageKeys.kAes256Key, value: keyString);
 
     Logger.log('savedPath: $savedPath');
+
+    await validatePreparationState();
     return savedPath;
   }
 
   static Future<String> readAndDecrypt() async {
+    await validatePreparationState();
     final file = await _getEncryptedFiles();
-
-    if (file.length != 1) {
-      throw AssertionError('Invalid number of encrypted files: ${file.length}');
-    }
-
-    final fileName = path.basename(file.first);
-    if (!regex.hasMatch(fileName)) {
-      throw FormatException('Invalid encrypted file format: $fileName');
-    }
-
     final fileContent = await FileStorage.readFile(
-      fileName: fileName,
+      fileName: path.basename(file.first),
       subDirectory: directory,
     );
 
@@ -101,5 +94,24 @@ class UpdatePreparation {
     }
 
     await SecureStorageRepository().delete(key: SecureStorageKeys.kAes256Key);
+  }
+
+  static Future<void> validatePreparationState() async {
+    final files = await _getEncryptedFiles();
+    if (files.length != 1) {
+      throw AssertionError(
+          'Invalid number of encrypted files: ${files.length}');
+    }
+
+    if (!regex.hasMatch(path.basename(files.first))) {
+      throw FormatException(
+          'Invalid encrypted file format: ${path.basename(files.first)}');
+    }
+
+    if (await SecureStorageRepository()
+            .read(key: SecureStorageKeys.kAes256Key) ==
+        null) {
+      throw AssertionError('Aes256Key is not found');
+    }
   }
 }
