@@ -167,7 +167,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       isDeleteScreen: true,
                       onComplete: () async {
                         Navigator.pop(context);
-                        Navigator.pushNamed(context, AppRoutes.backupRecovery);
+                        Navigator.pushNamed(context, AppRoutes.restorationInfo);
                       },
                     ),
                   ),

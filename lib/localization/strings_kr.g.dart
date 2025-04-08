@@ -232,8 +232,10 @@ class Translations implements BaseTranslations<AppLocale, Translations> {
       TranslationsVaultSettingsKr.internal(_root);
   late final TranslationsPrepareUpdateKr prepare_update =
       TranslationsPrepareUpdateKr.internal(_root);
-  late final TranslationsBackupRecoveryKr backup_recovery =
-      TranslationsBackupRecoveryKr.internal(_root);
+  late final TranslationsRestorationInfoKr restoration_info =
+      TranslationsRestorationInfoKr.internal(_root);
+  late final TranslationsVaultListRestorationKr vault_list_restoration =
+      TranslationsVaultListRestorationKr.internal(_root);
   late final TranslationsBottomSheetKr bottom_sheet =
       TranslationsBottomSheetKr.internal(_root);
   late final TranslationsPermissionKr permission =
@@ -914,9 +916,9 @@ class TranslationsPrepareUpdateKr {
       ];
 }
 
-// Path: backup_recovery
-class TranslationsBackupRecoveryKr {
-  TranslationsBackupRecoveryKr.internal(this._root);
+// Path: restoration_info
+class TranslationsRestorationInfoKr {
+  TranslationsRestorationInfoKr.internal(this._root);
 
   final Translations _root; // ignore: unused_field
 
@@ -924,6 +926,15 @@ class TranslationsBackupRecoveryKr {
   String get found_title => '🔎 복원 파일을 발견했어요';
   String get found_description =>
       '앱 업데이트가 완료되지 않았어요\n앱을 업데이트 하시거나,\n계속 진행하시려면 지갑을 복원해주세요';
+}
+
+// Path: vault_list_restoration
+class TranslationsVaultListRestorationKr {
+  TranslationsVaultListRestorationKr.internal(this._root);
+
+  final Translations _root; // ignore: unused_field
+
+  // Translations
   String get in_progress_title => '⏳ 지갑을 복원 중이에요';
   String get in_progress_description => '잠시만 기다려 주세요.\n곧 완료됩니다!';
   String get completed_title => '🎉 지갑을 복원했어요!';
@@ -2022,19 +2033,19 @@ extension on Translations {
         return '앱스토어에서 업데이트를 진행해 주세요.';
       case 'prepare_update.steps.2':
         return '업데이트가 끝나면 네트워크를 끄고 볼트를 켜세요.';
-      case 'backup_recovery.found_title':
+      case 'restoration_info.found_title':
         return '🔎 복원 파일을 발견했어요';
-      case 'backup_recovery.found_description':
+      case 'restoration_info.found_description':
         return '앱 업데이트가 완료되지 않았어요\n앱을 업데이트 하시거나,\n계속 진행하시려면 지갑을 복원해주세요';
-      case 'backup_recovery.in_progress_title':
+      case 'vault_list_restoration.in_progress_title':
         return '⏳ 지갑을 복원 중이에요';
-      case 'backup_recovery.in_progress_description':
+      case 'vault_list_restoration.in_progress_description':
         return '잠시만 기다려 주세요.\n곧 완료됩니다!';
-      case 'backup_recovery.completed_title':
+      case 'vault_list_restoration.completed_title':
         return '🎉 지갑을 복원했어요!';
-      case 'backup_recovery.completed_description':
+      case 'vault_list_restoration.completed_description':
         return ({required Object count}) => '지갑 ${count}개를 복원했어요';
-      case 'backup_recovery.start_vault':
+      case 'vault_list_restoration.start_vault':
         return '볼트 시작하기';
       case 'bottom_sheet.view_mit_license':
         return 'MIT 라이선스 전문 보기';
