@@ -17,7 +17,7 @@ class UpdatePreparation {
   static Future<String> encryptAndSave({
     required String data,
   }) async {
-    await deleteAllEncryptedFiles();
+    await clearUpdatePreparationStorage();
     final String keyString = SecureKeyGenerator.generateSecureKeyWithEntropy();
     Logger.log('keyString: $keyString');
     final encrypt.Key key = encrypt.Key.fromBase64(keyString);
@@ -91,7 +91,7 @@ class UpdatePreparation {
     return files;
   }
 
-  static Future<void> deleteAllEncryptedFiles() async {
+  static Future<void> clearUpdatePreparationStorage() async {
     final files = await _getEncryptedFiles();
     for (final file in files) {
       await FileStorage.deleteFile(

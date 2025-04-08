@@ -21,7 +21,7 @@ void main() {
   group('UpdatePreparation Integration Tests', () {
     tearDown(() async {
       // 각 테스트 후 암호화된 파일들과 저장된 키 삭제
-      await UpdatePreparation.deleteAllEncryptedFiles();
+      await UpdatePreparation.clearUpdatePreparationStorage();
       await SecureStorageRepository().delete(key: SecureStorageKeys.kAes256Key);
     });
 
