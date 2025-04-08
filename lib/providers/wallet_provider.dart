@@ -13,7 +13,6 @@ import 'package:coconut_vault/model/single_sig/single_sig_vault_list_item.dart';
 import 'package:coconut_vault/model/single_sig/single_sig_wallet.dart';
 import 'package:coconut_vault/model/exception/not_related_multisig_wallet_exception.dart';
 import 'package:coconut_vault/providers/visibility_provider.dart';
-import 'package:coconut_vault/utils/coconut/update_preparation.dart';
 import 'package:coconut_vault/utils/vibration_util.dart';
 import 'package:coconut_vault/utils/logger.dart';
 import 'package:coconut_vault/enums/wallet_enums.dart';
@@ -245,12 +244,19 @@ class WalletProvider extends ChangeNotifier {
     return vaultIndex != -1;
   }
 
-  Future<void> deleteVault(int id) async {
+  Future<void> deleteOne(int id) async {
     if (await _walletManager.deleteWallet(id)) {
       _vaultList = _walletManager.vaultList;
       notifyListeners();
       _updateWalletLength();
     }
+  }
+
+  Future<void> deleteWallets() async {
+    await _walletManager.deleteWallets();
+    _vaultList = _walletManager.vaultList;
+    notifyListeners();
+    _updateWalletLength();
   }
 
   Future<void> loadVaultList() async {
@@ -322,7 +328,7 @@ class WalletProvider extends ChangeNotifier {
     return await _walletManager.getSecret(id);
   }
 
-  Future<String> createBackupDataForAppUpdate() async {
+  Future<String> createBackupData() async {
     final List<Map<String, dynamic>> backupData = [];
 
     for (final vault in _vaultList) {
@@ -330,7 +336,8 @@ class WalletProvider extends ChangeNotifier {
 
       if (vault.vaultType == WalletType.singleSignature) {
         final secret = await getSecret(vault.id);
-        vaultData['secret'] = secret.toJson();
+        vaultData['secret'] = secret.mnemonic;
+        vaultData['passphrase'] = secret.passphrase;
       }
 
       backupData.add(vaultData);
@@ -339,6 +346,18 @@ class WalletProvider extends ChangeNotifier {
     final jsonData = jsonEncode(backupData);
 
     return jsonData;
+  }
+
+  Future<void> restoreFromBackupData(String jsonData) async {
+    final List<Map<String, dynamic>> backupDataMapList = jsonDecode(jsonData)
+        .map<Map<String, dynamic>>((e) => Map<String, dynamic>.from(e))
+        .toList();
+
+    await _walletManager.restoreFromBackupData(backupDataMapList);
+    _vaultList = _walletManager.vaultList;
+
+    notifyListeners();
+    await _updateWalletLength();
   }
 
   @override
