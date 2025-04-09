@@ -269,7 +269,9 @@ class _AppUpdatePreparationScreenState extends State<AppUpdatePreparationScreen>
     return Center(
       child: Column(
         children: [
-          CoconutLayout.spacing_1600h,
+          Container(
+            height: CoconutLayout.spacing_2500h.height! - kToolbarHeight,
+          ),
           Text(
             t.prepare_update.title,
             style: CoconutTypography.heading4_18_Bold,
@@ -293,7 +295,9 @@ class _AppUpdatePreparationScreenState extends State<AppUpdatePreparationScreen>
     return Center(
       child: Column(
         children: [
-          CoconutLayout.spacing_1600h,
+          Container(
+            height: CoconutLayout.spacing_2500h.height! - kToolbarHeight,
+          ),
           Text(
             // TODO 지갑이름, value 삽입
             t.prepare_update
@@ -312,7 +316,9 @@ class _AppUpdatePreparationScreenState extends State<AppUpdatePreparationScreen>
     return Center(
       child: Column(
         children: [
-          CoconutLayout.spacing_1600h,
+          Container(
+            height: CoconutLayout.spacing_2500h.height! - kToolbarHeight,
+          ),
           Text(
             t.prepare_update.update_preparing_title,
             style: CoconutTypography.heading4_18_Bold,
@@ -361,7 +367,7 @@ class _AppUpdatePreparationScreenState extends State<AppUpdatePreparationScreen>
           Positioned(
             left: 0,
             right: 0,
-            top: 162,
+            top: CoconutLayout.spacing_2500h.height!,
             bottom: 0,
             child:
                 // 이전 위젯 - Slide Out
@@ -373,7 +379,7 @@ class _AppUpdatePreparationScreenState extends State<AppUpdatePreparationScreen>
         Positioned(
           left: 0,
           right: 0,
-          top: 162,
+          top: CoconutLayout.spacing_2500h.height!,
           bottom: 0,
           child:
               // 현재 위젯 - Scale In
@@ -399,7 +405,7 @@ class _AppUpdatePreparationScreenState extends State<AppUpdatePreparationScreen>
           left: 0,
           right: 0,
           top: 0,
-          bottom: 32,
+          bottom: 0,
           child: Center(
             child: Stack(
               alignment: Alignment.center, // 중앙 정렬
@@ -433,13 +439,6 @@ class _AppUpdatePreparationScreenState extends State<AppUpdatePreparationScreen>
               ],
             ),
           ),
-        ),
-        Positioned(
-          left: 0,
-          right: 0,
-          bottom: 80,
-          child: CoconutButton(
-              onPressed: () => _startProgress(), text: '임시 버튼 (재실행)'),
         ),
       ],
     );
@@ -482,7 +481,9 @@ class _AppUpdatePreparationScreenState extends State<AppUpdatePreparationScreen>
         children: [
           Column(
             children: [
-              CoconutLayout.spacing_2500h,
+              Container(
+                height: CoconutLayout.spacing_2500h.height!,
+              ),
               AnimatedBuilder(
                 animation: _animationController,
                 builder: (context, child) {
