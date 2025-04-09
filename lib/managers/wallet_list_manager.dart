@@ -363,10 +363,14 @@ class WalletListManager {
   Future<void> restoreFromBackupData(
       List<Map<String, dynamic>> backupData) async {
     final List<VaultListItemBase> vaultList = [];
+    var initIsolateHandler =
+        IsolateHandler<Map<String, dynamic>, VaultListItemBase>(
+            initializeWallet);
+    await initIsolateHandler.initialize(
+        initialType: InitializeType.initializeWallet);
     for (final data in backupData) {
-      VaultListItemBase? wallet;
+      VaultListItemBase wallet = await initIsolateHandler.run(data);
       if (data['vaultType'] == WalletType.singleSignature.name) {
-        wallet = SingleSigVaultListItem.fromJson(data);
         String keyString =
             _createWalletKeyString(wallet.id, WalletType.singleSignature);
         _storageService.write(
@@ -374,14 +378,13 @@ class WalletListManager {
             value: jsonEncode(Secret(data[SingleSigVaultListItem.secretField],
                     data[SingleSigVaultListItem.passphraseField] ?? '')
                 .toJson()));
-      } else if (data['vaultType'] == WalletType.multiSignature.name) {
-        wallet = MultisigVaultListItem.fromJson(data);
       }
-      vaultList.add(wallet!);
+      vaultList.add(wallet);
     }
 
     _vaultList = vaultList;
     _savePublicInfo();
+    initIsolateHandler.dispose();
   }
 
   /// 1.0.x 버전에서 2.0.0으로 업데이트 한 지갑인지 확인 후 마이그레이션 합니다.
