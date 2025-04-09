@@ -187,7 +187,8 @@ class _VaultListRestorationScreenState extends State<VaultListRestorationScreen>
                             if (!_viewModel.isVaultListRestored)
                               Center(
                                   child: PercentProgressIndicator(
-                                      progressController: _progressController)),
+                                      progressController: _progressController,
+                                      textColor: const Color(0xFF1E88E5))),
                           ],
                         ),
                       ),

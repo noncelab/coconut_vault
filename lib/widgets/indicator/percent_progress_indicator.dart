@@ -32,7 +32,7 @@ class _PercentProgressIndicatorState extends State<PercentProgressIndicator> {
           radius: widget.radius ?? 90,
           gradientColors: widget.gradientColors ??
               const [
-                Colors.white,
+                CoconutColors.white,
                 Color.fromARGB(255, 164, 214, 250),
               ],
           strokeWidth: widget.strokeWidth ?? 36.0,
@@ -46,14 +46,14 @@ class _PercentProgressIndicatorState extends State<PercentProgressIndicator> {
             Text(
               (widget.progressController.value * 100).toStringAsFixed(0),
               style: CoconutTypography.heading1_32_Bold
-                  .setColor(widget.textColor ?? const Color(0xFF1E88E5))
+                  .setColor(widget.textColor ?? CoconutColors.black)
                   .merge(const TextStyle(fontWeight: FontWeight.w900)),
             ),
             CoconutLayout.spacing_100w,
             Text(
               '%',
               style: CoconutTypography.body1_16_Bold
-                  .setColor(widget.textColor ?? const Color(0xFF42A5F5)),
+                  .setColor(widget.textColor ?? CoconutColors.black),
             ),
           ],
         ),
