@@ -901,11 +901,10 @@ class TranslationsPrepareUpdateKr {
       '이 단계를 마치면\n앱 업데이트 후 지갑을 안전하고 편리하게\n복원할 수 있습니다';
   String get completed_title => '🎉 업데이트 준비가 끝났어요!';
   String get completed_description => '이제 볼트를 업데이트해 주세요';
-  List<String> get steps => [
-        '앱을 종료하고 네트워크를 켜주세요.',
-        '앱스토어에서 업데이트를 진행해 주세요.',
-        '업데이트가 끝나면 네트워크를 끄고 볼트를 켜세요.',
-      ];
+  String get step0 => '앱을 종료하고 네트워크를 켜주세요.';
+  String get step1_android => '구글 플레이스토어에서 업데이트를 진행해 주세요.';
+  String get step1_ios => '앱스토어에서 업데이트를 진행해 주세요.';
+  String get step2 => '업데이트가 끝나면 네트워크를 끄고 볼트를 켜세요.';
 }
 
 // Path: restore_vault
@@ -2009,11 +2008,13 @@ extension on Translations {
         return '🎉 업데이트 준비가 끝났어요!';
       case 'prepare_update.completed_description':
         return '이제 볼트를 업데이트해 주세요';
-      case 'prepare_update.steps.0':
+      case 'prepare_update.step0':
         return '앱을 종료하고 네트워크를 켜주세요.';
-      case 'prepare_update.steps.1':
+      case 'prepare_update.step1_android':
+        return '구글 플레이스토어에서 업데이트를 진행해 주세요.';
+      case 'prepare_update.step1_ios':
         return '앱스토어에서 업데이트를 진행해 주세요.';
-      case 'prepare_update.steps.2':
+      case 'prepare_update.step2':
         return '업데이트가 끝나면 네트워크를 끄고 볼트를 켜세요.';
       case 'restore_vault.found_title':
         return '🔎 복원 파일을 발견했어요';

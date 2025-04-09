@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/providers/view_model/create_backup_view_model.dart';
@@ -148,25 +150,25 @@ class _AppUpdatePreparationScreenState extends State<AppUpdatePreparationScreen>
                         isLeadingVisible: !_isInProgressStep(),
                       )
                     : null,
-                body: Container(
-                  width: MediaQuery.sizeOf(context).width,
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: CoconutLayout.defaultPadding,
-                  ),
-                  height: MediaQuery.sizeOf(context).height -
-                      kToolbarHeight -
-                      MediaQuery.of(context).padding.top,
-                  child: Stack(
-                    children: [
-                      _getBodyWidget(),
-                      if (_currentStep == AppUpdateStep.initial ||
-                          _currentStep == AppUpdateStep.confirmUpdate)
-                        Positioned(
-                            left: 0,
-                            right: 0,
-                            bottom: 40,
-                            child: _buildNextButton()),
-                    ],
+                body: SafeArea(
+                  child: Container(
+                    width: MediaQuery.sizeOf(context).width,
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: CoconutLayout.defaultPadding,
+                    ),
+                    height: MediaQuery.sizeOf(context).height,
+                    child: Stack(
+                      children: [
+                        _getBodyWidget(),
+                        if (_currentStep == AppUpdateStep.initial ||
+                            _currentStep == AppUpdateStep.confirmUpdate)
+                          Positioned(
+                              left: 0,
+                              right: 0,
+                              bottom: 40,
+                              child: _buildNextButton()),
+                      ],
+                    ),
                   ),
                 ),
               ),
@@ -180,13 +182,13 @@ class _AppUpdatePreparationScreenState extends State<AppUpdatePreparationScreen>
   Widget _getBodyWidget() {
     switch (_currentStep) {
       case AppUpdateStep.initial:
-        return _buildStartWidget();
+        return _buildInitialWidget();
       case AppUpdateStep.validateMnemonic:
-        return _buildMnemonicValidateWidget();
+        return _buildValidateMnemonicWidget();
       case AppUpdateStep.confirmUpdate:
-        return _buildBeforeUpdateWidget();
+        return _buildConfirmUpdateWidget();
       case AppUpdateStep.completed:
-        return _buildPrepareUpdateCompleteWidget();
+        return _buildCompletedWidget();
       case AppUpdateStep.generateSafetyKey:
       case AppUpdateStep.saveWalletData:
       case AppUpdateStep.verifyBackupFile:
@@ -228,9 +230,9 @@ class _AppUpdatePreparationScreenState extends State<AppUpdatePreparationScreen>
   }
 
   void _onNextButtonPressed() async {
-    // PrepareUpdateLevel.start 상태에서는 mnemonicValidate으로 전환,
-    // PrepareUpdateLevel.beforeUpdate 상태에서는 creatingSafetyKey으로 전환
-    // PrepareUpdateLevel.beforeUpdate 전환직후 _nextButtonEnabled이 false로 설정되고 countdown 5초 후 _nextButtonEnabled이 true로 변경됨
+    // AppUpdateStep.initial 상태에서는 validateMnemonic 전환,
+    // AppUpdateStep.confirmUpdate 상태에서는 generateSafetyKey 전환
+    // AppUpdateStep.confirmUpdate 전환직후 _nextButtonEnabled이 false로 설정되고 countdown 5초 후 _nextButtonEnabled이 true로 변경됨
     if (_currentStep == AppUpdateStep.initial) {
       setState(() {
         _currentStep = AppUpdateStep.validateMnemonic;
@@ -262,8 +264,8 @@ class _AppUpdatePreparationScreenState extends State<AppUpdatePreparationScreen>
     }
   }
 
-  // PrepareUpdateLevel.start 상태에서 보여지는 위젯
-  Widget _buildStartWidget() {
+  // AppUpdateStep.initial 상태에서 보여지는 위젯
+  Widget _buildInitialWidget() {
     return Center(
       child: Column(
         children: [
@@ -286,8 +288,8 @@ class _AppUpdatePreparationScreenState extends State<AppUpdatePreparationScreen>
     );
   }
 
-  // PrepareUpdateLevel.mnemonicValidate 상태에서 보여지는 위젯
-  Widget _buildMnemonicValidateWidget() {
+  // AppUpdateStep.validateMnemonic 상태에서 보여지는 위젯
+  Widget _buildValidateMnemonicWidget() {
     return Center(
       child: Column(
         children: [
@@ -305,8 +307,8 @@ class _AppUpdatePreparationScreenState extends State<AppUpdatePreparationScreen>
     );
   }
 
-  // PrepareUpdateLevel.beforeUpdate 상태에서 보여지는 위젯
-  Widget _buildBeforeUpdateWidget() {
+  // AppUpdateStep.confirmUpdate 상태에서 보여지는 위젯
+  Widget _buildConfirmUpdateWidget() {
     return Center(
       child: Column(
         children: [
@@ -345,7 +347,7 @@ class _AppUpdatePreparationScreenState extends State<AppUpdatePreparationScreen>
     );
   }
 
-  // PrepareUpdateLevel: creatingSafetyKey, savingWalletData, checkingBackupFile 상태에서 보여지는 위젯
+  // AppUpdateStep: generateSafetyKey, saveWalletData, verifyBackupFile 상태에서 보여지는 위젯
   Widget _buildUpdateProcessWidget() {
     int index = _currentStep == AppUpdateStep.generateSafetyKey
         ? 0
@@ -443,7 +445,7 @@ class _AppUpdatePreparationScreenState extends State<AppUpdatePreparationScreen>
     );
   }
 
-  // PrepareUpdateLevel: creatingSafetyKey, savingWalletData, checkingBackupFile 상태에서 보여지는 타이틀 위젯
+  // AppUpdateStep: generateSafetyKey, saveWalletData, verifyBackupFile 상태에서 보여지는 타이틀 위젯
   Widget _buildSlideAnimationTitleWidget(int index) {
     return Column(
       children: [
@@ -465,17 +467,22 @@ class _AppUpdatePreparationScreenState extends State<AppUpdatePreparationScreen>
     );
   }
 
-  // PrepareUpdateLevel.prepareUpdateComplete 상태에서 보여지는 위젯
-  Widget _buildPrepareUpdateCompleteWidget() {
+  // AppUpdateStep.completed 상태에서 보여지는 위젯
+  Widget _buildCompletedWidget() {
+    final updateInstructions = [
+      t.prepare_update.step0,
+      Platform.isAndroid
+          ? t.prepare_update.step1_android
+          : t.prepare_update.step1_ios,
+      t.prepare_update.step2,
+    ];
     return Center(
       child: Stack(
         // 임시 버튼 없애면 stack 제거
         children: [
           Column(
             children: [
-              const SizedBox(
-                height: 162,
-              ),
+              CoconutLayout.spacing_2500h,
               AnimatedBuilder(
                 animation: _animationController,
                 builder: (context, child) {
@@ -531,7 +538,7 @@ class _AppUpdatePreparationScreenState extends State<AppUpdatePreparationScreen>
                             ),
                             Expanded(
                               child: Text(
-                                t.prepare_update.steps[index],
+                                updateInstructions[index],
                                 style: CoconutTypography.body2_14_Bold,
                               ),
                             ),
