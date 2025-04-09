@@ -41,6 +41,7 @@ restore: "복원하기"
 change: "잔돈"
 receiving: "입금"
 info: "정보"
+word: "단어"
 email_subject: "[코코넛 볼트] 이용 관련 문의"
 
 signature: "서명"
@@ -89,6 +90,7 @@ forgot_password: "비밀번호가 기억나지 않나요?"
 scan_qr_url_link: "네트워크가 활성화된 기기에서 QR 코드를 스캔하시거나 위의 URL 주소로 접속해 주세요."
 scan_qr_email_link: "네트워크가 활성화된 기기에서 QR 코드를 스캔하시거나 위의 주소로 메일을 전송해 주세요"
 developer_option: "개발자 옵션"
+advanced_user: "고급 사용자"
 
 extra_count: "외 $count개"
 
@@ -203,6 +205,7 @@ settings_screen:
   use_biometric: "생체 인증 사용하기"
   change_password: "비밀번호 바꾸기"
   set_password: "비밀번호 설정하기"
+  use_passphase: "패스프레이즈 사용하기"
 
 # lib/screens/start_guide
 guide_screen:
@@ -267,6 +270,8 @@ mnemonic_import_screen:
   put_spaces_between_words: "단어 사이에 띄어쓰기를 넣어주세요"
   use_passphrase: "패스프레이즈 사용"
   enter_passphrase: "패스프레이즈를 입력해 주세요"
+  need_advanced_mode: "⚠︎ 패스프레이즈를 사용하시려면 설정 화면으로 이동하여 '패스프레이즈 사용하기'를 켜주세요"
+  open_settings: "설정 화면 열기"
 select_vault_type_screen:
   title: "지갑 만들기"
   single_sig: "하나의 니모닉 문구를 보관하는 단일 서명 지갑이에요"

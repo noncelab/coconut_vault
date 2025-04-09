@@ -81,6 +81,7 @@ class Translations implements BaseTranslations<AppLocale, Translations> {
   String get change => '잔돈';
   String get receiving => '입금';
   String get info => '정보';
+  String get word => '단어';
   String get email_subject => '[코코넛 볼트] 이용 관련 문의';
   String get signature => '서명';
   String get sign_completion => '서명 완료';
@@ -127,6 +128,7 @@ class Translations implements BaseTranslations<AppLocale, Translations> {
   String get scan_qr_email_link =>
       '네트워크가 활성화된 기기에서 QR 코드를 스캔하시거나 위의 주소로 메일을 전송해 주세요';
   String get developer_option => '개발자 옵션';
+  String get advanced_user => '고급 사용자';
   String extra_count({required Object count}) => '외 ${count}개';
   late final TranslationsVaultListTabKr vault_list_tab =
       TranslationsVaultListTabKr.internal(_root);
@@ -344,7 +346,7 @@ class TranslationsMultisigKr {
   final Translations _root; // ignore: unused_field
 
   // Translations
-  String nth_key({required Object index}) => '${index}번 키';
+  String nth_key({required Object index}) => '${index}번 키 -';
 }
 
 // Path: account_selection_bottom_sheet_screen
@@ -493,6 +495,7 @@ class TranslationsSettingsScreenKr {
   String get use_biometric => '생체 인증 사용하기';
   String get change_password => '비밀번호 바꾸기';
   String get set_password => '비밀번호 설정하기';
+  String get use_passphase => '패스프레이즈 사용하기';
 }
 
 // Path: guide_screen
@@ -601,6 +604,9 @@ class TranslationsMnemonicImportScreenKr {
   String get put_spaces_between_words => '단어 사이에 띄어쓰기를 넣어주세요';
   String get use_passphrase => '패스프레이즈 사용';
   String get enter_passphrase => '패스프레이즈를 입력해 주세요';
+  String get need_advanced_mode =>
+      '⚠︎ 패스프레이즈를 사용하시려면 설정 화면으로 이동하여 \'패스프레이즈 사용하기\'를 켜주세요';
+  String get open_settings => '설정 화면 열기';
 }
 
 // Path: select_vault_type_screen
@@ -1349,6 +1355,8 @@ extension on Translations {
         return '입금';
       case 'info':
         return '정보';
+      case 'word':
+        return '단어';
       case 'email_subject':
         return '[코코넛 볼트] 이용 관련 문의';
       case 'signature':
@@ -1436,6 +1444,8 @@ extension on Translations {
         return '네트워크가 활성화된 기기에서 QR 코드를 스캔하시거나 위의 주소로 메일을 전송해 주세요';
       case 'developer_option':
         return '개발자 옵션';
+      case 'advanced_user':
+        return '고급 사용자';
       case 'extra_count':
         return ({required Object count}) => '외 ${count}개';
       case 'vault_list_tab.add_wallet':
@@ -1604,6 +1614,8 @@ extension on Translations {
         return '비밀번호 바꾸기';
       case 'settings_screen.set_password':
         return '비밀번호 설정하기';
+      case 'settings_screen.use_passphase':
+        return '패스프레이즈 사용하기';
       case 'guide_screen.keep_network_off':
         return '안전한 비트코인 보관을 위해,\n항상 연결 상태를 OFF로 유지해주세요';
       case 'guide_screen.network_status':
@@ -1710,6 +1722,10 @@ extension on Translations {
         return '패스프레이즈 사용';
       case 'mnemonic_import_screen.enter_passphrase':
         return '패스프레이즈를 입력해 주세요';
+      case 'mnemonic_import_screen.need_advanced_mode':
+        return '⚠︎ 패스프레이즈를 사용하시려면 설정 화면으로 이동하여 \'패스프레이즈 사용하기\'를 켜주세요';
+      case 'mnemonic_import_screen.open_settings':
+        return '설정 화면 열기';
       case 'select_vault_type_screen.title':
         return '지갑 만들기';
       case 'select_vault_type_screen.single_sig':
