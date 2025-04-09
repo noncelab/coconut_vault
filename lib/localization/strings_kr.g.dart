@@ -22,15 +22,17 @@ class Translations implements BaseTranslations<AppLocale, Translations> {
   Translations(
       {Map<String, Node>? overrides,
       PluralResolver? cardinalResolver,
-      PluralResolver? ordinalResolver})
+      PluralResolver? ordinalResolver,
+      TranslationMetadata<AppLocale, Translations>? meta})
       : assert(overrides == null,
             'Set "translation_overrides: true" in order to enable this feature.'),
-        $meta = TranslationMetadata(
-          locale: AppLocale.kr,
-          overrides: overrides ?? {},
-          cardinalResolver: cardinalResolver,
-          ordinalResolver: ordinalResolver,
-        ) {
+        $meta = meta ??
+            TranslationMetadata(
+              locale: AppLocale.kr,
+              overrides: overrides ?? {},
+              cardinalResolver: cardinalResolver,
+              ordinalResolver: ordinalResolver,
+            ) {
     $meta.setFlatMapFunction(_flatMapFunction);
   }
 
@@ -42,6 +44,10 @@ class Translations implements BaseTranslations<AppLocale, Translations> {
   dynamic operator [](String key) => $meta.getTranslation(key);
 
   late final Translations _root = this; // ignore: unused_field
+
+  Translations $copyWith(
+          {TranslationMetadata<AppLocale, Translations>? meta}) =>
+      Translations(meta: meta ?? this.$meta);
 
   // Translations
   String get coconut_vault => 'Coconut Vault';
@@ -226,8 +232,10 @@ class Translations implements BaseTranslations<AppLocale, Translations> {
       TranslationsVaultSettingsKr.internal(_root);
   late final TranslationsPrepareUpdateKr prepare_update =
       TranslationsPrepareUpdateKr.internal(_root);
-  late final TranslationsRestoreVaultKr restore_vault =
-      TranslationsRestoreVaultKr.internal(_root);
+  late final TranslationsRestorationInfoKr restoration_info =
+      TranslationsRestorationInfoKr.internal(_root);
+  late final TranslationsVaultListRestorationKr vault_list_restoration =
+      TranslationsVaultListRestorationKr.internal(_root);
   late final TranslationsBottomSheetKr bottom_sheet =
       TranslationsBottomSheetKr.internal(_root);
   late final TranslationsPermissionKr permission =
@@ -907,9 +915,9 @@ class TranslationsPrepareUpdateKr {
   String get step2 => '업데이트가 끝나면 네트워크를 끄고 볼트를 켜세요.';
 }
 
-// Path: restore_vault
-class TranslationsRestoreVaultKr {
-  TranslationsRestoreVaultKr.internal(this._root);
+// Path: restoration_info
+class TranslationsRestorationInfoKr {
+  TranslationsRestorationInfoKr.internal(this._root);
 
   final Translations _root; // ignore: unused_field
 
@@ -917,11 +925,21 @@ class TranslationsRestoreVaultKr {
   String get found_title => '🔎 복원 파일을 발견했어요';
   String get found_description =>
       '앱 업데이트가 완료되지 않았어요\n앱을 업데이트 하시거나,\n계속 진행하시려면 지갑을 복원해주세요';
+}
+
+// Path: vault_list_restoration
+class TranslationsVaultListRestorationKr {
+  TranslationsVaultListRestorationKr.internal(this._root);
+
+  final Translations _root; // ignore: unused_field
+
+  // Translations
   String get in_progress_title => '⏳ 지갑을 복원 중이에요';
   String get in_progress_description => '잠시만 기다려 주세요.\n곧 완료됩니다!';
   String get completed_title => '🎉 지갑을 복원했어요!';
   String completed_description({required Object count}) =>
       '지갑 ${count}개를 복원했어요';
+  String get start_vault => '볼트 시작하기';
 }
 
 // Path: bottom_sheet
@@ -2016,18 +2034,20 @@ extension on Translations {
         return '앱스토어에서 업데이트를 진행해 주세요.';
       case 'prepare_update.step2':
         return '업데이트가 끝나면 네트워크를 끄고 볼트를 켜세요.';
-      case 'restore_vault.found_title':
+      case 'restoration_info.found_title':
         return '🔎 복원 파일을 발견했어요';
-      case 'restore_vault.found_description':
+      case 'restoration_info.found_description':
         return '앱 업데이트가 완료되지 않았어요\n앱을 업데이트 하시거나,\n계속 진행하시려면 지갑을 복원해주세요';
-      case 'restore_vault.in_progress_title':
+      case 'vault_list_restoration.in_progress_title':
         return '⏳ 지갑을 복원 중이에요';
-      case 'restore_vault.in_progress_description':
+      case 'vault_list_restoration.in_progress_description':
         return '잠시만 기다려 주세요.\n곧 완료됩니다!';
-      case 'restore_vault.completed_title':
+      case 'vault_list_restoration.completed_title':
         return '🎉 지갑을 복원했어요!';
-      case 'restore_vault.completed_description':
+      case 'vault_list_restoration.completed_description':
         return ({required Object count}) => '지갑 ${count}개를 복원했어요';
+      case 'vault_list_restoration.start_vault':
+        return '볼트 시작하기';
       case 'bottom_sheet.view_mit_license':
         return 'MIT 라이선스 전문 보기';
       case 'bottom_sheet.contact_by_email':

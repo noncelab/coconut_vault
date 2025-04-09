@@ -155,6 +155,25 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 );
               },
             ),
+            // 임시 메뉴
+            SingleButton(
+              title: '복원하기',
+              onPressed: () async {
+                MyBottomSheet.showBottomSheet_90(
+                  context: context,
+                  child: CustomLoadingOverlay(
+                    child: PinCheckScreen(
+                      pinCheckContext: PinCheckContextEnum.sensitiveAction,
+                      isDeleteScreen: true,
+                      onComplete: () async {
+                        Navigator.pop(context);
+                        Navigator.pushNamed(context, AppRoutes.restorationInfo);
+                      },
+                    ),
+                  ),
+                );
+              },
+            ),
           ],
         ),
         Container(

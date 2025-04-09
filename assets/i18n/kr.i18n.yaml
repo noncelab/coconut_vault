@@ -418,14 +418,18 @@ prepare_update:
   step1_ios: "앱스토어에서 업데이트를 진행해 주세요."
   step2: "업데이트가 끝나면 네트워크를 끄고 볼트를 켜세요."
   
-# 복원하기
-restore_vault:
+# 복원 정보 화면
+restoration_info:
   "found_title": "🔎 복원 파일을 발견했어요"
   "found_description": "앱 업데이트가 완료되지 않았어요\n앱을 업데이트 하시거나,\n계속 진행하시려면 지갑을 복원해주세요"
+  
+# 볼트 리스트 복원 화면
+vault_list_restoration:
   "in_progress_title": "⏳ 지갑을 복원 중이에요"
   "in_progress_description": "잠시만 기다려 주세요.\n곧 완료됩니다!"
   "completed_title": "🎉 지갑을 복원했어요!"
   "completed_description": "지갑 $count개를 복원했어요"
+  "start_vault": "볼트 시작하기"
 
 bottom_sheet:
   view_mit_license: "MIT 라이선스 전문 보기"
