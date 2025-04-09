@@ -68,7 +68,9 @@ dependencies:
   slang: ^4.4.1
   slang_flutter: ^4.4.0
   coconut_lib: ^0.9.0
-  coconut_design_system: ^0.7.1
+  # coconut_design_system: ^0.7.1
+  coconut_design_system: 
+    path: ../design_system/coconut_design_system
 
 dev_dependencies:
   flutter_test:

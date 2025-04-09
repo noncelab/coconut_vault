@@ -643,22 +643,22 @@ class _AppUpdatePreparationScreenState extends State<AppUpdatePreparationScreen>
       isLengthVisible: false,
       errorText: t.prepare_update.incorrect_input_try_again,
       placeholderText: t.prepare_update.enter_word,
-      suffix: Row(children: [
-        IconButton(
-          iconSize: 14,
-          padding: EdgeInsets.zero,
-          onPressed: () {
-            setState(() {
-              _mnemonicInputController.text = '';
-            });
-          },
-          icon: SvgPicture.asset(
-            'assets/svg/text-field-clear.svg',
-            colorFilter:
-                const ColorFilter.mode(CoconutColors.gray300, BlendMode.srcIn),
-          ),
-        ),
-      ]),
+      suffix: _mnemonicInputController.text.isNotEmpty
+          ? IconButton(
+              iconSize: 14,
+              padding: EdgeInsets.zero,
+              onPressed: () {
+                setState(() {
+                  _mnemonicInputController.text = '';
+                });
+              },
+              icon: SvgPicture.asset(
+                'assets/svg/text-field-clear.svg',
+                colorFilter: const ColorFilter.mode(
+                    CoconutColors.gray900, BlendMode.srcIn),
+              ),
+            )
+          : null,
     );
   }
 }
