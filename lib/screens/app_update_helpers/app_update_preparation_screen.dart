@@ -6,7 +6,6 @@ import 'package:coconut_vault/providers/view_model/app_update_preparation_view_m
 import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:coconut_vault/utils/hash_util.dart';
 import 'package:coconut_vault/widgets/indicator/countdown_spinner.dart';
-import 'package:coconut_vault/widgets/indicator/gradient_progress_indicator.dart';
 import 'package:coconut_vault/widgets/indicator/percent_progress_indicator.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
@@ -568,7 +567,7 @@ class _AppUpdatePreparationScreenState extends State<AppUpdatePreparationScreen>
 
     /// TODO 실제 업데이트 프로세스에 맞게 수정되어야 합니다.
     _progressController.duration = const Duration(seconds: 15);
-    _progressController.forward();
+    _progressController.forward(from: 0);
     _progressController.addListener(() {
       setState(() {});
     });
