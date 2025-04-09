@@ -8,14 +8,14 @@ import 'package:flutter_svg/svg.dart';
 import 'package:loader_overlay/loader_overlay.dart';
 import 'package:provider/provider.dart';
 
-enum PrepareUpdateLevel {
-  start,
-  mnemonicValidate,
-  beforeUpdate,
-  creatingSafetyKey,
-  savingWalletData,
-  checkingBackupFile,
-  prepareUpdateComplete,
+enum AppUpdateStep {
+  initial,
+  validateMnemonic,
+  confirmUpdate,
+  generateSafetyKey,
+  saveWalletData,
+  verifyBackupFile,
+  completed,
 }
 
 class UpdateProcessText {
@@ -24,17 +24,19 @@ class UpdateProcessText {
   UpdateProcessText({required this.title, required this.subtitle});
 }
 
-class PrepareUpdateScreen extends StatefulWidget {
-  const PrepareUpdateScreen({super.key});
+class AppUpdatePreparationScreen extends StatefulWidget {
+  const AppUpdatePreparationScreen({super.key});
 
   @override
-  State<PrepareUpdateScreen> createState() => _PrepareUpdateScreenState();
+  State<AppUpdatePreparationScreen> createState() =>
+      _AppUpdatePreparationScreenState();
 }
 
-class _PrepareUpdateScreenState extends State<PrepareUpdateScreen>
+class _AppUpdatePreparationScreenState extends State<AppUpdatePreparationScreen>
     with TickerProviderStateMixin {
-  final TextEditingController _textEditingController = TextEditingController();
-  final _textFieldFocusNode = FocusNode();
+  final TextEditingController _mnemonicInputController =
+      TextEditingController();
+  final _mnemonicInputFocusNode = FocusNode();
 
   bool _mnemonicErrorVisible = false;
   bool _nextButtonEnabled = true;
@@ -59,7 +61,7 @@ class _PrepareUpdateScreenState extends State<PrepareUpdateScreen>
   late AnimationController _progressController;
   double _generatingUpdateProgress = 0.0;
 
-  PrepareUpdateLevel _prepareUpdateLevel = PrepareUpdateLevel.start;
+  AppUpdateStep _currentStep = AppUpdateStep.initial;
 
   @override
   void initState() {
@@ -86,8 +88,8 @@ class _PrepareUpdateScreenState extends State<PrepareUpdateScreen>
       curve: Curves.easeOut,
     ));
 
-    _textEditingController.addListener(() {
-      if (_textEditingController.text.length >= 3) {
+    _mnemonicInputController.addListener(() {
+      if (_mnemonicInputController.text.length >= 3) {
         _validateMnemonic();
       } else {
         setState(() {
@@ -101,23 +103,23 @@ class _PrepareUpdateScreenState extends State<PrepareUpdateScreen>
   void dispose() {
     _animationController.dispose();
     _progressController.dispose();
-    _textEditingController.dispose();
-    _textFieldFocusNode.dispose();
+    _mnemonicInputController.dispose();
+    _mnemonicInputFocusNode.dispose();
     super.dispose();
   }
 
-  bool _isBlockedState() {
-    final blockedStates = {
-      PrepareUpdateLevel.creatingSafetyKey,
-      PrepareUpdateLevel.savingWalletData,
-      PrepareUpdateLevel.checkingBackupFile,
-      PrepareUpdateLevel.prepareUpdateComplete,
+  bool _isInProgressStep() {
+    final inProgressSteps = {
+      AppUpdateStep.generateSafetyKey,
+      AppUpdateStep.saveWalletData,
+      AppUpdateStep.verifyBackupFile,
+      AppUpdateStep.completed,
     };
-    return blockedStates.contains(_prepareUpdateLevel);
+    return inProgressSteps.contains(_currentStep);
   }
 
   void _onBackPressed() {
-    if (!_isBlockedState()) {
+    if (!_isInProgressStep()) {
       Navigator.pop(context);
     }
   }
@@ -138,12 +140,12 @@ class _PrepareUpdateScreenState extends State<PrepareUpdateScreen>
             return GestureDetector(
               onTap: () => _closeKeyboard(),
               child: Scaffold(
-                appBar: !_isBlockedState()
+                appBar: !_isInProgressStep()
                     ? CoconutAppBar.build(
                         title: t.settings_screen.prepare_update,
                         context: context,
                         onBackPressed: _onBackPressed,
-                        isLeadingVisible: !_isBlockedState(),
+                        isLeadingVisible: !_isInProgressStep(),
                       )
                     : null,
                 body: Container(
@@ -157,9 +159,8 @@ class _PrepareUpdateScreenState extends State<PrepareUpdateScreen>
                   child: Stack(
                     children: [
                       _getBodyWidget(),
-                      if (_prepareUpdateLevel == PrepareUpdateLevel.start ||
-                          _prepareUpdateLevel ==
-                              PrepareUpdateLevel.beforeUpdate)
+                      if (_currentStep == AppUpdateStep.initial ||
+                          _currentStep == AppUpdateStep.confirmUpdate)
                         Positioned(
                             left: 0,
                             right: 0,
@@ -177,18 +178,18 @@ class _PrepareUpdateScreenState extends State<PrepareUpdateScreen>
   }
 
   Widget _getBodyWidget() {
-    switch (_prepareUpdateLevel) {
-      case PrepareUpdateLevel.start:
+    switch (_currentStep) {
+      case AppUpdateStep.initial:
         return _buildStartWidget();
-      case PrepareUpdateLevel.mnemonicValidate:
+      case AppUpdateStep.validateMnemonic:
         return _buildMnemonicValidateWidget();
-      case PrepareUpdateLevel.beforeUpdate:
+      case AppUpdateStep.confirmUpdate:
         return _buildBeforeUpdateWidget();
-      case PrepareUpdateLevel.prepareUpdateComplete:
+      case AppUpdateStep.completed:
         return _buildPrepareUpdateCompleteWidget();
-      case PrepareUpdateLevel.creatingSafetyKey:
-      case PrepareUpdateLevel.savingWalletData:
-      case PrepareUpdateLevel.checkingBackupFile:
+      case AppUpdateStep.generateSafetyKey:
+      case AppUpdateStep.saveWalletData:
+      case AppUpdateStep.verifyBackupFile:
         return _buildUpdateProcessWidget();
     }
   }
@@ -201,9 +202,7 @@ class _PrepareUpdateScreenState extends State<PrepareUpdateScreen>
           isActive: _nextButtonEnabled,
           disabledBackgroundColor: CoconutColors.gray400,
           width: double.infinity,
-          text: _prepareUpdateLevel == PrepareUpdateLevel.start
-              ? t.confirm
-              : t.start,
+          text: _currentStep == AppUpdateStep.initial ? t.confirm : t.start,
         ),
         if (!_nextButtonEnabled)
           Positioned(
@@ -232,13 +231,13 @@ class _PrepareUpdateScreenState extends State<PrepareUpdateScreen>
     // PrepareUpdateLevel.start 상태에서는 mnemonicValidate으로 전환,
     // PrepareUpdateLevel.beforeUpdate 상태에서는 creatingSafetyKey으로 전환
     // PrepareUpdateLevel.beforeUpdate 전환직후 _nextButtonEnabled이 false로 설정되고 countdown 5초 후 _nextButtonEnabled이 true로 변경됨
-    if (_prepareUpdateLevel == PrepareUpdateLevel.start) {
+    if (_currentStep == AppUpdateStep.initial) {
       setState(() {
-        _prepareUpdateLevel = PrepareUpdateLevel.mnemonicValidate;
+        _currentStep = AppUpdateStep.validateMnemonic;
       });
-    } else if (_prepareUpdateLevel == PrepareUpdateLevel.beforeUpdate) {
+    } else if (_currentStep == AppUpdateStep.confirmUpdate) {
       setState(() {
-        _prepareUpdateLevel = PrepareUpdateLevel.creatingSafetyKey;
+        _currentStep = AppUpdateStep.generateSafetyKey;
       });
 
       _startProgress();
@@ -248,7 +247,7 @@ class _PrepareUpdateScreenState extends State<PrepareUpdateScreen>
       await Future.delayed(const Duration(milliseconds: 5000));
       if (mounted) {
         setState(() {
-          _prepareUpdateLevel = PrepareUpdateLevel.savingWalletData;
+          _currentStep = AppUpdateStep.saveWalletData;
         });
         _animationController.forward(from: 0);
       }
@@ -256,7 +255,7 @@ class _PrepareUpdateScreenState extends State<PrepareUpdateScreen>
       await Future.delayed(const Duration(milliseconds: 5000));
       if (mounted) {
         setState(() {
-          _prepareUpdateLevel = PrepareUpdateLevel.checkingBackupFile;
+          _currentStep = AppUpdateStep.verifyBackupFile;
         });
         _animationController.forward(from: 0);
       }
@@ -348,9 +347,9 @@ class _PrepareUpdateScreenState extends State<PrepareUpdateScreen>
 
   // PrepareUpdateLevel: creatingSafetyKey, savingWalletData, checkingBackupFile 상태에서 보여지는 위젯
   Widget _buildUpdateProcessWidget() {
-    int index = _prepareUpdateLevel == PrepareUpdateLevel.creatingSafetyKey
+    int index = _currentStep == AppUpdateStep.generateSafetyKey
         ? 0
-        : _prepareUpdateLevel == PrepareUpdateLevel.savingWalletData
+        : _currentStep == AppUpdateStep.saveWalletData
             ? 1
             : 2;
     int prevIndex = index - 1;
@@ -556,7 +555,7 @@ class _PrepareUpdateScreenState extends State<PrepareUpdateScreen>
             child: CoconutButton(
                 onPressed: () {
                   setState(() {
-                    _prepareUpdateLevel = PrepareUpdateLevel.beforeUpdate;
+                    _currentStep = AppUpdateStep.confirmUpdate;
                   });
                 },
                 text: '임시 버튼 (이전단계)'),
@@ -588,7 +587,7 @@ class _PrepareUpdateScreenState extends State<PrepareUpdateScreen>
         Future.delayed(const Duration(milliseconds: 3000), () {
           if (mounted) {
             setState(() {
-              _prepareUpdateLevel = PrepareUpdateLevel.prepareUpdateComplete;
+              _currentStep = AppUpdateStep.completed;
             });
             _animationController.forward(from: 0);
           }
@@ -598,7 +597,7 @@ class _PrepareUpdateScreenState extends State<PrepareUpdateScreen>
   }
 
   void _validateMnemonic() async {
-    if (_textEditingController.text != 'mnemonic') {
+    if (_mnemonicInputController.text != 'mnemonic') {
       // Replace with actual validation
       setState(() {
         _mnemonicErrorVisible = true;
@@ -615,7 +614,7 @@ class _PrepareUpdateScreenState extends State<PrepareUpdateScreen>
     if (mounted) {
       context.loaderOverlay.hide();
       setState(() {
-        _prepareUpdateLevel = PrepareUpdateLevel.beforeUpdate;
+        _currentStep = AppUpdateStep.confirmUpdate;
         _nextButtonEnabled = false;
       });
     }
@@ -628,8 +627,8 @@ class _PrepareUpdateScreenState extends State<PrepareUpdateScreen>
 
   CoconutTextField _buildMnemonicTextField() {
     return CoconutTextField(
-      controller: _textEditingController,
-      focusNode: _textFieldFocusNode,
+      controller: _mnemonicInputController,
+      focusNode: _mnemonicInputFocusNode,
       maxLines: 1,
       textInputAction: TextInputAction.done,
       onChanged: (text) {},
@@ -643,7 +642,7 @@ class _PrepareUpdateScreenState extends State<PrepareUpdateScreen>
           padding: EdgeInsets.zero,
           onPressed: () {
             setState(() {
-              _textEditingController.text = '';
+              _mnemonicInputController.text = '';
             });
           },
           icon: SvgPicture.asset(
