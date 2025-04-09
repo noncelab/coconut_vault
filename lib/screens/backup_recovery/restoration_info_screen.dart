@@ -22,40 +22,31 @@ class _RestorationInfoScreenState extends State<RestorationInfoScreen> {
                 padding: const EdgeInsets.symmetric(
                   horizontal: CoconutLayout.defaultPadding,
                 ),
-                child: Stack(children: [
-                  Center(
-                    child: Column(
-                      children: [
-                        CoconutLayout.spacing_2500h,
-                        Text(
-                          t.restoration_info.found_title,
-                          style: CoconutTypography.heading4_18_Bold,
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 20),
-                          child: Text(
-                            t.restoration_info.found_description,
-                            style: CoconutTypography.body2_14,
-                            textAlign: TextAlign.center,
-                          ),
-                        ),
-                      ],
+                child: Column(children: [
+                  CoconutLayout.spacing_2500h,
+                  Text(
+                    t.restoration_info.found_title,
+                    style: CoconutTypography.heading4_18_Bold,
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 20),
+                    child: Text(
+                      t.restoration_info.found_description,
+                      style: CoconutTypography.body2_14,
+                      textAlign: TextAlign.center,
                     ),
                   ),
-                  Positioned(
-                    left: 0,
-                    right: 0,
-                    bottom: 40,
-                    child: CoconutButton(
-                      disabledBackgroundColor: CoconutColors.gray400,
-                      width: double.infinity,
-                      text: t.restore,
-                      onPressed: () {
-                        Navigator.pushNamed(
-                            context, AppRoutes.vaultListRestoration);
-                      },
-                    ),
+                  const Spacer(),
+                  CoconutButton(
+                    disabledBackgroundColor: CoconutColors.gray400,
+                    width: double.infinity,
+                    text: t.restore,
+                    onPressed: () {
+                      Navigator.pushNamed(
+                          context, AppRoutes.vaultListRestoration);
+                    },
                   ),
+                  CoconutLayout.spacing_1000h
                 ]),
               ),
             )));
