@@ -3,7 +3,7 @@ import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/providers/view_model/vault_list_restoration_view_model.dart';
 import 'package:coconut_vault/styles.dart';
 import 'package:coconut_vault/utils/icon_util.dart';
-import 'package:coconut_vault/widgets/indicator/gradient_progress_indicator.dart';
+import 'package:coconut_vault/widgets/indicator/percent_progress_indicator.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:provider/provider.dart';
@@ -186,45 +186,8 @@ class _VaultListRestorationScreenState extends State<VaultListRestorationScreen>
                             ),
                             if (!_viewModel.isVaultListRestored)
                               Center(
-                                child: Stack(
-                                  alignment: Alignment.center,
-                                  children: [
-                                    GradientCircularProgressIndicator(
-                                      radius: 90,
-                                      gradientColors: const [
-                                        Colors.white,
-                                        Color.fromARGB(255, 164, 214, 250),
-                                      ],
-                                      strokeWidth: 36.0,
-                                      progress: _progressController.value > 0
-                                          ? _progressController.value
-                                          : 0.01,
-                                    ),
-                                    Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.center,
-                                      children: [
-                                        Text(
-                                          (_progressController.value * 100)
-                                              .toStringAsFixed(0),
-                                          style: CoconutTypography
-                                              .heading1_32_Bold
-                                              .setColor(const Color(0xFF1E88E5))
-                                              .merge(const TextStyle(
-                                                  fontWeight: FontWeight.w900)),
-                                        ),
-                                        CoconutLayout.spacing_100w,
-                                        Text(
-                                          '%',
-                                          style: CoconutTypography.body1_16_Bold
-                                              .setColor(
-                                                  const Color(0xFF42A5F5)),
-                                        ),
-                                      ],
-                                    ),
-                                  ],
-                                ),
-                              ),
+                                  child: PercentProgressIndicator(
+                                      progressController: _progressController)),
                           ],
                         ),
                       ),
