@@ -2,7 +2,9 @@ import 'dart:io';
 
 import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
-import 'package:coconut_vault/providers/view_model/create_backup_view_model.dart';
+import 'package:coconut_vault/providers/view_model/app_update_preparation_view_model.dart';
+import 'package:coconut_vault/providers/wallet_provider.dart';
+import 'package:coconut_vault/utils/hash_util.dart';
 import 'package:coconut_vault/widgets/indicator/countdown_spinner.dart';
 import 'package:coconut_vault/widgets/indicator/gradient_progress_indicator.dart';
 import 'package:flutter/material.dart';
@@ -89,16 +91,6 @@ class _AppUpdatePreparationScreenState extends State<AppUpdatePreparationScreen>
       parent: _animationController,
       curve: Curves.easeOut,
     ));
-
-    _mnemonicInputController.addListener(() {
-      if (_mnemonicInputController.text.length >= 3) {
-        _validateMnemonic();
-      } else {
-        setState(() {
-          _mnemonicErrorVisible = false;
-        });
-      }
-    });
   }
 
   @override
@@ -136,9 +128,21 @@ class _AppUpdatePreparationScreenState extends State<AppUpdatePreparationScreen>
         }
       },
       child: ChangeNotifierProvider(
-        create: (_) => PrepareUpdateViewModel(),
-        child: Consumer<PrepareUpdateViewModel>(
+        create: (_) => AppUpdatePreparationViewModel(
+          Provider.of<WalletProvider>(context, listen: false),
+        ),
+        child: Consumer<AppUpdatePreparationViewModel>(
           builder: (context, viewModel, child) {
+            _mnemonicInputController.addListener(() {
+              if (viewModel.randomVaultMnemonic != null &&
+                  _mnemonicInputController.text.length >= 3) {
+                _validateMnemonic(viewModel.randomVaultMnemonic!.mnemonic);
+              } else {
+                setState(() {
+                  _mnemonicErrorVisible = false;
+                });
+              }
+            });
             return GestureDetector(
               onTap: () => _closeKeyboard(),
               child: Scaffold(
@@ -159,7 +163,7 @@ class _AppUpdatePreparationScreenState extends State<AppUpdatePreparationScreen>
                     height: MediaQuery.sizeOf(context).height,
                     child: Stack(
                       children: [
-                        _getBodyWidget(),
+                        _getBodyWidget(viewModel.randomVaultMnemonic),
                         if (_currentStep == AppUpdateStep.initial ||
                             _currentStep == AppUpdateStep.confirmUpdate)
                           Positioned(
@@ -179,12 +183,12 @@ class _AppUpdatePreparationScreenState extends State<AppUpdatePreparationScreen>
     );
   }
 
-  Widget _getBodyWidget() {
+  Widget _getBodyWidget(RandomVaultMnemonic? randomVaultMnemonic) {
     switch (_currentStep) {
       case AppUpdateStep.initial:
         return _buildInitialWidget();
       case AppUpdateStep.validateMnemonic:
-        return _buildValidateMnemonicWidget();
+        return _buildValidateMnemonicWidget(randomVaultMnemonic);
       case AppUpdateStep.confirmUpdate:
         return _buildConfirmUpdateWidget();
       case AppUpdateStep.completed:
@@ -291,7 +295,11 @@ class _AppUpdatePreparationScreenState extends State<AppUpdatePreparationScreen>
   }
 
   // AppUpdateStep.validateMnemonic 상태에서 보여지는 위젯
-  Widget _buildValidateMnemonicWidget() {
+  Widget _buildValidateMnemonicWidget(
+      RandomVaultMnemonic? randomVaultMnemonic) {
+    if (randomVaultMnemonic == null) {
+      return const SizedBox();
+    }
     return Center(
       child: Column(
         children: [
@@ -299,13 +307,14 @@ class _AppUpdatePreparationScreenState extends State<AppUpdatePreparationScreen>
             height: CoconutLayout.spacing_2500h.height! - kToolbarHeight,
           ),
           Text(
-            // TODO 지갑이름, value 삽입
-            t.prepare_update
-                .enter_nth_word_of_wallet(wallet_name: 'test', n: 10),
+            t.prepare_update.enter_nth_word_of_wallet(
+              wallet_name: randomVaultMnemonic.vaultName,
+              n: randomVaultMnemonic.mnemonicIndex + 1,
+            ),
             style: CoconutTypography.heading4_18_Bold,
           ),
           CoconutLayout.spacing_1500h,
-          _buildMnemonicTextField(),
+          _buildMnemonicTextField(randomVaultMnemonic.mnemonic),
         ],
       ),
     );
@@ -604,9 +613,10 @@ class _AppUpdatePreparationScreenState extends State<AppUpdatePreparationScreen>
     });
   }
 
-  void _validateMnemonic() async {
-    if (_mnemonicInputController.text != 'mnemonic') {
-      // Replace with actual validation
+  void _validateMnemonic(String mnemonicHash) async {
+    if (hashString(_mnemonicInputController.text) != mnemonicHash ||
+        _mnemonicInputController.text != 'mnemonic') {
+      // TODO: mnemonic은 테스트 값입니다.
       setState(() {
         _mnemonicErrorVisible = true;
       });
@@ -633,7 +643,7 @@ class _AppUpdatePreparationScreenState extends State<AppUpdatePreparationScreen>
     FocusScope.of(context).unfocus();
   }
 
-  CoconutTextField _buildMnemonicTextField() {
+  CoconutTextField _buildMnemonicTextField(String mnemonic) {
     return CoconutTextField(
       controller: _mnemonicInputController,
       focusNode: _mnemonicInputFocusNode,

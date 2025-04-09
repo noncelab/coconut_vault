@@ -235,9 +235,8 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> {
 
               return GuideScreen(onComplete: onComplete);
             },
-            AppRoutes.prepareUpdate: (context) => const CustomLoadingOverlay(
-                  child: AppUpdatePreparationScreen(),
-                ),
+            AppRoutes.prepareUpdate: (context) =>
+                const AppUpdatePreparationScreen(),
           },
         ),
       ),
