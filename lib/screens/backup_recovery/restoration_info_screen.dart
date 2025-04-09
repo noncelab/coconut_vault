@@ -14,20 +14,19 @@ class _RestorationInfoScreenState extends State<RestorationInfoScreen> {
   @override
   Widget build(BuildContext context) {
     return PopScope(
-        canPop: true,
+        canPop: false,
         child: Scaffold(
             backgroundColor: CoconutColors.white,
-            body: Container(
-              width: MediaQuery.sizeOf(context).width,
-              padding: const EdgeInsets.symmetric(
-                horizontal: CoconutLayout.defaultPadding,
-              ),
-              child: Stack(
-                children: [
+            body: SafeArea(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: CoconutLayout.defaultPadding,
+                ),
+                child: Stack(children: [
                   Center(
                     child: Column(
                       children: [
-                        const SizedBox(height: kToolbarHeight + 100),
+                        CoconutLayout.spacing_2500h,
                         Text(
                           t.restoration_info.found_title,
                           style: CoconutTypography.heading4_18_Bold,
@@ -57,7 +56,7 @@ class _RestorationInfoScreenState extends State<RestorationInfoScreen> {
                       },
                     ),
                   ),
-                ],
+                ]),
               ),
             )));
   }

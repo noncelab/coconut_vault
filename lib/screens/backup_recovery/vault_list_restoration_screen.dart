@@ -53,7 +53,8 @@ class _VaultListRestorationScreenState extends State<VaultListRestorationScreen>
     });
   }
 
-  Widget _buildWalletListItem() {
+  Widget _buildWalletListItem(String walletName, int iconIndex, int colorIndex,
+      String masterFingerPrint) {
     return Container(
       width: double.infinity,
       height: 70,
@@ -76,17 +77,18 @@ class _VaultListRestorationScreenState extends State<VaultListRestorationScreen>
               height: 22,
               padding: const EdgeInsets.all(4),
               decoration: BoxDecoration(
-                color: BackgroundColorPalette[0],
+                color: BackgroundColorPalette[colorIndex],
                 borderRadius: BorderRadius.circular(12.0),
               ),
               child: SvgPicture.asset(
                 CustomIcons.getPathByIndex(0),
-                colorFilter: ColorFilter.mode(ColorPalette[0], BlendMode.srcIn),
+                colorFilter:
+                    ColorFilter.mode(ColorPalette[iconIndex], BlendMode.srcIn),
               )),
-          const SizedBox(width: 4),
-          const Text('일반 지갑', style: CoconutTypography.body2_14),
+          CoconutLayout.spacing_100w,
+          Text(walletName, style: CoconutTypography.body2_14),
           const Spacer(),
-          Text('0000000', style: CoconutTypography.body3_12_Number)
+          Text(masterFingerPrint, style: CoconutTypography.body3_12_Number)
         ],
       ),
     );
@@ -101,59 +103,86 @@ class _VaultListRestorationScreenState extends State<VaultListRestorationScreen>
             child: Consumer<VaultListRestorationViewModel>(
                 builder: (context, viewModel, child) => Scaffold(
                       backgroundColor: CoconutColors.white,
-                      body: Container(
-                        width: MediaQuery.sizeOf(context).width,
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: CoconutLayout.defaultPadding,
-                        ),
+                      body: SafeArea(
                         child: Stack(
                           children: [
-                            Center(
-                              child: Column(
-                                children: [
-                                  const SizedBox(height: kToolbarHeight + 100),
-                                  Text(
+                            Column(
+                              children: [
+                                CoconutLayout.spacing_2500h,
+                                Text(
+                                  _viewModel.isVaultListRestored
+                                      ? t.vault_list_restoration.completed_title
+                                      : t.vault_list_restoration
+                                          .in_progress_title,
+                                  style: CoconutTypography.heading4_18_Bold,
+                                ),
+                                Padding(
+                                  padding:
+                                      const EdgeInsets.symmetric(vertical: 20),
+                                  child: Text(
                                     _viewModel.isVaultListRestored
                                         ? t.vault_list_restoration
-                                            .completed_title
+                                            .completed_description(
+                                                count:
+                                                    _viewModel.vaultListCount)
                                         : t.vault_list_restoration
-                                            .in_progress_title,
-                                    style: CoconutTypography.heading4_18_Bold,
+                                            .in_progress_description,
+                                    style: CoconutTypography.body2_14_Bold,
+                                    textAlign: TextAlign.center,
                                   ),
-                                  Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                        vertical: 20),
-                                    child: Text(
-                                      _viewModel.isVaultListRestored
-                                          ? t.vault_list_restoration
-                                              .completed_description(
-                                                  count:
-                                                      _viewModel.vaultListCount)
-                                          : t.vault_list_restoration
-                                              .in_progress_description,
-                                      style: CoconutTypography.body2_14_Bold,
-                                      textAlign: TextAlign.center,
-                                    ),
-                                  ),
-                                  AnimatedOpacity(
+                                ),
+                                Expanded(
+                                  child: AnimatedOpacity(
                                     opacity: _viewModel.isVaultListRestored
                                         ? 1.0
                                         : 0.0,
                                     duration: const Duration(milliseconds: 500),
-                                    child: SingleChildScrollView(
-                                      child: Column(
-                                        children: [
-                                          _buildWalletListItem(),
-                                          const SizedBox(height: 16),
-                                          _buildWalletListItem(),
-                                          const SizedBox(height: 16),
-                                          _buildWalletListItem(),
-                                        ],
-                                      ),
+                                    child: ListView.builder(
+                                        itemCount: _viewModel.vaultList.length,
+                                        itemBuilder: (context, index) {
+                                          var element =
+                                              _viewModel.vaultList[index];
+                                          return Padding(
+                                            padding: EdgeInsets.only(
+                                                top: index == 0 ? 20 : 0,
+                                                bottom: 20,
+                                                left: CoconutLayout
+                                                    .defaultPadding,
+                                                right: CoconutLayout
+                                                    .defaultPadding),
+                                            child: _buildWalletListItem(
+                                                element.walletName,
+                                                element.iconIndex,
+                                                element.colorIndex,
+                                                element.masterFingerPrint),
+                                          );
+                                        }),
+                                  ),
+                                ),
+                                if (_viewModel.isVaultListRestored) ...{
+                                  CoconutLayout.spacing_500h,
+                                  Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: CoconutLayout.defaultPadding,
                                     ),
-                                  )
-                                ],
-                              ),
+                                    child: CoconutButton(
+                                      disabledBackgroundColor:
+                                          CoconutColors.gray400,
+                                      width: double.infinity,
+                                      text:
+                                          t.vault_list_restoration.start_vault,
+                                      onPressed: () {
+                                        Navigator.pushNamedAndRemoveUntil(
+                                          context,
+                                          '/',
+                                          (Route<dynamic> route) => false,
+                                        );
+                                      },
+                                    ),
+                                  ),
+                                  CoconutLayout.spacing_1000h,
+                                }
+                              ],
                             ),
                             if (!_viewModel.isVaultListRestored)
                               Center(
@@ -194,25 +223,6 @@ class _VaultListRestorationScreenState extends State<VaultListRestorationScreen>
                                       ],
                                     ),
                                   ],
-                                ),
-                              ),
-                            if (_viewModel.isVaultListRestored)
-                              Positioned(
-                                left: 0,
-                                right: 0,
-                                bottom: 40,
-                                child: CoconutButton(
-                                  disabledBackgroundColor:
-                                      CoconutColors.gray400,
-                                  width: double.infinity,
-                                  text: t.vault_list_restoration.start_vault,
-                                  onPressed: () {
-                                    Navigator.pushNamedAndRemoveUntil(
-                                      context,
-                                      '/',
-                                      (Route<dynamic> route) => false,
-                                    );
-                                  },
                                 ),
                               ),
                           ],
