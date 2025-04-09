@@ -39,6 +39,7 @@ flutter test integration_test/<test_file>.dart --flavor regtest --release
    ]
 ```
 launch.json 파일 수정 후, 해당 테스트 파일을 엽니다. vscode 왼쪽 메뉴에서 Run And Debug 메뉴를 연 후 설정한 configuration을 선택한 후 왼쪽의 재생버튼 모양을 누릅니다.
+또는 해당 테스트 파일이 열려있고 포커스 된 상태에서 `F5` 키를 눌러 실행합니다.
 
 ### 현재 포함된 테스트들
 

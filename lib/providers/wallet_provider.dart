@@ -307,8 +307,8 @@ class WalletProvider extends ChangeNotifier {
     return;
   }
 
-  _updateWalletLength() {
-    _visibilityProvider.saveWalletCount(_vaultList.length);
+  Future<void> _updateWalletLength() async {
+    await _visibilityProvider.saveWalletCount(_vaultList.length);
   }
 
   void setWaitingForSignaturePsbtBase64(String psbt) {

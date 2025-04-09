@@ -344,6 +344,7 @@ class IsolateHandler<T, R> {
   }
 
   void dispose() {
+    _receivePort.close();
     _isolate.kill(priority: Isolate.immediate);
   }
 }
