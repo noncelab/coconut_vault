@@ -7,6 +7,7 @@ import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:coconut_vault/utils/hash_util.dart';
 import 'package:coconut_vault/widgets/indicator/countdown_spinner.dart';
 import 'package:coconut_vault/widgets/indicator/gradient_progress_indicator.dart';
+import 'package:coconut_vault/widgets/indicator/percent_progress_indicator.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:loader_overlay/loader_overlay.dart';
@@ -63,7 +64,6 @@ class _AppUpdatePreparationScreenState extends State<AppUpdatePreparationScreen>
   late Animation<Offset> _slideOutAnimation;
   late Animation<Offset> _slideUpAnimation;
   late AnimationController _progressController;
-  double _generatingUpdateProgress = 0.0;
 
   AppUpdateStep _currentStep = AppUpdateStep.initial;
 
@@ -419,31 +419,9 @@ class _AppUpdatePreparationScreenState extends State<AppUpdatePreparationScreen>
             child: Stack(
               alignment: Alignment.center, // 중앙 정렬
               children: [
-                GradientCircularProgressIndicator(
-                  radius: 90,
-                  gradientColors: const [
-                    Colors.white,
-                    Color.fromARGB(255, 164, 214, 250),
-                  ],
-                  strokeWidth: 36.0,
-                  progress: _generatingUpdateProgress,
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      (_generatingUpdateProgress * 100).toStringAsFixed(0),
-                      style: CoconutTypography.heading1_32_Bold
-                          .setColor(const Color(0xFF1E88E5))
-                          .merge(const TextStyle(fontWeight: FontWeight.w900)),
-                    ),
-                    CoconutLayout.spacing_100w,
-                    Text(
-                      '%',
-                      style: CoconutTypography.body1_16_Bold
-                          .setColor(const Color(0xFF42A5F5)),
-                    ),
-                  ],
+                PercentProgressIndicator(
+                  textColor: const Color(0xFF1E88E5),
+                  progressController: _progressController,
                 ),
               ],
             ),
@@ -590,12 +568,9 @@ class _AppUpdatePreparationScreenState extends State<AppUpdatePreparationScreen>
 
     /// TODO 실제 업데이트 프로세스에 맞게 수정되어야 합니다.
     _progressController.duration = const Duration(seconds: 15);
-    _progressController.forward(
-        from: _progressController.value == 1 ? 0 : _generatingUpdateProgress);
+    _progressController.forward();
     _progressController.addListener(() {
-      setState(() {
-        _generatingUpdateProgress = _progressController.value;
-      });
+      setState(() {});
     });
 
     _progressController.addStatusListener((status) {
@@ -614,7 +589,7 @@ class _AppUpdatePreparationScreenState extends State<AppUpdatePreparationScreen>
   }
 
   void _validateMnemonic(String mnemonicHash) async {
-    if (hashString(_mnemonicInputController.text) != mnemonicHash ||
+    if (hashString(_mnemonicInputController.text) != mnemonicHash &&
         _mnemonicInputController.text != 'mnemonic') {
       // TODO: mnemonic은 테스트 값입니다.
       setState(() {
