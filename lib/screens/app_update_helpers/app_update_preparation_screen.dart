@@ -138,6 +138,7 @@ class _AppUpdatePreparationScreenState extends State<AppUpdatePreparationScreen>
             child: GestureDetector(
               onTap: () => _closeKeyboard(),
               child: Scaffold(
+                backgroundColor: CoconutColors.white,
                 appBar: !_isInProgressStep(viewModel.currentStep)
                     ? CoconutAppBar.build(
                         title: t.settings_screen.prepare_update,
@@ -165,7 +166,7 @@ class _AppUpdatePreparationScreenState extends State<AppUpdatePreparationScreen>
                           Positioned(
                             left: 0,
                             right: 0,
-                            bottom: 40,
+                            bottom: 20,
                             child: _buildNextButton(viewModel),
                           ),
                       ],
@@ -202,6 +203,7 @@ class _AppUpdatePreparationScreenState extends State<AppUpdatePreparationScreen>
     return Stack(
       children: [
         CoconutButton(
+          height: CoconutLayout.spacing_1300h.height!,
           onPressed: () => _onNextButtonPressed(viewModel),
           isActive: _nextButtonEnabled,
           disabledBackgroundColor: CoconutColors.gray400,
@@ -213,11 +215,9 @@ class _AppUpdatePreparationScreenState extends State<AppUpdatePreparationScreen>
         if (!_nextButtonEnabled)
           Positioned(
             right: 20,
-            top: 12,
-            bottom: 12,
+            top: 5,
+            bottom: 5,
             child: SizedBox(
-              width: 24,
-              height: 24,
               child: CountdownSpinner(
                 startSeconds: 5,
                 onCompleted: () {
