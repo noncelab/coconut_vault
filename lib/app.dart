@@ -11,7 +11,10 @@ import 'package:coconut_vault/screens/airgap/psbt_confirmation_screen.dart';
 import 'package:coconut_vault/screens/airgap/psbt_scanner_screen.dart';
 import 'package:coconut_vault/screens/airgap/signed_transaction_qr_screen.dart';
 import 'package:coconut_vault/screens/airgap/single_sig_sign_screen.dart';
+import 'package:coconut_vault/screens/app_update_helpers/restoration_info_screen.dart';
+import 'package:coconut_vault/screens/app_update_helpers/vault_list_restoration_screen.dart';
 import 'package:coconut_vault/screens/home/vault_list_screen.dart';
+import 'package:coconut_vault/screens/app_update_helpers/app_update_preparation_screen.dart';
 import 'package:coconut_vault/screens/vault_creation/single_sig/security_self_check_screen.dart';
 import 'package:coconut_vault/screens/settings/app_info_screen.dart';
 import 'package:coconut_vault/screens/settings/mnemonic_word_list_screen.dart';
@@ -233,7 +236,14 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> {
               }
 
               return GuideScreen(onComplete: onComplete);
-            }
+            },
+            AppRoutes.prepareUpdate: (context) => const CustomLoadingOverlay(
+                  child: AppUpdatePreparationScreen(),
+                ),
+            AppRoutes.restorationInfo: (context) =>
+                const RestorationInfoScreen(),
+            AppRoutes.vaultListRestoration: (context) =>
+                const VaultListRestorationScreen(),
           },
         ),
       ),
