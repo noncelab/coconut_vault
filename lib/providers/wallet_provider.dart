@@ -106,7 +106,7 @@ class WalletProvider extends ChangeNotifier {
     // vibrateLight();
   }
 
-  Future<void> addMultisigVaultAsync(String name, int color, int icon,
+  Future<void> addMultisigVault(String name, int color, int icon,
       List<MultisigSigner> signers, int requiredSignatureCount) async {
     _setAddVaultCompleted(false);
 
@@ -120,7 +120,7 @@ class WalletProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> importMultisigVaultAsync(
+  Future<void> importMultisigVault(
       MultisigImportDetail details, int walletId) async {
     _setAddVaultCompleted(false);
 
@@ -181,8 +181,8 @@ class WalletProvider extends ChangeNotifier {
       }
     }
 
-    await addMultisigVaultAsync(details.name, details.colorIndex,
-        details.iconIndex, signers, multisigVault.requiredSignature);
+    await addMultisigVault(details.name, details.colorIndex, details.iconIndex,
+        signers, multisigVault.requiredSignature);
 
     _setAddVaultCompleted(true);
     notifyListeners();

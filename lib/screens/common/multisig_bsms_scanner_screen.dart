@@ -248,7 +248,7 @@ class _MultisigBsmsScannerScreenState extends State<MultisigBsmsScannerScreen> {
 
       try {
         // multisigVault 가져오기, isolate 실행
-        await _walletProvider.importMultisigVaultAsync(decodedData, widget.id!);
+        await _walletProvider.importMultisigVault(decodedData, widget.id!);
         assert(_walletProvider.isAddVaultCompleted);
 
         //Logger.log('---> Homeroute = ${HomeScreenStatus().screenStatus}');

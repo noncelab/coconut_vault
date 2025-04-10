@@ -99,7 +99,7 @@ class _VaultNameAndIconSetupScreenState
             _walletCreationProvider.passphrase));
       } else if (_walletCreationProvider.signers != null) {
         // 새로운 멀티시그 지갑 리스트 아이템을 생성.
-        await _walletProvider.addMultisigVaultAsync(
+        await _walletProvider.addMultisigVault(
             inputText,
             selectedColorIndex,
             selectedIconIndex,
