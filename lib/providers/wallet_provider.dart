@@ -1,21 +1,22 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:coconut_lib/coconut_lib.dart';
+import 'package:coconut_vault/managers/wallet_list_manager.dart';
+import 'package:coconut_vault/model/common/secret.dart';
+import 'package:coconut_vault/model/common/vault_list_item_base.dart';
 import 'package:coconut_vault/model/multisig/multisig_import_detail.dart';
 import 'package:coconut_vault/model/multisig/multisig_signer.dart';
 import 'package:coconut_vault/model/multisig/multisig_vault_list_item.dart';
-import 'package:coconut_vault/model/single_sig/single_sig_vault_list_item.dart';
-import 'package:coconut_vault/model/common/vault_list_item_base.dart';
-import 'package:coconut_vault/enums/wallet_enums.dart';
 import 'package:coconut_vault/model/multisig/multisig_wallet.dart';
-import 'package:coconut_vault/model/common/secret.dart';
+import 'package:coconut_vault/model/single_sig/single_sig_vault_list_item.dart';
 import 'package:coconut_vault/model/single_sig/single_sig_wallet.dart';
-import 'package:coconut_vault/managers/wallet_list_manager.dart';
 import 'package:coconut_vault/model/exception/not_related_multisig_wallet_exception.dart';
 import 'package:coconut_vault/providers/visibility_provider.dart';
-import 'package:flutter/foundation.dart';
-import 'package:coconut_vault/utils/logger.dart';
 import 'package:coconut_vault/utils/vibration_util.dart';
+import 'package:coconut_vault/utils/logger.dart';
+import 'package:coconut_vault/enums/wallet_enums.dart';
+import 'package:flutter/foundation.dart';
 
 class WalletProvider extends ChangeNotifier {
   late final VisibilityProvider _visibilityProvider;
@@ -105,7 +106,7 @@ class WalletProvider extends ChangeNotifier {
     // vibrateLight();
   }
 
-  Future<void> addMultisigVaultAsync(String name, int color, int icon,
+  Future<void> addMultisigVault(String name, int color, int icon,
       List<MultisigSigner> signers, int requiredSignatureCount) async {
     _setAddVaultCompleted(false);
 
@@ -119,7 +120,7 @@ class WalletProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> importMultisigVaultAsync(
+  Future<void> importMultisigVault(
       MultisigImportDetail details, int walletId) async {
     _setAddVaultCompleted(false);
 
@@ -180,8 +181,8 @@ class WalletProvider extends ChangeNotifier {
       }
     }
 
-    await addMultisigVaultAsync(details.name, details.colorIndex,
-        details.iconIndex, signers, multisigVault.requiredSignature);
+    await addMultisigVault(details.name, details.colorIndex, details.iconIndex,
+        signers, multisigVault.requiredSignature);
 
     _setAddVaultCompleted(true);
     notifyListeners();
@@ -243,12 +244,19 @@ class WalletProvider extends ChangeNotifier {
     return vaultIndex != -1;
   }
 
-  Future<void> deleteVault(int id) async {
+  Future<void> deleteWallet(int id) async {
     if (await _walletManager.deleteWallet(id)) {
       _vaultList = _walletManager.vaultList;
       notifyListeners();
       _updateWalletLength();
     }
+  }
+
+  Future<void> deleteAllWallets() async {
+    await _walletManager.deleteWallets();
+    _vaultList = _walletManager.vaultList;
+    notifyListeners();
+    _updateWalletLength();
   }
 
   Future<void> loadVaultList() async {
@@ -299,8 +307,8 @@ class WalletProvider extends ChangeNotifier {
     return;
   }
 
-  _updateWalletLength() {
-    _visibilityProvider.saveWalletCount(_vaultList.length);
+  Future<void> _updateWalletLength() async {
+    await _visibilityProvider.saveWalletCount(_vaultList.length);
   }
 
   void setWaitingForSignaturePsbtBase64(String psbt) {
@@ -318,6 +326,38 @@ class WalletProvider extends ChangeNotifier {
 
   Future<Secret> getSecret(int id) async {
     return await _walletManager.getSecret(id);
+  }
+
+  Future<String> createBackupData() async {
+    final List<Map<String, dynamic>> backupData = [];
+
+    for (final vault in _vaultList) {
+      final vaultData = vault.toJson();
+
+      if (vault.vaultType == WalletType.singleSignature) {
+        final secret = await getSecret(vault.id);
+        vaultData['secret'] = secret.mnemonic;
+        vaultData['passphrase'] = secret.passphrase;
+      }
+
+      backupData.add(vaultData);
+    }
+
+    final jsonData = jsonEncode(backupData);
+
+    return jsonData;
+  }
+
+  Future<void> restoreFromBackupData(String jsonData) async {
+    final List<Map<String, dynamic>> backupDataMapList = jsonDecode(jsonData)
+        .map<Map<String, dynamic>>((e) => Map<String, dynamic>.from(e))
+        .toList();
+
+    await _walletManager.restoreFromBackupData(backupDataMapList);
+    _vaultList = _walletManager.vaultList;
+
+    notifyListeners();
+    await _updateWalletLength();
   }
 
   @override

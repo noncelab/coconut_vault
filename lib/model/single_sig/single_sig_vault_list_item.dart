@@ -78,11 +78,11 @@ class SingleSigVaultListItem extends VaultListItemBase {
   }
 
   @override
-  Map<String, dynamic> toJson() => _$SinglesigVaultListItemToJson(this);
+  Map<String, dynamic> toJson() => _$SingleSigVaultListItemToJson(this);
 
   factory SingleSigVaultListItem.fromJson(Map<String, dynamic> json) {
-    json['vaultType'] = _$VaultTypeEnumMap[WalletType.singleSignature];
-    return _$SinglesigVaultListItemFromJson(json);
+    json['vaultType'] = _$WalletTypeEnumMap[WalletType.singleSignature];
+    return _$SingleSigVaultListItemFromJson(json);
   }
 
   @override

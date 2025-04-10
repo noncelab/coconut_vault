@@ -18,7 +18,7 @@ MultisigVaultListItem _$MultisigVaultListItemFromJson(
           .toList(),
       requiredSignatureCount: (json['requiredSignatureCount'] as num).toInt(),
       coordinatorBsms: json['coordinatorBsms'] as String?,
-    )..vaultType = $enumDecode(_$VaultTypeEnumMap, json['vaultType']);
+    )..vaultType = $enumDecode(_$WalletTypeEnumMap, json['vaultType']);
 
 Map<String, dynamic> _$MultisigVaultListItemToJson(
     MultisigVaultListItem instance) {
@@ -27,7 +27,7 @@ Map<String, dynamic> _$MultisigVaultListItemToJson(
     'name': instance.name,
     'colorIndex': instance.colorIndex,
     'iconIndex': instance.iconIndex,
-    'vaultType': _$VaultTypeEnumMap[instance.vaultType]!,
+    'vaultType': _$WalletTypeEnumMap[instance.vaultType]!,
     'signers': instance.signers,
   };
 
@@ -42,7 +42,7 @@ Map<String, dynamic> _$MultisigVaultListItemToJson(
   return val;
 }
 
-const _$VaultTypeEnumMap = {
+const _$WalletTypeEnumMap = {
   WalletType.singleSignature: 'singleSignature',
   WalletType.multiSignature: 'multiSignature',
 };

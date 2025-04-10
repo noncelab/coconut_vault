@@ -22,7 +22,7 @@ version: 2.1.0+4
 #version: 2.1.0+18
 
 environment:
-  sdk: ">=3.3.4 <4.0.0"
+  sdk: "3.5.3"
 
 # Dependencies specify other packages that your package needs in order to work.
 # To automatically upgrade your package dependencies to the latest versions
@@ -65,14 +65,14 @@ dependencies:
   screen_protector: ^1.4.2+1
   url_launcher: ^6.2.6
   crypto: ^3.0.6
+  encrypt: ^5.0.3
   slang: ^4.4.1
   slang_flutter: ^4.4.0
   coconut_lib: ^0.9.0
   coconut_design_system: ^0.7.1
+  pointycastle: ^3.9.1
 
 dev_dependencies:
-  flutter_test:
-    sdk: flutter
   flutter_oss_licenses: ^3.0.2
   
   json_serializable: ^6.7.1
@@ -85,6 +85,14 @@ dev_dependencies:
   # rules and activating additional ones.
   flutter_lints: ^3.0.0
   test: ^1.25.7
+  
+  #test
+  flutter_test:
+    sdk: flutter
+  integration_test:
+    sdk: flutter
+  flutter_driver:
+    sdk: flutter
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
