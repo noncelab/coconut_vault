@@ -55,12 +55,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
           child: Column(
             children: [
               _securityPart(context),
-              const SizedBox(
-                height: 40,
-              ),
-              _updatePart(context),
-              const SizedBox(
-                height: 40,
+              CoconutLayout.spacing_1000h,
+              Selector<WalletProvider, bool>(
+                selector: (context, provider) => provider.vaultList.isNotEmpty,
+                builder: (context, isNotEmpty, _) => isNotEmpty
+                    ? Column(children: [
+                        _updatePart(context),
+                        CoconutLayout.spacing_1000h
+                      ])
+                    : Container(),
               ),
               _advancedUserPart(context),
             ],
@@ -149,54 +152,46 @@ class _SettingsScreenState extends State<SettingsScreen> {
             style: CoconutTypography.body1_16_Bold,
           ),
         ),
-        Consumer<WalletProvider>(
-          builder: (context, provider, child) {
-            return ButtonGroup(
-              buttons: [
-                if (provider.vaultList.isNotEmpty)
-                  SingleButton(
-                    title: t.settings_screen.prepare_update,
-                    onPressed: () async {
-                      MyBottomSheet.showBottomSheet_90(
-                        context: context,
-                        child: CustomLoadingOverlay(
-                          child: PinCheckScreen(
-                            pinCheckContext:
-                                PinCheckContextEnum.sensitiveAction,
-                            isDeleteScreen: true,
-                            onComplete: () async {
-                              Navigator.pop(context);
-                              Navigator.pushNamed(
-                                  context, AppRoutes.prepareUpdate);
-                            },
-                          ),
-                        ),
-                      );
-                    },
+        ButtonGroup(
+          buttons: [
+            SingleButton(
+              title: t.settings_screen.prepare_update,
+              onPressed: () async {
+                MyBottomSheet.showBottomSheet_90(
+                  context: context,
+                  child: CustomLoadingOverlay(
+                    child: PinCheckScreen(
+                      pinCheckContext: PinCheckContextEnum.sensitiveAction,
+                      isDeleteScreen: true,
+                      onComplete: () async {
+                        Navigator.pop(context);
+                        Navigator.pushNamed(context, AppRoutes.prepareUpdate);
+                      },
+                    ),
                   ),
-                // 임시 메뉴
-                SingleButton(
-                  title: '복원하기',
-                  onPressed: () async {
-                    MyBottomSheet.showBottomSheet_90(
-                      context: context,
-                      child: CustomLoadingOverlay(
-                        child: PinCheckScreen(
-                          pinCheckContext: PinCheckContextEnum.sensitiveAction,
-                          isDeleteScreen: true,
-                          onComplete: () async {
-                            Navigator.pop(context);
-                            Navigator.pushNamed(
-                                context, AppRoutes.restorationInfo);
-                          },
-                        ),
-                      ),
-                    );
-                  },
-                ),
-              ],
-            );
-          },
+                );
+              },
+            ),
+            // 임시 메뉴
+            SingleButton(
+              title: '복원하기',
+              onPressed: () async {
+                MyBottomSheet.showBottomSheet_90(
+                  context: context,
+                  child: CustomLoadingOverlay(
+                    child: PinCheckScreen(
+                      pinCheckContext: PinCheckContextEnum.sensitiveAction,
+                      isDeleteScreen: true,
+                      onComplete: () async {
+                        Navigator.pop(context);
+                        Navigator.pushNamed(context, AppRoutes.restorationInfo);
+                      },
+                    ),
+                  ),
+                );
+              },
+            ),
+          ],
         ),
       ],
     );
