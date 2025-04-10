@@ -1,4 +1,6 @@
+import 'package:coconut_lib/coconut_lib.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
+import 'package:coconut_vault/model/multisig/multisig_signer.dart';
 import 'package:coconut_vault/model/single_sig/single_sig_wallet.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:coconut_vault/repository/secure_storage_repository.dart';
@@ -10,6 +12,8 @@ import 'package:coconut_vault/utils/coconut/update_preparation.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:coconut_vault/main.dart' as app;
+
+import 'integration_test_utils.dart';
 
 /// 백업 데이터 암호화/복호화 및 파일 저장 기능 테스트
 ///
@@ -71,60 +75,36 @@ Future<void> skipScreensUntilVaultList(WidgetTester tester) async {
   await tester.pumpAndSettle();
 
   // Wait for and tap the skip button on tutorial screen
-  final skipButton = find.widgetWithText(TextButton, t.skip);
-
-  // Wait for the skip button to appear (timeout after 10 seconds)
-  bool found = false;
-  for (int i = 0; i < 100 && !found; i++) {
-    await tester.pump(const Duration(milliseconds: 100));
-    found = skipButton.evaluate().isNotEmpty;
-  }
-  expect(found, true, reason: 'Skip button not found after 10 seconds');
-
+  final Finder skipButton = find.widgetWithText(TextButton, t.skip);
+  await waitForWidget(tester, skipButton,
+      timeoutMessage: 'Skip button not found after 10 seconds');
   await tester.tap(skipButton);
   await tester.pumpAndSettle();
 
   // Wait for and tap the understood button on welcome screen
-  final understoodButton =
+  final Finder understoodButton =
       find.widgetWithText(CupertinoButton, t.welcome_screen.understood);
-
-  found = false;
-  for (int i = 0; i < 100 && !found; i++) {
-    await tester.pump(const Duration(milliseconds: 100));
-    found = understoodButton.evaluate().isNotEmpty;
-  }
-  expect(found, true, reason: 'Understood button not found after 10 seconds');
-
+  await waitForWidget(tester, understoodButton,
+      timeoutMessage: 'Understood button not found after 10 seconds');
   await tester.tap(understoodButton);
   await tester.pumpAndSettle();
 
   // Wait for and tap the start button on guide screen
-  final startButton = find.text(t.start);
-
-  found = false;
-  for (int i = 0; i < 100 && !found; i++) {
-    await tester.pump(const Duration(milliseconds: 100));
-    found = startButton.evaluate().isNotEmpty;
-  }
-  expect(found, true, reason: 'Start button not found after 10 seconds');
-
+  final Finder startButton = find.text(t.start);
+  await waitForWidget(tester, startButton,
+      timeoutMessage: 'Start button not found after 10 seconds');
   await tester.tap(startButton);
   await tester.pumpAndSettle();
 
   // Wait for the add wallet text to appear on vault list screen
-  final addWalletText = find.text(t.vault_list_tab.add_wallet);
-
-  found = false;
-  for (int i = 0; i < 100 && !found; i++) {
-    await tester.pump(const Duration(milliseconds: 100));
-    found = addWalletText.evaluate().isNotEmpty;
-  }
-  expect(found, true, reason: 'Add wallet text not found after 10 seconds');
+  final Finder addWalletText = find.text(t.vault_list_tab.add_wallet);
+  await waitForWidget(tester, addWalletText,
+      timeoutMessage: 'Add wallet text not found after 10 seconds');
 }
 
 Future<int> addWallets(
     WalletProvider walletProvider, WidgetTester tester) async {
-  // Given: 테스트용 vault 생성 및 저장
+  // single sig wallet
   final singleSig = SinglesigWallet(
     1,
     "Test Wallet1",
@@ -135,5 +115,50 @@ Future<int> addWallets(
   );
 
   await walletProvider.addSingleSigVault(singleSig);
-  return 1;
+
+  // multisig wallet
+  String internalWalletBsms = '''
+BSMS 1.0
+00
+[E0C42931/48'/1'/0'/2']Vpub5nNFgHQhQCGEaWtoLrnzWjDvngmwS9A8qT8g1tjkWrbvYwLGrcYupy8jFXmJqyFd9u6aeRTvuLKMrGZ8jdfbarYvLS8rK4Z8Qp5uvKjLTNt
+ttt
+''';
+  String outsideWalletBsms = '''
+BSMS 1.0
+00
+[858FA201/48'/1'/0'/2']Vpub5ncWX3M18jrGdytgNZfayhkzj37RpXHH5k11QsEC4BBJZga64W92KFDVg8CRoEyBAm4eZqXUTKEgx991ri14aWkBhAsgjak5pMHa8wjYirr
+여여려
+''';
+  List<KeyStore> keyStores = [
+    KeyStore.fromSignerBsms(internalWalletBsms),
+    KeyStore.fromSignerBsms(outsideWalletBsms)
+  ];
+  List<MultisigSigner> signers = [
+    MultisigSigner(
+      id: 0,
+      innerVaultId: 1,
+      name: "Inside Wallet",
+      iconIndex: 0,
+      colorIndex: 0,
+      signerBsms: internalWalletBsms,
+      keyStore: keyStores[0],
+    ),
+    MultisigSigner(
+      id: 0,
+      signerBsms: outsideWalletBsms,
+      name: outsideWalletBsms.split('\n')[3] ?? '',
+      memo: 'memo test',
+      keyStore: keyStores[1],
+    ),
+  ];
+
+  await walletProvider.addMultisigVault(
+    "Test Wallet2",
+    0,
+    0,
+    signers,
+    2,
+  );
+
+  return 2;
 }
