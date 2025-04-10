@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:coconut_design_system/coconut_design_system.dart';
+import 'package:coconut_vault/enums/app_update_step_enum.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/providers/view_model/app_update_preparation_view_model.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
@@ -11,16 +12,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:loader_overlay/loader_overlay.dart';
 import 'package:provider/provider.dart';
-
-enum AppUpdateStep {
-  initial,
-  validateMnemonic,
-  confirmUpdate,
-  generateSafetyKey,
-  saveWalletData,
-  verifyBackupFile,
-  completed,
-}
 
 class UpdateProcessText {
   String title;
@@ -46,14 +37,17 @@ class _AppUpdatePreparationScreenState extends State<AppUpdatePreparationScreen>
   bool _nextButtonEnabled = true;
   final List<UpdateProcessText> _updateProcessTextList = [
     UpdateProcessText(
+      // 키 생성
       title: t.prepare_update.generating_secure_key,
       subtitle: t.prepare_update.generating_secure_key_description,
     ),
     UpdateProcessText(
+      // 지갑 데이터 저장
       title: t.prepare_update.saving_wallet_data,
       subtitle: t.prepare_update.waiting_message,
     ),
     UpdateProcessText(
+      // 저장 확인
       title: t.prepare_update.verifying_safe_storage,
       subtitle: t.prepare_update.update_recovery_info,
     ),
@@ -63,8 +57,6 @@ class _AppUpdatePreparationScreenState extends State<AppUpdatePreparationScreen>
   late Animation<Offset> _slideOutAnimation;
   late Animation<Offset> _slideUpAnimation;
   late AnimationController _progressController;
-
-  AppUpdateStep _currentStep = AppUpdateStep.initial;
 
   @override
   void initState() {
@@ -101,56 +93,59 @@ class _AppUpdatePreparationScreenState extends State<AppUpdatePreparationScreen>
     super.dispose();
   }
 
-  bool _isInProgressStep() {
+  bool _isInProgressStep(AppUpdateStep currentStep) {
     final inProgressSteps = {
       AppUpdateStep.generateSafetyKey,
       AppUpdateStep.saveWalletData,
       AppUpdateStep.verifyBackupFile,
       AppUpdateStep.completed,
     };
-    return inProgressSteps.contains(_currentStep);
+    return inProgressSteps.contains(currentStep);
   }
 
-  void _onBackPressed() {
-    if (!_isInProgressStep()) {
+  void _onBackPressed(AppUpdateStep currentStep) {
+    if (!_isInProgressStep(currentStep)) {
       Navigator.pop(context);
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    return PopScope(
-      canPop: false,
-      onPopInvokedWithResult: (didPop, _) {
-        if (!didPop) {
-          _onBackPressed();
-        }
-      },
-      child: ChangeNotifierProvider(
-        create: (_) => AppUpdatePreparationViewModel(
-          Provider.of<WalletProvider>(context, listen: false),
-        ),
-        child: Consumer<AppUpdatePreparationViewModel>(
-          builder: (context, viewModel, child) {
-            _mnemonicInputController.addListener(() {
-              if (viewModel.randomVaultMnemonic != null &&
-                  _mnemonicInputController.text.length >= 3) {
-                _validateMnemonic(viewModel.randomVaultMnemonic!.mnemonic);
-              } else {
-                setState(() {
-                  _mnemonicErrorVisible = false;
-                });
+    return ChangeNotifierProvider(
+      create: (_) => AppUpdatePreparationViewModel(
+        Provider.of<WalletProvider>(context, listen: false),
+      ),
+      child: Consumer<AppUpdatePreparationViewModel>(
+        builder: (context, viewModel, child) {
+          _mnemonicInputController.addListener(() {
+            if (viewModel.randomVaultMnemonic != null &&
+                _mnemonicInputController.text.length >= 3) {
+              _validateMnemonic(viewModel.randomVaultMnemonic!.mnemonic,
+                  (step) => viewModel.setCurrentStep(step));
+            } else {
+              setState(() {
+                _mnemonicErrorVisible = false;
+              });
+            }
+          });
+          return PopScope(
+            canPop: false,
+            onPopInvokedWithResult: (didPop, _) {
+              if (!didPop) {
+                _onBackPressed(viewModel.currentStep);
               }
-            });
-            return GestureDetector(
+            },
+            child: GestureDetector(
               onTap: () => _closeKeyboard(),
               child: Scaffold(
-                appBar: !_isInProgressStep()
+                appBar: !_isInProgressStep(viewModel.currentStep)
                     ? CoconutAppBar.build(
                         title: t.settings_screen.prepare_update,
                         context: context,
-                        onBackPressed: _onBackPressed,
-                        isLeadingVisible: !_isInProgressStep(),
+                        onBackPressed: () =>
+                            _onBackPressed(viewModel.currentStep),
+                        isLeadingVisible:
+                            !_isInProgressStep(viewModel.currentStep),
                       )
                     : null,
                 body: SafeArea(
@@ -162,28 +157,32 @@ class _AppUpdatePreparationScreenState extends State<AppUpdatePreparationScreen>
                     height: MediaQuery.sizeOf(context).height,
                     child: Stack(
                       children: [
-                        _getBodyWidget(viewModel.randomVaultMnemonic),
-                        if (_currentStep == AppUpdateStep.initial ||
-                            _currentStep == AppUpdateStep.confirmUpdate)
+                        _getBodyWidget(viewModel.currentStep,
+                            viewModel.randomVaultMnemonic),
+                        if (viewModel.currentStep == AppUpdateStep.initial ||
+                            viewModel.currentStep ==
+                                AppUpdateStep.confirmUpdate)
                           Positioned(
-                              left: 0,
-                              right: 0,
-                              bottom: 40,
-                              child: _buildNextButton()),
+                            left: 0,
+                            right: 0,
+                            bottom: 40,
+                            child: _buildNextButton(viewModel),
+                          ),
                       ],
                     ),
                   ),
                 ),
               ),
-            );
-          },
-        ),
+            ),
+          );
+        },
       ),
     );
   }
 
-  Widget _getBodyWidget(RandomVaultMnemonic? randomVaultMnemonic) {
-    switch (_currentStep) {
+  Widget _getBodyWidget(
+      AppUpdateStep currentStep, RandomVaultMnemonic? randomVaultMnemonic) {
+    switch (currentStep) {
       case AppUpdateStep.initial:
         return _buildInitialWidget();
       case AppUpdateStep.validateMnemonic:
@@ -191,23 +190,25 @@ class _AppUpdatePreparationScreenState extends State<AppUpdatePreparationScreen>
       case AppUpdateStep.confirmUpdate:
         return _buildConfirmUpdateWidget();
       case AppUpdateStep.completed:
-        return _buildCompletedWidget();
+        return _buildCompletedWidget(currentStep);
       case AppUpdateStep.generateSafetyKey:
       case AppUpdateStep.saveWalletData:
       case AppUpdateStep.verifyBackupFile:
-        return _buildUpdateProcessWidget();
+        return _buildUpdateProcessWidget(currentStep);
     }
   }
 
-  Widget _buildNextButton() {
+  Widget _buildNextButton(AppUpdatePreparationViewModel viewModel) {
     return Stack(
       children: [
         CoconutButton(
-          onPressed: () => _onNextButtonPressed(),
+          onPressed: () => _onNextButtonPressed(viewModel),
           isActive: _nextButtonEnabled,
           disabledBackgroundColor: CoconutColors.gray400,
           width: double.infinity,
-          text: _currentStep == AppUpdateStep.initial ? t.confirm : t.start,
+          text: viewModel.currentStep == AppUpdateStep.initial
+              ? t.confirm
+              : t.start,
         ),
         if (!_nextButtonEnabled)
           Positioned(
@@ -232,38 +233,16 @@ class _AppUpdatePreparationScreenState extends State<AppUpdatePreparationScreen>
     );
   }
 
-  void _onNextButtonPressed() async {
+  void _onNextButtonPressed(AppUpdatePreparationViewModel viewModel) async {
     // AppUpdateStep.initial 상태에서는 validateMnemonic 전환,
     // AppUpdateStep.confirmUpdate 상태에서는 generateSafetyKey 전환
     // AppUpdateStep.confirmUpdate 전환직후 _nextButtonEnabled이 false로 설정되고 countdown 5초 후 _nextButtonEnabled이 true로 변경됨
-    if (_currentStep == AppUpdateStep.initial) {
-      setState(() {
-        _currentStep = AppUpdateStep.validateMnemonic;
-      });
-    } else if (_currentStep == AppUpdateStep.confirmUpdate) {
-      setState(() {
-        _currentStep = AppUpdateStep.generateSafetyKey;
-      });
+    if (viewModel.currentStep == AppUpdateStep.initial) {
+      viewModel.setCurrentStep(AppUpdateStep.validateMnemonic);
+    } else if (viewModel.currentStep == AppUpdateStep.confirmUpdate) {
+      viewModel.setCurrentStep(AppUpdateStep.generateSafetyKey);
 
-      _startProgress();
-
-      /// TODO: 아래 코드는 수정되어야 합니다.
-      /// 백업 파일 생성 로직에 따라 맞게 수정되어야 합니다.
-      await Future.delayed(const Duration(milliseconds: 5000));
-      if (mounted) {
-        setState(() {
-          _currentStep = AppUpdateStep.saveWalletData;
-        });
-        _animationController.forward(from: 0);
-      }
-
-      await Future.delayed(const Duration(milliseconds: 5000));
-      if (mounted) {
-        setState(() {
-          _currentStep = AppUpdateStep.verifyBackupFile;
-        });
-        _animationController.forward(from: 0);
-      }
+      _startProgress(viewModel);
     }
   }
 
@@ -362,10 +341,10 @@ class _AppUpdatePreparationScreenState extends State<AppUpdatePreparationScreen>
   }
 
   // AppUpdateStep: generateSafetyKey, saveWalletData, verifyBackupFile 상태에서 보여지는 위젯
-  Widget _buildUpdateProcessWidget() {
-    int index = _currentStep == AppUpdateStep.generateSafetyKey
+  Widget _buildUpdateProcessWidget(AppUpdateStep currentStep) {
+    int index = currentStep == AppUpdateStep.generateSafetyKey
         ? 0
-        : _currentStep == AppUpdateStep.saveWalletData
+        : currentStep == AppUpdateStep.saveWalletData
             ? 1
             : 2;
     int prevIndex = index - 1;
@@ -453,7 +432,7 @@ class _AppUpdatePreparationScreenState extends State<AppUpdatePreparationScreen>
   }
 
   // AppUpdateStep.completed 상태에서 보여지는 위젯
-  Widget _buildCompletedWidget() {
+  Widget _buildCompletedWidget(AppUpdateStep currentStep) {
     final updateInstructions = [
       t.prepare_update.step0,
       Platform.isAndroid
@@ -462,132 +441,141 @@ class _AppUpdatePreparationScreenState extends State<AppUpdatePreparationScreen>
       t.prepare_update.step2,
     ];
     return Center(
-      child: Stack(
-        // 임시 버튼 없애면 stack 제거
+      child: Column(
         children: [
-          Column(
-            children: [
-              Container(
-                height: CoconutLayout.spacing_2500h.height!,
-              ),
-              AnimatedBuilder(
-                animation: _animationController,
-                builder: (context, child) {
-                  final progress = Curves.easeOut.transform(
-                    _animationController.value.clamp(0.0, 1.0),
-                  );
-                  final scale = 0.7 + (progress * 0.3);
-                  return Transform.scale(
-                    scale: scale,
-                    child: Opacity(
-                      opacity: progress,
-                      child: child,
-                    ),
-                  );
-                },
-                child: Column(
-                  children: [
-                    Text(
-                      t.prepare_update.completed_title,
-                      style: CoconutTypography.heading4_18_Bold,
-                    ),
-                    CoconutLayout.spacing_500h,
-                    Text(
-                      t.prepare_update.completed_description,
-                      style: CoconutTypography.body2_14,
-                    ),
-                  ],
-                ),
-              ),
-              CoconutLayout.spacing_800h,
-              Expanded(
-                child: SlideTransition(
-                  position: _slideUpAnimation,
-                  child: ListView.separated(
-                    physics: const NeverScrollableScrollPhysics(),
-                    itemBuilder: (context, index) {
-                      return Container(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 16, vertical: 20),
-                        width: MediaQuery.sizeOf(context).width,
-                        decoration: BoxDecoration(
-                          borderRadius:
-                              BorderRadius.circular(CoconutStyles.radius_200),
-                          color: CoconutColors.gray200,
-                        ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              '${index + 1}.  ',
-                              style: CoconutTypography.body2_14_Bold,
-                            ),
-                            Expanded(
-                              child: Text(
-                                updateInstructions[index],
-                                style: CoconutTypography.body2_14_Bold,
-                              ),
-                            ),
-                          ],
-                        ),
-                      );
-                    },
-                    separatorBuilder: (context, index) =>
-                        CoconutLayout.spacing_300h,
-                    itemCount:
-                        t.prepare_update.update_preparing_description.length,
-                  ),
-                ),
-              ),
-            ],
+          Container(
+            height: CoconutLayout.spacing_2500h.height!,
           ),
-          Positioned(
-            left: 0,
-            right: 0,
-            bottom: 80,
-            child: CoconutButton(
-                onPressed: () {
-                  setState(() {
-                    _currentStep = AppUpdateStep.confirmUpdate;
-                  });
+          AnimatedBuilder(
+            animation: _animationController,
+            builder: (context, child) {
+              final progress = Curves.easeOut.transform(
+                _animationController.value.clamp(0.0, 1.0),
+              );
+              final scale = 0.7 + (progress * 0.3);
+              return Transform.scale(
+                scale: scale,
+                child: Opacity(
+                  opacity: progress,
+                  child: child,
+                ),
+              );
+            },
+            child: Column(
+              children: [
+                Text(
+                  t.prepare_update.completed_title,
+                  style: CoconutTypography.heading4_18_Bold,
+                ),
+                CoconutLayout.spacing_500h,
+                Text(
+                  t.prepare_update.completed_description,
+                  style: CoconutTypography.body2_14,
+                ),
+              ],
+            ),
+          ),
+          CoconutLayout.spacing_800h,
+          Expanded(
+            child: SlideTransition(
+              position: _slideUpAnimation,
+              child: ListView.separated(
+                physics: const NeverScrollableScrollPhysics(),
+                itemBuilder: (context, index) {
+                  return Container(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 16, vertical: 20),
+                    width: MediaQuery.sizeOf(context).width,
+                    decoration: BoxDecoration(
+                      borderRadius:
+                          BorderRadius.circular(CoconutStyles.radius_200),
+                      color: CoconutColors.gray200,
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          '${index + 1}.  ',
+                          style: CoconutTypography.body2_14_Bold,
+                        ),
+                        Expanded(
+                          child: Text(
+                            updateInstructions[index],
+                            style: CoconutTypography.body2_14_Bold,
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
                 },
-                text: '임시 버튼 (이전단계)'),
+                separatorBuilder: (context, index) =>
+                    CoconutLayout.spacing_300h,
+                itemCount: t.prepare_update.update_preparing_description.length,
+              ),
+            ),
           ),
         ],
       ),
     );
   }
 
-  void _startProgress() {
+  void _startProgress(AppUpdatePreparationViewModel viewModel) {
     if (_progressController.isAnimating) {
       _progressController.stop();
       return;
     }
 
-    /// TODO 실제 업데이트 프로세스에 맞게 수정되어야 합니다.
-    _progressController.duration = const Duration(seconds: 15);
-    _progressController.forward(from: 0);
+    // 백업파일 생성 프로세스 시작
+    viewModel.createBackupData();
+
     _progressController.addListener(() {
       setState(() {});
     });
 
-    _progressController.addStatusListener((status) {
-      if (status == AnimationStatus.completed) {
-        // TODO: 백업 완료 체크 조건 추가
-        Future.delayed(const Duration(milliseconds: 3000), () {
-          if (mounted) {
-            setState(() {
-              _currentStep = AppUpdateStep.completed;
-            });
-            _animationController.forward(from: 0);
+    // viewModel에서 변경 감지 후 progressBar를 움직이도록
+    viewModel.addListener(() {
+      if (viewModel.currentStep == AppUpdateStep.completed) {
+        return;
+      }
+      final progress = viewModel.backupProgress;
+      debugPrint('progress: $progress');
+      if (progress == 40 || progress == 80 || progress == 100) {
+        // Progress animation 시작
+
+        const duration = Duration(
+          milliseconds: 2000,
+        );
+
+        _progressController
+            .animateTo(
+          progress / 100,
+          duration: duration,
+        )
+            .then((_) {
+          if (progress == 40) {
+            debugPrint('createBackupData 완료, _saveEncryptedBackupWithData 호출');
+          } else if (progress == 80) {
+            debugPrint('encryptAndSave 완료, deleteAllWallets 호출');
+          } else if (progress == 100) {
+            debugPrint('deleteAllWallets 완료, 프로세스 종료(3초 대기)');
+            if (progress == 100) {
+              Future.delayed(const Duration(seconds: 3), () {
+                if (mounted) {
+                  viewModel.setCurrentStep(AppUpdateStep.completed);
+                  _animationController.forward(from: 0);
+                }
+              });
+            }
           }
+          viewModel.setProgressReached(progress);
         });
       }
     });
   }
 
-  void _validateMnemonic(String mnemonicHash) async {
+  void _validateMnemonic(
+      String mnemonicHash, Function(AppUpdateStep) setCurrentStep) async {
     if (hashString(_mnemonicInputController.text) != mnemonicHash &&
         _mnemonicInputController.text != 'mnemonic') {
       // TODO: mnemonic은 테스트 값입니다.
@@ -605,8 +593,8 @@ class _AppUpdatePreparationScreenState extends State<AppUpdatePreparationScreen>
     await Future.delayed(const Duration(milliseconds: 2000));
     if (mounted) {
       context.loaderOverlay.hide();
+      setCurrentStep(AppUpdateStep.confirmUpdate);
       setState(() {
-        _currentStep = AppUpdateStep.confirmUpdate;
         _nextButtonEnabled = false;
       });
     }
