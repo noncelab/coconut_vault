@@ -3,6 +3,7 @@ import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/providers/view_model/vault_list_restoration_view_model.dart';
 import 'package:coconut_vault/styles.dart';
 import 'package:coconut_vault/utils/icon_util.dart';
+import 'package:coconut_vault/widgets/button/fixed_bottom_button.dart';
 import 'package:coconut_vault/widgets/indicator/percent_progress_indicator.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
@@ -60,7 +61,7 @@ class _VaultListRestorationScreenState extends State<VaultListRestorationScreen>
       height: 70,
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: CoconutColors.white,
         borderRadius: const BorderRadius.all(Radius.circular(16)),
         boxShadow: [
           BoxShadow(
@@ -97,103 +98,96 @@ class _VaultListRestorationScreenState extends State<VaultListRestorationScreen>
   @override
   Widget build(BuildContext context) {
     return PopScope(
-        canPop: false,
-        child: ChangeNotifierProvider<VaultListRestorationViewModel>(
-            create: (_) => _viewModel,
-            child: Consumer<VaultListRestorationViewModel>(
-                builder: (context, viewModel, child) => Scaffold(
-                      backgroundColor: CoconutColors.white,
-                      body: SafeArea(
-                        child: Stack(
-                          children: [
-                            Column(
-                              children: [
-                                CoconutLayout.spacing_2500h,
-                                Text(
-                                  _viewModel.isVaultListRestored
-                                      ? t.vault_list_restoration.completed_title
-                                      : t.vault_list_restoration
-                                          .in_progress_title,
-                                  style: CoconutTypography.heading4_18_Bold,
-                                ),
-                                Padding(
-                                  padding:
-                                      const EdgeInsets.symmetric(vertical: 20),
-                                  child: Text(
-                                    _viewModel.isVaultListRestored
-                                        ? t.vault_list_restoration
-                                            .completed_description(
-                                                count:
-                                                    _viewModel.vaultListCount)
-                                        : t.vault_list_restoration
-                                            .in_progress_description,
-                                    style: CoconutTypography.body2_14_Bold,
-                                    textAlign: TextAlign.center,
-                                  ),
-                                ),
-                                Expanded(
-                                  child: AnimatedOpacity(
-                                    opacity: _viewModel.isVaultListRestored
-                                        ? 1.0
-                                        : 0.0,
-                                    duration: const Duration(milliseconds: 500),
-                                    child: ListView.builder(
-                                        itemCount: _viewModel.vaultList.length,
-                                        itemBuilder: (context, index) {
-                                          var element =
-                                              _viewModel.vaultList[index];
-                                          return Padding(
-                                            padding: EdgeInsets.only(
-                                                top: index == 0
-                                                    ? Sizes.size8
-                                                    : 0,
-                                                bottom: Sizes.size8,
-                                                left: CoconutLayout
-                                                    .defaultPadding,
-                                                right: CoconutLayout
-                                                    .defaultPadding),
-                                            child: _buildWalletListItem(
-                                                element.walletName,
-                                                element.iconIndex,
-                                                element.colorIndex,
-                                                element.masterFingerPrint),
-                                          );
-                                        }),
-                                  ),
-                                ),
-                                if (_viewModel.isVaultListRestored) ...{
-                                  CoconutLayout.spacing_500h,
-                                  Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: CoconutLayout.defaultPadding,
-                                    ),
-                                    child: CoconutButton(
-                                      disabledBackgroundColor:
-                                          CoconutColors.gray400,
-                                      width: double.infinity,
-                                      text:
-                                          t.vault_list_restoration.start_vault,
-                                      onPressed: () {
-                                        Navigator.pushNamedAndRemoveUntil(
-                                          context,
-                                          '/',
-                                          (Route<dynamic> route) => false,
-                                        );
-                                      },
-                                    ),
-                                  ),
-                                  CoconutLayout.spacing_1000h,
-                                }
-                              ],
-                            ),
-                            if (!_viewModel.isVaultListRestored)
-                              Center(
-                                  child: PercentProgressIndicator(
-                                      progressController: _progressController,
-                                      textColor: const Color(0xFF1E88E5))),
-                          ],
+      canPop: false,
+      child: ChangeNotifierProvider<VaultListRestorationViewModel>(
+        create: (_) => _viewModel,
+        child: Consumer<VaultListRestorationViewModel>(
+          builder: (context, viewModel, child) => Scaffold(
+            backgroundColor: CoconutColors.white,
+            body: SafeArea(
+              child: Stack(
+                children: [
+                  Column(
+                    children: [
+                      CoconutLayout.spacing_2500h,
+                      Text(
+                        _viewModel.isVaultListRestored
+                            ? t.vault_list_restoration.completed_title
+                            : t.vault_list_restoration.in_progress_title,
+                        style: CoconutTypography.heading4_18_Bold,
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 20),
+                        child: Text(
+                          _viewModel.isVaultListRestored
+                              ? t.vault_list_restoration.completed_description(
+                                  count: _viewModel.vaultListCount)
+                              : t.vault_list_restoration
+                                  .in_progress_description,
+                          style: CoconutTypography.body2_14_Bold,
+                          textAlign: TextAlign.center,
                         ),
                       ),
-                    ))));
+                      Expanded(
+                        child: AnimatedOpacity(
+                          opacity: _viewModel.isVaultListRestored ? 1.0 : 0.0,
+                          duration: const Duration(milliseconds: 500),
+                          child: ListView.builder(
+                            itemCount: _viewModel.vaultList.length,
+                            itemBuilder: (context, index) {
+                              var element = _viewModel.vaultList[index];
+                              return Padding(
+                                padding: EdgeInsets.only(
+                                    top: index == 0 ? Sizes.size8 : 0,
+                                    bottom:
+                                        index == _viewModel.vaultList.length - 1
+                                            ? 190
+                                            : Sizes.size8,
+                                    left: CoconutLayout.defaultPadding,
+                                    right: CoconutLayout.defaultPadding),
+                                child: _buildWalletListItem(
+                                    element.walletName,
+                                    element.iconIndex,
+                                    element.colorIndex,
+                                    element.masterFingerPrint),
+                              );
+                            },
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  if (!_viewModel.isVaultListRestored)
+                    Center(
+                      child: PercentProgressIndicator(
+                        progressController: _progressController,
+                        textColor: const Color(0xFF1E88E5),
+                      ),
+                    ),
+                  if (_viewModel.isVaultListRestored) ...{
+                    FixedBottomButton(
+                      onButtonClicked: () {
+                        Navigator.pushNamedAndRemoveUntil(
+                          context,
+                          '/',
+                          (Route<dynamic> route) => false,
+                        );
+                      },
+                      text: t.vault_list_restoration.start_vault,
+                      textColor: CoconutColors.white,
+                      showGradient: true,
+                      gradientPadding: const EdgeInsets.only(
+                          left: 16, right: 16, bottom: 40, top: 110),
+                      isActive: true,
+                      backgroundColor: CoconutColors.black,
+                    )
+                  },
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
   }
 }
