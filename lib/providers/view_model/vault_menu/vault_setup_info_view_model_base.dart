@@ -37,6 +37,6 @@ abstract class VaultSetupInfoViewModelBase<T extends VaultListItemBase>
   }
 
   Future<void> deleteVault() async {
-    await _walletProvider.deleteOne(_vaultListItem.id);
+    await _walletProvider.deleteWallet(_vaultListItem.id);
   }
 }

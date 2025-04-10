@@ -224,7 +224,7 @@ class _MultisigSetupInfoScreenState extends State<MultisigSetupInfoScreen> {
                 );
                 break;
               default:
-                _walletProvider.deleteOne(widget.id);
+                _walletProvider.deleteWallet(widget.id);
                 vibrateLight();
                 Navigator.popUntil(context, (route) => route.isFirst);
             }

@@ -244,7 +244,7 @@ class WalletProvider extends ChangeNotifier {
     return vaultIndex != -1;
   }
 
-  Future<void> deleteOne(int id) async {
+  Future<void> deleteWallet(int id) async {
     if (await _walletManager.deleteWallet(id)) {
       _vaultList = _walletManager.vaultList;
       notifyListeners();
@@ -252,7 +252,7 @@ class WalletProvider extends ChangeNotifier {
     }
   }
 
-  Future<void> deleteWallets() async {
+  Future<void> deleteAllWallets() async {
     await _walletManager.deleteWallets();
     _vaultList = _walletManager.vaultList;
     notifyListeners();

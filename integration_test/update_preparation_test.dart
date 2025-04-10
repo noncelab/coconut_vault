@@ -47,7 +47,7 @@ void main() {
       expect(walletProvider.vaultList.length, count);
       final backupData = await walletProvider.createBackupData();
       expect(backupData, isNotEmpty);
-      await walletProvider.deleteWallets();
+      await walletProvider.deleteAllWallets();
       expect(walletProvider.vaultList.length, 0);
 
       // 암복호화
