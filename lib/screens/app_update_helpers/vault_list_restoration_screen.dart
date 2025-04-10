@@ -144,8 +144,10 @@ class _VaultListRestorationScreenState extends State<VaultListRestorationScreen>
                                               _viewModel.vaultList[index];
                                           return Padding(
                                             padding: EdgeInsets.only(
-                                                top: index == 0 ? 20 : 0,
-                                                bottom: 20,
+                                                top: index == 0
+                                                    ? Sizes.size8
+                                                    : 0,
+                                                bottom: Sizes.size8,
                                                 left: CoconutLayout
                                                     .defaultPadding,
                                                 right: CoconutLayout
