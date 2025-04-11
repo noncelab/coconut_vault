@@ -41,6 +41,11 @@ flutter test integration_test/<test_file>.dart --flavor regtest --release
 launch.json 파일 수정 후, 해당 테스트 파일을 엽니다. vscode 왼쪽 메뉴에서 Run And Debug 메뉴를 연 후 설정한 configuration을 선택한 후 왼쪽의 재생버튼 모양을 누릅니다.
 또는 해당 테스트 파일이 열려있고 포커스 된 상태에서 `F5` 키를 눌러 실행합니다.
 
+### Android Studio 사용하는 경우
+우측 상단에 main.dart 버튼을 눌러서 Edit Configuration을 누르고 윈도우 좌측 상단에 + 버튼 누릅니다.
+Flutter Test를 클릭해주고, Test File 경로를 지정합니다. Additional args에 --flavor regtest 입력하고 OK 버튼을 눌러서 Configuration 파일 추가합니다.
+특정 테스트만 진행하고 싶은 경우 IDE 좌측 숫자 부분에 디버그 아이콘 눌러서 Configuration 추가하여 실행합니다. 
+
 ### 현재 포함된 테스트들
 
 1. `secure_key_generator_test.dart`
@@ -49,6 +54,7 @@ launch.json 파일 수정 후, 해당 테스트 파일을 엽니다. vscode 왼�
    - 키의 유니크성과 랜덤성 검증
 
 2. `update_preparation_test.dart`
+   - 데이터 백업전 니모닉 확인 기능 
    - 백업 데이터 암호화/복호화 기능 검증
    - 파일 저장 및 삭제 기능 검증
    - 보안 스토리지 연동 검증

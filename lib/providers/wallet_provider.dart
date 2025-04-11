@@ -81,8 +81,8 @@ class WalletProvider extends ChangeNotifier {
     return _vaultList.firstWhere((element) => element.name == name);
   }
 
-  List<MultisigVaultListItem> getMultisigVaults() {
-    return _vaultList.whereType<MultisigVaultListItem>().toList();
+  List<VaultListItemBase> getVaultsByWalletType(WalletType walletType) {
+    return vaultList.where((vault) => vault.vaultType == walletType).toList();
   }
 
   void setAnimatedVaultFlags({int? index}) {
