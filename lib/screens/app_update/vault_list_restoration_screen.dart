@@ -57,7 +57,7 @@ class _VaultListRestorationScreenState extends State<VaultListRestorationScreen>
     });
 
     viewModel.addListener(() {
-      final progress = viewModel.restoreProgress;
+      final progress = viewModel.restorationProgress;
       debugPrint('viewModel.restoreProgress: $progress');
 
       if (progress == 5 ||
@@ -80,7 +80,7 @@ class _VaultListRestorationScreenState extends State<VaultListRestorationScreen>
       String walletName, int iconIndex, int colorIndex, String rightText) {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
       decoration: BoxDecoration(
         color: CoconutColors.white,
         borderRadius: const BorderRadius.all(
@@ -95,6 +95,7 @@ class _VaultListRestorationScreenState extends State<VaultListRestorationScreen>
         ],
       ),
       child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           CoconutIcon(
             size: 30,
@@ -105,10 +106,12 @@ class _VaultListRestorationScreenState extends State<VaultListRestorationScreen>
                   ColorFilter.mode(ColorPalette[colorIndex], BlendMode.srcIn),
             ),
           ),
-          CoconutLayout.spacing_100w,
-          Text(walletName, style: CoconutTypography.body1_16),
+          CoconutLayout.spacing_200w,
+          Text(walletName, style: CoconutTypography.body2_14_Bold),
           const Spacer(),
-          Text(rightText, style: CoconutTypography.body1_16_Number),
+          Text(rightText,
+              style: CoconutTypography.body3_12_Number
+                  .setColor(CoconutColors.gray800)),
         ],
       ),
     );
@@ -126,7 +129,7 @@ class _VaultListRestorationScreenState extends State<VaultListRestorationScreen>
             builder: (context, viewModel, child) {
           WidgetsBinding.instance.addPostFrameCallback((_) {
             if (!viewModel.isVaultListRestored &&
-                !viewModel.isRestoreProcessing) {
+                !viewModel.isRestorationProgressing) {
               // 중복 실행 방지
               _startProgress(viewModel);
             }
@@ -176,8 +179,8 @@ class _VaultListRestorationScreenState extends State<VaultListRestorationScreen>
                                     as SingleSignatureVault;
                                 colorIndex = singleVault.colorIndex;
                                 iconIndex = singleVault.iconIndex;
-                                rightText = singlesigVault
-                                    .keyStore.masterFingerprint; // mfp
+                                rightText =
+                                    singlesigVault.keyStore.masterFingerprint;
                               } else {
                                 MultisigVaultListItem multiVault =
                                     vaultItem as MultisigVaultListItem;

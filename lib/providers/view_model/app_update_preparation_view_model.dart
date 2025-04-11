@@ -3,7 +3,6 @@ import 'dart:math';
 
 import 'package:coconut_vault/enums/wallet_enums.dart';
 import 'package:coconut_vault/model/common/vault_list_item_base.dart';
-import 'package:coconut_vault/enums/app_update_step_enum.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:coconut_vault/utils/coconut/update_preparation.dart';
 import 'package:coconut_vault/utils/hash_util.dart';
@@ -40,9 +39,6 @@ class AppUpdatePreparationViewModel extends ChangeNotifier {
   Completer<void>? _progress40Reached;
   Completer<void>? _progress80Reached;
 
-  AppUpdateStep _currentStep = AppUpdateStep.initial;
-  AppUpdateStep get currentStep => _currentStep;
-
   AppUpdatePreparationViewModel(this._walletProvider) {
     _initialize();
   }
@@ -67,11 +63,6 @@ class AppUpdatePreparationViewModel extends ChangeNotifier {
   }
 
   int get backupProgress => _backupProgress;
-
-  void setCurrentStep(AppUpdateStep step) {
-    _currentStep = step;
-    notifyListeners();
-  }
 
   Future<MnemonicWordItem> _getMnemonicWordItemFromVault(
       VaultListItemBase vault) async {
