@@ -50,7 +50,7 @@ class _VaultListRestorationScreenState extends State<VaultListRestorationScreen>
       setState(() {});
       if (_progressController.value == 1) {
         // 내부적으로 복원 프로세스가 완료되고, _progressController도 100% 진행 되고 나면 다음 화면으로 전환
-        Future.delayed(const Duration(milliseconds: 3000), () {
+        Future.delayed(const Duration(milliseconds: 1500), () {
           viewModel.setIsVaultListRestored(true);
         });
       }

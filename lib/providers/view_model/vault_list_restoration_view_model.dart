@@ -61,7 +61,7 @@ class VaultListRestorationViewModel extends ChangeNotifier {
 
     await UpdatePreparation.clearUpdatePreparationStorage();
 
-    debugPrint('[restoreVaultList] 백업 파일 삭제 완료, 프로세스 종료 대기(100%, 3초)');
+    debugPrint('[restoreVaultList] 백업 파일 삭제 완료, 프로세스 종료 대기(100%, 1.5초)');
     setRestoreProgress(100);
   }
 }
