@@ -1,5 +1,3 @@
-import 'dart:isolate';
-
 import 'package:coconut_vault/constants/secure_storage_keys.dart';
 import 'package:coconut_vault/repository/secure_storage_repository.dart';
 import 'package:coconut_vault/utils/logger.dart';
@@ -8,6 +6,7 @@ import 'package:encrypt/encrypt.dart' as encrypt;
 import 'package:coconut_vault/utils/aes_crypto.dart';
 import 'package:coconut_vault/utils/file_storage.dart';
 import 'package:path/path.dart' as path;
+import 'package:coconut_vault/utils/isolate_handler2.dart';
 
 class UpdatePreparation {
   static const String directory = 'backup';
@@ -22,9 +21,9 @@ class UpdatePreparation {
     await clearUpdatePreparationStorage();
 
     // Isolate를 사용하여 키 생성과 암호화 수행
-    final result = await _encryptInIsolate({
-      'data': data,
-    });
+    final encryptor = IsolateHandler2<String, Map<String, String>>(
+        (String data) => _encrypt(data));
+    final result = await encryptor.execute(data);
 
     // 암호화된 데이터와 IV를 ':' 로 구분하여 저장
     final fileContent = '${result['iv']}:${result['encrypted']}';
@@ -113,54 +112,19 @@ class UpdatePreparation {
     }
   }
 
-  /// Isolate에서 암호화를 수행하는 메소드
-  static Future<Map<String, String>> _encryptInIsolate(
-      Map<String, String> params) async {
-    final receivePort = ReceivePort();
-    late final Isolate isolate;
+  /// 데이터 암호화를 수행하는 메소드
+  static Map<String, String> _encrypt(String data) {
+    final String keyString = SecureKeyGenerator.generateSecureKeyWithEntropy();
+    final encrypt.Key key = encrypt.Key.fromBase64(keyString);
 
-    try {
-      isolate = await Isolate.spawn(_encryptionIsolate, {
-        'sendPort': receivePort.sendPort,
-        'data': params['data'],
-      });
+    final encryptedData = Aes256Crypto.encryptWithIvCbc(
+      data: data,
+      key: key,
+    );
 
-      final result = await receivePort.first as Map<String, dynamic>;
-      if (result.containsKey('error')) {
-        throw Exception('Encryption failed: ${result['error']}');
-      }
-      return result as Map<String, String>;
-    } catch (e) {
-      Logger.error('Error in encryption isolate: $e');
-      rethrow;
-    } finally {
-      receivePort.close();
-      isolate.kill();
-    }
-  }
-
-  /// 실제 암호화를 수행하는 isolate
-  static void _encryptionIsolate(Map<String, dynamic> params) {
-    final SendPort sendPort = params['sendPort'];
-    final String data = params['data'];
-
-    try {
-      final String keyString =
-          SecureKeyGenerator.generateSecureKeyWithEntropy();
-      final encrypt.Key key = encrypt.Key.fromBase64(keyString);
-
-      final encryptedData = Aes256Crypto.encryptWithIvCbc(
-        data: data,
-        key: key,
-      );
-
-      sendPort.send({
-        ...encryptedData,
-        'key': keyString,
-      });
-    } catch (e) {
-      Logger.error('Error in encryption process: $e');
-      sendPort.send({'error': e.toString()});
-    }
+    return {
+      ...encryptedData,
+      'key': keyString,
+    };
   }
 }
