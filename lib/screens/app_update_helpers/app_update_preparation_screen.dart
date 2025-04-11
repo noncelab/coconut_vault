@@ -571,6 +571,7 @@ class _AppUpdatePreparationScreenState extends State<AppUpdatePreparationScreen>
             Future.delayed(const Duration(seconds: 3), () {
               if (mounted) {
                 viewModel.setCurrentStep(AppUpdateStep.completed);
+                _animationController.forward(from: 0); // completed 애니메이션 시작
               }
             });
           }
