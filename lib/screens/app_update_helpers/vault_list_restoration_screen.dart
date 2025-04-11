@@ -95,12 +95,12 @@ class _VaultListRestorationScreenState extends State<VaultListRestorationScreen>
       child: Row(
         children: [
           CoconutIcon(
-            size: 44,
+            size: 30,
             backgroundColor: BackgroundColorPalette[colorIndex],
             child: SvgPicture.asset(
-              CustomIcons.getPathByIndex(0),
+              CustomIcons.getPathByIndex(iconIndex),
               colorFilter:
-                  ColorFilter.mode(ColorPalette[iconIndex], BlendMode.srcIn),
+                  ColorFilter.mode(ColorPalette[colorIndex], BlendMode.srcIn),
             ),
           ),
           CoconutLayout.spacing_100w,
