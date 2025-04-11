@@ -191,7 +191,7 @@ class _AppUpdatePreparationScreenState extends State<AppUpdatePreparationScreen>
       case AppUpdateStep.confirmUpdate:
         return _buildConfirmUpdateWidget();
       case AppUpdateStep.completed:
-        return _buildCompletedWidget(currentStep);
+        return _buildCompletedWidget();
       case AppUpdateStep.generateSafetyKey:
       case AppUpdateStep.saveWalletData:
       case AppUpdateStep.verifyBackupFile:
@@ -243,6 +243,7 @@ class _AppUpdatePreparationScreenState extends State<AppUpdatePreparationScreen>
       viewModel.setCurrentStep(AppUpdateStep.generateSafetyKey);
 
       _startProgress(viewModel);
+      _animationController.forward(from: 0);
     }
   }
 
@@ -432,7 +433,7 @@ class _AppUpdatePreparationScreenState extends State<AppUpdatePreparationScreen>
   }
 
   // AppUpdateStep.completed 상태에서 보여지는 위젯
-  Widget _buildCompletedWidget(AppUpdateStep currentStep) {
+  Widget _buildCompletedWidget() {
     final updateInstructions = [
       t.prepare_update.step0,
       Platform.isAndroid
@@ -555,18 +556,23 @@ class _AppUpdatePreparationScreenState extends State<AppUpdatePreparationScreen>
             .then((_) {
           if (progress == 40) {
             debugPrint('createBackupData 완료, _saveEncryptedBackupWithData 호출');
+            if (viewModel.currentStep != AppUpdateStep.saveWalletData) {
+              viewModel.setCurrentStep(AppUpdateStep.saveWalletData);
+              _animationController.forward(from: 0);
+            }
           } else if (progress == 80) {
             debugPrint('encryptAndSave 완료, deleteAllWallets 호출');
+            if (viewModel.currentStep != AppUpdateStep.verifyBackupFile) {
+              viewModel.setCurrentStep(AppUpdateStep.verifyBackupFile);
+              _animationController.forward(from: 0);
+            }
           } else if (progress == 100) {
             debugPrint('deleteAllWallets 완료, 프로세스 종료(3초 대기)');
-            if (progress == 100) {
-              Future.delayed(const Duration(seconds: 3), () {
-                if (mounted) {
-                  viewModel.setCurrentStep(AppUpdateStep.completed);
-                  _animationController.forward(from: 0);
-                }
-              });
-            }
+            Future.delayed(const Duration(seconds: 3), () {
+              if (mounted) {
+                viewModel.setCurrentStep(AppUpdateStep.completed);
+              }
+            });
           }
           viewModel.setProgressReached(progress);
         });
