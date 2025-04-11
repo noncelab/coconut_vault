@@ -1,3 +1,4 @@
+import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_vault/constants/app_routes.dart';
 import 'package:coconut_vault/enums/pin_check_context_enum.dart';
 import 'package:coconut_vault/main_route_guard.dart';
@@ -141,7 +142,7 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> {
           theme: const CupertinoThemeData(
             brightness: Brightness.light,
             primaryColor: Colors.blue, // 기본 색상
-            scaffoldBackgroundColor: MyColors.white, // 배경색
+            scaffoldBackgroundColor: CoconutColors.white, // 배경색
             textTheme: CupertinoTextThemeData(
               navTitleTextStyle: TextStyle(
                 fontFamily: 'Pretendard',
@@ -153,11 +154,12 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> {
                 fontFamily: 'Pretendard',
                 fontSize: 16,
                 fontWeight: FontWeight.w400,
-                color: CupertinoColors.black, // 기본 텍스트 색상
+                color: CoconutColors.black, // 기본 텍스트 색상
               ),
             ),
+            barBackgroundColor: CoconutColors.white,
           ),
-          color: MyColors.black,
+          color: CoconutColors.white,
           home: _getHomeScreenRoute(_appEntryFlow, context),
           routes: {
             AppRoutes.vaultTypeSelection: (context) =>

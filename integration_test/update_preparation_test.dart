@@ -25,10 +25,7 @@ import 'integration_test_utils.dart';
 ///
 /// 실행 명령어:
 /// ```bash
-/// # 디버그 모드 (기본)
 /// flutter test integration_test/update_preparation_test.dart --flavor regtest
-/// # release 모드
-/// flutter test integration_test/update_preparation_test.dart --flavor regtest --release
 /// ```
 ///
 /// 자세한 내용은 README.md 참고

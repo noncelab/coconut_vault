@@ -6,6 +6,7 @@ import 'package:encrypt/encrypt.dart' as encrypt;
 import 'package:coconut_vault/utils/aes_crypto.dart';
 import 'package:coconut_vault/utils/file_storage.dart';
 import 'package:path/path.dart' as path;
+import 'package:coconut_vault/utils/isolate_handler2.dart';
 
 class UpdatePreparation {
   static const String directory = 'backup';
@@ -18,16 +19,14 @@ class UpdatePreparation {
     required String data,
   }) async {
     await clearUpdatePreparationStorage();
-    final String keyString = SecureKeyGenerator.generateSecureKeyWithEntropy();
-    Logger.log('keyString: $keyString');
-    final encrypt.Key key = encrypt.Key.fromBase64(keyString);
-    final encryptedData = Aes256Crypto.encryptWithIvCbc(
-      data: data,
-      key: key,
-    );
+
+    // Isolate를 사용하여 키 생성과 암호화 수행
+    final encryptor = IsolateHandler2<String, Map<String, String>>(
+        (String data) => _encrypt(data));
+    final result = await encryptor.execute(data);
 
     // 암호화된 데이터와 IV를 ':' 로 구분하여 저장
-    final fileContent = '${encryptedData['iv']}:${encryptedData['encrypted']}';
+    final fileContent = '${result['iv']}:${result['encrypted']}';
 
     final timestamp = DateTime.now().toIso8601String();
     final fileName = fileNameFormat.replaceAll('%s', timestamp);
@@ -39,10 +38,8 @@ class UpdatePreparation {
     );
 
     // 암호화에 사용한 key를 저장
-    await SecureStorageRepository()
-        .write(key: SecureStorageKeys.kAes256Key, value: keyString);
-
-    Logger.log('savedPath: $savedPath');
+    await SecureStorageRepository().write(
+        key: SecureStorageKeys.kAes256Key, value: result['key'] as String);
 
     await validatePreparationState();
     return savedPath;
@@ -113,5 +110,21 @@ class UpdatePreparation {
         null) {
       throw AssertionError('Aes256Key is not found');
     }
+  }
+
+  /// 데이터 암호화를 수행하는 메소드
+  static Map<String, String> _encrypt(String data) {
+    final String keyString = SecureKeyGenerator.generateSecureKeyWithEntropy();
+    final encrypt.Key key = encrypt.Key.fromBase64(keyString);
+
+    final encryptedData = Aes256Crypto.encryptWithIvCbc(
+      data: data,
+      key: key,
+    );
+
+    return {
+      ...encryptedData,
+      'key': keyString,
+    };
   }
 }
