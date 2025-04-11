@@ -567,8 +567,8 @@ class _AppUpdatePreparationScreenState extends State<AppUpdatePreparationScreen>
               _animationController.forward(from: 0);
             }
           } else if (progress == 100) {
-            debugPrint('deleteAllWallets 완료, 프로세스 종료(3초 대기)');
-            Future.delayed(const Duration(seconds: 3), () {
+            debugPrint('deleteAllWallets 완료, 프로세스 종료(1.5초 대기)');
+            Future.delayed(const Duration(milliseconds: 1500), () {
               if (mounted) {
                 viewModel.setCurrentStep(AppUpdateStep.completed);
                 _animationController.forward(from: 0); // completed 애니메이션 시작
