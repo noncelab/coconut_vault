@@ -293,7 +293,7 @@ class _AppUpdatePreparationScreenState extends State<AppUpdatePreparationScreen>
         builder: (context, currentMnemonicIndex, _) {
           var vaultMnemonicItem = context
               .read<AppUpdatePreparationViewModel>()
-              .vaultMnemonicItems[currentMnemonicIndex];
+              .mnemonicWordItems[currentMnemonicIndex];
           return Center(
             child: Column(
               children: [
@@ -632,7 +632,9 @@ class _AppUpdatePreparationScreenState extends State<AppUpdatePreparationScreen>
     });
 
     context.read<AppUpdatePreparationViewModel>().proceedNextMnemonic();
-    if (context.read<AppUpdatePreparationViewModel>().isMnemonicFinished) {
+    if (context
+        .read<AppUpdatePreparationViewModel>()
+        .isMnemonicValidationFinished) {
       _closeKeyboard();
       context.loaderOverlay.show();
       await Future.delayed(const Duration(milliseconds: 2000));

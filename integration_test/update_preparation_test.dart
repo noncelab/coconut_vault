@@ -83,22 +83,22 @@ void main() {
       // Check if vaultMnemonicItems were created correctly (name, index, mnemonic)
       expect(updatePreparationProvider.isMnemonicLoaded, true);
       expect(singleSignVaults.length,
-          updatePreparationProvider.vaultMnemonicItems.length);
+          updatePreparationProvider.mnemonicWordItems.length);
 
       for (int i = 0; i < singleSignVaults.length; i++) {
-        VaultMnemonicItem vaultMnemonicItem =
-            updatePreparationProvider.vaultMnemonicItems[i];
+        MnemonicWordItem mnemonicWordItem =
+            updatePreparationProvider.mnemonicWordItems[i];
         List<String> vaultMnemonicList = await walletProvider
             .getSecret(singleSignVaults[i].id)
             .then((secret) => secret.mnemonic.split(' '));
 
-        expect(vaultMnemonicItem.vaultName, singleSignVaults[i].name);
-        expect(vaultMnemonicItem.mnemonicWordIndex < vaultMnemonicList.length,
+        expect(mnemonicWordItem.vaultName, singleSignVaults[i].name);
+        expect(mnemonicWordItem.mnemonicWordIndex < vaultMnemonicList.length,
             true);
-        expect(vaultMnemonicItem.mnemonicWord,
-            hashString(vaultMnemonicList[vaultMnemonicItem.mnemonicWordIndex]));
+        expect(mnemonicWordItem.mnemonicWord,
+            hashString(vaultMnemonicList[mnemonicWordItem.mnemonicWordIndex]));
         mnemonicListToInput
-            .add(vaultMnemonicList[vaultMnemonicItem.mnemonicWordIndex]);
+            .add(vaultMnemonicList[mnemonicWordItem.mnemonicWordIndex]);
       }
 
       // Check if Logic works correctly (text, index)
@@ -106,11 +106,11 @@ void main() {
       await waitForWidgetAndTap(tester, textInput, "textInput");
 
       for (int i = 0; i < mnemonicListToInput.length; i++) {
-        VaultMnemonicItem vaultMnemonicItem =
-            updatePreparationProvider.vaultMnemonicItems[i];
+        MnemonicWordItem mnemonicWordItem =
+            updatePreparationProvider.mnemonicWordItems[i];
         String title = t.prepare_update.enter_nth_word_of_wallet(
-          wallet_name: vaultMnemonicItem.vaultName,
-          n: vaultMnemonicItem.mnemonicWordIndex + 1,
+          wallet_name: mnemonicWordItem.vaultName,
+          n: mnemonicWordItem.mnemonicWordIndex + 1,
         );
 
         final Finder titleText = find.text(title);
@@ -122,7 +122,7 @@ void main() {
       }
 
       // Check if Logic finished correctly
-      expect(updatePreparationProvider.isMnemonicFinished, true);
+      expect(updatePreparationProvider.isMnemonicValidationFinished, true);
       expect(updatePreparationProvider.currentMnemonicIndex,
           mnemonicListToInput.length - 1);
 
