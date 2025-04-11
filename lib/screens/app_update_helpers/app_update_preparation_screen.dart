@@ -545,7 +545,7 @@ class _AppUpdatePreparationScreenState extends State<AppUpdatePreparationScreen>
         // Progress animation 시작
 
         const duration = Duration(
-          milliseconds: 2000,
+          milliseconds: 5000,
         );
 
         _progressController
