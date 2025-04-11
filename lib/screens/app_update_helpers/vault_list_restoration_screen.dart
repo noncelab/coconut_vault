@@ -83,7 +83,9 @@ class _VaultListRestorationScreenState extends State<VaultListRestorationScreen>
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: CoconutColors.white,
-        borderRadius: const BorderRadius.all(Radius.circular(16)),
+        borderRadius: const BorderRadius.all(
+          Radius.circular(CoconutStyles.radius_400),
+        ),
         boxShadow: [
           BoxShadow(
             color: Colors.grey.withOpacity(0.18),
@@ -106,7 +108,7 @@ class _VaultListRestorationScreenState extends State<VaultListRestorationScreen>
           CoconutLayout.spacing_100w,
           Text(walletName, style: CoconutTypography.body1_16),
           const Spacer(),
-          Text(rightText, style: CoconutTypography.body2_14_Number)
+          Text(rightText, style: CoconutTypography.body1_16_Number),
         ],
       ),
     );
