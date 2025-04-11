@@ -56,15 +56,22 @@ class _SettingsScreenState extends State<SettingsScreen> {
             children: [
               _securityPart(context),
               CoconutLayout.spacing_1000h,
-              Selector<WalletProvider, bool>(
-                selector: (context, provider) => provider.vaultList.isNotEmpty,
-                builder: (context, isNotEmpty, _) => isNotEmpty
-                    ? Column(children: [
-                        _updatePart(context),
-                        CoconutLayout.spacing_1000h
-                      ])
-                    : Container(),
-              ),
+              // TODO: 복원 기능 테스트를 위해 임시 주석 처리
+              // Selector<WalletProvider, bool>(
+              //   selector: (context, provider) => provider.vaultList.isNotEmpty,
+              //   builder: (context, isNotEmpty, _) => isNotEmpty
+              //       ? Column(children: [
+              //           _updatePart(context),
+              //           CoconutLayout.spacing_1000h
+              //         ])
+              //       : Container(),
+              // ),
+
+              // TODO: 복원 기능 테스트를 위해 임시 구현
+              Column(children: [
+                _updatePart(context),
+                CoconutLayout.spacing_1000h
+              ]),
               _advancedUserPart(context),
             ],
           ),
