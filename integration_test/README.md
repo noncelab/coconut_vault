@@ -5,7 +5,6 @@
 ## 테스트 실행 환경
 
 - 실제 모바일 기기가 연결되어 있어야 합니다.
-- 기본적으로 디버그 모드로 실행됩니다. (release 모드는 `--release` 플래그 추가)
 - Regtest flavor를 사용합니다.
 
 ## 테스트 실행 방법
@@ -13,11 +12,7 @@
 각 테스트 파일은 다음 명령어로 실행할 수 있습니다:
 
 ```bash
-# 디버그 모드로 실행 (기본)
 flutter test integration_test/<test_file>.dart --flavor regtest
-
-# release 모드로 실행
-flutter test integration_test/<test_file>.dart --flavor regtest --release
 ```
 
 ## 디버깅을 하고 싶을 때
