@@ -14,3 +14,13 @@ Future<bool> waitForWidget(WidgetTester tester, Finder finder,
   }
   return found;
 }
+
+Future<void> waitForWidgetAndTap(
+    WidgetTester tester, Finder element, String elementName,
+    {int timeoutSeconds = 60}) async {
+  await waitForWidget(tester, element,
+      timeoutMessage: "$elementName not found after $timeoutSeconds seconds",
+      timeoutSeconds: timeoutSeconds);
+  await tester.tap(element);
+  await tester.pumpAndSettle();
+}

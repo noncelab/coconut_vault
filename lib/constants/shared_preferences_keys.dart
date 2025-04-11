@@ -6,7 +6,8 @@ class SharedPrefsKeys {
   static const String isBiometricEnabled = "IS_BIOMETRIC_ENABLED";
   static const String hasAlreadyRequestedBluetoothPermission =
       "HAS_ALREADY_REQUESTED_BLUETOOTH_PERMISSION";
-  static const String hasAlreadyRequestedBioPermission = "HAS_ALREADY_REQUESTED_BIO_PERMISSION";
+  static const String hasAlreadyRequestedBioPermission =
+      "HAS_ALREADY_REQUESTED_BIO_PERMISSION";
   static const String hasBiometricsPermission = "HAS_BIOMETRICS_PERMISSION";
 
   static const String kUnlockAvailableAt = 'LOCKOUT_END_TIME';

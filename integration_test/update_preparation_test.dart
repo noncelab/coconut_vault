@@ -1,9 +1,15 @@
+import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_lib/coconut_lib.dart';
+import 'package:coconut_vault/enums/wallet_enums.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
+import 'package:coconut_vault/model/common/vault_list_item_base.dart';
 import 'package:coconut_vault/model/multisig/multisig_signer.dart';
 import 'package:coconut_vault/model/single_sig/single_sig_wallet.dart';
+import 'package:coconut_vault/providers/auth_provider.dart';
+import 'package:coconut_vault/providers/view_model/app_update_preparation_view_model.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:coconut_vault/repository/secure_storage_repository.dart';
+import 'package:coconut_vault/utils/hash_util.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -40,6 +46,91 @@ void main() {
   });
 
   group('UpdatePreparation Integration Tests', () {
+    testWidgets('Mnemonic check test', (tester) async {
+      await skipScreensUntilVaultList(tester);
+
+      // Save pin password 0000
+      final authProvider = Provider.of<AuthProvider>(
+        tester.element(find.byType(CupertinoApp)),
+        listen: false,
+      );
+      await authProvider.savePin("0000");
+
+      // add wallets
+      final walletProvider = Provider.of<WalletProvider>(
+        tester.element(find.byType(CupertinoApp)),
+        listen: false,
+      );
+      int count = await addWallets(walletProvider, tester);
+      expect(walletProvider.vaultList.length, count);
+
+      count += await addSingleSigWallets(walletProvider, tester);
+      expect(walletProvider.vaultList.length, count);
+
+      // vault list screen to update preparation screen
+      await showUpdatePreparationScreen(tester);
+
+      final updatePreparationProvider =
+          Provider.of<AppUpdatePreparationViewModel>(
+        tester.element(find.text(t.settings_screen.prepare_update)),
+        listen: false,
+      );
+
+      List<VaultListItemBase> singleSignVaults =
+          walletProvider.getVaultsByWalletType(WalletType.singleSignature);
+      List<String> mnemonicListToInput = [];
+
+      // Check if vaultMnemonicItems were created correctly (name, index, mnemonic)
+      expect(updatePreparationProvider.isMnemonicLoaded, true);
+      expect(singleSignVaults.length,
+          updatePreparationProvider.mnemonicWordItems.length);
+
+      for (int i = 0; i < singleSignVaults.length; i++) {
+        MnemonicWordItem mnemonicWordItem =
+            updatePreparationProvider.mnemonicWordItems[i];
+        List<String> vaultMnemonicList = await walletProvider
+            .getSecret(singleSignVaults[i].id)
+            .then((secret) => secret.mnemonic.split(' '));
+
+        expect(mnemonicWordItem.vaultName, singleSignVaults[i].name);
+        expect(mnemonicWordItem.mnemonicWordIndex < vaultMnemonicList.length,
+            true);
+        expect(mnemonicWordItem.mnemonicWord,
+            hashString(vaultMnemonicList[mnemonicWordItem.mnemonicWordIndex]));
+        mnemonicListToInput
+            .add(vaultMnemonicList[mnemonicWordItem.mnemonicWordIndex]);
+      }
+
+      // Check if Logic works correctly (text, index)
+      final Finder textInput = find.byType(CoconutTextField);
+      await waitForWidgetAndTap(tester, textInput, "textInput");
+
+      for (int i = 0; i < mnemonicListToInput.length; i++) {
+        MnemonicWordItem mnemonicWordItem =
+            updatePreparationProvider.mnemonicWordItems[i];
+        String title = t.prepare_update.enter_nth_word_of_wallet(
+          wallet_name: mnemonicWordItem.vaultName,
+          n: mnemonicWordItem.mnemonicWordIndex + 1,
+        );
+
+        final Finder titleText = find.text(title);
+        expect(titleText, findsOneWidget);
+        expect(updatePreparationProvider.currentMnemonicIndex, i);
+
+        await tester.enterText(textInput, mnemonicListToInput[i]);
+        await tester.pumpAndSettle();
+      }
+
+      // Check if Logic finished correctly
+      expect(updatePreparationProvider.isMnemonicValidationFinished, true);
+      expect(updatePreparationProvider.currentMnemonicIndex,
+          mnemonicListToInput.length - 1);
+
+      updatePreparationProvider.proceedNextMnemonic();
+      expect(updatePreparationProvider.currentMnemonicIndex,
+          mnemonicListToInput.length - 1);
+    });
+
     testWidgets('Backup and restore test', (tester) async {
       // Skip tutorial screen
       await skipScreensUntilVaultList(tester);
@@ -100,6 +191,59 @@ Future<void> skipScreensUntilVaultList(WidgetTester tester) async {
   final Finder addWalletText = find.text(t.vault_list_tab.add_wallet);
   await waitForWidget(tester, addWalletText,
       timeoutMessage: 'Add wallet text not found after 10 seconds');
+}
+
+Future<void> showUpdatePreparationScreen(WidgetTester tester) async {
+  // Click more button on vault List screen (VaultList to SettingScreen)
+  final Finder moreButton = find.byIcon(CupertinoIcons.ellipsis);
+  await waitForWidgetAndTap(tester, moreButton, "moreButton");
+
+  // Click settings text on drop down menu (VaultList to SettingScreen)
+  final Finder settingButtonOnDropdownMenu = find.text(t.settings);
+  await waitForWidgetAndTap(
+      tester, settingButtonOnDropdownMenu, "settingButtonOnDropdownMenu");
+
+  // Click prepare_update text on menu
+  final Finder updatePreparationText =
+      find.text(t.settings_screen.prepare_update);
+  await waitForWidgetAndTap(
+      tester, updatePreparationText, "updatePreparationText");
+
+  // Input Password 0000
+  final Finder zeroButton = find.text('0');
+  await waitForWidgetAndTap(tester, zeroButton, "zeroButton");
+  await waitForWidgetAndTap(tester, zeroButton, "zeroButton");
+  await waitForWidgetAndTap(tester, zeroButton, "zeroButton");
+  await waitForWidgetAndTap(tester, zeroButton, "zeroButton");
+
+  // Click confirm text on update preparation screen
+  final Finder confirmText = find.text(t.confirm);
+  await waitForWidgetAndTap(tester, confirmText, "confirmText");
+}
+
+Future<int> addSingleSigWallets(
+    WalletProvider walletProvider, WidgetTester tester) async {
+  final singleSig2 = SinglesigWallet(
+    2,
+    "New Wallet3",
+    0,
+    0,
+    "primary exotic display destroy wrap zoo among scan length despair lend yard",
+    '',
+  );
+
+  final singleSig3 = SinglesigWallet(
+    3,
+    "Test Wallet4",
+    0,
+    0,
+    "dwarf aim crash town chalk device bulb simple space draft ball canoe",
+    '',
+  );
+
+  await walletProvider.addSingleSigVault(singleSig2);
+  await walletProvider.addSingleSigVault(singleSig3);
+  return 2;
 }
 
 Future<int> addWallets(

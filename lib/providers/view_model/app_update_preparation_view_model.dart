@@ -1,52 +1,80 @@
 import 'dart:math';
 
+import 'package:coconut_vault/enums/wallet_enums.dart';
+import 'package:coconut_vault/model/common/vault_list_item_base.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:coconut_vault/utils/hash_util.dart';
 import 'package:flutter/material.dart';
 
-class RandomVaultMnemonic {
+class MnemonicWordItem {
   final String vaultName;
-  final String mnemonic;
-  final int mnemonicIndex;
+  final String mnemonicWord;
+  final int mnemonicWordIndex;
 
-  const RandomVaultMnemonic({
+  const MnemonicWordItem({
     required this.vaultName,
-    required this.mnemonic,
-    required this.mnemonicIndex,
+    required this.mnemonicWord,
+    required this.mnemonicWordIndex,
   });
 }
 
 class AppUpdatePreparationViewModel extends ChangeNotifier {
   final WalletProvider _walletProvider;
+  final List<MnemonicWordItem> _mnemonicWordItems = [];
+  final _random = Random();
+  bool _isMnemonicLoaded = false;
+  bool _isMnemonicValidationFinished = false;
+  int _currentMnemonicIndex = 0;
 
-  RandomVaultMnemonic? _randomVaultMnemonic;
+  WalletProvider get walletProvider => _walletProvider;
+  List<MnemonicWordItem> get mnemonicWordItems => _mnemonicWordItems;
+  bool get isMnemonicLoaded => _isMnemonicLoaded;
+  bool get isMnemonicValidationFinished => _isMnemonicValidationFinished;
+  int get currentMnemonicIndex => _currentMnemonicIndex;
 
   AppUpdatePreparationViewModel(this._walletProvider) {
-    _setRandomMnemonic();
+    _initialize();
   }
 
-  RandomVaultMnemonic? get randomVaultMnemonic => _randomVaultMnemonic;
+  Future<void> _initialize() async {
+    List<VaultListItemBase> filteredList =
+        _walletProvider.getVaultsByWalletType(WalletType.singleSignature);
+    if (filteredList.isEmpty) {
+      _isMnemonicLoaded = true;
+      _isMnemonicValidationFinished = true;
+      notifyListeners();
+    }
 
-  Future<void> _setRandomMnemonic() async {
-    // TODO: 두개의 랜덤 니모닉을 확인할 수 있도록 수정 필요, 현재는 한개만 랜덤으로 확인합니다.
-    final vaultIdList =
-        _walletProvider.vaultList.map((vault) => vault.id).toList();
-    final random = Random();
-    final randomVaultId = vaultIdList[random.nextInt(vaultIdList.length)];
+    for (int i = 0; i < filteredList.length; i++) {
+      _mnemonicWordItems
+          .add(await _getMnemonicWordItemFromVault(filteredList[i]));
+      if (_mnemonicWordItems.length == filteredList.length) {
+        _isMnemonicLoaded = true;
+        notifyListeners();
+      }
+    }
+  }
 
-    final mnemonic =
-        await _walletProvider.getSecret(randomVaultId).then((secret) {
-      return secret.mnemonic.split(' ');
+  Future<MnemonicWordItem> _getMnemonicWordItemFromVault(
+      VaultListItemBase vault) async {
+    return await _walletProvider.getSecret(vault.id).then((secret) {
+      List<String> mnemonicList = secret.mnemonic.split(' ');
+      int mnemonicIndex = _random.nextInt(mnemonicList.length);
+      return MnemonicWordItem(
+          vaultName: vault.name,
+          mnemonicWord: hashString(mnemonicList[mnemonicIndex]),
+          mnemonicWordIndex: mnemonicIndex);
     });
+  }
 
-    final randomMnemonicIndex = random.nextInt(mnemonic.length);
+  void proceedNextMnemonic() {
+    if (_isMnemonicValidationFinished) return;
+    ++_currentMnemonicIndex;
+    if (_currentMnemonicIndex == _mnemonicWordItems.length) {
+      _currentMnemonicIndex = _mnemonicWordItems.length - 1;
+      _isMnemonicValidationFinished = true;
+    }
 
-    final vaultName = _walletProvider.getVaultById(randomVaultId).name;
-
-    _randomVaultMnemonic = RandomVaultMnemonic(
-      vaultName: vaultName,
-      mnemonic: hashString(mnemonic[randomMnemonicIndex]),
-      mnemonicIndex: randomMnemonicIndex,
-    );
+    notifyListeners();
   }
 }

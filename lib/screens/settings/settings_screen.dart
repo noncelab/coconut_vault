@@ -181,7 +181,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             ),
             // 임시 메뉴
             SingleButton(
-              title: '복원하기',
+              title: t.restore,
               onPressed: () async {
                 MyBottomSheet.showBottomSheet_90(
                   context: context,
