@@ -273,6 +273,7 @@ class AuthProvider extends ChangeNotifier {
     _sharedPrefs.setBool(SharedPrefsKeys.isBiometricEnabled, false);
     _sharedPrefs.setBool(SharedPrefsKeys.isPinEnabled, false);
     _sharedPrefs.setInt(SharedPrefsKeys.vaultListLength, 0);
+    _sharedPrefs.setString(SharedPrefsKeys.kAppVersion, '');
 
     resetAuthenticationState();
   }

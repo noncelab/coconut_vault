@@ -4,6 +4,7 @@ import 'dart:math';
 import 'package:coconut_vault/enums/wallet_enums.dart';
 import 'package:coconut_vault/model/common/vault_list_item_base.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
+import 'package:coconut_vault/utils/app_version_util.dart';
 import 'package:coconut_vault/utils/coconut/update_preparation.dart';
 import 'package:coconut_vault/utils/hash_util.dart';
 import 'package:coconut_vault/utils/logger.dart';
@@ -138,6 +139,7 @@ class AppUpdatePreparationViewModel extends ChangeNotifier {
 
   void deleteAllWallets() async {
     await _walletProvider.deleteAllWallets();
+    await AppVersionUtil.saveAppVersionToPrefs(); // 업데이트전 버전 저장
     _backupProgress = 100;
     notifyListeners();
   }

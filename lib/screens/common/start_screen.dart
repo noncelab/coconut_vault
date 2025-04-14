@@ -1,12 +1,13 @@
 import 'dart:async';
 
+import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_vault/app.dart';
 import 'package:coconut_vault/providers/connectivity_provider.dart';
 import 'package:coconut_vault/providers/view_model/start_view_model.dart';
 import 'package:coconut_vault/providers/visibility_provider.dart';
+import 'package:coconut_vault/utils/app_version_util.dart';
+import 'package:coconut_vault/utils/coconut/update_preparation.dart';
 import 'package:flutter/material.dart';
-
-import 'package:coconut_vault/styles.dart';
 import 'package:provider/provider.dart';
 
 class StartScreen extends StatefulWidget {
@@ -50,14 +51,30 @@ class _StartScreenState extends State<StartScreen> {
     if (_viewModel.isWalletExistent()) {
       widget.onComplete(AppEntryFlow.pincheck);
     } else {
-      widget.onComplete(AppEntryFlow.vaultlist);
+      // 복원파일 유무를 확인합니다.
+      UpdatePreparation.isRestorationPrepared()
+          .then((isRestorationPrepared) async {
+        if (isRestorationPrepared) {
+          // 복원파일 있음
+          if (await AppVersionUtil.isAppVersionUpdated()) {
+            // 업데이트 완료
+            widget.onComplete(AppEntryFlow.pincheckForRestore);
+          } else {
+            // 업데이트 하지 않음
+            widget.onComplete(AppEntryFlow.foundBackupFile);
+          }
+        } else {
+          // 복원파일 없음 - 일반적인 최초 진입 흐름
+          widget.onComplete(AppEntryFlow.vaultlist);
+        }
+      });
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: MyColors.white,
+      backgroundColor: CoconutColors.white,
       body: Column(
         children: [
           Flexible(

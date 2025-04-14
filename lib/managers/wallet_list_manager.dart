@@ -13,6 +13,7 @@ import 'package:coconut_vault/model/single_sig/single_sig_wallet.dart';
 import 'package:coconut_vault/managers/isolate_manager.dart';
 import 'package:coconut_vault/repository/secure_storage_repository.dart';
 import 'package:coconut_vault/repository/shared_preferences_repository.dart';
+import 'package:coconut_vault/utils/coconut/update_preparation.dart';
 import 'package:coconut_vault/utils/hash_util.dart';
 import 'package:coconut_vault/utils/isolate_handler.dart';
 import 'package:coconut_vault/utils/logger.dart';
@@ -356,6 +357,10 @@ class WalletListManager {
 
   Future<void> resetAll() async {
     _vaultList?.clear();
+
+    await UpdatePreparation
+        .clearUpdatePreparationStorage(); // 비밀번호 초기화시 백업파일도 같이 삭제
+
     await _storageService.deleteAll();
     await _savePublicInfo();
   }
