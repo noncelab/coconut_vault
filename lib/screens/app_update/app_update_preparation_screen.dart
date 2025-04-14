@@ -71,6 +71,8 @@ class _AppUpdatePreparationScreenState extends State<AppUpdatePreparationScreen>
   late Animation<Offset> _slideUpAnimation;
   late AnimationController _progressController;
 
+  bool _hasAddedListener = false;
+
   @override
   void initState() {
     super.initState();
@@ -114,9 +116,12 @@ class _AppUpdatePreparationScreenState extends State<AppUpdatePreparationScreen>
       ),
       child: Consumer<AppUpdatePreparationViewModel>(
         builder: (context, viewModel, child) {
-          _mnemonicWordInputController.addListener(() {
-            _handleMnemonicWordInput(context);
-          });
+          if (!_hasAddedListener) {
+            _mnemonicWordInputController.addListener(() {
+              _handleMnemonicWordInput(context);
+            });
+            _hasAddedListener = true;
+          }
           return PopScope(
             canPop: false,
             onPopInvokedWithResult: (didPop, _) {
@@ -167,36 +172,40 @@ class _AppUpdatePreparationScreenState extends State<AppUpdatePreparationScreen>
   }
 
   void _handleMnemonicWordInput(BuildContext context) {
-    final viewModel = context.read<AppUpdatePreparationViewModel>();
-    if (!viewModel.isMnemonicLoaded ||
-        _mnemonicWordInputController.text.isEmpty) {
-      setState(() {
-        _mnemonicErrorVisible = false;
-      });
-      return;
-    }
-
-    if (_mnemonicWordInputController.text.length >= 3) {
-      if (!viewModel.isWordMatched(
-        _mnemonicWordInputController.text,
-      )) {
-        setState(() {
-          _mnemonicErrorVisible = true;
-        });
-      } else {
-        if (viewModel.isMnemonicValidationFinished) {
-          _goToConfirmUpdateStep();
-          return;
-        }
+    try {
+      final viewModel = context.read<AppUpdatePreparationViewModel>();
+      if (!viewModel.isMnemonicLoaded ||
+          _mnemonicWordInputController.text.isEmpty) {
         setState(() {
           _mnemonicErrorVisible = false;
-          _mnemonicWordInputController.clear();
+        });
+        return;
+      }
+
+      if (_mnemonicWordInputController.text.length >= 3) {
+        if (!viewModel.isWordMatched(
+          _mnemonicWordInputController.text,
+        )) {
+          setState(() {
+            _mnemonicErrorVisible = true;
+          });
+        } else {
+          if (viewModel.isMnemonicValidationFinished) {
+            _goToConfirmUpdateStep();
+            return;
+          }
+          setState(() {
+            _mnemonicErrorVisible = false;
+            _mnemonicWordInputController.clear();
+          });
+        }
+      } else {
+        setState(() {
+          _mnemonicErrorVisible = false;
         });
       }
-    } else {
-      setState(() {
-        _mnemonicErrorVisible = false;
-      });
+    } catch (e) {
+      debugPrint('Error: $e');
     }
   }
 

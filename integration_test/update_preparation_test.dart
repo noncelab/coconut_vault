@@ -261,7 +261,7 @@ BSMS 1.0
     MultisigSigner(
       id: 0,
       signerBsms: outsideWalletBsms,
-      name: outsideWalletBsms.split('\n')[3] ?? '',
+      name: outsideWalletBsms.split('\n')[3],
       memo: 'memo test',
       keyStore: keyStores[1],
     ),
