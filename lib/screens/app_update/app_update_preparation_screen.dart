@@ -5,7 +5,6 @@ import 'package:coconut_vault/enums/app_update_step_enum.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/providers/view_model/app_update_preparation_view_model.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
-import 'package:coconut_vault/utils/hash_util.dart';
 import 'package:coconut_vault/widgets/indicator/countdown_spinner.dart';
 import 'package:coconut_vault/widgets/indicator/percent_progress_indicator.dart';
 import 'package:flutter/material.dart';
@@ -118,11 +117,20 @@ class _AppUpdatePreparationScreenState extends State<AppUpdatePreparationScreen>
             if (viewModel.mnemonicWordItems[viewModel.currentMnemonicIndex]
                     .mnemonicWord.isNotEmpty &&
                 _mnemonicInputController.text.length >= 3) {
-              _validateMnemonic(
+              viewModel
+                  .isMnemonicValidate(
                 context,
-                viewModel.mnemonicWordItems[viewModel.currentMnemonicIndex]
-                    .mnemonicWord,
-              );
+                _mnemonicInputController.text,
+              )
+                  .then((result) {
+                if (result) {
+                  _handleValidMnemonic(viewModel);
+                } else {
+                  setState(() {
+                    _mnemonicErrorVisible = true;
+                  });
+                }
+              });
             } else {
               setState(() {
                 _mnemonicErrorVisible = false;
@@ -163,7 +171,7 @@ class _AppUpdatePreparationScreenState extends State<AppUpdatePreparationScreen>
                           Positioned(
                             left: 0,
                             right: 0,
-                            bottom: 20,
+                            bottom: 40,
                             child: _buildNextButton(viewModel),
                           ),
                       ],
@@ -176,6 +184,27 @@ class _AppUpdatePreparationScreenState extends State<AppUpdatePreparationScreen>
         },
       ),
     );
+  }
+
+  Future<void> _handleValidMnemonic(
+      AppUpdatePreparationViewModel viewModel) async {
+    setState(() {
+      _mnemonicErrorVisible = false;
+    });
+    viewModel.proceedNextMnemonic();
+    if (viewModel.isMnemonicValidationFinished) {
+      _closeKeyboard();
+      context.loaderOverlay.show();
+      await Future.delayed(const Duration(milliseconds: 2000));
+      if (context.mounted) {
+        context.loaderOverlay.hide();
+        setState(() {
+          _currentStep = AppUpdateStep.confirmUpdate;
+          _nextButtonEnabled = false;
+        });
+      }
+      _animationController.forward(from: 0);
+    }
   }
 
   void _onBackPressed() {
@@ -209,6 +238,7 @@ class _AppUpdatePreparationScreenState extends State<AppUpdatePreparationScreen>
           isActive: _nextButtonEnabled && viewModel.isMnemonicLoaded,
           disabledBackgroundColor: CoconutColors.gray400,
           width: double.infinity,
+          height: 52,
           text: _currentStep == AppUpdateStep.initial ? t.confirm : t.start,
         ),
         if (!_nextButtonEnabled)
@@ -305,16 +335,7 @@ class _AppUpdatePreparationScreenState extends State<AppUpdatePreparationScreen>
                   maxLines: 1,
                   textInputAction: TextInputAction.done,
                   onChanged: (text) {
-                    if (text.length >= 3) {
-                      _validateMnemonic(
-                        context,
-                        vaultMnemonicItem.mnemonicWord,
-                      );
-                    } else {
-                      setState(() {
-                        _mnemonicErrorVisible = false;
-                      });
-                    }
+                    _mnemonicInputController.text = text;
                   },
                   isError: _mnemonicErrorVisible,
                   isLengthVisible: false,
@@ -629,41 +650,6 @@ class _AppUpdatePreparationScreenState extends State<AppUpdatePreparationScreen>
         });
       }
     });
-  }
-
-  void _validateMnemonic(
-    BuildContext context,
-    String mnemonicHash,
-  ) async {
-    if (hashString(_mnemonicInputController.text) != mnemonicHash) {
-      setState(() {
-        _mnemonicErrorVisible = true;
-      });
-
-      return;
-    }
-
-    setState(() {
-      _mnemonicInputController.text = "";
-      _mnemonicErrorVisible = false;
-    });
-
-    context.read<AppUpdatePreparationViewModel>().proceedNextMnemonic();
-    if (context
-        .read<AppUpdatePreparationViewModel>()
-        .isMnemonicValidationFinished) {
-      _closeKeyboard();
-      context.loaderOverlay.show();
-      await Future.delayed(const Duration(milliseconds: 2000));
-      if (context.mounted) {
-        context.loaderOverlay.hide();
-        setState(() {
-          _currentStep = AppUpdateStep.confirmUpdate;
-          _nextButtonEnabled = false;
-        });
-      }
-      _animationController.forward(from: 0);
-    }
   }
 
   void _closeKeyboard() {

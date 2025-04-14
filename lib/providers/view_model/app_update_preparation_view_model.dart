@@ -76,6 +76,14 @@ class AppUpdatePreparationViewModel extends ChangeNotifier {
     });
   }
 
+  Future<bool> isMnemonicValidate(
+    BuildContext context,
+    String inputMnemonicHash,
+  ) async {
+    return hashString(inputMnemonicHash) ==
+        mnemonicWordItems[currentMnemonicIndex].mnemonicWord;
+  }
+
   void proceedNextMnemonic() {
     if (_isMnemonicValidationFinished) return;
     ++_currentMnemonicIndex;
@@ -107,10 +115,10 @@ class AppUpdatePreparationViewModel extends ChangeNotifier {
     notifyListeners();
 
     await _progress40Reached!.future;
-    _saveEncryptedBackupWithData(result);
+    saveEncryptedBackupWithData(result);
   }
 
-  void _saveEncryptedBackupWithData(String data) async {
+  void saveEncryptedBackupWithData(String data) async {
     _progress80Reached = Completer<void>();
     final savedPath = await UpdatePreparation.encryptAndSave(data: data);
     Logger.log('--> savedPath: $savedPath');
@@ -119,10 +127,10 @@ class AppUpdatePreparationViewModel extends ChangeNotifier {
     notifyListeners();
 
     await _progress80Reached!.future;
-    _deleteAllWallets();
+    deleteAllWallets();
   }
 
-  void _deleteAllWallets() async {
+  void deleteAllWallets() async {
     await _walletProvider.deleteAllWallets();
     _backupProgress = 100;
     notifyListeners();

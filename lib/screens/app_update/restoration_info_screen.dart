@@ -40,6 +40,7 @@ class _RestorationInfoScreenState extends State<RestorationInfoScreen> {
                   CoconutButton(
                     disabledBackgroundColor: CoconutColors.gray400,
                     width: double.infinity,
+                    height: 52,
                     text: t.restore,
                     onPressed: () {
                       Navigator.pushNamed(
