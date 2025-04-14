@@ -79,7 +79,7 @@ class AppUpdatePreparationViewModel extends ChangeNotifier {
     });
   }
 
-  bool isWordMatched(BuildContext context, String userInput) {
+  bool isWordMatched(String userInput) {
     final success = hashString(userInput) ==
         _mnemonicWordsItems[_currentMnemonicIndex].mnemonicWords;
     if (!success) {

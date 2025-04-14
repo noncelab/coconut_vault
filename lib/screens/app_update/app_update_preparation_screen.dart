@@ -178,7 +178,6 @@ class _AppUpdatePreparationScreenState extends State<AppUpdatePreparationScreen>
 
     if (_mnemonicWordInputController.text.length >= 3) {
       if (!viewModel.isWordMatched(
-        context,
         _mnemonicWordInputController.text,
       )) {
         setState(() {
