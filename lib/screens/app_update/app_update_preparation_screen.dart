@@ -11,6 +11,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:loader_overlay/loader_overlay.dart';
 import 'package:provider/provider.dart';
+import 'package:tuple/tuple.dart';
 
 class UpdateProcessText {
   String title;
@@ -29,7 +30,7 @@ class AppUpdatePreparationScreen extends StatefulWidget {
 
 class _AppUpdatePreparationScreenState extends State<AppUpdatePreparationScreen>
     with TickerProviderStateMixin {
-  final TextEditingController _mnemonicInputController =
+  final TextEditingController _mnemonicWordInputController =
       TextEditingController();
   final _mnemonicInputFocusNode = FocusNode();
 
@@ -100,7 +101,7 @@ class _AppUpdatePreparationScreenState extends State<AppUpdatePreparationScreen>
   void dispose() {
     _animationController.dispose();
     _progressController.dispose();
-    _mnemonicInputController.dispose();
+    _mnemonicWordInputController.dispose();
     _mnemonicInputFocusNode.dispose();
     super.dispose();
   }
@@ -113,29 +114,8 @@ class _AppUpdatePreparationScreenState extends State<AppUpdatePreparationScreen>
       ),
       child: Consumer<AppUpdatePreparationViewModel>(
         builder: (context, viewModel, child) {
-          _mnemonicInputController.addListener(() {
-            if (viewModel.mnemonicWordItems[viewModel.currentMnemonicIndex]
-                    .mnemonicWord.isNotEmpty &&
-                _mnemonicInputController.text.length >= 3) {
-              viewModel
-                  .isMnemonicValidate(
-                context,
-                _mnemonicInputController.text,
-              )
-                  .then((result) {
-                if (result) {
-                  _handleValidMnemonic(viewModel);
-                } else {
-                  setState(() {
-                    _mnemonicErrorVisible = true;
-                  });
-                }
-              });
-            } else {
-              setState(() {
-                _mnemonicErrorVisible = false;
-              });
-            }
+          _mnemonicWordInputController.addListener(() {
+            _handleMnemonicWordInput(context);
           });
           return PopScope(
             canPop: false,
@@ -186,25 +166,56 @@ class _AppUpdatePreparationScreenState extends State<AppUpdatePreparationScreen>
     );
   }
 
-  Future<void> _handleValidMnemonic(
-      AppUpdatePreparationViewModel viewModel) async {
+  void _handleMnemonicWordInput(BuildContext context) {
+    final viewModel = context.read<AppUpdatePreparationViewModel>();
+    if (!viewModel.isMnemonicLoaded ||
+        _mnemonicWordInputController.text.isEmpty) {
+      setState(() {
+        _mnemonicErrorVisible = false;
+      });
+      return;
+    }
+
+    if (_mnemonicWordInputController.text.length >= 3) {
+      if (!viewModel.isWordMatched(
+        context,
+        _mnemonicWordInputController.text,
+      )) {
+        setState(() {
+          _mnemonicErrorVisible = true;
+        });
+      } else {
+        if (viewModel.isMnemonicValidationFinished) {
+          _goToConfirmUpdateStep();
+          return;
+        }
+        setState(() {
+          _mnemonicErrorVisible = false;
+          _mnemonicWordInputController.clear();
+        });
+      }
+    } else {
+      setState(() {
+        _mnemonicErrorVisible = false;
+      });
+    }
+  }
+
+  Future<void> _goToConfirmUpdateStep() async {
     setState(() {
       _mnemonicErrorVisible = false;
     });
-    viewModel.proceedNextMnemonic();
-    if (viewModel.isMnemonicValidationFinished) {
-      _closeKeyboard();
-      context.loaderOverlay.show();
-      await Future.delayed(const Duration(milliseconds: 2000));
-      if (context.mounted) {
-        context.loaderOverlay.hide();
-        setState(() {
-          _currentStep = AppUpdateStep.confirmUpdate;
-          _nextButtonEnabled = false;
-        });
-      }
-      _animationController.forward(from: 0);
+    _closeKeyboard();
+    context.loaderOverlay.show();
+    await Future.delayed(const Duration(milliseconds: 2000));
+    if (mounted) {
+      context.loaderOverlay.hide();
+      setState(() {
+        _currentStep = AppUpdateStep.confirmUpdate;
+        _nextButtonEnabled = false;
+      });
     }
+    _animationController.forward(from: 0);
   }
 
   void _onBackPressed() {
@@ -267,7 +278,6 @@ class _AppUpdatePreparationScreenState extends State<AppUpdatePreparationScreen>
     // AppUpdateStep.confirmUpdate 상태에서는 generateSafetyKey 전환
     // AppUpdateStep.confirmUpdate 전환직후 _nextButtonEnabled이 false로 설정되고 countdown 5초 후 _nextButtonEnabled이 true로 변경됨
     if (_currentStep == AppUpdateStep.initial) {
-      // viewModel.setCurrentStep(AppUpdateStep.validateMnemonic);
       setState(() {
         _openKeyboard();
         _currentStep = AppUpdateStep.validateMnemonic;
@@ -309,12 +319,13 @@ class _AppUpdatePreparationScreenState extends State<AppUpdatePreparationScreen>
 
   // AppUpdateStep.validateMnemonic 상태에서 보여지는 위젯
   Widget _buildValidateMnemonicWidget() {
-    return Selector<AppUpdatePreparationViewModel, int>(
-        selector: (context, viewModel) => viewModel.currentMnemonicIndex,
-        builder: (context, currentMnemonicIndex, _) {
-          var vaultMnemonicItem = context
-              .read<AppUpdatePreparationViewModel>()
-              .mnemonicWordItems[currentMnemonicIndex];
+    return Selector<AppUpdatePreparationViewModel, Tuple2<String, int>>(
+        selector: (context, viewModel) =>
+            Tuple2(viewModel.walletName, viewModel.mnemonicWordIndex),
+        builder: (context, data, _) {
+          final walletName = data.item1;
+          final mnemonicWordIndex = data.item2;
+
           return Center(
             child: Column(
               children: [
@@ -323,31 +334,31 @@ class _AppUpdatePreparationScreenState extends State<AppUpdatePreparationScreen>
                 ),
                 Text(
                   t.prepare_update.enter_nth_word_of_wallet(
-                    wallet_name: vaultMnemonicItem.vaultName,
-                    n: vaultMnemonicItem.mnemonicWordIndex + 1,
+                    wallet_name: walletName,
+                    n: mnemonicWordIndex,
                   ),
                   style: CoconutTypography.heading4_18_Bold,
                 ),
                 CoconutLayout.spacing_1500h,
                 CoconutTextField(
-                  controller: _mnemonicInputController,
+                  controller: _mnemonicWordInputController,
                   focusNode: _mnemonicInputFocusNode,
                   maxLines: 1,
                   textInputAction: TextInputAction.done,
                   onChanged: (text) {
-                    _mnemonicInputController.text = text;
+                    _mnemonicWordInputController.text = text;
                   },
                   isError: _mnemonicErrorVisible,
                   isLengthVisible: false,
                   errorText: t.prepare_update.incorrect_input_try_again,
                   placeholderText: t.prepare_update.enter_word,
-                  suffix: _mnemonicInputController.text.isNotEmpty
+                  suffix: _mnemonicWordInputController.text.isNotEmpty
                       ? IconButton(
                           iconSize: 14,
                           padding: EdgeInsets.zero,
                           onPressed: () {
                             setState(() {
-                              _mnemonicInputController.text = '';
+                              _mnemonicWordInputController.text = '';
                             });
                           },
                           icon: SvgPicture.asset(
