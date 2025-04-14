@@ -5,19 +5,19 @@ import 'package:flutter/material.dart';
 
 class VaultListRestorationViewModel extends ChangeNotifier {
   late bool _isVaultListRestored;
-  late bool _isRestoreProcessing;
+  late bool _isRestorationProcessing;
   late int _restoreProgress;
   late final WalletProvider _walletProvider;
 
   VaultListRestorationViewModel(this._walletProvider) {
     _isVaultListRestored = false;
-    _isRestoreProcessing = false;
+    _isRestorationProcessing = false;
     _restoreProgress = 0;
   }
 
   bool get isVaultListRestored => _isVaultListRestored;
-  bool get isRestoreProcessing => _isRestoreProcessing;
-  int get restoreProgress => _restoreProgress;
+  bool get isRestorationProgressing => _isRestorationProcessing;
+  int get restorationProgress => _restoreProgress;
   List<VaultListItemBase> get vaultList => _walletProvider.vaultList;
 
   void setRestoreProgress(int progress) {
@@ -27,12 +27,12 @@ class VaultListRestorationViewModel extends ChangeNotifier {
 
   void setIsVaultListRestored(bool isRestored) {
     _isVaultListRestored = isRestored;
-    _isRestoreProcessing = !isRestored;
+    _isRestorationProcessing = !isRestored;
     notifyListeners();
   }
 
   void restoreVaultList() async {
-    _isRestoreProcessing = true;
+    _isRestorationProcessing = true;
     notifyListeners();
     try {
       debugPrint('[restoreVaultList] 복구 가능 상태인지 확인');
@@ -42,7 +42,7 @@ class VaultListRestorationViewModel extends ChangeNotifier {
       // 복구 불가능 상태
       debugPrint('[Error] 복구 불가능 상태: $e');
 
-      _isRestoreProcessing = false;
+      _isRestorationProcessing = false;
       notifyListeners();
       return;
     }

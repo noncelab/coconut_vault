@@ -75,6 +75,7 @@ dependencies:
     git:
       url: https://github.com/noncelab/coconut_design_system.git
       ref: main
+  tuple: ^2.0.2
 
 dev_dependencies:
   flutter_oss_licenses: ^3.0.2

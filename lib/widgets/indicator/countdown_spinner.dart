@@ -57,18 +57,24 @@ class _CountdownSpinnerState extends State<CountdownSpinner>
       children: [
         LayoutBuilder(
           builder: (context, constraints) {
-            return AnimatedBuilder(
-              animation: _controller,
-              builder: (context, child) {
-                return CircularProgressIndicator(
-                  value: _controller.value,
-                  strokeWidth: 1.5,
-                  backgroundColor: CoconutColors.white,
-                  valueColor: const AlwaysStoppedAnimation(
-                    CoconutColors.gray600,
-                  ),
-                );
-              },
+            final size = constraints.biggest;
+            final minSide = size.shortestSide; // 짧은 쪽 기준(항상 원형을 그리도록)
+            return SizedBox(
+              width: minSide,
+              height: minSide,
+              child: AnimatedBuilder(
+                animation: _controller,
+                builder: (context, child) {
+                  return CircularProgressIndicator(
+                    value: _controller.value,
+                    strokeWidth: 1.5,
+                    backgroundColor: CoconutColors.white,
+                    valueColor: const AlwaysStoppedAnimation(
+                      CoconutColors.gray600,
+                    ),
+                  );
+                },
+              ),
             );
           },
         ),
