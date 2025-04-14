@@ -81,6 +81,7 @@ class Translations implements BaseTranslations<AppLocale, Translations> {
   String get change => '잔돈';
   String get receiving => '입금';
   String get info => '정보';
+  String get word => '단어';
   String get email_subject => '[코코넛 볼트] 이용 관련 문의';
   String get signature => '서명';
   String get sign_completion => '서명 완료';
@@ -127,6 +128,7 @@ class Translations implements BaseTranslations<AppLocale, Translations> {
   String get scan_qr_email_link =>
       '네트워크가 활성화된 기기에서 QR 코드를 스캔하시거나 위의 주소로 메일을 전송해 주세요';
   String get developer_option => '개발자 옵션';
+  String get advanced_user => '고급 사용자';
   String extra_count({required Object count}) => '외 ${count}개';
   late final TranslationsVaultListTabKr vault_list_tab =
       TranslationsVaultListTabKr.internal(_root);
@@ -224,6 +226,12 @@ class Translations implements BaseTranslations<AppLocale, Translations> {
       TranslationsVaultMenuScreenKr.internal(_root);
   late final TranslationsVaultSettingsKr vault_settings =
       TranslationsVaultSettingsKr.internal(_root);
+  late final TranslationsPrepareUpdateKr prepare_update =
+      TranslationsPrepareUpdateKr.internal(_root);
+  late final TranslationsRestorationInfoKr restoration_info =
+      TranslationsRestorationInfoKr.internal(_root);
+  late final TranslationsVaultListRestorationKr vault_list_restoration =
+      TranslationsVaultListRestorationKr.internal(_root);
   late final TranslationsBottomSheetKr bottom_sheet =
       TranslationsBottomSheetKr.internal(_root);
   late final TranslationsPermissionKr permission =
@@ -493,6 +501,10 @@ class TranslationsSettingsScreenKr {
   String get use_biometric => '생체 인증 사용하기';
   String get change_password => '비밀번호 바꾸기';
   String get set_password => '비밀번호 설정하기';
+  String get update => '업데이트';
+  String get prepare_update => '업데이트 준비';
+  String get advanced_user => '고급 사용자';
+  String get use_passphrase => '패스프레이즈 사용하기';
 }
 
 // Path: guide_screen
@@ -601,6 +613,9 @@ class TranslationsMnemonicImportScreenKr {
   String get put_spaces_between_words => '단어 사이에 띄어쓰기를 넣어주세요';
   String get use_passphrase => '패스프레이즈 사용';
   String get enter_passphrase => '패스프레이즈를 입력해 주세요';
+  String get need_advanced_mode =>
+      '⚠︎ 패스프레이즈를 사용하시려면 설정 화면으로 이동하여 \'패스프레이즈 사용하기\'를 켜주세요';
+  String get open_settings => '설정 화면 열기';
 }
 
 // Path: select_vault_type_screen
@@ -789,7 +804,7 @@ class TranslationsMultiSigSettingScreenKr {
   String get add_memo => '메모 추가';
   String get view_bsms => '지갑 설정 정보 보기';
   String tooltip({required Object total, required Object count}) =>
-      '${total}개의 키 중 ${count}개로 서명해야 하는\n다중 서명 지갑이예요.';
+      '${total}개의 키 중 ${count}개로 서명해야 하는\n다중 서명 지갑이에요.';
 }
 
 // Path: select_export_type_screen
@@ -860,6 +875,70 @@ class TranslationsVaultSettingsKr {
   String get of => '의 ';
   String nth({required Object index}) => '${index} 번';
   String get key => ' 키';
+}
+
+// Path: prepare_update
+class TranslationsPrepareUpdateKr {
+  TranslationsPrepareUpdateKr.internal(this._root);
+
+  final Translations _root; // ignore: unused_field
+
+  // Translations
+  String get title => '👉 니모닉 문구를 잘 백업했는지 확인할게요';
+  String get description =>
+      '만약 업데이트 중 문제가 생길 경우를 대비하여 니모닉 단어는 별도로 백업을 해두셔야 합니다';
+  String enter_nth_word_of_wallet(
+          {required Object wallet_name, required Object n}) =>
+      '💡 ${wallet_name}의 ${n}번째 단어를 입력해 주세요';
+  String get enter_word => '단어를 입력해 주세요';
+  String get incorrect_input_try_again => '틀렸어요. 다시 입력해 주세요.';
+  String get update_preparing_title => '➡️ 업데이트 준비를 시작합니다';
+  List<String> get update_preparing_description => [
+        '앱 업데이트에는 네트워크 연결이 필요해요',
+        '업데이트 준비를 통해 니모닉 문구 노출 위험을 더 확실히 차단하고, 지갑을 안전하고 편리하게 복원할 수 있어요',
+        '진행 중에는 앱을 사용할 수 없어요\n준비가 완료될 때까지 앱을 종료하지 마세요',
+      ];
+  String get generating_secure_key => '🔑 안전한 키를 생성 중이에요';
+  String get generating_secure_key_description =>
+      '지갑 데이터를 보호하기 위해\n보안적으로 안전한 무작위 암호화 키를 생성합니다';
+  String get saving_wallet_data => '⏳ 지갑 데이터를 안전하게 저장 중이에요';
+  String get waiting_message => '잠시만 기다려 주세요\n이 과정은 몇 초 정도 걸릴 수 있습니다';
+  String get verifying_safe_storage => '✅ 안전하게 저장되었는지 확인하고 있어요';
+  String get update_recovery_info =>
+      '이 단계를 마치면\n앱 업데이트 후 지갑을 안전하고 편리하게\n복원할 수 있습니다';
+  String get completed_title => '🎉 업데이트 준비가 끝났어요!';
+  String get completed_description => '이제 볼트를 업데이트해 주세요';
+  String get step0 => '앱을 종료하고 네트워크를 켜주세요.';
+  String get step1_android => '구글 플레이스토어에서 업데이트를 진행해 주세요.';
+  String get step1_ios => '앱스토어에서 업데이트를 진행해 주세요.';
+  String get step2 => '업데이트가 끝나면 네트워크를 끄고 볼트를 켜세요.';
+}
+
+// Path: restoration_info
+class TranslationsRestorationInfoKr {
+  TranslationsRestorationInfoKr.internal(this._root);
+
+  final Translations _root; // ignore: unused_field
+
+  // Translations
+  String get found_title => '🔎 복원 파일을 발견했어요';
+  String get found_description =>
+      '앱 업데이트가 완료되지 않았어요\n앱을 업데이트 하시거나,\n계속 진행하시려면 지갑을 복원해주세요';
+}
+
+// Path: vault_list_restoration
+class TranslationsVaultListRestorationKr {
+  TranslationsVaultListRestorationKr.internal(this._root);
+
+  final Translations _root; // ignore: unused_field
+
+  // Translations
+  String get in_progress_title => '⏳ 지갑을 복원 중이에요';
+  String get in_progress_description => '잠시만 기다려 주세요.\n곧 완료됩니다!';
+  String get completed_title => '🎉 지갑을 복원했어요!';
+  String completed_description({required Object count}) =>
+      '지갑 ${count}개를 복원했어요';
+  String get start_vault => '볼트 시작하기';
 }
 
 // Path: bottom_sheet
@@ -963,7 +1042,7 @@ class TranslationsErrorsKr {
   // Translations
   String get invalid_single_sig_qr_error => '잘못된 QR이에요. 다시 시도해 주세요.';
   String get invalid_multisig_qr_error =>
-      '잘못된 QR이예요.\n가져올 다중 서명 지갑의 정보 화면에서 "지갑 설정 정보 보기"에 나오는 QR 코드를 스캔해 주세요.';
+      '잘못된 QR이에요.\n가져올 다중 서명 지갑의 정보 화면에서 "지갑 설정 정보 보기"에 나오는 QR 코드를 스캔해 주세요.';
   String get unsupport_bsms_version_error =>
       '지원하지 않는 BSMS 버전이에요. BSMS 1.0만 지원됩니다.';
   String get unsupport_derivation_path_error => '커스텀 파생 경로는 지원되지 않아요.';
@@ -1349,6 +1428,8 @@ extension on Translations {
         return '입금';
       case 'info':
         return '정보';
+      case 'word':
+        return '단어';
       case 'email_subject':
         return '[코코넛 볼트] 이용 관련 문의';
       case 'signature':
@@ -1436,6 +1517,8 @@ extension on Translations {
         return '네트워크가 활성화된 기기에서 QR 코드를 스캔하시거나 위의 주소로 메일을 전송해 주세요';
       case 'developer_option':
         return '개발자 옵션';
+      case 'advanced_user':
+        return '고급 사용자';
       case 'extra_count':
         return ({required Object count}) => '외 ${count}개';
       case 'vault_list_tab.add_wallet':
@@ -1604,6 +1687,14 @@ extension on Translations {
         return '비밀번호 바꾸기';
       case 'settings_screen.set_password':
         return '비밀번호 설정하기';
+      case 'settings_screen.update':
+        return '업데이트';
+      case 'settings_screen.prepare_update':
+        return '업데이트 준비';
+      case 'settings_screen.advanced_user':
+        return '고급 사용자';
+      case 'settings_screen.use_passphrase':
+        return '패스프레이즈 사용하기';
       case 'guide_screen.keep_network_off':
         return '안전한 비트코인 보관을 위해,\n항상 연결 상태를 OFF로 유지해주세요';
       case 'guide_screen.network_status':
@@ -1710,6 +1801,10 @@ extension on Translations {
         return '패스프레이즈 사용';
       case 'mnemonic_import_screen.enter_passphrase':
         return '패스프레이즈를 입력해 주세요';
+      case 'mnemonic_import_screen.need_advanced_mode':
+        return '⚠︎ 패스프레이즈를 사용하시려면 설정 화면으로 이동하여 \'패스프레이즈 사용하기\'를 켜주세요';
+      case 'mnemonic_import_screen.open_settings':
+        return '설정 화면 열기';
       case 'select_vault_type_screen.title':
         return '지갑 만들기';
       case 'select_vault_type_screen.single_sig':
@@ -1832,7 +1927,7 @@ extension on Translations {
         return '지갑 설정 정보 보기';
       case 'multi_sig_setting_screen.tooltip':
         return ({required Object total, required Object count}) =>
-            '${total}개의 키 중 ${count}개로 서명해야 하는\n다중 서명 지갑이예요.';
+            '${total}개의 키 중 ${count}개로 서명해야 하는\n다중 서명 지갑이에요.';
       case 'select_export_type_screen.title':
         return '내보내기';
       case 'select_export_type_screen.export_type':
@@ -1903,6 +1998,63 @@ extension on Translations {
         return ({required Object index}) => '${index} 번';
       case 'vault_settings.key':
         return ' 키';
+      case 'prepare_update.title':
+        return '👉 니모닉 문구를 잘 백업했는지 확인할게요';
+      case 'prepare_update.description':
+        return '만약 업데이트 중 문제가 생길 경우를 대비하여 니모닉 단어는 별도로 백업을 해두셔야 합니다';
+      case 'prepare_update.enter_nth_word_of_wallet':
+        return ({required Object wallet_name, required Object n}) =>
+            '💡 ${wallet_name}의 ${n}번째 단어를 입력해 주세요';
+      case 'prepare_update.enter_word':
+        return '단어를 입력해 주세요';
+      case 'prepare_update.incorrect_input_try_again':
+        return '틀렸어요. 다시 입력해 주세요.';
+      case 'prepare_update.update_preparing_title':
+        return '➡️ 업데이트 준비를 시작합니다';
+      case 'prepare_update.update_preparing_description.0':
+        return '앱 업데이트에는 네트워크 연결이 필요해요';
+      case 'prepare_update.update_preparing_description.1':
+        return '업데이트 준비를 통해 니모닉 문구 노출 위험을 더 확실히 차단하고, 지갑을 안전하고 편리하게 복원할 수 있어요';
+      case 'prepare_update.update_preparing_description.2':
+        return '진행 중에는 앱을 사용할 수 없어요\n준비가 완료될 때까지 앱을 종료하지 마세요';
+      case 'prepare_update.generating_secure_key':
+        return '🔑 안전한 키를 생성 중이에요';
+      case 'prepare_update.generating_secure_key_description':
+        return '지갑 데이터를 보호하기 위해\n보안적으로 안전한 무작위 암호화 키를 생성합니다';
+      case 'prepare_update.saving_wallet_data':
+        return '⏳ 지갑 데이터를 안전하게 저장 중이에요';
+      case 'prepare_update.waiting_message':
+        return '잠시만 기다려 주세요\n이 과정은 몇 초 정도 걸릴 수 있습니다';
+      case 'prepare_update.verifying_safe_storage':
+        return '✅ 안전하게 저장되었는지 확인하고 있어요';
+      case 'prepare_update.update_recovery_info':
+        return '이 단계를 마치면\n앱 업데이트 후 지갑을 안전하고 편리하게\n복원할 수 있습니다';
+      case 'prepare_update.completed_title':
+        return '🎉 업데이트 준비가 끝났어요!';
+      case 'prepare_update.completed_description':
+        return '이제 볼트를 업데이트해 주세요';
+      case 'prepare_update.step0':
+        return '앱을 종료하고 네트워크를 켜주세요.';
+      case 'prepare_update.step1_android':
+        return '구글 플레이스토어에서 업데이트를 진행해 주세요.';
+      case 'prepare_update.step1_ios':
+        return '앱스토어에서 업데이트를 진행해 주세요.';
+      case 'prepare_update.step2':
+        return '업데이트가 끝나면 네트워크를 끄고 볼트를 켜세요.';
+      case 'restoration_info.found_title':
+        return '🔎 복원 파일을 발견했어요';
+      case 'restoration_info.found_description':
+        return '앱 업데이트가 완료되지 않았어요\n앱을 업데이트 하시거나,\n계속 진행하시려면 지갑을 복원해주세요';
+      case 'vault_list_restoration.in_progress_title':
+        return '⏳ 지갑을 복원 중이에요';
+      case 'vault_list_restoration.in_progress_description':
+        return '잠시만 기다려 주세요.\n곧 완료됩니다!';
+      case 'vault_list_restoration.completed_title':
+        return '🎉 지갑을 복원했어요!';
+      case 'vault_list_restoration.completed_description':
+        return ({required Object count}) => '지갑 ${count}개를 복원했어요';
+      case 'vault_list_restoration.start_vault':
+        return '볼트 시작하기';
       case 'bottom_sheet.view_mit_license':
         return 'MIT 라이선스 전문 보기';
       case 'bottom_sheet.contact_by_email':
@@ -2020,7 +2172,7 @@ extension on Translations {
       case 'errors.invalid_single_sig_qr_error':
         return '잘못된 QR이에요. 다시 시도해 주세요.';
       case 'errors.invalid_multisig_qr_error':
-        return '잘못된 QR이예요.\n가져올 다중 서명 지갑의 정보 화면에서 "지갑 설정 정보 보기"에 나오는 QR 코드를 스캔해 주세요.';
+        return '잘못된 QR이에요.\n가져올 다중 서명 지갑의 정보 화면에서 "지갑 설정 정보 보기"에 나오는 QR 코드를 스캔해 주세요.';
       case 'errors.unsupport_bsms_version_error':
         return '지원하지 않는 BSMS 버전이에요. BSMS 1.0만 지원됩니다.';
       case 'errors.unsupport_derivation_path_error':

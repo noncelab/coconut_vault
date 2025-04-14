@@ -285,6 +285,21 @@ class WalletListManager {
     return true;
   }
 
+  Future<void> deleteWallets() async {
+    if (_vaultList == null) {
+      throw '[wallet_list_manager/deleteWallets]: vaultList is empty';
+    }
+
+    for (var vault in _vaultList!) {
+      if (vault.vaultType == WalletType.singleSignature) {
+        String keyString = _createWalletKeyString(vault.id, vault.vaultType);
+        await _storageService.delete(key: keyString);
+      }
+    }
+    _vaultList!.clear();
+    await _savePublicInfo();
+  }
+
   Future<bool> updateWallet(
       int id, String newName, int colorIndex, int iconIndex) async {
     if (_vaultList == null) {
@@ -343,6 +358,33 @@ class WalletListManager {
     _vaultList?.clear();
     await _storageService.deleteAll();
     await _savePublicInfo();
+  }
+
+  Future<void> restoreFromBackupData(
+      List<Map<String, dynamic>> backupData) async {
+    final List<VaultListItemBase> vaultList = [];
+    var initIsolateHandler =
+        IsolateHandler<Map<String, dynamic>, VaultListItemBase>(
+            initializeWallet);
+    await initIsolateHandler.initialize(
+        initialType: InitializeType.initializeWallet);
+    for (final data in backupData) {
+      VaultListItemBase wallet = await initIsolateHandler.run(data);
+      if (data['vaultType'] == WalletType.singleSignature.name) {
+        String keyString =
+            _createWalletKeyString(wallet.id, WalletType.singleSignature);
+        _storageService.write(
+            key: keyString,
+            value: jsonEncode(Secret(data[SingleSigVaultListItem.secretField],
+                    data[SingleSigVaultListItem.passphraseField] ?? '')
+                .toJson()));
+      }
+      vaultList.add(wallet);
+    }
+
+    _vaultList = vaultList;
+    _savePublicInfo();
+    initIsolateHandler.dispose();
   }
 
   /// 1.0.x 버전에서 2.0.0으로 업데이트 한 지갑인지 확인 후 마이그레이션 합니다.

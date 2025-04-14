@@ -5,9 +5,11 @@ import 'package:flutter/material.dart';
 class VisibilityProvider extends ChangeNotifier {
   late bool _hasSeenGuide;
   late int _walletCount;
+  late bool _isPassphraseUseEnabled;
 
   bool get hasSeenGuide => _hasSeenGuide;
   int get walletCount => _walletCount;
+  bool get isPassphraseUseEnabled => _isPassphraseUseEnabled;
 
   /// TODO: 제거
   bool _isLoading = false;
@@ -17,6 +19,8 @@ class VisibilityProvider extends ChangeNotifier {
     final prefs = SharedPrefsRepository();
     _hasSeenGuide = prefs.getBool(SharedPrefsKeys.hasShownStartGuide) == true;
     _walletCount = prefs.getInt(SharedPrefsKeys.vaultListLength) ?? 0;
+    _isPassphraseUseEnabled =
+        prefs.getBool(SharedPrefsKeys.kPassphraseUseEnabled) ?? false;
   }
 
   void showIndicator() {
@@ -45,6 +49,13 @@ class VisibilityProvider extends ChangeNotifier {
   Future<void> setHasSeenGuide() async {
     _hasSeenGuide = true;
     SharedPrefsRepository().setBool(SharedPrefsKeys.hasShownStartGuide, true);
+    notifyListeners();
+  }
+
+  Future<void> setAdvancedMode(bool value) async {
+    _isPassphraseUseEnabled = value;
+    SharedPrefsRepository()
+        .setBool(SharedPrefsKeys.kPassphraseUseEnabled, value);
     notifyListeners();
   }
 }

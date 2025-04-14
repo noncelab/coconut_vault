@@ -6,7 +6,7 @@ part of 'single_sig_vault_list_item.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-SingleSigVaultListItem _$SinglesigVaultListItemFromJson(
+SingleSigVaultListItem _$SingleSigVaultListItemFromJson(
         Map<String, dynamic> json) =>
     SingleSigVaultListItem(
       id: (json['id'] as num).toInt(),
@@ -20,16 +20,16 @@ SingleSigVaultListItem _$SinglesigVaultListItemFromJson(
           (json['linkedMultisigInfo'] as Map<String, dynamic>?)?.map(
         (k, e) => MapEntry(int.parse(k), (e as num).toInt()),
       ),
-    )..vaultType = $enumDecode(_$VaultTypeEnumMap, json['vaultType']);
+    )..vaultType = $enumDecode(_$WalletTypeEnumMap, json['vaultType']);
 
-Map<String, dynamic> _$SinglesigVaultListItemToJson(
+Map<String, dynamic> _$SingleSigVaultListItemToJson(
         SingleSigVaultListItem instance) =>
     <String, dynamic>{
       'id': instance.id,
       'name': instance.name,
       'colorIndex': instance.colorIndex,
       'iconIndex': instance.iconIndex,
-      'vaultType': _$VaultTypeEnumMap[instance.vaultType]!,
+      'vaultType': _$WalletTypeEnumMap[instance.vaultType]!,
       'secret': instance.secret,
       'passphrase': instance.passphrase,
       'linkedMultisigInfo':
@@ -37,7 +37,7 @@ Map<String, dynamic> _$SinglesigVaultListItemToJson(
       'signerBsms': instance.signerBsms,
     };
 
-const _$VaultTypeEnumMap = {
+const _$WalletTypeEnumMap = {
   WalletType.singleSignature: 'singleSignature',
   WalletType.multiSignature: 'multiSignature',
 };

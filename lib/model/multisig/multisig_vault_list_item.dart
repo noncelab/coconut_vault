@@ -84,7 +84,7 @@ class MultisigVaultListItem extends VaultListItemBase {
   Map<String, dynamic> toJson() => _$MultisigVaultListItemToJson(this);
 
   factory MultisigVaultListItem.fromJson(Map<String, dynamic> json) {
-    json['vaultType'] = _$VaultTypeEnumMap[WalletType.multiSignature];
+    json['vaultType'] = _$WalletTypeEnumMap[WalletType.multiSignature];
     return _$MultisigVaultListItemFromJson(json);
   }
 }

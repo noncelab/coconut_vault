@@ -1,3 +1,4 @@
+import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_vault/constants/app_routes.dart';
 import 'package:coconut_vault/enums/pin_check_context_enum.dart';
 import 'package:coconut_vault/main_route_guard.dart';
@@ -11,7 +12,10 @@ import 'package:coconut_vault/screens/airgap/psbt_confirmation_screen.dart';
 import 'package:coconut_vault/screens/airgap/psbt_scanner_screen.dart';
 import 'package:coconut_vault/screens/airgap/signed_transaction_qr_screen.dart';
 import 'package:coconut_vault/screens/airgap/single_sig_sign_screen.dart';
+import 'package:coconut_vault/screens/app_update_helpers/restoration_info_screen.dart';
+import 'package:coconut_vault/screens/app_update_helpers/vault_list_restoration_screen.dart';
 import 'package:coconut_vault/screens/home/vault_list_screen.dart';
+import 'package:coconut_vault/screens/app_update_helpers/app_update_preparation_screen.dart';
 import 'package:coconut_vault/screens/vault_creation/single_sig/security_self_check_screen.dart';
 import 'package:coconut_vault/screens/settings/app_info_screen.dart';
 import 'package:coconut_vault/screens/settings/mnemonic_word_list_screen.dart';
@@ -138,7 +142,7 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> {
           theme: const CupertinoThemeData(
             brightness: Brightness.light,
             primaryColor: Colors.blue, // 기본 색상
-            scaffoldBackgroundColor: MyColors.white, // 배경색
+            scaffoldBackgroundColor: CoconutColors.white, // 배경색
             textTheme: CupertinoTextThemeData(
               navTitleTextStyle: TextStyle(
                 fontFamily: 'Pretendard',
@@ -150,11 +154,12 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> {
                 fontFamily: 'Pretendard',
                 fontSize: 16,
                 fontWeight: FontWeight.w400,
-                color: CupertinoColors.black, // 기본 텍스트 색상
+                color: CoconutColors.black, // 기본 텍스트 색상
               ),
             ),
+            barBackgroundColor: CoconutColors.white,
           ),
-          color: MyColors.black,
+          color: CoconutColors.white,
           home: _getHomeScreenRoute(_appEntryFlow, context),
           routes: {
             AppRoutes.vaultTypeSelection: (context) =>
@@ -233,7 +238,14 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> {
               }
 
               return GuideScreen(onComplete: onComplete);
-            }
+            },
+            AppRoutes.prepareUpdate: (context) => const CustomLoadingOverlay(
+                  child: AppUpdatePreparationScreen(),
+                ),
+            AppRoutes.restorationInfo: (context) =>
+                const RestorationInfoScreen(),
+            AppRoutes.vaultListRestoration: (context) =>
+                const VaultListRestorationScreen(),
           },
         ),
       ),

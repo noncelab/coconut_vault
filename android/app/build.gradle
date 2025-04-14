@@ -85,12 +85,6 @@ android {
             applicationIdSuffix ".regtest"
             versionNameSuffix "-regtest"
         }
-        regtestlocal {
-            dimension "network"
-            resValue "string", "app_name", "(LR)코코넛 볼트"
-            applicationIdSuffix ".regtest.local"
-            versionNameSuffix "-regtestlocal"
-        }
     }
 }
 

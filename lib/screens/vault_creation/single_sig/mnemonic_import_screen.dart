@@ -1,6 +1,8 @@
 import 'package:coconut_lib/coconut_lib.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
+import 'package:coconut_vault/providers/visibility_provider.dart';
 import 'package:coconut_vault/providers/wallet_creation_provider.dart';
+import 'package:coconut_vault/screens/settings/settings_screen.dart';
 import 'package:coconut_vault/screens/vault_creation/vault_name_and_icon_setup_screen.dart';
 import 'package:coconut_vault/utils/lower_case_text_input_formatter.dart';
 import 'package:flutter/cupertino.dart';
@@ -43,74 +45,13 @@ class _MnemonicImportState extends State<MnemonicImport> {
   //     TextEditingController();
   // final FocusNode _fcnodePassphrase = FocusNode();
 
-  void validateInput() {
-    if (_inputText.trim().isEmpty) {
-      if (_isMnemonicValid != null) {
-        setState(() {
-          _isMnemonicValid = null;
-          _errorMessage = null;
-        });
-      }
-      return;
-    }
-
-    String normalizedInputText =
-        _inputText.trim().replaceAll(RegExp(r'\s+'), ' ');
-    List<String> words = normalizedInputText.split(' ');
-    List<String> filtered = [];
-
-    for (int i = 0; i < words.length; i++) {
-      // 유효 길이 미만의 마지막 입력 중인 단어는 유효성 체크에서 임시로 제외
-      if (i == words.length - 1 &&
-          !_inputText.endsWith(' ') &&
-          (i != 11 && i != 14 && i != 17 && i != 20 && i != 23)) {
-        continue;
-      }
-
-      // bip-39에 없는 단어가 있으면, 목록에 추가
-      if (!WalletUtility.isInMnemonicWordList(words[i])) {
-        filtered.add(words[i]);
-      }
-    }
-
-    if (filtered.isNotEmpty) {
-      setState(() {
-        _isMnemonicValid = false;
-        _errorMessage = t.errors.invalid_word_error(filter: filtered);
-      });
-      return;
-    } else {
-      _isMnemonicValid = null;
-      _errorMessage = null;
-    }
-
-    // 유효한 길이가 아닌 니모닉 문구는 검증하지 않음
-    if (words.length < 12 ||
-        (words.length > 12 && words.length < 15) ||
-        (words.length > 15 && words.length < 18) ||
-        (words.length > 18 && words.length < 21) ||
-        (words.length > 21 && words.length < 24)) {
-      if (_isMnemonicValid != null) {
-        setState(() {
-          _isMnemonicValid = null;
-        });
-      }
-      return;
-    }
-
-    // 12자리 또는 24자리 일 때 검증
-    _inputText =
-        _inputText.toLowerCase().replaceAll(RegExp(r'\s+'), ' ').trim();
-
-    if (words.last.length < 3) {
-      _isMnemonicValid = null;
-      _errorMessage = null;
-      return;
-    }
-
-    setState(() {
-      _isMnemonicValid = isValidMnemonic(_inputText);
-    });
+  @override
+  void initState() {
+    super.initState();
+    _initListeners();
+    _walletProvider = Provider.of<WalletProvider>(context, listen: false);
+    _walletCreationProvider =
+        Provider.of<WalletCreationProvider>(context, listen: false)..resetAll();
   }
 
   void _initListeners() {
@@ -121,18 +62,56 @@ class _MnemonicImportState extends State<MnemonicImport> {
     });
   }
 
-  Future<void> _onBackPressed(BuildContext context) async {
-    await SystemChannels.textInput.invokeMethod('TextInput.hide');
-    if (_inputText.isEmpty && _passphrase.isEmpty) {
-      if (Navigator.of(context).canPop()) {
-        Navigator.pop(context);
-      }
-    } else {
-      _showStopGeneratingMnemonicDialog();
-    }
+  @override
+  void dispose() {
+    _mnemonicController.dispose();
+    _passphraseController.dispose();
+    // _passphraseConfirmController.dispose();
+    // _fcnodePassphrase.dispose();
+
+    super.dispose();
   }
 
-  void _showStopGeneratingMnemonicDialog() {
+  void _validateMnemonic() {
+    final String normalizedInputText =
+        _inputText.trim().replaceAll(RegExp(r'\s+'), ' ');
+    final List<String> words = normalizedInputText.split(' ');
+
+    if (_inputText.trim().isEmpty) return _resetValidation();
+
+    if (!_isValidMnemonicLength(words)) return _resetValidation();
+
+    if (words.last.length < 3) return _resetValidation();
+
+    final List<String> invalidWords = words
+        .where((word) => !WalletUtility.isInMnemonicWordList(word))
+        .toList();
+
+    if (invalidWords.isNotEmpty) {
+      setState(() {
+        _isMnemonicValid = false;
+        _errorMessage = t.errors.invalid_word_error(filter: invalidWords);
+      });
+      return;
+    }
+
+    setState(() {
+      _isMnemonicValid = isValidMnemonic(normalizedInputText);
+      _errorMessage = null;
+    });
+  }
+
+  void _resetValidation() => setState(() {
+        _isMnemonicValid = null;
+        _errorMessage = null;
+      });
+
+  bool _isValidMnemonicLength(List<String> words) {
+    final validLengths = [12, 15, 18, 21, 24];
+    return validLengths.contains(words.length);
+  }
+
+  void _showStopImportingMnemonicDialog() {
     CustomDialogs.showCustomAlertDialog(
       context,
       title: t.alert.stop_importing_mnemonic.title,
@@ -150,31 +129,12 @@ class _MnemonicImportState extends State<MnemonicImport> {
   }
 
   @override
-  void initState() {
-    super.initState();
-    _initListeners();
-    _walletProvider = Provider.of<WalletProvider>(context, listen: false);
-    _walletCreationProvider =
-        Provider.of<WalletCreationProvider>(context, listen: false)..resetAll();
-  }
-
-  @override
-  void dispose() {
-    _mnemonicController.dispose();
-    _passphraseController.dispose();
-    // _passphraseConfirmController.dispose();
-    // _fcnodePassphrase.dispose();
-
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
     return PopScope(
       canPop: false,
       onPopInvokedWithResult: (didPop, _) async {
         if (!didPop) {
-          await _onBackPressed(context);
+          await _handleBackNavigation();
         }
       },
       child: Stack(
@@ -184,47 +144,8 @@ class _MnemonicImportState extends State<MnemonicImport> {
             appBar: CustomAppBar.buildWithNext(
               title: t.mnemonic_import_screen.title,
               context: context,
-              onBackPressed: () {
-                _onBackPressed(context);
-              },
-              onNextPressed: () {
-                final String secret = _inputText
-                    .trim()
-                    .toLowerCase()
-                    .replaceAll(RegExp(r'\s+'), ' ');
-
-                final String passphrase =
-                    _usePassphrase ? _passphrase.trim() : '';
-
-                if (_walletProvider.isSeedDuplicated(secret, passphrase)) {
-                  CustomToast.showToast(
-                      context: context, text: t.toast.mnemonic_already_added);
-                  return;
-                }
-
-                MyBottomSheet.showBottomSheet_90(
-                  context: context,
-                  child: MnemonicConfirmationBottomSheet(
-                    onCancelPressed: () => Navigator.pop(context),
-                    onConfirmPressed: () {
-                      _walletCreationProvider.setSecretAndPassphrase(
-                          secret, passphrase);
-                      Navigator.pushReplacement(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) =>
-                                  const VaultNameAndIconSetupScreen()));
-                    },
-                    onInactivePressed: () {
-                      CustomToast.showToast(
-                          context: context, text: t.toast.scroll_down);
-                      vibrateMediumDouble();
-                    },
-                    mnemonic: secret,
-                    passphrase: _usePassphrase ? _passphrase : null,
-                  ),
-                );
-              },
+              onBackPressed: _handleBackNavigation,
+              onNextPressed: _handleNextButton,
               isActive: _usePassphrase
                   ? _inputText.isNotEmpty &&
                       _isMnemonicValid == true &&
@@ -243,102 +164,10 @@ class _MnemonicImportState extends State<MnemonicImport> {
                         Text(t.mnemonic_import_screen.enter_mnemonic_phrase,
                             style: Styles.body1Bold),
                         const SizedBox(height: 30),
-                        CustomTextField(
-                            controller: _mnemonicController,
-                            inputFormatter: [
-                              LowerCaseTextInputFormatter(),
-                            ],
-                            placeholder: t.mnemonic_import_screen
-                                .put_spaces_between_words,
-                            onChanged: (text) {
-                              _inputText = text.toLowerCase();
-                              setState(() {
-                                _mnemonicController.value =
-                                    _mnemonicController.value.copyWith(
-                                  text: _inputText,
-                                  selection: TextSelection.collapsed(
-                                    offset: _mnemonicController
-                                        .selection.baseOffset
-                                        .clamp(0, _inputText.length),
-                                  ),
-                                );
-                              });
-                              validateInput();
-                            },
-                            maxLines: 5,
-                            padding: const EdgeInsets.fromLTRB(16, 20, 16, 20),
-                            valid: _isMnemonicValid,
-                            errorMessage: _errorMessage ??
-                                t.errors.invalid_mnemonic_phrase),
+                        _buildMnemonicTextField(),
                         const SizedBox(height: 30),
-                        Row(
-                          children: [
-                            Text(t.mnemonic_import_screen.use_passphrase,
-                                style: Styles.body2Bold),
-                            const Spacer(),
-                            CupertinoSwitch(
-                              value: _usePassphrase,
-                              activeColor: MyColors.darkgrey,
-                              onChanged: (value) {
-                                setState(() {
-                                  _usePassphrase = value;
-                                });
-                              },
-                            ),
-                          ],
-                        ),
-                        if (_usePassphrase)
-                          Column(children: [
-                            Padding(
-                                padding: const EdgeInsets.only(top: 12),
-                                child: SizedBox(
-                                  child: CustomTextField(
-                                    controller: _passphraseController,
-                                    placeholder: t.mnemonic_import_screen
-                                        .enter_passphrase,
-                                    onChanged: (text) {},
-                                    valid: _passphrase.length <= 100,
-                                    maxLines: 1,
-                                    obscureText: _passphraseObscured,
-                                    suffix: CupertinoButton(
-                                      onPressed: () {
-                                        setState(() {
-                                          _passphraseObscured =
-                                              !_passphraseObscured;
-                                        });
-                                      },
-                                      child: _passphraseObscured
-                                          ? const Icon(
-                                              CupertinoIcons.eye_slash,
-                                              color: MyColors.darkgrey,
-                                              size: 18,
-                                            )
-                                          : const Icon(
-                                              CupertinoIcons.eye,
-                                              color: MyColors.darkgrey,
-                                              size: 18,
-                                            ),
-                                    ),
-                                    maxLength: 100,
-                                  ),
-                                )),
-                            Padding(
-                              padding: const EdgeInsets.only(top: 4, right: 4),
-                              child: Align(
-                                alignment: Alignment.topRight,
-                                child: Text(
-                                  '(${_passphrase.length} / 100)',
-                                  style: TextStyle(
-                                      color: _passphrase.length == 100
-                                          ? MyColors.transparentBlack
-                                          : MyColors.transparentBlack_50,
-                                      fontSize: 12,
-                                      fontFamily:
-                                          CustomFonts.text.getFontFamily),
-                                ),
-                              ),
-                            )
-                          ]),
+                        _buildPassphraseToggle(),
+                        if (_usePassphrase) _buildPassphraseTextField(),
                         const SizedBox(height: 80),
                       ],
                     ),
@@ -365,5 +194,182 @@ class _MnemonicImportState extends State<MnemonicImport> {
         ],
       ),
     );
+  }
+
+  Future<void> _handleBackNavigation() async {
+    await SystemChannels.textInput.invokeMethod('TextInput.hide');
+    if (_inputText.isEmpty && _passphrase.isEmpty) {
+      if (Navigator.of(context).canPop()) {
+        Navigator.pop(context);
+      }
+    } else {
+      _showStopImportingMnemonicDialog();
+    }
+  }
+
+  void _handleNextButton() {
+    final String secret =
+        _inputText.trim().toLowerCase().replaceAll(RegExp(r'\s+'), ' ');
+
+    final String passphrase = _usePassphrase ? _passphrase.trim() : '';
+
+    if (_walletProvider.isSeedDuplicated(secret, passphrase)) {
+      CustomToast.showToast(
+          context: context, text: t.toast.mnemonic_already_added);
+      return;
+    }
+
+    MyBottomSheet.showBottomSheet_90(
+      context: context,
+      child: MnemonicConfirmationBottomSheet(
+        onCancelPressed: () => Navigator.pop(context),
+        onConfirmPressed: () {
+          _walletCreationProvider.setSecretAndPassphrase(secret, passphrase);
+          Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                  builder: (context) => const VaultNameAndIconSetupScreen()));
+        },
+        onInactivePressed: () {
+          CustomToast.showToast(context: context, text: t.toast.scroll_down);
+          vibrateMediumDouble();
+        },
+        mnemonic: secret,
+        passphrase: _usePassphrase ? _passphrase : null,
+      ),
+    );
+  }
+
+  Widget _buildMnemonicTextField() {
+    return CustomTextField(
+        controller: _mnemonicController,
+        inputFormatter: [
+          LowerCaseTextInputFormatter(),
+        ],
+        placeholder: t.mnemonic_import_screen.put_spaces_between_words,
+        onChanged: (text) {
+          _inputText = text.toLowerCase();
+          setState(() {
+            _mnemonicController.value = _mnemonicController.value.copyWith(
+              text: _inputText,
+              selection: TextSelection.collapsed(
+                offset: _mnemonicController.selection.baseOffset
+                    .clamp(0, _inputText.length),
+              ),
+            );
+          });
+          _validateMnemonic();
+        },
+        maxLines: 5,
+        padding: const EdgeInsets.fromLTRB(16, 20, 16, 20),
+        valid: _isMnemonicValid,
+        errorMessage: _errorMessage ?? t.errors.invalid_mnemonic_phrase);
+  }
+
+  Widget _buildPassphraseToggle() {
+    return Selector<VisibilityProvider, bool>(
+        selector: (context, provider) => provider.isPassphraseUseEnabled,
+        builder: (context, isAdvancedUser, child) {
+          if (isAdvancedUser) {
+            return Row(
+              children: [
+                Text(t.mnemonic_import_screen.use_passphrase,
+                    style: Styles.body2Bold),
+                const Spacer(),
+                CupertinoSwitch(
+                  value: _usePassphrase,
+                  activeColor: MyColors.darkgrey,
+                  onChanged: (value) {
+                    setState(() {
+                      _usePassphrase = value;
+                    });
+                  },
+                ),
+              ],
+            );
+          }
+
+          return Container(
+            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(12),
+              color: MyColors.transparentBlack_06,
+            ),
+            child: Column(
+              children: [
+                Text(t.mnemonic_import_screen.need_advanced_mode),
+                GestureDetector(
+                  onTap: () {
+                    MyBottomSheet.showBottomSheet_90(
+                        context: context, child: const SettingsScreen());
+                  },
+                  child: Align(
+                    alignment: Alignment.centerRight,
+                    child: Text(
+                      t.mnemonic_import_screen.open_settings,
+                      style: TextStyle(
+                        fontFamily: CustomFonts.text.getFontFamily,
+                        color: MyColors.black,
+                        decoration: TextDecoration.underline,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          );
+        });
+  }
+
+  Widget _buildPassphraseTextField() {
+    return Column(children: [
+      Padding(
+          padding: const EdgeInsets.only(top: 12),
+          child: SizedBox(
+            child: CustomTextField(
+              controller: _passphraseController,
+              placeholder: t.mnemonic_import_screen.enter_passphrase,
+              onChanged: (text) {},
+              valid: _passphrase.length <= 100,
+              maxLines: 1,
+              obscureText: _passphraseObscured,
+              suffix: CupertinoButton(
+                onPressed: () {
+                  setState(() {
+                    _passphraseObscured = !_passphraseObscured;
+                  });
+                },
+                child: _passphraseObscured
+                    ? const Icon(
+                        CupertinoIcons.eye_slash,
+                        color: MyColors.darkgrey,
+                        size: 18,
+                      )
+                    : const Icon(
+                        CupertinoIcons.eye,
+                        color: MyColors.darkgrey,
+                        size: 18,
+                      ),
+              ),
+              maxLength: 100,
+            ),
+          )),
+      Padding(
+        padding: const EdgeInsets.only(top: 4, right: 4),
+        child: Align(
+          alignment: Alignment.topRight,
+          child: Text(
+            '(${_passphrase.length} / 100)',
+            style: TextStyle(
+                color: _passphrase.length == 100
+                    ? MyColors.transparentBlack
+                    : MyColors.transparentBlack_50,
+                fontSize: 12,
+                fontFamily: CustomFonts.text.getFontFamily),
+          ),
+        ),
+      )
+    ]);
   }
 }
