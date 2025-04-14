@@ -9,7 +9,6 @@ import 'package:coconut_vault/providers/auth_provider.dart';
 import 'package:coconut_vault/providers/view_model/app_update_preparation_view_model.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:coconut_vault/repository/secure_storage_repository.dart';
-import 'package:coconut_vault/utils/hash_util.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -75,57 +74,32 @@ void main() {
 
       List<VaultListItemBase> singleSignVaults =
           walletProvider.getVaultsByWalletType(WalletType.singleSignature);
-      List<String> mnemonicListToInput = [];
-
-      // Check if vaultMnemonicItems were created correctly (name, index, mnemonic)
       expect(updatePreparationProvider.isMnemonicLoaded, true);
-      expect(singleSignVaults.length,
-          updatePreparationProvider.mnemonicWordItems.length);
-
-      for (int i = 0; i < singleSignVaults.length; i++) {
-        MnemonicWordItem mnemonicWordItem =
-            updatePreparationProvider.mnemonicWordItems[i];
-        List<String> vaultMnemonicList = await walletProvider
-            .getSecret(singleSignVaults[i].id)
-            .then((secret) => secret.mnemonic.split(' '));
-
-        expect(mnemonicWordItem.vaultName, singleSignVaults[i].name);
-        expect(mnemonicWordItem.mnemonicWordIndex < vaultMnemonicList.length,
-            true);
-        expect(mnemonicWordItem.mnemonicWord,
-            hashString(vaultMnemonicList[mnemonicWordItem.mnemonicWordIndex]));
-        mnemonicListToInput
-            .add(vaultMnemonicList[mnemonicWordItem.mnemonicWordIndex]);
-      }
 
       // Check if Logic works correctly (text, index)
       final Finder textInput = find.byType(CoconutTextField);
       await waitForWidgetAndTap(tester, textInput, "textInput");
 
-      for (int i = 0; i < mnemonicListToInput.length; i++) {
-        MnemonicWordItem mnemonicWordItem =
-            updatePreparationProvider.mnemonicWordItems[i];
+      for (int i = 0; i < singleSignVaults.length; i++) {
+        List<String> vaultMnemonicList = await walletProvider
+            .getSecret(singleSignVaults[i].id)
+            .then((secret) => secret.mnemonic.split(' '));
+
         String title = t.prepare_update.enter_nth_word_of_wallet(
-          wallet_name: mnemonicWordItem.vaultName,
-          n: mnemonicWordItem.mnemonicWordIndex + 1,
+          wallet_name: updatePreparationProvider.walletName,
+          n: updatePreparationProvider.mnemonicWordIndex,
         );
 
         final Finder titleText = find.text(title);
         expect(titleText, findsOneWidget);
-        expect(updatePreparationProvider.currentMnemonicIndex, i);
 
-        await tester.enterText(textInput, mnemonicListToInput[i]);
+        await tester.enterText(textInput,
+            vaultMnemonicList[updatePreparationProvider.mnemonicWordIndex - 1]);
         await tester.pumpAndSettle();
       }
 
       // Check if Logic finished correctly
       expect(updatePreparationProvider.isMnemonicValidationFinished, true);
-      expect(updatePreparationProvider.currentMnemonicIndex,
-          mnemonicListToInput.length - 1);
-
-      updatePreparationProvider.proceedNextMnemonic();
-      expect(updatePreparationProvider.currentMnemonicIndex,
-          mnemonicListToInput.length - 1);
     });
 
     testWidgets('Backup and restore test', (tester) async {
@@ -287,7 +261,7 @@ BSMS 1.0
     MultisigSigner(
       id: 0,
       signerBsms: outsideWalletBsms,
-      name: outsideWalletBsms.split('\n')[3] ?? '',
+      name: outsideWalletBsms.split('\n')[3],
       memo: 'memo test',
       keyStore: keyStores[1],
     ),

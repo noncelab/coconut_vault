@@ -3,45 +3,42 @@ import 'dart:math';
 
 import 'package:coconut_vault/enums/wallet_enums.dart';
 import 'package:coconut_vault/model/common/vault_list_item_base.dart';
-import 'package:coconut_vault/enums/app_update_step_enum.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:coconut_vault/utils/coconut/update_preparation.dart';
 import 'package:coconut_vault/utils/hash_util.dart';
 import 'package:coconut_vault/utils/logger.dart';
 import 'package:flutter/material.dart';
 
-class MnemonicWordItem {
+class MnemonicWordsItem {
   final String vaultName;
-  final String mnemonicWord;
+  final String mnemonicWords;
   final int mnemonicWordIndex;
 
-  const MnemonicWordItem({
+  const MnemonicWordsItem({
     required this.vaultName,
-    required this.mnemonicWord,
+    required this.mnemonicWords,
     required this.mnemonicWordIndex,
   });
 }
 
 class AppUpdatePreparationViewModel extends ChangeNotifier {
   final WalletProvider _walletProvider;
-  final List<MnemonicWordItem> _mnemonicWordItems = [];
+  final List<MnemonicWordsItem> _mnemonicWordsItems = [];
   final _random = Random();
   bool _isMnemonicLoaded = false;
   bool _isMnemonicValidationFinished = false;
   int _currentMnemonicIndex = 0;
 
   WalletProvider get walletProvider => _walletProvider;
-  List<MnemonicWordItem> get mnemonicWordItems => _mnemonicWordItems;
   bool get isMnemonicLoaded => _isMnemonicLoaded;
   bool get isMnemonicValidationFinished => _isMnemonicValidationFinished;
-  int get currentMnemonicIndex => _currentMnemonicIndex;
-  int _backupProgress = 0;
+  String get walletName => _mnemonicWordsItems[_currentMnemonicIndex].vaultName;
+  int get mnemonicWordIndex =>
+      _mnemonicWordsItems[_currentMnemonicIndex].mnemonicWordIndex + 1;
 
+  int _backupProgress = 0;
   Completer<void>? _progress40Reached;
   Completer<void>? _progress80Reached;
-
-  AppUpdateStep _currentStep = AppUpdateStep.initial;
-  AppUpdateStep get currentStep => _currentStep;
 
   AppUpdatePreparationViewModel(this._walletProvider) {
     _initialize();
@@ -57,9 +54,9 @@ class AppUpdatePreparationViewModel extends ChangeNotifier {
     }
 
     for (int i = 0; i < filteredList.length; i++) {
-      _mnemonicWordItems
-          .add(await _getMnemonicWordItemFromVault(filteredList[i]));
-      if (_mnemonicWordItems.length == filteredList.length) {
+      _mnemonicWordsItems
+          .add(await _getMnemonicWordsFromVault(filteredList[i]));
+      if (_mnemonicWordsItems.length == filteredList.length) {
         _isMnemonicLoaded = true;
         notifyListeners();
       }
@@ -68,28 +65,36 @@ class AppUpdatePreparationViewModel extends ChangeNotifier {
 
   int get backupProgress => _backupProgress;
 
-  void setCurrentStep(AppUpdateStep step) {
-    _currentStep = step;
-    notifyListeners();
-  }
-
-  Future<MnemonicWordItem> _getMnemonicWordItemFromVault(
+  Future<MnemonicWordsItem> _getMnemonicWordsFromVault(
       VaultListItemBase vault) async {
     return await _walletProvider.getSecret(vault.id).then((secret) {
       List<String> mnemonicList = secret.mnemonic.split(' ');
       int mnemonicIndex = _random.nextInt(mnemonicList.length);
-      return MnemonicWordItem(
+      Logger.log(
+          '-->${vault.name} mnemonicList: $mnemonicList, mnemonicIndex: $mnemonicIndex');
+      return MnemonicWordsItem(
           vaultName: vault.name,
-          mnemonicWord: hashString(mnemonicList[mnemonicIndex]),
+          mnemonicWords: hashString(mnemonicList[mnemonicIndex]),
           mnemonicWordIndex: mnemonicIndex);
     });
   }
 
-  void proceedNextMnemonic() {
+  bool isWordMatched(String userInput) {
+    final success = hashString(userInput) ==
+        _mnemonicWordsItems[_currentMnemonicIndex].mnemonicWords;
+    if (!success) {
+      return false;
+    }
+
+    _proceedNextMnemonic();
+    return true;
+  }
+
+  void _proceedNextMnemonic() {
     if (_isMnemonicValidationFinished) return;
     ++_currentMnemonicIndex;
-    if (_currentMnemonicIndex == _mnemonicWordItems.length) {
-      _currentMnemonicIndex = _mnemonicWordItems.length - 1;
+    if (_currentMnemonicIndex == _mnemonicWordsItems.length) {
+      _currentMnemonicIndex = _mnemonicWordsItems.length - 1;
       _isMnemonicValidationFinished = true;
     }
 
@@ -116,10 +121,10 @@ class AppUpdatePreparationViewModel extends ChangeNotifier {
     notifyListeners();
 
     await _progress40Reached!.future;
-    _saveEncryptedBackupWithData(result);
+    saveEncryptedBackupWithData(result);
   }
 
-  void _saveEncryptedBackupWithData(String data) async {
+  void saveEncryptedBackupWithData(String data) async {
     _progress80Reached = Completer<void>();
     final savedPath = await UpdatePreparation.encryptAndSave(data: data);
     Logger.log('--> savedPath: $savedPath');
@@ -128,10 +133,10 @@ class AppUpdatePreparationViewModel extends ChangeNotifier {
     notifyListeners();
 
     await _progress80Reached!.future;
-    _deleteAllWallets();
+    deleteAllWallets();
   }
 
-  void _deleteAllWallets() async {
+  void deleteAllWallets() async {
     await _walletProvider.deleteAllWallets();
     _backupProgress = 100;
     notifyListeners();
