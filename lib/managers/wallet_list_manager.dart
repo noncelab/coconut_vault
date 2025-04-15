@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:coconut_lib/coconut_lib.dart';
+import 'package:coconut_vault/constants/shared_preferences_keys.dart';
 import 'package:coconut_vault/model/multisig/multisig_signer.dart';
 import 'package:coconut_vault/model/multisig/multisig_vault_list_item.dart';
 import 'package:coconut_vault/model/single_sig/single_sig_vault_list_item.dart';
@@ -20,7 +21,6 @@ import 'package:coconut_vault/utils/logger.dart';
 
 /// 지갑의 public 정보는 shared prefs, 비밀 정보는 secure storage에 저장하는 역할을 하는 클래스입니다.
 class WalletListManager {
-  static String vaultListField = 'VAULT_LIST';
   static String nextIdField = 'nextId';
   static String vaultTypeField = VaultListItemBase.vaultTypeField;
 
@@ -46,7 +46,7 @@ class WalletListManager {
 
     String? jsonArrayString;
 
-    jsonArrayString = _sharedPrefs.getString(vaultListField);
+    jsonArrayString = _sharedPrefs.getString(SharedPrefsKeys.kVaultListField);
 
     //printLongString('--> $jsonArrayString');
     if (jsonArrayString.isEmpty || jsonArrayString == '[]') {
@@ -142,7 +142,7 @@ class WalletListManager {
         jsonEncode(_vaultList!.map((item) => item.toJson()).toList());
 
     //printLongString("--> 저장: $jsonString");
-    _sharedPrefs.setString(vaultListField, jsonString);
+    _sharedPrefs.setString(SharedPrefsKeys.kVaultListField, jsonString);
   }
 
   void _linkNewSinglesigVaultAndMultisigVaults(
@@ -396,7 +396,8 @@ class WalletListManager {
   ///
   /// 마이그레이션 진행 여부를 반환합니다.
   Future<bool> _migrateToVer2() async {
-    var previousData = await _storageService.read(key: vaultListField);
+    var previousData =
+        await _storageService.read(key: SharedPrefsKeys.kVaultListField);
     if (previousData == null || previousData.isEmpty) {
       return false;
     }
@@ -427,8 +428,8 @@ class WalletListManager {
 
     final jsonString = jsonEncode(newJsonList);
 
-    _sharedPrefs.setString(vaultListField, jsonString);
-    _storageService.delete(key: vaultListField);
+    _sharedPrefs.setString(SharedPrefsKeys.kVaultListField, jsonString);
+    _storageService.delete(key: SharedPrefsKeys.kVaultListField);
 
     return true;
   }
