@@ -122,7 +122,7 @@ class WalletListManager {
 
     _vaultList!.add(vaultListResult[0]);
     try {
-      _savePublicInfo();
+      await _savePublicInfo();
     } catch (error) {
       _storageService.delete(key: keyString);
       rethrow;
@@ -212,7 +212,7 @@ class WalletListManager {
     updateLinkedMultisigInfo(wallet.signers!, nextId);
 
     _vaultList!.add(newMultisigVault);
-    _savePublicInfo();
+    await _savePublicInfo();
     _recordNextWalletId();
     return newMultisigVault;
   }
@@ -342,7 +342,7 @@ class WalletListManager {
       throw '[wallet_list_manager/updateWallet]: _vaultList[$index] has wrong type: ${_vaultList![index].vaultType}';
     }
 
-    _savePublicInfo();
+    await _savePublicInfo();
     return true;
   }
 
@@ -393,7 +393,7 @@ class WalletListManager {
     }
 
     _vaultList = vaultList;
-    _savePublicInfo();
+    await _savePublicInfo();
     initIsolateHandler.dispose();
   }
 
