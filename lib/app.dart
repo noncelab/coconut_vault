@@ -72,72 +72,64 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> {
     });
   }
 
-  Widget _getHomeScreenRoute(AppEntryFlow status, BuildContext context) {
-    if (status == AppEntryFlow.splash) {
-      return StartScreen(onComplete: (status) {
-        _updateEntryFlow(status);
-      });
-    } else if (status == AppEntryFlow.tutorial) {
-      return const TutorialScreen(
-        screenStatus: TutorialScreenStatus.entrance,
-      );
-    } else if (status == AppEntryFlow.pincheck) {
-      return CustomLoadingOverlay(
-        child: PinCheckScreen(
-          pinCheckContext: PinCheckContextEnum.appLaunch,
-          onComplete: () {
-            _updateEntryFlow(AppEntryFlow.vaultlist);
-          },
-          onReset: () async {
-            /// 초기화 이후 메인 라우터 이동
-            _updateEntryFlow(AppEntryFlow.vaultlist);
-          },
-        ),
-      );
-    } else if (status == AppEntryFlow.pincheckForRestore) {
-      /// 복원 파일 o, 업데이트 o 일때 바로 이동하는 핀체크 화면
-      return CustomLoadingOverlay(
-        child: PinCheckScreen(
-          pinCheckContext: PinCheckContextEnum.appLaunch,
-          onComplete: () {
-            _updateEntryFlow(AppEntryFlow.restore);
-          },
-          onReset: () async {
-            /// 초기화 이후 메인 라우터 이동
-            _updateEntryFlow(AppEntryFlow.vaultlist);
-          },
-        ),
-      );
-    } else if (status == AppEntryFlow.foundBackupFile) {
-      /// 복원파일 o, 업데이트 x 일때 이동하는 복원파일 발견 화면
-      return CustomLoadingOverlay(
-        child: RestorationInfoScreen(
-          onComplete: () {
-            _updateEntryFlow(AppEntryFlow.restore);
-          },
-          onReset: () async {
-            /// 초기화 이후 메인 라우터 이동
-            _updateEntryFlow(AppEntryFlow.vaultlist);
-          },
-        ),
-      );
-    } else if (status == AppEntryFlow.restore) {
-      /// 복원 진행 화면
-      return CustomLoadingOverlay(
-        child: VaultListRestorationScreen(
-          onComplete: () {
-            _updateEntryFlow(AppEntryFlow.vaultlist);
-          },
-        ),
-      );
-    }
-
-    return MainRouteGuard(
-      onAppGoBackground: () {
-        _updateEntryFlow(AppEntryFlow.pincheck);
-      },
-      child: const VaultListScreen(),
+  Widget _buildPinCheckScreen({
+    required AppEntryFlow nextFlow,
+    VoidCallback? onReset,
+  }) {
+    return PinCheckScreen(
+      pinCheckContext: PinCheckContextEnum.appLaunch,
+      onComplete: () => _updateEntryFlow(nextFlow),
+      onReset: onReset ?? () async => _updateEntryFlow(AppEntryFlow.vaultlist),
     );
+  }
+
+  Widget _getHomeScreenRoute(AppEntryFlow status, BuildContext context) {
+    switch (status) {
+      case AppEntryFlow.splash:
+        return StartScreen(onComplete: _updateEntryFlow);
+
+      case AppEntryFlow.tutorial:
+        return const TutorialScreen(
+          screenStatus: TutorialScreenStatus.entrance,
+        );
+
+      case AppEntryFlow.pincheck:
+        return CustomLoadingOverlay(
+          child: _buildPinCheckScreen(nextFlow: AppEntryFlow.vaultlist),
+        );
+
+      case AppEntryFlow.pincheckForRestore:
+
+        /// 복원 파일 o, 업데이트 o 일때 바로 이동하는 핀체크 화면
+        return CustomLoadingOverlay(
+          child: _buildPinCheckScreen(nextFlow: AppEntryFlow.restore),
+        );
+
+      case AppEntryFlow.foundBackupFile:
+
+        /// 복원파일 o, 업데이트 x 일때 이동하는 복원파일 발견 화면
+        return CustomLoadingOverlay(
+          child: RestorationInfoScreen(
+            onComplete: () => _updateEntryFlow(AppEntryFlow.restore),
+            onReset: () async => _updateEntryFlow(AppEntryFlow.vaultlist),
+          ),
+        );
+
+      case AppEntryFlow.restore:
+
+        /// 복원 진행 화면
+        return CustomLoadingOverlay(
+          child: VaultListRestorationScreen(
+            onComplete: () => _updateEntryFlow(AppEntryFlow.vaultlist),
+          ),
+        );
+
+      case AppEntryFlow.vaultlist:
+        return MainRouteGuard(
+          onAppGoBackground: () => _updateEntryFlow(AppEntryFlow.pincheck),
+          child: const VaultListScreen(),
+        );
+    }
   }
 
   @override
