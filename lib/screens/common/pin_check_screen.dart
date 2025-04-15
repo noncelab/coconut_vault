@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_vault/constants/pin_constants.dart';
 import 'package:coconut_vault/enums/pin_check_context_enum.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
@@ -12,7 +13,6 @@ import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:loader_overlay/loader_overlay.dart';
 import 'package:coconut_vault/screens/settings/pin_setting_screen.dart';
-import 'package:coconut_vault/styles.dart';
 import 'package:coconut_vault/utils/vibration_util.dart';
 import 'package:coconut_vault/widgets/custom_dialog.dart';
 import 'package:coconut_vault/widgets/bottom_sheet.dart';
@@ -60,7 +60,8 @@ class _PinCheckScreenState extends State<PinCheckScreen>
     _pin = '';
     _errorMessage = '';
 
-    _isAppLaunched = widget.pinCheckContext == PinCheckContextEnum.appLaunch;
+    _isAppLaunched = widget.pinCheckContext == PinCheckContextEnum.appLaunch ||
+        widget.pinCheckContext == PinCheckContextEnum.restoration;
 
     _authProvider = Provider.of<AuthProvider>(context, listen: false);
     Future.microtask(() {
@@ -78,6 +79,13 @@ class _PinCheckScreenState extends State<PinCheckScreen>
       if (mounted) {
         setState(() {
           _shuffledPinNumbers = _authProvider.getShuffledNumberList();
+        });
+      }
+      if (!_authProvider.isUnlockAvailable()) {
+        setState(() {
+          _isUnlockDisabled = true;
+          _startCountdownTimerUntil(
+              _authProvider.unlockAvailableAt ?? DateTime.now());
         });
       }
     });
@@ -144,6 +152,7 @@ class _PinCheckScreenState extends State<PinCheckScreen>
 
     switch (widget.pinCheckContext) {
       case PinCheckContextEnum.appLaunch:
+      case PinCheckContextEnum.restoration:
         widget.onComplete?.call();
         break;
       case PinCheckContextEnum.change:
@@ -270,17 +279,18 @@ class _PinCheckScreenState extends State<PinCheckScreen>
             children: [
               TextSpan(
                 text: t.alert.forgot_password.description1,
-                style: Styles.body2,
+                style: CoconutTypography.body2_14,
               ),
               TextSpan(
                 text: t.alert.forgot_password.description2,
-                style: Styles.warning,
+                style:
+                    CoconutTypography.body3_12.setColor(CoconutColors.hotPink),
               ),
             ],
           ),
         ),
         confirmButtonText: t.alert.forgot_password.btn_reset,
-        confirmButtonColor: MyColors.warningText,
+        confirmButtonColor: CoconutColors.hotPink,
         cancelButtonText: t.close, onConfirm: () async {
       await _authProvider.resetPin();
 
@@ -295,18 +305,19 @@ class _PinCheckScreenState extends State<PinCheckScreen>
   Widget build(BuildContext context) {
     return _isAppLaunched
         ? Material(
-            color: MyColors.white,
+            color: CoconutColors.white,
             child: PopScope(
-              canPop: false,
+              canPop: widget.pinCheckContext == PinCheckContextEnum.restoration,
               onPopInvokedWithResult: (didPop, _) async {
-                if (Platform.isAndroid) {
+                if (Platform.isAndroid &&
+                    widget.pinCheckContext == PinCheckContextEnum.appLaunch) {
                   final now = DateTime.now();
                   if (_lastPressedAt == null ||
                       now.difference(_lastPressedAt!) >
                           const Duration(seconds: 3)) {
                     _lastPressedAt = now;
                     Fluttertoast.showToast(
-                      backgroundColor: MyColors.grey,
+                      backgroundColor: CoconutColors.gray800,
                       msg: t.toast.back_exit,
                       toastLength: Toast.LENGTH_SHORT,
                     );
@@ -316,7 +327,7 @@ class _PinCheckScreenState extends State<PinCheckScreen>
                 }
               },
               child: Scaffold(
-                backgroundColor: MyColors.white,
+                backgroundColor: CoconutColors.white,
                 body: Stack(
                   children: [
                     Center(child: _pinInputScreen(isOnReset: true)),

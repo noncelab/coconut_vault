@@ -4,6 +4,7 @@ import 'package:coconut_vault/enums/pin_check_context_enum.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/providers/auth_provider.dart';
 import 'package:coconut_vault/providers/visibility_provider.dart';
+import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:coconut_vault/utils/logger.dart';
 import 'package:coconut_vault/widgets/custom_loading_overlay.dart';
 import 'package:flutter/cupertino.dart';
@@ -34,9 +35,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
         backgroundColor: Colors.transparent,
         toolbarHeight: 62,
         title: Text(t.settings),
-        titleTextStyle:
-            Styles.navHeader.merge(const TextStyle(color: MyColors.black)),
-        toolbarTextStyle: Styles.appbarTitle,
+        titleTextStyle: CoconutTypography.body1_16,
+        toolbarTextStyle: CoconutTypography.heading4_18,
         leading: IconButton(
           onPressed: () {
             Navigator.pop(context);
@@ -55,22 +55,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
             children: [
               _securityPart(context),
               CoconutLayout.spacing_1000h,
-              // TODO: 복원 기능 테스트를 위해 임시 주석 처리
-              // Selector<WalletProvider, bool>(
-              //   selector: (context, provider) => provider.vaultList.isNotEmpty,
-              //   builder: (context, isNotEmpty, _) => isNotEmpty
-              //       ? Column(children: [
-              //           _updatePart(context),
-              //           CoconutLayout.spacing_1000h
-              //         ])
-              //       : Container(),
-              // ),
-
-              // TODO: 복원 기능 테스트를 위해 임시 구현
-              Column(children: [
-                _updatePart(context),
-                CoconutLayout.spacing_1000h
-              ]),
+              Selector<WalletProvider, bool>(
+                selector: (context, provider) => provider.vaultList.isNotEmpty,
+                builder: (context, isNotEmpty, _) => isNotEmpty
+                    ? Column(children: [
+                        _updatePart(context),
+                        CoconutLayout.spacing_1000h
+                      ])
+                    : Container(),
+              ),
               _advancedUserPart(context),
             ],
           ),
@@ -185,25 +178,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 );
               },
             ),
-            // 임시 메뉴
-            SingleButton(
-              title: t.restore,
-              onPressed: () async {
-                MyBottomSheet.showBottomSheet_90(
-                  context: context,
-                  child: CustomLoadingOverlay(
-                    child: PinCheckScreen(
-                      pinCheckContext: PinCheckContextEnum.sensitiveAction,
-                      isDeleteScreen: true,
-                      onComplete: () async {
-                        Navigator.pop(context);
-                        Navigator.pushNamed(context, AppRoutes.restorationInfo);
-                      },
-                    ),
-                  ),
-                );
-              },
-            ),
           ],
         ),
       ],
@@ -213,7 +187,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   Widget _advancedUserPart(BuildContext context) {
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
       Container(
-        padding: const EdgeInsets.symmetric(vertical: 12),
+        padding: const EdgeInsets.only(bottom: 16),
         child: Text(t.advanced_user,
             style: const TextStyle(
               fontFamily: 'Pretendard',

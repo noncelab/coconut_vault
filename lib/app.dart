@@ -43,15 +43,17 @@ import 'package:flutter/material.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:coconut_vault/screens/common/pin_check_screen.dart';
 import 'package:coconut_vault/screens/common/start_screen.dart';
-import 'package:coconut_vault/styles.dart';
 import 'package:coconut_vault/widgets/custom_loading_overlay.dart';
 import 'package:provider/provider.dart';
 
 enum AppEntryFlow {
   splash,
   tutorial,
-  pincheck,
-  vaultlist,
+  pinCheck,
+  vaultList,
+  pinCheckForRestoration, // 복원파일o, 업데이트o 일때 바로 이동하는 핀체크 화면
+  foundBackupFile, // 복원파일o, 업데이트x 일때 이동하는 복원파일 발견 화면
+  restoration, // 복원 진행 화면
 }
 
 class CoconutVaultApp extends StatefulWidget {
@@ -70,36 +72,64 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> {
     });
   }
 
-  Widget _getHomeScreenRoute(AppEntryFlow status, BuildContext context) {
-    if (status == AppEntryFlow.splash) {
-      return StartScreen(onComplete: (status) {
-        _updateEntryFlow(status);
-      });
-    } else if (status == AppEntryFlow.tutorial) {
-      return const TutorialScreen(
-        screenStatus: TutorialScreenStatus.entrance,
-      );
-    } else if (status == AppEntryFlow.pincheck) {
-      return CustomLoadingOverlay(
-        child: PinCheckScreen(
-          pinCheckContext: PinCheckContextEnum.appLaunch,
-          onComplete: () {
-            _updateEntryFlow(AppEntryFlow.vaultlist);
-          },
-          onReset: () async {
-            /// 초기화 이후 메인 라우터 이동
-            _updateEntryFlow(AppEntryFlow.vaultlist);
-          },
-        ),
-      );
-    }
-
-    return MainRouteGuard(
-      onAppGoBackground: () {
-        _updateEntryFlow(AppEntryFlow.pincheck);
-      },
-      child: const VaultListScreen(),
+  Widget _buildPinCheckScreen({
+    required AppEntryFlow nextFlow,
+    VoidCallback? onReset,
+  }) {
+    return PinCheckScreen(
+      pinCheckContext: PinCheckContextEnum.appLaunch,
+      onComplete: () => _updateEntryFlow(nextFlow),
+      onReset: onReset ?? () async => _updateEntryFlow(AppEntryFlow.vaultList),
     );
+  }
+
+  Widget _getHomeScreenRoute(AppEntryFlow status, BuildContext context) {
+    switch (status) {
+      case AppEntryFlow.splash:
+        return StartScreen(onComplete: _updateEntryFlow);
+
+      case AppEntryFlow.tutorial:
+        return const TutorialScreen(
+          screenStatus: TutorialScreenStatus.entrance,
+        );
+
+      case AppEntryFlow.pinCheck:
+        return CustomLoadingOverlay(
+          child: _buildPinCheckScreen(nextFlow: AppEntryFlow.vaultList),
+        );
+
+      case AppEntryFlow.pinCheckForRestoration:
+
+        /// 복원 파일 o, 업데이트 o 일때 바로 이동하는 핀체크 화면
+        return CustomLoadingOverlay(
+          child: _buildPinCheckScreen(nextFlow: AppEntryFlow.restoration),
+        );
+
+      case AppEntryFlow.foundBackupFile:
+
+        /// 복원파일 o, 업데이트 x 일때 이동하는 복원파일 발견 화면
+        return CustomLoadingOverlay(
+          child: RestorationInfoScreen(
+            onComplete: () => _updateEntryFlow(AppEntryFlow.restoration),
+            onReset: () async => _updateEntryFlow(AppEntryFlow.vaultList),
+          ),
+        );
+
+      case AppEntryFlow.restoration:
+
+        /// 복원 진행 화면
+        return CustomLoadingOverlay(
+          child: VaultListRestorationScreen(
+            onComplete: () => _updateEntryFlow(AppEntryFlow.vaultList),
+          ),
+        );
+
+      case AppEntryFlow.vaultList:
+        return MainRouteGuard(
+          onAppGoBackground: () => _updateEntryFlow(AppEntryFlow.pinCheck),
+          child: const VaultListScreen(),
+        );
+    }
   }
 
   @override
@@ -120,13 +150,20 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> {
             return connectivityProvider!;
           },
         ),
-        if (_appEntryFlow == AppEntryFlow.vaultlist) ...{
+        if (_appEntryFlow == AppEntryFlow.vaultList) ...{
           Provider<WalletCreationProvider>(
               create: (_) => WalletCreationProvider()),
           Provider<SignProvider>(create: (_) => SignProvider()),
           ChangeNotifierProvider<WalletProvider>(
             create: (_) => WalletProvider(
-                Provider.of<VisibilityProvider>(_, listen: false)),
+              Provider.of<VisibilityProvider>(_, listen: false),
+            ),
+          )
+        } else if (_appEntryFlow == AppEntryFlow.restoration) ...{
+          ChangeNotifierProvider<WalletProvider>(
+            create: (_) => WalletProvider(
+              Provider.of<VisibilityProvider>(_, listen: false),
+            ),
           )
         }
       ],
@@ -148,7 +185,7 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> {
                 fontFamily: 'Pretendard',
                 fontSize: 14,
                 fontWeight: FontWeight.w600,
-                color: MyColors.darkgrey, // 제목 텍스트 색상
+                color: CoconutColors.gray800, // 제목 텍스트 색상
               ),
               textStyle: TextStyle(
                 fontFamily: 'Pretendard',
@@ -234,7 +271,7 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> {
             AppRoutes.welcome: (context) => const WelcomeScreen(),
             AppRoutes.connectivityGuide: (context) {
               onComplete() {
-                _updateEntryFlow(AppEntryFlow.vaultlist);
+                _updateEntryFlow(AppEntryFlow.vaultList);
               }
 
               return GuideScreen(onComplete: onComplete);
@@ -242,10 +279,6 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> {
             AppRoutes.prepareUpdate: (context) => const CustomLoadingOverlay(
                   child: AppUpdatePreparationScreen(),
                 ),
-            AppRoutes.restorationInfo: (context) =>
-                const RestorationInfoScreen(),
-            AppRoutes.vaultListRestoration: (context) =>
-                const VaultListRestorationScreen(),
           },
         ),
       ),

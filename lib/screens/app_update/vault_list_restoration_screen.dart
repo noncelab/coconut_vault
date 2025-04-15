@@ -5,7 +5,6 @@ import 'package:coconut_vault/model/multisig/multisig_vault_list_item.dart';
 import 'package:coconut_vault/model/single_sig/single_sig_vault_list_item.dart';
 import 'package:coconut_vault/providers/view_model/vault_list_restoration_view_model.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
-import 'package:coconut_vault/styles.dart';
 import 'package:coconut_vault/utils/icon_util.dart';
 import 'package:coconut_vault/widgets/button/fixed_bottom_button.dart';
 import 'package:coconut_vault/widgets/indicator/percent_progress_indicator.dart';
@@ -14,7 +13,8 @@ import 'package:flutter_svg/svg.dart';
 import 'package:provider/provider.dart';
 
 class VaultListRestorationScreen extends StatefulWidget {
-  const VaultListRestorationScreen({super.key});
+  final Function onComplete;
+  const VaultListRestorationScreen({super.key, required this.onComplete});
 
   @override
   State<VaultListRestorationScreen> createState() =>
@@ -99,11 +99,12 @@ class _VaultListRestorationScreenState extends State<VaultListRestorationScreen>
         children: [
           CoconutIcon(
             size: 30,
-            backgroundColor: BackgroundColorPalette[colorIndex],
+            backgroundColor:
+                CoconutColors.backgroundColorPaletteLight[colorIndex],
             child: SvgPicture.asset(
               CustomIcons.getPathByIndex(iconIndex),
-              colorFilter:
-                  ColorFilter.mode(ColorPalette[colorIndex], BlendMode.srcIn),
+              colorFilter: ColorFilter.mode(
+                  CoconutColors.colorPalette[colorIndex], BlendMode.srcIn),
             ),
           ),
           CoconutLayout.spacing_200w,
@@ -219,11 +220,7 @@ class _VaultListRestorationScreenState extends State<VaultListRestorationScreen>
                   if (viewModel.isVaultListRestored) ...{
                     FixedBottomButton(
                       onButtonClicked: () {
-                        Navigator.pushNamedAndRemoveUntil(
-                          context,
-                          '/',
-                          (Route<dynamic> route) => false,
-                        );
+                        widget.onComplete();
                       },
                       text: t.vault_list_restoration.start_vault,
                       textColor: CoconutColors.white,

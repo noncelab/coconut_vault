@@ -1,20 +1,47 @@
+import 'dart:io';
+
 import 'package:coconut_design_system/coconut_design_system.dart';
-import 'package:coconut_vault/constants/app_routes.dart';
+import 'package:coconut_vault/enums/pin_check_context_enum.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
+import 'package:coconut_vault/screens/common/pin_check_screen.dart';
+import 'package:coconut_vault/widgets/bottom_sheet.dart';
+import 'package:coconut_vault/widgets/custom_loading_overlay.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 class RestorationInfoScreen extends StatefulWidget {
-  const RestorationInfoScreen({super.key});
+  final Function onComplete;
+  final Function onReset;
+  const RestorationInfoScreen(
+      {super.key, required this.onComplete, required this.onReset});
 
   @override
   State<RestorationInfoScreen> createState() => _RestorationInfoScreenState();
 }
 
 class _RestorationInfoScreenState extends State<RestorationInfoScreen> {
+  DateTime? _lastPressedAt;
   @override
   Widget build(BuildContext context) {
     return PopScope(
         canPop: false,
+        onPopInvokedWithResult: (didPop, _) async {
+          if (Platform.isAndroid) {
+            final now = DateTime.now();
+            if (_lastPressedAt == null ||
+                now.difference(_lastPressedAt!) > const Duration(seconds: 3)) {
+              _lastPressedAt = now;
+              Fluttertoast.showToast(
+                backgroundColor: CoconutColors.gray800,
+                msg: t.toast.back_exit,
+                toastLength: Toast.LENGTH_SHORT,
+              );
+            } else {
+              SystemNavigator.pop();
+            }
+          }
+        },
         child: Scaffold(
             backgroundColor: CoconutColors.white,
             body: SafeArea(
@@ -42,9 +69,30 @@ class _RestorationInfoScreenState extends State<RestorationInfoScreen> {
                     width: double.infinity,
                     height: 52,
                     text: t.restore,
-                    onPressed: () {
-                      Navigator.pushNamed(
-                          context, AppRoutes.vaultListRestoration);
+                    onPressed: () async {
+                      MyBottomSheet.showBottomSheet_90(
+                        context: context,
+                        child: CustomLoadingOverlay(
+                          child: ClipRRect(
+                            borderRadius: const BorderRadius.only(
+                              topLeft:
+                                  Radius.circular(CoconutStyles.radius_200),
+                              topRight:
+                                  Radius.circular(CoconutStyles.radius_200),
+                            ),
+                            child: PinCheckScreen(
+                              pinCheckContext: PinCheckContextEnum.restoration,
+                              isDeleteScreen: true,
+                              onComplete: () async {
+                                widget.onComplete();
+                              },
+                              onReset: () async {
+                                widget.onReset();
+                              },
+                            ),
+                          ),
+                        ),
+                      );
                     },
                   ),
                   CoconutLayout.spacing_1000h

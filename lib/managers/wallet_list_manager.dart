@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:coconut_lib/coconut_lib.dart';
+import 'package:coconut_vault/constants/shared_preferences_keys.dart';
 import 'package:coconut_vault/model/multisig/multisig_signer.dart';
 import 'package:coconut_vault/model/multisig/multisig_vault_list_item.dart';
 import 'package:coconut_vault/model/single_sig/single_sig_vault_list_item.dart';
@@ -13,13 +14,13 @@ import 'package:coconut_vault/model/single_sig/single_sig_wallet.dart';
 import 'package:coconut_vault/managers/isolate_manager.dart';
 import 'package:coconut_vault/repository/secure_storage_repository.dart';
 import 'package:coconut_vault/repository/shared_preferences_repository.dart';
+import 'package:coconut_vault/utils/coconut/update_preparation.dart';
 import 'package:coconut_vault/utils/hash_util.dart';
 import 'package:coconut_vault/utils/isolate_handler.dart';
 import 'package:coconut_vault/utils/logger.dart';
 
 /// 지갑의 public 정보는 shared prefs, 비밀 정보는 secure storage에 저장하는 역할을 하는 클래스입니다.
 class WalletListManager {
-  static String vaultListField = 'VAULT_LIST';
   static String nextIdField = 'nextId';
   static String vaultTypeField = VaultListItemBase.vaultTypeField;
 
@@ -45,7 +46,7 @@ class WalletListManager {
 
     String? jsonArrayString;
 
-    jsonArrayString = _sharedPrefs.getString(vaultListField);
+    jsonArrayString = _sharedPrefs.getString(SharedPrefsKeys.kVaultListField);
 
     //printLongString('--> $jsonArrayString');
     if (jsonArrayString.isEmpty || jsonArrayString == '[]') {
@@ -121,7 +122,7 @@ class WalletListManager {
 
     _vaultList!.add(vaultListResult[0]);
     try {
-      _savePublicInfo();
+      await _savePublicInfo();
     } catch (error) {
       _storageService.delete(key: keyString);
       rethrow;
@@ -134,14 +135,19 @@ class WalletListManager {
     return hashString("${id.toString()} - ${type.name}");
   }
 
-  Future _savePublicInfo() async {
+  Future<void> _savePublicInfo() async {
     if (_vaultList == null) return;
 
     final jsonString =
         jsonEncode(_vaultList!.map((item) => item.toJson()).toList());
 
     //printLongString("--> 저장: $jsonString");
-    _sharedPrefs.setString(vaultListField, jsonString);
+    await _sharedPrefs.setString(SharedPrefsKeys.kVaultListField, jsonString);
+  }
+
+  Future<void> _removePublicInfo() async {
+    await _sharedPrefs
+        .deleteSharedPrefsWithKey(SharedPrefsKeys.kVaultListField);
   }
 
   void _linkNewSinglesigVaultAndMultisigVaults(
@@ -206,7 +212,7 @@ class WalletListManager {
     updateLinkedMultisigInfo(wallet.signers!, nextId);
 
     _vaultList!.add(newMultisigVault);
-    _savePublicInfo();
+    await _savePublicInfo();
     _recordNextWalletId();
     return newMultisigVault;
   }
@@ -240,13 +246,6 @@ class WalletListManager {
   void _recordNextWalletId() {
     final int nextId = _getNextWalletId();
     _sharedPrefs.setInt(nextIdField, nextId + 1);
-  }
-
-  void _rollbackNextWalletId() {
-    final int nextId = _getNextWalletId();
-    if (nextId == 1) return;
-
-    _sharedPrefs.setInt(nextIdField, nextId - 1);
   }
 
   Future<Secret> getSecret(int id) async {
@@ -336,7 +335,7 @@ class WalletListManager {
       throw '[wallet_list_manager/updateWallet]: _vaultList[$index] has wrong type: ${_vaultList![index].vaultType}';
     }
 
-    _savePublicInfo();
+    await _savePublicInfo();
     return true;
   }
 
@@ -356,8 +355,12 @@ class WalletListManager {
 
   Future<void> resetAll() async {
     _vaultList?.clear();
+
+    await UpdatePreparation
+        .clearUpdatePreparationStorage(); // 비밀번호 초기화시 백업파일도 같이 삭제
+
     await _storageService.deleteAll();
-    await _savePublicInfo();
+    await _removePublicInfo();
   }
 
   Future<void> restoreFromBackupData(
@@ -383,7 +386,7 @@ class WalletListManager {
     }
 
     _vaultList = vaultList;
-    _savePublicInfo();
+    await _savePublicInfo();
     initIsolateHandler.dispose();
   }
 
@@ -391,7 +394,8 @@ class WalletListManager {
   ///
   /// 마이그레이션 진행 여부를 반환합니다.
   Future<bool> _migrateToVer2() async {
-    var previousData = await _storageService.read(key: vaultListField);
+    var previousData =
+        await _storageService.read(key: SharedPrefsKeys.kVaultListField);
     if (previousData == null || previousData.isEmpty) {
       return false;
     }
@@ -422,8 +426,8 @@ class WalletListManager {
 
     final jsonString = jsonEncode(newJsonList);
 
-    _sharedPrefs.setString(vaultListField, jsonString);
-    _storageService.delete(key: vaultListField);
+    _sharedPrefs.setString(SharedPrefsKeys.kVaultListField, jsonString);
+    _storageService.delete(key: SharedPrefsKeys.kVaultListField);
 
     return true;
   }

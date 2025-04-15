@@ -1,9 +1,12 @@
 import 'dart:io';
 
+import 'package:coconut_vault/app.dart';
 import 'package:coconut_vault/constants/shared_preferences_keys.dart';
 import 'package:coconut_vault/providers/connectivity_provider.dart';
 import 'package:coconut_vault/repository/secure_storage_repository.dart';
 import 'package:coconut_vault/repository/shared_preferences_repository.dart';
+import 'package:coconut_vault/utils/app_version_util.dart';
+import 'package:coconut_vault/utils/coconut/update_preparation.dart';
 import 'package:flutter/foundation.dart';
 
 class StartViewModel extends ChangeNotifier {
@@ -21,7 +24,7 @@ class StartViewModel extends ChangeNotifier {
   bool? get connectivityState => _connectivityState;
   bool get hasSeenGuide => _hasSeenGuide;
 
-  bool isWalletExistent() {
+  bool _isWalletExistent() {
     return (SharedPrefsRepository().getInt(SharedPrefsKeys.vaultListLength) ??
             0) >
         0;
@@ -49,5 +52,29 @@ class StartViewModel extends ChangeNotifier {
     }
 
     return isNetworkOn || isBluetoothOn;
+  }
+
+  Future<AppEntryFlow> getNextEntryFlow() async {
+    /// 비밀번호 등록 되어 있더라도, 추가한 볼트가 없는 경우는 볼트 리스트 화면으로 이동합니다.
+    if (_isWalletExistent()) {
+      return AppEntryFlow.pinCheck;
+    }
+
+    final isRestorationPrepared =
+        await UpdatePreparation.isRestorationPrepared();
+    // 복원파일 유무를 확인합니다.
+    if (isRestorationPrepared) {
+      // 복원파일 있음
+      if (await AppVersionUtil.isAppVersionUpdated()) {
+        // 업데이트 완료
+        return AppEntryFlow.pinCheckForRestoration;
+      } else {
+        // 업데이트 하지 않음
+        return AppEntryFlow.foundBackupFile;
+      }
+    } else {
+      // 복원파일 없음 - 일반적인 최초 진입 흐름
+      return AppEntryFlow.vaultList;
+    }
   }
 }

@@ -1,12 +1,13 @@
 import 'dart:async';
 
+import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_vault/app.dart';
 import 'package:coconut_vault/providers/connectivity_provider.dart';
 import 'package:coconut_vault/providers/view_model/start_view_model.dart';
 import 'package:coconut_vault/providers/visibility_provider.dart';
+import 'package:coconut_vault/utils/app_version_util.dart';
+import 'package:coconut_vault/utils/coconut/update_preparation.dart';
 import 'package:flutter/material.dart';
-
-import 'package:coconut_vault/styles.dart';
 import 'package:provider/provider.dart';
 
 class StartScreen extends StatefulWidget {
@@ -46,18 +47,14 @@ class _StartScreenState extends State<StartScreen> {
   Future _determineNextEntryFlow() async {
     await Future.delayed(const Duration(seconds: 2));
 
-    /// 비밀번호 등록 되어 있더라도, 추가한 볼트가 없는 경우는 볼트 리스트 화면으로 이동합니다.
-    if (_viewModel.isWalletExistent()) {
-      widget.onComplete(AppEntryFlow.pincheck);
-    } else {
-      widget.onComplete(AppEntryFlow.vaultlist);
-    }
+    var nextEntryFlow = await _viewModel.getNextEntryFlow();
+    widget.onComplete(nextEntryFlow);
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: MyColors.white,
+      backgroundColor: CoconutColors.white,
       body: Column(
         children: [
           Flexible(

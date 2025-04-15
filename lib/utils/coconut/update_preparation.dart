@@ -127,4 +127,14 @@ class UpdatePreparation {
       'key': keyString,
     };
   }
+
+  /// 암호화된 데이터가 준비되었는지 확인하는 메소드, 복원 가능 상태 인지 확인
+  static Future<bool> isRestorationPrepared() async {
+    try {
+      await UpdatePreparation.validatePreparationState();
+      return true;
+    } catch (_) {
+      return false;
+    }
+  }
 }

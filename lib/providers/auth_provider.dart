@@ -58,10 +58,12 @@ class AuthProvider extends ChangeNotifier {
   int get currentAttemptInTurn => _currentAttemptInTurn;
   String _unlockAvailableAtInString = '';
   DateTime? get unlockAvailableAt => _unlockAvailableAtInString.isEmpty
-      ? DateTime.now().add(Duration(minutes: kLockoutDurationsPerTurn[0]))
-      : _unlockAvailableAtInString == '-1'
+      ? (_currentTurn == 0
+          ? DateTime.now()
+          : DateTime.now().add(Duration(minutes: kLockoutDurationsPerTurn[0])))
+      : (_unlockAvailableAtInString == '-1'
           ? null
-          : DateTime.tryParse(_unlockAvailableAtInString);
+          : DateTime.tryParse(_unlockAvailableAtInString));
 
   int get remainingAttemptCount => kMaxAttemptPerTurn - _currentAttemptInTurn;
   bool get isPermanantlyLocked => _currentTurn == kMaxTurn;
@@ -103,6 +105,11 @@ class AuthProvider extends ChangeNotifier {
     _currentTurn = totalAttemptCount.isEmpty ? 0 : int.parse(totalAttemptCount);
     _unlockAvailableAtInString =
         totalAttemptCount.isEmpty ? '' : lockoutEndDateTimeString;
+  }
+
+  bool isUnlockAvailable() {
+    // 현재 시점을 기준으로 잠금해제가 가능한지 확인
+    return unlockAvailableAt?.isBefore(DateTime.now()) ?? true;
   }
 
   /// 생체인증 진행 후 성공 여부 반환
@@ -273,6 +280,7 @@ class AuthProvider extends ChangeNotifier {
     _sharedPrefs.setBool(SharedPrefsKeys.isBiometricEnabled, false);
     _sharedPrefs.setBool(SharedPrefsKeys.isPinEnabled, false);
     _sharedPrefs.setInt(SharedPrefsKeys.vaultListLength, 0);
+    _sharedPrefs.setString(SharedPrefsKeys.kAppVersion, '');
 
     resetAuthenticationState();
   }
