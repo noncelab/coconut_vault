@@ -81,7 +81,7 @@ class _PinCheckScreenState extends State<PinCheckScreen>
           _shuffledPinNumbers = _authProvider.getShuffledNumberList();
         });
       }
-      if (_authProvider.isInLockoutPeriod()) {
+      if (!_authProvider.isUnlockAvailable()) {
         setState(() {
           _isUnlockDisabled = true;
           _startCountdownTimerUntil(

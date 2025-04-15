@@ -107,8 +107,9 @@ class AuthProvider extends ChangeNotifier {
         totalAttemptCount.isEmpty ? '' : lockoutEndDateTimeString;
   }
 
-  bool isInLockoutPeriod() {
-    return unlockAvailableAt?.isAfter(DateTime.now()) ?? false;
+  bool isUnlockAvailable() {
+    // 현재 시점을 기준으로 잠금해제가 가능한지 확인
+    return unlockAvailableAt?.isBefore(DateTime.now()) ?? true;
   }
 
   /// 생체인증 진행 후 성공 여부 반환
