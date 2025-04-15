@@ -57,11 +57,7 @@ class AuthProvider extends ChangeNotifier {
   int _currentAttemptInTurn = 0;
   int get currentAttemptInTurn => _currentAttemptInTurn;
   String _unlockAvailableAtInString = '';
-  DateTime? get unlockAvailableAt => _unlockAvailableAtInString.isEmpty
-      ? DateTime.now().add(Duration(minutes: kLockoutDurationsPerTurn[0]))
-      : _unlockAvailableAtInString == '-1'
-          ? null
-          : DateTime.tryParse(_unlockAvailableAtInString);
+  DateTime? get unlockAvailableAt => _getUnlockAvailableAt();
 
   int get remainingAttemptCount => kMaxAttemptPerTurn - _currentAttemptInTurn;
   bool get isPermanantlyLocked => _currentTurn == kMaxTurn;
@@ -73,6 +69,20 @@ class AuthProvider extends ChangeNotifier {
   AuthProvider() {
     updateBiometricAvailability();
     setInitState();
+  }
+
+  DateTime? _getUnlockAvailableAt() {
+    if (_unlockAvailableAtInString.isEmpty) {
+      if (_currentTurn == 0) {
+        return DateTime.now();
+      }
+      return DateTime.now().add(Duration(minutes: kLockoutDurationsPerTurn[0]));
+    } else {
+      if (_unlockAvailableAtInString == '-1') {
+        return null;
+      }
+      return DateTime.tryParse(_unlockAvailableAtInString);
+    }
   }
 
   void setInitState() {
@@ -103,6 +113,10 @@ class AuthProvider extends ChangeNotifier {
     _currentTurn = totalAttemptCount.isEmpty ? 0 : int.parse(totalAttemptCount);
     _unlockAvailableAtInString =
         totalAttemptCount.isEmpty ? '' : lockoutEndDateTimeString;
+  }
+
+  bool isInLockoutPeriod() {
+    return unlockAvailableAt?.isAfter(DateTime.now()) ?? false;
   }
 
   /// 생체인증 진행 후 성공 여부 반환
