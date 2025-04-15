@@ -47,28 +47,8 @@ class _StartScreenState extends State<StartScreen> {
   Future _determineNextEntryFlow() async {
     await Future.delayed(const Duration(seconds: 2));
 
-    /// 비밀번호 등록 되어 있더라도, 추가한 볼트가 없는 경우는 볼트 리스트 화면으로 이동합니다.
-    if (_viewModel.isWalletExistent()) {
-      widget.onComplete(AppEntryFlow.pincheck);
-    } else {
-      // 복원파일 유무를 확인합니다.
-      UpdatePreparation.isRestorationPrepared()
-          .then((isRestorationPrepared) async {
-        if (isRestorationPrepared) {
-          // 복원파일 있음
-          if (await AppVersionUtil.isAppVersionUpdated()) {
-            // 업데이트 완료
-            widget.onComplete(AppEntryFlow.pincheckForRestore);
-          } else {
-            // 업데이트 하지 않음
-            widget.onComplete(AppEntryFlow.foundBackupFile);
-          }
-        } else {
-          // 복원파일 없음 - 일반적인 최초 진입 흐름
-          widget.onComplete(AppEntryFlow.vaultlist);
-        }
-      });
-    }
+    var nextEntryFlow = await _viewModel.getNextEntryFlow();
+    widget.onComplete(nextEntryFlow);
   }
 
   @override
