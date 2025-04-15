@@ -120,6 +120,9 @@ class _AppUpdatePreparationScreenState extends State<AppUpdatePreparationScreen>
             _mnemonicWordInputController.addListener(() {
               _handleMnemonicWordInput(context);
             });
+            _mnemonicInputFocusNode.addListener(() {
+              _handleMnemonicWordInput(context);
+            });
             _hasAddedListener = true;
           }
           return PopScope(
@@ -182,7 +185,19 @@ class _AppUpdatePreparationScreenState extends State<AppUpdatePreparationScreen>
         return;
       }
 
-      if (_mnemonicWordInputController.text.length >= 3) {
+      if (!_mnemonicInputFocusNode.hasFocus) {
+        if (!viewModel.isWordMatched(
+          _mnemonicWordInputController.text,
+        )) {
+          setState(() {
+            _mnemonicErrorVisible = true;
+          });
+          return;
+        }
+      }
+
+      if (_mnemonicWordInputController.text.length >=
+          viewModel.mnemonicWordLength) {
         if (!viewModel.isWordMatched(
           _mnemonicWordInputController.text,
         )) {

@@ -12,11 +12,13 @@ import 'package:flutter/material.dart';
 class MnemonicWordsItem {
   final String vaultName;
   final String mnemonicWords;
+  final int mnemonicWordLength;
   final int mnemonicWordIndex;
 
   const MnemonicWordsItem({
     required this.vaultName,
     required this.mnemonicWords,
+    required this.mnemonicWordLength,
     required this.mnemonicWordIndex,
   });
 }
@@ -33,8 +35,11 @@ class AppUpdatePreparationViewModel extends ChangeNotifier {
   bool get isMnemonicLoaded => _isMnemonicLoaded;
   bool get isMnemonicValidationFinished => _isMnemonicValidationFinished;
   String get walletName => _mnemonicWordsItems[_currentMnemonicIndex].vaultName;
+  int get mnemonicWordLength =>
+      _mnemonicWordsItems[_currentMnemonicIndex].mnemonicWordLength;
   int get mnemonicWordIndex =>
       _mnemonicWordsItems[_currentMnemonicIndex].mnemonicWordIndex + 1;
+  int get backupProgress => _backupProgress;
 
   int _backupProgress = 0;
   Completer<void>? _progress40Reached;
@@ -63,8 +68,6 @@ class AppUpdatePreparationViewModel extends ChangeNotifier {
     }
   }
 
-  int get backupProgress => _backupProgress;
-
   Future<MnemonicWordsItem> _getMnemonicWordsFromVault(
       VaultListItemBase vault) async {
     return await _walletProvider.getSecret(vault.id).then((secret) {
@@ -75,6 +78,7 @@ class AppUpdatePreparationViewModel extends ChangeNotifier {
       return MnemonicWordsItem(
           vaultName: vault.name,
           mnemonicWords: hashString(mnemonicList[mnemonicIndex]),
+          mnemonicWordLength: mnemonicList[mnemonicIndex].length,
           mnemonicWordIndex: mnemonicIndex);
     });
   }
