@@ -15,11 +15,11 @@ class AppVersionUtil {
     }
 
     List<int> currentParts = currentVersion.split('.').map(int.parse).toList();
-    List<int> latestParts = savedVersion.split('.').map(int.parse).toList();
+    List<int> savedParts = savedVersion.split('.').map(int.parse).toList();
 
     for (int i = 0; i < 3; i++) {
-      if (latestParts[i] > currentParts[i]) return true;
-      if (latestParts[i] < currentParts[i]) return false;
+      if (savedParts[i] < currentParts[i]) return true;
+      if (savedParts[i] > currentParts[i]) return false;
     }
     return false; // 동일한 경우
   }
