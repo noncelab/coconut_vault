@@ -135,14 +135,19 @@ class WalletListManager {
     return hashString("${id.toString()} - ${type.name}");
   }
 
-  Future _savePublicInfo() async {
+  Future<void> _savePublicInfo() async {
     if (_vaultList == null) return;
 
     final jsonString =
         jsonEncode(_vaultList!.map((item) => item.toJson()).toList());
 
     //printLongString("--> 저장: $jsonString");
-    _sharedPrefs.setString(SharedPrefsKeys.kVaultListField, jsonString);
+    await _sharedPrefs.setString(SharedPrefsKeys.kVaultListField, jsonString);
+  }
+
+  Future<void> _removePublicInfo() async {
+    await _sharedPrefs
+        .deleteSharedPrefsWithKey(SharedPrefsKeys.kVaultListField);
   }
 
   void _linkNewSinglesigVaultAndMultisigVaults(
@@ -362,7 +367,7 @@ class WalletListManager {
         .clearUpdatePreparationStorage(); // 비밀번호 초기화시 백업파일도 같이 삭제
 
     await _storageService.deleteAll();
-    await _savePublicInfo();
+    await _removePublicInfo();
   }
 
   Future<void> restoreFromBackupData(
