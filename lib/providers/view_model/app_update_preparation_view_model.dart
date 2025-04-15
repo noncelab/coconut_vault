@@ -39,6 +39,7 @@ class AppUpdatePreparationViewModel extends ChangeNotifier {
       _mnemonicWordsItems[_currentMnemonicIndex].mnemonicWordLength;
   int get mnemonicWordIndex =>
       _mnemonicWordsItems[_currentMnemonicIndex].mnemonicWordIndex + 1;
+  int get backupProgress => _backupProgress;
 
   int _backupProgress = 0;
   Completer<void>? _progress40Reached;
@@ -66,8 +67,6 @@ class AppUpdatePreparationViewModel extends ChangeNotifier {
       }
     }
   }
-
-  int get backupProgress => _backupProgress;
 
   Future<MnemonicWordsItem> _getMnemonicWordsFromVault(
       VaultListItemBase vault) async {
