@@ -61,7 +61,7 @@ class _PinCheckScreenState extends State<PinCheckScreen>
     _errorMessage = '';
 
     _isAppLaunched = widget.pinCheckContext == PinCheckContextEnum.appLaunch ||
-        widget.pinCheckContext == PinCheckContextEnum.restoreBottomSheet;
+        widget.pinCheckContext == PinCheckContextEnum.restoration;
 
     _authProvider = Provider.of<AuthProvider>(context, listen: false);
     Future.microtask(() {
@@ -145,7 +145,7 @@ class _PinCheckScreenState extends State<PinCheckScreen>
 
     switch (widget.pinCheckContext) {
       case PinCheckContextEnum.appLaunch:
-      case PinCheckContextEnum.restoreBottomSheet:
+      case PinCheckContextEnum.restoration:
         widget.onComplete?.call();
         break;
       case PinCheckContextEnum.change:
@@ -300,8 +300,7 @@ class _PinCheckScreenState extends State<PinCheckScreen>
         ? Material(
             color: CoconutColors.white,
             child: PopScope(
-              canPop: widget.pinCheckContext ==
-                  PinCheckContextEnum.restoreBottomSheet,
+              canPop: widget.pinCheckContext == PinCheckContextEnum.restoration,
               onPopInvokedWithResult: (didPop, _) async {
                 if (Platform.isAndroid &&
                     widget.pinCheckContext == PinCheckContextEnum.appLaunch) {

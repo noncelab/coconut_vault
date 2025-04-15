@@ -81,8 +81,7 @@ class _RestorationInfoScreenState extends State<RestorationInfoScreen> {
                                   Radius.circular(CoconutStyles.radius_200),
                             ),
                             child: PinCheckScreen(
-                              pinCheckContext:
-                                  PinCheckContextEnum.restoreBottomSheet,
+                              pinCheckContext: PinCheckContextEnum.restoration,
                               isDeleteScreen: true,
                               onComplete: () async {
                                 widget.onComplete();
