@@ -57,7 +57,7 @@ class StartViewModel extends ChangeNotifier {
   Future<AppEntryFlow> getNextEntryFlow() async {
     /// 비밀번호 등록 되어 있더라도, 추가한 볼트가 없는 경우는 볼트 리스트 화면으로 이동합니다.
     if (_isWalletExistent()) {
-      return AppEntryFlow.pincheck;
+      return AppEntryFlow.pinCheck;
     }
 
     final isRestorationPrepared =
@@ -67,14 +67,14 @@ class StartViewModel extends ChangeNotifier {
       // 복원파일 있음
       if (await AppVersionUtil.isAppVersionUpdated()) {
         // 업데이트 완료
-        return AppEntryFlow.pincheckForRestore;
+        return AppEntryFlow.pinCheckForRestoration;
       } else {
         // 업데이트 하지 않음
         return AppEntryFlow.foundBackupFile;
       }
     } else {
       // 복원파일 없음 - 일반적인 최초 진입 흐름
-      return AppEntryFlow.vaultlist;
+      return AppEntryFlow.vaultList;
     }
   }
 }

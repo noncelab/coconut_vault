@@ -57,7 +57,13 @@ class AuthProvider extends ChangeNotifier {
   int _currentAttemptInTurn = 0;
   int get currentAttemptInTurn => _currentAttemptInTurn;
   String _unlockAvailableAtInString = '';
-  DateTime? get unlockAvailableAt => _getUnlockAvailableAt();
+  DateTime? get unlockAvailableAt => _unlockAvailableAtInString.isEmpty
+      ? (_currentTurn == 0
+          ? DateTime.now()
+          : DateTime.now().add(Duration(minutes: kLockoutDurationsPerTurn[0])))
+      : (_unlockAvailableAtInString == '-1'
+          ? null
+          : DateTime.tryParse(_unlockAvailableAtInString));
 
   int get remainingAttemptCount => kMaxAttemptPerTurn - _currentAttemptInTurn;
   bool get isPermanantlyLocked => _currentTurn == kMaxTurn;
@@ -69,20 +75,6 @@ class AuthProvider extends ChangeNotifier {
   AuthProvider() {
     updateBiometricAvailability();
     setInitState();
-  }
-
-  DateTime? _getUnlockAvailableAt() {
-    if (_unlockAvailableAtInString.isEmpty) {
-      if (_currentTurn == 0) {
-        return DateTime.now();
-      }
-      return DateTime.now().add(Duration(minutes: kLockoutDurationsPerTurn[0]));
-    } else {
-      if (_unlockAvailableAtInString == '-1') {
-        return null;
-      }
-      return DateTime.tryParse(_unlockAvailableAtInString);
-    }
   }
 
   void setInitState() {

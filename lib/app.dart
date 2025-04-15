@@ -49,11 +49,11 @@ import 'package:provider/provider.dart';
 enum AppEntryFlow {
   splash,
   tutorial,
-  pincheck,
-  vaultlist,
-  pincheckForRestore, // 복원파일o, 업데이트o 일때 바로 이동하는 핀체크 화면
+  pinCheck,
+  vaultList,
+  pinCheckForRestoration, // 복원파일o, 업데이트o 일때 바로 이동하는 핀체크 화면
   foundBackupFile, // 복원파일o, 업데이트x 일때 이동하는 복원파일 발견 화면
-  restore, // 복원 진행 화면
+  restoration, // 복원 진행 화면
 }
 
 class CoconutVaultApp extends StatefulWidget {
@@ -79,7 +79,7 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> {
     return PinCheckScreen(
       pinCheckContext: PinCheckContextEnum.appLaunch,
       onComplete: () => _updateEntryFlow(nextFlow),
-      onReset: onReset ?? () async => _updateEntryFlow(AppEntryFlow.vaultlist),
+      onReset: onReset ?? () async => _updateEntryFlow(AppEntryFlow.vaultList),
     );
   }
 
@@ -93,16 +93,16 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> {
           screenStatus: TutorialScreenStatus.entrance,
         );
 
-      case AppEntryFlow.pincheck:
+      case AppEntryFlow.pinCheck:
         return CustomLoadingOverlay(
-          child: _buildPinCheckScreen(nextFlow: AppEntryFlow.vaultlist),
+          child: _buildPinCheckScreen(nextFlow: AppEntryFlow.vaultList),
         );
 
-      case AppEntryFlow.pincheckForRestore:
+      case AppEntryFlow.pinCheckForRestoration:
 
         /// 복원 파일 o, 업데이트 o 일때 바로 이동하는 핀체크 화면
         return CustomLoadingOverlay(
-          child: _buildPinCheckScreen(nextFlow: AppEntryFlow.restore),
+          child: _buildPinCheckScreen(nextFlow: AppEntryFlow.restoration),
         );
 
       case AppEntryFlow.foundBackupFile:
@@ -110,23 +110,23 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> {
         /// 복원파일 o, 업데이트 x 일때 이동하는 복원파일 발견 화면
         return CustomLoadingOverlay(
           child: RestorationInfoScreen(
-            onComplete: () => _updateEntryFlow(AppEntryFlow.restore),
-            onReset: () async => _updateEntryFlow(AppEntryFlow.vaultlist),
+            onComplete: () => _updateEntryFlow(AppEntryFlow.restoration),
+            onReset: () async => _updateEntryFlow(AppEntryFlow.vaultList),
           ),
         );
 
-      case AppEntryFlow.restore:
+      case AppEntryFlow.restoration:
 
         /// 복원 진행 화면
         return CustomLoadingOverlay(
           child: VaultListRestorationScreen(
-            onComplete: () => _updateEntryFlow(AppEntryFlow.vaultlist),
+            onComplete: () => _updateEntryFlow(AppEntryFlow.vaultList),
           ),
         );
 
-      case AppEntryFlow.vaultlist:
+      case AppEntryFlow.vaultList:
         return MainRouteGuard(
-          onAppGoBackground: () => _updateEntryFlow(AppEntryFlow.pincheck),
+          onAppGoBackground: () => _updateEntryFlow(AppEntryFlow.pinCheck),
           child: const VaultListScreen(),
         );
     }
@@ -150,7 +150,7 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> {
             return connectivityProvider!;
           },
         ),
-        if (_appEntryFlow == AppEntryFlow.vaultlist) ...{
+        if (_appEntryFlow == AppEntryFlow.vaultList) ...{
           Provider<WalletCreationProvider>(
               create: (_) => WalletCreationProvider()),
           Provider<SignProvider>(create: (_) => SignProvider()),
@@ -159,7 +159,7 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> {
               Provider.of<VisibilityProvider>(_, listen: false),
             ),
           )
-        } else if (_appEntryFlow == AppEntryFlow.restore) ...{
+        } else if (_appEntryFlow == AppEntryFlow.restoration) ...{
           ChangeNotifierProvider<WalletProvider>(
             create: (_) => WalletProvider(
               Provider.of<VisibilityProvider>(_, listen: false),
@@ -271,7 +271,7 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> {
             AppRoutes.welcome: (context) => const WelcomeScreen(),
             AppRoutes.connectivityGuide: (context) {
               onComplete() {
-                _updateEntryFlow(AppEntryFlow.vaultlist);
+                _updateEntryFlow(AppEntryFlow.vaultList);
               }
 
               return GuideScreen(onComplete: onComplete);

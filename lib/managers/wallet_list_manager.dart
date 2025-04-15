@@ -248,13 +248,6 @@ class WalletListManager {
     _sharedPrefs.setInt(nextIdField, nextId + 1);
   }
 
-  void _rollbackNextWalletId() {
-    final int nextId = _getNextWalletId();
-    if (nextId == 1) return;
-
-    _sharedPrefs.setInt(nextIdField, nextId - 1);
-  }
-
   Future<Secret> getSecret(int id) async {
     var secretString = await _storageService.read(
         key: _createWalletKeyString(id, WalletType.singleSignature));
