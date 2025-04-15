@@ -55,7 +55,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
             children: [
               _securityPart(context),
               CoconutLayout.spacing_1000h,
-              // TODO: 복원 기능 테스트를 위해 임시 주석 처리
               Selector<WalletProvider, bool>(
                 selector: (context, provider) => provider.vaultList.isNotEmpty,
                 builder: (context, isNotEmpty, _) => isNotEmpty
@@ -188,7 +187,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   Widget _advancedUserPart(BuildContext context) {
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
       Container(
-        padding: const EdgeInsets.symmetric(vertical: 12),
+        padding: const EdgeInsets.only(bottom: 16),
         child: Text(t.advanced_user,
             style: const TextStyle(
               fontFamily: 'Pretendard',
