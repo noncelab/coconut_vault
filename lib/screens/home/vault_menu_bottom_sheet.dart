@@ -35,8 +35,7 @@ class VaultMenuBottomSheet extends StatelessWidget {
   final int id;
   final bool isMultiSig;
 
-  const VaultMenuBottomSheet(
-      {super.key, required this.id, this.isMultiSig = false});
+  const VaultMenuBottomSheet({super.key, required this.id, this.isMultiSig = false});
 
   @override
   Widget build(BuildContext context) {
@@ -49,27 +48,24 @@ class VaultMenuBottomSheet extends StatelessWidget {
       return Container(
         padding: const EdgeInsets.only(left: 8, bottom: 10),
         child: Column(
-          children:
-              buttons.expand((button) => [button, bottomMenuDivider()]).toList()
-                ..removeLast(),
+          children: buttons.expand((button) => [button, bottomMenuDivider()]).toList()
+            ..removeLast(),
         ),
       );
     });
   }
 
-  Widget _buildButton(BuildContext context, String iconPath, ColorFilter color,
-      Color bgColor, String title, String desc, String route,
+  Widget _buildButton(BuildContext context, String iconPath, ColorFilter color, Color bgColor,
+      String title, String desc, String route,
       {Map<String, dynamic>? extraArgs}) {
     return VaultMenuButton(
-      icon: SvgPicture.asset('assets/svg/menu/$iconPath',
-          width: iconSize, colorFilter: color),
+      icon: SvgPicture.asset('assets/svg/menu/$iconPath', width: iconSize, colorFilter: color),
       title: title,
       description: desc,
       iconBackgroundColor: bgColor,
       onPressed: () {
         Navigator.pop(context);
-        Navigator.pushNamed(context, route,
-            arguments: {'id': id, ...?extraArgs});
+        Navigator.pushNamed(context, route, arguments: {'id': id, ...?extraArgs});
       },
     );
   }
@@ -81,8 +77,7 @@ class VaultMenuBottomSheet extends StatelessWidget {
           'details.svg',
           iconColorList[0],
           iconBackgroundColorList[0],
-          t.vault_menu_screen.title
-              .view_info(name: TextUtils.ellipsisIfLonger(vault.name)),
+          t.vault_menu_screen.title.view_info(name: TextUtils.ellipsisIfLonger(vault.name)),
           t.vault_menu_screen.description.view_multisig_info,
           AppRoutes.multisigSetupInfo),
       _buildButton(
@@ -113,16 +108,14 @@ class VaultMenuBottomSheet extends StatelessWidget {
     ];
   }
 
-  List<Widget> _singleSigButtons(
-      BuildContext context, VaultListItemBase vault) {
+  List<Widget> _singleSigButtons(BuildContext context, VaultListItemBase vault) {
     return [
       _buildButton(
           context,
           'details.svg',
           iconColorList[0],
           iconBackgroundColorList[0],
-          t.vault_menu_screen.title
-              .view_info(name: TextUtils.ellipsisIfLonger(vault.name)),
+          t.vault_menu_screen.title.view_info(name: TextUtils.ellipsisIfLonger(vault.name)),
           t.vault_menu_screen.description.view_single_sig_info,
           AppRoutes.singleSigSetupInfo),
       _buildButton(
@@ -178,8 +171,8 @@ class VaultMenuBottomSheet extends StatelessWidget {
       ));
 }
 
-Widget bottomMenuButton(SvgPicture icon, String title, String description,
-        VoidCallback onPressed, Color iconBackgroundColor) =>
+Widget bottomMenuButton(SvgPicture icon, String title, String description, VoidCallback onPressed,
+        Color iconBackgroundColor) =>
     ShrinkAnimationButton(
         onPressed: onPressed,
         defaultColor: MyColors.white,
@@ -191,8 +184,7 @@ Widget bottomMenuButton(SvgPicture icon, String title, String description,
                   padding: const EdgeInsets.all(12),
                   margin: const EdgeInsets.only(right: 14),
                   decoration: BoxDecoration(
-                      color: iconBackgroundColor,
-                      borderRadius: BorderRadius.circular(14)),
+                      color: iconBackgroundColor, borderRadius: BorderRadius.circular(14)),
                   child: Center(child: icon)),
               Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                 Text(title,
@@ -235,17 +227,13 @@ class VaultMenuButton extends StatelessWidget {
               padding: const EdgeInsets.all(12),
               margin: const EdgeInsets.only(right: 14),
               decoration: BoxDecoration(
-                  color: iconBackgroundColor,
-                  borderRadius: BorderRadius.circular(14)),
+                  color: iconBackgroundColor, borderRadius: BorderRadius.circular(14)),
               child: Center(child: icon),
             ),
             Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              Text(title,
-                  style: Styles.body2
-                      .copyWith(fontSize: 13, fontWeight: FontWeight.w500)),
+              Text(title, style: Styles.body2.copyWith(fontSize: 13, fontWeight: FontWeight.w500)),
               Text(description,
-                  style: const TextStyle(
-                      fontSize: 11, color: MyColors.transparentBlack_70)),
+                  style: const TextStyle(fontSize: 11, color: MyColors.transparentBlack_70)),
             ]),
           ],
         ),

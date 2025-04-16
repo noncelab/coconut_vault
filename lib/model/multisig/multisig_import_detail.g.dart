@@ -6,8 +6,7 @@ part of 'multisig_import_detail.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-MultisigImportDetail _$MultisigImportDetailFromJson(
-        Map<String, dynamic> json) =>
+MultisigImportDetail _$MultisigImportDetailFromJson(Map<String, dynamic> json) =>
     MultisigImportDetail(
       name: json['name'] as String,
       colorIndex: (json['colorIndex'] as num).toInt(),
@@ -16,8 +15,7 @@ MultisigImportDetail _$MultisigImportDetailFromJson(
       coordinatorBsms: json['coordinatorBsms'] as String,
     );
 
-Map<String, dynamic> _$MultisigImportDetailToJson(
-        MultisigImportDetail instance) =>
+Map<String, dynamic> _$MultisigImportDetailToJson(MultisigImportDetail instance) =>
     <String, dynamic>{
       'name': instance.name,
       'colorIndex': instance.colorIndex,

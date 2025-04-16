@@ -40,8 +40,7 @@ class _MultisigSignScreenState extends State<MultisigSignScreen> {
   @override
   void initState() {
     super.initState();
-    _viewModel = MultisigSignViewModel(
-        Provider.of<WalletProvider>(context, listen: false),
+    _viewModel = MultisigSignViewModel(Provider.of<WalletProvider>(context, listen: false),
         Provider.of<SignProvider>(context, listen: false));
     _requiredSignatureCount = _viewModel.requiredSignatureCount;
 
@@ -81,8 +80,7 @@ class _MultisigSignScreenState extends State<MultisigSignScreen> {
       _viewModel.updateSignState(index);
     } catch (_) {
       if (mounted) {
-        showAlertDialog(
-            context: context, content: t.errors.sign_error(error: _));
+        showAlertDialog(context: context, content: t.errors.sign_error(error: _));
       }
     } finally {
       setState(() {
@@ -132,9 +130,7 @@ class _MultisigSignScreenState extends State<MultisigSignScreen> {
   }
 
   void _onBackPressed() {
-    if (_viewModel.signersApproved
-        .where((bool isApproved) => isApproved)
-        .isNotEmpty) {
+    if (_viewModel.signersApproved.where((bool isApproved) => isApproved).isNotEmpty) {
       _askIfSureToGoBack();
     } else {
       Navigator.pop(context);
@@ -176,9 +172,7 @@ class _MultisigSignScreenState extends State<MultisigSignScreen> {
                       TweenAnimationBuilder<double>(
                         tween: Tween<double>(
                           begin: 0.0,
-                          end: viewModel.signersApproved
-                                  .where((item) => item)
-                                  .length /
+                          end: viewModel.signersApproved.where((item) => item).length /
                               viewModel.requiredSignatureCount,
                         ),
                         duration: const Duration(milliseconds: 1500),
@@ -199,8 +193,7 @@ class _MultisigSignScreenState extends State<MultisigSignScreen> {
                                   : const BorderRadius.only(
                                       topRight: Radius.circular(6),
                                       bottomRight: Radius.circular(6)),
-                              valueColor: const AlwaysStoppedAnimation<Color>(
-                                  MyColors.black),
+                              valueColor: const AlwaysStoppedAnimation<Color>(MyColors.black),
                             ),
                           );
                         },
@@ -216,8 +209,7 @@ class _MultisigSignScreenState extends State<MultisigSignScreen> {
                       ),
                       // 보낼 주소
                       Padding(
-                        padding:
-                            const EdgeInsets.only(top: 32, left: 20, right: 20),
+                        padding: const EdgeInsets.only(top: 32, left: 20, right: 20),
                         child: Column(
                           children: [
                             Row(
@@ -225,13 +217,11 @@ class _MultisigSignScreenState extends State<MultisigSignScreen> {
                               children: [
                                 Text(
                                   t.recipient,
-                                  style: Styles.body2
-                                      .copyWith(color: MyColors.grey57),
+                                  style: Styles.body2.copyWith(color: MyColors.grey57),
                                 ),
                                 Text(
                                   textAlign: TextAlign.end,
-                                  TextUtils.truncateNameMax25(
-                                          viewModel.firstRecipientAddress) +
+                                  TextUtils.truncateNameMax25(viewModel.firstRecipientAddress) +
                                       (viewModel.recipientCount > 1
                                           ? '\n${t.extra_count(count: viewModel.recipientCount - 1)}'
                                           : ''),
@@ -245,8 +235,7 @@ class _MultisigSignScreenState extends State<MultisigSignScreen> {
                               children: [
                                 Text(
                                   t.send_amount,
-                                  style: Styles.body2
-                                      .copyWith(color: MyColors.grey57),
+                                  style: Styles.body2.copyWith(color: MyColors.grey57),
                                 ),
                                 Text(
                                   '${satoshiToBitcoinString(viewModel.sendingAmount)} ${t.btc}',
@@ -261,8 +250,7 @@ class _MultisigSignScreenState extends State<MultisigSignScreen> {
                       ),
                       // Signer List
                       Container(
-                        margin:
-                            const EdgeInsets.only(top: 32, left: 20, right: 20),
+                        margin: const EdgeInsets.only(top: 32, left: 20, right: 20),
                         child: ListView.builder(
                           shrinkWrap: true,
                           physics: const NeverScrollableScrollPhysics(),
@@ -274,22 +262,17 @@ class _MultisigSignScreenState extends State<MultisigSignScreen> {
                             final name = signer.name ?? t.external_wallet;
                             final memo = signer.memo ?? '';
                             final iconIndex = signer.iconIndex ?? 0;
-                            final colorIndex =
-                                viewModel.signers[index].colorIndex ?? 0;
+                            final colorIndex = viewModel.signers[index].colorIndex ?? 0;
 
                             return Container(
                               alignment: Alignment.centerLeft,
-                              padding:
-                                  const EdgeInsets.symmetric(horizontal: 8),
+                              padding: const EdgeInsets.symmetric(horizontal: 8),
                               decoration: BoxDecoration(
                                 borderRadius: BorderRadius.only(
                                   topLeft: Radius.circular(index == 0 ? 19 : 0),
-                                  topRight:
-                                      Radius.circular(index == 0 ? 19 : 0),
-                                  bottomLeft:
-                                      Radius.circular(index == length ? 19 : 0),
-                                  bottomRight:
-                                      Radius.circular(index == length ? 19 : 0),
+                                  topRight: Radius.circular(index == 0 ? 19 : 0),
+                                  bottomLeft: Radius.circular(index == length ? 19 : 0),
+                                  bottomRight: Radius.circular(index == length ? 19 : 0),
                                 ),
                                 color: MyColors.white,
                               ),
@@ -307,28 +290,22 @@ class _MultisigSignScreenState extends State<MultisigSignScreen> {
                                       children: [
                                         SizedBox(
                                           width: 60,
-                                          child: Text(
-                                              '${t.multisig.nth_key(index: index + 1)} -',
+                                          child: Text('${t.multisig.nth_key(index: index + 1)} -',
                                               style: Styles.body1),
                                         ),
                                         Row(
                                           children: [
                                             Container(
-                                              padding: EdgeInsets.all(
-                                                  isInnerWallet ? 10 : 12),
+                                              padding: EdgeInsets.all(isInnerWallet ? 10 : 12),
                                               decoration: BoxDecoration(
                                                 color: isInnerWallet
-                                                    ? BackgroundColorPalette[
-                                                        colorIndex]
+                                                    ? BackgroundColorPalette[colorIndex]
                                                     : MyColors.grey236,
-                                                borderRadius:
-                                                    BorderRadius.circular(16.0),
+                                                borderRadius: BorderRadius.circular(16.0),
                                               ),
                                               child: SvgPicture.asset(
                                                 isInnerWallet
-                                                    ? CustomIcons
-                                                        .getPathByIndex(
-                                                            iconIndex)
+                                                    ? CustomIcons.getPathByIndex(iconIndex)
                                                     : 'assets/svg/download.svg',
                                                 colorFilter: ColorFilter.mode(
                                                   isInnerWallet
@@ -341,15 +318,13 @@ class _MultisigSignScreenState extends State<MultisigSignScreen> {
                                             ),
                                             const SizedBox(width: 8),
                                             Column(
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.start,
+                                              crossAxisAlignment: CrossAxisAlignment.start,
                                               children: [
                                                 Text(name, style: Styles.body2),
                                                 if (memo.isNotEmpty) ...{
                                                   Text(
                                                     memo,
-                                                    style: Styles.caption2
-                                                        .copyWith(
+                                                    style: Styles.caption2.copyWith(
                                                       fontSize: 11,
                                                     ),
                                                   ),
@@ -359,16 +334,13 @@ class _MultisigSignScreenState extends State<MultisigSignScreen> {
                                           ],
                                         ),
                                         const Spacer(),
-                                        if (viewModel
-                                            .signersApproved[index]) ...{
+                                        if (viewModel.signersApproved[index]) ...{
                                           Row(
                                             children: [
                                               Text(
                                                 t.sign_completion,
                                                 style: Styles.body1Bold
-                                                    .copyWith(
-                                                        fontSize: 12,
-                                                        color: Colors.black),
+                                                    .copyWith(fontSize: 12, color: Colors.black),
                                               ),
                                               const SizedBox(width: 4),
                                               SvgPicture.asset(
@@ -386,24 +358,19 @@ class _MultisigSignScreenState extends State<MultisigSignScreen> {
                                               _signStep1(isInnerWallet, index);
                                             },
                                             child: Container(
-                                              padding:
-                                                  const EdgeInsets.symmetric(
-                                                      horizontal: 8,
-                                                      vertical: 4),
+                                              padding: const EdgeInsets.symmetric(
+                                                  horizontal: 8, vertical: 4),
                                               decoration: BoxDecoration(
                                                 color: MyColors.white,
-                                                borderRadius:
-                                                    BorderRadius.circular(5),
-                                                border: Border.all(
-                                                    color: MyColors.black19,
-                                                    width: 1),
+                                                borderRadius: BorderRadius.circular(5),
+                                                border:
+                                                    Border.all(color: MyColors.black19, width: 1),
                                               ),
                                               child: Center(
                                                 child: Text(
                                                   t.signature,
                                                   style: Styles.caption.copyWith(
-                                                      color: MyColors
-                                                          .black19), // 텍스트 색상도 검정으로 변경
+                                                      color: MyColors.black19), // 텍스트 색상도 검정으로 변경
                                                 ),
                                               ),
                                             ),
@@ -413,8 +380,7 @@ class _MultisigSignScreenState extends State<MultisigSignScreen> {
                                     ),
                                   ),
                                   if (index < length) ...{
-                                    const Divider(
-                                        color: MyColors.divider, height: 1),
+                                    const Divider(color: MyColors.divider, height: 1),
                                   }
                                 ],
                               ),
@@ -438,8 +404,7 @@ class _MultisigSignScreenState extends State<MultisigSignScreen> {
                     child: Container(
                       width: MediaQuery.of(context).size.width,
                       height: MediaQuery.of(context).size.height,
-                      decoration: const BoxDecoration(
-                          color: MyColors.transparentBlack_30),
+                      decoration: const BoxDecoration(color: MyColors.transparentBlack_30),
                       child: const Center(
                         child: CircularProgressIndicator(
                           color: MyColors.darkgrey,

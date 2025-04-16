@@ -17,13 +17,10 @@ class MultisigBsmsViewModel extends ChangeNotifier {
   }
 
   void _init(WalletProvider walletProvider, int id) {
-    final vaultListItem =
-        walletProvider.getVaultById(id) as MultisigVaultListItem;
+    final vaultListItem = walletProvider.getVaultById(id) as MultisigVaultListItem;
     String coordinatorBsms = vaultListItem.coordinatorBsms ??
-        (vaultListItem.coconutVault as MultisignatureVault)
-            .getCoordinatorBsms();
-    Map<String, dynamic> walletSyncString =
-        jsonDecode(vaultListItem.getWalletSyncString());
+        (vaultListItem.coconutVault as MultisignatureVault).getCoordinatorBsms();
+    Map<String, dynamic> walletSyncString = jsonDecode(vaultListItem.getWalletSyncString());
 
     Map<String, String> namesMap = {};
     for (var signer in vaultListItem.signers) {
@@ -53,10 +50,9 @@ class MultisigBsmsViewModel extends ChangeNotifier {
   String generateOutsideWalletDescription({bool isAnd = false}) {
     if (outsideWalletIdList.isEmpty) return '';
     if (outsideWalletIdList.length == 1) {
-      return t.multi_sig_bsms_screen
-          .first_key(first: outsideWalletIdList.first);
+      return t.multi_sig_bsms_screen.first_key(first: outsideWalletIdList.first);
     }
-    return t.multi_sig_bsms_screen.first_or_last_key(
-        first: outsideWalletIdList.first, last: outsideWalletIdList.last);
+    return t.multi_sig_bsms_screen
+        .first_or_last_key(first: outsideWalletIdList.first, last: outsideWalletIdList.last);
   }
 }

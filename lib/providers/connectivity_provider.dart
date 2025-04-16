@@ -24,8 +24,7 @@ class ConnectivityProvider extends ChangeNotifier {
   bool? get isBluetoothOn => _isBluetoothOn;
   bool? _isBluetoothUnauthorized; // iOS only
   bool? get isBluetoothUnauthorized => _isBluetoothUnauthorized;
-  bool? _isDeveloperModeOn =
-      Platform.isAndroid && kReleaseMode ? null : false; // Android only
+  bool? _isDeveloperModeOn = Platform.isAndroid && kReleaseMode ? null : false; // Android only
   bool? get isDeveloperModeOn => _isDeveloperModeOn;
 
   void Function(ConnectivityState)? onConnectivityStateChanged;
@@ -35,8 +34,7 @@ class ConnectivityProvider extends ChangeNotifier {
 
   static const MethodChannel _channel = MethodChannel(methodChannelOS);
 
-  ConnectivityProvider(
-      {required bool hasSeenGuide, this.onConnectivityStateChanged})
+  ConnectivityProvider({required bool hasSeenGuide, this.onConnectivityStateChanged})
       : _hasSeenGuide = hasSeenGuide {
     if (_hasSeenGuide) {
       setConnectActivity(network: true, bluetooth: true, developerMode: true);
@@ -55,18 +53,15 @@ class ConnectivityProvider extends ChangeNotifier {
   /// * 단, iOS에서는 개발자모드 여부를 제공하지 않기 때문에 제외합니다.
   /// TODO: 리팩토링 필요함
   void setConnectActivity(
-      {required bool network,
-      required bool bluetooth,
-      required bool developerMode}) {
+      {required bool network, required bool bluetooth, required bool developerMode}) {
     if (bluetooth) {
-      SharedPrefsRepository().setBool(
-          SharedPrefsKeys.hasAlreadyRequestedBluetoothPermission, true);
+      SharedPrefsRepository().setBool(SharedPrefsKeys.hasAlreadyRequestedBluetoothPermission, true);
       // 블루투스 상태
       if (Platform.isIOS) {
         // showPowerAlert: false 설정 해줘야, 앱 재접속 시 블루투스 권한 없을 때 CBCentralManagerOptionShowPowerAlertKey 관련 prompt가 뜨지 않음
         FlutterBluePlus.setOptions(showPowerAlert: false).then((_) {
-          _bluetoothSubscription = FlutterBluePlus.adapterState
-              .listen((BluetoothAdapterState state) {
+          _bluetoothSubscription =
+              FlutterBluePlus.adapterState.listen((BluetoothAdapterState state) {
             if (state == BluetoothAdapterState.on) {
               _isBluetoothOn = true;
             } else if (state == BluetoothAdapterState.off) {
@@ -79,8 +74,7 @@ class ConnectivityProvider extends ChangeNotifier {
           });
         });
       } else if (Platform.isAndroid) {
-        _bluetoothSubscription =
-            FlutterBluePlus.adapterState.listen((BluetoothAdapterState state) {
+        _bluetoothSubscription = FlutterBluePlus.adapterState.listen((BluetoothAdapterState state) {
           if (state == BluetoothAdapterState.on) {
             _isBluetoothOn = true;
           } else if (state == BluetoothAdapterState.off) {
@@ -93,9 +87,8 @@ class ConnectivityProvider extends ChangeNotifier {
 
     // 네트워크 상태
     if (network) {
-      _networkSubscription = Connectivity()
-          .onConnectivityChanged
-          .listen((List<ConnectivityResult> result) {
+      _networkSubscription =
+          Connectivity().onConnectivityChanged.listen((List<ConnectivityResult> result) {
         if (result.contains(ConnectivityResult.none)) {
           _isNetworkOn = false;
         } else {
@@ -136,22 +129,19 @@ class ConnectivityProvider extends ChangeNotifier {
   void _onConnectivityChanged() {
     if (Platform.isIOS && _isBluetoothUnauthorized == true) {
       runApp(const CupertinoApp(
-          debugShowCheckedModeBanner: false,
-          home: IosBluetoothAuthNotificationScreen()));
+          debugShowCheckedModeBanner: false, home: IosBluetoothAuthNotificationScreen()));
     } else if (_isBluetoothOn == true ||
         _isNetworkOn == true ||
         (Platform.isAndroid && _isDeveloperModeOn == true)) {
       if (_hasSeenGuide) {
         runApp(const CupertinoApp(
-            debugShowCheckedModeBanner: false,
-            home: AppUnavailableNotificationScreen()));
+            debugShowCheckedModeBanner: false, home: AppUnavailableNotificationScreen()));
       }
     }
     notifyListeners();
   }
 
-  void setOnConnectivityStateChanged(
-      void Function(ConnectivityState) onChanged) {
+  void setOnConnectivityStateChanged(void Function(ConnectivityState) onChanged) {
     onConnectivityStateChanged = onChanged;
   }
 

@@ -12,8 +12,7 @@ class VaultTypeSelectionScreen extends StatefulWidget {
   const VaultTypeSelectionScreen({super.key});
 
   @override
-  State<VaultTypeSelectionScreen> createState() =>
-      _VaultTypeSelectionScreenState();
+  State<VaultTypeSelectionScreen> createState() => _VaultTypeSelectionScreenState();
 }
 
 class _VaultTypeSelectionScreenState extends State<VaultTypeSelectionScreen> {
@@ -21,10 +20,7 @@ class _VaultTypeSelectionScreenState extends State<VaultTypeSelectionScreen> {
   bool _nextButtonEnabled = true;
   bool _showLoading = false;
   late String guideText;
-  List<String> options = [
-    AppRoutes.vaultCreationOptions,
-    AppRoutes.multisigQuorumSelection
-  ];
+  List<String> options = [AppRoutes.vaultCreationOptions, AppRoutes.multisigQuorumSelection];
   late final WalletProvider _walletProvider;
 
   @override
@@ -85,8 +81,7 @@ class _VaultTypeSelectionScreenState extends State<VaultTypeSelectionScreen> {
     setState(() {
       nextPath = options[1];
       guideText = t.select_vault_type_screen.multisig;
-      if (!_walletProvider.isVaultListLoading &&
-          _walletProvider.vaultList.isEmpty) {
+      if (!_walletProvider.isVaultListLoading && _walletProvider.vaultList.isEmpty) {
         _nextButtonEnabled = false;
       }
     });
@@ -107,8 +102,7 @@ class _VaultTypeSelectionScreenState extends State<VaultTypeSelectionScreen> {
           body: Stack(
             children: [
               Padding(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 16.0, vertical: 32),
+                padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 32),
                 child: Column(
                   children: [
                     Text(guideText),
@@ -151,8 +145,7 @@ class _VaultTypeSelectionScreenState extends State<VaultTypeSelectionScreen> {
               Visibility(
                 visible: _showLoading,
                 child: Container(
-                  decoration:
-                      const BoxDecoration(color: MyColors.transparentBlack_30),
+                  decoration: const BoxDecoration(color: MyColors.transparentBlack_30),
                   child: Center(
                       child: MessageActivityIndicator(
                           message: t.select_vault_type_screen.loading_keys)),

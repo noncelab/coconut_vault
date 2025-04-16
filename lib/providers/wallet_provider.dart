@@ -34,8 +34,7 @@ class WalletProvider extends ChangeNotifier {
   bool get isVaultListLoading => _isVaultListLoading;
   // vault_type_selection_screen.dart, vault_name_and_icon_setup_screen.dart 에서 사용
   // 다음 버튼 클릭시 loadVaultList()가 아직 진행중인 경우 완료 시점을 캐치하기 위함
-  final ValueNotifier<bool> isVaultListLoadingNotifier =
-      ValueNotifier<bool>(false);
+  final ValueNotifier<bool> isVaultListLoadingNotifier = ValueNotifier<bool>(false);
   // 리스트 로딩 완료 여부 (로딩작업 완료 후 바로 추가하기 표시)
   // 최초 한번 완료 후 재로드 없음
   bool _isWalletsLoaded = false;
@@ -106,12 +105,12 @@ class WalletProvider extends ChangeNotifier {
     // vibrateLight();
   }
 
-  Future<void> addMultisigVault(String name, int color, int icon,
-      List<MultisigSigner> signers, int requiredSignatureCount) async {
+  Future<void> addMultisigVault(String name, int color, int icon, List<MultisigSigner> signers,
+      int requiredSignatureCount) async {
     _setAddVaultCompleted(false);
 
-    await _walletManager.addMultisigWallet(MultisigWallet(
-        null, name, icon, color, signers, requiredSignatureCount));
+    await _walletManager.addMultisigWallet(
+        MultisigWallet(null, name, icon, color, signers, requiredSignatureCount));
 
     _vaultList = _walletManager.vaultList;
     setAnimatedVaultFlags(index: _vaultList.length);
@@ -120,8 +119,7 @@ class WalletProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> importMultisigVault(
-      MultisigImportDetail details, int walletId) async {
+  Future<void> importMultisigVault(MultisigImportDetail details, int walletId) async {
     _setAddVaultCompleted(false);
 
     // 이 지갑이 위 멀티시그 지갑의 일부인지 확인하기
@@ -130,8 +128,7 @@ class WalletProvider extends ChangeNotifier {
 
     // 중복 코드 확인
     List<SingleSigVaultListItem?> linkedWalletList = [];
-    linkedWalletList.insertAll(
-        0, List.filled(multisigVault.keyStoreList.length, null));
+    linkedWalletList.insertAll(0, List.filled(multisigVault.keyStoreList.length, null));
     bool isRelated = false;
     outerLoop:
     for (var wallet in _vaultList) {
@@ -139,9 +136,7 @@ class WalletProvider extends ChangeNotifier {
 
       var singleSigVaultListItem = wallet as SingleSigVaultListItem;
       var walletMfp =
-          (singleSigVaultListItem.coconutVault as SingleSignatureVault)
-              .keyStore
-              .masterFingerprint;
+          (singleSigVaultListItem.coconutVault as SingleSignatureVault).keyStore.masterFingerprint;
       for (int i = 0; i < multisigVault.keyStoreList.length; i++) {
         if (walletMfp == multisigVault.keyStoreList[i].masterFingerprint) {
           linkedWalletList[i] = wallet;
@@ -164,8 +159,7 @@ class WalletProvider extends ChangeNotifier {
       if (linkedWalletList[i] == null) {
         signers.add(MultisigSigner(
             id: i,
-            name: details
-                .namesMap[multisigVault.keyStoreList[i].masterFingerprint],
+            name: details.namesMap[multisigVault.keyStoreList[i].masterFingerprint],
             keyStore: multisigVault.keyStoreList[i]));
       } else {
         // 내부 지갑
@@ -181,16 +175,15 @@ class WalletProvider extends ChangeNotifier {
       }
     }
 
-    await addMultisigVault(details.name, details.colorIndex, details.iconIndex,
-        signers, multisigVault.requiredSignature);
+    await addMultisigVault(details.name, details.colorIndex, details.iconIndex, signers,
+        multisigVault.requiredSignature);
 
     _setAddVaultCompleted(true);
     notifyListeners();
   }
 
   /// [id]에 해당하는 지갑의 UI 정보 업데이트
-  Future<void> updateVault(
-      int id, String newName, int colorIndex, int iconIndex) async {
+  Future<void> updateVault(int id, String newName, int colorIndex, int iconIndex) async {
     await _walletManager.updateWallet(id, newName, colorIndex, iconIndex);
     _vaultList = _walletManager.vaultList;
     notifyListeners();
@@ -199,8 +192,7 @@ class WalletProvider extends ChangeNotifier {
   /// 다중서명 지갑의 [singerIndex]번째 키로 사용한 외부 지갑의 메모를 업데이트
   Future updateMemo(int id, int signerIndex, String? newMemo) async {
     int index = _vaultList.indexWhere((wallet) => wallet.id == id);
-    _vaultList[index] =
-        await _walletManager.updateMemo(id, signerIndex, newMemo);
+    _vaultList[index] = await _walletManager.updateMemo(id, signerIndex, newMemo);
   }
 
   /// SiglesigVaultListItem의 seed 중복 여부 확인
@@ -209,8 +201,7 @@ class WalletProvider extends ChangeNotifier {
         addressType: AddressType.p2wpkh, passphrase: passphrase);
     final vaultIndex = _vaultList.indexWhere((element) {
       if (element is SingleSigVaultListItem) {
-        return (element.coconutVault as SingleSignatureVault).descriptor ==
-            coconutVault.descriptor;
+        return (element.coconutVault as SingleSignatureVault).descriptor == coconutVault.descriptor;
       }
 
       return false;
@@ -220,20 +211,16 @@ class WalletProvider extends ChangeNotifier {
   }
 
   /// MultisigVaultListItem의 coordinatorBsms 중복 여부 확인
-  MultisigVaultListItem? findMultisigWalletByCoordinatorBsms(
-      String coordinatorBsms) {
+  MultisigVaultListItem? findMultisigWalletByCoordinatorBsms(String coordinatorBsms) {
     final vaultIndex = _vaultList.indexWhere((element) =>
-        (element is MultisigVaultListItem &&
-            element.coordinatorBsms == coordinatorBsms));
+        (element is MultisigVaultListItem && element.coordinatorBsms == coordinatorBsms));
 
-    return vaultIndex != -1
-        ? _vaultList[vaultIndex] as MultisigVaultListItem
-        : null;
+    return vaultIndex != -1 ? _vaultList[vaultIndex] as MultisigVaultListItem : null;
   }
 
   VaultListItemBase? findWalletByDescriptor(String descriptor) {
-    final vaultIndex = _vaultList
-        .indexWhere((element) => element.coconutVault.descriptor == descriptor);
+    final vaultIndex =
+        _vaultList.indexWhere((element) => element.coconutVault.descriptor == descriptor);
 
     return vaultIndex != -1 ? _vaultList[vaultIndex] : null;
   }
@@ -276,8 +263,7 @@ class WalletProvider extends ChangeNotifier {
           return;
         }
 
-        await _walletManager.loadAndEmitEachWallet(jsonList,
-            (VaultListItemBase wallet) {
+        await _walletManager.loadAndEmitEachWallet(jsonList, (VaultListItemBase wallet) {
           if (_isDisposed) {
             return;
           }

@@ -9,8 +9,7 @@ void main() {
 
       // Base64로 디코딩했을 때 32바이트(256비트)여야 함
       final decoded = base64.decode(key);
-      expect(decoded.length, equals(32),
-          reason: 'Decoded key should be 32 bytes');
+      expect(decoded.length, equals(32), reason: 'Decoded key should be 32 bytes');
 
       // 원본 문자열이 올바른 Base64 형식이어야 함
       expect(() => base64.decode(key), returnsNormally);
@@ -23,13 +22,11 @@ void main() {
       // 1000개의 키를 생성하고 모두 유니크한지 확인
       for (var i = 0; i < iterations; i++) {
         final key = SecureKeyGenerator.generateSecureKeyWithEntropy();
-        expect(keys.contains(key), isFalse,
-            reason: 'Generated key should be unique');
+        expect(keys.contains(key), isFalse, reason: 'Generated key should be unique');
         keys.add(key);
       }
 
-      expect(keys.length, equals(iterations),
-          reason: 'All generated keys should be unique');
+      expect(keys.length, equals(iterations), reason: 'All generated keys should be unique');
     });
 
     test('Generated keys should have sufficient entropy', () {
@@ -65,12 +62,10 @@ void main() {
       expect(decoded.length, equals(32));
 
       // 모든 바이트가 0이 아니어야 함
-      expect(decoded.every((byte) => byte == 0), isFalse,
-          reason: 'Key should not be all zeros');
+      expect(decoded.every((byte) => byte == 0), isFalse, reason: 'Key should not be all zeros');
 
       // 모든 바이트가 같은 값이 아니어야 함
-      expect(decoded.toSet().length, greaterThan(1),
-          reason: 'Key should not have all same values');
+      expect(decoded.toSet().length, greaterThan(1), reason: 'Key should not have all same values');
     });
   });
 }

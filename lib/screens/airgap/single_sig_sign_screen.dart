@@ -35,8 +35,7 @@ class _SingleSigSignScreenState extends State<SingleSigSignScreen> {
   @override
   void initState() {
     super.initState();
-    _viewModel = SingleSigSignViewModel(
-        Provider.of<WalletProvider>(context, listen: false),
+    _viewModel = SingleSigSignViewModel(Provider.of<WalletProvider>(context, listen: false),
         Provider.of<SignProvider>(context, listen: false));
 
     WidgetsBinding.instance.addPostFrameCallback((_) async {
@@ -72,8 +71,7 @@ class _SingleSigSignScreenState extends State<SingleSigSignScreen> {
       _viewModel.updateSignState();
     } catch (_) {
       if (mounted) {
-        showAlertDialog(
-            context: context, content: t.errors.sign_error(error: _));
+        showAlertDialog(context: context, content: t.errors.sign_error(error: _));
       }
     } finally {
       setState(() {
@@ -100,9 +98,7 @@ class _SingleSigSignScreenState extends State<SingleSigSignScreen> {
                 Navigator.pushNamed(context, AppRoutes.signedTransaction);
               },
               isActive: viewModel.requiredSignatureCount ==
-                  viewModel.signersApproved
-                      .where((bool isApproved) => isApproved)
-                      .length,
+                  viewModel.signersApproved.where((bool isApproved) => isApproved).length,
               backgroundColor: MyColors.lightgrey,
               hasBackdropFilter: false),
           body: SafeArea(
@@ -115,9 +111,7 @@ class _SingleSigSignScreenState extends State<SingleSigSignScreen> {
                     TweenAnimationBuilder<double>(
                       tween: Tween<double>(
                         begin: 0.0,
-                        end: viewModel.signersApproved
-                                .where((item) => item)
-                                .length /
+                        end: viewModel.signersApproved.where((item) => item).length /
                             viewModel.requiredSignatureCount,
                       ),
                       duration: const Duration(milliseconds: 1500),
@@ -136,10 +130,8 @@ class _SingleSigSignScreenState extends State<SingleSigSignScreen> {
                             borderRadius: _isProgressCompleted
                                 ? BorderRadius.zero
                                 : const BorderRadius.only(
-                                    topRight: Radius.circular(6),
-                                    bottomRight: Radius.circular(6)),
-                            valueColor: const AlwaysStoppedAnimation<Color>(
-                                MyColors.black),
+                                    topRight: Radius.circular(6), bottomRight: Radius.circular(6)),
+                            valueColor: const AlwaysStoppedAnimation<Color>(MyColors.black),
                           ),
                         );
                       },
@@ -149,24 +141,19 @@ class _SingleSigSignScreenState extends State<SingleSigSignScreen> {
                       padding: const EdgeInsets.only(top: 24),
                       child: Text(
                         viewModel.requiredSignatureCount <=
-                                viewModel.signersApproved
-                                    .where((item) => item)
-                                    .length
+                                viewModel.signersApproved.where((item) => item).length
                             ? (viewModel.isAlreadySigned
                                 ? t.single_sig_sign_screen.text
                                 : t.sign_completed)
                             : t.sign_required(
                                 count: viewModel.requiredSignatureCount -
-                                    viewModel.signersApproved
-                                        .where((item) => item)
-                                        .length),
+                                    viewModel.signersApproved.where((item) => item).length),
                         style: Styles.body2Bold,
                       ),
                     ),
                     // 보낼 주소
                     Padding(
-                      padding:
-                          const EdgeInsets.only(top: 32, left: 25, right: 25),
+                      padding: const EdgeInsets.only(top: 32, left: 25, right: 25),
                       child: Column(
                         children: [
                           Row(
@@ -175,13 +162,11 @@ class _SingleSigSignScreenState extends State<SingleSigSignScreen> {
                             children: [
                               Text(
                                 t.recipient,
-                                style: Styles.body2
-                                    .copyWith(color: MyColors.grey57),
+                                style: Styles.body2.copyWith(color: MyColors.grey57),
                               ),
                               Text(
                                 textAlign: TextAlign.end,
-                                TextUtils.truncateNameMax25(
-                                        viewModel.firstRecipientAddress) +
+                                TextUtils.truncateNameMax25(viewModel.firstRecipientAddress) +
                                     (viewModel.recipientCount > 1
                                         ? '\n${t.extra_count(count: viewModel.recipientCount - 1)}'
                                         : ''),
@@ -195,8 +180,7 @@ class _SingleSigSignScreenState extends State<SingleSigSignScreen> {
                             children: [
                               Text(
                                 t.send_amount,
-                                style: Styles.body2
-                                    .copyWith(color: MyColors.grey57),
+                                style: Styles.body2.copyWith(color: MyColors.grey57),
                               ),
                               Text(
                                 '${satoshiToBitcoinString(viewModel.sendingAmount)} ${t.btc}',
@@ -211,8 +195,7 @@ class _SingleSigSignScreenState extends State<SingleSigSignScreen> {
                     ),
                     // Signer List
                     Container(
-                      margin:
-                          const EdgeInsets.only(top: 32, left: 20, right: 20),
+                      margin: const EdgeInsets.only(top: 32, left: 20, right: 20),
                       child: ListView.builder(
                         shrinkWrap: true,
                         physics: const NeverScrollableScrollPhysics(),
@@ -244,15 +227,12 @@ class _SingleSigSignScreenState extends State<SingleSigSignScreen> {
                                             decoration: BoxDecoration(
                                               color: BackgroundColorPalette[
                                                   viewModel.walletColorIndex],
-                                              borderRadius:
-                                                  BorderRadius.circular(16.0),
+                                              borderRadius: BorderRadius.circular(16.0),
                                             ),
                                             child: SvgPicture.asset(
-                                              CustomIcons.getPathByIndex(
-                                                  viewModel.walletIconIndex),
+                                              CustomIcons.getPathByIndex(viewModel.walletIconIndex),
                                               colorFilter: ColorFilter.mode(
-                                                ColorPalette[
-                                                    viewModel.walletColorIndex],
+                                                ColorPalette[viewModel.walletColorIndex],
                                                 BlendMode.srcIn,
                                               ),
                                               width: 20,
@@ -260,11 +240,9 @@ class _SingleSigSignScreenState extends State<SingleSigSignScreen> {
                                           ),
                                           const SizedBox(width: 8),
                                           Column(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
+                                            crossAxisAlignment: CrossAxisAlignment.start,
                                             children: [
-                                              Text(viewModel.walletName,
-                                                  style: Styles.body2),
+                                              Text(viewModel.walletName, style: Styles.body2),
                                             ],
                                           ),
                                         ],
@@ -275,9 +253,8 @@ class _SingleSigSignScreenState extends State<SingleSigSignScreen> {
                                           children: [
                                             Text(
                                               t.sign_completion,
-                                              style: Styles.body1Bold.copyWith(
-                                                  fontSize: 12,
-                                                  color: Colors.black),
+                                              style: Styles.body1Bold
+                                                  .copyWith(fontSize: 12, color: Colors.black),
                                             ),
                                             const SizedBox(width: 4),
                                             SvgPicture.asset(
@@ -294,18 +271,14 @@ class _SingleSigSignScreenState extends State<SingleSigSignScreen> {
                                                 horizontal: 8, vertical: 4),
                                             decoration: BoxDecoration(
                                               color: MyColors.white,
-                                              borderRadius:
-                                                  BorderRadius.circular(5),
-                                              border: Border.all(
-                                                  color: MyColors.black19,
-                                                  width: 1),
+                                              borderRadius: BorderRadius.circular(5),
+                                              border: Border.all(color: MyColors.black19, width: 1),
                                             ),
                                             child: Center(
                                               child: Text(
                                                 t.signature,
                                                 style: Styles.caption.copyWith(
-                                                    color: MyColors
-                                                        .black19), // 텍스트 색상도 검정으로 변경
+                                                    color: MyColors.black19), // 텍스트 색상도 검정으로 변경
                                               ),
                                             ),
                                           ),
@@ -327,8 +300,7 @@ class _SingleSigSignScreenState extends State<SingleSigSignScreen> {
                   child: Container(
                     width: MediaQuery.of(context).size.width,
                     height: MediaQuery.of(context).size.height,
-                    decoration: const BoxDecoration(
-                        color: MyColors.transparentBlack_30),
+                    decoration: const BoxDecoration(color: MyColors.transparentBlack_30),
                     child: const Center(
                       child: CircularProgressIndicator(
                         color: MyColors.darkgrey,

@@ -140,8 +140,7 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> {
         ChangeNotifierProvider(create: (_) => visibilityProvider),
         ChangeNotifierProvider(create: (_) => AuthProvider()),
         ChangeNotifierProxyProvider<VisibilityProvider, ConnectivityProvider>(
-          create: (_) => ConnectivityProvider(
-              hasSeenGuide: visibilityProvider.hasSeenGuide),
+          create: (_) => ConnectivityProvider(hasSeenGuide: visibilityProvider.hasSeenGuide),
           update: (_, visibilityProvider, connectivityProvider) {
             if (visibilityProvider.hasSeenGuide) {
               connectivityProvider!.setHasSeenGuideTrue();
@@ -151,8 +150,7 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> {
           },
         ),
         if (_appEntryFlow == AppEntryFlow.vaultList) ...{
-          Provider<WalletCreationProvider>(
-              create: (_) => WalletCreationProvider()),
+          Provider<WalletCreationProvider>(create: (_) => WalletCreationProvider()),
           Provider<SignProvider>(create: (_) => SignProvider()),
           ChangeNotifierProvider<WalletProvider>(
             create: (_) => WalletProvider(
@@ -199,17 +197,12 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> {
           color: CoconutColors.white,
           home: _getHomeScreenRoute(_appEntryFlow, context),
           routes: {
-            AppRoutes.vaultTypeSelection: (context) =>
-                const VaultTypeSelectionScreen(),
-            AppRoutes.multisigQuorumSelection: (context) =>
-                const MultisigQuorumSelectionScreen(),
-            AppRoutes.signerAssignment: (context) =>
-                const SignerAssignmentScreen(),
-            AppRoutes.vaultCreationOptions: (context) =>
-                const VaultCreationOptions(),
+            AppRoutes.vaultTypeSelection: (context) => const VaultTypeSelectionScreen(),
+            AppRoutes.multisigQuorumSelection: (context) => const MultisigQuorumSelectionScreen(),
+            AppRoutes.signerAssignment: (context) => const SignerAssignmentScreen(),
+            AppRoutes.vaultCreationOptions: (context) => const VaultCreationOptions(),
             AppRoutes.mnemonicImport: (context) => const MnemonicImport(),
-            AppRoutes.vaultNameSetup: (context) =>
-                const VaultNameAndIconSetupScreen(),
+            AppRoutes.vaultNameSetup: (context) => const VaultNameAndIconSetupScreen(),
             AppRoutes.vaultDetails: (context) => buildScreenWithArguments(
                   context,
                   (args) => VaultMenuBottomSheet(id: args['id']),
@@ -226,31 +219,27 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> {
                     id: args['id'],
                   ),
                 ),
-            AppRoutes.mnemonicWordList: (context) =>
-                const MnemonicWordListScreen(),
+            AppRoutes.mnemonicWordList: (context) => const MnemonicWordListScreen(),
             AppRoutes.addressList: (context) => buildScreenWithArguments(
                   context,
                   (args) => AddressListScreen(id: args['id']),
                 ),
             AppRoutes.signerBsmsScanner: (context) => buildScreenWithArguments(
                   context,
-                  (args) => MultisigBsmsScannerScreen(
-                      id: args['id'], screenType: args['screenType']),
+                  (args) =>
+                      MultisigBsmsScannerScreen(id: args['id'], screenType: args['screenType']),
                 ),
             AppRoutes.psbtScanner: (context) => buildScreenWithArguments(
                   context,
                   (args) => PsbtScannerScreen(id: args['id']),
                 ),
-            AppRoutes.psbtConfirmation: (context) =>
-                const PsbtConfirmationScreen(),
-            AppRoutes.signedTransaction: (context) =>
-                const SignedTransactionQrScreen(),
+            AppRoutes.psbtConfirmation: (context) => const PsbtConfirmationScreen(),
+            AppRoutes.signedTransaction: (context) => const SignedTransactionQrScreen(),
             AppRoutes.syncToWallet: (context) => buildScreenWithArguments(
                   context,
                   (args) => SyncToWalletScreen(id: args['id']),
                 ),
-            AppRoutes.multisigSignerBsmsExport: (context) =>
-                buildScreenWithArguments(
+            AppRoutes.multisigSignerBsmsExport: (context) => buildScreenWithArguments(
                   context,
                   (args) => MultisigSignerBsmsExportScreen(
                     id: args['id'],
@@ -263,10 +252,8 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> {
                   ModalRoute.of(context)?.settings.arguments as VoidCallback?;
               return SecuritySelfCheckScreen(onNextPressed: onNextPressed);
             },
-            AppRoutes.mnemonicGeneration: (context) =>
-                const MnemonicGenerationScreen(),
-            AppRoutes.mnemonicCoinflip: (context) =>
-                const MnemonicCoinflipScreen(),
+            AppRoutes.mnemonicGeneration: (context) => const MnemonicGenerationScreen(),
+            AppRoutes.mnemonicCoinflip: (context) => const MnemonicCoinflipScreen(),
             AppRoutes.appInfo: (context) => const AppInfoScreen(),
             AppRoutes.welcome: (context) => const WelcomeScreen(),
             AppRoutes.connectivityGuide: (context) {
@@ -285,13 +272,10 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> {
     );
   }
 
-  T buildScreenWithArguments<T>(
-      BuildContext context, T Function(Map<String, dynamic>) builder,
+  T buildScreenWithArguments<T>(BuildContext context, T Function(Map<String, dynamic>) builder,
       {Map<String, dynamic>? defaultArgs}) {
     final args =
-        ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>? ??
-            defaultArgs ??
-            {};
+        ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>? ?? defaultArgs ?? {};
     return builder(args);
   }
 }

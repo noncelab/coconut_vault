@@ -29,8 +29,7 @@ class SecureKeyGenerator {
     String? additionalData,
   }) {
     final randomBytes = generateSecureRandomBytes(lengthInBytes);
-    final entropy = randomBytes +
-        (additionalData != null ? utf8.encode(additionalData) : []);
+    final entropy = randomBytes + (additionalData != null ? utf8.encode(additionalData) : []);
 
     // PBKDF2 사용하여 키 스트레칭
     final salt = generateSecureRandomBytes(16); // 랜덤 솔트

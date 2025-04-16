@@ -12,8 +12,7 @@ class ToastWidget extends StatefulWidget {
   ToastWidgetState createState() => ToastWidgetState();
 }
 
-class ToastWidgetState extends State<ToastWidget>
-    with SingleTickerProviderStateMixin {
+class ToastWidgetState extends State<ToastWidget> with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<Offset> _animation;
 
@@ -50,8 +49,7 @@ class ToastWidgetState extends State<ToastWidget>
 
   @override
   Widget build(BuildContext context) {
-    final displayMessage =
-        widget.message.isEmpty ? t.toast.clipboard_copied : widget.message;
+    final displayMessage = widget.message.isEmpty ? t.toast.clipboard_copied : widget.message;
 
     return SlideTransition(
       position: _animation,
@@ -67,8 +65,7 @@ class ToastWidgetState extends State<ToastWidget>
           children: [
             Text(
               displayMessage,
-              style: Styles.body2Bold
-                  .merge(const TextStyle(color: MyColors.white)),
+              style: Styles.body2Bold.merge(const TextStyle(color: MyColors.white)),
             ),
             const Icon(
               Icons.check,

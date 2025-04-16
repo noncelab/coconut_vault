@@ -19,8 +19,7 @@ class MyBottomSheet {
         isScrollControlled: true,
         enableDrag: enableDrag,
         useSafeArea: true,
-        constraints: BoxConstraints(
-            maxHeight: MediaQuery.of(context).size.height * 0.9));
+        constraints: BoxConstraints(maxHeight: MediaQuery.of(context).size.height * 0.9));
   }
 
   static void showBottomSheet_95(
@@ -38,8 +37,7 @@ class MyBottomSheet {
         isScrollControlled: true,
         enableDrag: enableDrag,
         useSafeArea: true,
-        constraints: BoxConstraints(
-            maxHeight: MediaQuery.of(context).size.height * 0.95));
+        constraints: BoxConstraints(maxHeight: MediaQuery.of(context).size.height * 0.95));
   }
 
   static void showBottomSheet({
@@ -50,8 +48,7 @@ class MyBottomSheet {
     bool isDismissible = true,
     bool enableDrag = true,
     bool isCloseButton = false,
-    EdgeInsetsGeometry titlePadding =
-        const EdgeInsets.symmetric(vertical: 20, horizontal: 20),
+    EdgeInsetsGeometry titlePadding = const EdgeInsets.symmetric(vertical: 20, horizontal: 20),
   }) {
     showModalBottomSheet(
       context: context,
@@ -82,8 +79,7 @@ class MyBottomSheet {
                           padding: const EdgeInsets.all(4),
                           color: Colors.transparent,
                           child: isCloseButton
-                              ? const Icon(Icons.close_rounded,
-                                  color: MyColors.black)
+                              ? const Icon(Icons.close_rounded, color: MyColors.black)
                               : Container(width: 16),
                         ),
                       ),
@@ -149,8 +145,7 @@ class MyBottomSheet {
             builder: (_, controller) {
               return ClipRRect(
                 borderRadius: const BorderRadius.only(
-                    topLeft: Radius.circular(24),
-                    topRight: Radius.circular(24)),
+                    topLeft: Radius.circular(24), topRight: Radius.circular(24)),
                 child: Column(
                   children: [
                     if (topWidget && isButtonActiveNotifier != null)
@@ -210,7 +205,6 @@ class MyBottomSheet {
         isScrollControlled: isScrollControlled,
         enableDrag: enableDrag,
         useSafeArea: useSafeArea,
-        constraints: BoxConstraints(
-            maxHeight: MediaQuery.of(context).size.height * 0.9));
+        constraints: BoxConstraints(maxHeight: MediaQuery.of(context).size.height * 0.9));
   }
 }

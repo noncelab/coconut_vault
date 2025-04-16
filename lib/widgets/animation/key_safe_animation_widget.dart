@@ -55,8 +55,7 @@ class _KeySafeAnimationWidgetState extends State<KeySafeAnimationWidget> {
                               'assets/svg/key-icon.svg',
                               width: 20,
                               colorFilter: const ColorFilter.mode(
-                                  MyColors.progressbarColorDisabled,
-                                  BlendMode.srcIn),
+                                  MyColors.progressbarColorDisabled, BlendMode.srcIn),
                             ),
                       const SizedBox(
                         width: 30,
@@ -80,8 +79,7 @@ class _KeySafeAnimationWidgetState extends State<KeySafeAnimationWidget> {
                                 'assets/svg/key-icon.svg',
                                 width: 20,
                                 colorFilter: const ColorFilter.mode(
-                                    MyColors.progressbarColorDisabled,
-                                    BlendMode.srcIn),
+                                    MyColors.progressbarColorDisabled, BlendMode.srcIn),
                               ),
                         const SizedBox(
                           width: 30,
@@ -106,8 +104,7 @@ class _KeySafeAnimationWidgetState extends State<KeySafeAnimationWidget> {
                               'assets/svg/key-icon.svg',
                               width: 20,
                               colorFilter: const ColorFilter.mode(
-                                  MyColors.progressbarColorDisabled,
-                                  BlendMode.srcIn),
+                                  MyColors.progressbarColorDisabled, BlendMode.srcIn),
                             ),
                       const SizedBox(
                         width: 30,
@@ -160,8 +157,8 @@ class _KeySafeAnimationWidgetState extends State<KeySafeAnimationWidget> {
 
   void startAnimationProgress(int n, int m, int buttonCountAtStart) async {
     stopAnimationProgress();
-    _progressQueue.add(QueueDataClass(
-        count: widget.buttonClickedCount, entity: _getQueueEntity(n, m)));
+    _progressQueue
+        .add(QueueDataClass(count: widget.buttonClickedCount, entity: _getQueueEntity(n, m)));
 
     debugPrint(
         '########buttonClickedCount : ${widget.buttonClickedCount}  << count : ${_progressQueue.last.count}  << current N : $n  << current M : $m  << queueLastEntity : ${_progressQueue.last.entity}  ');

@@ -39,17 +39,15 @@ class _TutorialScreenState extends State<TutorialScreen> {
     subtitleText = (widget.screenStatus == TutorialScreenStatus.entrance)
         ? t.tutorial_screen.content
         : t.tutorial_screen.subtitle;
-    contentText = (widget.screenStatus == TutorialScreenStatus.entrance)
-        ? ''
-        : t.tutorial_screen.content;
+    contentText =
+        (widget.screenStatus == TutorialScreenStatus.entrance) ? '' : t.tutorial_screen.content;
   }
 
   @override
   Widget build(BuildContext context) {
-    List<String> splitTexts =
-        (widget.screenStatus == TutorialScreenStatus.entrance)
-            ? subtitleText.split('\n')
-            : contentText.split('\n');
+    List<String> splitTexts = (widget.screenStatus == TutorialScreenStatus.entrance)
+        ? subtitleText.split('\n')
+        : contentText.split('\n');
     return widget.screenStatus == TutorialScreenStatus.entrance
         ? Scaffold(
             backgroundColor: MyColors.white,
@@ -60,8 +58,7 @@ class _TutorialScreenState extends State<TutorialScreen> {
                     right: 16,
                     top: 30,
                     child: TextButton(
-                      onPressed: () =>
-                          Navigator.pushNamed(context, AppRoutes.welcome),
+                      onPressed: () => Navigator.pushNamed(context, AppRoutes.welcome),
                       style: TextButton.styleFrom(
                         foregroundColor: MyColors.darkgrey,
                       ),
@@ -81,8 +78,7 @@ class _TutorialScreenState extends State<TutorialScreen> {
                           textAlign: TextAlign.center,
                         ),
                         Selector<ConnectivityProvider, bool>(
-                            selector: (context, model) =>
-                                model.isNetworkOn == true,
+                            selector: (context, model) => model.isNetworkOn == true,
                             builder: (context, networkOn, _) {
                               if (networkOn) {
                                 // 네트워크 연결 상태일 때
@@ -109,8 +105,7 @@ class _TutorialScreenState extends State<TutorialScreen> {
                                           t.view_tutorial,
                                           style: Styles.caption.merge(
                                             const TextStyle(
-                                                color: MyColors.white,
-                                                fontWeight: FontWeight.w700),
+                                                color: MyColors.white, fontWeight: FontWeight.w700),
                                           ),
                                         ),
                                       ),

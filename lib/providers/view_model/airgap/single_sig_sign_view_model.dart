@@ -10,12 +10,11 @@ class SingleSigSignViewModel extends ChangeNotifier {
   late final SignProvider _signProvider;
   late final SingleSignatureVault _coconutVault;
   late final bool _isAlreadySigned;
-  late final List<bool> _signersApproved =
-      List<bool>.filled(requiredSignatureCount, false);
+  late final List<bool> _signersApproved = List<bool>.filled(requiredSignatureCount, false);
 
   SingleSigSignViewModel(this._walletProvider, this._signProvider) {
-    _coconutVault = (_signProvider.vaultListItem! as SingleSigVaultListItem)
-        .coconutVault as SingleSignatureVault;
+    _coconutVault = (_signProvider.vaultListItem! as SingleSigVaultListItem).coconutVault
+        as SingleSignatureVault;
 
     _isAlreadySigned = _isSigned();
     if (_isAlreadySigned) {
@@ -31,9 +30,8 @@ class SingleSigSignViewModel extends ChangeNotifier {
   String get firstRecipientAddress => _signProvider.recipientAddress != null
       ? _signProvider.recipientAddress!
       : _signProvider.recipientAmounts!.keys.first;
-  int get recipientCount => _signProvider.recipientAddress != null
-      ? 1
-      : _signProvider.recipientAmounts!.length;
+  int get recipientCount =>
+      _signProvider.recipientAddress != null ? 1 : _signProvider.recipientAmounts!.length;
   int get sendingAmount => _signProvider.sendingAmount!;
 
   bool _isSigned() {
@@ -48,12 +46,10 @@ class SingleSigSignViewModel extends ChangeNotifier {
   Future<void> sign() async {
     try {
       var secret = await _walletProvider.getSecret(_signProvider.walletId!);
-      final seed =
-          Seed.fromMnemonic(secret.mnemonic, passphrase: secret.passphrase);
+      final seed = Seed.fromMnemonic(secret.mnemonic, passphrase: secret.passphrase);
       _coconutVault.keyStore.seed = seed;
 
-      final signedTx =
-          _coconutVault.addSignatureToPsbt(_signProvider.unsignedPsbtBase64!);
+      final signedTx = _coconutVault.addSignatureToPsbt(_signProvider.unsignedPsbtBase64!);
 
       _signProvider.saveSignedPsbt(signedTx);
     } finally {

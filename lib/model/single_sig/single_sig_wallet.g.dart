@@ -6,8 +6,7 @@ part of 'single_sig_wallet.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-SinglesigWallet _$SinglesigWalletFromJson(Map<String, dynamic> json) =>
-    SinglesigWallet(
+SinglesigWallet _$SinglesigWalletFromJson(Map<String, dynamic> json) => SinglesigWallet(
       (json['id'] as num?)?.toInt(),
       json['name'] as String?,
       (json['icon'] as num?)?.toInt(),
@@ -16,8 +15,7 @@ SinglesigWallet _$SinglesigWalletFromJson(Map<String, dynamic> json) =>
       json['passphrase'] as String?,
     );
 
-Map<String, dynamic> _$SinglesigWalletToJson(SinglesigWallet instance) =>
-    <String, dynamic>{
+Map<String, dynamic> _$SinglesigWalletToJson(SinglesigWallet instance) => <String, dynamic>{
       'id': instance.id,
       'name': instance.name,
       'icon': instance.icon,

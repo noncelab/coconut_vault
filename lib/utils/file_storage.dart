@@ -22,10 +22,7 @@ class FileStorage {
       }
 
       final List<FileSystemEntity> entities = await directory.list().toList();
-      return entities
-          .where((entity) => entity is File)
-          .map((entity) => entity.path)
-          .toList();
+      return entities.where((entity) => entity is File).map((entity) => entity.path).toList();
     } catch (e) {
       return [];
     }

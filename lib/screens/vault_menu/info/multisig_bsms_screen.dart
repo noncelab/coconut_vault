@@ -17,10 +17,9 @@ class MultisigBsmsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
-      create: (context) => MultisigBsmsViewModel(
-          Provider.of<WalletProvider>(context, listen: false), id),
-      child:
-          Consumer<MultisigBsmsViewModel>(builder: (context, viewModel, child) {
+      create: (context) =>
+          MultisigBsmsViewModel(Provider.of<WalletProvider>(context, listen: false), id),
+      child: Consumer<MultisigBsmsViewModel>(builder: (context, viewModel, child) {
         final qrWidth = MediaQuery.of(context).size.width * 0.76;
 
         return Scaffold(
@@ -53,8 +52,7 @@ class MultisigBsmsScreen extends StatelessWidget {
                 GestureDetector(
                   onTap: () => _showMultisigDetail(context, viewModel.qrData),
                   child: Container(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 16, vertical: 12),
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(4.0),
                       color: MyColors.borderGrey,
@@ -102,8 +100,8 @@ class MultisigBsmsScreen extends StatelessWidget {
             _description(t.multi_sig_bsms_screen.guide.text3),
           ] else ...{
             _description(
-              t.multi_sig_bsms_screen.guide.text4(
-                  gen: viewModel.generateOutsideWalletDescription(isAnd: true)),
+              t.multi_sig_bsms_screen.guide
+                  .text4(gen: viewModel.generateOutsideWalletDescription(isAnd: true)),
             ),
             const SizedBox(height: 4),
             _description(
@@ -151,8 +149,7 @@ class MultisigBsmsScreen extends StatelessWidget {
           text: part,
           style: index.isEven
               ? Styles.body1.copyWith(fontSize: 14)
-              : Styles.body1
-                  .copyWith(fontSize: 14, fontWeight: FontWeight.bold),
+              : Styles.body1.copyWith(fontSize: 14, fontWeight: FontWeight.bold),
         ),
       );
     });

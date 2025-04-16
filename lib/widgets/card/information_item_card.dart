@@ -44,8 +44,7 @@ class InformationItemCard extends StatelessWidget {
                             final isLast = index == value!.length - 1;
 
                             return Padding(
-                              padding: EdgeInsets.only(
-                                  bottom: isLast ? 0 : Sizes.size4),
+                              padding: EdgeInsets.only(bottom: isLast ? 0 : Sizes.size4),
                               child: Text(item,
                                   textAlign: TextAlign.right,
                                   style: Styles.body2.merge(
@@ -58,8 +57,7 @@ class InformationItemCard extends StatelessWidget {
                           }).toList())),
                 if (showIcon)
                   rightIcon ??
-                      const Icon(Icons.keyboard_arrow_right_rounded,
-                          color: MyColors.borderGrey)
+                      const Icon(Icons.keyboard_arrow_right_rounded, color: MyColors.borderGrey)
               ],
             )));
   }

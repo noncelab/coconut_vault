@@ -10,8 +10,7 @@ void main() {
       const originalData = '안녕하세요! Hello, World! 12345 !@#\$%^&*()';
 
       // 랜덤 키 생성 (32바이트)
-      final randomString = SecureKeyGenerator.generateSecureKeyWithEntropy(
-          additionalData: 'test');
+      final randomString = SecureKeyGenerator.generateSecureKeyWithEntropy(additionalData: 'test');
       final key = Key.fromBase64(randomString);
 
       // 랜덤 IV 생성 및 암호화
@@ -37,12 +36,10 @@ void main() {
 
     test('암호화 후 복호화 테스트 - 긴 문자열', () {
       // 긴 테스트 데이터 생성
-      final originalData =
-          List.generate(1000, (index) => 'Test데이터$index').join();
+      final originalData = List.generate(1000, (index) => 'Test데이터$index').join();
 
       // 랜덤 키 생성 (32바이트)
-      final randomString = SecureKeyGenerator.generateSecureKeyWithEntropy(
-          additionalData: 'test');
+      final randomString = SecureKeyGenerator.generateSecureKeyWithEntropy(additionalData: 'test');
       final key = Key.fromBase64(randomString);
 
       // 암호화
@@ -71,8 +68,7 @@ void main() {
 
       // 첫 번째 키로 암호화
       // 랜덤 키 생성 (32바이트)
-      final randomString = SecureKeyGenerator.generateSecureKeyWithEntropy(
-          additionalData: 'test');
+      final randomString = SecureKeyGenerator.generateSecureKeyWithEntropy(additionalData: 'test');
       final key1 = Key.fromBase64(randomString);
       final iv = Aes256Crypto.generateIv();
       final encrypted = Aes256Crypto.encryptCbc(

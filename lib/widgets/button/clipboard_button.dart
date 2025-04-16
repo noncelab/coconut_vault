@@ -13,8 +13,7 @@ class ClipboardButton extends StatefulWidget {
   final String text;
   final String toastMessage;
 
-  const ClipboardButton(
-      {super.key, required this.text, required this.toastMessage});
+  const ClipboardButton({super.key, required this.text, required this.toastMessage});
 
   @override
   State<ClipboardButton> createState() => _ClipboardButtonState();
@@ -37,8 +36,7 @@ class _ClipboardButtonState extends State<ClipboardButton> {
               defaultColor: MyColors.lightgrey,
               pressedColor: MyColors.grey.withOpacity(0.1),
               onPressed: () {
-                Clipboard.setData(ClipboardData(text: widget.text))
-                    .then((value) => null);
+                Clipboard.setData(ClipboardData(text: widget.text)).then((value) => null);
                 _showToast();
               },
               child: Container(
@@ -56,9 +54,8 @@ class _ClipboardButtonState extends State<ClipboardButton> {
                         children: [
                           Padding(
                             padding: const EdgeInsets.only(top: 7, right: 6),
-                            child: Text(widget.text,
-                                style: Styles.body1,
-                                textAlign: TextAlign.center),
+                            child:
+                                Text(widget.text, style: Styles.body1, textAlign: TextAlign.center),
                           ),
                         ],
                       ),

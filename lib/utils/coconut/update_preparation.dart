@@ -21,8 +21,7 @@ class UpdatePreparation {
     await clearUpdatePreparationStorage();
 
     // Isolate를 사용하여 키 생성과 암호화 수행
-    final encryptor = IsolateHandler2<String, Map<String, String>>(
-        (String data) => _encrypt(data));
+    final encryptor = IsolateHandler2<String, Map<String, String>>((String data) => _encrypt(data));
     final result = await encryptor.execute(data);
 
     // 암호화된 데이터와 IV를 ':' 로 구분하여 저장
@@ -38,8 +37,8 @@ class UpdatePreparation {
     );
 
     // 암호화에 사용한 key를 저장
-    await SecureStorageRepository().write(
-        key: SecureStorageKeys.kAes256Key, value: result['key'] as String);
+    await SecureStorageRepository()
+        .write(key: SecureStorageKeys.kAes256Key, value: result['key'] as String);
 
     await validatePreparationState();
     return savedPath;
@@ -68,9 +67,8 @@ class UpdatePreparation {
         'encrypted': parts[1],
         'iv': parts[0],
       },
-      key: encrypt.Key.fromBase64(await SecureStorageRepository()
-              .read(key: SecureStorageKeys.kAes256Key) ??
-          ''),
+      key: encrypt.Key.fromBase64(
+          await SecureStorageRepository().read(key: SecureStorageKeys.kAes256Key) ?? ''),
     );
 
     return decryptedData;
@@ -96,18 +94,14 @@ class UpdatePreparation {
   static Future<void> validatePreparationState() async {
     final files = await _getEncryptedFiles();
     if (files.length != 1) {
-      throw AssertionError(
-          'Invalid number of encrypted files: ${files.length}');
+      throw AssertionError('Invalid number of encrypted files: ${files.length}');
     }
 
     if (!regex.hasMatch(path.basename(files.first))) {
-      throw FormatException(
-          'Invalid encrypted file format: ${path.basename(files.first)}');
+      throw FormatException('Invalid encrypted file format: ${path.basename(files.first)}');
     }
 
-    if (await SecureStorageRepository()
-            .read(key: SecureStorageKeys.kAes256Key) ==
-        null) {
+    if (await SecureStorageRepository().read(key: SecureStorageKeys.kAes256Key) == null) {
       throw AssertionError('Aes256Key is not found');
     }
   }

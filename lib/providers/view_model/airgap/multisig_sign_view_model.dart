@@ -27,9 +27,8 @@ class MultisigSignViewModel extends ChangeNotifier {
   String get firstRecipientAddress => _signProvider.recipientAddress != null
       ? _signProvider.recipientAddress!
       : _signProvider.recipientAmounts!.keys.first;
-  int get recipientCount => _signProvider.recipientAddress != null
-      ? 1
-      : _signProvider.recipientAmounts!.length;
+  int get recipientCount =>
+      _signProvider.recipientAddress != null ? 1 : _signProvider.recipientAmounts!.length;
   int get sendingAmount => _signProvider.sendingAmount!;
   int get remainingSignatures =>
       _vaultListItem.requiredSignatureCount -
@@ -61,14 +60,12 @@ class MultisigSignViewModel extends ChangeNotifier {
 
   Future<void> sign(int index) async {
     try {
-      var secret = await _walletProvider
-          .getSecret(_vaultListItem.signers[index].innerVaultId!);
-      final seed =
-          Seed.fromMnemonic(secret.mnemonic, passphrase: secret.passphrase);
+      var secret = await _walletProvider.getSecret(_vaultListItem.signers[index].innerVaultId!);
+      final seed = Seed.fromMnemonic(secret.mnemonic, passphrase: secret.passphrase);
       _coconutVault.bindSeedToKeyStore(seed);
 
-      _psbtForSigning = _coconutVault.keyStoreList[index]
-          .addSignatureToPsbt(_psbtForSigning, AddressType.p2wsh);
+      _psbtForSigning =
+          _coconutVault.keyStoreList[index].addSignatureToPsbt(_psbtForSigning, AddressType.p2wsh);
     } finally {
       // unbind
       _coconutVault.keyStoreList[index].seed = null;

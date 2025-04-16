@@ -53,12 +53,10 @@ class MultisigQuorumSelectionScreen extends StatefulWidget {
   const MultisigQuorumSelectionScreen({super.key});
 
   @override
-  State<MultisigQuorumSelectionScreen> createState() =>
-      _MultisigQuorumSelectionScreenState();
+  State<MultisigQuorumSelectionScreen> createState() => _MultisigQuorumSelectionScreenState();
 }
 
-class _MultisigQuorumSelectionScreenState
-    extends State<MultisigQuorumSelectionScreen> {
+class _MultisigQuorumSelectionScreenState extends State<MultisigQuorumSelectionScreen> {
   late MultisigQuorumSelectionViewModel _viewModel;
 
   bool _mounted = true; // didChangeDependencies
@@ -83,8 +81,7 @@ class _MultisigQuorumSelectionScreenState
             ),
             body: SingleChildScrollView(
               child: Padding(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 16.0, vertical: 32),
+                padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 32),
                 child: Column(
                   children: [
                     const SizedBox(height: 30),
@@ -100,10 +97,10 @@ class _MultisigQuorumSelectionScreenState
                         ),
                         const SizedBox(width: 8),
                         CountingRowButton(
-                          onMinusPressed: () => viewModel.onCountButtonClicked(
-                              ChangeCountButtonType.nCountMinus),
-                          onPlusPressed: () => viewModel.onCountButtonClicked(
-                              ChangeCountButtonType.nCountPlus),
+                          onMinusPressed: () =>
+                              viewModel.onCountButtonClicked(ChangeCountButtonType.nCountMinus),
+                          onPlusPressed: () =>
+                              viewModel.onCountButtonClicked(ChangeCountButtonType.nCountPlus),
                           countText: viewModel.totalCount.toString(),
                           isMinusButtonDisabled: viewModel.totalCount <= 2,
                           isPlusButtonDisabled: viewModel.totalCount >= 3,
@@ -119,22 +116,20 @@ class _MultisigQuorumSelectionScreenState
                         Expanded(
                           child: Center(
                             child: Text(
-                              t.select_multisig_quorum_screen
-                                  .required_signature_count,
+                              t.select_multisig_quorum_screen.required_signature_count,
                               style: Styles.body2Bold,
                             ),
                           ),
                         ),
                         const SizedBox(width: 8),
                         CountingRowButton(
-                          onMinusPressed: () => viewModel.onCountButtonClicked(
-                              ChangeCountButtonType.mCountMinus),
-                          onPlusPressed: () => viewModel.onCountButtonClicked(
-                              ChangeCountButtonType.mCountPlus),
+                          onMinusPressed: () =>
+                              viewModel.onCountButtonClicked(ChangeCountButtonType.mCountMinus),
+                          onPlusPressed: () =>
+                              viewModel.onCountButtonClicked(ChangeCountButtonType.mCountPlus),
                           countText: viewModel.requiredCount.toString(),
                           isMinusButtonDisabled: viewModel.requiredCount <= 1,
-                          isPlusButtonDisabled:
-                              viewModel.requiredCount == viewModel.totalCount,
+                          isPlusButtonDisabled: viewModel.requiredCount == viewModel.totalCount,
                         ),
                         const SizedBox(
                           width: 18,
@@ -159,10 +154,9 @@ class _MultisigQuorumSelectionScreenState
                       child: Text(
                         viewModel.buildQuorumMessage(),
                         style: Styles.unit.merge(TextStyle(
-                            height:
-                                viewModel.requiredCount == viewModel.totalCount
-                                    ? 32.4 / 18
-                                    : 23.4 / 18,
+                            height: viewModel.requiredCount == viewModel.totalCount
+                                ? 32.4 / 18
+                                : 23.4 / 18,
                             letterSpacing: -0.01,
                             fontSize: 14)),
                         textAlign: TextAlign.center,

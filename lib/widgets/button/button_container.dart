@@ -14,7 +14,6 @@ class ButtonContainer extends StatelessWidget {
           color: MyColors.transparentBlack_06,
         ),
         child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
-            child: child));
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24), child: child));
   }
 }

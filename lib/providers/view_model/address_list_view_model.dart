@@ -33,8 +33,7 @@ class AddressListViewModel extends ChangeNotifier {
   List<WalletAddress> get receivingAddressList => _receivingAddressList;
   List<WalletAddress> get changeAddressList => _changeAddressList;
 
-  List<WalletAddress> _getAddressList(
-      int startIndex, int count, bool isChange) {
+  List<WalletAddress> _getAddressList(int startIndex, int count, bool isChange) {
     List<WalletAddress> result = [];
     for (int i = startIndex; i < startIndex + count; i++) {
       result.add(_generateAddress(_coconutVault, i, isChange));
@@ -46,8 +45,7 @@ class AddressListViewModel extends ChangeNotifier {
   /// 단일 주소 생성
   WalletAddress _generateAddress(WalletBase wallet, int index, bool isChange) {
     String address = wallet.getAddress(index, isChange: isChange);
-    String derivationPath =
-        '${wallet.derivationPath}${isChange ? '/1' : '/0'}/$index';
+    String derivationPath = '${wallet.derivationPath}${isChange ? '/1' : '/0'}/$index';
 
     return WalletAddress(
       address,
@@ -59,9 +57,7 @@ class AddressListViewModel extends ChangeNotifier {
   void nextLoad() {
     final newAddresses = _getAddressList(
         kAddressFetchCount +
-            (_isReceivingSelected
-                    ? _receivingAddressPage
-                    : _changeAddressPage) *
+            (_isReceivingSelected ? _receivingAddressPage : _changeAddressPage) *
                 kAddressFetchCount,
         kAddressFetchCount,
         !_isReceivingSelected);

@@ -74,8 +74,7 @@ class ToastWidget extends StatefulWidget {
   State<StatefulWidget> createState() => _ToastWidgetState();
 }
 
-class _ToastWidgetState extends State<ToastWidget>
-    with SingleTickerProviderStateMixin {
+class _ToastWidgetState extends State<ToastWidget> with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<Offset> _offsetAnimation;
   late Animation<double> _fadeAnimation;
@@ -84,11 +83,9 @@ class _ToastWidgetState extends State<ToastWidget>
   void initState() {
     super.initState();
 
-    _controller = AnimationController(
-        duration: const Duration(milliseconds: 300), vsync: this);
+    _controller = AnimationController(duration: const Duration(milliseconds: 300), vsync: this);
 
-    _offsetAnimation = Tween<Offset>(
-            begin: Offset.zero, end: const Offset(0.0, -1.0))
+    _offsetAnimation = Tween<Offset>(begin: Offset.zero, end: const Offset(0.0, -1.0))
         .animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut));
 
     _fadeAnimation = Tween<double>(
@@ -135,29 +132,24 @@ class _ToastWidgetState extends State<ToastWidget>
                 width: MediaQuery.of(context).size.width,
                 color: Colors.transparent,
                 child: Container(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 16, vertical: 16),
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
                     width: MediaQuery.of(context).size.width - 24,
                     decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(12.0),
                         color: widget.backgroundColor,
-                        border:
-                            Border.all(color: MyColors.borderGrey, width: 0.5)),
-                    child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          if (widget.visibleIcon)
-                            Padding(
-                                padding: const EdgeInsets.only(right: 4),
-                                child: SvgPicture.asset(widget.svgIconPath,
-                                    width: 14,
-                                    colorFilter: ColorFilter.mode(
-                                        widget.iconColor, BlendMode.srcIn))),
-                          Expanded(
-                              child: Text(widget.text,
-                                  style: Styles.caption.merge(const TextStyle(
-                                      color: MyColors.white, height: 1.2))))
-                        ])),
+                        border: Border.all(color: MyColors.borderGrey, width: 0.5)),
+                    child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                      if (widget.visibleIcon)
+                        Padding(
+                            padding: const EdgeInsets.only(right: 4),
+                            child: SvgPicture.asset(widget.svgIconPath,
+                                width: 14,
+                                colorFilter: ColorFilter.mode(widget.iconColor, BlendMode.srcIn))),
+                      Expanded(
+                          child: Text(widget.text,
+                              style: Styles.caption
+                                  .merge(const TextStyle(color: MyColors.white, height: 1.2))))
+                    ])),
               ))),
     );
   }

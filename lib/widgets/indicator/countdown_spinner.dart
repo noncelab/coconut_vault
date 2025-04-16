@@ -15,8 +15,7 @@ class CountdownSpinner extends StatefulWidget {
   State<CountdownSpinner> createState() => _CountdownSpinnerState();
 }
 
-class _CountdownSpinnerState extends State<CountdownSpinner>
-    with SingleTickerProviderStateMixin {
+class _CountdownSpinnerState extends State<CountdownSpinner> with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late int _currentSeconds;
 

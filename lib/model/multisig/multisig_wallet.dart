@@ -19,8 +19,8 @@ class MultisigWallet {
   @JsonKey(name: "requiredSignatureCount")
   int? requiredSignatureCount;
 
-  MultisigWallet(this.id, this.name, this.icon, this.color, this.signers,
-      this.requiredSignatureCount);
+  MultisigWallet(
+      this.id, this.name, this.icon, this.color, this.signers, this.requiredSignatureCount);
 
   Map<String, dynamic> toJson() => _$MultisigWalletToJson(this);
 
@@ -28,8 +28,7 @@ class MultisigWallet {
     return _$MultisigWalletFromJson(json);
   }
 
-  static List<Map<String, dynamic>>? _customSignersToJson(
-      List<MultisigSigner>? signers) {
+  static List<Map<String, dynamic>>? _customSignersToJson(List<MultisigSigner>? signers) {
     if (signers == null) return null;
     return signers.map((signer) => signer.toJson()).toList();
   }

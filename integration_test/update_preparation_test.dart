@@ -66,8 +66,7 @@ void main() {
       // vault list screen to update preparation screen
       await showUpdatePreparationScreen(tester);
 
-      final updatePreparationProvider =
-          Provider.of<AppUpdatePreparationViewModel>(
+      final updatePreparationProvider = Provider.of<AppUpdatePreparationViewModel>(
         tester.element(find.text(t.settings_screen.prepare_update)),
         listen: false,
       );
@@ -93,8 +92,8 @@ void main() {
         final Finder titleText = find.text(title);
         expect(titleText, findsOneWidget);
 
-        await tester.enterText(textInput,
-            vaultMnemonicList[updatePreparationProvider.mnemonicWordIndex - 1]);
+        await tester.enterText(
+            textInput, vaultMnemonicList[updatePreparationProvider.mnemonicWordIndex - 1]);
         await tester.pumpAndSettle();
       }
 
@@ -117,11 +116,9 @@ void main() {
       expect(walletProvider.vaultList.length, 0);
 
       // 암복호화
-      final savedPath =
-          await UpdatePreparation.encryptAndSave(data: backupData);
+      final savedPath = await UpdatePreparation.encryptAndSave(data: backupData);
       expect(savedPath, isNotEmpty);
-      expect(() async => await UpdatePreparation.validatePreparationState(),
-          returnsNormally);
+      expect(() async => await UpdatePreparation.validatePreparationState(), returnsNormally);
       final decryptedData = await UpdatePreparation.readAndDecrypt();
       expect(decryptedData, backupData);
 
@@ -138,14 +135,12 @@ Future<void> skipScreensUntilVaultList(WidgetTester tester) async {
 
   // Wait for and tap the skip button on tutorial screen
   final Finder skipButton = find.widgetWithText(TextButton, t.skip);
-  await waitForWidget(tester, skipButton,
-      timeoutMessage: 'Skip button not found after 10 seconds');
+  await waitForWidget(tester, skipButton, timeoutMessage: 'Skip button not found after 10 seconds');
   await tester.tap(skipButton);
   await tester.pumpAndSettle();
 
   // Wait for and tap the understood button on welcome screen
-  final Finder understoodButton =
-      find.widgetWithText(CupertinoButton, t.welcome_screen.understood);
+  final Finder understoodButton = find.widgetWithText(CupertinoButton, t.welcome_screen.understood);
   await waitForWidget(tester, understoodButton,
       timeoutMessage: 'Understood button not found after 10 seconds');
   await tester.tap(understoodButton);
@@ -171,14 +166,11 @@ Future<void> showUpdatePreparationScreen(WidgetTester tester) async {
 
   // Click settings text on drop down menu (VaultList to SettingScreen)
   final Finder settingButtonOnDropdownMenu = find.text(t.settings);
-  await waitForWidgetAndTap(
-      tester, settingButtonOnDropdownMenu, "settingButtonOnDropdownMenu");
+  await waitForWidgetAndTap(tester, settingButtonOnDropdownMenu, "settingButtonOnDropdownMenu");
 
   // Click prepare_update text on menu
-  final Finder updatePreparationText =
-      find.text(t.settings_screen.prepare_update);
-  await waitForWidgetAndTap(
-      tester, updatePreparationText, "updatePreparationText");
+  final Finder updatePreparationText = find.text(t.settings_screen.prepare_update);
+  await waitForWidgetAndTap(tester, updatePreparationText, "updatePreparationText");
 
   // Input Password 0000
   final Finder zeroButton = find.text('0');
@@ -192,8 +184,7 @@ Future<void> showUpdatePreparationScreen(WidgetTester tester) async {
   await waitForWidgetAndTap(tester, confirmText, "confirmText");
 }
 
-Future<int> addSingleSigWallets(
-    WalletProvider walletProvider, WidgetTester tester) async {
+Future<int> addSingleSigWallets(WalletProvider walletProvider, WidgetTester tester) async {
   final singleSig2 = SinglesigWallet(
     2,
     "New Wallet3",
@@ -217,8 +208,7 @@ Future<int> addSingleSigWallets(
   return 2;
 }
 
-Future<int> addWallets(
-    WalletProvider walletProvider, WidgetTester tester) async {
+Future<int> addWallets(WalletProvider walletProvider, WidgetTester tester) async {
   // single sig wallet
   final singleSig = SinglesigWallet(
     1,

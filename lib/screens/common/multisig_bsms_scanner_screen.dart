@@ -31,8 +31,7 @@ class MultisigBsmsScannerScreen extends StatefulWidget {
   });
 
   @override
-  State<MultisigBsmsScannerScreen> createState() =>
-      _MultisigBsmsScannerScreenState();
+  State<MultisigBsmsScannerScreen> createState() => _MultisigBsmsScannerScreenState();
 }
 
 class _MultisigBsmsScannerScreenState extends State<MultisigBsmsScannerScreen> {
@@ -120,9 +119,7 @@ class _MultisigBsmsScannerScreenState extends State<MultisigBsmsScannerScreen> {
             onQRViewCreated: !_isSetScaffold
                 ? _onQRViewCreatedWhenScanSigner
                 : _onQRViewCreatedWhenScanCoordinator,
-            overlayMargin: !_isSetScaffold
-                ? const EdgeInsets.only(top: 50)
-                : EdgeInsets.zero,
+            overlayMargin: !_isSetScaffold ? const EdgeInsets.only(top: 50) : EdgeInsets.zero,
             overlay: QrScannerOverlayShape(
                 borderColor: MyColors.white,
                 borderRadius: 8,
@@ -155,8 +152,7 @@ class _MultisigBsmsScannerScreenState extends State<MultisigBsmsScannerScreen> {
           child: Container(
             width: MediaQuery.of(context).size.width,
             height: MediaQuery.of(context).size.height,
-            decoration:
-                const BoxDecoration(color: MyColors.transparentBlack_30),
+            decoration: const BoxDecoration(color: MyColors.transparentBlack_30),
             child: const Center(
               child: CircularProgressIndicator(
                 color: MyColors.darkgrey,
@@ -239,9 +235,7 @@ class _MultisigBsmsScannerScreenState extends State<MultisigBsmsScannerScreen> {
         return;
       }
 
-      if (_walletProvider
-              .findMultisigWalletByCoordinatorBsms(coordinatorBsms) !=
-          null) {
+      if (_walletProvider.findMultisigWalletByCoordinatorBsms(coordinatorBsms) != null) {
         onFailedScanning(t.errors.duplicate_multisig_registered_error);
         return;
       }
@@ -252,8 +246,7 @@ class _MultisigBsmsScannerScreenState extends State<MultisigBsmsScannerScreen> {
         assert(_walletProvider.isAddVaultCompleted);
 
         //Logger.log('---> Homeroute = ${HomeScreenStatus().screenStatus}');
-        Navigator.pushNamedAndRemoveUntil(
-            context, '/', (Route<dynamic> route) => false,
+        Navigator.pushNamedAndRemoveUntil(context, '/', (Route<dynamic> route) => false,
             arguments: VaultListNavArgs(isWalletAdded: true));
       } catch (e) {
         if (e is NotRelatedMultisigWalletException) {

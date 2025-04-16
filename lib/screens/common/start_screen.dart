@@ -25,8 +25,7 @@ class _StartScreenState extends State<StartScreen> {
   @override
   void initState() {
     super.initState();
-    _viewModel = StartViewModel(
-        Provider.of<ConnectivityProvider>(context, listen: false),
+    _viewModel = StartViewModel(Provider.of<ConnectivityProvider>(context, listen: false),
         Provider.of<VisibilityProvider>(context, listen: false).hasSeenGuide);
 
     WidgetsBinding.instance.addPostFrameCallback((_) async {

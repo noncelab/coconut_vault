@@ -87,15 +87,13 @@ class _SyncToWalletScreenState extends State<SyncToWalletScreen> {
               const SizedBox(height: 32),
               GestureDetector(
                 child: Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(4.0),
                     color: MyColors.borderGrey,
                   ),
                   child: Text(t.sync_to_wallet_screen.view_detail,
-                      style: Styles.caption
-                          .merge(const TextStyle(color: MyColors.white))),
+                      style: Styles.caption.merge(const TextStyle(color: MyColors.white))),
                 ),
                 onTap: () {
                   MyBottomSheet.showBottomSheet_90(

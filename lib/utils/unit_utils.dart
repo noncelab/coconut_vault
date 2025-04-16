@@ -15,8 +15,7 @@ String satoshiToBitcoinString(int satoshi) {
   if (toBitcoin % 1 == 0) {
     bitcoinString = toBitcoin.toInt().toString();
   } else {
-    bitcoinString =
-        toBitcoin.toStringAsFixed(8); // Ensure it has 8 decimal places
+    bitcoinString = toBitcoin.toStringAsFixed(8); // Ensure it has 8 decimal places
   }
 
   // Split the integer and decimal parts
@@ -24,14 +23,11 @@ String satoshiToBitcoinString(int satoshi) {
   String integerPart = parts[0];
   String decimalPart = parts.length > 1 ? parts[1] : '';
 
-  final integerPartFormatted =
-      addCommasToIntegerPart(double.parse(integerPart));
+  final integerPartFormatted = addCommasToIntegerPart(double.parse(integerPart));
 
   // Group the decimal part into blocks of 4 digits
-  final decimalPartGrouped = RegExp(r'.{1,4}')
-      .allMatches(decimalPart)
-      .map((match) => match.group(0))
-      .join(' ');
+  final decimalPartGrouped =
+      RegExp(r'.{1,4}').allMatches(decimalPart).map((match) => match.group(0)).join(' ');
 
   if (integerPartFormatted == '0' && decimalPartGrouped == '') {
     return '0';
@@ -49,8 +45,7 @@ String addCommasToIntegerPart(double number) {
 
   // 세 자리마다 콤마 추가
   RegExp regex = RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))');
-  integerPart =
-      integerPart.replaceAllMapped(regex, (Match match) => '${match[1]},');
+  integerPart = integerPart.replaceAllMapped(regex, (Match match) => '${match[1]},');
 
   return integerPart;
 }

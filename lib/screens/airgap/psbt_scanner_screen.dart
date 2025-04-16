@@ -37,10 +37,8 @@ class _PsbtScannerScreenState extends State<PsbtScannerScreen> {
 
   @override
   void initState() {
-    _viewModel = PsbtScannerViewModel(
-        Provider.of<WalletProvider>(context, listen: false),
-        Provider.of<SignProvider>(context, listen: false),
-        widget.id);
+    _viewModel = PsbtScannerViewModel(Provider.of<WalletProvider>(context, listen: false),
+        Provider.of<SignProvider>(context, listen: false), widget.id);
 
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) async {
@@ -91,8 +89,8 @@ class _PsbtScannerScreenState extends State<PsbtScannerScreen> {
         Navigator.pushReplacementNamed(context, AppRoutes.psbtConfirmation,
             arguments: {'id': widget.id});
       } else if (Platform.isIOS) {
-        Navigator.pushNamed(context, AppRoutes.psbtConfirmation,
-            arguments: {'id': widget.id}).then((o) {
+        Navigator.pushNamed(context, AppRoutes.psbtConfirmation, arguments: {'id': widget.id})
+            .then((o) {
           // 뒤로가기로 다시 돌아왔을 때
           _isProcessing = false;
           controller?.resumeCamera();

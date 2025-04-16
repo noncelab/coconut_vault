@@ -47,8 +47,7 @@ class AddressCard extends StatelessWidget {
               ),
               child: Text(
                 index,
-                style: Styles.caption
-                    .merge(const TextStyle(color: MyColors.white)),
+                style: Styles.caption.merge(const TextStyle(color: MyColors.white)),
               ),
             ),
             Column(

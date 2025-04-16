@@ -10,12 +10,10 @@ class AppUnavailableNotificationScreen extends StatefulWidget {
   const AppUnavailableNotificationScreen({super.key});
 
   @override
-  State<AppUnavailableNotificationScreen> createState() =>
-      _AppUnavailableNotificationScreenState();
+  State<AppUnavailableNotificationScreen> createState() => _AppUnavailableNotificationScreenState();
 }
 
-class _AppUnavailableNotificationScreenState
-    extends State<AppUnavailableNotificationScreen> {
+class _AppUnavailableNotificationScreenState extends State<AppUnavailableNotificationScreen> {
   bool isAndroid = Platform.isAndroid ? true : false;
 
   @override
@@ -25,16 +23,14 @@ class _AppUnavailableNotificationScreenState
       body: SafeArea(
         child: Center(
           child: Column(
-            mainAxisAlignment:
-                MainAxisAlignment.center, // Centers the content vertically
+            mainAxisAlignment: MainAxisAlignment.center, // Centers the content vertically
             children: [
               SvgPicture.asset(
                 'assets/svg/coconut-security.svg',
                 width: 80,
               ),
               const SizedBox(height: 20),
-              Text(t.app_unavailable_notification_screen.network_on,
-                  style: Styles.body2Bold),
+              Text(t.app_unavailable_notification_screen.network_on, style: Styles.body2Bold),
               const SizedBox(height: 20),
               Container(
                   padding: const EdgeInsets.symmetric(vertical: 32),
@@ -53,15 +49,13 @@ class _AppUnavailableNotificationScreenState
                   child: Column(
                     children: [
                       const Text('1', style: Styles.subLabel),
-                      Text(t.app_unavailable_notification_screen.text1_1,
-                          style: Styles.subLabel),
+                      Text(t.app_unavailable_notification_screen.text1_1, style: Styles.subLabel),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Text(t.app_unavailable_notification_screen.text1_2,
                               style: Styles.subLabel),
-                          HighLightedText(
-                              t.app_unavailable_notification_screen.text1_3,
+                          HighLightedText(t.app_unavailable_notification_screen.text1_3,
                               color: MyColors.darkgrey),
                           Text(t.app_unavailable_notification_screen.text1_4,
                               style: Styles.subLabel),
@@ -69,8 +63,7 @@ class _AppUnavailableNotificationScreenState
                       ),
                       const SizedBox(height: 24),
                       const Text('2', style: Styles.subLabel),
-                      HighLightedText(
-                          t.app_unavailable_notification_screen.text2,
+                      HighLightedText(t.app_unavailable_notification_screen.text2,
                           color: MyColors.darkgrey),
                       Text(t.app_unavailable_notification_screen.check_status,
                           style: Styles.subLabel),
@@ -78,8 +71,7 @@ class _AppUnavailableNotificationScreenState
                       if (isAndroid) ...[
                         // Android only: iOS는 개발자 모드 on/off 확인 불가
                         const Text('3', style: Styles.subLabel),
-                        HighLightedText(
-                            t.app_unavailable_notification_screen.text3,
+                        HighLightedText(t.app_unavailable_notification_screen.text3,
                             color: MyColors.darkgrey),
                         Text(t.app_unavailable_notification_screen.check_status,
                             style: Styles.subLabel),

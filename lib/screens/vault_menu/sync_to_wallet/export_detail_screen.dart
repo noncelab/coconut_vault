@@ -58,8 +58,7 @@ class _ExportDetailScreen extends State<ExportDetailScreen> {
                 children: [
                   ShrinkAnimationButton(
                     onPressed: () {
-                      Clipboard.setData(
-                              ClipboardData(text: widget.exportDetail))
+                      Clipboard.setData(ClipboardData(text: widget.exportDetail))
                           .then((value) => null);
                       _showToast();
                     },
@@ -79,11 +78,9 @@ class _ExportDetailScreen extends State<ExportDetailScreen> {
                             child: Column(
                               children: [
                                 Padding(
-                                  padding:
-                                      const EdgeInsets.only(top: 7, right: 6),
+                                  padding: const EdgeInsets.only(top: 7, right: 6),
                                   child: Text(widget.exportDetail,
-                                      style: Styles.body1,
-                                      textAlign: TextAlign.start),
+                                      style: Styles.body1, textAlign: TextAlign.start),
                                 ),
                               ],
                             ),

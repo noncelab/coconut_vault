@@ -13,8 +13,7 @@ import 'package:fluttertoast/fluttertoast.dart';
 class RestorationInfoScreen extends StatefulWidget {
   final Function onComplete;
   final Function onReset;
-  const RestorationInfoScreen(
-      {super.key, required this.onComplete, required this.onReset});
+  const RestorationInfoScreen({super.key, required this.onComplete, required this.onReset});
 
   @override
   State<RestorationInfoScreen> createState() => _RestorationInfoScreenState();
@@ -75,10 +74,8 @@ class _RestorationInfoScreenState extends State<RestorationInfoScreen> {
                         child: CustomLoadingOverlay(
                           child: ClipRRect(
                             borderRadius: const BorderRadius.only(
-                              topLeft:
-                                  Radius.circular(CoconutStyles.radius_200),
-                              topRight:
-                                  Radius.circular(CoconutStyles.radius_200),
+                              topLeft: Radius.circular(CoconutStyles.radius_200),
+                              topRight: Radius.circular(CoconutStyles.radius_200),
                             ),
                             child: PinCheckScreen(
                               pinCheckContext: PinCheckContextEnum.restoration,

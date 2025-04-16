@@ -14,8 +14,7 @@ class SignedTransactionQrScreen extends StatefulWidget {
   });
 
   @override
-  State<SignedTransactionQrScreen> createState() =>
-      _SignedTransactionQrScreenState();
+  State<SignedTransactionQrScreen> createState() => _SignedTransactionQrScreenState();
 }
 
 class _SignedTransactionQrScreenState extends State<SignedTransactionQrScreen> {
@@ -36,8 +35,7 @@ class _SignedTransactionQrScreenState extends State<SignedTransactionQrScreen> {
           context: context,
           onNextPressed: () {
             _signProvider.resetAll();
-            Navigator.pushNamedAndRemoveUntil(
-                context, '/', (Route<dynamic> route) => false);
+            Navigator.pushNamedAndRemoveUntil(context, '/', (Route<dynamic> route) => false);
           },
           buttonName: t.complete),
       body: SafeArea(
@@ -65,8 +63,8 @@ class _SignedTransactionQrScreenState extends State<SignedTransactionQrScreen> {
                         TextSpan(
                           text: _signProvider.isMultisig!
                               ? t.signed_transaction_qr_screen.guide_multisig
-                              : t.signed_transaction_qr_screen.guide_single_sig(
-                                  name: _signProvider.walletName!),
+                              : t.signed_transaction_qr_screen
+                                  .guide_single_sig(name: _signProvider.walletName!),
                           style: const TextStyle(
                             fontWeight: FontWeight.normal,
                           ),
@@ -84,8 +82,7 @@ class _SignedTransactionQrScreenState extends State<SignedTransactionQrScreen> {
                   padding: const EdgeInsets.all(10),
                   decoration: BoxDecorations.shadowBoxDecoration,
                   child: AnimatedQrView(
-                    data: AnimatedQRDataHandler.splitData(
-                        _signProvider.signedPsbtBase64!),
+                    data: AnimatedQRDataHandler.splitData(_signProvider.signedPsbtBase64!),
                     size: MediaQuery.of(context).size.width * 0.8,
                   ),
                 ),

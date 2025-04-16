@@ -6,10 +6,7 @@ class CoconutDropdown extends StatefulWidget {
   final Function onTapButton;
   final int dividerIndex;
   const CoconutDropdown(
-      {super.key,
-      required this.buttons,
-      required this.onTapButton,
-      this.dividerIndex = 0});
+      {super.key, required this.buttons, required this.onTapButton, this.dividerIndex = 0});
 
   @override
   State<CoconutDropdown> createState() => _CoconutDropdownState();
@@ -50,10 +47,7 @@ class _CoconutDropdownState extends State<CoconutDropdown> {
           return _button(
             widget.buttons[index],
             index,
-            dividerHeight:
-                widget.dividerIndex > 0 && widget.dividerIndex == index + 1
-                    ? 5
-                    : 1,
+            dividerHeight: widget.dividerIndex > 0 && widget.dividerIndex == index + 1 ? 5 : 1,
             isFirst: index == 0,
             isLast: index == widget.buttons.length - 1,
           );
@@ -90,15 +84,12 @@ class _CoconutDropdownState extends State<CoconutDropdown> {
             decoration: BoxDecoration(
               borderRadius: isFirst
                   ? const BorderRadius.only(
-                      topLeft: Radius.circular(16),
-                      topRight: Radius.circular(16))
+                      topLeft: Radius.circular(16), topRight: Radius.circular(16))
                   : isLast
                       ? const BorderRadius.only(
-                          bottomLeft: Radius.circular(16),
-                          bottomRight: Radius.circular(16))
+                          bottomLeft: Radius.circular(16), bottomRight: Radius.circular(16))
                       : null,
-              color:
-                  _selectedIndex == index ? MyColors.lightgrey : MyColors.white,
+              color: _selectedIndex == index ? MyColors.lightgrey : MyColors.white,
             ),
             child: Text(
               title,
@@ -112,8 +103,7 @@ class _CoconutDropdownState extends State<CoconutDropdown> {
             ),
           ),
         ),
-        if (!isLast)
-          Container(height: dividerHeight, color: MyColors.dropdownGrey),
+        if (!isLast) Container(height: dividerHeight, color: MyColors.dropdownGrey),
       ],
     );
   }

@@ -49,8 +49,7 @@ class _FixedBottomButtonState extends State<FixedBottomButton> {
                 ignoring: true,
                 child: Container(
                   padding: widget.gradientPadding ??
-                      const EdgeInsets.only(
-                          left: 16, right: 16, bottom: 40, top: 150),
+                      const EdgeInsets.only(left: 16, right: 16, bottom: 40, top: 150),
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
                       begin: Alignment.topCenter,
@@ -68,8 +67,7 @@ class _FixedBottomButtonState extends State<FixedBottomButton> {
           Positioned(
             left: widget.horizontalPadding,
             right: widget.horizontalPadding,
-            bottom:
-                MediaQuery.of(context).viewInsets.bottom + widget.bottomPadding,
+            bottom: MediaQuery.of(context).viewInsets.bottom + widget.bottomPadding,
             child: Column(
               children: [
                 widget.subWidget ?? Container(),

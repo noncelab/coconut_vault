@@ -5,8 +5,7 @@ class BottomFloatingButton extends StatelessWidget {
   final VoidCallback onPressed;
   final String text;
 
-  const BottomFloatingButton(
-      {super.key, required this.onPressed, required this.text});
+  const BottomFloatingButton({super.key, required this.onPressed, required this.text});
 
   @override
   Widget build(BuildContext context) {

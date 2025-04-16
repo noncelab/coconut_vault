@@ -26,8 +26,7 @@ class _PsbtConfirmationScreenState extends State<PsbtConfirmationScreen> {
   @override
   void initState() {
     super.initState();
-    _viewModel = PsbtConfirmationViewModel(
-        Provider.of<SignProvider>(context, listen: false));
+    _viewModel = PsbtConfirmationViewModel(Provider.of<SignProvider>(context, listen: false));
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       try {
@@ -55,8 +54,7 @@ class _PsbtConfirmationScreenState extends State<PsbtConfirmationScreen> {
   Widget build(BuildContext context) {
     return ChangeNotifierProvider<PsbtConfirmationViewModel>(
       create: (_) => _viewModel,
-      child: Consumer<PsbtConfirmationViewModel>(
-          builder: (context, viewModel, child) {
+      child: Consumer<PsbtConfirmationViewModel>(builder: (context, viewModel, child) {
         return Scaffold(
           backgroundColor: MyColors.white,
           appBar: CustomAppBar.buildWithNext(
@@ -66,9 +64,7 @@ class _PsbtConfirmationScreenState extends State<PsbtConfirmationScreen> {
             onNextPressed: () {
               Navigator.pushNamed(
                 context,
-                viewModel.isMultisig
-                    ? AppRoutes.multisigSign
-                    : AppRoutes.singleSigSign,
+                viewModel.isMultisig ? AppRoutes.multisigSign : AppRoutes.singleSigSign,
               );
             },
             onBackPressed: () {
@@ -115,8 +111,7 @@ class _PsbtConfirmationScreenState extends State<PsbtConfirmationScreen> {
                           child: Text.rich(
                             TextSpan(
                               text: viewModel.sendingAmount != null
-                                  ? satoshiToBitcoinString(
-                                      viewModel.sendingAmount!)
+                                  ? satoshiToBitcoinString(viewModel.sendingAmount!)
                                   : '',
                               children: <TextSpan>[
                                 TextSpan(text: ' ${t.btc}', style: Styles.unit),
@@ -206,8 +201,7 @@ class _PsbtConfirmationScreenState extends State<PsbtConfirmationScreen> {
                   child: Container(
                     width: MediaQuery.of(context).size.width,
                     height: MediaQuery.of(context).size.height,
-                    decoration: const BoxDecoration(
-                        color: MyColors.transparentBlack_30),
+                    decoration: const BoxDecoration(color: MyColors.transparentBlack_30),
                     child: const Center(
                       child: CircularProgressIndicator(
                         color: MyColors.darkgrey,

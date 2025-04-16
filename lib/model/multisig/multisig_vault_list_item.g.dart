@@ -6,8 +6,7 @@ part of 'multisig_vault_list_item.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-MultisigVaultListItem _$MultisigVaultListItemFromJson(
-        Map<String, dynamic> json) =>
+MultisigVaultListItem _$MultisigVaultListItemFromJson(Map<String, dynamic> json) =>
     MultisigVaultListItem(
       id: (json['id'] as num).toInt(),
       name: json['name'] as String,
@@ -20,8 +19,7 @@ MultisigVaultListItem _$MultisigVaultListItemFromJson(
       coordinatorBsms: json['coordinatorBsms'] as String?,
     )..vaultType = $enumDecode(_$WalletTypeEnumMap, json['vaultType']);
 
-Map<String, dynamic> _$MultisigVaultListItemToJson(
-    MultisigVaultListItem instance) {
+Map<String, dynamic> _$MultisigVaultListItemToJson(MultisigVaultListItem instance) {
   final val = <String, dynamic>{
     'id': instance.id,
     'name': instance.name,

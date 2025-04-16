@@ -22,12 +22,10 @@ class MnemonicConfirmationBottomSheet extends StatefulWidget {
       this.topMessage});
 
   @override
-  State<MnemonicConfirmationBottomSheet> createState() =>
-      _MnemonicConfirmationBottomSheetState();
+  State<MnemonicConfirmationBottomSheet> createState() => _MnemonicConfirmationBottomSheetState();
 }
 
-class _MnemonicConfirmationBottomSheetState
-    extends State<MnemonicConfirmationBottomSheet> {
+class _MnemonicConfirmationBottomSheetState extends State<MnemonicConfirmationBottomSheet> {
   final ScrollController _scrollController = ScrollController();
   bool _isBottom = false;
 
@@ -39,8 +37,7 @@ class _MnemonicConfirmationBottomSheetState
     if (widget.passphrase == null) _isBottom = true;
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (widget.passphrase != null) {
-        if (_scrollController.position.pixels >
-            _scrollController.position.maxScrollExtent - 300) {
+        if (_scrollController.position.pixels > _scrollController.position.maxScrollExtent - 300) {
           setState(() {
             _isBottom = true;
           });
@@ -58,8 +55,7 @@ class _MnemonicConfirmationBottomSheetState
   }
 
   void _scrollListener() {
-    if (_scrollController.position.pixels >
-        _scrollController.position.maxScrollExtent - 30) {
+    if (_scrollController.position.pixels > _scrollController.position.maxScrollExtent - 30) {
       setState(() {
         _isBottom = true;
       });
@@ -88,11 +84,10 @@ class _MnemonicConfirmationBottomSheetState
                     children: [
                       Text(t.passphrase, style: Styles.body2Bold),
                       Text(
-                        t.mnemonic_confirm_screen
-                            .passphrase_character_total_count(
-                                count: widget.passphrase != null
-                                    ? widget.passphrase!.length.toString()
-                                    : '0'),
+                        t.mnemonic_confirm_screen.passphrase_character_total_count(
+                            count: widget.passphrase != null
+                                ? widget.passphrase!.length.toString()
+                                : '0'),
                         style: TextStyle(
                           fontFamily: CustomFonts.text.getFontFamily,
                           fontSize: 13.0,
@@ -178,9 +173,8 @@ class _MnemonicConfirmationBottomSheetState
           physics: const NeverScrollableScrollPhysics(),
           gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
             crossAxisCount: 3, // Number of columns
-            childAspectRatio: MediaQuery.of(context).size.height > 640
-                ? 2.7
-                : 2, // Aspect ratio for grid items
+            childAspectRatio:
+                MediaQuery.of(context).size.height > 640 ? 2.7 : 2, // Aspect ratio for grid items
             crossAxisSpacing: 0, // Space between columns
             mainAxisSpacing: 1, // Space between rows
           ),
@@ -189,26 +183,20 @@ class _MnemonicConfirmationBottomSheetState
             if (index % 3 == 0) gridviewColumnFlag = !gridviewColumnFlag;
             BorderRadius borderRadius = BorderRadius.zero;
             if (index == 0) {
-              borderRadius =
-                  const BorderRadius.only(topLeft: Radius.circular(8));
+              borderRadius = const BorderRadius.only(topLeft: Radius.circular(8));
             } else if (index == 2) {
-              borderRadius =
-                  const BorderRadius.only(topRight: Radius.circular(8));
+              borderRadius = const BorderRadius.only(topRight: Radius.circular(8));
             } else if (mnemonicWords.length == 12 && index == 9 ||
                 mnemonicWords.length == 24 && index == 21) {
-              borderRadius =
-                  const BorderRadius.only(bottomLeft: Radius.circular(8));
+              borderRadius = const BorderRadius.only(bottomLeft: Radius.circular(8));
             } else if (mnemonicWords.length == 12 && index == 11 ||
                 mnemonicWords.length == 24 && index == 23) {
-              borderRadius =
-                  const BorderRadius.only(bottomRight: Radius.circular(8));
+              borderRadius = const BorderRadius.only(bottomRight: Radius.circular(8));
             }
 
             return Container(
               decoration: BoxDecoration(
-                color: gridviewColumnFlag
-                    ? MyColors.lightgrey
-                    : MyColors.transparentBlack_06,
+                color: gridviewColumnFlag ? MyColors.lightgrey : MyColors.transparentBlack_06,
                 borderRadius: borderRadius,
               ),
               alignment: Alignment.center,
@@ -261,9 +249,7 @@ class _MnemonicConfirmationBottomSheetState
           const SizedBox(width: 10),
           Expanded(
             child: CupertinoButton(
-              onPressed: _isBottom
-                  ? widget.onConfirmPressed
-                  : (widget.onInactivePressed ?? () {}),
+              onPressed: _isBottom ? widget.onConfirmPressed : (widget.onInactivePressed ?? () {}),
               padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 4),
               color: MyColors.darkgrey,
               alignment: Alignment.center,
@@ -315,9 +301,7 @@ class _MnemonicConfirmationBottomSheetState
                     child: Text(
                       '${index + 1}',
                       style: const TextStyle(
-                          color: MyColors.borderGrey,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 6),
+                          color: MyColors.borderGrey, fontWeight: FontWeight.bold, fontSize: 6),
                     ),
                   ),
                 ),

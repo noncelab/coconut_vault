@@ -47,8 +47,7 @@ class GradientCircularProgressPainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     size = Size.fromRadius(radius);
     double offset = strokeWidth / 2;
-    Rect rect = Offset(offset, offset) &
-        Size(size.width - strokeWidth, size.height - strokeWidth);
+    Rect rect = Offset(offset, offset) & Size(size.width - strokeWidth, size.height - strokeWidth);
 
     const startAngle = -pi / 2;
     final sweepAngle = 2 * pi * progress;

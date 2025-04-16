@@ -23,8 +23,7 @@ class MnemonicGenerationScreen extends StatefulWidget {
   const MnemonicGenerationScreen({super.key});
 
   @override
-  State<MnemonicGenerationScreen> createState() =>
-      _MnemonicGenerationScreenState();
+  State<MnemonicGenerationScreen> createState() => _MnemonicGenerationScreenState();
 }
 
 class _MnemonicGenerationScreenState extends State<MnemonicGenerationScreen> {
@@ -59,8 +58,7 @@ class _MnemonicGenerationScreenState extends State<MnemonicGenerationScreen> {
 
   void _onFinished(String mnemonicWords, String passphrase, bool finished) {
     setState(() {
-      _mnemonicWords =
-          mnemonicWords.trim().toLowerCase().replaceAll(RegExp(r'\s+'), ' ');
+      _mnemonicWords = mnemonicWords.trim().toLowerCase().replaceAll(RegExp(r'\s+'), ' ');
       _passphrase = passphrase;
     });
   }
@@ -92,10 +90,8 @@ class _MnemonicGenerationScreenState extends State<MnemonicGenerationScreen> {
         onConfirmPressed: () {
           Provider.of<WalletCreationProvider>(context, listen: false)
               .setSecretAndPassphrase(_mnemonicWords, _passphrase);
-          Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(
-                  builder: (context) => const VaultNameAndIconSetupScreen()));
+          Navigator.pushReplacement(context,
+              MaterialPageRoute(builder: (context) => const VaultNameAndIconSetupScreen()));
         },
         onInactivePressed: () {
           CustomToast.showToast(context: context, text: t.toast.scroll_down);
@@ -111,21 +107,17 @@ class _MnemonicGenerationScreenState extends State<MnemonicGenerationScreen> {
   void initState() {
     super.initState();
     Provider.of<WalletCreationProvider>(context, listen: false).resetAll();
-    _totalStep = Provider.of<VisibilityProvider>(context, listen: false)
-            .isPassphraseUseEnabled
-        ? 2
-        : 1;
+    _totalStep =
+        Provider.of<VisibilityProvider>(context, listen: false).isPassphraseUseEnabled ? 2 : 1;
   }
 
   @override
   Widget build(BuildContext context) {
     final List<Widget> screens = [
       WordsLengthSelection(
-          onSelected: _onLengthSelected,
-          onShowStopDialog: _showStopGeneratingMnemonicDialog),
+          onSelected: _onLengthSelected, onShowStopDialog: _showStopGeneratingMnemonicDialog),
       PassphraseSelection(
-          onSelected: _onPassphraseSelected,
-          onShowStopDialog: _showStopGeneratingMnemonicDialog),
+          onSelected: _onPassphraseSelected, onShowStopDialog: _showStopGeneratingMnemonicDialog),
       MnemonicWords(
         wordsCount: _selectedWordsCount,
         usePassphrase: _usePassphrase,
@@ -178,8 +170,7 @@ class _WordsLengthSelectionState extends State<WordsLengthSelection> {
         padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 32),
         child: Column(
           children: [
-            Text(t.mnemonic_generate_screen.select_word_length,
-                style: Styles.body1Bold),
+            Text(t.mnemonic_generate_screen.select_word_length, style: Styles.body1Bold),
             const SizedBox(height: 20),
             Row(
               children: [
@@ -243,8 +234,7 @@ class _PassphraseSelectionState extends State<PassphraseSelection> {
         padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 32),
         child: Column(
           children: [
-            Text(t.mnemonic_generate_screen.use_passphrase,
-                style: Styles.body1Bold),
+            Text(t.mnemonic_generate_screen.use_passphrase, style: Styles.body1Bold),
             const SizedBox(height: 20),
             Row(
               children: [
@@ -329,8 +319,7 @@ class _MnemonicWordsState extends State<MnemonicWords> {
   @override
   void initState() {
     super.initState();
-    _walletCreationProvider =
-        Provider.of<WalletCreationProvider>(context, listen: false);
+    _walletCreationProvider = Provider.of<WalletCreationProvider>(context, listen: false);
     stepCount = widget.usePassphrase ? 2 : 1;
     _generateMnemonicPhrase();
   }
@@ -357,8 +346,7 @@ class _MnemonicWordsState extends State<MnemonicWords> {
                 Padding(
                   padding: const EdgeInsets.only(top: 20.0, bottom: 12),
                   child: Selector<VisibilityProvider, bool>(
-                      selector: (context, model) =>
-                          model.isPassphraseUseEnabled,
+                      selector: (context, model) => model.isPassphraseUseEnabled,
                       builder: (context, isAdvancedUser, _) {
                         return Row(
                           mainAxisAlignment: MainAxisAlignment.center,
@@ -372,15 +360,12 @@ class _MnemonicWordsState extends State<MnemonicWords> {
                             Text(isAdvancedUser ? ', ${t.passphrase} ' : ''),
                             isAdvancedUser
                                 ? widget.usePassphrase
-                                    ? HighLightedText(
-                                        t.mnemonic_generate_screen.use,
+                                    ? HighLightedText(t.mnemonic_generate_screen.use,
                                         color: MyColors.darkgrey)
                                     : Row(
                                         children: [
-                                          Text(
-                                              '${t.mnemonic_generate_screen.use} '),
-                                          HighLightedText(
-                                              t.mnemonic_generate_screen.do_not,
+                                          Text('${t.mnemonic_generate_screen.use} '),
+                                          HighLightedText(t.mnemonic_generate_screen.do_not,
                                               color: MyColors.darkgrey),
                                         ],
                                       )
@@ -389,12 +374,10 @@ class _MnemonicWordsState extends State<MnemonicWords> {
                                 onTap: widget.onReset,
                                 child: Container(
                                     margin: const EdgeInsets.only(left: 8),
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 8, vertical: 4),
+                                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                                     decoration: BoxDecoration(
                                         borderRadius: BorderRadius.circular(8),
-                                        border: Border.all(
-                                            color: MyColors.borderGrey)),
+                                        border: Border.all(color: MyColors.borderGrey)),
                                     child: Text(
                                       t.re_select,
                                       style: Styles.caption,
@@ -466,20 +449,16 @@ class _MnemonicWordsState extends State<MnemonicWords> {
                                 GridView.builder(
                                   shrinkWrap: true,
                                   physics: const NeverScrollableScrollPhysics(),
-                                  gridDelegate:
-                                      SliverGridDelegateWithFixedCrossAxisCount(
+                                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                                     crossAxisCount: 3, // Number of columns
-                                    childAspectRatio:
-                                        MediaQuery.of(context).size.height > 640
-                                            ? 2.5
-                                            : 2, // Aspect ratio for grid items
-                                    crossAxisSpacing:
-                                        0, // Space between columns
+                                    childAspectRatio: MediaQuery.of(context).size.height > 640
+                                        ? 2.5
+                                        : 2, // Aspect ratio for grid items
+                                    crossAxisSpacing: 0, // Space between columns
                                     mainAxisSpacing: 0, // Space between rows
                                   ),
                                   itemCount: mnemonic.split(' ').length,
-                                  itemBuilder:
-                                      (BuildContext context, int index) {
+                                  itemBuilder: (BuildContext context, int index) {
                                     if (index % 3 == 0) {
                                       gridviewColumnFlag = !gridviewColumnFlag;
                                     }
@@ -487,16 +466,14 @@ class _MnemonicWordsState extends State<MnemonicWords> {
                                     return Container(
                                       alignment: Alignment.center,
                                       child: Column(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.center,
+                                        mainAxisAlignment: MainAxisAlignment.center,
                                         mainAxisSize: MainAxisSize.min,
                                         children: [
                                           Text(
                                             (index + 1).toString(),
                                             style: Styles.body2.merge(
                                               TextStyle(
-                                                fontFamily: CustomFonts
-                                                    .number.getFontFamily,
+                                                fontFamily: CustomFonts.number.getFontFamily,
                                                 color: MyColors.darkgrey,
                                                 fontSize: 12,
                                               ),
@@ -528,16 +505,14 @@ class _MnemonicWordsState extends State<MnemonicWords> {
                                   child: SizedBox(
                                     child: CustomTextField(
                                       controller: _passphraseController,
-                                      placeholder: t.mnemonic_generate_screen
-                                          .enter_passphrase,
+                                      placeholder: t.mnemonic_generate_screen.enter_passphrase,
                                       onChanged: (text) {
                                         setState(() {
                                           passphrase = text;
                                         });
 
                                         if (!widget.usePassphrase) {
-                                          widget.onFinished(
-                                              mnemonic, text, false);
+                                          widget.onFinished(mnemonic, text, false);
                                         }
                                       },
                                       maxLines: 1,
@@ -545,8 +520,7 @@ class _MnemonicWordsState extends State<MnemonicWords> {
                                       suffix: CupertinoButton(
                                         onPressed: () {
                                           setState(() {
-                                            passphraseObscured =
-                                                !passphraseObscured;
+                                            passphraseObscured = !passphraseObscured;
                                           });
                                         },
                                         child: passphraseObscured
@@ -566,8 +540,7 @@ class _MnemonicWordsState extends State<MnemonicWords> {
                                   ),
                                 ),
                                 Padding(
-                                  padding:
-                                      const EdgeInsets.only(top: 4, right: 4),
+                                  padding: const EdgeInsets.only(top: 4, right: 4),
                                   child: Align(
                                     alignment: Alignment.topRight,
                                     child: Text(
@@ -577,17 +550,14 @@ class _MnemonicWordsState extends State<MnemonicWords> {
                                               ? MyColors.transparentBlack
                                               : MyColors.transparentBlack_50,
                                           fontSize: 12,
-                                          fontFamily:
-                                              CustomFonts.text.getFontFamily),
+                                          fontFamily: CustomFonts.text.getFontFamily),
                                     ),
                                   ),
                                 )
                               ],
                             ),
                           )),
-                if (step == 0)
-                  Text(t.mnemonic_generate_screen.backup_guide,
-                      style: Styles.warning),
+                if (step == 0) Text(t.mnemonic_generate_screen.backup_guide, style: Styles.warning),
                 if (step == 0 && stepCount == 2)
                   CompleteButton(
                       onPressed: () {
@@ -609,8 +579,7 @@ class _MnemonicWordsState extends State<MnemonicWords> {
                 if (!widget.usePassphrase)
                   CompleteButton(
                       onPressed: () {
-                        _walletCreationProvider.setSecretAndPassphrase(
-                            mnemonic, passphrase);
+                        _walletCreationProvider.setSecretAndPassphrase(mnemonic, passphrase);
                         widget.onFinished(mnemonic, passphrase, true);
 
                         widget.onShowConfirmBottomSheet();
@@ -621,8 +590,7 @@ class _MnemonicWordsState extends State<MnemonicWords> {
                   CompleteButton(
                       onPressed: () {
                         if (passphrase.isNotEmpty) {
-                          _walletCreationProvider.setSecretAndPassphrase(
-                              mnemonic, passphrase);
+                          _walletCreationProvider.setSecretAndPassphrase(mnemonic, passphrase);
                           widget.onFinished(mnemonic, passphrase, true);
                           widget.onShowConfirmBottomSheet();
                         } else {

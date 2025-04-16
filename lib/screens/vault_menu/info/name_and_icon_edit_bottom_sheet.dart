@@ -20,12 +20,10 @@ class NameAndIconEditBottomSheet extends StatefulWidget {
   });
 
   @override
-  State<NameAndIconEditBottomSheet> createState() =>
-      _NameAndIconEditBottomSheetState();
+  State<NameAndIconEditBottomSheet> createState() => _NameAndIconEditBottomSheetState();
 }
 
-class _NameAndIconEditBottomSheetState
-    extends State<NameAndIconEditBottomSheet> {
+class _NameAndIconEditBottomSheetState extends State<NameAndIconEditBottomSheet> {
   late String _name;
   late int _iconIndex;
   late int _colorIndex;
@@ -67,8 +65,7 @@ class _NameAndIconEditBottomSheetState
                 ),
                 actions: [
                   Padding(
-                    padding: const EdgeInsets.symmetric(
-                        vertical: 10, horizontal: 16.0),
+                    padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 16.0),
                     child: GestureDetector(
                       onTap: () async {
                         if (_name.trim().isEmpty) return;
@@ -84,8 +81,8 @@ class _NameAndIconEditBottomSheetState
 
                           context.loaderOverlay.hide();
                         }
-                        widget.onUpdate(_name.isEmpty ? widget.name : _name,
-                            _iconIndex, _colorIndex);
+                        widget.onUpdate(
+                            _name.isEmpty ? widget.name : _name, _iconIndex, _colorIndex);
                         Navigator.of(context).pop();
                       },
                       child: Container(
@@ -97,9 +94,7 @@ class _NameAndIconEditBottomSheetState
                                 ? Colors.transparent
                                 : MyColors.transparentBlack_06,
                           ),
-                          color: _name.trim().isNotEmpty
-                              ? MyColors.darkgrey
-                              : MyColors.lightgrey,
+                          color: _name.trim().isNotEmpty ? MyColors.darkgrey : MyColors.lightgrey,
                         ),
                         child: Center(
                           child: Text(t.complete,
@@ -116,8 +111,7 @@ class _NameAndIconEditBottomSheetState
               ),
               body: SafeArea(
                 child: NestedScrollView(
-                  headerSliverBuilder:
-                      (BuildContext context, bool innerBoxIsScrolled) {
+                  headerSliverBuilder: (BuildContext context, bool innerBoxIsScrolled) {
                     return [];
                   },
                   body: Container(

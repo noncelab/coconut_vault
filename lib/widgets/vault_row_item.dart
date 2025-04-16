@@ -106,17 +106,14 @@ class _VaultRowItemState extends State<VaultRowItem> {
             onPressed: () {
               MyBottomSheet.showBottomSheet(
                 context: context,
-                title:
-                    TextUtils.ellipsisIfLonger(widget.vault.name), // overflow
-                child: VaultMenuBottomSheet(
-                    id: widget.vault.id, isMultiSig: _isMultiSig),
+                title: TextUtils.ellipsisIfLonger(widget.vault.name), // overflow
+                child: VaultMenuBottomSheet(id: widget.vault.id, isMultiSig: _isMultiSig),
               );
             },
             child: _vaultContainerWidget());
 
     return ShakeWidget(
-      key: ValueKey(
-          '${widget.vault.name}_$_subtitleText'), // _subTitle 이 바뀌면 Shake 재시작
+      key: ValueKey('${widget.vault.name}_$_subtitleText'), // _subTitle 이 바뀌면 Shake 재시작
       curve: Curves.easeInOut,
       deltaX: 5,
       child: Column(
@@ -138,9 +135,8 @@ class _VaultRowItemState extends State<VaultRowItem> {
         decoration: BoxDecoration(
           color: isPressing ? MyColors.lightgrey : MyColors.white,
           borderRadius: BorderRadius.circular(28),
-          border: widget.isPressed
-              ? Border.all(color: MyColors.transparentBlack_30, width: 2)
-              : null,
+          border:
+              widget.isPressed ? Border.all(color: MyColors.transparentBlack_30, width: 2) : null,
           boxShadow: widget.isSelectable
               ? [
                   const BoxShadow(
@@ -161,10 +157,9 @@ class _VaultRowItemState extends State<VaultRowItem> {
                 color: BackgroundColorPalette[widget.vault.colorIndex],
                 borderRadius: BorderRadius.circular(16.0),
               ),
-              child: SvgPicture.asset(
-                  CustomIcons.getPathByIndex(widget.vault.iconIndex),
-                  colorFilter: ColorFilter.mode(
-                      ColorPalette[widget.vault.colorIndex], BlendMode.srcIn),
+              child: SvgPicture.asset(CustomIcons.getPathByIndex(widget.vault.iconIndex),
+                  colorFilter:
+                      ColorFilter.mode(ColorPalette[widget.vault.colorIndex], BlendMode.srcIn),
                   width: 20.0)),
           const SizedBox(width: 8.0),
           // 2) 이름
@@ -209,9 +204,7 @@ class _VaultRowItemState extends State<VaultRowItem> {
           if (!widget.isSelectable)
             // 3) 오른쪽 화살표
             SvgPicture.asset('assets/svg/arrow-right.svg',
-                width: 24,
-                colorFilter:
-                    const ColorFilter.mode(MyColors.darkgrey, BlendMode.srcIn))
+                width: 24, colorFilter: const ColorFilter.mode(MyColors.darkgrey, BlendMode.srcIn))
         ]));
   }
 }

@@ -25,9 +25,7 @@ class StartViewModel extends ChangeNotifier {
   bool get hasSeenGuide => _hasSeenGuide;
 
   bool _isWalletExistent() {
-    return (SharedPrefsRepository().getInt(SharedPrefsKeys.vaultListLength) ??
-            0) >
-        0;
+    return (SharedPrefsRepository().getInt(SharedPrefsKeys.vaultListLength) ?? 0) > 0;
   }
 
   void updateConnectivityState() {
@@ -43,9 +41,7 @@ class StartViewModel extends ChangeNotifier {
     final isBluetoothOn = _connectivityProvider.isBluetoothOn;
     final isDeveloperModeOn = _connectivityProvider.isDeveloperModeOn;
 
-    if (isNetworkOn == null ||
-        isBluetoothOn == null ||
-        isDeveloperModeOn == null) return null;
+    if (isNetworkOn == null || isBluetoothOn == null || isDeveloperModeOn == null) return null;
 
     if (Platform.isAndroid) {
       return isNetworkOn || isBluetoothOn || isDeveloperModeOn;
@@ -60,8 +56,7 @@ class StartViewModel extends ChangeNotifier {
       return AppEntryFlow.pinCheck;
     }
 
-    final isRestorationPrepared =
-        await UpdatePreparation.isRestorationPrepared();
+    final isRestorationPrepared = await UpdatePreparation.isRestorationPrepared();
     // 복원파일 유무를 확인합니다.
     if (isRestorationPrepared) {
       // 복원파일 있음

@@ -43,8 +43,7 @@ class CustomAppBar {
         title: titleWidget,
         centerTitle: true,
         backgroundColor: backgroundColor,
-        titleTextStyle:
-            Styles.navHeader.merge(const TextStyle(color: MyColors.black)),
+        titleTextStyle: Styles.navHeader.merge(const TextStyle(color: MyColors.black)),
         toolbarTextStyle: Styles.appbarTitle,
         leading: Navigator.canPop(context)
             ? IconButton(
@@ -98,8 +97,7 @@ class CustomAppBar {
         title: Text(title),
         centerTitle: true,
         backgroundColor: backgroundColor,
-        titleTextStyle:
-            Styles.navHeader.merge(const TextStyle(color: MyColors.black)),
+        titleTextStyle: Styles.navHeader.merge(const TextStyle(color: MyColors.black)),
         toolbarTextStyle: Styles.appbarTitle,
         leading: Navigator.canPop(context)
             ? IconButton(
@@ -125,9 +123,7 @@ class CustomAppBar {
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(14.0),
                   border: Border.all(
-                      color: isActive
-                          ? Colors.transparent
-                          : MyColors.transparentBlack_06),
+                      color: isActive ? Colors.transparent : MyColors.transparentBlack_06),
                   color: isActive ? MyColors.darkgrey : MyColors.lightgrey,
                 ),
                 child: Center(
@@ -135,11 +131,8 @@ class CustomAppBar {
                     buttonName,
                     style: Styles.label2.merge(
                       TextStyle(
-                        color: isActive
-                            ? Colors.white
-                            : MyColors.transparentBlack_30,
-                        fontWeight:
-                            isActive ? FontWeight.bold : FontWeight.normal,
+                        color: isActive ? Colors.white : MyColors.transparentBlack_30,
+                        fontWeight: isActive ? FontWeight.bold : FontWeight.normal,
                       ),
                     ),
                   ),
@@ -172,8 +165,7 @@ class CustomAppBar {
         ),
         centerTitle: true,
         backgroundColor: MyColors.white,
-        titleTextStyle:
-            Styles.navHeader.merge(const TextStyle(color: MyColors.black)),
+        titleTextStyle: Styles.navHeader.merge(const TextStyle(color: MyColors.black)),
         toolbarTextStyle: Styles.appbarTitle,
         leading: Navigator.canPop(context)
             ? IconButton(
@@ -195,18 +187,13 @@ class CustomAppBar {
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(16.0),
                         border: Border.all(
-                            color: isActive
-                                ? Colors.transparent
-                                : MyColors.transparentBlack_06),
-                        color:
-                            isActive ? MyColors.darkgrey : MyColors.lightgrey,
+                            color: isActive ? Colors.transparent : MyColors.transparentBlack_06),
+                        color: isActive ? MyColors.darkgrey : MyColors.lightgrey,
                       ),
                       child: Center(
                           child: Text('저장',
                               style: Styles.subLabel.merge(TextStyle(
-                                  color: isActive
-                                      ? Colors.white
-                                      : MyColors.transparentBlack_30,
+                                  color: isActive ? Colors.white : MyColors.transparentBlack_30,
                                   fontSize: 11)))))))
         ],
         flexibleSpace: ClipRect(
@@ -231,8 +218,7 @@ class CustomAppBar {
       centerTitle: true,
       backgroundColor: backgroundColor ?? Colors.transparent,
       title: Text(title),
-      titleTextStyle:
-          Styles.navHeader.merge(const TextStyle(color: MyColors.black)),
+      titleTextStyle: Styles.navHeader.merge(const TextStyle(color: MyColors.black)),
       toolbarTextStyle: Styles.appbarTitle,
       leading: IconButton(
         onPressed: onBackPressed ??
@@ -256,24 +242,17 @@ class CustomAppBar {
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(16.0),
                   border: Border.all(
-                      color: isNextButtonActive
-                          ? Colors.transparent
-                          : MyColors.transparentBlack_06),
-                  color: isNextButtonActive
-                      ? MyColors.darkgrey
-                      : MyColors.lightgrey,
+                      color:
+                          isNextButtonActive ? Colors.transparent : MyColors.transparentBlack_06),
+                  color: isNextButtonActive ? MyColors.darkgrey : MyColors.lightgrey,
                 ),
                 child: Center(
                   child: Text(
                     nextButtonText,
                     style: Styles.label2.merge(
                       TextStyle(
-                        color: isNextButtonActive
-                            ? Colors.white
-                            : MyColors.transparentBlack_30,
-                        fontWeight: isNextButtonActive
-                            ? FontWeight.bold
-                            : FontWeight.normal,
+                        color: isNextButtonActive ? Colors.white : MyColors.transparentBlack_30,
+                        fontWeight: isNextButtonActive ? FontWeight.bold : FontWeight.normal,
                       ),
                     ),
                   ),

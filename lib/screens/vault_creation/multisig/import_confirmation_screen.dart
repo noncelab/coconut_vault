@@ -17,8 +17,7 @@ class ImportConfirmationScreen extends StatefulWidget {
   final ScrollController scrollController;
 
   @override
-  State<ImportConfirmationScreen> createState() =>
-      _ImportConfirmationScreenState();
+  State<ImportConfirmationScreen> createState() => _ImportConfirmationScreenState();
 }
 
 class _ImportConfirmationScreenState extends State<ImportConfirmationScreen>
@@ -79,8 +78,7 @@ class _ImportConfirmationScreenState extends State<ImportConfirmationScreen>
       onTap: () => _closeKeyboard(),
       child: AnimatedPadding(
         duration: const Duration(milliseconds: 30),
-        padding: EdgeInsets.only(
-            top: 20, bottom: MediaQuery.of(context).viewInsets.bottom),
+        padding: EdgeInsets.only(top: 20, bottom: MediaQuery.of(context).viewInsets.bottom),
         child: Container(
           color: MyColors.white,
           child: Column(
@@ -139,8 +137,7 @@ class _ImportConfirmationScreenState extends State<ImportConfirmationScreen>
                       ),
                     ),
                     const SizedBox(height: 14),
-                    SignerBsmsInfoCard(
-                        bsms: Bsms.parseSigner(widget.importingBsms)),
+                    SignerBsmsInfoCard(bsms: Bsms.parseSigner(widget.importingBsms)),
                     const SizedBox(height: 36),
                     Text(
                       t.confirm_importing_screen.memo,
@@ -187,10 +184,9 @@ class _ImportConfirmationScreenState extends State<ImportConfirmationScreen>
                             child: Text(
                               '${_controller.text.length} / $kMaxTextLength',
                               style: TextStyle(
-                                  color:
-                                      _controller.text.length == kMaxTextLength
-                                          ? MyColors.transparentBlack
-                                          : MyColors.transparentBlack_50,
+                                  color: _controller.text.length == kMaxTextLength
+                                      ? MyColors.transparentBlack
+                                      : MyColors.transparentBlack_50,
                                   fontSize: 12,
                                   fontFamily: CustomFonts.text.getFontFamily),
                             ),
@@ -201,10 +197,8 @@ class _ImportConfirmationScreenState extends State<ImportConfirmationScreen>
                     const SizedBox(height: 40),
                     CompleteButton(
                       onPressed: () {
-                        Navigator.pop(context, {
-                          'bsms': widget.importingBsms,
-                          'memo': _controller.text
-                        });
+                        Navigator.pop(
+                            context, {'bsms': widget.importingBsms, 'memo': _controller.text});
                       },
                       label: t.complete,
                       disabled: false,

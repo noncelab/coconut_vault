@@ -66,8 +66,7 @@ Future<String> addSignatureToPsbtIsolate(
   return signedPsbt;
 }
 
-Future<bool> canSignToPsbtIsolate(
-    List<dynamic> dataList, void Function(dynamic)? replyTo) async {
+Future<bool> canSignToPsbtIsolate(List<dynamic> dataList, void Function(dynamic)? replyTo) async {
   NetworkType.setNetworkType(NetworkType.regtest);
 
   String psbtBase64 = dataList[1] as String;
@@ -86,8 +85,7 @@ Future<bool> canSignToPsbtIsolate(
   Logger.log(
       '--> psbtR: ${psbtObj.inputs[0].requiredSignature} psbtT: ${psbtObj.inputs[0].derivationPathList.length}');
   if (multisigWallet.requiredSignature != psbtObj.inputs[0].requiredSignature ||
-      multisigWallet.keyStoreList.length !=
-          psbtObj.inputs[0].derivationPathList.length) {
+      multisigWallet.keyStoreList.length != psbtObj.inputs[0].derivationPathList.length) {
     return false;
   }
 
@@ -103,8 +101,7 @@ Future<List<String>> extractSignerBsmsIsolate(
   List<String> bsmses = [];
 
   for (int i = 0; i < vaultList.length; i++) {
-    SingleSigVaultListItem vaultListItem =
-        vaultList[i] as SingleSigVaultListItem;
+    SingleSigVaultListItem vaultListItem = vaultList[i] as SingleSigVaultListItem;
     if (vaultListItem.signerBsms != null) {
       bsmses.add(vaultListItem.signerBsms!);
     }
@@ -128,9 +125,9 @@ Future<MultisignatureVault> fromKeyStoreIsolate(
     keyStores.add(KeyStore.fromJson(keyStore));
   }
 
-  MultisignatureVault multiSignatureVault =
-      MultisignatureVault.fromKeyStoreList(keyStores, requiredSignatureCount,
-          addressType: AddressType.p2wsh);
+  MultisignatureVault multiSignatureVault = MultisignatureVault.fromKeyStoreList(
+      keyStores, requiredSignatureCount,
+      addressType: AddressType.p2wsh);
 
   if (replyTo != null) {
     replyTo(multiSignatureVault);
@@ -138,8 +135,8 @@ Future<MultisignatureVault> fromKeyStoreIsolate(
   return multiSignatureVault;
 }
 
-Future<VaultListItemBase> initializeWallet(Map<String, dynamic> data,
-    void Function(dynamic)? setVaultListLoadingProgress) async {
+Future<VaultListItemBase> initializeWallet(
+    Map<String, dynamic> data, void Function(dynamic)? setVaultListLoadingProgress) async {
   NetworkType.setNetworkType(NetworkType.regtest);
   String? vaultType = data[VaultListItemBase.vaultTypeField];
 

@@ -59,30 +59,22 @@ class _GuideScreenState extends State<GuideScreen> {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Text(t.guide_screen.network_status,
-                                style: Styles.body2Bold),
+                            Text(t.guide_screen.network_status, style: Styles.body2Bold),
                             const SizedBox(width: 40),
-                            provider.isNetworkOn != null &&
-                                    provider.isNetworkOn == true
-                                ? HighLightedText(t.guide_screen.on,
-                                    color: MyColors.warningText)
-                                : Text(t.guide_screen.off,
-                                    style: Styles.subLabel)
+                            provider.isNetworkOn != null && provider.isNetworkOn == true
+                                ? HighLightedText(t.guide_screen.on, color: MyColors.warningText)
+                                : Text(t.guide_screen.off, style: Styles.subLabel)
                           ],
                         ),
                         const SizedBox(height: 12),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Text(t.guide_screen.bluetooth_status,
-                                style: Styles.body2Bold),
+                            Text(t.guide_screen.bluetooth_status, style: Styles.body2Bold),
                             const SizedBox(width: 40),
-                            provider.isBluetoothOn != null &&
-                                    provider.isBluetoothOn == true
-                                ? HighLightedText(t.guide_screen.on,
-                                    color: MyColors.warningText)
-                                : Text(t.guide_screen.off,
-                                    style: Styles.subLabel)
+                            provider.isBluetoothOn != null && provider.isBluetoothOn == true
+                                ? HighLightedText(t.guide_screen.on, color: MyColors.warningText)
+                                : Text(t.guide_screen.off, style: Styles.subLabel)
                           ],
                         ),
                         if (Platform.isAndroid) ...[
@@ -90,45 +82,38 @@ class _GuideScreenState extends State<GuideScreen> {
                           Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              Text(t.guide_screen.developer_option,
-                                  style: Styles.body2Bold),
+                              Text(t.guide_screen.developer_option, style: Styles.body2Bold),
                               const SizedBox(width: 40),
                               provider.isDeveloperModeOn != null &&
                                       provider.isDeveloperModeOn == true
-                                  ? HighLightedText(t.guide_screen.on,
-                                      color: MyColors.warningText)
-                                  : Text(t.guide_screen.off,
-                                      style: Styles.subLabel)
+                                  ? HighLightedText(t.guide_screen.on, color: MyColors.warningText)
+                                  : Text(t.guide_screen.off, style: Styles.subLabel)
                             ],
                           ),
                         ]
                       ],
                     )),
                 const SizedBox(height: 32),
-                if (provider.isNetworkOn == true ||
-                    provider.isBluetoothOn == true)
+                if (provider.isNetworkOn == true || provider.isBluetoothOn == true)
                   Column(
                     children: [
                       Text(t.guide_screen.turn_off_network_and_bluetooth,
-                          style: Styles.body2Bold.merge(
-                              const TextStyle(color: MyColors.warningText))),
+                          style:
+                              Styles.body2Bold.merge(const TextStyle(color: MyColors.warningText))),
                     ],
                   ),
                 if (provider.isDeveloperModeOn == true && Platform.isAndroid)
                   Text(t.guide_screen.disable_developer_option,
-                      style: Styles.body2Bold
-                          .merge(const TextStyle(color: MyColors.warningText))),
+                      style: Styles.body2Bold.merge(const TextStyle(color: MyColors.warningText))),
                 const SizedBox(
                   height: 40,
                 ),
                 GestureDetector(
                     onTap: provider.isNetworkOn == false &&
                             provider.isBluetoothOn == false &&
-                            (!Platform.isAndroid ||
-                                provider.isDeveloperModeOn == false)
+                            (!Platform.isAndroid || provider.isDeveloperModeOn == false)
                         ? () async {
-                            await Provider.of<VisibilityProvider>(context,
-                                    listen: false)
+                            await Provider.of<VisibilityProvider>(context, listen: false)
                                 .setHasSeenGuide();
                             widget.onComplete();
                             Navigator.pushNamedAndRemoveUntil(
@@ -139,20 +124,17 @@ class _GuideScreenState extends State<GuideScreen> {
                           }
                         : null,
                     child: Container(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 24, vertical: 12),
+                        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
                         decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(14),
                             color: provider.isNetworkOn == false &&
                                     provider.isBluetoothOn == false &&
-                                    (!Platform.isAndroid ||
-                                        provider.isDeveloperModeOn == false)
+                                    (!Platform.isAndroid || provider.isDeveloperModeOn == false)
                                 ? MyColors.black
                                 : MyColors.transparentBlack_06),
                         child: Text(
                           t.start,
-                          style: Styles.label
-                              .merge(const TextStyle(color: MyColors.white)),
+                          style: Styles.label.merge(const TextStyle(color: MyColors.white)),
                         ))),
                 const SizedBox(
                   height: 60,

@@ -38,8 +38,7 @@ class _QrcodeBottomSheetState extends State<QrcodeBottomSheet> {
             qrData: widget.qrData,
             qrcodeTopWidget: widget.qrcodeTopWidget,
           )
-        : QRCodeInfo(
-            qrData: widget.qrData, qrcodeTopWidget: widget.qrcodeTopWidget);
+        : QRCodeInfo(qrData: widget.qrData, qrcodeTopWidget: widget.qrcodeTopWidget);
   }
 
   @override
@@ -48,8 +47,7 @@ class _QrcodeBottomSheetState extends State<QrcodeBottomSheet> {
       borderRadius: MyBorder.defaultRadius,
       child: Scaffold(
         backgroundColor: MyColors.white,
-        appBar: CustomAppBar.buildWithClose(
-            title: widget.title ?? '', context: context),
+        appBar: CustomAppBar.buildWithClose(title: widget.title ?? '', context: context),
         body: SafeArea(
           child: SingleChildScrollView(
             child: Container(

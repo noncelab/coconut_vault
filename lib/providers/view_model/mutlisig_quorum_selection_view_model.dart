@@ -24,8 +24,7 @@ class MultisigQuorumSelectionViewModel extends ChangeNotifier {
   int get buttonClickedCount => _buttonClickedCount;
   bool get isProgressAnimationVisible => _isProgressAnimationVisible;
   bool get isQuorumSettingValid =>
-      _isNextButtonEnabled &&
-      MultisigUtils.validateQuorumRequirement(_requiredCount, _totalCount);
+      _isNextButtonEnabled && MultisigUtils.validateQuorumRequirement(_requiredCount, _totalCount);
   bool get nextButtonEnabled => _isNextButtonEnabled;
   int get requiredCount => _requiredCount;
   int get totalCount => _totalCount;

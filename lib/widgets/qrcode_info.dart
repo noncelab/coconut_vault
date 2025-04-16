@@ -43,9 +43,7 @@ class _QRCodeInfoState extends State<QRCodeInfo> {
             Stack(
               children: [
                 Container(
-                    width: qrSize,
-                    height: qrSize,
-                    decoration: BoxDecorations.shadowBoxDecoration),
+                    width: qrSize, height: qrSize, decoration: BoxDecorations.shadowBoxDecoration),
                 QrImageView(
                   data: widget.qrData,
                   version: QrVersions.auto,
@@ -58,8 +56,7 @@ class _QRCodeInfoState extends State<QRCodeInfo> {
               defaultColor: MyColors.lightgrey,
               pressedColor: MyColors.grey.withOpacity(0.1),
               onPressed: () {
-                Clipboard.setData(ClipboardData(text: widget.qrData))
-                    .then((value) => null);
+                Clipboard.setData(ClipboardData(text: widget.qrData)).then((value) => null);
                 _showToast();
               },
               child: Container(
@@ -78,8 +75,7 @@ class _QRCodeInfoState extends State<QRCodeInfo> {
                           Padding(
                             padding: const EdgeInsets.only(top: 7, right: 6),
                             child: Text(widget.qrData,
-                                style: Styles.body1,
-                                textAlign: TextAlign.center),
+                                style: Styles.body1, textAlign: TextAlign.center),
                           ),
                         ],
                       ),

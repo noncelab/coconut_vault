@@ -2,13 +2,7 @@ class ChecksumUtil {
   static const String _inputCharset =
       '0123456789()[],\'/*abcdefgh@:\$%{}IJKLMNOPQRSTUVWXYZ&+-.;<=>?!^_|~ijklmnopqrstuvwxyzABCDEFGH`#"\\ ';
   static const _checksumCharset = 'qpzry9x8gf2tvdw0s3jn54khce6mua7l';
-  static final _generator = [
-    0xf5dee51989,
-    0xa9fdca3312,
-    0x1bab10e32d,
-    0x3706b1677a,
-    0x644d626ffd
-  ];
+  static final _generator = [0xf5dee51989, 0xa9fdca3312, 0x1bab10e32d, 0x3706b1677a, 0x644d626ffd];
 
   static int _calculatePolyMod(List<int> symbols) {
     int chk = 1;
@@ -49,17 +43,11 @@ class ChecksumUtil {
     if (s[s.length - 9] != '#') {
       return false;
     }
-    if (!s
-        .substring(s.length - 8)
-        .split('')
-        .every((x) => _checksumCharset.contains(x))) {
+    if (!s.substring(s.length - 8).split('').every((x) => _checksumCharset.contains(x))) {
       return false;
     }
     var symbols = _transformSymbols(s.substring(0, s.length - 9)).toList()
-      ..addAll(s
-          .substring(s.length - 8)
-          .split('')
-          .map((x) => _checksumCharset.indexOf(x)));
+      ..addAll(s.substring(s.length - 8).split('').map((x) => _checksumCharset.indexOf(x)));
     return _calculatePolyMod(symbols) == 1;
   }
 }

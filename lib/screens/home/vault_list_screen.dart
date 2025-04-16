@@ -31,8 +31,7 @@ class VaultListScreen extends StatefulWidget {
   State<VaultListScreen> createState() => _VaultListScreenState();
 }
 
-class _VaultListScreenState extends State<VaultListScreen>
-    with TickerProviderStateMixin {
+class _VaultListScreenState extends State<VaultListScreen> with TickerProviderStateMixin {
   late VaultListViewModel _viewModel;
 
   late int _initialWalletCount;
@@ -106,8 +105,7 @@ class _VaultListScreenState extends State<VaultListScreen>
                   ),
                 ],
               ),
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 24.0, vertical: 28.0),
+              padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 28.0),
               child: Row(
                 children: [
                   // 1) 아이콘 스켈레톤
@@ -173,8 +171,7 @@ class _VaultListScreenState extends State<VaultListScreen>
 
   @override
   Widget build(BuildContext context) {
-    final args =
-        ModalRoute.of(context)?.settings.arguments as VaultListNavArgs?;
+    final args = ModalRoute.of(context)?.settings.arguments as VaultListNavArgs?;
     if (args?.isWalletAdded == true) {
       _shouldAnimateAddition = true;
     }
@@ -199,8 +196,7 @@ class _VaultListScreenState extends State<VaultListScreen>
         },
         child:
             // ConnectivityProvider: 실제로 활용되지 않지만 참조해야, 네트워크/블루투스/개발자모드 연결 시 화면 전환이 됩니다.
-            ChangeNotifierProxyProvider2<AuthProvider, ConnectivityProvider,
-                VaultListViewModel>(
+            ChangeNotifierProxyProvider2<AuthProvider, ConnectivityProvider, VaultListViewModel>(
           create: (_) => _viewModel,
           update: (_, authProvider, connectivityProvider, viewModel) {
             return viewModel!;
@@ -220,15 +216,12 @@ class _VaultListScreenState extends State<VaultListScreen>
                       slivers: <Widget>[
                         FrostedAppBar(
                           onTapPlus: () {
-                            if (viewModel.walletCount == 0 &&
-                                !viewModel.isPinSet) {
+                            if (viewModel.walletCount == 0 && !viewModel.isPinSet) {
                               MyBottomSheet.showBottomSheet_90(
                                   context: context,
-                                  child: const PinSettingScreen(
-                                      greetingVisible: true));
+                                  child: const PinSettingScreen(greetingVisible: true));
                             } else {
-                              Navigator.pushNamed(
-                                  context, AppRoutes.vaultTypeSelection);
+                              Navigator.pushNamed(context, AppRoutes.vaultTypeSelection);
                             }
                           },
                           onTapSeeMore: () {
@@ -240,15 +233,13 @@ class _VaultListScreenState extends State<VaultListScreen>
                         // 바로 추가하기
                         SliverToBoxAdapter(
                           child: Visibility(
-                            visible: viewModel.isWalletsLoaded &&
-                                viewModel.walletCount == 0,
+                            visible: viewModel.isWalletsLoaded && viewModel.walletCount == 0,
                             child: Container(
                               width: double.maxFinite,
                               decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(16),
-                                  color: MyColors.white),
-                              padding: const EdgeInsets.only(
-                                  top: 26, bottom: 24, left: 26, right: 26),
+                                  borderRadius: BorderRadius.circular(16), color: MyColors.white),
+                              padding:
+                                  const EdgeInsets.only(top: 26, bottom: 24, left: 26, right: 26),
                               margin: const EdgeInsets.symmetric(horizontal: 8),
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -267,11 +258,9 @@ class _VaultListScreenState extends State<VaultListScreen>
                                       if (!viewModel.isPinSet) {
                                         MyBottomSheet.showBottomSheet_90(
                                             context: context,
-                                            child: const PinSettingScreen(
-                                                greetingVisible: true));
+                                            child: const PinSettingScreen(greetingVisible: true));
                                       } else {
-                                        Navigator.pushNamed(context,
-                                            AppRoutes.vaultTypeSelection);
+                                        Navigator.pushNamed(context, AppRoutes.vaultTypeSelection);
                                       }
                                     },
                                     borderRadius: BorderRadius.circular(10),
@@ -304,12 +293,10 @@ class _VaultListScreenState extends State<VaultListScreen>
                           sliver: SliverList.builder(
                             itemCount: wallets.isEmpty ? 1 : wallets.length,
                             itemBuilder: (ctx, index) => index < wallets.length
-                                ? _shouldAnimateAddition &&
-                                        index == (wallets.length - 1)
+                                ? _shouldAnimateAddition && index == (wallets.length - 1)
                                     ? SlideTransition(
                                         position: _newVaultAddAnimation,
-                                        child:
-                                            VaultRowItem(vault: wallets[index]),
+                                        child: VaultRowItem(vault: wallets[index]),
                                       )
                                     : VaultRowItem(vault: wallets[index])
                                 : Container(),
@@ -349,28 +336,21 @@ class _VaultListScreenState extends State<VaultListScreen>
                           Align(
                             alignment: Alignment.topRight,
                             child: CoconutDropdown(
-                              buttons: [
-                                t.mnemonic_wordlist,
-                                t.settings,
-                                t.view_app_info
-                              ],
+                              buttons: [t.mnemonic_wordlist, t.settings, t.view_app_info],
                               onTapButton: (index) {
                                 setState(() {
                                   _isSeeMoreDropdown = false;
                                 });
                                 switch (index) {
                                   case 0: // 니모닉 문구 단어집
-                                    Navigator.pushNamed(
-                                        context, AppRoutes.mnemonicWordList);
+                                    Navigator.pushNamed(context, AppRoutes.mnemonicWordList);
                                     break;
                                   case 1: // 설정
                                     MyBottomSheet.showBottomSheet_90(
-                                        context: context,
-                                        child: const SettingsScreen());
+                                        context: context, child: const SettingsScreen());
                                     break;
                                   case 2: // 앱 정보 보기
-                                    Navigator.pushNamed(
-                                        context, AppRoutes.appInfo);
+                                    Navigator.pushNamed(context, AppRoutes.appInfo);
                                     break;
                                 }
                               },

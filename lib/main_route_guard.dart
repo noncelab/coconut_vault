@@ -8,15 +8,13 @@ class MainRouteGuard extends StatefulWidget {
   final Widget child;
   final VoidCallback? onAppGoBackground;
 
-  const MainRouteGuard(
-      {super.key, required this.child, required this.onAppGoBackground});
+  const MainRouteGuard({super.key, required this.child, required this.onAppGoBackground});
 
   @override
   State<MainRouteGuard> createState() => _MainRouteGuardState();
 }
 
-class _MainRouteGuardState extends State<MainRouteGuard>
-    with WidgetsBindingObserver {
+class _MainRouteGuardState extends State<MainRouteGuard> with WidgetsBindingObserver {
   @override
   Widget build(BuildContext context) {
     return widget.child;
@@ -41,8 +39,7 @@ class _MainRouteGuardState extends State<MainRouteGuard>
         context,
         listen: false,
       );
-      final walletCount =
-          SharedPrefsRepository().getInt(SharedPrefsKeys.vaultListLength) ?? 0;
+      final walletCount = SharedPrefsRepository().getInt(SharedPrefsKeys.vaultListLength) ?? 0;
       if (walletCount > 0 && widget.onAppGoBackground != null) {
         vaultModel.dispose();
         widget.onAppGoBackground!();

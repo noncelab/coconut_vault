@@ -84,8 +84,7 @@ class _ShrinkAnimationButtonState extends State<ShrinkAnimationButton>
               color: _isPressed ? widget.pressedColor : widget.defaultColor,
               borderRadius: BorderRadius.circular(widget.borderRadius + 2),
               gradient: widget.borderGradientColors != null
-                  ? BoxDecorations.getMultisigLinearGradient(
-                      widget.borderGradientColors!)
+                  ? BoxDecorations.getMultisigLinearGradient(widget.borderGradientColors!)
                   : null,
             ),
             child: AnimatedContainer(

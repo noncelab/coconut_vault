@@ -37,8 +37,7 @@ class PinCheckScreen extends StatefulWidget {
   State<PinCheckScreen> createState() => _PinCheckScreenState();
 }
 
-class _PinCheckScreenState extends State<PinCheckScreen>
-    with WidgetsBindingObserver {
+class _PinCheckScreenState extends State<PinCheckScreen> with WidgetsBindingObserver {
   late final bool _isAppLaunched;
   late String _pin;
   late String _errorMessage;
@@ -66,8 +65,7 @@ class _PinCheckScreenState extends State<PinCheckScreen>
     _authProvider = Provider.of<AuthProvider>(context, listen: false);
     Future.microtask(() {
       _authProvider.onRequestShowAuthenticationFailedDialog = () {
-        showAuthenticationFailedDialog(
-            context, _authProvider.hasAlreadyRequestedBioPermission);
+        showAuthenticationFailedDialog(context, _authProvider.hasAlreadyRequestedBioPermission);
       };
       _authProvider.onAuthenticationSuccess = _handleAuthenticationSuccess;
     });
@@ -84,8 +82,7 @@ class _PinCheckScreenState extends State<PinCheckScreen>
       if (!_authProvider.isUnlockAvailable()) {
         setState(() {
           _isUnlockDisabled = true;
-          _startCountdownTimerUntil(
-              _authProvider.unlockAvailableAt ?? DateTime.now());
+          _startCountdownTimerUntil(_authProvider.unlockAvailableAt ?? DateTime.now());
         });
       }
     });
@@ -124,8 +121,7 @@ class _PinCheckScreenState extends State<PinCheckScreen>
   }
 
   void _onKeyTap(String value) async {
-    if (_isUnlockDisabled ||
-        _isAppLaunched && _authProvider.isPermanantlyLocked) return;
+    if (_isUnlockDisabled || _isAppLaunched && _authProvider.isPermanantlyLocked) return;
 
     if (value == kBiometricIdentifier) {
       _authProvider.verifyBiometric(context);
@@ -157,8 +153,7 @@ class _PinCheckScreenState extends State<PinCheckScreen>
         break;
       case PinCheckContextEnum.change:
         Navigator.pop(context);
-        MyBottomSheet.showBottomSheet_90(
-            context: context, child: const PinSettingScreen());
+        MyBottomSheet.showBottomSheet_90(context: context, child: const PinSettingScreen());
         break;
       default: // vaultInfo
         widget.onComplete?.call();
@@ -189,10 +184,8 @@ class _PinCheckScreenState extends State<PinCheckScreen>
         setState(() {
           final remainingTimes = _authProvider.remainingAttemptCount;
           _errorMessage = _isLastChanceToTry
-              ? t.errors
-                  .remaining_times_away_from_reset_error(count: remainingTimes)
-              : t.errors.pin_incorrect_with_remaining_attempts_error(
-                  count: remainingTimes);
+              ? t.errors.remaining_times_away_from_reset_error(count: remainingTimes)
+              : t.errors.pin_incorrect_with_remaining_attempts_error(count: remainingTimes);
         });
       } else {
         vibrateMedium();
@@ -225,8 +218,7 @@ class _PinCheckScreenState extends State<PinCheckScreen>
       }
 
       final remainingDuration = lockoutEndTime.difference(DateTime.now());
-      final remainingSeconds =
-          remainingDuration.inSeconds > 0 ? remainingDuration.inSeconds : 0;
+      final remainingSeconds = remainingDuration.inSeconds > 0 ? remainingDuration.inSeconds : 0;
 
       if (remainingSeconds == 0) {
         timer.cancel();
@@ -283,8 +275,7 @@ class _PinCheckScreenState extends State<PinCheckScreen>
               ),
               TextSpan(
                 text: t.alert.forgot_password.description2,
-                style:
-                    CoconutTypography.body3_12.setColor(CoconutColors.hotPink),
+                style: CoconutTypography.body3_12.setColor(CoconutColors.hotPink),
               ),
             ],
           ),
@@ -309,12 +300,10 @@ class _PinCheckScreenState extends State<PinCheckScreen>
             child: PopScope(
               canPop: widget.pinCheckContext == PinCheckContextEnum.restoration,
               onPopInvokedWithResult: (didPop, _) async {
-                if (Platform.isAndroid &&
-                    widget.pinCheckContext == PinCheckContextEnum.appLaunch) {
+                if (Platform.isAndroid && widget.pinCheckContext == PinCheckContextEnum.appLaunch) {
                   final now = DateTime.now();
                   if (_lastPressedAt == null ||
-                      now.difference(_lastPressedAt!) >
-                          const Duration(seconds: 3)) {
+                      now.difference(_lastPressedAt!) > const Duration(seconds: 3)) {
                     _lastPressedAt = now;
                     Fluttertoast.showToast(
                       backgroundColor: CoconutColors.gray800,

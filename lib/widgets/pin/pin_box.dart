@@ -15,9 +15,7 @@ class PinBox extends StatelessWidget {
         height: 50,
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(14),
-          color: disabled
-              ? MyColors.transparentBlack_15
-              : MyColors.transparentBlack_06,
+          color: disabled ? MyColors.transparentBlack_15 : MyColors.transparentBlack_06,
         ),
         child: isSet
             ? SvgPicture.asset(
@@ -26,8 +24,7 @@ class PinBox extends StatelessWidget {
                 height: 12,
                 fit: BoxFit.scaleDown,
                 colorFilter: ColorFilter.mode(
-                    disabled ? MyColors.transparentBlack_06 : MyColors.black,
-                    BlendMode.srcIn),
+                    disabled ? MyColors.transparentBlack_06 : MyColors.black, BlendMode.srcIn),
               )
             : null);
   }

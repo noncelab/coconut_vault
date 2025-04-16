@@ -39,13 +39,11 @@ class VaultItemCard extends StatelessWidget {
       signers = multiVault.signers;
       colorIndex = multiVault.colorIndex;
       iconIndex = multiVault.iconIndex;
-      int innerSignerCount =
-          multiVault.signers.where((s) => s.innerVaultId != null).length;
+      int innerSignerCount = multiVault.signers.where((s) => s.innerVaultId != null).length;
       rightText =
           '${innerSignerCount > multiVault.requiredSignatureCount ? multiVault.requiredSignatureCount : innerSignerCount}개 서명 가능';
 
-      tooltipText =
-          '${multiVault.requiredSignatureCount}/${multiVault.signers.length}';
+      tooltipText = '${multiVault.requiredSignatureCount}/${multiVault.signers.length}';
       isMultisig = true;
     } else {
       /// 싱글 시그
@@ -62,24 +60,19 @@ class VaultItemCard extends StatelessWidget {
           ? const EdgeInsets.only(top: 20, left: 16, right: 16)
           : const EdgeInsets.only(bottom: 12, left: 16, right: 16),
       decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(
-              28), // defaultRadius로 통일하면 border 넓이가 균일해보이지 않음
-          border: isMultisig
-              ? null
-              : Border.all(color: MyColors.borderLightgrey, width: 1),
+          borderRadius: BorderRadius.circular(28), // defaultRadius로 통일하면 border 넓이가 균일해보이지 않음
+          border: isMultisig ? null : Border.all(color: MyColors.borderLightgrey, width: 1),
           gradient: isMultisig
               ? BoxDecorations.getMultisigLinearGradient(
                   CustomColorHelper.getGradientColors(signers!))
               : null),
       child: Container(
         margin: isMultisig ? const EdgeInsets.all(2) : null,
-        padding:
-            isMultisig ? const EdgeInsets.all(20) : const EdgeInsets.all(24),
+        padding: isMultisig ? const EdgeInsets.all(20) : const EdgeInsets.all(24),
         decoration: isMultisig
             ? BoxDecoration(
                 color: MyColors.white,
-                borderRadius: BorderRadius.circular(
-                    26), // defaultRadius로 통일하면 border 넓이가 균일해보이지 않음
+                borderRadius: BorderRadius.circular(26), // defaultRadius로 통일하면 border 넓이가 균일해보이지 않음
               )
             : null,
         child: Row(
@@ -92,8 +85,7 @@ class VaultItemCard extends StatelessWidget {
                   borderRadius: BorderRadius.circular(18.0),
                 ),
                 child: SvgPicture.asset(CustomIcons.getPathByIndex(iconIndex),
-                    colorFilter: ColorFilter.mode(
-                        ColorPalette[colorIndex], BlendMode.srcIn),
+                    colorFilter: ColorFilter.mode(ColorPalette[colorIndex], BlendMode.srcIn),
                     width: 28.0)),
             const SizedBox(width: 8.0),
             Flexible(
@@ -116,8 +108,7 @@ class VaultItemCard extends StatelessWidget {
                         },
                         child: Container(
                           decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(8),
-                              color: MyColors.lightgrey),
+                              borderRadius: BorderRadius.circular(8), color: MyColors.lightgrey),
                           child: const Padding(
                             padding: EdgeInsets.all(5.0),
                             child: Icon(
@@ -146,8 +137,7 @@ class VaultItemCard extends StatelessWidget {
                           color: MyColors.black,
                           fontSize: 12,
                           fontWeight: FontWeight.w700)
-                      : Styles.h3.merge(TextStyle(
-                          fontFamily: CustomFonts.number.getFontFamily)),
+                      : Styles.h3.merge(TextStyle(fontFamily: CustomFonts.number.getFontFamily)),
                 ),
                 TooltipButton(
                   isSelected: false,

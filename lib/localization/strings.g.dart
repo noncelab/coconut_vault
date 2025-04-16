@@ -74,8 +74,7 @@ enum AppLocale with BaseAppLocale<AppLocale, Translations> {
   }
 
   /// Gets current instance managed by [LocaleSettings].
-  Translations get translations =>
-      LocaleSettings.instance.getTranslations(this);
+  Translations get translations => LocaleSettings.instance.getTranslations(this);
 }
 
 /// Method A: Simple
@@ -104,13 +103,10 @@ Translations get t => LocaleSettings.instance.currentTranslations;
 /// final t = Translations.of(context); // Get t variable.
 /// String a = t.someKey.anotherKey; // Use t variable.
 /// String b = t['someKey.anotherKey']; // Only for edge cases!
-class TranslationProvider
-    extends BaseTranslationProvider<AppLocale, Translations> {
-  TranslationProvider({required super.child})
-      : super(settings: LocaleSettings.instance);
+class TranslationProvider extends BaseTranslationProvider<AppLocale, Translations> {
+  TranslationProvider({required super.child}) : super(settings: LocaleSettings.instance);
 
-  static InheritedLocaleData<AppLocale, Translations> of(
-          BuildContext context) =>
+  static InheritedLocaleData<AppLocale, Translations> of(BuildContext context) =>
       InheritedLocaleData.of<AppLocale, Translations>(context);
 }
 
@@ -124,8 +120,7 @@ extension BuildContextTranslationsExtension on BuildContext {
 }
 
 /// Manages all translation instances and the current locale
-class LocaleSettings
-    extends BaseFlutterLocaleSettings<AppLocale, Translations> {
+class LocaleSettings extends BaseFlutterLocaleSettings<AppLocale, Translations> {
   LocaleSettings._()
       : super(
           utils: AppLocaleUtils.instance,
@@ -137,13 +132,10 @@ class LocaleSettings
   // static aliases (checkout base methods for documentation)
   static AppLocale get currentLocale => instance.currentLocale;
   static Stream<AppLocale> getLocaleStream() => instance.getLocaleStream();
-  static Future<AppLocale> setLocale(AppLocale locale,
-          {bool? listenToDeviceLocale = false}) =>
+  static Future<AppLocale> setLocale(AppLocale locale, {bool? listenToDeviceLocale = false}) =>
       instance.setLocale(locale, listenToDeviceLocale: listenToDeviceLocale);
-  static Future<AppLocale> setLocaleRaw(String rawLocale,
-          {bool? listenToDeviceLocale = false}) =>
-      instance.setLocaleRaw(rawLocale,
-          listenToDeviceLocale: listenToDeviceLocale);
+  static Future<AppLocale> setLocaleRaw(String rawLocale, {bool? listenToDeviceLocale = false}) =>
+      instance.setLocaleRaw(rawLocale, listenToDeviceLocale: listenToDeviceLocale);
   static Future<AppLocale> useDeviceLocale() => instance.useDeviceLocale();
   static Future<void> setPluralResolver(
           {String? language,
@@ -158,14 +150,10 @@ class LocaleSettings
       );
 
   // synchronous versions
-  static AppLocale setLocaleSync(AppLocale locale,
-          {bool? listenToDeviceLocale = false}) =>
-      instance.setLocaleSync(locale,
-          listenToDeviceLocale: listenToDeviceLocale);
-  static AppLocale setLocaleRawSync(String rawLocale,
-          {bool? listenToDeviceLocale = false}) =>
-      instance.setLocaleRawSync(rawLocale,
-          listenToDeviceLocale: listenToDeviceLocale);
+  static AppLocale setLocaleSync(AppLocale locale, {bool? listenToDeviceLocale = false}) =>
+      instance.setLocaleSync(locale, listenToDeviceLocale: listenToDeviceLocale);
+  static AppLocale setLocaleRawSync(String rawLocale, {bool? listenToDeviceLocale = false}) =>
+      instance.setLocaleRawSync(rawLocale, listenToDeviceLocale: listenToDeviceLocale);
   static AppLocale useDeviceLocaleSync() => instance.useDeviceLocaleSync();
   static void setPluralResolverSync(
           {String? language,
@@ -193,13 +181,9 @@ class AppLocaleUtils extends BaseAppLocaleUtils<AppLocale, Translations> {
   // static aliases (checkout base methods for documentation)
   static AppLocale parse(String rawLocale) => instance.parse(rawLocale);
   static AppLocale parseLocaleParts(
-          {required String languageCode,
-          String? scriptCode,
-          String? countryCode}) =>
+          {required String languageCode, String? scriptCode, String? countryCode}) =>
       instance.parseLocaleParts(
-          languageCode: languageCode,
-          scriptCode: scriptCode,
-          countryCode: countryCode);
+          languageCode: languageCode, scriptCode: scriptCode, countryCode: countryCode);
   static AppLocale findDeviceLocale() => instance.findDeviceLocale();
   static List<Locale> get supportedLocales => instance.supportedLocales;
   static List<String> get supportedLocalesRaw => instance.supportedLocalesRaw;

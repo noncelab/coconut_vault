@@ -42,6 +42,5 @@ class MultisigSigner {
 
   Map<String, dynamic> toJson() => _$MultisigSignerToJson(this);
 
-  factory MultisigSigner.fromJson(Map<String, dynamic> json) =>
-      _$MultisigSignerFromJson(json);
+  factory MultisigSigner.fromJson(Map<String, dynamic> json) => _$MultisigSignerFromJson(json);
 }

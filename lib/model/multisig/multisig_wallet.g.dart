@@ -6,8 +6,7 @@ part of 'multisig_wallet.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-MultisigWallet _$MultisigWalletFromJson(Map<String, dynamic> json) =>
-    MultisigWallet(
+MultisigWallet _$MultisigWalletFromJson(Map<String, dynamic> json) => MultisigWallet(
       (json['id'] as num?)?.toInt(),
       json['name'] as String?,
       (json['icon'] as num?)?.toInt(),
@@ -18,8 +17,7 @@ MultisigWallet _$MultisigWalletFromJson(Map<String, dynamic> json) =>
       (json['requiredSignatureCount'] as num?)?.toInt(),
     );
 
-Map<String, dynamic> _$MultisigWalletToJson(MultisigWallet instance) =>
-    <String, dynamic>{
+Map<String, dynamic> _$MultisigWalletToJson(MultisigWallet instance) => <String, dynamic>{
       'id': instance.id,
       'name': instance.name,
       'icon': instance.icon,

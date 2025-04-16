@@ -100,9 +100,7 @@ class SignerOption {
 
   SignerOption(this.singlesigVaultListItem, this.signerBsms) {
     masterFingerprint =
-        (singlesigVaultListItem.coconutVault as SingleSignatureVault)
-            .keyStore
-            .masterFingerprint;
+        (singlesigVaultListItem.coconutVault as SingleSignatureVault).keyStore.masterFingerprint;
   }
 }
 
@@ -113,9 +111,7 @@ class _ExpansionChildWidgetState extends State<ExpansionChildWidget> {
   Widget build(BuildContext context) {
     return Padding(
       padding: EdgeInsets.only(
-          right: 8,
-          left: 65,
-          bottom: widget.type == ImportKeyType.external ? 10 : 0),
+          right: 8, left: 65, bottom: widget.type == ImportKeyType.external ? 10 : 0),
       child: GestureDetector(
         onTap: () {
           setState(() {
@@ -138,8 +134,7 @@ class _ExpansionChildWidgetState extends State<ExpansionChildWidget> {
             color: isPressed ? MyColors.lightgrey : MyColors.white,
             borderRadius: BorderRadius.circular(12),
           ),
-          padding:
-              const EdgeInsets.only(left: 15, top: 16, bottom: 16, right: 8),
+          padding: const EdgeInsets.only(left: 15, top: 16, bottom: 16, right: 8),
           child: Row(
             children: [
               Expanded(
@@ -170,8 +165,7 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
   bool _hasValidationCompleted = false;
   late SignerAssignmentViewModel _viewModel;
   late DraggableScrollableController _draggableController;
-  final ValueNotifier<bool> _isButtonActiveNotifier =
-      ValueNotifier<bool>(false);
+  final ValueNotifier<bool> _isButtonActiveNotifier = ValueNotifier<bool>(false);
 
   @override
   Widget build(BuildContext context) {
@@ -215,24 +209,21 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
                           LayoutBuilder(
                             builder: (context, constraints) {
                               return ClipRRect(
-                                borderRadius:
-                                    viewModel.getAssignedVaultListLength() /
-                                                viewModel.totalSignatureCount ==
-                                            1
-                                        ? BorderRadius.zero
-                                        : const BorderRadius.only(
-                                            topRight: Radius.circular(6),
-                                            bottomRight: Radius.circular(6)),
+                                borderRadius: viewModel.getAssignedVaultListLength() /
+                                            viewModel.totalSignatureCount ==
+                                        1
+                                    ? BorderRadius.zero
+                                    : const BorderRadius.only(
+                                        topRight: Radius.circular(6),
+                                        bottomRight: Radius.circular(6)),
                                 child: AnimatedContainer(
                                   duration: const Duration(milliseconds: 500),
                                   curve: Curves.easeInOut,
                                   height: 6,
                                   width: (constraints.maxWidth) *
-                                      (viewModel.getAssignedVaultListLength() ==
-                                              0
+                                      (viewModel.getAssignedVaultListLength() == 0
                                           ? 0
-                                          : viewModel
-                                                  .getAssignedVaultListLength() /
+                                          : viewModel.getAssignedVaultListLength() /
                                               viewModel.totalSignatureCount),
                                   color: MyColors.black,
                                 ),
@@ -243,8 +234,7 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
                       ),
                       SingleChildScrollView(
                         child: Padding(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 16.0, vertical: 25),
+                          padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 25),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
@@ -266,21 +256,17 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
                                   ),
                                   GestureDetector(
                                     onTap: () {
-                                      viewModel.getAssignedVaultListLength() !=
-                                              0
-                                          ? _showDialog(
-                                              DialogType.reselectQuorum)
+                                      viewModel.getAssignedVaultListLength() != 0
+                                          ? _showDialog(DialogType.reselectQuorum)
                                           : _onBackPressed(context);
                                     },
                                     child: Container(
                                       margin: const EdgeInsets.only(left: 8),
-                                      padding: const EdgeInsets.symmetric(
-                                          horizontal: 8, vertical: 4),
+                                      padding:
+                                          const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                                       decoration: BoxDecoration(
-                                          borderRadius:
-                                              BorderRadius.circular(8),
-                                          border: Border.all(
-                                              color: MyColors.borderGrey)),
+                                          borderRadius: BorderRadius.circular(8),
+                                          border: Border.all(color: MyColors.borderGrey)),
                                       child: Text(
                                         t.re_select,
                                         style: Styles.caption,
@@ -308,42 +294,29 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
                                   child: Column(
                                     children: [
                                       for (int i = 0;
-                                          i <
-                                              viewModel
-                                                  .assignedVaultList.length;
+                                          i < viewModel.assignedVaultList.length;
                                           i++) ...[
                                         if (i > 0)
                                           const Padding(
-                                            padding: EdgeInsets.symmetric(
-                                                horizontal: 10),
-                                            child: Divider(
-                                                height: 1,
-                                                color: MyColors.dropdownGrey),
+                                            padding: EdgeInsets.symmetric(horizontal: 10),
+                                            child: Divider(height: 1, color: MyColors.dropdownGrey),
                                           ),
                                         CustomExpansionPanel(
-                                          isExpanded: viewModel
-                                              .assignedVaultList[i].isExpanded,
-                                          isAssigned: viewModel
-                                                  .assignedVaultList[i]
-                                                  .importKeyType !=
-                                              null,
+                                          isExpanded: viewModel.assignedVaultList[i].isExpanded,
+                                          isAssigned:
+                                              viewModel.assignedVaultList[i].importKeyType != null,
                                           onAssignedClicked: () {
-                                            _showDialog(DialogType.deleteKey,
-                                                keyIndex: i);
+                                            _showDialog(DialogType.deleteKey, keyIndex: i);
                                           },
                                           onExpansionChanged: () {
                                             setState(() {
-                                              viewModel.assignedVaultList[i]
-                                                  .changeExpanded();
+                                              viewModel.assignedVaultList[i].changeExpanded();
                                             });
                                           },
-                                          unExpansionWidget: viewModel
-                                                      .assignedVaultList[i]
-                                                      .importKeyType ==
-                                                  null
-                                              ? _unExpansionWidget(i)
-                                              : _unExpansionWidget(i,
-                                                  isAssigned: true),
+                                          unExpansionWidget:
+                                              viewModel.assignedVaultList[i].importKeyType == null
+                                                  ? _unExpansionWidget(i)
+                                                  : _unExpansionWidget(i, isAssigned: true),
                                           expansionWidget: Column(
                                             children: [
                                               // 이 볼트에 있는 키 사용하기
@@ -351,48 +324,34 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
                                                   type: ImportKeyType.internal,
                                                   onPressed: () {
                                                     // 등록된 singlesig vault가 없으면 멀티시그 지갑 생성 불가
-                                                    if (viewModel
-                                                        .unselectedSignerOptions
-                                                        .isEmpty) {
-                                                      _showDialog(DialogType
-                                                          .notAvailable);
+                                                    if (viewModel.unselectedSignerOptions.isEmpty) {
+                                                      _showDialog(DialogType.notAvailable);
                                                       return;
                                                     }
 
-                                                    _isButtonActiveNotifier
-                                                        .value = false;
-                                                    MyBottomSheet
-                                                        .showDraggableScrollableSheet(
+                                                    _isButtonActiveNotifier.value = false;
+                                                    MyBottomSheet.showDraggableScrollableSheet(
                                                       topWidget: true,
                                                       isButtonActiveNotifier:
                                                           _isButtonActiveNotifier,
                                                       context: context,
-                                                      childBuilder:
-                                                          (sheetController) =>
-                                                              KeyListBottomSheet(
+                                                      childBuilder: (sheetController) =>
+                                                          KeyListBottomSheet(
                                                         // 키 옵션 중 하나 선택했을 때
                                                         onPressed: (int index) {
                                                           viewModel
-                                                              .setSelectedSignerOptionIndex(
-                                                                  index);
-                                                          _isButtonActiveNotifier
-                                                              .value = true;
+                                                              .setSelectedSignerOptionIndex(index);
+                                                          _isButtonActiveNotifier.value = true;
                                                         },
-                                                        vaultList: viewModel
-                                                            .unselectedSignerOptions
-                                                            .map((o) => o
-                                                                .singlesigVaultListItem)
+                                                        vaultList: viewModel.unselectedSignerOptions
+                                                            .map((o) => o.singlesigVaultListItem)
                                                             .toList(),
                                                       ),
-                                                      onTopWidgetButtonClicked:
-                                                          () {
-                                                        viewModel
-                                                            .assignInternalSigner(
-                                                                i);
+                                                      onTopWidgetButtonClicked: () {
+                                                        viewModel.assignInternalSigner(i);
 
                                                         viewModel
-                                                            .setSelectedSignerOptionIndex(
-                                                                null);
+                                                            .setSelectedSignerOptionIndex(null);
                                                       },
                                                     );
                                                   }),
@@ -400,94 +359,65 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
                                               ExpansionChildWidget(
                                                   type: ImportKeyType.external,
                                                   onPressed: () async {
-                                                    if (viewModel
-                                                        .isAllAssignedFromExternal()) {
-                                                      _showDialog(
-                                                          DialogType.alert);
+                                                    if (viewModel.isAllAssignedFromExternal()) {
+                                                      _showDialog(DialogType.alert);
                                                       return;
                                                     }
 
-                                                    final externalImported =
-                                                        await MyBottomSheet
-                                                            .showDraggableScrollableSheet(
+                                                    final externalImported = await MyBottomSheet
+                                                        .showDraggableScrollableSheet(
                                                       topWidget: true,
                                                       context: context,
-                                                      physics:
-                                                          const ClampingScrollPhysics(),
-                                                      enableSingleChildScroll:
-                                                          false,
-                                                      child:
-                                                          const MultisigBsmsScannerScreen(),
+                                                      physics: const ClampingScrollPhysics(),
+                                                      enableSingleChildScroll: false,
+                                                      child: const MultisigBsmsScannerScreen(),
                                                     );
 
-                                                    if (externalImported !=
-                                                        null) {
+                                                    if (externalImported != null) {
                                                       /// 이미 추가된 signer와 중복 비교
                                                       if (viewModel
-                                                          .isAlreadyImported(
-                                                              externalImported)) {
-                                                        return _showDialog(
-                                                            DialogType
-                                                                .alreadyExist);
+                                                          .isAlreadyImported(externalImported)) {
+                                                        return _showDialog(DialogType.alreadyExist);
                                                       }
 
                                                       String? sameVaultName = viewModel
-                                                          .findVaultNameByBsms(
-                                                              externalImported);
-                                                      if (sameVaultName !=
-                                                          null) {
-                                                        _showDialog(
-                                                            DialogType
-                                                                .sameWithInternalOne,
-                                                            vaultName:
-                                                                sameVaultName);
+                                                          .findVaultNameByBsms(externalImported);
+                                                      if (sameVaultName != null) {
+                                                        _showDialog(DialogType.sameWithInternalOne,
+                                                            vaultName: sameVaultName);
                                                         return;
                                                       }
 
-                                                      final Map<String, String>?
-                                                          bsmsAndMemo =
+                                                      final Map<String, String>? bsmsAndMemo =
                                                           await MyBottomSheet
                                                               .showDraggableScrollableSheet(
                                                         topWidget: true,
                                                         context: context,
-                                                        isScrollControlled:
-                                                            true,
-                                                        controller:
-                                                            _draggableController,
+                                                        isScrollControlled: true,
+                                                        controller: _draggableController,
                                                         minChildSize: 0.7,
                                                         isDismissible: false,
                                                         enableDrag: true,
                                                         snap: true,
                                                         onBackPressed: () =>
-                                                            _showDialog(DialogType
-                                                                .cancelImport),
-                                                        physics:
-                                                            const ClampingScrollPhysics(),
-                                                        enableSingleChildScroll:
-                                                            true,
-                                                        childBuilder:
-                                                            (sheetController) =>
-                                                                ImportConfirmationScreen(
-                                                          importingBsms:
-                                                              externalImported,
-                                                          scrollController:
-                                                              sheetController,
+                                                            _showDialog(DialogType.cancelImport),
+                                                        physics: const ClampingScrollPhysics(),
+                                                        enableSingleChildScroll: true,
+                                                        childBuilder: (sheetController) =>
+                                                            ImportConfirmationScreen(
+                                                          importingBsms: externalImported,
+                                                          scrollController: sheetController,
                                                         ),
                                                       );
                                                       if (bsmsAndMemo != null) {
-                                                        assert(
-                                                            bsmsAndMemo['bsms']!
-                                                                .isNotEmpty);
+                                                        assert(bsmsAndMemo['bsms']!.isNotEmpty);
 
-                                                        viewModel
-                                                            .setAssignedVaultList(
-                                                                i,
-                                                                ImportKeyType
-                                                                    .external,
-                                                                false,
-                                                                externalImported,
-                                                                bsmsAndMemo[
-                                                                    'memo']);
+                                                        viewModel.setAssignedVaultList(
+                                                            i,
+                                                            ImportKeyType.external,
+                                                            false,
+                                                            externalImported,
+                                                            bsmsAndMemo['memo']);
                                                       }
                                                     }
                                                   }),
@@ -500,16 +430,14 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
                                 ),
                               ),
                               Visibility(
-                                  visible:
-                                      viewModel.isAssignedKeyCompletely() &&
-                                          !_hasValidationCompleted,
+                                  visible: viewModel.isAssignedKeyCompletely() &&
+                                      !_hasValidationCompleted,
                                   child: Container(
                                     margin: const EdgeInsets.only(top: 40),
                                     child: CompleteButton(
                                         onPressed: onSelectionCompleted,
                                         label: t.select_completed,
-                                        disabled: viewModel
-                                                .isAssignedKeyCompletely() &&
+                                        disabled: viewModel.isAssignedKeyCompletely() &&
                                             _isNextProcessing),
                                   ))
                             ],
@@ -522,11 +450,9 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
                 Visibility(
                   visible: _isNextProcessing,
                   child: Container(
-                    decoration: const BoxDecoration(
-                        color: MyColors.transparentBlack_30),
-                    child: Center(
-                        child: MessageActivityIndicator(
-                            message: viewModel.loadingMessage)),
+                    decoration: const BoxDecoration(color: MyColors.transparentBlack_30),
+                    child:
+                        Center(child: MessageActivityIndicator(message: viewModel.loadingMessage)),
                   ),
                 ),
               ],
@@ -590,8 +516,7 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
     if (existingWallet != null) {
       if (mounted) {
         CustomToast.showToast(
-            context: context,
-            text: t.toast.multisig_already_added(name: existingWallet.name));
+            context: context, text: t.toast.multisig_already_added(name: existingWallet.name));
         setState(() {
           _isNextProcessing = false;
         });
@@ -643,9 +568,7 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
             _viewModel.resetWalletCreationProvider();
             _isFinishing = true;
             Navigator.popUntil(
-                context,
-                (route) =>
-                    route.settings.name == AppRoutes.multisigQuorumSelection);
+                context, (route) => route.settings.name == AppRoutes.multisigQuorumSelection);
           };
           break;
         }
@@ -657,11 +580,8 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
           confirmButtonText = t.yes;
           confirmButtonColor = MyColors.black;
           onConfirm = () {
-            Navigator.pushNamedAndRemoveUntil(
-                context,
-                AppRoutes.vaultCreationOptions,
-                (Route<dynamic> route) =>
-                    route.settings.name == AppRoutes.vaultTypeSelection);
+            Navigator.pushNamedAndRemoveUntil(context, AppRoutes.vaultCreationOptions,
+                (Route<dynamic> route) => route.settings.name == AppRoutes.vaultTypeSelection);
           };
           break;
         }
@@ -675,8 +595,7 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
           onConfirm = () {
             _viewModel.resetWalletCreationProvider();
             Navigator.pop(context);
-            Navigator.pushNamedAndRemoveUntil(
-                context, '/', (Route<dynamic> route) => false);
+            Navigator.pushNamedAndRemoveUntil(context, '/', (Route<dynamic> route) => false);
           };
           break;
         }
@@ -690,15 +609,11 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
           onConfirm = () {
             _viewModel.setSigners(null);
             // 내부 지갑인 경우
-            if (_viewModel.assignedVaultList[keyIndex].importKeyType ==
-                ImportKeyType.internal) {
+            if (_viewModel.assignedVaultList[keyIndex].importKeyType == ImportKeyType.internal) {
               int insertIndex = 0;
-              for (int i = 0;
-                  i < _viewModel.unselectedSignerOptions.length;
-                  i++) {
+              for (int i = 0; i < _viewModel.unselectedSignerOptions.length; i++) {
                 if (_viewModel.assignedVaultList[keyIndex].item!.id >
-                    _viewModel
-                        .unselectedSignerOptions[i].singlesigVaultListItem.id) {
+                    _viewModel.unselectedSignerOptions[i].singlesigVaultListItem.id) {
                   insertIndex++;
                 }
               }
@@ -815,21 +730,18 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
               Container(
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  color: BackgroundColorPalette[isExternalImported
-                      ? 8
-                      : _viewModel.assignedVaultList[i].item!.colorIndex],
+                  color: BackgroundColorPalette[
+                      isExternalImported ? 8 : _viewModel.assignedVaultList[i].item!.colorIndex],
                   borderRadius: BorderRadius.circular(8.0),
                 ),
                 child: SvgPicture.asset(
                   isExternalImported
                       ? 'assets/svg/download.svg'
-                      : CustomIcons.getPathByIndex(
-                          _viewModel.assignedVaultList[i].item!.iconIndex),
+                      : CustomIcons.getPathByIndex(_viewModel.assignedVaultList[i].item!.iconIndex),
                   colorFilter: ColorFilter.mode(
                     isExternalImported
                         ? MyColors.black
-                        : ColorPalette[
-                            _viewModel.assignedVaultList[i].item!.colorIndex],
+                        : ColorPalette[_viewModel.assignedVaultList[i].item!.colorIndex],
                     BlendMode.srcIn,
                   ),
                   width: 16.0,
@@ -893,8 +805,7 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
                 'assets/svg/circle-check-gradient.svg',
                 width: 18,
                 height: 18,
-                colorFilter: const ColorFilter.mode(
-                    MyColors.transparentBlack_15, BlendMode.srcIn),
+                colorFilter: const ColorFilter.mode(MyColors.transparentBlack_15, BlendMode.srcIn),
               ),
             ],
           );

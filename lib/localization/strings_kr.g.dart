@@ -120,20 +120,15 @@ class Translations implements BaseTranslations<AppLocale, Translations> {
   String bitcoin_text({required Object bitcoin}) => '${bitcoin} BTC';
   String sign_required({required Object count}) => '${count}개의 서명이 필요합니다';
   String name_text_count({required Object count}) => '(${count} / 20)';
-  String wallet_subtitle({required Object name, required Object index}) =>
-      '${name}의 ${index}번 키';
+  String wallet_subtitle({required Object name, required Object index}) => '${name}의 ${index}번 키';
   String get forgot_password => '비밀번호가 기억나지 않나요?';
-  String get scan_qr_url_link =>
-      '네트워크가 활성화된 기기에서 QR 코드를 스캔하시거나 위의 URL 주소로 접속해 주세요.';
-  String get scan_qr_email_link =>
-      '네트워크가 활성화된 기기에서 QR 코드를 스캔하시거나 위의 주소로 메일을 전송해 주세요';
+  String get scan_qr_url_link => '네트워크가 활성화된 기기에서 QR 코드를 스캔하시거나 위의 URL 주소로 접속해 주세요.';
+  String get scan_qr_email_link => '네트워크가 활성화된 기기에서 QR 코드를 스캔하시거나 위의 주소로 메일을 전송해 주세요';
   String get developer_option => '개발자 옵션';
   String get advanced_user => '고급 사용자';
   String extra_count({required Object count}) => '외 ${count}개';
-  late final TranslationsVaultListTabKr vault_list_tab =
-      TranslationsVaultListTabKr.internal(_root);
-  late final TranslationsAppUnavailableNotificationScreenKr
-      app_unavailable_notification_screen =
+  late final TranslationsVaultListTabKr vault_list_tab = TranslationsVaultListTabKr.internal(_root);
+  late final TranslationsAppUnavailableNotificationScreenKr app_unavailable_notification_screen =
       TranslationsAppUnavailableNotificationScreenKr.internal(_root);
   late final TranslationsIosBluetoothAuthNotificationScreenKr
       ios_bluetooth_auth_notification_screen =
@@ -146,17 +141,14 @@ class Translations implements BaseTranslations<AppLocale, Translations> {
       TranslationsSecuritySelfCheckScreenKr.internal(_root);
   late final TranslationsTutorialScreenKr tutorial_screen =
       TranslationsTutorialScreenKr.internal(_root);
-  late final TranslationsMultisigKr multisig =
-      TranslationsMultisigKr.internal(_root);
-  late final TranslationsAccountSelectionBottomSheetScreenKr
-      account_selection_bottom_sheet_screen =
+  late final TranslationsMultisigKr multisig = TranslationsMultisigKr.internal(_root);
+  late final TranslationsAccountSelectionBottomSheetScreenKr account_selection_bottom_sheet_screen =
       TranslationsAccountSelectionBottomSheetScreenKr.internal(_root);
   late final TranslationsPsbtConfirmationScreenKr psbt_confirmation_screen =
       TranslationsPsbtConfirmationScreenKr.internal(_root);
   late final TranslationsPsbtScannerScreenKr psbt_scanner_screen =
       TranslationsPsbtScannerScreenKr.internal(_root);
-  late final TranslationsSignedTransactionQrScreenKr
-      signed_transaction_qr_screen =
+  late final TranslationsSignedTransactionQrScreenKr signed_transaction_qr_screen =
       TranslationsSignedTransactionQrScreenKr.internal(_root);
   late final TranslationsSingleSigSignScreenKr single_sig_sign_screen =
       TranslationsSingleSigSignScreenKr.internal(_root);
@@ -172,8 +164,7 @@ class Translations implements BaseTranslations<AppLocale, Translations> {
       TranslationsMnemonicWordListScreenKr.internal(_root);
   late final TranslationsSettingsScreenKr settings_screen =
       TranslationsSettingsScreenKr.internal(_root);
-  late final TranslationsGuideScreenKr guide_screen =
-      TranslationsGuideScreenKr.internal(_root);
+  late final TranslationsGuideScreenKr guide_screen = TranslationsGuideScreenKr.internal(_root);
   late final TranslationsWelcomeScreenKr welcome_screen =
       TranslationsWelcomeScreenKr.internal(_root);
   late final TranslationsMnemonicCoinFlipScreenKr mnemonic_coin_flip_screen =
@@ -186,21 +177,17 @@ class Translations implements BaseTranslations<AppLocale, Translations> {
       TranslationsMnemonicImportScreenKr.internal(_root);
   late final TranslationsSelectVaultTypeScreenKr select_vault_type_screen =
       TranslationsSelectVaultTypeScreenKr.internal(_root);
-  late final TranslationsVaultCreationOptionsScreenKr
-      vault_creation_options_screen =
+  late final TranslationsVaultCreationOptionsScreenKr vault_creation_options_screen =
       TranslationsVaultCreationOptionsScreenKr.internal(_root);
-  late final TranslationsVaultNameIconSetupScreenKr
-      vault_name_icon_setup_screen =
+  late final TranslationsVaultNameIconSetupScreenKr vault_name_icon_setup_screen =
       TranslationsVaultNameIconSetupScreenKr.internal(_root);
   late final TranslationsAssignSignersScreenKr assign_signers_screen =
       TranslationsAssignSignersScreenKr.internal(_root);
   late final TranslationsConfirmImportingScreenKr confirm_importing_screen =
       TranslationsConfirmImportingScreenKr.internal(_root);
-  late final TranslationsSelectMultisigQuorumScreenKr
-      select_multisig_quorum_screen =
+  late final TranslationsSelectMultisigQuorumScreenKr select_multisig_quorum_screen =
       TranslationsSelectMultisigQuorumScreenKr.internal(_root);
-  late final TranslationsSignerScannerBottomSheetKr
-      signer_scanner_bottom_sheet =
+  late final TranslationsSignerScannerBottomSheetKr signer_scanner_bottom_sheet =
       TranslationsSignerScannerBottomSheetKr.internal(_root);
   late final TranslationsSignerScannerScreenKr signer_scanner_screen =
       TranslationsSignerScannerScreenKr.internal(_root);
@@ -232,15 +219,12 @@ class Translations implements BaseTranslations<AppLocale, Translations> {
       TranslationsRestorationInfoKr.internal(_root);
   late final TranslationsVaultListRestorationKr vault_list_restoration =
       TranslationsVaultListRestorationKr.internal(_root);
-  late final TranslationsBottomSheetKr bottom_sheet =
-      TranslationsBottomSheetKr.internal(_root);
-  late final TranslationsPermissionKr permission =
-      TranslationsPermissionKr.internal(_root);
+  late final TranslationsBottomSheetKr bottom_sheet = TranslationsBottomSheetKr.internal(_root);
+  late final TranslationsPermissionKr permission = TranslationsPermissionKr.internal(_root);
   late final TranslationsAlertKr alert = TranslationsAlertKr.internal(_root);
   late final TranslationsToastKr toast = TranslationsToastKr.internal(_root);
   late final TranslationsErrorsKr errors = TranslationsErrorsKr.internal(_root);
-  late final TranslationsTooltipKr tooltip =
-      TranslationsTooltipKr.internal(_root);
+  late final TranslationsTooltipKr tooltip = TranslationsTooltipKr.internal(_root);
 }
 
 // Path: vault_list_tab
@@ -375,8 +359,7 @@ class TranslationsPsbtConfirmationScreenKr {
   String get title => '스캔 정보 확인';
   String get guide => '월렛에서 스캔한 정보가 맞는지 다시 한번 확인해 주세요.';
   String get self_sending => '내 지갑으로 보내는 트랜잭션입니다.';
-  String get warning =>
-      '⚠️ 해당 지갑으로 만든 psbt가 아닐 수 있습니다. 또는 잔액이 없는 트랜잭션일 수 있습니다.';
+  String get warning => '⚠️ 해당 지갑으로 만든 psbt가 아닐 수 있습니다. 또는 잔액이 없는 트랜잭션일 수 있습니다.';
 }
 
 // Path: psbt_scanner_screen
@@ -397,8 +380,7 @@ class TranslationsSignedTransactionQrScreenKr {
   final Translations _root; // ignore: unused_field
 
   // Translations
-  String get guide_multisig =>
-      '다중 서명을 완료했어요. 보내기 정보를 생성한 월렛으로 아래 QR 코드를 스캔해 주세요.';
+  String get guide_multisig => '다중 서명을 완료했어요. 보내기 정보를 생성한 월렛으로 아래 QR 코드를 스캔해 주세요.';
   String guide_single_sig({required Object name}) =>
       '월렛의 \'${name} 지갑\'에서 만든 보내기 정보에 서명을 완료했어요. 월렛으로 아래 QR 코드를 스캔해 주세요.';
 }
@@ -448,8 +430,7 @@ class TranslationsAppInfoScreenKr {
   String get coconut_vault => 'coconut_vault';
   String get github => 'Github';
   String get contribution => '오픈소스 개발 참여하기';
-  String version_and_date(
-          {required Object version, required Object releasedAt}) =>
+  String version_and_date({required Object version, required Object releasedAt}) =>
       'CoconutVault ver. ${version} (released at ${releasedAt})';
   String get inquiry => '문의 내용';
 }
@@ -472,8 +453,7 @@ class TranslationsLicenseScreenKr {
   final Translations _root; // ignore: unused_field
 
   // Translations
-  String get text1 =>
-      '코코넛 볼트는 MIT 라이선스를 따르며 저작권은 대한민국의 논스랩 주식회사에 있습니다. MIT 라이선스 전문은 ';
+  String get text1 => '코코넛 볼트는 MIT 라이선스를 따르며 저작권은 대한민국의 논스랩 주식회사에 있습니다. MIT 라이선스 전문은 ';
   String get text2 =>
       '에서 확인해 주세요.\n\n이 애플리케이션에 포함된 타사 소프트웨어에 대한 저작권을 다음과 같이 명시합니다. 이에 대해 궁금한 사항이 있으시면 ';
   String get text3 => '으로 문의해 주시기 바랍니다.';
@@ -572,8 +552,7 @@ class TranslationsMnemonicConfirmScreenKr {
 
   // Translations
   String get title => '입력하신 정보가 맞는지\n다시 한번 확인해 주세요.';
-  String passphrase_character_total_count({required Object count}) =>
-      ' (총 ${count} 글자)';
+  String passphrase_character_total_count({required Object count}) => ' (총 ${count} 글자)';
   late final TranslationsMnemonicConfirmScreenWarningKr warning =
       TranslationsMnemonicConfirmScreenWarningKr.internal(_root);
   String get btn_confirm_completed => '확인 완료';
@@ -613,8 +592,7 @@ class TranslationsMnemonicImportScreenKr {
   String get put_spaces_between_words => '단어 사이에 띄어쓰기를 넣어주세요';
   String get use_passphrase => '패스프레이즈 사용';
   String get enter_passphrase => '패스프레이즈를 입력해 주세요';
-  String get need_advanced_mode =>
-      '⚠︎ 패스프레이즈를 사용하시려면 설정 화면으로 이동하여 \'패스프레이즈 사용하기\'를 켜주세요';
+  String get need_advanced_mode => '⚠︎ 패스프레이즈를 사용하시려면 설정 화면으로 이동하여 \'패스프레이즈 사용하기\'를 켜주세요';
   String get open_settings => '설정 화면 열기';
 }
 
@@ -691,12 +669,9 @@ class TranslationsSelectMultisigQuorumScreenKr {
   // Translations
   String get total_key_count => '전체 키의 수';
   String get required_signature_count => '필요한 서명 수';
-  String get one_or_two_of_n =>
-      '하나의 키를 분실하거나 키 보관자 중 한 명이 부재중이더라도 비트코인을 보낼 수 있어요.';
-  String get n_of_n =>
-      '모든 키가 있어야만 비트코인을 보낼 수 있어요. 단 하나의 키만 잃어버려도 자금에 접근할 수 없게 되니 분실에 각별히 신경써 주세요.';
-  String get one_of_n =>
-      '하나의 키만 있어도 비트코인을 이동시킬 수 있어요. 상대적으로 보안성이 낮기 때문에 권장하지 않아요.';
+  String get one_or_two_of_n => '하나의 키를 분실하거나 키 보관자 중 한 명이 부재중이더라도 비트코인을 보낼 수 있어요.';
+  String get n_of_n => '모든 키가 있어야만 비트코인을 보낼 수 있어요. 단 하나의 키만 잃어버려도 자금에 접근할 수 없게 되니 분실에 각별히 신경써 주세요.';
+  String get one_of_n => '하나의 키만 있어도 비트코인을 이동시킬 수 있어요. 상대적으로 보안성이 낮기 때문에 권장하지 않아요.';
 }
 
 // Path: signer_scanner_bottom_sheet
@@ -707,8 +682,7 @@ class TranslationsSignerScannerBottomSheetKr {
 
   // Translations
   String get title => '서명 업데이트';
-  String get guide =>
-      '다른 볼트에서 서명을 추가했나요? 정보를 업데이트 하기 위해 추가된 서명 트랜잭션의 QR 코드를 스캔해 주세요.';
+  String get guide => '다른 볼트에서 서명을 추가했나요? 정보를 업데이트 하기 위해 추가된 서명 트랜잭션의 QR 코드를 스캔해 주세요.';
 }
 
 // Path: signer_scanner_screen
@@ -885,10 +859,8 @@ class TranslationsPrepareUpdateKr {
 
   // Translations
   String get title => '👉 니모닉 문구를 잘 백업했는지 확인할게요';
-  String get description =>
-      '만약 업데이트 중 문제가 생길 경우를 대비하여 니모닉 단어는 별도로 백업을 해두셔야 합니다';
-  String enter_nth_word_of_wallet(
-          {required Object wallet_name, required Object n}) =>
+  String get description => '만약 업데이트 중 문제가 생길 경우를 대비하여 니모닉 단어는 별도로 백업을 해두셔야 합니다';
+  String enter_nth_word_of_wallet({required Object wallet_name, required Object n}) =>
       '💡 ${wallet_name}의 ${n}번째 단어를 입력해 주세요';
   String get enter_word => '단어를 입력해 주세요';
   String get incorrect_input_try_again => '틀렸어요. 다시 입력해 주세요.';
@@ -899,13 +871,11 @@ class TranslationsPrepareUpdateKr {
         '진행 중에는 앱을 사용할 수 없어요\n준비가 완료될 때까지 앱을 종료하지 마세요',
       ];
   String get generating_secure_key => '🔑 안전한 키를 생성 중이에요';
-  String get generating_secure_key_description =>
-      '지갑 데이터를 보호하기 위해\n보안적으로 안전한 무작위 암호화 키를 생성합니다';
+  String get generating_secure_key_description => '지갑 데이터를 보호하기 위해\n보안적으로 안전한 무작위 암호화 키를 생성합니다';
   String get saving_wallet_data => '⏳ 지갑 데이터를 안전하게 저장 중이에요';
   String get waiting_message => '잠시만 기다려 주세요\n이 과정은 몇 초 정도 걸릴 수 있습니다';
   String get verifying_safe_storage => '✅ 안전하게 저장되었는지 확인하고 있어요';
-  String get update_recovery_info =>
-      '이 단계를 마치면\n앱 업데이트 후 지갑을 안전하고 편리하게\n복원할 수 있습니다';
+  String get update_recovery_info => '이 단계를 마치면\n앱 업데이트 후 지갑을 안전하고 편리하게\n복원할 수 있습니다';
   String get completed_title => '🎉 업데이트 준비가 끝났어요!';
   String get completed_description => '이제 볼트를 업데이트해 주세요';
   String get step0 => '앱을 종료하고 네트워크를 켜주세요.';
@@ -922,8 +892,7 @@ class TranslationsRestorationInfoKr {
 
   // Translations
   String get found_title => '🔎 복원 파일을 발견했어요';
-  String get found_description =>
-      '앱 업데이트가 완료되지 않았어요\n앱을 업데이트 하시거나,\n계속 진행하시려면 지갑을 복원해주세요';
+  String get found_description => '앱 업데이트가 완료되지 않았어요\n앱을 업데이트 하시거나,\n계속 진행하시려면 지갑을 복원해주세요';
 }
 
 // Path: vault_list_restoration
@@ -936,8 +905,7 @@ class TranslationsVaultListRestorationKr {
   String get in_progress_title => '⏳ 지갑을 복원 중이에요';
   String get in_progress_description => '잠시만 기다려 주세요.\n곧 완료됩니다!';
   String get completed_title => '🎉 지갑을 복원했어요!';
-  String completed_description({required Object count}) =>
-      '지갑 ${count}개를 복원했어요';
+  String completed_description({required Object count}) => '지갑 ${count}개를 복원했어요';
   String get start_vault => '볼트 시작하기';
 }
 
@@ -952,8 +920,7 @@ class TranslationsBottomSheetKr {
   String get contact_by_email => '이메일 문의';
   String get ask_about_license => '[볼트] 라이선스 문의';
   String get mnemonic_backup => '생성된 니모닉 문구를\n백업해 주세요.';
-  String get mnemonic_backup_and_confirm_passphrase =>
-      '생성된 니모닉 문구를 백업하시고\n패스프레이즈를 확인해 주세요.';
+  String get mnemonic_backup_and_confirm_passphrase => '생성된 니모닉 문구를 백업하시고\n패스프레이즈를 확인해 주세요.';
 }
 
 // Path: permission
@@ -974,22 +941,17 @@ class TranslationsAlertKr {
   final Translations _root; // ignore: unused_field
 
   // Translations
-  String confirm_deletion({required Object name}) =>
-      '정말로 볼트에서 ${name} 정보를 삭제하시겠어요?';
+  String confirm_deletion({required Object name}) => '정말로 볼트에서 ${name} 정보를 삭제하시겠어요?';
   late final TranslationsAlertForgotPasswordKr forgot_password =
       TranslationsAlertForgotPasswordKr.internal(_root);
   late final TranslationsAlertUnchangePasswordKr unchange_password =
       TranslationsAlertUnchangePasswordKr.internal(_root);
-  late final TranslationsAlertExitSignKr exit_sign =
-      TranslationsAlertExitSignKr.internal(_root);
-  late final TranslationsAlertStopSignKr stop_sign =
-      TranslationsAlertStopSignKr.internal(_root);
-  late final TranslationsAlertReselectKr reselect =
-      TranslationsAlertReselectKr.internal(_root);
+  late final TranslationsAlertExitSignKr exit_sign = TranslationsAlertExitSignKr.internal(_root);
+  late final TranslationsAlertStopSignKr stop_sign = TranslationsAlertStopSignKr.internal(_root);
+  late final TranslationsAlertReselectKr reselect = TranslationsAlertReselectKr.internal(_root);
   late final TranslationsAlertEmptyVaultKr empty_vault =
       TranslationsAlertEmptyVaultKr.internal(_root);
-  late final TranslationsAlertQuitCreatingMutisigWalletKr
-      quit_creating_mutisig_wallet =
+  late final TranslationsAlertQuitCreatingMutisigWalletKr quit_creating_mutisig_wallet =
       TranslationsAlertQuitCreatingMutisigWalletKr.internal(_root);
   late final TranslationsAlertResetNthKeyKr reset_nth_key =
       TranslationsAlertResetNthKeyKr.internal(_root);
@@ -1005,8 +967,7 @@ class TranslationsAlertKr {
       TranslationsAlertWalletCreationFailedKr.internal(_root);
   late final TranslationsAlertStopCreatingMnemonicKr stop_creating_mnemonic =
       TranslationsAlertStopCreatingMnemonicKr.internal(_root);
-  late final TranslationsAlertStopGeneratingMnemonicKr
-      stop_generating_mnemonic =
+  late final TranslationsAlertStopGeneratingMnemonicKr stop_generating_mnemonic =
       TranslationsAlertStopGeneratingMnemonicKr.internal(_root);
   late final TranslationsAlertStopImportingMnemonicKr stop_importing_mnemonic =
       TranslationsAlertStopImportingMnemonicKr.internal(_root);
@@ -1029,8 +990,7 @@ class TranslationsToastKr {
   String get name_multisig_in_use => '다중 서명 지갑에 사용되고 있어 삭제할 수 없어요.';
   String get mnemonic_already_added => '이미 추가되어 있는 니모닉이에요';
   String get mnemonic_copied => '니모닉 문구가 복사됐어요';
-  String multisig_already_added({required Object name}) =>
-      '이미 추가되어 있는 다중 서명 지갑이에요. (${name})';
+  String multisig_already_added({required Object name}) => '이미 추가되어 있는 다중 서명 지갑이에요. (${name})';
 }
 
 // Path: errors
@@ -1043,8 +1003,7 @@ class TranslationsErrorsKr {
   String get invalid_single_sig_qr_error => '잘못된 QR이에요. 다시 시도해 주세요.';
   String get invalid_multisig_qr_error =>
       '잘못된 QR이에요.\n가져올 다중 서명 지갑의 정보 화면에서 "지갑 설정 정보 보기"에 나오는 QR 코드를 스캔해 주세요.';
-  String get unsupport_bsms_version_error =>
-      '지원하지 않는 BSMS 버전이에요. BSMS 1.0만 지원됩니다.';
+  String get unsupport_bsms_version_error => '지원하지 않는 BSMS 버전이에요. BSMS 1.0만 지원됩니다.';
   String get unsupport_derivation_path_error => '커스텀 파생 경로는 지원되지 않아요.';
   String get duplicate_multisig_registered_error => '이미 등록된 다중 서명 지갑입니다.';
   String get pin_incorrect_error => '비밀번호가 일치하지 않아요';
@@ -1052,10 +1011,8 @@ class TranslationsErrorsKr {
   String get pin_processing_error => '처리 중 문제가 발생했어요';
   String pin_incorrect_with_remaining_attempts_error({required Object count}) =>
       '${count}번 다시 시도할 수 있어요';
-  String remaining_times_away_from_reset_error({required Object count}) =>
-      '초기화까지 ${count}번 남았어요';
-  String get pin_max_attempts_exceeded_error =>
-      '볼트를 잠금 해제할 수 없어요\n비밀번호를 초기화 한 후에 이용할 수 있어요';
+  String remaining_times_away_from_reset_error({required Object count}) => '초기화까지 ${count}번 남았어요';
+  String get pin_max_attempts_exceeded_error => '볼트를 잠금 해제할 수 없어요\n비밀번호를 초기화 한 후에 이용할 수 있어요';
   String retry_after({required Object time}) => '${time} 후 재시도 할 수 있어요';
   String invalid_word_error({required Object filter}) => '잘못된 단어예요. ${filter}';
   String get invalid_mnemonic_phrase => '잘못된 니모닉 문구예요';
@@ -1065,14 +1022,12 @@ class TranslationsErrorsKr {
   String get invalid_sign_error => '잘못된 서명 정보에요. 다시 시도해 주세요.';
   String scan_error({required Object error}) => '[스캔 실패] ${error}';
   String sign_error({required Object error}) => '[서명 실패]: ${error}';
-  String device_info_unavailable_error({required Object error}) =>
-      '디바이스 정보를 불러올 수 없음 : ${error}';
+  String device_info_unavailable_error({required Object error}) => '디바이스 정보를 불러올 수 없음 : ${error}';
   String get camera_permission_error => '카메라 권한이 없습니다.';
   String get creation_error => '생성 실패';
   String get export_error => '내보내기 실패';
   String psbt_parsing_error({required Object error}) => 'psbt 파싱 실패: ${error}';
-  String get not_related_multisig_wallet_error =>
-      '이 지갑을 키로 사용한 다중 서명 지갑이 아닙니다.';
+  String get not_related_multisig_wallet_error => '이 지갑을 키로 사용한 다중 서명 지갑이 아닙니다.';
 }
 
 // Path: tooltip
@@ -1117,8 +1072,7 @@ class TranslationsMultiSigBsmsScreenGuideKr {
   String get text1 => '안전한 다중 서명 지갑 관리를 위한 표준에 따라 지갑 설정 정보를 관리하고 공유합니다.';
   String get text2 => '모든 키가 볼트에 저장되어 있습니다.';
   String get text3 => '같은 키를 보관하고 있는 다른 볼트에서도 이 QR을 읽어 다중 서명 지갑을 추가할 수 있습니다.';
-  String text4({required Object gen}) =>
-      '이 다중 서명 지갑에 지정된 **${gen}** 키의 니모닉 문구는 현재 다른 볼트에 있습니다.';
+  String text4({required Object gen}) => '이 다중 서명 지갑에 지정된 **${gen}** 키의 니모닉 문구는 현재 다른 볼트에 있습니다.';
   String text5({required Object gen}) =>
       '**${gen}** 키 보관 지갑 - **다중 서명 지갑 가져오기**에서 아래 QR 코드를 읽어 주세요. 다중 서명 트랜잭션에 **${gen}** 키로 서명하기 위해 이 절차가 반드시 필요합니다.';
 }
@@ -1166,8 +1120,7 @@ class TranslationsPermissionBiometricKr {
   String get proceed_biometric_auth => '생체 인증을 진행해 주세요.';
   String get required => '생체 인증 권한이 필요합니다.';
   String get denied => '생체 인증 권한이 거부되었습니다.';
-  String get how_to_allow =>
-      '생체 인증을 통한 잠금 해제를 하시려면\n설정 > 코코넛 볼트에서 생체 인증 권한을 허용해 주세요.';
+  String get how_to_allow => '생체 인증을 통한 잠금 해제를 하시려면\n설정 > 코코넛 볼트에서 생체 인증 권한을 허용해 주세요.';
   String get btn_move_to_setting => '설정 화면으로 이동';
 }
 
@@ -1507,8 +1460,7 @@ extension on Translations {
       case 'name_text_count':
         return ({required Object count}) => '(${count} / 20)';
       case 'wallet_subtitle':
-        return ({required Object name, required Object index}) =>
-            '${name}의 ${index}번 키';
+        return ({required Object name, required Object index}) => '${name}의 ${index}번 키';
       case 'forgot_password':
         return '비밀번호가 기억나지 않나요?';
       case 'scan_qr_url_link':
@@ -1900,19 +1852,16 @@ extension on Translations {
       case 'multi_sig_bsms_screen.guide.text3':
         return '같은 키를 보관하고 있는 다른 볼트에서도 이 QR을 읽어 다중 서명 지갑을 추가할 수 있습니다.';
       case 'multi_sig_bsms_screen.guide.text4':
-        return ({required Object gen}) =>
-            '이 다중 서명 지갑에 지정된 **${gen}** 키의 니모닉 문구는 현재 다른 볼트에 있습니다.';
+        return ({required Object gen}) => '이 다중 서명 지갑에 지정된 **${gen}** 키의 니모닉 문구는 현재 다른 볼트에 있습니다.';
       case 'multi_sig_bsms_screen.guide.text5':
         return ({required Object gen}) =>
             '**${gen}** 키 보관 지갑 - **다중 서명 지갑 가져오기**에서 아래 QR 코드를 읽어 주세요. 다중 서명 트랜잭션에 **${gen}** 키로 서명하기 위해 이 절차가 반드시 필요합니다.';
       case 'multi_sig_bsms_screen.first_key':
         return ({required Object first}) => '${first}번';
       case 'multi_sig_bsms_screen.first_and_last_keys':
-        return ({required Object first, required Object last}) =>
-            '${first}번과 ${last}번';
+        return ({required Object first, required Object last}) => '${first}번과 ${last}번';
       case 'multi_sig_bsms_screen.first_or_last_key':
-        return ({required Object first, required Object last}) =>
-            '${first}번 또는 ${last}번';
+        return ({required Object first, required Object last}) => '${first}번 또는 ${last}번';
       case 'multi_sig_bsms_screen.view_detail':
         return '상세 정보 보기';
       case 'multi_sig_memo_bottom_sheet.imported_wallet_memo':

@@ -65,8 +65,7 @@ class _MnemonicCoinflipScreenState extends State<MnemonicCoinflipScreen> {
       onCancel: () => Navigator.pop(context),
       onConfirm: () {
         Navigator.pop(context);
-        Navigator.pushNamedAndRemoveUntil(
-            context, '/', (Route<dynamic> route) => false);
+        Navigator.pushNamedAndRemoveUntil(context, '/', (Route<dynamic> route) => false);
       },
     );
   }
@@ -75,21 +74,17 @@ class _MnemonicCoinflipScreenState extends State<MnemonicCoinflipScreen> {
   void initState() {
     super.initState();
     Provider.of<WalletCreationProvider>(context, listen: false).resetAll();
-    _totalStep = Provider.of<VisibilityProvider>(context, listen: false)
-            .isPassphraseUseEnabled
-        ? 2
-        : 1;
+    _totalStep =
+        Provider.of<VisibilityProvider>(context, listen: false).isPassphraseUseEnabled ? 2 : 1;
   }
 
   @override
   Widget build(BuildContext context) {
     final List<Widget> screens = [
       WordsLengthSelection(
-          onSelected: _onLengthSelected,
-          onShowStopDialog: _showStopGeneratingMnemonicDialog),
+          onSelected: _onLengthSelected, onShowStopDialog: _showStopGeneratingMnemonicDialog),
       PassphraseSelection(
-          onSelected: _onPassphraseSelected,
-          onShowStopDialog: _showStopGeneratingMnemonicDialog),
+          onSelected: _onPassphraseSelected, onShowStopDialog: _showStopGeneratingMnemonicDialog),
       FlipCoin(
         wordsCount: _selectedWordsCount,
         usePassphrase: _usePassphrase,
@@ -168,8 +163,7 @@ class _FlipCoinState extends State<FlipCoin> {
                 Padding(
                   padding: const EdgeInsets.only(top: 20.0, bottom: 12),
                   child: Selector<VisibilityProvider, bool>(
-                      selector: (context, model) =>
-                          model.isPassphraseUseEnabled,
+                      selector: (context, model) => model.isPassphraseUseEnabled,
                       builder: (context, isAdvancedUser, _) {
                         return Row(
                           mainAxisAlignment: MainAxisAlignment.center,
@@ -182,16 +176,12 @@ class _FlipCoinState extends State<FlipCoin> {
                             Text(isAdvancedUser ? ', ${t.passphrase} ' : ''),
                             isAdvancedUser
                                 ? widget.usePassphrase
-                                    ? HighLightedText(
-                                        t.mnemonic_coin_flip_screen.use,
+                                    ? HighLightedText(t.mnemonic_coin_flip_screen.use,
                                         color: MyColors.darkgrey)
                                     : Row(
                                         children: [
-                                          Text(
-                                              '${t.mnemonic_coin_flip_screen.use} '),
-                                          HighLightedText(
-                                              t.mnemonic_coin_flip_screen
-                                                  .do_not,
+                                          Text('${t.mnemonic_coin_flip_screen.use} '),
+                                          HighLightedText(t.mnemonic_coin_flip_screen.do_not,
                                               color: MyColors.darkgrey),
                                         ],
                                       )
@@ -208,12 +198,10 @@ class _FlipCoinState extends State<FlipCoin> {
                                     : widget.onReset,
                                 child: Container(
                                     margin: const EdgeInsets.only(left: 8),
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 8, vertical: 4),
+                                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                                     decoration: BoxDecoration(
                                         borderRadius: BorderRadius.circular(8),
-                                        border: Border.all(
-                                            color: MyColors.borderGrey)),
+                                        border: Border.all(color: MyColors.borderGrey)),
                                     child: Text(
                                       t.re_select,
                                       style: Styles.caption,
@@ -268,8 +256,7 @@ class _FlipCoinState extends State<FlipCoin> {
                     child: step == 0
                         ? Column(
                             children: [
-                              Text('$_currentIndex / $_totalBits',
-                                  style: Styles.h3),
+                              Text('$_currentIndex / $_totalBits', style: Styles.h3),
                               Align(
                                 alignment: Alignment.bottomRight,
                                 child: Material(
@@ -291,8 +278,7 @@ class _FlipCoinState extends State<FlipCoin> {
                                           horizontal: 15,
                                           vertical: 10,
                                         ),
-                                        child: Text(t.view_all,
-                                            style: Styles.caption),
+                                        child: Text(t.view_all, style: Styles.caption),
                                       ),
                                     ),
                                   ),
@@ -311,8 +297,7 @@ class _FlipCoinState extends State<FlipCoin> {
                                 child: SizedBox(
                                   child: CustomTextField(
                                     controller: _passphraseController,
-                                    placeholder: t.mnemonic_coin_flip_screen
-                                        .enter_passphrase,
+                                    placeholder: t.mnemonic_coin_flip_screen.enter_passphrase,
                                     onChanged: (text) {
                                       setState(() {
                                         passphrase = text;
@@ -323,8 +308,7 @@ class _FlipCoinState extends State<FlipCoin> {
                                     suffix: CupertinoButton(
                                       onPressed: () {
                                         setState(() {
-                                          passphraseObscured =
-                                              !passphraseObscured;
+                                          passphraseObscured = !passphraseObscured;
                                         });
                                       },
                                       child: passphraseObscured
@@ -344,8 +328,7 @@ class _FlipCoinState extends State<FlipCoin> {
                                 ),
                               ),
                               Padding(
-                                padding:
-                                    const EdgeInsets.only(top: 4, right: 4),
+                                padding: const EdgeInsets.only(top: 4, right: 4),
                                 child: Align(
                                   alignment: Alignment.topRight,
                                   child: Text(
@@ -355,8 +338,7 @@ class _FlipCoinState extends State<FlipCoin> {
                                             ? MyColors.transparentBlack
                                             : MyColors.transparentBlack_50,
                                         fontSize: 12,
-                                        fontFamily:
-                                            CustomFonts.text.getFontFamily),
+                                        fontFamily: CustomFonts.text.getFontFamily),
                                   ),
                                 ),
                               )
@@ -367,8 +349,7 @@ class _FlipCoinState extends State<FlipCoin> {
                       onPressed: () {
                         setState(() {
                           if (_generateMnemonicPhrase()) {
-                            _showConfirmBottomSheet(
-                                t.bottom_sheet.mnemonic_backup);
+                            _showConfirmBottomSheet(t.bottom_sheet.mnemonic_backup);
                           }
                         });
                       },
@@ -390,23 +371,20 @@ class _FlipCoinState extends State<FlipCoin> {
                       onPressed: () {
                         setState(() {
                           if (_generateMnemonicPhrase()) {
-                            _showConfirmBottomSheet(t.bottom_sheet
-                                .mnemonic_backup_and_confirm_passphrase);
+                            _showConfirmBottomSheet(
+                                t.bottom_sheet.mnemonic_backup_and_confirm_passphrase);
                           }
                         });
                       },
                       label: t.complete,
-                      disabled:
-                          passphrase.isEmpty || _bits.length < _totalBits),
+                      disabled: passphrase.isEmpty || _bits.length < _totalBits),
                 const SizedBox(height: 80),
               ],
             )));
   }
 
   Widget _buildBitGrid() {
-    int start = _currentIndex + 1 == _totalBits
-        ? _totalBits - 8
-        : _currentIndex ~/ 8 * 8;
+    int start = _currentIndex + 1 == _totalBits ? _totalBits - 8 : _currentIndex ~/ 8 * 8;
     int end;
     List<int> currentBits;
 
@@ -417,8 +395,7 @@ class _FlipCoinState extends State<FlipCoin> {
       start -= 8;
     }
     end = start + 8;
-    currentBits =
-        _bits.length >= end ? _bits.sublist(start, end) : _bits.sublist(start);
+    currentBits = _bits.length >= end ? _bits.sublist(start, end) : _bits.sublist(start);
 
     return Column(
       children: List.generate(2, (rowIndex) {
@@ -448,8 +425,7 @@ class _FlipCoinState extends State<FlipCoin> {
                           color: MyColors.transparentBlack_30))),
                   Text(
                     index < currentBits.length ? '${currentBits[index]}' : '',
-                    style: Styles.h3.merge(TextStyle(
-                        fontFamily: CustomFonts.number.getFontFamily)),
+                    style: Styles.h3.merge(TextStyle(fontFamily: CustomFonts.number.getFontFamily)),
                   )
                 ],
               )),
@@ -496,15 +472,15 @@ class _FlipCoinState extends State<FlipCoin> {
             GestureDetector(
               onTap: _removeLastBit,
               child: Text(t.delete_one,
-                  style: Styles.subLabel.merge(TextStyle(
-                      color: _bits.isEmpty ? MyColors.defaultText : null))),
+                  style: Styles.subLabel
+                      .merge(TextStyle(color: _bits.isEmpty ? MyColors.defaultText : null))),
             ),
             const SizedBox(width: 20),
             GestureDetector(
               onTap: _showConfirmResetDialog,
               child: Text(t.delete_all,
-                  style: Styles.subLabel.merge(TextStyle(
-                      color: _bits.isEmpty ? MyColors.defaultText : null))),
+                  style: Styles.subLabel
+                      .merge(TextStyle(color: _bits.isEmpty ? MyColors.defaultText : null))),
             ),
           ],
         ),
@@ -518,9 +494,8 @@ class _FlipCoinState extends State<FlipCoin> {
         decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(8),
             border: Border.all(
-                color: _bits.length == _totalBits
-                    ? MyColors.borderLightgrey
-                    : MyColors.borderGrey)),
+                color:
+                    _bits.length == _totalBits ? MyColors.borderLightgrey : MyColors.borderGrey)),
         child: Text(label, style: Styles.body1));
   }
 
@@ -560,8 +535,7 @@ class _FlipCoinState extends State<FlipCoin> {
     });
   }
 
-  void _showConfirmResetDialog(
-      {String? title, String? message, VoidCallback? action}) {
+  void _showConfirmResetDialog({String? title, String? message, VoidCallback? action}) {
     CustomDialogs.showCustomAlertDialog(
       context,
       title: title ?? t.delete_all,
@@ -584,11 +558,9 @@ class _FlipCoinState extends State<FlipCoin> {
 
   bool _generateMnemonicPhrase() {
     try {
-      final mnemonic =
-          Seed.fromBinaryEntropy(listToBinaryString(_bits)).mnemonic;
+      final mnemonic = Seed.fromBinaryEntropy(listToBinaryString(_bits)).mnemonic;
       setState(() {
-        _mnemonic =
-            mnemonic.trim().toLowerCase().replaceAll(RegExp(r'\s+'), ' ');
+        _mnemonic = mnemonic.trim().toLowerCase().replaceAll(RegExp(r'\s+'), ' ');
       });
       return true;
     } catch (e) {
@@ -611,10 +583,8 @@ class _FlipCoinState extends State<FlipCoin> {
         onConfirmPressed: () {
           Provider.of<WalletCreationProvider>(context, listen: false)
               .setSecretAndPassphrase(_mnemonic, passphrase);
-          Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(
-                  builder: (context) => const VaultNameAndIconSetupScreen()));
+          Navigator.pushReplacement(context,
+              MaterialPageRoute(builder: (context) => const VaultNameAndIconSetupScreen()));
         },
         onInactivePressed: () {
           CustomToast.showToast(context: context, text: t.toast.scroll_down);
@@ -675,8 +645,7 @@ class BinaryGrid extends StatelessWidget {
             mainAxisSpacing: 4,
             padding: const EdgeInsets.only(bottom: 30),
             children: List.generate(totalBits, (index) {
-              return _buildGridItem(
-                  index < loadedBits.length ? loadedBits[index] : null, index);
+              return _buildGridItem(index < loadedBits.length ? loadedBits[index] : null, index);
             }),
           );
         },

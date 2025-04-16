@@ -33,8 +33,7 @@ class SingleSigSetupInfoScreen extends StatefulWidget {
   const SingleSigSetupInfoScreen({super.key, required this.id});
 
   @override
-  State<SingleSigSetupInfoScreen> createState() =>
-      _SingleSigSetupInfoScreenState();
+  State<SingleSigSetupInfoScreen> createState() => _SingleSigSetupInfoScreenState();
 }
 
 class _SingleSigSetupInfoScreenState extends State<SingleSigSetupInfoScreen> {
@@ -51,16 +50,13 @@ class _SingleSigSetupInfoScreenState extends State<SingleSigSetupInfoScreen> {
     super.initState();
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      _tooltipIconRendBox =
-          _tooltipIconKey.currentContext?.findRenderObject() as RenderBox;
+      _tooltipIconRendBox = _tooltipIconKey.currentContext?.findRenderObject() as RenderBox;
       _tooltipIconPosition = _tooltipIconRendBox!.localToGlobal(Offset.zero);
-      _tooltipTopPadding =
-          MediaQuery.paddingOf(context).top + kToolbarHeight - 14;
+      _tooltipTopPadding = MediaQuery.paddingOf(context).top + kToolbarHeight - 14;
     });
   }
 
-  Future<void> _verifyBiometric(
-      BuildContext context, SecurityAction action) async {
+  Future<void> _verifyBiometric(BuildContext context, SecurityAction action) async {
     MyBottomSheet.showBottomSheet_90(
       context: context,
       child: CustomLoadingOverlay(
@@ -87,8 +83,7 @@ class _SingleSigSetupInfoScreenState extends State<SingleSigSetupInfoScreen> {
         child: ChangeNotifierProvider(
           create: (context) => SingleSigSetupInfoViewModel(
               Provider.of<WalletProvider>(context, listen: false), widget.id),
-          child: Consumer<SingleSigSetupInfoViewModel>(
-              builder: (context, viewModel, child) {
+          child: Consumer<SingleSigSetupInfoViewModel>(builder: (context, viewModel, child) {
             return Scaffold(
               backgroundColor: MyColors.white,
               appBar: CustomAppBar.build(
@@ -143,8 +138,7 @@ class _SingleSigSetupInfoScreenState extends State<SingleSigSetupInfoScreen> {
     );
   }
 
-  void _showModalBottomSheetForEditingNameAndIcon(
-      SingleSigSetupInfoViewModel viewModel) {
+  void _showModalBottomSheetForEditingNameAndIcon(SingleSigSetupInfoViewModel viewModel) {
     MyBottomSheet.showBottomSheet_90(
         context: context,
         child: NameAndIconEditBottomSheet(
@@ -168,8 +162,7 @@ class _SingleSigSetupInfoScreenState extends State<SingleSigSetupInfoScreen> {
       return;
     }
 
-    bool hasChanged = await viewModel.updateVault(
-        widget.id, newName, newColorIndex, newIconIndex);
+    bool hasChanged = await viewModel.updateVault(widget.id, newName, newColorIndex, newIconIndex);
 
     if (mounted) {
       if (hasChanged) {
@@ -200,8 +193,7 @@ class _SingleSigSetupInfoScreenState extends State<SingleSigSetupInfoScreen> {
       ),
       child: Container(
         margin: const EdgeInsets.all(1),
-        padding:
-            const EdgeInsets.only(left: 20, right: 20, top: 20, bottom: 14),
+        padding: const EdgeInsets.only(left: 20, right: 20, top: 20, bottom: 14),
         decoration: BoxDecoration(
           color: MyColors.white,
           borderRadius: BorderRadius.circular(21),
@@ -229,25 +221,20 @@ class _SingleSigSetupInfoScreenState extends State<SingleSigSetupInfoScreen> {
             ),
 
             // Linked multisig vaults
-            Consumer<SingleSigSetupInfoViewModel>(
-                builder: (context, viewModel, child) {
+            Consumer<SingleSigSetupInfoViewModel>(builder: (context, viewModel, child) {
               return ListView.builder(
                 itemCount: viewModel.linkedMutlsigVaultCount,
                 shrinkWrap: true,
                 itemBuilder: (context, index) {
-                  final id =
-                      viewModel.linkedMultisigInfo!.keys.elementAt(index);
-                  final idx =
-                      viewModel.linkedMultisigInfo!.values.elementAt(index);
+                  final id = viewModel.linkedMultisigInfo!.keys.elementAt(index);
+                  final idx = viewModel.linkedMultisigInfo!.values.elementAt(index);
 
-                  if (viewModel.isLoadedVaultList &&
-                      viewModel.existsLinkedMultisigVault(id)) {
+                  if (viewModel.isLoadedVaultList && viewModel.existsLinkedMultisigVault(id)) {
                     final multisig = viewModel.getVaultById(id);
 
                     return InkWell(
                       onTap: () {
-                        Navigator.pushNamed(
-                            context, AppRoutes.multisigSetupInfo,
+                        Navigator.pushNamed(context, AppRoutes.multisigSetupInfo,
                             arguments: {'id': id});
                       },
                       child: Container(
@@ -348,8 +335,7 @@ class _SingleSigSetupInfoScreenState extends State<SingleSigSetupInfoScreen> {
             ),
             child: Column(
               children: [
-                Selector<SingleSigSetupInfoViewModel,
-                        ({bool canDelete, String walletName})>(
+                Selector<SingleSigSetupInfoViewModel, ({bool canDelete, String walletName})>(
                     selector: (context, viewModel) => (
                           canDelete: viewModel.hasLinkedMultisigVault != true,
                           walletName: viewModel.name,
@@ -384,15 +370,12 @@ class _SingleSigSetupInfoScreenState extends State<SingleSigSetupInfoScreen> {
                             showConfirmDialog(
                                 context: context,
                                 title: t.confirm,
-                                content: t.alert
-                                    .confirm_deletion(name: data.walletName),
+                                content: t.alert.confirm_deletion(name: data.walletName),
                                 onConfirmPressed: () async {
                                   context.loaderOverlay.show();
-                                  await Future.delayed(
-                                      const Duration(seconds: 1));
+                                  await Future.delayed(const Duration(seconds: 1));
                                   if (context.mounted) {
-                                    _verifyBiometric(
-                                        context, SecurityAction.delete);
+                                    _verifyBiometric(context, SecurityAction.delete);
                                     context.loaderOverlay.hide();
                                   }
                                 });

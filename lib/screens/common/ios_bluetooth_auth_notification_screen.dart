@@ -12,8 +12,7 @@ class IosBluetoothAuthNotificationScreen extends StatefulWidget {
       _IosBluetoothAuthNotificationScreenState();
 }
 
-class _IosBluetoothAuthNotificationScreenState
-    extends State<IosBluetoothAuthNotificationScreen> {
+class _IosBluetoothAuthNotificationScreenState extends State<IosBluetoothAuthNotificationScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -48,26 +47,21 @@ class _IosBluetoothAuthNotificationScreenState
                 ),
                 child: Column(
                   children: [
-                    Text(t.ios_bluetooth_auth_notification_screen.text1_1,
-                        style: Styles.subLabel),
-                    Text(t.ios_bluetooth_auth_notification_screen.text1_2,
-                        style: Styles.subLabel),
-                    Text(t.ios_bluetooth_auth_notification_screen.text1_3,
-                        style: Styles.subLabel),
+                    Text(t.ios_bluetooth_auth_notification_screen.text1_1, style: Styles.subLabel),
+                    Text(t.ios_bluetooth_auth_notification_screen.text1_2, style: Styles.subLabel),
+                    Text(t.ios_bluetooth_auth_notification_screen.text1_3, style: Styles.subLabel),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Text(t.ios_bluetooth_auth_notification_screen.text1_4,
                             style: Styles.subLabel),
-                        HighLightedText(
-                            t.ios_bluetooth_auth_notification_screen.text1_5,
+                        HighLightedText(t.ios_bluetooth_auth_notification_screen.text1_5,
                             color: MyColors.darkgrey),
                         Text(t.ios_bluetooth_auth_notification_screen.text1_6,
                             style: Styles.subLabel),
                       ],
                     ),
-                    Text(t.ios_bluetooth_auth_notification_screen.text1_7,
-                        style: Styles.subLabel),
+                    Text(t.ios_bluetooth_auth_notification_screen.text1_7, style: Styles.subLabel),
                   ],
                 )),
             const SizedBox(

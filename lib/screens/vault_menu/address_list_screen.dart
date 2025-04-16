@@ -31,8 +31,8 @@ class _AddressListScreenState extends State<AddressListScreen> {
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider<AddressListViewModel>(
-      create: (BuildContext context) => _viewModel = AddressListViewModel(
-          Provider.of<WalletProvider>(context, listen: false), widget.id),
+      create: (BuildContext context) => _viewModel =
+          AddressListViewModel(Provider.of<WalletProvider>(context, listen: false), widget.id),
       child: Consumer<AddressListViewModel>(
         builder: (context, viewModel, child) {
           var addressList = viewModel.isReceivingSelected
@@ -88,10 +88,9 @@ class _AddressListScreenState extends State<AddressListScreen> {
                                           color: viewModel.isReceivingSelected
                                               ? MyColors.white
                                               : MyColors.transparentBlack_50,
-                                          fontWeight:
-                                              viewModel.isReceivingSelected
-                                                  ? FontWeight.bold
-                                                  : FontWeight.normal,
+                                          fontWeight: viewModel.isReceivingSelected
+                                              ? FontWeight.bold
+                                              : FontWeight.normal,
                                         )),
                                       ),
                                     ),
@@ -119,10 +118,9 @@ class _AddressListScreenState extends State<AddressListScreen> {
                                           color: !viewModel.isReceivingSelected
                                               ? MyColors.white
                                               : MyColors.transparentBlack_50,
-                                          fontWeight:
-                                              !viewModel.isReceivingSelected
-                                                  ? FontWeight.bold
-                                                  : FontWeight.normal,
+                                          fontWeight: !viewModel.isReceivingSelected
+                                              ? FontWeight.bold
+                                              : FontWeight.normal,
                                         )),
                                       ),
                                     ),
@@ -147,20 +145,17 @@ class _AddressListScreenState extends State<AddressListScreen> {
                                         context: context,
                                         child: QrcodeBottomSheet(
                                           qrData: addressList[index].address,
-                                          title: t.address_list_screen
-                                              .address_index(index: index),
+                                          title: t.address_list_screen.address_index(index: index),
                                           qrcodeTopWidget: Text(
                                             addressList[index].derivationPath,
-                                            style: Styles.body2.merge(
-                                                const TextStyle(
-                                                    color: MyColors.darkgrey)),
+                                            style: Styles.body2
+                                                .merge(const TextStyle(color: MyColors.darkgrey)),
                                           ),
                                         ),
                                       );
                                     },
                                     address: addressList[index].address,
-                                    derivationPath:
-                                        addressList[index].derivationPath,
+                                    derivationPath: addressList[index].derivationPath,
                                   ),
                                 ),
                               ),
@@ -172,8 +167,7 @@ class _AddressListScreenState extends State<AddressListScreen> {
                                   child: Container(
                                     padding: const EdgeInsets.all(30),
                                     child: const Center(
-                                      child: CircularProgressIndicator(
-                                          color: MyColors.darkgrey),
+                                      child: CircularProgressIndicator(color: MyColors.darkgrey),
                                     ),
                                   ),
                                 ),
@@ -203,14 +197,11 @@ class _AddressListScreenState extends State<AddressListScreen> {
   }
 
   void scrollToTop() {
-    _controller.animateTo(0,
-        duration: const Duration(milliseconds: 500), curve: Curves.decelerate);
+    _controller.animateTo(0, duration: const Duration(milliseconds: 500), curve: Curves.decelerate);
   }
 
   void _nextLoad() {
-    if (!_isFirstLoadRunning &&
-        !_isLoadMoreRunning &&
-        _controller.position.extentAfter < 50) {
+    if (!_isFirstLoadRunning && !_isLoadMoreRunning && _controller.position.extentAfter < 50) {
       setState(() {
         _isLoadMoreRunning = true;
       });

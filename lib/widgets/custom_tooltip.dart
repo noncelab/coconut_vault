@@ -26,10 +26,7 @@ class CustomTooltip extends StatefulWidget {
   final bool showIcon;
 
   const CustomTooltip(
-      {super.key,
-      required this.richText,
-      this.type = TooltipType.info,
-      required this.showIcon});
+      {super.key, required this.richText, this.type = TooltipType.info, required this.showIcon});
 
   @override
   State<CustomTooltip> createState() => _CustomTooltipState();
@@ -45,8 +42,7 @@ class _CustomTooltipState extends State<CustomTooltip> {
     super.initState();
     Color color = ColorPalette[widget.type.colorIndex];
     _borderColor = color.withOpacity(0.7);
-    _backgroundColor =
-        BackgroundColorPalette[widget.type.colorIndex].withOpacity(0.18);
+    _backgroundColor = BackgroundColorPalette[widget.type.colorIndex].withOpacity(0.18);
     _icon = SvgPicture.asset(widget.type.svgPath,
         colorFilter: ColorFilter.mode(color, BlendMode.srcIn), width: 18);
   }
@@ -60,8 +56,7 @@ class _CustomTooltipState extends State<CustomTooltip> {
           borderRadius: BorderRadius.circular(16.0),
         ),
         child: Container(
-            padding:
-                const EdgeInsets.symmetric(horizontal: 16.0, vertical: 16.0),
+            padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 16.0),
             decoration: BoxDecoration(
                 color: _backgroundColor,
                 borderRadius: BorderRadius.circular(16.0),

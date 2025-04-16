@@ -8,10 +8,7 @@ class CompleteButton extends StatefulWidget {
   final bool disabled;
 
   const CompleteButton(
-      {super.key,
-      required this.onPressed,
-      required this.label,
-      required this.disabled});
+      {super.key, required this.onPressed, required this.label, required this.disabled});
 
   @override
   _CompleteButtonState createState() => _CompleteButtonState();
@@ -25,20 +22,15 @@ class _CompleteButtonState extends State<CompleteButton> {
             onTap: widget.disabled ? null : widget.onPressed,
             child: Container(
                 margin: const EdgeInsets.only(top: 40),
-                padding:
-                    const EdgeInsets.symmetric(vertical: 12, horizontal: 20),
+                padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 20),
                 decoration: BoxDecoration(
                   borderRadius: MyBorder.boxDecorationRadius,
-                  color: widget.disabled
-                      ? MyColors.transparentBlack_06
-                      : MyColors.darkgrey,
+                  color: widget.disabled ? MyColors.transparentBlack_06 : MyColors.darkgrey,
                 ),
                 child: Text(
                   widget.label,
-                  style: Styles.body2Bold.merge(TextStyle(
-                      color: widget.disabled
-                          ? MyColors.defaultText
-                          : MyColors.white)),
+                  style: Styles.body2Bold.merge(
+                      TextStyle(color: widget.disabled ? MyColors.defaultText : MyColors.white)),
                 ))));
   }
 }
@@ -170,8 +162,7 @@ class _CountingRowButtonState extends State<CountingRowButton> {
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color:
-                    isMinusTapDown ? MyColors.dropdownGrey : Colors.transparent,
+                color: isMinusTapDown ? MyColors.dropdownGrey : Colors.transparent,
               ),
               child: Center(
                 child: SvgPicture.asset(
@@ -235,8 +226,7 @@ class _CountingRowButtonState extends State<CountingRowButton> {
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color:
-                    isPlusTapDown ? MyColors.dropdownGrey : Colors.transparent,
+                color: isPlusTapDown ? MyColors.dropdownGrey : Colors.transparent,
               ),
               child: Center(
                 child: SvgPicture.asset(

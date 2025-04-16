@@ -9,11 +9,7 @@ class ActionBottomButton extends StatelessWidget {
   final TextStyle? textStyle;
 
   const ActionBottomButton(
-      {super.key,
-      required this.onPressed,
-      required this.text,
-      this.left,
-      this.textStyle});
+      {super.key, required this.onPressed, required this.text, this.left, this.textStyle});
 
   @override
   Widget build(BuildContext context) {

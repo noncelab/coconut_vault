@@ -2,8 +2,7 @@ import 'package:coconut_vault/model/common/vault_list_item_base.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:flutter/material.dart';
 
-abstract class VaultSetupInfoViewModelBase<T extends VaultListItemBase>
-    extends ChangeNotifier {
+abstract class VaultSetupInfoViewModelBase<T extends VaultListItemBase> extends ChangeNotifier {
   final WalletProvider _walletProvider;
   @protected
   WalletProvider get walletProvider => _walletProvider;
@@ -19,8 +18,7 @@ abstract class VaultSetupInfoViewModelBase<T extends VaultListItemBase>
     _vaultListItem = _walletProvider.getVaultById(id) as T;
   }
 
-  Future<bool> updateVault(
-      int id, String name, int colorIndex, int iconIndex) async {
+  Future<bool> updateVault(int id, String name, int colorIndex, int iconIndex) async {
     if (name == _vaultListItem.name &&
         colorIndex == _vaultListItem.colorIndex &&
         iconIndex == _vaultListItem.iconIndex) {

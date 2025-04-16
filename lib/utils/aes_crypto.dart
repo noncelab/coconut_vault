@@ -22,8 +22,7 @@ class Aes256Crypto {
     required IV iv,
   }) {
     if (key.length != _keyLength) {
-      throw ArgumentError(
-          'Invalid key length: ${key.length} bytes. Expected: $_keyLength bytes');
+      throw ArgumentError('Invalid key length: ${key.length} bytes. Expected: $_keyLength bytes');
     }
     final encrypter = Encrypter(AES(key, mode: AESMode.cbc));
     final encrypted = encrypter.encrypt(data, iv: iv);
@@ -41,8 +40,7 @@ class Aes256Crypto {
     required IV iv,
   }) {
     if (key.length != _keyLength) {
-      throw ArgumentError(
-          'Invalid key length: ${key.length} bytes. Expected: $_keyLength bytes');
+      throw ArgumentError('Invalid key length: ${key.length} bytes. Expected: $_keyLength bytes');
     }
     final encrypter = Encrypter(AES(key, mode: AESMode.cbc));
     final encrypted = Encrypted.fromBase64(encryptedData);

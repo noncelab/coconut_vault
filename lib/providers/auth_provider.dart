@@ -19,8 +19,7 @@ import 'package:local_auth/local_auth.dart';
 class AuthProvider extends ChangeNotifier {
   static String unlockAvailableAtKey = SharedPrefsKeys.kUnlockAvailableAt;
   static String turnKey = SharedPrefsKeys.kPinInputTurn;
-  static String currentAttemptKey =
-      SharedPrefsKeys.kPinInputCurrentAttemptCount;
+  static String currentAttemptKey = SharedPrefsKeys.kPinInputCurrentAttemptCount;
 
   final SharedPrefsRepository _sharedPrefs = SharedPrefsRepository();
   final SecureStorageRepository _storageService = SecureStorageRepository();
@@ -33,8 +32,7 @@ class AuthProvider extends ChangeNotifier {
 
   /// 리셋 여부
   bool _hasAlreadyRequestedBioPermission = false;
-  bool get hasAlreadyRequestedBioPermission =>
-      _hasAlreadyRequestedBioPermission;
+  bool get hasAlreadyRequestedBioPermission => _hasAlreadyRequestedBioPermission;
 
   /// 디바이스 생체인증 활성화 여부
   bool _canCheckBiometrics = false;
@@ -44,8 +42,7 @@ class AuthProvider extends ChangeNotifier {
   bool _isBiometricEnabled = false;
   bool get isBiometricEnabled => _isBiometricEnabled;
 
-  bool get isBiometricAuthRequired =>
-      _isBiometricEnabled && _canCheckBiometrics;
+  bool get isBiometricAuthRequired => _isBiometricEnabled && _canCheckBiometrics;
 
   /// 사용자 생체인증 권한 허용 여부
   bool _hasBiometricsPermission = false;
@@ -61,9 +58,7 @@ class AuthProvider extends ChangeNotifier {
       ? (_currentTurn == 0
           ? DateTime.now()
           : DateTime.now().add(Duration(minutes: kLockoutDurationsPerTurn[0])))
-      : (_unlockAvailableAtInString == '-1'
-          ? null
-          : DateTime.tryParse(_unlockAvailableAtInString));
+      : (_unlockAvailableAtInString == '-1' ? null : DateTime.tryParse(_unlockAvailableAtInString));
 
   int get remainingAttemptCount => kMaxAttemptPerTurn - _currentAttemptInTurn;
   bool get isPermanantlyLocked => _currentTurn == kMaxTurn;
@@ -85,26 +80,21 @@ class AuthProvider extends ChangeNotifier {
   }
 
   void _loadBiometricState() {
-    _isBiometricEnabled =
-        _sharedPrefs.getBool(SharedPrefsKeys.isBiometricEnabled) == true;
+    _isBiometricEnabled = _sharedPrefs.getBool(SharedPrefsKeys.isBiometricEnabled) == true;
     _hasBiometricsPermission =
         _sharedPrefs.getBool(SharedPrefsKeys.hasBiometricsPermission) == true;
-    _hasAlreadyRequestedBioPermission = _sharedPrefs
-            .getBool(SharedPrefsKeys.hasAlreadyRequestedBioPermission) ==
-        true;
+    _hasAlreadyRequestedBioPermission =
+        _sharedPrefs.getBool(SharedPrefsKeys.hasAlreadyRequestedBioPermission) == true;
   }
 
   void _loadUnlockState() {
     final pinInputAttemptCount = _sharedPrefs.getString(currentAttemptKey);
     final totalAttemptCount = _sharedPrefs.getString(turnKey);
-    final lockoutEndDateTimeString =
-        _sharedPrefs.getString(unlockAvailableAtKey);
+    final lockoutEndDateTimeString = _sharedPrefs.getString(unlockAvailableAtKey);
 
-    _currentAttemptInTurn =
-        pinInputAttemptCount.isEmpty ? 0 : int.parse(pinInputAttemptCount);
+    _currentAttemptInTurn = pinInputAttemptCount.isEmpty ? 0 : int.parse(pinInputAttemptCount);
     _currentTurn = totalAttemptCount.isEmpty ? 0 : int.parse(totalAttemptCount);
-    _unlockAvailableAtInString =
-        totalAttemptCount.isEmpty ? '' : lockoutEndDateTimeString;
+    _unlockAvailableAtInString = totalAttemptCount.isEmpty ? '' : lockoutEndDateTimeString;
   }
 
   bool isUnlockAvailable() {
@@ -114,8 +104,7 @@ class AuthProvider extends ChangeNotifier {
 
   /// 생체인증 진행 후 성공 여부 반환
   Future<bool> authenticateWithBiometrics(BuildContext context,
-      {bool showAuthenticationFailedDialog = true,
-      bool isSaved = false}) async {
+      {bool showAuthenticationFailedDialog = true, bool isSaved = false}) async {
     bool authenticated = false;
     try {
       authenticated = await _auth.authenticate(
@@ -130,8 +119,7 @@ class AuthProvider extends ChangeNotifier {
       );
 
       if (Platform.isIOS && !authenticated) {
-        if (context.mounted &&
-            onRequestShowAuthenticationFailedDialog != null) {
+        if (context.mounted && onRequestShowAuthenticationFailedDialog != null) {
           onRequestShowAuthenticationFailedDialog!();
         }
       }
@@ -151,8 +139,7 @@ class AuthProvider extends ChangeNotifier {
             !authenticated &&
             e.message == 'Biometry is not available.' &&
             showAuthenticationFailedDialog) {
-          if (context.mounted &&
-              onRequestShowAuthenticationFailedDialog != null) {
+          if (context.mounted && onRequestShowAuthenticationFailedDialog != null) {
             onRequestShowAuthenticationFailedDialog!();
           }
         }
@@ -166,8 +153,7 @@ class AuthProvider extends ChangeNotifier {
     if (_hasAlreadyRequestedBioPermission) return;
 
     _hasAlreadyRequestedBioPermission = true;
-    await _sharedPrefs.setBool(
-        SharedPrefsKeys.hasAlreadyRequestedBioPermission, true);
+    await _sharedPrefs.setBool(SharedPrefsKeys.hasAlreadyRequestedBioPermission, true);
   }
 
   /// 기기의 생체인증 가능 여부 업데이트
@@ -180,8 +166,7 @@ class AuthProvider extends ChangeNotifier {
         return;
       }
 
-      final List<BiometricType> availableBiometrics =
-          await _auth.getAvailableBiometrics();
+      final List<BiometricType> availableBiometrics = await _auth.getAvailableBiometrics();
 
       _canCheckBiometrics = availableBiometrics.isNotEmpty;
 
@@ -194,10 +179,8 @@ class AuthProvider extends ChangeNotifier {
       _canCheckBiometrics = false;
       _isBiometricEnabled = false;
     } finally {
-      _sharedPrefs.setBool(
-          SharedPrefsKeys.canCheckBiometrics, _canCheckBiometrics);
-      _sharedPrefs.setBool(
-          SharedPrefsKeys.isBiometricEnabled, _isBiometricEnabled);
+      _sharedPrefs.setBool(SharedPrefsKeys.canCheckBiometrics, _canCheckBiometrics);
+      _sharedPrefs.setBool(SharedPrefsKeys.isBiometricEnabled, _isBiometricEnabled);
       notifyListeners();
     }
   }
@@ -227,14 +210,10 @@ class AuthProvider extends ChangeNotifier {
   // util: 비밀번호 입력 패드 생성
   List<String> getShuffledNumberList({isPinSettingContext = false}) {
     final random = Random();
-    var randomNumberPad =
-        List<String>.generate(10, (index) => index.toString());
+    var randomNumberPad = List<String>.generate(10, (index) => index.toString());
     randomNumberPad.shuffle(random);
-    randomNumberPad.insert(
-        randomNumberPad.length - 1,
-        !isPinSettingContext && _isBiometricEnabled
-            ? kBiometricIdentifier
-            : '');
+    randomNumberPad.insert(randomNumberPad.length - 1,
+        !isPinSettingContext && _isBiometricEnabled ? kBiometricIdentifier : '');
     randomNumberPad.add(kDeleteBtnIdentifier);
     return randomNumberPad;
   }
@@ -242,8 +221,7 @@ class AuthProvider extends ChangeNotifier {
   /// 비밀번호 검증
   Future<bool> verifyPin(String inputPin) async {
     String hashedInput = hashString(inputPin);
-    final savedPin =
-        await _storageService.read(key: SecureStorageKeys.kVaultPin);
+    final savedPin = await _storageService.read(key: SecureStorageKeys.kVaultPin);
 
     if (savedPin == hashedInput) {
       resetAuthenticationState();
@@ -262,8 +240,7 @@ class AuthProvider extends ChangeNotifier {
     }
 
     String hashed = hashString(pin);
-    await _storageService.write(
-        key: SecureStorageKeys.kVaultPin, value: hashed);
+    await _storageService.write(key: SecureStorageKeys.kVaultPin, value: hashed);
     _isPinSet = true;
     _sharedPrefs.setBool(SharedPrefsKeys.isPinEnabled, true);
     notifyListeners();
@@ -291,17 +268,15 @@ class AuthProvider extends ChangeNotifier {
     await _sharedPrefs.setString(turnKey, turn.toString());
 
     if (turn == kMaxTurn) {
-      await _sharedPrefs.setString(
-          unlockAvailableAtKey, kPinInputDelayInfinite.toString());
+      await _sharedPrefs.setString(unlockAvailableAtKey, kPinInputDelayInfinite.toString());
       return;
     }
 
-    final unlockableDateTime = DateTime.now()
-        .add(Duration(minutes: kLockoutDurationsPerTurn[turn - 1]));
+    final unlockableDateTime =
+        DateTime.now().add(Duration(minutes: kLockoutDurationsPerTurn[turn - 1]));
 
     _unlockAvailableAtInString = unlockableDateTime.toIso8601String();
-    await _sharedPrefs.setString(
-        unlockAvailableAtKey, _unlockAvailableAtInString);
+    await _sharedPrefs.setString(unlockAvailableAtKey, _unlockAvailableAtInString);
   }
 
   /// 비밀번호 입력 시도 횟수 -> shared preference 저장할 필요가 없음.

@@ -43,9 +43,7 @@ class _ChecklistTileState extends State<ChecklistTile> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Icon(
-              isChecked
-                  ? Icons.check_circle_rounded
-                  : Icons.check_circle_outline_rounded,
+              isChecked ? Icons.check_circle_rounded : Icons.check_circle_outline_rounded,
               size: 20.0,
               color: MyColors.darkgrey,
             ),
@@ -53,8 +51,7 @@ class _ChecklistTileState extends State<ChecklistTile> {
             Expanded(
               child: Text(
                 widget.item.title,
-                style: Styles.label
-                    .merge(const TextStyle(color: MyColors.darkgrey)),
+                style: Styles.label.merge(const TextStyle(color: MyColors.darkgrey)),
                 textAlign: TextAlign.start,
               ),
             ),

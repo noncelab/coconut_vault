@@ -8,8 +8,7 @@ class VaultListViewModel extends ChangeNotifier {
   late final WalletProvider _walletProvider;
   late final int _initialWalletCount;
 
-  VaultListViewModel(
-      this._authProvider, this._walletProvider, this._initialWalletCount) {
+  VaultListViewModel(this._authProvider, this._walletProvider, this._initialWalletCount) {
     _walletProvider.addListener(_onWalletProviderUpdate);
   }
 

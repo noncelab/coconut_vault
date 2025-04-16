@@ -5,8 +5,7 @@ class SharedPrefsRepository {
   late SharedPreferences _sharedPrefs;
   SharedPreferences get sharedPrefs => _sharedPrefs;
 
-  static final SharedPrefsRepository _instance =
-      SharedPrefsRepository._internal();
+  static final SharedPrefsRepository _instance = SharedPrefsRepository._internal();
 
   factory SharedPrefsRepository() => _instance;
 

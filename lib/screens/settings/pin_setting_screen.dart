@@ -18,8 +18,7 @@ import '../../widgets/custom_dialog.dart';
 class PinSettingScreen extends StatefulWidget {
   final bool greetingVisible;
   final Function? onComplete;
-  const PinSettingScreen(
-      {super.key, this.greetingVisible = false, this.onComplete});
+  const PinSettingScreen({super.key, this.greetingVisible = false, this.onComplete});
 
   @override
   State<PinSettingScreen> createState() => _PinSettingScreenState();
@@ -44,18 +43,15 @@ class _PinSettingScreenState extends State<PinSettingScreen> {
     greeting = widget.greetingVisible;
 
     _authProvider = Provider.of<AuthProvider>(context, listen: false);
-    _shuffledPinNumbers =
-        _authProvider.getShuffledNumberList(isPinSettingContext: true);
+    _shuffledPinNumbers = _authProvider.getShuffledNumberList(isPinSettingContext: true);
   }
 
-  void returnToBackSequence(String message,
-      {bool isError = false, bool firstSequence = false}) {
+  void returnToBackSequence(String message, {bool isError = false, bool firstSequence = false}) {
     setState(() {
       errorMessage = message;
       pinConfirm = '';
 
-      _shuffledPinNumbers =
-          _authProvider.getShuffledNumberList(isPinSettingContext: true);
+      _shuffledPinNumbers = _authProvider.getShuffledNumberList(isPinSettingContext: true);
       if (firstSequence) {
         step = 0;
         pin = '';
@@ -95,8 +91,7 @@ class _PinSettingScreenState extends State<PinSettingScreen> {
           bool isAlreadyUsingPin = await _comparePin(pin);
 
           if (isAlreadyUsingPin) {
-            returnToBackSequence(t.errors.duplicate_pin_error,
-                firstSequence: true);
+            returnToBackSequence(t.errors.duplicate_pin_error, firstSequence: true);
             return;
           }
         } catch (error) {
@@ -106,8 +101,7 @@ class _PinSettingScreenState extends State<PinSettingScreen> {
         setState(() {
           step = 1;
           errorMessage = '';
-          _shuffledPinNumbers =
-              _authProvider.getShuffledNumberList(isPinSettingContext: true);
+          _shuffledPinNumbers = _authProvider.getShuffledNumberList(isPinSettingContext: true);
         });
       }
     } else if (step == 1) {
@@ -125,8 +119,7 @@ class _PinSettingScreenState extends State<PinSettingScreen> {
         if (pin != pinConfirm) {
           errorMessage = t.errors.pin_incorrect_error;
           pinConfirm = '';
-          _shuffledPinNumbers =
-              _authProvider.getShuffledNumberList(isPinSettingContext: true);
+          _shuffledPinNumbers = _authProvider.getShuffledNumberList(isPinSettingContext: true);
           vibrateMediumDouble();
           return;
         }
@@ -134,15 +127,12 @@ class _PinSettingScreenState extends State<PinSettingScreen> {
         errorMessage = '';
 
         /// 최초 비밀번호 설정시에 생체 인증 사용 여부 확인
-        bool isPinSet =
-            SharedPrefsRepository().getBool(SharedPrefsKeys.isPinEnabled) ??
-                false;
+        bool isPinSet = SharedPrefsRepository().getBool(SharedPrefsKeys.isPinEnabled) ?? false;
         if (!isPinSet &&
             _authProvider.canCheckBiometrics &&
             !_authProvider.hasAlreadyRequestedBioPermission &&
             mounted) {
-          await _authProvider.authenticateWithBiometrics(context,
-              isSaved: true);
+          await _authProvider.authenticateWithBiometrics(context, isSaved: true);
         }
 
         _finishPinSetting();
@@ -158,8 +148,7 @@ class _PinSettingScreenState extends State<PinSettingScreen> {
       barrierDismissible: false,
       barrierColor: Colors.transparent,
       transitionDuration: const Duration(milliseconds: 300),
-      pageBuilder: (BuildContext buildContext, Animation animation,
-          Animation secondaryAnimation) {
+      pageBuilder: (BuildContext buildContext, Animation animation, Animation secondaryAnimation) {
         return AnimatedDialog(
           context: buildContext,
           lottieAddress: 'assets/lottie/pin-locked-success.json',
@@ -241,9 +230,7 @@ class _PinSettingScreenState extends State<PinSettingScreen> {
     }
 
     return PinInputScreen(
-        title: step == 0
-            ? t.pin_setting_screen.new_password
-            : t.pin_setting_screen.enter_again,
+        title: step == 0 ? t.pin_setting_screen.new_password : t.pin_setting_screen.enter_again,
         descriptionTextWidget: Text.rich(
           TextSpan(
             text: t.pin_setting_screen.keep_in_mind,

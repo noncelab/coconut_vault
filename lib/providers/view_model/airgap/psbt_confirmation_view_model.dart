@@ -22,14 +22,12 @@ class PsbtConfirmationViewModel extends ChangeNotifier {
 
   bool get isMultisig => _signProvider.isMultisig!;
   bool get isSendingToMyAddress => _isSendingToMyAddress;
-  List<String> get recipientAddress =>
-      UnmodifiableListView(_recipientAddresses);
+  List<String> get recipientAddress => UnmodifiableListView(_recipientAddresses);
   int? get sendingAmount => _sendingAmount;
   int? get estimatedFee => _psbt?.fee;
   bool get hasWarning => _hasWarning;
 
-  int? get totalAmount =>
-      _psbt != null ? _psbt!.sendingAmount + _psbt!.fee : null;
+  int? get totalAmount => _psbt != null ? _psbt!.sendingAmount + _psbt!.fee : null;
 
   void setTxInfo() {
     _psbt = Psbt.parse(_unsignedPsbtBase64);
@@ -54,32 +52,27 @@ class PsbtConfirmationViewModel extends ChangeNotifier {
       }
     }
 
-    if (_isBatchTransaction(
-        outputToMyReceivingAddress, outputToMyChangeAddress, outputsToOther)) {
+    if (_isBatchTransaction(outputToMyReceivingAddress, outputToMyChangeAddress, outputsToOther)) {
       Map<String, double> recipientAmounts = {};
       if (outputsToOther.isNotEmpty) {
         for (var output in outputsToOther) {
-          recipientAmounts[output.outAddress] =
-              UnitUtil.satoshiToBitcoin(output.outAmount!);
+          recipientAmounts[output.outAddress] = UnitUtil.satoshiToBitcoin(output.outAmount!);
         }
       }
       if (outputToMyReceivingAddress.isNotEmpty) {
         for (var output in outputToMyReceivingAddress) {
-          recipientAmounts[output.outAddress] =
-              UnitUtil.satoshiToBitcoin(output.outAmount!);
+          recipientAmounts[output.outAddress] = UnitUtil.satoshiToBitcoin(output.outAmount!);
         }
         _isSendingToMyAddress = true;
       }
       if (outputToMyChangeAddress.length > 1) {
         for (int i = outputToMyChangeAddress.length - 1; i > 0; i--) {
           var output = outputToMyChangeAddress[i];
-          recipientAmounts[output.outAddress] =
-              UnitUtil.satoshiToBitcoin(output.outAmount!);
+          recipientAmounts[output.outAddress] = UnitUtil.satoshiToBitcoin(output.outAmount!);
         }
       }
       _sendingAmount = _psbt!.sendingAmount;
-      _recipientAddresses
-          .addAll(recipientAmounts.entries.map((e) => '${e.key} (${e.value})'));
+      _recipientAddresses.addAll(recipientAmounts.entries.map((e) => '${e.key} (${e.value})'));
       _updateSignProviderForBatch(_psbt!, recipientAmounts, _sendingAmount!);
     } else {
       // 내 지갑의 change address로 보내는 경우 잔액
@@ -101,8 +94,7 @@ class PsbtConfirmationViewModel extends ChangeNotifier {
         _isSendingToMyAddress = true;
       }
 
-      _sendingAmount =
-          sendingAmountWhenAddressIsMyChange ?? _psbt!.sendingAmount;
+      _sendingAmount = sendingAmountWhenAddressIsMyChange ?? _psbt!.sendingAmount;
       if (output != null) {
         _recipientAddresses.add(output.outAddress);
       }
@@ -113,20 +105,16 @@ class PsbtConfirmationViewModel extends ChangeNotifier {
   }
 
   ///예외: 사용자가 배치 트랜잭션에 '남의 주소 또는 내 Receive 주소 1개'와 '본인 change 주소 1개'를 입력하고, 이 트랜잭션의 잔액이 없는 희박한 상황에서는 배치 트랜잭션임을 구분하지 못함
-  bool _isBatchTransaction(
-      List<PsbtOutput> outputToMyReceivingAddress,
-      List<PsbtOutput> outputToMyChangeAddress,
-      List<PsbtOutput> outputsToOther) {
-    var countExceptToMyChangeAddress =
-        outputToMyReceivingAddress.length + outputsToOther.length;
+  bool _isBatchTransaction(List<PsbtOutput> outputToMyReceivingAddress,
+      List<PsbtOutput> outputToMyChangeAddress, List<PsbtOutput> outputsToOther) {
+    var countExceptToMyChangeAddress = outputToMyReceivingAddress.length + outputsToOther.length;
     if (countExceptToMyChangeAddress >= 2) {
       return true;
     }
     if (outputToMyChangeAddress.length >= 3) {
       return true;
     }
-    if (outputToMyChangeAddress.length == 2 &&
-        countExceptToMyChangeAddress >= 1) {
+    if (outputToMyChangeAddress.length == 2 && countExceptToMyChangeAddress >= 1) {
       return true;
     }
 
@@ -139,8 +127,7 @@ class PsbtConfirmationViewModel extends ChangeNotifier {
     _signProvider.saveSendingAmount(amount);
   }
 
-  void _updateSignProviderForBatch(
-      Psbt psbt, Map<String, double> recipientAmounts, int amount) {
+  void _updateSignProviderForBatch(Psbt psbt, Map<String, double> recipientAmounts, int amount) {
     _signProvider.savePsbt(psbt);
     _signProvider.saveRecipientAmounts(recipientAmounts);
     _signProvider.saveSendingAmount(amount);

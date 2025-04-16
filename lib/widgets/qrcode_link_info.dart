@@ -63,18 +63,13 @@ class _QRCodeLinkInfoState extends State<QRCodeLinkInfo> {
                   version: QrVersions.auto,
                   size: qrSize,
                   embeddedImage: AssetImage(assetImageUrl),
-                  embeddedImageStyle:
-                      QrEmbeddedImageStyle(size: assetImageSize),
+                  embeddedImageStyle: QrEmbeddedImageStyle(size: assetImageSize),
                 ),
               ],
             ),
             const SizedBox(height: 32),
-            Text(
-                widget.qrData.contains('@')
-                    ? CONTACT_EMAIL_ADDRESS
-                    : widget.qrData,
-                style: Styles.body1
-                    .merge(const TextStyle(fontFamily: 'SpaceGrotesk')),
+            Text(widget.qrData.contains('@') ? CONTACT_EMAIL_ADDRESS : widget.qrData,
+                style: Styles.body1.merge(const TextStyle(fontFamily: 'SpaceGrotesk')),
                 textAlign: TextAlign.center),
             const SizedBox(height: 24),
             widget.qrData.contains('@')
@@ -83,10 +78,8 @@ class _QRCodeLinkInfoState extends State<QRCodeLinkInfo> {
                         'Please scan the QR code on a network-enabled device or send an email to the address above.\n\n네트워크가 활성화된 기기에서 QR 코드를 스캔하시거나 위의 주소로 메일을 전송해 주세요.',
                         style: Styles.body1,
                         textAlign: TextAlign.center)
-                    : Text(t.scan_qr_email_link,
-                        style: Styles.body1, textAlign: TextAlign.center)
-                : Text(t.scan_qr_url_link,
-                    style: Styles.body1, textAlign: TextAlign.center),
+                    : Text(t.scan_qr_email_link, style: Styles.body1, textAlign: TextAlign.center)
+                : Text(t.scan_qr_url_link, style: Styles.body1, textAlign: TextAlign.center),
           ],
         ));
   }

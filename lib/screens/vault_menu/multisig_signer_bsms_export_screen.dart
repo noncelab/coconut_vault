@@ -16,12 +16,10 @@ class MultisigSignerBsmsExportScreen extends StatefulWidget {
   const MultisigSignerBsmsExportScreen({super.key, required this.id});
 
   @override
-  State<MultisigSignerBsmsExportScreen> createState() =>
-      _MultisigSignerBsmsExportScreenState();
+  State<MultisigSignerBsmsExportScreen> createState() => _MultisigSignerBsmsExportScreenState();
 }
 
-class _MultisigSignerBsmsExportScreenState
-    extends State<MultisigSignerBsmsExportScreen> {
+class _MultisigSignerBsmsExportScreenState extends State<MultisigSignerBsmsExportScreen> {
   late MultisigSignerBsmsExportViewModel _viewModel;
   bool _isDialogShown = false; // 다이얼로그가 두 번 호출 되는 현상 방지
 
@@ -142,8 +140,7 @@ class _MultisigSignerBsmsExportScreenState
                           const SizedBox(
                             height: 10,
                           ),
-                          if (viewModel.bsms != null)
-                            SignerBsmsInfoCard(bsms: viewModel.bsms!)
+                          if (viewModel.bsms != null) SignerBsmsInfoCard(bsms: viewModel.bsms!)
                         ],
                       ),
                       const SizedBox(
@@ -157,8 +154,7 @@ class _MultisigSignerBsmsExportScreenState
                     child: Container(
                       width: MediaQuery.of(context).size.width,
                       height: MediaQuery.of(context).size.height,
-                      decoration:
-                          const BoxDecoration(color: MyColors.lightgrey),
+                      decoration: const BoxDecoration(color: MyColors.lightgrey),
                       child: const Center(
                         child: CircularProgressIndicator(
                           color: MyColors.darkgrey,

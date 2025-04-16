@@ -23,13 +23,12 @@ class MultisigVaultListItem extends VaultListItemBase {
       super.vaultJsonString})
       : super(vaultType: WalletType.multiSignature) {
     coconutVault = MultisignatureVault.fromKeyStoreList(
-        signers.map((signer) => signer.keyStore).toList(),
-        requiredSignatureCount,
+        signers.map((signer) => signer.keyStore).toList(), requiredSignatureCount,
         addressType: AddressType.p2wsh);
 
     name = name.replaceAll('\n', ' ');
-    this.coordinatorBsms = coordinatorBsms ??
-        (coconutVault as MultisignatureVault).getCoordinatorBsms();
+    this.coordinatorBsms =
+        coordinatorBsms ?? (coconutVault as MultisignatureVault).getCoordinatorBsms();
   }
 
   @JsonKey(name: "signers")
@@ -45,8 +44,7 @@ class MultisigVaultListItem extends VaultListItemBase {
 
   @override
   Future<bool> canSign(String psbt) async {
-    var isolateHandler =
-        IsolateHandler<List<dynamic>, bool>(canSignToPsbtIsolate);
+    var isolateHandler = IsolateHandler<List<dynamic>, bool>(canSignToPsbtIsolate);
     try {
       await isolateHandler.initialize(initialType: InitializeType.canSign);
       bool canSignToPsbt = await isolateHandler.run([coconutVault, psbt]);

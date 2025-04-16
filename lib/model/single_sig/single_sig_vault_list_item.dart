@@ -27,8 +27,7 @@ class SingleSigVaultListItem extends VaultListItemBase {
     super.vaultJsonString,
   }) : super(vaultType: WalletType.singleSignature) {
     Seed seed = Seed.fromMnemonic(secret, passphrase: passphrase);
-    coconutVault =
-        SingleSignatureVault.fromSeed(seed, addressType: AddressType.p2wpkh);
+    coconutVault = SingleSignatureVault.fromSeed(seed, addressType: AddressType.p2wpkh);
     final singlesigVault = coconutVault as SingleSignatureVault;
 
     /// 추후 속도 개선을 위한 로직 고려
@@ -54,8 +53,7 @@ class SingleSigVaultListItem extends VaultListItemBase {
 
   @override
   Future<bool> canSign(String psbt) async {
-    var isolateHandler =
-        IsolateHandler<List<dynamic>, bool>(canSignToPsbtIsolate);
+    var isolateHandler = IsolateHandler<List<dynamic>, bool>(canSignToPsbtIsolate);
     try {
       await isolateHandler.initialize(initialType: InitializeType.canSign);
       bool canSignToPsbt = await isolateHandler.run([coconutVault, psbt]);

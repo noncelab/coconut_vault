@@ -71,9 +71,7 @@ class _MnemonicViewScreen extends State<MnemonicViewScreen> {
                     child: Text(
                       '${index + 1}',
                       style: const TextStyle(
-                          color: MyColors.borderGrey,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 6),
+                          color: MyColors.borderGrey, fontWeight: FontWeight.bold, fontSize: 6),
                     ),
                   ),
                 ),
@@ -133,12 +131,9 @@ class _MnemonicViewScreen extends State<MnemonicViewScreen> {
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 Container(
-                    width: qrSize,
-                    height: qrSize,
-                    decoration: BoxDecorations.shadowBoxDecoration),
+                    width: qrSize, height: qrSize, decoration: BoxDecorations.shadowBoxDecoration),
                 const SizedBox(height: 32),
-                for (int line = 0; line < textWidgets.length; line++)
-                  textWidgets[line],
+                for (int line = 0; line < textWidgets.length; line++) textWidgets[line],
                 const SizedBox(height: 24),
               ],
             ),
@@ -182,8 +177,7 @@ class _MnemonicViewScreen extends State<MnemonicViewScreen> {
               color: _isPressed ? MyColors.borderGrey : MyColors.darkgrey,
             ),
             child: Text(t.mnemonic_view_screen.view_passphrase,
-                style: Styles.caption
-                    .merge(const TextStyle(color: MyColors.white))),
+                style: Styles.caption.merge(const TextStyle(color: MyColors.white))),
           ),
           const SizedBox(
             height: 7,
@@ -248,8 +242,7 @@ class _MnemonicViewScreen extends State<MnemonicViewScreen> {
                     child: Column(
                       children: [
                         Visibility(
-                          visible:
-                              passphrase != null && passphrase!.contains(' '),
+                          visible: passphrase != null && passphrase!.contains(' '),
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
@@ -271,15 +264,12 @@ class _MnemonicViewScreen extends State<MnemonicViewScreen> {
                         const SizedBox(
                           height: 30,
                         ),
-                        if (passphrase != null)
-                          _buildPassphraseGridViewWidget(),
+                        if (passphrase != null) _buildPassphraseGridViewWidget(),
                       ],
                     ),
                   ),
                   Visibility(
-                      visible: passphrase != null &&
-                          passphrase!.isNotEmpty &&
-                          !_isLoading,
+                      visible: passphrase != null && passphrase!.isNotEmpty && !_isLoading,
                       child: Align(
                         alignment: Alignment.bottomCenter,
                         child: Padding(

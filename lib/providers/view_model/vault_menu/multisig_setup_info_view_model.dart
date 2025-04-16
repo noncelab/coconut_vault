@@ -3,8 +3,7 @@ import 'package:coconut_vault/model/multisig/multisig_vault_list_item.dart';
 import 'package:coconut_vault/model/single_sig/single_sig_vault_list_item.dart';
 import 'package:coconut_vault/providers/view_model/vault_menu/vault_setup_info_view_model_base.dart';
 
-class MultisigSetupInfoViewModel
-    extends VaultSetupInfoViewModelBase<MultisigVaultListItem> {
+class MultisigSetupInfoViewModel extends VaultSetupInfoViewModelBase<MultisigVaultListItem> {
   late int signAvailableCount;
   List<MultisigSigner> get signers => vaultItem.signers;
   int get requiredSignatureCount => vaultItem.requiredSignatureCount;
@@ -14,8 +13,7 @@ class MultisigSetupInfoViewModel
   }
 
   void _calculateSignAvailableCount() {
-    int innerVaultCount =
-        vaultItem.signers.where((signer) => signer.innerVaultId != null).length;
+    int innerVaultCount = vaultItem.signers.where((signer) => signer.innerVaultId != null).length;
     signAvailableCount = innerVaultCount > vaultItem.requiredSignatureCount
         ? vaultItem.requiredSignatureCount
         : innerVaultCount;

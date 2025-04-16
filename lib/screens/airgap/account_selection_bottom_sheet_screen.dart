@@ -9,24 +9,21 @@ import 'package:provider/provider.dart';
 class AccountSelectionBottomSheetScreen extends StatefulWidget {
   final Function(int) onSelected;
 
-  const AccountSelectionBottomSheetScreen(
-      {super.key, required this.onSelected});
+  const AccountSelectionBottomSheetScreen({super.key, required this.onSelected});
 
   @override
   State<AccountSelectionBottomSheetScreen> createState() =>
       _AccountSelectionBottomSheetScreenState();
 }
 
-class _AccountSelectionBottomSheetScreenState
-    extends State<AccountSelectionBottomSheetScreen> {
+class _AccountSelectionBottomSheetScreenState extends State<AccountSelectionBottomSheetScreen> {
   late List<VaultListItemBase> _vaultList;
   late List<_SelectionItemParams> _selections;
 
   @override
   void initState() {
     super.initState();
-    _vaultList =
-        Provider.of<WalletProvider>(context, listen: false).getVaults();
+    _vaultList = Provider.of<WalletProvider>(context, listen: false).getVaults();
     List<_SelectionItemParams> selections = [];
     for (var vault in _vaultList) {
       selections.add(_SelectionItemParams(

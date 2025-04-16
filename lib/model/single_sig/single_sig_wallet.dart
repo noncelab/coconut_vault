@@ -18,8 +18,7 @@ class SinglesigWallet {
   @JsonKey(name: "passphrase")
   String? passphrase;
 
-  SinglesigWallet(this.id, this.name, this.icon, this.color, this.mnemonic,
-      this.passphrase);
+  SinglesigWallet(this.id, this.name, this.icon, this.color, this.mnemonic, this.passphrase);
 
   Map<String, dynamic> toJson() => _$SinglesigWalletToJson(this);
 

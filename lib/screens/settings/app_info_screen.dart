@@ -120,16 +120,13 @@ class _AppInfoScreenState extends State<AppInfoScreen> {
       backgroundColor: MyColors.white,
       appBar: AppBar(
         scrolledUnderElevation: 0,
-        backgroundColor: _isScrollOverTitleHeight
-            ? MyColors.transparentWhite_20
-            : MyColors.white,
+        backgroundColor: _isScrollOverTitleHeight ? MyColors.transparentWhite_20 : MyColors.white,
         toolbarHeight: kToolbarHeight,
         leading: IconButton(
             onPressed: () {
               Navigator.pop(context);
             },
-            icon: const Icon(Icons.close_rounded,
-                color: MyColors.darkgrey, size: 22)),
+            icon: const Icon(Icons.close_rounded, color: MyColors.darkgrey, size: 22)),
         flexibleSpace: _isScrollOverTitleHeight
             ? ClipRect(
                 child: BackdropFilter(
@@ -382,8 +379,7 @@ class _AppInfoScreenState extends State<AppInfoScreen> {
                     context: context,
                     child: QrcodeBottomSheet(
                       qrData: GITHUB_URL_COCONUT_LIBRARY,
-                      title:
-                          '${t.app_info_screen.coconut_lib} ${t.app_info_screen.github}',
+                      title: '${t.app_info_screen.coconut_lib} ${t.app_info_screen.github}',
                       fromAppInfo: true,
                     ));
               },
@@ -396,8 +392,7 @@ class _AppInfoScreenState extends State<AppInfoScreen> {
                     context: context,
                     child: QrcodeBottomSheet(
                       qrData: GITHUB_URL_WALLET,
-                      title:
-                          '${t.app_info_screen.coconut_wallet} ${t.app_info_screen.github}',
+                      title: '${t.app_info_screen.coconut_wallet} ${t.app_info_screen.github}',
                       fromAppInfo: true,
                     ));
               },
@@ -410,8 +405,7 @@ class _AppInfoScreenState extends State<AppInfoScreen> {
                     context: context,
                     child: QrcodeBottomSheet(
                       qrData: GITHUB_URL_VAULT,
-                      title:
-                          '${t.app_info_screen.coconut_vault} ${t.app_info_screen.github}',
+                      title: '${t.app_info_screen.coconut_vault} ${t.app_info_screen.github}',
                       fromAppInfo: true,
                     ));
               },
@@ -419,8 +413,7 @@ class _AppInfoScreenState extends State<AppInfoScreen> {
             SingleButton(
               title: t.app_info_screen.license,
               onPressed: () {
-                MyBottomSheet.showBottomSheet_95(
-                    context: context, child: const LicenseScreen());
+                MyBottomSheet.showBottomSheet_95(context: context, child: const LicenseScreen());
               },
             ),
             SingleButton(
@@ -468,9 +461,8 @@ class _AppInfoScreenState extends State<AppInfoScreen> {
                   child: Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 16),
                     child: Text(
-                      t.app_info_screen.version_and_date(
-                          version: packageInfo.version,
-                          releasedAt: RELEASE_DATE),
+                      t.app_info_screen
+                          .version_and_date(version: packageInfo.version, releasedAt: RELEASE_DATE),
                       style: Styles.body2.merge(
                         const TextStyle(
                           color: MyColors.transparentBlack_50,

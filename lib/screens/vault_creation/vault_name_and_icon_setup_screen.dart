@@ -26,12 +26,10 @@ class VaultNameAndIconSetupScreen extends StatefulWidget {
   });
 
   @override
-  State<VaultNameAndIconSetupScreen> createState() =>
-      _VaultNameAndIconSetupScreenState();
+  State<VaultNameAndIconSetupScreen> createState() => _VaultNameAndIconSetupScreenState();
 }
 
-class _VaultNameAndIconSetupScreenState
-    extends State<VaultNameAndIconSetupScreen> {
+class _VaultNameAndIconSetupScreenState extends State<VaultNameAndIconSetupScreen> {
   late WalletProvider _walletProvider;
   late WalletCreationProvider _walletCreationProvider;
   String inputText = '';
@@ -45,8 +43,7 @@ class _VaultNameAndIconSetupScreenState
     super.initState();
     _walletProvider = Provider.of<WalletProvider>(context, listen: false);
     _walletProvider.isVaultListLoadingNotifier.addListener(_onVaultListLoading);
-    _walletCreationProvider =
-        Provider.of<WalletCreationProvider>(context, listen: false);
+    _walletCreationProvider = Provider.of<WalletCreationProvider>(context, listen: false);
     inputText = widget.name;
     selectedIconIndex = widget.iconIndex;
     selectedColorIndex = widget.colorIndex;
@@ -55,8 +52,7 @@ class _VaultNameAndIconSetupScreenState
 
   @override
   void dispose() {
-    _walletProvider.isVaultListLoadingNotifier
-        .removeListener(_onVaultListLoading);
+    _walletProvider.isVaultListLoadingNotifier.removeListener(_onVaultListLoading);
     super.dispose();
   }
 
@@ -81,8 +77,7 @@ class _VaultNameAndIconSetupScreenState
       });
 
       if (_walletProvider.isNameDuplicated(inputText)) {
-        CustomToast.showToast(
-            text: t.toast.name_already_used2, context: context);
+        CustomToast.showToast(text: t.toast.name_already_used2, context: context);
         setState(() {
           _showLoading = false;
         });
@@ -99,12 +94,8 @@ class _VaultNameAndIconSetupScreenState
             _walletCreationProvider.passphrase));
       } else if (_walletCreationProvider.signers != null) {
         // 새로운 멀티시그 지갑 리스트 아이템을 생성.
-        await _walletProvider.addMultisigVault(
-            inputText,
-            selectedColorIndex,
-            selectedIconIndex,
-            _walletCreationProvider.signers!,
-            _walletCreationProvider.requiredSignatureCount!);
+        await _walletProvider.addMultisigVault(inputText, selectedColorIndex, selectedIconIndex,
+            _walletCreationProvider.signers!, _walletCreationProvider.requiredSignatureCount!);
       } else {
         throw '생성 가능 정보가 없음';
       }
@@ -112,8 +103,7 @@ class _VaultNameAndIconSetupScreenState
       assert(_walletProvider.isAddVaultCompleted);
       _walletCreationProvider.resetAll();
 
-      Navigator.pushNamedAndRemoveUntil(
-          context, '/', (Route<dynamic> route) => false,
+      Navigator.pushNamedAndRemoveUntil(context, '/', (Route<dynamic> route) => false,
           arguments: VaultListNavArgs(isWalletAdded: true));
     } catch (e) {
       Logger.log("$e");
@@ -197,13 +187,11 @@ class _VaultNameAndIconSetupScreenState
           child: Container(
             width: MediaQuery.of(context).size.width,
             height: MediaQuery.of(context).size.height,
-            decoration:
-                const BoxDecoration(color: MyColors.transparentBlack_30),
+            decoration: const BoxDecoration(color: MyColors.transparentBlack_30),
             child: Center(
               child: _walletProvider.isVaultListLoading
                   ? MessageActivityIndicator(
-                      message: t
-                          .vault_name_icon_setup_screen.saving) // 기존 볼트들 불러오는 중
+                      message: t.vault_name_icon_setup_screen.saving) // 기존 볼트들 불러오는 중
                   : const CircularProgressIndicator(color: MyColors.darkgrey),
             ),
           ),

@@ -12,8 +12,7 @@ import 'package:coconut_vault/widgets/label_testnet.dart';
 class FrostedAppBar extends StatefulWidget {
   final VoidCallback onTapPlus;
   final VoidCallback onTapSeeMore;
-  const FrostedAppBar(
-      {super.key, required this.onTapPlus, required this.onTapSeeMore});
+  const FrostedAppBar({super.key, required this.onTapPlus, required this.onTapSeeMore});
 
   @override
   State<FrostedAppBar> createState() => _FrostedAppBarState();
@@ -46,8 +45,7 @@ class _FrostedAppBarState extends State<FrostedAppBar> {
                     Padding(
                         padding: const EdgeInsets.only(left: 4, bottom: 10),
                         child: SvgPicture.asset('assets/svg/coconut.svg',
-                            colorFilter: const ColorFilter.mode(
-                                MyColors.darkgrey, BlendMode.srcIn),
+                            colorFilter: const ColorFilter.mode(MyColors.darkgrey, BlendMode.srcIn),
                             width: 24)),
                     const Expanded(
                       child: Padding(
@@ -81,8 +79,7 @@ class _FrostedAppBarState extends State<FrostedAppBar> {
                           'assets/svg/book.svg',
                           width: 18,
                           height: 18,
-                          colorFilter: const ColorFilter.mode(
-                              MyColors.darkgrey, BlendMode.srcIn),
+                          colorFilter: const ColorFilter.mode(MyColors.darkgrey, BlendMode.srcIn),
                         ),
                         onPressed: () {
                           MyBottomSheet.showBottomSheet_90(

@@ -40,11 +40,9 @@ class SignerBsmsInfoCard extends StatelessWidget {
             color: MyColors.black,
           ),
           children: <TextSpan>[
+            TextSpan(text: bsms.signer!.masterFingerPrint, style: _boldTextStyle),
             TextSpan(
-                text: bsms.signer!.masterFingerPrint, style: _boldTextStyle),
-            TextSpan(
-              text:
-                  '/${bsms.signer!.path}]${bsms.signer!.extendedPublicKey.serialize()}\n',
+              text: '/${bsms.signer!.path}]${bsms.signer!.extendedPublicKey.serialize()}\n',
             ),
             TextSpan(text: bsms.signer!.description, style: _boldTextStyle),
           ],

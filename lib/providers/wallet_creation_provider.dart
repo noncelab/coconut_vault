@@ -14,24 +14,22 @@ class WalletCreationProvider {
   /// multisig
   int? get requiredSignatureCount => _requiredSignatureCount;
   int? get totalSignatureCount => _totalSignatureCount;
-  List<MultisigSigner>? get signers =>
-      _signers != null ? List.unmodifiable(_signers!) : null;
+  List<MultisigSigner>? get signers => _signers != null ? List.unmodifiable(_signers!) : null;
 
   /// singleSig
   String? get secret => _secret;
   String? get passphrase => _passphrase;
 
   /// multisig
-  void setQuorumRequirement(
-      int requiredSignatureCount, int totalSignatureCount) {
+  void setQuorumRequirement(int requiredSignatureCount, int totalSignatureCount) {
     _requiredSignatureCount = requiredSignatureCount;
     _totalSignatureCount = totalSignatureCount;
   }
 
   /// multisig
   void setSigners(List<MultisigSigner> signers) {
-    assert(MultisigUtils.validateQuorumRequirement(
-        _requiredSignatureCount!, _totalSignatureCount!));
+    assert(
+        MultisigUtils.validateQuorumRequirement(_requiredSignatureCount!, _totalSignatureCount!));
 
     _signers = signers;
   }

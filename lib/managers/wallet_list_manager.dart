@@ -57,17 +57,15 @@ class WalletListManager {
     return jsonDecode(jsonArrayString);
   }
 
-  Future loadAndEmitEachWallet(List<dynamic> jsonList,
-      Function(VaultListItemBase wallet) emitOneItem) async {
+  Future loadAndEmitEachWallet(
+      List<dynamic> jsonList, Function(VaultListItemBase wallet) emitOneItem) async {
     _walletLoadCancelToken = Completer<void>();
 
     List<VaultListItemBase> vaultList = [];
 
     var initIsolateHandler =
-        IsolateHandler<Map<String, dynamic>, VaultListItemBase>(
-            initializeWallet);
-    await initIsolateHandler.initialize(
-        initialType: InitializeType.initializeWallet);
+        IsolateHandler<Map<String, dynamic>, VaultListItemBase>(initializeWallet);
+    await initIsolateHandler.initialize(initialType: InitializeType.initializeWallet);
 
     for (int i = 0; i < jsonList.length; i++) {
       if (jsonList[i][vaultTypeField] == WalletType.singleSignature.name) {
@@ -92,8 +90,7 @@ class WalletListManager {
     _vaultList = vaultList;
   }
 
-  Future<SingleSigVaultListItem> addSinglesigWallet(
-      SinglesigWallet wallet) async {
+  Future<SingleSigVaultListItem> addSinglesigWallet(SinglesigWallet wallet) async {
     if (_vaultList == null) {
       throw "[wallet_list_manager/addSinglesigWallet()] _vaultList is null. Load first.";
     }
@@ -103,22 +100,18 @@ class WalletListManager {
     final Map<String, dynamic> vaultData = wallet.toJson();
 
     var addVaultIsolateHandler =
-        IsolateHandler<Map<String, dynamic>, List<SingleSigVaultListItem>>(
-            addVaultIsolate);
-    await addVaultIsolateHandler.initialize(
-        initialType: InitializeType.addVault);
+        IsolateHandler<Map<String, dynamic>, List<SingleSigVaultListItem>>(addVaultIsolate);
+    await addVaultIsolateHandler.initialize(initialType: InitializeType.addVault);
     List<SingleSigVaultListItem> vaultListResult =
         await addVaultIsolateHandler.runAddVault(vaultData);
     addVaultIsolateHandler.dispose();
 
     _linkNewSinglesigVaultAndMultisigVaults(vaultListResult.first);
 
-    String keyString =
-        _createWalletKeyString(nextId, WalletType.singleSignature);
+    String keyString = _createWalletKeyString(nextId, WalletType.singleSignature);
     _storageService.write(
         key: keyString,
-        value: jsonEncode(
-            Secret(wallet.mnemonic!, wallet.passphrase ?? '').toJson()));
+        value: jsonEncode(Secret(wallet.mnemonic!, wallet.passphrase ?? '').toJson()));
 
     _vaultList!.add(vaultListResult[0]);
     try {
@@ -138,20 +131,17 @@ class WalletListManager {
   Future<void> _savePublicInfo() async {
     if (_vaultList == null) return;
 
-    final jsonString =
-        jsonEncode(_vaultList!.map((item) => item.toJson()).toList());
+    final jsonString = jsonEncode(_vaultList!.map((item) => item.toJson()).toList());
 
     //printLongString("--> 저장: $jsonString");
     await _sharedPrefs.setString(SharedPrefsKeys.kVaultListField, jsonString);
   }
 
   Future<void> _removePublicInfo() async {
-    await _sharedPrefs
-        .deleteSharedPrefsWithKey(SharedPrefsKeys.kVaultListField);
+    await _sharedPrefs.deleteSharedPrefsWithKey(SharedPrefsKeys.kVaultListField);
   }
 
-  void _linkNewSinglesigVaultAndMultisigVaults(
-      SingleSigVaultListItem singlesigItem) {
+  void _linkNewSinglesigVaultAndMultisigVaults(SingleSigVaultListItem singlesigItem) {
     outerLoop:
     for (int i = 0; i < _vaultList!.length; i++) {
       VaultListItemBase vault = _vaultList![i];
@@ -160,9 +150,8 @@ class WalletListManager {
 
       List<MultisigSigner> signers = (vault as MultisigVaultListItem).signers;
       // 멀티 시그만 판단
-      String importedMfp = (singlesigItem.coconutVault as SingleSignatureVault)
-          .keyStore
-          .masterFingerprint;
+      String importedMfp =
+          (singlesigItem.coconutVault as SingleSignatureVault).keyStore.masterFingerprint;
       for (int j = 0; j < signers.length; j++) {
         String signerMfp = signers[j].keyStore.masterFingerprint;
 
@@ -200,12 +189,9 @@ class WalletListManager {
     final Map<String, dynamic> data = wallet.toJson();
 
     var addMultisigVaultIsolateHandler =
-        IsolateHandler<Map<String, dynamic>, MultisigVaultListItem>(
-            addMultisigVaultIsolate);
-    await addMultisigVaultIsolateHandler.initialize(
-        initialType: InitializeType.addMultisigVault);
-    MultisigVaultListItem newMultisigVault =
-        await addMultisigVaultIsolateHandler.run(data);
+        IsolateHandler<Map<String, dynamic>, MultisigVaultListItem>(addMultisigVaultIsolate);
+    await addMultisigVaultIsolateHandler.initialize(initialType: InitializeType.addMultisigVault);
+    MultisigVaultListItem newMultisigVault = await addMultisigVaultIsolateHandler.run(data);
     addMultisigVaultIsolateHandler.dispose();
 
     // for SinglesigVaultListItem multsig key map update
@@ -227,8 +213,7 @@ class WalletListManager {
       var signer = signers[i];
       if (signers[i].innerVaultId == null) continue;
       SingleSigVaultListItem ssv = _vaultList!
-              .firstWhere((element) => element.id == signer.innerVaultId!)
-          as SingleSigVaultListItem;
+          .firstWhere((element) => element.id == signer.innerVaultId!) as SingleSigVaultListItem;
 
       var keyMap = {newWalletId: i};
       if (ssv.linkedMultisigInfo != null) {
@@ -249,8 +234,8 @@ class WalletListManager {
   }
 
   Future<Secret> getSecret(int id) async {
-    var secretString = await _storageService.read(
-        key: _createWalletKeyString(id, WalletType.singleSignature));
+    var secretString =
+        await _storageService.read(key: _createWalletKeyString(id, WalletType.singleSignature));
     return Secret.fromJson(jsonDecode(secretString!));
   }
 
@@ -266,8 +251,7 @@ class WalletListManager {
       final multi = getVaultById(id) as MultisigVaultListItem;
       for (var signer in multi.signers) {
         if (signer.innerVaultId != null) {
-          SingleSigVaultListItem ssv =
-              getVaultById(signer.innerVaultId!) as SingleSigVaultListItem;
+          SingleSigVaultListItem ssv = getVaultById(signer.innerVaultId!) as SingleSigVaultListItem;
           ssv.linkedMultisigInfo!.remove(id);
         }
       }
@@ -299,23 +283,20 @@ class WalletListManager {
     await _savePublicInfo();
   }
 
-  Future<bool> updateWallet(
-      int id, String newName, int colorIndex, int iconIndex) async {
+  Future<bool> updateWallet(int id, String newName, int colorIndex, int iconIndex) async {
     if (_vaultList == null) {
       throw Exception('[wallet_list_manager/updateWallet]: vaultList is empty');
     }
 
     final index = _vaultList!.indexWhere((item) => item.id == id);
     if (_vaultList![index].vaultType == WalletType.singleSignature) {
-      SingleSigVaultListItem singleSigVault =
-          _vaultList![index] as SingleSigVaultListItem;
+      SingleSigVaultListItem singleSigVault = _vaultList![index] as SingleSigVaultListItem;
       Map<int, int>? linkedMultisigInfo = singleSigVault.linkedMultisigInfo;
       // 연결된 MultisigVaultListItem의 signers 객체도 UI 업데이트가 필요
       if (linkedMultisigInfo != null && linkedMultisigInfo.isNotEmpty) {
         for (var entry in linkedMultisigInfo.entries) {
           if (getVaultById(id) != null) {
-            MultisigVaultListItem msv =
-                getVaultById(entry.key) as MultisigVaultListItem;
+            MultisigVaultListItem msv = getVaultById(entry.key) as MultisigVaultListItem;
             msv.signers[entry.value].name = newName;
             msv.signers[entry.value].colorIndex = colorIndex;
             msv.signers[entry.value].iconIndex = iconIndex;
@@ -343,8 +324,7 @@ class WalletListManager {
     return _vaultList?.firstWhere((element) => element.id == id);
   }
 
-  Future<MultisigVaultListItem> updateMemo(
-      int walletId, int signerIndex, String? newMemo) async {
+  Future<MultisigVaultListItem> updateMemo(int walletId, int signerIndex, String? newMemo) async {
     var wallet = getVaultById(walletId);
     assert(wallet != null);
     (wallet as MultisigVaultListItem).signers[signerIndex].memo = newMemo;
@@ -356,26 +336,21 @@ class WalletListManager {
   Future<void> resetAll() async {
     _vaultList?.clear();
 
-    await UpdatePreparation
-        .clearUpdatePreparationStorage(); // 비밀번호 초기화시 백업파일도 같이 삭제
+    await UpdatePreparation.clearUpdatePreparationStorage(); // 비밀번호 초기화시 백업파일도 같이 삭제
 
     await _storageService.deleteAll();
     await _removePublicInfo();
   }
 
-  Future<void> restoreFromBackupData(
-      List<Map<String, dynamic>> backupData) async {
+  Future<void> restoreFromBackupData(List<Map<String, dynamic>> backupData) async {
     final List<VaultListItemBase> vaultList = [];
     var initIsolateHandler =
-        IsolateHandler<Map<String, dynamic>, VaultListItemBase>(
-            initializeWallet);
-    await initIsolateHandler.initialize(
-        initialType: InitializeType.initializeWallet);
+        IsolateHandler<Map<String, dynamic>, VaultListItemBase>(initializeWallet);
+    await initIsolateHandler.initialize(initialType: InitializeType.initializeWallet);
     for (final data in backupData) {
       VaultListItemBase wallet = await initIsolateHandler.run(data);
       if (data['vaultType'] == WalletType.singleSignature.name) {
-        String keyString =
-            _createWalletKeyString(wallet.id, WalletType.singleSignature);
+        String keyString = _createWalletKeyString(wallet.id, WalletType.singleSignature);
         _storageService.write(
             key: keyString,
             value: jsonEncode(Secret(data[SingleSigVaultListItem.secretField],
@@ -394,8 +369,7 @@ class WalletListManager {
   ///
   /// 마이그레이션 진행 여부를 반환합니다.
   Future<bool> _migrateToVer2() async {
-    var previousData =
-        await _storageService.read(key: SharedPrefsKeys.kVaultListField);
+    var previousData = await _storageService.read(key: SharedPrefsKeys.kVaultListField);
     if (previousData == null || previousData.isEmpty) {
       return false;
     }
@@ -412,8 +386,7 @@ class WalletListManager {
 
       String keyString = _createWalletKeyString(id, WalletType.singleSignature);
       _storageService.write(
-          key: keyString,
-          value: jsonEncode(Secret(mnemonic, passphrase ?? '').toJson()));
+          key: keyString, value: jsonEncode(Secret(mnemonic, passphrase ?? '').toJson()));
 
       newJsonList.add({
         "id": id,

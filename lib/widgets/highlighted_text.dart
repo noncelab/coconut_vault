@@ -30,10 +30,7 @@ class HighLightedText extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final TextStyle textStyle = TextStyle(
-        fontSize: fontSize,
-        color: color,
-        fontWeight: FontWeight.bold,
-        fontFamily: 'Pretendard');
+        fontSize: fontSize, color: color, fontWeight: FontWeight.bold, fontFamily: 'Pretendard');
     final Size textSize = getTextSize(
       text: data,
       style: textStyle,

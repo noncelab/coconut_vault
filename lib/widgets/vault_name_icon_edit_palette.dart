@@ -25,8 +25,7 @@ class VaultNameIconEditPalette extends StatefulWidget {
   });
 
   @override
-  State<VaultNameIconEditPalette> createState() =>
-      _VaultNameIconEditPaletteState();
+  State<VaultNameIconEditPalette> createState() => _VaultNameIconEditPaletteState();
 }
 
 class _VaultNameIconEditPaletteState extends State<VaultNameIconEditPalette> {
@@ -64,8 +63,7 @@ class _VaultNameIconEditPaletteState extends State<VaultNameIconEditPalette> {
                 SliverPadding(
                   padding: const EdgeInsets.symmetric(horizontal: 8.0),
                   sliver: SliverGrid(
-                    gridDelegate:
-                        const SliverGridDelegateWithFixedCrossAxisCount(
+                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                       crossAxisCount: 5,
                       crossAxisSpacing: 4.0,
                     ),
@@ -90,8 +88,7 @@ class _VaultNameIconEditPaletteState extends State<VaultNameIconEditPalette> {
                                     child: Container(
                                       margin: const EdgeInsets.all(11.5),
                                       decoration: BoxDecoration(
-                                        borderRadius:
-                                            BorderRadius.circular(40.0),
+                                        borderRadius: BorderRadius.circular(40.0),
                                         border: Border.all(
                                           color: index == _selectedColorIndex
                                               ? MyColors.darkgrey
@@ -108,13 +105,11 @@ class _VaultNameIconEditPaletteState extends State<VaultNameIconEditPalette> {
                                     child: Container(
                                       margin: const EdgeInsets.all(11.5),
                                       decoration: BoxDecoration(
-                                        borderRadius:
-                                            BorderRadius.circular(40.0),
+                                        borderRadius: BorderRadius.circular(40.0),
                                         border: Border.all(
-                                          color:
-                                              index == _selectedIconIndex + 10
-                                                  ? MyColors.darkgrey
-                                                  : Colors.white,
+                                          color: index == _selectedIconIndex + 10
+                                              ? MyColors.darkgrey
+                                              : Colors.white,
                                           width: 1.8,
                                         ),
                                       ),

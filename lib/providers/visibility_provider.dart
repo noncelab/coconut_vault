@@ -19,8 +19,7 @@ class VisibilityProvider extends ChangeNotifier {
     final prefs = SharedPrefsRepository();
     _hasSeenGuide = prefs.getBool(SharedPrefsKeys.hasShownStartGuide) == true;
     _walletCount = prefs.getInt(SharedPrefsKeys.vaultListLength) ?? 0;
-    _isPassphraseUseEnabled =
-        prefs.getBool(SharedPrefsKeys.kPassphraseUseEnabled) ?? false;
+    _isPassphraseUseEnabled = prefs.getBool(SharedPrefsKeys.kPassphraseUseEnabled) ?? false;
   }
 
   void showIndicator() {
@@ -35,8 +34,7 @@ class VisibilityProvider extends ChangeNotifier {
 
   Future<void> saveWalletCount(int count) async {
     _walletCount = count;
-    await SharedPrefsRepository()
-        .setInt(SharedPrefsKeys.vaultListLength, count);
+    await SharedPrefsRepository().setInt(SharedPrefsKeys.vaultListLength, count);
     notifyListeners();
   }
 
@@ -54,8 +52,7 @@ class VisibilityProvider extends ChangeNotifier {
 
   Future<void> setAdvancedMode(bool value) async {
     _isPassphraseUseEnabled = value;
-    SharedPrefsRepository()
-        .setBool(SharedPrefsKeys.kPassphraseUseEnabled, value);
+    SharedPrefsRepository().setBool(SharedPrefsKeys.kPassphraseUseEnabled, value);
     notifyListeners();
   }
 }

@@ -5,12 +5,10 @@ void main() {
   group('hashString', () {
     test('hashes a string correctly', () {
       const input = "hello";
-      const expectedHash =
-          "5d41402abc4b2a76b9719d911017c592"; // "hello"의 MD5 해시 값 (예시)
+      const expectedHash = "5d41402abc4b2a76b9719d911017c592"; // "hello"의 MD5 해시 값 (예시)
 
       // SHA-256 해시 결과
-      const sha256ExpectedHash =
-          "2cf24dba5fb0a30e26e83b2ac5b9e29e1b161e5c1fa7425e73043362938b9824";
+      const sha256ExpectedHash = "2cf24dba5fb0a30e26e83b2ac5b9e29e1b161e5c1fa7425e73043362938b9824";
 
       expect(hashString(input), equals(sha256ExpectedHash));
     });

@@ -22,14 +22,12 @@ class SignProvider {
   String? get unsignedPsbtBase64 => _unsignedPsbtBase64;
   VaultListItemBase? get vaultListItem => _vaultListItem;
   String? get walletName => _vaultListItem?.name;
-  bool? get isMultisig =>
-      _vaultListItem?.vaultType == WalletType.multiSignature;
+  bool? get isMultisig => _vaultListItem?.vaultType == WalletType.multiSignature;
 
   Psbt? get psbt => _psbt;
   String? get recipientAddress => _recipientAddress;
-  Map<String, double>? get recipientAmounts => _recipientAmounts == null
-      ? null
-      : UnmodifiableMapView(_recipientAmounts!);
+  Map<String, double>? get recipientAmounts =>
+      _recipientAmounts == null ? null : UnmodifiableMapView(_recipientAmounts!);
 
   int? get sendingAmount => _sendingAmount;
 
@@ -98,7 +96,7 @@ class SignProvider {
   }
 
   void resetAll() {
-    _unsignedPsbtBase64 = _vaultListItem = _psbt = _recipientAddress =
-        _recipientAmounts = _sendingAmount = _signedPsbtBase64 = null;
+    _unsignedPsbtBase64 = _vaultListItem =
+        _psbt = _recipientAddress = _recipientAmounts = _sendingAmount = _signedPsbtBase64 = null;
   }
 }

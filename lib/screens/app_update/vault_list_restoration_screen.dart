@@ -17,8 +17,7 @@ class VaultListRestorationScreen extends StatefulWidget {
   const VaultListRestorationScreen({super.key, required this.onComplete});
 
   @override
-  State<VaultListRestorationScreen> createState() =>
-      _VaultListRestorationScreenState();
+  State<VaultListRestorationScreen> createState() => _VaultListRestorationScreenState();
 }
 
 class _VaultListRestorationScreenState extends State<VaultListRestorationScreen>
@@ -60,10 +59,7 @@ class _VaultListRestorationScreenState extends State<VaultListRestorationScreen>
       final progress = viewModel.restorationProgress;
       debugPrint('viewModel.restoreProgress: $progress');
 
-      if (progress == 5 ||
-          progress == 50 ||
-          progress == 90 ||
-          progress == 100) {
+      if (progress == 5 || progress == 50 || progress == 90 || progress == 100) {
         const duration = Duration(
           milliseconds: 2000,
         );
@@ -76,8 +72,7 @@ class _VaultListRestorationScreenState extends State<VaultListRestorationScreen>
     });
   }
 
-  Widget _buildWalletListItem(
-      String walletName, int iconIndex, int colorIndex, String rightText) {
+  Widget _buildWalletListItem(String walletName, int iconIndex, int colorIndex, String rightText) {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
@@ -99,20 +94,17 @@ class _VaultListRestorationScreenState extends State<VaultListRestorationScreen>
         children: [
           CoconutIcon(
             size: 30,
-            backgroundColor:
-                CoconutColors.backgroundColorPaletteLight[colorIndex],
+            backgroundColor: CoconutColors.backgroundColorPaletteLight[colorIndex],
             child: SvgPicture.asset(
               CustomIcons.getPathByIndex(iconIndex),
-              colorFilter: ColorFilter.mode(
-                  CoconutColors.colorPalette[colorIndex], BlendMode.srcIn),
+              colorFilter:
+                  ColorFilter.mode(CoconutColors.colorPalette[colorIndex], BlendMode.srcIn),
             ),
           ),
           CoconutLayout.spacing_200w,
           Text(walletName, style: CoconutTypography.body2_14_Bold),
           const Spacer(),
-          Text(rightText,
-              style: CoconutTypography.body3_12_Number
-                  .setColor(CoconutColors.gray800)),
+          Text(rightText, style: CoconutTypography.body3_12_Number.setColor(CoconutColors.gray800)),
         ],
       ),
     );
@@ -126,11 +118,9 @@ class _VaultListRestorationScreenState extends State<VaultListRestorationScreen>
         create: (_) => VaultListRestorationViewModel(
           Provider.of<WalletProvider>(context, listen: false),
         ),
-        child: Consumer<VaultListRestorationViewModel>(
-            builder: (context, viewModel, child) {
+        child: Consumer<VaultListRestorationViewModel>(builder: (context, viewModel, child) {
           WidgetsBinding.instance.addPostFrameCallback((_) {
-            if (!viewModel.isVaultListRestored &&
-                !viewModel.isRestorationProgressing) {
+            if (!viewModel.isVaultListRestored && !viewModel.isRestorationProgressing) {
               // 중복 실행 방지
               _startProgress(viewModel);
             }
@@ -154,10 +144,9 @@ class _VaultListRestorationScreenState extends State<VaultListRestorationScreen>
                         padding: const EdgeInsets.symmetric(vertical: 20),
                         child: Text(
                           viewModel.isVaultListRestored
-                              ? t.vault_list_restoration.completed_description(
-                                  count: viewModel.vaultList.length)
-                              : t.vault_list_restoration
-                                  .in_progress_description,
+                              ? t.vault_list_restoration
+                                  .completed_description(count: viewModel.vaultList.length)
+                              : t.vault_list_restoration.in_progress_description,
                           style: CoconutTypography.body2_14_Bold,
                           textAlign: TextAlign.center,
                         ),
@@ -176,12 +165,11 @@ class _VaultListRestorationScreenState extends State<VaultListRestorationScreen>
 
                               if (vaultItem is SingleSigVaultListItem) {
                                 SingleSigVaultListItem singleVault = vaultItem;
-                                final singlesigVault = singleVault.coconutVault
-                                    as SingleSignatureVault;
+                                final singlesigVault =
+                                    singleVault.coconutVault as SingleSignatureVault;
                                 colorIndex = singleVault.colorIndex;
                                 iconIndex = singleVault.iconIndex;
-                                rightText =
-                                    singlesigVault.keyStore.masterFingerprint;
+                                rightText = singlesigVault.keyStore.masterFingerprint;
                               } else {
                                 MultisigVaultListItem multiVault =
                                     vaultItem as MultisigVaultListItem;
@@ -196,13 +184,11 @@ class _VaultListRestorationScreenState extends State<VaultListRestorationScreen>
                                 padding: EdgeInsets.only(
                                     top: index == 0 ? Sizes.size8 : 0,
                                     bottom:
-                                        index == viewModel.vaultList.length - 1
-                                            ? 190
-                                            : Sizes.size8,
+                                        index == viewModel.vaultList.length - 1 ? 190 : Sizes.size8,
                                     left: CoconutLayout.defaultPadding,
                                     right: CoconutLayout.defaultPadding),
-                                child: _buildWalletListItem(vaultItem.name,
-                                    iconIndex, colorIndex, rightText),
+                                child: _buildWalletListItem(
+                                    vaultItem.name, iconIndex, colorIndex, rightText),
                               );
                             },
                           ),
@@ -225,8 +211,8 @@ class _VaultListRestorationScreenState extends State<VaultListRestorationScreen>
                       text: t.vault_list_restoration.start_vault,
                       textColor: CoconutColors.white,
                       showGradient: true,
-                      gradientPadding: const EdgeInsets.only(
-                          left: 16, right: 16, bottom: 40, top: 110),
+                      gradientPadding:
+                          const EdgeInsets.only(left: 16, right: 16, bottom: 40, top: 110),
                       isActive: true,
                       backgroundColor: CoconutColors.black,
                     )

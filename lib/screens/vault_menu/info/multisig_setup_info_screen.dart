@@ -30,8 +30,7 @@ class MultisigSetupInfoScreen extends StatefulWidget {
   const MultisigSetupInfoScreen({super.key, required this.id});
 
   @override
-  State<MultisigSetupInfoScreen> createState() =>
-      _MultisigSetupInfoScreenState();
+  State<MultisigSetupInfoScreen> createState() => _MultisigSetupInfoScreenState();
 }
 
 class _MultisigSetupInfoScreenState extends State<MultisigSetupInfoScreen> {
@@ -48,12 +47,10 @@ class _MultisigSetupInfoScreenState extends State<MultisigSetupInfoScreen> {
     super.initState();
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      _tooltipIconRenderBox =
-          _tooltipIconKey.currentContext?.findRenderObject() as RenderBox;
+      _tooltipIconRenderBox = _tooltipIconKey.currentContext?.findRenderObject() as RenderBox;
       _tooltipIconPosition = _tooltipIconRenderBox!.localToGlobal(Offset.zero);
 
-      _tooltipTopPadding =
-          MediaQuery.paddingOf(context).top + kToolbarHeight - 14;
+      _tooltipTopPadding = MediaQuery.paddingOf(context).top + kToolbarHeight - 14;
     });
   }
 
@@ -88,8 +85,7 @@ class _MultisigSetupInfoScreenState extends State<MultisigSetupInfoScreen> {
         onPopInvokedWithResult: (didPop, _) {
           _removeTooltip();
         },
-        child: Consumer<MultisigSetupInfoViewModel>(
-            builder: (context, viewModel, child) {
+        child: Consumer<MultisigSetupInfoViewModel>(builder: (context, viewModel, child) {
           return Scaffold(
             backgroundColor: MyColors.white,
             appBar: CustomAppBar.build(
@@ -162,8 +158,7 @@ class _MultisigSetupInfoScreenState extends State<MultisigSetupInfoScreen> {
       return;
     }
 
-    final hasChanged = await viewModel.updateVault(
-        widget.id, newName, newColorIndex, newIconIndex);
+    final hasChanged = await viewModel.updateVault(widget.id, newName, newColorIndex, newIconIndex);
 
     if (mounted) {
       if (hasChanged) {
@@ -190,10 +185,9 @@ class _MultisigSetupInfoScreenState extends State<MultisigSetupInfoScreen> {
             onTap: () {
               _removeTooltip();
               if (isVaultInside) {
-                Navigator.pushNamed(context, AppRoutes.singleSigSetupInfo,
-                    arguments: {
-                      'id': signer.innerVaultId,
-                    });
+                Navigator.pushNamed(context, AppRoutes.singleSigSetupInfo, arguments: {
+                  'id': signer.innerVaultId,
+                });
               } else {
                 _showMemoEditBottomSheet(signer, index, viewModel);
               }
@@ -249,9 +243,7 @@ class _MultisigSetupInfoScreenState extends State<MultisigSetupInfoScreen> {
                           ? CustomIcons.getPathByIndex(signer.iconIndex!)
                           : 'assets/svg/download.svg'),
                   const SizedBox(width: 10),
-                  Expanded(
-                      child: _buildSignerNameAndMemo(
-                          name: signer.name, memo: signer.memo)),
+                  Expanded(child: _buildSignerNameAndMemo(name: signer.name, memo: signer.memo)),
                   // mfp
                   Text(
                     signer.keyStore.masterFingerprint,
@@ -273,18 +265,15 @@ class _MultisigSetupInfoScreenState extends State<MultisigSetupInfoScreen> {
           '$index',
           textAlign: TextAlign.center,
           style: Styles.body2.merge(
-            TextStyle(
-                fontSize: 16, fontFamily: CustomFonts.number.getFontFamily),
+            TextStyle(fontSize: 16, fontFamily: CustomFonts.number.getFontFamily),
           ),
         ));
   }
 
-  Widget _buildSignerIcon(
-      {int colorIndex = -1, String iconPath = 'assets/svg/download.svg'}) {
+  Widget _buildSignerIcon({int colorIndex = -1, String iconPath = 'assets/svg/download.svg'}) {
     final Color backgroundColor =
         colorIndex == -1 ? MyColors.greyEC : BackgroundColorPalette[colorIndex];
-    final Color iconColor =
-        colorIndex == -1 ? MyColors.black : ColorPalette[colorIndex];
+    final Color iconColor = colorIndex == -1 ? MyColors.black : ColorPalette[colorIndex];
     return Container(
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
@@ -342,10 +331,9 @@ class _MultisigSetupInfoScreenState extends State<MultisigSetupInfoScreen> {
                 onPressed: () {
                   _removeTooltip();
 
-                  Navigator.pushNamed(context, AppRoutes.multisigBsmsView,
-                      arguments: {
-                        'id': widget.id,
-                      });
+                  Navigator.pushNamed(context, AppRoutes.multisigBsmsView, arguments: {
+                    'id': widget.id,
+                  });
                 },
               ),
             ],
@@ -373,12 +361,10 @@ class _MultisigSetupInfoScreenState extends State<MultisigSetupInfoScreen> {
               rightIcon: Container(
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
-                      color: MyColors.transparentWhite_70,
-                      borderRadius: BorderRadius.circular(10)),
+                      color: MyColors.transparentWhite_70, borderRadius: BorderRadius.circular(10)),
                   child: SvgPicture.asset('assets/svg/trash.svg',
                       width: 16,
-                      colorFilter: const ColorFilter.mode(
-                          MyColors.warningText, BlendMode.srcIn))),
+                      colorFilter: const ColorFilter.mode(MyColors.warningText, BlendMode.srcIn))),
               onPressed: () {
                 _removeTooltip();
                 showConfirmDialog(
@@ -418,8 +404,7 @@ class _MultisigSetupInfoScreenState extends State<MultisigSetupInfoScreen> {
   }
 
   Widget _buildTooltip(BuildContext context) {
-    final totalSingerCount =
-        context.read<MultisigSetupInfoViewModel>().signers.length;
+    final totalSingerCount = context.read<MultisigSetupInfoViewModel>().signers.length;
     final requiredSignatureCount =
         context.read<MultisigSetupInfoViewModel>().requiredSignatureCount;
     return Visibility(
@@ -443,8 +428,8 @@ class _MultisigSetupInfoScreenState extends State<MultisigSetupInfoScreen> {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Text(
-                    t.multi_sig_setting_screen.tooltip(
-                        total: totalSingerCount, count: requiredSignatureCount),
+                    t.multi_sig_setting_screen
+                        .tooltip(total: totalSingerCount, count: requiredSignatureCount),
                     style: Styles.caption.merge(TextStyle(
                       height: 1.3,
                       fontFamily: CustomFonts.text.getFontFamily,

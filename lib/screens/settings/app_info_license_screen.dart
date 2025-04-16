@@ -16,8 +16,7 @@ class LicenseScreen extends StatefulWidget {
 }
 
 class _LicenseScreenState extends State<LicenseScreen> {
-  late List<bool> licenseExplanationVisible =
-      List.filled(dependencies.length, false);
+  late List<bool> licenseExplanationVisible = List.filled(dependencies.length, false);
   String? identifyLicense(String licenseText) {
     final Map<String, String> licenseKeywords = {
       'MIT License': 'Permission is hereby granted,',
@@ -25,8 +24,7 @@ class _LicenseScreenState extends State<LicenseScreen> {
       'BSD License': 'Redistribution and use in source and binary forms,',
       'GPL License': 'This program is free software:',
       'EPL License': 'Eclipse Public License - v 2.0',
-      'Creative Commons License':
-          'This work is licensed under a Creative Commons Attribution',
+      'Creative Commons License': 'This work is licensed under a Creative Commons Attribution',
       'Proprietary License': 'This software is proprietary and confidential',
       'Public Domain': 'The person who associated a work with this',
       'LGPL License': 'This library is free software; you can redistribute it',
@@ -104,8 +102,7 @@ class _LicenseScreenState extends State<LicenseScreen> {
                                         context: context,
                                         child: QrcodeBottomSheet(
                                           qrData: mitFullTextLink,
-                                          title:
-                                              t.bottom_sheet.view_mit_license,
+                                          title: t.bottom_sheet.view_mit_license,
                                           fromAppInfo: true,
                                         ));
                                   }),
@@ -125,8 +122,7 @@ class _LicenseScreenState extends State<LicenseScreen> {
                                         child: QrcodeBottomSheet(
                                           qrData:
                                               'mailto:$CONTACT_EMAIL_ADDRESS?subject=${t.bottom_sheet.ask_about_license}',
-                                          title:
-                                              t.bottom_sheet.contact_by_email,
+                                          title: t.bottom_sheet.contact_by_email,
                                           fromAppInfo: true,
                                         ));
                                   }),
@@ -148,8 +144,7 @@ class _LicenseScreenState extends State<LicenseScreen> {
                 final license = dependencies[index - 1];
                 final licenseName = license.name;
                 String copyRight = '';
-                List<String>? licenseClassExplanation =
-                    license.license?.split('\n');
+                List<String>? licenseClassExplanation = license.license?.split('\n');
                 String? licenseClass = '';
 
                 /// License 종류 찾기
@@ -169,8 +164,7 @@ class _LicenseScreenState extends State<LicenseScreen> {
                 }
 
                 return Padding(
-                  padding: const EdgeInsets.only(
-                      left: 10, right: 10, top: 10, bottom: 8),
+                  padding: const EdgeInsets.only(left: 10, right: 10, top: 10, bottom: 8),
                   child: Material(
                     color: Colors.transparent,
                     child: InkWell(
@@ -217,8 +211,7 @@ class _LicenseScreenState extends State<LicenseScreen> {
                                 ),
                                 height: 200,
                                 decoration: BoxDecoration(
-                                  border: Border.all(
-                                      width: 1, color: MyColors.borderGrey),
+                                  border: Border.all(width: 1, color: MyColors.borderGrey),
                                 ),
                                 child: SingleChildScrollView(
                                   padding: const EdgeInsets.symmetric(

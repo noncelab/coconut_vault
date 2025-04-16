@@ -58,10 +58,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               Selector<WalletProvider, bool>(
                 selector: (context, provider) => provider.vaultList.isNotEmpty,
                 builder: (context, isNotEmpty, _) => isNotEmpty
-                    ? Column(children: [
-                        _updatePart(context),
-                        CoconutLayout.spacing_1000h
-                      ])
+                    ? Column(children: [_updatePart(context), CoconutLayout.spacing_1000h])
                     : Container(),
               ),
               _advancedUserPart(context),
@@ -88,14 +85,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   SingleButton(
                     title: t.settings_screen.use_biometric,
                     rightElement: CupertinoSwitch(
-                      value: provider.hasBiometricsPermission
-                          ? provider.isBiometricEnabled
-                          : false,
+                      value: provider.hasBiometricsPermission ? provider.isBiometricEnabled : false,
                       activeColor: CoconutColors.black,
                       onChanged: (isOn) async {
                         if (isOn &&
-                            await provider.authenticateWithBiometrics(context,
-                                isSaved: true)) {
+                            await provider.authenticateWithBiometrics(context, isSaved: true)) {
                           Logger.log('Biometric authentication success');
                           provider.saveIsBiometricEnabled(true);
                         } else {
@@ -122,14 +116,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 SingleButton(
                   title: t.settings_screen.set_password,
                   rightElement: CupertinoSwitch(
-                    value: provider.hasBiometricsPermission
-                        ? provider.isBiometricEnabled
-                        : false,
+                    value: provider.hasBiometricsPermission ? provider.isBiometricEnabled : false,
                     activeColor: MyColors.black,
                     onChanged: (isOn) async {
                       if (isOn &&
-                          await provider.authenticateWithBiometrics(context,
-                              isSaved: true)) {
+                          await provider.authenticateWithBiometrics(context, isSaved: true)) {
                         Logger.log('Biometric authentication success');
                         provider.saveIsBiometricEnabled(true);
                       } else {

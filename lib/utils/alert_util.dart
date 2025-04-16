@@ -3,8 +3,7 @@ import 'package:coconut_vault/styles.dart';
 
 const TextStyle titleStyle = Styles.body1Bold;
 const TextStyle contentStyle = Styles.label;
-TextStyle optionStyle =
-    Styles.label.merge(const TextStyle(fontWeight: FontWeight.bold));
+TextStyle optionStyle = Styles.label.merge(const TextStyle(fontWeight: FontWeight.bold));
 
 // 전역 변수로 Dialog 상태 관리
 bool _isDialogVisible = false;
@@ -56,9 +55,7 @@ void showConfirmDialog(
   showCupertinoModalPopup<void>(
     context: context,
     builder: (BuildContext context) => CupertinoAlertDialog(
-      title: title != null
-          ? Text(title, style: titleStyle)
-          : const Text('주의', style: titleStyle),
+      title: title != null ? Text(title, style: titleStyle) : const Text('주의', style: titleStyle),
       content: content != null
           ? Text(content, style: contentStyle)
           : const Text('정말로 진행하시겠어요?', style: contentStyle),
@@ -79,9 +76,7 @@ void showConfirmDialog(
             Navigator.pop(context);
             _isDialogVisible = false;
           },
-          child: Text('네',
-              style: optionStyle
-                  .merge(const TextStyle(color: MyColors.warningText))),
+          child: Text('네', style: optionStyle.merge(const TextStyle(color: MyColors.warningText))),
         ),
       ],
     ),

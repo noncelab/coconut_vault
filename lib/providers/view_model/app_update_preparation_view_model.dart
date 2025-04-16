@@ -36,10 +36,8 @@ class AppUpdatePreparationViewModel extends ChangeNotifier {
   bool get isMnemonicLoaded => _isMnemonicLoaded;
   bool get isMnemonicValidationFinished => _isMnemonicValidationFinished;
   String get walletName => _mnemonicWordsItems[_currentMnemonicIndex].vaultName;
-  int get mnemonicWordLength =>
-      _mnemonicWordsItems[_currentMnemonicIndex].mnemonicWordLength;
-  int get mnemonicWordIndex =>
-      _mnemonicWordsItems[_currentMnemonicIndex].mnemonicWordIndex + 1;
+  int get mnemonicWordLength => _mnemonicWordsItems[_currentMnemonicIndex].mnemonicWordLength;
+  int get mnemonicWordIndex => _mnemonicWordsItems[_currentMnemonicIndex].mnemonicWordIndex + 1;
   int get backupProgress => _backupProgress;
 
   int _backupProgress = 0;
@@ -60,8 +58,7 @@ class AppUpdatePreparationViewModel extends ChangeNotifier {
     }
 
     for (int i = 0; i < filteredList.length; i++) {
-      _mnemonicWordsItems
-          .add(await _getMnemonicWordsFromVault(filteredList[i]));
+      _mnemonicWordsItems.add(await _getMnemonicWordsFromVault(filteredList[i]));
       if (_mnemonicWordsItems.length == filteredList.length) {
         _isMnemonicLoaded = true;
         notifyListeners();
@@ -69,13 +66,11 @@ class AppUpdatePreparationViewModel extends ChangeNotifier {
     }
   }
 
-  Future<MnemonicWordsItem> _getMnemonicWordsFromVault(
-      VaultListItemBase vault) async {
+  Future<MnemonicWordsItem> _getMnemonicWordsFromVault(VaultListItemBase vault) async {
     return await _walletProvider.getSecret(vault.id).then((secret) {
       List<String> mnemonicList = secret.mnemonic.split(' ');
       int mnemonicIndex = _random.nextInt(mnemonicList.length);
-      Logger.log(
-          '-->${vault.name} mnemonicList: $mnemonicList, mnemonicIndex: $mnemonicIndex');
+      Logger.log('-->${vault.name} mnemonicList: $mnemonicList, mnemonicIndex: $mnemonicIndex');
       return MnemonicWordsItem(
           vaultName: vault.name,
           mnemonicWords: hashString(mnemonicList[mnemonicIndex]),
@@ -85,8 +80,8 @@ class AppUpdatePreparationViewModel extends ChangeNotifier {
   }
 
   bool isWordMatched(String userInput) {
-    final success = hashString(userInput) ==
-        _mnemonicWordsItems[_currentMnemonicIndex].mnemonicWords;
+    final success =
+        hashString(userInput) == _mnemonicWordsItems[_currentMnemonicIndex].mnemonicWords;
     if (!success) {
       return false;
     }
@@ -107,13 +102,9 @@ class AppUpdatePreparationViewModel extends ChangeNotifier {
   }
 
   void setProgressReached(int value) {
-    if (value == 40 &&
-        _progress40Reached != null &&
-        !_progress40Reached!.isCompleted) {
+    if (value == 40 && _progress40Reached != null && !_progress40Reached!.isCompleted) {
       _progress40Reached!.complete();
-    } else if (value == 80 &&
-        _progress80Reached != null &&
-        !_progress80Reached!.isCompleted) {
+    } else if (value == 80 && _progress80Reached != null && !_progress80Reached!.isCompleted) {
       _progress80Reached!.complete();
     }
   }

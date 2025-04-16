@@ -16,12 +16,10 @@ class MultisigSignerMemoBottomSheet extends StatefulWidget {
   });
 
   @override
-  State<MultisigSignerMemoBottomSheet> createState() =>
-      _MultisigSignerMemoBottomSheetState();
+  State<MultisigSignerMemoBottomSheet> createState() => _MultisigSignerMemoBottomSheetState();
 }
 
-class _MultisigSignerMemoBottomSheetState
-    extends State<MultisigSignerMemoBottomSheet> {
+class _MultisigSignerMemoBottomSheetState extends State<MultisigSignerMemoBottomSheet> {
   late String _memo;
   bool hasChanged = false;
   final TextEditingController _controller = TextEditingController();
@@ -162,9 +160,7 @@ class _MultisigSignerMemoBottomSheetState
                               style: TextStyle(
                                 color: Colors.white,
                                 fontSize: 14,
-                                fontWeight: _memo.isNotEmpty
-                                    ? FontWeight.bold
-                                    : FontWeight.normal,
+                                fontWeight: _memo.isNotEmpty ? FontWeight.bold : FontWeight.normal,
                               ),
                             ),
                           ),

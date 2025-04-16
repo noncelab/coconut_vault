@@ -1,8 +1,6 @@
 // ignore_for_file: constant_identifier_names
-const LICENSE_URL =
-    'https://github.com/noncelab/coconut_vault/blob/main/LICENSE.md';
-const CONTRIBUTING_URL =
-    'https://github.com/noncelab/coconut_vault/blob/main/CONTRIBUTING.md';
+const LICENSE_URL = 'https://github.com/noncelab/coconut_vault/blob/main/LICENSE.md';
+const CONTRIBUTING_URL = 'https://github.com/noncelab/coconut_vault/blob/main/CONTRIBUTING.md';
 
 /// POW Community URL
 const POW_URL = 'https://powbitcoiner.com';

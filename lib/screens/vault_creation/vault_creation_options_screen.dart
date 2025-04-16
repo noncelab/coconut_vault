@@ -32,9 +32,7 @@ class VaultCreationOptions extends StatelessWidget {
           onNextPressed: () {
             Navigator.pushNamed(context, AppRoutes.mnemonicGeneration);
           }),
-      Option(
-          name: t.vault_creation_options_screen.import_mnemonic,
-          path: AppRoutes.mnemonicImport),
+      Option(name: t.vault_creation_options_screen.import_mnemonic, path: AppRoutes.mnemonicImport),
     ];
 
     return Scaffold(
@@ -72,8 +70,8 @@ class VaultCreationOptions extends StatelessWidget {
                               }
                             },
                             child: Container(
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 24.0, vertical: 36.0),
+                                padding:
+                                    const EdgeInsets.symmetric(horizontal: 24.0, vertical: 36.0),
                                 child: Row(
                                   children: [
                                     Align(
@@ -88,9 +86,7 @@ class VaultCreationOptions extends StatelessWidget {
                                               letterSpacing: 0.2),
                                         )),
                                     const Spacer(),
-                                    SvgPicture.asset(
-                                        'assets/svg/curved-arrow-right.svg',
-                                        width: 24)
+                                    SvgPicture.asset('assets/svg/curved-arrow-right.svg', width: 24)
                                   ],
                                 ))),
                         const SizedBox(height: 8.0)

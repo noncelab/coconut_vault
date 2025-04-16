@@ -24,8 +24,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
   @override
   void initState() {
     super.initState();
-    _connectivityProvider =
-        Provider.of<ConnectivityProvider>(context, listen: false);
+    _connectivityProvider = Provider.of<ConnectivityProvider>(context, listen: false);
   }
 
   @override
@@ -70,22 +69,18 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                     SvgPicture.asset(
                       'assets/svg/number/one.svg',
                       width: 20,
-                      colorFilter: const ColorFilter.mode(
-                          MyColors.darkgrey, BlendMode.srcIn),
+                      colorFilter: const ColorFilter.mode(MyColors.darkgrey, BlendMode.srcIn),
                     ),
                     const SizedBox(height: 20),
                     Text(t.welcome_screen.guide1_1, style: Styles.subLabel),
                     HighLightedText(
-                        t.welcome_screen.guide1_2(
-                            suffix: Platform.isAndroid
-                                ? ', ${t.developer_option}'
-                                : ''),
+                        t.welcome_screen
+                            .guide1_2(suffix: Platform.isAndroid ? ', ${t.developer_option}' : ''),
                         color: MyColors.darkgrey),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        HighLightedText(t.welcome_screen.guide1_3,
-                            color: MyColors.darkgrey),
+                        HighLightedText(t.welcome_screen.guide1_3, color: MyColors.darkgrey),
                         Text(t.welcome_screen.guide1_4, style: Styles.subLabel),
                       ],
                     ),
@@ -99,14 +94,12 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                     SvgPicture.asset(
                       'assets/svg/number/two.svg',
                       width: 20,
-                      colorFilter: const ColorFilter.mode(
-                          MyColors.darkgrey, BlendMode.srcIn),
+                      colorFilter: const ColorFilter.mode(MyColors.darkgrey, BlendMode.srcIn),
                     ),
                     const SizedBox(height: 20),
                     Text(t.welcome_screen.guide2_1, style: Styles.subLabel),
                     Text(t.welcome_screen.guide2_2, style: Styles.subLabel),
-                    HighLightedText(t.welcome_screen.guide2_3,
-                        color: MyColors.darkgrey),
+                    HighLightedText(t.welcome_screen.guide2_3, color: MyColors.darkgrey),
                     Text(t.welcome_screen.guide2_4, style: Styles.subLabel),
                   ],
                 ),
@@ -117,15 +110,13 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                     SvgPicture.asset(
                       'assets/svg/number/three.svg',
                       width: 20,
-                      colorFilter: const ColorFilter.mode(
-                          MyColors.darkgrey, BlendMode.srcIn),
+                      colorFilter: const ColorFilter.mode(MyColors.darkgrey, BlendMode.srcIn),
                     ),
                     const SizedBox(height: 20),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        HighLightedText(t.welcome_screen.guide3_1,
-                            color: MyColors.darkgrey),
+                        HighLightedText(t.welcome_screen.guide3_1, color: MyColors.darkgrey),
                         Text(t.welcome_screen.guide3_2, style: Styles.subLabel),
                       ],
                     ),
@@ -136,8 +127,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
               ].map((item) {
                 return Container(
                   padding: const EdgeInsets.all(20),
-                  margin: const EdgeInsets.symmetric(
-                      vertical: 20.0, horizontal: 10),
+                  margin: const EdgeInsets.symmetric(vertical: 20.0, horizontal: 10),
                   width: MediaQuery.of(context).size.width * 0.8,
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(24),
@@ -150,8 +140,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                       ),
                     ],
                   ),
-                  child: ClipRRect(
-                      borderRadius: BorderRadius.circular(8.0), child: item),
+                  child: ClipRRect(borderRadius: BorderRadius.circular(8.0), child: item),
                 );
               }).toList(),
             ),
@@ -166,8 +155,8 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                 },
                 child: Text(
                   t.welcome_screen.understood,
-                  style: Styles.label.merge(const TextStyle(
-                      color: MyColors.secondary, fontWeight: FontWeight.bold)),
+                  style: Styles.label.merge(
+                      const TextStyle(color: MyColors.secondary, fontWeight: FontWeight.bold)),
                 )),
             const SizedBox(
               height: 60,

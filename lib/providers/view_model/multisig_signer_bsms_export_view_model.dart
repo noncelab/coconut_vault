@@ -13,8 +13,8 @@ class MultisigSignerBsmsExportViewModel extends ChangeNotifier {
   late bool _isSignerBsmsSetFailed;
   late VaultListItemBase _vaultListItem;
   Bsms? _bsms;
-  IsolateHandler<List<VaultListItemBase>, List<String>>
-      extractBsmsIsolateHandler = IsolateHandler(extractSignerBsmsIsolate);
+  IsolateHandler<List<VaultListItemBase>, List<String>> extractBsmsIsolateHandler =
+      IsolateHandler(extractSignerBsmsIsolate);
 
   MultisigSignerBsmsExportViewModel(this._walletProvider, id) {
     _qrData = '';
@@ -52,12 +52,10 @@ class MultisigSignerBsmsExportViewModel extends ChangeNotifier {
   }
 
   Future<void> setSignerBsms() async {
-    await extractBsmsIsolateHandler.initialize(
-        initialType: InitializeType.extractSignerBsms);
+    await extractBsmsIsolateHandler.initialize(initialType: InitializeType.extractSignerBsms);
 
     try {
-      List<String> bsmses =
-          await extractBsmsIsolateHandler.run([_vaultListItem]);
+      List<String> bsmses = await extractBsmsIsolateHandler.run([_vaultListItem]);
 
       _qrData = bsmses[0];
       _bsms = Bsms.parseSigner(_qrData);

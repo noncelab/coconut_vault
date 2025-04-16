@@ -33,6 +33,6 @@ class SingleButton extends StatelessWidget {
         ));
   }
 
-  Widget _rightArrow() => const Icon(Icons.keyboard_arrow_right_rounded,
-      color: MyColors.transparentBlack_50);
+  Widget _rightArrow() =>
+      const Icon(Icons.keyboard_arrow_right_rounded, color: MyColors.transparentBlack_50);
 }

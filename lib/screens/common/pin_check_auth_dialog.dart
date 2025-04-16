@@ -45,8 +45,7 @@ Future<void> showAuthenticationFailedDialog(
             child: Text(
               t.permission.biometric.btn_move_to_setting,
               style: Styles.label.merge(
-                const TextStyle(
-                    color: Colors.blueAccent, fontWeight: FontWeight.bold),
+                const TextStyle(color: Colors.blueAccent, fontWeight: FontWeight.bold),
               ),
             ),
             onPressed: () async {

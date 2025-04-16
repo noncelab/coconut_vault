@@ -50,8 +50,8 @@ class _MnemonicImportState extends State<MnemonicImport> {
     super.initState();
     _initListeners();
     _walletProvider = Provider.of<WalletProvider>(context, listen: false);
-    _walletCreationProvider =
-        Provider.of<WalletCreationProvider>(context, listen: false)..resetAll();
+    _walletCreationProvider = Provider.of<WalletCreationProvider>(context, listen: false)
+      ..resetAll();
   }
 
   void _initListeners() {
@@ -73,8 +73,7 @@ class _MnemonicImportState extends State<MnemonicImport> {
   }
 
   void _validateMnemonic() {
-    final String normalizedInputText =
-        _inputText.trim().replaceAll(RegExp(r'\s+'), ' ');
+    final String normalizedInputText = _inputText.trim().replaceAll(RegExp(r'\s+'), ' ');
     final List<String> words = normalizedInputText.split(' ');
 
     if (_inputText.trim().isEmpty) return _resetValidation();
@@ -83,9 +82,8 @@ class _MnemonicImportState extends State<MnemonicImport> {
 
     if (words.last.length < 3) return _resetValidation();
 
-    final List<String> invalidWords = words
-        .where((word) => !WalletUtility.isInMnemonicWordList(word))
-        .toList();
+    final List<String> invalidWords =
+        words.where((word) => !WalletUtility.isInMnemonicWordList(word)).toList();
 
     if (invalidWords.isNotEmpty) {
       setState(() {
@@ -122,8 +120,7 @@ class _MnemonicImportState extends State<MnemonicImport> {
       onCancel: () => Navigator.pop(context),
       onConfirm: () {
         Navigator.pop(context);
-        Navigator.pushNamedAndRemoveUntil(
-            context, '/', (Route<dynamic> route) => false);
+        Navigator.pushNamedAndRemoveUntil(context, '/', (Route<dynamic> route) => false);
       },
     );
   }
@@ -147,9 +144,7 @@ class _MnemonicImportState extends State<MnemonicImport> {
               onBackPressed: _handleBackNavigation,
               onNextPressed: _handleNextButton,
               isActive: _usePassphrase
-                  ? _inputText.isNotEmpty &&
-                      _isMnemonicValid == true &&
-                      _passphrase.isNotEmpty
+                  ? _inputText.isNotEmpty && _isMnemonicValid == true && _passphrase.isNotEmpty
                   : _inputText.isNotEmpty && _isMnemonicValid == true,
             ),
             body: GestureDetector(
@@ -157,8 +152,7 @@ class _MnemonicImportState extends State<MnemonicImport> {
               child: SafeArea(
                 child: SingleChildScrollView(
                   child: Container(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 20, vertical: 30),
+                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 30),
                     child: Column(
                       children: <Widget>[
                         Text(t.mnemonic_import_screen.enter_mnemonic_phrase,
@@ -182,8 +176,7 @@ class _MnemonicImportState extends State<MnemonicImport> {
             child: Container(
               width: MediaQuery.of(context).size.width,
               height: MediaQuery.of(context).size.height,
-              decoration:
-                  const BoxDecoration(color: MyColors.transparentBlack_30),
+              decoration: const BoxDecoration(color: MyColors.transparentBlack_30),
               child: const Center(
                 child: CircularProgressIndicator(
                   color: MyColors.darkgrey,
@@ -208,14 +201,12 @@ class _MnemonicImportState extends State<MnemonicImport> {
   }
 
   void _handleNextButton() {
-    final String secret =
-        _inputText.trim().toLowerCase().replaceAll(RegExp(r'\s+'), ' ');
+    final String secret = _inputText.trim().toLowerCase().replaceAll(RegExp(r'\s+'), ' ');
 
     final String passphrase = _usePassphrase ? _passphrase.trim() : '';
 
     if (_walletProvider.isSeedDuplicated(secret, passphrase)) {
-      CustomToast.showToast(
-          context: context, text: t.toast.mnemonic_already_added);
+      CustomToast.showToast(context: context, text: t.toast.mnemonic_already_added);
       return;
     }
 
@@ -225,10 +216,8 @@ class _MnemonicImportState extends State<MnemonicImport> {
         onCancelPressed: () => Navigator.pop(context),
         onConfirmPressed: () {
           _walletCreationProvider.setSecretAndPassphrase(secret, passphrase);
-          Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(
-                  builder: (context) => const VaultNameAndIconSetupScreen()));
+          Navigator.pushReplacement(context,
+              MaterialPageRoute(builder: (context) => const VaultNameAndIconSetupScreen()));
         },
         onInactivePressed: () {
           CustomToast.showToast(context: context, text: t.toast.scroll_down);
@@ -253,8 +242,7 @@ class _MnemonicImportState extends State<MnemonicImport> {
             _mnemonicController.value = _mnemonicController.value.copyWith(
               text: _inputText,
               selection: TextSelection.collapsed(
-                offset: _mnemonicController.selection.baseOffset
-                    .clamp(0, _inputText.length),
+                offset: _mnemonicController.selection.baseOffset.clamp(0, _inputText.length),
               ),
             );
           });
@@ -273,8 +261,7 @@ class _MnemonicImportState extends State<MnemonicImport> {
           if (isAdvancedUser) {
             return Row(
               children: [
-                Text(t.mnemonic_import_screen.use_passphrase,
-                    style: Styles.body2Bold),
+                Text(t.mnemonic_import_screen.use_passphrase, style: Styles.body2Bold),
                 const Spacer(),
                 CupertinoSwitch(
                   value: _usePassphrase,

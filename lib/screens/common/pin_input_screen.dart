@@ -79,8 +79,7 @@ class PinInputScreenState extends State<PinInputScreen> {
             SizedBox(height: widget.initOptionVisible ? 60 : 24),
             Text(
               widget.title,
-              style: Styles.body1
-                  .merge(const TextStyle(fontWeight: FontWeight.bold)),
+              style: Styles.body1.merge(const TextStyle(fontWeight: FontWeight.bold)),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 10),
@@ -155,8 +154,7 @@ class PinInputScreenState extends State<PinInputScreen> {
                     child: Text(
                       t.forgot_password,
                       style: Styles.body2.merge(const TextStyle(
-                          fontWeight: FontWeight.bold,
-                          color: MyColors.transparentBlack_50)),
+                          fontWeight: FontWeight.bold, color: MyColors.transparentBlack_50)),
                       textAlign: TextAlign.center,
                     ),
                   )),

@@ -13,8 +13,7 @@ class SecuritySelfCheckScreen extends StatefulWidget {
   });
 
   @override
-  State<SecuritySelfCheckScreen> createState() =>
-      _SecuritySelfCheckScreenState();
+  State<SecuritySelfCheckScreen> createState() => _SecuritySelfCheckScreenState();
 }
 
 class _SecuritySelfCheckScreenState extends State<SecuritySelfCheckScreen> {
@@ -69,13 +68,11 @@ class _SecuritySelfCheckScreenState extends State<SecuritySelfCheckScreen> {
               Padding(
                 padding: const EdgeInsets.all(16.0),
                 child: Container(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 24, vertical: 16),
+                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
                     decoration: BoxDecorations.boxDecorationGrey,
                     child: Text(
                       t.security_self_check_screen.guidance,
-                      style: Styles.subLabel
-                          .merge(const TextStyle(fontWeight: FontWeight.bold)),
+                      style: Styles.subLabel.merge(const TextStyle(fontWeight: FontWeight.bold)),
                     )),
               ),
               const SizedBox(height: 16),
@@ -83,8 +80,7 @@ class _SecuritySelfCheckScreenState extends State<SecuritySelfCheckScreen> {
                 builder: (context, constraints) {
                   const double itemHeight = 40.0;
                   final double totalHeight = _items.length * itemHeight;
-                  final bool needScrolling =
-                      totalHeight > constraints.maxHeight;
+                  final bool needScrolling = totalHeight > constraints.maxHeight;
 
                   return needScrolling
                       ? SingleChildScrollView(

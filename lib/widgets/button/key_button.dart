@@ -37,8 +37,7 @@ class _KeyButtonState extends State<KeyButton> {
     final LocalAuthentication auth = LocalAuthentication();
 
     try {
-      final List<BiometricType> availableBiometrics =
-          await auth.getAvailableBiometrics();
+      final List<BiometricType> availableBiometrics = await auth.getAvailableBiometrics();
 
       if (Platform.isIOS) {
         if (availableBiometrics.contains(BiometricType.face)) {
@@ -105,34 +104,27 @@ class _KeyButtonState extends State<KeyButton> {
           child: Center(
               child: widget.keyValue == kDeleteBtnIdentifier
                   ? Icon(Icons.backspace,
-                      color: widget.disabled
-                          ? MyColors.transparentBlack_30
-                          : MyColors.black,
+                      color: widget.disabled ? MyColors.transparentBlack_30 : MyColors.black,
                       size: 20)
                   : widget.keyValue == kBiometricIdentifier
                       ? _isFaceRecognition
                           ? SvgPicture.asset('assets/svg/face-id.svg',
                               width: 20,
                               colorFilter: ColorFilter.mode(
-                                  widget.disabled
-                                      ? MyColors.transparentBlack_30
-                                      : Colors.black,
+                                  widget.disabled ? MyColors.transparentBlack_30 : Colors.black,
                                   BlendMode.srcIn))
                           : SvgPicture.asset('assets/svg/fingerprint.svg',
                               width: 20,
                               colorFilter: ColorFilter.mode(
-                                  widget.disabled
-                                      ? MyColors.transparentBlack_30
-                                      : Colors.black,
+                                  widget.disabled ? MyColors.transparentBlack_30 : Colors.black,
                                   BlendMode.srcIn))
                       : Text(
                           widget.keyValue,
                           style: TextStyle(
                               fontSize: 20,
                               fontWeight: FontWeight.w600,
-                              color: widget.disabled
-                                  ? MyColors.transparentBlack_30
-                                  : MyColors.black,
+                              color:
+                                  widget.disabled ? MyColors.transparentBlack_30 : MyColors.black,
                               fontFamily: 'SpaceGrotesk'),
                         )),
         ));

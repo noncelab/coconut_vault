@@ -18,8 +18,7 @@ class PercentProgressIndicator extends StatefulWidget {
   final Color? textColor;
 
   @override
-  State<PercentProgressIndicator> createState() =>
-      _PercentProgressIndicatorState();
+  State<PercentProgressIndicator> createState() => _PercentProgressIndicatorState();
 }
 
 class _PercentProgressIndicatorState extends State<PercentProgressIndicator> {
@@ -36,9 +35,7 @@ class _PercentProgressIndicatorState extends State<PercentProgressIndicator> {
                 Color.fromARGB(255, 164, 214, 250),
               ],
           strokeWidth: widget.strokeWidth ?? 36.0,
-          progress: widget.progressController.value > 0
-              ? widget.progressController.value
-              : 0.01,
+          progress: widget.progressController.value > 0 ? widget.progressController.value : 0.01,
         ),
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -52,8 +49,8 @@ class _PercentProgressIndicatorState extends State<PercentProgressIndicator> {
             CoconutLayout.spacing_100w,
             Text(
               '%',
-              style: CoconutTypography.body1_16_Bold
-                  .setColor(widget.textColor ?? CoconutColors.black),
+              style:
+                  CoconutTypography.body1_16_Bold.setColor(widget.textColor ?? CoconutColors.black),
             ),
           ],
         ),
