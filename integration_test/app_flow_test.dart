@@ -39,7 +39,7 @@ void main() {
   });
 
   group('AppFlow Integration Tests', () {
-    // 1. 앱 첫 시작 시 Tutorial 화면으로 진입하는지 확인하는 통합 테스트
+    // 1. 앱 첫 시작 시 Tutorial 화면으로 진입하는 통합테스트
     testWidgets('You have to go to TutorialScreen at first time',
         (tester) async {
       app.main();
@@ -52,7 +52,7 @@ void main() {
       await tester.pumpAndSettle();
     });
 
-    // 2. 추가된 지갑이 있을 때 PinCheckScreen -> VaultListScreen으로 진입하는지 확인하는 통합 테스트
+    // 2. 추가된 지갑이 있을 때 PinCheckScreen -> VaultListScreen으로 진입하는 통합테스트
     testWidgets(
         'You have to go to PinCheckScreen and then VaultListScreen when you have wallets',
         (tester) async {
@@ -82,7 +82,7 @@ void main() {
       await tester.pumpAndSettle();
     });
 
-    // 3. 추가된 지갑이 없을 때 PinCheckScreen을 거치지 않고 바로 VaultListScreen으로 진입하는지 확인하는 통합 테스트
+    // 3. 추가된 지갑이 없을 때 PinCheckScreen을 거치지 않고 바로 VaultListScreen으로 진입하는 통합테스트
     testWidgets(
         'You have to go to VaultListScreen without PinCode Check when you have no wallets',
         (tester) async {
@@ -96,8 +96,10 @@ void main() {
           timeoutMessage: 'VaultListScreen not found after 10 seconds');
       await tester.pumpAndSettle();
     });
+  });
 
-    // 4. 복원 파일이 존재하고 앱 업데이트가 완료됐을 때 PinCheckScreen -> VaultListRestorationScreen으로 진입하는지 확인하는 통합 테스트
+  group('AppFlow Integration Tests: BackUp File', () {
+    // 4. 복원 파일이 존재하고 앱 업데이트가 완료됐을 때 PinCheckScreen -> VaultListRestorationScreen -> VaultListScreen으로 진입하는 통합테스트
     testWidgets(
         '[UPDATED] You have to go to PinCheckScreen and then VaultListRestorationScreen when you have backup file',
         (tester) async {
@@ -131,14 +133,18 @@ void main() {
       await tester.pumpAndSettle();
 
       // Wait for restoration
-      final Finder completedText =
-          find.text(t.vault_list_restoration.completed_title);
-      await waitForWidget(tester, completedText,
-          timeoutMessage: 'completedText not found after 10 seconds');
+      final Finder startVaultText =
+          find.text(t.vault_list_restoration.start_vault);
+      await waitForWidgetAndTap(tester, startVaultText, "startVaultText");
+
+      // Check VaultListScreen
+      final Finder vaultListScreen = find.byType(VaultListScreen);
+      await waitForWidget(tester, vaultListScreen,
+          timeoutMessage: 'VaultListScreen not found after 10 seconds');
       await tester.pumpAndSettle();
     });
 
-    // 5. 복원 파일이 존재하고 앱 업데이트가 안됐을 때 RestorationInfoScreen -> PinCheckScreen -> VaultListRestorationScreen으로 진입하는지 확인하는 통합 테스트
+    // 5. 복원 파일이 존재하고 앱 업데이트가 안됐을 때 RestorationInfoScreen -> PinCheckScreen -> VaultListRestorationScreen -> VaultList으로 진입하는 통합 테스트
     testWidgets(
         '[NOT UPDATED] You have to go to RestorationInfoScreen and then pinCheck, VaultListRestorationScreen when you have backup file',
         (tester) async {
@@ -182,10 +188,14 @@ void main() {
               'vaultListRestorationScreen not found after 10 seconds');
 
       // Wait for restoration
-      final Finder completedText =
-          find.text(t.vault_list_restoration.completed_title);
-      await waitForWidget(tester, completedText,
-          timeoutMessage: 'completedText not found after 10 seconds');
+      final Finder startVaultText =
+          find.text(t.vault_list_restoration.start_vault);
+      await waitForWidgetAndTap(tester, startVaultText, "startVaultText");
+
+      // Check VaultListScreen
+      final Finder vaultListScreen = find.byType(VaultListScreen);
+      await waitForWidget(tester, vaultListScreen,
+          timeoutMessage: 'VaultListScreen not found after 10 seconds');
       await tester.pumpAndSettle();
     });
   });
