@@ -48,6 +48,16 @@
     Engine • revision 36335019a8
     Tools • Dart 3.5.3 • DevTools 2.37.3
 
+3. 자동 생성 파일 준비
+
+   ```bash
+   flutter pub run build_runner clean
+
+   flutter pub run build_runner build --delete-conflicting-outputs
+
+   flutter pub run slang
+   ```
+
 ### 실행하기
 
 1. 앱을 실행할 모바일 기기 또는 시뮬레이터 준비하기

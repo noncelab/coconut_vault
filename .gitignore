@@ -145,3 +145,7 @@ coconut_lib
 
 # FVM Version Cache
 .fvm/
+
+# Generated files
+*.mocks.dart
+*.g.dart
