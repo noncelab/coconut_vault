@@ -71,6 +71,7 @@ class AppUpdatePreparationViewModel extends ChangeNotifier {
       _isMnemonicLoaded = true;
       _isMnemonicValidationFinished = true;
       notifyListeners();
+      return;
     }
 
     for (int i = 0; i < filteredList.length; i++) {
