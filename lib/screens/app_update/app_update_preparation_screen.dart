@@ -8,6 +8,7 @@ import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:coconut_vault/widgets/indicator/countdown_spinner.dart';
 import 'package:coconut_vault/widgets/indicator/percent_progress_indicator.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:loader_overlay/loader_overlay.dart';
 import 'package:provider/provider.dart';
@@ -24,12 +25,14 @@ class AppUpdatePreparationScreen extends StatefulWidget {
   const AppUpdatePreparationScreen({super.key});
 
   @override
-  State<AppUpdatePreparationScreen> createState() => _AppUpdatePreparationScreenState();
+  State<AppUpdatePreparationScreen> createState() =>
+      _AppUpdatePreparationScreenState();
 }
 
 class _AppUpdatePreparationScreenState extends State<AppUpdatePreparationScreen>
     with TickerProviderStateMixin {
-  final TextEditingController _mnemonicWordInputController = TextEditingController();
+  final TextEditingController _mnemonicWordInputController =
+      TextEditingController();
   final _mnemonicInputFocusNode = FocusNode();
 
   bool _mnemonicErrorVisible = false;
@@ -175,7 +178,8 @@ class _AppUpdatePreparationScreenState extends State<AppUpdatePreparationScreen>
   void _handleMnemonicWordInput(BuildContext context) {
     try {
       final viewModel = context.read<AppUpdatePreparationViewModel>();
-      if (!viewModel.isMnemonicLoaded || _mnemonicWordInputController.text.isEmpty) {
+      if (!viewModel.isMnemonicLoaded ||
+          _mnemonicWordInputController.text.isEmpty) {
         setState(() {
           _mnemonicErrorVisible = false;
         });
@@ -193,7 +197,8 @@ class _AppUpdatePreparationScreenState extends State<AppUpdatePreparationScreen>
         }
       }
 
-      if (_mnemonicWordInputController.text.length >= viewModel.mnemonicWordLength) {
+      if (_mnemonicWordInputController.text.length >=
+          viewModel.mnemonicWordLength) {
         if (!viewModel.isWordMatched(
           _mnemonicWordInputController.text,
         )) {
@@ -339,7 +344,8 @@ class _AppUpdatePreparationScreenState extends State<AppUpdatePreparationScreen>
   // AppUpdateStep.validateMnemonic 상태에서 보여지는 위젯
   Widget _buildValidateMnemonicWidget() {
     return Selector<AppUpdatePreparationViewModel, Tuple2<String, int>>(
-        selector: (context, viewModel) => Tuple2(viewModel.walletName, viewModel.mnemonicWordIndex),
+        selector: (context, viewModel) =>
+            Tuple2(viewModel.walletName, viewModel.mnemonicWordIndex),
         builder: (context, data, _) {
           final walletName = data.item1;
           final mnemonicWordIndex = data.item2;
@@ -359,13 +365,14 @@ class _AppUpdatePreparationScreenState extends State<AppUpdatePreparationScreen>
                 ),
                 CoconutLayout.spacing_1500h,
                 CoconutTextField(
+                  textInputFormatter: [
+                    FilteringTextInputFormatter.allow(RegExp(r'[a-z]')),
+                  ],
                   controller: _mnemonicWordInputController,
                   focusNode: _mnemonicInputFocusNode,
                   maxLines: 1,
                   textInputAction: TextInputAction.done,
-                  onChanged: (text) {
-                    _mnemonicWordInputController.text = text;
-                  },
+                  onChanged: (text) {},
                   isError: _mnemonicErrorVisible,
                   isLengthVisible: false,
                   errorText: t.prepare_update.incorrect_input_try_again,
@@ -381,8 +388,8 @@ class _AppUpdatePreparationScreenState extends State<AppUpdatePreparationScreen>
                           },
                           icon: SvgPicture.asset(
                             'assets/svg/text-field-clear.svg',
-                            colorFilter:
-                                const ColorFilter.mode(CoconutColors.gray900, BlendMode.srcIn),
+                            colorFilter: const ColorFilter.mode(
+                                CoconutColors.gray900, BlendMode.srcIn),
                           ),
                         )
                       : null,
@@ -411,10 +418,12 @@ class _AppUpdatePreparationScreenState extends State<AppUpdatePreparationScreen>
               physics: const NeverScrollableScrollPhysics(),
               itemBuilder: (context, index) {
                 return Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
                   width: MediaQuery.sizeOf(context).width,
                   decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(CoconutStyles.radius_200),
+                    borderRadius:
+                        BorderRadius.circular(CoconutStyles.radius_200),
                     color: CoconutColors.gray200,
                   ),
                   child: Text(
@@ -528,7 +537,9 @@ class _AppUpdatePreparationScreenState extends State<AppUpdatePreparationScreen>
   Widget _buildCompletedWidget() {
     final updateInstructions = [
       t.prepare_update.step0,
-      Platform.isAndroid ? t.prepare_update.step1_android : t.prepare_update.step1_ios,
+      Platform.isAndroid
+          ? t.prepare_update.step1_android
+          : t.prepare_update.step1_ios,
       t.prepare_update.step2,
     ];
     return Center(
@@ -574,10 +585,12 @@ class _AppUpdatePreparationScreenState extends State<AppUpdatePreparationScreen>
                 physics: const NeverScrollableScrollPhysics(),
                 itemBuilder: (context, index) {
                   return Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 16, vertical: 20),
                     width: MediaQuery.sizeOf(context).width,
                     decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(CoconutStyles.radius_200),
+                      borderRadius:
+                          BorderRadius.circular(CoconutStyles.radius_200),
                       color: CoconutColors.gray200,
                     ),
                     child: Row(
@@ -598,7 +611,8 @@ class _AppUpdatePreparationScreenState extends State<AppUpdatePreparationScreen>
                     ),
                   );
                 },
-                separatorBuilder: (context, index) => CoconutLayout.spacing_300h,
+                separatorBuilder: (context, index) =>
+                    CoconutLayout.spacing_300h,
                 itemCount: t.prepare_update.update_preparing_description.length,
               ),
             ),
