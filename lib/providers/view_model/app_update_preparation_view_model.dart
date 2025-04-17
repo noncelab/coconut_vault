@@ -45,10 +45,20 @@ class AppUpdatePreparationViewModel extends ChangeNotifier {
   Completer<void>? _progress80Reached;
 
   AppUpdatePreparationViewModel(this._walletProvider) {
+    _walletProvider.isVaultListLoadingNotifier.addListener(_loadVaultCompletedListener);
     _initialize();
   }
 
+  void _loadVaultCompletedListener() {
+    if (!_walletProvider.isVaultListLoading) {
+      _initialize();
+    }
+  }
+
   Future<void> _initialize() async {
+    // 모든 볼트가 로드될 때까지 대기
+    if (_walletProvider.isVaultListLoadingNotifier.value) return;
+
     List<VaultListItemBase> filteredList =
         _walletProvider.getVaultsByWalletType(WalletType.singleSignature);
     if (filteredList.isEmpty) {

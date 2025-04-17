@@ -160,6 +160,16 @@ class _AppUpdatePreparationScreenState extends State<AppUpdatePreparationScreen>
                             bottom: 40,
                             child: _buildNextButton(viewModel),
                           ),
+                        if (!viewModel.isMnemonicLoaded)
+                          // 뒤로가기는 가능해야 하기 때문에 loaderOverlay를 사용하지 않고 별도 구현
+                          Container(
+                            width: MediaQuery.sizeOf(context).width,
+                            height: MediaQuery.sizeOf(context).height,
+                            color: Colors.white.withOpacity(0.5),
+                            child: const Center(
+                              child: CoconutCircularIndicator(),
+                            ),
+                          )
                       ],
                     ),
                   ),
