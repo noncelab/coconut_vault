@@ -49,7 +49,7 @@ class _PinCheckScreenState extends State<PinCheckScreen> with WidgetsBindingObse
 
   // when widget.appEntrance is true
   bool _isPaused = false;
-  bool _isUnlockDisabled = false;
+  bool? _isUnlockDisabled;
   bool _isLastChanceToTry = false;
 
   @override
@@ -121,7 +121,7 @@ class _PinCheckScreenState extends State<PinCheckScreen> with WidgetsBindingObse
   }
 
   void _onKeyTap(String value) async {
-    if (_isUnlockDisabled || _isAppLaunched && _authProvider.isPermanantlyLocked) return;
+    if (_isUnlockDisabled == true || _isAppLaunched && _authProvider.isPermanantlyLocked) return;
 
     if (value == kBiometricIdentifier) {
       _authProvider.verifyBiometric(context);
@@ -163,8 +163,9 @@ class _PinCheckScreenState extends State<PinCheckScreen> with WidgetsBindingObse
   void _verifyPin() async {
     context.loaderOverlay.show();
     bool isAuthenticated = await _authProvider.verifyPin(_pin);
-    context.loaderOverlay.hide();
-
+    if (mounted) {
+      context.loaderOverlay.hide();
+    }
     if (isAuthenticated) {
       _handleAuthenticationSuccess();
       return;
@@ -285,7 +286,9 @@ class _PinCheckScreenState extends State<PinCheckScreen> with WidgetsBindingObse
         cancelButtonText: t.close, onConfirm: () async {
       await _authProvider.resetPin();
 
-      Navigator.of(context).pop();
+      if (mounted) {
+        Navigator.of(context).pop();
+      }
       widget.onReset?.call();
     }, onCancel: () {
       Navigator.of(context).pop();
@@ -347,7 +350,7 @@ class _PinCheckScreenState extends State<PinCheckScreen> with WidgetsBindingObse
       step: 0,
       lastChance: _isLastChanceToTry,
       lastChanceMessage: t.pin_check_screen.warning,
-      disabled: _authProvider.isPermanantlyLocked || _isUnlockDisabled,
+      disabled: _authProvider.isPermanantlyLocked || _isUnlockDisabled == true,
     );
   }
 
