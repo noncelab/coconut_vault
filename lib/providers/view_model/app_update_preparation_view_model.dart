@@ -49,6 +49,12 @@ class AppUpdatePreparationViewModel extends ChangeNotifier {
     _initialize();
   }
 
+  @override
+  void dispose() {
+    _walletProvider.isVaultListLoadingNotifier.removeListener(_loadVaultCompletedListener);
+    super.dispose();
+  }
+
   void _loadVaultCompletedListener() {
     if (!_walletProvider.isVaultListLoading) {
       _initialize();
