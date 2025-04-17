@@ -8,6 +8,7 @@ import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:coconut_vault/widgets/indicator/countdown_spinner.dart';
 import 'package:coconut_vault/widgets/indicator/percent_progress_indicator.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:loader_overlay/loader_overlay.dart';
 import 'package:provider/provider.dart';
@@ -359,13 +360,14 @@ class _AppUpdatePreparationScreenState extends State<AppUpdatePreparationScreen>
                 ),
                 CoconutLayout.spacing_1500h,
                 CoconutTextField(
+                  textInputFormatter: [
+                    FilteringTextInputFormatter.allow(RegExp(r'[a-z]')),
+                  ],
                   controller: _mnemonicWordInputController,
                   focusNode: _mnemonicInputFocusNode,
                   maxLines: 1,
                   textInputAction: TextInputAction.done,
-                  onChanged: (text) {
-                    _mnemonicWordInputController.text = text;
-                  },
+                  onChanged: (text) {},
                   isError: _mnemonicErrorVisible,
                   isLengthVisible: false,
                   errorText: t.prepare_update.incorrect_input_try_again,
