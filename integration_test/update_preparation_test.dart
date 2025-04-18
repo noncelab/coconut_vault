@@ -94,8 +94,8 @@ void main() {
         expect(titleText, findsOneWidget);
 
         // Input mnemonic to TextInput
-        await tester.enterText(textInput,
-            vaultMnemonicList[updatePreparationProvider.mnemonicWordIndex - 1]);
+        await tester.enterText(
+            textInput, vaultMnemonicList[updatePreparationProvider.mnemonicWordIndex - 1]);
         await tester.pumpAndSettle();
       }
 
