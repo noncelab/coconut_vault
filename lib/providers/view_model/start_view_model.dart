@@ -62,13 +62,13 @@ class StartViewModel extends ChangeNotifier {
         // 업데이트 하지 않음
         return AppEntryFlow.foundBackupFile;
       }
-    } else {
-      /// 비밀번호 등록 되어 있더라도, 추가한 볼트가 없는 경우는 볼트 리스트 화면으로 이동합니다.
-      if (_isWalletExistent()) {
-        return AppEntryFlow.pinCheck;
-      }
-      // 복원파일 없음 - 일반적인 최초 진입 흐름
-      return AppEntryFlow.vaultList;
     }
+
+    /// 비밀번호 등록 되어 있더라도, 추가한 볼트가 없는 경우는 볼트 리스트 화면으로 이동합니다.
+    if (_isWalletExistent()) {
+      return AppEntryFlow.pinCheck;
+    }
+    // 복원파일 없음 - 일반적인 최초 진입 흐름
+    return AppEntryFlow.vaultList;
   }
 }
