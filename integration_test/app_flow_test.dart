@@ -11,7 +11,6 @@ import 'package:coconut_vault/screens/home/vault_list_screen.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 import 'package:coconut_vault/utils/coconut/update_preparation.dart';
-import 'package:package_info_plus/package_info_plus.dart';
 import 'package:coconut_vault/main.dart' as app;
 
 import 'integration_test_utils.dart';
@@ -38,156 +37,200 @@ void main() {
     await UpdatePreparation.clearUpdatePreparationStorage();
   });
 
-  group('AppFlow Integration Tests', () {
-    // 1. 앱 첫 시작 시 Tutorial 화면으로 진입하는 통합테스트
-    testWidgets('You have to go to TutorialScreen at first time', (tester) async {
-      app.main();
-      await tester.pumpAndSettle();
+  group('[BackupFile X]', () {
+    setUp(() async {
+      await setBackupFile(false);
+      await skipTutorial(true);
+    });
 
-      // Check TutorialScreen
-      final Finder tutorialScreen = find.byType(TutorialScreen);
-      await waitForWidget(tester, tutorialScreen,
-          timeoutMessage: 'tutorialScreen not found after 60 seconds');
-      await tester.pumpAndSettle();
+    // 1. 앱 첫 시작 시 Tutorial 화면으로 진입하는 통합테스트
+    testWidgets('Tutorial', (tester) async {
+      await skipTutorial(false);
+      await tutorialFlow(tester);
     });
 
     // 2. 추가된 지갑이 있을 때 PinCheckScreen -> VaultListScreen으로 진입하는 통합테스트
-    testWidgets('You have to go to PinCheckScreen and then VaultListScreen when you have wallets',
-        (tester) async {
-      await removeStartGuideFlag();
-      await savePinCode("0000");
-      await addWallets();
-      app.main();
-      await tester.pumpAndSettle();
+    testWidgets('[Update O] [Wallet O] PinCheck-VaultList', (tester) async {
+      await setIsUpdated(true);
+      await setWalletData(true);
+      await pinCheckToVaultListFlow(tester);
+    });
 
-      // Check PinCheckScreen
-      final Finder pinCheckScreen = find.byType(PinCheckScreen);
-      await waitForWidget(tester, pinCheckScreen,
-          timeoutMessage: 'pinCheckScreen not found after 60 seconds');
-      await tester.pumpAndSettle();
-
-      // Input Password 0000
-      final Finder zeroButton = find.text('0');
-      await waitForWidgetAndTap(tester, zeroButton, "zeroButton");
-      await waitForWidgetAndTap(tester, zeroButton, "zeroButton");
-      await waitForWidgetAndTap(tester, zeroButton, "zeroButton");
-      await waitForWidgetAndTap(tester, zeroButton, "zeroButton");
-
-      // Check VaultListScreen
-      final Finder vaultListScreen = find.byType(VaultListScreen);
-      await waitForWidget(tester, vaultListScreen,
-          timeoutMessage: 'VaultListScreen not found after 60 seconds');
-      await tester.pumpAndSettle();
+    testWidgets('[Update X] [Wallet O] PinCheck-VaultList', (tester) async {
+      await setIsUpdated(false);
+      await setWalletData(true);
+      await pinCheckToVaultListFlow(tester);
     });
 
     // 3. 추가된 지갑이 없을 때 PinCheckScreen을 거치지 않고 바로 VaultListScreen으로 진입하는 통합테스트
-    testWidgets('You have to go to VaultListScreen without PinCode Check when you have no wallets',
-        (tester) async {
-      await removeStartGuideFlag();
-      app.main();
-      await tester.pumpAndSettle();
+    testWidgets('[Update O] [Wallet X] VaultList', (tester) async {
+      await setIsUpdated(true);
+      await setWalletData(false);
+      await vaultListFlow(tester);
+    });
 
-      // Check VaultListScreen
-      final Finder vaultListScreen = find.byType(VaultListScreen);
-      await waitForWidget(tester, vaultListScreen,
-          timeoutMessage: 'VaultListScreen not found after 60 seconds');
-      await tester.pumpAndSettle();
+    testWidgets('[Update X] [Wallet X] VaultList', (tester) async {
+      await setIsUpdated(false);
+      await setWalletData(false);
+      await vaultListFlow(tester);
     });
   });
 
-  group('AppFlow Integration Tests: BackUp File', () {
+  group('[BackupFile O]', () {
+    setUp(() async {
+      await setBackupFile(true);
+      await skipTutorial(true);
+    });
+
     // 4. 복원 파일이 존재하고 앱 업데이트가 완료됐을 때 PinCheckScreen -> VaultListRestorationScreen -> VaultListScreen으로 진입하는 통합테스트
-    testWidgets(
-        '[UPDATED] You have to go to PinCheckScreen and then VaultListRestorationScreen when you have backup file',
-        (tester) async {
-      await removeStartGuideFlag();
-      await savePinCode("0000");
-      await saveBackupData();
-      await saveAppVersion("1.0.0");
+    testWidgets('[Update O] [Wallet O] PinCheck-VaultListRestoration-VaultList', (tester) async {
+      await setIsUpdated(true);
+      await setWalletData(true);
+      await pinCheckToVaultListRestorationFlow(tester);
+    });
 
-      app.main();
-      await tester.pumpAndSettle();
-
-      // Check PinCheckScreen
-      final Finder pinCheckScreen = find.byType(PinCheckScreen);
-      await waitForWidget(tester, pinCheckScreen,
-          timeoutMessage: 'pinCheckScreen not found after 60 seconds');
-      await tester.pumpAndSettle();
-
-      // Input Password 0000
-      final Finder zeroButton = find.text('0');
-      await waitForWidgetAndTap(tester, zeroButton, "zeroButton");
-      await waitForWidgetAndTap(tester, zeroButton, "zeroButton");
-      await waitForWidgetAndTap(tester, zeroButton, "zeroButton");
-      await waitForWidgetAndTap(tester, zeroButton, "zeroButton");
-
-      // Check vaultListRestorationScreen
-      final Finder vaultListRestorationScreen = find.byType(VaultListRestorationScreen);
-      await waitForWidget(tester, vaultListRestorationScreen,
-          timeoutMessage: 'vaultListRestorationScreen not found after 60 seconds');
-      await tester.pumpAndSettle();
-
-      // Wait for restoration
-      final Finder startVaultText = find.text(t.vault_list_restoration.start_vault);
-      await waitForWidgetAndTap(tester, startVaultText, "startVaultText");
-
-      // Check VaultListScreen
-      final Finder vaultListScreen = find.byType(VaultListScreen);
-      await waitForWidget(tester, vaultListScreen,
-          timeoutMessage: 'VaultListScreen not found after 60 seconds');
-      await tester.pumpAndSettle();
+    testWidgets('[Update O] [Wallet X] PinCheck-VaultListRestoration-VaultList', (tester) async {
+      await setIsUpdated(true);
+      await setWalletData(false);
+      await pinCheckToVaultListRestorationFlow(tester);
     });
 
     // 5. 복원 파일이 존재하고 앱 업데이트가 안됐을 때 RestorationInfoScreen -> PinCheckScreen -> VaultListRestorationScreen -> VaultList으로 진입하는 통합 테스트
-    testWidgets(
-        '[NOT UPDATED] You have to go to RestorationInfoScreen and then pinCheck, VaultListRestorationScreen when you have backup file',
+    testWidgets('[Update X] [Wallet O] RestorationInfo-PinCheck-VaultListRestoration-VaultList',
         (tester) async {
-      await removeStartGuideFlag();
-      await savePinCode("0000");
-      await saveBackupData();
-      final PackageInfo packageInfo = await PackageInfo.fromPlatform();
-      await saveAppVersion(packageInfo.version.split('-').first);
+      await setIsUpdated(false);
+      await setWalletData(true);
+      await restorationInfoFlow(tester);
+    });
 
-      app.main();
-      await tester.pumpAndSettle();
-
-      // Check RestorationInfoScreen
-      final Finder restorationInfoScreen = find.byType(RestorationInfoScreen);
-      await waitForWidget(tester, restorationInfoScreen,
-          timeoutMessage: 'restorationInfoScreen not found after 60 seconds');
-      await tester.pumpAndSettle();
-
-      // Click CoconutButton
-      final Finder coconutButton = find.byType(CoconutButton);
-      await waitForWidgetAndTap(tester, coconutButton, "coconutButton");
-
-      // Click PinCheckScreen
-      final Finder pinCheckScreen = find.byType(PinCheckScreen);
-      await waitForWidget(tester, pinCheckScreen,
-          timeoutMessage: 'pinCheckScreen not found after 60 seconds');
-      await tester.pumpAndSettle();
-
-      // Input Password 0000
-      final Finder zeroButton = find.text('0');
-      await waitForWidgetAndTap(tester, zeroButton, "zeroButton");
-      await waitForWidgetAndTap(tester, zeroButton, "zeroButton");
-      await waitForWidgetAndTap(tester, zeroButton, "zeroButton");
-      await waitForWidgetAndTap(tester, zeroButton, "zeroButton");
-
-      // Check VaultListRestorationScreen
-      final Finder vaultListRestorationScreen = find.byType(VaultListRestorationScreen);
-      await waitForWidget(tester, vaultListRestorationScreen,
-          timeoutMessage: 'vaultListRestorationScreen not found after 60 seconds');
-
-      // Wait for restoration
-      final Finder startVaultText = find.text(t.vault_list_restoration.start_vault);
-      await waitForWidgetAndTap(tester, startVaultText, "startVaultText");
-
-      // Check VaultListScreen
-      final Finder vaultListScreen = find.byType(VaultListScreen);
-      await waitForWidget(tester, vaultListScreen,
-          timeoutMessage: 'VaultListScreen not found after 60 seconds');
-      await tester.pumpAndSettle();
+    testWidgets('[Update X] [Wallet X] RestorationInfo-PinCheck-VaultListRestoration-VaultList',
+        (tester) async {
+      await setIsUpdated(false);
+      await setWalletData(false);
+      await restorationInfoFlow(tester);
     });
   });
+}
+
+Future<void> tutorialFlow(WidgetTester tester) async {
+  app.main();
+  await tester.pumpAndSettle();
+
+  // Check TutorialScreen
+  final Finder tutorialScreen = find.byType(TutorialScreen);
+  await waitForWidget(tester, tutorialScreen,
+      timeoutMessage: 'tutorialScreen not found after 60 seconds');
+  await tester.pumpAndSettle();
+}
+
+Future<void> vaultListFlow(WidgetTester tester) async {
+  app.main();
+  await tester.pumpAndSettle();
+
+  // Check VaultListScreen
+  final Finder vaultListScreen = find.byType(VaultListScreen);
+  await waitForWidget(tester, vaultListScreen,
+      timeoutMessage: 'VaultListScreen not found after 60 seconds');
+  await tester.pumpAndSettle();
+}
+
+Future<void> pinCheckToVaultListFlow(WidgetTester tester) async {
+  app.main();
+  await tester.pumpAndSettle();
+
+  // Check PinCheckScreen
+  final Finder pinCheckScreen = find.byType(PinCheckScreen);
+  await waitForWidget(tester, pinCheckScreen,
+      timeoutMessage: 'pinCheckScreen not found after 60 seconds');
+  await tester.pumpAndSettle();
+
+  // Input Password 0000
+  final Finder zeroButton = find.text('0');
+  await waitForWidgetAndTap(tester, zeroButton, "zeroButton");
+  await waitForWidgetAndTap(tester, zeroButton, "zeroButton");
+  await waitForWidgetAndTap(tester, zeroButton, "zeroButton");
+  await waitForWidgetAndTap(tester, zeroButton, "zeroButton");
+
+  // Check VaultListScreen
+  final Finder vaultListScreen = find.byType(VaultListScreen);
+  await waitForWidget(tester, vaultListScreen,
+      timeoutMessage: 'VaultListScreen not found after 60 seconds');
+  await tester.pumpAndSettle();
+}
+
+Future<void> pinCheckToVaultListRestorationFlow(WidgetTester tester) async {
+  app.main();
+  await tester.pumpAndSettle();
+
+  // Check PinCheckScreen
+  final Finder pinCheckScreen = find.byType(PinCheckScreen);
+  await waitForWidget(tester, pinCheckScreen,
+      timeoutMessage: 'pinCheckScreen not found after 60 seconds');
+  await tester.pumpAndSettle();
+
+  // Input Password 0000
+  final Finder zeroButton = find.text('0');
+  await waitForWidgetAndTap(tester, zeroButton, "zeroButton");
+  await waitForWidgetAndTap(tester, zeroButton, "zeroButton");
+  await waitForWidgetAndTap(tester, zeroButton, "zeroButton");
+  await waitForWidgetAndTap(tester, zeroButton, "zeroButton");
+
+  // Check vaultListRestorationScreen
+  final Finder vaultListRestorationScreen = find.byType(VaultListRestorationScreen);
+  await waitForWidget(tester, vaultListRestorationScreen,
+      timeoutMessage: 'vaultListRestorationScreen not found after 60 seconds');
+  await tester.pumpAndSettle();
+
+  // Wait for restoration
+  final Finder startVaultText = find.text(t.vault_list_restoration.start_vault);
+  await waitForWidgetAndTap(tester, startVaultText, "startVaultText");
+
+  // Check VaultListScreen
+  final Finder vaultListScreen = find.byType(VaultListScreen);
+  await waitForWidget(tester, vaultListScreen,
+      timeoutMessage: 'VaultListScreen not found after 60 seconds');
+  await tester.pumpAndSettle();
+}
+
+Future<void> restorationInfoFlow(WidgetTester tester) async {
+  app.main();
+  await tester.pumpAndSettle();
+
+  // Check RestorationInfoScreen
+  final Finder restorationInfoScreen = find.byType(RestorationInfoScreen);
+  await waitForWidget(tester, restorationInfoScreen,
+      timeoutMessage: 'restorationInfoScreen not found after 60 seconds');
+  await tester.pumpAndSettle();
+
+  // Click CoconutButton
+  final Finder coconutButton = find.byType(CoconutButton);
+  await waitForWidgetAndTap(tester, coconutButton, "coconutButton");
+
+  // Click PinCheckScreen
+  final Finder pinCheckScreen = find.byType(PinCheckScreen);
+  await waitForWidget(tester, pinCheckScreen,
+      timeoutMessage: 'pinCheckScreen not found after 60 seconds');
+  await tester.pumpAndSettle();
+
+  // Input Password 0000
+  final Finder zeroButton = find.text('0');
+  await waitForWidgetAndTap(tester, zeroButton, "zeroButton");
+  await waitForWidgetAndTap(tester, zeroButton, "zeroButton");
+  await waitForWidgetAndTap(tester, zeroButton, "zeroButton");
+  await waitForWidgetAndTap(tester, zeroButton, "zeroButton");
+
+  // Check VaultListRestorationScreen
+  final Finder vaultListRestorationScreen = find.byType(VaultListRestorationScreen);
+  await waitForWidget(tester, vaultListRestorationScreen,
+      timeoutMessage: 'vaultListRestorationScreen not found after 60 seconds');
+
+  // Wait for restoration
+  final Finder startVaultText = find.text(t.vault_list_restoration.start_vault);
+  await waitForWidgetAndTap(tester, startVaultText, "startVaultText");
+
+  // Check VaultListScreen
+  final Finder vaultListScreen = find.byType(VaultListScreen);
+  await waitForWidget(tester, vaultListScreen,
+      timeoutMessage: 'VaultListScreen not found after 60 seconds');
+  await tester.pumpAndSettle();
 }

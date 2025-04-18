@@ -25,9 +25,7 @@ class StartViewModel extends ChangeNotifier {
   bool get hasSeenGuide => _hasSeenGuide;
 
   bool _isWalletExistent() {
-    return (SharedPrefsRepository().getInt(SharedPrefsKeys.vaultListLength) ??
-            0) >
-        0;
+    return (SharedPrefsRepository().getInt(SharedPrefsKeys.vaultListLength) ?? 0) > 0;
   }
 
   void updateConnectivityState() {
@@ -43,9 +41,7 @@ class StartViewModel extends ChangeNotifier {
     final isBluetoothOn = _connectivityProvider.isBluetoothOn;
     final isDeveloperModeOn = _connectivityProvider.isDeveloperModeOn;
 
-    if (isNetworkOn == null ||
-        isBluetoothOn == null ||
-        isDeveloperModeOn == null) return null;
+    if (isNetworkOn == null || isBluetoothOn == null || isDeveloperModeOn == null) return null;
 
     if (Platform.isAndroid) {
       return isNetworkOn || isBluetoothOn || isDeveloperModeOn;
@@ -55,13 +51,7 @@ class StartViewModel extends ChangeNotifier {
   }
 
   Future<AppEntryFlow> getNextEntryFlow() async {
-    /// 비밀번호 등록 되어 있더라도, 추가한 볼트가 없는 경우는 볼트 리스트 화면으로 이동합니다.
-    if (_isWalletExistent()) {
-      return AppEntryFlow.pinCheck;
-    }
-
-    final isRestorationPrepared =
-        await UpdatePreparation.isRestorationPrepared();
+    final isRestorationPrepared = await UpdatePreparation.isRestorationPrepared();
     // 복원파일 유무를 확인합니다.
     if (isRestorationPrepared) {
       // 복원파일 있음
@@ -73,6 +63,10 @@ class StartViewModel extends ChangeNotifier {
         return AppEntryFlow.foundBackupFile;
       }
     } else {
+      /// 비밀번호 등록 되어 있더라도, 추가한 볼트가 없는 경우는 볼트 리스트 화면으로 이동합니다.
+      if (_isWalletExistent()) {
+        return AppEntryFlow.pinCheck;
+      }
       // 복원파일 없음 - 일반적인 최초 진입 흐름
       return AppEntryFlow.vaultList;
     }

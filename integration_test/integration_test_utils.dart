@@ -13,6 +13,7 @@ import 'package:coconut_vault/repository/shared_preferences_repository.dart';
 import 'package:coconut_vault/utils/coconut/update_preparation.dart';
 import 'package:coconut_vault/utils/hash_util.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 /// Waits for a widget to appear on the screen with a timeout (100초).
@@ -30,8 +31,7 @@ Future<bool> waitForWidget(WidgetTester tester, Finder finder,
   return found;
 }
 
-Future<void> waitForWidgetAndTap(
-    WidgetTester tester, Finder element, String elementName,
+Future<void> waitForWidgetAndTap(WidgetTester tester, Finder element, String elementName,
     {int timeoutSeconds = 60}) async {
   await waitForWidget(tester, element,
       timeoutMessage: "$elementName not found after $timeoutSeconds seconds",
@@ -40,23 +40,49 @@ Future<void> waitForWidgetAndTap(
   await tester.pumpAndSettle();
 }
 
-Future<void> removeStartGuideFlag() async {
+Future<void> setBackupFile(bool isEnabled) async {
+  if (!isEnabled) return;
+  // 백업데이터가 있는 경우에는 핀코드도 설정되어 있어야 한다.
+  await saveBackupData();
+  await savePinCode("0000");
+}
+
+Future<void> setWalletData(bool isEnabled) async {
+  if (!isEnabled) return;
+  // 월렛이 있는 경우에는 핀코드도 설정되어 있어야 한다.
+  await addWallets();
+  await savePinCode("0000");
+}
+
+Future<void> setIsUpdated(bool isUpdated) async {
+  // 업데이트가 되었다면 이전 버전 정보가 저장되어야 한다.
+  if (isUpdated) {
+    await saveAppVersion("1.0.0");
+  } else {
+    await saveCurrentAppVersion();
+  }
+}
+
+Future<void> skipTutorial(bool skip) async {
   final prefs = await SharedPreferences.getInstance();
-  prefs.setBool(SharedPrefsKeys.hasShownStartGuide, true);
+  prefs.setBool(SharedPrefsKeys.hasShownStartGuide, skip);
 }
 
 Future<void> savePinCode(String pinCode) async {
   final SecureStorageRepository storageService = SecureStorageRepository();
-  final SharedPreferences sharedPreferences =
-      await SharedPreferences.getInstance();
-  await storageService.write(
-      key: SecureStorageKeys.kVaultPin, value: hashString(pinCode));
+  final SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+  await storageService.write(key: SecureStorageKeys.kVaultPin, value: hashString(pinCode));
   await sharedPreferences.setBool(SharedPrefsKeys.isPinEnabled, true);
 }
 
 Future<void> saveAppVersion(String version) async {
   final prefs = await SharedPreferences.getInstance();
   await prefs.setString(SharedPrefsKeys.kAppVersion, version);
+}
+
+Future<void> saveCurrentAppVersion() async {
+  final PackageInfo packageInfo = await PackageInfo.fromPlatform();
+  await saveAppVersion(packageInfo.version.split('-').first);
 }
 
 Future<void> saveBackupData() async {
@@ -67,8 +93,7 @@ Future<void> saveBackupData() async {
       "colorIndex": 0,
       "iconIndex": 0,
       "vaultType": "singleSignature",
-      "secret":
-          "thank split shrimp error own spirit slow glow act evidence globe slight",
+      "secret": "thank split shrimp error own spirit slow glow act evidence globe slight",
       "passphrase": "",
       "linkedMultisigInfo": {"2": 0},
       "signerBsms":
@@ -141,8 +166,8 @@ Future<int> addSingleSigWallets({WalletProvider? walletProvider}) async {
     WalletListManager walletListManager = WalletListManager();
     await walletListManager.addSinglesigWallet(singleSig2);
     await walletListManager.addSinglesigWallet(singleSig3);
-    await SharedPrefsRepository().setInt(
-        SharedPrefsKeys.vaultListLength, walletListManager.vaultList.length);
+    await SharedPrefsRepository()
+        .setInt(SharedPrefsKeys.vaultListLength, walletListManager.vaultList.length);
   }
   return 2;
 }
@@ -206,10 +231,10 @@ BSMS 1.0
   } else {
     WalletListManager walletListManager = WalletListManager();
     await walletListManager.addSinglesigWallet(singleSig);
-    await walletListManager.addMultisigWallet(
-        MultisigWallet(null, "Test Wallet2", 0, 0, signers, 2));
-    await SharedPrefsRepository().setInt(
-        SharedPrefsKeys.vaultListLength, walletListManager.vaultList.length);
+    await walletListManager
+        .addMultisigWallet(MultisigWallet(null, "Test Wallet2", 0, 0, signers, 2));
+    await SharedPrefsRepository()
+        .setInt(SharedPrefsKeys.vaultListLength, walletListManager.vaultList.length);
   }
   return 2;
 }
