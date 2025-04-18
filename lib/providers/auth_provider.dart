@@ -54,11 +54,25 @@ class AuthProvider extends ChangeNotifier {
   int _currentAttemptInTurn = 0;
   int get currentAttemptInTurn => _currentAttemptInTurn;
   String _unlockAvailableAtInString = '';
-  DateTime? get unlockAvailableAt => _unlockAvailableAtInString.isEmpty
-      ? (_currentTurn == 0
-          ? DateTime.now()
-          : DateTime.now().add(Duration(minutes: kLockoutDurationsPerTurn[0])))
-      : (_unlockAvailableAtInString == '-1' ? null : DateTime.tryParse(_unlockAvailableAtInString));
+  DateTime? get unlockAvailableAt {
+    if (_unlockAvailableAtInString.isEmpty) {
+      if (_currentTurn == 0) {
+        Logger.log('--> current turn is 0, so return DateTime.now()');
+        return DateTime.now();
+      } else {
+        Logger.log(
+            '--> current turn is not 0, so return DateTime.now().add(Duration(minutes: ${kLockoutDurationsPerTurn[0]}))');
+        return DateTime.now().add(Duration(minutes: kLockoutDurationsPerTurn[0]));
+      }
+    } else if (_unlockAvailableAtInString == '-1') {
+      Logger.log('--> unlockAvailableAtInString is -1, so return null');
+      return null;
+    } else {
+      Logger.log(
+          '--> unlockAvailableAtInString is not empty, so return DateTime.tryParse($_unlockAvailableAtInString)');
+      return DateTime.tryParse(_unlockAvailableAtInString);
+    }
+  }
 
   int get remainingAttemptCount => kMaxAttemptPerTurn - _currentAttemptInTurn;
   bool get isPermanantlyLocked => _currentTurn == kMaxTurn;
