@@ -1,10 +1,7 @@
 import 'package:coconut_design_system/coconut_design_system.dart';
-import 'package:coconut_lib/coconut_lib.dart';
 import 'package:coconut_vault/enums/wallet_enums.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/model/common/vault_list_item_base.dart';
-import 'package:coconut_vault/model/multisig/multisig_signer.dart';
-import 'package:coconut_vault/model/single_sig/single_sig_wallet.dart';
 import 'package:coconut_vault/providers/auth_provider.dart';
 import 'package:coconut_vault/providers/view_model/app_update_preparation_view_model.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
@@ -15,8 +12,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 import 'package:coconut_vault/utils/coconut/update_preparation.dart';
 import 'package:provider/provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:coconut_vault/main.dart' as app;
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'integration_test_utils.dart';
 
@@ -42,6 +39,7 @@ void main() {
   });
 
   group('UpdatePreparation Integration Tests', () {
+    // 업데이트 준비 프로세스에서 싱글시그니처 월렛의 니모닉을 검증합니다.
     testWidgets('Mnemonic check test', (tester) async {
       await skipScreensUntilVaultList(tester);
 
@@ -52,18 +50,18 @@ void main() {
       );
       await authProvider.savePin("0000");
 
-      // add wallets
+      // Add Wallets on VaultListScreen
       final walletProvider = Provider.of<WalletProvider>(
         tester.element(find.byType(CupertinoApp)),
         listen: false,
       );
-      int count = await addWallets(walletProvider, tester);
+      int count = await addWallets(walletProvider: walletProvider);
       expect(walletProvider.vaultList.length, count);
 
-      count += await addSingleSigWallets(walletProvider, tester);
+      count += await addSingleSigWallets(walletProvider: walletProvider);
       expect(walletProvider.vaultList.length, count);
 
-      // vault list screen to update preparation screen
+      // VaultListScreen to UpdatePreparationScreen
       await showUpdatePreparationScreen(tester);
 
       final updatePreparationProvider = Provider.of<AppUpdatePreparationViewModel>(
@@ -73,13 +71,15 @@ void main() {
 
       List<VaultListItemBase> singleSignVaults =
           walletProvider.getVaultsByWalletType(WalletType.singleSignature);
+      // Check if mnemonic is loaded
       expect(updatePreparationProvider.isMnemonicLoaded, true);
 
-      // Check if Logic works correctly (text, index)
+      // Find TextInput for mnemonic validation
       final Finder textInput = find.byType(CoconutTextField);
       await waitForWidgetAndTap(tester, textInput, "textInput");
 
       for (int i = 0; i < singleSignVaults.length; i++) {
+        // Load vault's mnemonicList
         List<String> vaultMnemonicList = await walletProvider
             .getSecret(singleSignVaults[i].id)
             .then((secret) => secret.mnemonic.split(' '));
@@ -89,15 +89,17 @@ void main() {
           n: updatePreparationProvider.mnemonicWordIndex,
         );
 
+        // Check title Text
         final Finder titleText = find.text(title);
         expect(titleText, findsOneWidget);
 
-        await tester.enterText(
-            textInput, vaultMnemonicList[updatePreparationProvider.mnemonicWordIndex - 1]);
+        // Input mnemonic to TextInput
+        await tester.enterText(textInput,
+            vaultMnemonicList[updatePreparationProvider.mnemonicWordIndex - 1]);
         await tester.pumpAndSettle();
       }
 
-      // Check if Logic finished correctly
+      // Check if Logic is finished
       expect(updatePreparationProvider.isMnemonicValidationFinished, true);
     });
 
@@ -108,7 +110,7 @@ void main() {
         tester.element(find.byType(CupertinoApp)),
         listen: false,
       );
-      int count = await addWallets(walletProvider, tester);
+      int count = await addWallets(walletProvider: walletProvider);
       expect(walletProvider.vaultList.length, count);
       final backupData = await walletProvider.createBackupData();
       expect(backupData, isNotEmpty);
@@ -182,88 +184,4 @@ Future<void> showUpdatePreparationScreen(WidgetTester tester) async {
   // Click confirm text on update preparation screen
   final Finder confirmText = find.text(t.confirm);
   await waitForWidgetAndTap(tester, confirmText, "confirmText");
-}
-
-Future<int> addSingleSigWallets(WalletProvider walletProvider, WidgetTester tester) async {
-  final singleSig2 = SinglesigWallet(
-    2,
-    "New Wallet3",
-    0,
-    0,
-    "primary exotic display destroy wrap zoo among scan length despair lend yard",
-    '',
-  );
-
-  final singleSig3 = SinglesigWallet(
-    3,
-    "Test Wallet4",
-    0,
-    0,
-    "dwarf aim crash town chalk device bulb simple space draft ball canoe",
-    '',
-  );
-
-  await walletProvider.addSingleSigVault(singleSig2);
-  await walletProvider.addSingleSigVault(singleSig3);
-  return 2;
-}
-
-Future<int> addWallets(WalletProvider walletProvider, WidgetTester tester) async {
-  // single sig wallet
-  final singleSig = SinglesigWallet(
-    1,
-    "Test Wallet1",
-    0,
-    0,
-    "thank split shrimp error own spirit slow glow act evidence globe slight",
-    '',
-  );
-
-  await walletProvider.addSingleSigVault(singleSig);
-
-  // multisig wallet
-  String internalWalletBsms = '''
-BSMS 1.0
-00
-[E0C42931/48'/1'/0'/2']Vpub5nNFgHQhQCGEaWtoLrnzWjDvngmwS9A8qT8g1tjkWrbvYwLGrcYupy8jFXmJqyFd9u6aeRTvuLKMrGZ8jdfbarYvLS8rK4Z8Qp5uvKjLTNt
-ttt
-''';
-  String outsideWalletBsms = '''
-BSMS 1.0
-00
-[858FA201/48'/1'/0'/2']Vpub5ncWX3M18jrGdytgNZfayhkzj37RpXHH5k11QsEC4BBJZga64W92KFDVg8CRoEyBAm4eZqXUTKEgx991ri14aWkBhAsgjak5pMHa8wjYirr
-여여려
-''';
-  List<KeyStore> keyStores = [
-    KeyStore.fromSignerBsms(internalWalletBsms),
-    KeyStore.fromSignerBsms(outsideWalletBsms)
-  ];
-  List<MultisigSigner> signers = [
-    MultisigSigner(
-      id: 0,
-      innerVaultId: 1,
-      name: "Inside Wallet",
-      iconIndex: 0,
-      colorIndex: 0,
-      signerBsms: internalWalletBsms,
-      keyStore: keyStores[0],
-    ),
-    MultisigSigner(
-      id: 0,
-      signerBsms: outsideWalletBsms,
-      name: outsideWalletBsms.split('\n')[3],
-      memo: 'memo test',
-      keyStore: keyStores[1],
-    ),
-  ];
-
-  await walletProvider.addMultisigVault(
-    "Test Wallet2",
-    0,
-    0,
-    signers,
-    2,
-  );
-
-  return 2;
 }
