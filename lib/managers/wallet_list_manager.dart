@@ -407,7 +407,9 @@ class WalletListManager {
 
   void dispose() {
     try {
-      _walletLoadCancelToken?.complete();
+      if (_walletLoadCancelToken != null && !_walletLoadCancelToken!.isCompleted) {
+        _walletLoadCancelToken!.complete();
+      }
     } catch (e) {
       Logger.error(e);
     }
