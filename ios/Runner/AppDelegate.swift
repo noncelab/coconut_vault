@@ -7,7 +7,11 @@ import Flutter
     _ application: UIApplication,
     didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
   ) -> Bool {
-    self.window.makeSecure()
+    #if DEBUG
+    print("🔧 DEBUG 모드입니다. makeSecure()는 호출되지 않습니다.")
+    #else
+    self.window?.makeSecure()   
+    #endif
     GeneratedPluginRegistrant.register(with: self)
     return super.application(application, didFinishLaunchingWithOptions: launchOptions)
   }
