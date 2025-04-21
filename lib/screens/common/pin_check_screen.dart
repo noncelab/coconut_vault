@@ -170,7 +170,7 @@ class _PinCheckScreenState extends State<PinCheckScreen> with WidgetsBindingObse
 
   void _verifyPin() async {
     context.loaderOverlay.show();
-    bool isAuthenticated = await _authProvider.verifyPin(_pin);
+    bool isAuthenticated = await _authProvider.verifyPin(_pin, isAppLaunchScreen: _isAppLaunched);
     if (mounted) {
       context.loaderOverlay.hide();
     }
@@ -341,7 +341,7 @@ class _PinCheckScreenState extends State<PinCheckScreen> with WidgetsBindingObse
 
   Widget _pinInputScreen({isOnReset = false}) {
     Logger.log(
-        '--> PinInputScreen isPermanantlyLocked: ${_authProvider.isPermanantlyLocked} / isUnlockDisabled: ${_isUnlockDisabled}');
+        '--> PinInputScreen isPermanantlyLocked: ${_authProvider.isPermanantlyLocked} / isUnlockDisabled: $_isUnlockDisabled');
     return PinInputScreen(
       appBarVisible: _isAppLaunched ? false : true,
       title: _isAppLaunched ? '' : t.pin_check_screen.enter_password,

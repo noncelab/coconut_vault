@@ -57,8 +57,8 @@ class AuthProvider extends ChangeNotifier {
   DateTime? get unlockAvailableAt {
     if (_unlockAvailableAtInString.isEmpty) {
       if (_currentTurn == 0) {
-        Logger.log('--> current turn is 0, so return DateTime.now()');
-        return DateTime.now();
+        Logger.log('--> current turn is 0, so return DateTime.now() with substract 5 seconds');
+        return DateTime.now().subtract(const Duration(milliseconds: 5000));
       } else {
         Logger.log(
             '--> current turn is not 0, so return DateTime.now().add(Duration(minutes: ${kLockoutDurationsPerTurn[0]}))');
@@ -233,7 +233,7 @@ class AuthProvider extends ChangeNotifier {
   }
 
   /// 비밀번호 검증
-  Future<bool> verifyPin(String inputPin) async {
+  Future<bool> verifyPin(String inputPin, {bool isAppLaunchScreen = false}) async {
     String hashedInput = hashString(inputPin);
     final savedPin = await _storageService.read(key: SecureStorageKeys.kVaultPin);
 
@@ -242,7 +242,9 @@ class AuthProvider extends ChangeNotifier {
       return true;
     }
 
-    await increaseCurrentAttemptAndTurn();
+    if (isAppLaunchScreen) {
+      await increaseCurrentAttemptAndTurn();
+    }
     return false;
   }
 
