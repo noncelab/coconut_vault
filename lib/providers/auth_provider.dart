@@ -12,6 +12,7 @@ import 'package:coconut_vault/repository/shared_preferences_repository.dart';
 import 'package:coconut_vault/utils/hash_util.dart';
 import 'package:coconut_vault/utils/logger.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:local_auth/local_auth.dart';
@@ -60,6 +61,12 @@ class AuthProvider extends ChangeNotifier {
         Logger.log('--> current turn is 0, so return DateTime.now() with substract 5 seconds');
         return DateTime.now().subtract(const Duration(milliseconds: 5000));
       } else {
+        if (kDebugMode) {
+          Logger.log(
+              '--> current turn is not 0, so return DateTime.now().add(Duration(seconds: $kPiInputDelayForDebugging))');
+          return DateTime.now().add(const Duration(seconds: kPiInputDelayForDebugging));
+        }
+
         Logger.log(
             '--> current turn is not 0, so return DateTime.now().add(Duration(minutes: ${kLockoutDurationsPerTurn[0]}))');
         return DateTime.now().add(Duration(minutes: kLockoutDurationsPerTurn[0]));
@@ -288,8 +295,9 @@ class AuthProvider extends ChangeNotifier {
       return;
     }
 
-    final unlockableDateTime =
-        DateTime.now().add(Duration(minutes: kLockoutDurationsPerTurn[turn - 1]));
+    final unlockableDateTime = DateTime.now().add(kDebugMode
+        ? const Duration(seconds: kPiInputDelayForDebugging)
+        : Duration(minutes: kLockoutDurationsPerTurn[turn - 1]));
 
     _unlockAvailableAtInString = unlockableDateTime.toIso8601String();
     await _sharedPrefs.setString(unlockAvailableAtKey, _unlockAvailableAtInString);
