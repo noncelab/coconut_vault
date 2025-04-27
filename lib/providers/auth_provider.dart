@@ -56,25 +56,28 @@ class AuthProvider extends ChangeNotifier {
   int get currentAttemptInTurn => _currentAttemptInTurn;
   String _unlockAvailableAtInString = '';
   DateTime? get unlockAvailableAt {
+    // 영구 잠금은 분리했습니다.
     if (_unlockAvailableAtInString.isEmpty) {
+      // 이전에 잠긴 이력 X
       if (_currentTurn == 0) {
+        // 첫번째 시도 => 현재 시간보다 5초 전으로 반환해 핀 입력 가능 상태로 만듬, null 반환
         Logger.log('--> current turn is 0, so return DateTime.now() with substract 5 seconds');
-        return DateTime.now().subtract(const Duration(milliseconds: 5000));
+        return null;
       } else {
+        // 첫번째 시도가 아님
         if (kDebugMode) {
+          // 디버깅용 7초 고정
           Logger.log(
-              '--> current turn is not 0, so return DateTime.now().add(Duration(seconds: $kPiInputDelayForDebugging))');
-          return DateTime.now().add(const Duration(seconds: kPiInputDelayForDebugging));
+              '--> current turn is not 0, so return DateTime.now().add(Duration(seconds: $kDebugPinInputDelay))');
+          return DateTime.now().add(const Duration(seconds: kDebugPinInputDelay));
         }
 
         Logger.log(
             '--> current turn is not 0, so return DateTime.now().add(Duration(minutes: ${kLockoutDurationsPerTurn[0]}))');
         return DateTime.now().add(Duration(minutes: kLockoutDurationsPerTurn[0]));
       }
-    } else if (_unlockAvailableAtInString == '-1') {
-      Logger.log('--> unlockAvailableAtInString is -1, so return null');
-      return null;
     } else {
+      // 이전에 잠긴 이력 O
       Logger.log(
           '--> unlockAvailableAtInString is not empty, so return DateTime.tryParse($_unlockAvailableAtInString)');
       return DateTime.tryParse(_unlockAvailableAtInString);
@@ -296,7 +299,7 @@ class AuthProvider extends ChangeNotifier {
     }
 
     final unlockableDateTime = DateTime.now().add(kDebugMode
-        ? const Duration(seconds: kPiInputDelayForDebugging)
+        ? const Duration(seconds: kDebugPinInputDelay)
         : Duration(minutes: kLockoutDurationsPerTurn[turn - 1]));
 
     _unlockAvailableAtInString = unlockableDateTime.toIso8601String();
@@ -332,10 +335,5 @@ class AuthProvider extends ChangeNotifier {
     _sharedPrefs.deleteSharedPrefsWithKey(unlockAvailableAtKey);
     _sharedPrefs.deleteSharedPrefsWithKey(currentAttemptKey);
     _sharedPrefs.deleteSharedPrefsWithKey(turnKey);
-  }
-
-  void printLog() {
-    Logger.log(
-        '_currentAttemptInTurn: $_currentAttemptInTurn, _currentTurn: $_currentTurn, _unlockAvailableAtInString: $_unlockAvailableAtInString');
   }
 }

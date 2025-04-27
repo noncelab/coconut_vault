@@ -8,6 +8,7 @@ import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/providers/auth_provider.dart';
 import 'package:coconut_vault/screens/common/pin_check_auth_dialog.dart';
 import 'package:coconut_vault/utils/logger.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -79,15 +80,30 @@ class _PinCheckScreenState extends State<PinCheckScreen> with WidgetsBindingObse
           _shuffledPinNumbers = _authProvider.getShuffledNumberList();
         });
       }
+      if (_authProvider.isPermanantlyLocked) {
+        setState(() {
+          _isUnlockDisabled = true;
+        });
+        return;
+      }
+
       if (!_authProvider.isUnlockAvailable()) {
         setState(() {
           _isUnlockDisabled = true;
           Logger.log('--> set _isUnlockDisabled to true');
-          _startCountdownTimerUntil(_authProvider.unlockAvailableAt ?? DateTime.now());
+          if (_authProvider.unlockAvailableAt != null) {
+            _startCountdownTimerUntil(_authProvider.unlockAvailableAt!);
+          }
         });
       } else {
         setState(() {
           _isUnlockDisabled = false;
+          _isLastChanceToTry = _authProvider.currentTurn + 1 == kMaxTurn;
+
+          if (!_authProvider.isPermanantlyLocked && _isLastChanceToTry) {
+            _errorMessage = t.errors.remaining_times_away_from_reset_error(
+                count: kMaxAttemptPerTurn - _authProvider.currentAttemptInTurn);
+          }
           Logger.log('--> set _isUnlockDisabled to false');
         });
       }
@@ -195,6 +211,10 @@ class _PinCheckScreenState extends State<PinCheckScreen> with WidgetsBindingObse
           _errorMessage = _isLastChanceToTry
               ? t.errors.remaining_times_away_from_reset_error(count: remainingTimes)
               : t.errors.pin_incorrect_with_remaining_attempts_error(count: remainingTimes);
+          if (kDebugMode) {
+            _errorMessage +=
+                ' (디버깅중 ${_authProvider.currentTurn} / ${_authProvider.currentAttemptInTurn})';
+          }
         });
       } else {
         vibrateMedium();
@@ -236,9 +256,7 @@ class _PinCheckScreenState extends State<PinCheckScreen> with WidgetsBindingObse
           _errorMessage = '';
           _isUnlockDisabled = false;
           Logger.log('--> set _isUnlockDisabled to false');
-          if (_authProvider.currentTurn + 1 == kMaxTurn) {
-            _isLastChanceToTry = true;
-          }
+          _isLastChanceToTry = _authProvider.currentTurn + 1 == kMaxTurn;
         });
       } else {
         final formattedTime = _formatRemainingTime(remainingSeconds);
