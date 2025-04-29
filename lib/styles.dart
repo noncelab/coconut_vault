@@ -340,7 +340,7 @@ abstract class MyBorder {
 }
 
 class Paddings {
-  static const EdgeInsets container = EdgeInsets.symmetric(horizontal: 10, vertical: 20);
+  static const EdgeInsets container = EdgeInsets.symmetric(horizontal: 16, vertical: 20);
   static const EdgeInsets widgetContainer = EdgeInsets.symmetric(horizontal: 24, vertical: 20);
 }
 

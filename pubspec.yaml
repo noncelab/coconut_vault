@@ -199,6 +199,7 @@ flutter:
     - assets/svg/circle-check.svg
     - assets/svg/vault-grey.svg
     - assets/svg/text-field-clear.svg
+    - assets/svg/copy.svg
 
   fonts:
     - family: SpaceGrotesk
