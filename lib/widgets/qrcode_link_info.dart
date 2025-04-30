@@ -1,5 +1,7 @@
+import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_vault/constants/external_links.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
+import 'package:coconut_vault/widgets/button/copy_text_container.dart';
 import 'package:flutter/material.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 
@@ -67,11 +69,12 @@ class _QRCodeLinkInfoState extends State<QRCodeLinkInfo> {
                 ),
               ],
             ),
-            const SizedBox(height: 32),
-            Text(widget.qrData.contains('@') ? CONTACT_EMAIL_ADDRESS : widget.qrData,
-                style: Styles.body1.merge(const TextStyle(fontFamily: 'SpaceGrotesk')),
-                textAlign: TextAlign.center),
-            const SizedBox(height: 24),
+            CoconutLayout.spacing_400h,
+            CopyTextContainer(
+                text: widget.qrData.contains('@') ? CONTACT_EMAIL_ADDRESS : widget.qrData,
+                toastMsg: t.toast.clipboard_copied,
+                textStyle: CoconutTypography.body2_14_Number.setColor(CoconutColors.black)),
+            CoconutLayout.spacing_600h,
             widget.qrData.contains('@')
                 ? widget.qrData.contains(t.license)
                     ? const Text(

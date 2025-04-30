@@ -11,11 +11,11 @@ import 'package:fluttertoast/fluttertoast.dart';
 
 class CopyTextContainer extends StatefulWidget {
   final String text;
-  final String? toastMsg;
+  final String toastMsg;
   final TextAlign? textAlign;
   final TextStyle? textStyle;
   const CopyTextContainer(
-      {super.key, required this.text, this.toastMsg, this.textAlign, this.textStyle});
+      {super.key, required this.text, required this.toastMsg, this.textAlign, this.textStyle});
 
   static const MethodChannel _channel = MethodChannel(methodChannelOS);
 

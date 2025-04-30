@@ -44,7 +44,7 @@ class _QRCodeInfoState extends State<QRCodeInfo> {
           CopyTextContainer(
             text: widget.qrData,
             textStyle: CoconutTypography.body2_14_Number,
-            toastMsg: t.toast.mnemonic_copied,
+            toastMsg: t.toast.clipboard_copied,
           ),
         ],
       ),

@@ -48,6 +48,7 @@ class _ExportDetailScreen extends State<ExportDetailScreen> {
                   CopyTextContainer(
                     text: widget.exportDetail,
                     textStyle: CoconutTypography.body2_14_Number,
+                    toastMsg: t.export_detail_screen.info_copied,
                   ),
                 ],
               ),
