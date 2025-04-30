@@ -172,6 +172,11 @@ class _PinSettingScreenState extends State<PinSettingScreen> {
     await Future.delayed(const Duration(seconds: 3));
     widget.onComplete?.call();
     await _authProvider.savePin(pinConfirm);
+
+    if (!mounted) {
+      return;
+    }
+
     Navigator.pop(context);
     Navigator.pop(context);
     if (widget.greetingVisible) {
@@ -242,7 +247,6 @@ class _PinSettingScreenState extends State<PinSettingScreen> {
         errorMessage: errorMessage,
         onKeyTap: _onKeyTap,
         pinShuffleNumbers: _shuffledPinNumbers,
-        isCloseIcon: !widget.greetingVisible,
         onClosePressed: step == 0
             ? () {
                 showDialog();

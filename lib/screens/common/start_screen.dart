@@ -5,8 +5,6 @@ import 'package:coconut_vault/app.dart';
 import 'package:coconut_vault/providers/connectivity_provider.dart';
 import 'package:coconut_vault/providers/view_model/start_view_model.dart';
 import 'package:coconut_vault/providers/visibility_provider.dart';
-import 'package:coconut_vault/utils/app_version_util.dart';
-import 'package:coconut_vault/utils/coconut/update_preparation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 

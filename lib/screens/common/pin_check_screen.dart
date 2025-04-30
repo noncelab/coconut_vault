@@ -24,14 +24,12 @@ import 'pin_input_screen.dart';
 class PinCheckScreen extends StatefulWidget {
   final Function? onReset;
   final Function? onComplete;
-  final bool isDeleteScreen;
   final PinCheckContextEnum pinCheckContext;
   const PinCheckScreen({
     super.key,
     required this.pinCheckContext,
     this.onReset,
     this.onComplete,
-    this.isDeleteScreen = false,
   });
 
   @override
@@ -87,7 +85,7 @@ class _PinCheckScreenState extends State<PinCheckScreen> with WidgetsBindingObse
         return;
       }
 
-      if (!_authProvider.isUnlockAvailable()) {
+      if (!_authProvider.isUnlockAvailable) {
         setState(() {
           _isUnlockDisabled = true;
           Logger.log('--> set _isUnlockDisabled to true');
@@ -175,7 +173,7 @@ class _PinCheckScreenState extends State<PinCheckScreen> with WidgetsBindingObse
       case PinCheckContextEnum.restoration:
         widget.onComplete?.call();
         break;
-      case PinCheckContextEnum.change:
+      case PinCheckContextEnum.pinChange:
         Navigator.pop(context);
         MyBottomSheet.showBottomSheet_90(context: context, child: const PinSettingScreen());
         break;
@@ -364,7 +362,6 @@ class _PinCheckScreenState extends State<PinCheckScreen> with WidgetsBindingObse
       appBarVisible: _isAppLaunched ? false : true,
       title: _isAppLaunched ? '' : t.pin_check_screen.enter_password,
       initOptionVisible: _isAppLaunched,
-      isCloseIcon: widget.isDeleteScreen,
       pin: _pin,
       errorMessage: _errorMessage,
       onKeyTap: _onKeyTap,

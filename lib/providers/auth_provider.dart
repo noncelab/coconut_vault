@@ -56,36 +56,27 @@ class AuthProvider extends ChangeNotifier {
   int get currentAttemptInTurn => _currentAttemptInTurn;
   String _unlockAvailableAtInString = '';
   DateTime? get unlockAvailableAt {
-    // 영구 잠금은 분리했습니다.
-    if (_unlockAvailableAtInString.isEmpty) {
-      // 이전에 잠긴 이력 X
-      if (_currentTurn == 0) {
-        // 첫번째 시도 => 현재 시간보다 5초 전으로 반환해 핀 입력 가능 상태로 만듬, null 반환
-        Logger.log('--> current turn is 0, so return DateTime.now() with substract 5 seconds');
-        return null;
-      } else {
-        // 첫번째 시도가 아님
-        if (kDebugMode) {
-          // 디버깅용 7초 고정
-          Logger.log(
-              '--> current turn is not 0, so return DateTime.now().add(Duration(seconds: $kDebugPinInputDelay))');
-          return DateTime.now().add(const Duration(seconds: kDebugPinInputDelay));
-        }
-
-        Logger.log(
-            '--> current turn is not 0, so return DateTime.now().add(Duration(minutes: ${kLockoutDurationsPerTurn[0]}))');
-        return DateTime.now().add(Duration(minutes: kLockoutDurationsPerTurn[0]));
-      }
-    } else {
-      // 이전에 잠긴 이력 O
-      Logger.log(
-          '--> unlockAvailableAtInString is not empty, so return DateTime.tryParse($_unlockAvailableAtInString)');
+    if (_unlockAvailableAtInString.isNotEmpty) {
       return DateTime.tryParse(_unlockAvailableAtInString);
     }
+
+    // 이전에 잠긴 이력 X
+    if (_currentTurn == 0) {
+      return null;
+    }
+
+    // 디버깅 딜레이: 7초
+    if (kDebugMode) {
+      return DateTime.now().add(const Duration(seconds: kDebugPinInputDelay));
+    }
+
+    // 잠금 시도 횟수(_currentTurn)의 인덱스에 해당하는 잠금 해제 대기 시간
+    return DateTime.now().add(Duration(minutes: kLockoutDurationsPerTurn[_currentTurn - 1]));
   }
 
   int get remainingAttemptCount => kMaxAttemptPerTurn - _currentAttemptInTurn;
   bool get isPermanantlyLocked => _currentTurn == kMaxTurn;
+  bool get isUnlockAvailable => unlockAvailableAt?.isBefore(DateTime.now()) ?? true;
 
   VoidCallback? onRequestShowAuthenticationFailedDialog;
   VoidCallback? onBiometricAuthFailed; // 현재 사용하는 곳 없음
@@ -119,11 +110,6 @@ class AuthProvider extends ChangeNotifier {
     _currentAttemptInTurn = pinInputAttemptCount.isEmpty ? 0 : int.parse(pinInputAttemptCount);
     _currentTurn = totalAttemptCount.isEmpty ? 0 : int.parse(totalAttemptCount);
     _unlockAvailableAtInString = totalAttemptCount.isEmpty ? '' : lockoutEndDateTimeString;
-  }
-
-  bool isUnlockAvailable() {
-    // 현재 시점을 기준으로 잠금해제가 가능한지 확인
-    return unlockAvailableAt?.isBefore(DateTime.now()) ?? true;
   }
 
   /// 생체인증 진행 후 성공 여부 반환

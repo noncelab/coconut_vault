@@ -18,30 +18,31 @@ class CustomTextField extends StatefulWidget {
   final OverlayVisibilityMode clearButtonMode;
   final FocusNode? focusNode;
   final int? maxLength;
-  final List<TextInputFormatter>? inputFormatter;
+  final List<TextInputFormatter>? inputFormatters;
   final Color focusedBorderColor;
   final void Function()? onFocused;
 
-  const CustomTextField(
-      {super.key,
-      required this.controller,
-      required this.placeholder,
-      required this.onChanged,
-      this.style = Styles.body1,
-      this.placeholderStyle = Styles.body2Grey,
-      this.maxLines,
-      this.minLines,
-      this.padding = const EdgeInsets.fromLTRB(16, 20, 16, 20),
-      this.obscureText = false,
-      this.suffix,
-      this.valid,
-      this.errorMessage = '',
-      this.clearButtonMode = OverlayVisibilityMode.never,
-      this.focusNode,
-      this.maxLength,
-      this.inputFormatter,
-      this.focusedBorderColor = MyColors.black,
-      this.onFocused});
+  const CustomTextField({
+    super.key,
+    required this.controller,
+    required this.placeholder,
+    required this.onChanged,
+    this.style = Styles.body1,
+    this.placeholderStyle = Styles.body2Grey,
+    this.maxLines,
+    this.minLines,
+    this.padding = const EdgeInsets.fromLTRB(16, 20, 16, 20),
+    this.obscureText = false,
+    this.suffix,
+    this.valid,
+    this.errorMessage = '',
+    this.clearButtonMode = OverlayVisibilityMode.never,
+    this.focusNode,
+    this.maxLength,
+    this.inputFormatters,
+    this.focusedBorderColor = MyColors.black,
+    this.onFocused,
+  });
 
   @override
   State<CustomTextField> createState() => _CustomTextFieldState();
@@ -80,7 +81,7 @@ class _CustomTextFieldState extends State<CustomTextField> {
               setState(() {
                 isFocused = focus;
               });
-              //print('---> focus && widget.onFocused: ${focus} ${widget.onFocused != null}');
+              print('---> focus && widget.onFocused: ${focus} ${widget.onFocused != null}');
               if (focus && widget.onFocused != null) {
                 widget.onFocused!();
               }
@@ -114,7 +115,9 @@ class _CustomTextFieldState extends State<CustomTextField> {
                       clearButtonMode: widget.clearButtonMode,
                       focusNode: widget.focusNode,
                       maxLength: widget.maxLength,
-                      inputFormatters: widget.inputFormatter ?? [],
+                      inputFormatters: widget.inputFormatters ?? const [],
+                      // keyboardType: widget.keyboardType,
+                      // textCapitalization: widget.textCapitalization,
                     )),
                   ],
                 )),

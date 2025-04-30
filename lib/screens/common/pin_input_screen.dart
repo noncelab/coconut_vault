@@ -19,7 +19,6 @@ class PinInputScreen extends StatefulWidget {
   final int step;
   final bool appBarVisible;
   final bool initOptionVisible;
-  final bool isCloseIcon;
   final bool lastChance;
   final String? lastChanceMessage;
   final bool disabled;
@@ -35,7 +34,6 @@ class PinInputScreen extends StatefulWidget {
       this.onReset,
       this.onBackPressed,
       required this.step,
-      this.isCloseIcon = false,
       this.appBarVisible = true,
       this.initOptionVisible = false,
       this.descriptionTextWidget,
@@ -56,7 +54,7 @@ class PinInputScreenState extends State<PinInputScreen> {
           ? AppBar(
               backgroundColor: Colors.transparent,
               toolbarHeight: 62,
-              leading: widget.isCloseIcon && widget.step == 0
+              leading: widget.step == 0
                   ? IconButton(
                       onPressed: widget.onClosePressed,
                       icon: const Icon(

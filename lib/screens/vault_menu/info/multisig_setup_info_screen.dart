@@ -63,7 +63,6 @@ class _MultisigSetupInfoScreenState extends State<MultisigSetupInfoScreen> {
       child: CustomLoadingOverlay(
         child: PinCheckScreen(
           pinCheckContext: PinCheckContextEnum.sensitiveAction,
-          isDeleteScreen: true,
           onComplete: () async {
             Navigator.pop(context);
             viewModel.deleteVault();

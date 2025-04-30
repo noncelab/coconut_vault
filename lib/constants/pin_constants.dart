@@ -7,7 +7,6 @@ const kExpectedPinLength = 4;
 const kMaxAttemptPerTurn = 3;
 const kMaxTurn = 8;
 
-const kDebugPinInputDelay = 7;
 const kPinInputDelayMinutesTurn1 = 1;
 const kPinInputDelayMinutesTurn2 = 5;
 const kPinInputDelayMinutesTurn3 = 15;
@@ -29,3 +28,6 @@ const kLockoutDurationsPerTurn = [
   kPinInputDelayMinutesTurn8,
   kPinInputDelayInfinite,
 ];
+
+// Debugging constants
+const kDebugPinInputDelay = 7;
