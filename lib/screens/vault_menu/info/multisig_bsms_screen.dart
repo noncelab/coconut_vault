@@ -4,7 +4,7 @@ import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:coconut_vault/styles.dart';
 import 'package:coconut_vault/widgets/appbar/custom_appbar.dart';
 import 'package:coconut_vault/widgets/bottom_sheet.dart';
-import 'package:coconut_vault/widgets/button/clipboard_button.dart';
+import 'package:coconut_vault/widgets/button/copy_text_container.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:qr_flutter/qr_flutter.dart';
@@ -182,9 +182,9 @@ class MultisigBsmsScreen extends StatelessWidget {
             ),
           ),
           body: SingleChildScrollView(
-            child: ClipboardButton(
+            child: CopyTextContainer(
               text: qrData,
-              toastMessage: t.multi_sig_bsms_screen.bottom_sheet.info_copied,
+              toastMsg: t.multi_sig_bsms_screen.bottom_sheet.info_copied,
             ),
           ),
         ),
