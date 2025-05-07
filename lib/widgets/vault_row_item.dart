@@ -132,24 +132,24 @@ class _VaultRowItemState extends State<VaultRowItem> {
 
   Widget _vaultContainerWidget() {
     return Container(
-        decoration: BoxDecoration(
-          color: isPressing ? MyColors.lightgrey : MyColors.white,
-          borderRadius: BorderRadius.circular(28),
-          border:
-              widget.isPressed ? Border.all(color: MyColors.transparentBlack_30, width: 2) : null,
-          boxShadow: widget.isSelectable
-              ? [
-                  const BoxShadow(
-                    color: MyColors.transparentBlack_15,
-                    offset: Offset(0, 0),
-                    blurRadius: 12,
-                    spreadRadius: 0,
-                  ),
-                ]
-              : null,
-        ),
-        padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 28.0),
-        child: Row(children: [
+      decoration: BoxDecoration(
+        color: isPressing ? MyColors.lightgrey : MyColors.white,
+        borderRadius: BorderRadius.circular(28),
+        border: widget.isPressed ? Border.all(color: MyColors.transparentBlack_30, width: 2) : null,
+        boxShadow: widget.isSelectable
+            ? [
+                const BoxShadow(
+                  color: MyColors.transparentBlack_15,
+                  offset: Offset(0, 0),
+                  blurRadius: 12,
+                  spreadRadius: 0,
+                ),
+              ]
+            : null,
+      ),
+      padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 28.0),
+      child: Row(
+        children: [
           // 1) 아이콘
           Container(
               padding: const EdgeInsets.all(10),
@@ -201,10 +201,8 @@ class _VaultRowItemState extends State<VaultRowItem> {
                 color: MyColors.transparentBlack_70,
               ),
             ),
-          if (!widget.isSelectable)
-            // 3) 오른쪽 화살표
-            SvgPicture.asset('assets/svg/arrow-right.svg',
-                width: 24, colorFilter: const ColorFilter.mode(MyColors.darkgrey, BlendMode.srcIn))
-        ]));
+        ],
+      ),
+    );
   }
 }
