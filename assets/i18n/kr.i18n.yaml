@@ -87,8 +87,8 @@ name_text_count: "($count / 20)"
 wallet_subtitle: "$name의 $index번 키"
 
 forgot_password: "비밀번호가 기억나지 않나요?"
-scan_qr_url_link: "네트워크가 활성화된 기기에서 QR 코드를 스캔하시거나 위의 URL 주소로 접속해 주세요."
-scan_qr_email_link: "네트워크가 활성화된 기기에서 QR 코드를 스캔하시거나 위의 주소로 메일을 전송해 주세요"
+scan_qr_url_link: "네트워크가 활성화된 기기로 QR 코드를 스캔하시거나 위 URL로 접속해 주세요"
+scan_qr_email_link: "네트워크가 활성화된 기기로 QR 코드를 스캔하시거나 위 주소로 메일을 보내주세요"
 developer_option: "개발자 옵션"
 advanced_user: "고급 사용자"
 
@@ -247,11 +247,11 @@ mnemonic_coin_flip_screen:
   coin_head: "앞"
   coin_tail: "뒤"
 mnemonic_confirm_screen:
-  title: "입력하신 정보가 맞는지\n다시 한번 확인해 주세요."
+  title: "입력하신 정보가 맞는지\n다시 한번 확인해 주세요"
   passphrase_character_total_count: " (총 $count 글자)"
   warning:
-    contains_space_character: "⚠︎ 공백 문자가 포함되어 있습니다."
-    long_passphrase: "⚠︎ 긴 패스프레이즈: 스크롤을 끝까지 내려 모두 확인해 주세요."
+    contains_space_character: "⚠︎ 공백 문자가 포함되어 있습니다"
+    long_passphrase: "⚠︎ 긴 패스프레이즈: 스크롤을 끝까지 내려 모두 확인해 주세요"
   btn_confirm_completed: "확인 완료"
 mnemonic_generate_screen:
   title: "새 니모닉 문구"
@@ -259,7 +259,7 @@ mnemonic_generate_screen:
   twelve: "12 단어"
   twenty_four: "24 단어"
   use_passphrase: "패스프레이즈를 사용하실 건가요?"
-  ensure_backup: "니모닉을 틀림없이 백업했습니다."
+  ensure_backup: "니모닉을 틀림없이 백업했습니다"
   word_passphrase: " 단어, 패스프레이즈 "
   use: "사용"
   do_not: "안함"
@@ -287,7 +287,7 @@ vault_creation_options_screen:
   import_mnemonic: "사용 중인 니모닉 문구가 있어요"
 vault_name_icon_setup_screen:
   title: "이름 설정"
-  saving: "저장 중이에요."
+  saving: "저장 중이에요"
 
 # lib/screens/vault_creation/multisig
 assign_signers_screen:
@@ -327,6 +327,7 @@ address_list_screen:
   address_index: "주소 - $index"
 export_detail_screen:
   title: "내보내기 상세 정보"
+  info_copied: "상세 정보가 복사됐어요"
 mnemonic_view_screen:
   view_passphrase: "패스프레이즈 보기"
   visible_while_pressing: "누르는 동안 보여요"
@@ -493,7 +494,7 @@ alert:
     description: "적어도 1개는 이 볼트에 있는 키를 사용해 주세요"
   wallet_creation_failed:
     title: "지갑 생성 실패"
-    description: "유효하지 않은 정보입니다."
+    description: "유효하지 않은 정보입니다"
   stop_creating_mnemonic:
     title: "니모닉 만들기 중단"
     description: "정말 니모닉 만들기를 그만하시겠어요?"
@@ -506,13 +507,13 @@ alert:
   erase_all_entered_so_far: "정말로 지금까지 입력한 정보를\n모두 지우시겠어요?"
 
 toast:
-  clipboard_copied: "클립보드에 복사되었어요."
-  back_exit: "뒤로 가기 버튼을 한 번 더 누르면 종료됩니다."
+  clipboard_copied: "클립보드에 복사되었어요"
+  back_exit: "뒤로 가기 버튼을 한 번 더 누르면 종료됩니다"
   scroll_down: "스크롤을 내려서 모두 확인해주세요"
   data_updated: "정보를 수정했어요"
   name_already_used: "이미 사용하고 있는 이름으로는 바꿀 수 없어요"
   name_already_used2: "이미 사용 중인 이름은 설정할 수 없어요"
-  name_multisig_in_use: "다중 서명 지갑에 사용되고 있어 삭제할 수 없어요."
+  name_multisig_in_use: "다중 서명 지갑에 사용되고 있어 삭제할 수 없어요"
   mnemonic_already_added: "이미 추가되어 있는 니모닉이에요"
   mnemonic_copied: "니모닉 문구가 복사됐어요"
   multisig_already_added: "이미 추가되어 있는 다중 서명 지갑이에요. ($name)"
@@ -521,8 +522,8 @@ errors:
   invalid_single_sig_qr_error: "잘못된 QR이에요. 다시 시도해 주세요."
   invalid_multisig_qr_error: "잘못된 QR이에요.\n가져올 다중 서명 지갑의 정보 화면에서 \"지갑 설정 정보 보기\"에 나오는 QR 코드를 스캔해 주세요."
   unsupport_bsms_version_error: "지원하지 않는 BSMS 버전이에요. BSMS 1.0만 지원됩니다."
-  unsupport_derivation_path_error: "커스텀 파생 경로는 지원되지 않아요."
-  duplicate_multisig_registered_error: "이미 등록된 다중 서명 지갑입니다."
+  unsupport_derivation_path_error: "커스텀 파생 경로는 지원되지 않아요"
+  duplicate_multisig_registered_error: "이미 등록된 다중 서명 지갑입니다"
   pin_incorrect_error: "비밀번호가 일치하지 않아요"
   duplicate_pin_error: "이미 사용중인 비밀번호예요"
   pin_processing_error: "처리 중 문제가 발생했어요"
@@ -532,18 +533,18 @@ errors:
   retry_after: "$time 후 재시도 할 수 있어요"
   invalid_word_error: "잘못된 단어예요. $filter"
   invalid_mnemonic_phrase: "잘못된 니모닉 문구예요"
-  data_loading_error: "데이터를 불러오는 중 오류가 발생했습니다."
-  data_not_found_error: "데이터가 없습니다."
-  cannot_sign_error: "서명할 수 없는 트랜잭션이에요."
+  data_loading_error: "데이터를 불러오는 중 오류가 발생했습니다"
+  data_not_found_error: "데이터가 없습니다"
+  cannot_sign_error: "서명할 수 없는 트랜잭션이에요"
   invalid_sign_error: "잘못된 서명 정보에요. 다시 시도해 주세요."
   scan_error: "[스캔 실패] $error"
   sign_error: "[서명 실패]: $error"
   device_info_unavailable_error: "디바이스 정보를 불러올 수 없음 : $error"
-  camera_permission_error: "카메라 권한이 없습니다."
+  camera_permission_error: "카메라 권한이 없습니다"
   creation_error: "생성 실패"
   export_error: "내보내기 실패"
   psbt_parsing_error: "psbt 파싱 실패: $error"
-  not_related_multisig_wallet_error: "이 지갑을 키로 사용한 다중 서명 지갑이 아닙니다."
+  not_related_multisig_wallet_error: "이 지갑을 키로 사용한 다중 서명 지갑이 아닙니다"
 
 tooltip:
   mfp: "지갑의 고유 값이에요.\n마스터 핑거프린트(MFP)라고도 해요."

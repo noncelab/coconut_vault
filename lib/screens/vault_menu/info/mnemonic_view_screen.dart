@@ -1,6 +1,6 @@
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
-import 'package:coconut_vault/widgets/button/clipboard_button.dart';
+import 'package:coconut_vault/widgets/button/copy_text_container.dart';
 import 'package:flutter/material.dart';
 import 'package:coconut_vault/styles.dart';
 import 'package:provider/provider.dart';
@@ -144,9 +144,9 @@ class _MnemonicViewScreen extends State<MnemonicViewScreen> {
   }
 
   Widget _buildContent() {
-    return ClipboardButton(
+    return CopyTextContainer(
       text: mnemonic!,
-      toastMessage: t.toast.mnemonic_copied,
+      toastMsg: t.toast.mnemonic_copied,
     );
   }
 

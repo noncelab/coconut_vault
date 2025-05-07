@@ -61,6 +61,13 @@ Flutter Test를 클릭해주고, Test File 경로를 지정합니다. Additional
    - 앱 잠금해제 여러번 실패시 앱 영구 잠금(PermanantlyLocked) 기능 검증
    - 앱 초기화 기능 검증
 
+4. `app_flow_test.dart`
+   - 앱 첫 시작 시 Tutorial 화면으로 진입하는 통합테스트
+   - 추가된 지갑이 있을 때 PinCheckScreen -> VaultListScreen으로 진입하는 통합테스트
+   - 추가된 지갑이 없을 때 PinCheckScreen을 거치지 않고 바로 VaultListScreen으로 진입하는 통합테스트
+   - 복원 파일이 존재하고 앱 업데이트가 완료됐을 때 PinCheckScreen -> VaultListRestorationScreen -> VaultListScreen으로 진입하는 통합테스트
+   - 복원 파일이 존재하고 앱 업데이트가 안됐을 때 RestorationInfoScreen -> PinCheckScreen -> VaultListRestorationScreen -> VaultList으로 진입하는 통합테스트
+
 ## 주의사항
 
 - 테스트는 실제 디바이스의 저장소와 보안 기능을 사용합니다.

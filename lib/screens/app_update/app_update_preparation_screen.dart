@@ -8,6 +8,7 @@ import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:coconut_vault/widgets/indicator/countdown_spinner.dart';
 import 'package:coconut_vault/widgets/indicator/percent_progress_indicator.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:loader_overlay/loader_overlay.dart';
 import 'package:provider/provider.dart';
@@ -160,6 +161,16 @@ class _AppUpdatePreparationScreenState extends State<AppUpdatePreparationScreen>
                             bottom: 40,
                             child: _buildNextButton(viewModel),
                           ),
+                        if (!viewModel.isMnemonicLoaded)
+                          // 뒤로가기는 가능해야 하기 때문에 loaderOverlay를 사용하지 않고 별도 구현
+                          Container(
+                            width: MediaQuery.sizeOf(context).width,
+                            height: MediaQuery.sizeOf(context).height,
+                            color: Colors.white.withOpacity(0.5),
+                            child: const Center(
+                              child: CoconutCircularIndicator(),
+                            ),
+                          )
                       ],
                     ),
                   ),
@@ -359,13 +370,14 @@ class _AppUpdatePreparationScreenState extends State<AppUpdatePreparationScreen>
                 ),
                 CoconutLayout.spacing_1500h,
                 CoconutTextField(
+                  textInputFormatter: [
+                    FilteringTextInputFormatter.allow(RegExp(r'[a-z]')),
+                  ],
                   controller: _mnemonicWordInputController,
                   focusNode: _mnemonicInputFocusNode,
                   maxLines: 1,
                   textInputAction: TextInputAction.done,
-                  onChanged: (text) {
-                    _mnemonicWordInputController.text = text;
-                  },
+                  onChanged: (text) {},
                   isError: _mnemonicErrorVisible,
                   isLengthVisible: false,
                   errorText: t.prepare_update.incorrect_input_try_again,
