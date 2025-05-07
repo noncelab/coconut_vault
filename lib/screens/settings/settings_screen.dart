@@ -106,7 +106,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       context: context,
                       child: const LoaderOverlay(
                         child: PinCheckScreen(
-                          pinCheckContext: PinCheckContextEnum.change,
+                          pinCheckContext: PinCheckContextEnum.pinChange,
                         ),
                       ),
                     );
@@ -159,7 +159,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   child: CustomLoadingOverlay(
                     child: PinCheckScreen(
                       pinCheckContext: PinCheckContextEnum.sensitiveAction,
-                      isDeleteScreen: true,
                       onComplete: () async {
                         Navigator.pop(context);
                         Navigator.pushNamed(context, AppRoutes.prepareUpdate);

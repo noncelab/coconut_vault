@@ -28,3 +28,6 @@ const kLockoutDurationsPerTurn = [
   kPinInputDelayMinutesTurn8,
   kPinInputDelayInfinite,
 ];
+
+// Debugging constants
+const kDebugPinInputDelay = 7;

@@ -26,8 +26,6 @@ import 'package:shimmer/shimmer.dart';
 
 import '../../../providers/wallet_provider.dart';
 
-enum SecurityAction { viewExtendedPublicKey, viewMnemonic, delete }
-
 class SingleSigSetupInfoScreen extends StatefulWidget {
   final int id;
   const SingleSigSetupInfoScreen({super.key, required this.id});
@@ -56,16 +54,15 @@ class _SingleSigSetupInfoScreenState extends State<SingleSigSetupInfoScreen> {
     });
   }
 
-  Future<void> _verifyBiometric(BuildContext context, SecurityAction action) async {
+  Future<void> _verifyBiometric(BuildContext context, PinCheckContextEnum pinCheckContext) async {
     MyBottomSheet.showBottomSheet_90(
       context: context,
       child: CustomLoadingOverlay(
         child: PinCheckScreen(
-          pinCheckContext: PinCheckContextEnum.sensitiveAction,
-          isDeleteScreen: true,
+          pinCheckContext: pinCheckContext,
           onComplete: () async {
             Navigator.pop(context);
-            _verifySwitch(context, action);
+            _verifySwitch(context, pinCheckContext);
           },
         ),
       ),
@@ -315,7 +312,7 @@ class _SingleSigSetupInfoScreenState extends State<SingleSigSetupInfoScreen> {
                     showIcon: true,
                     onPressed: () {
                       _removeTooltip();
-                      _verifyBiometric(context, SecurityAction.viewMnemonic);
+                      _verifyBiometric(context, PinCheckContextEnum.sensitiveAction);
                     },
                   ),
                 ],
@@ -375,7 +372,7 @@ class _SingleSigSetupInfoScreenState extends State<SingleSigSetupInfoScreen> {
                                   context.loaderOverlay.show();
                                   await Future.delayed(const Duration(seconds: 1));
                                   if (context.mounted) {
-                                    _verifyBiometric(context, SecurityAction.delete);
+                                    _verifyBiometric(context, PinCheckContextEnum.seedDeletion);
                                     context.loaderOverlay.hide();
                                   }
                                 });
@@ -393,38 +390,22 @@ class _SingleSigSetupInfoScreenState extends State<SingleSigSetupInfoScreen> {
             )));
   }
 
-  void _verifySwitch(BuildContext context, SecurityAction action) async {
-    switch (action) {
-      // deprecated
-      // case SecurityAction.viewExtendedPublicKey:
-      //   {
-      //     _showModalBottomSheetWithQrImage(
-      //         t.extended_public_key,
-      //         _singleSignatureVault.keyStore.extendedPublicKey.serialize(),
-      //         null);
-      //   }
-      case SecurityAction.viewMnemonic:
-        {
-          MyBottomSheet.showBottomSheet_90(
-              context: context,
-              child: MnemonicViewScreen(
-                walletId: widget.id,
-                title: t.view_mnemonic,
-                subtitle: t.view_passphrase,
-              ));
-          return;
-        }
-      case SecurityAction.delete:
-        {
-          final viewModel = context.read<SingleSigSetupInfoViewModel>();
-          viewModel.deleteVault();
-          vibrateLight();
-          Navigator.popUntil(context, (route) => route.isFirst);
-          return;
-        }
-      default:
-        return;
+  void _verifySwitch(BuildContext context, PinCheckContextEnum pinCheckContext) async {
+    if (pinCheckContext == PinCheckContextEnum.seedDeletion) {
+      final viewModel = context.read<SingleSigSetupInfoViewModel>();
+      viewModel.deleteVault();
+      vibrateLight();
+      Navigator.popUntil(context, (route) => route.isFirst);
+      return;
     }
+
+    MyBottomSheet.showBottomSheet_90(
+        context: context,
+        child: MnemonicViewScreen(
+          walletId: widget.id,
+          title: t.view_mnemonic,
+          subtitle: t.view_passphrase,
+        ));
   }
 
   // deprecated: 확장 공개키 보기
