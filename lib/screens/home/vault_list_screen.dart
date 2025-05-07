@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_vault/constants/app_routes.dart';
 import 'package:coconut_vault/app_routes_params.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
@@ -289,7 +290,9 @@ class _VaultListScreenState extends State<VaultListScreen> with TickerProviderSt
                         ),
                         // 지갑 목록
                         SliverPadding(
-                          padding: const EdgeInsets.symmetric(horizontal: 8),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: CoconutLayout.defaultPadding,
+                          ),
                           sliver: SliverList.builder(
                             itemCount: wallets.isEmpty ? 1 : wallets.length,
                             itemBuilder: (ctx, index) => index < wallets.length
@@ -305,7 +308,9 @@ class _VaultListScreenState extends State<VaultListScreen> with TickerProviderSt
                         // Skeleton 목록
                         if (!viewModel.isWalletsLoaded)
                           SliverPadding(
-                            padding: const EdgeInsets.symmetric(horizontal: 8),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: CoconutLayout.defaultPadding,
+                            ),
                             sliver: SliverList.builder(
                               itemBuilder: (ctx, index) => _vaultSkeletonItem(),
                               itemCount: _initialWalletCount - wallets.length,
