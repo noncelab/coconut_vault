@@ -296,7 +296,7 @@ class _VaultListScreenState extends State<VaultListScreen> with TickerProviderSt
                           sliver: SliverList.builder(
                             itemCount: wallets.isEmpty ? 1 : wallets.length,
                             itemBuilder: (ctx, index) => index < wallets.length
-                                ? _shouldAnimateAddition && index == (wallets.length - 1)
+                                ? _shouldAnimateAddition && index == 0
                                     ? SlideTransition(
                                         position: _newVaultAddAnimation,
                                         child: VaultRowItem(vault: wallets[index]),
