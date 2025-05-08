@@ -339,7 +339,7 @@ class _SingleSigSetupInfoScreenState extends State<SingleSigSetupInfoScreen> {
                         ),
                     builder: (context, data, child) {
                       return InformationItemCard(
-                        label: t.delete,
+                        label: t.delete_label,
                         showIcon: true,
                         textColor: viewModel.hasLinkedMultisigVault
                             ? MyColors.disabledGrey.withOpacity(0.15)

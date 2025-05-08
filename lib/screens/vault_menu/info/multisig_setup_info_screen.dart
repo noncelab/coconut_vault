@@ -355,7 +355,7 @@ class _MultisigSetupInfoScreenState extends State<MultisigSetupInfoScreen> {
         child: Column(
           children: [
             InformationItemCard(
-              label: t.delete,
+              label: t.delete_label,
               showIcon: true,
               rightIcon: Container(
                   padding: const EdgeInsets.all(8),
