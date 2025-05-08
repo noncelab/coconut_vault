@@ -10,6 +10,7 @@ import 'package:coconut_vault/providers/view_model/home/vault_list_view_model.da
 import 'package:coconut_vault/providers/visibility_provider.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:coconut_vault/screens/settings/pin_setting_screen.dart';
+import 'package:coconut_vault/widgets/card/vault_addition_guide_card.dart';
 import 'package:coconut_vault/widgets/coconut_dropdown.dart';
 import 'package:coconut_vault/widgets/vault_row_item.dart';
 import 'package:flutter/cupertino.dart';
@@ -235,56 +236,16 @@ class _VaultListScreenState extends State<VaultListScreen> with TickerProviderSt
                         SliverToBoxAdapter(
                           child: Visibility(
                             visible: viewModel.isWalletsLoaded && viewModel.walletCount == 0,
-                            child: Container(
-                              width: double.maxFinite,
-                              decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(16), color: MyColors.white),
-                              padding:
-                                  const EdgeInsets.only(top: 26, bottom: 24, left: 26, right: 26),
-                              margin: const EdgeInsets.symmetric(horizontal: 8),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    t.vault_list_tab.add_wallet,
-                                    style: Styles.title5,
-                                  ),
-                                  Text(
-                                    t.vault_list_tab.top_right_icon,
-                                    style: Styles.label,
-                                  ),
-                                  const SizedBox(height: 16),
-                                  CupertinoButton(
-                                    onPressed: () {
-                                      if (!viewModel.isPinSet) {
-                                        MyBottomSheet.showBottomSheet_90(
-                                            context: context,
-                                            child: const PinSettingScreen(greetingVisible: true));
-                                      } else {
-                                        Navigator.pushNamed(context, AppRoutes.vaultTypeSelection);
-                                      }
-                                    },
-                                    borderRadius: BorderRadius.circular(10),
-                                    padding: EdgeInsets.zero,
-                                    color: MyColors.primary,
-                                    child: Container(
-                                      padding: const EdgeInsets.symmetric(
-                                        horizontal: 28,
-                                        vertical: 12,
-                                      ),
-                                      child: Text(
-                                        t.vault_list_tab.btn_add,
-                                        style: Styles.label.merge(
-                                          const TextStyle(
-                                            color: MyColors.black,
-                                            fontWeight: FontWeight.w700,
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
+                            child: VaultAdditionGuideCard(
+                              onPressed: () {
+                                if (!viewModel.isPinSet) {
+                                  MyBottomSheet.showBottomSheet_90(
+                                      context: context,
+                                      child: const PinSettingScreen(greetingVisible: true));
+                                } else {
+                                  Navigator.pushNamed(context, AppRoutes.vaultTypeSelection);
+                                }
+                              },
                             ),
                           ),
                         ),
