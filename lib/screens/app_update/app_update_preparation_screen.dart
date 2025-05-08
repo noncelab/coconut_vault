@@ -371,7 +371,7 @@ class _AppUpdatePreparationScreenState extends State<AppUpdatePreparationScreen>
                 CoconutLayout.spacing_1500h,
                 CoconutTextField(
                   textInputFormatter: [
-                    FilteringTextInputFormatter.allow(RegExp(r'[a-z]')),
+                    FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z]')),
                   ],
                   controller: _mnemonicWordInputController,
                   focusNode: _mnemonicInputFocusNode,
