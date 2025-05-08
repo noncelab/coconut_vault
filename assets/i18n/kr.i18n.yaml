@@ -5,6 +5,7 @@
 
 # common
 coconut_vault: "Coconut Vault"
+vault: "Vault"
 btc: "BTC"
 hour: "시간"
 minute: "분"
@@ -26,7 +27,6 @@ memo: "메모"
 close: "닫기"
 delete: "지우기"
 delete_label: "삭제하기"
-remove: "삭제하기"
 stop: "그만하기"
 start: "시작하기"
 quit: "종료하기"
@@ -56,6 +56,8 @@ select_completed: "선택 완료"
 checklist: "확인 사항"
 wallet_id: "지갑 ID"
 mnemonic_wordlist: "니모닉 문구 단어집"
+tool: "도구"
+tutorial: "튜토리얼"
 single_sig_wallet: "일반 지갑"
 multisig_wallet: "다중 서명 지갑"
 extended_public_key: "확장 공개키"
@@ -97,7 +99,7 @@ extra_count: "외 $count개"
 
 # lib
 vault_list_tab:
-  add_wallet: "지갑을 추가해 주세요"
+  add_wallet: "지갑을 추가해 보세요!"
   top_right_icon: "오른쪽 위 + 버튼을 눌러도 추가할 수 있어요"
   btn_add: "바로 추가하기"
 

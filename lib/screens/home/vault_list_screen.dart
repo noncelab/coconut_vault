@@ -9,11 +9,10 @@ import 'package:coconut_vault/providers/connectivity_provider.dart';
 import 'package:coconut_vault/providers/view_model/home/vault_list_view_model.dart';
 import 'package:coconut_vault/providers/visibility_provider.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
+import 'package:coconut_vault/screens/home/tutorial_screen.dart';
 import 'package:coconut_vault/screens/settings/pin_setting_screen.dart';
 import 'package:coconut_vault/widgets/card/vault_addition_guide_card.dart';
-import 'package:coconut_vault/widgets/coconut_dropdown.dart';
 import 'package:coconut_vault/widgets/vault_row_item.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:coconut_vault/screens/settings/settings_screen.dart';
 import 'package:coconut_vault/styles.dart';
@@ -46,6 +45,22 @@ class _VaultListScreenState extends State<VaultListScreen> with TickerProviderSt
   late ScrollController _scrollController;
   bool _shouldAnimateAddition = false;
 
+  final GlobalKey _dropdownButtonKey = GlobalKey();
+  Size _dropdownButtonSize = const Size(0, 0);
+  Offset _dropdownButtonPosition = Offset.zero;
+
+  final List<CoconutPulldownMenuEntry> _dropdownButtons = [
+    CoconutPulldownMenuGroup(
+      groupTitle: t.tool,
+      items: [
+        CoconutPulldownMenuItem(title: t.mnemonic_wordlist),
+        CoconutPulldownMenuItem(title: t.tutorial),
+      ],
+    ),
+    CoconutPulldownMenuItem(title: t.settings),
+    CoconutPulldownMenuItem(title: t.view_app_info),
+  ];
+
   @override
   void initState() {
     super.initState();
@@ -70,8 +85,13 @@ class _VaultListScreenState extends State<VaultListScreen> with TickerProviderSt
         curve: Curves.easeOut,
       ),
     );
-
     WidgetsBinding.instance.addPostFrameCallback((_) async {
+      if (_dropdownButtonKey.currentContext != null) {
+        final faucetRenderBox = _dropdownButtonKey.currentContext?.findRenderObject() as RenderBox;
+        _dropdownButtonPosition = faucetRenderBox.localToGlobal(Offset.zero);
+        _dropdownButtonSize = faucetRenderBox.size;
+      }
+
       if (_shouldAnimateAddition) {
         await Future.delayed(const Duration(milliseconds: 500));
         _newVaultAddAnimController.forward();
@@ -194,7 +214,7 @@ class _VaultListScreenState extends State<VaultListScreen> with TickerProviderSt
             builder: (context, viewModel, child) {
               final wallets = viewModel.wallets;
               return Scaffold(
-                backgroundColor: MyColors.lightgrey,
+                backgroundColor: CoconutColors.gray150,
                 body: Stack(
                   children: [
                     CustomScrollView(
@@ -218,7 +238,9 @@ class _VaultListScreenState extends State<VaultListScreen> with TickerProviderSt
                               _isSeeMoreDropdown = true;
                             });
                           },
+                          dropdownKey: _dropdownButtonKey,
                         ),
+
                         // 바로 추가하기
                         SliverToBoxAdapter(
                           child: Visibility(
@@ -286,27 +308,44 @@ class _VaultListScreenState extends State<VaultListScreen> with TickerProviderSt
                               color: Colors.transparent,
                             ),
                           ),
-                          Align(
-                            alignment: Alignment.topRight,
-                            child: CoconutDropdown(
-                              buttons: [t.mnemonic_wordlist, t.settings, t.view_app_info],
-                              onTapButton: (index) {
+                          Positioned(
+                            top: _dropdownButtonPosition.dy + _dropdownButtonSize.height,
+                            right: 20,
+                            child: CoconutPulldownMenu(
+                              shadowColor: CoconutColors.gray300,
+                              dividerColor: CoconutColors.gray100,
+                              entries: _dropdownButtons,
+                              dividerHeight: 1,
+                              thickDividerHeight: 3,
+                              thickDividerIndexList: const [
+                                1,
+                              ],
+                              onSelected: ((index, selectedText) {
                                 setState(() {
                                   _isSeeMoreDropdown = false;
                                 });
                                 switch (index) {
-                                  case 0: // 니모닉 문구 단어집
+                                  case 0:
+                                    // 지갑 복구 단어
                                     Navigator.pushNamed(context, AppRoutes.mnemonicWordList);
                                     break;
-                                  case 1: // 설정
+                                  case 1:
+                                    MyBottomSheet.showBottomSheet_90(
+                                      context: context,
+                                      child: const TutorialScreen(
+                                        screenStatus: TutorialScreenStatus.modal,
+                                      ),
+                                    );
+                                    break;
+                                  case 2:
                                     MyBottomSheet.showBottomSheet_90(
                                         context: context, child: const SettingsScreen());
                                     break;
-                                  case 2: // 앱 정보 보기
+                                  case 3:
                                     Navigator.pushNamed(context, AppRoutes.appInfo);
                                     break;
                                 }
-                              },
+                              }),
                             ),
                           ),
                         ],

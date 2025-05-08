@@ -1,18 +1,18 @@
 import 'dart:ui';
 
-import 'package:coconut_vault/screens/home/tutorial_screen.dart';
-import 'package:flutter/cupertino.dart';
+import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:coconut_vault/styles.dart';
-import 'package:coconut_vault/widgets/bottom_sheet.dart';
 import 'package:coconut_vault/widgets/label_testnet.dart';
 
 class FrostedAppBar extends StatefulWidget {
   final VoidCallback onTapPlus;
   final VoidCallback onTapSeeMore;
-  const FrostedAppBar({super.key, required this.onTapPlus, required this.onTapSeeMore});
+  final GlobalKey? dropdownKey;
+  const FrostedAppBar(
+      {super.key, required this.onTapPlus, required this.onTapSeeMore, this.dropdownKey});
 
   @override
   State<FrostedAppBar> createState() => _FrostedAppBarState();
@@ -76,39 +76,18 @@ class _FrostedAppBarState extends State<FrostedAppBar> {
                       ),
                       child: IconButton(
                         icon: SvgPicture.asset(
-                          'assets/svg/book.svg',
-                          width: 18,
-                          height: 18,
-                          colorFilter: const ColorFilter.mode(MyColors.darkgrey, BlendMode.srcIn),
-                        ),
-                        onPressed: () {
-                          MyBottomSheet.showBottomSheet_90(
-                            context: context,
-                            child: const TutorialScreen(
-                              screenStatus: TutorialScreenStatus.modal,
-                            ),
-                          );
-                        },
-                        color: MyColors.darkgrey,
-                      ),
-                    ),
-                    Container(
-                      margin: const EdgeInsets.only(top: 32),
-                      height: 40,
-                      width: 40,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(30),
-                      ),
-                      child: IconButton(
-                        icon: const Icon(
-                          Icons.add_rounded,
-                          color: MyColors.darkgrey,
+                          'assets/svg/wallet-plus.svg',
+                          colorFilter: const ColorFilter.mode(
+                            CoconutColors.gray800,
+                            BlendMode.srcIn,
+                          ),
                         ),
                         onPressed: widget.onTapPlus,
                         color: MyColors.white,
                       ),
                     ),
                     Container(
+                      key: widget.dropdownKey,
                       margin: const EdgeInsets.only(top: 32),
                       height: 40,
                       width: 40,
@@ -116,11 +95,13 @@ class _FrostedAppBarState extends State<FrostedAppBar> {
                         borderRadius: BorderRadius.circular(30),
                       ),
                       child: IconButton(
-                        icon: const Icon(CupertinoIcons.ellipsis, size: 18),
-                        onPressed: () {
-                          widget.onTapSeeMore.call();
-                        },
-                        color: MyColors.darkgrey,
+                        icon: SvgPicture.asset(
+                          'assets/svg/kebab.svg',
+                          colorFilter:
+                              const ColorFilter.mode(CoconutColors.gray800, BlendMode.srcIn),
+                        ),
+                        color: CoconutColors.gray800,
+                        onPressed: () => widget.onTapSeeMore.call(),
                       ),
                     )
                   ],
