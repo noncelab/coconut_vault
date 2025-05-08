@@ -73,9 +73,6 @@ class _VaultListScreenState extends State<VaultListScreen> with TickerProviderSt
 
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       if (_shouldAnimateAddition) {
-        /// 리스트에 마지막 지갑이 추가되는 애니메이션 보여줍니다.
-        await Future.delayed(const Duration(milliseconds: 500));
-        _scrollToBottom();
         await Future.delayed(const Duration(milliseconds: 500));
         _newVaultAddAnimController.forward();
         _shouldAnimateAddition = false;
@@ -160,16 +157,6 @@ class _VaultListScreenState extends State<VaultListScreen> with TickerProviderSt
           const SizedBox(height: 10),
         ],
       );
-
-  void _scrollToBottom() async {
-    if (_scrollController.hasClients) {
-      await _scrollController.animateTo(
-        _scrollController.position.maxScrollExtent,
-        duration: const Duration(milliseconds: 500),
-        curve: Curves.easeInOut,
-      );
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
