@@ -113,7 +113,7 @@ class WalletListManager {
         key: keyString,
         value: jsonEncode(Secret(wallet.mnemonic!, wallet.passphrase ?? '').toJson()));
 
-    _vaultList!.add(vaultListResult[0]);
+    _vaultList!.insert(0, vaultListResult[0]);
     try {
       await _savePublicInfo();
     } catch (error) {
@@ -197,7 +197,7 @@ class WalletListManager {
     // for SinglesigVaultListItem multsig key map update
     updateLinkedMultisigInfo(wallet.signers!, nextId);
 
-    _vaultList!.add(newMultisigVault);
+    _vaultList!.insert(0, newMultisigVault);
     await _savePublicInfo();
     _recordNextWalletId();
     return newMultisigVault;

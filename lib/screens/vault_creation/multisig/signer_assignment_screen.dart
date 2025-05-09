@@ -195,9 +195,6 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
                 SingleChildScrollView(
                   child: Column(
                     children: [
-                      const SizedBox(
-                        height: 10,
-                      ),
                       Stack(
                         children: [
                           ClipRRect(
@@ -562,7 +559,7 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
           title = t.alert.reselect.title;
           message = t.alert.reselect.description;
           cancelButtonText = t.cancel;
-          confirmButtonText = t.delete;
+          confirmButtonText = t.confirm;
           confirmButtonColor = MyColors.warningText;
           onConfirm = () {
             _viewModel.resetWalletCreationProvider();

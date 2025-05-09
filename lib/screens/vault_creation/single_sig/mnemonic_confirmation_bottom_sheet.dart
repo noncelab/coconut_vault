@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -229,7 +231,7 @@ class _MnemonicConfirmationBottomSheetState extends State<MnemonicConfirmationBo
 
   Widget _bottomButton() {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(10, 0, 10, 20),
+      padding: EdgeInsets.fromLTRB(10, 0, 10, Platform.isIOS ? 30 : 20),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
