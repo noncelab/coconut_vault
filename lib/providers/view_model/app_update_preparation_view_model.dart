@@ -97,8 +97,8 @@ class AppUpdatePreparationViewModel extends ChangeNotifier {
   }
 
   bool isWordMatched(String userInput) {
-    final success =
-        hashString(userInput) == _mnemonicWordsItems[_currentMnemonicIndex].mnemonicWords;
+    final success = hashString(userInput.toLowerCase()) ==
+        _mnemonicWordsItems[_currentMnemonicIndex].mnemonicWords;
     if (!success) {
       return false;
     }
