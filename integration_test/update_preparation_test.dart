@@ -38,69 +38,6 @@ void main() {
     await UpdatePreparation.clearUpdatePreparationStorage();
   });
 
-  Future<void> mnemonicCheckFlow(WidgetTester tester, bool uppercase) async {
-    await skipScreensUntilVaultList(tester);
-
-    // Save pin password 0000
-    final authProvider = Provider.of<AuthProvider>(
-      tester.element(find.byType(CupertinoApp)),
-      listen: false,
-    );
-    await authProvider.savePin("0000");
-
-    // Add Wallets on VaultListScreen
-    final walletProvider = Provider.of<WalletProvider>(
-      tester.element(find.byType(CupertinoApp)),
-      listen: false,
-    );
-    int count = await addWallets(walletProvider: walletProvider);
-    expect(walletProvider.vaultList.length, count);
-
-    count += await addSingleSigWallets(walletProvider: walletProvider);
-    expect(walletProvider.vaultList.length, count);
-
-    // VaultListScreen to UpdatePreparationScreen
-    await showUpdatePreparationScreen(tester);
-
-    final updatePreparationProvider = Provider.of<AppUpdatePreparationViewModel>(
-      tester.element(find.text(t.settings_screen.prepare_update)),
-      listen: false,
-    );
-
-    List<VaultListItemBase> singleSignVaults =
-        walletProvider.getVaultsByWalletType(WalletType.singleSignature);
-    // Check if mnemonic is loaded
-    expect(updatePreparationProvider.isMnemonicLoaded, true);
-
-    // Find TextInput for mnemonic validation
-    final Finder textInput = find.byType(CoconutTextField);
-    await waitForWidgetAndTap(tester, textInput, "textInput");
-
-    for (int i = 0; i < singleSignVaults.length; i++) {
-      // Load vault's mnemonicList
-      List<String> vaultMnemonicList = await walletProvider
-          .getSecret(singleSignVaults[i].id)
-          .then((secret) => secret.mnemonic.split(' '));
-
-      String title = t.prepare_update.enter_nth_word_of_wallet(
-        wallet_name: updatePreparationProvider.walletName,
-        n: updatePreparationProvider.mnemonicWordIndex,
-      );
-
-      // Check title Text
-      final Finder titleText = find.text(title);
-      expect(titleText, findsOneWidget);
-
-      // Input mnemonic to TextInput
-      String mnemonic = vaultMnemonicList[updatePreparationProvider.mnemonicWordIndex - 1];
-      await tester.enterText(textInput, uppercase ? mnemonic.toUpperCase() : mnemonic);
-      await tester.pumpAndSettle();
-    }
-
-    // Check if Logic is finished
-    expect(updatePreparationProvider.isMnemonicValidationFinished, true);
-  }
-
   group('UpdatePreparation Integration Tests', () {
     // 업데이트 준비 프로세스에서 싱글시그니처 월렛의 니모닉을 검증합니다.
     testWidgets('Mnemonic check test', (tester) async {
@@ -170,9 +107,72 @@ Future<void> skipScreensUntilVaultList(WidgetTester tester) async {
       timeoutMessage: 'Add wallet text not found after 10 seconds');
 }
 
+Future<void> mnemonicCheckFlow(WidgetTester tester, bool uppercase) async {
+  await skipScreensUntilVaultList(tester);
+
+  // Save pin password 0000
+  final authProvider = Provider.of<AuthProvider>(
+    tester.element(find.byType(CupertinoApp)),
+    listen: false,
+  );
+  await authProvider.savePin("0000");
+
+  // Add Wallets on VaultListScreen
+  final walletProvider = Provider.of<WalletProvider>(
+    tester.element(find.byType(CupertinoApp)),
+    listen: false,
+  );
+  int count = await addWallets(walletProvider: walletProvider);
+  expect(walletProvider.vaultList.length, count);
+
+  count += await addSingleSigWallets(walletProvider: walletProvider);
+  expect(walletProvider.vaultList.length, count);
+
+  // VaultListScreen to UpdatePreparationScreen
+  await showUpdatePreparationScreen(tester);
+
+  final updatePreparationProvider = Provider.of<AppUpdatePreparationViewModel>(
+    tester.element(find.text(t.settings_screen.prepare_update)),
+    listen: false,
+  );
+
+  List<VaultListItemBase> singleSignVaults =
+      walletProvider.getVaultsByWalletType(WalletType.singleSignature);
+  // Check if mnemonic is loaded
+  expect(updatePreparationProvider.isMnemonicLoaded, true);
+
+  // Find TextInput for mnemonic validation
+  final Finder textInput = find.byType(CoconutTextField);
+  await waitForWidgetAndTap(tester, textInput, "textInput");
+
+  for (int i = 0; i < singleSignVaults.length; i++) {
+    // Load vault's mnemonicList
+    List<String> vaultMnemonicList = await walletProvider
+        .getSecret(singleSignVaults[i].id)
+        .then((secret) => secret.mnemonic.split(' '));
+
+    String title = t.prepare_update.enter_nth_word_of_wallet(
+      wallet_name: updatePreparationProvider.walletName,
+      n: updatePreparationProvider.mnemonicWordIndex,
+    );
+
+    // Check title Text
+    final Finder titleText = find.text(title);
+    expect(titleText, findsOneWidget);
+
+    // Input mnemonic to TextInput
+    String mnemonic = vaultMnemonicList[updatePreparationProvider.mnemonicWordIndex - 1];
+    await tester.enterText(textInput, uppercase ? mnemonic.toUpperCase() : mnemonic);
+    await tester.pumpAndSettle();
+  }
+
+  // Check if Logic is finished
+  expect(updatePreparationProvider.isMnemonicValidationFinished, true);
+}
+
 Future<void> showUpdatePreparationScreen(WidgetTester tester) async {
   // Click more button on vault List screen (VaultList to SettingScreen)
-  final Finder moreButton = find.byIcon(CupertinoIcons.ellipsis);
+  final Finder moreButton = find.byType(IconButton).last;
   await waitForWidgetAndTap(tester, moreButton, "moreButton");
 
   // Click settings text on drop down menu (VaultList to SettingScreen)
