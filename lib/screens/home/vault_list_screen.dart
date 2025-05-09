@@ -313,7 +313,7 @@ class _VaultListScreenState extends State<VaultListScreen> with TickerProviderSt
                             right: 20,
                             child: CoconutPulldownMenu(
                               shadowColor: CoconutColors.gray300,
-                              dividerColor: CoconutColors.gray100,
+                              dividerColor: CoconutColors.gray200,
                               entries: _dropdownButtons,
                               dividerHeight: 1,
                               thickDividerHeight: 3,
