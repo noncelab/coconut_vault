@@ -195,9 +195,6 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
                 SingleChildScrollView(
                   child: Column(
                     children: [
-                      const SizedBox(
-                        height: 10,
-                      ),
                       Stack(
                         children: [
                           ClipRRect(
