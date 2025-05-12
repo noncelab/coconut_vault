@@ -182,13 +182,16 @@ app_info_screen:
   ask_to_x: "X로 문의하기"
   ask_to_email: "이메일로 문의하기"
   category2_opensource: 'Coconut Vault는 오픈소스입니다'
-  license: "라이선스 안내"
   mit_license: "MIT License"
   coconut_lib: "coconut_lib"
   coconut_wallet: "coconut_wallet"
   coconut_vault: "coconut_vault"
   github: "Github"
   contribution: "오픈소스 개발 참여하기"
+  tos_and_policy: "약관 및 정책"
+  terms_of_service: "이용 약관"
+  privacy_policy: "개인정보처리방침"
+  license: "오픈소스 라이선스"
   version_and_date: "CoconutVault ver. $version (released at $releasedAt)"
   inquiry: "문의 내용"
 
