@@ -81,7 +81,7 @@ android {
     productFlavors {
         regtest {
             dimension "network"
-            resValue "string", "app_name", "코코넛 볼트"
+            resValue "string", "app_name", "코코넛 볼트 학습용"
             applicationIdSuffix ".regtest"
             versionNameSuffix "-regtest"
         }
