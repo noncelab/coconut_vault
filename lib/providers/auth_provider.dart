@@ -12,6 +12,7 @@ import 'package:coconut_vault/repository/shared_preferences_repository.dart';
 import 'package:coconut_vault/utils/hash_util.dart';
 import 'package:coconut_vault/utils/logger.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:local_auth/local_auth.dart';
@@ -54,14 +55,28 @@ class AuthProvider extends ChangeNotifier {
   int _currentAttemptInTurn = 0;
   int get currentAttemptInTurn => _currentAttemptInTurn;
   String _unlockAvailableAtInString = '';
-  DateTime? get unlockAvailableAt => _unlockAvailableAtInString.isEmpty
-      ? (_currentTurn == 0
-          ? DateTime.now()
-          : DateTime.now().add(Duration(minutes: kLockoutDurationsPerTurn[0])))
-      : (_unlockAvailableAtInString == '-1' ? null : DateTime.tryParse(_unlockAvailableAtInString));
+  DateTime? get unlockAvailableAt {
+    if (_unlockAvailableAtInString.isNotEmpty) {
+      return DateTime.tryParse(_unlockAvailableAtInString);
+    }
+
+    // 이전에 잠긴 이력 X
+    if (_currentTurn == 0) {
+      return null;
+    }
+
+    // 디버깅 딜레이: 7초
+    if (kDebugMode) {
+      return DateTime.now().add(const Duration(seconds: kDebugPinInputDelay));
+    }
+
+    // 잠금 시도 횟수(_currentTurn)의 인덱스에 해당하는 잠금 해제 대기 시간
+    return DateTime.now().add(Duration(minutes: kLockoutDurationsPerTurn[_currentTurn - 1]));
+  }
 
   int get remainingAttemptCount => kMaxAttemptPerTurn - _currentAttemptInTurn;
   bool get isPermanantlyLocked => _currentTurn == kMaxTurn;
+  bool get isUnlockAvailable => unlockAvailableAt?.isBefore(DateTime.now()) ?? true;
 
   VoidCallback? onRequestShowAuthenticationFailedDialog;
   VoidCallback? onBiometricAuthFailed; // 현재 사용하는 곳 없음
@@ -95,11 +110,6 @@ class AuthProvider extends ChangeNotifier {
     _currentAttemptInTurn = pinInputAttemptCount.isEmpty ? 0 : int.parse(pinInputAttemptCount);
     _currentTurn = totalAttemptCount.isEmpty ? 0 : int.parse(totalAttemptCount);
     _unlockAvailableAtInString = totalAttemptCount.isEmpty ? '' : lockoutEndDateTimeString;
-  }
-
-  bool isUnlockAvailable() {
-    // 현재 시점을 기준으로 잠금해제가 가능한지 확인
-    return unlockAvailableAt?.isBefore(DateTime.now()) ?? true;
   }
 
   /// 생체인증 진행 후 성공 여부 반환
@@ -219,7 +229,7 @@ class AuthProvider extends ChangeNotifier {
   }
 
   /// 비밀번호 검증
-  Future<bool> verifyPin(String inputPin) async {
+  Future<bool> verifyPin(String inputPin, {bool isAppLaunchScreen = false}) async {
     String hashedInput = hashString(inputPin);
     final savedPin = await _storageService.read(key: SecureStorageKeys.kVaultPin);
 
@@ -228,7 +238,9 @@ class AuthProvider extends ChangeNotifier {
       return true;
     }
 
-    await increaseCurrentAttemptAndTurn();
+    if (isAppLaunchScreen) {
+      await increaseCurrentAttemptAndTurn();
+    }
     return false;
   }
 
@@ -272,8 +284,9 @@ class AuthProvider extends ChangeNotifier {
       return;
     }
 
-    final unlockableDateTime =
-        DateTime.now().add(Duration(minutes: kLockoutDurationsPerTurn[turn - 1]));
+    final unlockableDateTime = DateTime.now().add(kDebugMode
+        ? const Duration(seconds: kDebugPinInputDelay)
+        : Duration(minutes: kLockoutDurationsPerTurn[turn - 1]));
 
     _unlockAvailableAtInString = unlockableDateTime.toIso8601String();
     await _sharedPrefs.setString(unlockAvailableAtKey, _unlockAvailableAtInString);
@@ -308,10 +321,5 @@ class AuthProvider extends ChangeNotifier {
     _sharedPrefs.deleteSharedPrefsWithKey(unlockAvailableAtKey);
     _sharedPrefs.deleteSharedPrefsWithKey(currentAttemptKey);
     _sharedPrefs.deleteSharedPrefsWithKey(turnKey);
-  }
-
-  void printLog() {
-    Logger.log(
-        '_currentAttemptInTurn: $_currentAttemptInTurn, _currentTurn: $_currentTurn, _unlockAvailableAtInString: $_unlockAvailableAtInString');
   }
 }

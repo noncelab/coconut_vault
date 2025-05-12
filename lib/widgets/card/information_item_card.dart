@@ -30,7 +30,7 @@ class InformationItemCard extends StatelessWidget {
             color: Colors.transparent,
             padding: const EdgeInsets.symmetric(vertical: 24),
             child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 Text(label, style: Styles.body2Bold.copyWith(color: textColor)),
                 showIcon ? const Spacer() : const SizedBox(width: 32),

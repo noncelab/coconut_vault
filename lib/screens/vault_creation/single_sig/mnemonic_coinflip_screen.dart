@@ -541,7 +541,7 @@ class _FlipCoinState extends State<FlipCoin> {
       title: title ?? t.delete_all,
       message: message ?? t.alert.erase_all_entered_so_far,
       cancelButtonText: t.cancel,
-      confirmButtonText: t.delete,
+      confirmButtonText: t.confirm,
       confirmButtonColor: MyColors.warningText,
       onCancel: () => Navigator.pop(context),
       onConfirm: action ??

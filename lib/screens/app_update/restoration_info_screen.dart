@@ -79,7 +79,6 @@ class _RestorationInfoScreenState extends State<RestorationInfoScreen> {
                             ),
                             child: PinCheckScreen(
                               pinCheckContext: PinCheckContextEnum.restoration,
-                              isDeleteScreen: true,
                               onComplete: () async {
                                 widget.onComplete();
                               },

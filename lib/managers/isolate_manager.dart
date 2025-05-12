@@ -25,7 +25,7 @@ Future<List<SingleSigVaultListItem>> addVaultIsolate(
       secret: wallet.mnemonic!,
       passphrase: wallet.passphrase!);
 
-  vaultList.add(newItem);
+  vaultList.insert(0, newItem);
 
   return vaultList;
 }

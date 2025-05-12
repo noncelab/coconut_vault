@@ -63,8 +63,8 @@ class WalletProvider extends ChangeNotifier {
       return [];
     }
 
-    if (_animatedVaultFlags.isNotEmpty && _animatedVaultFlags.last) {
-      setAnimatedVaultFlags(index: _vaultList.length);
+    if (_animatedVaultFlags.isNotEmpty && _animatedVaultFlags.first) {
+      setAnimatedVaultFlags();
     } else {
       _animatedVaultFlags = List.filled(_vaultList.length, false);
     }
@@ -84,11 +84,9 @@ class WalletProvider extends ChangeNotifier {
     return vaultList.where((vault) => vault.vaultType == walletType).toList();
   }
 
-  void setAnimatedVaultFlags({int? index}) {
+  void setAnimatedVaultFlags() {
     _animatedVaultFlags = List.filled(_vaultList.length, false);
-    if (index != null) {
-      _animatedVaultFlags[index - 1] = true;
-    }
+    _animatedVaultFlags[0] = true;
   }
 
   Future<void> addSingleSigVault(SinglesigWallet wallet) async {
@@ -97,7 +95,7 @@ class WalletProvider extends ChangeNotifier {
     await _walletManager.addSinglesigWallet(wallet);
     _vaultList = _walletManager.vaultList;
 
-    setAnimatedVaultFlags(index: _vaultList.length);
+    setAnimatedVaultFlags();
     _setAddVaultCompleted(true);
     await _updateWalletLength();
 
@@ -113,7 +111,7 @@ class WalletProvider extends ChangeNotifier {
         MultisigWallet(null, name, icon, color, signers, requiredSignatureCount));
 
     _vaultList = _walletManager.vaultList;
-    setAnimatedVaultFlags(index: _vaultList.length);
+    setAnimatedVaultFlags();
     _setAddVaultCompleted(true);
     await _updateWalletLength();
     notifyListeners();

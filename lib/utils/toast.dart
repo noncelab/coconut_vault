@@ -1,19 +1,26 @@
+import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:flutter/material.dart';
 
-import '../styles.dart';
-
 class MyToast {
-  static Widget getToastWidget() {
+  static Widget getToastWidget(String content) {
     Widget toast = Container(
-      padding: const EdgeInsets.symmetric(horizontal: 18.0, vertical: 10.0),
+      padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 12.0),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(25.0),
-        color: MyColors.transparentBlack_30,
+        color: CoconutColors.gray200,
+        boxShadow: [
+          BoxShadow(
+            color: CoconutColors.gray200.withOpacity(0.5),
+            spreadRadius: 2,
+            blurRadius: 15,
+            offset: const Offset(-2, 2),
+          ),
+        ],
       ),
-      child: const Row(
+      child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Text("복사 완료", style: Styles.body2),
+          Text(content, style: CoconutTypography.body2_14.setColor(CoconutColors.black)),
         ],
       ),
     );

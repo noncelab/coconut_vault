@@ -4,7 +4,6 @@ import 'package:coconut_vault/providers/visibility_provider.dart';
 import 'package:coconut_vault/providers/wallet_creation_provider.dart';
 import 'package:coconut_vault/screens/settings/settings_screen.dart';
 import 'package:coconut_vault/screens/vault_creation/vault_name_and_icon_setup_screen.dart';
-import 'package:coconut_vault/utils/lower_case_text_input_formatter.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
@@ -41,6 +40,7 @@ class _MnemonicImportState extends State<MnemonicImport> {
 
   final TextEditingController _mnemonicController = TextEditingController();
   final TextEditingController _passphraseController = TextEditingController();
+  final FocusNode _mnemonicFocusNode = FocusNode();
   // final TextEditingController _passphraseConfirmController =
   //     TextEditingController();
   // final FocusNode _fcnodePassphrase = FocusNode();
@@ -52,6 +52,7 @@ class _MnemonicImportState extends State<MnemonicImport> {
     _walletProvider = Provider.of<WalletProvider>(context, listen: false);
     _walletCreationProvider = Provider.of<WalletCreationProvider>(context, listen: false)
       ..resetAll();
+    Future.microtask(() => _mnemonicFocusNode.requestFocus());
   }
 
   void _initListeners() {
@@ -66,6 +67,7 @@ class _MnemonicImportState extends State<MnemonicImport> {
   void dispose() {
     _mnemonicController.dispose();
     _passphraseController.dispose();
+    _mnemonicFocusNode.dispose();
     // _passphraseConfirmController.dispose();
     // _fcnodePassphrase.dispose();
 
@@ -77,13 +79,11 @@ class _MnemonicImportState extends State<MnemonicImport> {
     final List<String> words = normalizedInputText.split(' ');
 
     if (_inputText.trim().isEmpty) return _resetValidation();
-
     if (!_isValidMnemonicLength(words)) return _resetValidation();
 
-    if (words.last.length < 3) return _resetValidation();
-
-    final List<String> invalidWords =
-        words.where((word) => !WalletUtility.isInMnemonicWordList(word)).toList();
+    final List<String> invalidWords = words
+        .where((word) => !WalletUtility.isInMnemonicWordList(word) && !_hasPrefixMatch(word))
+        .toList();
 
     if (invalidWords.isNotEmpty) {
       setState(() {
@@ -107,6 +107,10 @@ class _MnemonicImportState extends State<MnemonicImport> {
   bool _isValidMnemonicLength(List<String> words) {
     final validLengths = [12, 15, 18, 21, 24];
     return validLengths.contains(words.length);
+  }
+
+  bool _hasPrefixMatch(String prefix) {
+    return wordList.any((word) => word.startsWith(prefix.toLowerCase()));
   }
 
   void _showStopImportingMnemonicDialog() {
@@ -191,7 +195,7 @@ class _MnemonicImportState extends State<MnemonicImport> {
 
   Future<void> _handleBackNavigation() async {
     await SystemChannels.textInput.invokeMethod('TextInput.hide');
-    if (_inputText.isEmpty && _passphrase.isEmpty) {
+    if (_inputText.isEmpty && _passphrase.isEmpty && mounted) {
       if (Navigator.of(context).canPop()) {
         Navigator.pop(context);
       }
@@ -231,27 +235,27 @@ class _MnemonicImportState extends State<MnemonicImport> {
 
   Widget _buildMnemonicTextField() {
     return CustomTextField(
-        controller: _mnemonicController,
-        inputFormatter: [
-          LowerCaseTextInputFormatter(),
-        ],
-        placeholder: t.mnemonic_import_screen.put_spaces_between_words,
-        onChanged: (text) {
-          _inputText = text.toLowerCase();
-          setState(() {
-            _mnemonicController.value = _mnemonicController.value.copyWith(
-              text: _inputText,
-              selection: TextSelection.collapsed(
-                offset: _mnemonicController.selection.baseOffset.clamp(0, _inputText.length),
-              ),
-            );
-          });
-          _validateMnemonic();
-        },
-        maxLines: 5,
-        padding: const EdgeInsets.fromLTRB(16, 20, 16, 20),
-        valid: _isMnemonicValid,
-        errorMessage: _errorMessage ?? t.errors.invalid_mnemonic_phrase);
+      focusNode: _mnemonicFocusNode,
+      controller: _mnemonicController,
+      inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'[a-z ]'))],
+      placeholder: t.mnemonic_import_screen.put_spaces_between_words,
+      onChanged: (text) {
+        _inputText = text.toLowerCase();
+        setState(() {
+          _mnemonicController.value = _mnemonicController.value.copyWith(
+            text: _inputText,
+            selection: TextSelection.collapsed(
+              offset: _mnemonicController.selection.baseOffset.clamp(0, _inputText.length),
+            ),
+          );
+        });
+        _validateMnemonic();
+      },
+      maxLines: 5,
+      padding: const EdgeInsets.fromLTRB(16, 20, 16, 20),
+      valid: _isMnemonicValid,
+      errorMessage: _errorMessage ?? t.errors.invalid_mnemonic_phrase,
+    );
   }
 
   Widget _buildPassphraseToggle() {
