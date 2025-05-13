@@ -1,9 +1,7 @@
 import 'dart:async';
 import 'dart:isolate';
 import 'package:coconut_lib/coconut_lib.dart';
-import 'package:coconut_vault/model/multisig/multisig_vault_list_item.dart';
-import 'package:coconut_vault/model/single_sig/single_sig_vault_list_item.dart';
-import 'package:coconut_vault/model/common/vault_list_item_base.dart';
+import 'package:coconut_vault/model/common/spawn_isolate_dto.dart';
 import 'package:flutter/services.dart';
 
 enum InitializeType {
@@ -33,50 +31,24 @@ class IsolateHandler<T, R> {
   Future<void> initialize({InitializeType initialType = InitializeType.loadVaultList}) async {
     _receivePort = ReceivePort();
     _rootIsolateToken = RootIsolateToken.instance!;
+    final data = SpawnIsolateDto(
+        _receivePort.sendPort, _rootIsolateToken, _handler, NetworkType.currentNetworkType);
     switch (initialType) {
       case InitializeType.addVault:
-        _isolate = await Isolate.spawn(
-            _entryPointAddVault, [_receivePort.sendPort, _rootIsolateToken, _handler]);
-        break;
       case InitializeType.addMultisigVault:
-        _isolate = await Isolate.spawn(
-            _entryPointAddMultisigVault, [_receivePort.sendPort, _rootIsolateToken, _handler]);
-        break;
       // case InitializeType.getAddressList:
-      //   _isolate = await Isolate.spawn(
-      //       _entryPointAddressList, [_receivePort.sendPort, _rootIsolateToken]);
-      //   break;
       case InitializeType.canSign:
-        _isolate = await Isolate.spawn(
-            _entryPointCanSign, [_receivePort.sendPort, _rootIsolateToken, _handler]);
-        break;
       case InitializeType.addSign:
-        _isolate = await Isolate.spawn(
-            _entryPointAddSign, [_receivePort.sendPort, _rootIsolateToken, _handler]);
-        break;
       case InitializeType.extractSignerBsms:
-        _isolate = await Isolate.spawn(
-            _entryPointExtractBsms, [_receivePort.sendPort, _rootIsolateToken, _handler]);
-        break;
       case InitializeType.getSignerIndex:
-        _isolate = await Isolate.spawn(
-            _entryPointGetSignerIndex, [_receivePort.sendPort, _rootIsolateToken, _handler]);
-        break;
       case InitializeType.importMultisigVault:
-        _isolate = await Isolate.spawn(
-            _entryPointImportMultisigVault, [_receivePort.sendPort, _rootIsolateToken, _handler]);
-        break;
       case InitializeType.fromKeyStore:
-        _isolate = await Isolate.spawn(
-            _entryPointFromKeyStore, [_receivePort.sendPort, _rootIsolateToken, _handler]);
-        break;
       case InitializeType.initializeWallet:
-        _isolate = await Isolate.spawn(
-            _entryPointIntializeWallet, [_receivePort.sendPort, _rootIsolateToken, _handler]);
+        _isolate = await Isolate.spawn<SpawnIsolateDto>(_entryPoint, data);
         break;
       default:
-        _isolate =
-            await Isolate.spawn(_entryPoint, [_receivePort.sendPort, _rootIsolateToken, _handler]);
+        _isolate = await Isolate.spawn(
+            _defaultEntryPoint, [_receivePort.sendPort, _rootIsolateToken, _handler]);
         break;
     }
 
@@ -86,7 +58,7 @@ class IsolateHandler<T, R> {
 
   bool get isInitialized => _isInitialized;
 
-  static void _entryPoint(List<dynamic> args) {
+  static void _defaultEntryPoint(List<dynamic> args) {
     final SendPort mainSendPort = args[0];
     final RootIsolateToken rootIsolateToken = args[1];
     final handler = args[2] as FutureOr<dynamic> Function(dynamic, void Function(dynamic)?);
@@ -115,170 +87,12 @@ class IsolateHandler<T, R> {
     });
   }
 
-  static void _entryPointAddVault(List<dynamic> args) {
-    final SendPort mainSendPort = args[0];
-    final RootIsolateToken rootIsolateToken = args[1];
-    final handler = args[2] as FutureOr<List<SingleSigVaultListItem>> Function(
-        Map<String, dynamic>, void Function(dynamic)?);
+  static void _entryPoint(SpawnIsolateDto data) {
+    final SendPort mainSendPort = data.sendPort;
+    final RootIsolateToken rootIsolateToken = data.rootIsolateToken;
+    final handler = data.handler;
     final port = ReceivePort();
-    mainSendPort.send(port.sendPort);
-
-    port.listen((message) async {
-      final data = message[0];
-      final sendPort = message[1] as SendPort;
-
-      // Ensure the background isolate is properly initialized
-      BackgroundIsolateBinaryMessenger.ensureInitialized(rootIsolateToken);
-
-      final result = await handler(data, null);
-      sendPort.send(result);
-    });
-  }
-
-  static void _entryPointAddMultisigVault(List<dynamic> args) {
-    final SendPort mainSendPort = args[0];
-    final RootIsolateToken rootIsolateToken = args[1];
-    final handler = args[2] as FutureOr<MultisigVaultListItem> Function(
-        Map<String, dynamic>, void Function(dynamic)?);
-    final port = ReceivePort();
-    mainSendPort.send(port.sendPort);
-
-    port.listen((message) async {
-      final data = message[0];
-      final sendPort = message[1] as SendPort;
-
-      // Ensure the background isolate is properly initialized
-      BackgroundIsolateBinaryMessenger.ensureInitialized(rootIsolateToken);
-
-      final result = await handler(data, null);
-      sendPort.send(result);
-    });
-  }
-
-  static void _entryPointCanSign(List<dynamic> args) {
-    final SendPort mainSendPort = args[0];
-    final RootIsolateToken rootIsolateToken = args[1];
-    final handler = args[2] as FutureOr<bool> Function(List<dynamic>, void Function(dynamic)?);
-    final port = ReceivePort();
-    mainSendPort.send(port.sendPort);
-
-    port.listen((message) async {
-      final data = message[0];
-      final sendPort = message[1] as SendPort;
-
-      // Ensure the background isolate is properly initialized
-      BackgroundIsolateBinaryMessenger.ensureInitialized(rootIsolateToken);
-
-      final result = await handler(data, null);
-      sendPort.send(result);
-    });
-  }
-
-  static void _entryPointAddSign(List<dynamic> args) {
-    final SendPort mainSendPort = args[0];
-    final RootIsolateToken rootIsolateToken = args[1];
-    final handler = args[2] as FutureOr<String> Function(List<dynamic>, void Function(dynamic)?);
-    final port = ReceivePort();
-    mainSendPort.send(port.sendPort);
-
-    port.listen((message) async {
-      final data = message[0];
-      final sendPort = message[1] as SendPort;
-
-      // Ensure the background isolate is properly initialized
-      BackgroundIsolateBinaryMessenger.ensureInitialized(rootIsolateToken);
-
-      final result = await handler(data, null);
-      sendPort.send(result);
-    });
-  }
-
-  static void _entryPointExtractBsms(List<dynamic> args) {
-    final SendPort mainSendPort = args[0];
-    final RootIsolateToken rootIsolateToken = args[1];
-    final handler =
-        args[2] as FutureOr<List<String>> Function(List<dynamic>, void Function(dynamic)?);
-    final port = ReceivePort();
-    mainSendPort.send(port.sendPort);
-
-    port.listen((message) async {
-      final data = message[0];
-      final sendPort = message[1] as SendPort;
-
-      // Ensure the background isolate is properly initialized
-      BackgroundIsolateBinaryMessenger.ensureInitialized(rootIsolateToken);
-
-      final result = await handler(data, null);
-      sendPort.send(result);
-    });
-  }
-
-  static void _entryPointGetSignerIndex(List<dynamic> args) {
-    final SendPort mainSendPort = args[0];
-    final RootIsolateToken rootIsolateToken = args[1];
-    final handler =
-        args[2] as FutureOr<int> Function(Map<String, dynamic>, void Function(dynamic)?);
-    final port = ReceivePort();
-    mainSendPort.send(port.sendPort);
-
-    port.listen((message) async {
-      final data = message[0];
-      final sendPort = message[1] as SendPort;
-
-      // Ensure the background isolate is properly initialized
-      BackgroundIsolateBinaryMessenger.ensureInitialized(rootIsolateToken);
-
-      final result = await handler(data, null);
-      sendPort.send(result);
-    });
-  }
-
-  static void _entryPointImportMultisigVault(List<dynamic> args) {
-    final SendPort mainSendPort = args[0];
-    final RootIsolateToken rootIsolateToken = args[1];
-    final handler = args[2] as FutureOr<MultisigVaultListItem> Function(
-        Map<String, dynamic>, void Function(dynamic)?);
-    final port = ReceivePort();
-    mainSendPort.send(port.sendPort);
-
-    port.listen((message) async {
-      final data = message[0];
-      final sendPort = message[1] as SendPort;
-
-      // Ensure the background isolate is properly initialized
-      BackgroundIsolateBinaryMessenger.ensureInitialized(rootIsolateToken);
-
-      final result = await handler(data, null);
-      sendPort.send(result);
-    });
-  }
-
-  static void _entryPointFromKeyStore(List<dynamic> args) {
-    final SendPort mainSendPort = args[0];
-    final RootIsolateToken rootIsolateToken = args[1];
-    final handler = args[2] as FutureOr<MultisignatureVault> Function(
-        Map<String, dynamic>, void Function(dynamic)?);
-    final port = ReceivePort();
-    mainSendPort.send(port.sendPort);
-
-    port.listen((message) async {
-      final data = message[0];
-      final sendPort = message[1] as SendPort;
-
-      // Ensure the background isolate is properly initialized
-      BackgroundIsolateBinaryMessenger.ensureInitialized(rootIsolateToken);
-
-      final result = await handler(data, null);
-      sendPort.send(result);
-    });
-  }
-
-  static void _entryPointIntializeWallet(List<dynamic> args) {
-    final SendPort mainSendPort = args[0];
-    final RootIsolateToken rootIsolateToken = args[1];
-    final handler = args[2] as FutureOr<VaultListItemBase> Function(
-        Map<String, dynamic>, void Function(dynamic)?);
-    final port = ReceivePort();
+    NetworkType.setNetworkType(data.networkType);
     mainSendPort.send(port.sendPort);
 
     port.listen((message) async {
