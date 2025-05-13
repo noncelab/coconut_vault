@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:coconut_lib/coconut_lib.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -26,7 +27,7 @@ class _AppUnavailableNotificationScreenState extends State<AppUnavailableNotific
             mainAxisAlignment: MainAxisAlignment.center, // Centers the content vertically
             children: [
               SvgPicture.asset(
-                'assets/svg/coconut-security.svg',
+                'assets/svg/coconut-security-${NetworkType.currentNetworkType.isTestnet ? "regtest" : "mainnet"}.svg',
                 width: 80,
               ),
               const SizedBox(height: 20),

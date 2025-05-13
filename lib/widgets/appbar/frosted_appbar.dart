@@ -50,7 +50,8 @@ class _FrostedAppBarState extends State<FrostedAppBar> {
                   children: [
                     Padding(
                         padding: const EdgeInsets.only(left: 4, bottom: 10),
-                        child: SvgPicture.asset('assets/svg/coconut.svg',
+                        child: SvgPicture.asset(
+                            'assets/svg/coconut-${NetworkType.currentNetworkType.isTestnet ? "regtest" : "mainnet"}.svg',
                             colorFilter: const ColorFilter.mode(MyColors.darkgrey, BlendMode.srcIn),
                             width: 24)),
                     Expanded(

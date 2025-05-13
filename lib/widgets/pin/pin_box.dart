@@ -1,3 +1,5 @@
+import 'package:coconut_design_system/coconut_design_system.dart';
+import 'package:coconut_lib/coconut_lib.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:coconut_vault/styles.dart';
@@ -18,13 +20,13 @@ class PinBox extends StatelessWidget {
           color: disabled ? MyColors.transparentBlack_15 : MyColors.transparentBlack_06,
         ),
         child: isSet
-            ? SvgPicture.asset(
-                'assets/svg/coconut.svg',
-                width: 12,
-                height: 12,
-                fit: BoxFit.scaleDown,
-                colorFilter: ColorFilter.mode(
-                    disabled ? MyColors.transparentBlack_06 : MyColors.black, BlendMode.srcIn),
+            ? Padding(
+                padding: const EdgeInsets.all(Sizes.size12),
+                child: SvgPicture.asset(
+                  'assets/svg/coconut-${NetworkType.currentNetworkType.isTestnet ? "regtest" : "mainnet"}.svg',
+                  colorFilter: ColorFilter.mode(
+                      disabled ? MyColors.transparentBlack_06 : MyColors.black, BlendMode.srcIn),
+                ),
               )
             : null);
   }

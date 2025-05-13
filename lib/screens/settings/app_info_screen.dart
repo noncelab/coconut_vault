@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'dart:ui';
 
+import 'package:coconut_lib/coconut_lib.dart';
 import 'package:coconut_vault/constants/external_links.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:device_info_plus/device_info_plus.dart';
@@ -213,7 +214,7 @@ class _AppInfoScreenState extends State<AppInfoScreen> {
                     ),
                   ),
                   child: Image.asset(
-                    'assets/png/splash_logo.png',
+                    'assets/png/splash_logo_${NetworkType.currentNetworkType.isTestnet ? "regtest" : "mainnet"}.png',
                   ),
                 ),
                 const SizedBox(

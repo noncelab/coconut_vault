@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:coconut_design_system/coconut_design_system.dart';
+import 'package:coconut_lib/coconut_lib.dart';
 import 'package:coconut_vault/app.dart';
 import 'package:coconut_vault/providers/connectivity_provider.dart';
 import 'package:coconut_vault/providers/view_model/start_view_model.dart';
@@ -57,7 +58,7 @@ class _StartScreenState extends State<StartScreen> {
           Flexible(
             child: Center(
               child: Image.asset(
-                'assets/png/splash_logo.png',
+                'assets/png/splash_logo_${NetworkType.currentNetworkType.isTestnet ? "regtest" : "mainnet"}.png',
               ),
             ),
           ),
