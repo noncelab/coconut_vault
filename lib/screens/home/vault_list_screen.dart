@@ -50,18 +50,6 @@ class _VaultListScreenState extends State<VaultListScreen> with TickerProviderSt
   Size _dropdownButtonSize = const Size(0, 0);
   Offset _dropdownButtonPosition = Offset.zero;
 
-  final List<CoconutPulldownMenuEntry> _dropdownButtons = [
-    CoconutPulldownMenuGroup(
-      groupTitle: t.tool,
-      items: [
-        CoconutPulldownMenuItem(title: t.mnemonic_wordlist),
-        CoconutPulldownMenuItem(title: t.tutorial),
-      ],
-    ),
-    CoconutPulldownMenuItem(title: t.settings),
-    CoconutPulldownMenuItem(title: t.view_app_info),
-  ];
-
   @override
   void initState() {
     super.initState();
@@ -294,6 +282,27 @@ class _VaultListScreenState extends State<VaultListScreen> with TickerProviderSt
                         ),
                       ],
                     ),
+
+                    /// Test
+                    GestureDetector(
+                        onTap: () {
+                          NetworkType.setNetworkType(
+                              NetworkType.currentNetworkType == NetworkType.mainnet
+                                  ? NetworkType.regtest
+                                  : NetworkType.mainnet);
+                          setState(() {});
+                        },
+                        child: Container(
+                            width: 100,
+                            height: 50,
+                            color: Colors.green,
+                            child: Padding(
+                              padding: const EdgeInsets.all(14.0),
+                              child: Text(NetworkType.currentNetworkType == NetworkType.mainnet
+                                  ? "메인넷"
+                                  : "테스트넷"),
+                            ))),
+
                     // 더보기
                     Visibility(
                       visible: _isSeeMoreDropdown,
@@ -317,16 +326,32 @@ class _VaultListScreenState extends State<VaultListScreen> with TickerProviderSt
                             child: CoconutPulldownMenu(
                               shadowColor: CoconutColors.gray300,
                               dividerColor: CoconutColors.gray200,
-                              entries: _dropdownButtons,
+                              entries: [
+                                CoconutPulldownMenuGroup(
+                                  groupTitle: t.tool,
+                                  items: [
+                                    CoconutPulldownMenuItem(title: t.mnemonic_wordlist),
+                                    if (NetworkType.currentNetworkType.isTestnet)
+                                      CoconutPulldownMenuItem(title: t.tutorial),
+                                  ],
+                                ),
+                                CoconutPulldownMenuItem(title: t.settings),
+                                CoconutPulldownMenuItem(title: t.view_app_info),
+                              ],
                               dividerHeight: 1,
                               thickDividerHeight: 3,
-                              thickDividerIndexList: const [
-                                1,
+                              thickDividerIndexList: [
+                                NetworkType.currentNetworkType.isTestnet ? 1 : 0,
                               ],
                               onSelected: ((index, selectedText) {
                                 setState(() {
                                   _isSeeMoreDropdown = false;
                                 });
+
+                                // 메인넷의 경우 튜토리얼 항목을 넘어간다.
+                                if (!NetworkType.currentNetworkType.isTestnet && index >= 1) {
+                                  ++index;
+                                }
                                 switch (index) {
                                   case 0:
                                     // 지갑 복구 단어
