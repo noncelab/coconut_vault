@@ -16,6 +16,9 @@ const CONTACT_EMAIL_ADDRESS = 'hello@noncelab.com';
 /// Telegram invite
 const TELEGRAM_POW = 'https://t.me/+s4D6-03LjaY5ZmU1';
 
+/// Discord invite
+const DISCORD_COCONUT = 'https://discord.gg/YHxGQRxa7R';
+
 /// X
 const X_POW = 'https://x.com/POWbitcoiner';
 

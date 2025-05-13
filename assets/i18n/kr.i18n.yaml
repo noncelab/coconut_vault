@@ -179,6 +179,7 @@ app_info_screen:
   category1_ask: "궁금한 점이 있으신가요?"
   go_to_pow: "POW 커뮤니티 바로가기"
   ask_to_telegram: "텔레그램 채널로 문의하기"
+  ask_to_discord: "디스코드 채널로 문의하기"
   ask_to_x: "X로 문의하기"
   ask_to_email: "이메일로 문의하기"
   category2_opensource: 'Coconut Vault는 오픈소스입니다'

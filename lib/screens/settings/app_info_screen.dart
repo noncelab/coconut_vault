@@ -287,11 +287,11 @@ class _AppInfoScreenState extends State<AppInfoScreen> {
               },
             ),
             SingleButton(
-              title: t.app_info_screen.ask_to_telegram,
+              title: t.app_info_screen.ask_to_discord,
               leftElement: ClipRRect(
                 borderRadius: BorderRadius.circular(8.0),
                 child: Image.asset(
-                  'assets/png/telegram-circle-logo.png',
+                  'assets/png/discord-logo.png',
                   width: 24,
                   height: 24,
                   fit: BoxFit.cover,
@@ -301,8 +301,8 @@ class _AppInfoScreenState extends State<AppInfoScreen> {
                 MyBottomSheet.showBottomSheet_90(
                     context: context,
                     child: QrcodeBottomSheet(
-                      qrData: TELEGRAM_POW,
-                      title: t.app_info_screen.ask_to_telegram,
+                      qrData: DISCORD_COCONUT,
+                      title: t.app_info_screen.ask_to_discord,
                       fromAppInfo: true,
                     ));
               },
