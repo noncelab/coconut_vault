@@ -1,6 +1,7 @@
 import 'dart:ui';
 
 import 'package:coconut_design_system/coconut_design_system.dart';
+import 'package:coconut_lib/coconut_lib.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -8,11 +9,16 @@ import 'package:coconut_vault/styles.dart';
 import 'package:coconut_vault/widgets/label_testnet.dart';
 
 class FrostedAppBar extends StatefulWidget {
+  final bool showPlusButton;
   final VoidCallback onTapPlus;
   final VoidCallback onTapSeeMore;
   final GlobalKey? dropdownKey;
   const FrostedAppBar(
-      {super.key, required this.onTapPlus, required this.onTapSeeMore, this.dropdownKey});
+      {super.key,
+      required this.onTapPlus,
+      required this.onTapSeeMore,
+      this.dropdownKey,
+      required this.showPlusButton});
 
   @override
   State<FrostedAppBar> createState() => _FrostedAppBarState();
@@ -47,12 +53,12 @@ class _FrostedAppBarState extends State<FrostedAppBar> {
                         child: SvgPicture.asset('assets/svg/coconut.svg',
                             colorFilter: const ColorFilter.mode(MyColors.darkgrey, BlendMode.srcIn),
                             width: 24)),
-                    const Expanded(
+                    Expanded(
                       child: Padding(
-                          padding: EdgeInsets.only(left: 4, bottom: 4),
+                          padding: const EdgeInsets.only(left: 4, bottom: 4),
                           child: Row(
                             children: [
-                              Text('Vault',
+                              const Text('Vault',
                                   style: TextStyle(
                                     fontFamily: 'SpaceGrotesk',
                                     color: MyColors.darkgrey,
@@ -60,32 +66,34 @@ class _FrostedAppBarState extends State<FrostedAppBar> {
                                     fontStyle: FontStyle.normal,
                                     fontWeight: FontWeight.w800,
                                   )),
-                              SizedBox(
+                              const SizedBox(
                                 width: 10,
                               ),
-                              TestnetLabelWidget(),
+                              if (NetworkType.currentNetworkType.isTestnet)
+                                const TestnetLabelWidget(),
                             ],
                           )),
                     ),
-                    Container(
-                      margin: const EdgeInsets.only(top: 32),
-                      height: 40,
-                      width: 40,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(30),
-                      ),
-                      child: IconButton(
-                        icon: SvgPicture.asset(
-                          'assets/svg/wallet-plus.svg',
-                          colorFilter: const ColorFilter.mode(
-                            CoconutColors.gray800,
-                            BlendMode.srcIn,
-                          ),
+                    if (widget.showPlusButton)
+                      Container(
+                        margin: const EdgeInsets.only(top: 32),
+                        height: 40,
+                        width: 40,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(30),
                         ),
-                        onPressed: widget.onTapPlus,
-                        color: MyColors.white,
+                        child: IconButton(
+                          icon: SvgPicture.asset(
+                            'assets/svg/wallet-plus.svg',
+                            colorFilter: const ColorFilter.mode(
+                              CoconutColors.gray800,
+                              BlendMode.srcIn,
+                            ),
+                          ),
+                          onPressed: widget.onTapPlus,
+                          color: MyColors.white,
+                        ),
                       ),
-                    ),
                     Container(
                       key: widget.dropdownKey,
                       margin: const EdgeInsets.only(top: 32),
