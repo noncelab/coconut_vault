@@ -283,26 +283,6 @@ class _VaultListScreenState extends State<VaultListScreen> with TickerProviderSt
                       ],
                     ),
 
-                    /// Test
-                    GestureDetector(
-                        onTap: () {
-                          NetworkType.setNetworkType(
-                              NetworkType.currentNetworkType == NetworkType.mainnet
-                                  ? NetworkType.regtest
-                                  : NetworkType.mainnet);
-                          setState(() {});
-                        },
-                        child: Container(
-                            width: 100,
-                            height: 50,
-                            color: Colors.green,
-                            child: Padding(
-                              padding: const EdgeInsets.all(14.0),
-                              child: Text(NetworkType.currentNetworkType == NetworkType.mainnet
-                                  ? "메인넷"
-                                  : "테스트넷"),
-                            ))),
-
                     // 더보기
                     Visibility(
                       visible: _isSeeMoreDropdown,
