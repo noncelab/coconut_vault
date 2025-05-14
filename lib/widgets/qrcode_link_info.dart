@@ -27,12 +27,8 @@ class _QRCodeLinkInfoState extends State<QRCodeLinkInfo> {
     if (widget.qrData.contains('powbitcoiner')) {
       assetImageUrl = 'assets/png/pow-logo.png';
       assetImageSize = const Size(48, 48);
-    } else if (widget.qrData.contains('t.me')) {
-      assetImageUrl = 'assets/png/telegram-logo.png';
-      assetImageSize = const Size(48, 48);
     } else if (widget.qrData.contains('discord')) {
-      assetImageUrl = 'assets/png/discord-logo.png';
-      assetImageSize = const Size(48, 48);
+      assetImageUrl = 'assets/png/discord-full-logo.png';
     } else if (widget.qrData.contains('x.com')) {
       assetImageUrl = 'assets/jpg/x-logo.jpg';
     } else if (widget.qrData.contains('@')) {

@@ -284,7 +284,7 @@ class _AppInfoScreenState extends State<AppInfoScreen> {
               leftElement: ClipRRect(
                 borderRadius: BorderRadius.circular(8.0),
                 child: Image.asset(
-                  'assets/png/discord-logo.png',
+                  'assets/png/discord-full-logo.png',
                   width: 24,
                   height: 24,
                   fit: BoxFit.cover,
