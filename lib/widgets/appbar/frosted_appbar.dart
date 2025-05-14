@@ -9,7 +9,7 @@ import 'package:coconut_vault/styles.dart';
 import 'package:coconut_vault/widgets/label_testnet.dart';
 
 class FrostedAppBar extends StatefulWidget {
-  final bool showPlusButton;
+  final bool enablePlusButton;
   final VoidCallback onTapPlus;
   final VoidCallback onTapSeeMore;
   final GlobalKey? dropdownKey;
@@ -18,7 +18,7 @@ class FrostedAppBar extends StatefulWidget {
       required this.onTapPlus,
       required this.onTapSeeMore,
       this.dropdownKey,
-      required this.showPlusButton});
+      required this.enablePlusButton});
 
   @override
   State<FrostedAppBar> createState() => _FrostedAppBarState();
@@ -75,8 +75,9 @@ class _FrostedAppBarState extends State<FrostedAppBar> {
                             ],
                           )),
                     ),
-                    if (widget.showPlusButton)
-                      Container(
+                    Opacity(
+                      opacity: widget.enablePlusButton ? 1.0 : 0.2,
+                      child: Container(
                         margin: const EdgeInsets.only(top: 32),
                         height: 40,
                         width: 40,
@@ -91,10 +92,11 @@ class _FrostedAppBarState extends State<FrostedAppBar> {
                               BlendMode.srcIn,
                             ),
                           ),
-                          onPressed: widget.onTapPlus,
+                          onPressed: widget.enablePlusButton ? widget.onTapPlus : null,
                           color: MyColors.white,
                         ),
                       ),
+                    ),
                     Container(
                       key: widget.dropdownKey,
                       margin: const EdgeInsets.only(top: 32),

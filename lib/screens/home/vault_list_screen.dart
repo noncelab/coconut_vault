@@ -213,7 +213,7 @@ class _VaultListScreenState extends State<VaultListScreen> with TickerProviderSt
                       //     model.isVaultListLoading ? 1 : vaults.length,
                       slivers: <Widget>[
                         FrostedAppBar(
-                          showPlusButton:
+                          enablePlusButton:
                               NetworkType.currentNetworkType.isTestnet || wallets.isEmpty,
                           onTapPlus: () {
                             if (viewModel.walletCount == 0 && !viewModel.isPinSet) {
