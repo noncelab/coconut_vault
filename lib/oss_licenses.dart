@@ -1369,7 +1369,7 @@ const _clock = Package(
     isSdk: false,
     dependencies: []);
 
-/// coconut_design_system 0.7.4
+/// coconut_design_system 0.8.0
 const _coconut_design_system = Package(
     name: 'coconut_design_system',
     description:
@@ -1377,7 +1377,7 @@ const _coconut_design_system = Package(
     homepage: 'https://www.noncelab.com',
     repository: 'https://github.com/noncelab/coconut_design_system',
     authors: [],
-    version: '0.7.4',
+    version: '0.8.0',
     license: '''MIT License
 
 Copyright 2025 Nonce Lab
@@ -1410,14 +1410,14 @@ Licensor: Nonce Lab''',
       PackageRef('lottie')
     ]);
 
-/// coconut_lib 0.9.2
+/// coconut_lib 0.10.1
 const _coconut_lib = Package(
     name: 'coconut_lib',
     description:
         'The coconut_lib is a development tool for mobile air gap Bitcoin wallets. It is written in Dart. Coconut Vault and Coconut Wallet were created using this library.',
     repository: 'https://github.com/noncelab/coconut_lib.git',
     authors: [],
-    version: '0.9.2',
+    version: '0.10.1',
     license: '''Copyright 2025 Nonce Lab
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the “Software”), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
@@ -3348,14 +3348,14 @@ SOFTWARE.''',
       PackageRef('args')
     ]);
 
-/// flutter_plugin_android_lifecycle 2.0.23
+/// flutter_plugin_android_lifecycle 2.0.24
 const _flutter_plugin_android_lifecycle = Package(
     name: 'flutter_plugin_android_lifecycle',
     description: 'Flutter plugin for accessing an Android Lifecycle within other plugins.',
     repository:
         'https://github.com/flutter/packages/tree/main/packages/flutter_plugin_android_lifecycle',
     authors: [],
-    version: '2.0.23',
+    version: '2.0.24',
     license: '''Copyright 2013 The Flutter Authors. All rights reserved.
 
 Redistribution and use in source and binary forms, with or without modification,
@@ -4505,14 +4505,14 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.''',
       PackageRef('local_auth_platform_interface')
     ]);
 
-/// local_auth_darwin 1.4.1
+/// local_auth_darwin 1.4.3
 const _local_auth_darwin = Package(
     name: 'local_auth_darwin',
     description: 'iOS implementation of the local_auth plugin.',
     repository:
         'https://github.com/flutter/packages/tree/main/packages/local_auth/local_auth_darwin',
     authors: [],
-    version: '1.4.1',
+    version: '1.4.3',
     license: '''Copyright 2013 The Flutter Authors. All rights reserved.
 
 Redistribution and use in source and binary forms, with or without modification,
@@ -7635,17 +7635,17 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.''',
     isSdk: false,
     dependencies: [PackageRef('flutter')]);
 
-/// slang 4.4.1
+/// slang 4.6.0
 const _slang = Package(
     name: 'slang',
     description:
         'Localization / Internationalization (i18n) solution. Use JSON, YAML, CSV, or ARB files to create typesafe translations via source generation.',
     repository: 'https://github.com/slang-i18n/slang',
     authors: [],
-    version: '4.4.1',
+    version: '4.6.0',
     license: '''MIT License
 
-Copyright (c) 2020-2024 Tien Do Nam
+Copyright (c) 2020-2025 Tien Do Nam
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -7675,16 +7675,16 @@ SOFTWARE.''',
       PackageRef('yaml')
     ]);
 
-/// slang_flutter 4.4.0
+/// slang_flutter 4.6.0
 const _slang_flutter = Package(
     name: 'slang_flutter',
     description: 'Flutter support for slang. This library provides helpful Flutter API.',
     repository: 'https://github.com/slang-i18n/slang',
     authors: [],
-    version: '4.4.0',
+    version: '4.6.0',
     license: '''MIT License
 
-Copyright (c) 2020-2024 Tien Do Nam
+Copyright (c) 2020-2025 Tien Do Nam
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -8005,13 +8005,13 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.''',
     isSdk: false,
     dependencies: [PackageRef('path'), PackageRef('source_maps'), PackageRef('stack_trace')]);
 
-/// source_maps 0.10.12
+/// source_maps 0.10.13
 const _source_maps = Package(
     name: 'source_maps',
     description: 'A library to programmatically manipulate source map files.',
-    repository: 'https://github.com/dart-lang/source_maps',
+    repository: 'https://github.com/dart-lang/tools/tree/main/pkgs/source_maps',
     authors: [],
-    version: '0.10.12',
+    version: '0.10.13',
     license: '''Copyright 2014, the Dart project authors.
 
 Redistribution and use in source and binary forms, with or without
