@@ -1,5 +1,6 @@
 import 'dart:ui';
 
+import 'package:coconut_lib/coconut_lib.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -25,12 +26,12 @@ class CustomAppBar {
       children: [
         Text(title),
         showTestnetLabel
-            ? const Column(
+            ? Column(
                 children: [
-                  SizedBox(
+                  const SizedBox(
                     height: 3,
                   ),
-                  TestnetLabelWidget(),
+                  if (NetworkType.currentNetworkType.isTestnet) const TestnetLabelWidget(),
                 ],
               )
             : Container(

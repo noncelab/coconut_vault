@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:carousel_slider/carousel_slider.dart';
+import 'package:coconut_lib/coconut_lib.dart';
 import 'package:coconut_vault/constants/app_routes.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/providers/connectivity_provider.dart';
@@ -42,7 +43,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             SvgPicture.asset(
-              'assets/svg/coconut-security.svg',
+              'assets/svg/coconut-security-${NetworkType.currentNetworkType.isTestnet ? "regtest" : "mainnet"}.svg',
               width: 80,
             ),
             const SizedBox(height: 20),

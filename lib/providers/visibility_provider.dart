@@ -1,3 +1,4 @@
+import 'package:coconut_lib/coconut_lib.dart';
 import 'package:coconut_vault/constants/shared_preferences_keys.dart';
 import 'package:coconut_vault/repository/shared_preferences_repository.dart';
 import 'package:flutter/material.dart';
@@ -17,7 +18,8 @@ class VisibilityProvider extends ChangeNotifier {
 
   VisibilityProvider() {
     final prefs = SharedPrefsRepository();
-    _hasSeenGuide = prefs.getBool(SharedPrefsKeys.hasShownStartGuide) == true;
+    _hasSeenGuide = !NetworkType.currentNetworkType.isTestnet ||
+        prefs.getBool(SharedPrefsKeys.hasShownStartGuide) == true;
     _walletCount = prefs.getInt(SharedPrefsKeys.vaultListLength) ?? 0;
     _isPassphraseUseEnabled = prefs.getBool(SharedPrefsKeys.kPassphraseUseEnabled) ?? false;
   }

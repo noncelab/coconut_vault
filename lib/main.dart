@@ -55,7 +55,10 @@ void main() async {
     // ignore
   }
 
-  NetworkType.setNetworkType(NetworkType.regtest);
+  const String? appFlavor = String.fromEnvironment('FLUTTER_APP_FLAVOR') != ''
+      ? String.fromEnvironment('FLUTTER_APP_FLAVOR')
+      : null;
+  NetworkType.setNetworkType(appFlavor == "mainnet" ? NetworkType.mainnet : NetworkType.regtest);
 
   if (!kDebugMode) {
     await ScreenProtector.protectDataLeakageWithImage('ScreenProtectImage'); // iOS

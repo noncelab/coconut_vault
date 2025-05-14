@@ -112,7 +112,8 @@ flutter:
 
   # To add assets to your application, add an assets section, like this:
   assets:
-    - assets/png/splash_logo.png
+    - assets/png/splash_logo_mainnet.png
+    - assets/png/splash_logo_regtest.png
     - assets/svg/menu/details.svg
     - assets/svg/menu/2keys.svg
     - assets/svg/menu/key-outline.svg
@@ -168,9 +169,10 @@ flutter:
     - assets/svg/arrow-right.svg
     - assets/svg/back.svg
     - assets/svg/bluetooth.svg
-    - assets/svg/coconut.svg
-    - assets/svg/coconut-security.svg
-    - assets/svg/coconut-security-gradient.svg
+    - assets/svg/coconut-mainnet.svg
+    - assets/svg/coconut-regtest.svg
+    - assets/svg/coconut-security-mainnet.svg
+    - assets/svg/coconut-security-regtest.svg
     - assets/svg/cross-circle.svg
     - assets/svg/curved-arrow-right.svg
     - assets/svg/safe.svg
@@ -193,8 +195,10 @@ flutter:
     - assets/jpg/x-logo.jpg
     - assets/png/telegram-logo.png
     - assets/png/telegram-circle-logo.png
+    - assets/png/discord-logo.png
     - assets/png/mail-icon.png
-    - assets/png/browser.png
+    - assets/png/browser_mainnet.png
+    - assets/png/browser_regtest.png
     - assets/svg/github-logo-white.svg
     - assets/svg/github-logo.svg
     - assets/files/LICENSE
