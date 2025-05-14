@@ -58,7 +58,8 @@ void main() async {
   NetworkType.setNetworkType(NetworkType.regtest);
 
   if (!kDebugMode) {
-    await ScreenProtector.protectDataLeakageWithImage('ScreenProtectImage'); // iOS
+    await ScreenProtector.protectDataLeakageWithImage(
+        'ScreenProtectImage${NetworkType.currentNetworkType.isTestnet ? "Regtest" : ""}'); // iOS
     await ScreenProtector.protectDataLeakageOn(); // Android
     await ScreenProtector.preventScreenshotOn(); // iOS and Android
   }
