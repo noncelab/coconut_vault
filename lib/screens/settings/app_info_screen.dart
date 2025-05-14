@@ -2,6 +2,7 @@ import 'dart:io';
 import 'dart:ui';
 
 import 'package:coconut_lib/coconut_lib.dart';
+import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_vault/constants/external_links.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:device_info_plus/device_info_plus.dart';
@@ -25,7 +26,6 @@ class AppInfoScreen extends StatefulWidget {
 
 class _AppInfoScreenState extends State<AppInfoScreen> {
   late ScrollController _scrollController;
-  double topPadding = 0;
   bool _isScrollOverTitleHeight = false;
   bool _appbarTitleVisible = false;
   late Future<PackageInfo> _packageInfoFuture;
@@ -115,7 +115,6 @@ class _AppInfoScreenState extends State<AppInfoScreen> {
 
   @override
   Widget build(BuildContext context) {
-    topPadding = kToolbarHeight + MediaQuery.of(context).padding.top + 30;
     return Scaffold(
       extendBodyBehindAppBar: true,
       backgroundColor: MyColors.white,
@@ -153,21 +152,15 @@ class _AppInfoScreenState extends State<AppInfoScreen> {
           controller: _scrollController,
           child: Column(
             children: [
-              Container(
-                height: topPadding,
-              ),
+              SizedBox(height: kToolbarHeight + MediaQuery.of(context).padding.top + 30),
               headerWidget(_packageInfoFuture),
-              Container(
-                height: 50,
-              ),
+              CoconutLayout.spacing_1200h,
               socialMediaWidget(),
-              Container(
-                height: 50,
-              ),
+              CoconutLayout.spacing_1200h,
               githubWidget(),
-              Container(
-                height: 50,
-              ),
+              CoconutLayout.spacing_1200h,
+              termsOfServiceWidget(),
+              CoconutLayout.spacing_1200h,
               footerWidget(_packageInfoFuture),
             ],
           )),
@@ -412,12 +405,6 @@ class _AppInfoScreenState extends State<AppInfoScreen> {
               },
             ),
             SingleButton(
-              title: t.app_info_screen.license,
-              onPressed: () {
-                MyBottomSheet.showBottomSheet_95(context: context, child: const LicenseScreen());
-              },
-            ),
-            SingleButton(
               title: t.app_info_screen.contribution,
               onPressed: () {
                 MyBottomSheet.showBottomSheet_90(
@@ -429,6 +416,55 @@ class _AppInfoScreenState extends State<AppInfoScreen> {
                     ));
               },
             )
+          ]),
+        ],
+      ),
+    );
+  }
+
+  Widget termsOfServiceWidget() {
+    return Container(
+      padding: const EdgeInsets.symmetric(
+        horizontal: 16,
+      ),
+      decoration: const BoxDecoration(
+        color: CoconutColors.white,
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _category(t.app_info_screen.tos_and_policy),
+          ButtonGroup(buttons: [
+            SingleButton(
+              title: t.app_info_screen.terms_of_service,
+              onPressed: () {
+                MyBottomSheet.showBottomSheet_90(
+                    context: context,
+                    child: QrcodeBottomSheet(
+                      qrData: TERMS_OF_SERVICE_URL,
+                      title: t.app_info_screen.terms_of_service,
+                      fromAppInfo: true,
+                    ));
+              },
+            ),
+            SingleButton(
+              title: t.app_info_screen.privacy_policy,
+              onPressed: () {
+                MyBottomSheet.showBottomSheet_90(
+                    context: context,
+                    child: QrcodeBottomSheet(
+                      qrData: PRIVACY_POLICY_URL,
+                      title: t.app_info_screen.privacy_policy,
+                      fromAppInfo: true,
+                    ));
+              },
+            ),
+            SingleButton(
+              title: t.app_info_screen.license,
+              onPressed: () {
+                MyBottomSheet.showBottomSheet_95(context: context, child: const LicenseScreen());
+              },
+            ),
           ]),
         ],
       ),
