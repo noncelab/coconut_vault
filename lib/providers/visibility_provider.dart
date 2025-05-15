@@ -18,8 +18,7 @@ class VisibilityProvider extends ChangeNotifier {
 
   VisibilityProvider() {
     final prefs = SharedPrefsRepository();
-    _hasSeenGuide = !NetworkType.currentNetworkType.isTestnet ||
-        prefs.getBool(SharedPrefsKeys.hasShownStartGuide) == true;
+    _hasSeenGuide = prefs.getBool(SharedPrefsKeys.hasShownStartGuide) == true;
     _walletCount = prefs.getInt(SharedPrefsKeys.vaultListLength) ?? 0;
     _isPassphraseUseEnabled = prefs.getBool(SharedPrefsKeys.kPassphraseUseEnabled) ?? false;
   }
