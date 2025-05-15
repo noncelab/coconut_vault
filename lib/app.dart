@@ -1,4 +1,5 @@
 import 'package:coconut_design_system/coconut_design_system.dart';
+import 'package:coconut_lib/coconut_lib.dart';
 import 'package:coconut_vault/constants/app_routes.dart';
 import 'package:coconut_vault/enums/pin_check_context_enum.dart';
 import 'package:coconut_vault/main_route_guard.dart';
@@ -89,9 +90,13 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> {
         return StartScreen(onComplete: _updateEntryFlow);
 
       case AppEntryFlow.tutorial:
-        return const TutorialScreen(
-          screenStatus: TutorialScreenStatus.entrance,
-        );
+        if (NetworkType.currentNetworkType.isTestnet) {
+          return const TutorialScreen(
+            screenStatus: TutorialScreenStatus.entrance,
+          );
+        } else {
+          return const WelcomeScreen();
+        }
 
       case AppEntryFlow.pinCheck:
         return CustomLoadingOverlay(

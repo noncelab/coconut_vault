@@ -21,9 +21,9 @@ publish_to: "none" # Remove this line if you wish to publish to pub.dev
 # AOS Regtest
 #version: 2.2.2+24
 # iOS Mainnet
-#version: 0.0.1+1
+version: 0.0.1+2
 # AOS Mainnet
-version: 0.0.1+1
+#version: 0.0.1+1
 
 environment:
   sdk: "3.5.3"
