@@ -197,6 +197,7 @@ flutter:
     - assets/jpg/pow-full-logo.jpg
     - assets/jpg/x-logo.jpg
     - assets/png/discord-full-logo.png
+    - assets/png/discord-logo.png
     - assets/png/mail-icon.png
     - assets/png/browser_mainnet.png
     - assets/png/browser_regtest.png

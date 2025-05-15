@@ -28,7 +28,8 @@ class _QRCodeLinkInfoState extends State<QRCodeLinkInfo> {
       assetImageUrl = 'assets/png/pow-logo.png';
       assetImageSize = const Size(48, 48);
     } else if (widget.qrData.contains('discord')) {
-      assetImageUrl = 'assets/png/discord-full-logo.png';
+      assetImageUrl = 'assets/png/discord-logo.png';
+      assetImageSize = const Size(48, 48);
     } else if (widget.qrData.contains('x.com')) {
       assetImageUrl = 'assets/jpg/x-logo.jpg';
     } else if (widget.qrData.contains('@')) {
