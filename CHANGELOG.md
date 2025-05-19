@@ -1,3 +1,13 @@
+## 2.2.3 - 2025-05-16
+### Added
+* `mainnet` flavor 추가
+* `mainnet` `regtest` flavor에 따른 아이콘, 이미지 추가
+
+### Changed
+* [Beta] `mainnet` flavor인 경우 지갑 추가가 1개만 가능하도록 처리
+* `regtest` flavor인 경우 [테스트넷] 라벨이 나오도록 변경
+* 텔레그램 링크를 디스코드로 변경
+
 ## 2.2.2 - 2025-05-14
 ### Fixed
 * coconut_lib 버전 0.10.3으로 업그레이드 (보내기 버그 수정)
