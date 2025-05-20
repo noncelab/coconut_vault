@@ -79,7 +79,6 @@ class _MnemonicImportState extends State<MnemonicImport> {
     final List<String> words = normalizedInputText.split(' ');
 
     if (_inputText.trim().isEmpty) return _resetValidation();
-    if (!_isValidMnemonicLength(words)) return _resetValidation();
 
     final List<String> invalidWords = words
         .where((word) => !WalletUtility.isInMnemonicWordList(word) && !_hasPrefixMatch(word))
@@ -92,6 +91,8 @@ class _MnemonicImportState extends State<MnemonicImport> {
       });
       return;
     }
+
+    if (!_isValidMnemonicLength(words)) return _resetValidation();
 
     setState(() {
       _isMnemonicValid = isValidMnemonic(normalizedInputText);
