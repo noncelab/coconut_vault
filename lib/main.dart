@@ -10,6 +10,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:coconut_vault/app.dart';
 import 'package:coconut_vault/utils/database_path_util.dart';
+import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 import 'package:provider/provider.dart';
 import 'package:screen_protector/screen_protector.dart';
 
@@ -66,6 +67,9 @@ void main() async {
     await ScreenProtector.protectDataLeakageOn(); // Android
     await ScreenProtector.preventScreenshotOn(); // iOS and Android
   }
+
+  // bluetooth
+  await FlutterBluePlus.setOptions(showPowerAlert: false);
 
   return runApp(const CoconutVaultApp());
 }
