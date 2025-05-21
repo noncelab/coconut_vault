@@ -1,0 +1,31 @@
+# This file contains the fastlane.tools configuration
+# You can find the documentation at https://docs.fastlane.tools
+#
+# For a list of all available actions, check out
+#
+#     https://docs.fastlane.tools/actions
+#
+# For a list of all available plugins, check out
+#
+#     https://docs.fastlane.tools/plugins/available-plugins
+#
+
+# Uncomment the line if you want fastlane to automatically update itself
+# update_fastlane
+
+default_platform(:ios)
+
+platform :ios do
+  desc "코코넛 볼트 학습용 내부테스트 배포"
+  lane :deploy_regtest_internal do
+      pubspec = YAML.load_file("../../pubspec.yaml")
+      version = pubspec["ios_regtest"].split('+')
+      version_number = version[0]
+      build_number = version[1]
+
+      increment_version_number(version_number: version_number, xcodeproj: "Runner.xcodeproj")
+      increment_build_number(build_number: build_number, xcodeproj: "Runner.xcodeproj")
+      build_app(workspace: "Runner.xcworkspace", scheme: "regtest")
+      upload_to_testflight(app_identifier: "onl.coconut.vault.regtest", app_version: version_number, build_number: build_number)
+  end
+end
