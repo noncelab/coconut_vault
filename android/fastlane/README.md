@@ -15,22 +15,6 @@ For _fastlane_ installation instructions, see [Installing _fastlane_](https://do
 
 ## Android
 
-### android test
-
-```sh
-[bundle exec] fastlane android test
-```
-
-Runs all the tests
-
-### android pre_deploy
-
-```sh
-[bundle exec] fastlane android pre_deploy
-```
-
-배포 전에 실행하는 공통 함수(pre_deply -> aos/ios 배포)
-
 ### android deploy_regtest_internal
 
 ```sh
@@ -38,6 +22,14 @@ Runs all the tests
 ```
 
 코코넛 볼트 학습용 내부테스트 배포
+
+### android deploy_mainnet_internal
+
+```sh
+[bundle exec] fastlane android deploy_mainnet_internal
+```
+
+코코넛 볼트 내부테스트 배포
 
 ----
 

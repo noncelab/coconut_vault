@@ -7,7 +7,7 @@ module Fastlane
       def self.run(params)
         require 'date'
         date = Time.now.strftime("%Y.%m.%d")
-        file = File.open('../lib/constants/app_info.dart', 'w')
+        file = File.open('lib/constants/app_info.dart', 'w')
         file.puts "// ignore_for_file: constant_identifier_names"
         file.puts "\n"
         file.puts "const RELEASE_DATE = '#{date}';"

@@ -18,15 +18,15 @@ publish_to: "none" # Remove this line if you wish to publish to pub.dev
 # of the product and file versions while build-number is used as the build suffix.
 
 # Default version(For Android build)
-version: 2.2.3+28
+version: 2.2.3+31
 
 # Mainnet
 aos_mainnet: 0.0.1+1
 ios_mainnet: 0.0.1+2
 
 # Regtest
-aos_regtest: 2.2.3+28
-ios_regtest: 2.2.4+3
+aos_regtest: 2.2.3+31
+ios_regtest: 2.2.4+5
 
 environment:
   sdk: "3.5.3"

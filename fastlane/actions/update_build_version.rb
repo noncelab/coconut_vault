@@ -3,7 +3,7 @@ module Fastlane
     module SharedValues
     end
 
-    class UpdateVersionAction < Action
+    class UpdateBuildVersionAction < Action
       def self.if_version_then_change(pubspec, lines, i, key)
         if lines[i].to_s.include? "#{key}:"
           splits = pubspec[key].split('+')
@@ -15,28 +15,21 @@ module Fastlane
       
       def self.run(params)
         require 'yaml'
-        pubspec = YAML.load_file('../pubspec.yaml')
+        pubspec = YAML.load_file('pubspec.yaml')
+        version_key = params[:version_key]
 
         # 초기 버전
-#         puts "aos_mainnet: #{pubspec['aos_mainnet']}"
-#         puts "ios_mainnet: #{pubspec['ios_mainnet']}"
-        puts "aos_regtest: #{pubspec['aos_regtest']}"
-        puts "ios_regtest: #{pubspec['ios_regtest']}"
-        puts "\n[UPDATED VERSION]"
+        puts "\n[INITIAL VERSION]"
+        puts "#{version_key}: #{pubspec[version_key]}"
 
         # 버전 변경하여 저장
-        lines = File.readlines("../pubspec.yaml")
+        puts "\n[UPDATED VERSION]"
+        lines = File.readlines("pubspec.yaml")
         for i in 0..lines.length()
-#           if_version_then_change(pubspec, lines, i, "aos_mainnet")
-#           if_version_then_change(pubspec, lines, i, "ios_mainnet")
-          if_version_then_change(pubspec, lines, i, "aos_regtest")
-          if_version_then_change(pubspec, lines, i, "ios_regtest")
-
-           # for android build
-          if_version_then_change(pubspec, lines, i, "version")
+          if_version_then_change(pubspec, lines, i, version_key)
         end
 
-        File.open("../pubspec.yaml", "w+") do |f|
+        File.open("pubspec.yaml", "w+") do |f|
           f.puts(lines)
         end
       end
@@ -49,6 +42,14 @@ module Fastlane
       end
 
       def self.available_options
+          [
+           FastlaneCore::ConfigItem.new(
+                   key: :version_key,
+                   description: "version key to update in pubspec",
+                   type: String,
+                   optional: false
+                 )
+          ]
       end
 
       def self.output

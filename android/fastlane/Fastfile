@@ -16,38 +16,31 @@
 default_platform(:android)
 
 platform :android do
-  desc "Runs all the tests"
-  lane :test do
-    gradle(task: "test")
-  end
-
-  desc "배포 전에 실행하는 공통 함수(pre_deply -> aos/ios 배포)"
-  lane :pre_deploy do
-      # app_info.dart 파일의 RELEASE_DATE 변경
-      update_app_info()
-
-      # flutter_oss_licenses 업데이트
-      sh "flutter pub run flutter_oss_licenses:generate"
-
-      # 자동 생성 파일
-      sh "flutter pub run build_runner clean && flutter pub run build_runner build --delete-conflicting-outputs && flutter pub run slang"
-
-      # Dart format
-      sh "cd .. "
-      sh "dart format . --line-length=100"
-
-      # pubspec 정보에서 버전을 수정한다.
-      update_version()
-  end
-
   desc "코코넛 볼트 학습용 내부테스트 배포"
   lane :deploy_regtest_internal do
       # android의 경우 pubspec의 version을 사용한다. (임의로 지정해도 처리되지 않음)
+      update_default_version(from: "aos_regtest")
       sh "flutter build appbundle --flavor regtest --release"
       upload_to_play_store(
         track: 'internal',
         aab: '../build/app/outputs/bundle/regtestRelease/app-regtest-release.aab',
         package_name: 'onl.coconut.vault.regtest',
+        skip_upload_metadata: true,
+        skip_upload_images: true,
+        skip_upload_screenshots: true,
+        skip_upload_changelogs: true,
+        skip_upload_apk: true,
+      )
+  end
+
+  desc "코코넛 볼트 내부테스트 배포"
+  lane :deploy_mainnet_internal do
+      update_default_version(from: "aos_mainnet")
+      sh "flutter build appbundle --flavor mainnet --release"
+      upload_to_play_store(
+        track: 'internal',
+        aab: '../build/app/outputs/bundle/mainnetRelease/app-mainnet-release.aab',
+        package_name: 'onl.coconut.vault',
         skip_upload_metadata: true,
         skip_upload_images: true,
         skip_upload_screenshots: true,
