@@ -1,0 +1,51 @@
+# This file contains the fastlane.tools configuration
+# You can find the documentation at https://docs.fastlane.tools
+#
+# For a list of all available actions, check out
+#
+#     https://docs.fastlane.tools/actions
+#
+# For a list of all available plugins, check out
+#
+#     https://docs.fastlane.tools/plugins/available-plugins
+#
+
+# Uncomment the line if you want fastlane to automatically update itself
+# update_fastlane
+
+default_platform(:android)
+
+platform :android do
+  desc "코코넛 볼트 학습용 내부테스트 배포"
+  lane :deploy_regtest_internal do
+      # android의 경우 pubspec의 version을 사용한다. (임의로 지정해도 처리되지 않음)
+      update_default_version(from: "aos_regtest")
+      sh "flutter build appbundle --flavor regtest --release"
+      upload_to_play_store(
+        track: 'internal',
+        aab: '../build/app/outputs/bundle/regtestRelease/app-regtest-release.aab',
+        package_name: 'onl.coconut.vault.regtest',
+        skip_upload_metadata: true,
+        skip_upload_images: true,
+        skip_upload_screenshots: true,
+        skip_upload_changelogs: true,
+        skip_upload_apk: true,
+      )
+  end
+
+  desc "코코넛 볼트 내부테스트 배포"
+  lane :deploy_mainnet_internal do
+      update_default_version(from: "aos_mainnet")
+      sh "flutter build appbundle --flavor mainnet --release"
+      upload_to_play_store(
+        track: 'internal',
+        aab: '../build/app/outputs/bundle/mainnetRelease/app-mainnet-release.aab',
+        package_name: 'onl.coconut.vault',
+        skip_upload_metadata: true,
+        skip_upload_images: true,
+        skip_upload_screenshots: true,
+        skip_upload_changelogs: true,
+        skip_upload_apk: true,
+      )
+  end
+end
