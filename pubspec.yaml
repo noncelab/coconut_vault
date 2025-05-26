@@ -26,7 +26,7 @@ ios_mainnet: 0.0.1+2
 
 # Regtest
 aos_regtest: 2.2.3+31
-ios_regtest: 2.2.4+7
+ios_regtest: 2.2.4+16
 
 environment:
   sdk: "3.5.3"
