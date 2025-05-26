@@ -18,6 +18,13 @@ default_platform(:ios)
 platform :ios do
   desc "코코넛 볼트 학습용 내부테스트 배포"
   lane :deploy_regtest_internal do
+      api_key = app_store_connect_api_key(
+            key_id: ENV['FASTLANE_API_KEY_ID'],
+            issuer_id: ENV['FASTLANE_API_KEY_ISSUER_ID'],
+            key_content: ENV['FASTLANE_API_KEY_CONTENT'],
+            is_key_content_base64: false,
+            in_house: false)
+
       pubspec = YAML.load_file("../../pubspec.yaml")
       version = pubspec["ios_regtest"].split('+')
       version_number = version[0]
@@ -26,11 +33,18 @@ platform :ios do
       increment_version_number(version_number: version_number, xcodeproj: "Runner.xcodeproj")
       increment_build_number(build_number: build_number, xcodeproj: "Runner.xcodeproj")
       build_app(workspace: "Runner.xcworkspace", scheme: "regtest")
-      upload_to_testflight(app_identifier: "onl.coconut.vault.regtest", app_version: version_number, build_number: build_number)
+      upload_to_testflight(api_key: api_key, app_identifier: "onl.coconut.vault.regtest", app_version: version_number, build_number: build_number)
   end
 
   desc "코코넛 볼트 내부테스트 배포"
   lane :deploy_mainnet_internal do
+      api_key = app_store_connect_api_key(
+            key_id: ENV['FASTLANE_API_KEY_ID'],
+            issuer_id: ENV['FASTLANE_API_KEY_ISSUER_ID'],
+            key_content: ENV['FASTLANE_API_KEY_CONTENT'],
+            is_key_content_base64: false,
+            in_house: false)
+
       pubspec = YAML.load_file("../../pubspec.yaml")
       version = pubspec["ios_mainnet"].split('+')
       version_number = version[0]
@@ -39,6 +53,6 @@ platform :ios do
       increment_version_number(version_number: version_number, xcodeproj: "Runner.xcodeproj")
       increment_build_number(build_number: build_number, xcodeproj: "Runner.xcodeproj")
       build_app(workspace: "Runner.xcworkspace", scheme: "Runner")
-      upload_to_testflight(app_identifier: "onl.coconut.vault", app_version: version_number, build_number: build_number)
+      upload_to_testflight(api_key: api_key, app_identifier: "onl.coconut.vault", app_version: version_number, build_number: build_number)
   end
 end
