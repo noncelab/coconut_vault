@@ -1,3 +1,4 @@
+import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_lib/coconut_lib.dart';
 import 'package:coconut_vault/constants/app_routes.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
@@ -787,7 +788,7 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
                 duration: const Duration(milliseconds: 200),
                 child: const Icon(
                   Icons.expand_more,
-                  color: Colors.black,
+                  color: CoconutColors.black,
                   size: 24,
                 ),
               ),

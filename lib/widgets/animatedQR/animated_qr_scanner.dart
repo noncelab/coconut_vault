@@ -1,4 +1,4 @@
-import 'package:coconut_vault/styles.dart';
+import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_vault/utils/logger.dart';
 import 'package:coconut_vault/widgets/animatedQR/animated_qr_data_handler.dart';
 import 'package:flutter/material.dart';
@@ -15,7 +15,7 @@ class AnimatedQrScanner extends StatefulWidget {
       required this.setQRViewController,
       required this.onComplete,
       required this.onFailed,
-      this.borderColor = Colors.white});
+      this.borderColor = CoconutColors.white});
 
   @override
   State<AnimatedQrScanner> createState() => _AnimatedQrScannerState();
@@ -118,7 +118,7 @@ class _AnimatedQrScannerState extends State<AnimatedQrScanner> {
               child: Center(
                 child: Text(
                   _totalCount != null ? '$_insertCount / $_totalCount' : '',
-                  style: Styles.body1.merge(const TextStyle(color: Colors.white)),
+                  style: Styles.body1.merge(const TextStyle(color: CoconutColors.white)),
                 ),
               ),
             )

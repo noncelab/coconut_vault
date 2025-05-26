@@ -1,3 +1,4 @@
+import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:flutter/material.dart';
 import 'package:coconut_vault/styles.dart';
@@ -42,7 +43,7 @@ class _SecuritySelfCheckScreenState extends State<SecuritySelfCheckScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: CoconutColors.white,
       appBar: widget.onNextPressed != null
           ? CustomAppBar.buildWithNext(
               title: t.checklist,

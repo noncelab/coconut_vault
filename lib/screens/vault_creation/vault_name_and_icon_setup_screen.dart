@@ -1,3 +1,4 @@
+import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_vault/app_routes_params.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/model/single_sig/single_sig_wallet.dart';
@@ -152,7 +153,7 @@ class _VaultNameAndIconSetupScreenState extends State<VaultNameAndIconSetupScree
             }
           },
           child: Scaffold(
-            backgroundColor: Colors.white,
+            backgroundColor: CoconutColors.white,
             appBar: CustomAppBar.buildWithNext(
               title: t.vault_name_icon_setup_screen.title,
               context: context,

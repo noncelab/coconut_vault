@@ -102,7 +102,7 @@ class _VaultListScreenState extends State<VaultListScreen> with TickerProviderSt
             child: Container(
               constraints: const BoxConstraints(minHeight: 100),
               decoration: BoxDecoration(
-                color: Colors.white, // 배경색 유지
+                color: CoconutColors.white, // 배경색 유지
                 borderRadius: BorderRadius.circular(28),
                 boxShadow: const [
                   BoxShadow(
@@ -118,13 +118,13 @@ class _VaultListScreenState extends State<VaultListScreen> with TickerProviderSt
                 children: [
                   // 1) 아이콘 스켈레톤
                   Shimmer.fromColors(
-                    baseColor: Colors.grey[300]!,
-                    highlightColor: Colors.grey[100]!,
+                    baseColor: CoconutColors.gray300,
+                    highlightColor: CoconutColors.gray150,
                     child: Container(
                       width: 40.0,
                       height: 40.0,
                       decoration: BoxDecoration(
-                        color: Colors.grey[300],
+                        color: CoconutColors.gray300,
                         borderRadius: BorderRadius.circular(16.0),
                       ),
                     ),
@@ -137,23 +137,23 @@ class _VaultListScreenState extends State<VaultListScreen> with TickerProviderSt
                       children: [
                         // 첫 번째 텍스트
                         Shimmer.fromColors(
-                          baseColor: Colors.grey[300]!,
-                          highlightColor: Colors.grey[100]!,
+                          baseColor: CoconutColors.gray300,
+                          highlightColor: CoconutColors.gray150,
                           child: Container(
                             height: 14.0,
                             width: 100.0,
-                            color: Colors.grey[300],
+                            color: CoconutColors.gray300,
                           ),
                         ),
                         const SizedBox(height: 8.0),
                         // 두 번째 텍스트
                         Shimmer.fromColors(
-                          baseColor: Colors.grey[300]!,
-                          highlightColor: Colors.grey[100]!,
+                          baseColor: CoconutColors.gray300,
+                          highlightColor: CoconutColors.gray150,
                           child: Container(
                             height: 14.0,
                             width: 150.0,
-                            color: Colors.grey[300],
+                            color: CoconutColors.gray300,
                           ),
                         ),
                       ],

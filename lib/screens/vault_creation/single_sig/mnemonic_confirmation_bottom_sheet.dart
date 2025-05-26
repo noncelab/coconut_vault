@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -262,7 +263,7 @@ class _MnemonicConfirmationBottomSheetState extends State<MnemonicConfirmationBo
                   fontSize: 14.0,
                   fontWeight: FontWeight.w600,
                   letterSpacing: 0.2,
-                  color: Colors.white,
+                  color: CoconutColors.white,
                 ),
               ),
             ),

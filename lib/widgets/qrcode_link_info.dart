@@ -57,7 +57,7 @@ class _QRCodeLinkInfoState extends State<QRCodeLinkInfo> {
                   height: qrSize,
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(8),
-                    color: Colors.white,
+                    color: CoconutColors.white,
                   ),
                 ),
                 QrImageView(

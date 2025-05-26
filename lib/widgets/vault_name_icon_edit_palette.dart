@@ -1,3 +1,4 @@
+import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -92,7 +93,7 @@ class _VaultNameIconEditPaletteState extends State<VaultNameIconEditPalette> {
                                         border: Border.all(
                                           color: index == _selectedColorIndex
                                               ? MyColors.darkgrey
-                                              : Colors.white,
+                                              : CoconutColors.white,
                                           width: 1.8,
                                         ),
                                       ),
@@ -109,7 +110,7 @@ class _VaultNameIconEditPaletteState extends State<VaultNameIconEditPalette> {
                                         border: Border.all(
                                           color: index == _selectedIconIndex + 10
                                               ? MyColors.darkgrey
-                                              : Colors.white,
+                                              : CoconutColors.white,
                                           width: 1.8,
                                         ),
                                       ),

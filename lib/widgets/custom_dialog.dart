@@ -1,3 +1,4 @@
+import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
@@ -56,13 +57,13 @@ class CustomDialogs {
             appBar: AppBar(
                 title: Text(title),
                 centerTitle: true,
-                backgroundColor: MyColors.black,
+                backgroundColor: CoconutColors.black,
                 titleTextStyle:
                     Styles.h3.merge(const TextStyle(fontSize: 16, fontWeight: FontWeight.w400)),
                 toolbarTextStyle: Styles.h3,
                 actions: [
                   IconButton(
-                    color: MyColors.white,
+                    color: CoconutColors.white,
                     focusColor: MyColors.transparentGrey,
                     icon: const Icon(CupertinoIcons.xmark, size: 18),
                     onPressed: () {
@@ -76,7 +77,7 @@ class CustomDialogs {
                 width: MediaQuery.of(context).size.width,
                 height: MediaQuery.of(context).size.height,
                 padding: Paddings.container,
-                color: MyColors.black,
+                color: CoconutColors.black,
                 child: Column(
                   children: [body],
                 ),

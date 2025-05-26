@@ -1,3 +1,4 @@
+import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/providers/sign_provider.dart';
 import 'package:coconut_vault/widgets/animatedQR/animated_qr_data_handler.dart';
@@ -29,7 +30,7 @@ class _SignedTransactionQrScreenState extends State<SignedTransactionQrScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: CoconutColors.white,
       appBar: CustomAppBar.buildWithNext(
           title: t.signed_tx,
           context: context,

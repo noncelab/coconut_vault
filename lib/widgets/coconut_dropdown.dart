@@ -1,3 +1,4 @@
+import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_vault/styles.dart';
 import 'package:flutter/material.dart';
 
@@ -34,7 +35,7 @@ class _CoconutDropdownState extends State<CoconutDropdown> {
       decoration: BoxDecoration(
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.1),
+            color: CoconutColors.black.withOpacity(0.1),
             spreadRadius: 1,
             blurRadius: 16,
             offset: const Offset(3, 3),

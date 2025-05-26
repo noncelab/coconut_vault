@@ -1,3 +1,4 @@
+import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/widgets/custom_loading_overlay.dart';
 import 'package:flutter/material.dart';
@@ -100,7 +101,7 @@ class _NameAndIconEditBottomSheetState extends State<NameAndIconEditBottomSheet>
                           child: Text(t.complete,
                               style: Styles.subLabel.merge(TextStyle(
                                   color: _name.trim().isNotEmpty
-                                      ? Colors.white
+                                      ? CoconutColors.white
                                       : MyColors.transparentBlack_30,
                                   fontSize: 11))),
                         ),

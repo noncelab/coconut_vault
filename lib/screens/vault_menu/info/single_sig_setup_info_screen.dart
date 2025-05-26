@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_vault/constants/app_routes.dart';
 import 'package:coconut_vault/enums/pin_check_context_enum.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
@@ -266,12 +267,12 @@ class _SingleSigSetupInfoScreenState extends State<SingleSigSetupInfoScreen> {
                     return Container(
                       padding: const EdgeInsets.only(left: 28, bottom: 4),
                       child: Shimmer.fromColors(
-                        baseColor: Colors.grey[300]!,
-                        highlightColor: Colors.grey[100]!,
+                        baseColor: CoconutColors.gray300,
+                        highlightColor: CoconutColors.gray150,
                         child: Container(
                           height: 17,
                           width: double.maxFinite,
-                          color: Colors.grey[300],
+                          color: CoconutColors.gray300,
                         ),
                       ),
                     );
@@ -291,7 +292,7 @@ class _SingleSigSetupInfoScreenState extends State<SingleSigSetupInfoScreen> {
         child: Container(
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(28.0),
-              color: MyColors.transparentBlack_03,
+              color: CoconutColors.black.withOpacity(0.03),
             ),
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 24),

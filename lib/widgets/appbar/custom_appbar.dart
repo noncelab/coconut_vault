@@ -1,5 +1,6 @@
 import 'dart:ui';
 
+import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_lib/coconut_lib.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -124,7 +125,7 @@ class CustomAppBar {
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(14.0),
                   border: Border.all(
-                      color: isActive ? Colors.transparent : MyColors.transparentBlack_06),
+                      color: isActive ? Colors.transparent : CoconutColors.black.withOpacity(0.06)),
                   color: isActive ? MyColors.darkgrey : MyColors.lightgrey,
                 ),
                 child: Center(
@@ -132,7 +133,8 @@ class CustomAppBar {
                     buttonName,
                     style: Styles.label2.merge(
                       TextStyle(
-                        color: isActive ? Colors.white : MyColors.transparentBlack_30,
+                        color:
+                            isActive ? CoconutColors.white : CoconutColors.black.withOpacity(0.3),
                         fontWeight: isActive ? FontWeight.bold : FontWeight.normal,
                       ),
                     ),
@@ -180,22 +182,31 @@ class CustomAppBar {
             : null,
         actions: [
           Padding(
-              padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
-              child: GestureDetector(
-                  onTap: isActive ? onPressedSave : null,
-                  child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 12.0),
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(16.0),
-                        border: Border.all(
-                            color: isActive ? Colors.transparent : MyColors.transparentBlack_06),
-                        color: isActive ? MyColors.darkgrey : MyColors.lightgrey,
+            padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+            child: GestureDetector(
+              onTap: isActive ? onPressedSave : null,
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 12.0),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(16.0),
+                  border: Border.all(
+                      color: isActive ? Colors.transparent : CoconutColors.black.withOpacity(0.06)),
+                  color: isActive ? MyColors.darkgrey : MyColors.lightgrey,
+                ),
+                child: Center(
+                  child: Text(
+                    '저장',
+                    style: Styles.subLabel.merge(
+                      TextStyle(
+                        color: isActive ? CoconutColors.white : MyColors.transparentBlack_30,
+                        fontSize: 11,
                       ),
-                      child: Center(
-                          child: Text('저장',
-                              style: Styles.subLabel.merge(TextStyle(
-                                  color: isActive ? Colors.white : MyColors.transparentBlack_30,
-                                  fontSize: 11)))))))
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
         ],
         flexibleSpace: ClipRect(
             child: BackdropFilter(
@@ -219,7 +230,7 @@ class CustomAppBar {
       centerTitle: true,
       backgroundColor: backgroundColor ?? Colors.transparent,
       title: Text(title),
-      titleTextStyle: Styles.navHeader.merge(const TextStyle(color: MyColors.black)),
+      titleTextStyle: Styles.navHeader.merge(const TextStyle(color: CoconutColors.black)),
       toolbarTextStyle: Styles.appbarTitle,
       leading: IconButton(
         onPressed: onBackPressed ??
@@ -228,7 +239,7 @@ class CustomAppBar {
             },
         icon: const Icon(
           Icons.close_rounded,
-          color: MyColors.black,
+          color: CoconutColors.black,
           size: 22,
         ),
       ),
@@ -243,8 +254,10 @@ class CustomAppBar {
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(16.0),
                   border: Border.all(
-                      color:
-                          isNextButtonActive ? Colors.transparent : MyColors.transparentBlack_06),
+                    color: isNextButtonActive
+                        ? Colors.transparent
+                        : CoconutColors.black.withOpacity(0.06),
+                  ),
                   color: isNextButtonActive ? MyColors.darkgrey : MyColors.lightgrey,
                 ),
                 child: Center(
@@ -252,7 +265,9 @@ class CustomAppBar {
                     nextButtonText,
                     style: Styles.label2.merge(
                       TextStyle(
-                        color: isNextButtonActive ? Colors.white : MyColors.transparentBlack_30,
+                        color: isNextButtonActive
+                            ? Colors.white
+                            : CoconutColors.black.withOpacity(0.3),
                         fontWeight: isNextButtonActive ? FontWeight.bold : FontWeight.normal,
                       ),
                     ),

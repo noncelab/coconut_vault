@@ -1,3 +1,4 @@
+import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_lib/coconut_lib.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/providers/visibility_provider.dart';
@@ -142,7 +143,7 @@ class _MnemonicImportState extends State<MnemonicImport> {
       child: Stack(
         children: [
           Scaffold(
-            backgroundColor: Colors.white,
+            backgroundColor: CoconutColors.white,
             appBar: CustomAppBar.buildWithNext(
               title: t.mnemonic_import_screen.title,
               context: context,

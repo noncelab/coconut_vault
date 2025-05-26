@@ -1,5 +1,5 @@
+import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:flutter/material.dart';
-import 'package:coconut_vault/styles.dart';
 
 class ShrinkAnimationButton extends StatefulWidget {
   final Widget child;
@@ -15,7 +15,7 @@ class ShrinkAnimationButton extends StatefulWidget {
     required this.child,
     required this.onPressed,
     this.pressedColor = MyColors.lightgrey,
-    this.defaultColor = Colors.white,
+    this.defaultColor = CoconutColors.white,
     this.borderRadius = 28.0,
     this.borderWidth = 2.0,
     this.borderGradientColors,

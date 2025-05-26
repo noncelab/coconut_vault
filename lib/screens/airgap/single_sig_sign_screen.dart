@@ -1,3 +1,4 @@
+import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_vault/constants/app_routes.dart';
 import 'package:coconut_vault/enums/pin_check_context_enum.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
@@ -253,7 +254,7 @@ class _SingleSigSignScreenState extends State<SingleSigSignScreen> {
                                             Text(
                                               t.sign_completion,
                                               style: Styles.body1Bold
-                                                  .copyWith(fontSize: 12, color: Colors.black),
+                                                  .copyWith(fontSize: 12, color: CoconutColors.black),
                                             ),
                                             const SizedBox(width: 4),
                                             SvgPicture.asset(

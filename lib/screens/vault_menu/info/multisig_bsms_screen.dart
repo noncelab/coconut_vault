@@ -1,3 +1,4 @@
+import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/providers/view_model/vault_menu/multisig_bsms_view_model.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
@@ -77,11 +78,11 @@ class MultisigBsmsScreen extends StatelessWidget {
   Widget _buildDescriptionBsms(MultisigBsmsViewModel viewModel) {
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: CoconutColors.white,
         borderRadius: BorderRadius.circular(10),
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withOpacity(0.15),
+            color: CoconutColors.gray500.withOpacity(0.15),
             spreadRadius: 4,
             blurRadius: 6,
             offset: const Offset(0, 3),

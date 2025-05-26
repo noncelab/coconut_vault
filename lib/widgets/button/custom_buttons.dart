@@ -1,3 +1,4 @@
+import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:flutter/material.dart';
 import 'package:coconut_vault/styles.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -183,12 +184,12 @@ class _CountingRowButtonState extends State<CountingRowButton> {
             width: 70,
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
             decoration: BoxDecoration(
-              color: MyColors.white,
+              color: CoconutColors.white,
               borderRadius: BorderRadius.circular(12),
-              boxShadow: const [
+              boxShadow: [
                 BoxShadow(
-                  color: MyColors.transparentBlack_15,
-                  offset: Offset(0, 0),
+                  color: CoconutColors.black.withOpacity(0.15),
+                  offset: const Offset(0, 0),
                   blurRadius: 12,
                   spreadRadius: 0,
                 ),

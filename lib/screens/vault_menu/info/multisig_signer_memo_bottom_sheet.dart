@@ -1,3 +1,4 @@
+import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -43,7 +44,7 @@ class _MultisigSignerMemoBottomSheetState extends State<MultisigSignerMemoBottom
       padding: MediaQuery.of(context).viewInsets,
       child: Container(
         decoration: const BoxDecoration(
-          color: Colors.white,
+          color: CoconutColors.white,
           borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
         ),
         child: SafeArea(
@@ -151,14 +152,14 @@ class _MultisigSignerMemoBottomSheetState extends State<MultisigSignerMemoBottom
                         child: Container(
                           padding: const EdgeInsets.symmetric(vertical: 16),
                           decoration: BoxDecoration(
-                            color: MyColors.black,
+                            color: CoconutColors.black,
                             borderRadius: BorderRadius.circular(5),
                           ),
                           child: Center(
                             child: Text(
                               t.complete,
                               style: TextStyle(
-                                color: Colors.white,
+                                color: CoconutColors.white,
                                 fontSize: 14,
                                 fontWeight: _memo.isNotEmpty ? FontWeight.bold : FontWeight.normal,
                               ),

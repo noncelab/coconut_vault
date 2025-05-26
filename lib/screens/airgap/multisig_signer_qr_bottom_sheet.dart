@@ -1,3 +1,4 @@
+import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/widgets/animatedQR/animated_qr_data_handler.dart';
 import 'package:coconut_vault/widgets/animatedQR/animated_qr_view.dart';
@@ -28,7 +29,7 @@ class _SignerQrBottomSheetState extends State<SignerQrBottomSheet> {
     return ClipRRect(
       borderRadius: MyBorder.defaultRadius,
       child: Scaffold(
-        backgroundColor: Colors.white,
+        backgroundColor: CoconutColors.white,
         appBar: CustomAppBar.buildWithClose(
           context: context,
           title: t.signer_qr_bottom_sheet.title,

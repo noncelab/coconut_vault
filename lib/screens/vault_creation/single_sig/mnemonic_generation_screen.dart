@@ -1,3 +1,4 @@
+import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_lib/coconut_lib.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/providers/visibility_provider.dart';
@@ -419,10 +420,10 @@ class _MnemonicWordsState extends State<MnemonicWords> {
                     width: MediaQuery.of(context).size.width,
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(24),
-                      color: MyColors.white,
+                      color: CoconutColors.white,
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.grey.withOpacity(0.3),
+                          color: CoconutColors.gray500.withOpacity(0.3),
                           spreadRadius: 4,
                           blurRadius: 30,
                         ),
@@ -627,8 +628,8 @@ class NumberWidget extends StatefulWidget {
 class _NumberWidgetState extends State<NumberWidget> {
   @override
   Widget build(BuildContext context) {
-    Color bgColor = widget.selected ? MyColors.darkgrey : Colors.white;
-    Color iconColor = widget.selected ? MyColors.white : MyColors.darkgrey;
+    Color bgColor = widget.selected ? MyColors.darkgrey : CoconutColors.white;
+    Color iconColor = widget.selected ? CoconutColors.white : MyColors.darkgrey;
 
     return GestureDetector(
       onTap: widget.onSelected,

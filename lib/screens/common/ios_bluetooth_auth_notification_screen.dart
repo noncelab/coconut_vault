@@ -1,3 +1,4 @@
+import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -19,7 +20,7 @@ class _IosBluetoothAuthNotificationScreenState extends State<IosBluetoothAuthNot
       body: SafeArea(
           child: Container(
         width: MediaQuery.of(context).size.width,
-        color: Colors.white,
+        color: CoconutColors.white,
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -39,7 +40,7 @@ class _IosBluetoothAuthNotificationScreenState extends State<IosBluetoothAuthNot
                   color: MyColors.white,
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.grey.withOpacity(0.3),
+                      color: CoconutColors.gray500.withOpacity(0.3),
                       spreadRadius: 4,
                       blurRadius: 30,
                     ),

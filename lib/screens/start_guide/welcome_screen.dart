@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:carousel_slider/carousel_slider.dart';
+import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_lib/coconut_lib.dart';
 import 'package:coconut_vault/constants/app_routes.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
@@ -135,7 +136,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                     color: MyColors.white,
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.grey.withOpacity(0.18),
+                        color: CoconutColors.gray500.withOpacity(0.18),
                         spreadRadius: 4,
                         blurRadius: 10,
                       ),

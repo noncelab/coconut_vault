@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/providers/connectivity_provider.dart';
 import 'package:coconut_vault/providers/visibility_provider.dart';
@@ -48,7 +49,7 @@ class _GuideScreenState extends State<GuideScreen> {
                       color: MyColors.white,
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.grey.withOpacity(0.3),
+                          color: CoconutColors.gray500.withOpacity(0.3),
                           spreadRadius: 4,
                           blurRadius: 30,
                         ),

@@ -1,3 +1,4 @@
+import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/utils/alert_util.dart';
 import 'package:coconut_vault/utils/vibration_util.dart';
@@ -96,7 +97,7 @@ class _SignerScanBottomSheetState extends State<SignerScanBottomSheet> {
       child: ClipRRect(
         borderRadius: MyBorder.boxDecorationRadius,
         child: Scaffold(
-          backgroundColor: Colors.white,
+          backgroundColor: CoconutColors.white,
           appBar: CustomAppBar.build(
             title: t.signer_scanner_bottom_sheet.title,
             context: context,

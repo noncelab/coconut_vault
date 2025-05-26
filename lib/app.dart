@@ -181,7 +181,7 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> {
           ],
           theme: const CupertinoThemeData(
             brightness: Brightness.light,
-            primaryColor: Colors.blue, // 기본 색상
+            primaryColor: CoconutColors.cyan, // 기본 색상
             scaffoldBackgroundColor: CoconutColors.white, // 배경색
             textTheme: CupertinoTextThemeData(
               navTitleTextStyle: TextStyle(

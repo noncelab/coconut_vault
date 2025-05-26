@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_lib/coconut_lib.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:flutter/material.dart';
@@ -41,7 +42,7 @@ class _AppUnavailableNotificationScreenState extends State<AppUnavailableNotific
                     color: MyColors.white,
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.grey.withOpacity(0.3),
+                        color: CoconutColors.gray500.withOpacity(0.3),
                         spreadRadius: 4,
                         blurRadius: 30,
                       ),
