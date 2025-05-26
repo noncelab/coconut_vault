@@ -39,13 +39,13 @@ class _AccountSelectionBottomSheetScreenState extends State<AccountSelectionBott
   @override
   Widget build(BuildContext context) {
     return ClipRRect(
-        borderRadius: MyBorder.defaultRadius,
+        borderRadius: CoconutBorder.defaultRadius,
         child: Scaffold(
           body: SafeArea(
             child: SingleChildScrollView(
               child: Container(
                   width: MediaQuery.of(context).size.width,
-                  padding: Paddings.container,
+                  padding: CoconutPadding.container,
                   color: CoconutColors.white,
                   child: Column(children: [
                     const SizedBox(
@@ -96,9 +96,9 @@ class _SelectionItem extends StatelessWidget {
         height: 60,
         width: double.infinity,
         decoration: BoxDecoration(
-          borderRadius: MyBorder.defaultRadius,
+          borderRadius: CoconutBorder.defaultRadius,
         ),
-        padding: Paddings.widgetContainer,
+        padding: CoconutPadding.widgetContainer,
         child: Text(
           t.name_wallet(name: params.name),
           style: Styles.h3,

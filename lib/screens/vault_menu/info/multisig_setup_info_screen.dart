@@ -232,7 +232,7 @@ class _MultisigSetupInfoScreenState extends State<MultisigSetupInfoScreen> {
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
                 color: CoconutColors.white,
-                borderRadius: MyBorder.defaultRadius,
+                borderRadius: CoconutBorder.defaultRadius,
                 border: Border.all(color: CoconutColors.gray200),
               ),
               child: Row(
@@ -321,7 +321,7 @@ class _MultisigSetupInfoScreenState extends State<MultisigSetupInfoScreen> {
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: Container(
         decoration: BoxDecoration(
-          borderRadius: MyBorder.defaultRadius,
+          borderRadius: CoconutBorder.defaultRadius,
           color: CoconutColors.black.withOpacity(0.03),
         ),
         child: Container(
@@ -353,7 +353,7 @@ class _MultisigSetupInfoScreenState extends State<MultisigSetupInfoScreen> {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 24),
         decoration: BoxDecoration(
-          borderRadius: MyBorder.defaultRadius,
+          borderRadius: CoconutBorder.defaultRadius,
           color: CoconutColors.black.withOpacity(0.03),
         ),
         child: Column(

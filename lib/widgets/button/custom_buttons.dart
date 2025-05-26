@@ -25,7 +25,7 @@ class _CompleteButtonState extends State<CompleteButton> {
                 margin: const EdgeInsets.only(top: 40),
                 padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 20),
                 decoration: BoxDecoration(
-                  borderRadius: MyBorder.boxDecorationRadius,
+                  borderRadius: CoconutBorder.boxDecorationRadius,
                   color: widget.disabled
                       ? CoconutColors.black.withOpacity(0.06)
                       : CoconutColors.gray800,
@@ -80,7 +80,7 @@ class _SelectableButtonState extends State<SelectableButton> {
         height: 120,
         padding: const EdgeInsets.symmetric(horizontal: 16),
         decoration: BoxDecoration(
-          borderRadius: MyBorder.defaultRadius,
+          borderRadius: CoconutBorder.defaultRadius,
           border: Border.all(
             color: CoconutColors.gray800,
           ),

@@ -45,7 +45,7 @@ class _QrcodeBottomSheetState extends State<QrcodeBottomSheet> {
   @override
   Widget build(BuildContext context) {
     return ClipRRect(
-      borderRadius: MyBorder.defaultRadius,
+      borderRadius: CoconutBorder.defaultRadius,
       child: Scaffold(
         backgroundColor: CoconutColors.white,
         appBar: CustomAppBar.buildWithClose(title: widget.title ?? '', context: context),
@@ -54,7 +54,7 @@ class _QrcodeBottomSheetState extends State<QrcodeBottomSheet> {
             child: Container(
               width: MediaQuery.of(context).size.width,
               height: MediaQuery.of(context).size.height * 0.9,
-              padding: Paddings.container,
+              padding: CoconutPadding.container,
               color: CoconutColors.white,
               child: _buildContent(),
             ),

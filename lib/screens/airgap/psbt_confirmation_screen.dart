@@ -184,9 +184,9 @@ class _PsbtConfirmationScreenState extends State<PsbtConfirmationScreen> {
                           height: 20,
                         ),
                         Container(
-                          padding: Paddings.widgetContainer,
+                          padding: CoconutPadding.widgetContainer,
                           decoration: BoxDecoration(
-                              borderRadius: MyBorder.defaultRadius,
+                              borderRadius: CoconutBorder.defaultRadius,
                               color: CoconutColors.black.withOpacity(0.3)),
                           child: Text(
                             t.psbt_confirmation_screen.warning,

@@ -20,7 +20,7 @@ class ActionBottomButton extends StatelessWidget {
         child: CupertinoButton(
           color: CoconutColors.black,
           disabledColor: CoconutColors.white.withOpacity(0.15),
-          borderRadius: MyBorder.defaultRadius,
+          borderRadius: CoconutBorder.defaultRadius,
           padding: EdgeInsets.zero,
           onPressed: onPressed,
           child: Row(

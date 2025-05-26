@@ -71,7 +71,7 @@ class _MnemonicConfirmationBottomSheetState extends State<MnemonicConfirmationBo
       borderRadius: BorderRadius.circular(24),
       child: Scaffold(
         body: Padding(
-          padding: Paddings.container,
+          padding: CoconutPadding.container,
           child: SingleChildScrollView(
             controller: _scrollController,
             child: Column(

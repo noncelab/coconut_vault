@@ -162,7 +162,7 @@ class MultisigBsmsScreen extends StatelessWidget {
     MyBottomSheet.showBottomSheet_90(
       context: context,
       child: ClipRRect(
-        borderRadius: MyBorder.defaultRadius,
+        borderRadius: CoconutBorder.defaultRadius,
         child: Scaffold(
           backgroundColor: CoconutColors.white,
           appBar: AppBar(

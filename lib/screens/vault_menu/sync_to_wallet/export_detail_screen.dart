@@ -17,7 +17,7 @@ class _ExportDetailScreen extends State<ExportDetailScreen> {
   @override
   Widget build(BuildContext context) {
     return ClipRRect(
-      borderRadius: MyBorder.defaultRadius,
+      borderRadius: CoconutBorder.defaultRadius,
       child: Scaffold(
         backgroundColor: CoconutColors.white,
         appBar: AppBar(

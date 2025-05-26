@@ -205,7 +205,7 @@ class _SingleSigSignScreenState extends State<SingleSigSignScreen> {
                             alignment: Alignment.centerLeft,
                             padding: const EdgeInsets.symmetric(horizontal: 8),
                             decoration: BoxDecoration(
-                              borderRadius: MyBorder.defaultRadius,
+                              borderRadius: CoconutBorder.defaultRadius,
                               color: CoconutColors.white,
                             ),
                             child: Column(

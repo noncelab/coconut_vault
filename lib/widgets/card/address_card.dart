@@ -27,10 +27,10 @@ class AddressCard extends StatelessWidget {
         width: MediaQuery.of(context).size.width,
         constraints: const BoxConstraints(minHeight: 72),
         decoration: BoxDecoration(
-          borderRadius: MyBorder.defaultRadius,
+          borderRadius: CoconutBorder.defaultRadius,
           color: CoconutColors.gray150,
         ),
-        padding: Paddings.widgetContainer,
+        padding: CoconutPadding.widgetContainer,
         margin: const EdgeInsets.only(
           bottom: 8,
           left: 16,

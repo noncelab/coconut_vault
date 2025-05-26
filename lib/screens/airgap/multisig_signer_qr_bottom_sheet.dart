@@ -27,7 +27,7 @@ class _SignerQrBottomSheetState extends State<SignerQrBottomSheet> {
   @override
   Widget build(BuildContext context) {
     return ClipRRect(
-      borderRadius: MyBorder.defaultRadius,
+      borderRadius: CoconutBorder.defaultRadius,
       child: Scaffold(
         backgroundColor: CoconutColors.white,
         appBar: CustomAppBar.buildWithClose(

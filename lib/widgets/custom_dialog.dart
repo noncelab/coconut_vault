@@ -76,7 +76,7 @@ class CustomDialogs {
               child: Container(
                 width: MediaQuery.of(context).size.width,
                 height: MediaQuery.of(context).size.height,
-                padding: Paddings.container,
+                padding: CoconutPadding.container,
                 color: CoconutColors.black,
                 child: Column(
                   children: [body],

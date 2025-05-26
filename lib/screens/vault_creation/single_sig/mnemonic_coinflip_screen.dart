@@ -263,7 +263,7 @@ class _FlipCoinState extends State<FlipCoin> {
                                 child: Material(
                                   color: Colors.transparent,
                                   child: InkWell(
-                                    borderRadius: MyBorder.defaultRadius,
+                                    borderRadius: CoconutBorder.defaultRadius,
                                     onTap: _showAllBitsBottomSheet,
                                     child: Ink(
                                       decoration: BoxDecoration(
@@ -271,7 +271,7 @@ class _FlipCoinState extends State<FlipCoin> {
                                           width: 1,
                                           color: CoconutColors.borderGray,
                                         ),
-                                        borderRadius: MyBorder.defaultRadius,
+                                        borderRadius: CoconutBorder.defaultRadius,
                                         color: CoconutColors.white,
                                       ),
                                       child: Padding(

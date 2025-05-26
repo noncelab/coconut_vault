@@ -212,7 +212,7 @@ class _MnemonicViewScreen extends State<MnemonicViewScreen> {
   @override
   Widget build(BuildContext context) {
     return ClipRRect(
-      borderRadius: MyBorder.defaultRadius,
+      borderRadius: CoconutBorder.defaultRadius,
       child: Scaffold(
         backgroundColor: CoconutColors.white,
         appBar: AppBar(
@@ -237,7 +237,7 @@ class _MnemonicViewScreen extends State<MnemonicViewScreen> {
             child: Container(
               width: MediaQuery.of(context).size.width,
               height: MediaQuery.of(context).size.height * 0.8,
-              padding: Paddings.container,
+              padding: CoconutPadding.container,
               child: Stack(
                 children: [
                   Visibility(

@@ -16,8 +16,9 @@ class CardContainer extends StatelessWidget {
       child: Container(
         height: 124,
         width: double.infinity,
-        decoration: BoxDecoration(borderRadius: MyBorder.defaultRadius, color: CoconutColors.gray150),
-        padding: Paddings.widgetContainer,
+        decoration:
+            BoxDecoration(borderRadius: CoconutBorder.defaultRadius, color: CoconutColors.gray150),
+        padding: CoconutPadding.widgetContainer,
         child: child,
       ),
     );

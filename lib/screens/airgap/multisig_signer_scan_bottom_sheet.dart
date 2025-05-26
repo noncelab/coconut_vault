@@ -95,7 +95,7 @@ class _SignerScanBottomSheetState extends State<SignerScanBottomSheet> {
   Widget build(BuildContext context) {
     return CustomLoadingOverlay(
       child: ClipRRect(
-        borderRadius: MyBorder.boxDecorationRadius,
+        borderRadius: CoconutBorder.boxDecorationRadius,
         child: Scaffold(
           backgroundColor: CoconutColors.white,
           appBar: CustomAppBar.build(

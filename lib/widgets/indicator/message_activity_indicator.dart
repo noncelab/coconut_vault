@@ -10,7 +10,7 @@ class MessageActivityIndicator extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        borderRadius: MyBorder.defaultRadius,
+        borderRadius: CoconutBorder.defaultRadius,
         color: message != null ? CoconutColors.white : null,
       ),
       width: MediaQuery.of(context).size.width / 2 + 30,

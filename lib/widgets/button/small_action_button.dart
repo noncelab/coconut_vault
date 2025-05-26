@@ -25,7 +25,7 @@ class SmallActionButton extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 0, horizontal: 4),
       decoration: BoxDecoration(
-        borderRadius: MyBorder.defaultRadius,
+        borderRadius: CoconutBorder.defaultRadius,
         color: backgroundColor,
       ),
       width: width, // 넘겨받은 width가 적용되거나 null이면 자동으로 조절됩니다.

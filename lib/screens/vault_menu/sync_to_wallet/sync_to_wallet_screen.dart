@@ -35,7 +35,7 @@ class _SyncToWalletScreenState extends State<SyncToWalletScreen> {
           hasRightIcon: false,
           isBottom: true),
       body: SafeArea(
-        minimum: Paddings.container,
+        minimum: CoconutPadding.container,
         child: SingleChildScrollView(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,

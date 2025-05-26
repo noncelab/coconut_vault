@@ -62,7 +62,7 @@ class _AddressListScreenState extends State<AddressListScreen> {
                             right: 16,
                           ),
                           decoration: BoxDecoration(
-                            borderRadius: MyBorder.defaultRadius,
+                            borderRadius: CoconutBorder.defaultRadius,
                             color: CoconutColors.black.withOpacity(0.06),
                           ),
                           child: Row(
@@ -149,8 +149,8 @@ class _AddressListScreenState extends State<AddressListScreen> {
                                           title: t.address_list_screen.address_index(index: index),
                                           qrcodeTopWidget: Text(
                                             addressList[index].derivationPath,
-                                            style: Styles.body2
-                                                .merge(const TextStyle(color: CoconutColors.gray800)),
+                                            style: Styles.body2.merge(
+                                                const TextStyle(color: CoconutColors.gray800)),
                                           ),
                                         ),
                                       );
@@ -168,7 +168,8 @@ class _AddressListScreenState extends State<AddressListScreen> {
                                   child: Container(
                                     padding: const EdgeInsets.all(30),
                                     child: const Center(
-                                      child: CircularProgressIndicator(color: CoconutColors.gray800),
+                                      child:
+                                          CircularProgressIndicator(color: CoconutColors.gray800),
                                     ),
                                   ),
                                 ),

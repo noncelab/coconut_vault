@@ -364,7 +364,7 @@
 //   );
 
 //   static BoxDecoration boxDecorationGrey = BoxDecoration(
-//     borderRadius: MyBorder.defaultRadius,
+//     borderRadius: CoconutBorder.defaultRadius,
 //     color: MyColors.transparentBlack_06,
 //   );
 

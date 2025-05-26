@@ -43,7 +43,7 @@ class _NameAndIconEditBottomSheetState extends State<NameAndIconEditBottomSheet>
   Widget build(BuildContext context) {
     return CustomLoadingOverlay(
       child: ClipRRect(
-        borderRadius: MyBorder.defaultRadius,
+        borderRadius: CoconutBorder.defaultRadius,
         child: Stack(
           children: [
             Scaffold(
@@ -95,8 +95,9 @@ class _NameAndIconEditBottomSheetState extends State<NameAndIconEditBottomSheet>
                                 ? Colors.transparent
                                 : CoconutColors.black.withOpacity(0.06),
                           ),
-                          color:
-                              _name.trim().isNotEmpty ? CoconutColors.gray800 : CoconutColors.gray150,
+                          color: _name.trim().isNotEmpty
+                              ? CoconutColors.gray800
+                              : CoconutColors.gray150,
                         ),
                         child: Center(
                           child: Text(t.complete,
@@ -119,7 +120,6 @@ class _NameAndIconEditBottomSheetState extends State<NameAndIconEditBottomSheet>
                   body: Container(
                     width: MediaQuery.of(context).size.width,
                     height: MediaQuery.of(context).size.height,
-                    // padding: Paddings.container,
                     color: CoconutColors.white,
                     child: VaultNameIconEditPalette(
                       name: _name, // 초기 값 설정
