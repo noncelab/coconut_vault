@@ -1,3 +1,4 @@
+import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:coconut_vault/styles.dart';
@@ -38,8 +39,8 @@ class CustomToast {
               text: text,
               visibleIcon: true,
               svgIconPath: 'assets/svg/tooltip/triangle-warning.svg',
-              iconColor: MyColors.warningYellow,
-              backgroundColor: MyColors.warningYellowBackground,
+              iconColor: CoconutColors.warningYellow,
+              backgroundColor: CoconutColors.warningYellowBackground,
               onDismiss: () {
                 overlayEntry.remove();
               },
@@ -66,8 +67,8 @@ class ToastWidget extends StatefulWidget {
     required this.visibleIcon,
     required this.duration,
     this.svgIconPath = 'assets/svg/tooltip/info.svg',
-    this.backgroundColor = MyColors.darkgrey,
-    this.iconColor = MyColors.white,
+    this.backgroundColor = CoconutColors.gray800,
+    this.iconColor = CoconutColors.white,
   });
 
   @override
@@ -137,7 +138,7 @@ class _ToastWidgetState extends State<ToastWidget> with SingleTickerProviderStat
                     decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(12.0),
                         color: widget.backgroundColor,
-                        border: Border.all(color: MyColors.borderGrey, width: 0.5)),
+                        border: Border.all(color: CoconutColors.borderGray, width: 0.5)),
                     child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
                       if (widget.visibleIcon)
                         Padding(
@@ -148,7 +149,7 @@ class _ToastWidgetState extends State<ToastWidget> with SingleTickerProviderStat
                       Expanded(
                           child: Text(widget.text,
                               style: Styles.caption
-                                  .merge(const TextStyle(color: MyColors.white, height: 1.2))))
+                                  .merge(const TextStyle(color: CoconutColors.white, height: 1.2))))
                     ])),
               ))),
     );

@@ -24,7 +24,7 @@ class MultisigBsmsScreen extends StatelessWidget {
         final qrWidth = MediaQuery.of(context).size.width * 0.76;
 
         return Scaffold(
-          backgroundColor: MyColors.white,
+          backgroundColor: CoconutColors.white,
           appBar: CustomAppBar.build(
             title: t.multi_sig_bsms_screen.title,
             context: context,
@@ -56,11 +56,11 @@ class MultisigBsmsScreen extends StatelessWidget {
                     padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(4.0),
-                      color: MyColors.borderGrey,
+                      color: CoconutColors.borderGray,
                     ),
                     child: Text(
                       t.multi_sig_bsms_screen.view_detail,
-                      style: Styles.body2.copyWith(color: MyColors.white),
+                      style: Styles.body2.copyWith(color: CoconutColors.white),
                     ),
                   ),
                 ),
@@ -164,17 +164,17 @@ class MultisigBsmsScreen extends StatelessWidget {
       child: ClipRRect(
         borderRadius: MyBorder.defaultRadius,
         child: Scaffold(
-          backgroundColor: MyColors.white,
+          backgroundColor: CoconutColors.white,
           appBar: AppBar(
             title: Text(t.multi_sig_bsms_screen.bottom_sheet.title),
             centerTitle: true,
-            backgroundColor: MyColors.white,
+            backgroundColor: CoconutColors.white,
             titleTextStyle: Styles.body1Bold,
             toolbarTextStyle: Styles.body1Bold,
             leading: IconButton(
               icon: const Icon(
                 Icons.close_rounded,
-                color: MyColors.darkgrey,
+                color: CoconutColors.gray800,
                 size: 22,
               ),
               onPressed: () {

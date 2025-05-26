@@ -132,7 +132,7 @@ class _PsbtScannerScreenState extends State<PsbtScannerScreen> {
         body: Stack(
           children: [
             Container(
-              color: MyColors.white,
+              color: CoconutColors.white,
               child: AnimatedQrScanner(
                 setQRViewController: (QRViewController qrViewcontroller) {
                   controller = qrViewcontroller;
@@ -153,7 +153,7 @@ class _PsbtScannerScreenState extends State<PsbtScannerScreen> {
                       fontSize: 15,
                       height: 1.4,
                       letterSpacing: 0.5,
-                      color: MyColors.black,
+                      color: CoconutColors.black,
                     ),
                     children: <TextSpan>[
                       TextSpan(

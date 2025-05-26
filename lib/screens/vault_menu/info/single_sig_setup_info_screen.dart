@@ -83,7 +83,7 @@ class _SingleSigSetupInfoScreenState extends State<SingleSigSetupInfoScreen> {
               Provider.of<WalletProvider>(context, listen: false), widget.id),
           child: Consumer<SingleSigSetupInfoViewModel>(builder: (context, viewModel, child) {
             return Scaffold(
-              backgroundColor: MyColors.white,
+              backgroundColor: CoconutColors.white,
               appBar: CustomAppBar.build(
                   title: '${viewModel.name} ${t.info}',
                   context: context,
@@ -174,9 +174,9 @@ class _SingleSigSetupInfoScreenState extends State<SingleSigSetupInfoScreen> {
   Widget _buildLinkedMultisigVaultInfoCard(BuildContext context) {
     const linearGradient = LinearGradient(
       colors: [
-        MyColors.multiSigGradient1,
-        MyColors.multiSigGradient2,
-        MyColors.multiSigGradient3,
+        Color(0xFFB2E774),
+        Color(0xFF6373EB),
+        Color(0xFF2ACEC3),
       ],
       begin: Alignment.centerLeft,
       end: Alignment.centerRight,
@@ -185,7 +185,7 @@ class _SingleSigSetupInfoScreenState extends State<SingleSigSetupInfoScreen> {
     return Container(
       margin: const EdgeInsets.only(bottom: 12, left: 16, right: 16),
       decoration: BoxDecoration(
-        color: MyColors.white,
+        color: CoconutColors.white,
         borderRadius: BorderRadius.circular(22),
         gradient: linearGradient,
       ),
@@ -193,7 +193,7 @@ class _SingleSigSetupInfoScreenState extends State<SingleSigSetupInfoScreen> {
         margin: const EdgeInsets.all(1),
         padding: const EdgeInsets.only(left: 20, right: 20, top: 20, bottom: 14),
         decoration: BoxDecoration(
-          color: MyColors.white,
+          color: CoconutColors.white,
           borderRadius: BorderRadius.circular(21),
         ),
         child: Column(
@@ -241,20 +241,20 @@ class _SingleSigSetupInfoScreenState extends State<SingleSigSetupInfoScreen> {
                         child: RichText(
                           text: TextSpan(
                             style: Styles.body2.copyWith(
-                              color: MyColors.linkBlue,
+                              color: const Color(0xFF4E83FF),
                             ),
                             children: [
                               TextSpan(
                                 text: TextUtils.ellipsisIfLonger(multisig.name),
                                 style: Styles.body2Bold.copyWith(
-                                  color: MyColors.linkBlue,
+                                  color: const Color(0xFF4E83FF),
                                 ),
                               ),
                               TextSpan(text: t.vault_settings.of),
                               TextSpan(
                                 text: t.vault_settings.nth(index: idx + 1),
                                 style: Styles.body2Bold.copyWith(
-                                  color: MyColors.linkBlue,
+                                  color: const Color(0xFF4E83FF),
                                 ),
                               ),
                               TextSpan(text: t.vault_settings.key),
@@ -306,7 +306,7 @@ class _SingleSigSetupInfoScreenState extends State<SingleSigSetupInfoScreen> {
                   //       _verifyBiometric(context, SecurityAction.viewExtendedPublicKey);
                   //     }),
                   // const Divider(
-                  //     color: MyColors.borderLightgrey,
+                  //     color: CoconutColors.borderLightGray,
                   //     height: 1),
                   InformationItemCard(
                     label: t.view_mnemonic,
@@ -329,7 +329,7 @@ class _SingleSigSetupInfoScreenState extends State<SingleSigSetupInfoScreen> {
             padding: const EdgeInsets.symmetric(horizontal: 24),
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(28.0),
-              color: MyColors.transparentBlack_03,
+              color: CoconutColors.black.withOpacity(0.03),
             ),
             child: Column(
               children: [
@@ -343,12 +343,12 @@ class _SingleSigSetupInfoScreenState extends State<SingleSigSetupInfoScreen> {
                         label: t.delete_label,
                         showIcon: true,
                         textColor: viewModel.hasLinkedMultisigVault
-                            ? MyColors.disabledGrey.withOpacity(0.15)
+                            ? CoconutColors.gray850.withOpacity(0.15)
                             : null,
                         rightIcon: Container(
                           padding: const EdgeInsets.all(8),
                           decoration: BoxDecoration(
-                            color: MyColors.transparentWhite_70,
+                            color: CoconutColors.white.withOpacity(0.7),
                             borderRadius: BorderRadius.circular(10),
                           ),
                           child: SvgPicture.asset(
@@ -356,8 +356,8 @@ class _SingleSigSetupInfoScreenState extends State<SingleSigSetupInfoScreen> {
                             width: 16,
                             colorFilter: ColorFilter.mode(
                               data.canDelete
-                                  ? MyColors.warningText
-                                  : MyColors.disabledGrey.withOpacity(0.15),
+                                  ? CoconutColors.warningText
+                                  : CoconutColors.gray850.withOpacity(0.15),
                               BlendMode.srcIn,
                             ),
                           ),
@@ -428,7 +428,7 @@ class _SingleSigSetupInfoScreenState extends State<SingleSigSetupInfoScreen> {
           width: 65,
           child: Divider(
             thickness: 1, // 선의 두께
-            color: MyColors.borderLightgrey,
+            color: CoconutColors.borderLightGray,
           ),
         ),
       ),
@@ -452,7 +452,7 @@ class _SingleSigSetupInfoScreenState extends State<SingleSigSetupInfoScreen> {
                 right: 10,
                 bottom: 10,
               ),
-              color: MyColors.darkgrey,
+              color: CoconutColors.gray800,
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
@@ -461,7 +461,7 @@ class _SingleSigSetupInfoScreenState extends State<SingleSigSetupInfoScreen> {
                     style: Styles.caption.merge(TextStyle(
                       height: 1.3,
                       fontFamily: CustomFonts.text.getFontFamily,
-                      color: MyColors.white,
+                      color: CoconutColors.white,
                     )),
                   ),
                 ],

@@ -22,7 +22,7 @@ class GuideDialog extends StatelessWidget {
           )
         ],
       ),
-      backgroundColor: MyColors.white,
+      backgroundColor: CoconutColors.white,
       contentPadding: const EdgeInsets.all(10.0),
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.all(Radius.circular(20.0)),

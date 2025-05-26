@@ -96,7 +96,7 @@ class _MnemonicConfirmationBottomSheetState extends State<MnemonicConfirmationBo
                           fontSize: 13.0,
                           fontWeight: FontWeight.w400,
                           letterSpacing: 0.2,
-                          color: MyColors.darkgrey,
+                          color: CoconutColors.gray800,
                         ),
                       ),
                     ],
@@ -145,7 +145,7 @@ class _MnemonicConfirmationBottomSheetState extends State<MnemonicConfirmationBo
             child: Text(
               t.mnemonic_confirm_screen.warning.long_passphrase,
               style: TextStyle(
-                  color: MyColors.warningText,
+                  color: CoconutColors.warningText,
                   fontSize: 12.0,
                   fontFamily: CustomFonts.text.getFontFamily),
             ),
@@ -199,7 +199,9 @@ class _MnemonicConfirmationBottomSheetState extends State<MnemonicConfirmationBo
 
             return Container(
               decoration: BoxDecoration(
-                color: gridviewColumnFlag ? MyColors.lightgrey : MyColors.transparentBlack_06,
+                color: gridviewColumnFlag
+                    ? CoconutColors.gray150
+                    : CoconutColors.black.withOpacity(0.06),
                 borderRadius: borderRadius,
               ),
               alignment: Alignment.center,
@@ -212,7 +214,7 @@ class _MnemonicConfirmationBottomSheetState extends State<MnemonicConfirmationBo
                     style: Styles.body2.merge(
                       TextStyle(
                         fontFamily: CustomFonts.number.getFontFamily,
-                        color: MyColors.darkgrey,
+                        color: CoconutColors.gray800,
                         fontSize: 12,
                       ),
                     ),
@@ -240,11 +242,11 @@ class _MnemonicConfirmationBottomSheetState extends State<MnemonicConfirmationBo
             child: CupertinoButton(
               onPressed: widget.onCancelPressed,
               padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 4),
-              color: MyColors.lightgrey,
+              color: CoconutColors.gray150,
               alignment: Alignment.center,
               child: Text(t.cancel,
                   style: Styles.label.merge(const TextStyle(
-                    color: MyColors.black,
+                    color: CoconutColors.black,
                     fontWeight: FontWeight.w600,
                   ))),
             ),
@@ -254,7 +256,7 @@ class _MnemonicConfirmationBottomSheetState extends State<MnemonicConfirmationBo
             child: CupertinoButton(
               onPressed: _isBottom ? widget.onConfirmPressed : (widget.onInactivePressed ?? () {}),
               padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 4),
-              color: MyColors.darkgrey,
+              color: CoconutColors.gray800,
               alignment: Alignment.center,
               child: Text(
                 t.mnemonic_confirm_screen.btn_confirm_completed,
@@ -287,10 +289,10 @@ class _MnemonicConfirmationBottomSheetState extends State<MnemonicConfirmationBo
           return Container(
             alignment: Alignment.center,
             decoration: BoxDecoration(
-              color: MyColors.white,
+              color: CoconutColors.white,
               border: Border.all(
                 width: 1,
-                color: MyColors.black,
+                color: CoconutColors.black,
               ),
               borderRadius: BorderRadius.circular(8),
             ),
@@ -304,7 +306,9 @@ class _MnemonicConfirmationBottomSheetState extends State<MnemonicConfirmationBo
                     child: Text(
                       '${index + 1}',
                       style: const TextStyle(
-                          color: MyColors.borderGrey, fontWeight: FontWeight.bold, fontSize: 6),
+                          color: CoconutColors.borderGray,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 6),
                     ),
                   ),
                 ),
@@ -315,7 +319,7 @@ class _MnemonicConfirmationBottomSheetState extends State<MnemonicConfirmationBo
                     child: Text(
                       widget.passphrase![index],
                       style: const TextStyle(
-                        color: MyColors.black,
+                        color: CoconutColors.black,
                         fontWeight: FontWeight.bold,
                       ),
                     ),

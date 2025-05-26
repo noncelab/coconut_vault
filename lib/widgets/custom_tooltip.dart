@@ -52,7 +52,7 @@ class _CustomTooltipState extends State<CustomTooltip> {
     return Container(
         margin: const EdgeInsets.symmetric(horizontal: 16.0),
         decoration: BoxDecoration(
-          color: MyColors.white,
+          color: CoconutColors.white,
           borderRadius: BorderRadius.circular(16.0),
         ),
         child: Container(

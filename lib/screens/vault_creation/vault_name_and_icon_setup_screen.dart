@@ -113,7 +113,7 @@ class _VaultNameAndIconSetupScreenState extends State<VaultNameAndIconSetupScree
           onConfirm: () => Navigator.of(context).pop(),
           message: e.toString(),
           isSingleButton: true,
-          confirmButtonColor: MyColors.black);
+          confirmButtonColor: CoconutColors.black);
     } finally {
       setState(() {
         _showLoading = false;
@@ -188,12 +188,12 @@ class _VaultNameAndIconSetupScreenState extends State<VaultNameAndIconSetupScree
           child: Container(
             width: MediaQuery.of(context).size.width,
             height: MediaQuery.of(context).size.height,
-            decoration: const BoxDecoration(color: MyColors.transparentBlack_30),
+            decoration: BoxDecoration(color: CoconutColors.black.withOpacity(0.3)),
             child: Center(
               child: _walletProvider.isVaultListLoading
                   ? MessageActivityIndicator(
                       message: t.vault_name_icon_setup_screen.saving) // 기존 볼트들 불러오는 중
-                  : const CircularProgressIndicator(color: MyColors.darkgrey),
+                  : const CircularProgressIndicator(color: CoconutColors.gray800),
             ),
           ),
         ),

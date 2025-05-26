@@ -92,7 +92,7 @@ class _VaultNameIconEditPaletteState extends State<VaultNameIconEditPalette> {
                                         borderRadius: BorderRadius.circular(40.0),
                                         border: Border.all(
                                           color: index == _selectedColorIndex
-                                              ? MyColors.darkgrey
+                                              ? CoconutColors.gray800
                                               : CoconutColors.white,
                                           width: 1.8,
                                         ),
@@ -109,7 +109,7 @@ class _VaultNameIconEditPaletteState extends State<VaultNameIconEditPalette> {
                                         borderRadius: BorderRadius.circular(40.0),
                                         border: Border.all(
                                           color: index == _selectedIconIndex + 10
-                                              ? MyColors.darkgrey
+                                              ? CoconutColors.gray800
                                               : CoconutColors.white,
                                           width: 1.8,
                                         ),
@@ -167,8 +167,8 @@ class _VaultNameIconEditPaletteState extends State<VaultNameIconEditPalette> {
                       '(${_controller.text.length} / 20)',
                       style: TextStyle(
                           color: _controller.text.length == 20
-                              ? MyColors.transparentBlack
-                              : MyColors.transparentBlack_50,
+                              ? CoconutColors.black.withOpacity(0.7)
+                              : CoconutColors.black.withOpacity(0.5),
                           fontSize: 12,
                           fontFamily: CustomFonts.text.getFontFamily),
                     ),

@@ -5,7 +5,6 @@ import 'package:coconut_lib/coconut_lib.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:coconut_vault/styles.dart';
 import 'package:coconut_vault/widgets/highlighted_text.dart';
 
 class AppUnavailableNotificationScreen extends StatefulWidget {
@@ -21,7 +20,7 @@ class _AppUnavailableNotificationScreenState extends State<AppUnavailableNotific
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: MyColors.white,
+      backgroundColor: CoconutColors.white,
       body: SafeArea(
         child: Center(
           child: Column(
@@ -39,7 +38,7 @@ class _AppUnavailableNotificationScreenState extends State<AppUnavailableNotific
                   width: MediaQuery.of(context).size.width * 0.8,
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(24),
-                    color: MyColors.white,
+                    color: CoconutColors.white,
                     boxShadow: [
                       BoxShadow(
                         color: CoconutColors.gray500.withOpacity(0.3),
@@ -58,7 +57,7 @@ class _AppUnavailableNotificationScreenState extends State<AppUnavailableNotific
                           Text(t.app_unavailable_notification_screen.text1_2,
                               style: Styles.subLabel),
                           HighLightedText(t.app_unavailable_notification_screen.text1_3,
-                              color: MyColors.darkgrey),
+                              color: CoconutColors.gray800),
                           Text(t.app_unavailable_notification_screen.text1_4,
                               style: Styles.subLabel),
                         ],
@@ -66,7 +65,7 @@ class _AppUnavailableNotificationScreenState extends State<AppUnavailableNotific
                       const SizedBox(height: 24),
                       const Text('2', style: Styles.subLabel),
                       HighLightedText(t.app_unavailable_notification_screen.text2,
-                          color: MyColors.darkgrey),
+                          color: CoconutColors.gray800),
                       Text(t.app_unavailable_notification_screen.check_status,
                           style: Styles.subLabel),
                       const SizedBox(height: 24),
@@ -74,7 +73,7 @@ class _AppUnavailableNotificationScreenState extends State<AppUnavailableNotific
                         // Android only: iOS는 개발자 모드 on/off 확인 불가
                         const Text('3', style: Styles.subLabel),
                         HighLightedText(t.app_unavailable_notification_screen.text3,
-                            color: MyColors.darkgrey),
+                            color: CoconutColors.gray800),
                         Text(t.app_unavailable_notification_screen.check_status,
                             style: Styles.subLabel),
                       ]

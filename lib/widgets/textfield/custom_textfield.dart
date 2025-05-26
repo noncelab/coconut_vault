@@ -1,3 +1,4 @@
+import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:coconut_vault/styles.dart';
 import 'package:flutter/services.dart';
@@ -40,7 +41,7 @@ class CustomTextField extends StatefulWidget {
     this.focusNode,
     this.maxLength,
     this.inputFormatters,
-    this.focusedBorderColor = MyColors.black,
+    this.focusedBorderColor = CoconutColors.black,
     this.onFocused,
   });
 
@@ -60,7 +61,8 @@ class _CustomTextFieldState extends State<CustomTextField> {
             padding: const EdgeInsets.only(left: 4, top: 8),
             child: Text(
               widget.errorMessage,
-              style: const TextStyle(color: MyColors.red, fontFamily: 'Pretendard', fontSize: 12),
+              style: const TextStyle(
+                  color: CoconutColors.warningText, fontFamily: 'Pretendard', fontSize: 12),
             )),
     ]);
   }
@@ -81,7 +83,7 @@ class _CustomTextFieldState extends State<CustomTextField> {
               setState(() {
                 isFocused = focus;
               });
-              print('---> focus && widget.onFocused: ${focus} ${widget.onFocused != null}');
+              print('---> focus && widget.onFocused: $focus ${widget.onFocused != null}');
               if (focus && widget.onFocused != null) {
                 widget.onFocused!();
               }
@@ -92,8 +94,10 @@ class _CustomTextFieldState extends State<CustomTextField> {
                 decoration: BoxDecoration(
                   border: Border.all(
                       color: widget.valid != false
-                          ? (isFocused ? widget.focusedBorderColor : MyColors.transparentBlack_06)
-                          : MyColors.red),
+                          ? (isFocused
+                              ? widget.focusedBorderColor
+                              : CoconutColors.black.withOpacity(0.06))
+                          : CoconutColors.warningText),
                   borderRadius: BorderRadius.circular(16.0),
                 ),
                 child: Row(

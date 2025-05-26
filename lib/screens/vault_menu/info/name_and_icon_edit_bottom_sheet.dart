@@ -47,17 +47,17 @@ class _NameAndIconEditBottomSheetState extends State<NameAndIconEditBottomSheet>
         child: Stack(
           children: [
             Scaffold(
-              backgroundColor: MyColors.white,
+              backgroundColor: CoconutColors.white,
               // TODO: custom_appber.buildWithSave로 대체 --> builWithSave를 활용하려면 이 코드도 변경이 필요해 보이기 때문에, 이건 CDS 적용할 때 바꾸는게 좋을 것 같습니다.
               appBar: AppBar(
-                backgroundColor: MyColors.white,
+                backgroundColor: CoconutColors.white,
                 title: Text(_name, maxLines: 1),
                 centerTitle: true,
                 titleTextStyle: Styles.body1Bold,
                 leading: IconButton(
                   icon: const Icon(
                     Icons.close_rounded,
-                    color: MyColors.darkgrey,
+                    color: CoconutColors.gray800,
                     size: 22,
                   ),
                   onPressed: () {
@@ -93,16 +93,17 @@ class _NameAndIconEditBottomSheetState extends State<NameAndIconEditBottomSheet>
                           border: Border.all(
                             color: _name.trim().isNotEmpty
                                 ? Colors.transparent
-                                : MyColors.transparentBlack_06,
+                                : CoconutColors.black.withOpacity(0.06),
                           ),
-                          color: _name.trim().isNotEmpty ? MyColors.darkgrey : MyColors.lightgrey,
+                          color:
+                              _name.trim().isNotEmpty ? CoconutColors.gray800 : CoconutColors.gray150,
                         ),
                         child: Center(
                           child: Text(t.complete,
                               style: Styles.subLabel.merge(TextStyle(
                                   color: _name.trim().isNotEmpty
                                       ? CoconutColors.white
-                                      : MyColors.transparentBlack_30,
+                                      : CoconutColors.black.withOpacity(0.3),
                                   fontSize: 11))),
                         ),
                       ),
@@ -119,7 +120,7 @@ class _NameAndIconEditBottomSheetState extends State<NameAndIconEditBottomSheet>
                     width: MediaQuery.of(context).size.width,
                     height: MediaQuery.of(context).size.height,
                     // padding: Paddings.container,
-                    color: MyColors.white,
+                    color: CoconutColors.white,
                     child: VaultNameIconEditPalette(
                       name: _name, // 초기 값 설정
                       iconIndex: _iconIndex,

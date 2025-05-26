@@ -1,3 +1,4 @@
+import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/widgets/appbar/custom_appbar.dart';
 import 'package:flutter/material.dart';
@@ -13,7 +14,7 @@ class MyBottomSheet {
         builder: (context) {
           return child;
         },
-        backgroundColor: MyColors.white,
+        backgroundColor: CoconutColors.white,
         isDismissible: isDismissible,
         isScrollControlled: true,
         enableDrag: enableDrag,
@@ -31,7 +32,7 @@ class MyBottomSheet {
         builder: (context) {
           return child;
         },
-        backgroundColor: MyColors.white,
+        backgroundColor: CoconutColors.white,
         isDismissible: isDismissible,
         isScrollControlled: true,
         enableDrag: enableDrag,
@@ -78,7 +79,7 @@ class MyBottomSheet {
                           padding: const EdgeInsets.all(4),
                           color: Colors.transparent,
                           child: isCloseButton
-                              ? const Icon(Icons.close_rounded, color: MyColors.black)
+                              ? const Icon(Icons.close_rounded, color: CoconutColors.black)
                               : Container(width: 16),
                         ),
                       ),
@@ -100,7 +101,7 @@ class MyBottomSheet {
               ],
             ));
       },
-      backgroundColor: MyColors.white,
+      backgroundColor: CoconutColors.white,
       isDismissible: isDismissible,
       isScrollControlled: true,
       enableDrag: enableDrag,
@@ -155,7 +156,7 @@ class MyBottomSheet {
                             hasNextButton: true,
                             context: context,
                             title: t.key_list, // fixme: 특정 화면 컨텍스트를 포함하고 있음
-                            backgroundColor: MyColors.white,
+                            backgroundColor: CoconutColors.white,
                             isNextButtonActive: isButtonActiveNotifier.value,
                             onBackPressed: () => Navigator.pop(context),
                             onNextPressed: () {
@@ -172,7 +173,7 @@ class MyBottomSheet {
                         hasNextButton: true,
                         context: context,
                         title: t.import,
-                        backgroundColor: MyColors.white,
+                        backgroundColor: CoconutColors.white,
                         onBackPressed: () {
                           if (onBackPressed != null) {
                             onBackPressed();
@@ -183,7 +184,7 @@ class MyBottomSheet {
                       ),
                     Expanded(
                       child: Container(
-                        color: MyColors.white,
+                        color: CoconutColors.white,
                         child: enableSingleChildScroll
                             ? SingleChildScrollView(
                                 physics: physics,

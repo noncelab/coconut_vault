@@ -76,7 +76,7 @@ void showConfirmDialog(
             Navigator.pop(context);
             _isDialogVisible = false;
           },
-          child: Text('네', style: optionStyle.merge(const TextStyle(color: MyColors.warningText))),
+          child: Text('네', style: optionStyle.merge(const TextStyle(color: CoconutColors.warningText))),
         ),
       ],
     ),

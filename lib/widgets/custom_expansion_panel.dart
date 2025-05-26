@@ -56,7 +56,7 @@ class _CustomExpansionPanelState extends State<CustomExpansionPanel> {
             });
           },
           child: Container(
-            color: isPressed ? MyColors.lightgrey : CoconutColors.white,
+            color: isPressed ? CoconutColors.gray150 : CoconutColors.white,
             padding: widget.padding,
             child: widget.unExpansionWidget,
           ),

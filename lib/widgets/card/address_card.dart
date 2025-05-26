@@ -1,3 +1,4 @@
+import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_vault/styles.dart';
 import 'package:coconut_vault/utils/text_utils.dart';
 import 'package:flutter/cupertino.dart';
@@ -27,7 +28,7 @@ class AddressCard extends StatelessWidget {
         constraints: const BoxConstraints(minHeight: 72),
         decoration: BoxDecoration(
           borderRadius: MyBorder.defaultRadius,
-          color: MyColors.lightgrey,
+          color: CoconutColors.gray150,
         ),
         padding: Paddings.widgetContainer,
         margin: const EdgeInsets.only(
@@ -43,11 +44,11 @@ class AddressCard extends StatelessWidget {
               margin: const EdgeInsets.only(right: 6),
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(8),
-                color: MyColors.transparentBlack_30,
+                color: CoconutColors.black.withOpacity(0.3),
               ),
               child: Text(
                 index,
-                style: Styles.caption.merge(const TextStyle(color: MyColors.white)),
+                style: Styles.caption.merge(const TextStyle(color: CoconutColors.white)),
               ),
             ),
             Column(

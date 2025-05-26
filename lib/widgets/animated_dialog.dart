@@ -1,3 +1,4 @@
+import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
 import 'package:coconut_vault/styles.dart';
@@ -55,9 +56,9 @@ class _AnimatedDialogState extends State<AnimatedDialog> with SingleTickerProvid
       child: SlideTransition(
         position: _offsetAnimation,
         child: Container(
-          decoration: const BoxDecoration(
-            borderRadius: BorderRadius.all(Radius.circular(16)),
-            color: MyColors.transparentBlack_50,
+          decoration: BoxDecoration(
+            borderRadius: const BorderRadius.all(Radius.circular(16)),
+            color: CoconutColors.black.withOpacity(0.5),
           ),
           child: Column(
             mainAxisSize: MainAxisSize.min,

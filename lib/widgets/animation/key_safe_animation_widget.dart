@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:collection';
 
+import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_vault/providers/view_model/mutlisig_quorum_selection_view_model.dart';
 import 'package:coconut_vault/styles.dart';
 import 'package:flutter/material.dart';
@@ -54,8 +55,8 @@ class _KeySafeAnimationWidgetState extends State<KeySafeAnimationWidget> {
                           : SvgPicture.asset(
                               'assets/svg/key-icon.svg',
                               width: 20,
-                              colorFilter: const ColorFilter.mode(
-                                  MyColors.progressbarColorDisabled, BlendMode.srcIn),
+                              colorFilter:
+                                  const ColorFilter.mode(CoconutColors.gray350, BlendMode.srcIn),
                             ),
                       const SizedBox(
                         width: 30,
@@ -78,8 +79,8 @@ class _KeySafeAnimationWidgetState extends State<KeySafeAnimationWidget> {
                             : SvgPicture.asset(
                                 'assets/svg/key-icon.svg',
                                 width: 20,
-                                colorFilter: const ColorFilter.mode(
-                                    MyColors.progressbarColorDisabled, BlendMode.srcIn),
+                                colorFilter:
+                                    const ColorFilter.mode(CoconutColors.gray350, BlendMode.srcIn),
                               ),
                         const SizedBox(
                           width: 30,
@@ -103,8 +104,8 @@ class _KeySafeAnimationWidgetState extends State<KeySafeAnimationWidget> {
                           : SvgPicture.asset(
                               'assets/svg/key-icon.svg',
                               width: 20,
-                              colorFilter: const ColorFilter.mode(
-                                  MyColors.progressbarColorDisabled, BlendMode.srcIn),
+                              colorFilter:
+                                  const ColorFilter.mode(CoconutColors.gray350, BlendMode.srcIn),
                             ),
                       const SizedBox(
                         width: 30,
@@ -428,8 +429,8 @@ class _KeySafeAnimationWidgetState extends State<KeySafeAnimationWidget> {
             : key == 1
                 ? _progressValue_2
                 : _progressValue_3,
-        color: MyColors.progressbarColorEnabled,
-        backgroundColor: MyColors.progressbarColorDisabled,
+        color: CoconutColors.gray800,
+        backgroundColor: CoconutColors.gray350,
       ),
     );
   }

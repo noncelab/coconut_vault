@@ -117,22 +117,23 @@ class _AppInfoScreenState extends State<AppInfoScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       extendBodyBehindAppBar: true,
-      backgroundColor: MyColors.white,
+      backgroundColor: CoconutColors.white,
       appBar: AppBar(
         scrolledUnderElevation: 0,
-        backgroundColor: _isScrollOverTitleHeight ? MyColors.transparentWhite_20 : MyColors.white,
+        backgroundColor:
+            _isScrollOverTitleHeight ? CoconutColors.white.withOpacity(0.2) : CoconutColors.white,
         toolbarHeight: kToolbarHeight,
         leading: IconButton(
             onPressed: () {
               Navigator.pop(context);
             },
-            icon: const Icon(Icons.close_rounded, color: MyColors.darkgrey, size: 22)),
+            icon: const Icon(Icons.close_rounded, color: CoconutColors.gray800, size: 22)),
         flexibleSpace: _isScrollOverTitleHeight
             ? ClipRect(
                 child: BackdropFilter(
                   filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
                   child: Container(
-                    color: MyColors.transparentWhite_06,
+                    color: CoconutColors.white.withOpacity(0.06),
                   ),
                 ),
               )
@@ -174,7 +175,7 @@ class _AppInfoScreenState extends State<AppInfoScreen> {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(
                 child: CircularProgressIndicator(
-              color: MyColors.darkgrey,
+              color: CoconutColors.gray800,
             ));
           } else if (snapshot.hasError) {
             return Center(child: Text(t.errors.data_loading_error));
@@ -202,7 +203,7 @@ class _AppInfoScreenState extends State<AppInfoScreen> {
                     shape: BoxShape.rectangle,
                     borderRadius: BorderRadius.circular(20),
                     border: Border.all(
-                      color: MyColors.borderLightgrey,
+                      color: CoconutColors.borderLightGray,
                       width: 2.0,
                     ),
                   ),
@@ -227,16 +228,16 @@ class _AppInfoScreenState extends State<AppInfoScreen> {
                     Text(
                       'ver.${packageInfo.version}',
                       style: Styles.body2Bold.merge(
-                        const TextStyle(
-                          color: MyColors.transparentBlack_70,
+                        TextStyle(
+                          color: CoconutColors.black.withOpacity(0.7),
                         ),
                       ),
                     ),
                     Text(
                       t.app_info_screen.made_by_team_pow,
                       style: Styles.body2.merge(
-                        const TextStyle(
-                          color: MyColors.transparentBlack_70,
+                        TextStyle(
+                          color: CoconutColors.black.withOpacity(0.7),
                         ),
                       ),
                     ),
@@ -476,9 +477,9 @@ class _AppInfoScreenState extends State<AppInfoScreen> {
         future: packageInfoFuture,
         builder: (BuildContext context, AsyncSnapshot<PackageInfo> snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(
+            return Center(
                 child: CircularProgressIndicator(
-              color: MyColors.defaultBackground,
+              color: CoconutColors.white.withOpacity(0.06),
             ));
           } else if (snapshot.hasError) {
             return Center(child: Text(t.errors.data_loading_error));
@@ -489,7 +490,7 @@ class _AppInfoScreenState extends State<AppInfoScreen> {
           PackageInfo packageInfo = snapshot.data!;
           return Container(
             padding: const EdgeInsets.symmetric(vertical: 50),
-            color: MyColors.transparentBlack_03,
+            color: CoconutColors.black.withOpacity(0.03),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -501,8 +502,8 @@ class _AppInfoScreenState extends State<AppInfoScreen> {
                       t.app_info_screen
                           .version_and_date(version: packageInfo.version, releasedAt: RELEASE_DATE),
                       style: Styles.body2.merge(
-                        const TextStyle(
-                          color: MyColors.transparentBlack_50,
+                        TextStyle(
+                          color: CoconutColors.black.withOpacity(0.5),
                         ),
                       ),
                     ),
@@ -516,10 +517,10 @@ class _AppInfoScreenState extends State<AppInfoScreen> {
                   child: Text(
                     COPYRIGHT_TEXT,
                     style: Styles.body2.merge(
-                      const TextStyle(
-                        color: MyColors.transparentBlack_50,
+                      TextStyle(
+                        color: CoconutColors.black.withOpacity(0.5),
                         decoration: TextDecoration.underline,
-                        decorationColor: MyColors.transparentBlack_50,
+                        decorationColor: CoconutColors.black.withOpacity(0.5),
                       ),
                     ),
                   ),
@@ -535,7 +536,7 @@ class _AppInfoScreenState extends State<AppInfoScreen> {
       child: Text(label,
           style: const TextStyle(
             fontFamily: 'Pretendard',
-            color: MyColors.darkgrey,
+            color: CoconutColors.gray800,
             fontSize: 16,
             fontStyle: FontStyle.normal,
             fontWeight: FontWeight.bold,

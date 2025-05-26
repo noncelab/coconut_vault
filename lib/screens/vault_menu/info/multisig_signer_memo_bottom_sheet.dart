@@ -68,7 +68,7 @@ class _MultisigSignerMemoBottomSheetState extends State<MultisigSignerMemoBottom
                 // TextField
                 Container(
                   decoration: BoxDecoration(
-                    border: Border.all(color: MyColors.transparentBlack_06),
+                    border: Border.all(color: CoconutColors.black.withOpacity(0.06)),
                     borderRadius: BorderRadius.circular(16.0),
                   ),
                   child: CupertinoTextField(
@@ -100,8 +100,8 @@ class _MultisigSignerMemoBottomSheetState extends State<MultisigSignerMemoBottom
                       '(${_memo.length} / 15)',
                       style: TextStyle(
                         color: _memo.length == 15
-                            ? MyColors.transparentBlack
-                            : MyColors.transparentBlack_50,
+                            ? CoconutColors.black.withOpacity(0.7)
+                            : CoconutColors.black.withOpacity(0.5),
                         fontSize: 12,
                         fontFamily: CustomFonts.text.getFontFamily,
                       ),
@@ -123,14 +123,14 @@ class _MultisigSignerMemoBottomSheetState extends State<MultisigSignerMemoBottom
                         child: Container(
                           padding: const EdgeInsets.symmetric(vertical: 16),
                           decoration: BoxDecoration(
-                            color: MyColors.lightgrey,
+                            color: CoconutColors.gray150,
                             borderRadius: BorderRadius.circular(5),
                           ),
                           child: const Center(
                             child: Text(
                               '닫기',
                               style: TextStyle(
-                                color: MyColors.black,
+                                color: CoconutColors.black,
                                 fontSize: 14,
                                 fontWeight: FontWeight.bold,
                               ),
@@ -196,7 +196,7 @@ class MemoTextField extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         border: Border.all(
-          color: MyColors.transparentBlack_06,
+          color: CoconutColors.black.withOpacity(0.06),
         ),
         borderRadius: BorderRadius.circular(16),
       ),

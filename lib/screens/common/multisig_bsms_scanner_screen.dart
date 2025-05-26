@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_lib/coconut_lib.dart';
 import 'package:coconut_vault/app_routes_params.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
@@ -113,7 +114,7 @@ class _MultisigBsmsScannerScreenState extends State<MultisigBsmsScannerScreen> {
     return Stack(
       children: [
         Container(
-          color: MyColors.white,
+          color: CoconutColors.white,
           child: QRView(
             key: qrKey,
             onQRViewCreated: !_isSetScaffold
@@ -121,7 +122,7 @@ class _MultisigBsmsScannerScreenState extends State<MultisigBsmsScannerScreen> {
                 : _onQRViewCreatedWhenScanCoordinator,
             overlayMargin: !_isSetScaffold ? const EdgeInsets.only(top: 50) : EdgeInsets.zero,
             overlay: QrScannerOverlayShape(
-                borderColor: MyColors.white,
+                borderColor: CoconutColors.white,
                 borderRadius: 8,
                 borderLength: (MediaQuery.of(context).size.width < 400 ||
                         MediaQuery.of(context).size.height < 400)
@@ -137,7 +138,7 @@ class _MultisigBsmsScannerScreenState extends State<MultisigBsmsScannerScreen> {
         ),
         Container(
           height: !_isSetScaffold ? 50.1 : 0,
-          color: MyColors.transparentBlack_50,
+          color: CoconutColors.black.withOpacity(0.5),
         ),
         Padding(
           padding: const EdgeInsets.only(top: 20),
@@ -152,10 +153,10 @@ class _MultisigBsmsScannerScreenState extends State<MultisigBsmsScannerScreen> {
           child: Container(
             width: MediaQuery.of(context).size.width,
             height: MediaQuery.of(context).size.height,
-            decoration: const BoxDecoration(color: MyColors.transparentBlack_30),
+            decoration: BoxDecoration(color: CoconutColors.black.withOpacity(0.3)),
             child: const Center(
               child: CircularProgressIndicator(
-                color: MyColors.darkgrey,
+                color: CoconutColors.gray800,
               ),
             ),
           ),

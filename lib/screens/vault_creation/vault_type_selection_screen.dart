@@ -1,3 +1,4 @@
+import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_vault/constants/app_routes.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
@@ -92,7 +93,7 @@ class _VaultTypeSelectionScreenState extends State<VaultTypeSelectionScreen> {
     return Consumer<WalletProvider>(
       builder: (context, model, child) {
         return Scaffold(
-          backgroundColor: MyColors.white,
+          backgroundColor: CoconutColors.white,
           appBar: CustomAppBar.buildWithNext(
             title: t.select_vault_type_screen.title,
             context: context,
@@ -115,7 +116,7 @@ class _VaultTypeSelectionScreenState extends State<VaultTypeSelectionScreen> {
                           : '',
                       style: Styles.caption.merge(
                         const TextStyle(
-                          color: MyColors.warningText,
+                          color: CoconutColors.warningText,
                         ),
                       ),
                     ),
@@ -145,7 +146,7 @@ class _VaultTypeSelectionScreenState extends State<VaultTypeSelectionScreen> {
               Visibility(
                 visible: _showLoading,
                 child: Container(
-                  decoration: const BoxDecoration(color: MyColors.transparentBlack_30),
+                  decoration:  BoxDecoration(color: CoconutColors.black.withOpacity(0.3)),
                   child: Center(
                       child: MessageActivityIndicator(
                           message: t.select_vault_type_screen.loading_keys)),

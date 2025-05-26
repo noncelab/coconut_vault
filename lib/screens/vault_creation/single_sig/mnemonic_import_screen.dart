@@ -122,7 +122,7 @@ class _MnemonicImportState extends State<MnemonicImport> {
       message: t.alert.stop_importing_mnemonic.description,
       cancelButtonText: t.cancel,
       confirmButtonText: t.stop,
-      confirmButtonColor: MyColors.warningText,
+      confirmButtonColor: CoconutColors.warningText,
       onCancel: () => Navigator.pop(context),
       onConfirm: () {
         Navigator.pop(context);
@@ -182,10 +182,10 @@ class _MnemonicImportState extends State<MnemonicImport> {
             child: Container(
               width: MediaQuery.of(context).size.width,
               height: MediaQuery.of(context).size.height,
-              decoration: const BoxDecoration(color: MyColors.transparentBlack_30),
+              decoration: BoxDecoration(color: CoconutColors.black.withOpacity(0.3)),
               child: const Center(
                 child: CircularProgressIndicator(
-                  color: MyColors.darkgrey,
+                  color: CoconutColors.gray800,
                 ),
               ),
             ),
@@ -271,7 +271,7 @@ class _MnemonicImportState extends State<MnemonicImport> {
                 const Spacer(),
                 CupertinoSwitch(
                   value: _usePassphrase,
-                  activeColor: MyColors.darkgrey,
+                  activeColor: CoconutColors.gray800,
                   onChanged: (value) {
                     setState(() {
                       _usePassphrase = value;
@@ -286,7 +286,7 @@ class _MnemonicImportState extends State<MnemonicImport> {
             padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(12),
-              color: MyColors.transparentBlack_06,
+              color: CoconutColors.black.withOpacity(0.06),
             ),
             child: Column(
               children: [
@@ -302,7 +302,7 @@ class _MnemonicImportState extends State<MnemonicImport> {
                       t.mnemonic_import_screen.open_settings,
                       style: TextStyle(
                         fontFamily: CustomFonts.text.getFontFamily,
-                        color: MyColors.black,
+                        color: CoconutColors.black,
                         decoration: TextDecoration.underline,
                         fontWeight: FontWeight.bold,
                       ),
@@ -336,12 +336,12 @@ class _MnemonicImportState extends State<MnemonicImport> {
                 child: _passphraseObscured
                     ? const Icon(
                         CupertinoIcons.eye_slash,
-                        color: MyColors.darkgrey,
+                        color: CoconutColors.gray800,
                         size: 18,
                       )
                     : const Icon(
                         CupertinoIcons.eye,
-                        color: MyColors.darkgrey,
+                        color: CoconutColors.gray800,
                         size: 18,
                       ),
               ),
@@ -356,8 +356,8 @@ class _MnemonicImportState extends State<MnemonicImport> {
             '(${_passphrase.length} / 100)',
             style: TextStyle(
                 color: _passphrase.length == 100
-                    ? MyColors.transparentBlack
-                    : MyColors.transparentBlack_50,
+                    ? CoconutColors.black.withOpacity(0.7)
+                    : CoconutColors.black.withOpacity(0.5),
                 fontSize: 12,
                 fontFamily: CustomFonts.text.getFontFamily),
           ),

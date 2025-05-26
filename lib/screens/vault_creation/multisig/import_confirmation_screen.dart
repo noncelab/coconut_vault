@@ -1,3 +1,4 @@
+import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_lib/coconut_lib.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/widgets/button/custom_buttons.dart';
@@ -80,7 +81,7 @@ class _ImportConfirmationScreenState extends State<ImportConfirmationScreen>
         duration: const Duration(milliseconds: 30),
         padding: EdgeInsets.only(top: 20, bottom: MediaQuery.of(context).viewInsets.bottom),
         child: Container(
-          color: MyColors.white,
+          color: MyCoCoconutColorslors.white,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -155,11 +156,11 @@ class _ImportConfirmationScreenState extends State<ImportConfirmationScreen>
                         Container(
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(16),
-                            color: MyColors.white,
-                            boxShadow: const [
+                            color: CoconutColors.white,
+                            boxShadow: [
                               BoxShadow(
-                                color: MyColors.transparentBlack_15,
-                                offset: Offset(4, 4),
+                                color: CoconutColors.black.withOpacity(0.15),
+                                offset: const Offset(4, 4),
                                 blurRadius: 30,
                                 spreadRadius: 0,
                               ),
@@ -171,7 +172,7 @@ class _ImportConfirmationScreenState extends State<ImportConfirmationScreen>
                             controller: _controller,
                             clearButtonMode: OverlayVisibilityMode.never,
                             focusNode: _focusNode,
-                            focusedBorderColor: MyColors.transparentBlack_50,
+                            focusedBorderColor: CoconutColors.black.withOpacity(0.5),
                             onChanged: (text) {
                               setState(() => memo = _controller.text);
                             },
@@ -185,8 +186,8 @@ class _ImportConfirmationScreenState extends State<ImportConfirmationScreen>
                               '${_controller.text.length} / $kMaxTextLength',
                               style: TextStyle(
                                   color: _controller.text.length == kMaxTextLength
-                                      ? MyColors.transparentBlack
-                                      : MyColors.transparentBlack_50,
+                                      ? CoconutColors.black.withOpacity(0.7)
+                                      : CoconutColors.black.withOpacity(0.5),
                                   fontSize: 12,
                                   fontFamily: CustomFonts.text.getFontFamily),
                             ),

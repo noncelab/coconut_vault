@@ -1,3 +1,4 @@
+import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:coconut_vault/screens/vault_menu/sync_to_wallet/export_detail_screen.dart';
@@ -27,7 +28,7 @@ class _SyncToWalletScreenState extends State<SyncToWalletScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: MyColors.white,
+      backgroundColor: CoconutColors.white,
       appBar: CustomAppBar.build(
           title: t.sync_to_wallet_screen.title(name: _name),
           context: context,
@@ -51,7 +52,7 @@ class _SyncToWalletScreenState extends State<SyncToWalletScreen> {
                       fontSize: 15,
                       height: 1.4,
                       letterSpacing: 0.5,
-                      color: MyColors.black,
+                      color: CoconutColors.black,
                     ),
                     children: <TextSpan>[
                       TextSpan(
@@ -90,10 +91,10 @@ class _SyncToWalletScreenState extends State<SyncToWalletScreen> {
                   padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(4.0),
-                    color: MyColors.borderGrey,
+                    color: CoconutColors.borderGray,
                   ),
                   child: Text(t.sync_to_wallet_screen.view_detail,
-                      style: Styles.caption.merge(const TextStyle(color: MyColors.white))),
+                      style: Styles.caption.merge(const TextStyle(color: CoconutColors.white))),
                 ),
                 onTap: () {
                   MyBottomSheet.showBottomSheet_90(

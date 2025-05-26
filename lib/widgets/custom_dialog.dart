@@ -15,7 +15,7 @@ class CustomDialogs {
       bool isSingleButton = false,
       bool barrierDismissible = true,
       Text? textWidget,
-      Color confirmButtonColor = MyColors.white}) {
+      Color confirmButtonColor = CoconutColors.white}) {
     showDialog(
       context: context,
       barrierDismissible: barrierDismissible,
@@ -64,7 +64,7 @@ class CustomDialogs {
                 actions: [
                   IconButton(
                     color: CoconutColors.white,
-                    focusColor: MyColors.transparentGrey,
+                    focusColor: CoconutColors.black.withOpacity(0.15),
                     icon: const Icon(CupertinoIcons.xmark, size: 18),
                     onPressed: () {
                       Navigator.of(context).pop();

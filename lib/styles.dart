@@ -133,28 +133,28 @@
 
 //   static const TextStyle h1 = TextStyle(
 //       fontFamily: _fontText,
-//       color: MyColors.black,
+//       color: CoconutColors.black,
 //       fontSize: 32,
 //       fontStyle: FontStyle.normal,
 //       fontWeight: FontWeight.w700);
 
 //   static const TextStyle h2 = TextStyle(
 //       fontFamily: _fontText,
-//       color: MyColors.black,
+//       color: CoconutColors.black,
 //       fontSize: 28,
 //       fontStyle: FontStyle.normal,
 //       fontWeight: FontWeight.w700);
 
 //   static const TextStyle h3 = TextStyle(
 //       fontFamily: _fontText,
-//       color: MyColors.black,
+//       color: CoconutColors.black,
 //       fontSize: 18,
 //       fontStyle: FontStyle.normal,
 //       fontWeight: FontWeight.bold,
 //       letterSpacing: 0.1);
 
 //   static const TextStyle appbarTitle = TextStyle(
-//       fontFamily: _fontText, color: MyColors.black, fontSize: 18, fontStyle: FontStyle.normal);
+//       fontFamily: _fontText, color: CoconutColors.black, fontSize: 18, fontStyle: FontStyle.normal);
 
 //   static const TextStyle label = TextStyle(
 //       fontFamily: _fontText,
@@ -179,28 +179,28 @@
 
 //   static const TextStyle body1 = TextStyle(
 //       fontFamily: _fontText,
-//       color: MyColors.black,
+//       color: CoconutColors.black,
 //       fontSize: 16,
 //       fontStyle: FontStyle.normal,
 //       fontWeight: FontWeight.w400);
 
 //   static const TextStyle body1Bold = TextStyle(
 //       fontFamily: _fontText,
-//       color: MyColors.black,
+//       color: CoconutColors.black,
 //       fontSize: 16,
 //       fontStyle: FontStyle.normal,
 //       fontWeight: FontWeight.bold);
 
 //   static const TextStyle body2 = TextStyle(
 //       fontFamily: _fontText,
-//       color: MyColors.black,
+//       color: CoconutColors.black,
 //       fontSize: 14,
 //       fontStyle: FontStyle.normal,
 //       fontWeight: FontWeight.w400);
 
 //   static const TextStyle body2Bold = TextStyle(
 //       fontFamily: _fontText,
-//       color: MyColors.black,
+//       color: CoconutColors.black,
 //       fontSize: 14,
 //       fontStyle: FontStyle.normal,
 //       fontWeight: FontWeight.bold);
@@ -242,21 +242,21 @@
 
 //   static const TextStyle whiteButtonTitle = TextStyle(
 //       fontFamily: _fontText,
-//       color: MyColors.black,
+//       color: CoconutColors.black,
 //       fontSize: 16,
 //       fontStyle: FontStyle.normal,
 //       fontWeight: FontWeight.w400);
 
 //   static const TextStyle CTAButtonTitle = TextStyle(
 //       fontFamily: _fontText,
-//       color: MyColors.black,
+//       color: CoconutColors.black,
 //       fontSize: 16,
 //       fontStyle: FontStyle.normal,
 //       fontWeight: FontWeight.bold);
 
 //   static const TextStyle blackButtonTitle = TextStyle(
 //       fontFamily: _fontText,
-//       color: MyColors.black,
+//       color: CoconutColors.black,
 //       fontSize: 14,
 //       fontStyle: FontStyle.normal,
 //       fontWeight: FontWeight.w400);
@@ -270,42 +270,42 @@
 
 //   static const TextStyle caption2 = TextStyle(
 //       fontFamily: _fontText,
-//       color: MyColors.searchbarHint,
+//       color: CoconutColors.searchbarHint,
 //       fontSize: 10,
 //       fontStyle: FontStyle.normal,
 //       fontWeight: FontWeight.w400);
 
 //   static const TextStyle title5 = TextStyle(
 //       fontFamily: _fontText,
-//       color: MyColors.black,
+//       color: CoconutColors.black,
 //       fontSize: 20,
 //       fontStyle: FontStyle.normal,
 //       fontWeight: FontWeight.w600);
 
 //   static const TextStyle balance1 = TextStyle(
 //       fontFamily: _fontNumber,
-//       color: MyColors.black,
+//       color: CoconutColors.black,
 //       fontSize: 36,
 //       fontStyle: FontStyle.normal,
 //       fontWeight: FontWeight.w600);
 
 //   static const TextStyle balance2 = TextStyle(
 //       fontFamily: _fontNumber,
-//       color: MyColors.black,
+//       color: CoconutColors.black,
 //       fontSize: 14,
 //       fontStyle: FontStyle.normal,
 //       fontWeight: FontWeight.w400);
 
 //   static const TextStyle fee = TextStyle(
 //       fontFamily: _fontNumber,
-//       color: MyColors.black,
+//       color: CoconutColors.black,
 //       fontSize: 22,
 //       fontStyle: FontStyle.normal,
 //       fontWeight: FontWeight.w600);
 
 //   static const TextStyle unit = TextStyle(
 //     fontFamily: _fontNumber,
-//     color: MyColors.black,
+//     color: CoconutColors.black,
 //     fontSize: 18,
 //     fontStyle: FontStyle.normal,
 //     fontWeight: FontWeight.w400,
@@ -321,14 +321,14 @@
 
 //   static const TextStyle mfpH3 = TextStyle(
 //       fontFamily: _fontNumber,
-//       color: MyColors.black,
+//       color: CoconutColors.black,
 //       fontSize: 16,
 //       fontStyle: FontStyle.normal,
 //       fontWeight: FontWeight.w400);
 
 //   static const TextStyle tertiaryButtonText = TextStyle(
 //       fontFamily: _fontText,
-//       color: MyColors.black,
+//       color: CoconutColors.black,
 //       fontSize: 12,
 //       fontStyle: FontStyle.normal,
 //       fontWeight: FontWeight.w400,

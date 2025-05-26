@@ -19,17 +19,17 @@ class _ExportDetailScreen extends State<ExportDetailScreen> {
     return ClipRRect(
       borderRadius: MyBorder.defaultRadius,
       child: Scaffold(
-        backgroundColor: MyColors.white,
+        backgroundColor: CoconutColors.white,
         appBar: AppBar(
           title: Text(t.export_detail_screen.title),
           centerTitle: true,
-          backgroundColor: MyColors.white,
+          backgroundColor: CoconutColors.white,
           titleTextStyle: Styles.body1Bold,
           toolbarTextStyle: Styles.body1Bold,
           leading: IconButton(
             icon: const Icon(
               Icons.close_rounded,
-              color: MyColors.darkgrey,
+              color: CoconutColors.gray800,
               size: 22,
             ),
             onPressed: () {

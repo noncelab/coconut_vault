@@ -1,3 +1,4 @@
+import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:flutter/material.dart';
 import 'package:coconut_vault/styles.dart';
 
@@ -34,5 +35,5 @@ class SingleButton extends StatelessWidget {
   }
 
   Widget _rightArrow() =>
-      const Icon(Icons.keyboard_arrow_right_rounded, color: MyColors.transparentBlack_50);
+      Icon(Icons.keyboard_arrow_right_rounded, color: CoconutColors.black.withOpacity(0.5));
 }

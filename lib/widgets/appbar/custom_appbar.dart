@@ -19,7 +19,7 @@ class CustomAppBar {
     VoidCallback? onBackPressed,
     IconButton? rightIconButton,
     bool isBottom = false,
-    Color? backgroundColor = MyColors.white,
+    Color? backgroundColor = CoconutColors.white,
     bool showTestnetLabel = false,
     bool? setSearchBar = false,
   }) {
@@ -45,7 +45,7 @@ class CustomAppBar {
         title: titleWidget,
         centerTitle: true,
         backgroundColor: backgroundColor,
-        titleTextStyle: Styles.navHeader.merge(const TextStyle(color: MyColors.black)),
+        titleTextStyle: Styles.navHeader.merge(const TextStyle(color: CoconutColors.black)),
         toolbarTextStyle: Styles.appbarTitle,
         leading: Navigator.canPop(context)
             ? IconButton(
@@ -64,8 +64,8 @@ class CustomAppBar {
         actions: [
           if (hasRightIcon && rightIconButton == null)
             IconButton(
-              color: MyColors.black,
-              focusColor: MyColors.transparentGrey,
+              color: CoconutColors.black,
+              focusColor: CoconutColors.black.withOpacity(0.15),
               icon: const Icon(CupertinoIcons.ellipsis_vertical, size: 22),
               onPressed: () {
                 if (onRightIconPressed != null) {
@@ -93,13 +93,13 @@ class CustomAppBar {
     bool isActive = true,
     bool isBottom = false,
     String buttonName = '다음',
-    Color backgroundColor = MyColors.white,
+    Color backgroundColor = CoconutColors.white,
   }) {
     return AppBar(
         title: Text(title),
         centerTitle: true,
         backgroundColor: backgroundColor,
-        titleTextStyle: Styles.navHeader.merge(const TextStyle(color: MyColors.black)),
+        titleTextStyle: Styles.navHeader.merge(const TextStyle(color: CoconutColors.black)),
         toolbarTextStyle: Styles.appbarTitle,
         leading: Navigator.canPop(context)
             ? IconButton(
@@ -126,7 +126,7 @@ class CustomAppBar {
                   borderRadius: BorderRadius.circular(14.0),
                   border: Border.all(
                       color: isActive ? Colors.transparent : CoconutColors.black.withOpacity(0.06)),
-                  color: isActive ? MyColors.darkgrey : MyColors.lightgrey,
+                  color: isActive ? CoconutColors.gray800 : CoconutColors.gray150,
                 ),
                 child: Center(
                   child: Text(
@@ -167,8 +167,8 @@ class CustomAppBar {
           title,
         ),
         centerTitle: true,
-        backgroundColor: MyColors.white,
-        titleTextStyle: Styles.navHeader.merge(const TextStyle(color: MyColors.black)),
+        backgroundColor: CoconutColors.white,
+        titleTextStyle: Styles.navHeader.merge(const TextStyle(color: CoconutColors.black)),
         toolbarTextStyle: Styles.appbarTitle,
         leading: Navigator.canPop(context)
             ? IconButton(
@@ -191,14 +191,15 @@ class CustomAppBar {
                   borderRadius: BorderRadius.circular(16.0),
                   border: Border.all(
                       color: isActive ? Colors.transparent : CoconutColors.black.withOpacity(0.06)),
-                  color: isActive ? MyColors.darkgrey : MyColors.lightgrey,
+                  color: isActive ? CoconutColors.gray800 : CoconutColors.gray150,
                 ),
                 child: Center(
                   child: Text(
                     '저장',
                     style: Styles.subLabel.merge(
                       TextStyle(
-                        color: isActive ? CoconutColors.white : MyColors.transparentBlack_30,
+                        color:
+                            isActive ? CoconutColors.white : CoconutColors.black.withOpacity(0.3),
                         fontSize: 11,
                       ),
                     ),
@@ -258,7 +259,7 @@ class CustomAppBar {
                         ? Colors.transparent
                         : CoconutColors.black.withOpacity(0.06),
                   ),
-                  color: isNextButtonActive ? MyColors.darkgrey : MyColors.lightgrey,
+                  color: isNextButtonActive ? CoconutColors.gray800 : CoconutColors.gray150,
                 ),
                 child: Center(
                   child: Text(

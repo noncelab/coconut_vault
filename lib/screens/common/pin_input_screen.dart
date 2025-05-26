@@ -1,3 +1,4 @@
+import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -59,7 +60,7 @@ class PinInputScreenState extends State<PinInputScreen> {
                       onPressed: widget.onClosePressed,
                       icon: const Icon(
                         Icons.close_rounded,
-                        color: MyColors.darkgrey,
+                        color: CoconutColors.gray800,
                         size: 22,
                       ),
                     )
@@ -151,8 +152,12 @@ class PinInputScreenState extends State<PinInputScreen> {
                     },
                     child: Text(
                       t.forgot_password,
-                      style: Styles.body2.merge(const TextStyle(
-                          fontWeight: FontWeight.bold, color: MyColors.transparentBlack_50)),
+                      style: Styles.body2.merge(
+                        TextStyle(
+                          fontWeight: FontWeight.bold,
+                          color: CoconutColors.black.withOpacity(0.5),
+                        ),
+                      ),
                       textAlign: TextAlign.center,
                     ),
                   )),

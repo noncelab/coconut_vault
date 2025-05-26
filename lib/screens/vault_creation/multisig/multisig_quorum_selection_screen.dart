@@ -1,3 +1,4 @@
+import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_vault/constants/app_routes.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/providers/view_model/mutlisig_quorum_selection_view_model.dart';
@@ -31,7 +32,7 @@ class GradientProgressBar extends StatelessWidget {
       child: Container(
         width: double.infinity,
         height: height,
-        color: MyColors.transparentBlack_06,
+        color: CoconutColors.black.withOpacity(0.06),
         child: Stack(
           children: [
             FractionallySizedBox(
@@ -67,7 +68,7 @@ class _MultisigQuorumSelectionScreenState extends State<MultisigQuorumSelectionS
       child: Consumer<MultisigQuorumSelectionViewModel>(
         builder: (context, viewModel, child) {
           return Scaffold(
-            backgroundColor: MyColors.white,
+            backgroundColor: CoconutColors.white,
             appBar: CustomAppBar.buildWithNext(
               title: t.multisig_wallet,
               context: context,
@@ -142,7 +143,7 @@ class _MultisigQuorumSelectionScreenState extends State<MultisigQuorumSelectionS
                     Center(
                       child: HighLightedText(
                         '${viewModel.requiredCount}/${viewModel.totalCount}',
-                        color: MyColors.darkgrey,
+                        color: CoconutColors.gray800,
                         fontSize: 24,
                       ),
                     ),

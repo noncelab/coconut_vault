@@ -1,3 +1,4 @@
+import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_vault/constants/app_routes.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:flutter/material.dart';
@@ -36,7 +37,7 @@ class VaultCreationOptions extends StatelessWidget {
     ];
 
     return Scaffold(
-      backgroundColor: MyColors.white,
+      backgroundColor: CoconutColors.white,
       appBar: CustomAppBar.build(
         title: t.single_sig_wallet,
         context: context,
@@ -55,8 +56,8 @@ class VaultCreationOptions extends StatelessWidget {
                     delegate: SliverChildBuilderDelegate((ctx, index) {
                       return Column(children: [
                         ShrinkAnimationButton(
-                            defaultColor: MyColors.lightgrey,
-                            pressedColor: MyColors.grey.withOpacity(0.1),
+                            defaultColor: CoconutColors.gray150,
+                            pressedColor: CoconutColors.gray500.withOpacity(0.1),
                             onPressed: () {
                               final option = options[index];
                               if (option.onNextPressed != null) {
@@ -82,7 +83,7 @@ class VaultCreationOptions extends StatelessWidget {
                                               fontFamily: 'Pretendard',
                                               fontSize: 14.0,
                                               fontWeight: FontWeight.w600,
-                                              color: MyColors.black,
+                                              color: CoconutColors.black,
                                               letterSpacing: 0.2),
                                         )),
                                     const Spacer(),

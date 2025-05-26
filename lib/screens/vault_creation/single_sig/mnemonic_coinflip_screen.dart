@@ -62,7 +62,7 @@ class _MnemonicCoinflipScreenState extends State<MnemonicCoinflipScreen> {
       message: t.alert.stop_creating_mnemonic.description,
       cancelButtonText: t.cancel,
       confirmButtonText: t.stop,
-      confirmButtonColor: MyColors.warningText,
+      confirmButtonColor: CoconutColors.warningText,
       onCancel: () => Navigator.pop(context),
       onConfirm: () {
         Navigator.pop(context);
@@ -95,7 +95,7 @@ class _MnemonicCoinflipScreenState extends State<MnemonicCoinflipScreen> {
     ];
 
     return Scaffold(
-        backgroundColor: MyColors.white,
+        backgroundColor: CoconutColors.white,
         appBar: CustomAppBar.build(
           title: t.mnemonic_coin_flip_screen.title,
           context: context,
@@ -173,17 +173,17 @@ class _FlipCoinState extends State<FlipCoin> {
                                 widget.wordsCount == 12
                                     ? t.mnemonic_generate_screen.twelve
                                     : t.mnemonic_generate_screen.twenty_four,
-                                color: MyColors.darkgrey),
+                                color: CoconutColors.gray800),
                             Text(isAdvancedUser ? ', ${t.passphrase} ' : ''),
                             isAdvancedUser
                                 ? widget.usePassphrase
                                     ? HighLightedText(t.mnemonic_coin_flip_screen.use,
-                                        color: MyColors.darkgrey)
+                                        color: CoconutColors.gray800)
                                     : Row(
                                         children: [
                                           Text('${t.mnemonic_coin_flip_screen.use} '),
                                           HighLightedText(t.mnemonic_coin_flip_screen.do_not,
-                                              color: MyColors.darkgrey),
+                                              color: CoconutColors.gray800),
                                         ],
                                       )
                                 : Text(' ${t.mnemonic_coin_flip_screen.use}'),
@@ -202,7 +202,7 @@ class _FlipCoinState extends State<FlipCoin> {
                                     padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                                     decoration: BoxDecoration(
                                         borderRadius: BorderRadius.circular(8),
-                                        border: Border.all(color: MyColors.borderGrey)),
+                                        border: Border.all(color: CoconutColors.borderGray)),
                                     child: Text(
                                       t.re_select,
                                       style: Styles.caption,
@@ -245,7 +245,7 @@ class _FlipCoinState extends State<FlipCoin> {
                     width: MediaQuery.of(context).size.width,
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(24),
-                      color: MyColors.white,
+                      color: CoconutColors.white,
                       boxShadow: [
                         BoxShadow(
                           color: CoconutColors.gray500.withOpacity(0.3),
@@ -269,7 +269,7 @@ class _FlipCoinState extends State<FlipCoin> {
                                       decoration: BoxDecoration(
                                         border: Border.all(
                                           width: 1,
-                                          color: MyColors.borderGrey,
+                                          color: CoconutColors.borderGray,
                                         ),
                                         borderRadius: MyBorder.defaultRadius,
                                         color: CoconutColors.white,
@@ -315,12 +315,12 @@ class _FlipCoinState extends State<FlipCoin> {
                                       child: passphraseObscured
                                           ? const Icon(
                                               CupertinoIcons.eye_slash,
-                                              color: MyColors.darkgrey,
+                                              color: CoconutColors.gray800,
                                               size: 18,
                                             )
                                           : const Icon(
                                               CupertinoIcons.eye,
-                                              color: MyColors.darkgrey,
+                                              color: CoconutColors.gray800,
                                               size: 18,
                                             ),
                                     ),
@@ -336,8 +336,8 @@ class _FlipCoinState extends State<FlipCoin> {
                                     '(${passphrase.length} / 100)',
                                     style: TextStyle(
                                         color: passphrase.length == 100
-                                            ? MyColors.transparentBlack
-                                            : MyColors.transparentBlack_50,
+                                            ? CoconutColors.black.withOpacity(0.7)
+                                            : CoconutColors.black.withOpacity(0.5),
                                         fontSize: 12,
                                         fontFamily: CustomFonts.text.getFontFamily),
                                   ),
@@ -409,13 +409,13 @@ class _FlipCoinState extends State<FlipCoin> {
               height: 50,
               margin: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                border: Border.all(color: MyColors.transparentBlack_06),
+                border: Border.all(color: CoconutColors.black.withOpacity(0.06)),
                 borderRadius: BorderRadius.circular(8),
                 color: index < currentBits.length
                     ? (currentBits[index] == 1
-                        ? MyColors.transparentBlack_06
-                        : MyColors.transparentGrey)
-                    : MyColors.white,
+                        ? CoconutColors.black.withOpacity(0.06)
+                        : CoconutColors.black.withOpacity(0.15))
+                    : CoconutColors.white,
               ),
               child: Center(
                   child: Column(
@@ -423,7 +423,7 @@ class _FlipCoinState extends State<FlipCoin> {
                   Text('${start + index + 1}',
                       style: Styles.caption.merge(TextStyle(
                           fontFamily: CustomFonts.number.getFontFamily,
-                          color: MyColors.transparentBlack_30))),
+                          color: CoconutColors.black.withOpacity(0.3)))),
                   Text(
                     index < currentBits.length ? '${currentBits[index]}' : '',
                     style: Styles.h3.merge(TextStyle(fontFamily: CustomFonts.number.getFontFamily)),
@@ -474,14 +474,14 @@ class _FlipCoinState extends State<FlipCoin> {
               onTap: _removeLastBit,
               child: Text(t.delete_one,
                   style: Styles.subLabel
-                      .merge(TextStyle(color: _bits.isEmpty ? MyColors.defaultText : null))),
+                      .merge(TextStyle(color: _bits.isEmpty ? CoconutColors.secondaryText : null))),
             ),
             const SizedBox(width: 20),
             GestureDetector(
               onTap: _showConfirmResetDialog,
               child: Text(t.delete_all,
                   style: Styles.subLabel
-                      .merge(TextStyle(color: _bits.isEmpty ? MyColors.defaultText : null))),
+                      .merge(TextStyle(color: _bits.isEmpty ? CoconutColors.secondaryText : null))),
             ),
           ],
         ),
@@ -495,8 +495,9 @@ class _FlipCoinState extends State<FlipCoin> {
         decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(8),
             border: Border.all(
-                color:
-                    _bits.length == _totalBits ? MyColors.borderLightgrey : MyColors.borderGrey)),
+                color: _bits.length == _totalBits
+                    ? CoconutColors.borderLightGray
+                    : CoconutColors.borderGray)),
         child: Text(label, style: Styles.body1));
   }
 
@@ -543,7 +544,7 @@ class _FlipCoinState extends State<FlipCoin> {
       message: message ?? t.alert.erase_all_entered_so_far,
       cancelButtonText: t.cancel,
       confirmButtonText: t.confirm,
-      confirmButtonColor: MyColors.warningText,
+      confirmButtonColor: CoconutColors.warningText,
       onCancel: () => Navigator.pop(context),
       onConfirm: action ??
           () {
@@ -620,7 +621,7 @@ class BinaryGrid extends StatelessWidget {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(
                 child: CircularProgressIndicator(
-              color: MyColors.darkgrey,
+              color: CoconutColors.gray800,
             ));
           } else if (snapshot.hasError) {
             return Center(child: Text('Error: ${snapshot.error}'));
@@ -657,7 +658,7 @@ class BinaryGrid extends StatelessWidget {
   Widget _buildGridItem(int? bit, int index) {
     return Container(
       decoration: BoxDecoration(
-        border: Border.all(color: MyColors.transparentBlack_06),
+        border: Border.all(color: CoconutColors.black.withOpacity(0.06)),
         borderRadius: BorderRadius.circular(8),
       ),
       child: Center(
@@ -668,14 +669,17 @@ class BinaryGrid extends StatelessWidget {
               (index + 1).toString(),
               style: Styles.caption.merge(TextStyle(
                   fontFamily: CustomFonts.number.getFontFamily,
-                  color: MyColors.transparentBlack_30)),
+                  color: CoconutColors.black.withOpacity(0.3))),
             ),
             Expanded(
               child: Text(
                 bit == null ? '' : bit.toString(),
-                style: Styles.h3.merge(TextStyle(
+                style: Styles.h3.merge(
+                  TextStyle(
                     fontFamily: CustomFonts.number.getFontFamily,
-                    color: MyColors.transparentBlack_70)),
+                    color: CoconutColors.black.withOpacity(0.7),
+                  ),
+                ),
               ),
             )
           ],

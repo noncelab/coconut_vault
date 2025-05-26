@@ -43,7 +43,7 @@ class _SignedTransactionQrScreenState extends State<SignedTransactionQrScreen> {
         child: SingleChildScrollView(
           child: Container(
             width: double.infinity,
-            color: MyColors.white,
+            color: CoconutColors.white,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: <Widget>[
@@ -58,7 +58,7 @@ class _SignedTransactionQrScreenState extends State<SignedTransactionQrScreen> {
                         fontSize: 15,
                         height: 1.4,
                         letterSpacing: 0.5,
-                        color: MyColors.black,
+                        color: CoconutColors.black,
                       ),
                       children: <TextSpan>[
                         TextSpan(

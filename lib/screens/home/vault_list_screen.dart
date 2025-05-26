@@ -104,10 +104,10 @@ class _VaultListScreenState extends State<VaultListScreen> with TickerProviderSt
               decoration: BoxDecoration(
                 color: CoconutColors.white, // 배경색 유지
                 borderRadius: BorderRadius.circular(28),
-                boxShadow: const [
+                boxShadow: [
                   BoxShadow(
-                    color: MyColors.transparentBlack_15,
-                    offset: Offset(0, 0),
+                    color: CoconutColors.black.withOpacity(0.15),
+                    offset: const Offset(0, 0),
                     blurRadius: 12,
                     spreadRadius: 0,
                   ),
@@ -183,7 +183,7 @@ class _VaultListScreenState extends State<VaultListScreen> with TickerProviderSt
                 now.difference(_lastPressedAt!) > const Duration(seconds: 3)) {
               _lastPressedAt = now;
               Fluttertoast.showToast(
-                backgroundColor: MyColors.grey,
+                backgroundColor: CoconutColors.gray500,
                 msg: t.toast.back_exit,
                 toastLength: Toast.LENGTH_SHORT,
               );

@@ -99,7 +99,7 @@ class _KeyButtonState extends State<KeyButton> {
               color: widget.disabled
                   ? Colors.transparent
                   : _isPressed
-                      ? MyColors.borderLightgrey
+                      ? CoconutColors.borderLightGray
                       : Colors.transparent // 버튼의 상태에 따라 색상 변경
               ),
           child: Center(

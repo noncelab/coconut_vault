@@ -1,3 +1,4 @@
+import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_vault/constants/external_links.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:flutter/gestures.dart';
@@ -44,7 +45,7 @@ class _LicenseScreenState extends State<LicenseScreen> {
     return ClipRRect(
       borderRadius: MyBorder.defaultRadius,
       child: Scaffold(
-        backgroundColor: MyColors.white,
+        backgroundColor: CoconutColors.white,
         appBar: CustomAppBar.buildWithClose(
           title: t.license_details,
           context: context,
@@ -65,13 +66,13 @@ class _LicenseScreenState extends State<LicenseScreen> {
                         vertical: 10,
                       ),
                       decoration: const BoxDecoration(
-                        color: MyColors.darkgrey,
+                        color: CoconutColors.gray800,
                       ),
                       child: Text(
                         t.coconut_vault,
                         style: Styles.body2Bold.merge(
                           const TextStyle(
-                            color: MyColors.white,
+                            color: CoconutColors.white,
                           ),
                         ),
                       ),
@@ -92,7 +93,7 @@ class _LicenseScreenState extends State<LicenseScreen> {
                                 text: mitFullTextLink, // 색상을 다르게 할 텍스트
                                 style: Styles.caption.merge(
                                   const TextStyle(
-                                    color: MyColors.oceanBlue,
+                                    color: CoconutColors.oceanBlue,
                                     decoration: TextDecoration.underline,
                                   ),
                                 ),
@@ -111,7 +112,7 @@ class _LicenseScreenState extends State<LicenseScreen> {
                                 text: CONTACT_EMAIL_ADDRESS, // 색상을 다르게 할 텍스트
                                 style: Styles.caption.merge(
                                   const TextStyle(
-                                    color: MyColors.oceanBlue,
+                                    color: CoconutColors.oceanBlue,
                                     decoration: TextDecoration.underline,
                                   ),
                                 ),
@@ -211,7 +212,7 @@ class _LicenseScreenState extends State<LicenseScreen> {
                                 ),
                                 height: 200,
                                 decoration: BoxDecoration(
-                                  border: Border.all(width: 1, color: MyColors.borderGrey),
+                                  border: Border.all(width: 1, color: CoconutColors.borderGray),
                                 ),
                                 child: SingleChildScrollView(
                                   padding: const EdgeInsets.symmetric(

@@ -1,4 +1,4 @@
-import 'package:coconut_vault/styles.dart';
+import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:flutter/material.dart';
 
 class MessageActivityIndicator extends StatelessWidget {
@@ -11,7 +11,7 @@ class MessageActivityIndicator extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         borderRadius: MyBorder.defaultRadius,
-        color: message != null ? MyColors.white : null,
+        color: message != null ? CoconutColors.white : null,
       ),
       width: MediaQuery.of(context).size.width / 2 + 30,
       padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 25),
@@ -20,7 +20,7 @@ class MessageActivityIndicator extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           const CircularProgressIndicator(
-            color: MyColors.darkgrey,
+            color: CoconutColors.gray800,
           ),
           Visibility(
               visible: message != null,

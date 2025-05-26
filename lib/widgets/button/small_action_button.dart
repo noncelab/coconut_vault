@@ -18,7 +18,7 @@ class SmallActionButton extends StatelessWidget {
       this.width,
       this.height,
       this.textStyle,
-      this.backgroundColor = MyColors.transparentGrey});
+      this.backgroundColor = CoconutColors.black.withOpacity(0.15)});
 
   @override
   Widget build(BuildContext context) {

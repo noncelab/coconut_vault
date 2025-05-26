@@ -1,3 +1,4 @@
+import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_lib/coconut_lib.dart';
 import 'package:coconut_vault/constants/app_routes.dart';
 import 'package:coconut_vault/constants/external_links.dart';
@@ -51,7 +52,7 @@ class _TutorialScreenState extends State<TutorialScreen> {
         : contentText.split('\n');
     return widget.screenStatus == TutorialScreenStatus.entrance
         ? Scaffold(
-            backgroundColor: MyColors.white,
+            backgroundColor: CoconutColors.white,
             body: SafeArea(
               child: Stack(
                 children: [
@@ -61,7 +62,7 @@ class _TutorialScreenState extends State<TutorialScreen> {
                     child: TextButton(
                       onPressed: () => Navigator.pushNamed(context, AppRoutes.welcome),
                       style: TextButton.styleFrom(
-                        foregroundColor: MyColors.darkgrey,
+                        foregroundColor: CoconutColors.gray800,
                       ),
                       child: Text(
                         t.skip,
@@ -94,8 +95,8 @@ class _TutorialScreenState extends State<TutorialScreen> {
                                         COCONUT_TUTORIAL_URL,
                                         defaultMode: false,
                                       ),
-                                      defaultColor: MyColors.darkgrey,
-                                      pressedColor: MyColors.borderGrey,
+                                      defaultColor: CoconutColors.gray800,
+                                      pressedColor: CoconutColors.borderGray,
                                       borderRadius: 12,
                                       child: Padding(
                                         padding: const EdgeInsets.symmetric(
@@ -106,7 +107,8 @@ class _TutorialScreenState extends State<TutorialScreen> {
                                           t.view_tutorial,
                                           style: Styles.caption.merge(
                                             const TextStyle(
-                                                color: MyColors.white, fontWeight: FontWeight.w700),
+                                                color: CoconutColors.white,
+                                                fontWeight: FontWeight.w700),
                                           ),
                                         ),
                                       ),
@@ -169,7 +171,7 @@ class _TutorialScreenState extends State<TutorialScreen> {
           splitTexts[0],
           style: Styles.body2.merge(
             const TextStyle(
-              color: MyColors.darkgrey,
+              color: CoconutColors.gray800,
             ),
           ),
         ),
@@ -177,7 +179,7 @@ class _TutorialScreenState extends State<TutorialScreen> {
           splitTexts[1],
           style: Styles.body2Bold.merge(
             const TextStyle(
-              color: MyColors.darkgrey,
+              color: CoconutColors.gray800,
             ),
           ),
         ),

@@ -1,3 +1,4 @@
+import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:flutter/material.dart';
 import 'package:coconut_vault/styles.dart';
 import 'package:coconut_vault/widgets/appbar/custom_appbar.dart';
@@ -46,7 +47,7 @@ class _QrcodeBottomSheetState extends State<QrcodeBottomSheet> {
     return ClipRRect(
       borderRadius: MyBorder.defaultRadius,
       child: Scaffold(
-        backgroundColor: MyColors.white,
+        backgroundColor: CoconutColors.white,
         appBar: CustomAppBar.buildWithClose(title: widget.title ?? '', context: context),
         body: SafeArea(
           child: SingleChildScrollView(
@@ -54,7 +55,7 @@ class _QrcodeBottomSheetState extends State<QrcodeBottomSheet> {
               width: MediaQuery.of(context).size.width,
               height: MediaQuery.of(context).size.height * 0.9,
               padding: Paddings.container,
-              color: MyColors.white,
+              color: CoconutColors.white,
               child: _buildContent(),
             ),
           ),

@@ -1,5 +1,5 @@
+import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:coconut_vault/styles.dart';
 
 class CardContainer extends StatelessWidget {
   const CardContainer({super.key, this.color, this.child, this.onPressed});
@@ -16,7 +16,7 @@ class CardContainer extends StatelessWidget {
       child: Container(
         height: 124,
         width: double.infinity,
-        decoration: BoxDecoration(borderRadius: MyBorder.defaultRadius, color: MyColors.lightgrey),
+        decoration: BoxDecoration(borderRadius: MyBorder.defaultRadius, color: CoconutColors.gray150),
         padding: Paddings.widgetContainer,
         child: child,
       ),

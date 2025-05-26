@@ -1,3 +1,4 @@
+import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_vault/constants/app_routes.dart';
 import 'package:coconut_vault/constants/pin_constants.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
@@ -192,7 +193,7 @@ class _PinSettingScreenState extends State<PinSettingScreen> {
           title: t.alert.unchange_password.title,
           message: t.alert.unchange_password.description,
           confirmButtonText: t.stop,
-          confirmButtonColor: MyColors.warningText, onConfirm: () {
+          confirmButtonColor: CoconutColors.warningText, onConfirm: () {
         // 스택 두단계 뒤로 이동
         int count = 0;
         Navigator.of(context).popUntil((route) {

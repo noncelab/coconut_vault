@@ -1,3 +1,4 @@
+import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/styles.dart';
 import 'package:flutter/material.dart';
@@ -57,7 +58,7 @@ class ToastWidgetState extends State<ToastWidget> with SingleTickerProviderState
         margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 30),
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
         decoration: BoxDecoration(
-          color: MyColors.transparentBlack_30,
+          color: CoconutColors.black.withOpacity(0.3),
           borderRadius: BorderRadius.circular(16.0),
         ),
         child: Row(
@@ -65,11 +66,11 @@ class ToastWidgetState extends State<ToastWidget> with SingleTickerProviderState
           children: [
             Text(
               displayMessage,
-              style: Styles.body2Bold.merge(const TextStyle(color: MyColors.white)),
+              style: Styles.body2Bold.merge(const TextStyle(color: CoconutColors.white)),
             ),
             const Icon(
               Icons.check,
-              color: MyColors.white,
+              color: CoconutColors.white,
             ),
           ],
         ),

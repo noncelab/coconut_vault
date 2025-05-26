@@ -1,3 +1,4 @@
+import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/model/common/vault_list_item_base.dart';
 import 'package:flutter/cupertino.dart';
@@ -45,7 +46,7 @@ class _AccountSelectionBottomSheetScreenState extends State<AccountSelectionBott
               child: Container(
                   width: MediaQuery.of(context).size.width,
                   padding: Paddings.container,
-                  color: MyColors.white,
+                  color: CoconutColors.white,
                   child: Column(children: [
                     const SizedBox(
                       height: 10,

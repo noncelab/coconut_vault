@@ -37,7 +37,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        backgroundColor: MyColors.white,
+        backgroundColor: CoconutColors.white,
         body: SafeArea(
             child: Center(
                 child: Column(
@@ -71,18 +71,18 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                     SvgPicture.asset(
                       'assets/svg/number/one.svg',
                       width: 20,
-                      colorFilter: const ColorFilter.mode(MyColors.darkgrey, BlendMode.srcIn),
+                      colorFilter: const ColorFilter.mode(CoconutColors.gray800, BlendMode.srcIn),
                     ),
                     const SizedBox(height: 20),
                     Text(t.welcome_screen.guide1_1, style: Styles.subLabel),
                     HighLightedText(
                         t.welcome_screen
                             .guide1_2(suffix: Platform.isAndroid ? ', ${t.developer_option}' : ''),
-                        color: MyColors.darkgrey),
+                        color: CoconutColors.gray800),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        HighLightedText(t.welcome_screen.guide1_3, color: MyColors.darkgrey),
+                        HighLightedText(t.welcome_screen.guide1_3, color: CoconutColors.gray800),
                         Text(t.welcome_screen.guide1_4, style: Styles.subLabel),
                       ],
                     ),
@@ -96,12 +96,12 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                     SvgPicture.asset(
                       'assets/svg/number/two.svg',
                       width: 20,
-                      colorFilter: const ColorFilter.mode(MyColors.darkgrey, BlendMode.srcIn),
+                      colorFilter: const ColorFilter.mode(CoconutColors.gray800, BlendMode.srcIn),
                     ),
                     const SizedBox(height: 20),
                     Text(t.welcome_screen.guide2_1, style: Styles.subLabel),
                     Text(t.welcome_screen.guide2_2, style: Styles.subLabel),
-                    HighLightedText(t.welcome_screen.guide2_3, color: MyColors.darkgrey),
+                    HighLightedText(t.welcome_screen.guide2_3, color: CoconutColors.gray800),
                     Text(t.welcome_screen.guide2_4, style: Styles.subLabel),
                   ],
                 ),
@@ -112,13 +112,13 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                     SvgPicture.asset(
                       'assets/svg/number/three.svg',
                       width: 20,
-                      colorFilter: const ColorFilter.mode(MyColors.darkgrey, BlendMode.srcIn),
+                      colorFilter: const ColorFilter.mode(CoconutColors.gray800, BlendMode.srcIn),
                     ),
                     const SizedBox(height: 20),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        HighLightedText(t.welcome_screen.guide3_1, color: MyColors.darkgrey),
+                        HighLightedText(t.welcome_screen.guide3_1, color: CoconutColors.gray800),
                         Text(t.welcome_screen.guide3_2, style: Styles.subLabel),
                       ],
                     ),
@@ -133,7 +133,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                   width: MediaQuery.of(context).size.width * 0.8,
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(24),
-                    color: MyColors.white,
+                    color: CoconutColors.white,
                     boxShadow: [
                       BoxShadow(
                         color: CoconutColors.gray500.withOpacity(0.18),
@@ -157,8 +157,8 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                 },
                 child: Text(
                   t.welcome_screen.understood,
-                  style: Styles.label.merge(
-                      const TextStyle(color: MyColors.secondary, fontWeight: FontWeight.bold)),
+                  style: Styles.label.merge(const TextStyle(
+                      color: Color.fromRGBO(113, 111, 245, 1.0), fontWeight: FontWeight.bold)),
                 )),
             const SizedBox(
               height: 60,

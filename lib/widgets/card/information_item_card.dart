@@ -57,7 +57,8 @@ class InformationItemCard extends StatelessWidget {
                           }).toList())),
                 if (showIcon)
                   rightIcon ??
-                      const Icon(Icons.keyboard_arrow_right_rounded, color: MyColors.borderGrey)
+                      const Icon(Icons.keyboard_arrow_right_rounded,
+                          color: CoconutColors.borderGray)
               ],
             )));
   }

@@ -1,3 +1,4 @@
+import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_lib/coconut_lib.dart';
 import 'package:coconut_vault/model/multisig/multisig_signer.dart';
 import 'package:coconut_vault/model/multisig/multisig_vault_list_item.dart';
@@ -61,7 +62,7 @@ class VaultItemCard extends StatelessWidget {
           : const EdgeInsets.only(bottom: 12, left: 16, right: 16),
       decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(28), // defaultRadius로 통일하면 border 넓이가 균일해보이지 않음
-          border: isMultisig ? null : Border.all(color: MyColors.borderLightgrey, width: 1),
+          border: isMultisig ? null : Border.all(color: CoconutColors.borderLightGray, width: 1),
           gradient: isMultisig
               ? BoxDecorations.getMultisigLinearGradient(
                   CustomColorHelper.getGradientColors(signers!))
@@ -71,7 +72,7 @@ class VaultItemCard extends StatelessWidget {
         padding: isMultisig ? const EdgeInsets.all(20) : const EdgeInsets.all(24),
         decoration: isMultisig
             ? BoxDecoration(
-                color: MyColors.white,
+                color: CoconutColors.white,
                 borderRadius: BorderRadius.circular(26), // defaultRadius로 통일하면 border 넓이가 균일해보이지 않음
               )
             : null,
@@ -108,12 +109,12 @@ class VaultItemCard extends StatelessWidget {
                         },
                         child: Container(
                           decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(8), color: MyColors.lightgrey),
+                              borderRadius: BorderRadius.circular(8), color: CoconutColors.gray150),
                           child: const Padding(
                             padding: EdgeInsets.all(5.0),
                             child: Icon(
                               Icons.edit,
-                              color: MyColors.darkgrey,
+                              color: CoconutColors.gray800,
                               size: 14,
                             ),
                           ),
@@ -134,7 +135,7 @@ class VaultItemCard extends StatelessWidget {
                   style: isMultisig
                       ? TextStyle(
                           fontFamily: CustomFonts.number.getFontFamily,
-                          color: MyColors.black,
+                          color: CoconutColors.black,
                           fontSize: 12,
                           fontWeight: FontWeight.w700)
                       : Styles.h3.merge(TextStyle(fontFamily: CustomFonts.number.getFontFamily)),

@@ -37,7 +37,7 @@ class _IosBluetoothAuthNotificationScreenState extends State<IosBluetoothAuthNot
                 width: MediaQuery.of(context).size.width * 0.8,
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(24),
-                  color: MyColors.white,
+                  color: CoconutColors.white,
                   boxShadow: [
                     BoxShadow(
                       color: CoconutColors.gray500.withOpacity(0.3),
@@ -57,7 +57,7 @@ class _IosBluetoothAuthNotificationScreenState extends State<IosBluetoothAuthNot
                         Text(t.ios_bluetooth_auth_notification_screen.text1_4,
                             style: Styles.subLabel),
                         HighLightedText(t.ios_bluetooth_auth_notification_screen.text1_5,
-                            color: MyColors.darkgrey),
+                            color: CoconutColors.gray800),
                         Text(t.ios_bluetooth_auth_notification_screen.text1_6,
                             style: Styles.subLabel),
                       ],

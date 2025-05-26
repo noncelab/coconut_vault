@@ -1,3 +1,4 @@
+import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_vault/constants/app_routes.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/providers/sign_provider.dart';
@@ -56,7 +57,7 @@ class _PsbtConfirmationScreenState extends State<PsbtConfirmationScreen> {
       create: (_) => _viewModel,
       child: Consumer<PsbtConfirmationViewModel>(builder: (context, viewModel, child) {
         return Scaffold(
-          backgroundColor: MyColors.white,
+          backgroundColor: CoconutColors.white,
           appBar: CustomAppBar.buildWithNext(
             title: t.psbt_confirmation_screen.title,
             context: context,
@@ -90,7 +91,7 @@ class _PsbtConfirmationScreenState extends State<PsbtConfirmationScreen> {
                               fontSize: 15,
                               height: 1.4,
                               letterSpacing: 0.5,
-                              color: MyColors.black,
+                              color: CoconutColors.black,
                             ),
                             children: <TextSpan>[
                               TextSpan(
@@ -126,7 +127,7 @@ class _PsbtConfirmationScreenState extends State<PsbtConfirmationScreen> {
                         child: Container(
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(28.0),
-                            color: MyColors.transparentBlack_03,
+                            color: CoconutColors.black.withOpacity(0.03),
                           ),
                           child: Container(
                             padding: const EdgeInsets.symmetric(horizontal: 24),
@@ -138,7 +139,7 @@ class _PsbtConfirmationScreenState extends State<PsbtConfirmationScreen> {
                                   isNumber: true,
                                 ),
                                 const Divider(
-                                  color: MyColors.borderLightgrey,
+                                  color: CoconutColors.borderLightGray,
                                   height: 1,
                                 ),
                                 InformationItemCard(
@@ -151,7 +152,7 @@ class _PsbtConfirmationScreenState extends State<PsbtConfirmationScreen> {
                                   isNumber: true,
                                 ),
                                 const Divider(
-                                  color: MyColors.borderLightgrey,
+                                  color: CoconutColors.borderLightGray,
                                   height: 1,
                                 ),
                                 InformationItemCard(
@@ -186,7 +187,7 @@ class _PsbtConfirmationScreenState extends State<PsbtConfirmationScreen> {
                           padding: Paddings.widgetContainer,
                           decoration: BoxDecoration(
                               borderRadius: MyBorder.defaultRadius,
-                              color: MyColors.transparentBlack_30),
+                              color: CoconutColors.black.withOpacity(0.3)),
                           child: Text(
                             t.psbt_confirmation_screen.warning,
                             textAlign: TextAlign.center,
@@ -201,10 +202,10 @@ class _PsbtConfirmationScreenState extends State<PsbtConfirmationScreen> {
                   child: Container(
                     width: MediaQuery.of(context).size.width,
                     height: MediaQuery.of(context).size.height,
-                    decoration: const BoxDecoration(color: MyColors.transparentBlack_30),
+                    decoration: BoxDecoration(color: CoconutColors.black.withOpacity(0.3)),
                     child: const Center(
                       child: CircularProgressIndicator(
-                        color: MyColors.darkgrey,
+                        color: CoconutColors.gray800,
                       ),
                     ),
                   ),

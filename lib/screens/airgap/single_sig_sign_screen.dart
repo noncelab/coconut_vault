@@ -86,7 +86,7 @@ class _SingleSigSignScreenState extends State<SingleSigSignScreen> {
       create: (_) => _viewModel,
       child: Consumer<SingleSigSignViewModel>(
         builder: (context, viewModel, child) => Scaffold(
-          backgroundColor: MyColors.lightgrey,
+          backgroundColor: CoconutColors.gray150,
           appBar: CustomAppBar.buildWithNext(
               title: t.sign,
               context: context,
@@ -99,7 +99,7 @@ class _SingleSigSignScreenState extends State<SingleSigSignScreen> {
               },
               isActive: viewModel.requiredSignatureCount ==
                   viewModel.signersApproved.where((bool isApproved) => isApproved).length,
-              backgroundColor: MyColors.lightgrey,
+              backgroundColor: CoconutColors.gray150,
               hasBackdropFilter: false),
           body: SafeArea(
             child: Stack(
@@ -126,12 +126,12 @@ class _SingleSigSignScreenState extends State<SingleSigSignScreen> {
                           child: LinearProgressIndicator(
                             value: value,
                             minHeight: 6,
-                            backgroundColor: MyColors.transparentBlack_06,
+                            backgroundColor: CoconutColors.black.withOpacity(0.06),
                             borderRadius: _isProgressCompleted
                                 ? BorderRadius.zero
                                 : const BorderRadius.only(
                                     topRight: Radius.circular(6), bottomRight: Radius.circular(6)),
-                            valueColor: const AlwaysStoppedAnimation<Color>(MyColors.black),
+                            valueColor: const AlwaysStoppedAnimation<Color>(CoconutColors.black),
                           ),
                         );
                       },
@@ -162,7 +162,7 @@ class _SingleSigSignScreenState extends State<SingleSigSignScreen> {
                             children: [
                               Text(
                                 t.recipient,
-                                style: Styles.body2.copyWith(color: MyColors.grey57),
+                                style: Styles.body2.copyWith(color: CoconutColors.gray700),
                               ),
                               Text(
                                 textAlign: TextAlign.end,
@@ -180,7 +180,7 @@ class _SingleSigSignScreenState extends State<SingleSigSignScreen> {
                             children: [
                               Text(
                                 t.send_amount,
-                                style: Styles.body2.copyWith(color: MyColors.grey57),
+                                style: Styles.body2.copyWith(color: CoconutColors.gray700),
                               ),
                               Text(
                                 '${satoshiToBitcoinString(viewModel.sendingAmount)} ${t.btc}',
@@ -206,7 +206,7 @@ class _SingleSigSignScreenState extends State<SingleSigSignScreen> {
                             padding: const EdgeInsets.symmetric(horizontal: 8),
                             decoration: BoxDecoration(
                               borderRadius: MyBorder.defaultRadius,
-                              color: MyColors.white,
+                              color: CoconutColors.white,
                             ),
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
@@ -253,8 +253,8 @@ class _SingleSigSignScreenState extends State<SingleSigSignScreen> {
                                           children: [
                                             Text(
                                               t.sign_completion,
-                                              style: Styles.body1Bold
-                                                  .copyWith(fontSize: 12, color: CoconutColors.black),
+                                              style: Styles.body1Bold.copyWith(
+                                                  fontSize: 12, color: CoconutColors.black),
                                             ),
                                             const SizedBox(width: 4),
                                             SvgPicture.asset(
@@ -270,15 +270,17 @@ class _SingleSigSignScreenState extends State<SingleSigSignScreen> {
                                             padding: const EdgeInsets.symmetric(
                                                 horizontal: 8, vertical: 4),
                                             decoration: BoxDecoration(
-                                              color: MyColors.white,
+                                              color: CoconutColors.white,
                                               borderRadius: BorderRadius.circular(5),
-                                              border: Border.all(color: MyColors.black19, width: 1),
+                                              border: Border.all(
+                                                  color: CoconutColors.gray900, width: 1),
                                             ),
                                             child: Center(
                                               child: Text(
                                                 t.signature,
                                                 style: Styles.caption.copyWith(
-                                                    color: MyColors.black19), // 텍스트 색상도 검정으로 변경
+                                                    color:
+                                                        CoconutColors.gray900), // 텍스트 색상도 검정으로 변경
                                               ),
                                             ),
                                           ),
@@ -300,10 +302,10 @@ class _SingleSigSignScreenState extends State<SingleSigSignScreen> {
                   child: Container(
                     width: MediaQuery.of(context).size.width,
                     height: MediaQuery.of(context).size.height,
-                    decoration: const BoxDecoration(color: MyColors.transparentBlack_30),
+                    decoration: BoxDecoration(color: CoconutColors.black.withOpacity(0.3)),
                     child: const Center(
                       child: CircularProgressIndicator(
-                        color: MyColors.darkgrey,
+                        color: CoconutColors.gray800,
                       ),
                     ),
                   ),

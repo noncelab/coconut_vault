@@ -43,7 +43,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           },
           icon: const Icon(
             Icons.close,
-            color: MyColors.black,
+            color: CoconutColors.black,
             size: 22,
           ),
         ),
@@ -117,7 +117,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   title: t.settings_screen.set_password,
                   rightElement: CupertinoSwitch(
                     value: provider.hasBiometricsPermission ? provider.isBiometricEnabled : false,
-                    activeColor: MyColors.black,
+                    activeColor: CoconutColors.black,
                     onChanged: (isOn) async {
                       if (isOn &&
                           await provider.authenticateWithBiometrics(context, isSaved: true)) {
@@ -193,7 +193,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             title: t.settings_screen.use_passphrase,
             rightElement: CupertinoSwitch(
                 value: provider.isPassphraseUseEnabled,
-                activeColor: MyColors.black,
+                activeColor: CoconutColors.black,
                 onChanged: (isOn) async {
                   await provider.setAdvancedMode(isOn);
                 }),

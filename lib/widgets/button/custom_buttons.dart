@@ -26,12 +26,14 @@ class _CompleteButtonState extends State<CompleteButton> {
                 padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 20),
                 decoration: BoxDecoration(
                   borderRadius: MyBorder.boxDecorationRadius,
-                  color: widget.disabled ? MyColors.transparentBlack_06 : MyColors.darkgrey,
+                  color: widget.disabled
+                      ? CoconutColors.black.withOpacity(0.06)
+                      : CoconutColors.gray800,
                 ),
                 child: Text(
                   widget.label,
-                  style: Styles.body2Bold.merge(
-                      TextStyle(color: widget.disabled ? MyColors.defaultText : MyColors.white)),
+                  style: Styles.body2Bold.merge(TextStyle(
+                      color: widget.disabled ? CoconutColors.secondaryText : CoconutColors.white)),
                 ))));
   }
 }
@@ -80,12 +82,12 @@ class _SelectableButtonState extends State<SelectableButton> {
         decoration: BoxDecoration(
           borderRadius: MyBorder.defaultRadius,
           border: Border.all(
-            color: MyColors.darkgrey,
+            color: CoconutColors.gray800,
           ),
           color: _isTapped
-              ? MyColors.darkgrey
+              ? CoconutColors.gray800
               : widget.isPressed
-                  ? MyColors.darkgrey
+                  ? CoconutColors.gray800
                   : Colors.transparent,
         ),
         child: Center(
@@ -94,10 +96,10 @@ class _SelectableButtonState extends State<SelectableButton> {
           style: Styles.body2.merge(TextStyle(
               fontWeight: FontWeight.bold,
               color: _isTapped
-                  ? MyColors.white
+                  ? CoconutColors.white
                   : widget.isPressed
-                      ? MyColors.white
-                      : MyColors.darkgrey)),
+                      ? CoconutColors.white
+                      : CoconutColors.gray800)),
           textAlign: TextAlign.center,
         )),
       ),
@@ -134,7 +136,7 @@ class _CountingRowButtonState extends State<CountingRowButton> {
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
       decoration: BoxDecoration(
-        color: MyColors.transparentBlack_03,
+        color: CoconutColors.black.withOpacity(0.03),
         borderRadius: BorderRadius.circular(16),
       ),
       child: Row(
@@ -163,7 +165,7 @@ class _CountingRowButtonState extends State<CountingRowButton> {
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: isMinusTapDown ? MyColors.dropdownGrey : Colors.transparent,
+                color: isMinusTapDown ? CoconutColors.gray200 : Colors.transparent,
               ),
               child: Center(
                 child: SvgPicture.asset(
@@ -171,7 +173,7 @@ class _CountingRowButtonState extends State<CountingRowButton> {
                   width: 20,
                   colorFilter: widget.isMinusButtonDisabled
                       ? const ColorFilter.mode(
-                          MyColors.defaultIcon,
+                          CoconutColors.secondaryText,
                           BlendMode.srcIn,
                         )
                       : null,
@@ -227,7 +229,7 @@ class _CountingRowButtonState extends State<CountingRowButton> {
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: isPlusTapDown ? MyColors.dropdownGrey : Colors.transparent,
+                color: isPlusTapDown ? CoconutColors.gray200 : Colors.transparent,
               ),
               child: Center(
                 child: SvgPicture.asset(
@@ -235,7 +237,7 @@ class _CountingRowButtonState extends State<CountingRowButton> {
                   width: 20,
                   colorFilter: widget.isPlusButtonDisabled
                       ? const ColorFilter.mode(
-                          MyColors.defaultIcon,
+                          CoconutColors.secondaryText,
                           BlendMode.srcIn,
                         )
                       : null,

@@ -14,7 +14,7 @@ class ShrinkAnimationButton extends StatefulWidget {
     super.key,
     required this.child,
     required this.onPressed,
-    this.pressedColor = MyColors.lightgrey,
+    this.pressedColor = CoconutColors.gray150,
     this.defaultColor = CoconutColors.white,
     this.borderRadius = 28.0,
     this.borderWidth = 2.0,

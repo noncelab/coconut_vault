@@ -23,7 +23,7 @@ class _GuideScreenState extends State<GuideScreen> {
   Widget build(BuildContext context) {
     return Consumer<ConnectivityProvider>(builder: (context, provider, child) {
       return Scaffold(
-        backgroundColor: MyColors.white,
+        backgroundColor: CoconutColors.white,
         body: SafeArea(
           child: Center(
             child: Column(
@@ -46,7 +46,7 @@ class _GuideScreenState extends State<GuideScreen> {
                     width: MediaQuery.of(context).size.width * 0.8,
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(24),
-                      color: MyColors.white,
+                      color: CoconutColors.white,
                       boxShadow: [
                         BoxShadow(
                           color: CoconutColors.gray500.withOpacity(0.3),
@@ -63,7 +63,10 @@ class _GuideScreenState extends State<GuideScreen> {
                             Text(t.guide_screen.network_status, style: Styles.body2Bold),
                             const SizedBox(width: 40),
                             provider.isNetworkOn != null && provider.isNetworkOn == true
-                                ? HighLightedText(t.guide_screen.on, color: MyColors.warningText)
+                                ? HighLightedText(
+                                    t.guide_screen.on,
+                                    color: CoconutColors.warningText,
+                                  )
                                 : Text(t.guide_screen.off, style: Styles.subLabel)
                           ],
                         ),
@@ -74,7 +77,10 @@ class _GuideScreenState extends State<GuideScreen> {
                             Text(t.guide_screen.bluetooth_status, style: Styles.body2Bold),
                             const SizedBox(width: 40),
                             provider.isBluetoothOn != null && provider.isBluetoothOn == true
-                                ? HighLightedText(t.guide_screen.on, color: MyColors.warningText)
+                                ? HighLightedText(
+                                    t.guide_screen.on,
+                                    color: CoconutColors.warningText,
+                                  )
                                 : Text(t.guide_screen.off, style: Styles.subLabel)
                           ],
                         ),
@@ -87,7 +93,10 @@ class _GuideScreenState extends State<GuideScreen> {
                               const SizedBox(width: 40),
                               provider.isDeveloperModeOn != null &&
                                       provider.isDeveloperModeOn == true
-                                  ? HighLightedText(t.guide_screen.on, color: MyColors.warningText)
+                                  ? HighLightedText(
+                                      t.guide_screen.on,
+                                      color: CoconutColors.warningText,
+                                    )
                                   : Text(t.guide_screen.off, style: Styles.subLabel)
                             ],
                           ),
@@ -98,14 +107,25 @@ class _GuideScreenState extends State<GuideScreen> {
                 if (provider.isNetworkOn == true || provider.isBluetoothOn == true)
                   Column(
                     children: [
-                      Text(t.guide_screen.turn_off_network_and_bluetooth,
-                          style:
-                              Styles.body2Bold.merge(const TextStyle(color: MyColors.warningText))),
+                      Text(
+                        t.guide_screen.turn_off_network_and_bluetooth,
+                        style: Styles.body2Bold.merge(
+                          const TextStyle(
+                            color: CoconutColors.warningText,
+                          ),
+                        ),
+                      ),
                     ],
                   ),
                 if (provider.isDeveloperModeOn == true && Platform.isAndroid)
-                  Text(t.guide_screen.disable_developer_option,
-                      style: Styles.body2Bold.merge(const TextStyle(color: MyColors.warningText))),
+                  Text(
+                    t.guide_screen.disable_developer_option,
+                    style: Styles.body2Bold.merge(
+                      const TextStyle(
+                        color: CoconutColors.warningText,
+                      ),
+                    ),
+                  ),
                 const SizedBox(
                   height: 40,
                 ),
@@ -131,11 +151,11 @@ class _GuideScreenState extends State<GuideScreen> {
                             color: provider.isNetworkOn == false &&
                                     provider.isBluetoothOn == false &&
                                     (!Platform.isAndroid || provider.isDeveloperModeOn == false)
-                                ? MyColors.black
-                                : MyColors.transparentBlack_06),
+                                ? CoconutColors.black
+                                : CoconutColors.black.withOpacity(0.06)),
                         child: Text(
                           t.start,
-                          style: Styles.label.merge(const TextStyle(color: MyColors.white)),
+                          style: Styles.label.merge(const TextStyle(color: CoconutColors.white)),
                         ))),
                 const SizedBox(
                   height: 60,

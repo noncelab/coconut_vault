@@ -90,13 +90,13 @@ class _CoconutDropdownState extends State<CoconutDropdown> {
                       ? const BorderRadius.only(
                           bottomLeft: Radius.circular(16), bottomRight: Radius.circular(16))
                       : null,
-              color: _selectedIndex == index ? MyColors.lightgrey : MyColors.white,
+              color: _selectedIndex == index ? CoconutColors.gray150 : CoconutColors.white,
             ),
             child: Text(
               title,
               style: TextStyle(
                 fontFamily: CustomFonts.text.getFontFamily,
-                color: MyColors.black,
+                color: CoconutColors.black,
                 fontSize: 14,
                 fontWeight: FontWeight.w500,
                 fontStyle: FontStyle.normal,
@@ -104,7 +104,7 @@ class _CoconutDropdownState extends State<CoconutDropdown> {
             ),
           ),
         ),
-        if (!isLast) Container(height: dividerHeight, color: MyColors.dropdownGrey),
+        if (!isLast) Container(height: dividerHeight, color: CoconutColors.gray200),
       ],
     );
   }
