@@ -158,7 +158,9 @@ class MyBottomSheet {
                             onBackPressed: () => Navigator.pop(context),
                             actionButtonList: [
                               Padding(
-                                padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: 8,
+                                ),
                                 child: GestureDetector(
                                   onTap: isButtonActiveNotifier.value
                                       ? () {
