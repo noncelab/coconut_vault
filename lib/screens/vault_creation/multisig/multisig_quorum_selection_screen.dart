@@ -212,4 +212,10 @@ class _MultisigQuorumSelectionScreenState extends State<MultisigQuorumSelectionS
       }
     });
   }
+
+  @override
+  void dispose() {
+    _mounted = false;
+    super.dispose();
+  }
 }
