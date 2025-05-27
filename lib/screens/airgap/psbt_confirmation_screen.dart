@@ -4,7 +4,6 @@ import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/providers/sign_provider.dart';
 import 'package:coconut_vault/providers/view_model/airgap/psbt_confirmation_view_model.dart';
 import 'package:flutter/material.dart';
-import 'package:coconut_vault/styles.dart';
 import 'package:coconut_vault/utils/alert_util.dart';
 import 'package:coconut_vault/utils/unit_utils.dart';
 import 'package:coconut_vault/widgets/appbar/custom_appbar.dart';
@@ -115,10 +114,16 @@ class _PsbtConfirmationScreenState extends State<PsbtConfirmationScreen> {
                                   ? satoshiToBitcoinString(viewModel.sendingAmount!)
                                   : '',
                               children: <TextSpan>[
-                                TextSpan(text: ' ${t.btc}', style: Styles.unit),
+                                TextSpan(
+                                    text: ' ${t.btc}', style: CoconutTypography.heading4_18_Number),
                               ],
                             ),
-                            style: Styles.balance1,
+                            style: CoconutTypography.heading1_32_Number.merge(
+                              const TextStyle(
+                                fontSize: 36,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
                           ),
                         ),
                       ),
@@ -176,7 +181,9 @@ class _PsbtConfirmationScreenState extends State<PsbtConfirmationScreen> {
                         Text(
                           t.psbt_confirmation_screen.self_sending,
                           textAlign: TextAlign.center,
-                          style: Styles.caption,
+                          style: CoconutTypography.body3_12.setColor(
+                            CoconutColors.gray800,
+                          ),
                         ),
                       ],
                       if (viewModel.hasWarning) ...[

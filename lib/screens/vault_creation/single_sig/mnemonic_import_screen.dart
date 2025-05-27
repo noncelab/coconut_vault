@@ -162,7 +162,7 @@ class _MnemonicImportState extends State<MnemonicImport> {
                     child: Column(
                       children: <Widget>[
                         Text(t.mnemonic_import_screen.enter_mnemonic_phrase,
-                            style: Styles.body1Bold),
+                            style: CoconutTypography.body1_16_Bold),
                         const SizedBox(height: 30),
                         _buildMnemonicTextField(),
                         const SizedBox(height: 30),
@@ -267,7 +267,8 @@ class _MnemonicImportState extends State<MnemonicImport> {
           if (isAdvancedUser) {
             return Row(
               children: [
-                Text(t.mnemonic_import_screen.use_passphrase, style: Styles.body2Bold),
+                Text(t.mnemonic_import_screen.use_passphrase,
+                    style: CoconutTypography.body2_14_Bold),
                 const Spacer(),
                 CupertinoSwitch(
                   value: _usePassphrase,
@@ -300,8 +301,8 @@ class _MnemonicImportState extends State<MnemonicImport> {
                     alignment: Alignment.centerRight,
                     child: Text(
                       t.mnemonic_import_screen.open_settings,
-                      style: TextStyle(
-                        fontFamily: CustomFonts.text.getFontFamily,
+                      style: const TextStyle(
+                        fontFamily: 'Pretendard',
                         color: CoconutColors.black,
                         decoration: TextDecoration.underline,
                         fontWeight: FontWeight.bold,
@@ -354,12 +355,11 @@ class _MnemonicImportState extends State<MnemonicImport> {
           alignment: Alignment.topRight,
           child: Text(
             '(${_passphrase.length} / 100)',
-            style: TextStyle(
-                color: _passphrase.length == 100
-                    ? CoconutColors.black.withOpacity(0.7)
-                    : CoconutColors.black.withOpacity(0.5),
-                fontSize: 12,
-                fontFamily: CustomFonts.text.getFontFamily),
+            style: CoconutTypography.body3_12.setColor(
+              _passphrase.length == 100
+                  ? CoconutColors.black.withOpacity(0.7)
+                  : CoconutColors.black.withOpacity(0.5),
+            ),
           ),
         ),
       )

@@ -247,7 +247,7 @@ class _MultisigSetupInfoScreenState extends State<MultisigSetupInfoScreen> {
                   // mfp
                   Text(
                     signer.keyStore.masterFingerprint,
-                    style: Styles.mfpH3,
+                    style: CoconutTypography.body1_16_Number,
                   ),
                 ],
               ),
@@ -260,14 +260,13 @@ class _MultisigSetupInfoScreenState extends State<MultisigSetupInfoScreen> {
 
   Widget _buildIndex(int index) {
     return SizedBox(
-        width: 24,
-        child: Text(
-          '$index',
-          textAlign: TextAlign.center,
-          style: Styles.body2.merge(
-            TextStyle(fontSize: 16, fontFamily: CustomFonts.number.getFontFamily),
-          ),
-        ));
+      width: 24,
+      child: Text(
+        '$index',
+        textAlign: TextAlign.center,
+        style: CoconutTypography.body1_16_Number,
+      ),
+    );
   }
 
   Widget _buildSignerIcon({int colorIndex = -1, String iconPath = 'assets/svg/download.svg'}) {
@@ -299,7 +298,7 @@ class _MultisigSetupInfoScreenState extends State<MultisigSetupInfoScreen> {
         // 이름
         Text(
           name ?? '',
-          style: Styles.body2,
+          style: CoconutTypography.body2_14,
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
         ),
@@ -307,7 +306,12 @@ class _MultisigSetupInfoScreenState extends State<MultisigSetupInfoScreen> {
           visible: memo != null && memo.isNotEmpty,
           child: Text(
             memo ?? '',
-            style: Styles.caption2,
+            style: CoconutTypography.body3_12.merge(
+              const TextStyle(
+                color: CoconutColors.searchbarHint,
+                fontSize: 10,
+              ),
+            ),
             maxLines: 2,
             overflow: TextOverflow.ellipsis,
           ),
@@ -435,9 +439,8 @@ class _MultisigSetupInfoScreenState extends State<MultisigSetupInfoScreen> {
                   Text(
                     t.multi_sig_setting_screen
                         .tooltip(total: totalSingerCount, count: requiredSignatureCount),
-                    style: Styles.caption.merge(TextStyle(
+                    style: CoconutTypography.body3_12.merge(const TextStyle(
                       height: 1.3,
-                      fontFamily: CustomFonts.text.getFontFamily,
                       color: CoconutColors.white,
                     )),
                   ),

@@ -1,6 +1,5 @@
 import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
-import 'package:coconut_vault/styles.dart';
 import 'package:flutter/material.dart';
 
 class ToastWidget extends StatefulWidget {
@@ -66,7 +65,9 @@ class ToastWidgetState extends State<ToastWidget> with SingleTickerProviderState
           children: [
             Text(
               displayMessage,
-              style: Styles.body2Bold.merge(const TextStyle(color: CoconutColors.white)),
+              style: CoconutTypography.body2_14_Bold.setColor(
+                CoconutColors.white,
+              ),
             ),
             const Icon(
               Icons.check,

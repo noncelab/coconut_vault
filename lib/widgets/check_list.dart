@@ -1,3 +1,4 @@
+import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:flutter/material.dart';
 import 'package:coconut_vault/styles.dart';
 
@@ -51,7 +52,12 @@ class _ChecklistTileState extends State<ChecklistTile> {
             Expanded(
               child: Text(
                 widget.item.title,
-                style: Styles.label.merge(const TextStyle(color: CoconutColors.gray800)),
+                style: CoconutTypography.body2_14.merge(
+                  const TextStyle(
+                    color: CoconutColors.gray800,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
                 textAlign: TextAlign.start,
               ),
             ),

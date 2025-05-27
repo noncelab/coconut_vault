@@ -5,7 +5,6 @@ import 'package:coconut_lib/coconut_lib.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:coconut_vault/styles.dart';
 import 'package:coconut_vault/widgets/label_testnet.dart';
 
 class CustomAppBar {
@@ -45,8 +44,12 @@ class CustomAppBar {
         title: titleWidget,
         centerTitle: true,
         backgroundColor: backgroundColor,
-        titleTextStyle: Styles.navHeader.merge(const TextStyle(color: CoconutColors.black)),
-        toolbarTextStyle: Styles.appbarTitle,
+        titleTextStyle: CoconutTypography.body1_16.merge(
+          const TextStyle(
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+        toolbarTextStyle: CoconutTypography.heading4_18,
         leading: Navigator.canPop(context)
             ? IconButton(
                 icon: isBottom
@@ -99,8 +102,12 @@ class CustomAppBar {
         title: Text(title),
         centerTitle: true,
         backgroundColor: backgroundColor,
-        titleTextStyle: Styles.navHeader.merge(const TextStyle(color: CoconutColors.black)),
-        toolbarTextStyle: Styles.appbarTitle,
+        titleTextStyle: CoconutTypography.body1_16.merge(
+          const TextStyle(
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+        toolbarTextStyle: CoconutTypography.heading4_18,
         leading: Navigator.canPop(context)
             ? IconButton(
                 icon: isBottom
@@ -131,8 +138,9 @@ class CustomAppBar {
                 child: Center(
                   child: Text(
                     buttonName,
-                    style: Styles.label2.merge(
+                    style: CoconutTypography.body2_14.merge(
                       TextStyle(
+                        fontSize: 11,
                         color:
                             isActive ? CoconutColors.white : CoconutColors.black.withOpacity(0.3),
                         fontWeight: isActive ? FontWeight.bold : FontWeight.normal,
@@ -168,8 +176,12 @@ class CustomAppBar {
         ),
         centerTitle: true,
         backgroundColor: CoconutColors.white,
-        titleTextStyle: Styles.navHeader.merge(const TextStyle(color: CoconutColors.black)),
-        toolbarTextStyle: Styles.appbarTitle,
+        titleTextStyle: CoconutTypography.body1_16.merge(
+          const TextStyle(
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+        toolbarTextStyle: CoconutTypography.heading4_18,
         leading: Navigator.canPop(context)
             ? IconButton(
                 icon: isBottom
@@ -196,7 +208,7 @@ class CustomAppBar {
                 child: Center(
                   child: Text(
                     '저장',
-                    style: Styles.subLabel.merge(
+                    style: CoconutTypography.body2_14.merge(
                       TextStyle(
                         color:
                             isActive ? CoconutColors.white : CoconutColors.black.withOpacity(0.3),
@@ -231,8 +243,9 @@ class CustomAppBar {
       centerTitle: true,
       backgroundColor: backgroundColor ?? Colors.transparent,
       title: Text(title),
-      titleTextStyle: Styles.navHeader.merge(const TextStyle(color: CoconutColors.black)),
-      toolbarTextStyle: Styles.appbarTitle,
+      titleTextStyle:
+          CoconutTypography.body1_16.merge(const TextStyle(fontWeight: FontWeight.w500)),
+      toolbarTextStyle: CoconutTypography.heading4_18,
       leading: IconButton(
         onPressed: onBackPressed ??
             () {
@@ -264,8 +277,9 @@ class CustomAppBar {
                 child: Center(
                   child: Text(
                     nextButtonText,
-                    style: Styles.label2.merge(
+                    style: CoconutTypography.body2_14.merge(
                       TextStyle(
+                        fontSize: 11,
                         color: isNextButtonActive
                             ? Colors.white
                             : CoconutColors.black.withOpacity(0.3),

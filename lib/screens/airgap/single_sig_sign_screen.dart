@@ -6,7 +6,6 @@ import 'package:coconut_vault/providers/sign_provider.dart';
 import 'package:coconut_vault/providers/view_model/airgap/single_sig_sign_view_model.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:coconut_vault/screens/common/pin_check_screen.dart';
-import 'package:coconut_vault/styles.dart';
 import 'package:coconut_vault/utils/alert_util.dart';
 import 'package:coconut_vault/utils/icon_util.dart';
 import 'package:coconut_vault/utils/text_utils.dart';
@@ -148,7 +147,7 @@ class _SingleSigSignScreenState extends State<SingleSigSignScreen> {
                             : t.sign_required(
                                 count: viewModel.requiredSignatureCount -
                                     viewModel.signersApproved.where((item) => item).length),
-                        style: Styles.body2Bold,
+                        style: CoconutTypography.body2_14_Bold,
                       ),
                     ),
                     // 보낼 주소
@@ -162,7 +161,7 @@ class _SingleSigSignScreenState extends State<SingleSigSignScreen> {
                             children: [
                               Text(
                                 t.recipient,
-                                style: Styles.body2.copyWith(color: CoconutColors.gray700),
+                                style: CoconutTypography.body2_14.setColor(CoconutColors.gray700),
                               ),
                               Text(
                                 textAlign: TextAlign.end,
@@ -170,7 +169,7 @@ class _SingleSigSignScreenState extends State<SingleSigSignScreen> {
                                     (viewModel.recipientCount > 1
                                         ? '\n${t.extra_count(count: viewModel.recipientCount - 1)}'
                                         : ''),
-                                style: Styles.body1,
+                                style: CoconutTypography.body1_16,
                               )
                             ],
                           ),
@@ -180,13 +179,11 @@ class _SingleSigSignScreenState extends State<SingleSigSignScreen> {
                             children: [
                               Text(
                                 t.send_amount,
-                                style: Styles.body2.copyWith(color: CoconutColors.gray700),
+                                style: CoconutTypography.body2_14.setColor(CoconutColors.gray700),
                               ),
                               Text(
                                 '${satoshiToBitcoinString(viewModel.sendingAmount)} ${t.btc}',
-                                style: Styles.balance2.copyWith(
-                                  fontSize: 16,
-                                ),
+                                style: CoconutTypography.body1_16_Number,
                               ),
                             ],
                           ),
@@ -225,14 +222,15 @@ class _SingleSigSignScreenState extends State<SingleSigSignScreen> {
                                           Container(
                                             padding: const EdgeInsets.all(10),
                                             decoration: BoxDecoration(
-                                              color: BackgroundColorPalette[
+                                              color: CoconutColors.backgroundColorPaletteLight[
                                                   viewModel.walletColorIndex],
                                               borderRadius: BorderRadius.circular(16.0),
                                             ),
                                             child: SvgPicture.asset(
                                               CustomIcons.getPathByIndex(viewModel.walletIconIndex),
                                               colorFilter: ColorFilter.mode(
-                                                ColorPalette[viewModel.walletColorIndex],
+                                                CoconutColors
+                                                    .colorPalette[viewModel.walletColorIndex],
                                                 BlendMode.srcIn,
                                               ),
                                               width: 20,
@@ -242,7 +240,8 @@ class _SingleSigSignScreenState extends State<SingleSigSignScreen> {
                                           Column(
                                             crossAxisAlignment: CrossAxisAlignment.start,
                                             children: [
-                                              Text(viewModel.walletName, style: Styles.body2),
+                                              Text(viewModel.walletName,
+                                                  style: CoconutTypography.body2_14),
                                             ],
                                           ),
                                         ],
@@ -251,11 +250,8 @@ class _SingleSigSignScreenState extends State<SingleSigSignScreen> {
                                       if (viewModel.isApproved(index)) ...{
                                         Row(
                                           children: [
-                                            Text(
-                                              t.sign_completion,
-                                              style: Styles.body1Bold.copyWith(
-                                                  fontSize: 12, color: CoconutColors.black),
-                                            ),
+                                            Text(t.sign_completion,
+                                                style: CoconutTypography.body3_12_Bold),
                                             const SizedBox(width: 4),
                                             SvgPicture.asset(
                                               'assets/svg/circle-check.svg',
@@ -278,9 +274,9 @@ class _SingleSigSignScreenState extends State<SingleSigSignScreen> {
                                             child: Center(
                                               child: Text(
                                                 t.signature,
-                                                style: Styles.caption.copyWith(
-                                                    color:
-                                                        CoconutColors.gray900), // 텍스트 색상도 검정으로 변경
+                                                style: CoconutTypography.body3_12.setColor(
+                                                  CoconutColors.gray900,
+                                                ),
                                               ),
                                             ),
                                           ),

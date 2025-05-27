@@ -12,7 +12,6 @@ import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:coconut_vault/utils/alert_util.dart';
 import 'package:coconut_vault/widgets/appbar/custom_appbar.dart';
 import 'package:flutter/material.dart';
-import 'package:coconut_vault/styles.dart';
 import 'package:coconut_vault/widgets/custom_tooltip.dart';
 import 'package:provider/provider.dart';
 import 'package:qr_code_scanner/qr_code_scanner.dart';
@@ -264,7 +263,7 @@ class _MultisigBsmsScannerScreenState extends State<MultisigBsmsScannerScreen> {
     TextSpan buildTextSpan(String text, {bool isBold = false}) {
       return TextSpan(
         text: text,
-        style: Styles.body1.merge(
+        style: CoconutTypography.body1_16.merge(
           TextStyle(
             fontWeight: isBold ? FontWeight.bold : FontWeight.normal,
             height: 20.8 / 16,
@@ -278,7 +277,7 @@ class _MultisigBsmsScannerScreenState extends State<MultisigBsmsScannerScreen> {
       return RichText(
         text: TextSpan(
           text: t.signer_scanner_screen.guide1_1,
-          style: Styles.body1.merge(
+          style: CoconutTypography.body1_16.merge(
             const TextStyle(
               height: 20.8 / 16,
               letterSpacing: -0.01,
@@ -296,7 +295,7 @@ class _MultisigBsmsScannerScreenState extends State<MultisigBsmsScannerScreen> {
       return RichText(
         text: TextSpan(
           text: t.signer_scanner_screen.guide2_1,
-          style: Styles.body1.merge(const TextStyle(
+          style: CoconutTypography.body1_16.merge(const TextStyle(
             height: 20.8 / 16,
             letterSpacing: -0.01,
           )),

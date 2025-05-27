@@ -2,7 +2,6 @@ import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/providers/view_model/vault_menu/multisig_bsms_view_model.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
-import 'package:coconut_vault/styles.dart';
 import 'package:coconut_vault/widgets/appbar/custom_appbar.dart';
 import 'package:coconut_vault/widgets/bottom_sheet.dart';
 import 'package:coconut_vault/widgets/button/copy_text_container.dart';
@@ -60,7 +59,7 @@ class MultisigBsmsScreen extends StatelessWidget {
                     ),
                     child: Text(
                       t.multi_sig_bsms_screen.view_detail,
-                      style: Styles.body2.copyWith(color: CoconutColors.white),
+                      style: CoconutTypography.body2_14.setColor(CoconutColors.white),
                     ),
                   ),
                 ),
@@ -120,19 +119,12 @@ class MultisigBsmsScreen extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.baseline,
       textBaseline: TextBaseline.alphabetic,
       children: [
-        Text(
-          '•',
-          style: Styles.body1.copyWith(
-            fontSize: 14,
-          ),
-        ),
+        const Text('•', style: CoconutTypography.body2_14),
         const SizedBox(width: 8),
         Expanded(
           child: RichText(
             text: TextSpan(
-              style: Styles.body1.copyWith(
-                fontSize: 14,
-              ),
+              style: CoconutTypography.body2_14,
               children: _parseDescription(description),
             ),
           ),
@@ -148,9 +140,7 @@ class MultisigBsmsScreen extends StatelessWidget {
       spans.add(
         TextSpan(
           text: part,
-          style: index.isEven
-              ? Styles.body1.copyWith(fontSize: 14)
-              : Styles.body1.copyWith(fontSize: 14, fontWeight: FontWeight.bold),
+          style: index.isEven ? CoconutTypography.body2_14 : CoconutTypography.body2_14_Bold,
         ),
       );
     });
@@ -169,8 +159,8 @@ class MultisigBsmsScreen extends StatelessWidget {
             title: Text(t.multi_sig_bsms_screen.bottom_sheet.title),
             centerTitle: true,
             backgroundColor: CoconutColors.white,
-            titleTextStyle: Styles.body1Bold,
-            toolbarTextStyle: Styles.body1Bold,
+            titleTextStyle: CoconutTypography.body1_16_Bold,
+            toolbarTextStyle: CoconutTypography.body1_16_Bold,
             leading: IconButton(
               icon: const Icon(
                 Icons.close_rounded,

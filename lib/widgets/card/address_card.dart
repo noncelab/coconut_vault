@@ -48,7 +48,9 @@ class AddressCard extends StatelessWidget {
               ),
               child: Text(
                 index,
-                style: Styles.caption.merge(const TextStyle(color: CoconutColors.white)),
+                style: CoconutTypography.body3_12.setColor(
+                  CoconutColors.white,
+                ),
               ),
             ),
             Column(
@@ -56,7 +58,7 @@ class AddressCard extends StatelessWidget {
               children: [
                 Text(
                   TextUtils.truncateNameMax25(address),
-                  style: Styles.body1,
+                  style: CoconutTypography.body1_16,
                 ),
               ],
             ),

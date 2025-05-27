@@ -6,7 +6,6 @@ import 'package:coconut_vault/providers/connectivity_provider.dart';
 import 'package:coconut_vault/providers/visibility_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:coconut_vault/styles.dart';
 import 'package:coconut_vault/widgets/highlighted_text.dart';
 import 'package:provider/provider.dart';
 
@@ -37,7 +36,7 @@ class _GuideScreenState extends State<GuideScreen> {
                 const SizedBox(height: 20),
                 Text(
                   t.guide_screen.keep_network_off,
-                  style: Styles.body2Bold,
+                  style: CoconutTypography.body2_14_Bold,
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 20),
@@ -60,28 +59,44 @@ class _GuideScreenState extends State<GuideScreen> {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Text(t.guide_screen.network_status, style: Styles.body2Bold),
+                            Text(
+                              t.guide_screen.network_status,
+                              style: CoconutTypography.body2_14_Bold,
+                            ),
                             const SizedBox(width: 40),
                             provider.isNetworkOn != null && provider.isNetworkOn == true
                                 ? HighLightedText(
                                     t.guide_screen.on,
                                     color: CoconutColors.warningText,
                                   )
-                                : Text(t.guide_screen.off, style: Styles.subLabel)
+                                : Text(
+                                    t.guide_screen.off,
+                                    style: CoconutTypography.body2_14.setColor(
+                                      CoconutColors.black.withOpacity(0.7),
+                                    ),
+                                  )
                           ],
                         ),
                         const SizedBox(height: 12),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Text(t.guide_screen.bluetooth_status, style: Styles.body2Bold),
+                            Text(
+                              t.guide_screen.bluetooth_status,
+                              style: CoconutTypography.body2_14_Bold,
+                            ),
                             const SizedBox(width: 40),
                             provider.isBluetoothOn != null && provider.isBluetoothOn == true
                                 ? HighLightedText(
                                     t.guide_screen.on,
                                     color: CoconutColors.warningText,
                                   )
-                                : Text(t.guide_screen.off, style: Styles.subLabel)
+                                : Text(
+                                    t.guide_screen.off,
+                                    style: CoconutTypography.body2_14.setColor(
+                                      CoconutColors.black.withOpacity(0.7),
+                                    ),
+                                  )
                           ],
                         ),
                         if (Platform.isAndroid) ...[
@@ -89,7 +104,10 @@ class _GuideScreenState extends State<GuideScreen> {
                           Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              Text(t.guide_screen.developer_option, style: Styles.body2Bold),
+                              Text(
+                                t.guide_screen.developer_option,
+                                style: CoconutTypography.body2_14_Bold,
+                              ),
                               const SizedBox(width: 40),
                               provider.isDeveloperModeOn != null &&
                                       provider.isDeveloperModeOn == true
@@ -97,7 +115,12 @@ class _GuideScreenState extends State<GuideScreen> {
                                       t.guide_screen.on,
                                       color: CoconutColors.warningText,
                                     )
-                                  : Text(t.guide_screen.off, style: Styles.subLabel)
+                                  : Text(
+                                      t.guide_screen.off,
+                                      style: CoconutTypography.body2_14.setColor(
+                                        CoconutColors.black.withOpacity(0.7),
+                                      ),
+                                    ),
                             ],
                           ),
                         ]
@@ -109,10 +132,8 @@ class _GuideScreenState extends State<GuideScreen> {
                     children: [
                       Text(
                         t.guide_screen.turn_off_network_and_bluetooth,
-                        style: Styles.body2Bold.merge(
-                          const TextStyle(
-                            color: CoconutColors.warningText,
-                          ),
+                        style: CoconutTypography.body2_14_Bold.setColor(
+                          CoconutColors.warningText,
                         ),
                       ),
                     ],
@@ -120,10 +141,8 @@ class _GuideScreenState extends State<GuideScreen> {
                 if (provider.isDeveloperModeOn == true && Platform.isAndroid)
                   Text(
                     t.guide_screen.disable_developer_option,
-                    style: Styles.body2Bold.merge(
-                      const TextStyle(
-                        color: CoconutColors.warningText,
-                      ),
+                    style: CoconutTypography.body2_14_Bold.setColor(
+                      CoconutColors.warningText,
                     ),
                   ),
                 const SizedBox(
@@ -155,7 +174,12 @@ class _GuideScreenState extends State<GuideScreen> {
                                 : CoconutColors.black.withOpacity(0.06)),
                         child: Text(
                           t.start,
-                          style: Styles.label.merge(const TextStyle(color: CoconutColors.white)),
+                          style: CoconutTypography.body2_14.merge(
+                            const TextStyle(
+                              color: CoconutColors.white,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
                         ))),
                 const SizedBox(
                   height: 60,

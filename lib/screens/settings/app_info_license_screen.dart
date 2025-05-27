@@ -5,7 +5,6 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:coconut_vault/oss_licenses.dart';
 import 'package:coconut_vault/screens/common/qrcode_bottom_sheet.dart';
-import 'package:coconut_vault/styles.dart';
 import 'package:coconut_vault/widgets/appbar/custom_appbar.dart';
 import 'package:coconut_vault/widgets/bottom_sheet.dart';
 
@@ -70,10 +69,8 @@ class _LicenseScreenState extends State<LicenseScreen> {
                       ),
                       child: Text(
                         t.coconut_vault,
-                        style: Styles.body2Bold.merge(
-                          const TextStyle(
-                            color: CoconutColors.white,
-                          ),
+                        style: CoconutTypography.body2_14_Bold.setColor(
+                          CoconutColors.white,
                         ),
                       ),
                     ),
@@ -87,11 +84,13 @@ class _LicenseScreenState extends State<LicenseScreen> {
                       child: RichText(
                         text: TextSpan(
                           text: t.license_screen.text1,
-                          style: Styles.caption,
+                          style: CoconutTypography.body3_12.setColor(
+                            CoconutColors.gray800,
+                          ),
                           children: <TextSpan>[
                             TextSpan(
                                 text: mitFullTextLink, // 색상을 다르게 할 텍스트
-                                style: Styles.caption.merge(
+                                style: CoconutTypography.body3_12.merge(
                                   const TextStyle(
                                     color: CoconutColors.oceanBlue,
                                     decoration: TextDecoration.underline,
@@ -110,7 +109,7 @@ class _LicenseScreenState extends State<LicenseScreen> {
                             TextSpan(text: t.license_screen.text2),
                             TextSpan(
                                 text: CONTACT_EMAIL_ADDRESS, // 색상을 다르게 할 텍스트
-                                style: Styles.caption.merge(
+                                style: CoconutTypography.body3_12.merge(
                                   const TextStyle(
                                     color: CoconutColors.oceanBlue,
                                     decoration: TextDecoration.underline,
@@ -129,7 +128,9 @@ class _LicenseScreenState extends State<LicenseScreen> {
                                   }),
                             TextSpan(
                               text: t.license_screen.text3,
-                              style: Styles.caption,
+                              style: CoconutTypography.body3_12.setColor(
+                                CoconutColors.gray800,
+                              ),
                             ),
                           ],
                         ),
@@ -183,26 +184,20 @@ class _LicenseScreenState extends State<LicenseScreen> {
                           children: [
                             Text(
                               licenseName,
-                              style: Styles.body1Bold,
+                              style: CoconutTypography.body1_16_Bold,
                             ),
                             if (copyRight.isNotEmpty)
                               Text(
                                 copyRight,
-                                style: Styles.body2Grey.merge(
-                                  const TextStyle(
-                                    fontSize: 12.0,
-                                  ),
+                                style: CoconutTypography.body3_12.setColor(
+                                  CoconutColors.black.withOpacity(0.3),
                                 ),
                               ),
                             SizedBox(
                               width: MediaQuery.of(context).size.width,
                               child: Text(
                                 licenseClass ?? 'Unknown License',
-                                style: Styles.body2.merge(
-                                  const TextStyle(
-                                    fontSize: 12.0,
-                                  ),
-                                ),
+                                style: CoconutTypography.body3_12,
                               ),
                             ),
                             if (licenseExplanationVisible[index - 1])

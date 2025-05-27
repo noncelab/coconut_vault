@@ -6,7 +6,6 @@ import 'package:coconut_vault/widgets/animatedQR/animated_qr_scanner.dart';
 import 'package:coconut_vault/widgets/appbar/custom_appbar.dart';
 import 'package:coconut_vault/widgets/custom_loading_overlay.dart';
 import 'package:flutter/material.dart';
-import 'package:coconut_vault/styles.dart';
 import 'package:coconut_vault/widgets/custom_tooltip.dart';
 import 'package:loader_overlay/loader_overlay.dart';
 import 'package:qr_code_scanner/qr_code_scanner.dart';

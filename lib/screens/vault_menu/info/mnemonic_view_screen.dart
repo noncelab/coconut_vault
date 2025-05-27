@@ -3,7 +3,6 @@ import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:coconut_vault/widgets/button/copy_text_container.dart';
 import 'package:flutter/material.dart';
-import 'package:coconut_vault/styles.dart';
 import 'package:provider/provider.dart';
 import 'package:shimmer/shimmer.dart';
 
@@ -105,8 +104,6 @@ class _MnemonicViewScreen extends State<MnemonicViewScreen> {
   Widget _buildSkeleton() {
     final double qrSize = MediaQuery.of(context).size.width * 275 / 375;
     const int skeletonTextLines = 4;
-    // final int skeletonTextLines = calculateNumberOfLines(
-    //     context, widget.mnemonic, Styles.body2, qrSize, 36);
     List<Widget> textWidgets = [];
     for (int i = 0; i < skeletonTextLines; i++) {
       textWidgets.add(
@@ -181,8 +178,8 @@ class _MnemonicViewScreen extends State<MnemonicViewScreen> {
             ),
             child: Text(
               t.mnemonic_view_screen.view_passphrase,
-              style: Styles.caption.merge(
-                const TextStyle(color: CoconutColors.white),
+              style: CoconutTypography.body3_12.setColor(
+                CoconutColors.white,
               ),
             ),
           ),
@@ -191,7 +188,9 @@ class _MnemonicViewScreen extends State<MnemonicViewScreen> {
           ),
           Text(
             t.mnemonic_view_screen.visible_while_pressing,
-            style: Styles.caption,
+            style: CoconutTypography.body3_12.setColor(
+              CoconutColors.gray800,
+            ),
           ),
         ],
       ),
@@ -219,8 +218,8 @@ class _MnemonicViewScreen extends State<MnemonicViewScreen> {
           title: !_isPressed ? Text(widget.title) : Text(widget.subtitle),
           centerTitle: true,
           backgroundColor: CoconutColors.white,
-          titleTextStyle: Styles.body1Bold,
-          toolbarTextStyle: Styles.body1Bold,
+          titleTextStyle: CoconutTypography.body1_16_Bold,
+          toolbarTextStyle: CoconutTypography.body1_16_Bold,
           leading: IconButton(
             icon: const Icon(
               Icons.close_rounded,
@@ -260,10 +259,9 @@ class _MnemonicViewScreen extends State<MnemonicViewScreen> {
                               ),
                               Text(
                                 t.mnemonic_view_screen.space_as_blank,
-                                style: TextStyle(
-                                    color: CoconutColors.gray500,
-                                    fontSize: 14.0,
-                                    fontFamily: CustomFonts.text.getFontFamily),
+                                style: CoconutTypography.body2_14.setColor(
+                                  CoconutColors.gray500,
+                                ),
                               ),
                             ],
                           ),

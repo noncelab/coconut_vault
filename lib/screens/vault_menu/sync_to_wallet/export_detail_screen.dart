@@ -1,6 +1,5 @@
 import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
-import 'package:coconut_vault/styles.dart';
 import 'package:coconut_vault/widgets/button/copy_text_container.dart';
 import 'package:flutter/material.dart';
 
@@ -24,8 +23,8 @@ class _ExportDetailScreen extends State<ExportDetailScreen> {
           title: Text(t.export_detail_screen.title),
           centerTitle: true,
           backgroundColor: CoconutColors.white,
-          titleTextStyle: Styles.body1Bold,
-          toolbarTextStyle: Styles.body1Bold,
+          titleTextStyle: CoconutTypography.body1_16_Bold,
+          toolbarTextStyle: CoconutTypography.body1_16_Bold,
           leading: IconButton(
             icon: const Icon(
               Icons.close_rounded,

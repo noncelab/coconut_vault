@@ -1,7 +1,6 @@
 import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
-import 'package:coconut_vault/styles.dart';
 
 class AnimatedDialog extends StatefulWidget {
   final BuildContext context;
@@ -75,7 +74,7 @@ class _AnimatedDialogState extends State<AnimatedDialog> with SingleTickerProvid
                   padding: const EdgeInsets.only(top: 10.0),
                   child: Text(
                     widget.body,
-                    style: Styles.body2Bold,
+                    style: CoconutTypography.body2_14_Bold,
                     textAlign: TextAlign.center,
                   ),
                 ),

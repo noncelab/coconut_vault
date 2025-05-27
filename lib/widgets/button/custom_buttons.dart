@@ -1,6 +1,5 @@
 import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:flutter/material.dart';
-import 'package:coconut_vault/styles.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 class CompleteButton extends StatefulWidget {
@@ -19,22 +18,23 @@ class _CompleteButtonState extends State<CompleteButton> {
   @override
   Widget build(BuildContext context) {
     return Center(
-        child: GestureDetector(
-            onTap: widget.disabled ? null : widget.onPressed,
-            child: Container(
-                margin: const EdgeInsets.only(top: 40),
-                padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 20),
-                decoration: BoxDecoration(
-                  borderRadius: CoconutBorder.boxDecorationRadius,
-                  color: widget.disabled
-                      ? CoconutColors.black.withOpacity(0.06)
-                      : CoconutColors.gray800,
-                ),
-                child: Text(
-                  widget.label,
-                  style: Styles.body2Bold.merge(TextStyle(
-                      color: widget.disabled ? CoconutColors.secondaryText : CoconutColors.white)),
-                ))));
+      child: GestureDetector(
+        onTap: widget.disabled ? null : widget.onPressed,
+        child: Container(
+          margin: const EdgeInsets.only(top: 40),
+          padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 20),
+          decoration: BoxDecoration(
+            borderRadius: CoconutBorder.boxDecorationRadius,
+            color: widget.disabled ? CoconutColors.black.withOpacity(0.06) : CoconutColors.gray800,
+          ),
+          child: Text(
+            widget.label,
+            style: CoconutTypography.body2_14_Bold
+                .setColor(widget.disabled ? CoconutColors.secondaryText : CoconutColors.white),
+          ),
+        ),
+      ),
+    );
   }
 }
 
@@ -93,13 +93,11 @@ class _SelectableButtonState extends State<SelectableButton> {
         child: Center(
             child: Text(
           widget.text,
-          style: Styles.body2.merge(TextStyle(
-              fontWeight: FontWeight.bold,
-              color: _isTapped
+          style: CoconutTypography.body2_14_Bold.setColor(_isTapped
+              ? CoconutColors.white
+              : widget.isPressed
                   ? CoconutColors.white
-                  : widget.isPressed
-                      ? CoconutColors.white
-                      : CoconutColors.gray800)),
+                  : CoconutColors.gray800),
           textAlign: TextAlign.center,
         )),
       ),
@@ -200,7 +198,7 @@ class _CountingRowButtonState extends State<CountingRowButton> {
             child: Center(
               child: Text(
                 widget.countText,
-                style: Styles.h1,
+                style: CoconutTypography.heading1_32_Bold,
               ),
             ),
           ),

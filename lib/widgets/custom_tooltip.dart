@@ -1,7 +1,7 @@
+import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:coconut_vault/styles.dart';
 
 enum TooltipType {
   info('info', 4, 'assets/svg/tooltip/info.svg'),
@@ -40,9 +40,10 @@ class _CustomTooltipState extends State<CustomTooltip> {
   @override
   void initState() {
     super.initState();
-    Color color = ColorPalette[widget.type.colorIndex];
+    Color color = CoconutColors.colorPalette[widget.type.colorIndex];
     _borderColor = color.withOpacity(0.7);
-    _backgroundColor = BackgroundColorPalette[widget.type.colorIndex].withOpacity(0.18);
+    _backgroundColor =
+        CoconutColors.backgroundColorPaletteLight[widget.type.colorIndex].withOpacity(0.18);
     _icon = SvgPicture.asset(widget.type.svgPath,
         colorFilter: ColorFilter.mode(color, BlendMode.srcIn), width: 18);
   }

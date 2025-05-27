@@ -1,5 +1,4 @@
 import 'package:coconut_design_system/coconut_design_system.dart';
-import 'package:coconut_vault/styles.dart';
 import 'package:flutter/material.dart';
 
 class CoconutDropdown extends StatefulWidget {
@@ -94,12 +93,10 @@ class _CoconutDropdownState extends State<CoconutDropdown> {
             ),
             child: Text(
               title,
-              style: TextStyle(
-                fontFamily: CustomFonts.text.getFontFamily,
-                color: CoconutColors.black,
-                fontSize: 14,
-                fontWeight: FontWeight.w500,
-                fontStyle: FontStyle.normal,
+              style: CoconutTypography.body2_14.merge(
+                const TextStyle(
+                  fontWeight: FontWeight.w500,
+                ),
               ),
             ),
           ),

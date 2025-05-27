@@ -32,7 +32,12 @@ class InformationItemCard extends StatelessWidget {
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                Text(label, style: Styles.body2Bold.copyWith(color: textColor)),
+                Text(
+                  label,
+                  style: CoconutTypography.body2_14_Bold.setColor(
+                    textColor ?? CoconutColors.black,
+                  ),
+                ),
                 showIcon ? const Spacer() : const SizedBox(width: 32),
                 if (value != null)
                   Expanded(
@@ -45,14 +50,13 @@ class InformationItemCard extends StatelessWidget {
 
                             return Padding(
                               padding: EdgeInsets.only(bottom: isLast ? 0 : Sizes.size4),
-                              child: Text(item,
-                                  textAlign: TextAlign.right,
-                                  style: Styles.body2.merge(
-                                    TextStyle(
-                                        fontFamily: isNumber
-                                            ? CustomFonts.number.getFontFamily
-                                            : CustomFonts.text.getFontFamily),
-                                  )),
+                              child: Text(
+                                item,
+                                textAlign: TextAlign.right,
+                                style: isNumber
+                                    ? CoconutTypography.body2_14_Number
+                                    : CoconutTypography.body2_14,
+                              ),
                             );
                           }).toList())),
                 if (showIcon)

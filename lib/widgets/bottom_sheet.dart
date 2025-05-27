@@ -44,7 +44,7 @@ class MyBottomSheet {
     required String title,
     required BuildContext context,
     required Widget child,
-    TextStyle titleTextStyle = Styles.body2Bold,
+    TextStyle? titleTextStyle,
     bool isDismissible = true,
     bool enableDrag = true,
     bool isCloseButton = false,
@@ -85,7 +85,7 @@ class MyBottomSheet {
                       ),
                       Text(
                         title,
-                        style: titleTextStyle,
+                        style: titleTextStyle ?? CoconutTypography.body2_14_Bold,
                         textAlign: TextAlign.center,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,

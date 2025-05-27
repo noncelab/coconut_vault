@@ -18,7 +18,7 @@ class TestnetLabelWidget extends StatelessWidget {
       ),
       child: Text(
         t.testnet,
-        style: Styles.label.merge(
+        style: CoconutTypography.body2_14.merge(
           const TextStyle(
             fontSize: 10,
             fontWeight: FontWeight.w600,

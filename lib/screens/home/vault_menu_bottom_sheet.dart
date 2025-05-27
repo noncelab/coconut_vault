@@ -174,28 +174,52 @@ class VaultMenuBottomSheet extends StatelessWidget {
 Widget bottomMenuButton(SvgPicture icon, String title, String description, VoidCallback onPressed,
         Color iconBackgroundColor) =>
     ShrinkAnimationButton(
-        onPressed: onPressed,
-        defaultColor: CoconutColors.white,
-        pressedColor: CoconutColors.gray500.withOpacity(0.07),
-        child: Container(
-            padding: const EdgeInsets.only(top: 8, bottom: 8, left: 16),
-            child: Row(children: [
-              Container(
-                  padding: const EdgeInsets.all(12),
-                  margin: const EdgeInsets.only(right: 14),
-                  decoration: BoxDecoration(
-                      color: iconBackgroundColor, borderRadius: BorderRadius.circular(14)),
-                  child: Center(child: icon)),
-              Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                Text(title,
-                    maxLines: 1,
-                    style: Styles.body2.merge(const TextStyle(
-                        fontSize: 13,
-                        overflow: TextOverflow.ellipsis,
-                        fontWeight: FontWeight.w500))),
-                Text(description, style: Styles.label2),
-              ]),
-            ])));
+      onPressed: onPressed,
+      defaultColor: CoconutColors.white,
+      pressedColor: CoconutColors.gray500.withOpacity(0.07),
+      child: Container(
+        padding: const EdgeInsets.only(top: 8, bottom: 8, left: 16),
+        child: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(12),
+              margin: const EdgeInsets.only(right: 14),
+              decoration: BoxDecoration(
+                  color: iconBackgroundColor, borderRadius: BorderRadius.circular(14)),
+              child: Center(
+                child: icon,
+              ),
+            ),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  maxLines: 1,
+                  style: CoconutTypography.body2_14.merge(
+                    const TextStyle(
+                      fontSize: 13,
+                      overflow: TextOverflow.ellipsis,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ),
+                Text(
+                  description,
+                  style: CoconutTypography.body2_14.merge(
+                    TextStyle(
+                      fontSize: 11,
+                      fontWeight: FontWeight.w500,
+                      color: CoconutColors.black.withOpacity(0.7),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
 
 class VaultMenuButton extends StatelessWidget {
   final Widget icon;
@@ -231,7 +255,9 @@ class VaultMenuButton extends StatelessWidget {
               child: Center(child: icon),
             ),
             Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              Text(title, style: Styles.body2.copyWith(fontSize: 13, fontWeight: FontWeight.w500)),
+              Text(title,
+                  style: CoconutTypography.body2_14
+                      .copyWith(fontSize: 13, fontWeight: FontWeight.w500)),
               Text(description,
                   style: TextStyle(fontSize: 11, color: CoconutColors.black.withOpacity(0.7))),
             ]),

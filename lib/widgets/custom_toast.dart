@@ -147,9 +147,16 @@ class _ToastWidgetState extends State<ToastWidget> with SingleTickerProviderStat
                                 width: 14,
                                 colorFilter: ColorFilter.mode(widget.iconColor, BlendMode.srcIn))),
                       Expanded(
-                          child: Text(widget.text,
-                              style: Styles.caption
-                                  .merge(const TextStyle(color: CoconutColors.white, height: 1.2))))
+                        child: Text(
+                          widget.text,
+                          style: CoconutTypography.body3_12.merge(
+                            const TextStyle(
+                              color: CoconutColors.white,
+                              height: 1.2,
+                            ),
+                          ),
+                        ),
+                      )
                     ])),
               ))),
     );

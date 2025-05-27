@@ -209,7 +209,7 @@ class _SingleSigSetupInfoScreenState extends State<SingleSigSetupInfoScreen> {
                 const SizedBox(width: 10),
                 Text(
                   t.vault_settings.used_in_multisig,
-                  style: Styles.body2,
+                  style: CoconutTypography.body2_14,
                 ),
               ],
             ),
@@ -240,21 +240,21 @@ class _SingleSigSetupInfoScreenState extends State<SingleSigSetupInfoScreen> {
                         color: Colors.transparent,
                         child: RichText(
                           text: TextSpan(
-                            style: Styles.body2.copyWith(
-                              color: const Color(0xFF4E83FF),
+                            style: CoconutTypography.body2_14.setColor(
+                              const Color(0xFF4E83FF),
                             ),
                             children: [
                               TextSpan(
                                 text: TextUtils.ellipsisIfLonger(multisig.name),
-                                style: Styles.body2Bold.copyWith(
-                                  color: const Color(0xFF4E83FF),
+                                style: CoconutTypography.body2_14_Bold.setColor(
+                                  const Color(0xFF4E83FF),
                                 ),
                               ),
                               TextSpan(text: t.vault_settings.of),
                               TextSpan(
                                 text: t.vault_settings.nth(index: idx + 1),
-                                style: Styles.body2Bold.copyWith(
-                                  color: const Color(0xFF4E83FF),
+                                style: CoconutTypography.body2_14_Bold.setColor(
+                                  const Color(0xFF4E83FF),
                                 ),
                               ),
                               TextSpan(text: t.vault_settings.key),
@@ -458,9 +458,8 @@ class _SingleSigSetupInfoScreenState extends State<SingleSigSetupInfoScreen> {
                 children: [
                   Text(
                     t.tooltip.mfp,
-                    style: Styles.caption.merge(TextStyle(
+                    style: CoconutTypography.body3_12.merge(const TextStyle(
                       height: 1.3,
-                      fontFamily: CustomFonts.text.getFontFamily,
                       color: CoconutColors.white,
                     )),
                   ),

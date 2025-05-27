@@ -4,7 +4,6 @@ import 'package:coconut_vault/model/common/vault_list_item_base.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
-import 'package:coconut_vault/styles.dart';
 import 'package:provider/provider.dart';
 
 class AccountSelectionBottomSheetScreen extends StatefulWidget {
@@ -101,7 +100,7 @@ class _SelectionItem extends StatelessWidget {
         padding: CoconutPadding.widgetContainer,
         child: Text(
           t.name_wallet(name: params.name),
-          style: Styles.h3,
+          style: CoconutTypography.heading4_18_Bold,
         ),
       ),
     );

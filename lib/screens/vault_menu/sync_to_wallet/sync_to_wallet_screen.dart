@@ -93,8 +93,12 @@ class _SyncToWalletScreenState extends State<SyncToWalletScreen> {
                     borderRadius: BorderRadius.circular(4.0),
                     color: CoconutColors.borderGray,
                   ),
-                  child: Text(t.sync_to_wallet_screen.view_detail,
-                      style: Styles.caption.merge(const TextStyle(color: CoconutColors.white))),
+                  child: Text(
+                    t.sync_to_wallet_screen.view_detail,
+                    style: CoconutTypography.body3_12.setColor(
+                      CoconutColors.white,
+                    ),
+                  ),
                 ),
                 onTap: () {
                   MyBottomSheet.showBottomSheet_90(

@@ -30,9 +30,10 @@ Future<void> showAuthenticationFailedDialog(
             isDestructiveAction: true,
             child: Text(
               t.close,
-              style: Styles.label.merge(
+              style: CoconutTypography.body2_14.merge(
                 const TextStyle(
                   color: CoconutColors.black,
+                  fontWeight: FontWeight.w500,
                 ),
               ),
             ),
@@ -44,9 +45,7 @@ Future<void> showAuthenticationFailedDialog(
             isDefaultAction: true,
             child: Text(
               t.permission.biometric.btn_move_to_setting,
-              style: Styles.label.merge(
-                const TextStyle(color: Colors.blueAccent, fontWeight: FontWeight.bold),
-              ),
+              style: CoconutTypography.body2_14_Bold.setColor(Colors.blueAccent),
             ),
             onPressed: () async {
               Navigator.of(context).pop();

@@ -29,7 +29,7 @@ class MessageActivityIndicator extends StatelessWidget {
                   padding: const EdgeInsets.only(top: 20),
                   child: Text(
                     message ?? '',
-                    style: Styles.body1,
+                    style: CoconutTypography.body1_16,
                     textAlign: TextAlign.center,
                   )))
         ],

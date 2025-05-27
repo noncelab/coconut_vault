@@ -12,7 +12,6 @@ import 'package:package_info_plus/package_info_plus.dart';
 import 'package:coconut_vault/constants/app_info.dart';
 import 'package:coconut_vault/screens/settings/app_info_license_screen.dart';
 import 'package:coconut_vault/screens/common/qrcode_bottom_sheet.dart';
-import 'package:coconut_vault/styles.dart';
 import 'package:coconut_vault/widgets/bottom_sheet.dart';
 import 'package:coconut_vault/widgets/button/button_group.dart';
 import 'package:coconut_vault/widgets/button/single_button.dart';
@@ -143,7 +142,7 @@ class _AppInfoScreenState extends State<AppInfoScreen> {
           opacity: _appbarTitleVisible ? 1 : 0,
           child: Text(
             t.app_info,
-            style: Styles.appbarTitle,
+            style: CoconutTypography.heading4_18,
           ),
         ),
         centerTitle: true,
@@ -219,7 +218,7 @@ class _AppInfoScreenState extends State<AppInfoScreen> {
                   children: [
                     Text(
                       packageInfo.appName,
-                      style: Styles.body1Bold.merge(
+                      style: CoconutTypography.body1_16_Bold.merge(
                         const TextStyle(
                           fontSize: 24,
                         ),
@@ -227,18 +226,14 @@ class _AppInfoScreenState extends State<AppInfoScreen> {
                     ),
                     Text(
                       'ver.${packageInfo.version}',
-                      style: Styles.body2Bold.merge(
-                        TextStyle(
-                          color: CoconutColors.black.withOpacity(0.7),
-                        ),
+                      style: CoconutTypography.body2_14_Bold.setColor(
+                        CoconutColors.black.withOpacity(0.7),
                       ),
                     ),
                     Text(
                       t.app_info_screen.made_by_team_pow,
-                      style: Styles.body2.merge(
-                        TextStyle(
-                          color: CoconutColors.black.withOpacity(0.7),
-                        ),
+                      style: CoconutTypography.body2_14.setColor(
+                        CoconutColors.black.withOpacity(0.7),
                       ),
                     ),
                   ],
@@ -501,10 +496,8 @@ class _AppInfoScreenState extends State<AppInfoScreen> {
                     child: Text(
                       t.app_info_screen
                           .version_and_date(version: packageInfo.version, releasedAt: RELEASE_DATE),
-                      style: Styles.body2.merge(
-                        TextStyle(
-                          color: CoconutColors.black.withOpacity(0.5),
-                        ),
+                      style: CoconutTypography.body2_14.setColor(
+                        CoconutColors.black.withOpacity(0.5),
                       ),
                     ),
                   ),
@@ -516,7 +509,7 @@ class _AppInfoScreenState extends State<AppInfoScreen> {
                   padding: const EdgeInsets.symmetric(horizontal: 16),
                   child: Text(
                     COPYRIGHT_TEXT,
-                    style: Styles.body2.merge(
+                    style: CoconutTypography.body2_14.merge(
                       TextStyle(
                         color: CoconutColors.black.withOpacity(0.5),
                         decoration: TextDecoration.underline,

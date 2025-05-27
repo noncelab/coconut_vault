@@ -6,7 +6,7 @@ import 'package:flutter/services.dart';
 class CustomTextField extends StatefulWidget {
   final TextEditingController controller;
   final String placeholder;
-  final TextStyle placeholderStyle;
+  final TextStyle? placeholderStyle;
   final TextStyle style;
   final ValueChanged<String> onChanged;
   final int? maxLines;
@@ -28,8 +28,8 @@ class CustomTextField extends StatefulWidget {
     required this.controller,
     required this.placeholder,
     required this.onChanged,
-    this.style = Styles.body1,
-    this.placeholderStyle = Styles.body2Grey,
+    this.style = CoconutTypography.body1_16,
+    this.placeholderStyle,
     this.maxLines,
     this.minLines,
     this.padding = const EdgeInsets.fromLTRB(16, 20, 16, 20),
@@ -74,7 +74,10 @@ class _CustomTextFieldState extends State<CustomTextField> {
           padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 16),
           child: Text(
             widget.controller.text.isNotEmpty ? '' : widget.placeholder,
-            style: widget.placeholderStyle,
+            style: widget.placeholderStyle ??
+                CoconutTypography.body2_14.setColor(
+                  CoconutColors.black.withOpacity(0.3),
+                ),
           ),
         ),
         FocusScope(

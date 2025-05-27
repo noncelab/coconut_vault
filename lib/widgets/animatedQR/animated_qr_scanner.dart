@@ -118,7 +118,7 @@ class _AnimatedQrScannerState extends State<AnimatedQrScanner> {
               child: Center(
                 child: Text(
                   _totalCount != null ? '$_insertCount / $_totalCount' : '',
-                  style: Styles.body1.merge(const TextStyle(color: CoconutColors.white)),
+                  style: CoconutTypography.body1_16.setColor(CoconutColors.white),
                 ),
               ),
             )

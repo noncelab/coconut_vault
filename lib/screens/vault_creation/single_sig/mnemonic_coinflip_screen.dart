@@ -8,7 +8,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:coconut_vault/screens/vault_creation/single_sig/mnemonic_confirmation_bottom_sheet.dart';
 import 'package:coconut_vault/screens/vault_creation/single_sig/mnemonic_generation_screen.dart';
-import 'package:coconut_vault/styles.dart';
 import 'package:coconut_vault/widgets/appbar/custom_appbar.dart';
 import 'package:coconut_vault/widgets/bottom_sheet.dart';
 import 'package:coconut_vault/widgets/button/custom_buttons.dart';
@@ -205,7 +204,9 @@ class _FlipCoinState extends State<FlipCoin> {
                                         border: Border.all(color: CoconutColors.borderGray)),
                                     child: Text(
                                       t.re_select,
-                                      style: Styles.caption,
+                                      style: CoconutTypography.body3_12.setColor(
+                                        CoconutColors.gray800,
+                                      ),
                                     )))
                           ],
                         );
@@ -257,7 +258,8 @@ class _FlipCoinState extends State<FlipCoin> {
                     child: step == 0
                         ? Column(
                             children: [
-                              Text('$_currentIndex / $_totalBits', style: Styles.h3),
+                              Text('$_currentIndex / $_totalBits',
+                                  style: CoconutTypography.heading4_18_Bold),
                               Align(
                                 alignment: Alignment.bottomRight,
                                 child: Material(
@@ -279,7 +281,10 @@ class _FlipCoinState extends State<FlipCoin> {
                                           horizontal: 15,
                                           vertical: 10,
                                         ),
-                                        child: Text(t.view_all, style: Styles.caption),
+                                        child: Text(t.view_all,
+                                            style: CoconutTypography.body3_12.setColor(
+                                              CoconutColors.gray800,
+                                            )),
                                       ),
                                     ),
                                   ),
@@ -334,12 +339,11 @@ class _FlipCoinState extends State<FlipCoin> {
                                   alignment: Alignment.topRight,
                                   child: Text(
                                     '(${passphrase.length} / 100)',
-                                    style: TextStyle(
-                                        color: passphrase.length == 100
-                                            ? CoconutColors.black.withOpacity(0.7)
-                                            : CoconutColors.black.withOpacity(0.5),
-                                        fontSize: 12,
-                                        fontFamily: CustomFonts.text.getFontFamily),
+                                    style: CoconutTypography.body3_12.setColor(
+                                      passphrase.length == 100
+                                          ? CoconutColors.black.withOpacity(0.7)
+                                          : CoconutColors.black.withOpacity(0.5),
+                                    ),
                                   ),
                                 ),
                               )
@@ -420,13 +424,15 @@ class _FlipCoinState extends State<FlipCoin> {
               child: Center(
                   child: Column(
                 children: [
-                  Text('${start + index + 1}',
-                      style: Styles.caption.merge(TextStyle(
-                          fontFamily: CustomFonts.number.getFontFamily,
-                          color: CoconutColors.black.withOpacity(0.3)))),
+                  Text(
+                    '${start + index + 1}',
+                    style: CoconutTypography.body3_12_Number.setColor(
+                      CoconutColors.black.withOpacity(0.3),
+                    ),
+                  ),
                   Text(
                     index < currentBits.length ? '${currentBits[index]}' : '',
-                    style: Styles.h3.merge(TextStyle(fontFamily: CustomFonts.number.getFontFamily)),
+                    style: CoconutTypography.heading4_18_NumberBold,
                   )
                 ],
               )),
@@ -472,16 +478,26 @@ class _FlipCoinState extends State<FlipCoin> {
           children: [
             GestureDetector(
               onTap: _removeLastBit,
-              child: Text(t.delete_one,
-                  style: Styles.subLabel
-                      .merge(TextStyle(color: _bits.isEmpty ? CoconutColors.secondaryText : null))),
+              child: Text(
+                t.delete_one,
+                style: CoconutTypography.body2_14.setColor(
+                  _bits.isEmpty
+                      ? CoconutColors.secondaryText
+                      : CoconutColors.black.withOpacity(0.7),
+                ),
+              ),
             ),
             const SizedBox(width: 20),
             GestureDetector(
               onTap: _showConfirmResetDialog,
-              child: Text(t.delete_all,
-                  style: Styles.subLabel
-                      .merge(TextStyle(color: _bits.isEmpty ? CoconutColors.secondaryText : null))),
+              child: Text(
+                t.delete_all,
+                style: CoconutTypography.body2_14.setColor(
+                  _bits.isEmpty
+                      ? CoconutColors.secondaryText
+                      : CoconutColors.black.withOpacity(0.7),
+                ),
+              ),
             ),
           ],
         ),
@@ -498,7 +514,7 @@ class _FlipCoinState extends State<FlipCoin> {
                 color: _bits.length == _totalBits
                     ? CoconutColors.borderLightGray
                     : CoconutColors.borderGray)),
-        child: Text(label, style: Styles.body1));
+        child: Text(label, style: CoconutTypography.body1_16));
   }
 
   void _addBit(int bit) async {
@@ -667,18 +683,15 @@ class BinaryGrid extends StatelessWidget {
           children: [
             Text(
               (index + 1).toString(),
-              style: Styles.caption.merge(TextStyle(
-                  fontFamily: CustomFonts.number.getFontFamily,
-                  color: CoconutColors.black.withOpacity(0.3))),
+              style: CoconutTypography.body3_12_Number.setColor(
+                CoconutColors.black.withOpacity(0.3),
+              ),
             ),
             Expanded(
               child: Text(
                 bit == null ? '' : bit.toString(),
-                style: Styles.h3.merge(
-                  TextStyle(
-                    fontFamily: CustomFonts.number.getFontFamily,
-                    color: CoconutColors.black.withOpacity(0.7),
-                  ),
+                style: CoconutTypography.heading4_18_NumberBold.setColor(
+                  CoconutColors.black.withOpacity(0.7),
                 ),
               ),
             )

@@ -2,7 +2,6 @@ import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/providers/view_model/multisig_signer_bsms_export_view_model.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
-import 'package:coconut_vault/styles.dart';
 import 'package:coconut_vault/widgets/appbar/custom_appbar.dart';
 import 'package:coconut_vault/widgets/custom_tooltip.dart';
 import 'package:coconut_vault/widgets/multisig/card/signer_bsms_info_card.dart';
@@ -135,7 +134,7 @@ class _MultisigSignerBsmsExportScreenState extends State<MultisigSignerBsmsExpor
                             alignment: Alignment.centerLeft,
                             child: Text(
                               t.signer_bsms_screen.export_info,
-                              style: Styles.body2Bold,
+                              style: CoconutTypography.body2_14_Bold,
                             ),
                           ),
                           const SizedBox(

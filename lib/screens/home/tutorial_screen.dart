@@ -4,7 +4,6 @@ import 'package:coconut_vault/constants/app_routes.dart';
 import 'package:coconut_vault/constants/external_links.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/providers/connectivity_provider.dart';
-import 'package:coconut_vault/styles.dart';
 import 'package:coconut_vault/utils/uri_launcher.dart';
 import 'package:coconut_vault/widgets/appbar/custom_appbar.dart';
 import 'package:coconut_vault/widgets/button/shrink_animation_button.dart';
@@ -66,7 +65,9 @@ class _TutorialScreenState extends State<TutorialScreen> {
                       ),
                       child: Text(
                         t.skip,
-                        style: Styles.caption,
+                        style: CoconutTypography.body3_12.setColor(
+                          CoconutColors.gray800,
+                        ),
                       ),
                     ),
                   ),
@@ -76,7 +77,12 @@ class _TutorialScreenState extends State<TutorialScreen> {
                       children: [
                         Text(
                           titleText,
-                          style: Styles.title5,
+                          style: CoconutTypography.heading3_21.merge(
+                            const TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
                           textAlign: TextAlign.center,
                         ),
                         Selector<ConnectivityProvider, bool>(
@@ -105,7 +111,7 @@ class _TutorialScreenState extends State<TutorialScreen> {
                                         ),
                                         child: Text(
                                           t.view_tutorial,
-                                          style: Styles.caption.merge(
+                                          style: CoconutTypography.body3_12.merge(
                                             const TextStyle(
                                                 color: CoconutColors.white,
                                                 fontWeight: FontWeight.w700),
@@ -148,7 +154,12 @@ class _TutorialScreenState extends State<TutorialScreen> {
                     ),
                     Text(
                       titleText,
-                      style: Styles.title5,
+                      style: CoconutTypography.heading3_21.merge(
+                        const TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
                     ),
                     const SizedBox(height: 10),
                     Text(subtitleText),
@@ -169,18 +180,14 @@ class _TutorialScreenState extends State<TutorialScreen> {
       children: [
         Text(
           splitTexts[0],
-          style: Styles.body2.merge(
-            const TextStyle(
-              color: CoconutColors.gray800,
-            ),
+          style: CoconutTypography.body2_14.setColor(
+            CoconutColors.gray800,
           ),
         ),
         Text(
           splitTexts[1],
-          style: Styles.body2Bold.merge(
-            const TextStyle(
-              color: CoconutColors.gray800,
-            ),
+          style: CoconutTypography.body2_14_Bold.setColor(
+            CoconutColors.gray800,
           ),
         ),
       ],

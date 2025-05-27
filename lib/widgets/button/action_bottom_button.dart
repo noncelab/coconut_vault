@@ -33,7 +33,7 @@ class ActionBottomButton extends StatelessWidget {
                   width: 5,
                 )
               ],
-              Text(text, style: Styles.CTAButtonTitle.merge(textStyle)),
+              Text(text, style: CoconutTypography.body1_16_Bold.merge(textStyle)),
             ],
           ),
         ));

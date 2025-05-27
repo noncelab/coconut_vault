@@ -11,7 +11,6 @@ import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:coconut_vault/screens/common/multisig_bsms_scanner_screen.dart';
 import 'package:coconut_vault/screens/vault_creation/multisig/import_confirmation_screen.dart';
 import 'package:coconut_vault/screens/vault_creation/multisig/signer_assignment_key_list_bottom_sheet.dart';
-import 'package:coconut_vault/styles.dart';
 import 'package:coconut_vault/utils/alert_util.dart';
 import 'package:coconut_vault/utils/icon_util.dart';
 import 'package:coconut_vault/widgets/appbar/custom_appbar.dart';
@@ -143,7 +142,7 @@ class _ExpansionChildWidgetState extends State<ExpansionChildWidget> {
                   widget.type == ImportKeyType.internal
                       ? t.assign_signers_screen.use_internal_key
                       : t.import,
-                  style: Styles.body1,
+                  style: CoconutTypography.body1_16,
                 ),
               ),
               const Icon(
@@ -247,7 +246,7 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
                                   ),
                                   Text(
                                     t.select,
-                                    style: Styles.body1,
+                                    style: CoconutTypography.body1_16,
                                   ),
                                   const SizedBox(
                                     width: 10,
@@ -267,7 +266,9 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
                                           border: Border.all(color: CoconutColors.borderGray)),
                                       child: Text(
                                         t.re_select,
-                                        style: Styles.caption,
+                                        style: CoconutTypography.body3_12.setColor(
+                                          CoconutColors.gray800,
+                                        ),
                                       ),
                                     ),
                                   ),
@@ -722,13 +723,13 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
               const SizedBox(width: 8),
               Text(
                 '${t.multisig.nth_key(index: _viewModel.assignedVaultList[i].index + 1)} -',
-                style: Styles.body1,
+                style: CoconutTypography.body1_16,
               ),
               const SizedBox(width: 8),
               Container(
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  color: BackgroundColorPalette[
+                  color: CoconutColors.backgroundColorPaletteLight[
                       isExternalImported ? 8 : _viewModel.assignedVaultList[i].item!.colorIndex],
                   borderRadius: BorderRadius.circular(8.0),
                 ),
@@ -739,7 +740,8 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
                   colorFilter: ColorFilter.mode(
                     isExternalImported
                         ? CoconutColors.black
-                        : ColorPalette[_viewModel.assignedVaultList[i].item!.colorIndex],
+                        : CoconutColors
+                            .colorPalette[_viewModel.assignedVaultList[i].item!.colorIndex],
                     BlendMode.srcIn,
                   ),
                   width: 16.0,
@@ -755,7 +757,7 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
                       isExternalImported
                           ? ' ${_viewModel.assignedVaultList[i].bsms?.split('\n')[3] ?? ''}'
                           : ' ${_viewModel.assignedVaultList[i].item!.name}',
-                      style: Styles.body1,
+                      style: CoconutTypography.body1_16,
                       overflow: TextOverflow.ellipsis,
                     ),
                     Visibility(
@@ -765,7 +767,12 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
                         padding: const EdgeInsets.only(left: 5),
                         child: Text(
                           _viewModel.assignedVaultList[i].memo ?? '',
-                          style: Styles.caption2,
+                          style: CoconutTypography.body3_12.merge(
+                            const TextStyle(
+                              color: CoconutColors.searchbarHint,
+                              fontSize: 10,
+                            ),
+                          ),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                         ),
@@ -796,7 +803,7 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
               Expanded(
                 child: Text(
                   '${t.multisig.nth_key(index: _viewModel.assignedVaultList[i].index + 1)} -',
-                  style: Styles.body1,
+                  style: CoconutTypography.body1_16,
                 ),
               ),
               SvgPicture.asset(

@@ -2,7 +2,6 @@ import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:coconut_vault/styles.dart';
 import 'package:coconut_vault/utils/icon_util.dart';
 import 'package:coconut_vault/widgets/icon/svg_icon.dart';
 import 'package:coconut_vault/widgets/textfield/custom_textfield.dart';
@@ -119,7 +118,7 @@ class _VaultNameIconEditPaletteState extends State<VaultNameIconEditPalette> {
                                 ]),
                         );
                       },
-                      childCount: ColorPalette.length + CustomIcons.totalCount,
+                      childCount: CoconutColors.colorPalette.length + CustomIcons.totalCount,
                     ),
                   ),
                 ),
@@ -165,12 +164,11 @@ class _VaultNameIconEditPaletteState extends State<VaultNameIconEditPalette> {
                     alignment: Alignment.topRight,
                     child: Text(
                       '(${_controller.text.length} / 20)',
-                      style: TextStyle(
-                          color: _controller.text.length == 20
-                              ? CoconutColors.black.withOpacity(0.7)
-                              : CoconutColors.black.withOpacity(0.5),
-                          fontSize: 12,
-                          fontFamily: CustomFonts.text.getFontFamily),
+                      style: CoconutTypography.body3_12.setColor(
+                        _controller.text.length == 20
+                            ? CoconutColors.black.withOpacity(0.7)
+                            : CoconutColors.black.withOpacity(0.5),
+                      ),
                     ),
                   ),
                 ),
@@ -197,6 +195,6 @@ class _VaultNameIconEditPaletteState extends State<VaultNameIconEditPalette> {
   }
 
   Color _getColorByIndex(int index) {
-    return ColorPalette[index % ColorPalette.length];
+    return CoconutColors.colorPalette[index % CoconutColors.colorPalette.length];
   }
 }

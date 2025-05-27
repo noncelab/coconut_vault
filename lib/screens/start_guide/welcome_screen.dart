@@ -9,7 +9,6 @@ import 'package:coconut_vault/providers/connectivity_provider.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:coconut_vault/styles.dart';
 import 'package:coconut_vault/widgets/highlighted_text.dart';
 import 'package:provider/provider.dart';
 
@@ -50,7 +49,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
             const SizedBox(height: 20),
             Text(
               t.welcome_screen.greeting,
-              style: Styles.body2Bold,
+              style: CoconutTypography.body2_14_Bold,
               textAlign: TextAlign.center,
             ),
             const SizedBox(
@@ -74,7 +73,12 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                       colorFilter: const ColorFilter.mode(CoconutColors.gray800, BlendMode.srcIn),
                     ),
                     const SizedBox(height: 20),
-                    Text(t.welcome_screen.guide1_1, style: Styles.subLabel),
+                    Text(
+                      t.welcome_screen.guide1_1,
+                      style: CoconutTypography.body2_14.setColor(
+                        CoconutColors.black.withOpacity(0.7),
+                      ),
+                    ),
                     HighLightedText(
                         t.welcome_screen
                             .guide1_2(suffix: Platform.isAndroid ? ', ${t.developer_option}' : ''),
@@ -83,10 +87,20 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         HighLightedText(t.welcome_screen.guide1_3, color: CoconutColors.gray800),
-                        Text(t.welcome_screen.guide1_4, style: Styles.subLabel),
+                        Text(
+                          t.welcome_screen.guide1_4,
+                          style: CoconutTypography.body2_14.setColor(
+                            CoconutColors.black.withOpacity(0.7),
+                          ),
+                        ),
                       ],
                     ),
-                    Text(t.welcome_screen.guide1_5, style: Styles.subLabel),
+                    Text(
+                      t.welcome_screen.guide1_5,
+                      style: CoconutTypography.body2_14.setColor(
+                        CoconutColors.black.withOpacity(0.7),
+                      ),
+                    ),
                   ],
                 ),
                 // Guide2
@@ -99,10 +113,25 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                       colorFilter: const ColorFilter.mode(CoconutColors.gray800, BlendMode.srcIn),
                     ),
                     const SizedBox(height: 20),
-                    Text(t.welcome_screen.guide2_1, style: Styles.subLabel),
-                    Text(t.welcome_screen.guide2_2, style: Styles.subLabel),
+                    Text(
+                      t.welcome_screen.guide2_1,
+                      style: CoconutTypography.body2_14.setColor(
+                        CoconutColors.black.withOpacity(0.7),
+                      ),
+                    ),
+                    Text(
+                      t.welcome_screen.guide2_2,
+                      style: CoconutTypography.body2_14.setColor(
+                        CoconutColors.black.withOpacity(0.7),
+                      ),
+                    ),
                     HighLightedText(t.welcome_screen.guide2_3, color: CoconutColors.gray800),
-                    Text(t.welcome_screen.guide2_4, style: Styles.subLabel),
+                    Text(
+                      t.welcome_screen.guide2_4,
+                      style: CoconutTypography.body2_14.setColor(
+                        CoconutColors.black.withOpacity(0.7),
+                      ),
+                    ),
                   ],
                 ),
                 // Guide3
@@ -119,11 +148,26 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         HighLightedText(t.welcome_screen.guide3_1, color: CoconutColors.gray800),
-                        Text(t.welcome_screen.guide3_2, style: Styles.subLabel),
+                        Text(
+                          t.welcome_screen.guide3_2,
+                          style: CoconutTypography.body2_14.setColor(
+                            CoconutColors.black.withOpacity(0.7),
+                          ),
+                        ),
                       ],
                     ),
-                    Text(t.welcome_screen.guide3_3, style: Styles.subLabel),
-                    Text(t.welcome_screen.guide3_4, style: Styles.subLabel),
+                    Text(
+                      t.welcome_screen.guide3_3,
+                      style: CoconutTypography.body2_14.setColor(
+                        CoconutColors.black.withOpacity(0.7),
+                      ),
+                    ),
+                    Text(
+                      t.welcome_screen.guide3_4,
+                      style: CoconutTypography.body2_14.setColor(
+                        CoconutColors.black.withOpacity(0.7),
+                      ),
+                    ),
                   ],
                 ),
               ].map((item) {
@@ -157,8 +201,9 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                 },
                 child: Text(
                   t.welcome_screen.understood,
-                  style: Styles.label.merge(const TextStyle(
-                      color: Color.fromRGBO(113, 111, 245, 1.0), fontWeight: FontWeight.bold)),
+                  style: CoconutTypography.body2_14_Bold.setColor(
+                    const Color.fromRGBO(113, 111, 245, 1.0),
+                  ),
                 )),
             const SizedBox(
               height: 60,

@@ -8,7 +8,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:coconut_vault/screens/vault_creation/single_sig/mnemonic_confirmation_bottom_sheet.dart';
-import 'package:coconut_vault/styles.dart';
 import 'package:coconut_vault/utils/vibration_util.dart';
 import 'package:coconut_vault/widgets/appbar/custom_appbar.dart';
 import 'package:coconut_vault/widgets/bottom_sheet.dart';
@@ -171,7 +170,10 @@ class _WordsLengthSelectionState extends State<WordsLengthSelection> {
         padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 32),
         child: Column(
           children: [
-            Text(t.mnemonic_generate_screen.select_word_length, style: Styles.body1Bold),
+            Text(
+              t.mnemonic_generate_screen.select_word_length,
+              style: CoconutTypography.body1_16_Bold,
+            ),
             const SizedBox(height: 20),
             Row(
               children: [
@@ -235,7 +237,10 @@ class _PassphraseSelectionState extends State<PassphraseSelection> {
         padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 32),
         child: Column(
           children: [
-            Text(t.mnemonic_generate_screen.use_passphrase, style: Styles.body1Bold),
+            Text(
+              t.mnemonic_generate_screen.use_passphrase,
+              style: CoconutTypography.body1_16_Bold,
+            ),
             const SizedBox(height: 20),
             Row(
               children: [
@@ -381,7 +386,9 @@ class _MnemonicWordsState extends State<MnemonicWords> {
                                         border: Border.all(color: CoconutColors.borderGray)),
                                     child: Text(
                                       t.re_select,
-                                      style: Styles.caption,
+                                      style: CoconutTypography.body3_12.setColor(
+                                        CoconutColors.gray800,
+                                      ),
                                     )))
                           ],
                         );
@@ -472,21 +479,13 @@ class _MnemonicWordsState extends State<MnemonicWords> {
                                         children: [
                                           Text(
                                             (index + 1).toString(),
-                                            style: Styles.body2.merge(
-                                              TextStyle(
-                                                fontFamily: CustomFonts.number.getFontFamily,
-                                                color: CoconutColors.gray800,
-                                                fontSize: 12,
-                                              ),
+                                            style: CoconutTypography.body3_12_Number.setColor(
+                                              CoconutColors.gray800,
                                             ),
                                           ),
                                           Text(
                                             mnemonic.split(' ')[index],
-                                            style: Styles.body2.merge(
-                                              const TextStyle(
-                                                fontSize: 16,
-                                              ),
-                                            ),
+                                            style: CoconutTypography.body1_16,
                                             overflow: TextOverflow.visible,
                                           ),
                                         ],
@@ -546,19 +545,20 @@ class _MnemonicWordsState extends State<MnemonicWords> {
                                     alignment: Alignment.topRight,
                                     child: Text(
                                       '(${passphrase.length} / 100)',
-                                      style: TextStyle(
-                                          color: passphrase.length == 100
-                                              ? CoconutColors.black.withOpacity(0.7)
-                                              : CoconutColors.black.withOpacity(0.5),
-                                          fontSize: 12,
-                                          fontFamily: CustomFonts.text.getFontFamily),
+                                      style: CoconutTypography.body3_12.setColor(
+                                        passphrase.length == 100
+                                            ? CoconutColors.black.withOpacity(0.7)
+                                            : CoconutColors.black.withOpacity(0.5),
+                                      ),
                                     ),
                                   ),
                                 )
                               ],
                             ),
                           )),
-                if (step == 0) Text(t.mnemonic_generate_screen.backup_guide, style: Styles.warning),
+                if (step == 0)
+                  Text(t.mnemonic_generate_screen.backup_guide,
+                      style: CoconutTypography.body3_12.setColor(CoconutColors.warningText)),
                 if (step == 0 && stepCount == 2)
                   CompleteButton(
                       onPressed: () {
@@ -573,7 +573,7 @@ class _MnemonicWordsState extends State<MnemonicWords> {
                     width: MediaQuery.of(context).size.width - 32,
                     child: Text(
                       t.mnemonic_generate_screen.warning,
-                      style: Styles.warning,
+                      style: CoconutTypography.body3_12.setColor(CoconutColors.warningText),
                       textAlign: TextAlign.center,
                     ),
                   ),

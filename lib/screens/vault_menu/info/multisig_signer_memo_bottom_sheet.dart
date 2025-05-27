@@ -57,9 +57,7 @@ class _MultisigSignerMemoBottomSheetState extends State<MultisigSignerMemoBottom
                 Center(
                   child: Text(
                     t.multi_sig_memo_bottom_sheet.imported_wallet_memo,
-                    style: Styles.body1.copyWith(
-                      fontSize: 18,
-                    ),
+                    style: CoconutTypography.heading4_18,
                   ),
                 ),
 
@@ -76,8 +74,10 @@ class _MultisigSignerMemoBottomSheetState extends State<MultisigSignerMemoBottom
                     controller: _controller,
                     placeholder: t.multi_sig_memo_bottom_sheet.placeholder,
                     padding: const EdgeInsets.fromLTRB(16, 20, 16, 20),
-                    style: Styles.body1,
-                    placeholderStyle: Styles.body2Grey,
+                    style: CoconutTypography.body1_16,
+                    placeholderStyle: CoconutTypography.body2_14.setColor(
+                      CoconutColors.black.withOpacity(0.3),
+                    ),
                     decoration: const BoxDecoration(
                       color: Colors.transparent,
                     ),
@@ -98,12 +98,10 @@ class _MultisigSignerMemoBottomSheetState extends State<MultisigSignerMemoBottom
                     padding: const EdgeInsets.only(top: 4, right: 4),
                     child: Text(
                       '(${_memo.length} / 15)',
-                      style: TextStyle(
-                        color: _memo.length == 15
+                      style: CoconutTypography.body3_12.setColor(
+                        _memo.length == 15
                             ? CoconutColors.black.withOpacity(0.7)
                             : CoconutColors.black.withOpacity(0.5),
-                        fontSize: 12,
-                        fontFamily: CustomFonts.text.getFontFamily,
                       ),
                     ),
                   ),
@@ -204,8 +202,10 @@ class MemoTextField extends StatelessWidget {
         controller: controller,
         placeholder: t.multi_sig_memo_bottom_sheet.placeholder,
         padding: const EdgeInsets.fromLTRB(16, 20, 16, 20),
-        style: Styles.body1,
-        placeholderStyle: Styles.body2Grey,
+        style: CoconutTypography.body1_16,
+        placeholderStyle: CoconutTypography.body2_14.setColor(
+          CoconutColors.black.withOpacity(0.3),
+        ),
         decoration: const BoxDecoration(
           color: Colors.transparent,
         ),

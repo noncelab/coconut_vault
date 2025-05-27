@@ -1,6 +1,8 @@
 import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:flutter/material.dart';
 
+import 'dart:math' as math;
+
 class ShrinkAnimationButton extends StatefulWidget {
   final Widget child;
   final VoidCallback onPressed;
@@ -86,7 +88,11 @@ class _ShrinkAnimationButtonState extends State<ShrinkAnimationButton>
                   : null,
               borderRadius: BorderRadius.circular(widget.borderRadius + 2),
               gradient: widget.borderGradientColors != null
-                  ? BoxDecorations.getMultisigLinearGradient(widget.borderGradientColors!)
+                  ? LinearGradient(
+                      colors: widget.borderGradientColors!,
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                      transform: const GradientRotation(math.pi / 10))
                   : null,
             ),
             child: AnimatedContainer(

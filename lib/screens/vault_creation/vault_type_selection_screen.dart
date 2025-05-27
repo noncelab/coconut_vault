@@ -114,10 +114,8 @@ class _VaultTypeSelectionScreenState extends State<VaultTypeSelectionScreen> {
                               model.vaultList.isEmpty)
                           ? t.select_vault_type_screen.empty_key
                           : '',
-                      style: Styles.caption.merge(
-                        const TextStyle(
-                          color: CoconutColors.warningText,
-                        ),
+                      style: CoconutTypography.body3_12.setColor(
+                        CoconutColors.warningText,
                       ),
                     ),
                     const SizedBox(height: 20),
@@ -146,7 +144,7 @@ class _VaultTypeSelectionScreenState extends State<VaultTypeSelectionScreen> {
               Visibility(
                 visible: _showLoading,
                 child: Container(
-                  decoration:  BoxDecoration(color: CoconutColors.black.withOpacity(0.3)),
+                  decoration: BoxDecoration(color: CoconutColors.black.withOpacity(0.3)),
                   child: Center(
                       child: MessageActivityIndicator(
                           message: t.select_vault_type_screen.loading_keys)),

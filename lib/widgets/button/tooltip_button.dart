@@ -46,7 +46,7 @@ class _TooltipButtonState extends State<TooltipButton> {
               children: [
                 Text(
                   widget.text,
-                  style: Styles.label.merge(
+                  style: CoconutTypography.body2_14.merge(
                     TextStyle(
                       color: widget.isSelected
                           ? CoconutColors.black

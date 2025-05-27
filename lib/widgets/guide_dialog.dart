@@ -1,6 +1,6 @@
+import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:flutter/material.dart';
-import 'package:coconut_vault/styles.dart';
 import 'package:coconut_vault/widgets/button/action_bottom_button.dart';
 
 class GuideDialog extends StatelessWidget {

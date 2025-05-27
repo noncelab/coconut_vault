@@ -3,7 +3,6 @@ import 'package:coconut_vault/constants/app_routes.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/providers/view_model/mutlisig_quorum_selection_view_model.dart';
 import 'package:coconut_vault/providers/wallet_creation_provider.dart';
-import 'package:coconut_vault/styles.dart';
 import 'package:coconut_vault/widgets/animation/key_safe_animation_widget.dart';
 import 'package:coconut_vault/widgets/appbar/custom_appbar.dart';
 import 'package:coconut_vault/widgets/button/custom_buttons.dart';
@@ -92,7 +91,7 @@ class _MultisigQuorumSelectionScreenState extends State<MultisigQuorumSelectionS
                           child: Center(
                             child: Text(
                               t.select_multisig_quorum_screen.total_key_count,
-                              style: Styles.body2Bold,
+                              style: CoconutTypography.body2_14_Bold,
                             ),
                           ),
                         ),
@@ -118,7 +117,7 @@ class _MultisigQuorumSelectionScreenState extends State<MultisigQuorumSelectionS
                           child: Center(
                             child: Text(
                               t.select_multisig_quorum_screen.required_signature_count,
-                              style: Styles.body2Bold,
+                              style: CoconutTypography.body2_14_Bold,
                             ),
                           ),
                         ),
@@ -154,12 +153,14 @@ class _MultisigQuorumSelectionScreenState extends State<MultisigQuorumSelectionS
                       padding: const EdgeInsets.symmetric(horizontal: 24),
                       child: Text(
                         viewModel.buildQuorumMessage(),
-                        style: Styles.unit.merge(TextStyle(
+                        style: CoconutTypography.body2_14_Number.merge(
+                          TextStyle(
                             height: viewModel.requiredCount == viewModel.totalCount
                                 ? 32.4 / 18
                                 : 23.4 / 18,
                             letterSpacing: -0.01,
-                            fontSize: 14)),
+                          ),
+                        ),
                         textAlign: TextAlign.center,
                       ),
                     ),

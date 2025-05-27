@@ -219,7 +219,7 @@ class _PinSettingScreenState extends State<PinSettingScreen> {
               Center(
                   child: Text(
                 t.pin_setting_screen.set_password,
-                style: Styles.h3,
+                style: CoconutTypography.heading4_18_Bold,
                 textAlign: TextAlign.center,
               )),
               const SizedBox(height: 100),
@@ -240,7 +240,7 @@ class _PinSettingScreenState extends State<PinSettingScreen> {
         descriptionTextWidget: Text.rich(
           TextSpan(
             text: t.pin_setting_screen.keep_in_mind,
-            style: Styles.warning,
+            style: CoconutTypography.body3_12.setColor(CoconutColors.warningText),
           ),
           textAlign: TextAlign.center,
         ),

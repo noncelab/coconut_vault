@@ -1,5 +1,5 @@
+import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:coconut_vault/styles.dart';
 
 class SmallActionButton extends StatelessWidget {
   final Widget? child;
@@ -18,7 +18,7 @@ class SmallActionButton extends StatelessWidget {
       this.width,
       this.height,
       this.textStyle,
-      this.backgroundColor = CoconutColors.black.withOpacity(0.15)});
+      this.backgroundColor});
 
   @override
   Widget build(BuildContext context) {
@@ -26,7 +26,7 @@ class SmallActionButton extends StatelessWidget {
       padding: const EdgeInsets.symmetric(vertical: 0, horizontal: 4),
       decoration: BoxDecoration(
         borderRadius: CoconutBorder.defaultRadius,
-        color: backgroundColor,
+        color: backgroundColor ?? CoconutColors.black.withOpacity(0.15),
       ),
       width: width, // 넘겨받은 width가 적용되거나 null이면 자동으로 조절됩니다.
       height: height, // 넘겨받은 height가 적용되거나 null이면 자동으로 조절됩니다.
@@ -37,7 +37,7 @@ class SmallActionButton extends StatelessWidget {
         child: child ??
             Text(text,
                 textAlign: TextAlign.center, // 텍스트를 가운데 정렬합니다.
-                style: Styles.body2.merge(textStyle)),
+                style: CoconutTypography.body2_14.merge(textStyle)),
       ),
     );
   }

@@ -85,7 +85,7 @@ class _AddressListScreenState extends State<AddressListScreen> {
                                     child: Center(
                                       child: Text(
                                         t.receiving,
-                                        style: Styles.label.merge(TextStyle(
+                                        style: CoconutTypography.body2_14.merge(TextStyle(
                                           color: viewModel.isReceivingSelected
                                               ? CoconutColors.white
                                               : CoconutColors.black.withOpacity(0.5),
@@ -115,7 +115,7 @@ class _AddressListScreenState extends State<AddressListScreen> {
                                     child: Center(
                                       child: Text(
                                         t.change,
-                                        style: Styles.label.merge(TextStyle(
+                                        style: CoconutTypography.body2_14.merge(TextStyle(
                                           color: !viewModel.isReceivingSelected
                                               ? CoconutColors.white
                                               : CoconutColors.black.withOpacity(0.5),
@@ -149,8 +149,8 @@ class _AddressListScreenState extends State<AddressListScreen> {
                                           title: t.address_list_screen.address_index(index: index),
                                           qrcodeTopWidget: Text(
                                             addressList[index].derivationPath,
-                                            style: Styles.body2.merge(
-                                                const TextStyle(color: CoconutColors.gray800)),
+                                            style: CoconutTypography.body2_14
+                                                .setColor(CoconutColors.gray800),
                                           ),
                                         ),
                                       );

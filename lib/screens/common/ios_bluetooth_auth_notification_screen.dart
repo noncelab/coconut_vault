@@ -2,7 +2,6 @@ import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:coconut_vault/styles.dart';
 import 'package:coconut_vault/widgets/highlighted_text.dart';
 
 class IosBluetoothAuthNotificationScreen extends StatefulWidget {
@@ -30,7 +29,7 @@ class _IosBluetoothAuthNotificationScreenState extends State<IosBluetoothAuthNot
             ),
             const SizedBox(height: 20),
             Text(t.ios_bluetooth_auth_notification_screen.allow_permission,
-                style: Styles.body2Bold),
+                style: CoconutTypography.body2_14_Bold),
             const SizedBox(height: 20),
             Container(
                 padding: const EdgeInsets.symmetric(vertical: 32),
@@ -48,21 +47,49 @@ class _IosBluetoothAuthNotificationScreenState extends State<IosBluetoothAuthNot
                 ),
                 child: Column(
                   children: [
-                    Text(t.ios_bluetooth_auth_notification_screen.text1_1, style: Styles.subLabel),
-                    Text(t.ios_bluetooth_auth_notification_screen.text1_2, style: Styles.subLabel),
-                    Text(t.ios_bluetooth_auth_notification_screen.text1_3, style: Styles.subLabel),
+                    Text(
+                      t.ios_bluetooth_auth_notification_screen.text1_1,
+                      style: CoconutTypography.body2_14.setColor(
+                        CoconutColors.black.withOpacity(0.7),
+                      ),
+                    ),
+                    Text(
+                      t.ios_bluetooth_auth_notification_screen.text1_2,
+                      style: CoconutTypography.body2_14.setColor(
+                        CoconutColors.black.withOpacity(0.7),
+                      ),
+                    ),
+                    Text(
+                      t.ios_bluetooth_auth_notification_screen.text1_3,
+                      style: CoconutTypography.body2_14.setColor(
+                        CoconutColors.black.withOpacity(0.7),
+                      ),
+                    ),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Text(t.ios_bluetooth_auth_notification_screen.text1_4,
-                            style: Styles.subLabel),
+                        Text(
+                          t.ios_bluetooth_auth_notification_screen.text1_4,
+                          style: CoconutTypography.body2_14.setColor(
+                            CoconutColors.black.withOpacity(0.7),
+                          ),
+                        ),
                         HighLightedText(t.ios_bluetooth_auth_notification_screen.text1_5,
                             color: CoconutColors.gray800),
-                        Text(t.ios_bluetooth_auth_notification_screen.text1_6,
-                            style: Styles.subLabel),
+                        Text(
+                          t.ios_bluetooth_auth_notification_screen.text1_6,
+                          style: CoconutTypography.body2_14.setColor(
+                            CoconutColors.black.withOpacity(0.7),
+                          ),
+                        ),
                       ],
                     ),
-                    Text(t.ios_bluetooth_auth_notification_screen.text1_7, style: Styles.subLabel),
+                    Text(
+                      t.ios_bluetooth_auth_notification_screen.text1_7,
+                      style: CoconutTypography.body2_14.setColor(
+                        CoconutColors.black.withOpacity(0.7),
+                      ),
+                    ),
                   ],
                 )),
             const SizedBox(
