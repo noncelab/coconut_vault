@@ -69,6 +69,7 @@ class _MnemonicConfirmationBottomSheetState extends State<MnemonicConfirmationBo
     return ClipRRect(
       borderRadius: BorderRadius.circular(24),
       child: Scaffold(
+        backgroundColor: CoconutColors.white,
         body: Padding(
           padding: CoconutPadding.container,
           child: SingleChildScrollView(

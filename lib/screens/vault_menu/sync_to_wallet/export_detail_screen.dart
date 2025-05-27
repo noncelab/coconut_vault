@@ -19,22 +19,10 @@ class _ExportDetailScreen extends State<ExportDetailScreen> {
       borderRadius: CoconutBorder.defaultRadius,
       child: Scaffold(
         backgroundColor: CoconutColors.white,
-        appBar: AppBar(
-          title: Text(t.export_detail_screen.title),
-          centerTitle: true,
+        appBar: CoconutAppBar.build(
+          context: context,
+          title: t.export_detail_screen.title,
           backgroundColor: CoconutColors.white,
-          titleTextStyle: CoconutTypography.body1_16_Bold,
-          toolbarTextStyle: CoconutTypography.body1_16_Bold,
-          leading: IconButton(
-            icon: const Icon(
-              Icons.close_rounded,
-              color: CoconutColors.gray800,
-              size: 22,
-            ),
-            onPressed: () {
-              Navigator.pop(context);
-            },
-          ),
         ),
         body: SafeArea(
           child: SingleChildScrollView(

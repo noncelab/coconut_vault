@@ -122,7 +122,7 @@ class MultisigBsmsScreen extends StatelessWidget {
         Expanded(
           child: RichText(
             text: TextSpan(
-              style: CoconutTypography.body2_14,
+              style: CoconutTypography.body2_14.setColor(CoconutColors.black),
               children: _parseDescription(description),
             ),
           ),
@@ -153,27 +153,21 @@ class MultisigBsmsScreen extends StatelessWidget {
         borderRadius: CoconutBorder.defaultRadius,
         child: Scaffold(
           backgroundColor: CoconutColors.white,
-          appBar: AppBar(
-            title: Text(t.multi_sig_bsms_screen.bottom_sheet.title),
-            centerTitle: true,
+          appBar: CoconutAppBar.build(
+            context: context,
+            title: t.multi_sig_bsms_screen.bottom_sheet.title,
             backgroundColor: CoconutColors.white,
-            titleTextStyle: CoconutTypography.body1_16_Bold,
-            toolbarTextStyle: CoconutTypography.body1_16_Bold,
-            leading: IconButton(
-              icon: const Icon(
-                Icons.close_rounded,
-                color: CoconutColors.gray800,
-                size: 22,
-              ),
-              onPressed: () {
-                Navigator.pop(context);
-              },
-            ),
+            isBottom: true,
           ),
           body: SingleChildScrollView(
-            child: CopyTextContainer(
-              text: qrData,
-              toastMsg: t.multi_sig_bsms_screen.bottom_sheet.info_copied,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(
+                horizontal: CoconutLayout.defaultPadding,
+              ),
+              child: CopyTextContainer(
+                text: qrData,
+                toastMsg: t.multi_sig_bsms_screen.bottom_sheet.info_copied,
+              ),
             ),
           ),
         ),

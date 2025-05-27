@@ -29,23 +29,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.transparent,
-      appBar: AppBar(
-        centerTitle: true,
+      appBar: CoconutAppBar.build(
+        context: context,
         backgroundColor: Colors.transparent,
-        toolbarHeight: 62,
-        title: Text(t.settings),
-        titleTextStyle: CoconutTypography.body1_16,
-        toolbarTextStyle: CoconutTypography.heading4_18,
-        leading: IconButton(
-          onPressed: () {
-            Navigator.pop(context);
-          },
-          icon: const Icon(
-            Icons.close,
-            color: CoconutColors.black,
-            size: 22,
-          ),
-        ),
+        height: 62,
+        title: t.settings,
+        isBottom: true,
       ),
       body: SafeArea(
         child: Padding(

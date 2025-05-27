@@ -266,6 +266,7 @@ class _MultisigBsmsScannerScreenState extends State<MultisigBsmsScannerScreen> {
             fontWeight: isBold ? FontWeight.bold : FontWeight.normal,
             height: 20.8 / 16,
             letterSpacing: -0.01,
+            color: CoconutColors.black,
           ),
         ),
       );
@@ -293,10 +294,8 @@ class _MultisigBsmsScannerScreenState extends State<MultisigBsmsScannerScreen> {
       return RichText(
         text: TextSpan(
           text: t.signer_scanner_screen.guide2_1,
-          style: CoconutTypography.body1_16.merge(const TextStyle(
-            height: 20.8 / 16,
-            letterSpacing: -0.01,
-          )),
+          style: CoconutTypography.body1_16.merge(
+              const TextStyle(height: 20.8 / 16, letterSpacing: -0.01, color: CoconutColors.black)),
           children: <TextSpan>[
             buildTextSpan(
               t.signer_scanner_screen.guide2_2,

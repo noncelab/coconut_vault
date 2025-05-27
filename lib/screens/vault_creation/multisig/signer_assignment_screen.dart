@@ -187,6 +187,7 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
               onBackPressed: () => _onBackPressed(context),
               onNextPressed: onNextPressed,
               isActive: _hasValidationCompleted,
+              backgroundColor: CoconutColors.white,
             ),
             body: Stack(
               children: [

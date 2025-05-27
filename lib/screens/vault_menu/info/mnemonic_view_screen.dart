@@ -216,22 +216,11 @@ class _MnemonicViewScreen extends State<MnemonicViewScreen> {
       borderRadius: CoconutBorder.defaultRadius,
       child: Scaffold(
         backgroundColor: CoconutColors.white,
-        appBar: AppBar(
-          title: !_isPressed ? Text(widget.title) : Text(widget.subtitle),
-          centerTitle: true,
+        appBar: CoconutAppBar.build(
+          context: context,
+          title: !_isPressed ? widget.title : widget.subtitle,
           backgroundColor: CoconutColors.white,
-          titleTextStyle: CoconutTypography.body1_16_Bold,
-          toolbarTextStyle: CoconutTypography.body1_16_Bold,
-          leading: IconButton(
-            icon: const Icon(
-              Icons.close_rounded,
-              color: CoconutColors.gray800,
-              size: 22,
-            ),
-            onPressed: () {
-              Navigator.pop(context);
-            },
-          ),
+          isBottom: true,
         ),
         body: SafeArea(
           child: SingleChildScrollView(

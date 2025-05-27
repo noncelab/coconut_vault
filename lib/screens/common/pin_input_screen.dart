@@ -51,22 +51,12 @@ class PinInputScreenState extends State<PinInputScreen> {
     return Scaffold(
       backgroundColor: Colors.transparent,
       appBar: widget.appBarVisible
-          ? AppBar(
+          ? CoconutAppBar.build(
+              context: context,
+              title: '',
               backgroundColor: Colors.transparent,
-              toolbarHeight: 62,
-              leading: widget.step == 0
-                  ? IconButton(
-                      onPressed: widget.onClosePressed,
-                      icon: const Icon(
-                        Icons.close_rounded,
-                        color: CoconutColors.gray800,
-                        size: 22,
-                      ),
-                    )
-                  : IconButton(
-                      onPressed: widget.onBackPressed,
-                      icon: SvgPicture.asset('assets/svg/back.svg'),
-                    ),
+              height: 62,
+              isBottom: widget.step == 0,
             )
           : null,
       body: SafeArea(

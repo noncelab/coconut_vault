@@ -61,44 +61,6 @@ class CustomDialogs {
     );
   }
 
-  static void showFullScreenDialog(BuildContext context, String title, Widget body) {
-    Navigator.of(context).push(MaterialPageRoute<void>(
-      fullscreenDialog: true,
-      builder: (BuildContext context) {
-        return Scaffold(
-            backgroundColor: Colors.black,
-            appBar: AppBar(
-                title: Text(title),
-                centerTitle: true,
-                backgroundColor: CoconutColors.black,
-                titleTextStyle: CoconutTypography.body1_16,
-                toolbarTextStyle: CoconutTypography.heading4_18_Bold,
-                actions: [
-                  IconButton(
-                    color: CoconutColors.white,
-                    focusColor: CoconutColors.black.withOpacity(0.15),
-                    icon: const Icon(CupertinoIcons.xmark, size: 18),
-                    onPressed: () {
-                      Navigator.of(context).pop();
-                    },
-                  )
-                ]),
-            body: SafeArea(
-                child: SingleChildScrollView(
-              child: Container(
-                width: MediaQuery.of(context).size.width,
-                height: MediaQuery.of(context).size.height,
-                padding: CoconutPadding.container,
-                color: CoconutColors.black,
-                child: Column(
-                  children: [body],
-                ),
-              ),
-            )));
-      },
-    ));
-  }
-
   static void showLoadingDialog(
     BuildContext context,
   ) {

@@ -270,9 +270,8 @@ class _MultisigSetupInfoScreenState extends State<MultisigSetupInfoScreen> {
     final Color backgroundColor = colorIndex == -1
         ? CoconutColors.gray200
         : CoconutColors.backgroundColorPaletteLight[colorIndex];
-    final Color iconColor = colorIndex == -1
-        ? CoconutColors.black
-        : CoconutColors.backgroundColorPaletteLight[colorIndex];
+    final Color iconColor =
+        colorIndex == -1 ? CoconutColors.black : CoconutColors.colorPalette[colorIndex];
     return Container(
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(

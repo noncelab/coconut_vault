@@ -250,17 +250,30 @@ class _MnemonicWordListScreenState extends State<MnemonicWordListScreen> {
     String item = _filteredItems[index]['item'];
     List<TextSpan> highlightOccurrences(String source, String query) {
       if (query.isEmpty) {
-        return [TextSpan(text: source)];
+        return [
+          TextSpan(
+            text: source,
+            style: const TextStyle(color: CoconutColors.black),
+          )
+        ];
       }
       var matches = query.allMatches(source);
       if (matches.isEmpty) {
-        return [TextSpan(text: source)];
+        return [
+          TextSpan(
+            text: source,
+            style: const TextStyle(color: CoconutColors.black),
+          )
+        ];
       }
       List<TextSpan> spans = [];
       int lastMatchEnd = 0;
       for (var match in matches) {
         if (match.start != lastMatchEnd) {
-          spans.add(TextSpan(text: source.substring(lastMatchEnd, match.start)));
+          spans.add(TextSpan(
+            text: source.substring(lastMatchEnd, match.start),
+            style: const TextStyle(color: CoconutColors.black),
+          ));
         }
         spans.add(
           TextSpan(
@@ -271,7 +284,12 @@ class _MnemonicWordListScreenState extends State<MnemonicWordListScreen> {
         lastMatchEnd = match.end;
       }
       if (lastMatchEnd != source.length) {
-        spans.add(TextSpan(text: source.substring(lastMatchEnd)));
+        spans.add(
+          TextSpan(
+            text: source.substring(lastMatchEnd),
+            style: const TextStyle(fontWeight: FontWeight.bold, color: CoconutColors.black),
+          ),
+        );
       }
       return spans;
     }

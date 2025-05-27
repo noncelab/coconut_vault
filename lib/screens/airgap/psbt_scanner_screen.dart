@@ -126,6 +126,7 @@ class _PsbtScannerScreenState extends State<PsbtScannerScreen> {
           title: _viewModel.walletName,
           context: context,
           isBottom: true,
+          backgroundColor: CoconutColors.white,
         ),
         body: Stack(
           children: [
