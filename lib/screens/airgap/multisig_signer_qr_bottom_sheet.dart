@@ -96,7 +96,7 @@ class _SignerQrBottomSheetState extends State<SignerQrBottomSheet> {
                   ),
                   Container(
                     padding: const EdgeInsets.all(10),
-                    decoration: BoxDecorations.shadowBoxDecoration,
+                    decoration: CoconutBoxDecoration.shadowBoxDecoration,
                     child: AnimatedQrView(
                       data: AnimatedQRDataHandler.splitData(widget.signedRawTx),
                       size: MediaQuery.of(context).size.width * 0.8,

@@ -16,7 +16,6 @@ import 'package:coconut_vault/widgets/card/vault_addition_guide_card.dart';
 import 'package:coconut_vault/widgets/vault_row_item.dart';
 import 'package:flutter/material.dart';
 import 'package:coconut_vault/screens/settings/settings_screen.dart';
-import 'package:coconut_vault/styles.dart';
 import 'package:coconut_vault/widgets/appbar/frosted_appbar.dart';
 import 'package:coconut_vault/widgets/bottom_sheet.dart';
 import 'package:flutter/services.dart';

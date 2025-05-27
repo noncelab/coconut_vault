@@ -10,7 +10,6 @@ import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:coconut_vault/screens/common/pin_check_screen.dart';
 import 'package:coconut_vault/screens/vault_menu/info/multisig_signer_memo_bottom_sheet.dart';
 import 'package:coconut_vault/screens/vault_menu/info/name_and_icon_edit_bottom_sheet.dart';
-import 'package:coconut_vault/styles.dart';
 import 'package:coconut_vault/utils/alert_util.dart';
 import 'package:coconut_vault/utils/icon_util.dart';
 import 'package:coconut_vault/utils/vibration_util.dart';

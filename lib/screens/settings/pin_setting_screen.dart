@@ -6,7 +6,6 @@ import 'package:coconut_vault/constants/shared_preferences_keys.dart';
 import 'package:coconut_vault/providers/auth_provider.dart';
 import 'package:coconut_vault/repository/shared_preferences_repository.dart';
 import 'package:flutter/material.dart';
-import 'package:coconut_vault/styles.dart';
 import 'package:coconut_vault/utils/vibration_util.dart';
 import 'package:coconut_vault/widgets/animated_dialog.dart';
 import 'package:coconut_vault/widgets/appbar/custom_appbar.dart';

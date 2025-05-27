@@ -41,7 +41,7 @@ class MultisigBsmsScreen extends StatelessWidget {
                 Center(
                     child: Container(
                         width: qrWidth,
-                        decoration: BoxDecorations.shadowBoxDecoration,
+                        decoration: CoconutBoxDecoration.shadowBoxDecoration,
                         child: QrImageView(
                           data: viewModel.qrData,
                         ))),

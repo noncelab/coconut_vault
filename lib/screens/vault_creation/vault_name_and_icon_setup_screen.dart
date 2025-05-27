@@ -4,7 +4,6 @@ import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/model/single_sig/single_sig_wallet.dart';
 import 'package:coconut_vault/providers/wallet_creation_provider.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
-import 'package:coconut_vault/styles.dart';
 import 'package:coconut_vault/utils/logger.dart';
 import 'package:coconut_vault/widgets/custom_dialog.dart';
 import 'package:coconut_vault/widgets/indicator/message_activity_indicator.dart';

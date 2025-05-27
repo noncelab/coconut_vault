@@ -80,7 +80,7 @@ class _SignedTransactionQrScreenState extends State<SignedTransactionQrScreen> {
                 ),
                 Container(
                   padding: const EdgeInsets.all(10),
-                  decoration: BoxDecorations.shadowBoxDecoration,
+                  decoration: CoconutBoxDecoration.shadowBoxDecoration,
                   child: AnimatedQrView(
                     data: AnimatedQRDataHandler.splitData(_signProvider.signedPsbtBase64!),
                     size: MediaQuery.of(context).size.width * 0.8,

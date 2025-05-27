@@ -1,8 +1,6 @@
 import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:flutter/cupertino.dart';
 
-import '../../styles.dart';
-
 class ActionBottomButton extends StatelessWidget {
   final VoidCallback onPressed;
   final String text;

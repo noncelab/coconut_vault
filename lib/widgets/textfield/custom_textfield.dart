@@ -1,6 +1,5 @@
 import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:coconut_vault/styles.dart';
 import 'package:flutter/services.dart';
 
 class CustomTextField extends StatefulWidget {

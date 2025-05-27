@@ -122,7 +122,7 @@ class _MultisigSignerBsmsExportScreenState extends State<MultisigSignerBsmsExpor
                       Center(
                           child: Container(
                               width: MediaQuery.of(context).size.width * 0.76,
-                              decoration: BoxDecorations.shadowBoxDecoration,
+                              decoration: CoconutBoxDecoration.shadowBoxDecoration,
                               child: QrImageView(
                                 data: viewModel.qrData,
                               ))),

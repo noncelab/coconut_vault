@@ -5,7 +5,6 @@ import 'package:coconut_lib/coconut_lib.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:coconut_vault/styles.dart';
 import 'package:coconut_vault/widgets/label_testnet.dart';
 
 class FrostedAppBar extends StatefulWidget {

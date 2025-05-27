@@ -131,7 +131,9 @@ class _MnemonicViewScreen extends State<MnemonicViewScreen> {
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 Container(
-                    width: qrSize, height: qrSize, decoration: BoxDecorations.shadowBoxDecoration),
+                    width: qrSize,
+                    height: qrSize,
+                    decoration: CoconutBoxDecoration.shadowBoxDecoration),
                 const SizedBox(height: 32),
                 for (int line = 0; line < textWidgets.length; line++) textWidgets[line],
                 const SizedBox(height: 24),

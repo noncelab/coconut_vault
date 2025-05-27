@@ -5,8 +5,6 @@ import 'package:coconut_vault/widgets/button/copy_text_container.dart';
 import 'package:flutter/material.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 
-import '../styles.dart';
-
 class QRCodeLinkInfo extends StatefulWidget {
   final String qrData;
   final Widget? qrcodeTopWidget;

@@ -1,5 +1,4 @@
 import 'package:coconut_design_system/coconut_design_system.dart';
-import 'package:coconut_vault/styles.dart';
 import 'package:coconut_vault/utils/text_utils.dart';
 import 'package:flutter/cupertino.dart';
 

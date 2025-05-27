@@ -1,6 +1,5 @@
 import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:flutter/material.dart';
-import 'package:coconut_vault/styles.dart';
 
 class TooltipButton extends StatefulWidget {
   final bool isSelected;

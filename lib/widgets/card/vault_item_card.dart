@@ -4,7 +4,6 @@ import 'package:coconut_vault/model/multisig/multisig_signer.dart';
 import 'package:coconut_vault/model/multisig/multisig_vault_list_item.dart';
 import 'package:coconut_vault/model/single_sig/single_sig_vault_list_item.dart';
 import 'package:coconut_vault/model/common/vault_list_item_base.dart';
-import 'package:coconut_vault/styles.dart';
 import 'package:coconut_vault/utils/colors_util.dart';
 import 'package:coconut_vault/utils/icon_util.dart';
 import 'package:coconut_vault/widgets/button/tooltip_button.dart';

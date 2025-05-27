@@ -2,7 +2,6 @@ import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:coconut_vault/screens/vault_menu/sync_to_wallet/export_detail_screen.dart';
-import 'package:coconut_vault/styles.dart';
 import 'package:coconut_vault/widgets/appbar/custom_appbar.dart';
 import 'package:coconut_vault/widgets/bottom_sheet.dart';
 import 'package:coconut_vault/widgets/custom_tooltip.dart';
@@ -81,7 +80,7 @@ class _SyncToWalletScreenState extends State<SyncToWalletScreen> {
               Center(
                   child: Container(
                       width: MediaQuery.of(context).size.width * 0.76,
-                      decoration: BoxDecorations.shadowBoxDecoration,
+                      decoration: CoconutBoxDecoration.shadowBoxDecoration,
                       child: QrImageView(
                         data: qrData,
                       ))),

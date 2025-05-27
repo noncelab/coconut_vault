@@ -3,7 +3,6 @@ import 'dart:collection';
 
 import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_vault/providers/view_model/mutlisig_quorum_selection_view_model.dart';
-import 'package:coconut_vault/styles.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 

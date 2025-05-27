@@ -5,7 +5,6 @@ import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/providers/view_model/address_list_view_model.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:coconut_vault/screens/common/qrcode_bottom_sheet.dart';
-import 'package:coconut_vault/styles.dart';
 import 'package:coconut_vault/utils/logger.dart';
 import 'package:coconut_vault/widgets/appbar/custom_appbar.dart';
 import 'package:coconut_vault/widgets/bottom_sheet.dart';
