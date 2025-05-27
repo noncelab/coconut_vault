@@ -5,7 +5,6 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:coconut_vault/oss_licenses.dart';
 import 'package:coconut_vault/screens/common/qrcode_bottom_sheet.dart';
-import 'package:coconut_vault/widgets/appbar/custom_appbar.dart';
 import 'package:coconut_vault/widgets/bottom_sheet.dart';
 
 class LicenseScreen extends StatefulWidget {
@@ -45,9 +44,10 @@ class _LicenseScreenState extends State<LicenseScreen> {
       borderRadius: CoconutBorder.defaultRadius,
       child: Scaffold(
         backgroundColor: CoconutColors.white,
-        appBar: CustomAppBar.buildWithClose(
+        appBar: CoconutAppBar.build(
           title: t.license_details,
           context: context,
+          isBottom: true,
         ),
         body: SafeArea(
           child: ListView.builder(

@@ -8,7 +8,6 @@ import 'package:coconut_vault/repository/shared_preferences_repository.dart';
 import 'package:flutter/material.dart';
 import 'package:coconut_vault/utils/vibration_util.dart';
 import 'package:coconut_vault/widgets/animated_dialog.dart';
-import 'package:coconut_vault/widgets/appbar/custom_appbar.dart';
 import 'package:coconut_vault/widgets/button/custom_buttons.dart';
 import 'package:coconut_vault/screens/common/pin_input_screen.dart';
 import 'package:provider/provider.dart';
@@ -209,7 +208,11 @@ class _PinSettingScreenState extends State<PinSettingScreen> {
     if (greeting) {
       return Scaffold(
           backgroundColor: Colors.transparent,
-          appBar: CustomAppBar.buildWithClose(title: '', context: context),
+          appBar: CoconutAppBar.build(
+            title: '',
+            context: context,
+            isBottom: true,
+          ),
           body: SafeArea(
               child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,

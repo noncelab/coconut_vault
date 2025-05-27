@@ -1,6 +1,5 @@
 import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:flutter/material.dart';
-import 'package:coconut_vault/widgets/appbar/custom_appbar.dart';
 import 'package:coconut_vault/widgets/qrcode_info.dart';
 import 'package:coconut_vault/widgets/qrcode_link_info.dart';
 
@@ -47,7 +46,11 @@ class _QrcodeBottomSheetState extends State<QrcodeBottomSheet> {
       borderRadius: CoconutBorder.defaultRadius,
       child: Scaffold(
         backgroundColor: CoconutColors.white,
-        appBar: CustomAppBar.buildWithClose(title: widget.title ?? '', context: context),
+        appBar: CoconutAppBar.build(
+          title: widget.title ?? '',
+          context: context,
+          isBottom: true,
+        ),
         body: SafeArea(
           child: SingleChildScrollView(
             child: Container(

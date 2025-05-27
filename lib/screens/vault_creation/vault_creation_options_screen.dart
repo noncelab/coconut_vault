@@ -3,7 +3,6 @@ import 'package:coconut_vault/constants/app_routes.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:coconut_vault/widgets/appbar/custom_appbar.dart';
 import 'package:coconut_vault/widgets/button/shrink_animation_button.dart';
 
 class Option {
@@ -37,11 +36,9 @@ class VaultCreationOptions extends StatelessWidget {
 
     return Scaffold(
       backgroundColor: CoconutColors.white,
-      appBar: CustomAppBar.build(
+      appBar: CoconutAppBar.build(
         title: t.single_sig_wallet,
         context: context,
-        hasRightIcon: false,
-        showTestnetLabel: false,
       ),
       body: CustomScrollView(
         semanticChildCount: options.length,

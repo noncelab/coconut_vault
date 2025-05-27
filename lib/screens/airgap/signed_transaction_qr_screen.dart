@@ -4,7 +4,6 @@ import 'package:coconut_vault/providers/sign_provider.dart';
 import 'package:coconut_vault/widgets/animatedQR/animated_qr_data_handler.dart';
 import 'package:coconut_vault/widgets/animatedQR/animated_qr_view.dart';
 import 'package:flutter/material.dart';
-import 'package:coconut_vault/widgets/appbar/custom_appbar.dart';
 import 'package:coconut_vault/widgets/custom_tooltip.dart';
 import 'package:provider/provider.dart';
 
@@ -30,14 +29,14 @@ class _SignedTransactionQrScreenState extends State<SignedTransactionQrScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: CoconutColors.white,
-      appBar: CustomAppBar.buildWithNext(
+      appBar: CoconutAppBar.buildWithNext(
           title: t.signed_tx,
           context: context,
           onNextPressed: () {
             _signProvider.resetAll();
             Navigator.pushNamedAndRemoveUntil(context, '/', (Route<dynamic> route) => false);
           },
-          buttonName: t.complete),
+          nextButtonTitle: t.complete),
       body: SafeArea(
         child: SingleChildScrollView(
           child: Container(

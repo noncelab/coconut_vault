@@ -9,7 +9,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:coconut_vault/screens/vault_creation/single_sig/mnemonic_confirmation_bottom_sheet.dart';
 import 'package:coconut_vault/utils/vibration_util.dart';
-import 'package:coconut_vault/widgets/appbar/custom_appbar.dart';
 import 'package:coconut_vault/widgets/bottom_sheet.dart';
 import 'package:coconut_vault/widgets/button/custom_buttons.dart';
 import 'package:coconut_vault/widgets/check_list.dart';
@@ -130,11 +129,10 @@ class _MnemonicGenerationScreenState extends State<MnemonicGenerationScreen> {
 
     return Scaffold(
         backgroundColor: CoconutColors.white,
-        appBar: CustomAppBar.build(
+        appBar: CoconutAppBar.build(
           title: t.mnemonic_generate_screen.title,
           context: context,
           onBackPressed: _showStopGeneratingMnemonicDialog,
-          hasRightIcon: false,
         ),
         body: SafeArea(
           child: screens[_step],

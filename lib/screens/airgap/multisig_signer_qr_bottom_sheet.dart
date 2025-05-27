@@ -3,7 +3,6 @@ import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/widgets/animatedQR/animated_qr_data_handler.dart';
 import 'package:coconut_vault/widgets/animatedQR/animated_qr_view.dart';
 import 'package:flutter/material.dart';
-import 'package:coconut_vault/widgets/appbar/custom_appbar.dart';
 import 'package:coconut_vault/widgets/custom_tooltip.dart';
 
 class SignerQrBottomSheet extends StatefulWidget {
@@ -29,9 +28,10 @@ class _SignerQrBottomSheetState extends State<SignerQrBottomSheet> {
       borderRadius: CoconutBorder.defaultRadius,
       child: Scaffold(
         backgroundColor: CoconutColors.white,
-        appBar: CustomAppBar.buildWithClose(
+        appBar: CoconutAppBar.build(
           context: context,
           title: t.signer_qr_bottom_sheet.title,
+          isBottom: true,
         ),
         body: SafeArea(
           child: SingleChildScrollView(

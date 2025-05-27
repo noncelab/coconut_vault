@@ -1,6 +1,5 @@
 import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
-import 'package:coconut_vault/widgets/appbar/custom_appbar.dart';
 import 'package:flutter/material.dart';
 
 class MyBottomSheet {
@@ -152,25 +151,62 @@ class MyBottomSheet {
                       ValueListenableBuilder<bool>(
                         valueListenable: isButtonActiveNotifier,
                         builder: (context, isActive, _) {
-                          return CustomAppBar.buildWithClose(
-                            hasNextButton: true,
+                          return CoconutAppBar.build(
                             context: context,
                             title: t.key_list, // fixme: 특정 화면 컨텍스트를 포함하고 있음
                             backgroundColor: CoconutColors.white,
-                            isNextButtonActive: isButtonActiveNotifier.value,
                             onBackPressed: () => Navigator.pop(context),
-                            onNextPressed: () {
-                              if (onTopWidgetButtonClicked != null) {
-                                onTopWidgetButtonClicked();
-                              }
-                              Navigator.pop(context);
-                            },
+                            actionButtonList: [
+                              Padding(
+                                padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+                                child: GestureDetector(
+                                  onTap: isButtonActiveNotifier.value
+                                      ? () {
+                                          if (onTopWidgetButtonClicked != null) {
+                                            onTopWidgetButtonClicked();
+                                          }
+                                          Navigator.pop(context);
+                                        }
+                                      : null,
+                                  child: Container(
+                                    padding: const EdgeInsets.symmetric(horizontal: 12.0),
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(16.0),
+                                      border: Border.all(
+                                        color: isButtonActiveNotifier.value
+                                            ? Colors.transparent
+                                            : CoconutColors.black.withOpacity(0.06),
+                                      ),
+                                      color: isButtonActiveNotifier.value
+                                          ? CoconutColors.gray800
+                                          : CoconutColors.gray150,
+                                    ),
+                                    child: Center(
+                                      child: Text(
+                                        t.select,
+                                        style: CoconutTypography.body2_14.merge(
+                                          TextStyle(
+                                            fontSize: 11,
+                                            color: isButtonActiveNotifier.value
+                                                ? Colors.white
+                                                : CoconutColors.black.withOpacity(0.3),
+                                            fontWeight: isButtonActiveNotifier.value
+                                                ? FontWeight.bold
+                                                : FontWeight.normal,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
                           );
                         },
                       )
                     else if (topWidget)
-                      CustomAppBar.buildWithClose(
-                        hasNextButton: true,
+                      CoconutAppBar.build(
+                        isBottom: true,
                         context: context,
                         title: t.import,
                         backgroundColor: CoconutColors.white,

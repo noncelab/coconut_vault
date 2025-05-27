@@ -13,7 +13,6 @@ import 'package:coconut_vault/screens/vault_creation/multisig/import_confirmatio
 import 'package:coconut_vault/screens/vault_creation/multisig/signer_assignment_key_list_bottom_sheet.dart';
 import 'package:coconut_vault/utils/alert_util.dart';
 import 'package:coconut_vault/utils/icon_util.dart';
-import 'package:coconut_vault/widgets/appbar/custom_appbar.dart';
 import 'package:coconut_vault/widgets/bottom_sheet.dart';
 import 'package:coconut_vault/widgets/button/custom_buttons.dart';
 import 'package:coconut_vault/widgets/custom_dialog.dart';
@@ -182,13 +181,12 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
         child: Consumer<SignerAssignmentViewModel>(
           builder: (context, viewModel, child) => Scaffold(
             backgroundColor: CoconutColors.white,
-            appBar: CustomAppBar.buildWithNext(
+            appBar: CoconutAppBar.buildWithNext(
               title: t.multisig_wallet,
               context: context,
               onBackPressed: () => _onBackPressed(context),
               onNextPressed: onNextPressed,
               isActive: _hasValidationCompleted,
-              hasBackdropFilter: false,
             ),
             body: Stack(
               children: [

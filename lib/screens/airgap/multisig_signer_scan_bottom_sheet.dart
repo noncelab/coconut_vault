@@ -3,7 +3,6 @@ import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/utils/alert_util.dart';
 import 'package:coconut_vault/utils/vibration_util.dart';
 import 'package:coconut_vault/widgets/animatedQR/animated_qr_scanner.dart';
-import 'package:coconut_vault/widgets/appbar/custom_appbar.dart';
 import 'package:coconut_vault/widgets/custom_loading_overlay.dart';
 import 'package:flutter/material.dart';
 import 'package:coconut_vault/widgets/custom_tooltip.dart';
@@ -97,10 +96,9 @@ class _SignerScanBottomSheetState extends State<SignerScanBottomSheet> {
         borderRadius: CoconutBorder.boxDecorationRadius,
         child: Scaffold(
           backgroundColor: CoconutColors.white,
-          appBar: CustomAppBar.build(
+          appBar: CoconutAppBar.build(
             title: t.signer_scanner_bottom_sheet.title,
             context: context,
-            hasRightIcon: false,
             isBottom: true,
           ),
           body: SafeArea(

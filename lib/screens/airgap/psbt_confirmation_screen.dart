@@ -6,7 +6,6 @@ import 'package:coconut_vault/providers/view_model/airgap/psbt_confirmation_view
 import 'package:flutter/material.dart';
 import 'package:coconut_vault/utils/alert_util.dart';
 import 'package:coconut_vault/utils/unit_utils.dart';
-import 'package:coconut_vault/widgets/appbar/custom_appbar.dart';
 import 'package:coconut_vault/widgets/custom_tooltip.dart';
 import 'package:coconut_vault/widgets/card/information_item_card.dart';
 import 'package:provider/provider.dart';
@@ -57,7 +56,7 @@ class _PsbtConfirmationScreenState extends State<PsbtConfirmationScreen> {
       child: Consumer<PsbtConfirmationViewModel>(builder: (context, viewModel, child) {
         return Scaffold(
           backgroundColor: CoconutColors.white,
-          appBar: CustomAppBar.buildWithNext(
+          appBar: CoconutAppBar.buildWithNext(
             title: t.psbt_confirmation_screen.title,
             context: context,
             isActive: !_showLoading && viewModel.totalAmount != null,

@@ -5,7 +5,6 @@ import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:coconut_vault/widgets/button/custom_buttons.dart';
 import 'package:coconut_vault/widgets/indicator/message_activity_indicator.dart';
 import 'package:flutter/material.dart';
-import 'package:coconut_vault/widgets/appbar/custom_appbar.dart';
 import 'package:provider/provider.dart';
 
 class VaultTypeSelectionScreen extends StatefulWidget {
@@ -93,7 +92,7 @@ class _VaultTypeSelectionScreenState extends State<VaultTypeSelectionScreen> {
       builder: (context, model, child) {
         return Scaffold(
           backgroundColor: CoconutColors.white,
-          appBar: CustomAppBar.buildWithNext(
+          appBar: CoconutAppBar.buildWithNext(
             title: t.select_vault_type_screen.title,
             context: context,
             onNextPressed: () => onNextPressed(),

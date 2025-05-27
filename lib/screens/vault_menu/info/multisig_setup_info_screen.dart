@@ -13,7 +13,6 @@ import 'package:coconut_vault/screens/vault_menu/info/name_and_icon_edit_bottom_
 import 'package:coconut_vault/utils/alert_util.dart';
 import 'package:coconut_vault/utils/icon_util.dart';
 import 'package:coconut_vault/utils/vibration_util.dart';
-import 'package:coconut_vault/widgets/appbar/custom_appbar.dart';
 import 'package:coconut_vault/widgets/bottom_sheet.dart';
 import 'package:coconut_vault/widgets/bubble_clipper.dart';
 import 'package:coconut_vault/widgets/card/vault_item_card.dart';
@@ -87,10 +86,9 @@ class _MultisigSetupInfoScreenState extends State<MultisigSetupInfoScreen> {
         child: Consumer<MultisigSetupInfoViewModel>(builder: (context, viewModel, child) {
           return Scaffold(
             backgroundColor: CoconutColors.white,
-            appBar: CustomAppBar.build(
+            appBar: CoconutAppBar.build(
               title: '${viewModel.name} ${t.info}',
               context: context,
-              hasRightIcon: false,
               isBottom: false,
               onBackPressed: () {
                 Navigator.pop(context);

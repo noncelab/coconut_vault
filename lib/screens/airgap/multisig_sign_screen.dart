@@ -11,7 +11,6 @@ import 'package:coconut_vault/utils/alert_util.dart';
 import 'package:coconut_vault/utils/icon_util.dart';
 import 'package:coconut_vault/utils/text_utils.dart';
 import 'package:coconut_vault/utils/unit_utils.dart';
-import 'package:coconut_vault/widgets/appbar/custom_appbar.dart';
 import 'package:coconut_vault/widgets/bottom_sheet.dart';
 import 'package:coconut_vault/widgets/custom_dialog.dart';
 import 'package:coconut_vault/widgets/custom_loading_overlay.dart';
@@ -150,17 +149,17 @@ class _MultisigSignScreenState extends State<MultisigSignScreen> {
         child: Consumer<MultisigSignViewModel>(
           builder: (context, viewModel, child) => Scaffold(
             backgroundColor: CoconutColors.gray150,
-            appBar: CustomAppBar.buildWithNext(
-                title: t.sign,
-                context: context,
-                onBackPressed: _onBackPressed,
-                onNextPressed: () {
-                  _viewModel.saveSignedPsbt();
-                  Navigator.pushNamed(context, AppRoutes.signedTransaction);
-                },
-                isActive: viewModel.isSignatureComplete,
-                backgroundColor: CoconutColors.gray150,
-                hasBackdropFilter: false),
+            appBar: CoconutAppBar.buildWithNext(
+              title: t.sign,
+              context: context,
+              onBackPressed: _onBackPressed,
+              onNextPressed: () {
+                _viewModel.saveSignedPsbt();
+                Navigator.pushNamed(context, AppRoutes.signedTransaction);
+              },
+              isActive: viewModel.isSignatureComplete,
+              backgroundColor: CoconutColors.gray150,
+            ),
             body: SafeArea(
               child: Stack(
                 children: [

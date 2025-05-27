@@ -6,7 +6,6 @@ import 'package:coconut_vault/providers/view_model/address_list_view_model.dart'
 import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:coconut_vault/screens/common/qrcode_bottom_sheet.dart';
 import 'package:coconut_vault/utils/logger.dart';
-import 'package:coconut_vault/widgets/appbar/custom_appbar.dart';
 import 'package:coconut_vault/widgets/bottom_sheet.dart';
 import 'package:coconut_vault/widgets/card/address_card.dart';
 import 'package:flutter/material.dart';
@@ -41,10 +40,9 @@ class _AddressListScreenState extends State<AddressListScreen> {
 
           return Scaffold(
             backgroundColor: CoconutColors.white,
-            appBar: CustomAppBar.build(
+            appBar: CoconutAppBar.build(
               title: t.address_list_screen.title(name: viewModel.name),
               context: context,
-              hasRightIcon: false,
               isBottom: true,
             ),
             body: SafeArea(

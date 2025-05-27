@@ -10,7 +10,6 @@ import 'package:coconut_vault/utils/alert_util.dart';
 import 'package:coconut_vault/utils/icon_util.dart';
 import 'package:coconut_vault/utils/text_utils.dart';
 import 'package:coconut_vault/utils/unit_utils.dart';
-import 'package:coconut_vault/widgets/appbar/custom_appbar.dart';
 import 'package:coconut_vault/widgets/bottom_sheet.dart';
 import 'package:coconut_vault/widgets/custom_loading_overlay.dart';
 import 'package:flutter/material.dart';
@@ -86,20 +85,20 @@ class _SingleSigSignScreenState extends State<SingleSigSignScreen> {
       child: Consumer<SingleSigSignViewModel>(
         builder: (context, viewModel, child) => Scaffold(
           backgroundColor: CoconutColors.gray150,
-          appBar: CustomAppBar.buildWithNext(
-              title: t.sign,
-              context: context,
-              onBackPressed: () {
-                viewModel.resetSignProvider();
-                Navigator.pop(context);
-              },
-              onNextPressed: () {
-                Navigator.pushNamed(context, AppRoutes.signedTransaction);
-              },
-              isActive: viewModel.requiredSignatureCount ==
-                  viewModel.signersApproved.where((bool isApproved) => isApproved).length,
-              backgroundColor: CoconutColors.gray150,
-              hasBackdropFilter: false),
+          appBar: CoconutAppBar.buildWithNext(
+            title: t.sign,
+            context: context,
+            onBackPressed: () {
+              viewModel.resetSignProvider();
+              Navigator.pop(context);
+            },
+            onNextPressed: () {
+              Navigator.pushNamed(context, AppRoutes.signedTransaction);
+            },
+            isActive: viewModel.requiredSignatureCount ==
+                viewModel.signersApproved.where((bool isApproved) => isApproved).length,
+            backgroundColor: CoconutColors.gray150,
+          ),
           body: SafeArea(
             child: Stack(
               children: [

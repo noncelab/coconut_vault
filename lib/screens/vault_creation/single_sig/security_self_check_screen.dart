@@ -1,7 +1,6 @@
 import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:flutter/material.dart';
-import 'package:coconut_vault/widgets/appbar/custom_appbar.dart';
 import 'package:coconut_vault/widgets/check_list.dart';
 
 class SecuritySelfCheckScreen extends StatefulWidget {
@@ -44,7 +43,7 @@ class _SecuritySelfCheckScreenState extends State<SecuritySelfCheckScreen> {
     return Scaffold(
       backgroundColor: CoconutColors.white,
       appBar: widget.onNextPressed != null
-          ? CustomAppBar.buildWithNext(
+          ? CoconutAppBar.buildWithNext(
               title: t.checklist,
               context: context,
               onBackPressed: () {
@@ -53,13 +52,13 @@ class _SecuritySelfCheckScreenState extends State<SecuritySelfCheckScreen> {
               onNextPressed: widget.onNextPressed!,
               isActive: _allItemsChecked, // 상태에 따라 'Next' 버튼 활성화
             )
-          : CustomAppBar.build(
+          : CoconutAppBar.build(
               title: t.checklist,
               context: context,
               onBackPressed: () {
                 Navigator.of(context).pop();
               },
-              hasRightIcon: false),
+            ),
       body: SafeArea(
         child: SingleChildScrollView(
           child: Padding(

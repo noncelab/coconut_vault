@@ -2,7 +2,6 @@ import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/providers/view_model/vault_menu/multisig_bsms_view_model.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
-import 'package:coconut_vault/widgets/appbar/custom_appbar.dart';
 import 'package:coconut_vault/widgets/bottom_sheet.dart';
 import 'package:coconut_vault/widgets/button/copy_text_container.dart';
 import 'package:flutter/material.dart';
@@ -24,10 +23,9 @@ class MultisigBsmsScreen extends StatelessWidget {
 
         return Scaffold(
           backgroundColor: CoconutColors.white,
-          appBar: CustomAppBar.build(
+          appBar: CoconutAppBar.build(
             title: t.multi_sig_bsms_screen.title,
             context: context,
-            hasRightIcon: false,
             isBottom: false,
             onBackPressed: () {
               Navigator.pop(context);

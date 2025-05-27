@@ -11,7 +11,6 @@ import 'package:coconut_vault/widgets/custom_loading_overlay.dart';
 import 'package:flutter/material.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:coconut_vault/utils/vibration_util.dart';
-import 'package:coconut_vault/widgets/appbar/custom_appbar.dart';
 import 'package:coconut_vault/widgets/custom_tooltip.dart';
 import 'package:loader_overlay/loader_overlay.dart';
 import 'package:provider/provider.dart';
@@ -123,10 +122,9 @@ class _PsbtScannerScreenState extends State<PsbtScannerScreen> {
   Widget build(BuildContext context) {
     return CustomLoadingOverlay(
       child: Scaffold(
-        appBar: CustomAppBar.build(
+        appBar: CoconutAppBar.build(
           title: _viewModel.walletName,
           context: context,
-          hasRightIcon: false,
           isBottom: true,
         ),
         body: Stack(

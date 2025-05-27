@@ -14,7 +14,6 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:coconut_vault/screens/common/pin_check_screen.dart';
 import 'package:coconut_vault/screens/vault_menu/info/mnemonic_view_screen.dart';
 import 'package:coconut_vault/utils/alert_util.dart';
-import 'package:coconut_vault/widgets/appbar/custom_appbar.dart';
 import 'package:coconut_vault/widgets/bottom_sheet.dart';
 import 'package:coconut_vault/widgets/bubble_clipper.dart';
 import 'package:coconut_vault/widgets/custom_loading_overlay.dart';
@@ -83,11 +82,11 @@ class _SingleSigSetupInfoScreenState extends State<SingleSigSetupInfoScreen> {
           child: Consumer<SingleSigSetupInfoViewModel>(builder: (context, viewModel, child) {
             return Scaffold(
               backgroundColor: CoconutColors.white,
-              appBar: CustomAppBar.build(
-                  title: '${viewModel.name} ${t.info}',
-                  context: context,
-                  hasRightIcon: false,
-                  isBottom: viewModel.hasLinkedMultisigVault),
+              appBar: CoconutAppBar.build(
+                title: '${viewModel.name} ${t.info}',
+                context: context,
+                isBottom: viewModel.hasLinkedMultisigVault,
+              ),
               body: GestureDetector(
                 onTap: () => FocusScope.of(context).unfocus(),
                 child: SafeArea(

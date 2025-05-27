@@ -10,7 +10,6 @@ import 'package:coconut_vault/model/multisig/multisig_import_detail.dart';
 import 'package:coconut_vault/model/exception/not_related_multisig_wallet_exception.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:coconut_vault/utils/alert_util.dart';
-import 'package:coconut_vault/widgets/appbar/custom_appbar.dart';
 import 'package:flutter/material.dart';
 import 'package:coconut_vault/widgets/custom_tooltip.dart';
 import 'package:provider/provider.dart';
@@ -96,12 +95,11 @@ class _MultisigBsmsScannerScreenState extends State<MultisigBsmsScannerScreen> {
   Widget build(BuildContext context) {
     return _isSetScaffold
         ? Scaffold(
-            appBar: CustomAppBar.build(
+            appBar: CoconutAppBar.build(
               title: widget.screenType == MultisigBsmsImportType.copy
                   ? t.signer_scanner_screen.title1
                   : t.signer_scanner_screen.title2,
               context: context,
-              hasRightIcon: false,
               isBottom: true,
             ),
             body: _buildStack(context),

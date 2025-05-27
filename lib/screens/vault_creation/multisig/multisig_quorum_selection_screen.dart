@@ -4,7 +4,6 @@ import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/providers/view_model/mutlisig_quorum_selection_view_model.dart';
 import 'package:coconut_vault/providers/wallet_creation_provider.dart';
 import 'package:coconut_vault/widgets/animation/key_safe_animation_widget.dart';
-import 'package:coconut_vault/widgets/appbar/custom_appbar.dart';
 import 'package:coconut_vault/widgets/button/custom_buttons.dart';
 import 'package:coconut_vault/widgets/highlighted_text.dart';
 import 'package:flutter/material.dart';
@@ -68,7 +67,7 @@ class _MultisigQuorumSelectionScreenState extends State<MultisigQuorumSelectionS
         builder: (context, viewModel, child) {
           return Scaffold(
             backgroundColor: CoconutColors.white,
-            appBar: CustomAppBar.buildWithNext(
+            appBar: CoconutAppBar.buildWithNext(
               title: t.multisig_wallet,
               context: context,
               onNextPressed: () {

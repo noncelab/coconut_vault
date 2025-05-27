@@ -11,7 +11,6 @@ import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:coconut_vault/screens/vault_creation/single_sig/mnemonic_confirmation_bottom_sheet.dart';
 import 'package:coconut_vault/utils/vibration_util.dart';
 import 'package:coconut_vault/utils/wallet_utils.dart';
-import 'package:coconut_vault/widgets/appbar/custom_appbar.dart';
 import 'package:coconut_vault/widgets/bottom_sheet.dart';
 import 'package:coconut_vault/widgets/custom_dialog.dart';
 import 'package:coconut_vault/widgets/custom_toast.dart';
@@ -143,7 +142,7 @@ class _MnemonicImportState extends State<MnemonicImport> {
         children: [
           Scaffold(
             backgroundColor: CoconutColors.white,
-            appBar: CustomAppBar.buildWithNext(
+            appBar: CoconutAppBar.buildWithNext(
               title: t.mnemonic_import_screen.title,
               context: context,
               onBackPressed: _handleBackNavigation,

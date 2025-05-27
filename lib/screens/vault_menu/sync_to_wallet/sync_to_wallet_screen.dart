@@ -2,7 +2,6 @@ import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:coconut_vault/screens/vault_menu/sync_to_wallet/export_detail_screen.dart';
-import 'package:coconut_vault/widgets/appbar/custom_appbar.dart';
 import 'package:coconut_vault/widgets/bottom_sheet.dart';
 import 'package:coconut_vault/widgets/custom_tooltip.dart';
 import 'package:flutter/cupertino.dart';
@@ -28,11 +27,11 @@ class _SyncToWalletScreenState extends State<SyncToWalletScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: CoconutColors.white,
-      appBar: CustomAppBar.build(
-          title: t.sync_to_wallet_screen.title(name: _name),
-          context: context,
-          hasRightIcon: false,
-          isBottom: true),
+      appBar: CoconutAppBar.build(
+        title: t.sync_to_wallet_screen.title(name: _name),
+        context: context,
+        isBottom: true,
+      ),
       body: SafeArea(
         minimum: CoconutPadding.container,
         child: SingleChildScrollView(

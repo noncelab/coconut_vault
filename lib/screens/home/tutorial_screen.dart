@@ -5,7 +5,6 @@ import 'package:coconut_vault/constants/external_links.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/providers/connectivity_provider.dart';
 import 'package:coconut_vault/utils/uri_launcher.dart';
-import 'package:coconut_vault/widgets/appbar/custom_appbar.dart';
 import 'package:coconut_vault/widgets/button/shrink_animation_button.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -143,7 +142,7 @@ class _TutorialScreenState extends State<TutorialScreen> {
           )
         : Scaffold(
             backgroundColor: Colors.transparent,
-            appBar: CustomAppBar.buildWithClose(title: '', context: context),
+            appBar: CoconutAppBar.build(title: '', context: context, isBottom: true),
             body: SafeArea(
               child: Center(
                 child: Column(
