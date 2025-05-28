@@ -17,13 +17,13 @@ publish_to: "none" # Remove this line if you wish to publish to pub.dev
 # In Windows, build-name is used as the major, minor, and patch parts
 # of the product and file versions while build-number is used as the build suffix.
 # iOS Regtest
-version: 2.2.3+1
+#version: 2.2.3+1
 # AOS Regtest
 #version: 2.2.3+25
 # iOS Mainnet
-#version: 0.0.1+2
+#version: 0.0.1+3
 # AOS Mainnet
-#version: 0.0.1+1
+version: 0.0.1+2
 
 environment:
   sdk: "3.5.3"
