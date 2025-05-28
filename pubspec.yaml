@@ -72,14 +72,11 @@ dependencies:
   encrypt: ^5.0.3
   slang: ^4.4.1
   slang_flutter: ^4.4.0
-  coconut_lib:
-    git:
-      url: https://github.com/noncelab/coconut_lib.git
-      ref: develop
   pointycastle: ^3.9.1
   coconut_design_system: ^0.8.0
 
   tuple: ^2.0.2
+  coconut_lib: ^0.10.2
 
 dev_dependencies:
   flutter_oss_licenses: ^3.0.2
