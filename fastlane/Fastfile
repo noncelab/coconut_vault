@@ -1,0 +1,53 @@
+desc "배포 전에 실행하는 공통 함수"
+lane :pre_deploy do
+    # app_info.dart 파일의 RELEASE_DATE 변경
+    update_app_info()
+
+    # flutter_oss_licenses 업데이트
+    sh "flutter pub run flutter_oss_licenses:generate"
+
+    # 자동 생성 파일
+    sh "flutter pub run build_runner clean && flutter pub run build_runner build --delete-conflicting-outputs && flutter pub run slang"
+
+    # Dart format
+    sh "cd .. && dart format . --line-length=100"
+end
+
+# Android 배포
+desc "[Android] 코코넛 볼트 학습용 내부테스트 업로드"
+lane :deploy_aos_regtest_internal do
+    update_build_version(version_key: "aos_regtest")
+    sh "cd ../android && fastlane deploy_regtest_internal"
+end
+
+desc "[Android] 코코넛 볼트 내부테스트 업로드"
+lane :deploy_aos_mainnet_internal do
+    update_build_version(version_key: "aos_mainnet")
+    sh "cd ../android && fastlane deploy_mainnet_internal"
+end
+
+# iOS 배포
+desc "[iOS] 코코넛 볼트 학습용 내부테스트 업로드"
+lane :deploy_ios_regtest_internal do
+    update_build_version(version_key: "ios_regtest")
+    sh "cd ../ios && fastlane deploy_regtest_internal"
+end
+
+desc "[iOS] 코코넛 볼트 내부테스트 업로드"
+lane :deploy_ios_mainnet_internal do
+    update_build_version(version_key: "ios_mainnet")
+    sh "cd ../ios && fastlane deploy_mainnet_internal"
+end
+
+# Android & iOS 배포
+desc "코코넛 볼트 학습용 업로드"
+lane :deploy_regtest_internal do
+    sh "fastlane deploy_aos_regtest_internal"
+    sh "fastlane deploy_ios_regtest_internal"
+end
+
+desc "코코넛 볼트 빌드버전 업데이트"
+lane :deploy_mainnet_internal do
+    sh "fastlane deploy_aos_mainnet_internal"
+    sh "fastlane deploy_ios_mainnet_internal"
+end
