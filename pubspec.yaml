@@ -54,7 +54,7 @@ dependencies:
   carousel_slider: ^5.0.0
   convert: ^3.1.1
   connectivity_plus: ^6.0.3
-  flutter_blue_plus: ^1.32.7
+  flutter_blue_plus: 1.32.12
   modal_bottom_sheet: ^3.0.0
   local_auth: ^2.2.0
   loader_overlay: ^4.0.0
