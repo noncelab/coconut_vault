@@ -1,3 +1,4 @@
+import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_vault/constants/app_routes.dart';
 import 'package:coconut_vault/enums/pin_check_context_enum.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
@@ -5,12 +6,10 @@ import 'package:coconut_vault/providers/sign_provider.dart';
 import 'package:coconut_vault/providers/view_model/airgap/single_sig_sign_view_model.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:coconut_vault/screens/common/pin_check_screen.dart';
-import 'package:coconut_vault/styles.dart';
 import 'package:coconut_vault/utils/alert_util.dart';
 import 'package:coconut_vault/utils/icon_util.dart';
 import 'package:coconut_vault/utils/text_utils.dart';
 import 'package:coconut_vault/utils/unit_utils.dart';
-import 'package:coconut_vault/widgets/appbar/custom_appbar.dart';
 import 'package:coconut_vault/widgets/bottom_sheet.dart';
 import 'package:coconut_vault/widgets/custom_loading_overlay.dart';
 import 'package:flutter/material.dart';
@@ -85,21 +84,21 @@ class _SingleSigSignScreenState extends State<SingleSigSignScreen> {
       create: (_) => _viewModel,
       child: Consumer<SingleSigSignViewModel>(
         builder: (context, viewModel, child) => Scaffold(
-          backgroundColor: MyColors.lightgrey,
-          appBar: CustomAppBar.buildWithNext(
-              title: t.sign,
-              context: context,
-              onBackPressed: () {
-                viewModel.resetSignProvider();
-                Navigator.pop(context);
-              },
-              onNextPressed: () {
-                Navigator.pushNamed(context, AppRoutes.signedTransaction);
-              },
-              isActive: viewModel.requiredSignatureCount ==
-                  viewModel.signersApproved.where((bool isApproved) => isApproved).length,
-              backgroundColor: MyColors.lightgrey,
-              hasBackdropFilter: false),
+          backgroundColor: CoconutColors.gray150,
+          appBar: CoconutAppBar.buildWithNext(
+            title: t.sign,
+            context: context,
+            onBackPressed: () {
+              viewModel.resetSignProvider();
+              Navigator.pop(context);
+            },
+            onNextPressed: () {
+              Navigator.pushNamed(context, AppRoutes.signedTransaction);
+            },
+            isActive: viewModel.requiredSignatureCount ==
+                viewModel.signersApproved.where((bool isApproved) => isApproved).length,
+            backgroundColor: CoconutColors.gray150,
+          ),
           body: SafeArea(
             child: Stack(
               children: [
@@ -125,12 +124,12 @@ class _SingleSigSignScreenState extends State<SingleSigSignScreen> {
                           child: LinearProgressIndicator(
                             value: value,
                             minHeight: 6,
-                            backgroundColor: MyColors.transparentBlack_06,
+                            backgroundColor: CoconutColors.black.withOpacity(0.06),
                             borderRadius: _isProgressCompleted
                                 ? BorderRadius.zero
                                 : const BorderRadius.only(
                                     topRight: Radius.circular(6), bottomRight: Radius.circular(6)),
-                            valueColor: const AlwaysStoppedAnimation<Color>(MyColors.black),
+                            valueColor: const AlwaysStoppedAnimation<Color>(CoconutColors.black),
                           ),
                         );
                       },
@@ -147,7 +146,7 @@ class _SingleSigSignScreenState extends State<SingleSigSignScreen> {
                             : t.sign_required(
                                 count: viewModel.requiredSignatureCount -
                                     viewModel.signersApproved.where((item) => item).length),
-                        style: Styles.body2Bold,
+                        style: CoconutTypography.body2_14_Bold,
                       ),
                     ),
                     // 보낼 주소
@@ -161,7 +160,7 @@ class _SingleSigSignScreenState extends State<SingleSigSignScreen> {
                             children: [
                               Text(
                                 t.recipient,
-                                style: Styles.body2.copyWith(color: MyColors.grey57),
+                                style: CoconutTypography.body2_14.setColor(CoconutColors.gray700),
                               ),
                               Text(
                                 textAlign: TextAlign.end,
@@ -169,7 +168,7 @@ class _SingleSigSignScreenState extends State<SingleSigSignScreen> {
                                     (viewModel.recipientCount > 1
                                         ? '\n${t.extra_count(count: viewModel.recipientCount - 1)}'
                                         : ''),
-                                style: Styles.body1,
+                                style: CoconutTypography.body1_16,
                               )
                             ],
                           ),
@@ -179,13 +178,11 @@ class _SingleSigSignScreenState extends State<SingleSigSignScreen> {
                             children: [
                               Text(
                                 t.send_amount,
-                                style: Styles.body2.copyWith(color: MyColors.grey57),
+                                style: CoconutTypography.body2_14.setColor(CoconutColors.gray700),
                               ),
                               Text(
                                 '${satoshiToBitcoinString(viewModel.sendingAmount)} ${t.btc}',
-                                style: Styles.balance2.copyWith(
-                                  fontSize: 16,
-                                ),
+                                style: CoconutTypography.body1_16_Number,
                               ),
                             ],
                           ),
@@ -204,8 +201,8 @@ class _SingleSigSignScreenState extends State<SingleSigSignScreen> {
                             alignment: Alignment.centerLeft,
                             padding: const EdgeInsets.symmetric(horizontal: 8),
                             decoration: BoxDecoration(
-                              borderRadius: MyBorder.defaultRadius,
-                              color: MyColors.white,
+                              borderRadius: CoconutBorder.defaultRadius,
+                              color: CoconutColors.white,
                             ),
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
@@ -224,14 +221,15 @@ class _SingleSigSignScreenState extends State<SingleSigSignScreen> {
                                           Container(
                                             padding: const EdgeInsets.all(10),
                                             decoration: BoxDecoration(
-                                              color: BackgroundColorPalette[
+                                              color: CoconutColors.backgroundColorPaletteLight[
                                                   viewModel.walletColorIndex],
                                               borderRadius: BorderRadius.circular(16.0),
                                             ),
                                             child: SvgPicture.asset(
                                               CustomIcons.getPathByIndex(viewModel.walletIconIndex),
                                               colorFilter: ColorFilter.mode(
-                                                ColorPalette[viewModel.walletColorIndex],
+                                                CoconutColors
+                                                    .colorPalette[viewModel.walletColorIndex],
                                                 BlendMode.srcIn,
                                               ),
                                               width: 20,
@@ -241,7 +239,8 @@ class _SingleSigSignScreenState extends State<SingleSigSignScreen> {
                                           Column(
                                             crossAxisAlignment: CrossAxisAlignment.start,
                                             children: [
-                                              Text(viewModel.walletName, style: Styles.body2),
+                                              Text(viewModel.walletName,
+                                                  style: CoconutTypography.body2_14),
                                             ],
                                           ),
                                         ],
@@ -250,11 +249,8 @@ class _SingleSigSignScreenState extends State<SingleSigSignScreen> {
                                       if (viewModel.isApproved(index)) ...{
                                         Row(
                                           children: [
-                                            Text(
-                                              t.sign_completion,
-                                              style: Styles.body1Bold
-                                                  .copyWith(fontSize: 12, color: Colors.black),
-                                            ),
+                                            Text(t.sign_completion,
+                                                style: CoconutTypography.body3_12_Bold),
                                             const SizedBox(width: 4),
                                             SvgPicture.asset(
                                               'assets/svg/circle-check.svg',
@@ -269,15 +265,17 @@ class _SingleSigSignScreenState extends State<SingleSigSignScreen> {
                                             padding: const EdgeInsets.symmetric(
                                                 horizontal: 8, vertical: 4),
                                             decoration: BoxDecoration(
-                                              color: MyColors.white,
+                                              color: CoconutColors.white,
                                               borderRadius: BorderRadius.circular(5),
-                                              border: Border.all(color: MyColors.black19, width: 1),
+                                              border: Border.all(
+                                                  color: CoconutColors.gray900, width: 1),
                                             ),
                                             child: Center(
                                               child: Text(
                                                 t.signature,
-                                                style: Styles.caption.copyWith(
-                                                    color: MyColors.black19), // 텍스트 색상도 검정으로 변경
+                                                style: CoconutTypography.body3_12.setColor(
+                                                  CoconutColors.gray900,
+                                                ),
                                               ),
                                             ),
                                           ),
@@ -299,10 +297,10 @@ class _SingleSigSignScreenState extends State<SingleSigSignScreen> {
                   child: Container(
                     width: MediaQuery.of(context).size.width,
                     height: MediaQuery.of(context).size.height,
-                    decoration: const BoxDecoration(color: MyColors.transparentBlack_30),
+                    decoration: BoxDecoration(color: CoconutColors.black.withOpacity(0.3)),
                     child: const Center(
                       child: CircularProgressIndicator(
-                        color: MyColors.darkgrey,
+                        color: CoconutColors.gray800,
                       ),
                     ),
                   ),

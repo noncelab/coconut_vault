@@ -1,5 +1,5 @@
+import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:coconut_vault/styles.dart';
 
 class ButtonContainer extends StatelessWidget {
   final Widget child;
@@ -11,7 +11,7 @@ class ButtonContainer extends StatelessWidget {
     return Container(
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(24),
-          color: MyColors.transparentBlack_06,
+          color: CoconutColors.black.withOpacity(0.06),
         ),
         child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24), child: child));

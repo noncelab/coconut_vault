@@ -1,11 +1,10 @@
+import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/utils/alert_util.dart';
 import 'package:coconut_vault/utils/vibration_util.dart';
 import 'package:coconut_vault/widgets/animatedQR/animated_qr_scanner.dart';
-import 'package:coconut_vault/widgets/appbar/custom_appbar.dart';
 import 'package:coconut_vault/widgets/custom_loading_overlay.dart';
 import 'package:flutter/material.dart';
-import 'package:coconut_vault/styles.dart';
 import 'package:coconut_vault/widgets/custom_tooltip.dart';
 import 'package:loader_overlay/loader_overlay.dart';
 import 'package:qr_code_scanner/qr_code_scanner.dart';
@@ -94,20 +93,19 @@ class _SignerScanBottomSheetState extends State<SignerScanBottomSheet> {
   Widget build(BuildContext context) {
     return CustomLoadingOverlay(
       child: ClipRRect(
-        borderRadius: MyBorder.boxDecorationRadius,
+        borderRadius: CoconutBorder.boxDecorationRadius,
         child: Scaffold(
-          backgroundColor: Colors.white,
-          appBar: CustomAppBar.build(
+          backgroundColor: CoconutColors.white,
+          appBar: CoconutAppBar.build(
             title: t.signer_scanner_bottom_sheet.title,
             context: context,
-            hasRightIcon: false,
             isBottom: true,
           ),
           body: SafeArea(
             child: Stack(
               children: [
                 Container(
-                  color: MyColors.white,
+                  color: CoconutColors.white,
                   child: AnimatedQrScanner(
                     setQRViewController: (QRViewController qrViewcontroller) {
                       controller = qrViewcontroller;
@@ -128,7 +126,7 @@ class _SignerScanBottomSheetState extends State<SignerScanBottomSheet> {
                           fontSize: 15,
                           height: 1.4,
                           letterSpacing: 0.5,
-                          color: MyColors.black,
+                          color: CoconutColors.black,
                         ),
                         children: <TextSpan>[
                           TextSpan(

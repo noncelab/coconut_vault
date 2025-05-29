@@ -1,7 +1,7 @@
+import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:coconut_vault/styles.dart';
 
 class MultisigSignerMemoBottomSheet extends StatefulWidget {
   final String? memo;
@@ -43,7 +43,7 @@ class _MultisigSignerMemoBottomSheetState extends State<MultisigSignerMemoBottom
       padding: MediaQuery.of(context).viewInsets,
       child: Container(
         decoration: const BoxDecoration(
-          color: Colors.white,
+          color: CoconutColors.white,
           borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
         ),
         child: SafeArea(
@@ -56,9 +56,7 @@ class _MultisigSignerMemoBottomSheetState extends State<MultisigSignerMemoBottom
                 Center(
                   child: Text(
                     t.multi_sig_memo_bottom_sheet.imported_wallet_memo,
-                    style: Styles.body1.copyWith(
-                      fontSize: 18,
-                    ),
+                    style: CoconutTypography.heading4_18,
                   ),
                 ),
 
@@ -67,7 +65,7 @@ class _MultisigSignerMemoBottomSheetState extends State<MultisigSignerMemoBottom
                 // TextField
                 Container(
                   decoration: BoxDecoration(
-                    border: Border.all(color: MyColors.transparentBlack_06),
+                    border: Border.all(color: CoconutColors.black.withOpacity(0.06)),
                     borderRadius: BorderRadius.circular(16.0),
                   ),
                   child: CupertinoTextField(
@@ -75,8 +73,10 @@ class _MultisigSignerMemoBottomSheetState extends State<MultisigSignerMemoBottom
                     controller: _controller,
                     placeholder: t.multi_sig_memo_bottom_sheet.placeholder,
                     padding: const EdgeInsets.fromLTRB(16, 20, 16, 20),
-                    style: Styles.body1,
-                    placeholderStyle: Styles.body2Grey,
+                    style: CoconutTypography.body1_16,
+                    placeholderStyle: CoconutTypography.body2_14.setColor(
+                      CoconutColors.black.withOpacity(0.3),
+                    ),
                     decoration: const BoxDecoration(
                       color: Colors.transparent,
                     ),
@@ -97,12 +97,10 @@ class _MultisigSignerMemoBottomSheetState extends State<MultisigSignerMemoBottom
                     padding: const EdgeInsets.only(top: 4, right: 4),
                     child: Text(
                       '(${_memo.length} / 15)',
-                      style: TextStyle(
-                        color: _memo.length == 15
-                            ? MyColors.transparentBlack
-                            : MyColors.transparentBlack_50,
-                        fontSize: 12,
-                        fontFamily: CustomFonts.text.getFontFamily,
+                      style: CoconutTypography.body3_12.setColor(
+                        _memo.length == 15
+                            ? CoconutColors.black.withOpacity(0.7)
+                            : CoconutColors.black.withOpacity(0.5),
                       ),
                     ),
                   ),
@@ -122,14 +120,14 @@ class _MultisigSignerMemoBottomSheetState extends State<MultisigSignerMemoBottom
                         child: Container(
                           padding: const EdgeInsets.symmetric(vertical: 16),
                           decoration: BoxDecoration(
-                            color: MyColors.lightgrey,
+                            color: CoconutColors.gray150,
                             borderRadius: BorderRadius.circular(5),
                           ),
                           child: const Center(
                             child: Text(
                               '닫기',
                               style: TextStyle(
-                                color: MyColors.black,
+                                color: CoconutColors.black,
                                 fontSize: 14,
                                 fontWeight: FontWeight.bold,
                               ),
@@ -151,14 +149,14 @@ class _MultisigSignerMemoBottomSheetState extends State<MultisigSignerMemoBottom
                         child: Container(
                           padding: const EdgeInsets.symmetric(vertical: 16),
                           decoration: BoxDecoration(
-                            color: MyColors.black,
+                            color: CoconutColors.black,
                             borderRadius: BorderRadius.circular(5),
                           ),
                           child: Center(
                             child: Text(
                               t.complete,
                               style: TextStyle(
-                                color: Colors.white,
+                                color: CoconutColors.white,
                                 fontSize: 14,
                                 fontWeight: _memo.isNotEmpty ? FontWeight.bold : FontWeight.normal,
                               ),
@@ -195,7 +193,7 @@ class MemoTextField extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         border: Border.all(
-          color: MyColors.transparentBlack_06,
+          color: CoconutColors.black.withOpacity(0.06),
         ),
         borderRadius: BorderRadius.circular(16),
       ),
@@ -203,8 +201,10 @@ class MemoTextField extends StatelessWidget {
         controller: controller,
         placeholder: t.multi_sig_memo_bottom_sheet.placeholder,
         padding: const EdgeInsets.fromLTRB(16, 20, 16, 20),
-        style: Styles.body1,
-        placeholderStyle: Styles.body2Grey,
+        style: CoconutTypography.body1_16,
+        placeholderStyle: CoconutTypography.body2_14.setColor(
+          CoconutColors.black.withOpacity(0.3),
+        ),
         decoration: const BoxDecoration(
           color: Colors.transparent,
         ),

@@ -1,10 +1,9 @@
+import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_vault/constants/app_routes.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/providers/view_model/mutlisig_quorum_selection_view_model.dart';
 import 'package:coconut_vault/providers/wallet_creation_provider.dart';
-import 'package:coconut_vault/styles.dart';
 import 'package:coconut_vault/widgets/animation/key_safe_animation_widget.dart';
-import 'package:coconut_vault/widgets/appbar/custom_appbar.dart';
 import 'package:coconut_vault/widgets/button/custom_buttons.dart';
 import 'package:coconut_vault/widgets/highlighted_text.dart';
 import 'package:flutter/material.dart';
@@ -31,7 +30,7 @@ class GradientProgressBar extends StatelessWidget {
       child: Container(
         width: double.infinity,
         height: height,
-        color: MyColors.transparentBlack_06,
+        color: CoconutColors.black.withOpacity(0.06),
         child: Stack(
           children: [
             FractionallySizedBox(
@@ -67,8 +66,8 @@ class _MultisigQuorumSelectionScreenState extends State<MultisigQuorumSelectionS
       child: Consumer<MultisigQuorumSelectionViewModel>(
         builder: (context, viewModel, child) {
           return Scaffold(
-            backgroundColor: MyColors.white,
-            appBar: CustomAppBar.buildWithNext(
+            backgroundColor: CoconutColors.white,
+            appBar: CoconutAppBar.buildWithNext(
               title: t.multisig_wallet,
               context: context,
               onNextPressed: () {
@@ -91,7 +90,7 @@ class _MultisigQuorumSelectionScreenState extends State<MultisigQuorumSelectionS
                           child: Center(
                             child: Text(
                               t.select_multisig_quorum_screen.total_key_count,
-                              style: Styles.body2Bold,
+                              style: CoconutTypography.body2_14_Bold,
                             ),
                           ),
                         ),
@@ -117,7 +116,7 @@ class _MultisigQuorumSelectionScreenState extends State<MultisigQuorumSelectionS
                           child: Center(
                             child: Text(
                               t.select_multisig_quorum_screen.required_signature_count,
-                              style: Styles.body2Bold,
+                              style: CoconutTypography.body2_14_Bold,
                             ),
                           ),
                         ),
@@ -142,7 +141,7 @@ class _MultisigQuorumSelectionScreenState extends State<MultisigQuorumSelectionS
                     Center(
                       child: HighLightedText(
                         '${viewModel.requiredCount}/${viewModel.totalCount}',
-                        color: MyColors.darkgrey,
+                        color: CoconutColors.gray800,
                         fontSize: 24,
                       ),
                     ),
@@ -153,12 +152,14 @@ class _MultisigQuorumSelectionScreenState extends State<MultisigQuorumSelectionS
                       padding: const EdgeInsets.symmetric(horizontal: 24),
                       child: Text(
                         viewModel.buildQuorumMessage(),
-                        style: Styles.unit.merge(TextStyle(
+                        style: CoconutTypography.body2_14_Number.merge(
+                          TextStyle(
                             height: viewModel.requiredCount == viewModel.totalCount
                                 ? 32.4 / 18
                                 : 23.4 / 18,
                             letterSpacing: -0.01,
-                            fontSize: 14)),
+                          ),
+                        ),
                         textAlign: TextAlign.center,
                       ),
                     ),
@@ -210,5 +211,11 @@ class _MultisigQuorumSelectionScreenState extends State<MultisigQuorumSelectionS
         _viewModel.setNextButtonEnabled(true);
       }
     });
+  }
+
+  @override
+  void dispose() {
+    _mounted = false;
+    super.dispose();
   }
 }

@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_vault/constants/app_routes.dart';
 import 'package:coconut_vault/enums/pin_check_context_enum.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
@@ -9,11 +10,9 @@ import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:coconut_vault/screens/common/pin_check_screen.dart';
 import 'package:coconut_vault/screens/vault_menu/info/multisig_signer_memo_bottom_sheet.dart';
 import 'package:coconut_vault/screens/vault_menu/info/name_and_icon_edit_bottom_sheet.dart';
-import 'package:coconut_vault/styles.dart';
 import 'package:coconut_vault/utils/alert_util.dart';
 import 'package:coconut_vault/utils/icon_util.dart';
 import 'package:coconut_vault/utils/vibration_util.dart';
-import 'package:coconut_vault/widgets/appbar/custom_appbar.dart';
 import 'package:coconut_vault/widgets/bottom_sheet.dart';
 import 'package:coconut_vault/widgets/bubble_clipper.dart';
 import 'package:coconut_vault/widgets/card/vault_item_card.dart';
@@ -86,11 +85,10 @@ class _MultisigSetupInfoScreenState extends State<MultisigSetupInfoScreen> {
         },
         child: Consumer<MultisigSetupInfoViewModel>(builder: (context, viewModel, child) {
           return Scaffold(
-            backgroundColor: MyColors.white,
-            appBar: CustomAppBar.build(
+            backgroundColor: CoconutColors.white,
+            appBar: CoconutAppBar.build(
               title: '${viewModel.name} ${t.info}',
               context: context,
-              hasRightIcon: false,
               isBottom: false,
               onBackPressed: () {
                 Navigator.pop(context);
@@ -230,9 +228,9 @@ class _MultisigSetupInfoScreenState extends State<MultisigSetupInfoScreen> {
             child: Container(
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
-                color: MyColors.white,
-                borderRadius: MyBorder.defaultRadius,
-                border: Border.all(color: MyColors.greyE9),
+                color: CoconutColors.white,
+                borderRadius: CoconutBorder.defaultRadius,
+                border: Border.all(color: CoconutColors.gray200),
               ),
               child: Row(
                 children: [
@@ -246,7 +244,7 @@ class _MultisigSetupInfoScreenState extends State<MultisigSetupInfoScreen> {
                   // mfp
                   Text(
                     signer.keyStore.masterFingerprint,
-                    style: Styles.mfpH3,
+                    style: CoconutTypography.body1_16_Number,
                   ),
                 ],
               ),
@@ -259,20 +257,21 @@ class _MultisigSetupInfoScreenState extends State<MultisigSetupInfoScreen> {
 
   Widget _buildIndex(int index) {
     return SizedBox(
-        width: 24,
-        child: Text(
-          '$index',
-          textAlign: TextAlign.center,
-          style: Styles.body2.merge(
-            TextStyle(fontSize: 16, fontFamily: CustomFonts.number.getFontFamily),
-          ),
-        ));
+      width: 24,
+      child: Text(
+        '$index',
+        textAlign: TextAlign.center,
+        style: CoconutTypography.body1_16_Number,
+      ),
+    );
   }
 
   Widget _buildSignerIcon({int colorIndex = -1, String iconPath = 'assets/svg/download.svg'}) {
-    final Color backgroundColor =
-        colorIndex == -1 ? MyColors.greyEC : BackgroundColorPalette[colorIndex];
-    final Color iconColor = colorIndex == -1 ? MyColors.black : ColorPalette[colorIndex];
+    final Color backgroundColor = colorIndex == -1
+        ? CoconutColors.gray200
+        : CoconutColors.backgroundColorPaletteLight[colorIndex];
+    final Color iconColor =
+        colorIndex == -1 ? CoconutColors.black : CoconutColors.colorPalette[colorIndex];
     return Container(
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
@@ -295,7 +294,7 @@ class _MultisigSetupInfoScreenState extends State<MultisigSetupInfoScreen> {
         // 이름
         Text(
           name ?? '',
-          style: Styles.body2,
+          style: CoconutTypography.body2_14,
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
         ),
@@ -303,7 +302,12 @@ class _MultisigSetupInfoScreenState extends State<MultisigSetupInfoScreen> {
           visible: memo != null && memo.isNotEmpty,
           child: Text(
             memo ?? '',
-            style: Styles.caption2,
+            style: CoconutTypography.body3_12.merge(
+              const TextStyle(
+                color: CoconutColors.searchbarHint,
+                fontSize: 10,
+              ),
+            ),
             maxLines: 2,
             overflow: TextOverflow.ellipsis,
           ),
@@ -317,8 +321,8 @@ class _MultisigSetupInfoScreenState extends State<MultisigSetupInfoScreen> {
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: Container(
         decoration: BoxDecoration(
-          borderRadius: MyBorder.defaultRadius,
-          color: MyColors.transparentBlack_03,
+          borderRadius: CoconutBorder.defaultRadius,
+          color: CoconutColors.black.withOpacity(0.03),
         ),
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 24),
@@ -349,8 +353,8 @@ class _MultisigSetupInfoScreenState extends State<MultisigSetupInfoScreen> {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 24),
         decoration: BoxDecoration(
-          borderRadius: MyBorder.defaultRadius,
-          color: MyColors.transparentBlack_03,
+          borderRadius: CoconutBorder.defaultRadius,
+          color: CoconutColors.black.withOpacity(0.03),
         ),
         child: Column(
           children: [
@@ -360,10 +364,12 @@ class _MultisigSetupInfoScreenState extends State<MultisigSetupInfoScreen> {
               rightIcon: Container(
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
-                      color: MyColors.transparentWhite_70, borderRadius: BorderRadius.circular(10)),
+                      color: CoconutColors.white.withOpacity(0.7),
+                      borderRadius: BorderRadius.circular(10)),
                   child: SvgPicture.asset('assets/svg/trash.svg',
                       width: 16,
-                      colorFilter: const ColorFilter.mode(MyColors.warningText, BlendMode.srcIn))),
+                      colorFilter:
+                          const ColorFilter.mode(CoconutColors.warningText, BlendMode.srcIn))),
               onPressed: () {
                 _removeTooltip();
                 showConfirmDialog(
@@ -395,7 +401,7 @@ class _MultisigSetupInfoScreenState extends State<MultisigSetupInfoScreen> {
           width: 65,
           child: Divider(
             thickness: 1, // 선의 두께
-            color: MyColors.borderLightgrey,
+            color: CoconutColors.borderLightGray,
           ),
         ),
       ),
@@ -422,17 +428,16 @@ class _MultisigSetupInfoScreenState extends State<MultisigSetupInfoScreen> {
                 right: 10,
                 bottom: 10,
               ),
-              color: MyColors.darkgrey,
+              color: CoconutColors.gray800,
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Text(
                     t.multi_sig_setting_screen
                         .tooltip(total: totalSingerCount, count: requiredSignatureCount),
-                    style: Styles.caption.merge(TextStyle(
+                    style: CoconutTypography.body3_12.merge(const TextStyle(
                       height: 1.3,
-                      fontFamily: CustomFonts.text.getFontFamily,
-                      color: MyColors.white,
+                      color: CoconutColors.white,
                     )),
                   ),
                 ],

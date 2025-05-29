@@ -1,10 +1,9 @@
+import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/providers/sign_provider.dart';
 import 'package:coconut_vault/widgets/animatedQR/animated_qr_data_handler.dart';
 import 'package:coconut_vault/widgets/animatedQR/animated_qr_view.dart';
 import 'package:flutter/material.dart';
-import 'package:coconut_vault/styles.dart';
-import 'package:coconut_vault/widgets/appbar/custom_appbar.dart';
 import 'package:coconut_vault/widgets/custom_tooltip.dart';
 import 'package:provider/provider.dart';
 
@@ -29,20 +28,20 @@ class _SignedTransactionQrScreenState extends State<SignedTransactionQrScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
-      appBar: CustomAppBar.buildWithNext(
+      backgroundColor: CoconutColors.white,
+      appBar: CoconutAppBar.buildWithNext(
           title: t.signed_tx,
           context: context,
           onNextPressed: () {
             _signProvider.resetAll();
             Navigator.pushNamedAndRemoveUntil(context, '/', (Route<dynamic> route) => false);
           },
-          buttonName: t.complete),
+          nextButtonTitle: t.complete),
       body: SafeArea(
         child: SingleChildScrollView(
           child: Container(
             width: double.infinity,
-            color: MyColors.white,
+            color: CoconutColors.white,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: <Widget>[
@@ -57,7 +56,7 @@ class _SignedTransactionQrScreenState extends State<SignedTransactionQrScreen> {
                         fontSize: 15,
                         height: 1.4,
                         letterSpacing: 0.5,
-                        color: MyColors.black,
+                        color: CoconutColors.black,
                       ),
                       children: <TextSpan>[
                         TextSpan(
@@ -80,7 +79,7 @@ class _SignedTransactionQrScreenState extends State<SignedTransactionQrScreen> {
                 ),
                 Container(
                   padding: const EdgeInsets.all(10),
-                  decoration: BoxDecorations.shadowBoxDecoration,
+                  decoration: CoconutBoxDecoration.shadowBoxDecoration,
                   child: AnimatedQrView(
                     data: AnimatedQRDataHandler.splitData(_signProvider.signedPsbtBase64!),
                     size: MediaQuery.of(context).size.width * 0.8,

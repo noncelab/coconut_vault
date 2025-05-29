@@ -5,7 +5,6 @@ import 'package:coconut_lib/coconut_lib.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:coconut_vault/styles.dart';
 import 'package:coconut_vault/widgets/label_testnet.dart';
 
 class FrostedAppBar extends StatefulWidget {
@@ -52,7 +51,8 @@ class _FrostedAppBarState extends State<FrostedAppBar> {
                         padding: const EdgeInsets.only(left: 4, bottom: 10),
                         child: SvgPicture.asset(
                             'assets/svg/coconut-${NetworkType.currentNetworkType.isTestnet ? "regtest" : "mainnet"}.svg',
-                            colorFilter: const ColorFilter.mode(MyColors.darkgrey, BlendMode.srcIn),
+                            colorFilter:
+                                const ColorFilter.mode(CoconutColors.gray800, BlendMode.srcIn),
                             width: 24)),
                     Expanded(
                       child: Padding(
@@ -62,7 +62,7 @@ class _FrostedAppBarState extends State<FrostedAppBar> {
                               const Text('Vault',
                                   style: TextStyle(
                                     fontFamily: 'SpaceGrotesk',
-                                    color: MyColors.darkgrey,
+                                    color: CoconutColors.gray800,
                                     fontSize: 22,
                                     fontStyle: FontStyle.normal,
                                     fontWeight: FontWeight.w800,
@@ -93,7 +93,7 @@ class _FrostedAppBarState extends State<FrostedAppBar> {
                             ),
                           ),
                           onPressed: widget.enablePlusButton ? widget.onTapPlus : null,
-                          color: MyColors.white,
+                          color: CoconutColors.white,
                         ),
                       ),
                     ),

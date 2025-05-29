@@ -1,3 +1,4 @@
+import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_lib/coconut_lib.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/providers/visibility_provider.dart';
@@ -7,9 +8,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:coconut_vault/screens/vault_creation/single_sig/mnemonic_confirmation_bottom_sheet.dart';
-import 'package:coconut_vault/styles.dart';
 import 'package:coconut_vault/utils/vibration_util.dart';
-import 'package:coconut_vault/widgets/appbar/custom_appbar.dart';
 import 'package:coconut_vault/widgets/bottom_sheet.dart';
 import 'package:coconut_vault/widgets/button/custom_buttons.dart';
 import 'package:coconut_vault/widgets/check_list.dart';
@@ -70,7 +69,7 @@ class _MnemonicGenerationScreenState extends State<MnemonicGenerationScreen> {
       message: t.alert.stop_generating_mnemonic.description,
       cancelButtonText: t.cancel,
       confirmButtonText: t.stop,
-      confirmButtonColor: MyColors.warningText,
+      confirmButtonColor: CoconutColors.warningText,
       onCancel: () => Navigator.pop(context),
       onConfirm: () {
         Navigator.pushNamedAndRemoveUntil(
@@ -129,12 +128,11 @@ class _MnemonicGenerationScreenState extends State<MnemonicGenerationScreen> {
     ];
 
     return Scaffold(
-        backgroundColor: MyColors.white,
-        appBar: CustomAppBar.build(
+        backgroundColor: CoconutColors.white,
+        appBar: CoconutAppBar.build(
           title: t.mnemonic_generate_screen.title,
           context: context,
           onBackPressed: _showStopGeneratingMnemonicDialog,
-          hasRightIcon: false,
         ),
         body: SafeArea(
           child: screens[_step],
@@ -170,7 +168,10 @@ class _WordsLengthSelectionState extends State<WordsLengthSelection> {
         padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 32),
         child: Column(
           children: [
-            Text(t.mnemonic_generate_screen.select_word_length, style: Styles.body1Bold),
+            Text(
+              t.mnemonic_generate_screen.select_word_length,
+              style: CoconutTypography.body1_16_Bold,
+            ),
             const SizedBox(height: 20),
             Row(
               children: [
@@ -234,7 +235,10 @@ class _PassphraseSelectionState extends State<PassphraseSelection> {
         padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 32),
         child: Column(
           children: [
-            Text(t.mnemonic_generate_screen.use_passphrase, style: Styles.body1Bold),
+            Text(
+              t.mnemonic_generate_screen.use_passphrase,
+              style: CoconutTypography.body1_16_Bold,
+            ),
             const SizedBox(height: 20),
             Row(
               children: [
@@ -356,17 +360,17 @@ class _MnemonicWordsState extends State<MnemonicWords> {
                                 widget.wordsCount == 12
                                     ? t.mnemonic_generate_screen.twelve
                                     : t.mnemonic_generate_screen.twenty_four,
-                                color: MyColors.darkgrey),
+                                color: CoconutColors.gray800),
                             Text(isAdvancedUser ? ', ${t.passphrase} ' : ''),
                             isAdvancedUser
                                 ? widget.usePassphrase
                                     ? HighLightedText(t.mnemonic_generate_screen.use,
-                                        color: MyColors.darkgrey)
+                                        color: CoconutColors.gray800)
                                     : Row(
                                         children: [
                                           Text('${t.mnemonic_generate_screen.use} '),
                                           HighLightedText(t.mnemonic_generate_screen.do_not,
-                                              color: MyColors.darkgrey),
+                                              color: CoconutColors.gray800),
                                         ],
                                       )
                                 : Text(' ${t.mnemonic_generate_screen.use}'),
@@ -377,10 +381,12 @@ class _MnemonicWordsState extends State<MnemonicWords> {
                                     padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                                     decoration: BoxDecoration(
                                         borderRadius: BorderRadius.circular(8),
-                                        border: Border.all(color: MyColors.borderGrey)),
+                                        border: Border.all(color: CoconutColors.borderGray)),
                                     child: Text(
                                       t.re_select,
-                                      style: Styles.caption,
+                                      style: CoconutTypography.body3_12.setColor(
+                                        CoconutColors.gray800,
+                                      ),
                                     )))
                           ],
                         );
@@ -419,10 +425,10 @@ class _MnemonicWordsState extends State<MnemonicWords> {
                     width: MediaQuery.of(context).size.width,
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(24),
-                      color: MyColors.white,
+                      color: CoconutColors.white,
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.grey.withOpacity(0.3),
+                          color: CoconutColors.gray500.withOpacity(0.3),
                           spreadRadius: 4,
                           blurRadius: 30,
                         ),
@@ -441,7 +447,7 @@ class _MnemonicWordsState extends State<MnemonicWords> {
                                         Spacer(),
                                         Icon(
                                           Icons.refresh_rounded,
-                                          color: MyColors.borderGrey,
+                                          color: CoconutColors.borderGray,
                                         )
                                       ]),
                                     )),
@@ -471,21 +477,13 @@ class _MnemonicWordsState extends State<MnemonicWords> {
                                         children: [
                                           Text(
                                             (index + 1).toString(),
-                                            style: Styles.body2.merge(
-                                              TextStyle(
-                                                fontFamily: CustomFonts.number.getFontFamily,
-                                                color: MyColors.darkgrey,
-                                                fontSize: 12,
-                                              ),
+                                            style: CoconutTypography.body3_12_Number.setColor(
+                                              CoconutColors.gray800,
                                             ),
                                           ),
                                           Text(
                                             mnemonic.split(' ')[index],
-                                            style: Styles.body2.merge(
-                                              const TextStyle(
-                                                fontSize: 16,
-                                              ),
-                                            ),
+                                            style: CoconutTypography.body1_16,
                                             overflow: TextOverflow.visible,
                                           ),
                                         ],
@@ -526,12 +524,12 @@ class _MnemonicWordsState extends State<MnemonicWords> {
                                         child: passphraseObscured
                                             ? const Icon(
                                                 CupertinoIcons.eye_slash,
-                                                color: MyColors.darkgrey,
+                                                color: CoconutColors.gray800,
                                                 size: 18,
                                               )
                                             : const Icon(
                                                 CupertinoIcons.eye,
-                                                color: MyColors.darkgrey,
+                                                color: CoconutColors.gray800,
                                                 size: 18,
                                               ),
                                       ),
@@ -545,19 +543,20 @@ class _MnemonicWordsState extends State<MnemonicWords> {
                                     alignment: Alignment.topRight,
                                     child: Text(
                                       '(${passphrase.length} / 100)',
-                                      style: TextStyle(
-                                          color: passphrase.length == 100
-                                              ? MyColors.transparentBlack
-                                              : MyColors.transparentBlack_50,
-                                          fontSize: 12,
-                                          fontFamily: CustomFonts.text.getFontFamily),
+                                      style: CoconutTypography.body3_12.setColor(
+                                        passphrase.length == 100
+                                            ? CoconutColors.black.withOpacity(0.7)
+                                            : CoconutColors.black.withOpacity(0.5),
+                                      ),
                                     ),
                                   ),
                                 )
                               ],
                             ),
                           )),
-                if (step == 0) Text(t.mnemonic_generate_screen.backup_guide, style: Styles.warning),
+                if (step == 0)
+                  Text(t.mnemonic_generate_screen.backup_guide,
+                      style: CoconutTypography.body3_12.setColor(CoconutColors.warningText)),
                 if (step == 0 && stepCount == 2)
                   CompleteButton(
                       onPressed: () {
@@ -572,7 +571,7 @@ class _MnemonicWordsState extends State<MnemonicWords> {
                     width: MediaQuery.of(context).size.width - 32,
                     child: Text(
                       t.mnemonic_generate_screen.warning,
-                      style: Styles.warning,
+                      style: CoconutTypography.body3_12.setColor(CoconutColors.warningText),
                       textAlign: TextAlign.center,
                     ),
                   ),
@@ -627,16 +626,17 @@ class NumberWidget extends StatefulWidget {
 class _NumberWidgetState extends State<NumberWidget> {
   @override
   Widget build(BuildContext context) {
-    Color bgColor = widget.selected ? MyColors.darkgrey : Colors.white;
-    Color iconColor = widget.selected ? MyColors.white : MyColors.darkgrey;
+    Color bgColor = widget.selected ? CoconutColors.gray800 : CoconutColors.white;
+    Color iconColor = widget.selected ? CoconutColors.white : CoconutColors.gray800;
 
     return GestureDetector(
       onTap: widget.onSelected,
       child: Container(
         decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(40),
-            color: bgColor,
-            border: Border.all(color: MyColors.darkgrey)),
+          borderRadius: BorderRadius.circular(40),
+          color: bgColor,
+          border: Border.all(color: CoconutColors.gray800),
+        ),
         padding: const EdgeInsets.all(8),
         margin: const EdgeInsets.symmetric(horizontal: 4),
         child: SvgPicture.asset(

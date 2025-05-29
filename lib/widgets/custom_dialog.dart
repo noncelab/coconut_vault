@@ -1,7 +1,7 @@
+import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
-import 'package:coconut_vault/styles.dart';
 
 class CustomDialogs {
   static void showCustomAlertDialog(BuildContext context,
@@ -14,7 +14,7 @@ class CustomDialogs {
       bool isSingleButton = false,
       bool barrierDismissible = true,
       Text? textWidget,
-      Color confirmButtonColor = MyColors.white}) {
+      Color confirmButtonColor = CoconutColors.white}) {
     showDialog(
       context: context,
       barrierDismissible: barrierDismissible,
@@ -22,12 +22,12 @@ class CustomDialogs {
         return CupertinoAlertDialog(
             title: Padding(
               padding: const EdgeInsets.only(bottom: 8.0),
-              child: Text(title, style: Styles.body1Bold),
+              child: Text(title, style: CoconutTypography.body1_16_Bold),
             ),
             content: textWidget ??
                 Text(
                   message,
-                  style: Styles.body2,
+                  style: CoconutTypography.body2_14,
                   textAlign: TextAlign.center,
                 ),
             actions: [
@@ -35,55 +35,30 @@ class CustomDialogs {
                 CupertinoDialogAction(
                   isDefaultAction: true,
                   onPressed: onCancel,
-                  child: Text(cancelButtonText, style: Styles.label),
+                  child: Text(cancelButtonText,
+                      style: CoconutTypography.body2_14.merge(
+                        TextStyle(
+                          color: CoconutColors.black.withOpacity(0.7),
+                          fontWeight: FontWeight.w500,
+                        ),
+                      )),
                 ),
               CupertinoDialogAction(
-                  isDefaultAction: true,
-                  onPressed: onConfirm,
-                  child: Text(confirmButtonText,
-                      style: Styles.label.merge(TextStyle(color: confirmButtonColor)))),
+                isDefaultAction: true,
+                onPressed: onConfirm,
+                child: Text(
+                  confirmButtonText,
+                  style: CoconutTypography.body2_14.merge(
+                    TextStyle(
+                      color: confirmButtonColor,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ),
+              ),
             ]);
       },
     );
-  }
-
-  static void showFullScreenDialog(BuildContext context, String title, Widget body) {
-    Navigator.of(context).push(MaterialPageRoute<void>(
-      fullscreenDialog: true,
-      builder: (BuildContext context) {
-        return Scaffold(
-            backgroundColor: Colors.black,
-            appBar: AppBar(
-                title: Text(title),
-                centerTitle: true,
-                backgroundColor: MyColors.black,
-                titleTextStyle:
-                    Styles.h3.merge(const TextStyle(fontSize: 16, fontWeight: FontWeight.w400)),
-                toolbarTextStyle: Styles.h3,
-                actions: [
-                  IconButton(
-                    color: MyColors.white,
-                    focusColor: MyColors.transparentGrey,
-                    icon: const Icon(CupertinoIcons.xmark, size: 18),
-                    onPressed: () {
-                      Navigator.of(context).pop();
-                    },
-                  )
-                ]),
-            body: SafeArea(
-                child: SingleChildScrollView(
-              child: Container(
-                width: MediaQuery.of(context).size.width,
-                height: MediaQuery.of(context).size.height,
-                padding: Paddings.container,
-                color: MyColors.black,
-                child: Column(
-                  children: [body],
-                ),
-              ),
-            )));
-      },
-    ));
   }
 
   static void showLoadingDialog(

@@ -1,3 +1,4 @@
+import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_vault/constants/app_routes.dart';
 import 'package:coconut_vault/constants/pin_constants.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
@@ -5,10 +6,8 @@ import 'package:coconut_vault/constants/shared_preferences_keys.dart';
 import 'package:coconut_vault/providers/auth_provider.dart';
 import 'package:coconut_vault/repository/shared_preferences_repository.dart';
 import 'package:flutter/material.dart';
-import 'package:coconut_vault/styles.dart';
 import 'package:coconut_vault/utils/vibration_util.dart';
 import 'package:coconut_vault/widgets/animated_dialog.dart';
-import 'package:coconut_vault/widgets/appbar/custom_appbar.dart';
 import 'package:coconut_vault/widgets/button/custom_buttons.dart';
 import 'package:coconut_vault/screens/common/pin_input_screen.dart';
 import 'package:provider/provider.dart';
@@ -192,7 +191,7 @@ class _PinSettingScreenState extends State<PinSettingScreen> {
           title: t.alert.unchange_password.title,
           message: t.alert.unchange_password.description,
           confirmButtonText: t.stop,
-          confirmButtonColor: MyColors.warningText, onConfirm: () {
+          confirmButtonColor: CoconutColors.warningText, onConfirm: () {
         // 스택 두단계 뒤로 이동
         int count = 0;
         Navigator.of(context).popUntil((route) {
@@ -209,7 +208,11 @@ class _PinSettingScreenState extends State<PinSettingScreen> {
     if (greeting) {
       return Scaffold(
           backgroundColor: Colors.transparent,
-          appBar: CustomAppBar.buildWithClose(title: '', context: context),
+          appBar: CoconutAppBar.build(
+            title: '',
+            context: context,
+            isBottom: true,
+          ),
           body: SafeArea(
               child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
@@ -218,7 +221,7 @@ class _PinSettingScreenState extends State<PinSettingScreen> {
               Center(
                   child: Text(
                 t.pin_setting_screen.set_password,
-                style: Styles.h3,
+                style: CoconutTypography.heading4_18_Bold,
                 textAlign: TextAlign.center,
               )),
               const SizedBox(height: 100),
@@ -239,7 +242,7 @@ class _PinSettingScreenState extends State<PinSettingScreen> {
         descriptionTextWidget: Text.rich(
           TextSpan(
             text: t.pin_setting_screen.keep_in_mind,
-            style: Styles.warning,
+            style: CoconutTypography.body3_12.setColor(CoconutColors.warningText),
           ),
           textAlign: TextAlign.center,
         ),

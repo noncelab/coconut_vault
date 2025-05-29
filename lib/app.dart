@@ -140,6 +140,7 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> {
   @override
   Widget build(BuildContext context) {
     var visibilityProvider = VisibilityProvider();
+    CoconutTheme.setTheme(Brightness.light);
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => visibilityProvider),
@@ -181,7 +182,7 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> {
           ],
           theme: const CupertinoThemeData(
             brightness: Brightness.light,
-            primaryColor: Colors.blue, // 기본 색상
+            primaryColor: CoconutColors.black, // 기본 색상
             scaffoldBackgroundColor: CoconutColors.white, // 배경색
             textTheme: CupertinoTextThemeData(
               navTitleTextStyle: TextStyle(

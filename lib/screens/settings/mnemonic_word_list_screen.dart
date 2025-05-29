@@ -1,9 +1,8 @@
+import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_lib/coconut_lib.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:coconut_vault/styles.dart';
-import 'package:coconut_vault/widgets/appbar/custom_appbar.dart';
 
 class MnemonicWordListScreen extends StatefulWidget {
   const MnemonicWordListScreen({super.key});
@@ -22,8 +21,8 @@ class _MnemonicWordListScreenState extends State<MnemonicWordListScreen> {
   late bool _isTop;
   bool _isFabShown = false;
 
-  Color _searchbarBackgroundColor = MyColors.white;
-  Color _searchbarFillColor = MyColors.transparentBlack_06;
+  Color _searchbarBackgroundColor = CoconutColors.white;
+  Color _searchbarFillColor = CoconutColors.black.withOpacity(0.06);
 
   @override
   void initState() {
@@ -51,16 +50,16 @@ class _MnemonicWordListScreenState extends State<MnemonicWordListScreen> {
       if (scrollPosition.pixels > 0) {
         _isTop = !_isTop;
         setState(() {
-          _searchbarBackgroundColor = MyColors.whiteLilac;
-          _searchbarFillColor = MyColors.white;
+          _searchbarBackgroundColor = CoconutColors.whiteLilac;
+          _searchbarFillColor = CoconutColors.white;
         });
       }
     } else {
       if (scrollPosition.pixels <= 0) {
         _isTop = !_isTop;
         setState(() {
-          _searchbarBackgroundColor = MyColors.white;
-          _searchbarFillColor = MyColors.borderLightgrey;
+          _searchbarBackgroundColor = CoconutColors.white;
+          _searchbarFillColor = CoconutColors.borderLightGray;
         });
       }
     }
@@ -127,19 +126,18 @@ class _MnemonicWordListScreenState extends State<MnemonicWordListScreen> {
     return GestureDetector(
       onTap: () => FocusScope.of(context).unfocus(),
       child: Scaffold(
-        backgroundColor: MyColors.white,
-        appBar: CustomAppBar.build(
-            title: _titleText,
-            context: context,
-            hasRightIcon: false,
-            showTestnetLabel: false,
-            isBottom: true),
+        backgroundColor: CoconutColors.white,
+        appBar: CoconutAppBar.build(
+          title: _titleText,
+          context: context,
+          isBottom: true,
+        ),
         floatingActionButton: Visibility(
           visible: _isFabShown,
           child: FloatingActionButton(
             onPressed: _scrollToTop,
-            backgroundColor: MyColors.white,
-            foregroundColor: MyColors.grey,
+            backgroundColor: CoconutColors.white,
+            foregroundColor: CoconutColors.gray500,
             shape: const CircleBorder(),
             mini: true,
             child: const Icon(Icons.arrow_upward),
@@ -171,14 +169,12 @@ class _MnemonicWordListScreenState extends State<MnemonicWordListScreen> {
                       decoration: InputDecoration(
                         counterText: '',
                         hintText: _hintText,
-                        hintStyle: Styles.body2.merge(
-                          const TextStyle(
-                            color: MyColors.searchbarHint,
-                          ),
+                        hintStyle: CoconutTypography.body2_14.setColor(
+                          CoconutColors.searchbarHint,
                         ),
                         prefixIcon: const Icon(
                           Icons.search_rounded,
-                          color: MyColors.searchbarHint,
+                          color: CoconutColors.searchbarHint,
                         ),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12.0),
@@ -190,7 +186,7 @@ class _MnemonicWordListScreenState extends State<MnemonicWordListScreen> {
                       ),
                       style: const TextStyle(
                         decorationThickness: 0,
-                        color: MyColors.searchbarText,
+                        color: CoconutColors.searchbarText,
                       ),
                     ),
                   ),
@@ -227,10 +223,8 @@ class _MnemonicWordListScreenState extends State<MnemonicWordListScreen> {
                   alignment: Alignment.centerLeft,
                   child: Text(
                     t.mnemonic_word_list_screen.result(text: _searchController.text),
-                    style: Styles.body1.merge(
-                      const TextStyle(
-                        color: MyColors.transparentBlack_50,
-                      ),
+                    style: CoconutTypography.body1_16.setColor(
+                      CoconutColors.black.withOpacity(0.5),
                     ),
                   ),
                 ),
@@ -241,8 +235,8 @@ class _MnemonicWordListScreenState extends State<MnemonicWordListScreen> {
                       child: Center(
                         child: Text(
                           t.mnemonic_word_list_screen.such_no_result,
-                          style: Styles.body1Bold.merge(
-                            const TextStyle(color: MyColors.searchbarHint),
+                          style: CoconutTypography.body1_16_Bold.setColor(
+                            CoconutColors.searchbarHint,
                           ),
                         ),
                       ),
@@ -256,28 +250,46 @@ class _MnemonicWordListScreenState extends State<MnemonicWordListScreen> {
     String item = _filteredItems[index]['item'];
     List<TextSpan> highlightOccurrences(String source, String query) {
       if (query.isEmpty) {
-        return [TextSpan(text: source)];
+        return [
+          TextSpan(
+            text: source,
+            style: const TextStyle(color: CoconutColors.black),
+          )
+        ];
       }
       var matches = query.allMatches(source);
       if (matches.isEmpty) {
-        return [TextSpan(text: source)];
+        return [
+          TextSpan(
+            text: source,
+            style: const TextStyle(color: CoconutColors.black),
+          )
+        ];
       }
       List<TextSpan> spans = [];
       int lastMatchEnd = 0;
       for (var match in matches) {
         if (match.start != lastMatchEnd) {
-          spans.add(TextSpan(text: source.substring(lastMatchEnd, match.start)));
+          spans.add(TextSpan(
+            text: source.substring(lastMatchEnd, match.start),
+            style: const TextStyle(color: CoconutColors.black),
+          ));
         }
         spans.add(
           TextSpan(
             text: source.substring(match.start, match.end),
-            style: const TextStyle(fontWeight: FontWeight.bold, color: MyColors.cyanblue),
+            style: const TextStyle(fontWeight: FontWeight.bold, color: CoconutColors.cyanBlue),
           ),
         );
         lastMatchEnd = match.end;
       }
       if (lastMatchEnd != source.length) {
-        spans.add(TextSpan(text: source.substring(lastMatchEnd)));
+        spans.add(
+          TextSpan(
+            text: source.substring(lastMatchEnd),
+            style: const TextStyle(fontWeight: FontWeight.bold, color: CoconutColors.black),
+          ),
+        );
       }
       return spans;
     }
@@ -292,13 +304,17 @@ class _MnemonicWordListScreenState extends State<MnemonicWordListScreen> {
                 alignment: Alignment.centerLeft,
                 child: Row(
                   children: [
-                    Text('${_filteredItems[index]['index']}. ',
-                        style: Styles.body1.merge(TextStyle(
-                            color: MyColors.grey, fontFamily: CustomFonts.number.getFontFamily))),
+                    Text(
+                      '${_filteredItems[index]['index']}. ',
+                      style: CoconutTypography.body1_16_Number.setColor(
+                        CoconutColors.gray500,
+                      ),
+                    ),
                     RichText(
                       text: TextSpan(
                         children: highlightOccurrences(item, _searchController.text.toLowerCase()),
-                        style: Styles.h3.merge(const TextStyle(fontWeight: FontWeight.w600)),
+                        style: CoconutTypography.heading4_18_Bold
+                            .merge(const TextStyle(fontWeight: FontWeight.w600)),
                       ),
                     ),
                   ],
@@ -307,12 +323,14 @@ class _MnemonicWordListScreenState extends State<MnemonicWordListScreen> {
               const Spacer(),
               Text(
                 'Binary: ${(_filteredItems[index]['index'] - 1).toRadixString(2).padLeft(11, '0')}',
-                style: Styles.subLabel.merge(const TextStyle(color: MyColors.transparentBlack_50)),
+                style: CoconutTypography.body2_14.setColor(
+                  CoconutColors.black.withOpacity(0.5),
+                ),
               ),
             ],
           ),
         ),
-        if (index != wordList.length - 1) const Divider(color: MyColors.borderLightgrey),
+        if (index != wordList.length - 1) const Divider(color: CoconutColors.borderLightGray),
       ],
     );
   }

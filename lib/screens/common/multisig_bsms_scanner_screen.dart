@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_lib/coconut_lib.dart';
 import 'package:coconut_vault/app_routes_params.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
@@ -9,9 +10,7 @@ import 'package:coconut_vault/model/multisig/multisig_import_detail.dart';
 import 'package:coconut_vault/model/exception/not_related_multisig_wallet_exception.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:coconut_vault/utils/alert_util.dart';
-import 'package:coconut_vault/widgets/appbar/custom_appbar.dart';
 import 'package:flutter/material.dart';
-import 'package:coconut_vault/styles.dart';
 import 'package:coconut_vault/widgets/custom_tooltip.dart';
 import 'package:provider/provider.dart';
 import 'package:qr_code_scanner/qr_code_scanner.dart';
@@ -96,12 +95,11 @@ class _MultisigBsmsScannerScreenState extends State<MultisigBsmsScannerScreen> {
   Widget build(BuildContext context) {
     return _isSetScaffold
         ? Scaffold(
-            appBar: CustomAppBar.build(
+            appBar: CoconutAppBar.build(
               title: widget.screenType == MultisigBsmsImportType.copy
                   ? t.signer_scanner_screen.title1
                   : t.signer_scanner_screen.title2,
               context: context,
-              hasRightIcon: false,
               isBottom: true,
             ),
             body: _buildStack(context),
@@ -113,7 +111,7 @@ class _MultisigBsmsScannerScreenState extends State<MultisigBsmsScannerScreen> {
     return Stack(
       children: [
         Container(
-          color: MyColors.white,
+          color: CoconutColors.white,
           child: QRView(
             key: qrKey,
             onQRViewCreated: !_isSetScaffold
@@ -121,7 +119,7 @@ class _MultisigBsmsScannerScreenState extends State<MultisigBsmsScannerScreen> {
                 : _onQRViewCreatedWhenScanCoordinator,
             overlayMargin: !_isSetScaffold ? const EdgeInsets.only(top: 50) : EdgeInsets.zero,
             overlay: QrScannerOverlayShape(
-                borderColor: MyColors.white,
+                borderColor: CoconutColors.white,
                 borderRadius: 8,
                 borderLength: (MediaQuery.of(context).size.width < 400 ||
                         MediaQuery.of(context).size.height < 400)
@@ -137,7 +135,7 @@ class _MultisigBsmsScannerScreenState extends State<MultisigBsmsScannerScreen> {
         ),
         Container(
           height: !_isSetScaffold ? 50.1 : 0,
-          color: MyColors.transparentBlack_50,
+          color: CoconutColors.black.withOpacity(0.5),
         ),
         Padding(
           padding: const EdgeInsets.only(top: 20),
@@ -152,10 +150,10 @@ class _MultisigBsmsScannerScreenState extends State<MultisigBsmsScannerScreen> {
           child: Container(
             width: MediaQuery.of(context).size.width,
             height: MediaQuery.of(context).size.height,
-            decoration: const BoxDecoration(color: MyColors.transparentBlack_30),
+            decoration: BoxDecoration(color: CoconutColors.black.withOpacity(0.3)),
             child: const Center(
               child: CircularProgressIndicator(
-                color: MyColors.darkgrey,
+                color: CoconutColors.gray800,
               ),
             ),
           ),
@@ -263,11 +261,12 @@ class _MultisigBsmsScannerScreenState extends State<MultisigBsmsScannerScreen> {
     TextSpan buildTextSpan(String text, {bool isBold = false}) {
       return TextSpan(
         text: text,
-        style: Styles.body1.merge(
+        style: CoconutTypography.body1_16.merge(
           TextStyle(
             fontWeight: isBold ? FontWeight.bold : FontWeight.normal,
             height: 20.8 / 16,
             letterSpacing: -0.01,
+            color: CoconutColors.black,
           ),
         ),
       );
@@ -277,7 +276,7 @@ class _MultisigBsmsScannerScreenState extends State<MultisigBsmsScannerScreen> {
       return RichText(
         text: TextSpan(
           text: t.signer_scanner_screen.guide1_1,
-          style: Styles.body1.merge(
+          style: CoconutTypography.body1_16.merge(
             const TextStyle(
               height: 20.8 / 16,
               letterSpacing: -0.01,
@@ -295,10 +294,8 @@ class _MultisigBsmsScannerScreenState extends State<MultisigBsmsScannerScreen> {
       return RichText(
         text: TextSpan(
           text: t.signer_scanner_screen.guide2_1,
-          style: Styles.body1.merge(const TextStyle(
-            height: 20.8 / 16,
-            letterSpacing: -0.01,
-          )),
+          style: CoconutTypography.body1_16.merge(
+              const TextStyle(height: 20.8 / 16, letterSpacing: -0.01, color: CoconutColors.black)),
           children: <TextSpan>[
             buildTextSpan(
               t.signer_scanner_screen.guide2_2,

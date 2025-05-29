@@ -1,14 +1,16 @@
+import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_lib/coconut_lib.dart';
 import 'package:coconut_vault/model/multisig/multisig_signer.dart';
 import 'package:coconut_vault/model/multisig/multisig_vault_list_item.dart';
 import 'package:coconut_vault/model/single_sig/single_sig_vault_list_item.dart';
 import 'package:coconut_vault/model/common/vault_list_item_base.dart';
-import 'package:coconut_vault/styles.dart';
 import 'package:coconut_vault/utils/colors_util.dart';
 import 'package:coconut_vault/utils/icon_util.dart';
 import 'package:coconut_vault/widgets/button/tooltip_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+
+import 'dart:math' as math;
 
 class VaultItemCard extends StatelessWidget {
   final VaultListItemBase vaultItem;
@@ -61,17 +63,20 @@ class VaultItemCard extends StatelessWidget {
           : const EdgeInsets.only(bottom: 12, left: 16, right: 16),
       decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(28), // defaultRadius로 통일하면 border 넓이가 균일해보이지 않음
-          border: isMultisig ? null : Border.all(color: MyColors.borderLightgrey, width: 1),
+          border: isMultisig ? null : Border.all(color: CoconutColors.borderLightGray, width: 1),
           gradient: isMultisig
-              ? BoxDecorations.getMultisigLinearGradient(
-                  CustomColorHelper.getGradientColors(signers!))
+              ? LinearGradient(
+                  colors: CustomColorHelper.getGradientColors(signers!),
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  transform: const GradientRotation(math.pi / 10))
               : null),
       child: Container(
         margin: isMultisig ? const EdgeInsets.all(2) : null,
         padding: isMultisig ? const EdgeInsets.all(20) : const EdgeInsets.all(24),
         decoration: isMultisig
             ? BoxDecoration(
-                color: MyColors.white,
+                color: CoconutColors.white,
                 borderRadius: BorderRadius.circular(26), // defaultRadius로 통일하면 border 넓이가 균일해보이지 않음
               )
             : null,
@@ -81,11 +86,12 @@ class VaultItemCard extends StatelessWidget {
             Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: BackgroundColorPalette[colorIndex],
+                  color: CoconutColors.backgroundColorPaletteLight[colorIndex],
                   borderRadius: BorderRadius.circular(18.0),
                 ),
                 child: SvgPicture.asset(CustomIcons.getPathByIndex(iconIndex),
-                    colorFilter: ColorFilter.mode(ColorPalette[colorIndex], BlendMode.srcIn),
+                    colorFilter:
+                        ColorFilter.mode(CoconutColors.colorPalette[colorIndex], BlendMode.srcIn),
                     width: 28.0)),
             const SizedBox(width: 8.0),
             Flexible(
@@ -97,7 +103,7 @@ class VaultItemCard extends StatelessWidget {
                     Flexible(
                         child: Text(
                       vaultItem.name,
-                      style: Styles.h3,
+                      style: CoconutTypography.heading4_18_Bold,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     )),
@@ -108,12 +114,12 @@ class VaultItemCard extends StatelessWidget {
                         },
                         child: Container(
                           decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(8), color: MyColors.lightgrey),
+                              borderRadius: BorderRadius.circular(8), color: CoconutColors.gray150),
                           child: const Padding(
                             padding: EdgeInsets.all(5.0),
                             child: Icon(
                               Icons.edit,
-                              color: MyColors.darkgrey,
+                              color: CoconutColors.gray800,
                               size: 14,
                             ),
                           ),
@@ -132,12 +138,8 @@ class VaultItemCard extends StatelessWidget {
                 Text(
                   rightText,
                   style: isMultisig
-                      ? TextStyle(
-                          fontFamily: CustomFonts.number.getFontFamily,
-                          color: MyColors.black,
-                          fontSize: 12,
-                          fontWeight: FontWeight.w700)
-                      : Styles.h3.merge(TextStyle(fontFamily: CustomFonts.number.getFontFamily)),
+                      ? CoconutTypography.body3_12_NumberBold.setColor(CoconutColors.black)
+                      : CoconutTypography.heading4_18_NumberBold,
                 ),
                 TooltipButton(
                   isSelected: false,

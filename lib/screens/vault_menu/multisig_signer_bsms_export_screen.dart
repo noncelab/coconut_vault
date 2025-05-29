@@ -1,8 +1,7 @@
+import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/providers/view_model/multisig_signer_bsms_export_view_model.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
-import 'package:coconut_vault/styles.dart';
-import 'package:coconut_vault/widgets/appbar/custom_appbar.dart';
 import 'package:coconut_vault/widgets/custom_tooltip.dart';
 import 'package:coconut_vault/widgets/multisig/card/signer_bsms_info_card.dart';
 import 'package:flutter/cupertino.dart';
@@ -54,11 +53,10 @@ class _MultisigSignerBsmsExportScreenState extends State<MultisigSignerBsmsExpor
           });
 
           return Scaffold(
-            backgroundColor: MyColors.white,
-            appBar: CustomAppBar.build(
+            backgroundColor: CoconutColors.white,
+            appBar: CoconutAppBar.build(
               title: viewModel.name,
               context: context,
-              hasRightIcon: false,
               isBottom: true,
             ),
             body: SafeArea(
@@ -82,7 +80,7 @@ class _MultisigSignerBsmsExportScreenState extends State<MultisigSignerBsmsExpor
                                 fontSize: 15,
                                 height: 1.4,
                                 letterSpacing: 0.5,
-                                color: MyColors.black,
+                                color: CoconutColors.black,
                               ),
                               children: <TextSpan>[
                                 TextSpan(
@@ -122,7 +120,7 @@ class _MultisigSignerBsmsExportScreenState extends State<MultisigSignerBsmsExpor
                       Center(
                           child: Container(
                               width: MediaQuery.of(context).size.width * 0.76,
-                              decoration: BoxDecorations.shadowBoxDecoration,
+                              decoration: CoconutBoxDecoration.shadowBoxDecoration,
                               child: QrImageView(
                                 data: viewModel.qrData,
                               ))),
@@ -134,7 +132,7 @@ class _MultisigSignerBsmsExportScreenState extends State<MultisigSignerBsmsExpor
                             alignment: Alignment.centerLeft,
                             child: Text(
                               t.signer_bsms_screen.export_info,
-                              style: Styles.body2Bold,
+                              style: CoconutTypography.body2_14_Bold,
                             ),
                           ),
                           const SizedBox(
@@ -154,10 +152,10 @@ class _MultisigSignerBsmsExportScreenState extends State<MultisigSignerBsmsExpor
                     child: Container(
                       width: MediaQuery.of(context).size.width,
                       height: MediaQuery.of(context).size.height,
-                      decoration: const BoxDecoration(color: MyColors.lightgrey),
+                      decoration: const BoxDecoration(color: CoconutColors.gray150),
                       child: const Center(
                         child: CircularProgressIndicator(
-                          color: MyColors.darkgrey,
+                          color: CoconutColors.gray800,
                         ),
                       ),
                     )),
