@@ -7,16 +7,13 @@ module Fastlane
       def self.run(params)
         require 'date'
         date = Time.now.strftime("%Y.%m.%d")
-        file = File.open('lib/constants/app_info.dart', 'w')
-        file.puts "// ignore_for_file: constant_identifier_names"
-        file.puts "\n"
-        file.puts "const RELEASE_DATE = '#{date}';"
-        file.puts "const COPYRIGHT_TEXT = '© 2025 Nonce Lab. Inc. in S.Korea.\\nLicensed under the MIT License with Commons Clause.';"
-        file.close
+        content = File.read('lib/constants/app_info.dart')
+        new_content = content.gsub(/const RELEASE_DATE = '[^']*'/, "const RELEASE_DATE = '#{date}'")
+        File.write('lib/constants/app_info.dart', new_content)
       end
 
       def self.description
-        'app_info.dart 파일을 수정합니다.'
+        'app_info.dart 파일의 RELEASE_DATE를 수정합니다.'
       end
 
       def self.details
