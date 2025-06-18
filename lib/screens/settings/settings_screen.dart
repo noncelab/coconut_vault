@@ -83,6 +83,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               if (provider.isPinSet) ...{
                 if (provider.canCheckBiometrics)
                   SingleButton(
+                    buttonPosition: SingleButtonPosition.top,
                     title: t.settings_screen.use_biometric,
                     rightElement: CupertinoSwitch(
                       value: provider.hasBiometricsPermission ? provider.isBiometricEnabled : false,
@@ -100,6 +101,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     ),
                   ),
                 SingleButton(
+                  buttonPosition: provider.canCheckBiometrics
+                      ? SingleButtonPosition.bottom
+                      : SingleButtonPosition.none,
                   title: t.settings_screen.change_password,
                   onPressed: () async {
                     MyBottomSheet.showBottomSheet_90(
@@ -114,6 +118,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 )
               } else ...{
                 SingleButton(
+                  buttonPosition: SingleButtonPosition.none,
                   title: t.settings_screen.set_password,
                   rightElement: CupertinoSwitch(
                     value: provider.hasBiometricsPermission ? provider.isBiometricEnabled : false,
@@ -152,6 +157,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         ButtonGroup(
           buttons: [
             SingleButton(
+              buttonPosition: SingleButtonPosition.none,
               title: t.settings_screen.prepare_update,
               onPressed: () async {
                 MyBottomSheet.showBottomSheet_90(
@@ -190,6 +196,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       Consumer<VisibilityProvider>(builder: (context, provider, child) {
         return ButtonGroup(buttons: [
           SingleButton(
+            buttonPosition: SingleButtonPosition.none,
             title: t.settings_screen.use_passphrase,
             rightElement: CupertinoSwitch(
                 value: provider.isPassphraseUseEnabled,
