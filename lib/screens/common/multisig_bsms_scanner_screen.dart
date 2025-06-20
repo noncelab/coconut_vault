@@ -277,10 +277,7 @@ class _MultisigBsmsScannerScreenState extends State<MultisigBsmsScannerScreen> {
         text: TextSpan(
           text: t.signer_scanner_screen.guide1_1,
           style: CoconutTypography.body1_16.merge(
-            const TextStyle(
-              height: 20.8 / 16,
-              letterSpacing: -0.01,
-            ),
+            const TextStyle(height: 20.8 / 16, letterSpacing: -0.01, color: CoconutColors.black),
           ),
           children: <TextSpan>[
             buildTextSpan(t.signer_scanner_screen.guide1_2, isBold: true),
