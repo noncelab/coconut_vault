@@ -1,11 +1,10 @@
+import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_vault/constants/external_links.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:coconut_vault/oss_licenses.dart';
 import 'package:coconut_vault/screens/common/qrcode_bottom_sheet.dart';
-import 'package:coconut_vault/styles.dart';
-import 'package:coconut_vault/widgets/appbar/custom_appbar.dart';
 import 'package:coconut_vault/widgets/bottom_sheet.dart';
 
 class LicenseScreen extends StatefulWidget {
@@ -42,12 +41,13 @@ class _LicenseScreenState extends State<LicenseScreen> {
   @override
   Widget build(BuildContext context) {
     return ClipRRect(
-      borderRadius: MyBorder.defaultRadius,
+      borderRadius: CoconutBorder.defaultRadius,
       child: Scaffold(
-        backgroundColor: MyColors.white,
-        appBar: CustomAppBar.buildWithClose(
+        backgroundColor: CoconutColors.white,
+        appBar: CoconutAppBar.build(
           title: t.license_details,
           context: context,
+          isBottom: true,
         ),
         body: SafeArea(
           child: ListView.builder(
@@ -65,14 +65,12 @@ class _LicenseScreenState extends State<LicenseScreen> {
                         vertical: 10,
                       ),
                       decoration: const BoxDecoration(
-                        color: MyColors.darkgrey,
+                        color: CoconutColors.gray800,
                       ),
                       child: Text(
                         t.coconut_vault,
-                        style: Styles.body2Bold.merge(
-                          const TextStyle(
-                            color: MyColors.white,
-                          ),
+                        style: CoconutTypography.body2_14_Bold.setColor(
+                          CoconutColors.white,
                         ),
                       ),
                     ),
@@ -86,13 +84,15 @@ class _LicenseScreenState extends State<LicenseScreen> {
                       child: RichText(
                         text: TextSpan(
                           text: t.license_screen.text1,
-                          style: Styles.caption,
+                          style: CoconutTypography.body3_12.setColor(
+                            CoconutColors.gray800,
+                          ),
                           children: <TextSpan>[
                             TextSpan(
                                 text: mitFullTextLink, // 색상을 다르게 할 텍스트
-                                style: Styles.caption.merge(
+                                style: CoconutTypography.body3_12.merge(
                                   const TextStyle(
-                                    color: MyColors.oceanBlue,
+                                    color: CoconutColors.oceanBlue,
                                     decoration: TextDecoration.underline,
                                   ),
                                 ),
@@ -109,9 +109,9 @@ class _LicenseScreenState extends State<LicenseScreen> {
                             TextSpan(text: t.license_screen.text2),
                             TextSpan(
                                 text: CONTACT_EMAIL_ADDRESS, // 색상을 다르게 할 텍스트
-                                style: Styles.caption.merge(
+                                style: CoconutTypography.body3_12.merge(
                                   const TextStyle(
-                                    color: MyColors.oceanBlue,
+                                    color: CoconutColors.oceanBlue,
                                     decoration: TextDecoration.underline,
                                   ),
                                 ),
@@ -128,7 +128,9 @@ class _LicenseScreenState extends State<LicenseScreen> {
                                   }),
                             TextSpan(
                               text: t.license_screen.text3,
-                              style: Styles.caption,
+                              style: CoconutTypography.body3_12.setColor(
+                                CoconutColors.gray800,
+                              ),
                             ),
                           ],
                         ),
@@ -182,26 +184,20 @@ class _LicenseScreenState extends State<LicenseScreen> {
                           children: [
                             Text(
                               licenseName,
-                              style: Styles.body1Bold,
+                              style: CoconutTypography.body1_16_Bold,
                             ),
                             if (copyRight.isNotEmpty)
                               Text(
                                 copyRight,
-                                style: Styles.body2Grey.merge(
-                                  const TextStyle(
-                                    fontSize: 12.0,
-                                  ),
+                                style: CoconutTypography.body3_12.setColor(
+                                  CoconutColors.black.withOpacity(0.3),
                                 ),
                               ),
                             SizedBox(
                               width: MediaQuery.of(context).size.width,
                               child: Text(
                                 licenseClass ?? 'Unknown License',
-                                style: Styles.body2.merge(
-                                  const TextStyle(
-                                    fontSize: 12.0,
-                                  ),
-                                ),
+                                style: CoconutTypography.body3_12,
                               ),
                             ),
                             if (licenseExplanationVisible[index - 1])
@@ -211,7 +207,7 @@ class _LicenseScreenState extends State<LicenseScreen> {
                                 ),
                                 height: 200,
                                 decoration: BoxDecoration(
-                                  border: Border.all(width: 1, color: MyColors.borderGrey),
+                                  border: Border.all(width: 1, color: CoconutColors.borderGray),
                                 ),
                                 child: SingleChildScrollView(
                                   padding: const EdgeInsets.symmetric(

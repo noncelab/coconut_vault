@@ -1,4 +1,4 @@
-import 'package:coconut_vault/styles.dart';
+import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:flutter/material.dart';
 
 class CustomExpansionPanel extends StatefulWidget {
@@ -55,7 +55,7 @@ class _CustomExpansionPanelState extends State<CustomExpansionPanel> {
             });
           },
           child: Container(
-            color: isPressed ? MyColors.lightgrey : Colors.white,
+            color: isPressed ? CoconutColors.gray150 : CoconutColors.white,
             padding: widget.padding,
             child: widget.unExpansionWidget,
           ),

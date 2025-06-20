@@ -1,6 +1,5 @@
 import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:flutter/material.dart';
-import 'package:coconut_vault/styles.dart';
 
 enum SingleButtonPosition { none, top, middle, bottom }
 
@@ -61,7 +60,7 @@ class SingleButton extends StatelessWidget {
         onTap: onPressed,
         child: Container(
           decoration: BoxDecoration(
-            color: MyColors.transparentBlack_06,
+            color: CoconutColors.black.withOpacity(0.6),
             borderRadius: buttonPosition.radius,
           ),
           padding: buttonPosition.padding,
@@ -71,7 +70,7 @@ class SingleButton extends StatelessWidget {
                 Container(child: leftElement),
                 const SizedBox(width: 12),
               },
-              Expanded(child: Text(title, style: Styles.body2Bold)),
+              Expanded(child: Text(title, style: CoconutTypography.body2_14_Bold)),
               rightElement ?? _rightArrow(),
             ],
           ),
@@ -79,5 +78,5 @@ class SingleButton extends StatelessWidget {
   }
 
   Widget _rightArrow() =>
-      const Icon(Icons.keyboard_arrow_right_rounded, color: MyColors.transparentBlack_50);
+      Icon(Icons.keyboard_arrow_right_rounded, color: CoconutColors.black.withOpacity(0.5));
 }

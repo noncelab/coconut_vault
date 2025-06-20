@@ -1,6 +1,5 @@
 import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:flutter/material.dart';
-import 'package:coconut_vault/styles.dart';
 import 'package:coconut_vault/widgets/button/single_button.dart';
 
 class ButtonGroup extends StatelessWidget {
@@ -28,13 +27,13 @@ class ButtonGroup extends StatelessWidget {
       height: 1,
       child: Row(
         children: [
-          Container(width: Sizes.size20, color: MyColors.transparentBlack_06),
+          Container(width: Sizes.size20, color: CoconutColors.black.withOpacity(0.06)),
           Expanded(
             child: Container(
-              color: const Color.fromARGB(255, 226, 226, 226),
+              color: CoconutColors.gray300,
             ),
           ),
-          Container(width: Sizes.size20, color: MyColors.transparentBlack_06),
+          Container(width: Sizes.size20, color: CoconutColors.black.withOpacity(0.06)),
         ],
       ),
     );

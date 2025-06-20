@@ -1,6 +1,6 @@
+import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:coconut_vault/styles.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -16,13 +16,13 @@ Future<void> showAuthenticationFailedDialog(
               ? t.permission.biometric.required
               : t.permission.biometric.denied,
           style: const TextStyle(
-            color: MyColors.black,
+            color: CoconutColors.black,
           ),
         ),
         content: Text(
           t.permission.biometric.how_to_allow,
           style: const TextStyle(
-            color: MyColors.black,
+            color: CoconutColors.black,
           ),
         ),
         actions: <Widget>[
@@ -30,9 +30,10 @@ Future<void> showAuthenticationFailedDialog(
             isDestructiveAction: true,
             child: Text(
               t.close,
-              style: Styles.label.merge(
+              style: CoconutTypography.body2_14.merge(
                 const TextStyle(
-                  color: MyColors.black,
+                  color: CoconutColors.black,
+                  fontWeight: FontWeight.w500,
                 ),
               ),
             ),
@@ -44,9 +45,7 @@ Future<void> showAuthenticationFailedDialog(
             isDefaultAction: true,
             child: Text(
               t.permission.biometric.btn_move_to_setting,
-              style: Styles.label.merge(
-                const TextStyle(color: Colors.blueAccent, fontWeight: FontWeight.bold),
-              ),
+              style: CoconutTypography.body2_14_Bold.setColor(Colors.blueAccent),
             ),
             onPressed: () async {
               Navigator.of(context).pop();

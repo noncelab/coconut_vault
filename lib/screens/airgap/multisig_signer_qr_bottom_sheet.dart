@@ -1,9 +1,8 @@
+import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/widgets/animatedQR/animated_qr_data_handler.dart';
 import 'package:coconut_vault/widgets/animatedQR/animated_qr_view.dart';
 import 'package:flutter/material.dart';
-import 'package:coconut_vault/styles.dart';
-import 'package:coconut_vault/widgets/appbar/custom_appbar.dart';
 import 'package:coconut_vault/widgets/custom_tooltip.dart';
 
 class SignerQrBottomSheet extends StatefulWidget {
@@ -26,18 +25,19 @@ class _SignerQrBottomSheetState extends State<SignerQrBottomSheet> {
   @override
   Widget build(BuildContext context) {
     return ClipRRect(
-      borderRadius: MyBorder.defaultRadius,
+      borderRadius: CoconutBorder.defaultRadius,
       child: Scaffold(
-        backgroundColor: Colors.white,
-        appBar: CustomAppBar.buildWithClose(
+        backgroundColor: CoconutColors.white,
+        appBar: CoconutAppBar.build(
           context: context,
           title: t.signer_qr_bottom_sheet.title,
+          isBottom: true,
         ),
         body: SafeArea(
           child: SingleChildScrollView(
             child: Container(
               width: double.infinity,
-              color: MyColors.white,
+              color: CoconutColors.white,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: <Widget>[
@@ -52,7 +52,7 @@ class _SignerQrBottomSheetState extends State<SignerQrBottomSheet> {
                           fontSize: 16,
                           height: 1.4,
                           letterSpacing: 0.5,
-                          color: MyColors.black,
+                          color: CoconutColors.black,
                         ),
                         children: <TextSpan>[
                           TextSpan(
@@ -96,7 +96,7 @@ class _SignerQrBottomSheetState extends State<SignerQrBottomSheet> {
                   ),
                   Container(
                     padding: const EdgeInsets.all(10),
-                    decoration: BoxDecorations.shadowBoxDecoration,
+                    decoration: CoconutBoxDecoration.shadowBoxDecoration,
                     child: AnimatedQrView(
                       data: AnimatedQRDataHandler.splitData(widget.signedRawTx),
                       size: MediaQuery.of(context).size.width * 0.8,

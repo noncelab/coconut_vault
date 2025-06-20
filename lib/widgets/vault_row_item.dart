@@ -135,12 +135,13 @@ class _VaultRowItemState extends State<VaultRowItem> {
       decoration: BoxDecoration(
         color: isPressing ? CoconutColors.gray100 : CoconutColors.white,
         borderRadius: BorderRadius.circular(28),
-        border:
-            widget.isPressed ? Border.all(color: Colors.black.withOpacity(0.3), width: 2) : null,
+        border: widget.isPressed
+            ? Border.all(color: CoconutColors.black.withOpacity(0.3), width: 2)
+            : null,
         boxShadow: widget.isSelectable
             ? [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.15),
+                  color: CoconutColors.black.withOpacity(0.15),
                   offset: const Offset(0, 0),
                   blurRadius: 12,
                   spreadRadius: 0,
@@ -194,7 +195,7 @@ class _VaultRowItemState extends State<VaultRowItem> {
               child: Icon(
                 Icons.check,
                 size: 32,
-                color: Colors.black.withOpacity(0.7),
+                color: CoconutColors.black.withOpacity(0.7),
               ),
             ),
         ],

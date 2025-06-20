@@ -1,5 +1,5 @@
+import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
 
 class BottomFloatingButton extends StatelessWidget {
   final VoidCallback onPressed;
@@ -14,14 +14,14 @@ class BottomFloatingButton extends StatelessWidget {
       height: 50,
       child: CupertinoButton(
         borderRadius: BorderRadius.circular(24),
-        color: Colors.grey[700],
+        color: CoconutColors.gray700,
         onPressed: onPressed,
         padding: const EdgeInsets.all(0),
         child: Center(
           child: Text(
             text,
             style: const TextStyle(
-              color: Colors.white,
+              color: CoconutColors.white,
               fontSize: 14,
               fontWeight: FontWeight.bold,
             ),

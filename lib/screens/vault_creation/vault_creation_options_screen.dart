@@ -1,9 +1,8 @@
+import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_vault/constants/app_routes.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:coconut_vault/styles.dart';
-import 'package:coconut_vault/widgets/appbar/custom_appbar.dart';
 import 'package:coconut_vault/widgets/button/shrink_animation_button.dart';
 
 class Option {
@@ -36,12 +35,10 @@ class VaultCreationOptions extends StatelessWidget {
     ];
 
     return Scaffold(
-      backgroundColor: MyColors.white,
-      appBar: CustomAppBar.build(
+      backgroundColor: CoconutColors.white,
+      appBar: CoconutAppBar.build(
         title: t.single_sig_wallet,
         context: context,
-        hasRightIcon: false,
-        showTestnetLabel: false,
       ),
       body: CustomScrollView(
         semanticChildCount: options.length,
@@ -55,8 +52,8 @@ class VaultCreationOptions extends StatelessWidget {
                     delegate: SliverChildBuilderDelegate((ctx, index) {
                       return Column(children: [
                         ShrinkAnimationButton(
-                            defaultColor: MyColors.lightgrey,
-                            pressedColor: MyColors.grey.withOpacity(0.1),
+                            defaultColor: CoconutColors.gray150,
+                            pressedColor: CoconutColors.gray500.withOpacity(0.1),
                             onPressed: () {
                               final option = options[index];
                               if (option.onNextPressed != null) {
@@ -82,7 +79,7 @@ class VaultCreationOptions extends StatelessWidget {
                                               fontFamily: 'Pretendard',
                                               fontSize: 14.0,
                                               fontWeight: FontWeight.w600,
-                                              color: MyColors.black,
+                                              color: CoconutColors.black,
                                               letterSpacing: 0.2),
                                         )),
                                     const Spacer(),

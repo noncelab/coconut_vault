@@ -11,7 +11,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:loader_overlay/loader_overlay.dart';
 import 'package:coconut_vault/screens/common/pin_check_screen.dart';
-import 'package:coconut_vault/styles.dart';
 import 'package:coconut_vault/widgets/button/button_group.dart';
 import 'package:coconut_vault/widgets/button/single_button.dart';
 import 'package:provider/provider.dart';
@@ -30,23 +29,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.transparent,
-      appBar: AppBar(
-        centerTitle: true,
+      appBar: CoconutAppBar.build(
+        context: context,
         backgroundColor: Colors.transparent,
-        toolbarHeight: 62,
-        title: Text(t.settings),
-        titleTextStyle: CoconutTypography.body1_16,
-        toolbarTextStyle: CoconutTypography.heading4_18,
-        leading: IconButton(
-          onPressed: () {
-            Navigator.pop(context);
-          },
-          icon: const Icon(
-            Icons.close,
-            color: MyColors.black,
-            size: 22,
-          ),
-        ),
+        height: 62,
+        title: t.settings,
+        isBottom: true,
       ),
       body: SafeArea(
         child: Padding(
@@ -122,7 +110,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   title: t.settings_screen.set_password,
                   rightElement: CupertinoSwitch(
                     value: provider.hasBiometricsPermission ? provider.isBiometricEnabled : false,
-                    activeColor: MyColors.black,
+                    activeColor: CoconutColors.black,
                     onChanged: (isOn) async {
                       if (isOn &&
                           await provider.authenticateWithBiometrics(context, isSaved: true)) {
@@ -200,7 +188,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             title: t.settings_screen.use_passphrase,
             rightElement: CupertinoSwitch(
                 value: provider.isPassphraseUseEnabled,
-                activeColor: MyColors.black,
+                activeColor: CoconutColors.black,
                 onChanged: (isOn) async {
                   await provider.setAdvancedMode(isOn);
                 }),

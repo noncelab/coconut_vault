@@ -1,10 +1,10 @@
 import 'dart:io';
 
+import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_vault/constants/pin_constants.dart';
 import 'package:coconut_vault/utils/logger.dart';
 import 'package:flutter/material.dart';
 import 'package:local_auth/local_auth.dart';
-import 'package:coconut_vault/styles.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 class KeyButton extends StatefulWidget {
@@ -98,33 +98,40 @@ class _KeyButtonState extends State<KeyButton> {
               color: widget.disabled
                   ? Colors.transparent
                   : _isPressed
-                      ? MyColors.borderLightgrey
+                      ? CoconutColors.borderLightGray
                       : Colors.transparent // 버튼의 상태에 따라 색상 변경
               ),
           child: Center(
               child: widget.keyValue == kDeleteBtnIdentifier
                   ? Icon(Icons.backspace,
-                      color: widget.disabled ? MyColors.transparentBlack_30 : MyColors.black,
+                      color: widget.disabled
+                          ? CoconutColors.black.withOpacity(0.3)
+                          : CoconutColors.black,
                       size: 20)
                   : widget.keyValue == kBiometricIdentifier
                       ? _isFaceRecognition
                           ? SvgPicture.asset('assets/svg/face-id.svg',
                               width: 20,
                               colorFilter: ColorFilter.mode(
-                                  widget.disabled ? MyColors.transparentBlack_30 : Colors.black,
+                                  widget.disabled
+                                      ? CoconutColors.black.withOpacity(0.3)
+                                      : CoconutColors.black,
                                   BlendMode.srcIn))
                           : SvgPicture.asset('assets/svg/fingerprint.svg',
                               width: 20,
                               colorFilter: ColorFilter.mode(
-                                  widget.disabled ? MyColors.transparentBlack_30 : Colors.black,
+                                  widget.disabled
+                                      ? CoconutColors.black.withOpacity(0.3)
+                                      : Colors.black,
                                   BlendMode.srcIn))
                       : Text(
                           widget.keyValue,
                           style: TextStyle(
                               fontSize: 20,
                               fontWeight: FontWeight.w600,
-                              color:
-                                  widget.disabled ? MyColors.transparentBlack_30 : MyColors.black,
+                              color: widget.disabled
+                                  ? CoconutColors.black.withOpacity(0.3)
+                                  : CoconutColors.black,
                               fontFamily: 'SpaceGrotesk'),
                         )),
         ));

@@ -1,61 +1,60 @@
 import 'dart:ui';
 
+import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_vault/model/multisig/multisig_signer.dart';
-
-import '../styles.dart';
 
 class CustomColorHelper {
   static Color getColorByEnum(CustomColor color) {
     switch (color) {
       case CustomColor.purple:
-        return ColorPalette[0];
+        return CoconutColors.colorPalette[0];
       case CustomColor.apricot:
-        return ColorPalette[1];
+        return CoconutColors.colorPalette[1];
       case CustomColor.yellow:
-        return ColorPalette[2];
+        return CoconutColors.colorPalette[2];
       case CustomColor.green:
-        return ColorPalette[3];
+        return CoconutColors.colorPalette[3];
       case CustomColor.blue:
-        return ColorPalette[4];
+        return CoconutColors.colorPalette[4];
       case CustomColor.pink:
-        return ColorPalette[5];
+        return CoconutColors.colorPalette[5];
       case CustomColor.red:
-        return ColorPalette[6];
+        return CoconutColors.colorPalette[6];
       case CustomColor.orange:
-        return ColorPalette[7];
+        return CoconutColors.colorPalette[7];
       case CustomColor.lightgrey:
-        return ColorPalette[8];
+        return CoconutColors.colorPalette[8];
       case CustomColor.mint:
-        return ColorPalette[9];
+        return CoconutColors.colorPalette[9];
       default:
-        return MyColors.defaultIcon;
+        return CoconutColors.secondaryText;
     }
   }
 
   static Color getBackgroundColorByEnum(CustomColor color) {
     switch (color) {
       case CustomColor.purple:
-        return BackgroundColorPalette[0];
+        return CoconutColors.backgroundColorPaletteLight[0];
       case CustomColor.apricot:
-        return BackgroundColorPalette[1];
+        return CoconutColors.backgroundColorPaletteLight[1];
       case CustomColor.yellow:
-        return BackgroundColorPalette[2];
+        return CoconutColors.backgroundColorPaletteLight[2];
       case CustomColor.green:
-        return BackgroundColorPalette[3];
+        return CoconutColors.backgroundColorPaletteLight[3];
       case CustomColor.blue:
-        return BackgroundColorPalette[4];
+        return CoconutColors.backgroundColorPaletteLight[4];
       case CustomColor.pink:
-        return BackgroundColorPalette[5];
+        return CoconutColors.backgroundColorPaletteLight[5];
       case CustomColor.red:
-        return BackgroundColorPalette[6];
+        return CoconutColors.backgroundColorPaletteLight[6];
       case CustomColor.orange:
-        return BackgroundColorPalette[7];
+        return CoconutColors.backgroundColorPaletteLight[7];
       case CustomColor.lightgrey:
-        return BackgroundColorPalette[8];
+        return CoconutColors.backgroundColorPaletteLight[8];
       case CustomColor.mint:
-        return BackgroundColorPalette[9];
+        return CoconutColors.backgroundColorPaletteLight[9];
       default:
-        return MyColors.defaultBackground;
+        return CoconutColors.white.withOpacity(0.06);
     }
   }
 
@@ -88,29 +87,29 @@ class CustomColorHelper {
 
   static Color getColorByIndex(int index) {
     if (index < 0 || index > 9) {
-      return MyColors.defaultIcon;
+      return CoconutColors.secondaryText;
     }
 
-    return ColorPalette[index % ColorPalette.length];
+    return CoconutColors.colorPalette[index % CoconutColors.colorPalette.length];
   }
 
   static Color getBackgroundColorByIndex(int index) {
     if (index < 0 || index > 9) {
-      return MyColors.defaultBackground;
+      return CoconutColors.white.withOpacity(0.06);
     }
 
-    return BackgroundColorPalette[index % ColorPalette.length];
+    return CoconutColors.backgroundColorPaletteLight[index % CoconutColors.colorPalette.length];
   }
 
   static List<Color> getGradientColors(List<MultisigSigner> list) {
     if (list.isEmpty) {
-      return [MyColors.borderLightgrey];
+      return [CoconutColors.borderLightGray];
     }
 
     Color getColor(MultisigSigner item) {
       return item.innerVaultId != null
           ? CustomColorHelper.getColorByIndex(item.colorIndex ?? 0)
-          : MyColors.borderLightgrey;
+          : CoconutColors.borderLightGray;
     }
 
     // 2개인 경우
