@@ -173,6 +173,7 @@ Future<int> addSingleSigWallets({WalletProvider? walletProvider}) async {
 }
 
 Future<int> addWallets({WalletProvider? walletProvider}) async {
+  //REFERENCE
   // single sig wallet
   final singleSig = SinglesigWallet(
     1,

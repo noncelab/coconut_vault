@@ -18,6 +18,7 @@ import 'package:coconut_vault/utils/coconut/update_preparation.dart';
 import 'package:coconut_vault/utils/hash_util.dart';
 import 'package:coconut_vault/utils/isolate_handler.dart';
 import 'package:coconut_vault/utils/logger.dart';
+import 'package:flutter/material.dart';
 
 /// 지갑의 public 정보는 shared prefs, 비밀 정보는 secure storage에 저장하는 역할을 하는 클래스입니다.
 class WalletListManager {
@@ -187,7 +188,6 @@ class WalletListManager {
     final int nextId = _getNextWalletId();
     wallet.id = nextId;
     final Map<String, dynamic> data = wallet.toJson();
-
     var addMultisigVaultIsolateHandler =
         IsolateHandler<Map<String, dynamic>, MultisigVaultListItem>(addMultisigVaultIsolate);
     await addMultisigVaultIsolateHandler.initialize(initialType: InitializeType.addMultisigVault);
@@ -196,9 +196,9 @@ class WalletListManager {
 
     // for SinglesigVaultListItem multsig key map update
     updateLinkedMultisigInfo(wallet.signers!, nextId);
-
     _vaultList!.insert(0, newMultisigVault);
     await _savePublicInfo();
+
     _recordNextWalletId();
     return newMultisigVault;
   }
@@ -211,6 +211,7 @@ class WalletListManager {
     // for SinglesigVaultListItem multsig key map update
     for (int i = 0; i < signers.length; i++) {
       var signer = signers[i];
+      debugPrint("==========signer: ${signer.innerVaultId}");
       if (signers[i].innerVaultId == null) continue;
       SingleSigVaultListItem ssv = _vaultList!
           .firstWhere((element) => element.id == signer.innerVaultId!) as SingleSigVaultListItem;

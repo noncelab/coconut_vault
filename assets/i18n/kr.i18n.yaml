@@ -60,6 +60,7 @@ tool: "도구"
 tutorial: "튜토리얼"
 single_sig_wallet: "일반 지갑"
 multisig_wallet: "다중 서명 지갑"
+brain_wallet: "브레인 지갑 (전문가용)"
 extended_public_key: "확장 공개키"
 app_info : "앱 정보"
 inquiry_details: "문의 내용"
@@ -141,6 +142,8 @@ security_self_check_screen:
   check8: "소액으로 보내기 테스트를 한 후 지갑 사용을 시작합니다."
   check9: "위 사항을 주기적으로 점검하고, 안전하게 니모닉 문구를 보관하겠습니다."
   guidance: "아래 자가 점검 항목을 숙지하고 니모닉 문구를 반드시 안전하게 보관합니다."
+
+
 tutorial_screen:
   title1: "튜토리얼을 참고하시면\n더욱 쉽게 사용할 수 있어요"
   title2: "도움이 필요하신가요?"
@@ -287,10 +290,13 @@ select_vault_type_screen:
   multisig: "지정한 수의 서명이 필요한 지갑이에요"
   empty_key: "현재 볼트에 사용할 수 있는 키가 없어요"
   loading_keys: "볼트에 보관된 키를 불러오는 중이에요"
+  brain_wallet: "니모닉 백업이 어려운 환경에 있는 분들을 위한 지갑이에요"
+  brain_wallet_warning: "3개 이상의 익숙한 문구로 지갑을 만들어요"
 vault_creation_options_screen:
   coin_flip: "동전을 던져 직접 만들게요"
   auto_generate: "앱에서 만들어 주세요"
   import_mnemonic: "사용 중인 니모닉 문구가 있어요"
+
 vault_name_icon_setup_screen:
   title: "이름 설정"
   saving: "저장 중이에요"
@@ -554,3 +560,29 @@ errors:
 
 tooltip:
   mfp: "지갑의 고유 값이에요.\n마스터 핑거프린트(MFP)라고도 해요."
+
+brain_wallet_self_check_screen:
+  title: "브레인 지갑을 위한 확인 사항"
+  guidance: "브레인 지갑은 별도의 백업이 필요없지만, 지갑을 만들 때 신중해야 합니다."
+  check1: "브레인 지갑의 문구는 모두 익숙한 문구로 만들어야 합니다."
+  check2: "브레인 지갑의 문구를 기억해야 지갑의 복원이 가능합니다.(순서는 관계 없습니다.)"
+  check3: "브레인 지갑의 문구의 조합은 다른 사람이 쉽게 유추할 수 없어야 합니다."
+  check4: "아무리 익숙한 문구라도 잊어버리는 경우 비트코인을 잃을 수 있습니다."
+  check5: "내가 사용한 브레인 지갑 문구는 늘 머릿속에 되새기는 것을 추천합니다."
+  check6: "브레인 지갑은 오직 코코넛 볼트에서만 복원 가능합니다."
+
+brain_wallet_creation_screen:
+  title: "브레인 지갑 만들기"
+  insert_phrase_more_than_three: "3개 이상의 익숙한 문구로 지갑을 만들어요"
+  phrase: "문구"
+  example_0 : "I am your father"
+  example_1 : "경상북도 울릉군 뱃길따라 오백리"
+  example_2 : "프리드리히 하이에크"
+  add_more_phrase: "더 추가하기"
+  guide: "⚠︎ 가능하면 남들이 알아내기 쉽게 알기 어려운 구문을 사용해보세요 (문구 예시 : 좋아하는 노래 가사, 기억에 남는 명언, 좋아하는 영화 대사 등)"
+
+brain_wallet_backup_bottom_sheet:
+  title: "브레인 지갑 백업"
+  phrase: "문구"
+  notification: "문구 기억이 어렵다면, 니모닉을 저장하세요."
+  information: "복원 정보 : P2TR Key Path Spending - MuSig2(m/86'/1'/0')"

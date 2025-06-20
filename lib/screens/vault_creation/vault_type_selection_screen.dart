@@ -20,7 +20,11 @@ class _VaultTypeSelectionScreenState extends State<VaultTypeSelectionScreen> {
   bool _nextButtonEnabled = true;
   bool _showLoading = false;
   late String guideText;
-  List<String> options = [AppRoutes.vaultCreationOptions, AppRoutes.multisigQuorumSelection];
+  List<String> options = [
+    AppRoutes.vaultCreationOptions,
+    AppRoutes.multisigQuorumSelection,
+    AppRoutes.brainWalletSelfCheck
+  ];
   late final WalletProvider _walletProvider;
 
   @override
@@ -66,6 +70,15 @@ class _VaultTypeSelectionScreenState extends State<VaultTypeSelectionScreen> {
       } else if (_walletProvider.vaultList.isNotEmpty) {
         Navigator.pushNamed(context, nextPath!);
       }
+    } else if (nextPath == options[2]) {
+      // '브레인 지갑' 선택 시
+      Navigator.pushNamed(
+        context,
+        nextPath!,
+        arguments: () {
+          Navigator.pushNamed(context, AppRoutes.brainWalletCreation);
+        },
+      );
     }
   }
 
@@ -84,6 +97,14 @@ class _VaultTypeSelectionScreenState extends State<VaultTypeSelectionScreen> {
       if (!_walletProvider.isVaultListLoading && _walletProvider.vaultList.isEmpty) {
         _nextButtonEnabled = false;
       }
+    });
+  }
+
+  void onTapBrainWallet() {
+    setState(() {
+      nextPath = options[2];
+      guideText = t.select_vault_type_screen.brain_wallet;
+      _nextButtonEnabled = true;
     });
   }
 
@@ -112,7 +133,9 @@ class _VaultTypeSelectionScreenState extends State<VaultTypeSelectionScreen> {
                               !model.isVaultListLoading &&
                               model.vaultList.isEmpty)
                           ? t.select_vault_type_screen.empty_key
-                          : '',
+                          : (nextPath == options[2])
+                              ? t.select_vault_type_screen.brain_wallet_warning
+                              : '',
                       style: Styles.caption.merge(
                         const TextStyle(
                           color: MyColors.warningText,
@@ -135,6 +158,18 @@ class _VaultTypeSelectionScreenState extends State<VaultTypeSelectionScreen> {
                             text: t.multisig_wallet,
                             onTap: onTapMultisigWallet,
                             isPressed: nextPath == options[1],
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 20),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: SelectableButton(
+                            text: t.brain_wallet,
+                            onTap: onTapBrainWallet,
+                            isPressed: nextPath == options[2],
                           ),
                         ),
                       ],

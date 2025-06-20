@@ -17,6 +17,7 @@ import 'package:coconut_vault/screens/app_update/restoration_info_screen.dart';
 import 'package:coconut_vault/screens/app_update/vault_list_restoration_screen.dart';
 import 'package:coconut_vault/screens/home/vault_list_screen.dart';
 import 'package:coconut_vault/screens/app_update/app_update_preparation_screen.dart';
+import 'package:coconut_vault/screens/vault_creation/brain_wallet/brain_wallet_self_check_screen.dart';
 import 'package:coconut_vault/screens/vault_creation/single_sig/security_self_check_screen.dart';
 import 'package:coconut_vault/screens/settings/app_info_screen.dart';
 import 'package:coconut_vault/screens/settings/mnemonic_word_list_screen.dart';
@@ -28,6 +29,8 @@ import 'package:coconut_vault/screens/vault_creation/single_sig/mnemonic_coinfli
 import 'package:coconut_vault/screens/vault_creation/single_sig/mnemonic_generation_screen.dart';
 import 'package:coconut_vault/screens/vault_creation/single_sig/mnemonic_import_screen.dart';
 import 'package:coconut_vault/screens/vault_creation/multisig/multisig_quorum_selection_screen.dart';
+import 'package:coconut_vault/screens/vault_creation/brain_wallet/brain_wallet_creation_screen.dart';
+import 'package:coconut_vault/screens/vault_creation/brain_wallet/brain_wallet_backup_bottom_sheet.dart';
 import 'package:coconut_vault/screens/common/multisig_bsms_scanner_screen.dart';
 import 'package:coconut_vault/screens/vault_creation/vault_type_selection_screen.dart';
 import 'package:coconut_vault/screens/vault_creation/vault_creation_options_screen.dart';
@@ -271,6 +274,12 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> {
             AppRoutes.prepareUpdate: (context) => const CustomLoadingOverlay(
                   child: AppUpdatePreparationScreen(),
                 ),
+            AppRoutes.brainWalletSelfCheck: (context) {
+              final VoidCallback? onNextPressed =
+                  ModalRoute.of(context)?.settings.arguments as VoidCallback?;
+              return BrainWalletSelfCheckScreen(onNextPressed: onNextPressed);
+            },
+            AppRoutes.brainWalletCreation: (context) => const BrainWalletCreationScreen(),
           },
         ),
       ),
