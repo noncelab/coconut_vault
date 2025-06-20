@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_lib/coconut_lib.dart';
@@ -56,9 +57,13 @@ class _StartScreenState extends State<StartScreen> {
       body: Column(
         children: [
           Flexible(
-            child: Center(
-              child: Image.asset(
-                'assets/png/splash_logo_${NetworkType.currentNetworkType.isTestnet ? "regtest" : "mainnet"}.png',
+            child: Container(
+              padding: Platform.isIOS ? null : const EdgeInsets.only(top: Sizes.size48),
+              child: Center(
+                child: Image.asset(
+                  'assets/png/splash_logo_${NetworkType.currentNetworkType.isTestnet ? "regtest" : "mainnet"}.png',
+                  width: Sizes.size60,
+                ),
               ),
             ),
           ),
