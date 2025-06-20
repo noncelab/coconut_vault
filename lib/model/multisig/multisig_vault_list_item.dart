@@ -19,12 +19,13 @@ class MultisigVaultListItem extends VaultListItemBase {
       required super.iconIndex,
       required this.signers,
       required this.requiredSignatureCount,
+      required this.addressType,
       String? coordinatorBsms,
       super.vaultJsonString})
       : super(vaultType: WalletType.multiSignature) {
     coconutVault = MultisignatureVault.fromKeyStoreList(
         signers.map((signer) => signer.keyStore).toList(), requiredSignatureCount,
-        addressType: AddressType.p2wsh);
+        addressType: AddressType.getAddressTypeFromName(addressType));
 
     name = name.replaceAll('\n', ' ');
     this.coordinatorBsms =
@@ -41,6 +42,9 @@ class MultisigVaultListItem extends VaultListItemBase {
   // 필요 서명 개수
   @JsonKey(name: "requiredSignatureCount")
   late final int requiredSignatureCount;
+
+  @JsonKey(name: "addressType")
+  late final String addressType;
 
   @override
   Future<bool> canSign(String psbt) async {

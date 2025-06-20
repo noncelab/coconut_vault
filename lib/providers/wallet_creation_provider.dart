@@ -11,6 +11,8 @@ class WalletCreationProvider {
   String? _secret;
   String? _passphrase;
 
+  var _addressType;
+
   /// multisig
   int? get requiredSignatureCount => _requiredSignatureCount;
   int? get totalSignatureCount => _totalSignatureCount;
@@ -20,10 +22,16 @@ class WalletCreationProvider {
   String? get secret => _secret;
   String? get passphrase => _passphrase;
 
+  String? get addressType => _addressType;
+
   /// multisig
   void setQuorumRequirement(int requiredSignatureCount, int totalSignatureCount) {
     _requiredSignatureCount = requiredSignatureCount;
     _totalSignatureCount = totalSignatureCount;
+  }
+
+  void setAddressType(String addressType) {
+    _addressType = addressType;
   }
 
   /// multisig

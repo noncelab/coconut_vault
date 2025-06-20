@@ -228,12 +228,13 @@ BSMS 1.0
       0,
       signers,
       2,
+      "p2wsh",
     );
   } else {
     WalletListManager walletListManager = WalletListManager();
     await walletListManager.addSinglesigWallet(singleSig);
     await walletListManager
-        .addMultisigWallet(MultisigWallet(null, "Test Wallet2", 0, 0, signers, 2));
+        .addMultisigWallet(MultisigWallet(null, "Test Wallet2", 0, 0, signers, 2, "p2wsh"));
     await SharedPrefsRepository()
         .setInt(SharedPrefsKeys.vaultListLength, walletListManager.vaultList.length);
   }

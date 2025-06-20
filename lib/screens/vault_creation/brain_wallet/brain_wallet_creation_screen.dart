@@ -272,6 +272,7 @@ class _BrainWalletCreationScreenState extends State<BrainWalletCreationScreen> {
           }
           _walletCreationProvider.setQuorumRequirement(signers.length, signers.length);
           _walletCreationProvider.setSigners(signers);
+          _walletCreationProvider.setAddressType("p2trMuSig2");
           Navigator.pushReplacement(context,
               MaterialPageRoute(builder: (context) => const VaultNameAndIconSetupScreen()));
         },

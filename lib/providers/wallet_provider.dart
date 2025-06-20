@@ -104,11 +104,11 @@ class WalletProvider extends ChangeNotifier {
   }
 
   Future<void> addMultisigVault(String name, int color, int icon, List<MultisigSigner> signers,
-      int requiredSignatureCount) async {
+      int requiredSignatureCount, String addressType) async {
     _setAddVaultCompleted(false);
 
     await _walletManager.addMultisigWallet(
-        MultisigWallet(null, name, icon, color, signers, requiredSignatureCount));
+        MultisigWallet(null, name, icon, color, signers, requiredSignatureCount, addressType));
 
     _vaultList = _walletManager.vaultList;
     setAnimatedVaultFlags();
@@ -174,7 +174,7 @@ class WalletProvider extends ChangeNotifier {
     }
 
     await addMultisigVault(details.name, details.colorIndex, details.iconIndex, signers,
-        multisigVault.requiredSignature);
+        multisigVault.requiredSignature, multisigVault.addressType.name);
 
     _setAddVaultCompleted(true);
     notifyListeners();

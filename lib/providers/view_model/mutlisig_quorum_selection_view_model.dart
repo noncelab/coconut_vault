@@ -127,6 +127,7 @@ class MultisigQuorumSelectionViewModel extends ChangeNotifier {
 
   void saveQuorumRequirement() {
     _walletCreationProvider.setQuorumRequirement(_requiredCount, _totalCount);
+    _walletCreationProvider.setAddressType("p2wsh");
   }
 }
 

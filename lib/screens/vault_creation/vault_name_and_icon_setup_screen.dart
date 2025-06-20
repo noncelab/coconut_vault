@@ -94,8 +94,13 @@ class _VaultNameAndIconSetupScreenState extends State<VaultNameAndIconSetupScree
             _walletCreationProvider.passphrase));
       } else if (_walletCreationProvider.signers != null) {
         // 새로운 멀티시그 지갑 리스트 아이템을 생성.
-        await _walletProvider.addMultisigVault(inputText, selectedColorIndex, selectedIconIndex,
-            _walletCreationProvider.signers!, _walletCreationProvider.requiredSignatureCount!);
+        await _walletProvider.addMultisigVault(
+            inputText,
+            selectedColorIndex,
+            selectedIconIndex,
+            _walletCreationProvider.signers!,
+            _walletCreationProvider.requiredSignatureCount!,
+            _walletCreationProvider.addressType!);
       } else {
         throw '생성 가능 정보가 없음';
       }

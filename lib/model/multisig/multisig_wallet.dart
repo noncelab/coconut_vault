@@ -18,9 +18,11 @@ class MultisigWallet {
   List<MultisigSigner>? signers;
   @JsonKey(name: "requiredSignatureCount")
   int? requiredSignatureCount;
+  @JsonKey(name: "addressType")
+  String addressType;
 
-  MultisigWallet(
-      this.id, this.name, this.icon, this.color, this.signers, this.requiredSignatureCount);
+  MultisigWallet(this.id, this.name, this.icon, this.color, this.signers,
+      this.requiredSignatureCount, this.addressType);
 
   Map<String, dynamic> toJson() => _$MultisigWalletToJson(this);
 

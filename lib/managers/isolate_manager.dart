@@ -41,6 +41,7 @@ Future<MultisigVaultListItem> addMultisigVaultIsolate(
     iconIndex: walletData.icon!,
     signers: walletData.signers!,
     requiredSignatureCount: walletData.requiredSignatureCount!,
+    addressType: walletData.addressType,
   );
 
   if (replyTo != null) {
