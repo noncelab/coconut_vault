@@ -60,7 +60,7 @@ class SingleButton extends StatelessWidget {
         onTap: onPressed,
         child: Container(
           decoration: BoxDecoration(
-            color: CoconutColors.black.withOpacity(0.6),
+            color: CoconutColors.gray200,
             borderRadius: buttonPosition.radius,
           ),
           padding: buttonPosition.padding,

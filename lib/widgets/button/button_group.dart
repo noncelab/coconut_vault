@@ -27,13 +27,13 @@ class ButtonGroup extends StatelessWidget {
       height: 1,
       child: Row(
         children: [
-          Container(width: Sizes.size20, color: CoconutColors.black.withOpacity(0.06)),
+          Container(width: Sizes.size20, color: CoconutColors.gray200),
           Expanded(
             child: Container(
               color: CoconutColors.gray300,
             ),
           ),
-          Container(width: Sizes.size20, color: CoconutColors.black.withOpacity(0.06)),
+          Container(width: Sizes.size20, color: CoconutColors.gray200),
         ],
       ),
     );
