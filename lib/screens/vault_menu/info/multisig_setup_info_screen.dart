@@ -17,7 +17,6 @@ import 'package:coconut_vault/widgets/bottom_sheet.dart';
 import 'package:coconut_vault/widgets/bubble_clipper.dart';
 import 'package:coconut_vault/widgets/card/vault_item_card.dart';
 import 'package:coconut_vault/widgets/custom_loading_overlay.dart';
-import 'package:coconut_vault/widgets/custom_toast.dart';
 import 'package:coconut_vault/widgets/card/information_item_card.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -159,10 +158,11 @@ class _MultisigSetupInfoScreenState extends State<MultisigSetupInfoScreen> {
 
     if (mounted) {
       if (hasChanged) {
-        CustomToast.showToast(context: context, text: t.toast.data_updated);
+        CoconutToast.showToast(context: context, text: t.toast.data_updated, isVisibleIcon: true);
         return;
       }
-      CustomToast.showToast(context: context, text: t.toast.name_already_used);
+      CoconutToast.showToast(
+          context: context, text: t.toast.name_already_used, isVisibleIcon: true);
     }
   }
 
