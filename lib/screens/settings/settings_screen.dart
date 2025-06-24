@@ -5,6 +5,7 @@ import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/providers/auth_provider.dart';
 import 'package:coconut_vault/providers/visibility_provider.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
+import 'package:coconut_vault/screens/settings/unit_bottm_sheet.dart';
 import 'package:coconut_vault/utils/logger.dart';
 import 'package:coconut_vault/widgets/custom_loading_overlay.dart';
 import 'package:flutter/cupertino.dart';
@@ -39,20 +40,34 @@ class _SettingsScreenState extends State<SettingsScreen> {
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16.0),
-          child: Column(
-            children: [
-              _securityPart(context),
-              CoconutLayout.spacing_1000h,
-              Selector<WalletProvider, bool>(
-                selector: (context, provider) => provider.vaultList.isNotEmpty,
-                builder: (context, isNotEmpty, _) => isNotEmpty
-                    ? Column(children: [_updatePart(context), CoconutLayout.spacing_1000h])
-                    : Container(),
-              ),
-              _advancedUserPart(context),
-            ],
+          child: SingleChildScrollView(
+            child: Column(
+              children: [
+                _securityPart(context),
+                CoconutLayout.spacing_1000h,
+                Selector<WalletProvider, bool>(
+                  selector: (context, provider) => provider.vaultList.isNotEmpty,
+                  builder: (context, isNotEmpty, _) => isNotEmpty
+                      ? Column(children: [_updatePart(context), CoconutLayout.spacing_1000h])
+                      : Container(),
+                ),
+                _btcUnitPart(context),
+                CoconutLayout.spacing_1000h,
+                _advancedUserPart(context),
+              ],
+            ),
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _category(String title) {
+    return Container(
+      padding: const EdgeInsets.only(bottom: 16),
+      child: Text(
+        title,
+        style: CoconutTypography.body1_16_Bold,
       ),
     );
   }
@@ -61,10 +76,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Container(
-          padding: const EdgeInsets.only(bottom: 16),
-          child: Text(t.security, style: CoconutTypography.body1_16_Bold),
-        ),
+        _category(t.security),
         Consumer<AuthProvider>(
           builder: (context, provider, child) {
             return ButtonGroup(buttons: [
@@ -135,13 +147,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Container(
-          padding: const EdgeInsets.only(bottom: 16),
-          child: Text(
-            t.settings_screen.update,
-            style: CoconutTypography.body1_16_Bold,
-          ),
-        ),
+        _category(t.settings_screen.update),
         ButtonGroup(
           buttons: [
             SingleButton(
@@ -168,33 +174,45 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
+  Widget _btcUnitPart(BuildContext context) {
+    return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+      _category(t.unit),
+      Selector<VisibilityProvider, bool>(
+          selector: (_, viewModel) => viewModel.isBtcUnit,
+          builder: (context, isBtcUnit, child) {
+            return ButtonGroup(buttons: [
+              SingleButton(
+                title: t.bitcoin_kr,
+                subtitle: isBtcUnit ? t.btc : t.sats,
+                onPressed: () async {
+                  MyBottomSheet.showBottomSheet_50(
+                      context: context, child: const UnitBottomSheet());
+                },
+              ),
+            ]);
+          }),
+    ]);
+  }
+
   Widget _advancedUserPart(BuildContext context) {
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-      Container(
-        padding: const EdgeInsets.only(bottom: 16),
-        child: Text(t.advanced_user,
-            style: const TextStyle(
-              fontFamily: 'Pretendard',
-              color: CoconutColors.black,
-              fontSize: 16,
-              fontStyle: FontStyle.normal,
-              fontWeight: FontWeight.bold,
-            )),
-      ),
-      Consumer<VisibilityProvider>(builder: (context, provider, child) {
-        return ButtonGroup(buttons: [
-          SingleButton(
-            buttonPosition: SingleButtonPosition.none,
-            title: t.settings_screen.use_passphrase,
-            rightElement: CupertinoSwitch(
-                value: provider.isPassphraseUseEnabled,
-                activeColor: CoconutColors.black,
-                onChanged: (isOn) async {
-                  await provider.setAdvancedMode(isOn);
-                }),
-          )
-        ]);
-      }),
+      _category(t.advanced_user),
+      Selector<VisibilityProvider, bool>(
+          selector: (_, viewModel) => viewModel.isPassphraseUseEnabled,
+          builder: (context, isPassphraseUseEnabled, child) {
+            return ButtonGroup(buttons: [
+              SingleButton(
+                buttonPosition: SingleButtonPosition.none,
+                title: t.settings_screen.use_passphrase,
+                rightElement: CupertinoSwitch(
+                    value: isPassphraseUseEnabled,
+                    activeColor: CoconutColors.black,
+                    onChanged: (isOn) async {
+                      await context.read<VisibilityProvider>().setAdvancedMode(isOn);
+                    }),
+              )
+            ]);
+          }),
     ]);
   }
 }

@@ -39,6 +39,7 @@ extension SingleButtonBorderRadiusExtension on SingleButtonPosition {
 
 class SingleButton extends StatelessWidget {
   final String title;
+  final String? subtitle;
   final String? description;
   final VoidCallback? onPressed;
   final Widget? rightElement;
@@ -48,6 +49,7 @@ class SingleButton extends StatelessWidget {
   const SingleButton(
       {super.key,
       required this.title,
+      this.subtitle,
       this.description,
       this.onPressed,
       this.rightElement,
@@ -68,9 +70,16 @@ class SingleButton extends StatelessWidget {
             children: [
               if (leftElement != null) ...{
                 Container(child: leftElement),
-                const SizedBox(width: 12),
+                CoconutLayout.spacing_400w,
               },
-              Expanded(child: Text(title, style: CoconutTypography.body2_14_Bold)),
+              Expanded(
+                  child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(title, style: CoconutTypography.body2_14_Bold),
+                  if (subtitle != null) Text(subtitle!, style: CoconutTypography.body3_12_Number),
+                ],
+              )),
               rightElement ?? _rightArrow(),
             ],
           ),
