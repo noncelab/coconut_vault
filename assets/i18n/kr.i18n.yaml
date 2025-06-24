@@ -525,6 +525,7 @@ toast:
   multisig_already_added: "이미 추가되어 있는 다중 서명 지갑이에요. ($name)"
 
 errors:
+  invalid_qr: "잘못된 QR 코드예요.\n다시 확인해 주세요."
   invalid_single_sig_qr_error: "잘못된 QR이에요. 다시 시도해 주세요."
   invalid_multisig_qr_error: "잘못된 QR이에요.\n가져올 다중 서명 지갑의 정보 화면에서 \"지갑 설정 정보 보기\"에 나오는 QR 코드를 스캔해 주세요."
   unsupport_bsms_version_error: "지원하지 않는 BSMS 버전이에요. BSMS 1.0만 지원됩니다."

@@ -92,6 +92,7 @@ class _ImportConfirmationScreenState extends State<ImportConfirmationScreen>
                       const TextStyle(
                         height: 20.8 / 16,
                         letterSpacing: -0.01,
+                        color: CoconutColors.black,
                       ),
                     ),
                     children: <TextSpan>[
@@ -102,6 +103,7 @@ class _ImportConfirmationScreenState extends State<ImportConfirmationScreen>
                             fontWeight: FontWeight.bold,
                             height: 20.8 / 16,
                             letterSpacing: -0.01,
+                            color: CoconutColors.black,
                           ),
                         ),
                       ),
@@ -111,6 +113,7 @@ class _ImportConfirmationScreenState extends State<ImportConfirmationScreen>
                           const TextStyle(
                             height: 20.8 / 16,
                             letterSpacing: -0.01,
+                            color: CoconutColors.black,
                           ),
                         ),
                       ),

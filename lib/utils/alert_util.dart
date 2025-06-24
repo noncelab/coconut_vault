@@ -11,15 +11,15 @@ TextStyle optionStyle = CoconutTypography.body2_14_Bold.merge(
 // 전역 변수로 Dialog 상태 관리
 bool _isDialogVisible = false;
 
-void showAlertDialog(
+Future<void> showAlertDialog(
     {required BuildContext context,
     String? title,
     String? content,
-    VoidCallback? onConfirmPressed}) {
+    VoidCallback? onConfirmPressed}) async {
   if (_isDialogVisible) return;
 
   _isDialogVisible = true;
-  showCupertinoModalPopup<void>(
+  await showCupertinoModalPopup<void>(
     context: context,
     barrierDismissible: onConfirmPressed == null,
     builder: (BuildContext context) => CupertinoAlertDialog(
