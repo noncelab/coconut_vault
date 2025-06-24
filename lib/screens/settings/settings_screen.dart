@@ -37,9 +37,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
         title: t.settings,
         isBottom: true,
       ),
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16.0),
+      body: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16.0),
+        child: SingleChildScrollView(
           child: Column(
             children: [
               _securityPart(context),
@@ -51,6 +51,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     : Container(),
               ),
               _advancedUserPart(context),
+              SizedBox(
+                  height: MediaQuery.of(context).viewPadding.bottom > 0
+                      ? MediaQuery.of(context).viewPadding.bottom
+                      : Sizes.size16)
             ],
           ),
         ),
