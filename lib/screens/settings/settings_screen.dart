@@ -5,6 +5,7 @@ import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/providers/auth_provider.dart';
 import 'package:coconut_vault/providers/visibility_provider.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
+import 'package:coconut_vault/screens/settings/pin_setting_screen.dart';
 import 'package:coconut_vault/utils/logger.dart';
 import 'package:coconut_vault/widgets/custom_loading_overlay.dart';
 import 'package:flutter/cupertino.dart';
@@ -57,6 +58,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
+  void _showPinSettingScreen() {
+    MyBottomSheet.showBottomSheet_90(context: context, child: const PinSettingScreen());
+  }
+
   Widget _securityPart(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -78,7 +83,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       activeColor: CoconutColors.black,
                       onChanged: (isOn) async {
                         if (isOn &&
-                            await provider.authenticateWithBiometrics(context, isSaved: true)) {
+                            await provider.authenticateWithBiometrics(
+                                context: context, isSaved: true)) {
                           Logger.log('Biometric authentication success');
                           provider.saveIsBiometricEnabled(true);
                         } else {
@@ -94,6 +100,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       : SingleButtonPosition.none,
                   title: t.settings_screen.change_password,
                   onPressed: () async {
+                    final authProvider = context.read<AuthProvider>();
+                    if (await authProvider.isBiometricsAuthValid()) {
+                      _showPinSettingScreen();
+                      return;
+                    }
+
                     MyBottomSheet.showBottomSheet_90(
                       context: context,
                       child: const LoaderOverlay(
@@ -112,13 +124,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     value: provider.hasBiometricsPermission ? provider.isBiometricEnabled : false,
                     activeColor: CoconutColors.black,
                     onChanged: (isOn) async {
-                      if (isOn &&
-                          await provider.authenticateWithBiometrics(context, isSaved: true)) {
-                        Logger.log('Biometric authentication success');
-                        provider.saveIsBiometricEnabled(true);
-                      } else {
-                        Logger.log('Biometric authentication fail');
-                        provider.saveIsBiometricEnabled(false);
+                      /// 비밀번호 제거 기능은 제공하지 않음.
+                      if (isOn) {
+                        _showPinSettingScreen();
                       }
                     },
                   ),
@@ -148,6 +156,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
               buttonPosition: SingleButtonPosition.none,
               title: t.settings_screen.prepare_update,
               onPressed: () async {
+                final authProvider = context.read<AuthProvider>();
+                if (await authProvider.isBiometricsAuthValid()) {
+                  Navigator.pushNamed(context, AppRoutes.prepareUpdate);
+                  return;
+                }
+
                 MyBottomSheet.showBottomSheet_90(
                   context: context,
                   child: CustomLoadingOverlay(

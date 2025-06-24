@@ -4,6 +4,7 @@ import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_vault/constants/app_routes.dart';
 import 'package:coconut_vault/enums/pin_check_context_enum.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
+import 'package:coconut_vault/providers/auth_provider.dart';
 import 'package:coconut_vault/providers/view_model/vault_menu/single_sig_setup_info_view_model.dart';
 import 'package:coconut_vault/screens/vault_menu/info/name_and_icon_edit_bottom_sheet.dart';
 import 'package:coconut_vault/utils/text_utils.dart';
@@ -54,6 +55,12 @@ class _SingleSigSetupInfoScreenState extends State<SingleSigSetupInfoScreen> {
   }
 
   Future<void> _verifyBiometric(BuildContext context, PinCheckContextEnum pinCheckContext) async {
+    final authProvider = context.read<AuthProvider>();
+    if (await authProvider.isBiometricsAuthValid()) {
+      _verifySwitch(context, pinCheckContext);
+      return;
+    }
+
     MyBottomSheet.showBottomSheet_90(
       context: context,
       child: CustomLoadingOverlay(

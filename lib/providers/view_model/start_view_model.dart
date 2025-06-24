@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:coconut_vault/app.dart';
 import 'package:coconut_vault/constants/shared_preferences_keys.dart';
+import 'package:coconut_vault/providers/auth_provider.dart';
 import 'package:coconut_vault/providers/connectivity_provider.dart';
 import 'package:coconut_vault/repository/secure_storage_repository.dart';
 import 'package:coconut_vault/repository/shared_preferences_repository.dart';
@@ -12,9 +13,10 @@ import 'package:flutter/foundation.dart';
 class StartViewModel extends ChangeNotifier {
   late final bool _hasSeenGuide;
   late final ConnectivityProvider _connectivityProvider;
+  late final AuthProvider _authProvider;
   bool? _connectivityState;
 
-  StartViewModel(this._connectivityProvider, this._hasSeenGuide) {
+  StartViewModel(this._connectivityProvider, this._authProvider, this._hasSeenGuide) {
     if (!_hasSeenGuide) {
       // iOS는 앱을 삭제해도 secure storage에 데이터가 남아있음
       SecureStorageRepository().deleteAll();
@@ -64,11 +66,15 @@ class StartViewModel extends ChangeNotifier {
       }
     }
 
-    /// 비밀번호 등록 되어 있더라도, 추가한 볼트가 없는 경우는 볼트 리스트 화면으로 이동합니다.
-    if (_isWalletExistent()) {
+    // 복원파일이 없는 경우
+    if (!_isWalletExistent() || !_authProvider.isAuthEnabled) {
+      return AppEntryFlow.vaultList;
+    }
+
+    if (await _authProvider.isBiometricsAuthValid()) {
+      return AppEntryFlow.vaultList;
+    } else {
       return AppEntryFlow.pinCheck;
     }
-    // 복원파일 없음 - 일반적인 최초 진입 흐름
-    return AppEntryFlow.vaultList;
   }
 }

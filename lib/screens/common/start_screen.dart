@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_lib/coconut_lib.dart';
 import 'package:coconut_vault/app.dart';
+import 'package:coconut_vault/providers/auth_provider.dart';
 import 'package:coconut_vault/providers/connectivity_provider.dart';
 import 'package:coconut_vault/providers/view_model/start_view_model.dart';
 import 'package:coconut_vault/providers/visibility_provider.dart';
@@ -25,7 +26,9 @@ class _StartScreenState extends State<StartScreen> {
   @override
   void initState() {
     super.initState();
-    _viewModel = StartViewModel(Provider.of<ConnectivityProvider>(context, listen: false),
+    _viewModel = StartViewModel(
+        Provider.of<ConnectivityProvider>(context, listen: false),
+        Provider.of<AuthProvider>(context, listen: false),
         Provider.of<VisibilityProvider>(context, listen: false).hasSeenGuide);
 
     WidgetsBinding.instance.addPostFrameCallback((_) async {
