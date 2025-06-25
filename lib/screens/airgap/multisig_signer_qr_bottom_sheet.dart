@@ -1,7 +1,7 @@
 import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
-import 'package:coconut_vault/widgets/animatedQR/animated_qr_data_handler.dart';
-import 'package:coconut_vault/widgets/animatedQR/animated_qr_view.dart';
+import 'package:coconut_vault/widgets/animated_qr/animated_qr_view.dart';
+import 'package:coconut_vault/widgets/animated_qr/view_data_handler/bc_ur_qr_view_handler.dart';
 import 'package:flutter/material.dart';
 import 'package:coconut_vault/widgets/custom_tooltip.dart';
 
@@ -98,8 +98,9 @@ class _SignerQrBottomSheetState extends State<SignerQrBottomSheet> {
                     padding: const EdgeInsets.all(10),
                     decoration: CoconutBoxDecoration.shadowBoxDecoration,
                     child: AnimatedQrView(
-                      data: AnimatedQRDataHandler.splitData(widget.signedRawTx),
-                      size: MediaQuery.of(context).size.width * 0.8,
+                      qrViewDataHandler:
+                          BcUrQrViewHandler(widget.signedRawTx, {'urType': 'crypto-psbt'}),
+                      qrSize: MediaQuery.of(context).size.width * 0.8,
                     ),
                   ),
                 ],
