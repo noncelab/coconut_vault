@@ -27,6 +27,7 @@ const allDependencies = <Package>[
   _built_collection,
   _built_value,
   _carousel_slider,
+  _cbor,
   _characters,
   _checked_yaml,
   _clock,
@@ -73,6 +74,7 @@ const allDependencies = <Package>[
   _http,
   _http_multi_server,
   _http_parser,
+  _ieee754,
   _intl,
   _io,
   _js,
@@ -158,6 +160,7 @@ const allDependencies = <Package>[
   _timing,
   _tuple,
   _typed_data,
+  _ur,
   _url_launcher,
   _url_launcher_android,
   _url_launcher_ios,
@@ -189,6 +192,7 @@ const allDependencies = <Package>[
 /// Direct `dependencies`.
 const dependencies = <Package>[
   _carousel_slider,
+  _cbor,
   _coconut_design_system,
   _coconut_lib,
   _connectivity_plus,
@@ -223,6 +227,7 @@ const dependencies = <Package>[
   _slang,
   _slang_flutter,
   _tuple,
+  _ur,
   _url_launcher,
   _vibration
 ];
@@ -1081,6 +1086,47 @@ SOFTWARE.''',
     isSdk: false,
     dependencies: [PackageRef('flutter')]);
 
+/// cbor 6.3.5
+const _cbor = Package(
+    name: 'cbor',
+    description:
+        'A CBOR library for Dart. An RFC8949 compliant encoding/decoding CBOR implementation.',
+    homepage: 'https://github.com/shamblett/cbor',
+    repository: 'https://github.com/shamblett/cbor',
+    authors: [],
+    version: '6.3.5',
+    license: '''The MIT License (MIT)
+
+Copyright (c) 2016 Steve Hamblett
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.''',
+    isMarkdown: false,
+    isSdk: false,
+    dependencies: [
+      PackageRef('collection'),
+      PackageRef('typed_data'),
+      PackageRef('hex'),
+      PackageRef('convert'),
+      PackageRef('ieee754'),
+      PackageRef('meta')
+    ]);
+
 /// characters 1.3.0
 const _characters = Package(
     name: 'characters',
@@ -1410,14 +1456,14 @@ Licensor: Nonce Lab''',
       PackageRef('lottie')
     ]);
 
-/// coconut_lib 0.10.2
+/// coconut_lib 0.10.4
 const _coconut_lib = Package(
     name: 'coconut_lib',
     description:
         'The coconut_lib is a development tool for mobile air gap Bitcoin wallets. It is written in Dart. Coconut Vault and Coconut Wallet were created using this library.',
     repository: 'https://github.com/noncelab/coconut_lib.git',
     authors: [],
-    version: '0.10.2',
+    version: '0.10.4',
     license: '''Copyright 2025 Nonce Lab
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the “Software”), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
@@ -1636,14 +1682,14 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.''',
       PackageRef('plugin_platform_interface')
     ]);
 
-/// convert 3.1.1
+/// convert 3.1.2
 const _convert = Package(
     name: 'convert',
     description:
         'Utilities for converting between data representations. Provides a number of Sink, Codec, Decoder, and Encoder types.',
-    repository: 'https://github.com/dart-lang/convert',
+    repository: 'https://github.com/dart-lang/core/tree/main/pkgs/convert',
     authors: [],
-    version: '3.1.1',
+    version: '3.1.2',
     license: '''Copyright 2015, the Dart project authors.
 
 Redistribution and use in source and binary forms, with or without
@@ -3993,6 +4039,24 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.''',
       PackageRef('string_scanner'),
       PackageRef('typed_data')
     ]);
+
+/// ieee754 1.0.3
+const _ieee754 = Package(
+    name: 'ieee754',
+    description: 'A library for parsing and encoding IEEE-754 binary floating point numbers.',
+    homepage: 'https://github.com/nicbn/ieee754-dart',
+    repository: 'https://github.com/nicbn/ieee754-dart',
+    authors: [],
+    version: '1.0.3',
+    license:
+        '''Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.''',
+    isMarkdown: false,
+    isSdk: false,
+    dependencies: [PackageRef('meta')]);
 
 /// intl 0.19.0
 const _intl = Package(
@@ -8592,6 +8656,38 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.''',
     isMarkdown: false,
     isSdk: false,
     dependencies: [PackageRef('collection')]);
+
+/// ur 0.1.0
+const _ur = Package(
+    name: 'ur',
+    description: 'A Dart implementation of Uniform Resources (UR) encoding and decoding.',
+    homepage: 'https://github.com/bukata-sa/bc-ur-dart',
+    authors: [],
+    version: '0.1.0',
+    license: '''MIT License
+
+Copyright (c) 2024 Aleksandr Bukata
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.''',
+    isMarkdown: false,
+    isSdk: true,
+    dependencies: []);
 
 /// url_launcher 6.3.0
 const _url_launcher = Package(
