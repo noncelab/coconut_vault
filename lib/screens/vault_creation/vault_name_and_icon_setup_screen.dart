@@ -8,7 +8,6 @@ import 'package:coconut_vault/utils/logger.dart';
 import 'package:coconut_vault/widgets/custom_dialog.dart';
 import 'package:coconut_vault/widgets/indicator/message_activity_indicator.dart';
 import 'package:flutter/material.dart';
-import 'package:coconut_vault/widgets/custom_toast.dart';
 import 'package:coconut_vault/widgets/vault_name_icon_edit_palette.dart';
 import 'package:provider/provider.dart';
 
@@ -76,7 +75,8 @@ class _VaultNameAndIconSetupScreenState extends State<VaultNameAndIconSetupScree
       });
 
       if (_walletProvider.isNameDuplicated(inputText)) {
-        CustomToast.showToast(text: t.toast.name_already_used2, context: context);
+        CoconutToast.showToast(
+            text: t.toast.name_already_used2, context: context, isVisibleIcon: true);
         setState(() {
           _showLoading = false;
         });

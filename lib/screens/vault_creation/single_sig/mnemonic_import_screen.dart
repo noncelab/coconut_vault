@@ -13,7 +13,6 @@ import 'package:coconut_vault/utils/vibration_util.dart';
 import 'package:coconut_vault/utils/wallet_utils.dart';
 import 'package:coconut_vault/widgets/bottom_sheet.dart';
 import 'package:coconut_vault/widgets/custom_dialog.dart';
-import 'package:coconut_vault/widgets/custom_toast.dart';
 import 'package:coconut_vault/widgets/textfield/custom_textfield.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
@@ -210,7 +209,8 @@ class _MnemonicImportState extends State<MnemonicImport> {
     final String passphrase = _usePassphrase ? _passphrase.trim() : '';
 
     if (_walletProvider.isSeedDuplicated(secret, passphrase)) {
-      CustomToast.showToast(context: context, text: t.toast.mnemonic_already_added);
+      CoconutToast.showToast(
+          context: context, text: t.toast.mnemonic_already_added, isVisibleIcon: true);
       return;
     }
 
@@ -224,7 +224,7 @@ class _MnemonicImportState extends State<MnemonicImport> {
               MaterialPageRoute(builder: (context) => const VaultNameAndIconSetupScreen()));
         },
         onInactivePressed: () {
-          CustomToast.showToast(context: context, text: t.toast.scroll_down);
+          CoconutToast.showToast(context: context, text: t.toast.scroll_down, isVisibleIcon: true);
           vibrateMediumDouble();
         },
         mnemonic: secret,

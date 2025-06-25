@@ -11,7 +11,6 @@ import 'package:coconut_vault/screens/vault_creation/single_sig/mnemonic_generat
 import 'package:coconut_vault/widgets/bottom_sheet.dart';
 import 'package:coconut_vault/widgets/button/custom_buttons.dart';
 import 'package:coconut_vault/widgets/custom_dialog.dart';
-import 'package:coconut_vault/widgets/custom_toast.dart';
 import 'package:coconut_vault/widgets/highlighted_text.dart';
 import 'package:coconut_vault/widgets/textfield/custom_textfield.dart';
 import 'package:provider/provider.dart';
@@ -603,7 +602,7 @@ class _FlipCoinState extends State<FlipCoin> {
               MaterialPageRoute(builder: (context) => const VaultNameAndIconSetupScreen()));
         },
         onInactivePressed: () {
-          CustomToast.showToast(context: context, text: t.toast.scroll_down);
+          CoconutToast.showToast(context: context, text: t.toast.scroll_down, isVisibleIcon: true);
         },
         mnemonic: _mnemonic,
         passphrase: widget.usePassphrase ? passphrase : null,

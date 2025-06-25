@@ -17,7 +17,6 @@ import 'package:coconut_vault/utils/alert_util.dart';
 import 'package:coconut_vault/widgets/bottom_sheet.dart';
 import 'package:coconut_vault/widgets/bubble_clipper.dart';
 import 'package:coconut_vault/widgets/custom_loading_overlay.dart';
-import 'package:coconut_vault/widgets/custom_toast.dart';
 import 'package:coconut_vault/widgets/card/information_item_card.dart';
 import 'package:loader_overlay/loader_overlay.dart';
 import 'package:provider/provider.dart';
@@ -162,10 +161,18 @@ class _SingleSigSetupInfoScreenState extends State<SingleSigSetupInfoScreen> {
 
     if (mounted) {
       if (hasChanged) {
-        CustomToast.showToast(context: context, text: t.toast.data_updated);
+        CoconutToast.showToast(
+          context: context,
+          text: t.toast.data_updated,
+          isVisibleIcon: true,
+        );
         return;
       }
-      CustomToast.showToast(context: context, text: t.toast.name_already_used);
+      CoconutToast.showToast(
+        context: context,
+        text: t.toast.name_already_used,
+        isVisibleIcon: true,
+      );
     }
   }
 
@@ -377,10 +384,10 @@ class _SingleSigSetupInfoScreenState extends State<SingleSigSetupInfoScreen> {
                                 });
                             return;
                           }
-
-                          CustomToast.showToast(
+                          CoconutToast.showToast(
                             context: context,
                             text: t.toast.name_multisig_in_use,
+                            isVisibleIcon: true,
                           );
                         },
                       );

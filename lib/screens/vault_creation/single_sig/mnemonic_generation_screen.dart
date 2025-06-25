@@ -13,7 +13,6 @@ import 'package:coconut_vault/widgets/bottom_sheet.dart';
 import 'package:coconut_vault/widgets/button/custom_buttons.dart';
 import 'package:coconut_vault/widgets/check_list.dart';
 import 'package:coconut_vault/widgets/custom_dialog.dart';
-import 'package:coconut_vault/widgets/custom_toast.dart';
 import 'package:coconut_vault/widgets/highlighted_text.dart';
 import 'package:coconut_vault/widgets/textfield/custom_textfield.dart';
 import 'package:provider/provider.dart';
@@ -93,7 +92,11 @@ class _MnemonicGenerationScreenState extends State<MnemonicGenerationScreen> {
               MaterialPageRoute(builder: (context) => const VaultNameAndIconSetupScreen()));
         },
         onInactivePressed: () {
-          CustomToast.showToast(context: context, text: t.toast.scroll_down);
+          CoconutToast.showToast(
+            context: context,
+            text: t.toast.scroll_down,
+            isVisibleIcon: true,
+          );
           vibrateMediumDouble();
         },
         mnemonic: _mnemonicWords,

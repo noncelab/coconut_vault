@@ -47,69 +47,12 @@ class _NameAndIconEditBottomSheetState extends State<NameAndIconEditBottomSheet>
           children: [
             Scaffold(
               backgroundColor: CoconutColors.white,
-              // TODO: custom_appber.buildWithSave로 대체 --> builWithSave를 활용하려면 이 코드도 변경이 필요해 보이기 때문에, 이건 CDS 적용할 때 바꾸는게 좋을 것 같습니다.
-              appBar: AppBar(
-                backgroundColor: CoconutColors.white,
-                title: Text(_name, maxLines: 1),
-                centerTitle: true,
-                titleTextStyle: CoconutTypography.body1_16_Bold,
-                leading: IconButton(
-                  icon: const Icon(
-                    Icons.close_rounded,
-                    color: CoconutColors.gray800,
-                    size: 22,
-                  ),
-                  onPressed: () {
-                    if (!isSaving) Navigator.pop(context);
-                  },
-                ),
-                actions: [
-                  Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 16.0),
-                    child: GestureDetector(
-                      onTap: () async {
-                        if (_name.trim().isEmpty) return;
-                        _closeKeyboard();
-                        setState(() {
-                          isSaving = hasChanged;
-                        });
-                        // CustomDialogs.showLoadingDialog(context);
-                        if (hasChanged) {
-                          context.loaderOverlay.show();
-
-                          await Future.delayed(const Duration(seconds: 1));
-
-                          context.loaderOverlay.hide();
-                        }
-                        widget.onUpdate(
-                            _name.isEmpty ? widget.name : _name, _iconIndex, _colorIndex);
-                        Navigator.of(context).pop();
-                      },
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 12.0),
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(14.0),
-                          border: Border.all(
-                            color: _name.trim().isNotEmpty
-                                ? Colors.transparent
-                                : CoconutColors.black.withOpacity(0.06),
-                          ),
-                          color: _name.trim().isNotEmpty
-                              ? CoconutColors.gray800
-                              : CoconutColors.gray150,
-                        ),
-                        child: Center(
-                          child: Text(t.complete,
-                              style: CoconutTypography.body2_14.merge(TextStyle(
-                                  color: _name.trim().isNotEmpty
-                                      ? CoconutColors.white
-                                      : CoconutColors.black.withOpacity(0.3),
-                                  fontSize: 11))),
-                        ),
-                      ),
-                    ),
-                  )
-                ],
+              appBar: CoconutAppBar.buildWithNext(
+                context: context,
+                onNextPressed: _onNextPressed,
+                title: _name,
+                nextButtonTitle: t.complete,
+                isBottom: true,
               ),
               body: SafeArea(
                 child: NestedScrollView(
@@ -151,6 +94,23 @@ class _NameAndIconEditBottomSheetState extends State<NameAndIconEditBottomSheet>
         ),
       ),
     );
+  }
+
+  Future<void> _onNextPressed() async {
+    if (_name.trim().isEmpty) return;
+    _closeKeyboard();
+    setState(() {
+      isSaving = hasChanged;
+    });
+
+    if (hasChanged) {
+      context.loaderOverlay.show();
+      await Future.delayed(const Duration(seconds: 1));
+      context.loaderOverlay.hide();
+    }
+
+    widget.onUpdate(_name.isEmpty ? widget.name : _name, _iconIndex, _colorIndex);
+    Navigator.of(context).pop();
   }
 
   void _closeKeyboard() {

@@ -17,7 +17,6 @@ import 'package:coconut_vault/widgets/bottom_sheet.dart';
 import 'package:coconut_vault/widgets/button/custom_buttons.dart';
 import 'package:coconut_vault/widgets/custom_dialog.dart';
 import 'package:coconut_vault/widgets/custom_expansion_panel.dart';
-import 'package:coconut_vault/widgets/custom_toast.dart';
 import 'package:coconut_vault/widgets/highlighted_text.dart';
 import 'package:coconut_vault/widgets/indicator/message_activity_indicator.dart';
 import 'package:flutter/material.dart';
@@ -513,8 +512,10 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
     VaultListItemBase? existingWallet = _viewModel.getWalletByDescriptor();
     if (existingWallet != null) {
       if (mounted) {
-        CustomToast.showToast(
-            context: context, text: t.toast.multisig_already_added(name: existingWallet.name));
+        CoconutToast.showToast(
+            context: context,
+            text: t.toast.multisig_already_added(name: existingWallet.name),
+            isVisibleIcon: true);
         setState(() {
           _isNextProcessing = false;
         });
