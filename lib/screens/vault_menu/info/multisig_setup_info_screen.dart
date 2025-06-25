@@ -5,6 +5,7 @@ import 'package:coconut_vault/constants/app_routes.dart';
 import 'package:coconut_vault/enums/pin_check_context_enum.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/model/multisig/multisig_signer.dart';
+import 'package:coconut_vault/providers/auth_provider.dart';
 import 'package:coconut_vault/providers/view_model/vault_menu/multisig_setup_info_view_model.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:coconut_vault/screens/common/pin_check_screen.dart';
@@ -55,7 +56,18 @@ class _MultisigSetupInfoScreenState extends State<MultisigSetupInfoScreen> {
   Future _verifyBiometric(
     BuildContext context,
   ) async {
-    final viewModel = context.read<MultisigSetupInfoViewModel>();
+    void onComplete() {
+      context.read<MultisigSetupInfoViewModel>().deleteVault();
+      vibrateLight();
+      Navigator.popUntil(context, (route) => route.isFirst);
+    }
+
+    final authProvider = context.read<AuthProvider>();
+    if (await authProvider.isBiometricsAuthValid()) {
+      onComplete();
+      return;
+    }
+
     MyBottomSheet.showBottomSheet_90(
       context: context,
       child: CustomLoadingOverlay(
@@ -63,9 +75,7 @@ class _MultisigSetupInfoScreenState extends State<MultisigSetupInfoScreen> {
           pinCheckContext: PinCheckContextEnum.sensitiveAction,
           onComplete: () async {
             Navigator.pop(context);
-            viewModel.deleteVault();
-            vibrateLight();
-            Navigator.popUntil(context, (route) => route.isFirst);
+            onComplete();
           },
         ),
       ),

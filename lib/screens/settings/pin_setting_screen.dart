@@ -131,7 +131,7 @@ class _PinSettingScreenState extends State<PinSettingScreen> {
             _authProvider.canCheckBiometrics &&
             !_authProvider.hasAlreadyRequestedBioPermission &&
             mounted) {
-          await _authProvider.authenticateWithBiometrics(context, isSaved: true);
+          await _authProvider.authenticateWithBiometrics(context: context, isSaved: true);
         }
 
         _finishPinSetting();
