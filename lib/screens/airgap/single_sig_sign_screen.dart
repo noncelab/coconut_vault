@@ -3,6 +3,7 @@ import 'package:coconut_vault/constants/app_routes.dart';
 import 'package:coconut_vault/enums/currency_enum.dart';
 import 'package:coconut_vault/enums/pin_check_context_enum.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
+import 'package:coconut_vault/providers/auth_provider.dart';
 import 'package:coconut_vault/providers/sign_provider.dart';
 import 'package:coconut_vault/providers/view_model/airgap/single_sig_sign_view_model.dart';
 import 'package:coconut_vault/providers/visibility_provider.dart';
@@ -54,7 +55,13 @@ class _SingleSigSignScreenState extends State<SingleSigSignScreen> {
     });
   }
 
-  void _signStep1() {
+  Future<void> _signStep1() async {
+    final authProvider = context.read<AuthProvider>();
+    if (await authProvider.isBiometricsAuthValid()) {
+      _signStep2();
+      return;
+    }
+
     MyBottomSheet.showBottomSheet_90(
       context: context,
       child: CustomLoadingOverlay(
