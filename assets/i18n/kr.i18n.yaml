@@ -7,6 +7,11 @@
 coconut_vault: "Coconut Vault"
 vault: "Vault"
 btc: "BTC"
+sats: "sats"
+bitcoin_en: "Bitcoin"
+bitcoin_kr: "비트코인"
+satoshi: "Satoshi"
+unit: "단위"
 hour: "시간"
 minute: "분"
 second: "초"
@@ -172,6 +177,9 @@ signer_qr_bottom_sheet:
   text2_2: " 선택 - "
   text2_3: "다중 서명하기"
   text2_4: "를 눌러 아래 QR 코드를 스캔해 주세요."
+unit_bottom_sheet:
+  basic_unit: "기본 단위"
+  header_text: "1 BTC = 100,000,000 sats"
 
 # lib/screens/setting
 app_info_screen:

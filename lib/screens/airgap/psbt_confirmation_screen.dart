@@ -1,8 +1,10 @@
 import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_vault/constants/app_routes.dart';
+import 'package:coconut_vault/enums/currency_enum.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/providers/sign_provider.dart';
 import 'package:coconut_vault/providers/view_model/airgap/psbt_confirmation_view_model.dart';
+import 'package:coconut_vault/providers/visibility_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:coconut_vault/utils/alert_util.dart';
 import 'package:coconut_vault/utils/unit_utils.dart';
@@ -19,14 +21,14 @@ class PsbtConfirmationScreen extends StatefulWidget {
 
 class _PsbtConfirmationScreenState extends State<PsbtConfirmationScreen> {
   late PsbtConfirmationViewModel _viewModel;
-
+  late BitcoinUnit _currentUnit;
   bool _showLoading = true;
 
   @override
   void initState() {
     super.initState();
     _viewModel = PsbtConfirmationViewModel(Provider.of<SignProvider>(context, listen: false));
-
+    _currentUnit = context.read<VisibilityProvider>().currentUnit;
     WidgetsBinding.instance.addPostFrameCallback((_) {
       try {
         _viewModel.setTxInfo();
@@ -104,23 +106,25 @@ class _PsbtConfirmationScreenState extends State<PsbtConfirmationScreen> {
                         showIcon: true,
                         type: TooltipType.info,
                       ),
-                      Container(
-                        margin: const EdgeInsets.symmetric(vertical: 40),
-                        child: Center(
-                          child: Text.rich(
-                            TextSpan(
-                              text: viewModel.sendingAmount != null
-                                  ? satoshiToBitcoinString(viewModel.sendingAmount!)
-                                  : '',
-                              children: <TextSpan>[
-                                TextSpan(
-                                    text: ' ${t.btc}', style: CoconutTypography.heading4_18_Number),
-                              ],
-                            ),
-                            style: CoconutTypography.heading1_32_Number.merge(
-                              const TextStyle(
-                                fontSize: 36,
-                                fontWeight: FontWeight.w600,
+                      GestureDetector(
+                        onTap: _toggleUnit,
+                        child: Container(
+                          margin: const EdgeInsets.symmetric(vertical: Sizes.size40),
+                          child: Center(
+                            child: Text.rich(
+                              TextSpan(
+                                text: bitcoinStringByUnit(viewModel.sendingAmount, _currentUnit),
+                                children: <TextSpan>[
+                                  TextSpan(
+                                      text: ' ${bitcoinUnitString(_currentUnit)}',
+                                      style: CoconutTypography.heading4_18_Number),
+                                ],
+                              ),
+                              style: CoconutTypography.heading1_32_Number.merge(
+                                const TextStyle(
+                                  fontSize: 36,
+                                  fontWeight: FontWeight.w600,
+                                ),
                               ),
                             ),
                           ),
@@ -149,9 +153,8 @@ class _PsbtConfirmationScreenState extends State<PsbtConfirmationScreen> {
                                 InformationItemCard(
                                   label: t.estimated_fee,
                                   value: [
-                                    viewModel.estimatedFee != null
-                                        ? "${satoshiToBitcoinString(viewModel.estimatedFee!)} ${t.btc}"
-                                        : ""
+                                    bitcoinStringByUnit(viewModel.estimatedFee, _currentUnit,
+                                        withUnit: true),
                                   ],
                                   isNumber: true,
                                 ),
@@ -162,9 +165,8 @@ class _PsbtConfirmationScreenState extends State<PsbtConfirmationScreen> {
                                 InformationItemCard(
                                   label: t.total_amount,
                                   value: [
-                                    viewModel.totalAmount != null
-                                        ? "${satoshiToBitcoinString(viewModel.totalAmount!)} ${t.btc}"
-                                        : ""
+                                    bitcoinStringByUnit(viewModel.totalAmount, _currentUnit,
+                                        withUnit: true),
                                   ],
                                   isNumber: true,
                                 ),
@@ -222,6 +224,12 @@ class _PsbtConfirmationScreenState extends State<PsbtConfirmationScreen> {
         );
       }),
     );
+  }
+
+  void _toggleUnit() {
+    setState(() {
+      _currentUnit = _currentUnit == BitcoinUnit.btc ? BitcoinUnit.sats : BitcoinUnit.btc;
+    });
   }
 }
 

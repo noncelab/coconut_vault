@@ -1,3 +1,6 @@
+import 'package:coconut_vault/enums/currency_enum.dart';
+import 'package:coconut_vault/localization/strings.g.dart';
+
 class UnitUtil {
   static double satoshiToBitcoin(int satoshi) {
     return satoshi / 100000000.0;
@@ -8,7 +11,7 @@ class UnitUtil {
 ///
 /// @param satoshi 사토시 단위 잔액
 /// @returns String 비트코인 단위 잔액 문자열 예) 00,000,000.0000 0000
-String satoshiToBitcoinString(int satoshi) {
+String _satoshiToBitcoinString(int satoshi) {
   var toBitcoin = UnitUtil.satoshiToBitcoin(satoshi);
 
   String bitcoinString;
@@ -48,4 +51,16 @@ String addCommasToIntegerPart(double number) {
   integerPart = integerPart.replaceAllMapped(regex, (Match match) => '${match[1]},');
 
   return integerPart;
+}
+
+String bitcoinStringByUnit(int? amount, BitcoinUnit unit, {bool withUnit = false}) {
+  if (amount == null || amount == 0) return '';
+  String amountText = unit == BitcoinUnit.btc
+      ? _satoshiToBitcoinString(amount)
+      : addCommasToIntegerPart(amount.toDouble());
+  return withUnit ? "$amountText ${bitcoinUnitString(unit)}" : amountText;
+}
+
+String bitcoinUnitString(BitcoinUnit unit) {
+  return unit == BitcoinUnit.btc ? t.btc : t.sats;
 }

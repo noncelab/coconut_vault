@@ -187,6 +187,7 @@ flutter:
     - assets/svg/kebab.svg
     - assets/svg/plus.svg
     - assets/svg/minus.svg
+    - assets/svg/check.svg
     - assets/lottie/loading-coconut.json
     - assets/lottie/pin-locked-success.json
     - assets/png/pow-logo.png

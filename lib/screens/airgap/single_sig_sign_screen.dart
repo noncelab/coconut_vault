@@ -1,9 +1,11 @@
 import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_vault/constants/app_routes.dart';
+import 'package:coconut_vault/enums/currency_enum.dart';
 import 'package:coconut_vault/enums/pin_check_context_enum.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/providers/sign_provider.dart';
 import 'package:coconut_vault/providers/view_model/airgap/single_sig_sign_view_model.dart';
+import 'package:coconut_vault/providers/visibility_provider.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:coconut_vault/screens/common/pin_check_screen.dart';
 import 'package:coconut_vault/utils/alert_util.dart';
@@ -27,6 +29,7 @@ class SingleSigSignScreen extends StatefulWidget {
 
 class _SingleSigSignScreenState extends State<SingleSigSignScreen> {
   late SingleSigSignViewModel _viewModel;
+  late BitcoinUnit _currentUnit;
 
   bool _showLoading = false;
   bool _isProgressCompleted = false;
@@ -34,6 +37,7 @@ class _SingleSigSignScreenState extends State<SingleSigSignScreen> {
   @override
   void initState() {
     super.initState();
+    _currentUnit = context.read<VisibilityProvider>().currentUnit;
     _viewModel = SingleSigSignViewModel(Provider.of<WalletProvider>(context, listen: false),
         Provider.of<SignProvider>(context, listen: false));
 
@@ -41,6 +45,12 @@ class _SingleSigSignScreenState extends State<SingleSigSignScreen> {
       if (_viewModel.isAlreadySigned) {
         _viewModel.updateSignState();
       }
+    });
+  }
+
+  void _toggleUnit() {
+    setState(() {
+      _currentUnit = _currentUnit == BitcoinUnit.btc ? BitcoinUnit.sats : BitcoinUnit.btc;
     });
   }
 
@@ -180,9 +190,13 @@ class _SingleSigSignScreenState extends State<SingleSigSignScreen> {
                                 t.send_amount,
                                 style: CoconutTypography.body2_14.setColor(CoconutColors.gray700),
                               ),
-                              Text(
-                                '${satoshiToBitcoinString(viewModel.sendingAmount)} ${t.btc}',
-                                style: CoconutTypography.body1_16_Number,
+                              GestureDetector(
+                                onTap: _toggleUnit,
+                                child: Text(
+                                  bitcoinStringByUnit(viewModel.sendingAmount, _currentUnit,
+                                      withUnit: true),
+                                  style: CoconutTypography.body1_16_Number,
+                                ),
                               ),
                             ],
                           ),

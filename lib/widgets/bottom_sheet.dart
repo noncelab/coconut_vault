@@ -39,6 +39,24 @@ class MyBottomSheet {
         constraints: BoxConstraints(maxHeight: MediaQuery.of(context).size.height * 0.95));
   }
 
+  static void showBottomSheet_50(
+      {required BuildContext context,
+      required Widget child,
+      bool isDismissible = true,
+      bool enableDrag = true}) {
+    showModalBottomSheet(
+        context: context,
+        builder: (context) {
+          return child;
+        },
+        backgroundColor: CoconutColors.white,
+        isDismissible: isDismissible,
+        isScrollControlled: true,
+        enableDrag: enableDrag,
+        useSafeArea: true,
+        constraints: BoxConstraints(maxHeight: MediaQuery.of(context).size.height * 0.5));
+  }
+
   static void showBottomSheet({
     required String title,
     required BuildContext context,
