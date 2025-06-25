@@ -6,6 +6,7 @@ import 'package:coconut_vault/providers/auth_provider.dart';
 import 'package:coconut_vault/providers/visibility_provider.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:coconut_vault/screens/settings/unit_bottm_sheet.dart';
+import 'package:coconut_vault/screens/settings/pin_setting_screen.dart';
 import 'package:coconut_vault/utils/logger.dart';
 import 'package:coconut_vault/widgets/custom_loading_overlay.dart';
 import 'package:flutter/cupertino.dart';
@@ -54,6 +55,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 _btcUnitPart(context),
                 CoconutLayout.spacing_1000h,
                 _advancedUserPart(context),
+                SizedBox(
+                  height: MediaQuery.of(context).viewPadding.bottom > 0
+                      ? MediaQuery.of(context).viewPadding.bottom
+                      : Sizes.size16)
               ],
             ),
           ),
@@ -70,6 +75,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
         style: CoconutTypography.body1_16_Bold,
       ),
     );
+  }
+
+  void _showPinSettingScreen() {
+    MyBottomSheet.showBottomSheet_90(context: context, child: const PinSettingScreen());
   }
 
   Widget _securityPart(BuildContext context) {
@@ -90,7 +99,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       activeColor: CoconutColors.black,
                       onChanged: (isOn) async {
                         if (isOn &&
-                            await provider.authenticateWithBiometrics(context, isSaved: true)) {
+                            await provider.authenticateWithBiometrics(
+                                context: context, isSaved: true)) {
                           Logger.log('Biometric authentication success');
                           provider.saveIsBiometricEnabled(true);
                         } else {
@@ -106,6 +116,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       : SingleButtonPosition.none,
                   title: t.settings_screen.change_password,
                   onPressed: () async {
+                    final authProvider = context.read<AuthProvider>();
+                    if (await authProvider.isBiometricsAuthValid()) {
+                      _showPinSettingScreen();
+                      return;
+                    }
+
                     MyBottomSheet.showBottomSheet_90(
                       context: context,
                       child: const LoaderOverlay(
@@ -124,13 +140,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     value: provider.hasBiometricsPermission ? provider.isBiometricEnabled : false,
                     activeColor: CoconutColors.black,
                     onChanged: (isOn) async {
-                      if (isOn &&
-                          await provider.authenticateWithBiometrics(context, isSaved: true)) {
-                        Logger.log('Biometric authentication success');
-                        provider.saveIsBiometricEnabled(true);
-                      } else {
-                        Logger.log('Biometric authentication fail');
-                        provider.saveIsBiometricEnabled(false);
+                      /// 비밀번호 제거 기능은 제공하지 않음.
+                      if (isOn) {
+                        _showPinSettingScreen();
                       }
                     },
                   ),
@@ -154,6 +166,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
               buttonPosition: SingleButtonPosition.none,
               title: t.settings_screen.prepare_update,
               onPressed: () async {
+                final authProvider = context.read<AuthProvider>();
+                if (await authProvider.isBiometricsAuthValid()) {
+                  Navigator.pushNamed(context, AppRoutes.prepareUpdate);
+                  return;
+                }
+
                 MyBottomSheet.showBottomSheet_90(
                   context: context,
                   child: CustomLoadingOverlay(
