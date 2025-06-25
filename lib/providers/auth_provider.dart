@@ -48,7 +48,7 @@ class AuthProvider extends ChangeNotifier {
   bool get hasBiometricsPermission => _hasBiometricsPermission;
 
   /// 인증 활성화 여부
-  bool get isAuthEnabled => isBiometricsAuthEnabled || _isPinSet;
+  bool get isAuthEnabled => _isPinSet;
 
   /// 생체인식 인증 활성화 여부
   bool get isBiometricsAuthEnabled => _canCheckBiometrics && _isBiometricEnabled;
