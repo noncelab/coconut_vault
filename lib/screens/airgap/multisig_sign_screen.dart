@@ -255,7 +255,7 @@ class _MultisigSignScreenState extends State<MultisigSignScreen> {
                                 GestureDetector(
                                   onTap: _toggleUnit,
                                   child: Text(
-                                    bitcoinStringByUnit(viewModel.sendingAmount, _currentUnit,
+                                    formatBitcoinValue(viewModel.sendingAmount, _currentUnit,
                                         withUnit: true),
                                     style: CoconutTypography.body1_16_Number,
                                   ),

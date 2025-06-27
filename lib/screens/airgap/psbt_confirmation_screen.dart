@@ -113,10 +113,10 @@ class _PsbtConfirmationScreenState extends State<PsbtConfirmationScreen> {
                           child: Center(
                             child: Text.rich(
                               TextSpan(
-                                text: bitcoinStringByUnit(viewModel.sendingAmount, _currentUnit),
+                                text: formatBitcoinValue(viewModel.sendingAmount, _currentUnit),
                                 children: <TextSpan>[
                                   TextSpan(
-                                      text: ' ${bitcoinUnitString(_currentUnit)}',
+                                      text: ' ${_currentUnit.symbol()}',
                                       style: CoconutTypography.heading4_18_Number),
                                 ],
                               ),
@@ -153,7 +153,7 @@ class _PsbtConfirmationScreenState extends State<PsbtConfirmationScreen> {
                                 InformationItemCard(
                                   label: t.estimated_fee,
                                   value: [
-                                    bitcoinStringByUnit(viewModel.estimatedFee, _currentUnit,
+                                    formatBitcoinValue(viewModel.estimatedFee, _currentUnit,
                                         withUnit: true),
                                   ],
                                   isNumber: true,
@@ -165,7 +165,7 @@ class _PsbtConfirmationScreenState extends State<PsbtConfirmationScreen> {
                                 InformationItemCard(
                                   label: t.total_amount,
                                   value: [
-                                    bitcoinStringByUnit(viewModel.totalAmount, _currentUnit,
+                                    formatBitcoinValue(viewModel.totalAmount, _currentUnit,
                                         withUnit: true),
                                   ],
                                   isNumber: true,

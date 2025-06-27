@@ -1,5 +1,4 @@
 import 'package:coconut_vault/enums/currency_enum.dart';
-import 'package:coconut_vault/localization/strings.g.dart';
 
 class UnitUtil {
   static double satoshiToBitcoin(int satoshi) {
@@ -65,14 +64,10 @@ String addCommasToIntegerPart(double number) {
   return integerPart;
 }
 
-String bitcoinStringByUnit(int? amount, BitcoinUnit unit, {bool withUnit = false}) {
+String formatBitcoinValue(int? amount, BitcoinUnit unit, {bool withUnit = false}) {
   if (amount == null) return '';
   String amountText = unit == BitcoinUnit.btc
       ? _satoshiToBitcoinString(amount)
       : addCommasToIntegerPart(amount.toDouble());
-  return withUnit ? "$amountText ${bitcoinUnitString(unit)}" : amountText;
-}
-
-String bitcoinUnitString(BitcoinUnit unit) {
-  return unit == BitcoinUnit.btc ? t.btc : t.sats;
+  return withUnit ? "$amountText ${unit.symbol()}" : amountText;
 }
