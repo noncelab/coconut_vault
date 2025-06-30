@@ -13,7 +13,6 @@ import 'package:coconut_vault/screens/airgap/multisig_signer_qr_bottom_sheet.dar
 import 'package:coconut_vault/utils/alert_util.dart';
 import 'package:coconut_vault/utils/icon_util.dart';
 import 'package:coconut_vault/utils/text_utils.dart';
-import 'package:coconut_vault/utils/unit_utils.dart';
 import 'package:coconut_vault/widgets/bottom_sheet.dart';
 import 'package:coconut_vault/widgets/custom_dialog.dart';
 import 'package:coconut_vault/widgets/custom_loading_overlay.dart';
@@ -255,7 +254,7 @@ class _MultisigSignScreenState extends State<MultisigSignScreen> {
                                 GestureDetector(
                                   onTap: _toggleUnit,
                                   child: Text(
-                                    formatBitcoinValue(viewModel.sendingAmount, _currentUnit,
+                                    _currentUnit.displayBitcoinAmount(viewModel.sendingAmount,
                                         withUnit: true),
                                     style: CoconutTypography.body1_16_Number,
                                   ),

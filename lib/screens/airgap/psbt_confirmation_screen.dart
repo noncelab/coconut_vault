@@ -7,7 +7,6 @@ import 'package:coconut_vault/providers/view_model/airgap/psbt_confirmation_view
 import 'package:coconut_vault/providers/visibility_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:coconut_vault/utils/alert_util.dart';
-import 'package:coconut_vault/utils/unit_utils.dart';
 import 'package:coconut_vault/widgets/custom_tooltip.dart';
 import 'package:coconut_vault/widgets/card/information_item_card.dart';
 import 'package:provider/provider.dart';
@@ -113,10 +112,10 @@ class _PsbtConfirmationScreenState extends State<PsbtConfirmationScreen> {
                           child: Center(
                             child: Text.rich(
                               TextSpan(
-                                text: formatBitcoinValue(viewModel.sendingAmount, _currentUnit),
+                                text: _currentUnit.displayBitcoinAmount(viewModel.sendingAmount),
                                 children: <TextSpan>[
                                   TextSpan(
-                                      text: ' ${_currentUnit.symbol()}',
+                                      text: ' ${_currentUnit.symbol}',
                                       style: CoconutTypography.heading4_18_Number),
                                 ],
                               ),
@@ -153,8 +152,8 @@ class _PsbtConfirmationScreenState extends State<PsbtConfirmationScreen> {
                                 InformationItemCard(
                                   label: t.estimated_fee,
                                   value: [
-                                    formatBitcoinValue(viewModel.estimatedFee, _currentUnit,
-                                        withUnit: true),
+                                    _currentUnit.displayBitcoinAmount(viewModel.estimatedFee,
+                                        withUnit: true)
                                   ],
                                   isNumber: true,
                                 ),
@@ -165,8 +164,8 @@ class _PsbtConfirmationScreenState extends State<PsbtConfirmationScreen> {
                                 InformationItemCard(
                                   label: t.total_amount,
                                   value: [
-                                    formatBitcoinValue(viewModel.totalAmount, _currentUnit,
-                                        withUnit: true),
+                                    _currentUnit.displayBitcoinAmount(viewModel.totalAmount,
+                                        withUnit: true)
                                   ],
                                   isNumber: true,
                                 ),

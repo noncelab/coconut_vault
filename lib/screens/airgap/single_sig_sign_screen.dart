@@ -200,7 +200,7 @@ class _SingleSigSignScreenState extends State<SingleSigSignScreen> {
                               GestureDetector(
                                 onTap: _toggleUnit,
                                 child: Text(
-                                  formatBitcoinValue(viewModel.sendingAmount, _currentUnit,
+                                  _currentUnit.displayBitcoinAmount(viewModel.sendingAmount,
                                       withUnit: true),
                                   style: CoconutTypography.body1_16_Number,
                                 ),
