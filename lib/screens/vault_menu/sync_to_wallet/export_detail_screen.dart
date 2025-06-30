@@ -1,6 +1,5 @@
 import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
-import 'package:coconut_vault/styles.dart';
 import 'package:coconut_vault/widgets/button/copy_text_container.dart';
 import 'package:flutter/material.dart';
 
@@ -17,25 +16,13 @@ class _ExportDetailScreen extends State<ExportDetailScreen> {
   @override
   Widget build(BuildContext context) {
     return ClipRRect(
-      borderRadius: MyBorder.defaultRadius,
+      borderRadius: CoconutBorder.defaultRadius,
       child: Scaffold(
-        backgroundColor: MyColors.white,
-        appBar: AppBar(
-          title: Text(t.export_detail_screen.title),
-          centerTitle: true,
-          backgroundColor: MyColors.white,
-          titleTextStyle: Styles.body1Bold,
-          toolbarTextStyle: Styles.body1Bold,
-          leading: IconButton(
-            icon: const Icon(
-              Icons.close_rounded,
-              color: MyColors.darkgrey,
-              size: 22,
-            ),
-            onPressed: () {
-              Navigator.pop(context);
-            },
-          ),
+        backgroundColor: CoconutColors.white,
+        appBar: CoconutAppBar.build(
+          context: context,
+          title: t.export_detail_screen.title,
+          backgroundColor: CoconutColors.white,
         ),
         body: SafeArea(
           child: SingleChildScrollView(

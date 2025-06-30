@@ -1,7 +1,7 @@
+import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/widgets/custom_loading_overlay.dart';
 import 'package:flutter/material.dart';
-import 'package:coconut_vault/styles.dart';
 import 'package:coconut_vault/widgets/vault_name_icon_edit_palette.dart';
 import 'package:loader_overlay/loader_overlay.dart';
 
@@ -42,72 +42,17 @@ class _NameAndIconEditBottomSheetState extends State<NameAndIconEditBottomSheet>
   Widget build(BuildContext context) {
     return CustomLoadingOverlay(
       child: ClipRRect(
-        borderRadius: MyBorder.defaultRadius,
+        borderRadius: CoconutBorder.defaultRadius,
         child: Stack(
           children: [
             Scaffold(
-              backgroundColor: MyColors.white,
-              // TODO: custom_appber.buildWithSave로 대체 --> builWithSave를 활용하려면 이 코드도 변경이 필요해 보이기 때문에, 이건 CDS 적용할 때 바꾸는게 좋을 것 같습니다.
-              appBar: AppBar(
-                backgroundColor: MyColors.white,
-                title: Text(_name, maxLines: 1),
-                centerTitle: true,
-                titleTextStyle: Styles.body1Bold,
-                leading: IconButton(
-                  icon: const Icon(
-                    Icons.close_rounded,
-                    color: MyColors.darkgrey,
-                    size: 22,
-                  ),
-                  onPressed: () {
-                    if (!isSaving) Navigator.pop(context);
-                  },
-                ),
-                actions: [
-                  Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 16.0),
-                    child: GestureDetector(
-                      onTap: () async {
-                        if (_name.trim().isEmpty) return;
-                        _closeKeyboard();
-                        setState(() {
-                          isSaving = hasChanged;
-                        });
-                        // CustomDialogs.showLoadingDialog(context);
-                        if (hasChanged) {
-                          context.loaderOverlay.show();
-
-                          await Future.delayed(const Duration(seconds: 1));
-
-                          context.loaderOverlay.hide();
-                        }
-                        widget.onUpdate(
-                            _name.isEmpty ? widget.name : _name, _iconIndex, _colorIndex);
-                        Navigator.of(context).pop();
-                      },
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 12.0),
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(14.0),
-                          border: Border.all(
-                            color: _name.trim().isNotEmpty
-                                ? Colors.transparent
-                                : MyColors.transparentBlack_06,
-                          ),
-                          color: _name.trim().isNotEmpty ? MyColors.darkgrey : MyColors.lightgrey,
-                        ),
-                        child: Center(
-                          child: Text(t.complete,
-                              style: Styles.subLabel.merge(TextStyle(
-                                  color: _name.trim().isNotEmpty
-                                      ? Colors.white
-                                      : MyColors.transparentBlack_30,
-                                  fontSize: 11))),
-                        ),
-                      ),
-                    ),
-                  )
-                ],
+              backgroundColor: CoconutColors.white,
+              appBar: CoconutAppBar.buildWithNext(
+                context: context,
+                onNextPressed: _onNextPressed,
+                title: _name,
+                nextButtonTitle: t.complete,
+                isBottom: true,
               ),
               body: SafeArea(
                 child: NestedScrollView(
@@ -117,8 +62,7 @@ class _NameAndIconEditBottomSheetState extends State<NameAndIconEditBottomSheet>
                   body: Container(
                     width: MediaQuery.of(context).size.width,
                     height: MediaQuery.of(context).size.height,
-                    // padding: Paddings.container,
-                    color: MyColors.white,
+                    color: CoconutColors.white,
                     child: VaultNameIconEditPalette(
                       name: _name, // 초기 값 설정
                       iconIndex: _iconIndex,
@@ -150,6 +94,23 @@ class _NameAndIconEditBottomSheetState extends State<NameAndIconEditBottomSheet>
         ),
       ),
     );
+  }
+
+  Future<void> _onNextPressed() async {
+    if (_name.trim().isEmpty) return;
+    _closeKeyboard();
+    setState(() {
+      isSaving = hasChanged;
+    });
+
+    if (hasChanged) {
+      context.loaderOverlay.show();
+      await Future.delayed(const Duration(seconds: 1));
+      context.loaderOverlay.hide();
+    }
+
+    widget.onUpdate(_name.isEmpty ? widget.name : _name, _iconIndex, _colorIndex);
+    Navigator.of(context).pop();
   }
 
   void _closeKeyboard() {

@@ -1,7 +1,7 @@
+import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:coconut_vault/styles.dart';
 import 'package:coconut_vault/widgets/button/key_button.dart';
 
 import '../../widgets/pin/pin_box.dart';
@@ -51,22 +51,12 @@ class PinInputScreenState extends State<PinInputScreen> {
     return Scaffold(
       backgroundColor: Colors.transparent,
       appBar: widget.appBarVisible
-          ? AppBar(
+          ? CoconutAppBar.build(
+              context: context,
+              title: '',
               backgroundColor: Colors.transparent,
-              toolbarHeight: 62,
-              leading: widget.step == 0
-                  ? IconButton(
-                      onPressed: widget.onClosePressed,
-                      icon: const Icon(
-                        Icons.close_rounded,
-                        color: MyColors.darkgrey,
-                        size: 22,
-                      ),
-                    )
-                  : IconButton(
-                      onPressed: widget.onBackPressed,
-                      icon: SvgPicture.asset('assets/svg/back.svg'),
-                    ),
+              height: 62,
+              isBottom: widget.step == 0,
             )
           : null,
       body: SafeArea(
@@ -77,7 +67,7 @@ class PinInputScreenState extends State<PinInputScreen> {
             SizedBox(height: widget.initOptionVisible ? 60 : 24),
             Text(
               widget.title,
-              style: Styles.body1.merge(const TextStyle(fontWeight: FontWeight.bold)),
+              style: CoconutTypography.body1_16_Bold,
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 10),
@@ -101,14 +91,14 @@ class PinInputScreenState extends State<PinInputScreen> {
             const SizedBox(height: 16),
             Text(
               widget.errorMessage,
-              style: Styles.warning,
+              style: CoconutTypography.body3_12.setColor(CoconutColors.warningText),
               textAlign: TextAlign.center,
             ),
             Visibility(
               visible: widget.lastChance,
               child: Text(
                 widget.lastChanceMessage ?? '',
-                style: Styles.warning,
+                style: CoconutTypography.body3_12.setColor(CoconutColors.warningText),
                 textAlign: TextAlign.center,
               ),
             ),
@@ -151,8 +141,9 @@ class PinInputScreenState extends State<PinInputScreen> {
                     },
                     child: Text(
                       t.forgot_password,
-                      style: Styles.body2.merge(const TextStyle(
-                          fontWeight: FontWeight.bold, color: MyColors.transparentBlack_50)),
+                      style: CoconutTypography.body2_14_Bold.setColor(
+                        CoconutColors.black.withOpacity(0.5),
+                      ),
                       textAlign: TextAlign.center,
                     ),
                   )),

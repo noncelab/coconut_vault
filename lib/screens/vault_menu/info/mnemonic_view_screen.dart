@@ -1,8 +1,8 @@
+import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:coconut_vault/widgets/button/copy_text_container.dart';
 import 'package:flutter/material.dart';
-import 'package:coconut_vault/styles.dart';
 import 'package:provider/provider.dart';
 import 'package:shimmer/shimmer.dart';
 
@@ -54,10 +54,10 @@ class _MnemonicViewScreen extends State<MnemonicViewScreen> {
           Container(
             alignment: Alignment.center,
             decoration: BoxDecoration(
-              color: MyColors.white,
+              color: CoconutColors.white,
               border: Border.all(
                 width: 1,
-                color: MyColors.black,
+                color: CoconutColors.black,
               ),
               borderRadius: BorderRadius.circular(8),
             ),
@@ -71,7 +71,9 @@ class _MnemonicViewScreen extends State<MnemonicViewScreen> {
                     child: Text(
                       '${index + 1}',
                       style: const TextStyle(
-                          color: MyColors.borderGrey, fontWeight: FontWeight.bold, fontSize: 6),
+                          color: CoconutColors.borderGray,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 6),
                     ),
                   ),
                 ),
@@ -82,7 +84,7 @@ class _MnemonicViewScreen extends State<MnemonicViewScreen> {
                     child: Text(
                       passphrase![index],
                       style: const TextStyle(
-                        color: MyColors.black,
+                        color: CoconutColors.black,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
@@ -102,8 +104,6 @@ class _MnemonicViewScreen extends State<MnemonicViewScreen> {
   Widget _buildSkeleton() {
     final double qrSize = MediaQuery.of(context).size.width * 275 / 375;
     const int skeletonTextLines = 4;
-    // final int skeletonTextLines = calculateNumberOfLines(
-    //     context, widget.mnemonic, Styles.body2, qrSize, 36);
     List<Widget> textWidgets = [];
     for (int i = 0; i < skeletonTextLines; i++) {
       textWidgets.add(
@@ -112,7 +112,7 @@ class _MnemonicViewScreen extends State<MnemonicViewScreen> {
             Container(
               width: qrSize,
               height: 20,
-              color: MyColors.skeletonBaseColor,
+              color: CoconutColors.gray300,
             ),
             i < 4 ? const SizedBox(height: 5) : Container(),
           ],
@@ -123,15 +123,17 @@ class _MnemonicViewScreen extends State<MnemonicViewScreen> {
     return Column(
       children: [
         Shimmer.fromColors(
-          baseColor: MyColors.skeletonBaseColor,
-          highlightColor: MyColors.skeletonHighlightColor,
+          baseColor: CoconutColors.gray300,
+          highlightColor: CoconutColors.gray150,
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 36),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 Container(
-                    width: qrSize, height: qrSize, decoration: BoxDecorations.shadowBoxDecoration),
+                    width: qrSize,
+                    height: qrSize,
+                    decoration: CoconutBoxDecoration.shadowBoxDecoration),
                 const SizedBox(height: 32),
                 for (int line = 0; line < textWidgets.length; line++) textWidgets[line],
                 const SizedBox(height: 24),
@@ -174,17 +176,23 @@ class _MnemonicViewScreen extends State<MnemonicViewScreen> {
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(4.0),
-              color: _isPressed ? MyColors.borderGrey : MyColors.darkgrey,
+              color: _isPressed ? CoconutColors.borderGray : CoconutColors.gray800,
             ),
-            child: Text(t.mnemonic_view_screen.view_passphrase,
-                style: Styles.caption.merge(const TextStyle(color: MyColors.white))),
+            child: Text(
+              t.mnemonic_view_screen.view_passphrase,
+              style: CoconutTypography.body3_12.setColor(
+                CoconutColors.white,
+              ),
+            ),
           ),
           const SizedBox(
             height: 7,
           ),
           Text(
             t.mnemonic_view_screen.visible_while_pressing,
-            style: Styles.caption,
+            style: CoconutTypography.body3_12.setColor(
+              CoconutColors.gray800,
+            ),
           ),
         ],
       ),
@@ -205,32 +213,21 @@ class _MnemonicViewScreen extends State<MnemonicViewScreen> {
   @override
   Widget build(BuildContext context) {
     return ClipRRect(
-      borderRadius: MyBorder.defaultRadius,
+      borderRadius: CoconutBorder.defaultRadius,
       child: Scaffold(
-        backgroundColor: MyColors.white,
-        appBar: AppBar(
-          title: !_isPressed ? Text(widget.title) : Text(widget.subtitle),
-          centerTitle: true,
-          backgroundColor: MyColors.white,
-          titleTextStyle: Styles.body1Bold,
-          toolbarTextStyle: Styles.body1Bold,
-          leading: IconButton(
-            icon: const Icon(
-              Icons.close_rounded,
-              color: MyColors.darkgrey,
-              size: 22,
-            ),
-            onPressed: () {
-              Navigator.pop(context);
-            },
-          ),
+        backgroundColor: CoconutColors.white,
+        appBar: CoconutAppBar.build(
+          context: context,
+          title: !_isPressed ? widget.title : widget.subtitle,
+          backgroundColor: CoconutColors.white,
+          isBottom: true,
         ),
         body: SafeArea(
           child: SingleChildScrollView(
             child: Container(
               width: MediaQuery.of(context).size.width,
               height: MediaQuery.of(context).size.height * 0.8,
-              padding: Paddings.container,
+              padding: CoconutPadding.container,
               child: Stack(
                 children: [
                   Visibility(
@@ -248,15 +245,14 @@ class _MnemonicViewScreen extends State<MnemonicViewScreen> {
                             children: [
                               const Icon(
                                 Icons.warning_amber_rounded,
-                                color: MyColors.darkgrey,
+                                color: CoconutColors.gray800,
                                 size: 14,
                               ),
                               Text(
                                 t.mnemonic_view_screen.space_as_blank,
-                                style: TextStyle(
-                                    color: MyColors.grey,
-                                    fontSize: 14.0,
-                                    fontFamily: CustomFonts.text.getFontFamily),
+                                style: CoconutTypography.body2_14.setColor(
+                                  CoconutColors.gray500,
+                                ),
                               ),
                             ],
                           ),

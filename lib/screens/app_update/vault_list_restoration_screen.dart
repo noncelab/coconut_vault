@@ -83,7 +83,7 @@ class _VaultListRestorationScreenState extends State<VaultListRestorationScreen>
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withOpacity(0.18),
+            color: CoconutColors.gray500.withOpacity(0.18),
             spreadRadius: 4,
             blurRadius: 10,
           ),

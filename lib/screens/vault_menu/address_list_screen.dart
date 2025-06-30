@@ -1,12 +1,11 @@
 import 'dart:async';
 
+import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/providers/view_model/address_list_view_model.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:coconut_vault/screens/common/qrcode_bottom_sheet.dart';
-import 'package:coconut_vault/styles.dart';
 import 'package:coconut_vault/utils/logger.dart';
-import 'package:coconut_vault/widgets/appbar/custom_appbar.dart';
 import 'package:coconut_vault/widgets/bottom_sheet.dart';
 import 'package:coconut_vault/widgets/card/address_card.dart';
 import 'package:flutter/material.dart';
@@ -40,11 +39,10 @@ class _AddressListScreenState extends State<AddressListScreen> {
               : viewModel.changeAddressList;
 
           return Scaffold(
-            backgroundColor: MyColors.white,
-            appBar: CustomAppBar.build(
+            backgroundColor: CoconutColors.white,
+            appBar: CoconutAppBar.build(
               title: t.address_list_screen.title(name: viewModel.name),
               context: context,
-              hasRightIcon: false,
               isBottom: true,
             ),
             body: SafeArea(
@@ -61,8 +59,8 @@ class _AddressListScreenState extends State<AddressListScreen> {
                             right: 16,
                           ),
                           decoration: BoxDecoration(
-                            borderRadius: MyBorder.defaultRadius,
-                            color: MyColors.transparentBlack_06,
+                            borderRadius: CoconutBorder.defaultRadius,
+                            color: CoconutColors.black.withOpacity(0.06),
                           ),
                           child: Row(
                             children: [
@@ -78,16 +76,16 @@ class _AddressListScreenState extends State<AddressListScreen> {
                                     decoration: BoxDecoration(
                                       borderRadius: BorderRadius.circular(22),
                                       color: viewModel.isReceivingSelected
-                                          ? MyColors.transparentBlack_50
+                                          ? CoconutColors.black.withOpacity(0.5)
                                           : Colors.transparent,
                                     ),
                                     child: Center(
                                       child: Text(
                                         t.receiving,
-                                        style: Styles.label.merge(TextStyle(
+                                        style: CoconutTypography.body2_14.merge(TextStyle(
                                           color: viewModel.isReceivingSelected
-                                              ? MyColors.white
-                                              : MyColors.transparentBlack_50,
+                                              ? CoconutColors.white
+                                              : CoconutColors.black.withOpacity(0.5),
                                           fontWeight: viewModel.isReceivingSelected
                                               ? FontWeight.bold
                                               : FontWeight.normal,
@@ -108,16 +106,16 @@ class _AddressListScreenState extends State<AddressListScreen> {
                                     decoration: BoxDecoration(
                                       borderRadius: BorderRadius.circular(20),
                                       color: !viewModel.isReceivingSelected
-                                          ? MyColors.transparentBlack_50
+                                          ? CoconutColors.black.withOpacity(0.5)
                                           : Colors.transparent,
                                     ),
                                     child: Center(
                                       child: Text(
                                         t.change,
-                                        style: Styles.label.merge(TextStyle(
+                                        style: CoconutTypography.body2_14.merge(TextStyle(
                                           color: !viewModel.isReceivingSelected
-                                              ? MyColors.white
-                                              : MyColors.transparentBlack_50,
+                                              ? CoconutColors.white
+                                              : CoconutColors.black.withOpacity(0.5),
                                           fontWeight: !viewModel.isReceivingSelected
                                               ? FontWeight.bold
                                               : FontWeight.normal,
@@ -148,8 +146,8 @@ class _AddressListScreenState extends State<AddressListScreen> {
                                           title: t.address_list_screen.address_index(index: index),
                                           qrcodeTopWidget: Text(
                                             addressList[index].derivationPath,
-                                            style: Styles.body2
-                                                .merge(const TextStyle(color: MyColors.darkgrey)),
+                                            style: CoconutTypography.body2_14
+                                                .setColor(CoconutColors.gray800),
                                           ),
                                         ),
                                       );
@@ -167,7 +165,8 @@ class _AddressListScreenState extends State<AddressListScreen> {
                                   child: Container(
                                     padding: const EdgeInsets.all(30),
                                     child: const Center(
-                                      child: CircularProgressIndicator(color: MyColors.darkgrey),
+                                      child:
+                                          CircularProgressIndicator(color: CoconutColors.gray800),
                                     ),
                                   ),
                                 ),

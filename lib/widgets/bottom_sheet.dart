@@ -1,7 +1,6 @@
+import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
-import 'package:coconut_vault/widgets/appbar/custom_appbar.dart';
 import 'package:flutter/material.dart';
-import 'package:coconut_vault/styles.dart';
 
 class MyBottomSheet {
   static void showBottomSheet_90(
@@ -14,7 +13,7 @@ class MyBottomSheet {
         builder: (context) {
           return child;
         },
-        backgroundColor: MyColors.white,
+        backgroundColor: CoconutColors.white,
         isDismissible: isDismissible,
         isScrollControlled: true,
         enableDrag: enableDrag,
@@ -32,7 +31,7 @@ class MyBottomSheet {
         builder: (context) {
           return child;
         },
-        backgroundColor: MyColors.white,
+        backgroundColor: CoconutColors.white,
         isDismissible: isDismissible,
         isScrollControlled: true,
         enableDrag: enableDrag,
@@ -40,11 +39,29 @@ class MyBottomSheet {
         constraints: BoxConstraints(maxHeight: MediaQuery.of(context).size.height * 0.95));
   }
 
+  static void showBottomSheet_50(
+      {required BuildContext context,
+      required Widget child,
+      bool isDismissible = true,
+      bool enableDrag = true}) {
+    showModalBottomSheet(
+        context: context,
+        builder: (context) {
+          return child;
+        },
+        backgroundColor: CoconutColors.white,
+        isDismissible: isDismissible,
+        isScrollControlled: true,
+        enableDrag: enableDrag,
+        useSafeArea: true,
+        constraints: BoxConstraints(maxHeight: MediaQuery.of(context).size.height * 0.5));
+  }
+
   static void showBottomSheet({
     required String title,
     required BuildContext context,
     required Widget child,
-    TextStyle titleTextStyle = Styles.body2Bold,
+    TextStyle? titleTextStyle,
     bool isDismissible = true,
     bool enableDrag = true,
     bool isCloseButton = false,
@@ -79,13 +96,13 @@ class MyBottomSheet {
                           padding: const EdgeInsets.all(4),
                           color: Colors.transparent,
                           child: isCloseButton
-                              ? const Icon(Icons.close_rounded, color: MyColors.black)
+                              ? const Icon(Icons.close_rounded, color: CoconutColors.black)
                               : Container(width: 16),
                         ),
                       ),
                       Text(
                         title,
-                        style: titleTextStyle,
+                        style: titleTextStyle ?? CoconutTypography.body2_14_Bold,
                         textAlign: TextAlign.center,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
@@ -101,7 +118,7 @@ class MyBottomSheet {
               ],
             ));
       },
-      backgroundColor: MyColors.white,
+      backgroundColor: CoconutColors.white,
       isDismissible: isDismissible,
       isScrollControlled: true,
       enableDrag: enableDrag,
@@ -152,28 +169,67 @@ class MyBottomSheet {
                       ValueListenableBuilder<bool>(
                         valueListenable: isButtonActiveNotifier,
                         builder: (context, isActive, _) {
-                          return CustomAppBar.buildWithClose(
-                            hasNextButton: true,
+                          return CoconutAppBar.build(
                             context: context,
                             title: t.key_list, // fixme: 특정 화면 컨텍스트를 포함하고 있음
-                            backgroundColor: MyColors.white,
-                            isNextButtonActive: isButtonActiveNotifier.value,
+                            backgroundColor: CoconutColors.white,
                             onBackPressed: () => Navigator.pop(context),
-                            onNextPressed: () {
-                              if (onTopWidgetButtonClicked != null) {
-                                onTopWidgetButtonClicked();
-                              }
-                              Navigator.pop(context);
-                            },
+                            actionButtonList: [
+                              Padding(
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: 8,
+                                ),
+                                child: GestureDetector(
+                                  onTap: isButtonActiveNotifier.value
+                                      ? () {
+                                          if (onTopWidgetButtonClicked != null) {
+                                            onTopWidgetButtonClicked();
+                                          }
+                                          Navigator.pop(context);
+                                        }
+                                      : null,
+                                  child: Container(
+                                    padding: const EdgeInsets.symmetric(horizontal: 12.0),
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(16.0),
+                                      border: Border.all(
+                                        color: isButtonActiveNotifier.value
+                                            ? Colors.transparent
+                                            : CoconutColors.black.withOpacity(0.06),
+                                      ),
+                                      color: isButtonActiveNotifier.value
+                                          ? CoconutColors.gray800
+                                          : CoconutColors.gray150,
+                                    ),
+                                    child: Center(
+                                      child: Text(
+                                        t.select,
+                                        style: CoconutTypography.body2_14.merge(
+                                          TextStyle(
+                                            fontSize: 11,
+                                            color: isButtonActiveNotifier.value
+                                                ? Colors.white
+                                                : CoconutColors.black.withOpacity(0.3),
+                                            fontWeight: isButtonActiveNotifier.value
+                                                ? FontWeight.bold
+                                                : FontWeight.normal,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
                           );
                         },
                       )
                     else if (topWidget)
-                      CustomAppBar.buildWithClose(
-                        hasNextButton: true,
+                      CoconutAppBar.build(
+                        isBottom: true,
                         context: context,
                         title: t.import,
-                        backgroundColor: MyColors.white,
+                        backgroundColor: CoconutColors.white,
                         onBackPressed: () {
                           if (onBackPressed != null) {
                             onBackPressed();
@@ -184,7 +240,7 @@ class MyBottomSheet {
                       ),
                     Expanded(
                       child: Container(
-                        color: MyColors.white,
+                        color: CoconutColors.white,
                         child: enableSingleChildScroll
                             ? SingleChildScrollView(
                                 physics: physics,

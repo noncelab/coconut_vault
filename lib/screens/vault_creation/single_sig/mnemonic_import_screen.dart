@@ -1,3 +1,4 @@
+import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_lib/coconut_lib.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/providers/visibility_provider.dart';
@@ -8,13 +9,10 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:coconut_vault/screens/vault_creation/single_sig/mnemonic_confirmation_bottom_sheet.dart';
-import 'package:coconut_vault/styles.dart';
 import 'package:coconut_vault/utils/vibration_util.dart';
 import 'package:coconut_vault/utils/wallet_utils.dart';
-import 'package:coconut_vault/widgets/appbar/custom_appbar.dart';
 import 'package:coconut_vault/widgets/bottom_sheet.dart';
 import 'package:coconut_vault/widgets/custom_dialog.dart';
-import 'package:coconut_vault/widgets/custom_toast.dart';
 import 'package:coconut_vault/widgets/textfield/custom_textfield.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
@@ -121,7 +119,7 @@ class _MnemonicImportState extends State<MnemonicImport> {
       message: t.alert.stop_importing_mnemonic.description,
       cancelButtonText: t.cancel,
       confirmButtonText: t.stop,
-      confirmButtonColor: MyColors.warningText,
+      confirmButtonColor: CoconutColors.warningText,
       onCancel: () => Navigator.pop(context),
       onConfirm: () {
         Navigator.pop(context);
@@ -142,8 +140,8 @@ class _MnemonicImportState extends State<MnemonicImport> {
       child: Stack(
         children: [
           Scaffold(
-            backgroundColor: Colors.white,
-            appBar: CustomAppBar.buildWithNext(
+            backgroundColor: CoconutColors.white,
+            appBar: CoconutAppBar.buildWithNext(
               title: t.mnemonic_import_screen.title,
               context: context,
               onBackPressed: _handleBackNavigation,
@@ -161,7 +159,7 @@ class _MnemonicImportState extends State<MnemonicImport> {
                     child: Column(
                       children: <Widget>[
                         Text(t.mnemonic_import_screen.enter_mnemonic_phrase,
-                            style: Styles.body1Bold),
+                            style: CoconutTypography.body1_16_Bold),
                         const SizedBox(height: 30),
                         _buildMnemonicTextField(),
                         const SizedBox(height: 30),
@@ -181,10 +179,10 @@ class _MnemonicImportState extends State<MnemonicImport> {
             child: Container(
               width: MediaQuery.of(context).size.width,
               height: MediaQuery.of(context).size.height,
-              decoration: const BoxDecoration(color: MyColors.transparentBlack_30),
+              decoration: BoxDecoration(color: CoconutColors.black.withOpacity(0.3)),
               child: const Center(
                 child: CircularProgressIndicator(
-                  color: MyColors.darkgrey,
+                  color: CoconutColors.gray800,
                 ),
               ),
             ),
@@ -211,7 +209,8 @@ class _MnemonicImportState extends State<MnemonicImport> {
     final String passphrase = _usePassphrase ? _passphrase.trim() : '';
 
     if (_walletProvider.isSeedDuplicated(secret, passphrase)) {
-      CustomToast.showToast(context: context, text: t.toast.mnemonic_already_added);
+      CoconutToast.showToast(
+          context: context, text: t.toast.mnemonic_already_added, isVisibleIcon: true);
       return;
     }
 
@@ -225,7 +224,7 @@ class _MnemonicImportState extends State<MnemonicImport> {
               MaterialPageRoute(builder: (context) => const VaultNameAndIconSetupScreen()));
         },
         onInactivePressed: () {
-          CustomToast.showToast(context: context, text: t.toast.scroll_down);
+          CoconutToast.showToast(context: context, text: t.toast.scroll_down, isVisibleIcon: true);
           vibrateMediumDouble();
         },
         mnemonic: secret,
@@ -266,11 +265,12 @@ class _MnemonicImportState extends State<MnemonicImport> {
           if (isAdvancedUser) {
             return Row(
               children: [
-                Text(t.mnemonic_import_screen.use_passphrase, style: Styles.body2Bold),
+                Text(t.mnemonic_import_screen.use_passphrase,
+                    style: CoconutTypography.body2_14_Bold),
                 const Spacer(),
                 CupertinoSwitch(
                   value: _usePassphrase,
-                  activeColor: MyColors.darkgrey,
+                  activeColor: CoconutColors.gray800,
                   onChanged: (value) {
                     setState(() {
                       _usePassphrase = value;
@@ -285,7 +285,7 @@ class _MnemonicImportState extends State<MnemonicImport> {
             padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(12),
-              color: MyColors.transparentBlack_06,
+              color: CoconutColors.black.withOpacity(0.06),
             ),
             child: Column(
               children: [
@@ -299,9 +299,9 @@ class _MnemonicImportState extends State<MnemonicImport> {
                     alignment: Alignment.centerRight,
                     child: Text(
                       t.mnemonic_import_screen.open_settings,
-                      style: TextStyle(
-                        fontFamily: CustomFonts.text.getFontFamily,
-                        color: MyColors.black,
+                      style: const TextStyle(
+                        fontFamily: 'Pretendard',
+                        color: CoconutColors.black,
                         decoration: TextDecoration.underline,
                         fontWeight: FontWeight.bold,
                       ),
@@ -335,12 +335,12 @@ class _MnemonicImportState extends State<MnemonicImport> {
                 child: _passphraseObscured
                     ? const Icon(
                         CupertinoIcons.eye_slash,
-                        color: MyColors.darkgrey,
+                        color: CoconutColors.gray800,
                         size: 18,
                       )
                     : const Icon(
                         CupertinoIcons.eye,
-                        color: MyColors.darkgrey,
+                        color: CoconutColors.gray800,
                         size: 18,
                       ),
               ),
@@ -353,12 +353,11 @@ class _MnemonicImportState extends State<MnemonicImport> {
           alignment: Alignment.topRight,
           child: Text(
             '(${_passphrase.length} / 100)',
-            style: TextStyle(
-                color: _passphrase.length == 100
-                    ? MyColors.transparentBlack
-                    : MyColors.transparentBlack_50,
-                fontSize: 12,
-                fontFamily: CustomFonts.text.getFontFamily),
+            style: CoconutTypography.body3_12.setColor(
+              _passphrase.length == 100
+                  ? CoconutColors.black.withOpacity(0.7)
+                  : CoconutColors.black.withOpacity(0.5),
+            ),
           ),
         ),
       )

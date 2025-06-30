@@ -67,8 +67,8 @@ Future<bool> canSignToPsbtIsolate(List<dynamic> dataList, void Function(dynamic)
   var isMultisig = dataList[0] is MultisignatureVault;
 
   bool canSign = isMultisig
-      ? (dataList[0] as MultisignatureVault).canSignToPsbt(psbtBase64)
-      : (dataList[0] as SingleSignatureVault).canSignToPsbt(psbtBase64);
+      ? (dataList[0] as MultisignatureVault).hasPublicKeyInPsbt(psbtBase64)
+      : (dataList[0] as SingleSignatureVault).hasPublicKeyInPsbt(psbtBase64);
 
   if (!isMultisig || !canSign) return canSign;
 
