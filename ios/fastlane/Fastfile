@@ -33,7 +33,7 @@ platform :ios do
       increment_version_number(version_number: version_number, xcodeproj: "Runner.xcodeproj")
       increment_build_number(build_number: build_number, xcodeproj: "Runner.xcodeproj")
 
-      sh "flutter build ios --flavor regtest --release"
+      sh "#{ENV['FLUTTER_PATH']} build ios --flavor regtest --release"
       build_app(workspace: "Runner.xcworkspace", configuration: "Release-regtest", scheme: "regtest")
       upload_to_testflight(api_key: api_key, app_identifier: "onl.coconut.vault.regtest", app_version: version_number, build_number: build_number)
   end
@@ -48,7 +48,7 @@ platform :ios do
       increment_version_number(version_number: version_number, xcodeproj: "Runner.xcodeproj")
       increment_build_number(build_number: build_number, xcodeproj: "Runner.xcodeproj")
 
-      sh "flutter build ios --release"
+      sh "#{ENV['FLUTTER_PATH']} build ios --release"
       build_app(workspace: "Runner.xcworkspace", configuration: "Release-mainnet", scheme: "Runner")
       upload_to_testflight(api_key: api_key, app_identifier: "onl.coconut.vault", app_version: version_number, build_number: build_number)
   end
