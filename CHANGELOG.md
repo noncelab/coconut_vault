@@ -1,10 +1,18 @@
-## mainnet 0.0.2, regtest 2.2.4 - 2025-06-20
+## mainnet(beta) 0.0.4, regtest 2.2.4 - 2025-07-01
+### Fixed
+* BTC 수량 표기 규칙 수정
+
+## mainnet(beta) 0.0.3 - 2025-06-25
+### Fixed
+* 에어갭 통신 방식 bc-ur 표준으로 변경
+
+## mainnet(beta) 0.0.2 - 2025-06-20
 ### Fixed
 * CDS 0.9.0 적용
 * 메뉴 버튼 터치 영역 확장
 * flutter_blue_plus 버전 고정(1.32.12) - iOS 블루투스 팝업 계속 뜨는 수정사항 반영 전 버전
 
-## mainnet 0.0.1 - 2025-05-27
+## mainnet(beta) 0.0.1 - 2025-05-27
 ### Fixed
 * 지갑 1개 이상 추가되는 버그 수정
 
