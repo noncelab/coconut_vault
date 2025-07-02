@@ -36,8 +36,8 @@ class WalletCreationProvider {
 
   /// multisig
   void setSigners(List<MultisigSigner> signers) {
-    assert(
-        MultisigUtils.validateQuorumRequirement(_requiredSignatureCount!, _totalSignatureCount!));
+    assert(MultisigUtils.validateQuorumRequirement(_requiredSignatureCount!, _totalSignatureCount!,
+        isP2trMuSig2: _addressType == 'p2trMuSig2'));
 
     _signers = signers;
   }

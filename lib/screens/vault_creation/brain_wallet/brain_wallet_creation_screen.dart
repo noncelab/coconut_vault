@@ -89,6 +89,10 @@ class _BrainWalletCreationScreenState extends State<BrainWalletCreationScreen> {
   }
 
   void _addMorePhrase() {
+    if (_numPhrases >= 10) {
+      return;
+    }
+
     setState(() {
       final oldPhrases = List<String>.from(_phrases); // Save existing phrases
       _numPhrases++;
@@ -171,7 +175,7 @@ class _BrainWalletCreationScreenState extends State<BrainWalletCreationScreen> {
                                         controller: _phraseControllers[i],
                                         inputFormatters: [
                                           FilteringTextInputFormatter.deny(
-                                              RegExp(r'[^a-zA-Z\u0080-\uFFFF ]'))
+                                              RegExp(r'[^a-zA-Z0-9\u0080-\uFFFF ]'))
                                         ],
                                         placeholder: i < 3
                                             ? (i == 0
@@ -240,7 +244,7 @@ class _BrainWalletCreationScreenState extends State<BrainWalletCreationScreen> {
     final List<String> phrases = _phrases.where((phrase) => phrase.isNotEmpty).toList();
     _mnemonic = [];
     for (int i = 0; i < phrases.length; i++) {
-      String entropy = Hash.sha256(phrases[i].trim());
+      String entropy = Hash.sha256(phrases[i].replaceAll(' ', ''));
       Seed seed = Seed.fromHexadecimalEntropy(entropy);
       _mnemonic.add(seed.mnemonic);
     }
@@ -252,10 +256,13 @@ class _BrainWalletCreationScreenState extends State<BrainWalletCreationScreen> {
           for (int i = 0; i < _mnemonic.length; i++) {
             SinglesigWallet singleSigWallet = SinglesigWallet(
                 null, phrases[i], Random().nextInt(9), Random().nextInt(9), _mnemonic[i], '');
+            KeyStore keyStore =
+                KeyStore.fromSeed(Seed.fromMnemonic(_mnemonic[i]), AddressType.p2trMuSig2);
+            singleSigWallet.setMasterFingerprint(keyStore.masterFingerprint);
             singleSigWallets.add(singleSigWallet);
             await _walletProvider.addSingleSigVault(singleSigWallet);
-            //TODO: Add singleSigWallet to walletList
           }
+          singleSigWallets.sort((a, b) => a.masterFingerprint!.compareTo(b.masterFingerprint!));
           List<MultisigSigner> signers = [];
           for (int i = 0; i < singleSigWallets.length; i++) {
             SingleSignatureVault singleSignatureVault =
@@ -267,12 +274,14 @@ class _BrainWalletCreationScreenState extends State<BrainWalletCreationScreen> {
               iconIndex: singleSigWallets[i].icon,
               colorIndex: singleSigWallets[i].color,
               signerBsms: singleSignatureVault.getSignerBsms(AddressType.p2trMuSig2, ""),
-              keyStore: singleSignatureVault.keyStore,
+              keyStore: KeyStore.fromSignerBsms(
+                  singleSignatureVault.getSignerBsms(AddressType.p2trMuSig2, "")),
             ));
           }
+          _walletCreationProvider.setAddressType("p2trMuSig2");
           _walletCreationProvider.setQuorumRequirement(signers.length, signers.length);
           _walletCreationProvider.setSigners(signers);
-          _walletCreationProvider.setAddressType("p2trMuSig2");
+
           Navigator.pushReplacement(context,
               MaterialPageRoute(builder: (context) => const VaultNameAndIconSetupScreen()));
         },

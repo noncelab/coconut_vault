@@ -1,4 +1,8 @@
 {
-  "dart.flutterSdkPath": ".fvm/versions/3.24.3",
-  "dart.lineLength": 100
+  "flutter.defaultDeviceId": "macos",
+  "dart.flutterSdkPath": "flutter",
+  "dart.debugExternalPackageLibraries": false,
+  "dart.debugSdkLibraries": false,
+  "dart.lineLength": 100,
+  "workbench.colorTheme": "Winter is Coming (Dark Black)"
 }

@@ -1,4 +1,5 @@
 import 'package:coconut_lib/coconut_lib.dart';
+import 'package:coconut_vault/model/common/secret.dart';
 import 'package:coconut_vault/model/multisig/multisig_signer.dart';
 import 'package:coconut_vault/model/multisig/multisig_vault_list_item.dart';
 import 'package:coconut_vault/providers/sign_provider.dart';
@@ -11,19 +12,24 @@ class MultisigSignViewModel extends ChangeNotifier {
   late final MultisigVaultListItem _vaultListItem;
   late final MultisignatureVault _coconutVault;
   late final List<bool> _signerApproved;
+  List<bool>? _nonceInput;
   late String _psbtForSigning;
   bool _signStateInitialized = false;
 
   MultisigSignViewModel(this._walletProvider, this._signProvider) {
     _vaultListItem = _signProvider.vaultListItem! as MultisigVaultListItem;
     _coconutVault = _vaultListItem.coconutVault as MultisignatureVault;
-    _signerApproved = List<bool>.filled(_vaultListItem.signers.length, false);
+    final signerCount = _vaultListItem.signers.length;
+    _signerApproved = List<bool>.filled(signerCount, false);
+    _nonceInput = List<bool>.filled(signerCount, false);
     _psbtForSigning = _signProvider.unsignedPsbtBase64!;
   }
-
+  String get addressType => _vaultListItem.addressType;
   int get requiredSignatureCount => _vaultListItem.requiredSignatureCount;
   String get walletName => _signProvider.vaultListItem!.name;
   List<bool> get signersApproved => _signerApproved;
+  List<bool> get nonceInput => _nonceInput ?? [];
+  bool get isAllNonceInput => (_nonceInput ?? []).every((input) => input);
   String get firstRecipientAddress => _signProvider.recipientAddress != null
       ? _signProvider.recipientAddress!
       : _signProvider.recipientAmounts!.keys.first;
@@ -63,9 +69,28 @@ class MultisigSignViewModel extends ChangeNotifier {
       var secret = await _walletProvider.getSecret(_vaultListItem.signers[index].innerVaultId!);
       final seed = Seed.fromMnemonic(secret.mnemonic, passphrase: secret.passphrase);
       _coconutVault.bindSeedToKeyStore(seed);
+      _psbtForSigning = _coconutVault.keyStoreList[index]
+          .addSignatureToPsbt(_psbtForSigning, _coconutVault.addressType);
+    } finally {
+      // unbind
+      _coconutVault.keyStoreList[index].seed = null;
+    }
+  }
+
+  Future<void> addNonce(int index) async {
+    try {
+      var secret = await _walletProvider.getSecret(_vaultListItem.signers[index].innerVaultId!);
+      final seed = Seed.fromMnemonic(secret.mnemonic, passphrase: secret.passphrase);
+      _coconutVault.bindSeedToKeyStore(seed);
 
       _psbtForSigning =
-          _coconutVault.keyStoreList[index].addSignatureToPsbt(_psbtForSigning, AddressType.p2wsh);
+          _coconutVault.keyStoreList[index].addMuSig2PublicNonceToPsbt(_psbtForSigning);
+
+      // 논스 입력 상태 업데이트
+      if (_nonceInput != null && index < _nonceInput!.length) {
+        _nonceInput![index] = true;
+        notifyListeners();
+      }
     } finally {
       // unbind
       _coconutVault.keyStoreList[index].seed = null;

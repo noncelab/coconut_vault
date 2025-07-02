@@ -1,3 +1,4 @@
+import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_vault/constants/app_routes.dart';
 import 'package:coconut_vault/enums/pin_check_context_enum.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
@@ -13,6 +14,7 @@ import 'package:coconut_vault/utils/text_utils.dart';
 import 'package:coconut_vault/utils/unit_utils.dart';
 import 'package:coconut_vault/widgets/appbar/custom_appbar.dart';
 import 'package:coconut_vault/widgets/bottom_sheet.dart';
+import 'package:coconut_vault/widgets/button/signature_action_button.dart';
 import 'package:coconut_vault/widgets/custom_dialog.dart';
 import 'package:coconut_vault/widgets/custom_loading_overlay.dart';
 import 'package:flutter/cupertino.dart';
@@ -36,6 +38,7 @@ class _MultisigSignScreenState extends State<MultisigSignScreen> {
   late int _requiredSignatureCount;
   bool _showLoading = false;
   bool _isProgressCompleted = false;
+  bool _isNonceInput = false; // 맥락  : 논스 상태
 
   @override
   void initState() {
@@ -47,6 +50,79 @@ class _MultisigSignScreenState extends State<MultisigSignScreen> {
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       _viewModel.initPsbtSignState();
     });
+  }
+
+  void _addNonceConfirm(int index) {
+    MyBottomSheet.showBottomSheet_90(
+      context: context,
+      child: CustomLoadingOverlay(
+        child: PinCheckScreen(
+          pinCheckContext: PinCheckContextEnum.sensitiveAction,
+          onComplete: () {
+            Navigator.pop(context);
+            _addNonce(index);
+          },
+        ),
+      ),
+    );
+  }
+
+  void _signAllConfirm() {
+    MyBottomSheet.showBottomSheet_90(
+      context: context,
+      child: CustomLoadingOverlay(
+        child: PinCheckScreen(
+          pinCheckContext: PinCheckContextEnum.sensitiveAction,
+          onComplete: () {
+            Navigator.pop(context);
+            _signAll();
+          },
+        ),
+      ),
+    );
+  }
+
+  void _signAll() async {
+    try {
+      setState(() {
+        _showLoading = true;
+      });
+      for (int index = 0; index < _viewModel.signers.length; index++) {
+        _addNonce(index);
+        await Future.delayed(const Duration(milliseconds: 100));
+      }
+
+      for (int index = 0; index < _viewModel.signers.length; index++) {
+        _signStep2(index);
+        await Future.delayed(const Duration(milliseconds: 100));
+      }
+    } catch (_) {
+      if (mounted) {
+        showAlertDialog(context: context, content: t.errors.sign_error(error: _));
+      }
+    } finally {
+      setState(() {
+        _showLoading = false;
+      });
+    }
+  }
+
+  void _addNonce(int index) async {
+    try {
+      setState(() {
+        _showLoading = true;
+      });
+      await _viewModel.addNonce(index);
+    } catch (_) {
+      if (mounted) {
+        showAlertDialog(context: context, content: t.errors.nonce_error(error: _));
+      }
+      _isNonceInput = true;
+    } finally {
+      setState(() {
+        _showLoading = false;
+      });
+    }
   }
 
   void _signStep1(bool isKeyInsideVault, int index) {
@@ -202,7 +278,13 @@ class _MultisigSignScreenState extends State<MultisigSignScreen> {
                         child: Text(
                           viewModel.isSignatureComplete
                               ? t.sign_completed
-                              : '${viewModel.remainingSignatures}개의 서명이 필요합니다',
+                              : viewModel.addressType == 'p2wsh'
+                                  ? t.sign_required(
+                                      count: viewModel.requiredSignatureCount -
+                                          viewModel.signersApproved.where((item) => item).length)
+                                  : t.nonce_and_sign_required(
+                                      count: viewModel.requiredSignatureCount -
+                                          viewModel.signersApproved.where((item) => item).length),
                           style: Styles.body2Bold,
                         ),
                       ),
@@ -244,6 +326,7 @@ class _MultisigSignScreenState extends State<MultisigSignScreen> {
                                 ),
                               ],
                             ),
+                            const SizedBox(height: 20),
                           ],
                         ),
                       ),
@@ -352,34 +435,33 @@ class _MultisigSignScreenState extends State<MultisigSignScreen> {
                                             viewModel.signersApproved
                                                 .where((item) => item)
                                                 .length) ...{
-                                          GestureDetector(
+                                          if (viewModel.addressType == 'p2trMuSig2') ...{
+                                            SignatureActionButton(
+                                              //논스
+                                              onTap: () {
+                                                _addNonceConfirm(index);
+                                              },
+                                              text: t.nonce_input,
+                                              isEnabled: !viewModel.nonceInput[index],
+                                            ),
+                                            const SizedBox(width: 8),
+                                          },
+                                          SignatureActionButton(
                                             onTap: () {
                                               _signStep1(isInnerWallet, index);
                                             },
-                                            child: Container(
-                                              padding: const EdgeInsets.symmetric(
-                                                  horizontal: 8, vertical: 4),
-                                              decoration: BoxDecoration(
-                                                color: MyColors.white,
-                                                borderRadius: BorderRadius.circular(5),
-                                                border:
-                                                    Border.all(color: MyColors.black19, width: 1),
-                                              ),
-                                              child: Center(
-                                                child: Text(
-                                                  t.signature,
-                                                  style: Styles.caption.copyWith(
-                                                      color: MyColors.black19), // 텍스트 색상도 검정으로 변경
-                                                ),
-                                              ),
-                                            ),
+                                            text: t.signature,
+                                            isEnabled: viewModel.addressType != 'p2trMuSig2' ||
+                                                (viewModel.addressType == 'p2trMuSig2' &&
+                                                    viewModel.isAllNonceInput),
                                           ),
                                         },
                                       ],
                                     ),
                                   ),
                                   if (index < length) ...{
-                                    const Divider(color: MyColors.divider, height: 1),
+                                    // const Divider(color: MyColors.divider, height: 1),
+                                    const Divider(color: CoconutColors.gray200, height: 1),
                                   }
                                 ],
                               ),
@@ -387,6 +469,17 @@ class _MultisigSignScreenState extends State<MultisigSignScreen> {
                           },
                         ),
                       ),
+                      if (viewModel.addressType == 'p2trMuSig2') ...{
+                        const SizedBox(height: 20),
+                        CupertinoButton(
+                          padding: const EdgeInsets.only(bottom: 50),
+                          onPressed: _signAllConfirm,
+                          child: Text(
+                            t.sign_all,
+                            style: Styles.tertiaryButtonText,
+                          ),
+                        ),
+                      },
                       const Spacer(),
                       // 종료, 서명 업데이트 버튼
                       CupertinoButton(

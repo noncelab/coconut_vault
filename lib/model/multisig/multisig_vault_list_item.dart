@@ -6,6 +6,7 @@ import 'package:coconut_vault/model/common/vault_list_item_base.dart';
 import 'package:coconut_vault/enums/wallet_enums.dart';
 import 'package:coconut_vault/managers/isolate_manager.dart';
 import 'package:coconut_vault/utils/isolate_handler.dart';
+import 'package:flutter/foundation.dart';
 import 'package:json_annotation/json_annotation.dart';
 
 part 'multisig_vault_list_item.g.dart'; // 생성될 파일 이름 $ dart run build_runner build
@@ -63,12 +64,14 @@ class MultisigVaultListItem extends VaultListItemBase {
     final newSigners = signers
         .map((signer) => {
               'innerVaultId': signer.innerVaultId,
-              'name': signer.name,
+              'name': addressType == 'p2trMuSig2' ? '*****' : signer.name,
               'iconIndex': signer.iconIndex,
               'colorIndex': signer.colorIndex,
               'memo': signer.memo,
             })
         .toList();
+
+    debugPrint('addressType : $addressType');
 
     Map<String, dynamic> json = {
       'name': name,

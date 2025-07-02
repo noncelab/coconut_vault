@@ -17,10 +17,16 @@ class SinglesigWallet {
   String? mnemonic;
   @JsonKey(name: "passphrase")
   String? passphrase;
+  @JsonKey(name: "masterFingerprint")
+  String? masterFingerprint;
 
   SinglesigWallet(this.id, this.name, this.icon, this.color, this.mnemonic, this.passphrase);
 
   Map<String, dynamic> toJson() => _$SinglesigWalletToJson(this);
+
+  void setMasterFingerprint(String masterFingerprint) {
+    this.masterFingerprint = masterFingerprint;
+  }
 
   factory SinglesigWallet.fromJson(Map<String, dynamic> json) {
     return _$SinglesigWalletFromJson(json);

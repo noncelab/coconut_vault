@@ -64,6 +64,7 @@ Future<String> addSignatureToPsbtIsolate(
 }
 
 Future<bool> canSignToPsbtIsolate(List<dynamic> dataList, void Function(dynamic)? replyTo) async {
+  //TODO: 여기 확인
   String psbtBase64 = dataList[1] as String;
   var isMultisig = dataList[0] is MultisignatureVault;
 
@@ -111,6 +112,7 @@ Future<MultisignatureVault> fromKeyStoreIsolate(
   List<KeyStore> keyStores = [];
   List<dynamic> decodedKeyStoresJson = jsonDecode(data['keyStores']);
   final int requiredSignatureCount = data['requiredSignatureCount'];
+  final String addressType = data['addressType'];
 
   for (var keyStore in decodedKeyStoresJson) {
     keyStores.add(KeyStore.fromJson(keyStore));
@@ -118,7 +120,7 @@ Future<MultisignatureVault> fromKeyStoreIsolate(
 
   MultisignatureVault multiSignatureVault = MultisignatureVault.fromKeyStoreList(
       keyStores, requiredSignatureCount,
-      addressType: AddressType.p2wsh);
+      addressType: AddressType.getAddressTypeFromName(addressType));
 
   if (replyTo != null) {
     replyTo(multiSignatureVault);
