@@ -554,3 +554,16 @@ errors:
 
 tooltip:
   mfp: "지갑의 고유 값이에요.\n마스터 핑거프린트(MFP)라고도 해요."
+
+language:
+  language: "언어"
+  korean: "한국어"
+  english: "English"
+  japanese: "日本語"
+  chinese: "中文"
+  spanish: "Español"
+  french: "Français"
+  german: "Deutsch"
+  italian: "Italiano"
+  portuguese: "Português"
+  russian: "Русский"

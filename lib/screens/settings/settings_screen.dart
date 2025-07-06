@@ -7,16 +7,19 @@ import 'package:coconut_vault/providers/visibility_provider.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:coconut_vault/utils/logger.dart';
 import 'package:coconut_vault/widgets/custom_loading_overlay.dart';
+import 'package:coconut_vault/widgets/overlays/common_bottom_sheets.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:loader_overlay/loader_overlay.dart';
 import 'package:coconut_vault/screens/common/pin_check_screen.dart';
+import 'package:coconut_vault/screens/settings/language_bottom_sheet.dart';
 import 'package:coconut_vault/styles.dart';
 import 'package:coconut_vault/widgets/button/button_group.dart';
 import 'package:coconut_vault/widgets/button/single_button.dart';
 import 'package:provider/provider.dart';
 
 import '../../widgets/bottom_sheet.dart';
+import '../../widgets/button/multi_line_button.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -55,6 +58,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
             children: [
               _securityPart(context),
               CoconutLayout.spacing_1000h,
+              _languagePart(context),
+              CoconutLayout.spacing_1000h,
               Selector<WalletProvider, bool>(
                 selector: (context, provider) => provider.vaultList.isNotEmpty,
                 builder: (context, isNotEmpty, _) => isNotEmpty
@@ -66,6 +71,34 @@ class _SettingsScreenState extends State<SettingsScreen> {
           ),
         ),
       ),
+    );
+  }
+
+  Widget _languagePart(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+          padding: const EdgeInsets.only(bottom: 16),
+          child: Text(t.language.language, style: CoconutTypography.body1_16_Bold),
+        ),
+        Consumer<VisibilityProvider>(
+          builder: (context, provider, child) {
+            return Selector<VisibilityProvider, String>(
+              selector: (_, provider) => provider.language,
+              builder: (context, language, child) {
+                return MultiLineButton(
+                  title: t.language.language,
+                  subtitle: _getCurrentLanguageDisplayName(language),
+                  onPressed: () async {
+                    _showLanguageSelectionDialog();
+                  },
+                );
+              },
+            );
+          },
+        ),
+      ],
     );
   }
 
@@ -201,5 +234,23 @@ class _SettingsScreenState extends State<SettingsScreen> {
         ]);
       }),
     ]);
+  }
+
+  void _showLanguageSelectionDialog() {
+    CommonBottomSheets.showBottomSheet_50(
+      context: context,
+      child: const LanguageBottomSheet(),
+    );
+  }
+
+  String _getCurrentLanguageDisplayName(String language) {
+    switch (language) {
+      case 'kr':
+        return t.language.korean;
+      case 'en':
+        return t.language.english;
+      default:
+        return t.language.english;
+    }
   }
 }

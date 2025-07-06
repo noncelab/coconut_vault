@@ -204,6 +204,7 @@ flutter:
     - assets/files/CONTRIBUTING.md
     - assets/svg/download.svg
     - assets/svg/circle-check.svg
+    - assets/svg/check.svg
     - assets/svg/vault-grey.svg
     - assets/svg/text-field-clear.svg
     - assets/svg/copy.svg
