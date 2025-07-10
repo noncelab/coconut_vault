@@ -105,20 +105,30 @@ class _VaultTypeSelectionScreenState extends State<VaultTypeSelectionScreen> {
                 padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 32),
                 child: Column(
                   children: [
-                    Text(guideText),
-                    const SizedBox(height: 10),
-                    Text(
-                      (nextPath == options[1] &&
-                              !model.isVaultListLoading &&
-                              model.vaultList.isEmpty)
-                          ? t.select_vault_type_screen.empty_key
-                          : '',
-                      style: Styles.caption.merge(
-                        const TextStyle(
-                          color: MyColors.warningText,
-                        ),
-                      ),
-                    ),
+                    SizedBox(
+                        height: 68,
+                        child: Column(
+                          children: [
+                            Center(
+                                child: Text(
+                              guideText,
+                              textAlign: TextAlign.center,
+                            )),
+                            const SizedBox(height: 10),
+                            Text(
+                              (nextPath == options[1] &&
+                                      !model.isVaultListLoading &&
+                                      model.vaultList.isEmpty)
+                                  ? t.select_vault_type_screen.empty_key
+                                  : '',
+                              style: Styles.caption.merge(
+                                const TextStyle(
+                                  color: MyColors.warningText,
+                                ),
+                              ),
+                            ),
+                          ],
+                        )),
                     const SizedBox(height: 20),
                     Row(
                       children: [

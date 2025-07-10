@@ -38,7 +38,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         backgroundColor: Colors.transparent,
         toolbarHeight: 62,
         title: Text(t.settings),
-        titleTextStyle: CoconutTypography.body1_16,
+        titleTextStyle: CoconutTypography.body1_16.setColor(CoconutColors.black),
         toolbarTextStyle: CoconutTypography.heading4_18,
         leading: IconButton(
           onPressed: () {
@@ -52,22 +52,24 @@ class _SettingsScreenState extends State<SettingsScreen> {
         ),
       ),
       body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16.0),
-          child: Column(
-            children: [
-              _securityPart(context),
-              CoconutLayout.spacing_1000h,
-              _languagePart(context),
-              CoconutLayout.spacing_1000h,
-              Selector<WalletProvider, bool>(
-                selector: (context, provider) => provider.vaultList.isNotEmpty,
-                builder: (context, isNotEmpty, _) => isNotEmpty
-                    ? Column(children: [_updatePart(context), CoconutLayout.spacing_1000h])
-                    : Container(),
-              ),
-              _advancedUserPart(context),
-            ],
+        child: SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16.0),
+            child: Column(
+              children: [
+                _securityPart(context),
+                CoconutLayout.spacing_1000h,
+                _languagePart(context),
+                CoconutLayout.spacing_1000h,
+                Selector<WalletProvider, bool>(
+                  selector: (context, provider) => provider.vaultList.isNotEmpty,
+                  builder: (context, isNotEmpty, _) => isNotEmpty
+                      ? Column(children: [_updatePart(context), CoconutLayout.spacing_1000h])
+                      : Container(),
+                ),
+                _advancedUserPart(context),
+              ],
+            ),
           ),
         ),
       ),

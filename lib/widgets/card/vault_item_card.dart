@@ -1,4 +1,5 @@
 import 'package:coconut_lib/coconut_lib.dart';
+import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/model/multisig/multisig_signer.dart';
 import 'package:coconut_vault/model/multisig/multisig_vault_list_item.dart';
 import 'package:coconut_vault/model/single_sig/single_sig_vault_list_item.dart';
@@ -40,8 +41,11 @@ class VaultItemCard extends StatelessWidget {
       colorIndex = multiVault.colorIndex;
       iconIndex = multiVault.iconIndex;
       int innerSignerCount = multiVault.signers.where((s) => s.innerVaultId != null).length;
-      rightText =
-          '${innerSignerCount > multiVault.requiredSignatureCount ? multiVault.requiredSignatureCount : innerSignerCount}개 서명 가능';
+      rightText = t.signable_wallet_count(
+          count: innerSignerCount > multiVault.requiredSignatureCount
+              ? multiVault.requiredSignatureCount
+              : innerSignerCount);
+      print(rightText);
 
       tooltipText = '${multiVault.requiredSignatureCount}/${multiVault.signers.length}';
       isMultisig = true;
@@ -52,7 +56,7 @@ class VaultItemCard extends StatelessWidget {
       colorIndex = singleVault.colorIndex;
       iconIndex = singleVault.iconIndex;
       rightText = singlesigVault.keyStore.masterFingerprint;
-      tooltipText = '지갑 ID';
+      tooltipText = t.wallet_id;
     }
 
     return Container(

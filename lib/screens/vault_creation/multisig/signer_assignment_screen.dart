@@ -332,6 +332,7 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
                                                       isButtonActiveNotifier:
                                                           _isButtonActiveNotifier,
                                                       context: context,
+                                                      appBarButtonName: t.select,
                                                       childBuilder: (sheetController) =>
                                                           KeyListBottomSheet(
                                                         // 키 옵션 중 하나 선택했을 때

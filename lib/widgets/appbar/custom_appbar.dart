@@ -1,6 +1,7 @@
 import 'dart:ui';
 
 import 'package:coconut_lib/coconut_lib.dart';
+import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -91,9 +92,10 @@ class CustomAppBar {
     bool hasBackdropFilter = true,
     bool isActive = true,
     bool isBottom = false,
-    String buttonName = '다음',
+    String? buttonName,
     Color backgroundColor = MyColors.white,
   }) {
+    final String finalButtonName = buttonName ?? t.next;
     return AppBar(
         title: Text(title),
         centerTitle: true,
@@ -129,7 +131,7 @@ class CustomAppBar {
                 ),
                 child: Center(
                   child: Text(
-                    buttonName,
+                    finalButtonName,
                     style: Styles.label2.merge(
                       TextStyle(
                         color: isActive ? Colors.white : MyColors.transparentBlack_30,
@@ -192,7 +194,7 @@ class CustomAppBar {
                         color: isActive ? MyColors.darkgrey : MyColors.lightgrey,
                       ),
                       child: Center(
-                          child: Text('저장',
+                          child: Text(t.save,
                               style: Styles.subLabel.merge(TextStyle(
                                   color: isActive ? Colors.white : MyColors.transparentBlack_30,
                                   fontSize: 11)))))))
@@ -212,9 +214,10 @@ class CustomAppBar {
     VoidCallback? onBackPressed,
     bool hasNextButton = false,
     bool isNextButtonActive = false,
-    String nextButtonText = '선택',
+    String? nextButtonText,
     VoidCallback? onNextPressed,
   }) {
+    final String finalButtonName = nextButtonText ?? t.close;
     return AppBar(
       centerTitle: true,
       backgroundColor: backgroundColor ?? Colors.transparent,
@@ -249,7 +252,7 @@ class CustomAppBar {
                 ),
                 child: Center(
                   child: Text(
-                    nextButtonText,
+                    finalButtonName,
                     style: Styles.label2.merge(
                       TextStyle(
                         color: isNextButtonActive ? Colors.white : MyColors.transparentBlack_30,

@@ -196,8 +196,8 @@ flutter:
     - assets/png/discord-full-logo.png
     - assets/png/discord-logo.png
     - assets/png/mail-icon.png
-    - assets/png/browser_mainnet.png
-    - assets/png/browser_regtest.png
+    - assets/png/browser_en.png
+    - assets/png/browser_ko.png
     - assets/svg/github-logo-white.svg
     - assets/svg/github-logo.svg
     - assets/files/LICENSE

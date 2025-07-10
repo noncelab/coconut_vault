@@ -1,6 +1,7 @@
 import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/providers/visibility_provider.dart';
+import 'package:coconut_vault/utils/vibration_util.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
@@ -19,7 +20,7 @@ class _LanguageBottomSheetState extends State<LanguageBottomSheet> {
         selector: (_, viewModel) => viewModel.language,
         builder: (context, language, child) {
           return Scaffold(
-              backgroundColor: CoconutColors.black,
+              backgroundColor: CoconutColors.white,
               appBar: CoconutAppBar.build(
                 title: t.language.language,
                 context: context,
@@ -47,13 +48,13 @@ class _LanguageBottomSheetState extends State<LanguageBottomSheet> {
                     ),
                     _buildUnitItem(t.language.english, t.language.english, language == 'en',
                         () async {
+                      vibrateLight();
                       // 언어 변경은 BottomSheet가 닫힌 후에 실행
                       final provider = context.read<VisibilityProvider>();
                       await provider.changeLanguage('en');
 
                       // 언어 변경 전에 BottomSheet를 먼저 닫기
                       if (context.mounted) {
-                        Navigator.of(context).pop();
                         Navigator.of(context).pop();
                       }
                     }),
@@ -73,13 +74,16 @@ class _LanguageBottomSheetState extends State<LanguageBottomSheet> {
                 child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(title, style: CoconutTypography.body2_14_Bold.setColor(CoconutColors.white)),
+                Text(title, style: CoconutTypography.body2_14_Bold.setColor(CoconutColors.black)),
               ],
             )),
             if (isChecked)
               Padding(
                 padding: const EdgeInsets.only(right: Sizes.size8),
-                child: SvgPicture.asset('assets/svg/check.svg'),
+                child: SvgPicture.asset(
+                  'assets/svg/check.svg',
+                  colorFilter: const ColorFilter.mode(CoconutColors.black, BlendMode.srcIn),
+                ),
               ),
           ],
         ),

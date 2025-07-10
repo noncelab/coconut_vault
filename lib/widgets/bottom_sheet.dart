@@ -133,7 +133,9 @@ class MyBottomSheet {
     ScrollPhysics? physics,
     VoidCallback? onTopWidgetButtonClicked,
     VoidCallback? onBackPressed,
+    String? appBarButtonName,
   }) async {
+    final String finalAppBarButtonName = appBarButtonName ?? t.close;
     return showModalBottomSheet<T>(
         context: context,
         builder: (context) {
@@ -156,6 +158,7 @@ class MyBottomSheet {
                         builder: (context, isActive, _) {
                           return CustomAppBar.buildWithClose(
                             hasNextButton: true,
+                            nextButtonText: finalAppBarButtonName,
                             context: context,
                             title: t.key_list, // fixme: 특정 화면 컨텍스트를 포함하고 있음
                             backgroundColor: MyColors.white,
@@ -173,6 +176,7 @@ class MyBottomSheet {
                     else if (topWidget)
                       CustomAppBar.buildWithClose(
                         hasNextButton: true,
+                        nextButtonText: finalAppBarButtonName,
                         context: context,
                         title: t.import,
                         backgroundColor: MyColors.white,

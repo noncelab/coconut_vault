@@ -64,7 +64,7 @@ class CommonBottomSheets {
               ],
             ));
       },
-      backgroundColor: CoconutColors.black,
+      backgroundColor: CoconutColors.white,
       isDismissible: isDismissible,
       isScrollControlled: true,
       enableDrag: enableDrag,
@@ -86,7 +86,7 @@ class CommonBottomSheets {
           ),
         );
       },
-      backgroundColor: CoconutColors.black,
+      backgroundColor: CoconutColors.white,
       isScrollControlled: true,
       enableDrag: true,
       useSafeArea: true,
@@ -100,7 +100,7 @@ class CommonBottomSheets {
         builder: (context) {
           return child; // child screen에서 type <T>를 반환하면 반환됩니다.
         },
-        backgroundColor: CoconutColors.black,
+        backgroundColor: CoconutColors.white,
         //isDismissible: false,
         isScrollControlled: true,
         enableDrag: true,
@@ -115,7 +115,7 @@ class CommonBottomSheets {
         builder: (context) {
           return child; // child screen에서 type <T>를 반환하면 반환됩니다.
         },
-        backgroundColor: CoconutColors.black,
+        backgroundColor: CoconutColors.white,
         //isDismissible: false,
         isScrollControlled: true,
         enableDrag: true,
@@ -127,7 +127,7 @@ class CommonBottomSheets {
       {required BuildContext context,
       required Widget child,
       bool enableDrag = true,
-      Color backgroundColor = CoconutColors.black,
+      Color backgroundColor = CoconutColors.white,
       bool isDismissible = false,
       bool isScrollControlled = true,
       bool useSafeArea = true,
@@ -150,7 +150,7 @@ class CommonBottomSheets {
     required BuildContext context,
     required Widget child,
     bool enableDrag = true,
-    Color backgroundColor = CoconutColors.black,
+    Color backgroundColor = CoconutColors.white,
     bool isDismissible = true,
     bool isScrollControlled = true,
     bool useSafeArea = true,
