@@ -428,7 +428,7 @@ class _MultisigSetupInfoScreenState extends State<MultisigSetupInfoScreen> {
                 children: [
                   Text(
                     t.multi_sig_setting_screen
-                        .tooltip(total: totalSingerCount, count: requiredSignatureCount),
+                        .tooltip(total: totalSingerCount, n: requiredSignatureCount),
                     style: Styles.caption.merge(TextStyle(
                       height: 1.3,
                       fontFamily: CustomFonts.text.getFontFamily,

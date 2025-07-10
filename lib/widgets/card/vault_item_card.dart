@@ -41,8 +41,8 @@ class VaultItemCard extends StatelessWidget {
       colorIndex = multiVault.colorIndex;
       iconIndex = multiVault.iconIndex;
       int innerSignerCount = multiVault.signers.where((s) => s.innerVaultId != null).length;
-      rightText = t.signable_wallet_count(
-          count: innerSignerCount > multiVault.requiredSignatureCount
+      rightText = t.available_signer_count(
+          n: innerSignerCount > multiVault.requiredSignatureCount
               ? multiVault.requiredSignatureCount
               : innerSignerCount);
       print(rightText);

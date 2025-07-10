@@ -55,7 +55,9 @@ stop_sign: "서명 종료하기"
 select_completed: "선택 완료"
 checklist: "확인 사항"
 wallet_id: "지갑 ID"
-signable_wallet_count: "$count 개 서명 가능"
+available_signer_count: 
+  one: "$n개 서명 가능"
+  other: "$n개 서명 가능"
 mnemonic_wordlist: "니모닉 문구 단어집"
 tool: "도구"
 tutorial: "튜토리얼"
@@ -86,7 +88,9 @@ re_select: "다시 고르기"
 name_info: "$name 정보"
 name_wallet: "$name 지갑"
 bitcoin_text: "$bitcoin BTC"
-sign_required: "$count개의 서명이 필요합니다"
+sign_required: 
+  one: "$n개의 서명이 필요합니다"
+  other: "$n개의 서명이 필요합니다"
 name_text_count: "($count / 20)"
 wallet_subtitle: "$name의 $index번 키"
 
@@ -361,7 +365,9 @@ multi_sig_setting_screen:
   edit_memo: "메모 수정"
   add_memo: "메모 추가"
   view_bsms: "지갑 설정 정보 보기"
-  tooltip: "$total개의 키 중 $count개로 서명해야 하는\n다중 서명 지갑이에요."
+  tooltip: 
+    one: "$total개의 키 중 $n개로 서명해야 하는\n다중 서명 지갑이에요."
+    other: "$total개의 키 중 $n개로 서명해야 하는\n다중 서명 지갑이에요."
 select_export_type_screen:
   title: "내보내기"
   export_type: "어떤 용도로 사용하시나요?"

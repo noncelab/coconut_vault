@@ -55,7 +55,9 @@ stop_sign: "Stop Signing"
 select_completed: "Selection Complete"
 checklist: "Checklist"
 wallet_id: "Wallet ID"
-signable_wallet_count: "$count signers available"
+available_signer_count: 
+  one: $n signer available
+  other: $n signers available
 mnemonic_wordlist: "Mnemonic Word List"
 tool: "Tool"
 tutorial: "Tutorial"
@@ -86,9 +88,11 @@ re_select: "Reselect"
 name_info: "$name Info"
 name_wallet: "$name Wallet"
 bitcoin_text: "$bitcoin BTC"
-sign_required: "$count signatures required"
+sign_required: 
+  one: "$n signature required"
+  other: "$n signatures required"
 name_text_count: "($count / 20)"
-wallet_subtitle: "$name's $index key"
+wallet_subtitle: "$name's key $index"
 
 forgot_password: "Forgot password?"
 scan_qr_url_link: "Scan QR code with network-enabled device or visit the URL above"
@@ -149,7 +153,7 @@ tutorial_screen:
   content: "Enter in browser address bar\ncoconut.onl"
 
 multisig:
-  nth_key: "$index key"
+  nth_key: "key $index"
 
 # lib/screens/airgap
 account_selection_bottom_sheet_screen:
@@ -361,7 +365,9 @@ multi_sig_setting_screen:
   edit_memo: "Edit Memo"
   add_memo: "Add Memo"
   view_bsms: "View Wallet Settings"
-  tooltip: "Multisig wallet requiring $count signatures\nout of $total keys."
+  tooltip: 
+    one: "Multisig wallet requiring $n signature\nout of $total keys."
+    other: "Multisig wallet requiring $n signatures\nout of $total keys."
 select_export_type_screen:
   title: "Export"
   export_type: "What will you use it for?"
