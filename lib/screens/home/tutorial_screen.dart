@@ -3,6 +3,7 @@ import 'package:coconut_vault/constants/app_routes.dart';
 import 'package:coconut_vault/constants/external_links.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/providers/connectivity_provider.dart';
+import 'package:coconut_vault/providers/visibility_provider.dart';
 import 'package:coconut_vault/styles.dart';
 import 'package:coconut_vault/utils/uri_launcher.dart';
 import 'package:coconut_vault/widgets/appbar/custom_appbar.dart';
@@ -186,10 +187,10 @@ class _TutorialScreenState extends State<TutorialScreen> {
   }
 
   Widget _browserImage() {
-    return Image.asset(
-      'assets/png/browser_${NetworkType.currentNetworkType.isTestnet ? "regtest" : "mainnet"}.png',
-      width: 222,
-      fit: BoxFit.fitWidth,
-    );
+    return Consumer<VisibilityProvider>(builder: (context, visibilityProvider, child) {
+      String languageSuffix = visibilityProvider.language == 'kr' ? 'ko' : 'en';
+      return Image.asset('assets/png/browser_$languageSuffix.png',
+          width: 222, fit: BoxFit.fitWidth);
+    });
   }
 }

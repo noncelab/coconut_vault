@@ -239,6 +239,7 @@
 				9705A1C41CF9048500538489 /* Embed Frameworks */,
 				3B06AD1E1E4923F5004D2608 /* Thin Binary */,
 				3A357562303AD3455E4DACD1 /* [CP] Embed Pods Frameworks */,
+				DEE9B6512E208A6900F925A3 /* ShellScript */,
 			);
 			buildRules = (
 			);
@@ -276,6 +277,7 @@
 			knownRegions = (
 				en,
 				Base,
+				ko,
 			);
 			mainGroup = 97C146E51CF9000F007C117D;
 			productRefGroup = 97C146EF1CF9000F007C117D /* Products */;
@@ -402,6 +404,23 @@
 			shellPath = /bin/sh;
 			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
 			showEnvVarsInLog = 0;
+		};
+		DEE9B6512E208A6900F925A3 /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "#!/bin/bash\n\n# Configuration에 따른 앱 이름 설정\nif [[ \"${CONFIGURATION}\" == *\"mainnet\"* ]]; then\n    EN_APP_NAME=\"Coconut Vault\"\n    KO_APP_NAME=\"코코넛 볼트\"\nelif [[ \"${CONFIGURATION}\" == *\"regtest\"* ]]; then\n    EN_APP_NAME=\"Coconut Vault-Regtest\"\n    KO_APP_NAME=\"코코넛 볼트 학습용\"\nelse\n    EN_APP_NAME=\"Coconut Vault\"\n    KO_APP_NAME=\"코코넛 볼트\"\nfi\n\necho \"EN_APP_NAME: $EN_APP_NAME\"\necho \"KO_APP_NAME: $KO_APP_NAME\"\n\n# 영어 InfoPlist.strings 파일 경로\nEN_STRINGS_PATH=\"${BUILT_PRODUCTS_DIR}/${PRODUCT_NAME}.app/en.lproj\"\nEN_STRINGS_FILE=\"${EN_STRINGS_PATH}/InfoPlist.strings\"\n\n# 한국어 InfoPlist.strings 파일 경로\nKO_STRINGS_PATH=\"${BUILT_PRODUCTS_DIR}/${PRODUCT_NAME}.app/ko.lproj\"\nKO_STRINGS_FILE=\"${KO_STRINGS_PATH}/InfoPlist.strings\"\n\n# 디렉토리 생성\nmkdir -p \"$EN_STRINGS_PATH\"\nmkdir -p \"$KO_STRINGS_PATH\"\n\n# InfoPlist.strings 파일 생성/업데이트\necho \"CFBundleDisplayName = \\\"$EN_APP_NAME\\\";\" > \"$EN_STRINGS_FILE\"\necho \"CFBundleDisplayName = \\\"$KO_APP_NAME\\\";\" > \"$KO_STRINGS_FILE\"\n\necho \"✅ 영어 앱 이름 설정 완료: $EN_APP_NAME\"\necho \"✅ 한국어 앱 이름 설정 완료: $KO_APP_NAME\"\necho \"Configuration: $CONFIGURATION\"\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 
