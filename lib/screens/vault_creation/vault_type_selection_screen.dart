@@ -1,11 +1,10 @@
+import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_vault/constants/app_routes.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:coconut_vault/widgets/button/custom_buttons.dart';
 import 'package:coconut_vault/widgets/indicator/message_activity_indicator.dart';
 import 'package:flutter/material.dart';
-import 'package:coconut_vault/styles.dart';
-import 'package:coconut_vault/widgets/appbar/custom_appbar.dart';
 import 'package:provider/provider.dart';
 
 class VaultTypeSelectionScreen extends StatefulWidget {
@@ -92,8 +91,8 @@ class _VaultTypeSelectionScreenState extends State<VaultTypeSelectionScreen> {
     return Consumer<WalletProvider>(
       builder: (context, model, child) {
         return Scaffold(
-          backgroundColor: MyColors.white,
-          appBar: CustomAppBar.buildWithNext(
+          backgroundColor: CoconutColors.white,
+          appBar: CoconutAppBar.buildWithNext(
             title: t.select_vault_type_screen.title,
             context: context,
             onNextPressed: () => onNextPressed(),
@@ -105,30 +104,18 @@ class _VaultTypeSelectionScreenState extends State<VaultTypeSelectionScreen> {
                 padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 32),
                 child: Column(
                   children: [
-                    SizedBox(
-                        height: 68,
-                        child: Column(
-                          children: [
-                            Center(
-                                child: Text(
-                              guideText,
-                              textAlign: TextAlign.center,
-                            )),
-                            const SizedBox(height: 10),
-                            Text(
-                              (nextPath == options[1] &&
-                                      !model.isVaultListLoading &&
-                                      model.vaultList.isEmpty)
-                                  ? t.select_vault_type_screen.empty_key
-                                  : '',
-                              style: Styles.caption.merge(
-                                const TextStyle(
-                                  color: MyColors.warningText,
-                                ),
-                              ),
-                            ),
-                          ],
-                        )),
+                    Text(guideText),
+                    const SizedBox(height: 10),
+                    Text(
+                      (nextPath == options[1] &&
+                              !model.isVaultListLoading &&
+                              model.vaultList.isEmpty)
+                          ? t.select_vault_type_screen.empty_key
+                          : '',
+                      style: CoconutTypography.body3_12.setColor(
+                        CoconutColors.warningText,
+                      ),
+                    ),
                     const SizedBox(height: 20),
                     Row(
                       children: [
@@ -155,7 +142,7 @@ class _VaultTypeSelectionScreenState extends State<VaultTypeSelectionScreen> {
               Visibility(
                 visible: _showLoading,
                 child: Container(
-                  decoration: const BoxDecoration(color: MyColors.transparentBlack_30),
+                  decoration: BoxDecoration(color: CoconutColors.black.withOpacity(0.3)),
                   child: Center(
                       child: MessageActivityIndicator(
                           message: t.select_vault_type_screen.loading_keys)),

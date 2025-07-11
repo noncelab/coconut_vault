@@ -1,7 +1,6 @@
+import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:flutter/cupertino.dart';
-
-import '../styles.dart';
 
 class TestnetLabelWidget extends StatelessWidget {
   const TestnetLabelWidget({super.key});
@@ -11,7 +10,7 @@ class TestnetLabelWidget extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(4),
-        color: MyColors.cyanblue,
+        color: CoconutColors.cyanBlue,
       ),
       padding: const EdgeInsets.symmetric(
         horizontal: 16,
@@ -19,11 +18,11 @@ class TestnetLabelWidget extends StatelessWidget {
       ),
       child: Text(
         t.testnet,
-        style: Styles.label.merge(
+        style: CoconutTypography.body2_14.merge(
           const TextStyle(
             fontSize: 10,
             fontWeight: FontWeight.w600,
-            color: MyColors.white,
+            color: CoconutColors.white,
           ),
         ),
       ),

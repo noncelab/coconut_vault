@@ -43,11 +43,15 @@ class AuthProvider extends ChangeNotifier {
   bool _isBiometricEnabled = false;
   bool get isBiometricEnabled => _isBiometricEnabled;
 
-  bool get isBiometricAuthRequired => _isBiometricEnabled && _canCheckBiometrics;
-
   /// 사용자 생체인증 권한 허용 여부
   bool _hasBiometricsPermission = false;
   bool get hasBiometricsPermission => _hasBiometricsPermission;
+
+  /// 인증 활성화 여부
+  bool get isAuthEnabled => _isPinSet;
+
+  /// 생체인식 인증 활성화 여부
+  bool get isBiometricsAuthEnabled => _canCheckBiometrics && _isBiometricEnabled;
 
   /// 잠금 해제 시도 정보
   int _currentTurn = 0;
@@ -87,6 +91,11 @@ class AuthProvider extends ChangeNotifier {
     setInitState();
   }
 
+  /// 생체인증 성공했는지 여부 반환
+  Future<bool> isBiometricsAuthValid() async {
+    return isBiometricsAuthEnabled && await authenticateWithBiometrics();
+  }
+
   void setInitState() {
     _isPinSet = _sharedPrefs.getBool(SharedPrefsKeys.isPinEnabled) == true;
     _loadBiometricState();
@@ -113,8 +122,10 @@ class AuthProvider extends ChangeNotifier {
   }
 
   /// 생체인증 진행 후 성공 여부 반환
-  Future<bool> authenticateWithBiometrics(BuildContext context,
-      {bool showAuthenticationFailedDialog = true, bool isSaved = false}) async {
+  Future<bool> authenticateWithBiometrics(
+      {BuildContext? context,
+      bool showAuthenticationFailedDialog = true,
+      bool isSaved = false}) async {
     bool authenticated = false;
     try {
       authenticated = await _auth.authenticate(
@@ -129,7 +140,7 @@ class AuthProvider extends ChangeNotifier {
       );
 
       if (Platform.isIOS && !authenticated) {
-        if (context.mounted && onRequestShowAuthenticationFailedDialog != null) {
+        if (context != null && context.mounted && onRequestShowAuthenticationFailedDialog != null) {
           onRequestShowAuthenticationFailedDialog!();
         }
       }
@@ -149,7 +160,9 @@ class AuthProvider extends ChangeNotifier {
             !authenticated &&
             e.message == 'Biometry is not available.' &&
             showAuthenticationFailedDialog) {
-          if (context.mounted && onRequestShowAuthenticationFailedDialog != null) {
+          if (context != null &&
+              context.mounted &&
+              onRequestShowAuthenticationFailedDialog != null) {
             onRequestShowAuthenticationFailedDialog!();
           }
         }
@@ -177,7 +190,6 @@ class AuthProvider extends ChangeNotifier {
       }
 
       final List<BiometricType> availableBiometrics = await _auth.getAvailableBiometrics();
-
       _canCheckBiometrics = availableBiometrics.isNotEmpty;
 
       if (!_canCheckBiometrics) {
@@ -206,7 +218,7 @@ class AuthProvider extends ChangeNotifier {
 
   void verifyBiometric(BuildContext context) async {
     bool isAuthenticated = await authenticateWithBiometrics(
-      context,
+      context: context,
       showAuthenticationFailedDialog: false,
     );
     if (isAuthenticated) {

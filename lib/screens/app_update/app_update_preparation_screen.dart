@@ -166,7 +166,7 @@ class _AppUpdatePreparationScreenState extends State<AppUpdatePreparationScreen>
                           Container(
                             width: MediaQuery.sizeOf(context).width,
                             height: MediaQuery.sizeOf(context).height,
-                            color: Colors.white.withOpacity(0.5),
+                            color: CoconutColors.white.withOpacity(0.5),
                             child: const Center(
                               child: CoconutCircularIndicator(),
                             ),

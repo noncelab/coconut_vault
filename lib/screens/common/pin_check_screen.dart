@@ -72,7 +72,6 @@ class _PinCheckScreenState extends State<PinCheckScreen> with WidgetsBindingObse
     WidgetsBinding.instance.addObserver(this);
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       await _authProvider.updateBiometricAvailability();
-      _checkBiometricsIfNeeds();
       if (mounted) {
         setState(() {
           _shuffledPinNumbers = _authProvider.getShuffledNumberList();
@@ -122,7 +121,6 @@ class _PinCheckScreenState extends State<PinCheckScreen> with WidgetsBindingObse
     } else if (AppLifecycleState.resumed == state && _isPaused) {
       _isPaused = false;
       await _authProvider.updateBiometricAvailability();
-      _checkBiometricsIfNeeds();
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (mounted) {
           setState(() {
@@ -130,13 +128,6 @@ class _PinCheckScreenState extends State<PinCheckScreen> with WidgetsBindingObse
           });
         }
       });
-    }
-  }
-
-  /// vault_list_tab screen, this screen pause -> Bio 체크
-  void _checkBiometricsIfNeeds() {
-    if (_authProvider.isBiometricAuthRequired) {
-      _authProvider.verifyBiometric(context);
     }
   }
 

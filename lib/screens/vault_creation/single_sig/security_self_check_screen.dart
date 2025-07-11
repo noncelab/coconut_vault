@@ -1,7 +1,6 @@
+import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:flutter/material.dart';
-import 'package:coconut_vault/styles.dart';
-import 'package:coconut_vault/widgets/appbar/custom_appbar.dart';
 import 'package:coconut_vault/widgets/check_list.dart';
 
 class SecuritySelfCheckScreen extends StatefulWidget {
@@ -42,9 +41,9 @@ class _SecuritySelfCheckScreenState extends State<SecuritySelfCheckScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: CoconutColors.white,
       appBar: widget.onNextPressed != null
-          ? CustomAppBar.buildWithNext(
+          ? CoconutAppBar.buildWithNext(
               title: t.checklist,
               context: context,
               onBackPressed: () {
@@ -53,13 +52,13 @@ class _SecuritySelfCheckScreenState extends State<SecuritySelfCheckScreen> {
               onNextPressed: widget.onNextPressed!,
               isActive: _allItemsChecked, // 상태에 따라 'Next' 버튼 활성화
             )
-          : CustomAppBar.build(
+          : CoconutAppBar.build(
               title: t.checklist,
               context: context,
               onBackPressed: () {
                 Navigator.of(context).pop();
               },
-              hasRightIcon: false),
+            ),
       body: SafeArea(
         child: SingleChildScrollView(
           child: Padding(
@@ -69,10 +68,15 @@ class _SecuritySelfCheckScreenState extends State<SecuritySelfCheckScreen> {
                 padding: const EdgeInsets.all(16.0),
                 child: Container(
                     padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-                    decoration: BoxDecorations.boxDecorationGrey,
+                    decoration: BoxDecoration(
+                      borderRadius: CoconutBorder.defaultRadius,
+                      color: CoconutColors.black.withOpacity(0.06),
+                    ),
                     child: Text(
                       t.security_self_check_screen.guidance,
-                      style: Styles.subLabel.merge(const TextStyle(fontWeight: FontWeight.bold)),
+                      style: CoconutTypography.body2_14.merge(TextStyle(
+                          color: CoconutColors.black.withOpacity(0.7),
+                          fontWeight: FontWeight.bold)),
                     )),
               ),
               const SizedBox(height: 16),

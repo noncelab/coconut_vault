@@ -1,3 +1,4 @@
+import 'package:coconut_lib/coconut_lib.dart';
 import 'package:coconut_vault/enums/wallet_enums.dart';
 import 'package:coconut_vault/model/common/vault_list_item_base.dart';
 import 'package:coconut_vault/providers/sign_provider.dart';
@@ -23,5 +24,9 @@ class PsbtScannerViewModel {
 
   void saveUnsignedPsbt(String psbtBase64) {
     _signProvider.saveUnsignedPsbt(psbtBase64);
+  }
+
+  Psbt parseBase64EncodedToPsbt(String signedPsbtBase64Encoded) {
+    return Psbt.parse(signedPsbtBase64Encoded);
   }
 }

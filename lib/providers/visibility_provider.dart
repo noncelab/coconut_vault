@@ -1,5 +1,5 @@
-import 'package:coconut_lib/coconut_lib.dart';
 import 'package:coconut_vault/constants/shared_preferences_keys.dart';
+import 'package:coconut_vault/enums/currency_enum.dart';
 import 'package:coconut_vault/repository/shared_preferences_repository.dart';
 import 'package:flutter/material.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
@@ -9,11 +9,15 @@ class VisibilityProvider extends ChangeNotifier {
   late int _walletCount;
   late bool _isPassphraseUseEnabled;
   late String _language;
+  late bool _isBtcUnit;
 
   bool get hasSeenGuide => _hasSeenGuide;
   int get walletCount => _walletCount;
   bool get isPassphraseUseEnabled => _isPassphraseUseEnabled;
   String get language => _language;
+
+  bool get isBtcUnit => _isBtcUnit;
+  BitcoinUnit get currentUnit => _isBtcUnit ? BitcoinUnit.btc : BitcoinUnit.sats;
 
   /// TODO: 제거
   bool _isLoading = false;
@@ -24,6 +28,7 @@ class VisibilityProvider extends ChangeNotifier {
     _hasSeenGuide = prefs.getBool(SharedPrefsKeys.hasShownStartGuide) == true;
     _walletCount = prefs.getInt(SharedPrefsKeys.vaultListLength) ?? 0;
     _isPassphraseUseEnabled = prefs.getBool(SharedPrefsKeys.kPassphraseUseEnabled) ?? false;
+    _isBtcUnit = prefs.getBool(SharedPrefsKeys.kIsBtcUnit) ?? true;
 
     // 언어 설정 초기화
     _language = _initializeLanguageFromOS(prefs);
@@ -98,6 +103,7 @@ class VisibilityProvider extends ChangeNotifier {
       _language = languageCode;
       notifyListeners();
     }
+    _isBtcUnit = prefs.getBool(SharedPrefsKeys.kIsBtcUnit) ?? true;
   }
 
   void showIndicator() {
@@ -131,6 +137,12 @@ class VisibilityProvider extends ChangeNotifier {
   Future<void> setAdvancedMode(bool value) async {
     _isPassphraseUseEnabled = value;
     SharedPrefsRepository().setBool(SharedPrefsKeys.kPassphraseUseEnabled, value);
+    notifyListeners();
+  }
+
+  Future<void> changeIsBtcUnit(bool isBtcUnit) async {
+    _isBtcUnit = isBtcUnit;
+    SharedPrefsRepository().setBool(SharedPrefsKeys.kIsBtcUnit, isBtcUnit);
     notifyListeners();
   }
 }

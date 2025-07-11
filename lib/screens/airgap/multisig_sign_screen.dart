@@ -1,17 +1,18 @@
+import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_vault/constants/app_routes.dart';
+import 'package:coconut_vault/enums/currency_enum.dart';
 import 'package:coconut_vault/enums/pin_check_context_enum.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
+import 'package:coconut_vault/providers/auth_provider.dart';
 import 'package:coconut_vault/providers/sign_provider.dart';
 import 'package:coconut_vault/providers/view_model/airgap/multisig_sign_view_model.dart';
+import 'package:coconut_vault/providers/visibility_provider.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:coconut_vault/screens/common/pin_check_screen.dart';
 import 'package:coconut_vault/screens/airgap/multisig_signer_qr_bottom_sheet.dart';
-import 'package:coconut_vault/styles.dart';
 import 'package:coconut_vault/utils/alert_util.dart';
 import 'package:coconut_vault/utils/icon_util.dart';
 import 'package:coconut_vault/utils/text_utils.dart';
-import 'package:coconut_vault/utils/unit_utils.dart';
-import 'package:coconut_vault/widgets/appbar/custom_appbar.dart';
 import 'package:coconut_vault/widgets/bottom_sheet.dart';
 import 'package:coconut_vault/widgets/custom_dialog.dart';
 import 'package:coconut_vault/widgets/custom_loading_overlay.dart';
@@ -34,12 +35,14 @@ class MultisigSignScreen extends StatefulWidget {
 class _MultisigSignScreenState extends State<MultisigSignScreen> {
   late MultisigSignViewModel _viewModel;
   late int _requiredSignatureCount;
+  late BitcoinUnit _currentUnit;
   bool _showLoading = false;
   bool _isProgressCompleted = false;
 
   @override
   void initState() {
     super.initState();
+    _currentUnit = context.read<VisibilityProvider>().currentUnit;
     _viewModel = MultisigSignViewModel(Provider.of<WalletProvider>(context, listen: false),
         Provider.of<SignProvider>(context, listen: false));
     _requiredSignatureCount = _viewModel.requiredSignatureCount;
@@ -49,8 +52,20 @@ class _MultisigSignScreenState extends State<MultisigSignScreen> {
     });
   }
 
-  void _signStep1(bool isKeyInsideVault, int index) {
+  void _toggleUnit() {
+    setState(() {
+      _currentUnit = _currentUnit == BitcoinUnit.btc ? BitcoinUnit.sats : BitcoinUnit.btc;
+    });
+  }
+
+  Future<void> _signStep1(bool isKeyInsideVault, int index) async {
     if (isKeyInsideVault) {
+      final authProvider = context.read<AuthProvider>();
+      if (await authProvider.isBiometricsAuthValid()) {
+        _signStep2(index);
+        return;
+      }
+
       MyBottomSheet.showBottomSheet_90(
         context: context,
         child: CustomLoadingOverlay(
@@ -104,7 +119,7 @@ class _MultisigSignScreenState extends State<MultisigSignScreen> {
         title: t.alert.exit_sign.title,
         message: t.alert.exit_sign.description,
         confirmButtonText: t.quit,
-        confirmButtonColor: MyColors.warningText,
+        confirmButtonColor: CoconutColors.warningText,
         onCancel: () => Navigator.pop(context),
         onConfirm: () {
           _viewModel.resetAll();
@@ -118,7 +133,7 @@ class _MultisigSignScreenState extends State<MultisigSignScreen> {
       title: t.alert.stop_sign.title,
       message: t.alert.stop_sign.description,
       confirmButtonText: t.quit,
-      confirmButtonColor: MyColors.warningText,
+      confirmButtonColor: CoconutColors.warningText,
       onCancel: () => Navigator.pop(context),
       onConfirm: () {
         _viewModel.reset();
@@ -149,18 +164,18 @@ class _MultisigSignScreenState extends State<MultisigSignScreen> {
         create: (_) => _viewModel,
         child: Consumer<MultisigSignViewModel>(
           builder: (context, viewModel, child) => Scaffold(
-            backgroundColor: MyColors.lightgrey,
-            appBar: CustomAppBar.buildWithNext(
-                title: t.sign,
-                context: context,
-                onBackPressed: _onBackPressed,
-                onNextPressed: () {
-                  _viewModel.saveSignedPsbt();
-                  Navigator.pushNamed(context, AppRoutes.signedTransaction);
-                },
-                isActive: viewModel.isSignatureComplete,
-                backgroundColor: MyColors.lightgrey,
-                hasBackdropFilter: false),
+            backgroundColor: CoconutColors.gray150,
+            appBar: CoconutAppBar.buildWithNext(
+              title: t.sign,
+              context: context,
+              onBackPressed: _onBackPressed,
+              onNextPressed: () {
+                _viewModel.saveSignedPsbt();
+                Navigator.pushNamed(context, AppRoutes.signedTransaction);
+              },
+              isActive: viewModel.isSignatureComplete,
+              backgroundColor: CoconutColors.gray150,
+            ),
             body: SafeArea(
               child: Stack(
                 children: [
@@ -186,13 +201,13 @@ class _MultisigSignScreenState extends State<MultisigSignScreen> {
                             child: LinearProgressIndicator(
                               value: value,
                               minHeight: 6,
-                              backgroundColor: MyColors.transparentBlack_06,
+                              backgroundColor: CoconutColors.black.withOpacity(0.06),
                               borderRadius: _isProgressCompleted
                                   ? BorderRadius.zero
                                   : const BorderRadius.only(
                                       topRight: Radius.circular(6),
                                       bottomRight: Radius.circular(6)),
-                              valueColor: const AlwaysStoppedAnimation<Color>(MyColors.black),
+                              valueColor: const AlwaysStoppedAnimation<Color>(CoconutColors.black),
                             ),
                           );
                         },
@@ -203,7 +218,7 @@ class _MultisigSignScreenState extends State<MultisigSignScreen> {
                           viewModel.isSignatureComplete
                               ? t.sign_completed
                               : '${viewModel.remainingSignatures}개의 서명이 필요합니다',
-                          style: Styles.body2Bold,
+                          style: CoconutTypography.body2_14_Bold,
                         ),
                       ),
                       // 보낼 주소
@@ -216,7 +231,7 @@ class _MultisigSignScreenState extends State<MultisigSignScreen> {
                               children: [
                                 Text(
                                   t.recipient,
-                                  style: Styles.body2.copyWith(color: MyColors.grey57),
+                                  style: CoconutTypography.body2_14.setColor(CoconutColors.gray700),
                                 ),
                                 Text(
                                   textAlign: TextAlign.end,
@@ -224,7 +239,7 @@ class _MultisigSignScreenState extends State<MultisigSignScreen> {
                                       (viewModel.recipientCount > 1
                                           ? '\n${t.extra_count(count: viewModel.recipientCount - 1)}'
                                           : ''),
-                                  style: Styles.body1,
+                                  style: CoconutTypography.body1_16,
                                 ),
                               ],
                             ),
@@ -234,12 +249,14 @@ class _MultisigSignScreenState extends State<MultisigSignScreen> {
                               children: [
                                 Text(
                                   t.send_amount,
-                                  style: Styles.body2.copyWith(color: MyColors.grey57),
+                                  style: CoconutTypography.body2_14.setColor(CoconutColors.gray700),
                                 ),
-                                Text(
-                                  '${satoshiToBitcoinString(viewModel.sendingAmount)} ${t.btc}',
-                                  style: Styles.balance2.copyWith(
-                                    fontSize: 16,
+                                GestureDetector(
+                                  onTap: _toggleUnit,
+                                  child: Text(
+                                    _currentUnit.displayBitcoinAmount(viewModel.sendingAmount,
+                                        withUnit: true),
+                                    style: CoconutTypography.body1_16_Number,
                                   ),
                                 ),
                               ],
@@ -273,7 +290,7 @@ class _MultisigSignScreenState extends State<MultisigSignScreen> {
                                   bottomLeft: Radius.circular(index == length ? 19 : 0),
                                   bottomRight: Radius.circular(index == length ? 19 : 0),
                                 ),
-                                color: MyColors.white,
+                                color: CoconutColors.white,
                               ),
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -290,7 +307,7 @@ class _MultisigSignScreenState extends State<MultisigSignScreen> {
                                         SizedBox(
                                           width: 60,
                                           child: Text('${t.multisig.nth_key(index: index + 1)} -',
-                                              style: Styles.body1),
+                                              style: CoconutTypography.body1_16),
                                         ),
                                         Row(
                                           children: [
@@ -298,8 +315,9 @@ class _MultisigSignScreenState extends State<MultisigSignScreen> {
                                               padding: EdgeInsets.all(isInnerWallet ? 10 : 12),
                                               decoration: BoxDecoration(
                                                 color: isInnerWallet
-                                                    ? BackgroundColorPalette[colorIndex]
-                                                    : MyColors.grey236,
+                                                    ? CoconutColors
+                                                        .backgroundColorPaletteLight[colorIndex]
+                                                    : CoconutColors.gray200,
                                                 borderRadius: BorderRadius.circular(16.0),
                                               ),
                                               child: SvgPicture.asset(
@@ -308,8 +326,8 @@ class _MultisigSignScreenState extends State<MultisigSignScreen> {
                                                     : 'assets/svg/download.svg',
                                                 colorFilter: ColorFilter.mode(
                                                   isInnerWallet
-                                                      ? ColorPalette[colorIndex]
-                                                      : MyColors.black,
+                                                      ? CoconutColors.colorPalette[colorIndex]
+                                                      : CoconutColors.black,
                                                   BlendMode.srcIn,
                                                 ),
                                                 width: isInnerWallet ? 20 : 15,
@@ -319,12 +337,15 @@ class _MultisigSignScreenState extends State<MultisigSignScreen> {
                                             Column(
                                               crossAxisAlignment: CrossAxisAlignment.start,
                                               children: [
-                                                Text(name, style: Styles.body2),
+                                                Text(name, style: CoconutTypography.body2_14),
                                                 if (memo.isNotEmpty) ...{
                                                   Text(
                                                     memo,
-                                                    style: Styles.caption2.copyWith(
-                                                      fontSize: 11,
+                                                    style: CoconutTypography.body3_12.merge(
+                                                      const TextStyle(
+                                                        color: CoconutColors.searchbarHint,
+                                                        fontSize: 11,
+                                                      ),
                                                     ),
                                                   ),
                                                 }
@@ -338,8 +359,7 @@ class _MultisigSignScreenState extends State<MultisigSignScreen> {
                                             children: [
                                               Text(
                                                 t.sign_completion,
-                                                style: Styles.body1Bold
-                                                    .copyWith(fontSize: 12, color: Colors.black),
+                                                style: CoconutTypography.body3_12_Bold,
                                               ),
                                               const SizedBox(width: 4),
                                               SvgPicture.asset(
@@ -360,16 +380,17 @@ class _MultisigSignScreenState extends State<MultisigSignScreen> {
                                               padding: const EdgeInsets.symmetric(
                                                   horizontal: 8, vertical: 4),
                                               decoration: BoxDecoration(
-                                                color: MyColors.white,
+                                                color: CoconutColors.white,
                                                 borderRadius: BorderRadius.circular(5),
-                                                border:
-                                                    Border.all(color: MyColors.black19, width: 1),
+                                                border: Border.all(
+                                                    color: CoconutColors.gray900, width: 1),
                                               ),
                                               child: Center(
                                                 child: Text(
                                                   t.signature,
-                                                  style: Styles.caption.copyWith(
-                                                      color: MyColors.black19), // 텍스트 색상도 검정으로 변경
+                                                  style: CoconutTypography.body3_12.setColor(
+                                                    CoconutColors.gray900,
+                                                  ),
                                                 ),
                                               ),
                                             ),
@@ -379,7 +400,7 @@ class _MultisigSignScreenState extends State<MultisigSignScreen> {
                                     ),
                                   ),
                                   if (index < length) ...{
-                                    const Divider(color: MyColors.divider, height: 1),
+                                    const Divider(color: CoconutColors.gray200, height: 1),
                                   }
                                 ],
                               ),
@@ -394,7 +415,11 @@ class _MultisigSignScreenState extends State<MultisigSignScreen> {
                           onPressed: _askIfSureToQuit,
                           child: Text(
                             t.stop_sign,
-                            style: Styles.tertiaryButtonText,
+                            style: CoconutTypography.body3_12.merge(
+                              const TextStyle(
+                                decoration: TextDecoration.underline,
+                              ),
+                            ),
                           )),
                     ],
                   ),
@@ -403,10 +428,10 @@ class _MultisigSignScreenState extends State<MultisigSignScreen> {
                     child: Container(
                       width: MediaQuery.of(context).size.width,
                       height: MediaQuery.of(context).size.height,
-                      decoration: const BoxDecoration(color: MyColors.transparentBlack_30),
+                      decoration: BoxDecoration(color: CoconutColors.black.withOpacity(0.3)),
                       child: const Center(
                         child: CircularProgressIndicator(
-                          color: MyColors.darkgrey,
+                          color: CoconutColors.gray800,
                         ),
                       ),
                     ),

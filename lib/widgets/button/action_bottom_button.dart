@@ -1,6 +1,5 @@
+import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:flutter/cupertino.dart';
-
-import '../../styles.dart';
 
 class ActionBottomButton extends StatelessWidget {
   final VoidCallback onPressed;
@@ -17,9 +16,9 @@ class ActionBottomButton extends StatelessWidget {
         width: MediaQuery.of(context).size.width * 0.95,
         height: 64,
         child: CupertinoButton(
-          color: MyColors.black,
-          disabledColor: MyColors.transparentWhite_15,
-          borderRadius: MyBorder.defaultRadius,
+          color: CoconutColors.black,
+          disabledColor: CoconutColors.white.withOpacity(0.15),
+          borderRadius: CoconutBorder.defaultRadius,
           padding: EdgeInsets.zero,
           onPressed: onPressed,
           child: Row(
@@ -32,7 +31,7 @@ class ActionBottomButton extends StatelessWidget {
                   width: 5,
                 )
               ],
-              Text(text, style: Styles.CTAButtonTitle.merge(textStyle)),
+              Text(text, style: CoconutTypography.body1_16_Bold.merge(textStyle)),
             ],
           ),
         ));

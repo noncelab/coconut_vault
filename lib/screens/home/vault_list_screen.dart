@@ -16,7 +16,6 @@ import 'package:coconut_vault/widgets/card/vault_addition_guide_card.dart';
 import 'package:coconut_vault/widgets/vault_row_item.dart';
 import 'package:flutter/material.dart';
 import 'package:coconut_vault/screens/settings/settings_screen.dart';
-import 'package:coconut_vault/styles.dart';
 import 'package:coconut_vault/widgets/appbar/frosted_appbar.dart';
 import 'package:coconut_vault/widgets/bottom_sheet.dart';
 import 'package:flutter/services.dart';
@@ -102,12 +101,12 @@ class _VaultListScreenState extends State<VaultListScreen> with TickerProviderSt
             child: Container(
               constraints: const BoxConstraints(minHeight: 100),
               decoration: BoxDecoration(
-                color: Colors.white, // 배경색 유지
+                color: CoconutColors.white, // 배경색 유지
                 borderRadius: BorderRadius.circular(28),
-                boxShadow: const [
+                boxShadow: [
                   BoxShadow(
-                    color: MyColors.transparentBlack_15,
-                    offset: Offset(0, 0),
+                    color: CoconutColors.black.withOpacity(0.15),
+                    offset: const Offset(0, 0),
                     blurRadius: 12,
                     spreadRadius: 0,
                   ),
@@ -118,13 +117,13 @@ class _VaultListScreenState extends State<VaultListScreen> with TickerProviderSt
                 children: [
                   // 1) 아이콘 스켈레톤
                   Shimmer.fromColors(
-                    baseColor: Colors.grey[300]!,
-                    highlightColor: Colors.grey[100]!,
+                    baseColor: CoconutColors.gray300,
+                    highlightColor: CoconutColors.gray150,
                     child: Container(
                       width: 40.0,
                       height: 40.0,
                       decoration: BoxDecoration(
-                        color: Colors.grey[300],
+                        color: CoconutColors.gray300,
                         borderRadius: BorderRadius.circular(16.0),
                       ),
                     ),
@@ -137,23 +136,23 @@ class _VaultListScreenState extends State<VaultListScreen> with TickerProviderSt
                       children: [
                         // 첫 번째 텍스트
                         Shimmer.fromColors(
-                          baseColor: Colors.grey[300]!,
-                          highlightColor: Colors.grey[100]!,
+                          baseColor: CoconutColors.gray300,
+                          highlightColor: CoconutColors.gray150,
                           child: Container(
                             height: 14.0,
                             width: 100.0,
-                            color: Colors.grey[300],
+                            color: CoconutColors.gray300,
                           ),
                         ),
                         const SizedBox(height: 8.0),
                         // 두 번째 텍스트
                         Shimmer.fromColors(
-                          baseColor: Colors.grey[300]!,
-                          highlightColor: Colors.grey[100]!,
+                          baseColor: CoconutColors.gray300,
+                          highlightColor: CoconutColors.gray150,
                           child: Container(
                             height: 14.0,
                             width: 150.0,
-                            color: Colors.grey[300],
+                            color: CoconutColors.gray300,
                           ),
                         ),
                       ],
@@ -183,7 +182,7 @@ class _VaultListScreenState extends State<VaultListScreen> with TickerProviderSt
                 now.difference(_lastPressedAt!) > const Duration(seconds: 3)) {
               _lastPressedAt = now;
               Fluttertoast.showToast(
-                backgroundColor: MyColors.grey,
+                backgroundColor: CoconutColors.gray500,
                 msg: t.toast.back_exit,
                 toastLength: Toast.LENGTH_SHORT,
               );

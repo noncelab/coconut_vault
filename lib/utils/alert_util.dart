@@ -1,26 +1,29 @@
+import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:coconut_vault/styles.dart';
 
-const TextStyle titleStyle = Styles.body1Bold;
-const TextStyle contentStyle = Styles.label;
-TextStyle optionStyle = Styles.label.merge(const TextStyle(fontWeight: FontWeight.bold));
+TextStyle optionStyle = CoconutTypography.body2_14_Bold.merge(
+  TextStyle(
+    color: CoconutColors.black.withOpacity(0.7),
+    fontWeight: FontWeight.w500,
+  ),
+);
 
 // 전역 변수로 Dialog 상태 관리
 bool _isDialogVisible = false;
 
-void showAlertDialog(
+Future<void> showAlertDialog(
     {required BuildContext context,
     String? title,
     String? content,
-    VoidCallback? onConfirmPressed}) {
+    VoidCallback? onConfirmPressed}) async {
   if (_isDialogVisible) return;
 
   _isDialogVisible = true;
-  showCupertinoModalPopup<void>(
+  await showCupertinoModalPopup<void>(
     context: context,
     barrierDismissible: onConfirmPressed == null,
     builder: (BuildContext context) => CupertinoAlertDialog(
-      title: title != null ? Text(title, style: titleStyle) : null,
+      title: title != null ? Text(title, style: CoconutTypography.body1_16_Bold) : null,
       content: content != null ? Text(content) : null,
       actions: <CupertinoDialogAction>[
         CupertinoDialogAction(
@@ -55,10 +58,24 @@ void showConfirmDialog(
   showCupertinoModalPopup<void>(
     context: context,
     builder: (BuildContext context) => CupertinoAlertDialog(
-      title: title != null ? Text(title, style: titleStyle) : const Text('주의', style: titleStyle),
+      title: title != null
+          ? Text(title, style: CoconutTypography.body1_16_Bold)
+          : Text('주의', style: CoconutTypography.body1_16_Bold),
       content: content != null
-          ? Text(content, style: contentStyle)
-          : const Text('정말로 진행하시겠어요?', style: contentStyle),
+          ? Text(content,
+              style: CoconutTypography.body2_14.merge(
+                TextStyle(
+                  color: CoconutColors.black.withOpacity(0.7),
+                  fontWeight: FontWeight.w500,
+                ),
+              ))
+          : Text('정말로 진행하시겠어요?',
+              style: CoconutTypography.body2_14.merge(
+                TextStyle(
+                  color: CoconutColors.black.withOpacity(0.7),
+                  fontWeight: FontWeight.w500,
+                ),
+              )),
       actions: <CupertinoDialogAction>[
         CupertinoDialogAction(
           isDefaultAction: true,
@@ -76,7 +93,8 @@ void showConfirmDialog(
             Navigator.pop(context);
             _isDialogVisible = false;
           },
-          child: Text('네', style: optionStyle.merge(const TextStyle(color: MyColors.warningText))),
+          child: Text('네',
+              style: optionStyle.merge(const TextStyle(color: CoconutColors.warningText))),
         ),
       ],
     ),

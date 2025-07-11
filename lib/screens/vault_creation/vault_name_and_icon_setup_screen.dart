@@ -1,15 +1,13 @@
+import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_vault/app_routes_params.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/model/single_sig/single_sig_wallet.dart';
 import 'package:coconut_vault/providers/wallet_creation_provider.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
-import 'package:coconut_vault/styles.dart';
 import 'package:coconut_vault/utils/logger.dart';
 import 'package:coconut_vault/widgets/custom_dialog.dart';
 import 'package:coconut_vault/widgets/indicator/message_activity_indicator.dart';
 import 'package:flutter/material.dart';
-import 'package:coconut_vault/widgets/appbar/custom_appbar.dart';
-import 'package:coconut_vault/widgets/custom_toast.dart';
 import 'package:coconut_vault/widgets/vault_name_icon_edit_palette.dart';
 import 'package:provider/provider.dart';
 
@@ -77,7 +75,8 @@ class _VaultNameAndIconSetupScreenState extends State<VaultNameAndIconSetupScree
       });
 
       if (_walletProvider.isNameDuplicated(inputText)) {
-        CustomToast.showToast(text: t.toast.name_already_used2, context: context);
+        CoconutToast.showToast(
+            text: t.toast.name_already_used2, context: context, isVisibleIcon: true);
         setState(() {
           _showLoading = false;
         });
@@ -112,7 +111,7 @@ class _VaultNameAndIconSetupScreenState extends State<VaultNameAndIconSetupScree
           onConfirm: () => Navigator.of(context).pop(),
           message: e.toString(),
           isSingleButton: true,
-          confirmButtonColor: MyColors.black);
+          confirmButtonColor: CoconutColors.black);
     } finally {
       setState(() {
         _showLoading = false;
@@ -152,8 +151,8 @@ class _VaultNameAndIconSetupScreenState extends State<VaultNameAndIconSetupScree
             }
           },
           child: Scaffold(
-            backgroundColor: Colors.white,
-            appBar: CustomAppBar.buildWithNext(
+            backgroundColor: CoconutColors.white,
+            appBar: CoconutAppBar.buildWithNext(
               title: t.vault_name_icon_setup_screen.title,
               context: context,
               onBackPressed: () {
@@ -187,12 +186,12 @@ class _VaultNameAndIconSetupScreenState extends State<VaultNameAndIconSetupScree
           child: Container(
             width: MediaQuery.of(context).size.width,
             height: MediaQuery.of(context).size.height,
-            decoration: const BoxDecoration(color: MyColors.transparentBlack_30),
+            decoration: BoxDecoration(color: CoconutColors.black.withOpacity(0.3)),
             child: Center(
               child: _walletProvider.isVaultListLoading
                   ? MessageActivityIndicator(
                       message: t.vault_name_icon_setup_screen.saving) // 기존 볼트들 불러오는 중
-                  : const CircularProgressIndicator(color: MyColors.darkgrey),
+                  : const CircularProgressIndicator(color: CoconutColors.gray800),
             ),
           ),
         ),

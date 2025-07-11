@@ -1,10 +1,10 @@
+import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_lib/coconut_lib.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/widgets/button/custom_buttons.dart';
 import 'package:coconut_vault/widgets/multisig/card/signer_bsms_info_card.dart';
 import 'package:coconut_vault/widgets/textfield/custom_textfield.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:coconut_vault/styles.dart';
 import 'package:coconut_vault/widgets/custom_tooltip.dart';
 
 class ImportConfirmationScreen extends StatefulWidget {
@@ -80,7 +80,7 @@ class _ImportConfirmationScreenState extends State<ImportConfirmationScreen>
         duration: const Duration(milliseconds: 30),
         padding: EdgeInsets.only(top: 20, bottom: MediaQuery.of(context).viewInsets.bottom),
         child: Container(
-          color: MyColors.white,
+          color: CoconutColors.white,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -88,29 +88,32 @@ class _ImportConfirmationScreenState extends State<ImportConfirmationScreen>
                 richText: RichText(
                   text: TextSpan(
                     text: t.confirm_importing_screen.guide1,
-                    style: Styles.body1.merge(
+                    style: CoconutTypography.body1_16.merge(
                       const TextStyle(
                         height: 20.8 / 16,
                         letterSpacing: -0.01,
+                        color: CoconutColors.black,
                       ),
                     ),
                     children: <TextSpan>[
                       TextSpan(
                         text: t.confirm_importing_screen.guide2,
-                        style: Styles.body1.merge(
+                        style: CoconutTypography.body1_16.merge(
                           const TextStyle(
                             fontWeight: FontWeight.bold,
                             height: 20.8 / 16,
                             letterSpacing: -0.01,
+                            color: CoconutColors.black,
                           ),
                         ),
                       ),
                       TextSpan(
                         text: t.confirm_importing_screen.guide3,
-                        style: Styles.body1.merge(
+                        style: CoconutTypography.body1_16.merge(
                           const TextStyle(
                             height: 20.8 / 16,
                             letterSpacing: -0.01,
+                            color: CoconutColors.black,
                           ),
                         ),
                       ),
@@ -128,7 +131,7 @@ class _ImportConfirmationScreenState extends State<ImportConfirmationScreen>
                   children: [
                     Text(
                       t.confirm_importing_screen.scan_info,
-                      style: Styles.body1.merge(
+                      style: CoconutTypography.body1_16.merge(
                         const TextStyle(
                           fontWeight: FontWeight.bold,
                           height: 20.8 / 16,
@@ -141,7 +144,7 @@ class _ImportConfirmationScreenState extends State<ImportConfirmationScreen>
                     const SizedBox(height: 36),
                     Text(
                       t.confirm_importing_screen.memo,
-                      style: Styles.body1.merge(
+                      style: CoconutTypography.body1_16.merge(
                         const TextStyle(
                           fontWeight: FontWeight.bold,
                           height: 20.8 / 16,
@@ -155,11 +158,11 @@ class _ImportConfirmationScreenState extends State<ImportConfirmationScreen>
                         Container(
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(16),
-                            color: MyColors.white,
-                            boxShadow: const [
+                            color: CoconutColors.white,
+                            boxShadow: [
                               BoxShadow(
-                                color: MyColors.transparentBlack_15,
-                                offset: Offset(4, 4),
+                                color: CoconutColors.black.withOpacity(0.15),
+                                offset: const Offset(4, 4),
                                 blurRadius: 30,
                                 spreadRadius: 0,
                               ),
@@ -171,7 +174,7 @@ class _ImportConfirmationScreenState extends State<ImportConfirmationScreen>
                             controller: _controller,
                             clearButtonMode: OverlayVisibilityMode.never,
                             focusNode: _focusNode,
-                            focusedBorderColor: MyColors.transparentBlack_50,
+                            focusedBorderColor: CoconutColors.black.withOpacity(0.5),
                             onChanged: (text) {
                               setState(() => memo = _controller.text);
                             },
@@ -183,12 +186,11 @@ class _ImportConfirmationScreenState extends State<ImportConfirmationScreen>
                             alignment: Alignment.topRight,
                             child: Text(
                               '${_controller.text.length} / $kMaxTextLength',
-                              style: TextStyle(
-                                  color: _controller.text.length == kMaxTextLength
-                                      ? MyColors.transparentBlack
-                                      : MyColors.transparentBlack_50,
-                                  fontSize: 12,
-                                  fontFamily: CustomFonts.text.getFontFamily),
+                              style: CoconutTypography.body3_12.setColor(
+                                _controller.text.length == kMaxTextLength
+                                    ? CoconutColors.black.withOpacity(0.7)
+                                    : CoconutColors.black.withOpacity(0.5),
+                              ),
                             ),
                           ),
                         ),

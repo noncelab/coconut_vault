@@ -1,3 +1,4 @@
+import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_lib/coconut_lib.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/providers/visibility_provider.dart';
@@ -7,12 +8,9 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:coconut_vault/screens/vault_creation/single_sig/mnemonic_confirmation_bottom_sheet.dart';
 import 'package:coconut_vault/screens/vault_creation/single_sig/mnemonic_generation_screen.dart';
-import 'package:coconut_vault/styles.dart';
-import 'package:coconut_vault/widgets/appbar/custom_appbar.dart';
 import 'package:coconut_vault/widgets/bottom_sheet.dart';
 import 'package:coconut_vault/widgets/button/custom_buttons.dart';
 import 'package:coconut_vault/widgets/custom_dialog.dart';
-import 'package:coconut_vault/widgets/custom_toast.dart';
 import 'package:coconut_vault/widgets/highlighted_text.dart';
 import 'package:coconut_vault/widgets/textfield/custom_textfield.dart';
 import 'package:provider/provider.dart';
@@ -61,7 +59,7 @@ class _MnemonicCoinflipScreenState extends State<MnemonicCoinflipScreen> {
       message: t.alert.stop_creating_mnemonic.description,
       cancelButtonText: t.cancel,
       confirmButtonText: t.stop,
-      confirmButtonColor: MyColors.warningText,
+      confirmButtonColor: CoconutColors.warningText,
       onCancel: () => Navigator.pop(context),
       onConfirm: () {
         Navigator.pop(context);
@@ -94,12 +92,11 @@ class _MnemonicCoinflipScreenState extends State<MnemonicCoinflipScreen> {
     ];
 
     return Scaffold(
-        backgroundColor: MyColors.white,
-        appBar: CustomAppBar.build(
+        backgroundColor: CoconutColors.white,
+        appBar: CoconutAppBar.build(
           title: t.mnemonic_coin_flip_screen.title,
           context: context,
           onBackPressed: _showStopGeneratingMnemonicDialog,
-          hasRightIcon: false,
         ),
         body: SafeArea(
           child: SingleChildScrollView(
@@ -172,17 +169,17 @@ class _FlipCoinState extends State<FlipCoin> {
                                 widget.wordsCount == 12
                                     ? t.mnemonic_generate_screen.twelve
                                     : t.mnemonic_generate_screen.twenty_four,
-                                color: MyColors.darkgrey),
+                                color: CoconutColors.gray800),
                             Text(isAdvancedUser ? ', ${t.passphrase} ' : ''),
                             isAdvancedUser
                                 ? widget.usePassphrase
                                     ? HighLightedText(t.mnemonic_coin_flip_screen.use,
-                                        color: MyColors.darkgrey)
+                                        color: CoconutColors.gray800)
                                     : Row(
                                         children: [
                                           Text('${t.mnemonic_coin_flip_screen.use} '),
                                           HighLightedText(t.mnemonic_coin_flip_screen.do_not,
-                                              color: MyColors.darkgrey),
+                                              color: CoconutColors.gray800),
                                         ],
                                       )
                                 : Text(' ${t.mnemonic_coin_flip_screen.use}'),
@@ -201,10 +198,12 @@ class _FlipCoinState extends State<FlipCoin> {
                                     padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                                     decoration: BoxDecoration(
                                         borderRadius: BorderRadius.circular(8),
-                                        border: Border.all(color: MyColors.borderGrey)),
+                                        border: Border.all(color: CoconutColors.borderGray)),
                                     child: Text(
                                       t.re_select,
-                                      style: Styles.caption,
+                                      style: CoconutTypography.body3_12.setColor(
+                                        CoconutColors.gray800,
+                                      ),
                                     )))
                           ],
                         );
@@ -244,10 +243,10 @@ class _FlipCoinState extends State<FlipCoin> {
                     width: MediaQuery.of(context).size.width,
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(24),
-                      color: MyColors.white,
+                      color: CoconutColors.white,
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.grey.withOpacity(0.3),
+                          color: CoconutColors.gray500.withOpacity(0.3),
                           spreadRadius: 4,
                           blurRadius: 30,
                         ),
@@ -256,29 +255,33 @@ class _FlipCoinState extends State<FlipCoin> {
                     child: step == 0
                         ? Column(
                             children: [
-                              Text('$_currentIndex / $_totalBits', style: Styles.h3),
+                              Text('$_currentIndex / $_totalBits',
+                                  style: CoconutTypography.heading4_18_Bold),
                               Align(
                                 alignment: Alignment.bottomRight,
                                 child: Material(
                                   color: Colors.transparent,
                                   child: InkWell(
-                                    borderRadius: MyBorder.defaultRadius,
+                                    borderRadius: CoconutBorder.defaultRadius,
                                     onTap: _showAllBitsBottomSheet,
                                     child: Ink(
                                       decoration: BoxDecoration(
                                         border: Border.all(
                                           width: 1,
-                                          color: MyColors.borderGrey,
+                                          color: CoconutColors.borderGray,
                                         ),
-                                        borderRadius: MyBorder.defaultRadius,
-                                        color: Colors.white,
+                                        borderRadius: CoconutBorder.defaultRadius,
+                                        color: CoconutColors.white,
                                       ),
                                       child: Padding(
                                         padding: const EdgeInsets.symmetric(
                                           horizontal: 15,
                                           vertical: 10,
                                         ),
-                                        child: Text(t.view_all, style: Styles.caption),
+                                        child: Text(t.view_all,
+                                            style: CoconutTypography.body3_12.setColor(
+                                              CoconutColors.gray800,
+                                            )),
                                       ),
                                     ),
                                   ),
@@ -314,12 +317,12 @@ class _FlipCoinState extends State<FlipCoin> {
                                       child: passphraseObscured
                                           ? const Icon(
                                               CupertinoIcons.eye_slash,
-                                              color: MyColors.darkgrey,
+                                              color: CoconutColors.gray800,
                                               size: 18,
                                             )
                                           : const Icon(
                                               CupertinoIcons.eye,
-                                              color: MyColors.darkgrey,
+                                              color: CoconutColors.gray800,
                                               size: 18,
                                             ),
                                     ),
@@ -333,12 +336,11 @@ class _FlipCoinState extends State<FlipCoin> {
                                   alignment: Alignment.topRight,
                                   child: Text(
                                     '(${passphrase.length} / 100)',
-                                    style: TextStyle(
-                                        color: passphrase.length == 100
-                                            ? MyColors.transparentBlack
-                                            : MyColors.transparentBlack_50,
-                                        fontSize: 12,
-                                        fontFamily: CustomFonts.text.getFontFamily),
+                                    style: CoconutTypography.body3_12.setColor(
+                                      passphrase.length == 100
+                                          ? CoconutColors.black.withOpacity(0.7)
+                                          : CoconutColors.black.withOpacity(0.5),
+                                    ),
                                   ),
                                 ),
                               )
@@ -408,24 +410,26 @@ class _FlipCoinState extends State<FlipCoin> {
               height: 50,
               margin: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                border: Border.all(color: MyColors.transparentBlack_06),
+                border: Border.all(color: CoconutColors.black.withOpacity(0.06)),
                 borderRadius: BorderRadius.circular(8),
                 color: index < currentBits.length
                     ? (currentBits[index] == 1
-                        ? MyColors.transparentBlack_06
-                        : MyColors.transparentGrey)
-                    : MyColors.white,
+                        ? CoconutColors.black.withOpacity(0.06)
+                        : CoconutColors.black.withOpacity(0.15))
+                    : CoconutColors.white,
               ),
               child: Center(
                   child: Column(
                 children: [
-                  Text('${start + index + 1}',
-                      style: Styles.caption.merge(TextStyle(
-                          fontFamily: CustomFonts.number.getFontFamily,
-                          color: MyColors.transparentBlack_30))),
+                  Text(
+                    '${start + index + 1}',
+                    style: CoconutTypography.body3_12_Number.setColor(
+                      CoconutColors.black.withOpacity(0.3),
+                    ),
+                  ),
                   Text(
                     index < currentBits.length ? '${currentBits[index]}' : '',
-                    style: Styles.h3.merge(TextStyle(fontFamily: CustomFonts.number.getFontFamily)),
+                    style: CoconutTypography.heading4_18_NumberBold,
                   )
                 ],
               )),
@@ -471,16 +475,26 @@ class _FlipCoinState extends State<FlipCoin> {
           children: [
             GestureDetector(
               onTap: _removeLastBit,
-              child: Text(t.delete_one,
-                  style: Styles.subLabel
-                      .merge(TextStyle(color: _bits.isEmpty ? MyColors.defaultText : null))),
+              child: Text(
+                t.delete_one,
+                style: CoconutTypography.body2_14.setColor(
+                  _bits.isEmpty
+                      ? CoconutColors.secondaryText
+                      : CoconutColors.black.withOpacity(0.7),
+                ),
+              ),
             ),
             const SizedBox(width: 20),
             GestureDetector(
               onTap: _showConfirmResetDialog,
-              child: Text(t.delete_all,
-                  style: Styles.subLabel
-                      .merge(TextStyle(color: _bits.isEmpty ? MyColors.defaultText : null))),
+              child: Text(
+                t.delete_all,
+                style: CoconutTypography.body2_14.setColor(
+                  _bits.isEmpty
+                      ? CoconutColors.secondaryText
+                      : CoconutColors.black.withOpacity(0.7),
+                ),
+              ),
             ),
           ],
         ),
@@ -494,9 +508,10 @@ class _FlipCoinState extends State<FlipCoin> {
         decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(8),
             border: Border.all(
-                color:
-                    _bits.length == _totalBits ? MyColors.borderLightgrey : MyColors.borderGrey)),
-        child: Text(label, style: Styles.body1));
+                color: _bits.length == _totalBits
+                    ? CoconutColors.borderLightGray
+                    : CoconutColors.borderGray)),
+        child: Text(label, style: CoconutTypography.body1_16));
   }
 
   void _addBit(int bit) async {
@@ -542,7 +557,7 @@ class _FlipCoinState extends State<FlipCoin> {
       message: message ?? t.alert.erase_all_entered_so_far,
       cancelButtonText: t.cancel,
       confirmButtonText: t.confirm,
-      confirmButtonColor: MyColors.warningText,
+      confirmButtonColor: CoconutColors.warningText,
       onCancel: () => Navigator.pop(context),
       onConfirm: action ??
           () {
@@ -587,7 +602,7 @@ class _FlipCoinState extends State<FlipCoin> {
               MaterialPageRoute(builder: (context) => const VaultNameAndIconSetupScreen()));
         },
         onInactivePressed: () {
-          CustomToast.showToast(context: context, text: t.toast.scroll_down);
+          CoconutToast.showToast(context: context, text: t.toast.scroll_down, isVisibleIcon: true);
         },
         mnemonic: _mnemonic,
         passphrase: widget.usePassphrase ? passphrase : null,
@@ -619,7 +634,7 @@ class BinaryGrid extends StatelessWidget {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(
                 child: CircularProgressIndicator(
-              color: MyColors.darkgrey,
+              color: CoconutColors.gray800,
             ));
           } else if (snapshot.hasError) {
             return Center(child: Text('Error: ${snapshot.error}'));
@@ -656,7 +671,7 @@ class BinaryGrid extends StatelessWidget {
   Widget _buildGridItem(int? bit, int index) {
     return Container(
       decoration: BoxDecoration(
-        border: Border.all(color: MyColors.transparentBlack_06),
+        border: Border.all(color: CoconutColors.black.withOpacity(0.06)),
         borderRadius: BorderRadius.circular(8),
       ),
       child: Center(
@@ -665,16 +680,16 @@ class BinaryGrid extends StatelessWidget {
           children: [
             Text(
               (index + 1).toString(),
-              style: Styles.caption.merge(TextStyle(
-                  fontFamily: CustomFonts.number.getFontFamily,
-                  color: MyColors.transparentBlack_30)),
+              style: CoconutTypography.body3_12_Number.setColor(
+                CoconutColors.black.withOpacity(0.3),
+              ),
             ),
             Expanded(
               child: Text(
                 bit == null ? '' : bit.toString(),
-                style: Styles.h3.merge(TextStyle(
-                    fontFamily: CustomFonts.number.getFontFamily,
-                    color: MyColors.transparentBlack_70)),
+                style: CoconutTypography.heading4_18_NumberBold.setColor(
+                  CoconutColors.black.withOpacity(0.7),
+                ),
               ),
             )
           ],
