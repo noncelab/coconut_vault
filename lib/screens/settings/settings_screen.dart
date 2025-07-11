@@ -9,7 +9,6 @@ import 'package:coconut_vault/screens/settings/unit_bottm_sheet.dart';
 import 'package:coconut_vault/screens/settings/pin_setting_screen.dart';
 import 'package:coconut_vault/utils/logger.dart';
 import 'package:coconut_vault/widgets/custom_loading_overlay.dart';
-import 'package:coconut_vault/widgets/overlays/common_bottom_sheets.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:loader_overlay/loader_overlay.dart';
@@ -58,9 +57,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 ),
                 _advancedUserPart(context),
                 CoconutLayout.spacing_1000h,
-                _btcUnitPart(context),
-                CoconutLayout.spacing_1000h,
-                _advancedUserPart(context),
                 SizedBox(
                     height: MediaQuery.of(context).viewPadding.bottom > 0
                         ? MediaQuery.of(context).viewPadding.bottom
@@ -235,26 +231,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
         ),
       ],
     );
-  }
-
-  Widget _btcUnitPart(BuildContext context) {
-    return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-      _category(t.unit),
-      Selector<VisibilityProvider, bool>(
-          selector: (_, viewModel) => viewModel.isBtcUnit,
-          builder: (context, isBtcUnit, child) {
-            return ButtonGroup(buttons: [
-              SingleButton(
-                title: t.bitcoin_kr,
-                subtitle: isBtcUnit ? t.btc : t.sats,
-                onPressed: () async {
-                  MyBottomSheet.showBottomSheet_50(
-                      context: context, child: const UnitBottomSheet());
-                },
-              ),
-            ]);
-          }),
-    ]);
   }
 
   Widget _advancedUserPart(BuildContext context) {
