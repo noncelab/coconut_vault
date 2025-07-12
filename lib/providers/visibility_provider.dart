@@ -1,17 +1,20 @@
 import 'package:coconut_vault/constants/shared_preferences_keys.dart';
 import 'package:coconut_vault/enums/currency_enum.dart';
 import 'package:coconut_vault/repository/shared_preferences_repository.dart';
+import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:flutter/material.dart';
 
 class VisibilityProvider extends ChangeNotifier {
   late bool _hasSeenGuide;
   late int _walletCount;
   late bool _isPassphraseUseEnabled;
+  late String _language;
   late bool _isBtcUnit;
 
   bool get hasSeenGuide => _hasSeenGuide;
   int get walletCount => _walletCount;
   bool get isPassphraseUseEnabled => _isPassphraseUseEnabled;
+  String get language => _language;
 
   bool get isBtcUnit => _isBtcUnit;
   BitcoinUnit get currentUnit => _isBtcUnit ? BitcoinUnit.btc : BitcoinUnit.sats;
@@ -25,7 +28,9 @@ class VisibilityProvider extends ChangeNotifier {
     _hasSeenGuide = prefs.getBool(SharedPrefsKeys.hasShownStartGuide) == true;
     _walletCount = prefs.getInt(SharedPrefsKeys.vaultListLength) ?? 0;
     _isPassphraseUseEnabled = prefs.getBool(SharedPrefsKeys.kPassphraseUseEnabled) ?? false;
+    _language = _initializeLanguageFromOS(prefs);
     _isBtcUnit = prefs.getBool(SharedPrefsKeys.kIsBtcUnit) ?? true;
+    _initializeLanguage();
   }
 
   void showIndicator() {
@@ -60,6 +65,109 @@ class VisibilityProvider extends ChangeNotifier {
     _isPassphraseUseEnabled = value;
     SharedPrefsRepository().setBool(SharedPrefsKeys.kPassphraseUseEnabled, value);
     notifyListeners();
+  }
+
+  String _initializeLanguageFromOS(SharedPrefsRepository prefs) {
+    // 이미 저장된 언어 설정이 있으면 사용
+    if (prefs.isContainsKey(SharedPrefsKeys.kLanguage)) {
+      return prefs.getString(SharedPrefsKeys.kLanguage);
+    }
+
+    // OS 언어 감지 (Flutter의 표준 방식 사용)
+    try {
+      final String languageCode = WidgetsBinding.instance.window.locale.languageCode.toLowerCase();
+
+      // 지원하는 언어인지 확인
+      if (languageCode == 'ko' || languageCode == 'kr') {
+        return 'kr';
+      } else if (languageCode == 'en') {
+        return 'en';
+      }
+    } catch (e) {
+      print('OS language detection failed: $e');
+    }
+
+    // 기본값은 영어
+    return 'en';
+  }
+
+  void _initializeLanguage() {
+    try {
+      if (_language == 'kr') {
+        LocaleSettings.setLocaleSync(AppLocale.kr);
+      } else if (_language == 'en') {
+        // 영어 로케일 설정 시 지연 로딩 문제를 방지하기 위해 비동기로 처리
+        LocaleSettings.setLocale(AppLocale.en).catchError((error) {
+          print('English locale initialization failed: $error');
+          // 실패 시 한국어로 폴백
+          try {
+            LocaleSettings.setLocaleSync(AppLocale.en);
+            _language = 'en';
+          } catch (fallbackError) {
+            print('Fallback to Korean locale failed: $fallbackError');
+          }
+        });
+      }
+    } catch (e) {
+      // 언어 초기화 실패 시 로그 출력 (선택사항)
+      print('Language initialization failed: $e');
+      // 실패 시 기본값으로 한국어 설정
+      try {
+        LocaleSettings.setLocaleSync(AppLocale.en);
+        _language = 'en';
+      } catch (fallbackError) {
+        print('Fallback language initialization failed: $fallbackError');
+      }
+    }
+  }
+
+  Future<void> changeLanguage(String languageCode) async {
+    final prefs = SharedPrefsRepository();
+
+    // SharedPreferences에 먼저 저장
+    await prefs.setString(SharedPrefsKeys.kLanguage, languageCode);
+
+    // slang을 사용하여 동적으로 언어 변경
+    try {
+      if (languageCode == 'kr') {
+        await LocaleSettings.setLocale(AppLocale.kr);
+        _language = languageCode;
+      } else if (languageCode == 'en') {
+        // 영어 로케일 설정 시 지연 로딩 문제를 방지하기 위해 더 안전한 처리
+        try {
+          await LocaleSettings.setLocale(AppLocale.en);
+          _language = languageCode;
+        } catch (englishError) {
+          print('English locale change failed: $englishError');
+          // 영어 로딩 실패 시 한국어로 폴백
+          await LocaleSettings.setLocale(AppLocale.kr);
+          _language = 'kr';
+          // SharedPreferences도 한국어로 업데이트
+          await prefs.setString(SharedPrefsKeys.kLanguage, 'kr');
+        }
+      }
+
+      // 언어 변경 완료 후 상태 업데이트 및 UI 강제 업데이트
+      notifyListeners();
+
+      // 추가적인 UI 업데이트를 위한 post frame callback
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        notifyListeners();
+      });
+    } catch (e) {
+      print('Language change failed: $e');
+      // 실패 시 기본 언어로 설정 시도
+      try {
+        await LocaleSettings.setLocale(AppLocale.en);
+        _language = 'en';
+        await prefs.setString(SharedPrefsKeys.kLanguage, 'en');
+      } catch (fallbackError) {
+        print('Fallback language change failed: $fallbackError');
+        // 최종적으로 상태만 업데이트
+        _language = languageCode;
+      }
+      notifyListeners();
+    }
   }
 
   Future<void> changeIsBtcUnit(bool isBtcUnit) async {

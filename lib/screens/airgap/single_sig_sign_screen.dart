@@ -161,7 +161,7 @@ class _SingleSigSignScreenState extends State<SingleSigSignScreen> {
                                 ? t.single_sig_sign_screen.text
                                 : t.sign_completed)
                             : t.sign_required(
-                                count: viewModel.requiredSignatureCount -
+                                n: viewModel.requiredSignatureCount -
                                     viewModel.signersApproved.where((item) => item).length),
                         style: CoconutTypography.body2_14_Bold,
                       ),
