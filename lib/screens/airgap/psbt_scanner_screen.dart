@@ -7,8 +7,9 @@ import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/providers/sign_provider.dart';
 import 'package:coconut_vault/providers/view_model/airgap/psbt_scanner_view_model.dart';
 import 'package:coconut_vault/utils/alert_util.dart';
-import 'package:coconut_vault/widgets/animated_qr/animated_qr_scanner.dart';
+import 'package:coconut_vault/widgets/animated_qr/coconut_qr_scanner.dart';
 import 'package:coconut_vault/widgets/animated_qr/scan_data_handler/bc_ur_qr_scan_data_handler.dart';
+import 'package:coconut_vault/widgets/animated_qr/scan_data_handler/i_qr_scan_data_handler.dart';
 import 'package:coconut_vault/widgets/custom_loading_overlay.dart';
 import 'package:flutter/material.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
@@ -37,13 +38,15 @@ class _PsbtScannerScreenState extends State<PsbtScannerScreen> {
   bool isCameraActive = false;
   bool isAlreadyVibrateScanFailed = false;
   bool _isProcessing = false;
+  late IQrScanDataHandler _scanDataHandler;
 
   @override
   void initState() {
+    super.initState();
     _viewModel = PsbtScannerViewModel(Provider.of<WalletProvider>(context, listen: false),
         Provider.of<SignProvider>(context, listen: false), widget.id);
 
-    super.initState();
+    _scanDataHandler = BcUrQrScanDataHandler();
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       context.loaderOverlay.show();
 
@@ -83,12 +86,12 @@ class _PsbtScannerScreenState extends State<PsbtScannerScreen> {
     if (_isProcessing) return;
     _isProcessing = true;
 
-    final ur = signedPsbt as UR;
-    final cborBytes = ur.cbor;
-    final decodedCbor = cbor.decode(cborBytes) as CborBytes;
-
     String psbtBase64;
     try {
+      final ur = signedPsbt as UR;
+      final cborBytes = ur.cbor;
+      final decodedCbor = cbor.decode(cborBytes) as CborBytes;
+
       psbtBase64 = base64Encode(decodedCbor.bytes);
       _viewModel.parseBase64EncodedToPsbt(psbtBase64);
     } catch (e) {
@@ -160,11 +163,11 @@ class _PsbtScannerScreenState extends State<PsbtScannerScreen> {
           children: [
             Container(
                 color: CoconutColors.white,
-                child: AnimatedQrScanner(
+                child: CoconutQrScanner(
                     setQrViewController: _setQRViewController,
                     onComplete: _onCompletedScanningForBcUr,
                     onFailed: _onFailedScanning,
-                    qrDataHandler: BcUrQrScanDataHandler())),
+                    qrDataHandler: _scanDataHandler)),
             Padding(
               padding: const EdgeInsets.only(top: 20),
               child: CustomTooltip(
