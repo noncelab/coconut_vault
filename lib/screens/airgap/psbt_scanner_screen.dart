@@ -9,6 +9,7 @@ import 'package:coconut_vault/providers/view_model/airgap/psbt_scanner_view_mode
 import 'package:coconut_vault/utils/alert_util.dart';
 import 'package:coconut_vault/widgets/animated_qr/coconut_qr_scanner.dart';
 import 'package:coconut_vault/widgets/animated_qr/scan_data_handler/bc_ur_qr_scan_data_handler.dart';
+import 'package:coconut_vault/widgets/animated_qr/scan_data_handler/i_qr_scan_data_handler.dart';
 import 'package:coconut_vault/widgets/custom_loading_overlay.dart';
 import 'package:flutter/material.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
@@ -37,13 +38,15 @@ class _PsbtScannerScreenState extends State<PsbtScannerScreen> {
   bool isCameraActive = false;
   bool isAlreadyVibrateScanFailed = false;
   bool _isProcessing = false;
+  late IQrScanDataHandler _scanDataHandler;
 
   @override
   void initState() {
+    super.initState();
     _viewModel = PsbtScannerViewModel(Provider.of<WalletProvider>(context, listen: false),
         Provider.of<SignProvider>(context, listen: false), widget.id);
 
-    super.initState();
+    _scanDataHandler = BcUrQrScanDataHandler();
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       context.loaderOverlay.show();
 
@@ -164,7 +167,7 @@ class _PsbtScannerScreenState extends State<PsbtScannerScreen> {
                     setQrViewController: _setQRViewController,
                     onComplete: _onCompletedScanningForBcUr,
                     onFailed: _onFailedScanning,
-                    qrDataHandler: BcUrQrScanDataHandler())),
+                    qrDataHandler: _scanDataHandler)),
             Padding(
               padding: const EdgeInsets.only(top: 20),
               child: CustomTooltip(

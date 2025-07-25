@@ -81,9 +81,6 @@ class _CoconutQrScannerState extends State<CoconutQrScanner> with SingleTickerPr
   void resetScanState() {
     widget.qrDataHandler.reset();
     _progress = null;
-    // setState(() {
-    //   _showLoadingBar = false;
-    // });
     _isFirstScanData = true;
   }
 
@@ -117,10 +114,9 @@ class _CoconutQrScannerState extends State<CoconutQrScanner> with SingleTickerPr
         if (!handler.isCompleted()) {
           try {
             bool result = handler.joinData(scanData.code!);
-            Logger.log('--> progress: ${handler.progress}');
             if (!result && handler is! IFragmentedQrScanDataHandler) {
-              widget.onFailed(CoconutQrScanner.qrInvalidErrorMessage);
               resetScanState();
+              widget.onFailed(CoconutQrScanner.qrInvalidErrorMessage);
               return;
             }
             /* handler가 IFragmentedQrScanDataHandler일 땐 joinData 실패해도(result == false) 무시하고 스캔 진행함.
@@ -139,21 +135,32 @@ class _CoconutQrScannerState extends State<CoconutQrScanner> with SingleTickerPr
         });
 
         if (handler.isCompleted()) {
-          widget.onComplete(handler.result!);
+          _resetLoadingBarState();
+          final result = handler.result!;
           resetScanState();
-          _scanTimeoutTimer?.cancel();
+          widget.onComplete(result);
         }
       } catch (e) {
-        Logger.log(e.toString());
-        widget.onFailed(e.toString());
+        Logger.error(e.toString());
+        _resetLoadingBarState();
         resetScanState();
-        _scanTimeoutTimer?.cancel();
+        widget.onFailed(e.toString());
       }
     }, onError: (e) {
-      widget.onFailed(e.toString());
+      Logger.error(e.toString());
+      _resetLoadingBarState();
       resetScanState();
-      _scanTimeoutTimer?.cancel();
+      widget.onFailed(e.toString());
     });
+  }
+
+  void _resetLoadingBarState() {
+    _scanTimeoutTimer?.cancel();
+    if (_showLoadingBar) {
+      setState(() {
+        _showLoadingBar = false;
+      });
+    }
   }
 
   QrScannerOverlayShape _getOverlayShape() {
