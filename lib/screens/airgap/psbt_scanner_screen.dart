@@ -83,12 +83,12 @@ class _PsbtScannerScreenState extends State<PsbtScannerScreen> {
     if (_isProcessing) return;
     _isProcessing = true;
 
-    final ur = signedPsbt as UR;
-    final cborBytes = ur.cbor;
-    final decodedCbor = cbor.decode(cborBytes) as CborBytes;
-
     String psbtBase64;
     try {
+      final ur = signedPsbt as UR;
+      final cborBytes = ur.cbor;
+      final decodedCbor = cbor.decode(cborBytes) as CborBytes;
+
       psbtBase64 = base64Encode(decodedCbor.bytes);
       _viewModel.parseBase64EncodedToPsbt(psbtBase64);
     } catch (e) {
