@@ -7,7 +7,7 @@ import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/providers/sign_provider.dart';
 import 'package:coconut_vault/providers/view_model/airgap/psbt_scanner_view_model.dart';
 import 'package:coconut_vault/utils/alert_util.dart';
-import 'package:coconut_vault/widgets/animated_qr/animated_qr_scanner.dart';
+import 'package:coconut_vault/widgets/animated_qr/coconut_qr_scanner.dart';
 import 'package:coconut_vault/widgets/animated_qr/scan_data_handler/bc_ur_qr_scan_data_handler.dart';
 import 'package:coconut_vault/widgets/custom_loading_overlay.dart';
 import 'package:flutter/material.dart';
@@ -160,7 +160,7 @@ class _PsbtScannerScreenState extends State<PsbtScannerScreen> {
           children: [
             Container(
                 color: CoconutColors.white,
-                child: AnimatedQrScanner(
+                child: CoconutQrScanner(
                     setQrViewController: _setQRViewController,
                     onComplete: _onCompletedScanningForBcUr,
                     onFailed: _onFailedScanning,
