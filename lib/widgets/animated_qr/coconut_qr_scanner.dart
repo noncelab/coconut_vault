@@ -37,9 +37,7 @@ class _CoconutQrScannerState extends State<CoconutQrScanner> with SingleTickerPr
   final double _borderWidth = 8;
   late AnimationController _controller;
 
-  double? _progress;
   double scannerLoadingVerticalPos = 0;
-
   Timer? _scanTimeoutTimer;
   bool _showLoadingBar = false;
   bool _isFirstScanData = true;
@@ -78,7 +76,7 @@ class _CoconutQrScannerState extends State<CoconutQrScanner> with SingleTickerPr
 
   void resetScanState() {
     widget.qrDataHandler.reset();
-    _progress = null;
+    _progressNotifier.value = 0;
     _isFirstScanData = true;
   }
 
@@ -112,7 +110,6 @@ class _CoconutQrScannerState extends State<CoconutQrScanner> with SingleTickerPr
         if (!handler.isCompleted()) {
           try {
             bool result = handler.joinData(scanData.code!);
-            _progressNotifier.value = handler.progress;
             if (!result && handler is! IFragmentedQrScanDataHandler) {
               resetScanState();
               widget.onFailed(CoconutQrScanner.qrInvalidErrorMessage);
@@ -129,8 +126,8 @@ class _CoconutQrScannerState extends State<CoconutQrScanner> with SingleTickerPr
         }
 
         setState(() {
-          _progress = handler.progress;
-          _showLoadingBar = _progress != null;
+          _progressNotifier.value = handler.progress;
+          _showLoadingBar = true;
         });
 
         if (handler.isCompleted()) {
@@ -208,7 +205,7 @@ class _CoconutQrScannerState extends State<CoconutQrScanner> with SingleTickerPr
                           isScanningExtraData
                               ? t.coconut_qr_scanner.reading_extra_data
                               : "${(value * 100).toStringAsFixed(1)}%",
-                          style: CoconutTypography.body1_16,
+                          style: CoconutTypography.body1_16.setColor(CoconutColors.white),
                         ),
                       );
                     },
