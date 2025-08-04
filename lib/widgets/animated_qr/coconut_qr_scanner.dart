@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/utils/logger.dart';
@@ -35,21 +33,14 @@ class _CoconutQrScannerState extends State<CoconutQrScanner> with SingleTickerPr
   final GlobalKey qrKey = GlobalKey(debugLabel: 'QR');
   final ValueNotifier<double> _progressNotifier = ValueNotifier(0.0);
   final double _borderWidth = 8;
-  late AnimationController _controller;
-
+  bool _isScanningExtraData = false;
   double scannerLoadingVerticalPos = 0;
-  Timer? _scanTimeoutTimer;
   bool _showLoadingBar = false;
   bool _isFirstScanData = true;
 
   @override
   void initState() {
     super.initState();
-    _controller = AnimationController(
-      duration: const Duration(seconds: 1),
-      vsync: this,
-    )..repeat(reverse: true);
-
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final rect = getQrViewRect();
       if (rect != null) {
@@ -69,14 +60,11 @@ class _CoconutQrScannerState extends State<CoconutQrScanner> with SingleTickerPr
   @override
   void dispose() {
     _progressNotifier.dispose();
-    _scanTimeoutTimer?.cancel();
-    _controller.dispose();
     super.dispose();
   }
 
   void resetScanState() {
     widget.qrDataHandler.reset();
-    _progressNotifier.value = 0;
     _isFirstScanData = true;
   }
 
@@ -87,14 +75,6 @@ class _CoconutQrScannerState extends State<CoconutQrScanner> with SingleTickerPr
     controller.scannedDataStream.distinct((prev, next) => prev.code == next.code).listen(
         (scanData) async {
       if (scanData.code == null) return;
-
-      _scanTimeoutTimer?.cancel();
-      _scanTimeoutTimer = Timer(const Duration(seconds: 1), () {
-        setState(() {
-          _showLoadingBar = false;
-        });
-      });
-
       try {
         if (_isFirstScanData) {
           if (!handler.validateFormat(scanData.code!)) {
@@ -127,6 +107,7 @@ class _CoconutQrScannerState extends State<CoconutQrScanner> with SingleTickerPr
 
         setState(() {
           _progressNotifier.value = handler.progress;
+          _isScanningExtraData = handler.progress > 0.99;
           _showLoadingBar = true;
         });
 
@@ -151,7 +132,8 @@ class _CoconutQrScannerState extends State<CoconutQrScanner> with SingleTickerPr
   }
 
   void _resetLoadingBarState() {
-    _scanTimeoutTimer?.cancel();
+    _progressNotifier.value = 0;
+    _isScanningExtraData = false;
     if (_showLoadingBar) {
       setState(() {
         _showLoadingBar = false;
@@ -187,32 +169,25 @@ class _CoconutQrScannerState extends State<CoconutQrScanner> with SingleTickerPr
               overlay: _getOverlayShape(),
             ),
             Positioned(
-              top: scannerLoadingVerticalPos,
-              left: 0,
-              right: 0,
-              bottom: 0,
-              child: Visibility(
-                visible: _showLoadingBar,
-                child: Center(
-                  child: ValueListenableBuilder<double>(
-                    valueListenable: _progressNotifier,
-                    builder: (context, value, _) {
-                      bool isScanningExtraData = value > 0.99;
-                      return Padding(
-                        padding: EdgeInsets.only(top: isScanningExtraData ? 24 : 0),
-                        child: Text(
-                          textAlign: TextAlign.center,
-                          isScanningExtraData
-                              ? t.coconut_qr_scanner.reading_extra_data
-                              : "${(value * 100).toStringAsFixed(1)}%",
-                          style: CoconutTypography.body1_16.setColor(CoconutColors.white),
-                        ),
-                      );
-                    },
-                  ),
-                ),
-              ),
-            ),
+                top: scannerLoadingVerticalPos + 25,
+                left: 0,
+                right: 0,
+                bottom: 0,
+                child: Visibility(
+                    visible: _showLoadingBar,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        CoconutLayout.spacing_1300w,
+                        if (!_isScanningExtraData) ...[
+                          _buildProgressBar(),
+                          CoconutLayout.spacing_300w,
+                          _buildProgressText(),
+                        ],
+                        if (_isScanningExtraData) _buildReadingExtraText(),
+                        CoconutLayout.spacing_1300w,
+                      ],
+                    ))),
           ],
         );
       },
@@ -227,5 +202,68 @@ class _CoconutQrScannerState extends State<CoconutQrScanner> with SingleTickerPr
       return position & size;
     }
     return null;
+  }
+
+  Widget _buildReadingExtraText() {
+    return Padding(
+      padding: const EdgeInsets.only(top: 12),
+      child: Text(
+        textAlign: TextAlign.center,
+        t.coconut_qr_scanner.reading_extra_data,
+        style: CoconutTypography.body2_14_Bold.setColor(CoconutColors.white),
+      ),
+    );
+  }
+
+  Widget _buildProgressText() {
+    return ValueListenableBuilder<double>(
+        valueListenable: _progressNotifier,
+        builder: (context, value, _) {
+          return SizedBox(
+            width: 35,
+            child: Text(
+              textAlign: TextAlign.center,
+              "${(value * 100).toInt()}%",
+              style: CoconutTypography.body2_14_Bold.setColor(CoconutColors.white),
+            ),
+          );
+        });
+  }
+
+  Widget _buildProgressBar() {
+    return Expanded(
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final double maxWidth = constraints.maxWidth;
+          return Stack(
+            children: [
+              Container(
+                width: maxWidth,
+                height: 8,
+                decoration: const BoxDecoration(
+                  borderRadius: BorderRadius.all(Radius.circular(20)),
+                  color: CoconutColors.gray350,
+                ),
+              ),
+              ValueListenableBuilder<double>(
+                valueListenable: _progressNotifier,
+                builder: (context, value, _) {
+                  return AnimatedContainer(
+                    duration: const Duration(milliseconds: 150),
+                    width: maxWidth * _progressNotifier.value,
+                    height: 6,
+                    margin: const EdgeInsets.all(1),
+                    decoration: const BoxDecoration(
+                      borderRadius: BorderRadius.all(Radius.circular(20)),
+                      color: Colors.black,
+                    ),
+                  );
+                },
+              ),
+            ],
+          );
+        },
+      ),
+    );
   }
 }
