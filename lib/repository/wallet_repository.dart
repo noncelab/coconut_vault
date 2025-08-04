@@ -20,22 +20,22 @@ import 'package:coconut_vault/utils/isolate_handler.dart';
 import 'package:coconut_vault/utils/logger.dart';
 
 /// 지갑의 public 정보는 shared prefs, 비밀 정보는 secure storage에 저장하는 역할을 하는 클래스입니다.
-class WalletListManager {
+class WalletRepository {
   static String nextIdField = 'nextId';
   static String vaultTypeField = VaultListItemBase.vaultTypeField;
 
   final SecureStorageRepository _storageService = SecureStorageRepository();
   final SharedPrefsRepository _sharedPrefs = SharedPrefsRepository();
 
-  static final WalletListManager _instance = WalletListManager._internal();
-  factory WalletListManager() => _instance;
+  static final WalletRepository _instance = WalletRepository._internal();
+  factory WalletRepository() => _instance;
 
   List<VaultListItemBase>? _vaultList;
   get vaultList => _vaultList;
 
   Completer<void>? _walletLoadCancelToken;
 
-  WalletListManager._internal();
+  WalletRepository._internal();
 
   Future<void> init() async {
     // init in main.dart

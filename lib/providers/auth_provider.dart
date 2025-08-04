@@ -6,7 +6,7 @@ import 'package:coconut_vault/constants/pin_constants.dart';
 import 'package:coconut_vault/constants/secure_storage_keys.dart';
 import 'package:coconut_vault/constants/shared_preferences_keys.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
-import 'package:coconut_vault/managers/wallet_list_manager.dart';
+import 'package:coconut_vault/repository/wallet_repository.dart';
 import 'package:coconut_vault/repository/secure_storage_repository.dart';
 import 'package:coconut_vault/repository/shared_preferences_repository.dart';
 import 'package:coconut_vault/utils/hash_util.dart';
@@ -272,8 +272,8 @@ class AuthProvider extends ChangeNotifier {
 
   /// 비밀번호 초기화
   Future<void> resetPin() async {
-    final WalletListManager walletListManager = WalletListManager();
-    await walletListManager.resetAll();
+    final WalletRepository walletRepository = WalletRepository();
+    await walletRepository.resetAll();
 
     _isBiometricEnabled = false;
     _isPinSet = false;
