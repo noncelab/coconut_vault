@@ -3,9 +3,7 @@ import 'package:coconut_lib/coconut_lib.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/widgets/button/custom_buttons.dart';
 import 'package:coconut_vault/widgets/multisig/card/signer_bsms_info_card.dart';
-import 'package:coconut_vault/widgets/textfield/custom_textfield.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:coconut_vault/widgets/custom_tooltip.dart';
 
 class ImportConfirmationScreen extends StatefulWidget {
   const ImportConfirmationScreen({
@@ -84,44 +82,47 @@ class _ImportConfirmationScreenState extends State<ImportConfirmationScreen>
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              CustomTooltip(
-                richText: RichText(
-                  text: TextSpan(
-                    text: t.confirm_importing_screen.guide1,
-                    style: CoconutTypography.body1_16.merge(
-                      const TextStyle(
-                        height: 20.8 / 16,
-                        letterSpacing: -0.01,
-                        color: CoconutColors.black,
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: CoconutToolTip(
+                  tooltipType: CoconutTooltipType.fixed,
+                  richText: RichText(
+                    text: TextSpan(
+                      text: t.confirm_importing_screen.guide1,
+                      style: CoconutTypography.body1_16.merge(
+                        const TextStyle(
+                          height: 20.8 / 16,
+                          letterSpacing: -0.01,
+                          color: CoconutColors.black,
+                        ),
                       ),
+                      children: <TextSpan>[
+                        TextSpan(
+                          text: t.confirm_importing_screen.guide2,
+                          style: CoconutTypography.body1_16.merge(
+                            const TextStyle(
+                              fontWeight: FontWeight.bold,
+                              height: 20.8 / 16,
+                              letterSpacing: -0.01,
+                              color: CoconutColors.black,
+                            ),
+                          ),
+                        ),
+                        TextSpan(
+                          text: t.confirm_importing_screen.guide3,
+                          style: CoconutTypography.body1_16.merge(
+                            const TextStyle(
+                              height: 20.8 / 16,
+                              letterSpacing: -0.01,
+                              color: CoconutColors.black,
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
-                    children: <TextSpan>[
-                      TextSpan(
-                        text: t.confirm_importing_screen.guide2,
-                        style: CoconutTypography.body1_16.merge(
-                          const TextStyle(
-                            fontWeight: FontWeight.bold,
-                            height: 20.8 / 16,
-                            letterSpacing: -0.01,
-                            color: CoconutColors.black,
-                          ),
-                        ),
-                      ),
-                      TextSpan(
-                        text: t.confirm_importing_screen.guide3,
-                        style: CoconutTypography.body1_16.merge(
-                          const TextStyle(
-                            height: 20.8 / 16,
-                            letterSpacing: -0.01,
-                            color: CoconutColors.black,
-                          ),
-                        ),
-                      ),
-                    ],
                   ),
+                  showIcon: true,
                 ),
-                showIcon: true,
-                type: TooltipType.info,
               ),
               const SizedBox(height: 30),
               Container(
@@ -158,7 +159,6 @@ class _ImportConfirmationScreenState extends State<ImportConfirmationScreen>
                         Container(
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(16),
-                            color: CoconutColors.white,
                             boxShadow: [
                               BoxShadow(
                                 color: CoconutColors.black.withOpacity(0.15),
@@ -168,13 +168,16 @@ class _ImportConfirmationScreenState extends State<ImportConfirmationScreen>
                               ),
                             ],
                           ),
-                          child: CustomTextField(
-                            placeholder: t.confirm_importing_screen.placeholder,
+                          child: CoconutTextField(
+                            backgroundColor: CoconutColors.white,
+                            borderRadius: 16,
+                            isLengthVisible: false,
+                            placeholderText: t.confirm_importing_screen.placeholder,
                             maxLength: 15,
+                            errorText: null,
+                            descriptionText: null,
                             controller: _controller,
-                            clearButtonMode: OverlayVisibilityMode.never,
                             focusNode: _focusNode,
-                            focusedBorderColor: CoconutColors.black.withOpacity(0.5),
                             onChanged: (text) {
                               setState(() => memo = _controller.text);
                             },
