@@ -51,7 +51,7 @@
 3. 자동 생성 파일 준비
 
    ```bash
-   flutter pub run build_runner clean && flutter pub run build_runner build --delete-conflicting-outputs && flutter pub run slang
+   flutter pub run build_runner clean && flutter pub run build_runner build --delete-conflicting-outputs && flutter pub run slang && flutter pub run slang
    ```
 
 ### 실행하기
