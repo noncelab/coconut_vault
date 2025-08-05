@@ -42,8 +42,6 @@ class WalletRepository {
   }
 
   Future<List<dynamic>?> loadVaultListJsonArrayString() async {
-    await _migrateToVer2();
-
     String? jsonArrayString;
 
     jsonArrayString = _sharedPrefs.getString(SharedPrefsKeys.kVaultListField);
@@ -363,46 +361,6 @@ class WalletRepository {
     _vaultList = vaultList;
     await _savePublicInfo();
     initIsolateHandler.dispose();
-  }
-
-  /// 1.0.x 버전에서 2.0.0으로 업데이트 한 지갑인지 확인 후 마이그레이션 합니다.
-  ///
-  /// 마이그레이션 진행 여부를 반환합니다.
-  Future<bool> _migrateToVer2() async {
-    var previousData = await _storageService.read(key: SharedPrefsKeys.kVaultListField);
-    if (previousData == null || previousData.isEmpty) {
-      return false;
-    }
-    if (previousData == '[]') {
-      return false;
-    }
-
-    List<dynamic> jsonList = jsonDecode(previousData);
-    List<dynamic> newJsonList = [];
-    for (int i = 0; i < jsonList.length; i++) {
-      int id = jsonList[i]['id'];
-      String mnemonic = jsonList[i][SingleSigVaultListItem.secretField];
-      String? passphrase = jsonList[i][SingleSigVaultListItem.passphraseField];
-
-      String keyString = _createWalletKeyString(id, WalletType.singleSignature);
-      _storageService.write(
-          key: keyString, value: jsonEncode(Secret(mnemonic, passphrase ?? '').toJson()));
-
-      newJsonList.add({
-        "id": id,
-        "name": jsonList[i]['name'],
-        "colorIndex": jsonList[i]['colorIndex'],
-        "iconIndex": jsonList[i]['iconIndex'],
-        "vaultType": WalletType.singleSignature.name,
-      });
-    }
-
-    final jsonString = jsonEncode(newJsonList);
-
-    _sharedPrefs.setString(SharedPrefsKeys.kVaultListField, jsonString);
-    _storageService.delete(key: SharedPrefsKeys.kVaultListField);
-
-    return true;
   }
 
   void dispose() {
