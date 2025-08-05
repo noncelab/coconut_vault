@@ -59,6 +59,7 @@ class _PsbtConfirmationScreenState extends State<PsbtConfirmationScreen> {
           backgroundColor: CoconutColors.white,
           appBar: CoconutAppBar.buildWithNext(
             title: t.psbt_confirmation_screen.title,
+            nextButtonTitle: t.next,
             context: context,
             isActive: !_showLoading && viewModel.totalAmount != null,
             onNextPressed: () {

@@ -104,6 +104,7 @@ class _SingleSigSignScreenState extends State<SingleSigSignScreen> {
           backgroundColor: CoconutColors.gray150,
           appBar: CoconutAppBar.buildWithNext(
             title: t.sign,
+            nextButtonTitle: t.next,
             context: context,
             onBackPressed: () {
               viewModel.resetSignProvider();

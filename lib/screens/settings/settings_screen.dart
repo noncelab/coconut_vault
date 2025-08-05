@@ -39,31 +39,29 @@ class _SettingsScreenState extends State<SettingsScreen> {
         title: t.settings,
         isBottom: true,
       ),
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16.0),
-          child: SingleChildScrollView(
-            child: Column(
-              children: [
-                _securityPart(context),
-                CoconutLayout.spacing_1000h,
-                Selector<WalletProvider, bool>(
-                  selector: (context, provider) => provider.vaultList.isNotEmpty,
-                  builder: (context, isNotEmpty, _) => isNotEmpty
-                      ? Column(children: [_updatePart(context), CoconutLayout.spacing_1000h])
-                      : Container(),
-                ),
-                _btcUnitPart(context),
-                CoconutLayout.spacing_1000h,
-                _languagePart(context),
-                CoconutLayout.spacing_1000h,
-                _advancedUserPart(context),
-                SizedBox(
-                    height: MediaQuery.of(context).viewPadding.bottom > 0
-                        ? MediaQuery.of(context).viewPadding.bottom
-                        : Sizes.size16)
-              ],
-            ),
+      body: Padding(
+        padding: const EdgeInsets.fromLTRB(16.0, 0, 16.0, 0),
+        child: SingleChildScrollView(
+          child: Column(
+            children: [
+              _securityPart(context),
+              CoconutLayout.spacing_1000h,
+              Selector<WalletProvider, bool>(
+                selector: (context, provider) => provider.vaultList.isNotEmpty,
+                builder: (context, isNotEmpty, _) => isNotEmpty
+                    ? Column(children: [_updatePart(context), CoconutLayout.spacing_1000h])
+                    : Container(),
+              ),
+              _btcUnitPart(context),
+              CoconutLayout.spacing_1000h,
+              _languagePart(context),
+              CoconutLayout.spacing_1000h,
+              _advancedUserPart(context),
+              SizedBox(
+                  height: MediaQuery.of(context).viewPadding.bottom > 0
+                      ? MediaQuery.of(context).viewPadding.bottom + Sizes.size12
+                      : Sizes.size36)
+            ],
           ),
         ),
       ),

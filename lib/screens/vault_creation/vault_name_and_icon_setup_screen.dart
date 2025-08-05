@@ -154,6 +154,7 @@ class _VaultNameAndIconSetupScreenState extends State<VaultNameAndIconSetupScree
             backgroundColor: CoconutColors.white,
             appBar: CoconutAppBar.buildWithNext(
               title: t.vault_name_icon_setup_screen.title,
+              nextButtonTitle: t.next,
               context: context,
               onBackPressed: () {
                 Navigator.pop(context);

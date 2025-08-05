@@ -152,7 +152,7 @@ tutorial_screen:
   title1: "Follow the tutorial\nfor easier use"
   title2: "Need help?"
   subtitle: "Use with the tutorial"
-  content: "Enter in browser address bar\ncoconut.onl"
+  content: "Enter in browser address bar\ntutorial.coconut.onl"
 
 multisig:
   nth_key: "key $index"

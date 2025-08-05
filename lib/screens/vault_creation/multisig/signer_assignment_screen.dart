@@ -182,6 +182,7 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
             backgroundColor: CoconutColors.white,
             appBar: CoconutAppBar.buildWithNext(
               title: t.multisig_wallet,
+              nextButtonTitle: t.next,
               context: context,
               onBackPressed: () => _onBackPressed(context),
               onNextPressed: onNextPressed,

@@ -94,6 +94,7 @@ class _VaultTypeSelectionScreenState extends State<VaultTypeSelectionScreen> {
           backgroundColor: CoconutColors.white,
           appBar: CoconutAppBar.buildWithNext(
             title: t.select_vault_type_screen.title,
+            nextButtonTitle: t.next,
             context: context,
             onNextPressed: () => onNextPressed(),
             isActive: _nextButtonEnabled,
@@ -104,7 +105,10 @@ class _VaultTypeSelectionScreenState extends State<VaultTypeSelectionScreen> {
                 padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 32),
                 child: Column(
                   children: [
-                    Text(guideText),
+                    Text(
+                      guideText,
+                      textAlign: TextAlign.center,
+                    ),
                     const SizedBox(height: 10),
                     Text(
                       (nextPath == options[1] &&
@@ -112,6 +116,7 @@ class _VaultTypeSelectionScreenState extends State<VaultTypeSelectionScreen> {
                               model.vaultList.isEmpty)
                           ? t.select_vault_type_screen.empty_key
                           : '',
+                      textAlign: TextAlign.center,
                       style: CoconutTypography.body3_12.setColor(
                         CoconutColors.warningText,
                       ),

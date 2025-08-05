@@ -1,5 +1,6 @@
 import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_lib/coconut_lib.dart';
+import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/model/multisig/multisig_signer.dart';
 import 'package:coconut_vault/model/multisig/multisig_vault_list_item.dart';
 import 'package:coconut_vault/model/single_sig/single_sig_vault_list_item.dart';
@@ -54,7 +55,7 @@ class VaultItemCard extends StatelessWidget {
       colorIndex = singleVault.colorIndex;
       iconIndex = singleVault.iconIndex;
       rightText = singlesigVault.keyStore.masterFingerprint;
-      tooltipText = '지갑 ID';
+      tooltipText = t.wallet_id;
     }
 
     return Container(

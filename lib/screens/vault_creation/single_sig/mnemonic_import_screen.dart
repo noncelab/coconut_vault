@@ -143,6 +143,7 @@ class _MnemonicImportState extends State<MnemonicImport> {
             backgroundColor: CoconutColors.white,
             appBar: CoconutAppBar.buildWithNext(
               title: t.mnemonic_import_screen.title,
+              nextButtonTitle: t.next,
               context: context,
               onBackPressed: _handleBackNavigation,
               onNextPressed: _handleNextButton,

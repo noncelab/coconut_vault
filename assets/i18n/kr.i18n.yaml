@@ -156,7 +156,7 @@ tutorial_screen:
   title1: "튜토리얼을 참고하시면\n더욱 쉽게 사용할 수 있어요"
   title2: "도움이 필요하신가요?"
   subtitle: "튜토리얼과 함께 사용해 보세요"
-  content: "인터넷 주소창에 입력해 주세요\ncoconut.onl"
+  content: "인터넷 주소창에 입력해 주세요\ntutorial.coconut.onl"
 
 multisig:
   nth_key: "$index번 키"
