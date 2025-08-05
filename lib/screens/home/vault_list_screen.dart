@@ -193,13 +193,14 @@ class _VaultListScreenState extends State<VaultListScreen> with TickerProviderSt
         },
         child:
             // ConnectivityProvider: 실제로 활용되지 않지만 참조해야, 네트워크/블루투스/개발자모드 연결 시 화면 전환이 됩니다.
-            ChangeNotifierProxyProvider2<AuthProvider, ConnectivityProvider, VaultListViewModel>(
+            ChangeNotifierProxyProvider3<AuthProvider, ConnectivityProvider, VisibilityProvider,
+                VaultListViewModel>(
           create: (_) => _viewModel,
-          update: (_, authProvider, connectivityProvider, viewModel) {
+          update: (_, authProvider, connectivityProvider, visibilityProvider, viewModel) {
             return viewModel!;
           },
-          child: Consumer<VaultListViewModel>(
-            builder: (context, viewModel, child) {
+          child: Consumer2<VaultListViewModel, VisibilityProvider>(
+            builder: (context, viewModel, visibilityProvider, child) {
               final wallets = viewModel.wallets;
               return Scaffold(
                 backgroundColor: CoconutColors.gray150,

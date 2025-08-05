@@ -45,137 +45,134 @@ class _AddressListScreenState extends State<AddressListScreen> {
               context: context,
               isBottom: true,
             ),
-            body: SafeArea(
-              child: _isFirstLoadRunning
-                  ? const Center(child: CircularProgressIndicator())
-                  : Column(
-                      children: [
-                        Container(
-                          height: 36,
-                          margin: const EdgeInsets.only(
-                            top: 10,
-                            bottom: 12,
-                            left: 16,
-                            right: 16,
-                          ),
-                          decoration: BoxDecoration(
-                            borderRadius: CoconutBorder.defaultRadius,
-                            color: CoconutColors.black.withOpacity(0.06),
-                          ),
-                          child: Row(
-                            children: [
-                              // Choose Receiving or Change
-                              Expanded(
-                                child: GestureDetector(
-                                  onTap: () {
-                                    viewModel.setReceivingSelected(true);
-                                    scrollToTop();
-                                  },
-                                  child: Container(
-                                    margin: const EdgeInsets.all(4),
-                                    decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(22),
-                                      color: viewModel.isReceivingSelected
-                                          ? CoconutColors.black.withOpacity(0.5)
-                                          : Colors.transparent,
-                                    ),
-                                    child: Center(
-                                      child: Text(
-                                        t.receiving,
-                                        style: CoconutTypography.body2_14.merge(TextStyle(
-                                          color: viewModel.isReceivingSelected
-                                              ? CoconutColors.white
-                                              : CoconutColors.black.withOpacity(0.5),
-                                          fontWeight: viewModel.isReceivingSelected
-                                              ? FontWeight.bold
-                                              : FontWeight.normal,
-                                        )),
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                              Expanded(
-                                child: GestureDetector(
-                                  onTap: () {
-                                    viewModel.setReceivingSelected(false);
-                                    scrollToTop();
-                                  },
-                                  child: Container(
-                                    margin: const EdgeInsets.all(4),
-                                    decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(20),
-                                      color: !viewModel.isReceivingSelected
-                                          ? CoconutColors.black.withOpacity(0.5)
-                                          : Colors.transparent,
-                                    ),
-                                    child: Center(
-                                      child: Text(
-                                        t.change,
-                                        style: CoconutTypography.body2_14.merge(TextStyle(
-                                          color: !viewModel.isReceivingSelected
-                                              ? CoconutColors.white
-                                              : CoconutColors.black.withOpacity(0.5),
-                                          fontWeight: !viewModel.isReceivingSelected
-                                              ? FontWeight.bold
-                                              : FontWeight.normal,
-                                        )),
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
+            body: _isFirstLoadRunning
+                ? const Center(child: CircularProgressIndicator())
+                : Column(
+                    children: [
+                      Container(
+                        height: 36,
+                        margin: const EdgeInsets.only(
+                          top: 10,
+                          bottom: 12,
+                          left: 16,
+                          right: 16,
                         ),
-                        Expanded(
-                          child: Stack(
-                            children: [
-                              Scrollbar(
+                        decoration: BoxDecoration(
+                          borderRadius: CoconutBorder.defaultRadius,
+                          color: CoconutColors.black.withOpacity(0.06),
+                        ),
+                        child: Row(
+                          children: [
+                            // Choose Receiving or Change
+                            Expanded(
+                              child: GestureDetector(
+                                onTap: () {
+                                  viewModel.setReceivingSelected(true);
+                                  scrollToTop();
+                                },
+                                child: Container(
+                                  margin: const EdgeInsets.all(4),
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(22),
+                                    color: viewModel.isReceivingSelected
+                                        ? CoconutColors.black.withOpacity(0.5)
+                                        : Colors.transparent,
+                                  ),
+                                  child: Center(
+                                    child: Text(
+                                      t.receiving,
+                                      style: CoconutTypography.body2_14.merge(TextStyle(
+                                        color: viewModel.isReceivingSelected
+                                            ? CoconutColors.white
+                                            : CoconutColors.black.withOpacity(0.5),
+                                        fontWeight: viewModel.isReceivingSelected
+                                            ? FontWeight.bold
+                                            : FontWeight.normal,
+                                      )),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                            Expanded(
+                              child: GestureDetector(
+                                onTap: () {
+                                  viewModel.setReceivingSelected(false);
+                                  scrollToTop();
+                                },
+                                child: Container(
+                                  margin: const EdgeInsets.all(4),
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(20),
+                                    color: !viewModel.isReceivingSelected
+                                        ? CoconutColors.black.withOpacity(0.5)
+                                        : Colors.transparent,
+                                  ),
+                                  child: Center(
+                                    child: Text(
+                                      t.change,
+                                      style: CoconutTypography.body2_14.merge(TextStyle(
+                                        color: !viewModel.isReceivingSelected
+                                            ? CoconutColors.white
+                                            : CoconutColors.black.withOpacity(0.5),
+                                        fontWeight: !viewModel.isReceivingSelected
+                                            ? FontWeight.bold
+                                            : FontWeight.normal,
+                                      )),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      Expanded(
+                        child: Stack(
+                          children: [
+                            Scrollbar(
+                              controller: _controller,
+                              radius: const Radius.circular(12),
+                              child: ListView.builder(
                                 controller: _controller,
-                                radius: const Radius.circular(12),
-                                child: ListView.builder(
-                                  controller: _controller,
-                                  itemCount: addressList.length,
-                                  itemBuilder: (context, index) => AddressCard(
-                                    onPressed: () {
-                                      MyBottomSheet.showBottomSheet_90(
-                                        context: context,
-                                        child: QrcodeBottomSheet(
-                                          qrData: addressList[index].address,
-                                          title: t.address_list_screen.address_index(index: index),
-                                          qrcodeTopWidget: Text(
-                                            addressList[index].derivationPath,
-                                            style: CoconutTypography.body2_14
-                                                .setColor(CoconutColors.gray800),
-                                          ),
+                                itemCount: addressList.length,
+                                itemBuilder: (context, index) => AddressCard(
+                                  onPressed: () {
+                                    MyBottomSheet.showBottomSheet_90(
+                                      context: context,
+                                      child: QrcodeBottomSheet(
+                                        qrData: addressList[index].address,
+                                        title: t.address_list_screen.address_index(index: index),
+                                        qrcodeTopWidget: Text(
+                                          addressList[index].derivationPath,
+                                          style: CoconutTypography.body2_14
+                                              .setColor(CoconutColors.gray800),
                                         ),
-                                      );
-                                    },
-                                    address: addressList[index].address,
-                                    derivationPath: addressList[index].derivationPath,
+                                      ),
+                                    );
+                                  },
+                                  address: addressList[index].address,
+                                  derivationPath: addressList[index].derivationPath,
+                                ),
+                              ),
+                            ),
+                            if (_isLoadMoreRunning)
+                              Positioned(
+                                left: 0,
+                                right: 0,
+                                bottom: 40,
+                                child: Container(
+                                  padding: const EdgeInsets.all(30),
+                                  child: const Center(
+                                    child: CircularProgressIndicator(color: CoconutColors.gray800),
                                   ),
                                 ),
                               ),
-                              if (_isLoadMoreRunning)
-                                Positioned(
-                                  left: 0,
-                                  right: 0,
-                                  bottom: 40,
-                                  child: Container(
-                                    padding: const EdgeInsets.all(30),
-                                    child: const Center(
-                                      child:
-                                          CircularProgressIndicator(color: CoconutColors.gray800),
-                                    ),
-                                  ),
-                                ),
-                            ],
-                          ),
+                          ],
                         ),
-                      ],
-                    ),
-            ),
+                      ),
+                    ],
+                  ),
           );
         },
       ),

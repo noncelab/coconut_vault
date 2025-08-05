@@ -167,6 +167,7 @@ class _MultisigSignScreenState extends State<MultisigSignScreen> {
             backgroundColor: CoconutColors.gray150,
             appBar: CoconutAppBar.buildWithNext(
               title: t.sign,
+              nextButtonTitle: t.next,
               context: context,
               onBackPressed: _onBackPressed,
               onNextPressed: () {

@@ -18,4 +18,5 @@ class SharedPrefsKeys {
 
   static const String kPassphraseUseEnabled = 'PASSPHRASE_USE_ENABLED';
   static const String kIsBtcUnit = "IS_BTC_UNIT";
+  static const String kLanguage = 'LANGUAGE';
 }

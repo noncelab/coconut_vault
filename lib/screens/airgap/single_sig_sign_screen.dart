@@ -12,7 +12,6 @@ import 'package:coconut_vault/screens/common/pin_check_screen.dart';
 import 'package:coconut_vault/utils/alert_util.dart';
 import 'package:coconut_vault/utils/icon_util.dart';
 import 'package:coconut_vault/utils/text_utils.dart';
-import 'package:coconut_vault/utils/unit_utils.dart';
 import 'package:coconut_vault/widgets/bottom_sheet.dart';
 import 'package:coconut_vault/widgets/custom_loading_overlay.dart';
 import 'package:flutter/material.dart';
@@ -104,6 +103,7 @@ class _SingleSigSignScreenState extends State<SingleSigSignScreen> {
           backgroundColor: CoconutColors.gray150,
           appBar: CoconutAppBar.buildWithNext(
             title: t.sign,
+            nextButtonTitle: t.next,
             context: context,
             onBackPressed: () {
               viewModel.resetSignProvider();
@@ -161,7 +161,7 @@ class _SingleSigSignScreenState extends State<SingleSigSignScreen> {
                                 ? t.single_sig_sign_screen.text
                                 : t.sign_completed)
                             : t.sign_required(
-                                count: viewModel.requiredSignatureCount -
+                                n: viewModel.requiredSignatureCount -
                                     viewModel.signersApproved.where((item) => item).length),
                         style: CoconutTypography.body2_14_Bold,
                       ),

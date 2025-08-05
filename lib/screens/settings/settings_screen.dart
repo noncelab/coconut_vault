@@ -5,6 +5,7 @@ import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/providers/auth_provider.dart';
 import 'package:coconut_vault/providers/visibility_provider.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
+import 'package:coconut_vault/screens/settings/language_bottom_sheet.dart';
 import 'package:coconut_vault/screens/settings/unit_bottm_sheet.dart';
 import 'package:coconut_vault/screens/settings/pin_setting_screen.dart';
 import 'package:coconut_vault/utils/logger.dart';
@@ -38,29 +39,29 @@ class _SettingsScreenState extends State<SettingsScreen> {
         title: t.settings,
         isBottom: true,
       ),
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16.0),
-          child: SingleChildScrollView(
-            child: Column(
-              children: [
-                _securityPart(context),
-                CoconutLayout.spacing_1000h,
-                Selector<WalletProvider, bool>(
-                  selector: (context, provider) => provider.vaultList.isNotEmpty,
-                  builder: (context, isNotEmpty, _) => isNotEmpty
-                      ? Column(children: [_updatePart(context), CoconutLayout.spacing_1000h])
-                      : Container(),
-                ),
-                _btcUnitPart(context),
-                CoconutLayout.spacing_1000h,
-                _advancedUserPart(context),
-                SizedBox(
-                    height: MediaQuery.of(context).viewPadding.bottom > 0
-                        ? MediaQuery.of(context).viewPadding.bottom
-                        : Sizes.size16)
-              ],
-            ),
+      body: Padding(
+        padding: const EdgeInsets.fromLTRB(16.0, 0, 16.0, 0),
+        child: SingleChildScrollView(
+          child: Column(
+            children: [
+              _securityPart(context),
+              CoconutLayout.spacing_1000h,
+              Selector<WalletProvider, bool>(
+                selector: (context, provider) => provider.vaultList.isNotEmpty,
+                builder: (context, isNotEmpty, _) => isNotEmpty
+                    ? Column(children: [_updatePart(context), CoconutLayout.spacing_1000h])
+                    : Container(),
+              ),
+              _btcUnitPart(context),
+              CoconutLayout.spacing_1000h,
+              _languagePart(context),
+              CoconutLayout.spacing_1000h,
+              _advancedUserPart(context),
+              SizedBox(
+                  height: MediaQuery.of(context).viewPadding.bottom > 0
+                      ? MediaQuery.of(context).viewPadding.bottom + Sizes.size12
+                      : Sizes.size36)
+            ],
           ),
         ),
       ),
@@ -200,7 +201,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           builder: (context, isBtcUnit, child) {
             return ButtonGroup(buttons: [
               SingleButton(
-                title: t.bitcoin_kr,
+                title: t.bitcoin,
                 subtitle: isBtcUnit ? t.btc : t.sats,
                 onPressed: () async {
                   MyBottomSheet.showBottomSheet_50(
@@ -232,5 +233,55 @@ class _SettingsScreenState extends State<SettingsScreen> {
             ]);
           }),
     ]);
+  }
+
+  Widget _languagePart(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+          padding: const EdgeInsets.only(bottom: 16),
+          child: Text(t.language.language, style: CoconutTypography.body1_16_Bold),
+        ),
+        Consumer<VisibilityProvider>(
+          builder: (context, provider, child) {
+            return Selector<VisibilityProvider, String>(
+              selector: (_, provider) => provider.language,
+              builder: (context, language, child) {
+                // return MultiLineButton(
+                //   title: t.language.language,
+                //   subtitle: _getCurrentLanguageDisplayName(language),
+                //   onPressed: () async {
+                //     _showLanguageSelectionDialog();
+                //   },
+                // );
+                return SingleButton(
+                  title: t.language.language,
+                  subtitle: _getCurrentLanguageDisplayName(language),
+                  // onPressed: () async {
+                  //   _showLanguageSelectionDialog();
+                  // },
+                  onPressed: () async {
+                    MyBottomSheet.showBottomSheet_50(
+                        context: context, child: const LanguageBottomSheet());
+                  },
+                );
+              },
+            );
+          },
+        ),
+      ],
+    );
+  }
+
+  String _getCurrentLanguageDisplayName(String language) {
+    switch (language) {
+      case 'kr':
+        return t.language.korean;
+      case 'en':
+        return t.language.english;
+      default:
+        return t.language.english;
+    }
   }
 }

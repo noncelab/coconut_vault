@@ -1,0 +1,5 @@
+CFBundleDisplayName = "Coconut Vault";
+NSBluetoothAlwaysUsageDescription = "This app detects if Bluetooth is enabled for security enhancement and restricts app functionality when Bluetooth is enabled to prevent unauthorized device connections that could lead to leakage of important information.";
+NSBluetoothPeripheralUsageDescription = "This app detects if Bluetooth is enabled for security enhancement and restricts app functionality when Bluetooth is enabled to prevent unauthorized device connections that could lead to leakage of important information.";
+NSCameraUsageDescription = "Camera access is required for QR code scanning.";
+NSFaceIDUsageDescription = "Face ID is required to unlock the app.";
