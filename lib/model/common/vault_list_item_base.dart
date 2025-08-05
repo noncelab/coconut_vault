@@ -16,9 +16,6 @@ abstract class VaultListItemBase {
   int iconIndex;
   @JsonKey(name: vaultTypeField)
   WalletType vaultType;
-  // Deprecated
-  //@JsonKey(name: "vaultJsonString")
-  String? vaultJsonString;
 
   late WalletBase coconutVault;
 
@@ -28,7 +25,6 @@ abstract class VaultListItemBase {
     required this.colorIndex,
     required this.iconIndex,
     required this.vaultType,
-    this.vaultJsonString,
   });
 
   Future<bool> canSign(String psbt);

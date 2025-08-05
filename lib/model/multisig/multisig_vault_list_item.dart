@@ -19,8 +19,7 @@ class MultisigVaultListItem extends VaultListItemBase {
       required super.iconIndex,
       required this.signers,
       required this.requiredSignatureCount,
-      String? coordinatorBsms,
-      super.vaultJsonString})
+      String? coordinatorBsms})
       : super(vaultType: WalletType.multiSignature) {
     coconutVault = MultisignatureVault.fromKeyStoreList(
         signers.map((signer) => signer.keyStore).toList(), requiredSignatureCount,

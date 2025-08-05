@@ -24,9 +24,9 @@ class SingleSigVaultListItem extends VaultListItemBase {
     required String passphrase,
     this.signerBsms,
     this.linkedMultisigInfo,
-    super.vaultJsonString,
   }) : super(vaultType: WalletType.singleSignature) {
     Seed seed = Seed.fromMnemonic(secret, passphrase: passphrase);
+
     coconutVault = SingleSignatureVault.fromSeed(seed, addressType: AddressType.p2wpkh);
     final singlesigVault = coconutVault as SingleSignatureVault;
 
