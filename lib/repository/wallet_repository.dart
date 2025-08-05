@@ -3,6 +3,7 @@ import 'dart:convert';
 
 import 'package:coconut_lib/coconut_lib.dart';
 import 'package:coconut_vault/constants/shared_preferences_keys.dart';
+import 'package:coconut_vault/isolates/wallet_isolates.dart';
 import 'package:coconut_vault/model/multisig/multisig_signer.dart';
 import 'package:coconut_vault/model/multisig/multisig_vault_list_item.dart';
 import 'package:coconut_vault/model/single_sig/single_sig_vault_list_item.dart';
@@ -11,7 +12,6 @@ import 'package:coconut_vault/enums/wallet_enums.dart';
 import 'package:coconut_vault/model/multisig/multisig_wallet.dart';
 import 'package:coconut_vault/model/common/secret.dart';
 import 'package:coconut_vault/model/single_sig/single_sig_wallet.dart';
-import 'package:coconut_vault/managers/isolate_manager.dart';
 import 'package:coconut_vault/repository/secure_storage_repository.dart';
 import 'package:coconut_vault/repository/shared_preferences_repository.dart';
 import 'package:coconut_vault/utils/coconut/update_preparation.dart';
@@ -62,7 +62,7 @@ class WalletRepository {
     List<VaultListItemBase> vaultList = [];
 
     var initIsolateHandler =
-        IsolateHandler<Map<String, dynamic>, VaultListItemBase>(initializeWallet);
+        IsolateHandler<Map<String, dynamic>, VaultListItemBase>(WalletIsolates.initializeWallet);
     await initIsolateHandler.initialize(initialType: InitializeType.initializeWallet);
 
     for (int i = 0; i < jsonList.length; i++) {
@@ -98,7 +98,7 @@ class WalletRepository {
     final Map<String, dynamic> vaultData = wallet.toJson();
 
     var addVaultIsolateHandler =
-        IsolateHandler<Map<String, dynamic>, List<SingleSigVaultListItem>>(addVaultIsolate);
+        IsolateHandler<Map<String, dynamic>, List<SingleSigVaultListItem>>(WalletIsolates.addVault);
     await addVaultIsolateHandler.initialize(initialType: InitializeType.addVault);
     List<SingleSigVaultListItem> vaultListResult =
         await addVaultIsolateHandler.runAddVault(vaultData);
@@ -187,7 +187,8 @@ class WalletRepository {
     final Map<String, dynamic> data = wallet.toJson();
 
     var addMultisigVaultIsolateHandler =
-        IsolateHandler<Map<String, dynamic>, MultisigVaultListItem>(addMultisigVaultIsolate);
+        IsolateHandler<Map<String, dynamic>, MultisigVaultListItem>(
+            WalletIsolates.addMultisigVault);
     await addMultisigVaultIsolateHandler.initialize(initialType: InitializeType.addMultisigVault);
     MultisigVaultListItem newMultisigVault = await addMultisigVaultIsolateHandler.run(data);
     addMultisigVaultIsolateHandler.dispose();
@@ -343,7 +344,7 @@ class WalletRepository {
   Future<void> restoreFromBackupData(List<Map<String, dynamic>> backupData) async {
     final List<VaultListItemBase> vaultList = [];
     var initIsolateHandler =
-        IsolateHandler<Map<String, dynamic>, VaultListItemBase>(initializeWallet);
+        IsolateHandler<Map<String, dynamic>, VaultListItemBase>(WalletIsolates.initializeWallet);
     await initIsolateHandler.initialize(initialType: InitializeType.initializeWallet);
     for (final data in backupData) {
       VaultListItemBase wallet = await initIsolateHandler.run(data);
