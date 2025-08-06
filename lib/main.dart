@@ -45,16 +45,6 @@ void main() async {
   }
 
   Provider.debugCheckInvalidValueType = null;
-  // coconut 0.6 버전까지만 사용, 0.7버전부터 필요 없어짐
-  final dbDirectory = await getAppDocumentDirectory(paths: ['objectbox']);
-  // coconut_lib 0.6까지 사용하던 db 경로 데이터 삭제
-  try {
-    if (dbDirectory.existsSync()) {
-      dbDirectory.deleteSync(recursive: true);
-    }
-  } catch (_) {
-    // ignore
-  }
 
   const String? appFlavor = String.fromEnvironment('FLUTTER_APP_FLAVOR') != ''
       ? String.fromEnvironment('FLUTTER_APP_FLAVOR')

@@ -187,6 +187,10 @@ unit_bottom_sheet:
   basic_unit: "기본 단위"
   header_text: "1 BTC = 100,000,000 sats"
 
+coconut_qr_scanner:
+# en.i18n.yaml 적용 시 추가 필요
+  reading_extra_data: "거의 다 읽었어요\n남은 데이터를 마저 스캔해 주세요"
+
 # lib/screens/setting
 app_info_screen:
   made_by_team_pow: "포우팀이 만듭니다."
