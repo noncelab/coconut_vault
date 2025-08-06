@@ -182,7 +182,8 @@ unit_bottom_sheet:
   header_text: "1 BTC = 100,000,000 sats"
 
 coconut_qr_scanner:
-  reading_extra_data: "거의 다 읽었어요.\n남은 데이터를 마저 스캔해 주세요."
+# en.i18n.yaml 적용 시 추가 필요
+  reading_extra_data: "거의 다 읽었어요\n남은 데이터를 마저 스캔해 주세요"
 
 # lib/screens/setting
 app_info_screen:
