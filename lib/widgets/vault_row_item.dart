@@ -43,6 +43,8 @@ class _VaultRowItemState extends State<VaultRowItem> {
   String _subtitleText = '';
   bool _isUsedToMultiSig = false;
   List<MultisigSigner>? _multiSigners;
+  // todo: 변경하기
+  bool hasPassphrase = true;
 
   void _updateVault() {
     _isMultiSig = false;
@@ -107,7 +109,11 @@ class _VaultRowItemState extends State<VaultRowItem> {
               MyBottomSheet.showBottomSheet(
                 context: context,
                 title: TextUtils.ellipsisIfLonger(widget.vault.name), // overflow
-                child: VaultMenuBottomSheet(id: widget.vault.id, isMultiSig: _isMultiSig),
+                child: VaultMenuBottomSheet(
+                    id: widget.vault.id,
+                    isMultiSig: _isMultiSig,
+                    hasPassphrase: hasPassphrase,
+                    parentContext: context),
               );
             },
             child: _vaultContainerWidget());

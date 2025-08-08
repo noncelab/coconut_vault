@@ -440,6 +440,11 @@ verify_passphrase_screen:
   saved_mfp: "저장된 MFP"
   recovered_mfp: "복원된 MFP"
 
+passphrase_input_screen:
+  title: "패스프레이즈 입력"
+  enter_passphrase: "패스프레이즈를 입력해 주세요"
+  passphrase_error: "패스프레이즈를 다시 확인해 주세요"
+
 # 업데이트 준비
 prepare_update:
   title: "👉 니모닉 문구를 잘 백업했는지 확인할게요"

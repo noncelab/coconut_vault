@@ -10,6 +10,7 @@ import 'package:coconut_vault/providers/visibility_provider.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:coconut_vault/screens/common/pin_check_screen.dart';
 import 'package:coconut_vault/screens/airgap/multisig_signer_qr_bottom_sheet.dart';
+import 'package:coconut_vault/screens/vault_menu/info/passphrase_input_screen.dart';
 import 'package:coconut_vault/utils/alert_util.dart';
 import 'package:coconut_vault/utils/icon_util.dart';
 import 'package:coconut_vault/utils/text_utils.dart';
@@ -58,11 +59,37 @@ class _MultisigSignScreenState extends State<MultisigSignScreen> {
     });
   }
 
+  // todo: 변경 필요~~~~ 아이템별 패스프레이즈를 따지는 것이 좋을 듯?
+  bool hasPassphrase = true;
+  void _handlePassphraseInput({
+    required bool hasPassphrase,
+    required BuildContext context,
+    required VoidCallback onSuccess,
+  }) {
+    if (hasPassphrase) {
+      MyBottomSheet.showBottomSheet_50(
+        context: context,
+        child: const PassphraseInputScreen(),
+        handleSheetResult: (result) {
+          if (result == true) {
+            onSuccess();
+          }
+        },
+      );
+    } else {
+      onSuccess();
+    }
+  }
+
   Future<void> _signStep1(bool isKeyInsideVault, int index) async {
     if (isKeyInsideVault) {
       final authProvider = context.read<AuthProvider>();
       if (await authProvider.isBiometricsAuthValid()) {
-        _signStep2(index);
+        _handlePassphraseInput(
+          hasPassphrase: hasPassphrase,
+          context: context,
+          onSuccess: () => _signStep2(index),
+        );
         return;
       }
 
@@ -73,7 +100,11 @@ class _MultisigSignScreenState extends State<MultisigSignScreen> {
             pinCheckContext: PinCheckContextEnum.sensitiveAction,
             onComplete: () {
               Navigator.pop(context);
-              _signStep2(index);
+              _handlePassphraseInput(
+                hasPassphrase: hasPassphrase,
+                context: context,
+                onSuccess: () => _signStep2(index),
+              );
             },
           ),
         ),

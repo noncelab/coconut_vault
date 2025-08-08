@@ -9,6 +9,7 @@ import 'package:coconut_vault/providers/view_model/airgap/single_sig_sign_view_m
 import 'package:coconut_vault/providers/visibility_provider.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:coconut_vault/screens/common/pin_check_screen.dart';
+import 'package:coconut_vault/screens/vault_menu/info/passphrase_input_screen.dart';
 import 'package:coconut_vault/utils/alert_util.dart';
 import 'package:coconut_vault/utils/icon_util.dart';
 import 'package:coconut_vault/utils/text_utils.dart';
@@ -54,10 +55,37 @@ class _SingleSigSignScreenState extends State<SingleSigSignScreen> {
     });
   }
 
+  // todo: 변경 필요~~~~
+  bool hasPassphrase = true;
+  void _handlePassphraseInput({
+    required bool hasPassphrase,
+    required BuildContext context,
+    required VoidCallback onSuccess,
+  }) {
+    if (hasPassphrase) {
+      MyBottomSheet.showBottomSheet_50(
+        context: context,
+        child: const PassphraseInputScreen(),
+        handleSheetResult: (result) {
+          if (result == true) {
+            onSuccess();
+          }
+        },
+      );
+    } else {
+      onSuccess();
+    }
+  }
+
   Future<void> _signStep1() async {
+    // todo: 패스프레이즈 입력 확인
     final authProvider = context.read<AuthProvider>();
     if (await authProvider.isBiometricsAuthValid()) {
-      _signStep2();
+      _handlePassphraseInput(
+        hasPassphrase: hasPassphrase,
+        context: context,
+        onSuccess: _signStep2,
+      );
       return;
     }
 
@@ -68,7 +96,11 @@ class _SingleSigSignScreenState extends State<SingleSigSignScreen> {
           pinCheckContext: PinCheckContextEnum.sensitiveAction,
           onComplete: () {
             Navigator.pop(context);
-            _signStep2();
+            _handlePassphraseInput(
+              hasPassphrase: hasPassphrase,
+              context: context,
+              onSuccess: _signStep2,
+            );
           },
         ),
       ),

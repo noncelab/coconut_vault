@@ -429,6 +429,11 @@ verify_passphrase_screen:
   saved_mfp: "Saved MFP"
   recovered_mfp: "Recovered MFP"
 
+passphrase_input_screen:
+  title: "Enter Passphrase"
+  enter_passphrase: "Enter Passphrase"
+  passphrase_error: "Please check your passphrase again"
+
 # Update Preparation
 prepare_update:
   title: "👉 Let's verify you've backed up your mnemonic well"

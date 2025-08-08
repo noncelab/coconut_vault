@@ -43,18 +43,28 @@ class MyBottomSheet {
       {required BuildContext context,
       required Widget child,
       bool isDismissible = true,
-      bool enableDrag = true}) {
+      bool enableDrag = true,
+      void Function(dynamic)? handleSheetResult}) {
     showModalBottomSheet(
-        context: context,
-        builder: (context) {
-          return child;
-        },
-        backgroundColor: CoconutColors.white,
-        isDismissible: isDismissible,
-        isScrollControlled: true,
-        enableDrag: enableDrag,
-        useSafeArea: true,
-        constraints: BoxConstraints(maxHeight: MediaQuery.of(context).size.height * 0.5));
+            context: context,
+            builder: (context) {
+              return Padding(
+                padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
+                child: SizedBox(
+                  height: MediaQuery.of(context).size.height * 0.5,
+                  width: MediaQuery.of(context).size.width,
+                  child: child,
+                ),
+              );
+            },
+            backgroundColor: CoconutColors.white,
+            isDismissible: isDismissible,
+            isScrollControlled: true,
+            enableDrag: enableDrag,
+            useSafeArea: true)
+        .then((value) {
+      if (handleSheetResult != null) handleSheetResult(value);
+    });
   }
 
   static void showBottomSheet({

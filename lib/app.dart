@@ -212,7 +212,10 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> {
             AppRoutes.vaultNameSetup: (context) => const VaultNameAndIconSetupScreen(),
             AppRoutes.vaultDetails: (context) => buildScreenWithArguments(
                   context,
-                  (args) => VaultMenuBottomSheet(id: args['id']),
+                  (args) => VaultMenuBottomSheet(
+                      id: args['id'],
+                      hasPassphrase: args['hasPassphrase'],
+                      parentContext: args['parentContext']),
                 ),
             AppRoutes.singleSigSetupInfo: (context) => buildScreenWithArguments(
                 context, (args) => SingleSigSetupInfoScreen(id: args['id'])),
