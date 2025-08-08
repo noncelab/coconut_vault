@@ -13,7 +13,6 @@ import 'package:coconut_vault/utils/vibration_util.dart';
 import 'package:coconut_vault/utils/wallet_utils.dart';
 import 'package:coconut_vault/widgets/bottom_sheet.dart';
 import 'package:coconut_vault/widgets/custom_dialog.dart';
-import 'package:coconut_vault/widgets/textfield/custom_textfield.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
@@ -39,6 +38,7 @@ class _MnemonicImportState extends State<MnemonicImport> {
   final TextEditingController _mnemonicController = TextEditingController();
   final TextEditingController _passphraseController = TextEditingController();
   final FocusNode _mnemonicFocusNode = FocusNode();
+  final FocusNode _passphraseFocusNode = FocusNode();
   // final TextEditingController _passphraseConfirmController =
   //     TextEditingController();
   // final FocusNode _fcnodePassphrase = FocusNode();
@@ -66,6 +66,7 @@ class _MnemonicImportState extends State<MnemonicImport> {
     _mnemonicController.dispose();
     _passphraseController.dispose();
     _mnemonicFocusNode.dispose();
+    _passphraseFocusNode.dispose();
     // _passphraseConfirmController.dispose();
     // _fcnodePassphrase.dispose();
 
@@ -113,19 +114,52 @@ class _MnemonicImportState extends State<MnemonicImport> {
   }
 
   void _showStopImportingMnemonicDialog() {
-    CustomDialogs.showCustomAlertDialog(
-      context,
-      title: t.alert.stop_importing_mnemonic.title,
-      message: t.alert.stop_importing_mnemonic.description,
-      cancelButtonText: t.cancel,
-      confirmButtonText: t.stop,
-      confirmButtonColor: CoconutColors.warningText,
-      onCancel: () => Navigator.pop(context),
-      onConfirm: () {
-        Navigator.pop(context);
-        Navigator.pushNamedAndRemoveUntil(context, '/', (Route<dynamic> route) => false);
-      },
-    );
+    // CustomDialogs.showCustomAlertDialog(
+    //   context,
+    //   title: t.alert.stop_importing_mnemonic.title,
+    //   message: t.alert.stop_importing_mnemonic.description,
+    //   cancelButtonText: t.cancel,
+    //   confirmButtonText: t.stop,
+    //   confirmButtonColor: CoconutColors.warningText,
+    //   onCancel: () => Navigator.pop(context),
+    //   onConfirm: () {
+    //     Navigator.pop(context);
+    //     Navigator.pushNamedAndRemoveUntil(context, '/', (Route<dynamic> route) => false);
+    //   },
+    // );
+
+    showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return CoconutPopup(
+            insetPadding:
+                EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width * 0.15),
+            title: t.alert.stop_importing_mnemonic.title,
+            titleTextStyle: CoconutTypography.body1_16_Bold,
+            description: t.alert.stop_importing_mnemonic.description,
+            descriptionTextStyle: CoconutTypography.body2_14,
+            backgroundColor: CoconutColors.white,
+            leftButtonText: t.cancel,
+            leftButtonTextStyle: CoconutTypography.body2_14.merge(
+              TextStyle(
+                color: CoconutColors.black.withOpacity(0.7),
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+            rightButtonText: t.stop,
+            rightButtonColor: CoconutColors.warningText,
+            rightButtonTextStyle: CoconutTypography.body2_14.merge(
+              const TextStyle(
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+            onTapLeft: () => Navigator.pop(context),
+            onTapRight: () {
+              Navigator.pop(context);
+              Navigator.pushNamedAndRemoveUntil(context, '/', (Route<dynamic> route) => false);
+            },
+          );
+        });
   }
 
   @override
@@ -235,11 +269,11 @@ class _MnemonicImportState extends State<MnemonicImport> {
   }
 
   Widget _buildMnemonicTextField() {
-    return CustomTextField(
+    return CoconutTextField(
       focusNode: _mnemonicFocusNode,
       controller: _mnemonicController,
-      inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'[a-z ]'))],
-      placeholder: t.mnemonic_import_screen.put_spaces_between_words,
+      textInputFormatter: [FilteringTextInputFormatter.allow(RegExp(r'[a-z ]'))],
+      placeholderText: t.mnemonic_import_screen.put_spaces_between_words,
       onChanged: (text) {
         _inputText = text.toLowerCase();
         setState(() {
@@ -254,8 +288,8 @@ class _MnemonicImportState extends State<MnemonicImport> {
       },
       maxLines: 5,
       padding: const EdgeInsets.fromLTRB(16, 20, 16, 20),
-      valid: _isMnemonicValid,
-      errorMessage: _errorMessage ?? t.errors.invalid_mnemonic_phrase,
+      isError: _isMnemonicValid == false,
+      errorText: _errorMessage ?? t.errors.invalid_mnemonic_phrase,
     );
   }
 
@@ -320,12 +354,14 @@ class _MnemonicImportState extends State<MnemonicImport> {
       Padding(
           padding: const EdgeInsets.only(top: 12),
           child: SizedBox(
-            child: CustomTextField(
+            child: CoconutTextField(
+              focusNode: _passphraseFocusNode,
               controller: _passphraseController,
-              placeholder: t.mnemonic_import_screen.enter_passphrase,
-              onChanged: (text) {},
-              valid: _passphrase.length <= 100,
+              placeholderText: t.mnemonic_import_screen.enter_passphrase,
+              onChanged: (_) {},
+              isError: _passphrase.length > 100,
               maxLines: 1,
+              isLengthVisible: false,
               obscureText: _passphraseObscured,
               suffix: CupertinoButton(
                 onPressed: () {

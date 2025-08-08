@@ -16,9 +16,9 @@ import 'package:coconut_vault/widgets/card/vault_addition_guide_card.dart';
 import 'package:coconut_vault/widgets/vault_row_item.dart';
 import 'package:flutter/material.dart';
 import 'package:coconut_vault/screens/settings/settings_screen.dart';
-import 'package:coconut_vault/widgets/appbar/frosted_appbar.dart';
 import 'package:coconut_vault/widgets/bottom_sheet.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:provider/provider.dart';
 import 'package:shimmer/shimmer.dart';
@@ -212,24 +212,59 @@ class _VaultListScreenState extends State<VaultListScreen> with TickerProviderSt
                       // semanticChildCount:
                       //     model.isVaultListLoading ? 1 : vaults.length,
                       slivers: <Widget>[
-                        FrostedAppBar(
-                          enablePlusButton: NetworkType.currentNetworkType.isTestnet ||
-                              (viewModel.isWalletsLoaded && wallets.isEmpty),
-                          onTapPlus: () {
-                            if (viewModel.walletCount == 0 && !viewModel.isPinSet) {
-                              MyBottomSheet.showBottomSheet_90(
-                                  context: context,
-                                  child: const PinSettingScreen(greetingVisible: true));
-                            } else {
-                              Navigator.pushNamed(context, AppRoutes.vaultTypeSelection);
-                            }
-                          },
-                          onTapSeeMore: () {
-                            setState(() {
-                              _isSeeMoreDropdown = true;
-                            });
-                          },
-                          dropdownKey: _dropdownButtonKey,
+                        CoconutAppBar.buildHomeAppbar(
+                          context: context,
+                          leadingSvgAsset: SvgPicture.asset(
+                              'assets/svg/coconut-${NetworkType.currentNetworkType.isTestnet ? "regtest" : "mainnet"}.svg',
+                              colorFilter:
+                                  const ColorFilter.mode(CoconutColors.gray800, BlendMode.srcIn),
+                              width: 24),
+                          appTitle: t.vault,
+                          actionButtonList: [
+                            Opacity(
+                              opacity:
+                                  isEnablePlusButton(viewModel.isWalletsLoaded, wallets.isEmpty)
+                                      ? 1.0
+                                      : 0.2,
+                              child: _buildAppBarIconButton(
+                                key: GlobalKey(),
+                                icon: SvgPicture.asset(
+                                  'assets/svg/wallet-plus.svg',
+                                  colorFilter: const ColorFilter.mode(
+                                    CoconutColors.gray800,
+                                    BlendMode.srcIn,
+                                  ),
+                                ),
+                                onPressed: () {
+                                  if (!isEnablePlusButton(
+                                      viewModel.isWalletsLoaded, wallets.isEmpty)) {
+                                    return;
+                                  }
+
+                                  if (viewModel.walletCount == 0 && !viewModel.isPinSet) {
+                                    MyBottomSheet.showBottomSheet_90(
+                                        context: context,
+                                        child: const PinSettingScreen(greetingVisible: true));
+                                  } else {
+                                    Navigator.pushNamed(context, AppRoutes.vaultTypeSelection);
+                                  }
+                                },
+                              ),
+                            ),
+                            _buildAppBarIconButton(
+                              key: _dropdownButtonKey,
+                              icon: SvgPicture.asset(
+                                'assets/svg/kebab.svg',
+                                colorFilter:
+                                    const ColorFilter.mode(CoconutColors.gray800, BlendMode.srcIn),
+                              ),
+                              onPressed: () {
+                                setState(() {
+                                  _isSeeMoreDropdown = true;
+                                });
+                              },
+                            ),
+                          ],
                         ),
 
                         // 바로 추가하기
@@ -365,6 +400,24 @@ class _VaultListScreenState extends State<VaultListScreen> with TickerProviderSt
             },
           ),
         ));
+  }
+
+  bool isEnablePlusButton(bool isWalletsLoaded, bool isWalletEmpty) {
+    return NetworkType.currentNetworkType.isTestnet || (isWalletsLoaded && isWalletEmpty);
+  }
+
+  Widget _buildAppBarIconButton({required Widget icon, required VoidCallback onPressed, Key? key}) {
+    return SizedBox(
+      key: key,
+      height: 40,
+      width: 40,
+      child: IconButton(
+        icon: icon,
+        highlightColor: CoconutColors.gray200,
+        onPressed: onPressed,
+        color: CoconutColors.white,
+      ),
+    );
   }
 
   @override

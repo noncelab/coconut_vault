@@ -81,30 +81,33 @@ class _PsbtConfirmationScreenState extends State<PsbtConfirmationScreen> {
                   child: Column(
                     children: [
                       const SizedBox(height: 20),
-                      CustomTooltip(
-                        richText: RichText(
-                          text: TextSpan(
-                            text: '[3] ',
-                            style: const TextStyle(
-                              fontFamily: 'Pretendard',
-                              fontWeight: FontWeight.bold,
-                              fontSize: 15,
-                              height: 1.4,
-                              letterSpacing: 0.5,
-                              color: CoconutColors.black,
-                            ),
-                            children: <TextSpan>[
-                              TextSpan(
-                                text: t.psbt_confirmation_screen.guide,
-                                style: const TextStyle(
-                                  fontWeight: FontWeight.normal,
-                                ),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        child: CoconutToolTip(
+                          tooltipType: CoconutTooltipType.fixed,
+                          richText: RichText(
+                            text: TextSpan(
+                              text: '[3] ',
+                              style: const TextStyle(
+                                fontFamily: 'Pretendard',
+                                fontWeight: FontWeight.bold,
+                                fontSize: 15,
+                                height: 1.4,
+                                letterSpacing: 0.5,
+                                color: CoconutColors.black,
                               ),
-                            ],
+                              children: <TextSpan>[
+                                TextSpan(
+                                  text: t.psbt_confirmation_screen.guide,
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.normal,
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
+                          showIcon: true,
                         ),
-                        showIcon: true,
-                        type: TooltipType.info,
                       ),
                       GestureDetector(
                         onTap: _toggleUnit,

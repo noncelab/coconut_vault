@@ -42,54 +42,57 @@ class _SignerQrBottomSheetState extends State<SignerQrBottomSheet> {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: <Widget>[
                   const SizedBox(height: 20),
-                  CustomTooltip(
-                    richText: RichText(
-                      text: TextSpan(
-                        text: '[1] ${widget.keyIndex}',
-                        style: const TextStyle(
-                          fontFamily: 'Pretendard',
-                          fontWeight: FontWeight.bold,
-                          fontSize: 16,
-                          height: 1.4,
-                          letterSpacing: 0.5,
-                          color: CoconutColors.black,
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    child: CoconutToolTip(
+                      tooltipType: CoconutTooltipType.fixed,
+                      richText: RichText(
+                        text: TextSpan(
+                          text: '[1] ${widget.keyIndex}',
+                          style: const TextStyle(
+                            fontFamily: 'Pretendard',
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                            height: 1.4,
+                            letterSpacing: 0.5,
+                            color: CoconutColors.black,
+                          ),
+                          children: <TextSpan>[
+                            TextSpan(
+                              text: t.signer_qr_bottom_sheet.text2_1,
+                              style: const TextStyle(
+                                fontWeight: FontWeight.normal,
+                              ),
+                            ),
+                            TextSpan(
+                              text: widget.multisigName,
+                              style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            TextSpan(
+                              text: t.signer_qr_bottom_sheet.text2_2,
+                              style: const TextStyle(
+                                fontWeight: FontWeight.normal,
+                              ),
+                            ),
+                            TextSpan(
+                              text: t.signer_qr_bottom_sheet.text2_3,
+                              style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            TextSpan(
+                              text: t.signer_qr_bottom_sheet.text2_4,
+                              style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
                         ),
-                        children: <TextSpan>[
-                          TextSpan(
-                            text: t.signer_qr_bottom_sheet.text2_1,
-                            style: const TextStyle(
-                              fontWeight: FontWeight.normal,
-                            ),
-                          ),
-                          TextSpan(
-                            text: widget.multisigName,
-                            style: const TextStyle(
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          TextSpan(
-                            text: t.signer_qr_bottom_sheet.text2_2,
-                            style: const TextStyle(
-                              fontWeight: FontWeight.normal,
-                            ),
-                          ),
-                          TextSpan(
-                            text: t.signer_qr_bottom_sheet.text2_3,
-                            style: const TextStyle(
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          TextSpan(
-                            text: t.signer_qr_bottom_sheet.text2_4,
-                            style: const TextStyle(
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ],
                       ),
+                      showIcon: true,
                     ),
-                    showIcon: true,
-                    type: TooltipType.info,
                   ),
                   const SizedBox(
                     height: 40,

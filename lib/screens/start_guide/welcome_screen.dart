@@ -193,18 +193,20 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
             const SizedBox(
               height: 20,
             ),
-            CupertinoButton(
-                onPressed: () {
-                  _connectivityProvider.setConnectActivity(
-                      bluetooth: true, network: false, developerMode: false);
-                  Navigator.pushNamed(context, AppRoutes.connectivityGuide);
-                },
-                child: Text(
-                  t.welcome_screen.understood,
-                  style: CoconutTypography.body2_14_Bold.setColor(
-                    const Color.fromRGBO(113, 111, 245, 1.0),
-                  ),
-                )),
+            CoconutButton(
+              width: 150,
+              backgroundColor: Colors.transparent,
+              onPressed: () {
+                _connectivityProvider.setConnectActivity(
+                    bluetooth: true, network: false, developerMode: false);
+                Navigator.pushNamed(context, AppRoutes.connectivityGuide);
+              },
+              text: t.welcome_screen.understood,
+              textStyle: CoconutTypography.body2_14_Bold,
+              foregroundColor: const Color.fromRGBO(113, 111, 245, 1.0),
+              pressedTextColor: const Color.fromRGBO(113, 111, 245, 1.0).withOpacity(0.6),
+              pressedBackgroundColor: Colors.transparent,
+            ),
             const SizedBox(
               height: 60,
             ),

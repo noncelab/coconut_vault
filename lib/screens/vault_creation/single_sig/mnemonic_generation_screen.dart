@@ -12,9 +12,7 @@ import 'package:coconut_vault/utils/vibration_util.dart';
 import 'package:coconut_vault/widgets/bottom_sheet.dart';
 import 'package:coconut_vault/widgets/button/custom_buttons.dart';
 import 'package:coconut_vault/widgets/check_list.dart';
-import 'package:coconut_vault/widgets/custom_dialog.dart';
 import 'package:coconut_vault/widgets/highlighted_text.dart';
-import 'package:coconut_vault/widgets/textfield/custom_textfield.dart';
 import 'package:provider/provider.dart';
 
 class MnemonicGenerationScreen extends StatefulWidget {
@@ -62,22 +60,58 @@ class _MnemonicGenerationScreenState extends State<MnemonicGenerationScreen> {
   }
 
   void _showStopGeneratingMnemonicDialog() {
-    CustomDialogs.showCustomAlertDialog(
-      context,
-      title: t.alert.stop_generating_mnemonic.title,
-      message: t.alert.stop_generating_mnemonic.description,
-      cancelButtonText: t.cancel,
-      confirmButtonText: t.stop,
-      confirmButtonColor: CoconutColors.warningText,
-      onCancel: () => Navigator.pop(context),
-      onConfirm: () {
-        Navigator.pushNamedAndRemoveUntil(
-          context,
-          '/',
-          (Route<dynamic> route) => false,
-        );
-      },
-    );
+    // CustomDialogs.showCustomAlertDialog(
+    //   context,
+    //   title: t.alert.stop_generating_mnemonic.title,
+    //   message: t.alert.stop_generating_mnemonic.description,
+    //   cancelButtonText: t.cancel,
+    //   confirmButtonText: t.stop,
+    //   confirmButtonColor: CoconutColors.warningText,
+    //   onCancel: () => Navigator.pop(context),
+    //   onConfirm: () {
+    //     Navigator.pushNamedAndRemoveUntil(
+    //       context,
+    //       '/',
+    //       (Route<dynamic> route) => false,
+    //     );
+    //   },
+    // );
+
+    showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return CoconutPopup(
+            insetPadding:
+                EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width * 0.15),
+            title: t.alert.stop_generating_mnemonic.title,
+            titleTextStyle: CoconutTypography.body1_16_Bold,
+            descriptionTextStyle: CoconutTypography.body2_14,
+            description: t.alert.stop_generating_mnemonic.description,
+            backgroundColor: CoconutColors.white,
+            rightButtonColor: CoconutColors.warningText,
+            rightButtonText: t.stop,
+            rightButtonTextStyle: CoconutTypography.body2_14.merge(
+              const TextStyle(
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+            leftButtonText: t.cancel,
+            leftButtonTextStyle: CoconutTypography.body2_14.merge(
+              TextStyle(
+                color: CoconutColors.black.withOpacity(0.7),
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+            onTapLeft: () => Navigator.pop(context),
+            onTapRight: () {
+              Navigator.pushNamedAndRemoveUntil(
+                context,
+                '/',
+                (Route<dynamic> route) => false,
+              );
+            },
+          );
+        });
   }
 
   void _showConfirmBottomSheet() {
@@ -306,6 +340,7 @@ class _MnemonicWordsState extends State<MnemonicWords> {
   String mnemonic = '';
   String passphrase = '';
   final TextEditingController _passphraseController = TextEditingController();
+  final FocusNode _passphraseFocusNode = FocusNode();
   bool passphraseObscured = false;
   bool isNextButtonActive = false;
   bool isValid = true;
@@ -329,11 +364,20 @@ class _MnemonicWordsState extends State<MnemonicWords> {
     _walletCreationProvider = Provider.of<WalletCreationProvider>(context, listen: false);
     stepCount = widget.usePassphrase ? 2 : 1;
     _generateMnemonicPhrase();
+    _passphraseController.addListener(() {
+      setState(() {
+        passphrase = _passphraseController.text;
+      });
+      if (!widget.usePassphrase) {
+        widget.onFinished(mnemonic, passphrase, false);
+      }
+    });
   }
 
   @override
   void dispose() {
     _passphraseController.dispose();
+    _passphraseFocusNode.dispose();
     super.dispose();
   }
 
@@ -504,18 +548,11 @@ class _MnemonicWordsState extends State<MnemonicWords> {
                                 Padding(
                                   padding: const EdgeInsets.only(top: 12),
                                   child: SizedBox(
-                                    child: CustomTextField(
+                                    child: CoconutTextField(
+                                      focusNode: _passphraseFocusNode,
                                       controller: _passphraseController,
-                                      placeholder: t.mnemonic_generate_screen.enter_passphrase,
-                                      onChanged: (text) {
-                                        setState(() {
-                                          passphrase = text;
-                                        });
-
-                                        if (!widget.usePassphrase) {
-                                          widget.onFinished(mnemonic, text, false);
-                                        }
-                                      },
+                                      placeholderText: t.mnemonic_generate_screen.enter_passphrase,
+                                      onChanged: (_) {},
                                       maxLines: 1,
                                       obscureText: passphraseObscured,
                                       suffix: CupertinoButton(

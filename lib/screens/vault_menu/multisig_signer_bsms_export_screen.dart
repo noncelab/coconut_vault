@@ -68,54 +68,57 @@ class _MultisigSignerBsmsExportScreenState extends State<MultisigSignerBsmsExpor
                       const SizedBox(
                         height: 20,
                       ),
-                      CustomTooltip(
-                          type: TooltipType.info,
-                          showIcon: true,
-                          richText: RichText(
-                            text: TextSpan(
-                              text: t.signer_bsms_screen.guide1_1,
-                              style: const TextStyle(
-                                fontFamily: 'Pretendard',
-                                fontWeight: FontWeight.bold,
-                                fontSize: 15,
-                                height: 1.4,
-                                letterSpacing: 0.5,
-                                color: CoconutColors.black,
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        child: CoconutToolTip(
+                            tooltipType: CoconutTooltipType.fixed,
+                            showIcon: true,
+                            richText: RichText(
+                              text: TextSpan(
+                                text: t.signer_bsms_screen.guide1_1,
+                                style: const TextStyle(
+                                  fontFamily: 'Pretendard',
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 15,
+                                  height: 1.4,
+                                  letterSpacing: 0.5,
+                                  color: CoconutColors.black,
+                                ),
+                                children: <TextSpan>[
+                                  TextSpan(
+                                    text: t.signer_bsms_screen.guide1_2,
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.normal,
+                                    ),
+                                  ),
+                                  TextSpan(
+                                    text: t.signer_bsms_screen.guide1_3,
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  TextSpan(
+                                    text: t.signer_bsms_screen.guide1_4,
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.normal,
+                                    ),
+                                  ),
+                                  TextSpan(
+                                    text: t.signer_bsms_screen.guide1_5,
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  TextSpan(
+                                    text: t.signer_bsms_screen.guide1_6,
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.normal,
+                                    ),
+                                  ),
+                                ],
                               ),
-                              children: <TextSpan>[
-                                TextSpan(
-                                  text: t.signer_bsms_screen.guide1_2,
-                                  style: const TextStyle(
-                                    fontWeight: FontWeight.normal,
-                                  ),
-                                ),
-                                TextSpan(
-                                  text: t.signer_bsms_screen.guide1_3,
-                                  style: const TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                                TextSpan(
-                                  text: t.signer_bsms_screen.guide1_4,
-                                  style: const TextStyle(
-                                    fontWeight: FontWeight.normal,
-                                  ),
-                                ),
-                                TextSpan(
-                                  text: t.signer_bsms_screen.guide1_5,
-                                  style: const TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                                TextSpan(
-                                  text: t.signer_bsms_screen.guide1_6,
-                                  style: const TextStyle(
-                                    fontWeight: FontWeight.normal,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          )),
+                            )),
+                      ),
                       const SizedBox(height: 32),
                       Center(
                           child: Container(

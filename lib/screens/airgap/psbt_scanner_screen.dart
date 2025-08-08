@@ -169,8 +169,10 @@ class _PsbtScannerScreenState extends State<PsbtScannerScreen> {
                     onFailed: _onFailedScanning,
                     qrDataHandler: _scanDataHandler)),
             Padding(
-              padding: const EdgeInsets.only(top: 20),
-              child: CustomTooltip(
+              padding: const EdgeInsets.only(top: 20, left: 16, right: 16),
+              child: CoconutToolTip(
+                tooltipType: CoconutTooltipType.fixed,
+                baseBackgroundColor: CoconutColors.white,
                 richText: RichText(
                   text: TextSpan(
                     text: '[2] ',
@@ -195,7 +197,6 @@ class _PsbtScannerScreenState extends State<PsbtScannerScreen> {
                   ),
                 ),
                 showIcon: true,
-                type: TooltipType.info,
               ),
             ),
           ],
