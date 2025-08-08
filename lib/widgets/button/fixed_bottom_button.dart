@@ -77,8 +77,8 @@ class _FixedBottomButtonState extends State<FixedBottomButton> {
                     widget.onButtonClicked();
                   },
                   width: MediaQuery.sizeOf(context).width,
-                  disabledBackgroundColor: CoconutColors.gray400,
-                  disabledForegroundColor: CoconutColors.gray600,
+                  disabledBackgroundColor: CoconutColors.gray150,
+                  disabledForegroundColor: CoconutColors.gray350,
                   isActive: widget.isActive,
                   height: widget.buttonHeight ?? 52,
                   backgroundColor: widget.backgroundColor,

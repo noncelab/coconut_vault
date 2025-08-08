@@ -328,6 +328,17 @@ class _SingleSigSetupInfoScreenState extends State<SingleSigSetupInfoScreen> {
                       _verifyBiometric(context, PinCheckContextEnum.sensitiveAction);
                     },
                   ),
+
+                  /// 패스프레이즈가 있는 경우에 한정해야 함. todo: 패스프레이즈 작업하면서 수정 필요
+                  const Divider(color: CoconutColors.borderLightGray, height: 1),
+                  InformationItemCard(
+                    label: t.verify_passphrase,
+                    showIcon: true,
+                    onPressed: () {
+                      _removeTooltip();
+                      Navigator.of(context).pushNamed(AppRoutes.verifyPassphrase);
+                    },
+                  ),
                 ],
               ),
             )));

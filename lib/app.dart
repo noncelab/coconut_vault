@@ -35,6 +35,7 @@ import 'package:coconut_vault/screens/vault_creation/vault_name_and_icon_setup_s
 import 'package:coconut_vault/screens/vault_menu/address_list_screen.dart';
 import 'package:coconut_vault/screens/vault_menu/info/multisig_bsms_screen.dart';
 import 'package:coconut_vault/screens/vault_menu/info/multisig_setup_info_screen.dart';
+import 'package:coconut_vault/screens/vault_menu/info/verify_passphrase_screen.dart';
 import 'package:coconut_vault/screens/vault_menu/multisig_signer_bsms_export_screen.dart';
 import 'package:coconut_vault/screens/vault_menu/sync_to_wallet/sync_to_wallet_screen.dart';
 import 'package:coconut_vault/screens/home/vault_menu_bottom_sheet.dart';
@@ -272,6 +273,7 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> {
             AppRoutes.prepareUpdate: (context) => const CustomLoadingOverlay(
                   child: AppUpdatePreparationScreen(),
                 ),
+            AppRoutes.verifyPassphrase: (context) => const VerifyPassphraseScreen(),
           },
         ),
       ),

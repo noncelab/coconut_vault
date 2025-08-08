@@ -63,29 +63,39 @@ class CustomDialogs {
 
   static void showLoadingDialog(
     BuildContext context,
+    String text,
   ) {
     showDialog(
       context: context,
-      barrierDismissible: false, // 다이얼로그 외부를 터치해도 닫히지 않게 설정
-      builder: (BuildContext context) {
-        return Dialog(
-          backgroundColor: Colors.transparent,
-          insetPadding: const EdgeInsets.all(10),
-          child: Container(
-            height: MediaQuery.of(context).size.height,
-            width: MediaQuery.of(context).size.width,
-            padding: const EdgeInsets.all(100),
-            child: Stack(
-              children: [
-                Positioned(
-                  top: 100,
-                  left: 0,
-                  right: 0,
-                  child: Lottie.asset(
-                    'assets/lottie/loading-coconut.json',
-                  ),
+      barrierDismissible: false,
+      builder: (_) {
+        return PopScope(
+          canPop: false,
+          child: Center(
+            child: Material(
+              color: Colors.transparent,
+              child: Container(
+                width: 180,
+                height: 180,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(25),
                 ),
-              ],
+                child: Column(
+                  children: [
+                    CoconutLayout.spacing_800h,
+                    SizedBox(
+                      width: 70,
+                      child: Lottie.asset(
+                        'assets/lottie/loading-gray.json',
+                        fit: BoxFit.contain,
+                      ),
+                    ),
+                    CoconutLayout.spacing_500h,
+                    Text(textAlign: TextAlign.center, text, style: CoconutTypography.body2_14),
+                  ],
+                ),
+              ),
             ),
           ),
         );

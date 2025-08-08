@@ -345,265 +345,269 @@ class _MnemonicWordsState extends State<MnemonicWords> {
       onPopInvokedWithResult: (didPop, _) {
         widget.onShowStopDialog();
       },
-      child: SingleChildScrollView(
-        child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0),
-            child: Column(
-              children: [
-                Padding(
-                  padding: const EdgeInsets.only(top: 20.0, bottom: 12),
-                  child: Selector<VisibilityProvider, bool>(
-                      selector: (context, model) => model.isPassphraseUseEnabled,
-                      builder: (context, isAdvancedUser, _) {
-                        return Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            HighLightedText(
-                                widget.wordsCount == 12
-                                    ? t.mnemonic_generate_screen.twelve
-                                    : t.mnemonic_generate_screen.twenty_four,
-                                color: CoconutColors.gray800),
-                            Text(isAdvancedUser ? ', ${t.passphrase} ' : ''),
-                            isAdvancedUser
-                                ? widget.usePassphrase
-                                    ? HighLightedText(t.mnemonic_generate_screen.use,
-                                        color: CoconutColors.gray800)
-                                    : Row(
-                                        children: [
-                                          Text('${t.mnemonic_generate_screen.use} '),
-                                          HighLightedText(t.mnemonic_generate_screen.do_not,
-                                              color: CoconutColors.gray800),
-                                        ],
-                                      )
-                                : Text(' ${t.mnemonic_generate_screen.use}'),
-                            GestureDetector(
-                                onTap: widget.onReset,
-                                child: Container(
-                                    margin: const EdgeInsets.only(left: 8),
-                                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                                    decoration: BoxDecoration(
-                                        borderRadius: BorderRadius.circular(8),
-                                        border: Border.all(color: CoconutColors.borderGray)),
-                                    child: Text(
-                                      t.re_select,
-                                      style: CoconutTypography.body3_12.setColor(
-                                        CoconutColors.gray800,
-                                      ),
-                                    )))
-                          ],
-                        );
-                      }),
-                ),
-                if (widget.usePassphrase)
+      child: GestureDetector(
+        onTap: () => FocusScope.of(context).unfocus(),
+        child: SingleChildScrollView(
+          child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              child: Column(
+                children: [
                   Padding(
-                    padding: const EdgeInsets.only(top: 20),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        NumberWidget(
-                            number: 1,
-                            assetPath: 'assets/svg/number/one.svg',
-                            selected: step == 0,
-                            onSelected: () {
-                              setState(() {
-                                step = 0;
-                              });
-                            }),
-                        const Text('•••'),
-                        NumberWidget(
-                            number: 2,
-                            assetPath: 'assets/svg/number/two.svg',
-                            selected: step == 1,
-                            onSelected: () {
-                              setState(() {
-                                step = 1;
-                              });
-                            }),
-                      ],
-                    ),
-                  ),
-                Container(
-                    margin: const EdgeInsets.symmetric(vertical: 12),
-                    width: MediaQuery.of(context).size.width,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(24),
-                      color: CoconutColors.white,
-                      boxShadow: [
-                        BoxShadow(
-                          color: CoconutColors.gray500.withOpacity(0.3),
-                          spreadRadius: 4,
-                          blurRadius: 30,
-                        ),
-                      ],
-                    ),
-                    child: step == 0
-                        ? Container(
-                            padding: const EdgeInsets.fromLTRB(0, 24, 0, 32),
-                            child: Column(
-                              children: [
-                                GestureDetector(
-                                    onTap: _generateMnemonicPhrase,
-                                    child: const Padding(
-                                      padding: EdgeInsets.fromLTRB(0, 0, 24, 0),
-                                      child: Row(children: [
-                                        Spacer(),
-                                        Icon(
-                                          Icons.refresh_rounded,
-                                          color: CoconutColors.borderGray,
+                    padding: const EdgeInsets.only(top: 20.0, bottom: 12),
+                    child: Selector<VisibilityProvider, bool>(
+                        selector: (context, model) => model.isPassphraseUseEnabled,
+                        builder: (context, isAdvancedUser, _) {
+                          return Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              HighLightedText(
+                                  widget.wordsCount == 12
+                                      ? t.mnemonic_generate_screen.twelve
+                                      : t.mnemonic_generate_screen.twenty_four,
+                                  color: CoconutColors.gray800),
+                              Text(isAdvancedUser ? ', ${t.passphrase} ' : ''),
+                              isAdvancedUser
+                                  ? widget.usePassphrase
+                                      ? HighLightedText(t.mnemonic_generate_screen.use,
+                                          color: CoconutColors.gray800)
+                                      : Row(
+                                          children: [
+                                            Text('${t.mnemonic_generate_screen.use} '),
+                                            HighLightedText(t.mnemonic_generate_screen.do_not,
+                                                color: CoconutColors.gray800),
+                                          ],
                                         )
-                                      ]),
-                                    )),
-                                //const SizedBox(height: 8),
-                                GridView.builder(
-                                  shrinkWrap: true,
-                                  physics: const NeverScrollableScrollPhysics(),
-                                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                                    crossAxisCount: 3, // Number of columns
-                                    childAspectRatio: MediaQuery.of(context).size.height > 640
-                                        ? 2.5
-                                        : 2, // Aspect ratio for grid items
-                                    crossAxisSpacing: 0, // Space between columns
-                                    mainAxisSpacing: 0, // Space between rows
-                                  ),
-                                  itemCount: mnemonic.split(' ').length,
-                                  itemBuilder: (BuildContext context, int index) {
-                                    if (index % 3 == 0) {
-                                      gridviewColumnFlag = !gridviewColumnFlag;
-                                    }
-
-                                    return Container(
-                                      alignment: Alignment.center,
-                                      child: Column(
-                                        mainAxisAlignment: MainAxisAlignment.center,
-                                        mainAxisSize: MainAxisSize.min,
-                                        children: [
-                                          Text(
-                                            (index + 1).toString(),
-                                            style: CoconutTypography.body3_12_Number.setColor(
-                                              CoconutColors.gray800,
-                                            ),
-                                          ),
-                                          Text(
-                                            mnemonic.split(' ')[index],
-                                            style: CoconutTypography.body1_16,
-                                            overflow: TextOverflow.visible,
-                                          ),
-                                        ],
-                                      ),
-                                    );
-                                  },
-                                ),
-                              ],
-                            ),
-                          )
-                        : Container(
-                            padding: const EdgeInsets.fromLTRB(24, 24, 24, 32),
-                            child: Column(
-                              children: [
-                                Padding(
-                                  padding: const EdgeInsets.only(top: 12),
-                                  child: SizedBox(
-                                    child: CustomTextField(
-                                      controller: _passphraseController,
-                                      placeholder: t.mnemonic_generate_screen.enter_passphrase,
-                                      onChanged: (text) {
-                                        setState(() {
-                                          passphrase = text;
-                                        });
-
-                                        if (!widget.usePassphrase) {
-                                          widget.onFinished(mnemonic, text, false);
-                                        }
-                                      },
-                                      maxLines: 1,
-                                      obscureText: passphraseObscured,
-                                      suffix: CupertinoButton(
-                                        onPressed: () {
-                                          setState(() {
-                                            passphraseObscured = !passphraseObscured;
-                                          });
-                                        },
-                                        child: passphraseObscured
-                                            ? const Icon(
-                                                CupertinoIcons.eye_slash,
-                                                color: CoconutColors.gray800,
-                                                size: 18,
-                                              )
-                                            : const Icon(
-                                                CupertinoIcons.eye,
-                                                color: CoconutColors.gray800,
-                                                size: 18,
-                                              ),
-                                      ),
-                                      maxLength: 100,
-                                    ),
-                                  ),
-                                ),
-                                Padding(
-                                  padding: const EdgeInsets.only(top: 4, right: 4),
-                                  child: Align(
-                                    alignment: Alignment.topRight,
-                                    child: Text(
-                                      '(${passphrase.length} / 100)',
-                                      style: CoconutTypography.body3_12.setColor(
-                                        passphrase.length == 100
-                                            ? CoconutColors.black.withOpacity(0.7)
-                                            : CoconutColors.black.withOpacity(0.5),
-                                      ),
-                                    ),
-                                  ),
-                                )
-                              ],
-                            ),
-                          )),
-                if (step == 0)
-                  Text(t.mnemonic_generate_screen.backup_guide,
-                      style: CoconutTypography.body3_12.setColor(CoconutColors.warningText)),
-                if (step == 0 && stepCount == 2)
-                  CompleteButton(
-                      onPressed: () {
-                        setState(() {
-                          step = 1;
-                        });
-                      },
-                      label: t.mnemonic_generate_screen.backup_complete,
-                      disabled: false),
-                if (step == 1)
-                  SizedBox(
-                    width: MediaQuery.of(context).size.width - 32,
-                    child: Text(
-                      t.mnemonic_generate_screen.warning,
-                      style: CoconutTypography.body3_12.setColor(CoconutColors.warningText),
-                      textAlign: TextAlign.center,
-                    ),
+                                  : Text(' ${t.mnemonic_generate_screen.use}'),
+                              GestureDetector(
+                                  onTap: widget.onReset,
+                                  child: Container(
+                                      margin: const EdgeInsets.only(left: 8),
+                                      padding:
+                                          const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                      decoration: BoxDecoration(
+                                          borderRadius: BorderRadius.circular(8),
+                                          border: Border.all(color: CoconutColors.borderGray)),
+                                      child: Text(
+                                        t.re_select,
+                                        style: CoconutTypography.body3_12.setColor(
+                                          CoconutColors.gray800,
+                                        ),
+                                      )))
+                            ],
+                          );
+                        }),
                   ),
-                if (!widget.usePassphrase)
-                  CompleteButton(
-                      onPressed: () {
-                        _walletCreationProvider.setSecretAndPassphrase(mnemonic, passphrase);
-                        widget.onFinished(mnemonic, passphrase, true);
+                  if (widget.usePassphrase)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 20),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          NumberWidget(
+                              number: 1,
+                              assetPath: 'assets/svg/number/one.svg',
+                              selected: step == 0,
+                              onSelected: () {
+                                setState(() {
+                                  step = 0;
+                                });
+                              }),
+                          const Text('•••'),
+                          NumberWidget(
+                              number: 2,
+                              assetPath: 'assets/svg/number/two.svg',
+                              selected: step == 1,
+                              onSelected: () {
+                                setState(() {
+                                  step = 1;
+                                });
+                              }),
+                        ],
+                      ),
+                    ),
+                  Container(
+                      margin: const EdgeInsets.symmetric(vertical: 12),
+                      width: MediaQuery.of(context).size.width,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(24),
+                        color: CoconutColors.white,
+                        boxShadow: [
+                          BoxShadow(
+                            color: CoconutColors.gray500.withOpacity(0.3),
+                            spreadRadius: 4,
+                            blurRadius: 30,
+                          ),
+                        ],
+                      ),
+                      child: step == 0
+                          ? Container(
+                              padding: const EdgeInsets.fromLTRB(0, 24, 0, 32),
+                              child: Column(
+                                children: [
+                                  GestureDetector(
+                                      onTap: _generateMnemonicPhrase,
+                                      child: const Padding(
+                                        padding: EdgeInsets.fromLTRB(0, 0, 24, 0),
+                                        child: Row(children: [
+                                          Spacer(),
+                                          Icon(
+                                            Icons.refresh_rounded,
+                                            color: CoconutColors.borderGray,
+                                          )
+                                        ]),
+                                      )),
+                                  //const SizedBox(height: 8),
+                                  GridView.builder(
+                                    shrinkWrap: true,
+                                    physics: const NeverScrollableScrollPhysics(),
+                                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                                      crossAxisCount: 3, // Number of columns
+                                      childAspectRatio: MediaQuery.of(context).size.height > 640
+                                          ? 2.5
+                                          : 2, // Aspect ratio for grid items
+                                      crossAxisSpacing: 0, // Space between columns
+                                      mainAxisSpacing: 0, // Space between rows
+                                    ),
+                                    itemCount: mnemonic.split(' ').length,
+                                    itemBuilder: (BuildContext context, int index) {
+                                      if (index % 3 == 0) {
+                                        gridviewColumnFlag = !gridviewColumnFlag;
+                                      }
 
-                        widget.onShowConfirmBottomSheet();
-                      },
-                      label: t.mnemonic_generate_screen.backup_complete,
-                      disabled: false),
-                if (widget.usePassphrase && step == 1)
-                  CompleteButton(
-                      onPressed: () {
-                        if (passphrase.isNotEmpty) {
+                                      return Container(
+                                        alignment: Alignment.center,
+                                        child: Column(
+                                          mainAxisAlignment: MainAxisAlignment.center,
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: [
+                                            Text(
+                                              (index + 1).toString(),
+                                              style: CoconutTypography.body3_12_Number.setColor(
+                                                CoconutColors.gray800,
+                                              ),
+                                            ),
+                                            Text(
+                                              mnemonic.split(' ')[index],
+                                              style: CoconutTypography.body1_16,
+                                              overflow: TextOverflow.visible,
+                                            ),
+                                          ],
+                                        ),
+                                      );
+                                    },
+                                  ),
+                                ],
+                              ),
+                            )
+                          : Container(
+                              padding: const EdgeInsets.fromLTRB(24, 24, 24, 32),
+                              child: Column(
+                                children: [
+                                  Padding(
+                                    padding: const EdgeInsets.only(top: 12),
+                                    child: SizedBox(
+                                      child: CustomTextField(
+                                        controller: _passphraseController,
+                                        placeholder: t.mnemonic_generate_screen.enter_passphrase,
+                                        onChanged: (text) {
+                                          setState(() {
+                                            passphrase = text;
+                                          });
+
+                                          if (!widget.usePassphrase) {
+                                            widget.onFinished(mnemonic, text, false);
+                                          }
+                                        },
+                                        maxLines: 1,
+                                        obscureText: passphraseObscured,
+                                        suffix: CupertinoButton(
+                                          onPressed: () {
+                                            setState(() {
+                                              passphraseObscured = !passphraseObscured;
+                                            });
+                                          },
+                                          child: passphraseObscured
+                                              ? const Icon(
+                                                  CupertinoIcons.eye_slash,
+                                                  color: CoconutColors.gray800,
+                                                  size: 18,
+                                                )
+                                              : const Icon(
+                                                  CupertinoIcons.eye,
+                                                  color: CoconutColors.gray800,
+                                                  size: 18,
+                                                ),
+                                        ),
+                                        maxLength: 100,
+                                      ),
+                                    ),
+                                  ),
+                                  Padding(
+                                    padding: const EdgeInsets.only(top: 4, right: 4),
+                                    child: Align(
+                                      alignment: Alignment.topRight,
+                                      child: Text(
+                                        '(${passphrase.length} / 100)',
+                                        style: CoconutTypography.body3_12.setColor(
+                                          passphrase.length == 100
+                                              ? CoconutColors.black.withOpacity(0.7)
+                                              : CoconutColors.black.withOpacity(0.5),
+                                        ),
+                                      ),
+                                    ),
+                                  )
+                                ],
+                              ),
+                            )),
+                  if (step == 0)
+                    Text(t.mnemonic_generate_screen.backup_guide,
+                        style: CoconutTypography.body3_12.setColor(CoconutColors.warningText)),
+                  if (step == 0 && stepCount == 2)
+                    CompleteButton(
+                        onPressed: () {
+                          setState(() {
+                            step = 1;
+                          });
+                        },
+                        label: t.mnemonic_generate_screen.backup_complete,
+                        disabled: false),
+                  if (step == 1)
+                    SizedBox(
+                      width: MediaQuery.of(context).size.width - 32,
+                      child: Text(
+                        t.mnemonic_generate_screen.warning,
+                        style: CoconutTypography.body3_12.setColor(CoconutColors.warningText),
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                  if (!widget.usePassphrase)
+                    CompleteButton(
+                        onPressed: () {
                           _walletCreationProvider.setSecretAndPassphrase(mnemonic, passphrase);
                           widget.onFinished(mnemonic, passphrase, true);
+
                           widget.onShowConfirmBottomSheet();
-                        } else {
-                          widget.onFinished(mnemonic, passphrase, false);
-                        }
-                      },
-                      label: t.complete,
-                      disabled: passphrase.isEmpty),
-                const SizedBox(height: 40),
-              ],
-            )),
+                        },
+                        label: t.mnemonic_generate_screen.backup_complete,
+                        disabled: false),
+                  if (widget.usePassphrase && step == 1)
+                    CompleteButton(
+                        onPressed: () {
+                          if (passphrase.isNotEmpty) {
+                            _walletCreationProvider.setSecretAndPassphrase(mnemonic, passphrase);
+                            widget.onFinished(mnemonic, passphrase, true);
+                            widget.onShowConfirmBottomSheet();
+                          } else {
+                            widget.onFinished(mnemonic, passphrase, false);
+                          }
+                        },
+                        label: t.complete,
+                        disabled: passphrase.isEmpty),
+                  const SizedBox(height: 40),
+                ],
+              )),
+        ),
       ),
     );
   }
