@@ -49,7 +49,6 @@ dependencies:
   shared_preferences: ^2.2.2
   fluttertoast: ^8.2.4
   qr_flutter: ^4.1.0
-  qr_code_scanner: ^1.0.0
   flutter_svg: ^2.0.10+1
   carousel_slider: ^5.0.0
   convert: ^3.1.1
@@ -81,6 +80,8 @@ dependencies:
   cbor: ^6.3.5
   ur:
     path: lib/packages/bc-ur-dart
+  qr_code_scanner:
+    path: lib/packages/qr-code-scanner
 
 dev_dependencies:
   flutter_oss_licenses: ^3.0.2
