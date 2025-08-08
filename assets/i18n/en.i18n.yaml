@@ -7,6 +7,9 @@
 coconut_vault: "Coconut Vault"
 vault: "Vault"
 btc: "BTC"
+sats: "sats"
+bitcoin_en: "Bitcoin"
+bitcoin_kr: "비트코인"
 hour: "hour"
 minute: "min"
 second: "sec"
@@ -179,6 +182,12 @@ signer_qr_bottom_sheet:
   text2_2: "Multisig"
   text2_3: " and scan the QR code below."
   text2_4: ""
+unit_bottom_sheet:
+  basic_unit: "Basic Unit"
+  header_text: "1 BTC = 100,000,000 sats"
+
+coconut_qr_scanner:
+  reading_extra_data: "Reading additional data to collect\nPlease keep scanning"
 
 # lib/screens/setting
 app_info_screen:
@@ -534,6 +543,7 @@ toast:
   multisig_already_added: "Already added multisig wallet. ($name)"
 
 errors:
+  invalid_qr: "Invalid QR code.\nPlease check again."
   invalid_single_sig_qr_error: "Invalid QR. Please try again."
   invalid_multisig_qr_error: "Invalid QR.\nPlease scan QR code from \"View Wallet Settings\" screen of multisig wallet to import."
   unsupport_bsms_version_error: "Unsupported BSMS version. Only BSMS 1.0 is supported."
