@@ -45,6 +45,18 @@ class _VerifyPassphraseScreenState extends State<VerifyPassphraseScreen>
 
   @override
   Widget build(BuildContext context) {
+    // 기본: 전체 높이 - SafeArea top, bottom - toolbarHeight. 결과 데이터가 보이고 키보드가 열려 있는 경우 추가 height 조절(스크롤 가능 하도록)
+    double appbarHeight = 56;
+    final scrollViewHeight = MediaQuery.of(context).size.height -
+        MediaQuery.of(context).padding.top -
+        MediaQuery.of(context).padding.bottom -
+        appbarHeight +
+        ((_isPassphraseVerified && _inputFocusNode.hasFocus)
+            ? FixedBottomButton.fixedBottomButtonDefaultHeight +
+                FixedBottomButton.fixedBottomButtonDefaultBottomPadding +
+                16
+            : 0);
+
     return PopScope(
       canPop: true,
       onPopInvokedWithResult: (didPop, _) {},
@@ -64,16 +76,19 @@ class _VerifyPassphraseScreenState extends State<VerifyPassphraseScreen>
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: CoconutLayout.defaultPadding),
                     child: SingleChildScrollView(
-                      child: Column(
-                        children: [
-                          CoconutLayout.spacing_600h,
-                          Text(t.verify_passphrase_screen.description,
-                              style: CoconutTypography.body1_16_Bold),
-                          CoconutLayout.spacing_600h,
-                          _buildPassphraseInput(),
-                          CoconutLayout.spacing_1000h,
-                          if (_isPassphraseVerified) _buildVerificationResultCard(),
-                        ],
+                      child: SizedBox(
+                        height: scrollViewHeight,
+                        child: Column(
+                          children: [
+                            CoconutLayout.spacing_600h,
+                            Text(t.verify_passphrase_screen.description,
+                                style: CoconutTypography.body1_16_Bold),
+                            CoconutLayout.spacing_600h,
+                            _buildPassphraseInput(),
+                            CoconutLayout.spacing_1000h,
+                            if (_isPassphraseVerified) _buildVerificationResultCard(),
+                          ],
+                        ),
                       ),
                     ),
                   ),
