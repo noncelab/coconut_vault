@@ -308,7 +308,7 @@ class WalletProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<Secret> getSecret(int id) async {
+  Future<String> getSecret(int id) async {
     return await _walletRepository.getSecret(id);
   }
 

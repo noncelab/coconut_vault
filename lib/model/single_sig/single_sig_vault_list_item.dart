@@ -11,45 +11,32 @@ part 'single_sig_vault_list_item.g.dart'; // 생성될 파일 이름 $ dart run 
 
 @JsonSerializable(ignoreUnannotated: true)
 class SingleSigVaultListItem extends VaultListItemBase {
-  static const String secretField = 'secret';
-  static const String passphraseField = 'passphrase';
-  static const String signerBsmsField = 'signerBsms';
+  static const String secretField = 'secret'; // TODO: delete
+  static const String passphraseField = 'passphrase'; // TODO: delete
 
   SingleSigVaultListItem({
     required super.id,
     required super.name,
     required super.colorIndex,
     required super.iconIndex,
-    required String secret,
-    required String passphrase,
-    this.signerBsms,
+    required this.descriptor,
+    required this.signerBsms,
     this.linkedMultisigInfo,
   }) : super(vaultType: WalletType.singleSignature) {
-    Seed seed = Seed.fromMnemonic(secret, passphrase: passphrase);
-
-    coconutVault = SingleSignatureVault.fromSeed(seed, addressType: AddressType.p2wpkh);
-    final singlesigVault = coconutVault as SingleSignatureVault;
-
-    /// 추후 속도 개선을 위한 로직 고려
-    signerBsms = singlesigVault.getSignerBsms(AddressType.p2wsh, name);
-    singlesigVault.keyStore.seed = null;
-
-    name = name.replaceAll('\n', ' ');
+    final descriptor = Descriptor.parse(this.descriptor);
+    final keyStore =
+        KeyStore.fromExtendedPublicKey(descriptor.getPublicKey(0), descriptor.getFingerprint(0));
+    coconutVault = SingleSignatureVault.fromKeyStore(keyStore);
   }
 
-  /// @Deprecated
-  @JsonKey(name: secretField)
-  String? secret;
+  @JsonKey()
+  String descriptor;
 
-  /// @Deprecated
-  @JsonKey(name: passphraseField)
-  String? passphrase;
+  @JsonKey()
+  String signerBsms;
 
   @JsonKey(name: "linkedMultisigInfo")
   Map<int, int>? linkedMultisigInfo;
-
-  @JsonKey(name: signerBsmsField)
-  String? signerBsms;
 
   @override
   Future<bool> canSign(String psbt) async {

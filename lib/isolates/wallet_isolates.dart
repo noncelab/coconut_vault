@@ -16,13 +16,22 @@ class WalletIsolates {
     List<SingleSigVaultListItem> vaultList = [];
 
     var wallet = SinglesigWallet.fromJson(data);
+    final keyStore = KeyStore.fromSeed(
+        Seed.fromMnemonic(wallet.mnemonic!, passphrase: wallet.passphrase ?? ''),
+        AddressType.p2wpkh);
+    final derivationPath = NetworkType.currentNetworkType.isTestnet ? "84'/1'/0'" : "84'/0'/0'";
+    final descriptor = Descriptor.forSingleSignature(AddressType.p2wpkh,
+        keyStore.extendedPublicKey.serialize(), derivationPath, keyStore.masterFingerprint);
+    final signerBsms =
+        SingleSignatureVault.fromKeyStore(keyStore).getSignerBsms(AddressType.p2wsh, wallet.name!);
     SingleSigVaultListItem newItem = SingleSigVaultListItem(
-        id: wallet.id!,
-        name: wallet.name!,
-        colorIndex: wallet.color!,
-        iconIndex: wallet.icon!,
-        secret: wallet.mnemonic!,
-        passphrase: wallet.passphrase!);
+      id: wallet.id!,
+      name: wallet.name!,
+      colorIndex: wallet.color!,
+      iconIndex: wallet.icon!,
+      descriptor: descriptor.serialize(),
+      signerBsms: signerBsms,
+    );
 
     vaultList.insert(0, newItem);
 
