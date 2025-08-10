@@ -10,7 +10,7 @@ import 'package:coconut_vault/model/multisig/multisig_signer.dart';
 import 'package:coconut_vault/model/multisig/multisig_vault_list_item.dart';
 import 'package:coconut_vault/model/multisig/multisig_wallet.dart';
 import 'package:coconut_vault/model/single_sig/single_sig_vault_list_item.dart';
-import 'package:coconut_vault/model/single_sig/single_sig_wallet.dart';
+import 'package:coconut_vault/model/single_sig/single_sig_wallet_create_dto.dart';
 import 'package:coconut_vault/model/exception/not_related_multisig_wallet_exception.dart';
 import 'package:coconut_vault/providers/visibility_provider.dart';
 import 'package:coconut_vault/utils/vibration_util.dart';
@@ -89,7 +89,7 @@ class WalletProvider extends ChangeNotifier {
     _animatedVaultFlags[0] = true;
   }
 
-  Future<void> addSingleSigVault(SinglesigWallet wallet) async {
+  Future<void> addSingleSigVault(SingleSigWalletCreateDto wallet) async {
     _setAddVaultCompleted(false);
 
     await _walletRepository.addSinglesigWallet(wallet);

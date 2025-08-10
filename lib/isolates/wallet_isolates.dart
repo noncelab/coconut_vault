@@ -7,7 +7,7 @@ import 'package:coconut_vault/model/single_sig/single_sig_vault_list_item.dart';
 import 'package:coconut_vault/model/common/vault_list_item_base.dart';
 import 'package:coconut_vault/enums/wallet_enums.dart';
 import 'package:coconut_vault/model/multisig/multisig_wallet.dart';
-import 'package:coconut_vault/model/single_sig/single_sig_wallet.dart';
+import 'package:coconut_vault/model/single_sig/single_sig_wallet_create_dto.dart';
 import 'package:coconut_vault/repository/shared_preferences_repository.dart';
 
 class WalletIsolates {
@@ -15,7 +15,7 @@ class WalletIsolates {
       Map<String, dynamic> data, void Function(dynamic)? progressCallback) async {
     List<SingleSigVaultListItem> vaultList = [];
 
-    var wallet = SinglesigWallet.fromJson(data);
+    var wallet = SingleSigWalletCreateDto.fromJson(data);
     final keyStore = KeyStore.fromSeed(
         Seed.fromMnemonic(wallet.mnemonic!, passphrase: wallet.passphrase ?? ''),
         AddressType.p2wpkh);

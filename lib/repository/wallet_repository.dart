@@ -11,7 +11,7 @@ import 'package:coconut_vault/model/common/vault_list_item_base.dart';
 import 'package:coconut_vault/enums/wallet_enums.dart';
 import 'package:coconut_vault/model/multisig/multisig_wallet.dart';
 import 'package:coconut_vault/model/common/secret.dart';
-import 'package:coconut_vault/model/single_sig/single_sig_wallet.dart';
+import 'package:coconut_vault/model/single_sig/single_sig_wallet_create_dto.dart';
 import 'package:coconut_vault/repository/secure_storage_repository.dart';
 import 'package:coconut_vault/repository/shared_preferences_repository.dart';
 import 'package:coconut_vault/utils/coconut/update_preparation.dart';
@@ -78,7 +78,7 @@ class WalletRepository {
     _vaultList = vaultList;
   }
 
-  Future<SingleSigVaultListItem> addSinglesigWallet(SinglesigWallet wallet) async {
+  Future<SingleSigVaultListItem> addSinglesigWallet(SingleSigWalletCreateDto wallet) async {
     if (_vaultList == null) {
       throw "[wallet_list_manager/addSinglesigWallet()] _vaultList is null. Load first.";
     }
