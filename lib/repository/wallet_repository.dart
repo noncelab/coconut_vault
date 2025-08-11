@@ -10,7 +10,6 @@ import 'package:coconut_vault/model/single_sig/single_sig_vault_list_item.dart';
 import 'package:coconut_vault/model/common/vault_list_item_base.dart';
 import 'package:coconut_vault/enums/wallet_enums.dart';
 import 'package:coconut_vault/model/multisig/multisig_wallet.dart';
-import 'package:coconut_vault/model/common/secret.dart';
 import 'package:coconut_vault/model/single_sig/single_sig_wallet_create_dto.dart';
 import 'package:coconut_vault/repository/secure_storage_repository.dart';
 import 'package:coconut_vault/repository/shared_preferences_repository.dart';
@@ -363,12 +362,10 @@ class WalletRepository {
       VaultListItemBase wallet = await initIsolateHandler.run(data);
       if (data['vaultType'] == WalletType.singleSignature.name) {
         String keyString = _createWalletKeyString(wallet.id, WalletType.singleSignature);
-        // TODO: FIX (rm-passphrase)
+        String passphraseKeyString = _createPassphraseEnabledKeyString(keyString);
+        _storageService.write(key: keyString, value: data['secret']);
         _storageService.write(
-            key: keyString,
-            value: jsonEncode(Secret(data[SingleSigVaultListItem.secretField],
-                    data[SingleSigVaultListItem.passphraseField] ?? '')
-                .toJson()));
+            key: passphraseKeyString, value: data['hasPassphrase'] ? "true" : "false");
       }
       vaultList.add(wallet);
     }

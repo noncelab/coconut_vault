@@ -347,15 +347,14 @@ class WalletProvider extends ChangeNotifier {
       final vaultData = vault.toJson();
 
       if (vault.vaultType == WalletType.singleSignature) {
-        final mnemonic = await getSecret(vault.id);
-        vaultData['secret'] = mnemonic;
+        vaultData['secret'] = await getSecret(vault.id);
+        vaultData['hasPassphrase'] = await hasPassphrase(vault.id);
       }
 
       backupData.add(vaultData);
     }
 
     final jsonData = jsonEncode(backupData);
-
     return jsonData;
   }
 

@@ -11,9 +11,6 @@ part 'single_sig_vault_list_item.g.dart'; // 생성될 파일 이름 $ dart run 
 
 @JsonSerializable(ignoreUnannotated: true)
 class SingleSigVaultListItem extends VaultListItemBase {
-  static const String secretField = 'secret'; // TODO: delete
-  static const String passphraseField = 'passphrase'; // TODO: delete
-
   SingleSigVaultListItem({
     required super.id,
     required super.name,
