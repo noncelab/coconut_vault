@@ -95,7 +95,8 @@ class WalletRepository {
     addVaultIsolateHandler.dispose();
 
     _linkNewSinglesigVaultAndMultisigVaults(vaultListResult.first);
-    await _saveSingleSigSecureData(nextId, wallet.mnemonic!, wallet.passphrase != null);
+    await _saveSingleSigSecureData(
+        nextId, wallet.mnemonic!, wallet.passphrase != null && wallet.passphrase!.isNotEmpty);
 
     _vaultList!.insert(0, vaultListResult[0]);
     try {
@@ -244,6 +245,12 @@ class WalletRepository {
 
     String passphraseEnabledKeyString = _createPassphraseEnabledKeyString(keyString);
     await _storageService.delete(key: passphraseEnabledKeyString);
+  }
+
+  Future<bool> hasPassphrase(int walletId) async {
+    String keyString = _createWalletKeyString(walletId, WalletType.singleSignature);
+    String passphraseEnabledKeyString = _createPassphraseEnabledKeyString(keyString);
+    return await _storageService.read(key: passphraseEnabledKeyString) == "true";
   }
 
   Future<bool> deleteWallet(int id) async {

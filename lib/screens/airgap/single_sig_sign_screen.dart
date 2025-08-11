@@ -9,6 +9,7 @@ import 'package:coconut_vault/providers/view_model/airgap/single_sig_sign_view_m
 import 'package:coconut_vault/providers/visibility_provider.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:coconut_vault/screens/common/pin_check_screen.dart';
+import 'package:coconut_vault/screens/vault_menu/info/passphrase_input_screen.dart';
 import 'package:coconut_vault/utils/alert_util.dart';
 import 'package:coconut_vault/utils/icon_util.dart';
 import 'package:coconut_vault/utils/text_utils.dart';
@@ -54,10 +55,35 @@ class _SingleSigSignScreenState extends State<SingleSigSignScreen> {
     });
   }
 
+  void _handlePassphraseInput({
+    required bool hasPassphrase,
+    required BuildContext context,
+    required VoidCallback onSuccess,
+  }) {
+    if (hasPassphrase) {
+      MyBottomSheet.showBottomSheet_50(
+        context: context,
+        child: PassphraseInputScreen(id: _viewModel.walletId),
+        handleSheetResult: (result) {
+          if (result is Map && result['success']) {
+            _viewModel.setPassphrase(result['passphrase']);
+            onSuccess();
+          }
+        },
+      );
+    } else {
+      onSuccess();
+    }
+  }
+
   Future<void> _signStep1() async {
     final authProvider = context.read<AuthProvider>();
     if (await authProvider.isBiometricsAuthValid()) {
-      _signStep2();
+      _handlePassphraseInput(
+        hasPassphrase: _viewModel.hasPassphrase,
+        context: context,
+        onSuccess: _signStep2,
+      );
       return;
     }
 
@@ -68,7 +94,11 @@ class _SingleSigSignScreenState extends State<SingleSigSignScreen> {
           pinCheckContext: PinCheckContextEnum.sensitiveAction,
           onComplete: () {
             Navigator.pop(context);
-            _signStep2();
+            _handlePassphraseInput(
+              hasPassphrase: _viewModel.hasPassphrase,
+              context: context,
+              onSuccess: _signStep2,
+            );
           },
         ),
       ),
@@ -232,19 +262,19 @@ class _SingleSigSignScreenState extends State<SingleSigSignScreen> {
                                   padding: EdgeInsets.only(
                                     left: 10,
                                     right: 10,
-                                    top: index == 0 ? 22 : 18,
-                                    bottom: index == 1 ? 22 : 18,
+                                    top: index == 0 ? 22 : 15,
+                                    bottom: index == 1 ? 22 : 15,
                                   ),
                                   child: Row(
                                     children: [
                                       Row(
                                         children: [
                                           Container(
-                                            padding: const EdgeInsets.all(10),
+                                            padding: const EdgeInsets.all(8),
                                             decoration: BoxDecoration(
                                               color: CoconutColors.backgroundColorPaletteLight[
                                                   viewModel.walletColorIndex],
-                                              borderRadius: BorderRadius.circular(16.0),
+                                              borderRadius: BorderRadius.circular(8.0),
                                             ),
                                             child: SvgPicture.asset(
                                               CustomIcons.getPathByIndex(viewModel.walletIconIndex),
@@ -253,7 +283,7 @@ class _SingleSigSignScreenState extends State<SingleSigSignScreen> {
                                                     .colorPalette[viewModel.walletColorIndex],
                                                 BlendMode.srcIn,
                                               ),
-                                              width: 20,
+                                              width: 14,
                                             ),
                                           ),
                                           const SizedBox(width: 8),

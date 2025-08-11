@@ -82,6 +82,7 @@ key_list: "키 목록"
 
 view_mnemonic: "니모닉 문구 보기"
 view_passphrase: "패스프레이즈 보기"
+verify_passphrase: "패스프레이즈 확인하기"
 view_app_info: "앱 정보 보기"
 view_all: "전체 보기"
 view_details_info: "상세 정보 보기"
@@ -422,6 +423,26 @@ vault_settings:
   of: "의 "
   nth: "$index 번"
   key: " 키"
+
+verify_passphrase_screen:
+  title: "패스프레이즈 확인"
+  description: "기억하고 계신 패스프레이즈를 입력해 주세요"
+  enter_passphrase: "패스프레이즈 입력"
+  start_verification: "검사 시작"
+  loading_description: "패스프레이즈가 정확한지\n확인 중이에요"
+  result_title_success: "패스프레이즈가 정확해요!"
+  result_description_success: "입력한 정보로 동일한 지갑 정보를 복원했어요."
+  mfp: "MFP"
+  xpub: "확장 공개키"
+  result_title_failure: "패스프레이즈가 달라요"
+  result_description_failure: "입력한 패스프레이즈로는 같은 지갑을 복원할 수 없어요."
+  saved_mfp: "저장된 MFP"
+  recovered_mfp: "복원된 MFP"
+
+passphrase_input_screen:
+  title: "패스프레이즈 입력"
+  enter_passphrase: "패스프레이즈를 입력해 주세요"
+  passphrase_error: "패스프레이즈를 다시 확인해 주세요"
 
 # 업데이트 준비
 prepare_update:

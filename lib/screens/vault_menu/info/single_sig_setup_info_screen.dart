@@ -41,11 +41,17 @@ class _SingleSigSetupInfoScreenState extends State<SingleSigSetupInfoScreen> {
 
   Timer? _tooltipTimer;
   int _tooltipRemainingTime = 0;
+  bool hasPassphrase = false;
+
+  Future<void> checkPassphraseStatus() async {
+    hasPassphrase = await context.read<WalletProvider>().hasPassphrase(widget.id);
+    setState(() {});
+  }
 
   @override
   void initState() {
     super.initState();
-
+    checkPassphraseStatus();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _tooltipIconRendBox = _tooltipIconKey.currentContext?.findRenderObject() as RenderBox;
       _tooltipIconPosition = _tooltipIconRendBox!.localToGlobal(Offset.zero);
@@ -328,6 +334,18 @@ class _SingleSigSetupInfoScreenState extends State<SingleSigSetupInfoScreen> {
                       _verifyBiometric(context, PinCheckContextEnum.sensitiveAction);
                     },
                   ),
+                  if (hasPassphrase) ...[
+                    const Divider(color: CoconutColors.borderLightGray, height: 1),
+                    InformationItemCard(
+                      label: t.verify_passphrase,
+                      showIcon: true,
+                      onPressed: () {
+                        _removeTooltip();
+                        Navigator.of(context)
+                            .pushNamed(AppRoutes.verifyPassphrase, arguments: {'id': widget.id});
+                      },
+                    ),
+                  ],
                 ],
               ),
             )));

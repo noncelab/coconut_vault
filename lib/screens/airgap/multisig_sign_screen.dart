@@ -10,11 +10,11 @@ import 'package:coconut_vault/providers/visibility_provider.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:coconut_vault/screens/common/pin_check_screen.dart';
 import 'package:coconut_vault/screens/airgap/multisig_signer_qr_bottom_sheet.dart';
+import 'package:coconut_vault/screens/vault_menu/info/passphrase_input_screen.dart';
 import 'package:coconut_vault/utils/alert_util.dart';
 import 'package:coconut_vault/utils/icon_util.dart';
 import 'package:coconut_vault/utils/text_utils.dart';
 import 'package:coconut_vault/widgets/bottom_sheet.dart';
-import 'package:coconut_vault/widgets/custom_dialog.dart';
 import 'package:coconut_vault/widgets/custom_loading_overlay.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -58,11 +58,38 @@ class _MultisigSignScreenState extends State<MultisigSignScreen> {
     });
   }
 
+  void _handlePassphraseInput({
+    required bool hasPassphrase,
+    required BuildContext context,
+    required VoidCallback onSuccess,
+    required int index,
+  }) {
+    if (hasPassphrase) {
+      MyBottomSheet.showBottomSheet_50(
+        context: context,
+        child: PassphraseInputScreen(id: _viewModel.getInnerVaultId(index)),
+        handleSheetResult: (result) {
+          if (result is Map && result['success']) {
+            _viewModel.setPassphrase(index, result['passphrase']);
+            onSuccess();
+          }
+        },
+      );
+    } else {
+      onSuccess();
+    }
+  }
+
   Future<void> _signStep1(bool isKeyInsideVault, int index) async {
     if (isKeyInsideVault) {
       final authProvider = context.read<AuthProvider>();
       if (await authProvider.isBiometricsAuthValid()) {
-        _signStep2(index);
+        _handlePassphraseInput(
+          index: index,
+          hasPassphrase: _viewModel.getHasPassphrase(index),
+          context: context,
+          onSuccess: () => _signStep2(index),
+        );
         return;
       }
 
@@ -73,7 +100,12 @@ class _MultisigSignScreenState extends State<MultisigSignScreen> {
             pinCheckContext: PinCheckContextEnum.sensitiveAction,
             onComplete: () {
               Navigator.pop(context);
-              _signStep2(index);
+              _handlePassphraseInput(
+                index: index,
+                hasPassphrase: _viewModel.getHasPassphrase(index),
+                context: context,
+                onSuccess: () => _signStep2(index),
+              );
             },
           ),
         ),
@@ -367,8 +399,8 @@ class _MultisigSignScreenState extends State<MultisigSignScreen> {
                                     padding: EdgeInsets.only(
                                       left: 10,
                                       right: 10,
-                                      top: index == 0 ? 22 : 18,
-                                      bottom: index == length ? 22 : 18,
+                                      top: index == 0 ? 22 : 15,
+                                      bottom: index == length ? 22 : 15,
                                     ),
                                     child: Row(
                                       children: [
@@ -380,13 +412,13 @@ class _MultisigSignScreenState extends State<MultisigSignScreen> {
                                         Row(
                                           children: [
                                             Container(
-                                              padding: EdgeInsets.all(isInnerWallet ? 10 : 12),
+                                              padding: const EdgeInsets.all(8),
                                               decoration: BoxDecoration(
                                                 color: isInnerWallet
                                                     ? CoconutColors
                                                         .backgroundColorPaletteLight[colorIndex]
                                                     : CoconutColors.gray200,
-                                                borderRadius: BorderRadius.circular(16.0),
+                                                borderRadius: BorderRadius.circular(8.0),
                                               ),
                                               child: SvgPicture.asset(
                                                 isInnerWallet
@@ -398,7 +430,7 @@ class _MultisigSignScreenState extends State<MultisigSignScreen> {
                                                       : CoconutColors.black,
                                                   BlendMode.srcIn,
                                                 ),
-                                                width: isInnerWallet ? 20 : 15,
+                                                width: 14,
                                               ),
                                             ),
                                             const SizedBox(width: 8),

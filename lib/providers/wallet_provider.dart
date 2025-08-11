@@ -3,7 +3,6 @@ import 'dart:convert';
 
 import 'package:coconut_lib/coconut_lib.dart';
 import 'package:coconut_vault/repository/wallet_repository.dart';
-import 'package:coconut_vault/model/common/secret.dart';
 import 'package:coconut_vault/model/common/vault_list_item_base.dart';
 import 'package:coconut_vault/model/multisig/multisig_import_detail.dart';
 import 'package:coconut_vault/model/multisig/multisig_signer.dart';
@@ -17,6 +16,31 @@ import 'package:coconut_vault/utils/vibration_util.dart';
 import 'package:coconut_vault/utils/logger.dart';
 import 'package:coconut_vault/enums/wallet_enums.dart';
 import 'package:flutter/foundation.dart';
+
+Future<Map<String, dynamic>> verifyPassphraseIsolate(Map<String, dynamic> args) async {
+  // 암호화 관련 처리를 사용하여 CPU 동기연산이 발생하므로 isolate로 처리
+  final mnemonic = args['mnemonic'] as String;
+  final passphrase = args['passphrase'] as String;
+  final valutListItem = args['valutListItem'] as VaultListItemBase;
+  if (valutListItem.vaultType == WalletType.multiSignature) return {"success": false};
+
+  final singleSigVaultListItem = valutListItem.coconutVault as SingleSignatureVault;
+  final keyStore = KeyStore.fromSeed(
+    Seed.fromMnemonic(mnemonic, passphrase: passphrase),
+    AddressType.p2wpkh,
+  );
+
+  final savedMfp = singleSigVaultListItem.keyStore.masterFingerprint;
+  final recoveredMfp = keyStore.masterFingerprint;
+  final extendedPublicKey = singleSigVaultListItem.keyStore.extendedPublicKey.serialize();
+  final success = savedMfp == recoveredMfp;
+  return {
+    "success": success,
+    "savedMfp": savedMfp,
+    "recoveredMfp": recoveredMfp,
+    "extendedPublicKey": extendedPublicKey
+  };
+}
 
 class WalletProvider extends ChangeNotifier {
   late final VisibilityProvider _visibilityProvider;
@@ -117,6 +141,10 @@ class WalletProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  Future<bool> hasPassphrase(int walletId) {
+    return _walletRepository.hasPassphrase(walletId);
+  }
+
   Future<void> importMultisigVault(MultisigImportDetail details, int walletId) async {
     _setAddVaultCompleted(false);
 
@@ -163,9 +191,9 @@ class WalletProvider extends ChangeNotifier {
         // 내부 지갑
         signers.add(MultisigSigner(
           id: i,
-          signerBsms: linkedWalletList[i]!.signerBsms!,
+          signerBsms: linkedWalletList[i]!.signerBsms,
           innerVaultId: linkedWalletList[i]!.id,
-          keyStore: KeyStore.fromSignerBsms(linkedWalletList[i]!.signerBsms!),
+          keyStore: KeyStore.fromSignerBsms(linkedWalletList[i]!.signerBsms),
           name: linkedWalletList[i]!.name,
           iconIndex: linkedWalletList[i]!.iconIndex,
           colorIndex: linkedWalletList[i]!.colorIndex,
@@ -319,9 +347,8 @@ class WalletProvider extends ChangeNotifier {
       final vaultData = vault.toJson();
 
       if (vault.vaultType == WalletType.singleSignature) {
-        final secret = await getSecret(vault.id);
-        vaultData['secret'] = secret.mnemonic;
-        vaultData['passphrase'] = secret.passphrase;
+        final mnemonic = await getSecret(vault.id);
+        vaultData['secret'] = mnemonic;
       }
 
       backupData.add(vaultData);

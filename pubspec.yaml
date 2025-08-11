@@ -198,6 +198,7 @@ flutter:
     - assets/svg/minus.svg
     - assets/svg/check.svg
     - assets/lottie/loading-coconut.json
+    - assets/lottie/loading-gray.json
     - assets/lottie/pin-locked-success.json
     - assets/png/pow-logo.png
     - assets/jpg/pow-full-logo.jpg
@@ -219,6 +220,8 @@ flutter:
     - assets/svg/text-field-clear.svg
     - assets/svg/copy.svg
     - assets/svg/wallet-plus.svg
+    - assets/svg/green-circle-check.svg
+    - assets/svg/triangle-warning.svg
 
   fonts:
     - family: SpaceGrotesk

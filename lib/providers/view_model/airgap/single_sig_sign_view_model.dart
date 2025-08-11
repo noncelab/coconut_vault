@@ -11,6 +11,8 @@ class SingleSigSignViewModel extends ChangeNotifier {
   late final SingleSignatureVault _coconutVault;
   late final bool _isAlreadySigned;
   late final List<bool> _signersApproved = List<bool>.filled(requiredSignatureCount, false);
+  bool _hasPassphrase = false;
+  String _passphrase = "";
 
   SingleSigSignViewModel(this._walletProvider, this._signProvider) {
     _coconutVault = (_signProvider.vaultListItem! as SingleSigVaultListItem).coconutVault
@@ -20,6 +22,12 @@ class SingleSigSignViewModel extends ChangeNotifier {
     if (_isAlreadySigned) {
       _signProvider.saveSignedPsbt(_signProvider.unsignedPsbtBase64!);
     }
+
+    _checkPassphraseStatus();
+  }
+
+  Future<void> _checkPassphraseStatus() async {
+    _hasPassphrase = await _walletProvider.hasPassphrase(_signProvider.walletId!);
   }
 
   bool get isAlreadySigned => _isAlreadySigned;
@@ -33,6 +41,8 @@ class SingleSigSignViewModel extends ChangeNotifier {
   int get recipientCount =>
       _signProvider.recipientAddress != null ? 1 : _signProvider.recipientAmounts!.length;
   int get sendingAmount => _signProvider.sendingAmount!;
+  bool get hasPassphrase => _hasPassphrase;
+  int get walletId => _signProvider.walletId!;
 
   bool _isSigned() {
     return _signProvider.psbt!.isSigned(_coconutVault.keyStore);
@@ -43,14 +53,17 @@ class SingleSigSignViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
+  void setPassphrase(String passphrase) {
+    _passphrase = passphrase;
+  }
+
   Future<void> sign() async {
     try {
-      var secret = await _walletProvider.getSecret(_signProvider.walletId!);
-      final seed = Seed.fromMnemonic(secret.mnemonic, passphrase: secret.passphrase);
+      final mnemonic = await _walletProvider.getSecret(_signProvider.walletId!);
+      final seed = Seed.fromMnemonic(mnemonic, passphrase: _passphrase);
       _coconutVault.keyStore.seed = seed;
 
       final signedTx = _coconutVault.addSignatureToPsbt(_signProvider.unsignedPsbtBase64!);
-
       _signProvider.saveSignedPsbt(signedTx);
     } finally {
       // unbind
