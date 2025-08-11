@@ -61,7 +61,7 @@ class _PinSettingScreenState extends State<PinSettingScreen> {
       vibrateMedium();
       return;
     }
-    vibrateMediumDouble();
+    vibrateLightDouble();
   }
 
   Future<bool> _comparePin(String input) async {
@@ -119,7 +119,7 @@ class _PinSettingScreenState extends State<PinSettingScreen> {
           errorMessage = t.errors.pin_incorrect_error;
           pinConfirm = '';
           _shuffledPinNumbers = _authProvider.getShuffledNumberList(isPinSettingContext: true);
-          vibrateMediumDouble();
+          vibrateLightDouble();
           return;
         }
 

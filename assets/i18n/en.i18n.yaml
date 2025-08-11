@@ -269,7 +269,7 @@ mnemonic_coin_flip_screen:
   coin_head: "Front"
   coin_tail: "Back"
 mnemonic_confirm_screen:
-  title: "Please verify that\nthe entered info is correct"
+  title: "Final Check"
   passphrase_character_total_count: " (Total $count chars)"
   warning:
     contains_space_character: "⚠︎ Contains space characters"
@@ -299,6 +299,10 @@ mnemonic_import_screen:
   enter_passphrase: "Enter passphrase"
   need_advanced_mode: "⚠︎ To use passphrase, go to Settings and turn on 'Use Passphrase'"
   open_settings: "Open Settings"
+mnemonic_verify_screen:
+  title: "Verify Mnemonic"
+  select_word: "Select ${index}th word"
+  not_correct: "Not correct"
 select_vault_type_screen:
   title: "Create Wallet"
   single_sig: "Single signature wallet storing one mnemonic phrase"

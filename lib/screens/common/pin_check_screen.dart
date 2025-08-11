@@ -194,7 +194,7 @@ class _PinCheckScreenState extends State<PinCheckScreen> with WidgetsBindingObse
 
       if (_authProvider.remainingAttemptCount > 0 &&
           _authProvider.remainingAttemptCount < kMaxAttemptPerTurn) {
-        vibrateMediumDouble();
+        vibrateLightDouble();
         setState(() {
           final remainingTimes = _authProvider.remainingAttemptCount;
           _errorMessage = _isLastChanceToTry
@@ -217,7 +217,7 @@ class _PinCheckScreenState extends State<PinCheckScreen> with WidgetsBindingObse
         if (nextUnlockTime != null) _startCountdownTimerUntil(nextUnlockTime);
       }
     } else {
-      vibrateMediumDouble();
+      vibrateLightDouble();
       setState(() {
         _errorMessage = t.errors.pin_incorrect_error;
       });

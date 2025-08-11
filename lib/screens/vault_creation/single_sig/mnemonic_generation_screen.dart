@@ -1,15 +1,12 @@
 import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_lib/coconut_lib.dart';
+import 'package:coconut_vault/constants/app_routes.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/providers/visibility_provider.dart';
 import 'package:coconut_vault/providers/wallet_creation_provider.dart';
-import 'package:coconut_vault/screens/vault_creation/vault_name_and_icon_setup_screen.dart';
 import 'package:coconut_vault/widgets/button/fixed_bottom_button.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:coconut_vault/screens/vault_creation/single_sig/mnemonic_confirmation_bottom_sheet.dart';
-import 'package:coconut_vault/utils/vibration_util.dart';
-import 'package:coconut_vault/widgets/bottom_sheet.dart';
 import 'package:coconut_vault/widgets/button/custom_buttons.dart';
 import 'package:coconut_vault/widgets/check_list.dart';
 import 'package:flutter_svg/svg.dart';
@@ -96,30 +93,34 @@ class _MnemonicGenerationScreenState extends State<MnemonicGenerationScreen> {
         });
   }
 
-  void _showConfirmBottomSheet() {
-    MyBottomSheet.showBottomSheet_90(
-      context: context,
-      child: MnemonicConfirmationBottomSheet(
-        onCancelPressed: () => Navigator.pop(context),
-        onConfirmPressed: () {
-          Provider.of<WalletCreationProvider>(context, listen: false)
-              .setSecretAndPassphrase(_mnemonicWords, _passphrase);
-          Navigator.pushReplacement(context,
-              MaterialPageRoute(builder: (context) => const VaultNameAndIconSetupScreen()));
-        },
-        onInactivePressed: () {
-          CoconutToast.showToast(
-            context: context,
-            text: t.toast.scroll_down,
-            isVisibleIcon: true,
-          );
-          vibrateMediumDouble();
-        },
-        mnemonic: _mnemonicWords,
-        passphrase: _usePassphrase ? _passphrase : null,
-      ),
-    );
+  void _onNavigateToNext() {
+    Navigator.pushNamed(context, AppRoutes.mnemonicVerify);
   }
+
+  // void _showConfirmBottomSheet() {
+  //   MyBottomSheet.showBottomSheet_90(
+  //     context: context,
+  //     child: MnemonicConfirmationBottomSheet(
+  //       onCancelPressed: () => Navigator.pop(context),
+  //       onConfirmPressed: () {
+  //         Provider.of<WalletCreationProvider>(context, listen: false)
+  //             .setSecretAndPassphrase(_mnemonicWords, _passphrase);
+  //         Navigator.pushReplacement(context,
+  //             MaterialPageRoute(builder: (context) => const VaultNameAndIconSetupScreen()));
+  //       },
+  //       onInactivePressed: () {
+  //         CoconutToast.showToast(
+  //           context: context,
+  //           text: t.toast.scroll_down,
+  //           isVisibleIcon: true,
+  //         );
+  //         vibrateMediumDouble();
+  //       },
+  //       mnemonic: _mnemonicWords,
+  //       passphrase: _usePassphrase ? _passphrase : null,
+  //     ),
+  //   );
+  // }
 
   @override
   void initState() {
@@ -139,7 +140,7 @@ class _MnemonicGenerationScreenState extends State<MnemonicGenerationScreen> {
         usePassphrase: _usePassphrase,
         onReset: _onReset,
         onFinished: _onFinished,
-        onShowConfirmBottomSheet: _showConfirmBottomSheet,
+        onNavigateToNext: _onNavigateToNext,
       ),
     ];
 
@@ -287,7 +288,7 @@ class MnemonicWords extends StatefulWidget {
   final bool usePassphrase;
   final Function() onReset;
   final Function(String, String, bool) onFinished;
-  final VoidCallback onShowConfirmBottomSheet;
+  final VoidCallback onNavigateToNext;
 
   const MnemonicWords({
     super.key,
@@ -295,7 +296,7 @@ class MnemonicWords extends StatefulWidget {
     required this.usePassphrase,
     required this.onReset,
     required this.onFinished,
-    required this.onShowConfirmBottomSheet,
+    required this.onNavigateToNext,
   });
 
   @override
@@ -317,6 +318,7 @@ class _MnemonicWordsState extends State<MnemonicWords> {
   bool passphraseObscured = false;
   bool isValid = true;
   bool isPassphraseConfirmVisible = false;
+  bool hasScrolledToBottom = false; // 니모닉 리스트를 끝까지 확인했는지 추적
   String errorMessage = '';
 
   final List<ChecklistItem> checklistItem = [
@@ -328,6 +330,7 @@ class _MnemonicWordsState extends State<MnemonicWords> {
 
     setState(() {
       mnemonic = randomSeed.mnemonic;
+      hasScrolledToBottom = mnemonic.split(' ').length == 12;
     });
   }
 
@@ -363,6 +366,23 @@ class _MnemonicWordsState extends State<MnemonicWords> {
     _walletCreationProvider = Provider.of<WalletCreationProvider>(context, listen: false);
     stepCount = widget.usePassphrase ? 2 : 1;
     _generateMnemonicPhrase();
+
+    // 스크롤 리스너 추가
+    _scrollController.addListener(() {
+      if (_scrollController.hasClients) {
+        final maxScroll = _scrollController.position.maxScrollExtent;
+        final currentScroll = _scrollController.position.pixels;
+
+        // 스크롤이 끝에 가까워지면 확인 완료로 표시
+        if (currentScroll >= maxScroll - 50) {
+          if (!hasScrolledToBottom) {
+            setState(() {
+              hasScrolledToBottom = true;
+            });
+          }
+        }
+      }
+    });
     _passphraseController.addListener(() {
       if (_passphraseConfirmController.text.isNotEmpty) {
         setState(() {
@@ -448,18 +468,39 @@ class _MnemonicWordsState extends State<MnemonicWords> {
             backgroundColor: CoconutColors.black,
             onButtonClicked: () {
               if (step == 0 && stepCount == 2) {
-                setState(() {
-                  step = 1;
-                });
+                if (hasScrolledToBottom) {
+                  // 니모닉 리스트를 끝까지 확인했다면 다음 단계로
+                  setState(() {
+                    step = 1;
+                  });
+                } else {
+                  // 아직 끝까지 확인하지 않았다면 스크롤을 하단으로 이동
+                  _scrollController.animateTo(
+                    _scrollController.position.maxScrollExtent,
+                    duration: const Duration(milliseconds: 500),
+                    curve: Curves.easeInOut,
+                  );
+                }
               }
               if (!widget.usePassphrase) {
+                if (!hasScrolledToBottom) {
+                  _scrollController.animateTo(
+                    _scrollController.position.maxScrollExtent,
+                    duration: const Duration(milliseconds: 500),
+                    curve: Curves.easeInOut,
+                  );
+                  return;
+                }
                 _walletCreationProvider.setSecretAndPassphrase(mnemonic, passphrase);
                 widget.onFinished(mnemonic, passphrase, true);
-                widget.onShowConfirmBottomSheet();
+                _passphraseFocusNode.unfocus();
+                _passphraseConfirmFocusNode.unfocus();
+                widget.onNavigateToNext();
               }
               if (widget.usePassphrase && step == 1) {
                 if (!isPassphraseConfirmVisible && _passphraseController.text.isNotEmpty) {
-                  FocusScope.of(context).unfocus();
+                  _passphraseFocusNode.unfocus();
+                  _passphraseConfirmFocusNode.unfocus();
                   setState(() {
                     passphrase = _passphraseController.text;
                     isPassphraseConfirmVisible = true;
@@ -469,7 +510,9 @@ class _MnemonicWordsState extends State<MnemonicWords> {
                     passphrase == passphraseConfirm) {
                   _walletCreationProvider.setSecretAndPassphrase(mnemonic, passphrase);
                   widget.onFinished(mnemonic, passphrase, true);
-                  widget.onShowConfirmBottomSheet();
+                  _passphraseFocusNode.unfocus();
+                  _passphraseConfirmFocusNode.unfocus();
+                  widget.onNavigateToNext();
                 } else {
                   widget.onFinished(mnemonic, passphrase, false);
                 }

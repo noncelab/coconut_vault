@@ -6,7 +6,7 @@ import 'package:coconut_vault/providers/wallet_creation_provider.dart';
 import 'package:coconut_vault/screens/vault_creation/vault_name_and_icon_setup_screen.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:coconut_vault/screens/vault_creation/single_sig/mnemonic_confirmation_bottom_sheet.dart';
+import 'package:coconut_vault/screens/vault_creation/single_sig/mnemonic_confirmation_screen.dart';
 import 'package:coconut_vault/screens/vault_creation/single_sig/mnemonic_generation_screen.dart';
 import 'package:coconut_vault/widgets/bottom_sheet.dart';
 import 'package:coconut_vault/widgets/button/custom_buttons.dart';
@@ -651,24 +651,23 @@ class _FlipCoinState extends State<FlipCoin> {
   }
 
   void _showConfirmBottomSheet(String message) {
-    MyBottomSheet.showBottomSheet_90(
-      context: context,
-      child: MnemonicConfirmationBottomSheet(
-        onCancelPressed: () => Navigator.pop(context),
-        onConfirmPressed: () {
-          Provider.of<WalletCreationProvider>(context, listen: false)
-              .setSecretAndPassphrase(_mnemonic, passphrase);
-          Navigator.pushReplacement(context,
-              MaterialPageRoute(builder: (context) => const VaultNameAndIconSetupScreen()));
-        },
-        onInactivePressed: () {
-          CoconutToast.showToast(context: context, text: t.toast.scroll_down, isVisibleIcon: true);
-        },
-        mnemonic: _mnemonic,
-        passphrase: widget.usePassphrase ? passphrase : null,
-        topMessage: message,
-      ),
-    );
+    MyBottomSheet.showBottomSheet_90(context: context, child: Container()
+        // child: MnemonicConfirmationScreen(
+        //   onCancelPressed: () => Navigator.pop(context),
+        //   onConfirmPressed: () {
+        //     Provider.of<WalletCreationProvider>(context, listen: false)
+        //         .setSecretAndPassphrase(_mnemonic, passphrase);
+        //     Navigator.pushReplacement(context,
+        //         MaterialPageRoute(builder: (context) => const VaultNameAndIconSetupScreen()));
+        //   },
+        //   onInactivePressed: () {
+        //     CoconutToast.showToast(context: context, text: t.toast.scroll_down, isVisibleIcon: true);
+        //   },
+        //   mnemonic: _mnemonic,
+        //   passphrase: widget.usePassphrase ? passphrase : null,
+        //   topMessage: message,
+        // ),
+        );
   }
 }
 

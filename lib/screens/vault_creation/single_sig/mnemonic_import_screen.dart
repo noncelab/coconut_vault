@@ -8,7 +8,7 @@ import 'package:coconut_vault/screens/vault_creation/vault_name_and_icon_setup_s
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
-import 'package:coconut_vault/screens/vault_creation/single_sig/mnemonic_confirmation_bottom_sheet.dart';
+import 'package:coconut_vault/screens/vault_creation/single_sig/mnemonic_confirmation_screen.dart';
 import 'package:coconut_vault/utils/vibration_util.dart';
 import 'package:coconut_vault/utils/wallet_utils.dart';
 import 'package:coconut_vault/widgets/bottom_sheet.dart';
@@ -235,22 +235,22 @@ class _MnemonicImportState extends State<MnemonicImport> {
     }
 
     MyBottomSheet.showBottomSheet_90(
-      context: context,
-      child: MnemonicConfirmationBottomSheet(
-        onCancelPressed: () => Navigator.pop(context),
-        onConfirmPressed: () {
-          _walletCreationProvider.setSecretAndPassphrase(secret, passphrase);
-          Navigator.pushReplacement(context,
-              MaterialPageRoute(builder: (context) => const VaultNameAndIconSetupScreen()));
-        },
-        onInactivePressed: () {
-          CoconutToast.showToast(context: context, text: t.toast.scroll_down, isVisibleIcon: true);
-          vibrateMediumDouble();
-        },
-        mnemonic: secret,
-        passphrase: _usePassphrase ? _passphrase : null,
-      ),
-    );
+        context: context,
+        // child: MnemonicConfirmationScreen(
+        //   onCancelPressed: () => Navigator.pop(context),
+        //   onConfirmPressed: () {
+        //     _walletCreationProvider.setSecretAndPassphrase(secret, passphrase);
+        //     Navigator.pushReplacement(context,
+        //         MaterialPageRoute(builder: (context) => const VaultNameAndIconSetupScreen()));
+        //   },
+        //   onInactivePressed: () {
+        //     CoconutToast.showToast(context: context, text: t.toast.scroll_down, isVisibleIcon: true);
+        //     vibrateLightDouble();
+        //   },
+        //   mnemonic: secret,
+        //   passphrase: _usePassphrase ? _passphrase : null,
+        // ),
+        child: Container());
   }
 
   Widget _buildMnemonicTextField() {

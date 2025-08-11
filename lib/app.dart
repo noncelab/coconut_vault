@@ -17,6 +17,8 @@ import 'package:coconut_vault/screens/app_update/restoration_info_screen.dart';
 import 'package:coconut_vault/screens/app_update/vault_list_restoration_screen.dart';
 import 'package:coconut_vault/screens/home/vault_list_screen.dart';
 import 'package:coconut_vault/screens/app_update/app_update_preparation_screen.dart';
+import 'package:coconut_vault/screens/vault_creation/single_sig/mnemonic_confirmation_screen.dart';
+import 'package:coconut_vault/screens/vault_creation/single_sig/mnemonic_verify_screen.dart';
 import 'package:coconut_vault/screens/vault_creation/single_sig/security_self_check_screen.dart';
 import 'package:coconut_vault/screens/settings/app_info_screen.dart';
 import 'package:coconut_vault/screens/settings/mnemonic_word_list_screen.dart';
@@ -207,7 +209,9 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> {
             AppRoutes.multisigQuorumSelection: (context) => const MultisigQuorumSelectionScreen(),
             AppRoutes.signerAssignment: (context) => const SignerAssignmentScreen(),
             AppRoutes.vaultCreationOptions: (context) => const VaultCreationOptions(),
+            AppRoutes.mnemonicVerify: (context) => const MnemonicVerifyScreen(),
             AppRoutes.mnemonicImport: (context) => const MnemonicImport(),
+            AppRoutes.mnemonicConfirmation: (context) => const MnemonicConfirmationScreen(),
             AppRoutes.vaultNameSetup: (context) => const VaultNameAndIconSetupScreen(),
             AppRoutes.vaultDetails: (context) => buildScreenWithArguments(
                   context,
