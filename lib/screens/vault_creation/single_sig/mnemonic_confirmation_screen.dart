@@ -33,7 +33,7 @@ class _MnemonicConfirmationScreenState extends State<MnemonicConfirmationScreen>
   }
 
   NextButtonState _getNextButtonState() {
-    if (_walletCreationProvider.passphrase == null) {
+    if (_walletCreationProvider.passphrase?.isEmpty ?? true) {
       // 패스프레이즈 사용 안함 - 항상 '완료' 버튼
       return NextButtonState.completeActive;
     }
@@ -89,7 +89,7 @@ class _MnemonicConfirmationScreenState extends State<MnemonicConfirmationScreen>
                 text: _getNextButtonState().text,
                 backgroundColor: CoconutColors.black,
                 onButtonClicked: () {
-                  if (step == 0 && _walletCreationProvider.passphrase != null) {
+                  if (step == 0 && (_walletCreationProvider.passphrase?.isNotEmpty ?? false)) {
                     setState(() {
                       // 패스프레이즈 확인 단계로 이동
                       step = 1;
@@ -113,7 +113,7 @@ class _MnemonicConfirmationScreenState extends State<MnemonicConfirmationScreen>
       maintainAnimation: true,
       maintainSize: true,
       maintainInteractivity: true,
-      visible: _walletCreationProvider.passphrase != null,
+      visible: _walletCreationProvider.passphrase?.isNotEmpty ?? false,
       child: Container(
         padding: const EdgeInsets.only(
           top: 10,

@@ -779,11 +779,13 @@ class _NumberWidgetState extends State<NumberWidget> {
   Widget build(BuildContext context) {
     Color bgColor = CoconutColors.gray800;
     Color iconColor = CoconutColors.white;
-
+    bool isFirst = widget.number == 1;
     return GestureDetector(
       onTap: widget.onSelected,
-      child: Padding(
-        padding: const EdgeInsets.all(8.0),
+      behavior: HitTestBehavior.opaque,
+      child: Container(
+        padding:
+            EdgeInsets.only(left: isFirst ? 8 : 16, right: isFirst ? 16 : 8, top: 8, bottom: 8),
         child: Container(
           decoration: BoxDecoration(
             color: widget.selected ? bgColor : CoconutColors.gray400,
@@ -791,12 +793,14 @@ class _NumberWidgetState extends State<NumberWidget> {
             shape: BoxShape.circle,
           ),
           width: widget.selected ? 28 : 12,
-          padding: EdgeInsets.all(widget.selected ? 8 : 6),
           child: widget.selected
               ? Center(
-                  child: Text(
-                    widget.number.toString(),
-                    style: CoconutTypography.body3_12_Number.setColor(iconColor),
+                  child: Padding(
+                    padding: EdgeInsets.all(widget.selected ? 8 : 6),
+                    child: Text(
+                      widget.number.toString(),
+                      style: CoconutTypography.body3_12_Number.setColor(iconColor),
+                    ),
                   ),
                 )
               : Container(),

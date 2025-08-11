@@ -1,5 +1,6 @@
 import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_lib/coconut_lib.dart';
+import 'package:coconut_vault/constants/app_routes.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/providers/visibility_provider.dart';
 import 'package:coconut_vault/providers/wallet_creation_provider.dart';
@@ -233,24 +234,8 @@ class _MnemonicImportState extends State<MnemonicImport> {
           context: context, text: t.toast.mnemonic_already_added, isVisibleIcon: true);
       return;
     }
-
-    MyBottomSheet.showBottomSheet_90(
-        context: context,
-        // child: MnemonicConfirmationScreen(
-        //   onCancelPressed: () => Navigator.pop(context),
-        //   onConfirmPressed: () {
-        //     _walletCreationProvider.setSecretAndPassphrase(secret, passphrase);
-        //     Navigator.pushReplacement(context,
-        //         MaterialPageRoute(builder: (context) => const VaultNameAndIconSetupScreen()));
-        //   },
-        //   onInactivePressed: () {
-        //     CoconutToast.showToast(context: context, text: t.toast.scroll_down, isVisibleIcon: true);
-        //     vibrateLightDouble();
-        //   },
-        //   mnemonic: secret,
-        //   passphrase: _usePassphrase ? _passphrase : null,
-        // ),
-        child: Container());
+    _walletCreationProvider.setSecretAndPassphrase(secret, passphrase);
+    Navigator.pushNamed(context, AppRoutes.mnemonicConfirmation);
   }
 
   Widget _buildMnemonicTextField() {
