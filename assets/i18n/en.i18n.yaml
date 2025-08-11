@@ -286,6 +286,8 @@ mnemonic_generate_screen:
   use: "Use"
   do_not: "Don't"
   enter_passphrase: "Enter passphrase"
+  memorable_passphrase_guide: "A passphrase you'll never forget"
+  passphrase_confirm_guide: "Confirm passphrase"
   backup_guide: "Please backup mnemonic in a safe place"
   backup_complete: "Backup Complete"
   warning: "Please be careful with storage and leakage of entered passphrase"
@@ -524,10 +526,12 @@ alert:
     description: "Really stop mnemonic creation?"
   stop_generating_mnemonic:
     title: "Stop Generating Mnemonic"
-    description: "Really stop mnemonic generation?"
+    description: "Really stop mnemonic generation?\nTap [Confirm] to stop, or tap [Select Again] to choose the options again."
+    reselect: "Select Again"
+    confirm: "Confirm"
   stop_importing_mnemonic:
     title: "Stop Restoring"
-    description: "Really stop restoring?"
+    description: "Really stop restoring?\nTap [Confirm] to stop, or tap [Cancel] to continue."
   erase_all_entered_so_far: "Really delete all info\nentered so far?"
 
 toast:

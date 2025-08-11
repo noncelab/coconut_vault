@@ -287,6 +287,8 @@ mnemonic_generate_screen:
   use: "사용"
   do_not: "안함"
   enter_passphrase: "패스프레이즈를 입력해 주세요"
+  memorable_passphrase_guide: "무슨 일이 있어도 기억할 수 있는 패스프레이즈"
+  passphrase_confirm_guide: "패스프레이즈 확인"
   backup_guide: "안전한 장소에서 니모닉 문구를 백업해 주세요"
   backup_complete: "백업 완료"
   warning: "입력하신 패스프레이즈는 보관과 유출에 유의해 주세요"
@@ -525,10 +527,12 @@ alert:
     description: "정말 니모닉 만들기를 그만하시겠어요?"
   stop_generating_mnemonic:
     title: "니모닉 생성 중단"
-    description: "정말 니모닉 생성을 그만하시겠어요?"
+    description: "니모닉 생성을 그만두시겠어요?\n중단하시려면 [확인]을\n옵션을 다시 선택하시려면\n[다시 선택]을 눌러주세요."
+    reselect: "다시 선택"
+    confirm: "확인"
   stop_importing_mnemonic:
     title: "복원 중단"
-    description: "정말 복원하기를 그만하시겠어요?"
+    description: "복원을 그만두시겠어요?\n중단하시려면 [확인]을\n복원을 계속하시려면\n[취소]를 눌러주세요."
   erase_all_entered_so_far: "정말로 지금까지 입력한 정보를\n모두 지우시겠어요?"
 
 toast:

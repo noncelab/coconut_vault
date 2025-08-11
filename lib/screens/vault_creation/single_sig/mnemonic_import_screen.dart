@@ -12,7 +12,6 @@ import 'package:coconut_vault/screens/vault_creation/single_sig/mnemonic_confirm
 import 'package:coconut_vault/utils/vibration_util.dart';
 import 'package:coconut_vault/utils/wallet_utils.dart';
 import 'package:coconut_vault/widgets/bottom_sheet.dart';
-import 'package:coconut_vault/widgets/custom_dialog.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
@@ -114,20 +113,6 @@ class _MnemonicImportState extends State<MnemonicImport> {
   }
 
   void _showStopImportingMnemonicDialog() {
-    // CustomDialogs.showCustomAlertDialog(
-    //   context,
-    //   title: t.alert.stop_importing_mnemonic.title,
-    //   message: t.alert.stop_importing_mnemonic.description,
-    //   cancelButtonText: t.cancel,
-    //   confirmButtonText: t.stop,
-    //   confirmButtonColor: CoconutColors.warningText,
-    //   onCancel: () => Navigator.pop(context),
-    //   onConfirm: () {
-    //     Navigator.pop(context);
-    //     Navigator.pushNamedAndRemoveUntil(context, '/', (Route<dynamic> route) => false);
-    //   },
-    // );
-
     showDialog(
         context: context,
         builder: (BuildContext context) {
@@ -141,13 +126,13 @@ class _MnemonicImportState extends State<MnemonicImport> {
             backgroundColor: CoconutColors.white,
             leftButtonText: t.cancel,
             leftButtonTextStyle: CoconutTypography.body2_14.merge(
-              TextStyle(
-                color: CoconutColors.black.withOpacity(0.7),
+              const TextStyle(
+                color: CoconutColors.gray900,
                 fontWeight: FontWeight.w500,
               ),
             ),
-            rightButtonText: t.stop,
-            rightButtonColor: CoconutColors.warningText,
+            rightButtonText: t.confirm,
+            rightButtonColor: CoconutColors.gray900,
             rightButtonTextStyle: CoconutTypography.body2_14.merge(
               const TextStyle(
                 fontWeight: FontWeight.w500,
@@ -156,7 +141,7 @@ class _MnemonicImportState extends State<MnemonicImport> {
             onTapLeft: () => Navigator.pop(context),
             onTapRight: () {
               Navigator.pop(context);
-              Navigator.pushNamedAndRemoveUntil(context, '/', (Route<dynamic> route) => false);
+              Navigator.pop(context);
             },
           );
         });

@@ -51,48 +51,38 @@ class _MnemonicCoinflipScreenState extends State<MnemonicCoinflipScreen> {
   }
 
   void _showStopGeneratingMnemonicDialog() {
-    // CustomDialogs.showCustomAlertDialog(
-    //   context,
-    //   title: t.alert.stop_creating_mnemonic.title,
-    //   message: t.alert.stop_creating_mnemonic.description,
-    //   cancelButtonText: t.cancel,
-    //   confirmButtonText: t.stop,
-    //   confirmButtonColor: CoconutColors.warningText,
-    //   onCancel: () => Navigator.pop(context),
-    //   onConfirm: () {
-    //     Navigator.pop(context);
-    //     Navigator.pushNamedAndRemoveUntil(context, '/', (Route<dynamic> route) => false);
-    //   },
-    // );
     showDialog(
         context: context,
         builder: (BuildContext context) {
           return CoconutPopup(
             insetPadding:
                 EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width * 0.15),
-            title: t.alert.stop_creating_mnemonic.title,
+            title: t.alert.stop_generating_mnemonic.title,
             titleTextStyle: CoconutTypography.body1_16_Bold,
             descriptionTextStyle: CoconutTypography.body2_14,
-            description: t.alert.stop_creating_mnemonic.description,
+            description: t.alert.stop_generating_mnemonic.description,
             backgroundColor: CoconutColors.white,
-            rightButtonColor: CoconutColors.warningText,
-            rightButtonText: t.stop,
+            rightButtonColor: CoconutColors.gray900,
+            rightButtonText: t.alert.stop_generating_mnemonic.confirm,
             rightButtonTextStyle: CoconutTypography.body2_14.merge(
               const TextStyle(
                 fontWeight: FontWeight.w500,
               ),
             ),
-            leftButtonText: t.cancel,
+            leftButtonText: t.alert.stop_generating_mnemonic.reselect,
             leftButtonTextStyle: CoconutTypography.body2_14.merge(
-              TextStyle(
-                color: CoconutColors.black.withOpacity(0.7),
+              const TextStyle(
+                color: CoconutColors.gray900,
                 fontWeight: FontWeight.w500,
               ),
             ),
-            onTapLeft: () => Navigator.pop(context),
+            onTapLeft: () {
+              Navigator.pop(context);
+              _onReset();
+            },
             onTapRight: () {
               Navigator.pop(context);
-              Navigator.pushNamedAndRemoveUntil(context, '/', (Route<dynamic> route) => false);
+              Navigator.pop(context);
             },
           );
         });
@@ -109,30 +99,35 @@ class _MnemonicCoinflipScreenState extends State<MnemonicCoinflipScreen> {
   @override
   Widget build(BuildContext context) {
     final List<Widget> screens = [
-      WordsLengthSelection(
-          onSelected: _onLengthSelected, onShowStopDialog: _showStopGeneratingMnemonicDialog),
-      PassphraseSelection(
-          onSelected: _onPassphraseSelected, onShowStopDialog: _showStopGeneratingMnemonicDialog),
+      WordsLengthSelection(onSelected: _onLengthSelected),
+      PassphraseSelection(onSelected: _onPassphraseSelected),
       FlipCoin(
         wordsCount: _selectedWordsCount,
         usePassphrase: _usePassphrase,
         onReset: _onReset,
-        onShowStopDialog: _showStopGeneratingMnemonicDialog,
       )
     ];
 
-    return Scaffold(
-        backgroundColor: CoconutColors.white,
-        appBar: CoconutAppBar.build(
-          title: t.mnemonic_coin_flip_screen.title,
-          context: context,
-          onBackPressed: _showStopGeneratingMnemonicDialog,
-        ),
-        body: SafeArea(
-          child: SingleChildScrollView(
-            child: screens[_step],
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, _) {
+        if (!didPop) {
+          _showStopGeneratingMnemonicDialog();
+        }
+      },
+      child: Scaffold(
+          backgroundColor: CoconutColors.white,
+          appBar: CoconutAppBar.build(
+            title: t.mnemonic_coin_flip_screen.title,
+            context: context,
+            onBackPressed: _showStopGeneratingMnemonicDialog,
           ),
-        ));
+          body: SafeArea(
+            child: SingleChildScrollView(
+              child: screens[_step],
+            ),
+          )),
+    );
   }
 }
 
@@ -140,14 +135,12 @@ class FlipCoin extends StatefulWidget {
   final int wordsCount;
   final bool usePassphrase;
   final Function() onReset;
-  final VoidCallback onShowStopDialog;
 
   const FlipCoin({
     super.key,
     required this.wordsCount,
     required this.usePassphrase,
     required this.onReset,
-    required this.onShowStopDialog,
   });
 
   @override
@@ -191,239 +184,232 @@ class _FlipCoinState extends State<FlipCoin> {
 
   @override
   Widget build(BuildContext context) {
-    return PopScope(
-        canPop: false,
-        onPopInvokedWithResult: (didPop, _) {
-          widget.onShowStopDialog();
-        },
-        child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0),
-            child: Column(
-              children: [
-                Padding(
-                  padding: const EdgeInsets.only(top: 20.0, bottom: 12),
-                  child: Selector<VisibilityProvider, bool>(
-                      selector: (context, model) => model.isPassphraseUseEnabled,
-                      builder: (context, isAdvancedUser, _) {
-                        return Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            HighLightedText(
-                                widget.wordsCount == 12
-                                    ? t.mnemonic_generate_screen.twelve
-                                    : t.mnemonic_generate_screen.twenty_four,
-                                color: CoconutColors.gray800),
-                            Text(isAdvancedUser ? ', ${t.passphrase} ' : ''),
-                            isAdvancedUser
-                                ? widget.usePassphrase
-                                    ? HighLightedText(t.mnemonic_coin_flip_screen.use,
-                                        color: CoconutColors.gray800)
-                                    : Row(
-                                        children: [
-                                          Text('${t.mnemonic_coin_flip_screen.use} '),
-                                          HighLightedText(t.mnemonic_coin_flip_screen.do_not,
-                                              color: CoconutColors.gray800),
-                                        ],
-                                      )
-                                : Text(' ${t.mnemonic_coin_flip_screen.use}'),
-                            GestureDetector(
-                                onTap: _currentIndex != 0
-                                    ? () => _showConfirmResetDialog(
-                                        title: t.alert.reselect.title,
-                                        message: t.alert.reselect.description,
-                                        action: () {
-                                          widget.onReset();
-                                          Navigator.pop(context);
-                                        })
-                                    : widget.onReset,
-                                child: Container(
-                                    margin: const EdgeInsets.only(left: 8),
-                                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                                    decoration: BoxDecoration(
-                                        borderRadius: BorderRadius.circular(8),
-                                        border: Border.all(color: CoconutColors.borderGray)),
-                                    child: Text(
-                                      t.re_select,
-                                      style: CoconutTypography.body3_12.setColor(
-                                        CoconutColors.gray800,
-                                      ),
-                                    )))
-                          ],
-                        );
-                      }),
-                ),
-                if (widget.usePassphrase)
-                  Padding(
-                    padding: const EdgeInsets.only(top: 20),
-                    child: Row(
+    return Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16.0),
+        child: Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.only(top: 20.0, bottom: 12),
+              child: Selector<VisibilityProvider, bool>(
+                  selector: (context, model) => model.isPassphraseUseEnabled,
+                  builder: (context, isAdvancedUser, _) {
+                    return Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        NumberWidget(
-                            number: 1,
-                            assetPath: 'assets/svg/number/one.svg',
-                            selected: step == 0,
-                            onSelected: () {
-                              setState(() {
-                                step = 0;
-                              });
-                            }),
-                        const Text('•••'),
-                        NumberWidget(
-                            number: 2,
-                            assetPath: 'assets/svg/number/two.svg',
-                            selected: step == 1,
-                            onSelected: () {
-                              setState(() {
-                                step = 1;
-                              });
-                            }),
+                        HighLightedText(
+                            widget.wordsCount == 12
+                                ? t.mnemonic_generate_screen.twelve
+                                : t.mnemonic_generate_screen.twenty_four,
+                            color: CoconutColors.gray800),
+                        Text(isAdvancedUser ? ', ${t.passphrase} ' : ''),
+                        isAdvancedUser
+                            ? widget.usePassphrase
+                                ? HighLightedText(t.mnemonic_coin_flip_screen.use,
+                                    color: CoconutColors.gray800)
+                                : Row(
+                                    children: [
+                                      Text('${t.mnemonic_coin_flip_screen.use} '),
+                                      HighLightedText(t.mnemonic_coin_flip_screen.do_not,
+                                          color: CoconutColors.gray800),
+                                    ],
+                                  )
+                            : Text(' ${t.mnemonic_coin_flip_screen.use}'),
+                        GestureDetector(
+                            onTap: _currentIndex != 0
+                                ? () => _showConfirmResetDialog(
+                                    title: t.alert.reselect.title,
+                                    message: t.alert.reselect.description,
+                                    action: () {
+                                      widget.onReset();
+                                      Navigator.pop(context);
+                                    })
+                                : widget.onReset,
+                            child: Container(
+                                margin: const EdgeInsets.only(left: 8),
+                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(8),
+                                    border: Border.all(color: CoconutColors.borderGray)),
+                                child: Text(
+                                  t.re_select,
+                                  style: CoconutTypography.body3_12.setColor(
+                                    CoconutColors.gray800,
+                                  ),
+                                )))
                       ],
-                    ),
-                  ),
-                Container(
-                    margin: const EdgeInsets.symmetric(vertical: 12),
-                    padding: const EdgeInsets.fromLTRB(24, 24, 24, 32),
-                    width: MediaQuery.of(context).size.width,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(24),
-                      color: CoconutColors.white,
-                      boxShadow: [
-                        BoxShadow(
-                          color: CoconutColors.gray500.withOpacity(0.3),
-                          spreadRadius: 4,
-                          blurRadius: 30,
-                        ),
-                      ],
-                    ),
-                    child: step == 0
-                        ? Column(
-                            children: [
-                              Text('$_currentIndex / $_totalBits',
-                                  style: CoconutTypography.heading4_18_Bold),
-                              Align(
-                                alignment: Alignment.bottomRight,
-                                child: Material(
-                                  color: Colors.transparent,
-                                  child: InkWell(
-                                    borderRadius: CoconutBorder.defaultRadius,
-                                    onTap: _showAllBitsBottomSheet,
-                                    child: Ink(
-                                      decoration: BoxDecoration(
-                                        border: Border.all(
-                                          width: 1,
-                                          color: CoconutColors.borderGray,
-                                        ),
-                                        borderRadius: CoconutBorder.defaultRadius,
-                                        color: CoconutColors.white,
-                                      ),
-                                      child: Padding(
-                                        padding: const EdgeInsets.symmetric(
-                                          horizontal: 15,
-                                          vertical: 10,
-                                        ),
-                                        child: Text(t.view_all,
-                                            style: CoconutTypography.body3_12.setColor(
-                                              CoconutColors.gray800,
-                                            )),
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                              const SizedBox(height: 20),
-                              _buildBitGrid(),
-                              const SizedBox(height: 20),
-                              _buildButtons(),
-                            ],
-                          )
-                        : Column(
-                            children: [
-                              Padding(
-                                padding: const EdgeInsets.only(top: 12),
-                                child: SizedBox(
-                                  child: CoconutTextField(
-                                    focusNode: _passphraseFocusNode,
-                                    controller: _passphraseController,
-                                    placeholderText: t.mnemonic_coin_flip_screen.enter_passphrase,
-                                    onChanged: (_) {},
-                                    maxLines: 1,
-                                    isLengthVisible: false,
-                                    obscureText: passphraseObscured,
-                                    suffix: CupertinoButton(
-                                      onPressed: () {
-                                        setState(() {
-                                          passphraseObscured = !passphraseObscured;
-                                        });
-                                      },
-                                      child: passphraseObscured
-                                          ? const Icon(
-                                              CupertinoIcons.eye_slash,
-                                              color: CoconutColors.gray800,
-                                              size: 18,
-                                            )
-                                          : const Icon(
-                                              CupertinoIcons.eye,
-                                              color: CoconutColors.gray800,
-                                              size: 18,
-                                            ),
-                                    ),
-                                    // maxLength: 100,
-                                  ),
-                                ),
-                              ),
-                              Padding(
-                                padding: const EdgeInsets.only(top: 4, right: 4),
-                                child: Align(
-                                  alignment: Alignment.topRight,
-                                  child: Text(
-                                    '(${passphrase.length} / 100)',
-                                    style: CoconutTypography.body3_12.setColor(
-                                      passphrase.length == 100
-                                          ? CoconutColors.black.withOpacity(0.7)
-                                          : CoconutColors.black.withOpacity(0.5),
-                                    ),
-                                  ),
-                                ),
-                              )
-                            ],
-                          )),
-                if (step == 0 && stepCount == 1)
-                  CompleteButton(
-                      onPressed: () {
-                        setState(() {
-                          if (_generateMnemonicPhrase()) {
-                            _showConfirmBottomSheet(t.bottom_sheet.mnemonic_backup);
-                          }
-                        });
-                      },
-                      label: t.complete,
-                      disabled: _bits.length < _totalBits),
-                if (step == 0 && stepCount == 2)
-                  CompleteButton(
-                      onPressed: () {
-                        setState(() {
+                    );
+                  }),
+            ),
+            if (widget.usePassphrase)
+              Padding(
+                padding: const EdgeInsets.only(top: 20),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    NumberWidget(
+                        number: 1,
+                        selected: step == 0,
+                        onSelected: () {
+                          setState(() {
+                            step = 0;
+                          });
+                        }),
+                    const Text('•••'),
+                    NumberWidget(
+                        number: 2,
+                        selected: step == 1,
+                        onSelected: () {
                           setState(() {
                             step = 1;
                           });
-                        });
-                      },
-                      label: t.next,
-                      disabled: _bits.length < _totalBits),
-                if (widget.usePassphrase && step == 1)
-                  CompleteButton(
-                      onPressed: () {
-                        setState(() {
-                          if (_generateMnemonicPhrase()) {
-                            _showConfirmBottomSheet(
-                                t.bottom_sheet.mnemonic_backup_and_confirm_passphrase);
-                          }
-                        });
-                      },
-                      label: t.complete,
-                      disabled: passphrase.isEmpty || _bits.length < _totalBits),
-                const SizedBox(height: 80),
-              ],
-            )));
+                        }),
+                  ],
+                ),
+              ),
+            Container(
+                margin: const EdgeInsets.symmetric(vertical: 12),
+                padding: const EdgeInsets.fromLTRB(24, 24, 24, 32),
+                width: MediaQuery.of(context).size.width,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(24),
+                  color: CoconutColors.white,
+                  boxShadow: [
+                    BoxShadow(
+                      color: CoconutColors.gray500.withOpacity(0.3),
+                      spreadRadius: 4,
+                      blurRadius: 30,
+                    ),
+                  ],
+                ),
+                child: step == 0
+                    ? Column(
+                        children: [
+                          Text('$_currentIndex / $_totalBits',
+                              style: CoconutTypography.heading4_18_Bold),
+                          Align(
+                            alignment: Alignment.bottomRight,
+                            child: Material(
+                              color: Colors.transparent,
+                              child: InkWell(
+                                borderRadius: CoconutBorder.defaultRadius,
+                                onTap: _showAllBitsBottomSheet,
+                                child: Ink(
+                                  decoration: BoxDecoration(
+                                    border: Border.all(
+                                      width: 1,
+                                      color: CoconutColors.borderGray,
+                                    ),
+                                    borderRadius: CoconutBorder.defaultRadius,
+                                    color: CoconutColors.white,
+                                  ),
+                                  child: Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 15,
+                                      vertical: 10,
+                                    ),
+                                    child: Text(t.view_all,
+                                        style: CoconutTypography.body3_12.setColor(
+                                          CoconutColors.gray800,
+                                        )),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 20),
+                          _buildBitGrid(),
+                          const SizedBox(height: 20),
+                          _buildButtons(),
+                        ],
+                      )
+                    : Column(
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.only(top: 12),
+                            child: SizedBox(
+                              child: CoconutTextField(
+                                focusNode: _passphraseFocusNode,
+                                controller: _passphraseController,
+                                placeholderText: t.mnemonic_coin_flip_screen.enter_passphrase,
+                                onChanged: (_) {},
+                                maxLines: 1,
+                                isLengthVisible: false,
+                                obscureText: passphraseObscured,
+                                suffix: CupertinoButton(
+                                  onPressed: () {
+                                    setState(() {
+                                      passphraseObscured = !passphraseObscured;
+                                    });
+                                  },
+                                  child: passphraseObscured
+                                      ? const Icon(
+                                          CupertinoIcons.eye_slash,
+                                          color: CoconutColors.gray800,
+                                          size: 18,
+                                        )
+                                      : const Icon(
+                                          CupertinoIcons.eye,
+                                          color: CoconutColors.gray800,
+                                          size: 18,
+                                        ),
+                                ),
+                                // maxLength: 100,
+                              ),
+                            ),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.only(top: 4, right: 4),
+                            child: Align(
+                              alignment: Alignment.topRight,
+                              child: Text(
+                                '(${passphrase.length} / 100)',
+                                style: CoconutTypography.body3_12.setColor(
+                                  passphrase.length == 100
+                                      ? CoconutColors.black.withOpacity(0.7)
+                                      : CoconutColors.black.withOpacity(0.5),
+                                ),
+                              ),
+                            ),
+                          )
+                        ],
+                      )),
+            if (step == 0 && stepCount == 1)
+              CompleteButton(
+                  onPressed: () {
+                    setState(() {
+                      if (_generateMnemonicPhrase()) {
+                        _showConfirmBottomSheet(t.bottom_sheet.mnemonic_backup);
+                      }
+                    });
+                  },
+                  label: t.complete,
+                  disabled: _bits.length < _totalBits),
+            if (step == 0 && stepCount == 2)
+              CompleteButton(
+                  onPressed: () {
+                    setState(() {
+                      setState(() {
+                        step = 1;
+                      });
+                    });
+                  },
+                  label: t.next,
+                  disabled: _bits.length < _totalBits),
+            if (widget.usePassphrase && step == 1)
+              CompleteButton(
+                  onPressed: () {
+                    setState(() {
+                      if (_generateMnemonicPhrase()) {
+                        _showConfirmBottomSheet(
+                            t.bottom_sheet.mnemonic_backup_and_confirm_passphrase);
+                      }
+                    });
+                  },
+                  label: t.complete,
+                  disabled: passphrase.isEmpty || _bits.length < _totalBits),
+            const SizedBox(height: 80),
+          ],
+        ));
   }
 
   Widget _buildBitGrid() {
