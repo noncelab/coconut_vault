@@ -140,6 +140,8 @@ pin_setting_screen:
   enter_again: "Confirm again"
   new_password: "Enter new password"
   keep_in_mind: "Please set a password you can definitely remember"
+  character_password_input: "Enter text password"
+  number_password_input: "Enter numeric password"
 security_self_check_screen:
   check1: "I am responsible for my private keys."
   check2: "I do not capture or photograph the mnemonic screen."

@@ -141,6 +141,8 @@ pin_setting_screen:
   enter_again: "다시 한번 확인할게요"
   new_password: "새로운 비밀번호를 눌러주세요"
   keep_in_mind: "반드시 기억할 수 있는 비밀번호로 설정해 주세요"
+  character_password_input: "문자 비밀번호 입력"
+  number_password_input: "숫자 비밀번호 입력"
 security_self_check_screen:
   check1: "나의 개인키는 내가 스스로 책임집니다."
   check2: "니모닉 문구 화면을 캡처하거나 촬영하지 않습니다."

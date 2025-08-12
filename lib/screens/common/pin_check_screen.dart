@@ -131,7 +131,7 @@ class _PinCheckScreenState extends State<PinCheckScreen> with WidgetsBindingObse
     }
   }
 
-  void _onKeyTap(String value) async {
+  void _onKeyTap(String value, bool isCharacter) async {
     if (_isUnlockDisabled == null ||
         _isUnlockDisabled == true ||
         _isAppLaunched && _authProvider.isPermanantlyLocked) return;
@@ -142,7 +142,7 @@ class _PinCheckScreenState extends State<PinCheckScreen> with WidgetsBindingObse
     }
 
     setState(() {
-      if (value == kDeleteBtnIdentifier) {
+      if (value == kDeleteBtnIdentifier && !isCharacter) {
         if (_pin.isNotEmpty) {
           _pin = _pin.substring(0, _pin.length - 1);
         }
@@ -350,6 +350,7 @@ class _PinCheckScreenState extends State<PinCheckScreen> with WidgetsBindingObse
     Logger.log(
         '--> PinInputScreen isPermanantlyLocked: ${_authProvider.isPermanantlyLocked} / isUnlockDisabled: $_isUnlockDisabled');
     return PinInputScreen(
+      canChangePinType: false,
       appBarVisible: _isAppLaunched ? false : true,
       title: _isAppLaunched ? '' : t.pin_check_screen.enter_password,
       initOptionVisible: _isAppLaunched,
@@ -362,6 +363,12 @@ class _PinCheckScreenState extends State<PinCheckScreen> with WidgetsBindingObse
       },
       onBackPressed: () {
         Navigator.pop(context);
+      },
+      onPinClear: () {
+        setState(() {
+          _pin = '';
+          _errorMessage = '';
+        });
       },
       onReset: isOnReset ? _showResetDialog : null,
       step: 0,

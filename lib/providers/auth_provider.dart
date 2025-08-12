@@ -31,6 +31,10 @@ class AuthProvider extends ChangeNotifier {
   bool _isPinSet = false;
   bool get isPinSet => _isPinSet;
 
+  /// 문자 패스워드 여부
+  bool _isPinCharacter = false;
+  bool get isPinCharacter => _isPinCharacter;
+
   /// 리셋 여부
   bool _hasAlreadyRequestedBioPermission = false;
   bool get hasAlreadyRequestedBioPermission => _hasAlreadyRequestedBioPermission;
@@ -98,6 +102,7 @@ class AuthProvider extends ChangeNotifier {
 
   void setInitState() {
     _isPinSet = _sharedPrefs.getBool(SharedPrefsKeys.isPinEnabled) == true;
+    _isPinCharacter = _sharedPrefs.getBool(SharedPrefsKeys.isPinCharacter) == true;
     _loadBiometricState();
     _loadUnlockState();
     notifyListeners();
@@ -256,8 +261,8 @@ class AuthProvider extends ChangeNotifier {
     return false;
   }
 
-  /// 비밀번호 저장
-  Future<void> savePin(String pin) async {
+  /// 비밀번호 6자리, 유형 저장
+  Future<void> savePin(String pin, bool isCharacter) async {
     if (_isBiometricEnabled && _canCheckBiometrics && !_isPinSet) {
       _isBiometricEnabled = true;
       _sharedPrefs.setBool(SharedPrefsKeys.isBiometricEnabled, true);
@@ -266,7 +271,9 @@ class AuthProvider extends ChangeNotifier {
     String hashed = hashString(pin);
     await _storageService.write(key: SecureStorageKeys.kVaultPin, value: hashed);
     _isPinSet = true;
+    _isPinCharacter = isCharacter;
     _sharedPrefs.setBool(SharedPrefsKeys.isPinEnabled, true);
+    _sharedPrefs.setBool(SharedPrefsKeys.isPinCharacter, isCharacter);
     notifyListeners();
   }
 

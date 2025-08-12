@@ -12,8 +12,8 @@ class PinBox extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-        width: 50,
-        height: 50,
+        width: 40,
+        height: 40,
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(14),
           color: disabled

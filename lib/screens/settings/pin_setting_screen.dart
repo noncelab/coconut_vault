@@ -69,11 +69,11 @@ class _PinSettingScreenState extends State<PinSettingScreen> {
     return isSamePin;
   }
 
-  void _onKeyTap(String value) async {
+  void _onKeyTap(String value, bool isCharacter) async {
     // if (value != '<' && value != 'bio' && value != '') vibrateShort();
 
     if (step == 0) {
-      if (value == kDeleteBtnIdentifier) {
+      if (value == kDeleteBtnIdentifier && !isCharacter) {
         if (pin.isNotEmpty) {
           setState(() {
             pin = pin.substring(0, pin.length - 1);
@@ -105,7 +105,7 @@ class _PinSettingScreenState extends State<PinSettingScreen> {
       }
     } else if (step == 1) {
       setState(() {
-        if (value == kDeleteBtnIdentifier) {
+        if (value == kDeleteBtnIdentifier && !isCharacter) {
           if (pinConfirm.isNotEmpty) {
             pinConfirm = pinConfirm.substring(0, pinConfirm.length - 1);
           }
@@ -134,14 +134,13 @@ class _PinSettingScreenState extends State<PinSettingScreen> {
           await _authProvider.authenticateWithBiometrics(context: context, isSaved: true);
         }
 
-        _finishPinSetting();
+        _finishPinSetting(isCharacter);
       }
     }
   }
 
-  void _finishPinSetting() async {
+  void _finishPinSetting(bool isCharacter) async {
     vibrateLight();
-
     showGeneralDialog(
       context: context,
       barrierDismissible: false,
@@ -170,7 +169,7 @@ class _PinSettingScreenState extends State<PinSettingScreen> {
 
     await Future.delayed(const Duration(seconds: 3));
     widget.onComplete?.call();
-    await _authProvider.savePin(pinConfirm);
+    await _authProvider.savePin(pinConfirm, isCharacter);
 
     if (!mounted) {
       return;
@@ -238,6 +237,7 @@ class _PinSettingScreenState extends State<PinSettingScreen> {
     }
 
     return PinInputScreen(
+        canChangePinType: true,
         title: step == 0 ? t.pin_setting_screen.new_password : t.pin_setting_screen.enter_again,
         descriptionTextWidget: Text.rich(
           TextSpan(
@@ -262,6 +262,14 @@ class _PinSettingScreenState extends State<PinSettingScreen> {
                   errorMessage = '';
                 });
               },
+        onPinClear: () {
+          if (step == 0) {
+            pin = '';
+          } else {
+            pinConfirm = '';
+          }
+          setState(() {});
+        },
         onBackPressed: () {
           setState(() {
             if (widget.greetingVisible) {
