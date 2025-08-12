@@ -28,6 +28,7 @@ class _MnemonicVerifyScreenState extends State<MnemonicVerifyScreen> {
   // UI 상태 변수
   bool _isAnswerCorrect = false; // 현재 퀴즈 정답 여부
   bool _showResult = false; // 결과 표시 여부
+  int _selectedOptionIndex = -1; // 선택한 옵션의 인덱스
 
   @override
   void initState() {
@@ -79,9 +80,10 @@ class _MnemonicVerifyScreenState extends State<MnemonicVerifyScreen> {
     return options;
   }
 
-  void _onAnswerSelected(String selectedAnswer) {
+  void _onAnswerSelected(String selectedAnswer, int optionIndex) {
     setState(() {
       _userAnswers[_currentQuizIndex] = selectedAnswer;
+      _selectedOptionIndex = optionIndex;
       _isAnswerCorrect = selectedAnswer == _correctAnswers[_currentQuizIndex];
       _showResult = true;
     });
@@ -112,6 +114,7 @@ class _MnemonicVerifyScreenState extends State<MnemonicVerifyScreen> {
     setState(() {
       _showResult = false;
       _isAnswerCorrect = false;
+      _selectedOptionIndex = -1; // 선택한 옵션 인덱스 리셋
 
       if (_currentQuizIndex < _totalQuizzes - 1) {
         _currentQuizIndex++;
@@ -153,6 +156,7 @@ class _MnemonicVerifyScreenState extends State<MnemonicVerifyScreen> {
       // UI 상태 초기화
       _showResult = false;
       _isAnswerCorrect = false;
+      _selectedOptionIndex = -1; // 선택한 옵션 인덱스 리셋
     });
   }
 
@@ -268,14 +272,17 @@ class _MnemonicVerifyScreenState extends State<MnemonicVerifyScreen> {
           const SizedBox(height: 40),
 
           // 선택지 버튼들
-          ...currentOptions.map((option) => _buildOptionButton(option)),
+          ...currentOptions
+              .asMap()
+              .entries
+              .map((entry) => _buildOptionButton(entry.value, entry.key)),
         ],
       ),
     );
   }
 
-  Widget _buildOptionButton(String option) {
-    final isSelected = _userAnswers[_currentQuizIndex] == option;
+  Widget _buildOptionButton(String option, int optionIndex) {
+    final isSelected = _selectedOptionIndex == optionIndex;
     final isCorrect = option == _correctAnswers[_currentQuizIndex];
 
     Color buttonColor = CoconutColors.white;
@@ -293,7 +300,7 @@ class _MnemonicVerifyScreenState extends State<MnemonicVerifyScreen> {
           borderColor = CoconutColors.green;
         }
       } else if (isSelected && !isCorrect) {
-        // 사용자가 오답을 선택한 경우
+        // 사용자가 오답을 선택한 경우 (정확히 선택한 옵션만 warningText 색상)
         buttonColor = CoconutColors.warningText;
         borderColor = CoconutColors.warningText;
       }
@@ -302,7 +309,7 @@ class _MnemonicVerifyScreenState extends State<MnemonicVerifyScreen> {
     return Container(
       margin: const EdgeInsets.only(left: 66, right: 66, bottom: 20),
       child: ShrinkAnimationButton(
-        onPressed: () => _showResult ? null : _onAnswerSelected(option),
+        onPressed: () => _showResult ? null : _onAnswerSelected(option, optionIndex),
         defaultColor: buttonColor,
         pressedColor: buttonColor,
         borderWidth: 1,

@@ -6,6 +6,7 @@ class AppRoutes {
   static const String mnemonicImport = '/mnemonic-import';
   static const String mnemonicVerify = '/mnemonic-verify';
   static const String mnemonicConfirmation = '/mnemonic-confirmation';
+  static const String mnemonicCoinflipConfirmation = '/mnemonic-coinflip-confirmation';
   static const String vaultNameSetup = '/vault-name-setup';
   static const String vaultDetails = '/vault-details';
   static const String singleSigSetupInfo = '/vault-settings';

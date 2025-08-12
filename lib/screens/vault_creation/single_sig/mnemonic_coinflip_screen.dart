@@ -1,16 +1,18 @@
 import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_lib/coconut_lib.dart';
+import 'package:coconut_vault/constants/app_routes.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/providers/visibility_provider.dart';
 import 'package:coconut_vault/providers/wallet_creation_provider.dart';
-import 'package:coconut_vault/screens/vault_creation/vault_name_and_icon_setup_screen.dart';
+import 'package:coconut_vault/screens/vault_creation/single_sig/mnemonic_verify_screen.dart';
+import 'package:coconut_vault/widgets/button/fixed_bottom_tween_button.dart';
+import 'package:coconut_vault/widgets/button/shrink_animation_button.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:coconut_vault/screens/vault_creation/single_sig/mnemonic_confirmation_screen.dart';
 import 'package:coconut_vault/screens/vault_creation/single_sig/mnemonic_generation_screen.dart';
 import 'package:coconut_vault/widgets/bottom_sheet.dart';
 import 'package:coconut_vault/widgets/button/custom_buttons.dart';
-import 'package:coconut_vault/widgets/highlighted_text.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:provider/provider.dart';
 
 class MnemonicCoinflipScreen extends StatefulWidget {
@@ -115,18 +117,21 @@ class _MnemonicCoinflipScreenState extends State<MnemonicCoinflipScreen> {
           _showStopGeneratingMnemonicDialog();
         }
       },
-      child: Scaffold(
-          backgroundColor: CoconutColors.white,
-          appBar: CoconutAppBar.build(
-            title: t.mnemonic_coin_flip_screen.title,
-            context: context,
-            onBackPressed: _showStopGeneratingMnemonicDialog,
-          ),
-          body: SafeArea(
-            child: SingleChildScrollView(
-              child: screens[_step],
+      child: GestureDetector(
+        onTap: () {
+          FocusScope.of(context).unfocus();
+        },
+        child: Scaffold(
+            backgroundColor: CoconutColors.white,
+            appBar: CoconutAppBar.build(
+              title: t.mnemonic_coin_flip_screen.title,
+              context: context,
+              onBackPressed: _showStopGeneratingMnemonicDialog,
             ),
-          )),
+            body: SafeArea(
+              child: screens[_step],
+            )),
+      ),
     );
   }
 }
@@ -148,20 +153,29 @@ class FlipCoin extends StatefulWidget {
 }
 
 class _FlipCoinState extends State<FlipCoin> {
+  final ScrollController _scrollController = ScrollController();
   final TextEditingController _passphraseController = TextEditingController();
+  final TextEditingController _passphraseConfirmController = TextEditingController();
   final FocusNode _passphraseFocusNode = FocusNode();
+  final FocusNode _passphraseConfirmFocusNode = FocusNode();
   late int stepCount; // 총 화면 단계
   int step = 0;
   String _mnemonic = '';
-  String passphrase = '';
-  bool passphraseObscured = false;
-  bool isNextButtonActive = false;
-  int numberOfBits = 0;
+  String _passphrase = '';
+  String _passphraseConfirm = '';
 
+  // coinflip 관련 변수
+  int numberOfBits = 0;
   final List<int> _bits = [];
   late int _totalBits;
   int _currentIndex = 0;
   bool _showFullBits = false;
+
+  // passphrase 관련 변수
+  bool passphraseObscured = false;
+  bool isPassphraseConfirmVisible = false;
+
+  bool isNextButtonActive = false;
 
   @override
   void initState() {
@@ -170,246 +184,376 @@ class _FlipCoinState extends State<FlipCoin> {
     stepCount = widget.usePassphrase ? 2 : 1;
     _passphraseController.addListener(() {
       setState(() {
-        passphrase = _passphraseController.text;
+        _passphrase = _passphraseController.text;
       });
+    });
+    _passphraseConfirmController.addListener(() {
+      setState(() {
+        _passphraseConfirm = _passphraseConfirmController.text;
+      });
+    });
+    _passphraseConfirmFocusNode.addListener(() {
+      if (_passphraseConfirmFocusNode.hasFocus) {
+        WidgetsBinding.instance.addPostFrameCallback((_) async {
+          await Future.delayed(const Duration(milliseconds: 300));
+          if (_scrollController.hasClients) {
+            _scrollController.animateTo(
+              _scrollController.position.maxScrollExtent,
+              duration: const Duration(milliseconds: 300),
+              curve: Curves.easeInOut,
+            );
+          }
+        });
+      }
     });
   }
 
   @override
   void dispose() {
+    _scrollController.dispose();
     _passphraseController.dispose();
     _passphraseFocusNode.dispose();
+    _passphraseConfirmController.dispose();
+    _passphraseConfirmFocusNode.dispose();
     super.dispose();
+  }
+
+  NextButtonState _getNextButtonState() {
+    if (step == 0 && stepCount == 1) {
+      // 패스프레이즈 사용 안함 - coinflip 화면
+      return _bits.length >= _totalBits
+          ? NextButtonState.completeActive
+          : NextButtonState.completeInactive;
+    }
+
+    if (step == 0 && stepCount == 2) {
+      // 패스프레이즈 사용 - coinflip 화면
+      return _bits.length >= _totalBits ? NextButtonState.nextActive : NextButtonState.nextInactive;
+    }
+
+    // 패스프레이즈 입력 화면
+    bool isActive = false;
+    if (isPassphraseConfirmVisible) {
+      // 패스프레이즈 확인 텍스트필드가 보이는 상태
+      isActive = _passphrase.isNotEmpty &&
+          _passphraseConfirm.isNotEmpty &&
+          _passphrase == _passphraseConfirm;
+    } else {
+      // 패스프레이즈 확인 텍스트필드가 보이지 않는 상태
+      isActive = _passphraseController.text.isNotEmpty;
+      return isActive ? NextButtonState.nextActive : NextButtonState.nextInactive;
+    }
+    return isActive ? NextButtonState.completeActive : NextButtonState.completeInactive;
   }
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16.0),
-        child: Column(
-          children: [
-            Padding(
-              padding: const EdgeInsets.only(top: 20.0, bottom: 12),
-              child: Selector<VisibilityProvider, bool>(
-                  selector: (context, model) => model.isPassphraseUseEnabled,
-                  builder: (context, isAdvancedUser, _) {
-                    return Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        HighLightedText(
-                            widget.wordsCount == 12
-                                ? t.mnemonic_generate_screen.twelve
-                                : t.mnemonic_generate_screen.twenty_four,
-                            color: CoconutColors.gray800),
-                        Text(isAdvancedUser ? ', ${t.passphrase} ' : ''),
-                        isAdvancedUser
-                            ? widget.usePassphrase
-                                ? HighLightedText(t.mnemonic_coin_flip_screen.use,
-                                    color: CoconutColors.gray800)
-                                : Row(
-                                    children: [
-                                      Text('${t.mnemonic_coin_flip_screen.use} '),
-                                      HighLightedText(t.mnemonic_coin_flip_screen.do_not,
-                                          color: CoconutColors.gray800),
-                                    ],
-                                  )
-                            : Text(' ${t.mnemonic_coin_flip_screen.use}'),
-                        GestureDetector(
-                            onTap: _currentIndex != 0
-                                ? () => _showConfirmResetDialog(
-                                    title: t.alert.reselect.title,
-                                    message: t.alert.reselect.description,
-                                    action: () {
-                                      widget.onReset();
-                                      Navigator.pop(context);
-                                    })
-                                : widget.onReset,
-                            child: Container(
-                                margin: const EdgeInsets.only(left: 8),
-                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                                decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(8),
-                                    border: Border.all(color: CoconutColors.borderGray)),
-                                child: Text(
-                                  t.re_select,
-                                  style: CoconutTypography.body3_12.setColor(
-                                    CoconutColors.gray800,
-                                  ),
-                                )))
-                      ],
-                    );
-                  }),
+    return Stack(
+      children: [
+        SingleChildScrollView(
+          controller: _scrollController,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              _buildProgressBar(),
+              _buildStepIndicator(),
+              step == 0 ? _buildCoinflipWidget() : _buildPassphraseInput(),
+            ],
+          ),
+        ),
+        FixedBottomTweenButton(
+          showGradient: false,
+          leftButtonRatio: 0.35,
+          leftButtonClicked: () {
+            _showAllBitsBottomSheet();
+          },
+          rightButtonClicked: () {
+            _onNextButtonClicked();
+          },
+          isRightButtonActive: _getNextButtonState().isActive,
+          leftText: t.view_all,
+          rightText: _getNextButtonState().text,
+        ),
+      ],
+    );
+  }
+
+  Widget _buildPassphraseInput() {
+    return Container(
+      padding: const EdgeInsets.only(top: 12, left: 16, right: 16),
+      child: Column(
+        children: [
+          Text(
+            t.mnemonic_generate_screen.enter_passphrase,
+            style: CoconutTypography.body1_16_Bold.setColor(
+              step == 0 ? CoconutColors.warningText : CoconutColors.black,
             ),
-            if (widget.usePassphrase)
-              Padding(
-                padding: const EdgeInsets.only(top: 20),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
+          ),
+          Padding(
+            padding: const EdgeInsets.only(top: 24),
+            child: SizedBox(
+              child: CoconutTextField(
+                focusNode: _passphraseFocusNode,
+                controller: _passphraseController,
+                placeholderText: t.mnemonic_generate_screen.memorable_passphrase_guide,
+                onEditingComplete: () {
+                  FocusScope.of(context).unfocus();
+                  if (_passphraseController.text.isNotEmpty) {
+                    setState(() {
+                      isPassphraseConfirmVisible = true;
+                    });
+                  }
+                },
+                onChanged: (_) {},
+                maxLines: 1,
+                obscureText: passphraseObscured,
+                suffix: Row(
                   children: [
-                    NumberWidget(
-                        number: 1,
-                        selected: step == 0,
-                        onSelected: () {
+                    if (_passphraseController.text.isNotEmpty)
+                      GestureDetector(
+                        onTap: () {
                           setState(() {
-                            step = 0;
+                            _passphraseController.text = '';
                           });
-                        }),
-                    const Text('•••'),
-                    NumberWidget(
-                        number: 2,
-                        selected: step == 1,
-                        onSelected: () {
-                          setState(() {
-                            step = 1;
-                          });
-                        }),
-                  ],
-                ),
-              ),
-            Container(
-                margin: const EdgeInsets.symmetric(vertical: 12),
-                padding: const EdgeInsets.fromLTRB(24, 24, 24, 32),
-                width: MediaQuery.of(context).size.width,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(24),
-                  color: CoconutColors.white,
-                  boxShadow: [
-                    BoxShadow(
-                      color: CoconutColors.gray500.withOpacity(0.3),
-                      spreadRadius: 4,
-                      blurRadius: 30,
+                        },
+                        child: Container(
+                          padding: const EdgeInsets.all(8),
+                          child: SvgPicture.asset(
+                            'assets/svg/text-field-clear.svg',
+                            colorFilter:
+                                const ColorFilter.mode(CoconutColors.gray400, BlendMode.srcIn),
+                          ),
+                        ),
+                      ),
+                    GestureDetector(
+                      onTap: () {
+                        setState(() {
+                          passphraseObscured = !passphraseObscured;
+                        });
+                      },
+                      child: passphraseObscured
+                          ? Container(
+                              padding: const EdgeInsets.only(
+                                right: 16,
+                                top: 8,
+                                bottom: 8,
+                                left: 8,
+                              ),
+                              child: const Icon(
+                                CupertinoIcons.eye_slash,
+                                color: CoconutColors.gray800,
+                                size: 18,
+                              ),
+                            )
+                          : Container(
+                              padding: const EdgeInsets.only(
+                                right: 16,
+                                top: 8,
+                                bottom: 8,
+                                left: 8,
+                              ),
+                              child: const Icon(
+                                CupertinoIcons.eye,
+                                color: CoconutColors.gray800,
+                                size: 18,
+                              ),
+                            ),
                     ),
                   ],
                 ),
-                child: step == 0
-                    ? Column(
-                        children: [
-                          Text('$_currentIndex / $_totalBits',
-                              style: CoconutTypography.heading4_18_Bold),
-                          Align(
-                            alignment: Alignment.bottomRight,
-                            child: Material(
-                              color: Colors.transparent,
-                              child: InkWell(
-                                borderRadius: CoconutBorder.defaultRadius,
-                                onTap: _showAllBitsBottomSheet,
-                                child: Ink(
-                                  decoration: BoxDecoration(
-                                    border: Border.all(
-                                      width: 1,
-                                      color: CoconutColors.borderGray,
-                                    ),
-                                    borderRadius: CoconutBorder.defaultRadius,
-                                    color: CoconutColors.white,
-                                  ),
-                                  child: Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 15,
-                                      vertical: 10,
-                                    ),
-                                    child: Text(t.view_all,
-                                        style: CoconutTypography.body3_12.setColor(
-                                          CoconutColors.gray800,
-                                        )),
-                                  ),
-                                ),
-                              ),
+                maxLength: 100,
+              ),
+            ),
+          ),
+          if (isPassphraseConfirmVisible)
+            Padding(
+              padding: const EdgeInsets.only(top: 12),
+              child: SizedBox(
+                child: CoconutTextField(
+                  focusNode: _passphraseConfirmFocusNode,
+                  controller: _passphraseConfirmController,
+                  placeholderText: t.mnemonic_generate_screen.passphrase_confirm_guide,
+                  onChanged: (_) {},
+                  maxLines: 1,
+                  suffix: Row(
+                    children: [
+                      if (_passphraseConfirmController.text.isNotEmpty)
+                        GestureDetector(
+                          onTap: () {
+                            setState(() {
+                              _passphraseConfirmController.text = '';
+                            });
+                          },
+                          child: Container(
+                            padding: const EdgeInsets.all(8),
+                            child: SvgPicture.asset(
+                              'assets/svg/text-field-clear.svg',
+                              colorFilter:
+                                  const ColorFilter.mode(CoconutColors.gray400, BlendMode.srcIn),
                             ),
                           ),
-                          const SizedBox(height: 20),
-                          _buildBitGrid(),
-                          const SizedBox(height: 20),
-                          _buildButtons(),
-                        ],
-                      )
-                    : Column(
-                        children: [
-                          Padding(
-                            padding: const EdgeInsets.only(top: 12),
-                            child: SizedBox(
-                              child: CoconutTextField(
-                                focusNode: _passphraseFocusNode,
-                                controller: _passphraseController,
-                                placeholderText: t.mnemonic_coin_flip_screen.enter_passphrase,
-                                onChanged: (_) {},
-                                maxLines: 1,
-                                isLengthVisible: false,
-                                obscureText: passphraseObscured,
-                                suffix: CupertinoButton(
-                                  onPressed: () {
-                                    setState(() {
-                                      passphraseObscured = !passphraseObscured;
-                                    });
-                                  },
-                                  child: passphraseObscured
-                                      ? const Icon(
-                                          CupertinoIcons.eye_slash,
-                                          color: CoconutColors.gray800,
-                                          size: 18,
-                                        )
-                                      : const Icon(
-                                          CupertinoIcons.eye,
-                                          color: CoconutColors.gray800,
-                                          size: 18,
-                                        ),
-                                ),
-                                // maxLength: 100,
-                              ),
-                            ),
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.only(top: 4, right: 4),
-                            child: Align(
-                              alignment: Alignment.topRight,
-                              child: Text(
-                                '(${passphrase.length} / 100)',
-                                style: CoconutTypography.body3_12.setColor(
-                                  passphrase.length == 100
-                                      ? CoconutColors.black.withOpacity(0.7)
-                                      : CoconutColors.black.withOpacity(0.5),
-                                ),
-                              ),
-                            ),
-                          )
-                        ],
-                      )),
-            if (step == 0 && stepCount == 1)
-              CompleteButton(
-                  onPressed: () {
-                    setState(() {
-                      if (_generateMnemonicPhrase()) {
-                        _showConfirmBottomSheet(t.bottom_sheet.mnemonic_backup);
-                      }
-                    });
-                  },
-                  label: t.complete,
-                  disabled: _bits.length < _totalBits),
-            if (step == 0 && stepCount == 2)
-              CompleteButton(
-                  onPressed: () {
-                    setState(() {
-                      setState(() {
-                        step = 1;
-                      });
-                    });
-                  },
-                  label: t.next,
-                  disabled: _bits.length < _totalBits),
-            if (widget.usePassphrase && step == 1)
-              CompleteButton(
-                  onPressed: () {
-                    setState(() {
-                      if (_generateMnemonicPhrase()) {
-                        _showConfirmBottomSheet(
-                            t.bottom_sheet.mnemonic_backup_and_confirm_passphrase);
-                      }
-                    });
-                  },
-                  label: t.complete,
-                  disabled: passphrase.isEmpty || _bits.length < _totalBits),
-            const SizedBox(height: 80),
+                        ),
+                    ],
+                  ),
+                  maxLength: 100,
+                ),
+              ),
+            ),
+          CoconutLayout.spacing_2500h,
+        ],
+      ),
+    );
+  }
+
+  Widget _buildCoinflipWidget() {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16.0),
+      child: Column(
+        children: [
+          CoconutLayout.spacing_500h,
+          Text('$_currentIndex/$_totalBits', style: CoconutTypography.heading4_18_Bold),
+          CoconutLayout.spacing_800h,
+          _buildBitGrid(),
+          CoconutLayout.spacing_1300h,
+          _buildButtons(),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildProgressBar() {
+    return Visibility(
+      visible: step == 0,
+      maintainState: true,
+      maintainAnimation: true,
+      maintainSize: true,
+      maintainInteractivity: true,
+      child: Container(
+        padding: const EdgeInsets.only(bottom: 16),
+        child: Stack(
+          children: [
+            ClipRRect(
+              child: Container(
+                height: 6,
+                color: CoconutColors.black.withOpacity(0.06),
+              ),
+            ),
+            ClipRRect(
+              borderRadius: _currentIndex / _totalBits == 1
+                  ? BorderRadius.zero
+                  : const BorderRadius.only(
+                      topRight: Radius.circular(6), bottomRight: Radius.circular(6)),
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 500),
+                curve: Curves.easeInOut,
+                height: 6,
+                width: MediaQuery.of(context).size.width * (_currentIndex / _totalBits),
+                color: CoconutColors.black,
+              ),
+            ),
           ],
-        ));
+        ),
+      ),
+    );
+  }
+
+  void _onNextButtonClicked() {
+    // 패프 사용안함 | Coinflip 화면
+    if (step == 0 && stepCount == 1) {
+      setState(() {
+        if (_generateMnemonicPhrase()) {
+          Provider.of<WalletCreationProvider>(context, listen: false)
+              .setSecretAndPassphrase(_mnemonic, _passphrase);
+          Navigator.pushNamed(context, AppRoutes.mnemonicCoinflipConfirmation);
+        }
+      });
+      return;
+    }
+
+    // 패프 사용함 | Coinflip 화면
+    if (step == 0 && stepCount == 2) {
+      setState(() {
+        step = 1;
+      });
+      return;
+    }
+
+    // 패프 사용함 | 패프 입력 화면
+    if (widget.usePassphrase && step == 1) {
+      if (!isPassphraseConfirmVisible && _passphraseController.text.isNotEmpty) {
+        // 패스프레이즈 입력 완료 | 패스프레이즈 확인 텍스트필드는 보이지 않을 때
+        _passphraseFocusNode.unfocus();
+        _passphraseConfirmFocusNode.unfocus();
+        setState(() {
+          _passphrase = _passphraseController.text;
+          isPassphraseConfirmVisible = true;
+        });
+      } else if (_passphrase.isNotEmpty &&
+          _passphraseConfirm.isNotEmpty &&
+          _passphrase == _passphraseConfirm &&
+          _generateMnemonicPhrase()) {
+        // 패스프레이즈 입력 완료 | coinflip 데이터로 니모닉 생성 시도 성공
+        Provider.of<WalletCreationProvider>(context, listen: false)
+            .setSecretAndPassphrase(_mnemonic, _passphrase);
+        _passphraseFocusNode.unfocus();
+        _passphraseConfirmFocusNode.unfocus();
+
+        Navigator.pushNamed(context, AppRoutes.mnemonicCoinflipConfirmation);
+      }
+    }
+  }
+
+  Widget _buildStepIndicator() {
+    return Visibility(
+      maintainState: true,
+      maintainAnimation: true,
+      maintainSize: true,
+      maintainInteractivity: true,
+      visible: widget.usePassphrase,
+      child: Stack(
+        children: [
+          const SizedBox(
+            height: 50,
+            width: 120,
+            child: Center(
+              child: DottedDivider(
+                height: 2.0,
+                width: 100,
+                dashWidth: 2.0,
+                dashSpace: 4.0,
+                color: CoconutColors.gray400,
+              ),
+            ),
+          ),
+          Positioned(
+            left: 0,
+            top: 0,
+            bottom: 0,
+            child: NumberWidget(
+                number: 1,
+                selected: step == 0,
+                onSelected: () {
+                  setState(() {
+                    step = 0;
+                  });
+                }),
+          ),
+          Positioned(
+            right: 0,
+            top: 0,
+            bottom: 0,
+            child: NumberWidget(
+                number: 2,
+                selected: step == 1,
+                onSelected: () {
+                  setState(() {
+                    step = 1;
+                  });
+                }),
+          ),
+        ],
+      ),
+    );
   }
 
   Widget _buildBitGrid() {
@@ -433,20 +577,16 @@ class _FlipCoinState extends State<FlipCoin> {
           children: List.generate(4, (colIndex) {
             int index = rowIndex * 4 + colIndex;
             return Container(
-              width: 40,
-              height: 50,
-              margin: const EdgeInsets.all(8),
+              width: 50,
+              padding: const EdgeInsets.only(top: 8, bottom: 16),
+              margin: const EdgeInsets.all(4),
               decoration: BoxDecoration(
                 border: Border.all(color: CoconutColors.black.withOpacity(0.06)),
-                borderRadius: BorderRadius.circular(8),
-                color: index < currentBits.length
-                    ? (currentBits[index] == 1
-                        ? CoconutColors.black.withOpacity(0.06)
-                        : CoconutColors.black.withOpacity(0.15))
-                    : CoconutColors.white,
+                borderRadius: BorderRadius.circular(12),
+                color: CoconutColors.white,
               ),
-              child: Center(
-                  child: Column(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
                     '${start + index + 1}',
@@ -454,12 +594,15 @@ class _FlipCoinState extends State<FlipCoin> {
                       CoconutColors.black.withOpacity(0.3),
                     ),
                   ),
+                  CoconutLayout.spacing_200h,
                   Text(
                     index < currentBits.length ? '${currentBits[index]}' : '',
-                    style: CoconutTypography.heading4_18_NumberBold,
+                    style: CoconutTypography.heading4_18_NumberBold.setColor(
+                      index < currentBits.length ? CoconutColors.black : CoconutColors.white,
+                    ),
                   )
                 ],
-              )),
+              ),
             );
           }),
         );
@@ -468,58 +611,75 @@ class _FlipCoinState extends State<FlipCoin> {
   }
 
   Widget _buildButtons() {
-    return Column(
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
+        Column(
           children: [
-            Material(
-              color: Colors.transparent,
-              child: InkWell(
-                onTap: _currentIndex < _totalBits ? () => _addBit(1) : null,
-                borderRadius: BorderRadius.circular(8),
-                child: Ink(
-                  child: _buildCoin(t.mnemonic_coin_flip_screen.coin_head),
+            ShrinkAnimationButton(
+              onPressed: () => _currentIndex < _totalBits ? _addBit(1) : null,
+              borderRadius: 12,
+              child: Container(
+                padding: const EdgeInsets.symmetric(vertical: 30, horizontal: 38),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(
+                    color: CoconutColors.black,
+                    width: 1,
+                  ),
                 ),
+                child: Text(t.mnemonic_coin_flip_screen.coin_head),
               ),
             ),
-            const SizedBox(width: 12),
-            Material(
-              color: Colors.transparent,
-              child: InkWell(
-                borderRadius: BorderRadius.circular(8),
-                onTap: _currentIndex < _totalBits ? () => _addBit(0) : null,
-                child: Ink(
-                  child: _buildCoin(t.mnemonic_coin_flip_screen.coin_tail),
+            CoconutLayout.spacing_200h,
+            ShrinkAnimationButton(
+              onPressed: _removeLastBit,
+              pressedColor: CoconutColors.white,
+              child: Container(
+                padding: const EdgeInsets.all(8),
+                child: Text(
+                  t.delete_one,
+                  style: CoconutTypography.body3_12.setColor(
+                    _bits.isEmpty
+                        ? CoconutColors.secondaryText
+                        : CoconutColors.black.withOpacity(0.7),
+                  ),
                 ),
               ),
             ),
           ],
         ),
-        const SizedBox(height: 20),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
+        CoconutLayout.spacing_400w,
+        Column(
           children: [
-            GestureDetector(
-              onTap: _removeLastBit,
-              child: Text(
-                t.delete_one,
-                style: CoconutTypography.body2_14.setColor(
-                  _bits.isEmpty
-                      ? CoconutColors.secondaryText
-                      : CoconutColors.black.withOpacity(0.7),
+            ShrinkAnimationButton(
+              onPressed: () => _currentIndex < _totalBits ? _addBit(0) : null,
+              borderRadius: 12,
+              child: Container(
+                padding: const EdgeInsets.symmetric(vertical: 30, horizontal: 38),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(
+                    color: CoconutColors.black,
+                    width: 1,
+                  ),
                 ),
+                child: Text(t.mnemonic_coin_flip_screen.coin_tail),
               ),
             ),
-            const SizedBox(width: 20),
-            GestureDetector(
-              onTap: _showConfirmResetDialog,
-              child: Text(
-                t.delete_all,
-                style: CoconutTypography.body2_14.setColor(
-                  _bits.isEmpty
-                      ? CoconutColors.secondaryText
-                      : CoconutColors.black.withOpacity(0.7),
+            CoconutLayout.spacing_200h,
+            ShrinkAnimationButton(
+              onPressed: _showConfirmResetDialog,
+              pressedColor: CoconutColors.white,
+              child: Container(
+                padding: const EdgeInsets.all(8),
+                child: Text(
+                  t.delete_all,
+                  style: CoconutTypography.body3_12.setColor(
+                    _bits.isEmpty
+                        ? CoconutColors.secondaryText
+                        : CoconutColors.black.withOpacity(0.7),
+                  ),
                 ),
               ),
             ),
@@ -527,18 +687,6 @@ class _FlipCoinState extends State<FlipCoin> {
         ),
       ],
     );
-  }
-
-  Widget _buildCoin(String label) {
-    return Container(
-        padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 24),
-        decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(8),
-            border: Border.all(
-                color: _bits.length == _totalBits
-                    ? CoconutColors.borderLightGray
-                    : CoconutColors.borderGray)),
-        child: Text(label, style: CoconutTypography.body1_16));
   }
 
   void _addBit(int bit) async {
@@ -578,21 +726,7 @@ class _FlipCoinState extends State<FlipCoin> {
   }
 
   void _showConfirmResetDialog({String? title, String? message, VoidCallback? action}) {
-    // CustomDialogs.showCustomAlertDialog(
-    //   context,
-    //   title: title ?? t.delete_all,
-    //   message: message ?? t.alert.erase_all_entered_so_far,
-    //   cancelButtonText: t.cancel,
-    //   confirmButtonText: t.confirm,
-    //   confirmButtonColor: CoconutColors.warningText,
-    //   onCancel: () => Navigator.pop(context),
-    //   onConfirm: action ??
-    //       () {
-    //         _resetBits();
-    //         Navigator.pop(context);
-    //       },
-    // );
-
+    if (_currentIndex == 0) return;
     showDialog(
         context: context,
         builder: (BuildContext context) {
@@ -648,26 +782,6 @@ class _FlipCoinState extends State<FlipCoin> {
         title: '${t.view_all}(${_bits.length}/$_totalBits)',
         context: context,
         child: BinaryGrid(totalBits: _totalBits, bits: _bits));
-  }
-
-  void _showConfirmBottomSheet(String message) {
-    MyBottomSheet.showBottomSheet_90(context: context, child: Container()
-        // child: MnemonicConfirmationScreen(
-        //   onCancelPressed: () => Navigator.pop(context),
-        //   onConfirmPressed: () {
-        //     Provider.of<WalletCreationProvider>(context, listen: false)
-        //         .setSecretAndPassphrase(_mnemonic, passphrase);
-        //     Navigator.pushReplacement(context,
-        //         MaterialPageRoute(builder: (context) => const VaultNameAndIconSetupScreen()));
-        //   },
-        //   onInactivePressed: () {
-        //     CoconutToast.showToast(context: context, text: t.toast.scroll_down, isVisibleIcon: true);
-        //   },
-        //   mnemonic: _mnemonic,
-        //   passphrase: widget.usePassphrase ? passphrase : null,
-        //   topMessage: message,
-        // ),
-        );
   }
 }
 

@@ -88,7 +88,7 @@ class _MnemonicGenerationScreenState extends State<MnemonicGenerationScreen> {
               },
               onTapRight: () {
                 Navigator.pop(dialogContext); // 다이얼로그 닫기
-                Navigator.pop(context); // 다이얼로그 닫기
+                Navigator.pop(context);
               });
         });
   }
@@ -96,31 +96,6 @@ class _MnemonicGenerationScreenState extends State<MnemonicGenerationScreen> {
   void _onNavigateToNext() {
     Navigator.pushNamed(context, AppRoutes.mnemonicVerify);
   }
-
-  // void _showConfirmBottomSheet() {
-  //   MyBottomSheet.showBottomSheet_90(
-  //     context: context,
-  //     child: MnemonicConfirmationBottomSheet(
-  //       onCancelPressed: () => Navigator.pop(context),
-  //       onConfirmPressed: () {
-  //         Provider.of<WalletCreationProvider>(context, listen: false)
-  //             .setSecretAndPassphrase(_mnemonicWords, _passphrase);
-  //         Navigator.pushReplacement(context,
-  //             MaterialPageRoute(builder: (context) => const VaultNameAndIconSetupScreen()));
-  //       },
-  //       onInactivePressed: () {
-  //         CoconutToast.showToast(
-  //           context: context,
-  //           text: t.toast.scroll_down,
-  //           isVisibleIcon: true,
-  //         );
-  //         vibrateMediumDouble();
-  //       },
-  //       mnemonic: _mnemonicWords,
-  //       passphrase: _usePassphrase ? _passphrase : null,
-  //     ),
-  //   );
-  // }
 
   @override
   void initState() {
