@@ -1,10 +1,10 @@
 import 'package:coconut_design_system/coconut_design_system.dart';
+import 'package:coconut_vault/constants/pin_constants.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/providers/auth_provider.dart';
 import 'package:coconut_vault/widgets/pin/pin_length_toggle_button.dart';
 import 'package:flutter/material.dart';
 import 'package:coconut_vault/widgets/button/key_button.dart';
-import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
 import '../../widgets/pin/pin_box.dart';
@@ -89,7 +89,13 @@ class PinInputScreenState extends State<PinInputScreen> {
         _characterController.text = "";
       }
     }
+
     _previousCharacterText = currentText;
+    // 비밀번호 확인에서 사용하는 경우를 위해 미리 정리한다.
+    if (currentText.length == kExpectedPinLength) {
+      _previousCharacterText = "";
+      _characterController.text = "";
+    }
   }
 
   void _togglePinType() {
@@ -99,6 +105,7 @@ class PinInputScreenState extends State<PinInputScreen> {
       _characterFocusNode.requestFocus();
     }
     widget.onPinClear();
+    _characterController.clear();
     setState(() {});
   }
 
@@ -133,12 +140,8 @@ class PinInputScreenState extends State<PinInputScreen> {
               child: widget.descriptionTextWidget ?? const Text(''),
             ),
             const SizedBox(height: 10),
-            GestureDetector(
-              onTap: () {
-                if (_pinType == PinType.number) return;
-                _characterFocusNode.requestFocus();
-              },
-              child: Row(
+            if (_pinType == PinType.number)
+              Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   PinBox(isSet: widget.pin.isNotEmpty, disabled: widget.disabled),
@@ -154,21 +157,26 @@ class PinInputScreenState extends State<PinInputScreen> {
                   PinBox(isSet: widget.pin.length > 5, disabled: widget.disabled),
                 ],
               ),
-            ),
-            SizedBox(
-              width: 0,
-              height: 0,
-              child: TextField(
-                controller: _characterController,
-                focusNode: _characterFocusNode,
-                keyboardType: TextInputType.text,
-                inputFormatters: [
-                  FilteringTextInputFormatter.allow(
-                    RegExp(r'[ -~×÷<>]'), // 기본 ASCII + × + ÷
-                  ),
-                ],
+            if (_pinType == PinType.character)
+              SizedBox(
+                width: 235,
+                child: CoconutTextField(
+                  padding: const EdgeInsets.fromLTRB(16, 15, 16, 15),
+                  borderRadius: 14,
+                  backgroundColor: CoconutColors.gray150,
+                  placeholderColor: Colors.transparent,
+                  textAlign: TextAlign.center,
+                  maxLength: 6,
+                  maxLines: 1,
+                  isLengthVisible: false,
+                  isVisibleBorder: false,
+                  errorText: null,
+                  descriptionText: null,
+                  controller: _characterController,
+                  focusNode: _characterFocusNode,
+                  onChanged: (text) {},
+                ),
               ),
-            ),
             if (widget.canChangePinType && widget.step == 0)
               Padding(
                 padding: const EdgeInsets.only(top: 16),
