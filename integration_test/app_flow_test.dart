@@ -1,6 +1,6 @@
 import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
-import 'package:coconut_vault/managers/wallet_list_manager.dart';
+import 'package:coconut_vault/repository/wallet_repository.dart';
 import 'package:coconut_vault/repository/secure_storage_repository.dart';
 import 'package:coconut_vault/repository/shared_preferences_repository.dart';
 import 'package:coconut_vault/screens/app_update/restoration_info_screen.dart';
@@ -30,7 +30,7 @@ void main() {
     await prefs.init();
     await prefs.clearSharedPref();
     await SecureStorageRepository().deleteAll();
-    await WalletListManager().loadVaultListJsonArrayString();
+    await WalletRepository().loadVaultListJsonArrayString();
   });
 
   tearDown(() async {

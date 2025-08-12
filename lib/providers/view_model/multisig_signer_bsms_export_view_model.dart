@@ -1,5 +1,5 @@
 import 'package:coconut_lib/coconut_lib.dart';
-import 'package:coconut_vault/managers/isolate_manager.dart';
+import 'package:coconut_vault/isolates/wallet_isolates.dart';
 import 'package:coconut_vault/model/common/vault_list_item_base.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:coconut_vault/utils/isolate_handler.dart';
@@ -14,7 +14,7 @@ class MultisigSignerBsmsExportViewModel extends ChangeNotifier {
   late VaultListItemBase _vaultListItem;
   Bsms? _bsms;
   IsolateHandler<List<VaultListItemBase>, List<String>> extractBsmsIsolateHandler =
-      IsolateHandler(extractSignerBsmsIsolate);
+      IsolateHandler(WalletIsolates.extractSignerBsms);
 
   MultisigSignerBsmsExportViewModel(this._walletProvider, id) {
     _qrData = '';

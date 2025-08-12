@@ -1,3 +1,10 @@
+## regtest 2.3.0 - 2025-08-11
+### Fixed
+* 카메라 스캔 진행률 표기
+* 안드로이드 targetSDKVersion 35
+### Added
+* 언어 - 영어 추가
+
 ## mainnet(beta) 0.0.4, regtest 2.2.4 - 2025-07-01
 ### Fixed
 * BTC 수량 표기 규칙 수정

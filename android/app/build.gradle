@@ -44,16 +44,16 @@ if (flutterVersionName == null) {
 
 android {
     namespace "onl.coconut.vault"
-    compileSdk flutter.compileSdkVersion
+    compileSdk 35
     ndkVersion flutter.ndkVersion
 
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
     }
 
     kotlinOptions {
-        jvmTarget = '1.8'
+        jvmTarget = '17'
     }
 
     sourceSets {
@@ -63,7 +63,7 @@ android {
     defaultConfig {
         applicationId "onl.coconut.vault"
         minSdkVersion 23
-        targetSdkVersion flutter.targetSdkVersion
+        targetSdkVersion 35
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName
     }
@@ -93,13 +93,11 @@ android {
     productFlavors {
         regtest {
             dimension "network"
-            resValue "string", "app_name", "코코넛 볼트 학습용"
             applicationIdSuffix ".regtest"
             versionNameSuffix "-regtest"
         }
         mainnet {
             dimension "network"
-            resValue "string", "app_name", "코코넛 볼트"
             applicationIdSuffix ""
             versionNameSuffix ""
         }

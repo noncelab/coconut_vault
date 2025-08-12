@@ -69,6 +69,7 @@ class _MultisigQuorumSelectionScreenState extends State<MultisigQuorumSelectionS
             backgroundColor: CoconutColors.white,
             appBar: CoconutAppBar.buildWithNext(
               title: t.multisig_wallet,
+              nextButtonTitle: t.next,
               context: context,
               onNextPressed: () {
                 viewModel.saveQuorumRequirement();

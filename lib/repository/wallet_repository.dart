@@ -3,6 +3,7 @@ import 'dart:convert';
 
 import 'package:coconut_lib/coconut_lib.dart';
 import 'package:coconut_vault/constants/shared_preferences_keys.dart';
+import 'package:coconut_vault/isolates/wallet_isolates.dart';
 import 'package:coconut_vault/model/multisig/multisig_signer.dart';
 import 'package:coconut_vault/model/multisig/multisig_vault_list_item.dart';
 import 'package:coconut_vault/model/single_sig/single_sig_vault_list_item.dart';
@@ -11,7 +12,6 @@ import 'package:coconut_vault/enums/wallet_enums.dart';
 import 'package:coconut_vault/model/multisig/multisig_wallet.dart';
 import 'package:coconut_vault/model/common/secret.dart';
 import 'package:coconut_vault/model/single_sig/single_sig_wallet.dart';
-import 'package:coconut_vault/managers/isolate_manager.dart';
 import 'package:coconut_vault/repository/secure_storage_repository.dart';
 import 'package:coconut_vault/repository/shared_preferences_repository.dart';
 import 'package:coconut_vault/utils/coconut/update_preparation.dart';
@@ -20,30 +20,28 @@ import 'package:coconut_vault/utils/isolate_handler.dart';
 import 'package:coconut_vault/utils/logger.dart';
 
 /// 지갑의 public 정보는 shared prefs, 비밀 정보는 secure storage에 저장하는 역할을 하는 클래스입니다.
-class WalletListManager {
+class WalletRepository {
   static String nextIdField = 'nextId';
   static String vaultTypeField = VaultListItemBase.vaultTypeField;
 
   final SecureStorageRepository _storageService = SecureStorageRepository();
   final SharedPrefsRepository _sharedPrefs = SharedPrefsRepository();
 
-  static final WalletListManager _instance = WalletListManager._internal();
-  factory WalletListManager() => _instance;
+  static final WalletRepository _instance = WalletRepository._internal();
+  factory WalletRepository() => _instance;
 
   List<VaultListItemBase>? _vaultList;
   get vaultList => _vaultList;
 
   Completer<void>? _walletLoadCancelToken;
 
-  WalletListManager._internal();
+  WalletRepository._internal();
 
   Future<void> init() async {
     // init in main.dart
   }
 
   Future<List<dynamic>?> loadVaultListJsonArrayString() async {
-    await _migrateToVer2();
-
     String? jsonArrayString;
 
     jsonArrayString = _sharedPrefs.getString(SharedPrefsKeys.kVaultListField);
@@ -64,7 +62,7 @@ class WalletListManager {
     List<VaultListItemBase> vaultList = [];
 
     var initIsolateHandler =
-        IsolateHandler<Map<String, dynamic>, VaultListItemBase>(initializeWallet);
+        IsolateHandler<Map<String, dynamic>, VaultListItemBase>(WalletIsolates.initializeWallet);
     await initIsolateHandler.initialize(initialType: InitializeType.initializeWallet);
 
     for (int i = 0; i < jsonList.length; i++) {
@@ -100,7 +98,7 @@ class WalletListManager {
     final Map<String, dynamic> vaultData = wallet.toJson();
 
     var addVaultIsolateHandler =
-        IsolateHandler<Map<String, dynamic>, List<SingleSigVaultListItem>>(addVaultIsolate);
+        IsolateHandler<Map<String, dynamic>, List<SingleSigVaultListItem>>(WalletIsolates.addVault);
     await addVaultIsolateHandler.initialize(initialType: InitializeType.addVault);
     List<SingleSigVaultListItem> vaultListResult =
         await addVaultIsolateHandler.runAddVault(vaultData);
@@ -189,7 +187,8 @@ class WalletListManager {
     final Map<String, dynamic> data = wallet.toJson();
 
     var addMultisigVaultIsolateHandler =
-        IsolateHandler<Map<String, dynamic>, MultisigVaultListItem>(addMultisigVaultIsolate);
+        IsolateHandler<Map<String, dynamic>, MultisigVaultListItem>(
+            WalletIsolates.addMultisigVault);
     await addMultisigVaultIsolateHandler.initialize(initialType: InitializeType.addMultisigVault);
     MultisigVaultListItem newMultisigVault = await addMultisigVaultIsolateHandler.run(data);
     addMultisigVaultIsolateHandler.dispose();
@@ -345,7 +344,7 @@ class WalletListManager {
   Future<void> restoreFromBackupData(List<Map<String, dynamic>> backupData) async {
     final List<VaultListItemBase> vaultList = [];
     var initIsolateHandler =
-        IsolateHandler<Map<String, dynamic>, VaultListItemBase>(initializeWallet);
+        IsolateHandler<Map<String, dynamic>, VaultListItemBase>(WalletIsolates.initializeWallet);
     await initIsolateHandler.initialize(initialType: InitializeType.initializeWallet);
     for (final data in backupData) {
       VaultListItemBase wallet = await initIsolateHandler.run(data);
@@ -363,46 +362,6 @@ class WalletListManager {
     _vaultList = vaultList;
     await _savePublicInfo();
     initIsolateHandler.dispose();
-  }
-
-  /// 1.0.x 버전에서 2.0.0으로 업데이트 한 지갑인지 확인 후 마이그레이션 합니다.
-  ///
-  /// 마이그레이션 진행 여부를 반환합니다.
-  Future<bool> _migrateToVer2() async {
-    var previousData = await _storageService.read(key: SharedPrefsKeys.kVaultListField);
-    if (previousData == null || previousData.isEmpty) {
-      return false;
-    }
-    if (previousData == '[]') {
-      return false;
-    }
-
-    List<dynamic> jsonList = jsonDecode(previousData);
-    List<dynamic> newJsonList = [];
-    for (int i = 0; i < jsonList.length; i++) {
-      int id = jsonList[i]['id'];
-      String mnemonic = jsonList[i][SingleSigVaultListItem.secretField];
-      String? passphrase = jsonList[i][SingleSigVaultListItem.passphraseField];
-
-      String keyString = _createWalletKeyString(id, WalletType.singleSignature);
-      _storageService.write(
-          key: keyString, value: jsonEncode(Secret(mnemonic, passphrase ?? '').toJson()));
-
-      newJsonList.add({
-        "id": id,
-        "name": jsonList[i]['name'],
-        "colorIndex": jsonList[i]['colorIndex'],
-        "iconIndex": jsonList[i]['iconIndex'],
-        "vaultType": WalletType.singleSignature.name,
-      });
-    }
-
-    final jsonString = jsonEncode(newJsonList);
-
-    _sharedPrefs.setString(SharedPrefsKeys.kVaultListField, jsonString);
-    _storageService.delete(key: SharedPrefsKeys.kVaultListField);
-
-    return true;
   }
 
   void dispose() {

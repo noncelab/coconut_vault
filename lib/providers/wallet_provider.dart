@@ -2,7 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:coconut_lib/coconut_lib.dart';
-import 'package:coconut_vault/managers/wallet_list_manager.dart';
+import 'package:coconut_vault/repository/wallet_repository.dart';
 import 'package:coconut_vault/model/common/secret.dart';
 import 'package:coconut_vault/model/common/vault_list_item_base.dart';
 import 'package:coconut_vault/model/multisig/multisig_import_detail.dart';
@@ -20,10 +20,10 @@ import 'package:flutter/foundation.dart';
 
 class WalletProvider extends ChangeNotifier {
   late final VisibilityProvider _visibilityProvider;
-  late final WalletListManager _walletManager;
+  late final WalletRepository _walletRepository;
 
   WalletProvider(this._visibilityProvider) {
-    _walletManager = WalletListManager();
+    _walletRepository = WalletRepository();
   }
 
   // Vault list
@@ -92,8 +92,8 @@ class WalletProvider extends ChangeNotifier {
   Future<void> addSingleSigVault(SinglesigWallet wallet) async {
     _setAddVaultCompleted(false);
 
-    await _walletManager.addSinglesigWallet(wallet);
-    _vaultList = _walletManager.vaultList;
+    await _walletRepository.addSinglesigWallet(wallet);
+    _vaultList = _walletRepository.vaultList;
 
     setAnimatedVaultFlags();
     _setAddVaultCompleted(true);
@@ -107,10 +107,10 @@ class WalletProvider extends ChangeNotifier {
       int requiredSignatureCount) async {
     _setAddVaultCompleted(false);
 
-    await _walletManager.addMultisigWallet(
+    await _walletRepository.addMultisigWallet(
         MultisigWallet(null, name, icon, color, signers, requiredSignatureCount));
 
-    _vaultList = _walletManager.vaultList;
+    _vaultList = _walletRepository.vaultList;
     setAnimatedVaultFlags();
     _setAddVaultCompleted(true);
     await _updateWalletLength();
@@ -182,15 +182,15 @@ class WalletProvider extends ChangeNotifier {
 
   /// [id]에 해당하는 지갑의 UI 정보 업데이트
   Future<void> updateVault(int id, String newName, int colorIndex, int iconIndex) async {
-    await _walletManager.updateWallet(id, newName, colorIndex, iconIndex);
-    _vaultList = _walletManager.vaultList;
+    await _walletRepository.updateWallet(id, newName, colorIndex, iconIndex);
+    _vaultList = _walletRepository.vaultList;
     notifyListeners();
   }
 
   /// 다중서명 지갑의 [singerIndex]번째 키로 사용한 외부 지갑의 메모를 업데이트
   Future updateMemo(int id, int signerIndex, String? newMemo) async {
     int index = _vaultList.indexWhere((wallet) => wallet.id == id);
-    _vaultList[index] = await _walletManager.updateMemo(id, signerIndex, newMemo);
+    _vaultList[index] = await _walletRepository.updateMemo(id, signerIndex, newMemo);
   }
 
   /// SiglesigVaultListItem의 seed 중복 여부 확인
@@ -230,16 +230,16 @@ class WalletProvider extends ChangeNotifier {
   }
 
   Future<void> deleteWallet(int id) async {
-    if (await _walletManager.deleteWallet(id)) {
-      _vaultList = _walletManager.vaultList;
+    if (await _walletRepository.deleteWallet(id)) {
+      _vaultList = _walletRepository.vaultList;
       notifyListeners();
       _updateWalletLength();
     }
   }
 
   Future<void> deleteAllWallets() async {
-    await _walletManager.deleteWallets();
-    _vaultList = _walletManager.vaultList;
+    await _walletRepository.deleteWallets();
+    _vaultList = _walletRepository.vaultList;
     notifyListeners();
     _updateWalletLength();
   }
@@ -252,7 +252,7 @@ class WalletProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
-      final jsonList = await _walletManager.loadVaultListJsonArrayString();
+      final jsonList = await _walletRepository.loadVaultListJsonArrayString();
 
       if (jsonList != null) {
         if (jsonList.isEmpty) {
@@ -261,7 +261,7 @@ class WalletProvider extends ChangeNotifier {
           return;
         }
 
-        await _walletManager.loadAndEmitEachWallet(jsonList, (VaultListItemBase wallet) {
+        await _walletRepository.loadAndEmitEachWallet(jsonList, (VaultListItemBase wallet) {
           if (_isDisposed) {
             return;
           }
@@ -309,7 +309,7 @@ class WalletProvider extends ChangeNotifier {
   }
 
   Future<Secret> getSecret(int id) async {
-    return await _walletManager.getSecret(id);
+    return await _walletRepository.getSecret(id);
   }
 
   Future<String> createBackupData() async {
@@ -337,8 +337,8 @@ class WalletProvider extends ChangeNotifier {
         .map<Map<String, dynamic>>((e) => Map<String, dynamic>.from(e))
         .toList();
 
-    await _walletManager.restoreFromBackupData(backupDataMapList);
-    _vaultList = _walletManager.vaultList;
+    await _walletRepository.restoreFromBackupData(backupDataMapList);
+    _vaultList = _walletRepository.vaultList;
 
     notifyListeners();
     await _updateWalletLength();
@@ -350,7 +350,7 @@ class WalletProvider extends ChangeNotifier {
 
     // stop if loading
     _isDisposed = true;
-    _walletManager.dispose();
+    _walletRepository.dispose();
 
     _vaultList.clear();
     _animatedVaultFlags = [];

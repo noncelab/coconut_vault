@@ -444,7 +444,7 @@ class _MultisigSetupInfoScreenState extends State<MultisigSetupInfoScreen> {
                 children: [
                   Text(
                     t.multi_sig_setting_screen
-                        .tooltip(total: totalSingerCount, count: requiredSignatureCount),
+                        .tooltip(total: totalSingerCount, n: requiredSignatureCount),
                     style: CoconutTypography.body3_12.merge(const TextStyle(
                       height: 1.3,
                       color: CoconutColors.white,

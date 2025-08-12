@@ -38,8 +38,8 @@ class _SyncToWalletScreenState extends State<SyncToWalletScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              CustomTooltip(
-                type: TooltipType.info,
+              CoconutToolTip(
+                tooltipType: CoconutTooltipType.fixed,
                 showIcon: true,
                 richText: RichText(
                   text: TextSpan(

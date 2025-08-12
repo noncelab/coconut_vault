@@ -115,32 +115,99 @@ class _MultisigSignScreenState extends State<MultisigSignScreen> {
   }
 
   void _askIfSureToQuit() {
-    CustomDialogs.showCustomAlertDialog(context,
-        title: t.alert.exit_sign.title,
-        message: t.alert.exit_sign.description,
-        confirmButtonText: t.quit,
-        confirmButtonColor: CoconutColors.warningText,
-        onCancel: () => Navigator.pop(context),
-        onConfirm: () {
-          _viewModel.resetAll();
-          Navigator.popUntil(context, (route) => route.isFirst);
+    // CustomDialogs.showCustomAlertDialog(context,
+    //     title: t.alert.exit_sign.title,
+    //     message: t.alert.exit_sign.description,
+    //     confirmButtonText: t.quit,
+    //     confirmButtonColor: CoconutColors.warningText,
+    //     onCancel: () => Navigator.pop(context),
+    //     onConfirm: () {
+    //       _viewModel.resetAll();
+    //       Navigator.popUntil(context, (route) => route.isFirst);
+    //     });
+
+    showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return CoconutPopup(
+            insetPadding:
+                EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width * 0.15),
+            title: t.alert.exit_sign.title,
+            titleTextStyle: CoconutTypography.body1_16_Bold,
+            description: t.alert.exit_sign.description,
+            descriptionTextStyle: CoconutTypography.body2_14,
+            backgroundColor: CoconutColors.white,
+            leftButtonText: t.cancel,
+            leftButtonTextStyle: CoconutTypography.body2_14.merge(
+              TextStyle(
+                color: CoconutColors.black.withOpacity(0.7),
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+            rightButtonText: t.quit,
+            rightButtonColor: CoconutColors.warningText,
+            rightButtonTextStyle: CoconutTypography.body2_14.merge(
+              const TextStyle(
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+            onTapLeft: () => Navigator.pop(context),
+            onTapRight: () {
+              _viewModel.resetAll();
+              Navigator.popUntil(context, (route) => route.isFirst);
+            },
+          );
         });
   }
 
   void _askIfSureToGoBack() {
-    CustomDialogs.showCustomAlertDialog(
-      context,
-      title: t.alert.stop_sign.title,
-      message: t.alert.stop_sign.description,
-      confirmButtonText: t.quit,
-      confirmButtonColor: CoconutColors.warningText,
-      onCancel: () => Navigator.pop(context),
-      onConfirm: () {
-        _viewModel.reset();
-        Navigator.pop(context); // 1) close dialog
-        Navigator.pop(context); // 2) go back
-      },
-    );
+    // CustomDialogs.showCustomAlertDialog(
+    //   context,
+    //   title: t.alert.stop_sign.title,
+    //   message: t.alert.stop_sign.description,
+    //   confirmButtonText: t.quit,
+    //   confirmButtonColor: CoconutColors.warningText,
+    //   onCancel: () => Navigator.pop(context),
+    //   onConfirm: () {
+    //     _viewModel.reset();
+    //     Navigator.pop(context); // 1) close dialog
+    //     Navigator.pop(context); // 2) go back
+    //   },
+    // );
+
+    showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return CoconutPopup(
+            insetPadding:
+                EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width * 0.15),
+            title: t.alert.stop_sign.title,
+            titleTextStyle: CoconutTypography.body1_16_Bold,
+            description: t.alert.stop_sign.description,
+            descriptionTextStyle: CoconutTypography.body2_14,
+            backgroundColor: CoconutColors.white,
+            leftButtonText: t.cancel,
+            leftButtonTextStyle: CoconutTypography.body2_14.merge(
+              TextStyle(
+                color: CoconutColors.black.withOpacity(0.7),
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+            rightButtonText: t.quit,
+            rightButtonColor: CoconutColors.warningText,
+            rightButtonTextStyle: CoconutTypography.body2_14.merge(
+              const TextStyle(
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+            onTapLeft: () => Navigator.pop(context),
+            onTapRight: () {
+              _viewModel.reset();
+              Navigator.pop(context); // 1) close dialog
+              Navigator.pop(context); // 2) go back
+            },
+          );
+        });
   }
 
   void _onBackPressed() {
@@ -167,6 +234,7 @@ class _MultisigSignScreenState extends State<MultisigSignScreen> {
             backgroundColor: CoconutColors.gray150,
             appBar: CoconutAppBar.buildWithNext(
               title: t.sign,
+              nextButtonTitle: t.next,
               context: context,
               onBackPressed: _onBackPressed,
               onNextPressed: () {

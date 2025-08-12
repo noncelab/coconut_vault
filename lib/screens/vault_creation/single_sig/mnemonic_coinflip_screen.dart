@@ -10,9 +10,7 @@ import 'package:coconut_vault/screens/vault_creation/single_sig/mnemonic_confirm
 import 'package:coconut_vault/screens/vault_creation/single_sig/mnemonic_generation_screen.dart';
 import 'package:coconut_vault/widgets/bottom_sheet.dart';
 import 'package:coconut_vault/widgets/button/custom_buttons.dart';
-import 'package:coconut_vault/widgets/custom_dialog.dart';
 import 'package:coconut_vault/widgets/highlighted_text.dart';
-import 'package:coconut_vault/widgets/textfield/custom_textfield.dart';
 import 'package:provider/provider.dart';
 
 class MnemonicCoinflipScreen extends StatefulWidget {
@@ -53,19 +51,51 @@ class _MnemonicCoinflipScreenState extends State<MnemonicCoinflipScreen> {
   }
 
   void _showStopGeneratingMnemonicDialog() {
-    CustomDialogs.showCustomAlertDialog(
-      context,
-      title: t.alert.stop_creating_mnemonic.title,
-      message: t.alert.stop_creating_mnemonic.description,
-      cancelButtonText: t.cancel,
-      confirmButtonText: t.stop,
-      confirmButtonColor: CoconutColors.warningText,
-      onCancel: () => Navigator.pop(context),
-      onConfirm: () {
-        Navigator.pop(context);
-        Navigator.pushNamedAndRemoveUntil(context, '/', (Route<dynamic> route) => false);
-      },
-    );
+    // CustomDialogs.showCustomAlertDialog(
+    //   context,
+    //   title: t.alert.stop_creating_mnemonic.title,
+    //   message: t.alert.stop_creating_mnemonic.description,
+    //   cancelButtonText: t.cancel,
+    //   confirmButtonText: t.stop,
+    //   confirmButtonColor: CoconutColors.warningText,
+    //   onCancel: () => Navigator.pop(context),
+    //   onConfirm: () {
+    //     Navigator.pop(context);
+    //     Navigator.pushNamedAndRemoveUntil(context, '/', (Route<dynamic> route) => false);
+    //   },
+    // );
+    showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return CoconutPopup(
+            insetPadding:
+                EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width * 0.15),
+            title: t.alert.stop_creating_mnemonic.title,
+            titleTextStyle: CoconutTypography.body1_16_Bold,
+            descriptionTextStyle: CoconutTypography.body2_14,
+            description: t.alert.stop_creating_mnemonic.description,
+            backgroundColor: CoconutColors.white,
+            rightButtonColor: CoconutColors.warningText,
+            rightButtonText: t.stop,
+            rightButtonTextStyle: CoconutTypography.body2_14.merge(
+              const TextStyle(
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+            leftButtonText: t.cancel,
+            leftButtonTextStyle: CoconutTypography.body2_14.merge(
+              TextStyle(
+                color: CoconutColors.black.withOpacity(0.7),
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+            onTapLeft: () => Navigator.pop(context),
+            onTapRight: () {
+              Navigator.pop(context);
+              Navigator.pushNamedAndRemoveUntil(context, '/', (Route<dynamic> route) => false);
+            },
+          );
+        });
   }
 
   @override
@@ -125,11 +155,12 @@ class FlipCoin extends StatefulWidget {
 }
 
 class _FlipCoinState extends State<FlipCoin> {
+  final TextEditingController _passphraseController = TextEditingController();
+  final FocusNode _passphraseFocusNode = FocusNode();
   late int stepCount; // 총 화면 단계
   int step = 0;
   String _mnemonic = '';
   String passphrase = '';
-  final TextEditingController _passphraseController = TextEditingController();
   bool passphraseObscured = false;
   bool isNextButtonActive = false;
   int numberOfBits = 0;
@@ -144,6 +175,18 @@ class _FlipCoinState extends State<FlipCoin> {
     super.initState();
     _totalBits = widget.wordsCount == 12 ? 128 : 256;
     stepCount = widget.usePassphrase ? 2 : 1;
+    _passphraseController.addListener(() {
+      setState(() {
+        passphrase = _passphraseController.text;
+      });
+    });
+  }
+
+  @override
+  void dispose() {
+    _passphraseController.dispose();
+    _passphraseFocusNode.dispose();
+    super.dispose();
   }
 
   @override
@@ -298,15 +341,13 @@ class _FlipCoinState extends State<FlipCoin> {
                               Padding(
                                 padding: const EdgeInsets.only(top: 12),
                                 child: SizedBox(
-                                  child: CustomTextField(
+                                  child: CoconutTextField(
+                                    focusNode: _passphraseFocusNode,
                                     controller: _passphraseController,
-                                    placeholder: t.mnemonic_coin_flip_screen.enter_passphrase,
-                                    onChanged: (text) {
-                                      setState(() {
-                                        passphrase = text;
-                                      });
-                                    },
+                                    placeholderText: t.mnemonic_coin_flip_screen.enter_passphrase,
+                                    onChanged: (_) {},
                                     maxLines: 1,
+                                    isLengthVisible: false,
                                     obscureText: passphraseObscured,
                                     suffix: CupertinoButton(
                                       onPressed: () {
@@ -326,7 +367,7 @@ class _FlipCoinState extends State<FlipCoin> {
                                               size: 18,
                                             ),
                                     ),
-                                    maxLength: 100,
+                                    // maxLength: 100,
                                   ),
                                 ),
                               ),
@@ -551,20 +592,53 @@ class _FlipCoinState extends State<FlipCoin> {
   }
 
   void _showConfirmResetDialog({String? title, String? message, VoidCallback? action}) {
-    CustomDialogs.showCustomAlertDialog(
-      context,
-      title: title ?? t.delete_all,
-      message: message ?? t.alert.erase_all_entered_so_far,
-      cancelButtonText: t.cancel,
-      confirmButtonText: t.confirm,
-      confirmButtonColor: CoconutColors.warningText,
-      onCancel: () => Navigator.pop(context),
-      onConfirm: action ??
-          () {
-            _resetBits();
-            Navigator.pop(context);
-          },
-    );
+    // CustomDialogs.showCustomAlertDialog(
+    //   context,
+    //   title: title ?? t.delete_all,
+    //   message: message ?? t.alert.erase_all_entered_so_far,
+    //   cancelButtonText: t.cancel,
+    //   confirmButtonText: t.confirm,
+    //   confirmButtonColor: CoconutColors.warningText,
+    //   onCancel: () => Navigator.pop(context),
+    //   onConfirm: action ??
+    //       () {
+    //         _resetBits();
+    //         Navigator.pop(context);
+    //       },
+    // );
+
+    showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return CoconutPopup(
+            insetPadding:
+                EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width * 0.15),
+            title: title ?? t.delete_all,
+            titleTextStyle: CoconutTypography.body1_16_Bold,
+            descriptionTextStyle: CoconutTypography.body2_14,
+            description: message ?? t.alert.erase_all_entered_so_far,
+            backgroundColor: CoconutColors.white,
+            rightButtonColor: CoconutColors.warningText,
+            rightButtonText: t.confirm,
+            rightButtonTextStyle: CoconutTypography.body2_14.merge(
+              const TextStyle(
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+            leftButtonText: t.cancel,
+            leftButtonTextStyle: CoconutTypography.body2_14.merge(
+              TextStyle(
+                color: CoconutColors.black.withOpacity(0.7),
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+            onTapLeft: () => Navigator.pop(context),
+            onTapRight: () {
+              _resetBits();
+              Navigator.pop(context);
+            },
+          );
+        });
   }
 
   String listToBinaryString(List<int> list) {

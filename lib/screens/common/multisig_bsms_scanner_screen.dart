@@ -138,11 +138,13 @@ class _MultisigBsmsScannerScreenState extends State<MultisigBsmsScannerScreen> {
           color: CoconutColors.black.withOpacity(0.5),
         ),
         Padding(
-          padding: const EdgeInsets.only(top: 20),
-          child: CustomTooltip(
+          padding: const EdgeInsets.only(top: 20, left: 16, right: 16),
+          child: CoconutToolTip(
             richText: _infoRichText(),
             showIcon: true,
-            type: TooltipType.info,
+            tooltipType: CoconutTooltipType.fixed,
+            baseBackgroundColor: CoconutColors.white,
+            backgroundColor: CoconutColors.backgroundColorPaletteLight[4].withOpacity(0.18),
           ),
         ),
         Visibility(

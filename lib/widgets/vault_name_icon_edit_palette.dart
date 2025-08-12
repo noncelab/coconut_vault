@@ -1,10 +1,9 @@
 import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:coconut_vault/utils/icon_util.dart';
 import 'package:coconut_vault/widgets/icon/svg_icon.dart';
-import 'package:coconut_vault/widgets/textfield/custom_textfield.dart';
+import 'package:flutter_svg/svg.dart';
 
 class VaultNameIconEditPalette extends StatefulWidget {
   final String name;
@@ -33,6 +32,7 @@ class _VaultNameIconEditPaletteState extends State<VaultNameIconEditPalette> {
   late int _selectedIconIndex;
   late int _selectedColorIndex;
   final TextEditingController _controller = TextEditingController();
+  final FocusNode _focusNode = FocusNode();
 
   @override
   void initState() {
@@ -41,6 +41,13 @@ class _VaultNameIconEditPaletteState extends State<VaultNameIconEditPalette> {
     _selectedIconIndex = widget.iconIndex;
     _selectedColorIndex = widget.colorIndex;
     _controller.text = _name;
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    _focusNode.dispose();
+    super.dispose();
   }
 
   @override
@@ -145,12 +152,32 @@ class _VaultNameIconEditPaletteState extends State<VaultNameIconEditPalette> {
           Expanded(
             child: Column(
               children: [
-                CustomTextField(
-                  placeholder: t.name,
+                CoconutTextField(
+                  isLengthVisible: false,
+                  placeholderText: t.name,
                   maxLength: 20,
                   maxLines: 1,
                   controller: _controller,
-                  clearButtonMode: OverlayVisibilityMode.always,
+                  focusNode: _focusNode,
+                  suffix: IconButton(
+                    highlightColor: CoconutColors.gray200,
+                    iconSize: 14,
+                    padding: EdgeInsets.zero,
+                    onPressed: () {
+                      setState(() {
+                        _controller.text = '';
+                      });
+                    },
+                    icon: _controller.text.isNotEmpty
+                        ? SvgPicture.asset(
+                            'assets/svg/text-field-clear.svg',
+                            colorFilter: const ColorFilter.mode(
+                              CoconutColors.gray400,
+                              BlendMode.srcIn,
+                            ),
+                          )
+                        : Container(),
+                  ),
                   onChanged: (text) {
                     setState(() {
                       _name = text;

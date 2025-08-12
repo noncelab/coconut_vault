@@ -46,33 +46,36 @@ class _SignedTransactionQrScreenState extends State<SignedTransactionQrScreen> {
               crossAxisAlignment: CrossAxisAlignment.center,
               children: <Widget>[
                 const SizedBox(height: 20),
-                CustomTooltip(
-                  richText: RichText(
-                    text: TextSpan(
-                      text: '[4] ',
-                      style: const TextStyle(
-                        fontFamily: 'Pretendard',
-                        fontWeight: FontWeight.bold,
-                        fontSize: 15,
-                        height: 1.4,
-                        letterSpacing: 0.5,
-                        color: CoconutColors.black,
-                      ),
-                      children: <TextSpan>[
-                        TextSpan(
-                          text: _signProvider.isMultisig!
-                              ? t.signed_transaction_qr_screen.guide_multisig
-                              : t.signed_transaction_qr_screen
-                                  .guide_single_sig(name: _signProvider.walletName!),
-                          style: const TextStyle(
-                            fontWeight: FontWeight.normal,
-                          ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: CoconutToolTip(
+                    tooltipType: CoconutTooltipType.fixed,
+                    richText: RichText(
+                      text: TextSpan(
+                        text: '[4] ',
+                        style: const TextStyle(
+                          fontFamily: 'Pretendard',
+                          fontWeight: FontWeight.bold,
+                          fontSize: 15,
+                          height: 1.4,
+                          letterSpacing: 0.5,
+                          color: CoconutColors.black,
                         ),
-                      ],
+                        children: <TextSpan>[
+                          TextSpan(
+                            text: _signProvider.isMultisig!
+                                ? t.signed_transaction_qr_screen.guide_multisig
+                                : t.signed_transaction_qr_screen
+                                    .guide_single_sig(name: _signProvider.walletName!),
+                            style: const TextStyle(
+                              fontWeight: FontWeight.normal,
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
+                    showIcon: true,
                   ),
-                  showIcon: true,
-                  type: TooltipType.info,
                 ),
                 const SizedBox(
                   height: 40,

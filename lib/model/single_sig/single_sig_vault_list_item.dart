@@ -1,9 +1,9 @@
 import 'dart:convert';
 
 import 'package:coconut_lib/coconut_lib.dart';
+import 'package:coconut_vault/isolates/sign_isolates.dart';
 import 'package:coconut_vault/model/common/vault_list_item_base.dart';
 import 'package:coconut_vault/enums/wallet_enums.dart';
-import 'package:coconut_vault/managers/isolate_manager.dart';
 import 'package:coconut_vault/utils/isolate_handler.dart';
 import 'package:json_annotation/json_annotation.dart';
 
@@ -24,9 +24,9 @@ class SingleSigVaultListItem extends VaultListItemBase {
     required String passphrase,
     this.signerBsms,
     this.linkedMultisigInfo,
-    super.vaultJsonString,
   }) : super(vaultType: WalletType.singleSignature) {
     Seed seed = Seed.fromMnemonic(secret, passphrase: passphrase);
+
     coconutVault = SingleSignatureVault.fromSeed(seed, addressType: AddressType.p2wpkh);
     final singlesigVault = coconutVault as SingleSignatureVault;
 
@@ -53,7 +53,7 @@ class SingleSigVaultListItem extends VaultListItemBase {
 
   @override
   Future<bool> canSign(String psbt) async {
-    var isolateHandler = IsolateHandler<List<dynamic>, bool>(canSignToPsbtIsolate);
+    var isolateHandler = IsolateHandler<List<dynamic>, bool>(SignIsolates.canSignToPsbt);
     try {
       await isolateHandler.initialize(initialType: InitializeType.canSign);
       bool canSignToPsbt = await isolateHandler.run([coconutVault, psbt]);

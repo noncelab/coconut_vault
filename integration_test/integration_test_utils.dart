@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'package:coconut_lib/coconut_lib.dart';
 import 'package:coconut_vault/constants/secure_storage_keys.dart';
 import 'package:coconut_vault/constants/shared_preferences_keys.dart';
-import 'package:coconut_vault/managers/wallet_list_manager.dart';
+import 'package:coconut_vault/repository/wallet_repository.dart';
 import 'package:coconut_vault/model/multisig/multisig_signer.dart';
 import 'package:coconut_vault/model/multisig/multisig_wallet.dart';
 import 'package:coconut_vault/model/single_sig/single_sig_wallet.dart';
@@ -163,11 +163,11 @@ Future<int> addSingleSigWallets({WalletProvider? walletProvider}) async {
     await walletProvider.addSingleSigVault(singleSig2);
     await walletProvider.addSingleSigVault(singleSig3);
   } else {
-    WalletListManager walletListManager = WalletListManager();
-    await walletListManager.addSinglesigWallet(singleSig2);
-    await walletListManager.addSinglesigWallet(singleSig3);
+    WalletRepository walletRepository = WalletRepository();
+    await walletRepository.addSinglesigWallet(singleSig2);
+    await walletRepository.addSinglesigWallet(singleSig3);
     await SharedPrefsRepository()
-        .setInt(SharedPrefsKeys.vaultListLength, walletListManager.vaultList.length);
+        .setInt(SharedPrefsKeys.vaultListLength, walletRepository.vaultList.length);
   }
   return 2;
 }
@@ -229,12 +229,12 @@ BSMS 1.0
       2,
     );
   } else {
-    WalletListManager walletListManager = WalletListManager();
-    await walletListManager.addSinglesigWallet(singleSig);
-    await walletListManager
+    WalletRepository walletRepository = WalletRepository();
+    await walletRepository.addSinglesigWallet(singleSig);
+    await walletRepository
         .addMultisigWallet(MultisigWallet(null, "Test Wallet2", 0, 0, signers, 2));
     await SharedPrefsRepository()
-        .setInt(SharedPrefsKeys.vaultListLength, walletListManager.vaultList.length);
+        .setInt(SharedPrefsKeys.vaultListLength, walletRepository.vaultList.length);
   }
   return 2;
 }

@@ -45,6 +45,7 @@ class _SecuritySelfCheckScreenState extends State<SecuritySelfCheckScreen> {
       appBar: widget.onNextPressed != null
           ? CoconutAppBar.buildWithNext(
               title: t.checklist,
+              nextButtonTitle: t.next,
               context: context,
               onBackPressed: () {
                 Navigator.of(context).pop();

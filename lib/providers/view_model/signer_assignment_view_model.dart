@@ -2,8 +2,8 @@ import 'dart:convert';
 
 import 'package:coconut_lib/coconut_lib.dart';
 import 'package:coconut_vault/enums/wallet_enums.dart';
+import 'package:coconut_vault/isolates/wallet_isolates.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
-import 'package:coconut_vault/managers/isolate_manager.dart';
 import 'package:coconut_vault/model/common/vault_list_item_base.dart';
 import 'package:coconut_vault/model/multisig/multisig_signer.dart';
 import 'package:coconut_vault/model/single_sig/single_sig_vault_list_item.dart';
@@ -245,7 +245,7 @@ class SignerAssignmentViewModel extends ChangeNotifier {
   Future<MultisignatureVault> _createMultisignatureVault(List<KeyStore> keyStores) async {
     if (_fromKeyStoreListIsolateHandler == null) {
       _fromKeyStoreListIsolateHandler =
-          IsolateHandler<Map<String, dynamic>, MultisignatureVault>(fromKeyStoreIsolate);
+          IsolateHandler<Map<String, dynamic>, MultisignatureVault>(WalletIsolates.fromKeyStore);
       await _fromKeyStoreListIsolateHandler!.initialize(initialType: InitializeType.fromKeyStore);
     }
 
@@ -261,8 +261,8 @@ class SignerAssignmentViewModel extends ChangeNotifier {
 
   Future<void> _initSignerOptionList(List<SingleSigVaultListItem> singlesigVaultList) async {
     if (_extractBsmsIsolateHandler == null) {
-      _extractBsmsIsolateHandler =
-          IsolateHandler<List<SingleSigVaultListItem>, List<String>>(extractSignerBsmsIsolate);
+      _extractBsmsIsolateHandler = IsolateHandler<List<SingleSigVaultListItem>, List<String>>(
+          WalletIsolates.extractSignerBsms);
       await _extractBsmsIsolateHandler!.initialize(initialType: InitializeType.extractSignerBsms);
     }
 

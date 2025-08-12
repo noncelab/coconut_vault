@@ -15,7 +15,6 @@ import 'package:coconut_vault/utils/alert_util.dart';
 import 'package:coconut_vault/utils/icon_util.dart';
 import 'package:coconut_vault/widgets/bottom_sheet.dart';
 import 'package:coconut_vault/widgets/button/custom_buttons.dart';
-import 'package:coconut_vault/widgets/custom_dialog.dart';
 import 'package:coconut_vault/widgets/custom_expansion_panel.dart';
 import 'package:coconut_vault/widgets/highlighted_text.dart';
 import 'package:coconut_vault/widgets/indicator/message_activity_indicator.dart';
@@ -182,6 +181,7 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
             backgroundColor: CoconutColors.white,
             appBar: CoconutAppBar.buildWithNext(
               title: t.multisig_wallet,
+              nextButtonTitle: t.next,
               context: context,
               onBackPressed: () => _onBackPressed(context),
               onNextPressed: onNextPressed,
@@ -697,20 +697,56 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
         }
     }
 
-    CustomDialogs.showCustomAlertDialog(
-      context,
-      title: title,
-      message: message,
-      cancelButtonText: cancelButtonText,
-      confirmButtonText: confirmButtonText,
-      confirmButtonColor: confirmButtonColor,
-      barrierDismissible: barrierDismissible,
-      isSingleButton: type == DialogType.alert ||
-          type == DialogType.alreadyExist ||
-          type == DialogType.sameWithInternalOne,
-      onCancel: onCancel ?? () => Navigator.pop(context),
-      onConfirm: () => onConfirm(),
-    );
+    // CustomDialogs.showCustomAlertDialog(
+    //   context,
+    //   title: title,
+    //   message: message,
+    //   cancelButtonText: cancelButtonText,
+    //   confirmButtonText: confirmButtonText,
+    //   confirmButtonColor: confirmButtonColor,
+    //   barrierDismissible: barrierDismissible,
+    //   isSingleButton: type == DialogType.alert ||
+    //       type == DialogType.alreadyExist ||
+    //       type == DialogType.sameWithInternalOne,
+    //   onCancel: onCancel ?? () => Navigator.pop(context),
+    //   onConfirm: () => onConfirm(),
+    // );
+
+    showDialog(
+        barrierDismissible: barrierDismissible,
+        context: context,
+        builder: (BuildContext context) {
+          return CoconutPopup(
+            insetPadding:
+                EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width * 0.15),
+            title: title,
+            titleTextStyle: CoconutTypography.body1_16_Bold,
+            descriptionTextStyle: CoconutTypography.body2_14,
+            description: message,
+            backgroundColor: CoconutColors.white,
+            rightButtonColor: confirmButtonColor,
+            rightButtonText: confirmButtonText,
+            rightButtonTextStyle: CoconutTypography.body2_14.merge(
+              TextStyle(
+                color: confirmButtonColor,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+            leftButtonText: cancelButtonText,
+            leftButtonTextStyle: CoconutTypography.body2_14.merge(
+              TextStyle(
+                color: CoconutColors.black.withOpacity(0.7),
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+            onTapRight: onConfirm,
+            onTapLeft: (type == DialogType.alert ||
+                    type == DialogType.alreadyExist ||
+                    type == DialogType.sameWithInternalOne)
+                ? null
+                : onCancel ?? () => Navigator.pop(context),
+          );
+        });
   }
 
   // 확장형 메뉴 펼쳐져 있지 않을 때

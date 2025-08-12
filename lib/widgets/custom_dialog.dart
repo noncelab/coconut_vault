@@ -20,43 +20,44 @@ class CustomDialogs {
       barrierDismissible: barrierDismissible,
       builder: (BuildContext context) {
         return CupertinoAlertDialog(
-            title: Padding(
-              padding: const EdgeInsets.only(bottom: 8.0),
-              child: Text(title, style: CoconutTypography.body1_16_Bold),
-            ),
-            content: textWidget ??
-                Text(
-                  message,
-                  style: CoconutTypography.body2_14,
-                  textAlign: TextAlign.center,
-                ),
-            actions: [
-              if (!isSingleButton)
-                CupertinoDialogAction(
-                  isDefaultAction: true,
-                  onPressed: onCancel,
-                  child: Text(cancelButtonText,
-                      style: CoconutTypography.body2_14.merge(
-                        TextStyle(
-                          color: CoconutColors.black.withOpacity(0.7),
-                          fontWeight: FontWeight.w500,
-                        ),
-                      )),
-                ),
+          title: Padding(
+            padding: const EdgeInsets.only(bottom: 8.0),
+            child: Text(title, style: CoconutTypography.body1_16_Bold),
+          ),
+          content: textWidget ??
+              Text(
+                message,
+                style: CoconutTypography.body2_14,
+                textAlign: TextAlign.center,
+              ),
+          actions: [
+            if (!isSingleButton)
               CupertinoDialogAction(
                 isDefaultAction: true,
-                onPressed: onConfirm,
-                child: Text(
-                  confirmButtonText,
-                  style: CoconutTypography.body2_14.merge(
-                    TextStyle(
-                      color: confirmButtonColor,
-                      fontWeight: FontWeight.w500,
-                    ),
+                onPressed: onCancel,
+                child: Text(cancelButtonText,
+                    style: CoconutTypography.body2_14.merge(
+                      TextStyle(
+                        color: CoconutColors.black.withOpacity(0.7),
+                        fontWeight: FontWeight.w500,
+                      ),
+                    )),
+              ),
+            CupertinoDialogAction(
+              isDefaultAction: true,
+              onPressed: onConfirm,
+              child: Text(
+                confirmButtonText,
+                style: CoconutTypography.body2_14.merge(
+                  TextStyle(
+                    color: confirmButtonColor,
+                    fontWeight: FontWeight.w500,
                   ),
                 ),
               ),
-            ]);
+            ),
+          ],
+        );
       },
     );
   }
