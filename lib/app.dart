@@ -36,6 +36,7 @@ import 'package:coconut_vault/screens/vault_creation/vault_type_selection_screen
 import 'package:coconut_vault/screens/vault_creation/vault_creation_options_screen.dart';
 import 'package:coconut_vault/screens/vault_creation/vault_name_and_icon_setup_screen.dart';
 import 'package:coconut_vault/screens/vault_menu/address_list_screen.dart';
+import 'package:coconut_vault/screens/vault_menu/info/mnemonic_view_screen.dart';
 import 'package:coconut_vault/screens/vault_menu/info/multisig_bsms_screen.dart';
 import 'package:coconut_vault/screens/vault_menu/info/multisig_setup_info_screen.dart';
 import 'package:coconut_vault/screens/vault_menu/multisig_signer_bsms_export_screen.dart';
@@ -215,6 +216,12 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> {
             AppRoutes.mnemonicConfirmation: (context) => const MnemonicConfirmationScreen(),
             AppRoutes.mnemonicCoinflipConfirmation: (context) =>
                 const MnemonicCoinflipConfirmationScreen(),
+            AppRoutes.mnemonicView: (context) => buildScreenWithArguments(
+                  context,
+                  (args) => MnemonicViewScreen(
+                    walletId: args['id'],
+                  ),
+                ),
             AppRoutes.vaultNameSetup: (context) => const VaultNameAndIconSetupScreen(),
             AppRoutes.vaultDetails: (context) => buildScreenWithArguments(
                   context,

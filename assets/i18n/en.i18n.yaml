@@ -80,7 +80,6 @@ total_amount: "Total Amount"
 key_list: "Key List"
 
 view_mnemonic: "View Mnemonic"
-view_passphrase: "View Passphrase"
 view_app_info: "View App Info"
 view_all: "View All"
 view_details_info: "View Details"
@@ -356,10 +355,6 @@ address_list_screen:
 export_detail_screen:
   title: "Export Details"
   info_copied: "Details copied"
-mnemonic_view_screen:
-  view_passphrase: "View Passphrase"
-  visible_while_pressing: "Visible while pressing"
-  space_as_blank: " Space characters are shown as blanks."
 multi_sig_bsms_screen:
   bottom_sheet:
     title: "Wallet Details"

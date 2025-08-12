@@ -81,7 +81,6 @@ total_amount: "총 소요 수량"
 key_list: "키 목록"
 
 view_mnemonic: "니모닉 문구 보기"
-view_passphrase: "패스프레이즈 보기"
 view_app_info: "앱 정보 보기"
 view_all: "전체 보기"
 view_details_info: "상세 정보 보기"
@@ -357,10 +356,6 @@ address_list_screen:
 export_detail_screen:
   title: "내보내기 상세 정보"
   info_copied: "상세 정보가 복사됐어요"
-mnemonic_view_screen:
-  view_passphrase: "패스프레이즈 보기"
-  visible_while_pressing: "누르는 동안 보여요"
-  space_as_blank: " 공백 문자는 빈칸으로 표시됩니다."
 multi_sig_bsms_screen:
   bottom_sheet:
     title: "지갑 상세 정보"

@@ -1,283 +1,226 @@
 import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
-import 'package:coconut_vault/widgets/button/copy_text_container.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:shimmer/shimmer.dart';
 
 class MnemonicViewScreen extends StatefulWidget {
-  const MnemonicViewScreen(
-      {super.key, required this.walletId, this.title = '', this.subtitle = ''});
+  const MnemonicViewScreen({
+    super.key,
+    required this.walletId,
+  });
 
   final int walletId;
-  final String title;
-  final String subtitle;
 
   @override
   State<MnemonicViewScreen> createState() => _MnemonicViewScreen();
 }
 
-class _MnemonicViewScreen extends State<MnemonicViewScreen> {
-  bool _isPressed = false;
-  bool _isLoading = true;
-  List<Widget> _passphraseGridItems = [];
+class _MnemonicViewScreen extends State<MnemonicViewScreen> with TickerProviderStateMixin {
+  final ScrollController _scrollController = ScrollController();
   late WalletProvider _walletProvider;
   String? mnemonic;
-  String? passphrase;
+  late AnimationController _waveAnimationController;
+  late List<Animation<double>> _opacityAnimations;
 
   @override
   void initState() {
     super.initState();
     _walletProvider = Provider.of<WalletProvider>(context, listen: false);
+
+    // 파도타기 애니메이션 컨트롤러 초기화
+    _waveAnimationController = AnimationController(
+      duration: const Duration(milliseconds: 1200),
+      vsync: this,
+    );
+
+    _opacityAnimations = List.generate(12, (index) {
+      final delay = (index / 2).floor() * 0.1;
+      return Tween<double>(
+        begin: 0.3,
+        end: 0.3,
+      ).animate(
+        CurvedAnimation(
+          parent: _waveAnimationController,
+          curve: Interval(
+            delay.clamp(0.0, 1.0),
+            (delay + 0.3).clamp(0.0, 1.0),
+            curve: Curves.easeInOut,
+          ),
+        ),
+      );
+    });
+
+    // 파도타기 애니메이션 시작
+    _waveAnimationController.repeat();
+
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _walletProvider.getSecret(widget.walletId).then((secret) async {
-        await Future.delayed(const Duration(seconds: 1));
+        await Future.delayed(const Duration(seconds: 2));
         if (!mounted) return;
         setState(() {
           mnemonic = secret.mnemonic;
-          passphrase = secret.passphrase;
-          if (secret.passphrase.isNotEmpty) {
-            _passphraseGridItems = _buildPassphraseGridItems();
-          }
-          _isLoading = false;
         });
+        // mnemonic이 로드되면 애니메이션 중지
+        _waveAnimationController.stop();
       });
     });
   }
 
-  List<Widget> _buildPassphraseGridItems() {
-    List<Widget> gridItems = [];
-    for (int index = 0; index < passphrase!.length + 20; index++) {
-      if (index < passphrase!.length) {
-        gridItems.add(
-          Container(
-            alignment: Alignment.center,
-            decoration: BoxDecoration(
-              color: CoconutColors.white,
-              border: Border.all(
-                width: 1,
-                color: CoconutColors.black,
-              ),
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: Stack(
-              children: [
-                Visibility(
-                  visible: index % 10 == 0,
-                  child: Positioned(
-                    top: 3,
-                    left: 3,
-                    child: Text(
-                      '${index + 1}',
-                      style: const TextStyle(
-                          color: CoconutColors.borderGray,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 6),
-                    ),
-                  ),
-                ),
-                SizedBox(
-                  width: double.infinity,
-                  height: double.infinity,
-                  child: Center(
-                    child: Text(
-                      passphrase![index],
-                      style: const TextStyle(
-                        color: CoconutColors.black,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        );
-      } else {
-        gridItems.add(Container());
-      }
-    }
-    return gridItems;
-  }
-
-  Widget _buildSkeleton() {
-    final double qrSize = MediaQuery.of(context).size.width * 275 / 375;
-    const int skeletonTextLines = 4;
-    List<Widget> textWidgets = [];
-    for (int i = 0; i < skeletonTextLines; i++) {
-      textWidgets.add(
-        Column(
-          children: [
-            Container(
-              width: qrSize,
-              height: 20,
-              color: CoconutColors.gray300,
-            ),
-            i < 4 ? const SizedBox(height: 5) : Container(),
-          ],
-        ),
-      );
-    }
-
-    return Column(
-      children: [
-        Shimmer.fromColors(
-          baseColor: CoconutColors.gray300,
-          highlightColor: CoconutColors.gray150,
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 36),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Container(
-                    width: qrSize,
-                    height: qrSize,
-                    decoration: CoconutBoxDecoration.shadowBoxDecoration),
-                const SizedBox(height: 32),
-                for (int line = 0; line < textWidgets.length; line++) textWidgets[line],
-                const SizedBox(height: 24),
-              ],
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildContent() {
-    return CopyTextContainer(
-      text: mnemonic!,
-      toastMsg: t.toast.mnemonic_copied,
-    );
-  }
-
-  Widget _passphraseButton() {
-    return GestureDetector(
-      onTapDown: (_) {
-        setState(() {
-          _isPressed = true;
-        });
-      },
-      onTapUp: (_) {
-        setState(() {
-          _isPressed = false;
-        });
-      },
-      onTapCancel: () {
-        setState(() {
-          _isPressed = false;
-        });
-      },
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(4.0),
-              color: _isPressed ? CoconutColors.borderGray : CoconutColors.gray800,
-            ),
-            child: Text(
-              t.mnemonic_view_screen.view_passphrase,
-              style: CoconutTypography.body3_12.setColor(
-                CoconutColors.white,
-              ),
-            ),
-          ),
-          const SizedBox(
-            height: 7,
-          ),
-          Text(
-            t.mnemonic_view_screen.visible_while_pressing,
-            style: CoconutTypography.body3_12.setColor(
-              CoconutColors.gray800,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildPassphraseGridViewWidget() {
-    //if (passphrase.isEmpty) return Container();
-    return GridView.count(
-      crossAxisCount: 10,
-      crossAxisSpacing: 3.0,
-      mainAxisSpacing: 10.0,
-      shrinkWrap: true,
-      children: _passphraseGridItems, // 미리 생성한 아이템 리스트 사용
-    );
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    _waveAnimationController.dispose();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    return ClipRRect(
-      borderRadius: CoconutBorder.defaultRadius,
-      child: Scaffold(
+    return Scaffold(
+      backgroundColor: CoconutColors.white,
+      appBar: CoconutAppBar.build(
+        context: context,
+        title: t.view_mnemonic,
         backgroundColor: CoconutColors.white,
-        appBar: CoconutAppBar.build(
-          context: context,
-          title: !_isPressed ? widget.title : widget.subtitle,
-          backgroundColor: CoconutColors.white,
-          isBottom: true,
-        ),
-        body: SafeArea(
-          child: SingleChildScrollView(
-            child: Container(
-              width: MediaQuery.of(context).size.width,
-              height: MediaQuery.of(context).size.height * 0.8,
-              padding: CoconutPadding.container,
-              child: Stack(
+        isBottom: true,
+      ),
+      body: SafeArea(
+        child: SingleChildScrollView(
+          controller: _scrollController,
+          child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              color: CoconutColors.white,
+              child: Column(
                 children: [
-                  Visibility(
-                    visible: !_isPressed,
-                    child: _isLoading ? _buildSkeleton() : _buildContent(),
+                  Padding(
+                    padding: const EdgeInsets.only(
+                      top: 48,
+                      bottom: 24,
+                    ),
+                    child: Text(
+                      t.mnemonic_generate_screen.backup_guide,
+                      style: CoconutTypography.body1_16_Bold.setColor(
+                        CoconutColors.warningText,
+                      ),
+                    ),
                   ),
-                  Visibility(
-                    visible: _isPressed,
-                    child: Column(
+                  buildGeneratedMnemonicList(),
+                  const SizedBox(height: 40),
+                ],
+              )),
+        ),
+      ),
+    );
+  }
+
+  Widget buildGeneratedMnemonicList() {
+    bool gridviewColumnFlag = false;
+    return Padding(
+      padding: const EdgeInsets.only(
+        left: 40.0,
+        right: 40.0,
+        top: 16,
+        bottom: 120,
+      ),
+      child: GridView.builder(
+        shrinkWrap: true,
+        physics: const NeverScrollableScrollPhysics(),
+        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: 2, // 2열로 배치
+          childAspectRatio: 2.5, // 각 아이템의 가로:세로 = 2.5:1
+          crossAxisSpacing: 12, // 열 간격
+          mainAxisSpacing: 8, // 행 간격
+        ),
+        itemCount: mnemonic?.split(' ').length ?? 12,
+        itemBuilder: (BuildContext context, int index) {
+          if (index % 2 == 0) {
+            gridviewColumnFlag = !gridviewColumnFlag;
+          }
+
+          // mnemonic이 null일 때 파도타기 애니메이션 적용
+          if (mnemonic == null && index < _opacityAnimations.length) {
+            return AnimatedBuilder(
+              animation: _waveAnimationController,
+              builder: (context, child) {
+                final delay = (index / 2).floor() * 0.1;
+                final progress = _waveAnimationController.value;
+                final waveProgress = (progress - delay) % 1.0;
+
+                // 파도 효과: 0.6 -> 1.0 -> 0.6으로 부드럽게 변화
+                double opacity = 0.3;
+                if (waveProgress >= 0 && waveProgress <= 0.3) {
+                  final waveValue = waveProgress / 0.3;
+                  opacity = 0.3 + (0.7 * waveValue);
+                } else if (waveProgress > 0.3 && waveProgress <= 0.6) {
+                  final waveValue = (waveProgress - 0.3) / 0.3;
+                  opacity = 1.0 - (0.7 * waveValue);
+                }
+
+                return Opacity(
+                  opacity: opacity,
+                  child: Container(
+                    padding: const EdgeInsets.only(left: 24),
+                    alignment: Alignment.center,
+                    decoration: BoxDecoration(
+                      border: Border.all(color: CoconutColors.black.withOpacity(0.08)),
+                      borderRadius: BorderRadius.circular(24),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
                       children: [
-                        Visibility(
-                          visible: passphrase != null && passphrase!.contains(' '),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              const Icon(
-                                Icons.warning_amber_rounded,
-                                color: CoconutColors.gray800,
-                                size: 14,
-                              ),
-                              Text(
-                                t.mnemonic_view_screen.space_as_blank,
-                                style: CoconutTypography.body2_14.setColor(
-                                  CoconutColors.gray500,
-                                ),
-                              ),
-                            ],
+                        Text(
+                          (index + 1).toString().padLeft(2, '0'),
+                          style: CoconutTypography.body3_12_Number.setColor(
+                            CoconutColors.gray500,
                           ),
                         ),
-                        const SizedBox(
-                          height: 30,
+                        CoconutLayout.spacing_300w,
+                        const Expanded(
+                          child: Text(
+                            '',
+                            style: CoconutTypography.body2_14,
+                            overflow: TextOverflow.visible,
+                          ),
                         ),
-                        if (passphrase != null) _buildPassphraseGridViewWidget(),
                       ],
                     ),
                   ),
-                  Visibility(
-                      visible: passphrase != null && passphrase!.isNotEmpty && !_isLoading,
-                      child: Align(
-                        alignment: Alignment.bottomCenter,
-                        child: Padding(
-                          padding: const EdgeInsets.only(bottom: 20),
-                          child: _passphraseButton(),
-                        ),
-                      )),
-                ],
-              ),
+                );
+              },
+            );
+          }
+
+          // mnemonic이 로드된 후 정상 표시
+          return Container(
+            padding: const EdgeInsets.only(left: 24),
+            alignment: Alignment.center,
+            decoration: BoxDecoration(
+              border: Border.all(color: CoconutColors.black.withOpacity(0.08)),
+              borderRadius: BorderRadius.circular(24),
             ),
-          ),
-        ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  (index + 1).toString().padLeft(2, '0'),
+                  style: CoconutTypography.body3_12_Number.setColor(
+                    CoconutColors.gray500,
+                  ),
+                ),
+                CoconutLayout.spacing_300w,
+                Expanded(
+                  child: Text(
+                    mnemonic?.split(' ')[index] ?? '',
+                    style: CoconutTypography.body2_14,
+                    overflow: TextOverflow.visible,
+                  ),
+                ),
+              ],
+            ),
+          );
+        },
       ),
     );
   }

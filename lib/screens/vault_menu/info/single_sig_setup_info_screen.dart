@@ -412,13 +412,7 @@ class _SingleSigSetupInfoScreenState extends State<SingleSigSetupInfoScreen> {
       return;
     }
 
-    MyBottomSheet.showBottomSheet_90(
-        context: context,
-        child: MnemonicViewScreen(
-          walletId: widget.id,
-          title: t.view_mnemonic,
-          subtitle: t.view_passphrase,
-        ));
+    Navigator.pushNamed(context, AppRoutes.mnemonicView, arguments: {'id': widget.id});
   }
 
   // deprecated: 확장 공개키 보기

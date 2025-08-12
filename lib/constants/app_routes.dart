@@ -9,6 +9,7 @@ class AppRoutes {
   static const String mnemonicCoinflipConfirmation = '/mnemonic-coinflip-confirmation';
   static const String vaultNameSetup = '/vault-name-setup';
   static const String vaultDetails = '/vault-details';
+  static const String mnemonicView = '/mnemonic-view';
   static const String singleSigSetupInfo = '/vault-settings';
   static const String multisigSetupInfo = '/multisig-setting';
   static const String multisigBsmsView = '/multisig-bsms';
