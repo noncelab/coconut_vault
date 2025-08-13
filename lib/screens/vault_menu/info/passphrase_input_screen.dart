@@ -76,7 +76,7 @@ class _PassphraseInputScreen extends State<PassphraseInputScreen> {
                       valueListenable: _passphraseTextNotifier,
                       builder: (context, value, child) {
                         return CoconutButton(
-                          onPressed: onPassphraseVerification,
+                          onPressed: verifyPassphrase,
                           isActive: _inputController.text.isNotEmpty,
                           width: double.infinity,
                           height: 52,
@@ -130,14 +130,14 @@ class _PassphraseInputScreen extends State<PassphraseInputScreen> {
         });
   }
 
-  Future<void> onPassphraseVerification() async {
+  Future<void> verifyPassphrase() async {
     _closeKeyboard();
     CustomDialogs.showLoadingDialog(context, t.verify_passphrase_screen.loading_description);
 
     final walletProvider = context.read<WalletProvider>();
     final result = await compute(WalletIsolates.verifyPassphrase, {
       'mnemonic': await walletProvider.getSecret(widget.id),
-      'passphrase': _inputController.text.trim(),
+      'passphrase': _inputController.text,
       'valutListItem': walletProvider.getVaultById(widget.id)
     });
 
@@ -147,7 +147,7 @@ class _PassphraseInputScreen extends State<PassphraseInputScreen> {
     _showError = !success;
     setState(() {});
     if (success) {
-      Navigator.pop(context, {'success': success, 'passphrase': _inputController.text.trim()});
+      Navigator.pop(context, {'success': success, 'passphrase': _inputController.text});
     }
   }
 }
