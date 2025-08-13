@@ -17,31 +17,6 @@ import 'package:coconut_vault/utils/logger.dart';
 import 'package:coconut_vault/enums/wallet_enums.dart';
 import 'package:flutter/foundation.dart';
 
-Future<Map<String, dynamic>> verifyPassphraseIsolate(Map<String, dynamic> args) async {
-  // 암호화 관련 처리를 사용하여 CPU 동기연산이 발생하므로 isolate로 처리
-  final mnemonic = args['mnemonic'] as String;
-  final passphrase = args['passphrase'] as String;
-  final valutListItem = args['valutListItem'] as VaultListItemBase;
-  if (valutListItem.vaultType == WalletType.multiSignature) return {"success": false};
-
-  final singleSigVaultListItem = valutListItem.coconutVault as SingleSignatureVault;
-  final keyStore = KeyStore.fromSeed(
-    Seed.fromMnemonic(mnemonic, passphrase: passphrase),
-    AddressType.p2wpkh,
-  );
-
-  final savedMfp = singleSigVaultListItem.keyStore.masterFingerprint;
-  final recoveredMfp = keyStore.masterFingerprint;
-  final extendedPublicKey = singleSigVaultListItem.keyStore.extendedPublicKey.serialize();
-  final success = savedMfp == recoveredMfp;
-  return {
-    "success": success,
-    "savedMfp": savedMfp,
-    "recoveredMfp": recoveredMfp,
-    "extendedPublicKey": extendedPublicKey
-  };
-}
-
 class WalletProvider extends ChangeNotifier {
   late final VisibilityProvider _visibilityProvider;
   late final WalletRepository _walletRepository;

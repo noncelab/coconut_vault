@@ -1,4 +1,5 @@
 import 'package:coconut_design_system/coconut_design_system.dart';
+import 'package:coconut_vault/isolates/wallet_isolates.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:coconut_vault/widgets/custom_dialog.dart';
@@ -134,7 +135,7 @@ class _PassphraseInputScreen extends State<PassphraseInputScreen> {
     CustomDialogs.showLoadingDialog(context, t.verify_passphrase_screen.loading_description);
 
     final walletProvider = context.read<WalletProvider>();
-    final result = await compute(verifyPassphraseIsolate, {
+    final result = await compute(WalletIsolates.verifyPassphrase, {
       'mnemonic': await walletProvider.getSecret(widget.id),
       'passphrase': _inputController.text.trim(),
       'valutListItem': walletProvider.getVaultById(widget.id)

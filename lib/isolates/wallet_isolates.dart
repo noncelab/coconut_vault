@@ -108,4 +108,29 @@ class WalletIsolates {
     }
     return bsmses;
   }
+
+  static Future<Map<String, dynamic>> verifyPassphrase(Map<String, dynamic> args) async {
+    // 암호화 관련 처리를 사용하여 CPU 동기연산이 발생하므로 isolate로 처리
+    final mnemonic = args['mnemonic'] as String;
+    final passphrase = args['passphrase'] as String;
+    final vaultListItem = args['valutListItem'] as VaultListItemBase;
+    assert(vaultListItem.vaultType == WalletType.singleSignature);
+
+    final singleSigVaultListItem = vaultListItem.coconutVault as SingleSignatureVault;
+    final keyStore = KeyStore.fromSeed(
+      Seed.fromMnemonic(mnemonic, passphrase: passphrase),
+      AddressType.p2wpkh,
+    );
+
+    final savedMfp = singleSigVaultListItem.keyStore.masterFingerprint;
+    final recoveredMfp = keyStore.masterFingerprint;
+    final extendedPublicKey = singleSigVaultListItem.keyStore.extendedPublicKey.serialize();
+    final success = savedMfp == recoveredMfp;
+    return {
+      "success": success,
+      "savedMfp": savedMfp,
+      "recoveredMfp": recoveredMfp,
+      "extendedPublicKey": extendedPublicKey
+    };
+  }
 }
