@@ -2,7 +2,7 @@ import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_vault/isolates/wallet_isolates.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
-import 'package:coconut_vault/utils/logger.dart';
+import 'package:coconut_vault/utils/vibration_util.dart';
 import 'package:coconut_vault/widgets/button/fixed_bottom_button.dart';
 import 'package:coconut_vault/widgets/custom_dialog.dart';
 import 'package:flutter/foundation.dart';
@@ -110,9 +110,11 @@ class _VerifyPassphraseScreenState extends State<VerifyPassphraseScreen>
                             onButtonClicked: verifyPassphrase,
                             text: t.verify_passphrase_screen.start_verification,
                             textColor: CoconutColors.white,
-                            showGradient: false,
                             isActive: _inputController.text.isNotEmpty,
                             backgroundColor: CoconutColors.black,
+                            showGradient: true,
+                            gradientPadding:
+                                const EdgeInsets.only(left: 16, right: 16, bottom: 40, top: 140),
                           );
                         }),
                 ],
@@ -126,12 +128,21 @@ class _VerifyPassphraseScreenState extends State<VerifyPassphraseScreen>
     _closeKeyboard();
     CustomDialogs.showLoadingDialog(context, t.verify_passphrase_screen.loading_description);
 
+    _isPassphraseVerified = false;
+
     final walletProvider = context.read<WalletProvider>();
+    // TODO: authentication 추가
     final result = await compute(WalletIsolates.verifyPassphrase, {
       'mnemonic': await walletProvider.getSecret(widget.id),
       'passphrase': _inputController.text,
       'valutListItem': walletProvider.getVaultById(widget.id)
     });
+
+    if (result['success']) {
+      vibrateLight();
+    } else {
+      vibrateMediumDouble();
+    }
 
     if (!mounted) return;
     Navigator.of(context).pop();
@@ -183,17 +194,10 @@ class _VerifyPassphraseScreenState extends State<VerifyPassphraseScreen>
 
   Widget _buildVerificationResultCard() {
     return Container(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.only(left: 20, right: 20, top: 16, bottom: 20),
         decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(16),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.1),
-              blurRadius: 30,
-              offset: const Offset(4, 4),
-            ),
-          ],
+          color: CoconutColors.gray150,
+          borderRadius: BorderRadius.circular(12),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -219,7 +223,7 @@ class _VerifyPassphraseScreenState extends State<VerifyPassphraseScreen>
                 _isVerificationResultSuccess
                     ? t.verify_passphrase_screen.result_description_success
                     : t.verify_passphrase_screen.result_description_failure,
-                style: CoconutTypography.body3_12),
+                style: CoconutTypography.body2_14),
             CoconutLayout.spacing_400h,
             const Divider(
               color: CoconutColors.gray350,
@@ -232,10 +236,10 @@ class _VerifyPassphraseScreenState extends State<VerifyPassphraseScreen>
                     _isVerificationResultSuccess
                         ? t.verify_passphrase_screen.mfp
                         : t.verify_passphrase_screen.saved_mfp,
-                    style: CoconutTypography.body3_12_Bold.setColor(CoconutColors.black)),
+                    style: CoconutTypography.body2_14.setColor(CoconutColors.gray850)),
                 const Spacer(),
                 Text(_savedMfp ?? '',
-                    style: CoconutTypography.body3_12.setColor(CoconutColors.black)),
+                    style: CoconutTypography.body2_14_NumberBold.setColor(CoconutColors.black)),
               ],
             ),
             CoconutLayout.spacing_400h,
@@ -248,18 +252,19 @@ class _VerifyPassphraseScreenState extends State<VerifyPassphraseScreen>
                         _isVerificationResultSuccess
                             ? t.verify_passphrase_screen.xpub
                             : t.verify_passphrase_screen.recovered_mfp,
-                        style: CoconutTypography.body3_12_Bold.setColor(CoconutColors.black))),
-                if (_isVerificationResultSuccess)
-                  Expanded(
-                    child: Text(_extendedPublicKey ?? '',
-                        style: CoconutTypography.body3_12.setColor(CoconutColors.black),
-                        maxLines: 4),
+                        style: CoconutTypography.body2_14.setColor(CoconutColors.gray850))),
+                Expanded(
+                  child: Text(
+                    textAlign: TextAlign.end,
+                    _isVerificationResultSuccess ? _extendedPublicKey ?? '' : _recoveredMfp ?? '',
+                    style: CoconutTypography.body2_14_Number.copyWith(
+                      color: _isVerificationResultSuccess
+                          ? CoconutColors.black
+                          : CoconutColors.hotPink,
+                      fontWeight: _isVerificationResultSuccess ? FontWeight.w400 : FontWeight.w700,
+                    ),
                   ),
-                if (!_isVerificationResultSuccess) ...[
-                  const Spacer(),
-                  Text(_recoveredMfp ?? '',
-                      style: CoconutTypography.body3_12.setColor(CoconutColors.black)),
-                ]
+                )
               ],
             ),
           ],
