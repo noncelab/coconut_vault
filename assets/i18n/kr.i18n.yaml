@@ -431,7 +431,7 @@ verify_passphrase_screen:
   start_verification: "검사 시작"
   loading_description: "패스프레이즈가 정확한지\n확인 중이에요"
   result_title_success: "패스프레이즈가 정확해요!"
-  result_description_success: "입력한 패르프레이즈로 동일한 지갑 정보를 복원했어요."
+  result_description_success: "입력한 패스프레이즈로 동일한 지갑 정보를 복원했어요."
   mfp: "MFP"
   xpub: "확장 공개키"
   result_title_failure: "패스프레이즈가 달라요"
