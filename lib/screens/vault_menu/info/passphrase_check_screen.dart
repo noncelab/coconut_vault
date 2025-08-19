@@ -1,22 +1,27 @@
 import 'package:coconut_design_system/coconut_design_system.dart';
+import 'package:coconut_vault/enums/pin_check_context_enum.dart';
 import 'package:coconut_vault/isolates/wallet_isolates.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
+import 'package:coconut_vault/screens/common/pin_check_screen.dart';
+import 'package:coconut_vault/widgets/bottom_sheet.dart';
 import 'package:coconut_vault/widgets/custom_dialog.dart';
+import 'package:coconut_vault/widgets/custom_loading_overlay.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:provider/provider.dart';
+import 'package:vibration/vibration.dart';
 
-class PassphraseInputScreen extends StatefulWidget {
-  const PassphraseInputScreen({super.key, required this.id});
+class PassphraseCheckScreen extends StatefulWidget {
+  const PassphraseCheckScreen({super.key, required this.id});
   final int id;
 
   @override
-  State<PassphraseInputScreen> createState() => _PassphraseInputScreen();
+  State<PassphraseCheckScreen> createState() => _PassphraseCheckScreen();
 }
 
-class _PassphraseInputScreen extends State<PassphraseInputScreen> {
+class _PassphraseCheckScreen extends State<PassphraseCheckScreen> {
   final ValueNotifier<String> _passphraseTextNotifier = ValueNotifier<String>('');
   final TextEditingController _inputController = TextEditingController();
   final FocusNode _inputFocusNode = FocusNode();
@@ -76,7 +81,7 @@ class _PassphraseInputScreen extends State<PassphraseInputScreen> {
                       valueListenable: _passphraseTextNotifier,
                       builder: (context, value, child) {
                         return CoconutButton(
-                          onPressed: verifyPassphrase,
+                          onPressed: _handleSubmit,
                           isActive: _inputController.text.isNotEmpty,
                           width: double.infinity,
                           height: 52,
@@ -130,10 +135,48 @@ class _PassphraseInputScreen extends State<PassphraseInputScreen> {
         });
   }
 
-  Future<void> verifyPassphrase() async {
-    _closeKeyboard();
-    CustomDialogs.showLoadingDialog(context, t.verify_passphrase_screen.loading_description);
+  Future<void> _handleSubmit() async {
+    if (_showError) {
+      setState(() {
+        _showError = false;
+      });
+    }
 
+    _closeKeyboard();
+    final pinCheckResult = await _showPinCheckScreen();
+    if (pinCheckResult != true) return;
+
+    CustomDialogs.showLoadingDialog(context, t.verify_passphrase_screen.loading_description);
+    bool result = await _verifyPassphrase(_inputController.text);
+    Navigator.pop(context); // hide loading dialog
+
+    if (!mounted) return;
+
+    if (result) {
+      Navigator.pop(context, _inputController.text);
+    } else {
+      setState(() {
+        _showError = true;
+      });
+      Vibration.vibrate(duration: 100);
+    }
+  }
+
+  Future<bool?> _showPinCheckScreen() async {
+    return await MyBottomSheet.showBottomSheet_90<bool>(
+      context: context,
+      child: CustomLoadingOverlay(
+        child: PinCheckScreen(
+          pinCheckContext: PinCheckContextEnum.sensitiveAction,
+          onSuccess: () {
+            Navigator.pop(context, true);
+          },
+        ),
+      ),
+    );
+  }
+
+  Future<bool> _verifyPassphrase(String passphrase) async {
     final walletProvider = context.read<WalletProvider>();
     final result = await compute(WalletIsolates.verifyPassphrase, {
       'mnemonic': await walletProvider.getSecret(widget.id),
@@ -141,13 +184,14 @@ class _PassphraseInputScreen extends State<PassphraseInputScreen> {
       'valutListItem': walletProvider.getVaultById(widget.id)
     });
 
-    if (!mounted) return;
-    Navigator.of(context).pop();
-    bool success = result['success'];
-    _showError = !success;
-    setState(() {});
-    if (success) {
-      Navigator.pop(context, {'success': success, 'passphrase': _inputController.text});
-    }
+    // if (!mounted) return;
+    // Navigator.of(context).pop();
+    // bool success = result['success'];
+    // _showError = !success;
+    // setState(() {});
+    // if (success) {
+    //   Navigator.pop(context, {'success': success, 'passphrase': _inputController.text});
+    // }
+    return result['success'];
   }
 }

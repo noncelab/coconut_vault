@@ -3,7 +3,7 @@ import 'package:coconut_vault/constants/app_routes.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/model/common/vault_list_item_base.dart';
 import 'package:coconut_vault/screens/common/multisig_bsms_scanner_screen.dart';
-import 'package:coconut_vault/screens/vault_menu/info/passphrase_input_screen.dart';
+import 'package:coconut_vault/screens/vault_menu/info/passphrase_check_screen.dart';
 
 import 'package:coconut_vault/utils/text_utils.dart';
 import 'package:coconut_vault/widgets/bottom_sheet.dart';
@@ -76,20 +76,17 @@ class VaultMenuBottomSheet extends StatelessWidget {
       title: title,
       description: desc,
       iconBackgroundColor: bgColor,
-      onPressed: () {
+      onPressed: () async {
         // 볼트 메뉴 바텀시트 없애기
         Navigator.pop(context);
 
         // 지갑 정보 내보내기 메뉴인데 패스프레이즈를 사용하는 경우, 확인하고 맞으면 진행한다.
         if (route == AppRoutes.syncToWallet && hasPassphrase) {
-          MyBottomSheet.showBottomSheet_50(
-              context: parentContext,
-              child: PassphraseInputScreen(id: id),
-              handleSheetResult: (result) {
-                if (result is Map && result['success']) {
-                  Navigator.pushNamed(parentContext, route, arguments: {'id': id, ...?extraArgs});
-                }
-              });
+          final result = await MyBottomSheet.showBottomSheet_50<String?>(
+              context: parentContext, child: PassphraseCheckScreen(id: id));
+          if (result != null) {
+            Navigator.pushNamed(parentContext, route, arguments: {'id': id, ...?extraArgs});
+          }
         } else {
           Navigator.pushNamed(parentContext, route, arguments: {'id': id, ...?extraArgs});
         }

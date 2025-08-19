@@ -12,7 +12,6 @@ class MultisigSignViewModel extends ChangeNotifier {
   late final MultisignatureVault _coconutVault;
   late final List<bool> _signerApproved;
   late final List<bool> _hasPassphraseList;
-  late final List<String> _passphraseList;
   late String _psbtForSigning;
   bool _signStateInitialized = false;
 
@@ -21,7 +20,6 @@ class MultisigSignViewModel extends ChangeNotifier {
     _coconutVault = _vaultListItem.coconutVault as MultisignatureVault;
     _signerApproved = List<bool>.filled(_vaultListItem.signers.length, false);
     _hasPassphraseList = List<bool>.filled(_vaultListItem.signers.length, false);
-    _passphraseList = List<String>.filled(_vaultListItem.signers.length, '');
 
     _psbtForSigning = _signProvider.unsignedPsbtBase64!;
     _checkPassphraseStatus();
@@ -75,23 +73,12 @@ class MultisigSignViewModel extends ChangeNotifier {
     return _signProvider.signedPsbtBase64 ?? _signProvider.unsignedPsbtBase64!;
   }
 
-  void setPassphrase(int index, String passphrase) {
-    _passphraseList[index] = passphrase;
-  }
-
-  Future<void> sign(int index) async {
-    try {
-      final mnemonic = await _walletProvider.getSecret(_vaultListItem.signers[index].innerVaultId!);
-      final passphrase = _passphraseList[index];
-      final seed = Seed.fromMnemonic(mnemonic, passphrase: passphrase);
-      _coconutVault.bindSeedToKeyStore(seed);
-
-      _psbtForSigning =
-          _coconutVault.keyStoreList[index].addSignatureToPsbt(_psbtForSigning, AddressType.p2wsh);
-    } finally {
-      // unbind
-      _coconutVault.keyStoreList[index].seed = null;
-    }
+  Future<void> sign(int index, String passphrase) async {
+    final mnemonic = await _walletProvider.getSecret(_vaultListItem.signers[index].innerVaultId!);
+    final seed = Seed.fromMnemonic(mnemonic, passphrase: passphrase);
+    final keyStore = KeyStore.fromSeed(seed, AddressType.p2wsh);
+    _psbtForSigning = keyStore.addSignatureToPsbt(_psbtForSigning, AddressType.p2wsh);
+    updateSignState(index);
   }
 
   void saveSignedPsbt() {

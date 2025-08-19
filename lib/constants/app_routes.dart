@@ -28,5 +28,5 @@ class AppRoutes {
   static const String prepareUpdate = '/prepare-update';
   static const String restorationInfo = "/restoration-info";
   static const String vaultListRestoration = "/vault-list-restoration";
-  static const String verifyPassphrase = "/verify-passphrase";
+  static const String passphraseVerification = "/passphrase-verification";
 }

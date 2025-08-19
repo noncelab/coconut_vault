@@ -1,24 +1,28 @@
 import 'package:coconut_design_system/coconut_design_system.dart';
+import 'package:coconut_vault/enums/pin_check_context_enum.dart';
 import 'package:coconut_vault/isolates/wallet_isolates.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
+import 'package:coconut_vault/screens/common/pin_check_screen.dart';
 import 'package:coconut_vault/utils/vibration_util.dart';
+import 'package:coconut_vault/widgets/bottom_sheet.dart';
 import 'package:coconut_vault/widgets/button/fixed_bottom_button.dart';
 import 'package:coconut_vault/widgets/custom_dialog.dart';
+import 'package:coconut_vault/widgets/custom_loading_overlay.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:provider/provider.dart';
 
-class VerifyPassphraseScreen extends StatefulWidget {
-  const VerifyPassphraseScreen({super.key, required this.id});
+class PassphraseVerificationScreen extends StatefulWidget {
+  const PassphraseVerificationScreen({super.key, required this.id});
   final int id;
 
   @override
-  State<VerifyPassphraseScreen> createState() => _VerifyPassphraseScreenState();
+  State<PassphraseVerificationScreen> createState() => _PassphraseVerificationScreenState();
 }
 
-class _VerifyPassphraseScreenState extends State<VerifyPassphraseScreen>
+class _PassphraseVerificationScreenState extends State<PassphraseVerificationScreen>
     with TickerProviderStateMixin {
   final TextEditingController _inputController = TextEditingController();
   final FocusNode _inputFocusNode = FocusNode();
@@ -102,21 +106,20 @@ class _VerifyPassphraseScreenState extends State<VerifyPassphraseScreen>
                       ),
                     ),
                   ),
-                  if (_inputFocusNode.hasFocus)
-                    ValueListenableBuilder<String>(
-                        valueListenable: _passphraseTextNotifier,
-                        builder: (_, value, child) {
-                          return FixedBottomButton(
-                            onButtonClicked: verifyPassphrase,
-                            text: t.verify_passphrase_screen.start_verification,
-                            textColor: CoconutColors.white,
-                            isActive: _inputController.text.isNotEmpty,
-                            backgroundColor: CoconutColors.black,
-                            showGradient: true,
-                            gradientPadding:
-                                const EdgeInsets.only(left: 16, right: 16, bottom: 40, top: 140),
-                          );
-                        }),
+                  ValueListenableBuilder<String>(
+                      valueListenable: _passphraseTextNotifier,
+                      builder: (_, value, child) {
+                        return FixedBottomButton(
+                          onButtonClicked: verifyPassphrase,
+                          text: t.verify_passphrase_screen.start_verification,
+                          textColor: CoconutColors.white,
+                          isActive: _inputController.text.isNotEmpty,
+                          backgroundColor: CoconutColors.black,
+                          showGradient: true,
+                          gradientPadding:
+                              const EdgeInsets.only(left: 16, right: 16, bottom: 40, top: 140),
+                        );
+                      }),
                 ],
               ),
             )),
@@ -124,14 +127,28 @@ class _VerifyPassphraseScreenState extends State<VerifyPassphraseScreen>
     );
   }
 
+  Future<bool?> _showPinCheckScreen() async {
+    return await MyBottomSheet.showBottomSheet_90<bool>(
+      context: context,
+      child: CustomLoadingOverlay(
+        child: PinCheckScreen(
+          pinCheckContext: PinCheckContextEnum.sensitiveAction,
+          onSuccess: () {
+            Navigator.pop(context, true);
+          },
+        ),
+      ),
+    );
+  }
+
   Future<void> verifyPassphrase() async {
     _closeKeyboard();
+    final pinCheckResult = await _showPinCheckScreen();
+    if (pinCheckResult != true) return;
+
     CustomDialogs.showLoadingDialog(context, t.verify_passphrase_screen.loading_description);
-
     _isPassphraseVerified = false;
-
     final walletProvider = context.read<WalletProvider>();
-    // TODO: authentication 추가
     final result = await compute(WalletIsolates.verifyPassphrase, {
       'mnemonic': await walletProvider.getSecret(widget.id),
       'passphrase': _inputController.text,

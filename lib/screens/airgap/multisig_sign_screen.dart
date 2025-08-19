@@ -10,7 +10,7 @@ import 'package:coconut_vault/providers/visibility_provider.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:coconut_vault/screens/common/pin_check_screen.dart';
 import 'package:coconut_vault/screens/airgap/multisig_signer_qr_bottom_sheet.dart';
-import 'package:coconut_vault/screens/vault_menu/info/passphrase_input_screen.dart';
+import 'package:coconut_vault/screens/vault_menu/info/passphrase_check_screen.dart';
 import 'package:coconut_vault/utils/alert_util.dart';
 import 'package:coconut_vault/utils/icon_util.dart';
 import 'package:coconut_vault/utils/text_utils.dart';
@@ -58,72 +58,67 @@ class _MultisigSignScreenState extends State<MultisigSignScreen> {
     });
   }
 
-  void _handlePassphraseInput({
-    required bool hasPassphrase,
+  /// PassphraseCheckScreen 내부에서 인증까지 완료함
+  Future<String?> _authenticateWithPassphrase({
     required BuildContext context,
-    required VoidCallback onSuccess,
     required int index,
-  }) {
-    if (hasPassphrase) {
-      MyBottomSheet.showBottomSheet_50(
-        context: context,
-        child: PassphraseInputScreen(id: _viewModel.getInnerVaultId(index)),
-        handleSheetResult: (result) {
-          if (result is Map && result['success']) {
-            _viewModel.setPassphrase(index, result['passphrase']);
-            onSuccess();
-          }
-        },
-      );
-    } else {
-      onSuccess();
-    }
+  }) async {
+    return await MyBottomSheet.showBottomSheet_50(
+      context: context,
+      child: PassphraseCheckScreen(id: _viewModel.getInnerVaultId(index)),
+    );
   }
 
-  Future<void> _signStep1(bool isKeyInsideVault, int index) async {
+  Future<bool?> _authenticateWithoutPassphrase() async {
+    final authProvider = context.read<AuthProvider>();
+    if (await authProvider.isBiometricsAuthValid()) {
+      return true;
+    }
+
+    return await MyBottomSheet.showBottomSheet_90<bool>(
+      context: context,
+      child: CustomLoadingOverlay(
+        child: PinCheckScreen(
+          pinCheckContext: PinCheckContextEnum.sensitiveAction,
+          onSuccess: () {
+            Navigator.pop(context, true);
+            return true;
+          },
+        ),
+      ),
+    );
+  }
+
+  Future<void> _sign(bool isKeyInsideVault, int index) async {
     if (isKeyInsideVault) {
-      final authProvider = context.read<AuthProvider>();
-      if (await authProvider.isBiometricsAuthValid()) {
-        _handlePassphraseInput(
-          index: index,
-          hasPassphrase: _viewModel.getHasPassphrase(index),
-          context: context,
-          onSuccess: () => _signStep2(index),
-        );
-        return;
+      String? validPassphrase;
+      if (_viewModel.getHasPassphrase(index)) {
+        validPassphrase = await _authenticateWithPassphrase(context: context, index: index);
+
+        if (validPassphrase == null) {
+          return;
+        }
+      } else {
+        final authenticateResult = await _authenticateWithoutPassphrase();
+        if (authenticateResult != true) {
+          return;
+        }
       }
 
-      MyBottomSheet.showBottomSheet_90(
-        context: context,
-        child: CustomLoadingOverlay(
-          child: PinCheckScreen(
-            pinCheckContext: PinCheckContextEnum.sensitiveAction,
-            onComplete: () {
-              Navigator.pop(context);
-              _handlePassphraseInput(
-                index: index,
-                hasPassphrase: _viewModel.getHasPassphrase(index),
-                context: context,
-                onSuccess: () => _signStep2(index),
-              );
-            },
-          ),
-        ),
-      );
+      await _addSignatureToPsbt(index, validPassphrase ?? "");
     } else {
       _showQrBottomSheet(index);
     }
   }
 
   /// @param index: signer index
-  void _signStep2(int index) async {
+  Future<void> _addSignatureToPsbt(int index, String passphrase) async {
     try {
       setState(() {
         _showLoading = true;
       });
 
-      await _viewModel.sign(index);
-      _viewModel.updateSignState(index);
+      await _viewModel.sign(index, passphrase);
     } catch (_) {
       if (mounted) {
         showAlertDialog(context: context, content: t.errors.sign_error(error: _));
@@ -474,7 +469,7 @@ class _MultisigSignScreenState extends State<MultisigSignScreen> {
                                                 .length) ...{
                                           GestureDetector(
                                             onTap: () {
-                                              _signStep1(isInnerWallet, index);
+                                              _sign(isInnerWallet, index);
                                             },
                                             child: Container(
                                               padding: const EdgeInsets.symmetric(

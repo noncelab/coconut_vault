@@ -12,7 +12,6 @@ class SingleSigSignViewModel extends ChangeNotifier {
   late final bool _isAlreadySigned;
   late final List<bool> _signersApproved = List<bool>.filled(requiredSignatureCount, false);
   bool _hasPassphrase = false;
-  String _passphrase = "";
 
   SingleSigSignViewModel(this._walletProvider, this._signProvider) {
     _coconutVault = (_signProvider.vaultListItem! as SingleSigVaultListItem).coconutVault
@@ -53,22 +52,14 @@ class SingleSigSignViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  void setPassphrase(String passphrase) {
-    _passphrase = passphrase;
-  }
-
-  Future<void> sign() async {
-    try {
-      final mnemonic = await _walletProvider.getSecret(_signProvider.walletId!);
-      final seed = Seed.fromMnemonic(mnemonic, passphrase: _passphrase);
-      _coconutVault.keyStore.seed = seed;
-
-      final signedTx = _coconutVault.addSignatureToPsbt(_signProvider.unsignedPsbtBase64!);
-      _signProvider.saveSignedPsbt(signedTx);
-    } finally {
-      // unbind
-      _coconutVault.keyStore.seed = null;
-    }
+  Future<void> sign({required String passphrase}) async {
+    final mnemonic = await _walletProvider.getSecret(_signProvider.walletId!);
+    final seed = Seed.fromMnemonic(mnemonic, passphrase: passphrase);
+    final keyStore = KeyStore.fromSeed(seed, _signProvider.vaultListItem!.vaultType.addressType);
+    final coconutVault = SingleSignatureVault.fromKeyStore(keyStore);
+    final signedTx = coconutVault.addSignatureToPsbt(_signProvider.unsignedPsbtBase64!);
+    _signProvider.saveSignedPsbt(signedTx);
+    updateSignState();
   }
 
   void resetSignProvider() {

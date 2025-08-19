@@ -71,7 +71,7 @@ class _SingleSigSetupInfoScreenState extends State<SingleSigSetupInfoScreen> {
       child: CustomLoadingOverlay(
         child: PinCheckScreen(
           pinCheckContext: pinCheckContext,
-          onComplete: () async {
+          onSuccess: () async {
             Navigator.pop(context);
             _verifySwitch(context, pinCheckContext);
           },
@@ -341,8 +341,8 @@ class _SingleSigSetupInfoScreenState extends State<SingleSigSetupInfoScreen> {
                       showIcon: true,
                       onPressed: () {
                         _removeTooltip();
-                        Navigator.of(context)
-                            .pushNamed(AppRoutes.verifyPassphrase, arguments: {'id': widget.id});
+                        Navigator.of(context).pushNamed(AppRoutes.passphraseVerification,
+                            arguments: {'id': widget.id});
                       },
                     ),
                   ],
