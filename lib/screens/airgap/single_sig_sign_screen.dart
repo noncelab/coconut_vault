@@ -259,11 +259,11 @@ class _SingleSigSignScreenState extends State<SingleSigSignScreen> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Padding(
-                                  padding: EdgeInsets.only(
+                                  padding: const EdgeInsets.only(
                                     left: 10,
                                     right: 10,
-                                    top: index == 0 ? 22 : 15,
-                                    bottom: index == 1 ? 22 : 15,
+                                    top: 15,
+                                    bottom: 15,
                                   ),
                                   child: Row(
                                     children: [
