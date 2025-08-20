@@ -1,5 +1,5 @@
 import 'package:coconut_vault/localization/strings.g.dart';
-import 'package:coconut_vault/model/single_sig/single_sig_wallet.dart';
+import 'package:coconut_vault/model/single_sig/single_sig_wallet_create_dto.dart';
 import 'package:coconut_vault/providers/auth_provider.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:coconut_vault/repository/secure_storage_repository.dart';
@@ -212,7 +212,7 @@ Future<void> skipScreensUntilVaultList(WidgetTester tester) async {
 
 Future<void> addVault(WalletProvider walletProvider, WidgetTester tester) async {
   // single sig wallet
-  final singleSig = SinglesigWallet(
+  final singleSig = SingleSigWalletCreateDto(
     1,
     "Test Wallet1",
     0,

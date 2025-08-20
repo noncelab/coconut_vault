@@ -3,12 +3,12 @@ import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:flutter/material.dart';
 
 class MyBottomSheet {
-  static void showBottomSheet_90(
+  static Future<T?> showBottomSheet_90<T>(
       {required BuildContext context,
       required Widget child,
       bool isDismissible = true,
-      bool enableDrag = true}) {
-    showModalBottomSheet(
+      bool enableDrag = true}) async {
+    return showModalBottomSheet<T>(
         context: context,
         builder: (context) {
           return child;
@@ -39,22 +39,28 @@ class MyBottomSheet {
         constraints: BoxConstraints(maxHeight: MediaQuery.of(context).size.height * 0.95));
   }
 
-  static void showBottomSheet_50(
+  static Future<T?> showBottomSheet_50<T>(
       {required BuildContext context,
       required Widget child,
       bool isDismissible = true,
-      bool enableDrag = true}) {
-    showModalBottomSheet(
+      bool enableDrag = true}) async {
+    return await showModalBottomSheet<T>(
         context: context,
         builder: (context) {
-          return child;
+          return Padding(
+            padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
+            child: SizedBox(
+              height: MediaQuery.of(context).size.height * 0.5,
+              width: MediaQuery.of(context).size.width,
+              child: child,
+            ),
+          );
         },
         backgroundColor: CoconutColors.white,
         isDismissible: isDismissible,
         isScrollControlled: true,
         enableDrag: enableDrag,
-        useSafeArea: true,
-        constraints: BoxConstraints(maxHeight: MediaQuery.of(context).size.height * 0.5));
+        useSafeArea: true);
   }
 
   static void showBottomSheet({

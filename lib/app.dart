@@ -35,6 +35,7 @@ import 'package:coconut_vault/screens/vault_creation/vault_name_and_icon_setup_s
 import 'package:coconut_vault/screens/vault_menu/address_list_screen.dart';
 import 'package:coconut_vault/screens/vault_menu/info/multisig_bsms_screen.dart';
 import 'package:coconut_vault/screens/vault_menu/info/multisig_setup_info_screen.dart';
+import 'package:coconut_vault/screens/vault_menu/info/passphrase_verification_screen.dart';
 import 'package:coconut_vault/screens/vault_menu/multisig_signer_bsms_export_screen.dart';
 import 'package:coconut_vault/screens/vault_menu/sync_to_wallet/sync_to_wallet_screen.dart';
 import 'package:coconut_vault/screens/home/vault_menu_bottom_sheet.dart';
@@ -79,7 +80,7 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> {
   }) {
     return PinCheckScreen(
       pinCheckContext: PinCheckContextEnum.appLaunch,
-      onComplete: () => _updateEntryFlow(nextFlow),
+      onSuccess: () => _updateEntryFlow(nextFlow),
       onReset: onReset ?? () async => _updateEntryFlow(AppEntryFlow.vaultList),
     );
   }
@@ -211,7 +212,10 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> {
             AppRoutes.vaultNameSetup: (context) => const VaultNameAndIconSetupScreen(),
             AppRoutes.vaultDetails: (context) => buildScreenWithArguments(
                   context,
-                  (args) => VaultMenuBottomSheet(id: args['id']),
+                  (args) => VaultMenuBottomSheet(
+                      id: args['id'],
+                      hasPassphrase: args['hasPassphrase'],
+                      parentContext: args['parentContext']),
                 ),
             AppRoutes.singleSigSetupInfo: (context) => buildScreenWithArguments(
                 context, (args) => SingleSigSetupInfoScreen(id: args['id'])),
@@ -271,6 +275,12 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> {
             },
             AppRoutes.prepareUpdate: (context) => const CustomLoadingOverlay(
                   child: AppUpdatePreparationScreen(),
+                ),
+            AppRoutes.passphraseVerification: (context) => buildScreenWithArguments(
+                  context,
+                  (args) => PassphraseVerificationScreen(
+                    id: args['id'],
+                  ),
                 ),
           },
         ),

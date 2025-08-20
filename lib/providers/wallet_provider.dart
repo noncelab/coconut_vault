@@ -3,14 +3,13 @@ import 'dart:convert';
 
 import 'package:coconut_lib/coconut_lib.dart';
 import 'package:coconut_vault/repository/wallet_repository.dart';
-import 'package:coconut_vault/model/common/secret.dart';
 import 'package:coconut_vault/model/common/vault_list_item_base.dart';
 import 'package:coconut_vault/model/multisig/multisig_import_detail.dart';
 import 'package:coconut_vault/model/multisig/multisig_signer.dart';
 import 'package:coconut_vault/model/multisig/multisig_vault_list_item.dart';
 import 'package:coconut_vault/model/multisig/multisig_wallet.dart';
 import 'package:coconut_vault/model/single_sig/single_sig_vault_list_item.dart';
-import 'package:coconut_vault/model/single_sig/single_sig_wallet.dart';
+import 'package:coconut_vault/model/single_sig/single_sig_wallet_create_dto.dart';
 import 'package:coconut_vault/model/exception/not_related_multisig_wallet_exception.dart';
 import 'package:coconut_vault/providers/visibility_provider.dart';
 import 'package:coconut_vault/utils/vibration_util.dart';
@@ -89,7 +88,7 @@ class WalletProvider extends ChangeNotifier {
     _animatedVaultFlags[0] = true;
   }
 
-  Future<void> addSingleSigVault(SinglesigWallet wallet) async {
+  Future<void> addSingleSigVault(SingleSigWalletCreateDto wallet) async {
     _setAddVaultCompleted(false);
 
     await _walletRepository.addSinglesigWallet(wallet);
@@ -115,6 +114,10 @@ class WalletProvider extends ChangeNotifier {
     _setAddVaultCompleted(true);
     await _updateWalletLength();
     notifyListeners();
+  }
+
+  Future<bool> hasPassphrase(int walletId) {
+    return _walletRepository.hasPassphrase(walletId);
   }
 
   Future<void> importMultisigVault(MultisigImportDetail details, int walletId) async {
@@ -163,9 +166,9 @@ class WalletProvider extends ChangeNotifier {
         // 내부 지갑
         signers.add(MultisigSigner(
           id: i,
-          signerBsms: linkedWalletList[i]!.signerBsms!,
+          signerBsms: linkedWalletList[i]!.signerBsms,
           innerVaultId: linkedWalletList[i]!.id,
-          keyStore: KeyStore.fromSignerBsms(linkedWalletList[i]!.signerBsms!),
+          keyStore: KeyStore.fromSignerBsms(linkedWalletList[i]!.signerBsms),
           name: linkedWalletList[i]!.name,
           iconIndex: linkedWalletList[i]!.iconIndex,
           colorIndex: linkedWalletList[i]!.colorIndex,
@@ -308,7 +311,7 @@ class WalletProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<Secret> getSecret(int id) async {
+  Future<String> getSecret(int id) async {
     return await _walletRepository.getSecret(id);
   }
 
@@ -319,16 +322,14 @@ class WalletProvider extends ChangeNotifier {
       final vaultData = vault.toJson();
 
       if (vault.vaultType == WalletType.singleSignature) {
-        final secret = await getSecret(vault.id);
-        vaultData['secret'] = secret.mnemonic;
-        vaultData['passphrase'] = secret.passphrase;
+        vaultData['secret'] = await getSecret(vault.id);
+        vaultData['hasPassphrase'] = await hasPassphrase(vault.id);
       }
 
       backupData.add(vaultData);
     }
 
     final jsonData = jsonEncode(backupData);
-
     return jsonData;
   }
 

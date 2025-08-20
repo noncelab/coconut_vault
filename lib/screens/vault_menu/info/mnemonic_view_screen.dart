@@ -31,13 +31,13 @@ class _MnemonicViewScreen extends State<MnemonicViewScreen> {
     super.initState();
     _walletProvider = Provider.of<WalletProvider>(context, listen: false);
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      _walletProvider.getSecret(widget.walletId).then((secret) async {
+      _walletProvider.getSecret(widget.walletId).then((mnemonicValue) async {
         await Future.delayed(const Duration(seconds: 1));
         if (!mounted) return;
         setState(() {
-          mnemonic = secret.mnemonic;
-          passphrase = secret.passphrase;
-          if (secret.passphrase.isNotEmpty) {
+          mnemonic = mnemonicValue;
+          passphrase = "";
+          if (passphrase!.isNotEmpty) {
             _passphraseGridItems = _buildPassphraseGridItems();
           }
           _isLoading = false;

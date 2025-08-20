@@ -9,6 +9,7 @@ import 'package:coconut_vault/providers/view_model/airgap/single_sig_sign_view_m
 import 'package:coconut_vault/providers/visibility_provider.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:coconut_vault/screens/common/pin_check_screen.dart';
+import 'package:coconut_vault/screens/vault_menu/info/passphrase_check_screen.dart';
 import 'package:coconut_vault/utils/alert_util.dart';
 import 'package:coconut_vault/utils/icon_util.dart';
 import 'package:coconut_vault/utils/text_utils.dart';
@@ -54,35 +55,61 @@ class _SingleSigSignScreenState extends State<SingleSigSignScreen> {
     });
   }
 
-  Future<void> _signStep1() async {
+  /// PassphraseCheckScreen 내부에서 인증까지 완료함
+  Future<String?> _authenticateWithPassphrase({
+    required BuildContext context,
+  }) async {
+    return await MyBottomSheet.showBottomSheet_50(
+      context: context,
+      child: PassphraseCheckScreen(id: _viewModel.walletId),
+    );
+  }
+
+  Future<bool?> _authenticateWithoutPassphrase() async {
     final authProvider = context.read<AuthProvider>();
     if (await authProvider.isBiometricsAuthValid()) {
-      _signStep2();
-      return;
+      return true;
     }
 
-    MyBottomSheet.showBottomSheet_90(
+    return await MyBottomSheet.showBottomSheet_90<bool>(
       context: context,
       child: CustomLoadingOverlay(
         child: PinCheckScreen(
           pinCheckContext: PinCheckContextEnum.sensitiveAction,
-          onComplete: () {
-            Navigator.pop(context);
-            _signStep2();
+          onSuccess: () {
+            Navigator.pop(context, true);
+            return true;
           },
         ),
       ),
     );
   }
 
-  void _signStep2() async {
+  Future<void> _sign() async {
+    String? validPassphrase;
+    if (_viewModel.hasPassphrase) {
+      validPassphrase = await _authenticateWithPassphrase(context: context);
+
+      if (validPassphrase == null) {
+        return;
+      }
+    } else {
+      final authenticateResult = await _authenticateWithoutPassphrase();
+      if (authenticateResult != true) {
+        return;
+      }
+    }
+
+    await _addSignatureToPsbt(validPassphrase ?? "");
+  }
+
+  Future<void> _addSignatureToPsbt(String passphrase) async {
     try {
       setState(() {
         _showLoading = true;
       });
 
-      await _viewModel.sign();
-      _viewModel.updateSignState();
+      await _viewModel.sign(passphrase: passphrase);
     } catch (_) {
       if (mounted) {
         showAlertDialog(context: context, content: t.errors.sign_error(error: _));
@@ -229,22 +256,22 @@ class _SingleSigSignScreenState extends State<SingleSigSignScreen> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Padding(
-                                  padding: EdgeInsets.only(
+                                  padding: const EdgeInsets.only(
                                     left: 10,
                                     right: 10,
-                                    top: index == 0 ? 22 : 18,
-                                    bottom: index == 1 ? 22 : 18,
+                                    top: 15,
+                                    bottom: 15,
                                   ),
                                   child: Row(
                                     children: [
                                       Row(
                                         children: [
                                           Container(
-                                            padding: const EdgeInsets.all(10),
+                                            padding: const EdgeInsets.all(8),
                                             decoration: BoxDecoration(
                                               color: CoconutColors.backgroundColorPaletteLight[
                                                   viewModel.walletColorIndex],
-                                              borderRadius: BorderRadius.circular(16.0),
+                                              borderRadius: BorderRadius.circular(8.0),
                                             ),
                                             child: SvgPicture.asset(
                                               CustomIcons.getPathByIndex(viewModel.walletIconIndex),
@@ -253,7 +280,7 @@ class _SingleSigSignScreenState extends State<SingleSigSignScreen> {
                                                     .colorPalette[viewModel.walletColorIndex],
                                                 BlendMode.srcIn,
                                               ),
-                                              width: 20,
+                                              width: 14,
                                             ),
                                           ),
                                           const SizedBox(width: 8),
@@ -281,7 +308,7 @@ class _SingleSigSignScreenState extends State<SingleSigSignScreen> {
                                         ),
                                       } else ...{
                                         GestureDetector(
-                                          onTap: _signStep1,
+                                          onTap: _sign,
                                           child: Container(
                                             padding: const EdgeInsets.symmetric(
                                                 horizontal: 8, vertical: 4),

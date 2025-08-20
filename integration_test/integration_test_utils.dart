@@ -6,7 +6,7 @@ import 'package:coconut_vault/constants/shared_preferences_keys.dart';
 import 'package:coconut_vault/repository/wallet_repository.dart';
 import 'package:coconut_vault/model/multisig/multisig_signer.dart';
 import 'package:coconut_vault/model/multisig/multisig_wallet.dart';
-import 'package:coconut_vault/model/single_sig/single_sig_wallet.dart';
+import 'package:coconut_vault/model/single_sig/single_sig_wallet_create_dto.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:coconut_vault/repository/secure_storage_repository.dart';
 import 'package:coconut_vault/repository/shared_preferences_repository.dart';
@@ -141,7 +141,7 @@ Future<void> saveBackupData() async {
 }
 
 Future<int> addSingleSigWallets({WalletProvider? walletProvider}) async {
-  final singleSig2 = SinglesigWallet(
+  final singleSig2 = SingleSigWalletCreateDto(
     2,
     "New Wallet3",
     0,
@@ -150,7 +150,7 @@ Future<int> addSingleSigWallets({WalletProvider? walletProvider}) async {
     '',
   );
 
-  final singleSig3 = SinglesigWallet(
+  final singleSig3 = SingleSigWalletCreateDto(
     3,
     "Test Wallet4",
     0,
@@ -174,7 +174,7 @@ Future<int> addSingleSigWallets({WalletProvider? walletProvider}) async {
 
 Future<int> addWallets({WalletProvider? walletProvider}) async {
   // single sig wallet
-  final singleSig = SinglesigWallet(
+  final singleSig = SingleSigWalletCreateDto(
     1,
     "Test Wallet1",
     0,

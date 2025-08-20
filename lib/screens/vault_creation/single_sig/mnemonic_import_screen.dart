@@ -241,7 +241,7 @@ class _MnemonicImportState extends State<MnemonicImport> {
   void _handleNextButton() {
     final String secret = _inputText.trim().toLowerCase().replaceAll(RegExp(r'\s+'), ' ');
 
-    final String passphrase = _usePassphrase ? _passphrase.trim() : '';
+    final String passphrase = _usePassphrase ? _passphrase : '';
 
     if (_walletProvider.isSeedDuplicated(secret, passphrase)) {
       CoconutToast.showToast(

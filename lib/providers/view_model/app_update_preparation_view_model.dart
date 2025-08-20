@@ -84,8 +84,8 @@ class AppUpdatePreparationViewModel extends ChangeNotifier {
   }
 
   Future<MnemonicWordsItem> _getMnemonicWordsFromVault(VaultListItemBase vault) async {
-    return await _walletProvider.getSecret(vault.id).then((secret) {
-      List<String> mnemonicList = secret.mnemonic.split(' ');
+    return await _walletProvider.getSecret(vault.id).then((mnemonic) {
+      List<String> mnemonicList = mnemonic.split(' ');
       int mnemonicIndex = _random.nextInt(mnemonicList.length);
       Logger.log('-->${vault.name} mnemonicList: $mnemonicList, mnemonicIndex: $mnemonicIndex');
       return MnemonicWordsItem(

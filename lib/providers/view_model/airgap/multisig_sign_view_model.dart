@@ -11,6 +11,7 @@ class MultisigSignViewModel extends ChangeNotifier {
   late final MultisigVaultListItem _vaultListItem;
   late final MultisignatureVault _coconutVault;
   late final List<bool> _signerApproved;
+  late final List<bool> _hasPassphraseList;
   late String _psbtForSigning;
   bool _signStateInitialized = false;
 
@@ -18,7 +19,19 @@ class MultisigSignViewModel extends ChangeNotifier {
     _vaultListItem = _signProvider.vaultListItem! as MultisigVaultListItem;
     _coconutVault = _vaultListItem.coconutVault as MultisignatureVault;
     _signerApproved = List<bool>.filled(_vaultListItem.signers.length, false);
+    _hasPassphraseList = List<bool>.filled(_vaultListItem.signers.length, false);
+
     _psbtForSigning = _signProvider.unsignedPsbtBase64!;
+    _checkPassphraseStatus();
+  }
+
+  Future<void> _checkPassphraseStatus() async {
+    for (int i = 0; i < _vaultListItem.signers.length; ++i) {
+      final innerVaultId = _vaultListItem.signers[i].innerVaultId;
+      if (innerVaultId != null) {
+        _hasPassphraseList[i] = await _walletProvider.hasPassphrase(innerVaultId);
+      }
+    }
   }
 
   int get requiredSignatureCount => _vaultListItem.requiredSignatureCount;
@@ -36,6 +49,8 @@ class MultisigSignViewModel extends ChangeNotifier {
   bool get isSignatureComplete => remainingSignatures <= 0;
   List<MultisigSigner> get signers => _vaultListItem.signers;
   String get psbtForSigning => _psbtForSigning;
+  int getInnerVaultId(int index) => _vaultListItem.signers[index].innerVaultId!;
+  bool getHasPassphrase(int index) => _hasPassphraseList[index];
 
   void initPsbtSignState() {
     assert(!_signStateInitialized); // 오직 한번만 호출
@@ -58,18 +73,12 @@ class MultisigSignViewModel extends ChangeNotifier {
     return _signProvider.signedPsbtBase64 ?? _signProvider.unsignedPsbtBase64!;
   }
 
-  Future<void> sign(int index) async {
-    try {
-      var secret = await _walletProvider.getSecret(_vaultListItem.signers[index].innerVaultId!);
-      final seed = Seed.fromMnemonic(secret.mnemonic, passphrase: secret.passphrase);
-      _coconutVault.bindSeedToKeyStore(seed);
-
-      _psbtForSigning =
-          _coconutVault.keyStoreList[index].addSignatureToPsbt(_psbtForSigning, AddressType.p2wsh);
-    } finally {
-      // unbind
-      _coconutVault.keyStoreList[index].seed = null;
-    }
+  Future<void> sign(int index, String passphrase) async {
+    final mnemonic = await _walletProvider.getSecret(_vaultListItem.signers[index].innerVaultId!);
+    final seed = Seed.fromMnemonic(mnemonic, passphrase: passphrase);
+    final keyStore = KeyStore.fromSeed(seed, AddressType.p2wsh);
+    _psbtForSigning = keyStore.addSignatureToPsbt(_psbtForSigning, AddressType.p2wsh);
+    updateSignState(index);
   }
 
   void saveSignedPsbt() {
