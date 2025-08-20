@@ -80,6 +80,8 @@ total_amount: "Total Amount"
 key_list: "Key List"
 
 view_mnemonic: "View Mnemonic"
+view_passphrase: "View Passphrase"
+verify_passphrase: "Verify Passphrase"
 view_app_info: "View App Info"
 view_all: "View All"
 view_details_info: "View Details"
@@ -422,6 +424,26 @@ vault_settings:
   of: " of "
   nth: "$index"
   key: " key"
+
+verify_passphrase_screen:
+  title: "Verify Passphrase"
+  description: "Enter the passphrase"
+  enter_passphrase: "Enter Passphrase"
+  start_verification: "Start Verification"
+  loading_description: "Verifying if the passphrase is correct..."
+  result_title_success: "Passphrase is correct!"
+  result_description_success: "The wallet was successfully restored using the entered passphrase."
+  mfp: "MFP"
+  xpub: "XPub"
+  result_title_failure: "Passphrase does not match"
+  result_description_failure: "The wallet could not be restored using the entered passphrase."
+  saved_mfp: "Saved MFP"
+  recovered_mfp: "Recovered MFP"
+
+passphrase_input_screen:
+  title: "Enter Passphrase"
+  enter_passphrase: "Enter Passphrase"
+  passphrase_error: "Please check your passphrase again"
 
 # Update Preparation
 prepare_update:

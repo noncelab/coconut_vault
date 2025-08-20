@@ -17,11 +17,11 @@ publish_to: "none" # Remove this line if you wish to publish to pub.dev
 # In Windows, build-name is used as the major, minor, and patch parts
 # of the product and file versions while build-number is used as the build suffix.
 # iOS Regtest
-#version: 2.2.3+1
+version: 2.3.0+2
 # AOS Regtest
-#version: 2.2.3+25
+#version: 2.3.0+33
 # iOS Mainnet
-version: 0.0.4+1
+#version: 0.0.4+1
 # AOS Mainnet
 #version: 0.0.4+5
 
@@ -72,11 +72,8 @@ dependencies:
   slang_flutter: ^4.4.0
   pointycastle: ^3.9.1
   tuple: ^2.0.2
-  coconut_lib: ^0.10.4
-  coconut_design_system:
-    git: 
-      url: https://github.com/noncelab/coconut_design_system.git
-      ref: main
+  coconut_lib: ^1.0.0
+  coconut_design_system: ^0.9.2
   cbor: ^6.3.5
   ur:
     path: lib/packages/bc-ur-dart
@@ -195,6 +192,7 @@ flutter:
     - assets/svg/minus.svg
     - assets/svg/check.svg
     - assets/lottie/loading-coconut.json
+    - assets/lottie/loading-gray.json
     - assets/lottie/pin-locked-success.json
     - assets/png/pow-logo.png
     - assets/jpg/pow-full-logo.jpg
@@ -216,6 +214,8 @@ flutter:
     - assets/svg/text-field-clear.svg
     - assets/svg/copy.svg
     - assets/svg/wallet-plus.svg
+    - assets/svg/green-circle-check.svg
+    - assets/svg/triangle-warning.svg
 
   fonts:
     - family: SpaceGrotesk

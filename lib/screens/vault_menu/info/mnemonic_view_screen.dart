@@ -55,11 +55,11 @@ class _MnemonicViewScreen extends State<MnemonicViewScreen> with TickerProviderS
     _waveAnimationController.repeat();
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      _walletProvider.getSecret(widget.walletId).then((secret) async {
+      _walletProvider.getSecret(widget.walletId).then((mnemonicValue) async {
         await Future.delayed(const Duration(seconds: 2));
         if (!mounted) return;
         setState(() {
-          mnemonic = secret.mnemonic;
+          mnemonic = mnemonicValue;
         });
         // mnemonic이 로드되면 애니메이션 중지
         _waveAnimationController.stop();

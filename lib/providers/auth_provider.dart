@@ -27,6 +27,9 @@ class AuthProvider extends ChangeNotifier {
 
   final LocalAuthentication _auth = LocalAuthentication();
 
+  /// dispose 상태 추적
+  bool _isDisposed = false;
+
   /// 비밀번호 설정 여부
   bool _isPinSet = false;
   bool get isPinSet => _isPinSet;
@@ -97,6 +100,8 @@ class AuthProvider extends ChangeNotifier {
   }
 
   void setInitState() {
+    if (_isDisposed) return;
+
     _isPinSet = _sharedPrefs.getBool(SharedPrefsKeys.isPinEnabled) == true;
     _loadBiometricState();
     _loadUnlockState();
@@ -173,7 +178,7 @@ class AuthProvider extends ChangeNotifier {
   }
 
   Future<void> _setHasAlreadyRequestedBioPermissionTrue() async {
-    if (_hasAlreadyRequestedBioPermission) return;
+    if (_isDisposed || _hasAlreadyRequestedBioPermission) return;
 
     _hasAlreadyRequestedBioPermission = true;
     await _sharedPrefs.setBool(SharedPrefsKeys.hasAlreadyRequestedBioPermission, true);
@@ -201,14 +206,19 @@ class AuthProvider extends ChangeNotifier {
       _canCheckBiometrics = false;
       _isBiometricEnabled = false;
     } finally {
-      _sharedPrefs.setBool(SharedPrefsKeys.canCheckBiometrics, _canCheckBiometrics);
-      _sharedPrefs.setBool(SharedPrefsKeys.isBiometricEnabled, _isBiometricEnabled);
-      notifyListeners();
+      // dispose된 상태에서는 notifyListeners 호출하지 않음
+      if (!_isDisposed) {
+        _sharedPrefs.setBool(SharedPrefsKeys.canCheckBiometrics, _canCheckBiometrics);
+        _sharedPrefs.setBool(SharedPrefsKeys.isBiometricEnabled, _isBiometricEnabled);
+        notifyListeners();
+      }
     }
   }
 
   /// 사용자 생체인증 활성화 여부 저장
   Future<void> saveIsBiometricEnabled(bool value) async {
+    if (_isDisposed) return;
+
     _isBiometricEnabled = value;
     _hasBiometricsPermission = value;
     await _sharedPrefs.setBool(SharedPrefsKeys.isBiometricEnabled, value);
@@ -258,6 +268,8 @@ class AuthProvider extends ChangeNotifier {
 
   /// 비밀번호 저장
   Future<void> savePin(String pin) async {
+    if (_isDisposed) return;
+
     if (_isBiometricEnabled && _canCheckBiometrics && !_isPinSet) {
       _isBiometricEnabled = true;
       _sharedPrefs.setBool(SharedPrefsKeys.isBiometricEnabled, true);
@@ -272,6 +284,8 @@ class AuthProvider extends ChangeNotifier {
 
   /// 비밀번호 초기화
   Future<void> resetPin() async {
+    if (_isDisposed) return;
+
     final WalletRepository walletRepository = WalletRepository();
     await walletRepository.resetAll();
 
@@ -289,6 +303,8 @@ class AuthProvider extends ChangeNotifier {
   // TODO: 딜레이 발생 이유
   /// 총 비밀번호 입력 시도 횟수, 다음 입력 가능 시간 저장
   Future<void> _setTurn(int turn) async {
+    if (_isDisposed) return;
+
     await _sharedPrefs.setString(turnKey, turn.toString());
 
     if (turn == kMaxTurn) {
@@ -306,6 +322,8 @@ class AuthProvider extends ChangeNotifier {
 
   /// 비밀번호 입력 시도 횟수 -> shared preference 저장할 필요가 없음.
   Future<void> _setCurrentAttempt(int attmept) async {
+    if (_isDisposed) return;
+
     final attemptCount = attmept.toString();
     await _sharedPrefs.setString(currentAttemptKey, attemptCount);
   }
@@ -313,6 +331,8 @@ class AuthProvider extends ChangeNotifier {
   /// 비밀번호 입력 시도 횟수 증가
   /// 최대 횟수 도달 시, 잠금 해제 시도 횟수, 다음 시도 시간 저장, 시도 횟수 초기화
   Future<void> increaseCurrentAttemptAndTurn() async {
+    if (_isDisposed) return;
+
     _currentAttemptInTurn++;
     _setCurrentAttempt(_currentAttemptInTurn);
 
@@ -326,6 +346,8 @@ class AuthProvider extends ChangeNotifier {
   }
 
   void resetAuthenticationState() {
+    if (_isDisposed) return;
+
     _currentAttemptInTurn = 0;
     _currentTurn = 0;
     _unlockAvailableAtInString = '';
@@ -333,5 +355,11 @@ class AuthProvider extends ChangeNotifier {
     _sharedPrefs.deleteSharedPrefsWithKey(unlockAvailableAtKey);
     _sharedPrefs.deleteSharedPrefsWithKey(currentAttemptKey);
     _sharedPrefs.deleteSharedPrefsWithKey(turnKey);
+  }
+
+  @override
+  void dispose() {
+    _isDisposed = true;
+    super.dispose();
   }
 }
