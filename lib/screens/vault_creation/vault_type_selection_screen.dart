@@ -103,7 +103,7 @@ class _VaultTypeSelectionScreenState extends State<VaultTypeSelectionScreen> {
         defaultColor: CoconutColors.gray150,
         pressedColor: CoconutColors.gray500.withOpacity(0.1),
         onPressed: isSelectable ? onPressed : () {},
-        isEnabled: isSelectable,
+        isActive: isSelectable,
         child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 28.0),
             child: Row(

@@ -85,7 +85,7 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> {
   }) {
     return PinCheckScreen(
       pinCheckContext: PinCheckContextEnum.appLaunch,
-      onComplete: () => _updateEntryFlow(nextFlow),
+      onSuccess: () => _updateEntryFlow(nextFlow),
       onReset: onReset ?? () async => _updateEntryFlow(AppEntryFlow.vaultHome),
     );
   }
