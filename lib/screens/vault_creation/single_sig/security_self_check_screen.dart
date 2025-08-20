@@ -59,8 +59,11 @@ class _SecuritySelfCheckScreenState extends State<SecuritySelfCheckScreen> {
         child: Stack(
           children: [
             SingleChildScrollView(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(vertical: 20),
+              physics: const AlwaysScrollableScrollPhysics(),
+              child: SizedBox(
+                height: MediaQuery.of(context).size.height -
+                    kToolbarHeight -
+                    MediaQuery.of(context).padding.top,
                 child: Column(children: [
                   Padding(
                     padding: const EdgeInsets.all(16.0),
@@ -78,41 +81,18 @@ class _SecuritySelfCheckScreenState extends State<SecuritySelfCheckScreen> {
                         )),
                   ),
                   const SizedBox(height: 16),
-                  LayoutBuilder(
-                    builder: (context, constraints) {
-                      const double itemHeight = 40.0;
-                      final double totalHeight = _items.length * itemHeight;
-                      final bool needScrolling = totalHeight > constraints.maxHeight;
-
-                      return needScrolling
-                          ? SingleChildScrollView(
-                              child: Column(
-                                children: _items.asMap().entries.map((entry) {
-                                  int index = entry.key;
-                                  ChecklistItem item = entry.value;
-                                  return ChecklistTile(
-                                    item: item,
-                                    onChanged: (bool? value) {
-                                      _onChecklistItemChanged(value, index);
-                                    },
-                                  );
-                                }).toList(),
-                              ),
-                            )
-                          : Column(
-                              children: _items.asMap().entries.map((entry) {
-                                int index = entry.key;
-                                ChecklistItem item = entry.value;
-                                return ChecklistTile(
-                                  item: item,
-                                  onChanged: (bool? value) {
-                                    _onChecklistItemChanged(value, index);
-                                  },
-                                );
-                              }).toList(),
-                            );
+                  ..._items.asMap().entries.map(
+                    (entry) {
+                      int index = entry.key;
+                      ChecklistItem item = entry.value;
+                      return ChecklistTile(
+                        item: item,
+                        onChanged: (bool? value) {
+                          _onChecklistItemChanged(value, index);
+                        },
+                      );
                     },
-                  )
+                  ),
                 ]),
               ),
             ),
