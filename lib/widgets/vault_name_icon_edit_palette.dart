@@ -59,7 +59,7 @@ class _VaultNameIconEditPaletteState extends State<VaultNameIconEditPalette> {
         onTap: () => FocusScope.of(context).unfocus(),
         child: SafeArea(
           child: Container(
-            padding: const EdgeInsets.all(10),
+            padding: const EdgeInsets.only(top: 10, left: 10, right: 10, bottom: 40),
             child: CustomScrollView(
               slivers: <Widget>[
                 SliverList(
@@ -138,72 +138,57 @@ class _VaultNameIconEditPaletteState extends State<VaultNameIconEditPalette> {
   }
 
   Widget _buildSelectedIconWithName() {
-    return Container(
-      padding: const EdgeInsets.only(right: 8.0, bottom: 20.0),
-      child: Row(
-        children: [
-          _selectedIconIndex >= 0
-              ? SvgIcon(
-                  index: _selectedIconIndex,
-                  colorIndex: _selectedColorIndex,
-                  enableBorder: false,
-                )
-              : const SizedBox(width: 16),
-          Expanded(
-            child: Column(
-              children: [
-                CoconutTextField(
-                  isLengthVisible: false,
-                  placeholderText: t.name,
-                  maxLength: 20,
-                  maxLines: 1,
-                  controller: _controller,
-                  focusNode: _focusNode,
-                  suffix: IconButton(
-                    highlightColor: CoconutColors.gray200,
-                    iconSize: 14,
-                    padding: EdgeInsets.zero,
-                    onPressed: () {
-                      setState(() {
-                        _controller.text = '';
-                      });
-                    },
-                    icon: _controller.text.isNotEmpty
-                        ? SvgPicture.asset(
-                            'assets/svg/text-field-clear.svg',
-                            colorFilter: const ColorFilter.mode(
-                              CoconutColors.gray400,
-                              BlendMode.srcIn,
-                            ),
-                          )
-                        : Container(),
-                  ),
-                  onChanged: (text) {
+    return Column(
+      children: [
+        Row(
+          children: [
+            _selectedIconIndex >= 0
+                ? SvgIcon(
+                    index: _selectedIconIndex,
+                    colorIndex: _selectedColorIndex,
+                    enableBorder: false,
+                  )
+                : const SizedBox(width: 16),
+            Expanded(
+              child: CoconutTextField(
+                isLengthVisible: true,
+                placeholderColor: CoconutColors.gray400,
+                placeholderText: t.name,
+                maxLength: 20,
+                maxLines: 1,
+                controller: _controller,
+                focusNode: _focusNode,
+                suffix: IconButton(
+                  highlightColor: CoconutColors.gray200,
+                  iconSize: 14,
+                  padding: EdgeInsets.zero,
+                  onPressed: () {
                     setState(() {
-                      _name = text;
-                      widget.onNameChanged(text);
+                      _controller.text = '';
                     });
                   },
+                  icon: _controller.text.isNotEmpty
+                      ? SvgPicture.asset(
+                          'assets/svg/text-field-clear.svg',
+                          colorFilter: const ColorFilter.mode(
+                            CoconutColors.gray400,
+                            BlendMode.srcIn,
+                          ),
+                        )
+                      : Container(),
                 ),
-                Padding(
-                  padding: const EdgeInsets.only(top: 4, right: 4),
-                  child: Align(
-                    alignment: Alignment.topRight,
-                    child: Text(
-                      '(${_controller.text.length} / 20)',
-                      style: CoconutTypography.body3_12.setColor(
-                        _controller.text.length == 20
-                            ? CoconutColors.black.withOpacity(0.7)
-                            : CoconutColors.black.withOpacity(0.5),
-                      ),
-                    ),
-                  ),
-                ),
-              ],
+                onChanged: (text) {
+                  setState(() {
+                    _name = text;
+                    widget.onNameChanged(text);
+                  });
+                },
+              ),
             ),
-          ),
-        ],
-      ),
+            const SizedBox(width: 16),
+          ],
+        ),
+      ],
     );
   }
 

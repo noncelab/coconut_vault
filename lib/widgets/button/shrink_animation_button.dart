@@ -11,6 +11,7 @@ class ShrinkAnimationButton extends StatefulWidget {
   final double borderRadius;
   final double borderWidth;
   final List<Color>? borderGradientColors;
+  final bool isEnabled;
 
   const ShrinkAnimationButton({
     super.key,
@@ -21,6 +22,7 @@ class ShrinkAnimationButton extends StatefulWidget {
     this.borderRadius = 28.0,
     this.borderWidth = 2.0,
     this.borderGradientColors,
+    this.isEnabled = true,
   });
 
   @override
@@ -51,6 +53,8 @@ class _ShrinkAnimationButtonState extends State<ShrinkAnimationButton>
   }
 
   void _onTapDown(TapDownDetails details) {
+    if (!widget.isEnabled) return;
+
     setState(() {
       _isPressed = true;
     });
@@ -58,6 +62,8 @@ class _ShrinkAnimationButtonState extends State<ShrinkAnimationButton>
   }
 
   void _onTapUp(TapUpDetails details) {
+    if (!widget.isEnabled) return;
+
     _controller.reverse().then((_) {
       widget.onPressed();
       setState(() {
@@ -67,6 +73,8 @@ class _ShrinkAnimationButtonState extends State<ShrinkAnimationButton>
   }
 
   void _onTapCancel() {
+    if (!widget.isEnabled) return;
+
     _controller.reverse();
     setState(() {
       _isPressed = false;
@@ -80,11 +88,11 @@ class _ShrinkAnimationButtonState extends State<ShrinkAnimationButton>
         onTapUp: _onTapUp,
         onTapCancel: _onTapCancel,
         child: ScaleTransition(
-          scale: _animation,
+          scale: widget.isEnabled ? _animation : const AlwaysStoppedAnimation(1.0),
           child: Container(
             decoration: BoxDecoration(
               color: widget.borderGradientColors == null
-                  ? (_isPressed ? widget.pressedColor : widget.defaultColor)
+                  ? (_isPressed && widget.isEnabled ? widget.pressedColor : widget.defaultColor)
                   : null,
               borderRadius: BorderRadius.circular(widget.borderRadius + 2),
               gradient: widget.borderGradientColors != null
@@ -99,7 +107,7 @@ class _ShrinkAnimationButtonState extends State<ShrinkAnimationButton>
               margin: EdgeInsets.all(widget.borderWidth),
               duration: const Duration(milliseconds: 100),
               decoration: BoxDecoration(
-                color: _isPressed ? widget.pressedColor : widget.defaultColor,
+                color: _isPressed && widget.isEnabled ? widget.pressedColor : widget.defaultColor,
                 borderRadius: BorderRadius.circular(widget.borderRadius),
               ),
               child: widget.child,

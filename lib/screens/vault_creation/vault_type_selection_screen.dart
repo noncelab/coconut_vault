@@ -2,9 +2,10 @@ import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_vault/constants/app_routes.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
-import 'package:coconut_vault/widgets/button/custom_buttons.dart';
+import 'package:coconut_vault/widgets/button/shrink_animation_button.dart';
 import 'package:coconut_vault/widgets/indicator/message_activity_indicator.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:provider/provider.dart';
 
 class VaultTypeSelectionScreen extends StatefulWidget {
@@ -16,10 +17,8 @@ class VaultTypeSelectionScreen extends StatefulWidget {
 
 class _VaultTypeSelectionScreenState extends State<VaultTypeSelectionScreen> {
   String? nextPath;
-  bool _nextButtonEnabled = true;
   bool _showLoading = false;
-  late String guideText;
-  List<String> options = [AppRoutes.vaultCreationOptions, AppRoutes.multisigQuorumSelection];
+  List<String> routesOptions = [AppRoutes.vaultCreationOptions, AppRoutes.multisigQuorumSelection];
   late final WalletProvider _walletProvider;
 
   @override
@@ -27,7 +26,6 @@ class _VaultTypeSelectionScreenState extends State<VaultTypeSelectionScreen> {
     super.initState();
     _walletProvider = Provider.of<WalletProvider>(context, listen: false);
     _walletProvider.isVaultListLoadingNotifier.addListener(_loadingListener);
-    guideText = '';
   }
 
   @override
@@ -42,7 +40,6 @@ class _VaultTypeSelectionScreenState extends State<VaultTypeSelectionScreen> {
     if (!_walletProvider.isVaultListLoadingNotifier.value) {
       if (_showLoading && nextPath != null) {
         setState(() {
-          _nextButtonEnabled = true;
           _showLoading = false;
         });
 
@@ -51,39 +48,14 @@ class _VaultTypeSelectionScreenState extends State<VaultTypeSelectionScreen> {
     }
   }
 
-  void onNextPressed() async {
-    if (nextPath == options[0]) {
-      // '일반 지갑' 선택 시
-      Navigator.pushNamed(context, nextPath!);
-    } else if (nextPath == options[1]) {
-      // '다중 서명 지갑' 선택 시
-      if (_walletProvider.isVaultListLoading) {
-        setState(() {
-          _nextButtonEnabled = false;
-          _showLoading = true;
-        });
-      } else if (_walletProvider.vaultList.isNotEmpty) {
-        Navigator.pushNamed(context, nextPath!);
-      }
-    }
-  }
-
   void onTapSinglesigWallet() {
-    setState(() {
-      nextPath = options[0];
-      guideText = t.select_vault_type_screen.single_sig;
-      _nextButtonEnabled = true;
-    });
+    Navigator.pushNamed(context, routesOptions[0]);
   }
 
   void onTapMultisigWallet() {
-    setState(() {
-      nextPath = options[1];
-      guideText = t.select_vault_type_screen.multisig;
-      if (!_walletProvider.isVaultListLoading && _walletProvider.vaultList.isEmpty) {
-        _nextButtonEnabled = false;
-      }
-    });
+    if (_walletProvider.vaultList.isNotEmpty) {
+      Navigator.pushNamed(context, routesOptions[1]);
+    }
   }
 
   @override
@@ -92,71 +64,77 @@ class _VaultTypeSelectionScreenState extends State<VaultTypeSelectionScreen> {
       builder: (context, model, child) {
         return Scaffold(
           backgroundColor: CoconutColors.white,
-          appBar: CoconutAppBar.buildWithNext(
+          appBar: CoconutAppBar.build(
             title: t.select_vault_type_screen.title,
-            nextButtonTitle: t.next,
             context: context,
-            onNextPressed: () => onNextPressed(),
-            isActive: _nextButtonEnabled,
           ),
-          body: Stack(
-            children: [
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 32),
-                child: Column(
+          body: SafeArea(
+            minimum: const EdgeInsets.only(top: 40, right: 16, left: 16),
+            child: Stack(
+              children: [
+                Column(
                   children: [
-                    Text(
-                      guideText,
-                      textAlign: TextAlign.center,
-                    ),
-                    const SizedBox(height: 10),
-                    Text(
-                      (nextPath == options[1] &&
-                              !model.isVaultListLoading &&
-                              model.vaultList.isEmpty)
-                          ? t.select_vault_type_screen.empty_key
-                          : '',
-                      textAlign: TextAlign.center,
-                      style: CoconutTypography.body3_12.setColor(
-                        CoconutColors.warningText,
-                      ),
-                    ),
-                    const SizedBox(height: 20),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: SelectableButton(
-                            text: t.single_sig_wallet,
-                            onTap: onTapSinglesigWallet,
-                            isPressed: nextPath == options[0],
-                          ),
-                        ),
-                        const SizedBox(width: 8),
-                        Expanded(
-                          child: SelectableButton(
-                            text: t.multisig_wallet,
-                            onTap: onTapMultisigWallet,
-                            isPressed: nextPath == options[1],
-                          ),
-                        ),
-                      ],
-                    ),
+                    _buildOption(t.single_sig_wallet, t.select_vault_type_screen.single_sig,
+                        onTapSinglesigWallet, true),
+                    CoconutLayout.spacing_300h,
+                    _buildOption(t.multisig_wallet, t.select_vault_type_screen.multisig,
+                        onTapMultisigWallet, _walletProvider.vaultList.isNotEmpty),
                   ],
                 ),
-              ),
-              Visibility(
-                visible: _showLoading,
-                child: Container(
-                  decoration: BoxDecoration(color: CoconutColors.black.withOpacity(0.3)),
-                  child: Center(
-                      child: MessageActivityIndicator(
-                          message: t.select_vault_type_screen.loading_keys)),
+                Visibility(
+                  visible: _showLoading,
+                  child: Container(
+                    decoration: BoxDecoration(color: CoconutColors.black.withOpacity(0.3)),
+                    child: Center(
+                        child: MessageActivityIndicator(
+                            message: t.select_vault_type_screen.loading_keys)),
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         );
       },
     );
+  }
+
+  Widget _buildOption(String title, String description, VoidCallback onPressed, bool isSelectable) {
+    return ShrinkAnimationButton(
+        defaultColor: CoconutColors.gray150,
+        pressedColor: CoconutColors.gray500.withOpacity(0.1),
+        onPressed: isSelectable ? onPressed : () {},
+        isEnabled: isSelectable,
+        child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 28.0),
+            child: Row(
+              children: [
+                Align(
+                    alignment: Alignment.centerLeft,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          title,
+                          style: CoconutTypography.body1_16_Bold.copyWith(
+                              color: isSelectable ? CoconutColors.black : CoconutColors.gray400,
+                              letterSpacing: 0.2),
+                        ),
+                        CoconutLayout.spacing_100h,
+                        Text(
+                          description,
+                          style: CoconutTypography.body3_12.copyWith(
+                              color: isSelectable ? CoconutColors.gray700 : CoconutColors.gray400,
+                              letterSpacing: 0.2),
+                        ),
+                      ],
+                    )),
+                const Spacer(),
+                SvgPicture.asset('assets/svg/curved-arrow-right.svg',
+                    width: 24,
+                    colorFilter: ColorFilter.mode(
+                        isSelectable ? CoconutColors.black : CoconutColors.gray400,
+                        BlendMode.srcIn))
+              ],
+            )));
   }
 }

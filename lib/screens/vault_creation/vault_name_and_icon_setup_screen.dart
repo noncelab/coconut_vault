@@ -5,6 +5,7 @@ import 'package:coconut_vault/model/single_sig/single_sig_wallet.dart';
 import 'package:coconut_vault/providers/wallet_creation_provider.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:coconut_vault/utils/logger.dart';
+import 'package:coconut_vault/widgets/button/fixed_bottom_button.dart';
 import 'package:coconut_vault/widgets/custom_dialog.dart';
 import 'package:coconut_vault/widgets/indicator/message_activity_indicator.dart';
 import 'package:flutter/material.dart';
@@ -152,25 +153,13 @@ class _VaultNameAndIconSetupScreenState extends State<VaultNameAndIconSetupScree
           },
           child: Scaffold(
             backgroundColor: CoconutColors.white,
-            appBar: CoconutAppBar.buildWithNext(
+            appBar: CoconutAppBar.build(
               title: t.vault_name_icon_setup_screen.title,
-              nextButtonTitle: t.next,
               context: context,
               onBackPressed: () {
                 Navigator.pop(context);
               },
-              onNextPressed: () {
-                if (inputText.trim().isEmpty) return;
-                _closeKeyboard();
-                if (_walletProvider.isVaultListLoading) {
-                  setState(() {
-                    _showLoading = true;
-                  });
-                } else {
-                  saveNewVaultName(context);
-                }
-              },
-              isActive: inputText.trim().isNotEmpty && !_showLoading,
+              backgroundColor: CoconutColors.white,
             ),
             body: VaultNameIconEditPalette(
               name: inputText,
@@ -195,6 +184,24 @@ class _VaultNameAndIconSetupScreenState extends State<VaultNameAndIconSetupScree
                   : const CircularProgressIndicator(color: CoconutColors.gray800),
             ),
           ),
+        ),
+        FixedBottomButton(
+          text: t.next,
+          onButtonClicked: () {
+            if (inputText.trim().isEmpty) return;
+            _closeKeyboard();
+            if (_walletProvider.isVaultListLoading) {
+              setState(() {
+                _showLoading = true;
+              });
+            } else {
+              saveNewVaultName(context);
+            }
+          },
+          showGradient: false,
+          backgroundColor: CoconutColors.black,
+          isActive: inputText.trim().isNotEmpty && !_showLoading,
+          bottomPadding: 32, // SafeArea가 적용되지 않은 화면
         ),
       ],
     );
