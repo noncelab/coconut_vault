@@ -174,6 +174,7 @@ class _MnemonicVerifyScreenState extends State<MnemonicVerifyScreen> {
         appBar: CoconutAppBar.build(
           title: t.mnemonic_verify_screen.title,
           context: context,
+          backgroundColor: CoconutColors.white,
         ),
         body: SafeArea(
           child: Column(
@@ -283,26 +284,14 @@ class _MnemonicVerifyScreenState extends State<MnemonicVerifyScreen> {
 
   Widget _buildOptionButton(String option, int optionIndex) {
     final isSelected = _selectedOptionIndex == optionIndex;
-    final isCorrect = option == _correctAnswers[_currentQuizIndex];
 
     Color buttonColor = CoconutColors.white;
     Color borderColor = CoconutColors.black.withOpacity(0.08);
 
     if (_showResult) {
-      if (isCorrect) {
-        if (isSelected) {
-          // 사용자가 정답을 선택한 경우
-          buttonColor = CoconutColors.green;
-          borderColor = CoconutColors.green;
-        } else {
-          // 사용자가 오답을 선택했고, 이 버튼이 정답인 경우
-          buttonColor = CoconutColors.white;
-          borderColor = CoconutColors.green;
-        }
-      } else if (isSelected && !isCorrect) {
-        // 사용자가 오답을 선택한 경우 (정확히 선택한 옵션만 warningText 색상)
-        buttonColor = CoconutColors.warningText;
-        borderColor = CoconutColors.warningText;
+      if (isSelected) {
+        buttonColor = CoconutColors.gray200;
+        borderColor = CoconutColors.black;
       }
     }
 

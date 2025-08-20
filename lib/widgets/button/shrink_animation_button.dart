@@ -102,7 +102,7 @@ class _ShrinkAnimationButtonState extends State<ShrinkAnimationButton>
         onTapCancel: _onTapCancel,
         onLongPress: widget.onLongPress != null ? _onLongPress : null,
         child: ScaleTransition(
-          scale: _animation,
+          scale: widget.isActive ? _animation : const AlwaysStoppedAnimation(1.0),
           child: Container(
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(widget.borderRadius + 2),

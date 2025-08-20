@@ -57,50 +57,54 @@ class _MnemonicConfirmationScreenState extends State<MnemonicConfirmationScreen>
             context: context,
           ),
           backgroundColor: CoconutColors.white,
-          body: Stack(
-            children: [
-              SingleChildScrollView(
-                controller: _scrollController,
-                child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                    color: CoconutColors.white,
-                    child: Column(
-                      children: [
-                        buildStepIndicator(),
-                        Padding(
-                          padding: const EdgeInsets.only(
-                            top: 18,
-                            bottom: 25,
-                          ),
-                          child: Text(
-                            step == 0 ? t.mnemonic : t.passphrase,
-                            style: CoconutTypography.body1_16_Bold.setColor(
-                              CoconutColors.black,
+          body: SafeArea(
+            child: Stack(
+              children: [
+                SingleChildScrollView(
+                  controller: _scrollController,
+                  child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                      color: CoconutColors.white,
+                      child: Column(
+                        children: [
+                          buildStepIndicator(),
+                          Padding(
+                            padding: const EdgeInsets.only(
+                              top: 18,
+                              bottom: 25,
+                            ),
+                            child: Text(
+                              step == 0 ? t.mnemonic : t.passphrase,
+                              style: CoconutTypography.body1_16_Bold.setColor(
+                                CoconutColors.black,
+                              ),
                             ),
                           ),
-                        ),
-                        step == 0 ? buildGeneratedMnemonicList() : _passphraseGridViewWidget(),
-                        const SizedBox(height: 40),
-                      ],
-                    )),
-              ),
-              FixedBottomButton(
-                isActive: _getNextButtonState().isActive,
-                text: _getNextButtonState().text,
-                backgroundColor: CoconutColors.black,
-                onButtonClicked: () {
-                  if (step == 0 && (_walletCreationProvider.passphrase?.isNotEmpty ?? false)) {
-                    setState(() {
-                      // 패스프레이즈 확인 단계로 이동
-                      step = 1;
-                    });
-                    return;
-                  }
-                  Navigator.pushReplacement(context,
-                      MaterialPageRoute(builder: (context) => const VaultNameAndIconSetupScreen()));
-                },
-              ),
-            ],
+                          step == 0 ? buildGeneratedMnemonicList() : _passphraseGridViewWidget(),
+                          const SizedBox(height: 40),
+                        ],
+                      )),
+                ),
+                FixedBottomButton(
+                  isActive: _getNextButtonState().isActive,
+                  text: _getNextButtonState().text,
+                  backgroundColor: CoconutColors.black,
+                  onButtonClicked: () {
+                    if (step == 0 && (_walletCreationProvider.passphrase?.isNotEmpty ?? false)) {
+                      setState(() {
+                        // 패스프레이즈 확인 단계로 이동
+                        step = 1;
+                      });
+                      return;
+                    }
+                    Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => const VaultNameAndIconSetupScreen()));
+                  },
+                ),
+              ],
+            ),
           ),
         ),
       ),

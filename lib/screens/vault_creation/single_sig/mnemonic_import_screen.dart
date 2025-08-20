@@ -6,6 +6,7 @@ import 'package:coconut_vault/providers/visibility_provider.dart';
 import 'package:coconut_vault/providers/wallet_creation_provider.dart';
 import 'package:coconut_vault/screens/settings/settings_screen.dart';
 import 'package:coconut_vault/screens/vault_creation/vault_name_and_icon_setup_screen.dart';
+import 'package:coconut_vault/widgets/button/fixed_bottom_button.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
@@ -161,15 +162,10 @@ class _MnemonicImportState extends State<MnemonicImport> {
         children: [
           Scaffold(
             backgroundColor: CoconutColors.white,
-            appBar: CoconutAppBar.buildWithNext(
+            appBar: CoconutAppBar.build(
               title: t.mnemonic_import_screen.title,
-              nextButtonTitle: t.next,
               context: context,
               onBackPressed: _handleBackNavigation,
-              onNextPressed: _handleNextButton,
-              isActive: _usePassphrase
-                  ? _inputText.isNotEmpty && _isMnemonicValid == true && _passphrase.isNotEmpty
-                  : _inputText.isNotEmpty && _isMnemonicValid == true,
             ),
             body: GestureDetector(
               onTap: () => FocusScope.of(context).unfocus(),
@@ -194,6 +190,16 @@ class _MnemonicImportState extends State<MnemonicImport> {
               ),
             ),
           ),
+          // TODO: check 버튼 너비가 다른 요소에 비해 더 넓은 것 같음
+          FixedBottomButton(
+              text: t.next,
+              onButtonClicked: _handleNextButton,
+              isActive: _usePassphrase
+                  ? _inputText.isNotEmpty && _isMnemonicValid == true && _passphrase.isNotEmpty
+                  : _inputText.isNotEmpty && _isMnemonicValid == true,
+              backgroundColor: CoconutColors.black,
+              bottomPadding: 40,
+              isVisibleAboveKeyboard: false),
           // TODO: isolate
           Visibility(
             visible: false,
