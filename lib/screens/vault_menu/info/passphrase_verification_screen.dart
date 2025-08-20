@@ -166,7 +166,7 @@ class _PassphraseVerificationScreenState extends State<PassphraseVerificationScr
     if (result['success']) {
       vibrateLight();
     } else {
-      vibrateMediumDouble();
+      vibrateLightDouble();
     }
 
     if (!mounted) return;
