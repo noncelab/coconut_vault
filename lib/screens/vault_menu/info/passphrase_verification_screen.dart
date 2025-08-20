@@ -34,6 +34,7 @@ class _PassphraseVerificationScreenState extends State<PassphraseVerificationScr
   String? _savedMfp;
   String? _recoveredMfp;
   String? _extendedPublicKey;
+  bool _isSubmitting = false;
 
   @override
   void initState() {
@@ -113,7 +114,7 @@ class _PassphraseVerificationScreenState extends State<PassphraseVerificationScr
                           onButtonClicked: verifyPassphrase,
                           text: t.verify_passphrase_screen.start_verification,
                           textColor: CoconutColors.white,
-                          isActive: _inputController.text.isNotEmpty,
+                          isActive: _inputController.text.isNotEmpty && !_isSubmitting,
                           backgroundColor: CoconutColors.black,
                           showGradient: true,
                           gradientPadding:
@@ -142,10 +143,17 @@ class _PassphraseVerificationScreenState extends State<PassphraseVerificationScr
   }
 
   Future<void> verifyPassphrase() async {
+    if (_isSubmitting) return;
+
+    setState(() {
+      _isSubmitting = true;
+    });
+
     _closeKeyboard();
     final pinCheckResult = await _showPinCheckScreen();
     if (pinCheckResult != true) return;
 
+    if (!mounted) return;
     CustomDialogs.showLoadingDialog(context, t.verify_passphrase_screen.loading_description);
     _isPassphraseVerified = false;
     final walletProvider = context.read<WalletProvider>();
@@ -168,6 +176,8 @@ class _PassphraseVerificationScreenState extends State<PassphraseVerificationScr
     _savedMfp = result['savedMfp'];
     _recoveredMfp = result['recoveredMfp'];
     _extendedPublicKey = result['extendedPublicKey'] as String?;
+    _isSubmitting = false;
+
     setState(() {});
   }
 

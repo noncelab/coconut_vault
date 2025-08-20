@@ -26,6 +26,7 @@ class _PassphraseCheckScreen extends State<PassphraseCheckScreen> {
   final TextEditingController _inputController = TextEditingController();
   final FocusNode _inputFocusNode = FocusNode();
   bool _showError = false;
+  bool _isSubmitting = false;
 
   @override
   void initState() {
@@ -82,7 +83,7 @@ class _PassphraseCheckScreen extends State<PassphraseCheckScreen> {
                       builder: (context, value, child) {
                         return CoconutButton(
                           onPressed: _handleSubmit,
-                          isActive: _inputController.text.isNotEmpty,
+                          isActive: _inputController.text.isNotEmpty && !_isSubmitting,
                           width: double.infinity,
                           height: 52,
                           text: t.confirm,
@@ -136,6 +137,12 @@ class _PassphraseCheckScreen extends State<PassphraseCheckScreen> {
   }
 
   Future<void> _handleSubmit() async {
+    if (_isSubmitting) return;
+
+    setState(() {
+      _isSubmitting = true;
+    });
+
     if (_showError) {
       setState(() {
         _showError = false;
@@ -146,11 +153,13 @@ class _PassphraseCheckScreen extends State<PassphraseCheckScreen> {
     final pinCheckResult = await _showPinCheckScreen();
     if (pinCheckResult != true) return;
 
+    if (!mounted) return;
+
     CustomDialogs.showLoadingDialog(context, t.verify_passphrase_screen.loading_description);
     bool result = await _verifyPassphrase(_inputController.text);
-    Navigator.pop(context); // hide loading dialog
 
     if (!mounted) return;
+    Navigator.pop(context); // hide loading dialog
 
     if (result) {
       Navigator.pop(context, _inputController.text);
@@ -160,6 +169,10 @@ class _PassphraseCheckScreen extends State<PassphraseCheckScreen> {
       });
       Vibration.vibrate(duration: 100);
     }
+
+    setState(() {
+      _isSubmitting = false;
+    });
   }
 
   Future<bool?> _showPinCheckScreen() async {
