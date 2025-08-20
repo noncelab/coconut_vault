@@ -73,7 +73,7 @@ class _MultisigSetupInfoScreenState extends State<MultisigSetupInfoScreen> {
       child: CustomLoadingOverlay(
         child: PinCheckScreen(
           pinCheckContext: PinCheckContextEnum.sensitiveAction,
-          onComplete: () async {
+          onSuccess: () async {
             Navigator.pop(context);
             onComplete();
           },

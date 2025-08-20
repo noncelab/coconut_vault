@@ -7,7 +7,7 @@ import 'package:coconut_vault/model/single_sig/single_sig_vault_list_item.dart';
 import 'package:coconut_vault/model/common/vault_list_item_base.dart';
 import 'package:coconut_vault/enums/wallet_enums.dart';
 import 'package:coconut_vault/model/multisig/multisig_wallet.dart';
-import 'package:coconut_vault/model/single_sig/single_sig_wallet.dart';
+import 'package:coconut_vault/model/single_sig/single_sig_wallet_create_dto.dart';
 import 'package:coconut_vault/repository/shared_preferences_repository.dart';
 
 class WalletIsolates {
@@ -15,14 +15,23 @@ class WalletIsolates {
       Map<String, dynamic> data, void Function(dynamic)? progressCallback) async {
     List<SingleSigVaultListItem> vaultList = [];
 
-    var wallet = SinglesigWallet.fromJson(data);
+    var wallet = SingleSigWalletCreateDto.fromJson(data);
+    final keyStore = KeyStore.fromSeed(
+        Seed.fromMnemonic(wallet.mnemonic!, passphrase: wallet.passphrase ?? ''),
+        AddressType.p2wpkh);
+    final derivationPath = NetworkType.currentNetworkType.isTestnet ? "84'/1'/0'" : "84'/0'/0'";
+    final descriptor = Descriptor.forSingleSignature(AddressType.p2wpkh,
+        keyStore.extendedPublicKey.serialize(), derivationPath, keyStore.masterFingerprint);
+    final signerBsms =
+        SingleSignatureVault.fromKeyStore(keyStore).getSignerBsms(AddressType.p2wsh, wallet.name!);
     SingleSigVaultListItem newItem = SingleSigVaultListItem(
-        id: wallet.id!,
-        name: wallet.name!,
-        colorIndex: wallet.color!,
-        iconIndex: wallet.icon!,
-        secret: wallet.mnemonic!,
-        passphrase: wallet.passphrase!);
+      id: wallet.id!,
+      name: wallet.name!,
+      colorIndex: wallet.color!,
+      iconIndex: wallet.icon!,
+      descriptor: descriptor.serialize(),
+      signerBsms: signerBsms,
+    );
 
     vaultList.insert(0, newItem);
 
@@ -98,5 +107,30 @@ class WalletIsolates {
       replyTo(bsmses);
     }
     return bsmses;
+  }
+
+  static Future<Map<String, dynamic>> verifyPassphrase(Map<String, dynamic> args) async {
+    // 암호화 관련 처리를 사용하여 CPU 동기연산이 발생하므로 isolate로 처리
+    final mnemonic = args['mnemonic'] as String;
+    final passphrase = args['passphrase'] as String;
+    final vaultListItem = args['valutListItem'] as VaultListItemBase;
+    assert(vaultListItem.vaultType == WalletType.singleSignature);
+
+    final singleSigVaultListItem = vaultListItem.coconutVault as SingleSignatureVault;
+    final keyStore = KeyStore.fromSeed(
+      Seed.fromMnemonic(mnemonic, passphrase: passphrase),
+      AddressType.p2wpkh,
+    );
+
+    final savedMfp = singleSigVaultListItem.keyStore.masterFingerprint;
+    final recoveredMfp = keyStore.masterFingerprint;
+    final extendedPublicKey = singleSigVaultListItem.keyStore.extendedPublicKey.serialize();
+    final success = savedMfp == recoveredMfp;
+    return {
+      "success": success,
+      "savedMfp": savedMfp,
+      "recoveredMfp": recoveredMfp,
+      "extendedPublicKey": extendedPublicKey
+    };
   }
 }

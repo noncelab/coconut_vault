@@ -180,7 +180,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   child: CustomLoadingOverlay(
                     child: PinCheckScreen(
                       pinCheckContext: PinCheckContextEnum.sensitiveAction,
-                      onComplete: () async {
+                      onSuccess: () async {
                         Navigator.pop(context);
                         Navigator.pushNamed(context, AppRoutes.prepareUpdate);
                       },

@@ -126,7 +126,11 @@ class _MnemonicGenerationScreenState extends State<MnemonicGenerationScreen> {
           _showStopGeneratingMnemonicDialog();
         }
       },
-      child: Scaffold(
+      child: GestureDetector(
+        onTap: () {
+          FocusScope.of(context).unfocus();
+        },
+        child: Scaffold(
           backgroundColor: CoconutColors.white,
           appBar: CoconutAppBar.build(
             title: t.mnemonic_generate_screen.title,
@@ -135,7 +139,9 @@ class _MnemonicGenerationScreenState extends State<MnemonicGenerationScreen> {
           ),
           body: SafeArea(
             child: screens[_step],
-          )),
+          ),
+        ),
+      ),
     );
   }
 }

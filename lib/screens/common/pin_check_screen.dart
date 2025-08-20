@@ -23,13 +23,13 @@ import 'pin_input_screen.dart';
 
 class PinCheckScreen extends StatefulWidget {
   final Function? onReset;
-  final Function? onComplete;
+  final Function? onSuccess;
   final PinCheckContextEnum pinCheckContext;
   const PinCheckScreen({
     super.key,
     required this.pinCheckContext,
     this.onReset,
-    this.onComplete,
+    this.onSuccess,
   });
 
   @override
@@ -162,14 +162,14 @@ class _PinCheckScreenState extends State<PinCheckScreen> with WidgetsBindingObse
     switch (widget.pinCheckContext) {
       case PinCheckContextEnum.appLaunch:
       case PinCheckContextEnum.restoration:
-        widget.onComplete?.call();
+        widget.onSuccess?.call();
         break;
       case PinCheckContextEnum.pinChange:
         Navigator.pop(context);
         MyBottomSheet.showBottomSheet_90(context: context, child: const PinSettingScreen());
         break;
       default: // vaultInfo
-        widget.onComplete?.call();
+        widget.onSuccess?.call();
     }
   }
 
