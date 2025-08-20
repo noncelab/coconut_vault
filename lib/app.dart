@@ -15,6 +15,7 @@ import 'package:coconut_vault/screens/airgap/signed_transaction_qr_screen.dart';
 import 'package:coconut_vault/screens/airgap/single_sig_sign_screen.dart';
 import 'package:coconut_vault/screens/app_update/restoration_info_screen.dart';
 import 'package:coconut_vault/screens/app_update/vault_list_restoration_screen.dart';
+import 'package:coconut_vault/screens/home/vault_home_screen.dart';
 import 'package:coconut_vault/screens/home/vault_list_screen.dart';
 import 'package:coconut_vault/screens/app_update/app_update_preparation_screen.dart';
 import 'package:coconut_vault/screens/vault_creation/single_sig/mnemonic_coinflip_confirmation_screen.dart';
@@ -55,7 +56,7 @@ enum AppEntryFlow {
   splash,
   tutorial,
   pinCheck,
-  vaultList,
+  vaultHome,
   pinCheckForRestoration, // 복원파일o, 업데이트o 일때 바로 이동하는 핀체크 화면
   foundBackupFile, // 복원파일o, 업데이트x 일때 이동하는 복원파일 발견 화면
   restoration, // 복원 진행 화면
@@ -84,7 +85,7 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> {
     return PinCheckScreen(
       pinCheckContext: PinCheckContextEnum.appLaunch,
       onComplete: () => _updateEntryFlow(nextFlow),
-      onReset: onReset ?? () async => _updateEntryFlow(AppEntryFlow.vaultList),
+      onReset: onReset ?? () async => _updateEntryFlow(AppEntryFlow.vaultHome),
     );
   }
 
@@ -104,7 +105,7 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> {
 
       case AppEntryFlow.pinCheck:
         return CustomLoadingOverlay(
-          child: _buildPinCheckScreen(nextFlow: AppEntryFlow.vaultList),
+          child: _buildPinCheckScreen(nextFlow: AppEntryFlow.vaultHome),
         );
 
       case AppEntryFlow.pinCheckForRestoration:
@@ -120,7 +121,7 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> {
         return CustomLoadingOverlay(
           child: RestorationInfoScreen(
             onComplete: () => _updateEntryFlow(AppEntryFlow.restoration),
-            onReset: () async => _updateEntryFlow(AppEntryFlow.vaultList),
+            onReset: () async => _updateEntryFlow(AppEntryFlow.vaultHome),
           ),
         );
 
@@ -129,14 +130,14 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> {
         /// 복원 진행 화면
         return CustomLoadingOverlay(
           child: VaultListRestorationScreen(
-            onComplete: () => _updateEntryFlow(AppEntryFlow.vaultList),
+            onComplete: () => _updateEntryFlow(AppEntryFlow.vaultHome),
           ),
         );
 
-      case AppEntryFlow.vaultList:
+      case AppEntryFlow.vaultHome:
         return MainRouteGuard(
           onAppGoBackground: () => _updateEntryFlow(AppEntryFlow.pinCheck),
-          child: const VaultListScreen(),
+          child: const VaultHomeScreen(),
         );
     }
   }
@@ -159,7 +160,7 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> {
             return connectivityProvider!;
           },
         ),
-        if (_appEntryFlow == AppEntryFlow.vaultList) ...{
+        if (_appEntryFlow == AppEntryFlow.vaultHome) ...{
           Provider<WalletCreationProvider>(create: (_) => WalletCreationProvider()),
           Provider<SignProvider>(create: (_) => SignProvider()),
           ChangeNotifierProvider<WalletProvider>(
@@ -207,6 +208,7 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> {
           color: CoconutColors.white,
           home: _getHomeScreenRoute(_appEntryFlow, context),
           routes: {
+            AppRoutes.vaultList: (context) => const VaultListScreen(),
             AppRoutes.vaultTypeSelection: (context) => const VaultTypeSelectionScreen(),
             AppRoutes.multisigQuorumSelection: (context) => const MultisigQuorumSelectionScreen(),
             AppRoutes.signerAssignment: (context) => const SignerAssignmentScreen(),
@@ -278,7 +280,7 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> {
             AppRoutes.welcome: (context) => const WelcomeScreen(),
             AppRoutes.connectivityGuide: (context) {
               onComplete() {
-                _updateEntryFlow(AppEntryFlow.vaultList);
+                _updateEntryFlow(AppEntryFlow.vaultHome);
               }
 
               return GuideScreen(onComplete: onComplete);

@@ -37,7 +37,6 @@ stop: "그만하기"
 start: "시작하기"
 quit: "종료하기"
 import: "가져오기"
-export: "내보내기"
 passphrase: "패스프레이즈"
 mnemonic: "니모닉 문구"
 testnet: "테스트넷"
@@ -106,6 +105,20 @@ developer_option: "개발자 옵션"
 advanced_user: "고급 사용자"
 
 extra_count: "외 $count개"
+
+vault_home_screen:
+  view_all_my_wallets: "내 지갑 전체보기"
+  wallet_count: "$count개"
+  action_items:
+    sign: "서명하기"
+    view_address: "주소 보기"
+    export_wallet: "지갑 내보내기"
+    import_multisig_wallet: "다중 서명 지갑\n가져오기"
+    mnemonic_wordlist: "니모닉 단어집"
+    view_all_wallets: "지갑 전체보기"
+
+vault_list_screen:
+  primary_wallet: "대표 지갑"
 
 # lib
 vault_list_tab:
@@ -231,6 +244,7 @@ settings_screen:
   prepare_update: "업데이트 준비"
   advanced_user: "고급 사용자"
   use_passphrase: "패스프레이즈 사용하기"
+  information: "안내"
 
 # lib/screens/start_guide
 guide_screen:

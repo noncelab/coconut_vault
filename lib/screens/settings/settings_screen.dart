@@ -57,6 +57,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
               _languagePart(context),
               CoconutLayout.spacing_1000h,
               _advancedUserPart(context),
+              CoconutLayout.spacing_1000h,
+              _informationPart(context),
               SizedBox(
                   height: MediaQuery.of(context).viewPadding.bottom > 0
                       ? MediaQuery.of(context).viewPadding.bottom + Sizes.size12
@@ -191,6 +193,25 @@ class _SettingsScreenState extends State<SettingsScreen> {
         ),
       ],
     );
+  }
+
+  Widget _informationPart(BuildContext context) {
+    return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+      _category(t.settings_screen.information),
+      Selector<VisibilityProvider, bool>(
+          selector: (_, viewModel) => viewModel.isPassphraseUseEnabled,
+          builder: (context, isPassphraseUseEnabled, child) {
+            return ButtonGroup(buttons: [
+              SingleButton(
+                buttonPosition: SingleButtonPosition.none,
+                title: t.view_app_info,
+                onPressed: () async {
+                  Navigator.pushNamed(context, AppRoutes.appInfo);
+                },
+              )
+            ]);
+          }),
+    ]);
   }
 
   Widget _btcUnitPart(BuildContext context) {

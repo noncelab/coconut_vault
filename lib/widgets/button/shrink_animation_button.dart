@@ -1,26 +1,35 @@
 import 'package:coconut_design_system/coconut_design_system.dart';
-import 'package:flutter/material.dart';
-
 import 'dart:math' as math;
+import 'package:flutter/material.dart';
 
 class ShrinkAnimationButton extends StatefulWidget {
   final Widget child;
   final VoidCallback onPressed;
-  final Color? pressedColor;
-  final Color? defaultColor;
+  final VoidCallback? onLongPress;
+  final Color pressedColor;
+  final Color defaultColor;
+  final Color disabledColor;
   final double borderRadius;
+  final Border? border;
   final double borderWidth;
   final List<Color>? borderGradientColors;
+  final double? animationEndValue;
+  final bool isActive;
 
   const ShrinkAnimationButton({
     super.key,
     required this.child,
     required this.onPressed,
+    this.onLongPress,
     this.pressedColor = CoconutColors.gray150,
     this.defaultColor = CoconutColors.white,
-    this.borderRadius = 28.0,
+    this.borderRadius = 24.0,
     this.borderWidth = 2.0,
+    this.disabledColor = CoconutColors.white,
+    this.border,
     this.borderGradientColors,
+    this.animationEndValue = 0.97,
+    this.isActive = true,
   });
 
   @override
@@ -40,7 +49,7 @@ class _ShrinkAnimationButtonState extends State<ShrinkAnimationButton>
       vsync: this,
       duration: const Duration(milliseconds: 100),
     );
-    _animation = Tween<double>(begin: 1.0, end: 0.97)
+    _animation = Tween<double>(begin: 1.0, end: widget.animationEndValue)
         .animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut));
   }
 
@@ -51,6 +60,8 @@ class _ShrinkAnimationButtonState extends State<ShrinkAnimationButton>
   }
 
   void _onTapDown(TapDownDetails details) {
+    if (!widget.isActive) return;
+
     setState(() {
       _isPressed = true;
     });
@@ -58,6 +69,8 @@ class _ShrinkAnimationButtonState extends State<ShrinkAnimationButton>
   }
 
   void _onTapUp(TapUpDetails details) {
+    if (!widget.isActive) return;
+
     _controller.reverse().then((_) {
       widget.onPressed();
       setState(() {
@@ -67,10 +80,18 @@ class _ShrinkAnimationButtonState extends State<ShrinkAnimationButton>
   }
 
   void _onTapCancel() {
+    if (!widget.isActive) return;
+
     _controller.reverse();
     setState(() {
       _isPressed = false;
     });
+  }
+
+  void _onLongPress() {
+    if (!widget.isActive || widget.onLongPress == null) return;
+
+    widget.onLongPress!();
   }
 
   @override
@@ -79,13 +100,11 @@ class _ShrinkAnimationButtonState extends State<ShrinkAnimationButton>
         onTapDown: _onTapDown,
         onTapUp: _onTapUp,
         onTapCancel: _onTapCancel,
+        onLongPress: widget.onLongPress != null ? _onLongPress : null,
         child: ScaleTransition(
           scale: _animation,
           child: Container(
             decoration: BoxDecoration(
-              color: widget.borderGradientColors == null
-                  ? (_isPressed ? widget.pressedColor : widget.defaultColor)
-                  : null,
               borderRadius: BorderRadius.circular(widget.borderRadius + 2),
               gradient: widget.borderGradientColors != null
                   ? LinearGradient(
@@ -94,15 +113,33 @@ class _ShrinkAnimationButtonState extends State<ShrinkAnimationButton>
                       end: Alignment.bottomRight,
                       transform: const GradientRotation(math.pi / 10))
                   : null,
+              border: widget.borderGradientColors == null
+                  ? Border.all(
+                      color: widget.isActive
+                          ? _isPressed
+                              ? widget.pressedColor
+                              : widget.defaultColor
+                          : widget.disabledColor,
+                    )
+                  : null,
             ),
             child: AnimatedContainer(
-              margin: EdgeInsets.all(widget.borderWidth),
+              margin: EdgeInsets.all(widget.borderGradientColors != null ? widget.borderWidth : 0),
               duration: const Duration(milliseconds: 100),
               decoration: BoxDecoration(
-                color: _isPressed ? widget.pressedColor : widget.defaultColor,
                 borderRadius: BorderRadius.circular(widget.borderRadius),
               ),
-              child: widget.child,
+              child: Container(
+                decoration: BoxDecoration(
+                  color: widget.isActive
+                      ? _isPressed
+                          ? widget.pressedColor
+                          : widget.defaultColor
+                      : widget.disabledColor,
+                  borderRadius: BorderRadius.circular(widget.borderRadius),
+                ),
+                child: widget.child,
+              ),
             ),
           ),
         ));

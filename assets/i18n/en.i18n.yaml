@@ -106,6 +106,20 @@ advanced_user: "Advanced User"
 
 extra_count: "+$count more"
 
+vault_home_screen:
+  view_all_my_wallets: "View All My Wallets"
+  wallet_count: "$count Items"
+  action_items:
+    sign: "Sign"
+    view_address: "View Address"
+    export_wallet: "Export Wallet"
+    import_multisig_wallet: "Import\nMultisig Wallet"
+    mnemonic_wordlist: "Mnemonic Wordlist"
+    view_all_wallets: "View All Wallets"
+
+vault_list_screen:
+  primary_wallet: "Primary Wallet"
+
 # lib
 vault_list_tab:
   add_wallet: "Add a wallet!"
@@ -230,6 +244,7 @@ settings_screen:
   prepare_update: "Prepare Update"
   advanced_user: "Advanced User"
   use_passphrase: "Use Passphrase"
+  information: "Information"
 
 # lib/screens/start_guide
 guide_screen:

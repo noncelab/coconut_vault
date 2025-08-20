@@ -25,8 +25,8 @@ class _VaultAdditionGuideCardState extends State<VaultAdditionGuideCard> {
       child: ShrinkAnimationButton(
         borderRadius: 24,
         onPressed: widget.onPressed,
-        pressedColor: CoconutColors.gray150,
-        defaultColor: CoconutColors.gray100,
+        pressedColor: CoconutColors.gray100,
+        defaultColor: CoconutColors.white,
         child: CustomPaint(
           painter: DashedBorderPainter(
             dashSpace: 4.0,

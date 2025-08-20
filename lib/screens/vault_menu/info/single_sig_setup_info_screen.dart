@@ -13,7 +13,6 @@ import 'package:coconut_vault/widgets/card/vault_item_card.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:coconut_vault/screens/common/pin_check_screen.dart';
-import 'package:coconut_vault/screens/vault_menu/info/mnemonic_view_screen.dart';
 import 'package:coconut_vault/utils/alert_util.dart';
 import 'package:coconut_vault/widgets/bottom_sheet.dart';
 import 'package:coconut_vault/widgets/bubble_clipper.dart';
@@ -91,7 +90,8 @@ class _SingleSigSetupInfoScreenState extends State<SingleSigSetupInfoScreen> {
               appBar: CoconutAppBar.build(
                 title: '${viewModel.name} ${t.info}',
                 context: context,
-                isBottom: viewModel.hasLinkedMultisigVault,
+                // isBottom: viewModel.hasLinkedMultisigVault,
+                isBottom: false,
               ),
               body: GestureDetector(
                 onTap: () => FocusScope.of(context).unfocus(),

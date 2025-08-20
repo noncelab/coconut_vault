@@ -216,6 +216,14 @@ flutter:
     - assets/svg/text-field-clear.svg
     - assets/svg/copy.svg
     - assets/svg/wallet-plus.svg
+    - assets/svg/gear.svg
+    - assets/svg/signature.svg
+    - assets/svg/bc1.svg
+    - assets/svg/wallet-eyes.svg
+    - assets/svg/two-keys.svg
+    - assets/svg/font-book.svg
+    - assets/svg/align-center.svg
+    - assets/svg/chevron-right.svg
 
   fonts:
     - family: SpaceGrotesk
