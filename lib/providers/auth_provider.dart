@@ -261,7 +261,7 @@ class AuthProvider extends ChangeNotifier {
     return false;
   }
 
-  /// 비밀번호 6자리, 유형 저장
+  /// 비밀번호 및 유형 저장
   Future<void> savePin(String pin, bool isCharacter) async {
     if (_isBiometricEnabled && _canCheckBiometrics && !_isPinSet) {
       _isBiometricEnabled = true;
