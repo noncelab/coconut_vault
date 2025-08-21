@@ -13,7 +13,6 @@ import 'package:coconut_vault/widgets/card/vault_item_card.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:coconut_vault/screens/common/pin_check_screen.dart';
-import 'package:coconut_vault/utils/alert_util.dart';
 import 'package:coconut_vault/widgets/bottom_sheet.dart';
 import 'package:coconut_vault/widgets/bubble_clipper.dart';
 import 'package:coconut_vault/widgets/custom_loading_overlay.dart';
@@ -58,14 +57,15 @@ class _SingleSigSetupInfoScreenState extends State<SingleSigSetupInfoScreen> {
     });
   }
 
-  Future<void> _verifyBiometric(BuildContext context, PinCheckContextEnum pinCheckContext) async {
+  Future<bool> _verifyBiometric(BuildContext context, PinCheckContextEnum pinCheckContext) async {
     final authProvider = context.read<AuthProvider>();
     if (await authProvider.isBiometricsAuthValid()) {
       _verifySwitch(context, pinCheckContext);
-      return;
+      return true;
     }
 
-    MyBottomSheet.showBottomSheet_90(
+    bool isSuccess = false;
+    await MyBottomSheet.showBottomSheet_90(
       context: context,
       child: CustomLoadingOverlay(
         child: PinCheckScreen(
@@ -73,10 +73,13 @@ class _SingleSigSetupInfoScreenState extends State<SingleSigSetupInfoScreen> {
           onSuccess: () async {
             Navigator.pop(context);
             _verifySwitch(context, pinCheckContext);
+            isSuccess = true;
           },
         ),
       ),
     );
+
+    return isSuccess;
   }
 
   @override
@@ -399,18 +402,47 @@ class _SingleSigSetupInfoScreenState extends State<SingleSigSetupInfoScreen> {
                         onPressed: () {
                           _removeTooltip();
                           if (data.canDelete) {
-                            showConfirmDialog(
+                            debugPrint('data.canDelete: ${data.canDelete}');
+                            showDialog(
                                 context: context,
-                                title: t.confirm,
-                                content: t.alert.confirm_deletion(name: data.walletName),
-                                onConfirmPressed: () async {
-                                  context.loaderOverlay.show();
-                                  await Future.delayed(const Duration(seconds: 1));
-                                  if (context.mounted) {
-                                    _verifyBiometric(context, PinCheckContextEnum.seedDeletion);
-                                    context.loaderOverlay.hide();
-                                  }
+                                builder: (BuildContext dialogContext) {
+                                  return CoconutPopup(
+                                    insetPadding: EdgeInsets.symmetric(
+                                        horizontal: MediaQuery.of(context).size.width * 0.15),
+                                    title: t.confirm,
+                                    titleTextStyle: CoconutTypography.body1_16_Bold,
+                                    description: t.alert.confirm_deletion(name: data.walletName),
+                                    descriptionTextStyle: CoconutTypography.body2_14,
+                                    backgroundColor: CoconutColors.white,
+                                    leftButtonText: t.no,
+                                    leftButtonTextStyle: CoconutTypography.body2_14.merge(
+                                      TextStyle(
+                                        color: CoconutColors.black.withOpacity(0.7),
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                    ),
+                                    rightButtonText: t.yes,
+                                    rightButtonColor: CoconutColors.warningText,
+                                    rightButtonTextStyle: CoconutTypography.body2_14.merge(
+                                      const TextStyle(
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                    ),
+                                    onTapLeft: () => Navigator.pop(context),
+                                    onTapRight: () async {
+                                      context.loaderOverlay.show();
+                                      if (context.mounted) {
+                                        _verifyBiometric(context, PinCheckContextEnum.seedDeletion)
+                                            .then((bool isSuccess) {
+                                          if (!context.mounted) return;
+
+                                          context.loaderOverlay.hide();
+                                        });
+                                      }
+                                    },
+                                  );
                                 });
+
                             return;
                           }
                           CoconutToast.showToast(

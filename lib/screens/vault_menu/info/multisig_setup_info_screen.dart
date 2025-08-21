@@ -53,33 +53,36 @@ class _MultisigSetupInfoScreenState extends State<MultisigSetupInfoScreen> {
     });
   }
 
-  Future _verifyBiometric(
+  Future<bool> _verifyBiometric(
     BuildContext context,
   ) async {
-    void onComplete() {
-      context.read<MultisigSetupInfoViewModel>().deleteVault();
+    Future<void> onComplete() async {
+      await context.read<MultisigSetupInfoViewModel>().deleteVault();
       vibrateLight();
-      Navigator.popUntil(context, (route) => route.isFirst);
     }
 
     final authProvider = context.read<AuthProvider>();
     if (await authProvider.isBiometricsAuthValid()) {
-      onComplete();
-      return;
+      await onComplete();
+      return true;
     }
 
-    MyBottomSheet.showBottomSheet_90(
+    bool isSuccess = false;
+    await MyBottomSheet.showBottomSheet_90(
       context: context,
       child: CustomLoadingOverlay(
         child: PinCheckScreen(
           pinCheckContext: PinCheckContextEnum.sensitiveAction,
           onSuccess: () async {
             Navigator.pop(context);
-            onComplete();
+            await onComplete();
+            isSuccess = true;
           },
         ),
       ),
     );
+
+    return isSuccess;
   }
 
   @override
@@ -382,19 +385,49 @@ class _MultisigSetupInfoScreenState extends State<MultisigSetupInfoScreen> {
                           const ColorFilter.mode(CoconutColors.warningText, BlendMode.srcIn))),
               onPressed: () {
                 _removeTooltip();
-                showConfirmDialog(
-                  context: context,
-                  title: t.confirm,
-                  content: t.alert.confirm_deletion(name: name),
-                  onConfirmPressed: () async {
-                    context.loaderOverlay.show();
-                    await Future.delayed(const Duration(seconds: 1));
-                    if (context.mounted) {
-                      _verifyBiometric(context);
-                      context.loaderOverlay.hide();
-                    }
-                  },
-                );
+                showDialog(
+                    context: context,
+                    builder: (BuildContext dialogContext) {
+                      return CoconutPopup(
+                        insetPadding: EdgeInsets.symmetric(
+                            horizontal: MediaQuery.of(context).size.width * 0.15),
+                        title: t.confirm,
+                        titleTextStyle: CoconutTypography.body1_16_Bold,
+                        description: t.alert.confirm_deletion(name: name),
+                        descriptionTextStyle: CoconutTypography.body2_14,
+                        backgroundColor: CoconutColors.white,
+                        leftButtonText: t.no,
+                        leftButtonTextStyle: CoconutTypography.body2_14.merge(
+                          TextStyle(
+                            color: CoconutColors.black.withOpacity(0.7),
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                        rightButtonText: t.yes,
+                        rightButtonColor: CoconutColors.warningText,
+                        rightButtonTextStyle: CoconutTypography.body2_14.merge(
+                          const TextStyle(
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                        onTapLeft: () => Navigator.pop(context),
+                        onTapRight: () async {
+                          context.loaderOverlay.show();
+                          if (context.mounted) {
+                            _verifyBiometric(context).then((isSuccess) {
+                              if (!context.mounted) return;
+                              if (isSuccess == true) {
+                                context.loaderOverlay.hide();
+                                Navigator.pop(dialogContext);
+                                Navigator.pop(context);
+                              } else {
+                                context.loaderOverlay.hide();
+                              }
+                            });
+                          }
+                        },
+                      );
+                    });
               },
             ),
           ],

@@ -97,7 +97,7 @@ class WalletRepository {
     await _saveSingleSigSecureData(
         nextId, wallet.mnemonic!, wallet.passphrase != null && wallet.passphrase!.isNotEmpty);
 
-    _vaultList!.insert(0, vaultListResult[0]);
+    _vaultList!.add(vaultListResult[0]);
     try {
       await _savePublicInfo();
     } catch (error) {
@@ -183,10 +183,12 @@ class WalletRepository {
     MultisigVaultListItem newMultisigVault = await addMultisigVaultIsolateHandler.run(data);
     addMultisigVaultIsolateHandler.dispose();
 
+    print('newMultisigVault: $newMultisigVault');
+
     // for SinglesigVaultListItem multsig key map update
     updateLinkedMultisigInfo(wallet.signers!, nextId);
 
-    _vaultList!.insert(0, newMultisigVault);
+    _vaultList!.add(newMultisigVault);
     await _savePublicInfo();
     _recordNextWalletId();
     return newMultisigVault;

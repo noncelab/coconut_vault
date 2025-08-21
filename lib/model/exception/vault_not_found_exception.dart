@@ -1,5 +1,7 @@
+import 'package:coconut_vault/localization/strings.g.dart';
+
 class VaultNotFoundException implements Exception {
-  static String defaultErrorMessage = '해당 볼트를 찾을 수 없습니다.';
+  static String defaultErrorMessage = t.errors.vault_not_found_error;
   final String message;
 
   VaultNotFoundException({String? message}) : message = message ?? defaultErrorMessage;

@@ -116,7 +116,7 @@ class _PsbtScannerScreenState extends State<PsbtScannerScreen> {
       _viewModel.setVaultByPsbtBase64(psbtBase64);
     } catch (e) {
       if (e is VaultNotFoundException) {
-        await _showErrorDialog(t.errors.vault_not_found_error);
+        await _showErrorDialog(VaultNotFoundException.defaultErrorMessage);
       } else {
         await _showErrorDialog(t.errors.invalid_qr);
       }
