@@ -55,7 +55,8 @@ class _SingleSigSetupInfoScreenState extends State<SingleSigSetupInfoScreen> {
 
   Future<void> _verifyBiometric(BuildContext context, PinCheckContextEnum pinCheckContext) async {
     final authProvider = context.read<AuthProvider>();
-    if (await authProvider.isBiometricsAuthValid()) {
+
+    if (await authProvider.isBiometricsAuthValid() && context.mounted) {
       _verifySwitch(context, pinCheckContext);
       return;
     }

@@ -22,11 +22,11 @@ class PinBox extends StatelessWidget {
         ),
         child: isSet
             ? Padding(
-                padding: const EdgeInsets.all(Sizes.size12),
+                padding: const EdgeInsets.all(10),
                 child: SvgPicture.asset(
                   'assets/svg/coconut-${NetworkType.currentNetworkType.isTestnet ? "regtest" : "mainnet"}.svg',
                   colorFilter: ColorFilter.mode(
-                      disabled ? CoconutColors.black.withOpacity(0.06) : CoconutColors.black,
+                      disabled ? CoconutColors.black.withOpacity(0.06) : CoconutColors.gray800,
                       BlendMode.srcIn),
                 ),
               )

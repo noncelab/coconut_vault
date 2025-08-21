@@ -9,7 +9,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 
 class KeyButton extends StatefulWidget {
   final String keyValue;
-  final void Function(String, bool) onKeyTap;
+  final void Function(String) onKeyTap;
   final bool disabled;
 
   const KeyButton({
@@ -72,7 +72,7 @@ class _KeyButtonState extends State<KeyButton> {
   Widget build(BuildContext context) {
     return GestureDetector(
         onTap: () {
-          widget.onKeyTap(widget.keyValue, false);
+          widget.onKeyTap(widget.keyValue);
         },
         onTapDown: (_) {
           setState(() {

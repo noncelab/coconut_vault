@@ -1,5 +1,4 @@
 import 'package:coconut_design_system/coconut_design_system.dart';
-import 'package:coconut_vault/constants/pin_constants.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/providers/auth_provider.dart';
 import 'package:coconut_vault/widgets/pin/pin_length_toggle_button.dart';
@@ -14,7 +13,7 @@ class PinInputScreen extends StatefulWidget {
   final Text? descriptionTextWidget;
   final String pin;
   final String errorMessage;
-  final void Function(String, bool) onKeyTap;
+  final void Function(String) onKeyTap;
   final List<String> pinShuffleNumbers;
   final Function? onReset;
   final VoidCallback onClosePressed;
@@ -27,6 +26,8 @@ class PinInputScreen extends StatefulWidget {
   final String? lastChanceMessage;
   final bool disabled;
   final bool canChangePinType;
+  final PinType pinType; // 문자 또는 6-digit PIN 입력 모드 확인용
+  final Function(PinType)? onPinTypeChanged; // 입력 모드 변경 핸들러
 
   const PinInputScreen(
       {super.key,
@@ -46,7 +47,9 @@ class PinInputScreen extends StatefulWidget {
       this.descriptionTextWidget,
       this.lastChance = false,
       this.lastChanceMessage,
-      this.disabled = false});
+      this.disabled = false,
+      this.pinType = PinType.number,
+      this.onPinTypeChanged});
 
   @override
   PinInputScreenState createState() => PinInputScreenState();
@@ -55,15 +58,19 @@ class PinInputScreen extends StatefulWidget {
 class PinInputScreenState extends State<PinInputScreen> {
   final FocusNode _characterFocusNode = FocusNode();
   final TextEditingController _characterController = TextEditingController();
-  String _previousCharacterText = "";
-  PinType _pinType = PinType.number;
+  late PinType _pinType;
 
   @override
   void initState() {
     super.initState();
-    _characterController.addListener(_characterTextListener);
+
+    _pinType = widget.pinType;
+
     if (context.read<AuthProvider>().isPinCharacter) {
       _pinType = PinType.character;
+    }
+
+    if (_pinType == PinType.character) {
       _characterFocusNode.requestFocus();
     }
   }
@@ -75,29 +82,6 @@ class PinInputScreenState extends State<PinInputScreen> {
     _characterController.dispose();
   }
 
-  void _characterTextListener() {
-    // 문자가 입력된 경우와 삭제된 경우를 인식한다.
-    String currentText = _characterController.text;
-    if (currentText.length > _previousCharacterText.length) {
-      String lastInserted = currentText.substring(_previousCharacterText.length);
-      widget.onKeyTap(lastInserted, true);
-    } else if (currentText.length < _previousCharacterText.length) {
-      widget.onKeyTap('<', false);
-      // 삭제 버튼을 꾹 누른 경우에 대한 처리
-      if (currentText.isEmpty) {
-        _previousCharacterText = "";
-        _characterController.text = "";
-      }
-    }
-
-    _previousCharacterText = currentText;
-    // 비밀번호 확인에서 사용하는 경우를 위해 미리 정리한다.
-    if (currentText.length == kExpectedPinLength) {
-      _previousCharacterText = "";
-      _characterController.text = "";
-    }
-  }
-
   void _togglePinType() {
     _pinType = _pinType == PinType.character ? PinType.number : PinType.character;
     FocusScope.of(context).unfocus();
@@ -106,6 +90,8 @@ class PinInputScreenState extends State<PinInputScreen> {
     }
     widget.onPinClear();
     _characterController.clear();
+
+    widget.onPinTypeChanged?.call(_pinType);
     setState(() {});
   }
 
@@ -134,58 +120,25 @@ class PinInputScreenState extends State<PinInputScreen> {
               style: CoconutTypography.body1_16_Bold,
               textAlign: TextAlign.center,
             ),
-            const SizedBox(height: 10),
+            CoconutLayout.spacing_300h,
             Align(
               alignment: Alignment.center,
               child: widget.descriptionTextWidget ?? const Text(''),
             ),
-            const SizedBox(height: 10),
-            if (_pinType == PinType.number)
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  PinBox(isSet: widget.pin.isNotEmpty, disabled: widget.disabled),
-                  const SizedBox(width: 8),
-                  PinBox(isSet: widget.pin.length > 1, disabled: widget.disabled),
-                  const SizedBox(width: 8),
-                  PinBox(isSet: widget.pin.length > 2, disabled: widget.disabled),
-                  const SizedBox(width: 8),
-                  PinBox(isSet: widget.pin.length > 3, disabled: widget.disabled),
-                  const SizedBox(width: 8),
-                  PinBox(isSet: widget.pin.length > 4, disabled: widget.disabled),
-                  const SizedBox(width: 8),
-                  PinBox(isSet: widget.pin.length > 5, disabled: widget.disabled),
-                ],
-              ),
-            if (_pinType == PinType.character)
-              SizedBox(
-                width: 235,
-                child: CoconutTextField(
-                  padding: const EdgeInsets.fromLTRB(16, 15, 16, 15),
-                  borderRadius: 14,
-                  backgroundColor: CoconutColors.gray150,
-                  placeholderColor: Colors.transparent,
-                  textAlign: TextAlign.center,
-                  maxLength: 6,
-                  maxLines: 1,
-                  isLengthVisible: false,
-                  isVisibleBorder: false,
-                  errorText: null,
-                  descriptionText: null,
-                  controller: _characterController,
-                  focusNode: _characterFocusNode,
-                  onChanged: (text) {},
-                ),
-              ),
+            CoconutLayout.spacing_200h,
+            SizedBox(
+              height: 56,
+              child: _pinType == PinType.number ? _buildNumberInput() : _buildCharacterInput(),
+            ),
             if (widget.canChangePinType && widget.step == 0)
               Padding(
-                padding: const EdgeInsets.only(top: 16),
+                padding: const EdgeInsets.only(top: 12),
                 child: SizedBox(
                     height: 40,
                     child: PinTypeToggleButton(
                         isActive: true, currentPinType: _pinType, onToggle: _togglePinType)),
               ),
-            const SizedBox(height: 16),
+            CoconutLayout.spacing_200h,
             Text(
               widget.errorMessage,
               style: CoconutTypography.body3_12.setColor(CoconutColors.warningText),
@@ -253,6 +206,58 @@ class PinInputScreenState extends State<PinInputScreen> {
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildNumberInput() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        PinBox(isSet: widget.pin.isNotEmpty, disabled: widget.disabled),
+        CoconutLayout.spacing_200w,
+        PinBox(isSet: widget.pin.length > 1, disabled: widget.disabled),
+        CoconutLayout.spacing_200w,
+        PinBox(isSet: widget.pin.length > 2, disabled: widget.disabled),
+        CoconutLayout.spacing_200w,
+        PinBox(isSet: widget.pin.length > 3, disabled: widget.disabled),
+        CoconutLayout.spacing_200w,
+        PinBox(isSet: widget.pin.length > 4, disabled: widget.disabled),
+        CoconutLayout.spacing_200w,
+        PinBox(isSet: widget.pin.length > 5, disabled: widget.disabled),
+      ],
+    );
+  }
+
+  Widget _buildCharacterInput() {
+    return SizedBox(
+      width: 270,
+      child: CoconutTextField(
+        padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
+        borderRadius: 12,
+        backgroundColor: CoconutColors.gray150,
+        placeholderColor: Colors.transparent,
+        textAlign: TextAlign.center,
+        maxLines: 1,
+        isLengthVisible: false,
+        isVisibleBorder: false,
+        errorText: null,
+        descriptionText: null,
+        controller: _characterController,
+        focusNode: _characterFocusNode,
+        onChanged: (text) {},
+        textInputAction: TextInputAction.done,
+        onEditingComplete: () {
+          // 문자 입력 모드에서 'Done' 버튼을 누르는 경우 다음 단계로 이동
+          if (_pinType == PinType.character) {
+            widget.onKeyTap(_characterController.text);
+
+            if (widget.step == 0) {
+              _characterController.clear();
+              return;
+            }
+          }
+        },
       ),
     );
   }
