@@ -316,16 +316,20 @@ class _SingleSigSetupInfoScreenState extends State<SingleSigSetupInfoScreen> {
               padding: const EdgeInsets.symmetric(horizontal: 24),
               child: Column(
                 children: [
-                  // InformationRowItem(
-                  //     label: '확장 공개키 보기',
-                  //     showIcon: true,
-                  //     onPressed: () {
-                  //       _removeTooltip();
-                  //       _verifyBiometric(context, SecurityAction.viewExtendedPublicKey);
-                  //     }),
-                  // const Divider(
-                  //     color: CoconutColors.borderLightGray,
-                  //     height: 1),
+                  InformationItemCard(
+                    label: t.vault_menu_screen.title.use_as_multisig_signer,
+                    showIcon: true,
+                    onPressed: () {
+                      _removeTooltip();
+
+                      Navigator.pushNamed(
+                        context,
+                        AppRoutes.multisigSignerBsmsExport,
+                        arguments: {'id': widget.id},
+                      );
+                    },
+                  ),
+                  const Divider(color: CoconutColors.borderLightGray, height: 1),
                   InformationItemCard(
                     label: t.view_mnemonic,
                     showIcon: true,

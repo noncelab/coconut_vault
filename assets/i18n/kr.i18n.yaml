@@ -122,6 +122,9 @@ vault_home_screen:
 vault_list_screen:
   primary_wallet: "대표 지갑"
 
+select_vault_bottom_sheet:
+  select_wallet: "지갑 선택"
+
 # lib
 vault_list_tab:
   add_wallet: "지갑을 추가해 보세요!"
@@ -608,8 +611,10 @@ errors:
   camera_permission_error: "카메라 권한이 없습니다"
   creation_error: "생성 실패"
   export_error: "내보내기 실패"
+  scan_error_title: "스캔 실패"
   psbt_parsing_error: "psbt 파싱 실패: $error"
   not_related_multisig_wallet_error: "이 지갑을 키로 사용한 다중 서명 지갑이 아닙니다"
+  vault_not_found_error: "서명할 수 있는 지갑이 없어요"
 
 tooltip:
   mfp: "지갑의 고유 값이에요.\n마스터 핑거프린트(MFP)라고도 해요."

@@ -7,13 +7,10 @@ import 'package:coconut_vault/model/single_sig/single_sig_vault_list_item.dart';
 import 'package:coconut_vault/model/common/vault_list_item_base.dart';
 import 'package:coconut_vault/enums/wallet_enums.dart';
 import 'package:coconut_vault/utils/colors_util.dart';
-import 'package:coconut_vault/widgets/animation/shake_widget.dart';
 import 'package:coconut_vault/widgets/icon/vault_item_icon.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:coconut_vault/screens/home/vault_menu_bottom_sheet.dart';
 import 'package:coconut_vault/utils/icon_util.dart';
-import 'package:coconut_vault/widgets/bottom_sheet.dart';
 import 'package:coconut_vault/widgets/button/shrink_animation_button.dart';
 import 'package:provider/provider.dart';
 
@@ -97,55 +94,62 @@ class _VaultRowItemState extends State<VaultRowItem> {
     _updateVault();
 
     return widget.isSelectable
-        ? ShakeWidget(
-            key: ValueKey('${widget.vault.name}_$_subtitleText'), // _subTitle 이 바뀌면 Shake 재시작
-            curve: Curves.easeInOut,
-            deltaX: 5,
-            child: Column(
-              children: [
-                Container(
-                  constraints: const BoxConstraints(minHeight: 100),
-                  child: GestureDetector(
-                    onTap: () {
-                      setState(() {
-                        isPressing = false;
-                      });
-                      if (widget.onSelected != null) {
-                        widget.onSelected!();
-                      }
-                    },
-                    onTapDown: (details) {
-                      setState(() {
-                        isPressing = true;
-                      });
-                    },
-                    onTapCancel: () {
-                      setState(() {
-                        isPressing = false;
-                      });
-                    },
-                    child: _buildVaultSelectableWidget(),
-                  ),
-                ),
-                const SizedBox(
-                  height: 10,
-                )
-              ],
-            ),
+        ?
+        // ? ShakeWidget(
+        //     key: ValueKey('${widget.vault.name}_$_subtitleText'), // _subTitle 이 바뀌면 Shake 재시작
+        //     curve: Curves.easeInOut,
+        //     deltaX: 5,
+        //     child: Column(
+        //       children: [
+        //         Container(
+        //           constraints: const BoxConstraints(minHeight: 100),
+        //           child: GestureDetector(
+        //             onTap: () {
+        //               setState(() {
+        //                 isPressing = false;
+        //               });
+        //               if (widget.onSelected != null) {
+        //                 widget.onSelected!();
+        //               }
+        //             },
+        //             onTapDown: (details) {
+        //               setState(() {
+        //                 isPressing = true;
+        //               });
+        //             },
+        //             onTapCancel: () {
+        //               setState(() {
+        //                 isPressing = false;
+        //               });
+        //             },
+        //             child: _buildVaultSelectableWidget(),
+        //           ),
+        //         ),
+        //         const SizedBox(
+        //           height: 10,
+        //         )
+        //       ],
+        //     ),
+        //   )
+        ShrinkAnimationButton(
+            pressedColor: CoconutColors.gray150,
+            borderGradientColors: null,
+            borderRadius: 8,
+            onPressed: () {
+              if (widget.onSelected != null) {
+                widget.onSelected!();
+              }
+            },
+            child: _buildVaultContainerWidget(),
           )
         : ShrinkAnimationButton(
             pressedColor: CoconutColors.gray150,
             borderGradientColors: null,
             borderRadius: 8,
             onPressed: () {
-              // MyBottomSheet.showBottomSheet(
-              //   context: context,
-              //   title: TextUtils.ellipsisIfLonger(widget.vault.name), // overflow
-              //   child: VaultMenuBottomSheet(id: widget.vault.id, isMultiSig: _isMultiSig),
-              // );
-              Navigator.pushNamed(
-                  context, _isMultiSig ? AppRoutes.multisigSetupInfo : AppRoutes.singleSigSetupInfo,
-                  arguments: {'id': widget.vault.id});
+              if (widget.onSelected != null) {
+                widget.onSelected!();
+              }
             },
             child: _buildVaultContainerWidget(),
           );
@@ -153,6 +157,7 @@ class _VaultRowItemState extends State<VaultRowItem> {
 
   Widget _buildVaultContainerWidget({
     bool isEditMode = false,
+    bool isSelectable = false,
     ValueChanged<(bool, int)>? onTapStar,
     int? index,
   }) {
@@ -223,23 +228,34 @@ class _VaultRowItemState extends State<VaultRowItem> {
             ),
           ),
           CoconutLayout.spacing_200w,
-          isEditMode
-              ? ReorderableDragStartListener(
-                  index: index!,
-                  child: GestureDetector(
-                    child: Padding(
-                      padding: const EdgeInsets.only(right: 8),
-                      child: SvgPicture.asset(
-                        'assets/svg/hamburger.svg',
-                      ),
-                    ),
+          isSelectable
+              ? AnimatedScale(
+                  scale: widget.isSelectable && widget.isPressed ? 1.0 : 0,
+                  duration: const Duration(milliseconds: 200),
+                  curve: Curves.easeInOut,
+                  child: Icon(
+                    Icons.check,
+                    size: 24,
+                    color: CoconutColors.black.withOpacity(0.7),
                   ),
                 )
-              : SvgPicture.asset(
-                  'assets/svg/chevron-right.svg',
-                  width: 6,
-                  height: 10,
-                )
+              : isEditMode
+                  ? ReorderableDragStartListener(
+                      index: index!,
+                      child: GestureDetector(
+                        child: Padding(
+                          padding: const EdgeInsets.only(right: 8),
+                          child: SvgPicture.asset(
+                            'assets/svg/hamburger.svg',
+                          ),
+                        ),
+                      ),
+                    )
+                  : SvgPicture.asset(
+                      'assets/svg/chevron-right.svg',
+                      width: 6,
+                      height: 10,
+                    )
         ],
       ),
     );

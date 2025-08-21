@@ -30,6 +30,10 @@ class VaultHomeViewModel extends ChangeNotifier {
     _walletProvider.loadVaultList();
   }
 
+  Future<bool> hasPassphrase(int id) async {
+    return await _walletProvider.hasPassphrase(id);
+  }
+
   void _onWalletProviderUpdate() {
     notifyListeners();
   }

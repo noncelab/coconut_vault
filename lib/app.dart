@@ -43,7 +43,7 @@ import 'package:coconut_vault/screens/vault_menu/info/multisig_setup_info_screen
 import 'package:coconut_vault/screens/vault_menu/info/passphrase_verification_screen.dart';
 import 'package:coconut_vault/screens/vault_menu/multisig_signer_bsms_export_screen.dart';
 import 'package:coconut_vault/screens/vault_menu/sync_to_wallet/sync_to_wallet_screen.dart';
-import 'package:coconut_vault/screens/home/vault_menu_bottom_sheet.dart';
+import 'package:coconut_vault/screens/home/select_vault_bottom_sheet.dart';
 import 'package:coconut_vault/screens/vault_menu/info/single_sig_setup_info_screen.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -226,13 +226,6 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> {
                   ),
                 ),
             AppRoutes.vaultNameSetup: (context) => const VaultNameAndIconSetupScreen(),
-            AppRoutes.vaultDetails: (context) => buildScreenWithArguments(
-                  context,
-                  (args) => VaultMenuBottomSheet(
-                      id: args['id'],
-                      hasPassphrase: args['hasPassphrase'],
-                      parentContext: args['parentContext']),
-                ),
             AppRoutes.singleSigSetupInfo: (context) => buildScreenWithArguments(
                 context, (args) => SingleSigSetupInfoScreen(id: args['id'])),
             AppRoutes.multisigSetupInfo: (context) => buildScreenWithArguments(
@@ -255,10 +248,7 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> {
                   (args) =>
                       MultisigBsmsScannerScreen(id: args['id'], screenType: args['screenType']),
                 ),
-            AppRoutes.psbtScanner: (context) => buildScreenWithArguments(
-                  context,
-                  (args) => PsbtScannerScreen(id: args['id']),
-                ),
+            AppRoutes.psbtScanner: (context) => const PsbtScannerScreen(),
             AppRoutes.psbtConfirmation: (context) => const PsbtConfirmationScreen(),
             AppRoutes.signedTransaction: (context) => const SignedTransactionQrScreen(),
             AppRoutes.syncToWallet: (context) => buildScreenWithArguments(

@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_vault/constants/app_routes.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
+import 'package:coconut_vault/model/exception/vault_not_found_exception.dart';
 import 'package:coconut_vault/providers/sign_provider.dart';
 import 'package:coconut_vault/providers/view_model/airgap/psbt_scanner_view_model.dart';
 import 'package:coconut_vault/utils/alert_util.dart';
@@ -22,9 +23,7 @@ import 'package:ur/ur.dart';
 import 'package:cbor/cbor.dart';
 
 class PsbtScannerScreen extends StatefulWidget {
-  final int id;
-
-  const PsbtScannerScreen({super.key, required this.id});
+  const PsbtScannerScreen({super.key});
 
   @override
   State<PsbtScannerScreen> createState() => _PsbtScannerScreenState();
@@ -44,7 +43,7 @@ class _PsbtScannerScreenState extends State<PsbtScannerScreen> {
   void initState() {
     super.initState();
     _viewModel = PsbtScannerViewModel(Provider.of<WalletProvider>(context, listen: false),
-        Provider.of<SignProvider>(context, listen: false), widget.id);
+        Provider.of<SignProvider>(context, listen: false)); // TODO id 추가
 
     _scanDataHandler = BcUrQrScanDataHandler();
     WidgetsBinding.instance.addPostFrameCallback((_) async {
@@ -70,18 +69,37 @@ class _PsbtScannerScreenState extends State<PsbtScannerScreen> {
   }
 
   Future<void> _showErrorDialog(String message) async {
-    await showAlertDialog(
+    await showDialog(
+        barrierDismissible: false,
         context: context,
-        content: message,
-        onConfirmPressed: () {
-          _isProcessing = false;
-          controller!.resumeCamera();
+        builder: (BuildContext context) {
+          return CoconutPopup(
+            insetPadding:
+                EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width * 0.15),
+            title: t.errors.scan_error_title,
+            titleTextStyle: CoconutTypography.body1_16_Bold,
+            description: message,
+            descriptionTextStyle: CoconutTypography.body2_14,
+            backgroundColor: CoconutColors.white,
+            rightButtonText: t.confirm,
+            rightButtonColor: CoconutColors.black.withOpacity(0.7),
+            rightButtonTextStyle: CoconutTypography.body2_14.merge(
+              const TextStyle(
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+            onTapRight: () {
+              _isProcessing = false;
+              controller!.resumeCamera();
+              Navigator.pop(context);
+            },
+          );
         });
   }
 
   Future<void> _onCompletedScanningForBcUr(dynamic signedPsbt) async {
     assert(signedPsbt is UR);
-    await _stopCamera();
+    await stopCamera();
 
     if (_isProcessing) return;
     _isProcessing = true;
@@ -93,9 +111,15 @@ class _PsbtScannerScreenState extends State<PsbtScannerScreen> {
       final decodedCbor = cbor.decode(cborBytes) as CborBytes;
 
       psbtBase64 = base64Encode(decodedCbor.bytes);
-      _viewModel.parseBase64EncodedToPsbt(psbtBase64);
+
+      // 스캔된 MFP를 이용해 유효한 볼트를 찾고, SignProvider에 저장
+      _viewModel.setVaultByPsbtBase64(psbtBase64);
     } catch (e) {
-      await _showErrorDialog(t.errors.invalid_qr);
+      if (e is VaultNotFoundException) {
+        await _showErrorDialog(t.errors.vault_not_found_error);
+      } else {
+        await _showErrorDialog(t.errors.invalid_qr);
+      }
       return;
     }
 
@@ -117,9 +141,9 @@ class _PsbtScannerScreenState extends State<PsbtScannerScreen> {
       /// Go-router 제거 이후로 ios에서는 정상 작동하지만 안드로이드에서는 pushNamed로 화면 이동 시 카메라 컨트롤러 남아있는 이슈
       if (Platform.isAndroid) {
         Navigator.pushReplacementNamed(context, AppRoutes.psbtConfirmation,
-            arguments: {'id': widget.id});
+            arguments: {'id': 0}); // TODO id 추가
       } else if (Platform.isIOS) {
-        Navigator.pushNamed(context, AppRoutes.psbtConfirmation, arguments: {'id': widget.id})
+        Navigator.pushNamed(context, AppRoutes.psbtConfirmation, arguments: {'id': 0}) // TODO id 추가
             .then((o) {
           // 뒤로가기로 다시 돌아왔을 때
           _isProcessing = false;
@@ -129,7 +153,7 @@ class _PsbtScannerScreenState extends State<PsbtScannerScreen> {
     }
   }
 
-  void _onFailedScanning(String message) {
+  void onFailedScanning(String message) {
     if (_isProcessing) return;
     _isProcessing = true;
 
@@ -143,7 +167,7 @@ class _PsbtScannerScreenState extends State<PsbtScannerScreen> {
     _showErrorDialog(errorMessage);
   }
 
-  Future<void> _stopCamera() async {
+  Future<void> stopCamera() async {
     if (controller != null) {
       await controller?.pauseCamera();
     }
@@ -154,7 +178,7 @@ class _PsbtScannerScreenState extends State<PsbtScannerScreen> {
     return CustomLoadingOverlay(
       child: Scaffold(
         appBar: CoconutAppBar.build(
-          title: _viewModel.walletName,
+          title: t.sign,
           context: context,
           isBottom: true,
           backgroundColor: CoconutColors.white,
@@ -166,7 +190,7 @@ class _PsbtScannerScreenState extends State<PsbtScannerScreen> {
                 child: CoconutQrScanner(
                     setQrViewController: _setQRViewController,
                     onComplete: _onCompletedScanningForBcUr,
-                    onFailed: _onFailedScanning,
+                    onFailed: onFailedScanning,
                     qrDataHandler: _scanDataHandler)),
             Padding(
               padding: const EdgeInsets.only(top: 20, left: 16, right: 16),
@@ -186,9 +210,10 @@ class _PsbtScannerScreenState extends State<PsbtScannerScreen> {
                     ),
                     children: <TextSpan>[
                       TextSpan(
-                        text: _viewModel.isMultisig
-                            ? t.psbt_scanner_screen.guide_multisig
-                            : t.psbt_scanner_screen.guide_single_sig,
+                        text: t.psbt_scanner_screen.guide_single_sig,
+                        // text: _viewModel.isMultisig
+                        // ? t.psbt_scanner_screen.guide_multisig
+                        // : t.psbt_scanner_screen.guide_single_sig,
                         style: const TextStyle(
                           fontWeight: FontWeight.normal,
                         ),

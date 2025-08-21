@@ -122,6 +122,9 @@ vault_home_screen:
 vault_list_screen:
   primary_wallet: "Primary Wallet"
 
+select_vault_bottom_sheet:
+  select_wallet: "Select Wallet"
+
 # lib
 vault_list_tab:
   add_wallet: "Add a wallet!"
@@ -608,8 +611,10 @@ errors:
   camera_permission_error: "Camera permission required"
   creation_error: "Creation failed"
   export_error: "Export failed"
+  scan_error_title: "Scan Failed"
   psbt_parsing_error: "PSBT parsing failed: $error"
   not_related_multisig_wallet_error: "This is not a multisig wallet using this wallet as key"
+  vault_not_found_error: "No matching vault found"
 
 tooltip:
   mfp: "Unique value of wallet.\nAlso called Master Fingerprint (MFP)."
