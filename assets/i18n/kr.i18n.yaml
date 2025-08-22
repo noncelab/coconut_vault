@@ -271,7 +271,7 @@ mnemonic_coin_flip_screen:
   coin_head: "앞"
   coin_tail: "뒤"
 mnemonic_confirm_screen:
-  title: "입력하신 정보가 맞는지\n다시 한번 확인해 주세요"
+  title: "최종 확인"
   passphrase_character_total_count: " (총 $count 글자)"
   warning:
     contains_space_character: "⚠︎ 공백 문자가 포함되어 있습니다"
@@ -288,6 +288,8 @@ mnemonic_generate_screen:
   use: "사용"
   do_not: "안함"
   enter_passphrase: "패스프레이즈를 입력해 주세요"
+  memorable_passphrase_guide: "무슨 일이 있어도 기억할 수 있는 패스프레이즈"
+  passphrase_confirm_guide: "패스프레이즈 확인"
   backup_guide: "안전한 장소에서 니모닉 문구를 백업해 주세요"
   backup_complete: "백업 완료"
   warning: "입력하신 패스프레이즈는 보관과 유출에 유의해 주세요"
@@ -299,6 +301,10 @@ mnemonic_import_screen:
   enter_passphrase: "패스프레이즈를 입력해 주세요"
   need_advanced_mode: "⚠︎ 패스프레이즈를 사용하시려면 설정 화면으로 이동하여 '패스프레이즈 사용하기'를 켜주세요"
   open_settings: "설정 화면 열기"
+mnemonic_verify_screen:
+  title: "니모닉 확인"
+  select_word: "${index}번째 단어를 선택하세요"
+  not_correct: "일치하지 않아요"
 select_vault_type_screen:
   title: "지갑 만들기"
   single_sig: "하나의 니모닉 문구를 보관하는 단일 서명 지갑이에요"
@@ -352,10 +358,6 @@ address_list_screen:
 export_detail_screen:
   title: "내보내기 상세 정보"
   info_copied: "상세 정보가 복사됐어요"
-mnemonic_view_screen:
-  view_passphrase: "패스프레이즈 보기"
-  visible_while_pressing: "누르는 동안 보여요"
-  space_as_blank: " 공백 문자는 빈칸으로 표시됩니다."
 multi_sig_bsms_screen:
   bottom_sheet:
     title: "지갑 상세 정보"
@@ -546,10 +548,12 @@ alert:
     description: "정말 니모닉 만들기를 그만하시겠어요?"
   stop_generating_mnemonic:
     title: "니모닉 생성 중단"
-    description: "정말 니모닉 생성을 그만하시겠어요?"
+    description: "니모닉 생성을 그만두시겠어요?\n중단하시려면 [확인]을\n옵션을 다시 선택하시려면\n[다시 선택]을 눌러주세요."
+    reselect: "다시 선택"
+    confirm: "확인"
   stop_importing_mnemonic:
     title: "복원 중단"
-    description: "정말 복원하기를 그만하시겠어요?"
+    description: "복원을 그만두시겠어요?\n중단하시려면 [확인]을\n복원을 계속하시려면\n[취소]를 눌러주세요."
   erase_all_entered_so_far: "정말로 지금까지 입력한 정보를\n모두 지우시겠어요?"
 
 toast:

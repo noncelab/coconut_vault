@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 
 class FixedBottomButton extends StatefulWidget {
   static const fixedBottomButtonDefaultHeight = 50.0;
-  static const fixedBottomButtonDefaultBottomPadding = 30.0;
+  static const fixedBottomButtonDefaultBottomPadding = 16.0;
 
   const FixedBottomButton({
     super.key,

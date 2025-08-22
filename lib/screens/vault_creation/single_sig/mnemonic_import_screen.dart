@@ -1,18 +1,19 @@
 import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_lib/coconut_lib.dart';
+import 'package:coconut_vault/constants/app_routes.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/providers/visibility_provider.dart';
 import 'package:coconut_vault/providers/wallet_creation_provider.dart';
 import 'package:coconut_vault/screens/settings/settings_screen.dart';
 import 'package:coconut_vault/screens/vault_creation/vault_name_and_icon_setup_screen.dart';
+import 'package:coconut_vault/widgets/button/fixed_bottom_button.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
-import 'package:coconut_vault/screens/vault_creation/single_sig/mnemonic_confirmation_bottom_sheet.dart';
+import 'package:coconut_vault/screens/vault_creation/single_sig/mnemonic_confirmation_screen.dart';
 import 'package:coconut_vault/utils/vibration_util.dart';
 import 'package:coconut_vault/utils/wallet_utils.dart';
 import 'package:coconut_vault/widgets/bottom_sheet.dart';
-import 'package:coconut_vault/widgets/custom_dialog.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
@@ -114,20 +115,6 @@ class _MnemonicImportState extends State<MnemonicImport> {
   }
 
   void _showStopImportingMnemonicDialog() {
-    // CustomDialogs.showCustomAlertDialog(
-    //   context,
-    //   title: t.alert.stop_importing_mnemonic.title,
-    //   message: t.alert.stop_importing_mnemonic.description,
-    //   cancelButtonText: t.cancel,
-    //   confirmButtonText: t.stop,
-    //   confirmButtonColor: CoconutColors.warningText,
-    //   onCancel: () => Navigator.pop(context),
-    //   onConfirm: () {
-    //     Navigator.pop(context);
-    //     Navigator.pushNamedAndRemoveUntil(context, '/', (Route<dynamic> route) => false);
-    //   },
-    // );
-
     showDialog(
         context: context,
         builder: (BuildContext context) {
@@ -141,13 +128,13 @@ class _MnemonicImportState extends State<MnemonicImport> {
             backgroundColor: CoconutColors.white,
             leftButtonText: t.cancel,
             leftButtonTextStyle: CoconutTypography.body2_14.merge(
-              TextStyle(
-                color: CoconutColors.black.withOpacity(0.7),
+              const TextStyle(
+                color: CoconutColors.gray900,
                 fontWeight: FontWeight.w500,
               ),
             ),
-            rightButtonText: t.stop,
-            rightButtonColor: CoconutColors.warningText,
+            rightButtonText: t.confirm,
+            rightButtonColor: CoconutColors.gray900,
             rightButtonTextStyle: CoconutTypography.body2_14.merge(
               const TextStyle(
                 fontWeight: FontWeight.w500,
@@ -156,7 +143,7 @@ class _MnemonicImportState extends State<MnemonicImport> {
             onTapLeft: () => Navigator.pop(context),
             onTapRight: () {
               Navigator.pop(context);
-              Navigator.pushNamedAndRemoveUntil(context, '/', (Route<dynamic> route) => false);
+              Navigator.pop(context);
             },
           );
         });
@@ -175,15 +162,10 @@ class _MnemonicImportState extends State<MnemonicImport> {
         children: [
           Scaffold(
             backgroundColor: CoconutColors.white,
-            appBar: CoconutAppBar.buildWithNext(
+            appBar: CoconutAppBar.build(
               title: t.mnemonic_import_screen.title,
-              nextButtonTitle: t.next,
               context: context,
               onBackPressed: _handleBackNavigation,
-              onNextPressed: _handleNextButton,
-              isActive: _usePassphrase
-                  ? _inputText.isNotEmpty && _isMnemonicValid == true && _passphrase.isNotEmpty
-                  : _inputText.isNotEmpty && _isMnemonicValid == true,
             ),
             body: GestureDetector(
               onTap: () => FocusScope.of(context).unfocus(),
@@ -208,6 +190,16 @@ class _MnemonicImportState extends State<MnemonicImport> {
               ),
             ),
           ),
+          // TODO: check 버튼 너비가 다른 요소에 비해 더 넓은 것 같음
+          FixedBottomButton(
+              text: t.next,
+              onButtonClicked: _handleNextButton,
+              isActive: _usePassphrase
+                  ? _inputText.isNotEmpty && _isMnemonicValid == true && _passphrase.isNotEmpty
+                  : _inputText.isNotEmpty && _isMnemonicValid == true,
+              backgroundColor: CoconutColors.black,
+              bottomPadding: 40,
+              isVisibleAboveKeyboard: false),
           // TODO: isolate
           Visibility(
             visible: false,
@@ -248,24 +240,8 @@ class _MnemonicImportState extends State<MnemonicImport> {
           context: context, text: t.toast.mnemonic_already_added, isVisibleIcon: true);
       return;
     }
-
-    MyBottomSheet.showBottomSheet_90(
-      context: context,
-      child: MnemonicConfirmationBottomSheet(
-        onCancelPressed: () => Navigator.pop(context),
-        onConfirmPressed: () {
-          _walletCreationProvider.setSecretAndPassphrase(secret, passphrase);
-          Navigator.pushReplacement(context,
-              MaterialPageRoute(builder: (context) => const VaultNameAndIconSetupScreen()));
-        },
-        onInactivePressed: () {
-          CoconutToast.showToast(context: context, text: t.toast.scroll_down, isVisibleIcon: true);
-          vibrateMediumDouble();
-        },
-        mnemonic: secret,
-        passphrase: _usePassphrase ? _passphrase : null,
-      ),
-    );
+    _walletCreationProvider.setSecretAndPassphrase(secret, passphrase);
+    Navigator.pushNamed(context, AppRoutes.mnemonicConfirmation);
   }
 
   Widget _buildMnemonicTextField() {

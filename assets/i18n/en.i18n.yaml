@@ -270,7 +270,7 @@ mnemonic_coin_flip_screen:
   coin_head: "Front"
   coin_tail: "Back"
 mnemonic_confirm_screen:
-  title: "Please verify that\nthe entered info is correct"
+  title: "Final Check"
   passphrase_character_total_count: " (Total $count chars)"
   warning:
     contains_space_character: "⚠︎ Contains space characters"
@@ -287,6 +287,8 @@ mnemonic_generate_screen:
   use: "Use"
   do_not: "Don't"
   enter_passphrase: "Enter passphrase"
+  memorable_passphrase_guide: "A passphrase you'll never forget"
+  passphrase_confirm_guide: "Confirm passphrase"
   backup_guide: "Please backup mnemonic in a safe place"
   backup_complete: "Backup Complete"
   warning: "Please be careful with storage and leakage of entered passphrase"
@@ -298,6 +300,10 @@ mnemonic_import_screen:
   enter_passphrase: "Enter passphrase"
   need_advanced_mode: "⚠︎ To use passphrase, go to Settings and turn on 'Use Passphrase'"
   open_settings: "Open Settings"
+mnemonic_verify_screen:
+  title: "Verify Mnemonic"
+  select_word: "Select ${index}th word"
+  not_correct: "Not correct"
 select_vault_type_screen:
   title: "Create Wallet"
   single_sig: "Single signature wallet storing one mnemonic phrase"
@@ -351,10 +357,6 @@ address_list_screen:
 export_detail_screen:
   title: "Export Details"
   info_copied: "Details copied"
-mnemonic_view_screen:
-  view_passphrase: "View Passphrase"
-  visible_while_pressing: "Visible while pressing"
-  space_as_blank: " Space characters are shown as blanks."
 multi_sig_bsms_screen:
   bottom_sheet:
     title: "Wallet Details"
@@ -545,10 +547,12 @@ alert:
     description: "Really stop mnemonic creation?"
   stop_generating_mnemonic:
     title: "Stop Generating Mnemonic"
-    description: "Really stop mnemonic generation?"
+    description: "Really stop mnemonic generation?\nTap [Confirm] to stop, or tap [Select Again] to choose the options again."
+    reselect: "Select Again"
+    confirm: "Confirm"
   stop_importing_mnemonic:
     title: "Stop Restoring"
-    description: "Really stop restoring?"
+    description: "Really stop restoring?\nTap [Confirm] to stop, or tap [Cancel] to continue."
   erase_all_entered_so_far: "Really delete all info\nentered so far?"
 
 toast:

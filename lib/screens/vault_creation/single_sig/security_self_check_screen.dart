@@ -1,5 +1,6 @@
 import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
+import 'package:coconut_vault/widgets/button/fixed_bottom_button.dart';
 import 'package:flutter/material.dart';
 import 'package:coconut_vault/widgets/check_list.dart';
 
@@ -43,15 +44,9 @@ class _SecuritySelfCheckScreenState extends State<SecuritySelfCheckScreen> {
     return Scaffold(
       backgroundColor: CoconutColors.white,
       appBar: widget.onNextPressed != null
-          ? CoconutAppBar.buildWithNext(
+          ? CoconutAppBar.build(
               title: t.checklist,
-              nextButtonTitle: t.next,
               context: context,
-              onBackPressed: () {
-                Navigator.of(context).pop();
-              },
-              onNextPressed: widget.onNextPressed!,
-              isActive: _allItemsChecked, // 상태에 따라 'Next' 버튼 활성화
             )
           : CoconutAppBar.build(
               title: t.checklist,
@@ -61,63 +56,56 @@ class _SecuritySelfCheckScreenState extends State<SecuritySelfCheckScreen> {
               },
             ),
       body: SafeArea(
-        child: SingleChildScrollView(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 20),
-            child: Column(children: [
-              Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-                    decoration: BoxDecoration(
-                      borderRadius: CoconutBorder.defaultRadius,
-                      color: CoconutColors.black.withOpacity(0.06),
-                    ),
-                    child: Text(
-                      t.security_self_check_screen.guidance,
-                      style: CoconutTypography.body2_14.merge(TextStyle(
-                          color: CoconutColors.black.withOpacity(0.7),
-                          fontWeight: FontWeight.bold)),
-                    )),
+        child: Stack(
+          children: [
+            SingleChildScrollView(
+              physics: const AlwaysScrollableScrollPhysics(),
+              child: SizedBox(
+                height: MediaQuery.of(context).size.height -
+                    kToolbarHeight -
+                    MediaQuery.of(context).padding.top,
+                child: Column(children: [
+                  Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                        decoration: BoxDecoration(
+                          borderRadius: CoconutBorder.defaultRadius,
+                          color: CoconutColors.black.withOpacity(0.06),
+                        ),
+                        child: Text(
+                          t.security_self_check_screen.guidance,
+                          style: CoconutTypography.body2_14.merge(TextStyle(
+                              color: CoconutColors.black.withOpacity(0.7),
+                              fontWeight: FontWeight.bold)),
+                        )),
+                  ),
+                  const SizedBox(height: 16),
+                  ..._items.asMap().entries.map(
+                    (entry) {
+                      int index = entry.key;
+                      ChecklistItem item = entry.value;
+                      return ChecklistTile(
+                        item: item,
+                        onChanged: (bool? value) {
+                          _onChecklistItemChanged(value, index);
+                        },
+                      );
+                    },
+                  ),
+                ]),
               ),
-              const SizedBox(height: 16),
-              LayoutBuilder(
-                builder: (context, constraints) {
-                  const double itemHeight = 40.0;
-                  final double totalHeight = _items.length * itemHeight;
-                  final bool needScrolling = totalHeight > constraints.maxHeight;
-
-                  return needScrolling
-                      ? SingleChildScrollView(
-                          child: Column(
-                            children: _items.asMap().entries.map((entry) {
-                              int index = entry.key;
-                              ChecklistItem item = entry.value;
-                              return ChecklistTile(
-                                item: item,
-                                onChanged: (bool? value) {
-                                  _onChecklistItemChanged(value, index);
-                                },
-                              );
-                            }).toList(),
-                          ),
-                        )
-                      : Column(
-                          children: _items.asMap().entries.map((entry) {
-                            int index = entry.key;
-                            ChecklistItem item = entry.value;
-                            return ChecklistTile(
-                              item: item,
-                              onChanged: (bool? value) {
-                                _onChecklistItemChanged(value, index);
-                              },
-                            );
-                          }).toList(),
-                        );
-                },
-              )
-            ]),
-          ),
+            ),
+            FixedBottomButton(
+              onButtonClicked: widget.onNextPressed!,
+              text: t.next,
+              textColor: CoconutColors.white,
+              showGradient: true,
+              gradientPadding: const EdgeInsets.only(left: 16, right: 16, bottom: 40, top: 110),
+              isActive: _allItemsChecked,
+              backgroundColor: CoconutColors.black,
+            )
+          ],
         ),
       ),
     );

@@ -4,8 +4,12 @@ class AppRoutes {
   static const String signerAssignment = '/assign-signers';
   static const String vaultCreationOptions = '/vault-creation-options';
   static const String mnemonicImport = '/mnemonic-import';
+  static const String mnemonicVerify = '/mnemonic-verify';
+  static const String mnemonicConfirmation = '/mnemonic-confirmation';
+  static const String mnemonicCoinflipConfirmation = '/mnemonic-coinflip-confirmation';
   static const String vaultNameSetup = '/vault-name-setup';
   static const String vaultDetails = '/vault-details';
+  static const String mnemonicView = '/mnemonic-view';
   static const String singleSigSetupInfo = '/vault-settings';
   static const String multisigSetupInfo = '/multisig-setting';
   static const String multisigBsmsView = '/multisig-bsms';

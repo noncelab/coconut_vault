@@ -17,6 +17,9 @@ import 'package:coconut_vault/screens/app_update/restoration_info_screen.dart';
 import 'package:coconut_vault/screens/app_update/vault_list_restoration_screen.dart';
 import 'package:coconut_vault/screens/home/vault_list_screen.dart';
 import 'package:coconut_vault/screens/app_update/app_update_preparation_screen.dart';
+import 'package:coconut_vault/screens/vault_creation/single_sig/mnemonic_coinflip_confirmation_screen.dart';
+import 'package:coconut_vault/screens/vault_creation/single_sig/mnemonic_confirmation_screen.dart';
+import 'package:coconut_vault/screens/vault_creation/single_sig/mnemonic_verify_screen.dart';
 import 'package:coconut_vault/screens/vault_creation/single_sig/security_self_check_screen.dart';
 import 'package:coconut_vault/screens/settings/app_info_screen.dart';
 import 'package:coconut_vault/screens/settings/mnemonic_word_list_screen.dart';
@@ -33,6 +36,7 @@ import 'package:coconut_vault/screens/vault_creation/vault_type_selection_screen
 import 'package:coconut_vault/screens/vault_creation/vault_creation_options_screen.dart';
 import 'package:coconut_vault/screens/vault_creation/vault_name_and_icon_setup_screen.dart';
 import 'package:coconut_vault/screens/vault_menu/address_list_screen.dart';
+import 'package:coconut_vault/screens/vault_menu/info/mnemonic_view_screen.dart';
 import 'package:coconut_vault/screens/vault_menu/info/multisig_bsms_screen.dart';
 import 'package:coconut_vault/screens/vault_menu/info/multisig_setup_info_screen.dart';
 import 'package:coconut_vault/screens/vault_menu/info/passphrase_verification_screen.dart';
@@ -208,7 +212,17 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> {
             AppRoutes.multisigQuorumSelection: (context) => const MultisigQuorumSelectionScreen(),
             AppRoutes.signerAssignment: (context) => const SignerAssignmentScreen(),
             AppRoutes.vaultCreationOptions: (context) => const VaultCreationOptions(),
+            AppRoutes.mnemonicVerify: (context) => const MnemonicVerifyScreen(),
             AppRoutes.mnemonicImport: (context) => const MnemonicImport(),
+            AppRoutes.mnemonicConfirmation: (context) => const MnemonicConfirmationScreen(),
+            AppRoutes.mnemonicCoinflipConfirmation: (context) =>
+                const MnemonicCoinflipConfirmationScreen(),
+            AppRoutes.mnemonicView: (context) => buildScreenWithArguments(
+                  context,
+                  (args) => MnemonicViewScreen(
+                    walletId: args['id'],
+                  ),
+                ),
             AppRoutes.vaultNameSetup: (context) => const VaultNameAndIconSetupScreen(),
             AppRoutes.vaultDetails: (context) => buildScreenWithArguments(
                   context,
