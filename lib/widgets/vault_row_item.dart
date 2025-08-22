@@ -21,12 +21,18 @@ class VaultRowItem extends StatefulWidget {
   const VaultRowItem({
     super.key,
     required this.vault,
+    this.entryPoint,
     this.isSelectable = false,
     this.onSelected,
     this.isPressed = false,
     this.isStarVisible = false,
     this.isFavorite = false,
-    this.isPrimaryWallet = false,
+    this.isPrimaryWallet,
+    this.isEditMode = false,
+    this.isLastItem,
+    this.onTapStar,
+    this.onLongPressed,
+    this.index,
   });
 
   final VaultListItemBase vault;
@@ -35,7 +41,13 @@ class VaultRowItem extends StatefulWidget {
   final bool isPressed;
   final bool isStarVisible;
   final bool isFavorite;
-  final bool isPrimaryWallet;
+  final bool? isPrimaryWallet;
+  final bool isEditMode;
+  final bool? isLastItem;
+  final ValueChanged<(bool, int)>? onTapStar;
+  final String? entryPoint;
+  final VoidCallback? onLongPressed;
+  final int? index;
 
   @override
   State<VaultRowItem> createState() => _VaultRowItemState();
@@ -93,79 +105,52 @@ class _VaultRowItemState extends State<VaultRowItem> {
   Widget build(BuildContext context) {
     _updateVault();
 
-    return widget.isSelectable
-        ?
-        // ? ShakeWidget(
-        //     key: ValueKey('${widget.vault.name}_$_subtitleText'), // _subTitle 이 바뀌면 Shake 재시작
-        //     curve: Curves.easeInOut,
-        //     deltaX: 5,
-        //     child: Column(
-        //       children: [
-        //         Container(
-        //           constraints: const BoxConstraints(minHeight: 100),
-        //           child: GestureDetector(
-        //             onTap: () {
-        //               setState(() {
-        //                 isPressing = false;
-        //               });
-        //               if (widget.onSelected != null) {
-        //                 widget.onSelected!();
-        //               }
-        //             },
-        //             onTapDown: (details) {
-        //               setState(() {
-        //                 isPressing = true;
-        //               });
-        //             },
-        //             onTapCancel: () {
-        //               setState(() {
-        //                 isPressing = false;
-        //               });
-        //             },
-        //             child: _buildVaultSelectableWidget(),
-        //           ),
-        //         ),
-        //         const SizedBox(
-        //           height: 10,
-        //         )
-        //       ],
-        //     ),
-        //   )
-        ShrinkAnimationButton(
-            pressedColor: CoconutColors.gray150,
-            borderGradientColors: null,
-            borderRadius: 8,
-            onPressed: () {
-              if (widget.onSelected != null) {
-                widget.onSelected!();
-              }
-            },
-            child: _buildVaultContainerWidget(),
-          )
-        : ShrinkAnimationButton(
-            pressedColor: CoconutColors.gray150,
-            borderGradientColors: null,
-            borderRadius: 8,
-            onPressed: () {
-              if (widget.onSelected != null) {
-                widget.onSelected!();
-              }
-            },
-            child: _buildVaultContainerWidget(),
-          );
+    if (widget.isEditMode) {
+      return _buildVaultContainerWidget(
+        onTapStar: (pair) {
+          if (widget.isPrimaryWallet != null) {
+            widget.onTapStar?.call(pair);
+          }
+        },
+        index: widget.index,
+      );
+    }
+    return ShrinkAnimationButton(
+      pressedColor: CoconutColors.gray150,
+      borderGradientColors: null,
+      borderRadius: 8,
+      onPressed: () {
+        if (widget.onSelected != null) {
+          widget.onSelected!();
+          return;
+        }
+        Navigator.pushNamed(
+          context,
+          widget.vault.vaultType == WalletType.multiSignature
+              ? AppRoutes.multisigSetupInfo
+              : AppRoutes.singleSigSetupInfo,
+          arguments: {
+            'id': widget.vault.id,
+            'entryPoint': widget.entryPoint,
+          },
+        );
+      },
+      onLongPressed: () {
+        widget.onLongPressed?.call();
+      },
+      child: _buildVaultContainerWidget(),
+    );
   }
 
   Widget _buildVaultContainerWidget({
-    bool isEditMode = false,
-    bool isSelectable = false,
     ValueChanged<(bool, int)>? onTapStar,
     int? index,
   }) {
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: isEditMode ? 8 : 20, vertical: 12),
+      padding: EdgeInsets.symmetric(horizontal: widget.isEditMode ? 8 : 20, vertical: 12),
       child: Row(
         children: [
-          if (isEditMode)
+          if (widget.isEditMode)
             Opacity(
               opacity: widget.isStarVisible ? 1 : 0,
               child: GestureDetector(
@@ -200,12 +185,6 @@ class _VaultRowItemState extends State<VaultRowItem> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      if (_isMultiSig || _isUsedToMultiSig) ...{
-                        Text(
-                          _subtitleText,
-                          style: CoconutTypography.body3_12.copyWith(color: CoconutColors.gray600),
-                        ),
-                      },
                       Text(
                         widget.vault.name,
                         style: CoconutTypography.body2_14_Bold,
@@ -217,18 +196,31 @@ class _VaultRowItemState extends State<VaultRowItem> {
                 ),
                 Row(
                   children: [
-                    if (widget.isPrimaryWallet == true)
+                    if (_isMultiSig || _isUsedToMultiSig) ...{
                       Text(
-                        ' • ${t.vault_list_screen.primary_wallet}',
-                        style: CoconutTypography.body3_12.setColor(CoconutColors.gray500),
+                        _subtitleText,
+                        style: CoconutTypography.body3_12.copyWith(color: CoconutColors.gray600),
                       ),
+                    },
+                    if (widget.isPrimaryWallet == true) ...[
+                      if (_isMultiSig || _isUsedToMultiSig)
+                        Text(
+                          ' • ${t.vault_list_screen.primary_wallet}',
+                          style: CoconutTypography.body3_12.setColor(CoconutColors.gray500),
+                        )
+                      else
+                        Text(
+                          t.vault_list_screen.primary_wallet,
+                          style: CoconutTypography.body3_12.setColor(CoconutColors.gray500),
+                        ),
+                    ],
                   ],
                 ),
               ],
             ),
           ),
           CoconutLayout.spacing_200w,
-          isSelectable
+          widget.isSelectable
               ? AnimatedScale(
                   scale: widget.isSelectable && widget.isPressed ? 1.0 : 0,
                   duration: const Duration(milliseconds: 200),
@@ -239,7 +231,7 @@ class _VaultRowItemState extends State<VaultRowItem> {
                     color: CoconutColors.black.withOpacity(0.7),
                   ),
                 )
-              : isEditMode
+              : widget.isEditMode
                   ? ReorderableDragStartListener(
                       index: index!,
                       child: GestureDetector(

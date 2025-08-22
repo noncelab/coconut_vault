@@ -5,6 +5,7 @@ import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/providers/view_model/address_list_view_model.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:coconut_vault/screens/common/qrcode_bottom_sheet.dart';
+import 'package:coconut_vault/screens/home/select_vault_bottom_sheet.dart';
 import 'package:coconut_vault/utils/logger.dart';
 import 'package:coconut_vault/widgets/bottom_sheet.dart';
 import 'package:coconut_vault/widgets/card/address_card.dart';
@@ -41,9 +42,51 @@ class _AddressListScreenState extends State<AddressListScreen> {
           return Scaffold(
             backgroundColor: CoconutColors.white,
             appBar: CoconutAppBar.build(
-              title: t.address_list_screen.title(name: viewModel.name),
               context: context,
+              actionButtonList: [
+                // title center 배치용
+                Visibility(
+                  visible: false,
+                  maintainSize: true,
+                  maintainAnimation: true,
+                  maintainState: true,
+                  child: IconButton(
+                    onPressed: () {},
+                    icon: const Icon(Icons.search_rounded, color: CoconutColors.white),
+                  ),
+                ),
+              ],
               isBottom: true,
+              customTitle: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    t.address_list_screen.title(
+                      name: viewModel.name,
+                    ),
+                    style: CoconutTypography.heading4_18,
+                  ),
+                  CoconutLayout.spacing_50w,
+                  const Icon(Icons.keyboard_arrow_down_sharp, color: CoconutColors.black, size: 16),
+                ],
+              ),
+              onTitlePressed: () {
+                MyBottomSheet.showDraggableBottomSheet(
+                    context: context,
+                    childBuilder: (scrollController) => SelectVaultBottomSheet(
+                          vaultList: context
+                              .read<WalletProvider>()
+                              .vaultList
+                              .where((vault) => vault.id != viewModel.vaultId)
+                              .toList(),
+                          subLabel: t.vault_menu_screen.description.export_xpub,
+                          onVaultSelected: (id) async {
+                            viewModel.changeVaultById(id);
+                            Navigator.pop(context);
+                          },
+                          scrollController: scrollController,
+                        ));
+              },
             ),
             body: _isFirstLoadRunning
                 ? const Center(child: CircularProgressIndicator())
@@ -52,7 +95,7 @@ class _AddressListScreenState extends State<AddressListScreen> {
                       Container(
                         height: 36,
                         margin: const EdgeInsets.only(
-                          top: 10,
+                          top: 20,
                           bottom: 12,
                           left: 16,
                           right: 16,

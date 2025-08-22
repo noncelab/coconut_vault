@@ -8,6 +8,7 @@ import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/model/common/vault_list_item_base.dart';
 import 'package:coconut_vault/providers/auth_provider.dart';
 import 'package:coconut_vault/providers/connectivity_provider.dart';
+import 'package:coconut_vault/providers/preference_provider.dart';
 import 'package:coconut_vault/providers/view_model/home/vault_home_view_model.dart';
 import 'package:coconut_vault/providers/visibility_provider.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
@@ -49,21 +50,32 @@ class _VaultHomeScreenState extends State<VaultHomeScreen> with TickerProviderSt
     _viewModel = VaultHomeViewModel(
         Provider.of<AuthProvider>(context, listen: false),
         Provider.of<WalletProvider>(context, listen: false),
+        Provider.of<PreferenceProvider>(context, listen: false),
         Provider.of<VisibilityProvider>(context, listen: false).walletCount);
 
     _scrollController = ScrollController();
 
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       // 지갑 추가, 지갑 삭제, 서명완료 후 불필요하게 loadVaultList() 호출되는 것을 막음
-      if (_viewModel.isWalletsLoaded) {
+      if (_viewModel.isVaultsLoaded) {
         return;
       }
-      _viewModel.loadWallets();
+      _viewModel.loadVaults();
     });
   }
 
   bool isEnablePlusButton(bool isWalletsLoaded, bool isWalletEmpty) {
     return NetworkType.currentNetworkType.isTestnet || (isWalletsLoaded && isWalletEmpty);
+  }
+
+  VaultHomeViewModel _createViewModel() {
+    _viewModel = VaultHomeViewModel(
+      Provider.of<AuthProvider>(context, listen: false),
+      Provider.of<WalletProvider>(context, listen: false),
+      Provider.of<PreferenceProvider>(context, listen: false),
+      Provider.of<VisibilityProvider>(context, listen: false).walletCount,
+    );
+    return _viewModel;
   }
 
   @override
@@ -88,15 +100,18 @@ class _VaultHomeScreenState extends State<VaultHomeScreen> with TickerProviderSt
       },
       child:
           // ConnectivityProvider: 실제로 활용되지 않지만 참조해야, 네트워크/블루투스/개발자모드 연결 시 화면 전환이 됩니다.
-          ChangeNotifierProxyProvider3<AuthProvider, ConnectivityProvider, VisibilityProvider,
-              VaultHomeViewModel>(
+          ChangeNotifierProxyProvider4<AuthProvider, ConnectivityProvider, VisibilityProvider,
+              PreferenceProvider, VaultHomeViewModel>(
         create: (_) => _viewModel,
-        update: (_, authProvider, connectivityProvider, visibilityProvider, viewModel) {
-          return viewModel!;
+        update: (_, authProvider, connectivityProvider, visibilityProvider, preferenceProvider,
+            viewModel) {
+          viewModel ??= _createViewModel();
+          viewModel.onPreferenceProviderUpdated();
+          return viewModel;
         },
         child: Consumer2<VaultHomeViewModel, VisibilityProvider>(
           builder: (context, viewModel, visibilityProvider, child) {
-            final wallets = viewModel.wallets;
+            final wallets = viewModel.vaults;
             return Scaffold(
               backgroundColor: CoconutColors.gray150,
               body: Stack(
@@ -208,7 +223,7 @@ class _VaultHomeScreenState extends State<VaultHomeScreen> with TickerProviderSt
       appTitle: '',
       actionButtonList: [
         Opacity(
-          opacity: isEnablePlusButton(viewModel.isWalletsLoaded, wallets.isEmpty) ? 1.0 : 0.2,
+          opacity: isEnablePlusButton(viewModel.isVaultsLoaded, wallets.isEmpty) ? 1.0 : 0.2,
           child: _buildAppBarIconButton(
             key: GlobalKey(),
             icon: SvgPicture.asset(
@@ -219,11 +234,11 @@ class _VaultHomeScreenState extends State<VaultHomeScreen> with TickerProviderSt
               ),
             ),
             onPressed: () {
-              if (!isEnablePlusButton(viewModel.isWalletsLoaded, wallets.isEmpty)) {
+              if (!isEnablePlusButton(viewModel.isVaultsLoaded, wallets.isEmpty)) {
                 return;
               }
 
-              if (viewModel.walletCount == 0 && !viewModel.isPinSet) {
+              if (viewModel.vaultCount == 0 && !viewModel.isPinSet) {
                 MyBottomSheet.showBottomSheet_90(
                     context: context, child: const PinSettingScreen(greetingVisible: true));
               } else {
@@ -248,7 +263,7 @@ class _VaultHomeScreenState extends State<VaultHomeScreen> with TickerProviderSt
   Widget _buildWalletList(BuildContext context) {
     final viewModel = context.read<VaultHomeViewModel>();
 
-    if (viewModel.isWalletsLoaded && viewModel.walletCount == 0) {
+    if (viewModel.isVaultsLoaded && viewModel.vaultCount == 0) {
       // '지갑을 추가해 보세요!' 위젯
       return SliverToBoxAdapter(
         child: Container(
@@ -272,8 +287,8 @@ class _VaultHomeScreenState extends State<VaultHomeScreen> with TickerProviderSt
         children: [
           CoconutLayout.spacing_300h,
           _buildFavoriteWalletList(
-            viewModel.wallets,
-            viewModel.wallets,
+            viewModel.vaults,
+            viewModel.favoriteVaultIds,
           ),
         ],
       ),
@@ -282,9 +297,8 @@ class _VaultHomeScreenState extends State<VaultHomeScreen> with TickerProviderSt
 
   Widget _buildFavoriteWalletList(
     List<VaultListItemBase> walletList,
-    List<VaultListItemBase> favoriteWalletList,
+    List<int> favoriteWalletIds,
   ) {
-    debugPrint('favoriteWalletList: $favoriteWalletList');
     return Container(
       margin: const EdgeInsets.only(left: 16, right: 16, bottom: 20),
       padding: const EdgeInsets.symmetric(vertical: 8),
@@ -293,9 +307,12 @@ class _VaultHomeScreenState extends State<VaultHomeScreen> with TickerProviderSt
         color: CoconutColors.white,
       ),
       child: Column(
-        children: List.generate(favoriteWalletList.length, (index) {
+        children: List.generate(walletList.length, (index) {
+          if (walletList.isEmpty) {
+            return Container();
+          }
           final wallet = walletList[index];
-          final isFavorite = favoriteWalletList.any((w) => w.id == wallet.id);
+          final isFavorite = favoriteWalletIds.any((w) => w == wallet.id);
 
           if (isFavorite) {
             return VaultRowItem(
@@ -320,7 +337,7 @@ class _VaultHomeScreenState extends State<VaultHomeScreen> with TickerProviderSt
   }
 
   Widget _buildWalletActionItems(BuildContext context) {
-    final walletCount = context.watch<VaultHomeViewModel>().walletCount;
+    final walletCount = context.watch<VaultHomeViewModel>().vaultCount;
     return SliverToBoxAdapter(
         child: Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
@@ -353,6 +370,11 @@ class _VaultHomeScreenState extends State<VaultHomeScreen> with TickerProviderSt
                     right: 15,
                     bottom: 17,
                   ),
+                  onPressed: () {
+                    var primaryVaultId = context.read<VaultHomeViewModel>().vaults.first.id;
+                    Navigator.pushNamed(context, AppRoutes.addressList,
+                        arguments: {'id': primaryVaultId});
+                  },
                 ),
               ),
             ],

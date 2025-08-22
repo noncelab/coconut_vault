@@ -108,6 +108,8 @@ advanced_user: "Advanced User"
 
 extra_count: "+$count more"
 
+edit: "편집"
+
 vault_home_screen:
   view_all_my_wallets: "View All My Wallets"
   wallet_count: "$count Items"
@@ -121,6 +123,17 @@ vault_home_screen:
 
 vault_list_screen:
   primary_wallet: "Primary Wallet"
+  settings:
+    primary_wallet: "Set as Primary Wallet"
+    primary_wallet_disabled_description: "This wallet is used as default for Send/Receive on the home screen."
+    primary_wallet_abled_description: "Setting another wallet as primary will automatically disable this setting."
+  edit:
+      wallet_list: "Edit Wallet List"
+      star_description: "Select up to 5 wallets to display on the home screen."
+      order_description: "Tap to change the order of wallets."
+      delete_description: "Swipe left on a wallet to delete it."
+      finish: "Finish Editing"
+      unsaved_changes_confirm_exit: "You have unsaved changes.\nAre you sure you want to exit?"  
 
 select_vault_bottom_sheet:
   select_wallet: "Select Wallet"
@@ -584,6 +597,7 @@ toast:
   mnemonic_already_added: "Already added mnemonic"
   mnemonic_copied: "Mnemonic phrase copied"
   multisig_already_added: "Already added multisig wallet. ($name)"
+  home_vault_min_one: "Home screen displayed wallets must be at least 1"
 
 errors:
   invalid_qr: "Invalid QR code.\nPlease check again."

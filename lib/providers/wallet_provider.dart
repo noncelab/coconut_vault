@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:coconut_lib/coconut_lib.dart';
+import 'package:coconut_vault/providers/preference_provider.dart';
 import 'package:coconut_vault/repository/wallet_repository.dart';
 import 'package:coconut_vault/model/common/vault_list_item_base.dart';
 import 'package:coconut_vault/model/multisig/multisig_import_detail.dart';
@@ -17,17 +18,24 @@ import 'package:coconut_vault/utils/logger.dart';
 import 'package:coconut_vault/enums/wallet_enums.dart';
 import 'package:flutter/foundation.dart';
 
+const kMaxStarLength = 5;
+
 class WalletProvider extends ChangeNotifier {
   late final VisibilityProvider _visibilityProvider;
   late final WalletRepository _walletRepository;
+  late final PreferenceProvider _preferenceProvider;
 
-  WalletProvider(this._visibilityProvider) {
+  WalletProvider(
+    this._visibilityProvider,
+    this._preferenceProvider,
+  ) {
     _walletRepository = WalletRepository();
+    vaultListNotifier = ValueNotifier(_vaultList);
   }
 
   // Vault list
   List<VaultListItemBase> _vaultList = [];
-  List<VaultListItemBase> get vaultList => _vaultList;
+  List<VaultListItemBase> get vaultList => vaultListNotifier.value;
   // 리스트 로딩중 여부 (indicator 표시 및 중복 방지)
   bool _isVaultListLoading = false;
   bool get isVaultListLoading => _isVaultListLoading;
@@ -37,15 +45,13 @@ class WalletProvider extends ChangeNotifier {
   // 리스트 로딩 완료 여부 (로딩작업 완료 후 바로 추가하기 표시)
   // 최초 한번 완료 후 재로드 없음
   bool _isWalletsLoaded = false;
-  bool get isWalletsLoaded => _isWalletsLoaded;
+  bool get isVaultsLoaded => _isWalletsLoaded;
+
+  late final ValueNotifier<List<VaultListItemBase>> vaultListNotifier;
 
   // addVault
   bool _isAddVaultCompleted = false;
   bool get isAddVaultCompleted => _isAddVaultCompleted;
-
-  // 리스트에 추가되는 애니메이션이 동작해야하면 true, 아니면 false를 담습니다.
-  List<bool> _animatedVaultFlags = [];
-  List<bool> get animatedVaultFlags => _animatedVaultFlags;
 
   String? _waitingForSignaturePsbtBase64;
   String? get waitingForSignaturePsbtBase64 => _waitingForSignaturePsbtBase64;
@@ -54,18 +60,15 @@ class WalletProvider extends ChangeNotifier {
 
   bool _isDisposed = false;
 
+  void _setVaultList(List<VaultListItemBase> value) {
+    _vaultList = value;
+    vaultListNotifier.value = value;
+  }
+
   // Returns a copy of the list of vault list.
   List<VaultListItemBase> getVaults() {
     if (_vaultList.isEmpty) {
-      _animatedVaultFlags = [];
-
       return [];
-    }
-
-    if (_animatedVaultFlags.isNotEmpty && _animatedVaultFlags.first) {
-      setAnimatedVaultFlags();
-    } else {
-      _animatedVaultFlags = List.filled(_vaultList.length, false);
     }
 
     return List.from(_vaultList);
@@ -83,18 +86,14 @@ class WalletProvider extends ChangeNotifier {
     return vaultList.where((vault) => vault.vaultType == walletType).toList();
   }
 
-  void setAnimatedVaultFlags() {
-    _animatedVaultFlags = List.filled(_vaultList.length, false);
-    _animatedVaultFlags[0] = true;
-  }
-
   Future<void> addSingleSigVault(SingleSigWalletCreateDto wallet) async {
     _setAddVaultCompleted(false);
 
     await _walletRepository.addSinglesigWallet(wallet);
-    _vaultList = _walletRepository.vaultList;
+    _setVaultList(_walletRepository.vaultList);
+    _preferenceProvider.setVaultOrder(_vaultList.map((e) => e.id).toList());
+    _addToFavoriteWallets(_vaultList.last.id);
 
-    setAnimatedVaultFlags();
     _setAddVaultCompleted(true);
     await _updateWalletLength();
 
@@ -109,11 +108,23 @@ class WalletProvider extends ChangeNotifier {
     await _walletRepository.addMultisigWallet(
         MultisigWallet(null, name, icon, color, signers, requiredSignatureCount));
 
-    _vaultList = _walletRepository.vaultList;
-    setAnimatedVaultFlags();
+    _setVaultList(_walletRepository.vaultList);
+    _preferenceProvider.setVaultOrder(_vaultList.map((e) => e.id).toList());
+    _addToFavoriteWallets(_vaultList.last.id);
+
     _setAddVaultCompleted(true);
     await _updateWalletLength();
     notifyListeners();
+  }
+
+  Future<void> _addToFavoriteWallets(int walletId) async {
+    final favoriteWallets = _preferenceProvider.favoriteVaultIds.toList();
+
+    // 즐겨찾기된 지갑이 5개이상이면 등록안함
+    if (favoriteWallets.length < kMaxStarLength && !favoriteWallets.contains(walletId)) {
+      favoriteWallets.add(walletId);
+      await _preferenceProvider.setFavoriteVaultIds(favoriteWallets);
+    }
   }
 
   Future<bool> hasPassphrase(int walletId) {
@@ -186,7 +197,7 @@ class WalletProvider extends ChangeNotifier {
   /// [id]에 해당하는 지갑의 UI 정보 업데이트
   Future<void> updateVault(int id, String newName, int colorIndex, int iconIndex) async {
     await _walletRepository.updateWallet(id, newName, colorIndex, iconIndex);
-    _vaultList = _walletRepository.vaultList;
+    _setVaultList(_walletRepository.vaultList);
     notifyListeners();
   }
 
@@ -234,7 +245,9 @@ class WalletProvider extends ChangeNotifier {
 
   Future<void> deleteWallet(int id) async {
     if (await _walletRepository.deleteWallet(id)) {
-      _vaultList = _walletRepository.vaultList;
+      _setVaultList(_walletRepository.vaultList);
+      await _preferenceProvider.removeVaultOrder(id);
+      await _preferenceProvider.removeFavoriteVaultId(id);
       notifyListeners();
       _updateWalletLength();
     }
@@ -242,7 +255,7 @@ class WalletProvider extends ChangeNotifier {
 
   Future<void> deleteAllWallets() async {
     await _walletRepository.deleteWallets();
-    _vaultList = _walletRepository.vaultList;
+    _setVaultList(_walletRepository.vaultList);
     notifyListeners();
     _updateWalletLength();
   }
@@ -260,6 +273,8 @@ class WalletProvider extends ChangeNotifier {
       if (jsonList != null) {
         if (jsonList.isEmpty) {
           _updateWalletLength();
+          _preferenceProvider.setVaultPreferences(_vaultList);
+
           notifyListeners();
           return;
         }
@@ -277,6 +292,7 @@ class WalletProvider extends ChangeNotifier {
         return;
       }
 
+      _preferenceProvider.setVaultPreferences(_vaultList);
       vibrateLight();
     } catch (e) {
       Logger.log('[loadVaultList] Exception : ${e.toString()}');
@@ -339,7 +355,7 @@ class WalletProvider extends ChangeNotifier {
         .toList();
 
     await _walletRepository.restoreFromBackupData(backupDataMapList);
-    _vaultList = _walletRepository.vaultList;
+    _setVaultList(_walletRepository.vaultList);
 
     notifyListeners();
     await _updateWalletLength();
@@ -354,7 +370,6 @@ class WalletProvider extends ChangeNotifier {
     _walletRepository.dispose();
 
     _vaultList.clear();
-    _animatedVaultFlags = [];
     _waitingForSignaturePsbtBase64 = null;
     signedRawTx = null;
     super.dispose();

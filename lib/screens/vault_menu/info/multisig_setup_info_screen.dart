@@ -11,7 +11,7 @@ import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:coconut_vault/screens/common/pin_check_screen.dart';
 import 'package:coconut_vault/screens/vault_menu/info/multisig_signer_memo_bottom_sheet.dart';
 import 'package:coconut_vault/screens/vault_menu/info/name_and_icon_edit_bottom_sheet.dart';
-import 'package:coconut_vault/utils/alert_util.dart';
+import 'package:coconut_vault/screens/vault_menu/info/single_sig_setup_info_screen.dart';
 import 'package:coconut_vault/utils/icon_util.dart';
 import 'package:coconut_vault/utils/vibration_util.dart';
 import 'package:coconut_vault/widgets/bottom_sheet.dart';
@@ -26,7 +26,8 @@ import 'package:provider/provider.dart';
 
 class MultisigSetupInfoScreen extends StatefulWidget {
   final int id;
-  const MultisigSetupInfoScreen({super.key, required this.id});
+  final String? entryPoint;
+  const MultisigSetupInfoScreen({super.key, required this.id, this.entryPoint});
 
   @override
   State<MultisigSetupInfoScreen> createState() => _MultisigSetupInfoScreenState();
@@ -59,6 +60,13 @@ class _MultisigSetupInfoScreenState extends State<MultisigSetupInfoScreen> {
     Future<void> onComplete() async {
       await context.read<MultisigSetupInfoViewModel>().deleteVault();
       vibrateLight();
+      if (widget.entryPoint != null && widget.entryPoint == kEntryPointVaultList) {
+        Navigator.popUntil(context, (route) {
+          return route.settings.name == AppRoutes.vaultList;
+        });
+      } else {
+        Navigator.popUntil(context, (route) => route.isFirst);
+      }
     }
 
     final authProvider = context.read<AuthProvider>();

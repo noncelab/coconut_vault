@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 class ShrinkAnimationButton extends StatefulWidget {
   final Widget child;
   final VoidCallback onPressed;
-  final VoidCallback? onLongPress;
+  final VoidCallback? onLongPressed;
   final Color pressedColor;
   final Color defaultColor;
   final Color disabledColor;
@@ -20,7 +20,7 @@ class ShrinkAnimationButton extends StatefulWidget {
     super.key,
     required this.child,
     required this.onPressed,
-    this.onLongPress,
+    this.onLongPressed,
     this.pressedColor = CoconutColors.gray150,
     this.defaultColor = CoconutColors.white,
     this.borderRadius = 24.0,
@@ -89,9 +89,9 @@ class _ShrinkAnimationButtonState extends State<ShrinkAnimationButton>
   }
 
   void _onLongPress() {
-    if (!widget.isActive || widget.onLongPress == null) return;
+    if (!widget.isActive || widget.onLongPressed == null) return;
 
-    widget.onLongPress!();
+    widget.onLongPressed!();
   }
 
   @override
@@ -100,7 +100,7 @@ class _ShrinkAnimationButtonState extends State<ShrinkAnimationButton>
         onTapDown: _onTapDown,
         onTapUp: _onTapUp,
         onTapCancel: _onTapCancel,
-        onLongPress: widget.onLongPress != null ? _onLongPress : null,
+        onLongPress: widget.onLongPressed != null ? _onLongPress : null,
         child: ScaleTransition(
           scale: widget.isActive ? _animation : const AlwaysStoppedAnimation(1.0),
           child: Container(

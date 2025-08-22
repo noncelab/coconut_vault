@@ -230,6 +230,10 @@ flutter:
     - assets/svg/chevron-right.svg
     - assets/svg/green-circle-check.svg
     - assets/svg/triangle-warning.svg
+    - assets/svg/star-filled.svg
+    - assets/svg/star-outlined.svg
+    - assets/svg/star-small.svg
+    - assets/svg/hamburger.svg
 
   fonts:
     - family: SpaceGrotesk

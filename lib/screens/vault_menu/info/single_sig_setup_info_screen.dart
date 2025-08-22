@@ -23,9 +23,13 @@ import 'package:shimmer/shimmer.dart';
 
 import '../../../providers/wallet_provider.dart';
 
+const String kEntryPointVaultList = '/vault-list';
+const String kEntryPointVaultHome = '/vault-home';
+
 class SingleSigSetupInfoScreen extends StatefulWidget {
   final int id;
-  const SingleSigSetupInfoScreen({super.key, required this.id});
+  final String? entryPoint;
+  const SingleSigSetupInfoScreen({super.key, required this.id, this.entryPoint});
 
   @override
   State<SingleSigSetupInfoScreen> createState() => _SingleSigSetupInfoScreenState();
@@ -402,7 +406,6 @@ class _SingleSigSetupInfoScreenState extends State<SingleSigSetupInfoScreen> {
                         onPressed: () {
                           _removeTooltip();
                           if (data.canDelete) {
-                            debugPrint('data.canDelete: ${data.canDelete}');
                             showDialog(
                                 context: context,
                                 builder: (BuildContext dialogContext) {
@@ -462,7 +465,13 @@ class _SingleSigSetupInfoScreenState extends State<SingleSigSetupInfoScreen> {
       final viewModel = context.read<SingleSigSetupInfoViewModel>();
       viewModel.deleteVault();
       vibrateLight();
-      Navigator.popUntil(context, (route) => route.isFirst);
+      if (widget.entryPoint != null && widget.entryPoint == kEntryPointVaultList) {
+        Navigator.popUntil(context, (route) {
+          return route.settings.name == AppRoutes.vaultList;
+        });
+      } else {
+        Navigator.popUntil(context, (route) => route.isFirst);
+      }
       return;
     }
 

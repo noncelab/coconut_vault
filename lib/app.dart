@@ -3,6 +3,7 @@ import 'package:coconut_lib/coconut_lib.dart';
 import 'package:coconut_vault/constants/app_routes.dart';
 import 'package:coconut_vault/enums/pin_check_context_enum.dart';
 import 'package:coconut_vault/main_route_guard.dart';
+import 'package:coconut_vault/providers/preference_provider.dart';
 import 'package:coconut_vault/providers/sign_provider.dart';
 import 'package:coconut_vault/providers/wallet_creation_provider.dart';
 import 'package:coconut_vault/providers/auth_provider.dart';
@@ -151,6 +152,7 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> {
       providers: [
         ChangeNotifierProvider(create: (_) => visibilityProvider),
         ChangeNotifierProvider(create: (_) => AuthProvider()),
+        ChangeNotifierProvider(create: (_) => PreferenceProvider()),
         ChangeNotifierProxyProvider<VisibilityProvider, ConnectivityProvider>(
           create: (_) => ConnectivityProvider(hasSeenGuide: visibilityProvider.hasSeenGuide),
           update: (_, visibilityProvider, connectivityProvider) {
@@ -167,12 +169,14 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> {
           ChangeNotifierProvider<WalletProvider>(
             create: (_) => WalletProvider(
               Provider.of<VisibilityProvider>(_, listen: false),
+              Provider.of<PreferenceProvider>(_, listen: false),
             ),
           )
         } else if (_appEntryFlow == AppEntryFlow.restoration) ...{
           ChangeNotifierProvider<WalletProvider>(
             create: (_) => WalletProvider(
               Provider.of<VisibilityProvider>(_, listen: false),
+              Provider.of<PreferenceProvider>(_, listen: false),
             ),
           )
         }
@@ -227,10 +231,18 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> {
                 ),
             AppRoutes.vaultNameSetup: (context) => const VaultNameAndIconSetupScreen(),
             AppRoutes.singleSigSetupInfo: (context) => buildScreenWithArguments(
-                context, (args) => SingleSigSetupInfoScreen(id: args['id'])),
+                  context,
+                  (args) => SingleSigSetupInfoScreen(
+                    id: args['id'],
+                    entryPoint: args['entryPoint'],
+                  ),
+                ),
             AppRoutes.multisigSetupInfo: (context) => buildScreenWithArguments(
                   context,
-                  (args) => MultisigSetupInfoScreen(id: args['id']),
+                  (args) => MultisigSetupInfoScreen(
+                    id: args['id'],
+                    entryPoint: args['entryPoint'],
+                  ),
                 ),
             AppRoutes.multisigBsmsView: (context) => buildScreenWithArguments(
                   context,
