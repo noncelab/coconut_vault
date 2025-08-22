@@ -19,6 +19,7 @@ class SingleSigVaultListItem extends VaultListItemBase {
     required this.descriptor,
     required this.signerBsms,
     this.linkedMultisigInfo,
+    required super.createdAt,
   }) : super(vaultType: WalletType.singleSignature) {
     final descriptor = Descriptor.parse(this.descriptor);
     final keyStore =

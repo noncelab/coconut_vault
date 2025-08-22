@@ -31,6 +31,7 @@ class WalletIsolates {
       iconIndex: wallet.icon!,
       descriptor: descriptor.serialize(),
       signerBsms: signerBsms,
+      createdAt: DateTime.now(),
     );
 
     vaultList.insert(0, newItem);
@@ -50,6 +51,7 @@ class WalletIsolates {
       iconIndex: walletData.icon!,
       signers: walletData.signers!,
       requiredSignatureCount: walletData.requiredSignatureCount!,
+      createdAt: DateTime.now(),
     );
 
     if (replyTo != null) {
