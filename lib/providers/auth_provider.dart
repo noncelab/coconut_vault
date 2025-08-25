@@ -303,6 +303,7 @@ class AuthProvider extends ChangeNotifier {
       return;
     }
 
+    /// INFO: 디버그 모드일 때는 잠금 시도 실패 횟수 별 딜레이를 늘리지 않습니다.
     final unlockableDateTime = DateTime.now().add(kDebugMode
         ? const Duration(seconds: kDebugPinInputDelay)
         : Duration(minutes: kLockoutDurationsPerTurn[turn - 1]));
