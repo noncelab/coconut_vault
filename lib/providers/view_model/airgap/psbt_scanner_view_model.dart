@@ -32,7 +32,7 @@ class PsbtScannerViewModel {
     bool? hasMatchingMfp;
     int? matchingVaultId;
 
-    if (parsedPsbt.extendedPublicKeyList.length == 1) {
+    if (parsedPsbt.addressType?.isSingleSignature ?? true) {
       // 싱글시그지갑
       for (final extendedKey in parsedPsbt.extendedPublicKeyList) {
         final psbtMfp = extendedKey.masterFingerprint;

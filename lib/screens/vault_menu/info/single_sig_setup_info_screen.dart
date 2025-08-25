@@ -101,7 +101,7 @@ class _SingleSigSetupInfoScreenState extends State<SingleSigSetupInfoScreen> {
             return Scaffold(
               backgroundColor: CoconutColors.white,
               appBar: CoconutAppBar.build(
-                title: '${viewModel.name} ${t.info}',
+                title: viewModel.name,
                 context: context,
                 // isBottom: viewModel.hasLinkedMultisigVault,
                 isBottom: false,

@@ -107,7 +107,7 @@ class _MultisigSetupInfoScreenState extends State<MultisigSetupInfoScreen> {
           return Scaffold(
             backgroundColor: CoconutColors.white,
             appBar: CoconutAppBar.build(
-              title: '${viewModel.name} ${t.info}',
+              title: viewModel.name,
               context: context,
               isBottom: false,
               onBackPressed: () {
