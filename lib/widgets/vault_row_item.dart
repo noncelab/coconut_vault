@@ -34,6 +34,7 @@ class VaultRowItem extends StatefulWidget {
     this.onTapStar,
     this.onLongPressed,
     this.index,
+    this.isNextIconVisible = true,
   });
 
   final VaultListItemBase vault;
@@ -49,6 +50,7 @@ class VaultRowItem extends StatefulWidget {
   final String? entryPoint;
   final VoidCallback? onLongPressed;
   final int? index;
+  final bool isNextIconVisible;
 
   /// 스켈레톤 UI를 반환하는 static 메서드
   static Widget buildSkeleton() {
@@ -318,81 +320,13 @@ class _VaultRowItemState extends State<VaultRowItem> {
                         ),
                       ),
                     )
-                  : SvgPicture.asset(
-                      'assets/svg/chevron-right.svg',
-                      width: 6,
-                      height: 10,
-                    )
-        ],
-      ),
-    );
-  }
-
-  Widget _buildVaultSelectableWidget() {
-    return Container(
-      decoration: BoxDecoration(
-          color: CoconutColors.white,
-          borderRadius: BorderRadius.circular(28),
-          border: widget.isPressed
-              ? Border.all(color: CoconutColors.black.withOpacity(0.3), width: 2)
-              : null,
-          boxShadow: [
-            BoxShadow(
-              color: CoconutColors.black.withOpacity(0.15),
-              offset: const Offset(0, 0),
-              blurRadius: 12,
-              spreadRadius: 0,
-            ),
-          ]),
-      padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 28.0),
-      child: Row(
-        children: [
-          // 1) 아이콘
-          Container(
-              padding: const EdgeInsets.all(10),
-              decoration: BoxDecoration(
-                color: CoconutColors.backgroundColorPaletteLight[widget.vault.colorIndex],
-                borderRadius: BorderRadius.circular(16.0),
-              ),
-              child: SvgPicture.asset(CustomIcons.getPathByIndex(widget.vault.iconIndex),
-                  colorFilter: ColorFilter.mode(
-                      CoconutColors.colorPalette[widget.vault.colorIndex], BlendMode.srcIn),
-                  width: 20.0)),
-          const SizedBox(width: 8.0),
-          // 2) 이름
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                if (_isMultiSig || _isUsedToMultiSig) ...{
-                  Text(
-                    _subtitleText,
-                    style: CoconutTypography.body2_14.copyWith(color: CoconutColors.gray600),
-                  ),
-                },
-                Text(
-                  widget.vault.name,
-                  style: CoconutTypography.body2_14_Bold.copyWith(letterSpacing: 0.2),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(
-            width: 8,
-          ),
-          if (widget.isSelectable)
-            AnimatedScale(
-              scale: widget.isSelectable && widget.isPressed ? 1.0 : 0,
-              duration: const Duration(milliseconds: 200),
-              curve: Curves.easeInOut,
-              child: Icon(
-                Icons.check,
-                size: 32,
-                color: CoconutColors.black.withOpacity(0.7),
-              ),
-            ),
+                  : widget.isNextIconVisible
+                      ? SvgPicture.asset(
+                          'assets/svg/chevron-right.svg',
+                          width: 6,
+                          height: 10,
+                        )
+                      : const SizedBox.shrink()
         ],
       ),
     );

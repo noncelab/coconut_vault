@@ -73,6 +73,7 @@ class _AddressListScreenState extends State<AddressListScreen> {
                 MyBottomSheet.showDraggableBottomSheet(
                     context: context,
                     childBuilder: (scrollController) => SelectVaultBottomSheet(
+                          isNextIconVisible: false,
                           vaultList: context
                               .read<WalletProvider>()
                               .vaultList

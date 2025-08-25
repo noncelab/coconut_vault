@@ -1,10 +1,8 @@
 import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/model/common/vault_list_item_base.dart';
-import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:coconut_vault/widgets/vault_row_item.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 
 enum BalanceMode {
   includingPending,
@@ -17,6 +15,7 @@ class SelectVaultBottomSheet extends StatefulWidget {
   final int? walletId;
   final ScrollController? scrollController;
   final String? subLabel;
+  final bool isNextIconVisible;
 
   const SelectVaultBottomSheet({
     super.key,
@@ -25,6 +24,7 @@ class SelectVaultBottomSheet extends StatefulWidget {
     this.walletId,
     this.scrollController,
     this.subLabel,
+    this.isNextIconVisible = true,
   });
 
   @override
@@ -32,14 +32,6 @@ class SelectVaultBottomSheet extends StatefulWidget {
 }
 
 class _SelectVaultBottomSheetState extends State<SelectVaultBottomSheet> {
-  int _selectedWalletId = -1;
-
-  @override
-  void initState() {
-    super.initState();
-    _selectedWalletId = widget.walletId ?? -1;
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -73,11 +65,9 @@ class _SelectVaultBottomSheetState extends State<SelectVaultBottomSheet> {
                       padding: const EdgeInsets.symmetric(horizontal: Sizes.size8),
                       child: VaultRowItem(
                         vault: widget.vaultList[index],
+                        isNextIconVisible: widget.isNextIconVisible,
                         onSelected: () {
                           widget.onVaultSelected(walletId);
-                          setState(() {
-                            _selectedWalletId = walletId;
-                          });
                         },
                       ),
                     ),
