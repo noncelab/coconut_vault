@@ -109,102 +109,108 @@ class PinInputScreenState extends State<PinInputScreen> {
               isBottom: widget.step == 0,
             )
           : null,
-      body: SafeArea(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          mainAxisAlignment: MainAxisAlignment.end,
-          children: [
-            SizedBox(height: widget.initOptionVisible ? 60 : 24),
-            Text(
-              widget.title,
-              style: CoconutTypography.body1_16_Bold,
-              textAlign: TextAlign.center,
-            ),
-            CoconutLayout.spacing_300h,
-            Align(
-              alignment: Alignment.center,
-              child: widget.descriptionTextWidget ?? const Text(''),
-            ),
-            CoconutLayout.spacing_200h,
-            SizedBox(
-              height: 56,
-              child: _pinType == PinType.number ? _buildNumberInput() : _buildCharacterInput(),
-            ),
-            if (widget.canChangePinType && widget.step == 0)
-              Padding(
-                padding: const EdgeInsets.only(top: 12),
-                child: SizedBox(
-                    height: 40,
-                    child: PinTypeToggleButton(
-                        isActive: true, currentPinType: _pinType, onToggle: _togglePinType)),
+      body: GestureDetector(
+        behavior: HitTestBehavior.translucent,
+        onTap: () {
+          FocusScope.of(context).unfocus(); // 키보드 내리기
+        },
+        child: SafeArea(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              SizedBox(height: widget.initOptionVisible ? 60 : 24),
+              Text(
+                widget.title,
+                style: CoconutTypography.body1_16_Bold,
+                textAlign: TextAlign.center,
               ),
-            CoconutLayout.spacing_200h,
-            Text(
-              widget.errorMessage,
-              style: CoconutTypography.body3_12.setColor(CoconutColors.warningText),
-              textAlign: TextAlign.center,
-            ),
-            Visibility(
-              visible: widget.lastChance,
-              child: Text(
-                widget.lastChanceMessage ?? '',
+              CoconutLayout.spacing_300h,
+              Align(
+                alignment: Alignment.center,
+                child: widget.descriptionTextWidget ?? const Text(''),
+              ),
+              CoconutLayout.spacing_200h,
+              SizedBox(
+                height: 56,
+                child: _pinType == PinType.number ? _buildNumberInput() : _buildCharacterInput(),
+              ),
+              if (widget.canChangePinType && widget.step == 0)
+                Padding(
+                  padding: const EdgeInsets.only(top: 12),
+                  child: SizedBox(
+                      height: 40,
+                      child: PinTypeToggleButton(
+                          isActive: true, currentPinType: _pinType, onToggle: _togglePinType)),
+                ),
+              CoconutLayout.spacing_200h,
+              Text(
+                widget.errorMessage,
                 style: CoconutTypography.body3_12.setColor(CoconutColors.warningText),
                 textAlign: TextAlign.center,
               ),
-            ),
-            const SizedBox(height: 40),
-            Expanded(
-              child: IgnorePointer(
-                ignoring: _pinType == PinType.character,
-                child: Opacity(
-                  opacity: _pinType == PinType.number ? 1.0 : 0.0,
-                  child: Align(
-                    alignment: Alignment.bottomCenter,
-                    child: GridView.count(
-                      crossAxisCount: 3,
-                      childAspectRatio: 2,
-                      shrinkWrap: true,
-                      physics: const NeverScrollableScrollPhysics(),
-                      children: widget.pinShuffleNumbers.map((key) {
-                        return Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 16),
-                          child: KeyButton(
-                            keyValue: key,
-                            onKeyTap: widget.onKeyTap,
-                            disabled: widget.disabled,
-                          ),
-                        );
-                      }).toList(),
+              Visibility(
+                visible: widget.lastChance,
+                child: Text(
+                  widget.lastChanceMessage ?? '',
+                  style: CoconutTypography.body3_12.setColor(CoconutColors.warningText),
+                  textAlign: TextAlign.center,
+                ),
+              ),
+              const SizedBox(height: 40),
+              Expanded(
+                child: IgnorePointer(
+                  ignoring: _pinType == PinType.character,
+                  child: Opacity(
+                    opacity: _pinType == PinType.number ? 1.0 : 0.0,
+                    child: Align(
+                      alignment: Alignment.bottomCenter,
+                      child: GridView.count(
+                        crossAxisCount: 3,
+                        childAspectRatio: 2,
+                        shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(),
+                        children: widget.pinShuffleNumbers.map((key) {
+                          return Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 16),
+                            child: KeyButton(
+                              keyValue: key,
+                              onKeyTap: widget.onKeyTap,
+                              disabled: widget.disabled,
+                            ),
+                          );
+                        }).toList(),
+                      ),
                     ),
                   ),
                 ),
               ),
-            ),
-            SizedBox(
-                height: widget.initOptionVisible
-                    ? 60
-                    : MediaQuery.sizeOf(context).height <= 640
-                        ? 30
-                        : 100),
-            Visibility(
-              visible: widget.initOptionVisible,
-              replacement: Container(),
-              child: Padding(
-                  padding: const EdgeInsets.only(bottom: 60.0),
-                  child: GestureDetector(
-                    onTap: () {
-                      widget.onReset?.call();
-                    },
-                    child: Text(
-                      t.forgot_password,
-                      style: CoconutTypography.body2_14_Bold.setColor(
-                        CoconutColors.black.withOpacity(0.5),
+              SizedBox(
+                  height: widget.initOptionVisible
+                      ? 60
+                      : MediaQuery.sizeOf(context).height <= 640
+                          ? 30
+                          : 100),
+              Visibility(
+                visible: widget.initOptionVisible,
+                replacement: Container(),
+                child: Padding(
+                    padding: const EdgeInsets.only(bottom: 60.0),
+                    child: GestureDetector(
+                      onTap: () {
+                        widget.onReset?.call();
+                      },
+                      child: Text(
+                        t.forgot_password,
+                        style: CoconutTypography.body2_14_Bold.setColor(
+                          CoconutColors.black.withOpacity(0.5),
+                        ),
+                        textAlign: TextAlign.center,
                       ),
-                      textAlign: TextAlign.center,
-                    ),
-                  )),
-            ),
-          ],
+                    )),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -247,6 +253,7 @@ class PinInputScreenState extends State<PinInputScreen> {
         focusNode: _characterFocusNode,
         onChanged: (text) {},
         textInputAction: TextInputAction.done,
+        enabled: !widget.disabled,
         onEditingComplete: () {
           // 문자 입력 모드에서 'Done' 버튼을 누르는 경우 다음 단계로 이동
           if (_pinType == PinType.character) {

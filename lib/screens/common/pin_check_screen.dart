@@ -216,10 +216,6 @@ class _PinCheckScreenState extends State<PinCheckScreen> with WidgetsBindingObse
           _errorMessage = _isLastChanceToTry
               ? t.errors.remaining_times_away_from_reset_error(count: remainingTimes)
               : t.errors.pin_incorrect_with_remaining_attempts_error(count: remainingTimes);
-          if (kDebugMode) {
-            _errorMessage +=
-                ' (디버깅중 ${_authProvider.currentTurn} / ${_authProvider.currentAttemptInTurn})';
-          }
         });
       } else {
         vibrateMedium();

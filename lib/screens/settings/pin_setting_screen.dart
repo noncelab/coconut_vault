@@ -134,16 +134,21 @@ class _PinSettingScreenState extends State<PinSettingScreen> {
 
   /// 비밀번호 일치 여부 확인 후 저장
   /// 비밀번호 최초 설정 시 생체 인증 사용 여부 확인
-  void _finalizePinSetup() {
+  Future<void> _finalizePinSetup() async {
     if (pin != pinConfirm) {
       errorMessage = t.errors.pin_incorrect_error;
       pinConfirm = '';
-      _shuffledPinNumbers = _authProvider.getShuffledNumberList(isPinSettingContext: true);
+      if (_currentPinType == PinType.number) {
+        _shuffledPinNumbers = _authProvider.getShuffledNumberList(isPinSettingContext: true);
+      }
+      setState(() {});
       vibrateMediumDouble();
       return;
     }
 
-    errorMessage = '';
+    setState(() {
+      errorMessage = '';
+    });
 
     // 생체 인증 사용 여부 확인
     bool isPinSet = SharedPrefsRepository().getBool(SharedPrefsKeys.isPinEnabled) ?? false;
@@ -151,11 +156,11 @@ class _PinSettingScreenState extends State<PinSettingScreen> {
         _authProvider.canCheckBiometrics &&
         !_authProvider.hasAlreadyRequestedBioPermission &&
         mounted) {
-      _authProvider.authenticateWithBiometrics(context: context, isSaved: true);
+      await _authProvider.authenticateWithBiometrics(context: context, isSaved: true);
     }
 
     // 비밀번호 저장 후 화면 이동
-    _savePin();
+    await _savePin();
   }
 
   // 숫자 모드 PIN 입력 처리
@@ -197,7 +202,7 @@ class _PinSettingScreenState extends State<PinSettingScreen> {
     }
   }
 
-  void _savePin() async {
+  Future<void> _savePin() async {
     vibrateLight();
     showGeneralDialog(
       context: context,

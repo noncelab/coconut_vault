@@ -75,7 +75,7 @@ dependencies:
   coconut_lib: ^0.10.4
   coconut_design_system:
     git: 
-      url: https://github.com/noncelab/coconut_design_system.git
+      url: https://github.com/ella-noncelab/coconut_design_system.git
       ref: main
   cbor: ^6.3.5
   ur:
