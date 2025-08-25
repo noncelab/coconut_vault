@@ -195,7 +195,7 @@ class PinInputScreenState extends State<PinInputScreen> {
                 visible: widget.initOptionVisible,
                 replacement: Container(),
                 child: Padding(
-                    padding: const EdgeInsets.only(bottom: 60.0),
+                    padding: EdgeInsets.only(bottom: _characterFocusNode.hasFocus ? 30 : 60),
                     child: GestureDetector(
                       onTap: () {
                         widget.onReset?.call();
