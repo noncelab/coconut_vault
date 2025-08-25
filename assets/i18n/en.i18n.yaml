@@ -66,7 +66,7 @@ available_signer_count:
 mnemonic_wordlist: "Mnemonic Word List"
 tool: "Tool"
 tutorial: "Tutorial"
-single_sig_wallet: "Single Sig Wallet"
+single_sig_wallet: "Single Signature Wallet"
 multisig_wallet: "Multisig Wallet"
 extended_public_key: "Extended Public Key"
 app_info: "App Info"
@@ -314,6 +314,7 @@ vault_creation_options_screen:
   coin_flip: "Flip coin to create manually"
   auto_generate: "Let app create for me"
   import_mnemonic: "I have an existing mnemonic phrase"
+  seed_qr: "I have a seed QR code"
 vault_name_icon_setup_screen:
   title: "Set Name"
   saving: "Saving..."
@@ -520,7 +521,7 @@ alert:
     description: "All info entered so far will be deleted.\nReally reselect?"
   empty_vault:
     title: "No keys stored in vault"
-    description: "Create single sig wallet first to use keys?"
+    description: "Create single signature wallet first to use keys?"
   quit_creating_mutisig_wallet:
     title: "Stop Creating Multisig Wallet"
     description: "Really stop wallet creation?"

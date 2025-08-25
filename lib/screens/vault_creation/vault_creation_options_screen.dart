@@ -32,6 +32,7 @@ class VaultCreationOptions extends StatelessWidget {
             Navigator.pushReplacementNamed(context, AppRoutes.mnemonicGeneration);
           }),
       Option(name: t.vault_creation_options_screen.import_mnemonic, path: AppRoutes.mnemonicImport),
+      Option(name: t.vault_creation_options_screen.seed_qr, path: AppRoutes.seedQrImport)
     ];
 
     return Scaffold(
