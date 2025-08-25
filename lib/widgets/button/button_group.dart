@@ -1,9 +1,8 @@
 import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:flutter/material.dart';
-import 'package:coconut_vault/widgets/button/single_button.dart';
 
 class ButtonGroup extends StatelessWidget {
-  final List<SingleButton> buttons;
+  final List<Widget> buttons;
 
   const ButtonGroup({super.key, required this.buttons});
 
@@ -14,27 +13,25 @@ class ButtonGroup extends StatelessWidget {
     for (int i = 0; i < buttons.length; i++) {
       buttonListWithDividers.add(buttons[i]);
       if (i < buttons.length - 1) {
-        buttonListWithDividers.add(_buildDivider());
-      }
-    }
-    return Column(
-      children: buttonListWithDividers,
-    );
-  }
-
-  Widget _buildDivider() {
-    return SizedBox(
-      height: 1,
-      child: Row(
-        children: [
-          Container(width: Sizes.size20, color: CoconutColors.gray200),
-          Expanded(
-            child: Container(
+        buttonListWithDividers.add(
+          const Padding(
+            padding: EdgeInsets.symmetric(horizontal: Sizes.size20),
+            child: Divider(
               color: CoconutColors.gray300,
+              height: 1,
             ),
           ),
-          Container(width: Sizes.size20, color: CoconutColors.gray200),
-        ],
+        );
+      }
+    }
+
+    return Container(
+      decoration: const BoxDecoration(
+        color: CoconutColors.gray200,
+        borderRadius: BorderRadius.all(Radius.circular(24)),
+      ),
+      child: Column(
+        children: buttonListWithDividers,
       ),
     );
   }

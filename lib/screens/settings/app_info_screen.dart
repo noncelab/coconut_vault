@@ -270,6 +270,7 @@ class _AppInfoScreenState extends State<AppInfoScreen> {
           CoconutLayout.spacing_400h,
           ButtonGroup(buttons: [
             SingleButton(
+              enableShrinkAnim: true,
               buttonPosition: SingleButtonPosition.top,
               title: t.app_info_screen.go_to_pow,
               leftElement: ClipRRect(
@@ -292,6 +293,7 @@ class _AppInfoScreenState extends State<AppInfoScreen> {
               },
             ),
             SingleButton(
+              enableShrinkAnim: true,
               buttonPosition: SingleButtonPosition.middle,
               title: t.app_info_screen.ask_to_discord,
               leftElement: ClipRRect(
@@ -314,6 +316,7 @@ class _AppInfoScreenState extends State<AppInfoScreen> {
               },
             ),
             SingleButton(
+              enableShrinkAnim: true,
               buttonPosition: SingleButtonPosition.middle,
               title: t.app_info_screen.ask_to_x,
               leftElement: ClipRRect(
@@ -336,6 +339,7 @@ class _AppInfoScreenState extends State<AppInfoScreen> {
               },
             ),
             SingleButton(
+                enableShrinkAnim: true,
                 buttonPosition: SingleButtonPosition.bottom,
                 title: t.app_info_screen.ask_to_email,
                 leftElement: ClipRRect(
@@ -381,6 +385,7 @@ class _AppInfoScreenState extends State<AppInfoScreen> {
           _category(t.app_info_screen.category2_opensource),
           ButtonGroup(buttons: [
             SingleButton(
+              enableShrinkAnim: true,
               buttonPosition: SingleButtonPosition.top,
               title: t.app_info_screen.coconut_lib,
               leftElement: githubLogo,
@@ -395,6 +400,7 @@ class _AppInfoScreenState extends State<AppInfoScreen> {
               },
             ),
             SingleButton(
+              enableShrinkAnim: true,
               buttonPosition: SingleButtonPosition.middle,
               title: t.app_info_screen.coconut_wallet,
               leftElement: githubLogo,
@@ -409,6 +415,7 @@ class _AppInfoScreenState extends State<AppInfoScreen> {
               },
             ),
             SingleButton(
+              enableShrinkAnim: true,
               buttonPosition: SingleButtonPosition.middle,
               title: t.app_info_screen.coconut_vault,
               leftElement: githubLogo,
@@ -423,6 +430,7 @@ class _AppInfoScreenState extends State<AppInfoScreen> {
               },
             ),
             SingleButton(
+              enableShrinkAnim: true,
               buttonPosition: SingleButtonPosition.bottom,
               title: t.app_info_screen.contribution,
               onPressed: () {
@@ -455,6 +463,7 @@ class _AppInfoScreenState extends State<AppInfoScreen> {
           _category(t.app_info_screen.tos_and_policy),
           ButtonGroup(buttons: [
             SingleButton(
+              enableShrinkAnim: true,
               buttonPosition: SingleButtonPosition.top,
               title: t.app_info_screen.terms_of_service,
               onPressed: () {
@@ -468,6 +477,7 @@ class _AppInfoScreenState extends State<AppInfoScreen> {
               },
             ),
             SingleButton(
+              enableShrinkAnim: true,
               buttonPosition: SingleButtonPosition.middle,
               title: t.app_info_screen.privacy_policy,
               onPressed: () {
@@ -481,6 +491,7 @@ class _AppInfoScreenState extends State<AppInfoScreen> {
               },
             ),
             SingleButton(
+              enableShrinkAnim: true,
               buttonPosition: SingleButtonPosition.bottom,
               title: t.app_info_screen.license,
               onPressed: () {

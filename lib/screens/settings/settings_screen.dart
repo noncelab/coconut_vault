@@ -15,6 +15,7 @@ import 'package:flutter/material.dart';
 import 'package:loader_overlay/loader_overlay.dart';
 import 'package:coconut_vault/screens/common/pin_check_screen.dart';
 import 'package:coconut_vault/widgets/button/button_group.dart';
+import 'package:coconut_vault/widgets/button/multi_button.dart';
 import 'package:coconut_vault/widgets/button/single_button.dart';
 import 'package:provider/provider.dart';
 
@@ -91,7 +92,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         _category(t.security),
         Consumer<AuthProvider>(
           builder: (context, provider, child) {
-            return ButtonGroup(buttons: [
+            return MultiButton(children: [
               if (provider.isPinSet) ...{
                 if (provider.canCheckBiometrics)
                   SingleButton(
@@ -118,6 +119,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       ? SingleButtonPosition.bottom
                       : SingleButtonPosition.none,
                   title: t.settings_screen.change_password,
+                  enableShrinkAnim: true,
+                  animationEndValue: 0.97,
                   onPressed: () async {
                     final authProvider = context.read<AuthProvider>();
                     if (await authProvider.isBiometricsAuthValid()) {
@@ -158,38 +161,44 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
+  Widget _buildAnimatedButton(
+      {required String title, required VoidCallback onPressed, String? subtitle}) {
+    return SingleButton(
+      enableShrinkAnim: true,
+      animationEndValue: 0.97,
+      title: title,
+      subtitle: subtitle,
+      onPressed: onPressed,
+    );
+  }
+
   Widget _updatePart(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         _category(t.settings_screen.update),
-        ButtonGroup(
-          buttons: [
-            SingleButton(
-              buttonPosition: SingleButtonPosition.none,
-              title: t.settings_screen.prepare_update,
-              onPressed: () async {
-                final authProvider = context.read<AuthProvider>();
-                if (await authProvider.isBiometricsAuthValid()) {
-                  Navigator.pushNamed(context, AppRoutes.prepareUpdate);
-                  return;
-                }
+        _buildAnimatedButton(
+          title: t.settings_screen.prepare_update,
+          onPressed: () async {
+            final authProvider = context.read<AuthProvider>();
+            if (await authProvider.isBiometricsAuthValid()) {
+              Navigator.pushNamed(context, AppRoutes.prepareUpdate);
+              return;
+            }
 
-                MyBottomSheet.showBottomSheet_90(
-                  context: context,
-                  child: CustomLoadingOverlay(
-                    child: PinCheckScreen(
-                      pinCheckContext: PinCheckContextEnum.sensitiveAction,
-                      onSuccess: () async {
-                        Navigator.pop(context);
-                        Navigator.pushNamed(context, AppRoutes.prepareUpdate);
-                      },
-                    ),
-                  ),
-                );
-              },
-            ),
-          ],
+            MyBottomSheet.showBottomSheet_90(
+              context: context,
+              child: CustomLoadingOverlay(
+                child: PinCheckScreen(
+                  pinCheckContext: PinCheckContextEnum.sensitiveAction,
+                  onSuccess: () async {
+                    Navigator.pop(context);
+                    Navigator.pushNamed(context, AppRoutes.prepareUpdate);
+                  },
+                ),
+              ),
+            );
+          },
         ),
       ],
     );
@@ -201,15 +210,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
       Selector<VisibilityProvider, bool>(
           selector: (_, viewModel) => viewModel.isPassphraseUseEnabled,
           builder: (context, isPassphraseUseEnabled, child) {
-            return ButtonGroup(buttons: [
-              SingleButton(
-                buttonPosition: SingleButtonPosition.none,
-                title: t.view_app_info,
-                onPressed: () async {
-                  Navigator.pushNamed(context, AppRoutes.appInfo);
-                },
-              )
-            ]);
+            return _buildAnimatedButton(
+              title: t.view_app_info,
+              onPressed: () async {
+                Navigator.pushNamed(context, AppRoutes.appInfo);
+              },
+            );
           }),
     ]);
   }
@@ -220,16 +226,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
       Selector<VisibilityProvider, bool>(
           selector: (_, viewModel) => viewModel.isBtcUnit,
           builder: (context, isBtcUnit, child) {
-            return ButtonGroup(buttons: [
-              SingleButton(
-                title: t.bitcoin,
-                subtitle: isBtcUnit ? t.btc : t.sats,
-                onPressed: () async {
-                  MyBottomSheet.showBottomSheet_50(
-                      context: context, child: const UnitBottomSheet());
-                },
-              ),
-            ]);
+            return _buildAnimatedButton(
+              title: t.bitcoin,
+              subtitle: isBtcUnit ? t.btc : t.sats,
+              onPressed: () async {
+                MyBottomSheet.showBottomSheet_50(context: context, child: const UnitBottomSheet());
+              },
+            );
           }),
     ]);
   }
@@ -240,18 +243,16 @@ class _SettingsScreenState extends State<SettingsScreen> {
       Selector<VisibilityProvider, bool>(
           selector: (_, viewModel) => viewModel.isPassphraseUseEnabled,
           builder: (context, isPassphraseUseEnabled, child) {
-            return ButtonGroup(buttons: [
-              SingleButton(
-                buttonPosition: SingleButtonPosition.none,
-                title: t.settings_screen.use_passphrase,
-                rightElement: CupertinoSwitch(
-                    value: isPassphraseUseEnabled,
-                    activeColor: CoconutColors.black,
-                    onChanged: (isOn) async {
-                      await context.read<VisibilityProvider>().setAdvancedMode(isOn);
-                    }),
-              )
-            ]);
+            return SingleButton(
+              buttonPosition: SingleButtonPosition.none,
+              title: t.settings_screen.use_passphrase,
+              rightElement: CupertinoSwitch(
+                  value: isPassphraseUseEnabled,
+                  activeColor: CoconutColors.black,
+                  onChanged: (isOn) async {
+                    await context.read<VisibilityProvider>().setAdvancedMode(isOn);
+                  }),
+            );
           }),
     ]);
   }
@@ -269,19 +270,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
             return Selector<VisibilityProvider, String>(
               selector: (_, provider) => provider.language,
               builder: (context, language, child) {
-                // return MultiLineButton(
-                //   title: t.language.language,
-                //   subtitle: _getCurrentLanguageDisplayName(language),
-                //   onPressed: () async {
-                //     _showLanguageSelectionDialog();
-                //   },
-                // );
-                return SingleButton(
+                return _buildAnimatedButton(
                   title: t.language.language,
                   subtitle: _getCurrentLanguageDisplayName(language),
-                  // onPressed: () async {
-                  //   _showLanguageSelectionDialog();
-                  // },
                   onPressed: () async {
                     MyBottomSheet.showBottomSheet_50(
                         context: context, child: const LanguageBottomSheet());
