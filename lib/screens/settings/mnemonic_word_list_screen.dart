@@ -130,7 +130,7 @@ class _MnemonicWordListScreenState extends State<MnemonicWordListScreen> {
         appBar: CoconutAppBar.build(
           title: _titleText,
           context: context,
-          isBottom: true,
+          isBottom: false,
         ),
         floatingActionButton: Visibility(
           visible: _isFabShown,
