@@ -12,8 +12,8 @@ class PinBox extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-        width: 50,
-        height: 50,
+        width: 40,
+        height: 40,
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(14),
           color: disabled
@@ -22,11 +22,11 @@ class PinBox extends StatelessWidget {
         ),
         child: isSet
             ? Padding(
-                padding: const EdgeInsets.all(Sizes.size12),
+                padding: const EdgeInsets.all(10),
                 child: SvgPicture.asset(
                   'assets/svg/coconut-${NetworkType.currentNetworkType.isTestnet ? "regtest" : "mainnet"}.svg',
                   colorFilter: ColorFilter.mode(
-                      disabled ? CoconutColors.black.withOpacity(0.06) : CoconutColors.black,
+                      disabled ? CoconutColors.black.withOpacity(0.06) : CoconutColors.gray800,
                       BlendMode.srcIn),
                 ),
               )

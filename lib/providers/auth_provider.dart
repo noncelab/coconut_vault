@@ -34,6 +34,10 @@ class AuthProvider extends ChangeNotifier {
   bool _isPinSet = false;
   bool get isPinSet => _isPinSet;
 
+  /// 문자 패스워드 여부
+  bool _isPinCharacter = false;
+  bool get isPinCharacter => _isPinCharacter;
+
   /// 리셋 여부
   bool _hasAlreadyRequestedBioPermission = false;
   bool get hasAlreadyRequestedBioPermission => _hasAlreadyRequestedBioPermission;
@@ -103,6 +107,7 @@ class AuthProvider extends ChangeNotifier {
     if (_isDisposed) return;
 
     _isPinSet = _sharedPrefs.getBool(SharedPrefsKeys.isPinEnabled) == true;
+    _isPinCharacter = _sharedPrefs.getBool(SharedPrefsKeys.isPinCharacter) == true;
     _loadBiometricState();
     _loadUnlockState();
     notifyListeners();
@@ -266,8 +271,8 @@ class AuthProvider extends ChangeNotifier {
     return false;
   }
 
-  /// 비밀번호 저장
-  Future<void> savePin(String pin) async {
+  /// 비밀번호 및 유형 저장
+  Future<void> savePin(String pin, bool isCharacter) async {
     if (_isDisposed) return;
 
     if (_isBiometricEnabled && _canCheckBiometrics && !_isPinSet) {
@@ -278,7 +283,9 @@ class AuthProvider extends ChangeNotifier {
     String hashed = hashString(pin);
     await _storageService.write(key: SecureStorageKeys.kVaultPin, value: hashed);
     _isPinSet = true;
+    _isPinCharacter = isCharacter;
     _sharedPrefs.setBool(SharedPrefsKeys.isPinEnabled, true);
+    _sharedPrefs.setBool(SharedPrefsKeys.isPinCharacter, isCharacter);
     notifyListeners();
   }
 
@@ -312,6 +319,7 @@ class AuthProvider extends ChangeNotifier {
       return;
     }
 
+    /// INFO: 디버그 모드일 때는 잠금 시도 실패 횟수 별 딜레이를 늘리지 않습니다.
     final unlockableDateTime = DateTime.now().add(kDebugMode
         ? const Duration(seconds: kDebugPinInputDelay)
         : Duration(minutes: kLockoutDurationsPerTurn[turn - 1]));

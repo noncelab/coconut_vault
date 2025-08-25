@@ -9,7 +9,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 
 class KeyButton extends StatefulWidget {
   final String keyValue;
-  final ValueChanged<String> onKeyTap;
+  final void Function(String) onKeyTap;
   final bool disabled;
 
   const KeyButton({

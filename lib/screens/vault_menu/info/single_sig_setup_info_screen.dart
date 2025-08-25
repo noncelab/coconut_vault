@@ -59,10 +59,12 @@ class _SingleSigSetupInfoScreenState extends State<SingleSigSetupInfoScreen> {
     });
   }
 
-  Future<void> _verifyBiometric(BuildContext context, PinCheckContextEnum pinCheckContext) async {
+  Future<void> _authenticateWithBiometricOrPin(
+      BuildContext context, PinCheckContextEnum pinCheckContext) async {
     final authProvider = context.read<AuthProvider>();
-    if (await authProvider.isBiometricsAuthValid()) {
-      _verifySwitch(context, pinCheckContext);
+
+    if (await authProvider.isBiometricsAuthValid() && context.mounted) {
+      _handleAuthenticatedAction(context, pinCheckContext);
       return;
     }
 
@@ -73,7 +75,7 @@ class _SingleSigSetupInfoScreenState extends State<SingleSigSetupInfoScreen> {
           pinCheckContext: pinCheckContext,
           onSuccess: () async {
             Navigator.pop(context);
-            _verifySwitch(context, pinCheckContext);
+            _handleAuthenticatedAction(context, pinCheckContext);
           },
         ),
       ),
@@ -331,7 +333,7 @@ class _SingleSigSetupInfoScreenState extends State<SingleSigSetupInfoScreen> {
                     showIcon: true,
                     onPressed: () {
                       _removeTooltip();
-                      _verifyBiometric(context, PinCheckContextEnum.sensitiveAction);
+                      _authenticateWithBiometricOrPin(context, PinCheckContextEnum.sensitiveAction);
                     },
                   ),
                   if (hasPassphrase) ...[
@@ -400,11 +402,9 @@ class _SingleSigSetupInfoScreenState extends State<SingleSigSetupInfoScreen> {
                                 title: t.confirm,
                                 content: t.alert.confirm_deletion(name: data.walletName),
                                 onConfirmPressed: () async {
-                                  context.loaderOverlay.show();
-                                  await Future.delayed(const Duration(seconds: 1));
                                   if (context.mounted) {
-                                    _verifyBiometric(context, PinCheckContextEnum.seedDeletion);
-                                    context.loaderOverlay.hide();
+                                    await _authenticateWithBiometricOrPin(
+                                        context, PinCheckContextEnum.seedDeletion);
                                   }
                                 });
                             return;
@@ -421,7 +421,8 @@ class _SingleSigSetupInfoScreenState extends State<SingleSigSetupInfoScreen> {
             )));
   }
 
-  void _verifySwitch(BuildContext context, PinCheckContextEnum pinCheckContext) async {
+  Future<void> _handleAuthenticatedAction(
+      BuildContext context, PinCheckContextEnum pinCheckContext) async {
     if (pinCheckContext == PinCheckContextEnum.seedDeletion) {
       final viewModel = context.read<SingleSigSetupInfoViewModel>();
       viewModel.deleteVault();

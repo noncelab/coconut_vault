@@ -3,7 +3,7 @@ const kBiometricIdentifier = 'bio';
 const kDeleteBtnIdentifier = '<';
 
 // pin check constants
-const kExpectedPinLength = 4;
+const kExpectedPinLength = 6;
 const kMaxAttemptPerTurn = 3;
 const kMaxTurn = 8;
 

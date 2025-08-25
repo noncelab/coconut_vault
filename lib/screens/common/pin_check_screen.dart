@@ -8,6 +8,7 @@ import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/providers/auth_provider.dart';
 import 'package:coconut_vault/screens/common/pin_check_auth_dialog.dart';
 import 'package:coconut_vault/utils/logger.dart';
+import 'package:coconut_vault/widgets/pin/pin_length_toggle_button.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -40,6 +41,7 @@ class _PinCheckScreenState extends State<PinCheckScreen> with WidgetsBindingObse
   late final bool _isAppLaunched;
   late String _pin;
   late String _errorMessage;
+  late PinType _pinType;
 
   late AuthProvider _authProvider;
   late List<String> _shuffledPinNumbers;
@@ -62,6 +64,9 @@ class _PinCheckScreenState extends State<PinCheckScreen> with WidgetsBindingObse
         widget.pinCheckContext == PinCheckContextEnum.restoration;
 
     _authProvider = Provider.of<AuthProvider>(context, listen: false);
+    _pinType = _authProvider.isPinCharacter ? PinType.character : PinType.number;
+    print('initState pinType: $_pinType');
+
     Future.microtask(() {
       _authProvider.onRequestShowAuthenticationFailedDialog = () {
         showAuthenticationFailedDialog(context, _authProvider.hasAlreadyRequestedBioPermission);
@@ -142,12 +147,23 @@ class _PinCheckScreenState extends State<PinCheckScreen> with WidgetsBindingObse
     }
 
     setState(() {
+      // 문자 입력 모드
+      if (_pinType == PinType.character) {
+        _pin = value;
+        if (_pin.isNotEmpty) {
+          _verifyPin();
+        }
+        return;
+      }
+
+      // 6-digit PIN 입력 모드
       if (value == kDeleteBtnIdentifier) {
         if (_pin.isNotEmpty) {
           _pin = _pin.substring(0, _pin.length - 1);
         }
       } else if (_pin.length < kExpectedPinLength) {
         _pin += value;
+        vibrateLight();
       }
 
       if (_pin.length == kExpectedPinLength) {
@@ -200,10 +216,6 @@ class _PinCheckScreenState extends State<PinCheckScreen> with WidgetsBindingObse
           _errorMessage = _isLastChanceToTry
               ? t.errors.remaining_times_away_from_reset_error(count: remainingTimes)
               : t.errors.pin_incorrect_with_remaining_attempts_error(count: remainingTimes);
-          if (kDebugMode) {
-            _errorMessage +=
-                ' (디버깅중 ${_authProvider.currentTurn} / ${_authProvider.currentAttemptInTurn})';
-          }
         });
       } else {
         vibrateMedium();
@@ -350,18 +362,26 @@ class _PinCheckScreenState extends State<PinCheckScreen> with WidgetsBindingObse
     Logger.log(
         '--> PinInputScreen isPermanantlyLocked: ${_authProvider.isPermanantlyLocked} / isUnlockDisabled: $_isUnlockDisabled');
     return PinInputScreen(
+      canChangePinType: false,
       appBarVisible: _isAppLaunched ? false : true,
       title: _isAppLaunched ? '' : t.pin_check_screen.enter_password,
       initOptionVisible: _isAppLaunched,
       pin: _pin,
       errorMessage: _errorMessage,
       onKeyTap: _onKeyTap,
+      pinType: PinType.number,
       pinShuffleNumbers: _shuffledPinNumbers,
       onClosePressed: () {
         Navigator.pop(context);
       },
       onBackPressed: () {
         Navigator.pop(context);
+      },
+      onPinClear: () {
+        setState(() {
+          _pin = '';
+          _errorMessage = '';
+        });
       },
       onReset: isOnReset ? _showResetDialog : null,
       step: 0,
