@@ -95,7 +95,7 @@ Future<void> waitForCreateVault(WidgetTester tester, {bool skipScreens = true}) 
     tester.element(find.byType(CupertinoApp)),
     listen: false,
   );
-  await authProvider.savePin("0000");
+  await authProvider.savePin("0000", false);
 
   // add vault
   final walletProvider = Provider.of<WalletProvider>(

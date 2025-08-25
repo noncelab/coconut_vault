@@ -3,7 +3,6 @@ import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/widgets/animated_qr/animated_qr_view.dart';
 import 'package:coconut_vault/widgets/animated_qr/view_data_handler/bc_ur_qr_view_handler.dart';
 import 'package:flutter/material.dart';
-import 'package:coconut_vault/widgets/custom_tooltip.dart';
 
 class SignerQrBottomSheet extends StatefulWidget {
   final String multisigName;

@@ -115,7 +115,7 @@ Future<void> mnemonicCheckFlow(WidgetTester tester, bool uppercase) async {
     tester.element(find.byType(CupertinoApp)),
     listen: false,
   );
-  await authProvider.savePin("0000");
+  await authProvider.savePin("0000", false);
 
   // Add Wallets on VaultListScreen
   final walletProvider = Provider.of<WalletProvider>(

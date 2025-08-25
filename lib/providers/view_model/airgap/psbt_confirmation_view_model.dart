@@ -14,7 +14,7 @@ class PsbtConfirmationViewModel extends ChangeNotifier {
   final List<String> _recipientAddresses = [];
   int? _sendingAmount;
   // 현재 사용하지 않지만 관련 UI가 존재
-  bool _hasWarning = false;
+  final bool _hasWarning = false;
 
   PsbtConfirmationViewModel(this._signProvider) {
     _unsignedPsbtBase64 = _signProvider.unsignedPsbtBase64!;

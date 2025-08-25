@@ -11,7 +11,6 @@ import 'package:coconut_vault/model/exception/not_related_multisig_wallet_except
 import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:coconut_vault/utils/alert_util.dart';
 import 'package:flutter/material.dart';
-import 'package:coconut_vault/widgets/custom_tooltip.dart';
 import 'package:provider/provider.dart';
 import 'package:qr_code_scanner/qr_code_scanner.dart';
 

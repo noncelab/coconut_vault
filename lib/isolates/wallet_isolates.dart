@@ -98,9 +98,7 @@ class WalletIsolates {
 
     for (int i = 0; i < vaultList.length; i++) {
       SingleSigVaultListItem vaultListItem = vaultList[i] as SingleSigVaultListItem;
-      if (vaultListItem.signerBsms != null) {
-        bsmses.add(vaultListItem.signerBsms!);
-      }
+      bsmses.add(vaultListItem.signerBsms);
     }
 
     if (replyTo != null) {

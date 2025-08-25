@@ -7,7 +7,6 @@ import 'package:coconut_vault/providers/view_model/airgap/psbt_confirmation_view
 import 'package:coconut_vault/providers/visibility_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:coconut_vault/utils/alert_util.dart';
-import 'package:coconut_vault/widgets/custom_tooltip.dart';
 import 'package:coconut_vault/widgets/card/information_item_card.dart';
 import 'package:provider/provider.dart';
 
