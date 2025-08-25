@@ -13,6 +13,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:coconut_vault/utils/icon_util.dart';
 import 'package:coconut_vault/widgets/button/shrink_animation_button.dart';
 import 'package:provider/provider.dart';
+import 'package:shimmer/shimmer.dart';
 
 import '../providers/wallet_provider.dart';
 import '../utils/text_utils.dart';
@@ -48,6 +49,80 @@ class VaultRowItem extends StatefulWidget {
   final String? entryPoint;
   final VoidCallback? onLongPressed;
   final int? index;
+
+  /// 스켈레톤 UI를 반환하는 static 메서드
+  static Widget buildSkeleton() {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+      child: Row(
+        children: [
+          // 1) 아이콘 스켈레톤 (VaultItemIcon과 동일한 크기)
+          Shimmer.fromColors(
+            baseColor: CoconutColors.gray300,
+            highlightColor: CoconutColors.gray150,
+            child: Container(
+              width: 30.0,
+              height: 30.0,
+              decoration: BoxDecoration(
+                color: CoconutColors.gray300,
+                borderRadius: BorderRadius.circular(8.0),
+              ),
+            ),
+          ),
+          const SizedBox(width: 8.0),
+          // 2) 텍스트 영역 (VaultRowItem의 Expanded 영역과 동일)
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // 지갑 이름 스켈레톤
+                Shimmer.fromColors(
+                  baseColor: CoconutColors.gray300,
+                  highlightColor: CoconutColors.gray150,
+                  child: Container(
+                    height: 16.0,
+                    width: 120.0,
+                    decoration: BoxDecoration(
+                      color: CoconutColors.gray300,
+                      borderRadius: BorderRadius.circular(4.0),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 4.0),
+                // 서브타이틀 스켈레톤 (멀티시그 정보 또는 기본 지갑 표시)
+                Shimmer.fromColors(
+                  baseColor: CoconutColors.gray300,
+                  highlightColor: CoconutColors.gray150,
+                  child: Container(
+                    height: 12.0,
+                    width: 80.0,
+                    decoration: BoxDecoration(
+                      color: CoconutColors.gray300,
+                      borderRadius: BorderRadius.circular(4.0),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(width: 8.0),
+          // 3) 화살표 아이콘 스켈레톤 (chevron-right와 동일한 크기)
+          Shimmer.fromColors(
+            baseColor: CoconutColors.gray300,
+            highlightColor: CoconutColors.gray150,
+            child: Container(
+              width: 6.0,
+              height: 10.0,
+              decoration: BoxDecoration(
+                color: CoconutColors.gray300,
+                borderRadius: BorderRadius.circular(1.0),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 
   @override
   State<VaultRowItem> createState() => _VaultRowItemState();

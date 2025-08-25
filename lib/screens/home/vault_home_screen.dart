@@ -26,7 +26,6 @@ import 'package:flutter/services.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:provider/provider.dart';
-import 'package:shimmer/shimmer.dart';
 import 'package:collection/collection.dart';
 
 class VaultHomeScreen extends StatefulWidget {
@@ -143,77 +142,6 @@ class _VaultHomeScreenState extends State<VaultHomeScreen> with TickerProviderSt
       ),
     );
   }
-
-  Widget _vaultSkeletonItem() => Container(
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-        child: Row(
-          children: [
-            // 1) 아이콘 스켈레톤 (VaultItemIcon과 동일한 크기)
-            Shimmer.fromColors(
-              baseColor: CoconutColors.gray300,
-              highlightColor: CoconutColors.gray150,
-              child: Container(
-                width: 40.0,
-                height: 40.0,
-                decoration: BoxDecoration(
-                  color: CoconutColors.gray300,
-                  borderRadius: BorderRadius.circular(16.0),
-                ),
-              ),
-            ),
-            CoconutLayout.spacing_200w,
-            // 2) 텍스트 영역 (VaultRowItem의 Expanded 영역과 동일)
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // 지갑 이름 스켈레톤
-                  Shimmer.fromColors(
-                    baseColor: CoconutColors.gray300,
-                    highlightColor: CoconutColors.gray150,
-                    child: Container(
-                      height: 16.0,
-                      width: 120.0,
-                      decoration: BoxDecoration(
-                        color: CoconutColors.gray300,
-                        borderRadius: BorderRadius.circular(4.0),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 4.0),
-                  // 서브타이틀 스켈레톤 (멀티시그 정보 또는 기본 지갑 표시)
-                  Shimmer.fromColors(
-                    baseColor: CoconutColors.gray300,
-                    highlightColor: CoconutColors.gray150,
-                    child: Container(
-                      height: 12.0,
-                      width: 80.0,
-                      decoration: BoxDecoration(
-                        color: CoconutColors.gray300,
-                        borderRadius: BorderRadius.circular(4.0),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            CoconutLayout.spacing_200w,
-            // 3) 화살표 아이콘 스켈레톤 (chevron-right와 동일한 크기)
-            Shimmer.fromColors(
-              baseColor: CoconutColors.gray300,
-              highlightColor: CoconutColors.gray150,
-              child: Container(
-                width: 6.0,
-                height: 10.0,
-                decoration: BoxDecoration(
-                  color: CoconutColors.gray300,
-                  borderRadius: BorderRadius.circular(1.0),
-                ),
-              ),
-            ),
-          ],
-        ),
-      );
 
   SliverAppBar _buildAppBar(
       BuildContext context, VaultHomeViewModel viewModel, List<VaultListItemBase> wallets) {
@@ -336,7 +264,7 @@ class _VaultHomeScreenState extends State<VaultHomeScreen> with TickerProviderSt
             );
           } else {
             // vault가 null인 경우(아직 로드안됨) Skeleton UI 표시
-            return _vaultSkeletonItem();
+            return VaultRowItem.buildSkeleton();
           }
         }),
       ),

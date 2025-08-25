@@ -267,13 +267,16 @@ class _VaultListScreenState extends State<VaultListScreen> with TickerProviderSt
           if (index < vaultList.length) {
             return _buildVaultItem(
               vaultList[index],
-              index == vaultList.length - 1,
+              index == vaultOrder.length - 1,
               index == 0,
             );
+          } else if (index < vaultOrder.length) {
+            // vaultOrder에 있지만 vaultList에 없는 경우 skeleton UI 표시
+            return VaultRowItem.buildSkeleton();
           }
           return null;
         },
-        childCount: vaultList.length,
+        childCount: vaultOrder.length,
       ),
     );
   }
@@ -487,6 +490,7 @@ class _VaultListScreenState extends State<VaultListScreen> with TickerProviderSt
       actionButtonList: [
         if (!isEditMode)
           CoconutUnderlinedButton(
+            isActive: _viewModel.isVaultsLoaded,
             text: t.edit,
             textStyle: CoconutTypography.body2_14,
             onTap: () {
