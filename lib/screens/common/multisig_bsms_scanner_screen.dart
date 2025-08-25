@@ -101,6 +101,7 @@ class _MultisigBsmsScannerScreenState extends State<MultisigBsmsScannerScreen> {
                   : t.signer_scanner_screen.title2,
               context: context,
               isBottom: true,
+              isBackButton: widget.screenType == MultisigBsmsImportType.copy,
             ),
             body: _buildStack(context),
           )

@@ -429,7 +429,7 @@ signer_bsms_screen:
 sync_to_wallet_screen:
   title: "Export $name"
   guide1_1: "In wallet"
-  guide1_2: " press + button and "
+  guide1_2: " press + button and select Coconut Vault, then "
   guide1_3: "scan QR code"
   guide1_4: " below. You can use safe watch-only wallet."
   view_detail: "View Details"

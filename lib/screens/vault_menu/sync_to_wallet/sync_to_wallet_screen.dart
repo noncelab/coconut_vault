@@ -30,7 +30,6 @@ class _SyncToWalletScreenState extends State<SyncToWalletScreen> {
       appBar: CoconutAppBar.build(
         title: t.sync_to_wallet_screen.title(name: _name),
         context: context,
-        isBottom: true,
       ),
       body: SafeArea(
         minimum: CoconutPadding.container,

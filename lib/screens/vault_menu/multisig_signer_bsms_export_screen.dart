@@ -57,7 +57,6 @@ class _MultisigSignerBsmsExportScreenState extends State<MultisigSignerBsmsExpor
             appBar: CoconutAppBar.build(
               title: viewModel.name,
               context: context,
-              isBottom: true,
             ),
             body: SafeArea(
               child: Stack(children: [

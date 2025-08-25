@@ -7,7 +7,6 @@ import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/model/exception/vault_not_found_exception.dart';
 import 'package:coconut_vault/providers/sign_provider.dart';
 import 'package:coconut_vault/providers/view_model/airgap/psbt_scanner_view_model.dart';
-import 'package:coconut_vault/utils/alert_util.dart';
 import 'package:coconut_vault/widgets/animated_qr/coconut_qr_scanner.dart';
 import 'package:coconut_vault/widgets/animated_qr/scan_data_handler/bc_ur_qr_scan_data_handler.dart';
 import 'package:coconut_vault/widgets/animated_qr/scan_data_handler/i_qr_scan_data_handler.dart';
@@ -15,7 +14,6 @@ import 'package:coconut_vault/widgets/custom_loading_overlay.dart';
 import 'package:flutter/material.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:coconut_vault/utils/vibration_util.dart';
-import 'package:coconut_vault/widgets/custom_tooltip.dart';
 import 'package:loader_overlay/loader_overlay.dart';
 import 'package:provider/provider.dart';
 import 'package:qr_code_scanner/qr_code_scanner.dart';
@@ -43,7 +41,7 @@ class _PsbtScannerScreenState extends State<PsbtScannerScreen> {
   void initState() {
     super.initState();
     _viewModel = PsbtScannerViewModel(Provider.of<WalletProvider>(context, listen: false),
-        Provider.of<SignProvider>(context, listen: false)); // TODO id 추가
+        Provider.of<SignProvider>(context, listen: false));
 
     _scanDataHandler = BcUrQrScanDataHandler();
     WidgetsBinding.instance.addPostFrameCallback((_) async {
@@ -180,7 +178,6 @@ class _PsbtScannerScreenState extends State<PsbtScannerScreen> {
         appBar: CoconutAppBar.build(
           title: t.sign,
           context: context,
-          isBottom: true,
           backgroundColor: CoconutColors.white,
         ),
         body: Stack(
@@ -211,6 +208,7 @@ class _PsbtScannerScreenState extends State<PsbtScannerScreen> {
                     children: <TextSpan>[
                       TextSpan(
                         text: t.psbt_scanner_screen.guide_single_sig,
+                        // TODO 툴팁에 표시할 문구 수정 필요(멀티시그, 싱글시그 구분)
                         // text: _viewModel.isMultisig
                         // ? t.psbt_scanner_screen.guide_multisig
                         // : t.psbt_scanner_screen.guide_single_sig,

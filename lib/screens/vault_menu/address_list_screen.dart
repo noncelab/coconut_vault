@@ -56,7 +56,6 @@ class _AddressListScreenState extends State<AddressListScreen> {
                   ),
                 ),
               ],
-              isBottom: true,
               customTitle: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
