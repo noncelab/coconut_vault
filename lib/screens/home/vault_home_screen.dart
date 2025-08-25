@@ -27,6 +27,7 @@ import 'package:flutter_svg/svg.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:provider/provider.dart';
 import 'package:shimmer/shimmer.dart';
+import 'package:collection/collection.dart';
 
 class VaultHomeScreen extends StatefulWidget {
   const VaultHomeScreen({
@@ -143,76 +144,75 @@ class _VaultHomeScreenState extends State<VaultHomeScreen> with TickerProviderSt
     );
   }
 
-  Widget _vaultSkeletonItem() => Column(
-        children: [
-          ClipRRect(
-            borderRadius: BorderRadius.circular(30),
-            child: Container(
-              constraints: const BoxConstraints(minHeight: 100),
-              decoration: BoxDecoration(
-                color: CoconutColors.white, // 배경색 유지
-                borderRadius: BorderRadius.circular(28),
-                boxShadow: [
-                  BoxShadow(
-                    color: CoconutColors.black.withOpacity(0.15),
-                    offset: const Offset(0, 0),
-                    blurRadius: 12,
-                    spreadRadius: 0,
-                  ),
-                ],
+  Widget _vaultSkeletonItem() => Container(
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+        child: Row(
+          children: [
+            // 1) 아이콘 스켈레톤 (VaultItemIcon과 동일한 크기)
+            Shimmer.fromColors(
+              baseColor: CoconutColors.gray300,
+              highlightColor: CoconutColors.gray150,
+              child: Container(
+                width: 40.0,
+                height: 40.0,
+                decoration: BoxDecoration(
+                  color: CoconutColors.gray300,
+                  borderRadius: BorderRadius.circular(16.0),
+                ),
               ),
-              padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 28.0),
-              child: Row(
+            ),
+            CoconutLayout.spacing_200w,
+            // 2) 텍스트 영역 (VaultRowItem의 Expanded 영역과 동일)
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // 1) 아이콘 스켈레톤
+                  // 지갑 이름 스켈레톤
                   Shimmer.fromColors(
                     baseColor: CoconutColors.gray300,
                     highlightColor: CoconutColors.gray150,
                     child: Container(
-                      width: 40.0,
-                      height: 40.0,
+                      height: 16.0,
+                      width: 120.0,
                       decoration: BoxDecoration(
                         color: CoconutColors.gray300,
-                        borderRadius: BorderRadius.circular(16.0),
+                        borderRadius: BorderRadius.circular(4.0),
                       ),
                     ),
                   ),
-                  const SizedBox(width: 8.0),
-                  // 2) 텍스트 영역
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        // 첫 번째 텍스트
-                        Shimmer.fromColors(
-                          baseColor: CoconutColors.gray300,
-                          highlightColor: CoconutColors.gray150,
-                          child: Container(
-                            height: 14.0,
-                            width: 100.0,
-                            color: CoconutColors.gray300,
-                          ),
-                        ),
-                        const SizedBox(height: 8.0),
-                        // 두 번째 텍스트
-                        Shimmer.fromColors(
-                          baseColor: CoconutColors.gray300,
-                          highlightColor: CoconutColors.gray150,
-                          child: Container(
-                            height: 14.0,
-                            width: 150.0,
-                            color: CoconutColors.gray300,
-                          ),
-                        ),
-                      ],
+                  const SizedBox(height: 4.0),
+                  // 서브타이틀 스켈레톤 (멀티시그 정보 또는 기본 지갑 표시)
+                  Shimmer.fromColors(
+                    baseColor: CoconutColors.gray300,
+                    highlightColor: CoconutColors.gray150,
+                    child: Container(
+                      height: 12.0,
+                      width: 80.0,
+                      decoration: BoxDecoration(
+                        color: CoconutColors.gray300,
+                        borderRadius: BorderRadius.circular(4.0),
+                      ),
                     ),
                   ),
                 ],
               ),
             ),
-          ),
-          const SizedBox(height: 10),
-        ],
+            CoconutLayout.spacing_200w,
+            // 3) 화살표 아이콘 스켈레톤 (chevron-right와 동일한 크기)
+            Shimmer.fromColors(
+              baseColor: CoconutColors.gray300,
+              highlightColor: CoconutColors.gray150,
+              child: Container(
+                width: 6.0,
+                height: 10.0,
+                decoration: BoxDecoration(
+                  color: CoconutColors.gray300,
+                  borderRadius: BorderRadius.circular(1.0),
+                ),
+              ),
+            ),
+          ],
+        ),
       );
 
   SliverAppBar _buildAppBar(
@@ -299,6 +299,16 @@ class _VaultHomeScreenState extends State<VaultHomeScreen> with TickerProviderSt
     List<VaultListItemBase> walletList,
     List<int> favoriteWalletIds,
   ) {
+    // favoriteWalletIds를 orederList 순서에 맞게 정렬
+    final sortedFavoriteWalletIds = List<int>.from(favoriteWalletIds)
+      ..sort((a, b) {
+        final aIndex = walletList.indexWhere((vault) => vault.id == a);
+        final bIndex = walletList.indexWhere((vault) => vault.id == b);
+        if (aIndex == -1 && bIndex == -1) return 0;
+        if (aIndex == -1) return 1;
+        if (bIndex == -1) return -1;
+        return aIndex.compareTo(bIndex);
+      });
     return Container(
       margin: const EdgeInsets.only(left: 16, right: 16, bottom: 20),
       padding: const EdgeInsets.symmetric(vertical: 8),
@@ -307,29 +317,26 @@ class _VaultHomeScreenState extends State<VaultHomeScreen> with TickerProviderSt
         color: CoconutColors.white,
       ),
       child: Column(
-        children: List.generate(walletList.length, (index) {
-          if (walletList.isEmpty) {
-            return Container();
-          }
-          final wallet = walletList[index];
-          final isFavorite = favoriteWalletIds.any((w) => w == wallet.id);
-
-          if (isFavorite) {
+        children: List.generate(sortedFavoriteWalletIds.length, (index) {
+          final vaultId = sortedFavoriteWalletIds[index];
+          final vault = walletList.firstWhereOrNull((w) => w.id == vaultId);
+          if (vault != null) {
             return VaultRowItem(
-              vault: wallet,
+              vault: vault,
               isSelectable: false,
               onSelected: () {
                 Navigator.pushNamed(
                   context,
-                  wallet.vaultType == WalletType.multiSignature
+                  vault.vaultType == WalletType.multiSignature
                       ? AppRoutes.multisigSetupInfo
                       : AppRoutes.singleSigSetupInfo,
-                  arguments: {'id': wallet.id},
+                  arguments: {'id': vault.id},
                 );
               },
             );
           } else {
-            return Container();
+            // vault가 null인 경우(아직 로드안됨) Skeleton UI 표시
+            return _vaultSkeletonItem();
           }
         }),
       ),
