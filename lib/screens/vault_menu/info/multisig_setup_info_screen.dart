@@ -53,7 +53,7 @@ class _MultisigSetupInfoScreenState extends State<MultisigSetupInfoScreen> {
     });
   }
 
-  Future _verifyBiometric(
+  Future _authenticateWithBiometricOrPin(
     BuildContext context,
   ) async {
     void onComplete() {
@@ -63,7 +63,7 @@ class _MultisigSetupInfoScreenState extends State<MultisigSetupInfoScreen> {
     }
 
     final authProvider = context.read<AuthProvider>();
-    if (await authProvider.isBiometricsAuthValid()) {
+    if (await authProvider.isBiometricsAuthValid() && context.mounted) {
       onComplete();
       return;
     }
@@ -387,11 +387,8 @@ class _MultisigSetupInfoScreenState extends State<MultisigSetupInfoScreen> {
                   title: t.confirm,
                   content: t.alert.confirm_deletion(name: name),
                   onConfirmPressed: () async {
-                    context.loaderOverlay.show();
-                    await Future.delayed(const Duration(seconds: 1));
                     if (context.mounted) {
-                      _verifyBiometric(context);
-                      context.loaderOverlay.hide();
+                      _authenticateWithBiometricOrPin(context);
                     }
                   },
                 );
