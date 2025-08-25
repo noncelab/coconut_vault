@@ -315,16 +315,17 @@ class _VaultListScreenState extends State<VaultListScreen> with TickerProviderSt
         // MultisigVaultListItem 인 경우 삭제 가능
         // SingleSigVaultListItem 인 경우 연결된 MultisigVaultListItem 이 없는 경우 삭제 가능
         // 연결된 MultisigVaultListItem 이 있는 경우 연결된 MultisigVaultListItem 이 먼저 Dismiss된 경우 삭제 가능
-        var canDismiss = vault is MultisigVaultListItem ||
-            (vault as SingleSigVaultListItem).linkedMultisigInfo?.entries.isEmpty == true ||
-            (vault.linkedMultisigInfo?.entries.isNotEmpty == true &&
-                vault.linkedMultisigInfo!.entries
-                    .every((entry) => !_viewModel.tempVaultOrder.contains(entry.key)));
-        debugPrint('vault id: ${vault.id}');
-        debugPrint('canDismiss: $canDismiss');
-        if (vault is SingleSigVaultListItem) {
-          debugPrint('vault: ${vault.name}');
-          debugPrint('linkedMultisigInfo: ${vault.linkedMultisigInfo}');
+        var canDismiss = false;
+        if (vault is MultisigVaultListItem) {
+          canDismiss = true;
+        } else {
+          if ((vault as SingleSigVaultListItem).linkedMultisigInfo?.entries.isEmpty == true ||
+              vault.linkedMultisigInfo?.entries == null ||
+              (vault.linkedMultisigInfo?.entries.isNotEmpty == true &&
+                  vault.linkedMultisigInfo!.entries
+                      .every((entry) => !_viewModel.tempVaultOrder.contains(entry.key)))) {
+            canDismiss = true;
+          }
         }
         return Dismissible(
           key: ValueKey(vault.id),
