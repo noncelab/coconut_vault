@@ -59,9 +59,17 @@ class _VaultNameIconEditPaletteState extends State<VaultNameIconEditPalette> {
         onTap: () => FocusScope.of(context).unfocus(),
         child: SafeArea(
           child: Container(
-            padding: const EdgeInsets.only(top: 10, left: 10, right: 10, bottom: 40),
+            padding: const EdgeInsets.only(
+              left: 10,
+              right: 10,
+            ),
             child: CustomScrollView(
               slivers: <Widget>[
+                SliverToBoxAdapter(
+                  child: Container(
+                    height: 10,
+                  ),
+                ),
                 SliverList(
                   delegate: SliverChildListDelegate([
                     _buildSelectedIconWithName(),
@@ -127,6 +135,11 @@ class _VaultNameIconEditPaletteState extends State<VaultNameIconEditPalette> {
                       },
                       childCount: CoconutColors.colorPalette.length + CustomIcons.totalCount,
                     ),
+                  ),
+                ),
+                SliverToBoxAdapter(
+                  child: Container(
+                    height: 100,
                   ),
                 ),
               ],
