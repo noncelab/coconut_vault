@@ -39,24 +39,46 @@ class MyBottomSheet {
         constraints: BoxConstraints(maxHeight: MediaQuery.of(context).size.height * 0.95));
   }
 
-  static Future<T?> showBottomSheet_50<T>(
-      {required BuildContext context,
-      required Widget child,
-      bool isDismissible = true,
-      bool enableDrag = true}) async {
+  static Future<T?> showBottomSheet_50<T>({
+    required BuildContext context,
+    required Widget child,
+    bool isDismissible = true,
+    bool showDragHandle = false,
+    bool enableDrag = true,
+  }) async {
     return await showModalBottomSheet<T>(
         context: context,
         builder: (context) {
           return ClipRRect(
             borderRadius: const BorderRadius.only(
                 topLeft: Radius.circular(24), topRight: Radius.circular(24)),
-            child: Padding(
-              padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
-              child: SizedBox(
-                height: MediaQuery.of(context).size.height * 0.5,
-                width: MediaQuery.of(context).size.width,
-                child: child,
-              ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                if (showDragHandle)
+                  Container(
+                    color: Colors.transparent,
+                    padding: const EdgeInsets.symmetric(vertical: 8),
+                    child: Center(
+                      child: Container(
+                        width: 55,
+                        height: 4,
+                        decoration: BoxDecoration(
+                          color: CoconutColors.gray400,
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                      ),
+                    ),
+                  ),
+                Padding(
+                  padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
+                  child: SizedBox(
+                    height: MediaQuery.of(context).size.height * 0.5,
+                    width: MediaQuery.of(context).size.width,
+                    child: child,
+                  ),
+                ),
+              ],
             ),
           );
         },
@@ -151,7 +173,7 @@ class MyBottomSheet {
     bool snap = true,
     double initialChildSize = 1,
     double maxChildSize = 1,
-    double minChildSize = 0.95,
+    double minChildSize = 0.9001,
     double maxHeight = 0.9,
     bool topWidget = false,
     bool enableSingleChildScroll = true,
@@ -159,6 +181,8 @@ class MyBottomSheet {
     VoidCallback? onTopWidgetButtonClicked,
     VoidCallback? onBackPressed,
   }) async {
+    var adjustedMinChildSize = minChildSize;
+    if (maxHeight >= adjustedMinChildSize) adjustedMinChildSize = maxHeight + 0.0001;
     return showModalBottomSheet<T>(
         context: context,
         builder: (context) {
@@ -167,7 +191,7 @@ class MyBottomSheet {
             snap: snap,
             initialChildSize: initialChildSize,
             maxChildSize: maxChildSize,
-            minChildSize: minChildSize,
+            minChildSize: adjustedMinChildSize,
             controller: controller,
             builder: (_, controller) {
               return ClipRRect(
@@ -278,7 +302,8 @@ class MyBottomSheet {
       {required BuildContext context,
       required Widget Function(ScrollController) childBuilder,
       double minChildSize = 0.5,
-      double maxChildSize = 0.9}) async {
+      double maxChildSize = 0.9,
+      bool showDragHandle = true}) async {
     final draggableController = DraggableScrollableController();
     bool isAnimating = false;
 
@@ -323,33 +348,34 @@ class MyBottomSheet {
               },
               child: Column(
                 children: [
-                  GestureDetector(
-                    behavior: HitTestBehavior.opaque,
-                    onVerticalDragUpdate: (details) {
-                      final delta = -details.primaryDelta! / MediaQuery.of(context).size.height;
-                      draggableController.jumpTo(draggableController.size + delta);
-                    },
-                    onVerticalDragEnd: (details) {
-                      handleDrag();
-                    },
-                    onVerticalDragCancel: () {
-                      handleDrag();
-                    },
-                    child: Container(
-                      color: Colors.transparent,
-                      padding: const EdgeInsets.symmetric(vertical: 8),
-                      child: Center(
-                        child: Container(
-                          width: 55,
-                          height: 4,
-                          decoration: BoxDecoration(
-                            color: CoconutColors.gray400,
-                            borderRadius: BorderRadius.circular(4),
+                  if (showDragHandle)
+                    GestureDetector(
+                      behavior: HitTestBehavior.opaque,
+                      onVerticalDragUpdate: (details) {
+                        final delta = -details.primaryDelta! / MediaQuery.of(context).size.height;
+                        draggableController.jumpTo(draggableController.size + delta);
+                      },
+                      onVerticalDragEnd: (details) {
+                        handleDrag();
+                      },
+                      onVerticalDragCancel: () {
+                        handleDrag();
+                      },
+                      child: Container(
+                        color: Colors.transparent,
+                        padding: const EdgeInsets.symmetric(vertical: 8),
+                        child: Center(
+                          child: Container(
+                            width: 55,
+                            height: 4,
+                            decoration: BoxDecoration(
+                              color: CoconutColors.gray400,
+                              borderRadius: BorderRadius.circular(4),
+                            ),
                           ),
                         ),
                       ),
                     ),
-                  ),
                   Expanded(
                     child: ClipRRect(
                       borderRadius: const BorderRadius.only(

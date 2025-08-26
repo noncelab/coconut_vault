@@ -190,7 +190,9 @@ tutorial_screen:
 
 multisig:
   nth_key: "$index번 키"
-
+  nth_key_with_name: "$index번 키 - $name"
+  select_nth_key: "$index번 키 고르기"
+  
 # lib/screens/airgap
 account_selection_bottom_sheet_screen:
   text: "서명할 계정을 선택해주세요."
@@ -351,9 +353,13 @@ vault_name_icon_setup_screen:
 
 # lib/screens/vault_creation/multisig
 assign_signers_screen:
+  create_multisig_wallet_by_quorum: "$requiredSignatureCount/$totalSignatureCount 지갑을 생성합니다"
   order_keys: "동일한 순서를 유지하도록 키 순서를 정렬 할게요"
   data_verifying: "데이터 검증 중이에요"
   use_internal_key: "이 볼트에 있는 키 사용하기"
+  select_key_option: "키 종류 선택"
+  import_from_other_vault: "다른 볼트에서 가져오기"
+
 confirm_importing_screen:
   guide1: "다른 볼트에서 가져온 "
   guide2: "정보가 일치하는지 "
@@ -549,6 +555,9 @@ alert:
   reselect:
     title: "다시 고르기"
     description: "지금까지 입력한 정보가 모두 지워져요.\n정말로 다시 선택하시겠어요?"
+  back:
+    title: "이전 화면으로 돌아가기"
+    description: "지금까지 입력한 정보가 모두 지워져요.\n정말로 이전 화면으로 돌아가시겠어요?"
   empty_vault:
     title: "볼트에 저장된 키가 없어요"
     description: "키를 사용하기 위해 일반 지갑을 먼저 만드시겠어요?"
