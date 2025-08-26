@@ -163,9 +163,7 @@ class _KeySafeAnimationWidgetState extends State<KeySafeAnimationWidget> {
     debugPrint(
         '########buttonClickedCount : ${widget.buttonClickedCount}  << count : ${_progressQueue.last.count}  << current N : $n  << current M : $m  << queueLastEntity : ${_progressQueue.last.entity}  ');
     if (n == 2 && m == 1) {
-      setState(() {
-        _keyActive_1 = true;
-      });
+      _activeKey(1);
 
       await Future.delayed(const Duration(milliseconds: 1000));
       if (!_canRunCurrentProgress(buttonCountAtStart, QueueEntity.n2m1)) return;
@@ -182,9 +180,7 @@ class _KeySafeAnimationWidgetState extends State<KeySafeAnimationWidget> {
       if (!_canRunCurrentProgress(buttonCountAtStart, QueueEntity.n2m1)) return;
       _changeOpacityValue(false);
 
-      setState(() {
-        _keyActive_3 = true;
-      });
+      _activeKey(3);
 
       // 1초 대기 후 세번 째 프로그레스 진행
       await Future.delayed(const Duration(milliseconds: 1000));
@@ -196,9 +192,7 @@ class _KeySafeAnimationWidgetState extends State<KeySafeAnimationWidget> {
       if (!_canRunCurrentProgress(buttonCountAtStart, QueueEntity.n2m1)) return;
       _changeOpacityValue(true);
     } else if (n == 2 && m == 2) {
-      setState(() {
-        _keyActive_1 = true;
-      });
+      _activeKey(1);
 
       await Future.delayed(const Duration(milliseconds: 1000));
       if (!_canRunCurrentProgress(buttonCountAtStart, QueueEntity.n2m2)) return;
@@ -208,9 +202,7 @@ class _KeySafeAnimationWidgetState extends State<KeySafeAnimationWidget> {
       await Future.delayed(const Duration(milliseconds: 1000));
       if (!_canRunCurrentProgress(buttonCountAtStart, QueueEntity.n2m2)) return;
       // 1초 대기 후 세 번재 프로그레스 진행
-      setState(() {
-        _keyActive_3 = true;
-      });
+      _activeKey(3);
 
       await Future.delayed(const Duration(milliseconds: 1000));
       if (!_canRunCurrentProgress(buttonCountAtStart, QueueEntity.n2m2)) return;
@@ -224,9 +216,7 @@ class _KeySafeAnimationWidgetState extends State<KeySafeAnimationWidget> {
       /// n = 3 , m = 1
       ///
       ///
-      setState(() {
-        _keyActive_1 = true;
-      });
+      _activeKey(1);
 
       await Future.delayed(const Duration(milliseconds: 1000));
       if (!_canRunCurrentProgress(buttonCountAtStart, QueueEntity.n3m1)) return;
@@ -242,8 +232,8 @@ class _KeySafeAnimationWidgetState extends State<KeySafeAnimationWidget> {
       // 2초 대기 후 체크표시 해제
       await Future.delayed(const Duration(milliseconds: 2000));
       if (!_canRunCurrentProgress(buttonCountAtStart, QueueEntity.n3m1)) return;
-      _keyActive_2 = true;
       _changeOpacityValue(false);
+      _activeKey(2);
 
       // 1초 대기 후 두번 째 프로그레스 진행
       await Future.delayed(const Duration(milliseconds: 1000));
@@ -259,8 +249,8 @@ class _KeySafeAnimationWidgetState extends State<KeySafeAnimationWidget> {
       await Future.delayed(const Duration(milliseconds: 2000));
       if (!_canRunCurrentProgress(buttonCountAtStart, QueueEntity.n3m1)) return;
 
-      _keyActive_3 = true;
       _changeOpacityValue(false);
+      _activeKey(3);
 
       // 1초 대기 후 세번 째 프로그레스 진행
       await Future.delayed(const Duration(milliseconds: 1000));
@@ -275,9 +265,7 @@ class _KeySafeAnimationWidgetState extends State<KeySafeAnimationWidget> {
       /// n = 3 , m = 2
       ///
       ///
-      setState(() {
-        _keyActive_1 = true;
-      });
+      _activeKey(1);
 
       await Future.delayed(const Duration(milliseconds: 1000));
       if (!_canRunCurrentProgress(buttonCountAtStart, QueueEntity.n3m2)) return;
@@ -304,7 +292,7 @@ class _KeySafeAnimationWidgetState extends State<KeySafeAnimationWidget> {
       if (!_canRunCurrentProgress(buttonCountAtStart, QueueEntity.n3m2)) return;
 
       _changeOpacityValue(false);
-      _keyActive_1 = true;
+      _activeKey(1);
 
       // 1초 대기 후 첫번 째 프로그레스 진행
       await Future.delayed(const Duration(milliseconds: 1000));
@@ -331,7 +319,7 @@ class _KeySafeAnimationWidgetState extends State<KeySafeAnimationWidget> {
       if (!_canRunCurrentProgress(buttonCountAtStart, QueueEntity.n3m2)) return;
 
       _changeOpacityValue(false);
-      _keyActive_2 = true;
+      _activeKey(2);
 
       // 1초 대기 후 두번 째 프로그레스 진행
       await Future.delayed(const Duration(milliseconds: 1000));
@@ -356,9 +344,7 @@ class _KeySafeAnimationWidgetState extends State<KeySafeAnimationWidget> {
       /// n = 3 , m = 3
       ///
       ///
-      setState(() {
-        _keyActive_1 = true;
-      });
+      _activeKey(1);
 
       await Future.delayed(const Duration(milliseconds: 1000));
       if (!_canRunCurrentProgress(buttonCountAtStart, QueueEntity.n3m3)) return;
