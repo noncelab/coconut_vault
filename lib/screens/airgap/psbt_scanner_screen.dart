@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_vault/constants/app_routes.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
+import 'package:coconut_vault/model/exception/vault_can_not_sign_exception.dart';
 import 'package:coconut_vault/model/exception/vault_not_found_exception.dart';
 import 'package:coconut_vault/providers/sign_provider.dart';
 import 'package:coconut_vault/providers/view_model/airgap/psbt_scanner_view_model.dart';
@@ -111,24 +112,16 @@ class _PsbtScannerScreenState extends State<PsbtScannerScreen> {
       psbtBase64 = base64Encode(decodedCbor.bytes);
 
       // 스캔된 MFP를 이용해 유효한 볼트를 찾고, SignProvider에 저장
-      _viewModel.setVaultByPsbtBase64(psbtBase64);
+      await _viewModel.setVaultByPsbtBase64(psbtBase64);
     } catch (e) {
+      vibrateExtraLightDouble();
       if (e is VaultNotFoundException) {
         await _showErrorDialog(VaultNotFoundException.defaultErrorMessage);
+      } else if (e is VaultSigningNotAllowedException) {
+        await _showErrorDialog(VaultSigningNotAllowedException.defaultErrorMessage);
       } else {
         await _showErrorDialog(t.errors.invalid_qr);
       }
-      return;
-    }
-
-    try {
-      if (!await _viewModel.canSign(psbtBase64)) {
-        vibrateLight();
-        _showErrorDialog(t.errors.cannot_sign_error);
-        return;
-      }
-    } catch (e) {
-      await _showErrorDialog(t.errors.cannot_sign_error);
       return;
     }
 

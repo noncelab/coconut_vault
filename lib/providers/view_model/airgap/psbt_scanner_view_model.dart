@@ -1,8 +1,10 @@
 import 'package:coconut_lib/coconut_lib.dart';
 import 'package:coconut_vault/enums/wallet_enums.dart';
+import 'package:coconut_vault/model/exception/vault_can_not_sign_exception.dart';
 import 'package:coconut_vault/model/exception/vault_not_found_exception.dart';
 import 'package:coconut_vault/providers/sign_provider.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
+import 'package:coconut_vault/utils/logger.dart';
 
 class PsbtScannerViewModel {
   late final WalletProvider _walletProvider;
@@ -23,7 +25,7 @@ class PsbtScannerViewModel {
     _signProvider.saveUnsignedPsbt(psbtBase64);
   }
 
-  void setVaultByPsbtBase64(String psbtBase64) {
+  Future<void> setVaultByPsbtBase64(String psbtBase64) async {
     final parsedPsbt = _parseBase64EncodedToPsbt(psbtBase64);
     // parsedPsbt.extendedPublicKeyList가
     // 한 개만 있는 경우 - 싱글 시그 지갑이므로 vaultList에서 바로 찾기
@@ -31,6 +33,7 @@ class PsbtScannerViewModel {
 
     bool? hasMatchingMfp;
     int? matchingVaultId;
+    bool isVaultSigningAllowed = false;
 
     if (parsedPsbt.addressType?.isSingleSignature ?? true) {
       // 싱글시그지갑
@@ -42,6 +45,9 @@ class PsbtScannerViewModel {
             if (singleSigVault.keyStore.masterFingerprint == psbtMfp) {
               hasMatchingMfp = true;
               matchingVaultId = vault.id;
+              _signProvider.setVaultListItem(_walletProvider.getVaultById(matchingVaultId));
+              isVaultSigningAllowed = await canSign(psbtBase64);
+              Logger.log('✅ 서명 가능한 지갑 찾음 ${vault.name}');
               break;
             }
           }
@@ -65,7 +71,14 @@ class PsbtScannerViewModel {
           if (psbtMfps.every((psbtMfp) => vaultMfps.contains(psbtMfp))) {
             hasMatchingMfp = true;
             matchingVaultId = vault.id;
-            break;
+            _signProvider.setVaultListItem(_walletProvider.getVaultById(matchingVaultId));
+            isVaultSigningAllowed = await canSign(psbtBase64);
+            if (isVaultSigningAllowed) {
+              Logger.log('✅ 서명 가능한 지갑 찾음 ${vault.name}');
+              break;
+            } else {
+              Logger.log('❌ 서명 불가능한 지갑 찾음 ${vault.name}');
+            }
           }
         }
       }
@@ -73,11 +86,9 @@ class PsbtScannerViewModel {
     }
 
     if (!hasMatchingMfp) {
-      // 스캔된 정보가 가진 MFP와 일치하는 볼트가 없을 경우
       throw VaultNotFoundException();
-    } else {
-      final vaultListItem = _walletProvider.getVaultById(matchingVaultId!);
-      _signProvider.setVaultListItem(vaultListItem);
+    } else if (!isVaultSigningAllowed) {
+      throw VaultSigningNotAllowedException();
     }
   }
 
