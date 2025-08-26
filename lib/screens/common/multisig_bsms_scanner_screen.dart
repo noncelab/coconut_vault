@@ -41,6 +41,7 @@ class _MultisigBsmsScannerScreenState extends State<MultisigBsmsScannerScreen> {
   final GlobalKey qrKey = GlobalKey(debugLabel: 'QR');
 
   QRViewController? controller;
+  StreamSubscription? _scanSubscription;
   bool isCameraActive = false;
   bool isAlreadyVibrateScanFailed = false;
   bool _isProcessing = false;
@@ -52,9 +53,9 @@ class _MultisigBsmsScannerScreenState extends State<MultisigBsmsScannerScreen> {
   void reassemble() {
     super.reassemble();
     if (Platform.isAndroid) {
-      controller!.pauseCamera();
+      controller?.pauseCamera();
     } else if (Platform.isIOS) {
-      controller!.resumeCamera();
+      controller?.resumeCamera();
     }
   }
 
@@ -66,6 +67,7 @@ class _MultisigBsmsScannerScreenState extends State<MultisigBsmsScannerScreen> {
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       await Future.delayed(const Duration(milliseconds: 1000));
       // fixme 추후 QRCodeScanner가 개선되면 QRCodeScanner 의 카메라 뷰 생성 완료된 콜백 찾아 progress hide 합니다. 현재는 1초 후 hide
+      if (!mounted) return;
       setState(() {
         _isProcessing = false;
       });
@@ -74,6 +76,7 @@ class _MultisigBsmsScannerScreenState extends State<MultisigBsmsScannerScreen> {
 
   @override
   void dispose() {
+    _scanSubscription?.cancel();
     controller?.dispose();
     super.dispose();
   }
@@ -83,7 +86,8 @@ class _MultisigBsmsScannerScreenState extends State<MultisigBsmsScannerScreen> {
         context: context,
         content: message,
         onConfirmPressed: () {
-          controller!.resumeCamera().then((_) {
+          controller?.resumeCamera().then((_) {
+            if (!mounted) return;
             setState(() {
               _isProcessing = false;
             });
@@ -177,11 +181,12 @@ class _MultisigBsmsScannerScreenState extends State<MultisigBsmsScannerScreen> {
   void _onQRViewCreatedWhenScanSigner(QRViewController controller) {
     this.controller = controller;
 
-    controller.scannedDataStream.listen((scanData) async {
+    _scanSubscription = controller.scannedDataStream.listen((scanData) async {
       if (_isProcessing || scanData.code == null) return;
 
       controller.pauseCamera(); // only works in iOS
 
+      if (!mounted) return;
       setState(() {
         _isProcessing = true;
       });
@@ -194,6 +199,7 @@ class _MultisigBsmsScannerScreenState extends State<MultisigBsmsScannerScreen> {
         return;
       }
 
+      if (!mounted) return;
       Navigator.pop(context, scanData.code!);
       return;
     });
@@ -203,7 +209,7 @@ class _MultisigBsmsScannerScreenState extends State<MultisigBsmsScannerScreen> {
   void _onQRViewCreatedWhenScanCoordinator(QRViewController controller) {
     this.controller = controller;
 
-    controller.scannedDataStream.listen((scanData) async {
+    _scanSubscription = controller.scannedDataStream.listen((scanData) async {
       if (_isProcessing || scanData.code == null) return;
 
       // 다중서명지갑 '복사하기'
@@ -211,6 +217,7 @@ class _MultisigBsmsScannerScreenState extends State<MultisigBsmsScannerScreen> {
 
       controller.pauseCamera(); // only works in iOS
 
+      if (!mounted) return;
       setState(() {
         _isProcessing = true;
       });
@@ -225,14 +232,7 @@ class _MultisigBsmsScannerScreenState extends State<MultisigBsmsScannerScreen> {
         coordinatorBsms = decodedData.coordinatorBsms;
         Bsms.parseCoordinator(coordinatorBsms);
       } catch (e) {
-        String errorMessage = e.toString();
-        if (errorMessage.contains('Unsupported BSMS version')) {
-          onFailedScanning(t.errors.unsupport_bsms_version_error);
-        } else if (errorMessage.contains('Not support customized path')) {
-          onFailedScanning(t.errors.unsupport_derivation_path_error);
-        } else {
-          onFailedScanning(wrongFormatMessage2);
-        }
+        onFailedScanning(wrongFormatMessage2);
         return;
       }
 
@@ -246,6 +246,7 @@ class _MultisigBsmsScannerScreenState extends State<MultisigBsmsScannerScreen> {
         await _walletProvider.importMultisigVault(decodedData, widget.id!);
         assert(_walletProvider.isAddVaultCompleted);
 
+        if (!mounted) return;
         //Logger.log('---> Homeroute = ${HomeScreenStatus().screenStatus}');
         Navigator.pushNamedAndRemoveUntil(context, '/', (Route<dynamic> route) => false,
             arguments: VaultListNavArgs(isWalletAdded: true));
