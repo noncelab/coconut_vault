@@ -54,24 +54,10 @@ class _MultisigSetupInfoScreenState extends State<MultisigSetupInfoScreen> {
     });
   }
 
-  Future<bool> _verifyBiometric(
-    BuildContext context,
-  ) async {
-    Future<void> onComplete() async {
-      await context.read<MultisigSetupInfoViewModel>().deleteVault();
-      vibrateLight();
-      if (widget.entryPoint != null && widget.entryPoint == kEntryPointVaultList) {
-        Navigator.popUntil(context, (route) {
-          return route.settings.name == AppRoutes.vaultList;
-        });
-      } else {
-        Navigator.popUntil(context, (route) => route.isFirst);
-      }
-    }
-
+  Future<bool> _verifyBiometric(BuildContext context) async {
     final authProvider = context.read<AuthProvider>();
     if (await authProvider.isBiometricsAuthValid()) {
-      await onComplete();
+      _verifySwitch(context);
       return true;
     }
 
@@ -80,10 +66,10 @@ class _MultisigSetupInfoScreenState extends State<MultisigSetupInfoScreen> {
       context: context,
       child: CustomLoadingOverlay(
         child: PinCheckScreen(
-          pinCheckContext: PinCheckContextEnum.sensitiveAction,
+          pinCheckContext: PinCheckContextEnum.seedDeletion,
           onSuccess: () async {
             Navigator.pop(context);
-            await onComplete();
+            _verifySwitch(context);
             isSuccess = true;
           },
         ),
@@ -91,6 +77,20 @@ class _MultisigSetupInfoScreenState extends State<MultisigSetupInfoScreen> {
     );
 
     return isSuccess;
+  }
+
+  void _verifySwitch(BuildContext context) async {
+    final viewModel = context.read<MultisigSetupInfoViewModel>();
+    viewModel.deleteVault();
+    vibrateLight();
+    if (widget.entryPoint != null && widget.entryPoint == kEntryPointVaultList) {
+      Navigator.popUntil(context, (route) {
+        return route.settings.name == AppRoutes.vaultList;
+      });
+    } else {
+      Navigator.popUntil(context, (route) => route.isFirst);
+    }
+    return;
   }
 
   @override
@@ -422,15 +422,10 @@ class _MultisigSetupInfoScreenState extends State<MultisigSetupInfoScreen> {
                         onTapRight: () async {
                           context.loaderOverlay.show();
                           if (context.mounted) {
-                            _verifyBiometric(context).then((isSuccess) {
+                            _verifyBiometric(context).then((bool isSuccess) {
                               if (!context.mounted) return;
-                              if (isSuccess == true) {
-                                context.loaderOverlay.hide();
-                                Navigator.pop(dialogContext);
-                                Navigator.pop(context);
-                              } else {
-                                context.loaderOverlay.hide();
-                              }
+
+                              context.loaderOverlay.hide();
                             });
                           }
                         },
