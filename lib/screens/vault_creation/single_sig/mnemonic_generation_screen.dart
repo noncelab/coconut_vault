@@ -5,6 +5,7 @@ import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/providers/visibility_provider.dart';
 import 'package:coconut_vault/providers/wallet_creation_provider.dart';
 import 'package:coconut_vault/widgets/button/fixed_bottom_button.dart';
+import 'package:coconut_vault/widgets/list/mnemonic_list.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:coconut_vault/widgets/button/custom_buttons.dart';
@@ -438,7 +439,7 @@ class _MnemonicWordsState extends State<MnemonicWords> {
                         ),
                       ),
                     ),
-                    step == 0 ? _buildGeneratedMnemonicList() : _buildPassphraseInput(),
+                    step == 0 ? MnemonicList(mnemonic: mnemonic) : _buildPassphraseInput(),
                     const SizedBox(height: 40),
                   ],
                 )),
@@ -559,64 +560,6 @@ class _MnemonicWordsState extends State<MnemonicWords> {
             ),
           ],
         ),
-      ),
-    );
-  }
-
-  Widget _buildGeneratedMnemonicList() {
-    bool gridviewColumnFlag = false;
-
-    return Padding(
-      padding: const EdgeInsets.only(
-        left: 40.0,
-        right: 40.0,
-        top: 16,
-        bottom: 120,
-      ),
-      child: GridView.builder(
-        shrinkWrap: true,
-        physics: const NeverScrollableScrollPhysics(),
-        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 2, // 2열로 배치
-          childAspectRatio: 2.5, // 각 아이템의 가로:세로 = 2.5:1
-          crossAxisSpacing: 12, // 열 간격
-          mainAxisSpacing: 8, // 행 간격
-        ),
-        itemCount: mnemonic.split(' ').length,
-        itemBuilder: (BuildContext context, int index) {
-          if (index % 2 == 0) {
-            gridviewColumnFlag = !gridviewColumnFlag;
-          }
-
-          return Container(
-            padding: const EdgeInsets.only(left: 24),
-            alignment: Alignment.center,
-            decoration: BoxDecoration(
-              border: Border.all(color: CoconutColors.black.withOpacity(0.08)),
-              borderRadius: BorderRadius.circular(24),
-            ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  (index + 1).toString().padLeft(2, '0'),
-                  style: CoconutTypography.body3_12_Number.setColor(
-                    CoconutColors.gray500,
-                  ),
-                ),
-                CoconutLayout.spacing_300w,
-                Expanded(
-                  child: Text(
-                    mnemonic.split(' ')[index],
-                    style: CoconutTypography.body2_14,
-                    overflow: TextOverflow.visible,
-                  ),
-                ),
-              ],
-            ),
-          );
-        },
       ),
     );
   }
@@ -752,7 +695,7 @@ class NumberWidget extends StatefulWidget {
       {super.key, required this.number, required this.selected, required this.onSelected});
 
   @override
-  _NumberWidgetState createState() => _NumberWidgetState();
+  State<NumberWidget> createState() => _NumberWidgetState();
 }
 
 class _NumberWidgetState extends State<NumberWidget> {
@@ -868,10 +811,10 @@ extension NextButtonStateExtension on NextButtonState {
     switch (this) {
       case NextButtonState.completeActive:
       case NextButtonState.completeInactive:
-        return '완료';
+        return t.complete;
       case NextButtonState.nextActive:
       case NextButtonState.nextInactive:
-        return '다음';
+        return t.next;
     }
   }
 

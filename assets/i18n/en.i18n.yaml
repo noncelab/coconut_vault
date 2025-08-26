@@ -271,6 +271,7 @@ mnemonic_coin_flip_screen:
   coin_tail: "Back"
 mnemonic_confirm_screen:
   title: "Final Check"
+  description: "This information will be used to create a wallet"
   passphrase_character_total_count: " (Total $count chars)"
   warning:
     contains_space_character: "⚠︎ Contains space characters"
@@ -300,6 +301,8 @@ mnemonic_import_screen:
   enter_passphrase: "Enter passphrase"
   need_advanced_mode: "⚠︎ To use passphrase, go to Settings and turn on 'Use Passphrase'"
   open_settings: "Open Settings"
+mnemonic_view_screen:
+  security_guide: "Please check the mnemonic in a safe place"
 mnemonic_verify_screen:
   title: "Verify Mnemonic"
   select_word: "Select ${index}th word"
@@ -315,6 +318,15 @@ vault_creation_options_screen:
   auto_generate: "Let app create for me"
   import_mnemonic: "I have an existing mnemonic phrase"
   seed_qr: "I have a seed QR code"
+seed_qr_import_screen:
+  title: "Scan Seed QR Code"
+  error_title: "Scan Error"
+  error_message: "An error occurred while scanning the seed QR code. Please try again."
+seed_qr_confirmation_screen:
+  title: "Verify Mnemonic"
+  check_mnemonic: "Please check the mnemonic phrase"
+  passphrase_toggle: "Use Passphrase"
+  passphrase_text_field_placeholder: "Enter passphrase"
 vault_name_icon_setup_screen:
   title: "Set Name"
   saving: "Saving..."
