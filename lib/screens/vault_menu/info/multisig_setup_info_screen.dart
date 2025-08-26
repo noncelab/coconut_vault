@@ -104,33 +104,36 @@ class _MultisigSetupInfoScreenState extends State<MultisigSetupInfoScreen> {
           _removeTooltip();
         },
         child: Consumer<MultisigSetupInfoViewModel>(builder: (context, viewModel, child) {
-          return Scaffold(
-            backgroundColor: CoconutColors.white,
-            appBar: CoconutAppBar.build(
-              title: viewModel.name,
-              context: context,
-              isBottom: false,
-              onBackPressed: () {
-                Navigator.pop(context);
-              },
-            ),
-            body: SingleChildScrollView(
-              child: SafeArea(
-                child: Stack(
-                  children: [
-                    Column(
-                      children: [
-                        _buildVaultItemCard(context),
-                        _buildSignerList(context),
-                        // 지갑설정 정보보기, 삭제하기
-                        const SizedBox(height: 14),
-                        _buildBsmsInfoActions(context),
-                        _buildDivider(),
-                        _buildDeleteButton(context),
-                      ],
-                    ),
-                    _buildTooltip(context),
-                  ],
+          return GestureDetector(
+            onTapDown: (details) => _removeTooltip(),
+            child: Scaffold(
+              backgroundColor: CoconutColors.white,
+              appBar: CoconutAppBar.build(
+                title: viewModel.name,
+                context: context,
+                isBottom: false,
+                onBackPressed: () {
+                  Navigator.pop(context);
+                },
+              ),
+              body: SingleChildScrollView(
+                child: SafeArea(
+                  child: Stack(
+                    children: [
+                      Column(
+                        children: [
+                          _buildVaultItemCard(context),
+                          _buildSignerList(context),
+                          // 지갑설정 정보보기, 삭제하기
+                          const SizedBox(height: 14),
+                          _buildBsmsInfoActions(context),
+                          _buildDivider(),
+                          _buildDeleteButton(context),
+                        ],
+                      ),
+                      _buildTooltip(context),
+                    ],
+                  ),
                 ),
               ),
             ),
@@ -495,6 +498,11 @@ class _MultisigSetupInfoScreenState extends State<MultisigSetupInfoScreen> {
   }
 
   void _showTooltip(BuildContext context) {
+    if (_tooltipRemainingTime > 0) {
+      // 툴팁이 이미 보여지고 있는 상태라면 툴팁 제거만 합니다.
+      _removeTooltip();
+      return;
+    }
     _removeTooltip();
 
     setState(() {
@@ -514,6 +522,7 @@ class _MultisigSetupInfoScreenState extends State<MultisigSetupInfoScreen> {
   }
 
   void _removeTooltip() {
+    if (_tooltipRemainingTime == 0) return;
     setState(() {
       _tooltipRemainingTime = 0;
     });

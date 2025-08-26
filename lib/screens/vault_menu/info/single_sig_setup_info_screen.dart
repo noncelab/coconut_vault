@@ -98,37 +98,40 @@ class _SingleSigSetupInfoScreenState extends State<SingleSigSetupInfoScreen> {
           create: (context) => SingleSigSetupInfoViewModel(
               Provider.of<WalletProvider>(context, listen: false), widget.id),
           child: Consumer<SingleSigSetupInfoViewModel>(builder: (context, viewModel, child) {
-            return Scaffold(
-              backgroundColor: CoconutColors.white,
-              appBar: CoconutAppBar.build(
-                title: viewModel.name,
-                context: context,
-                // isBottom: viewModel.hasLinkedMultisigVault,
-                isBottom: false,
-              ),
-              body: GestureDetector(
-                onTap: () => FocusScope.of(context).unfocus(),
-                child: SafeArea(
-                  child: SingleChildScrollView(
-                    child: Stack(
-                      children: [
-                        Container(
-                          margin: const EdgeInsets.only(top: 20),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              _buildVaultItemCard(context),
-                              (viewModel.hasLinkedMultisigVault == true)
-                                  ? _buildLinkedMultisigVaultInfoCard(context)
-                                  : const SizedBox(height: 20),
-                              _buildMnemonicViewAction(context),
-                              _buildDivider(),
-                              _buildDeleteButton(context)
-                            ],
+            return GestureDetector(
+              onTapDown: (details) => _removeTooltip(),
+              child: Scaffold(
+                backgroundColor: CoconutColors.white,
+                appBar: CoconutAppBar.build(
+                  title: viewModel.name,
+                  context: context,
+                  // isBottom: viewModel.hasLinkedMultisigVault,
+                  isBottom: false,
+                ),
+                body: GestureDetector(
+                  onTap: () => FocusScope.of(context).unfocus(),
+                  child: SafeArea(
+                    child: SingleChildScrollView(
+                      child: Stack(
+                        children: [
+                          Container(
+                            margin: const EdgeInsets.only(top: 20),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                _buildVaultItemCard(context),
+                                (viewModel.hasLinkedMultisigVault == true)
+                                    ? _buildLinkedMultisigVaultInfoCard(context)
+                                    : const SizedBox(height: 20),
+                                _buildMnemonicViewAction(context),
+                                _buildDivider(),
+                                _buildDeleteButton(context)
+                              ],
+                            ),
                           ),
-                        ),
-                        _buildTooltip(context),
-                      ],
+                          _buildTooltip(context),
+                        ],
+                      ),
                     ),
                   ),
                 ),
@@ -542,6 +545,11 @@ class _SingleSigSetupInfoScreenState extends State<SingleSigSetupInfoScreen> {
   }
 
   void _showTooltip(BuildContext context) {
+    if (_tooltipRemainingTime > 0) {
+      // 툴팁이 이미 보여지고 있는 상태라면 툴팁 제거만 합니다.
+      _removeTooltip();
+      return;
+    }
     _removeTooltip();
 
     setState(() {
@@ -561,6 +569,7 @@ class _SingleSigSetupInfoScreenState extends State<SingleSigSetupInfoScreen> {
   }
 
   void _removeTooltip() {
+    if (_tooltipRemainingTime == 0) return;
     setState(() {
       _tooltipRemainingTime = 0;
     });
