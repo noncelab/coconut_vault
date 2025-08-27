@@ -30,34 +30,29 @@ class PsbtScannerViewModel {
     if (parsedPsbt.addressType?.isSingleSignature ?? true) {
       // 싱글시그지갑
       // 싱글시그는 MFP 일치 여부로 판단
-      for (final extendedKey in parsedPsbt.extendedPublicKeyList) {
-        final psbtMfp = extendedKey.masterFingerprint;
-        for (final vault in _walletProvider.vaultList) {
-          if (vault.vaultType == WalletType.singleSignature) {
-            final singleSigVault = vault.coconutVault as SingleSignatureVault;
-            if (singleSigVault.keyStore.masterFingerprint == psbtMfp) {
-              matchingVaultId = vault.id;
-              final canSign =
-                  await _walletProvider.getVaultById(matchingVaultId).canSign(psbtBase64);
-              if (!canSign) {
-                Logger.log('❌ 서명 불가능한 지갑 찾음 ${vault.name}');
-                continue;
-              }
-              _signProvider.setVaultListItem(_walletProvider.getVaultById(matchingVaultId));
-              isVaultSigningAllowed = true;
-              Logger.log('✅ 서명 가능한 지갑 찾음 ${vault.name}');
-              break;
+      final psbtMfp = parsedPsbt.extendedPublicKeyList.first.masterFingerprint;
+      for (final vault in _walletProvider.vaultList) {
+        if (vault.vaultType == WalletType.singleSignature) {
+          final singleSigVault = vault.coconutVault as SingleSignatureVault;
+          if (singleSigVault.keyStore.masterFingerprint == psbtMfp) {
+            matchingVaultId = vault.id;
+            final canSign = await _walletProvider.getVaultById(matchingVaultId).canSign(psbtBase64);
+            if (!canSign) {
+              Logger.log('❌ 서명 불가능한 지갑 찾음 ${vault.name}');
+              continue;
             }
+            _signProvider.setVaultListItem(_walletProvider.getVaultById(matchingVaultId));
+            isVaultSigningAllowed = true;
+            Logger.log('✅ 서명 가능한 지갑 찾음 ${vault.name}');
+            break;
           }
         }
-        if (matchingVaultId != null) break;
       }
     } else {
       // 멀티시그지갑
       final psbtMfps = parsedPsbt.extendedPublicKeyList
           .map((extendedKey) => extendedKey.masterFingerprint)
           .toSet();
-
       for (final vault in _walletProvider.vaultList) {
         if (vault.vaultType == WalletType.multiSignature) {
           final multisigVault = vault.coconutVault as MultisignatureVault;
