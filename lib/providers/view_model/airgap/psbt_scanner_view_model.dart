@@ -50,17 +50,18 @@ class PsbtScannerViewModel {
       }
     } else {
       // 멀티시그지갑
-      final psbtMfps = parsedPsbt.extendedPublicKeyList
+      final psbtMfpSet = parsedPsbt.extendedPublicKeyList
           .map((extendedKey) => extendedKey.masterFingerprint)
           .toSet();
       for (final vault in _walletProvider.vaultList) {
         if (vault.vaultType == WalletType.multiSignature) {
           final multisigVault = vault.coconutVault as MultisignatureVault;
-          final vaultMfps =
+          final vaultMfpSet =
               multisigVault.keyStoreList.map((keyStore) => keyStore.masterFingerprint).toSet();
 
           // PSBT의 모든 MFP가 vault의 MFP set에 포함되어 있는지 확인
-          if (psbtMfps.every((psbtMfp) => vaultMfps.contains(psbtMfp))) {
+          if (psbtMfpSet.length == vaultMfpSet.length &&
+              psbtMfpSet.every((psbtMfp) => vaultMfpSet.contains(psbtMfp))) {
             matchingVaultId = vault.id;
             final canSign = await _walletProvider.getVaultById(matchingVaultId).canSign(psbtBase64);
             if (!canSign) {
