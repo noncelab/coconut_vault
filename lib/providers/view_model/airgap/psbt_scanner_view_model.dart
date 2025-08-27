@@ -31,19 +31,18 @@ class PsbtScannerViewModel {
     // 한 개만 있는 경우 - 싱글 시그 지갑이므로 vaultList에서 바로 찾기
     // 두 개 이상 있는 경우 - 멀티 시그 지갑이므로 스캔된 정보의 MFP set과 vaultList의 MFP set 비교, 일치 시 해당 멀티시그 지갑 선택
 
-    bool? hasMatchingMfp;
     int? matchingVaultId;
     bool isVaultSigningAllowed = false;
 
     if (parsedPsbt.addressType?.isSingleSignature ?? true) {
       // 싱글시그지갑
+      // 싱글시그는 MFP 일치 여부로 판단
       for (final extendedKey in parsedPsbt.extendedPublicKeyList) {
         final psbtMfp = extendedKey.masterFingerprint;
         for (final vault in _walletProvider.vaultList) {
           if (vault.vaultType == WalletType.singleSignature) {
             final singleSigVault = vault.coconutVault as SingleSignatureVault;
             if (singleSigVault.keyStore.masterFingerprint == psbtMfp) {
-              hasMatchingMfp = true;
               matchingVaultId = vault.id;
               _signProvider.setVaultListItem(_walletProvider.getVaultById(matchingVaultId));
               isVaultSigningAllowed = await canSign(psbtBase64);
@@ -52,9 +51,8 @@ class PsbtScannerViewModel {
             }
           }
         }
-        if (hasMatchingMfp == true) break;
+        if (matchingVaultId != null) break;
       }
-      hasMatchingMfp ??= false;
     } else {
       // 멀티시그지갑
       final psbtMfps = parsedPsbt.extendedPublicKeyList
@@ -69,7 +67,6 @@ class PsbtScannerViewModel {
 
           // PSBT의 모든 MFP가 vault의 MFP set에 포함되어 있는지 확인
           if (psbtMfps.every((psbtMfp) => vaultMfps.contains(psbtMfp))) {
-            hasMatchingMfp = true;
             matchingVaultId = vault.id;
             _signProvider.setVaultListItem(_walletProvider.getVaultById(matchingVaultId));
             isVaultSigningAllowed = await canSign(psbtBase64);
@@ -82,10 +79,9 @@ class PsbtScannerViewModel {
           }
         }
       }
-      hasMatchingMfp ??= false;
     }
 
-    if (!hasMatchingMfp) {
+    if (matchingVaultId == null) {
       throw VaultNotFoundException();
     } else if (!isVaultSigningAllowed) {
       throw VaultSigningNotAllowedException();
