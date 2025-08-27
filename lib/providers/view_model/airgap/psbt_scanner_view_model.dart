@@ -18,6 +18,15 @@ class PsbtScannerViewModel {
     _signProvider.saveUnsignedPsbt(psbtBase64);
   }
 
+  Future<Psbt> parseBase64EncodedToPsbt(int vaultId, String signedPsbtBase64Encoded) async {
+    _signProvider.setVaultListItem(_walletProvider.getVaultById(vaultId));
+    final canSign = await _walletProvider.getVaultById(vaultId).canSign(signedPsbtBase64Encoded);
+    if (!canSign) {
+      throw VaultSigningNotAllowedException();
+    }
+    return Psbt.parse(signedPsbtBase64Encoded);
+  }
+
   Future<void> setMatchingVault(String psbtBase64) async {
     final parsedPsbt = _parseBase64EncodedToPsbt(psbtBase64);
     // parsedPsbt.extendedPublicKeyList가

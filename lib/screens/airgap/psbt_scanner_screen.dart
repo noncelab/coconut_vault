@@ -22,7 +22,8 @@ import 'package:ur/ur.dart';
 import 'package:cbor/cbor.dart';
 
 class PsbtScannerScreen extends StatefulWidget {
-  const PsbtScannerScreen({super.key});
+  final int? id;
+  const PsbtScannerScreen({super.key, this.id});
 
   @override
   State<PsbtScannerScreen> createState() => _PsbtScannerScreenState();
@@ -111,8 +112,13 @@ class _PsbtScannerScreenState extends State<PsbtScannerScreen> {
 
       psbtBase64 = base64Encode(decodedCbor.bytes);
 
-      // 스캔된 MFP를 이용해 유효한 볼트를 찾고, SignProvider에 저장
-      await _viewModel.setMatchingVault(psbtBase64);
+      if (widget.id == null) {
+        // 스캔된 MFP를 이용해 유효한 볼트를 찾고, SignProvider에 저장
+        await _viewModel.setMatchingVault(psbtBase64);
+      } else {
+        // id를 이용해 특정 지갑에 대해 psbt 파싱
+        await _viewModel.parseBase64EncodedToPsbt(widget.id!, psbtBase64);
+      }
     } catch (e) {
       vibrateExtraLightDouble();
       if (e is VaultNotFoundException) {

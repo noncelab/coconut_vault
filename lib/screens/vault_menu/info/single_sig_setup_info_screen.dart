@@ -9,6 +9,8 @@ import 'package:coconut_vault/providers/view_model/vault_menu/single_sig_setup_i
 import 'package:coconut_vault/screens/vault_menu/info/name_and_icon_edit_bottom_sheet.dart';
 import 'package:coconut_vault/utils/text_utils.dart';
 import 'package:coconut_vault/utils/vibration_util.dart';
+import 'package:coconut_vault/widgets/button/multi_button.dart';
+import 'package:coconut_vault/widgets/button/single_button.dart';
 import 'package:coconut_vault/widgets/card/vault_item_card.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -122,8 +124,10 @@ class _SingleSigSetupInfoScreenState extends State<SingleSigSetupInfoScreen> {
                                 _buildVaultItemCard(context),
                                 (viewModel.hasLinkedMultisigVault == true)
                                     ? _buildLinkedMultisigVaultInfoCard(context)
-                                    : const SizedBox(height: 20),
-                                _buildMnemonicViewAction(context),
+                                    : CoconutLayout.spacing_500h,
+                                _buildSignMenu(),
+                                CoconutLayout.spacing_500h,
+                                _buildMenuList(context),
                                 _buildDivider(),
                                 _buildDeleteButton(context)
                               ],
@@ -153,6 +157,19 @@ class _SingleSigSetupInfoScreenState extends State<SingleSigSetupInfoScreen> {
         _showModalBottomSheetForEditingNameAndIcon(viewModel);
       },
       tooltipKey: _tooltipIconKey,
+    );
+  }
+
+  Widget _buildSignMenu() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: SingleButton(
+        enableShrinkAnim: true,
+        title: t.vault_menu_screen.title.single_sig_sign,
+        onPressed: () {
+          Navigator.pushNamed(context, AppRoutes.psbtScanner, arguments: {'id': widget.id});
+        },
+      ),
     );
   }
 
@@ -314,153 +331,134 @@ class _SingleSigSetupInfoScreenState extends State<SingleSigSetupInfoScreen> {
     );
   }
 
-  Widget _buildMnemonicViewAction(BuildContext context) {
+  Widget _buildMenuList(BuildContext context) {
     return Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16),
-        child: Container(
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(28.0),
-              color: CoconutColors.black.withOpacity(0.03),
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: MultiButton(
+        children: [
+          SingleButton(
+            title: t.vault_menu_screen.title.use_as_multisig_signer,
+            enableShrinkAnim: true,
+            onPressed: () {
+              _removeTooltip();
+              Navigator.pushNamed(context, AppRoutes.multisigSignerBsmsExport,
+                  arguments: {'id': widget.id});
+            },
+          ),
+          SingleButton(
+            title: t.view_mnemonic,
+            enableShrinkAnim: true,
+            onPressed: () {
+              _removeTooltip();
+              Navigator.pushNamed(context, AppRoutes.mnemonicView, arguments: {'id': widget.id});
+            },
+          ),
+          SingleButton(
+            title: t.view_address,
+            enableShrinkAnim: true,
+            onPressed: () {
+              _removeTooltip();
+              Navigator.pushNamed(context, AppRoutes.addressList,
+                  arguments: {'id': widget.id, 'isSpecificVault': true});
+            },
+          ),
+          if (hasPassphrase) ...[
+            SingleButton(
+              enableShrinkAnim: true,
+              title: t.verify_passphrase,
+              onPressed: () {
+                _removeTooltip();
+                Navigator.of(context)
+                    .pushNamed(AppRoutes.passphraseVerification, arguments: {'id': widget.id});
+              },
             ),
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 24),
-              child: Column(
-                children: [
-                  InformationItemCard(
-                    label: t.vault_menu_screen.title.use_as_multisig_signer,
-                    showIcon: true,
-                    onPressed: () {
-                      _removeTooltip();
-
-                      Navigator.pushNamed(
-                        context,
-                        AppRoutes.multisigSignerBsmsExport,
-                        arguments: {'id': widget.id},
-                      );
-                    },
-                  ),
-                  const Divider(color: CoconutColors.borderLightGray, height: 1),
-                  InformationItemCard(
-                    label: t.view_mnemonic,
-                    showIcon: true,
-                    onPressed: () {
-                      _removeTooltip();
-                      _verifyBiometric(context, PinCheckContextEnum.sensitiveAction);
-                    },
-                  ),
-                  if (hasPassphrase) ...[
-                    const Divider(color: CoconutColors.borderLightGray, height: 1),
-                    InformationItemCard(
-                      label: t.verify_passphrase,
-                      showIcon: true,
-                      onPressed: () {
-                        _removeTooltip();
-                        Navigator.of(context).pushNamed(AppRoutes.passphraseVerification,
-                            arguments: {'id': widget.id});
-                      },
-                    ),
-                  ],
-                ],
-              ),
-            )));
+          ]
+        ],
+      ),
+    );
   }
 
   Widget _buildDeleteButton(BuildContext context) {
     final viewModel = context.read<SingleSigSetupInfoViewModel>();
-    return Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16),
-        child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 24),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(28.0),
-              color: CoconutColors.black.withOpacity(0.03),
+    return Selector<SingleSigSetupInfoViewModel, ({bool canDelete, String walletName})>(
+      selector: (context, viewModel) => (
+        canDelete: viewModel.hasLinkedMultisigVault != true,
+        walletName: viewModel.name,
+      ),
+      builder: (context, data, child) {
+        return Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: SingleButton(
+            title: t.delete_label,
+            titleStyle: CoconutTypography.body2_14_Bold.setColor(viewModel.hasLinkedMultisigVault
+                ? CoconutColors.gray850.withOpacity(0.15)
+                : CoconutColors.black),
+            enableShrinkAnim: data.canDelete,
+            rightElement: SvgPicture.asset(
+              'assets/svg/trash.svg',
+              width: 16,
+              colorFilter: ColorFilter.mode(
+                data.canDelete
+                    ? CoconutColors.warningText
+                    : CoconutColors.gray850.withOpacity(0.15),
+                BlendMode.srcIn,
+              ),
             ),
-            child: Column(
-              children: [
-                Selector<SingleSigSetupInfoViewModel, ({bool canDelete, String walletName})>(
-                    selector: (context, viewModel) => (
-                          canDelete: viewModel.hasLinkedMultisigVault != true,
-                          walletName: viewModel.name,
-                        ),
-                    builder: (context, data, child) {
-                      return InformationItemCard(
-                        label: t.delete_label,
-                        showIcon: true,
-                        textColor: viewModel.hasLinkedMultisigVault
-                            ? CoconutColors.gray850.withOpacity(0.15)
-                            : null,
-                        rightIcon: Container(
-                          padding: const EdgeInsets.all(8),
-                          decoration: BoxDecoration(
-                            color: CoconutColors.white.withOpacity(0.7),
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          child: SvgPicture.asset(
-                            'assets/svg/trash.svg',
-                            width: 16,
-                            colorFilter: ColorFilter.mode(
-                              data.canDelete
-                                  ? CoconutColors.warningText
-                                  : CoconutColors.gray850.withOpacity(0.15),
-                              BlendMode.srcIn,
-                            ),
+            onPressed: () {
+              _removeTooltip();
+              if (data.canDelete) {
+                showDialog(
+                    context: context,
+                    builder: (BuildContext dialogContext) {
+                      return CoconutPopup(
+                        insetPadding: EdgeInsets.symmetric(
+                            horizontal: MediaQuery.of(context).size.width * 0.15),
+                        title: t.confirm,
+                        titleTextStyle: CoconutTypography.body1_16_Bold,
+                        description: t.alert.confirm_deletion(name: data.walletName),
+                        descriptionTextStyle: CoconutTypography.body2_14,
+                        backgroundColor: CoconutColors.white,
+                        leftButtonText: t.no,
+                        leftButtonTextStyle: CoconutTypography.body2_14.merge(
+                          TextStyle(
+                            color: CoconutColors.black.withOpacity(0.7),
+                            fontWeight: FontWeight.w500,
                           ),
                         ),
-                        onPressed: () {
-                          _removeTooltip();
-                          if (data.canDelete) {
-                            showDialog(
-                                context: context,
-                                builder: (BuildContext dialogContext) {
-                                  return CoconutPopup(
-                                    insetPadding: EdgeInsets.symmetric(
-                                        horizontal: MediaQuery.of(context).size.width * 0.15),
-                                    title: t.confirm,
-                                    titleTextStyle: CoconutTypography.body1_16_Bold,
-                                    description: t.alert.confirm_deletion(name: data.walletName),
-                                    descriptionTextStyle: CoconutTypography.body2_14,
-                                    backgroundColor: CoconutColors.white,
-                                    leftButtonText: t.no,
-                                    leftButtonTextStyle: CoconutTypography.body2_14.merge(
-                                      TextStyle(
-                                        color: CoconutColors.black.withOpacity(0.7),
-                                        fontWeight: FontWeight.w500,
-                                      ),
-                                    ),
-                                    rightButtonText: t.yes,
-                                    rightButtonColor: CoconutColors.warningText,
-                                    rightButtonTextStyle: CoconutTypography.body2_14.merge(
-                                      const TextStyle(
-                                        fontWeight: FontWeight.w500,
-                                      ),
-                                    ),
-                                    onTapLeft: () => Navigator.pop(context),
-                                    onTapRight: () async {
-                                      context.loaderOverlay.show();
-                                      if (context.mounted) {
-                                        _verifyBiometric(context, PinCheckContextEnum.seedDeletion)
-                                            .then((bool isSuccess) {
-                                          if (!context.mounted) return;
+                        rightButtonText: t.yes,
+                        rightButtonColor: CoconutColors.warningText,
+                        rightButtonTextStyle: CoconutTypography.body2_14.merge(
+                          const TextStyle(
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                        onTapLeft: () => Navigator.pop(context),
+                        onTapRight: () async {
+                          context.loaderOverlay.show();
+                          if (context.mounted) {
+                            _verifyBiometric(context, PinCheckContextEnum.seedDeletion)
+                                .then((bool isSuccess) {
+                              if (!context.mounted) return;
 
-                                          context.loaderOverlay.hide();
-                                        });
-                                      }
-                                    },
-                                  );
-                                });
-
-                            return;
+                              context.loaderOverlay.hide();
+                            });
                           }
-                          CoconutToast.showToast(
-                            context: context,
-                            text: t.toast.name_multisig_in_use,
-                            isVisibleIcon: true,
-                          );
                         },
                       );
-                    }),
-              ],
-            )));
+                    });
+
+                return;
+              }
+              CoconutToast.showToast(
+                context: context,
+                text: t.toast.name_multisig_in_use,
+                isVisibleIcon: true,
+              );
+            },
+          ),
+        );
+      },
+    );
   }
 
   void _verifySwitch(BuildContext context, PinCheckContextEnum pinCheckContext) async {

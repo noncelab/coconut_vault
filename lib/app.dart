@@ -253,14 +253,20 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> {
             AppRoutes.mnemonicWordList: (context) => const MnemonicWordListScreen(),
             AppRoutes.addressList: (context) => buildScreenWithArguments(
                   context,
-                  (args) => AddressListScreen(id: args['id']),
+                  (args) => AddressListScreen(
+                    id: args['id'],
+                    isSpecificVault: args['isSpecificVault'] ?? false,
+                  ),
                 ),
             AppRoutes.signerBsmsScanner: (context) => buildScreenWithArguments(
                   context,
                   (args) =>
                       MultisigBsmsScannerScreen(id: args['id'], screenType: args['screenType']),
                 ),
-            AppRoutes.psbtScanner: (context) => const PsbtScannerScreen(),
+            AppRoutes.psbtScanner: (context) => buildScreenWithArguments(
+                  context,
+                  (args) => PsbtScannerScreen(id: args['id']),
+                ),
             AppRoutes.psbtConfirmation: (context) => const PsbtConfirmationScreen(),
             AppRoutes.signedTransaction: (context) => const SignedTransactionQrScreen(),
             AppRoutes.syncToWallet: (context) => buildScreenWithArguments(

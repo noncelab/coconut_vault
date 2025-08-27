@@ -14,8 +14,9 @@ import 'package:provider/provider.dart';
 
 class AddressListScreen extends StatefulWidget {
   final int id;
+  final bool isSpecificVault; // (true) 볼트 상세화면으로 진입 -> 다른 볼트 주소 조회 불가
 
-  const AddressListScreen({super.key, required this.id});
+  const AddressListScreen({super.key, required this.id, required this.isSpecificVault});
 
   @override
   State<AddressListScreen> createState() => _AddressListScreenState();
@@ -30,6 +31,7 @@ class _AddressListScreenState extends State<AddressListScreen> {
 
   @override
   Widget build(BuildContext context) {
+    debugPrint('isSpecificVault: ${widget.isSpecificVault}');
     return ChangeNotifierProvider<AddressListViewModel>(
       create: (BuildContext context) => _viewModel =
           AddressListViewModel(Provider.of<WalletProvider>(context, listen: false), widget.id),
@@ -65,11 +67,15 @@ class _AddressListScreenState extends State<AddressListScreen> {
                     ),
                     style: CoconutTypography.heading4_18,
                   ),
-                  CoconutLayout.spacing_50w,
-                  const Icon(Icons.keyboard_arrow_down_sharp, color: CoconutColors.black, size: 16),
+                  if (!widget.isSpecificVault) ...[
+                    CoconutLayout.spacing_50w,
+                    const Icon(Icons.keyboard_arrow_down_sharp,
+                        color: CoconutColors.black, size: 16),
+                  ],
                 ],
               ),
               onTitlePressed: () {
+                if (widget.isSpecificVault) return;
                 MyBottomSheet.showDraggableBottomSheet(
                     context: context,
                     childBuilder: (scrollController) => SelectVaultBottomSheet(
