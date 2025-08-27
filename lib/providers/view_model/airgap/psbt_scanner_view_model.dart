@@ -14,18 +14,11 @@ class PsbtScannerViewModel {
     _signProvider.resetAll();
   }
 
-  Future<bool> canSign(String psbtBase64) async {
-    if (_signProvider.vaultListItem == null) {
-      return false;
-    }
-    return await _signProvider.vaultListItem!.canSign(psbtBase64);
-  }
-
   void saveUnsignedPsbt(String psbtBase64) {
     _signProvider.saveUnsignedPsbt(psbtBase64);
   }
 
-  Future<void> setVaultByPsbtBase64(String psbtBase64) async {
+  Future<void> setMatchingVault(String psbtBase64) async {
     final parsedPsbt = _parseBase64EncodedToPsbt(psbtBase64);
     // parsedPsbt.extendedPublicKeyList가
     // 한 개만 있는 경우 - 싱글 시그 지갑이므로 vaultList에서 바로 찾기
@@ -44,8 +37,14 @@ class PsbtScannerViewModel {
             final singleSigVault = vault.coconutVault as SingleSignatureVault;
             if (singleSigVault.keyStore.masterFingerprint == psbtMfp) {
               matchingVaultId = vault.id;
+              final canSign =
+                  await _walletProvider.getVaultById(matchingVaultId).canSign(psbtBase64);
+              if (!canSign) {
+                Logger.log('❌ 서명 불가능한 지갑 찾음 ${vault.name}');
+                continue;
+              }
               _signProvider.setVaultListItem(_walletProvider.getVaultById(matchingVaultId));
-              isVaultSigningAllowed = await canSign(psbtBase64);
+              isVaultSigningAllowed = true;
               Logger.log('✅ 서명 가능한 지갑 찾음 ${vault.name}');
               break;
             }
@@ -68,14 +67,15 @@ class PsbtScannerViewModel {
           // PSBT의 모든 MFP가 vault의 MFP set에 포함되어 있는지 확인
           if (psbtMfps.every((psbtMfp) => vaultMfps.contains(psbtMfp))) {
             matchingVaultId = vault.id;
-            _signProvider.setVaultListItem(_walletProvider.getVaultById(matchingVaultId));
-            isVaultSigningAllowed = await canSign(psbtBase64);
-            if (isVaultSigningAllowed) {
-              Logger.log('✅ 서명 가능한 지갑 찾음 ${vault.name}');
-              break;
-            } else {
+            final canSign = await _walletProvider.getVaultById(matchingVaultId).canSign(psbtBase64);
+            if (!canSign) {
               Logger.log('❌ 서명 불가능한 지갑 찾음 ${vault.name}');
+              continue;
             }
+            _signProvider.setVaultListItem(_walletProvider.getVaultById(matchingVaultId));
+            isVaultSigningAllowed = true;
+            Logger.log('✅ 서명 가능한 지갑 찾음 ${vault.name}');
+            break;
           }
         }
       }

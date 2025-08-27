@@ -112,7 +112,7 @@ class _PsbtScannerScreenState extends State<PsbtScannerScreen> {
       psbtBase64 = base64Encode(decodedCbor.bytes);
 
       // 스캔된 MFP를 이용해 유효한 볼트를 찾고, SignProvider에 저장
-      await _viewModel.setVaultByPsbtBase64(psbtBase64);
+      await _viewModel.setMatchingVault(psbtBase64);
     } catch (e) {
       vibrateExtraLightDouble();
       if (e is VaultNotFoundException) {
