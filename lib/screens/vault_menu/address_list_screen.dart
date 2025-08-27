@@ -79,7 +79,6 @@ class _AddressListScreenState extends State<AddressListScreen> {
                               .vaultList
                               .where((vault) => vault.id != viewModel.vaultId)
                               .toList(),
-                          subLabel: t.vault_menu_screen.description.export_xpub,
                           onVaultSelected: (id) async {
                             viewModel.changeVaultById(id);
                             Navigator.pop(context);
