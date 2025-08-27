@@ -20,6 +20,7 @@ settings: "설정"
 confirm: "확인"
 complete: "완료"
 cancel: "취소"
+abort: "종료"
 next: "다음"
 save: "저장"
 select: "선택"
@@ -54,7 +55,7 @@ signature: "서명"
 sign_completion: "서명 완료"
 sign: "서명하기"
 signed_tx: "서명 트랜잭션"
-sign_completed: "서명을 완료했습니다"
+sign_completed: "서명을 완료했어요"
 stop_sign: "서명 종료하기"
 
 select_completed: "선택 완료"
@@ -97,6 +98,10 @@ bitcoin_text: "$bitcoin BTC"
 sign_required: 
   one: "$n 서명이 필요합니다"
   other: "$n 서명이 필요합니다"
+sign_required_amount: "$n개의 서명이 필요해요"
+move_to_qr_screen: "QR 코드 화면으로 이동"
+move_to_qr_screen_description: "키가 있는 볼트에서 서명하기 위해 QR을 생성합니다."
+
 name_text_count: "($count / 20)"
 wallet_subtitle: "$name의 $index번 키"
 
@@ -594,6 +599,9 @@ alert:
     title: "복원 중단"
     description: "복원을 그만두시겠어요?\n중단하시려면 [확인]을\n복원을 계속하시려면\n[취소]를 눌러주세요."
   erase_all_entered_so_far: "정말로 지금까지 입력한 정보를\n모두 지우시겠어요?"
+  finish_signing:
+    title:  "트랜잭션 서명 마무리"
+    description: "이 화면을 닫으면 생성한 서명 정보가 사라져요.\n정말 종료하시겠어요?"
 
 toast:
   clipboard_copied: "클립보드에 복사되었어요"

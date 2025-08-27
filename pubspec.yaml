@@ -234,6 +234,7 @@ flutter:
     - assets/svg/star-outlined.svg
     - assets/svg/star-small.svg
     - assets/svg/hamburger.svg
+    - assets/svg/qr-code.svg
 
   fonts:
     - family: SpaceGrotesk

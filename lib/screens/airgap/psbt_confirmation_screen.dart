@@ -5,9 +5,9 @@ import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/providers/sign_provider.dart';
 import 'package:coconut_vault/providers/view_model/airgap/psbt_confirmation_view_model.dart';
 import 'package:coconut_vault/providers/visibility_provider.dart';
+import 'package:coconut_vault/widgets/button/fixed_bottom_button.dart';
 import 'package:flutter/material.dart';
 import 'package:coconut_vault/utils/alert_util.dart';
-import 'package:coconut_vault/widgets/custom_tooltip.dart';
 import 'package:coconut_vault/widgets/card/information_item_card.dart';
 import 'package:provider/provider.dart';
 
@@ -57,17 +57,9 @@ class _PsbtConfirmationScreenState extends State<PsbtConfirmationScreen> {
       child: Consumer<PsbtConfirmationViewModel>(builder: (context, viewModel, child) {
         return Scaffold(
           backgroundColor: CoconutColors.white,
-          appBar: CoconutAppBar.buildWithNext(
+          appBar: CoconutAppBar.build(
             title: t.psbt_confirmation_screen.title,
-            nextButtonTitle: t.next,
             context: context,
-            isActive: !_showLoading && viewModel.totalAmount != null,
-            onNextPressed: () {
-              Navigator.pushNamed(
-                context,
-                viewModel.isMultisig ? AppRoutes.multisigSign : AppRoutes.singleSigSign,
-              );
-            },
             onBackPressed: () {
               viewModel.resetSignProvider();
               Navigator.pop(context);
@@ -207,6 +199,16 @@ class _PsbtConfirmationScreenState extends State<PsbtConfirmationScreen> {
                       ],
                     ],
                   ),
+                ),
+                FixedBottomButton(
+                  text: t.next,
+                  isActive: !_showLoading && viewModel.totalAmount != null,
+                  onButtonClicked: () {
+                    Navigator.pushNamed(
+                      context,
+                      viewModel.isMultisig ? AppRoutes.multisigSign : AppRoutes.singleSigSign,
+                    );
+                  },
                 ),
                 Visibility(
                   visible: _showLoading,

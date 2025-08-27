@@ -106,190 +106,196 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
               onBackPressed: () => _onBackPressed(context),
               backgroundColor: CoconutColors.white,
             ),
-            body: SizedBox(
-              height: MediaQuery.of(context).size.height -
-                  kToolbarHeight -
-                  MediaQuery.of(context).padding.top,
-              child: Stack(
-                children: [
-                  SingleChildScrollView(
-                    child: Column(
-                      children: [
-                        Stack(
-                          children: [
-                            ClipRRect(
-                              child: Container(
-                                height: 6,
-                                color: CoconutColors.black.withOpacity(0.06),
-                              ),
-                            ),
-                            LayoutBuilder(
-                              builder: (context, constraints) {
-                                return ClipRRect(
-                                  borderRadius: viewModel.getAssignedVaultListLength() /
-                                              viewModel.totalSignatureCount ==
-                                          1
-                                      ? BorderRadius.zero
-                                      : const BorderRadius.only(
-                                          topRight: Radius.circular(6),
-                                          bottomRight: Radius.circular(6)),
-                                  child: AnimatedContainer(
-                                    duration: const Duration(milliseconds: 500),
-                                    curve: Curves.easeInOut,
-                                    height: 6,
-                                    width: (constraints.maxWidth) *
-                                        (viewModel.getAssignedVaultListLength() == 0
-                                            ? 0
-                                            : viewModel.getAssignedVaultListLength() /
-                                                viewModel.totalSignatureCount),
-                                    color: CoconutColors.black,
-                                  ),
-                                );
-                              },
-                            ),
-                          ],
-                        ),
-                        SingleChildScrollView(
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 78),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: [
-                                Text(
-                                  t.assign_signers_screen.create_multisig_wallet_by_quorum(
-                                      requiredSignatureCount: viewModel.requiredSignatureCount,
-                                      totalSignatureCount: viewModel.totalSignatureCount),
-                                  style: CoconutTypography.heading4_18_Bold,
+            body: SafeArea(
+              child: SizedBox(
+                height: MediaQuery.of(context).size.height -
+                    kToolbarHeight -
+                    MediaQuery.of(context).padding.top,
+                child: Stack(
+                  children: [
+                    SingleChildScrollView(
+                      child: Column(
+                        children: [
+                          Stack(
+                            children: [
+                              ClipRRect(
+                                child: Container(
+                                  height: 6,
+                                  color: CoconutColors.black.withOpacity(0.06),
                                 ),
-                                CoconutLayout.spacing_900h,
-                                for (int i = 0; i < viewModel.assignedVaultList.length; i++) ...[
-                                  ShrinkAnimationButton(
-                                    onPressed: () {
-                                      if (viewModel.assignedVaultList[i].importKeyType != null) {
-                                        _showDialog(DialogType.deleteKey, keyIndex: i);
-                                        return;
-                                      }
-                                      MyBottomSheet.showBottomSheet_50(
-                                          showDragHandle: true,
-                                          context: context,
-                                          child: _buildSelectKeyOptionBottomSheet(i));
-                                    },
-                                    defaultColor:
-                                        viewModel.assignedVaultList[i].importKeyType != null
-                                            ? viewModel.assignedVaultList[i].importKeyType ==
-                                                    ImportKeyType.internal
-                                                ? CoconutColors.backgroundColorPaletteLight[
-                                                    viewModel.assignedVaultList[i].item!.colorIndex]
-                                                : CoconutColors.backgroundColorPaletteLight[8]
-                                            : CoconutColors.white,
-                                    pressedColor: viewModel.assignedVaultList[i].importKeyType !=
-                                            null
-                                        ? viewModel.assignedVaultList[i].importKeyType ==
-                                                ImportKeyType.internal
-                                            ? CoconutColors.backgroundColorPaletteLight[
-                                                    viewModel.assignedVaultList[i].item!.colorIndex]
+                              ),
+                              LayoutBuilder(
+                                builder: (context, constraints) {
+                                  return ClipRRect(
+                                    borderRadius: viewModel.getAssignedVaultListLength() /
+                                                viewModel.totalSignatureCount ==
+                                            1
+                                        ? BorderRadius.zero
+                                        : const BorderRadius.only(
+                                            topRight: Radius.circular(6),
+                                            bottomRight: Radius.circular(6)),
+                                    child: AnimatedContainer(
+                                      duration: const Duration(milliseconds: 500),
+                                      curve: Curves.easeInOut,
+                                      height: 6,
+                                      width: (constraints.maxWidth) *
+                                          (viewModel.getAssignedVaultListLength() == 0
+                                              ? 0
+                                              : viewModel.getAssignedVaultListLength() /
+                                                  viewModel.totalSignatureCount),
+                                      color: CoconutColors.black,
+                                    ),
+                                  );
+                                },
+                              ),
+                            ],
+                          ),
+                          SingleChildScrollView(
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 78),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  Text(
+                                    t.assign_signers_screen.create_multisig_wallet_by_quorum(
+                                        requiredSignatureCount: viewModel.requiredSignatureCount,
+                                        totalSignatureCount: viewModel.totalSignatureCount),
+                                    style: CoconutTypography.heading4_18_Bold,
+                                  ),
+                                  CoconutLayout.spacing_900h,
+                                  for (int i = 0; i < viewModel.assignedVaultList.length; i++) ...[
+                                    ShrinkAnimationButton(
+                                      onPressed: () {
+                                        if (viewModel.assignedVaultList[i].importKeyType != null) {
+                                          _showDialog(DialogType.deleteKey, keyIndex: i);
+                                          return;
+                                        }
+                                        MyBottomSheet.showBottomSheet_50(
+                                            showDragHandle: true,
+                                            context: context,
+                                            child: _buildSelectKeyOptionBottomSheet(i));
+                                      },
+                                      defaultColor: viewModel.assignedVaultList[i].importKeyType !=
+                                              null
+                                          ? viewModel.assignedVaultList[i].importKeyType ==
+                                                  ImportKeyType.internal
+                                              ? CoconutColors.backgroundColorPaletteLight[
+                                                  viewModel.assignedVaultList[i].item!.colorIndex]
+                                              : CoconutColors.backgroundColorPaletteLight[8]
+                                          : CoconutColors.white,
+                                      pressedColor: viewModel.assignedVaultList[i].importKeyType !=
+                                              null
+                                          ? viewModel.assignedVaultList[i].importKeyType ==
+                                                  ImportKeyType.internal
+                                              ? CoconutColors.backgroundColorPaletteLight[viewModel
+                                                      .assignedVaultList[i].item!.colorIndex]
+                                                  .withAlpha(70)
+                                              : CoconutColors.backgroundColorPaletteLight[8]
+                                                  .withAlpha(70)
+                                          : CoconutColors.gray150,
+                                      borderRadius: 100,
+                                      borderWidth: 1,
+                                      border: Border.all(
+                                        color: viewModel.assignedVaultList[i].importKeyType != null
+                                            ? CoconutColors.backgroundColorPaletteLight[viewModel
+                                                        .assignedVaultList[i].item?.colorIndex ??
+                                                    8]
                                                 .withAlpha(70)
-                                            : CoconutColors.backgroundColorPaletteLight[8]
-                                                .withAlpha(70)
-                                        : CoconutColors.gray150,
-                                    borderRadius: 100,
-                                    borderWidth: 1,
-                                    borderGradientColors:
-                                        viewModel.assignedVaultList[i].importKeyType != null
-                                            ? [
-                                                CoconutColors.black.withOpacity(0.00),
-                                                CoconutColors.black.withOpacity(0.00),
-                                              ]
-                                            : const [
-                                                CoconutColors.gray200,
-                                                CoconutColors.gray200,
-                                              ],
-                                    child: SizedBox(
-                                      width: 210,
-                                      height: 64,
-                                      child: viewModel.assignedVaultList[i].importKeyType != null
-                                          ? Row(
-                                              mainAxisAlignment: MainAxisAlignment.center,
-                                              children: [
-                                                SvgPicture.asset(
-                                                  viewModel.assignedVaultList[i].importKeyType ==
-                                                          ImportKeyType.internal
-                                                      ? CustomIcons.getPathByIndex(viewModel
-                                                          .assignedVaultList[i].item!.iconIndex)
-                                                      : 'assets/svg/download.svg',
-                                                  colorFilter: ColorFilter.mode(
+                                            : CoconutColors.gray200,
+                                        width: 1,
+                                      ),
+                                      child: SizedBox(
+                                        width: 210,
+                                        height: 64,
+                                        child: viewModel.assignedVaultList[i].importKeyType != null
+                                            ? Row(
+                                                mainAxisAlignment: MainAxisAlignment.center,
+                                                children: [
+                                                  SvgPicture.asset(
                                                     viewModel.assignedVaultList[i].importKeyType ==
                                                             ImportKeyType.internal
-                                                        ? CoconutColors.colorPalette[viewModel
-                                                            .assignedVaultList[i].item!.colorIndex]
-                                                        : CoconutColors.black,
-                                                    BlendMode.srcIn,
-                                                  ),
-                                                  width: 14.0,
-                                                ),
-                                                CoconutLayout.spacing_300w,
-                                                Text(
-                                                  t.multisig.nth_key_with_name(
-                                                      name: viewModel.assignedVaultList[i]
+                                                        ? CustomIcons.getPathByIndex(viewModel
+                                                            .assignedVaultList[i].item!.iconIndex)
+                                                        : 'assets/svg/download.svg',
+                                                    colorFilter: ColorFilter.mode(
+                                                      viewModel.assignedVaultList[i]
                                                                   .importKeyType ==
                                                               ImportKeyType.internal
-                                                          ? _viewModel
-                                                              .assignedVaultList[i].item!.name
-                                                          : _viewModel.assignedVaultList[i].memo ??
-                                                              t.external_wallet,
+                                                          ? CoconutColors.colorPalette[viewModel
+                                                              .assignedVaultList[i]
+                                                              .item!
+                                                              .colorIndex]
+                                                          : CoconutColors.black,
+                                                      BlendMode.srcIn,
+                                                    ),
+                                                    width: 14.0,
+                                                  ),
+                                                  CoconutLayout.spacing_300w,
+                                                  Text(
+                                                    t.multisig.nth_key_with_name(
+                                                        name: viewModel.assignedVaultList[i]
+                                                                    .importKeyType ==
+                                                                ImportKeyType.internal
+                                                            ? _viewModel
+                                                                .assignedVaultList[i].item!.name
+                                                            : _viewModel
+                                                                    .assignedVaultList[i].memo ??
+                                                                t.external_wallet,
+                                                        index:
+                                                            _viewModel.assignedVaultList[i].index +
+                                                                1),
+                                                    style: CoconutTypography.body1_16,
+                                                  ),
+                                                ],
+                                              )
+                                            : Center(
+                                                child: Text(
+                                                  t.multisig.select_nth_key(
                                                       index: _viewModel.assignedVaultList[i].index +
                                                           1),
                                                   style: CoconutTypography.body1_16,
                                                 ),
-                                              ],
-                                            )
-                                          : Center(
-                                              child: Text(
-                                                t.multisig.select_nth_key(
-                                                    index:
-                                                        _viewModel.assignedVaultList[i].index + 1),
-                                                style: CoconutTypography.body1_16,
                                               ),
-                                            ),
+                                      ),
                                     ),
-                                  ),
-                                  CoconutLayout.spacing_500h,
+                                    CoconutLayout.spacing_500h,
+                                  ],
                                 ],
-                              ],
+                              ),
                             ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
-                  ),
-                  SizedBox(
-                    width: MediaQuery.of(context).size.width,
-                    child: Builder(builder: (context) {
-                      return FixedBottomButton(
-                        showGradient: false,
-                        backgroundColor: CoconutColors.black,
-                        onButtonClicked:
-                            _hasValidationCompleted && viewModel.isAssignedKeyCompletely()
-                                ? onNextPressed
-                                : onSelectionCompleted,
-                        text: _hasValidationCompleted && viewModel.isAssignedKeyCompletely()
-                            ? t.next
-                            : t.select_completed,
-                        isActive: viewModel.isAssignedKeyCompletely() && !_hasValidationCompleted
-                            ? !_isNextProcessing
-                            : _hasValidationCompleted,
-                      );
-                    }),
-                  ),
-                  Visibility(
-                    visible: _isNextProcessing,
-                    child: Container(
-                      decoration: BoxDecoration(color: CoconutColors.black.withOpacity(0.3)),
-                      child: Center(
-                          child: MessageActivityIndicator(message: viewModel.loadingMessage)),
+                    SizedBox(
+                      width: MediaQuery.of(context).size.width,
+                      child: Builder(builder: (context) {
+                        return FixedBottomButton(
+                          showGradient: false,
+                          backgroundColor: CoconutColors.black,
+                          onButtonClicked:
+                              _hasValidationCompleted && viewModel.isAssignedKeyCompletely()
+                                  ? onNextPressed
+                                  : onSelectionCompleted,
+                          text: _hasValidationCompleted && viewModel.isAssignedKeyCompletely()
+                              ? t.next
+                              : t.select_completed,
+                          isActive: viewModel.isAssignedKeyCompletely() && !_hasValidationCompleted
+                              ? !_isNextProcessing
+                              : _hasValidationCompleted,
+                        );
+                      }),
                     ),
-                  ),
-                ],
+                    Visibility(
+                      visible: _isNextProcessing,
+                      child: Container(
+                        decoration: BoxDecoration(color: CoconutColors.black.withOpacity(0.3)),
+                        child: Center(
+                            child: MessageActivityIndicator(message: viewModel.loadingMessage)),
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
           ),
