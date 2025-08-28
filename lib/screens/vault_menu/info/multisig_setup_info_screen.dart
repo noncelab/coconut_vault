@@ -16,6 +16,7 @@ import 'package:coconut_vault/utils/icon_util.dart';
 import 'package:coconut_vault/utils/vibration_util.dart';
 import 'package:coconut_vault/widgets/bottom_sheet.dart';
 import 'package:coconut_vault/widgets/bubble_clipper.dart';
+import 'package:coconut_vault/widgets/button/button_group.dart';
 import 'package:coconut_vault/widgets/button/multi_button.dart';
 import 'package:coconut_vault/widgets/button/single_button.dart';
 import 'package:coconut_vault/widgets/card/vault_item_card.dart';
@@ -359,8 +360,8 @@ class _MultisigSetupInfoScreenState extends State<MultisigSetupInfoScreen> {
   Widget _buildMenuList(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
-      child: MultiButton(
-        children: [
+      child: ButtonGroup(
+        buttons: [
           SingleButton(
             enableShrinkAnim: true,
             title: t.multi_sig_setting_screen.view_bsms,

@@ -9,6 +9,7 @@ import 'package:coconut_vault/providers/view_model/vault_menu/single_sig_setup_i
 import 'package:coconut_vault/screens/vault_menu/info/name_and_icon_edit_bottom_sheet.dart';
 import 'package:coconut_vault/utils/text_utils.dart';
 import 'package:coconut_vault/utils/vibration_util.dart';
+import 'package:coconut_vault/widgets/button/button_group.dart';
 import 'package:coconut_vault/widgets/button/multi_button.dart';
 import 'package:coconut_vault/widgets/button/single_button.dart';
 import 'package:coconut_vault/widgets/card/vault_item_card.dart';
@@ -334,8 +335,8 @@ class _SingleSigSetupInfoScreenState extends State<SingleSigSetupInfoScreen> {
   Widget _buildMenuList(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
-      child: MultiButton(
-        children: [
+      child: ButtonGroup(
+        buttons: [
           SingleButton(
             title: t.vault_menu_screen.title.use_as_multisig_signer,
             enableShrinkAnim: true,
