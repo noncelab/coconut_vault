@@ -101,8 +101,7 @@ class _SignerQrBottomSheetState extends State<SignerQrBottomSheet> {
                     padding: const EdgeInsets.all(10),
                     decoration: CoconutBoxDecoration.shadowBoxDecoration,
                     child: AnimatedQrView(
-                      qrViewDataHandler:
-                          BcUrQrViewHandler(widget.signedRawTx, {'urType': 'crypto-psbt'}),
+                      qrViewDataHandler: BcUrQrViewHandler(widget.signedRawTx, UrType.cryptoPsbt),
                       qrSize: MediaQuery.of(context).size.width * 0.8,
                     ),
                   ),

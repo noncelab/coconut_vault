@@ -108,7 +108,10 @@ advanced_user: "Advanced User"
 
 extra_count: "+$count more"
 
-edit: "편집"
+edit: "edit"
+
+coconut: "Coconut"
+descriptor: "Descriptor"
 
 vault_home_screen:
   view_all_my_wallets: "View All My Wallets"
@@ -428,10 +431,6 @@ signer_bsms_screen:
   export_info: "Export Info"
 sync_to_wallet_screen:
   title: "Export $name"
-  guide1_1: "In wallet"
-  guide1_2: " press + button and select Coconut Vault, then "
-  guide1_3: "scan QR code"
-  guide1_4: " below. You can use safe watch-only wallet."
   view_detail: "View Details"
 vault_menu_screen:
   title:  

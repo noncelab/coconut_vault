@@ -84,8 +84,8 @@ class _SignedTransactionQrScreenState extends State<SignedTransactionQrScreen> {
                   padding: const EdgeInsets.all(10),
                   decoration: CoconutBoxDecoration.shadowBoxDecoration,
                   child: AnimatedQrView(
-                    qrViewDataHandler: BcUrQrViewHandler(
-                        _signProvider.signedPsbtBase64!, {'urType': 'crypto-psbt'}),
+                    qrViewDataHandler:
+                        BcUrQrViewHandler(_signProvider.signedPsbtBase64!, UrType.cryptoPsbt),
                     qrSize: MediaQuery.of(context).size.width * 0.8,
                   ),
                 ),

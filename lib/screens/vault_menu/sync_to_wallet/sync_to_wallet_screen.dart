@@ -1,9 +1,12 @@
 import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
+import 'package:coconut_vault/providers/view_model/vault_menu/sync_to_wallet_view_model.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:coconut_vault/screens/vault_menu/sync_to_wallet/export_detail_screen.dart';
+import 'package:coconut_vault/widgets/animated_qr/animated_qr_view.dart';
+import 'package:coconut_vault/widgets/animated_qr/view_data_handler/bc_ur_qr_view_handler.dart';
 import 'package:coconut_vault/widgets/bottom_sheet.dart';
-import 'package:coconut_vault/widgets/custom_tooltip.dart';
+import 'package:coconut_vault/widgets/control/sliding_segmented_control.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -22,90 +25,81 @@ class _SyncToWalletScreenState extends State<SyncToWalletScreen> {
   String qrData = '';
   String pubString = '';
   late String _name;
+  late final Map<int, String> options;
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: CoconutColors.white,
-      appBar: CoconutAppBar.build(
-        title: t.sync_to_wallet_screen.title(name: _name),
-        context: context,
-      ),
-      body: SafeArea(
-        minimum: CoconutPadding.container,
-        child: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              CoconutToolTip(
-                tooltipType: CoconutTooltipType.fixed,
-                showIcon: true,
-                richText: RichText(
-                  text: TextSpan(
-                    text: t.sync_to_wallet_screen.guide1_1,
-                    style: const TextStyle(
-                      fontFamily: 'Pretendard',
-                      fontWeight: FontWeight.bold,
-                      fontSize: 15,
-                      height: 1.4,
-                      letterSpacing: 0.5,
-                      color: CoconutColors.black,
-                    ),
-                    children: <TextSpan>[
-                      TextSpan(
-                        text: t.sync_to_wallet_screen.guide1_2,
-                        style: const TextStyle(
-                          fontWeight: FontWeight.normal,
-                        ),
-                      ),
-                      TextSpan(
-                        text: t.sync_to_wallet_screen.guide1_3,
-                        style: const TextStyle(
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      TextSpan(
-                        text: t.sync_to_wallet_screen.guide1_4,
-                        style: const TextStyle(
-                          fontWeight: FontWeight.normal,
-                        ),
-                      ),
-                    ],
+    return ChangeNotifierProvider<WalletToSyncViewModel>(
+      create: (context) => WalletToSyncViewModel(widget.id, context.read<WalletProvider>()),
+      child: Scaffold(
+        backgroundColor: CoconutColors.white,
+        appBar: CoconutAppBar.build(
+          title: t.sync_to_wallet_screen.title(name: _name),
+          context: context,
+        ),
+        body: SafeArea(
+          minimum: CoconutPadding.container,
+          child: SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Selector<WalletToSyncViewModel, List<String>>(
+                  selector: (context, vm) => vm.options,
+                  builder: (context, options, child) => SlidingSegmentedControl(
+                    options: options.asMap(),
+                    onValueChanged: context.read<WalletToSyncViewModel>().setSelectedOption,
+                    fixedWidth: 84,
+                    height: 34,
                   ),
                 ),
-              ),
-              const SizedBox(height: 32),
-              Center(
-                  child: Container(
-                      width: MediaQuery.of(context).size.width * 0.76,
-                      decoration: CoconutBoxDecoration.shadowBoxDecoration,
-                      child: QrImageView(
-                        data: qrData,
-                      ))),
-              const SizedBox(height: 32),
-              GestureDetector(
-                child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(4.0),
-                    color: CoconutColors.borderGray,
-                  ),
-                  child: Text(
-                    t.sync_to_wallet_screen.view_detail,
-                    style: CoconutTypography.body3_12.setColor(
-                      CoconutColors.white,
-                    ),
-                  ),
-                ),
-                onTap: () {
-                  MyBottomSheet.showBottomSheet_90(
-                      context: context,
-                      child: ExportDetailScreen(
-                        exportDetail: qrData,
-                      ));
-                },
-              ),
-            ],
+                const SizedBox(height: 32),
+                Center(
+                    child: Container(
+                        padding: const EdgeInsets.all(10),
+                        decoration: CoconutBoxDecoration.shadowBoxDecoration,
+                        child: Selector<WalletToSyncViewModel, QrData>(
+                            selector: (context, vm) => vm.qrData,
+                            builder: (context, qrData, child) {
+                              final qrSize = MediaQuery.of(context).size.width * 0.8;
+                              if (qrData.type == QrType.single) {
+                                return QrImageView(data: qrData.data, size: qrSize);
+                              }
+                              return AnimatedQrView(
+                                qrViewDataHandler:
+                                    BcUrQrViewHandler(qrData.data, UrType.cryptoAccount),
+                                qrSize: qrSize,
+                              );
+                            }))),
+                const SizedBox(height: 32),
+                Selector<WalletToSyncViewModel, String>(
+                  selector: (context, vm) => vm.qrDataString,
+                  builder: (context, qrDataString, child) {
+                    return GestureDetector(
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(4.0),
+                          color: CoconutColors.borderGray,
+                        ),
+                        child: Text(
+                          t.sync_to_wallet_screen.view_detail,
+                          style: CoconutTypography.body3_12.setColor(
+                            CoconutColors.white,
+                          ),
+                        ),
+                      ),
+                      onTap: () {
+                        MyBottomSheet.showBottomSheet_90(
+                            context: context,
+                            child: ExportDetailScreen(
+                              exportDetail: qrDataString,
+                            ));
+                      },
+                    );
+                  },
+                )
+              ],
+            ),
           ),
         ),
       ),
