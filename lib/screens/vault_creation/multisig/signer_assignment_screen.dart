@@ -204,9 +204,10 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
                                             : CoconutColors.gray200,
                                         width: 1,
                                       ),
-                                      child: SizedBox(
+                                      child: Container(
                                         width: 210,
                                         height: 64,
+                                        padding: const EdgeInsets.symmetric(horizontal: 16),
                                         child: viewModel.assignedVaultList[i].importKeyType != null
                                             ? Row(
                                                 mainAxisAlignment: MainAxisAlignment.center,
@@ -231,20 +232,25 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
                                                     width: 14.0,
                                                   ),
                                                   CoconutLayout.spacing_300w,
-                                                  Text(
-                                                    t.multisig.nth_key_with_name(
-                                                        name: viewModel.assignedVaultList[i]
-                                                                    .importKeyType ==
-                                                                ImportKeyType.internal
-                                                            ? _viewModel
-                                                                .assignedVaultList[i].item!.name
-                                                            : _viewModel
-                                                                    .assignedVaultList[i].memo ??
-                                                                t.external_wallet,
-                                                        index:
-                                                            _viewModel.assignedVaultList[i].index +
-                                                                1),
-                                                    style: CoconutTypography.body1_16,
+                                                  Flexible(
+                                                    child: Text(
+                                                      t.multisig.nth_key_with_name(
+                                                          name: viewModel.assignedVaultList[i]
+                                                                      .importKeyType ==
+                                                                  ImportKeyType.internal
+                                                              ? _viewModel
+                                                                  .assignedVaultList[i].item!.name
+                                                              : _viewModel
+                                                                      .assignedVaultList[i].memo ??
+                                                                  t.external_wallet,
+                                                          index: _viewModel
+                                                                  .assignedVaultList[i].index +
+                                                              1),
+                                                      style: CoconutTypography.body1_16,
+                                                      maxLines: 1,
+                                                      overflow: TextOverflow.ellipsis,
+                                                      textAlign: TextAlign.center,
+                                                    ),
                                                   ),
                                                 ],
                                               )
