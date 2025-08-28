@@ -201,7 +201,8 @@ psbt_confirmation_screen:
   warning: "⚠️ This may not be a psbt created with this wallet. Or it may be a transaction with no balance."
 psbt_scanner_screen:
   guide_multisig: "Please scan sending info created in wallet or multisig info from external vault."
-  guide_single_sig: "Please scan sending info created in wallet. Wallet names must match."
+  guide_single_sig_same_name: "Please scan sending info created in wallet. Wallet names must match."
+  guide_single_sig: "Please scan sending info created in wallet."
 signed_transaction_qr_screen:
   guide_multisig: "Multisig completed. Please scan the QR code below in the wallet that created the sending info."
   guide_single_sig: "Signature completed for sending info created in '$name wallet'. Please scan the QR code below in the wallet."

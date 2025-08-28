@@ -15,6 +15,7 @@ import 'package:coconut_vault/widgets/custom_loading_overlay.dart';
 import 'package:flutter/material.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:coconut_vault/utils/vibration_util.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:loader_overlay/loader_overlay.dart';
 import 'package:provider/provider.dart';
 import 'package:qr_code_scanner/qr_code_scanner.dart';
@@ -170,6 +171,25 @@ class _PsbtScannerScreenState extends State<PsbtScannerScreen> {
     }
   }
 
+  List<TextSpan> _getGuideTextSpan() {
+    return [
+      TextSpan(
+        text: '[2] ',
+        style: CoconutTypography.body2_14_Bold.copyWith(height: 1, color: CoconutColors.black),
+      ),
+      TextSpan(
+        text: widget.id == null
+            ? t.psbt_scanner_screen.guide_single_sig
+            : t.psbt_scanner_screen.guide_single_sig_same_name,
+        // TODO 툴팁에 표시할 문구 수정 필요(멀티시그, 싱글시그 구분)
+        // text: _viewModel.isMultisig
+        // ? t.psbt_scanner_screen.guide_multisig
+        // : t.psbt_scanner_screen.guide_single_sig,
+        style: CoconutTypography.body2_14.copyWith(height: 1.2, color: CoconutColors.black),
+      ),
+    ];
+  }
+
   @override
   Widget build(BuildContext context) {
     return CustomLoadingOverlay(
@@ -191,34 +211,22 @@ class _PsbtScannerScreenState extends State<PsbtScannerScreen> {
             Padding(
               padding: const EdgeInsets.only(top: 20, left: 16, right: 16),
               child: CoconutToolTip(
-                tooltipType: CoconutTooltipType.fixed,
-                baseBackgroundColor: CoconutColors.white,
-                richText: RichText(
-                  text: TextSpan(
-                    text: '[2] ',
-                    style: const TextStyle(
-                      fontFamily: 'Pretendard',
-                      fontWeight: FontWeight.bold,
-                      fontSize: 15,
-                      height: 1.4,
-                      letterSpacing: 0.5,
-                      color: CoconutColors.black,
-                    ),
-                    children: <TextSpan>[
-                      TextSpan(
-                        text: t.psbt_scanner_screen.guide_single_sig,
-                        // TODO 툴팁에 표시할 문구 수정 필요(멀티시그, 싱글시그 구분)
-                        // text: _viewModel.isMultisig
-                        // ? t.psbt_scanner_screen.guide_multisig
-                        // : t.psbt_scanner_screen.guide_single_sig,
-                        style: const TextStyle(
-                          fontWeight: FontWeight.normal,
-                        ),
-                      ),
-                    ],
+                backgroundColor: CoconutColors.gray100,
+                borderColor: CoconutColors.gray400,
+                icon: SvgPicture.asset(
+                  'assets/svg/circle-info.svg',
+                  colorFilter: const ColorFilter.mode(
+                    CoconutColors.black,
+                    BlendMode.srcIn,
                   ),
                 ),
-                showIcon: true,
+                tooltipType: CoconutTooltipType.fixed,
+                richText: RichText(
+                  text: TextSpan(
+                    style: CoconutTypography.body3_12,
+                    children: _getGuideTextSpan(),
+                  ),
+                ),
               ),
             ),
           ],

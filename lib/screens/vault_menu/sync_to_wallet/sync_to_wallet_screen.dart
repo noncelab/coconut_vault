@@ -6,6 +6,7 @@ import 'package:coconut_vault/widgets/bottom_sheet.dart';
 import 'package:coconut_vault/widgets/custom_tooltip.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:provider/provider.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 
@@ -38,39 +39,20 @@ class _SyncToWalletScreenState extends State<SyncToWalletScreen> {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               CoconutToolTip(
+                backgroundColor: CoconutColors.gray100,
+                borderColor: CoconutColors.gray400,
+                icon: SvgPicture.asset(
+                  'assets/svg/circle-info.svg',
+                  colorFilter: const ColorFilter.mode(
+                    CoconutColors.black,
+                    BlendMode.srcIn,
+                  ),
+                ),
                 tooltipType: CoconutTooltipType.fixed,
-                showIcon: true,
                 richText: RichText(
                   text: TextSpan(
-                    text: t.sync_to_wallet_screen.guide1_1,
-                    style: const TextStyle(
-                      fontFamily: 'Pretendard',
-                      fontWeight: FontWeight.bold,
-                      fontSize: 15,
-                      height: 1.4,
-                      letterSpacing: 0.5,
-                      color: CoconutColors.black,
-                    ),
-                    children: <TextSpan>[
-                      TextSpan(
-                        text: t.sync_to_wallet_screen.guide1_2,
-                        style: const TextStyle(
-                          fontWeight: FontWeight.normal,
-                        ),
-                      ),
-                      TextSpan(
-                        text: t.sync_to_wallet_screen.guide1_3,
-                        style: const TextStyle(
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      TextSpan(
-                        text: t.sync_to_wallet_screen.guide1_4,
-                        style: const TextStyle(
-                          fontWeight: FontWeight.normal,
-                        ),
-                      ),
-                    ],
+                    style: CoconutTypography.body3_12,
+                    children: _getTooltipRichText(),
                   ),
                 ),
               ),
@@ -137,5 +119,26 @@ class _SyncToWalletScreenState extends State<SyncToWalletScreen> {
                 ]);
           });
     }
+  }
+
+  List<TextSpan> _getTooltipRichText() {
+    return [
+      TextSpan(
+        text: t.sync_to_wallet_screen.guide1_1,
+        style: CoconutTypography.body2_14_Bold.copyWith(height: 1.2, color: CoconutColors.black),
+      ),
+      TextSpan(
+        text: t.sync_to_wallet_screen.guide1_2,
+        style: CoconutTypography.body2_14.copyWith(height: 1.2, color: CoconutColors.black),
+      ),
+      TextSpan(
+        text: t.sync_to_wallet_screen.guide1_3,
+        style: CoconutTypography.body2_14_Bold.copyWith(height: 1.2, color: CoconutColors.black),
+      ),
+      TextSpan(
+        text: t.sync_to_wallet_screen.guide1_4,
+        style: CoconutTypography.body2_14.copyWith(height: 1.2, color: CoconutColors.black),
+      ),
+    ];
   }
 }

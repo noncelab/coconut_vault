@@ -5,13 +5,10 @@ import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/providers/visibility_provider.dart';
 import 'package:coconut_vault/providers/wallet_creation_provider.dart';
 import 'package:coconut_vault/screens/settings/settings_screen.dart';
-import 'package:coconut_vault/screens/vault_creation/vault_name_and_icon_setup_screen.dart';
 import 'package:coconut_vault/widgets/button/fixed_bottom_button.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
-import 'package:coconut_vault/screens/vault_creation/single_sig/mnemonic_confirmation_screen.dart';
-import 'package:coconut_vault/utils/vibration_util.dart';
 import 'package:coconut_vault/utils/wallet_utils.dart';
 import 'package:coconut_vault/widgets/bottom_sheet.dart';
 import 'package:flutter/services.dart';
@@ -158,19 +155,19 @@ class _MnemonicImportState extends State<MnemonicImport> {
           await _handleBackNavigation();
         }
       },
-      child: Stack(
-        children: [
-          Scaffold(
-            backgroundColor: CoconutColors.white,
-            appBar: CoconutAppBar.build(
-              title: t.mnemonic_import_screen.title,
-              context: context,
-              onBackPressed: _handleBackNavigation,
-            ),
-            body: GestureDetector(
-              onTap: () => FocusScope.of(context).unfocus(),
-              child: SafeArea(
-                child: SingleChildScrollView(
+      child: Scaffold(
+        backgroundColor: CoconutColors.white,
+        appBar: CoconutAppBar.build(
+          title: t.mnemonic_import_screen.title,
+          context: context,
+          onBackPressed: _handleBackNavigation,
+        ),
+        body: SafeArea(
+          child: GestureDetector(
+            onTap: () => FocusScope.of(context).unfocus(),
+            child: Stack(
+              children: [
+                SingleChildScrollView(
                   child: Container(
                     padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 30),
                     child: Column(
@@ -187,34 +184,35 @@ class _MnemonicImportState extends State<MnemonicImport> {
                     ),
                   ),
                 ),
-              ),
-            ),
-          ),
-          // TODO: check 버튼 너비가 다른 요소에 비해 더 넓은 것 같음
-          FixedBottomButton(
-              text: t.next,
-              onButtonClicked: _handleNextButton,
-              isActive: _usePassphrase
-                  ? _inputText.isNotEmpty && _isMnemonicValid == true && _passphrase.isNotEmpty
-                  : _inputText.isNotEmpty && _isMnemonicValid == true,
-              backgroundColor: CoconutColors.black,
-              bottomPadding: 40,
-              isVisibleAboveKeyboard: false),
-          // TODO: isolate
-          Visibility(
-            visible: false,
-            child: Container(
-              width: MediaQuery.of(context).size.width,
-              height: MediaQuery.of(context).size.height,
-              decoration: BoxDecoration(color: CoconutColors.black.withOpacity(0.3)),
-              child: const Center(
-                child: CircularProgressIndicator(
-                  color: CoconutColors.gray800,
+                // TODO: check 버튼 너비가 다른 요소에 비해 더 넓은 것 같음
+                FixedBottomButton(
+                    text: t.next,
+                    onButtonClicked: _handleNextButton,
+                    isActive: _usePassphrase
+                        ? _inputText.isNotEmpty &&
+                            _isMnemonicValid == true &&
+                            _passphrase.isNotEmpty
+                        : _inputText.isNotEmpty && _isMnemonicValid == true,
+                    backgroundColor: CoconutColors.black,
+                    isVisibleAboveKeyboard: false),
+                // TODO: isolate
+                Visibility(
+                  visible: false,
+                  child: Container(
+                    width: MediaQuery.of(context).size.width,
+                    height: MediaQuery.of(context).size.height,
+                    decoration: BoxDecoration(color: CoconutColors.black.withOpacity(0.3)),
+                    child: const Center(
+                      child: CircularProgressIndicator(
+                        color: CoconutColors.gray800,
+                      ),
+                    ),
+                  ),
                 ),
-              ),
+              ],
             ),
           ),
-        ],
+        ),
       ),
     );
   }
