@@ -15,6 +15,7 @@ import 'package:coconut_vault/widgets/custom_loading_overlay.dart';
 import 'package:flutter/material.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:coconut_vault/utils/vibration_util.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:loader_overlay/loader_overlay.dart';
 import 'package:provider/provider.dart';
 import 'package:qr_code_scanner/qr_code_scanner.dart';
@@ -22,7 +23,8 @@ import 'package:ur/ur.dart';
 import 'package:cbor/cbor.dart';
 
 class PsbtScannerScreen extends StatefulWidget {
-  const PsbtScannerScreen({super.key});
+  final int? id;
+  const PsbtScannerScreen({super.key, this.id});
 
   @override
   State<PsbtScannerScreen> createState() => _PsbtScannerScreenState();
@@ -111,8 +113,13 @@ class _PsbtScannerScreenState extends State<PsbtScannerScreen> {
 
       psbtBase64 = base64Encode(decodedCbor.bytes);
 
-      // 스캔된 MFP를 이용해 유효한 볼트를 찾고, SignProvider에 저장
-      await _viewModel.setVaultByPsbtBase64(psbtBase64);
+      if (widget.id == null) {
+        // 스캔된 MFP를 이용해 유효한 볼트를 찾고, SignProvider에 저장
+        await _viewModel.setMatchingVault(psbtBase64);
+      } else {
+        // id를 이용해 특정 지갑에 대해 psbt 파싱
+        await _viewModel.parseBase64EncodedToPsbt(widget.id!, psbtBase64);
+      }
     } catch (e) {
       vibrateExtraLightDouble();
       if (e is VaultNotFoundException) {
@@ -164,6 +171,25 @@ class _PsbtScannerScreenState extends State<PsbtScannerScreen> {
     }
   }
 
+  List<TextSpan> _getGuideTextSpan() {
+    return [
+      TextSpan(
+        text: '[2] ',
+        style: CoconutTypography.body2_14_Bold.copyWith(height: 1, color: CoconutColors.black),
+      ),
+      TextSpan(
+        text: widget.id == null
+            ? t.psbt_scanner_screen.guide_single_sig
+            : t.psbt_scanner_screen.guide_single_sig_same_name,
+        // TODO 툴팁에 표시할 문구 수정 필요(멀티시그, 싱글시그 구분)
+        // text: _viewModel.isMultisig
+        // ? t.psbt_scanner_screen.guide_multisig
+        // : t.psbt_scanner_screen.guide_single_sig,
+        style: CoconutTypography.body2_14.copyWith(height: 1.2, color: CoconutColors.black),
+      ),
+    ];
+  }
+
   @override
   Widget build(BuildContext context) {
     return CustomLoadingOverlay(
@@ -185,34 +211,22 @@ class _PsbtScannerScreenState extends State<PsbtScannerScreen> {
             Padding(
               padding: const EdgeInsets.only(top: 20, left: 16, right: 16),
               child: CoconutToolTip(
-                tooltipType: CoconutTooltipType.fixed,
-                baseBackgroundColor: CoconutColors.white,
-                richText: RichText(
-                  text: TextSpan(
-                    text: '[2] ',
-                    style: const TextStyle(
-                      fontFamily: 'Pretendard',
-                      fontWeight: FontWeight.bold,
-                      fontSize: 15,
-                      height: 1.4,
-                      letterSpacing: 0.5,
-                      color: CoconutColors.black,
-                    ),
-                    children: <TextSpan>[
-                      TextSpan(
-                        text: t.psbt_scanner_screen.guide_single_sig,
-                        // TODO 툴팁에 표시할 문구 수정 필요(멀티시그, 싱글시그 구분)
-                        // text: _viewModel.isMultisig
-                        // ? t.psbt_scanner_screen.guide_multisig
-                        // : t.psbt_scanner_screen.guide_single_sig,
-                        style: const TextStyle(
-                          fontWeight: FontWeight.normal,
-                        ),
-                      ),
-                    ],
+                backgroundColor: CoconutColors.gray100,
+                borderColor: CoconutColors.gray400,
+                icon: SvgPicture.asset(
+                  'assets/svg/circle-info.svg',
+                  colorFilter: const ColorFilter.mode(
+                    CoconutColors.black,
+                    BlendMode.srcIn,
                   ),
                 ),
-                showIcon: true,
+                tooltipType: CoconutTooltipType.fixed,
+                richText: RichText(
+                  text: TextSpan(
+                    style: CoconutTypography.body3_12,
+                    children: _getGuideTextSpan(),
+                  ),
+                ),
               ),
             ),
           ],

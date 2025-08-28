@@ -46,6 +46,7 @@ class SingleButton extends StatelessWidget {
   final Widget? rightElement;
   final Widget? leftElement;
   final SingleButtonPosition buttonPosition;
+  final TextStyle? titleStyle;
   final TextStyle? subtitleStyle;
   final bool enableShrinkAnim;
   final double animationEndValue;
@@ -61,7 +62,8 @@ class SingleButton extends StatelessWidget {
       this.buttonPosition = SingleButtonPosition.none,
       this.enableShrinkAnim = false,
       this.animationEndValue = 0.95,
-      this.subtitleStyle});
+      this.subtitleStyle,
+      this.titleStyle});
 
   @override
   Widget build(BuildContext context) {
@@ -106,8 +108,9 @@ class SingleButton extends StatelessWidget {
           children: [
             FittedBox(
               fit: BoxFit.scaleDown,
-              child:
-                  Text(title, style: CoconutTypography.body2_14_Bold.setColor(CoconutColors.black)),
+              child: Text(title,
+                  style:
+                      titleStyle ?? CoconutTypography.body2_14_Bold.setColor(CoconutColors.black)),
             ),
           ],
         )),

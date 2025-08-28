@@ -9,6 +9,7 @@ import 'package:coconut_vault/widgets/button/fixed_bottom_button.dart';
 import 'package:flutter/material.dart';
 import 'package:coconut_vault/utils/alert_util.dart';
 import 'package:coconut_vault/widgets/card/information_item_card.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:provider/provider.dart';
 
 class PsbtConfirmationScreen extends StatefulWidget {
@@ -72,33 +73,25 @@ class _PsbtConfirmationScreenState extends State<PsbtConfirmationScreen> {
                 SingleChildScrollView(
                   child: Column(
                     children: [
-                      const SizedBox(height: 20),
                       Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        padding: const EdgeInsets.only(top: 20, left: 16, right: 16),
                         child: CoconutToolTip(
+                          backgroundColor: CoconutColors.gray100,
+                          borderColor: CoconutColors.gray400,
+                          icon: SvgPicture.asset(
+                            'assets/svg/circle-info.svg',
+                            colorFilter: const ColorFilter.mode(
+                              CoconutColors.black,
+                              BlendMode.srcIn,
+                            ),
+                          ),
                           tooltipType: CoconutTooltipType.fixed,
                           richText: RichText(
                             text: TextSpan(
-                              text: '[3] ',
-                              style: const TextStyle(
-                                fontFamily: 'Pretendard',
-                                fontWeight: FontWeight.bold,
-                                fontSize: 15,
-                                height: 1.4,
-                                letterSpacing: 0.5,
-                                color: CoconutColors.black,
-                              ),
-                              children: <TextSpan>[
-                                TextSpan(
-                                  text: t.psbt_confirmation_screen.guide,
-                                  style: const TextStyle(
-                                    fontWeight: FontWeight.normal,
-                                  ),
-                                ),
-                              ],
+                              style: CoconutTypography.body3_12,
+                              children: _getTooltipRichText(),
                             ),
                           ),
-                          showIcon: true,
                         ),
                       ),
                       GestureDetector(
@@ -235,6 +228,19 @@ class _PsbtConfirmationScreenState extends State<PsbtConfirmationScreen> {
     setState(() {
       _currentUnit = _currentUnit == BitcoinUnit.btc ? BitcoinUnit.sats : BitcoinUnit.btc;
     });
+  }
+
+  List<TextSpan> _getTooltipRichText() {
+    return [
+      TextSpan(
+        text: '[3] ',
+        style: CoconutTypography.body2_14_Bold.copyWith(height: 1.2, color: CoconutColors.black),
+      ),
+      TextSpan(
+        text: t.psbt_confirmation_screen.guide,
+        style: CoconutTypography.body2_14.copyWith(height: 1.2, color: CoconutColors.black),
+      ),
+    ];
   }
 }
 
