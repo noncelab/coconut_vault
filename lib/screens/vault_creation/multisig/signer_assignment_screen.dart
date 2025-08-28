@@ -307,6 +307,7 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
   Widget _buildSelectKeyOptionBottomSheet(int index) {
     return Scaffold(
       backgroundColor: CoconutColors.white,
+      resizeToAvoidBottomInset: false,
       appBar: CoconutAppBar.build(
         title: t.assign_signers_screen.select_key_option,
         context: context,
