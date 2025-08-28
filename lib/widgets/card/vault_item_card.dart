@@ -139,13 +139,9 @@ class VaultItemCard extends StatelessWidget {
               children: [
                 Row(
                   children: [
-                    Text(
-                      rightText,
-                      style: CoconutTypography.heading4_18_NumberBold,
-                    ),
                     TooltipButton(
                       isSelected: false,
-                      text: '',
+                      text: rightText,
                       isLeft: true,
                       iconkey: tooltipKey,
                       containerMargin: EdgeInsets.zero,
@@ -164,7 +160,7 @@ class VaultItemCard extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
                     Text(
-                      DateFormat('yy.MM.dd HH:mm:ss').format(vaultItem.createdAt),
+                      DateFormat('yy.MM.dd HH:mm').format(vaultItem.createdAt),
                       style: CoconutTypography.body3_12.setColor(CoconutColors.gray600),
                     )
                   ],
