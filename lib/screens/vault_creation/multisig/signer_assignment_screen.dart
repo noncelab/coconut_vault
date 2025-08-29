@@ -241,7 +241,8 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
                                                               ? _viewModel
                                                                   .assignedVaultList[i].item!.name
                                                               : _viewModel
-                                                                      .assignedVaultList[i].memo ??
+                                                                      .getExternalSignerDisplayName(
+                                                                          i) ??
                                                                   t.external_wallet,
                                                           index: _viewModel
                                                                   .assignedVaultList[i].index +

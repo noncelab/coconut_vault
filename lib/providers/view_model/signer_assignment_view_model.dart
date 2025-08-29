@@ -258,4 +258,20 @@ class SignerAssignmentViewModel extends ChangeNotifier {
 
     _extractBsmsIsolateHandler!.dispose();
   }
+
+  String? getExternalSignerDisplayName(int index) {
+    assert(assignedVaultList[index].importKeyType == ImportKeyType.external);
+    assert(assignedVaultList[index].bsms != null);
+
+    if (assignedVaultList[index].memo != null) {
+      return assignedVaultList[index].memo;
+    }
+
+    var splited = assignedVaultList[index].bsms!.split('\n');
+    if (splited.length >= 4) {
+      return splited[3];
+    }
+
+    return null;
+  }
 }
