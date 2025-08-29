@@ -82,7 +82,6 @@ class _MnemonicViewScreen extends State<MnemonicViewScreen> with TickerProviderS
         context: context,
         title: t.view_mnemonic,
         backgroundColor: CoconutColors.white,
-        isBottom: true,
       ),
       body: SafeArea(
         child: SingleChildScrollView(

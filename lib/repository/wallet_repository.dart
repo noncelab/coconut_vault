@@ -97,7 +97,7 @@ class WalletRepository {
     await _saveSingleSigSecureData(
         nextId, wallet.mnemonic!, wallet.passphrase != null && wallet.passphrase!.isNotEmpty);
 
-    _vaultList!.insert(0, vaultListResult[0]);
+    _vaultList!.add(vaultListResult[0]);
     try {
       await _savePublicInfo();
     } catch (error) {
@@ -183,10 +183,12 @@ class WalletRepository {
     MultisigVaultListItem newMultisigVault = await addMultisigVaultIsolateHandler.run(data);
     addMultisigVaultIsolateHandler.dispose();
 
+    print('newMultisigVault: $newMultisigVault');
+
     // for SinglesigVaultListItem multsig key map update
     updateLinkedMultisigInfo(wallet.signers!, nextId);
 
-    _vaultList!.insert(0, newMultisigVault);
+    _vaultList!.add(newMultisigVault);
     await _savePublicInfo();
     _recordNextWalletId();
     return newMultisigVault;
@@ -258,14 +260,22 @@ class WalletRepository {
     }
 
     final index = _vaultList!.indexWhere((item) => item.id == id);
+    if (index == -1) {
+      // 이미 삭제되었거나 존재하지 않음
+      return false;
+    }
     final vaultType = _vaultList![index].vaultType;
 
     if (vaultType == WalletType.multiSignature) {
-      final multi = getVaultById(id) as MultisigVaultListItem;
-      for (var signer in multi.signers) {
-        if (signer.innerVaultId != null) {
-          SingleSigVaultListItem ssv = getVaultById(signer.innerVaultId!) as SingleSigVaultListItem;
-          ssv.linkedMultisigInfo!.remove(id);
+      final multi = getVaultById(id);
+      if (multi is MultisigVaultListItem) {
+        for (var signer in multi.signers) {
+          if (signer.innerVaultId != null) {
+            final ssv = getVaultById(signer.innerVaultId!);
+            if (ssv is SingleSigVaultListItem) {
+              ssv.linkedMultisigInfo?.remove(id);
+            }
+          }
         }
       }
     }
@@ -332,7 +342,11 @@ class WalletRepository {
   }
 
   VaultListItemBase? getVaultById(int id) {
-    return _vaultList?.firstWhere((element) => element.id == id);
+    final list = _vaultList;
+    if (list == null) return null;
+    final idx = list.indexWhere((element) => element.id == id);
+    if (idx == -1) return null;
+    return list[idx];
   }
 
   Future<MultisigVaultListItem> updateMemo(int walletId, int signerIndex, String? newMemo) async {

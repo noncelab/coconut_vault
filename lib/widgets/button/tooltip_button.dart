@@ -9,6 +9,10 @@ class TooltipButton extends StatefulWidget {
   final GestureTapDownCallback onTapDown;
   final EdgeInsets containerMargin;
   final GlobalKey iconkey;
+  final TextStyle? textStyle;
+  final Color? iconColor;
+  final double? iconSize;
+  final bool isIconBold;
 
   const TooltipButton({
     super.key,
@@ -19,6 +23,10 @@ class TooltipButton extends StatefulWidget {
     required this.onTapDown,
     required this.iconkey,
     this.containerMargin = const EdgeInsets.all(4),
+    this.textStyle,
+    this.iconColor,
+    this.iconSize,
+    this.isIconBold = false,
   });
 
   @override
@@ -45,23 +53,28 @@ class _TooltipButtonState extends State<TooltipButton> {
               children: [
                 Text(
                   widget.text,
-                  style: CoconutTypography.body2_14.merge(
-                    TextStyle(
-                      color: widget.isSelected
-                          ? CoconutColors.black
-                          : CoconutColors.black.withOpacity(0.3),
-                      fontWeight: widget.isSelected ? FontWeight.bold : FontWeight.normal,
-                    ),
-                  ),
+                  style: widget.textStyle ??
+                      CoconutTypography.body2_14.merge(
+                        TextStyle(
+                          color: widget.isSelected
+                              ? CoconutColors.black
+                              : CoconutColors.black.withOpacity(0.3),
+                          fontWeight: widget.isSelected ? FontWeight.bold : FontWeight.normal,
+                        ),
+                      ),
                 ),
                 const SizedBox(width: 4),
                 Icon(
                   key: widget.iconkey,
                   Icons.info_outline_rounded,
-                  color: widget.isSelected
-                      ? CoconutColors.black
-                      : CoconutColors.black.withOpacity(0.3),
-                  size: 16,
+                  color: widget.iconColor ??
+                      (widget.isSelected
+                          ? CoconutColors.black
+                          : CoconutColors.black.withOpacity(0.3)),
+                  size: widget.iconSize ?? 16,
+                  weight: widget.isIconBold
+                      ? FontWeight.bold.value.toDouble()
+                      : FontWeight.normal.value.toDouble(),
                 )
               ],
             ),

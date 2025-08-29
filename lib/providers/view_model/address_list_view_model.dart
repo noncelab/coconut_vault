@@ -14,20 +14,19 @@ class AddressListViewModel extends ChangeNotifier {
   late List<WalletAddress> _changeAddressList;
   late VaultListItemBase _vaultListItem;
   late WalletBase _coconutVault;
+  late WalletProvider _walletProvider;
 
   AddressListViewModel(WalletProvider walletProvider, int id) {
-    _receivingAddressPage = 0;
-    _changeAddressPage = 0;
+    _walletProvider = walletProvider;
     _isReceivingSelected = true;
     _vaultListItem = walletProvider.getVaultById(id);
-    _coconutVault = _vaultListItem.coconutVault;
 
-    _receivingAddressList = _getAddressList(0, kAddressFetchCount, false);
-    _changeAddressList = _getAddressList(0, kAddressFetchCount, true);
+    _initialize();
   }
 
   int get changeAddressPage => _changeAddressPage;
   int get receivingAddressPage => _receivingAddressPage;
+  int get vaultId => _vaultListItem.id;
   bool get isReceivingSelected => _isReceivingSelected;
   String get name => _vaultListItem.name;
   List<WalletAddress> get receivingAddressList => _receivingAddressList;
@@ -54,6 +53,14 @@ class AddressListViewModel extends ChangeNotifier {
     );
   }
 
+  void _initialize() {
+    _receivingAddressPage = 0;
+    _changeAddressPage = 0;
+    _coconutVault = _vaultListItem.coconutVault;
+    _receivingAddressList = _getAddressList(0, kAddressFetchCount, false);
+    _changeAddressList = _getAddressList(0, kAddressFetchCount, true);
+  }
+
   void nextLoad() {
     final newAddresses = _getAddressList(
         kAddressFetchCount +
@@ -73,6 +80,12 @@ class AddressListViewModel extends ChangeNotifier {
 
   void setReceivingSelected(bool value) {
     _isReceivingSelected = value;
+    notifyListeners();
+  }
+
+  void changeVaultById(int id) {
+    _vaultListItem = _walletProvider.getVaultById(id);
+    _initialize();
     notifyListeners();
   }
 }

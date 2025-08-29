@@ -10,6 +10,7 @@ import 'package:coconut_vault/utils/icon_util.dart';
 import 'package:coconut_vault/widgets/button/tooltip_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:intl/intl.dart';
 
 import 'dart:math' as math;
 
@@ -136,23 +137,34 @@ class VaultItemCard extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
-                Text(
-                  rightText,
-                  style: isMultisig
-                      ? CoconutTypography.body3_12_NumberBold.setColor(CoconutColors.black)
-                      : CoconutTypography.heading4_18_NumberBold,
+                Row(
+                  children: [
+                    TooltipButton(
+                      isSelected: false,
+                      text: rightText,
+                      isLeft: true,
+                      iconkey: tooltipKey,
+                      containerMargin: EdgeInsets.zero,
+                      onTap: () {},
+                      onTapDown: (details) {
+                        onTooltipClicked();
+                      },
+                      textStyle: CoconutTypography.heading4_18_NumberBold,
+                      iconColor: CoconutColors.black,
+                      iconSize: 18,
+                      isIconBold: true,
+                    ),
+                  ],
                 ),
-                TooltipButton(
-                  isSelected: false,
-                  text: tooltipText,
-                  isLeft: true,
-                  iconkey: tooltipKey,
-                  containerMargin: EdgeInsets.zero,
-                  onTap: () {},
-                  onTapDown: (details) {
-                    onTooltipClicked();
-                  },
-                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    Text(
+                      DateFormat('yy.MM.dd HH:mm').format(vaultItem.createdAt),
+                      style: CoconutTypography.body3_12.setColor(CoconutColors.gray600),
+                    )
+                  ],
+                )
               ],
             )
           ],

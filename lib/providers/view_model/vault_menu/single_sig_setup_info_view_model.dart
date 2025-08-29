@@ -6,7 +6,7 @@ class SingleSigSetupInfoViewModel extends VaultSetupInfoViewModelBase<SingleSigV
   int get linkedMutlsigVaultCount => vaultItem.linkedMultisigInfo?.length ?? 0;
   bool get hasLinkedMultisigVault => vaultItem.linkedMultisigInfo?.entries.isNotEmpty == true;
   Map<int, int>? get linkedMultisigInfo => vaultItem.linkedMultisigInfo;
-  bool get isLoadedVaultList => walletProvider.isWalletsLoaded;
+  bool get isLoadedVaultList => walletProvider.isVaultsLoaded;
   bool get isVaultListLoading => walletProvider.isVaultListLoading;
 
   SingleSigSetupInfoViewModel(super.walletProvider, super.id);

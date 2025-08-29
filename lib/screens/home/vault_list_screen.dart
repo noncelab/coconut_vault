@@ -1,429 +1,504 @@
-import 'dart:io';
-
 import 'package:coconut_design_system/coconut_design_system.dart';
-import 'package:coconut_lib/coconut_lib.dart';
-import 'package:coconut_vault/constants/app_routes.dart';
-import 'package:coconut_vault/app_routes_params.dart';
+import 'package:coconut_vault/enums/pin_check_context_enum.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
+import 'package:coconut_vault/model/common/vault_list_item_base.dart';
+import 'package:coconut_vault/model/multisig/multisig_vault_list_item.dart';
+import 'package:coconut_vault/model/single_sig/single_sig_vault_list_item.dart';
 import 'package:coconut_vault/providers/auth_provider.dart';
 import 'package:coconut_vault/providers/connectivity_provider.dart';
+import 'package:coconut_vault/providers/preference_provider.dart';
 import 'package:coconut_vault/providers/view_model/home/vault_list_view_model.dart';
-import 'package:coconut_vault/providers/visibility_provider.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
-import 'package:coconut_vault/screens/home/tutorial_screen.dart';
-import 'package:coconut_vault/screens/settings/pin_setting_screen.dart';
-import 'package:coconut_vault/widgets/card/vault_addition_guide_card.dart';
+import 'package:coconut_vault/screens/common/pin_check_screen.dart';
+import 'package:coconut_vault/screens/home/vault_item_setting_bottom_sheet.dart';
+import 'package:coconut_vault/screens/vault_menu/info/single_sig_setup_info_screen.dart';
+import 'package:coconut_vault/utils/vibration_util.dart';
+import 'package:coconut_vault/widgets/bottom_sheet.dart';
+import 'package:coconut_vault/widgets/button/fixed_bottom_button.dart';
+import 'package:coconut_vault/widgets/coconut_loading_overlay.dart';
+import 'package:coconut_vault/widgets/custom_loading_overlay.dart';
 import 'package:coconut_vault/widgets/vault_row_item.dart';
 import 'package:flutter/material.dart';
-import 'package:coconut_vault/screens/settings/settings_screen.dart';
-import 'package:coconut_vault/widgets/bottom_sheet.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 import 'package:provider/provider.dart';
-import 'package:shimmer/shimmer.dart';
+import 'package:tuple/tuple.dart';
 
 class VaultListScreen extends StatefulWidget {
-  const VaultListScreen({
-    super.key,
-  });
+  const VaultListScreen({super.key});
 
   @override
   State<VaultListScreen> createState() => _VaultListScreenState();
 }
 
 class _VaultListScreenState extends State<VaultListScreen> with TickerProviderStateMixin {
+  late ScrollController _scrollController;
   late VaultListViewModel _viewModel;
 
-  late int _initialWalletCount;
-  bool _isSeeMoreDropdown = false;
+  @override
+  Widget build(BuildContext context) {
+    return ChangeNotifierProxyProvider3<WalletProvider, ConnectivityProvider, PreferenceProvider,
+        VaultListViewModel>(
+      create: (_) => _createViewModel(),
+      update: (BuildContext context,
+          WalletProvider walletProvider,
+          ConnectivityProvider connectivityProvider,
+          PreferenceProvider preferenceProvider,
+          VaultListViewModel? previous) {
+        previous ??= _createViewModel();
 
-  DateTime? _lastPressedAt;
+        previous.onPreferenceProviderUpdated();
+        debugPrint('VaultListScreen update');
+        // FIXME: 다른 provider의 변경에 의해서도 항상 호출됨
+        // return previous..onWalletProviderUpdated(walletProvider);
+        return previous;
+      },
+      child: Selector<VaultListViewModel,
+          Tuple5<List<VaultListItemBase>, List<int>, List<int>, bool, List<int>>>(
+        selector: (_, vm) => Tuple5(
+          vm.vaults,
+          vm.tempFavoriteVaultIds,
+          vm.tempVaultOrder,
+          vm.isEditMode,
+          vm.vaultOrder,
+        ),
+        builder: (context, data, child) {
+          final viewModel = Provider.of<VaultListViewModel>(context, listen: false);
 
-  late final AnimationController _newVaultAddAnimController;
-  late final Animation<Offset> _newVaultAddAnimation;
-  late ScrollController _scrollController;
-  bool _shouldAnimateAddition = false;
+          final vaultListItem = data.item1;
+          final isEditMode = data.item4;
+          final vaultOrder = data.item5;
+          // Pin check 로직(편집모드에서 삭제 후 완료 버튼 클릭시 동작)
+          if (viewModel.pinCheckNotifier.value == true) {
+            WidgetsBinding.instance.addPostFrameCallback((_) async {
+              viewModel.pinCheckNotifier.value = false;
+              await MyBottomSheet.showBottomSheet_90(
+                context: context,
+                child: CustomLoadingOverlay(
+                  child: PinCheckScreen(
+                    pinCheckContext: PinCheckContextEnum.sensitiveAction,
+                    onSuccess: () async {
+                      viewModel.handleAuthCompletion();
+                      Navigator.pop(context);
+                    },
+                  ),
+                ),
+              );
+            });
+          }
 
-  final GlobalKey _dropdownButtonKey = GlobalKey();
-  Size _dropdownButtonSize = const Size(0, 0);
-  Offset _dropdownButtonPosition = Offset.zero;
+          // 편집모드에서 모든 볼트를 다 삭제했을 때 홈화면으로 자동 전환
+          if (vaultListItem.isEmpty) {
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              Navigator.popUntil(context, (route) {
+                return route.settings.name == '/';
+              });
+            });
+          }
+
+          return Stack(
+            children: [
+              PopScope(
+                canPop: !isEditMode,
+                onPopInvokedWithResult: (didPop, _) {
+                  if (!didPop) {
+                    Navigator.pop(context);
+                  }
+                },
+                child: Scaffold(
+                  backgroundColor: CoconutColors.white,
+                  extendBodyBehindAppBar: true,
+                  appBar: _buildAppBar(context),
+                  body: SafeArea(
+                    top: true,
+                    bottom: false,
+                    child: isEditMode
+                        // 편집 모드
+                        ? Stack(
+                            children: [
+                              _buildEditableVaultList(),
+                              FixedBottomButton(
+                                onButtonClicked: () async {
+                                  await viewModel.applyTempDatasToVaults();
+                                },
+                                isActive:
+                                    viewModel.hasFavoriteChanged || viewModel.hasVaultOrderChanged,
+                                backgroundColor: CoconutColors.black,
+                                text: t.complete,
+                              )
+                            ],
+                          )
+                        // 일반 모드
+                        : Stack(
+                            children: [
+                              CustomScrollView(
+                                  controller: _scrollController,
+                                  physics: const AlwaysScrollableScrollPhysics(),
+                                  semanticChildCount: vaultListItem.length,
+                                  slivers: <Widget>[
+                                    // 볼트 목록
+                                    _buildVaultList(vaultListItem, vaultOrder),
+                                  ]),
+                            ],
+                          ),
+                  ),
+                ),
+              ),
+              ValueListenableBuilder<bool>(
+                valueListenable: viewModel.loadingNotifier,
+                builder: (context, isLoading, _) {
+                  return isLoading ? const CoconutLoadingOverlay() : Container();
+                },
+              )
+            ],
+          );
+        },
+      ),
+    );
+  }
 
   @override
   void initState() {
     super.initState();
-    _viewModel = VaultListViewModel(
-        Provider.of<AuthProvider>(context, listen: false),
-        Provider.of<WalletProvider>(context, listen: false),
-        Provider.of<VisibilityProvider>(context, listen: false).walletCount);
-    _initialWalletCount = _viewModel.initialWalletCount;
 
     _scrollController = ScrollController();
-    _newVaultAddAnimController = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 500),
-    );
-
-    _newVaultAddAnimation = Tween<Offset>(
-      begin: const Offset(1.0, 0.0),
-      end: Offset.zero,
-    ).animate(
-      CurvedAnimation(
-        parent: _newVaultAddAnimController,
-        curve: Curves.easeOut,
-      ),
-    );
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
-      if (_dropdownButtonKey.currentContext != null) {
-        final faucetRenderBox = _dropdownButtonKey.currentContext?.findRenderObject() as RenderBox;
-        _dropdownButtonPosition = faucetRenderBox.localToGlobal(Offset.zero);
-        _dropdownButtonSize = faucetRenderBox.size;
-      }
-
-      if (_shouldAnimateAddition) {
-        await Future.delayed(const Duration(milliseconds: 500));
-        _newVaultAddAnimController.forward();
-        _shouldAnimateAddition = false;
-      }
-
-      // 지갑 추가, 지갑 삭제, 서명완료 후 불필요하게 loadVaultList() 호출되는 것을 막음
-      if (_viewModel.isWalletsLoaded) {
-        return;
-      }
-      _viewModel.loadWallets();
-    });
-  }
-
-  Widget _vaultSkeletonItem() => Column(
-        children: [
-          ClipRRect(
-            borderRadius: BorderRadius.circular(30),
-            child: Container(
-              constraints: const BoxConstraints(minHeight: 100),
-              decoration: BoxDecoration(
-                color: CoconutColors.white, // 배경색 유지
-                borderRadius: BorderRadius.circular(28),
-                boxShadow: [
-                  BoxShadow(
-                    color: CoconutColors.black.withOpacity(0.15),
-                    offset: const Offset(0, 0),
-                    blurRadius: 12,
-                    spreadRadius: 0,
-                  ),
-                ],
-              ),
-              padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 28.0),
-              child: Row(
-                children: [
-                  // 1) 아이콘 스켈레톤
-                  Shimmer.fromColors(
-                    baseColor: CoconutColors.gray300,
-                    highlightColor: CoconutColors.gray150,
-                    child: Container(
-                      width: 40.0,
-                      height: 40.0,
-                      decoration: BoxDecoration(
-                        color: CoconutColors.gray300,
-                        borderRadius: BorderRadius.circular(16.0),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 8.0),
-                  // 2) 텍스트 영역
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        // 첫 번째 텍스트
-                        Shimmer.fromColors(
-                          baseColor: CoconutColors.gray300,
-                          highlightColor: CoconutColors.gray150,
-                          child: Container(
-                            height: 14.0,
-                            width: 100.0,
-                            color: CoconutColors.gray300,
-                          ),
-                        ),
-                        const SizedBox(height: 8.0),
-                        // 두 번째 텍스트
-                        Shimmer.fromColors(
-                          baseColor: CoconutColors.gray300,
-                          highlightColor: CoconutColors.gray150,
-                          child: Container(
-                            height: 14.0,
-                            width: 150.0,
-                            color: CoconutColors.gray300,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-          const SizedBox(height: 10),
-        ],
-      );
-
-  @override
-  Widget build(BuildContext context) {
-    final args = ModalRoute.of(context)?.settings.arguments as VaultListNavArgs?;
-    if (args?.isWalletAdded == true) {
-      _shouldAnimateAddition = true;
-    }
-
-    return PopScope(
-        canPop: false,
-        onPopInvokedWithResult: (didPop, _) async {
-          if (Platform.isAndroid) {
-            final now = DateTime.now();
-            if (_lastPressedAt == null ||
-                now.difference(_lastPressedAt!) > const Duration(seconds: 3)) {
-              _lastPressedAt = now;
-              Fluttertoast.showToast(
-                backgroundColor: CoconutColors.gray500,
-                msg: t.toast.back_exit,
-                toastLength: Toast.LENGTH_SHORT,
-              );
-            } else {
-              SystemNavigator.pop();
-            }
-          }
-        },
-        child:
-            // ConnectivityProvider: 실제로 활용되지 않지만 참조해야, 네트워크/블루투스/개발자모드 연결 시 화면 전환이 됩니다.
-            ChangeNotifierProxyProvider3<AuthProvider, ConnectivityProvider, VisibilityProvider,
-                VaultListViewModel>(
-          create: (_) => _viewModel,
-          update: (_, authProvider, connectivityProvider, visibilityProvider, viewModel) {
-            return viewModel!;
-          },
-          child: Consumer2<VaultListViewModel, VisibilityProvider>(
-            builder: (context, viewModel, visibilityProvider, child) {
-              final wallets = viewModel.wallets;
-              return Scaffold(
-                backgroundColor: CoconutColors.gray150,
-                body: Stack(
-                  children: [
-                    CustomScrollView(
-                      controller: _scrollController,
-                      physics: const AlwaysScrollableScrollPhysics(),
-                      // semanticChildCount:
-                      //     model.isVaultListLoading ? 1 : vaults.length,
-                      slivers: <Widget>[
-                        CoconutAppBar.buildHomeAppbar(
-                          context: context,
-                          leadingSvgAsset: SvgPicture.asset(
-                              'assets/svg/coconut-${NetworkType.currentNetworkType.isTestnet ? "regtest" : "mainnet"}.svg',
-                              colorFilter:
-                                  const ColorFilter.mode(CoconutColors.gray800, BlendMode.srcIn),
-                              width: 24),
-                          appTitle: t.vault,
-                          actionButtonList: [
-                            Opacity(
-                              opacity:
-                                  isEnablePlusButton(viewModel.isWalletsLoaded, wallets.isEmpty)
-                                      ? 1.0
-                                      : 0.2,
-                              child: _buildAppBarIconButton(
-                                key: GlobalKey(),
-                                icon: SvgPicture.asset(
-                                  'assets/svg/wallet-plus.svg',
-                                  colorFilter: const ColorFilter.mode(
-                                    CoconutColors.gray800,
-                                    BlendMode.srcIn,
-                                  ),
-                                ),
-                                onPressed: () {
-                                  if (!isEnablePlusButton(
-                                      viewModel.isWalletsLoaded, wallets.isEmpty)) {
-                                    return;
-                                  }
-
-                                  if (viewModel.walletCount == 0 && !viewModel.isPinSet) {
-                                    MyBottomSheet.showBottomSheet_90(
-                                        context: context,
-                                        child: const PinSettingScreen(greetingVisible: true));
-                                  } else {
-                                    Navigator.pushNamed(context, AppRoutes.vaultTypeSelection);
-                                  }
-                                },
-                              ),
-                            ),
-                            _buildAppBarIconButton(
-                              key: _dropdownButtonKey,
-                              icon: SvgPicture.asset(
-                                'assets/svg/kebab.svg',
-                                colorFilter:
-                                    const ColorFilter.mode(CoconutColors.gray800, BlendMode.srcIn),
-                              ),
-                              onPressed: () {
-                                setState(() {
-                                  _isSeeMoreDropdown = true;
-                                });
-                              },
-                            ),
-                          ],
-                        ),
-
-                        // 바로 추가하기
-                        SliverToBoxAdapter(
-                          child: Visibility(
-                            visible: viewModel.isWalletsLoaded && viewModel.walletCount == 0,
-                            child: VaultAdditionGuideCard(
-                              onPressed: () {
-                                if (!viewModel.isPinSet) {
-                                  MyBottomSheet.showBottomSheet_90(
-                                      context: context,
-                                      child: const PinSettingScreen(greetingVisible: true));
-                                } else {
-                                  Navigator.pushNamed(context, AppRoutes.vaultTypeSelection);
-                                }
-                              },
-                            ),
-                          ),
-                        ),
-                        // 지갑 목록
-                        SliverPadding(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: CoconutLayout.defaultPadding,
-                          ),
-                          sliver: SliverList.builder(
-                            itemCount: wallets.isEmpty ? 1 : wallets.length,
-                            itemBuilder: (ctx, index) => index < wallets.length
-                                ? _shouldAnimateAddition && index == 0
-                                    ? SlideTransition(
-                                        position: _newVaultAddAnimation,
-                                        child: VaultRowItem(vault: wallets[index]),
-                                      )
-                                    : VaultRowItem(vault: wallets[index])
-                                : Container(),
-                          ),
-                        ),
-                        // Skeleton 목록
-                        if (!viewModel.isWalletsLoaded)
-                          SliverPadding(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: CoconutLayout.defaultPadding,
-                            ),
-                            sliver: SliverList.builder(
-                              itemBuilder: (ctx, index) => _vaultSkeletonItem(),
-                              itemCount: _initialWalletCount - wallets.length,
-                            ),
-                          ),
-                        const SliverToBoxAdapter(
-                          child: SizedBox(height: 30),
-                        ),
-                      ],
-                    ),
-
-                    // 더보기
-                    Visibility(
-                      visible: _isSeeMoreDropdown,
-                      child: Stack(
-                        children: [
-                          GestureDetector(
-                            onTapDown: (details) {
-                              setState(() {
-                                _isSeeMoreDropdown = false;
-                              });
-                            },
-                            child: Container(
-                              width: double.maxFinite,
-                              height: double.maxFinite,
-                              color: Colors.transparent,
-                            ),
-                          ),
-                          Positioned(
-                            top: _dropdownButtonPosition.dy + _dropdownButtonSize.height,
-                            right: 20,
-                            child: CoconutPulldownMenu(
-                              shadowColor: CoconutColors.gray300,
-                              dividerColor: CoconutColors.gray200,
-                              entries: [
-                                CoconutPulldownMenuGroup(
-                                  groupTitle: t.tool,
-                                  items: [
-                                    CoconutPulldownMenuItem(title: t.mnemonic_wordlist),
-                                    if (NetworkType.currentNetworkType.isTestnet)
-                                      CoconutPulldownMenuItem(title: t.tutorial),
-                                  ],
-                                ),
-                                CoconutPulldownMenuItem(title: t.settings),
-                                CoconutPulldownMenuItem(title: t.view_app_info),
-                              ],
-                              dividerHeight: 1,
-                              thickDividerHeight: 3,
-                              thickDividerIndexList: [
-                                NetworkType.currentNetworkType.isTestnet ? 1 : 0,
-                              ],
-                              onSelected: ((index, selectedText) {
-                                setState(() {
-                                  _isSeeMoreDropdown = false;
-                                });
-
-                                // 메인넷의 경우 튜토리얼 항목을 넘어간다.
-                                if (!NetworkType.currentNetworkType.isTestnet && index >= 1) {
-                                  ++index;
-                                }
-                                switch (index) {
-                                  case 0:
-                                    // 지갑 복구 단어
-                                    Navigator.pushNamed(context, AppRoutes.mnemonicWordList);
-                                    break;
-                                  case 1:
-                                    MyBottomSheet.showBottomSheet_90(
-                                      context: context,
-                                      child: const TutorialScreen(
-                                        screenStatus: TutorialScreenStatus.modal,
-                                      ),
-                                    );
-                                    break;
-                                  case 2:
-                                    MyBottomSheet.showBottomSheet_90(
-                                        context: context, child: const SettingsScreen());
-                                    break;
-                                  case 3:
-                                    Navigator.pushNamed(context, AppRoutes.appInfo);
-                                    break;
-                                }
-                              }),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              );
-            },
-          ),
-        ));
-  }
-
-  bool isEnablePlusButton(bool isWalletsLoaded, bool isWalletEmpty) {
-    return NetworkType.currentNetworkType.isTestnet || (isWalletsLoaded && isWalletEmpty);
-  }
-
-  Widget _buildAppBarIconButton({required Widget icon, required VoidCallback onPressed, Key? key}) {
-    return SizedBox(
-      key: key,
-      height: 40,
-      width: 40,
-      child: IconButton(
-        icon: icon,
-        highlightColor: CoconutColors.gray200,
-        onPressed: onPressed,
-        color: CoconutColors.white,
-      ),
-    );
   }
 
   @override
   void dispose() {
     _scrollController.dispose();
-    _newVaultAddAnimController.dispose();
     super.dispose();
+  }
+
+  VaultListViewModel _createViewModel() {
+    _viewModel = VaultListViewModel(
+      Provider.of<AuthProvider>(context, listen: false),
+      Provider.of<WalletProvider>(context, listen: false),
+      Provider.of<PreferenceProvider>(context, listen: false),
+      Provider.of<WalletProvider>(context, listen: false).vaultList.length,
+    );
+    return _viewModel;
+  }
+
+  Widget _buildEditModeHeader() {
+    return Container(
+      width: MediaQuery.sizeOf(context).width,
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
+      decoration: BoxDecoration(
+        color: CoconutColors.gray150,
+        borderRadius: BorderRadius.circular(CoconutStyles.radius_200),
+      ),
+      child: Column(
+        children: [
+          _buildEditModeHeaderLine(
+            [
+              WidgetSpan(
+                alignment: PlaceholderAlignment.top,
+                child: SvgPicture.asset(
+                  'assets/svg/star-small.svg',
+                  width: 12,
+                  height: 12,
+                  colorFilter: const ColorFilter.mode(
+                    CoconutColors.gray800,
+                    BlendMode.srcIn,
+                  ),
+                ),
+              ),
+              TextSpan(text: t.vault_list_screen.edit.star_description),
+            ],
+          ),
+          CoconutLayout.spacing_100h,
+          _buildEditModeHeaderLine([
+            WidgetSpan(
+              alignment: PlaceholderAlignment.top,
+              child: SvgPicture.asset(
+                'assets/svg/hamburger.svg',
+                width: 12,
+                height: 12,
+                colorFilter: const ColorFilter.mode(
+                  CoconutColors.gray800,
+                  BlendMode.srcIn,
+                ),
+              ),
+            ),
+            TextSpan(text: t.vault_list_screen.edit.order_description),
+          ]),
+          CoconutLayout.spacing_100h,
+          _buildEditModeHeaderLine([
+            TextSpan(text: t.vault_list_screen.edit.delete_description),
+          ]),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildEditModeHeaderLine(List<InlineSpan> inlineSpan) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+          margin: const EdgeInsets.symmetric(
+            vertical: 7.2,
+            horizontal: 6,
+          ),
+          height: 2.5,
+          width: 2.5,
+          decoration: const BoxDecoration(color: CoconutColors.gray800, shape: BoxShape.circle),
+        ),
+        Expanded(
+          child: RichText(
+            text: TextSpan(
+              style: CoconutTypography.body3_12.setColor(CoconutColors.gray800),
+              children: inlineSpan,
+            ),
+            overflow: TextOverflow.visible,
+            softWrap: true,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildVaultList(List<VaultListItemBase> vaultList, List<int> vaultOrder) {
+    vaultList.sort((a, b) => vaultOrder.indexOf(a.id).compareTo(vaultOrder.indexOf(b.id)));
+    return SliverList(
+      delegate: SliverChildBuilderDelegate(
+        (context, index) {
+          if (index < vaultList.length) {
+            return _buildVaultItem(
+              vaultList[index],
+              index == vaultOrder.length - 1,
+              index == 0,
+            );
+          } else if (index < vaultOrder.length) {
+            // vaultOrder에 있지만 vaultList에 없는 경우 skeleton UI 표시
+            return VaultRowItem.buildSkeleton();
+          }
+          return null;
+        },
+        childCount: vaultOrder.length,
+      ),
+    );
+  }
+
+  Widget _buildEditableVaultList() {
+    return ReorderableListView.builder(
+      shrinkWrap: true,
+      primary: false,
+      physics: const AlwaysScrollableScrollPhysics(),
+      header: _buildEditModeHeader(),
+      footer: const Padding(
+        padding: EdgeInsets.all(60.0),
+      ),
+      proxyDecorator: (child, index, animation) {
+        // 드래그 중인 항목의 외관 변경
+        return Container(
+          decoration: BoxDecoration(
+            color: CoconutColors.white,
+            borderRadius: BorderRadius.circular(CoconutStyles.radius_200),
+            boxShadow: const [
+              BoxShadow(color: CoconutColors.gray300, blurRadius: 8, spreadRadius: 0.5)
+            ],
+          ),
+          child: child,
+        );
+      },
+      itemCount: _viewModel.tempVaultOrder.length,
+      onReorder: (oldIndex, newIndex) {
+        _viewModel.reorderTempVaultOrder(oldIndex, newIndex);
+      },
+      itemBuilder: (context, index) {
+        VaultListItemBase vault = _viewModel.vaults.firstWhere(
+          (w) => w.id == _viewModel.tempVaultOrder[index],
+        );
+        // 삭제 가능한 조건
+        // MultisigVaultListItem 인 경우 삭제 가능
+        // SingleSigVaultListItem 인 경우 연결된 MultisigVaultListItem 이 없는 경우 삭제 가능
+        // 연결된 MultisigVaultListItem 이 있는 경우 연결된 MultisigVaultListItem 이 먼저 Dismiss된 경우 삭제 가능
+        var canDismiss = false;
+        if (vault is MultisigVaultListItem) {
+          canDismiss = true;
+        } else {
+          if ((vault as SingleSigVaultListItem).linkedMultisigInfo?.entries.isEmpty == true ||
+              vault.linkedMultisigInfo?.entries == null ||
+              (vault.linkedMultisigInfo?.entries.isNotEmpty == true &&
+                  vault.linkedMultisigInfo!.entries
+                      .every((entry) => !_viewModel.tempVaultOrder.contains(entry.key)))) {
+            canDismiss = true;
+          }
+        }
+        return Dismissible(
+          key: ValueKey(vault.id),
+          direction: DismissDirection.endToStart,
+          background: Container(
+            alignment: Alignment.centerRight,
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            color: CoconutColors.hotPink,
+            child: SvgPicture.asset(
+              'assets/svg/trash.svg',
+              width: 16,
+              colorFilter: const ColorFilter.mode(
+                CoconutColors.white,
+                BlendMode.srcIn,
+              ),
+            ),
+          ),
+          confirmDismiss: (direction) async {
+            if (!canDismiss) {
+              CoconutToast.showToast(
+                context: context,
+                text: t.toast.name_multisig_in_use,
+                isVisibleIcon: true,
+              );
+              return false; // 되돌리기
+            }
+            return true;
+          },
+          onDismissed: (direction) {
+            if (!canDismiss) {
+              return;
+            }
+            _viewModel.removeTempWalletOrderByWalletId(vault.id);
+          },
+          child: KeyedSubtree(
+            key: ValueKey(_viewModel.tempVaultOrder[index]),
+            child: _buildVaultItem(
+              vault,
+              false,
+              index == 0,
+              isEditMode: true,
+              isFavorite: _viewModel.tempFavoriteVaultIds.contains(vault.id),
+              index: index,
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildVaultItem(VaultListItemBase vault, bool isLastItem, bool isFirstItem,
+      {bool isEditMode = false, bool isFavorite = false, int? index}) {
+    return Column(
+      children: [
+        if (isEditMode) CoconutLayout.spacing_100h,
+        _getVaultRowItem(
+          Key(vault.id.toString()),
+          vault,
+          isLastItem,
+          isFirstItem,
+          isEditMode,
+          isFavorite,
+          index: index,
+        ),
+        isEditMode
+            ? CoconutLayout.spacing_100h
+            : isLastItem
+                ? CoconutLayout.spacing_1000h
+                : CoconutLayout.spacing_200h,
+      ],
+    );
+  }
+
+  Widget _getVaultRowItem(
+    Key key,
+    VaultListItemBase vault,
+    bool isLastItem,
+    bool isFirstItem,
+    bool isEditMode,
+    bool isFavorite, {
+    int? index,
+  }) {
+    final VaultListItemBase(
+      id: id,
+      name: name,
+      iconIndex: iconIndex,
+      colorIndex: colorIndex,
+    ) = vault;
+
+    return VaultRowItem(
+      key: key,
+      vault: vault,
+      isLastItem: isLastItem,
+      isPrimaryWallet: isFirstItem,
+      isEditMode: isEditMode,
+      isFavorite: isFavorite,
+      isStarVisible:
+          isFavorite || _viewModel.tempFavoriteVaultIds.length < kMaxStarLength, // 즐겨찾기 제한 만큼 설정
+      onTapStar: (pair) {
+        // pair: (bool isFavorite, int walletId)
+
+        // 즐겨찾기 된 지갑이 1개인 경우 즐겨찾기 해제 불가
+        if (isFavorite && _viewModel.tempFavoriteVaultIds.length == 1) {
+          vibrateExtraLightDouble();
+          CoconutToast.showToast(
+            context: context,
+            text: t.toast.home_vault_min_one,
+            isVisibleIcon: true,
+          );
+          return;
+        }
+        vibrateExtraLight();
+        _viewModel.toggleTempFavorite(pair.$2);
+      },
+      index: index,
+      onLongPressed: () {
+        vibrateExtraLight();
+        MyBottomSheet.showBottomSheet(
+            title: '',
+            titlePadding: EdgeInsets.zero,
+            context: context,
+            child: VaultItemSettingBottomSheet(id: id));
+      },
+      entryPoint: kEntryPointVaultList,
+    );
+  }
+
+  AppBar _buildAppBar(BuildContext context) {
+    bool isEditMode = _viewModel.isEditMode;
+    bool hasFavoriteChanged = _viewModel.hasFavoriteChanged;
+    bool hasWalletOrderChanged = _viewModel.hasVaultOrderChanged;
+    return CoconutAppBar.build(
+      title: isEditMode ? t.vault_list_screen.edit.wallet_list : '',
+      context: context,
+      onBackPressed: () {
+        if (isEditMode) {
+          if (hasFavoriteChanged || hasWalletOrderChanged) {
+            showDialog(
+              context: context,
+              builder: (BuildContext context) {
+                return CoconutPopup(
+                  title: t.vault_list_screen.edit.finish,
+                  description: t.vault_list_screen.edit.unsaved_changes_confirm_exit,
+                  leftButtonText: t.cancel,
+                  rightButtonText: t.confirm,
+                  onTapRight: () {
+                    _viewModel.setEditMode(false);
+                    Navigator.pop(context);
+                  },
+                  onTapLeft: () {
+                    Navigator.pop(context);
+                  },
+                );
+              },
+            );
+          } else {
+            _viewModel.setEditMode(false);
+          }
+        } else {
+          Navigator.pop(context);
+        }
+      },
+      actionButtonList: [
+        if (!isEditMode)
+          CoconutUnderlinedButton(
+            isActive: _viewModel.isVaultsLoaded,
+            text: t.edit,
+            textStyle: CoconutTypography.body2_14,
+            onTap: () {
+              _viewModel.setEditMode(true);
+            },
+          ),
+      ],
+    );
   }
 }

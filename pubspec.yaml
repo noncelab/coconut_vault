@@ -220,8 +220,21 @@ flutter:
     - assets/svg/text-field-clear.svg
     - assets/svg/copy.svg
     - assets/svg/wallet-plus.svg
+    - assets/svg/gear.svg
+    - assets/svg/signature.svg
+    - assets/svg/bc1.svg
+    - assets/svg/wallet-eyes.svg
+    - assets/svg/two-keys.svg
+    - assets/svg/font-book.svg
+    - assets/svg/align-center.svg
+    - assets/svg/chevron-right.svg
     - assets/svg/green-circle-check.svg
     - assets/svg/triangle-warning.svg
+    - assets/svg/star-filled.svg
+    - assets/svg/star-outlined.svg
+    - assets/svg/star-small.svg
+    - assets/svg/hamburger.svg
+    - assets/svg/circle-info.svg
 
   fonts:
     - family: SpaceGrotesk

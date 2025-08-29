@@ -5,6 +5,7 @@ import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:coconut_vault/widgets/multisig/card/signer_bsms_info_card.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:provider/provider.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 
@@ -56,7 +57,6 @@ class _MultisigSignerBsmsExportScreenState extends State<MultisigSignerBsmsExpor
             appBar: CoconutAppBar.build(
               title: viewModel.name,
               context: context,
-              isBottom: true,
             ),
             body: SafeArea(
               child: Stack(children: [
@@ -64,59 +64,26 @@ class _MultisigSignerBsmsExportScreenState extends State<MultisigSignerBsmsExpor
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      const SizedBox(
-                        height: 20,
-                      ),
                       Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        padding: const EdgeInsets.only(top: 20, left: 16, right: 16),
                         child: CoconutToolTip(
-                            tooltipType: CoconutTooltipType.fixed,
-                            showIcon: true,
-                            richText: RichText(
-                              text: TextSpan(
-                                text: t.signer_bsms_screen.guide1_1,
-                                style: const TextStyle(
-                                  fontFamily: 'Pretendard',
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 15,
-                                  height: 1.4,
-                                  letterSpacing: 0.5,
-                                  color: CoconutColors.black,
-                                ),
-                                children: <TextSpan>[
-                                  TextSpan(
-                                    text: t.signer_bsms_screen.guide1_2,
-                                    style: const TextStyle(
-                                      fontWeight: FontWeight.normal,
-                                    ),
-                                  ),
-                                  TextSpan(
-                                    text: t.signer_bsms_screen.guide1_3,
-                                    style: const TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                  TextSpan(
-                                    text: t.signer_bsms_screen.guide1_4,
-                                    style: const TextStyle(
-                                      fontWeight: FontWeight.normal,
-                                    ),
-                                  ),
-                                  TextSpan(
-                                    text: t.signer_bsms_screen.guide1_5,
-                                    style: const TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                  TextSpan(
-                                    text: t.signer_bsms_screen.guide1_6,
-                                    style: const TextStyle(
-                                      fontWeight: FontWeight.normal,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            )),
+                          backgroundColor: CoconutColors.gray100,
+                          borderColor: CoconutColors.gray400,
+                          icon: SvgPicture.asset(
+                            'assets/svg/circle-info.svg',
+                            colorFilter: const ColorFilter.mode(
+                              CoconutColors.black,
+                              BlendMode.srcIn,
+                            ),
+                          ),
+                          tooltipType: CoconutTooltipType.fixed,
+                          richText: RichText(
+                            text: TextSpan(
+                              style: CoconutTypography.body3_12,
+                              children: _getTooltipRichText(),
+                            ),
+                          ),
+                        ),
                       ),
                       const SizedBox(height: 32),
                       Center(
@@ -167,5 +134,38 @@ class _MultisigSignerBsmsExportScreenState extends State<MultisigSignerBsmsExpor
         },
       ),
     );
+  }
+
+  List<TextSpan> _getTooltipRichText() {
+    return [
+      TextSpan(
+        text: t.signer_bsms_screen.guide1_1,
+        style: CoconutTypography.body2_14_Bold.copyWith(
+          height: 1.2,
+          letterSpacing: 0.5,
+          color: CoconutColors.black,
+        ),
+      ),
+      TextSpan(
+        text: t.signer_bsms_screen.guide1_2,
+        style: CoconutTypography.body2_14.copyWith(height: 1.2, color: CoconutColors.black),
+      ),
+      TextSpan(
+        text: t.signer_bsms_screen.guide1_3,
+        style: CoconutTypography.body2_14_Bold.copyWith(height: 1.2, color: CoconutColors.black),
+      ),
+      TextSpan(
+        text: t.signer_bsms_screen.guide1_4,
+        style: CoconutTypography.body2_14.copyWith(height: 1.2, color: CoconutColors.black),
+      ),
+      TextSpan(
+        text: t.signer_bsms_screen.guide1_5,
+        style: CoconutTypography.body2_14_Bold.copyWith(height: 1.2, color: CoconutColors.black),
+      ),
+      TextSpan(
+        text: t.signer_bsms_screen.guide1_6,
+        style: CoconutTypography.body2_14.copyWith(height: 1.2, color: CoconutColors.black),
+      ),
+    ];
   }
 }

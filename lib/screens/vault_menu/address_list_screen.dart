@@ -5,6 +5,7 @@ import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/providers/view_model/address_list_view_model.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:coconut_vault/screens/common/qrcode_bottom_sheet.dart';
+import 'package:coconut_vault/screens/home/select_vault_bottom_sheet.dart';
 import 'package:coconut_vault/utils/logger.dart';
 import 'package:coconut_vault/widgets/bottom_sheet.dart';
 import 'package:coconut_vault/widgets/card/address_card.dart';
@@ -13,8 +14,9 @@ import 'package:provider/provider.dart';
 
 class AddressListScreen extends StatefulWidget {
   final int id;
+  final bool isSpecificVault; // (true) 볼트 상세화면으로 진입 -> 다른 볼트 주소 조회 불가
 
-  const AddressListScreen({super.key, required this.id});
+  const AddressListScreen({super.key, required this.id, required this.isSpecificVault});
 
   @override
   State<AddressListScreen> createState() => _AddressListScreenState();
@@ -29,6 +31,7 @@ class _AddressListScreenState extends State<AddressListScreen> {
 
   @override
   Widget build(BuildContext context) {
+    debugPrint('isSpecificVault: ${widget.isSpecificVault}');
     return ChangeNotifierProvider<AddressListViewModel>(
       create: (BuildContext context) => _viewModel =
           AddressListViewModel(Provider.of<WalletProvider>(context, listen: false), widget.id),
@@ -41,9 +44,54 @@ class _AddressListScreenState extends State<AddressListScreen> {
           return Scaffold(
             backgroundColor: CoconutColors.white,
             appBar: CoconutAppBar.build(
-              title: t.address_list_screen.title(name: viewModel.name),
               context: context,
-              isBottom: true,
+              actionButtonList: [
+                // title center 배치용
+                Visibility(
+                  visible: false,
+                  maintainSize: true,
+                  maintainAnimation: true,
+                  maintainState: true,
+                  child: IconButton(
+                    onPressed: () {},
+                    icon: const Icon(Icons.search_rounded, color: CoconutColors.white),
+                  ),
+                ),
+              ],
+              customTitle: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    t.address_list_screen.title(
+                      name: viewModel.name,
+                    ),
+                    style: CoconutTypography.heading4_18,
+                  ),
+                  if (!widget.isSpecificVault) ...[
+                    CoconutLayout.spacing_50w,
+                    const Icon(Icons.keyboard_arrow_down_sharp,
+                        color: CoconutColors.black, size: 16),
+                  ],
+                ],
+              ),
+              onTitlePressed: () {
+                if (widget.isSpecificVault) return;
+                MyBottomSheet.showDraggableBottomSheet(
+                    context: context,
+                    childBuilder: (scrollController) => SelectVaultBottomSheet(
+                          isNextIconVisible: false,
+                          vaultList: context
+                              .read<WalletProvider>()
+                              .vaultList
+                              .where((vault) => vault.id != viewModel.vaultId)
+                              .toList(),
+                          onVaultSelected: (id) async {
+                            viewModel.changeVaultById(id);
+                            Navigator.pop(context);
+                          },
+                          scrollController: scrollController,
+                        ));
+              },
             ),
             body: _isFirstLoadRunning
                 ? const Center(child: CircularProgressIndicator())
@@ -52,7 +100,7 @@ class _AddressListScreenState extends State<AddressListScreen> {
                       Container(
                         height: 36,
                         margin: const EdgeInsets.only(
-                          top: 10,
+                          top: 20,
                           bottom: 12,
                           left: 16,
                           right: 16,

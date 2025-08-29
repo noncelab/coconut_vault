@@ -155,19 +155,19 @@ class _MnemonicImportState extends State<MnemonicImport> {
           await _handleBackNavigation();
         }
       },
-      child: Stack(
-        children: [
-          Scaffold(
-            backgroundColor: CoconutColors.white,
-            appBar: CoconutAppBar.build(
-              title: t.mnemonic_import_screen.title,
-              context: context,
-              onBackPressed: _handleBackNavigation,
-            ),
-            body: GestureDetector(
-              onTap: () => FocusScope.of(context).unfocus(),
-              child: SafeArea(
-                child: SingleChildScrollView(
+      child: Scaffold(
+        backgroundColor: CoconutColors.white,
+        appBar: CoconutAppBar.build(
+          title: t.mnemonic_import_screen.title,
+          context: context,
+          onBackPressed: _handleBackNavigation,
+        ),
+        body: SafeArea(
+          child: GestureDetector(
+            onTap: () => FocusScope.of(context).unfocus(),
+            child: Stack(
+              children: [
+                SingleChildScrollView(
                   child: Container(
                     padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 30),
                     child: Column(
@@ -184,34 +184,35 @@ class _MnemonicImportState extends State<MnemonicImport> {
                     ),
                   ),
                 ),
-              ),
-            ),
-          ),
-          // TODO: check 버튼 너비가 다른 요소에 비해 더 넓은 것 같음
-          FixedBottomButton(
-              text: t.next,
-              onButtonClicked: _handleNextButton,
-              isActive: _usePassphrase
-                  ? _inputText.isNotEmpty && _isMnemonicValid == true && _passphrase.isNotEmpty
-                  : _inputText.isNotEmpty && _isMnemonicValid == true,
-              backgroundColor: CoconutColors.black,
-              bottomPadding: 40,
-              isVisibleAboveKeyboard: false),
-          // TODO: isolate
-          Visibility(
-            visible: false,
-            child: Container(
-              width: MediaQuery.of(context).size.width,
-              height: MediaQuery.of(context).size.height,
-              decoration: BoxDecoration(color: CoconutColors.black.withOpacity(0.3)),
-              child: const Center(
-                child: CircularProgressIndicator(
-                  color: CoconutColors.gray800,
+                // TODO: check 버튼 너비가 다른 요소에 비해 더 넓은 것 같음
+                FixedBottomButton(
+                    text: t.next,
+                    onButtonClicked: _handleNextButton,
+                    isActive: _usePassphrase
+                        ? _inputText.isNotEmpty &&
+                            _isMnemonicValid == true &&
+                            _passphrase.isNotEmpty
+                        : _inputText.isNotEmpty && _isMnemonicValid == true,
+                    backgroundColor: CoconutColors.black,
+                    isVisibleAboveKeyboard: false),
+                // TODO: isolate
+                Visibility(
+                  visible: false,
+                  child: Container(
+                    width: MediaQuery.of(context).size.width,
+                    height: MediaQuery.of(context).size.height,
+                    decoration: BoxDecoration(color: CoconutColors.black.withOpacity(0.3)),
+                    child: const Center(
+                      child: CircularProgressIndicator(
+                        color: CoconutColors.gray800,
+                      ),
+                    ),
+                  ),
                 ),
-              ),
+              ],
             ),
           ),
-        ],
+        ),
       ),
     );
   }

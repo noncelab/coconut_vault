@@ -20,4 +20,7 @@ class SharedPrefsKeys {
   static const String kPassphraseUseEnabled = 'PASSPHRASE_USE_ENABLED';
   static const String kIsBtcUnit = "IS_BTC_UNIT";
   static const String kLanguage = 'LANGUAGE';
+
+  static const String kVaultOrder = "VAULT_ORDER"; // 볼트 순서
+  static const String kFavoriteVaultIds = "FAVORITE_VAULT_IDS"; // 즐겨찾기된 볼트 목록
 }

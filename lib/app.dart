@@ -3,6 +3,7 @@ import 'package:coconut_lib/coconut_lib.dart';
 import 'package:coconut_vault/constants/app_routes.dart';
 import 'package:coconut_vault/enums/pin_check_context_enum.dart';
 import 'package:coconut_vault/main_route_guard.dart';
+import 'package:coconut_vault/providers/preference_provider.dart';
 import 'package:coconut_vault/providers/sign_provider.dart';
 import 'package:coconut_vault/providers/wallet_creation_provider.dart';
 import 'package:coconut_vault/providers/auth_provider.dart';
@@ -15,6 +16,7 @@ import 'package:coconut_vault/screens/airgap/signed_transaction_qr_screen.dart';
 import 'package:coconut_vault/screens/airgap/single_sig_sign_screen.dart';
 import 'package:coconut_vault/screens/app_update/restoration_info_screen.dart';
 import 'package:coconut_vault/screens/app_update/vault_list_restoration_screen.dart';
+import 'package:coconut_vault/screens/home/vault_home_screen.dart';
 import 'package:coconut_vault/screens/home/vault_list_screen.dart';
 import 'package:coconut_vault/screens/app_update/app_update_preparation_screen.dart';
 import 'package:coconut_vault/screens/vault_creation/single_sig/mnemonic_coinflip_confirmation_screen.dart';
@@ -42,7 +44,7 @@ import 'package:coconut_vault/screens/vault_menu/info/multisig_setup_info_screen
 import 'package:coconut_vault/screens/vault_menu/info/passphrase_verification_screen.dart';
 import 'package:coconut_vault/screens/vault_menu/multisig_signer_bsms_export_screen.dart';
 import 'package:coconut_vault/screens/vault_menu/sync_to_wallet/sync_to_wallet_screen.dart';
-import 'package:coconut_vault/screens/home/vault_menu_bottom_sheet.dart';
+import 'package:coconut_vault/screens/home/select_vault_bottom_sheet.dart';
 import 'package:coconut_vault/screens/vault_menu/info/single_sig_setup_info_screen.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -56,7 +58,7 @@ enum AppEntryFlow {
   splash,
   tutorial,
   pinCheck,
-  vaultList,
+  vaultHome,
   pinCheckForRestoration, // 복원파일o, 업데이트o 일때 바로 이동하는 핀체크 화면
   foundBackupFile, // 복원파일o, 업데이트x 일때 이동하는 복원파일 발견 화면
   restoration, // 복원 진행 화면
@@ -85,7 +87,7 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> {
     return PinCheckScreen(
       pinCheckContext: PinCheckContextEnum.appLaunch,
       onSuccess: () => _updateEntryFlow(nextFlow),
-      onReset: onReset ?? () async => _updateEntryFlow(AppEntryFlow.vaultList),
+      onReset: onReset ?? () async => _updateEntryFlow(AppEntryFlow.vaultHome),
     );
   }
 
@@ -105,7 +107,7 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> {
 
       case AppEntryFlow.pinCheck:
         return CustomLoadingOverlay(
-          child: _buildPinCheckScreen(nextFlow: AppEntryFlow.vaultList),
+          child: _buildPinCheckScreen(nextFlow: AppEntryFlow.vaultHome),
         );
 
       case AppEntryFlow.pinCheckForRestoration:
@@ -121,7 +123,7 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> {
         return CustomLoadingOverlay(
           child: RestorationInfoScreen(
             onComplete: () => _updateEntryFlow(AppEntryFlow.restoration),
-            onReset: () async => _updateEntryFlow(AppEntryFlow.vaultList),
+            onReset: () async => _updateEntryFlow(AppEntryFlow.vaultHome),
           ),
         );
 
@@ -130,14 +132,14 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> {
         /// 복원 진행 화면
         return CustomLoadingOverlay(
           child: VaultListRestorationScreen(
-            onComplete: () => _updateEntryFlow(AppEntryFlow.vaultList),
+            onComplete: () => _updateEntryFlow(AppEntryFlow.vaultHome),
           ),
         );
 
-      case AppEntryFlow.vaultList:
+      case AppEntryFlow.vaultHome:
         return MainRouteGuard(
           onAppGoBackground: () => _updateEntryFlow(AppEntryFlow.pinCheck),
-          child: const VaultListScreen(),
+          child: const VaultHomeScreen(),
         );
     }
   }
@@ -150,6 +152,7 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> {
       providers: [
         ChangeNotifierProvider(create: (_) => visibilityProvider),
         ChangeNotifierProvider(create: (_) => AuthProvider()),
+        ChangeNotifierProvider(create: (_) => PreferenceProvider()),
         ChangeNotifierProxyProvider<VisibilityProvider, ConnectivityProvider>(
           create: (_) => ConnectivityProvider(hasSeenGuide: visibilityProvider.hasSeenGuide),
           update: (_, visibilityProvider, connectivityProvider) {
@@ -160,18 +163,20 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> {
             return connectivityProvider!;
           },
         ),
-        if (_appEntryFlow == AppEntryFlow.vaultList) ...{
+        if (_appEntryFlow == AppEntryFlow.vaultHome) ...{
           Provider<WalletCreationProvider>(create: (_) => WalletCreationProvider()),
           Provider<SignProvider>(create: (_) => SignProvider()),
           ChangeNotifierProvider<WalletProvider>(
             create: (_) => WalletProvider(
               Provider.of<VisibilityProvider>(_, listen: false),
+              Provider.of<PreferenceProvider>(_, listen: false),
             ),
           )
         } else if (_appEntryFlow == AppEntryFlow.restoration) ...{
           ChangeNotifierProvider<WalletProvider>(
             create: (_) => WalletProvider(
               Provider.of<VisibilityProvider>(_, listen: false),
+              Provider.of<PreferenceProvider>(_, listen: false),
             ),
           )
         }
@@ -208,6 +213,7 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> {
           color: CoconutColors.white,
           home: _getHomeScreenRoute(_appEntryFlow, context),
           routes: {
+            AppRoutes.vaultList: (context) => const VaultListScreen(),
             AppRoutes.vaultTypeSelection: (context) => const VaultTypeSelectionScreen(),
             AppRoutes.multisigQuorumSelection: (context) => const MultisigQuorumSelectionScreen(),
             AppRoutes.signerAssignment: (context) => const SignerAssignmentScreen(),
@@ -224,18 +230,19 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> {
                   ),
                 ),
             AppRoutes.vaultNameSetup: (context) => const VaultNameAndIconSetupScreen(),
-            AppRoutes.vaultDetails: (context) => buildScreenWithArguments(
-                  context,
-                  (args) => VaultMenuBottomSheet(
-                      id: args['id'],
-                      hasPassphrase: args['hasPassphrase'],
-                      parentContext: args['parentContext']),
-                ),
             AppRoutes.singleSigSetupInfo: (context) => buildScreenWithArguments(
-                context, (args) => SingleSigSetupInfoScreen(id: args['id'])),
+                  context,
+                  (args) => SingleSigSetupInfoScreen(
+                    id: args['id'],
+                    entryPoint: args['entryPoint'],
+                  ),
+                ),
             AppRoutes.multisigSetupInfo: (context) => buildScreenWithArguments(
                   context,
-                  (args) => MultisigSetupInfoScreen(id: args['id']),
+                  (args) => MultisigSetupInfoScreen(
+                    id: args['id'],
+                    entryPoint: args['entryPoint'],
+                  ),
                 ),
             AppRoutes.multisigBsmsView: (context) => buildScreenWithArguments(
                   context,
@@ -246,7 +253,10 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> {
             AppRoutes.mnemonicWordList: (context) => const MnemonicWordListScreen(),
             AppRoutes.addressList: (context) => buildScreenWithArguments(
                   context,
-                  (args) => AddressListScreen(id: args['id']),
+                  (args) => AddressListScreen(
+                    id: args['id'],
+                    isSpecificVault: args['isSpecificVault'] ?? false,
+                  ),
                 ),
             AppRoutes.signerBsmsScanner: (context) => buildScreenWithArguments(
                   context,
@@ -282,7 +292,7 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> {
             AppRoutes.welcome: (context) => const WelcomeScreen(),
             AppRoutes.connectivityGuide: (context) {
               onComplete() {
-                _updateEntryFlow(AppEntryFlow.vaultList);
+                _updateEntryFlow(AppEntryFlow.vaultHome);
               }
 
               return GuideScreen(onComplete: onComplete);

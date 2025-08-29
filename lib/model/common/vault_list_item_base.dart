@@ -16,6 +16,8 @@ abstract class VaultListItemBase {
   int iconIndex;
   @JsonKey(name: vaultTypeField)
   WalletType vaultType;
+  @JsonKey(name: "createdAt")
+  DateTime createdAt;
 
   late WalletBase coconutVault;
 
@@ -25,6 +27,7 @@ abstract class VaultListItemBase {
     required this.colorIndex,
     required this.iconIndex,
     required this.vaultType,
+    required this.createdAt,
   });
 
   Future<bool> canSign(String psbt);

@@ -11,6 +11,7 @@ import 'package:coconut_vault/model/exception/not_related_multisig_wallet_except
 import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:coconut_vault/utils/alert_util.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:provider/provider.dart';
 import 'package:qr_code_scanner/qr_code_scanner.dart';
 
@@ -100,6 +101,7 @@ class _MultisigBsmsScannerScreenState extends State<MultisigBsmsScannerScreen> {
                   : t.signer_scanner_screen.title2,
               context: context,
               isBottom: true,
+              isBackButton: widget.screenType == MultisigBsmsImportType.copy,
             ),
             body: _buildStack(context),
           )
@@ -139,11 +141,22 @@ class _MultisigBsmsScannerScreenState extends State<MultisigBsmsScannerScreen> {
         Padding(
           padding: const EdgeInsets.only(top: 20, left: 16, right: 16),
           child: CoconutToolTip(
-            richText: _infoRichText(),
-            showIcon: true,
+            backgroundColor: CoconutColors.gray100,
+            borderColor: CoconutColors.gray400,
+            icon: SvgPicture.asset(
+              'assets/svg/circle-info.svg',
+              colorFilter: const ColorFilter.mode(
+                CoconutColors.black,
+                BlendMode.srcIn,
+              ),
+            ),
             tooltipType: CoconutTooltipType.fixed,
-            baseBackgroundColor: CoconutColors.white,
-            backgroundColor: CoconutColors.backgroundColorPaletteLight[4].withOpacity(0.18),
+            richText: RichText(
+              text: TextSpan(
+                style: CoconutTypography.body3_12,
+                children: _getTooltipRichText(),
+              ),
+            ),
           ),
         ),
         Visibility(
@@ -258,28 +271,23 @@ class _MultisigBsmsScannerScreenState extends State<MultisigBsmsScannerScreen> {
     });
   }
 
-  RichText _infoRichText() {
+  List<TextSpan> _getTooltipRichText() {
     TextSpan buildTextSpan(String text, {bool isBold = false}) {
       return TextSpan(
         text: text,
-        style: CoconutTypography.body1_16.merge(
-          TextStyle(
-            fontWeight: isBold ? FontWeight.bold : FontWeight.normal,
-            height: 20.8 / 16,
-            letterSpacing: -0.01,
-            color: CoconutColors.black,
-          ),
+        style: CoconutTypography.body2_14.copyWith(
+          fontWeight: isBold ? FontWeight.bold : FontWeight.normal,
+          height: 1.2,
+          color: CoconutColors.black,
         ),
       );
     }
 
     if (widget.screenType == MultisigBsmsImportType.copy) {
-      return RichText(
-        text: TextSpan(
+      return [
+        TextSpan(
           text: t.signer_scanner_screen.guide1_1,
-          style: CoconutTypography.body1_16.merge(
-            const TextStyle(height: 20.8 / 16, letterSpacing: -0.01, color: CoconutColors.black),
-          ),
+          style: CoconutTypography.body2_14.copyWith(height: 1.2, color: CoconutColors.black),
           children: <TextSpan>[
             buildTextSpan(t.signer_scanner_screen.guide1_2, isBold: true),
             buildTextSpan(
@@ -287,13 +295,12 @@ class _MultisigBsmsScannerScreenState extends State<MultisigBsmsScannerScreen> {
             ),
           ],
         ),
-      );
+      ];
     } else if (widget.screenType == MultisigBsmsImportType.add) {
-      return RichText(
-        text: TextSpan(
+      return [
+        TextSpan(
           text: t.signer_scanner_screen.guide2_1,
-          style: CoconutTypography.body1_16.merge(
-              const TextStyle(height: 20.8 / 16, letterSpacing: -0.01, color: CoconutColors.black)),
+          style: CoconutTypography.body2_14.copyWith(height: 1.2, color: CoconutColors.black),
           children: <TextSpan>[
             buildTextSpan(
               t.signer_scanner_screen.guide2_2,
@@ -304,7 +311,7 @@ class _MultisigBsmsScannerScreenState extends State<MultisigBsmsScannerScreen> {
             ),
           ],
         ),
-      );
+      ];
     } else {
       throw ArgumentError('[SignerScanner] ${widget.screenType}');
     }

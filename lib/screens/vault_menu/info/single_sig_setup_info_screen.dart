@@ -9,15 +9,15 @@ import 'package:coconut_vault/providers/view_model/vault_menu/single_sig_setup_i
 import 'package:coconut_vault/screens/vault_menu/info/name_and_icon_edit_bottom_sheet.dart';
 import 'package:coconut_vault/utils/text_utils.dart';
 import 'package:coconut_vault/utils/vibration_util.dart';
+import 'package:coconut_vault/widgets/button/button_group.dart';
+import 'package:coconut_vault/widgets/button/single_button.dart';
 import 'package:coconut_vault/widgets/card/vault_item_card.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:coconut_vault/screens/common/pin_check_screen.dart';
-import 'package:coconut_vault/utils/alert_util.dart';
 import 'package:coconut_vault/widgets/bottom_sheet.dart';
 import 'package:coconut_vault/widgets/bubble_clipper.dart';
 import 'package:coconut_vault/widgets/custom_loading_overlay.dart';
-import 'package:coconut_vault/widgets/card/information_item_card.dart';
 import 'package:provider/provider.dart';
 import 'package:shimmer/shimmer.dart';
 
@@ -25,7 +25,8 @@ import '../../../providers/wallet_provider.dart';
 
 class SingleSigSetupInfoScreen extends StatefulWidget {
   final int id;
-  const SingleSigSetupInfoScreen({super.key, required this.id});
+  final String? entryPoint;
+  const SingleSigSetupInfoScreen({super.key, required this.id, this.entryPoint});
 
   @override
   State<SingleSigSetupInfoScreen> createState() => _SingleSigSetupInfoScreenState();
@@ -66,7 +67,7 @@ class _SingleSigSetupInfoScreenState extends State<SingleSigSetupInfoScreen> {
       return;
     }
 
-    MyBottomSheet.showBottomSheet_90(
+    await MyBottomSheet.showBottomSheet_90(
       context: context,
       child: CustomLoadingOverlay(
         child: PinCheckScreen(
@@ -92,36 +93,43 @@ class _SingleSigSetupInfoScreenState extends State<SingleSigSetupInfoScreen> {
           create: (context) => SingleSigSetupInfoViewModel(
               Provider.of<WalletProvider>(context, listen: false), widget.id),
           child: Consumer<SingleSigSetupInfoViewModel>(builder: (context, viewModel, child) {
-            return Scaffold(
-              backgroundColor: CoconutColors.white,
-              appBar: CoconutAppBar.build(
-                title: '${viewModel.name} ${t.info}',
-                context: context,
-                isBottom: viewModel.hasLinkedMultisigVault,
-              ),
-              body: GestureDetector(
-                onTap: () => FocusScope.of(context).unfocus(),
-                child: SafeArea(
-                  child: SingleChildScrollView(
-                    child: Stack(
-                      children: [
-                        Container(
-                          margin: const EdgeInsets.only(top: 20),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              _buildVaultItemCard(context),
-                              (viewModel.hasLinkedMultisigVault == true)
-                                  ? _buildLinkedMultisigVaultInfoCard(context)
-                                  : const SizedBox(height: 20),
-                              _buildMnemonicViewAction(context),
-                              _buildDivider(),
-                              _buildDeleteButton(context)
-                            ],
+            return GestureDetector(
+              onTapDown: (details) => _removeTooltip(),
+              child: Scaffold(
+                backgroundColor: CoconutColors.white,
+                appBar: CoconutAppBar.build(
+                  title: viewModel.name,
+                  context: context,
+                  // isBottom: viewModel.hasLinkedMultisigVault,
+                  isBottom: false,
+                ),
+                body: GestureDetector(
+                  onTap: () => FocusScope.of(context).unfocus(),
+                  child: SafeArea(
+                    child: SingleChildScrollView(
+                      child: Stack(
+                        children: [
+                          Container(
+                            margin: const EdgeInsets.only(top: 20),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                _buildVaultItemCard(context),
+                                (viewModel.hasLinkedMultisigVault == true)
+                                    ? _buildLinkedMultisigVaultInfoCard(context)
+                                    : CoconutLayout.spacing_500h,
+                                _buildSignMenu(),
+                                CoconutLayout.spacing_500h,
+                                _buildMenuList(context),
+                                _buildDivider(),
+                                _buildDeleteButton(context),
+                                CoconutLayout.spacing_500h,
+                              ],
+                            ),
                           ),
-                        ),
-                        _buildTooltip(context),
-                      ],
+                          _buildTooltip(context),
+                        ],
+                      ),
                     ),
                   ),
                 ),
@@ -143,6 +151,19 @@ class _SingleSigSetupInfoScreenState extends State<SingleSigSetupInfoScreen> {
         _showModalBottomSheetForEditingNameAndIcon(viewModel);
       },
       tooltipKey: _tooltipIconKey,
+    );
+  }
+
+  Widget _buildSignMenu() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: SingleButton(
+        enableShrinkAnim: true,
+        title: t.vault_menu_screen.title.single_sig_sign,
+        onPressed: () {
+          Navigator.pushNamed(context, AppRoutes.psbtScanner, arguments: {'id': widget.id});
+        },
+      ),
     );
   }
 
@@ -304,119 +325,129 @@ class _SingleSigSetupInfoScreenState extends State<SingleSigSetupInfoScreen> {
     );
   }
 
-  Widget _buildMnemonicViewAction(BuildContext context) {
+  Widget _buildMenuList(BuildContext context) {
     return Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16),
-        child: Container(
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(28.0),
-              color: CoconutColors.black.withOpacity(0.03),
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: ButtonGroup(
+        buttons: [
+          SingleButton(
+            title: t.vault_menu_screen.title.use_as_multisig_signer,
+            enableShrinkAnim: true,
+            onPressed: () {
+              _removeTooltip();
+              Navigator.pushNamed(context, AppRoutes.multisigSignerBsmsExport,
+                  arguments: {'id': widget.id});
+            },
+          ),
+          SingleButton(
+            title: t.view_mnemonic,
+            enableShrinkAnim: true,
+            onPressed: () {
+              _removeTooltip();
+              Navigator.pushNamed(context, AppRoutes.mnemonicView, arguments: {'id': widget.id});
+            },
+          ),
+          SingleButton(
+            title: t.view_address,
+            enableShrinkAnim: true,
+            onPressed: () {
+              _removeTooltip();
+              Navigator.pushNamed(context, AppRoutes.addressList,
+                  arguments: {'id': widget.id, 'isSpecificVault': true});
+            },
+          ),
+          if (hasPassphrase) ...[
+            SingleButton(
+              enableShrinkAnim: true,
+              title: t.verify_passphrase,
+              onPressed: () {
+                _removeTooltip();
+                Navigator.of(context)
+                    .pushNamed(AppRoutes.passphraseVerification, arguments: {'id': widget.id});
+              },
             ),
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 24),
-              child: Column(
-                children: [
-                  // InformationRowItem(
-                  //     label: '확장 공개키 보기',
-                  //     showIcon: true,
-                  //     onPressed: () {
-                  //       _removeTooltip();
-                  //       _verifyBiometric(context, SecurityAction.viewExtendedPublicKey);
-                  //     }),
-                  // const Divider(
-                  //     color: CoconutColors.borderLightGray,
-                  //     height: 1),
-                  InformationItemCard(
-                    label: t.view_mnemonic,
-                    showIcon: true,
-                    onPressed: () {
-                      _removeTooltip();
-                      _authenticateWithBiometricOrPin(context, PinCheckContextEnum.sensitiveAction);
-                    },
-                  ),
-                  if (hasPassphrase) ...[
-                    const Divider(color: CoconutColors.borderLightGray, height: 1),
-                    InformationItemCard(
-                      label: t.verify_passphrase,
-                      showIcon: true,
-                      onPressed: () {
-                        _removeTooltip();
-                        Navigator.of(context).pushNamed(AppRoutes.passphraseVerification,
-                            arguments: {'id': widget.id});
-                      },
-                    ),
-                  ],
-                ],
-              ),
-            )));
+          ]
+        ],
+      ),
+    );
   }
 
   Widget _buildDeleteButton(BuildContext context) {
     final viewModel = context.read<SingleSigSetupInfoViewModel>();
-    return Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16),
-        child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 24),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(28.0),
-              color: CoconutColors.black.withOpacity(0.03),
+    return Selector<SingleSigSetupInfoViewModel, ({bool canDelete, String walletName})>(
+      selector: (context, viewModel) => (
+        canDelete: viewModel.hasLinkedMultisigVault != true,
+        walletName: viewModel.name,
+      ),
+      builder: (context, data, child) {
+        return Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: SingleButton(
+            title: t.delete_label,
+            titleStyle: CoconutTypography.body2_14_Bold.setColor(viewModel.hasLinkedMultisigVault
+                ? CoconutColors.gray850.withOpacity(0.15)
+                : CoconutColors.black),
+            enableShrinkAnim: data.canDelete,
+            rightElement: SvgPicture.asset(
+              'assets/svg/trash.svg',
+              width: 16,
+              colorFilter: ColorFilter.mode(
+                data.canDelete
+                    ? CoconutColors.warningText
+                    : CoconutColors.gray850.withOpacity(0.15),
+                BlendMode.srcIn,
+              ),
             ),
-            child: Column(
-              children: [
-                Selector<SingleSigSetupInfoViewModel, ({bool canDelete, String walletName})>(
-                    selector: (context, viewModel) => (
-                          canDelete: viewModel.hasLinkedMultisigVault != true,
-                          walletName: viewModel.name,
-                        ),
-                    builder: (context, data, child) {
-                      return InformationItemCard(
-                        label: t.delete_label,
-                        showIcon: true,
-                        textColor: viewModel.hasLinkedMultisigVault
-                            ? CoconutColors.gray850.withOpacity(0.15)
-                            : null,
-                        rightIcon: Container(
-                          padding: const EdgeInsets.all(8),
-                          decoration: BoxDecoration(
-                            color: CoconutColors.white.withOpacity(0.7),
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          child: SvgPicture.asset(
-                            'assets/svg/trash.svg',
-                            width: 16,
-                            colorFilter: ColorFilter.mode(
-                              data.canDelete
-                                  ? CoconutColors.warningText
-                                  : CoconutColors.gray850.withOpacity(0.15),
-                              BlendMode.srcIn,
-                            ),
+            onPressed: () {
+              _removeTooltip();
+              if (data.canDelete) {
+                showDialog(
+                    context: context,
+                    builder: (BuildContext dialogContext) {
+                      return CoconutPopup(
+                        insetPadding: EdgeInsets.symmetric(
+                            horizontal: MediaQuery.of(context).size.width * 0.15),
+                        title: t.confirm,
+                        titleTextStyle: CoconutTypography.body1_16_Bold,
+                        description: t.alert.confirm_deletion(name: data.walletName),
+                        descriptionTextStyle: CoconutTypography.body2_14,
+                        backgroundColor: CoconutColors.white,
+                        leftButtonText: t.no,
+                        leftButtonTextStyle: CoconutTypography.body2_14.merge(
+                          TextStyle(
+                            color: CoconutColors.black.withOpacity(0.7),
+                            fontWeight: FontWeight.w500,
                           ),
                         ),
-                        onPressed: () {
-                          _removeTooltip();
-                          if (data.canDelete) {
-                            showConfirmDialog(
-                                context: context,
-                                title: t.confirm,
-                                content: t.alert.confirm_deletion(name: data.walletName),
-                                onConfirmPressed: () async {
-                                  if (context.mounted) {
-                                    await _authenticateWithBiometricOrPin(
-                                        context, PinCheckContextEnum.seedDeletion);
-                                  }
-                                });
-                            return;
+                        rightButtonText: t.yes,
+                        rightButtonColor: CoconutColors.warningText,
+                        rightButtonTextStyle: CoconutTypography.body2_14.merge(
+                          const TextStyle(
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                        onTapLeft: () => Navigator.pop(context),
+                        onTapRight: () async {
+                          if (context.mounted) {
+                            await _authenticateWithBiometricOrPin(
+                                context, PinCheckContextEnum.seedDeletion);
                           }
-                          CoconutToast.showToast(
-                            context: context,
-                            text: t.toast.name_multisig_in_use,
-                            isVisibleIcon: true,
-                          );
                         },
                       );
-                    }),
-              ],
-            )));
+                    });
+
+                return;
+              }
+              CoconutToast.showToast(
+                context: context,
+                text: t.toast.name_multisig_in_use,
+                isVisibleIcon: true,
+              );
+            },
+          ),
+        );
+      },
+    );
   }
 
   Future<void> _handleAuthenticatedAction(
@@ -425,7 +456,13 @@ class _SingleSigSetupInfoScreenState extends State<SingleSigSetupInfoScreen> {
       final viewModel = context.read<SingleSigSetupInfoViewModel>();
       viewModel.deleteVault();
       vibrateLight();
-      Navigator.popUntil(context, (route) => route.isFirst);
+      if (widget.entryPoint != null && widget.entryPoint == AppRoutes.vaultList) {
+        Navigator.popUntil(context, (route) {
+          return route.settings.name == AppRoutes.vaultList;
+        });
+      } else {
+        Navigator.popUntil(context, (route) => route.isFirst);
+      }
       return;
     }
 
@@ -496,6 +533,11 @@ class _SingleSigSetupInfoScreenState extends State<SingleSigSetupInfoScreen> {
   }
 
   void _showTooltip(BuildContext context) {
+    if (_tooltipRemainingTime > 0) {
+      // 툴팁이 이미 보여지고 있는 상태라면 툴팁 제거만 합니다.
+      _removeTooltip();
+      return;
+    }
     _removeTooltip();
 
     setState(() {
@@ -515,6 +557,7 @@ class _SingleSigSetupInfoScreenState extends State<SingleSigSetupInfoScreen> {
   }
 
   void _removeTooltip() {
+    if (_tooltipRemainingTime == 0) return;
     setState(() {
       _tooltipRemainingTime = 0;
     });

@@ -37,7 +37,6 @@ stop: "그만하기"
 start: "시작하기"
 quit: "종료하기"
 import: "가져오기"
-export: "내보내기"
 passphrase: "패스프레이즈"
 mnemonic: "니모닉 문구"
 testnet: "테스트넷"
@@ -109,6 +108,36 @@ advanced_user: "고급 사용자"
 
 extra_count: "외 $count개"
 
+edit: "편집"
+
+vault_home_screen:
+  view_all_my_wallets: "내 지갑 전체보기"
+  wallet_count: "$count개"
+  action_items:
+    sign: "서명하기"
+    view_address: "주소 보기"
+    export_wallet: "지갑 내보내기"
+    import_multisig_wallet: "다중 서명 지갑\n가져오기"
+    mnemonic_wordlist: "니모닉 단어집"
+    view_all_wallets: "지갑 전체보기"
+
+vault_list_screen:
+  primary_wallet: "대표 지갑"
+  settings: 
+    primary_wallet: "대표 지갑 설정"
+    primary_wallet_disabled_description: "홈 화면에서 받기•보내기할 때 기본으로 지정돼요."
+    primary_wallet_abled_description: "다른 지갑을 대표 지갑으로 설정하면, 자동 해제돼요."
+  edit:
+    wallet_list: "지갑 목록 편집"
+    star_description: "을 최대 5개 선택하여 홈 화면에 보이는 지갑을 선택할 수 있어요."
+    order_description: "을 눌러 지갑 순서를 변경할 수 있어요."
+    delete_description: "지갑을 왼쪽으로 스와이프하면 삭제할 수 있어요."
+    finish: "편집 종료"
+    unsaved_changes_confirm_exit: "저장되지 않은 변경 사항이 있어요.\n그래도 나가시겠어요?"
+    
+select_vault_bottom_sheet:
+  select_wallet: "지갑 선택"
+
 # lib
 vault_list_tab:
   add_wallet: "지갑을 추가해 보세요!"
@@ -174,7 +203,8 @@ psbt_confirmation_screen:
   warning: "⚠️ 해당 지갑으로 만든 psbt가 아닐 수 있습니다. 또는 잔액이 없는 트랜잭션일 수 있습니다."
 psbt_scanner_screen:
   guide_multisig: "월렛에서 만든 보내기 정보 또는 외부 볼트에서 다중 서명 중인 정보를 스캔해주세요."
-  guide_single_sig: "월렛에서 만든 보내기 정보를 스캔해 주세요. 반드시 지갑 이름이 같아야 해요."
+  guide_single_sig_same_name: "월렛에서 만든 보내기 정보를 스캔해 주세요. 반드시 지갑 이름이 같아야 해요."
+  guide_single_sig: "월렛에서 만든 보내기 정보를 스캔해 주세요."
 signed_transaction_qr_screen:
   guide_multisig: "다중 서명을 완료했어요. 보내기 정보를 생성한 월렛으로 아래 QR 코드를 스캔해 주세요."
   guide_single_sig: "월렛의 '$name 지갑'에서 만든 보내기 정보에 서명을 완료했어요. 월렛으로 아래 QR 코드를 스캔해 주세요."
@@ -235,6 +265,7 @@ settings_screen:
   prepare_update: "업데이트 준비"
   advanced_user: "고급 사용자"
   use_passphrase: "패스프레이즈 사용하기"
+  information: "안내"
 
 # lib/screens/start_guide
 guide_screen:
@@ -401,7 +432,7 @@ signer_bsms_screen:
 sync_to_wallet_screen:
   title: "$name 내보내기"
   guide1_1: "월렛"
-  guide1_2: "에서 + 버튼을 누르고, 아래 "
+  guide1_2: "에서 + 버튼을 누르고, 코코넛 볼트를 선택한 뒤 아래 "
   guide1_3: "QR 코드를 스캔"
   guide1_4: "해 주세요. 안전한 보기 전용 지갑을 사용하실 수 있어요."
   view_detail: "상세 정보 보기"
@@ -569,6 +600,7 @@ toast:
   mnemonic_already_added: "이미 추가되어 있는 니모닉이에요"
   mnemonic_copied: "니모닉 문구가 복사됐어요"
   multisig_already_added: "이미 추가되어 있는 다중 서명 지갑이에요. ($name)"
+  home_vault_min_one: "홈 화면에 보이는 지갑은 최소 1개는 있어야 해요"
 
 errors:
   invalid_qr: "잘못된 QR 코드예요.\n다시 확인해 주세요."
@@ -596,8 +628,10 @@ errors:
   camera_permission_error: "카메라 권한이 없습니다"
   creation_error: "생성 실패"
   export_error: "내보내기 실패"
+  scan_error_title: "스캔 실패"
   psbt_parsing_error: "psbt 파싱 실패: $error"
   not_related_multisig_wallet_error: "이 지갑을 키로 사용한 다중 서명 지갑이 아닙니다"
+  vault_not_found_error: "서명할 수 있는 지갑이 없어요"
 
 tooltip:
   mfp: "지갑의 고유 값이에요.\n마스터 핑거프린트(MFP)라고도 해요."

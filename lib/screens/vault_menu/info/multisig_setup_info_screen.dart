@@ -11,11 +11,14 @@ import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:coconut_vault/screens/common/pin_check_screen.dart';
 import 'package:coconut_vault/screens/vault_menu/info/multisig_signer_memo_bottom_sheet.dart';
 import 'package:coconut_vault/screens/vault_menu/info/name_and_icon_edit_bottom_sheet.dart';
-import 'package:coconut_vault/utils/alert_util.dart';
+import 'package:coconut_vault/screens/vault_menu/info/single_sig_setup_info_screen.dart';
 import 'package:coconut_vault/utils/icon_util.dart';
 import 'package:coconut_vault/utils/vibration_util.dart';
 import 'package:coconut_vault/widgets/bottom_sheet.dart';
 import 'package:coconut_vault/widgets/bubble_clipper.dart';
+import 'package:coconut_vault/widgets/button/button_group.dart';
+import 'package:coconut_vault/widgets/button/multi_button.dart';
+import 'package:coconut_vault/widgets/button/single_button.dart';
 import 'package:coconut_vault/widgets/card/vault_item_card.dart';
 import 'package:coconut_vault/widgets/custom_loading_overlay.dart';
 import 'package:coconut_vault/widgets/card/information_item_card.dart';
@@ -25,7 +28,8 @@ import 'package:provider/provider.dart';
 
 class MultisigSetupInfoScreen extends StatefulWidget {
   final int id;
-  const MultisigSetupInfoScreen({super.key, required this.id});
+  final String? entryPoint;
+  const MultisigSetupInfoScreen({super.key, required this.id, this.entryPoint});
 
   @override
   State<MultisigSetupInfoScreen> createState() => _MultisigSetupInfoScreenState();
@@ -43,7 +47,7 @@ class _MultisigSetupInfoScreenState extends State<MultisigSetupInfoScreen> {
   @override
   void initState() {
     super.initState();
-
+    
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _tooltipIconRenderBox = _tooltipIconKey.currentContext?.findRenderObject() as RenderBox;
       _tooltipIconPosition = _tooltipIconRenderBox!.localToGlobal(Offset.zero);
@@ -52,13 +56,20 @@ class _MultisigSetupInfoScreenState extends State<MultisigSetupInfoScreen> {
     });
   }
 
-  Future _authenticateWithBiometricOrPin(
+  Future<void> _authenticateAndDelete(
     BuildContext context,
   ) async {
     void onComplete() {
       context.read<MultisigSetupInfoViewModel>().deleteVault();
       vibrateLight();
-      Navigator.popUntil(context, (route) => route.isFirst);
+      if (widget.entryPoint != null && widget.entryPoint == kEntryPointVaultList) {
+        Navigator.popUntil(context, (route) {
+          return route.settings.name == AppRoutes.vaultList;
+        });
+      } else {
+        Navigator.popUntil(context, (route) => route.isFirst);
+      }
+      return;
     }
 
     final authProvider = context.read<AuthProvider>();
@@ -67,11 +78,11 @@ class _MultisigSetupInfoScreenState extends State<MultisigSetupInfoScreen> {
       return;
     }
 
-    MyBottomSheet.showBottomSheet_90(
+    await MyBottomSheet.showBottomSheet_90(
       context: context,
       child: CustomLoadingOverlay(
         child: PinCheckScreen(
-          pinCheckContext: PinCheckContextEnum.sensitiveAction,
+          pinCheckContext: PinCheckContextEnum.seedDeletion,
           onSuccess: () async {
             Navigator.pop(context);
             onComplete();
@@ -92,33 +103,38 @@ class _MultisigSetupInfoScreenState extends State<MultisigSetupInfoScreen> {
           _removeTooltip();
         },
         child: Consumer<MultisigSetupInfoViewModel>(builder: (context, viewModel, child) {
-          return Scaffold(
-            backgroundColor: CoconutColors.white,
-            appBar: CoconutAppBar.build(
-              title: '${viewModel.name} ${t.info}',
-              context: context,
-              isBottom: false,
-              onBackPressed: () {
-                Navigator.pop(context);
-              },
-            ),
-            body: SingleChildScrollView(
-              child: SafeArea(
-                child: Stack(
-                  children: [
-                    Column(
-                      children: [
-                        _buildVaultItemCard(context),
-                        _buildSignerList(context),
-                        // 지갑설정 정보보기, 삭제하기
-                        const SizedBox(height: 14),
-                        _buildBsmsInfoActions(context),
-                        _buildDivider(),
-                        _buildDeleteButton(context),
-                      ],
-                    ),
-                    _buildTooltip(context),
-                  ],
+          return GestureDetector(
+            onTapDown: (details) => _removeTooltip(),
+            child: Scaffold(
+              backgroundColor: CoconutColors.white,
+              appBar: CoconutAppBar.build(
+                title: viewModel.name,
+                context: context,
+                isBottom: false,
+                onBackPressed: () {
+                  Navigator.pop(context);
+                },
+              ),
+              body: SingleChildScrollView(
+                child: SafeArea(
+                  child: Stack(
+                    children: [
+                      Column(
+                        children: [
+                          _buildVaultItemCard(context),
+                          _buildSignerList(context),
+                          CoconutLayout.spacing_500h,
+                          _buildSignMenu(),
+                          CoconutLayout.spacing_500h,
+                          _buildMenuList(context),
+                          _buildDivider(),
+                          _buildDeleteButton(context),
+                          CoconutLayout.spacing_500h,
+                        ],
+                      ),
+                      _buildTooltip(context),
+                    ],
+                  ),
                 ),
               ),
             ),
@@ -200,6 +216,19 @@ class _MultisigSetupInfoScreenState extends State<MultisigSetupInfoScreen> {
             },
             child: _buildSignerCard(signer, index));
       },
+    );
+  }
+
+  Widget _buildSignMenu() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: SingleButton(
+        enableShrinkAnim: true,
+        title: t.vault_menu_screen.title.multisig_sign,
+        onPressed: () {
+          Navigator.pushNamed(context, AppRoutes.psbtScanner, arguments: {'id': widget.id});
+        },
+      ),
     );
   }
 
@@ -325,32 +354,30 @@ class _MultisigSetupInfoScreenState extends State<MultisigSetupInfoScreen> {
     );
   }
 
-  Widget _buildBsmsInfoActions(BuildContext context) {
+  Widget _buildMenuList(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
-      child: Container(
-        decoration: BoxDecoration(
-          borderRadius: CoconutBorder.defaultRadius,
-          color: CoconutColors.black.withOpacity(0.03),
-        ),
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 24),
-          child: Column(
-            children: [
-              InformationItemCard(
-                label: t.multi_sig_setting_screen.view_bsms,
-                showIcon: true,
-                onPressed: () {
-                  _removeTooltip();
-
-                  Navigator.pushNamed(context, AppRoutes.multisigBsmsView, arguments: {
-                    'id': widget.id,
-                  });
-                },
-              ),
-            ],
+      child: ButtonGroup(
+        buttons: [
+          SingleButton(
+            enableShrinkAnim: true,
+            title: t.multi_sig_setting_screen.view_bsms,
+            onPressed: () {
+              _removeTooltip();
+              Navigator.pushNamed(context, AppRoutes.multisigBsmsView,
+                  arguments: {'id': widget.id});
+            },
           ),
-        ),
+          SingleButton(
+            title: t.view_address,
+            enableShrinkAnim: true,
+            onPressed: () {
+              _removeTooltip();
+              Navigator.pushNamed(context, AppRoutes.addressList,
+                  arguments: {'id': widget.id, 'isSpecificVault': true});
+            },
+          ),
+        ],
       ),
     );
   }
@@ -359,42 +386,54 @@ class _MultisigSetupInfoScreenState extends State<MultisigSetupInfoScreen> {
     final name = context.read<MultisigSetupInfoViewModel>().name;
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 24),
-        decoration: BoxDecoration(
-          borderRadius: CoconutBorder.defaultRadius,
-          color: CoconutColors.black.withOpacity(0.03),
+      child: SingleButton(
+        title: t.delete_label,
+        titleStyle: CoconutTypography.body2_14_Bold,
+        enableShrinkAnim: true,
+        rightElement: SvgPicture.asset(
+          'assets/svg/trash.svg',
+          width: 16,
+          colorFilter: const ColorFilter.mode(
+            CoconutColors.warningText,
+            BlendMode.srcIn,
+          ),
         ),
-        child: Column(
-          children: [
-            InformationItemCard(
-              label: t.delete_label,
-              showIcon: true,
-              rightIcon: Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                      color: CoconutColors.white.withOpacity(0.7),
-                      borderRadius: BorderRadius.circular(10)),
-                  child: SvgPicture.asset('assets/svg/trash.svg',
-                      width: 16,
-                      colorFilter:
-                          const ColorFilter.mode(CoconutColors.warningText, BlendMode.srcIn))),
-              onPressed: () {
-                _removeTooltip();
-                showConfirmDialog(
-                  context: context,
+        onPressed: () {
+          _removeTooltip();
+          showDialog(
+              context: context,
+              builder: (BuildContext dialogContext) {
+                return CoconutPopup(
+                  insetPadding:
+                      EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width * 0.15),
                   title: t.confirm,
-                  content: t.alert.confirm_deletion(name: name),
-                  onConfirmPressed: () async {
+                  titleTextStyle: CoconutTypography.body1_16_Bold,
+                  description: t.alert.confirm_deletion(name: name),
+                  descriptionTextStyle: CoconutTypography.body2_14,
+                  backgroundColor: CoconutColors.white,
+                  leftButtonText: t.no,
+                  leftButtonTextStyle: CoconutTypography.body2_14.merge(
+                    TextStyle(
+                      color: CoconutColors.black.withOpacity(0.7),
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                  rightButtonText: t.yes,
+                  rightButtonColor: CoconutColors.warningText,
+                  rightButtonTextStyle: CoconutTypography.body2_14.merge(
+                    const TextStyle(
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                  onTapLeft: () => Navigator.pop(context),
+                  onTapRight: () async {
                     if (context.mounted) {
-                      _authenticateWithBiometricOrPin(context);
+                      _authenticateAndDelete(context);
                     }
                   },
                 );
-              },
-            ),
-          ],
-        ),
+              });
+        },
       ),
     );
   }
@@ -439,8 +478,7 @@ class _MultisigSetupInfoScreenState extends State<MultisigSetupInfoScreen> {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Text(
-                    t.multi_sig_setting_screen
-                        .tooltip(total: totalSingerCount, n: requiredSignatureCount),
+                    '$requiredSignatureCount/$totalSingerCount, ${t.multi_sig_setting_screen.tooltip(total: totalSingerCount, n: requiredSignatureCount)}',
                     style: CoconutTypography.body3_12.merge(const TextStyle(
                       height: 1.3,
                       color: CoconutColors.white,
@@ -456,6 +494,11 @@ class _MultisigSetupInfoScreenState extends State<MultisigSetupInfoScreen> {
   }
 
   void _showTooltip(BuildContext context) {
+    if (_tooltipRemainingTime > 0) {
+      // 툴팁이 이미 보여지고 있는 상태라면 툴팁 제거만 합니다.
+      _removeTooltip();
+      return;
+    }
     _removeTooltip();
 
     setState(() {
@@ -475,6 +518,7 @@ class _MultisigSetupInfoScreenState extends State<MultisigSetupInfoScreen> {
   }
 
   void _removeTooltip() {
+    if (_tooltipRemainingTime == 0) return;
     setState(() {
       _tooltipRemainingTime = 0;
     });

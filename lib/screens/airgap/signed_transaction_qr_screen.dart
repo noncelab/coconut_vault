@@ -4,6 +4,7 @@ import 'package:coconut_vault/providers/sign_provider.dart';
 import 'package:coconut_vault/widgets/animated_qr/animated_qr_view.dart';
 import 'package:coconut_vault/widgets/animated_qr/view_data_handler/bc_ur_qr_view_handler.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:provider/provider.dart';
 
 class SignedTransactionQrScreen extends StatefulWidget {
@@ -44,36 +45,25 @@ class _SignedTransactionQrScreenState extends State<SignedTransactionQrScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: <Widget>[
-                const SizedBox(height: 20),
                 Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  padding: const EdgeInsets.only(top: 20, left: 16, right: 16),
                   child: CoconutToolTip(
+                    backgroundColor: CoconutColors.gray100,
+                    borderColor: CoconutColors.gray400,
+                    icon: SvgPicture.asset(
+                      'assets/svg/circle-info.svg',
+                      colorFilter: const ColorFilter.mode(
+                        CoconutColors.black,
+                        BlendMode.srcIn,
+                      ),
+                    ),
                     tooltipType: CoconutTooltipType.fixed,
                     richText: RichText(
                       text: TextSpan(
-                        text: '[4] ',
-                        style: const TextStyle(
-                          fontFamily: 'Pretendard',
-                          fontWeight: FontWeight.bold,
-                          fontSize: 15,
-                          height: 1.4,
-                          letterSpacing: 0.5,
-                          color: CoconutColors.black,
-                        ),
-                        children: <TextSpan>[
-                          TextSpan(
-                            text: _signProvider.isMultisig!
-                                ? t.signed_transaction_qr_screen.guide_multisig
-                                : t.signed_transaction_qr_screen
-                                    .guide_single_sig(name: _signProvider.walletName!),
-                            style: const TextStyle(
-                              fontWeight: FontWeight.normal,
-                            ),
-                          ),
-                        ],
+                        style: CoconutTypography.body3_12,
+                        children: _getTooltipRichText(),
                       ),
                     ),
-                    showIcon: true,
                   ),
                 ),
                 const SizedBox(
@@ -94,5 +84,20 @@ class _SignedTransactionQrScreenState extends State<SignedTransactionQrScreen> {
         ),
       ),
     );
+  }
+
+  List<TextSpan> _getTooltipRichText() {
+    return [
+      TextSpan(
+        text: '[4] ',
+        style: CoconutTypography.body2_14_Bold.copyWith(height: 1.2, color: CoconutColors.black),
+      ),
+      TextSpan(
+        text: _signProvider.isMultisig!
+            ? t.signed_transaction_qr_screen.guide_multisig
+            : t.signed_transaction_qr_screen.guide_single_sig(name: _signProvider.walletName!),
+        style: CoconutTypography.body2_14.copyWith(height: 1.2, color: CoconutColors.black),
+      ),
+    ];
   }
 }
