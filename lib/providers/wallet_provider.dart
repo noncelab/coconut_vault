@@ -273,7 +273,6 @@ class WalletProvider extends ChangeNotifier {
       if (jsonList != null) {
         if (jsonList.isEmpty) {
           _updateWalletLength();
-          _preferenceProvider.setVaultPreferences(_vaultList);
 
           notifyListeners();
           return;
@@ -292,7 +291,6 @@ class WalletProvider extends ChangeNotifier {
         return;
       }
 
-      _preferenceProvider.setVaultPreferences(_vaultList);
       vibrateLight();
     } catch (e) {
       Logger.log('[loadVaultList] Exception : ${e.toString()}');

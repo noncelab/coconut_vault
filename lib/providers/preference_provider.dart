@@ -69,22 +69,6 @@ class PreferenceProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> setVaultPreferences(List<VaultListItemBase> vaultList) async {
-    var vaultOrder = _vaultOrder;
-    var favoriteVaultIds = _favoriteVaultIds;
-
-    if (vaultOrder.isEmpty) {
-      vaultOrder = List.from(vaultList.map((w) => w.id));
-      await setVaultOrder(vaultOrder);
-    }
-    if (favoriteVaultIds.isEmpty) {
-      favoriteVaultIds = List.from(vaultList.take(5).map((w) => w.id));
-      await setFavoriteVaultIds(favoriteVaultIds);
-    }
-
-    notifyListeners();
-  }
-
   Future<void> resetVaultOrderAndFavorites() async {
     _vaultOrder = [];
     _favoriteVaultIds = [];

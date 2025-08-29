@@ -110,7 +110,6 @@ class _VaultListScreenState extends State<VaultListScreen> with TickerProviderSt
                   appBar: _buildAppBar(context),
                   body: SafeArea(
                     top: true,
-                    bottom: false,
                     child: isEditMode
                         // 편집 모드
                         ? Stack(
