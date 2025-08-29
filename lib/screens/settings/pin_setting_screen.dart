@@ -49,7 +49,8 @@ class _PinSettingScreenState extends State<PinSettingScreen> {
     _currentPinType = _authProvider.isPinCharacter ? PinType.character : PinType.number;
   }
 
-  void returnToBackSequence(String message, {bool isError = false, bool firstSequence = false}) {
+  void returnToBackSequence(String message,
+      {bool isError = false, bool firstSequence = false}) async {
     setState(() {
       errorMessage = message;
       pinConfirm = '';
@@ -176,7 +177,7 @@ class _PinSettingScreenState extends State<PinSettingScreen> {
         setState(() {
           pin += value;
         });
-        vibrateLight();
+        vibrateExtraLight();
       }
 
       if (pin.length == kExpectedPinLength) {
@@ -192,7 +193,7 @@ class _PinSettingScreenState extends State<PinSettingScreen> {
       } else if (pinConfirm.length < kExpectedPinLength) {
         setState(() {
           pinConfirm += value;
-          vibrateLight();
+          vibrateExtraLight();
         });
       }
 

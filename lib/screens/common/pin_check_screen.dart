@@ -163,7 +163,7 @@ class _PinCheckScreenState extends State<PinCheckScreen> with WidgetsBindingObse
         }
       } else if (_pin.length < kExpectedPinLength) {
         _pin += value;
-        vibrateLight();
+        vibrateExtraLight();
       }
 
       if (_pin.length == kExpectedPinLength) {
