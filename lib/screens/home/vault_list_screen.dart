@@ -1,4 +1,5 @@
 import 'package:coconut_design_system/coconut_design_system.dart';
+import 'package:coconut_vault/constants/app_routes.dart';
 import 'package:coconut_vault/enums/pin_check_context_enum.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/model/common/vault_list_item_base.dart';
@@ -11,7 +12,6 @@ import 'package:coconut_vault/providers/view_model/home/vault_list_view_model.da
 import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:coconut_vault/screens/common/pin_check_screen.dart';
 import 'package:coconut_vault/screens/home/vault_item_setting_bottom_sheet.dart';
-import 'package:coconut_vault/screens/vault_menu/info/single_sig_setup_info_screen.dart';
 import 'package:coconut_vault/utils/vibration_util.dart';
 import 'package:coconut_vault/widgets/bottom_sheet.dart';
 import 'package:coconut_vault/widgets/button/fixed_bottom_button.dart';
@@ -449,7 +449,7 @@ class _VaultListScreenState extends State<VaultListScreen> with TickerProviderSt
             context: context,
             child: VaultItemSettingBottomSheet(id: id));
       },
-      entryPoint: kEntryPointVaultList,
+      entryPoint: AppRoutes.vaultList,
     );
   }
 

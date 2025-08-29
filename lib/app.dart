@@ -44,7 +44,6 @@ import 'package:coconut_vault/screens/vault_menu/info/multisig_setup_info_screen
 import 'package:coconut_vault/screens/vault_menu/info/passphrase_verification_screen.dart';
 import 'package:coconut_vault/screens/vault_menu/multisig_signer_bsms_export_screen.dart';
 import 'package:coconut_vault/screens/vault_menu/sync_to_wallet/sync_to_wallet_screen.dart';
-import 'package:coconut_vault/screens/home/select_vault_bottom_sheet.dart';
 import 'package:coconut_vault/screens/vault_menu/info/single_sig_setup_info_screen.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';

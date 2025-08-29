@@ -62,7 +62,7 @@ class _MultisigSetupInfoScreenState extends State<MultisigSetupInfoScreen> {
     void onComplete() {
       context.read<MultisigSetupInfoViewModel>().deleteVault();
       vibrateLight();
-      if (widget.entryPoint != null && widget.entryPoint == kEntryPointVaultList) {
+      if (widget.entryPoint != null && widget.entryPoint == AppRoutes.vaultList) {
         Navigator.popUntil(context, (route) {
           return route.settings.name == AppRoutes.vaultList;
         });
