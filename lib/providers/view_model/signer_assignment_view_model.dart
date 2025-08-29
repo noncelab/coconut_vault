@@ -24,7 +24,6 @@ class SignerAssignmentViewModel extends ChangeNotifier {
   late List<SignerOption> _signerOptions;
   late List<SignerOption> _unselectedSignerOptions;
   // 내부 지갑 중 Signer 선택하는 순간에만 사용함
-  int? _selectedSignerOptionIndex;
   String _loadingMessage = '';
   MultisignatureVault? _newMultisigVault;
 
@@ -45,7 +44,6 @@ class SignerAssignmentViewModel extends ChangeNotifier {
         importKeyType: null,
       ),
     );
-    _assignedVaultList[0].isExpanded = true;
     notifyListeners();
 
     _singlesigVaultList = _walletProvider
@@ -64,10 +62,6 @@ class SignerAssignmentViewModel extends ChangeNotifier {
   List<SignerOption> get unselectedSignerOptions => _unselectedSignerOptions;
   List<AssignedVaultListItem> get assignedVaultList => _assignedVaultList;
   List<SingleSigVaultListItem> get singlesigVaultList => _singlesigVaultList;
-  int? get _nextAvailableIndex {
-    int index = assignedVaultList.indexWhere((item) => item.importKeyType == null);
-    return index == -1 ? null : index;
-  }
 
   void clearFromKeyStoreListIsolateHandler() {
     _fromKeyStoreListIsolateHandler!.dispose();
@@ -181,21 +175,14 @@ class SignerAssignmentViewModel extends ChangeNotifier {
     return signers;
   }
 
-  void assignInternalSigner(int index) {
+  void assignInternalSigner(int vaultIndex, int signerIndex) {
     // 내부 지갑 선택 완료
-    assignedVaultList[index]
-      ..item = unselectedSignerOptions[_selectedSignerOptionIndex!].singlesigVaultListItem
-      ..bsms = unselectedSignerOptions[_selectedSignerOptionIndex!].signerBsms
-      ..isExpanded = false
+    assignedVaultList[signerIndex]
+      ..item = unselectedSignerOptions[vaultIndex].singlesigVaultListItem
+      ..bsms = unselectedSignerOptions[vaultIndex].signerBsms
       ..importKeyType = ImportKeyType.internal;
+    unselectedSignerOptions.removeAt(vaultIndex);
 
-    // 다음 signer 펼치기
-    int? nextIndex = _nextAvailableIndex;
-    if (nextIndex != null) {
-      assignedVaultList[nextIndex].isExpanded = true;
-    }
-
-    unselectedSignerOptions.removeAt(_selectedSignerOptionIndex!);
     notifyListeners();
   }
 
@@ -206,24 +193,19 @@ class SignerAssignmentViewModel extends ChangeNotifier {
 
   void setAssignedVaultList(
       int index, ImportKeyType importKeyType, bool isExpanded, String bsms, String? memo) {
+    String? normalizedMemo;
+    if (memo != null && memo.trim().isEmpty) {
+      normalizedMemo = null;
+    } else {
+      normalizedMemo = memo;
+    }
     // 외부 지갑 추가
     assignedVaultList[index]
       ..importKeyType = importKeyType
-      ..isExpanded = isExpanded
       ..bsms = bsms
-      ..memo = memo;
-
-    // 다음 signer 펼치기
-    int? nextIndex = _nextAvailableIndex;
-    if (nextIndex != null) {
-      assignedVaultList[nextIndex].isExpanded = true;
-    }
+      ..memo = normalizedMemo;
 
     notifyListeners();
-  }
-
-  void setSelectedSignerOptionIndex(int? value) {
-    _selectedSignerOptionIndex = value;
   }
 
   void setSigners(List<MultisigSigner>? signers) {
@@ -275,5 +257,21 @@ class SignerAssignmentViewModel extends ChangeNotifier {
     _unselectedSignerOptions = _signerOptions.toList();
 
     _extractBsmsIsolateHandler!.dispose();
+  }
+
+  String? getExternalSignerDisplayName(int index) {
+    assert(assignedVaultList[index].importKeyType == ImportKeyType.external);
+    assert(assignedVaultList[index].bsms != null);
+
+    if (assignedVaultList[index].memo != null) {
+      return assignedVaultList[index].memo;
+    }
+
+    var splited = assignedVaultList[index].bsms!.split('\n');
+    if (splited.length >= 4) {
+      return splited[3];
+    }
+
+    return null;
   }
 }

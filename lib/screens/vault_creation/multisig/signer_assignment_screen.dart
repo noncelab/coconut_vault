@@ -14,9 +14,8 @@ import 'package:coconut_vault/screens/vault_creation/multisig/signer_assignment_
 import 'package:coconut_vault/utils/alert_util.dart';
 import 'package:coconut_vault/utils/icon_util.dart';
 import 'package:coconut_vault/widgets/bottom_sheet.dart';
-import 'package:coconut_vault/widgets/button/custom_buttons.dart';
-import 'package:coconut_vault/widgets/custom_expansion_panel.dart';
-import 'package:coconut_vault/widgets/highlighted_text.dart';
+import 'package:coconut_vault/widgets/button/fixed_bottom_button.dart';
+import 'package:coconut_vault/widgets/button/shrink_animation_button.dart';
 import 'package:coconut_vault/widgets/indicator/message_activity_indicator.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -27,7 +26,6 @@ class AssignedVaultListItem {
   String? bsms;
   SingleSigVaultListItem? item;
   String? memo;
-  bool isExpanded; // UI
   ImportKeyType? importKeyType;
 
   AssignedVaultListItem({
@@ -35,16 +33,9 @@ class AssignedVaultListItem {
     required this.importKeyType,
     required this.item,
     this.bsms,
-    this.isExpanded = false,
   });
-
-  void changeExpanded() {
-    isExpanded = !isExpanded;
-  }
-
   void reset() {
     bsms = item = importKeyType = memo = null;
-    isExpanded = true;
   }
 
   @override
@@ -55,29 +46,13 @@ class AssignedVaultListItem {
 enum DialogType {
   reselectQuorum,
   quit,
+  back,
   alert,
   notAvailable,
   deleteKey,
   alreadyExist,
   cancelImport,
   sameWithInternalOne // '가져오기' 한 지갑이 내부에 있는 지갑 중 하나일 때
-}
-
-// 확장형 메뉴의 선택지
-class ExpansionChildWidget extends StatefulWidget {
-  final ImportKeyType type;
-  final VoidCallback? onPressed;
-  final ValueNotifier<bool>? isButtonActiveNotifier;
-
-  const ExpansionChildWidget({
-    super.key,
-    required this.type,
-    this.onPressed,
-    this.isButtonActiveNotifier,
-  });
-
-  @override
-  State<ExpansionChildWidget> createState() => _ExpansionChildWidgetState();
 }
 
 // internal = 이 볼트에 있는 키 사용 external = 외부에서 가져오기
@@ -98,60 +73,6 @@ class SignerOption {
   SignerOption(this.singlesigVaultListItem, this.signerBsms) {
     masterFingerprint =
         (singlesigVaultListItem.coconutVault as SingleSignatureVault).keyStore.masterFingerprint;
-  }
-}
-
-class _ExpansionChildWidgetState extends State<ExpansionChildWidget> {
-  bool isPressed = false;
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: EdgeInsets.only(
-          right: 8, left: 65, bottom: widget.type == ImportKeyType.external ? 10 : 0),
-      child: GestureDetector(
-        onTap: () {
-          setState(() {
-            isPressed = false;
-          });
-          if (widget.onPressed != null) widget.onPressed!();
-        },
-        onTapDown: (details) {
-          setState(() {
-            isPressed = true;
-          });
-        },
-        onTapCancel: () {
-          setState(() {
-            isPressed = false;
-          });
-        },
-        child: Container(
-          decoration: BoxDecoration(
-            color: isPressed ? CoconutColors.gray150 : CoconutColors.white,
-            borderRadius: BorderRadius.circular(12),
-          ),
-          padding: const EdgeInsets.only(left: 15, top: 16, bottom: 16, right: 8),
-          child: Row(
-            children: [
-              Expanded(
-                child: Text(
-                  widget.type == ImportKeyType.internal
-                      ? t.assign_signers_screen.use_internal_key
-                      : t.import,
-                  style: CoconutTypography.body1_16,
-                ),
-              ),
-              const Icon(
-                Icons.add_rounded,
-                color: CoconutColors.black,
-                size: 20,
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
   }
 }
 
@@ -179,282 +100,341 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
         child: Consumer<SignerAssignmentViewModel>(
           builder: (context, viewModel, child) => Scaffold(
             backgroundColor: CoconutColors.white,
-            appBar: CoconutAppBar.buildWithNext(
+            appBar: CoconutAppBar.build(
               title: t.multisig_wallet,
-              nextButtonTitle: t.next,
               context: context,
               onBackPressed: () => _onBackPressed(context),
-              onNextPressed: onNextPressed,
-              isActive: _hasValidationCompleted,
               backgroundColor: CoconutColors.white,
             ),
-            body: Stack(
-              children: [
-                SingleChildScrollView(
-                  child: Column(
-                    children: [
-                      Stack(
+            body: SafeArea(
+              child: SizedBox(
+                height: MediaQuery.of(context).size.height -
+                    kToolbarHeight -
+                    MediaQuery.of(context).padding.top,
+                child: Stack(
+                  children: [
+                    SingleChildScrollView(
+                      child: Column(
                         children: [
-                          ClipRRect(
-                            child: Container(
-                              height: 6,
-                              color: CoconutColors.black.withOpacity(0.06),
-                            ),
-                          ),
-                          LayoutBuilder(
-                            builder: (context, constraints) {
-                              return ClipRRect(
-                                borderRadius: viewModel.getAssignedVaultListLength() /
-                                            viewModel.totalSignatureCount ==
-                                        1
-                                    ? BorderRadius.zero
-                                    : const BorderRadius.only(
-                                        topRight: Radius.circular(6),
-                                        bottomRight: Radius.circular(6)),
-                                child: AnimatedContainer(
-                                  duration: const Duration(milliseconds: 500),
-                                  curve: Curves.easeInOut,
+                          Stack(
+                            children: [
+                              ClipRRect(
+                                child: Container(
                                   height: 6,
-                                  width: (constraints.maxWidth) *
-                                      (viewModel.getAssignedVaultListLength() == 0
-                                          ? 0
-                                          : viewModel.getAssignedVaultListLength() /
-                                              viewModel.totalSignatureCount),
-                                  color: CoconutColors.black,
+                                  color: CoconutColors.black.withOpacity(0.06),
                                 ),
-                              );
-                            },
+                              ),
+                              LayoutBuilder(
+                                builder: (context, constraints) {
+                                  return ClipRRect(
+                                    borderRadius: viewModel.getAssignedVaultListLength() /
+                                                viewModel.totalSignatureCount ==
+                                            1
+                                        ? BorderRadius.zero
+                                        : const BorderRadius.only(
+                                            topRight: Radius.circular(6),
+                                            bottomRight: Radius.circular(6)),
+                                    child: AnimatedContainer(
+                                      duration: const Duration(milliseconds: 500),
+                                      curve: Curves.easeInOut,
+                                      height: 6,
+                                      width: (constraints.maxWidth) *
+                                          (viewModel.getAssignedVaultListLength() == 0
+                                              ? 0
+                                              : viewModel.getAssignedVaultListLength() /
+                                                  viewModel.totalSignatureCount),
+                                      color: CoconutColors.black,
+                                    ),
+                                  );
+                                },
+                              ),
+                            ],
+                          ),
+                          SingleChildScrollView(
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 78),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  Text(
+                                    t.assign_signers_screen.create_multisig_wallet_by_quorum(
+                                        requiredSignatureCount: viewModel.requiredSignatureCount,
+                                        totalSignatureCount: viewModel.totalSignatureCount),
+                                    style: CoconutTypography.heading4_18_Bold,
+                                  ),
+                                  CoconutLayout.spacing_900h,
+                                  for (int i = 0; i < viewModel.assignedVaultList.length; i++) ...[
+                                    ShrinkAnimationButton(
+                                      onPressed: () {
+                                        if (viewModel.assignedVaultList[i].importKeyType != null) {
+                                          _showDialog(DialogType.deleteKey, keyIndex: i);
+                                          return;
+                                        }
+                                        MyBottomSheet.showBottomSheet_50(
+                                            showDragHandle: true,
+                                            context: context,
+                                            child: _buildSelectKeyOptionBottomSheet(i));
+                                      },
+                                      defaultColor: viewModel.assignedVaultList[i].importKeyType !=
+                                              null
+                                          ? viewModel.assignedVaultList[i].importKeyType ==
+                                                  ImportKeyType.internal
+                                              ? CoconutColors.backgroundColorPaletteLight[
+                                                  viewModel.assignedVaultList[i].item!.colorIndex]
+                                              : CoconutColors.backgroundColorPaletteLight[8]
+                                          : CoconutColors.white,
+                                      pressedColor: viewModel.assignedVaultList[i].importKeyType !=
+                                              null
+                                          ? viewModel.assignedVaultList[i].importKeyType ==
+                                                  ImportKeyType.internal
+                                              ? CoconutColors.backgroundColorPaletteLight[viewModel
+                                                      .assignedVaultList[i].item!.colorIndex]
+                                                  .withAlpha(70)
+                                              : CoconutColors.backgroundColorPaletteLight[8]
+                                                  .withAlpha(70)
+                                          : CoconutColors.gray150,
+                                      borderRadius: 100,
+                                      borderWidth: 1,
+                                      border: Border.all(
+                                        color: viewModel.assignedVaultList[i].importKeyType != null
+                                            ? CoconutColors.backgroundColorPaletteLight[viewModel
+                                                        .assignedVaultList[i].item?.colorIndex ??
+                                                    8]
+                                                .withAlpha(70)
+                                            : CoconutColors.gray200,
+                                        width: 1,
+                                      ),
+                                      child: Container(
+                                        width: 210,
+                                        height: 64,
+                                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                                        child: viewModel.assignedVaultList[i].importKeyType != null
+                                            ? Row(
+                                                mainAxisAlignment: MainAxisAlignment.center,
+                                                children: [
+                                                  SvgPicture.asset(
+                                                    viewModel.assignedVaultList[i].importKeyType ==
+                                                            ImportKeyType.internal
+                                                        ? CustomIcons.getPathByIndex(viewModel
+                                                            .assignedVaultList[i].item!.iconIndex)
+                                                        : 'assets/svg/download.svg',
+                                                    colorFilter: ColorFilter.mode(
+                                                      viewModel.assignedVaultList[i]
+                                                                  .importKeyType ==
+                                                              ImportKeyType.internal
+                                                          ? CoconutColors.colorPalette[viewModel
+                                                              .assignedVaultList[i]
+                                                              .item!
+                                                              .colorIndex]
+                                                          : CoconutColors.black,
+                                                      BlendMode.srcIn,
+                                                    ),
+                                                    width: 14.0,
+                                                  ),
+                                                  CoconutLayout.spacing_300w,
+                                                  Flexible(
+                                                    child: Text(
+                                                      t.multisig.nth_key_with_name(
+                                                          name: viewModel.assignedVaultList[i]
+                                                                      .importKeyType ==
+                                                                  ImportKeyType.internal
+                                                              ? _viewModel
+                                                                  .assignedVaultList[i].item!.name
+                                                              : _viewModel
+                                                                      .getExternalSignerDisplayName(
+                                                                          i) ??
+                                                                  t.external_wallet,
+                                                          index: _viewModel
+                                                                  .assignedVaultList[i].index +
+                                                              1),
+                                                      style: CoconutTypography.body1_16,
+                                                      maxLines: 1,
+                                                      overflow: TextOverflow.ellipsis,
+                                                      textAlign: TextAlign.center,
+                                                    ),
+                                                  ),
+                                                ],
+                                              )
+                                            : Center(
+                                                child: Text(
+                                                  t.multisig.select_nth_key(
+                                                      index: _viewModel.assignedVaultList[i].index +
+                                                          1),
+                                                  style: CoconutTypography.body1_16,
+                                                ),
+                                              ),
+                                      ),
+                                    ),
+                                    CoconutLayout.spacing_500h,
+                                  ],
+                                ],
+                              ),
+                            ),
                           ),
                         ],
                       ),
-                      SingleChildScrollView(
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 25),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  HighLightedText(
-                                      '${viewModel.requiredSignatureCount}/${viewModel.totalSignatureCount}',
-                                      color: CoconutColors.gray800),
-                                  const SizedBox(
-                                    width: 2,
-                                  ),
-                                  Text(
-                                    t.select,
-                                    style: CoconutTypography.body1_16,
-                                  ),
-                                  const SizedBox(
-                                    width: 10,
-                                  ),
-                                  GestureDetector(
-                                    onTap: () {
-                                      viewModel.getAssignedVaultListLength() != 0
-                                          ? _showDialog(DialogType.reselectQuorum)
-                                          : _onBackPressed(context);
-                                    },
-                                    child: Container(
-                                      margin: const EdgeInsets.only(left: 8),
-                                      padding:
-                                          const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                                      decoration: BoxDecoration(
-                                          borderRadius: BorderRadius.circular(8),
-                                          border: Border.all(color: CoconutColors.borderGray)),
-                                      child: Text(
-                                        t.re_select,
-                                        style: CoconutTypography.body3_12.setColor(
-                                          CoconutColors.gray800,
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(height: 38),
-                              Container(
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(20),
-                                  color: CoconutColors.white,
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: CoconutColors.black.withOpacity(0.15),
-                                      offset: const Offset(0, 0),
-                                      blurRadius: 12,
-                                      spreadRadius: 0,
-                                    ),
-                                  ],
-                                ),
-                                child: ClipRRect(
-                                  borderRadius: BorderRadius.circular(20),
-                                  child: Column(
-                                    children: [
-                                      for (int i = 0;
-                                          i < viewModel.assignedVaultList.length;
-                                          i++) ...[
-                                        if (i > 0)
-                                          const Padding(
-                                            padding: EdgeInsets.symmetric(horizontal: 10),
-                                            child: Divider(height: 1, color: CoconutColors.gray200),
-                                          ),
-                                        CustomExpansionPanel(
-                                          isExpanded: viewModel.assignedVaultList[i].isExpanded,
-                                          isAssigned:
-                                              viewModel.assignedVaultList[i].importKeyType != null,
-                                          onAssignedClicked: () {
-                                            _showDialog(DialogType.deleteKey, keyIndex: i);
-                                          },
-                                          onExpansionChanged: () {
-                                            setState(() {
-                                              viewModel.assignedVaultList[i].changeExpanded();
-                                            });
-                                          },
-                                          unExpansionWidget:
-                                              viewModel.assignedVaultList[i].importKeyType == null
-                                                  ? _unExpansionWidget(i)
-                                                  : _unExpansionWidget(i, isAssigned: true),
-                                          expansionWidget: Column(
-                                            children: [
-                                              // 이 볼트에 있는 키 사용하기
-                                              ExpansionChildWidget(
-                                                  type: ImportKeyType.internal,
-                                                  onPressed: () {
-                                                    // 등록된 singlesig vault가 없으면 멀티시그 지갑 생성 불가
-                                                    if (viewModel.unselectedSignerOptions.isEmpty) {
-                                                      _showDialog(DialogType.notAvailable);
-                                                      return;
-                                                    }
-
-                                                    _isButtonActiveNotifier.value = false;
-                                                    MyBottomSheet.showDraggableScrollableSheet(
-                                                      topWidget: true,
-                                                      isButtonActiveNotifier:
-                                                          _isButtonActiveNotifier,
-                                                      context: context,
-                                                      childBuilder: (sheetController) =>
-                                                          KeyListBottomSheet(
-                                                        // 키 옵션 중 하나 선택했을 때
-                                                        onPressed: (int index) {
-                                                          viewModel
-                                                              .setSelectedSignerOptionIndex(index);
-                                                          _isButtonActiveNotifier.value = true;
-                                                        },
-                                                        vaultList: viewModel.unselectedSignerOptions
-                                                            .map((o) => o.singlesigVaultListItem)
-                                                            .toList(),
-                                                      ),
-                                                      onTopWidgetButtonClicked: () {
-                                                        viewModel.assignInternalSigner(i);
-
-                                                        viewModel
-                                                            .setSelectedSignerOptionIndex(null);
-                                                      },
-                                                    );
-                                                  }),
-                                              // 가져오기
-                                              ExpansionChildWidget(
-                                                  type: ImportKeyType.external,
-                                                  onPressed: () async {
-                                                    if (viewModel.isAllAssignedFromExternal()) {
-                                                      _showDialog(DialogType.alert);
-                                                      return;
-                                                    }
-
-                                                    final externalImported = await MyBottomSheet
-                                                        .showDraggableScrollableSheet(
-                                                      topWidget: true,
-                                                      context: context,
-                                                      physics: const ClampingScrollPhysics(),
-                                                      enableSingleChildScroll: false,
-                                                      child: const MultisigBsmsScannerScreen(),
-                                                    );
-
-                                                    if (externalImported != null) {
-                                                      /// 이미 추가된 signer와 중복 비교
-                                                      if (viewModel
-                                                          .isAlreadyImported(externalImported)) {
-                                                        return _showDialog(DialogType.alreadyExist);
-                                                      }
-
-                                                      String? sameVaultName = viewModel
-                                                          .findVaultNameByBsms(externalImported);
-                                                      if (sameVaultName != null) {
-                                                        _showDialog(DialogType.sameWithInternalOne,
-                                                            vaultName: sameVaultName);
-                                                        return;
-                                                      }
-
-                                                      final Map<String, String>? bsmsAndMemo =
-                                                          await MyBottomSheet
-                                                              .showDraggableScrollableSheet(
-                                                        topWidget: true,
-                                                        context: context,
-                                                        isScrollControlled: true,
-                                                        controller: _draggableController,
-                                                        minChildSize: 0.7,
-                                                        isDismissible: false,
-                                                        enableDrag: true,
-                                                        snap: true,
-                                                        onBackPressed: () =>
-                                                            _showDialog(DialogType.cancelImport),
-                                                        physics: const ClampingScrollPhysics(),
-                                                        enableSingleChildScroll: true,
-                                                        childBuilder: (sheetController) =>
-                                                            ImportConfirmationScreen(
-                                                          importingBsms: externalImported,
-                                                          scrollController: sheetController,
-                                                        ),
-                                                      );
-                                                      if (bsmsAndMemo != null) {
-                                                        assert(bsmsAndMemo['bsms']!.isNotEmpty);
-
-                                                        viewModel.setAssignedVaultList(
-                                                            i,
-                                                            ImportKeyType.external,
-                                                            false,
-                                                            externalImported,
-                                                            bsmsAndMemo['memo']);
-                                                      }
-                                                    }
-                                                  }),
-                                            ],
-                                          ),
-                                        ),
-                                      ],
-                                    ],
-                                  ),
-                                ),
-                              ),
-                              Visibility(
-                                  visible: viewModel.isAssignedKeyCompletely() &&
-                                      !_hasValidationCompleted,
-                                  child: Container(
-                                    margin: const EdgeInsets.only(top: 40),
-                                    child: CompleteButton(
-                                        onPressed: onSelectionCompleted,
-                                        label: t.select_completed,
-                                        disabled: viewModel.isAssignedKeyCompletely() &&
-                                            _isNextProcessing),
-                                  ))
-                            ],
-                          ),
-                        ),
+                    ),
+                    SizedBox(
+                      width: MediaQuery.of(context).size.width,
+                      child: Builder(builder: (context) {
+                        return FixedBottomButton(
+                          showGradient: false,
+                          backgroundColor: CoconutColors.black,
+                          onButtonClicked:
+                              _hasValidationCompleted && viewModel.isAssignedKeyCompletely()
+                                  ? onNextPressed
+                                  : onSelectionCompleted,
+                          text: _hasValidationCompleted && viewModel.isAssignedKeyCompletely()
+                              ? t.next
+                              : t.select_completed,
+                          isActive: viewModel.isAssignedKeyCompletely() && !_hasValidationCompleted
+                              ? !_isNextProcessing
+                              : _hasValidationCompleted,
+                        );
+                      }),
+                    ),
+                    Visibility(
+                      visible: _isNextProcessing,
+                      child: Container(
+                        decoration: BoxDecoration(color: CoconutColors.black.withOpacity(0.3)),
+                        child: Center(
+                            child: MessageActivityIndicator(message: viewModel.loadingMessage)),
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
-                Visibility(
-                  visible: _isNextProcessing,
-                  child: Container(
-                    decoration: BoxDecoration(color: CoconutColors.black.withOpacity(0.3)),
-                    child:
-                        Center(child: MessageActivityIndicator(message: viewModel.loadingMessage)),
-                  ),
-                ),
-              ],
+              ),
             ),
           ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSelectKeyOptionBottomSheet(int index) {
+    return Scaffold(
+      backgroundColor: CoconutColors.white,
+      resizeToAvoidBottomInset: false,
+      appBar: CoconutAppBar.build(
+        title: t.assign_signers_screen.select_key_option,
+        context: context,
+        onBackPressed: () => Navigator.pop(context),
+        backgroundColor: CoconutColors.white,
+        isBottom: true,
+      ),
+      body: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 20),
+        child: Column(
+          children: [
+            ShrinkAnimationButton(
+              borderGradientColors: [
+                CoconutColors.black.withOpacity(0.08),
+                CoconutColors.black.withOpacity(0.08),
+              ],
+              borderWidth: 1,
+              borderRadius: 12,
+              onPressed: () {
+                // 등록된 singlesig vault가 없으면 멀티시그 지갑 생성 불가
+                if (_viewModel.unselectedSignerOptions.isEmpty) {
+                  _showDialog(DialogType.notAvailable);
+                  return;
+                }
+                MyBottomSheet.showBottomSheet_50(
+                  context: context,
+                  showDragHandle: true,
+                  child: KeyListBottomSheet(
+                    // 키 옵션 중 하나 선택했을 때
+                    onPressed: (int vaultIndex) {
+                      _viewModel.assignInternalSigner(vaultIndex, index);
+                      Navigator.pop(context); // 이 볼트에 있는 키 사용하기 다이얼로그 닫기
+                      Navigator.pop(context); // 키 종류 선택 다이얼로그 닫기
+                    },
+                    vaultList: _viewModel.unselectedSignerOptions
+                        .map((o) => o.singlesigVaultListItem)
+                        .toList(),
+                  ),
+                );
+              },
+              child: Container(
+                width: MediaQuery.of(context).size.width,
+                padding: const EdgeInsets.all(16),
+                child: Text(
+                  t.assign_signers_screen.use_internal_key,
+                  style: CoconutTypography.body1_16_Bold,
+                ),
+              ),
+            ),
+            CoconutLayout.spacing_300h,
+            ShrinkAnimationButton(
+              borderGradientColors: [
+                CoconutColors.black.withOpacity(0.08),
+                CoconutColors.black.withOpacity(0.08),
+              ],
+              borderWidth: 1,
+              borderRadius: 12,
+              onPressed: () async {
+                if (_viewModel.isAllAssignedFromExternal()) {
+                  _showDialog(DialogType.alert);
+                  return;
+                }
+
+                final externalImported = await MyBottomSheet.showDraggableScrollableSheet(
+                  topWidget: true,
+                  context: context,
+                  physics: const ClampingScrollPhysics(),
+                  enableSingleChildScroll: false,
+                  child: const MultisigBsmsScannerScreen(),
+                );
+
+                if (externalImported != null) {
+                  /// 이미 추가된 signer와 중복 비교
+                  if (_viewModel.isAlreadyImported(externalImported)) {
+                    return _showDialog(DialogType.alreadyExist);
+                  }
+
+                  String? sameVaultName = _viewModel.findVaultNameByBsms(externalImported);
+                  if (sameVaultName != null) {
+                    _showDialog(DialogType.sameWithInternalOne, vaultName: sameVaultName);
+                    return;
+                  }
+                  if (!mounted) return;
+                  final Map<String, String>? bsmsAndMemo =
+                      await MyBottomSheet.showDraggableScrollableSheet(
+                    topWidget: true,
+                    context: context,
+                    isScrollControlled: true,
+                    controller: _draggableController,
+                    minChildSize: 0.7,
+                    isDismissible: false,
+                    enableDrag: true,
+                    snap: true,
+                    onBackPressed: () => _showDialog(DialogType.cancelImport),
+                    physics: const ClampingScrollPhysics(),
+                    enableSingleChildScroll: true,
+                    childBuilder: (sheetController) => ImportConfirmationScreen(
+                      importingBsms: externalImported,
+                      scrollController: sheetController,
+                    ),
+                  );
+                  if (bsmsAndMemo != null) {
+                    assert(bsmsAndMemo['bsms']!.isNotEmpty);
+                    _viewModel.setAssignedVaultList(index, ImportKeyType.external, false,
+                        externalImported, bsmsAndMemo['memo']);
+                    if (!mounted) return;
+                    Navigator.pop(context); // 키 종류 선택 다이얼로그 닫기
+                  }
+                }
+              },
+              child: Container(
+                width: MediaQuery.of(context).size.width,
+                padding: const EdgeInsets.all(16),
+                child: Text(
+                  t.assign_signers_screen.import_from_other_vault,
+                  style: CoconutTypography.body1_16_Bold,
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );
@@ -537,7 +517,7 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
 
   void _onBackPressed(BuildContext context) {
     if (_viewModel.getAssignedVaultListLength() > 0) {
-      _showDialog(DialogType.quit);
+      _showDialog(DialogType.back);
     } else {
       _viewModel.resetWalletCreationProvider();
       _isFinishing = true;
@@ -560,6 +540,21 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
         {
           title = t.alert.reselect.title;
           message = t.alert.reselect.description;
+          cancelButtonText = t.cancel;
+          confirmButtonText = t.confirm;
+          confirmButtonColor = CoconutColors.warningText;
+          onConfirm = () {
+            _viewModel.resetWalletCreationProvider();
+            _isFinishing = true;
+            Navigator.popUntil(
+                context, (route) => route.settings.name == AppRoutes.multisigQuorumSelection);
+          };
+          break;
+        }
+      case DialogType.back:
+        {
+          title = t.alert.back.title;
+          message = t.alert.back.description;
           cancelButtonText = t.cancel;
           confirmButtonText = t.confirm;
           confirmButtonColor = CoconutColors.warningText;
@@ -697,21 +692,6 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
         }
     }
 
-    // CustomDialogs.showCustomAlertDialog(
-    //   context,
-    //   title: title,
-    //   message: message,
-    //   cancelButtonText: cancelButtonText,
-    //   confirmButtonText: confirmButtonText,
-    //   confirmButtonColor: confirmButtonColor,
-    //   barrierDismissible: barrierDismissible,
-    //   isSingleButton: type == DialogType.alert ||
-    //       type == DialogType.alreadyExist ||
-    //       type == DialogType.sameWithInternalOne,
-    //   onCancel: onCancel ?? () => Navigator.pop(context),
-    //   onConfirm: () => onConfirm(),
-    // );
-
     showDialog(
         barrierDismissible: barrierDismissible,
         context: context,
@@ -747,109 +727,5 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
                 : onCancel ?? () => Navigator.pop(context),
           );
         });
-  }
-
-  // 확장형 메뉴 펼쳐져 있지 않을 때
-  Row _unExpansionWidget(int i, {bool isAssigned = false}) {
-    bool isExternalImported =
-        _viewModel.assignedVaultList[i].importKeyType == ImportKeyType.external;
-    return isAssigned
-        ? Row(
-            children: [
-              const SizedBox(width: 8),
-              Text(
-                '${t.multisig.nth_key(index: _viewModel.assignedVaultList[i].index + 1)} -',
-                style: CoconutTypography.body1_16,
-              ),
-              const SizedBox(width: 8),
-              Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: CoconutColors.backgroundColorPaletteLight[
-                      isExternalImported ? 8 : _viewModel.assignedVaultList[i].item!.colorIndex],
-                  borderRadius: BorderRadius.circular(8.0),
-                ),
-                child: SvgPicture.asset(
-                  isExternalImported
-                      ? 'assets/svg/download.svg'
-                      : CustomIcons.getPathByIndex(_viewModel.assignedVaultList[i].item!.iconIndex),
-                  colorFilter: ColorFilter.mode(
-                    isExternalImported
-                        ? CoconutColors.black
-                        : CoconutColors
-                            .colorPalette[_viewModel.assignedVaultList[i].item!.colorIndex],
-                    BlendMode.srcIn,
-                  ),
-                  width: 16.0,
-                ),
-              ),
-              const SizedBox(width: 6),
-              Expanded(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      isExternalImported
-                          ? ' ${_viewModel.assignedVaultList[i].bsms?.split('\n')[3] ?? ''}'
-                          : ' ${_viewModel.assignedVaultList[i].item!.name}',
-                      style: CoconutTypography.body1_16,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    Visibility(
-                      visible: _viewModel.assignedVaultList[i].memo != null &&
-                          _viewModel.assignedVaultList[i].memo!.isNotEmpty,
-                      child: Padding(
-                        padding: const EdgeInsets.only(left: 5),
-                        child: Text(
-                          _viewModel.assignedVaultList[i].memo ?? '',
-                          style: CoconutTypography.body3_12.merge(
-                            const TextStyle(
-                              color: CoconutColors.searchbarHint,
-                              fontSize: 10,
-                            ),
-                          ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              SvgPicture.asset(
-                'assets/svg/circle-check-gradient.svg',
-                width: 18,
-                height: 18,
-              ),
-            ],
-          )
-        : Row(
-            children: [
-              AnimatedRotation(
-                turns: _viewModel.assignedVaultList[i].isExpanded ? 0 : -0.25,
-                duration: const Duration(milliseconds: 200),
-                child: const Icon(
-                  Icons.expand_more,
-                  color: CoconutColors.black,
-                  size: 24,
-                ),
-              ),
-              const SizedBox(width: 15),
-              Expanded(
-                child: Text(
-                  '${t.multisig.nth_key(index: _viewModel.assignedVaultList[i].index + 1)} -',
-                  style: CoconutTypography.body1_16,
-                ),
-              ),
-              SvgPicture.asset(
-                'assets/svg/circle-check-gradient.svg',
-                width: 18,
-                height: 18,
-                colorFilter:
-                    ColorFilter.mode(CoconutColors.black.withOpacity(0.15), BlendMode.srcIn),
-              ),
-            ],
-          );
   }
 }

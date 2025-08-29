@@ -5,6 +5,7 @@ import 'package:coconut_vault/providers/view_model/mutlisig_quorum_selection_vie
 import 'package:coconut_vault/providers/wallet_creation_provider.dart';
 import 'package:coconut_vault/widgets/animation/key_safe_animation_widget.dart';
 import 'package:coconut_vault/widgets/button/custom_buttons.dart';
+import 'package:coconut_vault/widgets/button/fixed_bottom_button.dart';
 import 'package:coconut_vault/widgets/highlighted_text.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -67,115 +68,125 @@ class _MultisigQuorumSelectionScreenState extends State<MultisigQuorumSelectionS
         builder: (context, viewModel, child) {
           return Scaffold(
             backgroundColor: CoconutColors.white,
-            appBar: CoconutAppBar.buildWithNext(
+            appBar: CoconutAppBar.build(
               title: t.multisig_wallet,
-              nextButtonTitle: t.next,
               context: context,
-              onNextPressed: () {
-                viewModel.saveQuorumRequirement();
-                viewModel.setProgressAnimationVisible(false); // TODO: UI
-                _mounted = false;
-                Navigator.pushNamed(context, AppRoutes.signerAssignment);
-              },
-              isActive: viewModel.isQuorumSettingValid,
             ),
-            body: SingleChildScrollView(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 32),
-                child: Column(
-                  children: [
-                    const SizedBox(height: 30),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: Center(
-                            child: Text(
-                              t.select_multisig_quorum_screen.total_key_count,
-                              style: CoconutTypography.body2_14_Bold,
+            body: SafeArea(
+              child: Stack(
+                children: [
+                  SingleChildScrollView(
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 32),
+                      child: Column(
+                        children: [
+                          const SizedBox(height: 30),
+                          Row(
+                            children: [
+                              Expanded(
+                                child: Center(
+                                  child: Text(
+                                    t.select_multisig_quorum_screen.total_key_count,
+                                    style: CoconutTypography.body2_14_Bold,
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(width: 8),
+                              CountingRowButton(
+                                onMinusPressed: () => viewModel
+                                    .onCountButtonClicked(ChangeCountButtonType.nCountMinus),
+                                onPlusPressed: () => viewModel
+                                    .onCountButtonClicked(ChangeCountButtonType.nCountPlus),
+                                countText: viewModel.totalCount.toString(),
+                                isMinusButtonDisabled: viewModel.totalCount <= 2,
+                                isPlusButtonDisabled: viewModel.totalCount >= 3,
+                              ),
+                              const SizedBox(
+                                width: 18,
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 15),
+                          Row(
+                            children: [
+                              Expanded(
+                                child: Center(
+                                  child: Text(
+                                    t.select_multisig_quorum_screen.required_signature_count,
+                                    style: CoconutTypography.body2_14_Bold,
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(width: 8),
+                              CountingRowButton(
+                                onMinusPressed: () => viewModel
+                                    .onCountButtonClicked(ChangeCountButtonType.mCountMinus),
+                                onPlusPressed: () => viewModel
+                                    .onCountButtonClicked(ChangeCountButtonType.mCountPlus),
+                                countText: viewModel.requiredCount.toString(),
+                                isMinusButtonDisabled: viewModel.requiredCount <= 1,
+                                isPlusButtonDisabled:
+                                    viewModel.requiredCount == viewModel.totalCount,
+                              ),
+                              const SizedBox(
+                                width: 18,
+                              ),
+                            ],
+                          ),
+                          const SizedBox(
+                            height: 50,
+                          ),
+                          Center(
+                            child: HighLightedText(
+                              '${viewModel.requiredCount}/${viewModel.totalCount}',
+                              color: CoconutColors.gray800,
+                              fontSize: 24,
                             ),
                           ),
-                        ),
-                        const SizedBox(width: 8),
-                        CountingRowButton(
-                          onMinusPressed: () =>
-                              viewModel.onCountButtonClicked(ChangeCountButtonType.nCountMinus),
-                          onPlusPressed: () =>
-                              viewModel.onCountButtonClicked(ChangeCountButtonType.nCountPlus),
-                          countText: viewModel.totalCount.toString(),
-                          isMinusButtonDisabled: viewModel.totalCount <= 2,
-                          isPlusButtonDisabled: viewModel.totalCount >= 3,
-                        ),
-                        const SizedBox(
-                          width: 18,
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 15),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: Center(
+                          const SizedBox(
+                            height: 20,
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 24),
                             child: Text(
-                              t.select_multisig_quorum_screen.required_signature_count,
-                              style: CoconutTypography.body2_14_Bold,
+                              viewModel.buildQuorumMessage(),
+                              style: CoconutTypography.body2_14_Number.merge(
+                                TextStyle(
+                                  height: viewModel.requiredCount == viewModel.totalCount
+                                      ? 32.4 / 18
+                                      : 23.4 / 18,
+                                  letterSpacing: -0.01,
+                                ),
+                              ),
+                              textAlign: TextAlign.center,
                             ),
                           ),
-                        ),
-                        const SizedBox(width: 8),
-                        CountingRowButton(
-                          onMinusPressed: () =>
-                              viewModel.onCountButtonClicked(ChangeCountButtonType.mCountMinus),
-                          onPlusPressed: () =>
-                              viewModel.onCountButtonClicked(ChangeCountButtonType.mCountPlus),
-                          countText: viewModel.requiredCount.toString(),
-                          isMinusButtonDisabled: viewModel.requiredCount <= 1,
-                          isPlusButtonDisabled: viewModel.requiredCount == viewModel.totalCount,
-                        ),
-                        const SizedBox(
-                          width: 18,
-                        ),
-                      ],
-                    ),
-                    const SizedBox(
-                      height: 50,
-                    ),
-                    Center(
-                      child: HighLightedText(
-                        '${viewModel.requiredCount}/${viewModel.totalCount}',
-                        color: CoconutColors.gray800,
-                        fontSize: 24,
-                      ),
-                    ),
-                    const SizedBox(
-                      height: 20,
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 24),
-                      child: Text(
-                        viewModel.buildQuorumMessage(),
-                        style: CoconutTypography.body2_14_Number.merge(
-                          TextStyle(
-                            height: viewModel.requiredCount == viewModel.totalCount
-                                ? 32.4 / 18
-                                : 23.4 / 18,
-                            letterSpacing: -0.01,
+                          const SizedBox(
+                            height: 30,
                           ),
-                        ),
-                        textAlign: TextAlign.center,
+                          viewModel.isProgressAnimationVisible
+                              ? KeySafeAnimationWidget(
+                                  requiredCount: viewModel.requiredCount,
+                                  totalCount: viewModel.totalCount,
+                                  buttonClickedCount: viewModel.buttonClickedCount,
+                                )
+                              : Container()
+                        ],
                       ),
                     ),
-                    const SizedBox(
-                      height: 30,
-                    ),
-                    viewModel.isProgressAnimationVisible
-                        ? KeySafeAnimationWidget(
-                            requiredCount: viewModel.requiredCount,
-                            totalCount: viewModel.totalCount,
-                            buttonClickedCount: viewModel.buttonClickedCount,
-                          )
-                        : Container()
-                  ],
-                ),
+                  ),
+                  FixedBottomButton(
+                    text: t.next,
+                    backgroundColor: CoconutColors.black,
+                    isActive: viewModel.isQuorumSettingValid,
+                    onButtonClicked: () {
+                      viewModel.saveQuorumRequirement();
+                      viewModel.setProgressAnimationVisible(false); // TODO: UI
+                      _mounted = false;
+                      Navigator.pushNamed(context, AppRoutes.signerAssignment);
+                    },
+                  ),
+                ],
               ),
             ),
           );

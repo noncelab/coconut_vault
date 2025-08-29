@@ -14,6 +14,7 @@ import 'package:coconut_vault/utils/alert_util.dart';
 import 'package:coconut_vault/utils/icon_util.dart';
 import 'package:coconut_vault/utils/text_utils.dart';
 import 'package:coconut_vault/widgets/bottom_sheet.dart';
+import 'package:coconut_vault/widgets/button/shrink_animation_button.dart';
 import 'package:coconut_vault/widgets/custom_loading_overlay.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -121,27 +122,56 @@ class _SingleSigSignScreenState extends State<SingleSigSignScreen> {
     }
   }
 
+  void _askIfSureToQuit() {
+    showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return CoconutPopup(
+            insetPadding:
+                EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width * 0.15),
+            title: t.alert.exit_sign.title,
+            titleTextStyle: CoconutTypography.body1_16_Bold,
+            description: t.alert.exit_sign.description,
+            descriptionTextStyle: CoconutTypography.body2_14,
+            backgroundColor: CoconutColors.white,
+            leftButtonText: t.cancel,
+            leftButtonTextStyle: CoconutTypography.body2_14.merge(
+              TextStyle(
+                color: CoconutColors.black.withOpacity(0.7),
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+            rightButtonText: t.quit,
+            rightButtonColor: CoconutColors.warningText,
+            rightButtonTextStyle: CoconutTypography.body2_14.merge(
+              const TextStyle(
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+            onTapLeft: () => Navigator.pop(context),
+            onTapRight: () {
+              _viewModel.resetSignProvider();
+              Navigator.popUntil(context, (route) => route.isFirst);
+            },
+          );
+        });
+  }
+
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider<SingleSigSignViewModel>(
       create: (_) => _viewModel,
       child: Consumer<SingleSigSignViewModel>(
         builder: (context, viewModel, child) => Scaffold(
-          backgroundColor: CoconutColors.gray150,
-          appBar: CoconutAppBar.buildWithNext(
+          backgroundColor: CoconutColors.white,
+          appBar: CoconutAppBar.build(
             title: t.sign,
-            nextButtonTitle: t.next,
             context: context,
             onBackPressed: () {
               viewModel.resetSignProvider();
               Navigator.pop(context);
             },
-            onNextPressed: () {
-              Navigator.pushNamed(context, AppRoutes.signedTransaction);
-            },
-            isActive: viewModel.requiredSignatureCount ==
-                viewModel.signersApproved.where((bool isApproved) => isApproved).length,
-            backgroundColor: CoconutColors.gray150,
+            backgroundColor: CoconutColors.white,
           ),
           body: SafeArea(
             child: Stack(
@@ -153,8 +183,7 @@ class _SingleSigSignScreenState extends State<SingleSigSignScreen> {
                     TweenAnimationBuilder<double>(
                       tween: Tween<double>(
                         begin: 0.0,
-                        end: viewModel.signersApproved.where((item) => item).length /
-                            viewModel.requiredSignatureCount,
+                        end: viewModel.isSignerApproved ? 1.0 : 0.0,
                       ),
                       duration: const Duration(milliseconds: 1500),
                       builder: (context, value, child) {
@@ -178,168 +207,26 @@ class _SingleSigSignScreenState extends State<SingleSigSignScreen> {
                         );
                       },
                     ),
+
                     // 보낼 수량
                     Padding(
-                      padding: const EdgeInsets.only(top: 24),
+                      padding: const EdgeInsets.only(top: 36),
                       child: Text(
-                        viewModel.requiredSignatureCount <=
-                                viewModel.signersApproved.where((item) => item).length
+                        viewModel.isSignerApproved
                             ? (viewModel.isAlreadySigned
                                 ? t.single_sig_sign_screen.text
                                 : t.sign_completed)
-                            : t.sign_required(
-                                n: viewModel.requiredSignatureCount -
-                                    viewModel.signersApproved.where((item) => item).length),
-                        style: CoconutTypography.body2_14_Bold,
+                            : t.sign_required_amount(n: viewModel.requiredSignatureCount),
+                        style: CoconutTypography.heading4_18_Bold,
                       ),
                     ),
-                    // 보낼 주소
-                    Padding(
-                      padding: const EdgeInsets.only(top: 32, left: 25, right: 25),
-                      child: Column(
-                        children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                t.recipient,
-                                style: CoconutTypography.body2_14.setColor(CoconutColors.gray700),
-                              ),
-                              Text(
-                                textAlign: TextAlign.end,
-                                TextUtils.truncateNameMax25(viewModel.firstRecipientAddress) +
-                                    (viewModel.recipientCount > 1
-                                        ? '\n${t.extra_count(count: viewModel.recipientCount - 1)}'
-                                        : ''),
-                                style: CoconutTypography.body1_16,
-                              )
-                            ],
-                          ),
-                          const SizedBox(height: 20),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text(
-                                t.send_amount,
-                                style: CoconutTypography.body2_14.setColor(CoconutColors.gray700),
-                              ),
-                              GestureDetector(
-                                onTap: _toggleUnit,
-                                child: Text(
-                                  _currentUnit.displayBitcoinAmount(viewModel.sendingAmount,
-                                      withUnit: true),
-                                  style: CoconutTypography.body1_16_Number,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                    ),
-                    // Signer List
-                    Container(
-                      margin: const EdgeInsets.only(top: 32, left: 20, right: 20),
-                      child: ListView.builder(
-                        shrinkWrap: true,
-                        physics: const NeverScrollableScrollPhysics(),
-                        itemCount: 1,
-                        itemBuilder: (context, index) {
-                          return Container(
-                            alignment: Alignment.centerLeft,
-                            padding: const EdgeInsets.symmetric(horizontal: 8),
-                            decoration: BoxDecoration(
-                              borderRadius: CoconutBorder.defaultRadius,
-                              color: CoconutColors.white,
-                            ),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Padding(
-                                  padding: const EdgeInsets.only(
-                                    left: 10,
-                                    right: 10,
-                                    top: 15,
-                                    bottom: 15,
-                                  ),
-                                  child: Row(
-                                    children: [
-                                      Row(
-                                        children: [
-                                          Container(
-                                            padding: const EdgeInsets.all(8),
-                                            decoration: BoxDecoration(
-                                              color: CoconutColors.backgroundColorPaletteLight[
-                                                  viewModel.walletColorIndex],
-                                              borderRadius: BorderRadius.circular(8.0),
-                                            ),
-                                            child: SvgPicture.asset(
-                                              CustomIcons.getPathByIndex(viewModel.walletIconIndex),
-                                              colorFilter: ColorFilter.mode(
-                                                CoconutColors
-                                                    .colorPalette[viewModel.walletColorIndex],
-                                                BlendMode.srcIn,
-                                              ),
-                                              width: 14,
-                                            ),
-                                          ),
-                                          const SizedBox(width: 8),
-                                          Column(
-                                            crossAxisAlignment: CrossAxisAlignment.start,
-                                            children: [
-                                              Text(viewModel.walletName,
-                                                  style: CoconutTypography.body2_14),
-                                            ],
-                                          ),
-                                        ],
-                                      ),
-                                      const Spacer(),
-                                      if (viewModel.isApproved(index)) ...{
-                                        Row(
-                                          children: [
-                                            Text(t.sign_completion,
-                                                style: CoconutTypography.body3_12_Bold),
-                                            const SizedBox(width: 4),
-                                            SvgPicture.asset(
-                                              'assets/svg/circle-check.svg',
-                                              width: 12,
-                                            ),
-                                          ],
-                                        ),
-                                      } else ...{
-                                        GestureDetector(
-                                          onTap: _sign,
-                                          child: Container(
-                                            padding: const EdgeInsets.symmetric(
-                                                horizontal: 8, vertical: 4),
-                                            decoration: BoxDecoration(
-                                              color: CoconutColors.white,
-                                              borderRadius: BorderRadius.circular(5),
-                                              border: Border.all(
-                                                  color: CoconutColors.gray900, width: 1),
-                                            ),
-                                            child: Center(
-                                              child: Text(
-                                                t.signature,
-                                                style: CoconutTypography.body3_12.setColor(
-                                                  CoconutColors.gray900,
-                                                ),
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                      },
-                                    ],
-                                  ),
-                                ),
-                              ],
-                            ),
-                          );
-                        },
-                      ),
-                    ),
+                    CoconutLayout.spacing_600h,
+                    _buildSendInfo(),
+                    CoconutLayout.spacing_1400h,
+                    _buildSignerList(),
                   ],
                 ),
+                _buildBottomButtons(),
                 Visibility(
                   visible: _showLoading,
                   child: Container(
@@ -359,5 +246,181 @@ class _SingleSigSignScreenState extends State<SingleSigSignScreen> {
         ),
       ),
     );
+  }
+
+  Widget _buildSendInfo() {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      margin: const EdgeInsets.symmetric(horizontal: 16),
+      decoration: BoxDecoration(
+        color: CoconutColors.gray150,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Column(
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                t.recipient,
+                style: CoconutTypography.body2_14.setColor(CoconutColors.gray700),
+              ),
+              Text(
+                textAlign: TextAlign.end,
+                TextUtils.truncateNameMax25(_viewModel.firstRecipientAddress) +
+                    (_viewModel.recipientCount > 1
+                        ? '\n${t.extra_count(count: _viewModel.recipientCount - 1)}'
+                        : ''),
+                style: CoconutTypography.body1_16,
+              ),
+            ],
+          ),
+          const SizedBox(height: 20),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                t.send_amount,
+                style: CoconutTypography.body2_14.setColor(CoconutColors.gray700),
+              ),
+              GestureDetector(
+                onTap: _toggleUnit,
+                child: Text(
+                  _currentUnit.displayBitcoinAmount(_viewModel.sendingAmount, withUnit: true),
+                  style: CoconutTypography.body1_16_Number,
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSignerList() {
+    final colorIndex = _viewModel.walletColorIndex;
+    final iconIndex = _viewModel.walletIconIndex;
+    final name = _viewModel.walletName;
+
+    return Column(
+      children: [
+        LayoutBuilder(builder: (context, constraints) {
+          return ShrinkAnimationButton(
+            onPressed: () {
+              if (_viewModel.isSignerApproved) {
+                return;
+              }
+              _sign();
+            },
+            defaultColor: _viewModel.isSignerApproved
+                ? CoconutColors.backgroundColorPaletteLight[colorIndex]
+                : CoconutColors.white,
+            pressedColor: _viewModel.isSignerApproved
+                ? CoconutColors.backgroundColorPaletteLight[colorIndex].withAlpha(70)
+                : CoconutColors.gray150,
+            borderRadius: 100,
+            borderWidth: 1,
+            border: Border.all(
+              color: _viewModel.isSignerApproved
+                  ? CoconutColors.backgroundColorPaletteLight[colorIndex].withAlpha(70)
+                  : CoconutColors.gray200,
+              width: 1,
+            ),
+            child: SizedBox(
+              width: 210,
+              height: 64,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  SvgPicture.asset(
+                    CustomIcons.getPathByIndex(iconIndex),
+                    colorFilter: ColorFilter.mode(
+                      CoconutColors.colorPalette[colorIndex],
+                      BlendMode.srcIn,
+                    ),
+                    width: 14.0,
+                  ),
+                  CoconutLayout.spacing_300w,
+                  Text(
+                    t.multisig.nth_key_with_name(name: name, index: 1),
+                    style: CoconutTypography.body1_16,
+                  ),
+                ],
+              ),
+            ),
+          );
+        }),
+        CoconutLayout.spacing_500h,
+      ],
+    );
+  }
+
+  Widget _buildBottomButtons() {
+    return Selector<SingleSigSignViewModel, bool>(
+        selector: (_, viewModel) => viewModel.isSignerApproved,
+        builder: (context, isSignatureComplete, child) {
+          return Align(
+            alignment: Alignment.bottomCenter,
+            child: Padding(
+              padding: const EdgeInsets.only(
+                bottom: 16,
+                left: 16,
+                right: 16,
+              ),
+              child: SizedBox(
+                width: MediaQuery.sizeOf(context).width,
+                child: Row(
+                  children: [
+                    Flexible(
+                      flex: 1,
+                      child: SizedBox(
+                        width: MediaQuery.sizeOf(context).width,
+                        child: ShrinkAnimationButton(
+                          defaultColor: CoconutColors.gray300,
+                          onPressed: _askIfSureToQuit,
+                          borderRadius: CoconutStyles.radius_200,
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 14),
+                            child: Text(
+                              t.abort,
+                              style: CoconutTypography.body2_14_Bold,
+                              textAlign: TextAlign.center,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                    CoconutLayout.spacing_200w,
+                    Flexible(
+                      flex: 2,
+                      child: SizedBox(
+                        width: MediaQuery.sizeOf(context).width,
+                        child: ShrinkAnimationButton(
+                          isActive: isSignatureComplete,
+                          disabledColor: CoconutColors.gray150,
+                          defaultColor: CoconutColors.black,
+                          onPressed: () {
+                            Navigator.pushNamed(context, AppRoutes.signedTransaction);
+                          },
+                          borderRadius: CoconutStyles.radius_200,
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 14),
+                            child: Text(
+                              t.next,
+                              style: CoconutTypography.body2_14_Bold.setColor(
+                                isSignatureComplete ? CoconutColors.white : CoconutColors.gray350,
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          );
+        });
   }
 }

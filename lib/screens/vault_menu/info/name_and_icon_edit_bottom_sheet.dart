@@ -1,5 +1,6 @@
 import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
+import 'package:coconut_vault/widgets/button/fixed_bottom_button.dart';
 import 'package:coconut_vault/widgets/custom_loading_overlay.dart';
 import 'package:flutter/material.dart';
 import 'package:coconut_vault/widgets/vault_name_icon_edit_palette.dart';
@@ -47,46 +48,52 @@ class _NameAndIconEditBottomSheetState extends State<NameAndIconEditBottomSheet>
           children: [
             Scaffold(
               backgroundColor: CoconutColors.white,
-              appBar: CoconutAppBar.buildWithNext(
+              appBar: CoconutAppBar.build(
                 context: context,
-                onNextPressed: _onNextPressed,
                 title: _name,
-                nextButtonTitle: t.complete,
                 isBottom: true,
               ),
               body: SafeArea(
-                child: NestedScrollView(
-                  headerSliverBuilder: (BuildContext context, bool innerBoxIsScrolled) {
-                    return [];
-                  },
-                  body: Container(
-                    width: MediaQuery.of(context).size.width,
-                    height: MediaQuery.of(context).size.height,
-                    color: CoconutColors.white,
-                    child: VaultNameIconEditPalette(
-                      name: _name, // 초기 값 설정
-                      iconIndex: _iconIndex,
-                      colorIndex: _colorIndex,
-                      onNameChanged: (String newName) {
-                        setState(() {
-                          _name = newName;
-                          hasChanged = true;
-                        });
+                child: Stack(
+                  children: [
+                    NestedScrollView(
+                      headerSliverBuilder: (BuildContext context, bool innerBoxIsScrolled) {
+                        return [];
                       },
-                      onIconSelected: (int newIconIndex) {
-                        setState(() {
-                          _iconIndex = newIconIndex;
-                          hasChanged = true;
-                        });
-                      },
-                      onColorSelected: (int newColorIndex) {
-                        setState(() {
-                          _colorIndex = newColorIndex;
-                          hasChanged = true;
-                        });
-                      },
+                      body: Container(
+                        width: MediaQuery.of(context).size.width,
+                        height: MediaQuery.of(context).size.height,
+                        color: CoconutColors.white,
+                        child: VaultNameIconEditPalette(
+                          name: _name, // 초기 값 설정
+                          iconIndex: _iconIndex,
+                          colorIndex: _colorIndex,
+                          onNameChanged: (String newName) {
+                            setState(() {
+                              _name = newName;
+                              hasChanged = true;
+                            });
+                          },
+                          onIconSelected: (int newIconIndex) {
+                            setState(() {
+                              _iconIndex = newIconIndex;
+                              hasChanged = true;
+                            });
+                          },
+                          onColorSelected: (int newColorIndex) {
+                            setState(() {
+                              _colorIndex = newColorIndex;
+                              hasChanged = true;
+                            });
+                          },
+                        ),
+                      ),
                     ),
-                  ),
+                    FixedBottomButton(
+                      text: t.complete,
+                      onButtonClicked: _onNextPressed,
+                    ),
+                  ],
                 ),
               ),
             ),

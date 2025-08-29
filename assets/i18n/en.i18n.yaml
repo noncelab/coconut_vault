@@ -17,6 +17,7 @@ settings: "Settings"
 confirm: "Confirm"
 complete: "Complete"
 cancel: "Cancel"
+abort: "Abort"
 next: "Next"
 save: "Save"
 select: "Select"
@@ -97,6 +98,10 @@ bitcoin_text: "$bitcoin BTC"
 sign_required: 
   one: "$n signature required"
   other: "$n signatures required"
+sign_required_amount: "$n signatures required"
+move_to_qr_screen: "Move to QR Screen"
+move_to_qr_screen_description: "Generate QR to sign in key-holding vault."
+
 name_text_count: "($count / 20)"
 wallet_subtitle: "$name's key $index"
 
@@ -192,6 +197,8 @@ tutorial_screen:
 
 multisig:
   nth_key: "key $index"
+  nth_key_with_name: "key $index - $name"
+  select_nth_key: "Select key #$index"
 
 # lib/screens/airgap
 account_selection_bottom_sheet_screen:
@@ -354,9 +361,13 @@ vault_name_icon_setup_screen:
 
 # lib/screens/vault_creation/multisig
 assign_signers_screen:
+  create_multisig_wallet_by_quorum: "Create $requiredSignatureCount/$totalSignatureCount wallet"
   order_keys: "I'll sort key order to maintain same sequence"
   data_verifying: "Verifying data..."
   use_internal_key: "Use key in this vault"
+  select_key_option: "Select key type"
+  import_from_other_vault: "Import from other vault"
+
 confirm_importing_screen:
   guide1: "Please verify that "
   guide2: "imported info from other vault "
@@ -552,6 +563,9 @@ alert:
   reselect:
     title: "Reselect"
     description: "All info entered so far will be deleted.\nReally reselect?"
+  back:
+    title: "Go back"
+    description: "All info entered so far will be deleted.\nReally go back?"
   empty_vault:
     title: "No keys stored in vault"
     description: "Create single sig wallet first to use keys?"
@@ -588,6 +602,9 @@ alert:
     title: "Stop Restoring"
     description: "Really stop restoring?\nTap [Confirm] to stop, or tap [Cancel] to continue."
   erase_all_entered_so_far: "Really delete all info\nentered so far?"
+  finish_signing:
+    title:  "Finish Signing"
+    description: "If you close this screen, the created signing info will be lost.\nReally exit?"
 
 toast:
   clipboard_copied: "Copied to clipboard"

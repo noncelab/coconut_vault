@@ -10,7 +10,7 @@ class SingleSigSignViewModel extends ChangeNotifier {
   late final SignProvider _signProvider;
   late final SingleSignatureVault _coconutVault;
   late final bool _isAlreadySigned;
-  late final List<bool> _signersApproved = List<bool>.filled(requiredSignatureCount, false);
+  late bool _isSignerApproved = false;
   bool _hasPassphrase = false;
 
   SingleSigSignViewModel(this._walletProvider, this._signProvider) {
@@ -31,7 +31,7 @@ class SingleSigSignViewModel extends ChangeNotifier {
 
   bool get isAlreadySigned => _isAlreadySigned;
   String get walletName => _signProvider.vaultListItem!.name;
-  List<bool> get signersApproved => _signersApproved;
+  bool get isSignerApproved => _isSignerApproved;
   int get walletIconIndex => _signProvider.vaultListItem!.iconIndex;
   int get walletColorIndex => _signProvider.vaultListItem!.colorIndex;
   String get firstRecipientAddress => _signProvider.recipientAddress != null
@@ -48,7 +48,7 @@ class SingleSigSignViewModel extends ChangeNotifier {
   }
 
   void updateSignState() {
-    _signersApproved[0] = true;
+    _isSignerApproved = true;
     notifyListeners();
   }
 
@@ -64,9 +64,5 @@ class SingleSigSignViewModel extends ChangeNotifier {
 
   void resetSignProvider() {
     _signProvider.resetSignedPsbt();
-  }
-
-  bool isApproved(int signerIndex) {
-    return _signersApproved[signerIndex];
   }
 }

@@ -17,7 +17,7 @@ class FixedBottomButton extends StatefulWidget {
     this.bottomPadding = FixedBottomButton.fixedBottomButtonDefaultBottomPadding,
     this.gradientPadding,
     this.subWidget,
-    this.backgroundColor = CoconutColors.primary,
+    this.backgroundColor = CoconutColors.black,
     this.textColor = CoconutColors.white,
     this.pressedBackgroundColor,
   });

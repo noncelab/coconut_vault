@@ -84,7 +84,7 @@ class _ImportConfirmationScreenState extends State<ImportConfirmationScreen>
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Padding(
-                padding: const EdgeInsets.only(top: 20, left: 16, right: 16),
+                padding: const EdgeInsets.only(left: 16, right: 16),
                 child: CoconutToolTip(
                   backgroundColor: CoconutColors.gray100,
                   borderColor: CoconutColors.gray400,

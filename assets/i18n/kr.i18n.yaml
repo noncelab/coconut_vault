@@ -20,6 +20,7 @@ settings: "설정"
 confirm: "확인"
 complete: "완료"
 cancel: "취소"
+abort: "종료"
 next: "다음"
 save: "저장"
 select: "선택"
@@ -54,7 +55,7 @@ signature: "서명"
 sign_completion: "서명 완료"
 sign: "서명하기"
 signed_tx: "서명 트랜잭션"
-sign_completed: "서명을 완료했습니다"
+sign_completed: "서명을 완료했어요"
 stop_sign: "서명 종료하기"
 
 select_completed: "선택 완료"
@@ -97,6 +98,10 @@ bitcoin_text: "$bitcoin BTC"
 sign_required: 
   one: "$n 서명이 필요합니다"
   other: "$n 서명이 필요합니다"
+sign_required_amount: "$n개의 서명이 필요해요"
+move_to_qr_screen: "QR 코드 화면으로 이동"
+move_to_qr_screen_description: "키가 있는 볼트에서 서명하기 위해 QR을 생성합니다."
+
 name_text_count: "($count / 20)"
 wallet_subtitle: "$name의 $index번 키"
 
@@ -192,7 +197,9 @@ tutorial_screen:
 
 multisig:
   nth_key: "$index번 키"
-
+  nth_key_with_name: "$index번 키 - $name"
+  select_nth_key: "$index번 키 고르기"
+  
 # lib/screens/airgap
 account_selection_bottom_sheet_screen:
   text: "서명할 계정을 선택해주세요."
@@ -354,9 +361,13 @@ vault_name_icon_setup_screen:
 
 # lib/screens/vault_creation/multisig
 assign_signers_screen:
+  create_multisig_wallet_by_quorum: "$requiredSignatureCount/$totalSignatureCount 지갑을 생성합니다"
   order_keys: "동일한 순서를 유지하도록 키 순서를 정렬 할게요"
   data_verifying: "데이터 검증 중이에요"
   use_internal_key: "이 볼트에 있는 키 사용하기"
+  select_key_option: "키 종류 선택"
+  import_from_other_vault: "다른 볼트에서 가져오기"
+
 confirm_importing_screen:
   guide1: "다른 볼트에서 가져온 "
   guide2: "정보가 일치하는지 "
@@ -552,6 +563,9 @@ alert:
   reselect:
     title: "다시 고르기"
     description: "지금까지 입력한 정보가 모두 지워져요.\n정말로 다시 선택하시겠어요?"
+  back:
+    title: "이전 화면으로 돌아가기"
+    description: "지금까지 입력한 정보가 모두 지워져요.\n정말로 이전 화면으로 돌아가시겠어요?"
   empty_vault:
     title: "볼트에 저장된 키가 없어요"
     description: "키를 사용하기 위해 일반 지갑을 먼저 만드시겠어요?"
@@ -588,6 +602,9 @@ alert:
     title: "복원 중단"
     description: "복원을 그만두시겠어요?\n중단하시려면 [확인]을\n복원을 계속하시려면\n[취소]를 눌러주세요."
   erase_all_entered_so_far: "정말로 지금까지 입력한 정보를\n모두 지우시겠어요?"
+  finish_signing:
+    title:  "트랜잭션 서명 마무리"
+    description: "이 화면을 닫으면 생성한 서명 정보가 사라져요.\n정말 종료하시겠어요?"
 
 toast:
   clipboard_copied: "클립보드에 복사되었어요"

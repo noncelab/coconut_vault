@@ -114,13 +114,14 @@ class _ShrinkAnimationButtonState extends State<ShrinkAnimationButton>
                       transform: const GradientRotation(math.pi / 10))
                   : null,
               border: widget.borderGradientColors == null
-                  ? Border.all(
-                      color: widget.isActive
-                          ? _isPressed
-                              ? widget.pressedColor
-                              : widget.defaultColor
-                          : widget.disabledColor,
-                    )
+                  ? (widget.border ??
+                      Border.all(
+                        color: widget.isActive
+                            ? _isPressed
+                                ? widget.pressedColor
+                                : widget.defaultColor
+                            : widget.disabledColor,
+                      ))
                   : null,
             ),
             child: AnimatedContainer(
