@@ -1,18 +1,11 @@
 import 'dart:convert';
 import 'dart:typed_data';
 
+import 'package:coconut_vault/services/blockchain_commons/ur_type.dart';
 import 'package:ur/ur.dart';
 import 'package:ur/ur_encoder.dart';
 import 'package:ur/cbor_lite.dart';
 import 'package:coconut_vault/widgets/animated_qr/view_data_handler/i_qr_view_data_handler.dart';
-
-enum UrType {
-  cryptoAccount('crypto-account'),
-  cryptoPsbt('crypto-psbt');
-
-  final String value;
-  const UrType(this.value);
-}
 
 class BcUrQrViewHandler implements IQrViewDataHandler {
   final dynamic _source;
@@ -31,6 +24,7 @@ class BcUrQrViewHandler implements IQrViewDataHandler {
         ur = UR(_urType, cborEncoder.getBytes());
         break;
       case UrType.cryptoAccount:
+      case UrType.cryptoOutput:
         assert(_source is Uint8List);
         ur = UR(_urType, _source);
         break;

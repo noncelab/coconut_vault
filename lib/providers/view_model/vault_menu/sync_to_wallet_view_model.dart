@@ -2,8 +2,10 @@ import 'package:coconut_lib/coconut_lib.dart';
 import 'package:coconut_vault/enums/wallet_enums.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/model/common/vault_list_item_base.dart';
+import 'package:coconut_vault/model/multisig/multisig_vault_list_item.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:coconut_vault/services/blockchain_commons/account_descriptor/legacy_account_descriptor.dart';
+import 'package:coconut_vault/services/blockchain_commons/ur_type.dart';
 import 'package:coconut_vault/utils/conversion_util.dart';
 import 'package:coconut_vault/utils/logger.dart';
 import 'package:flutter/foundation.dart';
@@ -14,9 +16,13 @@ class WalletToSyncViewModel extends ChangeNotifier {
   final List<String> options = [t.coconut, 'BC UR', t.descriptor];
   late final List<QrData> qrDatas;
   int _selectedOption = 0;
+  late final UrType urType;
 
   WalletToSyncViewModel(int vaultId, WalletProvider walletProvider) {
     final vault = walletProvider.getVaultById(vaultId);
+    urType =
+        vault.vaultType == WalletType.multiSignature ? UrType.cryptoOutput : UrType.cryptoAccount;
+
     qrDatas = [
       QrData(type: QrType.single, data: vault.getWalletSyncString()),
       QrData(type: QrType.animated, data: _getLegacyAccountDescriptor(vault)),
@@ -30,15 +36,28 @@ class WalletToSyncViewModel extends ChangeNotifier {
   Uint8List _getLegacyAccountDescriptor(VaultListItemBase vault) {
     if (vault.vaultType == WalletType.singleSignature) {
       final coconutVault = vault.coconutVault as SingleSignatureVault;
-      return LegacyAccountDescriptor.getLegacyAccountDescriptor(
-          coconutVault.keyStore.masterFingerprint,
-          coconutVault.keyStore.extendedPublicKey.parentFingerprint,
-          coconutVault.keyStore.extendedPublicKey.publicKey,
-          coconutVault.keyStore.extendedPublicKey.chainCode,
-          NetworkType.currentNetworkType.isTestnet,
-          true);
+      return LegacyAccountDescriptor.buildSingleSigCbor(
+          masterFingerprint: coconutVault.keyStore.masterFingerprint,
+          parentFingerprint: coconutVault.keyStore.extendedPublicKey.parentFingerprint,
+          pubkey33: coconutVault.keyStore.extendedPublicKey.publicKey,
+          chainCode32: coconutVault.keyStore.extendedPublicKey.chainCode,
+          coinType: NetworkType.currentNetworkType.isTestnet ? 1 : 0);
     } else if (vault.vaultType == WalletType.multiSignature) {
-      throw 'Multisig Not Implemented yet';
+      final multisigListItem = vault as MultisigVaultListItem;
+      final coconutVault = vault.coconutVault as MultisignatureVault;
+      int signerIndex = 0;
+      return LegacyAccountDescriptor.buildMultisigCbor(
+          requiredSignature: coconutVault.requiredSignature,
+          coinType: NetworkType.currentNetworkType.isTestnet ? 1 : 0,
+          cosigners: coconutVault.keyStoreList.map((keyStore) {
+            var signer = multisigListItem.signers[signerIndex++];
+            return Cosigner(
+                label: signer.name ?? signer.memo ?? '',
+                masterFingerprintHex: keyStore.masterFingerprint,
+                parentFingerprintHex: keyStore.extendedPublicKey.parentFingerprint,
+                pubkey33: keyStore.extendedPublicKey.publicKey,
+                chainCode32: keyStore.extendedPublicKey.chainCode);
+          }).toList());
     } else {
       throw 'Wrong vault type: ${vault.vaultType}';
     }

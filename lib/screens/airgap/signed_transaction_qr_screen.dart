@@ -1,10 +1,10 @@
 import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/providers/sign_provider.dart';
+import 'package:coconut_vault/services/blockchain_commons/ur_type.dart';
 import 'package:coconut_vault/widgets/animated_qr/animated_qr_view.dart';
 import 'package:coconut_vault/widgets/animated_qr/view_data_handler/bc_ur_qr_view_handler.dart';
 import 'package:flutter/material.dart';
-import 'package:coconut_vault/widgets/custom_tooltip.dart';
 import 'package:provider/provider.dart';
 
 class SignedTransactionQrScreen extends StatefulWidget {

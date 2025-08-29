@@ -3,6 +3,7 @@ import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/providers/view_model/vault_menu/sync_to_wallet_view_model.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:coconut_vault/screens/vault_menu/sync_to_wallet/export_detail_screen.dart';
+import 'package:coconut_vault/services/blockchain_commons/ur_type.dart';
 import 'package:coconut_vault/widgets/animated_qr/animated_qr_view.dart';
 import 'package:coconut_vault/widgets/animated_qr/view_data_handler/bc_ur_qr_view_handler.dart';
 import 'package:coconut_vault/widgets/bottom_sheet.dart';
@@ -11,6 +12,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:qr_flutter/qr_flutter.dart';
+import 'package:tuple/tuple.dart';
 
 class SyncToWalletScreen extends StatefulWidget {
   final int id;
@@ -57,16 +59,16 @@ class _SyncToWalletScreenState extends State<SyncToWalletScreen> {
                     child: Container(
                         padding: const EdgeInsets.all(10),
                         decoration: CoconutBoxDecoration.shadowBoxDecoration,
-                        child: Selector<WalletToSyncViewModel, QrData>(
-                            selector: (context, vm) => vm.qrData,
-                            builder: (context, qrData, child) {
+                        child: Selector<WalletToSyncViewModel, ({QrData qrData, UrType urType})>(
+                            selector: (context, vm) => (qrData: vm.qrData, urType: vm.urType),
+                            builder: (context, selectedValue, child) {
                               final qrSize = MediaQuery.of(context).size.width * 0.8;
-                              if (qrData.type == QrType.single) {
-                                return QrImageView(data: qrData.data, size: qrSize);
+                              if (selectedValue.qrData.type == QrType.single) {
+                                return QrImageView(data: selectedValue.qrData.data, size: qrSize);
                               }
                               return AnimatedQrView(
-                                qrViewDataHandler:
-                                    BcUrQrViewHandler(qrData.data, UrType.cryptoAccount),
+                                qrViewDataHandler: BcUrQrViewHandler(
+                                    selectedValue.qrData.data, selectedValue.urType),
                                 qrSize: qrSize,
                               );
                             }))),
