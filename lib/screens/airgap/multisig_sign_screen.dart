@@ -188,9 +188,7 @@ class _MultisigSignScreenState extends State<MultisigSignScreen> {
                 fontWeight: FontWeight.w500,
               ),
             ),
-            onTapLeft: () {
-              Navigator.popUntil(context, (route) => route.isFirst);
-            },
+            onTapLeft: () => Navigator.pop(context),
             onTapRight: () {
               _viewModel.resetAll();
               Navigator.popUntil(context, (route) => route.isFirst);

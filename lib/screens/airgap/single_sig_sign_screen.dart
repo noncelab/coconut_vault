@@ -148,9 +148,7 @@ class _SingleSigSignScreenState extends State<SingleSigSignScreen> {
                 fontWeight: FontWeight.w500,
               ),
             ),
-            onTapLeft: () {
-              Navigator.popUntil(context, (route) => route.isFirst);
-            },
+            onTapLeft: () => Navigator.pop(context),
             onTapRight: () {
               _viewModel.resetSignProvider();
               Navigator.popUntil(context, (route) => route.isFirst);
