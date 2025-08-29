@@ -47,7 +47,7 @@ class _MultisigSetupInfoScreenState extends State<MultisigSetupInfoScreen> {
   @override
   void initState() {
     super.initState();
-    
+
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _tooltipIconRenderBox = _tooltipIconKey.currentContext?.findRenderObject() as RenderBox;
       _tooltipIconPosition = _tooltipIconRenderBox!.localToGlobal(Offset.zero);

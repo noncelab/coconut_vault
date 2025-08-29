@@ -6,6 +6,7 @@ import 'package:coconut_vault/constants/pin_constants.dart';
 import 'package:coconut_vault/enums/pin_check_context_enum.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/providers/auth_provider.dart';
+import 'package:coconut_vault/providers/preference_provider.dart';
 import 'package:coconut_vault/screens/common/pin_check_auth_dialog.dart';
 import 'package:coconut_vault/utils/logger.dart';
 import 'package:coconut_vault/widgets/pin/pin_length_toggle_button.dart';
@@ -311,7 +312,7 @@ class _PinCheckScreenState extends State<PinCheckScreen> with WidgetsBindingObse
         confirmButtonText: t.alert.forgot_password.btn_reset,
         confirmButtonColor: CoconutColors.hotPink,
         cancelButtonText: t.close, onConfirm: () async {
-      await _authProvider.resetPin();
+      await _authProvider.resetPin(context.read<PreferenceProvider>());
 
       if (mounted) {
         Navigator.of(context).pop();

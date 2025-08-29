@@ -6,6 +6,7 @@ import 'package:coconut_vault/constants/pin_constants.dart';
 import 'package:coconut_vault/constants/secure_storage_keys.dart';
 import 'package:coconut_vault/constants/shared_preferences_keys.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
+import 'package:coconut_vault/providers/preference_provider.dart';
 import 'package:coconut_vault/repository/wallet_repository.dart';
 import 'package:coconut_vault/repository/secure_storage_repository.dart';
 import 'package:coconut_vault/repository/shared_preferences_repository.dart';
@@ -290,7 +291,7 @@ class AuthProvider extends ChangeNotifier {
   }
 
   /// 비밀번호 초기화
-  Future<void> resetPin() async {
+  Future<void> resetPin(PreferenceProvider preferenceProvider) async {
     if (_isDisposed) return;
 
     final WalletRepository walletRepository = WalletRepository();
@@ -299,10 +300,11 @@ class AuthProvider extends ChangeNotifier {
     _isBiometricEnabled = false;
     _isPinSet = false;
     await _storageService.delete(key: SecureStorageKeys.kVaultPin);
-    _sharedPrefs.setBool(SharedPrefsKeys.isBiometricEnabled, false);
-    _sharedPrefs.setBool(SharedPrefsKeys.isPinEnabled, false);
-    _sharedPrefs.setInt(SharedPrefsKeys.vaultListLength, 0);
-    _sharedPrefs.setString(SharedPrefsKeys.kAppVersion, '');
+    await _sharedPrefs.setBool(SharedPrefsKeys.isBiometricEnabled, false);
+    await _sharedPrefs.setBool(SharedPrefsKeys.isPinEnabled, false);
+    await _sharedPrefs.setInt(SharedPrefsKeys.vaultListLength, 0);
+    await _sharedPrefs.setString(SharedPrefsKeys.kAppVersion, '');
+    await preferenceProvider.resetVaultOrderAndFavorites();
 
     resetAuthenticationState();
   }
