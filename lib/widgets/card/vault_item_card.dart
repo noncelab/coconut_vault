@@ -91,7 +91,7 @@ class VaultItemCard extends StatelessWidget {
                 clipBehavior: Clip.none,
                 children: [
                   Container(
-                    padding: const EdgeInsets.all(12),
+                    padding: const EdgeInsets.all(14),
                     decoration: BoxDecoration(
                       color: CoconutColors.backgroundColorPaletteLight[colorIndex],
                       borderRadius: BorderRadius.circular(18.0),
@@ -100,7 +100,7 @@ class VaultItemCard extends StatelessWidget {
                       CustomIcons.getPathByIndex(iconIndex),
                       colorFilter:
                           ColorFilter.mode(CoconutColors.colorPalette[colorIndex], BlendMode.srcIn),
-                      width: 28.0,
+                      width: 24.0,
                     ),
                   ),
                   Positioned(
@@ -113,9 +113,9 @@ class VaultItemCard extends StatelessWidget {
                           shape: BoxShape.circle,
                           boxShadow: [
                             BoxShadow(
-                              color: CoconutColors.gray150,
+                              color: CoconutColors.gray300,
                               offset: Offset(2, 2),
-                              blurRadius: 12,
+                              blurRadius: 16,
                               spreadRadius: 0,
                             ),
                           ]),
@@ -126,9 +126,9 @@ class VaultItemCard extends StatelessWidget {
                           shape: BoxShape.circle,
                         ),
                         child: SvgPicture.asset('assets/svg/edit-outlined.svg',
-                            width: 8.5,
+                            width: 12,
                             colorFilter:
-                                const ColorFilter.mode(CoconutColors.black, BlendMode.srcIn)),
+                                const ColorFilter.mode(CoconutColors.gray700, BlendMode.srcIn)),
                       ),
                     ),
                   ),
