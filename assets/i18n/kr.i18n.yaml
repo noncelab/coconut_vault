@@ -67,7 +67,7 @@ available_signer_count:
 mnemonic_wordlist: "니모닉 문구 단어집"
 tool: "도구"
 tutorial: "튜토리얼"
-single_sig_wallet: "일반 지갑"
+single_sig_wallet: "단일 서명 지갑"
 multisig_wallet: "다중 서명 지갑"
 extended_public_key: "확장 공개키"
 app_info : "앱 정보"
@@ -312,6 +312,7 @@ mnemonic_coin_flip_screen:
   coin_tail: "뒤"
 mnemonic_confirm_screen:
   title: "최종 확인"
+  description: "이 정보로 지갑을 만들겠습니다"
   passphrase_character_total_count: " (총 $count 글자)"
   warning:
     contains_space_character: "⚠︎ 공백 문자가 포함되어 있습니다"
@@ -341,13 +342,15 @@ mnemonic_import_screen:
   enter_passphrase: "패스프레이즈를 입력해 주세요"
   need_advanced_mode: "⚠︎ 패스프레이즈를 사용하시려면 설정 화면으로 이동하여 '패스프레이즈 사용하기'를 켜주세요"
   open_settings: "설정 화면 열기"
+mnemonic_view_screen:
+  security_guide: "안전한 장소에서 니모닉 문구를 확인하세요"
 mnemonic_verify_screen:
   title: "니모닉 확인"
   select_word: "${index}번째 단어를 선택하세요"
   not_correct: "일치하지 않아요"
 select_vault_type_screen:
   title: "지갑 만들기"
-  single_sig: "하나의 니모닉 문구를 보관하는 단일 서명 지갑이에요"
+  single_sig: "하나의 니모닉 문구를 보관하는 지갑이에요"
   multisig: "지정한 수의 서명이 필요한 지갑이에요"
   empty_key: "현재 볼트에 사용할 수 있는 키가 없어요"
   loading_keys: "볼트에 보관된 키를 불러오는 중이에요"
@@ -355,6 +358,16 @@ vault_creation_options_screen:
   coin_flip: "동전을 던져 직접 만들게요"
   auto_generate: "앱에서 만들어 주세요"
   import_mnemonic: "사용 중인 니모닉 문구가 있어요"
+  seed_qr: "보관 중인 시드 QR 코드가 있어요"
+seed_qr_import_screen:
+  title: "시드 QR 코드 스캔"
+  error_title: "스캔 오류"
+  error_message: "시드 QR 코드 스캔 중 오류가 발생했어요. 다시 시도해 주세요."
+seed_qr_confirmation_screen:
+  title: "니모닉 문구 확인"
+  check_mnemonic: "니모닉 문구를 확인해 주세요"
+  passphrase_toggle: "패스프레이즈 사용"
+  passphrase_text_field_placeholder: "패스프레이즈를 입력해 주세요"
 vault_name_icon_setup_screen:
   title: "이름 설정"
   saving: "저장 중이에요"
@@ -568,7 +581,7 @@ alert:
     description: "지금까지 입력한 정보가 모두 지워져요.\n정말로 이전 화면으로 돌아가시겠어요?"
   empty_vault:
     title: "볼트에 저장된 키가 없어요"
-    description: "키를 사용하기 위해 일반 지갑을 먼저 만드시겠어요?"
+    description: "키를 사용하기 위해 단일 서명 지갑을 먼저 만드시겠어요?"
   quit_creating_mutisig_wallet:
     title: "다중 서명 지갑 만들기 중단"
     description: "정말 지갑 생성을 그만하시겠어요?"

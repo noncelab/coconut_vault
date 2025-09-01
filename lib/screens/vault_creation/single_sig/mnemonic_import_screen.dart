@@ -14,14 +14,14 @@ import 'package:coconut_vault/widgets/bottom_sheet.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
-class MnemonicImport extends StatefulWidget {
-  const MnemonicImport({super.key});
+class MnemonicImportScreen extends StatefulWidget {
+  const MnemonicImportScreen({super.key});
 
   @override
-  State<MnemonicImport> createState() => _MnemonicImportState();
+  State<MnemonicImportScreen> createState() => _MnemonicImportScreenState();
 }
 
-class _MnemonicImportState extends State<MnemonicImport> {
+class _MnemonicImportScreenState extends State<MnemonicImportScreen> {
   late WalletProvider _walletProvider;
   late WalletCreationProvider _walletCreationProvider;
   String _inputText = '';

@@ -4,6 +4,7 @@ class AppRoutes {
   static const String signerAssignment = '/assign-signers';
   static const String vaultCreationOptions = '/vault-creation-options';
   static const String mnemonicImport = '/mnemonic-import';
+  static const String seedQrImport = '/seed-qr-import';
   static const String mnemonicVerify = '/mnemonic-verify';
   static const String mnemonicConfirmation = '/mnemonic-confirmation';
   static const String mnemonicCoinflipConfirmation = '/mnemonic-coinflip-confirmation';

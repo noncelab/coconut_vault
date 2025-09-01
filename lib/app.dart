@@ -34,6 +34,7 @@ import 'package:coconut_vault/screens/vault_creation/single_sig/mnemonic_generat
 import 'package:coconut_vault/screens/vault_creation/single_sig/mnemonic_import_screen.dart';
 import 'package:coconut_vault/screens/vault_creation/multisig/multisig_quorum_selection_screen.dart';
 import 'package:coconut_vault/screens/common/multisig_bsms_scanner_screen.dart';
+import 'package:coconut_vault/screens/vault_creation/single_sig/seed_qr_import_screen.dart';
 import 'package:coconut_vault/screens/vault_creation/vault_type_selection_screen.dart';
 import 'package:coconut_vault/screens/vault_creation/vault_creation_options_screen.dart';
 import 'package:coconut_vault/screens/vault_creation/vault_name_and_icon_setup_screen.dart';
@@ -218,7 +219,8 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> {
             AppRoutes.signerAssignment: (context) => const SignerAssignmentScreen(),
             AppRoutes.vaultCreationOptions: (context) => const VaultCreationOptions(),
             AppRoutes.mnemonicVerify: (context) => const MnemonicVerifyScreen(),
-            AppRoutes.mnemonicImport: (context) => const MnemonicImport(),
+            AppRoutes.mnemonicImport: (context) => const MnemonicImportScreen(),
+            AppRoutes.seedQrImport: (context) => const SeedQrImportScreen(),
             AppRoutes.mnemonicConfirmation: (context) => const MnemonicConfirmationScreen(),
             AppRoutes.mnemonicCoinflipConfirmation: (context) =>
                 const MnemonicCoinflipConfirmationScreen(),
