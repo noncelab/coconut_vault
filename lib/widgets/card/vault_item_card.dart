@@ -133,39 +133,48 @@ class VaultItemCard extends StatelessWidget {
             const Spacer(
               flex: 1,
             ),
-            Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                Row(
+            GestureDetector(
+              onTap: () {
+                onTooltipClicked();
+              },
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 8),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  mainAxisSize: MainAxisSize.min,
                   children: [
-                    TooltipButton(
-                      isSelected: false,
-                      text: rightText,
-                      isLeft: true,
-                      iconkey: tooltipKey,
-                      containerMargin: EdgeInsets.zero,
-                      onTap: () {},
-                      onTapDown: (details) {
-                        onTooltipClicked();
-                      },
-                      textStyle: CoconutTypography.heading4_18_NumberBold,
-                      iconColor: CoconutColors.black,
-                      iconSize: 18,
-                      isIconBold: true,
+                    Row(
+                      children: [
+                        TooltipButton(
+                          isSelected: false,
+                          text: rightText,
+                          isLeft: true,
+                          iconkey: tooltipKey,
+                          containerMargin: EdgeInsets.zero,
+                          onTap: () {},
+                          onTapDown: (details) {
+                            onTooltipClicked();
+                          },
+                          textStyle: CoconutTypography.heading4_18_NumberBold,
+                          iconColor: CoconutColors.black,
+                          iconSize: 18,
+                          isIconBold: true,
+                        ),
+                      ],
                     ),
-                  ],
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    Text(
-                      DateFormat('yy.MM.dd HH:mm').format(vaultItem.createdAt),
-                      style: CoconutTypography.body3_12.setColor(CoconutColors.gray600),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        Text(
+                          DateFormat('yy.MM.dd HH:mm').format(vaultItem.createdAt),
+                          style: CoconutTypography.body3_12.setColor(CoconutColors.gray600),
+                        )
+                      ],
                     )
                   ],
-                )
-              ],
+                ),
+              ),
             )
           ],
         ),
