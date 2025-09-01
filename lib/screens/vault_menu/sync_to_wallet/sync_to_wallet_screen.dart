@@ -2,17 +2,13 @@ import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/providers/view_model/vault_menu/sync_to_wallet_view_model.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
-import 'package:coconut_vault/screens/vault_menu/sync_to_wallet/export_detail_screen.dart';
 import 'package:coconut_vault/services/blockchain_commons/ur_type.dart';
 import 'package:coconut_vault/widgets/animated_qr/animated_qr_view.dart';
 import 'package:coconut_vault/widgets/animated_qr/view_data_handler/bc_ur_qr_view_handler.dart';
-import 'package:coconut_vault/widgets/bottom_sheet.dart';
-import 'package:coconut_vault/widgets/control/sliding_segmented_control.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:qr_flutter/qr_flutter.dart';
-import 'package:tuple/tuple.dart';
 
 class SyncToWalletScreen extends StatefulWidget {
   final int id;
@@ -28,6 +24,7 @@ class _SyncToWalletScreenState extends State<SyncToWalletScreen> {
   String pubString = '';
   late String _name;
   late final Map<int, String> options;
+  List<bool> _isSelected = [true, false, false];
 
   @override
   Widget build(BuildContext context) {
@@ -47,11 +44,16 @@ class _SyncToWalletScreenState extends State<SyncToWalletScreen> {
               children: [
                 Selector<WalletToSyncViewModel, List<String>>(
                   selector: (context, vm) => vm.options,
-                  builder: (context, options, child) => SlidingSegmentedControl(
-                    options: options.asMap(),
-                    onValueChanged: context.read<WalletToSyncViewModel>().setSelectedOption,
-                    fixedWidth: 84,
-                    height: 34,
+                  builder: (context, options, child) => CoconutSegmentedControl(
+                    labels: options,
+                    isSelected: _isSelected,
+                    onPressed: (index) {
+                      setState(() {
+                        _isSelected = List.generate(options.length, (index) => false);
+                        _isSelected[index] = true;
+                      });
+                      context.read<WalletToSyncViewModel>().setSelectedOption(index);
+                    },
                   ),
                 ),
                 const SizedBox(height: 32),
@@ -73,33 +75,6 @@ class _SyncToWalletScreenState extends State<SyncToWalletScreen> {
                               );
                             }))),
                 const SizedBox(height: 32),
-                Selector<WalletToSyncViewModel, String>(
-                  selector: (context, vm) => vm.qrDataString,
-                  builder: (context, qrDataString, child) {
-                    return GestureDetector(
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(4.0),
-                          color: CoconutColors.borderGray,
-                        ),
-                        child: Text(
-                          t.sync_to_wallet_screen.view_detail,
-                          style: CoconutTypography.body3_12.setColor(
-                            CoconutColors.white,
-                          ),
-                        ),
-                      ),
-                      onTap: () {
-                        MyBottomSheet.showBottomSheet_90(
-                            context: context,
-                            child: ExportDetailScreen(
-                              exportDetail: qrDataString,
-                            ));
-                      },
-                    );
-                  },
-                )
               ],
             ),
           ),

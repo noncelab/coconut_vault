@@ -32,7 +32,7 @@ class _VaultAdditionGuideCardState extends State<VaultAdditionGuideCard> {
             dashSpace: 4.0,
             dashWidth: 4.0,
             borderRadius: 22,
-            color: CoconutColors.gray400,
+            color: CoconutColors.gray600,
           ),
           child: Container(
             width: MediaQuery.sizeOf(context).width,
@@ -43,14 +43,14 @@ class _VaultAdditionGuideCardState extends State<VaultAdditionGuideCard> {
                 SvgPicture.asset(
                   'assets/svg/wallet-plus.svg',
                   colorFilter: const ColorFilter.mode(
-                    CoconutColors.gray700,
+                    CoconutColors.gray800,
                     BlendMode.srcIn,
                   ),
                 ),
                 CoconutLayout.spacing_100w,
                 Text(
                   t.vault_list_tab.add_wallet,
-                  style: CoconutTypography.body2_14_Bold.setColor(CoconutColors.gray700),
+                  style: CoconutTypography.body2_14_Bold.setColor(CoconutColors.black),
                 ),
               ],
             ),
