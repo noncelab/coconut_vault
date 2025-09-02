@@ -4,16 +4,22 @@ import 'package:coconut_lib/coconut_lib.dart';
 import 'package:coconut_vault/utils/logger.dart';
 
 class SignIsolates {
-  static Future<String> addSignatureToPsbt(
-      List<dynamic> dataList, void Function(dynamic)? replyTo) async {
-    String psbtBase64 = dataList[1] as String;
-    String signedPsbt = dataList[0] is MultisignatureVault
-        ? (dataList[0] as MultisignatureVault).addSignatureToPsbt(psbtBase64)
-        : (dataList[0] as SingleSignatureVault).addSignatureToPsbt(psbtBase64);
+  static Future<String> addSignatureToPsbtWithSingleVault(List<dynamic> dataList) async {
+    assert(dataList[0] is Seed);
+    assert(dataList[1] is String);
+    final keyStore = KeyStore.fromSeed(dataList[0] as Seed, AddressType.p2wpkh);
+    final psbtBase64 = dataList[1] as String;
+    final coconutVault = SingleSignatureVault.fromKeyStore(keyStore);
+    String signedPsbt = coconutVault.addSignatureToPsbt(psbtBase64);
+    return signedPsbt;
+  }
 
-    if (replyTo != null) {
-      replyTo(signedPsbt);
-    }
+  static Future<String> addSignatureToPsbtWithMultisigVault(List<dynamic> dataList) async {
+    assert(dataList[0] is Seed);
+    assert(dataList[1] is String);
+    final psbtBase64 = dataList[1] as String;
+    final keyStore = KeyStore.fromSeed(dataList[0] as Seed, AddressType.p2wsh);
+    String signedPsbt = keyStore.addSignatureToPsbt(psbtBase64, AddressType.p2wsh);
     return signedPsbt;
   }
 

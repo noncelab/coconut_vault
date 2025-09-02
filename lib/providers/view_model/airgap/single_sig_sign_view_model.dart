@@ -1,4 +1,5 @@
 import 'package:coconut_lib/coconut_lib.dart';
+import 'package:coconut_vault/isolates/sign_isolates.dart';
 import 'package:coconut_vault/model/single_sig/single_sig_vault_list_item.dart';
 import 'package:coconut_vault/providers/sign_provider.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
@@ -55,9 +56,8 @@ class SingleSigSignViewModel extends ChangeNotifier {
   Future<void> sign({required String passphrase}) async {
     final mnemonic = await _walletProvider.getSecret(_signProvider.walletId!);
     final seed = Seed.fromMnemonic(mnemonic, passphrase: passphrase);
-    final keyStore = KeyStore.fromSeed(seed, _signProvider.vaultListItem!.vaultType.addressType);
-    final coconutVault = SingleSignatureVault.fromKeyStore(keyStore);
-    final signedTx = coconutVault.addSignatureToPsbt(_signProvider.unsignedPsbtBase64!);
+    final signedTx = await compute(
+        SignIsolates.addSignatureToPsbtWithSingleVault, [seed, _signProvider.unsignedPsbtBase64!]);
     _signProvider.saveSignedPsbt(signedTx);
     updateSignState();
   }
