@@ -1,6 +1,7 @@
 import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/providers/sign_provider.dart';
+import 'package:coconut_vault/services/blockchain_commons/ur_type.dart';
 import 'package:coconut_vault/widgets/animated_qr/animated_qr_view.dart';
 import 'package:coconut_vault/widgets/animated_qr/view_data_handler/bc_ur_qr_view_handler.dart';
 import 'package:coconut_vault/widgets/button/fixed_bottom_button.dart';
@@ -72,8 +73,8 @@ class _SignedTransactionQrScreenState extends State<SignedTransactionQrScreen> {
                       padding: const EdgeInsets.all(10),
                       decoration: CoconutBoxDecoration.shadowBoxDecoration,
                       child: AnimatedQrView(
-                        qrViewDataHandler: BcUrQrViewHandler(
-                            _signProvider.signedPsbtBase64!, {'urType': 'crypto-psbt'}),
+                        qrViewDataHandler:
+                            BcUrQrViewHandler(_signProvider.signedPsbtBase64!, UrType.cryptoPsbt),
                         qrSize: MediaQuery.of(context).size.width * 0.8,
                       ),
                     ),

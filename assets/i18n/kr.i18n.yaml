@@ -115,6 +115,9 @@ extra_count: "외 $count개"
 
 edit: "편집"
 
+coconut: "코코넛"
+descriptor: "디스크립터"
+
 vault_home_screen:
   view_all_my_wallets: "내 지갑 전체보기"
   wallet_count: "$count개"
@@ -455,10 +458,6 @@ signer_bsms_screen:
   export_info: "내보낼 정보"
 sync_to_wallet_screen:
   title: "$name 내보내기"
-  guide1_1: "월렛"
-  guide1_2: "에서 + 버튼을 누르고, 코코넛 볼트를 선택한 뒤 아래 "
-  guide1_3: "QR 코드를 스캔"
-  guide1_4: "해 주세요. 안전한 보기 전용 지갑을 사용하실 수 있어요."
   view_detail: "상세 정보 보기"
 vault_menu_screen:
   title:  
