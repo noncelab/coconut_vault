@@ -95,6 +95,7 @@ class _SingleSigSetupInfoScreenState extends State<SingleSigSetupInfoScreen> {
           child: Consumer<SingleSigSetupInfoViewModel>(builder: (context, viewModel, child) {
             final canDelete = viewModel.hasLinkedMultisigVault != true;
             final walletName = viewModel.name;
+
             return GestureDetector(
               onTapDown: (details) => _removeTooltip(),
               child: Scaffold(
@@ -110,7 +111,13 @@ class _SingleSigSetupInfoScreenState extends State<SingleSigSetupInfoScreen> {
                           _removeTooltip();
                           if (canDelete) {
                             _showDeleteDialog(context, walletName);
+                            return;
                           }
+                          CoconutToast.showToast(
+                            context: context,
+                            text: t.toast.name_multisig_in_use,
+                            isVisibleIcon: true,
+                          );
                         },
                         icon: SvgPicture.asset(
                           'assets/svg/trash.svg',
