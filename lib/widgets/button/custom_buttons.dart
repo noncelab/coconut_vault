@@ -11,7 +11,7 @@ class CompleteButton extends StatefulWidget {
       {super.key, required this.onPressed, required this.label, required this.disabled});
 
   @override
-  _CompleteButtonState createState() => _CompleteButtonState();
+  State<CompleteButton> createState() => _CompleteButtonState();
 }
 
 class _CompleteButtonState extends State<CompleteButton> {
@@ -51,7 +51,7 @@ class SelectableButton extends StatefulWidget {
   });
 
   @override
-  _SelectableButtonState createState() => _SelectableButtonState();
+  State<SelectableButton> createState() => _SelectableButtonState();
 }
 
 class _SelectableButtonState extends State<SelectableButton> {
@@ -105,6 +105,7 @@ class _SelectableButtonState extends State<SelectableButton> {
   }
 }
 
+@Deprecated("no longer used")
 class CountingRowButton extends StatefulWidget {
   final VoidCallback onMinusPressed;
   final VoidCallback onPlusPressed;
@@ -122,7 +123,7 @@ class CountingRowButton extends StatefulWidget {
   });
 
   @override
-  _CountingRowButtonState createState() => _CountingRowButtonState();
+  State<CountingRowButton> createState() => _CountingRowButtonState();
 }
 
 class _CountingRowButtonState extends State<CountingRowButton> {
