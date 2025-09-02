@@ -191,11 +191,11 @@ Future<void> skipScreensUntilVaultList(WidgetTester tester) async {
   await tester.pumpAndSettle();
 
   // Wait for and tap the understood button on welcome screen
-  final Finder understoodButton = find.widgetWithText(CupertinoButton, t.welcome_screen.understood);
-  await waitForWidget(tester, understoodButton,
-      timeoutMessage: 'Understood button not found after 10 seconds');
-  await tester.tap(understoodButton);
-  await tester.pumpAndSettle();
+  // final Finder understoodButton = find.widgetWithText(CupertinoButton, t.welcome_screen.understood);
+  // await waitForWidget(tester, understoodButton,
+  //     timeoutMessage: 'Understood button not found after 10 seconds');
+  // await tester.tap(understoodButton);
+  // await tester.pumpAndSettle();
 
   // Wait for and tap the start button on guide screen
   final Finder startButton = find.text(t.start);

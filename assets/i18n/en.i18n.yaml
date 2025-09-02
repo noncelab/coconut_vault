@@ -118,6 +118,14 @@ edit: "edit"
 coconut: "Coconut"
 descriptor: "Descriptor"
 
+connectivity_state: 
+  connected: "Connected"
+  disconnected: "Disconnected"
+  enabled: "Enabled"
+  disabled: "Disabled"
+  active: "Active"
+  inactive: "Inactive"
+
 vault_home_screen:
   view_all_my_wallets: "View All My Wallets"
   wallet_count: "$count Items"
@@ -154,14 +162,10 @@ vault_list_tab:
 
 # lib/screens
 app_unavailable_notification_screen:
-  network_on: "Phone is connected to external network"
-  text1_1: "For safe use,"
-  text1_2: "please "
-  text1_3: "close the app"
-  text1_4: " now"
-  text2: "Network & Bluetooth"
-  text3: "Developer Option OFF"
-  check_status: "Please check the status"
+  restart_app: "To use Vault,\nyou need to restart the app"
+  step1: "Completely close the app"
+  step2: "Check the connection status"
+  step3: "Restart the app"
 ios_bluetooth_auth_notification_screen:
   allow_permission: "Please allow Bluetooth permission for Coconut Vault"
   text1_1: "For safe use,"
@@ -288,21 +292,12 @@ guide_screen:
   on: "ON"
   off: "OFF"
 welcome_screen:
-  greeting: "Please take a moment\nfor smooth Coconut Vault use"
-  guide1_1: "Vault can only be used"
-  guide1_2: "when network and Bluetooth$suffix"
-  guide1_3: "are turned OFF"
-  guide1_4: ""
-  guide1_5: ""
-  guide2_1: "That is,"
-  guide2_2: "when connection is detected"
-  guide2_3: "app usage will be disabled"
-  guide2_4: ""
-  guide3_1: "This is a measure"
-  guide3_2: "for"
-  guide3_3: "safe use,"
-  guide3_4: "please be careful when using"
-  understood: "I understand all"
+  guide1: "Vault can only be used\nwhen network and Bluetooth are turned OFF"
+  guide2: "When connection is detected\napp usage will be disabled"
+  guide3: "For safe use,\nplease be careful when using"
+  network: "Network"
+  bluetooth: "Bluetooth"
+  developer_option: "Developer Option"
 
 # lib/screens/vault_creation
 mnemonic_coin_flip_screen:
