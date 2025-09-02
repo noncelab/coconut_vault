@@ -1,5 +1,4 @@
 import 'package:coconut_lib/coconut_lib.dart';
-import 'package:coconut_vault/model/single_sig/single_sig_vault_list_item.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {

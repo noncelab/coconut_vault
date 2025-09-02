@@ -15,8 +15,8 @@ import 'package:coconut_vault/repository/secure_storage_repository.dart';
 import 'package:coconut_vault/repository/shared_preferences_repository.dart';
 import 'package:coconut_vault/utils/coconut/update_preparation.dart';
 import 'package:coconut_vault/utils/hash_util.dart';
-import 'package:coconut_vault/utils/isolate_handler.dart';
 import 'package:coconut_vault/utils/logger.dart';
+import 'package:flutter/foundation.dart';
 
 /// 지갑의 public 정보는 shared prefs, 비밀 정보는 secure storage에 저장하는 역할을 하는 클래스입니다.
 class WalletRepository {
@@ -56,23 +56,17 @@ class WalletRepository {
 
     List<VaultListItemBase> vaultList = [];
 
-    var initIsolateHandler =
-        IsolateHandler<Map<String, dynamic>, VaultListItemBase>(WalletIsolates.initializeWallet);
-    await initIsolateHandler.initialize(initialType: InitializeType.initializeWallet);
-
     for (int i = 0; i < jsonList.length; i++) {
-      VaultListItemBase item = await initIsolateHandler.run(jsonList[i]);
+      VaultListItemBase item = await compute<Map<String, dynamic>, VaultListItemBase>(
+          WalletIsolates.initializeWallet, jsonList[i]);
 
       if (_walletLoadCancelToken?.isCompleted == true) {
-        initIsolateHandler.dispose();
         return;
       }
 
       emitOneItem(item);
       vaultList.add(item);
     }
-
-    initIsolateHandler.dispose();
 
     _vaultList = vaultList;
   }
@@ -85,13 +79,8 @@ class WalletRepository {
     final int nextId = _getNextWalletId();
     wallet.id = nextId;
     final Map<String, dynamic> vaultData = wallet.toJson();
-
-    var addVaultIsolateHandler =
-        IsolateHandler<Map<String, dynamic>, List<SingleSigVaultListItem>>(WalletIsolates.addVault);
-    await addVaultIsolateHandler.initialize(initialType: InitializeType.addVault);
     List<SingleSigVaultListItem> vaultListResult =
-        await addVaultIsolateHandler.runAddVault(vaultData);
-    addVaultIsolateHandler.dispose();
+        await compute(WalletIsolates.addVault, vaultData);
 
     _linkNewSinglesigVaultAndMultisigVaults(vaultListResult.first);
     await _saveSingleSigSecureData(
@@ -175,16 +164,8 @@ class WalletRepository {
     final int nextId = _getNextWalletId();
     wallet.id = nextId;
     final Map<String, dynamic> data = wallet.toJson();
-
-    var addMultisigVaultIsolateHandler =
-        IsolateHandler<Map<String, dynamic>, MultisigVaultListItem>(
-            WalletIsolates.addMultisigVault);
-    await addMultisigVaultIsolateHandler.initialize(initialType: InitializeType.addMultisigVault);
-    MultisigVaultListItem newMultisigVault = await addMultisigVaultIsolateHandler.run(data);
-    addMultisigVaultIsolateHandler.dispose();
-
-    print('newMultisigVault: $newMultisigVault');
-
+    MultisigVaultListItem newMultisigVault = await compute(WalletIsolates.addMultisigVault, data);
+    Logger.log('--> newMultisigVault: ${newMultisigVault.toJson()}');
     // for SinglesigVaultListItem multsig key map update
     updateLinkedMultisigInfo(wallet.signers!, nextId);
 
@@ -369,11 +350,8 @@ class WalletRepository {
 
   Future<void> restoreFromBackupData(List<Map<String, dynamic>> backupData) async {
     final List<VaultListItemBase> vaultList = [];
-    var initIsolateHandler =
-        IsolateHandler<Map<String, dynamic>, VaultListItemBase>(WalletIsolates.initializeWallet);
-    await initIsolateHandler.initialize(initialType: InitializeType.initializeWallet);
     for (final data in backupData) {
-      VaultListItemBase wallet = await initIsolateHandler.run(data);
+      VaultListItemBase wallet = await compute(WalletIsolates.initializeWallet, data);
       if (data['vaultType'] == WalletType.singleSignature.name) {
         String keyString = _createWalletKeyString(wallet.id, WalletType.singleSignature);
         String passphraseKeyString = _createPassphraseEnabledKeyString(keyString);
@@ -386,7 +364,6 @@ class WalletRepository {
 
     _vaultList = vaultList;
     await _savePublicInfo();
-    initIsolateHandler.dispose();
   }
 
   void dispose() {

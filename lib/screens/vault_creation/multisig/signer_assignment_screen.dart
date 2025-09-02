@@ -505,8 +505,6 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
 
     _viewModel.setSigners(signers);
 
-    _viewModel.clearFromKeyStoreListIsolateHandler();
-
     if (mounted) {
       setState(() {
         _hasValidationCompleted = true;

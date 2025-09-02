@@ -23,9 +23,9 @@ class SignIsolates {
     return signedPsbt;
   }
 
-  static Future<bool> canSignToPsbt(List<dynamic> dataList, void Function(dynamic)? replyTo) async {
+  static Future<bool> canSignToPsbt(List<dynamic> dataList) async {
+    bool isMultisig = dataList[0] is MultisignatureVault;
     String psbtBase64 = dataList[1] as String;
-    var isMultisig = dataList[0] is MultisignatureVault;
 
     bool canSign = isMultisig
         ? (dataList[0] as MultisignatureVault).hasPublicKeyInPsbt(psbtBase64)
@@ -37,15 +37,12 @@ class SignIsolates {
     Psbt psbtObj = Psbt.parse(psbtBase64);
     var multisigWallet = dataList[0] as MultisignatureVault;
     Logger.log(
-        '--> psbtR: ${psbtObj.inputs[0].requiredSignature} psbtT: ${psbtObj.inputs[0].derivationPathList.length}');
+        '--> [canSignToPsbt] psbtR: ${psbtObj.inputs[0].requiredSignature} psbtT: ${psbtObj.inputs[0].derivationPathList.length}');
     if (multisigWallet.requiredSignature != psbtObj.inputs[0].requiredSignature ||
         multisigWallet.keyStoreList.length != psbtObj.inputs[0].derivationPathList.length) {
       return false;
     }
 
-    if (replyTo != null) {
-      replyTo(canSign);
-    }
     return canSign;
   }
 }

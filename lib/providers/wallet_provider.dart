@@ -224,8 +224,9 @@ class WalletProvider extends ChangeNotifier {
 
   /// MultisigVaultListItem의 coordinatorBsms 중복 여부 확인
   MultisigVaultListItem? findMultisigWalletByCoordinatorBsms(String coordinatorBsms) {
-    final vaultIndex = _vaultList.indexWhere((element) =>
-        (element is MultisigVaultListItem && element.coordinatorBsms == coordinatorBsms));
+    final vaultIndex = _vaultList.indexWhere((element) {
+      return (element is MultisigVaultListItem && element.coordinatorBsms == coordinatorBsms);
+    });
 
     return vaultIndex != -1 ? _vaultList[vaultIndex] as MultisigVaultListItem : null;
   }

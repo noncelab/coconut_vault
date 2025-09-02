@@ -8,11 +8,9 @@ import 'package:coconut_vault/model/common/vault_list_item_base.dart';
 import 'package:coconut_vault/enums/wallet_enums.dart';
 import 'package:coconut_vault/model/multisig/multisig_wallet.dart';
 import 'package:coconut_vault/model/single_sig/single_sig_wallet_create_dto.dart';
-import 'package:coconut_vault/repository/shared_preferences_repository.dart';
 
 class WalletIsolates {
-  static Future<List<SingleSigVaultListItem>> addVault(
-      Map<String, dynamic> data, void Function(dynamic)? progressCallback) async {
+  static Future<List<SingleSigVaultListItem>> addVault(Map<String, dynamic> data) async {
     List<SingleSigVaultListItem> vaultList = [];
 
     var wallet = SingleSigWalletCreateDto.fromJson(data);
@@ -39,10 +37,7 @@ class WalletIsolates {
     return vaultList;
   }
 
-  static Future<MultisigVaultListItem> addMultisigVault(
-      Map<String, dynamic> data, void Function(dynamic)? replyTo) async {
-    await SharedPrefsRepository().init();
-
+  static Future<MultisigVaultListItem> addMultisigVault(Map<String, dynamic> data) async {
     var walletData = MultisigWallet.fromJson(data);
     var newMultisigVault = MultisigVaultListItem(
       id: walletData.id!,
@@ -54,14 +49,10 @@ class WalletIsolates {
       createdAt: DateTime.now(),
     );
 
-    if (replyTo != null) {
-      replyTo(newMultisigVault);
-    }
     return newMultisigVault;
   }
 
-  static Future<VaultListItemBase> initializeWallet(
-      Map<String, dynamic> data, void Function(dynamic)? setVaultListLoadingProgress) async {
+  static Future<VaultListItemBase> initializeWallet(Map<String, dynamic> data) async {
     String? vaultType = data[VaultListItemBase.vaultTypeField];
 
     // coconut_vault 1.0.1 -> 2.0.0 업데이트 되면서 vaultType이 추가됨
@@ -74,8 +65,7 @@ class WalletIsolates {
     }
   }
 
-  static Future<MultisignatureVault> fromKeyStore(
-      Map<String, dynamic> data, void Function(dynamic)? replyTo) async {
+  static Future<MultisignatureVault> fromKeyStores(Map<String, dynamic> data) async {
     List<KeyStore> keyStores = [];
     List<dynamic> decodedKeyStoresJson = jsonDecode(data['keyStores']);
     final int requiredSignatureCount = data['requiredSignatureCount'];
@@ -88,24 +78,16 @@ class WalletIsolates {
         keyStores, requiredSignatureCount,
         addressType: AddressType.p2wsh);
 
-    if (replyTo != null) {
-      replyTo(multiSignatureVault);
-    }
     return multiSignatureVault;
   }
 
-  static Future<List<String>> extractSignerBsms(
-      List<dynamic> vaultList, void Function(dynamic)? replyTo) async {
+  static Future<List<String>> extractSignerBsms(List<SingleSigVaultListItem> vaultList) async {
     List<String> bsmses = [];
 
     for (int i = 0; i < vaultList.length; i++) {
-      SingleSigVaultListItem vaultListItem = vaultList[i] as SingleSigVaultListItem;
-      bsmses.add(vaultListItem.signerBsms);
+      bsmses.add(vaultList[i].signerBsms);
     }
 
-    if (replyTo != null) {
-      replyTo(bsmses);
-    }
     return bsmses;
   }
 
