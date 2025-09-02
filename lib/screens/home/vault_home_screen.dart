@@ -383,7 +383,10 @@ class _VaultHomeScreenState extends State<VaultHomeScreen> with TickerProviderSt
                               onVaultSelected: (id) async {
                                 if (mounted) {
                                   Navigator.pushNamed(context, AppRoutes.signerBsmsScanner,
-                                      arguments: {'screenType': MultisigBsmsImportType.copy});
+                                      arguments: {
+                                        'id': id,
+                                        'screenType': MultisigBsmsImportType.copy
+                                      });
                                 }
                               },
                               scrollController: scrollController,
