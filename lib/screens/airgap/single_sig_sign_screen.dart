@@ -60,7 +60,8 @@ class _SingleSigSignScreenState extends State<SingleSigSignScreen> {
   Future<String?> _authenticateWithPassphrase({
     required BuildContext context,
   }) async {
-    return await MyBottomSheet.showBottomSheet_50(
+    return await MyBottomSheet.showBottomSheet_ratio(
+      ratio: 0.5,
       context: context,
       child: PassphraseCheckScreen(id: _viewModel.walletId),
     );

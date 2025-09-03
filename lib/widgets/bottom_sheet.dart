@@ -39,56 +39,6 @@ class MyBottomSheet {
         constraints: BoxConstraints(maxHeight: MediaQuery.of(context).size.height * 0.95));
   }
 
-  static Future<T?> showBottomSheet_50<T>({
-    required BuildContext context,
-    required Widget child,
-    bool isDismissible = true,
-    bool showDragHandle = false,
-    bool enableDrag = true,
-  }) async {
-    return await showModalBottomSheet<T>(
-        context: context,
-        builder: (context) {
-          return ClipRRect(
-            borderRadius: const BorderRadius.only(
-                topLeft: Radius.circular(24), topRight: Radius.circular(24)),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                if (showDragHandle)
-                  Container(
-                    color: Colors.transparent,
-                    padding: const EdgeInsets.symmetric(vertical: 8),
-                    child: Center(
-                      child: Container(
-                        width: 55,
-                        height: 4,
-                        decoration: BoxDecoration(
-                          color: CoconutColors.gray400,
-                          borderRadius: BorderRadius.circular(4),
-                        ),
-                      ),
-                    ),
-                  ),
-                Padding(
-                  padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
-                  child: SizedBox(
-                    height: MediaQuery.of(context).size.height * 0.5,
-                    width: MediaQuery.of(context).size.width,
-                    child: child,
-                  ),
-                ),
-              ],
-            ),
-          );
-        },
-        backgroundColor: CoconutColors.white,
-        isDismissible: isDismissible,
-        isScrollControlled: true,
-        enableDrag: enableDrag,
-        useSafeArea: true);
-  }
-
   static Future<T?> showBottomSheet_ratio<T>({
     required BuildContext context,
     required Widget child,

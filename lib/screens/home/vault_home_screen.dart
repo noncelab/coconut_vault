@@ -337,8 +337,11 @@ class _VaultHomeScreenState extends State<VaultHomeScreen> with TickerProviderSt
                                 bool hasPassphrase =
                                     await context.read<VaultHomeViewModel>().hasPassphrase(id);
                                 if (hasPassphrase) {
-                                  final result = await MyBottomSheet.showBottomSheet_50<String?>(
-                                      context: context, child: PassphraseCheckScreen(id: id));
+                                  final result = await MyBottomSheet.showBottomSheet_ratio<String?>(
+                                    ratio: 0.5,
+                                    context: context,
+                                    child: PassphraseCheckScreen(id: id),
+                                  );
                                   if (result != null && mounted) {
                                     Navigator.pushNamed(context, AppRoutes.syncToWallet,
                                         arguments: {'id': id});
