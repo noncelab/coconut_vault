@@ -17,6 +17,7 @@ settings: "Settings"
 confirm: "Confirm"
 complete: "Complete"
 cancel: "Cancel"
+abort: "Abort"
 next: "Next"
 save: "Save"
 select: "Select"
@@ -66,7 +67,7 @@ available_signer_count:
 mnemonic_wordlist: "Mnemonic Word List"
 tool: "Tool"
 tutorial: "Tutorial"
-single_sig_wallet: "Single Sig Wallet"
+single_sig_wallet: "Single Signature Wallet"
 multisig_wallet: "Multisig Wallet"
 extended_public_key: "Extended Public Key"
 app_info: "App Info"
@@ -97,6 +98,10 @@ bitcoin_text: "$bitcoin BTC"
 sign_required: 
   one: "$n signature required"
   other: "$n signatures required"
+sign_required_amount: "$n signatures required"
+move_to_qr_screen: "Move to QR Screen"
+move_to_qr_screen_description: "Generate QR to sign in key-holding vault."
+
 name_text_count: "($count / 20)"
 wallet_subtitle: "$name's key $index"
 
@@ -108,7 +113,18 @@ advanced_user: "Advanced User"
 
 extra_count: "+$count more"
 
-edit: "편집"
+edit: "edit"
+
+coconut: "Coconut"
+descriptor: "Descriptor"
+
+connectivity_state: 
+  connected: "Connected"
+  disconnected: "Disconnected"
+  enabled: "Enabled"
+  disabled: "Disabled"
+  active: "Active"
+  inactive: "Inactive"
 
 vault_home_screen:
   view_all_my_wallets: "View All My Wallets"
@@ -146,14 +162,10 @@ vault_list_tab:
 
 # lib/screens
 app_unavailable_notification_screen:
-  network_on: "Phone is connected to external network"
-  text1_1: "For safe use,"
-  text1_2: "please "
-  text1_3: "close the app"
-  text1_4: " now"
-  text2: "Network & Bluetooth"
-  text3: "Developer Option OFF"
-  check_status: "Please check the status"
+  restart_app: "To use Vault,\nyou need to restart the app"
+  step1: "Completely close the app"
+  step2: "Check the connection status"
+  step3: "Restart the app"
 ios_bluetooth_auth_notification_screen:
   allow_permission: "Please allow Bluetooth permission for Coconut Vault"
   text1_1: "For safe use,"
@@ -192,6 +204,8 @@ tutorial_screen:
 
 multisig:
   nth_key: "key $index"
+  nth_key_with_name: "key $index - $name"
+  select_nth_key: "Select key #$index"
 
 # lib/screens/airgap
 account_selection_bottom_sheet_screen:
@@ -268,31 +282,13 @@ settings_screen:
   information: "Information"
 
 # lib/screens/start_guide
-guide_screen:
-  keep_network_off: "For safe Bitcoin storage,\nkeep connection status OFF"
-  network_status: "Network Status"
-  bluetooth_status: "Bluetooth Status"
-  developer_option: "Developer Option"
-  turn_off_network_and_bluetooth: "Turn off Network & Bluetooth"
-  disable_developer_option: "Disable Developer Option"
-  on: "ON"
-  off: "OFF"
 welcome_screen:
-  greeting: "Please take a moment\nfor smooth Coconut Vault use"
-  guide1_1: "Vault can only be used"
-  guide1_2: "when network and Bluetooth$suffix"
-  guide1_3: "are turned OFF"
-  guide1_4: ""
-  guide1_5: ""
-  guide2_1: "That is,"
-  guide2_2: "when connection is detected"
-  guide2_3: "app usage will be disabled"
-  guide2_4: ""
-  guide3_1: "This is a measure"
-  guide3_2: "for"
-  guide3_3: "safe use,"
-  guide3_4: "please be careful when using"
-  understood: "I understand all"
+  guide1: "Vault can only be used\nwhen network and Bluetooth are turned OFF"
+  guide2: "When connection is detected\napp usage will be disabled"
+  guide3: "For safe use,\nplease be careful when using"
+  network: "Network"
+  bluetooth: "Bluetooth"
+  developer_option: "Developer Option"
 
 # lib/screens/vault_creation
 mnemonic_coin_flip_screen:
@@ -305,6 +301,7 @@ mnemonic_coin_flip_screen:
   coin_tail: "Back"
 mnemonic_confirm_screen:
   title: "Final Check"
+  description: "This information will be used to create a wallet"
   passphrase_character_total_count: " (Total $count chars)"
   warning:
     contains_space_character: "⚠︎ Contains space characters"
@@ -338,6 +335,8 @@ mnemonic_import_screen:
   words_24: "24 words"
   words_12: "12 words"
 
+mnemonic_view_screen:
+  security_guide: "Please check the mnemonic in a safe place"
 mnemonic_verify_screen:
   title: "Verify Mnemonic"
   select_word: "Select ${index}th word"
@@ -352,15 +351,29 @@ vault_creation_options_screen:
   coin_flip: "Flip coin to create manually"
   auto_generate: "Let app create for me"
   import_mnemonic: "I have an existing mnemonic phrase"
+  seed_qr: "I have a seed QR code"
+seed_qr_import_screen:
+  title: "Scan Seed QR Code"
+  error_title: "Scan Error"
+  error_message: "An error occurred while scanning the seed QR code. Please try again."
+seed_qr_confirmation_screen:
+  title: "Verify Mnemonic"
+  check_mnemonic: "Please check the mnemonic phrase"
+  passphrase_toggle: "Use Passphrase"
+  passphrase_text_field_placeholder: "Enter passphrase"
 vault_name_icon_setup_screen:
   title: "Set Name"
   saving: "Saving..."
 
 # lib/screens/vault_creation/multisig
 assign_signers_screen:
+  create_multisig_wallet_by_quorum: "Create $requiredSignatureCount/$totalSignatureCount wallet"
   order_keys: "I'll sort key order to maintain same sequence"
   data_verifying: "Verifying data..."
   use_internal_key: "Use key in this vault"
+  select_key_option: "Select key type"
+  import_from_other_vault: "Import from other vault"
+
 confirm_importing_screen:
   guide1: "Please verify that "
   guide2: "imported info from other vault "
@@ -435,10 +448,6 @@ signer_bsms_screen:
   export_info: "Export Info"
 sync_to_wallet_screen:
   title: "Export $name"
-  guide1_1: "In wallet"
-  guide1_2: " press + button and select Coconut Vault, then "
-  guide1_3: "scan QR code"
-  guide1_4: " below. You can use safe watch-only wallet."
   view_detail: "View Details"
 vault_menu_screen:
   title:  
@@ -556,9 +565,12 @@ alert:
   reselect:
     title: "Reselect"
     description: "All info entered so far will be deleted.\nReally reselect?"
+  back:
+    title: "Go back"
+    description: "All info entered so far will be deleted.\nReally go back?"
   empty_vault:
     title: "No keys stored in vault"
-    description: "Create single sig wallet first to use keys?"
+    description: "Create single signature wallet first to use keys?"
   quit_creating_mutisig_wallet:
     title: "Stop Creating Multisig Wallet"
     description: "Really stop wallet creation?"
@@ -595,6 +607,9 @@ alert:
   erase_all_entered_mnemonic: 
     title: "Erase All"
     description: "Really delete all mnemonic\nphrases entered so far?"
+  finish_signing:
+    title:  "Finish Signing"
+    description: "If you close this screen, the created signing info will be lost.\nReally exit?"
 
 toast:
   clipboard_copied: "Copied to clipboard"

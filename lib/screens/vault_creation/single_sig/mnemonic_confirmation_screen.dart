@@ -4,6 +4,7 @@ import 'package:coconut_vault/providers/wallet_creation_provider.dart';
 import 'package:coconut_vault/screens/vault_creation/single_sig/mnemonic_generation_screen.dart';
 import 'package:coconut_vault/screens/vault_creation/vault_name_and_icon_setup_screen.dart';
 import 'package:coconut_vault/widgets/button/fixed_bottom_button.dart';
+import 'package:coconut_vault/widgets/list/mnemonic_list.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -18,11 +19,15 @@ class _MnemonicConfirmationScreenState extends State<MnemonicConfirmationScreen>
   late WalletCreationProvider _walletCreationProvider;
   late int step;
   final ScrollController _scrollController = ScrollController();
+  late String _mnemonic;
 
   @override
   void initState() {
     super.initState();
     _walletCreationProvider = Provider.of<WalletCreationProvider>(context, listen: false);
+
+    // todo: _mnemonic empty string일 수 없음
+    _mnemonic = _walletCreationProvider.secret ?? '';
     step = 0;
   }
 
@@ -74,13 +79,15 @@ class _MnemonicConfirmationScreenState extends State<MnemonicConfirmationScreen>
                               bottom: 25,
                             ),
                             child: Text(
-                              step == 0 ? t.mnemonic : t.passphrase,
+                              t.mnemonic_confirm_screen.description,
                               style: CoconutTypography.body1_16_Bold.setColor(
                                 CoconutColors.black,
                               ),
                             ),
                           ),
-                          step == 0 ? buildGeneratedMnemonicList() : _passphraseGridViewWidget(),
+                          step == 0
+                              ? MnemonicList(mnemonic: _mnemonic)
+                              : _passphraseGridViewWidget(),
                           const SizedBox(height: 40),
                         ],
                       )),
@@ -165,65 +172,6 @@ class _MnemonicConfirmationScreenState extends State<MnemonicConfirmationScreen>
             ),
           ],
         ),
-      ),
-    );
-  }
-
-  Widget buildGeneratedMnemonicList() {
-    bool gridviewColumnFlag = false;
-    final mnemonic = _walletCreationProvider.secret?.split(' ') ?? [];
-
-    return Padding(
-      padding: const EdgeInsets.only(
-        left: 40.0,
-        right: 40.0,
-        top: 16,
-        bottom: 120,
-      ),
-      child: GridView.builder(
-        shrinkWrap: true,
-        physics: const NeverScrollableScrollPhysics(),
-        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 2, // 2열로 배치
-          childAspectRatio: 2.5, // 각 아이템의 가로:세로 = 2.5:1
-          crossAxisSpacing: 12, // 열 간격
-          mainAxisSpacing: 8, // 행 간격
-        ),
-        itemCount: mnemonic.length,
-        itemBuilder: (BuildContext context, int index) {
-          if (index % 2 == 0) {
-            gridviewColumnFlag = !gridviewColumnFlag;
-          }
-
-          return Container(
-            padding: const EdgeInsets.only(left: 24),
-            alignment: Alignment.center,
-            decoration: BoxDecoration(
-              border: Border.all(color: CoconutColors.black.withOpacity(0.08)),
-              borderRadius: BorderRadius.circular(24),
-            ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  (index + 1).toString().padLeft(2, '0'),
-                  style: CoconutTypography.body3_12_Number.setColor(
-                    CoconutColors.gray500,
-                  ),
-                ),
-                CoconutLayout.spacing_300w,
-                Expanded(
-                  child: Text(
-                    mnemonic[index],
-                    style: CoconutTypography.body2_14,
-                    overflow: TextOverflow.visible,
-                  ),
-                ),
-              ],
-            ),
-          );
-        },
       ),
     );
   }

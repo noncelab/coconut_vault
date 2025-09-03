@@ -85,16 +85,56 @@ class VaultItemCard extends StatelessWidget {
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: CoconutColors.backgroundColorPaletteLight[colorIndex],
-                  borderRadius: BorderRadius.circular(18.0),
-                ),
-                child: SvgPicture.asset(CustomIcons.getPathByIndex(iconIndex),
-                    colorFilter:
-                        ColorFilter.mode(CoconutColors.colorPalette[colorIndex], BlendMode.srcIn),
-                    width: 28.0)),
+            GestureDetector(
+              onTap: onNameChangeClicked,
+              child: Stack(
+                clipBehavior: Clip.none,
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(14),
+                    decoration: BoxDecoration(
+                      color: CoconutColors.backgroundColorPaletteLight[colorIndex],
+                      borderRadius: BorderRadius.circular(18.0),
+                    ),
+                    child: SvgPicture.asset(
+                      CustomIcons.getPathByIndex(iconIndex),
+                      colorFilter:
+                          ColorFilter.mode(CoconutColors.colorPalette[colorIndex], BlendMode.srcIn),
+                      width: 24.0,
+                    ),
+                  ),
+                  Positioned(
+                    right: -3,
+                    bottom: -3,
+                    child: Container(
+                      padding: const EdgeInsets.all(4.3),
+                      decoration: const BoxDecoration(
+                          color: CoconutColors.white,
+                          shape: BoxShape.circle,
+                          boxShadow: [
+                            BoxShadow(
+                              color: CoconutColors.gray300,
+                              offset: Offset(2, 2),
+                              blurRadius: 16,
+                              spreadRadius: 0,
+                            ),
+                          ]),
+                      child: Container(
+                        padding: const EdgeInsets.all(2),
+                        decoration: const BoxDecoration(
+                          color: CoconutColors.white,
+                          shape: BoxShape.circle,
+                        ),
+                        child: SvgPicture.asset('assets/svg/edit-outlined.svg',
+                            width: 12,
+                            colorFilter:
+                                const ColorFilter.mode(CoconutColors.gray700, BlendMode.srcIn)),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
             const SizedBox(width: 8.0),
             Flexible(
               flex: 4,
@@ -109,23 +149,6 @@ class VaultItemCard extends StatelessWidget {
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     )),
-                    const SizedBox(width: 7),
-                    GestureDetector(
-                        onTap: () {
-                          onNameChangeClicked();
-                        },
-                        child: Container(
-                          decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(8), color: CoconutColors.gray150),
-                          child: const Padding(
-                            padding: EdgeInsets.all(5.0),
-                            child: Icon(
-                              Icons.edit,
-                              color: CoconutColors.gray800,
-                              size: 14,
-                            ),
-                          ),
-                        ))
                   ]),
                 ],
               ),
@@ -133,39 +156,48 @@ class VaultItemCard extends StatelessWidget {
             const Spacer(
               flex: 1,
             ),
-            Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                Row(
+            GestureDetector(
+              onTap: () {
+                onTooltipClicked();
+              },
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 8),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  mainAxisSize: MainAxisSize.min,
                   children: [
-                    TooltipButton(
-                      isSelected: false,
-                      text: rightText,
-                      isLeft: true,
-                      iconkey: tooltipKey,
-                      containerMargin: EdgeInsets.zero,
-                      onTap: () {},
-                      onTapDown: (details) {
-                        onTooltipClicked();
-                      },
-                      textStyle: CoconutTypography.heading4_18_NumberBold,
-                      iconColor: CoconutColors.black,
-                      iconSize: 18,
-                      isIconBold: true,
+                    Row(
+                      children: [
+                        TooltipButton(
+                          isSelected: false,
+                          text: rightText,
+                          isLeft: true,
+                          iconkey: tooltipKey,
+                          containerMargin: EdgeInsets.zero,
+                          onTap: () {},
+                          onTapDown: (details) {
+                            onTooltipClicked();
+                          },
+                          textStyle: CoconutTypography.heading4_18_NumberBold,
+                          iconColor: CoconutColors.black,
+                          iconSize: 18,
+                          isIconBold: true,
+                        ),
+                      ],
                     ),
-                  ],
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    Text(
-                      DateFormat('yy.MM.dd HH:mm').format(vaultItem.createdAt),
-                      style: CoconutTypography.body3_12.setColor(CoconutColors.gray600),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        Text(
+                          DateFormat('yy.MM.dd HH:mm').format(vaultItem.createdAt),
+                          style: CoconutTypography.body3_12.setColor(CoconutColors.gray600),
+                        )
+                      ],
                     )
                   ],
-                )
-              ],
+                ),
+              ),
             )
           ],
         ),

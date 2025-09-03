@@ -64,8 +64,8 @@ class _VaultHomeScreenState extends State<VaultHomeScreen> with TickerProviderSt
     });
   }
 
-  bool isEnablePlusButton(bool isWalletsLoaded, bool isWalletEmpty) {
-    return NetworkType.currentNetworkType.isTestnet || (isWalletsLoaded && isWalletEmpty);
+  bool isEnablePlusButton(bool isWalletsLoaded) {
+    return NetworkType.currentNetworkType.isTestnet || (isWalletsLoaded);
   }
 
   VaultHomeViewModel _createViewModel() {
@@ -151,7 +151,7 @@ class _VaultHomeScreenState extends State<VaultHomeScreen> with TickerProviderSt
       appTitle: '',
       actionButtonList: [
         Opacity(
-          opacity: isEnablePlusButton(viewModel.isVaultsLoaded, wallets.isEmpty) ? 1.0 : 0.2,
+          opacity: isEnablePlusButton(viewModel.isVaultsLoaded) ? 1.0 : 0.2,
           child: _buildAppBarIconButton(
             key: GlobalKey(),
             icon: SvgPicture.asset(
@@ -162,7 +162,7 @@ class _VaultHomeScreenState extends State<VaultHomeScreen> with TickerProviderSt
               ),
             ),
             onPressed: () {
-              if (!isEnablePlusButton(viewModel.isVaultsLoaded, wallets.isEmpty)) {
+              if (!isEnablePlusButton(viewModel.isVaultsLoaded)) {
                 return;
               }
 
@@ -383,7 +383,10 @@ class _VaultHomeScreenState extends State<VaultHomeScreen> with TickerProviderSt
                               onVaultSelected: (id) async {
                                 if (mounted) {
                                   Navigator.pushNamed(context, AppRoutes.signerBsmsScanner,
-                                      arguments: {'screenType': MultisigBsmsImportType.copy});
+                                      arguments: {
+                                        'id': id,
+                                        'screenType': MultisigBsmsImportType.copy
+                                      });
                                 }
                               },
                               scrollController: scrollController,

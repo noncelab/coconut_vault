@@ -11,17 +11,14 @@ import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:coconut_vault/screens/common/pin_check_screen.dart';
 import 'package:coconut_vault/screens/vault_menu/info/multisig_signer_memo_bottom_sheet.dart';
 import 'package:coconut_vault/screens/vault_menu/info/name_and_icon_edit_bottom_sheet.dart';
-import 'package:coconut_vault/screens/vault_menu/info/single_sig_setup_info_screen.dart';
 import 'package:coconut_vault/utils/icon_util.dart';
 import 'package:coconut_vault/utils/vibration_util.dart';
 import 'package:coconut_vault/widgets/bottom_sheet.dart';
 import 'package:coconut_vault/widgets/bubble_clipper.dart';
 import 'package:coconut_vault/widgets/button/button_group.dart';
-import 'package:coconut_vault/widgets/button/multi_button.dart';
 import 'package:coconut_vault/widgets/button/single_button.dart';
 import 'package:coconut_vault/widgets/card/vault_item_card.dart';
 import 'package:coconut_vault/widgets/custom_loading_overlay.dart';
-import 'package:coconut_vault/widgets/card/information_item_card.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
@@ -103,17 +100,34 @@ class _MultisigSetupInfoScreenState extends State<MultisigSetupInfoScreen> {
           _removeTooltip();
         },
         child: Consumer<MultisigSetupInfoViewModel>(builder: (context, viewModel, child) {
+          final walletName = viewModel.name;
           return GestureDetector(
             onTapDown: (details) => _removeTooltip(),
             child: Scaffold(
               backgroundColor: CoconutColors.white,
               appBar: CoconutAppBar.build(
-                title: viewModel.name,
+                title: walletName,
                 context: context,
                 isBottom: false,
                 onBackPressed: () {
                   Navigator.pop(context);
                 },
+                actionButtonList: [
+                  IconButton(
+                    onPressed: () {
+                      _removeTooltip();
+                      _showDeleteDialog(context, walletName);
+                    },
+                    icon: SvgPicture.asset(
+                      'assets/svg/trash.svg',
+                      width: 20,
+                      colorFilter: const ColorFilter.mode(
+                        CoconutColors.red,
+                        BlendMode.srcIn,
+                      ),
+                    ),
+                  ),
+                ],
               ),
               body: SingleChildScrollView(
                 child: SafeArea(
@@ -127,8 +141,6 @@ class _MultisigSetupInfoScreenState extends State<MultisigSetupInfoScreen> {
                           _buildSignMenu(),
                           CoconutLayout.spacing_500h,
                           _buildMenuList(context),
-                          _buildDivider(),
-                          _buildDeleteButton(context),
                           CoconutLayout.spacing_500h,
                         ],
                       ),
@@ -360,21 +372,21 @@ class _MultisigSetupInfoScreenState extends State<MultisigSetupInfoScreen> {
       child: ButtonGroup(
         buttons: [
           SingleButton(
-            enableShrinkAnim: true,
-            title: t.multi_sig_setting_screen.view_bsms,
-            onPressed: () {
-              _removeTooltip();
-              Navigator.pushNamed(context, AppRoutes.multisigBsmsView,
-                  arguments: {'id': widget.id});
-            },
-          ),
-          SingleButton(
             title: t.view_address,
             enableShrinkAnim: true,
             onPressed: () {
               _removeTooltip();
               Navigator.pushNamed(context, AppRoutes.addressList,
                   arguments: {'id': widget.id, 'isSpecificVault': true});
+            },
+          ),
+          SingleButton(
+            enableShrinkAnim: true,
+            title: t.multi_sig_setting_screen.view_bsms,
+            onPressed: () {
+              _removeTooltip();
+              Navigator.pushNamed(context, AppRoutes.multisigBsmsView,
+                  arguments: {'id': widget.id});
             },
           ),
         ],
@@ -434,21 +446,6 @@ class _MultisigSetupInfoScreenState extends State<MultisigSetupInfoScreen> {
                 );
               });
         },
-      ),
-    );
-  }
-
-  Widget _buildDivider() {
-    return const Padding(
-      padding: EdgeInsets.symmetric(vertical: 16),
-      child: Center(
-        child: SizedBox(
-          width: 65,
-          child: Divider(
-            thickness: 1, // 선의 두께
-            color: CoconutColors.borderLightGray,
-          ),
-        ),
       ),
     );
   }
@@ -523,6 +520,42 @@ class _MultisigSetupInfoScreenState extends State<MultisigSetupInfoScreen> {
       _tooltipRemainingTime = 0;
     });
     _tooltipTimer?.cancel();
+  }
+
+  void _showDeleteDialog(BuildContext context, String walletName) {
+    showDialog(
+        context: context,
+        builder: (BuildContext dialogContext) {
+          return CoconutPopup(
+            insetPadding:
+                EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width * 0.15),
+            title: t.confirm,
+            titleTextStyle: CoconutTypography.body1_16_Bold,
+            description: t.alert.confirm_deletion(name: walletName),
+            descriptionTextStyle: CoconutTypography.body2_14,
+            backgroundColor: CoconutColors.white,
+            leftButtonText: t.no,
+            leftButtonTextStyle: CoconutTypography.body2_14.merge(
+              TextStyle(
+                color: CoconutColors.black.withOpacity(0.7),
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+            rightButtonText: t.yes,
+            rightButtonColor: CoconutColors.warningText,
+            rightButtonTextStyle: CoconutTypography.body2_14.merge(
+              const TextStyle(
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+            onTapLeft: () => Navigator.pop(context),
+            onTapRight: () async {
+              if (context.mounted) {
+                _authenticateAndDelete(context);
+              }
+            },
+          );
+        });
   }
 
   @override

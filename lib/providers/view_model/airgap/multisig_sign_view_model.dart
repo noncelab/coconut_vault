@@ -1,4 +1,5 @@
 import 'package:coconut_lib/coconut_lib.dart';
+import 'package:coconut_vault/isolates/sign_isolates.dart';
 import 'package:coconut_vault/model/multisig/multisig_signer.dart';
 import 'package:coconut_vault/model/multisig/multisig_vault_list_item.dart';
 import 'package:coconut_vault/providers/sign_provider.dart';
@@ -76,8 +77,8 @@ class MultisigSignViewModel extends ChangeNotifier {
   Future<void> sign(int index, String passphrase) async {
     final mnemonic = await _walletProvider.getSecret(_vaultListItem.signers[index].innerVaultId!);
     final seed = Seed.fromMnemonic(mnemonic, passphrase: passphrase);
-    final keyStore = KeyStore.fromSeed(seed, AddressType.p2wsh);
-    _psbtForSigning = keyStore.addSignatureToPsbt(_psbtForSigning, AddressType.p2wsh);
+    _psbtForSigning =
+        await compute(SignIsolates.addSignatureToPsbtWithMultisigVault, [seed, _psbtForSigning]);
     updateSignState(index);
   }
 

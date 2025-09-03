@@ -6,7 +6,7 @@ import 'package:encrypt/encrypt.dart' as encrypt;
 import 'package:coconut_vault/utils/aes_crypto.dart';
 import 'package:coconut_vault/utils/file_storage.dart';
 import 'package:path/path.dart' as path;
-import 'package:coconut_vault/utils/isolate_handler2.dart';
+import 'package:coconut_vault/utils/isolate_handler.dart';
 
 class UpdatePreparation {
   static const String directory = 'backup';
@@ -21,7 +21,7 @@ class UpdatePreparation {
     await clearUpdatePreparationStorage();
 
     // Isolate를 사용하여 키 생성과 암호화 수행
-    final encryptor = IsolateHandler2<String, Map<String, String>>((String data) => _encrypt(data));
+    final encryptor = IsolateHandler<String, Map<String, String>>((String data) => _encrypt(data));
     final result = await encryptor.execute(data);
 
     // 암호화된 데이터와 IV를 ':' 로 구분하여 저장

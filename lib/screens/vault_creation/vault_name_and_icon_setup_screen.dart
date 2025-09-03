@@ -201,7 +201,6 @@ class _VaultNameAndIconSetupScreenState extends State<VaultNameAndIconSetupScree
           showGradient: false,
           backgroundColor: CoconutColors.black,
           isActive: inputText.trim().isNotEmpty && !_showLoading,
-          bottomPadding: 32, // SafeArea가 적용되지 않은 화면
         ),
       ],
     );

@@ -17,7 +17,7 @@ class FixedBottomButton extends StatefulWidget {
     this.bottomPadding = FixedBottomButton.fixedBottomButtonDefaultBottomPadding,
     this.gradientPadding,
     this.subWidget,
-    this.backgroundColor = CoconutColors.primary,
+    this.backgroundColor = CoconutColors.black,
     this.textColor = CoconutColors.white,
     this.pressedBackgroundColor,
     this.gradient,
@@ -62,16 +62,18 @@ class _FixedBottomButtonState extends State<FixedBottomButton> {
                   padding: widget.gradientPadding ??
                       const EdgeInsets.only(left: 16, right: 16, bottom: 40, top: 150),
                   decoration: BoxDecoration(
-                    gradient: widget.gradient ??
-                        LinearGradient(
-                          begin: Alignment.topCenter,
-                          end: Alignment.bottomCenter,
-                          colors: [
-                            CoconutColors.gray100.withOpacity(0.1),
-                            CoconutColors.white,
-                          ],
-                          stops: const [0.0, 1.0],
-                        ),
+                    gradient: LinearGradient(
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                      colors: [
+                        CoconutColors.white.withOpacity(0.0),
+                        CoconutColors.white.withOpacity(0.3),
+                        CoconutColors.white.withOpacity(0.7),
+                        CoconutColors.white.withOpacity(0.9),
+                        CoconutColors.white,
+                      ],
+                      stops: const [0.0, 0.3, 0.6, 0.85, 1.0],
+                    ),
                   ),
                 ),
               ),

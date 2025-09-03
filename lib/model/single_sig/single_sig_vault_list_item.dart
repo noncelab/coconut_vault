@@ -4,7 +4,7 @@ import 'package:coconut_lib/coconut_lib.dart';
 import 'package:coconut_vault/isolates/sign_isolates.dart';
 import 'package:coconut_vault/model/common/vault_list_item_base.dart';
 import 'package:coconut_vault/enums/wallet_enums.dart';
-import 'package:coconut_vault/utils/isolate_handler.dart';
+import 'package:flutter/foundation.dart';
 import 'package:json_annotation/json_annotation.dart';
 
 part 'single_sig_vault_list_item.g.dart'; // 생성될 파일 이름 $ dart run build_runner build
@@ -38,14 +38,7 @@ class SingleSigVaultListItem extends VaultListItemBase {
 
   @override
   Future<bool> canSign(String psbt) async {
-    var isolateHandler = IsolateHandler<List<dynamic>, bool>(SignIsolates.canSignToPsbt);
-    try {
-      await isolateHandler.initialize(initialType: InitializeType.canSign);
-      bool canSignToPsbt = await isolateHandler.run([coconutVault, psbt]);
-      return canSignToPsbt;
-    } finally {
-      isolateHandler.dispose();
-    }
+    return await compute(SignIsolates.canSignToPsbt, [coconutVault, psbt]);
   }
 
   @override

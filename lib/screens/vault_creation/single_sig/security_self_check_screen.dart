@@ -1,5 +1,6 @@
 import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
+import 'package:coconut_vault/utils/vibration_util.dart';
 import 'package:coconut_vault/widgets/button/fixed_bottom_button.dart';
 import 'package:flutter/material.dart';
 import 'package:coconut_vault/widgets/check_list.dart';
@@ -30,7 +31,11 @@ class _SecuritySelfCheckScreenState extends State<SecuritySelfCheckScreen> {
   ];
 
   bool get _allItemsChecked {
-    return _items.every((item) => item.isChecked);
+    if (_items.every((item) => item.isChecked)) {
+      vibrateLight();
+      return true;
+    }
+    return false;
   }
 
   void _onChecklistItemChanged(bool? value, int index) {
@@ -68,16 +73,14 @@ class _SecuritySelfCheckScreenState extends State<SecuritySelfCheckScreen> {
                   Padding(
                     padding: const EdgeInsets.all(16.0),
                     child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
                         decoration: BoxDecoration(
                           borderRadius: CoconutBorder.defaultRadius,
-                          color: CoconutColors.black.withOpacity(0.06),
+                          color: CoconutColors.gray150,
                         ),
                         child: Text(
                           t.security_self_check_screen.guidance,
-                          style: CoconutTypography.body2_14.merge(TextStyle(
-                              color: CoconutColors.black.withOpacity(0.7),
-                              fontWeight: FontWeight.bold)),
+                          style: CoconutTypography.body1_16_Bold.setColor(CoconutColors.black),
                         )),
                   ),
                   const SizedBox(height: 16),

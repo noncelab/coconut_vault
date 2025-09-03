@@ -1,4 +1,5 @@
 import 'package:coconut_design_system/coconut_design_system.dart';
+import 'package:coconut_vault/utils/vibration_util.dart';
 import 'package:flutter/material.dart';
 
 class ChecklistItem {
@@ -34,6 +35,7 @@ class _ChecklistTileState extends State<ChecklistTile> {
         setState(() {
           isChecked = !isChecked;
           widget.onChanged(isChecked); // 부모 상태 업데이트
+          vibrateLight();
         });
       },
       child: Container(
@@ -43,7 +45,7 @@ class _ChecklistTileState extends State<ChecklistTile> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Icon(
-              isChecked ? Icons.check_circle_rounded : Icons.check_circle_outline_rounded,
+              isChecked ? Icons.check_box_outlined : Icons.check_box_outline_blank_outlined,
               size: 20.0,
               color: CoconutColors.gray800,
             ),
@@ -51,11 +53,8 @@ class _ChecklistTileState extends State<ChecklistTile> {
             Expanded(
               child: Text(
                 widget.item.title,
-                style: CoconutTypography.body2_14.merge(
-                  const TextStyle(
-                    color: CoconutColors.gray800,
-                    fontWeight: FontWeight.w500,
-                  ),
+                style: CoconutTypography.body2_14_Bold.setColor(
+                  CoconutColors.gray800,
                 ),
                 textAlign: TextAlign.start,
               ),

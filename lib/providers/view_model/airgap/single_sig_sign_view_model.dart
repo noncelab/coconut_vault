@@ -1,4 +1,5 @@
 import 'package:coconut_lib/coconut_lib.dart';
+import 'package:coconut_vault/isolates/sign_isolates.dart';
 import 'package:coconut_vault/model/single_sig/single_sig_vault_list_item.dart';
 import 'package:coconut_vault/providers/sign_provider.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
@@ -10,7 +11,7 @@ class SingleSigSignViewModel extends ChangeNotifier {
   late final SignProvider _signProvider;
   late final SingleSignatureVault _coconutVault;
   late final bool _isAlreadySigned;
-  late final List<bool> _signersApproved = List<bool>.filled(requiredSignatureCount, false);
+  late bool _isSignerApproved = false;
   bool _hasPassphrase = false;
 
   SingleSigSignViewModel(this._walletProvider, this._signProvider) {
@@ -31,7 +32,7 @@ class SingleSigSignViewModel extends ChangeNotifier {
 
   bool get isAlreadySigned => _isAlreadySigned;
   String get walletName => _signProvider.vaultListItem!.name;
-  List<bool> get signersApproved => _signersApproved;
+  bool get isSignerApproved => _isSignerApproved;
   int get walletIconIndex => _signProvider.vaultListItem!.iconIndex;
   int get walletColorIndex => _signProvider.vaultListItem!.colorIndex;
   String get firstRecipientAddress => _signProvider.recipientAddress != null
@@ -48,25 +49,20 @@ class SingleSigSignViewModel extends ChangeNotifier {
   }
 
   void updateSignState() {
-    _signersApproved[0] = true;
+    _isSignerApproved = true;
     notifyListeners();
   }
 
   Future<void> sign({required String passphrase}) async {
     final mnemonic = await _walletProvider.getSecret(_signProvider.walletId!);
     final seed = Seed.fromMnemonic(mnemonic, passphrase: passphrase);
-    final keyStore = KeyStore.fromSeed(seed, _signProvider.vaultListItem!.vaultType.addressType);
-    final coconutVault = SingleSignatureVault.fromKeyStore(keyStore);
-    final signedTx = coconutVault.addSignatureToPsbt(_signProvider.unsignedPsbtBase64!);
+    final signedTx = await compute(
+        SignIsolates.addSignatureToPsbtWithSingleVault, [seed, _signProvider.unsignedPsbtBase64!]);
     _signProvider.saveSignedPsbt(signedTx);
     updateSignState();
   }
 
   void resetSignProvider() {
     _signProvider.resetSignedPsbt();
-  }
-
-  bool isApproved(int signerIndex) {
-    return _signersApproved[signerIndex];
   }
 }

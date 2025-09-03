@@ -6,17 +6,15 @@ import 'package:coconut_vault/model/multisig/multisig_vault_list_item.dart';
 import 'package:coconut_vault/model/single_sig/single_sig_vault_list_item.dart';
 import 'package:coconut_vault/model/common/vault_list_item_base.dart';
 import 'package:coconut_vault/enums/wallet_enums.dart';
+import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:coconut_vault/utils/colors_util.dart';
+import 'package:coconut_vault/utils/text_utils.dart';
 import 'package:coconut_vault/widgets/icon/vault_item_icon.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:coconut_vault/utils/icon_util.dart';
 import 'package:coconut_vault/widgets/button/shrink_animation_button.dart';
 import 'package:provider/provider.dart';
 import 'package:shimmer/shimmer.dart';
-
-import '../providers/wallet_provider.dart';
-import '../utils/text_utils.dart';
 
 class VaultRowItem extends StatefulWidget {
   const VaultRowItem({

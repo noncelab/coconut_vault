@@ -3,7 +3,6 @@ import 'dart:convert';
 import 'package:coconut_vault/constants/shared_preferences_keys.dart';
 import 'package:coconut_vault/repository/shared_preferences_repository.dart';
 import 'package:flutter/material.dart';
-import '../model/common/vault_list_item_base.dart';
 
 class PreferenceProvider extends ChangeNotifier {
   final SharedPrefsRepository _sharedPrefs = SharedPrefsRepository();

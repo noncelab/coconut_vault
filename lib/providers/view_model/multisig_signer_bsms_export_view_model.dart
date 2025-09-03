@@ -1,9 +1,9 @@
 import 'package:coconut_lib/coconut_lib.dart';
 import 'package:coconut_vault/isolates/wallet_isolates.dart';
 import 'package:coconut_vault/model/common/vault_list_item_base.dart';
+import 'package:coconut_vault/model/single_sig/single_sig_vault_list_item.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
-import 'package:coconut_vault/utils/isolate_handler.dart';
-import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 
 class MultisigSignerBsmsExportViewModel extends ChangeNotifier {
   final WalletProvider _walletProvider;
@@ -11,34 +11,26 @@ class MultisigSignerBsmsExportViewModel extends ChangeNotifier {
   late String _errorMessage;
   late bool _isLoading;
   late bool _isSignerBsmsSetFailed;
-  late VaultListItemBase _vaultListItem;
+  late SingleSigVaultListItem _singleSigVaultListItem;
   Bsms? _bsms;
-  IsolateHandler<List<VaultListItemBase>, List<String>> extractBsmsIsolateHandler =
-      IsolateHandler(WalletIsolates.extractSignerBsms);
 
   MultisigSignerBsmsExportViewModel(this._walletProvider, id) {
     _qrData = '';
     _errorMessage = '';
     _isLoading = true;
     _isSignerBsmsSetFailed = false;
-    _vaultListItem = _walletProvider.getVaultById(id);
+    _singleSigVaultListItem = _walletProvider.getVaultById(id) as SingleSigVaultListItem;
     debugPrint('id:: $id');
     setSignerBsms();
   }
-  String get name => _vaultListItem.name;
+  String get name => _singleSigVaultListItem.name;
   String get qrData => _qrData;
   String get errorMessage => _errorMessage;
   bool get isLoading => _isLoading;
   bool get isSignerBsmsSetFailed => _isSignerBsmsSetFailed;
   Bsms? get bsms => _bsms;
 
-  VaultListItemBase get vaultListItem => _vaultListItem;
-
-  @override
-  void dispose() {
-    extractBsmsIsolateHandler.dispose();
-    super.dispose();
-  }
+  VaultListItemBase get vaultListItem => _singleSigVaultListItem;
 
   void _setLoading() {
     _isLoading = _bsms == null;
@@ -52,18 +44,15 @@ class MultisigSignerBsmsExportViewModel extends ChangeNotifier {
   }
 
   Future<void> setSignerBsms() async {
-    await extractBsmsIsolateHandler.initialize(initialType: InitializeType.extractSignerBsms);
-
     try {
-      List<String> bsmses = await extractBsmsIsolateHandler.run([_vaultListItem]);
-
+      List<String> bsmses =
+          await compute(WalletIsolates.extractSignerBsms, [_singleSigVaultListItem]);
       _qrData = bsmses[0];
       _bsms = Bsms.parseSigner(_qrData);
     } catch (error) {
       _errorMessage = error.toString();
       _isSignerBsmsSetFailed = true;
     } finally {
-      extractBsmsIsolateHandler.dispose();
       _setLoading();
     }
   }
