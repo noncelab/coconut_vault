@@ -288,7 +288,7 @@ class _MultisigSetupInfoScreenState extends State<MultisigSetupInfoScreen> {
                       colorIndex: isVaultInside ? signer.colorIndex! : -1,
                       iconPath: isVaultInside
                           ? CustomIcons.getPathByIndex(signer.iconIndex!)
-                          : 'assets/svg/download.svg'),
+                          : 'assets/svg/import-bsms.svg'),
                   const SizedBox(width: 10),
                   Expanded(child: _buildSignerNameAndMemo(name: signer.name, memo: signer.memo)),
                   // mfp
@@ -316,12 +316,12 @@ class _MultisigSetupInfoScreenState extends State<MultisigSetupInfoScreen> {
     );
   }
 
-  Widget _buildSignerIcon({int colorIndex = -1, String iconPath = 'assets/svg/download.svg'}) {
+  Widget _buildSignerIcon({int colorIndex = -1, String iconPath = 'assets/svg/import-bsms.svg'}) {
     final Color backgroundColor = colorIndex == -1
-        ? CoconutColors.gray200
+        ? CoconutColors.gray150
         : CoconutColors.backgroundColorPaletteLight[colorIndex];
     final Color iconColor =
-        colorIndex == -1 ? CoconutColors.black : CoconutColors.colorPalette[colorIndex];
+        colorIndex == -1 ? CoconutColors.gray500 : CoconutColors.colorPalette[colorIndex];
     return Container(
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
