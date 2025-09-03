@@ -35,21 +35,27 @@ class _ChecklistTileState extends State<ChecklistTile> {
         setState(() {
           isChecked = !isChecked;
           widget.onChanged(isChecked); // 부모 상태 업데이트
-          vibrateLight();
+          vibrateExtraLight();
         });
       },
       child: Container(
         padding: const EdgeInsets.fromLTRB(16, 0, 16, 20),
         color: Colors.transparent, // 터치 이벤트를 감지할 수 있도록 배경색을 설정
         child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            Icon(
-              isChecked ? Icons.check_box_outlined : Icons.check_box_outline_blank_outlined,
-              size: 20.0,
-              color: CoconutColors.gray800,
+            CoconutCheckbox(
+              isSelected: isChecked,
+              onChanged: (value) {
+                setState(() {
+                  isChecked = value;
+                  widget.onChanged(value);
+                  vibrateExtraLight();
+                });
+              },
+              width: 16,
             ),
-            const SizedBox(width: 8), // 체크박스와 텍스트 사이의 가로 간격 조정
+            CoconutLayout.spacing_200w,
             Expanded(
               child: Text(
                 widget.item.title,

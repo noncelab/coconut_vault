@@ -32,7 +32,7 @@ class _SecuritySelfCheckScreenState extends State<SecuritySelfCheckScreen> {
 
   bool get _allItemsChecked {
     if (_items.every((item) => item.isChecked)) {
-      vibrateLight();
+      vibrateExtraLight();
       return true;
     }
     return false;
