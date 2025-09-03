@@ -73,16 +73,14 @@ class _SecuritySelfCheckScreenState extends State<SecuritySelfCheckScreen> {
                   Padding(
                     padding: const EdgeInsets.all(16.0),
                     child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
                         decoration: BoxDecoration(
                           borderRadius: CoconutBorder.defaultRadius,
-                          color: CoconutColors.black.withOpacity(0.06),
+                          color: CoconutColors.gray150,
                         ),
                         child: Text(
                           t.security_self_check_screen.guidance,
-                          style: CoconutTypography.body2_14.merge(TextStyle(
-                              color: CoconutColors.black.withOpacity(0.7),
-                              fontWeight: FontWeight.bold)),
+                          style: CoconutTypography.body1_16_Bold.setColor(CoconutColors.black),
                         )),
                   ),
                   const SizedBox(height: 16),
