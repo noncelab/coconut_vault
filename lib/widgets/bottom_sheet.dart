@@ -89,6 +89,57 @@ class MyBottomSheet {
         useSafeArea: true);
   }
 
+  static Future<T?> showBottomSheet_ratio<T>({
+    required BuildContext context,
+    required Widget child,
+    bool isDismissible = true,
+    bool showDragHandle = false,
+    bool enableDrag = true,
+    double ratio = 0.5,
+  }) async {
+    return await showModalBottomSheet<T>(
+        context: context,
+        builder: (context) {
+          return ClipRRect(
+            borderRadius: const BorderRadius.only(
+                topLeft: Radius.circular(24), topRight: Radius.circular(24)),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                if (showDragHandle)
+                  Container(
+                    color: Colors.transparent,
+                    padding: const EdgeInsets.symmetric(vertical: 8),
+                    child: Center(
+                      child: Container(
+                        width: 55,
+                        height: 4,
+                        decoration: BoxDecoration(
+                          color: CoconutColors.gray400,
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                      ),
+                    ),
+                  ),
+                Padding(
+                  padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
+                  child: SizedBox(
+                    height: MediaQuery.of(context).size.height * ratio,
+                    width: MediaQuery.of(context).size.width,
+                    child: child,
+                  ),
+                ),
+              ],
+            ),
+          );
+        },
+        backgroundColor: CoconutColors.white,
+        isDismissible: isDismissible,
+        isScrollControlled: true,
+        enableDrag: enableDrag,
+        useSafeArea: true);
+  }
+
   static void showBottomSheet({
     required String title,
     required BuildContext context,
@@ -97,6 +148,7 @@ class MyBottomSheet {
     bool isDismissible = true,
     bool enableDrag = true,
     bool isCloseButton = false,
+    bool showDragHandle = false,
     EdgeInsetsGeometry titlePadding = const EdgeInsets.symmetric(vertical: 20, horizontal: 20),
   }) {
     showModalBottomSheet(
@@ -112,6 +164,21 @@ class MyBottomSheet {
             padding: const EdgeInsets.only(bottom: 20),
             child: Wrap(
               children: <Widget>[
+                if (showDragHandle)
+                  Container(
+                    color: Colors.transparent,
+                    padding: const EdgeInsets.symmetric(vertical: 8),
+                    child: Center(
+                      child: Container(
+                        width: 55,
+                        height: 4,
+                        decoration: BoxDecoration(
+                          color: CoconutColors.gray400,
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                      ),
+                    ),
+                  ),
                 Padding(
                   padding: titlePadding,
                   child: Row(
@@ -128,7 +195,10 @@ class MyBottomSheet {
                           padding: const EdgeInsets.all(4),
                           color: Colors.transparent,
                           child: isCloseButton
-                              ? const Icon(Icons.close_rounded, color: CoconutColors.black)
+                              ? const Icon(
+                                  Icons.close_rounded,
+                                  color: CoconutColors.black,
+                                )
                               : Container(width: 16),
                         ),
                       ),

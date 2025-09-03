@@ -170,10 +170,12 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
                                           _showDialog(DialogType.deleteKey, keyIndex: i);
                                           return;
                                         }
-                                        MyBottomSheet.showBottomSheet_50(
-                                            showDragHandle: true,
-                                            context: context,
-                                            child: _buildSelectKeyOptionBottomSheet(i));
+                                        MyBottomSheet.showBottomSheet_ratio(
+                                          showDragHandle: true,
+                                          context: context,
+                                          child: _buildSelectKeyOptionBottomSheet(i),
+                                          ratio: 0.35,
+                                        );
                                       },
                                       defaultColor: viewModel.assignedVaultList[i].importKeyType !=
                                               null
@@ -323,7 +325,7 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
         isBottom: true,
       ),
       body: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 20),
+        padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 0),
         child: Column(
           children: [
             ShrinkAnimationButton(
@@ -339,9 +341,10 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
                   _showDialog(DialogType.notAvailable);
                   return;
                 }
-                MyBottomSheet.showBottomSheet_50(
-                  context: context,
+                MyBottomSheet.showBottomSheet_ratio(
+                  ratio: 0.5,
                   showDragHandle: true,
+                  context: context,
                   child: KeyListBottomSheet(
                     // 키 옵션 중 하나 선택했을 때
                     onPressed: (int vaultIndex) {

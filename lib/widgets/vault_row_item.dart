@@ -33,6 +33,7 @@ class VaultRowItem extends StatefulWidget {
     this.onLongPressed,
     this.index,
     this.isNextIconVisible = true,
+    this.isKeyBorderVisible = false,
   });
 
   final VaultListItemBase vault;
@@ -49,6 +50,7 @@ class VaultRowItem extends StatefulWidget {
   final VoidCallback? onLongPressed;
   final int? index;
   final bool isNextIconVisible;
+  final bool isKeyBorderVisible;
 
   /// 스켈레톤 UI를 반환하는 static 메서드
   static Widget buildSkeleton() {
@@ -192,7 +194,13 @@ class _VaultRowItemState extends State<VaultRowItem> {
     }
     return ShrinkAnimationButton(
       pressedColor: CoconutColors.gray150,
-      borderGradientColors: null,
+      borderGradientColors: widget.isKeyBorderVisible
+          ? [
+              CoconutColors.black.withOpacity(0.08),
+              CoconutColors.black.withOpacity(0.08),
+            ]
+          : null,
+      borderWidth: 1,
       borderRadius: 8,
       onPressed: () {
         if (widget.onSelected != null) {
