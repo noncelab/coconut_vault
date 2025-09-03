@@ -5,6 +5,7 @@ import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/constants/shared_preferences_keys.dart';
 import 'package:coconut_vault/providers/auth_provider.dart';
 import 'package:coconut_vault/repository/shared_preferences_repository.dart';
+import 'package:coconut_vault/widgets/button/fixed_bottom_button.dart';
 import 'package:coconut_vault/widgets/pin/pin_length_toggle_button.dart';
 import 'package:flutter/material.dart';
 import 'package:coconut_vault/utils/vibration_util.dart';
@@ -277,27 +278,27 @@ class _PinSettingScreenState extends State<PinSettingScreen> {
             isBottom: true,
           ),
           body: SafeArea(
-              child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              const SizedBox(height: 120),
-              Center(
-                  child: Text(
-                t.pin_setting_screen.set_password,
-                style: CoconutTypography.heading4_18_Bold,
-                textAlign: TextAlign.center,
-              )),
-              const SizedBox(height: 100),
-              CompleteButton(
-                  onPressed: () {
-                    setState(() {
-                      greeting = false;
-                    });
-                  },
-                  label: t.confirm,
-                  disabled: false),
-            ],
-          )));
+              child: Stack(children: [
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                const SizedBox(height: 120),
+                Center(
+                    child: Text(
+                  t.pin_setting_screen.set_password,
+                  style: CoconutTypography.heading4_18_Bold,
+                  textAlign: TextAlign.center,
+                )),
+              ],
+            ),
+            FixedBottomButton(
+                onButtonClicked: () {
+                  setState(() {
+                    greeting = false;
+                  });
+                },
+                text: t.confirm),
+          ])));
     }
 
     return PinInputScreen(
