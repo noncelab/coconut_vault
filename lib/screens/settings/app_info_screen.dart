@@ -214,30 +214,33 @@ class _AppInfoScreenState extends State<AppInfoScreen> {
                 const SizedBox(
                   width: 30,
                 ),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      packageInfo.appName,
-                      style: CoconutTypography.body1_16_Bold.merge(
-                        const TextStyle(
-                          fontSize: 24,
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        packageInfo.appName,
+                        maxLines: 2,
+                        style: CoconutTypography.body1_16_Bold.merge(
+                          const TextStyle(
+                            fontSize: 24,
+                          ),
                         ),
                       ),
-                    ),
-                    Text(
-                      'ver.${packageInfo.version}',
-                      style: CoconutTypography.body2_14_Bold.setColor(
-                        CoconutColors.black.withOpacity(0.7),
+                      Text(
+                        'ver.${packageInfo.version}',
+                        style: CoconutTypography.body2_14_Bold.setColor(
+                          CoconutColors.black.withOpacity(0.7),
+                        ),
                       ),
-                    ),
-                    Text(
-                      t.app_info_screen.made_by_team_pow,
-                      style: CoconutTypography.body2_14.setColor(
-                        CoconutColors.black.withOpacity(0.7),
+                      Text(
+                        t.app_info_screen.made_by_team_pow,
+                        style: CoconutTypography.body2_14.setColor(
+                          CoconutColors.black.withOpacity(0.7),
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 )
               ],
             ),
