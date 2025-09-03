@@ -108,27 +108,36 @@ class _VaultTypeSelectionScreenState extends State<VaultTypeSelectionScreen> {
             padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 28.0),
             child: Row(
               children: [
-                Align(
-                    alignment: Alignment.centerLeft,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          title,
-                          style: CoconutTypography.body1_16_Bold.copyWith(
-                              color: isSelectable ? CoconutColors.black : CoconutColors.gray400,
-                              letterSpacing: 0.2),
-                        ),
-                        CoconutLayout.spacing_100h,
-                        Text(
-                          description,
-                          style: CoconutTypography.body3_12.copyWith(
-                              color: isSelectable ? CoconutColors.gray700 : CoconutColors.gray400,
-                              letterSpacing: 0.2),
-                        ),
-                      ],
-                    )),
-                const Spacer(),
+                Expanded(
+                  child: Align(
+                      alignment: Alignment.centerLeft,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            title,
+                            style: CoconutTypography.body1_16_Bold.copyWith(
+                                color: isSelectable ? CoconutColors.black : CoconutColors.gray400,
+                                letterSpacing: 0.2),
+                          ),
+                          CoconutLayout.spacing_100h,
+                          Flexible(
+                            child: Text(
+                              overflow: TextOverflow.visible,
+                              maxLines: 2,
+                              description,
+                              style: CoconutTypography.body3_12.copyWith(
+                                  color:
+                                      isSelectable ? CoconutColors.gray700 : CoconutColors.gray400,
+                                  letterSpacing: 0.2,
+                                  height: 1.2),
+                            ),
+                          ),
+                        ],
+                      )),
+                ),
+                Container(width: 10),
                 SvgPicture.asset('assets/svg/curved-arrow-right.svg',
                     width: 24,
                     colorFilter: ColorFilter.mode(
