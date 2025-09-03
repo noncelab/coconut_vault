@@ -9,6 +9,7 @@ import 'package:coconut_vault/providers/connectivity_provider.dart';
 import 'package:coconut_vault/providers/view_model/start_view_model.dart';
 import 'package:coconut_vault/providers/visibility_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
 class StartScreen extends StatefulWidget {
@@ -55,6 +56,17 @@ class _StartScreenState extends State<StartScreen> {
 
   @override
   Widget build(BuildContext context) {
+    SystemChrome.setSystemUIOverlayStyle(
+      Platform.isIOS
+          ? const SystemUiOverlayStyle(
+              statusBarIconBrightness: Brightness.dark, // iOS → 검정 텍스트
+            )
+          : const SystemUiOverlayStyle(
+              statusBarIconBrightness: Brightness.dark, // Android → 검정 텍스트
+              statusBarColor: Colors.transparent,
+            ),
+    );
+
     return Scaffold(
       backgroundColor: CoconutColors.white,
       body: Column(

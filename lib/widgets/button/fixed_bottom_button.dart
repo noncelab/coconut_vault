@@ -20,11 +20,13 @@ class FixedBottomButton extends StatefulWidget {
     this.backgroundColor = CoconutColors.primary,
     this.textColor = CoconutColors.white,
     this.pressedBackgroundColor,
+    this.gradient,
   });
 
   final Function onButtonClicked;
   final String text;
   final bool showGradient;
+  final LinearGradient? gradient;
   final bool isVisibleAboveKeyboard;
   final bool isActive;
   final double? buttonHeight;
@@ -60,15 +62,16 @@ class _FixedBottomButtonState extends State<FixedBottomButton> {
                   padding: widget.gradientPadding ??
                       const EdgeInsets.only(left: 16, right: 16, bottom: 40, top: 150),
                   decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      begin: Alignment.topCenter,
-                      end: Alignment.bottomCenter,
-                      colors: [
-                        CoconutColors.gray100.withOpacity(0.1),
-                        CoconutColors.white,
-                      ],
-                      stops: const [0.0, 1.0],
-                    ),
+                    gradient: widget.gradient ??
+                        LinearGradient(
+                          begin: Alignment.topCenter,
+                          end: Alignment.bottomCenter,
+                          colors: [
+                            CoconutColors.gray100.withOpacity(0.1),
+                            CoconutColors.white,
+                          ],
+                          stops: const [0.0, 1.0],
+                        ),
                   ),
                 ),
               ),
