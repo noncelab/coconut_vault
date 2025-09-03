@@ -59,11 +59,11 @@ class _SingleSigSetupInfoScreenState extends State<SingleSigSetupInfoScreen> {
   }
 
   Future<void> _authenticateWithBiometricOrPin(
-      BuildContext context, PinCheckContextEnum pinCheckContext) async {
+      BuildContext context, PinCheckContextEnum pinCheckContext, VoidCallback onSuccess) async {
     final authProvider = context.read<AuthProvider>();
 
     if (await authProvider.isBiometricsAuthValid() && context.mounted) {
-      _handleAuthenticatedAction(context, pinCheckContext);
+      onSuccess();
       return;
     }
 
@@ -74,7 +74,7 @@ class _SingleSigSetupInfoScreenState extends State<SingleSigSetupInfoScreen> {
           pinCheckContext: pinCheckContext,
           onSuccess: () async {
             Navigator.pop(context);
-            _handleAuthenticatedAction(context, pinCheckContext);
+            onSuccess();
           },
         ),
       ),
@@ -368,7 +368,11 @@ class _SingleSigSetupInfoScreenState extends State<SingleSigSetupInfoScreen> {
             enableShrinkAnim: true,
             onPressed: () {
               _removeTooltip();
-              Navigator.pushNamed(context, AppRoutes.mnemonicView, arguments: {'id': widget.id});
+              _authenticateWithBiometricOrPin(
+                  context,
+                  PinCheckContextEnum.sensitiveAction,
+                  () => Navigator.pushNamed(context, AppRoutes.mnemonicView,
+                      arguments: {'id': widget.id}));
             },
           ),
           if (hasPassphrase) ...[
@@ -396,23 +400,18 @@ class _SingleSigSetupInfoScreenState extends State<SingleSigSetupInfoScreen> {
     );
   }
 
-  Future<void> _handleAuthenticatedAction(
-      BuildContext context, PinCheckContextEnum pinCheckContext) async {
-    if (pinCheckContext == PinCheckContextEnum.seedDeletion) {
-      final viewModel = context.read<SingleSigSetupInfoViewModel>();
-      viewModel.deleteVault();
-      vibrateLight();
-      if (widget.entryPoint != null && widget.entryPoint == AppRoutes.vaultList) {
-        Navigator.popUntil(context, (route) {
-          return route.settings.name == AppRoutes.vaultList;
-        });
-      } else {
-        Navigator.popUntil(context, (route) => route.isFirst);
-      }
-      return;
+  Future<void> _deleteVault(BuildContext context) async {
+    final viewModel = context.read<SingleSigSetupInfoViewModel>();
+    viewModel.deleteVault();
+    vibrateLight();
+    if (widget.entryPoint != null && widget.entryPoint == AppRoutes.vaultList) {
+      Navigator.popUntil(context, (route) {
+        return route.settings.name == AppRoutes.vaultList;
+      });
+    } else {
+      Navigator.popUntil(context, (route) => route.isFirst);
     }
-
-    Navigator.pushNamed(context, AppRoutes.mnemonicView, arguments: {'id': widget.id});
+    return;
   }
 
   Widget _buildTooltip(BuildContext context) {
@@ -513,7 +512,8 @@ class _SingleSigSetupInfoScreenState extends State<SingleSigSetupInfoScreen> {
             onTapLeft: () => Navigator.pop(context),
             onTapRight: () async {
               if (context.mounted) {
-                await _authenticateWithBiometricOrPin(context, PinCheckContextEnum.seedDeletion);
+                await _authenticateWithBiometricOrPin(
+                    context, PinCheckContextEnum.seedDeletion, () => _deleteVault(context));
               }
             },
           );
