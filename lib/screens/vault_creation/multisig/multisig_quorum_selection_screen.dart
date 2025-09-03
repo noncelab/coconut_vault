@@ -158,7 +158,7 @@ class _MultisigQuorumSelectionScreenState extends State<MultisigQuorumSelectionS
     final isProgressAnimationVisible = viewModel.isProgressAnimationVisible;
 
     return Container(
-        height: 264,
+        height: 274,
         margin: const EdgeInsets.symmetric(horizontal: 12),
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
         decoration: BoxDecoration(
