@@ -109,70 +109,23 @@ class _AddressListScreenState extends State<AddressListScreen> {
                           borderRadius: CoconutBorder.defaultRadius,
                           color: CoconutColors.black.withOpacity(0.06),
                         ),
-                        child: Row(
-                          children: [
-                            // Choose Receiving or Change
-                            Expanded(
-                              child: GestureDetector(
-                                onTap: () {
-                                  viewModel.setReceivingSelected(true);
-                                  scrollToTop();
-                                },
-                                child: Container(
-                                  margin: const EdgeInsets.all(4),
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(22),
-                                    color: viewModel.isReceivingSelected
-                                        ? CoconutColors.black.withOpacity(0.5)
-                                        : Colors.transparent,
-                                  ),
-                                  child: Center(
-                                    child: Text(
-                                      t.receiving,
-                                      style: CoconutTypography.body2_14.merge(TextStyle(
-                                        color: viewModel.isReceivingSelected
-                                            ? CoconutColors.white
-                                            : CoconutColors.black.withOpacity(0.5),
-                                        fontWeight: viewModel.isReceivingSelected
-                                            ? FontWeight.bold
-                                            : FontWeight.normal,
-                                      )),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
-                            Expanded(
-                              child: GestureDetector(
-                                onTap: () {
-                                  viewModel.setReceivingSelected(false);
-                                  scrollToTop();
-                                },
-                                child: Container(
-                                  margin: const EdgeInsets.all(4),
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(20),
-                                    color: !viewModel.isReceivingSelected
-                                        ? CoconutColors.black.withOpacity(0.5)
-                                        : Colors.transparent,
-                                  ),
-                                  child: Center(
-                                    child: Text(
-                                      t.change,
-                                      style: CoconutTypography.body2_14.merge(TextStyle(
-                                        color: !viewModel.isReceivingSelected
-                                            ? CoconutColors.white
-                                            : CoconutColors.black.withOpacity(0.5),
-                                        fontWeight: !viewModel.isReceivingSelected
-                                            ? FontWeight.bold
-                                            : FontWeight.normal,
-                                      )),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
+                        child: CoconutSegmentedControl(
+                          containerBorderRadius: CoconutStyles.radius_400,
+                          labelBorderRadius: CoconutStyles.radius_400,
+                          labelPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                          labels: [t.receiving, t.change],
+                          isSelected: [
+                            viewModel.isReceivingSelected,
+                            !viewModel.isReceivingSelected
                           ],
+                          onPressed: (index) {
+                            viewModel.setReceivingSelected(index == 0);
+                            scrollToTop();
+                          },
+                          selectedColor: CoconutColors.black.withOpacity(0.5),
+                          selectedTextColor: CoconutColors.white,
+                          unselectedColor: Colors.transparent,
+                          unselectedTextColor: CoconutColors.black.withOpacity(0.5),
                         ),
                       ),
                       Expanded(
