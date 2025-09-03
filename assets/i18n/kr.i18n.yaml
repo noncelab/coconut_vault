@@ -118,6 +118,15 @@ edit: "편집"
 coconut: "코코넛"
 descriptor: "디스크립터"
 
+# 연결 상태
+connectivity_state: 
+  connected: "연결됨"
+  disconnected: "꺼져 있음"
+  enabled: "켜져 있음"
+  disabled: "꺼져 있음"
+  active: "활성화"
+  inactive: "비활성화"
+
 vault_home_screen:
   view_all_my_wallets: "내 지갑 전체보기"
   wallet_count: "$count개"
@@ -154,14 +163,10 @@ vault_list_tab:
 
 # lib/screens
 app_unavailable_notification_screen:
-  network_on: "휴대폰이 외부와 연결된 상태예요"
-  text1_1: "안전한 사용을 위해"
-  text1_2: "지금 바로 "
-  text1_3: "앱을 종료"
-  text1_4: "해 주세요"
-  text2: "네트워크 및 블루투스"
-  text3: "개발자 옵션 OFF"
-  check_status: "상태를 확인해 주세요"
+  restart_app: "볼트를 사용하려면\n앱을 다시 시작해야 합니다"
+  step1: "앱을 완전히 종료해 주세요"
+  step2: "연결 상태를 확인해 주세요"
+  step3: "앱을 다시 실행해 주세요"
 ios_bluetooth_auth_notification_screen:
   allow_permission: "코코넛 볼트에 블루투스 권한을 허용해 주세요"
   text1_1: "안전한 사용을 위해"
@@ -276,33 +281,15 @@ settings_screen:
   advanced_user: "고급 사용자"
   use_passphrase: "패스프레이즈 사용하기"
   information: "안내"
-
+  
 # lib/screens/start_guide
-guide_screen:
-  keep_network_off: "안전한 비트코인 보관을 위해,\n항상 연결 상태를 OFF로 유지해주세요"
-  network_status: "네트워크 상태"
-  bluetooth_status: "블루투스 상태"
-  developer_option: "개발자 옵션"
-  turn_off_network_and_bluetooth : "네트워크와 블루투스를 모두 꺼주세요"
-  disable_developer_option: "개발자 옵션을 비활성화 해주세요"
-  on: "ON"
-  off: "OFF"
 welcome_screen:
-  greeting: "원활한 코코넛 볼트 사용을 위해\n잠깐만 시간을 내주세요"
-  guide1_1: "볼트는"
-  guide1_2: "네트워크, 블루투스 연결$suffix이"
-  guide1_3: "꺼져있는 상태"
-  guide1_4: "에서만"
-  guide1_5: "사용하실 수 있어요"
-  guide2_1: "즉,"
-  guide2_2: "연결이 감지되면"
-  guide2_3: "앱을 사용하실 수 없게"
-  guide2_4: "설계되어 있어요"
-  guide3_1: "안전한 사용"
-  guide3_2: "을 위한"
-  guide3_3: "조치이오니"
-  guide3_4: "사용 시 유의해 주세요"
-  understood: "모두 이해했어요"
+  guide1: "볼트는 외부와 연결이 차단된\n상태에서만 사용하실 수 있어요"
+  guide2:  "외부와 연결이 감지되면\n볼트 사용이 자동 차단돼요"
+  guide3: "안전한 키 관리를 위해\n항상 유의해 주세요"
+  network: "네트워크"
+  bluetooth: "블루투스"
+  developer_option: "개발자 옵션"
 
 # lib/screens/vault_creation
 mnemonic_coin_flip_screen:

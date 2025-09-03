@@ -25,7 +25,6 @@ import 'package:coconut_vault/screens/vault_creation/single_sig/mnemonic_verify_
 import 'package:coconut_vault/screens/vault_creation/single_sig/security_self_check_screen.dart';
 import 'package:coconut_vault/screens/settings/app_info_screen.dart';
 import 'package:coconut_vault/screens/settings/mnemonic_word_list_screen.dart';
-import 'package:coconut_vault/screens/start_guide/guide_screen.dart';
 import 'package:coconut_vault/screens/start_guide/welcome_screen.dart';
 import 'package:coconut_vault/screens/home/tutorial_screen.dart';
 import 'package:coconut_vault/screens/vault_creation/multisig/signer_assignment_screen.dart';
@@ -102,7 +101,11 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> {
             screenStatus: TutorialScreenStatus.entrance,
           );
         } else {
-          return const WelcomeScreen();
+          onComplete() {
+            _updateEntryFlow(AppEntryFlow.vaultHome);
+          }
+
+          return WelcomeScreen(onComplete: onComplete);
         }
 
       case AppEntryFlow.pinCheck:
@@ -290,13 +293,12 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> {
             AppRoutes.mnemonicGeneration: (context) => const MnemonicGenerationScreen(),
             AppRoutes.mnemonicCoinflip: (context) => const MnemonicCoinflipScreen(),
             AppRoutes.appInfo: (context) => const AppInfoScreen(),
-            AppRoutes.welcome: (context) => const WelcomeScreen(),
-            AppRoutes.connectivityGuide: (context) {
+            AppRoutes.welcome: (context) {
               onComplete() {
                 _updateEntryFlow(AppEntryFlow.vaultHome);
               }
 
-              return GuideScreen(onComplete: onComplete);
+              return WelcomeScreen(onComplete: onComplete);
             },
             AppRoutes.prepareUpdate: (context) => const CustomLoadingOverlay(
                   child: AppUpdatePreparationScreen(),
