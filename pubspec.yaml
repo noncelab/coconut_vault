@@ -72,14 +72,11 @@ dependencies:
   slang_flutter: ^4.4.0
   pointycastle: ^3.9.1
   tuple: ^2.0.2
-  coconut_lib: 
-    git:
-      url: https://github.com/noncelab/coconut_lib.git
-      ref: develop
+  coconut_lib: 1.0.1
   coconut_design_system:
-    git: 
-      url: https://github.com/ella-noncelab/coconut_design_system.git
-      ref: main
+    git:
+      url: https://github.com/noncelab/coconut_design_system.git
+      ref: fix/stepper
   cbor: ^6.3.5
   ur:
     path: lib/packages/bc-ur-dart

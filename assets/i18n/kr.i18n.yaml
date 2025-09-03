@@ -382,7 +382,7 @@ select_multisig_quorum_screen:
   total_key_count: "전체 키의 수"
   required_signature_count: "필요한 서명 수"
   one_or_two_of_n: "하나의 키를 분실하거나 키 보관자 중 한 명이 부재중이더라도 비트코인을 보낼 수 있어요."
-  n_of_n: "모든 키가 있어야만 비트코인을 보낼 수 있어요. 단 하나의 키만 잃어버려도 자금에 접근할 수 없게 되니 분실에 각별히 신경써 주세요."
+  n_of_n: "비트코인을 보내려면 모든 키가 필요해요. 키를 하나라도 잃으면 자금에 접근할 수 없으니 주의하세요."
   one_of_n: "하나의 키만 있어도 비트코인을 이동시킬 수 있어요. 상대적으로 보안성이 낮기 때문에 권장하지 않아요."
 signer_scanner_bottom_sheet:
   title: "서명 업데이트"

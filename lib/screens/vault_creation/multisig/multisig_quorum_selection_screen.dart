@@ -3,14 +3,12 @@ import 'package:coconut_vault/constants/app_routes.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/providers/view_model/mutlisig_quorum_selection_view_model.dart';
 import 'package:coconut_vault/providers/wallet_creation_provider.dart';
+import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:coconut_vault/widgets/animation/key_safe_animation_widget.dart';
-import 'package:coconut_vault/widgets/button/custom_buttons.dart';
 import 'package:coconut_vault/widgets/button/fixed_bottom_button.dart';
 import 'package:coconut_vault/widgets/highlighted_text.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-
-enum ChangeCountButtonType { nCountMinus, nCountPlus, mCountMinus, mCountPlus }
 
 class GradientProgressBar extends StatelessWidget {
   final double value;
@@ -59,11 +57,14 @@ class MultisigQuorumSelectionScreen extends StatefulWidget {
 class _MultisigQuorumSelectionScreenState extends State<MultisigQuorumSelectionScreen> {
   late MultisigQuorumSelectionViewModel _viewModel;
 
-  bool _mounted = true; // didChangeDependencies
+  bool _mounted = true;
+  int _totalKeyCount = 3;
+  int _requiredSignatureCount = 2;
+
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider<MultisigQuorumSelectionViewModel>(
-      create: (_) => _viewModel,
+    return ChangeNotifierProvider.value(
+      value: _viewModel,
       child: Consumer<MultisigQuorumSelectionViewModel>(
         builder: (context, viewModel, child) {
           return Scaffold(
@@ -80,97 +81,12 @@ class _MultisigQuorumSelectionScreenState extends State<MultisigQuorumSelectionS
                       padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 32),
                       child: Column(
                         children: [
-                          const SizedBox(height: 30),
-                          Row(
-                            children: [
-                              Expanded(
-                                child: Center(
-                                  child: Text(
-                                    t.select_multisig_quorum_screen.total_key_count,
-                                    style: CoconutTypography.body2_14_Bold,
-                                  ),
-                                ),
-                              ),
-                              const SizedBox(width: 8),
-                              CountingRowButton(
-                                onMinusPressed: () => viewModel
-                                    .onCountButtonClicked(ChangeCountButtonType.nCountMinus),
-                                onPlusPressed: () => viewModel
-                                    .onCountButtonClicked(ChangeCountButtonType.nCountPlus),
-                                countText: viewModel.totalCount.toString(),
-                                isMinusButtonDisabled: viewModel.totalCount <= 2,
-                                isPlusButtonDisabled: viewModel.totalCount >= 3,
-                              ),
-                              const SizedBox(
-                                width: 18,
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 15),
-                          Row(
-                            children: [
-                              Expanded(
-                                child: Center(
-                                  child: Text(
-                                    t.select_multisig_quorum_screen.required_signature_count,
-                                    style: CoconutTypography.body2_14_Bold,
-                                  ),
-                                ),
-                              ),
-                              const SizedBox(width: 8),
-                              CountingRowButton(
-                                onMinusPressed: () => viewModel
-                                    .onCountButtonClicked(ChangeCountButtonType.mCountMinus),
-                                onPlusPressed: () => viewModel
-                                    .onCountButtonClicked(ChangeCountButtonType.mCountPlus),
-                                countText: viewModel.requiredCount.toString(),
-                                isMinusButtonDisabled: viewModel.requiredCount <= 1,
-                                isPlusButtonDisabled:
-                                    viewModel.requiredCount == viewModel.totalCount,
-                              ),
-                              const SizedBox(
-                                width: 18,
-                              ),
-                            ],
-                          ),
-                          const SizedBox(
-                            height: 50,
-                          ),
-                          Center(
-                            child: HighLightedText(
-                              '${viewModel.requiredCount}/${viewModel.totalCount}',
-                              color: CoconutColors.gray800,
-                              fontSize: 24,
-                            ),
-                          ),
-                          const SizedBox(
-                            height: 20,
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 24),
-                            child: Text(
-                              viewModel.buildQuorumMessage(),
-                              style: CoconutTypography.body2_14_Number.merge(
-                                TextStyle(
-                                  height: viewModel.requiredCount == viewModel.totalCount
-                                      ? 32.4 / 18
-                                      : 23.4 / 18,
-                                  letterSpacing: -0.01,
-                                ),
-                              ),
-                              textAlign: TextAlign.center,
-                            ),
-                          ),
-                          const SizedBox(
-                            height: 30,
-                          ),
-                          viewModel.isProgressAnimationVisible
-                              ? KeySafeAnimationWidget(
-                                  requiredCount: viewModel.requiredCount,
-                                  totalCount: viewModel.totalCount,
-                                  buttonClickedCount: viewModel.buttonClickedCount,
-                                )
-                              : Container()
+                          _buildQuorumInfo(viewModel),
+                          CoconutLayout.spacing_600h,
+                          _buildTotalKeyCount(viewModel),
+                          CoconutLayout.spacing_400h,
+                          _buildRequiredSignatureCount(viewModel),
+                          CoconutLayout.spacing_1400h,
                         ],
                       ),
                     ),
@@ -216,8 +132,10 @@ class _MultisigQuorumSelectionScreenState extends State<MultisigQuorumSelectionS
   void initState() {
     super.initState();
     _viewModel = MultisigQuorumSelectionViewModel(
+      Provider.of<WalletProvider>(context, listen: false),
       Provider.of<WalletCreationProvider>(context, listen: false),
     );
+
     Future.delayed(const Duration(milliseconds: 2000), () {
       if (_mounted) {
         _viewModel.setNextButtonEnabled(true);
@@ -229,5 +147,129 @@ class _MultisigQuorumSelectionScreenState extends State<MultisigQuorumSelectionS
   void dispose() {
     _mounted = false;
     super.dispose();
+  }
+
+  Widget _buildQuorumInfo(MultisigQuorumSelectionViewModel viewModel) {
+    final requiredCount = viewModel.requiredCount;
+    final totalCount = viewModel.totalCount;
+    final quorumMessage = viewModel.buildQuorumMessage();
+
+    final buttonClickedCount = viewModel.buttonClickedCount;
+    final isProgressAnimationVisible = viewModel.isProgressAnimationVisible;
+
+    return Container(
+        height: 274,
+        margin: const EdgeInsets.symmetric(horizontal: 12),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
+        decoration: BoxDecoration(
+          borderRadius: CoconutBorder.defaultRadius,
+          color: CoconutColors.gray150,
+        ),
+        alignment: Alignment.center,
+        child: Column(
+          children: [
+            Center(
+              child: HighLightedText(
+                '$requiredCount/$totalCount',
+                color: CoconutColors.gray800,
+                fontSize: 24,
+              ),
+            ),
+            const Spacer(),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24),
+              child: Text(
+                quorumMessage,
+                style: CoconutTypography.body2_14_Number.merge(
+                  const TextStyle(
+                    letterSpacing: -0.01,
+                  ),
+                ),
+                textAlign: TextAlign.center,
+              ),
+            ),
+            const Spacer(),
+            isProgressAnimationVisible
+                ? KeySafeAnimationWidget(
+                    requiredCount: requiredCount,
+                    totalCount: totalCount,
+                    buttonClickedCount: buttonClickedCount,
+                  )
+                : Container(),
+            CoconutLayout.spacing_400h,
+          ],
+        ));
+  }
+
+  Widget _buildTotalKeyCount(MultisigQuorumSelectionViewModel viewModel) {
+    return _buildKeyStepperWidget(
+      key: const Key('total_key_count'),
+      text: t.select_multisig_quorum_screen.total_key_count,
+      maxCount: 3,
+      minCount: 2,
+      initialCount: _totalKeyCount,
+      onCount: (count) {
+        viewModel.onClick(QuorumType.totalCount, count);
+        setState(() {
+          _totalKeyCount = count;
+        });
+        if (_totalKeyCount < _requiredSignatureCount) {
+          setState(() {
+            _requiredSignatureCount = _totalKeyCount;
+          });
+        }
+      },
+    );
+  }
+
+  Widget _buildRequiredSignatureCount(MultisigQuorumSelectionViewModel viewModel) {
+    return _buildKeyStepperWidget(
+      key: ValueKey('required_signature_count_$_requiredSignatureCount'),
+      text: t.select_multisig_quorum_screen.required_signature_count,
+      maxCount: _totalKeyCount,
+      minCount: 1,
+      initialCount: _requiredSignatureCount,
+      onCount: (count) {
+        viewModel.onClick(QuorumType.requiredCount, count);
+        setState(() {
+          _requiredSignatureCount = count;
+        });
+      },
+    );
+  }
+
+  Widget _buildKeyStepperWidget({
+    required Key key,
+    required String text,
+    required int maxCount,
+    required int minCount,
+    required int initialCount,
+    required Function(int count) onCount,
+  }) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      mainAxisAlignment: MainAxisAlignment.center,
+      key: key,
+      children: [
+        Expanded(
+          child: Center(
+            child: Text(
+              text,
+              style: CoconutTypography.body2_14_Bold,
+            ),
+          ),
+        ),
+        Expanded(
+          child: CoconutStepper(
+            key: ValueKey('${key.toString()}_$_totalKeyCount'),
+            maxCount: maxCount,
+            onCount: onCount,
+            initialCount: initialCount,
+            minCount: minCount,
+          ),
+        ),
+        CoconutLayout.spacing_500w,
+      ],
+    );
   }
 }
