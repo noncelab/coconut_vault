@@ -282,15 +282,6 @@ settings_screen:
   information: "Information"
 
 # lib/screens/start_guide
-guide_screen:
-  keep_network_off: "For safe Bitcoin storage,\nkeep connection status OFF"
-  network_status: "Network Status"
-  bluetooth_status: "Bluetooth Status"
-  developer_option: "Developer Option"
-  turn_off_network_and_bluetooth: "Turn off Network & Bluetooth"
-  disable_developer_option: "Disable Developer Option"
-  on: "ON"
-  off: "OFF"
 welcome_screen:
   guide1: "Vault can only be used\nwhen network and Bluetooth are turned OFF"
   guide2: "When connection is detected\napp usage will be disabled"

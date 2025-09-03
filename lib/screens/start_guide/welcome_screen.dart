@@ -222,7 +222,13 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
     return Row(
       children: [
         Expanded(flex: 1, child: Container()),
-        Expanded(flex: 4, child: Text(label, style: CoconutTypography.heading4_18_Bold)),
+        Expanded(
+            flex: 4,
+            child: FittedBox(
+                fit: BoxFit.scaleDown,
+                alignment: Alignment.centerLeft,
+                child: Text(label, style: CoconutTypography.heading4_18_Bold))),
+        Expanded(flex: 1, child: Container()),
         Expanded(
             flex: 1,
             child: isOn
@@ -231,11 +237,15 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
         CoconutLayout.spacing_200w,
         Expanded(
             flex: 3,
-            child: Text(
-              stateText,
-              style: isOn
-                  ? CoconutTypography.heading4_18_Bold.setColor(CoconutColors.red)
-                  : CoconutTypography.heading4_18.setColor(CoconutColors.black),
+            child: FittedBox(
+              fit: BoxFit.scaleDown,
+              alignment: Alignment.centerLeft,
+              child: Text(
+                stateText,
+                style: isOn
+                    ? CoconutTypography.heading4_18_Bold.setColor(CoconutColors.red)
+                    : CoconutTypography.heading4_18.setColor(CoconutColors.black),
+              ),
             )),
         Expanded(flex: 1, child: Container()),
       ],
