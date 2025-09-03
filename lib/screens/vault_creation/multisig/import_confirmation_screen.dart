@@ -1,19 +1,18 @@
 import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_lib/coconut_lib.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
-import 'package:coconut_vault/widgets/button/custom_buttons.dart';
+import 'package:coconut_vault/widgets/button/fixed_bottom_button.dart';
 import 'package:coconut_vault/widgets/multisig/card/signer_bsms_info_card.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 
 class ImportConfirmationScreen extends StatefulWidget {
   const ImportConfirmationScreen({
     super.key,
     required this.importingBsms,
-    required this.scrollController,
   });
   final String importingBsms;
-  final ScrollController scrollController;
 
   @override
   State<ImportConfirmationScreen> createState() => _ImportConfirmationScreenState();
@@ -24,6 +23,7 @@ class _ImportConfirmationScreenState extends State<ImportConfirmationScreen>
   static const int kMaxTextLength = 15;
   late TextEditingController _controller;
   late FocusNode _focusNode;
+  late ScrollController _scrollController;
 
   bool isPressing = false;
   double keyboardHeight = 0.0;
@@ -34,165 +34,185 @@ class _ImportConfirmationScreenState extends State<ImportConfirmationScreen>
   void initState() {
     super.initState();
     _controller = TextEditingController();
-    WidgetsBinding.instance.addObserver(this);
     _focusNode = FocusNode();
+    _scrollController = ScrollController();
+
+    _focusNode.addListener(_onFocusChange);
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  void _onFocusChange() {
+    if (_focusNode.hasFocus) {
+      Future.delayed(const Duration(milliseconds: 300), () {
+        if (_scrollController.hasClients) {
+          final currentPosition = _scrollController.position.pixels;
+          final maxScrollExtent = _scrollController.position.maxScrollExtent;
+          final targetPosition = currentPosition + 200;
+
+          final finalPosition = targetPosition.clamp(0.0, maxScrollExtent);
+          _scrollController.animateTo(
+            finalPosition,
+            duration: const Duration(milliseconds: 300),
+            curve: Curves.easeOut,
+          );
+        }
+      });
+    }
   }
 
   @override
   void dispose() {
     _controller.dispose();
     _focusNode.dispose();
+    _scrollController.dispose();
+    _focusNode.removeListener(_onFocusChange);
     WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }
 
   @override
-  void didChangeMetrics() {
-    final bottomInset = View.of(context).viewInsets.bottom;
-    setState(() {
-      if (keyboardHeight == bottomInset) {
-        Future.delayed(const Duration(milliseconds: 50)).then((_) {
-          scrollToBottom();
-        });
-      } else {
-        keyboardHeight = bottomInset;
-      }
-    });
-  }
-
-  void scrollToBottom() {
-    if (widget.scrollController.hasClients &&
-        !widget.scrollController.position.isScrollingNotifier.value) {
-      widget.scrollController.animateTo(
-        widget.scrollController.position.maxScrollExtent,
-        duration: const Duration(milliseconds: 300),
-        curve: Curves.easeInOut,
-      );
-    }
-  }
-
-  @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () => _closeKeyboard(),
-      child: AnimatedPadding(
-        duration: const Duration(milliseconds: 30),
-        padding: EdgeInsets.only(top: 20, bottom: MediaQuery.of(context).viewInsets.bottom),
-        child: Container(
-          color: CoconutColors.white,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Padding(
-                padding: const EdgeInsets.only(left: 16, right: 16),
-                child: CoconutToolTip(
-                  backgroundColor: CoconutColors.gray100,
-                  borderColor: CoconutColors.gray400,
-                  icon: SvgPicture.asset(
-                    'assets/svg/circle-info.svg',
-                    colorFilter: const ColorFilter.mode(
-                      CoconutColors.black,
-                      BlendMode.srcIn,
+    return ClipRRect(
+      borderRadius: CoconutBorder.defaultRadius,
+      child: Scaffold(
+        backgroundColor: CoconutColors.white,
+        appBar: CoconutAppBar.build(
+          title: t.confirm_importing_screen.scan_info,
+          context: context,
+          isBottom: true,
+        ),
+        body: SafeArea(
+          child: GestureDetector(
+            onTap: _closeKeyboard,
+            child: Stack(
+              children: [
+                SingleChildScrollView(
+                  controller: _scrollController,
+                  child: Padding(
+                    padding: EdgeInsets.only(
+                      bottom: MediaQuery.of(context).viewInsets.bottom + 20, // 키보드 높이만큼 여백 추가
                     ),
-                  ),
-                  tooltipType: CoconutTooltipType.fixed,
-                  richText: RichText(
-                    text: TextSpan(
-                      style: CoconutTypography.body3_12,
-                      children: _getTooltipRichText(),
-                    ),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 30),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      t.confirm_importing_screen.scan_info,
-                      style: CoconutTypography.body1_16.merge(
-                        const TextStyle(
-                          fontWeight: FontWeight.bold,
-                          height: 20.8 / 16,
-                          letterSpacing: -0.01,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 14),
-                    SignerBsmsInfoCard(bsms: Bsms.parseSigner(widget.importingBsms)),
-                    const SizedBox(height: 36),
-                    Text(
-                      t.confirm_importing_screen.memo,
-                      style: CoconutTypography.body1_16.merge(
-                        const TextStyle(
-                          fontWeight: FontWeight.bold,
-                          height: 20.8 / 16,
-                          letterSpacing: -0.01,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 14),
-                    Column(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Container(
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(16),
-                            boxShadow: [
-                              BoxShadow(
-                                color: CoconutColors.black.withOpacity(0.15),
-                                offset: const Offset(4, 4),
-                                blurRadius: 30,
-                                spreadRadius: 0,
-                              ),
-                            ],
-                          ),
-                          child: CoconutTextField(
-                            backgroundColor: CoconutColors.white,
-                            borderRadius: 16,
-                            isLengthVisible: false,
-                            placeholderText: t.confirm_importing_screen.placeholder,
-                            maxLength: 15,
-                            errorText: null,
-                            descriptionText: null,
-                            controller: _controller,
-                            focusNode: _focusNode,
-                            onChanged: (text) {
-                              setState(() => memo = _controller.text);
-                            },
-                          ),
-                        ),
+                        CoconutLayout.spacing_300h,
+                        // tooltip
                         Padding(
-                          padding: const EdgeInsets.only(top: 4, right: 4),
-                          child: Align(
-                            alignment: Alignment.topRight,
-                            child: Text(
-                              '${_controller.text.length} / $kMaxTextLength',
-                              style: CoconutTypography.body3_12.setColor(
-                                _controller.text.length == kMaxTextLength
-                                    ? CoconutColors.black.withOpacity(0.7)
-                                    : CoconutColors.black.withOpacity(0.5),
+                          padding: const EdgeInsets.symmetric(horizontal: 20),
+                          child: CoconutToolTip(
+                            backgroundColor: CoconutColors.gray150,
+                            borderColor: Colors.transparent,
+                            icon: SvgPicture.asset(
+                              'assets/svg/circle-info.svg',
+                              colorFilter: const ColorFilter.mode(
+                                CoconutColors.black,
+                                BlendMode.srcIn,
+                              ),
+                            ),
+                            tooltipType: CoconutTooltipType.fixed,
+                            richText: RichText(
+                              text: TextSpan(
+                                style: CoconutTypography.body3_12,
+                                children: _getTooltipRichText(),
                               ),
                             ),
                           ),
                         ),
+                        CoconutLayout.spacing_800h,
+                        // bsms info
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 20),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Center(
+                                child: SizedBox(
+                                  width: MediaQuery.of(context).size.width * 0.74,
+                                  child: Text(
+                                    t.confirm_importing_screen.scan_info,
+                                    style: CoconutTypography.body1_16.merge(
+                                      const TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        height: 20.8 / 16,
+                                        letterSpacing: -0.01,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              CoconutLayout.spacing_300h,
+                              Center(
+                                child: SizedBox(
+                                  width: MediaQuery.of(context).size.width * 0.74,
+                                  child: SignerBsmsInfoCard(
+                                      bsms: Bsms.parseSigner(widget.importingBsms)),
+                                ),
+                              ),
+                              CoconutLayout.spacing_900h,
+                            ],
+                          ),
+                        ),
+                        // divider
+                        Container(
+                          height: 16,
+                          color: CoconutColors.gray150,
+                        ),
+                        // memo textfield
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 20),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              CoconutLayout.spacing_600h,
+                              Text(
+                                t.confirm_importing_screen.memo,
+                                style: CoconutTypography.body1_16.merge(
+                                  const TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    height: 20.8 / 16,
+                                    letterSpacing: -0.01,
+                                  ),
+                                ),
+                              ),
+                              CoconutLayout.spacing_300h,
+                              Column(
+                                children: [
+                                  Container(
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(16),
+                                    ),
+                                    child: CoconutTextField(
+                                      backgroundColor: CoconutColors.white,
+                                      borderRadius: 16,
+                                      isLengthVisible: true,
+                                      placeholderText: t.confirm_importing_screen.placeholder,
+                                      maxLength: kMaxTextLength,
+                                      errorText: null,
+                                      descriptionText: null,
+                                      controller: _controller,
+                                      focusNode: _focusNode,
+                                      onChanged: (text) {
+                                        setState(() => memo = _controller.text);
+                                      },
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
                       ],
                     ),
-                    const SizedBox(height: 40),
-                    CompleteButton(
-                      onPressed: () {
-                        Navigator.pop(
-                            context, {'bsms': widget.importingBsms, 'memo': _controller.text});
-                      },
-                      label: t.complete,
-                      disabled: false,
-                    ),
-                    const SizedBox(height: 20),
-                  ],
+                  ),
                 ),
-              ),
-            ],
+                FixedBottomButton(
+                    onButtonClicked: () {
+                      Navigator.pop(
+                          context, {'bsms': widget.importingBsms, 'memo': _controller.text});
+                    },
+                    text: t.complete)
+              ],
+            ),
           ),
         ),
       ),

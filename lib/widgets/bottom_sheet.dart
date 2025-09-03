@@ -21,12 +21,12 @@ class MyBottomSheet {
         constraints: BoxConstraints(maxHeight: MediaQuery.of(context).size.height * 0.9));
   }
 
-  static void showBottomSheet_95(
+  static Future<T?> showBottomSheet_95<T>(
       {required BuildContext context,
       required Widget child,
       bool isDismissible = true,
-      bool enableDrag = true}) {
-    showModalBottomSheet(
+      bool enableDrag = true}) async {
+    return await showModalBottomSheet<T>(
         context: context,
         builder: (context) {
           return child;
