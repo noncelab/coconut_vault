@@ -65,10 +65,10 @@ class _MultisigSignerBsmsExportScreenState extends State<MultisigSignerBsmsExpor
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       Padding(
-                        padding: const EdgeInsets.only(top: 20, left: 16, right: 16),
+                        padding: const EdgeInsets.only(top: 20, left: 20, right: 20),
                         child: CoconutToolTip(
-                          backgroundColor: CoconutColors.gray100,
-                          borderColor: CoconutColors.gray400,
+                          backgroundColor: CoconutColors.gray150,
+                          borderColor: Colors.transparent,
                           icon: SvgPicture.asset(
                             'assets/svg/circle-info.svg',
                             colorFilter: const ColorFilter.mode(
@@ -97,16 +97,14 @@ class _MultisigSignerBsmsExportScreenState extends State<MultisigSignerBsmsExpor
                       Column(
                         children: [
                           Container(
-                            width: MediaQuery.of(context).size.width - 50,
+                            width: MediaQuery.of(context).size.width * 0.74,
                             alignment: Alignment.centerLeft,
                             child: Text(
                               t.signer_bsms_screen.export_info,
                               style: CoconutTypography.body2_14_Bold,
                             ),
                           ),
-                          const SizedBox(
-                            height: 10,
-                          ),
+                          CoconutLayout.spacing_300h,
                           if (viewModel.bsms != null) SignerBsmsInfoCard(bsms: viewModel.bsms!)
                         ],
                       ),
