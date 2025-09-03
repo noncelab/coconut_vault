@@ -57,7 +57,9 @@ class MultisigQuorumSelectionScreen extends StatefulWidget {
 class _MultisigQuorumSelectionScreenState extends State<MultisigQuorumSelectionScreen> {
   late MultisigQuorumSelectionViewModel _viewModel;
 
-  bool _mounted = true; // didChangeDependencies
+  bool _mounted = true;
+  int _totalKeyCount = 3;
+  int _requiredSignatureCount = 2;
 
   @override
   Widget build(BuildContext context) {
@@ -203,21 +205,36 @@ class _MultisigQuorumSelectionScreenState extends State<MultisigQuorumSelectionS
     return _buildKeyStepperWidget(
       key: const Key('total_key_count'),
       text: t.select_multisig_quorum_screen.total_key_count,
-      maxCount: viewModel.maxCount,
-      minCount: viewModel.requiredCount == 1 ? 2 : viewModel.requiredCount,
-      initialCount: viewModel.totalCount,
-      onCount: (count) => viewModel.onClick(QuorumType.totalCount, count),
+      maxCount: 3,
+      minCount: 2,
+      initialCount: _totalKeyCount,
+      onCount: (count) {
+        viewModel.onClick(QuorumType.totalCount, count);
+        setState(() {
+          _totalKeyCount = count;
+        });
+        if (_totalKeyCount < _requiredSignatureCount) {
+          setState(() {
+            _requiredSignatureCount = _totalKeyCount;
+          });
+        }
+      },
     );
   }
 
   Widget _buildRequiredSignatureCount(MultisigQuorumSelectionViewModel viewModel) {
     return _buildKeyStepperWidget(
-      key: const Key('required_signature_count'),
+      key: ValueKey('required_signature_count_$_requiredSignatureCount'),
       text: t.select_multisig_quorum_screen.required_signature_count,
-      maxCount: viewModel.totalCount,
+      maxCount: _totalKeyCount,
       minCount: 1,
-      initialCount: 2,
-      onCount: (count) => viewModel.onClick(QuorumType.requiredCount, count),
+      initialCount: _requiredSignatureCount,
+      onCount: (count) {
+        viewModel.onClick(QuorumType.requiredCount, count);
+        setState(() {
+          _requiredSignatureCount = count;
+        });
+      },
     );
   }
 
@@ -244,7 +261,12 @@ class _MultisigQuorumSelectionScreenState extends State<MultisigQuorumSelectionS
         ),
         Expanded(
           child: CoconutStepper(
-              maxCount: maxCount, onCount: onCount, initialCount: initialCount, minCount: minCount),
+            key: ValueKey('${key.toString()}_$_totalKeyCount'),
+            maxCount: maxCount,
+            onCount: onCount,
+            initialCount: initialCount,
+            minCount: minCount,
+          ),
         ),
         CoconutLayout.spacing_500w,
       ],

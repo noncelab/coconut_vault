@@ -22,7 +22,7 @@ class MultisigQuorumSelectionViewModel extends ChangeNotifier {
 
     _maxCount = _walletProvider.vaultList.length >= 3 ? 3 : 2;
     _requiredCount = 2;
-    _totalCount = _maxCount;
+    _totalCount = 3;
     _buttonClickedCount = 0;
     _isNextButtonEnabled = false;
     _isProgressAnimationVisible = true;
@@ -95,13 +95,16 @@ class MultisigQuorumSelectionViewModel extends ChangeNotifier {
   void onClick(QuorumType quorumType, int count) {
     switch (quorumType) {
       case QuorumType.totalCount:
-        if (count >= _requiredCount && count <= _maxCount) {
+        if (count >= 2 && count <= 3) {
+          if (count == 2 && count < _requiredCount) {
+            _requiredCount = count;
+          }
           _totalCount = count;
           _buttonClickedCount++;
         }
         break;
       case QuorumType.requiredCount:
-        if (count >= 1 && count <= _totalCount) {
+        if (count >= 1 && count <= 3) {
           _requiredCount = count;
           _buttonClickedCount++;
         }
