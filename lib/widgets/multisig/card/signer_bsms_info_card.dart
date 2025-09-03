@@ -12,15 +12,15 @@ class SignerBsmsInfoCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: width ?? MediaQuery.of(context).size.width - 30,
+      width: width ?? MediaQuery.of(context).size.width * 0.76,
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(12),
         color: CoconutColors.white,
         boxShadow: [
           BoxShadow(
             color: CoconutColors.black.withOpacity(0.15),
-            offset: const Offset(4, 4),
-            blurRadius: 30,
+            offset: const Offset(2, 2),
+            blurRadius: 16,
             spreadRadius: 0,
           ),
         ],
