@@ -329,6 +329,10 @@ mnemonic_import_screen:
   enter_passphrase: "패스프레이즈를 입력해 주세요"
   need_advanced_mode: "⚠︎ 패스프레이즈를 사용하시려면 설정 화면으로 이동하여 '패스프레이즈 사용하기'를 켜주세요"
   open_settings: "설정 화면 열기"
+  recommended_words: "추천 단어"
+  words_24: "24 단어"
+  words_12: "12 단어"
+  
 mnemonic_view_screen:
   security_guide: "안전한 장소에서 니모닉 문구를 확인하세요"
 mnemonic_verify_screen:
@@ -598,6 +602,9 @@ alert:
     title: "복원 중단"
     description: "복원을 그만두시겠어요?\n중단하시려면 [확인]을\n복원을 계속하시려면\n[취소]를 눌러주세요."
   erase_all_entered_so_far: "정말로 지금까지 입력한 정보를\n모두 지우시겠어요?"
+  erase_all_entered_mnemonic: 
+    title: "모두 지우기"
+    description: "지금까지 입력한 니모닉 문구를\n모두 지우시겠어요?"
   finish_signing:
     title:  "트랜잭션 서명 마무리"
     description: "이 화면을 닫으면 생성한 서명 정보가 사라져요.\n정말 종료하시겠어요?"
@@ -629,7 +636,7 @@ errors:
   remaining_times_away_from_reset_error: "초기화까지 $count번 남았어요"
   pin_max_attempts_exceeded_error: "볼트를 잠금 해제할 수 없어요\n비밀번호를 초기화 한 후에 이용할 수 있어요"
   retry_after: "$time 후 재시도 할 수 있어요"
-  invalid_word_error: "잘못된 단어예요. $filter"
+  invalid_word_error: "단어를 확인해 주세요 $filter"
   invalid_mnemonic_phrase: "잘못된 니모닉 문구예요"
   data_loading_error: "데이터를 불러오는 중 오류가 발생했습니다"
   data_not_found_error: "데이터가 없습니다"

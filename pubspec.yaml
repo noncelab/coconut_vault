@@ -172,6 +172,7 @@ flutter:
     - assets/svg/wallet-icons/dolphin.svg
     - assets/svg/wallet-icons/whale.svg
     - assets/svg/arrow-right.svg
+    - assets/svg/arrow-down.svg
     - assets/svg/back.svg
     - assets/svg/bluetooth.svg
     - assets/svg/coconut-mainnet.svg
@@ -240,6 +241,7 @@ flutter:
     - assets/svg/hamburger.svg
     - assets/svg/qr-code.svg
     - assets/svg/circle-info.svg
+    - assets/svg/eraser.svg
 
   fonts:
     - family: SpaceGrotesk
