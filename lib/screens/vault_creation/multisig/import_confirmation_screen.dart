@@ -2,10 +2,10 @@ import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_lib/coconut_lib.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/widgets/button/fixed_bottom_button.dart';
+import 'package:coconut_vault/widgets/custom_tooltip.dart';
 import 'package:coconut_vault/widgets/multisig/card/signer_bsms_info_card.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/svg.dart';
 
 class ImportConfirmationScreen extends StatefulWidget {
   const ImportConfirmationScreen({
@@ -95,29 +95,15 @@ class _ImportConfirmationScreenState extends State<ImportConfirmationScreen>
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        CoconutLayout.spacing_300h,
                         // tooltip
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 20),
-                          child: CoconutToolTip(
-                            backgroundColor: CoconutColors.gray150,
-                            borderColor: Colors.transparent,
-                            icon: SvgPicture.asset(
-                              'assets/svg/circle-info.svg',
-                              colorFilter: const ColorFilter.mode(
-                                CoconutColors.black,
-                                BlendMode.srcIn,
-                              ),
-                            ),
-                            tooltipType: CoconutTooltipType.fixed,
+                        CustomTooltip.buildInfoTooltip(context,
+                            paddingTop: 8,
                             richText: RichText(
                               text: TextSpan(
                                 style: CoconutTypography.body3_12,
                                 children: _getTooltipRichText(),
                               ),
-                            ),
-                          ),
-                        ),
+                            )),
                         CoconutLayout.spacing_800h,
                         // bsms info
                         Container(

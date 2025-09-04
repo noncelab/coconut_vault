@@ -2,10 +2,10 @@ import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/providers/view_model/multisig_signer_bsms_export_view_model.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
+import 'package:coconut_vault/widgets/custom_tooltip.dart';
 import 'package:coconut_vault/widgets/multisig/card/signer_bsms_info_card.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/svg.dart';
 import 'package:provider/provider.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 
@@ -64,28 +64,14 @@ class _MultisigSignerBsmsExportScreenState extends State<MultisigSignerBsmsExpor
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      Padding(
-                        padding: const EdgeInsets.only(top: 20, left: 20, right: 20),
-                        child: CoconutToolTip(
-                          backgroundColor: CoconutColors.gray150,
-                          borderColor: Colors.transparent,
-                          icon: SvgPicture.asset(
-                            'assets/svg/circle-info.svg',
-                            colorFilter: const ColorFilter.mode(
-                              CoconutColors.black,
-                              BlendMode.srcIn,
-                            ),
-                          ),
-                          tooltipType: CoconutTooltipType.fixed,
+                      CustomTooltip.buildInfoTooltip(context,
                           richText: RichText(
                             text: TextSpan(
                               style: CoconutTypography.body3_12,
                               children: _getTooltipRichText(),
                             ),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 32),
+                          )),
+                      CoconutLayout.spacing_800h,
                       Center(
                           child: Container(
                               width: MediaQuery.of(context).size.width * 0.76,
@@ -93,7 +79,7 @@ class _MultisigSignerBsmsExportScreenState extends State<MultisigSignerBsmsExpor
                               child: QrImageView(
                                 data: viewModel.qrData,
                               ))),
-                      const SizedBox(height: 32),
+                      CoconutLayout.spacing_800h,
                       Column(
                         children: [
                           Container(

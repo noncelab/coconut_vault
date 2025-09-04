@@ -12,10 +12,10 @@ import 'package:coconut_vault/widgets/animated_qr/coconut_qr_scanner.dart';
 import 'package:coconut_vault/widgets/animated_qr/scan_data_handler/bc_ur_qr_scan_data_handler.dart';
 import 'package:coconut_vault/widgets/animated_qr/scan_data_handler/i_qr_scan_data_handler.dart';
 import 'package:coconut_vault/widgets/custom_loading_overlay.dart';
+import 'package:coconut_vault/widgets/custom_tooltip.dart';
 import 'package:flutter/material.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:coconut_vault/utils/vibration_util.dart';
-import 'package:flutter_svg/svg.dart';
 import 'package:loader_overlay/loader_overlay.dart';
 import 'package:provider/provider.dart';
 import 'package:qr_code_scanner/qr_code_scanner.dart';
@@ -208,26 +208,15 @@ class _PsbtScannerScreenState extends State<PsbtScannerScreen> {
                     onComplete: _onCompletedScanningForBcUr,
                     onFailed: onFailedScanning,
                     qrDataHandler: _scanDataHandler)),
-            Padding(
-              padding: const EdgeInsets.only(top: 20, left: 16, right: 16),
-              child: CoconutToolTip(
-                backgroundColor: CoconutColors.gray100,
-                borderColor: CoconutColors.gray400,
-                icon: SvgPicture.asset(
-                  'assets/svg/circle-info.svg',
-                  colorFilter: const ColorFilter.mode(
-                    CoconutColors.black,
-                    BlendMode.srcIn,
-                  ),
-                ),
-                tooltipType: CoconutTooltipType.fixed,
-                richText: RichText(
-                  text: TextSpan(
-                    style: CoconutTypography.body3_12,
-                    children: _getGuideTextSpan(),
-                  ),
+            CustomTooltip.buildInfoTooltip(
+              context,
+              richText: RichText(
+                text: TextSpan(
+                  style: CoconutTypography.body3_12,
+                  children: _getGuideTextSpan(),
                 ),
               ),
+              isBackgroundWhite: false,
             ),
           ],
         ),

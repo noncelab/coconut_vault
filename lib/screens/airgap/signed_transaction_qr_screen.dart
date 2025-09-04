@@ -5,8 +5,8 @@ import 'package:coconut_vault/services/blockchain_commons/ur_type.dart';
 import 'package:coconut_vault/widgets/animated_qr/animated_qr_view.dart';
 import 'package:coconut_vault/widgets/animated_qr/view_data_handler/bc_ur_qr_view_handler.dart';
 import 'package:coconut_vault/widgets/button/fixed_bottom_button.dart';
+import 'package:coconut_vault/widgets/custom_tooltip.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/svg.dart';
 import 'package:provider/provider.dart';
 
 class SignedTransactionQrScreen extends StatefulWidget {
@@ -45,24 +45,12 @@ class _SignedTransactionQrScreenState extends State<SignedTransactionQrScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: <Widget>[
-                    Padding(
-                      padding: const EdgeInsets.only(top: 20, left: 16, right: 16),
-                      child: CoconutToolTip(
-                        backgroundColor: CoconutColors.gray100,
-                        borderColor: CoconutColors.gray400,
-                        icon: SvgPicture.asset(
-                          'assets/svg/circle-info.svg',
-                          colorFilter: const ColorFilter.mode(
-                            CoconutColors.black,
-                            BlendMode.srcIn,
-                          ),
-                        ),
-                        tooltipType: CoconutTooltipType.fixed,
-                        richText: RichText(
-                          text: TextSpan(
-                            style: CoconutTypography.body3_12,
-                            children: _getTooltipRichText(),
-                          ),
+                    CustomTooltip.buildInfoTooltip(
+                      context,
+                      richText: RichText(
+                        text: TextSpan(
+                          style: CoconutTypography.body3_12,
+                          children: _getTooltipRichText(),
                         ),
                       ),
                     ),

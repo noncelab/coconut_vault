@@ -410,7 +410,7 @@ multi_sig_bsms_screen:
     info_copied: "Wallet details copied"
   title: "Wallet Settings Info"
   guide:
-    text1: "Manage and share wallet settings info according to standards for safe multisig wallet management."
+    text1: "Manage and share wallet settings info according to a standard(BIP-129, BSMS) for safe multisig wallet management."
     text2: "All keys are stored in vault."
     text3: "Other vaults storing same keys can also read this QR to add multisig wallet."
     text4: "Mnemonic phrase of **$gen** key designated for this multisig wallet is currently in another vault."
