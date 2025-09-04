@@ -6,10 +6,10 @@ import 'package:coconut_vault/providers/sign_provider.dart';
 import 'package:coconut_vault/providers/view_model/airgap/psbt_confirmation_view_model.dart';
 import 'package:coconut_vault/providers/visibility_provider.dart';
 import 'package:coconut_vault/widgets/button/fixed_bottom_button.dart';
+import 'package:coconut_vault/widgets/custom_tooltip.dart';
 import 'package:flutter/material.dart';
 import 'package:coconut_vault/utils/alert_util.dart';
 import 'package:coconut_vault/widgets/card/information_item_card.dart';
-import 'package:flutter_svg/svg.dart';
 import 'package:provider/provider.dart';
 
 class PsbtConfirmationScreen extends StatefulWidget {
@@ -73,27 +73,13 @@ class _PsbtConfirmationScreenState extends State<PsbtConfirmationScreen> {
                 SingleChildScrollView(
                   child: Column(
                     children: [
-                      Padding(
-                        padding: const EdgeInsets.only(top: 20, left: 16, right: 16),
-                        child: CoconutToolTip(
-                          backgroundColor: CoconutColors.gray100,
-                          borderColor: CoconutColors.gray400,
-                          icon: SvgPicture.asset(
-                            'assets/svg/circle-info.svg',
-                            colorFilter: const ColorFilter.mode(
-                              CoconutColors.black,
-                              BlendMode.srcIn,
-                            ),
-                          ),
-                          tooltipType: CoconutTooltipType.fixed,
+                      CustomTooltip.buildInfoTooltip(context,
                           richText: RichText(
                             text: TextSpan(
                               style: CoconutTypography.body3_12,
                               children: _getTooltipRichText(),
                             ),
-                          ),
-                        ),
-                      ),
+                          )),
                       GestureDetector(
                         onTap: _toggleUnit,
                         child: Container(

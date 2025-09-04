@@ -10,8 +10,8 @@ import 'package:coconut_vault/model/multisig/multisig_import_detail.dart';
 import 'package:coconut_vault/model/exception/not_related_multisig_wallet_exception.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:coconut_vault/utils/alert_util.dart';
+import 'package:coconut_vault/widgets/custom_tooltip.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/svg.dart';
 import 'package:provider/provider.dart';
 import 'package:qr_code_scanner/qr_code_scanner.dart';
 
@@ -142,27 +142,14 @@ class _MultisigBsmsScannerScreenState extends State<MultisigBsmsScannerScreen> {
           height: !_isSetScaffold ? 50.1 : 0,
           color: CoconutColors.black.withOpacity(0.5),
         ),
-        Padding(
-          padding: const EdgeInsets.only(top: 20, left: 16, right: 16),
-          child: CoconutToolTip(
-            backgroundColor: CoconutColors.gray100,
-            borderColor: CoconutColors.gray400,
-            icon: SvgPicture.asset(
-              'assets/svg/circle-info.svg',
-              colorFilter: const ColorFilter.mode(
-                CoconutColors.black,
-                BlendMode.srcIn,
-              ),
-            ),
-            tooltipType: CoconutTooltipType.fixed,
+        CustomTooltip.buildInfoTooltip(context,
             richText: RichText(
               text: TextSpan(
                 style: CoconutTypography.body3_12,
                 children: _getTooltipRichText(),
               ),
             ),
-          ),
-        ),
+            isBackgroundWhite: false),
         Visibility(
           visible: _isProcessing,
           child: Container(

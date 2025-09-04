@@ -413,22 +413,10 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
                     return;
                   }
                   if (!mounted) return;
-                  final Map<String, String>? bsmsAndMemo =
-                      await MyBottomSheet.showDraggableScrollableSheet(
-                    topWidget: true,
+                  final Map<String, String>? bsmsAndMemo = await MyBottomSheet.showBottomSheet_90(
                     context: context,
-                    isScrollControlled: true,
-                    controller: _draggableController,
-                    minChildSize: 0.7,
-                    isDismissible: false,
-                    enableDrag: true,
-                    snap: true,
-                    onBackPressed: () => _showDialog(DialogType.cancelImport),
-                    physics: const ClampingScrollPhysics(),
-                    enableSingleChildScroll: true,
-                    childBuilder: (sheetController) => ImportConfirmationScreen(
+                    child: ImportConfirmationScreen(
                       importingBsms: externalImported,
-                      scrollController: sheetController,
                     ),
                   );
                   if (bsmsAndMemo != null) {

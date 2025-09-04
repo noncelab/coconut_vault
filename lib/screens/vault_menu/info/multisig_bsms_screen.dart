@@ -36,6 +36,7 @@ class MultisigBsmsScreen extends StatelessWidget {
               children: [
                 // Description
                 _buildDescriptionBsms(viewModel),
+                CoconutLayout.spacing_300h,
                 Center(
                     child: Container(
                         width: qrWidth,
@@ -43,27 +44,6 @@ class MultisigBsmsScreen extends StatelessWidget {
                         child: QrImageView(
                           data: viewModel.qrData,
                         ))),
-                const SizedBox(
-                  height: 30,
-                ),
-                // TODO: 상세 정보 보기
-                GestureDetector(
-                  onTap: () => _showMultisigDetail(context, viewModel.qrData),
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(4.0),
-                      color: CoconutColors.borderGray,
-                    ),
-                    child: Text(
-                      t.multi_sig_bsms_screen.view_detail,
-                      style: CoconutTypography.body2_14.setColor(CoconutColors.white),
-                    ),
-                  ),
-                ),
-                const SizedBox(
-                  height: 100,
-                ),
               ],
             ),
           ),
@@ -75,16 +55,8 @@ class MultisigBsmsScreen extends StatelessWidget {
   Widget _buildDescriptionBsms(MultisigBsmsViewModel viewModel) {
     return Container(
       decoration: BoxDecoration(
-        color: CoconutColors.white,
+        color: CoconutColors.gray150,
         borderRadius: BorderRadius.circular(10),
-        boxShadow: [
-          BoxShadow(
-            color: CoconutColors.gray500.withOpacity(0.15),
-            spreadRadius: 4,
-            blurRadius: 6,
-            offset: const Offset(0, 3),
-          ),
-        ],
       ),
       margin: const EdgeInsets.all(16),
       padding: const EdgeInsets.all(16),
