@@ -9,7 +9,7 @@ import 'package:coconut_vault/enums/wallet_enums.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:coconut_vault/utils/colors_util.dart';
 import 'package:coconut_vault/utils/text_utils.dart';
-import 'package:coconut_vault/widgets/icon/vault_item_icon.dart';
+import 'package:coconut_vault/widgets/icon/vault_icon_small.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:coconut_vault/widgets/button/shrink_animation_button.dart';
@@ -246,7 +246,7 @@ class _VaultRowItemState extends State<VaultRowItem> {
                 ),
               ),
             ),
-          VaultItemIcon(
+          VaultIconSmall(
             iconIndex: widget.vault.iconIndex,
             colorIndex: widget.vault.colorIndex,
             gradientColors: _isMultiSig && _multiSigners != null

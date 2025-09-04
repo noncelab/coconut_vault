@@ -1,5 +1,6 @@
 import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
+import 'package:coconut_vault/widgets/icon/vault_icon.dart';
 import 'package:flutter/material.dart';
 import 'package:coconut_vault/utils/icon_util.dart';
 import 'package:coconut_vault/widgets/icon/svg_icon.dart';
@@ -76,7 +77,7 @@ class _VaultNameIconEditPaletteState extends State<VaultNameIconEditPalette> {
                   ]),
                 ),
                 SliverPadding(
-                  padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                  padding: const EdgeInsets.symmetric(horizontal: 0.0),
                   sliver: SliverGrid(
                     gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                       crossAxisCount: 5,
@@ -151,56 +152,56 @@ class _VaultNameIconEditPaletteState extends State<VaultNameIconEditPalette> {
   }
 
   Widget _buildSelectedIconWithName() {
-    return Column(
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Row(
-          children: [
-            _selectedIconIndex >= 0
-                ? SvgIcon(
-                    index: _selectedIconIndex,
-                    colorIndex: _selectedColorIndex,
-                    enableBorder: false,
-                  )
-                : const SizedBox(width: 16),
-            Expanded(
-              child: CoconutTextField(
-                isLengthVisible: true,
-                placeholderColor: CoconutColors.gray400,
-                placeholderText: t.name,
-                maxLength: 20,
-                maxLines: 1,
-                controller: _controller,
-                focusNode: _focusNode,
-                suffix: IconButton(
-                  highlightColor: CoconutColors.gray200,
-                  iconSize: 14,
-                  padding: EdgeInsets.zero,
-                  onPressed: () {
-                    setState(() {
-                      _controller.text = '';
-                    });
-                  },
-                  icon: _controller.text.isNotEmpty
-                      ? SvgPicture.asset(
-                          'assets/svg/text-field-clear.svg',
-                          colorFilter: const ColorFilter.mode(
-                            CoconutColors.gray400,
-                            BlendMode.srcIn,
-                          ),
-                        )
-                      : Container(),
-                ),
-                onChanged: (text) {
-                  setState(() {
-                    _name = text;
-                    widget.onNameChanged(text);
-                  });
-                },
-              ),
+        CoconutLayout.spacing_400w,
+        _selectedIconIndex >= 0
+            ? Padding(
+                padding: const EdgeInsets.only(top: 10, right: 10),
+                child: VaultIcon(
+                  iconIndex: _selectedIconIndex,
+                  colorIndex: _selectedColorIndex,
+                ))
+            : const SizedBox(width: 16),
+        Expanded(
+          child: CoconutTextField(
+            isLengthVisible: true,
+            placeholderColor: CoconutColors.gray400,
+            placeholderText: t.name,
+            maxLength: 20,
+            maxLines: 1,
+            controller: _controller,
+            focusNode: _focusNode,
+            suffix: IconButton(
+              highlightColor: CoconutColors.gray200,
+              iconSize: 14,
+              padding: EdgeInsets.zero,
+              onPressed: () {
+                setState(() {
+                  _controller.text = '';
+                });
+              },
+              icon: _controller.text.isNotEmpty
+                  ? SvgPicture.asset(
+                      'assets/svg/text-field-clear.svg',
+                      colorFilter: const ColorFilter.mode(
+                        CoconutColors.gray400,
+                        BlendMode.srcIn,
+                      ),
+                    )
+                  : Container(),
             ),
-            const SizedBox(width: 16),
-          ],
+            onChanged: (text) {
+              setState(() {
+                _name = text;
+                widget.onNameChanged(text);
+              });
+            },
+          ),
         ),
+        CoconutLayout.spacing_400w,
       ],
     );
   }

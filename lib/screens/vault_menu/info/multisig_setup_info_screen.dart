@@ -11,7 +11,6 @@ import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:coconut_vault/screens/common/pin_check_screen.dart';
 import 'package:coconut_vault/screens/vault_menu/info/multisig_signer_memo_bottom_sheet.dart';
 import 'package:coconut_vault/screens/vault_menu/info/name_and_icon_edit_bottom_sheet.dart';
-import 'package:coconut_vault/utils/icon_util.dart';
 import 'package:coconut_vault/utils/vibration_util.dart';
 import 'package:coconut_vault/widgets/bottom_sheet.dart';
 import 'package:coconut_vault/widgets/bubble_clipper.dart';
@@ -19,6 +18,7 @@ import 'package:coconut_vault/widgets/button/button_group.dart';
 import 'package:coconut_vault/widgets/button/single_button.dart';
 import 'package:coconut_vault/widgets/card/vault_item_card.dart';
 import 'package:coconut_vault/widgets/custom_loading_overlay.dart';
+import 'package:coconut_vault/widgets/icon/vault_icon.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
@@ -46,10 +46,10 @@ class _MultisigSetupInfoScreenState extends State<MultisigSetupInfoScreen> {
     super.initState();
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      _tooltipIconRenderBox = _tooltipIconKey.currentContext?.findRenderObject() as RenderBox;
-      _tooltipIconPosition = _tooltipIconRenderBox!.localToGlobal(Offset.zero);
+      //_tooltipIconRenderBox = _tooltipIconKey.currentContext?.findRenderObject() as RenderBox;
+      //_tooltipIconPosition = _tooltipIconRenderBox!.localToGlobal(Offset.zero);
 
-      _tooltipTopPadding = MediaQuery.paddingOf(context).top + kToolbarHeight - 14;
+      //_tooltipTopPadding = MediaQuery.paddingOf(context).top + kToolbarHeight - 14;
     });
   }
 
@@ -135,6 +135,7 @@ class _MultisigSetupInfoScreenState extends State<MultisigSetupInfoScreen> {
                     children: [
                       Column(
                         children: [
+                          CoconutLayout.spacing_500h,
                           _buildVaultItemCard(context),
                           _buildSignerList(context),
                           CoconutLayout.spacing_500h,
@@ -209,7 +210,7 @@ class _MultisigSetupInfoScreenState extends State<MultisigSetupInfoScreen> {
     return ListView.separated(
       physics: const NeverScrollableScrollPhysics(),
       shrinkWrap: true,
-      padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+      padding: const EdgeInsets.only(top: 8, left: 16, right: 16),
       itemCount: signers.length,
       separatorBuilder: (context, index) => const SizedBox(height: 8),
       itemBuilder: (context, index) {
@@ -279,16 +280,15 @@ class _MultisigSetupInfoScreenState extends State<MultisigSetupInfoScreen> {
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
                 color: CoconutColors.white,
-                borderRadius: CoconutBorder.defaultRadius,
+                borderRadius: BorderRadius.circular(12),
                 border: Border.all(color: CoconutColors.gray200),
               ),
               child: Row(
                 children: [
-                  _buildSignerIcon(
-                      colorIndex: isVaultInside ? signer.colorIndex! : -1,
-                      iconPath: isVaultInside
-                          ? CustomIcons.getPathByIndex(signer.iconIndex!)
-                          : 'assets/svg/download.svg'),
+                  VaultIcon(
+                      iconIndex: isVaultInside ? signer.iconIndex! : null,
+                      colorIndex: isVaultInside ? signer.colorIndex! : null,
+                      size: 20),
                   const SizedBox(width: 10),
                   Expanded(child: _buildSignerNameAndMemo(name: signer.name, memo: signer.memo)),
                   // mfp
@@ -314,26 +314,6 @@ class _MultisigSetupInfoScreenState extends State<MultisigSetupInfoScreen> {
         style: CoconutTypography.body1_16_Number,
       ),
     );
-  }
-
-  Widget _buildSignerIcon({int colorIndex = -1, String iconPath = 'assets/svg/download.svg'}) {
-    final Color backgroundColor = colorIndex == -1
-        ? CoconutColors.gray200
-        : CoconutColors.backgroundColorPaletteLight[colorIndex];
-    final Color iconColor =
-        colorIndex == -1 ? CoconutColors.black : CoconutColors.colorPalette[colorIndex];
-    return Container(
-        padding: const EdgeInsets.all(12),
-        decoration: BoxDecoration(
-          color: backgroundColor,
-          borderRadius: BorderRadius.circular(14.0),
-        ),
-        child: SvgPicture.asset(iconPath,
-            colorFilter: ColorFilter.mode(
-              iconColor,
-              BlendMode.srcIn,
-            ),
-            width: 20));
   }
 
   Widget _buildSignerNameAndMemo({String? name, String? memo}) {
@@ -490,36 +470,38 @@ class _MultisigSetupInfoScreenState extends State<MultisigSetupInfoScreen> {
     );
   }
 
+  /// 25.09.04 변경으로 멀티시그 지갑 상세화면에는 툴팁 없음
   void _showTooltip(BuildContext context) {
-    if (_tooltipRemainingTime > 0) {
-      // 툴팁이 이미 보여지고 있는 상태라면 툴팁 제거만 합니다.
-      _removeTooltip();
-      return;
-    }
-    _removeTooltip();
+    // if (_tooltipRemainingTime > 0) {
+    //   // 툴팁이 이미 보여지고 있는 상태라면 툴팁 제거만 합니다.
+    //   _removeTooltip();
+    //   return;
+    // }
+    // _removeTooltip();
 
-    setState(() {
-      _tooltipRemainingTime = 5;
-    });
+    // setState(() {
+    //   _tooltipRemainingTime = 5;
+    // });
 
-    _tooltipTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
-      setState(() {
-        if (_tooltipRemainingTime > 0) {
-          _tooltipRemainingTime--;
-        } else {
-          _removeTooltip();
-          timer.cancel();
-        }
-      });
-    });
+    // _tooltipTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
+    //   setState(() {
+    //     if (_tooltipRemainingTime > 0) {
+    //       _tooltipRemainingTime--;
+    //     } else {
+    //       _removeTooltip();
+    //       timer.cancel();
+    //     }
+    //   });
+    // });
   }
 
+  /// 25.09.04 변경으로 멀티시그 지갑 상세화면에는 툴팁 없음
   void _removeTooltip() {
-    if (_tooltipRemainingTime == 0) return;
-    setState(() {
-      _tooltipRemainingTime = 0;
-    });
-    _tooltipTimer?.cancel();
+    // if (_tooltipRemainingTime == 0) return;
+    // setState(() {
+    //   _tooltipRemainingTime = 0;
+    // });
+    // _tooltipTimer?.cancel();
   }
 
   void _showDeleteDialog(BuildContext context, String walletName) {
