@@ -60,6 +60,7 @@ class _MultisigQuorumSelectionScreenState extends State<MultisigQuorumSelectionS
   bool _mounted = true;
   int _totalKeyCount = 3;
   int _requiredSignatureCount = 2;
+  bool _isProgressAnimationVisible = true;
 
   @override
   Widget build(BuildContext context) {
@@ -97,7 +98,9 @@ class _MultisigQuorumSelectionScreenState extends State<MultisigQuorumSelectionS
                     isActive: viewModel.isQuorumSettingValid,
                     onButtonClicked: () {
                       viewModel.saveQuorumRequirement();
-                      viewModel.setProgressAnimationVisible(false); // TODO: UI
+                      setState(() {
+                        _isProgressAnimationVisible = false;
+                      });
                       _mounted = false;
                       Navigator.pushNamed(context, AppRoutes.signerAssignment);
                     },
@@ -120,9 +123,13 @@ class _MultisigQuorumSelectionScreenState extends State<MultisigQuorumSelectionS
     if (!_mounted &&
         currentRoute != null &&
         currentRoute.startsWith(AppRoutes.multisigQuorumSelection)) {
-      _viewModel.setProgressAnimationVisible(false);
+      setState(() {
+        _isProgressAnimationVisible = false;
+      });
       Future.delayed(const Duration(milliseconds: 100), () {
-        _viewModel.setProgressAnimationVisible(true);
+        setState(() {
+          _isProgressAnimationVisible = true;
+        });
       });
       _mounted = true;
     }
@@ -155,7 +162,6 @@ class _MultisigQuorumSelectionScreenState extends State<MultisigQuorumSelectionS
     final quorumMessage = viewModel.buildQuorumMessage();
 
     final buttonClickedCount = viewModel.buttonClickedCount;
-    final isProgressAnimationVisible = viewModel.isProgressAnimationVisible;
 
     return Container(
         height: 274,
@@ -189,7 +195,7 @@ class _MultisigQuorumSelectionScreenState extends State<MultisigQuorumSelectionS
               ),
             ),
             const Spacer(),
-            isProgressAnimationVisible
+            _isProgressAnimationVisible
                 ? KeySafeAnimationWidget(
                     requiredCount: requiredCount,
                     totalCount: totalCount,

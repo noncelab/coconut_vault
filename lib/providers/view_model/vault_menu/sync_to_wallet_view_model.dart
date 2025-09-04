@@ -98,7 +98,7 @@ class WalletToSyncViewModel extends ChangeNotifier {
           result = '${result.split(']')[0]}]${result.split(']')[1].split('/').first}';
         }
       } else {
-        /// TODO: 구현 필요
+        /// 멀티시그는 그대로 반환해도 됩니다.
       }
 
       return result;

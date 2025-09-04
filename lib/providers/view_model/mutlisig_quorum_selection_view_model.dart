@@ -15,7 +15,6 @@ class MultisigQuorumSelectionViewModel extends ChangeNotifier {
 
   late int _buttonClickedCount;
   late bool _isNextButtonEnabled;
-  late bool _isProgressAnimationVisible;
 
   MultisigQuorumSelectionViewModel(this._walletProvider, this._walletCreationProvider) {
     _walletCreationProvider.resetAll();
@@ -25,10 +24,8 @@ class MultisigQuorumSelectionViewModel extends ChangeNotifier {
     _totalCount = 3;
     _buttonClickedCount = 0;
     _isNextButtonEnabled = false;
-    _isProgressAnimationVisible = true;
   }
   int get buttonClickedCount => _buttonClickedCount;
-  bool get isProgressAnimationVisible => _isProgressAnimationVisible;
   bool get isQuorumSettingValid =>
       _isNextButtonEnabled && MultisigUtils.validateQuorumRequirement(_requiredCount, _totalCount);
   bool get nextButtonEnabled => _isNextButtonEnabled;
@@ -79,12 +76,6 @@ class MultisigQuorumSelectionViewModel extends ChangeNotifier {
 
   void setNextButtonEnabled(bool value) {
     _isNextButtonEnabled = value;
-    notifyListeners();
-  }
-
-  // TODO: UI 관련 변수
-  void setProgressAnimationVisible(bool value) {
-    _isProgressAnimationVisible = value;
     notifyListeners();
   }
 

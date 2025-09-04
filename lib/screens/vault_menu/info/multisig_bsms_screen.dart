@@ -2,8 +2,6 @@ import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/providers/view_model/vault_menu/multisig_bsms_view_model.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
-import 'package:coconut_vault/widgets/bottom_sheet.dart';
-import 'package:coconut_vault/widgets/button/copy_text_container.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:qr_flutter/qr_flutter.dart';
@@ -115,35 +113,5 @@ class MultisigBsmsScreen extends StatelessWidget {
       );
     });
     return spans;
-  }
-
-  // TODO: 재사용 컴포넌트로 만들어야 하는지 검토
-  void _showMultisigDetail(BuildContext context, String qrData) {
-    MyBottomSheet.showBottomSheet_90(
-      context: context,
-      child: ClipRRect(
-        borderRadius: CoconutBorder.defaultRadius,
-        child: Scaffold(
-          backgroundColor: CoconutColors.white,
-          appBar: CoconutAppBar.build(
-            context: context,
-            title: t.multi_sig_bsms_screen.bottom_sheet.title,
-            backgroundColor: CoconutColors.white,
-            isBottom: true,
-          ),
-          body: SingleChildScrollView(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(
-                horizontal: CoconutLayout.defaultPadding,
-              ),
-              child: CopyTextContainer(
-                text: qrData,
-                toastMsg: t.multi_sig_bsms_screen.bottom_sheet.info_copied,
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
   }
 }

@@ -24,10 +24,9 @@ class _MnemonicConfirmationScreenState extends State<MnemonicConfirmationScreen>
   @override
   void initState() {
     super.initState();
+    assert(_walletCreationProvider.secret != null);
     _walletCreationProvider = Provider.of<WalletCreationProvider>(context, listen: false);
-
-    // todo: _mnemonic empty string일 수 없음
-    _mnemonic = _walletCreationProvider.secret ?? '';
+    _mnemonic = _walletCreationProvider.secret!;
     step = 0;
   }
 

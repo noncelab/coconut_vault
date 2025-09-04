@@ -45,11 +45,7 @@ class _VaultListScreenState extends State<VaultListScreen> with TickerProviderSt
           PreferenceProvider preferenceProvider,
           VaultListViewModel? previous) {
         previous ??= _createViewModel();
-
         previous.onPreferenceProviderUpdated();
-        debugPrint('VaultListScreen update');
-        // FIXME: 다른 provider의 변경에 의해서도 항상 호출됨
-        // return previous..onWalletProviderUpdated(walletProvider);
         return previous;
       },
       child: Selector<VaultListViewModel,

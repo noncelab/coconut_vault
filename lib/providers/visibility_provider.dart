@@ -2,6 +2,7 @@ import 'package:coconut_vault/constants/shared_preferences_keys.dart';
 import 'package:coconut_vault/enums/currency_enum.dart';
 import 'package:coconut_vault/repository/shared_preferences_repository.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
+import 'package:coconut_vault/utils/logger.dart';
 import 'package:flutter/material.dart';
 
 class VisibilityProvider extends ChangeNotifier {
@@ -19,10 +20,6 @@ class VisibilityProvider extends ChangeNotifier {
   bool get isBtcUnit => _isBtcUnit;
   BitcoinUnit get currentUnit => _isBtcUnit ? BitcoinUnit.btc : BitcoinUnit.sats;
 
-  /// TODO: 제거
-  bool _isLoading = false;
-  bool get isLoading => _isLoading;
-
   VisibilityProvider() {
     final prefs = SharedPrefsRepository();
     _hasSeenGuide = prefs.getBool(SharedPrefsKeys.hasShownStartGuide) == true;
@@ -31,16 +28,6 @@ class VisibilityProvider extends ChangeNotifier {
     _language = _initializeLanguageFromOS(prefs);
     _isBtcUnit = prefs.getBool(SharedPrefsKeys.kIsBtcUnit) ?? true;
     _initializeLanguage();
-  }
-
-  void showIndicator() {
-    _isLoading = true;
-    notifyListeners();
-  }
-
-  void hideIndicator() {
-    _isLoading = false;
-    notifyListeners();
   }
 
   Future<void> saveWalletCount(int count) async {
@@ -84,7 +71,7 @@ class VisibilityProvider extends ChangeNotifier {
         return 'en';
       }
     } catch (e) {
-      print('OS language detection failed: $e');
+      Logger.error('OS language detection failed: $e');
     }
 
     // 기본값은 영어
@@ -98,25 +85,25 @@ class VisibilityProvider extends ChangeNotifier {
       } else if (_language == 'en') {
         // 영어 로케일 설정 시 지연 로딩 문제를 방지하기 위해 비동기로 처리
         LocaleSettings.setLocale(AppLocale.en).catchError((error) {
-          print('English locale initialization failed: $error');
+          Logger.error('English locale initialization failed: $error');
           // 실패 시 한국어로 폴백
           try {
             LocaleSettings.setLocaleSync(AppLocale.en);
             _language = 'en';
           } catch (fallbackError) {
-            print('Fallback to Korean locale failed: $fallbackError');
+            Logger.error('Fallback to Korean locale failed: $fallbackError');
           }
         });
       }
     } catch (e) {
       // 언어 초기화 실패 시 로그 출력 (선택사항)
-      print('Language initialization failed: $e');
+      Logger.error('Language initialization failed: $e');
       // 실패 시 기본값으로 한국어 설정
       try {
         LocaleSettings.setLocaleSync(AppLocale.en);
         _language = 'en';
       } catch (fallbackError) {
-        print('Fallback language initialization failed: $fallbackError');
+        Logger.error('Fallback language initialization failed: $fallbackError');
       }
     }
   }
@@ -138,7 +125,7 @@ class VisibilityProvider extends ChangeNotifier {
           await LocaleSettings.setLocale(AppLocale.en);
           _language = languageCode;
         } catch (englishError) {
-          print('English locale change failed: $englishError');
+          Logger.error('English locale change failed: $englishError');
           // 영어 로딩 실패 시 한국어로 폴백
           await LocaleSettings.setLocale(AppLocale.kr);
           _language = 'kr';
@@ -155,14 +142,14 @@ class VisibilityProvider extends ChangeNotifier {
         notifyListeners();
       });
     } catch (e) {
-      print('Language change failed: $e');
+      Logger.error('Language change failed: $e');
       // 실패 시 기본 언어로 설정 시도
       try {
         await LocaleSettings.setLocale(AppLocale.en);
         _language = 'en';
         await prefs.setString(SharedPrefsKeys.kLanguage, 'en');
       } catch (fallbackError) {
-        print('Fallback language change failed: $fallbackError');
+        Logger.error('Fallback language change failed: $fallbackError');
         // 최종적으로 상태만 업데이트
         _language = languageCode;
       }
