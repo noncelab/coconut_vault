@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 class AppUnavailableNotificationScreen extends StatefulWidget {
   final bool? isNetworkOn;
@@ -25,6 +26,16 @@ class _AppUnavailableNotificationScreenState extends State<AppUnavailableNotific
 
   @override
   Widget build(BuildContext context) {
+    SystemChrome.setSystemUIOverlayStyle(
+      Platform.isIOS
+          ? const SystemUiOverlayStyle(
+              statusBarIconBrightness: Brightness.dark, // iOS → 검정 텍스트
+            )
+          : const SystemUiOverlayStyle(
+              statusBarIconBrightness: Brightness.dark, // Android → 검정 텍스트
+              statusBarColor: Colors.transparent,
+            ),
+    );
     return Scaffold(
       backgroundColor: CoconutColors.white,
       body: SafeArea(

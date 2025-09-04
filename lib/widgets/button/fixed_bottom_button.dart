@@ -20,11 +20,13 @@ class FixedBottomButton extends StatefulWidget {
     this.backgroundColor = CoconutColors.black,
     this.textColor = CoconutColors.white,
     this.pressedBackgroundColor,
+    this.gradient,
   });
 
   final Function onButtonClicked;
   final String text;
   final bool showGradient;
+  final LinearGradient? gradient;
   final bool isVisibleAboveKeyboard;
   final bool isActive;
   final double? buttonHeight;
