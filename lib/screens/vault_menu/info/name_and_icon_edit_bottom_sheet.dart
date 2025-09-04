@@ -44,60 +44,56 @@ class _NameAndIconEditBottomSheetState extends State<NameAndIconEditBottomSheet>
     return CustomLoadingOverlay(
       child: ClipRRect(
         borderRadius: CoconutBorder.defaultRadius,
-        child: Stack(
-          children: [
-            Scaffold(
-              backgroundColor: CoconutColors.white,
-              appBar: CoconutAppBar.build(
-                context: context,
-                title: _name,
-                isBottom: true,
-              ),
-              body: SafeArea(
-                child: Stack(
-                  children: [
-                    NestedScrollView(
-                      headerSliverBuilder: (BuildContext context, bool innerBoxIsScrolled) {
-                        return [];
+        child: Scaffold(
+          backgroundColor: CoconutColors.white,
+          appBar: CoconutAppBar.build(
+            context: context,
+            title: _name,
+            isBottom: true,
+          ),
+          body: SafeArea(
+            child: Stack(
+              children: [
+                NestedScrollView(
+                  headerSliverBuilder: (BuildContext context, bool innerBoxIsScrolled) {
+                    return [];
+                  },
+                  body: Container(
+                    width: MediaQuery.of(context).size.width,
+                    height: MediaQuery.of(context).size.height,
+                    color: CoconutColors.white,
+                    child: VaultNameIconEditPalette(
+                      name: _name, // 초기 값 설정
+                      iconIndex: _iconIndex,
+                      colorIndex: _colorIndex,
+                      onNameChanged: (String newName) {
+                        setState(() {
+                          _name = newName;
+                          hasChanged = true;
+                        });
                       },
-                      body: Container(
-                        width: MediaQuery.of(context).size.width,
-                        height: MediaQuery.of(context).size.height,
-                        color: CoconutColors.white,
-                        child: VaultNameIconEditPalette(
-                          name: _name, // 초기 값 설정
-                          iconIndex: _iconIndex,
-                          colorIndex: _colorIndex,
-                          onNameChanged: (String newName) {
-                            setState(() {
-                              _name = newName;
-                              hasChanged = true;
-                            });
-                          },
-                          onIconSelected: (int newIconIndex) {
-                            setState(() {
-                              _iconIndex = newIconIndex;
-                              hasChanged = true;
-                            });
-                          },
-                          onColorSelected: (int newColorIndex) {
-                            setState(() {
-                              _colorIndex = newColorIndex;
-                              hasChanged = true;
-                            });
-                          },
-                        ),
-                      ),
+                      onIconSelected: (int newIconIndex) {
+                        setState(() {
+                          _iconIndex = newIconIndex;
+                          hasChanged = true;
+                        });
+                      },
+                      onColorSelected: (int newColorIndex) {
+                        setState(() {
+                          _colorIndex = newColorIndex;
+                          hasChanged = true;
+                        });
+                      },
                     ),
-                    FixedBottomButton(
-                      text: t.complete,
-                      onButtonClicked: _onNextPressed,
-                    ),
-                  ],
+                  ),
                 ),
-              ),
+                FixedBottomButton(
+                  text: t.complete,
+                  onButtonClicked: _onNextPressed,
+                ),
+              ],
             ),
-          ],
+          ),
         ),
       ),
     );

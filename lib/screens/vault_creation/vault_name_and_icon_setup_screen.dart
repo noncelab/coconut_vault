@@ -168,14 +168,35 @@ class _VaultNameAndIconSetupScreenState extends State<VaultNameAndIconSetupScree
               },
               backgroundColor: CoconutColors.white,
             ),
-            body: VaultNameIconEditPalette(
-              name: inputText,
-              iconIndex: selectedIconIndex,
-              colorIndex: selectedColorIndex,
-              onNameChanged: updateName,
-              onIconSelected: updateIcon,
-              onColorSelected: updateColor,
-              onFocusChanged: updateFocusState,
+            body: SafeArea(
+              child: Stack(children: [
+                VaultNameIconEditPalette(
+                  name: inputText,
+                  iconIndex: selectedIconIndex,
+                  colorIndex: selectedColorIndex,
+                  onNameChanged: updateName,
+                  onIconSelected: updateIcon,
+                  onColorSelected: updateColor,
+                  onFocusChanged: updateFocusState,
+                ),
+                FixedBottomButton(
+                  showGradient: true,
+                  text: t.next,
+                  onButtonClicked: () {
+                    if (inputText.trim().isEmpty) return;
+                    _closeKeyboard();
+                    if (_walletProvider.isVaultListLoading) {
+                      setState(() {
+                        _showLoading = true;
+                      });
+                    } else {
+                      saveNewVaultName(context);
+                    }
+                  },
+                  backgroundColor: CoconutColors.black,
+                  isActive: inputText.trim().isNotEmpty && !_showLoading,
+                ),
+              ]),
             ),
           ),
         ),
@@ -192,24 +213,6 @@ class _VaultNameAndIconSetupScreenState extends State<VaultNameAndIconSetupScree
                   : const CircularProgressIndicator(color: CoconutColors.gray800),
             ),
           ),
-        ),
-        FixedBottomButton(
-          bottomPadding: _isTextFieldFocused ? 20 : 50,
-          showGradient: true,
-          text: t.next,
-          onButtonClicked: () {
-            if (inputText.trim().isEmpty) return;
-            _closeKeyboard();
-            if (_walletProvider.isVaultListLoading) {
-              setState(() {
-                _showLoading = true;
-              });
-            } else {
-              saveNewVaultName(context);
-            }
-          },
-          backgroundColor: CoconutColors.black,
-          isActive: inputText.trim().isNotEmpty && !_showLoading,
         ),
       ],
     );
