@@ -460,7 +460,7 @@ class _MnemonicWordsState extends State<MnemonicWords> {
                       ),
                     ),
                     step == 0 ? MnemonicList(mnemonic: mnemonic) : _buildPassphraseInput(),
-                    const SizedBox(height: 40),
+                    const SizedBox(height: 100),
                   ],
                 )),
           ),
