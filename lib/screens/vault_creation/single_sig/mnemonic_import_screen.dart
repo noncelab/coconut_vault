@@ -421,22 +421,12 @@ class _MnemonicImportScreenState extends State<MnemonicImportScreen> {
       builder: (BuildContext context) => CoconutPopup(
         insetPadding: EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width * 0.15),
         title: t.alert.stop_importing_mnemonic.title,
-        titleTextStyle: CoconutTypography.body1_16_Bold,
         description: t.alert.stop_importing_mnemonic.description,
-        descriptionTextStyle: CoconutTypography.body2_14,
         backgroundColor: CoconutColors.white,
         leftButtonText: t.cancel,
-        leftButtonTextStyle: CoconutTypography.body2_14.merge(
-          const TextStyle(
-            color: CoconutColors.gray900,
-            fontWeight: FontWeight.w500,
-          ),
-        ),
+        leftButtonColor: CoconutColors.gray900,
         rightButtonText: t.confirm,
         rightButtonColor: CoconutColors.gray900,
-        rightButtonTextStyle: CoconutTypography.body2_14.merge(
-          const TextStyle(fontWeight: FontWeight.w500),
-        ),
         onTapLeft: () => Navigator.pop(context),
         onTapRight: () {
           Navigator.pop(context);
@@ -559,23 +549,13 @@ class _MnemonicImportScreenState extends State<MnemonicImportScreen> {
         insetPadding:
             EdgeInsets.symmetric(horizontal: MediaQuery.of(dialogContext).size.width * 0.15),
         title: t.alert.erase_all_entered_mnemonic.title,
-        titleTextStyle: CoconutTypography.body1_16_Bold,
         centerDescription: true,
-        descriptionTextStyle: CoconutTypography.body2_14,
         description: t.alert.erase_all_entered_mnemonic.description,
         backgroundColor: CoconutColors.white,
-        rightButtonColor: CoconutColors.gray900,
-        rightButtonText: t.confirm,
-        rightButtonTextStyle: CoconutTypography.body2_14.merge(
-          const TextStyle(fontWeight: FontWeight.w700),
-        ),
         leftButtonText: t.cancel,
-        leftButtonTextStyle: CoconutTypography.body2_14.merge(
-          const TextStyle(
-            color: CoconutColors.gray900,
-            fontWeight: FontWeight.w500,
-          ),
-        ),
+        leftButtonColor: CoconutColors.gray900,
+        rightButtonText: t.confirm,
+        rightButtonColor: CoconutColors.gray900,
         onTapLeft: () => Navigator.pop(context),
         onTapRight: () => _handleClearAllConfirm(),
       ),

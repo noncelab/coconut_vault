@@ -65,24 +65,12 @@ class _MnemonicGenerationScreenState extends State<MnemonicGenerationScreen> {
               insetPadding:
                   EdgeInsets.symmetric(horizontal: MediaQuery.of(dialogContext).size.width * 0.15),
               title: t.alert.stop_generating_mnemonic.title,
-              titleTextStyle: CoconutTypography.body1_16_Bold,
-              descriptionTextStyle: CoconutTypography.body2_14,
               description: t.alert.stop_generating_mnemonic.description,
               backgroundColor: CoconutColors.white,
-              rightButtonColor: CoconutColors.gray900,
               rightButtonText: t.alert.stop_generating_mnemonic.confirm,
-              rightButtonTextStyle: CoconutTypography.body2_14.merge(
-                const TextStyle(
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
+              rightButtonColor: CoconutColors.gray900,
               leftButtonText: t.alert.stop_generating_mnemonic.reselect,
-              leftButtonTextStyle: CoconutTypography.body2_14.merge(
-                const TextStyle(
-                  color: CoconutColors.gray900,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
+              leftButtonColor: CoconutColors.gray900,
               onTapLeft: () {
                 Navigator.pop(context);
                 _onReset();

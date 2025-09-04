@@ -113,17 +113,10 @@ class _MultisigSignScreenState extends State<MultisigSignScreen> {
               insetPadding:
                   EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width * 0.15),
               title: t.move_to_qr_screen,
-              titleTextStyle: CoconutTypography.body1_16_Bold,
               description: t.move_to_qr_screen_description,
-              descriptionTextStyle: CoconutTypography.body2_14,
               backgroundColor: CoconutColors.white,
               rightButtonText: t.confirm,
               rightButtonColor: CoconutColors.black,
-              rightButtonTextStyle: CoconutTypography.body2_14.merge(
-                const TextStyle(
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
               onTapRight: () {
                 Navigator.pop(context);
                 _showQrBottomSheet(index);
@@ -171,24 +164,12 @@ class _MultisigSignScreenState extends State<MultisigSignScreen> {
             insetPadding:
                 EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width * 0.15),
             title: t.alert.exit_sign.title,
-            titleTextStyle: CoconutTypography.body1_16_Bold,
             description: t.alert.exit_sign.description,
-            descriptionTextStyle: CoconutTypography.body2_14,
             backgroundColor: CoconutColors.white,
             leftButtonText: t.cancel,
-            leftButtonTextStyle: CoconutTypography.body2_14.merge(
-              TextStyle(
-                color: CoconutColors.black.withOpacity(0.7),
-                fontWeight: FontWeight.w500,
-              ),
-            ),
+            leftButtonColor: CoconutColors.black.withOpacity(0.7),
             rightButtonText: t.quit,
             rightButtonColor: CoconutColors.warningText,
-            rightButtonTextStyle: CoconutTypography.body2_14.merge(
-              const TextStyle(
-                fontWeight: FontWeight.w500,
-              ),
-            ),
             onTapLeft: () => Navigator.pop(context),
             onTapRight: () {
               _viewModel.resetAll();
@@ -206,24 +187,12 @@ class _MultisigSignScreenState extends State<MultisigSignScreen> {
             insetPadding:
                 EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width * 0.15),
             title: t.alert.stop_sign.title,
-            titleTextStyle: CoconutTypography.body1_16_Bold,
             description: t.alert.stop_sign.description,
-            descriptionTextStyle: CoconutTypography.body2_14,
             backgroundColor: CoconutColors.white,
             leftButtonText: t.cancel,
-            leftButtonTextStyle: CoconutTypography.body2_14.merge(
-              TextStyle(
-                color: CoconutColors.black.withOpacity(0.7),
-                fontWeight: FontWeight.w500,
-              ),
-            ),
+            leftButtonColor: CoconutColors.black.withOpacity(0.7),
             rightButtonText: t.quit,
             rightButtonColor: CoconutColors.warningText,
-            rightButtonTextStyle: CoconutTypography.body2_14.merge(
-              const TextStyle(
-                fontWeight: FontWeight.w500,
-              ),
-            ),
             onTapLeft: () => Navigator.pop(context),
             onTapRight: () {
               _viewModel.reset();

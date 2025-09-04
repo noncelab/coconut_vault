@@ -713,25 +713,12 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
             insetPadding:
                 EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width * 0.15),
             title: title,
-            titleTextStyle: CoconutTypography.body1_16_Bold,
-            descriptionTextStyle: CoconutTypography.body2_14,
             description: message,
             backgroundColor: CoconutColors.white,
-            rightButtonColor: confirmButtonColor,
             rightButtonText: confirmButtonText,
-            rightButtonTextStyle: CoconutTypography.body2_14.merge(
-              TextStyle(
-                color: confirmButtonColor,
-                fontWeight: FontWeight.w500,
-              ),
-            ),
+            rightButtonColor: confirmButtonColor,
             leftButtonText: cancelButtonText,
-            leftButtonTextStyle: CoconutTypography.body2_14.merge(
-              TextStyle(
-                color: CoconutColors.black.withOpacity(0.7),
-                fontWeight: FontWeight.w500,
-              ),
-            ),
+            leftButtonColor: CoconutColors.black.withOpacity(0.7),
             onTapRight: onConfirm,
             onTapLeft: (type == DialogType.alert ||
                     type == DialogType.alreadyExist ||

@@ -482,24 +482,12 @@ class _SingleSigSetupInfoScreenState extends State<SingleSigSetupInfoScreen> {
             insetPadding:
                 EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width * 0.15),
             title: t.confirm,
-            titleTextStyle: CoconutTypography.body1_16_Bold,
             description: t.alert.confirm_deletion(name: walletName),
-            descriptionTextStyle: CoconutTypography.body2_14,
             backgroundColor: CoconutColors.white,
             leftButtonText: t.no,
-            leftButtonTextStyle: CoconutTypography.body2_14.merge(
-              TextStyle(
-                color: CoconutColors.black.withOpacity(0.7),
-                fontWeight: FontWeight.w500,
-              ),
-            ),
+            leftButtonColor: CoconutColors.black.withOpacity(0.7),
             rightButtonText: t.yes,
             rightButtonColor: CoconutColors.warningText,
-            rightButtonTextStyle: CoconutTypography.body2_14.merge(
-              const TextStyle(
-                fontWeight: FontWeight.w500,
-              ),
-            ),
             onTapLeft: () => Navigator.pop(context),
             onTapRight: () async {
               if (context.mounted) {
