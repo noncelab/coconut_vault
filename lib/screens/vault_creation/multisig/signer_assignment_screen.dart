@@ -217,7 +217,7 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
                                                             ImportKeyType.internal
                                                         ? CustomIcons.getPathByIndex(viewModel
                                                             .assignedVaultList[i].item!.iconIndex)
-                                                        : 'assets/svg/download.svg',
+                                                        : 'assets/svg/import-bsms.svg',
                                                     colorFilter: ColorFilter.mode(
                                                       viewModel.assignedVaultList[i]
                                                                   .importKeyType ==

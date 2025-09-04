@@ -188,7 +188,6 @@ flutter:
     - assets/svg/trash.svg
     - assets/svg/face-id.svg
     - assets/svg/fingerprint.svg
-    - assets/svg/download.svg
     - assets/svg/circle-check-gradient.svg
     - assets/svg/key-icon.svg
     - assets/svg/kebab.svg
@@ -197,6 +196,7 @@ flutter:
     - assets/svg/check.svg
     - assets/svg/circle-check-outlined.svg
     - assets/svg/circle-stop-outlined.svg
+    - assets/svg/import-bsms.svg
     - assets/lottie/loading-coconut.json
     - assets/lottie/loading-gray.json
     - assets/lottie/pin-locked-success.json
@@ -219,7 +219,6 @@ flutter:
     - assets/svg/github-logo.svg
     - assets/files/LICENSE
     - assets/files/CONTRIBUTING.md
-    - assets/svg/download.svg
     - assets/svg/circle-check.svg
     - assets/svg/vault-grey.svg
     - assets/svg/text-field-clear.svg
