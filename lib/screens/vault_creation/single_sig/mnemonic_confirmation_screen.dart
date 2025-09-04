@@ -86,7 +86,7 @@ class _MnemonicConfirmationScreenState extends State<MnemonicConfirmationScreen>
                           step == 0
                               ? MnemonicList(mnemonic: _mnemonic)
                               : _passphraseGridViewWidget(),
-                          const SizedBox(height: 40),
+                          const SizedBox(height: 100),
                         ],
                       )),
                 ),
