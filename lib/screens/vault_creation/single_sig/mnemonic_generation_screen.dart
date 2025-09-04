@@ -300,6 +300,7 @@ class _MnemonicWordsState extends State<MnemonicWords> {
   bool passphraseObscured = false;
   bool isValid = true;
   bool isPassphraseConfirmVisible = false;
+  bool isPassphraseNotMached = false;
   bool hasScrolledToBottom = false; // 니모닉 리스트를 끝까지 확인했는지 추적
   String errorMessage = '';
 
@@ -380,6 +381,14 @@ class _MnemonicWordsState extends State<MnemonicWords> {
     _passphraseConfirmController.addListener(() {
       setState(() {
         passphraseConfirm = _passphraseConfirmController.text;
+        // isPassphraseNotMached 조건 체크
+        if (passphrase.isNotEmpty &&
+            passphraseConfirm.isNotEmpty &&
+            passphrase != passphraseConfirm) {
+          isPassphraseNotMached = true;
+        } else {
+          isPassphraseNotMached = false;
+        }
       });
     });
 
@@ -395,6 +404,15 @@ class _MnemonicWordsState extends State<MnemonicWords> {
             );
           }
         });
+      } else {
+        // passphraseConfirm 입력이 멈춘 후 (포커스를 잃은 후) 매칭 여부 체크
+        if (passphrase.isNotEmpty &&
+            passphraseConfirm.isNotEmpty &&
+            passphrase != passphraseConfirm) {
+          setState(() {
+            isPassphraseNotMached = true;
+          });
+        }
       }
     });
   }
@@ -433,9 +451,11 @@ class _MnemonicWordsState extends State<MnemonicWords> {
                       child: Text(
                         step == 0
                             ? t.mnemonic_generate_screen.backup_guide
-                            : t.mnemonic_generate_screen.enter_passphrase,
+                            : isPassphraseNotMached
+                                ? t.mnemonic_generate_screen.passphrase_not_matched
+                                : t.mnemonic_generate_screen.enter_passphrase,
                         style: CoconutTypography.body1_16_Bold.setColor(
-                          step == 0 ? CoconutColors.warningText : CoconutColors.black,
+                          isPassphraseNotMached ? CoconutColors.warningText : CoconutColors.black,
                         ),
                       ),
                     ),

@@ -315,6 +315,7 @@ mnemonic_generate_screen:
   use: "Use"
   do_not: "Don't"
   enter_passphrase: "Enter passphrase"
+  passphrase_not_matched: "Passphrase does not match"
   memorable_passphrase_guide: "A passphrase you'll never forget"
   passphrase_confirm_guide: "Confirm passphrase"
   backup_guide: "Please backup mnemonic in a safe place"
