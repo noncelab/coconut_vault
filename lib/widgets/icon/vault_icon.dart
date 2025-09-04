@@ -11,13 +11,11 @@ class VaultIcon extends StatelessWidget {
   late final double size;
   VaultIcon({super.key, required int? iconIndex, required int? colorIndex, this.size = 22}) {
     backgroundColor = colorIndex == null
-        ? CoconutColors.gray200
+        ? CoconutColors.gray150
         : CoconutColors.backgroundColorPaletteLight[colorIndex];
-    iconColor = colorIndex == null
-        ? CoconutColors.black
-        : CoconutColors.colorPalette[colorIndex]; // TODO: icon color 머지 후 변경
+    iconColor = colorIndex == null ? CoconutColors.gray500 : CoconutColors.colorPalette[colorIndex];
     iconPath =
-        iconIndex == null ? 'assets/svg/download.svg' : CustomIcons.getPathByIndex(iconIndex);
+        iconIndex == null ? 'assets/svg/import-bsms.svg' : CustomIcons.getPathByIndex(iconIndex);
   }
 
   @override
