@@ -164,14 +164,10 @@ app_unavailable_notification_screen:
   step2: "Check the connection status"
   step3: "Restart the app"
 ios_bluetooth_auth_notification_screen:
-  allow_permission: "Please allow Bluetooth permission for Coconut Vault"
-  text1_1: "For safe use,"
-  text1_2: "please close the app now and"
-  text1_3: "in Settings,"
-  text1_4: "allow "
-  text1_5: "Bluetooth permission"
-  text1_6: " for"
-  text1_7: "Coconut Vault"
+  allow_permission: "To use Vault,\nyou need to restart the app"
+  guide1: "Completely close the app"
+  guide2: "Check the connection status"
+  guide3: "Restart the app"
 pin_check_screen:
   enter_password: "Enter password"
   warning: "⚠︎ Vault will be reset after 3 failed attempts"

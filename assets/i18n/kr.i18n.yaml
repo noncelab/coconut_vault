@@ -165,14 +165,10 @@ app_unavailable_notification_screen:
   step2: "연결 상태를 확인해 주세요"
   step3: "앱을 다시 실행해 주세요"
 ios_bluetooth_auth_notification_screen:
-  allow_permission: "코코넛 볼트에 블루투스 권한을 허용해 주세요"
-  text1_1: "안전한 사용을 위해"
-  text1_2: "지금 바로 앱을 종료하신 후"
-  text1_3: "설정 화면에서"
-  text1_4: "코코넛 볼트의 "
-  text1_5: "블루투스 권한"
-  text1_6: "을"
-  text1_7: "허용해 주세요"
+  allow_permission: "안전한 사용을 위해\n블루투스 권한을 허용해 주세요"
+  guide1: "앱을 완전히 종료해 주세요"
+  guide2: "설정 화면에서 볼트의 블루투스 권한을 허용해 주세요"
+  guide3: "앱을 다시 실행해 주세요"
 pin_check_screen:
   enter_password: "비밀번호를 눌러주세요"
   warning: "⚠︎ 3회 모두 틀리면 볼트를 초기화해야 합니다"
