@@ -61,7 +61,8 @@ class _MultisigSignScreenState extends State<MultisigSignScreen> {
     required BuildContext context,
     required int index,
   }) async {
-    return await MyBottomSheet.showBottomSheet_50(
+    return await MyBottomSheet.showBottomSheet_ratio(
+      ratio: 0.5,
       context: context,
       child: PassphraseCheckScreen(id: _viewModel.getInnerVaultId(index)),
     );

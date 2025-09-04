@@ -229,8 +229,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
               title: t.bitcoin,
               subtitle: isBtcUnit ? t.btc : t.sats,
               onPressed: () async {
-                MyBottomSheet.showBottomSheet_50(
-                    context: context, child: const UnitBottomSheet(), showDragHandle: true);
+                MyBottomSheet.showBottomSheet_ratio(
+                  ratio: 0.5,
+                  context: context,
+                  child: const UnitBottomSheet(),
+                  showDragHandle: true,
+                );
               },
             );
           }),
@@ -274,8 +278,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   title: t.language.language,
                   subtitle: _getCurrentLanguageDisplayName(language),
                   onPressed: () async {
-                    MyBottomSheet.showBottomSheet_50(
-                        context: context, child: const LanguageBottomSheet(), showDragHandle: true);
+                    MyBottomSheet.showBottomSheet_ratio(
+                      ratio: 0.5,
+                      context: context,
+                      child: const LanguageBottomSheet(),
+                      showDragHandle: true,
+                    );
                   },
                 );
               },

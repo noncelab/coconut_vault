@@ -170,10 +170,12 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
                                           _showDialog(DialogType.deleteKey, keyIndex: i);
                                           return;
                                         }
-                                        MyBottomSheet.showBottomSheet_50(
-                                            showDragHandle: true,
-                                            context: context,
-                                            child: _buildSelectKeyOptionBottomSheet(i));
+                                        MyBottomSheet.showBottomSheet_ratio(
+                                          showDragHandle: true,
+                                          context: context,
+                                          child: _buildSelectKeyOptionBottomSheet(i),
+                                          ratio: 0.35,
+                                        );
                                       },
                                       defaultColor: viewModel.assignedVaultList[i].importKeyType !=
                                               null
@@ -323,7 +325,7 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
         isBottom: true,
       ),
       body: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 20),
+        padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 0),
         child: Column(
           children: [
             ShrinkAnimationButton(
@@ -339,9 +341,10 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
                   _showDialog(DialogType.notAvailable);
                   return;
                 }
-                MyBottomSheet.showBottomSheet_50(
-                  context: context,
+                MyBottomSheet.showBottomSheet_ratio(
+                  ratio: 0.5,
                   showDragHandle: true,
+                  context: context,
                   child: KeyListBottomSheet(
                     // 키 옵션 중 하나 선택했을 때
                     onPressed: (int vaultIndex) {
@@ -355,12 +358,24 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
                   ),
                 );
               },
-              child: Container(
-                width: MediaQuery.of(context).size.width,
-                padding: const EdgeInsets.all(16),
-                child: Text(
-                  t.assign_signers_screen.use_internal_key,
-                  style: CoconutTypography.body1_16_Bold,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 12),
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(
+                    minHeight: 37,
+                  ),
+                  child: Container(
+                    width: MediaQuery.of(context).size.width,
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    child: Align(
+                      alignment: Alignment.centerLeft,
+                      child: Text(
+                        t.assign_signers_screen.use_internal_key,
+                        style: CoconutTypography.body1_16_Bold,
+                        textAlign: TextAlign.left,
+                      ),
+                    ),
+                  ),
                 ),
               ),
             ),
@@ -425,12 +440,24 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
                   }
                 }
               },
-              child: Container(
-                width: MediaQuery.of(context).size.width,
-                padding: const EdgeInsets.all(16),
-                child: Text(
-                  t.assign_signers_screen.import_from_other_vault,
-                  style: CoconutTypography.body1_16_Bold,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 12),
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(
+                    minHeight: 37,
+                  ),
+                  child: Container(
+                    width: MediaQuery.of(context).size.width,
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    child: Align(
+                      alignment: Alignment.centerLeft,
+                      child: Text(
+                        t.assign_signers_screen.import_from_other_vault,
+                        style: CoconutTypography.body1_16_Bold,
+                        textAlign: TextAlign.left,
+                      ),
+                    ),
+                  ),
                 ),
               ),
             ),

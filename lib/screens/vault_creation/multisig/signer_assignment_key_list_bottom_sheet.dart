@@ -48,10 +48,16 @@ class _KeyListBottomSheetState extends State<KeyListBottomSheet> {
           itemCount: widget.vaultList.length,
           itemBuilder: (context, i) {
             final index = i % widget.vaultList.length;
-            return VaultRowItem(
-              vault: widget.vaultList[index],
-              onSelected: () => _handleSelection(index),
-              isNextIconVisible: false,
+            return Column(
+              children: [
+                VaultRowItem(
+                  vault: widget.vaultList[index],
+                  onSelected: () => _handleSelection(index),
+                  isNextIconVisible: false,
+                  isKeyBorderVisible: true,
+                ),
+                CoconutLayout.spacing_300h,
+              ],
             );
           },
         ),

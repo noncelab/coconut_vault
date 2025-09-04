@@ -33,6 +33,7 @@ class VaultRowItem extends StatefulWidget {
     this.onLongPressed,
     this.index,
     this.isNextIconVisible = true,
+    this.isKeyBorderVisible = false,
   });
 
   final VaultListItemBase vault;
@@ -49,77 +50,83 @@ class VaultRowItem extends StatefulWidget {
   final VoidCallback? onLongPressed;
   final int? index;
   final bool isNextIconVisible;
+  final bool isKeyBorderVisible;
 
   /// 스켈레톤 UI를 반환하는 static 메서드
   static Widget buildSkeleton() {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-      child: Row(
-        children: [
-          // 1) 아이콘 스켈레톤 (VaultItemIcon과 동일한 크기)
-          Shimmer.fromColors(
-            baseColor: CoconutColors.gray300,
-            highlightColor: CoconutColors.gray150,
-            child: Container(
-              width: 30.0,
-              height: 30.0,
-              decoration: BoxDecoration(
-                color: CoconutColors.gray300,
-                borderRadius: BorderRadius.circular(8.0),
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(
+          minHeight: 37,
+        ),
+        child: Row(
+          children: [
+            // 1) 아이콘 스켈레톤 (VaultItemIcon과 동일한 크기)
+            Shimmer.fromColors(
+              baseColor: CoconutColors.gray300,
+              highlightColor: CoconutColors.gray150,
+              child: Container(
+                width: 30.0,
+                height: 30.0,
+                decoration: BoxDecoration(
+                  color: CoconutColors.gray300,
+                  borderRadius: BorderRadius.circular(8.0),
+                ),
               ),
             ),
-          ),
-          const SizedBox(width: 8.0),
-          // 2) 텍스트 영역 (VaultRowItem의 Expanded 영역과 동일)
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // 지갑 이름 스켈레톤
-                Shimmer.fromColors(
-                  baseColor: CoconutColors.gray300,
-                  highlightColor: CoconutColors.gray150,
-                  child: Container(
-                    height: 16.0,
-                    width: 120.0,
-                    decoration: BoxDecoration(
-                      color: CoconutColors.gray300,
-                      borderRadius: BorderRadius.circular(4.0),
+            const SizedBox(width: 8.0),
+            // 2) 텍스트 영역 (VaultRowItem의 Expanded 영역과 동일)
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // 지갑 이름 스켈레톤
+                  Shimmer.fromColors(
+                    baseColor: CoconutColors.gray300,
+                    highlightColor: CoconutColors.gray150,
+                    child: Container(
+                      height: 16.0,
+                      width: 120.0,
+                      decoration: BoxDecoration(
+                        color: CoconutColors.gray300,
+                        borderRadius: BorderRadius.circular(4.0),
+                      ),
                     ),
                   ),
-                ),
-                const SizedBox(height: 4.0),
-                // 서브타이틀 스켈레톤 (멀티시그 정보 또는 기본 지갑 표시)
-                Shimmer.fromColors(
-                  baseColor: CoconutColors.gray300,
-                  highlightColor: CoconutColors.gray150,
-                  child: Container(
-                    height: 12.0,
-                    width: 80.0,
-                    decoration: BoxDecoration(
-                      color: CoconutColors.gray300,
-                      borderRadius: BorderRadius.circular(4.0),
+                  const SizedBox(height: 4.0),
+                  // 서브타이틀 스켈레톤 (멀티시그 정보 또는 기본 지갑 표시)
+                  Shimmer.fromColors(
+                    baseColor: CoconutColors.gray300,
+                    highlightColor: CoconutColors.gray150,
+                    child: Container(
+                      height: 12.0,
+                      width: 80.0,
+                      decoration: BoxDecoration(
+                        color: CoconutColors.gray300,
+                        borderRadius: BorderRadius.circular(4.0),
+                      ),
                     ),
                   ),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(width: 8.0),
-          // 3) 화살표 아이콘 스켈레톤 (chevron-right와 동일한 크기)
-          Shimmer.fromColors(
-            baseColor: CoconutColors.gray300,
-            highlightColor: CoconutColors.gray150,
-            child: Container(
-              width: 6.0,
-              height: 10.0,
-              decoration: BoxDecoration(
-                color: CoconutColors.gray300,
-                borderRadius: BorderRadius.circular(1.0),
+                ],
               ),
             ),
-          ),
-        ],
+            const SizedBox(width: 8.0),
+            // 3) 화살표 아이콘 스켈레톤 (chevron-right와 동일한 크기)
+            Shimmer.fromColors(
+              baseColor: CoconutColors.gray300,
+              highlightColor: CoconutColors.gray150,
+              child: Container(
+                width: 6.0,
+                height: 10.0,
+                decoration: BoxDecoration(
+                  color: CoconutColors.gray300,
+                  borderRadius: BorderRadius.circular(1.0),
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -192,7 +199,13 @@ class _VaultRowItemState extends State<VaultRowItem> {
     }
     return ShrinkAnimationButton(
       pressedColor: CoconutColors.gray150,
-      borderGradientColors: null,
+      borderGradientColors: widget.isKeyBorderVisible
+          ? [
+              CoconutColors.black.withOpacity(0.08),
+              CoconutColors.black.withOpacity(0.08),
+            ]
+          : null,
+      borderWidth: 1,
       borderRadius: 8,
       onPressed: () {
         if (widget.onSelected != null) {
@@ -223,113 +236,118 @@ class _VaultRowItemState extends State<VaultRowItem> {
   }) {
     return Container(
       padding: EdgeInsets.symmetric(horizontal: widget.isEditMode ? 8 : 20, vertical: 12),
-      child: Row(
-        children: [
-          if (widget.isEditMode)
-            Opacity(
-              opacity: widget.isStarVisible ? 1 : 0,
-              child: GestureDetector(
-                behavior: HitTestBehavior.translucent,
-                onTap: () {
-                  if (!widget.isStarVisible) return;
-                  onTapStar?.call((!widget.isFavorite, widget.vault.id));
-                },
-                child: Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: SvgPicture.asset(
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(
+          minHeight: 37,
+        ),
+        child: Row(
+          children: [
+            if (widget.isEditMode)
+              Opacity(
+                opacity: widget.isStarVisible ? 1 : 0,
+                child: GestureDetector(
+                  behavior: HitTestBehavior.translucent,
+                  onTap: () {
+                    if (!widget.isStarVisible) return;
+                    onTapStar?.call((!widget.isFavorite, widget.vault.id));
+                  },
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: SvgPicture.asset(
                       'assets/svg/${widget.isFavorite ? 'star-filled' : 'star-outlined'}.svg',
                       colorFilter: ColorFilter.mode(
                         widget.isFavorite ? CoconutColors.gray800 : CoconutColors.gray500,
                         BlendMode.srcIn,
                       ),
                       width: 18),
+                  ),
                 ),
               ),
-            ),
-          VaultIconSmall(
+             VaultIconSmall(
             iconIndex: widget.vault.iconIndex,
             colorIndex: widget.vault.colorIndex,
             gradientColors: _isMultiSig && _multiSigners != null
                 ? CustomColorHelper.getGradientColors(_multiSigners!)
                 : null,
           ),
-          CoconutLayout.spacing_200w,
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                FittedBox(
-                  fit: BoxFit.scaleDown,
-                  alignment: Alignment.centerLeft,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        widget.vault.name,
-                        style: CoconutTypography.body2_14_Bold,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ],
-                  ),
-                ),
-                Row(
-                  children: [
-                    if (_isMultiSig || _isUsedToMultiSig) ...{
-                      Text(
-                        _subtitleText,
-                        style: CoconutTypography.body3_12.copyWith(color: CoconutColors.gray600),
-                      ),
-                    },
-                    if (widget.isPrimaryWallet == true) ...[
-                      if (_isMultiSig || _isUsedToMultiSig)
+            CoconutLayout.spacing_200w,
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  FittedBox(
+                    fit: BoxFit.scaleDown,
+                    alignment: Alignment.centerLeft,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
                         Text(
-                          ' • ${t.vault_list_screen.primary_wallet}',
-                          style: CoconutTypography.body3_12.setColor(CoconutColors.gray500),
-                        )
-                      else
-                        Text(
-                          t.vault_list_screen.primary_wallet,
-                          style: CoconutTypography.body3_12.setColor(CoconutColors.gray500),
+                          widget.vault.name,
+                          style: CoconutTypography.body2_14_Bold,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
                         ),
-                    ],
-                  ],
-                ),
-              ],
-            ),
-          ),
-          CoconutLayout.spacing_200w,
-          widget.isSelectable
-              ? AnimatedScale(
-                  scale: widget.isSelectable && widget.isPressed ? 1.0 : 0,
-                  duration: const Duration(milliseconds: 200),
-                  curve: Curves.easeInOut,
-                  child: Icon(
-                    Icons.check,
-                    size: 24,
-                    color: CoconutColors.black.withOpacity(0.7),
+                      ],
+                    ),
                   ),
-                )
-              : widget.isEditMode
-                  ? ReorderableDragStartListener(
-                      index: index!,
-                      child: GestureDetector(
-                        child: Padding(
-                          padding: const EdgeInsets.only(right: 8),
-                          child: SvgPicture.asset(
-                            'assets/svg/hamburger.svg',
+                  Row(
+                    children: [
+                      if (_isMultiSig || _isUsedToMultiSig) ...{
+                        Text(
+                          _subtitleText,
+                          style: CoconutTypography.body3_12.copyWith(color: CoconutColors.gray600),
+                        ),
+                      },
+                      if (widget.isPrimaryWallet == true) ...[
+                        if (_isMultiSig || _isUsedToMultiSig)
+                          Text(
+                            ' • ${t.vault_list_screen.primary_wallet}',
+                            style: CoconutTypography.body3_12.setColor(CoconutColors.gray500),
+                          )
+                        else
+                          Text(
+                            t.vault_list_screen.primary_wallet,
+                            style: CoconutTypography.body3_12.setColor(CoconutColors.gray500),
+                          ),
+                      ],
+                    ],
+                  ),
+                ],
+              ),
+            ),
+            CoconutLayout.spacing_200w,
+            widget.isSelectable
+                ? AnimatedScale(
+                    scale: widget.isSelectable && widget.isPressed ? 1.0 : 0,
+                    duration: const Duration(milliseconds: 200),
+                    curve: Curves.easeInOut,
+                    child: Icon(
+                      Icons.check,
+                      size: 24,
+                      color: CoconutColors.black.withOpacity(0.7),
+                    ),
+                  )
+                : widget.isEditMode
+                    ? ReorderableDragStartListener(
+                        index: index!,
+                        child: GestureDetector(
+                          child: Padding(
+                            padding: const EdgeInsets.only(right: 8),
+                            child: SvgPicture.asset(
+                              'assets/svg/hamburger.svg',
+                            ),
                           ),
                         ),
-                      ),
-                    )
-                  : widget.isNextIconVisible
-                      ? SvgPicture.asset(
-                          'assets/svg/chevron-right.svg',
-                          width: 6,
-                          height: 10,
-                        )
-                      : const SizedBox.shrink()
-        ],
+                      )
+                    : widget.isNextIconVisible
+                        ? SvgPicture.asset(
+                            'assets/svg/chevron-right.svg',
+                            width: 6,
+                            height: 10,
+                          )
+                        : const SizedBox.shrink()
+          ],
+        ),
       ),
     );
   }
