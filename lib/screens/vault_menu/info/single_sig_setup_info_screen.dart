@@ -39,7 +39,7 @@ class _SingleSigSetupInfoScreenState extends State<SingleSigSetupInfoScreen> {
   double _tooltipTopPadding = 0;
 
   Timer? _tooltipTimer;
-  int _tooltipRemainingTime = 0;
+  bool _isTooltipVisible = false;
   bool hasPassphrase = false;
 
   Future<void> checkPassphraseStatus() async {
@@ -97,7 +97,7 @@ class _SingleSigSetupInfoScreenState extends State<SingleSigSetupInfoScreen> {
             final walletName = viewModel.name;
 
             return GestureDetector(
-              onTapDown: (details) => _removeTooltip(),
+              onTap: () => _removeTooltip(),
               child: Scaffold(
                 backgroundColor: CoconutColors.white,
                 appBar: CoconutAppBar.build(
@@ -129,31 +129,28 @@ class _SingleSigSetupInfoScreenState extends State<SingleSigSetupInfoScreen> {
                         ),
                       )
                     ]),
-                body: GestureDetector(
-                  onTap: () => FocusScope.of(context).unfocus(),
-                  child: SafeArea(
-                    child: SingleChildScrollView(
-                      child: Stack(
-                        children: [
-                          Container(
-                            margin: const EdgeInsets.only(top: 20),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                _buildVaultItemCard(context),
-                                (viewModel.hasLinkedMultisigVault == true)
-                                    ? _buildLinkedMultisigVaultInfoCard(context)
-                                    : CoconutLayout.spacing_500h,
-                                _buildSignMenu(),
-                                CoconutLayout.spacing_500h,
-                                _buildMenuList(context),
-                                CoconutLayout.spacing_500h,
-                              ],
-                            ),
-                          ),
-                          _buildTooltip(context),
-                        ],
-                      ),
+                body: SafeArea(
+                  child: SingleChildScrollView(
+                    child: Stack(
+                      children: [
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            CoconutLayout.spacing_500h,
+                            _buildVaultItemCard(context),
+                            if (viewModel.hasLinkedMultisigVault == true) ...[
+                              CoconutLayout.spacing_300h,
+                              _buildLinkedMultisigVaultInfoCard(context),
+                            ],
+                            CoconutLayout.spacing_500h,
+                            _buildSignMenu(),
+                            CoconutLayout.spacing_500h,
+                            _buildMenuList(context),
+                            CoconutLayout.spacing_500h,
+                          ],
+                        ),
+                        _buildTooltip(context),
+                      ],
                     ),
                   ),
                 ),
@@ -169,7 +166,7 @@ class _SingleSigSetupInfoScreenState extends State<SingleSigSetupInfoScreen> {
     final viewModel = context.watch<SingleSigSetupInfoViewModel>();
     return VaultItemCard(
       vaultItem: viewModel.vaultItem,
-      onTooltipClicked: () => _showTooltip(context),
+      onTooltipClicked: () => _toggleTooltipVisible(context),
       onNameChangeClicked: () {
         _removeTooltip();
         _showModalBottomSheetForEditingNameAndIcon(viewModel);
@@ -185,6 +182,7 @@ class _SingleSigSetupInfoScreenState extends State<SingleSigSetupInfoScreen> {
         enableShrinkAnim: true,
         title: t.vault_menu_screen.title.single_sig_sign,
         onPressed: () {
+          _removeTooltip();
           Navigator.pushNamed(context, AppRoutes.psbtScanner, arguments: {'id': widget.id});
         },
       ),
@@ -246,10 +244,10 @@ class _SingleSigSetupInfoScreenState extends State<SingleSigSetupInfoScreen> {
     );
 
     return Container(
-      margin: const EdgeInsets.only(bottom: 12, left: 16, right: 16),
+      margin: const EdgeInsets.only(left: 16, right: 16),
       decoration: BoxDecoration(
         color: CoconutColors.white,
-        borderRadius: BorderRadius.circular(22),
+        borderRadius: BorderRadius.circular(12),
         gradient: linearGradient,
       ),
       child: Container(
@@ -257,7 +255,7 @@ class _SingleSigSetupInfoScreenState extends State<SingleSigSetupInfoScreen> {
         padding: const EdgeInsets.only(left: 20, right: 20, top: 20, bottom: 14),
         decoration: BoxDecoration(
           color: CoconutColors.white,
-          borderRadius: BorderRadius.circular(21),
+          borderRadius: BorderRadius.circular(11),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -416,7 +414,7 @@ class _SingleSigSetupInfoScreenState extends State<SingleSigSetupInfoScreen> {
 
   Widget _buildTooltip(BuildContext context) {
     return Visibility(
-      visible: _tooltipRemainingTime > 0,
+      visible: _isTooltipVisible,
       child: Positioned(
         top: _tooltipIconPosition.dy - _tooltipTopPadding,
         right: MediaQuery.sizeOf(context).width - _tooltipIconPosition.dx - 48,
@@ -451,36 +449,29 @@ class _SingleSigSetupInfoScreenState extends State<SingleSigSetupInfoScreen> {
     );
   }
 
-  void _showTooltip(BuildContext context) {
-    if (_tooltipRemainingTime > 0) {
-      // 툴팁이 이미 보여지고 있는 상태라면 툴팁 제거만 합니다.
+  void _toggleTooltipVisible(BuildContext context) {
+    /// 이미 보여지고 있는 상태라면 툴팁 제거만 합니다.
+    if (_isTooltipVisible) {
       _removeTooltip();
       return;
     }
-    _removeTooltip();
 
     setState(() {
-      _tooltipRemainingTime = 5;
+      _isTooltipVisible = true;
     });
 
-    _tooltipTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
+    _tooltipTimer = Timer(const Duration(seconds: 5), () {
       setState(() {
-        if (_tooltipRemainingTime > 0) {
-          _tooltipRemainingTime--;
-        } else {
-          _removeTooltip();
-          timer.cancel();
-        }
+        _isTooltipVisible = false;
       });
     });
   }
 
   void _removeTooltip() {
-    if (_tooltipRemainingTime == 0) return;
-    setState(() {
-      _tooltipRemainingTime = 0;
-    });
     _tooltipTimer?.cancel();
+    setState(() {
+      _isTooltipVisible = false;
+    });
   }
 
   void _showDeleteDialog(BuildContext context, String walletName) {

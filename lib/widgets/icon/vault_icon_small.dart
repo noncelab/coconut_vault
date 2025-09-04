@@ -4,12 +4,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'dart:math' as math;
 
-class VaultItemIcon extends StatelessWidget {
+class VaultIconSmall extends StatelessWidget {
   final int colorIndex;
   final int iconIndex;
   final List<Color>? gradientColors;
 
-  const VaultItemIcon({
+  const VaultIconSmall({
     super.key,
     this.colorIndex = 0,
     this.iconIndex = 0,

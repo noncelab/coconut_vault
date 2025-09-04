@@ -186,7 +186,7 @@ class _VaultNameAndIconSetupScreenState extends State<VaultNameAndIconSetupScree
           ),
         ),
         FixedBottomButton(
-          bottomPadding: 56,
+          //bottomPadding: 56,
           text: t.next,
           onButtonClicked: () {
             if (inputText.trim().isEmpty) return;

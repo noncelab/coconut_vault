@@ -61,9 +61,6 @@ stop_sign: "Stop Signing"
 select_completed: "Selection Complete"
 checklist: "Checklist"
 wallet_id: "Wallet ID"
-available_signer_count: 
-  one: $n signer available
-  other: $n signers available
 mnemonic_wordlist: "Mnemonic Word List"
 tool: "Tool"
 tutorial: "Tutorial"
