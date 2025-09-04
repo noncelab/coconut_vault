@@ -36,6 +36,7 @@ class _VaultNameAndIconSetupScreenState extends State<VaultNameAndIconSetupScree
   late int selectedColorIndex;
   final TextEditingController _controller = TextEditingController();
   bool _showLoading = false;
+  bool _isTextFieldFocused = false;
 
   @override
   void initState() {
@@ -138,6 +139,12 @@ class _VaultNameAndIconSetupScreenState extends State<VaultNameAndIconSetupScree
     });
   }
 
+  void updateFocusState(bool isFocused) {
+    setState(() {
+      _isTextFieldFocused = isFocused;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Stack(
@@ -168,6 +175,7 @@ class _VaultNameAndIconSetupScreenState extends State<VaultNameAndIconSetupScree
               onNameChanged: updateName,
               onIconSelected: updateIcon,
               onColorSelected: updateColor,
+              onFocusChanged: updateFocusState,
             ),
           ),
         ),
@@ -186,7 +194,8 @@ class _VaultNameAndIconSetupScreenState extends State<VaultNameAndIconSetupScree
           ),
         ),
         FixedBottomButton(
-          //bottomPadding: 56,
+          bottomPadding: _isTextFieldFocused ? 20 : 50,
+          showGradient: true,
           text: t.next,
           onButtonClicked: () {
             if (inputText.trim().isEmpty) return;
@@ -199,7 +208,6 @@ class _VaultNameAndIconSetupScreenState extends State<VaultNameAndIconSetupScree
               saveNewVaultName(context);
             }
           },
-          showGradient: false,
           backgroundColor: CoconutColors.black,
           isActive: inputText.trim().isNotEmpty && !_showLoading,
         ),

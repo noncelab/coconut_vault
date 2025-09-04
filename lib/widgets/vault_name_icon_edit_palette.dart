@@ -13,12 +13,14 @@ class VaultNameIconEditPalette extends StatefulWidget {
   final Function(String) onNameChanged;
   final Function(int) onIconSelected;
   final Function(int) onColorSelected;
+  final Function(bool)? onFocusChanged;
 
   const VaultNameIconEditPalette({
     super.key,
     required this.onNameChanged,
     required this.onIconSelected,
     required this.onColorSelected,
+    this.onFocusChanged,
     this.name = '',
     this.iconIndex = 0,
     this.colorIndex = 0,
@@ -42,6 +44,12 @@ class _VaultNameIconEditPaletteState extends State<VaultNameIconEditPalette> {
     _selectedIconIndex = widget.iconIndex;
     _selectedColorIndex = widget.colorIndex;
     _controller.text = _name;
+
+    _focusNode.addListener(() {
+      if (widget.onFocusChanged != null) {
+        widget.onFocusChanged!(_focusNode.hasFocus);
+      }
+    });
   }
 
   @override
