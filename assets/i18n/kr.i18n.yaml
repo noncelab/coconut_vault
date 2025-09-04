@@ -316,6 +316,7 @@ mnemonic_generate_screen:
   use: "사용"
   do_not: "안함"
   enter_passphrase: "패스프레이즈를 입력해 주세요"
+  passphrase_not_matched: "패스프레이즈가 일치하지 않아요"
   memorable_passphrase_guide: "무슨 일이 있어도 기억할 수 있는 패스프레이즈"
   passphrase_confirm_guide: "패스프레이즈 확인"
   backup_guide: "안전한 장소에서 니모닉 문구를 백업해 주세요"
