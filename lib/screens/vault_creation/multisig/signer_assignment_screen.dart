@@ -358,12 +358,24 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
                   ),
                 );
               },
-              child: Container(
-                width: MediaQuery.of(context).size.width,
-                padding: const EdgeInsets.all(16),
-                child: Text(
-                  t.assign_signers_screen.use_internal_key,
-                  style: CoconutTypography.body1_16_Bold,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 12),
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(
+                    minHeight: 37,
+                  ),
+                  child: Container(
+                    width: MediaQuery.of(context).size.width,
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    child: Align(
+                      alignment: Alignment.centerLeft,
+                      child: Text(
+                        t.assign_signers_screen.use_internal_key,
+                        style: CoconutTypography.body1_16_Bold,
+                        textAlign: TextAlign.left,
+                      ),
+                    ),
+                  ),
                 ),
               ),
             ),
@@ -428,12 +440,24 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
                   }
                 }
               },
-              child: Container(
-                width: MediaQuery.of(context).size.width,
-                padding: const EdgeInsets.all(16),
-                child: Text(
-                  t.assign_signers_screen.import_from_other_vault,
-                  style: CoconutTypography.body1_16_Bold,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 12),
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(
+                    minHeight: 37,
+                  ),
+                  child: Container(
+                    width: MediaQuery.of(context).size.width,
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    child: Align(
+                      alignment: Alignment.centerLeft,
+                      child: Text(
+                        t.assign_signers_screen.import_from_other_vault,
+                        style: CoconutTypography.body1_16_Bold,
+                        textAlign: TextAlign.left,
+                      ),
+                    ),
+                  ),
                 ),
               ),
             ),
