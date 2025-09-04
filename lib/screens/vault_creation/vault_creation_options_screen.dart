@@ -46,9 +46,9 @@ class VaultCreationOptions extends StatelessWidget {
         slivers: <Widget>[
           SliverSafeArea(
               top: false,
-              minimum: const EdgeInsets.only(top: 8),
+              minimum: const EdgeInsets.only(top: 10),
               sliver: SliverPadding(
-                  padding: const EdgeInsets.fromLTRB(16, 32, 16, 0),
+                  padding: const EdgeInsets.fromLTRB(16, 0, 16, 0),
                   sliver: SliverList(
                     delegate: SliverChildBuilderDelegate((ctx, index) {
                       return Column(children: [

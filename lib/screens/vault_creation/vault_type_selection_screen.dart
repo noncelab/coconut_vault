@@ -69,7 +69,7 @@ class _VaultTypeSelectionScreenState extends State<VaultTypeSelectionScreen> {
             context: context,
           ),
           body: SafeArea(
-            minimum: const EdgeInsets.only(top: 40, right: 16, left: 16),
+            minimum: const EdgeInsets.only(top: 10, right: 16, left: 16),
             child: Stack(
               children: [
                 Column(

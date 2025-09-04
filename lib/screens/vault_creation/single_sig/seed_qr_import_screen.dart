@@ -44,6 +44,7 @@ class _SeedQrImportScreenState extends State<SeedQrImportScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: CoconutColors.white,
       appBar: CoconutAppBar.build(context: context, title: t.seed_qr_import_screen.title),
       body: QRView(
         key: qrKey,
