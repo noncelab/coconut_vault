@@ -237,8 +237,12 @@ class _VaultRowItemState extends State<VaultRowItem> {
                 child: Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: SvgPicture.asset(
-                    'assets/svg/${widget.isFavorite ? 'star-filled' : 'star-outlined'}.svg',
-                  ),
+                      'assets/svg/${widget.isFavorite ? 'star-filled' : 'star-outlined'}.svg',
+                      colorFilter: ColorFilter.mode(
+                        widget.isFavorite ? CoconutColors.gray800 : CoconutColors.gray500,
+                        BlendMode.srcIn,
+                      ),
+                      width: 18),
                 ),
               ),
             ),
