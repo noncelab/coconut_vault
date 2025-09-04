@@ -24,7 +24,6 @@ class _MnemonicConfirmationScreenState extends State<MnemonicConfirmationScreen>
   @override
   void initState() {
     super.initState();
-    assert(_walletCreationProvider.secret != null);
     _walletCreationProvider = Provider.of<WalletCreationProvider>(context, listen: false);
     _mnemonic = _walletCreationProvider.secret!;
     step = 0;
