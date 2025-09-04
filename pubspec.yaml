@@ -76,7 +76,7 @@ dependencies:
   coconut_design_system:
     git:
       url: https://github.com/noncelab/coconut_design_system.git
-      ref: fix/stepper
+      ref: main
   cbor: ^6.3.5
   ur:
     path: lib/packages/bc-ur-dart
