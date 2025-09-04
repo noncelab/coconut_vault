@@ -5,10 +5,10 @@ import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/providers/visibility_provider.dart';
 import 'package:coconut_vault/providers/wallet_creation_provider.dart';
 import 'package:coconut_vault/widgets/button/fixed_bottom_button.dart';
+import 'package:coconut_vault/widgets/button/shrink_animation_button.dart';
 import 'package:coconut_vault/widgets/list/mnemonic_list.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:coconut_vault/widgets/button/custom_buttons.dart';
 import 'package:coconut_vault/widgets/check_list.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:provider/provider.dart';
@@ -172,36 +172,33 @@ class _WordsLengthSelectionState extends State<WordsLengthSelection> {
             t.mnemonic_generate_screen.select_word_length,
             style: CoconutTypography.body1_16_Bold,
           ),
-          const SizedBox(height: 20),
+          CoconutLayout.spacing_800h,
           Row(
             children: [
-              Expanded(
-                child: SelectableButton(
-                  text: t.mnemonic_generate_screen.twelve,
-                  onTap: () {
-                    setState(() {
-                      selectedWordsCount = 12;
-                    });
-                    widget.onSelected(selectedWordsCount);
-                  },
-                ),
-              ),
-              const SizedBox(width: 8),
-              Expanded(
-                child: SelectableButton(
-                  text: t.mnemonic_generate_screen.twenty_four,
-                  onTap: () {
-                    setState(() {
-                      selectedWordsCount = 24;
-                    });
-                    widget.onSelected(selectedWordsCount);
-                  },
-                ),
-              ),
+              _buildWordCountButton(t.mnemonic_generate_screen.twelve),
+              CoconutLayout.spacing_200w,
+              _buildWordCountButton(t.mnemonic_generate_screen.twenty_four),
             ],
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildWordCountButton(String text) {
+    return ShrinkAnimationButton(
+      defaultColor: CoconutColors.gray150,
+      pressedColor: CoconutColors.gray500.withOpacity(0.15),
+      child: Container(
+          width: (MediaQuery.of(context).size.width - 44) / 2,
+          padding: const EdgeInsets.symmetric(vertical: 40.0),
+          child: Center(child: Text(text, style: CoconutTypography.body1_16_Bold))),
+      onPressed: () {
+        setState(() {
+          selectedWordsCount = text == t.mnemonic_generate_screen.twelve ? 12 : 24;
+        });
+        widget.onSelected(selectedWordsCount);
+      },
     );
   }
 }
@@ -219,7 +216,7 @@ class PassphraseSelection extends StatefulWidget {
 }
 
 class _PassphraseSelectionState extends State<PassphraseSelection> {
-  bool? selected;
+  bool usePassphrase = false;
 
   @override
   Widget build(BuildContext context) {
@@ -231,36 +228,33 @@ class _PassphraseSelectionState extends State<PassphraseSelection> {
             t.mnemonic_generate_screen.use_passphrase,
             style: CoconutTypography.body1_16_Bold,
           ),
-          const SizedBox(height: 20),
+          CoconutLayout.spacing_800h,
           Row(
             children: [
-              Expanded(
-                child: SelectableButton(
-                  text: t.no,
-                  onTap: () {
-                    setState(() {
-                      selected = false;
-                    });
-                    widget.onSelected(false);
-                  },
-                ),
-              ),
-              const SizedBox(width: 8),
-              Expanded(
-                child: SelectableButton(
-                  text: t.yes,
-                  onTap: () {
-                    setState(() {
-                      selected = true;
-                    });
-                    widget.onSelected(true);
-                  },
-                ),
-              ),
+              _buildPassphraseUseButton(t.no),
+              CoconutLayout.spacing_200w,
+              _buildPassphraseUseButton(t.yes),
             ],
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildPassphraseUseButton(String text) {
+    return ShrinkAnimationButton(
+      defaultColor: CoconutColors.gray150,
+      pressedColor: CoconutColors.gray500.withOpacity(0.15),
+      child: Container(
+          width: (MediaQuery.of(context).size.width - 44) / 2,
+          padding: const EdgeInsets.symmetric(vertical: 40.0),
+          child: Center(child: Text(text, style: CoconutTypography.body1_16_Bold))),
+      onPressed: () {
+        setState(() {
+          usePassphrase = text == t.no ? false : true;
+        });
+        widget.onSelected(usePassphrase);
+      },
     );
   }
 }
@@ -455,12 +449,16 @@ class _MnemonicWordsState extends State<MnemonicWords> {
                                 ? t.mnemonic_generate_screen.passphrase_not_matched
                                 : t.mnemonic_generate_screen.enter_passphrase,
                         style: CoconutTypography.body1_16_Bold.setColor(
-                          isPassphraseNotMached ? CoconutColors.warningText : CoconutColors.black,
+                          step == 0
+                              ? CoconutColors.warningText
+                              : isPassphraseNotMached
+                                  ? CoconutColors.warningText
+                                  : CoconutColors.black,
                         ),
                       ),
                     ),
                     step == 0 ? MnemonicList(mnemonic: mnemonic) : _buildPassphraseInput(),
-                    const SizedBox(height: 40),
+                    const SizedBox(height: 100),
                   ],
                 )),
           ),
