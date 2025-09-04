@@ -79,15 +79,12 @@ class _VaultListRestorationScreenState extends State<VaultListRestorationScreen>
       decoration: BoxDecoration(
         color: CoconutColors.white,
         borderRadius: const BorderRadius.all(
-          Radius.circular(CoconutStyles.radius_400),
+          Radius.circular(CoconutStyles.radius_200),
         ),
-        boxShadow: [
-          BoxShadow(
-            color: CoconutColors.gray500.withOpacity(0.18),
-            spreadRadius: 4,
-            blurRadius: 10,
-          ),
-        ],
+        border: Border.all(
+          color: CoconutColors.gray500.withOpacity(0.18),
+          width: 1,
+        ),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
