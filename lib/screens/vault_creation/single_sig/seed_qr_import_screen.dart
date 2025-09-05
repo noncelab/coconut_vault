@@ -70,12 +70,15 @@ class _SeedQrImportScreenState extends State<SeedQrImportScreen> {
           words = _decodeCompactQR(scanData.rawBytes!);
         } else {
           if (mounted) {
-            CustomDialogs.showCustomAlertDialog(context,
-                title: t.seed_qr_import_screen.error_title,
-                message: '${t.seed_qr_import_screen.error_message}: $e',
-                onConfirm: () => Navigator.of(context).pop(),
-                isSingleButton: true,
-                confirmButtonColor: CoconutColors.black);
+            showDialog(
+                context: context,
+                builder: (context) {
+                  return CoconutPopup(
+                    title: t.seed_qr_import_screen.error_title,
+                    description: '${t.seed_qr_import_screen.error_message}: $e',
+                    onTapRight: () => Navigator.of(context).pop(),
+                  );
+                });
           }
           return;
         }

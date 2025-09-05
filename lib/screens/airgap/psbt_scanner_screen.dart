@@ -78,17 +78,10 @@ class _PsbtScannerScreenState extends State<PsbtScannerScreen> {
             insetPadding:
                 EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width * 0.15),
             title: t.errors.scan_error_title,
-            titleTextStyle: CoconutTypography.body1_16_Bold,
             description: message,
-            descriptionTextStyle: CoconutTypography.body2_14,
             backgroundColor: CoconutColors.white,
             rightButtonText: t.confirm,
             rightButtonColor: CoconutColors.black.withOpacity(0.7),
-            rightButtonTextStyle: CoconutTypography.body2_14.merge(
-              const TextStyle(
-                fontWeight: FontWeight.w500,
-              ),
-            ),
             onTapRight: () {
               _isProcessing = false;
               controller!.resumeCamera();

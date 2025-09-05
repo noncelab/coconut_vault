@@ -107,13 +107,17 @@ class _VaultNameAndIconSetupScreenState extends State<VaultNameAndIconSetupScree
       Navigator.pushNamedAndRemoveUntil(context, '/', (Route<dynamic> route) => false,
           arguments: VaultListNavArgs(isWalletAdded: true));
     } catch (e) {
-      Logger.log("$e");
-      CustomDialogs.showCustomAlertDialog(context,
-          title: t.errors.creation_error,
-          onConfirm: () => Navigator.of(context).pop(),
-          message: e.toString(),
-          isSingleButton: true,
-          confirmButtonColor: CoconutColors.black);
+      Logger.error(e);
+      if (!mounted) return;
+      showDialog(
+          context: context,
+          builder: (context) {
+            return CoconutPopup(
+              title: t.errors.creation_error,
+              description: e.toString(),
+              onTapRight: () => Navigator.of(context).pop(),
+            );
+          });
     } finally {
       setState(() {
         _showLoading = false;

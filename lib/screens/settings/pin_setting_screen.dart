@@ -247,26 +247,6 @@ class _PinSettingScreenState extends State<PinSettingScreen> {
     }
   }
 
-  void showDialog() {
-    if (!_authProvider.isPinSet) {
-      Navigator.of(context).pop();
-    } else {
-      CustomDialogs.showCustomAlertDialog(context,
-          title: t.alert.unchange_password.title,
-          message: t.alert.unchange_password.description,
-          confirmButtonText: t.stop,
-          confirmButtonColor: CoconutColors.warningText, onConfirm: () {
-        // 스택 두단계 뒤로 이동
-        int count = 0;
-        Navigator.of(context).popUntil((route) {
-          return count++ == 2;
-        });
-      }, onCancel: () {
-        Navigator.of(context).pop();
-      });
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     if (greeting) {
@@ -317,18 +297,6 @@ class _PinSettingScreenState extends State<PinSettingScreen> {
         onPinTypeChanged: _onPinTypeChanged,
         pinType: _currentPinType,
         pinShuffleNumbers: _shuffledPinNumbers,
-        onClosePressed: step == 0
-            ? () {
-                showDialog();
-              }
-            : () {
-                setState(() {
-                  pin = '';
-                  pinConfirm = '';
-                  step = 0;
-                  errorMessage = '';
-                });
-              },
         onPinClear: () {
           if (step == 0) {
             pin = '';
@@ -336,17 +304,6 @@ class _PinSettingScreenState extends State<PinSettingScreen> {
             pinConfirm = '';
           }
           setState(() {});
-        },
-        onBackPressed: () {
-          setState(() {
-            if (widget.greetingVisible) {
-              greeting = true;
-            }
-            pin = '';
-            pinConfirm = '';
-            step = 0;
-            errorMessage = '';
-          });
         },
         step: step);
   }

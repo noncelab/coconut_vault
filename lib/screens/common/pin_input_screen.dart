@@ -16,9 +16,7 @@ class PinInputScreen extends StatefulWidget {
   final void Function(String) onKeyTap;
   final List<String> pinShuffleNumbers;
   final Function? onReset;
-  final VoidCallback onClosePressed;
   final VoidCallback onPinClear;
-  final VoidCallback? onBackPressed;
   final int step;
   final bool appBarVisible;
   final bool initOptionVisible;
@@ -36,10 +34,8 @@ class PinInputScreen extends StatefulWidget {
       required this.errorMessage,
       required this.onKeyTap,
       required this.pinShuffleNumbers,
-      required this.onClosePressed,
       required this.onPinClear,
       this.onReset,
-      this.onBackPressed,
       required this.step,
       required this.canChangePinType,
       this.appBarVisible = true,

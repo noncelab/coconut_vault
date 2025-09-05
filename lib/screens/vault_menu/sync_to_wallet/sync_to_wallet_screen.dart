@@ -5,7 +5,6 @@ import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:coconut_vault/services/blockchain_commons/ur_type.dart';
 import 'package:coconut_vault/widgets/animated_qr/animated_qr_view.dart';
 import 'package:coconut_vault/widgets/animated_qr/view_data_handler/bc_ur_qr_view_handler.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:qr_flutter/qr_flutter.dart';
@@ -20,10 +19,7 @@ class SyncToWalletScreen extends StatefulWidget {
 }
 
 class _SyncToWalletScreenState extends State<SyncToWalletScreen> {
-  String qrData = '';
-  String pubString = '';
   late String _name;
-  late final Map<int, String> options;
   List<bool> _isSelected = [true, false, false];
 
   @override
@@ -81,32 +77,5 @@ class _SyncToWalletScreenState extends State<SyncToWalletScreen> {
         ),
       ),
     );
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    final walletProvider = Provider.of<WalletProvider>(context, listen: false);
-    final vaultListItem = walletProvider.getVaultById(widget.id);
-    _name = vaultListItem.name;
-
-    try {
-      qrData = vaultListItem.getWalletSyncString();
-    } catch (_) {
-      showDialog(
-          context: context,
-          builder: (BuildContext context) {
-            return CupertinoAlertDialog(
-                content: Text(t.errors.export_error),
-                actions: <CupertinoDialogAction>[
-                  CupertinoDialogAction(
-                    onPressed: () {
-                      Navigator.pop(context);
-                    },
-                    child: Text(t.confirm),
-                  ),
-                ]);
-          });
-    }
   }
 }
