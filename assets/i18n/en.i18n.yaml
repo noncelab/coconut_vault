@@ -333,7 +333,7 @@ mnemonic_view_screen:
   security_guide: "Please check the mnemonic in a safe place"
 mnemonic_verify_screen:
   title: "Verify Mnemonic"
-  select_word: "Select ${index}th word"
+  select_word: "Select word #${index}"
   not_correct: "Not correct"
 select_vault_type_screen:
   title: "Create Wallet"

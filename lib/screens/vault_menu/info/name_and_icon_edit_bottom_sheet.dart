@@ -41,9 +41,9 @@ class _NameAndIconEditBottomSheetState extends State<NameAndIconEditBottomSheet>
 
   @override
   Widget build(BuildContext context) {
-    return CustomLoadingOverlay(
-      child: ClipRRect(
-        borderRadius: CoconutBorder.defaultRadius,
+    return ClipRRect(
+      borderRadius: CoconutBorder.defaultRadius,
+      child: CustomLoadingOverlay(
         child: Scaffold(
           backgroundColor: CoconutColors.white,
           appBar: CoconutAppBar.build(
@@ -109,11 +109,15 @@ class _NameAndIconEditBottomSheetState extends State<NameAndIconEditBottomSheet>
     if (hasChanged) {
       context.loaderOverlay.show();
       await Future.delayed(const Duration(seconds: 1));
-      context.loaderOverlay.hide();
+      if (mounted) {
+        context.loaderOverlay.hide();
+      }
     }
 
     widget.onUpdate(_name.isEmpty ? widget.name : _name, _iconIndex, _colorIndex);
-    Navigator.of(context).pop();
+    if (mounted) {
+      Navigator.of(context).pop();
+    }
   }
 
   void _closeKeyboard() {

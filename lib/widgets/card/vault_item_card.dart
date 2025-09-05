@@ -153,18 +153,18 @@ class VaultItemCard extends StatelessWidget {
                   BoxShadow(
                     color: CoconutColors.gray300,
                     offset: Offset(2, 2),
-                    blurRadius: 12,
+                    blurRadius: 10,
                     spreadRadius: 0,
                   ),
                 ]),
             child: Container(
-              padding: const EdgeInsets.all(2),
+              padding: const EdgeInsets.all(1),
               decoration: const BoxDecoration(
                 color: CoconutColors.gray150,
                 shape: BoxShape.circle,
               ),
               child: SvgPicture.asset('assets/svg/edit-outlined.svg',
-                  width: 6,
+                  width: 10,
                   colorFilter: const ColorFilter.mode(CoconutColors.gray700, BlendMode.srcIn)),
             ),
           ),

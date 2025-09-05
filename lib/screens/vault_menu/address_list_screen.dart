@@ -97,9 +97,8 @@ class _AddressListScreenState extends State<AddressListScreen> {
                 : Column(
                     children: [
                       Container(
-                        height: 36,
                         margin: const EdgeInsets.only(
-                          top: 20,
+                          top: 16,
                           bottom: 12,
                           left: 16,
                           right: 16,
@@ -109,9 +108,6 @@ class _AddressListScreenState extends State<AddressListScreen> {
                           color: CoconutColors.black.withOpacity(0.06),
                         ),
                         child: CoconutSegmentedControl(
-                          containerBorderRadius: CoconutStyles.radius_400,
-                          labelBorderRadius: CoconutStyles.radius_400,
-                          labelPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                           labels: [t.receiving, t.change],
                           isSelected: [
                             viewModel.isReceivingSelected,
@@ -121,10 +117,6 @@ class _AddressListScreenState extends State<AddressListScreen> {
                             viewModel.setReceivingSelected(index == 0);
                             scrollToTop();
                           },
-                          selectedColor: CoconutColors.black.withOpacity(0.5),
-                          selectedTextColor: CoconutColors.white,
-                          unselectedColor: Colors.transparent,
-                          unselectedTextColor: CoconutColors.black.withOpacity(0.5),
                         ),
                       ),
                       Expanded(
