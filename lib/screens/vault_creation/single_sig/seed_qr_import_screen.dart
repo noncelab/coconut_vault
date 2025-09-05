@@ -5,6 +5,7 @@ import 'package:coconut_lib/coconut_lib.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/screens/vault_creation/single_sig/seed_qr_confirmation_screen.dart';
 import 'package:coconut_vault/widgets/custom_dialog.dart';
+import 'package:coconut_vault/widgets/custom_tooltip.dart';
 import 'package:crypto/crypto.dart';
 import 'package:qr_code_scanner/qr_code_scanner.dart';
 import 'package:flutter/material.dart';
@@ -46,10 +47,49 @@ class _SeedQrImportScreenState extends State<SeedQrImportScreen> {
     return Scaffold(
       backgroundColor: CoconutColors.white,
       appBar: CoconutAppBar.build(context: context, title: t.seed_qr_import_screen.title),
-      body: QRView(
-        key: qrKey,
-        onQRViewCreated: _onQRViewCreated,
+      body: Stack(
+        children: [
+          Container(
+            color: CoconutColors.white,
+            child: QRView(
+              key: qrKey,
+              onQRViewCreated: _onQRViewCreated,
+              overlay: _getOverlayShape(),
+            ),
+          ),
+          CustomTooltip.buildInfoTooltip(
+            context,
+            richText: RichText(
+              text: TextSpan(
+                style: CoconutTypography.body3_12,
+                children: [
+                  TextSpan(
+                      text: t.seed_qr_import_screen.guide,
+                      style: CoconutTypography.body2_14
+                          .copyWith(height: 1.2, color: CoconutColors.black)),
+                ],
+              ),
+            ),
+            isBackgroundWhite: false,
+          ),
+        ],
       ),
+    );
+  }
+
+  QrScannerOverlayShape _getOverlayShape() {
+    return QrScannerOverlayShape(
+      borderColor: CoconutColors.white,
+      borderRadius: 8,
+      borderLength:
+          (MediaQuery.of(context).size.width < 400 || MediaQuery.of(context).size.height < 400)
+              ? 160.0
+              : MediaQuery.of(context).size.width * 0.85 / 2,
+      borderWidth: 8,
+      cutOutSize:
+          (MediaQuery.of(context).size.width < 400 || MediaQuery.of(context).size.height < 400)
+              ? 320.0
+              : MediaQuery.of(context).size.width * 0.85,
     );
   }
 
