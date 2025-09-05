@@ -171,7 +171,7 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
                                           return;
                                         }
                                         MyBottomSheet.showBottomSheet_ratio(
-                                          showDragHandle: true,
+                                          showDragHandle: false,
                                           context: context,
                                           child: _buildSelectKeyOptionBottomSheet(i),
                                           ratio: 0.35,
