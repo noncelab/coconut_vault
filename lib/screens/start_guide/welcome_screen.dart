@@ -7,7 +7,6 @@ import 'package:coconut_vault/providers/connectivity_provider.dart';
 import 'package:coconut_vault/providers/visibility_provider.dart';
 import 'package:coconut_vault/widgets/button/fixed_bottom_button.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/svg.dart';
 import 'package:provider/provider.dart';
 
 class WelcomeScreen extends StatefulWidget {
@@ -178,39 +177,41 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
       case 3:
         return Container(
           height: 160,
-          padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 24),
-          decoration: BoxDecoration(
-            color: CoconutColors.gray150,
-            borderRadius: BorderRadius.circular(10),
-          ),
+          padding: const EdgeInsets.symmetric(vertical: 24),
           child: Consumer<ConnectivityProvider>(builder: (context, provider, child) {
             final isNetworkOn = provider.isNetworkOn ?? false;
             final isBluetoothOn = provider.isBluetoothOn ?? false;
             final isDeveloperModeOn = provider.isDeveloperModeOn ?? false;
 
-            return Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                _getState(
-                    t.welcome_screen.network,
-                    isNetworkOn,
-                    isNetworkOn
-                        ? t.connectivity_state.connected
-                        : t.connectivity_state.disconnected),
-                CoconutLayout.spacing_300h,
-                _getState(t.welcome_screen.bluetooth, isBluetoothOn,
-                    isBluetoothOn ? t.connectivity_state.enabled : t.connectivity_state.disabled),
-                if (Platform.isAndroid) ...[
-                  CoconutLayout.spacing_300h,
+            return Container(
+              decoration: BoxDecoration(
+                color: CoconutColors.gray150,
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
                   _getState(
-                      t.welcome_screen.developer_option,
-                      isDeveloperModeOn,
-                      isDeveloperModeOn
-                          ? t.connectivity_state.active
-                          : t.connectivity_state.inactive),
-                ]
-              ],
+                      t.welcome_screen.network,
+                      isNetworkOn,
+                      isNetworkOn
+                          ? t.connectivity_state.connected
+                          : t.connectivity_state.disconnected),
+                  CoconutLayout.spacing_300h,
+                  _getState(t.welcome_screen.bluetooth, isBluetoothOn,
+                      isBluetoothOn ? t.connectivity_state.enabled : t.connectivity_state.disabled),
+                  if (Platform.isAndroid) ...[
+                    CoconutLayout.spacing_300h,
+                    _getState(
+                        t.welcome_screen.developer_option,
+                        isDeveloperModeOn,
+                        isDeveloperModeOn
+                            ? t.connectivity_state.active
+                            : t.connectivity_state.inactive),
+                  ]
+                ],
+              ),
             );
           }),
         );
@@ -221,33 +222,28 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
   Widget _getState(String label, bool isOn, String stateText) {
     return Row(
       children: [
-        Expanded(flex: 1, child: Container()),
+        CoconutLayout.spacing_600w,
+        Expanded(flex: 5, child: Text(label, style: CoconutTypography.body1_16_Bold, maxLines: 2)),
+        CoconutLayout.spacing_100w,
         Expanded(
             flex: 4,
-            child: FittedBox(
-                fit: BoxFit.scaleDown,
-                alignment: Alignment.centerLeft,
-                child: Text(label, style: CoconutTypography.heading4_18_Bold))),
-        Expanded(flex: 1, child: Container()),
-        Expanded(
-            flex: 1,
-            child: isOn
-                ? SvgPicture.asset('assets/svg/circle-stop-outlined.svg')
-                : SvgPicture.asset('assets/svg/circle-check-outlined.svg')),
-        CoconutLayout.spacing_200w,
-        Expanded(
-            flex: 3,
-            child: FittedBox(
-              fit: BoxFit.scaleDown,
-              alignment: Alignment.centerLeft,
-              child: Text(
-                stateText,
-                style: isOn
-                    ? CoconutTypography.heading4_18_Bold.setColor(CoconutColors.red)
-                    : CoconutTypography.heading4_18.setColor(CoconutColors.black),
+            child: Align(
+              alignment: Alignment.topRight,
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                decoration: BoxDecoration(
+                  color: isOn
+                      ? const Color.fromARGB(255, 236, 39, 35)
+                      : const Color.fromARGB(255, 105, 224, 119),
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Text(
+                    textAlign: TextAlign.center,
+                    stateText,
+                    style: CoconutTypography.body3_12_Bold.setColor(CoconutColors.white)),
               ),
             )),
-        Expanded(flex: 1, child: Container()),
+        CoconutLayout.spacing_600w,
       ],
     );
   }

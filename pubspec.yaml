@@ -194,8 +194,6 @@ flutter:
     - assets/svg/plus.svg
     - assets/svg/minus.svg
     - assets/svg/check.svg
-    - assets/svg/circle-check-outlined.svg
-    - assets/svg/circle-stop-outlined.svg
     - assets/svg/import-bsms.svg
     - assets/lottie/loading-coconut.json
     - assets/lottie/loading-gray.json
