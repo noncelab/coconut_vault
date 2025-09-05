@@ -1,6 +1,9 @@
+import 'dart:io';
+
 import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:coconut_vault/constants/shared_preferences_keys.dart';
 import 'package:coconut_vault/repository/shared_preferences_repository.dart';
+import 'package:coconut_vault/utils/logger.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:provider/provider.dart';
 
@@ -41,7 +44,7 @@ class _MainRouteGuardState extends State<MainRouteGuard> with WidgetsBindingObse
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    if (state == AppLifecycleState.paused) {
+    if (Platform.isIOS && state == AppLifecycleState.paused) {
       final vaultModel = Provider.of<WalletProvider>(
         context,
         listen: false,
@@ -54,11 +57,13 @@ class _MainRouteGuardState extends State<MainRouteGuard> with WidgetsBindingObse
     }
     if (state == AppLifecycleState.inactive) {
       if (widget.onAppGoInactive != null) {
+        Logger.log('-->Inactive');
         widget.onAppGoInactive!();
       }
     }
     if (state == AppLifecycleState.resumed) {
       if (widget.onAppGoActive != null) {
+        Logger.log('-->Active');
         widget.onAppGoActive!();
       }
     }
