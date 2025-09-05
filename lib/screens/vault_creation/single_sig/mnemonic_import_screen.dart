@@ -1092,7 +1092,7 @@ class _MnemonicImportScreenState extends State<MnemonicImportScreen> {
   Widget _buildDropdownMenu() {
     return Positioned(
       top: 0,
-      right: 0,
+      right: 16,
       child: Visibility(
         visible: _isDropdownVisible,
         child: CoconutPulldownMenu(
