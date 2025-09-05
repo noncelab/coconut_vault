@@ -78,4 +78,12 @@ class _SyncToWalletScreenState extends State<SyncToWalletScreen> {
       ),
     );
   }
+
+  @override
+  void initState() {
+    super.initState();
+    final walletProvider = Provider.of<WalletProvider>(context, listen: false);
+    final vaultListItem = walletProvider.getVaultById(widget.id);
+    _name = vaultListItem.name;
+  }
 }
