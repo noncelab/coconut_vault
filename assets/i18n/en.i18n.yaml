@@ -166,7 +166,7 @@ app_unavailable_notification_screen:
 ios_bluetooth_auth_notification_screen:
   allow_permission: "To use Vault,\nyou need to restart the app"
   guide1: "Completely close the app"
-  guide2: "Check the connection status"
+  guide2: "Allow Bluetooth permission in Settings"
   guide3: "Restart the app"
 pin_check_screen:
   enter_password: "Enter password"
