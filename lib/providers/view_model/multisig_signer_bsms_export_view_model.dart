@@ -10,7 +10,6 @@ class MultisigSignerBsmsExportViewModel extends ChangeNotifier {
   late String _qrData;
   late String _errorMessage;
   late bool _isLoading;
-  late bool _isSignerBsmsSetFailed;
   late SingleSigVaultListItem _singleSigVaultListItem;
   Bsms? _bsms;
 
@@ -18,7 +17,6 @@ class MultisigSignerBsmsExportViewModel extends ChangeNotifier {
     _qrData = '';
     _errorMessage = '';
     _isLoading = true;
-    _isSignerBsmsSetFailed = false;
     _singleSigVaultListItem = _walletProvider.getVaultById(id) as SingleSigVaultListItem;
     debugPrint('id:: $id');
     setSignerBsms();
@@ -27,7 +25,6 @@ class MultisigSignerBsmsExportViewModel extends ChangeNotifier {
   String get qrData => _qrData;
   String get errorMessage => _errorMessage;
   bool get isLoading => _isLoading;
-  bool get isSignerBsmsSetFailed => _isSignerBsmsSetFailed;
   Bsms? get bsms => _bsms;
 
   VaultListItemBase get vaultListItem => _singleSigVaultListItem;
@@ -37,23 +34,11 @@ class MultisigSignerBsmsExportViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  // _isSignerBsmsSetFailed의 상태를 설정합니다.
-  void setSignerBsmsStatus(bool value) {
-    _isSignerBsmsSetFailed = value;
-    notifyListeners();
-  }
-
   Future<void> setSignerBsms() async {
-    try {
-      List<String> bsmses =
-          await compute(WalletIsolates.extractSignerBsms, [_singleSigVaultListItem]);
-      _qrData = bsmses[0];
-      _bsms = Bsms.parseSigner(_qrData);
-    } catch (error) {
-      _errorMessage = error.toString();
-      _isSignerBsmsSetFailed = true;
-    } finally {
-      _setLoading();
-    }
+    List<String> bsmses =
+        await compute(WalletIsolates.extractSignerBsms, [_singleSigVaultListItem]);
+    _qrData = bsmses[0];
+    _bsms = Bsms.parseSigner(_qrData);
+    _setLoading();
   }
 }

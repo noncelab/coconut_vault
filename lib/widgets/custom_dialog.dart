@@ -1,67 +1,8 @@
 import 'package:coconut_design_system/coconut_design_system.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
 
 class CustomDialogs {
-  static void showCustomAlertDialog(BuildContext context,
-      {required String title,
-      required VoidCallback onConfirm,
-      VoidCallback? onCancel,
-      String confirmButtonText = '확인',
-      String cancelButtonText = '취소',
-      String message = '',
-      bool isSingleButton = false,
-      bool barrierDismissible = true,
-      Text? textWidget,
-      Color confirmButtonColor = CoconutColors.white}) {
-    showDialog(
-      context: context,
-      barrierDismissible: barrierDismissible,
-      builder: (BuildContext context) {
-        return CupertinoAlertDialog(
-          title: Padding(
-            padding: const EdgeInsets.only(bottom: 8.0),
-            child: Text(title, style: CoconutTypography.body1_16_Bold),
-          ),
-          content: textWidget ??
-              Text(
-                message,
-                style: CoconutTypography.body2_14,
-                textAlign: TextAlign.center,
-              ),
-          actions: [
-            if (!isSingleButton)
-              CupertinoDialogAction(
-                isDefaultAction: true,
-                onPressed: onCancel,
-                child: Text(cancelButtonText,
-                    style: CoconutTypography.body2_14.merge(
-                      TextStyle(
-                        color: CoconutColors.black.withOpacity(0.7),
-                        fontWeight: FontWeight.w500,
-                      ),
-                    )),
-              ),
-            CupertinoDialogAction(
-              isDefaultAction: true,
-              onPressed: onConfirm,
-              child: Text(
-                confirmButtonText,
-                style: CoconutTypography.body2_14.merge(
-                  TextStyle(
-                    color: confirmButtonColor,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-              ),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
   static void showLoadingDialog(
     BuildContext context,
     String text,

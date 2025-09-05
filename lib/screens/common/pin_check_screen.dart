@@ -293,34 +293,30 @@ class _PinCheckScreenState extends State<PinCheckScreen> with WidgetsBindingObse
   }
 
   void _showResetDialog() {
-    CustomDialogs.showCustomAlertDialog(context,
-        title: t.alert.forgot_password.title,
-        textWidget: Text.rich(
-          TextSpan(
-            children: [
-              TextSpan(
-                text: t.alert.forgot_password.description1,
-                style: CoconutTypography.body2_14,
-              ),
-              TextSpan(
-                text: t.alert.forgot_password.description2,
-                style: CoconutTypography.body3_12.setColor(CoconutColors.hotPink),
-              ),
-            ],
-          ),
-        ),
-        confirmButtonText: t.alert.forgot_password.btn_reset,
-        confirmButtonColor: CoconutColors.hotPink,
-        cancelButtonText: t.close, onConfirm: () async {
-      await _authProvider.resetPin(context.read<PreferenceProvider>());
+    showDialog(
+      context: context,
+      builder: (context) {
+        return CoconutPopup(
+          insetPadding: EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width * 0.15),
+          title: t.alert.forgot_password.title,
+          description: t.alert.forgot_password.description1,
+          leftButtonColor: CoconutColors.black.withOpacity(0.7),
+          rightButtonText: t.alert.forgot_password.btn_reset,
+          rightButtonColor: CoconutColors.warningText,
+          onTapRight: () => _reset(),
+          onTapLeft: () => Navigator.pop(context),
+        );
+      },
+    );
+  }
 
-      if (mounted) {
-        Navigator.of(context).pop();
-      }
-      widget.onReset?.call();
-    }, onCancel: () {
+  Future<void> _reset() async {
+    await _authProvider.resetPin(context.read<PreferenceProvider>());
+
+    if (mounted) {
       Navigator.of(context).pop();
-    });
+    }
+    widget.onReset?.call();
   }
 
   @override
@@ -371,12 +367,6 @@ class _PinCheckScreenState extends State<PinCheckScreen> with WidgetsBindingObse
       onKeyTap: _onKeyTap,
       pinType: PinType.number,
       pinShuffleNumbers: _shuffledPinNumbers,
-      onClosePressed: () {
-        Navigator.pop(context);
-      },
-      onBackPressed: () {
-        Navigator.pop(context);
-      },
       onPinClear: () {
         setState(() {
           _pin = '';
