@@ -174,7 +174,6 @@ flutter:
     - assets/svg/arrow-right.svg
     - assets/svg/arrow-down.svg
     - assets/svg/back.svg
-    - assets/svg/bluetooth.svg
     - assets/svg/coconut-mainnet.svg
     - assets/svg/coconut-regtest.svg
     - assets/svg/coconut-security-mainnet.svg
