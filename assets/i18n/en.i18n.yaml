@@ -487,6 +487,9 @@ passphrase_input_screen:
   enter_passphrase: "Enter Passphrase"
   passphrase_error: "Please check your passphrase again"
 
+multisig_signer_bsms_export_screen:
+  fail_bsms: "Failed to load BSMS"
+
 # Update Preparation
 prepare_update:
   title: "👉 Let's verify you've backed up your mnemonic well"

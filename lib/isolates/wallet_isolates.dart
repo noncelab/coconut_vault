@@ -10,7 +10,16 @@ import 'package:coconut_vault/model/multisig/multisig_wallet.dart';
 import 'package:coconut_vault/model/single_sig/single_sig_wallet_create_dto.dart';
 
 class WalletIsolates {
+  static void setNetworkType() {
+    const String? appFlavor = String.fromEnvironment('FLUTTER_APP_FLAVOR') != ''
+        ? String.fromEnvironment('FLUTTER_APP_FLAVOR')
+        : null;
+    NetworkType.setNetworkType(appFlavor == "mainnet" ? NetworkType.mainnet : NetworkType.regtest);
+  }
+
   static Future<List<SingleSigVaultListItem>> addVault(Map<String, dynamic> data) async {
+    setNetworkType();
+
     List<SingleSigVaultListItem> vaultList = [];
 
     var wallet = SingleSigWalletCreateDto.fromJson(data);
@@ -38,6 +47,8 @@ class WalletIsolates {
   }
 
   static Future<MultisigVaultListItem> addMultisigVault(Map<String, dynamic> data) async {
+    setNetworkType();
+
     var walletData = MultisigWallet.fromJson(data);
     var newMultisigVault = MultisigVaultListItem(
       id: walletData.id!,
@@ -53,6 +64,8 @@ class WalletIsolates {
   }
 
   static Future<VaultListItemBase> initializeWallet(Map<String, dynamic> data) async {
+    setNetworkType();
+
     String? vaultType = data[VaultListItemBase.vaultTypeField];
 
     // coconut_vault 1.0.1 -> 2.0.0 업데이트 되면서 vaultType이 추가됨
@@ -66,6 +79,8 @@ class WalletIsolates {
   }
 
   static Future<MultisignatureVault> fromKeyStores(Map<String, dynamic> data) async {
+    setNetworkType();
+
     List<KeyStore> keyStores = [];
     List<dynamic> decodedKeyStoresJson = jsonDecode(data['keyStores']);
     final int requiredSignatureCount = data['requiredSignatureCount'];
@@ -82,6 +97,8 @@ class WalletIsolates {
   }
 
   static Future<List<String>> extractSignerBsms(List<SingleSigVaultListItem> vaultList) async {
+    setNetworkType();
+
     List<String> bsmses = [];
 
     for (int i = 0; i < vaultList.length; i++) {
@@ -92,6 +109,8 @@ class WalletIsolates {
   }
 
   static Future<Map<String, dynamic>> verifyPassphrase(Map<String, dynamic> args) async {
+    setNetworkType();
+
     // 암호화 관련 처리를 사용하여 CPU 동기연산이 발생하므로 isolate로 처리
     final mnemonic = args['mnemonic'] as String;
     final passphrase = args['passphrase'] as String;

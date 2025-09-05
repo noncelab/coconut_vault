@@ -2,6 +2,7 @@ import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/providers/view_model/multisig_signer_bsms_export_view_model.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
+import 'package:coconut_vault/utils/alert_util.dart';
 import 'package:coconut_vault/widgets/custom_tooltip.dart';
 import 'package:coconut_vault/widgets/multisig/card/signer_bsms_info_card.dart';
 import 'package:flutter/material.dart';
@@ -18,11 +19,12 @@ class MultisigSignerBsmsExportScreen extends StatefulWidget {
 }
 
 class _MultisigSignerBsmsExportScreenState extends State<MultisigSignerBsmsExportScreen> {
+  late MultisigSignerBsmsExportViewModel _viewModel;
+
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider<MultisigSignerBsmsExportViewModel>(
-      create: (_) => MultisigSignerBsmsExportViewModel(
-          Provider.of<WalletProvider>(context, listen: false), widget.id),
+      create: (_) => _viewModel,
       child: Consumer<MultisigSignerBsmsExportViewModel>(
         builder: (context, viewModel, child) {
           return Scaffold(
@@ -91,6 +93,25 @@ class _MultisigSignerBsmsExportScreenState extends State<MultisigSignerBsmsExpor
         },
       ),
     );
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _viewModel = MultisigSignerBsmsExportViewModel(
+        Provider.of<WalletProvider>(context, listen: false), widget.id);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (_viewModel.errorMessage.isNotEmpty) {
+        showDialog(
+            context: context,
+            builder: (context) {
+              return CoconutPopup(
+                  title: t.multisig_signer_bsms_export_screen.fail_bsms,
+                  description: _viewModel.errorMessage,
+                  onTapRight: () => Navigator.pop(context));
+            });
+      }
+    });
   }
 
   List<TextSpan> _getTooltipRichText() {

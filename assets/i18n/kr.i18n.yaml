@@ -488,6 +488,9 @@ passphrase_input_screen:
   enter_passphrase: "패스프레이즈를 입력해 주세요"
   passphrase_error: "패스프레이즈를 다시 확인해 주세요"
 
+multisig_signer_bsms_export_screen:
+  fail_bsms: "BSMS 로드 실패"
+
 # 업데이트 준비
 prepare_update:
   title: "👉 니모닉 문구를 잘 백업했는지 확인할게요"
