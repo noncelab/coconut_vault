@@ -31,7 +31,6 @@ class _AddressListScreenState extends State<AddressListScreen> {
 
   @override
   Widget build(BuildContext context) {
-    debugPrint('isSpecificVault: ${widget.isSpecificVault}');
     return ChangeNotifierProvider<AddressListViewModel>(
       create: (BuildContext context) => _viewModel =
           AddressListViewModel(Provider.of<WalletProvider>(context, listen: false), widget.id),
@@ -67,7 +66,7 @@ class _AddressListScreenState extends State<AddressListScreen> {
                     ),
                     style: CoconutTypography.heading4_18,
                   ),
-                  if (!widget.isSpecificVault) ...[
+                  if (!widget.isSpecificVault && viewModel.vaultCount > 1) ...[
                     CoconutLayout.spacing_50w,
                     const Icon(Icons.keyboard_arrow_down_sharp,
                         color: CoconutColors.black, size: 16),
@@ -75,7 +74,7 @@ class _AddressListScreenState extends State<AddressListScreen> {
                 ],
               ),
               onTitlePressed: () {
-                if (widget.isSpecificVault) return;
+                if (widget.isSpecificVault || viewModel.vaultCount <= 1) return;
                 MyBottomSheet.showDraggableBottomSheet(
                     context: context,
                     childBuilder: (scrollController) => SelectVaultBottomSheet(

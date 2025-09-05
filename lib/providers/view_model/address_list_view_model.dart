@@ -27,6 +27,7 @@ class AddressListViewModel extends ChangeNotifier {
   int get changeAddressPage => _changeAddressPage;
   int get receivingAddressPage => _receivingAddressPage;
   int get vaultId => _vaultListItem.id;
+  int get vaultCount => _walletProvider.vaultList.length;
   bool get isReceivingSelected => _isReceivingSelected;
   String get name => _vaultListItem.name;
   List<WalletAddress> get receivingAddressList => _receivingAddressList;
