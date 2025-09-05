@@ -491,7 +491,7 @@ passphrase_input_screen:
 prepare_update:
   title: "👉 Let's verify you've backed up your mnemonic well"
   description: "In case of problems during update, you must backup mnemonic words separately"
-  enter_nth_word_of_wallet: "💡 Please enter the $n word of ${wallet_name}"
+  enter_nth_word_of_wallet: "💡 Please enter word #$n of ${wallet_name}"
   enter_word: "Enter word"
   incorrect_input_try_again: "Incorrect. Please try again."
   update_preparing_title: "➡️ Starting update preparation"
