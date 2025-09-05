@@ -30,42 +30,100 @@ class SettingsScreen extends StatefulWidget {
 class _SettingsScreenState extends State<SettingsScreen> {
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.transparent,
-      appBar: CoconutAppBar.build(
-        context: context,
-        backgroundColor: Colors.transparent,
-        height: 62,
-        title: t.settings,
-        isBottom: true,
-      ),
-      body: Padding(
-        padding: const EdgeInsets.fromLTRB(16.0, 0, 16.0, 0),
-        child: SingleChildScrollView(
-          child: Column(
-            children: [
-              _securityPart(context),
-              CoconutLayout.spacing_1000h,
-              Selector<WalletProvider, bool>(
-                selector: (context, provider) => provider.vaultList.isNotEmpty,
-                builder: (context, isNotEmpty, _) => isNotEmpty
-                    ? Column(children: [_updatePart(context), CoconutLayout.spacing_1000h])
-                    : Container(),
+    return DraggableScrollableSheet(
+      minChildSize: 0.5,
+      initialChildSize: 1,
+      expand: false,
+      builder: (context, scrollController) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            _buildDraggableHeader(),
+            Expanded(
+              child: Container(
+                decoration: const BoxDecoration(
+                  color: CoconutColors.white,
+                ),
+                child: ListView(
+                  controller: scrollController,
+                  padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+                  children: [
+                    _securityPart(context),
+                    CoconutLayout.spacing_1000h,
+                    Selector<WalletProvider, bool>(
+                      selector: (context, provider) => provider.vaultList.isNotEmpty,
+                      builder: (context, isNotEmpty, _) => isNotEmpty
+                          ? Column(children: [_updatePart(context), CoconutLayout.spacing_1000h])
+                          : Container(),
+                    ),
+                    _btcUnitPart(context),
+                    CoconutLayout.spacing_1000h,
+                    _languagePart(context),
+                    CoconutLayout.spacing_1000h,
+                    _advancedUserPart(context),
+                    CoconutLayout.spacing_1000h,
+                    _informationPart(context),
+                    SizedBox(
+                        height: MediaQuery.of(context).viewPadding.bottom > 0
+                            ? MediaQuery.of(context).viewPadding.bottom + Sizes.size12
+                            : Sizes.size36)
+                  ],
+                ),
               ),
-              _btcUnitPart(context),
-              CoconutLayout.spacing_1000h,
-              _languagePart(context),
-              CoconutLayout.spacing_1000h,
-              _advancedUserPart(context),
-              CoconutLayout.spacing_1000h,
-              _informationPart(context),
-              SizedBox(
-                  height: MediaQuery.of(context).viewPadding.bottom > 0
-                      ? MediaQuery.of(context).viewPadding.bottom + Sizes.size12
-                      : Sizes.size36)
-            ],
-          ),
+            ),
+          ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildDraggableHeader() {
+    return Container(
+      decoration: const BoxDecoration(
+        color: CoconutColors.white,
+        borderRadius: BorderRadius.only(
+          topLeft: Radius.circular(24),
+          topRight: Radius.circular(24),
+        ),
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          // Drag handle
+          Container(
+            margin: const EdgeInsets.only(top: 8, bottom: 8),
+            width: 55,
+            height: 4,
+            decoration: BoxDecoration(
+              color: CoconutColors.gray400,
+              borderRadius: BorderRadius.circular(4),
+            ),
+          ),
+          // Title
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            child: Row(
+              children: [
+                GestureDetector(
+                  onTap: () => Navigator.of(context).pop(),
+                  child: const Icon(
+                    Icons.close,
+                    color: CoconutColors.black,
+                    size: 24,
+                  ),
+                ),
+                Expanded(
+                  child: Text(
+                    t.settings,
+                    style: CoconutTypography.body1_16_Bold,
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+                const SizedBox(width: 24), // Balance the close icon
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }
