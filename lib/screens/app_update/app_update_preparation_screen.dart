@@ -158,7 +158,7 @@ class _AppUpdatePreparationScreenState extends State<AppUpdatePreparationScreen>
                           Positioned(
                             left: 0,
                             right: 0,
-                            bottom: 40,
+                            bottom: 20,
                             child: _buildNextButton(viewModel),
                           ),
                         if (!viewModel.isMnemonicLoaded)
@@ -331,14 +331,15 @@ class _AppUpdatePreparationScreenState extends State<AppUpdatePreparationScreen>
           ),
           Text(
             t.prepare_update.title,
-            style: CoconutTypography.heading4_18_Bold,
+            style: CoconutTypography.heading3_21_Bold,
+            textAlign: TextAlign.center,
           ),
           CoconutLayout.spacing_500h,
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 24),
             child: Text(
               t.prepare_update.description,
-              style: CoconutTypography.body2_14,
+              style: CoconutTypography.body1_16,
               textAlign: TextAlign.center,
             ),
           ),
@@ -366,7 +367,8 @@ class _AppUpdatePreparationScreenState extends State<AppUpdatePreparationScreen>
                     wallet_name: walletName,
                     n: mnemonicWordIndex,
                   ),
-                  style: CoconutTypography.heading4_18_Bold,
+                  style: CoconutTypography.heading3_21_Bold,
+                  textAlign: TextAlign.center,
                 ),
                 CoconutLayout.spacing_1500h,
                 CoconutTextField(
@@ -415,7 +417,7 @@ class _AppUpdatePreparationScreenState extends State<AppUpdatePreparationScreen>
           ),
           Text(
             t.prepare_update.update_preparing_title,
-            style: CoconutTypography.heading4_18_Bold,
+            style: CoconutTypography.heading3_21_Bold,
           ),
           CoconutLayout.spacing_500h,
           Expanded(
@@ -520,7 +522,7 @@ class _AppUpdatePreparationScreenState extends State<AppUpdatePreparationScreen>
       children: [
         Text(
           _updateProcessTextList[index].title,
-          style: CoconutTypography.heading4_18_Bold,
+          style: CoconutTypography.heading3_21_Bold,
           textAlign: TextAlign.center,
         ),
         CoconutLayout.spacing_300h,
@@ -528,7 +530,7 @@ class _AppUpdatePreparationScreenState extends State<AppUpdatePreparationScreen>
           padding: const EdgeInsets.symmetric(horizontal: 32),
           child: Text(
             _updateProcessTextList[index].subtitle,
-            style: CoconutTypography.body2_14,
+            style: CoconutTypography.body1_16,
             textAlign: TextAlign.center,
           ),
         ),
@@ -568,7 +570,7 @@ class _AppUpdatePreparationScreenState extends State<AppUpdatePreparationScreen>
               children: [
                 Text(
                   t.prepare_update.completed_title,
-                  style: CoconutTypography.heading4_18_Bold,
+                  style: CoconutTypography.heading3_21_Bold,
                 ),
                 CoconutLayout.spacing_500h,
                 Text(
