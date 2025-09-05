@@ -7,8 +7,15 @@ import 'package:provider/provider.dart';
 class MainRouteGuard extends StatefulWidget {
   final Widget child;
   final VoidCallback? onAppGoBackground;
+  final VoidCallback? onAppGoInactive;
+  final VoidCallback? onAppGoActive;
 
-  const MainRouteGuard({super.key, required this.child, required this.onAppGoBackground});
+  const MainRouteGuard(
+      {super.key,
+      required this.child,
+      required this.onAppGoBackground,
+      required this.onAppGoInactive,
+      required this.onAppGoActive});
 
   @override
   State<MainRouteGuard> createState() => _MainRouteGuardState();
@@ -43,6 +50,16 @@ class _MainRouteGuardState extends State<MainRouteGuard> with WidgetsBindingObse
       if (walletCount > 0 && widget.onAppGoBackground != null) {
         vaultModel.dispose();
         widget.onAppGoBackground!();
+      }
+    }
+    if (state == AppLifecycleState.inactive) {
+      if (widget.onAppGoInactive != null) {
+        widget.onAppGoInactive!();
+      }
+    }
+    if (state == AppLifecycleState.resumed) {
+      if (widget.onAppGoActive != null) {
+        widget.onAppGoActive!();
       }
     }
   }
