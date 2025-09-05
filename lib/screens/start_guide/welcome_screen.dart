@@ -175,42 +175,50 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
       case 2:
         return Image.asset('assets/png/onboarding_2.png', height: 160, fit: BoxFit.fitHeight);
       case 3:
-        return Container(
+        return SizedBox(
           height: 160,
-          padding: const EdgeInsets.symmetric(vertical: 24),
           child: Consumer<ConnectivityProvider>(builder: (context, provider, child) {
             final isNetworkOn = provider.isNetworkOn ?? false;
             final isBluetoothOn = provider.isBluetoothOn ?? false;
             final isDeveloperModeOn = provider.isDeveloperModeOn ?? false;
 
-            return Container(
-              decoration: BoxDecoration(
-                color: CoconutColors.gray150,
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  _getState(
-                      t.welcome_screen.network,
-                      isNetworkOn,
-                      isNetworkOn
-                          ? t.connectivity_state.connected
-                          : t.connectivity_state.disconnected),
-                  CoconutLayout.spacing_300h,
-                  _getState(t.welcome_screen.bluetooth, isBluetoothOn,
-                      isBluetoothOn ? t.connectivity_state.enabled : t.connectivity_state.disabled),
-                  if (Platform.isAndroid) ...[
+            return Align(
+              alignment: Alignment.center,
+              child: Container(
+                padding: const EdgeInsets.symmetric(vertical: 24),
+                decoration: BoxDecoration(
+                  color: CoconutColors.gray150,
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    _getState(
+                        t.welcome_screen.network,
+                        isNetworkOn,
+                        isNetworkOn
+                            ? t.connectivity_state.connected
+                            : t.connectivity_state.disconnected),
                     CoconutLayout.spacing_300h,
                     _getState(
-                        t.welcome_screen.developer_option,
-                        isDeveloperModeOn,
-                        isDeveloperModeOn
-                            ? t.connectivity_state.active
-                            : t.connectivity_state.inactive),
-                  ]
-                ],
+                        t.welcome_screen.bluetooth,
+                        isBluetoothOn,
+                        isBluetoothOn
+                            ? t.connectivity_state.enabled
+                            : t.connectivity_state.disabled),
+                    if (Platform.isAndroid) ...[
+                      CoconutLayout.spacing_300h,
+                      _getState(
+                          t.welcome_screen.developer_option,
+                          isDeveloperModeOn,
+                          isDeveloperModeOn
+                              ? t.connectivity_state.active
+                              : t.connectivity_state.inactive),
+                    ]
+                  ],
+                ),
               ),
             );
           }),
