@@ -58,24 +58,12 @@ class _MnemonicCoinflipScreenState extends State<MnemonicCoinflipScreen> {
             insetPadding:
                 EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width * 0.15),
             title: t.alert.stop_generating_mnemonic.title,
-            titleTextStyle: CoconutTypography.body1_16_Bold,
-            descriptionTextStyle: CoconutTypography.body2_14,
             description: t.alert.stop_generating_mnemonic.description,
             backgroundColor: CoconutColors.white,
-            rightButtonColor: CoconutColors.gray900,
             rightButtonText: t.alert.stop_generating_mnemonic.confirm,
-            rightButtonTextStyle: CoconutTypography.body2_14.merge(
-              const TextStyle(
-                fontWeight: FontWeight.w500,
-              ),
-            ),
+            rightButtonColor: CoconutColors.gray900,
             leftButtonText: t.alert.stop_generating_mnemonic.reselect,
-            leftButtonTextStyle: CoconutTypography.body2_14.merge(
-              const TextStyle(
-                color: CoconutColors.gray900,
-                fontWeight: FontWeight.w500,
-              ),
-            ),
+            leftButtonColor: CoconutColors.gray900,
             onTapLeft: () {
               Navigator.pop(context);
               _onReset();
@@ -733,24 +721,12 @@ class _FlipCoinState extends State<FlipCoin> {
             insetPadding:
                 EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width * 0.15),
             title: title ?? t.delete_all,
-            titleTextStyle: CoconutTypography.body1_16_Bold,
-            descriptionTextStyle: CoconutTypography.body2_14,
             description: message ?? t.alert.erase_all_entered_so_far,
             backgroundColor: CoconutColors.white,
-            rightButtonColor: CoconutColors.warningText,
-            rightButtonText: t.confirm,
-            rightButtonTextStyle: CoconutTypography.body2_14.merge(
-              const TextStyle(
-                fontWeight: FontWeight.w500,
-              ),
-            ),
             leftButtonText: t.cancel,
-            leftButtonTextStyle: CoconutTypography.body2_14.merge(
-              TextStyle(
-                color: CoconutColors.black.withOpacity(0.7),
-                fontWeight: FontWeight.w500,
-              ),
-            ),
+            leftButtonColor: CoconutColors.black.withOpacity(0.7),
+            rightButtonText: t.confirm,
+            rightButtonColor: CoconutColors.warningText,
             onTapLeft: () => Navigator.pop(context),
             onTapRight: () {
               _resetBits();

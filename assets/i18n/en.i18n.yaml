@@ -549,8 +549,7 @@ alert:
   confirm_deletion: "Really delete $name info from vault?"
   forgot_password:
     title: "Forgot password?"
-    description1: "You can reset password by pressing [Reset].\n"
-    description2: "Resetting password will delete stored info. Still want to reset?"
+    description1: "Resetting password will delete all stored wallets. Still want to reset?"
     btn_reset: "Reset"
   unchange_password:
     title: "Keep current password?"

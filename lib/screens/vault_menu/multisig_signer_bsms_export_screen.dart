@@ -4,7 +4,6 @@ import 'package:coconut_vault/providers/view_model/multisig_signer_bsms_export_v
 import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:coconut_vault/widgets/custom_tooltip.dart';
 import 'package:coconut_vault/widgets/multisig/card/signer_bsms_info_card.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:qr_flutter/qr_flutter.dart';
@@ -19,39 +18,13 @@ class MultisigSignerBsmsExportScreen extends StatefulWidget {
 }
 
 class _MultisigSignerBsmsExportScreenState extends State<MultisigSignerBsmsExportScreen> {
-  late MultisigSignerBsmsExportViewModel _viewModel;
-  bool _isDialogShown = false; // 다이얼로그가 두 번 호출 되는 현상 방지
-
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider<MultisigSignerBsmsExportViewModel>(
-      create: (_) => _viewModel = MultisigSignerBsmsExportViewModel(
+      create: (_) => MultisigSignerBsmsExportViewModel(
           Provider.of<WalletProvider>(context, listen: false), widget.id),
       child: Consumer<MultisigSignerBsmsExportViewModel>(
         builder: (context, viewModel, child) {
-          WidgetsBinding.instance.addPostFrameCallback((_) {
-            if (_viewModel.isSignerBsmsSetFailed && !_isDialogShown) {
-              _isDialogShown = true;
-              showDialog(
-                  context: context,
-                  builder: (BuildContext context) {
-                    return CupertinoAlertDialog(
-                        title: Text(t.errors.export_error),
-                        content: Text(_viewModel.errorMessage),
-                        actions: <CupertinoDialogAction>[
-                          CupertinoDialogAction(
-                            onPressed: () {
-                              viewModel.setSignerBsmsStatus(false);
-                              _isDialogShown = false;
-                              Navigator.pop(context);
-                            },
-                            child: Text(t.confirm),
-                          ),
-                        ]);
-                  });
-            }
-          });
-
           return Scaffold(
             backgroundColor: CoconutColors.white,
             appBar: CoconutAppBar.build(
