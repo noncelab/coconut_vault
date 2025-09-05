@@ -514,16 +514,16 @@ prepare_update:
   
 # Restoration Info Screen
 restoration_info:
-  "found_title": "🔎 Found restoration file"
-  "found_description": "App update was not completed\nPlease update the app,\nor restore wallet to continue"
+  "found_title": "🔎 Found Restoration File"
+  "found_description": "App update was not completed.\nPlease update the app,\nor restore the Vault to continue."
   
 # Vault List Restoration Screen
 vault_list_restoration:
-  "in_progress_title": "⏳ Restoring wallets..."
-  "in_progress_description": "Please wait a moment.\nWill be completed soon!"
-  "completed_title": "🎉 Wallets restored!"
-  "completed_description": "Restored $count wallets"
-  "start_vault": "Start Vault"
+  "in_progress_title": "⏳ Restoring Wallets..."
+  "in_progress_description": "Please wait a moment.\nIt will be completed soon!"
+  "completed_title": "🎉 Wallets Restored!"
+  "completed_description": "Restored $count wallet(s)"
+  "start_vault": "Start Coconut Vault"
 
 bottom_sheet:
   view_mit_license: "View Full MIT License"

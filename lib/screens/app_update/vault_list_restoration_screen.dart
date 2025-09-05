@@ -135,7 +135,7 @@ class _VaultListRestorationScreenState extends State<VaultListRestorationScreen>
                         viewModel.isVaultListRestored
                             ? t.vault_list_restoration.completed_title
                             : t.vault_list_restoration.in_progress_title,
-                        style: CoconutTypography.heading4_18_Bold,
+                        style: CoconutTypography.heading3_21_Bold,
                       ),
                       Padding(
                         padding: const EdgeInsets.symmetric(vertical: 20),
@@ -144,7 +144,7 @@ class _VaultListRestorationScreenState extends State<VaultListRestorationScreen>
                               ? t.vault_list_restoration
                                   .completed_description(count: viewModel.vaultList.length)
                               : t.vault_list_restoration.in_progress_description,
-                          style: CoconutTypography.body2_14_Bold,
+                          style: CoconutTypography.body1_16_Bold,
                           textAlign: TextAlign.center,
                         ),
                       ),

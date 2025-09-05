@@ -54,13 +54,13 @@ class _RestorationInfoScreenState extends State<RestorationInfoScreen> {
                   CoconutLayout.spacing_2500h,
                   Text(
                     t.restoration_info.found_title,
-                    style: CoconutTypography.heading4_18_Bold,
+                    style: CoconutTypography.heading3_21_Bold,
                   ),
                   Padding(
                     padding: const EdgeInsets.symmetric(vertical: 20),
                     child: Text(
                       t.restoration_info.found_description,
-                      style: CoconutTypography.body2_14,
+                      style: CoconutTypography.body1_16,
                       textAlign: TextAlign.center,
                     ),
                   ),
@@ -77,29 +77,31 @@ class _RestorationInfoScreenState extends State<RestorationInfoScreen> {
                         return;
                       }
 
-                      MyBottomSheet.showBottomSheet_90(
-                        context: context,
-                        child: CustomLoadingOverlay(
-                          child: ClipRRect(
-                            borderRadius: const BorderRadius.only(
-                              topLeft: Radius.circular(CoconutStyles.radius_200),
-                              topRight: Radius.circular(CoconutStyles.radius_200),
-                            ),
-                            child: PinCheckScreen(
-                              pinCheckContext: PinCheckContextEnum.restoration,
-                              onSuccess: () async {
-                                widget.onComplete();
-                              },
-                              onReset: () async {
-                                widget.onReset();
-                              },
+                      if (context.mounted) {
+                        MyBottomSheet.showBottomSheet_90(
+                          context: context,
+                          child: CustomLoadingOverlay(
+                            child: ClipRRect(
+                              borderRadius: const BorderRadius.only(
+                                topLeft: Radius.circular(CoconutStyles.radius_200),
+                                topRight: Radius.circular(CoconutStyles.radius_200),
+                              ),
+                              child: PinCheckScreen(
+                                pinCheckContext: PinCheckContextEnum.restoration,
+                                onSuccess: () async {
+                                  widget.onComplete();
+                                },
+                                onReset: () async {
+                                  widget.onReset();
+                                },
+                              ),
                             ),
                           ),
-                        ),
-                      );
+                        );
+                      }
                     },
                   ),
-                  CoconutLayout.spacing_1000h
+                  CoconutLayout.spacing_500h
                 ]),
               ),
             )));
