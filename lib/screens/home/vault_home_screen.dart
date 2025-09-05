@@ -330,6 +330,7 @@ class _VaultHomeScreenState extends State<VaultHomeScreen> with TickerProviderSt
                   onPressed: () {
                     MyBottomSheet.showDraggableBottomSheet(
                         context: context,
+                        minChildSize: 0.5,
                         childBuilder: (scrollController) => SelectVaultBottomSheet(
                               vaultList: context.read<WalletProvider>().vaultList,
                               subLabel: t.vault_menu_screen.description.export_xpub,

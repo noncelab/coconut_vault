@@ -341,11 +341,12 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
                   _showDialog(DialogType.notAvailable);
                   return;
                 }
-                MyBottomSheet.showBottomSheet_ratio(
-                  ratio: 0.5,
+                MyBottomSheet.showDraggableBottomSheet(
+                  minChildSize: 0.5,
+                  maxChildSize: 0.9,
                   showDragHandle: true,
                   context: context,
-                  child: KeyListBottomSheet(
+                  childBuilder: (scrollController) => KeyListBottomSheet(
                     // 키 옵션 중 하나 선택했을 때
                     onPressed: (int vaultIndex) {
                       _viewModel.assignInternalSigner(vaultIndex, index);
@@ -355,6 +356,7 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
                     vaultList: _viewModel.unselectedSignerOptions
                         .map((o) => o.singlesigVaultListItem)
                         .toList(),
+                    scrollController: scrollController,
                   ),
                 );
               },

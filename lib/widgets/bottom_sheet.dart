@@ -334,7 +334,7 @@ class MyBottomSheet {
       builder: (context) {
         return DraggableScrollableSheet(
           controller: draggableController,
-          initialChildSize: minChildSize,
+          initialChildSize: minChildSize <= 0.95 ? minChildSize + 0.05 : minChildSize,
           minChildSize: minChildSize,
           maxChildSize: maxChildSize,
           expand: false,
