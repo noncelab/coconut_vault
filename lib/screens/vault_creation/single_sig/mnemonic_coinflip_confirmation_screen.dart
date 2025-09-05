@@ -2,6 +2,7 @@ import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_vault/constants/app_routes.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/providers/wallet_creation_provider.dart';
+import 'package:coconut_vault/screens/vault_creation/single_sig/mnemonic_generation_screen.dart';
 import 'package:coconut_vault/widgets/button/fixed_bottom_button.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -61,106 +62,17 @@ class _MnemonicCoinflipConfirmationScreenState extends State<MnemonicCoinflipCon
           title: t.mnemonic_coin_flip_screen.title,
           context: context,
         ),
-        body: Stack(
-          children: [
-            SingleChildScrollView(
-              controller: _scrollController,
-              child: Container(
-                width: MediaQuery.of(context).size.width,
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 48),
-                child: Column(
-                  children: [
-                    Text(
-                      t.mnemonic_generate_screen.backup_guide,
-                      textAlign: TextAlign.center,
-                      style: CoconutTypography.body1_16_Bold.setColor(
-                        CoconutColors.warningText,
-                      ),
-                    ),
-                    CoconutLayout.spacing_400h,
-                    _buildGeneratedMnemonicList(),
-                    const SizedBox(height: 40),
-                  ],
-                ),
-              ),
-            ),
-            FixedBottomButton(
-              isActive: true,
-              onButtonClicked: () {
-                if (hasScrolledToBottom) {
-                  Navigator.pushReplacementNamed(context, AppRoutes.mnemonicVerify);
-                } else {
-                  // 아직 끝까지 확인하지 않았다면 스크롤을 하단으로 이동
-                  _scrollController.animateTo(
-                    _scrollController.position.maxScrollExtent,
-                    duration: const Duration(milliseconds: 500),
-                    curve: Curves.easeInOut,
-                  );
-                }
-              },
-              backgroundColor: CoconutColors.black,
-              text: hasScrolledToBottom ? t.complete : t.next,
-            ),
-          ],
+        body: SafeArea(
+          child: MnemonicWords(
+            wordsCount: _walletCreationProvider.secret!.split(' ').length,
+            usePassphrase: false, // 이미 패프를 입력했기 때문에 false 고정
+            onReset: () {},
+            onNavigateToNext: () {
+              Navigator.pushReplacementNamed(context, AppRoutes.mnemonicVerify);
+            },
+            from: MnemonicWordsFrom.coinflip,
+          ),
         ),
-      ),
-    );
-  }
-
-  Widget _buildGeneratedMnemonicList() {
-    bool gridviewColumnFlag = false;
-
-    return Padding(
-      padding: const EdgeInsets.only(
-        left: 40.0,
-        right: 40.0,
-        top: 16,
-        bottom: 120,
-      ),
-      child: GridView.builder(
-        shrinkWrap: true,
-        physics: const NeverScrollableScrollPhysics(),
-        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 2, // 2열로 배치
-          childAspectRatio: 2.5, // 각 아이템의 가로:세로 = 2.5:1
-          crossAxisSpacing: 12, // 열 간격
-          mainAxisSpacing: 8, // 행 간격
-        ),
-        itemCount: _walletCreationProvider.secret!.split(' ').length,
-        itemBuilder: (BuildContext context, int index) {
-          if (index % 2 == 0) {
-            gridviewColumnFlag = !gridviewColumnFlag;
-          }
-
-          return Container(
-            padding: const EdgeInsets.only(left: 24),
-            alignment: Alignment.center,
-            decoration: BoxDecoration(
-              border: Border.all(color: CoconutColors.black.withOpacity(0.08)),
-              borderRadius: BorderRadius.circular(24),
-            ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  (index + 1).toString().padLeft(2, '0'),
-                  style: CoconutTypography.body3_12_Number.setColor(
-                    CoconutColors.gray500,
-                  ),
-                ),
-                CoconutLayout.spacing_300w,
-                Expanded(
-                  child: Text(
-                    _walletCreationProvider.secret!.split(' ')[index],
-                    style: CoconutTypography.body2_14,
-                    overflow: TextOverflow.visible,
-                  ),
-                ),
-              ],
-            ),
-          );
-        },
       ),
     );
   }

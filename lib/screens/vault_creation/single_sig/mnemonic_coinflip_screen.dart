@@ -620,12 +620,12 @@ class _FlipCoinState extends State<FlipCoin> {
             ),
             CoconutLayout.spacing_200h,
             ShrinkAnimationButton(
-              onPressed: _removeLastBit,
-              pressedColor: CoconutColors.white,
+              onPressed: _showConfirmResetDialog,
+              pressedColor: CoconutColors.gray200,
               child: Container(
                 padding: const EdgeInsets.all(8),
                 child: Text(
-                  t.delete_one,
+                  t.delete_all,
                   style: CoconutTypography.body3_12.setColor(
                     _bits.isEmpty
                         ? CoconutColors.secondaryText
@@ -656,12 +656,12 @@ class _FlipCoinState extends State<FlipCoin> {
             ),
             CoconutLayout.spacing_200h,
             ShrinkAnimationButton(
-              onPressed: _showConfirmResetDialog,
-              pressedColor: CoconutColors.white,
+              onPressed: _removeLastBit,
+              pressedColor: CoconutColors.gray200,
               child: Container(
                 padding: const EdgeInsets.all(8),
                 child: Text(
-                  t.delete_all,
+                  t.delete_one,
                   style: CoconutTypography.body3_12.setColor(
                     _bits.isEmpty
                         ? CoconutColors.secondaryText

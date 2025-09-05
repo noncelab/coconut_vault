@@ -25,8 +25,6 @@ class _MnemonicGenerationScreenState extends State<MnemonicGenerationScreen> {
   int _step = 0;
   int _selectedWordsCount = 0;
   bool _usePassphrase = false;
-  String _mnemonicWords = '';
-  String _passphrase = '';
 
   void _onLengthSelected(int wordsCount) {
     setState(() {
@@ -47,13 +45,6 @@ class _MnemonicGenerationScreenState extends State<MnemonicGenerationScreen> {
       _step = 0;
       _selectedWordsCount = 0;
       _usePassphrase = false;
-    });
-  }
-
-  void _onFinished(String mnemonicWords, String passphrase, bool finished) {
-    setState(() {
-      _mnemonicWords = mnemonicWords.trim().toLowerCase().replaceAll(RegExp(r'\s+'), ' ');
-      _passphrase = passphrase;
     });
   }
 
@@ -103,7 +94,6 @@ class _MnemonicGenerationScreenState extends State<MnemonicGenerationScreen> {
         wordsCount: _selectedWordsCount,
         usePassphrase: _usePassphrase,
         onReset: _onReset,
-        onFinished: _onFinished,
         onNavigateToNext: _onNavigateToNext,
       ),
     ];
@@ -247,11 +237,16 @@ class _PassphraseSelectionState extends State<PassphraseSelection> {
   }
 }
 
+enum MnemonicWordsFrom {
+  coinflip,
+  generation,
+}
+
 class MnemonicWords extends StatefulWidget {
   final int wordsCount;
   final bool usePassphrase;
   final Function() onReset;
-  final Function(String, String, bool) onFinished;
+  final MnemonicWordsFrom from;
   final VoidCallback onNavigateToNext;
 
   const MnemonicWords({
@@ -259,8 +254,8 @@ class MnemonicWords extends StatefulWidget {
     required this.wordsCount,
     required this.usePassphrase,
     required this.onReset,
-    required this.onFinished,
     required this.onNavigateToNext,
+    this.from = MnemonicWordsFrom.generation,
   });
 
   @override
@@ -330,7 +325,12 @@ class _MnemonicWordsState extends State<MnemonicWords> {
     super.initState();
     _walletCreationProvider = Provider.of<WalletCreationProvider>(context, listen: false);
     stepCount = widget.usePassphrase ? 2 : 1;
-    _generateMnemonicPhrase();
+    if (widget.from == MnemonicWordsFrom.generation) {
+      _generateMnemonicPhrase();
+    }
+    if (widget.from == MnemonicWordsFrom.coinflip) {
+      mnemonic = _walletCreationProvider.secret!;
+    }
 
     // 스크롤 리스너 추가
     _scrollController.addListener(() {
@@ -355,9 +355,6 @@ class _MnemonicWordsState extends State<MnemonicWords> {
         });
       } else {
         setState(() {}); // clear text 아이콘 보이기 위함
-      }
-      if (!widget.usePassphrase) {
-        widget.onFinished(mnemonic, passphrase, false);
       }
     });
     _passphraseConfirmController.addListener(() {
@@ -445,7 +442,9 @@ class _MnemonicWordsState extends State<MnemonicWords> {
                         ),
                       ),
                     ),
-                    step == 0 ? MnemonicList(mnemonic: mnemonic) : _buildPassphraseInput(),
+                    step == 0
+                        ? MnemonicList(mnemonic: mnemonic, isLoading: mnemonic.isEmpty)
+                        : _buildPassphraseInput(),
                     const SizedBox(height: 100),
                   ],
                 )),
@@ -455,6 +454,10 @@ class _MnemonicWordsState extends State<MnemonicWords> {
             text: _getNextButtonState().text,
             backgroundColor: CoconutColors.black,
             onButtonClicked: () {
+              if (widget.from == MnemonicWordsFrom.coinflip) {
+                widget.onNavigateToNext();
+                return;
+              }
               if (step == 0 && stepCount == 2) {
                 if (hasScrolledToBottom) {
                   // 니모닉 리스트를 끝까지 확인했다면 다음 단계로
@@ -480,7 +483,6 @@ class _MnemonicWordsState extends State<MnemonicWords> {
                   return;
                 }
                 _walletCreationProvider.setSecretAndPassphrase(mnemonic, passphrase);
-                widget.onFinished(mnemonic, passphrase, true);
                 _passphraseFocusNode.unfocus();
                 _passphraseConfirmFocusNode.unfocus();
                 widget.onNavigateToNext();
@@ -497,12 +499,9 @@ class _MnemonicWordsState extends State<MnemonicWords> {
                     passphraseConfirm.isNotEmpty &&
                     passphrase == passphraseConfirm) {
                   _walletCreationProvider.setSecretAndPassphrase(mnemonic, passphrase);
-                  widget.onFinished(mnemonic, passphrase, true);
                   _passphraseFocusNode.unfocus();
                   _passphraseConfirmFocusNode.unfocus();
                   widget.onNavigateToNext();
-                } else {
-                  widget.onFinished(mnemonic, passphrase, false);
                 }
               }
             },
