@@ -98,27 +98,55 @@ class _MnemonicWordListScreenState extends State<MnemonicWordListScreen> {
 
   void _queryWord() {
     String query = _searchController.text.toLowerCase();
-    _filteredItems = List.generate(
-        wordList.length, (index) => {'index': index + 1, 'item': wordList[index]}).where((element) {
-      final item = element['item'] as String;
-      return item.toLowerCase().contains(query);
-    }).toList()
-      ..sort((a, b) {
-        final itemA = (a['item'] as String).toLowerCase();
-        final itemB = (b['item'] as String).toLowerCase();
 
+    final isBinary = RegExp(r'^[01]+$').hasMatch(query);
+    final isNumeric = RegExp(r'^\d+$').hasMatch(query);
+    final isAlphabetic = RegExp(r'^[a-zA-Z]+$').hasMatch(query);
+
+    _filteredItems = List.generate(wordList.length, (index) => {
+        'index': index + 1,
+        'item': wordList[index],
+      }).where((element) {
+    final item = element['item'] as String;
+    final indexNum = element['index'] as int;
+
+    if (isBinary && query.length >= 4) {
+      // Binary 검색
+      final binaryStr = (indexNum - 1).toRadixString(2).padLeft(11, '0');
+      return binaryStr.contains(query);
+    } else if (isNumeric) {
+      // 목차 검색
+      return indexNum.toString().contains(query);
+    } else if (isAlphabetic) {
+      // 영문 검색
+      return item.toLowerCase().contains(query);
+    } else {
+      return false;
+    }
+  }).toList()
+    ..sort((a, b) {
+      final itemA = (a['item'] as String).toLowerCase();
+      final itemB = (b['item'] as String).toLowerCase();
+      final indexA = a['index'] as int;
+      final indexB = b['index'] as int;
+
+      // 문자열 검색 시 query로 시작하는 순서 우선
+      if (isAlphabetic) {
         final startsWithA = itemA.startsWith(query);
         final startsWithB = itemB.startsWith(query);
 
         if (startsWithA && !startsWithB) {
-          return -1; // itemA가 우선
+          return -1;
         } else if (!startsWithA && startsWithB) {
-          return 1; // itemB가 우선
+          return 1;
         } else {
-          // 둘 다 query로 시작하거나 둘 다 포함하는 경우는 알파벳 순으로 결정
           return itemA.compareTo(itemB);
         }
-      });
+      } else {
+        // 숫자/바이너리 검색 시 index 오름차순
+        return indexA.compareTo(indexB);
+      }
+    });
   }
 
   @override
@@ -161,11 +189,11 @@ class _MnemonicWordListScreenState extends State<MnemonicWordListScreen> {
                     child: TextField(
                       keyboardType: TextInputType.text,
                       inputFormatters: [
-                        FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z]')),
+                        FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z0-9]')),
                       ],
                       controller: _searchController,
                       maxLines: 1,
-                      maxLength: 10,
+                      maxLength: 11,
                       decoration: InputDecoration(
                         counterText: '',
                         hintText: _hintText,
