@@ -276,12 +276,30 @@ class _MnemonicWordListScreenState extends State<MnemonicWordListScreen> {
 
   Widget _buildListItem(BuildContext context, int index) {
     String item = _filteredItems[index]['item'];
-    List<TextSpan> highlightOccurrences(String source, String query) {
+    int indexNum = _filteredItems[index]['index'];
+    String query = _searchController.text.toLowerCase();
+
+    final isBinary = RegExp(r'^[01]+$').hasMatch(query);
+    final isNumeric = RegExp(r'^\d+$').hasMatch(query);
+    final isAlphabetic = RegExp(r'^[a-zA-Z]+$').hasMatch(query);
+
+    String highlightTarget;
+    if (isBinary && query.length >= 5) {
+      highlightTarget = (indexNum - 1).toRadixString(2).padLeft(11, '0');
+    } else if (isNumeric) {
+      highlightTarget = indexNum.toString();
+    } else {
+      highlightTarget = item.toLowerCase();
+    }
+    
+    List<TextSpan> highlightOccurrences(String source, String query, {bool isIndex = false}) {
       if (query.isEmpty) {
         return [
           TextSpan(
             text: source,
-            style: const TextStyle(color: CoconutColors.black),
+            style: isIndex
+                ? CoconutTypography.body1_16_Number.setColor(CoconutColors.gray500)
+                : const TextStyle(color: CoconutColors.black),
           )
         ];
       }
@@ -300,7 +318,9 @@ class _MnemonicWordListScreenState extends State<MnemonicWordListScreen> {
         if (match.start != lastMatchEnd) {
           spans.add(TextSpan(
             text: source.substring(lastMatchEnd, match.start),
-            style: const TextStyle(color: CoconutColors.black),
+            style: isIndex
+                ? CoconutTypography.body1_16_Number.setColor(CoconutColors.gray500)
+                : const TextStyle(color: CoconutColors.black),
           ));
         }
         spans.add(
@@ -315,7 +335,9 @@ class _MnemonicWordListScreenState extends State<MnemonicWordListScreen> {
         spans.add(
           TextSpan(
             text: source.substring(lastMatchEnd),
-            style: const TextStyle(fontWeight: FontWeight.bold, color: CoconutColors.black),
+            style: isIndex
+                ? CoconutTypography.body1_16_Number.setColor(CoconutColors.gray500)
+                : const TextStyle(color: CoconutColors.black),
           ),
         );
       }
@@ -332,10 +354,14 @@ class _MnemonicWordListScreenState extends State<MnemonicWordListScreen> {
                 alignment: Alignment.centerLeft,
                 child: Row(
                   children: [
-                    Text(
-                      '${_filteredItems[index]['index']}. ',
-                      style: CoconutTypography.body1_16_Number.setColor(
-                        CoconutColors.gray500,
+                    RichText(
+                      text: TextSpan(
+                        style: CoconutTypography.body1_16_Number.setColor(CoconutColors.gray500),
+                        children: highlightOccurrences(
+                          '${indexNum}. ',
+                          isNumeric ? query : '',
+                          isIndex: true,
+                        ),
                       ),
                     ),
                     RichText(
@@ -349,10 +375,15 @@ class _MnemonicWordListScreenState extends State<MnemonicWordListScreen> {
                 ),
               ),
               const Spacer(),
-              Text(
-                'Binary: ${(_filteredItems[index]['index'] - 1).toRadixString(2).padLeft(11, '0')}',
-                style: CoconutTypography.body2_14.setColor(
-                  CoconutColors.black.withOpacity(0.5),
+              RichText(
+                text: TextSpan(
+                  style: CoconutTypography.body2_14.setColor(
+                    CoconutColors.black.withOpacity(0.5),
+                  ),
+                  children: [
+                    const TextSpan(text: "Binary: "),
+                    ...highlightOccurrences((indexNum - 1).toRadixString(2).padLeft(11, '0'), isBinary ? query : ''),
+                  ],
                 ),
               ),
             ],
