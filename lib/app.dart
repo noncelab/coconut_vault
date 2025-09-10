@@ -293,7 +293,8 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> {
                         AppRoutes.signedTransaction: (context) => const SignedTransactionQrScreen(),
                         AppRoutes.syncToWallet: (context) => buildScreenWithArguments(
                               context,
-                              (args) => SyncToWalletScreen(id: args['id']),
+                              (args) => SyncToWalletScreen(
+                                  id: args['id'], syncOption: args['syncOption']),
                             ),
                         AppRoutes.multisigSignerBsmsExport: (context) => buildScreenWithArguments(
                               context,
@@ -432,7 +433,8 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> {
                   AppRoutes.signedTransaction: (context) => const SignedTransactionQrScreen(),
                   AppRoutes.syncToWallet: (context) => buildScreenWithArguments(
                         context,
-                        (args) => SyncToWalletScreen(id: args['id']),
+                        (args) =>
+                            SyncToWalletScreen(id: args['id'], syncOption: args['syncOption']),
                       ),
                   AppRoutes.multisigSignerBsmsExport: (context) => buildScreenWithArguments(
                         context,

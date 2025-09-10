@@ -115,6 +115,12 @@ edit: "편집"
 coconut: "코코넛"
 descriptor: "디스크립터"
 
+watch_only_options:
+  title: "보기 전용 앱 선택"
+  sparrow: "스패로우"
+  nunchuk: "넌척"
+  bluewallet: "블루월렛"
+
 # 연결 상태
 connectivity_state: 
   connected: "연결됨"
@@ -444,7 +450,7 @@ signer_bsms_screen:
   export_info: "내보낼 정보"
 sync_to_wallet_screen:
   title: "$name 내보내기"
-  view_detail: "상세 정보 보기"
+  guide: "$appName 아래 QR 코드를 스캔해 주세요."
 vault_menu_screen:
   title:  
     view_info: "$name 정보"

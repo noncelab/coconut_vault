@@ -1,9 +1,11 @@
 import 'package:coconut_lib/coconut_lib.dart';
 import 'package:coconut_vault/enums/wallet_enums.dart';
+import 'package:coconut_vault/enums/wallet_export_format_enum.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/model/common/vault_list_item_base.dart';
 import 'package:coconut_vault/model/multisig/multisig_vault_list_item.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
+import 'package:coconut_vault/screens/home/select_sync_option_bottom_sheet.dart';
 import 'package:coconut_vault/services/blockchain_commons/account_descriptor/legacy_account_descriptor.dart';
 import 'package:coconut_vault/services/blockchain_commons/ur_type.dart';
 import 'package:coconut_vault/utils/conversion_util.dart';
@@ -66,8 +68,14 @@ class WalletToSyncViewModel extends ChangeNotifier {
   QrData get qrData => qrDatas[_selectedOption];
   String get qrDataString => _convertQrDataToString(qrData.data);
 
-  void setSelectedOption(int option) {
-    _selectedOption = option;
+  void setFormatOption(SyncOption syncOption) {
+    if (syncOption.format == WalletExportFormatEnum.coconut) {
+      _selectedOption = 0;
+    } else if (syncOption.format == WalletExportFormatEnum.bcUr) {
+      _selectedOption = 1;
+    } else if (syncOption.format == WalletExportFormatEnum.descriptor) {
+      _selectedOption = 2;
+    }
     notifyListeners();
   }
 

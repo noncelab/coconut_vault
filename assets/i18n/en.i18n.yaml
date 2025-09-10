@@ -115,6 +115,12 @@ edit: "edit"
 coconut: "Coconut"
 descriptor: "Descriptor"
 
+watch_only_options:
+  title: "Select Watch-only Wallet"
+  sparrow: "Sparrow"
+  nunchuk: "Nunchuk"
+  bluewallet: "BlueWallet"
+
 connectivity_state: 
   connected: "Connected"
   disconnected: "Disconnected"
@@ -443,7 +449,7 @@ signer_bsms_screen:
   export_info: "Export Info"
 sync_to_wallet_screen:
   title: "Export $name"
-  view_detail: "View Details"
+  guide: "Scan the QR code below in $appName."
 vault_menu_screen:
   title:  
     view_info: "$name Info"

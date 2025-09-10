@@ -239,6 +239,10 @@ flutter:
     - assets/svg/qr-code.svg
     - assets/svg/circle-info.svg
     - assets/svg/eraser.svg
+    - assets/svg/watch-only-icons/coconut.svg
+    - assets/svg/watch-only-icons/sparrow.svg
+    - assets/svg/watch-only-icons/nunchuk.svg
+    - assets/svg/watch-only-icons/bluewallet.svg
 
   fonts:
     - family: SpaceGrotesk
