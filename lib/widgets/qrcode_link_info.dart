@@ -1,8 +1,9 @@
+import 'package:coconut_design_system/coconut_design_system.dart';
+import 'package:coconut_vault/constants/external_links.dart';
+import 'package:coconut_vault/localization/strings.g.dart';
+import 'package:coconut_vault/widgets/button/copy_text_container.dart';
 import 'package:flutter/material.dart';
-import 'package:coconut_vault/constants/app_info.dart';
 import 'package:qr_flutter/qr_flutter.dart';
-
-import '../styles.dart';
 
 class QRCodeLinkInfo extends StatefulWidget {
   final String qrData;
@@ -24,8 +25,8 @@ class _QRCodeLinkInfoState extends State<QRCodeLinkInfo> {
     if (widget.qrData.contains('powbitcoiner')) {
       assetImageUrl = 'assets/png/pow-logo.png';
       assetImageSize = const Size(48, 48);
-    } else if (widget.qrData.contains('t.me')) {
-      assetImageUrl = 'assets/png/telegram-logo.png';
+    } else if (widget.qrData.contains('discord')) {
+      assetImageUrl = 'assets/png/discord-logo.png';
       assetImageSize = const Size(48, 48);
     } else if (widget.qrData.contains('x.com')) {
       assetImageUrl = 'assets/jpg/x-logo.jpg';
@@ -54,7 +55,7 @@ class _QRCodeLinkInfoState extends State<QRCodeLinkInfo> {
                   height: qrSize,
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(8),
-                    color: Colors.white,
+                    color: CoconutColors.white,
                   ),
                 ),
                 QrImageView(
@@ -62,34 +63,26 @@ class _QRCodeLinkInfoState extends State<QRCodeLinkInfo> {
                   version: QrVersions.auto,
                   size: qrSize,
                   embeddedImage: AssetImage(assetImageUrl),
-                  embeddedImageStyle:
-                      QrEmbeddedImageStyle(size: assetImageSize),
+                  embeddedImageStyle: QrEmbeddedImageStyle(size: assetImageSize),
                 ),
               ],
             ),
-            const SizedBox(height: 32),
-            Text(
-                widget.qrData.contains('@')
-                    ? CONTACT_EMAIL_ADDRESS
-                    : widget.qrData,
-                style: Styles.body1
-                    .merge(const TextStyle(fontFamily: 'SpaceGrotesk')),
-                textAlign: TextAlign.center),
-            const SizedBox(height: 24),
+            CoconutLayout.spacing_400h,
+            CopyTextContainer(
+                text: widget.qrData.contains('@') ? CONTACT_EMAIL_ADDRESS : widget.qrData,
+                toastMsg: t.toast.clipboard_copied,
+                textStyle: CoconutTypography.body2_14_Number.setColor(CoconutColors.black)),
+            CoconutLayout.spacing_600h,
             widget.qrData.contains('@')
-                ? widget.qrData.contains('라이선스')
+                ? widget.qrData.contains(t.license)
                     ? const Text(
                         'Please scan the QR code on a network-enabled device or send an email to the address above.\n\n네트워크가 활성화된 기기에서 QR 코드를 스캔하시거나 위의 주소로 메일을 전송해 주세요.',
-                        style: Styles.body1,
+                        style: CoconutTypography.body1_16,
                         textAlign: TextAlign.center)
-                    : const Text(
-                        '네트워크가 활성화된 기기에서 QR 코드를 스캔하시거나 위의 주소로 메일을 전송해 주세요.',
-                        style: Styles.body1,
-                        textAlign: TextAlign.center)
-                : const Text(
-                    '네트워크가 활성화된 기기에서 QR 코드를 스캔하시거나 위의 URL 주소로 접속해 주세요.',
-                    style: Styles.body1,
-                    textAlign: TextAlign.center),
+                    : Text(t.scan_qr_email_link,
+                        style: CoconutTypography.body1_16, textAlign: TextAlign.center)
+                : Text(t.scan_qr_url_link,
+                    style: CoconutTypography.body1_16, textAlign: TextAlign.center),
           ],
         ));
   }

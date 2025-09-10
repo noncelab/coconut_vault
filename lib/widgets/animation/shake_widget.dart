@@ -16,8 +16,7 @@ class ShakeWidget extends StatelessWidget {
   });
 
   /// convert 0-1 to 0-1-0
-  double shake(double animation) =>
-      2 * (0.5 - (0.5 - curve.transform(animation)).abs());
+  double shake(double animation) => 2 * (0.5 - (0.5 - curve.transform(animation)).abs());
 
   @override
   Widget build(BuildContext context) {

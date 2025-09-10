@@ -1,9 +1,9 @@
-import 'package:flutter/cupertino.dart';
+import 'package:coconut_design_system/coconut_design_system.dart';
+import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:flutter/material.dart';
-import 'package:coconut_vault/styles.dart';
 import 'package:coconut_vault/utils/icon_util.dart';
 import 'package:coconut_vault/widgets/icon/svg_icon.dart';
-import 'package:coconut_vault/widgets/textfield/custom_textfield.dart';
+import 'package:flutter_svg/svg.dart';
 
 class VaultNameIconEditPalette extends StatefulWidget {
   final String name;
@@ -24,8 +24,7 @@ class VaultNameIconEditPalette extends StatefulWidget {
   });
 
   @override
-  State<VaultNameIconEditPalette> createState() =>
-      _VaultNameIconEditPaletteState();
+  State<VaultNameIconEditPalette> createState() => _VaultNameIconEditPaletteState();
 }
 
 class _VaultNameIconEditPaletteState extends State<VaultNameIconEditPalette> {
@@ -33,6 +32,7 @@ class _VaultNameIconEditPaletteState extends State<VaultNameIconEditPalette> {
   late int _selectedIconIndex;
   late int _selectedColorIndex;
   final TextEditingController _controller = TextEditingController();
+  final FocusNode _focusNode = FocusNode();
 
   @override
   void initState() {
@@ -41,6 +41,13 @@ class _VaultNameIconEditPaletteState extends State<VaultNameIconEditPalette> {
     _selectedIconIndex = widget.iconIndex;
     _selectedColorIndex = widget.colorIndex;
     _controller.text = _name;
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    _focusNode.dispose();
+    super.dispose();
   }
 
   @override
@@ -63,8 +70,7 @@ class _VaultNameIconEditPaletteState extends State<VaultNameIconEditPalette> {
                 SliverPadding(
                   padding: const EdgeInsets.symmetric(horizontal: 8.0),
                   sliver: SliverGrid(
-                    gridDelegate:
-                        const SliverGridDelegateWithFixedCrossAxisCount(
+                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                       crossAxisCount: 5,
                       crossAxisSpacing: 4.0,
                     ),
@@ -89,12 +95,11 @@ class _VaultNameIconEditPaletteState extends State<VaultNameIconEditPalette> {
                                     child: Container(
                                       margin: const EdgeInsets.all(11.5),
                                       decoration: BoxDecoration(
-                                        borderRadius:
-                                            BorderRadius.circular(40.0),
+                                        borderRadius: BorderRadius.circular(40.0),
                                         border: Border.all(
                                           color: index == _selectedColorIndex
-                                              ? MyColors.darkgrey
-                                              : Colors.white,
+                                              ? CoconutColors.gray800
+                                              : CoconutColors.white,
                                           width: 1.8,
                                         ),
                                       ),
@@ -107,13 +112,11 @@ class _VaultNameIconEditPaletteState extends State<VaultNameIconEditPalette> {
                                     child: Container(
                                       margin: const EdgeInsets.all(11.5),
                                       decoration: BoxDecoration(
-                                        borderRadius:
-                                            BorderRadius.circular(40.0),
+                                        borderRadius: BorderRadius.circular(40.0),
                                         border: Border.all(
-                                          color:
-                                              index == _selectedIconIndex + 10
-                                                  ? MyColors.darkgrey
-                                                  : Colors.white,
+                                          color: index == _selectedIconIndex + 10
+                                              ? CoconutColors.gray800
+                                              : CoconutColors.white,
                                           width: 1.8,
                                         ),
                                       ),
@@ -122,7 +125,7 @@ class _VaultNameIconEditPaletteState extends State<VaultNameIconEditPalette> {
                                 ]),
                         );
                       },
-                      childCount: ColorPalette.length + CustomIcons.totalCount,
+                      childCount: CoconutColors.colorPalette.length + CustomIcons.totalCount,
                     ),
                   ),
                 ),
@@ -149,12 +152,32 @@ class _VaultNameIconEditPaletteState extends State<VaultNameIconEditPalette> {
           Expanded(
             child: Column(
               children: [
-                CustomTextField(
-                  placeholder: '이름',
+                CoconutTextField(
+                  isLengthVisible: false,
+                  placeholderText: t.name,
                   maxLength: 20,
                   maxLines: 1,
                   controller: _controller,
-                  clearButtonMode: OverlayVisibilityMode.always,
+                  focusNode: _focusNode,
+                  suffix: IconButton(
+                    highlightColor: CoconutColors.gray200,
+                    iconSize: 14,
+                    padding: EdgeInsets.zero,
+                    onPressed: () {
+                      setState(() {
+                        _controller.text = '';
+                      });
+                    },
+                    icon: _controller.text.isNotEmpty
+                        ? SvgPicture.asset(
+                            'assets/svg/text-field-clear.svg',
+                            colorFilter: const ColorFilter.mode(
+                              CoconutColors.gray400,
+                              BlendMode.srcIn,
+                            ),
+                          )
+                        : Container(),
+                  ),
                   onChanged: (text) {
                     setState(() {
                       _name = text;
@@ -168,12 +191,11 @@ class _VaultNameIconEditPaletteState extends State<VaultNameIconEditPalette> {
                     alignment: Alignment.topRight,
                     child: Text(
                       '(${_controller.text.length} / 20)',
-                      style: TextStyle(
-                          color: _controller.text.length == 20
-                              ? MyColors.transparentBlack
-                              : MyColors.transparentBlack_50,
-                          fontSize: 12,
-                          fontFamily: CustomFonts.text.getFontFamily),
+                      style: CoconutTypography.body3_12.setColor(
+                        _controller.text.length == 20
+                            ? CoconutColors.black.withOpacity(0.7)
+                            : CoconutColors.black.withOpacity(0.5),
+                      ),
                     ),
                   ),
                 ),
@@ -200,6 +222,6 @@ class _VaultNameIconEditPaletteState extends State<VaultNameIconEditPalette> {
   }
 
   Color _getColorByIndex(int index) {
-    return ColorPalette[index % ColorPalette.length];
+    return CoconutColors.colorPalette[index % CoconutColors.colorPalette.length];
   }
 }

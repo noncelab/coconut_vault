@@ -1,0 +1,4 @@
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:top="54dp" android:left="54dp" android:right="54dp" android:bottom="54dp"
+        android:drawable="@mipmap/ic_launcher_regtest"/>
+</layer-list>

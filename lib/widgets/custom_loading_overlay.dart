@@ -1,6 +1,6 @@
+import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:flutter/material.dart';
 import 'package:loader_overlay/loader_overlay.dart';
-import 'package:coconut_vault/styles.dart';
 
 class CustomLoadingOverlay extends StatelessWidget {
   final Widget child;
@@ -10,12 +10,19 @@ class CustomLoadingOverlay extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return LoaderOverlay(
-      useDefaultLoading: false,
+      overlayColor: CoconutColors.white.withOpacity(0.5),
       overlayWidgetBuilder: (_) {
-        return const Center(
-          child: CircularProgressIndicator(
-            color: MyColors.darkgrey,
-          ),
+        return const Stack(
+          children: [
+            // 🛑 클릭 차단을 위한 ModalBarrier 추가
+            ModalBarrier(
+              dismissible: false,
+              color: Colors.transparent, // 투명하게 유지
+            ),
+            Center(
+              child: CoconutCircularIndicator(),
+            ),
+          ],
         );
       },
       child: child,

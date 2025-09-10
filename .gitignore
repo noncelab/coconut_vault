@@ -73,6 +73,7 @@ unlinked_spec.ds
 **/android/local.properties
 **/android/**/GeneratedPluginRegistrant.java
 **/android/key.properties
+**/android/key_*.properties
 *.jks
 
 # iOS/XCode related
@@ -142,3 +143,10 @@ app.*.symbols
 
 wallet_lib
 coconut_lib
+
+# FVM Version Cache
+.fvm/
+
+# Generated files
+*.mocks.dart
+*.g.dart

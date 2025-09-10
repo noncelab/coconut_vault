@@ -1,10 +1,10 @@
+import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_lib/coconut_lib.dart';
-import 'package:coconut_vault/styles.dart';
 import 'package:flutter/cupertino.dart';
 
 /// bsms 카드에서 master fingerprint와 description으로 전달된 요소가 있는 경우
 class SignerBsmsInfoCard extends StatelessWidget {
-  final BSMS bsms;
+  final Bsms bsms;
   final double? width;
 
   const SignerBsmsInfoCard({super.key, required this.bsms, this.width});
@@ -15,11 +15,11 @@ class SignerBsmsInfoCard extends StatelessWidget {
       width: width ?? MediaQuery.of(context).size.width - 30,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(16),
-        color: MyColors.white,
-        boxShadow: const [
+        color: CoconutColors.white,
+        boxShadow: [
           BoxShadow(
-            color: MyColors.transparentBlack_15,
-            offset: Offset(4, 4),
+            color: CoconutColors.black.withOpacity(0.15),
+            offset: const Offset(4, 4),
             blurRadius: 30,
             spreadRadius: 0,
           ),
@@ -37,14 +37,12 @@ class SignerBsmsInfoCard extends StatelessWidget {
             fontSize: 12,
             height: 1.4,
             letterSpacing: 0.5,
-            color: MyColors.black,
+            color: CoconutColors.black,
           ),
           children: <TextSpan>[
+            TextSpan(text: bsms.signer!.masterFingerPrint, style: _boldTextStyle),
             TextSpan(
-                text: bsms.signer!.masterFingerPrint, style: _boldTextStyle),
-            TextSpan(
-              text:
-                  '/${bsms.signer!.path}]${bsms.signer!.extendedPublicKey.serialize()}\n',
+              text: '/${bsms.signer!.path}]${bsms.signer!.extendedPublicKey.serialize()}\n',
             ),
             TextSpan(text: bsms.signer!.description, style: _boldTextStyle),
           ],

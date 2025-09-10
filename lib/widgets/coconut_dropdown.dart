@@ -1,4 +1,4 @@
-import 'package:coconut_vault/styles.dart';
+import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:flutter/material.dart';
 
 class CoconutDropdown extends StatefulWidget {
@@ -6,10 +6,7 @@ class CoconutDropdown extends StatefulWidget {
   final Function onTapButton;
   final int dividerIndex;
   const CoconutDropdown(
-      {super.key,
-      required this.buttons,
-      required this.onTapButton,
-      this.dividerIndex = 0});
+      {super.key, required this.buttons, required this.onTapButton, this.dividerIndex = 0});
 
   @override
   State<CoconutDropdown> createState() => _CoconutDropdownState();
@@ -37,7 +34,7 @@ class _CoconutDropdownState extends State<CoconutDropdown> {
       decoration: BoxDecoration(
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.1),
+            color: CoconutColors.black.withOpacity(0.1),
             spreadRadius: 1,
             blurRadius: 16,
             offset: const Offset(3, 3),
@@ -50,10 +47,7 @@ class _CoconutDropdownState extends State<CoconutDropdown> {
           return _button(
             widget.buttons[index],
             index,
-            dividerHeight:
-                widget.dividerIndex > 0 && widget.dividerIndex == index + 1
-                    ? 5
-                    : 1,
+            dividerHeight: widget.dividerIndex > 0 && widget.dividerIndex == index + 1 ? 5 : 1,
             isFirst: index == 0,
             isLast: index == widget.buttons.length - 1,
           );
@@ -90,30 +84,24 @@ class _CoconutDropdownState extends State<CoconutDropdown> {
             decoration: BoxDecoration(
               borderRadius: isFirst
                   ? const BorderRadius.only(
-                      topLeft: Radius.circular(16),
-                      topRight: Radius.circular(16))
+                      topLeft: Radius.circular(16), topRight: Radius.circular(16))
                   : isLast
                       ? const BorderRadius.only(
-                          bottomLeft: Radius.circular(16),
-                          bottomRight: Radius.circular(16))
+                          bottomLeft: Radius.circular(16), bottomRight: Radius.circular(16))
                       : null,
-              color:
-                  _selectedIndex == index ? MyColors.lightgrey : MyColors.white,
+              color: _selectedIndex == index ? CoconutColors.gray150 : CoconutColors.white,
             ),
             child: Text(
               title,
-              style: TextStyle(
-                fontFamily: CustomFonts.text.getFontFamily,
-                color: MyColors.black,
-                fontSize: 14,
-                fontWeight: FontWeight.w500,
-                fontStyle: FontStyle.normal,
+              style: CoconutTypography.body2_14.merge(
+                const TextStyle(
+                  fontWeight: FontWeight.w500,
+                ),
               ),
             ),
           ),
         ),
-        if (!isLast)
-          Container(height: dividerHeight, color: MyColors.dropdownGrey),
+        if (!isLast) Container(height: dividerHeight, color: CoconutColors.gray200),
       ],
     );
   }

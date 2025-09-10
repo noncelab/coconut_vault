@@ -1,19 +1,22 @@
 import 'dart:io';
 
+import 'package:coconut_design_system/coconut_design_system.dart';
+import 'package:coconut_vault/constants/pin_constants.dart';
 import 'package:coconut_vault/utils/logger.dart';
 import 'package:flutter/material.dart';
 import 'package:local_auth/local_auth.dart';
-import 'package:coconut_vault/styles.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 class KeyButton extends StatefulWidget {
   final String keyValue;
   final ValueChanged<String> onKeyTap;
+  final bool disabled;
 
   const KeyButton({
     super.key,
     required this.keyValue,
     required this.onKeyTap,
+    this.disabled = false,
   });
 
   @override
@@ -34,8 +37,7 @@ class _KeyButtonState extends State<KeyButton> {
     final LocalAuthentication auth = LocalAuthentication();
 
     try {
-      final List<BiometricType> availableBiometrics =
-          await auth.getAvailableBiometrics();
+      final List<BiometricType> availableBiometrics = await auth.getAvailableBiometrics();
 
       if (Platform.isIOS) {
         if (availableBiometrics.contains(BiometricType.face)) {
@@ -93,29 +95,43 @@ class _KeyButtonState extends State<KeyButton> {
           margin: const EdgeInsets.symmetric(vertical: 8),
           decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(14),
-              color: _isPressed
-                  ? MyColors.borderLightgrey
-                  : Colors.transparent // 버튼의 상태에 따라 색상 변경
+              color: widget.disabled
+                  ? Colors.transparent
+                  : _isPressed
+                      ? CoconutColors.borderLightGray
+                      : Colors.transparent // 버튼의 상태에 따라 색상 변경
               ),
           child: Center(
-              child: widget.keyValue == '<'
-                  ? const Icon(Icons.backspace, color: MyColors.black, size: 20)
-                  : widget.keyValue == 'bio'
+              child: widget.keyValue == kDeleteBtnIdentifier
+                  ? Icon(Icons.backspace,
+                      color: widget.disabled
+                          ? CoconutColors.black.withOpacity(0.3)
+                          : CoconutColors.black,
+                      size: 20)
+                  : widget.keyValue == kBiometricIdentifier
                       ? _isFaceRecognition
                           ? SvgPicture.asset('assets/svg/face-id.svg',
                               width: 20,
-                              colorFilter: const ColorFilter.mode(
-                                  Colors.black, BlendMode.srcIn))
+                              colorFilter: ColorFilter.mode(
+                                  widget.disabled
+                                      ? CoconutColors.black.withOpacity(0.3)
+                                      : CoconutColors.black,
+                                  BlendMode.srcIn))
                           : SvgPicture.asset('assets/svg/fingerprint.svg',
                               width: 20,
-                              colorFilter: const ColorFilter.mode(
-                                  Colors.black, BlendMode.srcIn))
+                              colorFilter: ColorFilter.mode(
+                                  widget.disabled
+                                      ? CoconutColors.black.withOpacity(0.3)
+                                      : Colors.black,
+                                  BlendMode.srcIn))
                       : Text(
                           widget.keyValue,
-                          style: const TextStyle(
+                          style: TextStyle(
                               fontSize: 20,
                               fontWeight: FontWeight.w600,
-                              color: MyColors.black,
+                              color: widget.disabled
+                                  ? CoconutColors.black.withOpacity(0.3)
+                                  : CoconutColors.black,
                               fontFamily: 'SpaceGrotesk'),
                         )),
         ));

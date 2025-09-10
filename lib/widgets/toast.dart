@@ -1,19 +1,18 @@
-import 'package:coconut_vault/styles.dart';
+import 'package:coconut_design_system/coconut_design_system.dart';
+import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:flutter/material.dart';
 
 class ToastWidget extends StatefulWidget {
   final VoidCallback onClose;
   final String message;
 
-  const ToastWidget(
-      {super.key, required this.onClose, this.message = '클립보드에 복사되었어요.'});
+  const ToastWidget({super.key, required this.onClose, this.message = ''});
 
   @override
   ToastWidgetState createState() => ToastWidgetState();
 }
 
-class ToastWidgetState extends State<ToastWidget>
-    with SingleTickerProviderStateMixin {
+class ToastWidgetState extends State<ToastWidget> with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<Offset> _animation;
 
@@ -50,26 +49,29 @@ class ToastWidgetState extends State<ToastWidget>
 
   @override
   Widget build(BuildContext context) {
+    final displayMessage = widget.message.isEmpty ? t.toast.clipboard_copied : widget.message;
+
     return SlideTransition(
       position: _animation,
       child: Container(
         margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 30),
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
         decoration: BoxDecoration(
-          color: MyColors.transparentBlack_30,
+          color: CoconutColors.black.withOpacity(0.3),
           borderRadius: BorderRadius.circular(16.0),
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(
-              widget.message,
-              style: Styles.body2Bold
-                  .merge(const TextStyle(color: MyColors.white)),
+              displayMessage,
+              style: CoconutTypography.body2_14_Bold.setColor(
+                CoconutColors.white,
+              ),
             ),
             const Icon(
               Icons.check,
-              color: MyColors.white,
+              color: CoconutColors.white,
             ),
           ],
         ),

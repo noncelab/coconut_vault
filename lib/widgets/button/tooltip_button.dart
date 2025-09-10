@@ -1,5 +1,5 @@
+import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:flutter/material.dart';
-import 'package:coconut_vault/styles.dart';
 
 class TooltipButton extends StatefulWidget {
   final bool isSelected;
@@ -34,9 +34,7 @@ class _TooltipButtonState extends State<TooltipButton> {
         margin: widget.containerMargin,
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(22),
-          color: widget.isSelected
-              ? MyColors.transparentBlack_50
-              : Colors.transparent,
+          color: widget.isSelected ? CoconutColors.black.withOpacity(0.5) : Colors.transparent,
         ),
         child: Center(
           child: GestureDetector(
@@ -47,14 +45,12 @@ class _TooltipButtonState extends State<TooltipButton> {
               children: [
                 Text(
                   widget.text,
-                  style: Styles.label.merge(
+                  style: CoconutTypography.body2_14.merge(
                     TextStyle(
                       color: widget.isSelected
-                          ? MyColors.black
-                          : MyColors.transparentBlack_30,
-                      fontWeight: widget.isSelected
-                          ? FontWeight.bold
-                          : FontWeight.normal,
+                          ? CoconutColors.black
+                          : CoconutColors.black.withOpacity(0.3),
+                      fontWeight: widget.isSelected ? FontWeight.bold : FontWeight.normal,
                     ),
                   ),
                 ),
@@ -63,8 +59,8 @@ class _TooltipButtonState extends State<TooltipButton> {
                   key: widget.iconkey,
                   Icons.info_outline_rounded,
                   color: widget.isSelected
-                      ? MyColors.black
-                      : MyColors.transparentBlack_30,
+                      ? CoconutColors.black
+                      : CoconutColors.black.withOpacity(0.3),
                   size: 16,
                 )
               ],

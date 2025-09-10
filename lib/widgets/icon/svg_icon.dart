@@ -1,6 +1,6 @@
+import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:coconut_vault/styles.dart';
 import 'package:coconut_vault/utils/colors_util.dart';
 import 'package:coconut_vault/utils/icon_util.dart';
 
@@ -9,11 +9,7 @@ class SvgIcon extends StatelessWidget {
   final int colorIndex;
   final bool enableBorder;
 
-  const SvgIcon(
-      {super.key,
-      required this.index,
-      this.colorIndex = -1,
-      this.enableBorder = true});
+  const SvgIcon({super.key, required this.index, this.colorIndex = -1, this.enableBorder = true});
 
   @override
   Widget build(BuildContext context) {
@@ -22,7 +18,7 @@ class SvgIcon extends StatelessWidget {
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(30),
         color: colorIndex == -1
-            ? MyColors.lightgrey
+            ? CoconutColors.gray150
             : CustomColorHelper.getBackgroundColorByIndex(colorIndex),
       ),
       // 배경색 지정
@@ -34,7 +30,7 @@ class SvgIcon extends StatelessWidget {
           height: 32,
           fit: BoxFit.scaleDown,
           color: colorIndex == -1
-              ? MyColors.darkgrey
+              ? CoconutColors.gray800
               : CustomColorHelper.getColorByIndex(colorIndex),
         ),
       ),

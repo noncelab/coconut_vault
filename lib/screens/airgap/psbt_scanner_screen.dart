@@ -1,20 +1,25 @@
+import 'dart:convert';
 import 'dart:io';
 
-import 'package:coconut_vault/model/data/multisig_vault_list_item.dart';
-import 'package:coconut_vault/model/data/singlesig_vault_list_item.dart';
-import 'package:coconut_vault/model/data/vault_list_item_base.dart';
-import 'package:coconut_vault/model/data/vault_type.dart';
-import 'package:coconut_vault/model/state/app_model.dart';
+import 'package:coconut_design_system/coconut_design_system.dart';
+import 'package:coconut_vault/constants/app_routes.dart';
+import 'package:coconut_vault/localization/strings.g.dart';
+import 'package:coconut_vault/providers/sign_provider.dart';
+import 'package:coconut_vault/providers/view_model/airgap/psbt_scanner_view_model.dart';
 import 'package:coconut_vault/utils/alert_util.dart';
-import 'package:coconut_vault/widgets/animatedQR/animated_qr_scanner.dart';
+import 'package:coconut_vault/widgets/animated_qr/coconut_qr_scanner.dart';
+import 'package:coconut_vault/widgets/animated_qr/scan_data_handler/bc_ur_qr_scan_data_handler.dart';
+import 'package:coconut_vault/widgets/animated_qr/scan_data_handler/i_qr_scan_data_handler.dart';
+import 'package:coconut_vault/widgets/custom_loading_overlay.dart';
 import 'package:flutter/material.dart';
-import 'package:coconut_vault/model/state/vault_model.dart';
-import 'package:coconut_vault/styles.dart';
+import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:coconut_vault/utils/vibration_util.dart';
-import 'package:coconut_vault/widgets/appbar/custom_appbar.dart';
 import 'package:coconut_vault/widgets/custom_tooltip.dart';
+import 'package:loader_overlay/loader_overlay.dart';
 import 'package:provider/provider.dart';
 import 'package:qr_code_scanner/qr_code_scanner.dart';
+import 'package:ur/ur.dart';
+import 'package:cbor/cbor.dart';
 
 class PsbtScannerScreen extends StatefulWidget {
   final int id;
@@ -26,29 +31,31 @@ class PsbtScannerScreen extends StatefulWidget {
 }
 
 class _PsbtScannerScreenState extends State<PsbtScannerScreen> {
-  late AppModel _appModel;
-  late VaultModel _vaultModel;
+  late PsbtScannerViewModel _viewModel;
   final GlobalKey qrKey = GlobalKey(debugLabel: 'QR');
-  late VaultListItemBase _vaultListItem;
 
   QRViewController? controller;
   bool isCameraActive = false;
   bool isAlreadyVibrateScanFailed = false;
   bool _isProcessing = false;
-  bool _isMultisig = false;
+  late IQrScanDataHandler _scanDataHandler;
 
   @override
   void initState() {
-    _appModel = Provider.of<AppModel>(context, listen: false);
-    _vaultModel = Provider.of<VaultModel>(context, listen: false);
     super.initState();
-    _vaultListItem = _vaultModel.getVaultById(widget.id);
-    _isMultisig = _vaultListItem.vaultType == VaultType.multiSignature;
+    _viewModel = PsbtScannerViewModel(Provider.of<WalletProvider>(context, listen: false),
+        Provider.of<SignProvider>(context, listen: false), widget.id);
+
+    _scanDataHandler = BcUrQrScanDataHandler();
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      _appModel.showIndicator();
-      await Future.delayed(const Duration(milliseconds: 1000));
-      // fixme 추후 QRCodeScanner가 개선되면 QRCodeScanner 의 카메라 뷰 생성 완료된 콜백 찾아 progress hide 합니다. 현재는 1초 후 hide
-      _appModel.hideIndicator();
+      context.loaderOverlay.show();
+
+      Future.delayed(const Duration(milliseconds: 1000), () {
+        // fixme 추후 QRCodeScanner가 개선되면 QRCodeScanner 의 카메라 뷰 생성 완료된 콜백 찾아 progress hide 합니다. 현재는 1초 후 hide
+        if (mounted) {
+          context.loaderOverlay.hide();
+        }
+      });
     });
   }
 
@@ -58,57 +65,82 @@ class _PsbtScannerScreenState extends State<PsbtScannerScreen> {
     super.dispose();
   }
 
-  void showError(String message) {
-    showAlertDialog(
+  void _setQRViewController(QRViewController qrViewcontroller) {
+    controller = qrViewcontroller;
+  }
+
+  Future<void> _showErrorDialog(String message) async {
+    await showAlertDialog(
         context: context,
         content: message,
         onConfirmPressed: () {
           _isProcessing = false;
+          controller!.resumeCamera();
         });
   }
 
-  Future onCompleteScanning(String psbtBase64) async {
+  Future<void> _onCompletedScanningForBcUr(dynamic signedPsbt) async {
+    assert(signedPsbt is UR);
+    await _stopCamera();
+
     if (_isProcessing) return;
     _isProcessing = true;
 
-    if (!await _vaultListItem.canSign(psbtBase64)) {
-      vibrateLight();
-      showError('서명할 수 없는 트랜잭션이에요.');
+    String psbtBase64;
+    try {
+      final ur = signedPsbt as UR;
+      final cborBytes = ur.cbor;
+      final decodedCbor = cbor.decode(cborBytes) as CborBytes;
+
+      psbtBase64 = base64Encode(decodedCbor.bytes);
+      _viewModel.parseBase64EncodedToPsbt(psbtBase64);
+    } catch (e) {
+      await _showErrorDialog(t.errors.invalid_qr);
+      return;
+    }
+
+    try {
+      if (!await _viewModel.canSign(psbtBase64)) {
+        vibrateLight();
+        _showErrorDialog(t.errors.cannot_sign_error);
+        return;
+      }
+    } catch (e) {
+      await _showErrorDialog(t.errors.cannot_sign_error);
       return;
     }
 
     vibrateLight();
-    _vaultModel.setWaitingForSignaturePsbtBase64(psbtBase64);
+    _viewModel.saveUnsignedPsbt(psbtBase64);
 
-    controller?.pauseCamera();
-    await _stopCamera();
     if (mounted) {
       /// Go-router 제거 이후로 ios에서는 정상 작동하지만 안드로이드에서는 pushNamed로 화면 이동 시 카메라 컨트롤러 남아있는 이슈
       if (Platform.isAndroid) {
-        Navigator.pushReplacementNamed(context, "/psbt-confirmation",
+        Navigator.pushReplacementNamed(context, AppRoutes.psbtConfirmation,
             arguments: {'id': widget.id});
       } else if (Platform.isIOS) {
-        Navigator.pushNamed(context, "/psbt-confirmation",
-            arguments: {'id': widget.id}).then((o) {
+        Navigator.pushNamed(context, AppRoutes.psbtConfirmation, arguments: {'id': widget.id})
+            .then((o) {
           // 뒤로가기로 다시 돌아왔을 때
           _isProcessing = false;
+          controller?.resumeCamera();
         });
       }
     }
   }
 
-  void onFailedScanning(String message) {
+  void _onFailedScanning(String message) {
     if (_isProcessing) return;
     _isProcessing = true;
 
     String errorMessage;
     if (message.contains('Invalid Scheme')) {
-      errorMessage = '잘못된 서명 정보에요. 다시 시도해 주세요.';
+      errorMessage = t.errors.invalid_sign_error;
     } else {
-      errorMessage = '[스캔 실패] $message';
+      errorMessage = t.errors.scan_error(error: message);
     }
 
-    showError(errorMessage);
+    _showErrorDialog(errorMessage);
   }
 
   Future<void> _stopCamera() async {
@@ -118,82 +150,57 @@ class _PsbtScannerScreenState extends State<PsbtScannerScreen> {
   }
 
   @override
-  void didUpdateWidget(covariant PsbtScannerScreen oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    // 현재의 라우트 경로를 가져옴
-    String? currentRoute = ModalRoute.of(context)?.settings.name;
-
-    if (currentRoute != null && currentRoute.startsWith('/psbt-scanner')) {
-      controller?.resumeCamera();
-    }
-  }
-
-  @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: CustomAppBar.build(
-        title: _vaultListItem.name,
-        context: context,
-        hasRightIcon: false,
-        isBottom: true,
-      ),
-      body: Stack(
-        children: [
-          Container(
-            color: MyColors.white,
-            child: AnimatedQrScanner(
-              setQRViewController: (QRViewController qrViewcontroller) {
-                controller = qrViewcontroller;
-              },
-              onComplete: onCompleteScanning,
-              onFailed: onFailedScanning,
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.only(top: 20),
-            child: CustomTooltip(
-              richText: RichText(
-                text: TextSpan(
-                  text: '[2] ',
-                  style: const TextStyle(
-                    fontFamily: 'Pretendard',
-                    fontWeight: FontWeight.bold,
-                    fontSize: 15,
-                    height: 1.4,
-                    letterSpacing: 0.5,
-                    color: MyColors.black,
-                  ),
-                  children: <TextSpan>[
-                    TextSpan(
-                      text: _isMultisig
-                          ? '월렛에서 만든 보내기 정보 또는 외부 볼트에서 다중 서명 중인 정보를 스캔해주세요.'
-                          : '월렛에서 만든 보내기 정보를 스캔해 주세요. 반드시 지갑 이름이 같아야 해요.',
-                      style: const TextStyle(
-                        fontWeight: FontWeight.normal,
-                      ),
+    return CustomLoadingOverlay(
+      child: Scaffold(
+        appBar: CoconutAppBar.build(
+          title: _viewModel.walletName,
+          context: context,
+          isBottom: true,
+          backgroundColor: CoconutColors.white,
+        ),
+        body: Stack(
+          children: [
+            Container(
+                color: CoconutColors.white,
+                child: CoconutQrScanner(
+                    setQrViewController: _setQRViewController,
+                    onComplete: _onCompletedScanningForBcUr,
+                    onFailed: _onFailedScanning,
+                    qrDataHandler: _scanDataHandler)),
+            Padding(
+              padding: const EdgeInsets.only(top: 20, left: 16, right: 16),
+              child: CoconutToolTip(
+                tooltipType: CoconutTooltipType.fixed,
+                baseBackgroundColor: CoconutColors.white,
+                richText: RichText(
+                  text: TextSpan(
+                    text: '[2] ',
+                    style: const TextStyle(
+                      fontFamily: 'Pretendard',
+                      fontWeight: FontWeight.bold,
+                      fontSize: 15,
+                      height: 1.4,
+                      letterSpacing: 0.5,
+                      color: CoconutColors.black,
                     ),
-                  ],
+                    children: <TextSpan>[
+                      TextSpan(
+                        text: _viewModel.isMultisig
+                            ? t.psbt_scanner_screen.guide_multisig
+                            : t.psbt_scanner_screen.guide_single_sig,
+                        style: const TextStyle(
+                          fontWeight: FontWeight.normal,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-              showIcon: true,
-              type: TooltipType.info,
-            ),
-          ),
-          Visibility(
-            visible: _appModel.isLoading,
-            child: Container(
-              width: MediaQuery.of(context).size.width,
-              height: MediaQuery.of(context).size.height,
-              decoration:
-                  const BoxDecoration(color: MyColors.transparentBlack_30),
-              child: const Center(
-                child: CircularProgressIndicator(
-                  color: MyColors.darkgrey,
-                ),
+                showIcon: true,
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

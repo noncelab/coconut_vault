@@ -1,5 +1,7 @@
+import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:flutter/material.dart';
-import 'package:coconut_vault/styles.dart';
+
+import 'dart:math' as math;
 
 class ShrinkAnimationButton extends StatefulWidget {
   final Widget child;
@@ -14,8 +16,8 @@ class ShrinkAnimationButton extends StatefulWidget {
     super.key,
     required this.child,
     required this.onPressed,
-    this.pressedColor = MyColors.lightgrey,
-    this.defaultColor = Colors.white,
+    this.pressedColor = CoconutColors.gray150,
+    this.defaultColor = CoconutColors.white,
     this.borderRadius = 28.0,
     this.borderWidth = 2.0,
     this.borderGradientColors,
@@ -81,11 +83,16 @@ class _ShrinkAnimationButtonState extends State<ShrinkAnimationButton>
           scale: _animation,
           child: Container(
             decoration: BoxDecoration(
-              color: _isPressed ? widget.pressedColor : widget.defaultColor,
+              color: widget.borderGradientColors == null
+                  ? (_isPressed ? widget.pressedColor : widget.defaultColor)
+                  : null,
               borderRadius: BorderRadius.circular(widget.borderRadius + 2),
               gradient: widget.borderGradientColors != null
-                  ? BoxDecorations.getMultisigLinearGradient(
-                      widget.borderGradientColors!)
+                  ? LinearGradient(
+                      colors: widget.borderGradientColors!,
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                      transform: const GradientRotation(math.pi / 10))
                   : null,
             ),
             child: AnimatedContainer(

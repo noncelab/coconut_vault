@@ -1,7 +1,8 @@
+import 'package:coconut_design_system/coconut_design_system.dart';
+import 'package:coconut_vault/constants/app_routes.dart';
+import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:coconut_vault/styles.dart';
-import 'package:coconut_vault/widgets/appbar/custom_appbar.dart';
 import 'package:coconut_vault/widgets/button/shrink_animation_button.dart';
 
 class Option {
@@ -19,27 +20,25 @@ class VaultCreationOptions extends StatelessWidget {
   Widget build(BuildContext context) {
     final List<Option> options = [
       Option(
-          name: "동전을 던져 직접 만들게요",
-          path: "/security-self-check",
+          name: t.vault_creation_options_screen.coin_flip,
+          path: AppRoutes.securitySelfCheck,
           onNextPressed: () {
-            Navigator.pushNamed(context, '/mnemonic-flip-coin');
+            Navigator.pushNamed(context, AppRoutes.mnemonicCoinflip);
           }),
       Option(
-          name: "앱에서 만들어 주세요",
-          path: "/security-self-check",
+          name: t.vault_creation_options_screen.auto_generate,
+          path: AppRoutes.securitySelfCheck,
           onNextPressed: () {
-            Navigator.pushNamed(context, '/mnemonic-generate');
+            Navigator.pushNamed(context, AppRoutes.mnemonicGeneration);
           }),
-      Option(name: "사용 중인 니모닉 문구가 있어요", path: "/mnemonic-import"),
+      Option(name: t.vault_creation_options_screen.import_mnemonic, path: AppRoutes.mnemonicImport),
     ];
 
     return Scaffold(
-      backgroundColor: MyColors.white,
-      appBar: CustomAppBar.build(
-        title: '일반 지갑',
+      backgroundColor: CoconutColors.white,
+      appBar: CoconutAppBar.build(
+        title: t.single_sig_wallet,
         context: context,
-        hasRightIcon: false,
-        showTestnetLabel: false,
       ),
       body: CustomScrollView(
         semanticChildCount: options.length,
@@ -53,8 +52,8 @@ class VaultCreationOptions extends StatelessWidget {
                     delegate: SliverChildBuilderDelegate((ctx, index) {
                       return Column(children: [
                         ShrinkAnimationButton(
-                            defaultColor: MyColors.lightgrey,
-                            pressedColor: MyColors.grey.withOpacity(0.1),
+                            defaultColor: CoconutColors.gray150,
+                            pressedColor: CoconutColors.gray500.withOpacity(0.1),
                             onPressed: () {
                               final option = options[index];
                               if (option.onNextPressed != null) {
@@ -68,8 +67,8 @@ class VaultCreationOptions extends StatelessWidget {
                               }
                             },
                             child: Container(
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 24.0, vertical: 36.0),
+                                padding:
+                                    const EdgeInsets.symmetric(horizontal: 24.0, vertical: 36.0),
                                 child: Row(
                                   children: [
                                     Align(
@@ -80,13 +79,11 @@ class VaultCreationOptions extends StatelessWidget {
                                               fontFamily: 'Pretendard',
                                               fontSize: 14.0,
                                               fontWeight: FontWeight.w600,
-                                              color: MyColors.black,
+                                              color: CoconutColors.black,
                                               letterSpacing: 0.2),
                                         )),
                                     const Spacer(),
-                                    SvgPicture.asset(
-                                        'assets/svg/curved-arrow-right.svg',
-                                        width: 24)
+                                    SvgPicture.asset('assets/svg/curved-arrow-right.svg', width: 24)
                                   ],
                                 ))),
                         const SizedBox(height: 8.0)
