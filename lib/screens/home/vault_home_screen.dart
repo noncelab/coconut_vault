@@ -13,6 +13,7 @@ import 'package:coconut_vault/providers/view_model/home/vault_home_view_model.da
 import 'package:coconut_vault/providers/visibility_provider.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:coconut_vault/screens/common/multisig_bsms_scanner_screen.dart';
+import 'package:coconut_vault/screens/home/select_sync_option_bottom_sheet.dart';
 import 'package:coconut_vault/screens/home/select_vault_bottom_sheet.dart';
 import 'package:coconut_vault/screens/settings/pin_setting_screen.dart';
 import 'package:coconut_vault/screens/vault_menu/info/passphrase_check_screen.dart';
@@ -337,22 +338,32 @@ class _VaultHomeScreenState extends State<VaultHomeScreen> with TickerProviderSt
                               onVaultSelected: (id) async {
                                 bool hasPassphrase =
                                     await context.read<VaultHomeViewModel>().hasPassphrase(id);
+
+                                if (!context.mounted) return;
+
                                 if (hasPassphrase) {
                                   final result = await MyBottomSheet.showBottomSheet_ratio<String?>(
                                     ratio: 0.5,
                                     context: context,
                                     child: PassphraseCheckScreen(id: id),
                                   );
-                                  if (result != null && mounted) {
-                                    Navigator.pushNamed(context, AppRoutes.syncToWallet,
-                                        arguments: {'id': id});
+                                  if (result != null && context.mounted) {
+                                    _showSyncOptionBottomSheet(id, context);
                                   }
-                                } else {
-                                  if (mounted) {
-                                    Navigator.pushNamed(context, AppRoutes.syncToWallet,
-                                        arguments: {'id': id});
-                                  }
+                                  return;
                                 }
+
+                                _showSyncOptionBottomSheet(id, context);
+                                // if (result != null && mounted) {
+                                //   Navigator.pushNamed(context, AppRoutes.syncToWallet,
+                                //       arguments: {'id': id});
+                                // }
+                                // } else {
+                                //   if (mounted) {
+                                //     Navigator.pushNamed(context, AppRoutes.syncToWallet,
+                                //         arguments: {'id': id});
+                                //   }
+                                // }
                               },
                               scrollController: scrollController,
                             ));
@@ -437,6 +448,24 @@ class _VaultHomeScreenState extends State<VaultHomeScreen> with TickerProviderSt
         ],
       ),
     ));
+  }
+
+  void _showSyncOptionBottomSheet(int walletId, BuildContext context) {
+    MyBottomSheet.showDraggableBottomSheet(
+      context: context,
+      minChildSize: 0.5,
+      childBuilder: (scrollController) => SelectSyncOptionBottomSheet(
+        onSyncOptionSelected: (format) {
+          if (!context.mounted) return;
+          Navigator.popUntil(context, (route) => route.isFirst);
+          Navigator.pushNamed(context, AppRoutes.syncToWallet, arguments: {
+            'id': walletId,
+            'syncOption': format,
+          });
+        },
+        scrollController: scrollController,
+      ),
+    );
   }
 
   Widget _buildActionItemButton({
