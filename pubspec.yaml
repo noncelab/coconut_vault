@@ -64,7 +64,6 @@ dependencies:
   vibration: ^1.9.0
   device_info_plus: ^10.1.1
   package_info_plus: ^8.0.1
-  screen_protector: ^1.4.2+1
   url_launcher: ^6.2.6
   crypto: ^3.0.6
   encrypt: ^5.0.3

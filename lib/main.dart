@@ -10,7 +10,7 @@ import 'package:flutter/services.dart';
 import 'package:coconut_vault/app.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 import 'package:provider/provider.dart';
-import 'package:screen_protector/screen_protector.dart';
+//import 'package:screen_protector/screen_protector.dart';
 
 void main() async {
   if (kReleaseMode) {
@@ -48,12 +48,12 @@ void main() async {
       : null;
   NetworkType.setNetworkType(appFlavor == "mainnet" ? NetworkType.mainnet : NetworkType.regtest);
 
-  if (!kDebugMode) {
-    await ScreenProtector.protectDataLeakageWithImage(
-        'ScreenProtectImage${NetworkType.currentNetworkType.isTestnet ? "Regtest" : ""}'); // iOS
-    await ScreenProtector.protectDataLeakageOn(); // Android
-    await ScreenProtector.preventScreenshotOn(); // iOS and Android
-  }
+  // if (!kDebugMode) {
+  //   await ScreenProtector.protectDataLeakageWithImage(
+  //       'ScreenProtectImage${NetworkType.currentNetworkType.isTestnet ? "Regtest" : ""}'); // iOS
+  //   await ScreenProtector.protectDataLeakageOn(); // Android
+  //   await ScreenProtector.preventScreenshotOn(); // iOS and Android
+  // }
 
   // bluetooth
   await FlutterBluePlus.setOptions(showPowerAlert: false);
