@@ -266,7 +266,7 @@ class _PinSettingScreenState extends State<PinSettingScreen> {
                 Center(
                     child: Text(
                   t.pin_setting_screen.set_password,
-                  style: CoconutTypography.heading4_18_Bold,
+                  style: CoconutTypography.heading3_21_Bold,
                   textAlign: TextAlign.center,
                 )),
               ],

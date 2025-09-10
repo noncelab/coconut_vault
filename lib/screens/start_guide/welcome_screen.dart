@@ -60,12 +60,13 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
             Center(
                 child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 CarouselSlider(
                   carouselController: _controller,
                   options: CarouselOptions(
                     autoPlay: false,
-                    aspectRatio: 1.0,
+                    aspectRatio: 0.6,
                     enlargeCenterPage: true,
                     onPageChanged: (index, reason) {
                       setState(() {
@@ -85,9 +86,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                     );
                   }).toList(),
                 ),
-                const SizedBox(
-                  height: 200,
-                ),
+                CoconutLayout.spacing_1500h,
               ],
             )),
             Positioned(
@@ -176,7 +175,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
         return Image.asset('assets/png/onboarding_2.png', height: 160, fit: BoxFit.fitHeight);
       case 3:
         return SizedBox(
-          height: 160,
+          height: Platform.isAndroid ? 170 : 160,
           child: Consumer<ConnectivityProvider>(builder: (context, provider, child) {
             final isNetworkOn = provider.isNetworkOn ?? false;
             final isBluetoothOn = provider.isBluetoothOn ?? false;

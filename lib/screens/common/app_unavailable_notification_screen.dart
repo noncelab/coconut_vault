@@ -42,6 +42,7 @@ class _AppUnavailableNotificationScreenState extends State<AppUnavailableNotific
         child: Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center, // Centers the content vertically
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               Text(t.app_unavailable_notification_screen.restart_app,
                   style: CoconutTypography.heading3_21_Bold, textAlign: TextAlign.center),
@@ -53,7 +54,7 @@ class _AppUnavailableNotificationScreenState extends State<AppUnavailableNotific
               _buildStep('2', t.app_unavailable_notification_screen.step2),
               CoconutLayout.spacing_400h,
               _buildStep('3', t.app_unavailable_notification_screen.step3),
-              const SizedBox(height: 200),
+              CoconutLayout.spacing_800h,
             ],
           ),
         ),

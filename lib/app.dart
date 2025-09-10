@@ -77,6 +77,9 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> {
   void _updateEntryFlow(AppEntryFlow appEntryFlow) {
     setState(() {
       _appEntryFlow = appEntryFlow;
+      if (appEntryFlow == AppEntryFlow.vaultHome) {
+        _isInactive = false;
+      }
     });
   }
 
