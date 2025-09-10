@@ -44,7 +44,7 @@ class _MainRouteGuardState extends State<MainRouteGuard> with WidgetsBindingObse
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    if (Platform.isIOS && state == AppLifecycleState.paused) {
+    if (state == AppLifecycleState.paused) {
       final vaultModel = Provider.of<WalletProvider>(
         context,
         listen: false,
@@ -53,6 +53,7 @@ class _MainRouteGuardState extends State<MainRouteGuard> with WidgetsBindingObse
       if (walletCount > 0 && widget.onAppGoBackground != null) {
         vaultModel.dispose();
         widget.onAppGoBackground!();
+        return;
       }
     }
     if (state == AppLifecycleState.inactive) {
