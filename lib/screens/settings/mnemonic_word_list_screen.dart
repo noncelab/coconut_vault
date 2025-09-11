@@ -277,7 +277,7 @@ class _MnemonicWordListScreenState extends State<MnemonicWordListScreen> {
       Color highlightColor;
       switch (type) {
         case 'numeric':
-          highlightColor = CoconutColors.orange;
+          highlightColor = CoconutColors.cyanBlue;
           break;
         case 'binary':
           highlightColor = CoconutColors.cyanBlue;

@@ -265,7 +265,7 @@ license_screen:
   text2: ".\n\nCopyright for third-party software included in this application is stated as follows. If you have questions about this, please contact "
   text3: "."
 mnemonic_word_list_screen:
-  search_mnemonic_word: "Search in English"
+  search_mnemonic_word: "Search in English or numbers"
   result: "Search results for '$text'"
   such_no_result: "No search results"
 settings_screen:
