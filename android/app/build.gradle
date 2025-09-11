@@ -21,16 +21,16 @@ def getFlavor() {
     }
     throw GradleException("❌ build flavor를 추론할 수 없습니다. taskNames: ${taskNames}")
 }
-// def flavor = getFlavor()
-// def keystoreProperties = new Properties()
-// def keystorePropertiesFile = rootProject.file("key_${flavor}.properties")
-// if (keystorePropertiesFile.exists()) {
-//     keystorePropertiesFile.withReader('UTF-8') { reader ->
-//         keystoreProperties.load(reader)
-//     }
-// } else {
-//     throw GradleException("❌ keystore properties 파일이 존재하지 않습니다: ${keystorePropertiesFile}")
-// }
+def flavor = getFlavor()
+def keystoreProperties = new Properties()
+def keystorePropertiesFile = rootProject.file("key_${flavor}.properties")
+if (keystorePropertiesFile.exists()) {
+    keystorePropertiesFile.withReader('UTF-8') { reader ->
+        keystoreProperties.load(reader)
+    }
+} else {
+    throw GradleException("❌ keystore properties 파일이 존재하지 않습니다: ${keystorePropertiesFile}")
+}
 
 def flutterVersionCode = localProperties.getProperty('flutter.versionCode')
 if (flutterVersionCode == null) {
@@ -68,14 +68,14 @@ android {
         versionName flutterVersionName
     }
 
-    // signingConfigs {
-    //     release {
-    //         keyAlias keystoreProperties['keyAlias']
-    //         keyPassword keystoreProperties['keyPassword']
-    //         storeFile file(keystoreProperties['storeFile'])
-    //         storePassword keystoreProperties['storePassword']
-    //     }
-    // }
+    signingConfigs {
+        release {
+            keyAlias keystoreProperties['keyAlias']
+            keyPassword keystoreProperties['keyPassword']
+            storeFile file(keystoreProperties['storeFile'])
+            storePassword keystoreProperties['storePassword']
+        }
+    }
 
     buildTypes {
         debug {
@@ -83,8 +83,8 @@ android {
         }
         release {
             debuggable false
-            // signingConfig signingConfigs.release
-            // minifyEnabled true
+            signingConfig signingConfigs.release
+            minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
