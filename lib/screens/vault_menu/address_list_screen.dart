@@ -10,6 +10,7 @@ import 'package:coconut_vault/utils/logger.dart';
 import 'package:coconut_vault/widgets/bottom_sheet.dart';
 import 'package:coconut_vault/widgets/card/address_card.dart';
 import 'package:flutter/material.dart';
+import 'package:loader_overlay/loader_overlay.dart';
 import 'package:provider/provider.dart';
 
 class AddressListScreen extends StatefulWidget {
@@ -27,13 +28,14 @@ class _AddressListScreenState extends State<AddressListScreen> {
   bool _isLoadMoreRunning = false;
 
   late ScrollController _controller;
-  AddressListViewModel? _viewModel;
+  late AddressListViewModel _viewModel;
 
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider<AddressListViewModel>(
-      create: (BuildContext context) => _viewModel =
-          AddressListViewModel(Provider.of<WalletProvider>(context, listen: false), widget.id),
+      create: (BuildContext context) {
+        return _viewModel;
+      },
       child: Consumer<AddressListViewModel>(
         builder: (context, viewModel, child) {
           var addressList = viewModel.isReceivingSelected
@@ -85,8 +87,14 @@ class _AddressListScreenState extends State<AddressListScreen> {
                               .where((vault) => vault.id != viewModel.vaultId)
                               .toList(),
                           onVaultSelected: (id) async {
-                            viewModel.changeVaultById(id);
                             Navigator.pop(context);
+                            setState(() {
+                              _isFirstLoadRunning = true;
+                            });
+                            await viewModel.changeVaultById(id);
+                            setState(() {
+                              _isFirstLoadRunning = false;
+                            });
                           },
                           scrollController: scrollController,
                         ));
@@ -127,7 +135,7 @@ class _AddressListScreenState extends State<AddressListScreen> {
                               radius: const Radius.circular(12),
                               child: ListView.builder(
                                 controller: _controller,
-                                itemCount: addressList.length,
+                                itemCount: addressList!.length,
                                 itemBuilder: (context, index) => AddressCard(
                                   onPressed: () {
                                     MyBottomSheet.showBottomSheet_90(
@@ -180,23 +188,30 @@ class _AddressListScreenState extends State<AddressListScreen> {
   @override
   void initState() {
     super.initState();
+    _viewModel =
+        AddressListViewModel(Provider.of<WalletProvider>(context, listen: false), widget.id);
+    _viewModel.initializeAddress().then((_) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        setState(() {
+          _isFirstLoadRunning = false;
+        });
+      });
+    });
     _controller = ScrollController()..addListener(_nextLoad);
-    _isFirstLoadRunning = false;
   }
 
   void scrollToTop() {
     _controller.animateTo(0, duration: const Duration(milliseconds: 500), curve: Curves.decelerate);
   }
 
-  void _nextLoad() {
+  Future<void> _nextLoad() async {
     if (!_isFirstLoadRunning && !_isLoadMoreRunning && _controller.position.extentAfter < 50) {
       setState(() {
         _isLoadMoreRunning = true;
       });
 
       try {
-        if (_viewModel == null) return;
-        _viewModel!.nextLoad();
+        await _viewModel.nextLoad();
       } catch (e) {
         Logger.log(e.toString());
       } finally {

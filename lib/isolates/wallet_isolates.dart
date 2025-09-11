@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:coconut_lib/coconut_lib.dart';
+import 'package:coconut_vault/model/common/wallet_address.dart';
 import 'package:coconut_vault/model/multisig/multisig_vault_list_item.dart';
 import 'package:coconut_vault/model/single_sig/single_sig_vault_list_item.dart';
 import 'package:coconut_vault/model/common/vault_list_item_base.dart';
@@ -133,5 +134,23 @@ class WalletIsolates {
       "recoveredMfp": recoveredMfp,
       "extendedPublicKey": extendedPublicKey
     };
+  }
+
+  static Future<List<WalletAddress>> getAddressList(Map<String, dynamic> args) async {
+    setNetworkType();
+
+    final startIndex = args['startIndex'];
+    final count = args['count'];
+    final isChange = args['isChange'];
+    final WalletBase wallet = args['walletBase'];
+
+    List<WalletAddress> addressList = [];
+    for (int i = startIndex; i < startIndex + count; i++) {
+      String address = wallet.getAddress(i, isChange: isChange);
+      String derivationPath = '${wallet.derivationPath}${isChange ? '/1' : '/0'}/$i';
+      addressList.add(WalletAddress(address, derivationPath, i));
+    }
+
+    return addressList;
   }
 }

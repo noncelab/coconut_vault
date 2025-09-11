@@ -1,7 +1,9 @@
 import 'package:coconut_lib/coconut_lib.dart';
+import 'package:coconut_vault/isolates/wallet_isolates.dart';
 import 'package:coconut_vault/model/common/vault_list_item_base.dart';
 import 'package:coconut_vault/model/common/wallet_address.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 class AddressListViewModel extends ChangeNotifier {
@@ -10,17 +12,16 @@ class AddressListViewModel extends ChangeNotifier {
   late int _receivingAddressPage;
   late int _changeAddressPage;
   late bool _isReceivingSelected;
-  late List<WalletAddress> _receivingAddressList;
-  late List<WalletAddress> _changeAddressList;
   late VaultListItemBase _vaultListItem;
   late WalletBase _coconutVault;
   late WalletProvider _walletProvider;
+  List<WalletAddress>? _receivingAddressList;
+  List<WalletAddress>? _changeAddressList;
 
   AddressListViewModel(WalletProvider walletProvider, int id) {
     _walletProvider = walletProvider;
     _isReceivingSelected = true;
     _vaultListItem = walletProvider.getVaultById(id);
-
     _initialize();
   }
 
@@ -30,50 +31,45 @@ class AddressListViewModel extends ChangeNotifier {
   int get vaultCount => _walletProvider.vaultList.length;
   bool get isReceivingSelected => _isReceivingSelected;
   String get name => _vaultListItem.name;
-  List<WalletAddress> get receivingAddressList => _receivingAddressList;
-  List<WalletAddress> get changeAddressList => _changeAddressList;
+  List<WalletAddress>? get receivingAddressList => _receivingAddressList;
+  List<WalletAddress>? get changeAddressList => _changeAddressList;
 
-  List<WalletAddress> _getAddressList(int startIndex, int count, bool isChange) {
-    List<WalletAddress> result = [];
-    for (int i = startIndex; i < startIndex + count; i++) {
-      result.add(_generateAddress(_coconutVault, i, isChange));
-    }
+  Future<List<WalletAddress>> _getAddressList(int startIndex, int count, bool isChange) async {
+    final result = await compute(WalletIsolates.getAddressList, {
+      'startIndex': startIndex,
+      'count': count,
+      'isChange': isChange,
+      'walletBase': _coconutVault,
+    });
 
     return result;
-  }
-
-  /// 단일 주소 생성
-  WalletAddress _generateAddress(WalletBase wallet, int index, bool isChange) {
-    String address = wallet.getAddress(index, isChange: isChange);
-    String derivationPath = '${wallet.derivationPath}${isChange ? '/1' : '/0'}/$index';
-
-    return WalletAddress(
-      address,
-      derivationPath,
-      index,
-    );
   }
 
   void _initialize() {
     _receivingAddressPage = 0;
     _changeAddressPage = 0;
     _coconutVault = _vaultListItem.coconutVault;
-    _receivingAddressList = _getAddressList(0, kAddressFetchCount, false);
-    _changeAddressList = _getAddressList(0, kAddressFetchCount, true);
   }
 
-  void nextLoad() {
-    final newAddresses = _getAddressList(
+  Future<void> initializeAddress() async {
+    _receivingAddressList = await _getAddressList(0, kAddressFetchCount, false);
+    _changeAddressList = await _getAddressList(0, kAddressFetchCount, true);
+  }
+
+  Future<void> nextLoad() async {
+    final newAddresses = await _getAddressList(
         kAddressFetchCount +
             (_isReceivingSelected ? _receivingAddressPage : _changeAddressPage) *
                 kAddressFetchCount,
         kAddressFetchCount,
         !_isReceivingSelected);
     if (_isReceivingSelected) {
-      _receivingAddressList.addAll(newAddresses);
+      if (_receivingAddressList == null) return;
+      _receivingAddressList!.addAll(newAddresses);
       _receivingAddressPage += 1;
     } else {
-      _changeAddressList.addAll(newAddresses);
+      if (_changeAddressList == null) return;
+      _changeAddressList!.addAll(newAddresses);
       _changeAddressPage += 1;
     }
     notifyListeners();
@@ -84,9 +80,10 @@ class AddressListViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  void changeVaultById(int id) {
+  Future<void> changeVaultById(int id) async {
     _vaultListItem = _walletProvider.getVaultById(id);
     _initialize();
+    await initializeAddress();
     notifyListeners();
   }
 }
