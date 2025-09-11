@@ -44,8 +44,6 @@ class _MainRouteGuardState extends State<MainRouteGuard> with WidgetsBindingObse
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    if (Platform.isAndroid) return;
-
     if (state == AppLifecycleState.paused) {
       final vaultModel = Provider.of<WalletProvider>(
         context,

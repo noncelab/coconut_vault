@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_lib/coconut_lib.dart';
 import 'package:coconut_vault/constants/app_routes.dart';
@@ -212,8 +214,20 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> {
         child: _appEntryFlow == AppEntryFlow.vaultHome
             ? MainRouteGuard(
                 onAppGoBackground: () => _updateEntryFlow(AppEntryFlow.pinCheck),
-                onAppGoInactive: null, // 썸네일 방지 - native에서 처리
-                onAppGoActive: null, // 썸네일 방지 - native에서 처리
+                onAppGoInactive: () {
+                  if (Platform.isAndroid) return; // 안드로이드는 Native에서 처리
+
+                  setState(() {
+                    _isInactive = true;
+                  });
+                },
+                onAppGoActive: () {
+                  if (Platform.isAndroid) return; // 안드로이드는 Native에서 처리
+
+                  setState(() {
+                    _isInactive = false;
+                  });
+                },
                 child: Stack(
                   children: [
                     CupertinoApp(
