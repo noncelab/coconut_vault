@@ -45,6 +45,7 @@ import 'package:coconut_vault/screens/vault_menu/info/passphrase_verification_sc
 import 'package:coconut_vault/screens/vault_menu/multisig_signer_bsms_export_screen.dart';
 import 'package:coconut_vault/screens/vault_menu/sync_to_wallet/sync_to_wallet_screen.dart';
 import 'package:coconut_vault/screens/vault_menu/info/single_sig_setup_info_screen.dart';
+import 'package:coconut_vault/utils/logger.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
@@ -62,6 +63,27 @@ enum AppEntryFlow {
   foundBackupFile, // 복원파일o, 업데이트x 일때 이동하는 복원파일 발견 화면
   restoration, // 복원 진행 화면
 }
+
+const cupertinoThemeData = CupertinoThemeData(
+  brightness: Brightness.light,
+  primaryColor: CoconutColors.black, // 기본 색상
+  scaffoldBackgroundColor: CoconutColors.white, // 배경색
+  textTheme: CupertinoTextThemeData(
+    navTitleTextStyle: TextStyle(
+      fontFamily: 'Pretendard',
+      fontSize: 14,
+      fontWeight: FontWeight.w600,
+      color: CoconutColors.gray800, // 제목 텍스트 색상
+    ),
+    textStyle: TextStyle(
+      fontFamily: 'Pretendard',
+      fontSize: 16,
+      fontWeight: FontWeight.w400,
+      color: CoconutColors.black, // 기본 텍스트 색상
+    ),
+  ),
+  barBackgroundColor: CoconutColors.white,
+);
 
 class CoconutVaultApp extends StatefulWidget {
   const CoconutVaultApp({super.key});
@@ -130,7 +152,7 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> {
         return CustomLoadingOverlay(
           child: RestorationInfoScreen(
             onComplete: () => _updateEntryFlow(AppEntryFlow.restoration),
-            onReset: () async => _updateEntryFlow(AppEntryFlow.vaultHome),
+            onReset: () => _updateEntryFlow(AppEntryFlow.vaultHome),
           ),
         );
 
@@ -190,16 +212,8 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> {
         child: _appEntryFlow == AppEntryFlow.vaultHome
             ? MainRouteGuard(
                 onAppGoBackground: () => _updateEntryFlow(AppEntryFlow.pinCheck),
-                onAppGoInactive: () {
-                  setState(() {
-                    _isInactive = true;
-                  });
-                },
-                onAppGoActive: () {
-                  setState(() {
-                    _isInactive = false;
-                  });
-                },
+                onAppGoInactive: null, // 썸네일 방지 - native에서 처리
+                onAppGoActive: null, // 썸네일 방지 - native에서 처리
                 child: Stack(
                   children: [
                     CupertinoApp(
@@ -350,124 +364,12 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> {
                   DefaultWidgetsLocalizations.delegate,
                   DefaultCupertinoLocalizations.delegate,
                 ],
-                theme: const CupertinoThemeData(
-                  brightness: Brightness.light,
-                  primaryColor: CoconutColors.black, // 기본 색상
-                  scaffoldBackgroundColor: CoconutColors.white, // 배경색
-                  textTheme: CupertinoTextThemeData(
-                    navTitleTextStyle: TextStyle(
-                      fontFamily: 'Pretendard',
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                      color: CoconutColors.gray800, // 제목 텍스트 색상
-                    ),
-                    textStyle: TextStyle(
-                      fontFamily: 'Pretendard',
-                      fontSize: 16,
-                      fontWeight: FontWeight.w400,
-                      color: CoconutColors.black, // 기본 텍스트 색상
-                    ),
-                  ),
-                  barBackgroundColor: CoconutColors.white,
-                ),
+                theme: cupertinoThemeData,
                 color: CoconutColors.white,
                 home: _getHomeScreenRoute(_appEntryFlow, context),
                 routes: {
-                  AppRoutes.vaultList: (context) => const VaultListScreen(),
-                  AppRoutes.vaultTypeSelection: (context) => const VaultTypeSelectionScreen(),
-                  AppRoutes.multisigQuorumSelection: (context) =>
-                      const MultisigQuorumSelectionScreen(),
-                  AppRoutes.signerAssignment: (context) => const SignerAssignmentScreen(),
-                  AppRoutes.vaultCreationOptions: (context) => const VaultCreationOptions(),
-                  AppRoutes.mnemonicVerify: (context) => const MnemonicVerifyScreen(),
-                  AppRoutes.mnemonicImport: (context) => const MnemonicImportScreen(),
-                  AppRoutes.seedQrImport: (context) => const SeedQrImportScreen(),
-                  AppRoutes.mnemonicConfirmation: (context) => const MnemonicConfirmationScreen(),
-                  AppRoutes.mnemonicCoinflipConfirmation: (context) =>
-                      const MnemonicCoinflipConfirmationScreen(),
-                  AppRoutes.mnemonicView: (context) => buildScreenWithArguments(
-                        context,
-                        (args) => MnemonicViewScreen(
-                          walletId: args['id'],
-                        ),
-                      ),
-                  AppRoutes.vaultNameSetup: (context) => const VaultNameAndIconSetupScreen(),
-                  AppRoutes.singleSigSetupInfo: (context) => buildScreenWithArguments(
-                        context,
-                        (args) => SingleSigSetupInfoScreen(
-                          id: args['id'],
-                          entryPoint: args['entryPoint'],
-                        ),
-                      ),
-                  AppRoutes.multisigSetupInfo: (context) => buildScreenWithArguments(
-                        context,
-                        (args) => MultisigSetupInfoScreen(
-                          id: args['id'],
-                          entryPoint: args['entryPoint'],
-                        ),
-                      ),
-                  AppRoutes.multisigBsmsView: (context) => buildScreenWithArguments(
-                        context,
-                        (args) => MultisigBsmsScreen(
-                          id: args['id'],
-                        ),
-                      ),
-                  AppRoutes.mnemonicWordList: (context) => const MnemonicWordListScreen(),
-                  AppRoutes.addressList: (context) => buildScreenWithArguments(
-                        context,
-                        (args) => AddressListScreen(
-                          id: args['id'],
-                          isSpecificVault: args['isSpecificVault'] ?? false,
-                        ),
-                      ),
-                  AppRoutes.signerBsmsScanner: (context) => buildScreenWithArguments(
-                        context,
-                        (args) => MultisigBsmsScannerScreen(
-                            id: args['id'], screenType: args['screenType']),
-                      ),
-                  AppRoutes.psbtScanner: (context) => buildScreenWithArguments(
-                        context,
-                        (args) => PsbtScannerScreen(id: args['id']),
-                      ),
-                  AppRoutes.psbtConfirmation: (context) => const PsbtConfirmationScreen(),
-                  AppRoutes.signedTransaction: (context) => const SignedTransactionQrScreen(),
-                  AppRoutes.syncToWallet: (context) => buildScreenWithArguments(
-                        context,
-                        (args) =>
-                            SyncToWalletScreen(id: args['id'], syncOption: args['syncOption']),
-                      ),
-                  AppRoutes.multisigSignerBsmsExport: (context) => buildScreenWithArguments(
-                        context,
-                        (args) => MultisigSignerBsmsExportScreen(
-                          id: args['id'],
-                        ),
-                      ),
-                  AppRoutes.multisigSign: (context) => const MultisigSignScreen(),
-                  AppRoutes.singleSigSign: (context) => const SingleSigSignScreen(),
-                  AppRoutes.securitySelfCheck: (context) {
-                    final VoidCallback? onNextPressed =
-                        ModalRoute.of(context)?.settings.arguments as VoidCallback?;
-                    return SecuritySelfCheckScreen(onNextPressed: onNextPressed);
-                  },
-                  AppRoutes.mnemonicGeneration: (context) => const MnemonicGenerationScreen(),
-                  AppRoutes.mnemonicCoinflip: (context) => const MnemonicCoinflipScreen(),
-                  AppRoutes.appInfo: (context) => const AppInfoScreen(),
-                  AppRoutes.welcome: (context) {
-                    onComplete() {
-                      _updateEntryFlow(AppEntryFlow.vaultHome);
-                    }
-
-                    return WelcomeScreen(onComplete: onComplete);
-                  },
-                  AppRoutes.prepareUpdate: (context) => const CustomLoadingOverlay(
-                        child: AppUpdatePreparationScreen(),
-                      ),
-                  AppRoutes.passphraseVerification: (context) => buildScreenWithArguments(
-                        context,
-                        (args) => PassphraseVerificationScreen(
-                          id: args['id'],
-                        ),
-                      ),
+                  AppRoutes.welcome: (context) =>
+                      WelcomeScreen(onComplete: () => _updateEntryFlow(AppEntryFlow.vaultHome)),
                 },
               ),
       ),
