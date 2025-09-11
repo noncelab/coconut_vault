@@ -268,7 +268,7 @@ license_screen:
   text2: "에서 확인해 주세요.\n\n이 애플리케이션에 포함된 타사 소프트웨어에 대한 저작권을 다음과 같이 명시합니다. 이에 대해 궁금한 사항이 있으시면 "
   text3: "으로 문의해 주시기 바랍니다."
 mnemonic_word_list_screen:
-  search_mnemonic_word: "영문으로 검색해 보세요"
+  search_mnemonic_word: "영문 또는 숫자로 검색해 보세요"
   result: "'$text' 검색 결과"
   such_no_result: "검색 결과가 없어요"
 settings_screen:
