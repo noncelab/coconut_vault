@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_lib/coconut_lib.dart';
 import 'package:coconut_vault/constants/app_routes.dart';
@@ -5,6 +7,7 @@ import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/providers/visibility_provider.dart';
 import 'package:coconut_vault/providers/wallet_creation_provider.dart';
 import 'package:coconut_vault/screens/settings/settings_screen.dart';
+import 'package:coconut_vault/services/secure_memory.dart';
 import 'package:coconut_vault/utils/wallet_utils.dart';
 import 'package:coconut_vault/widgets/button/fixed_bottom_button.dart';
 import 'package:coconut_vault/widgets/button/shrink_animation_button.dart';
@@ -258,6 +261,11 @@ class _MnemonicImportScreenState extends State<MnemonicImportScreen> {
 
   @override
   void dispose() {
+    SecureMemory.wipe(Uint8List.fromList(
+        utf8.encode(_controllers.map((controller) => controller.text).join(' '))));
+    SecureMemory.wipe(Uint8List.fromList(utf8.encode(_passphrase)));
+    SecureMemory.wipe(Uint8List.fromList(utf8.encode(_passphraseController.text)));
+
     _disposeTextFields();
     _passphraseController.dispose();
     _passphraseFocusNode.dispose();

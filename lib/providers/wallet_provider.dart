@@ -13,6 +13,7 @@ import 'package:coconut_vault/model/single_sig/single_sig_vault_list_item.dart';
 import 'package:coconut_vault/model/single_sig/single_sig_wallet_create_dto.dart';
 import 'package:coconut_vault/model/exception/not_related_multisig_wallet_exception.dart';
 import 'package:coconut_vault/providers/visibility_provider.dart';
+import 'package:coconut_vault/services/secure_memory.dart';
 import 'package:coconut_vault/utils/vibration_util.dart';
 import 'package:coconut_vault/utils/logger.dart';
 import 'package:coconut_vault/enums/wallet_enums.dart';
@@ -332,32 +333,42 @@ class WalletProvider extends ChangeNotifier {
 
   Future<String> createBackupData() async {
     final List<Map<String, dynamic>> backupData = [];
+    Uint8List? backupBytes;
 
-    for (final vault in _vaultList) {
-      final vaultData = vault.toJson();
+    try {
+      for (final vault in _vaultList) {
+        final vaultData = vault.toJson();
 
-      if (vault.vaultType == WalletType.singleSignature) {
-        vaultData['secret'] = await getSecret(vault.id);
-        vaultData['hasPassphrase'] = await hasPassphrase(vault.id);
+        if (vault.vaultType == WalletType.singleSignature) {
+          vaultData['secret'] = await getSecret(vault.id);
+          vaultData['hasPassphrase'] = await hasPassphrase(vault.id);
+        }
+
+        backupData.add(vaultData);
       }
 
-      backupData.add(vaultData);
+      final jsonData = jsonEncode(backupData);
+      return jsonData;
+    } finally {
+      await SecureMemory.wipe(backupBytes ?? Uint8List(0));
     }
-
-    final jsonData = jsonEncode(backupData);
-    return jsonData;
   }
 
   Future<void> restoreFromBackupData(String jsonData) async {
-    final List<Map<String, dynamic>> backupDataMapList = jsonDecode(jsonData)
-        .map<Map<String, dynamic>>((e) => Map<String, dynamic>.from(e))
-        .toList();
+    Uint8List? jsonBytes = Uint8List.fromList(utf8.encode(jsonData));
+    try {
+      final List<Map<String, dynamic>> backupDataMapList = jsonDecode(jsonData)
+          .map<Map<String, dynamic>>((e) => Map<String, dynamic>.from(e))
+          .toList();
 
-    await _walletRepository.restoreFromBackupData(backupDataMapList);
-    _setVaultList(_walletRepository.vaultList);
+      await _walletRepository.restoreFromBackupData(backupDataMapList);
+      _setVaultList(_walletRepository.vaultList);
 
-    notifyListeners();
-    await _updateWalletLength();
+      notifyListeners();
+      await _updateWalletLength();
+    } finally {
+      await SecureMemory.wipe(jsonBytes);
+    }
   }
 
   @override
@@ -367,6 +378,10 @@ class WalletProvider extends ChangeNotifier {
     // stop if loading
     _isDisposed = true;
     _walletRepository.dispose();
+
+    SecureMemory.wipe(
+        Uint8List.fromList(utf8.encode(jsonEncode(_vaultList.map((e) => e.toJson()).toList()))));
+    SecureMemory.wipe(Uint8List.fromList(utf8.encode(signedRawTx ?? '')));
 
     _vaultList.clear();
     _waitingForSignaturePsbtBase64 = null;

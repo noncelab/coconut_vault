@@ -1,7 +1,12 @@
+import 'dart:convert';
+import 'dart:typed_data';
+
 import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_vault/constants/app_routes.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/providers/wallet_creation_provider.dart';
+import 'package:coconut_vault/services/secure_memory.dart';
+import 'package:coconut_vault/utils/logger.dart';
 import 'package:coconut_vault/utils/vibration_util.dart';
 import 'package:coconut_vault/widgets/button/shrink_animation_button.dart';
 import 'package:flutter/material.dart';
@@ -161,8 +166,36 @@ class _MnemonicVerifyScreenState extends State<MnemonicVerifyScreen> {
   }
 
   void _onVerificationSuccess() {
+    _secureWipeMnemonicData();
     // 성공 시 다음 화면으로 이동
     Navigator.pushReplacementNamed(context, AppRoutes.mnemonicConfirmation);
+  }
+
+  Future<void> _secureWipeMnemonicData() async {
+    try {
+      if (_correctAnswers.isNotEmpty) {
+        final correctAnswersString = _correctAnswers.join(' ');
+        final correctAnswersBytes = Uint8List.fromList(utf8.encode(correctAnswersString));
+        await SecureMemory.wipe(correctAnswersBytes);
+      }
+
+      if (_userAnswers.isNotEmpty) {
+        final userAnswersString = _userAnswers.join(' ');
+        final userAnswersBytes = Uint8List.fromList(utf8.encode(userAnswersString));
+        await SecureMemory.wipe(userAnswersBytes);
+      }
+
+      for (final options in _quizOptions) {
+        if (options.isNotEmpty) {
+          final optionsString = options.join(' ');
+          final optionsBytes = Uint8List.fromList(utf8.encode(optionsString));
+          await SecureMemory.wipe(optionsBytes);
+        }
+      }
+    } catch (e) {
+      // 플러시 실패 시에도 앱은 계속 동작해야 함
+      Logger.log('보안 메모리 플러시 실패: $e');
+    }
   }
 
   @override
@@ -316,5 +349,17 @@ class _MnemonicVerifyScreenState extends State<MnemonicVerifyScreen> {
         ),
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    _secureWipeMnemonicData();
+    _correctAnswers.clear();
+    _quizOptions.clear();
+    _selectedWordPositions.clear();
+    for (int i = 0; i < _userAnswers.length; i++) {
+      _userAnswers[i] = '';
+    }
+    super.dispose();
   }
 }

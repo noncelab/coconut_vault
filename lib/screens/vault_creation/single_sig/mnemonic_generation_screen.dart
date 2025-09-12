@@ -1,9 +1,13 @@
+import 'dart:convert';
+import 'dart:typed_data';
+
 import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_lib/coconut_lib.dart';
 import 'package:coconut_vault/constants/app_routes.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/providers/visibility_provider.dart';
 import 'package:coconut_vault/providers/wallet_creation_provider.dart';
+import 'package:coconut_vault/services/secure_memory.dart';
 import 'package:coconut_vault/widgets/button/fixed_bottom_button.dart';
 import 'package:coconut_vault/widgets/button/shrink_animation_button.dart';
 import 'package:coconut_vault/widgets/list/mnemonic_list.dart';
@@ -398,6 +402,10 @@ class _MnemonicWordsState extends State<MnemonicWords> {
 
   @override
   void dispose() {
+    SecureMemory.wipe(Uint8List.fromList(utf8.encode(mnemonic)));
+    SecureMemory.wipe(Uint8List.fromList(utf8.encode(passphrase)));
+    SecureMemory.wipe(Uint8List.fromList(utf8.encode(passphraseConfirm)));
+
     _scrollController.dispose();
     _passphraseController.dispose();
     _passphraseConfirmController.dispose();

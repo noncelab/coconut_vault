@@ -1,6 +1,10 @@
+import 'dart:convert';
+import 'dart:typed_data';
+
 import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
+import 'package:coconut_vault/services/secure_memory.dart';
 import 'package:coconut_vault/widgets/list/mnemonic_list.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -40,6 +44,7 @@ class _MnemonicViewScreen extends State<MnemonicViewScreen> with TickerProviderS
 
   @override
   void dispose() {
+    SecureMemory.wipe(Uint8List.fromList(utf8.encode(mnemonic ?? '')));
     _scrollController.dispose();
     super.dispose();
   }
