@@ -117,6 +117,7 @@ descriptor: "Descriptor"
 
 watch_only_options:
   title: "Select Watch-only Wallet"
+  coconut_wallet: "Coconut Wallet"
   sparrow: "Sparrow"
   nunchuk: "Nunchuk"
   bluewallet: "BlueWallet"
@@ -449,7 +450,26 @@ signer_bsms_screen:
   export_info: "Export Info"
 sync_to_wallet_screen:
   title: "Export $name"
-  guide: "Scan the QR code below in $appName."
+  guide:
+    multisig: "Multisig"
+    coconut: "Home - Add Wallet"
+    sparrow_singlesig:
+      guide1_1: "Import Wallet"
+      guide1_2: "Keystone"
+    nunchuk: 
+      guide1_1: "Bottom Menu"
+      guide1_2_singlesig: "Keys"
+      guide1_2_multisig: "Home"
+      guide2_1_siglesig: "Add Key"
+      guide2_1_multisig: "Add Wallet"
+      guide3_1_singlesig: "Keystone"
+      guide3_1_multisig: "Recover existing wallet"
+      guide4_1_singlesig: "Continue - Scan Qr"
+      guide4_1_multisig: "Recover using QR code"
+    bluewallet:
+      guide1_1: "Home - Add Wallet"
+      guide2_1: "Import Wallet"
+    common: "Scan the QR code below"
 vault_menu_screen:
   title:  
     view_info: "$name Info"

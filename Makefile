@@ -6,3 +6,15 @@ ready:
 
 slang:
 	dart pub run slang
+
+ios-mainnet:
+	flutter build ios --flavor mainnet --release
+
+aos-mainnet:
+	flutter build appbundle --flavor mainnet --release
+
+ios-regtest:
+	flutter build ios --flavor regtest --release
+
+aos-regtest:
+	flutter build appbundle --flavor regtest --release

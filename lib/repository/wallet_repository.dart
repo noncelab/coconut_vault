@@ -165,7 +165,7 @@ class WalletRepository {
     wallet.id = nextId;
     final Map<String, dynamic> data = wallet.toJson();
     MultisigVaultListItem newMultisigVault = await compute(WalletIsolates.addMultisigVault, data);
-    Logger.log('--> newMultisigVault: ${newMultisigVault.toJson()}');
+    Logger.logLongString('${newMultisigVault.toJson()}');
     // for SinglesigVaultListItem multsig key map update
     updateLinkedMultisigInfo(wallet.signers!, nextId);
 

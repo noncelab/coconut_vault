@@ -83,7 +83,7 @@ class LegacyAccountDescriptor {
     enc.encodeInteger(8);
     enc.encodeInteger(parentFp);
 
-    Logger.logLongString('--> buildSingleSigCbor: ${enc.getBytes().toString()}');
+    //Logger.logLongString('--> buildSingleSigCbor: ${enc.getBytes().toString()}');
     return enc.getBytes();
   }
 
@@ -193,7 +193,19 @@ class LegacyAccountDescriptor {
       enc.encodeText(c.label);
     }
 
-    Logger.logLongString('--> buildMultisigCbor: ${enc.getBytes().toString()}');
+    /// for print
+    // final bytes = enc.getBytes();
+    // final bytesStr = bytes.toString();
+    // const chunkSize = 100;
+
+    // Logger.log('--> buildMultisigCbor length: ${bytesStr.length}');
+    // for (var i = 0; i < bytesStr.length; i += chunkSize) {
+    //   final end = (i + chunkSize < bytesStr.length) ? i + chunkSize : bytesStr.length;
+    //   Logger.logLongString(
+    //       '--> buildMultisigCbor chunk ${i ~/ chunkSize + 1}: ${bytesStr.substring(i, end)}');
+    // }
+
+    // Logger.logLongString(ConversionUtil.bytesToHex(bytes));
     return enc.getBytes();
   }
 }

@@ -117,6 +117,7 @@ descriptor: "디스크립터"
 
 watch_only_options:
   title: "보기 전용 앱 선택"
+  coconut_wallet: "코코넛 월렛"
   sparrow: "스패로우"
   nunchuk: "넌척"
   bluewallet: "블루월렛"
@@ -450,7 +451,28 @@ signer_bsms_screen:
   export_info: "내보낼 정보"
 sync_to_wallet_screen:
   title: "$name 내보내기"
-  guide: "$appName 아래 QR 코드를 스캔해 주세요."
+  guide:
+    multisig: "Multisig"
+    coconut: "홈 화면 - 지갑 추가"
+    sparrow_singlesig:
+      guide1_1: "Import Wallet"
+      guide2_1: "Keystone"
+    nunchuk:
+      guide1_1: "하단 메뉴"
+      guide1_2_singlesig: "Keys"
+      guide1_2_multisig: "Home"
+      guide2_1_siglesig: "키 추가"
+      guide2_1_multisig: "지갑 추가"
+      guide3_1_singlesig: "Keystone"
+      guide3_1_multisig: "Recover existing wallet"
+      guide4_1_singlesig: "Continue - Scan Qr"
+      guide4_1_multisig: "Recover using QR code"
+
+    bluewallet:
+      guide1_1: "홈 화면 - 지갑 추가"
+      guide2_1: "Import Wallet"
+    common: "아래 QR 코드를 스캔해 주세요"
+
 vault_menu_screen:
   title:  
     view_info: "$name 정보"
