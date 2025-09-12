@@ -5,7 +5,6 @@ import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_lib/coconut_lib.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/screens/vault_creation/single_sig/seed_qr_confirmation_screen.dart';
-import 'package:coconut_vault/services/secure_memory.dart';
 import 'package:coconut_vault/widgets/custom_tooltip.dart';
 import 'package:crypto/crypto.dart';
 import 'package:qr_code_scanner/qr_code_scanner.dart';
@@ -132,15 +131,13 @@ class _SeedQrImportScreenState extends State<SeedQrImportScreen> {
 
           // 1. 네비게이션하기 전 카메라 끄기
           controller.pauseCamera();
-          final scannedDataString = words.join(' ');
 
           Navigator.push(
-              context,
-              MaterialPageRoute(
-                  builder: (context) =>
-                      SeedQrConfirmationScreen(scannedData: scannedDataString))).then((_) {
-            SecureMemory.wipe(Uint8List.fromList(utf8.encode(scannedDataString)));
-
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) =>
+                          SeedQrConfirmationScreen(scannedData: utf8.encode(words.join(' ')))))
+              .then((_) {
             // 2. 돌아왔을 때 카메라 재개하기
             if (mounted) {
               controller.resumeCamera();
@@ -150,8 +147,6 @@ class _SeedQrImportScreenState extends State<SeedQrImportScreen> {
             });
           });
         }
-      } else {
-        SecureMemory.wipe(Uint8List.fromList(utf8.encode(words.join(' '))));
       }
     });
   }

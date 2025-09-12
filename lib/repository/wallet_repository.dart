@@ -205,10 +205,10 @@ class WalletRepository {
     _sharedPrefs.setInt(nextIdField, nextId + 1);
   }
 
-  Future<String> getSecret(int id) async {
+  Future<Uint8List> getSecret(int id) async {
     var secretString =
         await _storageService.read(key: _createWalletKeyString(id, WalletType.singleSignature));
-    return secretString!;
+    return utf8.encode(secretString!);
   }
 
   Future<void> _saveSingleSigSecureData(

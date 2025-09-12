@@ -62,9 +62,9 @@ class SingleSigSignViewModel extends ChangeNotifier {
 
     try {
       final mnemonic = await _walletProvider.getSecret(_signProvider.walletId!);
-      mnemonicBytes = Uint8List.fromList(utf8.encode(mnemonic));
+      mnemonicBytes = Uint8List.fromList(mnemonic);
 
-      final seed = Seed.fromMnemonic(mnemonic, passphrase: passphrase);
+      final seed = Seed.fromMnemonic(utf8.decode(mnemonic), passphrase: passphrase);
       seedBytes = Uint8List.fromList(utf8.encode(seed.toString()));
 
       final signedTx = await compute(SignIsolates.addSignatureToPsbtWithSingleVault,

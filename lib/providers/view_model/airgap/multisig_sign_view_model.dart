@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:coconut_lib/coconut_lib.dart';
 import 'package:coconut_vault/isolates/sign_isolates.dart';
 import 'package:coconut_vault/model/multisig/multisig_signer.dart';
@@ -76,7 +78,9 @@ class MultisigSignViewModel extends ChangeNotifier {
 
   Future<void> sign(int index, String passphrase) async {
     final mnemonic = await _walletProvider.getSecret(_vaultListItem.signers[index].innerVaultId!);
-    final seed = Seed.fromMnemonic(mnemonic, passphrase: passphrase);
+    final mnemonicString = utf8.decode(mnemonic);
+    // TODO: lib 파라미터 Uint8List로 수정 필요
+    final seed = Seed.fromMnemonic(mnemonicString, passphrase: passphrase);
     _psbtForSigning =
         await compute(SignIsolates.addSignatureToPsbtWithMultisigVault, [seed, _psbtForSigning]);
     updateSignState(index);

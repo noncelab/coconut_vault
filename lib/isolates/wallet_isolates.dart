@@ -23,6 +23,7 @@ class WalletIsolates {
     List<SingleSigVaultListItem> vaultList = [];
 
     var wallet = SingleSigWalletCreateDto.fromJson(data);
+    // TODO: lib Seed.fromMnemonic 파라미터 Uint8List로 수정 필요
     final keyStore = KeyStore.fromSeed(
         Seed.fromMnemonic(wallet.mnemonic!, passphrase: wallet.passphrase ?? ''),
         AddressType.p2wpkh);

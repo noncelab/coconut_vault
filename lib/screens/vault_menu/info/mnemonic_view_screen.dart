@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:coconut_design_system/coconut_design_system.dart';
@@ -24,7 +23,7 @@ class MnemonicViewScreen extends StatefulWidget {
 class _MnemonicViewScreen extends State<MnemonicViewScreen> with TickerProviderStateMixin {
   final ScrollController _scrollController = ScrollController();
   late WalletProvider _walletProvider;
-  String? mnemonic;
+  late Uint8List mnemonic;
 
   @override
   void initState() {
@@ -44,7 +43,8 @@ class _MnemonicViewScreen extends State<MnemonicViewScreen> with TickerProviderS
 
   @override
   void dispose() {
-    SecureMemory.wipe(Uint8List.fromList(utf8.encode(mnemonic ?? '')));
+    SecureMemory.wipe(mnemonic);
+
     _scrollController.dispose();
     super.dispose();
   }
@@ -78,7 +78,7 @@ class _MnemonicViewScreen extends State<MnemonicViewScreen> with TickerProviderS
                       ),
                     ),
                   ),
-                  MnemonicList(mnemonic: mnemonic ?? '', isLoading: mnemonic == null),
+                  MnemonicList(mnemonic: mnemonic, isLoading: mnemonic == null),
                   const SizedBox(height: 40),
                 ],
               )),

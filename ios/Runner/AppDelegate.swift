@@ -3,7 +3,7 @@ import Flutter
 
 @main
 @objc class AppDelegate: FlutterAppDelegate {
-  private let SECURE_MEMORY_CHANNEL = "secure_memory"
+  private let SECURE_MEMORY_CHANNEL = "onl.coconut.vault/secure_memory"
 
   override func application(
     _ application: UIApplication,

@@ -7,7 +7,6 @@ import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/providers/visibility_provider.dart';
 import 'package:coconut_vault/providers/wallet_creation_provider.dart';
 import 'package:coconut_vault/screens/settings/settings_screen.dart';
-import 'package:coconut_vault/services/secure_memory.dart';
 import 'package:coconut_vault/utils/wallet_utils.dart';
 import 'package:coconut_vault/widgets/button/fixed_bottom_button.dart';
 import 'package:coconut_vault/widgets/button/shrink_animation_button.dart';
@@ -261,10 +260,15 @@ class _MnemonicImportScreenState extends State<MnemonicImportScreen> {
 
   @override
   void dispose() {
-    SecureMemory.wipe(Uint8List.fromList(
-        utf8.encode(_controllers.map((controller) => controller.text).join(' '))));
-    SecureMemory.wipe(Uint8List.fromList(utf8.encode(_passphrase)));
-    SecureMemory.wipe(Uint8List.fromList(utf8.encode(_passphraseController.text)));
+    _passphrase = '';
+    _passphraseObscured = false;
+    _isMnemonicValid = null;
+    _isSuggestionWordsVisible = false;
+    _isDropdownVisible = false;
+    _errorMessage = null;
+    _suggestionWords = [];
+    _invalidMnemonicIndexes = [];
+    _wordCount = _defaultWordCount;
 
     _disposeTextFields();
     _passphraseController.dispose();
@@ -447,8 +451,10 @@ class _MnemonicImportScreenState extends State<MnemonicImportScreen> {
   Future<void> _handleBackNavigation() async {
     await _hideKeyboard();
     if (_canPopWithoutDialog()) {
-      if (Navigator.of(context).canPop()) {
-        Navigator.pop(context);
+      if (mounted) {
+        if (Navigator.of(context).canPop()) {
+          Navigator.pop(context);
+        }
       }
     } else {
       _showStopImportingMnemonicDialog();
@@ -462,8 +468,8 @@ class _MnemonicImportScreenState extends State<MnemonicImportScreen> {
   }
 
   void _handleNextButton() {
-    final String secret = _buildMnemonicSecret();
-    final String passphrase = _usePassphrase ? _passphrase : '';
+    final secret = _buildMnemonicSecret();
+    final passphrase = utf8.encode(_usePassphrase ? _passphrase : '');
 
     if (_walletProvider.isSeedDuplicated(secret, passphrase)) {
       CoconutToast.showToast(
@@ -475,13 +481,13 @@ class _MnemonicImportScreenState extends State<MnemonicImportScreen> {
     Navigator.pushNamed(context, AppRoutes.mnemonicConfirmation);
   }
 
-  String _buildMnemonicSecret() {
-    return _controllers
+  Uint8List _buildMnemonicSecret() {
+    return utf8.encode(_controllers
         .map((controller) => controller.text)
         .join(' ')
         .trim()
         .toLowerCase()
-        .replaceAll(RegExp(r'\s+'), ' ');
+        .replaceAll(RegExp(r'\s+'), ' '));
   }
 
   bool _shouldShowSuggestionWords(int lineIndex) {

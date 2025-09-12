@@ -1,4 +1,8 @@
+import 'dart:convert';
+import 'dart:typed_data';
+
 import 'package:coconut_vault/model/multisig/multisig_signer.dart';
+import 'package:coconut_vault/services/secure_memory.dart';
 import 'package:coconut_vault/utils/coconut/multisig_utils.dart';
 
 class WalletCreationProvider {
@@ -8,8 +12,8 @@ class WalletCreationProvider {
   List<MultisigSigner>? _signers;
 
   /// singleSig
-  String? _secret;
-  String? _passphrase;
+  Uint8List _secret = Uint8List(0); // utf8.encode(mnemonicWordsString)
+  Uint8List _passphrase = Uint8List(0); // utf8.encode(passphraseString)
 
   /// multisig
   int? get requiredSignatureCount => _requiredSignatureCount;
@@ -17,8 +21,8 @@ class WalletCreationProvider {
   List<MultisigSigner>? get signers => _signers != null ? List.unmodifiable(_signers!) : null;
 
   /// singleSig
-  String? get secret => _secret;
-  String? get passphrase => _passphrase;
+  String? get secret => _secret != Uint8List(0) ? utf8.decode(_secret) : null;
+  String? get passphrase => _passphrase != Uint8List(0) ? utf8.decode(_passphrase) : null;
 
   /// multisig
   void setQuorumRequirement(int requiredSignatureCount, int totalSignatureCount) {
@@ -35,14 +39,15 @@ class WalletCreationProvider {
   }
 
   /// SingleSig
-  void setSecretAndPassphrase(String secret, String? passphrase) {
+  void setSecretAndPassphrase(Uint8List secret, Uint8List? passphrase) {
     _secret = secret;
-    _passphrase = passphrase;
+    _passphrase = passphrase ?? Uint8List(0);
   }
 
   /// SingleSig
   void resetSecretAndPassphrase() {
-    _secret = _passphrase = null;
+    SecureMemory.wipe(_secret);
+    SecureMemory.wipe(_passphrase);
   }
 
   /// Multisig
@@ -52,7 +57,8 @@ class WalletCreationProvider {
 
   void resetAll() {
     // singleSig
-    _secret = _passphrase = null;
+    SecureMemory.wipe(_secret);
+    SecureMemory.wipe(_passphrase);
 
     /// multisig
     _requiredSignatureCount = _totalSignatureCount = _signers = null;

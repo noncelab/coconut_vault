@@ -1,4 +1,8 @@
+import 'dart:convert';
+import 'dart:typed_data';
+
 import 'package:coconut_design_system/coconut_design_system.dart';
+import 'package:coconut_vault/services/secure_memory.dart';
 import 'package:flutter/material.dart';
 
 class MnemonicList extends StatefulWidget {
@@ -8,7 +12,7 @@ class MnemonicList extends StatefulWidget {
     this.isLoading = false,
   });
 
-  final String mnemonic;
+  final Uint8List mnemonic;
   final bool isLoading;
 
   @override
@@ -66,13 +70,14 @@ class _MnemonicListState extends State<MnemonicList> with TickerProviderStateMix
 
   @override
   void dispose() {
+    SecureMemory.wipe(widget.mnemonic);
     _waveAnimationController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    final words = widget.mnemonic.split(' ');
+    final words = utf8.decode(widget.mnemonic).split(' ');
     final itemCount = widget.isLoading ? 12 : words.length;
 
     return Padding(

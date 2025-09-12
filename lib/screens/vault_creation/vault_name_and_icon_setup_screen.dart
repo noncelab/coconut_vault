@@ -52,6 +52,7 @@ class _VaultNameAndIconSetupScreenState extends State<VaultNameAndIconSetupScree
   @override
   void dispose() {
     _walletProvider.isVaultListLoadingNotifier.removeListener(_onVaultListLoading);
+    _walletCreationProvider.resetAll();
     super.dispose();
   }
 

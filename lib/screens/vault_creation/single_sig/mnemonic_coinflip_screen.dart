@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:typed_data';
 
 import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_lib/coconut_lib.dart';
@@ -7,7 +6,6 @@ import 'package:coconut_vault/constants/app_routes.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/providers/visibility_provider.dart';
 import 'package:coconut_vault/providers/wallet_creation_provider.dart';
-import 'package:coconut_vault/services/secure_memory.dart';
 import 'package:coconut_vault/widgets/button/fixed_bottom_tween_button.dart';
 import 'package:coconut_vault/widgets/button/shrink_animation_button.dart';
 import 'package:flutter/cupertino.dart';
@@ -151,6 +149,8 @@ class _FlipCoinState extends State<FlipCoin> {
   final FocusNode _passphraseConfirmFocusNode = FocusNode();
   late int stepCount; // 총 화면 단계
   int step = 0;
+
+  // TODO: Uint8List 타입으로 바꿀 예정
   String _mnemonic = '';
   String _passphrase = '';
   String _passphraseConfirm = '';
@@ -201,9 +201,13 @@ class _FlipCoinState extends State<FlipCoin> {
 
   @override
   void dispose() {
-    SecureMemory.wipe(Uint8List.fromList(utf8.encode(_bits.toString())));
-    SecureMemory.wipe(Uint8List.fromList(utf8.encode(_passphrase)));
-    SecureMemory.wipe(Uint8List.fromList(utf8.encode(_passphraseConfirm)));
+    for (int i = 0; i < _bits.length; i++) {
+      _bits[i] = 0;
+    }
+    _bits.clear();
+    _mnemonic = '';
+    _passphrase = '';
+    _passphraseConfirm = '';
 
     _scrollController.dispose();
     _passphraseController.dispose();
@@ -458,7 +462,7 @@ class _FlipCoinState extends State<FlipCoin> {
       setState(() {
         if (_generateMnemonicPhrase()) {
           Provider.of<WalletCreationProvider>(context, listen: false)
-              .setSecretAndPassphrase(_mnemonic, _passphrase);
+              .setSecretAndPassphrase(utf8.encode(_mnemonic), utf8.encode(_passphrase));
           Navigator.pushNamed(context, AppRoutes.mnemonicCoinflipConfirmation);
         }
       });
@@ -489,7 +493,7 @@ class _FlipCoinState extends State<FlipCoin> {
           _generateMnemonicPhrase()) {
         // 패스프레이즈 입력 완료 | coinflip 데이터로 니모닉 생성 시도 성공
         Provider.of<WalletCreationProvider>(context, listen: false)
-            .setSecretAndPassphrase(_mnemonic, _passphrase);
+            .setSecretAndPassphrase(utf8.encode(_mnemonic), utf8.encode(_passphrase));
         _passphraseFocusNode.unfocus();
         _passphraseConfirmFocusNode.unfocus();
 
@@ -750,6 +754,7 @@ class _FlipCoinState extends State<FlipCoin> {
 
   bool _generateMnemonicPhrase() {
     try {
+      // TODO: Uint8List로 수정
       final mnemonic = Seed.fromBinaryEntropy(listToBinaryString(_bits)).mnemonic;
       setState(() {
         _mnemonic = mnemonic.trim().toLowerCase().replaceAll(RegExp(r'\s+'), ' ');

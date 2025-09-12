@@ -1,3 +1,6 @@
+import 'dart:convert';
+import 'dart:typed_data';
+
 import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_vault/constants/app_routes.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
@@ -10,7 +13,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 class SeedQrConfirmationScreen extends StatefulWidget {
-  final String scannedData;
+  final Uint8List scannedData;
 
   const SeedQrConfirmationScreen({
     super.key,
@@ -40,6 +43,17 @@ class _SeedQrConfirmationScreenState extends State<SeedQrConfirmationScreen> {
     _walletProvider = Provider.of<WalletProvider>(context, listen: false);
     _walletCreationProvider = Provider.of<WalletCreationProvider>(context, listen: false)
       ..resetAll();
+  }
+
+  @override
+  void dispose() {
+    _usePassphrase = false;
+    _passphrase = '';
+    _passphraseController.text = '';
+
+    _passphraseController.dispose();
+    _passphraseFocusNode.dispose();
+    super.dispose();
   }
 
   void _initListeners() {
@@ -123,9 +137,9 @@ class _SeedQrConfirmationScreenState extends State<SeedQrConfirmationScreen> {
   void _handleNextButton() {
     _passphraseFocusNode.unfocus();
 
-    final String secret = widget.scannedData;
+    final secret = widget.scannedData;
 
-    final String passphrase = _usePassphrase ? _passphrase : '';
+    final passphrase = utf8.encode(_usePassphrase ? _passphrase : '');
 
     if (_walletProvider.isSeedDuplicated(secret, passphrase)) {
       CoconutToast.showToast(
