@@ -4,6 +4,8 @@ import android.database.ContentObserver
 import android.os.Handler
 import android.os.Looper
 import android.os.Build
+import android.os.Bundle // FLAG_SECURE에 필요
+import android.view.WindowManager   // FLAG_SECURE에 필요
 import android.provider.Settings
 import android.provider.Settings.Global.DEVELOPMENT_SETTINGS_ENABLED
 import androidx.annotation.NonNull
@@ -13,21 +15,48 @@ import io.flutter.plugin.common.MethodChannel
 
 class MainActivity: FlutterFragmentActivity() {
     private val CHANNEL = "onl.coconut.vault/os"
+    
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        // 🔒 앱 화면 스크린샷/최근앱 썸네일 차단
+        window.setFlags(
+            WindowManager.LayoutParams.FLAG_SECURE,
+            WindowManager.LayoutParams.FLAG_SECURE
+        )
+    }
 
     override fun configureFlutterEngine(@NonNull flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
         MethodChannel(flutterEngine.dartExecutor.binaryMessenger, CHANNEL).setMethodCallHandler { call, result ->
-            if (call.method == "getPlatformVersion") {
-                val version = Build.VERSION.RELEASE
-                result.success(version)
-            } else if(call.method == "getSdkVersion"){
-                result.success(Build.VERSION.SDK_INT)
-            }
-            else if (call.method == "isDeveloperModeEnabled") {
+            when (call.method) {
+                "getPlatformVersion" -> {
+                    result.success(Build.VERSION.RELEASE)
+                }
+                "getSdkVersion" -> {
+                    result.success(Build.VERSION.SDK_INT)
+                }
+                "isDeveloperModeEnabled" -> {
                     result.success(isDeveloperModeEnabled())
-            }
-            else {
-                result.notImplemented()
+                }
+                // 런타임 토글이 필요하면 아래 메서드를 Dart에서 호출하세요.
+                // ex) 
+                // static const _ch = MethodChannel('onl.coconut.vault/os');
+                // Future<void> enablePrivacyOverlay() async {
+                //   await _ch.invokeMethod('setFlagSecure', {'enable': true});
+                // }
+                // Future<void> disablePrivacyOverlay() async {
+                //   await _ch.invokeMethod('setFlagSecure', {'enable': false});
+                // }
+                "setFlagSecure" -> {
+                    val enable = call.argument<Boolean>("enable") ?: true
+                    if (enable) {
+                        window.addFlags(WindowManager.LayoutParams.FLAG_SECURE)
+                    } else {
+                        window.clearFlags(WindowManager.LayoutParams.FLAG_SECURE)
+                    }
+                    result.success(null)
+                }
+                else -> result.notImplemented()
             }
         }
 
