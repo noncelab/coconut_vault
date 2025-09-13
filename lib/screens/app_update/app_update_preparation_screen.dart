@@ -5,6 +5,7 @@ import 'package:coconut_vault/enums/app_update_step_enum.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/providers/view_model/app_update_preparation_view_model.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
+import 'package:coconut_vault/utils/vibration_util.dart';
 import 'package:coconut_vault/widgets/indicator/countdown_spinner.dart';
 import 'package:coconut_vault/widgets/indicator/percent_progress_indicator.dart';
 import 'package:flutter/material.dart';
@@ -193,38 +194,31 @@ class _AppUpdatePreparationScreenState extends State<AppUpdatePreparationScreen>
         return;
       }
 
+      // 검증은 포커스가 없을 때 (Done 버튼을 눌렀을 때) 진행
       if (!_mnemonicInputFocusNode.hasFocus) {
-        if (!viewModel.isWordMatched(
-          _mnemonicWordInputController.text,
-        )) {
-          setState(() {
-            _mnemonicErrorVisible = true;
-          });
-          return;
-        }
-      }
-
-      if (_mnemonicWordInputController.text.length >= viewModel.mnemonicWordLength) {
-        if (!viewModel.isWordMatched(
-          _mnemonicWordInputController.text,
-        )) {
-          setState(() {
-            _mnemonicErrorVisible = true;
-          });
-        } else {
+        if (viewModel.isWordMatched(_mnemonicWordInputController.text)) {
+          // 정답인 경우
           if (viewModel.isMnemonicValidationFinished) {
             _goToConfirmUpdateStep();
             return;
           }
+          // 다음 문제로 넘어가고 입력 필드 초기화
           setState(() {
             _mnemonicErrorVisible = false;
             _mnemonicWordInputController.clear();
+            Future.delayed(const Duration(milliseconds: 100), () {
+              _mnemonicInputFocusNode.requestFocus();
+            });
+          });
+        } else {
+          // 오답인 경우
+          setState(() {
+            vibrateMedium();
+            _mnemonicErrorVisible = true;
+            _mnemonicInputFocusNode.requestFocus();
           });
         }
-      } else {
-        setState(() {
-          _mnemonicErrorVisible = false;
-        });
+        return;
       }
     } catch (e) {
       debugPrint('Error: $e');

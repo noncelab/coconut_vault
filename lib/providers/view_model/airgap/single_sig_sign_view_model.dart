@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 import 'package:coconut_lib/coconut_lib.dart';
 import 'package:coconut_vault/isolates/sign_isolates.dart';
 import 'package:coconut_vault/model/single_sig/single_sig_vault_list_item.dart';
@@ -56,16 +54,13 @@ class SingleSigSignViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> sign({required String passphrase}) async {
+  Future<void> sign({required Uint8List passphrase}) async {
     Uint8List? mnemonicBytes;
-    Uint8List? seedBytes;
 
     try {
-      final mnemonic = await _walletProvider.getSecret(_signProvider.walletId!);
-      mnemonicBytes = Uint8List.fromList(mnemonic);
+      mnemonicBytes = await _walletProvider.getSecret(_signProvider.walletId!);
 
-      final seed = Seed.fromMnemonic(utf8.decode(mnemonic), passphrase: passphrase);
-      seedBytes = Uint8List.fromList(utf8.encode(seed.toString()));
+      final Seed seed = Seed.fromMnemonic(mnemonicBytes, passphrase: passphrase);
 
       final signedTx = await compute(SignIsolates.addSignatureToPsbtWithSingleVault,
           [seed, _signProvider.unsignedPsbtBase64!]);
@@ -73,7 +68,6 @@ class SingleSigSignViewModel extends ChangeNotifier {
       updateSignState();
     } finally {
       if (mnemonicBytes != null) await SecureMemory.wipe(mnemonicBytes);
-      if (seedBytes != null) await SecureMemory.wipe(seedBytes);
     }
   }
 

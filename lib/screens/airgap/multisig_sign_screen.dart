@@ -1,3 +1,6 @@
+import 'dart:convert';
+import 'dart:typed_data';
+
 import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_vault/constants/app_routes.dart';
 import 'package:coconut_vault/enums/currency_enum.dart';
@@ -90,11 +93,12 @@ class _MultisigSignScreenState extends State<MultisigSignScreen> {
 
   Future<void> _sign(bool isKeyInsideVault, int index) async {
     if (isKeyInsideVault) {
-      String? validPassphrase;
+      Uint8List validPassphrase = utf8.encode('');
       if (_viewModel.getHasPassphrase(index)) {
-        validPassphrase = await _authenticateWithPassphrase(context: context, index: index);
+        validPassphrase =
+            utf8.encode(await _authenticateWithPassphrase(context: context, index: index) ?? '');
 
-        if (validPassphrase == null) {
+        if (validPassphrase == utf8.encode('')) {
           return;
         }
       } else {
@@ -104,7 +108,7 @@ class _MultisigSignScreenState extends State<MultisigSignScreen> {
         }
       }
 
-      await _addSignatureToPsbt(index, validPassphrase ?? "");
+      await _addSignatureToPsbt(index, validPassphrase);
     } else {
       showDialog(
           context: context,
@@ -127,7 +131,7 @@ class _MultisigSignScreenState extends State<MultisigSignScreen> {
   }
 
   /// @param index: signer index
-  Future<void> _addSignatureToPsbt(int index, String passphrase) async {
+  Future<void> _addSignatureToPsbt(int index, Uint8List passphrase) async {
     try {
       setState(() {
         _showLoading = true;

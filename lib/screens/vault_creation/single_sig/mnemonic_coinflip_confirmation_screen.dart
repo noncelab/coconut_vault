@@ -1,8 +1,12 @@
+import 'dart:convert';
+import 'dart:typed_data';
+
 import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_vault/constants/app_routes.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/providers/wallet_creation_provider.dart';
 import 'package:coconut_vault/screens/vault_creation/single_sig/mnemonic_generation_screen.dart';
+import 'package:coconut_vault/services/secure_memory.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -15,18 +19,19 @@ class MnemonicCoinflipConfirmationScreen extends StatefulWidget {
 }
 
 class _MnemonicCoinflipConfirmationScreenState extends State<MnemonicCoinflipConfirmationScreen> {
-  late WalletCreationProvider _walletCreationProvider;
   final ScrollController _scrollController = ScrollController();
 
   bool hasScrolledToBottom = false; // 니모닉 리스트를 끝까지 확인했는지 추적
+  late Uint8List _mnemonic;
+  late int _wordsCount;
 
   @override
   void initState() {
     super.initState();
-    _walletCreationProvider = Provider.of<WalletCreationProvider>(context, listen: false);
+    _mnemonic = Provider.of<WalletCreationProvider>(context, listen: false).secret;
+    _wordsCount = utf8.decode(_mnemonic).split(' ').length;
 
-    hasScrolledToBottom = _walletCreationProvider.secret!.split(' ').length == 12;
-
+    hasScrolledToBottom = utf8.decode(_mnemonic).split(' ').length == 12;
     // 스크롤 리스너 추가
     _scrollController.addListener(() {
       if (_scrollController.hasClients) {
@@ -47,6 +52,8 @@ class _MnemonicCoinflipConfirmationScreenState extends State<MnemonicCoinflipCon
 
   @override
   void dispose() {
+    SecureMemory.wipe(_mnemonic);
+    _wordsCount = 0;
     _scrollController.dispose();
     super.dispose();
   }
@@ -63,7 +70,7 @@ class _MnemonicCoinflipConfirmationScreenState extends State<MnemonicCoinflipCon
         ),
         body: SafeArea(
           child: MnemonicWords(
-            wordsCount: _walletCreationProvider.secret!.split(' ').length,
+            wordsCount: _wordsCount,
             usePassphrase: false, // 이미 패프를 입력했기 때문에 false 고정
             onReset: () {},
             onNavigateToNext: () {

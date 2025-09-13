@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_vault/constants/app_routes.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
@@ -46,7 +48,7 @@ class _MnemonicVerifyScreenState extends State<MnemonicVerifyScreen> {
   }
 
   void _initializeQuiz() {
-    _mnemonic = _walletCreationProvider.secret?.split(' ') ?? [];
+    _mnemonic = utf8.decode(_walletCreationProvider.secret).split(' ');
     if (_mnemonic.isEmpty) return;
 
     // 랜덤하게 3개의 단어 선택 (중복 없이)
@@ -134,11 +136,10 @@ class _MnemonicVerifyScreenState extends State<MnemonicVerifyScreen> {
   }
 
   void _changeCurrentQuiz() {
-    final mnemonic = _walletCreationProvider.secret?.split(' ') ?? [];
-    if (mnemonic.isEmpty) return;
+    if (_mnemonic.isEmpty) return;
 
     // 현재 사용 중인 위치들을 제외한 새로운 위치 선택
-    final availablePositions = List<int>.generate(mnemonic.length, (i) => i)
+    final availablePositions = List<int>.generate(_mnemonic.length, (i) => i)
         .where((position) => !_selectedWordPositions.contains(position))
         .toList();
 
@@ -153,7 +154,7 @@ class _MnemonicVerifyScreenState extends State<MnemonicVerifyScreen> {
       _selectedWordPositions[_currentQuizIndex] = newPosition;
 
       // 정답 변경
-      _correctAnswers[_currentQuizIndex] = mnemonic[newPosition];
+      _correctAnswers[_currentQuizIndex] = _mnemonic[newPosition];
 
       // 선택지 변경
       _quizOptions[_currentQuizIndex] = _generateQuizOptions(newPosition);

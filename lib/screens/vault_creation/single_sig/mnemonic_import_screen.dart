@@ -7,7 +7,6 @@ import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/providers/visibility_provider.dart';
 import 'package:coconut_vault/providers/wallet_creation_provider.dart';
 import 'package:coconut_vault/screens/settings/settings_screen.dart';
-import 'package:coconut_vault/utils/wallet_utils.dart';
 import 'package:coconut_vault/widgets/button/fixed_bottom_button.dart';
 import 'package:coconut_vault/widgets/button/shrink_animation_button.dart';
 import 'package:flutter/cupertino.dart';
@@ -322,8 +321,9 @@ class _MnemonicImportScreenState extends State<MnemonicImportScreen> {
 
     setState(() {
       if (_controllers.every((controller) => controller.text.isNotEmpty)) {
-        _isMnemonicValid =
-            isValidMnemonic(_controllers.map((controller) => controller.text).join(' '));
+        Uint8List secret = utf8.encode(_controllers.map((controller) => controller.text).join(' '));
+        _isMnemonicValid = WalletUtility.validateMnemonic(secret);
+        // isValidMnemonic(_controllers.map((controller) => controller.text).join(' '));
       }
       _errorMessage = null;
     });

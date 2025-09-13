@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:typed_data'; // Added for Uint8List
 
 import 'package:coconut_lib/coconut_lib.dart';
 import 'package:coconut_vault/model/multisig/multisig_vault_list_item.dart';
@@ -8,6 +9,8 @@ import 'package:coconut_vault/model/common/vault_list_item_base.dart';
 import 'package:coconut_vault/enums/wallet_enums.dart';
 import 'package:coconut_vault/model/multisig/multisig_wallet.dart';
 import 'package:coconut_vault/model/single_sig/single_sig_wallet_create_dto.dart';
+import 'package:coconut_vault/services/secure_memory.dart';
+import 'package:coconut_vault/utils/logger.dart';
 
 class WalletIsolates {
   static void setNetworkType() {
@@ -23,9 +26,9 @@ class WalletIsolates {
     List<SingleSigVaultListItem> vaultList = [];
 
     var wallet = SingleSigWalletCreateDto.fromJson(data);
-    // TODO: lib Seed.fromMnemonic 파라미터 Uint8List로 수정 필요
     final keyStore = KeyStore.fromSeed(
-        Seed.fromMnemonic(wallet.mnemonic!, passphrase: wallet.passphrase ?? ''),
+        Seed.fromMnemonic(utf8.encode(wallet.mnemonic!),
+            passphrase: utf8.encode(wallet.passphrase ?? '')),
         AddressType.p2wpkh);
     final derivationPath = NetworkType.currentNetworkType.isTestnet ? "84'/1'/0'" : "84'/0'/0'";
     final descriptor = Descriptor.forSingleSignature(AddressType.p2wpkh,
@@ -112,27 +115,58 @@ class WalletIsolates {
   static Future<Map<String, dynamic>> verifyPassphrase(Map<String, dynamic> args) async {
     setNetworkType();
 
-    // 암호화 관련 처리를 사용하여 CPU 동기연산이 발생하므로 isolate로 처리
-    final mnemonic = args['mnemonic'] as String;
-    final passphrase = args['passphrase'] as String;
     final vaultListItem = args['valutListItem'] as VaultListItemBase;
     assert(vaultListItem.vaultType == WalletType.singleSignature);
 
     final singleSigVaultListItem = vaultListItem.coconutVault as SingleSignatureVault;
-    final keyStore = KeyStore.fromSeed(
-      Seed.fromMnemonic(mnemonic, passphrase: passphrase),
-      AddressType.p2wpkh,
-    );
 
-    final savedMfp = singleSigVaultListItem.keyStore.masterFingerprint;
-    final recoveredMfp = keyStore.masterFingerprint;
-    final extendedPublicKey = singleSigVaultListItem.keyStore.extendedPublicKey.serialize();
-    final success = savedMfp == recoveredMfp;
-    return {
-      "success": success,
-      "savedMfp": savedMfp,
-      "recoveredMfp": recoveredMfp,
-      "extendedPublicKey": extendedPublicKey
-    };
+    Seed? seed;
+    KeyStore? keyStore;
+
+    try {
+      seed = Seed.fromMnemonic(args['mnemonic'], passphrase: args['passphrase']);
+      keyStore = KeyStore.fromSeed(
+        seed,
+        AddressType.p2wpkh,
+      );
+
+      final savedMfp = singleSigVaultListItem.keyStore.masterFingerprint;
+      final recoveredMfp = keyStore.masterFingerprint;
+      final extendedPublicKey = singleSigVaultListItem.keyStore.extendedPublicKey.serialize();
+      final success = savedMfp == recoveredMfp;
+
+      return {
+        "success": success,
+        "savedMfp": savedMfp,
+        "recoveredMfp": recoveredMfp,
+        "extendedPublicKey": extendedPublicKey
+      };
+    } finally {
+      // TODO: 더 근본적으로 seed.wipe(), keyStore.wipe() 필요함.
+      seed = null;
+      keyStore = null;
+      // Isolate 내부에서는 SecureMemory.wipe() 사용하지 않음
+      // 대신 직접 0으로 덮어쓰기
+      if (args['mnemonic'] != null) {
+        try {
+          final mnemonicBytes = args['mnemonic'];
+          for (int i = 0; i < mnemonicBytes.length; i++) {
+            mnemonicBytes[i] = 0;
+          }
+        } catch (e) {
+          Logger.log('Error wiping mnemonic: $e');
+        }
+      }
+      if (args['passphrase'] != null) {
+        try {
+          final passphraseBytes = args['passphrase'];
+          for (int i = 0; i < passphraseBytes.length; i++) {
+            passphraseBytes[i] = 0;
+          }
+        } catch (e) {
+          Logger.log('Error wiping passphrase: $e');
+        }
+      }
+    }
   }
 }

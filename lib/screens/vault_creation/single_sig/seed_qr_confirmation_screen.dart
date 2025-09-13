@@ -36,6 +36,8 @@ class _SeedQrConfirmationScreenState extends State<SeedQrConfirmationScreen> {
   String _passphrase = '';
   bool _passphraseObscured = false;
 
+  late VoidCallback _passphraseListener;
+
   @override
   void initState() {
     super.initState();
@@ -49,19 +51,23 @@ class _SeedQrConfirmationScreenState extends State<SeedQrConfirmationScreen> {
   void dispose() {
     _usePassphrase = false;
     _passphrase = '';
-    _passphraseController.text = '';
 
+    _passphraseController.removeListener(_passphraseListener);
+    _passphraseController.text = '';
     _passphraseController.dispose();
+
     _passphraseFocusNode.dispose();
     super.dispose();
   }
 
   void _initListeners() {
-    _passphraseController.addListener(() {
-      setState(() {
-        _passphrase = _passphraseController.text;
-      });
-    });
+    _passphraseListener = () {
+      if (mounted) {
+        setState(() {
+          _passphrase = _passphraseController.text;
+        });
+      }
+    };
 
     _passphraseFocusNode.addListener(() {
       if (_passphraseFocusNode.hasFocus) {

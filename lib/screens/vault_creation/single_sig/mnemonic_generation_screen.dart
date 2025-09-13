@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:typed_data';
 
 import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_lib/coconut_lib.dart';
@@ -268,9 +269,11 @@ class _MnemonicWordsState extends State<MnemonicWords> {
   late WalletCreationProvider _walletCreationProvider;
   late int stepCount; // 총 화면 단계
   int step = 0;
-  String mnemonic = '';
+
+  Uint8List _mnemonic = Uint8List(0);
   String passphrase = '';
   String passphraseConfirm = '';
+
   final ScrollController _scrollController = ScrollController();
   final TextEditingController _passphraseController = TextEditingController();
   final TextEditingController _passphraseConfirmController = TextEditingController();
@@ -291,9 +294,9 @@ class _MnemonicWordsState extends State<MnemonicWords> {
     Seed randomSeed = Seed.random(mnemonicLength: widget.wordsCount);
 
     setState(() {
-      // TODO: Uint8List로 반환하도록 바뀔 예정
-      mnemonic = randomSeed.mnemonic;
-      hasScrolledToBottom = mnemonic.split(' ').length == 12;
+      _mnemonic = randomSeed.mnemonic;
+      print('******* mnemonic: ${utf8.decode(_mnemonic)}');
+      hasScrolledToBottom = utf8.decode(_mnemonic).split(' ').length == 12;
     });
   }
 
@@ -332,7 +335,7 @@ class _MnemonicWordsState extends State<MnemonicWords> {
       _generateMnemonicPhrase();
     }
     if (widget.from == MnemonicWordsFrom.coinflip) {
-      mnemonic = _walletCreationProvider.secret!;
+      _mnemonic = _walletCreationProvider.secret;
     }
 
     // 스크롤 리스너 추가
@@ -401,7 +404,7 @@ class _MnemonicWordsState extends State<MnemonicWords> {
 
   @override
   void dispose() {
-    mnemonic = '';
+    _mnemonic = Uint8List(0);
     passphrase = '';
     passphraseConfirm = '';
 
@@ -450,7 +453,7 @@ class _MnemonicWordsState extends State<MnemonicWords> {
                       ),
                     ),
                     step == 0
-                        ? MnemonicList(mnemonic: utf8.encode(mnemonic), isLoading: mnemonic.isEmpty)
+                        ? MnemonicList(mnemonic: _mnemonic, isLoading: _mnemonic.isEmpty)
                         : _buildPassphraseInput(),
                     const SizedBox(height: 100),
                   ],
@@ -489,8 +492,7 @@ class _MnemonicWordsState extends State<MnemonicWords> {
                   );
                   return;
                 }
-                _walletCreationProvider.setSecretAndPassphrase(
-                    utf8.encode(mnemonic), utf8.encode(passphrase));
+                _walletCreationProvider.setSecretAndPassphrase(_mnemonic, utf8.encode(passphrase));
                 _passphraseFocusNode.unfocus();
                 _passphraseConfirmFocusNode.unfocus();
                 widget.onNavigateToNext();
@@ -507,7 +509,7 @@ class _MnemonicWordsState extends State<MnemonicWords> {
                     passphraseConfirm.isNotEmpty &&
                     passphrase == passphraseConfirm) {
                   _walletCreationProvider.setSecretAndPassphrase(
-                      utf8.encode(mnemonic), utf8.encode(passphrase));
+                      _mnemonic, utf8.encode(passphrase));
                   _passphraseFocusNode.unfocus();
                   _passphraseConfirmFocusNode.unfocus();
                   widget.onNavigateToNext();

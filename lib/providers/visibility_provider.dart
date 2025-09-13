@@ -90,8 +90,10 @@ class VisibilityProvider extends ChangeNotifier {
           try {
             LocaleSettings.setLocaleSync(AppLocale.en);
             _language = 'en';
+            return AppLocale.en;
           } catch (fallbackError) {
             Logger.error('Fallback to Korean locale failed: $fallbackError');
+            return AppLocale.kr; // 폴백 추가
           }
         });
       }

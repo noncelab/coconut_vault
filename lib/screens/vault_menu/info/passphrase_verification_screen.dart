@@ -1,9 +1,13 @@
+import 'dart:convert';
+
 import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_vault/enums/pin_check_context_enum.dart';
 import 'package:coconut_vault/isolates/wallet_isolates.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:coconut_vault/screens/common/pin_check_screen.dart';
+import 'package:coconut_vault/services/secure_memory.dart';
+import 'package:coconut_vault/utils/logger.dart';
 import 'package:coconut_vault/utils/vibration_util.dart';
 import 'package:coconut_vault/widgets/bottom_sheet.dart';
 import 'package:coconut_vault/widgets/button/fixed_bottom_button.dart';
@@ -84,13 +88,15 @@ class _PassphraseVerificationScreenState extends State<PassphraseVerificationScr
               title: t.verify_passphrase_screen.title,
               context: context,
             ),
-            body: SizedBox(
-              height: MediaQuery.of(context).size.height,
-              child: Stack(
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: CoconutLayout.defaultPadding),
-                    child: SingleChildScrollView(
+            body: SafeArea(
+              child: Container(
+                width: MediaQuery.sizeOf(context).width,
+                padding: const EdgeInsets.symmetric(
+                  horizontal: CoconutLayout.defaultPadding,
+                ),
+                child: Stack(
+                  children: [
+                    SingleChildScrollView(
                       child: SizedBox(
                         height: scrollViewHeight,
                         child: Column(
@@ -106,22 +112,23 @@ class _PassphraseVerificationScreenState extends State<PassphraseVerificationScr
                         ),
                       ),
                     ),
-                  ),
-                  ValueListenableBuilder<String>(
-                      valueListenable: _passphraseTextNotifier,
-                      builder: (_, value, child) {
-                        return FixedBottomButton(
-                          onButtonClicked: verifyPassphrase,
-                          text: t.verify_passphrase_screen.start_verification,
-                          textColor: CoconutColors.white,
-                          isActive: _inputController.text.isNotEmpty && !_isSubmitting,
-                          backgroundColor: CoconutColors.black,
-                          showGradient: true,
-                          gradientPadding:
-                              const EdgeInsets.only(left: 16, right: 16, bottom: 40, top: 140),
-                        );
-                      }),
-                ],
+                    ValueListenableBuilder<String>(
+                        valueListenable: _passphraseTextNotifier,
+                        builder: (_, value, child) {
+                          return FixedBottomButton(
+                            onButtonClicked: verifyPassphrase,
+                            text: t.verify_passphrase_screen.start_verification,
+                            textColor: CoconutColors.white,
+                            isActive: _inputController.text.isNotEmpty && !_isSubmitting,
+                            backgroundColor: CoconutColors.black,
+                            showGradient: true,
+                            gradientPadding:
+                                const EdgeInsets.only(left: 16, right: 16, bottom: 40, top: 140),
+                            horizontalPadding: 0,
+                          );
+                        }),
+                  ],
+                ),
               ),
             )),
       ),
@@ -157,11 +164,22 @@ class _PassphraseVerificationScreenState extends State<PassphraseVerificationScr
     CustomDialogs.showLoadingDialog(context, t.verify_passphrase_screen.loading_description);
     _isPassphraseVerified = false;
     final walletProvider = context.read<WalletProvider>();
-    final result = await compute(WalletIsolates.verifyPassphrase, {
-      'mnemonic': await walletProvider.getSecret(widget.id),
-      'passphrase': _inputController.text,
-      'valutListItem': walletProvider.getVaultById(widget.id)
-    });
+
+    final mnemonic = await walletProvider.getSecret(widget.id);
+    final passphrase = utf8.encode(_inputController.text);
+    final vaultListItem = walletProvider.getVaultById(widget.id);
+
+    final result = await compute(WalletIsolates.verifyPassphrase,
+        {'mnemonic': mnemonic, 'passphrase': passphrase, 'valutListItem': vaultListItem});
+
+    try {
+      SecureMemory.wipe(mnemonic);
+      if (passphrase.isNotEmpty) {
+        SecureMemory.wipe(passphrase);
+      }
+    } catch (e) {
+      Logger.log('Error wiping mnemonic or passphrase: $e');
+    }
 
     if (result['success']) {
       vibrateLight();

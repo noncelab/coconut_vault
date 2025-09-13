@@ -1,3 +1,6 @@
+import 'dart:convert';
+import 'dart:typed_data';
+
 import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_vault/app_routes_params.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
@@ -85,13 +88,13 @@ class _VaultNameAndIconSetupScreenState extends State<VaultNameAndIconSetupScree
         return;
       }
 
-      if (_walletCreationProvider.secret != null) {
+      if (_walletCreationProvider.secret.isNotEmpty) {
         await _walletProvider.addSingleSigVault(SingleSigWalletCreateDto(
             null,
             inputText,
             selectedIconIndex,
             selectedColorIndex,
-            _walletCreationProvider.secret!,
+            utf8.decode(_walletCreationProvider.secret),
             _walletCreationProvider.passphrase));
       } else if (_walletCreationProvider.signers != null) {
         // 새로운 멀티시그 지갑 리스트 아이템을 생성.
@@ -104,11 +107,12 @@ class _VaultNameAndIconSetupScreenState extends State<VaultNameAndIconSetupScree
       assert(_walletProvider.isAddVaultCompleted);
       _walletCreationProvider.resetAll();
 
+      if (!context.mounted) return;
       Navigator.pushNamedAndRemoveUntil(context, '/', (Route<dynamic> route) => false,
           arguments: VaultListNavArgs(isWalletAdded: true));
     } catch (e) {
       Logger.error(e);
-      if (!mounted) return;
+      if (!context.mounted) return;
       showDialog(
           context: context,
           builder: (context) {
@@ -156,7 +160,7 @@ class _VaultNameAndIconSetupScreenState extends State<VaultNameAndIconSetupScree
         PopScope(
           canPop: true,
           onPopInvokedWithResult: (didPop, result) {
-            if (_walletCreationProvider.secret != null) {
+            if (_walletCreationProvider.secret != Uint8List(0)) {
               _walletCreationProvider.resetSecretAndPassphrase();
             } else {
               _walletCreationProvider.resetSigner();

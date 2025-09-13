@@ -233,7 +233,7 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
                                                     ),
                                                     width: 14.0,
                                                   ),
-                                                  CoconutLayout.spacing_300w,
+                                                  CoconutLayout.spacing_200w,
                                                   Flexible(
                                                     child: Text(
                                                       t.multisig.nth_key_with_name(

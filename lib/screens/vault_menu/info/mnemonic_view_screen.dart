@@ -23,28 +23,35 @@ class MnemonicViewScreen extends StatefulWidget {
 class _MnemonicViewScreen extends State<MnemonicViewScreen> with TickerProviderStateMixin {
   final ScrollController _scrollController = ScrollController();
   late WalletProvider _walletProvider;
-  late Uint8List mnemonic;
+  Uint8List mnemonic = Uint8List(0);
+  bool _isLoading = true;
 
   @override
   void initState() {
     super.initState();
     _walletProvider = Provider.of<WalletProvider>(context, listen: false);
+    _setMnemonic();
+  }
 
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _walletProvider.getSecret(widget.walletId).then((mnemonicValue) async {
-        await Future.delayed(const Duration(seconds: 2));
-        if (!mounted) return;
+  Future<void> _setMnemonic() async {
+    try {
+      mnemonic = await _walletProvider.getSecret(widget.walletId);
+    } catch (e) {
+      // 에러 처리
+      print('Error loading mnemonic: $e');
+    } finally {
+      if (mounted) {
+        await Future.delayed(const Duration(seconds: 1));
         setState(() {
-          mnemonic = mnemonicValue;
+          _isLoading = false;
         });
-      });
-    });
+      }
+    }
   }
 
   @override
   void dispose() {
     SecureMemory.wipe(mnemonic);
-
     _scrollController.dispose();
     super.dispose();
   }
@@ -78,7 +85,7 @@ class _MnemonicViewScreen extends State<MnemonicViewScreen> with TickerProviderS
                       ),
                     ),
                   ),
-                  MnemonicList(mnemonic: mnemonic, isLoading: mnemonic == null),
+                  MnemonicList(mnemonic: mnemonic, isLoading: _isLoading),
                   const SizedBox(height: 40),
                 ],
               )),

@@ -1,4 +1,4 @@
-import 'dart:convert';
+import 'dart:typed_data';
 
 import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
@@ -21,14 +21,13 @@ class _MnemonicConfirmationScreenState extends State<MnemonicConfirmationScreen>
   late WalletCreationProvider _walletCreationProvider;
   late int step;
   final ScrollController _scrollController = ScrollController();
-  // TODO: Uint8List 타입으로 바꿀 예정
-  late String _mnemonic;
+  late Uint8List _mnemonic;
 
   @override
   void initState() {
     super.initState();
     _walletCreationProvider = Provider.of<WalletCreationProvider>(context, listen: false);
-    _mnemonic = _walletCreationProvider.secret!;
+    _mnemonic = _walletCreationProvider.secret;
     step = 0;
   }
 
@@ -87,7 +86,7 @@ class _MnemonicConfirmationScreenState extends State<MnemonicConfirmationScreen>
                             ),
                           ),
                           step == 0
-                              ? MnemonicList(mnemonic: utf8.encode(_mnemonic))
+                              ? MnemonicList(mnemonic: _mnemonic)
                               : _passphraseGridViewWidget(),
                           const SizedBox(height: 100),
                         ],

@@ -92,9 +92,7 @@ re_select: "Reselect"
 name_info: "$name Info"
 name_wallet: "$name Wallet"
 bitcoin_text: "$bitcoin BTC"
-sign_required: 
-  one: "$n signature required"
-  other: "$n signatures required"
+sign_required: "Click the button to sign"
 sign_required_amount: "$n signatures required"
 move_to_qr_screen: "Move to QR Screen"
 move_to_qr_screen_description: "Generate QR to sign in key-holding vault."
@@ -612,7 +610,7 @@ alert:
     description: "Really delete all mnemonic\nphrases entered so far?"
   finish_signing:
     title:  "Finish Signing"
-    description: "If you close this screen, the created signing info will be lost.\nReally exit?"
+    description: "If you exit, the created signing info will be lost.\nReally exit?"
 
 toast:
   clipboard_copied: "Copied to clipboard"

@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:coconut_lib/coconut_lib.dart';
 import 'package:coconut_vault/constants/method_channel.dart';
+import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/repository/shared_preferences_repository.dart';
 import 'package:coconut_vault/utils/logger.dart';
 import 'package:flutter/cupertino.dart';
@@ -57,6 +58,30 @@ void main() async {
 
   // bluetooth
   await FlutterBluePlus.setOptions(showPowerAlert: false);
+
+  // 리졸버 설정
+  // 아래 경고를 위한 조치
+  // flutter: Resolver for <lang = kr> not specified!
+  // Please configure it via LocaleSettings.setPluralResolver. A fallback is used now.
+  // multi_sig_setting_screen.tooltip 에만 plural쓰는데 사용 안하고 있음.
+  // 최종 판단하여 사용하지 않을 시 삭제 필요
+  LocaleSettings.setPluralResolver(
+    language: AppLocale.kr.name,
+    resolver: (n, {zero, one, two, few, many, other}) {
+      if (n == 0) return zero ?? other ?? '';
+      if (n == 1) return one ?? other ?? '';
+      return other ?? '';
+    },
+  );
+
+  LocaleSettings.setPluralResolver(
+    language: AppLocale.en.name,
+    resolver: (n, {zero, one, two, few, many, other}) {
+      if (n == 0) return zero ?? other ?? '';
+      if (n == 1) return one ?? other ?? '';
+      return other ?? '';
+    },
+  );
 
   return runApp(const CoconutVaultApp());
 }
