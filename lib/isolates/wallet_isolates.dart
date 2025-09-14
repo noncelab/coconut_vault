@@ -142,9 +142,13 @@ class WalletIsolates {
         "extendedPublicKey": extendedPublicKey
       };
     } finally {
-      // TODO: 더 근본적으로 seed.wipe(), keyStore.wipe() 필요함.
-      seed = null;
-      keyStore = null;
+      if (keyStore != null) {
+        keyStore.wipeSeed();
+      }
+      if (seed != null) {
+        seed.wipe();
+      }
+
       // Isolate 내부에서는 SecureMemory.wipe() 사용하지 않음
       // 대신 직접 0으로 덮어쓰기
       if (args['mnemonic'] != null) {
