@@ -454,7 +454,7 @@ sync_to_wallet_screen:
   title: "Export $name"
   guide:
     multisig: "Multisig"
-    coconut: "Home - Add Wallet"
+    coconut: "Select the Add Wallet icon on the home screen"
     sparrow_singlesig:
       guide1_1: "Import Wallet"
       guide1_2: "Keystone"
@@ -469,8 +469,9 @@ sync_to_wallet_screen:
       guide4_1_singlesig: "Continue - Scan Qr"
       guide4_1_multisig: "Recover using QR code"
     bluewallet:
-      guide1_1: "Home - Add Wallet"
+      guide1_1: "Select the Add Wallet icon on the home screen"
       guide2_1: "Import Wallet"
+      guide3_1: "Scan or import a file"
     common: "Scan the QR code below"
 vault_menu_screen:
   title:  

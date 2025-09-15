@@ -469,10 +469,10 @@ sync_to_wallet_screen:
       guide3_1_multisig: "Recover existing wallet"
       guide4_1_singlesig: "Continue - Scan Qr"
       guide4_1_multisig: "Recover using QR code"
-
     bluewallet:
-      guide1_1: "홈 화면 - 지갑 추가"
+      guide1_1: "홈 화면에서 지갑 추가 아이콘 선택"
       guide2_1: "Import Wallet"
+      guide3_1: "Scan or import a file"
     common: "아래 QR 코드를 스캔해 주세요"
 
 vault_menu_screen:

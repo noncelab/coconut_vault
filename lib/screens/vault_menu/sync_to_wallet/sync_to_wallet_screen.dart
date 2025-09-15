@@ -215,6 +215,10 @@ class _SyncToWalletScreenState extends State<SyncToWalletScreen> {
             TextSpan(text: t.select),
             _em(" ${t.sync_to_wallet_screen.guide.bluewallet.guide2_1}"),
             const TextSpan(text: '\n'),
+            const TextSpan(text: '3. '),
+            TextSpan(text: t.select),
+            _em(" ${t.sync_to_wallet_screen.guide.bluewallet.guide3_1}"),
+            const TextSpan(text: '\n'),
             TextSpan(text: t.sync_to_wallet_screen.guide.common),
           ];
         case 'kr':
@@ -227,6 +231,10 @@ class _SyncToWalletScreenState extends State<SyncToWalletScreen> {
             const TextSpan(text: '\n'),
             const TextSpan(text: '2. '),
             _em(t.sync_to_wallet_screen.guide.bluewallet.guide2_1),
+            TextSpan(text: ' ${t.select}'),
+            const TextSpan(text: '\n'),
+            const TextSpan(text: '3. '),
+            _em(t.sync_to_wallet_screen.guide.bluewallet.guide3_1),
             TextSpan(text: ' ${t.select}'),
             const TextSpan(text: '\n'),
             TextSpan(text: t.sync_to_wallet_screen.guide.common),
