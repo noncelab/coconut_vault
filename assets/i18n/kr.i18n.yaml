@@ -121,7 +121,6 @@ watch_only_options:
   nunchuk: "넌척"
   bluewallet: "블루월렛"
 
-# 연결 상태
 connectivity_state: 
   connected: "연결됨"
   disconnected: "꺼져 있음"
@@ -332,6 +331,7 @@ mnemonic_import_screen:
   enter_passphrase: "패스프레이즈를 입력해 주세요"
   need_advanced_mode: "⚠︎ 패스프레이즈를 사용하시려면 설정 화면으로 이동하여 '패스프레이즈 사용하기'를 켜주세요"
   open_settings: "설정 화면 열기"
+  
   recommended_words: "추천 단어"
   words_24: "24 단어"
   words_12: "12 단어"

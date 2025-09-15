@@ -55,6 +55,19 @@ class _LanguageBottomSheetState extends State<LanguageBottomSheet> {
                       final provider = context.read<VisibilityProvider>();
                       await provider.changeLanguage('en');
                     }),
+                    Divider(
+                      color: CoconutColors.white.withOpacity(0.12),
+                      height: 1,
+                    ),
+                    _buildUnitItem(t.language.japanese, t.language.japanese, language == 'jp',
+                        () async {
+                      if (context.mounted) {
+                        Navigator.of(context).pop();
+                        Navigator.of(context).pop();
+                      }
+                      final provider = context.read<VisibilityProvider>();
+                      await provider.changeLanguage('jp');
+                    }),
                   ])));
         });
   }
