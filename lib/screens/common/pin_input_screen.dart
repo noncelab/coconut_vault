@@ -108,15 +108,15 @@ class PinInputScreenState extends State<PinInputScreen> {
       body: SafeArea(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
-          mainAxisAlignment: MainAxisAlignment.end,
+          mainAxisAlignment: MainAxisAlignment.start,
           children: [
-            SizedBox(height: widget.initOptionVisible ? 60 : 24),
+            if (widget.initOptionVisible) const SizedBox(height: 60),
             Text(
               widget.title,
               style: CoconutTypography.body1_16_Bold,
               textAlign: TextAlign.center,
             ),
-            CoconutLayout.spacing_300h,
+            const SizedBox(height: 20),
             Align(
               alignment: Alignment.center,
               child: widget.descriptionTextWidget ?? const Text(''),
@@ -158,7 +158,9 @@ class PinInputScreenState extends State<PinInputScreen> {
                     alignment: Alignment.bottomCenter,
                     child: GridView.count(
                       crossAxisCount: 3,
-                      childAspectRatio: 2,
+                      childAspectRatio: MediaQuery.of(context).size.width > 600
+                          ? 2.5 // 폴드 펼친화면에서는 버튼 사이즈 줄여서 공간 확보
+                          : 2,
                       shrinkWrap: true,
                       physics: const NeverScrollableScrollPhysics(),
                       children: widget.pinShuffleNumbers.map((key) {
@@ -176,17 +178,14 @@ class PinInputScreenState extends State<PinInputScreen> {
                 ),
               ),
             ),
-            SizedBox(
-                height: widget.initOptionVisible
-                    ? 60
-                    : MediaQuery.sizeOf(context).height <= 640
-                        ? 30
-                        : 100),
+            const SizedBox(
+              height: 30,
+            ),
             Visibility(
               visible: widget.initOptionVisible,
               replacement: Container(),
               child: Padding(
-                  padding: EdgeInsets.only(bottom: _characterFocusNode.hasFocus ? 30 : 60),
+                  padding: EdgeInsets.only(bottom: _characterFocusNode.hasFocus ? 30 : 50),
                   child: GestureDetector(
                     onTap: () {
                       widget.onReset?.call();
