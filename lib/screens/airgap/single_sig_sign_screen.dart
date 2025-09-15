@@ -205,7 +205,7 @@ class _SingleSigSignScreenState extends State<SingleSigSignScreen> {
                             ? (viewModel.isAlreadySigned
                                 ? t.single_sig_sign_screen.text
                                 : t.sign_completed)
-                            : t.sign_required_amount(n: viewModel.requiredSignatureCount),
+                            : t.one_sign_guide,
                         style: CoconutTypography.heading4_18_Bold,
                       ),
                     ),
@@ -254,13 +254,18 @@ class _SingleSigSignScreenState extends State<SingleSigSignScreen> {
                 t.recipient,
                 style: CoconutTypography.body2_14.setColor(CoconutColors.gray700),
               ),
-              Text(
-                textAlign: TextAlign.end,
-                TextUtils.truncateNameMax25(_viewModel.firstRecipientAddress) +
-                    (_viewModel.recipientCount > 1
-                        ? '\n${t.extra_count(count: _viewModel.recipientCount - 1)}'
-                        : ''),
-                style: CoconutTypography.body1_16,
+              const SizedBox(width: 9),
+              Expanded(
+                child: Text(
+                  textAlign: TextAlign.end,
+                  TextUtils.truncateNameMax25(_viewModel.firstRecipientAddress) +
+                      (_viewModel.recipientCount > 1
+                          ? '\n${t.extra_count(count: _viewModel.recipientCount - 1)}'
+                          : ''),
+                  style: CoconutTypography.body1_16,
+                  overflow: TextOverflow.ellipsis,
+                  maxLines: 2,
+                ),
               ),
             ],
           ),
@@ -331,7 +336,7 @@ class _SingleSigSignScreenState extends State<SingleSigSignScreen> {
                   ),
                   CoconutLayout.spacing_300w,
                   Text(
-                    t.multisig.nth_key_with_name(name: name, index: 1),
+                    name,
                     style: CoconutTypography.body1_16,
                   ),
                 ],

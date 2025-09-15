@@ -78,6 +78,7 @@ class _MnemonicConfirmationScreenState extends State<MnemonicConfirmationScreen>
                             ),
                             child: Text(
                               t.mnemonic_confirm_screen.description,
+                              textAlign: TextAlign.center,
                               style: CoconutTypography.body1_16_Bold.setColor(
                                 CoconutColors.black,
                               ),
