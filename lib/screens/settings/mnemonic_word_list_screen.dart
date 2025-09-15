@@ -336,8 +336,7 @@ class MnemonicWordListScreenState extends State<MnemonicWordListScreen> {
             ),
           ),
         ),
-        if (index != _filteredItems.length - 1)
-          const Divider(color: CoconutColors.borderLightGray),
+        if (index != _filteredItems.length - 1) const Divider(color: CoconutColors.borderLightGray),
       ],
     );
   }
