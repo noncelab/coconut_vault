@@ -1,12 +1,15 @@
 import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_lib/coconut_lib.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
+import 'package:coconut_vault/model/multisig/multisig_signer.dart';
 import 'package:coconut_vault/model/multisig/multisig_vault_list_item.dart';
 import 'package:coconut_vault/model/single_sig/single_sig_vault_list_item.dart';
 import 'package:coconut_vault/providers/view_model/vault_list_restoration_view_model.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
+import 'package:coconut_vault/utils/colors_util.dart';
 import 'package:coconut_vault/utils/icon_util.dart';
 import 'package:coconut_vault/widgets/button/fixed_bottom_button.dart';
+import 'package:coconut_vault/widgets/icon/vault_icon_small.dart';
 import 'package:coconut_vault/widgets/indicator/percent_progress_indicator.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
@@ -72,7 +75,8 @@ class _VaultListRestorationScreenState extends State<VaultListRestorationScreen>
     });
   }
 
-  Widget _buildWalletListItem(String walletName, int iconIndex, int colorIndex, String rightText) {
+  Widget _buildWalletListItem(String walletName, int iconIndex, int colorIndex, String rightText,
+      bool isMultisig, List<MultisigSigner>? multiSigners) {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
@@ -89,14 +93,12 @@ class _VaultListRestorationScreenState extends State<VaultListRestorationScreen>
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          CoconutIcon(
-            size: 30,
-            backgroundColor: CoconutColors.backgroundColorPaletteLight[colorIndex],
-            child: SvgPicture.asset(
-              CustomIcons.getPathByIndex(iconIndex),
-              colorFilter:
-                  ColorFilter.mode(CoconutColors.colorPalette[colorIndex], BlendMode.srcIn),
-            ),
+          VaultIconSmall(
+            iconIndex: iconIndex,
+            colorIndex: colorIndex,
+            gradientColors: isMultisig && multiSigners != null
+                ? CustomColorHelper.getGradientColors(multiSigners)
+                : null,
           ),
           CoconutLayout.spacing_200w,
           Text(walletName, style: CoconutTypography.body2_14_Bold),
@@ -159,6 +161,8 @@ class _VaultListRestorationScreenState extends State<VaultListRestorationScreen>
                               late int colorIndex;
                               late int iconIndex;
                               late String rightText;
+                              bool isMultisig = false;
+                              List<MultisigSigner>? multiSigners;
 
                               if (vaultItem is SingleSigVaultListItem) {
                                 SingleSigVaultListItem singleVault = vaultItem;
@@ -172,6 +176,8 @@ class _VaultListRestorationScreenState extends State<VaultListRestorationScreen>
                                     vaultItem as MultisigVaultListItem;
                                 colorIndex = multiVault.colorIndex;
                                 iconIndex = multiVault.iconIndex;
+                                isMultisig = true;
+                                multiSigners = multiVault.signers;
 
                                 rightText =
                                     '${multiVault.requiredSignatureCount} / ${multiVault.signers.length}'; // m-of-n
@@ -184,8 +190,8 @@ class _VaultListRestorationScreenState extends State<VaultListRestorationScreen>
                                         index == viewModel.vaultList.length - 1 ? 190 : Sizes.size8,
                                     left: CoconutLayout.defaultPadding,
                                     right: CoconutLayout.defaultPadding),
-                                child: _buildWalletListItem(
-                                    vaultItem.name, iconIndex, colorIndex, rightText),
+                                child: _buildWalletListItem(vaultItem.name, iconIndex, colorIndex,
+                                    rightText, isMultisig, multiSigners),
                               );
                             },
                           ),
