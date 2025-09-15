@@ -44,7 +44,7 @@ class _VaultHomeScreenState extends State<VaultHomeScreen> with TickerProviderSt
   late VaultHomeViewModel _viewModel;
 
   DateTime? _lastPressedAt;
-  bool _handled = false;
+  bool _handledDidChangeDependencies = false;
 
   late ScrollController _scrollController;
 
@@ -71,15 +71,11 @@ class _VaultHomeScreenState extends State<VaultHomeScreen> with TickerProviderSt
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    Logger.log('VaultHomeScreen didChangeDependencies: ');
-
-    if (_handled) return;
-    _handled = true;
+    if (_handledDidChangeDependencies) return;
+    _handledDidChangeDependencies = true;
 
     final args = ModalRoute.of(context)?.settings.arguments as VaultHomeNavArgs?;
     if (args?.addedWalletId != null) {
-      Logger.log('--> VaultHomeScreen didChangeDependencies: isWalletAdded');
-      // UI 조작은 프레임 이후로 미루기 (SnackBar/Navigation 등)
       WidgetsBinding.instance.addPostFrameCallback((_) {
         bool isAddedWalletInFavorite =
             _viewModel.favoriteVaultIds.firstWhereOrNull((id) => id == args!.addedWalletId) != null;
