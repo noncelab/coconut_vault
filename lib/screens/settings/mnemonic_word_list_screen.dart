@@ -69,10 +69,10 @@ class MnemonicWordListScreen extends StatefulWidget {
   const MnemonicWordListScreen({super.key});
 
   @override
-  State<MnemonicWordListScreen> createState() => _MnemonicWordListScreenState();
+  State<MnemonicWordListScreen> createState() => MnemonicWordListScreenState();
 }
 
-class _MnemonicWordListScreenState extends State<MnemonicWordListScreen> {
+class MnemonicWordListScreenState extends State<MnemonicWordListScreen> {
   final String _titleText = t.mnemonic_wordlist;
   final String _hintText = t.mnemonic_word_list_screen.search_mnemonic_word;
 
@@ -138,12 +138,12 @@ class _MnemonicWordListScreenState extends State<MnemonicWordListScreen> {
   void _filterItems() {
     final text = _searchController.text;
     setState(() {
-      _filteredItems = text.isNotEmpty ? _queryWord(text) : _generateFullList();
+      _filteredItems = text.isNotEmpty ? queryWord(text) : _generateFullList();
     });
   }
 
   /// 검색로직
-  List<Map<String, dynamic>> _queryWord(String input) {
+  static List<Map<String, dynamic>> queryWord(String input) {
     final query = input.toLowerCase();
     final isBinary = RegExp(r'^[01]+$').hasMatch(query);
     final isNumeric = RegExp(r'^\d+$').hasMatch(query);
