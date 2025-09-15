@@ -100,131 +100,137 @@ class _SyncToWalletScreenState extends State<SyncToWalletScreen> {
       return [
         _em(t.watch_only_options.coconut_wallet),
         const TextSpan(text: '\n'),
-        TextSpan(text: t.sync_to_wallet_screen.guide.coconut),
+        _em(t.sync_to_wallet_screen.guide.coconut),
         const TextSpan(text: '\n'),
         TextSpan(text: t.sync_to_wallet_screen.guide.common),
       ];
     } else if (widget.syncOption.title == t.watch_only_options.sparrow) {
-      if (language == 'kr') {
-        return [
-          _em(t.watch_only_options.sparrow),
-          const TextSpan(text: '\n'),
-          const TextSpan(text: '1. '),
-          _em(t.sync_to_wallet_screen.guide.sparrow_singlesig.guide1_1),
-          TextSpan(text: ' ${t.select}'),
-          const TextSpan(text: '\n'),
-          const TextSpan(text: '2. '),
-          _em(t.sync_to_wallet_screen.guide.sparrow_singlesig.guide2_1),
-          if (_isMultisig) _em(' ${t.sync_to_wallet_screen.guide.multisig}'),
-          TextSpan(text: ' ${t.select}'),
-          const TextSpan(text: '\n'),
-          TextSpan(text: t.sync_to_wallet_screen.guide.common),
-        ];
-      } else {
-        return [
-          _em(t.watch_only_options.sparrow),
-          const TextSpan(text: '\n'),
-          const TextSpan(text: '1. '),
-          TextSpan(text: t.select),
-          _em(" ${t.sync_to_wallet_screen.guide.sparrow_singlesig.guide1_1}"),
-          const TextSpan(text: '\n'),
-          const TextSpan(text: '2. '),
-          TextSpan(text: t.select),
-          _em(" ${t.sync_to_wallet_screen.guide.sparrow_singlesig.guide2_1}"),
-          if (_isMultisig) _em(' ${t.sync_to_wallet_screen.guide.multisig}'),
-          const TextSpan(text: '\n'),
-          TextSpan(text: t.sync_to_wallet_screen.guide.common),
-        ];
+      switch (language) {
+        case 'en':
+          return [
+            _em(t.watch_only_options.sparrow),
+            const TextSpan(text: '\n'),
+            const TextSpan(text: '1. '),
+            TextSpan(text: t.select),
+            _em(" ${t.sync_to_wallet_screen.guide.sparrow_singlesig.guide1_1}"),
+            const TextSpan(text: '\n'),
+            const TextSpan(text: '2. '),
+            TextSpan(text: t.select),
+            _em(" ${t.sync_to_wallet_screen.guide.sparrow_singlesig.guide2_1}"),
+            if (_isMultisig) _em(' ${t.sync_to_wallet_screen.guide.multisig}'),
+            const TextSpan(text: '\n'),
+            TextSpan(text: t.sync_to_wallet_screen.guide.common),
+          ];
+        case 'kr':
+        default:
+          return [
+            _em(t.watch_only_options.sparrow),
+            const TextSpan(text: '\n'),
+            const TextSpan(text: '1. '),
+            _em(t.sync_to_wallet_screen.guide.sparrow_singlesig.guide1_1),
+            TextSpan(text: ' ${t.select}'),
+            const TextSpan(text: '\n'),
+            const TextSpan(text: '2. '),
+            _em(t.sync_to_wallet_screen.guide.sparrow_singlesig.guide2_1),
+            if (_isMultisig) _em(' ${t.sync_to_wallet_screen.guide.multisig}'),
+            TextSpan(text: ' ${t.select}'),
+            const TextSpan(text: '\n'),
+            TextSpan(text: t.sync_to_wallet_screen.guide.common),
+          ];
       }
     } else if (widget.syncOption.title == t.watch_only_options.nunchuk) {
-      if (language == 'kr') {
-        return [
-          _em(t.watch_only_options.nunchuk),
-          const TextSpan(text: '\n'),
-          const TextSpan(text: '1. '),
-          TextSpan(text: '${t.sync_to_wallet_screen.guide.nunchuk.guide1_1} - '),
-          _em(!_isMultisig
-              ? t.sync_to_wallet_screen.guide.nunchuk.guide1_2_singlesig
-              : t.sync_to_wallet_screen.guide.nunchuk.guide1_2_multisig),
-          const TextSpan(text: '\n'),
-          TextSpan(
-              text:
-                  '2. ${!_isMultisig ? t.sync_to_wallet_screen.guide.nunchuk.guide2_1_siglesig : t.sync_to_wallet_screen.guide.nunchuk.guide2_1_multisig}'),
-          const TextSpan(text: '\n'),
-          const TextSpan(text: '3. '),
-          _em(!_isMultisig
-              ? t.sync_to_wallet_screen.guide.nunchuk.guide3_1_singlesig
-              : t.sync_to_wallet_screen.guide.nunchuk.guide3_1_multisig),
-          TextSpan(text: ' ${t.select}'),
-          const TextSpan(text: '\n'),
-          const TextSpan(text: '4. '),
-          if (!_isMultisig)
-            TextSpan(text: t.sync_to_wallet_screen.guide.nunchuk.guide4_1_singlesig),
-          if (_isMultisig) ...[
-            _em(t.sync_to_wallet_screen.guide.nunchuk.guide4_1_multisig),
-            TextSpan(text: ' ${t.select}'),
-          ],
-          const TextSpan(text: '\n'),
-          TextSpan(text: t.sync_to_wallet_screen.guide.common),
-        ];
-      } else {
-        return [
-          _em(t.watch_only_options.nunchuk),
-          const TextSpan(text: '\n'),
-          const TextSpan(text: '1. '),
-          TextSpan(text: '${t.sync_to_wallet_screen.guide.nunchuk.guide1_1} - '),
-          _em(!_isMultisig
-              ? t.sync_to_wallet_screen.guide.nunchuk.guide1_2_singlesig
-              : t.sync_to_wallet_screen.guide.nunchuk.guide1_2_multisig),
-          const TextSpan(text: '\n'),
-          TextSpan(
-              text:
-                  '2. ${!_isMultisig ? t.sync_to_wallet_screen.guide.nunchuk.guide2_1_siglesig : t.sync_to_wallet_screen.guide.nunchuk.guide2_1_multisig}'),
-          const TextSpan(text: '\n'),
-          const TextSpan(text: '3. '),
-          TextSpan(text: '${t.select} '),
-          _em(!_isMultisig
-              ? t.sync_to_wallet_screen.guide.nunchuk.guide3_1_singlesig
-              : t.sync_to_wallet_screen.guide.nunchuk.guide3_1_multisig),
-          const TextSpan(text: '\n'),
-          const TextSpan(text: '4. '),
-          if (!_isMultisig)
-            TextSpan(text: t.sync_to_wallet_screen.guide.nunchuk.guide4_1_singlesig),
-          if (_isMultisig) ...[
+      switch (language) {
+        case 'en':
+          return [
+            _em(t.watch_only_options.nunchuk),
+            const TextSpan(text: '\n'),
+            const TextSpan(text: '1. '),
+            TextSpan(text: '${t.sync_to_wallet_screen.guide.nunchuk.guide1_1} - '),
+            _em(!_isMultisig
+                ? t.sync_to_wallet_screen.guide.nunchuk.guide1_2_singlesig
+                : t.sync_to_wallet_screen.guide.nunchuk.guide1_2_multisig),
+            const TextSpan(text: '\n'),
+            TextSpan(
+                text:
+                    '2. ${!_isMultisig ? t.sync_to_wallet_screen.guide.nunchuk.guide2_1_siglesig : t.sync_to_wallet_screen.guide.nunchuk.guide2_1_multisig}'),
+            const TextSpan(text: '\n'),
+            const TextSpan(text: '3. '),
             TextSpan(text: '${t.select} '),
-            _em(t.sync_to_wallet_screen.guide.nunchuk.guide4_1_multisig),
-          ],
-          const TextSpan(text: '\n'),
-          TextSpan(text: t.sync_to_wallet_screen.guide.common),
-        ];
+            _em(!_isMultisig
+                ? t.sync_to_wallet_screen.guide.nunchuk.guide3_1_singlesig
+                : t.sync_to_wallet_screen.guide.nunchuk.guide3_1_multisig),
+            const TextSpan(text: '\n'),
+            const TextSpan(text: '4. '),
+            if (!_isMultisig)
+              TextSpan(text: t.sync_to_wallet_screen.guide.nunchuk.guide4_1_singlesig),
+            if (_isMultisig) ...[
+              TextSpan(text: '${t.select} '),
+              _em(t.sync_to_wallet_screen.guide.nunchuk.guide4_1_multisig),
+            ],
+            const TextSpan(text: '\n'),
+            TextSpan(text: t.sync_to_wallet_screen.guide.common),
+          ];
+        case 'kr':
+        default:
+          return [
+            _em(t.watch_only_options.nunchuk),
+            const TextSpan(text: '\n'),
+            const TextSpan(text: '1. '),
+            TextSpan(text: '${t.sync_to_wallet_screen.guide.nunchuk.guide1_1} - '),
+            _em(!_isMultisig
+                ? t.sync_to_wallet_screen.guide.nunchuk.guide1_2_singlesig
+                : t.sync_to_wallet_screen.guide.nunchuk.guide1_2_multisig),
+            const TextSpan(text: '\n'),
+            TextSpan(
+                text:
+                    '2. ${!_isMultisig ? t.sync_to_wallet_screen.guide.nunchuk.guide2_1_siglesig : t.sync_to_wallet_screen.guide.nunchuk.guide2_1_multisig}'),
+            const TextSpan(text: '\n'),
+            const TextSpan(text: '3. '),
+            _em(!_isMultisig
+                ? t.sync_to_wallet_screen.guide.nunchuk.guide3_1_singlesig
+                : t.sync_to_wallet_screen.guide.nunchuk.guide3_1_multisig),
+            TextSpan(text: ' ${t.select}'),
+            const TextSpan(text: '\n'),
+            const TextSpan(text: '4. '),
+            if (!_isMultisig)
+              TextSpan(text: t.sync_to_wallet_screen.guide.nunchuk.guide4_1_singlesig),
+            if (_isMultisig) ...[
+              _em(t.sync_to_wallet_screen.guide.nunchuk.guide4_1_multisig),
+              TextSpan(text: ' ${t.select}'),
+            ],
+            const TextSpan(text: '\n'),
+            TextSpan(text: t.sync_to_wallet_screen.guide.common),
+          ];
       }
     } else if (widget.syncOption.title == t.watch_only_options.bluewallet) {
-      if (language == 'kr') {
-        return [
-          _em(t.watch_only_options.bluewallet),
-          const TextSpan(text: '\n'),
-          const TextSpan(text: '1. '),
-          TextSpan(text: t.sync_to_wallet_screen.guide.bluewallet.guide1_1),
-          const TextSpan(text: '\n'),
-          const TextSpan(text: '2. '),
-          _em(t.sync_to_wallet_screen.guide.bluewallet.guide2_1),
-          TextSpan(text: ' ${t.select}'),
-          const TextSpan(text: '\n'),
-          TextSpan(text: t.sync_to_wallet_screen.guide.common),
-        ];
-      } else {
-        return [
-          _em(t.watch_only_options.bluewallet),
-          const TextSpan(text: '\n'),
-          const TextSpan(text: '1. '),
-          TextSpan(text: t.sync_to_wallet_screen.guide.bluewallet.guide1_1),
-          const TextSpan(text: '\n'),
-          const TextSpan(text: '2. '),
-          TextSpan(text: t.select),
-          _em(" ${t.sync_to_wallet_screen.guide.bluewallet.guide2_1}"),
-          const TextSpan(text: '\n'),
-          TextSpan(text: t.sync_to_wallet_screen.guide.common),
-        ];
+      switch (language) {
+        case 'en':
+          return [
+            _em(t.watch_only_options.bluewallet),
+            const TextSpan(text: '\n'),
+            const TextSpan(text: '1. '),
+            TextSpan(text: t.sync_to_wallet_screen.guide.bluewallet.guide1_1),
+            const TextSpan(text: '\n'),
+            const TextSpan(text: '2. '),
+            TextSpan(text: t.select),
+            _em(" ${t.sync_to_wallet_screen.guide.bluewallet.guide2_1}"),
+            const TextSpan(text: '\n'),
+            TextSpan(text: t.sync_to_wallet_screen.guide.common),
+          ];
+        case 'kr':
+        default:
+          return [
+            _em(t.watch_only_options.bluewallet),
+            const TextSpan(text: '\n'),
+            const TextSpan(text: '1. '),
+            TextSpan(text: t.sync_to_wallet_screen.guide.bluewallet.guide1_1),
+            const TextSpan(text: '\n'),
+            const TextSpan(text: '2. '),
+            _em(t.sync_to_wallet_screen.guide.bluewallet.guide2_1),
+            TextSpan(text: ' ${t.select}'),
+            const TextSpan(text: '\n'),
+            TextSpan(text: t.sync_to_wallet_screen.guide.common),
+          ];
       }
     }
     return [];

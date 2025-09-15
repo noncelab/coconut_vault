@@ -453,7 +453,7 @@ sync_to_wallet_screen:
   title: "$name 내보내기"
   guide:
     multisig: "Multisig"
-    coconut: "홈 화면 - 지갑 추가"
+    coconut: "홈 화면에서 지갑 추가 아이콘 선택"
     sparrow_singlesig:
       guide1_1: "Import Wallet"
       guide2_1: "Keystone"

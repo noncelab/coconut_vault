@@ -6,6 +6,7 @@ import 'package:coconut_vault/enums/pin_check_context_enum.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/providers/auth_provider.dart';
 import 'package:coconut_vault/providers/view_model/vault_menu/single_sig_setup_info_view_model.dart';
+import 'package:coconut_vault/screens/home/select_sync_option_bottom_sheet.dart';
 import 'package:coconut_vault/screens/vault_menu/info/name_and_icon_edit_bottom_sheet.dart';
 import 'package:coconut_vault/utils/text_utils.dart';
 import 'package:coconut_vault/utils/vibration_util.dart';
@@ -147,6 +148,7 @@ class _SingleSigSetupInfoScreenState extends State<SingleSigSetupInfoScreen> {
                             CoconutLayout.spacing_500h,
                             _buildMenuList(context),
                             CoconutLayout.spacing_500h,
+                            _buildExportWalletMenu(),
                           ],
                         ),
                         _buildTooltip(context),
@@ -185,6 +187,37 @@ class _SingleSigSetupInfoScreenState extends State<SingleSigSetupInfoScreen> {
           _removeTooltip();
           Navigator.pushNamed(context, AppRoutes.psbtScanner, arguments: {'id': widget.id});
         },
+      ),
+    );
+  }
+
+  Widget _buildExportWalletMenu() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: SingleButton(
+        enableShrinkAnim: true,
+        title: t.select_export_type_screen.title,
+        onPressed: () {
+          _showSyncOptionBottomSheet(widget.id, context);
+        },
+      ),
+    );
+  }
+
+  void _showSyncOptionBottomSheet(int walletId, BuildContext context) {
+    MyBottomSheet.showDraggableBottomSheet(
+      context: context,
+      minChildSize: 0.5,
+      childBuilder: (scrollController) => SelectSyncOptionBottomSheet(
+        onSyncOptionSelected: (format) {
+          if (!context.mounted) return;
+          Navigator.pop(context);
+          Navigator.pushNamed(context, AppRoutes.syncToWallet, arguments: {
+            'id': walletId,
+            'syncOption': format,
+          });
+        },
+        scrollController: scrollController,
       ),
     );
   }

@@ -9,6 +9,7 @@ import 'package:coconut_vault/providers/auth_provider.dart';
 import 'package:coconut_vault/providers/view_model/vault_menu/multisig_setup_info_view_model.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:coconut_vault/screens/common/pin_check_screen.dart';
+import 'package:coconut_vault/screens/home/select_sync_option_bottom_sheet.dart';
 import 'package:coconut_vault/screens/vault_menu/info/multisig_signer_memo_bottom_sheet.dart';
 import 'package:coconut_vault/screens/vault_menu/info/name_and_icon_edit_bottom_sheet.dart';
 import 'package:coconut_vault/utils/vibration_util.dart';
@@ -143,6 +144,7 @@ class _MultisigSetupInfoScreenState extends State<MultisigSetupInfoScreen> {
                           CoconutLayout.spacing_500h,
                           _buildMenuList(context),
                           CoconutLayout.spacing_500h,
+                          _buildExportWalletMenu()
                         ],
                       ),
                       _buildTooltip(context),
@@ -374,46 +376,33 @@ class _MultisigSetupInfoScreenState extends State<MultisigSetupInfoScreen> {
     );
   }
 
-  Widget _buildDeleteButton(BuildContext context) {
-    final name = context.read<MultisigSetupInfoViewModel>().name;
+  Widget _buildExportWalletMenu() {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: SingleButton(
-        title: t.delete_label,
-        titleStyle: CoconutTypography.body2_14_Bold,
         enableShrinkAnim: true,
-        rightElement: SvgPicture.asset(
-          'assets/svg/trash.svg',
-          width: 16,
-          colorFilter: const ColorFilter.mode(
-            CoconutColors.warningText,
-            BlendMode.srcIn,
-          ),
-        ),
+        title: t.select_export_type_screen.title,
         onPressed: () {
-          _removeTooltip();
-          showDialog(
-              context: context,
-              builder: (BuildContext dialogContext) {
-                return CoconutPopup(
-                  insetPadding:
-                      EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width * 0.15),
-                  title: t.confirm,
-                  description: t.alert.confirm_deletion(name: name),
-                  backgroundColor: CoconutColors.white,
-                  leftButtonText: t.no,
-                  leftButtonColor: CoconutColors.black.withOpacity(0.7),
-                  rightButtonText: t.yes,
-                  rightButtonColor: CoconutColors.warningText,
-                  onTapLeft: () => Navigator.pop(context),
-                  onTapRight: () async {
-                    if (context.mounted) {
-                      _authenticateAndDelete(context);
-                    }
-                  },
-                );
-              });
+          _showSyncOptionBottomSheet(widget.id, context);
         },
+      ),
+    );
+  }
+
+  void _showSyncOptionBottomSheet(int walletId, BuildContext context) {
+    MyBottomSheet.showDraggableBottomSheet(
+      context: context,
+      minChildSize: 0.5,
+      childBuilder: (scrollController) => SelectSyncOptionBottomSheet(
+        onSyncOptionSelected: (format) {
+          if (!context.mounted) return;
+          Navigator.pop(context);
+          Navigator.pushNamed(context, AppRoutes.syncToWallet, arguments: {
+            'id': walletId,
+            'syncOption': format,
+          });
+        },
+        scrollController: scrollController,
       ),
     );
   }
