@@ -108,6 +108,8 @@ class _MultisigSignerBsmsExportScreenState extends State<MultisigSignerBsmsExpor
               return CoconutPopup(
                   title: t.multisig_signer_bsms_export_screen.fail_bsms,
                   description: _viewModel.errorMessage,
+                  leftButtonText: t.cancel,
+                  rightButtonText: t.confirm,
                   onTapRight: () => Navigator.pop(context));
             });
       }

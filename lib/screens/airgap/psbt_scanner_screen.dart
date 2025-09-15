@@ -80,6 +80,7 @@ class _PsbtScannerScreenState extends State<PsbtScannerScreen> {
             title: t.errors.scan_error_title,
             description: message,
             backgroundColor: CoconutColors.white,
+            leftButtonText: t.cancel,
             rightButtonText: t.confirm,
             rightButtonColor: CoconutColors.black.withOpacity(0.7),
             onTapRight: () {

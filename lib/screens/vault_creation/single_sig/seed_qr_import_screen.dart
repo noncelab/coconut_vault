@@ -115,6 +115,8 @@ class _SeedQrImportScreenState extends State<SeedQrImportScreen> {
                   return CoconutPopup(
                     title: t.seed_qr_import_screen.error_title,
                     description: '${t.seed_qr_import_screen.error_message}: $e',
+                    leftButtonText: t.cancel,
+                    rightButtonText: t.confirm,
                     onTapRight: () => Navigator.of(context).pop(),
                   );
                 });

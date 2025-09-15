@@ -120,6 +120,8 @@ class _VaultNameAndIconSetupScreenState extends State<VaultNameAndIconSetupScree
             return CoconutPopup(
               title: t.errors.creation_error,
               description: e.toString(),
+              leftButtonText: t.cancel,
+              rightButtonText: t.confirm,
               onTapRight: () => Navigator.of(context).pop(),
             );
           });

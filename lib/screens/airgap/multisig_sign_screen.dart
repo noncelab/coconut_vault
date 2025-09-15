@@ -115,6 +115,7 @@ class _MultisigSignScreenState extends State<MultisigSignScreen> {
               title: t.move_to_qr_screen,
               description: t.move_to_qr_screen_description,
               backgroundColor: CoconutColors.white,
+              leftButtonText: t.cancel,
               rightButtonText: t.confirm,
               rightButtonColor: CoconutColors.black,
               onTapRight: () {

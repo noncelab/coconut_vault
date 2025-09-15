@@ -299,6 +299,7 @@ class _PinCheckScreenState extends State<PinCheckScreen> with WidgetsBindingObse
           insetPadding: EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width * 0.15),
           title: t.alert.forgot_password.title,
           description: t.alert.forgot_password.description1,
+          leftButtonText: t.cancel,
           leftButtonColor: CoconutColors.black.withOpacity(0.7),
           rightButtonText: t.alert.forgot_password.btn_reset,
           rightButtonColor: CoconutColors.warningText,
