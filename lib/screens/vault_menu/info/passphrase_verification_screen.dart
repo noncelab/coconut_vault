@@ -35,6 +35,7 @@ class _PassphraseVerificationScreenState extends State<PassphraseVerificationScr
   String? _recoveredMfp;
   String? _extendedPublicKey;
   bool _isSubmitting = false;
+  String? _previousInput;
 
   @override
   void initState() {
@@ -84,44 +85,48 @@ class _PassphraseVerificationScreenState extends State<PassphraseVerificationScr
               title: t.verify_passphrase_screen.title,
               context: context,
             ),
-            body: SizedBox(
-              height: MediaQuery.of(context).size.height,
-              child: Stack(
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: CoconutLayout.defaultPadding),
-                    child: SingleChildScrollView(
-                      child: SizedBox(
-                        height: scrollViewHeight,
-                        child: Column(
-                          children: [
-                            CoconutLayout.spacing_600h,
-                            Text(t.verify_passphrase_screen.description,
-                                style: CoconutTypography.body1_16_Bold),
-                            CoconutLayout.spacing_600h,
-                            _buildPassphraseInput(),
-                            CoconutLayout.spacing_1000h,
-                            if (_isPassphraseVerified) _buildVerificationResultCard(),
-                          ],
+            body: SafeArea(
+              child: SizedBox(
+                height: MediaQuery.of(context).size.height,
+                child: Stack(
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: CoconutLayout.defaultPadding),
+                      child: SingleChildScrollView(
+                        child: SizedBox(
+                          height: scrollViewHeight,
+                          child: Column(
+                            children: [
+                              CoconutLayout.spacing_600h,
+                              Text(t.verify_passphrase_screen.description,
+                                  style: CoconutTypography.body1_16_Bold),
+                              CoconutLayout.spacing_600h,
+                              _buildPassphraseInput(),
+                              CoconutLayout.spacing_1000h,
+                              if (_isPassphraseVerified) _buildVerificationResultCard(),
+                            ],
+                          ),
                         ),
                       ),
                     ),
-                  ),
-                  ValueListenableBuilder<String>(
-                      valueListenable: _passphraseTextNotifier,
-                      builder: (_, value, child) {
-                        return FixedBottomButton(
-                          onButtonClicked: verifyPassphrase,
-                          text: t.verify_passphrase_screen.start_verification,
-                          textColor: CoconutColors.white,
-                          isActive: _inputController.text.isNotEmpty && !_isSubmitting,
-                          backgroundColor: CoconutColors.black,
-                          showGradient: true,
-                          gradientPadding:
-                              const EdgeInsets.only(left: 16, right: 16, bottom: 40, top: 140),
-                        );
-                      }),
-                ],
+                    ValueListenableBuilder<String>(
+                        valueListenable: _passphraseTextNotifier,
+                        builder: (_, value, child) {
+                          return FixedBottomButton(
+                            onButtonClicked: verifyPassphrase,
+                            text: t.verify_passphrase_screen.start_verification,
+                            textColor: CoconutColors.white,
+                            isActive: _previousInput != _inputController.text &&
+                                _inputController.text.isNotEmpty &&
+                                !_isSubmitting,
+                            backgroundColor: CoconutColors.black,
+                            showGradient: true,
+                            gradientPadding:
+                                const EdgeInsets.only(left: 16, right: 16, bottom: 40, top: 140),
+                          );
+                        }),
+                  ],
+                ),
               ),
             )),
       ),
@@ -148,6 +153,8 @@ class _PassphraseVerificationScreenState extends State<PassphraseVerificationScr
     setState(() {
       _isSubmitting = true;
     });
+
+    _previousInput = _inputController.text;
 
     _closeKeyboard();
     final pinCheckResult = await _showPinCheckScreen();
