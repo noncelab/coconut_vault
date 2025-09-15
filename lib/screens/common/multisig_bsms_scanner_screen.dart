@@ -241,13 +241,13 @@ class _MultisigBsmsScannerScreenState extends State<MultisigBsmsScannerScreen> {
 
       try {
         // multisigVault 가져오기, isolate 실행
-        await _walletProvider.importMultisigVault(decodedData, widget.id!);
+        final vault = await _walletProvider.importMultisigVault(decodedData, widget.id!);
         assert(_walletProvider.isAddVaultCompleted);
 
         if (!mounted) return;
         //Logger.log('---> Homeroute = ${HomeScreenStatus().screenStatus}');
         Navigator.pushNamedAndRemoveUntil(context, '/', (Route<dynamic> route) => false,
-            arguments: VaultListNavArgs(isWalletAdded: true));
+            arguments: VaultHomeNavArgs(addedWalletId: vault.id));
       } catch (e) {
         if (e is NotRelatedMultisigWalletException) {
           onFailedScanning(e.message);

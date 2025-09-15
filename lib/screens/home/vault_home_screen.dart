@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_lib/coconut_lib.dart';
+import 'package:coconut_vault/app_routes_params.dart';
 import 'package:coconut_vault/constants/app_routes.dart';
 import 'package:coconut_vault/enums/wallet_enums.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
@@ -17,6 +18,7 @@ import 'package:coconut_vault/screens/home/select_sync_option_bottom_sheet.dart'
 import 'package:coconut_vault/screens/home/select_vault_bottom_sheet.dart';
 import 'package:coconut_vault/screens/settings/pin_setting_screen.dart';
 import 'package:coconut_vault/screens/vault_menu/info/passphrase_check_screen.dart';
+import 'package:coconut_vault/utils/logger.dart';
 import 'package:coconut_vault/widgets/button/shrink_animation_button.dart';
 import 'package:coconut_vault/widgets/card/vault_addition_guide_card.dart';
 import 'package:coconut_vault/widgets/vault_row_item.dart';
@@ -42,6 +44,7 @@ class _VaultHomeScreenState extends State<VaultHomeScreen> with TickerProviderSt
   late VaultHomeViewModel _viewModel;
 
   DateTime? _lastPressedAt;
+  bool _handled = false;
 
   late ScrollController _scrollController;
 
@@ -63,6 +66,31 @@ class _VaultHomeScreenState extends State<VaultHomeScreen> with TickerProviderSt
       }
       _viewModel.loadVaults();
     });
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    Logger.log('VaultHomeScreen didChangeDependencies: ');
+
+    if (_handled) return;
+    _handled = true;
+
+    final args = ModalRoute.of(context)?.settings.arguments as VaultHomeNavArgs?;
+    if (args?.addedWalletId != null) {
+      Logger.log('--> VaultHomeScreen didChangeDependencies: isWalletAdded');
+      // UI 조작은 프레임 이후로 미루기 (SnackBar/Navigation 등)
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        bool isAddedWalletInFavorite =
+            _viewModel.favoriteVaultIds.firstWhereOrNull((id) => id == args!.addedWalletId) != null;
+        if (isAddedWalletInFavorite) return;
+
+        CoconutToast.showToast(
+            isVisibleIcon: true,
+            context: context,
+            text: t.vault_home_screen.toast.wallet_added_but_not_favorite);
+      });
+    }
   }
 
   bool isEnablePlusButton(bool isWalletsLoaded) {
@@ -107,7 +135,6 @@ class _VaultHomeScreenState extends State<VaultHomeScreen> with TickerProviderSt
         update: (_, authProvider, connectivityProvider, visibilityProvider, preferenceProvider,
             viewModel) {
           viewModel ??= _createViewModel();
-          viewModel.onPreferenceProviderUpdated();
           return viewModel;
         },
         child: Consumer2<VaultHomeViewModel, VisibilityProvider>(

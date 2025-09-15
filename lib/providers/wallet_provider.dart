@@ -86,10 +86,10 @@ class WalletProvider extends ChangeNotifier {
     return vaultList.where((vault) => vault.vaultType == walletType).toList();
   }
 
-  Future<void> addSingleSigVault(SingleSigWalletCreateDto wallet) async {
+  Future<SingleSigVaultListItem> addSingleSigVault(SingleSigWalletCreateDto wallet) async {
     _setAddVaultCompleted(false);
 
-    await _walletRepository.addSinglesigWallet(wallet);
+    final vault = await _walletRepository.addSinglesigWallet(wallet);
     _setVaultList(_walletRepository.vaultList);
     _preferenceProvider.setVaultOrder(_vaultList.map((e) => e.id).toList());
     _addToFavoriteWallets(_vaultList.last.id);
@@ -98,14 +98,14 @@ class WalletProvider extends ChangeNotifier {
     await _updateWalletLength();
 
     notifyListeners();
-    // vibrateLight();
+    return vault;
   }
 
-  Future<void> addMultisigVault(String name, int color, int icon, List<MultisigSigner> signers,
-      int requiredSignatureCount) async {
+  Future<MultisigVaultListItem> addMultisigVault(String name, int color, int icon,
+      List<MultisigSigner> signers, int requiredSignatureCount) async {
     _setAddVaultCompleted(false);
 
-    await _walletRepository.addMultisigWallet(
+    final vault = await _walletRepository.addMultisigWallet(
         MultisigWallet(null, name, icon, color, signers, requiredSignatureCount));
 
     _setVaultList(_walletRepository.vaultList);
@@ -115,6 +115,7 @@ class WalletProvider extends ChangeNotifier {
     _setAddVaultCompleted(true);
     await _updateWalletLength();
     notifyListeners();
+    return vault;
   }
 
   Future<void> _addToFavoriteWallets(int walletId) async {
@@ -131,7 +132,8 @@ class WalletProvider extends ChangeNotifier {
     return _walletRepository.hasPassphrase(walletId);
   }
 
-  Future<void> importMultisigVault(MultisigImportDetail details, int walletId) async {
+  Future<MultisigVaultListItem> importMultisigVault(
+      MultisigImportDetail details, int walletId) async {
     _setAddVaultCompleted(false);
 
     // 이 지갑이 위 멀티시그 지갑의 일부인지 확인하기
@@ -187,11 +189,12 @@ class WalletProvider extends ChangeNotifier {
       }
     }
 
-    await addMultisigVault(details.name, details.colorIndex, details.iconIndex, signers,
-        multisigVault.requiredSignature);
+    final vault = await addMultisigVault(details.name, details.colorIndex, details.iconIndex,
+        signers, multisigVault.requiredSignature);
 
     _setAddVaultCompleted(true);
     notifyListeners();
+    return vault;
   }
 
   /// [id]에 해당하는 지갑의 UI 정보 업데이트

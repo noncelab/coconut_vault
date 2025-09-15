@@ -1,6 +1,7 @@
 import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_vault/app_routes_params.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
+import 'package:coconut_vault/model/common/vault_list_item_base.dart';
 import 'package:coconut_vault/model/single_sig/single_sig_wallet_create_dto.dart';
 import 'package:coconut_vault/providers/wallet_creation_provider.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
@@ -84,8 +85,9 @@ class _VaultNameAndIconSetupScreenState extends State<VaultNameAndIconSetupScree
         return;
       }
 
+      VaultListItemBase vault;
       if (_walletCreationProvider.secret != null) {
-        await _walletProvider.addSingleSigVault(SingleSigWalletCreateDto(
+        vault = await _walletProvider.addSingleSigVault(SingleSigWalletCreateDto(
             null,
             inputText,
             selectedIconIndex,
@@ -94,8 +96,12 @@ class _VaultNameAndIconSetupScreenState extends State<VaultNameAndIconSetupScree
             _walletCreationProvider.passphrase));
       } else if (_walletCreationProvider.signers != null) {
         // 새로운 멀티시그 지갑 리스트 아이템을 생성.
-        await _walletProvider.addMultisigVault(inputText, selectedColorIndex, selectedIconIndex,
-            _walletCreationProvider.signers!, _walletCreationProvider.requiredSignatureCount!);
+        vault = await _walletProvider.addMultisigVault(
+            inputText,
+            selectedColorIndex,
+            selectedIconIndex,
+            _walletCreationProvider.signers!,
+            _walletCreationProvider.requiredSignatureCount!);
       } else {
         throw '생성 가능 정보가 없음';
       }
@@ -104,7 +110,7 @@ class _VaultNameAndIconSetupScreenState extends State<VaultNameAndIconSetupScree
       _walletCreationProvider.resetAll();
 
       Navigator.pushNamedAndRemoveUntil(context, '/', (Route<dynamic> route) => false,
-          arguments: VaultListNavArgs(isWalletAdded: true));
+          arguments: VaultHomeNavArgs(addedWalletId: vault.id));
     } catch (e) {
       Logger.error(e);
       if (!mounted) return;

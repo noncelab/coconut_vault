@@ -140,7 +140,9 @@ vault_home_screen:
     import_multisig_wallet: "Import\nMultisig Wallet"
     mnemonic_wordlist: "Mnemonic Wordlist"
     view_all_wallets: "View All Wallets"
-
+  toast:
+    wallet_added_but_not_favorite: "Wallet added. Please check in the View All Wallets screen."
+    
 vault_list_screen:
   primary_wallet: "Primary Wallet"
   settings:
