@@ -145,8 +145,9 @@ class _MnemonicImportScreenState extends State<MnemonicImportScreen> {
   }
 
   void _forceCursorToEnd(int index) {
-    _controllers[index].selection =
-        TextSelection.collapsed(offset: _controllers[index].text.length);
+    _controllers[index].selection = TextSelection.collapsed(
+      offset: _controllers[index].text.length,
+    );
   }
 
   void _updateSuggestionVisibility(int index) {
@@ -283,7 +284,8 @@ class _MnemonicImportScreenState extends State<MnemonicImportScreen> {
 
     for (int i = 0; i < _wordCount; i++) {
       final word = _controllers[i].text.trim();
-      isMnemonicValid[i] = WalletUtility.isInMnemonicWordList(word) ||
+      isMnemonicValid[i] =
+          WalletUtility.isInMnemonicWordList(word) ||
           (checkPrefixMatch ? _hasPrefixMatch(word) : false);
     }
 
@@ -294,7 +296,7 @@ class _MnemonicImportScreenState extends State<MnemonicImportScreen> {
   void _updateInvalidIndexes(List<bool> isMnemonicValid) {
     _invalidMnemonicIndexes = [
       for (int i = 0; i < isMnemonicValid.length; i++)
-        if (!isMnemonicValid[i] && _controllers[i].text.isNotEmpty) i
+        if (!isMnemonicValid[i] && _controllers[i].text.isNotEmpty) i,
     ];
   }
 
@@ -303,15 +305,17 @@ class _MnemonicImportScreenState extends State<MnemonicImportScreen> {
       setState(() {
         _isMnemonicValid = false;
         _errorMessage = t.errors.invalid_word_error(
-            filter: _invalidMnemonicIndexes.map((e) => _controllers[e].text).toList());
+          filter: _invalidMnemonicIndexes.map((e) => _controllers[e].text).toList(),
+        );
       });
       return;
     }
 
     setState(() {
       if (_controllers.every((controller) => controller.text.isNotEmpty)) {
-        _isMnemonicValid =
-            isValidMnemonic(_controllers.map((controller) => controller.text).join(' '));
+        _isMnemonicValid = isValidMnemonic(
+          _controllers.map((controller) => controller.text).join(' '),
+        );
       }
       _errorMessage = null;
     });
@@ -392,23 +396,24 @@ class _MnemonicImportScreenState extends State<MnemonicImportScreen> {
 
       if (_suggestionWords.isNotEmpty) {
         _controllers[controllerIndex].updateSuggestion(
-            _controllers[controllerIndex].selection.baseOffset, _suggestionWords.first);
+          _controllers[controllerIndex].selection.baseOffset,
+          _suggestionWords.first,
+        );
       }
     } catch (_) {}
   }
 
   List<String> _getFilteredSuggestions(String query) {
-    return wordList.where((item) => item.toLowerCase().startsWith(query)).toList()
-      ..sort((a, b) {
-        final itemA = a.toLowerCase();
-        final itemB = b.toLowerCase();
-        final startsWithA = itemA.startsWith(query);
-        final startsWithB = itemB.startsWith(query);
+    return wordList.where((item) => item.toLowerCase().startsWith(query)).toList()..sort((a, b) {
+      final itemA = a.toLowerCase();
+      final itemB = b.toLowerCase();
+      final startsWithA = itemA.startsWith(query);
+      final startsWithB = itemB.startsWith(query);
 
-        if (startsWithA && !startsWithB) return -1;
-        if (!startsWithA && startsWithB) return 1;
-        return itemA.compareTo(itemB);
-      });
+      if (startsWithA && !startsWithB) return -1;
+      if (!startsWithA && startsWithB) return 1;
+      return itemA.compareTo(itemB);
+    });
   }
 
   bool _hasPrefixMatch(String prefix) {
@@ -418,27 +423,31 @@ class _MnemonicImportScreenState extends State<MnemonicImportScreen> {
   void _showStopImportingMnemonicDialog() {
     showDialog(
       context: context,
-      builder: (BuildContext context) => CoconutPopup(
-        insetPadding: EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width * 0.15),
-        title: t.alert.stop_importing_mnemonic.title,
-        description: t.alert.stop_importing_mnemonic.description,
-        backgroundColor: CoconutColors.white,
-        leftButtonText: t.cancel,
-        leftButtonColor: CoconutColors.gray900,
-        rightButtonText: t.confirm,
-        rightButtonColor: CoconutColors.gray900,
-        onTapLeft: () => Navigator.pop(context),
-        onTapRight: () {
-          Navigator.pop(context);
-          Navigator.pop(context);
-        },
-      ),
+      builder:
+          (BuildContext context) => CoconutPopup(
+            insetPadding: EdgeInsets.symmetric(
+              horizontal: MediaQuery.of(context).size.width * 0.15,
+            ),
+            title: t.alert.stop_importing_mnemonic.title,
+            description: t.alert.stop_importing_mnemonic.description,
+            backgroundColor: CoconutColors.white,
+            leftButtonText: t.cancel,
+            leftButtonColor: CoconutColors.gray900,
+            rightButtonText: t.confirm,
+            rightButtonColor: CoconutColors.gray900,
+            onTapLeft: () => Navigator.pop(context),
+            onTapRight: () {
+              Navigator.pop(context);
+              Navigator.pop(context);
+            },
+          ),
     );
   }
 
   Future<void> _handleBackNavigation() async {
     await _hideKeyboard();
     if (_canPopWithoutDialog()) {
+      if (!mounted) return;
       if (Navigator.of(context).canPop()) {
         Navigator.pop(context);
       }
@@ -459,7 +468,10 @@ class _MnemonicImportScreenState extends State<MnemonicImportScreen> {
 
     if (_walletProvider.isSeedDuplicated(secret, passphrase)) {
       CoconutToast.showToast(
-          context: context, text: t.toast.mnemonic_already_added, isVisibleIcon: true);
+        context: context,
+        text: t.toast.mnemonic_already_added,
+        isVisibleIcon: true,
+      );
       return;
     }
 
@@ -481,10 +493,12 @@ class _MnemonicImportScreenState extends State<MnemonicImportScreen> {
     if (lineIndex < 0 || lineIndex >= groups.length) return false;
 
     final group = groups[lineIndex];
-    return group.any((index) =>
-        _focusNodes[index].hasFocus &&
-        _controllers[index].text.length >= 2 &&
-        _suggestionWords.isNotEmpty);
+    return group.any(
+      (index) =>
+          _focusNodes[index].hasFocus &&
+          _controllers[index].text.length >= 2 &&
+          _suggestionWords.isNotEmpty,
+    );
   }
 
   List<List<int>> _buildLineGroups() {
@@ -545,20 +559,22 @@ class _MnemonicImportScreenState extends State<MnemonicImportScreen> {
   void _showClearAllDialog() {
     showDialog(
       context: context,
-      builder: (BuildContext dialogContext) => CoconutPopup(
-        insetPadding:
-            EdgeInsets.symmetric(horizontal: MediaQuery.of(dialogContext).size.width * 0.15),
-        title: t.alert.erase_all_entered_mnemonic.title,
-        centerDescription: true,
-        description: t.alert.erase_all_entered_mnemonic.description,
-        backgroundColor: CoconutColors.white,
-        leftButtonText: t.cancel,
-        leftButtonColor: CoconutColors.gray900,
-        rightButtonText: t.confirm,
-        rightButtonColor: CoconutColors.gray900,
-        onTapLeft: () => Navigator.pop(context),
-        onTapRight: () => _handleClearAllConfirm(),
-      ),
+      builder:
+          (BuildContext dialogContext) => CoconutPopup(
+            insetPadding: EdgeInsets.symmetric(
+              horizontal: MediaQuery.of(dialogContext).size.width * 0.15,
+            ),
+            title: t.alert.erase_all_entered_mnemonic.title,
+            centerDescription: true,
+            description: t.alert.erase_all_entered_mnemonic.description,
+            backgroundColor: CoconutColors.white,
+            leftButtonText: t.cancel,
+            leftButtonColor: CoconutColors.gray900,
+            rightButtonText: t.confirm,
+            rightButtonColor: CoconutColors.gray900,
+            onTapLeft: () => Navigator.pop(context),
+            onTapRight: () => _handleClearAllConfirm(),
+          ),
     );
   }
 
@@ -678,12 +694,7 @@ class _MnemonicImportScreenState extends State<MnemonicImportScreen> {
         SingleChildScrollView(
           controller: _scrollController,
           physics: const AlwaysScrollableScrollPhysics(),
-          padding: const EdgeInsets.only(
-            left: 16,
-            right: 16,
-            top: 16,
-            bottom: 100,
-          ),
+          padding: const EdgeInsets.only(left: 16, right: 16, top: 16, bottom: 100),
           child: Column(
             mainAxisSize: MainAxisSize.max,
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -692,7 +703,7 @@ class _MnemonicImportScreenState extends State<MnemonicImportScreen> {
               CoconutLayout.spacing_700h,
               _buildPassphraseToggle(),
               if (_usePassphrase) _buildPassphraseTextField(),
-              CoconutLayout.spacing_2000h
+              CoconutLayout.spacing_2000h,
             ],
           ),
         ),
@@ -827,9 +838,10 @@ class _MnemonicImportScreenState extends State<MnemonicImportScreen> {
   BoxDecoration _buildFieldDecoration(int index) {
     return BoxDecoration(
       border: Border.all(
-        color: _invalidMnemonicIndexes.contains(index)
-            ? CoconutColors.hotPink.withOpacity(0.7)
-            : CoconutColors.black.withOpacity(0.08),
+        color:
+            _invalidMnemonicIndexes.contains(index)
+                ? CoconutColors.hotPink.withValues(alpha: 0.7)
+                : CoconutColors.black.withValues(alpha: 0.08),
       ),
       borderRadius: BorderRadius.circular(24),
       color: CoconutColors.white,
@@ -844,9 +856,7 @@ class _MnemonicImportScreenState extends State<MnemonicImportScreen> {
       focusNode: _focusNodes[index],
       controller: _controllers[index],
       enableInteractiveSelection: false,
-      textInputFormatter: [
-        FilteringTextInputFormatter.allow(RegExp(r'[a-z ]')),
-      ],
+      textInputFormatter: [FilteringTextInputFormatter.allow(RegExp(r'[a-z ]'))],
       onEditingComplete: _handleOnEditComplete,
       onChanged: (text) => _handleMnemonicTextChanged(text, index),
       maxLines: 1,
@@ -894,10 +904,10 @@ class _MnemonicImportScreenState extends State<MnemonicImportScreen> {
   void _removeSpaceAndMaintainCursor(String text, int index, int insertPos) {
     final String without = text.substring(0, insertPos) + text.substring(insertPos + 1);
     _controllers[index].value = _controllers[index].value.copyWith(
-          text: without,
-          selection: TextSelection.collapsed(offset: insertPos),
-          composing: TextRange.empty,
-        );
+      text: without,
+      selection: TextSelection.collapsed(offset: insertPos),
+      composing: TextRange.empty,
+    );
   }
 
   void _confirmSuggestionAndMoveToNext(int index) {
@@ -913,10 +923,10 @@ class _MnemonicImportScreenState extends State<MnemonicImportScreen> {
   void _removeSpaceAndMoveToNext(String text, int index, int insertPos) {
     final String without = text.substring(0, insertPos) + text.substring(insertPos + 1);
     _controllers[index].value = _controllers[index].value.copyWith(
-          text: without,
-          selection: TextSelection.collapsed(offset: insertPos),
-          composing: TextRange.empty,
-        );
+      text: without,
+      selection: TextSelection.collapsed(offset: insertPos),
+      composing: TextRange.empty,
+    );
     _validateMnemonic();
     if (!_invalidMnemonicIndexes.contains(index)) {
       _focusNextField();
@@ -927,10 +937,10 @@ class _MnemonicImportScreenState extends State<MnemonicImportScreen> {
     if (text != text.toLowerCase()) {
       final sel = _controllers[index].selection;
       _controllers[index].value = _controllers[index].value.copyWith(
-            text: text.toLowerCase(),
-            selection: sel,
-            composing: TextRange.empty,
-          );
+        text: text.toLowerCase(),
+        selection: sel,
+        composing: TextRange.empty,
+      );
     }
   }
 
@@ -979,7 +989,7 @@ class _MnemonicImportScreenState extends State<MnemonicImportScreen> {
       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(12),
-        color: CoconutColors.black.withOpacity(0.06),
+        color: CoconutColors.black.withValues(alpha: 0.06),
       ),
       child: Column(
         children: [
@@ -1038,17 +1048,10 @@ class _MnemonicImportScreenState extends State<MnemonicImportScreen> {
           _passphraseObscured = !_passphraseObscured;
         });
       },
-      child: _passphraseObscured
-          ? const Icon(
-              CupertinoIcons.eye_slash,
-              color: CoconutColors.gray800,
-              size: 18,
-            )
-          : const Icon(
-              CupertinoIcons.eye,
-              color: CoconutColors.gray800,
-              size: 18,
-            ),
+      child:
+          _passphraseObscured
+              ? const Icon(CupertinoIcons.eye_slash, color: CoconutColors.gray800, size: 18)
+              : const Icon(CupertinoIcons.eye, color: CoconutColors.gray800, size: 18),
     );
   }
 
@@ -1061,8 +1064,8 @@ class _MnemonicImportScreenState extends State<MnemonicImportScreen> {
           '(${_passphrase.length} / 100)',
           style: CoconutTypography.body3_12.setColor(
             _passphrase.length == 100
-                ? CoconutColors.black.withOpacity(0.7)
-                : CoconutColors.black.withOpacity(0.5),
+                ? CoconutColors.black.withValues(alpha: 0.7)
+                : CoconutColors.black.withValues(alpha: 0.5),
           ),
         ),
       ),
@@ -1105,10 +1108,7 @@ class WordSuggestableController extends TextEditingController {
   int cursorOffset;
   String suggestionWord;
 
-  WordSuggestableController({
-    this.cursorOffset = 0,
-    this.suggestionWord = '',
-  });
+  WordSuggestableController({this.cursorOffset = 0, this.suggestionWord = ''});
 
   @override
   TextSpan buildTextSpan({
@@ -1117,8 +1117,9 @@ class WordSuggestableController extends TextEditingController {
     required bool withComposing,
   }) {
     final TextStyle defaultStyle = style ?? CoconutTypography.body2_14;
-    final TextStyle suggestSuffixStyle =
-        CoconutTypography.body2_14.copyWith(color: CoconutColors.gray400);
+    final TextStyle suggestSuffixStyle = CoconutTypography.body2_14.copyWith(
+      color: CoconutColors.gray400,
+    );
 
     List<TextSpan> children = [];
     final String text = this.text;

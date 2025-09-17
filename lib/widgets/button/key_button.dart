@@ -27,6 +27,9 @@ class _KeyButtonState extends State<KeyButton> {
   bool _isPressed = false;
   bool _isFaceRecognition = false;
 
+  final disabledColor = CoconutColors.black.withValues(alpha: 0.3);
+  final enabledColor = CoconutColors.black;
+
   @override
   void initState() {
     super.initState();
@@ -71,69 +74,74 @@ class _KeyButtonState extends State<KeyButton> {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-        onTap: () {
-          widget.onKeyTap(widget.keyValue);
-        },
-        onTapDown: (_) {
-          setState(() {
-            _isPressed = true;
-          });
-        },
-        onTapCancel: () {
-          setState(() {
-            _isPressed = false;
-          });
-        },
-        onTapUp: (_) {
-          setState(() {
-            _isPressed = false;
-          });
-        },
-        child: Container(
-          width: 120,
-          height: 60,
-          margin: const EdgeInsets.symmetric(vertical: 8),
-          decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(14),
-              color: widget.disabled
+      onTap: () {
+        widget.onKeyTap(widget.keyValue);
+      },
+      onTapDown: (_) {
+        setState(() {
+          _isPressed = true;
+        });
+      },
+      onTapCancel: () {
+        setState(() {
+          _isPressed = false;
+        });
+      },
+      onTapUp: (_) {
+        setState(() {
+          _isPressed = false;
+        });
+      },
+      child: Container(
+        width: 120,
+        height: 60,
+        margin: const EdgeInsets.symmetric(vertical: 8),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(14),
+          color:
+              widget.disabled
                   ? Colors.transparent
                   : _isPressed
-                      ? CoconutColors.borderLightGray
-                      : Colors.transparent // 버튼의 상태에 따라 색상 변경
-              ),
-          child: Center(
-              child: widget.keyValue == kDeleteBtnIdentifier
-                  ? Icon(Icons.backspace,
-                      color: widget.disabled
-                          ? CoconutColors.black.withOpacity(0.3)
-                          : CoconutColors.black,
-                      size: 20)
+                  ? CoconutColors.borderLightGray
+                  : Colors.transparent, // 버튼의 상태에 따라 색상 변경
+        ),
+        child: Center(
+          child:
+              widget.keyValue == kDeleteBtnIdentifier
+                  ? Icon(
+                    Icons.backspace,
+                    color: widget.disabled ? disabledColor : enabledColor,
+                    size: 20,
+                  )
                   : widget.keyValue == kBiometricIdentifier
-                      ? _isFaceRecognition
-                          ? SvgPicture.asset('assets/svg/face-id.svg',
-                              width: 20,
-                              colorFilter: ColorFilter.mode(
-                                  widget.disabled
-                                      ? CoconutColors.black.withOpacity(0.3)
-                                      : CoconutColors.black,
-                                  BlendMode.srcIn))
-                          : SvgPicture.asset('assets/svg/fingerprint.svg',
-                              width: 20,
-                              colorFilter: ColorFilter.mode(
-                                  widget.disabled
-                                      ? CoconutColors.black.withOpacity(0.3)
-                                      : Colors.black,
-                                  BlendMode.srcIn))
-                      : Text(
-                          widget.keyValue,
-                          style: TextStyle(
-                              fontSize: 20,
-                              fontWeight: FontWeight.w600,
-                              color: widget.disabled
-                                  ? CoconutColors.black.withOpacity(0.3)
-                                  : CoconutColors.black,
-                              fontFamily: 'SpaceGrotesk'),
-                        )),
-        ));
+                  ? _isFaceRecognition
+                      ? SvgPicture.asset(
+                        'assets/svg/face-id.svg',
+                        width: 20,
+                        colorFilter: ColorFilter.mode(
+                          widget.disabled ? disabledColor : enabledColor,
+                          BlendMode.srcIn,
+                        ),
+                      )
+                      : SvgPicture.asset(
+                        'assets/svg/fingerprint.svg',
+                        width: 20,
+                        colorFilter: ColorFilter.mode(
+                          widget.disabled ? disabledColor : enabledColor,
+                          BlendMode.srcIn,
+                        ),
+                      )
+                  : Text(
+                    widget.keyValue,
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.w600,
+                      color: widget.disabled ? disabledColor : enabledColor,
+                      fontFamily: 'SpaceGrotesk',
+                    ),
+                  ),
+        ),
+      ),
+    );
   }
 }

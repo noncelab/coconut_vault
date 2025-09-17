@@ -25,12 +25,7 @@ class PinCheckScreen extends StatefulWidget {
   final Function? onReset;
   final Function? onSuccess;
   final PinCheckContextEnum pinCheckContext;
-  const PinCheckScreen({
-    super.key,
-    required this.pinCheckContext,
-    this.onReset,
-    this.onSuccess,
-  });
+  const PinCheckScreen({super.key, required this.pinCheckContext, this.onReset, this.onSuccess});
 
   @override
   State<PinCheckScreen> createState() => _PinCheckScreenState();
@@ -59,12 +54,13 @@ class _PinCheckScreenState extends State<PinCheckScreen> with WidgetsBindingObse
     _pin = '';
     _errorMessage = '';
 
-    _isAppLaunched = widget.pinCheckContext == PinCheckContextEnum.appLaunch ||
+    _isAppLaunched =
+        widget.pinCheckContext == PinCheckContextEnum.appLaunch ||
         widget.pinCheckContext == PinCheckContextEnum.restoration;
 
     _authProvider = Provider.of<AuthProvider>(context, listen: false);
     _pinType = _authProvider.isPinCharacter ? PinType.character : PinType.number;
-    print('initState pinType: $_pinType');
+    Logger.log('initState pinType: $_pinType');
 
     Future.microtask(() {
       _authProvider.onRequestShowAuthenticationFailedDialog = () {
@@ -103,7 +99,8 @@ class _PinCheckScreenState extends State<PinCheckScreen> with WidgetsBindingObse
 
           if (!_authProvider.isPermanantlyLocked && _isLastChanceToTry) {
             _errorMessage = t.errors.remaining_times_away_from_reset_error(
-                count: kMaxAttemptPerTurn - _authProvider.currentAttemptInTurn);
+              count: kMaxAttemptPerTurn - _authProvider.currentAttemptInTurn,
+            );
           }
           Logger.log('--> set _isUnlockDisabled to false');
         });
@@ -138,7 +135,9 @@ class _PinCheckScreenState extends State<PinCheckScreen> with WidgetsBindingObse
   void _onKeyTap(String value) async {
     if (_isUnlockDisabled == null ||
         _isUnlockDisabled == true ||
-        _isAppLaunched && _authProvider.isPermanantlyLocked) return;
+        _isAppLaunched && _authProvider.isPermanantlyLocked) {
+      return;
+    }
 
     if (value == kBiometricIdentifier) {
       _authProvider.verifyBiometric(context);
@@ -212,9 +211,10 @@ class _PinCheckScreenState extends State<PinCheckScreen> with WidgetsBindingObse
         vibrateLightDouble();
         setState(() {
           final remainingTimes = _authProvider.remainingAttemptCount;
-          _errorMessage = _isLastChanceToTry
-              ? t.errors.remaining_times_away_from_reset_error(count: remainingTimes)
-              : t.errors.pin_incorrect_with_remaining_attempts_error(count: remainingTimes);
+          _errorMessage =
+              _isLastChanceToTry
+                  ? t.errors.remaining_times_away_from_reset_error(count: remainingTimes)
+                  : t.errors.pin_incorrect_with_remaining_attempts_error(count: remainingTimes);
         });
       } else {
         vibrateMedium();
@@ -300,7 +300,7 @@ class _PinCheckScreenState extends State<PinCheckScreen> with WidgetsBindingObse
           title: t.alert.forgot_password.title,
           description: t.alert.forgot_password.description1,
           leftButtonText: t.cancel,
-          leftButtonColor: CoconutColors.black.withOpacity(0.7),
+          leftButtonColor: CoconutColors.black.withValues(alpha: 0.7),
           rightButtonText: t.alert.forgot_password.btn_reset,
           rightButtonColor: CoconutColors.warningText,
           onTapRight: () => _reset(),
@@ -323,40 +323,38 @@ class _PinCheckScreenState extends State<PinCheckScreen> with WidgetsBindingObse
   Widget build(BuildContext context) {
     return _isAppLaunched
         ? Material(
-            color: CoconutColors.white,
-            child: PopScope(
-              canPop: widget.pinCheckContext == PinCheckContextEnum.restoration,
-              onPopInvokedWithResult: (didPop, _) async {
-                if (Platform.isAndroid && widget.pinCheckContext == PinCheckContextEnum.appLaunch) {
-                  final now = DateTime.now();
-                  if (_lastPressedAt == null ||
-                      now.difference(_lastPressedAt!) > const Duration(seconds: 3)) {
-                    _lastPressedAt = now;
-                    Fluttertoast.showToast(
-                      backgroundColor: CoconutColors.gray800,
-                      msg: t.toast.back_exit,
-                      toastLength: Toast.LENGTH_SHORT,
-                    );
-                  } else {
-                    SystemNavigator.pop();
-                  }
+          color: CoconutColors.white,
+          child: PopScope(
+            canPop: widget.pinCheckContext == PinCheckContextEnum.restoration,
+            onPopInvokedWithResult: (didPop, _) async {
+              if (Platform.isAndroid && widget.pinCheckContext == PinCheckContextEnum.appLaunch) {
+                final now = DateTime.now();
+                if (_lastPressedAt == null ||
+                    now.difference(_lastPressedAt!) > const Duration(seconds: 3)) {
+                  _lastPressedAt = now;
+                  Fluttertoast.showToast(
+                    backgroundColor: CoconutColors.gray800,
+                    msg: t.toast.back_exit,
+                    toastLength: Toast.LENGTH_SHORT,
+                  );
+                } else {
+                  SystemNavigator.pop();
                 }
-              },
-              child: Scaffold(
-                backgroundColor: CoconutColors.white,
-                body: Stack(
-                  children: [
-                    Center(child: _pinInputScreen(isOnReset: true)),
-                  ],
-                ),
-              ),
-            ))
+              }
+            },
+            child: Scaffold(
+              backgroundColor: CoconutColors.white,
+              body: Stack(children: [Center(child: _pinInputScreen(isOnReset: true))]),
+            ),
+          ),
+        )
         : _pinInputScreen();
   }
 
   Widget _pinInputScreen({isOnReset = false}) {
     Logger.log(
-        '--> PinInputScreen isPermanantlyLocked: ${_authProvider.isPermanantlyLocked} / isUnlockDisabled: $_isUnlockDisabled');
+      '--> PinInputScreen isPermanantlyLocked: ${_authProvider.isPermanantlyLocked} / isUnlockDisabled: $_isUnlockDisabled',
+    );
     return PinInputScreen(
       canChangePinType: false,
       appBarVisible: _isAppLaunched ? false : true,

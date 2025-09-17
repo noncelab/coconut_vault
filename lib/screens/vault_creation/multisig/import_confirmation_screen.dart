@@ -4,14 +4,10 @@ import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/widgets/button/fixed_bottom_button.dart';
 import 'package:coconut_vault/widgets/custom_tooltip.dart';
 import 'package:coconut_vault/widgets/multisig/card/signer_bsms_info_card.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class ImportConfirmationScreen extends StatefulWidget {
-  const ImportConfirmationScreen({
-    super.key,
-    required this.importingBsms,
-  });
+  const ImportConfirmationScreen({super.key, required this.importingBsms});
   final String importingBsms;
 
   @override
@@ -96,14 +92,16 @@ class _ImportConfirmationScreenState extends State<ImportConfirmationScreen>
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         // tooltip
-                        CustomTooltip.buildInfoTooltip(context,
-                            paddingTop: 8,
-                            richText: RichText(
-                              text: TextSpan(
-                                style: CoconutTypography.body3_12,
-                                children: _getTooltipRichText(),
-                              ),
-                            )),
+                        CustomTooltip.buildInfoTooltip(
+                          context,
+                          paddingTop: 8,
+                          richText: RichText(
+                            text: TextSpan(
+                              style: CoconutTypography.body3_12,
+                              children: _getTooltipRichText(),
+                            ),
+                          ),
+                        ),
                         CoconutLayout.spacing_800h,
                         // bsms info
                         Container(
@@ -131,7 +129,8 @@ class _ImportConfirmationScreenState extends State<ImportConfirmationScreen>
                                 child: SizedBox(
                                   width: MediaQuery.of(context).size.width * 0.74,
                                   child: SignerBsmsInfoCard(
-                                      bsms: Bsms.parseSigner(widget.importingBsms)),
+                                    bsms: Bsms.parseSigner(widget.importingBsms),
+                                  ),
                                 ),
                               ),
                               CoconutLayout.spacing_900h,
@@ -139,10 +138,7 @@ class _ImportConfirmationScreenState extends State<ImportConfirmationScreen>
                           ),
                         ),
                         // divider
-                        Container(
-                          height: 16,
-                          color: CoconutColors.gray150,
-                        ),
+                        Container(height: 16, color: CoconutColors.gray150),
                         // memo textfield
                         Container(
                           padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -192,11 +188,14 @@ class _ImportConfirmationScreenState extends State<ImportConfirmationScreen>
                   ),
                 ),
                 FixedBottomButton(
-                    onButtonClicked: () {
-                      Navigator.pop(
-                          context, {'bsms': widget.importingBsms, 'memo': _controller.text});
-                    },
-                    text: t.complete)
+                  onButtonClicked: () {
+                    Navigator.pop(context, {
+                      'bsms': widget.importingBsms,
+                      'memo': _controller.text,
+                    });
+                  },
+                  text: t.complete,
+                ),
               ],
             ),
           ),

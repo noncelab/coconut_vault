@@ -22,9 +22,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
   late CarouselSliderController _controller;
   late VisibilityProvider _visibilityProvider;
   int _current = 0;
-  final Set<int> _viewedPages = {
-    0,
-  };
+  final Set<int> _viewedPages = {0};
 
   @override
   void initState() {
@@ -39,7 +37,10 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
 
   Future<void> _initConnectionState() async {
     await _connectivityProvider.setConnectActivity(
-        bluetooth: true, network: false, developerMode: false);
+      bluetooth: true,
+      network: false,
+      developerMode: false,
+    );
 
     // 상태 값이 설정될 때까지 잠시 대기
     await Future.delayed(const Duration(milliseconds: 100));
@@ -53,42 +54,40 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        backgroundColor: CoconutColors.white,
-        body: SafeArea(
-            child: Stack(
+      backgroundColor: CoconutColors.white,
+      body: SafeArea(
+        child: Stack(
           children: [
             Center(
-                child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                CarouselSlider(
-                  carouselController: _controller,
-                  options: CarouselOptions(
-                    autoPlay: false,
-                    aspectRatio: 0.6,
-                    enlargeCenterPage: true,
-                    onPageChanged: (index, reason) {
-                      setState(() {
-                        _current = index;
-                        _viewedPages.add(index);
-                      });
-                    },
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  CarouselSlider(
+                    carouselController: _controller,
+                    options: CarouselOptions(
+                      autoPlay: false,
+                      aspectRatio: 0.6,
+                      enlargeCenterPage: true,
+                      onPageChanged: (index, reason) {
+                        setState(() {
+                          _current = index;
+                          _viewedPages.add(index);
+                        });
+                      },
+                    ),
+                    items:
+                        [_buildGuide(1), _buildGuide(2), _buildGuide(3)].map((item) {
+                          return Container(
+                            margin: const EdgeInsets.symmetric(vertical: 20.0, horizontal: 16),
+                            child: item,
+                          );
+                        }).toList(),
                   ),
-                  items: [
-                    _buildGuide(1),
-                    _buildGuide(2),
-                    _buildGuide(3),
-                  ].map((item) {
-                    return Container(
-                      margin: const EdgeInsets.symmetric(vertical: 20.0, horizontal: 16),
-                      child: item,
-                    );
-                  }).toList(),
-                ),
-                CoconutLayout.spacing_1500h,
-              ],
-            )),
+                  CoconutLayout.spacing_1500h,
+                ],
+              ),
+            ),
             Positioned(
               bottom: 150,
               left: 0,
@@ -98,57 +97,64 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: List.generate(3, (index) {
                   return GestureDetector(
-                      onTap: () => _controller.animateToPage(index),
-                      child: Container(
-                        width: _current == index ? 9.0 : 7,
-                        height: _current == index ? 9.0 : 7,
-                        margin: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 4.0),
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: CoconutColors.black.withOpacity(_current == index ? 0.7 : 0.3),
-                        ),
-                      ));
+                    onTap: () => _controller.animateToPage(index),
+                    child: Container(
+                      width: _current == index ? 9.0 : 7,
+                      height: _current == index ? 9.0 : 7,
+                      margin: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 4.0),
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: CoconutColors.black.withValues(alpha: _current == index ? 0.7 : 0.3),
+                      ),
+                    ),
+                  );
                 }),
               ),
             ),
-            Consumer<ConnectivityProvider>(builder: (context, provider, child) {
-              final isActive = provider.isNetworkOn == false &&
-                  provider.isBluetoothOn == false &&
-                  (!Platform.isAndroid || provider.isDeveloperModeOn == false);
+            Consumer<ConnectivityProvider>(
+              builder: (context, provider, child) {
+                final isActive =
+                    provider.isNetworkOn == false &&
+                    provider.isBluetoothOn == false &&
+                    (!Platform.isAndroid || provider.isDeveloperModeOn == false);
 
-              return Visibility(
-                visible: _viewedPages.length == 3,
-                child: FixedBottomButton(
-                  isActive: isActive,
-                  onButtonClicked: () {
-                    _connectivityProvider.setHasSeenGuideTrue();
-                    _visibilityProvider.setHasSeenGuide().then((_) {
-                      widget.onComplete();
-                      if (context.mounted) {
-                        Navigator.pushNamedAndRemoveUntil(
-                          context,
-                          '/',
-                          (Route<dynamic> route) => false,
-                        );
-                      }
-                    });
-                  },
-                  text: t.start,
-                ),
-              );
-            }),
+                return Visibility(
+                  visible: _viewedPages.length == 3,
+                  child: FixedBottomButton(
+                    isActive: isActive,
+                    onButtonClicked: () {
+                      _connectivityProvider.setHasSeenGuideTrue();
+                      _visibilityProvider.setHasSeenGuide().then((_) {
+                        widget.onComplete();
+                        if (context.mounted) {
+                          Navigator.pushNamedAndRemoveUntil(
+                            context,
+                            '/',
+                            (Route<dynamic> route) => false,
+                          );
+                        }
+                      });
+                    },
+                    text: t.start,
+                  ),
+                );
+              },
+            ),
           ],
-        )));
+        ),
+      ),
+    );
   }
 
-  Widget _buildGuide(
-    int step,
-  ) {
+  Widget _buildGuide(int step) {
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        Text(_getMessage(step),
-            style: CoconutTypography.heading3_21_Bold, textAlign: TextAlign.center),
+        Text(
+          _getMessage(step),
+          style: CoconutTypography.heading3_21_Bold,
+          textAlign: TextAlign.center,
+        ),
         CoconutLayout.spacing_1000h,
         _getImage(step),
       ],
@@ -176,51 +182,56 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
       case 3:
         return SizedBox(
           height: Platform.isAndroid ? 170 : 160,
-          child: Consumer<ConnectivityProvider>(builder: (context, provider, child) {
-            final isNetworkOn = provider.isNetworkOn ?? false;
-            final isBluetoothOn = provider.isBluetoothOn ?? false;
-            final isDeveloperModeOn = provider.isDeveloperModeOn ?? false;
+          child: Consumer<ConnectivityProvider>(
+            builder: (context, provider, child) {
+              final isNetworkOn = provider.isNetworkOn ?? false;
+              final isBluetoothOn = provider.isBluetoothOn ?? false;
+              final isDeveloperModeOn = provider.isDeveloperModeOn ?? false;
 
-            return Align(
-              alignment: Alignment.center,
-              child: Container(
-                padding: const EdgeInsets.symmetric(vertical: 24),
-                decoration: BoxDecoration(
-                  color: CoconutColors.gray150,
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    _getState(
+              return Align(
+                alignment: Alignment.center,
+                child: Container(
+                  padding: const EdgeInsets.symmetric(vertical: 24),
+                  decoration: BoxDecoration(
+                    color: CoconutColors.gray150,
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      _getState(
                         t.welcome_screen.network,
                         isNetworkOn,
                         isNetworkOn
                             ? t.connectivity_state.connected
-                            : t.connectivity_state.disconnected),
-                    CoconutLayout.spacing_300h,
-                    _getState(
+                            : t.connectivity_state.disconnected,
+                      ),
+                      CoconutLayout.spacing_300h,
+                      _getState(
                         t.welcome_screen.bluetooth,
                         isBluetoothOn,
                         isBluetoothOn
                             ? t.connectivity_state.enabled
-                            : t.connectivity_state.disabled),
-                    if (Platform.isAndroid) ...[
-                      CoconutLayout.spacing_300h,
-                      _getState(
+                            : t.connectivity_state.disabled,
+                      ),
+                      if (Platform.isAndroid) ...[
+                        CoconutLayout.spacing_300h,
+                        _getState(
                           t.welcome_screen.developer_option,
                           isDeveloperModeOn,
                           isDeveloperModeOn
                               ? t.connectivity_state.active
-                              : t.connectivity_state.inactive),
-                    ]
-                  ],
+                              : t.connectivity_state.inactive,
+                        ),
+                      ],
+                    ],
+                  ),
                 ),
-              ),
-            );
-          }),
+              );
+            },
+          ),
         );
     }
     return Container();
@@ -233,23 +244,26 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
         Expanded(flex: 5, child: Text(label, style: CoconutTypography.body1_16_Bold, maxLines: 2)),
         CoconutLayout.spacing_100w,
         Expanded(
-            flex: 4,
-            child: Align(
-              alignment: Alignment.topRight,
-              child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                decoration: BoxDecoration(
-                  color: isOn
-                      ? const Color.fromARGB(255, 236, 39, 35)
-                      : const Color.fromARGB(255, 105, 224, 119),
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: Text(
-                    textAlign: TextAlign.center,
-                    stateText,
-                    style: CoconutTypography.body3_12_Bold.setColor(CoconutColors.white)),
+          flex: 4,
+          child: Align(
+            alignment: Alignment.topRight,
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+              decoration: BoxDecoration(
+                color:
+                    isOn
+                        ? const Color.fromARGB(255, 236, 39, 35)
+                        : const Color.fromARGB(255, 105, 224, 119),
+                borderRadius: BorderRadius.circular(20),
               ),
-            )),
+              child: Text(
+                textAlign: TextAlign.center,
+                stateText,
+                style: CoconutTypography.body3_12_Bold.setColor(CoconutColors.white),
+              ),
+            ),
+          ),
+        ),
         CoconutLayout.spacing_600w,
       ],
     );

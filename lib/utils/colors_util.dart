@@ -54,7 +54,7 @@ class CustomColorHelper {
       case CustomColor.mint:
         return CoconutColors.backgroundColorPaletteLight[9];
       default:
-        return CoconutColors.white.withOpacity(0.06);
+        return CoconutColors.white.withValues(alpha: 0.06);
     }
   }
 
@@ -95,7 +95,7 @@ class CustomColorHelper {
 
   static Color getBackgroundColorByIndex(int index) {
     if (index < 0 || index > 9) {
-      return CoconutColors.white.withOpacity(0.06);
+      return CoconutColors.white.withValues(alpha: 0.06);
     }
 
     return CoconutColors.backgroundColorPaletteLight[index % CoconutColors.colorPalette.length];
@@ -114,29 +114,11 @@ class CustomColorHelper {
 
     // 2개인 경우
     if (list.length == 2) {
-      return [
-        getColor(list[0]),
-        getColor(list[1]),
-      ];
+      return [getColor(list[0]), getColor(list[1])];
     }
 
-    return [
-      getColor(list[0]),
-      getColor(list[1]),
-      getColor(list[2]),
-    ];
+    return [getColor(list[0]), getColor(list[1]), getColor(list[2])];
   }
 }
 
-enum CustomColor {
-  purple,
-  apricot,
-  yellow,
-  green,
-  blue,
-  pink,
-  red,
-  orange,
-  lightgrey,
-  mint,
-}
+enum CustomColor { purple, apricot, yellow, green, blue, pink, red, orange, lightgrey, mint }

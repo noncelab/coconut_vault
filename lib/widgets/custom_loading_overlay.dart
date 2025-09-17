@@ -10,7 +10,7 @@ class CustomLoadingOverlay extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return LoaderOverlay(
-      overlayColor: CoconutColors.white.withOpacity(0.5),
+      overlayColor: CoconutColors.white.withValues(alpha: 0.5),
       overlayWidgetBuilder: (_) {
         return const Stack(
           children: [
@@ -19,9 +19,7 @@ class CustomLoadingOverlay extends StatelessWidget {
               dismissible: false,
               color: Colors.transparent, // 투명하게 유지
             ),
-            Center(
-              child: CoconutCircularIndicator(),
-            ),
+            Center(child: CoconutCircularIndicator()),
           ],
         );
       },

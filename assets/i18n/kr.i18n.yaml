@@ -217,9 +217,8 @@ psbt_confirmation_screen:
   self_sending: "내 지갑으로 보내는 트랜잭션입니다."
   warning: "⚠️ 해당 지갑으로 만든 psbt가 아닐 수 있습니다. 또는 잔액이 없는 트랜잭션일 수 있습니다."
 psbt_scanner_screen:
-  guide_multisig: "월렛에서 만든 보내기 정보 또는 외부 볼트에서 다중 서명 중인 정보를 스캔해주세요."
+  guide: "월렛에서 만든 보내기 정보 또는 외부 볼트에서 다중 서명 중인 정보를 스캔해 주세요."
   guide_single_sig_same_name: "월렛에서 만든 보내기 정보를 스캔해 주세요. 반드시 지갑 이름이 같아야 해요."
-  guide_single_sig: "월렛에서 만든 보내기 정보를 스캔해 주세요."
 signed_transaction_qr_screen:
   guide_multisig: "다중 서명을 완료했어요. 보내기 정보를 생성한 월렛으로 아래 QR 코드를 스캔해 주세요."
   guide_single_sig: "월렛의 '$name 지갑'에서 만든 보내기 정보에 서명을 완료했어요. 월렛으로 아래 QR 코드를 스캔해 주세요."
@@ -227,10 +226,10 @@ single_sig_sign_screen:
   text: "이미 서명된 트랜잭션입니다"
 signer_qr_bottom_sheet:
   title: "서명 트랜잭션 내보내기"
-  text2_1: "번 키가 보관된 볼트에서 다중 서명 지갑 "
-  text2_2: " 선택 - "
-  text2_3: "다중 서명하기"
-  text2_4: "를 눌러 아래 QR 코드를 스캔해 주세요."
+  text1: "번 키가 보관된 볼트에서,"
+  text2: "서명하기"
+  text3: "를 눌러 아래 QR 코드를 스캔해 주세요."
+  select: " 선택"
 unit_bottom_sheet:
   basic_unit: "기본 단위"
   header_text: "1 BTC = 100,000,000 sats"
@@ -394,15 +393,18 @@ signer_scanner_bottom_sheet:
   title: "서명 업데이트"
   guide: "다른 볼트에서 서명을 추가했나요? 정보를 업데이트 하기 위해 추가된 서명 트랜잭션의 QR 코드를 스캔해 주세요."
 signer_scanner_screen:
-  title1: "다중 서명 지갑 가져오기"
-  title2: "외부 지갑 서명하기"
-  guide1_1: "다른 볼트에서 만든 다중 서명 지갑을 추가할 수 있어요. 추가 하시려는 다중 서명 지갑의 "
-  guide1_2: "지갑 설정 정보 "
-  guide1_3: "화면에 나타나는 QR 코드를 스캔해 주세요."
-  guide2_1: "키를 보관 중인 볼트"
-  guide2_2: "의 홈 화면에서 지갑 선택 - "
+  import_bsms: "키 정보 가져오기"
+  import_multisig_wallet: "다중 서명 지갑 가져오기"
+  guide1_1: "다른 볼트에서 만든 다중 서명 지갑을 가져올 수 있어요."
+  guide1_2: "다중 서명이 있는 외부 볼트의 홈 화면에서,"
+  guide1_3: "다중 서명 지갑 "
+  guide1_4: "다중 서명 지갑 내보내기 "
+  guide1_5: "화면에 나타나는 QR 코드를 스캔해 주세요."
+  guide2_1: "사용하려는 키가 있는 볼트의 홈 화면에서 "
+  guide2_2: "지갑 "
   guide2_3: "다중 서명 키로 사용하기 "
-  guide2_4: "메뉴를 선택해 주세요. 화면에 보이는 QR 코드를 스캔합니다."
+  guide2_4: "화면에 보이는 QR 코드를 스캔해 주세요."
+  select: "선택"
 
 # lib/screens/vault_detail
 address_list_screen:
@@ -415,13 +417,14 @@ multi_sig_bsms_screen:
   bottom_sheet:
     title: "지갑 상세 정보"
     info_copied: "지갑 상세 정보가 복사됐어요"
-  title: "지갑 설정 정보"
+  title: "다중 서명 지갑 내보내기"
   guide:
     text1: "안전한 다중 서명 지갑 관리를 위한 표준(BIP-129, BSMS)에 따라 지갑 설정 정보를 관리하고 공유합니다."
     text2: "모든 키가 볼트에 저장되어 있습니다."
     text3: "같은 키를 보관하고 있는 다른 볼트에서도 이 QR을 읽어 다중 서명 지갑을 추가할 수 있습니다."
     text4: "이 다중 서명 지갑에 지정된 **$gen** 키의 니모닉 문구는 현재 다른 볼트에 있습니다."
-    text5: "**$gen** 키 보관 지갑 - **다중 서명 지갑 가져오기**에서 아래 QR 코드를 읽어 주세요. 다중 서명 트랜잭션에 **$gen** 키로 서명하기 위해 이 절차가 반드시 필요합니다."
+    text5: "**$gen** 키가 있는 지갑에서 **다중 서명 지갑 가져오기**를 눌러 아래 QR 코드를 읽어 주세요."
+    text6: "트랜잭션에 키로 서명하기 위해 이 절차가 반드시 필요합니다."
   first_key: "$first번"
   first_and_last_keys: "$first번과 $last번"
   first_or_last_key: "$first번 또는 $last번"
@@ -432,7 +435,7 @@ multi_sig_memo_bottom_sheet:
 multi_sig_setting_screen:
   edit_memo: "메모 수정"
   add_memo: "메모 추가"
-  view_bsms: "지갑 설정 정보 보기"
+  view_bsms: "다중 서명 지갑 내보내기"
   tooltip: 
     one: "$total개의 키 중 $n개로 서명해야 하는\n다중 서명 지갑이에요."
     other: "$total개의 키 중 $n개로 서명해야 하는\n다중 서명 지갑이에요."
@@ -442,12 +445,8 @@ select_export_type_screen:
   watch_only: "월렛에\n보기 전용 지갑 추가"
   multisig: "다른 볼트에서\n다중 서명 키로 사용"
 signer_bsms_screen:
-  guide1_1: "다른 볼트"
-  guide1_2: "에서 다중 서명 지갑을 생성 중이시군요! 다른 볼트에서 "
-  guide1_3: "가져오기 + 버튼"
-  guide1_4: "을 누른 후 나타난 가져오기 화면에서, 아래 "
-  guide1_5: "QR 코드를 스캔"
-  guide1_6: "해 주세요."
+  guide1_1: "다른 볼트에서 다중 서명 지갑을 생성 중이시군요!"
+  guide1_2: "다른 볼트의 가져오기 화면에서 아래 QR 코드를 스캔해 주세요."
   export_info: "내보낼 정보"
 sync_to_wallet_screen:
   title: "$name 내보내기"
@@ -635,7 +634,7 @@ alert:
     description: "지금까지 입력한 니모닉 문구를\n모두 지우시겠어요?"
   finish_signing:
     title:  "트랜잭션 서명 마무리"
-    description: "이 화면을 닫으면 생성한 서명 정보가 사라져요.\n정말 종료하시겠어요?"
+    description: "이 화면을 닫으면 서명 정보가 사라져요.\n정말 종료하시겠어요?"
 
 toast:
   clipboard_copied: "클립보드에 복사되었어요"

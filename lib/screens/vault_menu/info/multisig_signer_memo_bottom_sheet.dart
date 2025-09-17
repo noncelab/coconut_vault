@@ -65,7 +65,7 @@ class _MultisigSignerMemoBottomSheetState extends State<MultisigSignerMemoBottom
                 // TextField
                 Container(
                   decoration: BoxDecoration(
-                    border: Border.all(color: CoconutColors.black.withOpacity(0.06)),
+                    border: Border.all(color: CoconutColors.black.withValues(alpha: 0.06)),
                     borderRadius: BorderRadius.circular(16.0),
                   ),
                   child: CupertinoTextField(
@@ -75,11 +75,9 @@ class _MultisigSignerMemoBottomSheetState extends State<MultisigSignerMemoBottom
                     padding: const EdgeInsets.fromLTRB(16, 20, 16, 20),
                     style: CoconutTypography.body1_16,
                     placeholderStyle: CoconutTypography.body2_14.setColor(
-                      CoconutColors.black.withOpacity(0.3),
+                      CoconutColors.black.withValues(alpha: 0.3),
                     ),
-                    decoration: const BoxDecoration(
-                      color: Colors.transparent,
-                    ),
+                    decoration: const BoxDecoration(color: Colors.transparent),
                     maxLength: 15,
                     clearButtonMode: OverlayVisibilityMode.always,
                     onChanged: (text) {
@@ -99,8 +97,8 @@ class _MultisigSignerMemoBottomSheetState extends State<MultisigSignerMemoBottom
                       '(${_memo.length} / 15)',
                       style: CoconutTypography.body3_12.setColor(
                         _memo.length == 15
-                            ? CoconutColors.black.withOpacity(0.7)
-                            : CoconutColors.black.withOpacity(0.5),
+                            ? CoconutColors.black.withValues(alpha: 0.7)
+                            : CoconutColors.black.withValues(alpha: 0.5),
                       ),
                     ),
                   ),
@@ -182,19 +180,13 @@ class MemoTextField extends StatelessWidget {
   final TextEditingController controller;
   final ValueChanged<String> onChanged;
 
-  const MemoTextField({
-    super.key,
-    required this.controller,
-    required this.onChanged,
-  });
+  const MemoTextField({super.key, required this.controller, required this.onChanged});
 
   @override
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        border: Border.all(
-          color: CoconutColors.black.withOpacity(0.06),
-        ),
+        border: Border.all(color: CoconutColors.black.withValues(alpha: 0.06)),
         borderRadius: BorderRadius.circular(16),
       ),
       child: CupertinoTextField(
@@ -203,11 +195,9 @@ class MemoTextField extends StatelessWidget {
         padding: const EdgeInsets.fromLTRB(16, 20, 16, 20),
         style: CoconutTypography.body1_16,
         placeholderStyle: CoconutTypography.body2_14.setColor(
-          CoconutColors.black.withOpacity(0.3),
+          CoconutColors.black.withValues(alpha: 0.3),
         ),
-        decoration: const BoxDecoration(
-          color: Colors.transparent,
-        ),
+        decoration: const BoxDecoration(color: Colors.transparent),
         maxLength: 100,
         clearButtonMode: OverlayVisibilityMode.always,
         onChanged: onChanged,

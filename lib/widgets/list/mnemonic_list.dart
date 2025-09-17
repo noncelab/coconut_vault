@@ -2,11 +2,7 @@ import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:flutter/material.dart';
 
 class MnemonicList extends StatefulWidget {
-  const MnemonicList({
-    super.key,
-    required this.mnemonic,
-    this.isLoading = false,
-  });
+  const MnemonicList({super.key, required this.mnemonic, this.isLoading = false});
 
   final String mnemonic;
   final bool isLoading;
@@ -31,10 +27,7 @@ class _MnemonicListState extends State<MnemonicList> with TickerProviderStateMix
 
     _opacityAnimations = List.generate(24, (index) {
       final delay = (index / 2).floor() * 0.1;
-      return Tween<double>(
-        begin: 0.3,
-        end: 0.3,
-      ).animate(
+      return Tween<double>(begin: 0.3, end: 0.3).animate(
         CurvedAnimation(
           parent: _waveAnimationController,
           curve: Interval(
@@ -76,10 +69,7 @@ class _MnemonicListState extends State<MnemonicList> with TickerProviderStateMix
     final itemCount = widget.isLoading ? 12 : words.length;
 
     return Padding(
-      padding: const EdgeInsets.only(
-        left: 40.0,
-        right: 40.0,
-      ),
+      padding: const EdgeInsets.only(left: 40.0, right: 40.0),
       child: GridView.builder(
         shrinkWrap: true,
         physics: const NeverScrollableScrollPhysics(),
@@ -116,7 +106,7 @@ class _MnemonicListState extends State<MnemonicList> with TickerProviderStateMix
                     padding: const EdgeInsets.only(left: 24),
                     alignment: Alignment.center,
                     decoration: BoxDecoration(
-                      border: Border.all(color: CoconutColors.black.withOpacity(0.08)),
+                      border: Border.all(color: CoconutColors.black.withValues(alpha: 0.08)),
                       borderRadius: BorderRadius.circular(24),
                     ),
                     child: Row(
@@ -125,9 +115,7 @@ class _MnemonicListState extends State<MnemonicList> with TickerProviderStateMix
                       children: [
                         Text(
                           (index + 1).toString().padLeft(2, '0'),
-                          style: CoconutTypography.body3_12_Number.setColor(
-                            CoconutColors.gray500,
-                          ),
+                          style: CoconutTypography.body3_12_Number.setColor(CoconutColors.gray500),
                         ),
                         CoconutLayout.spacing_300w,
                         const Expanded(
@@ -150,7 +138,7 @@ class _MnemonicListState extends State<MnemonicList> with TickerProviderStateMix
             padding: const EdgeInsets.only(left: 24),
             alignment: Alignment.center,
             decoration: BoxDecoration(
-              border: Border.all(color: CoconutColors.black.withOpacity(0.08)),
+              border: Border.all(color: CoconutColors.black.withValues(alpha: 0.08)),
               borderRadius: BorderRadius.circular(24),
             ),
             child: Row(
@@ -159,9 +147,7 @@ class _MnemonicListState extends State<MnemonicList> with TickerProviderStateMix
               children: [
                 Text(
                   (index + 1).toString().padLeft(2, '0'),
-                  style: CoconutTypography.body3_12_Number.setColor(
-                    CoconutColors.gray500,
-                  ),
+                  style: CoconutTypography.body3_12_Number.setColor(CoconutColors.gray500),
                 ),
                 CoconutLayout.spacing_300w,
                 Expanded(

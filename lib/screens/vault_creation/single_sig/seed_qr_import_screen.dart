@@ -5,9 +5,10 @@ import 'package:coconut_lib/coconut_lib.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/screens/vault_creation/single_sig/seed_qr_confirmation_screen.dart';
 import 'package:coconut_vault/widgets/custom_tooltip.dart';
+import 'package:coconut_vault/widgets/overlays/scanner_overlay.dart';
 import 'package:crypto/crypto.dart';
-import 'package:qr_code_scanner/qr_code_scanner.dart';
 import 'package:flutter/material.dart';
+import 'package:mobile_scanner/mobile_scanner.dart';
 
 class SeedQrImportScreen extends StatefulWidget {
   const SeedQrImportScreen({super.key});
@@ -18,26 +19,27 @@ class SeedQrImportScreen extends StatefulWidget {
 
 class _SeedQrImportScreenState extends State<SeedQrImportScreen> {
   final GlobalKey qrKey = GlobalKey(debugLabel: 'QR');
-  QRViewController? controller;
+  MobileScannerController? _controller;
   bool _isNavigating = false;
 
   @override
   void initState() {
     super.initState();
+    _controller = MobileScannerController();
   }
 
   @override
   void reassemble() {
     super.reassemble();
-    if (controller != null) {
-      controller!.pauseCamera();
-      controller!.resumeCamera();
+    if (_controller != null) {
+      _controller!.pause();
+      _controller!.start();
     }
   }
 
   @override
   void dispose() {
-    controller?.dispose();
+    _controller?.dispose();
     super.dispose();
   }
 
@@ -48,14 +50,8 @@ class _SeedQrImportScreenState extends State<SeedQrImportScreen> {
       appBar: CoconutAppBar.build(context: context, title: t.seed_qr_import_screen.title),
       body: Stack(
         children: [
-          Container(
-            color: CoconutColors.white,
-            child: QRView(
-              key: qrKey,
-              onQRViewCreated: _onQRViewCreated,
-              overlay: _getOverlayShape(),
-            ),
-          ),
+          MobileScanner(controller: _controller, onDetect: _onQRViewCreated),
+          const ScannerOverlay(),
           CustomTooltip.buildInfoTooltip(
             context,
             richText: RichText(
@@ -63,9 +59,12 @@ class _SeedQrImportScreenState extends State<SeedQrImportScreen> {
                 style: CoconutTypography.body3_12,
                 children: [
                   TextSpan(
-                      text: t.seed_qr_import_screen.guide,
-                      style: CoconutTypography.body2_14
-                          .copyWith(height: 1.2, color: CoconutColors.black)),
+                    text: t.seed_qr_import_screen.guide,
+                    style: CoconutTypography.body2_14.copyWith(
+                      height: 1.2,
+                      color: CoconutColors.black,
+                    ),
+                  ),
                 ],
               ),
             ),
@@ -76,77 +75,66 @@ class _SeedQrImportScreenState extends State<SeedQrImportScreen> {
     );
   }
 
-  QrScannerOverlayShape _getOverlayShape() {
-    return QrScannerOverlayShape(
-      borderColor: CoconutColors.white,
-      borderRadius: 8,
-      borderLength:
-          (MediaQuery.of(context).size.width < 400 || MediaQuery.of(context).size.height < 400)
-              ? 160.0
-              : MediaQuery.of(context).size.width * 0.85 / 2,
-      borderWidth: 8,
-      cutOutSize:
-          (MediaQuery.of(context).size.width < 400 || MediaQuery.of(context).size.height < 400)
-              ? 320.0
-              : MediaQuery.of(context).size.width * 0.85,
-    );
-  }
+  void _onQRViewCreated(BarcodeCapture capture) {
+    final codes = capture.barcodes;
+    if (codes.isEmpty) return;
 
-  void _onQRViewCreated(QRViewController controller) {
-    this.controller = controller;
-    controller.scannedDataStream.listen((scanData) {
-      if (_isNavigating) return;
-      var words = <String>[];
-      try {
-        if (scanData.code == null && scanData.rawBytes != null) {
-          words = _decodeCompactQR(scanData.rawBytes!);
-        } else if (scanData.code != null && scanData.rawBytes != null) {
-          words = _decodeStandardQR(scanData.code!);
-        }
-      } catch (e) {
-        // FormatException: Invalid radix-10 number 인 경우, rawBytes로 파싱
-        if (e is FormatException && e.message.contains('Invalid radix-10 number')) {
-          words = _decodeCompactQR(scanData.rawBytes!);
-        } else {
-          if (mounted) {
-            showDialog(
-                context: context,
-                builder: (context) {
-                  return CoconutPopup(
-                    title: t.seed_qr_import_screen.error_title,
-                    description: '${t.seed_qr_import_screen.error_message}: $e',
-                    leftButtonText: t.cancel,
-                    rightButtonText: t.confirm,
-                    onTapRight: () => Navigator.of(context).pop(),
-                  );
-                });
-          }
-          return;
-        }
+    final barcode = codes.first;
+
+    if (_isNavigating) return;
+    var words = <String>[];
+
+    try {
+      if (barcode.rawValue == null && barcode.rawBytes != null) {
+        words = _decodeCompactQR(barcode.rawBytes!);
+      } else if (barcode.rawValue != null && barcode.rawBytes != null) {
+        words = _decodeStandardQR(barcode.rawValue!);
       }
-
-      if (words.length == 12 || words.length == 24) {
+    } catch (e) {
+      // FormatException: Invalid radix-10 number 인 경우, rawBytes로 파싱
+      if (e is FormatException && e.message.contains('Invalid radix-10 number')) {
+        words = _decodeCompactQR(barcode.rawBytes!);
+      } else {
         if (mounted) {
-          _isNavigating = true;
-
-          // 1. 네비게이션하기 전 카메라 끄기
-          controller.pauseCamera();
-          Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) => SeedQrConfirmationScreen(scannedData: words.join(' '))))
-              .then((_) {
-            // 2. 돌아왔을 때 카메라 재개하기
-            if (mounted) {
-              controller.resumeCamera();
-            }
-            setState(() {
-              _isNavigating = false;
-            });
-          });
+          showDialog(
+            context: context,
+            builder: (context) {
+              return CoconutPopup(
+                title: t.seed_qr_import_screen.error_title,
+                description: '${t.seed_qr_import_screen.error_message}: $e',
+                leftButtonText: t.cancel,
+                rightButtonText: t.confirm,
+                onTapRight: () => Navigator.of(context).pop(),
+              );
+            },
+          );
         }
+        return;
       }
-    });
+    }
+
+    if (words.length == 12 || words.length == 24) {
+      if (mounted) {
+        _isNavigating = true;
+
+        // 1. 네비게이션하기 전 카메라 끄기
+        _controller?.pause();
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => SeedQrConfirmationScreen(scannedData: words.join(' ')),
+          ),
+        ).then((_) {
+          // 2. 돌아왔을 때 카메라 재개하기
+          if (mounted) {
+            _controller?.start();
+          }
+          setState(() {
+            _isNavigating = false;
+          });
+        });
+      }
+    }
   }
 
   List<String> _decodeStandardQR(String data) {

@@ -3,7 +3,6 @@ import 'package:coconut_vault/constants/app_routes.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/providers/wallet_creation_provider.dart';
 import 'package:coconut_vault/screens/vault_creation/single_sig/mnemonic_generation_screen.dart';
-import 'package:coconut_vault/widgets/button/fixed_bottom_button.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -58,10 +57,7 @@ class _MnemonicCoinflipConfirmationScreenState extends State<MnemonicCoinflipCon
       canPop: false,
       child: Scaffold(
         backgroundColor: CoconutColors.white,
-        appBar: CoconutAppBar.build(
-          title: t.mnemonic_coin_flip_screen.title,
-          context: context,
-        ),
+        appBar: CoconutAppBar.build(title: t.mnemonic_coin_flip_screen.title, context: context),
         body: SafeArea(
           child: MnemonicWords(
             wordsCount: _walletCreationProvider.secret!.split(' ').length,

@@ -14,10 +14,11 @@ List<TextSpan> highlightOccurrences(
     return [
       TextSpan(
         text: source,
-        style: isIndex
-            ? CoconutTypography.body1_16_Number.setColor(CoconutColors.gray500)
-            : const TextStyle(color: Colors.black),
-      )
+        style:
+            isIndex
+                ? CoconutTypography.body1_16_Number.setColor(CoconutColors.gray500)
+                : const TextStyle(color: Colors.black),
+      ),
     ];
   }
 
@@ -26,40 +27,49 @@ List<TextSpan> highlightOccurrences(
     return [
       TextSpan(
         text: source,
-        style: isIndex
-            ? CoconutTypography.body1_16_Number.setColor(CoconutColors.gray500)
-            : const TextStyle(color: Colors.black),
-      )
+        style:
+            isIndex
+                ? CoconutTypography.body1_16_Number.setColor(CoconutColors.gray500)
+                : const TextStyle(color: Colors.black),
+      ),
     ];
   }
 
-  final highlightColor = CoconutColors.cyanBlue;
+  const highlightColor = CoconutColors.cyanBlue;
   final spans = <TextSpan>[];
   int lastMatchEnd = 0;
 
   for (final match in matches) {
     if (match.start != lastMatchEnd) {
-      spans.add(TextSpan(
-        text: source.substring(lastMatchEnd, match.start),
-        style: isIndex
-            ? CoconutTypography.body1_16_Number.setColor(CoconutColors.gray500)
-            : const TextStyle(color: Colors.black),
-      ));
+      spans.add(
+        TextSpan(
+          text: source.substring(lastMatchEnd, match.start),
+          style:
+              isIndex
+                  ? CoconutTypography.body1_16_Number.setColor(CoconutColors.gray500)
+                  : const TextStyle(color: Colors.black),
+        ),
+      );
     }
-    spans.add(TextSpan(
-      text: source.substring(match.start, match.end),
-      style: TextStyle(fontWeight: FontWeight.bold, color: highlightColor),
-    ));
+    spans.add(
+      TextSpan(
+        text: source.substring(match.start, match.end),
+        style: const TextStyle(fontWeight: FontWeight.bold, color: highlightColor),
+      ),
+    );
     lastMatchEnd = match.end;
   }
 
   if (lastMatchEnd != source.length) {
-    spans.add(TextSpan(
-      text: source.substring(lastMatchEnd),
-      style: isIndex
-          ? CoconutTypography.body1_16_Number.setColor(CoconutColors.gray500)
-          : const TextStyle(color: Colors.black),
-    ));
+    spans.add(
+      TextSpan(
+        text: source.substring(lastMatchEnd),
+        style:
+            isIndex
+                ? CoconutTypography.body1_16_Number.setColor(CoconutColors.gray500)
+                : const TextStyle(color: Colors.black),
+      ),
+    );
   }
 
   return spans;
@@ -84,7 +94,7 @@ class _MnemonicWordListScreenState extends State<MnemonicWordListScreen> {
   bool _isFabShown = false;
 
   Color _searchbarBackgroundColor = CoconutColors.white;
-  Color _searchbarFillColor = CoconutColors.black.withOpacity(0.06);
+  Color _searchbarFillColor = CoconutColors.black.withValues(alpha: 0.06);
 
   @override
   void initState() {
@@ -103,9 +113,9 @@ class _MnemonicWordListScreenState extends State<MnemonicWordListScreen> {
 
   /// 전체 워드리스트 생성
   List<Map<String, dynamic>> _generateFullList() => List.generate(
-        wordList.length,
-        (index) => {'index': index + 1, 'item': wordList[index], 'type': null},
-      );
+    wordList.length,
+    (index) => {'index': index + 1, 'item': wordList[index], 'type': null},
+  );
 
   /// 스크롤 리스너
   void _scrollListener() {
@@ -190,7 +200,7 @@ class _MnemonicWordListScreenState extends State<MnemonicWordListScreen> {
     } else {
       return [
         ...numericResults..sort((a, b) => a['index'].compareTo(b['index'])),
-        ...binaryResults..sort((a, b) => a['index'].compareTo(b['index']))
+        ...binaryResults..sort((a, b) => a['index'].compareTo(b['index'])),
       ];
     }
   }
@@ -244,9 +254,7 @@ class _MnemonicWordListScreenState extends State<MnemonicWordListScreen> {
           ),
           child: TextField(
             keyboardType: TextInputType.text,
-            inputFormatters: [
-              FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z0-9]')),
-            ],
+            inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z0-9]'))],
             controller: _searchController,
             maxLines: 1,
             maxLength: 11,
@@ -263,10 +271,7 @@ class _MnemonicWordListScreenState extends State<MnemonicWordListScreen> {
               fillColor: Colors.transparent,
               contentPadding: const EdgeInsets.symmetric(vertical: 0.0, horizontal: 16.0),
             ),
-            style: const TextStyle(
-              decorationThickness: 0,
-              color: CoconutColors.searchbarText,
-            ),
+            style: const TextStyle(decorationThickness: 0, color: CoconutColors.searchbarText),
           ),
         ),
       ),
@@ -284,7 +289,9 @@ class _MnemonicWordListScreenState extends State<MnemonicWordListScreen> {
             alignment: Alignment.centerLeft,
             child: Text(
               t.mnemonic_word_list_screen.result(text: _searchController.text),
-              style: CoconutTypography.body1_16.setColor(CoconutColors.black.withOpacity(0.5)),
+              style: CoconutTypography.body1_16.setColor(
+                CoconutColors.black.withValues(alpha: 0.5),
+              ),
             ),
           ),
         ),
@@ -322,7 +329,7 @@ class _MnemonicWordListScreenState extends State<MnemonicWordListScreen> {
           trailing: RichText(
             text: TextSpan(
               style: CoconutTypography.body2_14.setColor(
-                CoconutColors.black.withOpacity(0.5),
+                CoconutColors.black.withValues(alpha: 0.5),
               ),
               children: [
                 const TextSpan(text: 'Binary: '),

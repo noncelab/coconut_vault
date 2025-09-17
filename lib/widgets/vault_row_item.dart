@@ -57,9 +57,7 @@ class VaultRowItem extends StatefulWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
       child: ConstrainedBox(
-        constraints: const BoxConstraints(
-          minHeight: 37,
-        ),
+        constraints: const BoxConstraints(minHeight: 37),
         child: Row(
           children: [
             // 1) 아이콘 스켈레톤 (VaultItemIcon과 동일한 크기)
@@ -174,8 +172,9 @@ class _VaultRowItemState extends State<VaultRowItem> {
           try {
             final multisig = model.getVaultById(multisigKey.keys.first);
             _subtitleText = t.wallet_subtitle(
-                name: TextUtils.ellipsisIfLonger(multisig.name),
-                index: multisigKey.values.first + 1);
+              name: TextUtils.ellipsisIfLonger(multisig.name),
+              index: multisigKey.values.first + 1,
+            );
             _isUsedToMultiSig = true;
           } catch (_) {}
         }
@@ -199,12 +198,13 @@ class _VaultRowItemState extends State<VaultRowItem> {
     }
     return ShrinkAnimationButton(
       pressedColor: CoconutColors.gray150,
-      borderGradientColors: widget.isKeyBorderVisible
-          ? [
-              CoconutColors.black.withOpacity(0.08),
-              CoconutColors.black.withOpacity(0.08),
-            ]
-          : null,
+      borderGradientColors:
+          widget.isKeyBorderVisible
+              ? [
+                CoconutColors.black.withValues(alpha: 0.08),
+                CoconutColors.black.withValues(alpha: 0.08),
+              ]
+              : null,
       borderWidth: 1,
       borderRadius: 8,
       onPressed: () {
@@ -217,10 +217,7 @@ class _VaultRowItemState extends State<VaultRowItem> {
           widget.vault.vaultType == WalletType.multiSignature
               ? AppRoutes.multisigSetupInfo
               : AppRoutes.singleSigSetupInfo,
-          arguments: {
-            'id': widget.vault.id,
-            'entryPoint': widget.entryPoint,
-          },
+          arguments: {'id': widget.vault.id, 'entryPoint': widget.entryPoint},
         );
       },
       onLongPressed: () {
@@ -230,16 +227,11 @@ class _VaultRowItemState extends State<VaultRowItem> {
     );
   }
 
-  Widget _buildVaultContainerWidget({
-    ValueChanged<(bool, int)>? onTapStar,
-    int? index,
-  }) {
+  Widget _buildVaultContainerWidget({ValueChanged<(bool, int)>? onTapStar, int? index}) {
     return Container(
       padding: EdgeInsets.symmetric(horizontal: widget.isEditMode ? 8 : 20, vertical: 12),
       child: ConstrainedBox(
-        constraints: const BoxConstraints(
-          minHeight: 37,
-        ),
+        constraints: const BoxConstraints(minHeight: 37),
         child: Row(
           children: [
             if (widget.isEditMode)
@@ -254,21 +246,23 @@ class _VaultRowItemState extends State<VaultRowItem> {
                   child: Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: SvgPicture.asset(
-                        'assets/svg/${widget.isFavorite ? 'star-filled' : 'star-outlined'}.svg',
-                        colorFilter: ColorFilter.mode(
-                          widget.isFavorite ? CoconutColors.gray800 : CoconutColors.gray500,
-                          BlendMode.srcIn,
-                        ),
-                        width: 18),
+                      'assets/svg/${widget.isFavorite ? 'star-filled' : 'star-outlined'}.svg',
+                      colorFilter: ColorFilter.mode(
+                        widget.isFavorite ? CoconutColors.gray800 : CoconutColors.gray500,
+                        BlendMode.srcIn,
+                      ),
+                      width: 18,
+                    ),
                   ),
                 ),
               ),
             VaultIconSmall(
               iconIndex: widget.vault.iconIndex,
               colorIndex: widget.vault.colorIndex,
-              gradientColors: _isMultiSig && _multiSigners != null
-                  ? CustomColorHelper.getGradientColors(_multiSigners!)
-                  : null,
+              gradientColors:
+                  _isMultiSig && _multiSigners != null
+                      ? CustomColorHelper.getGradientColors(_multiSigners!)
+                      : null,
             ),
             CoconutLayout.spacing_200w,
             Expanded(
@@ -318,34 +312,28 @@ class _VaultRowItemState extends State<VaultRowItem> {
             CoconutLayout.spacing_200w,
             widget.isSelectable
                 ? AnimatedScale(
-                    scale: widget.isSelectable && widget.isPressed ? 1.0 : 0,
-                    duration: const Duration(milliseconds: 200),
-                    curve: Curves.easeInOut,
-                    child: Icon(
-                      Icons.check,
-                      size: 24,
-                      color: CoconutColors.black.withOpacity(0.7),
-                    ),
-                  )
+                  scale: widget.isSelectable && widget.isPressed ? 1.0 : 0,
+                  duration: const Duration(milliseconds: 200),
+                  curve: Curves.easeInOut,
+                  child: Icon(
+                    Icons.check,
+                    size: 24,
+                    color: CoconutColors.black.withValues(alpha: 0.7),
+                  ),
+                )
                 : widget.isEditMode
-                    ? ReorderableDragStartListener(
-                        index: index!,
-                        child: GestureDetector(
-                          child: Padding(
-                            padding: const EdgeInsets.only(right: 8),
-                            child: SvgPicture.asset(
-                              'assets/svg/hamburger.svg',
-                            ),
-                          ),
-                        ),
-                      )
-                    : widget.isNextIconVisible
-                        ? SvgPicture.asset(
-                            'assets/svg/chevron-right.svg',
-                            width: 6,
-                            height: 10,
-                          )
-                        : const SizedBox.shrink()
+                ? ReorderableDragStartListener(
+                  index: index!,
+                  child: GestureDetector(
+                    child: Padding(
+                      padding: const EdgeInsets.only(right: 8),
+                      child: SvgPicture.asset('assets/svg/hamburger.svg'),
+                    ),
+                  ),
+                )
+                : widget.isNextIconVisible
+                ? SvgPicture.asset('assets/svg/chevron-right.svg', width: 6, height: 10)
+                : const SizedBox.shrink(),
           ],
         ),
       ),

@@ -6,8 +6,12 @@ class CompleteButton extends StatefulWidget {
   final String label;
   final bool disabled;
 
-  const CompleteButton(
-      {super.key, required this.onPressed, required this.label, required this.disabled});
+  const CompleteButton({
+    super.key,
+    required this.onPressed,
+    required this.label,
+    required this.disabled,
+  });
 
   @override
   State<CompleteButton> createState() => _CompleteButtonState();
@@ -24,12 +28,16 @@ class _CompleteButtonState extends State<CompleteButton> {
           padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 20),
           decoration: BoxDecoration(
             borderRadius: CoconutBorder.boxDecorationRadius,
-            color: widget.disabled ? CoconutColors.black.withOpacity(0.06) : CoconutColors.gray800,
+            color:
+                widget.disabled
+                    ? CoconutColors.black.withValues(alpha: 0.06)
+                    : CoconutColors.gray800,
           ),
           child: Text(
             widget.label,
-            style: CoconutTypography.body2_14_Bold
-                .setColor(widget.disabled ? CoconutColors.secondaryText : CoconutColors.white),
+            style: CoconutTypography.body2_14_Bold.setColor(
+              widget.disabled ? CoconutColors.secondaryText : CoconutColors.white,
+            ),
           ),
         ),
       ),
@@ -81,25 +89,27 @@ class _SelectableButtonState extends State<SelectableButton> {
         padding: const EdgeInsets.symmetric(horizontal: 16),
         decoration: BoxDecoration(
           borderRadius: CoconutBorder.defaultRadius,
-          border: Border.all(
-            color: CoconutColors.gray800,
-          ),
-          color: _isTapped
-              ? CoconutColors.gray800
-              : widget.isPressed
+          border: Border.all(color: CoconutColors.gray800),
+          color:
+              _isTapped
+                  ? CoconutColors.gray800
+                  : widget.isPressed
                   ? CoconutColors.gray800
                   : Colors.transparent,
         ),
         child: Center(
-            child: Text(
-          widget.text,
-          style: CoconutTypography.body2_14_Bold.setColor(_isTapped
-              ? CoconutColors.white
-              : widget.isPressed
+          child: Text(
+            widget.text,
+            style: CoconutTypography.body2_14_Bold.setColor(
+              _isTapped
                   ? CoconutColors.white
-                  : CoconutColors.gray800),
-          textAlign: TextAlign.center,
-        )),
+                  : widget.isPressed
+                  ? CoconutColors.white
+                  : CoconutColors.gray800,
+            ),
+            textAlign: TextAlign.center,
+          ),
+        ),
       ),
     );
   }

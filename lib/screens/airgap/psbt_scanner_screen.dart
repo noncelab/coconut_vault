@@ -17,8 +17,8 @@ import 'package:flutter/material.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:coconut_vault/utils/vibration_util.dart';
 import 'package:loader_overlay/loader_overlay.dart';
+import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:provider/provider.dart';
-import 'package:qr_code_scanner/qr_code_scanner.dart';
 import 'package:ur/ur.dart';
 import 'package:cbor/cbor.dart';
 
@@ -34,7 +34,7 @@ class _PsbtScannerScreenState extends State<PsbtScannerScreen> {
   late PsbtScannerViewModel _viewModel;
   final GlobalKey qrKey = GlobalKey(debugLabel: 'QR');
 
-  QRViewController? controller;
+  MobileScannerController? controller;
   bool isCameraActive = false;
   bool isAlreadyVibrateScanFailed = false;
   bool _isProcessing = false;
@@ -43,8 +43,10 @@ class _PsbtScannerScreenState extends State<PsbtScannerScreen> {
   @override
   void initState() {
     super.initState();
-    _viewModel = PsbtScannerViewModel(Provider.of<WalletProvider>(context, listen: false),
-        Provider.of<SignProvider>(context, listen: false));
+    _viewModel = PsbtScannerViewModel(
+      Provider.of<WalletProvider>(context, listen: false),
+      Provider.of<SignProvider>(context, listen: false),
+    );
 
     _scanDataHandler = BcUrQrScanDataHandler();
     WidgetsBinding.instance.addPostFrameCallback((_) async {
@@ -65,31 +67,31 @@ class _PsbtScannerScreenState extends State<PsbtScannerScreen> {
     super.dispose();
   }
 
-  void _setQRViewController(QRViewController qrViewcontroller) {
+  void _setQRViewController(MobileScannerController qrViewcontroller) {
     controller = qrViewcontroller;
   }
 
   Future<void> _showErrorDialog(String message) async {
     await showDialog(
-        barrierDismissible: false,
-        context: context,
-        builder: (BuildContext context) {
-          return CoconutPopup(
-            insetPadding:
-                EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width * 0.15),
-            title: t.errors.scan_error_title,
-            description: message,
-            backgroundColor: CoconutColors.white,
-            leftButtonText: t.cancel,
-            rightButtonText: t.confirm,
-            rightButtonColor: CoconutColors.black.withOpacity(0.7),
-            onTapRight: () {
-              _isProcessing = false;
-              controller!.resumeCamera();
-              Navigator.pop(context);
-            },
-          );
-        });
+      barrierDismissible: false,
+      context: context,
+      builder: (BuildContext context) {
+        return CoconutPopup(
+          insetPadding: EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width * 0.15),
+          title: t.errors.scan_error_title,
+          description: message,
+          backgroundColor: CoconutColors.white,
+          leftButtonText: t.cancel,
+          rightButtonText: t.confirm,
+          rightButtonColor: CoconutColors.black.withValues(alpha: 0.7),
+          onTapRight: () {
+            _isProcessing = false;
+            controller?.start();
+            Navigator.pop(context);
+          },
+        );
+      },
+    );
   }
 
   Future<void> _onCompletedScanningForBcUr(dynamic signedPsbt) async {
@@ -132,14 +134,17 @@ class _PsbtScannerScreenState extends State<PsbtScannerScreen> {
     if (mounted) {
       /// Go-router 제거 이후로 ios에서는 정상 작동하지만 안드로이드에서는 pushNamed로 화면 이동 시 카메라 컨트롤러 남아있는 이슈
       if (Platform.isAndroid) {
-        Navigator.pushReplacementNamed(context, AppRoutes.psbtConfirmation,
-            arguments: {'id': 0}); // TODO id 추가
+        Navigator.pushReplacementNamed(
+          context,
+          AppRoutes.psbtConfirmation,
+          arguments: {'id': 0},
+        ); // TODO id 추가
       } else if (Platform.isIOS) {
         Navigator.pushNamed(context, AppRoutes.psbtConfirmation, arguments: {'id': 0}) // TODO id 추가
-            .then((o) {
+        .then((o) {
           // 뒤로가기로 다시 돌아왔을 때
           _isProcessing = false;
-          controller?.resumeCamera();
+          controller?.start();
         });
       }
     }
@@ -161,7 +166,7 @@ class _PsbtScannerScreenState extends State<PsbtScannerScreen> {
 
   Future<void> stopCamera() async {
     if (controller != null) {
-      await controller?.pauseCamera();
+      await controller?.start();
     }
   }
 
@@ -172,13 +177,10 @@ class _PsbtScannerScreenState extends State<PsbtScannerScreen> {
         style: CoconutTypography.body2_14_Bold.copyWith(height: 1, color: CoconutColors.black),
       ),
       TextSpan(
-        text: widget.id == null
-            ? t.psbt_scanner_screen.guide_single_sig
-            : t.psbt_scanner_screen.guide_single_sig_same_name,
-        // TODO 툴팁에 표시할 문구 수정 필요(멀티시그, 싱글시그 구분)
-        // text: _viewModel.isMultisig
-        // ? t.psbt_scanner_screen.guide_multisig
-        // : t.psbt_scanner_screen.guide_single_sig,
+        text:
+            widget.id == null
+                ? t.psbt_scanner_screen.guide
+                : t.psbt_scanner_screen.guide_single_sig_same_name,
         style: CoconutTypography.body2_14.copyWith(height: 1.2, color: CoconutColors.black),
       ),
     ];
@@ -196,19 +198,18 @@ class _PsbtScannerScreenState extends State<PsbtScannerScreen> {
         body: Stack(
           children: [
             Container(
-                color: CoconutColors.white,
-                child: CoconutQrScanner(
-                    setQrViewController: _setQRViewController,
-                    onComplete: _onCompletedScanningForBcUr,
-                    onFailed: onFailedScanning,
-                    qrDataHandler: _scanDataHandler)),
+              color: CoconutColors.white,
+              child: CoconutQrScanner(
+                setQrViewController: _setQRViewController,
+                onComplete: _onCompletedScanningForBcUr,
+                onFailed: onFailedScanning,
+                qrDataHandler: _scanDataHandler,
+              ),
+            ),
             CustomTooltip.buildInfoTooltip(
               context,
               richText: RichText(
-                text: TextSpan(
-                  style: CoconutTypography.body3_12,
-                  children: _getGuideTextSpan(),
-                ),
+                text: TextSpan(style: CoconutTypography.body3_12, children: _getGuideTextSpan()),
               ),
               isBackgroundWhite: false,
             ),

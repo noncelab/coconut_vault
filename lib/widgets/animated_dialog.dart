@@ -17,7 +17,7 @@ class AnimatedDialog extends StatefulWidget {
   });
 
   @override
-  _AnimatedDialogState createState() => _AnimatedDialogState();
+  State<AnimatedDialog> createState() => _AnimatedDialogState();
 }
 
 class _AnimatedDialogState extends State<AnimatedDialog> with SingleTickerProviderStateMixin {
@@ -35,10 +35,7 @@ class _AnimatedDialogState extends State<AnimatedDialog> with SingleTickerProvid
     _offsetAnimation = Tween<Offset>(
       begin: const Offset(0.0, 1.0),
       end: const Offset(0.0, 0.0),
-    ).animate(CurvedAnimation(
-      parent: _controller,
-      curve: Curves.easeInOut,
-    ));
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut));
 
     _controller.forward();
   }
@@ -57,7 +54,7 @@ class _AnimatedDialogState extends State<AnimatedDialog> with SingleTickerProvid
         child: Container(
           decoration: BoxDecoration(
             borderRadius: const BorderRadius.all(Radius.circular(16)),
-            color: CoconutColors.black.withOpacity(0.5),
+            color: CoconutColors.black.withValues(alpha: 0.5),
           ),
           child: Column(
             mainAxisSize: MainAxisSize.min,

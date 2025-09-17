@@ -76,16 +76,14 @@ class _FixedBottomTweenButtonState extends State<FixedBottomTweenButton> {
               child: IgnorePointer(
                 ignoring: true,
                 child: Container(
-                  padding: widget.gradientPadding ??
+                  padding:
+                      widget.gradientPadding ??
                       const EdgeInsets.only(left: 16, right: 16, bottom: 40, top: 150),
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
                       begin: Alignment.topCenter,
                       end: Alignment.bottomCenter,
-                      colors: [
-                        CoconutColors.gray100.withOpacity(0.1),
-                        CoconutColors.white,
-                      ],
+                      colors: [CoconutColors.gray100.withValues(alpha: 0.1), CoconutColors.white],
                       stops: const [0.0, 1.0],
                     ),
                   ),
@@ -112,7 +110,8 @@ class _FixedBottomTweenButtonState extends State<FixedBottomTweenButton> {
                         disabledBackgroundColor: CoconutColors.gray150,
                         disabledForegroundColor: CoconutColors.gray350,
                         isActive: widget.isLeftButtonActive,
-                        height: widget.buttonHeight ??
+                        height:
+                            widget.buttonHeight ??
                             FixedBottomTweenButton.fixedBottomButtonDefaultHeight,
                         backgroundColor: widget.leftButtonBackgroundColor,
                         foregroundColor: widget.leftButtonTextColor,
@@ -131,7 +130,8 @@ class _FixedBottomTweenButtonState extends State<FixedBottomTweenButton> {
                         disabledBackgroundColor: CoconutColors.gray150,
                         disabledForegroundColor: CoconutColors.gray350,
                         isActive: widget.isRightButtonActive,
-                        height: widget.buttonHeight ??
+                        height:
+                            widget.buttonHeight ??
                             FixedBottomTweenButton.fixedBottomButtonDefaultHeight,
                         backgroundColor: widget.rightButtonBackgroundColor,
                         foregroundColor: widget.rightButtonTextColor,

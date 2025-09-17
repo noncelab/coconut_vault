@@ -19,18 +19,12 @@ class ToastWidgetState extends State<ToastWidget> with SingleTickerProviderState
   @override
   void initState() {
     super.initState();
-    _controller = AnimationController(
-      duration: const Duration(milliseconds: 300),
-      vsync: this,
-    );
+    _controller = AnimationController(duration: const Duration(milliseconds: 300), vsync: this);
 
     _animation = Tween<Offset>(
       begin: const Offset(0.0, 1.0),
       end: const Offset(0.0, 0.0),
-    ).animate(CurvedAnimation(
-      parent: _controller,
-      curve: Curves.easeInOut,
-    ));
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut));
 
     _controller.forward();
   }
@@ -57,7 +51,7 @@ class ToastWidgetState extends State<ToastWidget> with SingleTickerProviderState
         margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 30),
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
         decoration: BoxDecoration(
-          color: CoconutColors.black.withOpacity(0.3),
+          color: CoconutColors.black.withValues(alpha: 0.3),
           borderRadius: BorderRadius.circular(16.0),
         ),
         child: Row(
@@ -65,14 +59,9 @@ class ToastWidgetState extends State<ToastWidget> with SingleTickerProviderState
           children: [
             Text(
               displayMessage,
-              style: CoconutTypography.body2_14_Bold.setColor(
-                CoconutColors.white,
-              ),
+              style: CoconutTypography.body2_14_Bold.setColor(CoconutColors.white),
             ),
-            const Icon(
-              Icons.check,
-              color: CoconutColors.white,
-            ),
+            const Icon(Icons.check, color: CoconutColors.white),
           ],
         ),
       ),

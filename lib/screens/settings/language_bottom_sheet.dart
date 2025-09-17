@@ -16,47 +16,47 @@ class _LanguageBottomSheetState extends State<LanguageBottomSheet> {
   @override
   Widget build(BuildContext context) {
     return Selector<VisibilityProvider, String>(
-        selector: (_, viewModel) => viewModel.language,
-        builder: (context, language, child) {
-          return Scaffold(
-              backgroundColor: CoconutColors.white,
-              appBar: CoconutAppBar.build(
-                title: t.language.language,
-                context: context,
-                onBackPressed: null,
-                isBottom: true,
-              ),
-              body: Padding(
-                  padding: const EdgeInsets.only(left: Sizes.size16, right: Sizes.size16),
-                  child: Column(children: [
-                    _buildUnitItem(t.language.korean, t.language.korean, language == 'kr',
-                        () async {
-                      // 언어 변경 전에 BottomSheet를 먼저 닫기
-                      if (context.mounted) {
-                        Navigator.of(context).pop();
-                        Navigator.of(context).pop();
-                      }
+      selector: (_, viewModel) => viewModel.language,
+      builder: (context, language, child) {
+        return Scaffold(
+          backgroundColor: CoconutColors.white,
+          appBar: CoconutAppBar.build(
+            title: t.language.language,
+            context: context,
+            onBackPressed: null,
+            isBottom: true,
+          ),
+          body: Padding(
+            padding: const EdgeInsets.only(left: Sizes.size16, right: Sizes.size16),
+            child: Column(
+              children: [
+                _buildUnitItem(t.language.korean, t.language.korean, language == 'kr', () async {
+                  // 언어 변경 전에 BottomSheet를 먼저 닫기
+                  if (context.mounted) {
+                    Navigator.of(context).pop();
+                    Navigator.of(context).pop();
+                  }
 
-                      // 언어 변경은 BottomSheet가 닫힌 후에 실행
-                      final provider = context.read<VisibilityProvider>();
-                      await provider.changeLanguage('kr');
-                    }),
-                    Divider(
-                      color: CoconutColors.white.withOpacity(0.12),
-                      height: 1,
-                    ),
-                    _buildUnitItem(t.language.english, t.language.english, language == 'en',
-                        () async {
-                      if (context.mounted) {
-                        Navigator.of(context).pop();
-                        Navigator.of(context).pop();
-                      }
-                      // 언어 변경은 BottomSheet가 닫힌 후에 실행
-                      final provider = context.read<VisibilityProvider>();
-                      await provider.changeLanguage('en');
-                    }),
-                  ])));
-        });
+                  // 언어 변경은 BottomSheet가 닫힌 후에 실행
+                  final provider = context.read<VisibilityProvider>();
+                  await provider.changeLanguage('kr');
+                }),
+                Divider(color: CoconutColors.white.withValues(alpha: 0.12), height: 1),
+                _buildUnitItem(t.language.english, t.language.english, language == 'en', () async {
+                  if (context.mounted) {
+                    Navigator.of(context).pop();
+                    Navigator.of(context).pop();
+                  }
+                  // 언어 변경은 BottomSheet가 닫힌 후에 실행
+                  final provider = context.read<VisibilityProvider>();
+                  await provider.changeLanguage('en');
+                }),
+              ],
+            ),
+          ),
+        );
+      },
+    );
   }
 
   Widget _buildUnitItem(String title, String subtitle, bool isChecked, VoidCallback onPress) {
@@ -68,12 +68,13 @@ class _LanguageBottomSheetState extends State<LanguageBottomSheet> {
         child: Row(
           children: [
             Expanded(
-                child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(title, style: CoconutTypography.body2_14_Bold.setColor(CoconutColors.black)),
-              ],
-            )),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(title, style: CoconutTypography.body2_14_Bold.setColor(CoconutColors.black)),
+                ],
+              ),
+            ),
             if (isChecked)
               Padding(
                 padding: const EdgeInsets.only(right: Sizes.size8),

@@ -34,46 +34,54 @@ class _SettingsScreenState extends State<SettingsScreen> {
       minChildSize: 0.5,
       initialChildSize: 1,
       expand: false,
-      builder: (context, scrollController) => SafeArea(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            _buildDraggableHeader(),
-            Expanded(
-              child: Container(
-                decoration: const BoxDecoration(
-                  color: CoconutColors.white,
-                ),
-                child: ListView(
-                  controller: scrollController,
-                  padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-                  children: [
-                    _securityPart(context),
-                    CoconutLayout.spacing_1000h,
-                    Selector<WalletProvider, bool>(
-                      selector: (context, provider) => provider.vaultList.isNotEmpty,
-                      builder: (context, isNotEmpty, _) => isNotEmpty
-                          ? Column(children: [_updatePart(context), CoconutLayout.spacing_1000h])
-                          : Container(),
+      builder:
+          (context, scrollController) => SafeArea(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                _buildDraggableHeader(),
+                Expanded(
+                  child: Container(
+                    decoration: const BoxDecoration(color: CoconutColors.white),
+                    child: ListView(
+                      controller: scrollController,
+                      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+                      children: [
+                        _securityPart(context),
+                        CoconutLayout.spacing_1000h,
+                        Selector<WalletProvider, bool>(
+                          selector: (context, provider) => provider.vaultList.isNotEmpty,
+                          builder:
+                              (context, isNotEmpty, _) =>
+                                  isNotEmpty
+                                      ? Column(
+                                        children: [
+                                          _updatePart(context),
+                                          CoconutLayout.spacing_1000h,
+                                        ],
+                                      )
+                                      : Container(),
+                        ),
+                        _btcUnitPart(context),
+                        CoconutLayout.spacing_1000h,
+                        _languagePart(context),
+                        CoconutLayout.spacing_1000h,
+                        _advancedUserPart(context),
+                        CoconutLayout.spacing_1000h,
+                        _informationPart(context),
+                        SizedBox(
+                          height:
+                              MediaQuery.of(context).viewPadding.bottom > 0
+                                  ? MediaQuery.of(context).viewPadding.bottom + Sizes.size12
+                                  : Sizes.size36,
+                        ),
+                      ],
                     ),
-                    _btcUnitPart(context),
-                    CoconutLayout.spacing_1000h,
-                    _languagePart(context),
-                    CoconutLayout.spacing_1000h,
-                    _advancedUserPart(context),
-                    CoconutLayout.spacing_1000h,
-                    _informationPart(context),
-                    SizedBox(
-                        height: MediaQuery.of(context).viewPadding.bottom > 0
-                            ? MediaQuery.of(context).viewPadding.bottom + Sizes.size12
-                            : Sizes.size36)
-                  ],
+                  ),
                 ),
-              ),
+              ],
             ),
-          ],
-        ),
-      ),
+          ),
     );
   }
 
@@ -106,11 +114,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               children: [
                 GestureDetector(
                   onTap: () => Navigator.of(context).pop(),
-                  child: const Icon(
-                    Icons.close,
-                    color: CoconutColors.black,
-                    size: 24,
-                  ),
+                  child: const Icon(Icons.close, color: CoconutColors.black, size: 24),
                 ),
                 Expanded(
                   child: Text(
@@ -131,10 +135,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   Widget _category(String title) {
     return Container(
       padding: const EdgeInsets.only(bottom: 16),
-      child: Text(
-        title,
-        style: CoconutTypography.body1_16_Bold,
-      ),
+      child: Text(title, style: CoconutTypography.body1_16_Bold),
     );
   }
 
@@ -149,77 +150,85 @@ class _SettingsScreenState extends State<SettingsScreen> {
         _category(t.security),
         Consumer<AuthProvider>(
           builder: (context, provider, child) {
-            return MultiButton(children: [
-              if (provider.isPinSet) ...{
-                if (provider.canCheckBiometrics)
+            return MultiButton(
+              children: [
+                if (provider.isPinSet) ...{
+                  if (provider.canCheckBiometrics)
+                    SingleButton(
+                      buttonPosition: SingleButtonPosition.top,
+                      title: t.settings_screen.use_biometric,
+                      rightElement: CupertinoSwitch(
+                        value:
+                            provider.hasBiometricsPermission ? provider.isBiometricEnabled : false,
+                        activeColor: CoconutColors.black,
+                        onChanged: (isOn) async {
+                          if (isOn &&
+                              await provider.authenticateWithBiometrics(
+                                context: context,
+                                isSaved: true,
+                              )) {
+                            Logger.log('Biometric authentication success');
+                            provider.saveIsBiometricEnabled(true);
+                          } else {
+                            Logger.log('Biometric authentication fail');
+                            provider.saveIsBiometricEnabled(false);
+                          }
+                        },
+                      ),
+                    ),
                   SingleButton(
-                    buttonPosition: SingleButtonPosition.top,
-                    title: t.settings_screen.use_biometric,
+                    buttonPosition:
+                        provider.canCheckBiometrics
+                            ? SingleButtonPosition.bottom
+                            : SingleButtonPosition.none,
+                    title: t.settings_screen.change_password,
+                    enableShrinkAnim: true,
+                    animationEndValue: 0.97,
+                    onPressed: () async {
+                      final authProvider = context.read<AuthProvider>();
+                      if (await authProvider.isBiometricsAuthValid()) {
+                        _showPinSettingScreen();
+                        return;
+                      }
+
+                      if (!context.mounted) return;
+                      MyBottomSheet.showBottomSheet_90(
+                        context: context,
+                        child: const LoaderOverlay(
+                          child: PinCheckScreen(pinCheckContext: PinCheckContextEnum.pinChange),
+                        ),
+                      );
+                    },
+                  ),
+                } else ...{
+                  SingleButton(
+                    buttonPosition: SingleButtonPosition.none,
+                    title: t.settings_screen.set_password,
                     rightElement: CupertinoSwitch(
                       value: provider.hasBiometricsPermission ? provider.isBiometricEnabled : false,
                       activeColor: CoconutColors.black,
                       onChanged: (isOn) async {
-                        if (isOn &&
-                            await provider.authenticateWithBiometrics(
-                                context: context, isSaved: true)) {
-                          Logger.log('Biometric authentication success');
-                          provider.saveIsBiometricEnabled(true);
-                        } else {
-                          Logger.log('Biometric authentication fail');
-                          provider.saveIsBiometricEnabled(false);
+                        /// 비밀번호 제거 기능은 제공하지 않음.
+                        if (isOn) {
+                          _showPinSettingScreen();
                         }
                       },
                     ),
                   ),
-                SingleButton(
-                  buttonPosition: provider.canCheckBiometrics
-                      ? SingleButtonPosition.bottom
-                      : SingleButtonPosition.none,
-                  title: t.settings_screen.change_password,
-                  enableShrinkAnim: true,
-                  animationEndValue: 0.97,
-                  onPressed: () async {
-                    final authProvider = context.read<AuthProvider>();
-                    if (await authProvider.isBiometricsAuthValid()) {
-                      _showPinSettingScreen();
-                      return;
-                    }
-
-                    MyBottomSheet.showBottomSheet_90(
-                      context: context,
-                      child: const LoaderOverlay(
-                        child: PinCheckScreen(
-                          pinCheckContext: PinCheckContextEnum.pinChange,
-                        ),
-                      ),
-                    );
-                  },
-                )
-              } else ...{
-                SingleButton(
-                  buttonPosition: SingleButtonPosition.none,
-                  title: t.settings_screen.set_password,
-                  rightElement: CupertinoSwitch(
-                    value: provider.hasBiometricsPermission ? provider.isBiometricEnabled : false,
-                    activeColor: CoconutColors.black,
-                    onChanged: (isOn) async {
-                      /// 비밀번호 제거 기능은 제공하지 않음.
-                      if (isOn) {
-                        _showPinSettingScreen();
-                      }
-                    },
-                  ),
-                ),
-              }
-            ]);
+                },
+              ],
+            );
           },
         ),
       ],
     );
   }
 
-  Widget _buildAnimatedButton(
-      {required String title, required VoidCallback onPressed, String? subtitle}) {
+  Widget _buildAnimatedButton({
+    required String title,
+    required VoidCallback onPressed,
+    String? subtitle,
+  }) {
     return SingleButton(
       enableShrinkAnim: true,
       animationEndValue: 0.97,
@@ -239,10 +248,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
           onPressed: () async {
             final authProvider = context.read<AuthProvider>();
             if (await authProvider.isBiometricsAuthValid()) {
+              if (!context.mounted) return;
               Navigator.pushNamed(context, AppRoutes.prepareUpdate);
               return;
             }
 
+            if (!context.mounted) return;
             MyBottomSheet.showBottomSheet_90(
               context: context,
               child: CustomLoadingOverlay(
@@ -262,9 +273,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
   }
 
   Widget _informationPart(BuildContext context) {
-    return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-      _category(t.settings_screen.information),
-      Selector<VisibilityProvider, bool>(
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _category(t.settings_screen.information),
+        Selector<VisibilityProvider, bool>(
           selector: (_, viewModel) => viewModel.isPassphraseUseEnabled,
           builder: (context, isPassphraseUseEnabled, child) {
             return _buildAnimatedButton(
@@ -273,14 +286,18 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 Navigator.pushNamed(context, AppRoutes.appInfo);
               },
             );
-          }),
-    ]);
+          },
+        ),
+      ],
+    );
   }
 
   Widget _btcUnitPart(BuildContext context) {
-    return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-      _category(t.unit),
-      Selector<VisibilityProvider, bool>(
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _category(t.unit),
+        Selector<VisibilityProvider, bool>(
           selector: (_, viewModel) => viewModel.isBtcUnit,
           builder: (context, isBtcUnit, child) {
             return _buildAnimatedButton(
@@ -295,28 +312,35 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 );
               },
             );
-          }),
-    ]);
+          },
+        ),
+      ],
+    );
   }
 
   Widget _advancedUserPart(BuildContext context) {
-    return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-      _category(t.advanced_user),
-      Selector<VisibilityProvider, bool>(
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _category(t.advanced_user),
+        Selector<VisibilityProvider, bool>(
           selector: (_, viewModel) => viewModel.isPassphraseUseEnabled,
           builder: (context, isPassphraseUseEnabled, child) {
             return SingleButton(
               buttonPosition: SingleButtonPosition.none,
               title: t.settings_screen.use_passphrase,
               rightElement: CupertinoSwitch(
-                  value: isPassphraseUseEnabled,
-                  activeColor: CoconutColors.black,
-                  onChanged: (isOn) async {
-                    await context.read<VisibilityProvider>().setAdvancedMode(isOn);
-                  }),
+                value: isPassphraseUseEnabled,
+                activeColor: CoconutColors.black,
+                onChanged: (isOn) async {
+                  await context.read<VisibilityProvider>().setAdvancedMode(isOn);
+                },
+              ),
             );
-          }),
-    ]);
+          },
+        ),
+      ],
+    );
   }
 
   Widget _languagePart(BuildContext context) {
