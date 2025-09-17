@@ -51,7 +51,6 @@ class _SelectSyncOptionBottomSheetState extends State<SelectSyncOptionBottomShee
         title: t.watch_only_options.title,
         context: context,
         onBackPressed: null,
-        showSubLabel: true,
         isBottom: true,
       ),
       body: SingleChildScrollView(

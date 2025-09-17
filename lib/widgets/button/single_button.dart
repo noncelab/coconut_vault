@@ -119,7 +119,7 @@ class SingleButton extends StatelessWidget {
             fit: BoxFit.scaleDown,
             child: Text(subtitle!,
                 style: subtitleStyle ??
-                    CoconutTypography.body3_12_Number.setColor(CoconutColors.gray400)),
+                    CoconutTypography.body3_12_Number.setColor(CoconutColors.gray600)),
           ),
         rightElement ?? _rightArrow(),
       ],
