@@ -163,7 +163,6 @@ class _FlipCoinState extends State<FlipCoin> {
   bool isPassphraseConfirmVisible = false;
 
   bool isNextButtonActive = false;
-  bool isButtonClicked = false;
 
   @override
   void initState() {
@@ -400,7 +399,7 @@ class _FlipCoinState extends State<FlipCoin> {
         children: [
           CoconutLayout.spacing_500h,
           Opacity(
-            opacity: 0, //isButtonClicked ? 0.0 : 1.0,
+            opacity: _bits.isNotEmpty ? 0.0 : 1.0,
             child: Text(t.mnemonic_coin_flip_screen.guide,
                 style: CoconutTypography.body1_16_Bold.setColor(CoconutColors.gray800)),
           ),
@@ -611,13 +610,7 @@ class _FlipCoinState extends State<FlipCoin> {
         Column(
           children: [
             ShrinkAnimationButton(
-              onPressed: () {
-                if (!isButtonClicked) {
-                  isButtonClicked = true;
-                }
-
-                if (_currentIndex < _totalBits) _addBit(1);
-              },
+              onPressed: () => _currentIndex < _totalBits ? _addBit(1) : null,
               borderRadius: 12,
               child: Container(
                 padding: const EdgeInsets.symmetric(vertical: 30, horizontal: 38),
