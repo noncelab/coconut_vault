@@ -293,6 +293,7 @@ welcome_screen:
 # lib/screens/vault_creation
 mnemonic_coin_flip_screen:
   title: "Create Mnemonic"
+  guide: "Please select the side that came out after flipping the coin"
   words_passphrase: " words, passphrase "
   use: "Use"
   do_not: "Don't"
@@ -312,6 +313,7 @@ mnemonic_generate_screen:
   select_word_length: "Select word count"
   twelve: "12 words"
   twenty_four: "24 words"
+  regenerate: "Regenerate"
   use_passphrase: "Use passphrase?"
   ensure_backup: "I have definitely backed up the mnemonic"
   word_passphrase: " words, passphrase "
