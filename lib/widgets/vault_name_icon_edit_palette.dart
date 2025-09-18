@@ -100,31 +100,21 @@ class _VaultNameIconEditPaletteState extends State<VaultNameIconEditPalette> {
                             });
                           },
                           child: index < 10
-                              ? Stack(children: [
-                                  Container(
-                                    margin: const EdgeInsets.all(16.0),
-                                    decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(40.0),
-                                      color: _getColorByIndex(index),
+                              ? Container(
+                                  margin: const EdgeInsets.all(11.5),
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(40.0),
+                                    border: Border.all(
+                                      color: index == _selectedColorIndex
+                                          ? CoconutColors.gray800
+                                          : CoconutColors.white,
+                                      width: 1.8,
                                     ),
+                                    color: _getColorByIndex(index),
                                   ),
-                                  Positioned.fill(
-                                    child: Container(
-                                      margin: const EdgeInsets.all(11.5),
-                                      decoration: BoxDecoration(
-                                        borderRadius: BorderRadius.circular(40.0),
-                                        border: Border.all(
-                                          color: index == _selectedColorIndex
-                                              ? CoconutColors.gray800
-                                              : CoconutColors.white,
-                                          width: 1.8,
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ])
+                                )
                               : Stack(children: [
-                                  SvgIcon(index: index - 10),
+                                  Positioned.fill(child: SvgIcon(index: index - 10)),
                                   Positioned.fill(
                                     child: Container(
                                       margin: const EdgeInsets.all(11.5),
