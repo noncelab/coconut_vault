@@ -283,9 +283,8 @@ settings_screen:
 
 # lib/screens/start_guide
 welcome_screen:
-  guide1: "Vault can only be used\nwhen network and Bluetooth are turned OFF"
-  guide2: "When connection is detected\napp usage will be disabled"
-  guide3: "For safe use,\nplease be careful when using"
+  title_can_start: "All connections are blocked👏\nLet's start Vault"
+  title_cannot_start: "To start Vault,\nplease block all connections🙏"
   network: "Network"
   bluetooth: "Bluetooth"
   developer_option: "Developer Option"

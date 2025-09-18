@@ -284,9 +284,8 @@ settings_screen:
   
 # lib/screens/start_guide
 welcome_screen:
-  guide1: "볼트는 외부와 연결이 차단된\n상태에서만 사용하실 수 있어요"
-  guide2:  "외부와 연결이 감지되면\n볼트 사용이 자동 차단돼요"
-  guide3: "안전한 키 관리를 위해\n항상 유의해 주세요"
+  title_can_start: "모든 연결이 차단되어 있어요👏\n볼트를 시작할게요"
+  title_cannot_start: "볼트를 시작하기 위해\n모든 연결을 차단해 주세요🙏"
   network: "네트워크"
   bluetooth: "블루투스"
   developer_option: "개발자 옵션"
