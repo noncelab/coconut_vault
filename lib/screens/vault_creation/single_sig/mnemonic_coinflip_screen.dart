@@ -398,10 +398,16 @@ class _FlipCoinState extends State<FlipCoin> {
       child: Column(
         children: [
           CoconutLayout.spacing_500h,
-          Text('$_currentIndex/$_totalBits', style: CoconutTypography.heading4_18_Bold),
-          CoconutLayout.spacing_800h,
+          Opacity(
+            opacity: _bits.isNotEmpty ? 0.0 : 1.0,
+            child: Text(t.mnemonic_coin_flip_screen.guide,
+                style: CoconutTypography.body1_16_Bold.setColor(CoconutColors.gray800)),
+          ),
+          CoconutLayout.spacing_400h,
           _buildBitGrid(),
-          CoconutLayout.spacing_1300h,
+          CoconutLayout.spacing_200h,
+          Text('$_currentIndex/$_totalBits', style: CoconutTypography.heading4_18_Bold),
+          CoconutLayout.spacing_1400h,
           _buildButtons(),
         ],
       ),

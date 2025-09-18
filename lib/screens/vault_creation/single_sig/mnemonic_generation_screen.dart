@@ -26,6 +26,12 @@ class _MnemonicGenerationScreenState extends State<MnemonicGenerationScreen> {
   int _selectedWordsCount = 0;
   bool _usePassphrase = false;
 
+  final ValueNotifier<bool> _regenerateNotifier = ValueNotifier<bool>(false);
+
+  void _onRegenerate() {
+    _regenerateNotifier.value = true;
+  }
+
   void _onLengthSelected(int wordsCount) {
     setState(() {
       _selectedWordsCount = wordsCount;
@@ -95,6 +101,7 @@ class _MnemonicGenerationScreenState extends State<MnemonicGenerationScreen> {
         usePassphrase: _usePassphrase,
         onReset: _onReset,
         onNavigateToNext: _onNavigateToNext,
+        regenerateNotifier: _regenerateNotifier,
       ),
     ];
 
@@ -115,6 +122,22 @@ class _MnemonicGenerationScreenState extends State<MnemonicGenerationScreen> {
             title: t.mnemonic_generate_screen.title,
             context: context,
             onBackPressed: _showStopGeneratingMnemonicDialog,
+            backgroundColor: CoconutColors.white,
+            actionButtonList: [
+              if (_step == 2)
+                ShrinkAnimationButton(
+                  borderRadius: 8.0,
+                  borderWidth: 1.0,
+                  border: Border.all(color: CoconutColors.gray300),
+                  onPressed: _onRegenerate,
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 12),
+                    child: Text(t.mnemonic_generate_screen.regenerate,
+                        style: CoconutTypography.body3_12.setColor(CoconutColors.gray800)),
+                  ),
+                ),
+              CoconutLayout.spacing_100w,
+            ],
           ),
           body: SafeArea(
             child: screens[_step],
@@ -248,6 +271,7 @@ class MnemonicWords extends StatefulWidget {
   final Function() onReset;
   final MnemonicWordsFrom from;
   final VoidCallback onNavigateToNext;
+  final ValueNotifier<bool>? regenerateNotifier;
 
   const MnemonicWords({
     super.key,
@@ -256,6 +280,7 @@ class MnemonicWords extends StatefulWidget {
     required this.onReset,
     required this.onNavigateToNext,
     this.from = MnemonicWordsFrom.generation,
+    this.regenerateNotifier,
   });
 
   @override
@@ -332,6 +357,8 @@ class _MnemonicWordsState extends State<MnemonicWords> {
       mnemonic = _walletCreationProvider.secret!;
     }
 
+    widget.regenerateNotifier?.addListener(_onRegenerateRequested);
+
     // 스크롤 리스너 추가
     _scrollController.addListener(() {
       if (_scrollController.hasClients) {
@@ -396,8 +423,17 @@ class _MnemonicWordsState extends State<MnemonicWords> {
     });
   }
 
+  void _onRegenerateRequested() {
+    if (widget.regenerateNotifier?.value == true) {
+      _generateMnemonicPhrase();
+      widget.regenerateNotifier?.value = false;
+    }
+  }
+
   @override
   void dispose() {
+    widget.regenerateNotifier?.removeListener(_onRegenerateRequested);
+
     _scrollController.dispose();
     _passphraseController.dispose();
     _passphraseConfirmController.dispose();

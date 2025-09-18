@@ -19,7 +19,7 @@ class _MnemonicVerifyScreenState extends State<MnemonicVerifyScreen> {
 
   // 퀴즈 관련 변수
   int _currentQuizIndex = 0; // 현재 퀴즈 인덱스
-  final int _totalQuizzes = 3; // 총 퀴즈 개수
+  final int _totalQuizzes = 5; // 총 퀴즈 개수
   List<int> _selectedWordPositions = []; // 퀴즈로 선택된 니모닉 인덱스
   List<String> _correctAnswers = []; // 정답 단어들
   List<String> _userAnswers = []; // 사용자가 선택한 답들
@@ -41,7 +41,7 @@ class _MnemonicVerifyScreenState extends State<MnemonicVerifyScreen> {
     final mnemonic = _walletCreationProvider.secret?.split(' ') ?? [];
     if (mnemonic.isEmpty) return;
 
-    // 랜덤하게 3개의 단어 선택 (중복 없이)
+    // 랜덤하게 n개의 단어 선택 (중복 없이)
     _selectedWordPositions = _generateRandomPositions(mnemonic.length);
 
     // 정답 단어들 저장
