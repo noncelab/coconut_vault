@@ -19,8 +19,12 @@ class CustomLoadingOverlay extends StatelessWidget {
               dismissible: false,
               color: Colors.transparent, // 투명하게 유지
             ),
-            Center(
-              child: CoconutCircularIndicator(),
+            Positioned(
+              top: kToolbarHeight,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              child: Center(child: CoconutCircularIndicator()),
             ),
           ],
         );
