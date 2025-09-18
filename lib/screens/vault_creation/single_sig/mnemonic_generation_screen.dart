@@ -125,18 +125,10 @@ class _MnemonicGenerationScreenState extends State<MnemonicGenerationScreen> {
             backgroundColor: CoconutColors.white,
             actionButtonList: [
               if (_step == 2)
-                ShrinkAnimationButton(
-                  borderRadius: 8.0,
-                  borderWidth: 1.0,
-                  border: Border.all(color: CoconutColors.gray300),
+                IconButton(
                   onPressed: _onRegenerate,
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 12),
-                    child: Text(t.mnemonic_generate_screen.regenerate,
-                        style: CoconutTypography.body3_12.setColor(CoconutColors.gray800)),
-                  ),
+                  icon: SvgPicture.asset('assets/svg/refresh.svg', width: 18, height: 18),
                 ),
-              CoconutLayout.spacing_100w,
             ],
           ),
           body: SafeArea(
