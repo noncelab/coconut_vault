@@ -176,8 +176,10 @@ class _MnemonicImportScreenState extends State<MnemonicImportScreen> {
 
   void _addPassphraseListener() {
     _passphraseFocusNode.addListener(() async {
-      await Future.delayed(_passphraseScrollDelay);
-      _scrollToBottom();
+      if (_passphraseFocusNode.hasFocus) {
+        await Future.delayed(_passphraseScrollDelay);
+        _scrollToBottom();
+      }
     });
   }
 
