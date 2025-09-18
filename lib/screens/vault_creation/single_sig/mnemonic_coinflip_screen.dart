@@ -598,81 +598,83 @@ class _FlipCoinState extends State<FlipCoin> {
   }
 
   Widget _buildButtons() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        Column(
-          children: [
-            ShrinkAnimationButton(
-              onPressed: () => _currentIndex < _totalBits ? _addBit(1) : null,
-              borderRadius: 12,
-              child: Container(
-                padding: const EdgeInsets.symmetric(vertical: 30, horizontal: 38),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(
-                    color: CoconutColors.black,
-                    width: 1,
+    return SizedBox(
+      width: 224, // GridView의 item이 보이는 총 너비
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Column(
+            children: [
+              ShrinkAnimationButton(
+                onPressed: () => _currentIndex < _totalBits ? _addBit(1) : null,
+                borderRadius: 12,
+                child: Container(
+                  padding: const EdgeInsets.symmetric(vertical: 48, horizontal: 45),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(
+                      color: CoconutColors.black,
+                      width: 1,
+                    ),
                   ),
-                ),
-                child: Text(t.mnemonic_coin_flip_screen.coin_head),
-              ),
-            ),
-            CoconutLayout.spacing_200h,
-            ShrinkAnimationButton(
-              onPressed: _showConfirmResetDialog,
-              pressedColor: CoconutColors.gray200,
-              child: Container(
-                padding: const EdgeInsets.all(8),
-                child: Text(
-                  t.delete_all,
-                  style: CoconutTypography.body3_12.setColor(
-                    _bits.isEmpty
-                        ? CoconutColors.secondaryText
-                        : CoconutColors.black.withOpacity(0.7),
-                  ),
+                  child: Text(t.mnemonic_coin_flip_screen.coin_head),
                 ),
               ),
-            ),
-          ],
-        ),
-        CoconutLayout.spacing_400w,
-        Column(
-          children: [
-            ShrinkAnimationButton(
-              onPressed: () => _currentIndex < _totalBits ? _addBit(0) : null,
-              borderRadius: 12,
-              child: Container(
-                padding: const EdgeInsets.symmetric(vertical: 30, horizontal: 38),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(
-                    color: CoconutColors.black,
-                    width: 1,
-                  ),
-                ),
-                child: Text(t.mnemonic_coin_flip_screen.coin_tail),
-              ),
-            ),
-            CoconutLayout.spacing_200h,
-            ShrinkAnimationButton(
-              onPressed: _removeLastBit,
-              pressedColor: CoconutColors.gray200,
-              child: Container(
-                padding: const EdgeInsets.all(8),
-                child: Text(
-                  t.delete_one,
-                  style: CoconutTypography.body3_12.setColor(
-                    _bits.isEmpty
-                        ? CoconutColors.secondaryText
-                        : CoconutColors.black.withOpacity(0.7),
+              CoconutLayout.spacing_200h,
+              ShrinkAnimationButton(
+                onPressed: _showConfirmResetDialog,
+                pressedColor: CoconutColors.gray200,
+                child: Container(
+                  padding: const EdgeInsets.all(8),
+                  child: Text(
+                    t.delete_all,
+                    style: CoconutTypography.body3_12.setColor(
+                      _bits.isEmpty
+                          ? CoconutColors.secondaryText
+                          : CoconutColors.black.withOpacity(0.7),
+                    ),
                   ),
                 ),
               ),
-            ),
-          ],
-        ),
-      ],
+            ],
+          ),
+          Column(
+            children: [
+              ShrinkAnimationButton(
+                onPressed: () => _currentIndex < _totalBits ? _addBit(0) : null,
+                borderRadius: 12,
+                child: Container(
+                  padding: const EdgeInsets.symmetric(vertical: 48, horizontal: 45),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(
+                      color: CoconutColors.black,
+                      width: 1,
+                    ),
+                  ),
+                  child: Text(t.mnemonic_coin_flip_screen.coin_tail),
+                ),
+              ),
+              CoconutLayout.spacing_200h,
+              ShrinkAnimationButton(
+                onPressed: _removeLastBit,
+                pressedColor: CoconutColors.gray200,
+                child: Container(
+                  padding: const EdgeInsets.all(8),
+                  child: Text(
+                    t.delete_one,
+                    style: CoconutTypography.body3_12.setColor(
+                      _bits.isEmpty
+                          ? CoconutColors.secondaryText
+                          : CoconutColors.black.withOpacity(0.7),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
     );
   }
 
