@@ -13,7 +13,7 @@ import 'package:intl/intl.dart';
 
 import 'dart:math' as math;
 
-class VaultItemCard extends StatelessWidget {
+class VaultItemCard extends StatefulWidget {
   final VaultListItemBase vaultItem;
   final VoidCallback onTooltipClicked;
   final VoidCallback onNameChangeClicked;
@@ -28,20 +28,27 @@ class VaultItemCard extends StatelessWidget {
   });
 
   @override
+  State<VaultItemCard> createState() => _VaultItemCardState();
+}
+
+class _VaultItemCardState extends State<VaultItemCard> {
+  bool isItemTapped = false;
+
+  @override
   Widget build(BuildContext context) {
     List<MultisigSigner>? signers;
     bool isMultisig = false;
     late String rightText;
 
-    if (vaultItem is MultisigVaultListItem) {
+    if (widget.vaultItem is MultisigVaultListItem) {
       /// 멀티 시그
-      MultisigVaultListItem multiVault = vaultItem as MultisigVaultListItem;
+      MultisigVaultListItem multiVault = widget.vaultItem as MultisigVaultListItem;
       signers = multiVault.signers;
       rightText = '${multiVault.requiredSignatureCount}/${multiVault.signers.length}';
       isMultisig = true;
     } else {
       /// 싱글 시그
-      SingleSigVaultListItem singleVault = vaultItem as SingleSigVaultListItem;
+      SingleSigVaultListItem singleVault = widget.vaultItem as SingleSigVaultListItem;
       final singlesigVault = singleVault.coconutVault as SingleSignatureVault;
       rightText = singlesigVault.keyStore.masterFingerprint;
     }
@@ -70,31 +77,41 @@ class VaultItemCard extends StatelessWidget {
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            GestureDetector(
-              onTap: onNameChangeClicked,
-              child: _buildIcon(),
-            ),
-            const SizedBox(width: 12.0),
-            Flexible(
-              flex: 4,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(children: [
-                    Flexible(
-                        child: Text(
-                      vaultItem.name,
-                      style: CoconutTypography.body1_16_Bold,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    )),
-                  ]),
-                ],
+            Expanded(
+              child: GestureDetector(
+                onTapDown: (details) {
+                  setState(() {
+                    isItemTapped = true;
+                  });
+                },
+                onTapCancel: () {
+                  setState(() {
+                    isItemTapped = false;
+                  });
+                },
+                onTap: () {
+                  widget.onNameChangeClicked();
+                  setState(() {
+                    isItemTapped = false;
+                  });
+                },
+                child: Row(
+                  children: [
+                    _buildIcon(),
+                    CoconutLayout.spacing_200w,
+                    Expanded(
+                      child: Text(
+                        widget.vaultItem.name,
+                        style: CoconutTypography.body1_16_Bold,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
-            const Spacer(
-              flex: 1,
-            ),
+            CoconutLayout.spacing_200w,
             Column(
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.end,
@@ -106,10 +123,10 @@ class VaultItemCard extends StatelessWidget {
                     isSelected: false,
                     text: rightText,
                     isLeft: true,
-                    iconkey: tooltipKey,
+                    iconkey: widget.tooltipKey,
                     containerMargin: EdgeInsets.zero,
                     onTapDown: (details) {
-                      onTooltipClicked();
+                      widget.onTooltipClicked();
                     },
                     textStyle: CoconutTypography.heading4_18_NumberBold,
                     iconColor: CoconutColors.black,
@@ -120,7 +137,7 @@ class VaultItemCard extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
                     Text(
-                      DateFormat('yy.MM.dd HH:mm').format(vaultItem.createdAt),
+                      DateFormat('yy.MM.dd HH:mm').format(widget.vaultItem.createdAt),
                       style: CoconutTypography.body3_12.setColor(CoconutColors.gray600),
                     )
                   ],
@@ -134,8 +151,8 @@ class VaultItemCard extends StatelessWidget {
   }
 
   Widget _buildIcon() {
-    int colorIndex = vaultItem.colorIndex;
-    int iconIndex = vaultItem.iconIndex;
+    int colorIndex = widget.vaultItem.colorIndex;
+    int iconIndex = widget.vaultItem.iconIndex;
 
     return Stack(
       clipBehavior: Clip.none,
@@ -146,10 +163,10 @@ class VaultItemCard extends StatelessWidget {
           bottom: -3,
           child: Container(
             padding: const EdgeInsets.all(4.3),
-            decoration: const BoxDecoration(
-                color: CoconutColors.gray150,
+            decoration: BoxDecoration(
+                color: isItemTapped ? CoconutColors.gray300 : CoconutColors.gray150,
                 shape: BoxShape.circle,
-                boxShadow: [
+                boxShadow: const [
                   BoxShadow(
                     color: CoconutColors.gray300,
                     offset: Offset(2, 2),
@@ -159,8 +176,8 @@ class VaultItemCard extends StatelessWidget {
                 ]),
             child: Container(
               padding: const EdgeInsets.all(1),
-              decoration: const BoxDecoration(
-                color: CoconutColors.gray150,
+              decoration: BoxDecoration(
+                color: isItemTapped ? CoconutColors.gray300 : CoconutColors.gray150,
                 shape: BoxShape.circle,
               ),
               child: SvgPicture.asset('assets/svg/edit-outlined.svg',
