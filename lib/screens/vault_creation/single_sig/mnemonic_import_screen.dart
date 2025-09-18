@@ -558,24 +558,32 @@ class _MnemonicImportScreenState extends State<MnemonicImportScreen> {
         leftButtonColor: CoconutColors.gray900,
         rightButtonText: t.confirm,
         rightButtonColor: CoconutColors.gray900,
-        onTapLeft: () => Navigator.pop(context),
+        onTapLeft: () {
+          Navigator.pop(context);
+        },
         onTapRight: () => _handleClearAllConfirm(),
       ),
     );
   }
 
   void _handleClearAllConfirm() {
-    _clearAll();
     Navigator.pop(context);
-    _preventFocusRestoration();
+    _forceUnfocusAll();
+    _clearAll();
   }
 
-  void _preventFocusRestoration() {
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted) {
-        FocusScope.of(context).unfocus();
+  void _forceUnfocusAll() {
+    for (var focusNode in _focusNodes) {
+      if (focusNode.hasFocus) {
+        focusNode.unfocus();
       }
-    });
+    }
+    if (_passphraseFocusNode.hasFocus) {
+      _passphraseFocusNode.unfocus();
+    }
+    FocusScope.of(context).unfocus();
+
+    FocusManager.instance.primaryFocus?.unfocus();
   }
 
   @override
