@@ -209,7 +209,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   buttonPosition: SingleButtonPosition.none,
                   title: t.settings_screen.set_password,
                   rightElement: CupertinoSwitch(
-                    value: provider.hasBiometricsPermission ? provider.isBiometricEnabled : false,
+                    value: false,
                     activeColor: CoconutColors.black,
                     onChanged: (isOn) async {
                       /// 비밀번호 제거 기능은 제공하지 않음.
