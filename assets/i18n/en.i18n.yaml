@@ -300,6 +300,14 @@ mnemonic_coin_flip_screen:
   enter_passphrase: "Enter passphrase"
   coin_head: "Front"
   coin_tail: "Back"
+mnemonic_dice_roll_screen:
+  title: "Create Mnemonic"
+  guide1: "Please select the side that came out after rolling the dice"
+  guide2: "Enough random values have been collected. No more rolling is needed🎲"
+  words_passphrase: " words, passphrase "
+  use: "Use"
+  do_not: "Don't"
+  enter_passphrase: "Enter passphrase"
 mnemonic_confirm_screen:
   title: "Final Check"
   description: "This information will be used to create a wallet"
@@ -351,6 +359,7 @@ select_vault_type_screen:
   loading_keys: "Loading keys stored in vault"
 vault_creation_options_screen:
   coin_flip: "Flip coin to create manually"
+  dice_roll: "Roll dice to create manually"
   auto_generate: "Let app create for me"
   import_mnemonic: "I have an existing mnemonic phrase"
   seed_qr: "I have a seed QR code"
