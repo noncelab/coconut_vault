@@ -151,7 +151,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           builder: (context, provider, child) {
             return MultiButton(children: [
               if (provider.isPinSet) ...{
-                if (provider.canCheckBiometrics)
+                if (provider.isBiometricSupportedByDevice)
                   SingleButton(
                     buttonPosition: SingleButtonPosition.top,
                     title: t.settings_screen.use_biometric,
@@ -159,6 +159,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       value: provider.hasBiometricsPermission ? provider.isBiometricEnabled : false,
                       activeColor: CoconutColors.black,
                       onChanged: (isOn) async {
+                        if (!provider.hasEnrolledBiometricsInDevice) {
+                          CoconutToast.showToast(
+                              context: context,
+                              text: t.settings_screen.toast.no_enrolled_biometrics,
+                              isVisibleIcon: true,
+                              seconds: 5);
+                          return;
+                        }
+
                         if (isOn &&
                             await provider.authenticateWithBiometrics(
                                 context: context, isSaved: true)) {
@@ -172,7 +181,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     ),
                   ),
                 SingleButton(
-                  buttonPosition: provider.canCheckBiometrics
+                  buttonPosition: provider.isBiometricSupportedByDevice
                       ? SingleButtonPosition.bottom
                       : SingleButtonPosition.none,
                   title: t.settings_screen.change_password,

@@ -43,9 +43,13 @@ class AuthProvider extends ChangeNotifier {
   bool _hasAlreadyRequestedBioPermission = false;
   bool get hasAlreadyRequestedBioPermission => _hasAlreadyRequestedBioPermission;
 
-  /// 디바이스 생체인증 활성화 여부
-  bool _canCheckBiometrics = false;
-  bool get canCheckBiometrics => _canCheckBiometrics;
+  // 디바이스가 생체인증을 '지원'하는가
+  bool _isBiometricSupportedByDevice = false;
+  bool get isBiometricSupportedByDevice => _isBiometricSupportedByDevice;
+
+  /// 등록된 생체인증 존재 여부
+  bool _hasEnrolledBiometricsInDevice = false;
+  bool get hasEnrolledBiometricsInDevice => _hasEnrolledBiometricsInDevice;
 
   /// 사용자 생체 인증 on/off 여부
   bool _isBiometricEnabled = false;
@@ -59,7 +63,7 @@ class AuthProvider extends ChangeNotifier {
   bool get isAuthEnabled => _isPinSet;
 
   /// 생체인식 인증 활성화 여부
-  bool get isBiometricsAuthEnabled => _canCheckBiometrics && _isBiometricEnabled;
+  bool get isBiometricsAuthEnabled => _hasEnrolledBiometricsInDevice && _isBiometricEnabled;
 
   /// 잠금 해제 시도 정보
   int _currentTurn = 0;
@@ -95,7 +99,7 @@ class AuthProvider extends ChangeNotifier {
   VoidCallback? onAuthenticationSuccess;
 
   AuthProvider() {
-    updateBiometricAvailability();
+    updateDeviceBiometricAvailability();
     setInitState();
   }
 
@@ -191,30 +195,40 @@ class AuthProvider extends ChangeNotifier {
   }
 
   /// 기기의 생체인증 가능 여부 업데이트
-  /// Shared Preference의 canCheckBiometrics, isBiometricEnabled를 업데이트함
-  Future<void> updateBiometricAvailability() async {
+  /// - isBiometricSupportedByDevice: 하드웨어/OS 지원 여부 (등록 여부와 무관)
+  /// - canCheckBiometrics: 등록되어 현재 인증 시도 가능한지
+  /// 또한 isBiometricEnabled(앱 설정) 조정 및 SharedPrefs 반영
+  Future<void> updateDeviceBiometricAvailability() async {
     try {
-      final hasBiometrics = await _auth.canCheckBiometrics;
-      if (!hasBiometrics) {
-        _canCheckBiometrics = false;
+      // 1) 장치 지원 여부 (등록과 무관)
+      _isBiometricSupportedByDevice = await _auth.isDeviceSupported();
+      if (!_isBiometricSupportedByDevice) {
+        _hasEnrolledBiometricsInDevice = false;
+        _isBiometricEnabled = false;
         return;
       }
 
+      // 2) 등록된 생체정보가 있어 인증 시도 가능한가
+      // getAvailableBiometrics까지  조회하는 이유는 일부 안드로이드 기기에서 canCheckBiometrics가 true인데 실제로는 등록 안된 경우도 있기 때문
+      final hasBiometrics = await _auth.canCheckBiometrics;
+      if (!hasBiometrics) {
+        _hasEnrolledBiometricsInDevice = false;
+        return;
+      }
       final List<BiometricType> availableBiometrics = await _auth.getAvailableBiometrics();
-      _canCheckBiometrics = availableBiometrics.isNotEmpty;
-
-      if (!_canCheckBiometrics) {
+      _hasEnrolledBiometricsInDevice = availableBiometrics.isNotEmpty;
+      if (!_hasEnrolledBiometricsInDevice) {
         _isBiometricEnabled = false;
       }
-    } on PlatformException catch (e) {
+    } catch (e) {
       // 생체 인식 기능 비활성화, 사용자가 권한 거부, 기기 하드웨어에 문제가 있는 경우, 기기 호환성 문제, 플랫폼 제한
       Logger.log(e);
-      _canCheckBiometrics = false;
+      _isBiometricSupportedByDevice = false;
+      _hasEnrolledBiometricsInDevice = false;
       _isBiometricEnabled = false;
     } finally {
       // dispose된 상태에서는 notifyListeners 호출하지 않음
       if (!_isDisposed) {
-        _sharedPrefs.setBool(SharedPrefsKeys.canCheckBiometrics, _canCheckBiometrics);
         _sharedPrefs.setBool(SharedPrefsKeys.isBiometricEnabled, _isBiometricEnabled);
         notifyListeners();
       }
@@ -276,7 +290,7 @@ class AuthProvider extends ChangeNotifier {
   Future<void> savePin(String pin, bool isCharacter) async {
     if (_isDisposed) return;
 
-    if (_isBiometricEnabled && _canCheckBiometrics && !_isPinSet) {
+    if (_isBiometricEnabled && _hasEnrolledBiometricsInDevice && !_isPinSet) {
       _isBiometricEnabled = true;
       _sharedPrefs.setBool(SharedPrefsKeys.isBiometricEnabled, true);
     }

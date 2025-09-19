@@ -281,6 +281,8 @@ settings_screen:
   advanced_user: "고급 사용자"
   use_passphrase: "패스프레이즈 사용하기"
   information: "안내"
+  toast:
+    no_enrolled_biometrics: "기기에 등록된 생체 인증이 없어요"
   
 # lib/screens/start_guide
 welcome_screen:

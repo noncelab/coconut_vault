@@ -280,6 +280,8 @@ settings_screen:
   advanced_user: "Advanced User"
   use_passphrase: "Use Passphrase"
   information: "Information"
+  toast:
+    no_enrolled_biometrics: "No biometrics are set up on this device"
 
 # lib/screens/start_guide
 welcome_screen:

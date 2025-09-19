@@ -64,7 +64,7 @@ class _PinCheckScreenState extends State<PinCheckScreen> with WidgetsBindingObse
 
     _authProvider = Provider.of<AuthProvider>(context, listen: false);
     _pinType = _authProvider.isPinCharacter ? PinType.character : PinType.number;
-    print('initState pinType: $_pinType');
+    Logger.log('initState pinType: $_pinType');
 
     Future.microtask(() {
       _authProvider.onRequestShowAuthenticationFailedDialog = () {
@@ -75,7 +75,7 @@ class _PinCheckScreenState extends State<PinCheckScreen> with WidgetsBindingObse
 
     WidgetsBinding.instance.addObserver(this);
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      await _authProvider.updateBiometricAvailability();
+      await _authProvider.updateDeviceBiometricAvailability();
       if (mounted) {
         setState(() {
           _shuffledPinNumbers = _authProvider.getShuffledNumberList();
@@ -124,7 +124,7 @@ class _PinCheckScreenState extends State<PinCheckScreen> with WidgetsBindingObse
       _isPaused = true;
     } else if (AppLifecycleState.resumed == state && _isPaused) {
       _isPaused = false;
-      await _authProvider.updateBiometricAvailability();
+      await _authProvider.updateDeviceBiometricAvailability();
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (mounted) {
           setState(() {
