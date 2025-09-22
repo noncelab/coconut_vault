@@ -339,6 +339,10 @@ mnemonic_import_screen:
 
 mnemonic_view_screen:
   security_guide: "Please check the mnemonic in a safe place"
+  warning_title: "Mnemonic phrase is the key to your wallet"
+  warning_guide: "If you know this word, anyone can take all your bitcoins. Please check if there are any other people or cameras around you."
+  warning_btn: "I understand"
+  
 mnemonic_verify_screen:
   title: "Verify Mnemonic"
   select_word: "Select word #${index}"
