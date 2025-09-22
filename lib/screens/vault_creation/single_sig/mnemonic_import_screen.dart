@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_lib/coconut_lib.dart';
 import 'package:coconut_vault/constants/app_routes.dart';
@@ -51,6 +53,10 @@ class _MnemonicImportScreenState extends State<MnemonicImportScreen> {
   // Controllers and nodes
   List<WordSuggestableController> _controllers = [];
   List<FocusNode> _focusNodes = [];
+  // 각 입력 필드 내 현재 단어 길이의 이전 값 추적 (자동 적용 트리거 제어)
+  List<int> _previousCurrentWordLengths = [];
+  // 각 인덱스별 이전 텍스트 스냅샷 (이전 상태 기준 검증용)
+  final Map<int, String> _prevTextsByIndex = {};
   final TextEditingController _passphraseController = TextEditingController();
   final FocusNode _passphraseFocusNode = FocusNode();
   final ScrollController _scrollController = ScrollController();
@@ -195,6 +201,7 @@ class _MnemonicImportScreenState extends State<MnemonicImportScreen> {
     _disposeTextFields();
     _controllers = List.generate(_wordCount, (index) => WordSuggestableController());
     _focusNodes = List.generate(_wordCount, (index) => FocusNode());
+    _previousCurrentWordLengths = List.generate(_wordCount, (index) => 0);
   }
 
   void _disposeTextFields() {
@@ -336,37 +343,134 @@ class _MnemonicImportScreenState extends State<MnemonicImportScreen> {
     _validateMnemonic(checkPrefixMatch: false);
   }
 
+  /// 추천 단어를 현재 필드에 적용하고 다음 필드로 포커스를 이동합니다.
+  ///
+  /// 적용 과정:
+  /// 1. 현재 필드에 추천 단어 설정
+  /// 2. 이전 텍스트 스냅샷과 길이 정보 업데이트
+  /// 3. 커서를 텍스트 끝으로 이동
+  /// 4. 추천 패널 숨기기
+  /// 5. 다음 필드로 포커스 이동
   void _applySuggestionWord(String newWord) {
     final controllerIndex = _focusNodes.indexWhere((node) => node.hasFocus);
     if (controllerIndex == -1) return;
 
+    // 추천 단어를 현재 필드에 적용
     _controllers[controllerIndex].text = newWord.trim();
+
+    // 상태 정보 업데이트
+    _prevTextsByIndex[controllerIndex] = newWord.trim();
+    _previousCurrentWordLengths[controllerIndex] = newWord.trim().length;
+
+    // UI 업데이트
     _forceCursorToEnd(controllerIndex);
     _hideSuggestionPanel();
     _focusNextField();
   }
 
+  /// 현재 포커스된 텍스트 필드의 단어를 분석하고 입력 규칙에 따라 처리합니다.
+  ///
+  /// 처리 규칙:
+  /// 1. Invalid 상태: 2글자까지는 이어서 입력 허용, 3글자는 추천단어가 있을 때만 허용
+  /// 2. Valid 상태: 4글자 도달 시 자동 적용, 그 외에는 초기화
   void _queryCurrentWord() {
+    // 포커스된 필드가 없으면 추천 패널 숨기고 종료
     if (!_focusNodes.any((node) => node.hasFocus)) {
       _hideSuggestionPanel();
       return;
     }
 
+    // 현재 포커스된 필드의 인덱스 찾기
     final controllerIndex = _focusNodes.indexWhere((node) => node.hasFocus);
     if (controllerIndex == -1) return;
 
+    // 현재 텍스트와 이전 텍스트 스냅샷 가져오기
     final text = _controllers[controllerIndex].text;
+    final String prevTextSnapshot = _prevTextsByIndex[controllerIndex] ?? '';
     final sel = _controllers[controllerIndex].selection;
     final pos = sel.baseOffset;
+    final prevLen = prevTextSnapshot.length;
+
+    // 커서 위치가 유효하지 않으면 종료
     if (pos < 0 || pos > text.length) return;
 
+    // 현재 커서 위치에서 단어 추출
     final word = _extractCurrentWord(text, pos);
+
+    // ===== INVALID 상태 처리 =====
+    // 잘못된 니모닉으로 판별된 경우의 입력 처리
+    if (_invalidMnemonicIndexes.contains(controllerIndex) &&
+        !WalletUtility.isInMnemonicWordList(word)) {
+      // 허용 조건: 2글자까지 또는 3글자 + 추천단어 있음 + 길이 증가
+      final bool allowContinue = word.length <= 2 ||
+          (word.length == 3 &&
+              _controllers[controllerIndex].hasSuggestion &&
+              word.length > prevLen);
+
+      if (allowContinue) {
+        // 허용 조건에 맞으면 이어서 입력 허용 (아무것도 하지 않음)
+      } else if (word.length != prevLen) {
+        // 허용 조건에 맞지 않고 길이가 변경되었으면 초기화
+        _controllers[controllerIndex].text = word.length < prevLen ? '' : word[word.length - 1];
+        _controllers[controllerIndex].clearSuggestion();
+      }
+    }
+    // ===== VALID 상태 처리 =====
+    // 올바른 니모닉으로 판별된 경우의 입력 처리
+    else {
+      // 길이가 변경되었고 이전 텍스트가 유효한 니모닉인 경우
+      if (word.length != prevLen && WalletUtility.isInMnemonicWordList(prevTextSnapshot)) {
+        // 4글자 도달 시 자동 적용 (상승 에지에서만)
+        if (prevLen < 4 &&
+            word.length == 4 &&
+            _controllers[controllerIndex].hasSuggestion &&
+            _suggestionWords.contains(word)) {
+          _prevTextsByIndex[controllerIndex] = word;
+          _previousCurrentWordLengths[controllerIndex] = word.length;
+          _updateSuggestions(word, controllerIndex);
+          _handleSpaceInput();
+        } else {
+          // 그 외의 경우는 초기화
+          _controllers[controllerIndex].text = word.length < prevLen ? '' : word[word.length - 1];
+          _controllers[controllerIndex].clearSuggestion();
+        }
+      }
+    }
+
+    // 다음 이벤트에서 사용할 이전 텍스트 스냅샷 업데이트
+    _prevTextsByIndex[controllerIndex] = _controllers[controllerIndex].text;
+
+    // ===== 추천 단어 처리 =====
     if (word.length >= 2) {
+      // 2글자 이상이면 추천 단어 업데이트
       _updateSuggestions(word, controllerIndex);
+
+      // 4글자 도달 시 자동 추천 적용 (추가 검증 포함)
+      if (prevLen < 4 &&
+          word.length == 4 &&
+          _controllers[controllerIndex].hasSuggestion &&
+          _controllers[controllerIndex].suggestionWord.length > 3 &&
+          word.length > 3 &&
+          word[3] == _controllers[controllerIndex].suggestionWord[3]) {
+        final suggestionWord = _controllers[controllerIndex].suggestionWord;
+        _prevTextsByIndex[controllerIndex] = suggestionWord;
+        _previousCurrentWordLengths[controllerIndex] = suggestionWord.length;
+        _applySuggestionWord(suggestionWord);
+      }
     } else {
+      // 2글자 미만이면 추천 단어 숨기기
       setState(() {
         _suggestionWords = [];
       });
+    }
+
+    // ===== 상태 업데이트 =====
+    // 현재 길이를 다음 비교를 위해 저장
+    _previousCurrentWordLengths[controllerIndex] = word.length;
+
+    // 길이가 변경되었으면 invalid 목록에서 제거 (유효한 입력으로 간주)
+    if (word.length != prevLen) {
+      _invalidMnemonicIndexes.remove(controllerIndex);
     }
   }
 
@@ -478,28 +582,13 @@ class _MnemonicImportScreenState extends State<MnemonicImportScreen> {
         .replaceAll(RegExp(r'\s+'), ' ');
   }
 
-  bool _shouldShowSuggestionWords(int lineIndex) {
-    final groups = _buildLineGroups();
-    if (lineIndex < 0 || lineIndex >= groups.length) return false;
+  bool _shouldShowSuggestionWords() {
+    final groups = List.generate(_wordCount, (index) => index);
 
-    final group = groups[lineIndex];
-    return group.any((index) =>
+    return groups.any((index) =>
         _focusNodes[index].hasFocus &&
         _controllers[index].text.length >= 2 &&
         _suggestionWords.isNotEmpty);
-  }
-
-  List<List<int>> _buildLineGroups() {
-    return [
-      [0, 1, 2],
-      [3, 4, 5],
-      [6, 7, 8],
-      [9, 10, 11],
-      [12, 13, 14],
-      [15, 16, 17],
-      [18, 19, 20],
-      [21, 22, 23],
-    ];
   }
 
   void _setDropdownVisible(bool value) {
@@ -640,14 +729,18 @@ class _MnemonicImportScreenState extends State<MnemonicImportScreen> {
     return SafeArea(
       child: Stack(
         children: [
-          Column(
-            children: [
-              CoconutLayout.spacing_400h,
-              _buildWordCountSelector(),
-              Expanded(child: _buildMnemonicInputSection()),
-            ],
+          SizedBox(
+            height: MediaQuery.of(context).size.height,
+            child: Column(
+              children: [
+                CoconutLayout.spacing_400h,
+                _buildWordCountSelector(),
+                Expanded(child: _buildMnemonicInputSection()),
+              ],
+            ),
           ),
           if (!_isSuggestionWordsVisible) _buildBottomButton(),
+          if (_isSuggestionWordsVisible) _buildSuggestionSection(),
         ],
       ),
     );
@@ -702,7 +795,8 @@ class _MnemonicImportScreenState extends State<MnemonicImportScreen> {
               CoconutLayout.spacing_700h,
               _buildPassphraseToggle(),
               if (_usePassphrase) _buildPassphraseTextField(),
-              CoconutLayout.spacing_2000h
+              SizedBox(
+                  height: _isSuggestionWordsVisible && _shouldShowSuggestionWords() ? 200 : 80),
             ],
           ),
         ),
@@ -716,35 +810,109 @@ class _MnemonicImportScreenState extends State<MnemonicImportScreen> {
     return [
       for (var i = 0; i < lineCount; i++) ...[
         _buildMnemonicTextFieldLine(i),
-        _buildSuggestionSection(i),
         CoconutLayout.spacing_200h,
       ],
     ];
   }
 
-  Widget _buildSuggestionSection(int lineIndex) {
-    return Visibility(
-      visible: _shouldShowSuggestionWords(lineIndex),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          CoconutLayout.spacing_200h,
-          Text(
-            t.mnemonic_import_screen.recommended_words,
-            style: CoconutTypography.body3_12_Bold.setColor(CoconutColors.gray800),
+  Widget _buildSuggestionSection() {
+    return Positioned(
+      bottom: 0,
+      left: 0,
+      right: 0,
+      child: Visibility(
+        visible: _shouldShowSuggestionWords(),
+        child: SizedBox(
+          height: 200,
+          width: MediaQuery.of(context).size.width,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                child: Stack(
+                  children: [
+                    Positioned.fill(
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(12),
+                        child: BackdropFilter(
+                          filter: ImageFilter.blur(sigmaX: 3, sigmaY: 3),
+                          child: Container(),
+                        ),
+                      ),
+                    ),
+                    Positioned.fill(
+                      child: SingleChildScrollView(
+                        physics: const AlwaysScrollableScrollPhysics(),
+                        child: _buildSuggestionButtons(),
+                      ),
+                    ),
+                    IgnorePointer(
+                      ignoring: true,
+                      child: Positioned(
+                        left: 0,
+                        right: 0,
+                        top: 0,
+                        child: SizedBox(
+                          height: 16,
+                          child: ClipRRect(
+                            child: Container(
+                              decoration: BoxDecoration(
+                                gradient: LinearGradient(
+                                  begin: Alignment.topCenter,
+                                  end: Alignment.bottomCenter,
+                                  colors: [
+                                    CoconutColors.white,
+                                    CoconutColors.white.withOpacity(0.7),
+                                    CoconutColors.white.withOpacity(0.1),
+                                    Colors.transparent,
+                                  ],
+                                  stops: const [0.0, 0.35, 0.7, 0.7],
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                    IgnorePointer(
+                      ignoring: true,
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                        child: Text(
+                          t.mnemonic_import_screen.recommended_words,
+                          style: CoconutTypography.body3_12_Bold.setColor(CoconutColors.gray800),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
           ),
-          CoconutLayout.spacing_150h,
-          _buildSuggestionButtons(),
-        ],
+        ),
       ),
     );
   }
 
   Widget _buildSuggestionButtons() {
-    return Wrap(
-      spacing: 8,
-      runSpacing: 4,
-      children: _suggestionWords.map((word) => _buildSuggestionButton(word)).toList(),
+    return Container(
+      padding: const EdgeInsets.only(
+        left: 16,
+        right: 16,
+      ),
+      width: MediaQuery.of(context).size.width,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          CoconutLayout.spacing_800h,
+          Wrap(
+            spacing: 8,
+            runSpacing: 4,
+            children: _suggestionWords.map((word) => _buildSuggestionButton(word)).toList(),
+          ),
+          CoconutLayout.spacing_400h,
+        ],
+      ),
     );
   }
 
@@ -945,7 +1113,7 @@ class _MnemonicImportScreenState extends State<MnemonicImportScreen> {
   }
 
   void _scrollToSuggestionsIfNeeded(int index) {
-    if (_shouldShowSuggestionWords(index ~/ _wordsPerLine)) {
+    if (_shouldShowSuggestionWords()) {
       _scrollController.animateTo(
         _scrollOffsets[index ~/ _wordsPerLine],
         duration: _scrollDuration,

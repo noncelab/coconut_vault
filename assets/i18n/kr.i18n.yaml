@@ -320,7 +320,6 @@ mnemonic_generate_screen:
   select_word_length: "단어 수를 고르세요"
   twelve: "12 단어"
   twenty_four: "24 단어"
-  regenerate: "재생성"
   use_passphrase: "패스프레이즈를 사용하실 건가요?"
   ensure_backup: "니모닉을 틀림없이 백업했습니다"
   word_passphrase: " 단어, 패스프레이즈 "

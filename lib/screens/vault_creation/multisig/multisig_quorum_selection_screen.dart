@@ -60,7 +60,6 @@ class _MultisigQuorumSelectionScreenState extends State<MultisigQuorumSelectionS
   bool _mounted = true;
   int _totalKeyCount = 3;
   int _requiredSignatureCount = 2;
-  bool _isProgressAnimationVisible = true;
 
   @override
   Widget build(BuildContext context) {
@@ -98,9 +97,7 @@ class _MultisigQuorumSelectionScreenState extends State<MultisigQuorumSelectionS
                     isActive: viewModel.isQuorumSettingValid,
                     onButtonClicked: () {
                       viewModel.saveQuorumRequirement();
-                      setState(() {
-                        _isProgressAnimationVisible = false;
-                      });
+
                       _mounted = false;
                       Navigator.pushNamed(context, AppRoutes.signerAssignment);
                     },
@@ -112,27 +109,6 @@ class _MultisigQuorumSelectionScreenState extends State<MultisigQuorumSelectionS
         },
       ),
     );
-  }
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-
-    String? currentRoute = ModalRoute.of(context)?.settings.name;
-    debugPrint('currentRoute: $currentRoute, mounted: $mounted');
-    if (!_mounted &&
-        currentRoute != null &&
-        currentRoute.startsWith(AppRoutes.multisigQuorumSelection)) {
-      setState(() {
-        _isProgressAnimationVisible = false;
-      });
-      Future.delayed(const Duration(milliseconds: 100), () {
-        setState(() {
-          _isProgressAnimationVisible = true;
-        });
-      });
-      _mounted = true;
-    }
   }
 
   @override
@@ -195,13 +171,11 @@ class _MultisigQuorumSelectionScreenState extends State<MultisigQuorumSelectionS
               ),
             ),
             const Spacer(),
-            _isProgressAnimationVisible
-                ? KeySafeAnimationWidget(
-                    requiredCount: requiredCount,
-                    totalCount: totalCount,
-                    buttonClickedCount: buttonClickedCount,
-                  )
-                : Container(),
+            KeySafeAnimationWidget(
+              requiredCount: requiredCount,
+              totalCount: totalCount,
+              buttonClickedCount: buttonClickedCount,
+            ),
             CoconutLayout.spacing_400h,
           ],
         ));

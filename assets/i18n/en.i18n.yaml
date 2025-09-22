@@ -318,7 +318,6 @@ mnemonic_generate_screen:
   select_word_length: "Select word count"
   twelve: "12 words"
   twenty_four: "24 words"
-  regenerate: "Regenerate"
   use_passphrase: "Use passphrase?"
   ensure_backup: "I have definitely backed up the mnemonic"
   word_passphrase: " words, passphrase "

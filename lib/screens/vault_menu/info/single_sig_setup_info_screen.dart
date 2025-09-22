@@ -315,6 +315,7 @@ class _SingleSigSetupInfoScreenState extends State<SingleSigSetupInfoScreen> {
             // Linked multisig vaults
             Consumer<SingleSigSetupInfoViewModel>(builder: (context, viewModel, child) {
               return ListView.builder(
+                physics: const NeverScrollableScrollPhysics(),
                 itemCount: viewModel.linkedMutlsigVaultCount,
                 shrinkWrap: true,
                 itemBuilder: (context, index) {
