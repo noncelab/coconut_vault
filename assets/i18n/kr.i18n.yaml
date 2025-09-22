@@ -283,6 +283,10 @@ settings_screen:
   information: "안내"
   toast:
     no_enrolled_biometrics: "기기에 등록된 생체 인증이 없어요"
+  dialog:
+    need_biometrics_setting_title: "생체 인증 허용"
+    need_biometrics_setting_desc: "생체 인증 설정을 확인해주세요."
+    btn_move_to_setting: "설정하러 가기"
   
 # lib/screens/start_guide
 welcome_screen:

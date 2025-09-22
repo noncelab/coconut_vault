@@ -7,7 +7,6 @@ import 'package:coconut_vault/enums/pin_check_context_enum.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/providers/auth_provider.dart';
 import 'package:coconut_vault/providers/preference_provider.dart';
-import 'package:coconut_vault/screens/common/pin_check_auth_dialog.dart';
 import 'package:coconut_vault/utils/logger.dart';
 import 'package:coconut_vault/widgets/pin/pin_length_toggle_button.dart';
 import 'package:flutter/material.dart';
@@ -67,20 +66,17 @@ class _PinCheckScreenState extends State<PinCheckScreen> with WidgetsBindingObse
     Logger.log('initState pinType: $_pinType');
 
     Future.microtask(() {
-      _authProvider.onRequestShowAuthenticationFailedDialog = () {
-        showAuthenticationFailedDialog(context, _authProvider.hasAlreadyRequestedBioPermission);
-      };
       _authProvider.onAuthenticationSuccess = _handleAuthenticationSuccess;
     });
 
     WidgetsBinding.instance.addObserver(this);
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      await _authProvider.updateDeviceBiometricAvailability();
-      if (mounted) {
-        setState(() {
-          _shuffledPinNumbers = _authProvider.getShuffledNumberList();
-        });
-      }
+      //await _authProvider.updateDeviceBiometricAvailability();
+      // if (mounted) {
+      //   setState(() {
+      //     _shuffledPinNumbers = _authProvider.getShuffledNumberList();
+      //   });
+      // }
       if (_authProvider.isPermanantlyLocked) {
         setState(() {
           _isUnlockDisabled = true;

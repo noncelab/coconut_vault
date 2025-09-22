@@ -131,7 +131,7 @@ class VaultListViewModel extends ChangeNotifier {
       onComplete();
       return;
     }
-    if (!_authProvider.isAuthEnabled) {
+    if (!_authProvider.isPinSet) {
       onComplete();
       return;
     }
