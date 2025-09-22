@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_lib/coconut_lib.dart';
 import 'package:coconut_vault/constants/app_routes.dart';
@@ -580,28 +582,13 @@ class _MnemonicImportScreenState extends State<MnemonicImportScreen> {
         .replaceAll(RegExp(r'\s+'), ' ');
   }
 
-  bool _shouldShowSuggestionWords(int lineIndex) {
-    final groups = _buildLineGroups();
-    if (lineIndex < 0 || lineIndex >= groups.length) return false;
+  bool _shouldShowSuggestionWords() {
+    final groups = List.generate(_wordCount, (index) => index);
 
-    final group = groups[lineIndex];
-    return group.any((index) =>
+    return groups.any((index) =>
         _focusNodes[index].hasFocus &&
         _controllers[index].text.length >= 2 &&
         _suggestionWords.isNotEmpty);
-  }
-
-  List<List<int>> _buildLineGroups() {
-    return [
-      [0, 1, 2],
-      [3, 4, 5],
-      [6, 7, 8],
-      [9, 10, 11],
-      [12, 13, 14],
-      [15, 16, 17],
-      [18, 19, 20],
-      [21, 22, 23],
-    ];
   }
 
   void _setDropdownVisible(bool value) {
@@ -742,14 +729,18 @@ class _MnemonicImportScreenState extends State<MnemonicImportScreen> {
     return SafeArea(
       child: Stack(
         children: [
-          Column(
-            children: [
-              CoconutLayout.spacing_400h,
-              _buildWordCountSelector(),
-              Expanded(child: _buildMnemonicInputSection()),
-            ],
+          SizedBox(
+            height: MediaQuery.of(context).size.height,
+            child: Column(
+              children: [
+                CoconutLayout.spacing_400h,
+                _buildWordCountSelector(),
+                Expanded(child: _buildMnemonicInputSection()),
+              ],
+            ),
           ),
           if (!_isSuggestionWordsVisible) _buildBottomButton(),
+          if (_isSuggestionWordsVisible) _buildSuggestionSection(),
         ],
       ),
     );
@@ -804,7 +795,8 @@ class _MnemonicImportScreenState extends State<MnemonicImportScreen> {
               CoconutLayout.spacing_700h,
               _buildPassphraseToggle(),
               if (_usePassphrase) _buildPassphraseTextField(),
-              CoconutLayout.spacing_2000h
+              SizedBox(
+                  height: _isSuggestionWordsVisible && _shouldShowSuggestionWords() ? 200 : 80),
             ],
           ),
         ),
@@ -818,35 +810,109 @@ class _MnemonicImportScreenState extends State<MnemonicImportScreen> {
     return [
       for (var i = 0; i < lineCount; i++) ...[
         _buildMnemonicTextFieldLine(i),
-        _buildSuggestionSection(i),
         CoconutLayout.spacing_200h,
       ],
     ];
   }
 
-  Widget _buildSuggestionSection(int lineIndex) {
-    return Visibility(
-      visible: _shouldShowSuggestionWords(lineIndex),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          CoconutLayout.spacing_200h,
-          Text(
-            t.mnemonic_import_screen.recommended_words,
-            style: CoconutTypography.body3_12_Bold.setColor(CoconutColors.gray800),
+  Widget _buildSuggestionSection() {
+    return Positioned(
+      bottom: 0,
+      left: 0,
+      right: 0,
+      child: Visibility(
+        visible: _shouldShowSuggestionWords(),
+        child: SizedBox(
+          height: 200,
+          width: MediaQuery.of(context).size.width,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                child: Stack(
+                  children: [
+                    Positioned.fill(
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(12),
+                        child: BackdropFilter(
+                          filter: ImageFilter.blur(sigmaX: 3, sigmaY: 3),
+                          child: Container(),
+                        ),
+                      ),
+                    ),
+                    Positioned.fill(
+                      child: SingleChildScrollView(
+                        physics: const AlwaysScrollableScrollPhysics(),
+                        child: _buildSuggestionButtons(),
+                      ),
+                    ),
+                    IgnorePointer(
+                      ignoring: true,
+                      child: Positioned(
+                        left: 0,
+                        right: 0,
+                        top: 0,
+                        child: SizedBox(
+                          height: 16,
+                          child: ClipRRect(
+                            child: Container(
+                              decoration: BoxDecoration(
+                                gradient: LinearGradient(
+                                  begin: Alignment.topCenter,
+                                  end: Alignment.bottomCenter,
+                                  colors: [
+                                    CoconutColors.white,
+                                    CoconutColors.white.withOpacity(0.7),
+                                    CoconutColors.white.withOpacity(0.1),
+                                    Colors.transparent,
+                                  ],
+                                  stops: const [0.0, 0.35, 0.7, 0.7],
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                    IgnorePointer(
+                      ignoring: true,
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                        child: Text(
+                          t.mnemonic_import_screen.recommended_words,
+                          style: CoconutTypography.body3_12_Bold.setColor(CoconutColors.gray800),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
           ),
-          CoconutLayout.spacing_150h,
-          _buildSuggestionButtons(),
-        ],
+        ),
       ),
     );
   }
 
   Widget _buildSuggestionButtons() {
-    return Wrap(
-      spacing: 8,
-      runSpacing: 4,
-      children: _suggestionWords.map((word) => _buildSuggestionButton(word)).toList(),
+    return Container(
+      padding: const EdgeInsets.only(
+        left: 16,
+        right: 16,
+      ),
+      width: MediaQuery.of(context).size.width,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          CoconutLayout.spacing_800h,
+          Wrap(
+            spacing: 8,
+            runSpacing: 4,
+            children: _suggestionWords.map((word) => _buildSuggestionButton(word)).toList(),
+          ),
+          CoconutLayout.spacing_400h,
+        ],
+      ),
     );
   }
 
@@ -1047,7 +1113,7 @@ class _MnemonicImportScreenState extends State<MnemonicImportScreen> {
   }
 
   void _scrollToSuggestionsIfNeeded(int index) {
-    if (_shouldShowSuggestionWords(index ~/ _wordsPerLine)) {
+    if (_shouldShowSuggestionWords()) {
       _scrollController.animateTo(
         _scrollOffsets[index ~/ _wordsPerLine],
         duration: _scrollDuration,
