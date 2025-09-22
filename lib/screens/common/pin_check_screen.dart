@@ -71,12 +71,6 @@ class _PinCheckScreenState extends State<PinCheckScreen> with WidgetsBindingObse
 
     WidgetsBinding.instance.addObserver(this);
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      //await _authProvider.updateDeviceBiometricAvailability();
-      // if (mounted) {
-      //   setState(() {
-      //     _shuffledPinNumbers = _authProvider.getShuffledNumberList();
-      //   });
-      // }
       if (_authProvider.isPermanantlyLocked) {
         setState(() {
           _isUnlockDisabled = true;
