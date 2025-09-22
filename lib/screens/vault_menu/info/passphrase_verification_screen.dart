@@ -2,6 +2,7 @@ import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_vault/enums/pin_check_context_enum.dart';
 import 'package:coconut_vault/isolates/wallet_isolates.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
+import 'package:coconut_vault/providers/auth_provider.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:coconut_vault/screens/common/pin_check_screen.dart';
 import 'package:coconut_vault/utils/vibration_util.dart';
@@ -147,45 +148,59 @@ class _PassphraseVerificationScreenState extends State<PassphraseVerificationScr
     );
   }
 
-  Future<void> verifyPassphrase() async {
-    if (_isSubmitting) return;
-
-    setState(() {
-      _isSubmitting = true;
-    });
-
-    _previousInput = _inputController.text;
-
-    _closeKeyboard();
-    final pinCheckResult = await _showPinCheckScreen();
-    if (pinCheckResult != true) return;
-
-    if (!mounted) return;
-    CustomDialogs.showLoadingDialog(context, t.verify_passphrase_screen.loading_description);
-    _isPassphraseVerified = false;
-    final walletProvider = context.read<WalletProvider>();
-    final result = await compute(WalletIsolates.verifyPassphrase, {
-      'mnemonic': await walletProvider.getSecret(widget.id),
-      'passphrase': _inputController.text,
-      'valutListItem': walletProvider.getVaultById(widget.id)
-    });
-
-    if (result['success']) {
-      vibrateLight();
-    } else {
-      vibrateLightDouble();
+  Future<bool> _authenticateWithBiometricOrPin() async {
+    final authProvider = context.read<AuthProvider>();
+    if (await authProvider.isBiometricsAuthValid()) {
+      return true;
     }
 
-    if (!mounted) return;
-    Navigator.of(context).pop();
-    _isPassphraseVerified = true;
-    _isVerificationResultSuccess = result['success'];
-    _savedMfp = result['savedMfp'];
-    _recoveredMfp = result['recoveredMfp'];
-    _extendedPublicKey = result['extendedPublicKey'] as String?;
-    _isSubmitting = false;
+    final pinCheckResult = await _showPinCheckScreen();
+    if (pinCheckResult == true) return true;
+    return false;
+  }
 
-    setState(() {});
+  Future<void> verifyPassphrase() async {
+    if (_isSubmitting) return;
+    try {
+      setState(() {
+        _isSubmitting = true;
+      });
+
+      _closeKeyboard();
+
+      final authResult = await _authenticateWithBiometricOrPin();
+      if (!authResult) return;
+      if (!mounted) return;
+      CustomDialogs.showLoadingDialog(context, t.verify_passphrase_screen.loading_description);
+      _isPassphraseVerified = false;
+      final walletProvider = context.read<WalletProvider>();
+      final result = await compute(WalletIsolates.verifyPassphrase, {
+        'mnemonic': await walletProvider.getSecret(widget.id),
+        'passphrase': _inputController.text,
+        'valutListItem': walletProvider.getVaultById(widget.id)
+      });
+
+      _previousInput = _inputController.text;
+
+      if (result['success']) {
+        vibrateLight();
+      } else {
+        vibrateLightDouble();
+      }
+
+      if (!mounted) return;
+      Navigator.of(context).pop();
+      _isPassphraseVerified = true;
+      _isVerificationResultSuccess = result['success'];
+      _savedMfp = result['savedMfp'];
+      _recoveredMfp = result['recoveredMfp'];
+      _extendedPublicKey = result['extendedPublicKey'] as String?;
+      setState(() {});
+    } finally {
+      setState(() {
+        _isSubmitting = false;
+      });
+    }
   }
 
   Widget _buildPassphraseInput() {
