@@ -121,8 +121,17 @@ class _PinCheckScreenState extends State<PinCheckScreen> with WidgetsBindingObse
     } else if (AppLifecycleState.resumed == state && _isPaused) {
       _isPaused = false;
       await _authProvider.updateDeviceBiometricAvailability();
+
+      /// 생체 인증 시도
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (mounted) {
+        if (!mounted) return;
+
+        _authProvider.isBiometricsAuthValid().then((result) {
+          if (result) {
+            _handleAuthenticationSuccess();
+          }
+        });
+        if (_pinType == PinType.number) {
           setState(() {
             _shuffledPinNumbers = _authProvider.getShuffledNumberList();
           });
