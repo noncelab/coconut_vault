@@ -846,38 +846,39 @@ class _MnemonicImportScreenState extends State<MnemonicImportScreen> {
                         child: _buildSuggestionButtons(),
                       ),
                     ),
-                    IgnorePointer(
-                      ignoring: true,
-                      child: Positioned(
-                        left: 0,
-                        right: 0,
-                        top: 0,
+                    Positioned(
+                      left: 0,
+                      right: 0,
+                      top: 0,
+                      child: IgnorePointer(
+                        ignoring: true,
                         child: SizedBox(
                           height: 16,
-                          child: ClipRRect(
-                            child: Container(
-                              decoration: BoxDecoration(
-                                gradient: LinearGradient(
-                                  begin: Alignment.topCenter,
-                                  end: Alignment.bottomCenter,
-                                  colors: [
-                                    CoconutColors.white,
-                                    CoconutColors.white.withOpacity(0.7),
-                                    CoconutColors.white.withOpacity(0.1),
-                                    Colors.transparent,
-                                  ],
-                                  stops: const [0.0, 0.35, 0.7, 0.7],
-                                ),
+                          child: Container(
+                            decoration: BoxDecoration(
+                              gradient: LinearGradient(
+                                begin: Alignment.topCenter,
+                                end: Alignment.bottomCenter,
+                                colors: [
+                                  CoconutColors.white,
+                                  CoconutColors.white.withOpacity(0.9),
+                                  CoconutColors.white.withOpacity(0.5),
+                                  CoconutColors.white.withOpacity(0.1),
+                                  Colors.transparent,
+                                ],
+                                stops: const [0.0, 0.2, 0.5, 0.8, 1.0],
                               ),
                             ),
                           ),
                         ),
                       ),
                     ),
-                    IgnorePointer(
-                      ignoring: true,
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    Positioned(
+                      left: 16,
+                      right: 16,
+                      top: 8,
+                      child: IgnorePointer(
+                        ignoring: true,
                         child: Text(
                           t.mnemonic_import_screen.recommended_words,
                           style: CoconutTypography.body3_12_Bold.setColor(CoconutColors.gray800),
