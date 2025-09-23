@@ -59,7 +59,7 @@ sign_completed: "서명을 완료했어요"
 stop_sign: "서명 종료하기"
 
 select_completed: "선택 완료"
-checklist: "확인 사항"
+checklist: "보안 체크리스트"
 wallet_id: "지갑 ID"
 mnemonic_wordlist: "니모닉 문구 단어집"
 tool: "도구"
@@ -196,7 +196,7 @@ security_self_check_screen:
   check7: "니모닉 문구와 패스프레이즈를 함께 보관하지 않습니다."
   check8: "소액으로 보내기 테스트를 한 후 지갑 사용을 시작합니다."
   check9: "위 사항을 주기적으로 점검하고, 안전하게 니모닉 문구를 보관하겠습니다."
-  guidance: "아래 자가 점검 항목을 숙지하고 니모닉 문구를 반드시 안전하게 보관합니다."
+  guidance: "나의 니모닉 문구는 내가 직접 안전하게 보관합니다. 아래 항목을 확인하며 체크리스트를 완성해 주세요."
 tutorial_screen:
   title1: "튜토리얼을 참고하시면\n더욱 쉽게 사용할 수 있어요"
   title2: "도움이 필요하신가요?"

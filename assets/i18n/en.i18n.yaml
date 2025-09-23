@@ -59,7 +59,7 @@ sign_completed: "Signature completed"
 stop_sign: "Stop Signing"
 
 select_completed: "Selection Complete"
-checklist: "Checklist"
+checklist: "Security Checklist"
 wallet_id: "Wallet ID"
 mnemonic_wordlist: "Mnemonic Word List"
 tool: "Tool"
@@ -195,7 +195,7 @@ security_self_check_screen:
   check7: "I do not store mnemonics and passphrases together."
   check8: "I test with small amounts before starting wallet use."
   check9: "I will regularly check the above items and safely store my mnemonics."
-  guidance: "Please understand the self-check items below and safely store your mnemonics."
+  guidance: "I will securely store my mnemonic words myself. Please review the items below and complete the checklist."
 tutorial_screen:
   title1: "Follow the tutorial\nfor easier use"
   title2: "Need help?"
@@ -327,7 +327,7 @@ mnemonic_generate_screen:
   passphrase_not_matched: "Passphrase does not match"
   memorable_passphrase_guide: "A passphrase you'll never forget"
   passphrase_confirm_guide: "Confirm passphrase"
-  backup_guide: "Please backup mnemonic in a safe place"
+  backup_guide: "Please backup mnemonic words in a safe place"
   backup_complete: "Backup Complete"
   warning: "Please be careful with storage and leakage of entered passphrase"
 mnemonic_import_screen:

@@ -468,6 +468,7 @@ class _MnemonicWordsState extends State<MnemonicWords> {
                                   ? CoconutColors.warningText
                                   : CoconutColors.black,
                         ),
+                        textAlign: TextAlign.center,
                       ),
                     ),
                     step == 0

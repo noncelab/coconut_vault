@@ -83,7 +83,7 @@ class _SecuritySelfCheckScreenState extends State<SecuritySelfCheckScreen> {
                           style: CoconutTypography.body1_16_Bold.setColor(CoconutColors.black),
                         )),
                   ),
-                  const SizedBox(height: 16),
+                  CoconutLayout.spacing_400h,
                   ..._items.asMap().entries.map(
                     (entry) {
                       int index = entry.key;
@@ -96,6 +96,7 @@ class _SecuritySelfCheckScreenState extends State<SecuritySelfCheckScreen> {
                       );
                     },
                   ),
+                  CoconutLayout.spacing_1500h,
                 ]),
               ),
             ),

@@ -75,106 +75,111 @@ class _MnemonicListState extends State<MnemonicList> with TickerProviderStateMix
     final words = widget.mnemonic.split(' ');
     final itemCount = widget.isLoading ? 12 : words.length;
 
-    return Padding(
-      padding: const EdgeInsets.only(
-        left: 40.0,
-        right: 40.0,
+    return MediaQuery(
+      data: MediaQuery.of(context).copyWith(
+        textScaler: const TextScaler.linear(1.0), // 폰트 스케일링 고정
       ),
-      child: GridView.builder(
-        shrinkWrap: true,
-        physics: const NeverScrollableScrollPhysics(),
-        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 2, // 2열로 배치
-          childAspectRatio: 2.5, // 각 아이템의 가로:세로 = 2.5:1
-          crossAxisSpacing: 12, // 열 간격
-          mainAxisSpacing: 8, // 행 간격
+      child: Padding(
+        padding: const EdgeInsets.only(
+          left: 40.0,
+          right: 40.0,
         ),
-        itemCount: itemCount,
-        itemBuilder: (BuildContext context, int index) {
-          // 로딩 중일 때 파도타기 애니메이션 적용
-          if (widget.isLoading && index < _opacityAnimations.length) {
-            return AnimatedBuilder(
-              animation: _waveAnimationController,
-              builder: (context, child) {
-                final delay = (index / 2).floor() * 0.1;
-                final progress = _waveAnimationController.value;
-                final waveProgress = (progress - delay) % 1.0;
+        child: GridView.builder(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 2, // 2열로 배치
+            childAspectRatio: 2.5, // 각 아이템의 가로:세로 = 2.5:1
+            crossAxisSpacing: 12, // 열 간격
+            mainAxisSpacing: 8, // 행 간격
+          ),
+          itemCount: itemCount,
+          itemBuilder: (BuildContext context, int index) {
+            // 로딩 중일 때 파도타기 애니메이션 적용
+            if (widget.isLoading && index < _opacityAnimations.length) {
+              return AnimatedBuilder(
+                animation: _waveAnimationController,
+                builder: (context, child) {
+                  final delay = (index / 2).floor() * 0.1;
+                  final progress = _waveAnimationController.value;
+                  final waveProgress = (progress - delay) % 1.0;
 
-                // 파도 효과: 0.3 -> 1.0 -> 0.3으로 부드럽게 변화
-                double opacity = 0.3;
-                if (waveProgress >= 0 && waveProgress <= 0.3) {
-                  final waveValue = waveProgress / 0.3;
-                  opacity = 0.3 + (0.7 * waveValue);
-                } else if (waveProgress > 0.3 && waveProgress <= 0.6) {
-                  final waveValue = (waveProgress - 0.3) / 0.3;
-                  opacity = 1.0 - (0.7 * waveValue);
-                }
+                  // 파도 효과: 0.3 -> 1.0 -> 0.3으로 부드럽게 변화
+                  double opacity = 0.3;
+                  if (waveProgress >= 0 && waveProgress <= 0.3) {
+                    final waveValue = waveProgress / 0.3;
+                    opacity = 0.3 + (0.7 * waveValue);
+                  } else if (waveProgress > 0.3 && waveProgress <= 0.6) {
+                    final waveValue = (waveProgress - 0.3) / 0.3;
+                    opacity = 1.0 - (0.7 * waveValue);
+                  }
 
-                return Opacity(
-                  opacity: opacity,
-                  child: Container(
-                    padding: const EdgeInsets.only(left: 24),
-                    alignment: Alignment.center,
-                    decoration: BoxDecoration(
-                      border: Border.all(color: CoconutColors.black.withOpacity(0.08)),
-                      borderRadius: BorderRadius.circular(24),
+                  return Opacity(
+                    opacity: opacity,
+                    child: Container(
+                      padding: const EdgeInsets.only(left: 24),
+                      alignment: Alignment.center,
+                      decoration: BoxDecoration(
+                        border: Border.all(color: CoconutColors.black.withOpacity(0.08)),
+                        borderRadius: BorderRadius.circular(24),
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            (index + 1).toString().padLeft(2, '0'),
+                            style: CoconutTypography.body3_12_Number.setColor(
+                              CoconutColors.gray500,
+                            ),
+                          ),
+                          CoconutLayout.spacing_300w,
+                          const Expanded(
+                            child: Text(
+                              '',
+                              style: CoconutTypography.body2_14,
+                              overflow: TextOverflow.visible,
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(
-                          (index + 1).toString().padLeft(2, '0'),
-                          style: CoconutTypography.body3_12_Number.setColor(
-                            CoconutColors.gray500,
-                          ),
-                        ),
-                        CoconutLayout.spacing_300w,
-                        const Expanded(
-                          child: Text(
-                            '',
-                            style: CoconutTypography.body2_14,
-                            overflow: TextOverflow.visible,
-                          ),
-                        ),
-                      ],
+                  );
+                },
+              );
+            }
+
+            // 로딩 완료 후 정상 표시
+            return Container(
+              padding: const EdgeInsets.only(left: 24),
+              alignment: Alignment.center,
+              decoration: BoxDecoration(
+                border: Border.all(color: CoconutColors.black.withOpacity(0.08)),
+                borderRadius: BorderRadius.circular(24),
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    (index + 1).toString().padLeft(2, '0'),
+                    style: CoconutTypography.body3_12_Number.setColor(
+                      CoconutColors.gray500,
                     ),
                   ),
-                );
-              },
+                  CoconutLayout.spacing_300w,
+                  Expanded(
+                    child: Text(
+                      words[index],
+                      style: CoconutTypography.body2_14,
+                      overflow: TextOverflow.visible,
+                    ),
+                  ),
+                ],
+              ),
             );
-          }
-
-          // 로딩 완료 후 정상 표시
-          return Container(
-            padding: const EdgeInsets.only(left: 24),
-            alignment: Alignment.center,
-            decoration: BoxDecoration(
-              border: Border.all(color: CoconutColors.black.withOpacity(0.08)),
-              borderRadius: BorderRadius.circular(24),
-            ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  (index + 1).toString().padLeft(2, '0'),
-                  style: CoconutTypography.body3_12_Number.setColor(
-                    CoconutColors.gray500,
-                  ),
-                ),
-                CoconutLayout.spacing_300w,
-                Expanded(
-                  child: Text(
-                    words[index],
-                    style: CoconutTypography.body2_14,
-                    overflow: TextOverflow.visible,
-                  ),
-                ),
-              ],
-            ),
-          );
-        },
+          },
+        ),
       ),
     );
   }
