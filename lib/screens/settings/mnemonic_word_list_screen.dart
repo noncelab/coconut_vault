@@ -182,7 +182,8 @@ class _MnemonicWordListScreenState extends State<MnemonicWordListScreen> {
                         counterText: '',
                         hintText: _hintText,
                         hintStyle: CoconutTypography.body2_14.setColor(CoconutColors.searchbarHint),
-                        prefixIcon: const Icon(Icons.search_rounded, color: CoconutColors.searchbarHint),
+                        prefixIcon:
+                            const Icon(Icons.search_rounded, color: CoconutColors.searchbarHint),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12.0),
                           borderSide: BorderSide.none,
@@ -361,8 +362,7 @@ class _MnemonicWordListScreenState extends State<MnemonicWordListScreen> {
             ],
           ),
         ),
-        if (index != _filteredItems.length - 1)
-          const Divider(color: CoconutColors.borderLightGray),
+        if (index != _filteredItems.length - 1) const Divider(color: CoconutColors.borderLightGray),
       ],
     );
   }

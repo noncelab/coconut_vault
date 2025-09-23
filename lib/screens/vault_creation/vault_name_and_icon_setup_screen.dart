@@ -3,6 +3,7 @@ import 'dart:typed_data';
 
 import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_vault/app_routes_params.dart';
+import 'package:coconut_vault/enums/wallet_enums.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/model/single_sig/single_sig_wallet_create_dto.dart';
 import 'package:coconut_vault/providers/wallet_creation_provider.dart';
@@ -88,7 +89,7 @@ class _VaultNameAndIconSetupScreenState extends State<VaultNameAndIconSetupScree
         return;
       }
 
-      if (_walletCreationProvider.secret.isNotEmpty) {
+      if (_walletCreationProvider.walletType == WalletType.singleSignature) {
         await _walletProvider.addSingleSigVault(SingleSigWalletCreateDto(
             null,
             inputText,
@@ -96,12 +97,10 @@ class _VaultNameAndIconSetupScreenState extends State<VaultNameAndIconSetupScree
             selectedColorIndex,
             utf8.decode(_walletCreationProvider.secret),
             _walletCreationProvider.passphrase));
-      } else if (_walletCreationProvider.signers != null) {
+      } else if (_walletCreationProvider.walletType == WalletType.multiSignature) {
         // 새로운 멀티시그 지갑 리스트 아이템을 생성.
         await _walletProvider.addMultisigVault(inputText, selectedColorIndex, selectedIconIndex,
             _walletCreationProvider.signers!, _walletCreationProvider.requiredSignatureCount!);
-      } else {
-        throw '생성 가능 정보가 없음';
       }
 
       assert(_walletProvider.isAddVaultCompleted);
@@ -160,7 +159,7 @@ class _VaultNameAndIconSetupScreenState extends State<VaultNameAndIconSetupScree
         PopScope(
           canPop: true,
           onPopInvokedWithResult: (didPop, result) {
-            if (_walletCreationProvider.secret != Uint8List(0)) {
+            if (_walletCreationProvider.walletType == WalletType.singleSignature) {
               _walletCreationProvider.resetSecretAndPassphrase();
             } else {
               _walletCreationProvider.resetSigner();

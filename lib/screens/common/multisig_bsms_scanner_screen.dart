@@ -61,8 +61,8 @@ class _MultisigBsmsScannerScreenState extends State<MultisigBsmsScannerScreen> {
 
   @override
   void initState() {
-    _walletProvider = Provider.of<WalletProvider>(context, listen: false);
     super.initState();
+    _walletProvider = Provider.of<WalletProvider>(context, listen: false);
     _isSetScaffold = widget.screenType != MultisigBsmsImportType.add;
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       await Future.delayed(const Duration(milliseconds: 1000));
