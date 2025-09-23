@@ -109,7 +109,7 @@ class _TutorialScreenState extends State<TutorialScreen> {
                               backgroundColor: CoconutColors.white,
                               foregroundColor: CoconutColors.black,
                               pressedBackgroundColor: CoconutColors.gray150,
-                              pressedForegroundColor: CoconutColors.gray400,
+                              pressedTextColor: CoconutColors.gray400,
                               textStyle: CoconutTypography.body2_14),
                         );
                       })
