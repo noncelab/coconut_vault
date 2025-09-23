@@ -269,7 +269,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
       foregroundColor: CoconutColors.black,
       textStyle: CoconutTypography.body2_14,
       pressedBackgroundColor: CoconutColors.gray150,
-      pressedForegroundColor: CoconutColors.gray800,
+      pressedTextColor: CoconutColors.gray400,
     );
   }
 

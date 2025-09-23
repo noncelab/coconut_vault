@@ -108,8 +108,8 @@ class _TutorialScreenState extends State<TutorialScreen> {
                               text: t.skip,
                               backgroundColor: CoconutColors.white,
                               foregroundColor: CoconutColors.black,
-                              pressedBackgroundColor: CoconutColors.white,
-                              pressedForegroundColor: CoconutColors.gray800,
+                              pressedBackgroundColor: CoconutColors.gray150,
+                              pressedForegroundColor: CoconutColors.gray400,
                               textStyle: CoconutTypography.body2_14),
                         );
                       })
