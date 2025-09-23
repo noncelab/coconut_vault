@@ -7,7 +7,6 @@ import 'package:coconut_vault/enums/pin_check_context_enum.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/providers/auth_provider.dart';
 import 'package:coconut_vault/providers/preference_provider.dart';
-import 'package:coconut_vault/screens/common/pin_check_auth_dialog.dart';
 import 'package:coconut_vault/utils/logger.dart';
 import 'package:coconut_vault/widgets/pin/pin_length_toggle_button.dart';
 import 'package:flutter/material.dart';
@@ -46,11 +45,11 @@ class _PinCheckScreenState extends State<PinCheckScreen> with WidgetsBindingObse
   late List<String> _shuffledPinNumbers;
 
   DateTime? _lastPressedAt;
-
-  // when widget.appEntrance is true
-  bool _isPaused = false;
   bool? _isUnlockDisabled;
   bool _isLastChanceToTry = false;
+
+  // 생체인증으로 인한 applifecycle 이벤트 관련 변수
+  bool _isLifecycleTriggeredByBio = false;
 
   @override
   void initState() {
@@ -64,23 +63,14 @@ class _PinCheckScreenState extends State<PinCheckScreen> with WidgetsBindingObse
 
     _authProvider = Provider.of<AuthProvider>(context, listen: false);
     _pinType = _authProvider.isPinCharacter ? PinType.character : PinType.number;
-    print('initState pinType: $_pinType');
+    Logger.log('initState pinType: $_pinType');
 
     Future.microtask(() {
-      _authProvider.onRequestShowAuthenticationFailedDialog = () {
-        showAuthenticationFailedDialog(context, _authProvider.hasAlreadyRequestedBioPermission);
-      };
       _authProvider.onAuthenticationSuccess = _handleAuthenticationSuccess;
     });
 
     WidgetsBinding.instance.addObserver(this);
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      await _authProvider.updateBiometricAvailability();
-      if (mounted) {
-        setState(() {
-          _shuffledPinNumbers = _authProvider.getShuffledNumberList();
-        });
-      }
       if (_authProvider.isPermanantlyLocked) {
         setState(() {
           _isUnlockDisabled = true;
@@ -117,16 +107,31 @@ class _PinCheckScreenState extends State<PinCheckScreen> with WidgetsBindingObse
     }
   }
 
+  /// _authProvider.authenticateWithBiometrics()에 의해 아래 함수가 호출되었는지 여부를 정확히 판단할 수 없는 상황
+  /// 우선 단순히 _isLifecycleTriggeredByBio 플래그만 사용하여 생체인증으로 인한 applifecycle 이벤트를 판단
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) async {
-    /// 스크린 Pause -> 생체인증 변동사항 체크
-    if (AppLifecycleState.paused == state) {
-      _isPaused = true;
-    } else if (AppLifecycleState.resumed == state && _isPaused) {
-      _isPaused = false;
-      await _authProvider.updateBiometricAvailability();
+    if (state == AppLifecycleState.resumed) {
+      if (_isLifecycleTriggeredByBio) {
+        _isLifecycleTriggeredByBio = false;
+        return;
+      }
+
+      await _authProvider.updateDeviceBiometricAvailability();
+
+      /// 생체 인증 시도
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (mounted) {
+        if (!mounted) return;
+        if (_authProvider.isBiometricEnabled) {
+          _isLifecycleTriggeredByBio = true;
+          _authProvider.authenticateWithBiometrics().then((result) {
+            if (result) {
+              _handleAuthenticationSuccess();
+            }
+          });
+        }
+
+        if (_pinType == PinType.number) {
           setState(() {
             _shuffledPinNumbers = _authProvider.getShuffledNumberList();
           });

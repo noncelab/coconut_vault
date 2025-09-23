@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_vault/constants/app_routes.dart';
 import 'package:coconut_vault/enums/pin_check_context_enum.dart';
@@ -17,6 +19,7 @@ import 'package:coconut_vault/screens/common/pin_check_screen.dart';
 import 'package:coconut_vault/widgets/button/multi_button.dart';
 import 'package:coconut_vault/widgets/button/single_button.dart';
 import 'package:provider/provider.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../../widgets/bottom_sheet.dart';
 
@@ -151,14 +154,51 @@ class _SettingsScreenState extends State<SettingsScreen> {
           builder: (context, provider, child) {
             return MultiButton(children: [
               if (provider.isPinSet) ...{
-                if (provider.canCheckBiometrics)
+                if (provider.isBiometricSupportedByDevice)
                   SingleButton(
                     buttonPosition: SingleButtonPosition.top,
                     title: t.settings_screen.use_biometric,
                     rightElement: CupertinoSwitch(
-                      value: provider.hasBiometricsPermission ? provider.isBiometricEnabled : false,
+                      value: provider.isBiometricEnabled,
                       activeColor: CoconutColors.black,
                       onChanged: (isOn) async {
+                        assert(provider.isBiometricSupportedByDevice);
+
+                        if (provider.availableBiometrics.isEmpty) {
+                          if (Platform.isAndroid) {
+                            CoconutToast.showToast(
+                                context: context,
+                                text: t.settings_screen.toast.no_enrolled_biometrics,
+                                isVisibleIcon: true,
+                                seconds: 5);
+                          } else {
+                            showDialog(
+                                context: context,
+                                builder: (BuildContext context) {
+                                  return CoconutPopup(
+                                    insetPadding: EdgeInsets.symmetric(
+                                        horizontal: MediaQuery.of(context).size.width * 0.15),
+                                    title: t.settings_screen.dialog.need_biometrics_setting_title,
+                                    description:
+                                        t.settings_screen.dialog.need_biometrics_setting_desc,
+                                    backgroundColor: CoconutColors.white,
+                                    rightButtonText: t.settings_screen.dialog.btn_move_to_setting,
+                                    rightButtonColor: CoconutColors.gray900,
+                                    leftButtonText: t.cancel,
+                                    leftButtonColor: CoconutColors.gray900,
+                                    onTapLeft: () {
+                                      Navigator.pop(context);
+                                    },
+                                    onTapRight: () {
+                                      Navigator.pop(context);
+                                      _openAppSettings();
+                                    },
+                                  );
+                                });
+                          }
+                          return;
+                        }
+
                         if (isOn &&
                             await provider.authenticateWithBiometrics(
                                 context: context, isSaved: true)) {
@@ -172,7 +212,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     ),
                   ),
                 SingleButton(
-                  buttonPosition: provider.canCheckBiometrics
+                  buttonPosition: provider.isBiometricSupportedByDevice
                       ? SingleButtonPosition.bottom
                       : SingleButtonPosition.none,
                   title: t.settings_screen.change_password,
@@ -200,7 +240,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   buttonPosition: SingleButtonPosition.none,
                   title: t.settings_screen.set_password,
                   rightElement: CupertinoSwitch(
-                    value: provider.hasBiometricsPermission ? provider.isBiometricEnabled : false,
+                    value: false,
                     activeColor: CoconutColors.black,
                     onChanged: (isOn) async {
                       /// 비밀번호 제거 기능은 제공하지 않음.
@@ -216,6 +256,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
         ),
       ],
     );
+  }
+
+  Future<void> _openAppSettings() async {
+    const url = 'app-settings:';
+    if (await canLaunchUrl(Uri.parse(url))) {
+      await launchUrl(Uri.parse(url));
+    }
   }
 
   Widget _buildAnimatedButton(

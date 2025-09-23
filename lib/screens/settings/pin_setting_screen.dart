@@ -155,8 +155,8 @@ class _PinSettingScreenState extends State<PinSettingScreen> {
     // 생체 인증 사용 여부 확인
     bool isPinSet = SharedPrefsRepository().getBool(SharedPrefsKeys.isPinEnabled) ?? false;
     if (!isPinSet &&
-        _authProvider.canCheckBiometrics &&
-        !_authProvider.hasAlreadyRequestedBioPermission &&
+        _authProvider.isBiometricSupportedByDevice &&
+        _authProvider.availableBiometrics.isNotEmpty &&
         mounted) {
       await _authProvider.authenticateWithBiometrics(context: context, isSaved: true);
     }

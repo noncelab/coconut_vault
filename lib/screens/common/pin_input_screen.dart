@@ -242,7 +242,7 @@ class PinInputScreenState extends State<PinInputScreen> {
         focusNode: _characterFocusNode,
         onChanged: (text) {},
         textInputAction: TextInputAction.done,
-        // enabled: !widget.disabled,
+        enabled: !widget.disabled,
         onEditingComplete: () {
           // 문자 입력 모드에서 'Done' 버튼을 누르는 경우 다음 단계로 이동
           if (_pinType == PinType.character) {

@@ -67,11 +67,12 @@ class StartViewModel extends ChangeNotifier {
     }
 
     // 복원파일이 없는 경우
-    if (!_isWalletExistent() || !_authProvider.isAuthEnabled) {
+    if (!_isWalletExistent() || !_authProvider.isPinSet) {
       return AppEntryFlow.vaultHome;
     }
 
-    if (await _authProvider.isBiometricsAuthValid()) {
+    if (!_authProvider.isPermanantlyLocked &&
+        await _authProvider.isBiometricsAuthValid(isSaved: true)) {
       return AppEntryFlow.vaultHome;
     } else {
       return AppEntryFlow.pinCheck;

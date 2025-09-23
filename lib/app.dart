@@ -97,6 +97,9 @@ class CoconutVaultApp extends StatefulWidget {
 class _CoconutVaultAppState extends State<CoconutVaultApp> {
   AppEntryFlow _appEntryFlow = AppEntryFlow.splash;
   bool _isInactive = false;
+  final visibilityProvider = VisibilityProvider();
+  final authProvider = AuthProvider();
+  final preferenceProvider = PreferenceProvider();
 
   void _updateEntryFlow(AppEntryFlow appEntryFlow) {
     setState(() {
@@ -174,13 +177,12 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> {
 
   @override
   Widget build(BuildContext context) {
-    var visibilityProvider = VisibilityProvider();
     CoconutTheme.setTheme(Brightness.light);
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => visibilityProvider),
-        ChangeNotifierProvider(create: (_) => AuthProvider()),
-        ChangeNotifierProvider(create: (_) => PreferenceProvider()),
+        ChangeNotifierProvider(create: (_) => authProvider),
+        ChangeNotifierProvider(create: (_) => preferenceProvider),
         ChangeNotifierProxyProvider<VisibilityProvider, ConnectivityProvider>(
           create: (_) => ConnectivityProvider(hasSeenGuide: visibilityProvider.hasSeenGuide),
           update: (_, visibilityProvider, connectivityProvider) {
@@ -222,6 +224,10 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> {
                   });
                 },
                 onAppGoActive: () {
+                  /// 지갑이 0개인 경우에는 pin_check_screen을 거치지 않아서 여기서 생체인증 상태를 업데이트
+                  if (_appEntryFlow == AppEntryFlow.vaultHome) {
+                    authProvider.updateDeviceBiometricAvailability();
+                  }
                   if (Platform.isAndroid) return; // 안드로이드는 Native에서 처리
 
                   setState(() {

@@ -280,7 +280,12 @@ settings_screen:
   advanced_user: "Advanced User"
   use_passphrase: "Use Passphrase"
   information: "Information"
-
+  toast:
+    no_enrolled_biometrics: "No biometrics are set up on this device"
+  dialog:
+    need_biometrics_setting_title: "Biometrics Allow"
+    need_biometrics_setting_desc: "Please check biometrics settings."
+    btn_move_to_setting: "Go to Settings"
 # lib/screens/start_guide
 welcome_screen:
   guide1: "Vault can only be used\nwhen network and Bluetooth are turned OFF"
