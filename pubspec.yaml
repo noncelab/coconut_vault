@@ -210,6 +210,8 @@ flutter:
     - assets/png/state/bluetooth_on.png
     - assets/png/state/wifi_on.png
     - assets/png/state/developer_on.png
+    - assets/png/welcome1.png
+    - assets/png/welcome2.png
     - assets/svg/github-logo-white.svg
     - assets/svg/github-logo.svg
     - assets/files/LICENSE
@@ -240,6 +242,11 @@ flutter:
     - assets/svg/watch-only-icons/sparrow.svg
     - assets/svg/watch-only-icons/nunchuk.svg
     - assets/svg/watch-only-icons/bluewallet.svg
+    - assets/svg/settings-guide-icons/airplane-mode.svg
+    - assets/svg/settings-guide-icons/wifi.svg
+    - assets/svg/settings-guide-icons/mobile-data.svg
+    - assets/svg/settings-guide-icons/bluetooth.svg
+    - assets/svg/settings-guide-icons/developer-mode.svg
 
   fonts:
     - family: SpaceGrotesk

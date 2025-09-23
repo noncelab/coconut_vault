@@ -283,8 +283,34 @@ settings_screen:
 
 # lib/screens/start_guide
 welcome_screen:
-  title_can_start: "All connections are blocked👏\nLet's start Vault"
-  title_cannot_start: "To start Vault,\nplease block all connections🙏"
+  screen_1_title: "Start in a safe environment"
+  screen_1_description: "To use safely, you need to\nblock connections with the outside"
+  screen_1_button: "Check environment"
+  screen_2_title: "Security Checklist"
+  screen_2_description: "To start Coconut Vault,\nyou need to block all connections"
+  screen_2_button: "Next"
+  screen_3_title: "Safe environment is ready"
+  screen_3_description: "Let's start Coconut Vault"
+  screen_3_button: "Start"
+  setting_guide: "View setting guide"
+  airplane_mode_on: 
+    title: "Turn on airplane mode"
+    description_ios: 'Control Center → Airplane Mode icon tap'
+    description_android: 'Swipe down from the top of the screen → Quick Settings panel → Airplane Mode icon tap'
+  wifi_off:
+    title: "Turn off Wi-Fi"
+    description_ios: 'Swipe down from the top right corner → Control Center → Wi-Fi icon tap'
+    description_android: 'Quick Settings panel → Wi-Fi icon tap'
+  mobile_data_off: 
+    title: "Turn off mobile data (LTE / 5G)"
+    description_ios: 'Settings → Cellular → Cellular Data switch off\n※ We recommend using a dedicated offline device'
+    description_android: 'Quick Settings panel → Mobile Data icon tap\n※ We recommend using a dedicated offline device'
+  bluetooth_off: 
+    title: "Turn off Bluetooth"
+    description_ios: 'Control Center → Bluetooth icon tap'
+    description_android: 'Quick Settings panel → Bluetooth icon tap'
+  developer_mode_off: "Turn off developer mode"
+  developer_mode_description: "1. Settings → System → Developer Options\n2. Switch off"
   network: "Network"
   bluetooth: "Bluetooth"
   developer_option: "Developer Option"
