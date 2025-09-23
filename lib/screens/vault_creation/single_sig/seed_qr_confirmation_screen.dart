@@ -69,6 +69,8 @@ class _SeedQrConfirmationScreenState extends State<SeedQrConfirmationScreen> {
       }
     };
 
+    _passphraseController.addListener(_passphraseListener);
+
     _passphraseFocusNode.addListener(() {
       if (_passphraseFocusNode.hasFocus) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
