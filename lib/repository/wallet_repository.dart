@@ -3,6 +3,7 @@ import 'dart:convert';
 
 import 'package:coconut_lib/coconut_lib.dart';
 import 'package:coconut_vault/constants/shared_preferences_keys.dart';
+import 'package:coconut_vault/extensions/uint8list_extensions.dart';
 import 'package:coconut_vault/isolates/wallet_isolates.dart';
 import 'package:coconut_vault/model/multisig/multisig_signer.dart';
 import 'package:coconut_vault/model/multisig/multisig_vault_list_item.dart';
@@ -356,8 +357,8 @@ class WalletRepository {
         String keyString = _createWalletKeyString(wallet.id, WalletType.singleSignature);
         String passphraseKeyString = _createPassphraseEnabledKeyString(keyString);
 
-        List<dynamic> secretList = data['secret'] as List<dynamic>;
-        Uint8List secretBytes = Uint8List.fromList(secretList.map((e) => e as int).toList());
+        Uint8List secretBytes =
+            Uint8List.fromList((data['secret'] as List<dynamic>).map((e) => e as int).toList());
 
         _storageService.writeBytes(key: keyString, value: secretBytes);
         _storageService.write(

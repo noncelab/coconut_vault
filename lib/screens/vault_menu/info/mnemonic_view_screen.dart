@@ -1,9 +1,9 @@
 import 'dart:typed_data';
 
 import 'package:coconut_design_system/coconut_design_system.dart';
+import 'package:coconut_vault/extensions/uint8list_extensions.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
-import 'package:coconut_vault/services/secure_memory.dart';
 import 'package:coconut_vault/widgets/list/mnemonic_list.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -23,7 +23,7 @@ class MnemonicViewScreen extends StatefulWidget {
 class _MnemonicViewScreen extends State<MnemonicViewScreen> with TickerProviderStateMixin {
   final ScrollController _scrollController = ScrollController();
   late WalletProvider _walletProvider;
-  Uint8List mnemonic = Uint8List(0);
+  Uint8List _mnemonic = Uint8List(0);
   bool _isLoading = true;
 
   @override
@@ -35,7 +35,7 @@ class _MnemonicViewScreen extends State<MnemonicViewScreen> with TickerProviderS
 
   Future<void> _setMnemonic() async {
     try {
-      mnemonic = await _walletProvider.getSecret(widget.walletId);
+      _mnemonic = await _walletProvider.getSecret(widget.walletId);
     } catch (e) {
       // 에러 처리
       print('Error loading mnemonic: $e');
@@ -51,7 +51,7 @@ class _MnemonicViewScreen extends State<MnemonicViewScreen> with TickerProviderS
 
   @override
   void dispose() {
-    SecureMemory.wipe(mnemonic);
+    _mnemonic.wipe();
     _scrollController.dispose();
     super.dispose();
   }
@@ -85,7 +85,7 @@ class _MnemonicViewScreen extends State<MnemonicViewScreen> with TickerProviderS
                       ),
                     ),
                   ),
-                  MnemonicList(mnemonic: mnemonic, isLoading: _isLoading),
+                  MnemonicList(mnemonic: _mnemonic, isLoading: _isLoading),
                   const SizedBox(height: 40),
                 ],
               )),

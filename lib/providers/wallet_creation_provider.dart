@@ -2,8 +2,8 @@ import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:coconut_vault/enums/wallet_enums.dart';
+import 'package:coconut_vault/extensions/uint8list_extensions.dart';
 import 'package:coconut_vault/model/multisig/multisig_signer.dart';
-import 'package:coconut_vault/services/secure_memory.dart';
 import 'package:coconut_vault/utils/coconut/multisig_utils.dart';
 
 class WalletCreationProvider {
@@ -66,8 +66,10 @@ class WalletCreationProvider {
 
   /// SingleSig
   void resetSecretAndPassphrase() {
-    SecureMemory.wipe(_secret);
-    SecureMemory.wipe(_passphrase);
+    _secret.wipe();
+    _passphrase.wipe();
+    _secret = Uint8List(0);
+    _passphrase = Uint8List(0);
   }
 
   /// Multisig
@@ -77,8 +79,7 @@ class WalletCreationProvider {
 
   void resetAll() {
     // singleSig
-    SecureMemory.wipe(_secret);
-    SecureMemory.wipe(_passphrase);
+    resetSecretAndPassphrase();
 
     /// multisig
     _requiredSignatureCount = _totalSignatureCount = _signers = null;

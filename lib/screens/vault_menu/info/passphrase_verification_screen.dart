@@ -2,12 +2,11 @@ import 'dart:convert';
 
 import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_vault/enums/pin_check_context_enum.dart';
+import 'package:coconut_vault/extensions/uint8list_extensions.dart';
 import 'package:coconut_vault/isolates/wallet_isolates.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:coconut_vault/screens/common/pin_check_screen.dart';
-import 'package:coconut_vault/services/secure_memory.dart';
-import 'package:coconut_vault/utils/logger.dart';
 import 'package:coconut_vault/utils/vibration_util.dart';
 import 'package:coconut_vault/widgets/bottom_sheet.dart';
 import 'package:coconut_vault/widgets/button/fixed_bottom_button.dart';
@@ -172,13 +171,9 @@ class _PassphraseVerificationScreenState extends State<PassphraseVerificationScr
     final result = await compute(WalletIsolates.verifyPassphrase,
         {'mnemonic': mnemonic, 'passphrase': passphrase, 'valutListItem': vaultListItem});
 
-    try {
-      SecureMemory.wipe(mnemonic);
-      if (passphrase.isNotEmpty) {
-        SecureMemory.wipe(passphrase);
-      }
-    } catch (e) {
-      Logger.log('Error wiping mnemonic or passphrase: $e');
+    mnemonic.wipe();
+    if (passphrase.isNotEmpty) {
+      passphrase.wipe();
     }
 
     if (result['success']) {

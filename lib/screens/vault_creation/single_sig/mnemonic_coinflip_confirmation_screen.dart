@@ -3,10 +3,10 @@ import 'dart:typed_data';
 
 import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_vault/constants/app_routes.dart';
+import 'package:coconut_vault/extensions/uint8list_extensions.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/providers/wallet_creation_provider.dart';
 import 'package:coconut_vault/screens/vault_creation/single_sig/mnemonic_generation_screen.dart';
-import 'package:coconut_vault/services/secure_memory.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -52,7 +52,7 @@ class _MnemonicCoinflipConfirmationScreenState extends State<MnemonicCoinflipCon
 
   @override
   void dispose() {
-    SecureMemory.wipe(_mnemonic);
+    _mnemonic.wipe();
     _wordsCount = 0;
     _scrollController.dispose();
     super.dispose();

@@ -9,7 +9,6 @@ import 'package:coconut_vault/model/common/vault_list_item_base.dart';
 import 'package:coconut_vault/enums/wallet_enums.dart';
 import 'package:coconut_vault/model/multisig/multisig_wallet.dart';
 import 'package:coconut_vault/model/single_sig/single_sig_wallet_create_dto.dart';
-import 'package:coconut_vault/services/secure_memory.dart';
 import 'package:coconut_vault/utils/logger.dart';
 
 class WalletIsolates {
@@ -149,8 +148,6 @@ class WalletIsolates {
         seed.wipe();
       }
 
-      // Isolate 내부에서는 SecureMemory.wipe() 사용하지 않음
-      // 대신 직접 0으로 덮어쓰기
       if (args['mnemonic'] != null) {
         try {
           final mnemonicBytes = args['mnemonic'];

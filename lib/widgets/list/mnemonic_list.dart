@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:coconut_design_system/coconut_design_system.dart';
-import 'package:coconut_vault/services/secure_memory.dart';
+import 'package:coconut_vault/extensions/uint8list_extensions.dart';
 import 'package:flutter/material.dart';
 
 class MnemonicList extends StatefulWidget {
@@ -70,7 +70,7 @@ class _MnemonicListState extends State<MnemonicList> with TickerProviderStateMix
 
   @override
   void dispose() {
-    SecureMemory.wipe(widget.mnemonic);
+    widget.mnemonic.wipe();
     _waveAnimationController.dispose();
     super.dispose();
   }
