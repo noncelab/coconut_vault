@@ -220,6 +220,7 @@ class _PassphraseSelectionState extends State<PassphraseSelection> {
           Text(
             t.mnemonic_generate_screen.use_passphrase,
             style: CoconutTypography.body1_16_Bold,
+            textAlign: TextAlign.center,
           ),
           CoconutLayout.spacing_800h,
           Row(
@@ -755,9 +756,13 @@ class _NumberWidgetState extends State<NumberWidget> {
               ? Center(
                   child: Padding(
                     padding: EdgeInsets.all(widget.selected ? 8 : 6),
-                    child: Text(
-                      widget.number.toString(),
-                      style: CoconutTypography.body3_12_Number.setColor(iconColor),
+                    child: MediaQuery(
+                      data:
+                          MediaQuery.of(context).copyWith(textScaler: const TextScaler.linear(1.0)),
+                      child: Text(
+                        widget.number.toString(),
+                        style: CoconutTypography.body3_12_Number.setColor(iconColor),
+                      ),
                     ),
                   ),
                 )

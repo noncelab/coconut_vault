@@ -95,7 +95,6 @@ extra_count: "외 $count개"
 
 edit: "편집"
 
-
 descriptor: "디스크립터"
 
 watch_only_options:
@@ -272,6 +271,9 @@ settings_screen:
     need_biometrics_setting_title: "생체 인증 허용"
     need_biometrics_setting_desc: "생체 인증 설정을 확인해주세요."
     btn_move_to_setting: "설정하러 가기"
+    use_passphrase_title: "패스프레이즈 사용"
+    use_passphrase_description: "패스프레이즈 사용은 새로운 지갑을 만드는 것과 같습니다. 잘못 사용하면 비트코인을 영원히 잃을 수 있습니다."
+    use_passphrase_btn: "이해했습니다"
   
 # lib/screens/start_guide
 welcome_screen:

@@ -269,6 +269,9 @@ settings_screen:
     need_biometrics_setting_title: "Biometrics Allow"
     need_biometrics_setting_desc: "Please check biometrics settings."
     btn_move_to_setting: "Go to Settings"
+    use_passphrase_title: "Use Passphrase"
+    use_passphrase_description: "Using passphrase is like creating a new wallet. If used incorrectly, you may lose bitcoins forever."
+    use_passphrase_btn: "I understand"
 # lib/screens/start_guide
 welcome_screen:
   guide1: "Vault can only be used\nwhen network and Bluetooth are turned OFF"
