@@ -29,7 +29,7 @@ class InformationItemCard extends StatelessWidget {
             color: Colors.transparent,
             padding: const EdgeInsets.symmetric(vertical: 24),
             child: Row(
-              crossAxisAlignment: CrossAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   label,

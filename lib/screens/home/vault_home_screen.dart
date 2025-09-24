@@ -330,9 +330,18 @@ class _VaultHomeScreenState extends State<VaultHomeScreen> with TickerProviderSt
                     bottom: 17,
                   ),
                   onPressed: () {
-                    var primaryVaultId = context.read<VaultHomeViewModel>().vaults.first.id;
-                    Navigator.pushNamed(context, AppRoutes.addressList,
-                        arguments: {'id': primaryVaultId});
+                    // 지갑 선택 후 주소 보기 화면으로 이동
+                    MyBottomSheet.showDraggableBottomSheet(
+                        context: context,
+                        minChildSize: 0.5,
+                        childBuilder: (scrollController) => SelectVaultBottomSheet(
+                              vaultList: context.read<WalletProvider>().vaultList,
+                              onVaultSelected: (id) async {
+                                Navigator.pushNamed(context, AppRoutes.addressList,
+                                    arguments: {'id': id});
+                              },
+                              scrollController: scrollController,
+                            ));
                   },
                 ),
               ),
@@ -377,16 +386,6 @@ class _VaultHomeScreenState extends State<VaultHomeScreen> with TickerProviderSt
                                 }
 
                                 _showSyncOptionBottomSheet(id, context);
-                                // if (result != null && mounted) {
-                                //   Navigator.pushNamed(context, AppRoutes.syncToWallet,
-                                //       arguments: {'id': id});
-                                // }
-                                // } else {
-                                //   if (mounted) {
-                                //     Navigator.pushNamed(context, AppRoutes.syncToWallet,
-                                //         arguments: {'id': id});
-                                //   }
-                                // }
                               },
                               scrollController: scrollController,
                             ));
@@ -526,10 +525,15 @@ class _VaultHomeScreenState extends State<VaultHomeScreen> with TickerProviderSt
             Positioned(
               left: 14,
               top: 13,
-              child: Text(
-                text,
-                style: CoconutTypography.body2_14_Bold.setColor(
-                  isActive ? CoconutColors.gray700 : CoconutColors.gray400,
+              child: MediaQuery(
+                data: MediaQuery.of(context).copyWith(
+                  textScaler: const TextScaler.linear(1.0),
+                ),
+                child: Text(
+                  text,
+                  style: CoconutTypography.body2_14_Bold.setColor(
+                    isActive ? CoconutColors.gray700 : CoconutColors.gray400,
+                  ),
                 ),
               ),
             ),

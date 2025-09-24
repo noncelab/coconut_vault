@@ -192,7 +192,7 @@ class _VaultNameAndIconSetupScreenState extends State<VaultNameAndIconSetupScree
                 ),
                 FixedBottomButton(
                   showGradient: true,
-                  text: t.next,
+                  text: t.complete,
                   onButtonClicked: () {
                     if (inputText.trim().isEmpty) return;
                     _closeKeyboard();

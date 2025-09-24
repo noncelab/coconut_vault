@@ -23,7 +23,6 @@ class AddressCard extends StatelessWidget {
       onPressed: onPressed,
       padding: EdgeInsets.zero,
       child: Container(
-        width: MediaQuery.of(context).size.width,
         constraints: const BoxConstraints(minHeight: 72),
         decoration: BoxDecoration(
           borderRadius: CoconutBorder.defaultRadius,
@@ -52,14 +51,11 @@ class AddressCard extends StatelessWidget {
                 ),
               ),
             ),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  TextUtils.truncateNameMax25(address),
-                  style: CoconutTypography.body1_16,
-                ),
-              ],
+            Expanded(
+              child: Text(
+                TextUtils.truncateNameMax25(address),
+                style: CoconutTypography.body1_16,
+              ),
             ),
           ],
         ),

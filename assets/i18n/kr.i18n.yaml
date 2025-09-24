@@ -369,7 +369,7 @@ seed_qr_import_screen:
   title: "시드 QR 코드 스캔"
   error_title: "스캔 오류"
   error_message: "시드 QR 코드 스캔 중 오류가 발생했어요. 다시 시도해 주세요."
-  guide: "시드 QR 코드를 스캔해 주세요."
+  guide: "시드 QR 코드를 스캔해 주세요. (21x21 또는 25x25)"
 seed_qr_confirmation_screen:
   title: "니모닉 문구 확인"
   check_mnemonic: "니모닉 문구를 확인해 주세요"
@@ -382,10 +382,11 @@ vault_name_icon_setup_screen:
 # lib/screens/vault_creation/multisig
 assign_signers_screen:
   create_multisig_wallet_by_quorum: "$requiredSignatureCount/$totalSignatureCount 지갑을 생성합니다"
-  order_keys: "동일한 순서를 유지하도록 키 순서를 정렬 할게요"
+  order_keys: "동일한 순서를 유지하도록 키 순서를 정렬할게요"
   data_verifying: "데이터 검증 중이에요"
-  use_internal_key: "이 볼트에 있는 키 사용하기"
+  use_internal_key: "이 볼트의 키 사용하기"
   select_key_option: "키 종류 선택"
+  use_internal_key_option: "키 선택"
   import_from_other_vault: "다른 볼트에서 가져오기"
 
 confirm_importing_screen:
@@ -466,8 +467,10 @@ sync_to_wallet_screen:
     multisig: "Multisig"
     coconut: "홈 화면에서 지갑 추가 아이콘 선택"
     sparrow_singlesig:
+      guide0_1: "메뉴에서"
       guide1_1: "Import Wallet"
       guide2_1: "Keystone"
+      guide3_1: "또는 xPub/Watch Only Wallet 버튼 클릭 후 "
     nunchuk:
       guide1_1: "하단 메뉴"
       guide1_2_singlesig: "Keys"
@@ -496,7 +499,7 @@ vault_menu_screen:
   description:
     view_single_sig_info: "저장된 니모닉 문구 등을 확인할 수 있어요"
     view_multisig_info: "다중 서명 지갑의 정보를 확인할 수 있어요"
-    import_bsms: "이 키가 포함된 다중 서명 지갑 정보를 추가해요"
+    import_bsms: "키가 포함된 다중 서명 지갑 정보를 추가해요"
     view_address: "$name의 주소를 확인해요"
     export_xpub: "보기 전용 지갑을 월렛에 추가해요"
     sign: "월렛에서 만든 정보를 스캔하고 서명해요"
@@ -634,12 +637,12 @@ alert:
     description: "정말 니모닉 만들기를 그만하시겠어요?"
   stop_generating_mnemonic:
     title: "니모닉 생성 중단"
-    description: "니모닉 생성을 그만두시겠어요?\n중단하시려면 [확인]을\n옵션을 다시 선택하시려면\n[다시 선택]을 눌러주세요."
-    reselect: "다시 선택"
-    confirm: "확인"
+    description: "니모닉 생성을 그만두시겠어요?"
+    reselect: "옵션 선택"
+    confirm: "네"
   stop_importing_mnemonic:
     title: "복원 중단"
-    description: "복원을 그만두시겠어요?\n중단하시려면 [확인]을\n복원을 계속하시려면\n[취소]를 눌러주세요."
+    description: "복원을 그만두시겠어요?."
   erase_all_entered_so_far: "정말로 지금까지 입력한 정보를\n모두 지우시겠어요?"
   erase_all_entered_mnemonic: 
     title: "모두 지우기"
@@ -652,7 +655,7 @@ toast:
   clipboard_copied: "클립보드에 복사되었어요"
   back_exit: "뒤로 가기 버튼을 한 번 더 누르면 종료됩니다"
   scroll_down: "스크롤을 내려서 모두 확인해주세요"
-  data_updated: "정보를 수정했어요"
+  data_updated: "정보를 수정했어요! 혼동되지 않도록 월렛과 동기화해 주세요."
   name_already_used: "이미 사용하고 있는 이름으로는 바꿀 수 없어요"
   name_already_used2: "이미 사용 중인 이름은 설정할 수 없어요"
   name_multisig_in_use: "다중 서명 지갑에 사용되고 있어 삭제할 수 없어요"

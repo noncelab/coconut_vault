@@ -457,6 +457,9 @@ class _SingleSigSetupInfoScreenState extends State<SingleSigSetupInfoScreen> {
           child: ClipPath(
             clipper: RightTriangleBubbleClipper(),
             child: Container(
+              constraints: BoxConstraints(
+                maxWidth: MediaQuery.sizeOf(context).width - 40,
+              ),
               padding: const EdgeInsets.only(
                 top: 25,
                 left: 10,
@@ -467,12 +470,14 @@ class _SingleSigSetupInfoScreenState extends State<SingleSigSetupInfoScreen> {
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Text(
-                    t.tooltip.mfp,
-                    style: CoconutTypography.body3_12.merge(const TextStyle(
-                      height: 1.3,
-                      color: CoconutColors.white,
-                    )),
+                  Flexible(
+                    child: Text(
+                      t.tooltip.mfp,
+                      style: CoconutTypography.body3_12.merge(const TextStyle(
+                        height: 1.3,
+                        color: CoconutColors.white,
+                      )),
+                    ),
                   ),
                 ],
               ),

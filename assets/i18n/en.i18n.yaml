@@ -367,7 +367,7 @@ seed_qr_import_screen:
   title: "Scan Seed QR Code"
   error_title: "Scan Error"
   error_message: "An error occurred while scanning the seed QR code. Please try again."
-  guide: "Please scan the seed QR code."
+  guide: "Please scan the seed QR code. (21x21 또는 25x25)"
 seed_qr_confirmation_screen:
   title: "Verify Mnemonic"
   check_mnemonic: "Please check the mnemonic phrase"
@@ -384,6 +384,7 @@ assign_signers_screen:
   data_verifying: "Verifying data..."
   use_internal_key: "Use key in this vault"
   select_key_option: "Select key type"
+  use_internal_key_option: "Select key"
   import_from_other_vault: "Import from other vault"
 
 confirm_importing_screen:
@@ -464,8 +465,10 @@ sync_to_wallet_screen:
     multisig: "Multisig"
     coconut: "Select the Add Wallet icon on the home screen"
     sparrow_singlesig:
+      guide0_1: "From the menu"
       guide1_1: "Import Wallet"
       guide1_2: "Keystone"
+      guide3_1: "or click the xPub/Watch Only Wallet button and "
     nunchuk: 
       guide1_1: "Bottom Menu"
       guide1_2_singlesig: "Keys"

@@ -6,6 +6,7 @@ import 'package:coconut_vault/providers/visibility_provider.dart';
 import 'package:coconut_vault/providers/wallet_creation_provider.dart';
 import 'package:coconut_vault/widgets/button/fixed_bottom_tween_button.dart';
 import 'package:coconut_vault/widgets/button/shrink_animation_button.dart';
+import 'package:coconut_vault/widgets/guide_dialog.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:coconut_vault/screens/vault_creation/single_sig/mnemonic_generation_screen.dart';
@@ -245,6 +246,7 @@ class _FlipCoinState extends State<FlipCoin> {
               _buildProgressBar(),
               _buildStepIndicator(),
               step == 0 ? _buildCoinflipWidget() : _buildPassphraseInput(),
+              CoconutLayout.spacing_2500h,
             ],
           ),
         ),
@@ -262,6 +264,74 @@ class _FlipCoinState extends State<FlipCoin> {
           rightText: _getNextButtonState().text,
         ),
       ],
+    );
+  }
+
+  Widget _buildCoinflipButtons() {
+    return Container(
+      width: MediaQuery.of(context).size.width,
+      padding: const EdgeInsets.only(bottom: 16),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Column(
+            children: [
+              _buildTextButton(t.delete_all, _showConfirmResetDialog),
+              _buildTextButton(t.delete_one, _removeLastBit),
+            ],
+          ),
+          CoconutLayout.spacing_300w,
+          _buildCoinButton(t.mnemonic_coin_flip_screen.coin_head,
+              () => _currentIndex < _totalBits ? _addBit(1) : null),
+          CoconutLayout.spacing_100w,
+          _buildCoinButton(t.mnemonic_coin_flip_screen.coin_tail,
+              () => _currentIndex < _totalBits ? _addBit(0) : null),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildTextButton(String text, VoidCallback onPressed) {
+    return ShrinkAnimationButton(
+      onPressed: onPressed,
+      pressedColor: CoconutColors.gray200,
+      child: Container(
+          padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+          child: Center(child: Text(text))),
+    );
+  }
+
+  Widget _buildCoinButton(String text, VoidCallback onPressed) {
+    return ShrinkAnimationButton(
+      onPressed: onPressed,
+      pressedColor: CoconutColors.gray150,
+      borderRadius: 100,
+      child: Container(
+        constraints: const BoxConstraints(
+          maxWidth: 84,
+          maxHeight: 84,
+        ),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(100),
+          border: Border.all(
+            color: CoconutColors.gray350,
+          ),
+        ),
+        child: Container(
+          margin: const EdgeInsets.all(4),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(100),
+            border: Border.all(
+              color: CoconutColors.gray300,
+            ),
+          ),
+          child: Center(
+            child: Text(text,
+                style: CoconutTypography.heading4_18_Bold.setColor(CoconutColors.black),
+                textAlign: TextAlign.center),
+          ),
+        ),
+      ),
     );
   }
 
@@ -409,7 +479,7 @@ class _FlipCoinState extends State<FlipCoin> {
           CoconutLayout.spacing_200h,
           Text('$_currentIndex/$_totalBits', style: CoconutTypography.heading4_18_Bold),
           CoconutLayout.spacing_1400h,
-          _buildButtons(),
+          _buildCoinflipButtons(),
         ],
       ),
     );
@@ -601,93 +671,6 @@ class _FlipCoinState extends State<FlipCoin> {
           }),
         );
       }),
-    );
-  }
-
-  Widget _buildButtons() {
-    const double boxWidth = 224;
-    return SizedBox(
-      width: boxWidth, // GridView의 item이 보이는 총 너비
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          _buildCoinHead(),
-          _buildCoinTail(),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildCoinHead() {
-    return _buildCoinButton(
-      buttonText: t.mnemonic_coin_flip_screen.coin_head,
-      resetText: t.delete_all,
-      onButtonPressed: () => _currentIndex < _totalBits ? _addBit(1) : null,
-      onReset: _showConfirmResetDialog,
-      crossAxisAlignment: CrossAxisAlignment.start,
-    );
-  }
-
-  Widget _buildCoinTail() {
-    return _buildCoinButton(
-      buttonText: t.mnemonic_coin_flip_screen.coin_tail,
-      resetText: t.delete_one,
-      onButtonPressed: () => _currentIndex < _totalBits ? _addBit(0) : null,
-      onReset: _removeLastBit,
-      crossAxisAlignment: CrossAxisAlignment.end,
-    );
-  }
-
-  Widget _buildCoinButton({
-    required String buttonText,
-    required String resetText,
-    required VoidCallback onButtonPressed,
-    required VoidCallback onReset,
-    required CrossAxisAlignment crossAxisAlignment,
-  }) {
-    const double boxWidth = 224;
-    const double buttonWidth = boxWidth / 2 - 12;
-    return Expanded(
-      child: Column(
-        crossAxisAlignment: crossAxisAlignment,
-        children: [
-          ShrinkAnimationButton(
-            onPressed: onButtonPressed,
-            borderRadius: 12,
-            child: Container(
-              width: buttonWidth,
-              height: buttonWidth,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(
-                  color: CoconutColors.black,
-                  width: 1,
-                ),
-              ),
-              child: Center(child: Text(buttonText)),
-            ),
-          ),
-          CoconutLayout.spacing_200h,
-          ShrinkAnimationButton(
-            onPressed: onReset,
-            pressedColor: CoconutColors.gray200,
-            child: Container(
-              width: buttonWidth,
-              padding: const EdgeInsets.all(8),
-              child: Center(
-                child: Text(
-                  resetText,
-                  style: CoconutTypography.body3_12.setColor(
-                    _bits.isEmpty
-                        ? CoconutColors.secondaryText
-                        : CoconutColors.black.withOpacity(0.7),
-                  ),
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
     );
   }
 

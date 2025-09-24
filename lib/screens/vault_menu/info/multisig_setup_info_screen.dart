@@ -144,7 +144,8 @@ class _MultisigSetupInfoScreenState extends State<MultisigSetupInfoScreen> {
                           CoconutLayout.spacing_500h,
                           _buildMenuList(context),
                           CoconutLayout.spacing_500h,
-                          _buildExportWalletMenu()
+                          _buildExportWalletMenu(),
+                          CoconutLayout.spacing_1500h,
                         ],
                       ),
                       _buildTooltip(context),
