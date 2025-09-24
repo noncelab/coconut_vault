@@ -149,6 +149,7 @@ class _SingleSigSetupInfoScreenState extends State<SingleSigSetupInfoScreen> {
                             _buildMenuList(context),
                             CoconutLayout.spacing_500h,
                             _buildExportWalletMenu(),
+                            CoconutLayout.spacing_1500h,
                           ],
                         ),
                         _buildTooltip(context),
@@ -301,9 +302,11 @@ class _SingleSigSetupInfoScreenState extends State<SingleSigSetupInfoScreen> {
                   width: 18,
                 ),
                 const SizedBox(width: 10),
-                Text(
-                  t.vault_settings.used_in_multisig,
-                  style: CoconutTypography.body2_14,
+                Expanded(
+                  child: Text(
+                    t.vault_settings.used_in_multisig,
+                    style: CoconutTypography.body2_14,
+                  ),
                 ),
               ],
             ),
