@@ -59,8 +59,7 @@ class _MnemonicGenerationScreenState extends State<MnemonicGenerationScreen> {
         context: context,
         builder: (BuildContext dialogContext) {
           return CoconutPopup(
-              insetPadding:
-                  EdgeInsets.symmetric(horizontal: MediaQuery.of(dialogContext).size.width * 0.15),
+              insetPadding: EdgeInsets.symmetric(horizontal: MediaQuery.of(dialogContext).size.width * 0.15),
               title: t.alert.stop_generating_mnemonic.title,
               description: t.alert.stop_generating_mnemonic.description,
               backgroundColor: CoconutColors.white,
@@ -87,8 +86,7 @@ class _MnemonicGenerationScreenState extends State<MnemonicGenerationScreen> {
   void initState() {
     super.initState();
     Provider.of<WalletCreationProvider>(context, listen: false).resetAll();
-    _totalStep =
-        Provider.of<VisibilityProvider>(context, listen: false).isPassphraseUseEnabled ? 2 : 1;
+    _totalStep = Provider.of<VisibilityProvider>(context, listen: false).isPassphraseUseEnabled ? 2 : 1;
   }
 
   @override
@@ -297,10 +295,9 @@ class _MnemonicWordsState extends State<MnemonicWords> {
   bool isPassphraseNotMached = false;
   bool hasScrolledToBottom = false; // 니모닉 리스트를 끝까지 확인했는지 추적
   String errorMessage = '';
+  late bool isMnemonicWarningVisible;
 
-  final List<ChecklistItem> checklistItem = [
-    ChecklistItem(title: t.mnemonic_generate_screen.ensure_backup)
-  ];
+  final List<ChecklistItem> checklistItem = [ChecklistItem(title: t.mnemonic_generate_screen.ensure_backup)];
 
   void _generateMnemonicPhrase() {
     Seed randomSeed = Seed.random(mnemonicLength: widget.wordsCount);
@@ -314,7 +311,7 @@ class _MnemonicWordsState extends State<MnemonicWords> {
   NextButtonState _getNextButtonState() {
     if (!widget.usePassphrase) {
       // 패스프레이즈 사용 안함 - 항상 '다음' 버튼
-      return NextButtonState.nextActive;
+      return isMnemonicWarningVisible ? NextButtonState.nextInactive : NextButtonState.nextActive;
     }
 
     if (step == 1) {
@@ -322,9 +319,7 @@ class _MnemonicWordsState extends State<MnemonicWords> {
       bool isActive = false;
       if (isPassphraseConfirmVisible) {
         // 패스프레이즈 확인 텍스트필드가 보이는 상태
-        isActive = passphrase.isNotEmpty &&
-            passphraseConfirm.isNotEmpty &&
-            passphrase == passphraseConfirm;
+        isActive = passphrase.isNotEmpty && passphraseConfirm.isNotEmpty && passphrase == passphraseConfirm;
       } else {
         // 패스프레이즈 확인 텍스트필드가 보이지 않는 상태
         isActive = _passphraseController.text.isNotEmpty;
@@ -333,7 +328,7 @@ class _MnemonicWordsState extends State<MnemonicWords> {
       return isActive ? NextButtonState.completeActive : NextButtonState.completeInactive;
     } else {
       // 니모닉 생성 화면 - 항상 '다음' 버튼
-      return NextButtonState.nextActive;
+      return isMnemonicWarningVisible ? NextButtonState.nextInactive : NextButtonState.nextActive;
     }
   }
 
@@ -342,6 +337,7 @@ class _MnemonicWordsState extends State<MnemonicWords> {
     super.initState();
     _walletCreationProvider = Provider.of<WalletCreationProvider>(context, listen: false);
     stepCount = widget.usePassphrase ? 2 : 1;
+    isMnemonicWarningVisible = true;
     if (widget.from == MnemonicWordsFrom.generation) {
       _generateMnemonicPhrase();
     }
@@ -380,9 +376,7 @@ class _MnemonicWordsState extends State<MnemonicWords> {
       setState(() {
         passphraseConfirm = _passphraseConfirmController.text;
         // isPassphraseNotMached 조건 체크
-        if (passphrase.isNotEmpty &&
-            passphraseConfirm.isNotEmpty &&
-            passphrase != passphraseConfirm) {
+        if (passphrase.isNotEmpty && passphraseConfirm.isNotEmpty && passphrase != passphraseConfirm) {
           isPassphraseNotMached = true;
         } else {
           isPassphraseNotMached = false;
@@ -404,9 +398,7 @@ class _MnemonicWordsState extends State<MnemonicWords> {
         });
       } else {
         // passphraseConfirm 입력이 멈춘 후 (포커스를 잃은 후) 매칭 여부 체크
-        if (passphrase.isNotEmpty &&
-            passphraseConfirm.isNotEmpty &&
-            passphrase != passphraseConfirm) {
+        if (passphrase.isNotEmpty && passphraseConfirm.isNotEmpty && passphrase != passphraseConfirm) {
           setState(() {
             isPassphraseNotMached = true;
           });
@@ -472,7 +464,15 @@ class _MnemonicWordsState extends State<MnemonicWords> {
                       ),
                     ),
                     step == 0
-                        ? MnemonicList(mnemonic: mnemonic, isLoading: mnemonic.isEmpty)
+                        ? MnemonicList(
+                            mnemonic: mnemonic,
+                            isLoading: mnemonic.isEmpty,
+                            onWarningPressed: () {
+                              setState(() {
+                                isMnemonicWarningVisible = false;
+                              });
+                            },
+                          )
                         : _buildPassphraseInput(),
                     const SizedBox(height: 100),
                   ],
@@ -524,9 +524,7 @@ class _MnemonicWordsState extends State<MnemonicWords> {
                     passphrase = _passphraseController.text;
                     isPassphraseConfirmVisible = true;
                   });
-                } else if (passphrase.isNotEmpty &&
-                    passphraseConfirm.isNotEmpty &&
-                    passphrase == passphraseConfirm) {
+                } else if (passphrase.isNotEmpty && passphraseConfirm.isNotEmpty && passphrase == passphraseConfirm) {
                   _walletCreationProvider.setSecretAndPassphrase(mnemonic, passphrase);
                   _passphraseFocusNode.unfocus();
                   _passphraseConfirmFocusNode.unfocus();
@@ -634,8 +632,7 @@ class _MnemonicWordsState extends State<MnemonicWords> {
                           padding: const EdgeInsets.all(8),
                           child: SvgPicture.asset(
                             'assets/svg/text-field-clear.svg',
-                            colorFilter:
-                                const ColorFilter.mode(CoconutColors.gray400, BlendMode.srcIn),
+                            colorFilter: const ColorFilter.mode(CoconutColors.gray400, BlendMode.srcIn),
                           ),
                         ),
                       ),
@@ -702,8 +699,7 @@ class _MnemonicWordsState extends State<MnemonicWords> {
                             padding: const EdgeInsets.all(8),
                             child: SvgPicture.asset(
                               'assets/svg/text-field-clear.svg',
-                              colorFilter:
-                                  const ColorFilter.mode(CoconutColors.gray400, BlendMode.srcIn),
+                              colorFilter: const ColorFilter.mode(CoconutColors.gray400, BlendMode.srcIn),
                             ),
                           ),
                         ),
@@ -725,8 +721,7 @@ class NumberWidget extends StatefulWidget {
   final bool selected;
   final Function() onSelected;
 
-  const NumberWidget(
-      {super.key, required this.number, required this.selected, required this.onSelected});
+  const NumberWidget({super.key, required this.number, required this.selected, required this.onSelected});
 
   @override
   State<NumberWidget> createState() => _NumberWidgetState();
@@ -742,8 +737,7 @@ class _NumberWidgetState extends State<NumberWidget> {
       onTap: widget.onSelected,
       behavior: HitTestBehavior.opaque,
       child: Container(
-        padding:
-            EdgeInsets.only(left: isFirst ? 8 : 16, right: isFirst ? 16 : 8, top: 8, bottom: 8),
+        padding: EdgeInsets.only(left: isFirst ? 8 : 16, right: isFirst ? 16 : 8, top: 8, bottom: 8),
         child: Container(
           decoration: BoxDecoration(
             color: widget.selected ? bgColor : CoconutColors.gray400,

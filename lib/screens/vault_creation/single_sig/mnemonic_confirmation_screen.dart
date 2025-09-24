@@ -20,6 +20,7 @@ class _MnemonicConfirmationScreenState extends State<MnemonicConfirmationScreen>
   late int step;
   final ScrollController _scrollController = ScrollController();
   late String _mnemonic;
+  late bool _isWarningVisible;
 
   @override
   void initState() {
@@ -27,6 +28,7 @@ class _MnemonicConfirmationScreenState extends State<MnemonicConfirmationScreen>
     _walletCreationProvider = Provider.of<WalletCreationProvider>(context, listen: false);
     _mnemonic = _walletCreationProvider.secret!;
     step = 0;
+    _isWarningVisible = true;
   }
 
   @override
@@ -38,9 +40,15 @@ class _MnemonicConfirmationScreenState extends State<MnemonicConfirmationScreen>
   NextButtonState _getNextButtonState() {
     if (_walletCreationProvider.passphrase?.isEmpty ?? true) {
       // 패스프레이즈 사용 안함 - 항상 '완료' 버튼
+      if (_isWarningVisible) {
+        return NextButtonState.completeInactive;
+      }
       return NextButtonState.completeActive;
     }
     if (step == 0) {
+      if (_isWarningVisible) {
+        return NextButtonState.nextInactive;
+      }
       return NextButtonState.nextActive;
     }
     return NextButtonState.completeActive;
@@ -85,7 +93,13 @@ class _MnemonicConfirmationScreenState extends State<MnemonicConfirmationScreen>
                             ),
                           ),
                           step == 0
-                              ? MnemonicList(mnemonic: _mnemonic)
+                              ? MnemonicList(
+                                  mnemonic: _mnemonic,
+                                  onWarningPressed: () {
+                                    setState(() {
+                                      _isWarningVisible = false;
+                                    });
+                                  })
                               : _passphraseGridViewWidget(),
                           const SizedBox(height: 100),
                         ],
@@ -104,9 +118,7 @@ class _MnemonicConfirmationScreenState extends State<MnemonicConfirmationScreen>
                       return;
                     }
                     Navigator.pushReplacement(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => const VaultNameAndIconSetupScreen()));
+                        context, MaterialPageRoute(builder: (context) => const VaultNameAndIconSetupScreen()));
                   },
                 ),
               ],
@@ -206,10 +218,7 @@ class _MnemonicConfirmationScreenState extends State<MnemonicConfirmationScreen>
                     left: 3,
                     child: Text(
                       '${index + 1}',
-                      style: const TextStyle(
-                          color: CoconutColors.borderGray,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 6),
+                      style: const TextStyle(color: CoconutColors.borderGray, fontWeight: FontWeight.bold, fontSize: 6),
                     ),
                   ),
                 ),

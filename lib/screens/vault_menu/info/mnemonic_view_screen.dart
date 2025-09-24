@@ -25,7 +25,7 @@ class _MnemonicViewScreen extends State<MnemonicViewScreen> with TickerProviderS
   final ScrollController _scrollController = ScrollController();
   late WalletProvider _walletProvider;
   String? mnemonic;
-  bool _isWarningVisible = true;
+  final bool _isWarningVisible = true;
 
   @override
   void initState() {
@@ -84,94 +84,6 @@ class _MnemonicViewScreen extends State<MnemonicViewScreen> with TickerProviderS
                       const SizedBox(height: 40),
                     ],
                   )),
-            ),
-            Visibility(
-              visible: _isWarningVisible,
-              child: SizedBox(
-                width: MediaQuery.of(context).size.width,
-                height: MediaQuery.of(context).size.height,
-                child: ClipRRect(
-                  child: BackdropFilter(
-                    filter: ImageFilter.blur(sigmaX: 4, sigmaY: 4),
-                    child: Center(
-                      child: Container(
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(12),
-                          color: CoconutColors.hotPink,
-                        ),
-                        padding: const EdgeInsets.only(top: 28, left: 20, right: 20, bottom: 20),
-                        margin: const EdgeInsets.symmetric(horizontal: 68),
-                        child: LayoutBuilder(
-                          builder: (context, constraints) {
-                            final text = Text(
-                              t.mnemonic_view_screen.warning_title,
-                              style: CoconutTypography.body1_16_Bold.setColor(CoconutColors.white),
-                            );
-
-                            final textPainter = TextPainter(
-                              text: TextSpan(
-                                  text: t.mnemonic_view_screen.warning_title,
-                                  style: CoconutTypography.body1_16_Bold
-                                      .setColor(CoconutColors.white)),
-                              maxLines: 1,
-                              textDirection: TextDirection.ltr,
-                            )..layout(maxWidth: constraints.maxWidth);
-
-                            final textWidth = textPainter.size.width;
-
-                            return Column(
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                SvgPicture.asset(
-                                  'assets/svg/triangle-warning.svg',
-                                  colorFilter: const ColorFilter.mode(
-                                    CoconutColors.white,
-                                    BlendMode.srcIn,
-                                  ),
-                                ),
-                                CoconutLayout.spacing_300h,
-                                text,
-                                CoconutLayout.spacing_400h,
-                                ConstrainedBox(
-                                  constraints: BoxConstraints(maxWidth: textWidth),
-                                  child: Text(
-                                    t.mnemonic_view_screen.warning_guide,
-                                    style: CoconutTypography.body2_14.setColor(CoconutColors.white),
-                                    textAlign: TextAlign.start,
-                                  ),
-                                ),
-                                CoconutLayout.spacing_500h,
-                                ConstrainedBox(
-                                  constraints: BoxConstraints(maxWidth: textWidth),
-                                  child: ShrinkAnimationButton(
-                                    borderRadius: 12,
-                                    child: Container(
-                                      padding: const EdgeInsets.symmetric(vertical: 14),
-                                      width: double.infinity,
-                                      child: Text(
-                                        t.mnemonic_view_screen.warning_btn,
-                                        style: CoconutTypography.body2_14_Bold
-                                            .setColor(CoconutColors.hotPink),
-                                        textAlign: TextAlign.center,
-                                      ),
-                                    ),
-                                    onPressed: () {
-                                      setState(() {
-                                        _isWarningVisible = false;
-                                      });
-                                    },
-                                  ),
-                                )
-                              ],
-                            );
-                          },
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-              ),
             ),
           ],
         ),
