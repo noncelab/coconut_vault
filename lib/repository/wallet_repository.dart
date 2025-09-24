@@ -357,10 +357,12 @@ class WalletRepository {
         String keyString = _createWalletKeyString(wallet.id, WalletType.singleSignature);
         String passphraseKeyString = _createPassphraseEnabledKeyString(keyString);
 
-        Uint8List secretBytes =
-            Uint8List.fromList((data['secret'] as List<dynamic>).map((e) => e as int).toList());
+        final secret = data['secret'] as List<dynamic>;
+        Uint8List secretBytes = Uint8List.fromList(secret.map((e) => e as int).toList());
+        secret.fillRange(0, secret.length, 0);
 
         _storageService.writeBytes(key: keyString, value: secretBytes);
+        secretBytes.wipe();
         _storageService.write(
             key: passphraseKeyString, value: data['hasPassphrase'] ? "true" : "false");
       }

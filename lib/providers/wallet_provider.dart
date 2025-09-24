@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:coconut_lib/coconut_lib.dart';
+import 'package:coconut_vault/extensions/uint8list_extensions.dart';
 import 'package:coconut_vault/providers/preference_provider.dart';
 import 'package:coconut_vault/repository/wallet_repository.dart';
 import 'package:coconut_vault/model/common/vault_list_item_base.dart';
@@ -13,7 +14,6 @@ import 'package:coconut_vault/model/single_sig/single_sig_vault_list_item.dart';
 import 'package:coconut_vault/model/single_sig/single_sig_wallet_create_dto.dart';
 import 'package:coconut_vault/model/exception/not_related_multisig_wallet_exception.dart';
 import 'package:coconut_vault/providers/visibility_provider.dart';
-import 'package:coconut_vault/services/secure_memory.dart';
 import 'package:coconut_vault/utils/vibration_util.dart';
 import 'package:coconut_vault/utils/logger.dart';
 import 'package:coconut_vault/enums/wallet_enums.dart';
@@ -334,7 +334,6 @@ class WalletProvider extends ChangeNotifier {
 
   Future<String> createBackupData() async {
     final List<Map<String, dynamic>> backupData = [];
-    Uint8List? backupBytes;
 
     try {
       for (final vault in _vaultList) {
@@ -351,25 +350,25 @@ class WalletProvider extends ChangeNotifier {
       final jsonData = jsonEncode(backupData);
       return jsonData;
     } finally {
-      await SecureMemory.wipe(backupBytes ?? Uint8List(0));
+      for (final vault in backupData) {
+        if (vault['vaultType'] == WalletType.singleSignature) {
+          (vault['secret'] as Uint8List).wipe();
+        }
+      }
     }
   }
 
   Future<void> restoreFromBackupData(String jsonData) async {
-    Uint8List? jsonBytes = Uint8List.fromList(utf8.encode(jsonData));
-    try {
-      final List<Map<String, dynamic>> backupDataMapList = jsonDecode(jsonData)
-          .map<Map<String, dynamic>>((e) => Map<String, dynamic>.from(e))
-          .toList();
+    final List<Map<String, dynamic>> backupDataMapList = jsonDecode(jsonData)
+        .map<Map<String, dynamic>>((e) => Map<String, dynamic>.from(e))
+        .toList();
 
-      await _walletRepository.restoreFromBackupData(backupDataMapList);
-      _setVaultList(_walletRepository.vaultList);
+    /// 아래 restoreFromBackupData 함수 내에서 secret정보는 사라집니다.
+    await _walletRepository.restoreFromBackupData(backupDataMapList);
 
-      notifyListeners();
-      await _updateWalletLength();
-    } finally {
-      await SecureMemory.wipe(jsonBytes);
-    }
+    _setVaultList(_walletRepository.vaultList);
+    notifyListeners();
+    await _updateWalletLength();
   }
 
   @override
@@ -379,10 +378,6 @@ class WalletProvider extends ChangeNotifier {
     // stop if loading
     _isDisposed = true;
     _walletRepository.dispose();
-
-    SecureMemory.wipe(
-        Uint8List.fromList(utf8.encode(jsonEncode(_vaultList.map((e) => e.toJson()).toList()))));
-    SecureMemory.wipe(Uint8List.fromList(utf8.encode(signedRawTx ?? '')));
 
     _vaultList.clear();
     _waitingForSignaturePsbtBase64 = null;

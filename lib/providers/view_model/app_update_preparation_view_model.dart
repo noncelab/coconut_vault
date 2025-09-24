@@ -134,8 +134,8 @@ class AppUpdatePreparationViewModel extends ChangeNotifier {
     _backupProgress = 40;
     notifyListeners();
 
-    await _progress40Reached!.future;
     saveEncryptedBackupWithData(result);
+    await _progress40Reached!.future;
   }
 
   void saveEncryptedBackupWithData(String data) async {
@@ -146,8 +146,8 @@ class AppUpdatePreparationViewModel extends ChangeNotifier {
     _backupProgress = 80;
     notifyListeners();
 
-    await _progress80Reached!.future;
     deleteAllWallets();
+    await _progress80Reached!.future;
   }
 
   void deleteAllWallets() async {

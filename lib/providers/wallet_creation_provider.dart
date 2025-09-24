@@ -23,7 +23,7 @@ class WalletCreationProvider {
 
   /// singleSig
   Uint8List get secret => _secret;
-  String? get passphrase => _passphrase != Uint8List(0) ? utf8.decode(_passphrase) : null;
+  String? get passphrase => _passphrase.isNotEmpty ? utf8.decode(_passphrase) : null;
 
   WalletType get walletType {
     if (_requiredSignatureCount != null &&

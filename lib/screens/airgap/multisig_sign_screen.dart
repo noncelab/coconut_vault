@@ -5,6 +5,7 @@ import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_vault/constants/app_routes.dart';
 import 'package:coconut_vault/enums/currency_enum.dart';
 import 'package:coconut_vault/enums/pin_check_context_enum.dart';
+import 'package:coconut_vault/extensions/uint8list_extensions.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/providers/auth_provider.dart';
 import 'package:coconut_vault/providers/sign_provider.dart';
@@ -98,7 +99,7 @@ class _MultisigSignScreenState extends State<MultisigSignScreen> {
         validPassphrase =
             utf8.encode(await _authenticateWithPassphrase(context: context, index: index) ?? '');
 
-        if (validPassphrase == utf8.encode('')) {
+        if (validPassphrase.isEmpty) {
           return;
         }
       } else {
@@ -109,6 +110,8 @@ class _MultisigSignScreenState extends State<MultisigSignScreen> {
       }
 
       await _addSignatureToPsbt(index, validPassphrase);
+
+      validPassphrase.wipe();
     } else {
       showDialog(
           context: context,
