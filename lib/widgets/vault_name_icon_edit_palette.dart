@@ -175,6 +175,7 @@ class _VaultNameIconEditPaletteState extends State<VaultNameIconEditPalette> {
             : const SizedBox(width: 16),
         Expanded(
           child: CoconutTextField(
+            enableSuggestions: true,
             isLengthVisible: true,
             placeholderColor: CoconutColors.gray400,
             placeholderText: t.name,

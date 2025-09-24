@@ -273,11 +273,21 @@ class MnemonicWords extends StatefulWidget {
     this.regenerateNotifier,
   });
 
+  static final Set<String> validCharSet = {
+    ...List.generate(26, (i) => String.fromCharCode('a'.codeUnitAt(0) + i)), // a-z
+    ...List.generate(26, (i) => String.fromCharCode('A'.codeUnitAt(0) + i)), // A-Z
+    ...List.generate(10, (i) => i.toString()), // 0-9
+    '[', ']', '{', '}', '#', '%', '^', '*', '+', '=', '_', '\\', '|', '~',
+    '<', '>', '-', '/', ':', ';', '(', ')', r'$', '&', '"', '`', '.', ',', '?', '!', '\'', '@'
+  };
+
   @override
   State<MnemonicWords> createState() => _MnemonicWordsState();
 }
 
 class _MnemonicWordsState extends State<MnemonicWords> {
+  // passphrase로 입력해도 문제없는 문자들: 영문 대소문자, 숫자, 일부 특수문자(키스톤에서 입력가능한 문자)
+
   late WalletCreationProvider _walletCreationProvider;
   late int stepCount; // 총 화면 단계
   int step = 0;
@@ -296,6 +306,7 @@ class _MnemonicWordsState extends State<MnemonicWords> {
   bool hasScrolledToBottom = false; // 니모닉 리스트를 끝까지 확인했는지 추적
   String errorMessage = '';
   late bool isMnemonicWarningVisible;
+  List<String> invalidPassphraseList = [];
 
   final List<ChecklistItem> checklistItem = [ChecklistItem(title: t.mnemonic_generate_screen.ensure_backup)];
 
@@ -364,12 +375,25 @@ class _MnemonicWordsState extends State<MnemonicWords> {
       }
     });
     _passphraseController.addListener(() {
+      setState(() {
+        invalidPassphraseList = _passphraseController.text.characters
+            .where((char) => !MnemonicWords.validCharSet.contains(char))
+            .toSet()
+            .toList();
+      });
+      debugPrint('invalidPassphraseList: $invalidPassphraseList');
+
       if (_passphraseConfirmController.text.isNotEmpty) {
         setState(() {
           passphrase = _passphraseController.text;
         });
       } else {
         setState(() {}); // clear text 아이콘 보이기 위함
+      }
+      if (_passphraseController.text.isNotEmpty) {
+        setState(() {
+          isPassphraseConfirmVisible = true;
+        });
       }
     });
     _passphraseConfirmController.addListener(() {
@@ -482,6 +506,13 @@ class _MnemonicWordsState extends State<MnemonicWords> {
             isActive: _getNextButtonState().isActive,
             text: _getNextButtonState().text,
             backgroundColor: CoconutColors.black,
+            subWidget: invalidPassphraseList.isNotEmpty
+                ? Text(
+                    t.mnemonic_generate_screen.passphrase_warning(words: invalidPassphraseList.join(", ")),
+                    style: CoconutTypography.body3_12.setColor(CoconutColors.warningText),
+                    textAlign: TextAlign.center,
+                  )
+                : null,
             onButtonClicked: () {
               if (widget.from == MnemonicWordsFrom.coinflip) {
                 widget.onNavigateToNext();
@@ -605,6 +636,7 @@ class _MnemonicWordsState extends State<MnemonicWords> {
             padding: const EdgeInsets.only(top: 12),
             child: SizedBox(
               child: CoconutTextField(
+                enableSuggestions: true, // 안드로이드에서 특수문자 입력 가능하도록 설정
                 focusNode: _passphraseFocusNode,
                 controller: _passphraseController,
                 placeholderText: t.mnemonic_generate_screen.memorable_passphrase_guide,
@@ -681,9 +713,11 @@ class _MnemonicWordsState extends State<MnemonicWords> {
               padding: const EdgeInsets.only(top: 12),
               child: SizedBox(
                 child: CoconutTextField(
+                  enableSuggestions: true,
                   focusNode: _passphraseConfirmFocusNode,
                   controller: _passphraseConfirmController,
                   placeholderText: t.mnemonic_generate_screen.passphrase_confirm_guide,
+                  obscureText: passphraseObscured,
                   onChanged: (_) {},
                   maxLines: 1,
                   suffix: Row(

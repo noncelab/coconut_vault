@@ -330,6 +330,8 @@ mnemonic_generate_screen:
   backup_guide: "Please backup mnemonic words in a safe place"
   backup_complete: "Backup Complete"
   warning: "Please be careful with storage and leakage of entered passphrase"
+  passphrase_warning: "$words may not be accepted by other wallets. Please be careful."
+  
 mnemonic_import_screen:
   title: "Restore"
   enter_mnemonic_phrase: "Enter mnemonic phrase"

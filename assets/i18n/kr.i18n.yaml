@@ -332,6 +332,8 @@ mnemonic_generate_screen:
   backup_guide: "안전한 장소에서 니모닉 문구를 백업해 주세요"
   backup_complete: "백업 완료"
   warning: "입력하신 패스프레이즈는 보관과 유출에 유의해 주세요"
+  passphrase_warning: "$words 는 다른 하드월렛에서 입력이 안될 수 있어 주의가 필요해요"
+  
 mnemonic_import_screen:
   title: "복원하기"
   enter_mnemonic_phrase: "니모닉 문구를 입력해 주세요"
