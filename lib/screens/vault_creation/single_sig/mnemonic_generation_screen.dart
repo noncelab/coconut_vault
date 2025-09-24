@@ -64,7 +64,7 @@ class _MnemonicGenerationScreenState extends State<MnemonicGenerationScreen> {
               title: t.alert.stop_generating_mnemonic.title,
               description: t.alert.stop_generating_mnemonic.description,
               backgroundColor: CoconutColors.white,
-              rightButtonText: t.alert.stop_generating_mnemonic.confirm,
+              rightButtonText: t.yes,
               rightButtonColor: CoconutColors.gray900,
               leftButtonText: t.alert.stop_generating_mnemonic.reselect,
               leftButtonColor: CoconutColors.gray900,

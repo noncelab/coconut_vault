@@ -156,6 +156,11 @@ class _VaultHomeScreenState extends State<VaultHomeScreen> with TickerProviderSt
                         ),
                       ),
                       _buildWalletActionItems(context),
+                      SliverToBoxAdapter(
+                        child: Container(
+                          height: 100,
+                        ),
+                      ),
                     ],
                   ),
                 ],

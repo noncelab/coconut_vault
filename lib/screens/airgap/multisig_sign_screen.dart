@@ -166,9 +166,9 @@ class _MultisigSignScreenState extends State<MultisigSignScreen> {
             title: t.alert.exit_sign.title,
             description: t.alert.exit_sign.description,
             backgroundColor: CoconutColors.white,
-            leftButtonText: t.cancel,
+            leftButtonText: t.no,
             leftButtonColor: CoconutColors.black.withOpacity(0.7),
-            rightButtonText: t.quit,
+            rightButtonText: t.yes,
             rightButtonColor: CoconutColors.warningText,
             onTapLeft: () => Navigator.pop(context),
             onTapRight: () {
@@ -189,9 +189,9 @@ class _MultisigSignScreenState extends State<MultisigSignScreen> {
             title: t.alert.stop_sign.title,
             description: t.alert.stop_sign.description,
             backgroundColor: CoconutColors.white,
-            leftButtonText: t.cancel,
+            leftButtonText: t.no,
             leftButtonColor: CoconutColors.black.withOpacity(0.7),
-            rightButtonText: t.quit,
+            rightButtonText: t.yes,
             rightButtonColor: CoconutColors.warningText,
             onTapLeft: () => Navigator.pop(context),
             onTapRight: () {

@@ -87,8 +87,8 @@ class _SignedTransactionQrScreenState extends State<SignedTransactionQrScreen> {
                       onTapLeft: () {
                         Navigator.pop(context);
                       },
-                      leftButtonText: t.cancel,
-                      rightButtonText: t.abort,
+                      leftButtonText: t.no,
+                      rightButtonText: t.yes,
                     );
                   },
                 );
