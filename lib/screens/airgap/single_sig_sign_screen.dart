@@ -40,8 +40,8 @@ class _SingleSigSignScreenState extends State<SingleSigSignScreen> {
   void initState() {
     super.initState();
     _currentUnit = context.read<VisibilityProvider>().currentUnit;
-    _viewModel = SingleSigSignViewModel(Provider.of<WalletProvider>(context, listen: false),
-        Provider.of<SignProvider>(context, listen: false));
+    _viewModel = SingleSigSignViewModel(
+        Provider.of<WalletProvider>(context, listen: false), Provider.of<SignProvider>(context, listen: false));
 
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       if (_viewModel.isAlreadySigned) {
@@ -128,8 +128,7 @@ class _SingleSigSignScreenState extends State<SingleSigSignScreen> {
         context: context,
         builder: (BuildContext context) {
           return CoconutPopup(
-            insetPadding:
-                EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width * 0.15),
+            insetPadding: EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width * 0.15),
             title: t.alert.exit_sign.title,
             description: t.alert.exit_sign.description,
             backgroundColor: CoconutColors.white,
@@ -168,43 +167,12 @@ class _SingleSigSignScreenState extends State<SingleSigSignScreen> {
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    // progress
-                    TweenAnimationBuilder<double>(
-                      tween: Tween<double>(
-                        begin: 0.0,
-                        end: viewModel.isSignerApproved ? 1.0 : 0.0,
-                      ),
-                      duration: const Duration(milliseconds: 1500),
-                      builder: (context, value, child) {
-                        if (value == 1.0) {
-                          _isProgressCompleted = true;
-                        } else {
-                          _isProgressCompleted = false;
-                        }
-                        return Container(
-                          margin: const EdgeInsets.only(top: 8),
-                          child: LinearProgressIndicator(
-                            value: value,
-                            minHeight: 6,
-                            backgroundColor: CoconutColors.black.withOpacity(0.06),
-                            borderRadius: _isProgressCompleted
-                                ? BorderRadius.zero
-                                : const BorderRadius.only(
-                                    topRight: Radius.circular(6), bottomRight: Radius.circular(6)),
-                            valueColor: const AlwaysStoppedAnimation<Color>(CoconutColors.black),
-                          ),
-                        );
-                      },
-                    ),
-
                     // 보낼 수량
                     Padding(
                       padding: const EdgeInsets.only(top: 36),
                       child: Text(
                         viewModel.isSignerApproved
-                            ? (viewModel.isAlreadySigned
-                                ? t.single_sig_sign_screen.text
-                                : t.sign_completed)
+                            ? (viewModel.isAlreadySigned ? t.single_sig_sign_screen.text : t.sign_completed)
                             : t.one_sign_guide,
                         style: CoconutTypography.heading4_18_Bold,
                       ),
@@ -216,6 +184,7 @@ class _SingleSigSignScreenState extends State<SingleSigSignScreen> {
                   ],
                 ),
                 _buildBottomButtons(),
+                _buildProgressIndicator(),
                 Visibility(
                   visible: _showLoading,
                   child: Container(
@@ -233,6 +202,37 @@ class _SingleSigSignScreenState extends State<SingleSigSignScreen> {
             ),
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _buildProgressIndicator() {
+    return Positioned(
+      top: 0,
+      left: 0,
+      right: 0,
+      child: TweenAnimationBuilder<double>(
+        tween: Tween<double>(
+          begin: 0.0,
+          end: _viewModel.isSignerApproved ? 1.0 : 0.0,
+        ),
+        duration: const Duration(milliseconds: 1500),
+        builder: (context, value, child) {
+          if (value == 1.0) {
+            _isProgressCompleted = true;
+          } else {
+            _isProgressCompleted = false;
+          }
+          return LinearProgressIndicator(
+            value: value,
+            minHeight: 6,
+            backgroundColor: CoconutColors.black.withOpacity(0.06),
+            borderRadius: _isProgressCompleted
+                ? BorderRadius.zero
+                : const BorderRadius.only(topRight: Radius.circular(6), bottomRight: Radius.circular(6)),
+            valueColor: const AlwaysStoppedAnimation<Color>(CoconutColors.black),
+          );
+        },
       ),
     );
   }
@@ -259,9 +259,7 @@ class _SingleSigSignScreenState extends State<SingleSigSignScreen> {
                 child: Text(
                   textAlign: TextAlign.end,
                   TextUtils.truncateNameMax25(_viewModel.firstRecipientAddress) +
-                      (_viewModel.recipientCount > 1
-                          ? '\n${t.extra_count(count: _viewModel.recipientCount - 1)}'
-                          : ''),
+                      (_viewModel.recipientCount > 1 ? '\n${t.extra_count(count: _viewModel.recipientCount - 1)}' : ''),
                   style: CoconutTypography.body1_16,
                   overflow: TextOverflow.ellipsis,
                   maxLines: 2,

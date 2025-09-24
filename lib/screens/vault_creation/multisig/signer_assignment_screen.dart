@@ -39,8 +39,7 @@ class AssignedVaultListItem {
   }
 
   @override
-  String toString() =>
-      '[index]: ${t.multisig.nth_key(index: index + 1)}\n[item]: ${item.toString()}\nmemo: $memo';
+  String toString() => '[index]: ${t.multisig.nth_key(index: index + 1)}\n[item]: ${item.toString()}\nmemo: $memo';
 }
 
 enum DialogType {
@@ -71,8 +70,7 @@ class SignerOption {
   late final String masterFingerprint;
 
   SignerOption(this.singlesigVaultListItem, this.signerBsms) {
-    masterFingerprint =
-        (singlesigVaultListItem.coconutVault as SingleSignatureVault).keyStore.masterFingerprint;
+    masterFingerprint = (singlesigVaultListItem.coconutVault as SingleSignatureVault).keyStore.masterFingerprint;
   }
 }
 
@@ -108,50 +106,15 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
             ),
             body: SafeArea(
               child: SizedBox(
-                height: MediaQuery.of(context).size.height -
-                    kToolbarHeight -
-                    MediaQuery.of(context).padding.top,
+                height: MediaQuery.of(context).size.height - kToolbarHeight - MediaQuery.of(context).padding.top,
                 child: Stack(
                   children: [
                     SingleChildScrollView(
                       child: Column(
                         children: [
-                          Stack(
-                            children: [
-                              ClipRRect(
-                                child: Container(
-                                  height: 6,
-                                  color: CoconutColors.black.withOpacity(0.06),
-                                ),
-                              ),
-                              LayoutBuilder(
-                                builder: (context, constraints) {
-                                  return ClipRRect(
-                                    borderRadius: viewModel.getAssignedVaultListLength() /
-                                                viewModel.totalSignatureCount ==
-                                            1
-                                        ? BorderRadius.zero
-                                        : const BorderRadius.only(
-                                            topRight: Radius.circular(6),
-                                            bottomRight: Radius.circular(6)),
-                                    child: AnimatedContainer(
-                                      duration: const Duration(milliseconds: 500),
-                                      curve: Curves.easeInOut,
-                                      height: 6,
-                                      width: (constraints.maxWidth) *
-                                          (viewModel.getAssignedVaultListLength() == 0
-                                              ? 0
-                                              : viewModel.getAssignedVaultListLength() /
-                                                  viewModel.totalSignatureCount),
-                                      color: CoconutColors.black,
-                                    ),
-                                  );
-                                },
-                              ),
-                            ],
-                          ),
                           SingleChildScrollView(
-                            child: Padding(
+                            child: Container(
+                              width: MediaQuery.of(context).size.width,
                               padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 78),
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.center,
@@ -177,31 +140,25 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
                                           ratio: 0.35,
                                         );
                                       },
-                                      defaultColor: viewModel.assignedVaultList[i].importKeyType !=
-                                              null
-                                          ? viewModel.assignedVaultList[i].importKeyType ==
-                                                  ImportKeyType.internal
+                                      defaultColor: viewModel.assignedVaultList[i].importKeyType != null
+                                          ? viewModel.assignedVaultList[i].importKeyType == ImportKeyType.internal
                                               ? CoconutColors.backgroundColorPaletteLight[
                                                   viewModel.assignedVaultList[i].item!.colorIndex]
                                               : CoconutColors.backgroundColorPaletteLight[8]
                                           : CoconutColors.white,
-                                      pressedColor: viewModel.assignedVaultList[i].importKeyType !=
-                                              null
-                                          ? viewModel.assignedVaultList[i].importKeyType ==
-                                                  ImportKeyType.internal
-                                              ? CoconutColors.backgroundColorPaletteLight[viewModel
-                                                      .assignedVaultList[i].item!.colorIndex]
+                                      pressedColor: viewModel.assignedVaultList[i].importKeyType != null
+                                          ? viewModel.assignedVaultList[i].importKeyType == ImportKeyType.internal
+                                              ? CoconutColors.backgroundColorPaletteLight[
+                                                      viewModel.assignedVaultList[i].item!.colorIndex]
                                                   .withAlpha(70)
-                                              : CoconutColors.backgroundColorPaletteLight[8]
-                                                  .withAlpha(70)
+                                              : CoconutColors.backgroundColorPaletteLight[8].withAlpha(70)
                                           : CoconutColors.gray150,
                                       borderRadius: 100,
                                       borderWidth: 1,
                                       border: Border.all(
                                         color: viewModel.assignedVaultList[i].importKeyType != null
-                                            ? CoconutColors.backgroundColorPaletteLight[viewModel
-                                                        .assignedVaultList[i].item?.colorIndex ??
-                                                    8]
+                                            ? CoconutColors.backgroundColorPaletteLight[
+                                                    viewModel.assignedVaultList[i].item?.colorIndex ?? 8]
                                                 .withAlpha(70)
                                             : CoconutColors.gray200,
                                         width: 1,
@@ -217,17 +174,14 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
                                                   SvgPicture.asset(
                                                     viewModel.assignedVaultList[i].importKeyType ==
                                                             ImportKeyType.internal
-                                                        ? CustomIcons.getPathByIndex(viewModel
-                                                            .assignedVaultList[i].item!.iconIndex)
+                                                        ? CustomIcons.getPathByIndex(
+                                                            viewModel.assignedVaultList[i].item!.iconIndex)
                                                         : 'assets/svg/import-bsms.svg',
                                                     colorFilter: ColorFilter.mode(
-                                                      viewModel.assignedVaultList[i]
-                                                                  .importKeyType ==
+                                                      viewModel.assignedVaultList[i].importKeyType ==
                                                               ImportKeyType.internal
-                                                          ? CoconutColors.colorPalette[viewModel
-                                                              .assignedVaultList[i]
-                                                              .item!
-                                                              .colorIndex]
+                                                          ? CoconutColors.colorPalette[
+                                                              viewModel.assignedVaultList[i].item!.colorIndex]
                                                           : CoconutColors.black,
                                                       BlendMode.srcIn,
                                                     ),
@@ -237,18 +191,12 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
                                                   Flexible(
                                                     child: Text(
                                                       t.multisig.nth_key_with_name(
-                                                          name: viewModel.assignedVaultList[i]
-                                                                      .importKeyType ==
+                                                          name: viewModel.assignedVaultList[i].importKeyType ==
                                                                   ImportKeyType.internal
-                                                              ? _viewModel
-                                                                  .assignedVaultList[i].item!.name
-                                                              : _viewModel
-                                                                      .getExternalSignerDisplayName(
-                                                                          i) ??
+                                                              ? _viewModel.assignedVaultList[i].item!.name
+                                                              : _viewModel.getExternalSignerDisplayName(i) ??
                                                                   t.external_wallet,
-                                                          index: _viewModel
-                                                                  .assignedVaultList[i].index +
-                                                              1),
+                                                          index: _viewModel.assignedVaultList[i].index + 1),
                                                       style: CoconutTypography.body1_16,
                                                       maxLines: 1,
                                                       overflow: TextOverflow.ellipsis,
@@ -259,9 +207,8 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
                                               )
                                             : Center(
                                                 child: Text(
-                                                  t.multisig.select_nth_key(
-                                                      index: _viewModel.assignedVaultList[i].index +
-                                                          1),
+                                                  t.multisig
+                                                      .select_nth_key(index: _viewModel.assignedVaultList[i].index + 1),
                                                   style: CoconutTypography.body1_16,
                                                 ),
                                               ),
@@ -282,10 +229,9 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
                         return FixedBottomButton(
                           showGradient: false,
                           backgroundColor: CoconutColors.black,
-                          onButtonClicked:
-                              _hasValidationCompleted && viewModel.isAssignedKeyCompletely()
-                                  ? onNextPressed
-                                  : onSelectionCompleted,
+                          onButtonClicked: _hasValidationCompleted && viewModel.isAssignedKeyCompletely()
+                              ? onNextPressed
+                              : onSelectionCompleted,
                           text: _hasValidationCompleted && viewModel.isAssignedKeyCompletely()
                               ? t.next
                               : t.select_completed,
@@ -295,12 +241,12 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
                         );
                       }),
                     ),
+                    _buildProgressIndicator(),
                     Visibility(
                       visible: _isNextProcessing,
                       child: Container(
                         decoration: BoxDecoration(color: CoconutColors.black.withOpacity(0.3)),
-                        child: Center(
-                            child: MessageActivityIndicator(message: viewModel.loadingMessage)),
+                        child: Center(child: MessageActivityIndicator(message: viewModel.loadingMessage)),
                       ),
                     ),
                   ],
@@ -309,6 +255,43 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
             ),
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _buildProgressIndicator() {
+    return Positioned(
+      top: 0,
+      left: 0,
+      right: 0,
+      child: Stack(
+        children: [
+          ClipRRect(
+            child: Container(
+              height: 6,
+              color: CoconutColors.black.withOpacity(0.06),
+            ),
+          ),
+          LayoutBuilder(
+            builder: (context, constraints) {
+              return ClipRRect(
+                borderRadius: _viewModel.getAssignedVaultListLength() / _viewModel.totalSignatureCount == 1
+                    ? BorderRadius.zero
+                    : const BorderRadius.only(topRight: Radius.circular(6), bottomRight: Radius.circular(6)),
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 500),
+                  curve: Curves.easeInOut,
+                  height: 6,
+                  width: (constraints.maxWidth) *
+                      (_viewModel.getAssignedVaultListLength() == 0
+                          ? 0
+                          : _viewModel.getAssignedVaultListLength() / _viewModel.totalSignatureCount),
+                  color: CoconutColors.black,
+                ),
+              );
+            },
+          ),
+        ],
       ),
     );
   }
@@ -353,9 +336,7 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
                       Navigator.pop(context); // 이 볼트에 있는 키 사용하기 다이얼로그 닫기
                       Navigator.pop(context); // 키 종류 선택 다이얼로그 닫기
                     },
-                    vaultList: _viewModel.unselectedSignerOptions
-                        .map((o) => o.singlesigVaultListItem)
-                        .toList(),
+                    vaultList: _viewModel.unselectedSignerOptions.map((o) => o.singlesigVaultListItem).toList(),
                     scrollController: scrollController,
                   ),
                 );
@@ -423,8 +404,8 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
                   );
                   if (bsmsAndMemo != null) {
                     assert(bsmsAndMemo['bsms']!.isNotEmpty);
-                    _viewModel.setAssignedVaultList(index, ImportKeyType.external, false,
-                        externalImported, bsmsAndMemo['memo']);
+                    _viewModel.setAssignedVaultList(
+                        index, ImportKeyType.external, false, externalImported, bsmsAndMemo['memo']);
                     if (!mounted) return;
                     Navigator.pop(context); // 키 종류 선택 다이얼로그 닫기
                   }
@@ -510,9 +491,7 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
     if (existingWallet != null) {
       if (mounted) {
         CoconutToast.showToast(
-            context: context,
-            text: t.toast.multisig_already_added(name: existingWallet.name),
-            isVisibleIcon: true);
+            context: context, text: t.toast.multisig_already_added(name: existingWallet.name), isVisibleIcon: true);
         setState(() {
           _isNextProcessing = false;
         });
@@ -561,8 +540,7 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
           onConfirm = () {
             _viewModel.resetWalletCreationProvider();
             _isFinishing = true;
-            Navigator.popUntil(
-                context, (route) => route.settings.name == AppRoutes.multisigQuorumSelection);
+            Navigator.popUntil(context, (route) => route.settings.name == AppRoutes.multisigQuorumSelection);
           };
           break;
         }
@@ -576,8 +554,7 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
           onConfirm = () {
             _viewModel.resetWalletCreationProvider();
             _isFinishing = true;
-            Navigator.popUntil(
-                context, (route) => route.settings.name == AppRoutes.multisigQuorumSelection);
+            Navigator.popUntil(context, (route) => route.settings.name == AppRoutes.multisigQuorumSelection);
           };
           break;
         }
@@ -628,8 +605,8 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
               }
               _viewModel.unselectedSignerOptions.insert(
                   insertIndex,
-                  SignerOption(_viewModel.assignedVaultList[keyIndex].item!,
-                      _viewModel.assignedVaultList[keyIndex].bsms!));
+                  SignerOption(
+                      _viewModel.assignedVaultList[keyIndex].item!, _viewModel.assignedVaultList[keyIndex].bsms!));
             }
 
             setState(() {
@@ -712,8 +689,7 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
         context: context,
         builder: (BuildContext context) {
           return CoconutPopup(
-            insetPadding:
-                EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width * 0.15),
+            insetPadding: EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width * 0.15),
             title: title,
             description: message,
             backgroundColor: CoconutColors.white,
@@ -722,11 +698,10 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
             leftButtonText: cancelButtonText,
             leftButtonColor: CoconutColors.black.withOpacity(0.7),
             onTapRight: onConfirm,
-            onTapLeft: (type == DialogType.alert ||
-                    type == DialogType.alreadyExist ||
-                    type == DialogType.sameWithInternalOne)
-                ? null
-                : onCancel ?? () => Navigator.pop(context),
+            onTapLeft:
+                (type == DialogType.alert || type == DialogType.alreadyExist || type == DialogType.sameWithInternalOne)
+                    ? null
+                    : onCancel ?? () => Navigator.pop(context),
           );
         });
   }
