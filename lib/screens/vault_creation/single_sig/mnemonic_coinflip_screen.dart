@@ -1,16 +1,16 @@
 import 'dart:convert';
-import 'dart:typed_data';
 
 import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_lib/coconut_lib.dart';
 import 'package:coconut_vault/constants/app_routes.dart';
+import 'package:coconut_vault/extensions/uint8list_extensions.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/providers/visibility_provider.dart';
 import 'package:coconut_vault/providers/wallet_creation_provider.dart';
-import 'package:coconut_vault/services/secure_memory.dart';
 import 'package:coconut_vault/widgets/button/fixed_bottom_tween_button.dart';
 import 'package:coconut_vault/widgets/button/shrink_animation_button.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:coconut_vault/screens/vault_creation/single_sig/mnemonic_generation_screen.dart';
 import 'package:coconut_vault/widgets/bottom_sheet.dart';
@@ -206,9 +206,9 @@ class _FlipCoinState extends State<FlipCoin> {
       _bits[i] = 0;
     }
     _bits.clear();
-    SecureMemory.wipe(_mnemonic);
-    SecureMemory.wipe(_passphrase);
-    SecureMemory.wipe(_passphraseConfirm);
+    _mnemonic.wipe();
+    _passphrase.wipe();
+    _passphraseConfirm.wipe();
 
     _scrollController.dispose();
     _passphraseController.dispose();
@@ -237,7 +237,7 @@ class _FlipCoinState extends State<FlipCoin> {
       // 패스프레이즈 확인 텍스트필드가 보이는 상태
       isActive = _passphrase.isNotEmpty &&
           _passphraseConfirm.isNotEmpty &&
-          _passphrase == _passphraseConfirm;
+          listEquals(_passphrase, _passphraseConfirm);
     } else {
       // 패스프레이즈 확인 텍스트필드가 보이지 않는 상태
       isActive = _passphraseController.text.isNotEmpty;
@@ -490,7 +490,7 @@ class _FlipCoinState extends State<FlipCoin> {
         });
       } else if (_passphrase.isNotEmpty &&
           _passphraseConfirm.isNotEmpty &&
-          _passphrase == _passphraseConfirm &&
+          listEquals(_passphrase, _passphraseConfirm) &&
           _generateMnemonicPhrase()) {
         // 패스프레이즈 입력 완료 | coinflip 데이터로 니모닉 생성 시도 성공
         Provider.of<WalletCreationProvider>(context, listen: false)
@@ -755,7 +755,6 @@ class _FlipCoinState extends State<FlipCoin> {
 
   bool _generateMnemonicPhrase() {
     try {
-      _mnemonic = Seed.fromEntropy(bitsToBytes(_bits)).mnemonic;
       setState(() {
         _mnemonic = Seed.fromEntropy(bitsToBytes(_bits)).mnemonic;
       });

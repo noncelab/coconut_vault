@@ -4,6 +4,7 @@ import 'dart:typed_data';
 import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_lib/coconut_lib.dart';
 import 'package:coconut_vault/constants/app_routes.dart';
+import 'package:coconut_vault/extensions/uint8list_extensions.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/providers/visibility_provider.dart';
 import 'package:coconut_vault/providers/wallet_creation_provider.dart';
@@ -11,6 +12,7 @@ import 'package:coconut_vault/widgets/button/fixed_bottom_button.dart';
 import 'package:coconut_vault/widgets/button/shrink_animation_button.dart';
 import 'package:coconut_vault/widgets/list/mnemonic_list.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:coconut_vault/widgets/check_list.dart';
 import 'package:flutter_svg/svg.dart';
@@ -271,8 +273,8 @@ class _MnemonicWordsState extends State<MnemonicWords> {
   int step = 0;
 
   Uint8List _mnemonic = Uint8List(0);
-  String passphrase = '';
-  String passphraseConfirm = '';
+  Uint8List _passphrase = Uint8List(0);
+  Uint8List _passphraseConfirm = Uint8List(0);
 
   final ScrollController _scrollController = ScrollController();
   final TextEditingController _passphraseController = TextEditingController();
@@ -295,8 +297,7 @@ class _MnemonicWordsState extends State<MnemonicWords> {
 
     setState(() {
       _mnemonic = randomSeed.mnemonic;
-      print('******* mnemonic: ${utf8.decode(_mnemonic)}');
-      hasScrolledToBottom = utf8.decode(_mnemonic).split(' ').length == 12;
+      hasScrolledToBottom = widget.wordsCount == 12;
     });
   }
 
@@ -311,9 +312,9 @@ class _MnemonicWordsState extends State<MnemonicWords> {
       bool isActive = false;
       if (isPassphraseConfirmVisible) {
         // 패스프레이즈 확인 텍스트필드가 보이는 상태
-        isActive = passphrase.isNotEmpty &&
-            passphraseConfirm.isNotEmpty &&
-            passphrase == passphraseConfirm;
+        isActive = _passphrase.isNotEmpty &&
+            _passphraseConfirm.isNotEmpty &&
+            listEquals(_passphrase, _passphraseConfirm);
       } else {
         // 패스프레이즈 확인 텍스트필드가 보이지 않는 상태
         isActive = _passphraseController.text.isNotEmpty;
@@ -357,7 +358,7 @@ class _MnemonicWordsState extends State<MnemonicWords> {
     _passphraseController.addListener(() {
       if (_passphraseConfirmController.text.isNotEmpty) {
         setState(() {
-          passphrase = _passphraseController.text;
+          _passphrase = utf8.encode(_passphraseController.text);
         });
       } else {
         setState(() {}); // clear text 아이콘 보이기 위함
@@ -365,11 +366,11 @@ class _MnemonicWordsState extends State<MnemonicWords> {
     });
     _passphraseConfirmController.addListener(() {
       setState(() {
-        passphraseConfirm = _passphraseConfirmController.text;
+        _passphraseConfirm = utf8.encode(_passphraseConfirmController.text);
         // isPassphraseNotMached 조건 체크
-        if (passphrase.isNotEmpty &&
-            passphraseConfirm.isNotEmpty &&
-            passphrase != passphraseConfirm) {
+        if (_passphrase.isNotEmpty &&
+            _passphraseConfirm.isNotEmpty &&
+            listEquals(_passphrase, _passphraseConfirm)) {
           isPassphraseNotMached = true;
         } else {
           isPassphraseNotMached = false;
@@ -391,9 +392,9 @@ class _MnemonicWordsState extends State<MnemonicWords> {
         });
       } else {
         // passphraseConfirm 입력이 멈춘 후 (포커스를 잃은 후) 매칭 여부 체크
-        if (passphrase.isNotEmpty &&
-            passphraseConfirm.isNotEmpty &&
-            passphrase != passphraseConfirm) {
+        if (_passphrase.isNotEmpty &&
+            _passphraseConfirm.isNotEmpty &&
+            listEquals(_passphrase, _passphraseConfirm)) {
           setState(() {
             isPassphraseNotMached = true;
           });
@@ -404,9 +405,9 @@ class _MnemonicWordsState extends State<MnemonicWords> {
 
   @override
   void dispose() {
-    _mnemonic = Uint8List(0);
-    passphrase = '';
-    passphraseConfirm = '';
+    _mnemonic.wipe();
+    _passphrase.wipe();
+    _passphraseConfirm.wipe();
 
     _scrollController.dispose();
     _passphraseController.dispose();
@@ -492,7 +493,7 @@ class _MnemonicWordsState extends State<MnemonicWords> {
                   );
                   return;
                 }
-                _walletCreationProvider.setSecretAndPassphrase(_mnemonic, utf8.encode(passphrase));
+                _walletCreationProvider.setSecretAndPassphrase(_mnemonic, _passphrase);
                 _passphraseFocusNode.unfocus();
                 _passphraseConfirmFocusNode.unfocus();
                 widget.onNavigateToNext();
@@ -502,14 +503,13 @@ class _MnemonicWordsState extends State<MnemonicWords> {
                   _passphraseFocusNode.unfocus();
                   _passphraseConfirmFocusNode.unfocus();
                   setState(() {
-                    passphrase = _passphraseController.text;
+                    _passphrase = utf8.encode(_passphraseController.text);
                     isPassphraseConfirmVisible = true;
                   });
-                } else if (passphrase.isNotEmpty &&
-                    passphraseConfirm.isNotEmpty &&
-                    passphrase == passphraseConfirm) {
-                  _walletCreationProvider.setSecretAndPassphrase(
-                      _mnemonic, utf8.encode(passphrase));
+                } else if (_passphrase.isNotEmpty &&
+                    _passphraseConfirm.isNotEmpty &&
+                    listEquals(_passphrase, _passphraseConfirm)) {
+                  _walletCreationProvider.setSecretAndPassphrase(_mnemonic, _passphrase);
                   _passphraseFocusNode.unfocus();
                   _passphraseConfirmFocusNode.unfocus();
                   widget.onNavigateToNext();
