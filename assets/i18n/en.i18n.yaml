@@ -112,7 +112,7 @@ connectivity_state:
   inactive: "Inactive"
 
 vault_home_screen:
-  view_all_my_wallets: "View All My Wallets"
+  view_all_wallets: "View My Wallets"
   wallet_count: "$count Items"
   action_items:
     sign: "Sign"
@@ -120,7 +120,6 @@ vault_home_screen:
     export_wallet: "Export to\nWatch-only Wallet"
     import_multisig_wallet: "Import\nMultisig Wallet"
     mnemonic_wordlist: "Mnemonic Wordlist"
-    view_all_wallets: "View All Wallets"
   toast:
     wallet_added_but_not_favorite: "Wallet added. Please check in the View All Wallets screen."
     
