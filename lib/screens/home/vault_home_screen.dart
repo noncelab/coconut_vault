@@ -4,6 +4,7 @@ import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_lib/coconut_lib.dart';
 import 'package:coconut_vault/app_routes_params.dart';
 import 'package:coconut_vault/constants/app_routes.dart';
+import 'package:coconut_vault/enums/vault_mode_enum.dart';
 import 'package:coconut_vault/enums/wallet_enums.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/model/common/vault_list_item_base.dart';
@@ -18,7 +19,6 @@ import 'package:coconut_vault/screens/home/select_sync_option_bottom_sheet.dart'
 import 'package:coconut_vault/screens/home/select_vault_bottom_sheet.dart';
 import 'package:coconut_vault/screens/settings/pin_setting_screen.dart';
 import 'package:coconut_vault/screens/vault_menu/info/passphrase_check_screen.dart';
-import 'package:coconut_vault/utils/logger.dart';
 import 'package:coconut_vault/widgets/button/shrink_animation_button.dart';
 import 'package:coconut_vault/widgets/card/vault_addition_guide_card.dart';
 import 'package:coconut_vault/widgets/vault_row_item.dart';
@@ -468,6 +468,47 @@ class _VaultHomeScreenState extends State<VaultHomeScreen> with TickerProviderSt
               ),
             ],
           ),
+          Selector<PreferenceProvider, bool>(
+            selector: (_, provider) => provider.isSigningOnlyMode,
+            builder: (context, isSigningOnlyMode, child) {
+              if (!isSigningOnlyMode) {
+                return const SizedBox.shrink();
+              } else {
+                return Column(
+                  children: [
+                    CoconutLayout.spacing_200h,
+                    Align(
+                      alignment: Alignment.centerRight,
+                      child: SizedBox(
+                        width: (MediaQuery.of(context).size.width - 32 - 8) / 2,
+                        child: _buildActionItemButton(
+                          isActive: true,
+                          textColor: CoconutColors.white,
+                          iconColor: CoconutColors.white,
+                          backgroundColor: CoconutColors.gray800,
+                          pressedColor: CoconutColors.gray700,
+                          text: t.exit_vault,
+                          iconAssetPath: 'assets/svg/exit.svg',
+                          iconPadding: const EdgeInsets.only(
+                            right: 18,
+                            bottom: 16,
+                          ),
+                          onPressed: () async {
+                            // TODO: 초기화 작업 수행
+                            if (Platform.isAndroid) {
+                              SystemNavigator.pop();
+                            } else {
+                              exit(0);
+                            }
+                          },
+                        ),
+                      ),
+                    ),
+                  ],
+                );
+              }
+            },
+          ),
         ],
       ),
     ));
@@ -497,11 +538,16 @@ class _VaultHomeScreenState extends State<VaultHomeScreen> with TickerProviderSt
     EdgeInsets? iconPadding,
     bool isActive = false,
     VoidCallback? onPressed,
+    Color pressedColor = CoconutColors.gray100,
+    Color backgroundColor = CoconutColors.white,
+    Color textColor = CoconutColors.gray700,
+    Color iconColor = CoconutColors.gray800,
   }) {
     return ShrinkAnimationButton(
       isActive: isActive,
       onPressed: onPressed ?? () {},
-      pressedColor: CoconutColors.gray100,
+      defaultColor: backgroundColor,
+      pressedColor: pressedColor,
       borderRadius: 12,
       child: SizedBox(
         height: 90,
@@ -516,7 +562,7 @@ class _VaultHomeScreenState extends State<VaultHomeScreen> with TickerProviderSt
                   child: SvgPicture.asset(
                     iconAssetPath,
                     colorFilter: ColorFilter.mode(
-                      isActive ? CoconutColors.gray800 : CoconutColors.gray400,
+                      isActive ? iconColor : CoconutColors.gray400,
                       BlendMode.srcIn,
                     ),
                   ),
@@ -529,7 +575,7 @@ class _VaultHomeScreenState extends State<VaultHomeScreen> with TickerProviderSt
               child: Text(
                 text,
                 style: CoconutTypography.body2_14_Bold.setColor(
-                  isActive ? CoconutColors.gray700 : CoconutColors.gray400,
+                  isActive ? textColor : CoconutColors.gray400,
                 ),
               ),
             ),

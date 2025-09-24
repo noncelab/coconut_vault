@@ -50,6 +50,7 @@ receiving: "입금"
 info: "정보"
 word: "단어"
 email_subject: "[코코넛 볼트] 이용 관련 문의"
+exit_vault: "볼트 종료하기"
 
 signature: "서명"
 sign_completion: "서명 완료"
@@ -202,6 +203,19 @@ tutorial_screen:
   title2: "도움이 필요하신가요?"
   subtitle: "튜토리얼과 함께 사용해 보세요"
   content: "인터넷 주소창에 입력해 주세요\ntutorial.coconut.onl"
+vault_mode_selection_screen:
+  select_mode: "모드 선택"
+  change_mode: "모드 변경"
+  secure_storage_mode: "안전 저장 모드"
+  secure_storage_mode_description: "키를 안전하게 저장합니다.\n비밀번호로 인증 후 즉시 서명에 사용할 수 있습니다."
+  signing_only_mode: "서명 전용 모드"
+  signing_only_mode_description: "볼트에 키를 저장하지 않습니다.\n앱을 실행할 때마다 키를 입력하여 서명해야 합니다."
+  start: "시작"
+  change: "변경"
+  current_using: "현재 사용 중"
+  mode_change_complete: "모드 변경 완료"
+  mode_changed_description_secrue_storage: "안전 저장 모드로 변경되었습니다.\n볼트에 저장된 시드라도 주기적으로 백업해 주세요!"
+  mode_changed_description_signing_only: "서명 전용 모드로 변경되었습니다.\n홈 화면의 종료 버튼을 눌러 안전하게 종료해 주세요!"
 
 multisig:
   nth_key: "$index번 키"

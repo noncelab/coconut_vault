@@ -3,6 +3,7 @@ import 'package:coconut_vault/constants/app_routes.dart';
 import 'package:coconut_vault/enums/pin_check_context_enum.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/providers/auth_provider.dart';
+import 'package:coconut_vault/providers/preference_provider.dart';
 import 'package:coconut_vault/providers/visibility_provider.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:coconut_vault/screens/settings/language_bottom_sheet.dart';
@@ -147,73 +148,100 @@ class _SettingsScreenState extends State<SettingsScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         _category(t.security),
-        Consumer<AuthProvider>(
-          builder: (context, provider, child) {
-            return MultiButton(children: [
-              if (provider.isPinSet) ...{
-                if (provider.canCheckBiometrics)
-                  SingleButton(
-                    buttonPosition: SingleButtonPosition.top,
-                    title: t.settings_screen.use_biometric,
-                    rightElement: CupertinoSwitch(
-                      value: provider.hasBiometricsPermission ? provider.isBiometricEnabled : false,
-                      activeColor: CoconutColors.black,
-                      onChanged: (isOn) async {
-                        if (isOn &&
-                            await provider.authenticateWithBiometrics(
-                                context: context, isSaved: true)) {
-                          Logger.log('Biometric authentication success');
-                          provider.saveIsBiometricEnabled(true);
-                        } else {
-                          Logger.log('Biometric authentication fail');
-                          provider.saveIsBiometricEnabled(false);
-                        }
-                      },
-                    ),
-                  ),
-                SingleButton(
-                  buttonPosition: provider.canCheckBiometrics
-                      ? SingleButtonPosition.bottom
-                      : SingleButtonPosition.none,
-                  title: t.settings_screen.change_password,
-                  enableShrinkAnim: true,
-                  animationEndValue: 0.97,
-                  onPressed: () async {
-                    final authProvider = context.read<AuthProvider>();
-                    if (await authProvider.isBiometricsAuthValid()) {
-                      _showPinSettingScreen();
-                      return;
-                    }
+        Selector<PreferenceProvider, bool>(
+            selector: (_, provider) => provider.isSigningOnlyMode,
+            builder: (context, isSigningOnlyMode, child) {
+              if (isSigningOnlyMode) {
+                return _buildAnimatedButton(
+                  title: t.vault_mode_selection_screen.change_mode,
+                  subtitle: t.vault_mode_selection_screen.signing_only_mode,
+                  onPressed: () {
+                    Navigator.pushNamed(context, AppRoutes.vaultModeSelection);
+                  },
+                );
+              }
+              return Consumer<AuthProvider>(
+                builder: (context, provider, child) {
+                  return MultiButton(children: [
+                    if (provider.isPinSet) ...{
+                      if (provider.canCheckBiometrics)
+                        SingleButton(
+                          buttonPosition: SingleButtonPosition.top,
+                          title: t.settings_screen.use_biometric,
+                          rightElement: CupertinoSwitch(
+                            value: provider.hasBiometricsPermission
+                                ? provider.isBiometricEnabled
+                                : false,
+                            activeColor: CoconutColors.black,
+                            onChanged: (isOn) async {
+                              if (isOn &&
+                                  await provider.authenticateWithBiometrics(
+                                      context: context, isSaved: true)) {
+                                Logger.log('Biometric authentication success');
+                                provider.saveIsBiometricEnabled(true);
+                              } else {
+                                Logger.log('Biometric authentication fail');
+                                provider.saveIsBiometricEnabled(false);
+                              }
+                            },
+                          ),
+                        ),
+                      SingleButton(
+                        buttonPosition: SingleButtonPosition.middle,
+                        title: t.settings_screen.change_password,
+                        enableShrinkAnim: true,
+                        animationEndValue: 0.97,
+                        onPressed: () async {
+                          final authProvider = context.read<AuthProvider>();
+                          if (await authProvider.isBiometricsAuthValid()) {
+                            _showPinSettingScreen();
+                            return;
+                          }
 
-                    MyBottomSheet.showBottomSheet_90(
-                      context: context,
-                      child: const LoaderOverlay(
-                        child: PinCheckScreen(
-                          pinCheckContext: PinCheckContextEnum.pinChange,
+                          MyBottomSheet.showBottomSheet_90(
+                            context: context,
+                            child: const LoaderOverlay(
+                              child: PinCheckScreen(
+                                pinCheckContext: PinCheckContextEnum.pinChange,
+                              ),
+                            ),
+                          );
+                        },
+                      )
+                    } else ...{
+                      SingleButton(
+                        buttonPosition: SingleButtonPosition.none,
+                        title: t.settings_screen.set_password,
+                        rightElement: CupertinoSwitch(
+                          value: provider.hasBiometricsPermission
+                              ? provider.isBiometricEnabled
+                              : false,
+                          activeColor: CoconutColors.black,
+                          onChanged: (isOn) async {
+                            /// 비밀번호 제거 기능은 제공하지 않음.
+                            if (isOn) {
+                              _showPinSettingScreen();
+                            }
+                          },
                         ),
                       ),
-                    );
-                  },
-                )
-              } else ...{
-                SingleButton(
-                  buttonPosition: SingleButtonPosition.none,
-                  title: t.settings_screen.set_password,
-                  rightElement: CupertinoSwitch(
-                    value: provider.hasBiometricsPermission ? provider.isBiometricEnabled : false,
-                    activeColor: CoconutColors.black,
-                    onChanged: (isOn) async {
-                      /// 비밀번호 제거 기능은 제공하지 않음.
-                      if (isOn) {
-                        _showPinSettingScreen();
-                      }
                     },
-                  ),
-                ),
-              }
-            ]);
-          },
-        ),
+                    SingleButton(
+                      buttonPosition: SingleButtonPosition.bottom,
+                      enableShrinkAnim: true,
+                      animationEndValue: 0.97,
+                      title: t.vault_mode_selection_screen.change_mode,
+                      subtitle: context.read<PreferenceProvider>().isSigningOnlyMode
+                          ? t.vault_mode_selection_screen.signing_only_mode
+                          : t.vault_mode_selection_screen.secure_storage_mode,
+                      onPressed: () {
+                        Navigator.pushNamed(context, AppRoutes.vaultModeSelection);
+                      },
+                    ),
+                  ]);
+                },
+              );
+            }),
       ],
     );
   }

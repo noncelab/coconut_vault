@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:coconut_vault/constants/shared_preferences_keys.dart';
+import 'package:coconut_vault/enums/vault_mode_enum.dart';
 import 'package:coconut_vault/repository/shared_preferences_repository.dart';
 import 'package:flutter/material.dart';
 
@@ -14,6 +15,8 @@ class PreferenceProvider extends ChangeNotifier {
   /// 지갑 즐겨찾기 목록
   late List<int> _favoriteVaultIds;
   List<int> get favoriteVaultIds => _favoriteVaultIds;
+
+  bool get isSigningOnlyMode => getVaultMode() == VaultMode.signingOnly;
 
   PreferenceProvider() {
     _vaultOrder = _getVaultOrder();
@@ -70,5 +73,16 @@ class PreferenceProvider extends ChangeNotifier {
     await _sharedPrefs.setString(SharedPrefsKeys.kVaultOrder, '');
     await _sharedPrefs.setString(SharedPrefsKeys.kFavoriteVaultIds, '');
     notifyListeners();
+  }
+
+  Future<void> setVaultMode(VaultMode vaultMode) async {
+    await _sharedPrefs.setString(SharedPrefsKeys.kVaultMode, vaultMode.name);
+    notifyListeners();
+  }
+
+  VaultMode? getVaultMode() {
+    final vaultMode = _sharedPrefs.getString(SharedPrefsKeys.kVaultMode);
+    if (vaultMode.isEmpty) return null;
+    return VaultMode.values.firstWhere((e) => e.name == vaultMode);
   }
 }

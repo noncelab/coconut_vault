@@ -243,6 +243,7 @@ flutter:
     - assets/svg/watch-only-icons/sparrow.svg
     - assets/svg/watch-only-icons/nunchuk.svg
     - assets/svg/watch-only-icons/bluewallet.svg
+    - assets/svg/exit.svg
 
   fonts:
     - family: SpaceGrotesk

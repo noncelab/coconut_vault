@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:coconut_design_system/coconut_design_system.dart';
+import 'package:coconut_vault/constants/app_routes.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/providers/connectivity_provider.dart';
 import 'package:coconut_vault/providers/visibility_provider.dart';
@@ -121,19 +122,10 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                 child: FixedBottomButton(
                   isActive: isActive,
                   onButtonClicked: () {
-                    _connectivityProvider.setHasSeenGuideTrue();
-                    _visibilityProvider.setHasSeenGuide().then((_) {
-                      widget.onComplete();
-                      if (context.mounted) {
-                        Navigator.pushNamedAndRemoveUntil(
-                          context,
-                          '/',
-                          (Route<dynamic> route) => false,
-                        );
-                      }
-                    });
+                    Navigator.pushNamed(context, AppRoutes.vaultModeSelection,
+                        arguments: {'onComplete': widget.onComplete});
                   },
-                  text: t.start,
+                  text: t.next,
                 ),
               );
             }),

@@ -23,4 +23,6 @@ class SharedPrefsKeys {
 
   static const String kVaultOrder = "VAULT_ORDER"; // 볼트 순서
   static const String kFavoriteVaultIds = "FAVORITE_VAULT_IDS"; // 즐겨찾기된 볼트 목록
+
+  static const String kVaultMode = "VAULT_MODE"; // 볼트 모드 (Secure Storage Mode, Signing-Only Mode)
 }

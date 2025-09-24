@@ -18,6 +18,7 @@ import 'package:coconut_vault/screens/airgap/signed_transaction_qr_screen.dart';
 import 'package:coconut_vault/screens/airgap/single_sig_sign_screen.dart';
 import 'package:coconut_vault/screens/app_update/restoration_info_screen.dart';
 import 'package:coconut_vault/screens/app_update/vault_list_restoration_screen.dart';
+import 'package:coconut_vault/screens/common/vault_mode_selection_screen.dart';
 import 'package:coconut_vault/screens/home/vault_home_screen.dart';
 import 'package:coconut_vault/screens/home/vault_list_screen.dart';
 import 'package:coconut_vault/screens/app_update/app_update_preparation_screen.dart';
@@ -47,7 +48,6 @@ import 'package:coconut_vault/screens/vault_menu/info/passphrase_verification_sc
 import 'package:coconut_vault/screens/vault_menu/multisig_signer_bsms_export_screen.dart';
 import 'package:coconut_vault/screens/vault_menu/sync_to_wallet/sync_to_wallet_screen.dart';
 import 'package:coconut_vault/screens/vault_menu/info/single_sig_setup_info_screen.dart';
-import 'package:coconut_vault/utils/logger.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
@@ -181,6 +181,12 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> {
         ChangeNotifierProvider(create: (_) => visibilityProvider),
         ChangeNotifierProvider(create: (_) => AuthProvider()),
         ChangeNotifierProvider(create: (_) => PreferenceProvider()),
+        ChangeNotifierProvider<WalletProvider>(
+          create: (_) => WalletProvider(
+            Provider.of<VisibilityProvider>(_, listen: false),
+            Provider.of<PreferenceProvider>(_, listen: false),
+          ),
+        ),
         ChangeNotifierProxyProvider<VisibilityProvider, ConnectivityProvider>(
           create: (_) => ConnectivityProvider(hasSeenGuide: visibilityProvider.hasSeenGuide),
           update: (_, visibilityProvider, connectivityProvider) {
@@ -194,19 +200,6 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> {
         if (_appEntryFlow == AppEntryFlow.vaultHome) ...{
           Provider<WalletCreationProvider>(create: (_) => WalletCreationProvider()),
           Provider<SignProvider>(create: (_) => SignProvider()),
-          ChangeNotifierProvider<WalletProvider>(
-            create: (_) => WalletProvider(
-              Provider.of<VisibilityProvider>(_, listen: false),
-              Provider.of<PreferenceProvider>(_, listen: false),
-            ),
-          )
-        } else if (_appEntryFlow == AppEntryFlow.restoration) ...{
-          ChangeNotifierProvider<WalletProvider>(
-            create: (_) => WalletProvider(
-              Provider.of<VisibilityProvider>(_, listen: false),
-              Provider.of<PreferenceProvider>(_, listen: false),
-            ),
-          )
         }
       ],
       child: Directionality(
@@ -356,6 +349,7 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> {
                                 id: args['id'],
                               ),
                             ),
+                        AppRoutes.vaultModeSelection: (context) => const VaultModeSelectionScreen(),
                       },
                     ),
                     if (_isInactive)
@@ -384,6 +378,12 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> {
                 routes: {
                   AppRoutes.welcome: (context) =>
                       WelcomeScreen(onComplete: () => _updateEntryFlow(AppEntryFlow.vaultHome)),
+                  AppRoutes.vaultModeSelection: (context) => buildScreenWithArguments(
+                        context,
+                        (args) => VaultModeSelectionScreen(
+                          onComplete: () => _updateEntryFlow(AppEntryFlow.vaultHome),
+                        ),
+                      ),
                 },
               ),
       ),

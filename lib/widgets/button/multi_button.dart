@@ -19,6 +19,16 @@ class MultiButton extends StatefulWidget {
 }
 
 class _MultiButtonState extends State<MultiButton> with TickerProviderStateMixin {
+  Widget _buildDivider() => Container(
+        height: 1,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(24),
+          color: CoconutColors.gray300,
+        ),
+        margin: EdgeInsets.symmetric(
+          horizontal: widget.children.first.buttonPosition.padding.horizontal / 2,
+        ),
+      );
   @override
   Widget build(BuildContext context) {
     final BorderRadius topRadius = _getFirstElementRadius();
@@ -53,20 +63,12 @@ class _MultiButtonState extends State<MultiButton> with TickerProviderStateMixin
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: widget.children.length > 1
-                      ? [
-                          Container(
-                            height: 1,
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(24),
-                              color: CoconutColors.gray300,
-                            ),
-                            margin: EdgeInsets.symmetric(
-                              horizontal:
-                                  widget.children.first.buttonPosition.padding.horizontal / 2,
-                            ),
-                          ),
-                          ...widget.children.sublist(1),
-                        ]
+                      ? List.generate(widget.children.length - 1, (i) => i)
+                          .expand<Widget>((i) => [
+                                _buildDivider(),
+                                widget.children[i + 1],
+                              ])
+                          .toList()
                       : [],
                 ),
               ),

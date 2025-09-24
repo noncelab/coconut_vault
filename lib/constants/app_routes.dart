@@ -34,4 +34,5 @@ class AppRoutes {
   static const String vaultListRestoration = "/vault-list-restoration";
   static const String vaultList = "/vault-list";
   static const String passphraseVerification = "/passphrase-verification";
+  static const String vaultModeSelection = "/vault-mode-selection";
 }
