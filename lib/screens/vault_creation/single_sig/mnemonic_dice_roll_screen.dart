@@ -255,12 +255,12 @@ class _DiceRollState extends State<DiceRoll> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              _buildProgressBar(),
               _buildStepIndicator(),
               step == 0 ? _buildDiceRollWidget() : _buildPassphraseInput(),
             ],
           ),
         ),
+        _buildProgressBar(),
         FixedBottomTweenButton(
           showGradient: false,
           leftButtonRatio: 0.35,
@@ -433,37 +433,42 @@ class _DiceRollState extends State<DiceRoll> {
   }
 
   Widget _buildProgressBar() {
-    return Visibility(
-      visible: step == 0,
-      maintainState: true,
-      maintainAnimation: true,
-      maintainSize: true,
-      maintainInteractivity: true,
-      child: Container(
-        padding: const EdgeInsets.only(bottom: 16),
-        child: Stack(
-          children: [
-            ClipRRect(
-              child: Container(
-                height: 6,
-                color: CoconutColors.black.withOpacity(0.06),
+    return Positioned(
+      top: 0,
+      left: 0,
+      right: 0,
+      child: Visibility(
+        visible: step == 0,
+        maintainState: true,
+        maintainAnimation: true,
+        maintainSize: true,
+        maintainInteractivity: true,
+        child: Container(
+          padding: const EdgeInsets.only(bottom: 16),
+          child: Stack(
+            children: [
+              ClipRRect(
+                child: Container(
+                  height: 6,
+                  color: CoconutColors.black.withOpacity(0.06),
+                ),
               ),
-            ),
-            ClipRRect(
-              borderRadius: _bits.length / (widget.wordsCount == 12 ? 128 : 256) == 1
-                  ? BorderRadius.zero
-                  : const BorderRadius.only(
-                      topRight: Radius.circular(6), bottomRight: Radius.circular(6)),
-              child: AnimatedContainer(
-                duration: const Duration(milliseconds: 500),
-                curve: Curves.easeInOut,
-                height: 6,
-                width: MediaQuery.of(context).size.width *
-                    (_bits.length / (widget.wordsCount == 12 ? 128 : 256)),
-                color: CoconutColors.black,
+              ClipRRect(
+                borderRadius: _bits.length / (widget.wordsCount == 12 ? 128 : 256) == 1
+                    ? BorderRadius.zero
+                    : const BorderRadius.only(
+                        topRight: Radius.circular(6), bottomRight: Radius.circular(6)),
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 500),
+                  curve: Curves.easeInOut,
+                  height: 6,
+                  width: MediaQuery.of(context).size.width *
+                      (_bits.length / (widget.wordsCount == 12 ? 128 : 256)),
+                  color: CoconutColors.black,
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

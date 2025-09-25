@@ -627,6 +627,7 @@ alert:
     title: "니모닉 생성 중단"
     description: "니모닉 생성을 그만두시겠어요?"
     reselect: "다시 선택"
+    confirm: "확인"
   stop_importing_mnemonic:
     title: "복원 중단"
     description: "복원을 그만두시겠어요?."
