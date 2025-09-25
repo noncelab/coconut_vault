@@ -836,16 +836,18 @@ class BinaryGrid extends StatelessWidget {
                 style: CoconutTypography.body2_14_Bold),
             CoconutLayout.spacing_200h,
             Expanded(
-              child: GridView.count(
-                controller: scrollController,
-                scrollDirection: Axis.vertical,
-                shrinkWrap: true,
-                crossAxisCount: 8,
-                mainAxisSpacing: 4,
-                padding: const EdgeInsets.only(bottom: 30),
-                children: List.generate(bits.length, (index) {
-                  return _buildGridItem(index < bits.length ? bits[index] : null, index);
-                }),
+              child: MediaQuery(
+                data: MediaQuery.of(context).copyWith(textScaler: const TextScaler.linear(1.0)),
+                child: GridView.count(
+                  controller: scrollController,
+                  scrollDirection: Axis.vertical,
+                  crossAxisCount: 8,
+                  mainAxisSpacing: 4,
+                  padding: const EdgeInsets.only(bottom: 30),
+                  children: List.generate(bits.length, (index) {
+                    return _buildGridItem(index < bits.length ? bits[index] : null, index);
+                  }),
+                ),
               ),
             ),
           ],
