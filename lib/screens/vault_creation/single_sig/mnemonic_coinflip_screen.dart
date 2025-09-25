@@ -756,65 +756,49 @@ class _FlipCoinState extends State<FlipCoin> {
   }
 
   void _showAllBitsBottomSheet() {
-    MyBottomSheet.showBottomSheet(
-        title: '${t.view_all}(${_bits.length}/$_totalBits)',
+    MyBottomSheet.showDraggableBottomSheet(
         context: context,
-        child: BinaryGrid(totalBits: _totalBits, bits: _bits));
+        minChildSize: 0.5,
+        childBuilder: (scrollController) => BinaryGrid(
+              totalBits: _totalBits,
+              bits: _bits,
+              scrollController: scrollController,
+            ));
   }
 }
 
 class BinaryGrid extends StatelessWidget {
   final int totalBits;
   final List<int> bits;
+  final ScrollController scrollController;
 
-  const BinaryGrid({super.key, required this.totalBits, required this.bits});
-
-  Future<List<int>> _loadBits() async {
-    await Future.delayed(const Duration(milliseconds: 1000));
-    return bits;
-  }
+  const BinaryGrid(
+      {super.key, required this.totalBits, required this.bits, required this.scrollController});
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(8.0),
-      height: MediaQuery.of(context).size.height * 0.7, // BottomSheet 높이 제한
-      child: FutureBuilder<List<int>>(
-        future: _loadBits(),
-        builder: (BuildContext context, AsyncSnapshot<List<int>> snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(
-                child: CircularProgressIndicator(
-              color: CoconutColors.gray800,
-            ));
-          } else if (snapshot.hasError) {
-            return Center(child: Text('Error: ${snapshot.error}'));
-          } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-            return GridView.count(
-              scrollDirection: Axis.vertical,
-              shrinkWrap: true,
-              crossAxisCount: 8,
-              mainAxisSpacing: 4,
-              padding: const EdgeInsets.only(bottom: 30),
-              children: List.generate(totalBits, (index) {
-                return _buildGridItem(null, index);
-              }),
-            );
-          }
-
-          List<int> loadedBits = snapshot.data!;
-
-          return GridView.count(
-            scrollDirection: Axis.vertical,
-            shrinkWrap: true,
-            crossAxisCount: 8,
-            mainAxisSpacing: 4,
-            padding: const EdgeInsets.only(bottom: 30),
-            children: List.generate(totalBits, (index) {
-              return _buildGridItem(index < loadedBits.length ? loadedBits[index] : null, index);
-            }),
-          );
-        },
+    return SafeArea(
+      child: Container(
+        padding: const EdgeInsets.all(8.0),
+        child: Column(
+          children: [
+            Text('${t.view_all}(${bits.length}/$totalBits)',
+                style: CoconutTypography.body2_14_Bold),
+            CoconutLayout.spacing_200h,
+            Expanded(
+              child: GridView.count(
+                controller: scrollController,
+                scrollDirection: Axis.vertical,
+                crossAxisCount: 8,
+                mainAxisSpacing: 4,
+                padding: const EdgeInsets.only(bottom: 30),
+                children: List.generate(totalBits, (index) {
+                  return _buildGridItem(index < bits.length ? bits[index] : null, index);
+                }),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
