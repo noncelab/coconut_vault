@@ -95,7 +95,7 @@ class _VaultNameAndIconSetupScreenState extends State<VaultNameAndIconSetupScree
             inputText,
             selectedIconIndex,
             selectedColorIndex,
-            utf8.decode(_walletCreationProvider.secret),
+            _walletCreationProvider.secret,
             _walletCreationProvider.passphrase));
       } else if (_walletCreationProvider.walletType == WalletType.multiSignature) {
         // 새로운 멀티시그 지갑 리스트 아이템을 생성.

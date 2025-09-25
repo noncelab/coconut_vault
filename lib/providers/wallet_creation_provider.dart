@@ -14,7 +14,7 @@ class WalletCreationProvider {
 
   /// singleSig
   Uint8List _secret = Uint8List(0); // utf8.encode(mnemonicWordsString)
-  Uint8List _passphrase = utf8.encode(''); // utf8.encode(passphraseString)
+  Uint8List _passphrase = Uint8List(0); // utf8.encode(passphraseString)
 
   /// multisig
   int? get requiredSignatureCount => _requiredSignatureCount;
@@ -23,7 +23,7 @@ class WalletCreationProvider {
 
   /// singleSig
   Uint8List get secret => _secret;
-  String? get passphrase => _passphrase.isNotEmpty ? utf8.decode(_passphrase) : null;
+  Uint8List? get passphrase => _passphrase.isNotEmpty ? _passphrase : null;
 
   WalletType get walletType {
     if (_requiredSignatureCount != null &&

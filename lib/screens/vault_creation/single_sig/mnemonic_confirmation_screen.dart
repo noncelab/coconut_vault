@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:coconut_design_system/coconut_design_system.dart';
@@ -219,7 +220,7 @@ class _MnemonicConfirmationScreenState extends State<MnemonicConfirmationScreen>
                   height: double.infinity,
                   child: Center(
                     child: Text(
-                      passphrase[index],
+                      utf8.decode(passphrase)[index],
                       style: const TextStyle(
                         color: CoconutColors.black,
                         fontWeight: FontWeight.bold,

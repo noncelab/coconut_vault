@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'dart:typed_data'; // Added for Uint8List
 
 import 'package:coconut_lib/coconut_lib.dart';
+import 'package:coconut_vault/extensions/uint8list_extensions.dart';
 import 'package:coconut_vault/model/multisig/multisig_vault_list_item.dart';
 import 'package:coconut_vault/model/single_sig/single_sig_vault_list_item.dart';
 import 'package:coconut_vault/model/common/vault_list_item_base.dart';
@@ -26,8 +27,7 @@ class WalletIsolates {
 
     var wallet = SingleSigWalletCreateDto.fromJson(data);
     final keyStore = KeyStore.fromSeed(
-        Seed.fromMnemonic(utf8.encode(wallet.mnemonic!),
-            passphrase: utf8.encode(wallet.passphrase ?? '')),
+        Seed.fromMnemonic(wallet.mnemonic!, passphrase: wallet.passphrase ?? Uint8List(0)),
         AddressType.p2wpkh);
     final derivationPath = NetworkType.currentNetworkType.isTestnet ? "84'/1'/0'" : "84'/0'/0'";
     final descriptor = Descriptor.forSingleSignature(AddressType.p2wpkh,
@@ -46,6 +46,7 @@ class WalletIsolates {
 
     vaultList.insert(0, newItem);
 
+    wallet.wipe();
     return vaultList;
   }
 
@@ -147,26 +148,11 @@ class WalletIsolates {
       if (seed != null) {
         seed.wipe();
       }
-
       if (args['mnemonic'] != null) {
-        try {
-          final mnemonicBytes = args['mnemonic'];
-          for (int i = 0; i < mnemonicBytes.length; i++) {
-            mnemonicBytes[i] = 0;
-          }
-        } catch (e) {
-          Logger.log('Error wiping mnemonic: $e');
-        }
+        (args['mnemonic'] as Uint8List).wipe();
       }
       if (args['passphrase'] != null) {
-        try {
-          final passphraseBytes = args['passphrase'];
-          for (int i = 0; i < passphraseBytes.length; i++) {
-            passphraseBytes[i] = 0;
-          }
-        } catch (e) {
-          Logger.log('Error wiping passphrase: $e');
-        }
+        (args['passphrase'] as Uint8List).wipe();
       }
     }
   }

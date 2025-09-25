@@ -1,3 +1,6 @@
+import 'dart:convert';
+import 'dart:typed_data';
+
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/model/single_sig/single_sig_wallet_create_dto.dart';
 import 'package:coconut_vault/providers/auth_provider.dart';
@@ -217,8 +220,8 @@ Future<void> addVault(WalletProvider walletProvider, WidgetTester tester) async 
     "Test Wallet1",
     0,
     0,
-    "thank split shrimp error own spirit slow glow act evidence globe slight",
-    '',
+    utf8.encode("thank split shrimp error own spirit slow glow act evidence globe slight"),
+    Uint8List(0),
   );
 
   await walletProvider.addSingleSigVault(singleSig);

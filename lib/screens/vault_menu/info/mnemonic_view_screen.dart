@@ -23,7 +23,7 @@ class MnemonicViewScreen extends StatefulWidget {
 class _MnemonicViewScreen extends State<MnemonicViewScreen> with TickerProviderStateMixin {
   final ScrollController _scrollController = ScrollController();
   late WalletProvider _walletProvider;
-  Uint8List _mnemonic = Uint8List(0);
+  late Uint8List _mnemonic;
   bool _isLoading = true;
 
   @override
@@ -37,8 +37,19 @@ class _MnemonicViewScreen extends State<MnemonicViewScreen> with TickerProviderS
     try {
       _mnemonic = await _walletProvider.getSecret(widget.walletId);
     } catch (e) {
-      // 에러 처리
-      print('Error loading mnemonic: $e');
+      _mnemonic = Uint8List(0);
+      if (!mounted) return;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        showDialog(
+            context: context,
+            builder: (context) => CoconutPopup(
+                title: 'View Mnemonic',
+                description: 'Failed to load mnemonic\n${e.toString()}',
+                onTapRight: () {
+                  Navigator.pop(context);
+                  Navigator.pop(context);
+                }));
+      });
     } finally {
       if (mounted) {
         await Future.delayed(const Duration(seconds: 1));

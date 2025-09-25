@@ -213,9 +213,9 @@ class WalletRepository {
   }
 
   Future<void> _saveSingleSigSecureData(
-      int walletId, String secretString, bool isPassphraseEnabled) async {
+      int walletId, Uint8List secretString, bool isPassphraseEnabled) async {
     String keyString = _createWalletKeyString(walletId, WalletType.singleSignature);
-    await _storageService.write(key: keyString, value: secretString);
+    await _storageService.write(key: keyString, value: utf8.decode(secretString));
 
     String passphraseEnabledKeyString = _createPassphraseEnabledKeyString(keyString);
     await _storageService.write(
