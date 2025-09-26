@@ -1,5 +1,8 @@
+import 'dart:convert';
+
 import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_vault/enums/pin_check_context_enum.dart';
+import 'package:coconut_vault/extensions/uint8list_extensions.dart';
 import 'package:coconut_vault/isolates/wallet_isolates.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/providers/auth_provider.dart';
@@ -174,11 +177,17 @@ class _PassphraseVerificationScreenState extends State<PassphraseVerificationScr
       CustomDialogs.showLoadingDialog(context, t.verify_passphrase_screen.loading_description);
       _isPassphraseVerified = false;
       final walletProvider = context.read<WalletProvider>();
-      final result = await compute(WalletIsolates.verifyPassphrase, {
-        'mnemonic': await walletProvider.getSecret(widget.id),
-        'passphrase': _inputController.text,
-        'valutListItem': walletProvider.getVaultById(widget.id)
-      });
+      final mnemonic = await walletProvider.getSecret(widget.id);
+      final passphrase = utf8.encode(_inputController.text);
+      final vaultListItem = walletProvider.getVaultById(widget.id);
+
+      final result = await compute(WalletIsolates.verifyPassphrase,
+          {'mnemonic': mnemonic, 'passphrase': passphrase, 'valutListItem': vaultListItem});
+
+      mnemonic.wipe();
+      if (passphrase.isNotEmpty) {
+        passphrase.wipe();
+      }
 
       _previousInput = _inputController.text;
 

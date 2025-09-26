@@ -1,5 +1,9 @@
+import 'dart:convert';
+import 'dart:typed_data';
+
 import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_vault/app_routes_params.dart';
+import 'package:coconut_vault/enums/wallet_enums.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/model/common/vault_list_item_base.dart';
 import 'package:coconut_vault/model/single_sig/single_sig_wallet_create_dto.dart';
@@ -53,6 +57,7 @@ class _VaultNameAndIconSetupScreenState extends State<VaultNameAndIconSetupScree
   @override
   void dispose() {
     _walletProvider.isVaultListLoadingNotifier.removeListener(_onVaultListLoading);
+    _walletCreationProvider.resetAll();
     super.dispose();
   }
 
@@ -71,6 +76,7 @@ class _VaultNameAndIconSetupScreenState extends State<VaultNameAndIconSetupScree
   }
 
   Future<void> saveNewVaultName(BuildContext context) async {
+    Logger.log('--> ${_walletCreationProvider.secret}');
     try {
       setState(() {
         _showLoading = true;
@@ -85,35 +91,30 @@ class _VaultNameAndIconSetupScreenState extends State<VaultNameAndIconSetupScree
         return;
       }
 
-      VaultListItemBase vault;
-      if (_walletCreationProvider.secret != null) {
+      VaultListItemBase? vault;
+      if (_walletCreationProvider.walletType == WalletType.singleSignature) {
         vault = await _walletProvider.addSingleSigVault(SingleSigWalletCreateDto(
             null,
             inputText,
             selectedIconIndex,
             selectedColorIndex,
-            _walletCreationProvider.secret!,
+            _walletCreationProvider.secret,
             _walletCreationProvider.passphrase));
-      } else if (_walletCreationProvider.signers != null) {
-        // 새로운 멀티시그 지갑 리스트 아이템을 생성.
-        vault = await _walletProvider.addMultisigVault(
-            inputText,
-            selectedColorIndex,
-            selectedIconIndex,
-            _walletCreationProvider.signers!,
-            _walletCreationProvider.requiredSignatureCount!);
-      } else {
-        throw '생성 가능 정보가 없음';
+      } else if (_walletCreationProvider.walletType == WalletType.multiSignature) {
+        vault = await _walletProvider.addMultisigVault(inputText, selectedColorIndex, selectedIconIndex,
+            _walletCreationProvider.signers!, _walletCreationProvider.requiredSignatureCount!);
       }
 
       assert(_walletProvider.isAddVaultCompleted);
+      assert(vault != null);
       _walletCreationProvider.resetAll();
-
+       
+      if (!context.mounted) return;
       Navigator.pushNamedAndRemoveUntil(context, '/', (Route<dynamic> route) => false,
-          arguments: VaultHomeNavArgs(addedWalletId: vault.id));
+          arguments: VaultHomeNavArgs(addedWalletId: vault!.id));
     } catch (e) {
       Logger.error(e);
-      if (!mounted) return;
+      if (!context.mounted) return;
       showDialog(
           context: context,
           builder: (context) {
@@ -163,7 +164,7 @@ class _VaultNameAndIconSetupScreenState extends State<VaultNameAndIconSetupScree
         PopScope(
           canPop: true,
           onPopInvokedWithResult: (didPop, result) {
-            if (_walletCreationProvider.secret != null) {
+            if (_walletCreationProvider.walletType == WalletType.singleSignature) {
               _walletCreationProvider.resetSecretAndPassphrase();
             } else {
               _walletCreationProvider.resetSigner();

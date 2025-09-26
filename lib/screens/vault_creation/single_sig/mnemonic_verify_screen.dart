@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_vault/constants/app_routes.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
@@ -30,6 +32,8 @@ class _MnemonicVerifyScreenState extends State<MnemonicVerifyScreen> {
   bool _showResult = false; // 결과 표시 여부
   int _selectedOptionIndex = -1; // 선택한 옵션의 인덱스
 
+  List<String> _mnemonic = [];
+
   @override
   void initState() {
     super.initState();
@@ -37,37 +41,43 @@ class _MnemonicVerifyScreenState extends State<MnemonicVerifyScreen> {
     _initializeQuiz();
   }
 
+  @override
+  void dispose() {
+    _resetData();
+    super.dispose();
+  }
+
   void _initializeQuiz() {
-    final mnemonic = _walletCreationProvider.secret?.split(' ') ?? [];
-    if (mnemonic.isEmpty) return;
+    _mnemonic = utf8.decode(_walletCreationProvider.secret).split(' ');
+    if (_mnemonic.isEmpty) return;
 
     // 랜덤하게 n개의 단어 선택 (중복 없이)
-    _selectedWordPositions = _generateRandomPositions(mnemonic.length);
+    _selectedWordPositions = _generateRandomPositions();
 
     // 정답 단어들 저장
-    _correctAnswers = _selectedWordPositions.map((index) => mnemonic[index]).toList();
+    _correctAnswers = _selectedWordPositions.map((index) => _mnemonic[index]).toList();
 
     // 각 퀴즈의 선택지 생성
     _quizOptions = _selectedWordPositions.map((position) {
-      return _generateQuizOptions(mnemonic, position);
+      return _generateQuizOptions(position);
     }).toList();
 
     // Answers 초기화
     _userAnswers = List.filled(_totalQuizzes, '');
   }
 
-  List<int> _generateRandomPositions(int mnemonicLength) {
-    final random = List<int>.generate(mnemonicLength, (i) => i);
+  List<int> _generateRandomPositions() {
+    final random = List<int>.generate(_mnemonic.length, (i) => i);
     random.shuffle();
     return random.take(_totalQuizzes).toList()..sort();
   }
 
-  List<String> _generateQuizOptions(List<String> mnemonic, int correctPosition) {
-    final correctWord = mnemonic[correctPosition];
+  List<String> _generateQuizOptions(int correctPosition) {
+    final correctWord = _mnemonic[correctPosition];
     final options = [correctWord];
 
     // 다른 위치의 단어들을 랜덤하게 선택해서 선택지에 추가
-    final otherWords = mnemonic.where((word) => word != correctWord).toList();
+    final otherWords = _mnemonic.where((word) => word != correctWord).toList();
     otherWords.shuffle();
 
     // 3개의 틀린 답 추가 (총 4개 선택지)
@@ -126,11 +136,10 @@ class _MnemonicVerifyScreenState extends State<MnemonicVerifyScreen> {
   }
 
   void _changeCurrentQuiz() {
-    final mnemonic = _walletCreationProvider.secret?.split(' ') ?? [];
-    if (mnemonic.isEmpty) return;
+    if (_mnemonic.isEmpty) return;
 
     // 현재 사용 중인 위치들을 제외한 새로운 위치 선택
-    final availablePositions = List<int>.generate(mnemonic.length, (i) => i)
+    final availablePositions = List<int>.generate(_mnemonic.length, (i) => i)
         .where((position) => !_selectedWordPositions.contains(position))
         .toList();
 
@@ -145,10 +154,10 @@ class _MnemonicVerifyScreenState extends State<MnemonicVerifyScreen> {
       _selectedWordPositions[_currentQuizIndex] = newPosition;
 
       // 정답 변경
-      _correctAnswers[_currentQuizIndex] = mnemonic[newPosition];
+      _correctAnswers[_currentQuizIndex] = _mnemonic[newPosition];
 
       // 선택지 변경
-      _quizOptions[_currentQuizIndex] = _generateQuizOptions(mnemonic, newPosition);
+      _quizOptions[_currentQuizIndex] = _generateQuizOptions(newPosition);
 
       // 사용자 답변 초기화
       _userAnswers[_currentQuizIndex] = '';
@@ -316,5 +325,22 @@ class _MnemonicVerifyScreenState extends State<MnemonicVerifyScreen> {
         ),
       ),
     );
+  }
+
+  void _resetData() {
+    if (_mnemonic.isNotEmpty) {
+      for (int i = 0; i < _mnemonic.length; i++) {
+        _mnemonic[i] = '';
+      }
+    }
+
+    for (int i = 0; i < _quizOptions.length; i++) {
+      for (int j = 0; j < _quizOptions[i].length; j++) {
+        _quizOptions[i][j] = '';
+      }
+    }
+    _userAnswers = List<String>.filled(_totalQuizzes, '');
+    _correctAnswers = List<String>.filled(_totalQuizzes, '');
+    _selectedWordPositions = List<int>.filled(_totalQuizzes, 0);
   }
 }

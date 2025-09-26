@@ -1,12 +1,16 @@
+import 'dart:convert';
+
 import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_lib/coconut_lib.dart';
 import 'package:coconut_vault/constants/app_routes.dart';
+import 'package:coconut_vault/extensions/uint8list_extensions.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/providers/visibility_provider.dart';
 import 'package:coconut_vault/providers/wallet_creation_provider.dart';
 import 'package:coconut_vault/widgets/button/fixed_bottom_tween_button.dart';
 import 'package:coconut_vault/widgets/button/shrink_animation_button.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:coconut_vault/screens/vault_creation/single_sig/mnemonic_generation_screen.dart';
 import 'package:coconut_vault/widgets/bottom_sheet.dart';
@@ -145,9 +149,10 @@ class _FlipCoinState extends State<FlipCoin> {
   final FocusNode _passphraseConfirmFocusNode = FocusNode();
   late int stepCount; // 총 화면 단계
   int step = 0;
-  String _mnemonic = '';
-  String _passphrase = '';
-  String _passphraseConfirm = '';
+
+  Uint8List _mnemonic = Uint8List(0);
+  Uint8List _passphrase = Uint8List(0);
+  Uint8List _passphraseConfirm = Uint8List(0);
 
   // coinflip 관련 변수
   int numberOfBits = 0;
@@ -173,12 +178,12 @@ class _FlipCoinState extends State<FlipCoin> {
             .where((char) => !MnemonicWords.validCharSet.contains(char))
             .toSet()
             .toList();
-        _passphrase = _passphraseController.text;
+        _passphrase = utf8.encode(_passphraseController.text);
       });
     });
     _passphraseConfirmController.addListener(() {
       setState(() {
-        _passphraseConfirm = _passphraseConfirmController.text;
+        _passphraseConfirm = utf8.encode(_passphraseConfirmController.text);
       });
     });
     _passphraseConfirmFocusNode.addListener(() {
@@ -199,6 +204,14 @@ class _FlipCoinState extends State<FlipCoin> {
 
   @override
   void dispose() {
+    for (int i = 0; i < _bits.length; i++) {
+      _bits[i] = 0;
+    }
+    _bits.clear();
+    _mnemonic.wipe();
+    _passphrase.wipe();
+    _passphraseConfirm.wipe();
+
     _scrollController.dispose();
     _passphraseController.dispose();
     _passphraseFocusNode.dispose();
@@ -222,7 +235,9 @@ class _FlipCoinState extends State<FlipCoin> {
     bool isActive = false;
     if (isPassphraseConfirmVisible) {
       // 패스프레이즈 확인 텍스트필드가 보이는 상태
-      isActive = _passphrase.isNotEmpty && _passphraseConfirm.isNotEmpty && _passphrase == _passphraseConfirm;
+      isActive = _passphrase.isNotEmpty &&
+          _passphraseConfirm.isNotEmpty &&
+          listEquals(_passphrase, _passphraseConfirm);
     } else {
       // 패스프레이즈 확인 텍스트필드가 보이지 않는 상태
       isActive = _passphraseController.text.isNotEmpty;
@@ -482,12 +497,12 @@ class _FlipCoinState extends State<FlipCoin> {
         _passphraseFocusNode.unfocus();
         _passphraseConfirmFocusNode.unfocus();
         setState(() {
-          _passphrase = _passphraseController.text;
+          _passphrase = utf8.encode(_passphraseController.text);
           isPassphraseConfirmVisible = true;
         });
       } else if (_passphrase.isNotEmpty &&
           _passphraseConfirm.isNotEmpty &&
-          _passphrase == _passphraseConfirm &&
+          listEquals(_passphrase, _passphraseConfirm) &&
           _generateMnemonicPhrase()) {
         // 패스프레이즈 입력 완료 | coinflip 데이터로 니모닉 생성 시도 성공
         Provider.of<WalletCreationProvider>(context, listen: false).setSecretAndPassphrase(_mnemonic, _passphrase);
@@ -756,14 +771,35 @@ class _FlipCoinState extends State<FlipCoin> {
 
   bool _generateMnemonicPhrase() {
     try {
-      final mnemonic = Seed.fromBinaryEntropy(listToBinaryString(_bits)).mnemonic;
       setState(() {
-        _mnemonic = mnemonic.trim().toLowerCase().replaceAll(RegExp(r'\s+'), ' ');
+        _mnemonic = Seed.fromEntropy(bitsToBytes(_bits)).mnemonic;
       });
       return true;
     } catch (e) {
       return false;
     }
+  }
+
+  // TODO: 유틸 함수로 만들지 확인 필요
+  Uint8List bitsToBytes(List<int> bits) {
+    List<int> eightBits = [];
+    if (bits.length < 8) {
+      for (int i = 8 - bits.length; i > 0; i--) {
+        eightBits.add(0);
+      }
+      eightBits.addAll(bits);
+    } else {
+      eightBits.addAll(bits);
+    }
+    Uint8List bytes = Uint8List(eightBits.length ~/ 8);
+    for (int i = 0; i < eightBits.length; i += 8) {
+      int byte = 0;
+      for (int j = 0; j < 8; j++) {
+        byte = (byte << 1) | eightBits[i + j];
+      }
+      bytes[i ~/ 8] = byte;
+    }
+    return bytes;
   }
 
   void _showAllBitsBottomSheet() {

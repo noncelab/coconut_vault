@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:coconut_lib/coconut_lib.dart';
+import 'package:coconut_vault/extensions/uint8list_extensions.dart';
 import 'package:coconut_vault/providers/preference_provider.dart';
 import 'package:coconut_vault/repository/wallet_repository.dart';
 import 'package:coconut_vault/model/common/vault_list_item_base.dart';
@@ -211,7 +212,8 @@ class WalletProvider extends ChangeNotifier {
   }
 
   /// SiglesigVaultListItem의 seed 중복 여부 확인
-  bool isSeedDuplicated(String secret, String passphrase) {
+  // TODO: lib 파라미터 Uint8List로 수정 필요
+  bool isSeedDuplicated(Uint8List secret, Uint8List passphrase) {
     var coconutVault = SingleSignatureVault.fromMnemonic(secret,
         addressType: AddressType.p2wpkh, passphrase: passphrase);
     final vaultIndex = _vaultList.indexWhere((element) {
@@ -329,26 +331,34 @@ class WalletProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<String> getSecret(int id) async {
+  Future<Uint8List> getSecret(int id) async {
     return await _walletRepository.getSecret(id);
   }
 
   Future<String> createBackupData() async {
     final List<Map<String, dynamic>> backupData = [];
 
-    for (final vault in _vaultList) {
-      final vaultData = vault.toJson();
+    try {
+      for (final vault in _vaultList) {
+        final vaultData = vault.toJson();
 
-      if (vault.vaultType == WalletType.singleSignature) {
-        vaultData['secret'] = await getSecret(vault.id);
-        vaultData['hasPassphrase'] = await hasPassphrase(vault.id);
+        if (vault.vaultType == WalletType.singleSignature) {
+          vaultData['secret'] = await getSecret(vault.id);
+          vaultData['hasPassphrase'] = await hasPassphrase(vault.id);
+        }
+
+        backupData.add(vaultData);
       }
 
-      backupData.add(vaultData);
+      final jsonData = jsonEncode(backupData);
+      return jsonData;
+    } finally {
+      for (final vault in backupData) {
+        if (vault['vaultType'] == WalletType.singleSignature) {
+          (vault['secret'] as Uint8List).wipe();
+        }
+      }
     }
-
-    final jsonData = jsonEncode(backupData);
-    return jsonData;
   }
 
   Future<void> restoreFromBackupData(String jsonData) async {
@@ -356,9 +366,10 @@ class WalletProvider extends ChangeNotifier {
         .map<Map<String, dynamic>>((e) => Map<String, dynamic>.from(e))
         .toList();
 
+    /// 아래 restoreFromBackupData 함수 내에서 secret정보는 사라집니다.
     await _walletRepository.restoreFromBackupData(backupDataMapList);
-    _setVaultList(_walletRepository.vaultList);
 
+    _setVaultList(_walletRepository.vaultList);
     notifyListeners();
     await _updateWalletLength();
   }

@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:coconut_design_system/coconut_design_system.dart';
@@ -96,6 +97,7 @@ class _SeedQrImportScreenState extends State<SeedQrImportScreen> {
     this.controller = controller;
     controller.scannedDataStream.listen((scanData) {
       if (_isNavigating) return;
+
       var words = <String>[];
       try {
         if (scanData.code == null && scanData.rawBytes != null) {
@@ -131,10 +133,12 @@ class _SeedQrImportScreenState extends State<SeedQrImportScreen> {
 
           // 1. 네비게이션하기 전 카메라 끄기
           controller.pauseCamera();
+
           Navigator.push(
                   context,
                   MaterialPageRoute(
-                      builder: (context) => SeedQrConfirmationScreen(scannedData: words.join(' '))))
+                      builder: (context) =>
+                          SeedQrConfirmationScreen(scannedData: utf8.encode(words.join(' ')))))
               .then((_) {
             // 2. 돌아왔을 때 카메라 재개하기
             if (mounted) {

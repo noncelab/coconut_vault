@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_vault/enums/pin_check_context_enum.dart';
 import 'package:coconut_vault/isolates/wallet_isolates.dart';
@@ -156,7 +158,7 @@ class _PassphraseCheckScreen extends State<PassphraseCheckScreen> {
     if (!mounted) return;
 
     CustomDialogs.showLoadingDialog(context, t.verify_passphrase_screen.loading_description);
-    bool result = await _verifyPassphrase(_inputController.text);
+    bool result = await _verifyPassphrase(utf8.encode(_inputController.text));
 
     if (!mounted) return;
     Navigator.pop(context); // hide loading dialog
@@ -189,11 +191,11 @@ class _PassphraseCheckScreen extends State<PassphraseCheckScreen> {
     );
   }
 
-  Future<bool> _verifyPassphrase(String passphrase) async {
+  Future<bool> _verifyPassphrase(Uint8List passphrase) async {
     final walletProvider = context.read<WalletProvider>();
     final result = await compute(WalletIsolates.verifyPassphrase, {
       'mnemonic': await walletProvider.getSecret(widget.id),
-      'passphrase': _inputController.text,
+      'passphrase': passphrase,
       'valutListItem': walletProvider.getVaultById(widget.id)
     });
 

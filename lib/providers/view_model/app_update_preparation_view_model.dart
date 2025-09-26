@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:math';
 
 import 'package:coconut_vault/enums/wallet_enums.dart';
@@ -85,7 +86,7 @@ class AppUpdatePreparationViewModel extends ChangeNotifier {
 
   Future<MnemonicWordsItem> _getMnemonicWordsFromVault(VaultListItemBase vault) async {
     return await _walletProvider.getSecret(vault.id).then((mnemonic) {
-      List<String> mnemonicList = mnemonic.split(' ');
+      List<String> mnemonicList = utf8.decode(mnemonic).split(' ');
       int mnemonicIndex = _random.nextInt(mnemonicList.length);
       Logger.log('-->${vault.name} mnemonicList: $mnemonicList, mnemonicIndex: $mnemonicIndex');
       return MnemonicWordsItem(
@@ -133,8 +134,8 @@ class AppUpdatePreparationViewModel extends ChangeNotifier {
     _backupProgress = 40;
     notifyListeners();
 
-    await _progress40Reached!.future;
     saveEncryptedBackupWithData(result);
+    await _progress40Reached!.future;
   }
 
   void saveEncryptedBackupWithData(String data) async {
@@ -145,8 +146,8 @@ class AppUpdatePreparationViewModel extends ChangeNotifier {
     _backupProgress = 80;
     notifyListeners();
 
-    await _progress80Reached!.future;
     deleteAllWallets();
+    await _progress80Reached!.future;
   }
 
   void deleteAllWallets() async {

@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:typed_data';
 
 import 'package:coconut_lib/coconut_lib.dart';
 import 'package:coconut_vault/constants/secure_storage_keys.dart';
@@ -146,8 +147,8 @@ Future<int> addSingleSigWallets({WalletProvider? walletProvider}) async {
     "New Wallet3",
     0,
     0,
-    "primary exotic display destroy wrap zoo among scan length despair lend yard",
-    '',
+    utf8.encode("primary exotic display destroy wrap zoo among scan length despair lend yard"),
+    Uint8List(0),
   );
 
   final singleSig3 = SingleSigWalletCreateDto(
@@ -155,8 +156,8 @@ Future<int> addSingleSigWallets({WalletProvider? walletProvider}) async {
     "Test Wallet4",
     0,
     0,
-    "dwarf aim crash town chalk device bulb simple space draft ball canoe",
-    '',
+    utf8.encode("dwarf aim crash town chalk device bulb simple space draft ball canoe"),
+    Uint8List(0),
   );
 
   if (walletProvider != null) {
@@ -179,8 +180,8 @@ Future<int> addWallets({WalletProvider? walletProvider}) async {
     "Test Wallet1",
     0,
     0,
-    "thank split shrimp error own spirit slow glow act evidence globe slight",
-    '',
+    utf8.encode("thank split shrimp error own spirit slow glow act evidence globe slight"),
+    Uint8List(0),
   );
 
   // multisig wallet

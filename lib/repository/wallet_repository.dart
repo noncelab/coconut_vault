@@ -3,6 +3,7 @@ import 'dart:convert';
 
 import 'package:coconut_lib/coconut_lib.dart';
 import 'package:coconut_vault/constants/shared_preferences_keys.dart';
+import 'package:coconut_vault/extensions/uint8list_extensions.dart';
 import 'package:coconut_vault/isolates/wallet_isolates.dart';
 import 'package:coconut_vault/model/multisig/multisig_signer.dart';
 import 'package:coconut_vault/model/multisig/multisig_vault_list_item.dart';
@@ -205,16 +206,16 @@ class WalletRepository {
     _sharedPrefs.setInt(nextIdField, nextId + 1);
   }
 
-  Future<String> getSecret(int id) async {
+  Future<Uint8List> getSecret(int id) async {
     var secretString =
         await _storageService.read(key: _createWalletKeyString(id, WalletType.singleSignature));
-    return secretString!;
+    return utf8.encode(secretString!);
   }
 
   Future<void> _saveSingleSigSecureData(
-      int walletId, String secretString, bool isPassphraseEnabled) async {
+      int walletId, Uint8List secretString, bool isPassphraseEnabled) async {
     String keyString = _createWalletKeyString(walletId, WalletType.singleSignature);
-    await _storageService.write(key: keyString, value: secretString);
+    await _storageService.write(key: keyString, value: utf8.decode(secretString));
 
     String passphraseEnabledKeyString = _createPassphraseEnabledKeyString(keyString);
     await _storageService.write(
@@ -355,7 +356,13 @@ class WalletRepository {
       if (data['vaultType'] == WalletType.singleSignature.name) {
         String keyString = _createWalletKeyString(wallet.id, WalletType.singleSignature);
         String passphraseKeyString = _createPassphraseEnabledKeyString(keyString);
-        _storageService.write(key: keyString, value: data['secret']);
+
+        final secret = data['secret'] as List<dynamic>;
+        Uint8List secretBytes = Uint8List.fromList(secret.map((e) => e as int).toList());
+        secret.fillRange(0, secret.length, 0);
+
+        _storageService.writeBytes(key: keyString, value: secretBytes);
+        secretBytes.wipe();
         _storageService.write(
             key: passphraseKeyString, value: data['hasPassphrase'] ? "true" : "false");
       }

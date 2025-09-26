@@ -1,8 +1,11 @@
 import 'dart:ui';
+import 'dart:convert';
+import 'dart:typed_data';
 
 import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/widgets/button/shrink_animation_button.dart';
+import 'package:coconut_vault/extensions/uint8list_extensions.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 
@@ -14,7 +17,7 @@ class MnemonicList extends StatefulWidget {
     this.onWarningPressed,
   });
 
-  final String mnemonic;
+  final Uint8List mnemonic;
   final bool isLoading;
   final VoidCallback? onWarningPressed;
 
@@ -74,13 +77,14 @@ class _MnemonicListState extends State<MnemonicList> with TickerProviderStateMix
 
   @override
   void dispose() {
+    widget.mnemonic.wipe();
     _waveAnimationController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    final words = widget.mnemonic.split(' ');
+    final words = utf8.decode(widget.mnemonic).split(' ');
     final itemCount = widget.isLoading ? 12 : words.length;
 
     return MediaQuery(
@@ -240,7 +244,7 @@ class _MnemonicListState extends State<MnemonicList> with TickerProviderStateMix
                               ),
                               CoconutLayout.spacing_300h,
                               text,
-                              CoconutLayout.spacing_400h,
+                              //CoconutLayout.spacing_400h,
                               ConstrainedBox(
                                 constraints: BoxConstraints(maxWidth: textWidth),
                                 child: Text(
@@ -249,7 +253,7 @@ class _MnemonicListState extends State<MnemonicList> with TickerProviderStateMix
                                   textAlign: TextAlign.start,
                                 ),
                               ),
-                              CoconutLayout.spacing_500h,
+                              //CoconutLayout.spacing_500h,
                               ConstrainedBox(
                                 constraints: BoxConstraints(maxWidth: textWidth),
                                 child: ShrinkAnimationButton(

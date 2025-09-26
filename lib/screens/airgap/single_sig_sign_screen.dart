@@ -1,7 +1,11 @@
+import 'dart:convert';
+import 'dart:typed_data';
+
 import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_vault/constants/app_routes.dart';
 import 'package:coconut_vault/enums/currency_enum.dart';
 import 'package:coconut_vault/enums/pin_check_context_enum.dart';
+import 'package:coconut_vault/extensions/uint8list_extensions.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/providers/auth_provider.dart';
 import 'package:coconut_vault/providers/sign_provider.dart';
@@ -88,11 +92,11 @@ class _SingleSigSignScreenState extends State<SingleSigSignScreen> {
   }
 
   Future<void> _sign() async {
-    String? validPassphrase;
+    Uint8List validPassphrase = utf8.encode('');
     if (_viewModel.hasPassphrase) {
-      validPassphrase = await _authenticateWithPassphrase(context: context);
+      validPassphrase = utf8.encode(await _authenticateWithPassphrase(context: context) ?? '');
 
-      if (validPassphrase == null) {
+      if (validPassphrase.isEmpty) {
         return;
       }
     } else {
@@ -102,10 +106,11 @@ class _SingleSigSignScreenState extends State<SingleSigSignScreen> {
       }
     }
 
-    await _addSignatureToPsbt(validPassphrase ?? "");
+    await _addSignatureToPsbt(validPassphrase);
+    validPassphrase.wipe();
   }
 
-  Future<void> _addSignatureToPsbt(String passphrase) async {
+  Future<void> _addSignatureToPsbt(Uint8List passphrase) async {
     try {
       setState(() {
         _showLoading = true;
@@ -172,8 +177,10 @@ class _SingleSigSignScreenState extends State<SingleSigSignScreen> {
                       padding: const EdgeInsets.only(top: 36),
                       child: Text(
                         viewModel.isSignerApproved
-                            ? (viewModel.isAlreadySigned ? t.single_sig_sign_screen.text : t.sign_completed)
-                            : t.one_sign_guide,
+                            ? (viewModel.isAlreadySigned
+                                ? t.single_sig_sign_screen.text
+                                : t.sign_completed)
+                            : t.sign_required,
                         style: CoconutTypography.heading4_18_Bold,
                       ),
                     ),
@@ -324,6 +331,7 @@ class _SingleSigSignScreenState extends State<SingleSigSignScreen> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
+                  CoconutLayout.spacing_400w,
                   SvgPicture.asset(
                     CustomIcons.getPathByIndex(iconIndex),
                     colorFilter: ColorFilter.mode(
@@ -332,11 +340,16 @@ class _SingleSigSignScreenState extends State<SingleSigSignScreen> {
                     ),
                     width: 14.0,
                   ),
-                  CoconutLayout.spacing_300w,
-                  Text(
-                    name,
-                    style: CoconutTypography.body1_16,
+                  CoconutLayout.spacing_200w,
+                  Flexible(
+                    child: Text(
+                      name,
+                      style: CoconutTypography.body1_16,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
                   ),
+                  CoconutLayout.spacing_400w,
                 ],
               ),
             ),

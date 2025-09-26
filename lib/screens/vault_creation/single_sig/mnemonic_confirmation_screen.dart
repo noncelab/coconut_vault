@@ -1,4 +1,8 @@
+import 'dart:convert';
+import 'dart:typed_data';
+
 import 'package:coconut_design_system/coconut_design_system.dart';
+import 'package:coconut_vault/extensions/uint8list_extensions.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/providers/wallet_creation_provider.dart';
 import 'package:coconut_vault/screens/vault_creation/single_sig/mnemonic_generation_screen.dart';
@@ -19,14 +23,14 @@ class _MnemonicConfirmationScreenState extends State<MnemonicConfirmationScreen>
   late WalletCreationProvider _walletCreationProvider;
   late int step;
   final ScrollController _scrollController = ScrollController();
-  late String _mnemonic;
   late bool _isWarningVisible;
+  late Uint8List _mnemonic;
 
   @override
   void initState() {
     super.initState();
     _walletCreationProvider = Provider.of<WalletCreationProvider>(context, listen: false);
-    _mnemonic = _walletCreationProvider.secret!;
+    _mnemonic = Uint8List.fromList(_walletCreationProvider.secret);
     step = 0;
     _isWarningVisible = true;
   }
@@ -227,7 +231,7 @@ class _MnemonicConfirmationScreenState extends State<MnemonicConfirmationScreen>
                   height: double.infinity,
                   child: Center(
                     child: Text(
-                      passphrase[index],
+                      utf8.decode(passphrase)[index],
                       style: const TextStyle(
                         color: CoconutColors.black,
                         fontWeight: FontWeight.bold,

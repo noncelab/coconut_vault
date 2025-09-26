@@ -12,6 +12,11 @@ import Flutter
     #else
     self.window?.makeSecure()   
     #endif
+
+    // 플랫폼 채널 설정 추가
+    let controller : FlutterViewController = window?.rootViewController as! FlutterViewController
+
+    // 플러그인 등록
     GeneratedPluginRegistrant.register(with: self)
     return super.application(application, didFinishLaunchingWithOptions: launchOptions)
   }

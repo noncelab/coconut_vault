@@ -1,3 +1,6 @@
+import 'dart:convert';
+import 'dart:typed_data';
+
 import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_vault/constants/app_routes.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
@@ -10,7 +13,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 class SeedQrConfirmationScreen extends StatefulWidget {
-  final String scannedData;
+  final Uint8List scannedData;
 
   const SeedQrConfirmationScreen({
     super.key,
@@ -34,6 +37,8 @@ class _SeedQrConfirmationScreenState extends State<SeedQrConfirmationScreen> {
   bool _passphraseObscured = false;
   late bool _isMnemonicWarningVisible;
 
+  late VoidCallback _passphraseListener;
+
   @override
   void initState() {
     super.initState();
@@ -43,12 +48,29 @@ class _SeedQrConfirmationScreenState extends State<SeedQrConfirmationScreen> {
     _isMnemonicWarningVisible = true;
   }
 
+  @override
+  void dispose() {
+    _usePassphrase = false;
+    _passphrase = '';
+
+    _passphraseController.removeListener(_passphraseListener);
+    _passphraseController.text = '';
+    _passphraseController.dispose();
+
+    _passphraseFocusNode.dispose();
+    super.dispose();
+  }
+
   void _initListeners() {
-    _passphraseController.addListener(() {
-      setState(() {
-        _passphrase = _passphraseController.text;
-      });
-    });
+    _passphraseListener = () {
+      if (mounted) {
+        setState(() {
+          _passphrase = _passphraseController.text;
+        });
+      }
+    };
+
+    _passphraseController.addListener(_passphraseListener);
 
     _passphraseFocusNode.addListener(() {
       if (_passphraseFocusNode.hasFocus) {
@@ -130,9 +152,9 @@ class _SeedQrConfirmationScreenState extends State<SeedQrConfirmationScreen> {
   void _handleNextButton() {
     _passphraseFocusNode.unfocus();
 
-    final String secret = widget.scannedData;
+    final secret = widget.scannedData;
 
-    final String passphrase = _usePassphrase ? _passphrase : '';
+    final passphrase = utf8.encode(_usePassphrase ? _passphrase : '');
 
     if (_walletProvider.isSeedDuplicated(secret, passphrase)) {
       CoconutToast.showToast(context: context, text: t.toast.mnemonic_already_added, isVisibleIcon: true);

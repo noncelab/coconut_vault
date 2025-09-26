@@ -1,3 +1,8 @@
+import 'dart:convert';
+import 'dart:typed_data';
+
+import 'package:coconut_vault/enums/wallet_enums.dart';
+import 'package:coconut_vault/extensions/uint8list_extensions.dart';
 import 'package:coconut_vault/model/multisig/multisig_signer.dart';
 import 'package:coconut_vault/utils/coconut/multisig_utils.dart';
 
@@ -8,8 +13,8 @@ class WalletCreationProvider {
   List<MultisigSigner>? _signers;
 
   /// singleSig
-  String? _secret;
-  String? _passphrase;
+  Uint8List _secret = Uint8List(0); // utf8.encode(mnemonicWordsString)
+  Uint8List _passphrase = Uint8List(0); // utf8.encode(passphraseString)
 
   /// multisig
   int? get requiredSignatureCount => _requiredSignatureCount;
@@ -17,8 +22,27 @@ class WalletCreationProvider {
   List<MultisigSigner>? get signers => _signers != null ? List.unmodifiable(_signers!) : null;
 
   /// singleSig
-  String? get secret => _secret;
-  String? get passphrase => _passphrase;
+  Uint8List get secret => _secret;
+  Uint8List? get passphrase => _passphrase.isNotEmpty ? _passphrase : null;
+
+  WalletType get walletType {
+    if (_requiredSignatureCount != null &&
+        _totalSignatureCount != null &&
+        _signers != null &&
+        _secret.isEmpty &&
+        _passphrase.isEmpty) {
+      return WalletType.multiSignature;
+    }
+
+    if (_requiredSignatureCount == null &&
+        _totalSignatureCount == null &&
+        _signers == null &&
+        _secret.isNotEmpty) {
+      return WalletType.singleSignature;
+    }
+
+    throw Exception('Invalid Wallet Creation Provider Setting');
+  }
 
   /// multisig
   void setQuorumRequirement(int requiredSignatureCount, int totalSignatureCount) {
@@ -35,14 +59,17 @@ class WalletCreationProvider {
   }
 
   /// SingleSig
-  void setSecretAndPassphrase(String secret, String? passphrase) {
+  void setSecretAndPassphrase(Uint8List secret, Uint8List? passphrase) {
     _secret = secret;
-    _passphrase = passphrase;
+    _passphrase = passphrase ?? utf8.encode('');
   }
 
   /// SingleSig
   void resetSecretAndPassphrase() {
-    _secret = _passphrase = null;
+    _secret.wipe();
+    _passphrase.wipe();
+    _secret = Uint8List(0);
+    _passphrase = Uint8List(0);
   }
 
   /// Multisig
@@ -52,7 +79,7 @@ class WalletCreationProvider {
 
   void resetAll() {
     // singleSig
-    _secret = _passphrase = null;
+    resetSecretAndPassphrase();
 
     /// multisig
     _requiredSignatureCount = _totalSignatureCount = _signers = null;

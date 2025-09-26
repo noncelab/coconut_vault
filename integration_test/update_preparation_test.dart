@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_vault/enums/wallet_enums.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
@@ -149,7 +151,7 @@ Future<void> mnemonicCheckFlow(WidgetTester tester, bool uppercase) async {
     // Load vault's mnemonicList
     List<String> vaultMnemonicList = await walletProvider
         .getSecret(singleSignVaults[i].id)
-        .then((mnemonic) => mnemonic.split(' '));
+        .then((mnemonic) => utf8.decode(mnemonic).split(' '));
 
     String title = t.prepare_update.enter_nth_word_of_wallet(
       wallet_name: updatePreparationProvider.walletName,
