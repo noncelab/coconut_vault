@@ -612,8 +612,10 @@ permission:
     how_to_allow: "생체 인증을 통한 잠금 해제를 하시려면\n설정 > 코코넛 볼트에서 생체 인증 권한을 허용해 주세요."
     btn_move_to_setting: "설정 화면으로 이동"
 
-alert:
-  confirm_deletion: "정말로 볼트에서 $name 정보를 삭제하시겠어요?"
+alert: 
+  delete_vault: 
+    title: "지갑 삭제"
+    description: "니모닉 문구를 백업하지 않으면, 이 지갑의 비트코인은 영원히 복구할 수 없습니다. 정말 삭제하시겠습니까?"
   forgot_password:
     title: "비밀번호를 잊으셨나요?"
     description1: "비밀번호를 초기화하면 볼트도 초기화돼요. 그래도 초기화 하시겠어요?"

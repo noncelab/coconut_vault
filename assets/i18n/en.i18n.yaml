@@ -609,7 +609,9 @@ permission:
     btn_move_to_setting: "Go to Settings"
 
 alert:
-  confirm_deletion: "Really delete $name info from vault?"
+  delete_vault:
+    title: "Delete Vault"
+    description: "If you don't backup mnemonic, your bitcoins will be lost forever.\nReally delete?"
   forgot_password:
     title: "Forgot password?"
     description1: "Resetting password will delete all stored wallets. Still want to reset?"

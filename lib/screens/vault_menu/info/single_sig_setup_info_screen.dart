@@ -94,8 +94,8 @@ class _SingleSigSetupInfoScreenState extends State<SingleSigSetupInfoScreen> {
       },
       child: CustomLoadingOverlay(
         child: ChangeNotifierProvider(
-          create:
-              (context) => SingleSigSetupInfoViewModel(Provider.of<WalletProvider>(context, listen: false), widget.id),
+          create: (context) =>
+              SingleSigSetupInfoViewModel(Provider.of<WalletProvider>(context, listen: false), widget.id),
           child: Consumer<SingleSigSetupInfoViewModel>(
             builder: (context, viewModel, child) {
               final canDelete = viewModel.hasLinkedMultisigVault != true;
@@ -215,15 +215,14 @@ class _SingleSigSetupInfoScreenState extends State<SingleSigSetupInfoScreen> {
     MyBottomSheet.showDraggableBottomSheet(
       context: context,
       minChildSize: 0.5,
-      childBuilder:
-          (scrollController) => SelectSyncOptionBottomSheet(
-            onSyncOptionSelected: (format) {
-              if (!context.mounted) return;
-              Navigator.pop(context);
-              Navigator.pushNamed(context, AppRoutes.syncToWallet, arguments: {'id': walletId, 'syncOption': format});
-            },
-            scrollController: scrollController,
-          ),
+      childBuilder: (scrollController) => SelectSyncOptionBottomSheet(
+        onSyncOptionSelected: (format) {
+          if (!context.mounted) return;
+          Navigator.pop(context);
+          Navigator.pushNamed(context, AppRoutes.syncToWallet, arguments: {'id': walletId, 'syncOption': format});
+        },
+        scrollController: scrollController,
+      ),
     );
   }
 
@@ -485,8 +484,8 @@ class _SingleSigSetupInfoScreenState extends State<SingleSigSetupInfoScreen> {
       builder: (BuildContext dialogContext) {
         return CoconutPopup(
           insetPadding: EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width * 0.15),
-          title: t.confirm,
-          description: t.alert.confirm_deletion(name: walletName),
+          title: t.alert.delete_vault.title,
+          description: t.alert.delete_vault.description,
           backgroundColor: CoconutColors.white,
           leftButtonText: t.no,
           leftButtonColor: CoconutColors.black.withValues(alpha: 0.7),
