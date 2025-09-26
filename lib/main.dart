@@ -63,11 +63,9 @@ void main() async {
   // 아래 경고를 위한 조치
   // flutter: Resolver for <lang = kr> not specified!
   // Please configure it via LocaleSettings.setPluralResolver. A fallback is used now.
-  // multi_sig_setting_screen.tooltip 에만 plural쓰는데 사용 안하고 있음.
-  // 최종 판단하여 사용하지 않을 시 삭제 필요
   LocaleSettings.setPluralResolver(
     language: AppLocale.kr.name,
-    resolver: (n, {zero, one, two, few, many, other}) {
+    cardinalResolver: (n, {zero, one, two, few, many, other}) {
       if (n == 0) return zero ?? other ?? '';
       if (n == 1) return one ?? other ?? '';
       return other ?? '';
@@ -76,7 +74,7 @@ void main() async {
 
   LocaleSettings.setPluralResolver(
     language: AppLocale.en.name,
-    resolver: (n, {zero, one, two, few, many, other}) {
+    cardinalResolver: (n, {zero, one, two, few, many, other}) {
       if (n == 0) return zero ?? other ?? '';
       if (n == 1) return one ?? other ?? '';
       return other ?? '';

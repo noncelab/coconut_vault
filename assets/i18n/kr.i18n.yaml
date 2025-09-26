@@ -93,7 +93,9 @@ name_info: "$name 정보"
 name_wallet: "$name 지갑"
 bitcoin_text: "$bitcoin BTC"
 sign_required: "버튼을 눌러 서명해 주세요"
-sign_required_amount: "$n개의 서명이 필요해요"
+sign_required_amount: 
+  one: "$n개의 서명이 필요해요"
+  other: "$n개의 서명이 필요해요"
 move_to_qr_screen: "QR 코드 화면으로 이동"
 move_to_qr_screen_description: "키가 있는 볼트에서 서명하기 위해 QR을 생성합니다."
 

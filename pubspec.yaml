@@ -68,8 +68,8 @@ dependencies:
   url_launcher: ^6.2.6
   crypto: ^3.0.6
   encrypt: ^5.0.3
-  slang: ^4.4.1
-  slang_flutter: ^4.4.0
+  slang: ^4.6.0
+  slang_flutter: ^4.6.0
   pointycastle: ^3.9.1
   tuple: ^2.0.2
   # coconut_lib: 1.0.1
