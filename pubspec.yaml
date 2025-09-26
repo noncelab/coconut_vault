@@ -213,6 +213,10 @@ flutter:
     - assets/svg/dice/4.svg
     - assets/svg/dice/5.svg
     - assets/svg/dice/6.svg
+    - assets/svg/coconut-mainnet.svg
+    - assets/svg/coconut-regtest.svg
+    - assets/png/browser_ko.png
+    - assets/png/browser_en.png
 
   fonts:
     - family: SpaceGrotesk
