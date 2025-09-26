@@ -127,7 +127,7 @@ class _VaultTypeSelectionScreenState extends State<VaultTypeSelectionScreen> {
                               overflow: TextOverflow.visible,
                               maxLines: 2,
                               description,
-                              style: CoconutTypography.body3_12.copyWith(
+                              style: CoconutTypography.body2_14.copyWith(
                                   color:
                                       isSelectable ? CoconutColors.gray700 : CoconutColors.gray400,
                                   letterSpacing: 0.2,

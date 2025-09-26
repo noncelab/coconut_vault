@@ -83,7 +83,7 @@ class VaultCreationOptions extends StatelessWidget {
                                           alignment: Alignment.centerLeft,
                                           child: Text(
                                             options[index].name,
-                                            style: CoconutTypography.body2_14_Bold
+                                            style: CoconutTypography.body1_16_Bold
                                                 .setColor(CoconutColors.black)
                                                 .copyWith(letterSpacing: 0.2),
                                           )),
