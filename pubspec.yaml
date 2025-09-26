@@ -248,6 +248,12 @@ flutter:
     - assets/svg/watch-only-icons/sparrow.svg
     - assets/svg/watch-only-icons/nunchuk.svg
     - assets/svg/watch-only-icons/bluewallet.svg
+    - assets/svg/dice/1.svg
+    - assets/svg/dice/2.svg
+    - assets/svg/dice/3.svg
+    - assets/svg/dice/4.svg
+    - assets/svg/dice/5.svg
+    - assets/svg/dice/6.svg
 
   fonts:
     - family: SpaceGrotesk

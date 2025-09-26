@@ -1,30 +1,27 @@
-import 'dart:convert';
-
 import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_lib/coconut_lib.dart';
 import 'package:coconut_vault/constants/app_routes.dart';
-import 'package:coconut_vault/extensions/uint8list_extensions.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/providers/visibility_provider.dart';
 import 'package:coconut_vault/providers/wallet_creation_provider.dart';
+import 'package:coconut_vault/utils/logger.dart';
 import 'package:coconut_vault/widgets/button/fixed_bottom_tween_button.dart';
 import 'package:coconut_vault/widgets/button/shrink_animation_button.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:coconut_vault/screens/vault_creation/single_sig/mnemonic_generation_screen.dart';
 import 'package:coconut_vault/widgets/bottom_sheet.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:provider/provider.dart';
 
-class MnemonicCoinflipScreen extends StatefulWidget {
-  const MnemonicCoinflipScreen({super.key});
+class MnemonicDiceRollScreen extends StatefulWidget {
+  const MnemonicDiceRollScreen({super.key});
 
   @override
-  State<MnemonicCoinflipScreen> createState() => _MnemonicCoinflipScreenState();
+  State<MnemonicDiceRollScreen> createState() => _MnemonicDiceRollScreenState();
 }
 
-class _MnemonicCoinflipScreenState extends State<MnemonicCoinflipScreen> {
+class _MnemonicDiceRollScreenState extends State<MnemonicDiceRollScreen> {
   late final int _totalStep;
   int _step = 0;
   int _selectedWordsCount = 0;
@@ -93,7 +90,7 @@ class _MnemonicCoinflipScreenState extends State<MnemonicCoinflipScreen> {
     final List<Widget> screens = [
       WordsLengthSelection(onSelected: _onLengthSelected),
       PassphraseSelection(onSelected: _onPassphraseSelected),
-      FlipCoin(
+      DiceRoll(
         wordsCount: _selectedWordsCount,
         usePassphrase: _usePassphrase,
         onReset: _onReset,
@@ -114,7 +111,7 @@ class _MnemonicCoinflipScreenState extends State<MnemonicCoinflipScreen> {
         child: Scaffold(
             backgroundColor: CoconutColors.white,
             appBar: CoconutAppBar.build(
-              title: t.mnemonic_coin_flip_screen.title,
+              title: t.mnemonic_dice_roll_screen.title,
               context: context,
               onBackPressed: _showStopGeneratingMnemonicDialog,
               backgroundColor: CoconutColors.white,
@@ -127,12 +124,12 @@ class _MnemonicCoinflipScreenState extends State<MnemonicCoinflipScreen> {
   }
 }
 
-class FlipCoin extends StatefulWidget {
+class DiceRoll extends StatefulWidget {
   final int wordsCount;
   final bool usePassphrase;
   final Function() onReset;
 
-  const FlipCoin({
+  const DiceRoll({
     super.key,
     required this.wordsCount,
     required this.usePassphrase,
@@ -140,10 +137,10 @@ class FlipCoin extends StatefulWidget {
   });
 
   @override
-  State<FlipCoin> createState() => _FlipCoinState();
+  State<DiceRoll> createState() => _DiceRollState();
 }
 
-class _FlipCoinState extends State<FlipCoin> {
+class _DiceRollState extends State<DiceRoll> {
   final ScrollController _scrollController = ScrollController();
   final TextEditingController _passphraseController = TextEditingController();
   final TextEditingController _passphraseConfirmController = TextEditingController();
@@ -151,41 +148,46 @@ class _FlipCoinState extends State<FlipCoin> {
   final FocusNode _passphraseConfirmFocusNode = FocusNode();
   late int stepCount; // 총 화면 단계
   int step = 0;
+  String _mnemonic = '';
+  String _passphrase = '';
+  String _passphraseConfirm = '';
 
-  Uint8List _mnemonic = Uint8List(0);
-  Uint8List _passphrase = Uint8List(0);
-  Uint8List _passphraseConfirm = Uint8List(0);
-
-  // coinflip 관련 변수
-  int numberOfBits = 0;
+  // dice roll 관련 변수
+  int diceNumbers = 0;
+  final List<int> _diceNumbers = [];
   final List<int> _bits = [];
-  late int _totalBits;
+  // late int _totalCount;
   int _currentIndex = 0;
-  bool _showFullBits = false;
+
+  // 이안콜만 방식: 주사위 매핑
+  final diceMapping = {
+    1: [0, 1],
+    2: [1, 0],
+    3: [1, 1],
+    4: [0],
+    5: [1],
+    6: [0, 0],
+  };
 
   // passphrase 관련 변수
   bool passphraseObscured = false;
   bool isPassphraseConfirmVisible = false;
-  List<String> invalidPassphraseList = [];
+
   bool isNextButtonActive = false;
 
   @override
   void initState() {
     super.initState();
-    _totalBits = widget.wordsCount == 12 ? 128 : 256;
+
     stepCount = widget.usePassphrase ? 2 : 1;
     _passphraseController.addListener(() {
       setState(() {
-        invalidPassphraseList = _passphraseController.text.characters
-            .where((char) => !MnemonicWords.validCharSet.contains(char))
-            .toSet()
-            .toList();
-        _passphrase = utf8.encode(_passphraseController.text);
+        _passphrase = _passphraseController.text;
       });
     });
     _passphraseConfirmController.addListener(() {
       setState(() {
-        _passphraseConfirm = utf8.encode(_passphraseConfirmController.text);
+        _passphraseConfirm = _passphraseConfirmController.text;
       });
     });
     _passphraseConfirmFocusNode.addListener(() {
@@ -206,14 +208,6 @@ class _FlipCoinState extends State<FlipCoin> {
 
   @override
   void dispose() {
-    for (int i = 0; i < _bits.length; i++) {
-      _bits[i] = 0;
-    }
-    _bits.clear();
-    _mnemonic.wipe();
-    _passphrase.wipe();
-    _passphraseConfirm.wipe();
-
     _scrollController.dispose();
     _passphraseController.dispose();
     _passphraseFocusNode.dispose();
@@ -224,15 +218,17 @@ class _FlipCoinState extends State<FlipCoin> {
 
   NextButtonState _getNextButtonState() {
     if (step == 0 && stepCount == 1) {
-      // 패스프레이즈 사용 안함 - coinflip 화면
-      return _bits.length >= _totalBits
+      // 패스프레이즈 사용 안함 - dice roll 화면
+      return _bits.length >= (widget.wordsCount == 12 ? 128 : 256)
           ? NextButtonState.completeActive
           : NextButtonState.completeInactive;
     }
 
     if (step == 0 && stepCount == 2) {
-      // 패스프레이즈 사용 - coinflip 화면
-      return _bits.length >= _totalBits ? NextButtonState.nextActive : NextButtonState.nextInactive;
+      // 패스프레이즈 사용 - dice roll 화면
+      return _bits.length >= (widget.wordsCount == 12 ? 128 : 256)
+          ? NextButtonState.nextActive
+          : NextButtonState.nextInactive;
     }
 
     // 패스프레이즈 입력 화면
@@ -241,7 +237,7 @@ class _FlipCoinState extends State<FlipCoin> {
       // 패스프레이즈 확인 텍스트필드가 보이는 상태
       isActive = _passphrase.isNotEmpty &&
           _passphraseConfirm.isNotEmpty &&
-          listEquals(_passphrase, _passphraseConfirm);
+          _passphrase == _passphraseConfirm;
     } else {
       // 패스프레이즈 확인 텍스트필드가 보이지 않는 상태
       isActive = _passphraseController.text.isNotEmpty;
@@ -261,20 +257,12 @@ class _FlipCoinState extends State<FlipCoin> {
             children: [
               _buildProgressBar(),
               _buildStepIndicator(),
-              step == 0 ? _buildCoinflipWidget() : _buildPassphraseInput(),
+              step == 0 ? _buildDiceRollWidget() : _buildPassphraseInput(),
             ],
           ),
         ),
         FixedBottomTweenButton(
           showGradient: false,
-          subWidget: invalidPassphraseList.isNotEmpty
-              ? Text(
-                  t.mnemonic_generate_screen
-                      .passphrase_warning(words: invalidPassphraseList.join(", ")),
-                  style: CoconutTypography.body3_12.setColor(CoconutColors.warningText),
-                  textAlign: TextAlign.center,
-                )
-              : null,
           leftButtonRatio: 0.35,
           leftButtonClicked: () {
             _showAllBitsBottomSheet();
@@ -282,7 +270,7 @@ class _FlipCoinState extends State<FlipCoin> {
           rightButtonClicked: () {
             _onNextButtonClicked();
           },
-          isRightButtonActive: _getNextButtonState().isActive,
+          isRightButtonActive: _bits.length >= (widget.wordsCount == 12 ? 128 : 256),
           leftText: t.view_all,
           rightText: _getNextButtonState().text,
         ),
@@ -305,7 +293,6 @@ class _FlipCoinState extends State<FlipCoin> {
             padding: const EdgeInsets.only(top: 24),
             child: SizedBox(
               child: CoconutTextField(
-                enableSuggestions: true,
                 focusNode: _passphraseFocusNode,
                 controller: _passphraseController,
                 placeholderText: t.mnemonic_generate_screen.memorable_passphrase_guide,
@@ -383,8 +370,6 @@ class _FlipCoinState extends State<FlipCoin> {
               padding: const EdgeInsets.only(top: 12),
               child: SizedBox(
                 child: CoconutTextField(
-                  enableSuggestions: true,
-                  obscureText: passphraseObscured,
                   focusNode: _passphraseConfirmFocusNode,
                   controller: _passphraseConfirmController,
                   placeholderText: t.mnemonic_generate_screen.passphrase_confirm_guide,
@@ -420,22 +405,26 @@ class _FlipCoinState extends State<FlipCoin> {
     );
   }
 
-  Widget _buildCoinflipWidget() {
+  Widget _buildDiceRollWidget() {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16.0),
       child: Column(
         children: [
           CoconutLayout.spacing_500h,
           Opacity(
-            opacity: _bits.isNotEmpty ? 0.0 : 1.0,
-            child: Text(t.mnemonic_coin_flip_screen.guide,
+            opacity: _diceNumbers.isEmpty || _bits.length >= (widget.wordsCount == 12 ? 128 : 256)
+                ? 1.0
+                : 0.0,
+            child: Text(
+                _diceNumbers.isEmpty
+                    ? t.mnemonic_dice_roll_screen.guide1
+                    : t.mnemonic_dice_roll_screen.guide2,
                 style: CoconutTypography.body1_16_Bold.setColor(CoconutColors.gray800),
                 textAlign: TextAlign.center),
           ),
           CoconutLayout.spacing_400h,
-          _buildBitGrid(),
+          _buildDiceGrid(),
           CoconutLayout.spacing_200h,
-          Text('$_currentIndex/$_totalBits', style: CoconutTypography.heading4_18_Bold),
           CoconutLayout.spacing_1400h,
           _buildButtons(),
         ],
@@ -461,7 +450,7 @@ class _FlipCoinState extends State<FlipCoin> {
               ),
             ),
             ClipRRect(
-              borderRadius: _currentIndex / _totalBits == 1
+              borderRadius: _bits.length / (widget.wordsCount == 12 ? 128 : 256) == 1
                   ? BorderRadius.zero
                   : const BorderRadius.only(
                       topRight: Radius.circular(6), bottomRight: Radius.circular(6)),
@@ -469,7 +458,8 @@ class _FlipCoinState extends State<FlipCoin> {
                 duration: const Duration(milliseconds: 500),
                 curve: Curves.easeInOut,
                 height: 6,
-                width: MediaQuery.of(context).size.width * (_currentIndex / _totalBits),
+                width: MediaQuery.of(context).size.width *
+                    (_bits.length / (widget.wordsCount == 12 ? 128 : 256)),
                 color: CoconutColors.black,
               ),
             ),
@@ -507,14 +497,14 @@ class _FlipCoinState extends State<FlipCoin> {
         _passphraseFocusNode.unfocus();
         _passphraseConfirmFocusNode.unfocus();
         setState(() {
-          _passphrase = utf8.encode(_passphraseController.text);
+          _passphrase = _passphraseController.text;
           isPassphraseConfirmVisible = true;
         });
       } else if (_passphrase.isNotEmpty &&
           _passphraseConfirm.isNotEmpty &&
-          listEquals(_passphrase, _passphraseConfirm) &&
+          _passphrase == _passphraseConfirm &&
           _generateMnemonicPhrase()) {
-        // 패스프레이즈 입력 완료 | coinflip 데이터로 니모닉 생성 시도 성공
+        // 패스프레이즈 입력 완료 | dice roll 데이터로 니모닉 생성 시도 성공
         Provider.of<WalletCreationProvider>(context, listen: false)
             .setSecretAndPassphrase(_mnemonic, _passphrase);
         _passphraseFocusNode.unfocus();
@@ -578,26 +568,34 @@ class _FlipCoinState extends State<FlipCoin> {
     );
   }
 
-  Widget _buildBitGrid() {
-    int start = _currentIndex + 1 == _totalBits ? _totalBits - 8 : _currentIndex ~/ 8 * 8;
+  Widget _buildDiceGrid() {
+    const int gridElements = 10;
+    int start;
     int end;
-    List<int> currentBits;
+    List<int> currentRolls;
 
-    if (_showFullBits) {
-      start = start - 8;
-    }
-    if (start == _totalBits) {
-      start -= 8;
-    }
-    end = start + 8;
-    currentBits = _bits.length >= end ? _bits.sublist(start, end) : _bits.sublist(start);
+    // 현재 인덱스가 마지막 그룹에 있는지 확인
+    // if (_currentIndex >= _totalCount ~/ gridElements * gridElements &&
+    //     _currentIndex < _totalCount) {
+    //   start = _totalCount ~/ gridElements * gridElements;
+    //   end = _totalCount;
+    // } else {
+    start = _currentIndex ~/ gridElements * gridElements;
+    end = start + gridElements;
+    currentRolls = _diceNumbers.sublist(start, _currentIndex);
+    // }
+
+    currentRolls = _diceNumbers.sublist(start, _currentIndex);
 
     return Column(
       children: List.generate(2, (rowIndex) {
         return Row(
           mainAxisAlignment: MainAxisAlignment.center,
-          children: List.generate(4, (colIndex) {
-            int index = rowIndex * 4 + colIndex;
+          children: List.generate(5, (colIndex) {
+            int index = rowIndex * 5 + colIndex;
+            int slotNumber = start + index + 1; // 슬롯 번호 (51, 52, 53, ...)
+            bool hasData = index < currentRolls.length && slotNumber <= _bits.length; // 실제 데이터가 있는지
+
             return Container(
               width: 50,
               padding: const EdgeInsets.only(top: 8, bottom: 16),
@@ -611,16 +609,16 @@ class _FlipCoinState extends State<FlipCoin> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
-                    '${start + index + 1}',
+                    '$slotNumber',
                     style: CoconutTypography.body3_12_Number.setColor(
                       CoconutColors.black.withOpacity(0.3),
                     ),
                   ),
                   CoconutLayout.spacing_200h,
                   Text(
-                    index < currentBits.length ? '${currentBits[index]}' : '',
+                    hasData ? '${currentRolls[index]}' : '',
                     style: CoconutTypography.heading4_18_NumberBold.setColor(
-                      index < currentBits.length ? CoconutColors.black : CoconutColors.white,
+                      hasData ? CoconutColors.black : CoconutColors.white,
                     ),
                   )
                 ],
@@ -633,125 +631,121 @@ class _FlipCoinState extends State<FlipCoin> {
   }
 
   Widget _buildButtons() {
-    const double boxWidth = 224;
+    final List<int> diceNumbers = [-100, 1, 2, 3, -1, 4, 5, 6];
+    //2x3 그리드로 그리기
+    final List<Widget> buttons = diceNumbers.map((diceNumber) {
+      if (diceNumber == -100) {
+        // delete all
+        return _buildDeleteButton(
+          buttonText: t.delete_all,
+          onButtonPressed: () => _showConfirmResetDialog(
+              title: t.delete_all, message: t.alert.erase_all_entered_so_far, action: _resetBits),
+        );
+      }
+      if (diceNumber == -1) {
+        // delete one
+        return _buildDeleteButton(
+          buttonText: t.delete_one,
+          onButtonPressed: () => _deleteRoll(),
+        );
+      }
+      return _buildNumberButton(
+        buttonText: diceNumber.toString(),
+        onButtonPressed: () => _addRoll(diceNumber),
+      );
+    }).toList();
+
     return SizedBox(
-      width: boxWidth, // GridView의 item이 보이는 총 너비
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          _buildCoinHead(),
-          _buildCoinTail(),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildCoinHead() {
-    return _buildCoinButton(
-      buttonText: t.mnemonic_coin_flip_screen.coin_head,
-      resetText: t.delete_all,
-      onButtonPressed: () => _currentIndex < _totalBits ? _addBit(1) : null,
-      onReset: _showConfirmResetDialog,
-      crossAxisAlignment: CrossAxisAlignment.start,
-    );
-  }
-
-  Widget _buildCoinTail() {
-    return _buildCoinButton(
-      buttonText: t.mnemonic_coin_flip_screen.coin_tail,
-      resetText: t.delete_one,
-      onButtonPressed: () => _currentIndex < _totalBits ? _addBit(0) : null,
-      onReset: _removeLastBit,
-      crossAxisAlignment: CrossAxisAlignment.end,
-    );
-  }
-
-  Widget _buildCoinButton({
-    required String buttonText,
-    required String resetText,
-    required VoidCallback onButtonPressed,
-    required VoidCallback onReset,
-    required CrossAxisAlignment crossAxisAlignment,
-  }) {
-    const double boxWidth = 224;
-    const double buttonWidth = boxWidth / 2 - 12;
-    return Expanded(
+      width: 282 + 40,
       child: Column(
-        crossAxisAlignment: crossAxisAlignment,
-        children: [
-          ShrinkAnimationButton(
-            onPressed: onButtonPressed,
-            borderRadius: 12,
-            child: Container(
-              width: buttonWidth,
-              height: buttonWidth,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(
-                  color: CoconutColors.black,
-                  width: 1,
-                ),
-              ),
-              child: Center(child: Text(buttonText)),
-            ),
-          ),
-          CoconutLayout.spacing_200h,
-          ShrinkAnimationButton(
-            onPressed: onReset,
-            pressedColor: CoconutColors.gray200,
-            child: Container(
-              width: buttonWidth,
-              padding: const EdgeInsets.all(8),
-              child: Center(
-                child: Text(
-                  resetText,
-                  style: CoconutTypography.body3_12.setColor(
-                    _bits.isEmpty
-                        ? CoconutColors.secondaryText
-                        : CoconutColors.black.withOpacity(0.7),
-                  ),
-                ),
-              ),
-            ),
-          ),
-        ],
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: List.generate(2, (rowIndex) {
+          return Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: List.generate(4, (colIndex) {
+              return buttons[rowIndex * 4 + colIndex];
+            }),
+          );
+        }),
       ),
     );
   }
 
-  void _addBit(int bit) async {
-    if (_currentIndex == _totalBits) return;
+  Widget _buildDeleteButton({required String buttonText, required VoidCallback onButtonPressed}) {
+    return ShrinkAnimationButton(
+      onPressed: onButtonPressed,
+      borderRadius: 12,
+      child: SizedBox(
+        width: 100,
+        height: 40,
+        child: Center(
+            child: Text(
+          buttonText,
+          style: CoconutTypography.body3_12.setColor(
+            _diceNumbers.isEmpty
+                ? CoconutColors.secondaryText
+                : CoconutColors.black.withOpacity(0.7),
+          ),
+        )),
+      ),
+    );
+  }
 
+  Widget _buildNumberButton({
+    required String buttonText,
+    required VoidCallback onButtonPressed,
+  }) {
+    const double boxWidth = 282 + 30;
+    const double buttonWidth = boxWidth / 4 - 12;
+    return Padding(
+      padding: const EdgeInsets.all(2.0),
+      child: ShrinkAnimationButton(
+        onPressed: onButtonPressed,
+        borderRadius: 12,
+        child: Container(
+          width: buttonWidth,
+          height: buttonWidth,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(
+              color: CoconutColors.black,
+              width: 1,
+            ),
+          ),
+          child: Center(
+              child: SvgPicture.asset(
+            'assets/svg/dice/$buttonText.svg',
+            width: 44,
+            height: 44,
+          )),
+        ),
+      ),
+    );
+  }
+
+  void _addRoll(int number) async {
     setState(() {
-      _bits.add(bit);
+      _diceNumbers.add(number);
+      _bits.addAll(diceMapping[number] ?? []);
       _currentIndex++;
     });
-
-    if (_currentIndex % 8 == 0 && _currentIndex < _totalBits) {
-      setState(() {
-        _showFullBits = true;
-      });
-      await Future.delayed(const Duration(seconds: 1));
-      if (_currentIndex < _totalBits) {
-        _showFullBits = false;
-        setState(() {});
-      }
-    }
   }
 
-  void _removeLastBit() async {
+  void _deleteRoll() async {
     if (_currentIndex == 0) return;
+
     setState(() {
-      _bits.removeLast();
+      final removedNumber = _diceNumbers.removeLast();
+      _bits.removeRange(_bits.length - (diceMapping[removedNumber]?.length ?? 0), _bits.length);
       _currentIndex--;
     });
   }
 
   void _resetBits() {
     setState(() {
+      _diceNumbers.clear();
       _bits.clear();
       _currentIndex = 0;
-      _showFullBits = false;
     });
   }
 
@@ -779,48 +773,32 @@ class _FlipCoinState extends State<FlipCoin> {
         });
   }
 
-  String listToBinaryString(List<int> list) {
-    return list.map((int bit) => bit.toString()).join();
-  }
-
   bool _generateMnemonicPhrase() {
     try {
       setState(() {
-        _mnemonic = Seed.fromEntropy(bitsToBytes(_bits)).mnemonic;
+        int bitsToUse = (_bits.length / 32).floor() * 32;
+        int start = _bits.length - bitsToUse;
+        Logger.log('diceRolls: ${_diceNumbers.join()}');
+        Logger.log('bits sublist: ${_bits.sublist(start).join()}');
+        _mnemonic =
+            Seed.fromBinaryEntropy(_bits.sublist(start).map((int bit) => bit.toString()).join())
+                .mnemonic
+                .trim()
+                .toLowerCase()
+                .replaceAll(RegExp(r'\s+'), ' ');
       });
       return true;
     } catch (e) {
+      Logger.log('error: $e');
       return false;
     }
   }
 
-  // TODO: 유틸 함수로 만들지 확인 필요
-  Uint8List bitsToBytes(List<int> bits) {
-    List<int> eightBits = [];
-    if (bits.length < 8) {
-      for (int i = 8 - bits.length; i > 0; i--) {
-        eightBits.add(0);
-      }
-      eightBits.addAll(bits);
-    } else {
-      eightBits.addAll(bits);
-    }
-    Uint8List bytes = Uint8List(eightBits.length ~/ 8);
-    for (int i = 0; i < eightBits.length; i += 8) {
-      int byte = 0;
-      for (int j = 0; j < 8; j++) {
-        byte = (byte << 1) | eightBits[i + j];
-      }
-      bytes[i ~/ 8] = byte;
-    }
-    return bytes;
-  }
-
   void _showAllBitsBottomSheet() {
     MyBottomSheet.showBottomSheet(
-        title: '${t.view_all}(${_bits.length}/$_totalBits)',
+        title: '${t.view_all}(${_diceNumbers.length}/${widget.wordsCount == 12 ? 128 : 256})',
         context: context,
-        child: BinaryGrid(totalBits: _totalBits, bits: _bits));
+        child: BinaryGrid(totalBits: _bits.length, bits: _diceNumbers));
   }
 }
 

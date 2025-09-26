@@ -10,15 +10,16 @@ import 'package:coconut_vault/screens/vault_creation/single_sig/mnemonic_generat
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-class MnemonicCoinflipConfirmationScreen extends StatefulWidget {
-  const MnemonicCoinflipConfirmationScreen({super.key});
+class MnemonicManualEntropyConfirmationScreen extends StatefulWidget {
+  const MnemonicManualEntropyConfirmationScreen({super.key});
 
   @override
-  State<MnemonicCoinflipConfirmationScreen> createState() =>
-      _MnemonicCoinflipConfirmationScreenState();
+  State<MnemonicManualEntropyConfirmationScreen> createState() =>
+      _MnemonicManualEntropyConfirmationScreenState();
 }
 
-class _MnemonicCoinflipConfirmationScreenState extends State<MnemonicCoinflipConfirmationScreen> {
+class _MnemonicManualEntropyConfirmationScreenState
+    extends State<MnemonicManualEntropyConfirmationScreen> {
   final ScrollController _scrollController = ScrollController();
 
   bool hasScrolledToBottom = false; // 니모닉 리스트를 끝까지 확인했는지 추적
