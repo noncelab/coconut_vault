@@ -12,6 +12,7 @@ enum BalanceMode {
 class SelectVaultBottomSheet extends StatefulWidget {
   final Function(int) onVaultSelected;
   final List<VaultListItemBase> vaultList;
+  final int? selectedId;
   final int? walletId;
   final ScrollController? scrollController;
   final String? subLabel;
@@ -21,6 +22,7 @@ class SelectVaultBottomSheet extends StatefulWidget {
     super.key,
     required this.onVaultSelected,
     required this.vaultList,
+    this.selectedId,
     this.walletId,
     this.scrollController,
     this.subLabel,
@@ -65,10 +67,13 @@ class _SelectVaultBottomSheetState extends State<SelectVaultBottomSheet> {
                       padding: const EdgeInsets.symmetric(horizontal: Sizes.size8),
                       child: VaultRowItem(
                         vault: widget.vaultList[index],
-                        isNextIconVisible: widget.isNextIconVisible,
+                        isSelected: widget.selectedId == walletId,
+                        isSelectable: true,
                         onSelected: () {
+                          if (walletId == widget.selectedId) return;
                           widget.onVaultSelected(walletId);
                         },
+                        isNextIconVisible: widget.isNextIconVisible,
                       ),
                     ),
                   );

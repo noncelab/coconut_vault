@@ -148,36 +148,39 @@ class _MultisigQuorumSelectionScreenState extends State<MultisigQuorumSelectionS
           color: CoconutColors.gray150,
         ),
         alignment: Alignment.center,
-        child: Column(
-          children: [
-            Center(
-              child: HighLightedText(
-                '$requiredCount/$totalCount',
-                color: CoconutColors.gray800,
-                fontSize: 24,
-              ),
-            ),
-            const Spacer(),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 24),
-              child: Text(
-                quorumMessage,
-                style: CoconutTypography.body2_14_Number.merge(
-                  const TextStyle(
-                    letterSpacing: -0.01,
-                  ),
+        child: MediaQuery(
+          data: MediaQuery.of(context).copyWith(textScaler: const TextScaler.linear(1.0)),
+          child: Column(
+            children: [
+              Center(
+                child: HighLightedText(
+                  '$requiredCount/$totalCount',
+                  color: CoconutColors.gray800,
+                  fontSize: 24,
                 ),
-                textAlign: TextAlign.center,
               ),
-            ),
-            const Spacer(),
-            KeySafeAnimationWidget(
-              requiredCount: requiredCount,
-              totalCount: totalCount,
-              buttonClickedCount: buttonClickedCount,
-            ),
-            CoconutLayout.spacing_400h,
-          ],
+              const Spacer(),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 24),
+                child: Text(
+                  quorumMessage,
+                  style: CoconutTypography.body2_14_Number.merge(
+                    const TextStyle(
+                      letterSpacing: -0.01,
+                    ),
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+              ),
+              const Spacer(),
+              KeySafeAnimationWidget(
+                requiredCount: requiredCount,
+                totalCount: totalCount,
+                buttonClickedCount: buttonClickedCount,
+              ),
+              CoconutLayout.spacing_400h,
+            ],
+          ),
         ));
   }
 

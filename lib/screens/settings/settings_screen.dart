@@ -359,7 +359,31 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   value: isPassphraseUseEnabled,
                   activeColor: CoconutColors.black,
                   onChanged: (isOn) async {
-                    await context.read<VisibilityProvider>().setAdvancedMode(isOn);
+                    if (!isOn) {
+                      await context.read<VisibilityProvider>().setAdvancedMode(isOn);
+                      return;
+                    }
+
+                    if (context.mounted) {
+                      showDialog(
+                        context: context,
+                        builder: (BuildContext context) {
+                          return CoconutPopup(
+                            insetPadding: EdgeInsets.symmetric(
+                                horizontal: MediaQuery.of(context).size.width * 0.15),
+                            title: t.settings_screen.dialog.use_passphrase_title,
+                            description: t.settings_screen.dialog.use_passphrase_description,
+                            rightButtonText: t.settings_screen.dialog.use_passphrase_btn,
+                            onTapRight: () async {
+                              await context.read<VisibilityProvider>().setAdvancedMode(isOn);
+                              if (context.mounted) {
+                                Navigator.pop(context);
+                              }
+                            },
+                          );
+                        },
+                      );
+                    }
                   }),
             );
           }),

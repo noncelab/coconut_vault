@@ -160,57 +160,76 @@ class _VaultNameIconEditPaletteState extends State<VaultNameIconEditPalette> {
   }
 
   Widget _buildSelectedIconWithName() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      crossAxisAlignment: CrossAxisAlignment.start,
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.end,
       children: [
-        CoconutLayout.spacing_400w,
-        _selectedIconIndex >= 0
-            ? Padding(
-                padding: const EdgeInsets.only(top: 10, right: 10),
-                child: VaultIcon(
-                  iconIndex: _selectedIconIndex,
-                  colorIndex: _selectedColorIndex,
-                ))
-            : const SizedBox(width: 16),
-        Expanded(
-          child: CoconutTextField(
-            enableSuggestions: true,
-            isLengthVisible: true,
-            placeholderColor: CoconutColors.gray400,
-            placeholderText: t.name,
-            maxLength: 20,
-            maxLines: 1,
-            controller: _controller,
-            focusNode: _focusNode,
-            suffix: IconButton(
-              highlightColor: CoconutColors.gray200,
-              iconSize: 14,
-              padding: EdgeInsets.zero,
-              onPressed: () {
-                setState(() {
-                  _controller.text = '';
-                });
-              },
-              icon: _controller.text.isNotEmpty
-                  ? SvgPicture.asset(
-                      'assets/svg/text-field-clear.svg',
-                      colorFilter: const ColorFilter.mode(
-                        CoconutColors.gray400,
-                        BlendMode.srcIn,
-                      ),
-                    )
-                  : Container(),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            CoconutLayout.spacing_400w,
+            _selectedIconIndex >= 0
+                ? Center(
+                    child: VaultIcon(
+                      iconIndex: _selectedIconIndex,
+                      colorIndex: _selectedColorIndex,
+                    ),
+                  )
+                : const SizedBox(width: 16),
+            CoconutLayout.spacing_200w,
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  CoconutTextField(
+                    isLengthVisible: false,
+                    placeholderColor: CoconutColors.gray400,
+                    placeholderText: t.name,
+                    maxLength: 20,
+                    maxLines: 1,
+                    controller: _controller,
+                    focusNode: _focusNode,
+                    suffix: IconButton(
+                      highlightColor: CoconutColors.gray200,
+                      iconSize: 14,
+                      padding: EdgeInsets.zero,
+                      onPressed: () {
+                        setState(() {
+                          _controller.text = '';
+                        });
+                      },
+                      icon: _controller.text.isNotEmpty
+                          ? SvgPicture.asset(
+                              'assets/svg/text-field-clear.svg',
+                              colorFilter: const ColorFilter.mode(
+                                CoconutColors.gray400,
+                                BlendMode.srcIn,
+                              ),
+                            )
+                          : Container(),
+                    ),
+                    onChanged: (text) {
+                      setState(() {
+                        _name = text;
+                        widget.onNameChanged(text);
+                      });
+                    },
+                  ),
+                ],
+              ),
             ),
-            onChanged: (text) {
-              setState(() {
-                _name = text;
-                widget.onNameChanged(text);
-              });
-            },
+            CoconutLayout.spacing_400w,
+          ],
+        ),
+        Padding(
+          padding: const EdgeInsets.only(right: 16.0),
+          child: Text(
+            '${_name.length} / 20',
+            style: CoconutTypography.body3_12_Number.setColor(
+              CoconutColors.gray500,
+            ),
           ),
         ),
-        CoconutLayout.spacing_400w,
       ],
     );
   }

@@ -96,11 +96,16 @@ class _SelectSyncOptionBottomSheetState extends State<SelectSyncOptionBottomShee
             children: [
               SvgPicture.asset(option.iconPath),
               CoconutLayout.spacing_200h,
-              Text(
-                option.title,
-                style: CoconutTypography.body2_14_Bold.setColor(CoconutColors.gray800),
-                overflow: TextOverflow.ellipsis,
-                maxLines: 2,
+              MediaQuery(
+                data: MediaQuery.of(context).copyWith(
+                  textScaler: const TextScaler.linear(1.0),
+                ),
+                child: Text(
+                  option.title,
+                  style: CoconutTypography.body2_14_Bold.setColor(CoconutColors.gray800),
+                  overflow: TextOverflow.ellipsis,
+                  maxLines: 2,
+                ),
               ),
             ],
           ),

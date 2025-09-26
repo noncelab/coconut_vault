@@ -221,10 +221,13 @@ class _CoconutQrScannerState extends State<CoconutQrScanner> with SingleTickerPr
         builder: (context, value, _) {
           return SizedBox(
             width: 35,
-            child: Text(
-              textAlign: TextAlign.center,
-              "${(value * 100).toInt()}%",
-              style: CoconutTypography.body2_14_Bold.setColor(CoconutColors.white),
+            child: MediaQuery(
+              data: MediaQuery.of(context).copyWith(textScaler: const TextScaler.linear(1.0)),
+              child: Text(
+                textAlign: TextAlign.center,
+                "${(value * 100).toInt()}%",
+                style: CoconutTypography.body2_14_Bold.setColor(CoconutColors.white),
+              ),
             ),
           );
         });

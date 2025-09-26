@@ -127,7 +127,7 @@ class _VaultTypeSelectionScreenState extends State<VaultTypeSelectionScreen> {
                               overflow: TextOverflow.visible,
                               maxLines: 2,
                               description,
-                              style: CoconutTypography.body3_12.copyWith(
+                              style: CoconutTypography.body2_14.copyWith(
                                   color:
                                       isSelectable ? CoconutColors.gray700 : CoconutColors.gray400,
                                   letterSpacing: 0.2,
@@ -138,8 +138,7 @@ class _VaultTypeSelectionScreenState extends State<VaultTypeSelectionScreen> {
                       )),
                 ),
                 Container(width: 10),
-                SvgPicture.asset('assets/svg/curved-arrow-right.svg',
-                    width: 24,
+                SvgPicture.asset('assets/svg/chevron-right.svg',
                     colorFilter: ColorFilter.mode(
                         isSelectable ? CoconutColors.black : CoconutColors.gray400,
                         BlendMode.srcIn))

@@ -64,7 +64,9 @@ class _AddressListScreenState extends State<AddressListScreen> {
                 children: [
                   Text(
                     t.address_list_screen.title(
-                      name: viewModel.name,
+                      name: viewModel.name.length > 6
+                          ? '${viewModel.name.substring(0, 6)}...'
+                          : viewModel.name,
                     ),
                     style: CoconutTypography.heading4_18,
                   ),
@@ -81,11 +83,8 @@ class _AddressListScreenState extends State<AddressListScreen> {
                     context: context,
                     childBuilder: (scrollController) => SelectVaultBottomSheet(
                           isNextIconVisible: false,
-                          vaultList: context
-                              .read<WalletProvider>()
-                              .vaultList
-                              .where((vault) => vault.id != viewModel.vaultId)
-                              .toList(),
+                          vaultList: context.read<WalletProvider>().vaultList,
+                          selectedId: viewModel.vaultId,
                           onVaultSelected: (id) async {
                             Navigator.pop(context);
                             setState(() {

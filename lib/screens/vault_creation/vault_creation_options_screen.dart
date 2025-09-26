@@ -78,19 +78,18 @@ class VaultCreationOptions extends StatelessWidget {
                                     const EdgeInsets.symmetric(horizontal: 24.0, vertical: 36.0),
                                 child: Row(
                                   children: [
-                                    Align(
-                                        alignment: Alignment.centerLeft,
-                                        child: Text(
-                                          options[index].name,
-                                          style: const TextStyle(
-                                              fontFamily: 'Pretendard',
-                                              fontSize: 14.0,
-                                              fontWeight: FontWeight.w600,
-                                              color: CoconutColors.black,
-                                              letterSpacing: 0.2),
-                                        )),
-                                    const Spacer(),
-                                    SvgPicture.asset('assets/svg/curved-arrow-right.svg', width: 24)
+                                    Flexible(
+                                      child: Align(
+                                          alignment: Alignment.centerLeft,
+                                          child: Text(
+                                            options[index].name,
+                                            style: CoconutTypography.body1_16_Bold
+                                                .setColor(CoconutColors.black)
+                                                .copyWith(letterSpacing: 0.2),
+                                          )),
+                                    ),
+                                    CoconutLayout.spacing_100w,
+                                    SvgPicture.asset('assets/svg/chevron-right.svg')
                                   ],
                                 ))),
                         const SizedBox(height: 8.0)

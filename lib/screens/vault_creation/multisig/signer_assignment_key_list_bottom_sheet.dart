@@ -35,7 +35,7 @@ class _KeyListBottomSheetState extends State<KeyListBottomSheet> {
       backgroundColor: CoconutColors.white,
       appBar: CoconutAppBar.build(
         context: context,
-        title: t.assign_signers_screen.use_internal_key,
+        title: t.assign_signers_screen.use_internal_key_option,
         onBackPressed: () => Navigator.pop(context),
         backgroundColor: CoconutColors.white,
         isBottom: true,
@@ -51,6 +51,7 @@ class _KeyListBottomSheetState extends State<KeyListBottomSheet> {
             return Column(
               children: [
                 VaultRowItem(
+                  enableShotenName: false,
                   vault: widget.vaultList[index],
                   onSelected: () => _handleSelection(index),
                   isNextIconVisible: false,

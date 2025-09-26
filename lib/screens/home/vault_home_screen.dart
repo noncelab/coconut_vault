@@ -148,14 +148,22 @@ class _VaultHomeScreenState extends State<VaultHomeScreen> with TickerProviderSt
 
                     slivers: <Widget>[
                       _buildAppBar(context, viewModel, wallets),
-                      _buildWalletList(context),
+                      _buildWalletActionItems(context),
                       SliverToBoxAdapter(
                         child: Container(
-                          color: CoconutColors.gray100,
+                          color: CoconutColors.gray200,
                           height: 12,
                         ),
                       ),
-                      _buildWalletActionItems(context),
+                      if (wallets.isNotEmpty) ...[
+                        _buildViewAll(wallets.length),
+                      ],
+                      _buildWalletList(context),
+                      SliverToBoxAdapter(
+                        child: Container(
+                          height: 100,
+                        ),
+                      ),
                     ],
                   ),
                 ],
@@ -209,6 +217,51 @@ class _VaultHomeScreenState extends State<VaultHomeScreen> with TickerProviderSt
           },
         ),
       ],
+    );
+  }
+
+  Widget _buildViewAll(int walletCount) {
+    return SliverToBoxAdapter(
+      child: Column(
+        children: [
+          CoconutLayout.spacing_500h,
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: ShrinkAnimationButton(
+              onPressed: () {
+                Navigator.pushNamed(context, AppRoutes.vaultList);
+              },
+              borderRadius: CoconutStyles.radius_200,
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: FittedBox(
+                        fit: BoxFit.scaleDown,
+                        alignment: Alignment.centerLeft,
+                        child: Text(t.vault_home_screen.view_all_wallets,
+                            style: CoconutTypography.body2_14),
+                      ),
+                    ),
+                    Row(children: [
+                      CoconutLayout.spacing_200w,
+                      Text(t.vault_home_screen.wallet_count(count: walletCount),
+                          style: CoconutTypography.body3_12),
+                      CoconutLayout.spacing_200w,
+                      SvgPicture.asset(
+                        'assets/svg/chevron-right.svg',
+                        width: 6,
+                        height: 10,
+                      )
+                    ]),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 
@@ -330,9 +383,18 @@ class _VaultHomeScreenState extends State<VaultHomeScreen> with TickerProviderSt
                     bottom: 17,
                   ),
                   onPressed: () {
-                    var primaryVaultId = context.read<VaultHomeViewModel>().vaults.first.id;
-                    Navigator.pushNamed(context, AppRoutes.addressList,
-                        arguments: {'id': primaryVaultId});
+                    // 지갑 선택 후 주소 보기 화면으로 이동
+                    MyBottomSheet.showDraggableBottomSheet(
+                        context: context,
+                        minChildSize: 0.5,
+                        childBuilder: (scrollController) => SelectVaultBottomSheet(
+                              vaultList: context.read<WalletProvider>().vaultList,
+                              onVaultSelected: (id) async {
+                                Navigator.pushNamed(context, AppRoutes.addressList,
+                                    arguments: {'id': id});
+                              },
+                              scrollController: scrollController,
+                            ));
                   },
                 ),
               ),
@@ -377,16 +439,6 @@ class _VaultHomeScreenState extends State<VaultHomeScreen> with TickerProviderSt
                                 }
 
                                 _showSyncOptionBottomSheet(id, context);
-                                // if (result != null && mounted) {
-                                //   Navigator.pushNamed(context, AppRoutes.syncToWallet,
-                                //       arguments: {'id': id});
-                                // }
-                                // } else {
-                                //   if (mounted) {
-                                //     Navigator.pushNamed(context, AppRoutes.syncToWallet,
-                                //         arguments: {'id': id});
-                                //   }
-                                // }
                               },
                               scrollController: scrollController,
                             ));
@@ -452,20 +504,7 @@ class _VaultHomeScreenState extends State<VaultHomeScreen> with TickerProviderSt
                 ),
               ),
               CoconutLayout.spacing_200w,
-              Expanded(
-                child: _buildActionItemButton(
-                  isActive: walletCount > 0,
-                  text: t.vault_home_screen.action_items.view_all_wallets,
-                  iconAssetPath: 'assets/svg/align-center.svg',
-                  iconPadding: const EdgeInsets.only(
-                    right: 18,
-                    bottom: 19,
-                  ),
-                  onPressed: () {
-                    Navigator.pushNamed(context, AppRoutes.vaultList);
-                  },
-                ),
-              ),
+              const Expanded(child: SizedBox.shrink()),
             ],
           ),
         ],
@@ -526,10 +565,15 @@ class _VaultHomeScreenState extends State<VaultHomeScreen> with TickerProviderSt
             Positioned(
               left: 14,
               top: 13,
-              child: Text(
-                text,
-                style: CoconutTypography.body2_14_Bold.setColor(
-                  isActive ? CoconutColors.gray700 : CoconutColors.gray400,
+              child: MediaQuery(
+                data: MediaQuery.of(context).copyWith(
+                  textScaler: const TextScaler.linear(1.0),
+                ),
+                child: Text(
+                  text,
+                  style: CoconutTypography.body2_14_Bold.setColor(
+                    isActive ? CoconutColors.gray700 : CoconutColors.gray400,
+                  ),
                 ),
               ),
             ),

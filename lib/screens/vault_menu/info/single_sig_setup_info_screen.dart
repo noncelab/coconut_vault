@@ -149,6 +149,7 @@ class _SingleSigSetupInfoScreenState extends State<SingleSigSetupInfoScreen> {
                             _buildMenuList(context),
                             CoconutLayout.spacing_500h,
                             _buildExportWalletMenu(),
+                            CoconutLayout.spacing_1500h,
                           ],
                         ),
                         _buildTooltip(context),
@@ -301,9 +302,11 @@ class _SingleSigSetupInfoScreenState extends State<SingleSigSetupInfoScreen> {
                   width: 18,
                 ),
                 const SizedBox(width: 10),
-                Text(
-                  t.vault_settings.used_in_multisig,
-                  style: CoconutTypography.body2_14,
+                Expanded(
+                  child: Text(
+                    t.vault_settings.used_in_multisig,
+                    style: CoconutTypography.body2_14,
+                  ),
                 ),
               ],
             ),
@@ -457,6 +460,9 @@ class _SingleSigSetupInfoScreenState extends State<SingleSigSetupInfoScreen> {
           child: ClipPath(
             clipper: RightTriangleBubbleClipper(),
             child: Container(
+              constraints: BoxConstraints(
+                maxWidth: MediaQuery.sizeOf(context).width - 40,
+              ),
               padding: const EdgeInsets.only(
                 top: 25,
                 left: 10,
@@ -467,12 +473,14 @@ class _SingleSigSetupInfoScreenState extends State<SingleSigSetupInfoScreen> {
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Text(
-                    t.tooltip.mfp,
-                    style: CoconutTypography.body3_12.merge(const TextStyle(
-                      height: 1.3,
-                      color: CoconutColors.white,
-                    )),
+                  Flexible(
+                    child: Text(
+                      t.tooltip.mfp,
+                      style: CoconutTypography.body3_12.merge(const TextStyle(
+                        height: 1.3,
+                        color: CoconutColors.white,
+                      )),
+                    ),
                   ),
                 ],
               ),

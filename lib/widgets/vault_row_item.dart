@@ -34,6 +34,8 @@ class VaultRowItem extends StatefulWidget {
     this.index,
     this.isNextIconVisible = true,
     this.isKeyBorderVisible = false,
+    this.isSelected = false,
+    this.enableShotenName = true,
   });
 
   final VaultListItemBase vault;
@@ -51,6 +53,8 @@ class VaultRowItem extends StatefulWidget {
   final int? index;
   final bool isNextIconVisible;
   final bool isKeyBorderVisible;
+  final bool isSelected;
+  final bool enableShotenName;
 
   /// 스켈레톤 UI를 반환하는 static 메서드
   static Widget buildSkeleton() {
@@ -282,7 +286,11 @@ class _VaultRowItemState extends State<VaultRowItem> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          widget.vault.name,
+                          widget.enableShotenName
+                              ? widget.vault.name.length > 8
+                                  ? '${widget.vault.name.substring(0, 8)}...'
+                                  : widget.vault.name
+                              : widget.vault.name,
                           style: CoconutTypography.body2_14_Bold,
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
@@ -316,18 +324,8 @@ class _VaultRowItemState extends State<VaultRowItem> {
               ),
             ),
             CoconutLayout.spacing_200w,
-            widget.isSelectable
-                ? AnimatedScale(
-                    scale: widget.isSelectable && widget.isPressed ? 1.0 : 0,
-                    duration: const Duration(milliseconds: 200),
-                    curve: Curves.easeInOut,
-                    child: Icon(
-                      Icons.check,
-                      size: 24,
-                      color: CoconutColors.black.withOpacity(0.7),
-                    ),
-                  )
-                : widget.isEditMode
+            widget.isNextIconVisible
+                ? widget.isEditMode
                     ? ReorderableDragStartListener(
                         index: index!,
                         child: GestureDetector(
@@ -339,13 +337,30 @@ class _VaultRowItemState extends State<VaultRowItem> {
                           ),
                         ),
                       )
-                    : widget.isNextIconVisible
-                        ? SvgPicture.asset(
-                            'assets/svg/chevron-right.svg',
-                            width: 6,
-                            height: 10,
+                    : SvgPicture.asset(
+                        'assets/svg/chevron-right.svg',
+                        width: 6,
+                        height: 10,
+                      )
+                : widget.isSelectable
+                    ? Icon(
+                        Icons.check_rounded,
+                        size: 24,
+                        color: CoconutColors.black.withOpacity(widget.isSelected ? 1 : 0.1),
+                      )
+                    : widget.isEditMode
+                        ? ReorderableDragStartListener(
+                            index: index!,
+                            child: GestureDetector(
+                              child: Padding(
+                                padding: const EdgeInsets.only(right: 8),
+                                child: SvgPicture.asset(
+                                  'assets/svg/hamburger.svg',
+                                ),
+                              ),
+                            ),
                           )
-                        : const SizedBox.shrink()
+                        : const SizedBox.shrink(),
           ],
         ),
       ),

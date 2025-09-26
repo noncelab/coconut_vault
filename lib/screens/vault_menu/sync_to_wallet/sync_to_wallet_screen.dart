@@ -110,7 +110,11 @@ class _SyncToWalletScreenState extends State<SyncToWalletScreen> {
           return [
             _em(t.watch_only_options.sparrow),
             const TextSpan(text: '\n'),
-            const TextSpan(text: '1. '),
+            TextSpan(text: t.sync_to_wallet_screen.guide.sparrow_singlesig.guide0_1),
+            const TextSpan(text: '\n'),
+            const TextSpan(
+              text: '1. ',
+            ),
             TextSpan(text: t.select),
             _em(" ${t.sync_to_wallet_screen.guide.sparrow_singlesig.guide1_1}"),
             const TextSpan(text: '\n'),
@@ -119,12 +123,15 @@ class _SyncToWalletScreenState extends State<SyncToWalletScreen> {
             _em(" ${t.sync_to_wallet_screen.guide.sparrow_singlesig.guide2_1}"),
             if (_isMultisig) _em(' ${t.sync_to_wallet_screen.guide.multisig}'),
             const TextSpan(text: '\n'),
+            TextSpan(text: t.sync_to_wallet_screen.guide.sparrow_singlesig.guide3_1),
             TextSpan(text: t.sync_to_wallet_screen.guide.common),
           ];
         case 'kr':
         default:
           return [
             _em(t.watch_only_options.sparrow),
+            const TextSpan(text: '\n'),
+            TextSpan(text: t.sync_to_wallet_screen.guide.sparrow_singlesig.guide0_1),
             const TextSpan(text: '\n'),
             const TextSpan(text: '1. '),
             _em(t.sync_to_wallet_screen.guide.sparrow_singlesig.guide1_1),
@@ -135,6 +142,7 @@ class _SyncToWalletScreenState extends State<SyncToWalletScreen> {
             if (_isMultisig) _em(' ${t.sync_to_wallet_screen.guide.multisig}'),
             TextSpan(text: ' ${t.select}'),
             const TextSpan(text: '\n'),
+            TextSpan(text: t.sync_to_wallet_screen.guide.sparrow_singlesig.guide3_1),
             TextSpan(text: t.sync_to_wallet_screen.guide.common),
           ];
       }

@@ -65,40 +65,35 @@ class _SecuritySelfCheckScreenState extends State<SecuritySelfCheckScreen> {
           children: [
             SingleChildScrollView(
               physics: const AlwaysScrollableScrollPhysics(),
-              child: SizedBox(
-                height: MediaQuery.of(context).size.height -
-                    kToolbarHeight -
-                    MediaQuery.of(context).padding.top,
-                child: Column(children: [
-                  Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
-                        decoration: BoxDecoration(
-                          borderRadius: CoconutBorder.defaultRadius,
-                          color: CoconutColors.gray150,
-                        ),
-                        child: Text(
-                          t.security_self_check_screen.guidance,
-                          style: CoconutTypography.body1_16_Bold.setColor(CoconutColors.black),
-                        )),
-                  ),
-                  CoconutLayout.spacing_400h,
-                  ..._items.asMap().entries.map(
-                    (entry) {
-                      int index = entry.key;
-                      ChecklistItem item = entry.value;
-                      return ChecklistTile(
-                        item: item,
-                        onChanged: (bool? value) {
-                          _onChecklistItemChanged(value, index);
-                        },
-                      );
-                    },
-                  ),
-                  CoconutLayout.spacing_1500h,
-                ]),
-              ),
+              child: Column(children: [
+                Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
+                      decoration: BoxDecoration(
+                        borderRadius: CoconutBorder.defaultRadius,
+                        color: CoconutColors.gray150,
+                      ),
+                      child: Text(
+                        t.security_self_check_screen.guidance,
+                        style: CoconutTypography.body1_16_Bold.setColor(CoconutColors.black),
+                      )),
+                ),
+                CoconutLayout.spacing_400h,
+                ..._items.asMap().entries.map(
+                  (entry) {
+                    int index = entry.key;
+                    ChecklistItem item = entry.value;
+                    return ChecklistTile(
+                      item: item,
+                      onChanged: (bool? value) {
+                        _onChecklistItemChanged(value, index);
+                      },
+                    );
+                  },
+                ),
+                CoconutLayout.spacing_2000h,
+              ]),
             ),
             FixedBottomButton(
               onButtonClicked: widget.onNextPressed!,

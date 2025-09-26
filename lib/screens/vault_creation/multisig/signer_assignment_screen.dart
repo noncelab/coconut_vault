@@ -558,13 +558,14 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
     VoidCallback onConfirm;
     bool barrierDismissible = true;
 
+    cancelButtonText = t.no;
+    confirmButtonText = t.yes;
+
     switch (type) {
       case DialogType.reselectQuorum:
         {
           title = t.alert.reselect.title;
           message = t.alert.reselect.description;
-          cancelButtonText = t.cancel;
-          confirmButtonText = t.confirm;
           confirmButtonColor = CoconutColors.warningText;
           onConfirm = () {
             _viewModel.resetWalletCreationProvider();
@@ -578,8 +579,6 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
         {
           title = t.alert.back.title;
           message = t.alert.back.description;
-          cancelButtonText = t.cancel;
-          confirmButtonText = t.confirm;
           confirmButtonColor = CoconutColors.warningText;
           onConfirm = () {
             _viewModel.resetWalletCreationProvider();
@@ -593,8 +592,6 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
         {
           title = t.alert.empty_vault.title;
           message = t.alert.empty_vault.description;
-          cancelButtonText = t.no;
-          confirmButtonText = t.yes;
           confirmButtonColor = CoconutColors.black;
           onConfirm = () {
             Navigator.pushNamedAndRemoveUntil(context, AppRoutes.vaultCreationOptions,
@@ -606,8 +603,6 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
         {
           title = t.alert.quit_creating_mutisig_wallet.title;
           message = t.alert.quit_creating_mutisig_wallet.description;
-          cancelButtonText = t.cancel;
-          confirmButtonText = t.stop;
           confirmButtonColor = CoconutColors.warningText;
           onConfirm = () {
             _viewModel.resetWalletCreationProvider();
@@ -620,8 +615,6 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
         {
           title = t.alert.reset_nth_key.title(index: keyIndex + 1);
           message = t.alert.reset_nth_key.description;
-          cancelButtonText = t.no;
-          confirmButtonText = t.yes;
           confirmButtonColor = CoconutColors.warningText;
           onConfirm = () {
             _viewModel.setSigners(null);
@@ -655,8 +648,6 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
           _alreadyDialogShown = true;
           title = t.alert.stop_importing.title;
           message = t.alert.stop_importing.description;
-          cancelButtonText = t.cancel;
-          confirmButtonText = t.stop;
           confirmButtonColor = CoconutColors.warningText;
           barrierDismissible = false;
           onCancel = () {
@@ -694,6 +685,7 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
         {
           title = t.alert.same_wallet.title;
           message = t.alert.same_wallet.description(name: vaultName!);
+          cancelButtonText = '';
           confirmButtonText = t.confirm;
           confirmButtonColor = CoconutColors.black;
           onConfirm = () {

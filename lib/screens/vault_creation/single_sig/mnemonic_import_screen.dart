@@ -540,9 +540,9 @@ class _MnemonicImportScreenState extends State<MnemonicImportScreen> {
         title: t.alert.stop_importing_mnemonic.title,
         description: t.alert.stop_importing_mnemonic.description,
         backgroundColor: CoconutColors.white,
-        leftButtonText: t.cancel,
+        leftButtonText: t.no,
         leftButtonColor: CoconutColors.gray900,
-        rightButtonText: t.confirm,
+        rightButtonText: t.yes,
         rightButtonColor: CoconutColors.gray900,
         onTapLeft: () => Navigator.pop(context),
         onTapRight: () {
@@ -656,9 +656,9 @@ class _MnemonicImportScreenState extends State<MnemonicImportScreen> {
         centerDescription: true,
         description: t.alert.erase_all_entered_mnemonic.description,
         backgroundColor: CoconutColors.white,
-        leftButtonText: t.cancel,
+        leftButtonText: t.no,
         leftButtonColor: CoconutColors.gray900,
-        rightButtonText: t.confirm,
+        rightButtonText: t.yes,
         rightButtonColor: CoconutColors.gray900,
         onTapLeft: () {
           Navigator.pop(context);

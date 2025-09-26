@@ -255,12 +255,12 @@ class _DiceRollState extends State<DiceRoll> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              _buildProgressBar(),
               _buildStepIndicator(),
               step == 0 ? _buildDiceRollWidget() : _buildPassphraseInput(),
             ],
           ),
         ),
+        _buildProgressBar(),
         FixedBottomTweenButton(
           showGradient: false,
           leftButtonRatio: 0.35,
@@ -433,37 +433,42 @@ class _DiceRollState extends State<DiceRoll> {
   }
 
   Widget _buildProgressBar() {
-    return Visibility(
-      visible: step == 0,
-      maintainState: true,
-      maintainAnimation: true,
-      maintainSize: true,
-      maintainInteractivity: true,
-      child: Container(
-        padding: const EdgeInsets.only(bottom: 16),
-        child: Stack(
-          children: [
-            ClipRRect(
-              child: Container(
-                height: 6,
-                color: CoconutColors.black.withOpacity(0.06),
+    return Positioned(
+      top: 0,
+      left: 0,
+      right: 0,
+      child: Visibility(
+        visible: step == 0,
+        maintainState: true,
+        maintainAnimation: true,
+        maintainSize: true,
+        maintainInteractivity: true,
+        child: Container(
+          padding: const EdgeInsets.only(bottom: 16),
+          child: Stack(
+            children: [
+              ClipRRect(
+                child: Container(
+                  height: 6,
+                  color: CoconutColors.black.withOpacity(0.06),
+                ),
               ),
-            ),
-            ClipRRect(
-              borderRadius: _bits.length / (widget.wordsCount == 12 ? 128 : 256) == 1
-                  ? BorderRadius.zero
-                  : const BorderRadius.only(
-                      topRight: Radius.circular(6), bottomRight: Radius.circular(6)),
-              child: AnimatedContainer(
-                duration: const Duration(milliseconds: 500),
-                curve: Curves.easeInOut,
-                height: 6,
-                width: MediaQuery.of(context).size.width *
-                    (_bits.length / (widget.wordsCount == 12 ? 128 : 256)),
-                color: CoconutColors.black,
+              ClipRRect(
+                borderRadius: _bits.length / (widget.wordsCount == 12 ? 128 : 256) == 1
+                    ? BorderRadius.zero
+                    : const BorderRadius.only(
+                        topRight: Radius.circular(6), bottomRight: Radius.circular(6)),
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 500),
+                  curve: Curves.easeInOut,
+                  height: 6,
+                  width: MediaQuery.of(context).size.width *
+                      (_bits.length / (widget.wordsCount == 12 ? 128 : 256)),
+                  color: CoconutColors.black,
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
@@ -795,65 +800,58 @@ class _DiceRollState extends State<DiceRoll> {
   }
 
   void _showAllBitsBottomSheet() {
-    MyBottomSheet.showBottomSheet(
-        title: '${t.view_all}(${_diceNumbers.length}/${widget.wordsCount == 12 ? 128 : 256})',
-        context: context,
-        child: BinaryGrid(totalBits: _bits.length, bits: _diceNumbers));
+    MyBottomSheet.showDraggableBottomSheet(
+      context: context,
+      minChildSize: 0.5,
+      childBuilder: (scrollController) => BinaryGrid(
+          totalBits: _bits.length,
+          bits: _diceNumbers,
+          wordsCount: widget.wordsCount,
+          scrollController: scrollController),
+    );
   }
 }
 
 class BinaryGrid extends StatelessWidget {
   final int totalBits;
   final List<int> bits;
+  final ScrollController scrollController;
+  final int wordsCount;
 
-  const BinaryGrid({super.key, required this.totalBits, required this.bits});
-
-  Future<List<int>> _loadBits() async {
-    await Future.delayed(const Duration(milliseconds: 1000));
-    return bits;
-  }
+  const BinaryGrid(
+      {super.key,
+      required this.totalBits,
+      required this.bits,
+      required this.wordsCount,
+      required this.scrollController});
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(8.0),
-      height: MediaQuery.of(context).size.height * 0.7, // BottomSheet 높이 제한
-      child: FutureBuilder<List<int>>(
-        future: _loadBits(),
-        builder: (BuildContext context, AsyncSnapshot<List<int>> snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(
-                child: CircularProgressIndicator(
-              color: CoconutColors.gray800,
-            ));
-          } else if (snapshot.hasError) {
-            return Center(child: Text('Error: ${snapshot.error}'));
-          } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-            return GridView.count(
-              scrollDirection: Axis.vertical,
-              shrinkWrap: true,
-              crossAxisCount: 8,
-              mainAxisSpacing: 4,
-              padding: const EdgeInsets.only(bottom: 30),
-              children: List.generate(totalBits, (index) {
-                return _buildGridItem(null, index);
-              }),
-            );
-          }
-
-          List<int> loadedBits = snapshot.data!;
-
-          return GridView.count(
-            scrollDirection: Axis.vertical,
-            shrinkWrap: true,
-            crossAxisCount: 8,
-            mainAxisSpacing: 4,
-            padding: const EdgeInsets.only(bottom: 30),
-            children: List.generate(totalBits, (index) {
-              return _buildGridItem(index < loadedBits.length ? loadedBits[index] : null, index);
-            }),
-          );
-        },
+    return SafeArea(
+      child: Container(
+        padding: const EdgeInsets.all(8.0),
+        child: Column(
+          children: [
+            Text('${t.view_all}(${bits.length}/${wordsCount == 12 ? 128 : 256})',
+                style: CoconutTypography.body2_14_Bold),
+            CoconutLayout.spacing_200h,
+            Expanded(
+              child: MediaQuery(
+                data: MediaQuery.of(context).copyWith(textScaler: const TextScaler.linear(1.0)),
+                child: GridView.count(
+                  controller: scrollController,
+                  scrollDirection: Axis.vertical,
+                  crossAxisCount: 8,
+                  mainAxisSpacing: 4,
+                  padding: const EdgeInsets.only(bottom: 30),
+                  children: List.generate(bits.length, (index) {
+                    return _buildGridItem(index < bits.length ? bits[index] : null, index);
+                  }),
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

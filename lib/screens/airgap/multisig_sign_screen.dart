@@ -20,12 +20,11 @@ import 'package:coconut_vault/utils/icon_util.dart';
 import 'package:coconut_vault/utils/text_utils.dart';
 import 'package:coconut_vault/widgets/bottom_sheet.dart';
 import 'package:coconut_vault/widgets/button/shrink_animation_button.dart';
+import 'package:coconut_vault/widgets/card/information_item_card.dart';
 import 'package:coconut_vault/widgets/custom_loading_overlay.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
-// 서명 가져오기 때 사용했던 화면
-//import 'package:coconut_vault/screens/airgap/multisig_signer_scan_bottom_sheet.dart';
 
 class MultisigSignScreen extends StatefulWidget {
   const MultisigSignScreen({
@@ -174,9 +173,9 @@ class _MultisigSignScreenState extends State<MultisigSignScreen> {
             title: t.alert.exit_sign.title,
             description: t.alert.exit_sign.description,
             backgroundColor: CoconutColors.white,
-            leftButtonText: t.cancel,
+            leftButtonText: t.no,
             leftButtonColor: CoconutColors.black.withOpacity(0.7),
-            rightButtonText: t.quit,
+            rightButtonText: t.yes,
             rightButtonColor: CoconutColors.warningText,
             onTapLeft: () => Navigator.pop(context),
             onTapRight: () {
@@ -197,9 +196,9 @@ class _MultisigSignScreenState extends State<MultisigSignScreen> {
             title: t.alert.stop_sign.title,
             description: t.alert.stop_sign.description,
             backgroundColor: CoconutColors.white,
-            leftButtonText: t.cancel,
+            leftButtonText: t.no,
             leftButtonColor: CoconutColors.black.withOpacity(0.7),
-            rightButtonText: t.quit,
+            rightButtonText: t.yes,
             rightButtonColor: CoconutColors.warningText,
             onTapLeft: () => Navigator.pop(context),
             onTapRight: () {
@@ -242,23 +241,57 @@ class _MultisigSignScreenState extends State<MultisigSignScreen> {
             body: SafeArea(
               child: Stack(
                 children: [
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.only(top: 36),
-                        child: Text(
-                          viewModel.isSignatureComplete
-                              ? t.sign_completed
-                              : t.sign_required_amount(n: viewModel.remainingSignatures),
-                          style: CoconutTypography.heading4_18_Bold,
+                  SingleChildScrollView(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        // progress
+                        TweenAnimationBuilder<double>(
+                          tween: Tween<double>(
+                            begin: 0.0,
+                            end: viewModel.signersApproved.where((item) => item).length /
+                                viewModel.requiredSignatureCount,
+                          ),
+                          duration: const Duration(milliseconds: 1500),
+                          builder: (context, value, child) {
+                            if (value == 1.0) {
+                              _isProgressCompleted = true;
+                            } else {
+                              _isProgressCompleted = false;
+                            }
+                            return Container(
+                              margin: const EdgeInsets.only(top: 8),
+                              child: LinearProgressIndicator(
+                                value: value,
+                                minHeight: 6,
+                                backgroundColor: CoconutColors.black.withOpacity(0.06),
+                                borderRadius: _isProgressCompleted
+                                    ? BorderRadius.zero
+                                    : const BorderRadius.only(
+                                        topRight: Radius.circular(6),
+                                        bottomRight: Radius.circular(6)),
+                                valueColor:
+                                    const AlwaysStoppedAnimation<Color>(CoconutColors.black),
+                              ),
+                            );
+                          },
                         ),
-                      ),
-                      CoconutLayout.spacing_600h,
-                      _buildSendInfo(),
-                      CoconutLayout.spacing_1400h,
-                      _buildSignerList(),
-                    ],
+                        Padding(
+                          padding: const EdgeInsets.only(top: 36),
+                          child: Text(
+                            viewModel.isSignatureComplete
+                                ? t.sign_completed
+                                : t.sign_required_amount(n: viewModel.remainingSignatures),
+                            style: CoconutTypography.heading4_18_Bold,
+                          ),
+                        ),
+                        CoconutLayout.spacing_600h,
+                        _buildSendInfo(),
+                        CoconutLayout.spacing_1400h,
+                        _buildSignerList(),
+                        CoconutLayout.spacing_2500h,
+                      ],
+                    ),
                   ),
                   _buildBottomButtons(),
                   _buildProgressIndicator(),
@@ -323,50 +356,42 @@ class _MultisigSignScreenState extends State<MultisigSignScreen> {
   }
 
   Widget _buildSendInfo() {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      margin: const EdgeInsets.symmetric(horizontal: 16),
-      decoration: BoxDecoration(
-        color: CoconutColors.gray150,
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Column(
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: Container(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(28.0),
+          color: CoconutColors.black.withOpacity(0.03),
+        ),
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 24),
+          child: Column(
             children: [
-              Text(
-                t.recipient,
-                style: CoconutTypography.body2_14.setColor(CoconutColors.gray700),
+              InformationItemCard(
+                label: t.recipient,
+                value: [
+                  TextUtils.truncateNameMax25(_viewModel.firstRecipientAddress) +
+                      (_viewModel.recipientCount > 1
+                          ? '\n${t.extra_count(count: _viewModel.recipientCount - 1)}'
+                          : '')
+                ],
+                isNumber: true,
               ),
-              Text(
-                textAlign: TextAlign.end,
-                TextUtils.truncateNameMax25(_viewModel.firstRecipientAddress) +
-                    (_viewModel.recipientCount > 1
-                        ? '\n${t.extra_count(count: _viewModel.recipientCount - 1)}'
-                        : ''),
-                style: CoconutTypography.body1_16,
+              const Divider(
+                color: CoconutColors.borderLightGray,
+                height: 1,
+              ),
+              InformationItemCard(
+                label: t.send_amount,
+                value: [
+                  _currentUnit.displayBitcoinAmount(_viewModel.sendingAmount, withUnit: true)
+                ],
+                isNumber: true,
+                onPressed: _toggleUnit,
               ),
             ],
           ),
-          const SizedBox(height: 20),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                t.send_amount,
-                style: CoconutTypography.body2_14.setColor(CoconutColors.gray700),
-              ),
-              GestureDetector(
-                onTap: _toggleUnit,
-                child: Text(
-                  _currentUnit.displayBitcoinAmount(_viewModel.sendingAmount, withUnit: true),
-                  style: CoconutTypography.body1_16_Number,
-                ),
-              ),
-            ],
-          ),
-        ],
+        ),
       ),
     );
   }
@@ -379,6 +404,7 @@ class _MultisigSignScreenState extends State<MultisigSignScreen> {
             final signer = _viewModel.signers[index];
             final isInnerWallet = signer.innerVaultId != null;
             final name = signer.name ?? t.external_wallet;
+            final nameText = name.length > 6 ? '${name.substring(0, 6)}...' : name;
             final memo = signer.memo;
             final iconIndex = signer.iconIndex ?? 0;
             final colorIndex = _viewModel.signers[index].colorIndex ?? 0;
@@ -405,7 +431,7 @@ class _MultisigSignScreenState extends State<MultisigSignScreen> {
               border: Border.all(
                 color: isSignerApproved
                     ? CoconutColors.backgroundColorPaletteLight[colorIndex].withAlpha(70)
-                    : CoconutColors.gray200,
+                    : CoconutColors.gray300,
                 width: 1,
               ),
               child: Container(
@@ -429,14 +455,16 @@ class _MultisigSignScreenState extends State<MultisigSignScreen> {
                     ),
                     CoconutLayout.spacing_300w,
                     Flexible(
-                      child: Text(
-                        t.multisig.nth_key_with_name(
-                            name: isInnerWallet ? name : memo ?? t.external_wallet,
-                            index: index + 1),
-                        style: CoconutTypography.body1_16,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        textAlign: TextAlign.center,
+                      child: MediaQuery(
+                        data: MediaQuery.of(context)
+                            .copyWith(textScaler: const TextScaler.linear(1.0)),
+                        child: Text(
+                          '${isInnerWallet ? nameText : memo ?? t.external_wallet} - ${isSignerApproved ? t.sign_completion : t.sign}',
+                          style: CoconutTypography.body1_16,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          textAlign: TextAlign.center,
+                        ),
                       ),
                     ),
                   ],

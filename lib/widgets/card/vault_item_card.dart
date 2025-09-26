@@ -104,7 +104,6 @@ class _VaultItemCardState extends State<VaultItemCard> {
                         widget.vaultItem.name,
                         style: CoconutTypography.body1_16_Bold,
                         maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
                       ),
                     ),
                   ],

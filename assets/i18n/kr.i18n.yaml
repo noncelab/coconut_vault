@@ -5,6 +5,7 @@
 
 # common
 coconut_vault: "Coconut Vault"
+coconut: "코코넛"
 vault: "Vault"
 btc: "BTC"
 sats: "sats"
@@ -28,18 +29,11 @@ warning: "주의"
 security: "보안"
 yes: "네"
 no: "아니오"
-front: "앞"
-back: "뒤"
 memo: "메모"
-close: "닫기"
-delete: "지우기"
-delete_label: "삭제하기"
 stop: "그만하기"
 start: "시작하기"
 quit: "종료하기"
 import: "가져오기"
-passphrase: "패스프레이즈"
-mnemonic: "니모닉 문구"
 testnet: "테스트넷"
 license: "라이선스"
 name: "이름"
@@ -47,11 +41,8 @@ skip: "건너뛰기"
 restore: "복원하기"
 change: "잔돈"
 receiving: "입금"
-info: "정보"
-word: "단어"
 email_subject: "[코코넛 볼트] 이용 관련 문의"
 
-signature: "서명"
 sign_completion: "서명 완료"
 sign: "서명하기"
 signed_tx: "서명 트랜잭션"
@@ -60,7 +51,6 @@ stop_sign: "서명 종료하기"
 
 select_completed: "선택 완료"
 checklist: "보안 체크리스트"
-wallet_id: "지갑 ID"
 mnemonic_wordlist: "니모닉 문구 단어집"
 tool: "도구"
 tutorial: "튜토리얼"
@@ -78,18 +68,14 @@ total_amount: "총 소요 수량"
 key_list: "키 목록"
 
 view_mnemonic: "니모닉 문구 보기"
-view_passphrase: "패스프레이즈 보기"
 verify_passphrase: "패스프레이즈 확인하기"
 view_app_info: "앱 정보 보기"
 view_all: "전체 보기"
-view_details_info: "상세 정보 보기"
 view_address: "주소 보기"
 view_tutorial: "튜토리얼 보기"
 delete_all: "모두 지우기"
 delete_one: "하나 지우기"
-re_select: "다시 고르기"
 
-name_info: "$name 정보"
 name_wallet: "$name 지갑"
 bitcoin_text: "$bitcoin BTC"
 sign_required: "버튼을 눌러 서명해 주세요"
@@ -112,7 +98,6 @@ extra_count: "외 $count개"
 
 edit: "편집"
 
-coconut: "코코넛"
 descriptor: "디스크립터"
 
 watch_only_options:
@@ -132,7 +117,7 @@ connectivity_state:
   inactive: "비활성화"
 
 vault_home_screen:
-  view_all_my_wallets: "내 지갑 전체보기"
+  view_all_wallets: "지갑 전체보기"
   wallet_count: "$count개"
   action_items:
     sign: "서명하기"
@@ -140,7 +125,6 @@ vault_home_screen:
     export_wallet: "보기 전용 앱으로\n내보내기"
     import_multisig_wallet: "다중 서명 지갑\n가져오기"
     mnemonic_wordlist: "니모닉 단어집"
-    view_all_wallets: "지갑 전체보기"
   toast:
     wallet_added_but_not_favorite: "지갑이 추가 됐어요. 지갑 전체보기에서 확인하세요."
 
@@ -289,6 +273,9 @@ settings_screen:
     need_biometrics_setting_title: "생체 인증 허용"
     need_biometrics_setting_desc: "생체 인증 설정을 확인해주세요."
     btn_move_to_setting: "설정하러 가기"
+    use_passphrase_title: "패스프레이즈 사용"
+    use_passphrase_description: "패스프레이즈 사용은 새로운 지갑을 만드는 것과 같습니다. 잘못 사용하면 비트코인을 영원히 잃을 수 있습니다."
+    use_passphrase_btn: "이해했습니다"
   
 # lib/screens/start_guide
 welcome_screen:
@@ -407,7 +394,7 @@ seed_qr_import_screen:
   title: "시드 QR 코드 스캔"
   error_title: "스캔 오류"
   error_message: "시드 QR 코드 스캔 중 오류가 발생했어요. 다시 시도해 주세요."
-  guide: "시드 QR 코드를 스캔해 주세요."
+  guide: "시드 QR 코드를 스캔해 주세요. (21x21 또는 25x25)"
 seed_qr_confirmation_screen:
   title: "니모닉 문구 확인"
   check_mnemonic: "니모닉 문구를 확인해 주세요"
@@ -420,10 +407,11 @@ vault_name_icon_setup_screen:
 # lib/screens/vault_creation/multisig
 assign_signers_screen:
   create_multisig_wallet_by_quorum: "$requiredSignatureCount/$totalSignatureCount 지갑을 생성합니다"
-  order_keys: "동일한 순서를 유지하도록 키 순서를 정렬 할게요"
+  order_keys: "동일한 순서를 유지하도록 키 순서를 정렬할게요"
   data_verifying: "데이터 검증 중이에요"
-  use_internal_key: "이 볼트에 있는 키 사용하기"
+  use_internal_key: "이 볼트의 키 사용하기"
   select_key_option: "키 종류 선택"
+  use_internal_key_option: "키 선택"
   import_from_other_vault: "다른 볼트에서 가져오기"
 
 confirm_importing_screen:
@@ -504,8 +492,10 @@ sync_to_wallet_screen:
     multisig: "Multisig"
     coconut: "홈 화면에서 지갑 추가 아이콘 선택"
     sparrow_singlesig:
+      guide0_1: "메뉴에서"
       guide1_1: "Import Wallet"
       guide2_1: "Keystone"
+      guide3_1: "또는 xPub/Watch Only Wallet 버튼 클릭 후 "
     nunchuk:
       guide1_1: "하단 메뉴"
       guide1_2_singlesig: "Keys"
@@ -534,7 +524,7 @@ vault_menu_screen:
   description:
     view_single_sig_info: "저장된 니모닉 문구 등을 확인할 수 있어요"
     view_multisig_info: "다중 서명 지갑의 정보를 확인할 수 있어요"
-    import_bsms: "이 키가 포함된 다중 서명 지갑 정보를 추가해요"
+    import_bsms: "키가 포함된 다중 서명 지갑 정보를 추가해요"
     view_address: "$name의 주소를 확인해요"
     export_xpub: "보기 전용 지갑을 월렛에 추가해요"
     sign: "월렛에서 만든 정보를 스캔하고 서명해요"
@@ -627,10 +617,6 @@ alert:
   forgot_password:
     title: "비밀번호를 잊으셨나요?"
     description1: "비밀번호를 초기화하면 볼트도 초기화돼요. 그래도 초기화 하시겠어요?"
-    btn_reset: "초기화"
-  unchange_password:
-    title: "비밀번호를 유지하시겠어요?"
-    description: "[그만하기]를 누르면 설정 화면으로 돌아갈게요."
   exit_sign:
     title: "서명하기 종료"
     description: "서명을 종료하고 홈화면으로 이동해요.\n정말 종료하시겠어요?"
@@ -667,17 +653,14 @@ alert:
   wallet_creation_failed:
     title: "지갑 생성 실패"
     description: "유효하지 않은 정보입니다"
-  stop_creating_mnemonic:
-    title: "니모닉 만들기 중단"
-    description: "정말 니모닉 만들기를 그만하시겠어요?"
   stop_generating_mnemonic:
     title: "니모닉 생성 중단"
-    description: "니모닉 생성을 그만두시겠어요?\n중단하시려면 [확인]을\n옵션을 다시 선택하시려면\n[다시 선택]을 눌러주세요."
+    description: "니모닉 생성을 그만두시겠어요?"
     reselect: "다시 선택"
     confirm: "확인"
   stop_importing_mnemonic:
     title: "복원 중단"
-    description: "복원을 그만두시겠어요?\n중단하시려면 [확인]을\n복원을 계속하시려면\n[취소]를 눌러주세요."
+    description: "복원을 그만두시겠어요?."
   erase_all_entered_so_far: "정말로 지금까지 입력한 정보를\n모두 지우시겠어요?"
   erase_all_entered_mnemonic: 
     title: "모두 지우기"
@@ -690,7 +673,7 @@ toast:
   clipboard_copied: "클립보드에 복사되었어요"
   back_exit: "뒤로 가기 버튼을 한 번 더 누르면 종료됩니다"
   scroll_down: "스크롤을 내려서 모두 확인해주세요"
-  data_updated: "정보를 수정했어요"
+  data_updated: "정보를 수정했어요! 혼동되지 않도록 월렛과 동기화해 주세요."
   name_already_used: "이미 사용하고 있는 이름으로는 바꿀 수 없어요"
   name_already_used2: "이미 사용 중인 이름은 설정할 수 없어요"
   name_multisig_in_use: "다중 서명 지갑에 사용되고 있어 삭제할 수 없어요"

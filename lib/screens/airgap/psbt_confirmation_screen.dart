@@ -80,24 +80,28 @@ class _PsbtConfirmationScreenState extends State<PsbtConfirmationScreen> {
                               children: _getTooltipRichText(),
                             ),
                           )),
-                      GestureDetector(
-                        onTap: _toggleUnit,
-                        child: Container(
-                          margin: const EdgeInsets.symmetric(vertical: Sizes.size40),
-                          child: Center(
-                            child: Text.rich(
-                              TextSpan(
-                                text: _currentUnit.displayBitcoinAmount(viewModel.sendingAmount),
-                                children: <TextSpan>[
-                                  TextSpan(
-                                      text: ' ${_currentUnit.symbol}',
-                                      style: CoconutTypography.heading4_18_Number),
-                                ],
-                              ),
-                              style: CoconutTypography.heading1_32_Number.merge(
-                                const TextStyle(
-                                  fontSize: 36,
-                                  fontWeight: FontWeight.w600,
+                      MediaQuery(
+                        data: MediaQuery.of(context)
+                            .copyWith(textScaler: const TextScaler.linear(1.0)),
+                        child: GestureDetector(
+                          onTap: _toggleUnit,
+                          child: Container(
+                            margin: const EdgeInsets.symmetric(vertical: Sizes.size40),
+                            child: Center(
+                              child: Text.rich(
+                                TextSpan(
+                                  text: _currentUnit.displayBitcoinAmount(viewModel.sendingAmount),
+                                  children: <TextSpan>[
+                                    TextSpan(
+                                        text: ' ${_currentUnit.symbol}',
+                                        style: CoconutTypography.heading4_18_Number),
+                                  ],
+                                ),
+                                style: CoconutTypography.heading1_32_Number.merge(
+                                  const TextStyle(
+                                    fontSize: 36,
+                                    fontWeight: FontWeight.w600,
+                                  ),
                                 ),
                               ),
                             ),
@@ -153,11 +157,15 @@ class _PsbtConfirmationScreenState extends State<PsbtConfirmationScreen> {
                         const SizedBox(
                           height: 20,
                         ),
-                        Text(
-                          t.psbt_confirmation_screen.self_sending,
-                          textAlign: TextAlign.center,
-                          style: CoconutTypography.body3_12.setColor(
-                            CoconutColors.gray800,
+                        MediaQuery(
+                          data: MediaQuery.of(context)
+                              .copyWith(textScaler: const TextScaler.linear(1.0)),
+                          child: Text(
+                            t.psbt_confirmation_screen.self_sending,
+                            textAlign: TextAlign.center,
+                            style: CoconutTypography.body3_12.setColor(
+                              CoconutColors.gray800,
+                            ),
                           ),
                         ),
                       ],
@@ -170,12 +178,17 @@ class _PsbtConfirmationScreenState extends State<PsbtConfirmationScreen> {
                           decoration: BoxDecoration(
                               borderRadius: CoconutBorder.defaultRadius,
                               color: CoconutColors.black.withOpacity(0.3)),
-                          child: Text(
-                            t.psbt_confirmation_screen.warning,
-                            textAlign: TextAlign.center,
+                          child: MediaQuery(
+                            data: MediaQuery.of(context)
+                                .copyWith(textScaler: const TextScaler.linear(1.0)),
+                            child: Text(
+                              t.psbt_confirmation_screen.warning,
+                              textAlign: TextAlign.center,
+                            ),
                           ),
                         ),
                       ],
+                      CoconutLayout.spacing_2500h,
                     ],
                   ),
                 ),
