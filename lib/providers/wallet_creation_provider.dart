@@ -34,10 +34,7 @@ class WalletCreationProvider {
       return WalletType.multiSignature;
     }
 
-    if (_requiredSignatureCount == null &&
-        _totalSignatureCount == null &&
-        _signers == null &&
-        _secret.isNotEmpty) {
+    if (_requiredSignatureCount == null && _totalSignatureCount == null && _signers == null && _secret.isNotEmpty) {
       return WalletType.singleSignature;
     }
 
@@ -52,8 +49,7 @@ class WalletCreationProvider {
 
   /// multisig
   void setSigners(List<MultisigSigner> signers) {
-    assert(
-        MultisigUtils.validateQuorumRequirement(_requiredSignatureCount!, _totalSignatureCount!));
+    assert(MultisigUtils.validateQuorumRequirement(_requiredSignatureCount!, _totalSignatureCount!));
 
     _signers = signers;
   }

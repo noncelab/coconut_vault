@@ -14,12 +14,10 @@ class MnemonicManualEntropyConfirmationScreen extends StatefulWidget {
   const MnemonicManualEntropyConfirmationScreen({super.key});
 
   @override
-  State<MnemonicManualEntropyConfirmationScreen> createState() =>
-      _MnemonicManualEntropyConfirmationScreenState();
+  State<MnemonicManualEntropyConfirmationScreen> createState() => _MnemonicManualEntropyConfirmationScreenState();
 }
 
-class _MnemonicManualEntropyConfirmationScreenState
-    extends State<MnemonicManualEntropyConfirmationScreen> {
+class _MnemonicManualEntropyConfirmationScreenState extends State<MnemonicManualEntropyConfirmationScreen> {
   final ScrollController _scrollController = ScrollController();
 
   bool hasScrolledToBottom = false; // 니모닉 리스트를 끝까지 확인했는지 추적
@@ -65,10 +63,7 @@ class _MnemonicManualEntropyConfirmationScreenState
       canPop: false,
       child: Scaffold(
         backgroundColor: CoconutColors.white,
-        appBar: CoconutAppBar.build(
-          title: t.mnemonic_coin_flip_screen.title,
-          context: context,
-        ),
+        appBar: CoconutAppBar.build(title: t.mnemonic_coin_flip_screen.title, context: context),
         body: SafeArea(
           child: MnemonicWords(
             wordsCount: _wordsCount,

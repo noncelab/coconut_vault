@@ -9,11 +9,7 @@ class SelectSyncOptionBottomSheet extends StatefulWidget {
   final Function(SyncOption) onSyncOptionSelected;
   final ScrollController? scrollController;
 
-  const SelectSyncOptionBottomSheet({
-    super.key,
-    required this.onSyncOptionSelected,
-    this.scrollController,
-  });
+  const SelectSyncOptionBottomSheet({super.key, required this.onSyncOptionSelected, this.scrollController});
 
   @override
   State<SelectSyncOptionBottomSheet> createState() => _SelectSyncOptionBottomSheetState();
@@ -73,7 +69,7 @@ class _SelectSyncOptionBottomSheetState extends State<SelectSyncOptionBottomShee
                 const Expanded(child: SizedBox()),
                 const Expanded(child: SizedBox()),
               ],
-            )
+            ),
           ],
         ),
       ),
@@ -88,18 +84,13 @@ class _SelectSyncOptionBottomSheetState extends State<SelectSyncOptionBottomShee
         pressedColor: CoconutColors.gray200,
         onPressed: () => widget.onSyncOptionSelected(option),
         child: Padding(
-          padding: const EdgeInsets.symmetric(
-            vertical: 16,
-            horizontal: 8,
-          ),
+          padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 8),
           child: Column(
             children: [
               SvgPicture.asset(option.iconPath),
               CoconutLayout.spacing_200h,
               MediaQuery(
-                data: MediaQuery.of(context).copyWith(
-                  textScaler: const TextScaler.linear(1.0),
-                ),
+                data: MediaQuery.of(context).copyWith(textScaler: const TextScaler.linear(1.0)),
                 child: Text(
                   option.title,
                   style: CoconutTypography.body2_14_Bold.setColor(CoconutColors.gray800),
@@ -120,9 +111,5 @@ class SyncOption {
   final String iconPath;
   final WalletExportFormatEnum format;
 
-  SyncOption({
-    required this.title,
-    required this.iconPath,
-    required this.format,
-  });
+  SyncOption({required this.title, required this.iconPath, required this.format});
 }

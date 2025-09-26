@@ -26,84 +26,82 @@ class _RestorationInfoScreenState extends State<RestorationInfoScreen> {
   @override
   Widget build(BuildContext context) {
     return PopScope(
-        canPop: false,
-        onPopInvokedWithResult: (didPop, _) async {
-          if (Platform.isAndroid) {
-            final now = DateTime.now();
-            if (_lastPressedAt == null ||
-                now.difference(_lastPressedAt!) > const Duration(seconds: 3)) {
-              _lastPressedAt = now;
-              Fluttertoast.showToast(
-                backgroundColor: CoconutColors.gray800,
-                msg: t.toast.back_exit,
-                toastLength: Toast.LENGTH_SHORT,
-              );
-            } else {
-              SystemNavigator.pop();
-            }
+      canPop: false,
+      onPopInvokedWithResult: (didPop, _) async {
+        if (Platform.isAndroid) {
+          final now = DateTime.now();
+          if (_lastPressedAt == null || now.difference(_lastPressedAt!) > const Duration(seconds: 3)) {
+            _lastPressedAt = now;
+            Fluttertoast.showToast(
+              backgroundColor: CoconutColors.gray800,
+              msg: t.toast.back_exit,
+              toastLength: Toast.LENGTH_SHORT,
+            );
+          } else {
+            SystemNavigator.pop();
           }
-        },
-        child: Scaffold(
-            backgroundColor: CoconutColors.white,
-            body: SafeArea(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: CoconutLayout.defaultPadding,
+        }
+      },
+      child: Scaffold(
+        backgroundColor: CoconutColors.white,
+        body: SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: CoconutLayout.defaultPadding),
+            child: Column(
+              children: [
+                CoconutLayout.spacing_2500h,
+                Text(t.restoration_info.found_title, style: CoconutTypography.heading3_21_Bold),
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 20),
+                  child: Text(
+                    t.restoration_info.found_description,
+                    style: CoconutTypography.body1_16,
+                    textAlign: TextAlign.center,
+                  ),
                 ),
-                child: Column(children: [
-                  CoconutLayout.spacing_2500h,
-                  Text(
-                    t.restoration_info.found_title,
-                    style: CoconutTypography.heading3_21_Bold,
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 20),
-                    child: Text(
-                      t.restoration_info.found_description,
-                      style: CoconutTypography.body1_16,
-                      textAlign: TextAlign.center,
-                    ),
-                  ),
-                  const Spacer(),
-                  CoconutButton(
-                    disabledBackgroundColor: CoconutColors.gray400,
-                    width: double.infinity,
-                    height: 52,
-                    text: t.restore,
-                    onPressed: () async {
-                      final authProvider = context.read<AuthProvider>();
-                      if (await authProvider.isBiometricsAuthValid()) {
-                        widget.onComplete();
-                        return;
-                      }
+                const Spacer(),
+                CoconutButton(
+                  disabledBackgroundColor: CoconutColors.gray400,
+                  width: double.infinity,
+                  height: 52,
+                  text: t.restore,
+                  onPressed: () async {
+                    final authProvider = context.read<AuthProvider>();
+                    if (await authProvider.isBiometricsAuthValid()) {
+                      widget.onComplete();
+                      return;
+                    }
 
-                      if (context.mounted) {
-                        MyBottomSheet.showBottomSheet_90(
-                          context: context,
-                          child: CustomLoadingOverlay(
-                            child: ClipRRect(
-                              borderRadius: const BorderRadius.only(
-                                topLeft: Radius.circular(CoconutStyles.radius_200),
-                                topRight: Radius.circular(CoconutStyles.radius_200),
-                              ),
-                              child: PinCheckScreen(
-                                pinCheckContext: PinCheckContextEnum.restoration,
-                                onSuccess: () async {
-                                  widget.onComplete();
-                                },
-                                onReset: () async {
-                                  widget.onReset();
-                                },
-                              ),
+                    if (context.mounted) {
+                      MyBottomSheet.showBottomSheet_90(
+                        context: context,
+                        child: CustomLoadingOverlay(
+                          child: ClipRRect(
+                            borderRadius: const BorderRadius.only(
+                              topLeft: Radius.circular(CoconutStyles.radius_200),
+                              topRight: Radius.circular(CoconutStyles.radius_200),
+                            ),
+                            child: PinCheckScreen(
+                              pinCheckContext: PinCheckContextEnum.restoration,
+                              onSuccess: () async {
+                                widget.onComplete();
+                              },
+                              onReset: () async {
+                                widget.onReset();
+                              },
                             ),
                           ),
-                        );
-                      }
-                    },
-                  ),
-                  CoconutLayout.spacing_500h
-                ]),
-              ),
-            )));
+                        ),
+                      );
+                    }
+                  },
+                ),
+                CoconutLayout.spacing_500h,
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
   }
 }

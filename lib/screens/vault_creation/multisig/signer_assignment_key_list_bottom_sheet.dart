@@ -8,12 +8,7 @@ class KeyListBottomSheet extends StatefulWidget {
   final List<SingleSigVaultListItem> vaultList;
   final void Function(int) onPressed;
   final ScrollController? scrollController;
-  const KeyListBottomSheet({
-    super.key,
-    required this.onPressed,
-    required this.vaultList,
-    this.scrollController,
-  });
+  const KeyListBottomSheet({super.key, required this.onPressed, required this.vaultList, this.scrollController});
 
   @override
   State<KeyListBottomSheet> createState() => _KeyListBottomSheetState();

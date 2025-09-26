@@ -29,8 +29,7 @@ class AppUpdatePreparationScreen extends StatefulWidget {
   State<AppUpdatePreparationScreen> createState() => _AppUpdatePreparationScreenState();
 }
 
-class _AppUpdatePreparationScreenState extends State<AppUpdatePreparationScreen>
-    with TickerProviderStateMixin {
+class _AppUpdatePreparationScreenState extends State<AppUpdatePreparationScreen> with TickerProviderStateMixin {
   final TextEditingController _mnemonicWordInputController = TextEditingController();
   final _mnemonicInputFocusNode = FocusNode();
 
@@ -76,27 +75,18 @@ class _AppUpdatePreparationScreenState extends State<AppUpdatePreparationScreen>
   @override
   void initState() {
     super.initState();
-    _animationController = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 600),
-    );
+    _animationController = AnimationController(vsync: this, duration: const Duration(milliseconds: 600));
     _progressController = AnimationController(vsync: this);
 
     _slideOutAnimation = Tween<Offset>(
       begin: Offset.zero,
       end: const Offset(-2.0, 0.0),
-    ).animate(CurvedAnimation(
-      parent: _animationController,
-      curve: Curves.easeInOut,
-    ));
+    ).animate(CurvedAnimation(parent: _animationController, curve: Curves.easeInOut));
 
     _slideUpAnimation = Tween<Offset>(
       begin: const Offset(0.0, 0.3),
       end: Offset.zero,
-    ).animate(CurvedAnimation(
-      parent: _animationController,
-      curve: Curves.easeOut,
-    ));
+    ).animate(CurvedAnimation(parent: _animationController, curve: Curves.easeOut));
   }
 
   @override
@@ -111,9 +101,7 @@ class _AppUpdatePreparationScreenState extends State<AppUpdatePreparationScreen>
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
-      create: (_) => AppUpdatePreparationViewModel(
-        Provider.of<WalletProvider>(context, listen: false),
-      ),
+      create: (_) => AppUpdatePreparationViewModel(Provider.of<WalletProvider>(context, listen: false)),
       child: Consumer<AppUpdatePreparationViewModel>(
         builder: (context, viewModel, child) {
           if (!_hasAddedListener) {
@@ -147,31 +135,21 @@ class _AppUpdatePreparationScreenState extends State<AppUpdatePreparationScreen>
                 body: SafeArea(
                   child: Container(
                     width: MediaQuery.sizeOf(context).width,
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: CoconutLayout.defaultPadding,
-                    ),
+                    padding: const EdgeInsets.symmetric(horizontal: CoconutLayout.defaultPadding),
                     height: MediaQuery.sizeOf(context).height,
                     child: Stack(
                       children: [
                         _buildBodyWidget(),
-                        if (_currentStep == AppUpdateStep.initial ||
-                            _currentStep == AppUpdateStep.confirmUpdate)
-                          Positioned(
-                            left: 0,
-                            right: 0,
-                            bottom: 20,
-                            child: _buildNextButton(viewModel),
-                          ),
+                        if (_currentStep == AppUpdateStep.initial || _currentStep == AppUpdateStep.confirmUpdate)
+                          Positioned(left: 0, right: 0, bottom: 20, child: _buildNextButton(viewModel)),
                         if (!viewModel.isMnemonicLoaded)
                           // 뒤로가기는 가능해야 하기 때문에 loaderOverlay를 사용하지 않고 별도 구현
                           Container(
                             width: MediaQuery.sizeOf(context).width,
                             height: MediaQuery.sizeOf(context).height,
-                            color: CoconutColors.white.withOpacity(0.5),
-                            child: const Center(
-                              child: CoconutCircularIndicator(),
-                            ),
-                          )
+                            color: CoconutColors.white.withValues(alpha: 0.5),
+                            child: const Center(child: CoconutCircularIndicator()),
+                          ),
                       ],
                     ),
                   ),
@@ -320,22 +298,12 @@ class _AppUpdatePreparationScreenState extends State<AppUpdatePreparationScreen>
     return Center(
       child: Column(
         children: [
-          Container(
-            height: CoconutLayout.spacing_2500h.height! - kToolbarHeight,
-          ),
-          Text(
-            t.prepare_update.title,
-            style: CoconutTypography.heading3_21_Bold,
-            textAlign: TextAlign.center,
-          ),
+          Container(height: CoconutLayout.spacing_2500h.height! - kToolbarHeight),
+          Text(t.prepare_update.title, style: CoconutTypography.heading3_21_Bold, textAlign: TextAlign.center),
           CoconutLayout.spacing_500h,
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 24),
-            child: Text(
-              t.prepare_update.description,
-              style: CoconutTypography.body1_16,
-              textAlign: TextAlign.center,
-            ),
+            child: Text(t.prepare_update.description, style: CoconutTypography.body1_16, textAlign: TextAlign.center),
           ),
         ],
       ),
@@ -345,60 +313,53 @@ class _AppUpdatePreparationScreenState extends State<AppUpdatePreparationScreen>
   // AppUpdateStep.validateMnemonic 상태에서 보여지는 위젯
   Widget _buildValidateMnemonicWidget() {
     return Selector<AppUpdatePreparationViewModel, Tuple2<String, int>>(
-        selector: (context, viewModel) => Tuple2(viewModel.walletName, viewModel.mnemonicWordIndex),
-        builder: (context, data, _) {
-          final walletName = data.item1;
-          final mnemonicWordIndex = data.item2;
+      selector: (context, viewModel) => Tuple2(viewModel.walletName, viewModel.mnemonicWordIndex),
+      builder: (context, data, _) {
+        final walletName = data.item1;
+        final mnemonicWordIndex = data.item2;
 
-          return Center(
-            child: Column(
-              children: [
-                Container(
-                  height: CoconutLayout.spacing_2500h.height! - kToolbarHeight,
-                ),
-                Text(
-                  t.prepare_update.enter_nth_word_of_wallet(
-                    wallet_name: walletName,
-                    n: mnemonicWordIndex,
-                  ),
-                  style: CoconutTypography.heading3_21_Bold,
-                  textAlign: TextAlign.center,
-                ),
-                CoconutLayout.spacing_1500h,
-                CoconutTextField(
-                  textInputFormatter: [
-                    FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z]')),
-                  ],
-                  controller: _mnemonicWordInputController,
-                  focusNode: _mnemonicInputFocusNode,
-                  maxLines: 1,
-                  textInputAction: TextInputAction.done,
-                  onChanged: (text) {},
-                  isError: _mnemonicErrorVisible,
-                  isLengthVisible: false,
-                  errorText: t.prepare_update.incorrect_input_try_again,
-                  placeholderText: t.prepare_update.enter_word,
-                  suffix: _mnemonicWordInputController.text.isNotEmpty
-                      ? IconButton(
-                          iconSize: 14,
-                          padding: EdgeInsets.zero,
-                          onPressed: () {
-                            setState(() {
-                              _mnemonicWordInputController.text = '';
-                            });
-                          },
-                          icon: SvgPicture.asset(
-                            'assets/svg/text-field-clear.svg',
-                            colorFilter:
-                                const ColorFilter.mode(CoconutColors.gray900, BlendMode.srcIn),
-                          ),
-                        )
-                      : null,
-                )
-              ],
-            ),
-          );
-        });
+        return Center(
+          child: Column(
+            children: [
+              Container(height: CoconutLayout.spacing_2500h.height! - kToolbarHeight),
+              Text(
+                t.prepare_update.enter_nth_word_of_wallet(wallet_name: walletName, n: mnemonicWordIndex),
+                style: CoconutTypography.heading3_21_Bold,
+                textAlign: TextAlign.center,
+              ),
+              CoconutLayout.spacing_1500h,
+              CoconutTextField(
+                textInputFormatter: [FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z]'))],
+                controller: _mnemonicWordInputController,
+                focusNode: _mnemonicInputFocusNode,
+                maxLines: 1,
+                textInputAction: TextInputAction.done,
+                onChanged: (text) {},
+                isError: _mnemonicErrorVisible,
+                isLengthVisible: false,
+                errorText: t.prepare_update.incorrect_input_try_again,
+                placeholderText: t.prepare_update.enter_word,
+                suffix: _mnemonicWordInputController.text.isNotEmpty
+                    ? IconButton(
+                        iconSize: 14,
+                        padding: EdgeInsets.zero,
+                        onPressed: () {
+                          setState(() {
+                            _mnemonicWordInputController.text = '';
+                          });
+                        },
+                        icon: SvgPicture.asset(
+                          'assets/svg/text-field-clear.svg',
+                          colorFilter: const ColorFilter.mode(CoconutColors.gray900, BlendMode.srcIn),
+                        ),
+                      )
+                    : null,
+              ),
+            ],
+          ),
+        );
+      },
+    );
   }
 
   // AppUpdateStep.confirmUpdate 상태에서 보여지는 위젯
@@ -406,13 +367,8 @@ class _AppUpdatePreparationScreenState extends State<AppUpdatePreparationScreen>
     return Center(
       child: Column(
         children: [
-          Container(
-            height: CoconutLayout.spacing_2500h.height! - kToolbarHeight,
-          ),
-          Text(
-            t.prepare_update.update_preparing_title,
-            style: CoconutTypography.heading3_21_Bold,
-          ),
+          Container(height: CoconutLayout.spacing_2500h.height! - kToolbarHeight),
+          Text(t.prepare_update.update_preparing_title, style: CoconutTypography.heading3_21_Bold),
           CoconutLayout.spacing_500h,
           Expanded(
             child: ListView.separated(
@@ -459,10 +415,7 @@ class _AppUpdatePreparationScreenState extends State<AppUpdatePreparationScreen>
             bottom: 0,
             child:
                 // 이전 위젯 - Slide Out
-                SlideTransition(
-              position: _slideOutAnimation,
-              child: _buildSlideAnimationTitleWidget(prevIndex),
-            ),
+                SlideTransition(position: _slideOutAnimation, child: _buildSlideAnimationTitleWidget(prevIndex)),
           ),
         Positioned(
           left: 0,
@@ -474,17 +427,9 @@ class _AppUpdatePreparationScreenState extends State<AppUpdatePreparationScreen>
               AnimatedBuilder(
             animation: _animationController,
             builder: (context, child) {
-              final progress = Curves.easeOut.transform(
-                _animationController.value.clamp(0.0, 1.0),
-              );
+              final progress = Curves.easeOut.transform(_animationController.value.clamp(0.0, 1.0));
               final scale = 0.7 + (progress * 0.3);
-              return Transform.scale(
-                scale: scale,
-                child: Opacity(
-                  opacity: progress,
-                  child: child,
-                ),
-              );
+              return Transform.scale(scale: scale, child: Opacity(opacity: progress, child: child));
             },
             child: _buildSlideAnimationTitleWidget(index),
           ),
@@ -498,10 +443,7 @@ class _AppUpdatePreparationScreenState extends State<AppUpdatePreparationScreen>
             child: Stack(
               alignment: Alignment.center, // 중앙 정렬
               children: [
-                PercentProgressIndicator(
-                  textColor: const Color(0xFF1E88E5),
-                  progressController: _progressController,
-                ),
+                PercentProgressIndicator(textColor: const Color(0xFF1E88E5), progressController: _progressController),
               ],
             ),
           ),
@@ -542,35 +484,19 @@ class _AppUpdatePreparationScreenState extends State<AppUpdatePreparationScreen>
     return Center(
       child: Column(
         children: [
-          Container(
-            height: CoconutLayout.spacing_2500h.height!,
-          ),
+          Container(height: CoconutLayout.spacing_2500h.height!),
           AnimatedBuilder(
             animation: _animationController,
             builder: (context, child) {
-              final progress = Curves.easeOut.transform(
-                _animationController.value.clamp(0.0, 1.0),
-              );
+              final progress = Curves.easeOut.transform(_animationController.value.clamp(0.0, 1.0));
               final scale = 0.7 + (progress * 0.3);
-              return Transform.scale(
-                scale: scale,
-                child: Opacity(
-                  opacity: progress,
-                  child: child,
-                ),
-              );
+              return Transform.scale(scale: scale, child: Opacity(opacity: progress, child: child));
             },
             child: Column(
               children: [
-                Text(
-                  t.prepare_update.completed_title,
-                  style: CoconutTypography.heading3_21_Bold,
-                ),
+                Text(t.prepare_update.completed_title, style: CoconutTypography.heading3_21_Bold),
                 CoconutLayout.spacing_500h,
-                Text(
-                  t.prepare_update.completed_description,
-                  style: CoconutTypography.body2_14,
-                ),
+                Text(t.prepare_update.completed_description, style: CoconutTypography.body2_14),
               ],
             ),
           ),
@@ -592,16 +518,8 @@ class _AppUpdatePreparationScreenState extends State<AppUpdatePreparationScreen>
                       mainAxisAlignment: MainAxisAlignment.start,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
-                          '${index + 1}.  ',
-                          style: CoconutTypography.body2_14_Bold,
-                        ),
-                        Expanded(
-                          child: Text(
-                            updateInstructions[index],
-                            style: CoconutTypography.body2_14_Bold,
-                          ),
-                        ),
+                        Text('${index + 1}.  ', style: CoconutTypography.body2_14_Bold),
+                        Expanded(child: Text(updateInstructions[index], style: CoconutTypography.body2_14_Bold)),
                       ],
                     ),
                   );
@@ -639,16 +557,9 @@ class _AppUpdatePreparationScreenState extends State<AppUpdatePreparationScreen>
       if (progress == 40 || progress == 80 || progress == 100) {
         // Progress animation 시작
 
-        const duration = Duration(
-          milliseconds: 5000,
-        );
+        const duration = Duration(milliseconds: 5000);
 
-        _progressController
-            .animateTo(
-          progress / 100,
-          duration: duration,
-        )
-            .then((_) {
+        _progressController.animateTo(progress / 100, duration: duration).then((_) {
           if (progress == 40) {
             debugPrint('createBackupData 완료, _saveEncryptedBackupWithData 호출');
             if (_currentStep != AppUpdateStep.saveWalletData) {

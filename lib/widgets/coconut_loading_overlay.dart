@@ -8,15 +8,11 @@ class CoconutLoadingOverlay extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: CoconutColors.white.withOpacity(0.4),
+      color: CoconutColors.white.withValues(alpha: 0.4),
       padding: applyFullScreen
           ? EdgeInsets.zero
-          : EdgeInsets.only(
-              bottom: kToolbarHeight + MediaQuery.of(context).padding.top + kToolbarHeight,
-            ),
-      child: const Center(
-        child: CoconutCircularIndicator(),
-      ),
+          : EdgeInsets.only(bottom: kToolbarHeight + MediaQuery.of(context).padding.top + kToolbarHeight),
+      child: const Center(child: CoconutCircularIndicator()),
     );
   }
 }

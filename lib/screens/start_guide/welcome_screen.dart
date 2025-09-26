@@ -54,47 +54,45 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
   void _initScreenItems() {
     _screenItems.addAll([
       ScreenItem(
-          title: t.welcome_screen.screen_1_title,
-          descriptionText: t.welcome_screen.screen_1_description,
-          buttonText: t.welcome_screen.screen_1_button,
-          onButtonPressed: () {
-            setState(() {
-              _currentScreenIndex = 1;
-            });
-          }),
+        title: t.welcome_screen.screen_1_title,
+        descriptionText: t.welcome_screen.screen_1_description,
+        buttonText: t.welcome_screen.screen_1_button,
+        onButtonPressed: () {
+          setState(() {
+            _currentScreenIndex = 1;
+          });
+        },
+      ),
       ScreenItem(
-          title: t.welcome_screen.screen_2_title,
-          descriptionText: t.welcome_screen.screen_2_description,
-          buttonText: t.welcome_screen.screen_2_button,
-          onButtonPressed: () {
-            setState(() {
-              _currentScreenIndex = 2;
-            });
-          }),
+        title: t.welcome_screen.screen_2_title,
+        descriptionText: t.welcome_screen.screen_2_description,
+        buttonText: t.welcome_screen.screen_2_button,
+        onButtonPressed: () {
+          setState(() {
+            _currentScreenIndex = 2;
+          });
+        },
+      ),
       ScreenItem(
-          title: t.welcome_screen.screen_3_title,
-          descriptionText: t.welcome_screen.screen_3_description,
-          imagePath: 'assets/png/welcome2.png',
-          buttonText: t.welcome_screen.screen_3_button,
-          onButtonPressed: () {
-            _connectivityProvider.setHasSeenGuideTrue();
-            _visibilityProvider.setHasSeenGuide().then((_) {
-              widget.onComplete();
-              if (mounted) {
-                Navigator.pushNamedAndRemoveUntil(
-                  context,
-                  '/',
-                  (Route<dynamic> route) => false,
-                );
-              }
-            });
-          }),
+        title: t.welcome_screen.screen_3_title,
+        descriptionText: t.welcome_screen.screen_3_description,
+        imagePath: 'assets/png/welcome2.png',
+        buttonText: t.welcome_screen.screen_3_button,
+        onButtonPressed: () {
+          _connectivityProvider.setHasSeenGuideTrue();
+          _visibilityProvider.setHasSeenGuide().then((_) {
+            widget.onComplete();
+            if (mounted) {
+              Navigator.pushNamedAndRemoveUntil(context, '/', (Route<dynamic> route) => false);
+            }
+          });
+        },
+      ),
     ]);
   }
 
   Future<void> _initConnectionState() async {
-    await _connectivityProvider.setConnectActivity(
-        bluetooth: true, network: false, developerMode: false);
+    await _connectivityProvider.setConnectActivity(bluetooth: true, network: false, developerMode: false);
 
     // 상태 값이 설정될 때까지 잠시 대기
     await Future.delayed(const Duration(milliseconds: 100));
@@ -108,88 +106,100 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        backgroundColor: CoconutColors.white,
-        body: SafeArea(
-            child: SizedBox(
+      backgroundColor: CoconutColors.white,
+      body: SafeArea(
+        child: SizedBox(
           width: double.infinity,
           child: Stack(
             children: [
               Center(
-                child: Column(children: [
-                  SizedBox(height: MediaQuery.of(context).size.height * 0.2),
-                  Text(_screenItems[_currentScreenIndex].title,
-                      style: CoconutTypography.heading3_21_Bold, textAlign: TextAlign.center),
-                  CoconutLayout.spacing_300h,
-                  Text(_screenItems[_currentScreenIndex].descriptionText,
-                      style: CoconutTypography.body2_14, textAlign: TextAlign.center),
-                  CoconutLayout.spacing_800h,
-                  _getImage(),
-                ]),
+                child: Column(
+                  children: [
+                    SizedBox(height: MediaQuery.of(context).size.height * 0.2),
+                    Text(
+                      _screenItems[_currentScreenIndex].title,
+                      style: CoconutTypography.heading3_21_Bold,
+                      textAlign: TextAlign.center,
+                    ),
+                    CoconutLayout.spacing_300h,
+                    Text(
+                      _screenItems[_currentScreenIndex].descriptionText,
+                      style: CoconutTypography.body2_14,
+                      textAlign: TextAlign.center,
+                    ),
+                    CoconutLayout.spacing_800h,
+                    _getImage(),
+                  ],
+                ),
               ),
               _buildBottomButton(),
             ],
           ),
-        )));
+        ),
+      ),
+    );
   }
 
   Widget _getImage() {
     switch (_currentScreenIndex) {
       case 0:
-        return Image.asset('assets/png/welcome1.png',
-            height: MediaQuery.of(context).size.height * 0.3, fit: BoxFit.fitHeight);
+        return Image.asset(
+          'assets/png/welcome1.png',
+          height: MediaQuery.of(context).size.height * 0.3,
+          fit: BoxFit.fitHeight,
+        );
       case 2:
-        return Image.asset('assets/png/welcome2.png',
-            height: MediaQuery.of(context).size.height * 0.3, fit: BoxFit.fitHeight);
+        return Image.asset(
+          'assets/png/welcome2.png',
+          height: MediaQuery.of(context).size.height * 0.3,
+          fit: BoxFit.fitHeight,
+        );
       case 1:
       default:
-        return Consumer<ConnectivityProvider>(builder: (context, provider, child) {
-          final isNetworkOn = provider.isNetworkOn ?? false;
-          final isBluetoothOn = provider.isBluetoothOn ?? false;
-          final isDeveloperModeOn = provider.isDeveloperModeOn ?? false;
+        return Consumer<ConnectivityProvider>(
+          builder: (context, provider, child) {
+            final isNetworkOn = provider.isNetworkOn ?? false;
+            final isBluetoothOn = provider.isBluetoothOn ?? false;
+            final isDeveloperModeOn = provider.isDeveloperModeOn ?? false;
 
-          return Align(
-            alignment: Alignment.center,
-            child: Padding(
-              padding: const EdgeInsets.all(32.0),
-              child: Container(
-                padding: const EdgeInsets.symmetric(vertical: 24),
-                decoration: BoxDecoration(
-                  color: CoconutColors.gray150,
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    _getConnectionState(
+            return Align(
+              alignment: Alignment.center,
+              child: Padding(
+                padding: const EdgeInsets.all(32.0),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(vertical: 24),
+                  decoration: BoxDecoration(color: CoconutColors.gray150, borderRadius: BorderRadius.circular(10)),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      _getConnectionState(
                         t.welcome_screen.network,
                         isNetworkOn,
-                        isNetworkOn
-                            ? t.connectivity_state.connected
-                            : t.connectivity_state.disconnected),
-                    CoconutLayout.spacing_300h,
-                    _getConnectionState(
-                        t.welcome_screen.bluetooth,
-                        isBluetoothOn,
-                        isBluetoothOn
-                            ? t.connectivity_state.enabled
-                            : t.connectivity_state.disabled),
-                    if (Platform.isAndroid) ...[
+                        isNetworkOn ? t.connectivity_state.connected : t.connectivity_state.disconnected,
+                      ),
                       CoconutLayout.spacing_300h,
                       _getConnectionState(
+                        t.welcome_screen.bluetooth,
+                        isBluetoothOn,
+                        isBluetoothOn ? t.connectivity_state.enabled : t.connectivity_state.disabled,
+                      ),
+                      if (Platform.isAndroid) ...[
+                        CoconutLayout.spacing_300h,
+                        _getConnectionState(
                           t.welcome_screen.developer_option,
                           isDeveloperModeOn,
-                          isDeveloperModeOn
-                              ? t.connectivity_state.active
-                              : t.connectivity_state.inactive),
-                    ]
-                  ],
+                          isDeveloperModeOn ? t.connectivity_state.active : t.connectivity_state.inactive,
+                        ),
+                      ],
+                    ],
+                  ),
                 ),
               ),
-            ),
-          );
-        });
+            );
+          },
+        );
     }
   }
 
@@ -197,21 +207,20 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
     return Row(
       children: [
         CoconutLayout.spacing_600w,
-        Text(label,
-            style: isOn
-                ? CoconutTypography.body1_16_Bold.setColor(CoconutColors.hotPink)
-                : CoconutTypography.body1_16_Bold.setColor(CoconutColors.black),
-            maxLines: 2),
+        Text(
+          label,
+          style: isOn
+              ? CoconutTypography.body1_16_Bold.setColor(CoconutColors.hotPink)
+              : CoconutTypography.body1_16_Bold.setColor(CoconutColors.black),
+          maxLines: 2,
+        ),
         if (isOn) ...[
           CoconutLayout.spacing_100w,
           SvgPicture.asset(
             'assets/svg/triangle-warning.svg',
             width: 16.0,
             height: 16.0,
-            colorFilter: const ColorFilter.mode(
-              CoconutColors.hotPink,
-              BlendMode.srcIn,
-            ),
+            colorFilter: const ColorFilter.mode(CoconutColors.hotPink, BlendMode.srcIn),
           ),
         ],
         CoconutLayout.spacing_100w,
@@ -222,15 +231,14 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
               decoration: BoxDecoration(
-                color: isOn
-                    ? const Color.fromARGB(255, 236, 39, 35)
-                    : const Color.fromARGB(255, 95, 211, 109),
+                color: isOn ? const Color.fromARGB(255, 236, 39, 35) : const Color.fromARGB(255, 95, 211, 109),
                 borderRadius: BorderRadius.circular(20),
               ),
               child: Text(
-                  textAlign: TextAlign.center,
-                  stateText,
-                  style: CoconutTypography.body3_12_Bold.setColor(CoconutColors.white)),
+                textAlign: TextAlign.center,
+                stateText,
+                style: CoconutTypography.body3_12_Bold.setColor(CoconutColors.white),
+              ),
             ),
           ),
         ),
@@ -241,18 +249,20 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
 
   Widget _buildBottomButton() {
     if (_currentScreenIndex == 1) {
-      return Consumer<ConnectivityProvider>(builder: (context, provider, child) {
-        final isActive = provider.isNetworkOn == false &&
-            provider.isBluetoothOn == false &&
-            (!Platform.isAndroid || provider.isDeveloperModeOn == false);
+      return Consumer<ConnectivityProvider>(
+        builder: (context, provider, child) {
+          final isActive = provider.isNetworkOn == false &&
+              provider.isBluetoothOn == false &&
+              (!Platform.isAndroid || provider.isDeveloperModeOn == false);
 
-        return FixedBottomButton(
-          isActive: isActive,
-          onButtonClicked: _screenItems[_currentScreenIndex].onButtonPressed,
-          text: _screenItems[_currentScreenIndex].buttonText,
-          subWidget: _buildSubButton(),
-        );
-      });
+          return FixedBottomButton(
+            isActive: isActive,
+            onButtonClicked: _screenItems[_currentScreenIndex].onButtonPressed,
+            text: _screenItems[_currentScreenIndex].buttonText,
+            subWidget: _buildSubButton(),
+          );
+        },
+      );
     }
     return FixedBottomButton(
       isActive: true,
@@ -275,62 +285,78 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
 
   void _showSettingGuide() {
     MyBottomSheet.showDraggableBottomSheet(
-        context: context,
-        childBuilder: (controller) => Scaffold(
-              backgroundColor: CoconutColors.white,
-              appBar: CoconutAppBar.build(
-                title: t.welcome_screen.setting_guide,
-                context: context,
-                onBackPressed: null,
-                isBottom: true,
-              ),
-              body: SingleChildScrollView(
-                controller: controller,
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      _buildSettingTitle(
-                        t.welcome_screen.airplane_mode_on.title,
-                        'assets/svg/settings-guide-icons/airplane-mode.svg',
-                      ),
-                      _buildSettingDescription(Platform.isAndroid
-                          ? t.welcome_screen.airplane_mode_on.description_android
-                          : t.welcome_screen.airplane_mode_on.description_ios),
-                      _buildSettingTitle(t.welcome_screen.wifi_off.title,
-                          'assets/svg/settings-guide-icons/wifi.svg'),
-                      _buildSettingDescription(Platform.isAndroid
-                          ? t.welcome_screen.wifi_off.description_android
-                          : t.welcome_screen.wifi_off.description_ios),
-                      _buildSettingTitle(t.welcome_screen.mobile_data_off.title,
-                          'assets/svg/settings-guide-icons/mobile-data.svg'),
-                      _buildSettingDescription(Platform.isAndroid
-                          ? t.welcome_screen.mobile_data_off.description_android
-                          : t.welcome_screen.mobile_data_off.description_ios),
-                      _buildSettingTitle(t.welcome_screen.bluetooth_off.title,
-                          'assets/svg/settings-guide-icons/bluetooth.svg'),
-                      _buildSettingDescription(Platform.isAndroid
-                          ? t.welcome_screen.bluetooth_off.description_android
-                          : t.welcome_screen.bluetooth_off.description_ios),
-                      if (Platform.isAndroid) ...[
-                        _buildSettingTitle(t.welcome_screen.developer_mode_off,
-                            'assets/svg/settings-guide-icons/developer-mode.svg'),
-                        _buildSettingDescription(t.welcome_screen.developer_mode_description),
-                      ],
-                    ],
-                  ),
+      context: context,
+      childBuilder: (controller) => Scaffold(
+        backgroundColor: CoconutColors.white,
+        appBar: CoconutAppBar.build(
+          title: t.welcome_screen.setting_guide,
+          context: context,
+          onBackPressed: null,
+          isBottom: true,
+        ),
+        body: SingleChildScrollView(
+          controller: controller,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _buildSettingTitle(
+                  t.welcome_screen.airplane_mode_on.title,
+                  'assets/svg/settings-guide-icons/airplane-mode.svg',
                 ),
-              ),
-            ));
+                _buildSettingDescription(
+                  Platform.isAndroid
+                      ? t.welcome_screen.airplane_mode_on.description_android
+                      : t.welcome_screen.airplane_mode_on.description_ios,
+                ),
+                _buildSettingTitle(t.welcome_screen.wifi_off.title, 'assets/svg/settings-guide-icons/wifi.svg'),
+                _buildSettingDescription(
+                  Platform.isAndroid
+                      ? t.welcome_screen.wifi_off.description_android
+                      : t.welcome_screen.wifi_off.description_ios,
+                ),
+                _buildSettingTitle(
+                  t.welcome_screen.mobile_data_off.title,
+                  'assets/svg/settings-guide-icons/mobile-data.svg',
+                ),
+                _buildSettingDescription(
+                  Platform.isAndroid
+                      ? t.welcome_screen.mobile_data_off.description_android
+                      : t.welcome_screen.mobile_data_off.description_ios,
+                ),
+                _buildSettingTitle(
+                  t.welcome_screen.bluetooth_off.title,
+                  'assets/svg/settings-guide-icons/bluetooth.svg',
+                ),
+                _buildSettingDescription(
+                  Platform.isAndroid
+                      ? t.welcome_screen.bluetooth_off.description_android
+                      : t.welcome_screen.bluetooth_off.description_ios,
+                ),
+                if (Platform.isAndroid) ...[
+                  _buildSettingTitle(
+                    t.welcome_screen.developer_mode_off,
+                    'assets/svg/settings-guide-icons/developer-mode.svg',
+                  ),
+                  _buildSettingDescription(t.welcome_screen.developer_mode_description),
+                ],
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
   }
 
   Widget _buildSettingTitle(String title, String iconPath) {
-    return Row(children: [
-      SvgPicture.asset(iconPath, height: 16, fit: BoxFit.fitHeight),
-      CoconutLayout.spacing_100w,
-      Text(title, style: CoconutTypography.body1_16_Bold),
-    ]);
+    return Row(
+      children: [
+        SvgPicture.asset(iconPath, height: 16, fit: BoxFit.fitHeight),
+        CoconutLayout.spacing_100w,
+        Text(title, style: CoconutTypography.body1_16_Bold),
+      ],
+    );
   }
 
   Widget _buildSettingDescription(String description) {

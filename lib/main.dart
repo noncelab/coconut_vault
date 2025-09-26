@@ -31,28 +31,26 @@ void main() async {
 
       final int version = await channel.invokeMethod('getSdkVersion');
       if (version != 26) {
-        SystemChrome.setPreferredOrientations(
-            [DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]);
+        SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]);
       }
     } on PlatformException catch (e) {
       Logger.log("Failed to get platform version: '${e.message}'.");
     }
   } else {
-    SystemChrome.setPreferredOrientations(
-        [DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]);
+    SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]);
   }
 
   Provider.debugCheckInvalidValueType = null;
 
-  const String? appFlavor = String.fromEnvironment('FLUTTER_APP_FLAVOR') != ''
-      ? String.fromEnvironment('FLUTTER_APP_FLAVOR')
-      : null;
+  const String? appFlavor =
+      String.fromEnvironment('FLUTTER_APP_FLAVOR') != '' ? String.fromEnvironment('FLUTTER_APP_FLAVOR') : null;
   NetworkType.setNetworkType(appFlavor == "mainnet" ? NetworkType.mainnet : NetworkType.regtest);
 
   /// 현재 MainRouteGuard를 사용하고 있긴 하지만, AppLifecycleState 이벤트가 등록되기 직전 inactive 상태로 전환 시
   /// PrivacyScreen이 보여지지 않는 상황 때문에 ScreenProtector의 PrivacyScreen 기능도 사용합니다.
   await ScreenProtector.protectDataLeakageWithImage(
-      'ScreenProtectImage${NetworkType.currentNetworkType.isTestnet ? "Regtest" : ""}'); // iOS에서만 동작
+    'ScreenProtectImage${NetworkType.currentNetworkType.isTestnet ? "Regtest" : ""}',
+  ); // iOS에서만 동작
   //await ScreenProtector.protectDataLeakageOn(); // Android는 MainActivity.kt에서 네이티브 설정 완료
   if (!kDebugMode && Platform.isIOS) {
     await ScreenProtector.preventScreenshotOn(); // iOS and Android

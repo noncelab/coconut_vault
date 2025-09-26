@@ -139,9 +139,10 @@ class _MnemonicVerifyScreenState extends State<MnemonicVerifyScreen> {
     if (_mnemonic.isEmpty) return;
 
     // 현재 사용 중인 위치들을 제외한 새로운 위치 선택
-    final availablePositions = List<int>.generate(_mnemonic.length, (i) => i)
-        .where((position) => !_selectedWordPositions.contains(position))
-        .toList();
+    final availablePositions = List<int>.generate(
+      _mnemonic.length,
+      (i) => i,
+    ).where((position) => !_selectedWordPositions.contains(position)).toList();
 
     if (availablePositions.isEmpty) return;
 
@@ -194,9 +195,7 @@ class _MnemonicVerifyScreenState extends State<MnemonicVerifyScreen> {
               // '일치하지 않아요' 문구
               _buildAnswerExplanation(),
               // 퀴즈 내용
-              Expanded(
-                child: _buildQuizScreen(),
-              ),
+              Expanded(child: _buildQuizScreen()),
             ],
           ),
         ),
@@ -216,17 +215,11 @@ class _MnemonicVerifyScreenState extends State<MnemonicVerifyScreen> {
       padding: const EdgeInsets.only(bottom: 16),
       child: Stack(
         children: [
-          ClipRRect(
-            child: Container(
-              height: 6,
-              color: CoconutColors.black.withOpacity(0.06),
-            ),
-          ),
+          ClipRRect(child: Container(height: 6, color: CoconutColors.black.withValues(alpha: 0.06))),
           ClipRRect(
             borderRadius: correctAnswers / _totalQuizzes == 1
                 ? BorderRadius.zero
-                : const BorderRadius.only(
-                    topRight: Radius.circular(6), bottomRight: Radius.circular(6)),
+                : const BorderRadius.only(topRight: Radius.circular(6), bottomRight: Radius.circular(6)),
             child: AnimatedContainer(
               duration: const Duration(milliseconds: 500),
               curve: Curves.easeInOut,
@@ -247,17 +240,10 @@ class _MnemonicVerifyScreenState extends State<MnemonicVerifyScreen> {
             curve: Curves.easeInOut,
             child: Text(
               t.mnemonic_verify_screen.not_correct,
-              style: CoconutTypography.body2_14_Bold.setColor(
-                CoconutColors.warningText,
-              ),
+              style: CoconutTypography.body2_14_Bold.setColor(CoconutColors.warningText),
             ),
           )
-        : Text(
-            'ㅣ',
-            style: CoconutTypography.body2_14_Bold.setColor(
-              CoconutColors.white,
-            ),
-          );
+        : Text('ㅣ', style: CoconutTypography.body2_14_Bold.setColor(CoconutColors.white));
   }
 
   Widget _buildQuizScreen() {
@@ -282,10 +268,7 @@ class _MnemonicVerifyScreenState extends State<MnemonicVerifyScreen> {
           const SizedBox(height: 40),
 
           // 선택지 버튼들
-          ...currentOptions
-              .asMap()
-              .entries
-              .map((entry) => _buildOptionButton(entry.value, entry.key)),
+          ...currentOptions.asMap().entries.map((entry) => _buildOptionButton(entry.value, entry.key)),
         ],
       ),
     );
@@ -295,7 +278,7 @@ class _MnemonicVerifyScreenState extends State<MnemonicVerifyScreen> {
     final isSelected = _selectedOptionIndex == optionIndex;
 
     Color buttonColor = CoconutColors.white;
-    Color borderColor = CoconutColors.black.withOpacity(0.08);
+    Color borderColor = CoconutColors.black.withValues(alpha: 0.08);
 
     if (_showResult) {
       if (isSelected) {
@@ -316,12 +299,7 @@ class _MnemonicVerifyScreenState extends State<MnemonicVerifyScreen> {
         child: Container(
           padding: const EdgeInsets.symmetric(vertical: 20),
           alignment: Alignment.center,
-          child: Text(
-            option,
-            style: CoconutTypography.body1_16.setColor(
-              CoconutColors.black,
-            ),
-          ),
+          child: Text(option, style: CoconutTypography.body1_16.setColor(CoconutColors.black)),
         ),
       ),
     );

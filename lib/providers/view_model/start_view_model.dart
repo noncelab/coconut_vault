@@ -71,8 +71,7 @@ class StartViewModel extends ChangeNotifier {
       return AppEntryFlow.vaultHome;
     }
 
-    if (!_authProvider.isPermanantlyLocked &&
-        await _authProvider.isBiometricsAuthValid(isSaved: true)) {
+    if (!_authProvider.isPermanantlyLocked && await _authProvider.isBiometricsAuthValid(isSaved: true)) {
       return AppEntryFlow.vaultHome;
     } else {
       return AppEntryFlow.pinCheck;

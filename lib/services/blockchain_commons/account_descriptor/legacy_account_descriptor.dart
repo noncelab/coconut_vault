@@ -1,7 +1,6 @@
 import 'dart:typed_data';
 import 'package:coconut_vault/packages/bc-ur-dart/lib/cbor_lite.dart';
 import 'package:coconut_vault/utils/conversion_util.dart';
-import 'package:coconut_vault/utils/logger.dart';
 
 class Cosigner {
   final String label; // 예: "Alice Tapsigner"
@@ -26,12 +25,13 @@ class Cosigner {
 class LegacyAccountDescriptor {
   /// example
   /// {1: 2746411888, 2: [404(303({3: h'034D29046913C6B038311B6FCED327A8E2D9504A82510BBB92F9DAFA1DE598E466', 4: h'74963C6290A4C6C5BD66062432BA694BE8F05284B64451AB3CF7ACABC7315349', 6: 304({1: [84, true, 0, true, 0, true], 2: 2746411888, 3: 3}), 8: 2133551992}))]}
-  static Uint8List buildSingleSigCbor(
-      {required String masterFingerprint,
-      required String parentFingerprint,
-      required Uint8List pubkey33,
-      required Uint8List chainCode32,
-      required int coinType}) {
+  static Uint8List buildSingleSigCbor({
+    required String masterFingerprint,
+    required String parentFingerprint,
+    required Uint8List pubkey33,
+    required Uint8List chainCode32,
+    required int coinType,
+  }) {
     final mfp = ConversionUtil.hexToInt(masterFingerprint); // 1: ..
     final parentFp = ConversionUtil.hexToInt(parentFingerprint); // 8: ...
 

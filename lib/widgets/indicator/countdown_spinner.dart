@@ -5,11 +5,7 @@ class CountdownSpinner extends StatefulWidget {
   final int startSeconds;
   final VoidCallback? onCompleted;
 
-  const CountdownSpinner({
-    super.key,
-    this.startSeconds = 5,
-    this.onCompleted,
-  });
+  const CountdownSpinner({super.key, this.startSeconds = 5, this.onCompleted});
 
   @override
   State<CountdownSpinner> createState() => _CountdownSpinnerState();
@@ -24,10 +20,8 @@ class _CountdownSpinnerState extends State<CountdownSpinner> with SingleTickerPr
     super.initState();
     _currentSeconds = widget.startSeconds;
 
-    _controller = AnimationController(
-      vsync: this,
-      duration: const Duration(seconds: 1),
-    )..addStatusListener((status) {
+    _controller = AnimationController(vsync: this, duration: const Duration(seconds: 1))
+      ..addStatusListener((status) {
         if (status == AnimationStatus.completed) {
           if (_currentSeconds == 1) {
             widget.onCompleted?.call();
@@ -68,21 +62,14 @@ class _CountdownSpinnerState extends State<CountdownSpinner> with SingleTickerPr
                     value: _controller.value,
                     strokeWidth: 1.5,
                     backgroundColor: CoconutColors.white,
-                    valueColor: const AlwaysStoppedAnimation(
-                      CoconutColors.gray600,
-                    ),
+                    valueColor: const AlwaysStoppedAnimation(CoconutColors.gray600),
                   );
                 },
               ),
             );
           },
         ),
-        Text(
-          '$_currentSeconds',
-          style: CoconutTypography.body3_12_Bold.setColor(
-            CoconutColors.gray600,
-          ),
-        ),
+        Text('$_currentSeconds', style: CoconutTypography.body3_12_Bold.setColor(CoconutColors.gray600)),
       ],
     );
   }

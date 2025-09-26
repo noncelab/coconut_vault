@@ -44,11 +44,7 @@ class _LicenseScreenState extends State<LicenseScreen> {
       borderRadius: CoconutBorder.defaultRadius,
       child: Scaffold(
         backgroundColor: CoconutColors.white,
-        appBar: CoconutAppBar.build(
-          title: t.license_details,
-          context: context,
-          isBottom: true,
-        ),
+        appBar: CoconutAppBar.build(title: t.license_details, context: context, isBottom: true),
         body: SafeArea(
           child: ListView.builder(
             itemCount: dependencies.length + 1,
@@ -60,85 +56,66 @@ class _LicenseScreenState extends State<LicenseScreen> {
                   children: [
                     Container(
                       width: MediaQuery.of(context).size.width,
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 10,
-                        vertical: 10,
-                      ),
-                      decoration: const BoxDecoration(
-                        color: CoconutColors.gray800,
-                      ),
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+                      decoration: const BoxDecoration(color: CoconutColors.gray800),
                       child: Text(
                         t.coconut_vault,
-                        style: CoconutTypography.body2_14_Bold.setColor(
-                          CoconutColors.white,
-                        ),
+                        style: CoconutTypography.body2_14_Bold.setColor(CoconutColors.white),
                       ),
                     ),
-                    const SizedBox(
-                      height: 20,
-                    ),
+                    const SizedBox(height: 20),
                     Padding(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 10,
-                      ),
+                      padding: const EdgeInsets.symmetric(horizontal: 10),
                       child: RichText(
                         text: TextSpan(
                           text: t.license_screen.text1,
-                          style: CoconutTypography.body3_12.setColor(
-                            CoconutColors.gray800,
-                          ),
+                          style: CoconutTypography.body3_12.setColor(CoconutColors.gray800),
                           children: <TextSpan>[
                             TextSpan(
-                                text: mitFullTextLink, // 색상을 다르게 할 텍스트
-                                style: CoconutTypography.body3_12.merge(
-                                  const TextStyle(
-                                    color: CoconutColors.oceanBlue,
-                                    decoration: TextDecoration.underline,
-                                  ),
-                                ),
-                                recognizer: TapGestureRecognizer()
-                                  ..onTap = () async {
-                                    MyBottomSheet.showBottomSheet_95(
-                                        context: context,
-                                        child: QrcodeBottomSheet(
-                                          qrData: mitFullTextLink,
-                                          title: t.bottom_sheet.view_mit_license,
-                                          fromAppInfo: true,
-                                        ));
-                                  }),
+                              text: mitFullTextLink, // 색상을 다르게 할 텍스트
+                              style: CoconutTypography.body3_12.merge(
+                                const TextStyle(color: CoconutColors.oceanBlue, decoration: TextDecoration.underline),
+                              ),
+                              recognizer: TapGestureRecognizer()
+                                ..onTap = () async {
+                                  MyBottomSheet.showBottomSheet_95(
+                                    context: context,
+                                    child: QrcodeBottomSheet(
+                                      qrData: mitFullTextLink,
+                                      title: t.bottom_sheet.view_mit_license,
+                                      fromAppInfo: true,
+                                    ),
+                                  );
+                                },
+                            ),
                             TextSpan(text: t.license_screen.text2),
                             TextSpan(
-                                text: CONTACT_EMAIL_ADDRESS, // 색상을 다르게 할 텍스트
-                                style: CoconutTypography.body3_12.merge(
-                                  const TextStyle(
-                                    color: CoconutColors.oceanBlue,
-                                    decoration: TextDecoration.underline,
-                                  ),
-                                ),
-                                recognizer: TapGestureRecognizer()
-                                  ..onTap = () async {
-                                    MyBottomSheet.showBottomSheet_95(
-                                        context: context,
-                                        child: QrcodeBottomSheet(
-                                          qrData:
-                                              'mailto:$CONTACT_EMAIL_ADDRESS?subject=${t.bottom_sheet.ask_about_license}',
-                                          title: t.bottom_sheet.contact_by_email,
-                                          fromAppInfo: true,
-                                        ));
-                                  }),
+                              text: CONTACT_EMAIL_ADDRESS, // 색상을 다르게 할 텍스트
+                              style: CoconutTypography.body3_12.merge(
+                                const TextStyle(color: CoconutColors.oceanBlue, decoration: TextDecoration.underline),
+                              ),
+                              recognizer: TapGestureRecognizer()
+                                ..onTap = () async {
+                                  MyBottomSheet.showBottomSheet_95(
+                                    context: context,
+                                    child: QrcodeBottomSheet(
+                                      qrData:
+                                          'mailto:$CONTACT_EMAIL_ADDRESS?subject=${t.bottom_sheet.ask_about_license}',
+                                      title: t.bottom_sheet.contact_by_email,
+                                      fromAppInfo: true,
+                                    ),
+                                  );
+                                },
+                            ),
                             TextSpan(
                               text: t.license_screen.text3,
-                              style: CoconutTypography.body3_12.setColor(
-                                CoconutColors.gray800,
-                              ),
+                              style: CoconutTypography.body3_12.setColor(CoconutColors.gray800),
                             ),
                           ],
                         ),
                       ),
                     ),
-                    const SizedBox(
-                      height: 16,
-                    ),
+                    const SizedBox(height: 16),
                     const Divider(),
                   ],
                 );
@@ -173,8 +150,7 @@ class _LicenseScreenState extends State<LicenseScreen> {
                       onTap: () {
                         if (licenseClass != null && licenseClass.isNotEmpty) {
                           setState(() {
-                            licenseExplanationVisible[index - 1] =
-                                !licenseExplanationVisible[index - 1];
+                            licenseExplanationVisible[index - 1] = !licenseExplanationVisible[index - 1];
                           });
                         }
                       },
@@ -182,40 +158,26 @@ class _LicenseScreenState extends State<LicenseScreen> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(
-                              licenseName,
-                              style: CoconutTypography.body1_16_Bold,
-                            ),
+                            Text(licenseName, style: CoconutTypography.body1_16_Bold),
                             if (copyRight.isNotEmpty)
                               Text(
                                 copyRight,
-                                style: CoconutTypography.body3_12.setColor(
-                                  CoconutColors.black.withOpacity(0.3),
-                                ),
+                                style: CoconutTypography.body3_12.setColor(CoconutColors.black.withValues(alpha: 0.3)),
                               ),
                             SizedBox(
                               width: MediaQuery.of(context).size.width,
-                              child: Text(
-                                licenseClass ?? 'Unknown License',
-                                style: CoconutTypography.body3_12,
-                              ),
+                              child: Text(licenseClass ?? 'Unknown License', style: CoconutTypography.body3_12),
                             ),
                             if (licenseExplanationVisible[index - 1])
                               Container(
-                                margin: const EdgeInsets.only(
-                                  top: 8,
-                                ),
+                                margin: const EdgeInsets.only(top: 8),
                                 height: 200,
                                 decoration: BoxDecoration(
                                   border: Border.all(width: 1, color: CoconutColors.borderGray),
                                 ),
                                 child: SingleChildScrollView(
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 5,
-                                  ),
-                                  child: Text(
-                                    license.license!,
-                                  ),
+                                  padding: const EdgeInsets.symmetric(horizontal: 5),
+                                  child: Text(license.license!),
                                 ),
                               ),
                           ],

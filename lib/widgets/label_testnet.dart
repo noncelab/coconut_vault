@@ -13,22 +13,12 @@ class TestnetLabelWidget extends StatelessWidget {
       selector: (_, provider) => provider.language,
       builder: (context, language, child) {
         return Container(
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(4),
-            color: CoconutColors.cyanBlue,
-          ),
-          padding: const EdgeInsets.symmetric(
-            horizontal: 16,
-            vertical: 4,
-          ),
+          decoration: BoxDecoration(borderRadius: BorderRadius.circular(4), color: CoconutColors.cyanBlue),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
           child: Text(
             t.testnet,
             style: CoconutTypography.body2_14.merge(
-              const TextStyle(
-                fontSize: 10,
-                fontWeight: FontWeight.w600,
-                color: CoconutColors.white,
-              ),
+              const TextStyle(fontSize: 10, fontWeight: FontWeight.w600, color: CoconutColors.white),
             ),
           ),
         );

@@ -105,8 +105,11 @@ class PsbtConfirmationViewModel extends ChangeNotifier {
   }
 
   ///예외: 사용자가 배치 트랜잭션에 '남의 주소 또는 내 Receive 주소 1개'와 '본인 change 주소 1개'를 입력하고, 이 트랜잭션의 잔액이 없는 희박한 상황에서는 배치 트랜잭션임을 구분하지 못함
-  bool _isBatchTransaction(List<PsbtOutput> outputToMyReceivingAddress,
-      List<PsbtOutput> outputToMyChangeAddress, List<PsbtOutput> outputsToOther) {
+  bool _isBatchTransaction(
+    List<PsbtOutput> outputToMyReceivingAddress,
+    List<PsbtOutput> outputToMyChangeAddress,
+    List<PsbtOutput> outputsToOther,
+  ) {
     var countExceptToMyChangeAddress = outputToMyReceivingAddress.length + outputsToOther.length;
     if (countExceptToMyChangeAddress >= 2) {
       return true;

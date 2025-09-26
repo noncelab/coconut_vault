@@ -61,9 +61,7 @@ class VaultRowItem extends StatefulWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
       child: ConstrainedBox(
-        constraints: const BoxConstraints(
-          minHeight: 37,
-        ),
+        constraints: const BoxConstraints(minHeight: 37),
         child: Row(
           children: [
             // 1) 아이콘 스켈레톤 (VaultItemIcon과 동일한 크기)
@@ -73,10 +71,7 @@ class VaultRowItem extends StatefulWidget {
               child: Container(
                 width: 30.0,
                 height: 30.0,
-                decoration: BoxDecoration(
-                  color: CoconutColors.gray300,
-                  borderRadius: BorderRadius.circular(8.0),
-                ),
+                decoration: BoxDecoration(color: CoconutColors.gray300, borderRadius: BorderRadius.circular(8.0)),
               ),
             ),
             const SizedBox(width: 8.0),
@@ -92,10 +87,7 @@ class VaultRowItem extends StatefulWidget {
                     child: Container(
                       height: 16.0,
                       width: 120.0,
-                      decoration: BoxDecoration(
-                        color: CoconutColors.gray300,
-                        borderRadius: BorderRadius.circular(4.0),
-                      ),
+                      decoration: BoxDecoration(color: CoconutColors.gray300, borderRadius: BorderRadius.circular(4.0)),
                     ),
                   ),
                   const SizedBox(height: 4.0),
@@ -106,10 +98,7 @@ class VaultRowItem extends StatefulWidget {
                     child: Container(
                       height: 12.0,
                       width: 80.0,
-                      decoration: BoxDecoration(
-                        color: CoconutColors.gray300,
-                        borderRadius: BorderRadius.circular(4.0),
-                      ),
+                      decoration: BoxDecoration(color: CoconutColors.gray300, borderRadius: BorderRadius.circular(4.0)),
                     ),
                   ),
                 ],
@@ -123,10 +112,7 @@ class VaultRowItem extends StatefulWidget {
               child: Container(
                 width: 6.0,
                 height: 10.0,
-                decoration: BoxDecoration(
-                  color: CoconutColors.gray300,
-                  borderRadius: BorderRadius.circular(1.0),
-                ),
+                decoration: BoxDecoration(color: CoconutColors.gray300, borderRadius: BorderRadius.circular(1.0)),
               ),
             ),
           ],
@@ -178,8 +164,9 @@ class _VaultRowItemState extends State<VaultRowItem> {
           try {
             final multisig = model.getVaultById(multisigKey.keys.first);
             _subtitleText = t.wallet_subtitle(
-                name: TextUtils.ellipsisIfLonger(multisig.name),
-                index: multisigKey.values.first + 1);
+              name: TextUtils.ellipsisIfLonger(multisig.name),
+              index: multisigKey.values.first + 1,
+            );
             _isUsedToMultiSig = true;
           } catch (_) {}
         }
@@ -204,10 +191,7 @@ class _VaultRowItemState extends State<VaultRowItem> {
     return ShrinkAnimationButton(
       pressedColor: CoconutColors.gray150,
       borderGradientColors: widget.isKeyBorderVisible
-          ? [
-              CoconutColors.black.withOpacity(0.08),
-              CoconutColors.black.withOpacity(0.08),
-            ]
+          ? [CoconutColors.black.withValues(alpha: 0.08), CoconutColors.black.withValues(alpha: 0.08)]
           : null,
       borderWidth: 1,
       borderRadius: 8,
@@ -221,10 +205,7 @@ class _VaultRowItemState extends State<VaultRowItem> {
           widget.vault.vaultType == WalletType.multiSignature
               ? AppRoutes.multisigSetupInfo
               : AppRoutes.singleSigSetupInfo,
-          arguments: {
-            'id': widget.vault.id,
-            'entryPoint': widget.entryPoint,
-          },
+          arguments: {'id': widget.vault.id, 'entryPoint': widget.entryPoint},
         );
       },
       onLongPressed: () {
@@ -234,16 +215,11 @@ class _VaultRowItemState extends State<VaultRowItem> {
     );
   }
 
-  Widget _buildVaultContainerWidget({
-    ValueChanged<(bool, int)>? onTapStar,
-    int? index,
-  }) {
+  Widget _buildVaultContainerWidget({ValueChanged<(bool, int)>? onTapStar, int? index}) {
     return Container(
       padding: EdgeInsets.symmetric(horizontal: widget.isEditMode ? 8 : 20, vertical: 12),
       child: ConstrainedBox(
-        constraints: const BoxConstraints(
-          minHeight: 37,
-        ),
+        constraints: const BoxConstraints(minHeight: 37),
         child: Row(
           children: [
             if (widget.isEditMode)
@@ -258,21 +234,21 @@ class _VaultRowItemState extends State<VaultRowItem> {
                   child: Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: SvgPicture.asset(
-                        'assets/svg/${widget.isFavorite ? 'star-filled' : 'star-outlined'}.svg',
-                        colorFilter: ColorFilter.mode(
-                          widget.isFavorite ? CoconutColors.gray800 : CoconutColors.gray500,
-                          BlendMode.srcIn,
-                        ),
-                        width: 18),
+                      'assets/svg/${widget.isFavorite ? 'star-filled' : 'star-outlined'}.svg',
+                      colorFilter: ColorFilter.mode(
+                        widget.isFavorite ? CoconutColors.gray800 : CoconutColors.gray500,
+                        BlendMode.srcIn,
+                      ),
+                      width: 18,
+                    ),
                   ),
                 ),
               ),
             VaultIconSmall(
               iconIndex: widget.vault.iconIndex,
               colorIndex: widget.vault.colorIndex,
-              gradientColors: _isMultiSig && _multiSigners != null
-                  ? CustomColorHelper.getGradientColors(_multiSigners!)
-                  : null,
+              gradientColors:
+                  _isMultiSig && _multiSigners != null ? CustomColorHelper.getGradientColors(_multiSigners!) : null,
             ),
             CoconutLayout.spacing_200w,
             Expanded(
@@ -301,10 +277,7 @@ class _VaultRowItemState extends State<VaultRowItem> {
                   Row(
                     children: [
                       if (_isMultiSig || _isUsedToMultiSig) ...{
-                        Text(
-                          _subtitleText,
-                          style: CoconutTypography.body3_12.copyWith(color: CoconutColors.gray600),
-                        ),
+                        Text(_subtitleText, style: CoconutTypography.body3_12.copyWith(color: CoconutColors.gray600)),
                       },
                       if (widget.isPrimaryWallet == true) ...[
                         if (_isMultiSig || _isUsedToMultiSig)
@@ -331,17 +304,11 @@ class _VaultRowItemState extends State<VaultRowItem> {
                         child: GestureDetector(
                           child: Padding(
                             padding: const EdgeInsets.only(right: 8),
-                            child: SvgPicture.asset(
-                              'assets/svg/hamburger.svg',
-                            ),
+                            child: SvgPicture.asset('assets/svg/hamburger.svg'),
                           ),
                         ),
                       )
-                    : SvgPicture.asset(
-                        'assets/svg/chevron-right.svg',
-                        width: 6,
-                        height: 10,
-                      )
+                    : SvgPicture.asset('assets/svg/chevron-right.svg', width: 6, height: 10)
                 : widget.isSelectable
                     ? Icon(
                         Icons.check_rounded,
@@ -354,9 +321,7 @@ class _VaultRowItemState extends State<VaultRowItem> {
                             child: GestureDetector(
                               child: Padding(
                                 padding: const EdgeInsets.only(right: 8),
-                                child: SvgPicture.asset(
-                                  'assets/svg/hamburger.svg',
-                                ),
+                                child: SvgPicture.asset('assets/svg/hamburger.svg'),
                               ),
                             ),
                           )

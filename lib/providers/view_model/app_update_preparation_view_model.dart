@@ -66,8 +66,7 @@ class AppUpdatePreparationViewModel extends ChangeNotifier {
     // 모든 볼트가 로드될 때까지 대기
     if (_walletProvider.isVaultListLoadingNotifier.value) return;
 
-    List<VaultListItemBase> filteredList =
-        _walletProvider.getVaultsByWalletType(WalletType.singleSignature);
+    List<VaultListItemBase> filteredList = _walletProvider.getVaultsByWalletType(WalletType.singleSignature);
     if (filteredList.isEmpty) {
       _isMnemonicLoaded = true;
       _isMnemonicValidationFinished = true;
@@ -90,16 +89,16 @@ class AppUpdatePreparationViewModel extends ChangeNotifier {
       int mnemonicIndex = _random.nextInt(mnemonicList.length);
       Logger.log('-->${vault.name} mnemonicList: $mnemonicList, mnemonicIndex: $mnemonicIndex');
       return MnemonicWordsItem(
-          vaultName: vault.name,
-          mnemonicWords: hashString(mnemonicList[mnemonicIndex]),
-          mnemonicWordLength: mnemonicList[mnemonicIndex].length,
-          mnemonicWordIndex: mnemonicIndex);
+        vaultName: vault.name,
+        mnemonicWords: hashString(mnemonicList[mnemonicIndex]),
+        mnemonicWordLength: mnemonicList[mnemonicIndex].length,
+        mnemonicWordIndex: mnemonicIndex,
+      );
     });
   }
 
   bool isWordMatched(String userInput) {
-    final success = hashString(userInput.toLowerCase()) ==
-        _mnemonicWordsItems[_currentMnemonicIndex].mnemonicWords;
+    final success = hashString(userInput.toLowerCase()) == _mnemonicWordsItems[_currentMnemonicIndex].mnemonicWords;
     if (!success) {
       return false;
     }

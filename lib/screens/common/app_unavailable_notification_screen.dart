@@ -10,12 +10,7 @@ class AppUnavailableNotificationScreen extends StatefulWidget {
   final bool? isBluetoothOn;
   final bool? isDeveloperModeOn;
 
-  const AppUnavailableNotificationScreen({
-    super.key,
-    this.isNetworkOn,
-    this.isBluetoothOn,
-    this.isDeveloperModeOn,
-  });
+  const AppUnavailableNotificationScreen({super.key, this.isNetworkOn, this.isBluetoothOn, this.isDeveloperModeOn});
 
   @override
   State<AppUnavailableNotificationScreen> createState() => _AppUnavailableNotificationScreenState();
@@ -44,8 +39,11 @@ class _AppUnavailableNotificationScreenState extends State<AppUnavailableNotific
             mainAxisAlignment: MainAxisAlignment.center, // Centers the content vertically
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              Text(t.app_unavailable_notification_screen.restart_app,
-                  style: CoconutTypography.heading3_21_Bold, textAlign: TextAlign.center),
+              Text(
+                t.app_unavailable_notification_screen.restart_app,
+                style: CoconutTypography.heading3_21_Bold,
+                textAlign: TextAlign.center,
+              ),
               CoconutLayout.spacing_800h,
               _buildImage(),
               CoconutLayout.spacing_800h,
@@ -81,25 +79,11 @@ class _AppUnavailableNotificationScreenState extends State<AppUnavailableNotific
         Container(
           width: 24,
           height: 24,
-          decoration: BoxDecoration(
-            color: CoconutColors.black,
-            borderRadius: BorderRadius.circular(12),
-          ),
-          child: Center(
-            child: Text(
-              text,
-              style: CoconutTypography.body3_12_Number.setColor(CoconutColors.white),
-            ),
-          ),
+          decoration: BoxDecoration(color: CoconutColors.black, borderRadius: BorderRadius.circular(12)),
+          child: Center(child: Text(text, style: CoconutTypography.body3_12_Number.setColor(CoconutColors.white))),
         ),
         CoconutLayout.spacing_300w,
-        Expanded(
-          flex: 2,
-          child: Text(
-            description,
-            style: CoconutTypography.heading4_18.setColor(CoconutColors.black),
-          ),
-        ),
+        Expanded(flex: 2, child: Text(description, style: CoconutTypography.heading4_18.setColor(CoconutColors.black))),
         Expanded(flex: 1, child: Container()),
       ],
     );

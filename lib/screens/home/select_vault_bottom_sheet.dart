@@ -6,7 +6,7 @@ import 'package:flutter/material.dart';
 
 enum BalanceMode {
   includingPending,
-  onlyUnspent // UtxoStatus.unspent (UtxoStatus.locked 제외)
+  onlyUnspent, // UtxoStatus.unspent (UtxoStatus.locked 제외)
 }
 
 class SelectVaultBottomSheet extends StatefulWidget {
@@ -37,29 +37,27 @@ class _SelectVaultBottomSheetState extends State<SelectVaultBottomSheet> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        backgroundColor: CoconutColors.white,
-        appBar: CoconutAppBar.build(
-          title: t.select_vault_bottom_sheet.select_wallet,
-          context: context,
-          onBackPressed: null,
-          subLabel: widget.subLabel != null
-              ? Text(
-                  widget.subLabel ?? '',
-                  style: CoconutTypography.body3_12.setColor(
-                    CoconutColors.black.withOpacity(0.7),
-                  ),
-                )
-              : null,
-          showSubLabel: widget.subLabel != null,
-          isBottom: true,
-        ),
-        body: Column(
-          children: [
-            Expanded(
-              child: SingleChildScrollView(
-                controller: widget.scrollController,
-                child: Column(
-                    children: List.generate(widget.vaultList.length, (index) {
+      backgroundColor: CoconutColors.white,
+      appBar: CoconutAppBar.build(
+        title: t.select_vault_bottom_sheet.select_wallet,
+        context: context,
+        onBackPressed: null,
+        subLabel: widget.subLabel != null
+            ? Text(
+                widget.subLabel ?? '',
+                style: CoconutTypography.body3_12.setColor(CoconutColors.black.withValues(alpha: 0.7)),
+              )
+            : null,
+        showSubLabel: widget.subLabel != null,
+        isBottom: true,
+      ),
+      body: Column(
+        children: [
+          Expanded(
+            child: SingleChildScrollView(
+              controller: widget.scrollController,
+              child: Column(
+                children: List.generate(widget.vaultList.length, (index) {
                   int walletId = widget.vaultList[index].id;
                   return Padding(
                     padding: const EdgeInsets.only(bottom: 8),
@@ -77,10 +75,12 @@ class _SelectVaultBottomSheetState extends State<SelectVaultBottomSheet> {
                       ),
                     ),
                   );
-                })),
+                }),
               ),
             ),
-          ],
-        ));
+          ),
+        ],
+      ),
+    );
   }
 }

@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:coconut_vault/constants/shared_preferences_keys.dart';
 import 'package:coconut_vault/enums/currency_enum.dart';
 import 'package:coconut_vault/repository/shared_preferences_repository.dart';
@@ -62,8 +64,7 @@ class VisibilityProvider extends ChangeNotifier {
 
     // OS 언어 감지 (Flutter의 표준 방식 사용)
     try {
-      final String languageCode = WidgetsBinding.instance.window.locale.languageCode.toLowerCase();
-
+      final String languageCode = PlatformDispatcher.instance.locale.languageCode.toLowerCase();
       // 지원하는 언어인지 확인
       if (languageCode == 'ko' || languageCode == 'kr') {
         return 'kr';
@@ -93,7 +94,7 @@ class VisibilityProvider extends ChangeNotifier {
             return AppLocale.en;
           } catch (fallbackError) {
             Logger.error('Fallback to Korean locale failed: $fallbackError');
-            return AppLocale.kr; // 폴백 추가
+            return AppLocale.kr;
           }
         });
       }

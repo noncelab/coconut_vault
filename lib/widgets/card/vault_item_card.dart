@@ -56,15 +56,17 @@ class _VaultItemCardState extends State<VaultItemCard> {
     return Container(
       margin: const EdgeInsets.only(left: 16, right: 16),
       decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(14), // defaultRadius로 통일하면 border 넓이가 균일해보이지 않음
-          border: isMultisig ? null : Border.all(color: CoconutColors.borderLightGray, width: 1),
-          gradient: isMultisig
-              ? LinearGradient(
-                  colors: CustomColorHelper.getGradientColors(signers!),
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  transform: const GradientRotation(math.pi / 10))
-              : null),
+        borderRadius: BorderRadius.circular(14), // defaultRadius로 통일하면 border 넓이가 균일해보이지 않음
+        border: isMultisig ? null : Border.all(color: CoconutColors.borderLightGray, width: 1),
+        gradient: isMultisig
+            ? LinearGradient(
+                colors: CustomColorHelper.getGradientColors(signers!),
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                transform: const GradientRotation(math.pi / 10),
+              )
+            : null,
+      ),
       child: Container(
         margin: isMultisig ? const EdgeInsets.all(2) : null, // 멀티시그의 경우 border 대신
         padding: const EdgeInsets.all(20),
@@ -99,13 +101,7 @@ class _VaultItemCardState extends State<VaultItemCard> {
                   children: [
                     _buildIcon(),
                     CoconutLayout.spacing_200w,
-                    Expanded(
-                      child: Text(
-                        widget.vaultItem.name,
-                        style: CoconutTypography.body1_16_Bold,
-                        maxLines: 1,
-                      ),
-                    ),
+                    Expanded(child: Text(widget.vaultItem.name, style: CoconutTypography.body1_16_Bold, maxLines: 1)),
                   ],
                 ),
               ),
@@ -138,9 +134,9 @@ class _VaultItemCardState extends State<VaultItemCard> {
                     Text(
                       DateFormat('yy.MM.dd HH:mm').format(widget.vaultItem.createdAt),
                       style: CoconutTypography.body3_12.setColor(CoconutColors.gray600),
-                    )
+                    ),
                   ],
-                )
+                ),
               ],
             ),
           ],
@@ -163,25 +159,23 @@ class _VaultItemCardState extends State<VaultItemCard> {
           child: Container(
             padding: const EdgeInsets.all(4.3),
             decoration: BoxDecoration(
-                color: isItemTapped ? CoconutColors.gray300 : CoconutColors.gray150,
-                shape: BoxShape.circle,
-                boxShadow: const [
-                  BoxShadow(
-                    color: CoconutColors.gray300,
-                    offset: Offset(2, 2),
-                    blurRadius: 10,
-                    spreadRadius: 0,
-                  ),
-                ]),
+              color: isItemTapped ? CoconutColors.gray300 : CoconutColors.gray150,
+              shape: BoxShape.circle,
+              boxShadow: const [
+                BoxShadow(color: CoconutColors.gray300, offset: Offset(2, 2), blurRadius: 10, spreadRadius: 0),
+              ],
+            ),
             child: Container(
               padding: const EdgeInsets.all(1),
               decoration: BoxDecoration(
                 color: isItemTapped ? CoconutColors.gray300 : CoconutColors.gray150,
                 shape: BoxShape.circle,
               ),
-              child: SvgPicture.asset('assets/svg/edit-outlined.svg',
-                  width: 10,
-                  colorFilter: const ColorFilter.mode(CoconutColors.gray700, BlendMode.srcIn)),
+              child: SvgPicture.asset(
+                'assets/svg/edit-outlined.svg',
+                width: 10,
+                colorFilter: const ColorFilter.mode(CoconutColors.gray700, BlendMode.srcIn),
+              ),
             ),
           ),
         ),

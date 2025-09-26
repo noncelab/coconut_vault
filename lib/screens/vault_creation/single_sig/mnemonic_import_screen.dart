@@ -71,8 +71,7 @@ class _MnemonicImportScreenState extends State<MnemonicImportScreen> {
     super.initState();
     _initListeners();
     _walletProvider = Provider.of<WalletProvider>(context, listen: false);
-    _walletCreationProvider = Provider.of<WalletCreationProvider>(context, listen: false)
-      ..resetAll();
+    _walletCreationProvider = Provider.of<WalletCreationProvider>(context, listen: false)..resetAll();
 
     _initializeTextFields();
     _requestInitialFocus();
@@ -92,8 +91,7 @@ class _MnemonicImportScreenState extends State<MnemonicImportScreen> {
   }
 
   void _initializeMnemonicInputLine() {
-    final mnemonicInputLineRenderBox =
-        _mnemonicInputLineGlobalKey.currentContext?.findRenderObject() as RenderBox;
+    final mnemonicInputLineRenderBox = _mnemonicInputLineGlobalKey.currentContext?.findRenderObject() as RenderBox;
     _mnemonicInputLineSize = mnemonicInputLineRenderBox.size;
   }
 
@@ -151,8 +149,7 @@ class _MnemonicImportScreenState extends State<MnemonicImportScreen> {
   }
 
   void _forceCursorToEnd(int index) {
-    _controllers[index].selection =
-        TextSelection.collapsed(offset: _controllers[index].text.length);
+    _controllers[index].selection = TextSelection.collapsed(offset: _controllers[index].text.length);
   }
 
   void _updateSuggestionVisibility(int index) {
@@ -302,8 +299,8 @@ class _MnemonicImportScreenState extends State<MnemonicImportScreen> {
 
     for (int i = 0; i < _wordCount; i++) {
       final word = _controllers[i].text.trim();
-      isMnemonicValid[i] = WalletUtility.isInMnemonicWordList(word) ||
-          (checkPrefixMatch ? _hasPrefixMatch(word) : false);
+      isMnemonicValid[i] =
+          WalletUtility.isInMnemonicWordList(word) || (checkPrefixMatch ? _hasPrefixMatch(word) : false);
     }
 
     _updateInvalidIndexes(isMnemonicValid);
@@ -313,7 +310,7 @@ class _MnemonicImportScreenState extends State<MnemonicImportScreen> {
   void _updateInvalidIndexes(List<bool> isMnemonicValid) {
     _invalidMnemonicIndexes = [
       for (int i = 0; i < isMnemonicValid.length; i++)
-        if (!isMnemonicValid[i] && _controllers[i].text.isNotEmpty) i
+        if (!isMnemonicValid[i] && _controllers[i].text.isNotEmpty) i,
     ];
   }
 
@@ -322,7 +319,8 @@ class _MnemonicImportScreenState extends State<MnemonicImportScreen> {
       setState(() {
         _isMnemonicValid = false;
         _errorMessage = t.errors.invalid_word_error(
-            filter: _invalidMnemonicIndexes.map((e) => _controllers[e].text).toList());
+          filter: _invalidMnemonicIndexes.map((e) => _controllers[e].text).toList(),
+        );
       });
       return;
     }
@@ -410,13 +408,10 @@ class _MnemonicImportScreenState extends State<MnemonicImportScreen> {
 
     // ===== INVALID 상태 처리 =====
     // 잘못된 니모닉으로 판별된 경우의 입력 처리
-    if (_invalidMnemonicIndexes.contains(controllerIndex) &&
-        !WalletUtility.isInMnemonicWordList(word)) {
+    if (_invalidMnemonicIndexes.contains(controllerIndex) && !WalletUtility.isInMnemonicWordList(word)) {
       // 허용 조건: 2글자까지 또는 3글자 + 추천단어 있음 + 길이 증가
       final bool allowContinue = word.length <= 2 ||
-          (word.length == 3 &&
-              _controllers[controllerIndex].hasSuggestion &&
-              word.length > prevLen);
+          (word.length == 3 && _controllers[controllerIndex].hasSuggestion && word.length > prevLen);
 
       if (allowContinue) {
         // 허용 조건에 맞으면 이어서 입력 허용 (아무것도 하지 않음)
@@ -503,13 +498,14 @@ class _MnemonicImportScreenState extends State<MnemonicImportScreen> {
       _suggestionWords = _getFilteredSuggestions(query);
 
       setState(() {
-        _isSuggestionWordsVisible =
-            _suggestionWords.isNotEmpty && _focusNodes.any((node) => node.hasFocus);
+        _isSuggestionWordsVisible = _suggestionWords.isNotEmpty && _focusNodes.any((node) => node.hasFocus);
       });
 
       if (_suggestionWords.isNotEmpty) {
         _controllers[controllerIndex].updateSuggestion(
-            _controllers[controllerIndex].selection.baseOffset, _suggestionWords.first);
+          _controllers[controllerIndex].selection.baseOffset,
+          _suggestionWords.first,
+        );
       }
     } catch (_) {}
   }
@@ -567,9 +563,7 @@ class _MnemonicImportScreenState extends State<MnemonicImportScreen> {
   }
 
   bool _canPopWithoutDialog() {
-    return _controllers.every((controller) => controller.text.isEmpty) &&
-        _passphrase.isEmpty &&
-        mounted;
+    return _controllers.every((controller) => controller.text.isEmpty) && _passphrase.isEmpty && mounted;
   }
 
   void _handleNextButton() {
@@ -577,8 +571,7 @@ class _MnemonicImportScreenState extends State<MnemonicImportScreen> {
     final passphrase = utf8.encode(_usePassphrase ? _passphrase : '');
 
     if (_walletProvider.isSeedDuplicated(secret, passphrase)) {
-      CoconutToast.showToast(
-          context: context, text: t.toast.mnemonic_already_added, isVisibleIcon: true);
+      CoconutToast.showToast(context: context, text: t.toast.mnemonic_already_added, isVisibleIcon: true);
       return;
     }
 
@@ -587,21 +580,17 @@ class _MnemonicImportScreenState extends State<MnemonicImportScreen> {
   }
 
   Uint8List _buildMnemonicSecret() {
-    return utf8.encode(_controllers
-        .map((controller) => controller.text)
-        .join(' ')
-        .trim()
-        .toLowerCase()
-        .replaceAll(RegExp(r'\s+'), ' '));
+    return utf8.encode(
+      _controllers.map((controller) => controller.text).join(' ').trim().toLowerCase().replaceAll(RegExp(r'\s+'), ' '),
+    );
   }
 
   bool _shouldShowSuggestionWords() {
     final groups = List.generate(_wordCount, (index) => index);
 
-    return groups.any((index) =>
-        _focusNodes[index].hasFocus &&
-        _controllers[index].text.length >= 2 &&
-        _suggestionWords.isNotEmpty);
+    return groups.any(
+      (index) => _focusNodes[index].hasFocus && _controllers[index].text.length >= 2 && _suggestionWords.isNotEmpty,
+    );
   }
 
   void _setDropdownVisible(bool value) {
@@ -650,8 +639,7 @@ class _MnemonicImportScreenState extends State<MnemonicImportScreen> {
     showDialog(
       context: context,
       builder: (BuildContext dialogContext) => CoconutPopup(
-        insetPadding:
-            EdgeInsets.symmetric(horizontal: MediaQuery.of(dialogContext).size.width * 0.15),
+        insetPadding: EdgeInsets.symmetric(horizontal: MediaQuery.of(dialogContext).size.width * 0.15),
         title: t.alert.erase_all_entered_mnemonic.title,
         centerDescription: true,
         description: t.alert.erase_all_entered_mnemonic.description,
@@ -775,9 +763,7 @@ class _MnemonicImportScreenState extends State<MnemonicImportScreen> {
           mainAxisAlignment: MainAxisAlignment.end,
           children: [
             Text(
-              _wordCount == _maxWordCount
-                  ? t.mnemonic_import_screen.words_24
-                  : t.mnemonic_import_screen.words_12,
+              _wordCount == _maxWordCount ? t.mnemonic_import_screen.words_24 : t.mnemonic_import_screen.words_12,
               style: CoconutTypography.body2_14,
             ),
             CoconutLayout.spacing_200w,
@@ -794,12 +780,7 @@ class _MnemonicImportScreenState extends State<MnemonicImportScreen> {
         SingleChildScrollView(
           controller: _scrollController,
           physics: const AlwaysScrollableScrollPhysics(),
-          padding: const EdgeInsets.only(
-            left: 16,
-            right: 16,
-            top: 16,
-            bottom: 100,
-          ),
+          padding: const EdgeInsets.only(left: 16, right: 16, top: 16, bottom: 100),
           child: Column(
             mainAxisSize: MainAxisSize.max,
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -808,8 +789,7 @@ class _MnemonicImportScreenState extends State<MnemonicImportScreen> {
               CoconutLayout.spacing_700h,
               _buildPassphraseToggle(),
               if (_usePassphrase) _buildPassphraseTextField(),
-              SizedBox(
-                  height: _isSuggestionWordsVisible && _shouldShowSuggestionWords() ? 200 : 80),
+              SizedBox(height: _isSuggestionWordsVisible && _shouldShowSuggestionWords() ? 200 : 80),
             ],
           ),
         ),
@@ -821,10 +801,7 @@ class _MnemonicImportScreenState extends State<MnemonicImportScreen> {
   List<Widget> _buildMnemonicLines() {
     final lineCount = _wordCount == _maxWordCount ? 8 : 4;
     return [
-      for (var i = 0; i < lineCount; i++) ...[
-        _buildMnemonicTextFieldLine(i),
-        CoconutLayout.spacing_200h,
-      ],
+      for (var i = 0; i < lineCount; i++) ...[_buildMnemonicTextFieldLine(i), CoconutLayout.spacing_200h],
     ];
   }
 
@@ -847,10 +824,7 @@ class _MnemonicImportScreenState extends State<MnemonicImportScreen> {
                     Positioned.fill(
                       child: ClipRRect(
                         borderRadius: BorderRadius.circular(12),
-                        child: BackdropFilter(
-                          filter: ImageFilter.blur(sigmaX: 3, sigmaY: 3),
-                          child: Container(),
-                        ),
+                        child: BackdropFilter(filter: ImageFilter.blur(sigmaX: 3, sigmaY: 3), child: Container()),
                       ),
                     ),
                     Positioned.fill(
@@ -910,10 +884,7 @@ class _MnemonicImportScreenState extends State<MnemonicImportScreen> {
 
   Widget _buildSuggestionButtons() {
     return Container(
-      padding: const EdgeInsets.only(
-        left: 16,
-        right: 16,
-      ),
+      padding: const EdgeInsets.only(left: 16, right: 16),
       width: MediaQuery.of(context).size.width,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -936,10 +907,7 @@ class _MnemonicImportScreenState extends State<MnemonicImportScreen> {
       pressedColor: CoconutColors.gray200,
       border: Border.all(color: CoconutColors.gray400),
       borderRadius: 100,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-        child: Text(word),
-      ),
+      child: Padding(padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8), child: Text(word)),
       onPressed: () => _applySuggestionWord(word),
     );
   }
@@ -963,8 +931,7 @@ class _MnemonicImportScreenState extends State<MnemonicImportScreen> {
   }
 
   Widget? _buildErrorSubWidget() {
-    if ((_isMnemonicValid == false &&
-            _controllers.every((controller) => controller.text.isNotEmpty)) ||
+    if ((_isMnemonicValid == false && _controllers.every((controller) => controller.text.isNotEmpty)) ||
         _errorMessage != null) {
       return Text(
         _errorMessage ?? t.errors.invalid_mnemonic_phrase,
@@ -1020,8 +987,8 @@ class _MnemonicImportScreenState extends State<MnemonicImportScreen> {
     return BoxDecoration(
       border: Border.all(
         color: _invalidMnemonicIndexes.contains(index)
-            ? CoconutColors.hotPink.withOpacity(0.7)
-            : CoconutColors.black.withOpacity(0.08),
+            ? CoconutColors.hotPink.withValues(alpha: 0.7)
+            : CoconutColors.black.withValues(alpha: 0.08),
       ),
       borderRadius: BorderRadius.circular(24),
       color: CoconutColors.white,
@@ -1036,9 +1003,7 @@ class _MnemonicImportScreenState extends State<MnemonicImportScreen> {
       focusNode: _focusNodes[index],
       controller: _controllers[index],
       enableInteractiveSelection: false,
-      textInputFormatter: [
-        FilteringTextInputFormatter.allow(RegExp(r'[a-z ]')),
-      ],
+      textInputFormatter: [FilteringTextInputFormatter.allow(RegExp(r'[a-z ]'))],
       onEditingComplete: _handleOnEditComplete,
       onChanged: (text) => _handleMnemonicTextChanged(text, index),
       maxLines: 1,
@@ -1171,7 +1136,7 @@ class _MnemonicImportScreenState extends State<MnemonicImportScreen> {
       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(12),
-        color: CoconutColors.black.withOpacity(0.06),
+        color: CoconutColors.black.withValues(alpha: 0.06),
       ),
       child: Column(
         children: [
@@ -1231,16 +1196,8 @@ class _MnemonicImportScreenState extends State<MnemonicImportScreen> {
         });
       },
       child: _passphraseObscured
-          ? const Icon(
-              CupertinoIcons.eye_slash,
-              color: CoconutColors.gray800,
-              size: 18,
-            )
-          : const Icon(
-              CupertinoIcons.eye,
-              color: CoconutColors.gray800,
-              size: 18,
-            ),
+          ? const Icon(CupertinoIcons.eye_slash, color: CoconutColors.gray800, size: 18)
+          : const Icon(CupertinoIcons.eye, color: CoconutColors.gray800, size: 18),
     );
   }
 
@@ -1253,8 +1210,8 @@ class _MnemonicImportScreenState extends State<MnemonicImportScreen> {
           '(${_passphrase.length} / 100)',
           style: CoconutTypography.body3_12.setColor(
             _passphrase.length == 100
-                ? CoconutColors.black.withOpacity(0.7)
-                : CoconutColors.black.withOpacity(0.5),
+                ? CoconutColors.black.withValues(alpha: 0.7)
+                : CoconutColors.black.withValues(alpha: 0.5),
           ),
         ),
       ),
@@ -1297,20 +1254,12 @@ class WordSuggestableController extends TextEditingController {
   int cursorOffset;
   String suggestionWord;
 
-  WordSuggestableController({
-    this.cursorOffset = 0,
-    this.suggestionWord = '',
-  });
+  WordSuggestableController({this.cursorOffset = 0, this.suggestionWord = ''});
 
   @override
-  TextSpan buildTextSpan({
-    required BuildContext context,
-    TextStyle? style,
-    required bool withComposing,
-  }) {
+  TextSpan buildTextSpan({required BuildContext context, TextStyle? style, required bool withComposing}) {
     final TextStyle defaultStyle = style ?? CoconutTypography.body2_14;
-    final TextStyle suggestSuffixStyle =
-        CoconutTypography.body2_14.copyWith(color: CoconutColors.gray400);
+    final TextStyle suggestSuffixStyle = CoconutTypography.body2_14.copyWith(color: CoconutColors.gray400);
 
     List<TextSpan> children = [];
     final String text = this.text;
@@ -1331,8 +1280,7 @@ class WordSuggestableController extends TextEditingController {
       final String currentWord = text.substring(wordStart, wordEnd);
 
       // suggestionWord가 현재 단어로 시작하는지 확인
-      if (suggestionWord.toLowerCase().startsWith(currentWord.toLowerCase()) &&
-          currentWord.isNotEmpty) {
+      if (suggestionWord.toLowerCase().startsWith(currentWord.toLowerCase()) && currentWord.isNotEmpty) {
         // 커서 이전 텍스트
         if (wordStart > 0) {
           children.add(TextSpan(text: text.substring(0, wordStart)));
@@ -1375,10 +1323,7 @@ class WordSuggestableController extends TextEditingController {
     // 추천 단어로 교체하고 공백 추가
     final newText = suggestionWord;
 
-    value = value.copyWith(
-      text: newText,
-      selection: TextSelection.collapsed(offset: newText.length),
-    );
+    value = value.copyWith(text: newText, selection: TextSelection.collapsed(offset: newText.length));
 
     // 추천 단어 초기화
     clearSuggestion();

@@ -26,10 +26,7 @@ class WalletProvider extends ChangeNotifier {
   late final WalletRepository _walletRepository;
   late final PreferenceProvider _preferenceProvider;
 
-  WalletProvider(
-    this._visibilityProvider,
-    this._preferenceProvider,
-  ) {
+  WalletProvider(this._visibilityProvider, this._preferenceProvider) {
     _walletRepository = WalletRepository();
     vaultListNotifier = ValueNotifier(_vaultList);
   }
@@ -102,12 +99,18 @@ class WalletProvider extends ChangeNotifier {
     return vault;
   }
 
-  Future<MultisigVaultListItem> addMultisigVault(String name, int color, int icon,
-      List<MultisigSigner> signers, int requiredSignatureCount) async {
+  Future<MultisigVaultListItem> addMultisigVault(
+    String name,
+    int color,
+    int icon,
+    List<MultisigSigner> signers,
+    int requiredSignatureCount,
+  ) async {
     _setAddVaultCompleted(false);
 
     final vault = await _walletRepository.addMultisigWallet(
-        MultisigWallet(null, name, icon, color, signers, requiredSignatureCount));
+      MultisigWallet(null, name, icon, color, signers, requiredSignatureCount),
+    );
 
     _setVaultList(_walletRepository.vaultList);
     _preferenceProvider.setVaultOrder(_vaultList.map((e) => e.id).toList());
@@ -133,13 +136,11 @@ class WalletProvider extends ChangeNotifier {
     return _walletRepository.hasPassphrase(walletId);
   }
 
-  Future<MultisigVaultListItem> importMultisigVault(
-      MultisigImportDetail details, int walletId) async {
+  Future<MultisigVaultListItem> importMultisigVault(MultisigImportDetail details, int walletId) async {
     _setAddVaultCompleted(false);
 
     // 이 지갑이 위 멀티시그 지갑의 일부인지 확인하기
-    MultisignatureVault multisigVault =
-        MultisignatureVault.fromCoordinatorBsms(details.coordinatorBsms);
+    MultisignatureVault multisigVault = MultisignatureVault.fromCoordinatorBsms(details.coordinatorBsms);
 
     // 중복 코드 확인
     List<SingleSigVaultListItem?> linkedWalletList = [];
@@ -150,8 +151,7 @@ class WalletProvider extends ChangeNotifier {
       if (wallet.vaultType == WalletType.multiSignature) continue;
 
       var singleSigVaultListItem = wallet as SingleSigVaultListItem;
-      var walletMfp =
-          (singleSigVaultListItem.coconutVault as SingleSignatureVault).keyStore.masterFingerprint;
+      var walletMfp = (singleSigVaultListItem.coconutVault as SingleSignatureVault).keyStore.masterFingerprint;
       for (int i = 0; i < multisigVault.keyStoreList.length; i++) {
         if (walletMfp == multisigVault.keyStoreList[i].masterFingerprint) {
           linkedWalletList[i] = wallet;
@@ -172,26 +172,36 @@ class WalletProvider extends ChangeNotifier {
     for (int i = 0; i < multisigVault.keyStoreList.length; i++) {
       // 외부 지갑
       if (linkedWalletList[i] == null) {
-        signers.add(MultisigSigner(
+        signers.add(
+          MultisigSigner(
             id: i,
             name: details.namesMap[multisigVault.keyStoreList[i].masterFingerprint],
-            keyStore: multisigVault.keyStoreList[i]));
+            keyStore: multisigVault.keyStoreList[i],
+          ),
+        );
       } else {
         // 내부 지갑
-        signers.add(MultisigSigner(
-          id: i,
-          signerBsms: linkedWalletList[i]!.signerBsms,
-          innerVaultId: linkedWalletList[i]!.id,
-          keyStore: KeyStore.fromSignerBsms(linkedWalletList[i]!.signerBsms),
-          name: linkedWalletList[i]!.name,
-          iconIndex: linkedWalletList[i]!.iconIndex,
-          colorIndex: linkedWalletList[i]!.colorIndex,
-        ));
+        signers.add(
+          MultisigSigner(
+            id: i,
+            signerBsms: linkedWalletList[i]!.signerBsms,
+            innerVaultId: linkedWalletList[i]!.id,
+            keyStore: KeyStore.fromSignerBsms(linkedWalletList[i]!.signerBsms),
+            name: linkedWalletList[i]!.name,
+            iconIndex: linkedWalletList[i]!.iconIndex,
+            colorIndex: linkedWalletList[i]!.colorIndex,
+          ),
+        );
       }
     }
 
-    final vault = await addMultisigVault(details.name, details.colorIndex, details.iconIndex,
-        signers, multisigVault.requiredSignature);
+    final vault = await addMultisigVault(
+      details.name,
+      details.colorIndex,
+      details.iconIndex,
+      signers,
+      multisigVault.requiredSignature,
+    );
 
     _setAddVaultCompleted(true);
     notifyListeners();
@@ -214,8 +224,11 @@ class WalletProvider extends ChangeNotifier {
   /// SiglesigVaultListItem의 seed 중복 여부 확인
   // TODO: lib 파라미터 Uint8List로 수정 필요
   bool isSeedDuplicated(Uint8List secret, Uint8List passphrase) {
-    var coconutVault = SingleSignatureVault.fromMnemonic(secret,
-        addressType: AddressType.p2wpkh, passphrase: passphrase);
+    var coconutVault = SingleSignatureVault.fromMnemonic(
+      secret,
+      addressType: AddressType.p2wpkh,
+      passphrase: passphrase,
+    );
     final vaultIndex = _vaultList.indexWhere((element) {
       if (element is SingleSigVaultListItem) {
         return (element.coconutVault as SingleSignatureVault).descriptor == coconutVault.descriptor;
@@ -237,8 +250,7 @@ class WalletProvider extends ChangeNotifier {
   }
 
   VaultListItemBase? findWalletByDescriptor(String descriptor) {
-    final vaultIndex =
-        _vaultList.indexWhere((element) => element.coconutVault.descriptor == descriptor);
+    final vaultIndex = _vaultList.indexWhere((element) => element.coconutVault.descriptor == descriptor);
 
     return vaultIndex != -1 ? _vaultList[vaultIndex] : null;
   }
@@ -362,9 +374,8 @@ class WalletProvider extends ChangeNotifier {
   }
 
   Future<void> restoreFromBackupData(String jsonData) async {
-    final List<Map<String, dynamic>> backupDataMapList = jsonDecode(jsonData)
-        .map<Map<String, dynamic>>((e) => Map<String, dynamic>.from(e))
-        .toList();
+    final List<Map<String, dynamic>> backupDataMapList =
+        jsonDecode(jsonData).map<Map<String, dynamic>>((e) => Map<String, dynamic>.from(e)).toList();
 
     /// 아래 restoreFromBackupData 함수 내에서 secret정보는 사라집니다.
     await _walletRepository.restoreFromBackupData(backupDataMapList);

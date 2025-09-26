@@ -36,27 +36,22 @@ class _VaultListScreenState extends State<VaultListScreen> with TickerProviderSt
 
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProxyProvider3<WalletProvider, ConnectivityProvider, PreferenceProvider,
-        VaultListViewModel>(
+    return ChangeNotifierProxyProvider3<WalletProvider, ConnectivityProvider, PreferenceProvider, VaultListViewModel>(
       create: (_) => _createViewModel(),
-      update: (BuildContext context,
-          WalletProvider walletProvider,
-          ConnectivityProvider connectivityProvider,
-          PreferenceProvider preferenceProvider,
-          VaultListViewModel? previous) {
+      update: (
+        BuildContext context,
+        WalletProvider walletProvider,
+        ConnectivityProvider connectivityProvider,
+        PreferenceProvider preferenceProvider,
+        VaultListViewModel? previous,
+      ) {
         previous ??= _createViewModel();
         previous.onPreferenceProviderUpdated();
         return previous;
       },
-      child: Selector<VaultListViewModel,
-          Tuple5<List<VaultListItemBase>, List<int>, List<int>, bool, List<int>>>(
-        selector: (_, vm) => Tuple5(
-          vm.vaults,
-          vm.tempFavoriteVaultIds,
-          vm.tempVaultOrder,
-          vm.isEditMode,
-          vm.vaultOrder,
-        ),
+      child: Selector<VaultListViewModel, Tuple5<List<VaultListItemBase>, List<int>, List<int>, bool, List<int>>>(
+        selector: (_, vm) =>
+            Tuple5(vm.vaults, vm.tempFavoriteVaultIds, vm.tempVaultOrder, vm.isEditMode, vm.vaultOrder),
         builder: (context, data, child) {
           final viewModel = Provider.of<VaultListViewModel>(context, listen: false);
 
@@ -115,24 +110,24 @@ class _VaultListScreenState extends State<VaultListScreen> with TickerProviderSt
                                 onButtonClicked: () async {
                                   await viewModel.applyTempDatasToVaults();
                                 },
-                                isActive:
-                                    viewModel.hasFavoriteChanged || viewModel.hasVaultOrderChanged,
+                                isActive: viewModel.hasFavoriteChanged || viewModel.hasVaultOrderChanged,
                                 backgroundColor: CoconutColors.black,
                                 text: t.complete,
-                              )
+                              ),
                             ],
                           )
                         // 일반 모드
                         : Stack(
                             children: [
                               CustomScrollView(
-                                  controller: _scrollController,
-                                  physics: const AlwaysScrollableScrollPhysics(),
-                                  semanticChildCount: vaultListItem.length,
-                                  slivers: <Widget>[
-                                    // 볼트 목록
-                                    _buildVaultList(vaultListItem, vaultOrder),
-                                  ]),
+                                controller: _scrollController,
+                                physics: const AlwaysScrollableScrollPhysics(),
+                                semanticChildCount: vaultListItem.length,
+                                slivers: <Widget>[
+                                  // 볼트 목록
+                                  _buildVaultList(vaultListItem, vaultOrder),
+                                ],
+                              ),
                             ],
                           ),
                   ),
@@ -143,7 +138,7 @@ class _VaultListScreenState extends State<VaultListScreen> with TickerProviderSt
                 builder: (context, isLoading, _) {
                   return isLoading ? const CoconutLoadingOverlay() : Container();
                 },
-              )
+              ),
             ],
           );
         },
@@ -185,23 +180,18 @@ class _VaultListScreenState extends State<VaultListScreen> with TickerProviderSt
       ),
       child: Column(
         children: [
-          _buildEditModeHeaderLine(
-            [
-              WidgetSpan(
-                alignment: PlaceholderAlignment.top,
-                child: SvgPicture.asset(
-                  'assets/svg/star-small.svg',
-                  width: 12,
-                  height: 12,
-                  colorFilter: const ColorFilter.mode(
-                    CoconutColors.gray800,
-                    BlendMode.srcIn,
-                  ),
-                ),
+          _buildEditModeHeaderLine([
+            WidgetSpan(
+              alignment: PlaceholderAlignment.top,
+              child: SvgPicture.asset(
+                'assets/svg/star-small.svg',
+                width: 12,
+                height: 12,
+                colorFilter: const ColorFilter.mode(CoconutColors.gray800, BlendMode.srcIn),
               ),
-              TextSpan(text: t.vault_list_screen.edit.star_description),
-            ],
-          ),
+            ),
+            TextSpan(text: t.vault_list_screen.edit.star_description),
+          ]),
           CoconutLayout.spacing_100h,
           _buildEditModeHeaderLine([
             WidgetSpan(
@@ -210,18 +200,13 @@ class _VaultListScreenState extends State<VaultListScreen> with TickerProviderSt
                 'assets/svg/hamburger.svg',
                 width: 12,
                 height: 12,
-                colorFilter: const ColorFilter.mode(
-                  CoconutColors.gray800,
-                  BlendMode.srcIn,
-                ),
+                colorFilter: const ColorFilter.mode(CoconutColors.gray800, BlendMode.srcIn),
               ),
             ),
             TextSpan(text: t.vault_list_screen.edit.order_description),
           ]),
           CoconutLayout.spacing_100h,
-          _buildEditModeHeaderLine([
-            TextSpan(text: t.vault_list_screen.edit.delete_description),
-          ]),
+          _buildEditModeHeaderLine([TextSpan(text: t.vault_list_screen.edit.delete_description)]),
         ],
       ),
     );
@@ -232,20 +217,14 @@ class _VaultListScreenState extends State<VaultListScreen> with TickerProviderSt
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Container(
-          margin: const EdgeInsets.symmetric(
-            vertical: 7.2,
-            horizontal: 6,
-          ),
+          margin: const EdgeInsets.symmetric(vertical: 7.2, horizontal: 6),
           height: 2.5,
           width: 2.5,
           decoration: const BoxDecoration(color: CoconutColors.gray800, shape: BoxShape.circle),
         ),
         Expanded(
           child: RichText(
-            text: TextSpan(
-              style: CoconutTypography.body3_12.setColor(CoconutColors.gray800),
-              children: inlineSpan,
-            ),
+            text: TextSpan(style: CoconutTypography.body3_12.setColor(CoconutColors.gray800), children: inlineSpan),
             overflow: TextOverflow.visible,
             softWrap: true,
           ),
@@ -257,22 +236,15 @@ class _VaultListScreenState extends State<VaultListScreen> with TickerProviderSt
   Widget _buildVaultList(List<VaultListItemBase> vaultList, List<int> vaultOrder) {
     vaultList.sort((a, b) => vaultOrder.indexOf(a.id).compareTo(vaultOrder.indexOf(b.id)));
     return SliverList(
-      delegate: SliverChildBuilderDelegate(
-        (context, index) {
-          if (index < vaultList.length) {
-            return _buildVaultItem(
-              vaultList[index],
-              index == vaultOrder.length - 1,
-              index == 0,
-            );
-          } else if (index < vaultOrder.length) {
-            // vaultOrder에 있지만 vaultList에 없는 경우 skeleton UI 표시
-            return VaultRowItem.buildSkeleton();
-          }
-          return null;
-        },
-        childCount: vaultOrder.length,
-      ),
+      delegate: SliverChildBuilderDelegate((context, index) {
+        if (index < vaultList.length) {
+          return _buildVaultItem(vaultList[index], index == vaultOrder.length - 1, index == 0);
+        } else if (index < vaultOrder.length) {
+          // vaultOrder에 있지만 vaultList에 없는 경우 skeleton UI 표시
+          return VaultRowItem.buildSkeleton();
+        }
+        return null;
+      }, childCount: vaultOrder.length),
     );
   }
 
@@ -282,18 +254,14 @@ class _VaultListScreenState extends State<VaultListScreen> with TickerProviderSt
       primary: false,
       physics: const AlwaysScrollableScrollPhysics(),
       header: _buildEditModeHeader(),
-      footer: const Padding(
-        padding: EdgeInsets.all(60.0),
-      ),
+      footer: const Padding(padding: EdgeInsets.all(60.0)),
       proxyDecorator: (child, index, animation) {
         // 드래그 중인 항목의 외관 변경
         return Container(
           decoration: BoxDecoration(
             color: CoconutColors.white,
             borderRadius: BorderRadius.circular(CoconutStyles.radius_200),
-            boxShadow: const [
-              BoxShadow(color: CoconutColors.gray300, blurRadius: 8, spreadRadius: 0.5)
-            ],
+            boxShadow: const [BoxShadow(color: CoconutColors.gray300, blurRadius: 8, spreadRadius: 0.5)],
           ),
           child: child,
         );
@@ -303,9 +271,7 @@ class _VaultListScreenState extends State<VaultListScreen> with TickerProviderSt
         _viewModel.reorderTempVaultOrder(oldIndex, newIndex);
       },
       itemBuilder: (context, index) {
-        VaultListItemBase vault = _viewModel.vaults.firstWhere(
-          (w) => w.id == _viewModel.tempVaultOrder[index],
-        );
+        VaultListItemBase vault = _viewModel.vaults.firstWhere((w) => w.id == _viewModel.tempVaultOrder[index]);
         // 삭제 가능한 조건
         // MultisigVaultListItem 인 경우 삭제 가능
         // SingleSigVaultListItem 인 경우 연결된 MultisigVaultListItem 이 없는 경우 삭제 가능
@@ -317,8 +283,7 @@ class _VaultListScreenState extends State<VaultListScreen> with TickerProviderSt
           if ((vault as SingleSigVaultListItem).linkedMultisigInfo?.entries.isEmpty == true ||
               vault.linkedMultisigInfo?.entries == null ||
               (vault.linkedMultisigInfo?.entries.isNotEmpty == true &&
-                  vault.linkedMultisigInfo!.entries
-                      .every((entry) => !_viewModel.tempVaultOrder.contains(entry.key)))) {
+                  vault.linkedMultisigInfo!.entries.every((entry) => !_viewModel.tempVaultOrder.contains(entry.key)))) {
             canDismiss = true;
           }
         }
@@ -332,19 +297,12 @@ class _VaultListScreenState extends State<VaultListScreen> with TickerProviderSt
             child: SvgPicture.asset(
               'assets/svg/trash.svg',
               width: 16,
-              colorFilter: const ColorFilter.mode(
-                CoconutColors.white,
-                BlendMode.srcIn,
-              ),
+              colorFilter: const ColorFilter.mode(CoconutColors.white, BlendMode.srcIn),
             ),
           ),
           confirmDismiss: (direction) async {
             if (!canDismiss) {
-              CoconutToast.showToast(
-                context: context,
-                text: t.toast.name_multisig_in_use,
-                isVisibleIcon: true,
-              );
+              CoconutToast.showToast(context: context, text: t.toast.name_multisig_in_use, isVisibleIcon: true);
               return false; // 되돌리기
             }
             return true;
@@ -371,8 +329,14 @@ class _VaultListScreenState extends State<VaultListScreen> with TickerProviderSt
     );
   }
 
-  Widget _buildVaultItem(VaultListItemBase vault, bool isLastItem, bool isFirstItem,
-      {bool isEditMode = false, bool isFavorite = false, int? index}) {
+  Widget _buildVaultItem(
+    VaultListItemBase vault,
+    bool isLastItem,
+    bool isFirstItem, {
+    bool isEditMode = false,
+    bool isFavorite = false,
+    int? index,
+  }) {
     return Column(
       children: [
         if (isEditMode) CoconutLayout.spacing_100h,
@@ -403,12 +367,7 @@ class _VaultListScreenState extends State<VaultListScreen> with TickerProviderSt
     bool isFavorite, {
     int? index,
   }) {
-    final VaultListItemBase(
-      id: id,
-      name: name,
-      iconIndex: iconIndex,
-      colorIndex: colorIndex,
-    ) = vault;
+    final VaultListItemBase(id: id, name: name, iconIndex: iconIndex, colorIndex: colorIndex) = vault;
 
     return VaultRowItem(
       key: key,
@@ -417,19 +376,14 @@ class _VaultListScreenState extends State<VaultListScreen> with TickerProviderSt
       isPrimaryWallet: isFirstItem,
       isEditMode: isEditMode,
       isFavorite: isFavorite,
-      isStarVisible:
-          isFavorite || _viewModel.tempFavoriteVaultIds.length < kMaxStarLength, // 즐겨찾기 제한 만큼 설정
+      isStarVisible: isFavorite || _viewModel.tempFavoriteVaultIds.length < kMaxStarLength, // 즐겨찾기 제한 만큼 설정
       onTapStar: (pair) {
         // pair: (bool isFavorite, int walletId)
 
         // 즐겨찾기 된 지갑이 1개인 경우 즐겨찾기 해제 불가
         if (isFavorite && _viewModel.tempFavoriteVaultIds.length == 1) {
           vibrateExtraLightDouble();
-          CoconutToast.showToast(
-            context: context,
-            text: t.toast.home_vault_min_one,
-            isVisibleIcon: true,
-          );
+          CoconutToast.showToast(context: context, text: t.toast.home_vault_min_one, isVisibleIcon: true);
           return;
         }
         vibrateExtraLight();
@@ -439,10 +393,11 @@ class _VaultListScreenState extends State<VaultListScreen> with TickerProviderSt
       onLongPressed: () {
         vibrateExtraLight();
         MyBottomSheet.showBottomSheet(
-            title: '',
-            titlePadding: EdgeInsets.zero,
-            context: context,
-            child: VaultItemSettingBottomSheet(id: id));
+          title: '',
+          titlePadding: EdgeInsets.zero,
+          context: context,
+          child: VaultItemSettingBottomSheet(id: id),
+        );
       },
       entryPoint: AppRoutes.vaultList,
     );

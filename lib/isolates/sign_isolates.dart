@@ -43,7 +43,8 @@ class SignIsolates {
     Psbt psbtObj = Psbt.parse(psbtBase64);
     var multisigWallet = dataList[0] as MultisignatureVault;
     Logger.log(
-        '--> [canSignToPsbt] psbtR: ${psbtObj.inputs[0].requiredSignature} psbtT: ${psbtObj.inputs[0].derivationPathList.length}');
+      '--> [canSignToPsbt] psbtR: ${psbtObj.inputs[0].requiredSignature} psbtT: ${psbtObj.inputs[0].derivationPathList.length}',
+    );
     if (multisigWallet.requiredSignature != psbtObj.inputs[0].requiredSignature ||
         multisigWallet.keyStoreList.length != psbtObj.inputs[0].derivationPathList.length) {
       return false;

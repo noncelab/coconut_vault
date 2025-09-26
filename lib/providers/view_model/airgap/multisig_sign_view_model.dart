@@ -43,12 +43,10 @@ class MultisigSignViewModel extends ChangeNotifier {
   String get firstRecipientAddress => _signProvider.recipientAddress != null
       ? _signProvider.recipientAddress!
       : _signProvider.recipientAmounts!.keys.first;
-  int get recipientCount =>
-      _signProvider.recipientAddress != null ? 1 : _signProvider.recipientAmounts!.length;
+  int get recipientCount => _signProvider.recipientAddress != null ? 1 : _signProvider.recipientAmounts!.length;
   int get sendingAmount => _signProvider.sendingAmount!;
   int get remainingSignatures =>
-      _vaultListItem.requiredSignatureCount -
-      _signerApproved.where((bool isApproved) => isApproved).length;
+      _vaultListItem.requiredSignatureCount - _signerApproved.where((bool isApproved) => isApproved).length;
   bool get isSignatureComplete => remainingSignatures <= 0;
   List<MultisigSigner> get signers => _vaultListItem.signers;
   String get psbtForSigning => _psbtForSigning;
@@ -79,8 +77,7 @@ class MultisigSignViewModel extends ChangeNotifier {
   Future<void> sign(int index, Uint8List passphrase) async {
     final mnemonic = await _walletProvider.getSecret(_vaultListItem.signers[index].innerVaultId!);
     final seed = Seed.fromMnemonic(mnemonic, passphrase: passphrase);
-    _psbtForSigning =
-        await compute(SignIsolates.addSignatureToPsbtWithMultisigVault, [seed, _psbtForSigning]);
+    _psbtForSigning = await compute(SignIsolates.addSignatureToPsbtWithMultisigVault, [seed, _psbtForSigning]);
     updateSignState(index);
 
     seed.wipe();

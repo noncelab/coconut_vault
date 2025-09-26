@@ -24,17 +24,13 @@ class SecureKeyGenerator {
   }
 
   /// 추가 엔트로피를 포함한 키 생성
-  static String generateSecureKeyWithEntropy({
-    int lengthInBytes = 32,
-    String? additionalData,
-  }) {
+  static String generateSecureKeyWithEntropy({int lengthInBytes = 32, String? additionalData}) {
     final randomBytes = generateSecureRandomBytes(lengthInBytes);
     final entropy = randomBytes + (additionalData != null ? utf8.encode(additionalData) : []);
 
     // PBKDF2 사용하여 키 스트레칭
     final salt = generateSecureRandomBytes(16); // 랜덤 솔트
-    final pbkdf2 = PBKDF2KeyDerivator(HMac(SHA256Digest(), 64))
-      ..init(Pbkdf2Parameters(salt, 10000, lengthInBytes));
+    final pbkdf2 = PBKDF2KeyDerivator(HMac(SHA256Digest(), 64))..init(Pbkdf2Parameters(salt, 10000, lengthInBytes));
 
     final key = pbkdf2.process(Uint8List.fromList(entropy));
     return base64.encode(key);

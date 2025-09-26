@@ -68,22 +68,11 @@ class _VaultNameIconEditPaletteState extends State<VaultNameIconEditPalette> {
         onTap: () => FocusScope.of(context).unfocus(),
         child: SafeArea(
           child: Container(
-            padding: const EdgeInsets.only(
-              left: 10,
-              right: 10,
-            ),
+            padding: const EdgeInsets.only(left: 10, right: 10),
             child: CustomScrollView(
               slivers: <Widget>[
-                SliverToBoxAdapter(
-                  child: Container(
-                    height: 10,
-                  ),
-                ),
-                SliverList(
-                  delegate: SliverChildListDelegate([
-                    _buildSelectedIconWithName(),
-                  ]),
-                ),
+                SliverToBoxAdapter(child: Container(height: 10)),
+                SliverList(delegate: SliverChildListDelegate([_buildSelectedIconWithName()])),
                 SliverPadding(
                   padding: const EdgeInsets.symmetric(horizontal: 0.0),
                   sliver: SliverGrid(
@@ -91,16 +80,16 @@ class _VaultNameIconEditPaletteState extends State<VaultNameIconEditPalette> {
                       crossAxisCount: 5,
                       crossAxisSpacing: 4.0,
                     ),
-                    delegate: SliverChildBuilderDelegate(
-                      (BuildContext context, int index) {
-                        return GestureDetector(
-                          onTap: () {
-                            setState(() {
-                              _updateSelected(index);
-                            });
-                          },
-                          child: index < 10
-                              ? Stack(children: [
+                    delegate: SliverChildBuilderDelegate((BuildContext context, int index) {
+                      return GestureDetector(
+                        onTap: () {
+                          setState(() {
+                            _updateSelected(index);
+                          });
+                        },
+                        child: index < 10
+                            ? Stack(
+                                children: [
                                   Container(
                                     margin: const EdgeInsets.all(16.0),
                                     decoration: BoxDecoration(
@@ -122,8 +111,10 @@ class _VaultNameIconEditPaletteState extends State<VaultNameIconEditPalette> {
                                       ),
                                     ),
                                   ),
-                                ])
-                              : Stack(children: [
+                                ],
+                              )
+                            : Stack(
+                                children: [
                                   Positioned.fill(child: SvgIcon(index: index - 10)),
                                   Positioned.fill(
                                     child: Container(
@@ -139,18 +130,13 @@ class _VaultNameIconEditPaletteState extends State<VaultNameIconEditPalette> {
                                       ),
                                     ),
                                   ),
-                                ]),
-                        );
-                      },
-                      childCount: CoconutColors.colorPalette.length + CustomIcons.totalCount,
-                    ),
+                                ],
+                              ),
+                      );
+                    }, childCount: CoconutColors.colorPalette.length + CustomIcons.totalCount),
                   ),
                 ),
-                SliverToBoxAdapter(
-                  child: Container(
-                    height: 100,
-                  ),
-                ),
+                SliverToBoxAdapter(child: Container(height: 100)),
               ],
             ),
           ),
@@ -169,12 +155,7 @@ class _VaultNameIconEditPaletteState extends State<VaultNameIconEditPalette> {
           children: [
             CoconutLayout.spacing_400w,
             _selectedIconIndex >= 0
-                ? Center(
-                    child: VaultIcon(
-                      iconIndex: _selectedIconIndex,
-                      colorIndex: _selectedColorIndex,
-                    ),
-                  )
+                ? Center(child: VaultIcon(iconIndex: _selectedIconIndex, colorIndex: _selectedColorIndex))
                 : const SizedBox(width: 16),
             CoconutLayout.spacing_200w,
             Expanded(
@@ -201,10 +182,7 @@ class _VaultNameIconEditPaletteState extends State<VaultNameIconEditPalette> {
                       icon: _controller.text.isNotEmpty
                           ? SvgPicture.asset(
                               'assets/svg/text-field-clear.svg',
-                              colorFilter: const ColorFilter.mode(
-                                CoconutColors.gray400,
-                                BlendMode.srcIn,
-                              ),
+                              colorFilter: const ColorFilter.mode(CoconutColors.gray400, BlendMode.srcIn),
                             )
                           : Container(),
                     ),
@@ -223,12 +201,7 @@ class _VaultNameIconEditPaletteState extends State<VaultNameIconEditPalette> {
         ),
         Padding(
           padding: const EdgeInsets.only(right: 16.0),
-          child: Text(
-            '${_name.length} / 20',
-            style: CoconutTypography.body3_12_Number.setColor(
-              CoconutColors.gray500,
-            ),
-          ),
+          child: Text('${_name.length} / 20', style: CoconutTypography.body3_12_Number.setColor(CoconutColors.gray500)),
         ),
       ],
     );

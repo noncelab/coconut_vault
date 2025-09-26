@@ -111,8 +111,7 @@ class AuthProvider extends ChangeNotifier {
 
   void _loadBiometricState() {
     _isBiometricEnabled = _sharedPrefs.getBool(SharedPrefsKeys.isBiometricEnabled) == true;
-    _hasAlreadyRequestedBioPermission =
-        _sharedPrefs.getBool(SharedPrefsKeys.hasAlreadyRequestedBioPermission) == true;
+    _hasAlreadyRequestedBioPermission = _sharedPrefs.getBool(SharedPrefsKeys.hasAlreadyRequestedBioPermission) == true;
   }
 
   void _loadUnlockState() {
@@ -134,10 +133,7 @@ class AuthProvider extends ChangeNotifier {
             ? t.permission.biometric.ask_to_use
             : t.permission.biometric
                 .proceed_biometric_auth, // 이 문구는 aos, iOS(touch ID)에서 사용됩니다. ios face ID는 info.plist string을 사용합니다.
-        options: const AuthenticationOptions(
-          stickyAuth: true,
-          biometricOnly: true,
-        ),
+        options: const AuthenticationOptions(stickyAuth: true, biometricOnly: true),
       );
 
       if (isSaved) {
@@ -151,10 +147,7 @@ class AuthProvider extends ChangeNotifier {
 
       /// iOS는 생체인증 권한을 요청하기 때문에 사용자가 거절할 수 있음
       /// 거절하면 _auth.getAvailableBiometrics() 결과는 빈 배열이 반환되므로 직접 수정
-      if (Platform.isIOS &&
-          !authenticated &&
-          e.code == 'NotAvailable' &&
-          !_hasAlreadyRequestedBioPermission) {
+      if (Platform.isIOS && !authenticated && e.code == 'NotAvailable' && !_hasAlreadyRequestedBioPermission) {
         _availableBiometrics = [];
       }
 
@@ -215,9 +208,7 @@ class AuthProvider extends ChangeNotifier {
   }
 
   void verifyBiometric(BuildContext context) async {
-    bool isAuthenticated = await authenticateWithBiometrics(
-      context: context,
-    );
+    bool isAuthenticated = await authenticateWithBiometrics(context: context);
     if (isAuthenticated) {
       if (onAuthenticationSuccess != null) {
         onAuthenticationSuccess!();
@@ -231,8 +222,10 @@ class AuthProvider extends ChangeNotifier {
     final random = Random();
     var randomNumberPad = List<String>.generate(10, (index) => index.toString());
     randomNumberPad.shuffle(random);
-    randomNumberPad.insert(randomNumberPad.length - 1,
-        !isPinSettingContext && _isBiometricEnabled ? kBiometricIdentifier : '');
+    randomNumberPad.insert(
+      randomNumberPad.length - 1,
+      !isPinSettingContext && _isBiometricEnabled ? kBiometricIdentifier : '',
+    );
     randomNumberPad.add(kDeleteBtnIdentifier);
     return randomNumberPad;
   }
@@ -303,9 +296,9 @@ class AuthProvider extends ChangeNotifier {
     }
 
     /// INFO: 디버그 모드일 때는 잠금 시도 실패 횟수 별 딜레이를 늘리지 않습니다.
-    final unlockableDateTime = DateTime.now().add(kDebugMode
-        ? const Duration(seconds: kDebugPinInputDelay)
-        : Duration(minutes: kLockoutDurationsPerTurn[turn - 1]));
+    final unlockableDateTime = DateTime.now().add(
+      kDebugMode ? const Duration(seconds: kDebugPinInputDelay) : Duration(minutes: kLockoutDurationsPerTurn[turn - 1]),
+    );
 
     _unlockAvailableAtInString = unlockableDateTime.toIso8601String();
     await _sharedPrefs.setString(unlockAvailableAtKey, _unlockAvailableAtInString);

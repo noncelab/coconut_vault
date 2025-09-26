@@ -10,27 +10,18 @@ class VaultIcon extends StatelessWidget {
   late final String iconPath;
   late final double size;
   VaultIcon({super.key, required int? iconIndex, required int? colorIndex, this.size = 22}) {
-    backgroundColor = colorIndex == null
-        ? CoconutColors.gray150
-        : CoconutColors.backgroundColorPaletteLight[colorIndex];
+    backgroundColor =
+        colorIndex == null ? CoconutColors.gray150 : CoconutColors.backgroundColorPaletteLight[colorIndex];
     iconColor = colorIndex == null ? CoconutColors.gray500 : CoconutColors.colorPalette[colorIndex];
-    iconPath =
-        iconIndex == null ? 'assets/svg/import-bsms.svg' : CustomIcons.getPathByIndex(iconIndex);
+    iconPath = iconIndex == null ? 'assets/svg/import-bsms.svg' : CustomIcons.getPathByIndex(iconIndex);
   }
 
   @override
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.all(10),
-      decoration: BoxDecoration(
-        color: backgroundColor,
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: SvgPicture.asset(
-        iconPath,
-        colorFilter: ColorFilter.mode(iconColor, BlendMode.srcIn),
-        width: size,
-      ),
+      decoration: BoxDecoration(color: backgroundColor, borderRadius: BorderRadius.circular(12)),
+      child: SvgPicture.asset(iconPath, colorFilter: ColorFilter.mode(iconColor, BlendMode.srcIn), width: size),
     );
   }
 }

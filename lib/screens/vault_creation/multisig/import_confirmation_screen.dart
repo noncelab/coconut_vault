@@ -4,22 +4,17 @@ import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/widgets/button/fixed_bottom_button.dart';
 import 'package:coconut_vault/widgets/custom_tooltip.dart';
 import 'package:coconut_vault/widgets/multisig/card/signer_bsms_info_card.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class ImportConfirmationScreen extends StatefulWidget {
-  const ImportConfirmationScreen({
-    super.key,
-    required this.importingBsms,
-  });
+  const ImportConfirmationScreen({super.key, required this.importingBsms});
   final String importingBsms;
 
   @override
   State<ImportConfirmationScreen> createState() => _ImportConfirmationScreenState();
 }
 
-class _ImportConfirmationScreenState extends State<ImportConfirmationScreen>
-    with WidgetsBindingObserver {
+class _ImportConfirmationScreenState extends State<ImportConfirmationScreen> with WidgetsBindingObserver {
   static const int kMaxTextLength = 15;
   late TextEditingController _controller;
   late FocusNode _focusNode;
@@ -76,11 +71,7 @@ class _ImportConfirmationScreenState extends State<ImportConfirmationScreen>
       borderRadius: CoconutBorder.defaultRadius,
       child: Scaffold(
         backgroundColor: CoconutColors.white,
-        appBar: CoconutAppBar.build(
-          title: t.confirm_importing_screen.scan_info,
-          context: context,
-          isBottom: true,
-        ),
+        appBar: CoconutAppBar.build(title: t.confirm_importing_screen.scan_info, context: context, isBottom: true),
         body: SafeArea(
           child: GestureDetector(
             onTap: _closeKeyboard,
@@ -96,14 +87,13 @@ class _ImportConfirmationScreenState extends State<ImportConfirmationScreen>
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         // tooltip
-                        CustomTooltip.buildInfoTooltip(context,
-                            paddingTop: 8,
-                            richText: RichText(
-                              text: TextSpan(
-                                style: CoconutTypography.body3_12,
-                                children: _getTooltipRichText(),
-                              ),
-                            )),
+                        CustomTooltip.buildInfoTooltip(
+                          context,
+                          paddingTop: 8,
+                          richText: RichText(
+                            text: TextSpan(style: CoconutTypography.body3_12, children: _getTooltipRichText()),
+                          ),
+                        ),
                         CoconutLayout.spacing_800h,
                         // bsms info
                         Container(
@@ -130,8 +120,7 @@ class _ImportConfirmationScreenState extends State<ImportConfirmationScreen>
                               Center(
                                 child: SizedBox(
                                   width: MediaQuery.of(context).size.width * 0.74,
-                                  child: SignerBsmsInfoCard(
-                                      bsms: Bsms.parseSigner(widget.importingBsms)),
+                                  child: SignerBsmsInfoCard(bsms: Bsms.parseSigner(widget.importingBsms)),
                                 ),
                               ),
                               CoconutLayout.spacing_900h,
@@ -139,10 +128,7 @@ class _ImportConfirmationScreenState extends State<ImportConfirmationScreen>
                           ),
                         ),
                         // divider
-                        Container(
-                          height: 16,
-                          color: CoconutColors.gray150,
-                        ),
+                        Container(height: 16, color: CoconutColors.gray150),
                         // memo textfield
                         Container(
                           padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -153,20 +139,14 @@ class _ImportConfirmationScreenState extends State<ImportConfirmationScreen>
                               Text(
                                 t.confirm_importing_screen.memo,
                                 style: CoconutTypography.body1_16.merge(
-                                  const TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    height: 20.8 / 16,
-                                    letterSpacing: -0.01,
-                                  ),
+                                  const TextStyle(fontWeight: FontWeight.bold, height: 20.8 / 16, letterSpacing: -0.01),
                                 ),
                               ),
                               CoconutLayout.spacing_300h,
                               Column(
                                 children: [
                                   Container(
-                                    decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(16),
-                                    ),
+                                    decoration: BoxDecoration(borderRadius: BorderRadius.circular(16)),
                                     child: CoconutTextField(
                                       backgroundColor: CoconutColors.white,
                                       borderRadius: 16,
@@ -192,11 +172,11 @@ class _ImportConfirmationScreenState extends State<ImportConfirmationScreen>
                   ),
                 ),
                 FixedBottomButton(
-                    onButtonClicked: () {
-                      Navigator.pop(
-                          context, {'bsms': widget.importingBsms, 'memo': _controller.text});
-                    },
-                    text: t.complete)
+                  onButtonClicked: () {
+                    Navigator.pop(context, {'bsms': widget.importingBsms, 'memo': _controller.text});
+                  },
+                  text: t.complete,
+                ),
               ],
             ),
           ),

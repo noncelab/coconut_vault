@@ -67,10 +67,7 @@ class _MnemonicConfirmationScreenState extends State<MnemonicConfirmationScreen>
           FocusScope.of(context).unfocus();
         },
         child: Scaffold(
-          appBar: CoconutAppBar.build(
-            title: t.mnemonic_confirm_screen.title,
-            context: context,
-          ),
+          appBar: CoconutAppBar.build(title: t.mnemonic_confirm_screen.title, context: context),
           backgroundColor: CoconutColors.white,
           body: SafeArea(
             child: Stack(
@@ -78,36 +75,33 @@ class _MnemonicConfirmationScreenState extends State<MnemonicConfirmationScreen>
                 SingleChildScrollView(
                   controller: _scrollController,
                   child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                      color: CoconutColors.white,
-                      child: Column(
-                        children: [
-                          buildStepIndicator(),
-                          Padding(
-                            padding: const EdgeInsets.only(
-                              top: 18,
-                              bottom: 25,
-                            ),
-                            child: Text(
-                              t.mnemonic_confirm_screen.description,
-                              textAlign: TextAlign.center,
-                              style: CoconutTypography.body1_16_Bold.setColor(
-                                CoconutColors.black,
-                              ),
-                            ),
+                    padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                    color: CoconutColors.white,
+                    child: Column(
+                      children: [
+                        buildStepIndicator(),
+                        Padding(
+                          padding: const EdgeInsets.only(top: 18, bottom: 25),
+                          child: Text(
+                            t.mnemonic_confirm_screen.description,
+                            textAlign: TextAlign.center,
+                            style: CoconutTypography.body1_16_Bold.setColor(CoconutColors.black),
                           ),
-                          step == 0
-                              ? MnemonicList(
-                                  mnemonic: _mnemonic,
-                                  onWarningPressed: () {
-                                    setState(() {
-                                      _isWarningVisible = false;
-                                    });
-                                  })
-                              : _passphraseGridViewWidget(),
-                          const SizedBox(height: 100),
-                        ],
-                      )),
+                        ),
+                        step == 0
+                            ? MnemonicList(
+                                mnemonic: _mnemonic,
+                                onWarningPressed: () {
+                                  setState(() {
+                                    _isWarningVisible = false;
+                                  });
+                                },
+                              )
+                            : _passphraseGridViewWidget(),
+                        const SizedBox(height: 100),
+                      ],
+                    ),
+                  ),
                 ),
                 FixedBottomButton(
                   isActive: _getNextButtonState().isActive,
@@ -122,9 +116,9 @@ class _MnemonicConfirmationScreenState extends State<MnemonicConfirmationScreen>
                       return;
                     }
                     Navigator.pushReplacement(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => const VaultNameAndIconSetupScreen()));
+                      context,
+                      MaterialPageRoute(builder: (context) => const VaultNameAndIconSetupScreen()),
+                    );
                   },
                 ),
               ],
@@ -143,9 +137,7 @@ class _MnemonicConfirmationScreenState extends State<MnemonicConfirmationScreen>
       maintainInteractivity: true,
       visible: _walletCreationProvider.passphrase?.isNotEmpty ?? false,
       child: Container(
-        padding: const EdgeInsets.only(
-          top: 10,
-        ),
+        padding: const EdgeInsets.only(top: 10),
         child: Stack(
           children: [
             const SizedBox(
@@ -166,26 +158,28 @@ class _MnemonicConfirmationScreenState extends State<MnemonicConfirmationScreen>
               top: 0,
               bottom: 0,
               child: NumberWidget(
-                  number: 1,
-                  selected: step == 0,
-                  onSelected: () {
-                    setState(() {
-                      step = 0;
-                    });
-                  }),
+                number: 1,
+                selected: step == 0,
+                onSelected: () {
+                  setState(() {
+                    step = 0;
+                  });
+                },
+              ),
             ),
             Positioned(
               right: 0,
               top: 0,
               bottom: 0,
               child: NumberWidget(
-                  number: 2,
-                  selected: step == 1,
-                  onSelected: () {
-                    setState(() {
-                      step = 1;
-                    });
-                  }),
+                number: 2,
+                selected: step == 1,
+                onSelected: () {
+                  setState(() {
+                    step = 1;
+                  });
+                },
+              ),
             ),
           ],
         ),
@@ -209,10 +203,7 @@ class _MnemonicConfirmationScreenState extends State<MnemonicConfirmationScreen>
             alignment: Alignment.center,
             decoration: BoxDecoration(
               color: CoconutColors.white,
-              border: Border.all(
-                width: 1,
-                color: CoconutColors.black,
-              ),
+              border: Border.all(width: 1, color: CoconutColors.black),
               borderRadius: BorderRadius.circular(8),
             ),
             child: Stack(
@@ -224,10 +215,7 @@ class _MnemonicConfirmationScreenState extends State<MnemonicConfirmationScreen>
                     left: 3,
                     child: Text(
                       '${index + 1}',
-                      style: const TextStyle(
-                          color: CoconutColors.borderGray,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 6),
+                      style: const TextStyle(color: CoconutColors.borderGray, fontWeight: FontWeight.bold, fontSize: 6),
                     ),
                   ),
                 ),
@@ -237,10 +225,7 @@ class _MnemonicConfirmationScreenState extends State<MnemonicConfirmationScreen>
                   child: Center(
                     child: Text(
                       utf8.decode(passphrase)[index],
-                      style: const TextStyle(
-                        color: CoconutColors.black,
-                        fontWeight: FontWeight.bold,
-                      ),
+                      style: const TextStyle(color: CoconutColors.black, fontWeight: FontWeight.bold),
                     ),
                   ),
                 ),

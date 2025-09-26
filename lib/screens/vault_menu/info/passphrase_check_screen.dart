@@ -70,27 +70,26 @@ class _PassphraseCheckScreen extends State<PassphraseCheckScreen> {
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
               child: Column(
                 children: [
-                  Expanded(
-                    child: SingleChildScrollView(
-                      child: _buildPassphraseInput(),
-                    ),
-                  ),
+                  Expanded(child: SingleChildScrollView(child: _buildPassphraseInput())),
                   if (_showError) ...[
-                    Text(t.passphrase_input_screen.passphrase_error,
-                        style: CoconutTypography.body3_12.setColor(CoconutColors.hotPink)),
+                    Text(
+                      t.passphrase_input_screen.passphrase_error,
+                      style: CoconutTypography.body3_12.setColor(CoconutColors.hotPink),
+                    ),
                     CoconutLayout.spacing_300h,
                   ],
                   ValueListenableBuilder<String>(
-                      valueListenable: _passphraseTextNotifier,
-                      builder: (context, value, child) {
-                        return CoconutButton(
-                          onPressed: _handleSubmit,
-                          isActive: _inputController.text.isNotEmpty && !_isSubmitting,
-                          width: double.infinity,
-                          height: 52,
-                          text: t.confirm,
-                        );
-                      }),
+                    valueListenable: _passphraseTextNotifier,
+                    builder: (context, value, child) {
+                      return CoconutButton(
+                        onPressed: _handleSubmit,
+                        isActive: _inputController.text.isNotEmpty && !_isSubmitting,
+                        width: double.infinity,
+                        height: 52,
+                        text: t.confirm,
+                      );
+                    },
+                  ),
                 ],
               ),
             ),
@@ -102,40 +101,41 @@ class _PassphraseCheckScreen extends State<PassphraseCheckScreen> {
 
   Widget _buildPassphraseInput() {
     return ValueListenableBuilder<String>(
-        valueListenable: _passphraseTextNotifier,
-        builder: (context, value, child) {
-          return CoconutTextField(
-            textAlign: TextAlign.left,
-            backgroundColor: CoconutColors.white,
-            cursorColor: CoconutColors.black,
-            activeColor: CoconutColors.black,
-            placeholderColor: CoconutColors.gray350,
-            controller: _inputController,
-            focusNode: _inputFocusNode,
-            maxLines: 3,
-            textInputAction: TextInputAction.done,
-            onChanged: (text) {
-              _passphraseTextNotifier.value = text;
-            },
-            isError: false,
-            isLengthVisible: false,
-            maxLength: 100,
-            placeholderText: t.passphrase_input_screen.enter_passphrase,
-            suffix: _inputController.text.isNotEmpty
-                ? IconButton(
-                    iconSize: 14,
-                    padding: EdgeInsets.zero,
-                    onPressed: () {
-                      _inputController.text = '';
-                    },
-                    icon: SvgPicture.asset(
-                      'assets/svg/text-field-clear.svg',
-                      colorFilter: const ColorFilter.mode(CoconutColors.gray900, BlendMode.srcIn),
-                    ),
-                  )
-                : null,
-          );
-        });
+      valueListenable: _passphraseTextNotifier,
+      builder: (context, value, child) {
+        return CoconutTextField(
+          textAlign: TextAlign.left,
+          backgroundColor: CoconutColors.white,
+          cursorColor: CoconutColors.black,
+          activeColor: CoconutColors.black,
+          placeholderColor: CoconutColors.gray350,
+          controller: _inputController,
+          focusNode: _inputFocusNode,
+          maxLines: 3,
+          textInputAction: TextInputAction.done,
+          onChanged: (text) {
+            _passphraseTextNotifier.value = text;
+          },
+          isError: false,
+          isLengthVisible: false,
+          maxLength: 100,
+          placeholderText: t.passphrase_input_screen.enter_passphrase,
+          suffix: _inputController.text.isNotEmpty
+              ? IconButton(
+                  iconSize: 14,
+                  padding: EdgeInsets.zero,
+                  onPressed: () {
+                    _inputController.text = '';
+                  },
+                  icon: SvgPicture.asset(
+                    'assets/svg/text-field-clear.svg',
+                    colorFilter: const ColorFilter.mode(CoconutColors.gray900, BlendMode.srcIn),
+                  ),
+                )
+              : null,
+        );
+      },
+    );
   }
 
   Future<void> _handleSubmit() async {
@@ -196,7 +196,7 @@ class _PassphraseCheckScreen extends State<PassphraseCheckScreen> {
     final result = await compute(WalletIsolates.verifyPassphrase, {
       'mnemonic': await walletProvider.getSecret(widget.id),
       'passphrase': passphrase,
-      'valutListItem': walletProvider.getVaultById(widget.id)
+      'valutListItem': walletProvider.getVaultById(widget.id),
     });
 
     // if (!mounted) return;

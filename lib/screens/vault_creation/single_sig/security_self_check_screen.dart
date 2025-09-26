@@ -8,10 +8,7 @@ import 'package:coconut_vault/widgets/check_list.dart';
 class SecuritySelfCheckScreen extends StatefulWidget {
   final VoidCallback? onNextPressed;
 
-  const SecuritySelfCheckScreen({
-    super.key,
-    this.onNextPressed,
-  });
+  const SecuritySelfCheckScreen({super.key, this.onNextPressed});
 
   @override
   State<SecuritySelfCheckScreen> createState() => _SecuritySelfCheckScreenState();
@@ -49,10 +46,7 @@ class _SecuritySelfCheckScreenState extends State<SecuritySelfCheckScreen> {
     return Scaffold(
       backgroundColor: CoconutColors.white,
       appBar: widget.onNextPressed != null
-          ? CoconutAppBar.build(
-              title: t.checklist,
-              context: context,
-            )
+          ? CoconutAppBar.build(title: t.checklist, context: context)
           : CoconutAppBar.build(
               title: t.checklist,
               context: context,
@@ -65,10 +59,11 @@ class _SecuritySelfCheckScreenState extends State<SecuritySelfCheckScreen> {
           children: [
             SingleChildScrollView(
               physics: const AlwaysScrollableScrollPhysics(),
-              child: Column(children: [
-                Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Container(
+              child: Column(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Container(
                       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
                       decoration: BoxDecoration(
                         borderRadius: CoconutBorder.defaultRadius,
@@ -77,11 +72,11 @@ class _SecuritySelfCheckScreenState extends State<SecuritySelfCheckScreen> {
                       child: Text(
                         t.security_self_check_screen.guidance,
                         style: CoconutTypography.body1_16_Bold.setColor(CoconutColors.black),
-                      )),
-                ),
-                CoconutLayout.spacing_400h,
-                ..._items.asMap().entries.map(
-                  (entry) {
+                      ),
+                    ),
+                  ),
+                  CoconutLayout.spacing_400h,
+                  ..._items.asMap().entries.map((entry) {
                     int index = entry.key;
                     ChecklistItem item = entry.value;
                     return ChecklistTile(
@@ -90,10 +85,10 @@ class _SecuritySelfCheckScreenState extends State<SecuritySelfCheckScreen> {
                         _onChecklistItemChanged(value, index);
                       },
                     );
-                  },
-                ),
-                CoconutLayout.spacing_2000h,
-              ]),
+                  }),
+                  CoconutLayout.spacing_2000h,
+                ],
+              ),
             ),
             FixedBottomButton(
               onButtonClicked: widget.onNextPressed!,
@@ -103,7 +98,7 @@ class _SecuritySelfCheckScreenState extends State<SecuritySelfCheckScreen> {
               gradientPadding: const EdgeInsets.only(left: 16, right: 16, bottom: 40, top: 110),
               isActive: _allItemsChecked,
               backgroundColor: CoconutColors.black,
-            )
+            ),
           ],
         ),
       ),

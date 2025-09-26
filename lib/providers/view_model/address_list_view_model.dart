@@ -58,11 +58,10 @@ class AddressListViewModel extends ChangeNotifier {
 
   Future<void> nextLoad() async {
     final newAddresses = await _getAddressList(
-        kAddressFetchCount +
-            (_isReceivingSelected ? _receivingAddressPage : _changeAddressPage) *
-                kAddressFetchCount,
-        kAddressFetchCount,
-        !_isReceivingSelected);
+      kAddressFetchCount + (_isReceivingSelected ? _receivingAddressPage : _changeAddressPage) * kAddressFetchCount,
+      kAddressFetchCount,
+      !_isReceivingSelected,
+    );
     if (_isReceivingSelected) {
       if (_receivingAddressList == null) return;
       _receivingAddressList!.addAll(newAddresses);

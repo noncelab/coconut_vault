@@ -1,3 +1,6 @@
+import 'dart:convert';
+import 'dart:typed_data';
+
 import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_lib/coconut_lib.dart';
 import 'package:coconut_vault/constants/app_routes.dart';
@@ -53,36 +56,35 @@ class _MnemonicDiceRollScreenState extends State<MnemonicDiceRollScreen> {
 
   void _showStopGeneratingMnemonicDialog() {
     showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return CoconutPopup(
-            insetPadding:
-                EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width * 0.15),
-            title: t.alert.stop_generating_mnemonic.title,
-            description: t.alert.stop_generating_mnemonic.description,
-            backgroundColor: CoconutColors.white,
-            rightButtonText: t.alert.stop_generating_mnemonic.confirm,
-            rightButtonColor: CoconutColors.gray900,
-            leftButtonText: t.alert.stop_generating_mnemonic.reselect,
-            leftButtonColor: CoconutColors.gray900,
-            onTapLeft: () {
-              Navigator.pop(context);
-              _onReset();
-            },
-            onTapRight: () {
-              Navigator.pop(context);
-              Navigator.pop(context);
-            },
-          );
-        });
+      context: context,
+      builder: (BuildContext context) {
+        return CoconutPopup(
+          insetPadding: EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width * 0.15),
+          title: t.alert.stop_generating_mnemonic.title,
+          description: t.alert.stop_generating_mnemonic.description,
+          backgroundColor: CoconutColors.white,
+          rightButtonText: t.alert.stop_generating_mnemonic.confirm,
+          rightButtonColor: CoconutColors.gray900,
+          leftButtonText: t.alert.stop_generating_mnemonic.reselect,
+          leftButtonColor: CoconutColors.gray900,
+          onTapLeft: () {
+            Navigator.pop(context);
+            _onReset();
+          },
+          onTapRight: () {
+            Navigator.pop(context);
+            Navigator.pop(context);
+          },
+        );
+      },
+    );
   }
 
   @override
   void initState() {
     super.initState();
     Provider.of<WalletCreationProvider>(context, listen: false).resetAll();
-    _totalStep =
-        Provider.of<VisibilityProvider>(context, listen: false).isPassphraseUseEnabled ? 2 : 1;
+    _totalStep = Provider.of<VisibilityProvider>(context, listen: false).isPassphraseUseEnabled ? 2 : 1;
   }
 
   @override
@@ -90,11 +92,7 @@ class _MnemonicDiceRollScreenState extends State<MnemonicDiceRollScreen> {
     final List<Widget> screens = [
       WordsLengthSelection(onSelected: _onLengthSelected),
       PassphraseSelection(onSelected: _onPassphraseSelected),
-      DiceRoll(
-        wordsCount: _selectedWordsCount,
-        usePassphrase: _usePassphrase,
-        onReset: _onReset,
-      )
+      DiceRoll(wordsCount: _selectedWordsCount, usePassphrase: _usePassphrase, onReset: _onReset),
     ];
 
     return PopScope(
@@ -109,16 +107,15 @@ class _MnemonicDiceRollScreenState extends State<MnemonicDiceRollScreen> {
           FocusScope.of(context).unfocus();
         },
         child: Scaffold(
+          backgroundColor: CoconutColors.white,
+          appBar: CoconutAppBar.build(
+            title: t.mnemonic_dice_roll_screen.title,
+            context: context,
+            onBackPressed: _showStopGeneratingMnemonicDialog,
             backgroundColor: CoconutColors.white,
-            appBar: CoconutAppBar.build(
-              title: t.mnemonic_dice_roll_screen.title,
-              context: context,
-              onBackPressed: _showStopGeneratingMnemonicDialog,
-              backgroundColor: CoconutColors.white,
-            ),
-            body: SafeArea(
-              child: screens[_step],
-            )),
+          ),
+          body: SafeArea(child: screens[_step]),
+        ),
       ),
     );
   }
@@ -129,12 +126,7 @@ class DiceRoll extends StatefulWidget {
   final bool usePassphrase;
   final Function() onReset;
 
-  const DiceRoll({
-    super.key,
-    required this.wordsCount,
-    required this.usePassphrase,
-    required this.onReset,
-  });
+  const DiceRoll({super.key, required this.wordsCount, required this.usePassphrase, required this.onReset});
 
   @override
   State<DiceRoll> createState() => _DiceRollState();
@@ -235,9 +227,7 @@ class _DiceRollState extends State<DiceRoll> {
     bool isActive = false;
     if (isPassphraseConfirmVisible) {
       // 패스프레이즈 확인 텍스트필드가 보이는 상태
-      isActive = _passphrase.isNotEmpty &&
-          _passphraseConfirm.isNotEmpty &&
-          _passphrase == _passphraseConfirm;
+      isActive = _passphrase.isNotEmpty && _passphraseConfirm.isNotEmpty && _passphrase == _passphraseConfirm;
     } else {
       // 패스프레이즈 확인 텍스트필드가 보이지 않는 상태
       isActive = _passphraseController.text.isNotEmpty;
@@ -254,10 +244,7 @@ class _DiceRollState extends State<DiceRoll> {
           controller: _scrollController,
           child: Column(
             mainAxisSize: MainAxisSize.min,
-            children: [
-              _buildStepIndicator(),
-              step == 0 ? _buildDiceRollWidget() : _buildPassphraseInput(),
-            ],
+            children: [_buildStepIndicator(), step == 0 ? _buildDiceRollWidget() : _buildPassphraseInput()],
           ),
         ),
         _buildProgressBar(),
@@ -320,8 +307,7 @@ class _DiceRollState extends State<DiceRoll> {
                           padding: const EdgeInsets.all(8),
                           child: SvgPicture.asset(
                             'assets/svg/text-field-clear.svg',
-                            colorFilter:
-                                const ColorFilter.mode(CoconutColors.gray400, BlendMode.srcIn),
+                            colorFilter: const ColorFilter.mode(CoconutColors.gray400, BlendMode.srcIn),
                           ),
                         ),
                       ),
@@ -333,30 +319,12 @@ class _DiceRollState extends State<DiceRoll> {
                       },
                       child: passphraseObscured
                           ? Container(
-                              padding: const EdgeInsets.only(
-                                right: 16,
-                                top: 8,
-                                bottom: 8,
-                                left: 8,
-                              ),
-                              child: const Icon(
-                                CupertinoIcons.eye_slash,
-                                color: CoconutColors.gray800,
-                                size: 18,
-                              ),
+                              padding: const EdgeInsets.only(right: 16, top: 8, bottom: 8, left: 8),
+                              child: const Icon(CupertinoIcons.eye_slash, color: CoconutColors.gray800, size: 18),
                             )
                           : Container(
-                              padding: const EdgeInsets.only(
-                                right: 16,
-                                top: 8,
-                                bottom: 8,
-                                left: 8,
-                              ),
-                              child: const Icon(
-                                CupertinoIcons.eye,
-                                color: CoconutColors.gray800,
-                                size: 18,
-                              ),
+                              padding: const EdgeInsets.only(right: 16, top: 8, bottom: 8, left: 8),
+                              child: const Icon(CupertinoIcons.eye, color: CoconutColors.gray800, size: 18),
                             ),
                     ),
                   ],
@@ -388,8 +356,7 @@ class _DiceRollState extends State<DiceRoll> {
                             padding: const EdgeInsets.all(8),
                             child: SvgPicture.asset(
                               'assets/svg/text-field-clear.svg',
-                              colorFilter:
-                                  const ColorFilter.mode(CoconutColors.gray400, BlendMode.srcIn),
+                              colorFilter: const ColorFilter.mode(CoconutColors.gray400, BlendMode.srcIn),
                             ),
                           ),
                         ),
@@ -412,15 +379,12 @@ class _DiceRollState extends State<DiceRoll> {
         children: [
           CoconutLayout.spacing_500h,
           Opacity(
-            opacity: _diceNumbers.isEmpty || _bits.length >= (widget.wordsCount == 12 ? 128 : 256)
-                ? 1.0
-                : 0.0,
+            opacity: _diceNumbers.isEmpty || _bits.length >= (widget.wordsCount == 12 ? 128 : 256) ? 1.0 : 0.0,
             child: Text(
-                _diceNumbers.isEmpty
-                    ? t.mnemonic_dice_roll_screen.guide1
-                    : t.mnemonic_dice_roll_screen.guide2,
-                style: CoconutTypography.body1_16_Bold.setColor(CoconutColors.gray800),
-                textAlign: TextAlign.center),
+              _diceNumbers.isEmpty ? t.mnemonic_dice_roll_screen.guide1 : t.mnemonic_dice_roll_screen.guide2,
+              style: CoconutTypography.body1_16_Bold.setColor(CoconutColors.gray800),
+              textAlign: TextAlign.center,
+            ),
           ),
           CoconutLayout.spacing_400h,
           _buildDiceGrid(),
@@ -447,23 +411,16 @@ class _DiceRollState extends State<DiceRoll> {
           padding: const EdgeInsets.only(bottom: 16),
           child: Stack(
             children: [
-              ClipRRect(
-                child: Container(
-                  height: 6,
-                  color: CoconutColors.black.withOpacity(0.06),
-                ),
-              ),
+              ClipRRect(child: Container(height: 6, color: CoconutColors.black.withOpacity(0.06))),
               ClipRRect(
                 borderRadius: _bits.length / (widget.wordsCount == 12 ? 128 : 256) == 1
                     ? BorderRadius.zero
-                    : const BorderRadius.only(
-                        topRight: Radius.circular(6), bottomRight: Radius.circular(6)),
+                    : const BorderRadius.only(topRight: Radius.circular(6), bottomRight: Radius.circular(6)),
                 child: AnimatedContainer(
                   duration: const Duration(milliseconds: 500),
                   curve: Curves.easeInOut,
                   height: 6,
-                  width: MediaQuery.of(context).size.width *
-                      (_bits.length / (widget.wordsCount == 12 ? 128 : 256)),
+                  width: MediaQuery.of(context).size.width * (_bits.length / (widget.wordsCount == 12 ? 128 : 256)),
                   color: CoconutColors.black,
                 ),
               ),
@@ -479,8 +436,10 @@ class _DiceRollState extends State<DiceRoll> {
     if (step == 0 && stepCount == 1) {
       setState(() {
         if (_generateMnemonicPhrase()) {
-          Provider.of<WalletCreationProvider>(context, listen: false)
-              .setSecretAndPassphrase(_mnemonic, _passphrase);
+          Provider.of<WalletCreationProvider>(
+            context,
+            listen: false,
+          ).setSecretAndPassphrase(utf8.encode(_mnemonic), utf8.encode(_passphrase));
           Navigator.pushNamed(context, AppRoutes.mnemonicManualEntropyConfirmation);
         }
       });
@@ -510,8 +469,10 @@ class _DiceRollState extends State<DiceRoll> {
           _passphrase == _passphraseConfirm &&
           _generateMnemonicPhrase()) {
         // 패스프레이즈 입력 완료 | dice roll 데이터로 니모닉 생성 시도 성공
-        Provider.of<WalletCreationProvider>(context, listen: false)
-            .setSecretAndPassphrase(_mnemonic, _passphrase);
+        Provider.of<WalletCreationProvider>(
+          context,
+          listen: false,
+        ).setSecretAndPassphrase(utf8.encode(_mnemonic), utf8.encode(_passphrase));
         _passphraseFocusNode.unfocus();
         _passphraseConfirmFocusNode.unfocus();
 
@@ -547,26 +508,28 @@ class _DiceRollState extends State<DiceRoll> {
             top: 0,
             bottom: 0,
             child: NumberWidget(
-                number: 1,
-                selected: step == 0,
-                onSelected: () {
-                  setState(() {
-                    step = 0;
-                  });
-                }),
+              number: 1,
+              selected: step == 0,
+              onSelected: () {
+                setState(() {
+                  step = 0;
+                });
+              },
+            ),
           ),
           Positioned(
             right: 0,
             top: 0,
             bottom: 0,
             child: NumberWidget(
-                number: 2,
-                selected: step == 1,
-                onSelected: () {
-                  setState(() {
-                    step = 1;
-                  });
-                }),
+              number: 2,
+              selected: step == 1,
+              onSelected: () {
+                setState(() {
+                  step = 1;
+                });
+              },
+            ),
           ),
         ],
       ),
@@ -615,9 +578,7 @@ class _DiceRollState extends State<DiceRoll> {
                 children: [
                   Text(
                     '$slotNumber',
-                    style: CoconutTypography.body3_12_Number.setColor(
-                      CoconutColors.black.withOpacity(0.3),
-                    ),
+                    style: CoconutTypography.body3_12_Number.setColor(CoconutColors.black.withOpacity(0.3)),
                   ),
                   CoconutLayout.spacing_200h,
                   Text(
@@ -625,7 +586,7 @@ class _DiceRollState extends State<DiceRoll> {
                     style: CoconutTypography.heading4_18_NumberBold.setColor(
                       hasData ? CoconutColors.black : CoconutColors.white,
                     ),
-                  )
+                  ),
                 ],
               ),
             );
@@ -644,20 +605,17 @@ class _DiceRollState extends State<DiceRoll> {
         return _buildDeleteButton(
           buttonText: t.delete_all,
           onButtonPressed: () => _showConfirmResetDialog(
-              title: t.delete_all, message: t.alert.erase_all_entered_so_far, action: _resetBits),
+            title: t.delete_all,
+            message: t.alert.erase_all_entered_so_far,
+            action: _resetBits,
+          ),
         );
       }
       if (diceNumber == -1) {
         // delete one
-        return _buildDeleteButton(
-          buttonText: t.delete_one,
-          onButtonPressed: () => _deleteRoll(),
-        );
+        return _buildDeleteButton(buttonText: t.delete_one, onButtonPressed: () => _deleteRoll());
       }
-      return _buildNumberButton(
-        buttonText: diceNumber.toString(),
-        onButtonPressed: () => _addRoll(diceNumber),
-      );
+      return _buildNumberButton(buttonText: diceNumber.toString(), onButtonPressed: () => _addRoll(diceNumber));
     }).toList();
 
     return SizedBox(
@@ -684,22 +642,18 @@ class _DiceRollState extends State<DiceRoll> {
         width: 100,
         height: 40,
         child: Center(
-            child: Text(
-          buttonText,
-          style: CoconutTypography.body3_12.setColor(
-            _diceNumbers.isEmpty
-                ? CoconutColors.secondaryText
-                : CoconutColors.black.withOpacity(0.7),
+          child: Text(
+            buttonText,
+            style: CoconutTypography.body3_12.setColor(
+              _diceNumbers.isEmpty ? CoconutColors.secondaryText : CoconutColors.black.withOpacity(0.7),
+            ),
           ),
-        )),
+        ),
       ),
     );
   }
 
-  Widget _buildNumberButton({
-    required String buttonText,
-    required VoidCallback onButtonPressed,
-  }) {
+  Widget _buildNumberButton({required String buttonText, required VoidCallback onButtonPressed}) {
     const double boxWidth = 282 + 30;
     const double buttonWidth = boxWidth / 4 - 12;
     return Padding(
@@ -712,17 +666,9 @@ class _DiceRollState extends State<DiceRoll> {
           height: buttonWidth,
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(12),
-            border: Border.all(
-              color: CoconutColors.black,
-              width: 1,
-            ),
+            border: Border.all(color: CoconutColors.black, width: 1),
           ),
-          child: Center(
-              child: SvgPicture.asset(
-            'assets/svg/dice/$buttonText.svg',
-            width: 44,
-            height: 44,
-          )),
+          child: Center(child: SvgPicture.asset('assets/svg/dice/$buttonText.svg', width: 44, height: 44)),
         ),
       ),
     );
@@ -757,25 +703,25 @@ class _DiceRollState extends State<DiceRoll> {
   void _showConfirmResetDialog({String? title, String? message, VoidCallback? action}) {
     if (_currentIndex == 0) return;
     showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return CoconutPopup(
-            insetPadding:
-                EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width * 0.15),
-            title: title ?? t.delete_all,
-            description: message ?? t.alert.erase_all_entered_so_far,
-            backgroundColor: CoconutColors.white,
-            leftButtonText: t.cancel,
-            leftButtonColor: CoconutColors.black.withOpacity(0.7),
-            rightButtonText: t.confirm,
-            rightButtonColor: CoconutColors.warningText,
-            onTapLeft: () => Navigator.pop(context),
-            onTapRight: () {
-              _resetBits();
-              Navigator.pop(context);
-            },
-          );
-        });
+      context: context,
+      builder: (BuildContext context) {
+        return CoconutPopup(
+          insetPadding: EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width * 0.15),
+          title: title ?? t.delete_all,
+          description: message ?? t.alert.erase_all_entered_so_far,
+          backgroundColor: CoconutColors.white,
+          leftButtonText: t.cancel,
+          leftButtonColor: CoconutColors.black.withOpacity(0.7),
+          rightButtonText: t.confirm,
+          rightButtonColor: CoconutColors.warningText,
+          onTapLeft: () => Navigator.pop(context),
+          onTapRight: () {
+            _resetBits();
+            Navigator.pop(context);
+          },
+        );
+      },
+    );
   }
 
   bool _generateMnemonicPhrase() {
@@ -785,12 +731,11 @@ class _DiceRollState extends State<DiceRoll> {
         int start = _bits.length - bitsToUse;
         Logger.log('diceRolls: ${_diceNumbers.join()}');
         Logger.log('bits sublist: ${_bits.sublist(start).join()}');
-        _mnemonic =
-            Seed.fromBinaryEntropy(_bits.sublist(start).map((int bit) => bit.toString()).join())
-                .mnemonic
-                .trim()
-                .toLowerCase()
-                .replaceAll(RegExp(r'\s+'), ' ');
+        // TODO: bitsToBytes랑 Uint8List.fromList 같은지 확인 필요
+        _mnemonic = utf8
+            .decode(Seed.fromEntropy(Uint8List.fromList(_bits.sublist(start))).mnemonic)
+            .toLowerCase()
+            .replaceAll(RegExp(r'\s+'), ' ');
       });
       return true;
     } catch (e) {
@@ -804,10 +749,11 @@ class _DiceRollState extends State<DiceRoll> {
       context: context,
       minChildSize: 0.5,
       childBuilder: (scrollController) => BinaryGrid(
-          totalBits: _bits.length,
-          bits: _diceNumbers,
-          wordsCount: widget.wordsCount,
-          scrollController: scrollController),
+        totalBits: _bits.length,
+        bits: _diceNumbers,
+        wordsCount: widget.wordsCount,
+        scrollController: scrollController,
+      ),
     );
   }
 }
@@ -818,12 +764,13 @@ class BinaryGrid extends StatelessWidget {
   final ScrollController scrollController;
   final int wordsCount;
 
-  const BinaryGrid(
-      {super.key,
-      required this.totalBits,
-      required this.bits,
-      required this.wordsCount,
-      required this.scrollController});
+  const BinaryGrid({
+    super.key,
+    required this.totalBits,
+    required this.bits,
+    required this.wordsCount,
+    required this.scrollController,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -832,8 +779,10 @@ class BinaryGrid extends StatelessWidget {
         padding: const EdgeInsets.all(8.0),
         child: Column(
           children: [
-            Text('${t.view_all}(${bits.length}/${wordsCount == 12 ? 128 : 256})',
-                style: CoconutTypography.body2_14_Bold),
+            Text(
+              '${t.view_all}(${bits.length}/${wordsCount == 12 ? 128 : 256})',
+              style: CoconutTypography.body2_14_Bold,
+            ),
             CoconutLayout.spacing_200h,
             Expanded(
               child: MediaQuery(
@@ -868,18 +817,14 @@ class BinaryGrid extends StatelessWidget {
           children: [
             Text(
               (index + 1).toString(),
-              style: CoconutTypography.body3_12_Number.setColor(
-                CoconutColors.black.withOpacity(0.3),
-              ),
+              style: CoconutTypography.body3_12_Number.setColor(CoconutColors.black.withOpacity(0.3)),
             ),
             Expanded(
               child: Text(
                 bit == null ? '' : bit.toString(),
-                style: CoconutTypography.heading4_18_NumberBold.setColor(
-                  CoconutColors.black.withOpacity(0.7),
-                ),
+                style: CoconutTypography.heading4_18_NumberBold.setColor(CoconutColors.black.withOpacity(0.7)),
               ),
-            )
+            ),
           ],
         ),
       ),

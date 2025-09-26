@@ -22,16 +22,15 @@ class WalletToSyncViewModel extends ChangeNotifier {
 
   WalletToSyncViewModel(int vaultId, WalletProvider walletProvider) {
     final vault = walletProvider.getVaultById(vaultId);
-    urType =
-        vault.vaultType == WalletType.multiSignature ? UrType.cryptoOutput : UrType.cryptoAccount;
+    urType = vault.vaultType == WalletType.multiSignature ? UrType.cryptoOutput : UrType.cryptoAccount;
 
     qrDatas = [
       QrData(type: QrType.single, data: vault.getWalletSyncString()),
       QrData(type: QrType.animated, data: _getLegacyAccountDescriptor(vault)),
       QrData(
-          type: QrType.single,
-          data: _parseDescriptor(
-              vault.coconutVault.descriptor, vault.vaultType == WalletType.singleSignature)),
+        type: QrType.single,
+        data: _parseDescriptor(vault.coconutVault.descriptor, vault.vaultType == WalletType.singleSignature),
+      ),
     ];
   }
 
@@ -39,27 +38,30 @@ class WalletToSyncViewModel extends ChangeNotifier {
     if (vault.vaultType == WalletType.singleSignature) {
       final coconutVault = vault.coconutVault as SingleSignatureVault;
       return LegacyAccountDescriptor.buildSingleSigCbor(
-          masterFingerprint: coconutVault.keyStore.masterFingerprint,
-          parentFingerprint: coconutVault.keyStore.extendedPublicKey.parentFingerprint,
-          pubkey33: coconutVault.keyStore.extendedPublicKey.publicKey,
-          chainCode32: coconutVault.keyStore.extendedPublicKey.chainCode,
-          coinType: NetworkType.currentNetworkType.isTestnet ? 1 : 0);
+        masterFingerprint: coconutVault.keyStore.masterFingerprint,
+        parentFingerprint: coconutVault.keyStore.extendedPublicKey.parentFingerprint,
+        pubkey33: coconutVault.keyStore.extendedPublicKey.publicKey,
+        chainCode32: coconutVault.keyStore.extendedPublicKey.chainCode,
+        coinType: NetworkType.currentNetworkType.isTestnet ? 1 : 0,
+      );
     } else if (vault.vaultType == WalletType.multiSignature) {
       final multisigListItem = vault as MultisigVaultListItem;
       final coconutVault = vault.coconutVault as MultisignatureVault;
       int signerIndex = 0;
       return LegacyAccountDescriptor.buildMultisigCbor(
-          requiredSignature: coconutVault.requiredSignature,
-          coinType: NetworkType.currentNetworkType.isTestnet ? 1 : 0,
-          cosigners: coconutVault.keyStoreList.map((keyStore) {
-            var signer = multisigListItem.signers[signerIndex++];
-            return Cosigner(
-                label: signer.name ?? signer.memo ?? '',
-                masterFingerprintHex: keyStore.masterFingerprint,
-                parentFingerprintHex: keyStore.extendedPublicKey.parentFingerprint,
-                pubkey33: keyStore.extendedPublicKey.publicKey,
-                chainCode32: keyStore.extendedPublicKey.chainCode);
-          }).toList());
+        requiredSignature: coconutVault.requiredSignature,
+        coinType: NetworkType.currentNetworkType.isTestnet ? 1 : 0,
+        cosigners: coconutVault.keyStoreList.map((keyStore) {
+          var signer = multisigListItem.signers[signerIndex++];
+          return Cosigner(
+            label: signer.name ?? signer.memo ?? '',
+            masterFingerprintHex: keyStore.masterFingerprint,
+            parentFingerprintHex: keyStore.extendedPublicKey.parentFingerprint,
+            pubkey33: keyStore.extendedPublicKey.publicKey,
+            chainCode32: keyStore.extendedPublicKey.chainCode,
+          );
+        }).toList(),
+      );
     } else {
       throw 'Wrong vault type: ${vault.vaultType}';
     }

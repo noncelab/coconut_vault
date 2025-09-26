@@ -44,9 +44,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             _buildDraggableHeader(),
             Expanded(
               child: Container(
-                decoration: const BoxDecoration(
-                  color: CoconutColors.white,
-                ),
+                decoration: const BoxDecoration(color: CoconutColors.white),
                 child: ListView(
                   controller: scrollController,
                   padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
@@ -67,9 +65,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     CoconutLayout.spacing_1000h,
                     _informationPart(context),
                     SizedBox(
-                        height: MediaQuery.of(context).viewPadding.bottom > 0
-                            ? MediaQuery.of(context).viewPadding.bottom + Sizes.size12
-                            : Sizes.size36)
+                      height: MediaQuery.of(context).viewPadding.bottom > 0
+                          ? MediaQuery.of(context).viewPadding.bottom + Sizes.size12
+                          : Sizes.size36,
+                    ),
                   ],
                 ),
               ),
@@ -84,10 +83,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     return Container(
       decoration: const BoxDecoration(
         color: CoconutColors.white,
-        borderRadius: BorderRadius.only(
-          topLeft: Radius.circular(24),
-          topRight: Radius.circular(24),
-        ),
+        borderRadius: BorderRadius.only(topLeft: Radius.circular(24), topRight: Radius.circular(24)),
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -97,10 +93,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             margin: const EdgeInsets.only(top: 8, bottom: 8),
             width: 55,
             height: 4,
-            decoration: BoxDecoration(
-              color: CoconutColors.gray400,
-              borderRadius: BorderRadius.circular(4),
-            ),
+            decoration: BoxDecoration(color: CoconutColors.gray400, borderRadius: BorderRadius.circular(4)),
           ),
           // Title
           Container(
@@ -109,19 +102,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
               children: [
                 GestureDetector(
                   onTap: () => Navigator.of(context).pop(),
-                  child: const Icon(
-                    Icons.close,
-                    color: CoconutColors.black,
-                    size: 24,
-                  ),
+                  child: const Icon(Icons.close, color: CoconutColors.black, size: 24),
                 ),
-                Expanded(
-                  child: Text(
-                    t.settings,
-                    style: CoconutTypography.body1_16_Bold,
-                    textAlign: TextAlign.center,
-                  ),
-                ),
+                Expanded(child: Text(t.settings, style: CoconutTypography.body1_16_Bold, textAlign: TextAlign.center)),
                 const SizedBox(width: 24), // Balance the close icon
               ],
             ),
@@ -134,10 +117,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   Widget _category(String title) {
     return Container(
       padding: const EdgeInsets.only(bottom: 16),
-      child: Text(
-        title,
-        style: CoconutTypography.body1_16_Bold,
-      ),
+      child: Text(title, style: CoconutTypography.body1_16_Bold),
     );
   }
 
@@ -152,35 +132,37 @@ class _SettingsScreenState extends State<SettingsScreen> {
         _category(t.security),
         Consumer<AuthProvider>(
           builder: (context, provider, child) {
-            return MultiButton(children: [
-              if (provider.isPinSet) ...{
-                if (provider.isBiometricSupportedByDevice)
-                  SingleButton(
-                    buttonPosition: SingleButtonPosition.top,
-                    title: t.settings_screen.use_biometric,
-                    rightElement: CupertinoSwitch(
-                      value: provider.isBiometricEnabled,
-                      activeColor: CoconutColors.black,
-                      onChanged: (isOn) async {
-                        assert(provider.isBiometricSupportedByDevice);
+            return MultiButton(
+              children: [
+                if (provider.isPinSet) ...{
+                  if (provider.isBiometricSupportedByDevice)
+                    SingleButton(
+                      buttonPosition: SingleButtonPosition.top,
+                      title: t.settings_screen.use_biometric,
+                      rightElement: CupertinoSwitch(
+                        value: provider.isBiometricEnabled,
+                        activeColor: CoconutColors.black,
+                        onChanged: (isOn) async {
+                          assert(provider.isBiometricSupportedByDevice);
 
-                        if (provider.availableBiometrics.isEmpty) {
-                          if (Platform.isAndroid) {
-                            CoconutToast.showToast(
+                          if (provider.availableBiometrics.isEmpty) {
+                            if (Platform.isAndroid) {
+                              CoconutToast.showToast(
                                 context: context,
                                 text: t.settings_screen.toast.no_enrolled_biometrics,
                                 isVisibleIcon: true,
-                                seconds: 5);
-                          } else {
-                            showDialog(
+                                seconds: 5,
+                              );
+                            } else {
+                              showDialog(
                                 context: context,
                                 builder: (BuildContext context) {
                                   return CoconutPopup(
                                     insetPadding: EdgeInsets.symmetric(
-                                        horizontal: MediaQuery.of(context).size.width * 0.15),
+                                      horizontal: MediaQuery.of(context).size.width * 0.15,
+                                    ),
                                     title: t.settings_screen.dialog.need_biometrics_setting_title,
-                                    description:
-                                        t.settings_screen.dialog.need_biometrics_setting_desc,
+                                    description: t.settings_screen.dialog.need_biometrics_setting_desc,
                                     backgroundColor: CoconutColors.white,
                                     rightButtonText: t.settings_screen.dialog.btn_move_to_setting,
                                     rightButtonColor: CoconutColors.gray900,
@@ -194,64 +176,62 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                       _openAppSettings();
                                     },
                                   );
-                                });
+                                },
+                              );
+                            }
+                            return;
                           }
-                          return;
-                        }
 
-                        if (isOn &&
-                            await provider.authenticateWithBiometrics(
-                                context: context, isSaved: true)) {
-                          Logger.log('Biometric authentication success');
-                          provider.saveIsBiometricEnabled(true);
-                        } else {
-                          Logger.log('Biometric authentication fail');
-                          provider.saveIsBiometricEnabled(false);
+                          if (isOn && await provider.authenticateWithBiometrics(context: context, isSaved: true)) {
+                            Logger.log('Biometric authentication success');
+                            provider.saveIsBiometricEnabled(true);
+                          } else {
+                            Logger.log('Biometric authentication fail');
+                            provider.saveIsBiometricEnabled(false);
+                          }
+                        },
+                      ),
+                    ),
+                  SingleButton(
+                    buttonPosition:
+                        provider.isBiometricSupportedByDevice ? SingleButtonPosition.bottom : SingleButtonPosition.none,
+                    title: t.settings_screen.change_password,
+                    enableShrinkAnim: true,
+                    animationEndValue: 0.97,
+                    onPressed: () async {
+                      final authProvider = context.read<AuthProvider>();
+                      if (await authProvider.isBiometricsAuthValid()) {
+                        _showPinSettingScreen();
+                        return;
+                      }
+
+                      if (!context.mounted) return;
+                      MyBottomSheet.showBottomSheet_90(
+                        context: context,
+                        child: const LoaderOverlay(
+                          child: PinCheckScreen(pinCheckContext: PinCheckContextEnum.pinChange),
+                        ),
+                      );
+                    },
+                  ),
+                } else ...{
+                  SingleButton(
+                    buttonPosition: SingleButtonPosition.none,
+                    title: t.settings_screen.set_password,
+                    rightElement: CupertinoSwitch(
+                      value: provider.isBiometricEnabled,
+                      activeColor: CoconutColors.black,
+                      onChanged: (isOn) async {
+                        /// 비밀번호 제거 기능은 제공하지 않음.
+                        if (isOn) {
+                          _showPinSettingScreen();
                         }
                       },
                     ),
                   ),
-                SingleButton(
-                  buttonPosition: provider.isBiometricSupportedByDevice
-                      ? SingleButtonPosition.bottom
-                      : SingleButtonPosition.none,
-                  title: t.settings_screen.change_password,
-                  enableShrinkAnim: true,
-                  animationEndValue: 0.97,
-                  onPressed: () async {
-                    final authProvider = context.read<AuthProvider>();
-                    if (await authProvider.isBiometricsAuthValid()) {
-                      _showPinSettingScreen();
-                      return;
-                    }
-
-                    MyBottomSheet.showBottomSheet_90(
-                      context: context,
-                      child: const LoaderOverlay(
-                        child: PinCheckScreen(
-                          pinCheckContext: PinCheckContextEnum.pinChange,
-                        ),
-                      ),
-                    );
-                  },
-                )
-              } else ...{
-                SingleButton(
-                  buttonPosition: SingleButtonPosition.none,
-                  title: t.settings_screen.set_password,
-                  rightElement: CupertinoSwitch(
-                    value: false,
-                    activeColor: CoconutColors.black,
-                    onChanged: (isOn) async {
-                      /// 비밀번호 제거 기능은 제공하지 않음.
-                      if (isOn) {
-                        _showPinSettingScreen();
-                      }
-                    },
-                  ),
-                ),
-              }
-            ]);
+                },
+              ],
+            );
           },
         ),
       ],
@@ -265,8 +245,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     }
   }
 
-  Widget _buildAnimatedButton(
-      {required String title, required VoidCallback onPressed, String? subtitle}) {
+  Widget _buildAnimatedButton({required String title, required VoidCallback onPressed, String? subtitle}) {
     return SingleButton(
       enableShrinkAnim: true,
       animationEndValue: 0.97,
@@ -286,10 +265,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
           onPressed: () async {
             final authProvider = context.read<AuthProvider>();
             if (await authProvider.isBiometricsAuthValid()) {
+              if (!context.mounted) return;
               Navigator.pushNamed(context, AppRoutes.prepareUpdate);
               return;
             }
 
+            if (!context.mounted) return;
             MyBottomSheet.showBottomSheet_90(
               context: context,
               child: CustomLoadingOverlay(
@@ -309,9 +290,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
   }
 
   Widget _informationPart(BuildContext context) {
-    return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-      _category(t.settings_screen.information),
-      Selector<VisibilityProvider, bool>(
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _category(t.settings_screen.information),
+        Selector<VisibilityProvider, bool>(
           selector: (_, viewModel) => viewModel.isPassphraseUseEnabled,
           builder: (context, isPassphraseUseEnabled, child) {
             return _buildAnimatedButton(
@@ -320,14 +303,18 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 Navigator.pushNamed(context, AppRoutes.appInfo);
               },
             );
-          }),
-    ]);
+          },
+        ),
+      ],
+    );
   }
 
   Widget _btcUnitPart(BuildContext context) {
-    return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-      _category(t.unit),
-      Selector<VisibilityProvider, bool>(
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _category(t.unit),
+        Selector<VisibilityProvider, bool>(
           selector: (_, viewModel) => viewModel.isBtcUnit,
           builder: (context, isBtcUnit, child) {
             return _buildAnimatedButton(
@@ -342,52 +329,58 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 );
               },
             );
-          }),
-    ]);
+          },
+        ),
+      ],
+    );
   }
 
   Widget _advancedUserPart(BuildContext context) {
-    return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-      _category(t.advanced_user),
-      Selector<VisibilityProvider, bool>(
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _category(t.advanced_user),
+        Selector<VisibilityProvider, bool>(
           selector: (_, viewModel) => viewModel.isPassphraseUseEnabled,
           builder: (context, isPassphraseUseEnabled, child) {
             return SingleButton(
               buttonPosition: SingleButtonPosition.none,
               title: t.settings_screen.use_passphrase,
               rightElement: CupertinoSwitch(
-                  value: isPassphraseUseEnabled,
-                  activeColor: CoconutColors.black,
-                  onChanged: (isOn) async {
-                    if (!isOn) {
-                      await context.read<VisibilityProvider>().setAdvancedMode(isOn);
-                      return;
-                    }
+                value: isPassphraseUseEnabled,
+                activeColor: CoconutColors.black,
+                onChanged: (isOn) async {
+                  if (!isOn) {
+                    await context.read<VisibilityProvider>().setAdvancedMode(isOn);
+                    return;
+                  }
 
-                    if (context.mounted) {
-                      showDialog(
-                        context: context,
-                        builder: (BuildContext context) {
-                          return CoconutPopup(
-                            insetPadding: EdgeInsets.symmetric(
-                                horizontal: MediaQuery.of(context).size.width * 0.15),
-                            title: t.settings_screen.dialog.use_passphrase_title,
-                            description: t.settings_screen.dialog.use_passphrase_description,
-                            rightButtonText: t.settings_screen.dialog.use_passphrase_btn,
-                            onTapRight: () async {
-                              await context.read<VisibilityProvider>().setAdvancedMode(isOn);
-                              if (context.mounted) {
-                                Navigator.pop(context);
-                              }
-                            },
-                          );
-                        },
-                      );
-                    }
-                  }),
+                  if (context.mounted) {
+                    showDialog(
+                      context: context,
+                      builder: (BuildContext context) {
+                        return CoconutPopup(
+                          insetPadding: EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width * 0.15),
+                          title: t.settings_screen.dialog.use_passphrase_title,
+                          description: t.settings_screen.dialog.use_passphrase_description,
+                          rightButtonText: t.settings_screen.dialog.use_passphrase_btn,
+                          onTapRight: () async {
+                            await context.read<VisibilityProvider>().setAdvancedMode(isOn);
+                            if (context.mounted) {
+                              Navigator.pop(context);
+                            }
+                          },
+                        );
+                      },
+                    );
+                  }
+                },
+              ),
             );
-          }),
-    ]);
+          },
+        ),
+      ],
+    );
   }
 
   Widget _languagePart(BuildContext context) {

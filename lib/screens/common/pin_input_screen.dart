@@ -27,25 +27,26 @@ class PinInputScreen extends StatefulWidget {
   final PinType pinType; // 문자 또는 6-digit PIN 입력 모드 확인용
   final Function(PinType)? onPinTypeChanged; // 입력 모드 변경 핸들러
 
-  const PinInputScreen(
-      {super.key,
-      required this.title,
-      required this.pin,
-      required this.errorMessage,
-      required this.onKeyTap,
-      required this.pinShuffleNumbers,
-      required this.onPinClear,
-      this.onReset,
-      required this.step,
-      required this.canChangePinType,
-      this.appBarVisible = true,
-      this.initOptionVisible = false,
-      this.descriptionTextWidget,
-      this.lastChance = false,
-      this.lastChanceMessage,
-      this.disabled = false,
-      this.pinType = PinType.number,
-      this.onPinTypeChanged});
+  const PinInputScreen({
+    super.key,
+    required this.title,
+    required this.pin,
+    required this.errorMessage,
+    required this.onKeyTap,
+    required this.pinShuffleNumbers,
+    required this.onPinClear,
+    this.onReset,
+    required this.step,
+    required this.canChangePinType,
+    this.appBarVisible = true,
+    this.initOptionVisible = false,
+    this.descriptionTextWidget,
+    this.lastChance = false,
+    this.lastChanceMessage,
+    this.disabled = false,
+    this.pinType = PinType.number,
+    this.onPinTypeChanged,
+  });
 
   @override
   PinInputScreenState createState() => PinInputScreenState();
@@ -111,28 +112,18 @@ class PinInputScreenState extends State<PinInputScreen> {
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
             if (widget.initOptionVisible) const SizedBox(height: 60),
-            Text(
-              widget.title,
-              style: CoconutTypography.body1_16_Bold,
-              textAlign: TextAlign.center,
-            ),
+            Text(widget.title, style: CoconutTypography.body1_16_Bold, textAlign: TextAlign.center),
             const SizedBox(height: 20),
-            Align(
-              alignment: Alignment.center,
-              child: widget.descriptionTextWidget ?? const Text(''),
-            ),
+            Align(alignment: Alignment.center, child: widget.descriptionTextWidget ?? const Text('')),
             CoconutLayout.spacing_200h,
-            SizedBox(
-              height: 56,
-              child: _pinType == PinType.number ? _buildNumberInput() : _buildCharacterInput(),
-            ),
+            SizedBox(height: 56, child: _pinType == PinType.number ? _buildNumberInput() : _buildCharacterInput()),
             if (widget.canChangePinType && widget.step == 0)
               Padding(
                 padding: const EdgeInsets.only(top: 12),
                 child: SizedBox(
-                    height: 40,
-                    child: PinTypeToggleButton(
-                        isActive: true, currentPinType: _pinType, onToggle: _togglePinType)),
+                  height: 40,
+                  child: PinTypeToggleButton(isActive: true, currentPinType: _pinType, onToggle: _togglePinType),
+                ),
               ),
             CoconutLayout.spacing_200h,
             Text(
@@ -166,11 +157,7 @@ class PinInputScreenState extends State<PinInputScreen> {
                       children: widget.pinShuffleNumbers.map((key) {
                         return Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 16),
-                          child: KeyButton(
-                            keyValue: key,
-                            onKeyTap: widget.onKeyTap,
-                            disabled: widget.disabled,
-                          ),
+                          child: KeyButton(keyValue: key, onKeyTap: widget.onKeyTap, disabled: widget.disabled),
                         );
                       }).toList(),
                     ),
@@ -178,26 +165,23 @@ class PinInputScreenState extends State<PinInputScreen> {
                 ),
               ),
             ),
-            const SizedBox(
-              height: 30,
-            ),
+            const SizedBox(height: 30),
             Visibility(
               visible: widget.initOptionVisible,
               replacement: Container(),
               child: Padding(
-                  padding: EdgeInsets.only(bottom: _characterFocusNode.hasFocus ? 30 : 50),
-                  child: GestureDetector(
-                    onTap: () {
-                      widget.onReset?.call();
-                    },
-                    child: Text(
-                      t.forgot_password,
-                      style: CoconutTypography.body2_14_Bold.setColor(
-                        CoconutColors.black.withOpacity(0.5),
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
-                  )),
+                padding: EdgeInsets.only(bottom: _characterFocusNode.hasFocus ? 30 : 50),
+                child: GestureDetector(
+                  onTap: () {
+                    widget.onReset?.call();
+                  },
+                  child: Text(
+                    t.forgot_password,
+                    style: CoconutTypography.body2_14_Bold.setColor(CoconutColors.black.withValues(alpha: 0.5)),
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+              ),
             ),
           ],
         ),

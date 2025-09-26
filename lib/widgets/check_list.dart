@@ -64,9 +64,7 @@ class _ChecklistTileState extends State<ChecklistTile> {
             Expanded(
               child: Text(
                 widget.item.title,
-                style: CoconutTypography.body1_16_Bold.setColor(
-                  CoconutColors.gray800,
-                ),
+                style: CoconutTypography.body1_16_Bold.setColor(CoconutColors.gray800),
                 textAlign: TextAlign.start,
               ),
             ),

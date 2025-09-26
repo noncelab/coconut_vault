@@ -61,8 +61,7 @@ class _MultiButtonState extends State<MultiButton> with TickerProviderStateMixin
                               color: CoconutColors.gray300,
                             ),
                             margin: EdgeInsets.symmetric(
-                              horizontal:
-                                  widget.children.first.buttonPosition.padding.horizontal / 2,
+                              horizontal: widget.children.first.buttonPosition.padding.horizontal / 2,
                             ),
                           ),
                           ...widget.children.sublist(1),
@@ -81,20 +80,22 @@ class _MultiButtonState extends State<MultiButton> with TickerProviderStateMixin
     final firstElement = widget.children.first;
     final radius = firstElement.buttonPosition.radius;
     return BorderRadius.only(
-        topLeft: radius.topLeft,
-        topRight: radius.topRight,
-        bottomLeft: radius.bottomLeft,
-        bottomRight: radius.bottomRight);
+      topLeft: radius.topLeft,
+      topRight: radius.topRight,
+      bottomLeft: radius.bottomLeft,
+      bottomRight: radius.bottomRight,
+    );
   }
 
   BorderRadius _getLastElementRadius() {
     final lastElement = widget.children.last;
     final radius = lastElement.buttonPosition.radius;
     return BorderRadius.only(
-        topLeft: radius.topLeft,
-        topRight: radius.topRight,
-        bottomLeft: radius.bottomLeft,
-        bottomRight: radius.bottomRight);
+      topLeft: radius.topLeft,
+      topRight: radius.topRight,
+      bottomLeft: radius.bottomLeft,
+      bottomRight: radius.bottomRight,
+    );
   }
 }
 

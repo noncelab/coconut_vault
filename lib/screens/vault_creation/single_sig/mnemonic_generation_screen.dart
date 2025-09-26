@@ -61,27 +61,28 @@ class _MnemonicGenerationScreenState extends State<MnemonicGenerationScreen> {
 
   void _showStopGeneratingMnemonicDialog() {
     showDialog(
-        context: context,
-        builder: (BuildContext dialogContext) {
-          return CoconutPopup(
-              insetPadding:
-                  EdgeInsets.symmetric(horizontal: MediaQuery.of(dialogContext).size.width * 0.15),
-              title: t.alert.stop_generating_mnemonic.title,
-              description: t.alert.stop_generating_mnemonic.description,
-              backgroundColor: CoconutColors.white,
-              rightButtonText: t.yes,
-              rightButtonColor: CoconutColors.gray900,
-              leftButtonText: t.alert.stop_generating_mnemonic.reselect,
-              leftButtonColor: CoconutColors.gray900,
-              onTapLeft: () {
-                Navigator.pop(context);
-                _onReset();
-              },
-              onTapRight: () {
-                Navigator.pop(dialogContext); // 다이얼로그 닫기
-                Navigator.pop(context);
-              });
-        });
+      context: context,
+      builder: (BuildContext dialogContext) {
+        return CoconutPopup(
+          insetPadding: EdgeInsets.symmetric(horizontal: MediaQuery.of(dialogContext).size.width * 0.15),
+          title: t.alert.stop_generating_mnemonic.title,
+          description: t.alert.stop_generating_mnemonic.description,
+          backgroundColor: CoconutColors.white,
+          rightButtonText: t.yes,
+          rightButtonColor: CoconutColors.gray900,
+          leftButtonText: t.alert.stop_generating_mnemonic.reselect,
+          leftButtonColor: CoconutColors.gray900,
+          onTapLeft: () {
+            Navigator.pop(context);
+            _onReset();
+          },
+          onTapRight: () {
+            Navigator.pop(dialogContext); // 다이얼로그 닫기
+            Navigator.pop(context);
+          },
+        );
+      },
+    );
   }
 
   void _onNavigateToNext() {
@@ -92,8 +93,7 @@ class _MnemonicGenerationScreenState extends State<MnemonicGenerationScreen> {
   void initState() {
     super.initState();
     Provider.of<WalletCreationProvider>(context, listen: false).resetAll();
-    _totalStep =
-        Provider.of<VisibilityProvider>(context, listen: false).isPassphraseUseEnabled ? 2 : 1;
+    _totalStep = Provider.of<VisibilityProvider>(context, listen: false).isPassphraseUseEnabled ? 2 : 1;
   }
 
   @override
@@ -136,9 +136,7 @@ class _MnemonicGenerationScreenState extends State<MnemonicGenerationScreen> {
                 ),
             ],
           ),
-          body: SafeArea(
-            child: screens[_step],
-          ),
+          body: SafeArea(child: screens[_step]),
         ),
       ),
     );
@@ -148,10 +146,7 @@ class _MnemonicGenerationScreenState extends State<MnemonicGenerationScreen> {
 class WordsLengthSelection extends StatefulWidget {
   final void Function(int) onSelected;
 
-  const WordsLengthSelection({
-    super.key,
-    required this.onSelected,
-  });
+  const WordsLengthSelection({super.key, required this.onSelected});
 
   @override
   State<WordsLengthSelection> createState() => _WordsLengthSelectionState();
@@ -166,10 +161,7 @@ class _WordsLengthSelectionState extends State<WordsLengthSelection> {
       padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 32),
       child: Column(
         children: [
-          Text(
-            t.mnemonic_generate_screen.select_word_length,
-            style: CoconutTypography.body1_16_Bold,
-          ),
+          Text(t.mnemonic_generate_screen.select_word_length, style: CoconutTypography.body1_16_Bold),
           CoconutLayout.spacing_800h,
           Row(
             children: [
@@ -186,11 +178,12 @@ class _WordsLengthSelectionState extends State<WordsLengthSelection> {
   Widget _buildWordCountButton(String text) {
     return ShrinkAnimationButton(
       defaultColor: CoconutColors.gray150,
-      pressedColor: CoconutColors.gray500.withOpacity(0.15),
+      pressedColor: CoconutColors.gray500.withValues(alpha: 0.15),
       child: Container(
-          width: (MediaQuery.of(context).size.width - 44) / 2,
-          padding: const EdgeInsets.symmetric(vertical: 40.0),
-          child: Center(child: Text(text, style: CoconutTypography.body1_16_Bold))),
+        width: (MediaQuery.of(context).size.width - 44) / 2,
+        padding: const EdgeInsets.symmetric(vertical: 40.0),
+        child: Center(child: Text(text, style: CoconutTypography.body1_16_Bold)),
+      ),
       onPressed: () {
         setState(() {
           selectedWordsCount = text == t.mnemonic_generate_screen.twelve ? 12 : 24;
@@ -204,10 +197,7 @@ class _WordsLengthSelectionState extends State<WordsLengthSelection> {
 class PassphraseSelection extends StatefulWidget {
   final void Function(bool) onSelected;
 
-  const PassphraseSelection({
-    super.key,
-    required this.onSelected,
-  });
+  const PassphraseSelection({super.key, required this.onSelected});
 
   @override
   State<PassphraseSelection> createState() => _PassphraseSelectionState();
@@ -229,11 +219,7 @@ class _PassphraseSelectionState extends State<PassphraseSelection> {
           ),
           CoconutLayout.spacing_800h,
           Row(
-            children: [
-              _buildPassphraseUseButton(t.no),
-              CoconutLayout.spacing_200w,
-              _buildPassphraseUseButton(t.yes),
-            ],
+            children: [_buildPassphraseUseButton(t.no), CoconutLayout.spacing_200w, _buildPassphraseUseButton(t.yes)],
           ),
         ],
       ),
@@ -243,11 +229,12 @@ class _PassphraseSelectionState extends State<PassphraseSelection> {
   Widget _buildPassphraseUseButton(String text) {
     return ShrinkAnimationButton(
       defaultColor: CoconutColors.gray150,
-      pressedColor: CoconutColors.gray500.withOpacity(0.15),
+      pressedColor: CoconutColors.gray500.withValues(alpha: 0.15),
       child: Container(
-          width: (MediaQuery.of(context).size.width - 44) / 2,
-          padding: const EdgeInsets.symmetric(vertical: 40.0),
-          child: Center(child: Text(text, style: CoconutTypography.body1_16_Bold))),
+        width: (MediaQuery.of(context).size.width - 44) / 2,
+        padding: const EdgeInsets.symmetric(vertical: 40.0),
+        child: Center(child: Text(text, style: CoconutTypography.body1_16_Bold)),
+      ),
       onPressed: () {
         setState(() {
           usePassphrase = text == t.no ? false : true;
@@ -258,10 +245,7 @@ class _PassphraseSelectionState extends State<PassphraseSelection> {
   }
 }
 
-enum MnemonicWordsFrom {
-  coinflip,
-  generation,
-}
+enum MnemonicWordsFrom { coinflip, generation }
 
 class MnemonicWords extends StatefulWidget {
   final int wordsCount;
@@ -286,7 +270,7 @@ class MnemonicWords extends StatefulWidget {
     ...List.generate(26, (i) => String.fromCharCode('A'.codeUnitAt(0) + i)), // A-Z
     ...List.generate(10, (i) => i.toString()), // 0-9
     '[', ']', '{', '}', '#', '%', '^', '*', '+', '=', '_', '\\', '|', '~',
-    '<', '>', '-', '/', ':', ';', '(', ')', r'$', '&', '"', '`', '.', ',', '?', '!', '\'', '@'
+    '<', '>', '-', '/', ':', ';', '(', ')', r'$', '&', '"', '`', '.', ',', '?', '!', '\'', '@',
   };
 
   @override
@@ -318,9 +302,7 @@ class _MnemonicWordsState extends State<MnemonicWords> {
   late bool isMnemonicWarningVisible;
   List<String> invalidPassphraseList = [];
 
-  final List<ChecklistItem> checklistItem = [
-    ChecklistItem(title: t.mnemonic_generate_screen.ensure_backup)
-  ];
+  final List<ChecklistItem> checklistItem = [ChecklistItem(title: t.mnemonic_generate_screen.ensure_backup)];
 
   void _generateMnemonicPhrase() {
     Seed randomSeed = Seed.random(mnemonicLength: widget.wordsCount);
@@ -342,9 +324,8 @@ class _MnemonicWordsState extends State<MnemonicWords> {
       bool isActive = false;
       if (isPassphraseConfirmVisible) {
         // 패스프레이즈 확인 텍스트필드가 보이는 상태
-        isActive = _passphrase.isNotEmpty &&
-            _passphraseConfirm.isNotEmpty &&
-            listEquals(_passphrase, _passphraseConfirm);
+        isActive =
+            _passphrase.isNotEmpty && _passphraseConfirm.isNotEmpty && listEquals(_passphrase, _passphraseConfirm);
       } else {
         // 패스프레이즈 확인 텍스트필드가 보이지 않는 상태
         isActive = _passphraseController.text.isNotEmpty;
@@ -414,9 +395,7 @@ class _MnemonicWordsState extends State<MnemonicWords> {
       setState(() {
         _passphraseConfirm = utf8.encode(_passphraseConfirmController.text);
         // isPassphraseNotMached 조건 체크
-        if (_passphrase.isNotEmpty &&
-            _passphraseConfirm.isNotEmpty &&
-            listEquals(_passphrase, _passphraseConfirm)) {
+        if (_passphrase.isNotEmpty && _passphraseConfirm.isNotEmpty && listEquals(_passphrase, _passphraseConfirm)) {
           isPassphraseNotMached = true;
         } else {
           isPassphraseNotMached = false;
@@ -438,9 +417,7 @@ class _MnemonicWordsState extends State<MnemonicWords> {
         });
       } else {
         // passphraseConfirm 입력이 멈춘 후 (포커스를 잃은 후) 매칭 여부 체크
-        if (_passphrase.isNotEmpty &&
-            _passphraseConfirm.isNotEmpty &&
-            listEquals(_passphrase, _passphraseConfirm)) {
+        if (_passphrase.isNotEmpty && _passphraseConfirm.isNotEmpty && listEquals(_passphrase, _passphraseConfirm)) {
           setState(() {
             isPassphraseNotMached = true;
           });
@@ -482,46 +459,44 @@ class _MnemonicWordsState extends State<MnemonicWords> {
           SingleChildScrollView(
             controller: _scrollController,
             child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                color: CoconutColors.white,
-                child: Column(
-                  children: [
-                    _buildStepIndicator(),
-                    Padding(
-                      padding: const EdgeInsets.only(
-                        top: 16,
-                        bottom: 16,
-                      ),
-                      child: Text(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              color: CoconutColors.white,
+              child: Column(
+                children: [
+                  _buildStepIndicator(),
+                  Padding(
+                    padding: const EdgeInsets.only(top: 16, bottom: 16),
+                    child: Text(
+                      step == 0
+                          ? t.mnemonic_generate_screen.backup_guide
+                          : isPassphraseNotMached
+                              ? t.mnemonic_generate_screen.passphrase_not_matched
+                              : t.mnemonic_generate_screen.enter_passphrase,
+                      style: CoconutTypography.body1_16_Bold.setColor(
                         step == 0
-                            ? t.mnemonic_generate_screen.backup_guide
+                            ? CoconutColors.warningText
                             : isPassphraseNotMached
-                                ? t.mnemonic_generate_screen.passphrase_not_matched
-                                : t.mnemonic_generate_screen.enter_passphrase,
-                        style: CoconutTypography.body1_16_Bold.setColor(
-                          step == 0
-                              ? CoconutColors.warningText
-                              : isPassphraseNotMached
-                                  ? CoconutColors.warningText
-                                  : CoconutColors.black,
-                        ),
-                        textAlign: TextAlign.center,
+                                ? CoconutColors.warningText
+                                : CoconutColors.black,
                       ),
+                      textAlign: TextAlign.center,
                     ),
-                    step == 0
-                        ? MnemonicList(
-                            mnemonic: _mnemonic,
-                            isLoading: _mnemonic.isEmpty,
-                            onWarningPressed: () {
-                              setState(() {
-                                isMnemonicWarningVisible = false;
-                              });
-                            },
-                          )
-                        : _buildPassphraseInput(),
-                    const SizedBox(height: 100),
-                  ],
-                )),
+                  ),
+                  step == 0
+                      ? MnemonicList(
+                          mnemonic: _mnemonic,
+                          isLoading: _mnemonic.isEmpty,
+                          onWarningPressed: () {
+                            setState(() {
+                              isMnemonicWarningVisible = false;
+                            });
+                          },
+                        )
+                      : _buildPassphraseInput(),
+                  const SizedBox(height: 100),
+                ],
+              ),
+            ),
           ),
           FixedBottomButton(
             isActive: _getNextButtonState().isActive,
@@ -529,8 +504,7 @@ class _MnemonicWordsState extends State<MnemonicWords> {
             backgroundColor: CoconutColors.black,
             subWidget: invalidPassphraseList.isNotEmpty
                 ? Text(
-                    t.mnemonic_generate_screen
-                        .passphrase_warning(words: invalidPassphraseList.join(", ")),
+                    t.mnemonic_generate_screen.passphrase_warning(words: invalidPassphraseList.join(", ")),
                     style: CoconutTypography.body3_12.setColor(CoconutColors.warningText),
                     textAlign: TextAlign.center,
                   )
@@ -602,9 +576,7 @@ class _MnemonicWordsState extends State<MnemonicWords> {
       maintainInteractivity: true,
       visible: widget.usePassphrase,
       child: Container(
-        padding: const EdgeInsets.only(
-          top: 16,
-        ),
+        padding: const EdgeInsets.only(top: 16),
         child: Stack(
           children: [
             const SizedBox(
@@ -625,26 +597,28 @@ class _MnemonicWordsState extends State<MnemonicWords> {
               top: 0,
               bottom: 0,
               child: NumberWidget(
-                  number: 1,
-                  selected: step == 0,
-                  onSelected: () {
-                    setState(() {
-                      step = 0;
-                    });
-                  }),
+                number: 1,
+                selected: step == 0,
+                onSelected: () {
+                  setState(() {
+                    step = 0;
+                  });
+                },
+              ),
             ),
             Positioned(
               right: 0,
               top: 0,
               bottom: 0,
               child: NumberWidget(
-                  number: 2,
-                  selected: step == 1,
-                  onSelected: () {
-                    setState(() {
-                      step = 1;
-                    });
-                  }),
+                number: 2,
+                selected: step == 1,
+                onSelected: () {
+                  setState(() {
+                    step = 1;
+                  });
+                },
+              ),
             ),
           ],
         ),
@@ -689,8 +663,7 @@ class _MnemonicWordsState extends State<MnemonicWords> {
                           padding: const EdgeInsets.all(8),
                           child: SvgPicture.asset(
                             'assets/svg/text-field-clear.svg',
-                            colorFilter:
-                                const ColorFilter.mode(CoconutColors.gray400, BlendMode.srcIn),
+                            colorFilter: const ColorFilter.mode(CoconutColors.gray400, BlendMode.srcIn),
                           ),
                         ),
                       ),
@@ -702,30 +675,12 @@ class _MnemonicWordsState extends State<MnemonicWords> {
                       },
                       child: passphraseObscured
                           ? Container(
-                              padding: const EdgeInsets.only(
-                                right: 16,
-                                top: 8,
-                                bottom: 8,
-                                left: 8,
-                              ),
-                              child: const Icon(
-                                CupertinoIcons.eye_slash,
-                                color: CoconutColors.gray800,
-                                size: 18,
-                              ),
+                              padding: const EdgeInsets.only(right: 16, top: 8, bottom: 8, left: 8),
+                              child: const Icon(CupertinoIcons.eye_slash, color: CoconutColors.gray800, size: 18),
                             )
                           : Container(
-                              padding: const EdgeInsets.only(
-                                right: 16,
-                                top: 8,
-                                bottom: 8,
-                                left: 8,
-                              ),
-                              child: const Icon(
-                                CupertinoIcons.eye,
-                                color: CoconutColors.gray800,
-                                size: 18,
-                              ),
+                              padding: const EdgeInsets.only(right: 16, top: 8, bottom: 8, left: 8),
+                              child: const Icon(CupertinoIcons.eye, color: CoconutColors.gray800, size: 18),
                             ),
                     ),
                   ],
@@ -759,8 +714,7 @@ class _MnemonicWordsState extends State<MnemonicWords> {
                             padding: const EdgeInsets.all(8),
                             child: SvgPicture.asset(
                               'assets/svg/text-field-clear.svg',
-                              colorFilter:
-                                  const ColorFilter.mode(CoconutColors.gray400, BlendMode.srcIn),
+                              colorFilter: const ColorFilter.mode(CoconutColors.gray400, BlendMode.srcIn),
                             ),
                           ),
                         ),
@@ -782,8 +736,7 @@ class NumberWidget extends StatefulWidget {
   final bool selected;
   final Function() onSelected;
 
-  const NumberWidget(
-      {super.key, required this.number, required this.selected, required this.onSelected});
+  const NumberWidget({super.key, required this.number, required this.selected, required this.onSelected});
 
   @override
   State<NumberWidget> createState() => _NumberWidgetState();
@@ -799,8 +752,7 @@ class _NumberWidgetState extends State<NumberWidget> {
       onTap: widget.onSelected,
       behavior: HitTestBehavior.opaque,
       child: Container(
-        padding:
-            EdgeInsets.only(left: isFirst ? 8 : 16, right: isFirst ? 16 : 8, top: 8, bottom: 8),
+        padding: EdgeInsets.only(left: isFirst ? 8 : 16, right: isFirst ? 16 : 8, top: 8, bottom: 8),
         child: Container(
           decoration: BoxDecoration(
             color: widget.selected ? bgColor : CoconutColors.gray400,
@@ -813,8 +765,7 @@ class _NumberWidgetState extends State<NumberWidget> {
                   child: Padding(
                     padding: EdgeInsets.all(widget.selected ? 8 : 6),
                     child: MediaQuery(
-                      data:
-                          MediaQuery.of(context).copyWith(textScaler: const TextScaler.linear(1.0)),
+                      data: MediaQuery.of(context).copyWith(textScaler: const TextScaler.linear(1.0)),
                       child: Text(
                         widget.number.toString(),
                         style: CoconutTypography.body3_12_Number.setColor(iconColor),
@@ -851,11 +802,7 @@ class DottedDivider extends StatelessWidget {
       height: 25,
       child: CustomPaint(
         size: Size(width, height),
-        painter: DottedLinePainter(
-          dashWidth: dashWidth,
-          dashSpace: dashSpace,
-          color: color,
-        ),
+        painter: DottedLinePainter(dashWidth: dashWidth, dashSpace: dashSpace, color: color),
       ),
     );
   }
@@ -866,11 +813,7 @@ class DottedLinePainter extends CustomPainter {
   final double dashSpace;
   final Color color;
 
-  DottedLinePainter({
-    required this.dashWidth,
-    required this.dashSpace,
-    required this.color,
-  });
+  DottedLinePainter({required this.dashWidth, required this.dashSpace, required this.color});
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -881,11 +824,7 @@ class DottedLinePainter extends CustomPainter {
 
     double startX = 0;
     while (startX < size.width) {
-      canvas.drawLine(
-        Offset(startX, size.height / 2),
-        Offset(startX + dashWidth, size.height / 2),
-        paint,
-      );
+      canvas.drawLine(Offset(startX, size.height / 2), Offset(startX + dashWidth, size.height / 2), paint);
       startX += dashWidth + dashSpace;
     }
   }
@@ -898,7 +837,7 @@ enum NextButtonState {
   completeActive, // '완료' + 활성화
   completeInactive, // '완료' + 비활성화
   nextActive, // '다음' + 활성화
-  nextInactive // '다음' + 비활성화
+  nextInactive, // '다음' + 비활성화
 }
 
 extension NextButtonStateExtension on NextButtonState {

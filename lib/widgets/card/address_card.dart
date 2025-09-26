@@ -7,12 +7,7 @@ class AddressCard extends StatelessWidget {
 
   final String address;
   final String derivationPath;
-  const AddressCard({
-    super.key,
-    required this.onPressed,
-    required this.address,
-    required this.derivationPath,
-  });
+  const AddressCard({super.key, required this.onPressed, required this.address, required this.derivationPath});
 
   @override
   Widget build(BuildContext context) {
@@ -24,16 +19,9 @@ class AddressCard extends StatelessWidget {
       padding: EdgeInsets.zero,
       child: Container(
         constraints: const BoxConstraints(minHeight: 72),
-        decoration: BoxDecoration(
-          borderRadius: CoconutBorder.defaultRadius,
-          color: CoconutColors.gray150,
-        ),
+        decoration: BoxDecoration(borderRadius: CoconutBorder.defaultRadius, color: CoconutColors.gray150),
         padding: CoconutPadding.widgetContainer,
-        margin: const EdgeInsets.only(
-          bottom: 8,
-          left: 16,
-          right: 16,
-        ),
+        margin: const EdgeInsets.only(bottom: 8, left: 16, right: 16),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
@@ -42,21 +30,11 @@ class AddressCard extends StatelessWidget {
               margin: const EdgeInsets.only(right: 6),
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(8),
-                color: CoconutColors.black.withOpacity(0.3),
+                color: CoconutColors.black.withValues(alpha: 0.3),
               ),
-              child: Text(
-                index,
-                style: CoconutTypography.body3_12.setColor(
-                  CoconutColors.white,
-                ),
-              ),
+              child: Text(index, style: CoconutTypography.body3_12.setColor(CoconutColors.white)),
             ),
-            Expanded(
-              child: Text(
-                TextUtils.truncateNameMax25(address),
-                style: CoconutTypography.body1_16,
-              ),
-            ),
+            Expanded(child: Text(TextUtils.truncateNameMax25(address), style: CoconutTypography.body1_16)),
           ],
         ),
       ),

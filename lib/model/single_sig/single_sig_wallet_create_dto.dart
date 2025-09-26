@@ -25,8 +25,7 @@ class SingleSigWalletCreateDto {
   @Uint8ListBase64Converter()
   Uint8List? passphrase;
 
-  SingleSigWalletCreateDto(
-      this.id, this.name, this.icon, this.color, this.mnemonic, this.passphrase);
+  SingleSigWalletCreateDto(this.id, this.name, this.icon, this.color, this.mnemonic, this.passphrase);
 
   Map<String, dynamic> toJson() => _$SingleSigWalletCreateDtoToJson(this);
 

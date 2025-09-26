@@ -21,12 +21,7 @@ class VaultNameAndIconSetupScreen extends StatefulWidget {
   final int iconIndex;
   final int colorIndex;
 
-  const VaultNameAndIconSetupScreen({
-    super.key,
-    this.name = '',
-    this.iconIndex = 0,
-    this.colorIndex = 0,
-  });
+  const VaultNameAndIconSetupScreen({super.key, this.name = '', this.iconIndex = 0, this.colorIndex = 0});
 
   @override
   State<VaultNameAndIconSetupScreen> createState() => _VaultNameAndIconSetupScreenState();
@@ -83,8 +78,7 @@ class _VaultNameAndIconSetupScreenState extends State<VaultNameAndIconSetupScree
       });
 
       if (_walletProvider.isNameDuplicated(inputText)) {
-        CoconutToast.showToast(
-            text: t.toast.name_already_used2, context: context, isVisibleIcon: true);
+        CoconutToast.showToast(text: t.toast.name_already_used2, context: context, isVisibleIcon: true);
         setState(() {
           _showLoading = false;
         });
@@ -93,20 +87,24 @@ class _VaultNameAndIconSetupScreenState extends State<VaultNameAndIconSetupScree
 
       VaultListItemBase? vault;
       if (_walletCreationProvider.walletType == WalletType.singleSignature) {
-        vault = await _walletProvider.addSingleSigVault(SingleSigWalletCreateDto(
+        vault = await _walletProvider.addSingleSigVault(
+          SingleSigWalletCreateDto(
             null,
             inputText,
             selectedIconIndex,
             selectedColorIndex,
             _walletCreationProvider.secret,
-            _walletCreationProvider.passphrase));
+            _walletCreationProvider.passphrase,
+          ),
+        );
       } else if (_walletCreationProvider.walletType == WalletType.multiSignature) {
         vault = await _walletProvider.addMultisigVault(
-            inputText,
-            selectedColorIndex,
-            selectedIconIndex,
-            _walletCreationProvider.signers!,
-            _walletCreationProvider.requiredSignatureCount!);
+          inputText,
+          selectedColorIndex,
+          selectedIconIndex,
+          _walletCreationProvider.signers!,
+          _walletCreationProvider.requiredSignatureCount!,
+        );
       }
 
       assert(_walletProvider.isAddVaultCompleted);
@@ -114,22 +112,27 @@ class _VaultNameAndIconSetupScreenState extends State<VaultNameAndIconSetupScree
       _walletCreationProvider.resetAll();
 
       if (!context.mounted) return;
-      Navigator.pushNamedAndRemoveUntil(context, '/', (Route<dynamic> route) => false,
-          arguments: VaultHomeNavArgs(addedWalletId: vault!.id));
+      Navigator.pushNamedAndRemoveUntil(
+        context,
+        '/',
+        (Route<dynamic> route) => false,
+        arguments: VaultHomeNavArgs(addedWalletId: vault!.id),
+      );
     } catch (e) {
       Logger.error(e);
       if (!context.mounted) return;
       showDialog(
-          context: context,
-          builder: (context) {
-            return CoconutPopup(
-              title: t.errors.creation_error,
-              description: e.toString(),
-              leftButtonText: t.cancel,
-              rightButtonText: t.confirm,
-              onTapRight: () => Navigator.of(context).pop(),
-            );
-          });
+        context: context,
+        builder: (context) {
+          return CoconutPopup(
+            title: t.errors.creation_error,
+            description: e.toString(),
+            leftButtonText: t.cancel,
+            rightButtonText: t.confirm,
+            onTapRight: () => Navigator.of(context).pop(),
+          );
+        },
+      );
     } finally {
       setState(() {
         _showLoading = false;
@@ -185,34 +188,36 @@ class _VaultNameAndIconSetupScreenState extends State<VaultNameAndIconSetupScree
               backgroundColor: CoconutColors.white,
             ),
             body: SafeArea(
-              child: Stack(children: [
-                VaultNameIconEditPalette(
-                  name: inputText,
-                  iconIndex: selectedIconIndex,
-                  colorIndex: selectedColorIndex,
-                  onNameChanged: updateName,
-                  onIconSelected: updateIcon,
-                  onColorSelected: updateColor,
-                  onFocusChanged: updateFocusState,
-                ),
-                FixedBottomButton(
-                  showGradient: true,
-                  text: t.complete,
-                  onButtonClicked: () {
-                    if (inputText.trim().isEmpty) return;
-                    _closeKeyboard();
-                    if (_walletProvider.isVaultListLoading) {
-                      setState(() {
-                        _showLoading = true;
-                      });
-                    } else {
-                      saveNewVaultName(context);
-                    }
-                  },
-                  backgroundColor: CoconutColors.black,
-                  isActive: inputText.trim().isNotEmpty && !_showLoading,
-                ),
-              ]),
+              child: Stack(
+                children: [
+                  VaultNameIconEditPalette(
+                    name: inputText,
+                    iconIndex: selectedIconIndex,
+                    colorIndex: selectedColorIndex,
+                    onNameChanged: updateName,
+                    onIconSelected: updateIcon,
+                    onColorSelected: updateColor,
+                    onFocusChanged: updateFocusState,
+                  ),
+                  FixedBottomButton(
+                    showGradient: true,
+                    text: t.complete,
+                    onButtonClicked: () {
+                      if (inputText.trim().isEmpty) return;
+                      _closeKeyboard();
+                      if (_walletProvider.isVaultListLoading) {
+                        setState(() {
+                          _showLoading = true;
+                        });
+                      } else {
+                        saveNewVaultName(context);
+                      }
+                    },
+                    backgroundColor: CoconutColors.black,
+                    isActive: inputText.trim().isNotEmpty && !_showLoading,
+                  ),
+                ],
+              ),
             ),
           ),
         ),
@@ -221,11 +226,10 @@ class _VaultNameAndIconSetupScreenState extends State<VaultNameAndIconSetupScree
           child: Container(
             width: MediaQuery.of(context).size.width,
             height: MediaQuery.of(context).size.height,
-            decoration: BoxDecoration(color: CoconutColors.black.withOpacity(0.3)),
+            decoration: BoxDecoration(color: CoconutColors.black.withValues(alpha: 0.3)),
             child: Center(
               child: _walletProvider.isVaultListLoading
-                  ? MessageActivityIndicator(
-                      message: t.vault_name_icon_setup_screen.saving) // 기존 볼트들 불러오는 중
+                  ? MessageActivityIndicator(message: t.vault_name_icon_setup_screen.saving) // 기존 볼트들 불러오는 중
                   : const CircularProgressIndicator(color: CoconutColors.gray800),
             ),
           ),

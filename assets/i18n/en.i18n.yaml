@@ -201,20 +201,20 @@ psbt_confirmation_screen:
   self_sending: "This is a transaction sending to my own wallet."
   warning: "⚠️ This may not be a psbt created with this wallet. Or it may be a transaction with no balance."
 psbt_scanner_screen:
-  guide_multisig: "Please scan sending info created in wallet or multisig info from external vault."
+  guide: "Please scan sending info created in wallet or multisig info from external vault."
   guide_single_sig_same_name: "Please scan sending info created in wallet. Wallet names must match."
-  guide_single_sig: "Please scan sending info created in wallet."
 signed_transaction_qr_screen:
   guide_multisig: "Multisig completed. Please scan the QR code below in the wallet that created the sending info."
   guide_single_sig: "Signature completed for sending info created in '$name wallet'. Please scan the QR code below in the wallet."
 single_sig_sign_screen:
   text: "This is an already signed transaction"
+one_sign_guide: "Click the button to sign"
 signer_qr_bottom_sheet:
   title: "Export Signed Transaction"
-  text2_1: "key vault, select multisig wallet - "
-  text2_2: "Multisig"
-  text2_3: " and scan the QR code below."
-  text2_4: ""
+  text1: "On the vault containing the key "
+  text2: "Sign."
+  text3: "Scan the QR code below."
+  select: "Select "
 unit_bottom_sheet:
   basic_unit: "Basic Unit"
   header_text: "1 BTC = 100,000,000 sats"
@@ -419,8 +419,8 @@ confirm_importing_screen:
   memo: "Memo"
   placeholder: "Add simple memo for key"
 select_multisig_quorum_screen:
-  total_key_count: "Total Key Count"
-  required_signature_count: "Required Signature Count"
+  total_key_count: "Total Keys"
+  required_signature_count: "Required Signatures"
   one_or_two_of_n: "Can send Bitcoin even if one key is lost or one key holder is absent."
   n_of_n: "All keys are needed to send Bitcoin. If you lose just one key, you cannot access funds, so be very careful about loss."
   one_of_n: "Can move Bitcoin with just one key. Not recommended due to relatively low security."
@@ -428,15 +428,18 @@ signer_scanner_bottom_sheet:
   title: "Signature Update"
   guide: "Did you add signatures from other vault? Please scan QR code of added signed transaction to update info."
 signer_scanner_screen:
-  title1: "Import Multisig Wallet"
-  title2: "Sign External Wallet"
-  guide1_1: "You can add multisig wallets created in other vaults. To add, please scan the QR code that appears on the "
-  guide1_2: "wallet settings info "
-  guide1_3: "screen of the multisig wallet you want to add."
-  guide2_1: "In vault storing keys,"
-  guide2_2: "select wallet - "
-  guide2_3: "Use as Multisig Key "
-  guide2_4: "menu. Scan the QR code shown on screen."
+  import_bsms: "Import BSMS"
+  import_multisig_wallet: "Import Multisig Wallet"
+  guide1_1: "You can import multisig wallet created in other vault."
+  guide1_2: "On the home screen of the vault containing multisig wallet, "
+  guide1_3: "the multisig wallet."
+  guide1_4: "Export Multisig Wallet."
+  guide1_5: "Scan the QR code below on the screen."
+  guide2_1: "On the vault containing a key you want to use, "
+  guide2_2: "the wallet."
+  guide2_3: "Use as Multisig Key."
+  guide2_4: "Scan the QR code shown on the screen."
+  select: "Select "
 
 # lib/screens/vault_detail
 address_list_screen:
@@ -447,15 +450,16 @@ export_detail_screen:
   info_copied: "Details copied"
 multi_sig_bsms_screen:
   bottom_sheet:
-    title: "Wallet Details"
+    title: "Wallet Details (BSMS)"
     info_copied: "Wallet details copied"
-  title: "Wallet Settings Info"
+  title: "Wallet Settings Info (BSMS)"
   guide:
     text1: "Manage and share wallet settings info according to a standard(BIP-129, BSMS) for safe multisig wallet management."
     text2: "All keys are stored in vault."
     text3: "Other vaults storing same keys can also read this QR to add multisig wallet."
     text4: "Mnemonic phrase of **$gen** key designated for this multisig wallet is currently in another vault."
-    text5: "**$gen** key storage wallet - Please read QR code below in **Import Multisig Wallet**. This procedure is absolutely necessary to sign multisig transactions with **$gen** key."
+    text5: "**$gen** key storage wallet - Please read QR code below in **Import Multisig Wallet**."
+    text6: "This procedure is absolutely necessary to sign multisig transactions."
   first_key: "$first"
   first_and_last_keys: "$first and $last"
   first_or_last_key: "$first or $last"
@@ -466,7 +470,7 @@ multi_sig_memo_bottom_sheet:
 multi_sig_setting_screen:
   edit_memo: "Edit Memo"
   add_memo: "Add Memo"
-  view_bsms: "View Wallet Settings"
+  view_bsms: "Export Multisig Wallet"
   tooltip: 
     one: "Multisig wallet requiring $n signature\nout of $total keys."
     other: "Multisig wallet requiring $n signatures\nout of $total keys."
@@ -476,12 +480,8 @@ select_export_type_screen:
   watch_only: "Add watch-only\nwallet to wallet"
   multisig: "Use as multisig key\nin other vault"
 signer_bsms_screen:
-  guide1_1: "Other vault"
-  guide1_2: " is creating multisig wallet! In other vault, press "
-  guide1_3: "import + button"
-  guide1_4: " then in the import screen that appears, "
-  guide1_5: "scan the QR code"
-  guide1_6: " below."
+  guide1_1: "You are creating a multisig wallet in other vault."
+  guide1_2: "Scan the QR code below on Import BSMS screen."
   export_info: "Export Info"
 sync_to_wallet_screen:
   title: "Export $name"

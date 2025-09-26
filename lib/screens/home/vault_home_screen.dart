@@ -32,9 +32,7 @@ import 'package:provider/provider.dart';
 import 'package:collection/collection.dart';
 
 class VaultHomeScreen extends StatefulWidget {
-  const VaultHomeScreen({
-    super.key,
-  });
+  const VaultHomeScreen({super.key});
 
   @override
   State<VaultHomeScreen> createState() => _VaultHomeScreenState();
@@ -52,10 +50,11 @@ class _VaultHomeScreenState extends State<VaultHomeScreen> with TickerProviderSt
   void initState() {
     super.initState();
     _viewModel = VaultHomeViewModel(
-        Provider.of<AuthProvider>(context, listen: false),
-        Provider.of<WalletProvider>(context, listen: false),
-        Provider.of<PreferenceProvider>(context, listen: false),
-        Provider.of<VisibilityProvider>(context, listen: false).walletCount);
+      Provider.of<AuthProvider>(context, listen: false),
+      Provider.of<WalletProvider>(context, listen: false),
+      Provider.of<PreferenceProvider>(context, listen: false),
+      Provider.of<VisibilityProvider>(context, listen: false).walletCount,
+    );
 
     _scrollController = ScrollController();
 
@@ -82,9 +81,10 @@ class _VaultHomeScreenState extends State<VaultHomeScreen> with TickerProviderSt
         if (isAddedWalletInFavorite) return;
 
         CoconutToast.showToast(
-            isVisibleIcon: true,
-            context: context,
-            text: t.vault_home_screen.toast.wallet_added_but_not_favorite);
+          isVisibleIcon: true,
+          context: context,
+          text: t.vault_home_screen.toast.wallet_added_but_not_favorite,
+        );
       });
     }
   }
@@ -110,8 +110,7 @@ class _VaultHomeScreenState extends State<VaultHomeScreen> with TickerProviderSt
       onPopInvokedWithResult: (didPop, _) async {
         if (Platform.isAndroid) {
           final now = DateTime.now();
-          if (_lastPressedAt == null ||
-              now.difference(_lastPressedAt!) > const Duration(seconds: 3)) {
+          if (_lastPressedAt == null || now.difference(_lastPressedAt!) > const Duration(seconds: 3)) {
             _lastPressedAt = now;
             Fluttertoast.showToast(
               backgroundColor: CoconutColors.gray500,
@@ -125,11 +124,10 @@ class _VaultHomeScreenState extends State<VaultHomeScreen> with TickerProviderSt
       },
       child:
           // ConnectivityProvider: 실제로 활용되지 않지만 참조해야, 네트워크/블루투스/개발자모드 연결 시 화면 전환이 됩니다.
-          ChangeNotifierProxyProvider4<AuthProvider, ConnectivityProvider, VisibilityProvider,
-              PreferenceProvider, VaultHomeViewModel>(
+          ChangeNotifierProxyProvider4<AuthProvider, ConnectivityProvider, VisibilityProvider, PreferenceProvider,
+              VaultHomeViewModel>(
         create: (_) => _viewModel,
-        update: (_, authProvider, connectivityProvider, visibilityProvider, preferenceProvider,
-            viewModel) {
+        update: (_, authProvider, connectivityProvider, visibilityProvider, preferenceProvider, viewModel) {
           viewModel ??= _createViewModel();
           return viewModel;
         },
@@ -143,27 +141,16 @@ class _VaultHomeScreenState extends State<VaultHomeScreen> with TickerProviderSt
                   CustomScrollView(
                     controller: _scrollController,
                     physics: const AlwaysScrollableScrollPhysics(),
+
                     // semanticChildCount:
                     //     model.isVaultListLoading ? 1 : vaults.length,
-
                     slivers: <Widget>[
                       _buildAppBar(context, viewModel, wallets),
                       _buildWalletActionItems(context),
-                      SliverToBoxAdapter(
-                        child: Container(
-                          color: CoconutColors.gray200,
-                          height: 12,
-                        ),
-                      ),
-                      if (wallets.isNotEmpty) ...[
-                        _buildViewAll(wallets.length),
-                      ],
+                      SliverToBoxAdapter(child: Container(color: CoconutColors.gray200, height: 12)),
+                      if (wallets.isNotEmpty) ...[_buildViewAll(wallets.length)],
                       _buildWalletList(context),
-                      SliverToBoxAdapter(
-                        child: Container(
-                          height: 100,
-                        ),
-                      ),
+                      SliverToBoxAdapter(child: Container(height: 100)),
                     ],
                   ),
                 ],
@@ -175,8 +162,7 @@ class _VaultHomeScreenState extends State<VaultHomeScreen> with TickerProviderSt
     );
   }
 
-  SliverAppBar _buildAppBar(
-      BuildContext context, VaultHomeViewModel viewModel, List<VaultListItemBase> wallets) {
+  SliverAppBar _buildAppBar(BuildContext context, VaultHomeViewModel viewModel, List<VaultListItemBase> wallets) {
     return CoconutAppBar.buildHomeAppbar(
       context: context,
       leadingSvgAsset: const SizedBox.shrink(key: ValueKey('empty')),
@@ -188,10 +174,7 @@ class _VaultHomeScreenState extends State<VaultHomeScreen> with TickerProviderSt
             key: GlobalKey(),
             icon: SvgPicture.asset(
               'assets/svg/wallet-plus.svg',
-              colorFilter: const ColorFilter.mode(
-                CoconutColors.gray800,
-                BlendMode.srcIn,
-              ),
+              colorFilter: const ColorFilter.mode(CoconutColors.gray800, BlendMode.srcIn),
             ),
             onPressed: () {
               if (!isEnablePlusButton(viewModel.isVaultsLoaded)) {
@@ -200,7 +183,9 @@ class _VaultHomeScreenState extends State<VaultHomeScreen> with TickerProviderSt
 
               if (viewModel.vaultCount == 0 && !viewModel.isPinSet) {
                 MyBottomSheet.showBottomSheet_90(
-                    context: context, child: const PinSettingScreen(greetingVisible: true));
+                  context: context,
+                  child: const PinSettingScreen(greetingVisible: true),
+                );
               } else {
                 Navigator.pushNamed(context, AppRoutes.vaultTypeSelection);
               }
@@ -240,21 +225,17 @@ class _VaultHomeScreenState extends State<VaultHomeScreen> with TickerProviderSt
                       child: FittedBox(
                         fit: BoxFit.scaleDown,
                         alignment: Alignment.centerLeft,
-                        child: Text(t.vault_home_screen.view_all_wallets,
-                            style: CoconutTypography.body2_14),
+                        child: Text(t.vault_home_screen.view_all_wallets, style: CoconutTypography.body2_14),
                       ),
                     ),
-                    Row(children: [
-                      CoconutLayout.spacing_200w,
-                      Text(t.vault_home_screen.wallet_count(count: walletCount),
-                          style: CoconutTypography.body3_12),
-                      CoconutLayout.spacing_200w,
-                      SvgPicture.asset(
-                        'assets/svg/chevron-right.svg',
-                        width: 6,
-                        height: 10,
-                      )
-                    ]),
+                    Row(
+                      children: [
+                        CoconutLayout.spacing_200w,
+                        Text(t.vault_home_screen.wallet_count(count: walletCount), style: CoconutTypography.body3_12),
+                        CoconutLayout.spacing_200w,
+                        SvgPicture.asset('assets/svg/chevron-right.svg', width: 6, height: 10),
+                      ],
+                    ),
                   ],
                 ),
               ),
@@ -277,7 +258,9 @@ class _VaultHomeScreenState extends State<VaultHomeScreen> with TickerProviderSt
             onPressed: () {
               if (!viewModel.isPinSet) {
                 MyBottomSheet.showBottomSheet_90(
-                    context: context, child: const PinSettingScreen(greetingVisible: true));
+                  context: context,
+                  child: const PinSettingScreen(greetingVisible: true),
+                );
               } else {
                 Navigator.pushNamed(context, AppRoutes.vaultTypeSelection);
               }
@@ -289,21 +272,12 @@ class _VaultHomeScreenState extends State<VaultHomeScreen> with TickerProviderSt
 
     return SliverToBoxAdapter(
       child: Column(
-        children: [
-          CoconutLayout.spacing_300h,
-          _buildFavoriteWalletList(
-            viewModel.vaults,
-            viewModel.favoriteVaultIds,
-          ),
-        ],
+        children: [CoconutLayout.spacing_300h, _buildFavoriteWalletList(viewModel.vaults, viewModel.favoriteVaultIds)],
       ),
     );
   }
 
-  Widget _buildFavoriteWalletList(
-    List<VaultListItemBase> walletList,
-    List<int> favoriteWalletIds,
-  ) {
+  Widget _buildFavoriteWalletList(List<VaultListItemBase> walletList, List<int> favoriteWalletIds) {
     // favoriteWalletIds를 orederList 순서에 맞게 정렬
     final sortedFavoriteWalletIds = List<int>.from(favoriteWalletIds)
       ..sort((a, b) {
@@ -317,10 +291,7 @@ class _VaultHomeScreenState extends State<VaultHomeScreen> with TickerProviderSt
     return Container(
       margin: const EdgeInsets.only(left: 16, right: 16, bottom: 20),
       padding: const EdgeInsets.symmetric(vertical: 8),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(12),
-        color: CoconutColors.white,
-      ),
+      decoration: BoxDecoration(borderRadius: BorderRadius.circular(12), color: CoconutColors.white),
       child: Column(
         children: List.generate(sortedFavoriteWalletIds.length, (index) {
           final vaultId = sortedFavoriteWalletIds[index];
@@ -351,165 +322,151 @@ class _VaultHomeScreenState extends State<VaultHomeScreen> with TickerProviderSt
   Widget _buildWalletActionItems(BuildContext context) {
     final walletCount = context.watch<VaultHomeViewModel>().vaultCount;
     return SliverToBoxAdapter(
-        child: Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
-      child: Column(
-        children: [
-          Row(
-            children: [
-              Expanded(
-                child: _buildActionItemButton(
-                  // 서명하기 버튼
-                  isActive: walletCount > 0,
-                  text: t.vault_home_screen.action_items.sign,
-                  iconAssetPath: 'assets/svg/signature.svg',
-                  iconPadding: const EdgeInsets.only(
-                    right: 14,
-                    bottom: 17,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
+        child: Column(
+          children: [
+            Row(
+              children: [
+                Expanded(
+                  child: _buildActionItemButton(
+                    // 서명하기 버튼
+                    isActive: walletCount > 0,
+                    text: t.vault_home_screen.action_items.sign,
+                    iconAssetPath: 'assets/svg/signature.svg',
+                    iconPadding: const EdgeInsets.only(right: 14, bottom: 17),
+                    onPressed: () {
+                      Navigator.pushNamed(context, AppRoutes.psbtScanner);
+                    },
                   ),
-                  onPressed: () {
-                    Navigator.pushNamed(context, AppRoutes.psbtScanner);
-                  },
                 ),
-              ),
-              CoconutLayout.spacing_200w,
-              Expanded(
-                child: _buildActionItemButton(
-                  isActive: walletCount > 0,
-                  text: t.vault_home_screen.action_items.view_address,
-                  iconAssetPath: 'assets/svg/bc1.svg',
-                  iconPadding: const EdgeInsets.only(
-                    right: 15,
-                    bottom: 17,
-                  ),
-                  onPressed: () {
-                    // 지갑 선택 후 주소 보기 화면으로 이동
-                    MyBottomSheet.showDraggableBottomSheet(
+                CoconutLayout.spacing_200w,
+                Expanded(
+                  child: _buildActionItemButton(
+                    isActive: walletCount > 0,
+                    text: t.vault_home_screen.action_items.view_address,
+                    iconAssetPath: 'assets/svg/bc1.svg',
+                    iconPadding: const EdgeInsets.only(right: 15, bottom: 17),
+                    onPressed: () {
+                      // 지갑 선택 후 주소 보기 화면으로 이동
+                      MyBottomSheet.showDraggableBottomSheet(
                         context: context,
                         minChildSize: 0.5,
                         childBuilder: (scrollController) => SelectVaultBottomSheet(
-                              vaultList: context.read<WalletProvider>().vaultList,
-                              onVaultSelected: (id) async {
-                                Navigator.pushNamed(context, AppRoutes.addressList,
-                                    arguments: {'id': id});
-                              },
-                              scrollController: scrollController,
-                            ));
-                  },
-                ),
-              ),
-            ],
-          ),
-          CoconutLayout.spacing_200h,
-          Row(
-            children: [
-              Expanded(
-                child: _buildActionItemButton(
-                  // 지갑 내보내기 버튼
-                  isActive: walletCount > 0,
-                  text: t.vault_home_screen.action_items.export_wallet,
-                  iconAssetPath: 'assets/svg/wallet-eyes.svg',
-                  iconPadding: const EdgeInsets.only(
-                    right: 14,
-                    bottom: 16,
+                          vaultList: context.read<WalletProvider>().vaultList,
+                          onVaultSelected: (id) async {
+                            Navigator.pushNamed(context, AppRoutes.addressList, arguments: {'id': id});
+                          },
+                          scrollController: scrollController,
+                        ),
+                      );
+                    },
                   ),
-                  onPressed: () {
-                    MyBottomSheet.showDraggableBottomSheet(
+                ),
+              ],
+            ),
+            CoconutLayout.spacing_200h,
+            Row(
+              children: [
+                Expanded(
+                  child: _buildActionItemButton(
+                    // 지갑 내보내기 버튼
+                    isActive: walletCount > 0,
+                    text: t.vault_home_screen.action_items.export_wallet,
+                    iconAssetPath: 'assets/svg/wallet-eyes.svg',
+                    iconPadding: const EdgeInsets.only(right: 14, bottom: 16),
+                    onPressed: () {
+                      MyBottomSheet.showDraggableBottomSheet(
                         context: context,
                         minChildSize: 0.5,
                         childBuilder: (scrollController) => SelectVaultBottomSheet(
-                              vaultList: context.read<WalletProvider>().vaultList,
-                              subLabel: t.vault_menu_screen.description.export_xpub,
-                              onVaultSelected: (id) async {
-                                bool hasPassphrase =
-                                    await context.read<VaultHomeViewModel>().hasPassphrase(id);
+                          vaultList: context.read<WalletProvider>().vaultList,
+                          subLabel: t.vault_menu_screen.description.export_xpub,
+                          onVaultSelected: (id) async {
+                            bool hasPassphrase = await context.read<VaultHomeViewModel>().hasPassphrase(id);
 
-                                if (!context.mounted) return;
+                            if (!context.mounted) return;
 
-                                if (hasPassphrase) {
-                                  final result = await MyBottomSheet.showBottomSheet_ratio<String?>(
-                                    ratio: 0.5,
-                                    context: context,
-                                    child: PassphraseCheckScreen(id: id),
-                                  );
-                                  if (result != null && context.mounted) {
-                                    _showSyncOptionBottomSheet(id, context);
-                                  }
-                                  return;
-                                }
-
+                            if (hasPassphrase) {
+                              final result = await MyBottomSheet.showBottomSheet_ratio<String?>(
+                                ratio: 0.5,
+                                context: context,
+                                child: PassphraseCheckScreen(id: id),
+                              );
+                              if (result != null && context.mounted) {
                                 _showSyncOptionBottomSheet(id, context);
-                              },
-                              scrollController: scrollController,
-                            ));
-                  },
-                ),
-              ),
-              CoconutLayout.spacing_200w,
-              Expanded(
-                child: _buildActionItemButton(
-                  // 다중서명 지갑 가져오기 버튼
-                  isActive: walletCount > 0 &&
-                      context
-                          .watch<WalletProvider>()
-                          .vaultList
-                          .any((vault) => vault.vaultType == WalletType.singleSignature),
-                  text: t.vault_home_screen.action_items.import_multisig_wallet,
-                  iconAssetPath: 'assets/svg/two-keys.svg',
-                  iconPadding: const EdgeInsets.only(
-                    right: 15,
-                    bottom: 9,
+                              }
+                              return;
+                            }
+
+                            _showSyncOptionBottomSheet(id, context);
+                          },
+                          scrollController: scrollController,
+                        ),
+                      );
+                    },
                   ),
-                  onPressed: () {
-                    MyBottomSheet.showDraggableBottomSheet(
+                ),
+                CoconutLayout.spacing_200w,
+                Expanded(
+                  child: _buildActionItemButton(
+                    // 다중서명 지갑 가져오기 버튼
+                    isActive: walletCount > 0 &&
+                        context.watch<WalletProvider>().vaultList.any(
+                              (vault) => vault.vaultType == WalletType.singleSignature,
+                            ),
+                    text: t.vault_home_screen.action_items.import_multisig_wallet,
+                    iconAssetPath: 'assets/svg/two-keys.svg',
+                    iconPadding: const EdgeInsets.only(right: 15, bottom: 9),
+                    onPressed: () {
+                      MyBottomSheet.showDraggableBottomSheet(
                         context: context,
                         childBuilder: (scrollController) => SelectVaultBottomSheet(
-                              vaultList: context
-                                  .read<WalletProvider>()
-                                  .vaultList
-                                  .where((vault) => vault.vaultType == WalletType.singleSignature)
-                                  .toList(),
-                              subLabel: t.vault_menu_screen.description.import_bsms,
-                              onVaultSelected: (id) async {
-                                if (mounted) {
-                                  Navigator.pushNamed(context, AppRoutes.signerBsmsScanner,
-                                      arguments: {
-                                        'id': id,
-                                        'screenType': MultisigBsmsImportType.copy
-                                      });
-                                }
-                              },
-                              scrollController: scrollController,
-                            ));
-                  },
-                ),
-              ),
-            ],
-          ),
-          CoconutLayout.spacing_200h,
-          Row(
-            children: [
-              Expanded(
-                child: _buildActionItemButton(
-                  isActive: true,
-                  text: t.vault_home_screen.action_items.mnemonic_wordlist,
-                  iconAssetPath: 'assets/svg/font-book.svg',
-                  iconPadding: const EdgeInsets.only(
-                    right: 18,
-                    bottom: 16,
+                          vaultList: context
+                              .read<WalletProvider>()
+                              .vaultList
+                              .where((vault) => vault.vaultType == WalletType.singleSignature)
+                              .toList(),
+                          subLabel: t.vault_menu_screen.description.import_bsms,
+                          onVaultSelected: (id) async {
+                            if (mounted) {
+                              Navigator.pushNamed(
+                                context,
+                                AppRoutes.signerBsmsScanner,
+                                arguments: {'id': id, 'screenType': MultisigBsmsImportType.copy},
+                              );
+                            }
+                          },
+                          scrollController: scrollController,
+                        ),
+                      );
+                    },
                   ),
-                  onPressed: () {
-                    Navigator.pushNamed(context, AppRoutes.mnemonicWordList);
-                  },
                 ),
-              ),
-              CoconutLayout.spacing_200w,
-              const Expanded(child: SizedBox.shrink()),
-            ],
-          ),
-        ],
+              ],
+            ),
+            CoconutLayout.spacing_200h,
+            Row(
+              children: [
+                Expanded(
+                  child: _buildActionItemButton(
+                    isActive: true,
+                    text: t.vault_home_screen.action_items.mnemonic_wordlist,
+                    iconAssetPath: 'assets/svg/font-book.svg',
+                    iconPadding: const EdgeInsets.only(right: 18, bottom: 16),
+                    onPressed: () {
+                      Navigator.pushNamed(context, AppRoutes.mnemonicWordList);
+                    },
+                  ),
+                ),
+                CoconutLayout.spacing_200w,
+                const Expanded(child: SizedBox.shrink()),
+              ],
+            ),
+          ],
+        ),
       ),
-    ));
+    );
   }
 
   void _showSyncOptionBottomSheet(int walletId, BuildContext context) {
@@ -520,10 +477,7 @@ class _VaultHomeScreenState extends State<VaultHomeScreen> with TickerProviderSt
         onSyncOptionSelected: (format) {
           if (!context.mounted) return;
           Navigator.popUntil(context, (route) => route.isFirst);
-          Navigator.pushNamed(context, AppRoutes.syncToWallet, arguments: {
-            'id': walletId,
-            'syncOption': format,
-          });
+          Navigator.pushNamed(context, AppRoutes.syncToWallet, arguments: {'id': walletId, 'syncOption': format});
         },
         scrollController: scrollController,
       ),
@@ -566,9 +520,7 @@ class _VaultHomeScreenState extends State<VaultHomeScreen> with TickerProviderSt
               left: 14,
               top: 13,
               child: MediaQuery(
-                data: MediaQuery.of(context).copyWith(
-                  textScaler: const TextScaler.linear(1.0),
-                ),
+                data: MediaQuery.of(context).copyWith(textScaler: const TextScaler.linear(1.0)),
                 child: Text(
                   text,
                   style: CoconutTypography.body2_14_Bold.setColor(

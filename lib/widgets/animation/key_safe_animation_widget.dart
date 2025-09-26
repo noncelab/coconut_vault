@@ -48,83 +48,54 @@ class _KeySafeAnimationWidgetState extends State<KeySafeAnimationWidget> {
                   Row(
                     children: [
                       _keyActive_1
-                          ? SvgPicture.asset(
-                              'assets/svg/key-icon.svg',
-                              width: 20,
-                            )
+                          ? SvgPicture.asset('assets/svg/key-icon.svg', width: 20)
                           : SvgPicture.asset(
                               'assets/svg/key-icon.svg',
                               width: 20,
-                              colorFilter:
-                                  const ColorFilter.mode(CoconutColors.gray350, BlendMode.srcIn),
+                              colorFilter: const ColorFilter.mode(CoconutColors.gray350, BlendMode.srcIn),
                             ),
-                      const SizedBox(
-                        width: 30,
-                      ),
+                      const SizedBox(width: 30),
                       Expanded(child: _buildProgressBar(0)),
                     ],
                   ),
-                  const SizedBox(
-                    height: 24,
-                  ),
+                  const SizedBox(height: 24),
                   Visibility(
                     visible: widget.totalCount == 3,
                     child: Row(
                       children: [
                         _keyActive_2
-                            ? SvgPicture.asset(
-                                'assets/svg/key-icon.svg',
-                                width: 20,
-                              )
+                            ? SvgPicture.asset('assets/svg/key-icon.svg', width: 20)
                             : SvgPicture.asset(
                                 'assets/svg/key-icon.svg',
                                 width: 20,
-                                colorFilter:
-                                    const ColorFilter.mode(CoconutColors.gray350, BlendMode.srcIn),
+                                colorFilter: const ColorFilter.mode(CoconutColors.gray350, BlendMode.srcIn),
                               ),
-                        const SizedBox(
-                          width: 30,
-                        ),
+                        const SizedBox(width: 30),
                         Expanded(child: _buildProgressBar(1)),
                       ],
                     ),
                   ),
-                  widget.totalCount == 3
-                      ? const SizedBox(
-                          height: 24,
-                        )
-                      : Container(),
+                  widget.totalCount == 3 ? const SizedBox(height: 24) : Container(),
                   Row(
                     children: [
                       _keyActive_3
-                          ? SvgPicture.asset(
-                              'assets/svg/key-icon.svg',
-                              width: 20,
-                            )
+                          ? SvgPicture.asset('assets/svg/key-icon.svg', width: 20)
                           : SvgPicture.asset(
                               'assets/svg/key-icon.svg',
                               width: 20,
-                              colorFilter:
-                                  const ColorFilter.mode(CoconutColors.gray350, BlendMode.srcIn),
+                              colorFilter: const ColorFilter.mode(CoconutColors.gray350, BlendMode.srcIn),
                             ),
-                      const SizedBox(
-                        width: 30,
-                      ),
+                      const SizedBox(width: 30),
                       Expanded(child: _buildProgressBar(2)),
                     ],
                   ),
                 ],
               ),
             ),
-            const SizedBox(
-              width: 20,
-            ),
+            const SizedBox(width: 20),
             _animatedOpacityValue == 1
-                ? SvgPicture.asset(
-                    'assets/svg/safe-bit.svg',
-                    width: 50,
-                  )
-                : SvgPicture.asset('assets/svg/safe.svg', width: 50)
+                ? SvgPicture.asset('assets/svg/safe-bit.svg', width: 50)
+                : SvgPicture.asset('assets/svg/safe.svg', width: 50),
           ],
         ),
       ),
@@ -138,28 +109,19 @@ class _KeySafeAnimationWidgetState extends State<KeySafeAnimationWidget> {
     // buttonClickedCount가 변경된 경우 애니메이션 초기화
     if (widget.buttonClickedCount != oldWidget.buttonClickedCount) {
       stopAnimationProgress();
-      startAnimationProgress(
-        widget.totalCount,
-        widget.requiredCount,
-        widget.buttonClickedCount,
-      );
+      startAnimationProgress(widget.totalCount, widget.requiredCount, widget.buttonClickedCount);
     }
   }
 
   @override
   void initState() {
     super.initState();
-    startAnimationProgress(
-      widget.totalCount,
-      widget.requiredCount,
-      widget.buttonClickedCount,
-    );
+    startAnimationProgress(widget.totalCount, widget.requiredCount, widget.buttonClickedCount);
   }
 
   void startAnimationProgress(int n, int m, int buttonCountAtStart) async {
     stopAnimationProgress();
-    _progressQueue
-        .add(QueueDataClass(count: widget.buttonClickedCount, entity: _getQueueEntity(n, m)));
+    _progressQueue.add(QueueDataClass(count: widget.buttonClickedCount, entity: _getQueueEntity(n, m)));
 
     final animationSteps = _getAnimationSteps(n, m);
 
@@ -364,8 +326,7 @@ class _KeySafeAnimationWidgetState extends State<KeySafeAnimationWidget> {
 
   void _runProgress(int num, QueueEntity queueEntity) {
     if (_progressQueue.isEmpty ||
-        _progressQueue.last.entity != queueEntity &&
-            _progressQueue.last.count != widget.buttonClickedCount) {
+        _progressQueue.last.entity != queueEntity && _progressQueue.last.count != widget.buttonClickedCount) {
       stopAnimationProgress();
       return;
     }
@@ -374,8 +335,7 @@ class _KeySafeAnimationWidgetState extends State<KeySafeAnimationWidget> {
         {
           Timer.periodic(const Duration(milliseconds: 10), (timer) {
             if (_progressQueue.isEmpty ||
-                (_progressQueue.last.entity != queueEntity &&
-                    _progressQueue.last.count != widget.buttonClickedCount)) {
+                (_progressQueue.last.entity != queueEntity && _progressQueue.last.count != widget.buttonClickedCount)) {
               timer.cancel();
               return;
             }
@@ -440,12 +400,7 @@ class AnimationStep {
   final bool? opacityValue;
   final Duration? duration;
 
-  const AnimationStep._({
-    required this.type,
-    this.keyIndex,
-    this.opacityValue,
-    this.duration,
-  });
+  const AnimationStep._({required this.type, this.keyIndex, this.opacityValue, this.duration});
 
   factory AnimationStep.activateKey(int keyIndex) =>
       AnimationStep._(type: AnimationStepType.activateKey, keyIndex: keyIndex);
@@ -456,13 +411,7 @@ class AnimationStep {
   factory AnimationStep.changeOpacity(bool value) =>
       AnimationStep._(type: AnimationStepType.changeOpacity, opacityValue: value);
 
-  factory AnimationStep.delay(Duration duration) =>
-      AnimationStep._(type: AnimationStepType.delay, duration: duration);
+  factory AnimationStep.delay(Duration duration) => AnimationStep._(type: AnimationStepType.delay, duration: duration);
 }
 
-enum AnimationStepType {
-  activateKey,
-  runProgress,
-  changeOpacity,
-  delay,
-}
+enum AnimationStepType { activateKey, runProgress, changeOpacity, delay }

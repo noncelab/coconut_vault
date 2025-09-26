@@ -54,10 +54,7 @@ void main() {
     testWidgets('Backup and restore test', (tester) async {
       // Skip tutorial screen
       await skipScreensUntilVaultList(tester);
-      final walletProvider = Provider.of<WalletProvider>(
-        tester.element(find.byType(CupertinoApp)),
-        listen: false,
-      );
+      final walletProvider = Provider.of<WalletProvider>(tester.element(find.byType(CupertinoApp)), listen: false);
       int count = await addWallets(walletProvider: walletProvider);
       expect(walletProvider.vaultList.length, count);
       final backupData = await walletProvider.createBackupData();
@@ -98,32 +95,24 @@ Future<void> skipScreensUntilVaultList(WidgetTester tester) async {
 
   // Wait for and tap the start button on guide screen
   final Finder startButton = find.text(t.start);
-  await waitForWidget(tester, startButton,
-      timeoutMessage: 'Start button not found after 10 seconds');
+  await waitForWidget(tester, startButton, timeoutMessage: 'Start button not found after 10 seconds');
   await tester.tap(startButton);
   await tester.pumpAndSettle();
 
   // Wait for the add wallet text to appear on vault list screen
   final Finder addWalletText = find.text(t.vault_list_tab.add_wallet);
-  await waitForWidget(tester, addWalletText,
-      timeoutMessage: 'Add wallet text not found after 10 seconds');
+  await waitForWidget(tester, addWalletText, timeoutMessage: 'Add wallet text not found after 10 seconds');
 }
 
 Future<void> mnemonicCheckFlow(WidgetTester tester, bool uppercase) async {
   await skipScreensUntilVaultList(tester);
 
   // Save pin password 0000
-  final authProvider = Provider.of<AuthProvider>(
-    tester.element(find.byType(CupertinoApp)),
-    listen: false,
-  );
+  final authProvider = Provider.of<AuthProvider>(tester.element(find.byType(CupertinoApp)), listen: false);
   await authProvider.savePin("0000", false);
 
   // Add Wallets on VaultListScreen
-  final walletProvider = Provider.of<WalletProvider>(
-    tester.element(find.byType(CupertinoApp)),
-    listen: false,
-  );
+  final walletProvider = Provider.of<WalletProvider>(tester.element(find.byType(CupertinoApp)), listen: false);
   int count = await addWallets(walletProvider: walletProvider);
   expect(walletProvider.vaultList.length, count);
 
@@ -138,8 +127,7 @@ Future<void> mnemonicCheckFlow(WidgetTester tester, bool uppercase) async {
     listen: false,
   );
 
-  List<VaultListItemBase> singleSignVaults =
-      walletProvider.getVaultsByWalletType(WalletType.singleSignature);
+  List<VaultListItemBase> singleSignVaults = walletProvider.getVaultsByWalletType(WalletType.singleSignature);
   // Check if mnemonic is loaded
   expect(updatePreparationProvider.isMnemonicLoaded, true);
 
@@ -149,9 +137,8 @@ Future<void> mnemonicCheckFlow(WidgetTester tester, bool uppercase) async {
 
   for (int i = 0; i < singleSignVaults.length; i++) {
     // Load vault's mnemonicList
-    List<String> vaultMnemonicList = await walletProvider
-        .getSecret(singleSignVaults[i].id)
-        .then((mnemonic) => utf8.decode(mnemonic).split(' '));
+    List<String> vaultMnemonicList =
+        await walletProvider.getSecret(singleSignVaults[i].id).then((mnemonic) => utf8.decode(mnemonic).split(' '));
 
     String title = t.prepare_update.enter_nth_word_of_wallet(
       wallet_name: updatePreparationProvider.walletName,

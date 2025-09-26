@@ -51,15 +51,16 @@ class WalletRepository {
     return jsonDecode(jsonArrayString);
   }
 
-  Future<void> loadAndEmitEachWallet(
-      List<dynamic> jsonList, Function(VaultListItemBase wallet) emitOneItem) async {
+  Future<void> loadAndEmitEachWallet(List<dynamic> jsonList, Function(VaultListItemBase wallet) emitOneItem) async {
     _walletLoadCancelToken = Completer<void>();
 
     List<VaultListItemBase> vaultList = [];
 
     for (int i = 0; i < jsonList.length; i++) {
       VaultListItemBase item = await compute<Map<String, dynamic>, VaultListItemBase>(
-          WalletIsolates.initializeWallet, jsonList[i]);
+        WalletIsolates.initializeWallet,
+        jsonList[i],
+      );
 
       if (_walletLoadCancelToken?.isCompleted == true) {
         return;
@@ -80,12 +81,14 @@ class WalletRepository {
     final int nextId = _getNextWalletId();
     wallet.id = nextId;
     final Map<String, dynamic> vaultData = wallet.toJson();
-    List<SingleSigVaultListItem> vaultListResult =
-        await compute(WalletIsolates.addVault, vaultData);
+    List<SingleSigVaultListItem> vaultListResult = await compute(WalletIsolates.addVault, vaultData);
 
     _linkNewSinglesigVaultAndMultisigVaults(vaultListResult.first);
     await _saveSingleSigSecureData(
-        nextId, wallet.mnemonic!, wallet.passphrase != null && wallet.passphrase!.isNotEmpty);
+      nextId,
+      wallet.mnemonic!,
+      wallet.passphrase != null && wallet.passphrase!.isNotEmpty,
+    );
 
     _vaultList!.add(vaultListResult[0]);
     try {
@@ -128,8 +131,7 @@ class WalletRepository {
 
       List<MultisigSigner> signers = (vault as MultisigVaultListItem).signers;
       // 멀티 시그만 판단
-      String importedMfp =
-          (singlesigItem.coconutVault as SingleSignatureVault).keyStore.masterFingerprint;
+      String importedMfp = (singlesigItem.coconutVault as SingleSignatureVault).keyStore.masterFingerprint;
       for (int j = 0; j < signers.length; j++) {
         String signerMfp = signers[j].keyStore.masterFingerprint;
 
@@ -177,16 +179,13 @@ class WalletRepository {
   }
 
   /// 멀티시그 지갑이 추가될 때 (생성 또는 복사) 사용된 싱글시그 지갑들의 linkedMultisigInfo를 업데이트 합니다.
-  void updateLinkedMultisigInfo(
-    List<MultisigSigner> signers,
-    int newWalletId,
-  ) {
+  void updateLinkedMultisigInfo(List<MultisigSigner> signers, int newWalletId) {
     // for SinglesigVaultListItem multsig key map update
     for (int i = 0; i < signers.length; i++) {
       var signer = signers[i];
       if (signers[i].innerVaultId == null) continue;
-      SingleSigVaultListItem ssv = _vaultList!
-          .firstWhere((element) => element.id == signer.innerVaultId!) as SingleSigVaultListItem;
+      SingleSigVaultListItem ssv =
+          _vaultList!.firstWhere((element) => element.id == signer.innerVaultId!) as SingleSigVaultListItem;
 
       var keyMap = {newWalletId: i};
       if (ssv.linkedMultisigInfo != null) {
@@ -207,19 +206,16 @@ class WalletRepository {
   }
 
   Future<Uint8List> getSecret(int id) async {
-    var secretString =
-        await _storageService.read(key: _createWalletKeyString(id, WalletType.singleSignature));
+    var secretString = await _storageService.read(key: _createWalletKeyString(id, WalletType.singleSignature));
     return utf8.encode(secretString!);
   }
 
-  Future<void> _saveSingleSigSecureData(
-      int walletId, Uint8List secretString, bool isPassphraseEnabled) async {
+  Future<void> _saveSingleSigSecureData(int walletId, Uint8List secretString, bool isPassphraseEnabled) async {
     String keyString = _createWalletKeyString(walletId, WalletType.singleSignature);
     await _storageService.write(key: keyString, value: utf8.decode(secretString));
 
     String passphraseEnabledKeyString = _createPassphraseEnabledKeyString(keyString);
-    await _storageService.write(
-        key: passphraseEnabledKeyString, value: isPassphraseEnabled ? "true" : "false");
+    await _storageService.write(key: passphraseEnabledKeyString, value: isPassphraseEnabled ? "true" : "false");
   }
 
   Future<void> _deleteSingleSigSecureData(int walletId) async {
@@ -363,8 +359,7 @@ class WalletRepository {
 
         _storageService.writeBytes(key: keyString, value: secretBytes);
         secretBytes.wipe();
-        _storageService.write(
-            key: passphraseKeyString, value: data['hasPassphrase'] ? "true" : "false");
+        _storageService.write(key: passphraseKeyString, value: data['hasPassphrase'] ? "true" : "false");
       }
       vaultList.add(wallet);
     }

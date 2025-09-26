@@ -14,9 +14,8 @@ import 'package:coconut_vault/model/single_sig/single_sig_wallet_create_dto.dart
 
 class WalletIsolates {
   static void setNetworkType() {
-    const String? appFlavor = String.fromEnvironment('FLUTTER_APP_FLAVOR') != ''
-        ? String.fromEnvironment('FLUTTER_APP_FLAVOR')
-        : null;
+    const String? appFlavor =
+        String.fromEnvironment('FLUTTER_APP_FLAVOR') != '' ? String.fromEnvironment('FLUTTER_APP_FLAVOR') : null;
     NetworkType.setNetworkType(appFlavor == "mainnet" ? NetworkType.mainnet : NetworkType.regtest);
   }
 
@@ -27,13 +26,17 @@ class WalletIsolates {
 
     var wallet = SingleSigWalletCreateDto.fromJson(data);
     final keyStore = KeyStore.fromSeed(
-        Seed.fromMnemonic(wallet.mnemonic!, passphrase: wallet.passphrase ?? Uint8List(0)),
-        AddressType.p2wpkh);
+      Seed.fromMnemonic(wallet.mnemonic!, passphrase: wallet.passphrase ?? Uint8List(0)),
+      AddressType.p2wpkh,
+    );
     final derivationPath = NetworkType.currentNetworkType.isTestnet ? "84'/1'/0'" : "84'/0'/0'";
-    final descriptor = Descriptor.forSingleSignature(AddressType.p2wpkh,
-        keyStore.extendedPublicKey.serialize(), derivationPath, keyStore.masterFingerprint);
-    final signerBsms =
-        SingleSignatureVault.fromKeyStore(keyStore).getSignerBsms(AddressType.p2wsh, wallet.name!);
+    final descriptor = Descriptor.forSingleSignature(
+      AddressType.p2wpkh,
+      keyStore.extendedPublicKey.serialize(),
+      derivationPath,
+      keyStore.masterFingerprint,
+    );
+    final signerBsms = SingleSignatureVault.fromKeyStore(keyStore).getSignerBsms(AddressType.p2wsh, wallet.name!);
     SingleSigVaultListItem newItem = SingleSigVaultListItem(
       id: wallet.id!,
       name: wallet.name!,
@@ -94,8 +97,10 @@ class WalletIsolates {
     }
 
     MultisignatureVault multiSignatureVault = MultisignatureVault.fromKeyStoreList(
-        keyStores, requiredSignatureCount,
-        addressType: AddressType.p2wsh);
+      keyStores,
+      requiredSignatureCount,
+      addressType: AddressType.p2wsh,
+    );
 
     return multiSignatureVault;
   }
@@ -125,10 +130,7 @@ class WalletIsolates {
 
     try {
       seed = Seed.fromMnemonic(args['mnemonic'], passphrase: args['passphrase']);
-      keyStore = KeyStore.fromSeed(
-        seed,
-        AddressType.p2wpkh,
-      );
+      keyStore = KeyStore.fromSeed(seed, AddressType.p2wpkh);
 
       final savedMfp = singleSigVaultListItem.keyStore.masterFingerprint;
       final recoveredMfp = keyStore.masterFingerprint;
@@ -139,7 +141,7 @@ class WalletIsolates {
         "success": success,
         "savedMfp": savedMfp,
         "recoveredMfp": recoveredMfp,
-        "extendedPublicKey": extendedPublicKey
+        "extendedPublicKey": extendedPublicKey,
       };
     } finally {
       if (keyStore != null) {

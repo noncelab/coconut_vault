@@ -8,8 +8,9 @@ void main() {
       // mnemonic: hope disorder index rather outdoor response rain range genuine oil banana feed
       String masterFingerprint = "92DBF650";
       final keyStore = KeyStore.fromExtendedPublicKey(
-          "zpub6rYqhgYyyvypyGmx5NomXL5DJobtWTrer9yKXQo5SP7X4jw6rYCbqmfgyBNiuFvrhAwUasmLE4jzd6DPosbSYL2z5bk4tSorCZ7bsFp6HPx",
-          masterFingerprint);
+        "zpub6rYqhgYyyvypyGmx5NomXL5DJobtWTrer9yKXQo5SP7X4jw6rYCbqmfgyBNiuFvrhAwUasmLE4jzd6DPosbSYL2z5bk4tSorCZ7bsFp6HPx",
+        masterFingerprint,
+      );
       final singleSignatureVault = SingleSignatureVault.fromKeyStore(keyStore);
       expect(keyStore.masterFingerprint, masterFingerprint);
       expect(singleSignatureVault.keyStore.masterFingerprint, masterFingerprint);

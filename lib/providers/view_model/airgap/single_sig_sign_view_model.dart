@@ -16,8 +16,7 @@ class SingleSigSignViewModel extends ChangeNotifier {
   bool _hasPassphrase = false;
 
   SingleSigSignViewModel(this._walletProvider, this._signProvider) {
-    _coconutVault = (_signProvider.vaultListItem! as SingleSigVaultListItem).coconutVault
-        as SingleSignatureVault;
+    _coconutVault = (_signProvider.vaultListItem! as SingleSigVaultListItem).coconutVault as SingleSignatureVault;
 
     _isAlreadySigned = _isSigned();
     if (_isAlreadySigned) {
@@ -39,8 +38,7 @@ class SingleSigSignViewModel extends ChangeNotifier {
   String get firstRecipientAddress => _signProvider.recipientAddress != null
       ? _signProvider.recipientAddress!
       : _signProvider.recipientAmounts!.keys.first;
-  int get recipientCount =>
-      _signProvider.recipientAddress != null ? 1 : _signProvider.recipientAmounts!.length;
+  int get recipientCount => _signProvider.recipientAddress != null ? 1 : _signProvider.recipientAmounts!.length;
   int get sendingAmount => _signProvider.sendingAmount!;
   bool get hasPassphrase => _hasPassphrase;
   int get walletId => _signProvider.walletId!;
@@ -63,8 +61,10 @@ class SingleSigSignViewModel extends ChangeNotifier {
 
       seed = Seed.fromMnemonic(mnemonicBytes, passphrase: passphrase);
 
-      final signedTx = await compute(SignIsolates.addSignatureToPsbtWithSingleVault,
-          [seed, _signProvider.unsignedPsbtBase64!]);
+      final signedTx = await compute(SignIsolates.addSignatureToPsbtWithSingleVault, [
+        seed,
+        _signProvider.unsignedPsbtBase64!,
+      ]);
       _signProvider.saveSignedPsbt(signedTx);
       updateSignState();
     } finally {

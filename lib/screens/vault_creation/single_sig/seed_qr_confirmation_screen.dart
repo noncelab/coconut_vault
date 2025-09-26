@@ -44,8 +44,7 @@ class _SeedQrConfirmationScreenState extends State<SeedQrConfirmationScreen> {
     super.initState();
     _initListeners();
     _walletProvider = Provider.of<WalletProvider>(context, listen: false);
-    _walletCreationProvider = Provider.of<WalletCreationProvider>(context, listen: false)
-      ..resetAll();
+    _walletCreationProvider = Provider.of<WalletCreationProvider>(context, listen: false)..resetAll();
     _isMnemonicWarningVisible = true;
   }
 
@@ -117,33 +116,32 @@ class _SeedQrConfirmationScreenState extends State<SeedQrConfirmationScreen> {
                       CoconutLayout.spacing_1200h,
                       Text(
                         t.seed_qr_confirmation_screen.check_mnemonic,
-                        style: CoconutTypography.body1_16_Bold.setColor(
-                          CoconutColors.black,
-                        ),
+                        style: CoconutTypography.body1_16_Bold.setColor(CoconutColors.black),
                       ),
                       CoconutLayout.spacing_600h,
                       MnemonicList(
-                          mnemonic: widget.scannedData,
-                          onWarningPressed: () {
-                            setState(() {
-                              _isMnemonicWarningVisible = false;
-                            });
-                          }),
+                        mnemonic: widget.scannedData,
+                        onWarningPressed: () {
+                          setState(() {
+                            _isMnemonicWarningVisible = false;
+                          });
+                        },
+                      ),
                       CoconutLayout.spacing_600h,
                       _buildPassphraseToggle(),
                       if (_usePassphrase) _buildPassphraseTextField(),
-                      CoconutLayout.spacing_2500h
+                      CoconutLayout.spacing_2500h,
                     ],
                   ),
                 ),
               ),
               FixedBottomButton(
-                  text: t.next,
-                  isActive: _isMnemonicWarningVisible ? false : true,
-                  backgroundColor: CoconutColors.black,
-                  onButtonClicked: _handleNextButton,
-                  gradientPadding:
-                      const EdgeInsets.only(left: 16, right: 16, bottom: 40, top: 140)),
+                text: t.next,
+                isActive: _isMnemonicWarningVisible ? false : true,
+                backgroundColor: CoconutColors.black,
+                onButtonClicked: _handleNextButton,
+                gradientPadding: const EdgeInsets.only(left: 16, right: 16, bottom: 40, top: 140),
+              ),
             ],
           ),
         ),
@@ -159,8 +157,7 @@ class _SeedQrConfirmationScreenState extends State<SeedQrConfirmationScreen> {
     final passphrase = utf8.encode(_usePassphrase ? _passphrase : '');
 
     if (_walletProvider.isSeedDuplicated(secret, passphrase)) {
-      CoconutToast.showToast(
-          context: context, text: t.toast.mnemonic_already_added, isVisibleIcon: true);
+      CoconutToast.showToast(context: context, text: t.toast.mnemonic_already_added, isVisibleIcon: true);
       return;
     }
     _walletCreationProvider.setSecretAndPassphrase(secret, passphrase);
@@ -170,8 +167,7 @@ class _SeedQrConfirmationScreenState extends State<SeedQrConfirmationScreen> {
   Widget _buildPassphraseToggle() {
     return Row(
       children: [
-        Text(t.seed_qr_confirmation_screen.passphrase_toggle,
-            style: CoconutTypography.body2_14_Bold),
+        Text(t.seed_qr_confirmation_screen.passphrase_toggle, style: CoconutTypography.body2_14_Bold),
         const Spacer(),
         CupertinoSwitch(
           value: _usePassphrase,
@@ -188,36 +184,29 @@ class _SeedQrConfirmationScreenState extends State<SeedQrConfirmationScreen> {
 
   Widget _buildPassphraseTextField() {
     return Padding(
-        padding: const EdgeInsets.only(top: 12, bottom: 24),
-        child: SizedBox(
-          child: CoconutTextField(
-            focusNode: _passphraseFocusNode,
-            controller: _passphraseController,
-            placeholderText: t.seed_qr_confirmation_screen.passphrase_text_field_placeholder,
-            onChanged: (_) {},
-            maxLines: 1,
-            isLengthVisible: false,
-            obscureText: _passphraseObscured,
-            suffix: CupertinoButton(
-              onPressed: () {
-                setState(() {
-                  _passphraseObscured = !_passphraseObscured;
-                });
-              },
-              child: _passphraseObscured
-                  ? const Icon(
-                      CupertinoIcons.eye_slash,
-                      color: CoconutColors.gray800,
-                      size: 18,
-                    )
-                  : const Icon(
-                      CupertinoIcons.eye,
-                      color: CoconutColors.gray800,
-                      size: 18,
-                    ),
-            ),
-            maxLength: 100,
+      padding: const EdgeInsets.only(top: 12, bottom: 24),
+      child: SizedBox(
+        child: CoconutTextField(
+          focusNode: _passphraseFocusNode,
+          controller: _passphraseController,
+          placeholderText: t.seed_qr_confirmation_screen.passphrase_text_field_placeholder,
+          onChanged: (_) {},
+          maxLines: 1,
+          isLengthVisible: false,
+          obscureText: _passphraseObscured,
+          suffix: CupertinoButton(
+            onPressed: () {
+              setState(() {
+                _passphraseObscured = !_passphraseObscured;
+              });
+            },
+            child: _passphraseObscured
+                ? const Icon(CupertinoIcons.eye_slash, color: CoconutColors.gray800, size: 18)
+                : const Icon(CupertinoIcons.eye, color: CoconutColors.gray800, size: 18),
           ),
-        ));
+          maxLength: 100,
+        ),
+      ),
+    );
   }
 }

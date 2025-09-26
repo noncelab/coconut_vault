@@ -15,12 +15,7 @@ class GradientProgressBar extends StatelessWidget {
   final double height;
   final Gradient gradient;
 
-  const GradientProgressBar({
-    super.key,
-    required this.value,
-    required this.height,
-    required this.gradient,
-  });
+  const GradientProgressBar({super.key, required this.value, required this.height, required this.gradient});
 
   @override
   Widget build(BuildContext context) {
@@ -29,17 +24,10 @@ class GradientProgressBar extends StatelessWidget {
       child: Container(
         width: double.infinity,
         height: height,
-        color: CoconutColors.black.withOpacity(0.06),
+        color: CoconutColors.black.withValues(alpha: 0.06),
         child: Stack(
           children: [
-            FractionallySizedBox(
-              widthFactor: value,
-              child: Container(
-                decoration: BoxDecoration(
-                  gradient: gradient,
-                ),
-              ),
-            ),
+            FractionallySizedBox(widthFactor: value, child: Container(decoration: BoxDecoration(gradient: gradient))),
           ],
         ),
       ),
@@ -69,10 +57,7 @@ class _MultisigQuorumSelectionScreenState extends State<MultisigQuorumSelectionS
         builder: (context, viewModel, child) {
           return Scaffold(
             backgroundColor: CoconutColors.white,
-            appBar: CoconutAppBar.build(
-              title: t.multisig_wallet,
-              context: context,
-            ),
+            appBar: CoconutAppBar.build(title: t.multisig_wallet, context: context),
             body: SafeArea(
               child: Stack(
                 children: [
@@ -140,48 +125,36 @@ class _MultisigQuorumSelectionScreenState extends State<MultisigQuorumSelectionS
     final buttonClickedCount = viewModel.buttonClickedCount;
 
     return Container(
-        height: 274,
-        margin: const EdgeInsets.symmetric(horizontal: 12),
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
-        decoration: BoxDecoration(
-          borderRadius: CoconutBorder.defaultRadius,
-          color: CoconutColors.gray150,
+      height: 274,
+      margin: const EdgeInsets.symmetric(horizontal: 12),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
+      decoration: BoxDecoration(borderRadius: CoconutBorder.defaultRadius, color: CoconutColors.gray150),
+      alignment: Alignment.center,
+      child: MediaQuery(
+        data: MediaQuery.of(context).copyWith(textScaler: const TextScaler.linear(1.0)),
+        child: Column(
+          children: [
+            Center(child: HighLightedText('$requiredCount/$totalCount', color: CoconutColors.gray800, fontSize: 24)),
+            const Spacer(),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24),
+              child: Text(
+                quorumMessage,
+                style: CoconutTypography.body2_14_Number.merge(const TextStyle(letterSpacing: -0.01)),
+                textAlign: TextAlign.center,
+              ),
+            ),
+            const Spacer(),
+            KeySafeAnimationWidget(
+              requiredCount: requiredCount,
+              totalCount: totalCount,
+              buttonClickedCount: buttonClickedCount,
+            ),
+            CoconutLayout.spacing_400h,
+          ],
         ),
-        alignment: Alignment.center,
-        child: MediaQuery(
-          data: MediaQuery.of(context).copyWith(textScaler: const TextScaler.linear(1.0)),
-          child: Column(
-            children: [
-              Center(
-                child: HighLightedText(
-                  '$requiredCount/$totalCount',
-                  color: CoconutColors.gray800,
-                  fontSize: 24,
-                ),
-              ),
-              const Spacer(),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 24),
-                child: Text(
-                  quorumMessage,
-                  style: CoconutTypography.body2_14_Number.merge(
-                    const TextStyle(
-                      letterSpacing: -0.01,
-                    ),
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-              ),
-              const Spacer(),
-              KeySafeAnimationWidget(
-                requiredCount: requiredCount,
-                totalCount: totalCount,
-                buttonClickedCount: buttonClickedCount,
-              ),
-              CoconutLayout.spacing_400h,
-            ],
-          ),
-        ));
+      ),
+    );
   }
 
   Widget _buildTotalKeyCount(MultisigQuorumSelectionViewModel viewModel) {
@@ -234,14 +207,7 @@ class _MultisigQuorumSelectionScreenState extends State<MultisigQuorumSelectionS
       mainAxisAlignment: MainAxisAlignment.center,
       key: key,
       children: [
-        Expanded(
-          child: Center(
-            child: Text(
-              text,
-              style: CoconutTypography.body2_14_Bold,
-            ),
-          ),
-        ),
+        Expanded(child: Center(child: Text(text, style: CoconutTypography.body2_14_Bold))),
         Expanded(
           child: CoconutStepper(
             key: ValueKey('${key.toString()}_$_totalKeyCount'),

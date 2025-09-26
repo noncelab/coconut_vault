@@ -26,6 +26,5 @@ class MultisigImportDetail {
 
   Map<String, dynamic> toJson() => _$MultisigImportDetailToJson(this);
 
-  factory MultisigImportDetail.fromJson(Map<String, dynamic> json) =>
-      _$MultisigImportDetailFromJson(json);
+  factory MultisigImportDetail.fromJson(Map<String, dynamic> json) => _$MultisigImportDetailFromJson(json);
 }

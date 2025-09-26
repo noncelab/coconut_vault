@@ -38,7 +38,7 @@ class _TooltipButtonState extends State<TooltipButton> {
       margin: widget.containerMargin,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(22),
-        color: widget.isSelected ? CoconutColors.black.withOpacity(0.5) : Colors.transparent,
+        color: widget.isSelected ? CoconutColors.black.withValues(alpha: 0.5) : Colors.transparent,
       ),
       child: Center(
         child: GestureDetector(
@@ -53,9 +53,7 @@ class _TooltipButtonState extends State<TooltipButton> {
                 style: widget.textStyle ??
                     CoconutTypography.body2_14.merge(
                       TextStyle(
-                        color: widget.isSelected
-                            ? CoconutColors.black
-                            : CoconutColors.black.withOpacity(0.3),
+                        color: widget.isSelected ? CoconutColors.black : CoconutColors.black.withValues(alpha: 0.3),
                         fontWeight: widget.isSelected ? FontWeight.bold : FontWeight.normal,
                       ),
                     ),
@@ -65,14 +63,10 @@ class _TooltipButtonState extends State<TooltipButton> {
                 key: widget.iconkey,
                 Icons.info_outline_rounded,
                 color: widget.iconColor ??
-                    (widget.isSelected
-                        ? CoconutColors.black
-                        : CoconutColors.black.withOpacity(0.3)),
+                    (widget.isSelected ? CoconutColors.black : CoconutColors.black.withValues(alpha: 0.3)),
                 size: widget.iconSize ?? 16,
-                weight: widget.isIconBold
-                    ? FontWeight.bold.value.toDouble()
-                    : FontWeight.normal.value.toDouble(),
-              )
+                weight: widget.isIconBold ? FontWeight.bold.value.toDouble() : FontWeight.normal.value.toDouble(),
+              ),
             ],
           ),
         ),

@@ -10,12 +10,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 
 class MnemonicList extends StatefulWidget {
-  const MnemonicList({
-    super.key,
-    required this.mnemonic,
-    this.isLoading = false,
-    this.onWarningPressed,
-  });
+  const MnemonicList({super.key, required this.mnemonic, this.isLoading = false, this.onWarningPressed});
 
   final Uint8List mnemonic;
   final bool isLoading;
@@ -35,24 +30,14 @@ class _MnemonicListState extends State<MnemonicList> with TickerProviderStateMix
     super.initState();
 
     // 파도타기 애니메이션 컨트롤러 초기화
-    _waveAnimationController = AnimationController(
-      duration: const Duration(milliseconds: 1200),
-      vsync: this,
-    );
+    _waveAnimationController = AnimationController(duration: const Duration(milliseconds: 1200), vsync: this);
 
     _opacityAnimations = List.generate(24, (index) {
       final delay = (index / 2).floor() * 0.1;
-      return Tween<double>(
-        begin: 0.3,
-        end: 0.3,
-      ).animate(
+      return Tween<double>(begin: 0.3, end: 0.3).animate(
         CurvedAnimation(
           parent: _waveAnimationController,
-          curve: Interval(
-            delay.clamp(0.0, 1.0),
-            (delay + 0.3).clamp(0.0, 1.0),
-            curve: Curves.easeInOut,
-          ),
+          curve: Interval(delay.clamp(0.0, 1.0), (delay + 0.3).clamp(0.0, 1.0), curve: Curves.easeInOut),
         ),
       );
     });
@@ -94,10 +79,7 @@ class _MnemonicListState extends State<MnemonicList> with TickerProviderStateMix
       child: Stack(
         children: [
           Padding(
-            padding: const EdgeInsets.only(
-              left: 40.0,
-              right: 40.0,
-            ),
+            padding: const EdgeInsets.only(left: 40.0, right: 40.0),
             child: GridView.builder(
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
@@ -143,17 +125,11 @@ class _MnemonicListState extends State<MnemonicList> with TickerProviderStateMix
                             children: [
                               Text(
                                 (index + 1).toString().padLeft(2, '0'),
-                                style: CoconutTypography.body3_12_Number.setColor(
-                                  CoconutColors.gray500,
-                                ),
+                                style: CoconutTypography.body3_12_Number.setColor(CoconutColors.gray500),
                               ),
                               CoconutLayout.spacing_300w,
                               const Expanded(
-                                child: Text(
-                                  '',
-                                  style: CoconutTypography.body2_14,
-                                  overflow: TextOverflow.visible,
-                                ),
+                                child: Text('', style: CoconutTypography.body2_14, overflow: TextOverflow.visible),
                               ),
                             ],
                           ),
@@ -177,17 +153,11 @@ class _MnemonicListState extends State<MnemonicList> with TickerProviderStateMix
                     children: [
                       Text(
                         (index + 1).toString().padLeft(2, '0'),
-                        style: CoconutTypography.body3_12_Number.setColor(
-                          CoconutColors.gray500,
-                        ),
+                        style: CoconutTypography.body3_12_Number.setColor(CoconutColors.gray500),
                       ),
                       CoconutLayout.spacing_300w,
                       Expanded(
-                        child: Text(
-                          words[index],
-                          style: CoconutTypography.body2_14,
-                          overflow: TextOverflow.visible,
-                        ),
+                        child: Text(words[index], style: CoconutTypography.body2_14, overflow: TextOverflow.visible),
                       ),
                     ],
                   ),
@@ -208,10 +178,7 @@ class _MnemonicListState extends State<MnemonicList> with TickerProviderStateMix
                   child: Align(
                     alignment: Alignment.topCenter,
                     child: Container(
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(12),
-                        color: CoconutColors.hotPink,
-                      ),
+                      decoration: BoxDecoration(borderRadius: BorderRadius.circular(12), color: CoconutColors.hotPink),
                       padding: const EdgeInsets.only(top: 28, left: 20, right: 20, bottom: 20),
                       margin: const EdgeInsets.symmetric(horizontal: 68, vertical: 30),
                       child: LayoutBuilder(
@@ -223,9 +190,9 @@ class _MnemonicListState extends State<MnemonicList> with TickerProviderStateMix
 
                           final textPainter = TextPainter(
                             text: TextSpan(
-                                text: t.mnemonic_view_screen.warning_title,
-                                style:
-                                    CoconutTypography.body1_16_Bold.setColor(CoconutColors.white)),
+                              text: t.mnemonic_view_screen.warning_title,
+                              style: CoconutTypography.body1_16_Bold.setColor(CoconutColors.white),
+                            ),
                             maxLines: 1,
                             textDirection: TextDirection.ltr,
                           )..layout(maxWidth: constraints.maxWidth);
@@ -238,10 +205,7 @@ class _MnemonicListState extends State<MnemonicList> with TickerProviderStateMix
                             children: [
                               SvgPicture.asset(
                                 'assets/svg/triangle-warning.svg',
-                                colorFilter: const ColorFilter.mode(
-                                  CoconutColors.white,
-                                  BlendMode.srcIn,
-                                ),
+                                colorFilter: const ColorFilter.mode(CoconutColors.white, BlendMode.srcIn),
                               ),
                               CoconutLayout.spacing_300h,
                               text,
@@ -264,8 +228,7 @@ class _MnemonicListState extends State<MnemonicList> with TickerProviderStateMix
                                     width: double.infinity,
                                     child: Text(
                                       t.mnemonic_view_screen.warning_btn,
-                                      style: CoconutTypography.body2_14_Bold
-                                          .setColor(CoconutColors.hotPink),
+                                      style: CoconutTypography.body2_14_Bold.setColor(CoconutColors.hotPink),
                                       textAlign: TextAlign.center,
                                     ),
                                   ),
@@ -276,7 +239,7 @@ class _MnemonicListState extends State<MnemonicList> with TickerProviderStateMix
                                     widget.onWarningPressed?.call();
                                   },
                                 ),
-                              )
+                              ),
                             ],
                           );
                         },
