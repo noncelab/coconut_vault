@@ -1,8 +1,10 @@
 import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_vault/constants/app_routes.dart';
+import 'package:coconut_vault/constants/external_links.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/providers/connectivity_provider.dart';
 import 'package:coconut_vault/providers/visibility_provider.dart';
+import 'package:coconut_vault/utils/uri_launcher.dart';
 import 'package:coconut_vault/widgets/button/fixed_bottom_button.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -52,22 +54,6 @@ class _TutorialScreenState extends State<TutorialScreen> {
             body: SafeArea(
               child: Stack(
                 children: [
-                  Positioned(
-                    right: 16,
-                    top: 30,
-                    child: TextButton(
-                      onPressed: () => Navigator.pushNamed(context, AppRoutes.welcome),
-                      style: TextButton.styleFrom(
-                        foregroundColor: CoconutColors.gray800,
-                      ),
-                      child: Text(
-                        t.skip,
-                        style: CoconutTypography.body2_14.setColor(
-                          CoconutColors.gray800,
-                        ),
-                      ),
-                    ),
-                  ),
                   Center(
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
@@ -107,10 +93,26 @@ class _TutorialScreenState extends State<TutorialScreen> {
                       ],
                     ),
                   ),
-                  FixedBottomButton(
-                    onButtonClicked: () => Navigator.pushNamed(context, AppRoutes.welcome),
-                    text: t.view_tutorial,
-                  )
+                  Selector<ConnectivityProvider, bool>(
+                      selector: (context, model) => model.isNetworkOn == true,
+                      builder: (context, networkOn, _) {
+                        return FixedBottomButton(
+                          isActive: networkOn,
+                          onButtonClicked: () => launchURL(
+                            COCONUT_TUTORIAL_URL,
+                            defaultMode: false,
+                          ),
+                          text: t.view_tutorial,
+                          subWidget: CoconutButton(
+                              onPressed: () => Navigator.pushNamed(context, AppRoutes.welcome),
+                              text: t.skip,
+                              backgroundColor: CoconutColors.white,
+                              foregroundColor: CoconutColors.black,
+                              pressedBackgroundColor: CoconutColors.gray150,
+                              pressedTextColor: CoconutColors.gray400,
+                              textStyle: CoconutTypography.body2_14),
+                        );
+                      })
                 ],
               ),
             ),

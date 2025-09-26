@@ -50,7 +50,6 @@ dependencies:
   fluttertoast: ^8.2.4
   qr_flutter: ^4.1.0
   flutter_svg: ^2.0.10+1
-  carousel_slider: ^5.0.0
   convert: ^3.1.1
   connectivity_plus: ^6.0.3
   flutter_blue_plus: 1.32.12
@@ -212,11 +211,11 @@ flutter:
     - assets/png/browser_regtest.png
     - assets/png/browser_ko.png
     - assets/png/browser_en.png
-    - assets/png/onboarding_1.png
-    - assets/png/onboarding_2.png
     - assets/png/state/bluetooth_on.png
     - assets/png/state/wifi_on.png
     - assets/png/state/developer_on.png
+    - assets/png/welcome1.png
+    - assets/png/welcome2.png
     - assets/svg/github-logo-white.svg
     - assets/svg/github-logo.svg
     - assets/files/LICENSE
@@ -254,6 +253,11 @@ flutter:
     - assets/svg/dice/4.svg
     - assets/svg/dice/5.svg
     - assets/svg/dice/6.svg
+    - assets/svg/settings-guide-icons/airplane-mode.svg
+    - assets/svg/settings-guide-icons/wifi.svg
+    - assets/svg/settings-guide-icons/mobile-data.svg
+    - assets/svg/settings-guide-icons/bluetooth.svg
+    - assets/svg/settings-guide-icons/developer-mode.svg
 
   fonts:
     - family: SpaceGrotesk
