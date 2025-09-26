@@ -211,7 +211,6 @@ signed_transaction_qr_screen:
   guide_single_sig: "월렛의 '$name 지갑'에서 만든 보내기 정보에 서명을 완료했어요. 월렛으로 아래 QR 코드를 스캔해 주세요."
 single_sig_sign_screen:
   text: "이미 서명된 트랜잭션입니다"
-one_sign_guide: "버튼을 눌러 서명해 주세요"
 signer_qr_bottom_sheet:
   title: "서명 트랜잭션 내보내기"
   text1: "번 키가 보관된 볼트에서,"

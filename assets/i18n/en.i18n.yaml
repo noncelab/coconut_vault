@@ -76,7 +76,7 @@ delete_all: "Delete All"
 delete_one: "Delete One"
 
 name_wallet: "$name Wallet"
-one_sign_guide: "Please click the button to sign"
+one_sign_guide: "Click the button to sign"
 bitcoin_text: "$bitcoin BTC"
 sign_required: "Click the button to sign"
 sign_required_amount: 
@@ -209,7 +209,6 @@ signed_transaction_qr_screen:
   guide_single_sig: "Signature completed for sending info created in '$name wallet'. Please scan the QR code below in the wallet."
 single_sig_sign_screen:
   text: "This is an already signed transaction"
-one_sign_guide: "Click the button to sign"
 signer_qr_bottom_sheet:
   title: "Export Signed Transaction"
   text1: "On the vault containing the key "
