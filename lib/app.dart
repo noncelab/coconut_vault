@@ -21,6 +21,7 @@ import 'package:coconut_vault/screens/app_update/vault_list_restoration_screen.d
 import 'package:coconut_vault/screens/home/vault_home_screen.dart';
 import 'package:coconut_vault/screens/home/vault_list_screen.dart';
 import 'package:coconut_vault/screens/app_update/app_update_preparation_screen.dart';
+import 'package:coconut_vault/screens/vault_creation/single_sig/mnemonic_dice_roll_screen.dart';
 import 'package:coconut_vault/screens/vault_creation/single_sig/mnemonic_manual_entropy_confirmation_screen.dart';
 import 'package:coconut_vault/screens/vault_creation/single_sig/mnemonic_confirmation_screen.dart';
 import 'package:coconut_vault/screens/vault_creation/single_sig/mnemonic_import_screen.dart';
@@ -184,13 +185,13 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> {
             return connectivityProvider!;
           },
         ),
-        if (_appEntryFlow == AppEntryFlow.vaultHome) ...{
+        if (_appEntryFlow == AppEntryFlow.vaultHome) ...[
           Provider<WalletCreationProvider>(create: (_) => WalletCreationProvider()),
           Provider<SignProvider>(create: (_) => SignProvider()),
           ChangeNotifierProvider<WalletProvider>(create: (_) => WalletProvider(visibilityProvider, preferenceProvider)),
-        } else if (_appEntryFlow == AppEntryFlow.restoration) ...{
+        ] else if (_appEntryFlow == AppEntryFlow.restoration) ...[
           ChangeNotifierProvider<WalletProvider>(create: (_) => WalletProvider(visibilityProvider, preferenceProvider)),
-        },
+        ],
       ],
       child: Directionality(
         textDirection: TextDirection.ltr,
@@ -314,6 +315,7 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> {
                           },
                           AppRoutes.mnemonicGeneration: (context) => const MnemonicGenerationScreen(),
                           AppRoutes.mnemonicCoinflip: (context) => const MnemonicCoinflipScreen(),
+                          AppRoutes.mnemonicDiceRoll: (context) => const MnemonicDiceRollScreen(),
                           AppRoutes.appInfo: (context) => const AppInfoScreen(),
                           AppRoutes.welcome: (context) {
                             onComplete() {

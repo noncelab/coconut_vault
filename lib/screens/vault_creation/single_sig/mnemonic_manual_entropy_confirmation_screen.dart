@@ -27,7 +27,7 @@ class _MnemonicManualEntropyConfirmationScreenState extends State<MnemonicManual
   @override
   void initState() {
     super.initState();
-    _mnemonic = Provider.of<WalletCreationProvider>(context, listen: false).secret;
+    _mnemonic = Uint8List.fromList(Provider.of<WalletCreationProvider>(context, listen: false).secret);
     _wordsCount = utf8.decode(_mnemonic).split(' ').length;
 
     hasScrolledToBottom = utf8.decode(_mnemonic).split(' ').length == 12;

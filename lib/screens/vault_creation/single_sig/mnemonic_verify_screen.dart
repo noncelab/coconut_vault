@@ -70,7 +70,7 @@ class _MnemonicVerifyScreenState extends State<MnemonicVerifyScreen> {
   List<int> _generateRandomPositions() {
     final random = List<int>.generate(_mnemonic.length, (i) => i);
     random.shuffle();
-    return random.take(_totalQuizzes).toList()..sort();
+    return random.take(_totalQuizzes).toList();
   }
 
   List<String> _generateQuizOptions(int correctPosition) {

@@ -7,6 +7,7 @@ import 'package:coconut_vault/extensions/uint8list_extensions.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/providers/visibility_provider.dart';
 import 'package:coconut_vault/providers/wallet_creation_provider.dart';
+import 'package:coconut_vault/utils/conversion_util.dart';
 import 'package:coconut_vault/widgets/button/fixed_bottom_tween_button.dart';
 import 'package:coconut_vault/widgets/button/shrink_animation_button.dart';
 import 'package:flutter/cupertino.dart';
@@ -709,7 +710,7 @@ class _FlipCoinState extends State<FlipCoin> {
           description: message ?? t.alert.erase_all_entered_so_far,
           backgroundColor: CoconutColors.white,
           leftButtonText: t.no,
-          leftButtonColor: CoconutColors.black.withOpacity(0.7),
+          leftButtonColor: CoconutColors.black.withValues(alpha: 0.7),
           rightButtonText: t.yes,
           rightButtonColor: CoconutColors.warningText,
           onTapLeft: () => Navigator.pop(context),
@@ -729,35 +730,12 @@ class _FlipCoinState extends State<FlipCoin> {
   bool _generateMnemonicPhrase() {
     try {
       setState(() {
-        _mnemonic = Seed.fromEntropy(bitsToBytes(_bits)).mnemonic;
+        _mnemonic = Seed.fromEntropy(ConversionUtil.bitsToBytes(_bits)).mnemonic;
       });
       return true;
     } catch (e) {
       return false;
     }
-  }
-
-  // TODO: 유틸 함수로 만들지 확인 필요
-  // Uint8List.fromList()
-  Uint8List bitsToBytes(List<int> bits) {
-    List<int> eightBits = [];
-    if (bits.length < 8) {
-      for (int i = 8 - bits.length; i > 0; i--) {
-        eightBits.add(0);
-      }
-      eightBits.addAll(bits);
-    } else {
-      eightBits.addAll(bits);
-    }
-    Uint8List bytes = Uint8List(eightBits.length ~/ 8);
-    for (int i = 0; i < eightBits.length; i += 8) {
-      int byte = 0;
-      for (int j = 0; j < 8; j++) {
-        byte = (byte << 1) | eightBits[i + j];
-      }
-      bytes[i ~/ 8] = byte;
-    }
-    return bytes;
   }
 
   void _showAllBitsBottomSheet() {

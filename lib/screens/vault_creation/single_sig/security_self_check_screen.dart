@@ -68,11 +68,11 @@ class _SecuritySelfCheckScreenState extends State<SecuritySelfCheckScreen> {
                       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
                       decoration: BoxDecoration(
                         borderRadius: CoconutBorder.defaultRadius,
-                        color: CoconutColors.gray150,
+                        color: CoconutColors.hotPink,
                       ),
                       child: Text(
                         t.security_self_check_screen.guidance,
-                        style: CoconutTypography.body1_16_Bold.setColor(CoconutColors.black),
+                        style: CoconutTypography.body1_16_Bold.setColor(CoconutColors.white),
                       ),
                     ),
                   ),
@@ -87,7 +87,7 @@ class _SecuritySelfCheckScreenState extends State<SecuritySelfCheckScreen> {
                       },
                     );
                   }),
-                  CoconutLayout.spacing_2000h,
+                  CoconutLayout.spacing_2500h,
                 ],
               ),
             ),

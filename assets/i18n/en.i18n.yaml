@@ -181,7 +181,7 @@ security_self_check_screen:
   check7: "I do not store mnemonics and passphrases together."
   check8: "I test with small amounts before starting wallet use."
   check9: "I will regularly check the above items and safely store my mnemonics."
-  guidance: "I will securely store my mnemonic words myself. Please review the items below and complete the checklist."
+  guidance: "Keep your mnemonic words safe on your own. Read each sentence carefully and tap to complete the checklist."
 tutorial_screen:
   title1: "Follow the tutorial\nfor easier use"
   title2: "Need help?"
