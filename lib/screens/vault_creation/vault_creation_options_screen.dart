@@ -83,14 +83,12 @@ class VaultCreationOptions extends StatelessWidget {
                                           alignment: Alignment.centerLeft,
                                           child: Text(
                                             options[index].name,
-                                            style: const TextStyle(
-                                                fontFamily: 'Pretendard',
-                                                fontSize: 14.0,
-                                                fontWeight: FontWeight.w600,
-                                                color: CoconutColors.black,
-                                                letterSpacing: 0.2),
+                                            style: CoconutTypography.body2_14_Bold
+                                                .setColor(CoconutColors.black)
+                                                .copyWith(letterSpacing: 0.2),
                                           )),
                                     ),
+                                    CoconutLayout.spacing_100w,
                                     SvgPicture.asset('assets/svg/chevron-right.svg')
                                   ],
                                 ))),
