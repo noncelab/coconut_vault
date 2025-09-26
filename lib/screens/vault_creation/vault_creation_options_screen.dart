@@ -91,7 +91,7 @@ class VaultCreationOptions extends StatelessWidget {
                                                 letterSpacing: 0.2),
                                           )),
                                     ),
-                                    SvgPicture.asset('assets/svg/curved-arrow-right.svg', width: 24)
+                                    SvgPicture.asset('assets/svg/chevron-right.svg')
                                   ],
                                 ))),
                         const SizedBox(height: 8.0)

@@ -179,7 +179,6 @@ flutter:
     - assets/svg/coconut-security-mainnet.svg
     - assets/svg/coconut-security-regtest.svg
     - assets/svg/cross-circle.svg
-    - assets/svg/curved-arrow-right.svg
     - assets/svg/edit-outlined.svg
     - assets/svg/safe.svg
     - assets/svg/safe-bit.svg

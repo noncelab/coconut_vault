@@ -138,8 +138,7 @@ class _VaultTypeSelectionScreenState extends State<VaultTypeSelectionScreen> {
                       )),
                 ),
                 Container(width: 10),
-                SvgPicture.asset('assets/svg/curved-arrow-right.svg',
-                    width: 24,
+                SvgPicture.asset('assets/svg/chevron-right.svg',
                     colorFilter: ColorFilter.mode(
                         isSelectable ? CoconutColors.black : CoconutColors.gray400,
                         BlendMode.srcIn))
