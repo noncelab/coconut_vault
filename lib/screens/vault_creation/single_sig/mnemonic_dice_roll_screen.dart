@@ -1,3 +1,6 @@
+import 'dart:convert';
+import 'dart:typed_data';
+
 import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_lib/coconut_lib.dart';
 import 'package:coconut_vault/constants/app_routes.dart';
@@ -479,8 +482,8 @@ class _DiceRollState extends State<DiceRoll> {
     if (step == 0 && stepCount == 1) {
       setState(() {
         if (_generateMnemonicPhrase()) {
-          Provider.of<WalletCreationProvider>(context, listen: false)
-              .setSecretAndPassphrase(_mnemonic, _passphrase);
+          Provider.of<WalletCreationProvider>(context, listen: false).setSecretAndPassphrase(
+              Uint8List.fromList(_mnemonic.codeUnits), Uint8List.fromList(_passphrase.codeUnits));
           Navigator.pushNamed(context, AppRoutes.mnemonicManualEntropyConfirmation);
         }
       });
@@ -510,8 +513,8 @@ class _DiceRollState extends State<DiceRoll> {
           _passphrase == _passphraseConfirm &&
           _generateMnemonicPhrase()) {
         // 패스프레이즈 입력 완료 | dice roll 데이터로 니모닉 생성 시도 성공
-        Provider.of<WalletCreationProvider>(context, listen: false)
-            .setSecretAndPassphrase(_mnemonic, _passphrase);
+        Provider.of<WalletCreationProvider>(context, listen: false).setSecretAndPassphrase(
+            Uint8List.fromList(_mnemonic.codeUnits), Uint8List.fromList(_passphrase.codeUnits));
         _passphraseFocusNode.unfocus();
         _passphraseConfirmFocusNode.unfocus();
 
@@ -785,12 +788,12 @@ class _DiceRollState extends State<DiceRoll> {
         int start = _bits.length - bitsToUse;
         Logger.log('diceRolls: ${_diceNumbers.join()}');
         Logger.log('bits sublist: ${_bits.sublist(start).join()}');
-        _mnemonic =
-            Seed.fromBinaryEntropy(_bits.sublist(start).map((int bit) => bit.toString()).join())
-                .mnemonic
-                .trim()
-                .toLowerCase()
-                .replaceAll(RegExp(r'\s+'), ' ');
+        // TODO: 확인
+        _mnemonic = utf8
+            .decode(Seed.fromEntropy(Uint8List.fromList(_bits.sublist(start))).mnemonic)
+            .trim()
+            .toLowerCase()
+            .replaceAll(RegExp(r'\s+'), ' ');
       });
       return true;
     } catch (e) {
