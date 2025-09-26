@@ -4,6 +4,7 @@ import 'dart:typed_data';
 import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_lib/coconut_lib.dart';
 import 'package:coconut_vault/constants/app_routes.dart';
+import 'package:coconut_vault/extensions/uint8list_extensions.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/providers/visibility_provider.dart';
 import 'package:coconut_vault/providers/wallet_creation_provider.dart';
@@ -140,9 +141,10 @@ class _DiceRollState extends State<DiceRoll> {
   final FocusNode _passphraseConfirmFocusNode = FocusNode();
   late int stepCount; // 총 화면 단계
   int step = 0;
-  String _mnemonic = '';
-  String _passphrase = '';
-  String _passphraseConfirm = '';
+
+  Uint8List _mnemonic = Uint8List(0);
+  Uint8List _passphrase = Uint8List(0);
+  Uint8List _passphraseConfirm = Uint8List(0);
 
   // dice roll 관련 변수
   int diceNumbers = 0;
@@ -174,12 +176,12 @@ class _DiceRollState extends State<DiceRoll> {
     stepCount = widget.usePassphrase ? 2 : 1;
     _passphraseController.addListener(() {
       setState(() {
-        _passphrase = _passphraseController.text;
+        _passphrase = utf8.encode(_passphraseController.text);
       });
     });
     _passphraseConfirmController.addListener(() {
       setState(() {
-        _passphraseConfirm = _passphraseConfirmController.text;
+        _passphraseConfirm = utf8.encode(_passphraseConfirmController.text);
       });
     });
     _passphraseConfirmFocusNode.addListener(() {
@@ -200,6 +202,14 @@ class _DiceRollState extends State<DiceRoll> {
 
   @override
   void dispose() {
+    for (int i = 0; i < _bits.length; i++) {
+      _bits[i] = 0;
+    }
+    _bits.clear();
+    _mnemonic.wipe();
+    _passphrase.wipe();
+    _passphraseConfirm.wipe();
+
     _scrollController.dispose();
     _passphraseController.dispose();
     _passphraseFocusNode.dispose();
@@ -317,15 +327,16 @@ class _DiceRollState extends State<DiceRoll> {
                           passphraseObscured = !passphraseObscured;
                         });
                       },
-                      child: passphraseObscured
-                          ? Container(
-                              padding: const EdgeInsets.only(right: 16, top: 8, bottom: 8, left: 8),
-                              child: const Icon(CupertinoIcons.eye_slash, color: CoconutColors.gray800, size: 18),
-                            )
-                          : Container(
-                              padding: const EdgeInsets.only(right: 16, top: 8, bottom: 8, left: 8),
-                              child: const Icon(CupertinoIcons.eye, color: CoconutColors.gray800, size: 18),
-                            ),
+                      child:
+                          passphraseObscured
+                              ? Container(
+                                padding: const EdgeInsets.only(right: 16, top: 8, bottom: 8, left: 8),
+                                child: const Icon(CupertinoIcons.eye_slash, color: CoconutColors.gray800, size: 18),
+                              )
+                              : Container(
+                                padding: const EdgeInsets.only(right: 16, top: 8, bottom: 8, left: 8),
+                                child: const Icon(CupertinoIcons.eye, color: CoconutColors.gray800, size: 18),
+                              ),
                     ),
                   ],
                 ),
@@ -413,9 +424,10 @@ class _DiceRollState extends State<DiceRoll> {
             children: [
               ClipRRect(child: Container(height: 6, color: CoconutColors.black.withOpacity(0.06))),
               ClipRRect(
-                borderRadius: _bits.length / (widget.wordsCount == 12 ? 128 : 256) == 1
-                    ? BorderRadius.zero
-                    : const BorderRadius.only(topRight: Radius.circular(6), bottomRight: Radius.circular(6)),
+                borderRadius:
+                    _bits.length / (widget.wordsCount == 12 ? 128 : 256) == 1
+                        ? BorderRadius.zero
+                        : const BorderRadius.only(topRight: Radius.circular(6), bottomRight: Radius.circular(6)),
                 child: AnimatedContainer(
                   duration: const Duration(milliseconds: 500),
                   curve: Curves.easeInOut,
@@ -436,10 +448,7 @@ class _DiceRollState extends State<DiceRoll> {
     if (step == 0 && stepCount == 1) {
       setState(() {
         if (_generateMnemonicPhrase()) {
-          Provider.of<WalletCreationProvider>(
-            context,
-            listen: false,
-          ).setSecretAndPassphrase(utf8.encode(_mnemonic), utf8.encode(_passphrase));
+          Provider.of<WalletCreationProvider>(context, listen: false).setSecretAndPassphrase(_mnemonic, _passphrase);
           Navigator.pushNamed(context, AppRoutes.mnemonicManualEntropyConfirmation);
         }
       });
@@ -461,7 +470,7 @@ class _DiceRollState extends State<DiceRoll> {
         _passphraseFocusNode.unfocus();
         _passphraseConfirmFocusNode.unfocus();
         setState(() {
-          _passphrase = _passphraseController.text;
+          _passphrase = utf8.encode(_passphraseController.text);
           isPassphraseConfirmVisible = true;
         });
       } else if (_passphrase.isNotEmpty &&
@@ -469,10 +478,7 @@ class _DiceRollState extends State<DiceRoll> {
           _passphrase == _passphraseConfirm &&
           _generateMnemonicPhrase()) {
         // 패스프레이즈 입력 완료 | dice roll 데이터로 니모닉 생성 시도 성공
-        Provider.of<WalletCreationProvider>(
-          context,
-          listen: false,
-        ).setSecretAndPassphrase(utf8.encode(_mnemonic), utf8.encode(_passphrase));
+        Provider.of<WalletCreationProvider>(context, listen: false).setSecretAndPassphrase(_mnemonic, _passphrase);
         _passphraseFocusNode.unfocus();
         _passphraseConfirmFocusNode.unfocus();
 
@@ -578,7 +584,7 @@ class _DiceRollState extends State<DiceRoll> {
                 children: [
                   Text(
                     '$slotNumber',
-                    style: CoconutTypography.body3_12_Number.setColor(CoconutColors.black.withOpacity(0.3)),
+                    style: CoconutTypography.body3_12_Number.setColor(CoconutColors.black.withValues(alpha: 0.3)),
                   ),
                   CoconutLayout.spacing_200h,
                   Text(
@@ -599,24 +605,26 @@ class _DiceRollState extends State<DiceRoll> {
   Widget _buildButtons() {
     final List<int> diceNumbers = [-100, 1, 2, 3, -1, 4, 5, 6];
     //2x3 그리드로 그리기
-    final List<Widget> buttons = diceNumbers.map((diceNumber) {
-      if (diceNumber == -100) {
-        // delete all
-        return _buildDeleteButton(
-          buttonText: t.delete_all,
-          onButtonPressed: () => _showConfirmResetDialog(
-            title: t.delete_all,
-            message: t.alert.erase_all_entered_so_far,
-            action: _resetBits,
-          ),
-        );
-      }
-      if (diceNumber == -1) {
-        // delete one
-        return _buildDeleteButton(buttonText: t.delete_one, onButtonPressed: () => _deleteRoll());
-      }
-      return _buildNumberButton(buttonText: diceNumber.toString(), onButtonPressed: () => _addRoll(diceNumber));
-    }).toList();
+    final List<Widget> buttons =
+        diceNumbers.map((diceNumber) {
+          if (diceNumber == -100) {
+            // delete all
+            return _buildDeleteButton(
+              buttonText: t.delete_all,
+              onButtonPressed:
+                  () => _showConfirmResetDialog(
+                    title: t.delete_all,
+                    message: t.alert.erase_all_entered_so_far,
+                    action: _resetBits,
+                  ),
+            );
+          }
+          if (diceNumber == -1) {
+            // delete one
+            return _buildDeleteButton(buttonText: t.delete_one, onButtonPressed: () => _deleteRoll());
+          }
+          return _buildNumberButton(buttonText: diceNumber.toString(), onButtonPressed: () => _addRoll(diceNumber));
+        }).toList();
 
     return SizedBox(
       width: 282 + 40,
@@ -645,7 +653,7 @@ class _DiceRollState extends State<DiceRoll> {
           child: Text(
             buttonText,
             style: CoconutTypography.body3_12.setColor(
-              _diceNumbers.isEmpty ? CoconutColors.secondaryText : CoconutColors.black.withOpacity(0.7),
+              _diceNumbers.isEmpty ? CoconutColors.secondaryText : CoconutColors.black.withValues(alpha: 0.7),
             ),
           ),
         ),
@@ -732,10 +740,7 @@ class _DiceRollState extends State<DiceRoll> {
         Logger.log('diceRolls: ${_diceNumbers.join()}');
         Logger.log('bits sublist: ${_bits.sublist(start).join()}');
         // TODO: bitsToBytes랑 Uint8List.fromList 같은지 확인 필요
-        _mnemonic = utf8
-            .decode(Seed.fromEntropy(Uint8List.fromList(_bits.sublist(start))).mnemonic)
-            .toLowerCase()
-            .replaceAll(RegExp(r'\s+'), ' ');
+        _mnemonic = Seed.fromEntropy(Uint8List.fromList(_bits.sublist(start))).mnemonic;
       });
       return true;
     } catch (e) {
@@ -748,12 +753,13 @@ class _DiceRollState extends State<DiceRoll> {
     MyBottomSheet.showDraggableBottomSheet(
       context: context,
       minChildSize: 0.5,
-      childBuilder: (scrollController) => BinaryGrid(
-        totalBits: _bits.length,
-        bits: _diceNumbers,
-        wordsCount: widget.wordsCount,
-        scrollController: scrollController,
-      ),
+      childBuilder:
+          (scrollController) => BinaryGrid(
+            totalBits: _bits.length,
+            bits: _diceNumbers,
+            wordsCount: widget.wordsCount,
+            scrollController: scrollController,
+          ),
     );
   }
 }
