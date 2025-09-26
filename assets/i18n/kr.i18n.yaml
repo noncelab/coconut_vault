@@ -290,7 +290,7 @@ welcome_screen:
   screen_2_title: "보안 체크리스트"
   screen_2_description: "모든 연결을 차단해야\n코코넛 볼트를 시작할 수 있습니다"
   screen_2_button: "다음"
-  screen_3_title: "안전한 환경에서 준비됐어요"
+  screen_3_title: "안전한 환경이 준비됐어요"
   screen_3_description: "지금부터 코코넛 볼트를\n시작하겠습니다"
   screen_3_button: "시작하기"
   setting_guide: "설정 방법 보기"
