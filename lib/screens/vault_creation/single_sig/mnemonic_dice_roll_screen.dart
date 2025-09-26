@@ -327,15 +327,16 @@ class _DiceRollState extends State<DiceRoll> {
                           passphraseObscured = !passphraseObscured;
                         });
                       },
-                      child: passphraseObscured
-                          ? Container(
-                              padding: const EdgeInsets.only(right: 16, top: 8, bottom: 8, left: 8),
-                              child: const Icon(CupertinoIcons.eye_slash, color: CoconutColors.gray800, size: 18),
-                            )
-                          : Container(
-                              padding: const EdgeInsets.only(right: 16, top: 8, bottom: 8, left: 8),
-                              child: const Icon(CupertinoIcons.eye, color: CoconutColors.gray800, size: 18),
-                            ),
+                      child:
+                          passphraseObscured
+                              ? Container(
+                                padding: const EdgeInsets.only(right: 16, top: 8, bottom: 8, left: 8),
+                                child: const Icon(CupertinoIcons.eye_slash, color: CoconutColors.gray800, size: 18),
+                              )
+                              : Container(
+                                padding: const EdgeInsets.only(right: 16, top: 8, bottom: 8, left: 8),
+                                child: const Icon(CupertinoIcons.eye, color: CoconutColors.gray800, size: 18),
+                              ),
                     ),
                   ],
                 ),
@@ -423,9 +424,10 @@ class _DiceRollState extends State<DiceRoll> {
             children: [
               ClipRRect(child: Container(height: 6, color: CoconutColors.black.withOpacity(0.06))),
               ClipRRect(
-                borderRadius: _bits.length / (widget.wordsCount == 12 ? 128 : 256) == 1
-                    ? BorderRadius.zero
-                    : const BorderRadius.only(topRight: Radius.circular(6), bottomRight: Radius.circular(6)),
+                borderRadius:
+                    _bits.length / (widget.wordsCount == 12 ? 128 : 256) == 1
+                        ? BorderRadius.zero
+                        : const BorderRadius.only(topRight: Radius.circular(6), bottomRight: Radius.circular(6)),
                 child: AnimatedContainer(
                   duration: const Duration(milliseconds: 500),
                   curve: Curves.easeInOut,
@@ -603,24 +605,26 @@ class _DiceRollState extends State<DiceRoll> {
   Widget _buildButtons() {
     final List<int> diceNumbers = [-100, 1, 2, 3, -1, 4, 5, 6];
     //2x3 그리드로 그리기
-    final List<Widget> buttons = diceNumbers.map((diceNumber) {
-      if (diceNumber == -100) {
-        // delete all
-        return _buildDeleteButton(
-          buttonText: t.delete_all,
-          onButtonPressed: () => _showConfirmResetDialog(
-            title: t.delete_all,
-            message: t.alert.erase_all_entered_so_far,
-            action: _resetBits,
-          ),
-        );
-      }
-      if (diceNumber == -1) {
-        // delete one
-        return _buildDeleteButton(buttonText: t.delete_one, onButtonPressed: () => _deleteRoll());
-      }
-      return _buildNumberButton(buttonText: diceNumber.toString(), onButtonPressed: () => _addRoll(diceNumber));
-    }).toList();
+    final List<Widget> buttons =
+        diceNumbers.map((diceNumber) {
+          if (diceNumber == -100) {
+            // delete all
+            return _buildDeleteButton(
+              buttonText: t.delete_all,
+              onButtonPressed:
+                  () => _showConfirmResetDialog(
+                    title: t.delete_all,
+                    message: t.alert.erase_all_entered_so_far,
+                    action: _resetBits,
+                  ),
+            );
+          }
+          if (diceNumber == -1) {
+            // delete one
+            return _buildDeleteButton(buttonText: t.delete_one, onButtonPressed: () => _deleteRoll());
+          }
+          return _buildNumberButton(buttonText: diceNumber.toString(), onButtonPressed: () => _addRoll(diceNumber));
+        }).toList();
 
     return SizedBox(
       width: 282 + 40,
@@ -749,12 +753,13 @@ class _DiceRollState extends State<DiceRoll> {
     MyBottomSheet.showDraggableBottomSheet(
       context: context,
       minChildSize: 0.5,
-      childBuilder: (scrollController) => BinaryGrid(
-        totalBits: _bits.length,
-        bits: _diceNumbers,
-        wordsCount: widget.wordsCount,
-        scrollController: scrollController,
-      ),
+      childBuilder:
+          (scrollController) => BinaryGrid(
+            totalBits: _bits.length,
+            bits: _diceNumbers,
+            wordsCount: widget.wordsCount,
+            scrollController: scrollController,
+          ),
     );
   }
 }

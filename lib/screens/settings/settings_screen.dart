@@ -37,45 +37,49 @@ class _SettingsScreenState extends State<SettingsScreen> {
       minChildSize: 0.5,
       initialChildSize: 1,
       expand: false,
-      builder: (context, scrollController) => SafeArea(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            _buildDraggableHeader(),
-            Expanded(
-              child: Container(
-                decoration: const BoxDecoration(color: CoconutColors.white),
-                child: ListView(
-                  controller: scrollController,
-                  padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-                  children: [
-                    _securityPart(context),
-                    CoconutLayout.spacing_1000h,
-                    Selector<WalletProvider, bool>(
-                      selector: (context, provider) => provider.vaultList.isNotEmpty,
-                      builder: (context, isNotEmpty, _) => isNotEmpty
-                          ? Column(children: [_updatePart(context), CoconutLayout.spacing_1000h])
-                          : Container(),
+      builder:
+          (context, scrollController) => SafeArea(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                _buildDraggableHeader(),
+                Expanded(
+                  child: Container(
+                    decoration: const BoxDecoration(color: CoconutColors.white),
+                    child: ListView(
+                      controller: scrollController,
+                      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+                      children: [
+                        _securityPart(context),
+                        CoconutLayout.spacing_1000h,
+                        Selector<WalletProvider, bool>(
+                          selector: (context, provider) => provider.vaultList.isNotEmpty,
+                          builder:
+                              (context, isNotEmpty, _) =>
+                                  isNotEmpty
+                                      ? Column(children: [_updatePart(context), CoconutLayout.spacing_1000h])
+                                      : Container(),
+                        ),
+                        _btcUnitPart(context),
+                        CoconutLayout.spacing_1000h,
+                        _languagePart(context),
+                        CoconutLayout.spacing_1000h,
+                        _advancedUserPart(context),
+                        CoconutLayout.spacing_1000h,
+                        _informationPart(context),
+                        SizedBox(
+                          height:
+                              MediaQuery.of(context).viewPadding.bottom > 0
+                                  ? MediaQuery.of(context).viewPadding.bottom + Sizes.size12
+                                  : Sizes.size36,
+                        ),
+                      ],
                     ),
-                    _btcUnitPart(context),
-                    CoconutLayout.spacing_1000h,
-                    _languagePart(context),
-                    CoconutLayout.spacing_1000h,
-                    _advancedUserPart(context),
-                    CoconutLayout.spacing_1000h,
-                    _informationPart(context),
-                    SizedBox(
-                      height: MediaQuery.of(context).viewPadding.bottom > 0
-                          ? MediaQuery.of(context).viewPadding.bottom + Sizes.size12
-                          : Sizes.size36,
-                    ),
-                  ],
+                  ),
                 ),
-              ),
+              ],
             ),
-          ],
-        ),
-      ),
+          ),
     );
   }
 

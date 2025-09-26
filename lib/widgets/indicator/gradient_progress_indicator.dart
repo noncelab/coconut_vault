@@ -52,10 +52,11 @@ class GradientCircularProgressPainter extends CustomPainter {
     const startAngle = -pi / 2;
     final sweepAngle = 2 * pi * progress;
 
-    var paint = Paint()
-      ..style = PaintingStyle.stroke
-      // ..strokeCap = StrokeCap.round
-      ..strokeWidth = strokeWidth;
+    var paint =
+        Paint()
+          ..style = PaintingStyle.stroke
+          // ..strokeCap = StrokeCap.round
+          ..strokeWidth = strokeWidth;
 
     paint.shader = SweepGradient(
       colors: gradientColors,
@@ -63,7 +64,7 @@ class GradientCircularProgressPainter extends CustomPainter {
       endAngle: startAngle + sweepAngle,
       transform: const GradientRotation(startAngle),
     ) // ✅ 중심 기준 회전 보정
-        .createShader(rect);
+    .createShader(rect);
     canvas.drawArc(rect, startAngle, sweepAngle, false, paint);
 
     final center = Offset(size.width / 2, size.height / 2);
@@ -84,14 +85,15 @@ class GradientCircularProgressPainter extends CustomPainter {
     final dy = sin(angle);
 
     // 반원 그릴 각도는 180도지만, arc 끝 방향으로 이동
-    final headPath = Path()
-      ..moveTo(tailCenter.dx + (strokeWidth / 2) * dy + 15, tailCenter.dy - (strokeWidth / 2) * dx)
-      ..arcTo(
-        Rect.fromCircle(center: tailCenter, radius: strokeWidth / 2),
-        angle + pi * 2, // tangent 방향에 맞춰 시작
-        pi,
-        false,
-      );
+    final headPath =
+        Path()
+          ..moveTo(tailCenter.dx + (strokeWidth / 2) * dy + 15, tailCenter.dy - (strokeWidth / 2) * dx)
+          ..arcTo(
+            Rect.fromCircle(center: tailCenter, radius: strokeWidth / 2),
+            angle + pi * 2, // tangent 방향에 맞춰 시작
+            pi,
+            false,
+          );
 
     final headPaint = Paint()..color = gradientColors.last;
     canvas.drawPath(headPath, headPaint);

@@ -50,8 +50,8 @@ class _VaultListScreenState extends State<VaultListScreen> with TickerProviderSt
         return previous;
       },
       child: Selector<VaultListViewModel, Tuple5<List<VaultListItemBase>, List<int>, List<int>, bool, List<int>>>(
-        selector: (_, vm) =>
-            Tuple5(vm.vaults, vm.tempFavoriteVaultIds, vm.tempVaultOrder, vm.isEditMode, vm.vaultOrder),
+        selector:
+            (_, vm) => Tuple5(vm.vaults, vm.tempFavoriteVaultIds, vm.tempVaultOrder, vm.isEditMode, vm.vaultOrder),
         builder: (context, data, child) {
           final viewModel = Provider.of<VaultListViewModel>(context, listen: false);
 
@@ -101,35 +101,36 @@ class _VaultListScreenState extends State<VaultListScreen> with TickerProviderSt
                   appBar: _buildAppBar(context),
                   body: SafeArea(
                     top: true,
-                    child: isEditMode
-                        // 편집 모드
-                        ? Stack(
-                            children: [
-                              _buildEditableVaultList(),
-                              FixedBottomButton(
-                                onButtonClicked: () async {
-                                  await viewModel.applyTempDatasToVaults();
-                                },
-                                isActive: viewModel.hasFavoriteChanged || viewModel.hasVaultOrderChanged,
-                                backgroundColor: CoconutColors.black,
-                                text: t.complete,
-                              ),
-                            ],
-                          )
-                        // 일반 모드
-                        : Stack(
-                            children: [
-                              CustomScrollView(
-                                controller: _scrollController,
-                                physics: const AlwaysScrollableScrollPhysics(),
-                                semanticChildCount: vaultListItem.length,
-                                slivers: <Widget>[
-                                  // 볼트 목록
-                                  _buildVaultList(vaultListItem, vaultOrder),
-                                ],
-                              ),
-                            ],
-                          ),
+                    child:
+                        isEditMode
+                            // 편집 모드
+                            ? Stack(
+                              children: [
+                                _buildEditableVaultList(),
+                                FixedBottomButton(
+                                  onButtonClicked: () async {
+                                    await viewModel.applyTempDatasToVaults();
+                                  },
+                                  isActive: viewModel.hasFavoriteChanged || viewModel.hasVaultOrderChanged,
+                                  backgroundColor: CoconutColors.black,
+                                  text: t.complete,
+                                ),
+                              ],
+                            )
+                            // 일반 모드
+                            : Stack(
+                              children: [
+                                CustomScrollView(
+                                  controller: _scrollController,
+                                  physics: const AlwaysScrollableScrollPhysics(),
+                                  semanticChildCount: vaultListItem.length,
+                                  slivers: <Widget>[
+                                    // 볼트 목록
+                                    _buildVaultList(vaultListItem, vaultOrder),
+                                  ],
+                                ),
+                              ],
+                            ),
                   ),
                 ),
               ),
@@ -352,8 +353,8 @@ class _VaultListScreenState extends State<VaultListScreen> with TickerProviderSt
         isEditMode
             ? CoconutLayout.spacing_100h
             : isLastItem
-                ? CoconutLayout.spacing_1000h
-                : CoconutLayout.spacing_200h,
+            ? CoconutLayout.spacing_1000h
+            : CoconutLayout.spacing_200h,
       ],
     );
   }

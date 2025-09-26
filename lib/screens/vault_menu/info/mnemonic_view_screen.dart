@@ -38,14 +38,15 @@ class _MnemonicViewScreen extends State<MnemonicViewScreen> with TickerProviderS
       WidgetsBinding.instance.addPostFrameCallback((_) {
         showDialog(
           context: context,
-          builder: (context) => CoconutPopup(
-            title: 'View Mnemonic',
-            description: 'Failed to load mnemonic\n${e.toString()}',
-            onTapRight: () {
-              Navigator.pop(context);
-              Navigator.pop(context);
-            },
-          ),
+          builder:
+              (context) => CoconutPopup(
+                title: 'View Mnemonic',
+                description: 'Failed to load mnemonic\n${e.toString()}',
+                onTapRight: () {
+                  Navigator.pop(context);
+                  Navigator.pop(context);
+                },
+              ),
         );
       });
     } finally {

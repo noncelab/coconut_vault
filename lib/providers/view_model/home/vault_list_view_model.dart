@@ -166,17 +166,17 @@ class VaultListViewModel extends ChangeNotifier {
 
     // 삭제 예정 지갑 목록
     // 삭제 예정 지갑에 키로 사용된 SingleSigVaultListItem 이 있는 경우 연결된 MultisigVaultListItem 이 먼저 삭제되어야 하기 때문에 정렬
-    final deletedVaultIds = _preferenceProvider.vaultOrder.where((id) => !tempVaultOrder.contains(id)).toList()
-      ..sort((a, b) {
-        final aIsMultisig = _walletProvider.vaultListNotifier.value.any(
-          (v) => v.id == a && v.vaultType == WalletType.multiSignature,
-        );
-        final bIsMultisig = _walletProvider.vaultListNotifier.value.any(
-          (v) => v.id == b && v.vaultType == WalletType.multiSignature,
-        );
-        if (aIsMultisig == bIsMultisig) return 0;
-        return aIsMultisig ? -1 : 1;
-      });
+    final deletedVaultIds =
+        _preferenceProvider.vaultOrder.where((id) => !tempVaultOrder.contains(id)).toList()..sort((a, b) {
+          final aIsMultisig = _walletProvider.vaultListNotifier.value.any(
+            (v) => v.id == a && v.vaultType == WalletType.multiSignature,
+          );
+          final bIsMultisig = _walletProvider.vaultListNotifier.value.any(
+            (v) => v.id == b && v.vaultType == WalletType.multiSignature,
+          );
+          if (aIsMultisig == bIsMultisig) return 0;
+          return aIsMultisig ? -1 : 1;
+        });
 
     await _handleAuthFlow(
       onComplete: () async {

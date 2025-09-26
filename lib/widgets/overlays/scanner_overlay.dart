@@ -6,9 +6,10 @@ class ScannerOverlay extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final scanAreaSize = (MediaQuery.of(context).size.width < 400 || MediaQuery.of(context).size.height < 400)
-        ? 320.0
-        : MediaQuery.of(context).size.width * 0.85;
+    final scanAreaSize =
+        (MediaQuery.of(context).size.width < 400 || MediaQuery.of(context).size.height < 400)
+            ? 320.0
+            : MediaQuery.of(context).size.width * 0.85;
 
     return CustomPaint(size: MediaQuery.of(context).size, painter: _ScannerOverlayPainter(scanAreaSize));
   }
@@ -36,10 +37,11 @@ class _ScannerOverlayPainter extends CustomPainter {
 
     canvas.restore();
 
-    final borderPaint = Paint()
-      ..color = CoconutColors.gray350
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 4;
+    final borderPaint =
+        Paint()
+          ..color = CoconutColors.gray350
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = 4;
     canvas.drawRRect(rrect, borderPaint);
   }
 

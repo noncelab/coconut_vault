@@ -102,9 +102,10 @@ class _MultisigBsmsScannerScreenState extends State<MultisigBsmsScannerScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: CoconutAppBar.build(
-        title: _isSignerAssignmentContext
-            ? t.signer_scanner_screen.import_bsms
-            : t.signer_scanner_screen.import_multisig_wallet,
+        title:
+            _isSignerAssignmentContext
+                ? t.signer_scanner_screen.import_bsms
+                : t.signer_scanner_screen.import_multisig_wallet,
         context: context,
         isBottom: true,
         isBackButton: widget.screenType == MultisigBsmsImportType.copy,

@@ -200,9 +200,10 @@ class _SeedQrConfirmationScreenState extends State<SeedQrConfirmationScreen> {
                 _passphraseObscured = !_passphraseObscured;
               });
             },
-            child: _passphraseObscured
-                ? const Icon(CupertinoIcons.eye_slash, color: CoconutColors.gray800, size: 18)
-                : const Icon(CupertinoIcons.eye, color: CoconutColors.gray800, size: 18),
+            child:
+                _passphraseObscured
+                    ? const Icon(CupertinoIcons.eye_slash, color: CoconutColors.gray800, size: 18)
+                    : const Icon(CupertinoIcons.eye, color: CoconutColors.gray800, size: 18),
           ),
           maxLength: 100,
         ),

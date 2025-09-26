@@ -20,9 +20,10 @@ class PinTypeToggleButton extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: Sizes.size12, vertical: Sizes.size8),
         isActive: isActive,
         onPressed: onToggle,
-        text: currentPinType == PinType.character
-            ? t.pin_setting_screen.number_password_input
-            : t.pin_setting_screen.character_password_input,
+        text:
+            currentPinType == PinType.character
+                ? t.pin_setting_screen.number_password_input
+                : t.pin_setting_screen.character_password_input,
         pressedBackgroundColor: CoconutColors.gray800,
         backgroundColor: CoconutColors.gray350,
         buttonType: CoconutButtonType.outlined,

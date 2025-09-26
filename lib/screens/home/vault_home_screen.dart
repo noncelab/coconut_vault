@@ -123,9 +123,14 @@ class _VaultHomeScreenState extends State<VaultHomeScreen> with TickerProviderSt
         }
       },
       child:
-          // ConnectivityProvider: 실제로 활용되지 않지만 참조해야, 네트워크/블루투스/개발자모드 연결 시 화면 전환이 됩니다.
-          ChangeNotifierProxyProvider4<AuthProvider, ConnectivityProvider, VisibilityProvider, PreferenceProvider,
-              VaultHomeViewModel>(
+      // ConnectivityProvider: 실제로 활용되지 않지만 참조해야, 네트워크/블루투스/개발자모드 연결 시 화면 전환이 됩니다.
+      ChangeNotifierProxyProvider4<
+        AuthProvider,
+        ConnectivityProvider,
+        VisibilityProvider,
+        PreferenceProvider,
+        VaultHomeViewModel
+      >(
         create: (_) => _viewModel,
         update: (_, authProvider, connectivityProvider, visibilityProvider, preferenceProvider, viewModel) {
           viewModel ??= _createViewModel();
@@ -279,15 +284,14 @@ class _VaultHomeScreenState extends State<VaultHomeScreen> with TickerProviderSt
 
   Widget _buildFavoriteWalletList(List<VaultListItemBase> walletList, List<int> favoriteWalletIds) {
     // favoriteWalletIds를 orederList 순서에 맞게 정렬
-    final sortedFavoriteWalletIds = List<int>.from(favoriteWalletIds)
-      ..sort((a, b) {
-        final aIndex = walletList.indexWhere((vault) => vault.id == a);
-        final bIndex = walletList.indexWhere((vault) => vault.id == b);
-        if (aIndex == -1 && bIndex == -1) return 0;
-        if (aIndex == -1) return 1;
-        if (bIndex == -1) return -1;
-        return aIndex.compareTo(bIndex);
-      });
+    final sortedFavoriteWalletIds = List<int>.from(favoriteWalletIds)..sort((a, b) {
+      final aIndex = walletList.indexWhere((vault) => vault.id == a);
+      final bIndex = walletList.indexWhere((vault) => vault.id == b);
+      if (aIndex == -1 && bIndex == -1) return 0;
+      if (aIndex == -1) return 1;
+      if (bIndex == -1) return -1;
+      return aIndex.compareTo(bIndex);
+    });
     return Container(
       margin: const EdgeInsets.only(left: 16, right: 16, bottom: 20),
       padding: const EdgeInsets.symmetric(vertical: 8),
@@ -352,13 +356,14 @@ class _VaultHomeScreenState extends State<VaultHomeScreen> with TickerProviderSt
                       MyBottomSheet.showDraggableBottomSheet(
                         context: context,
                         minChildSize: 0.5,
-                        childBuilder: (scrollController) => SelectVaultBottomSheet(
-                          vaultList: context.read<WalletProvider>().vaultList,
-                          onVaultSelected: (id) async {
-                            Navigator.pushNamed(context, AppRoutes.addressList, arguments: {'id': id});
-                          },
-                          scrollController: scrollController,
-                        ),
+                        childBuilder:
+                            (scrollController) => SelectVaultBottomSheet(
+                              vaultList: context.read<WalletProvider>().vaultList,
+                              onVaultSelected: (id) async {
+                                Navigator.pushNamed(context, AppRoutes.addressList, arguments: {'id': id});
+                              },
+                              scrollController: scrollController,
+                            ),
                       );
                     },
                   ),
@@ -379,30 +384,31 @@ class _VaultHomeScreenState extends State<VaultHomeScreen> with TickerProviderSt
                       MyBottomSheet.showDraggableBottomSheet(
                         context: context,
                         minChildSize: 0.5,
-                        childBuilder: (scrollController) => SelectVaultBottomSheet(
-                          vaultList: context.read<WalletProvider>().vaultList,
-                          subLabel: t.vault_menu_screen.description.export_xpub,
-                          onVaultSelected: (id) async {
-                            bool hasPassphrase = await context.read<VaultHomeViewModel>().hasPassphrase(id);
+                        childBuilder:
+                            (scrollController) => SelectVaultBottomSheet(
+                              vaultList: context.read<WalletProvider>().vaultList,
+                              subLabel: t.vault_menu_screen.description.export_xpub,
+                              onVaultSelected: (id) async {
+                                bool hasPassphrase = await context.read<VaultHomeViewModel>().hasPassphrase(id);
 
-                            if (!context.mounted) return;
+                                if (!context.mounted) return;
 
-                            if (hasPassphrase) {
-                              final result = await MyBottomSheet.showBottomSheet_ratio<String?>(
-                                ratio: 0.5,
-                                context: context,
-                                child: PassphraseCheckScreen(id: id),
-                              );
-                              if (result != null && context.mounted) {
+                                if (hasPassphrase) {
+                                  final result = await MyBottomSheet.showBottomSheet_ratio<String?>(
+                                    ratio: 0.5,
+                                    context: context,
+                                    child: PassphraseCheckScreen(id: id),
+                                  );
+                                  if (result != null && context.mounted) {
+                                    _showSyncOptionBottomSheet(id, context);
+                                  }
+                                  return;
+                                }
+
                                 _showSyncOptionBottomSheet(id, context);
-                              }
-                              return;
-                            }
-
-                            _showSyncOptionBottomSheet(id, context);
-                          },
-                          scrollController: scrollController,
-                        ),
+                              },
+                              scrollController: scrollController,
+                            ),
                       );
                     },
                   ),
@@ -411,34 +417,37 @@ class _VaultHomeScreenState extends State<VaultHomeScreen> with TickerProviderSt
                 Expanded(
                   child: _buildActionItemButton(
                     // 다중서명 지갑 가져오기 버튼
-                    isActive: walletCount > 0 &&
+                    isActive:
+                        walletCount > 0 &&
                         context.watch<WalletProvider>().vaultList.any(
-                              (vault) => vault.vaultType == WalletType.singleSignature,
-                            ),
+                          (vault) => vault.vaultType == WalletType.singleSignature,
+                        ),
                     text: t.vault_home_screen.action_items.import_multisig_wallet,
                     iconAssetPath: 'assets/svg/two-keys.svg',
                     iconPadding: const EdgeInsets.only(right: 15, bottom: 9),
                     onPressed: () {
                       MyBottomSheet.showDraggableBottomSheet(
                         context: context,
-                        childBuilder: (scrollController) => SelectVaultBottomSheet(
-                          vaultList: context
-                              .read<WalletProvider>()
-                              .vaultList
-                              .where((vault) => vault.vaultType == WalletType.singleSignature)
-                              .toList(),
-                          subLabel: t.vault_menu_screen.description.import_bsms,
-                          onVaultSelected: (id) async {
-                            if (mounted) {
-                              Navigator.pushNamed(
-                                context,
-                                AppRoutes.signerBsmsScanner,
-                                arguments: {'id': id, 'screenType': MultisigBsmsImportType.copy},
-                              );
-                            }
-                          },
-                          scrollController: scrollController,
-                        ),
+                        childBuilder:
+                            (scrollController) => SelectVaultBottomSheet(
+                              vaultList:
+                                  context
+                                      .read<WalletProvider>()
+                                      .vaultList
+                                      .where((vault) => vault.vaultType == WalletType.singleSignature)
+                                      .toList(),
+                              subLabel: t.vault_menu_screen.description.import_bsms,
+                              onVaultSelected: (id) async {
+                                if (mounted) {
+                                  Navigator.pushNamed(
+                                    context,
+                                    AppRoutes.signerBsmsScanner,
+                                    arguments: {'id': id, 'screenType': MultisigBsmsImportType.copy},
+                                  );
+                                }
+                              },
+                              scrollController: scrollController,
+                            ),
                       );
                     },
                   ),
@@ -473,14 +482,15 @@ class _VaultHomeScreenState extends State<VaultHomeScreen> with TickerProviderSt
     MyBottomSheet.showDraggableBottomSheet(
       context: context,
       minChildSize: 0.5,
-      childBuilder: (scrollController) => SelectSyncOptionBottomSheet(
-        onSyncOptionSelected: (format) {
-          if (!context.mounted) return;
-          Navigator.popUntil(context, (route) => route.isFirst);
-          Navigator.pushNamed(context, AppRoutes.syncToWallet, arguments: {'id': walletId, 'syncOption': format});
-        },
-        scrollController: scrollController,
-      ),
+      childBuilder:
+          (scrollController) => SelectSyncOptionBottomSheet(
+            onSyncOptionSelected: (format) {
+              if (!context.mounted) return;
+              Navigator.popUntil(context, (route) => route.isFirst);
+              Navigator.pushNamed(context, AppRoutes.syncToWallet, arguments: {'id': walletId, 'syncOption': format});
+            },
+            scrollController: scrollController,
+          ),
     );
   }
 

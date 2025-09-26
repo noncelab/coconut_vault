@@ -37,20 +37,21 @@ class InformationItemCard extends StatelessWidget {
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.end,
-                  children: value!.asMap().entries.map((entry) {
-                    final index = entry.key;
-                    final item = entry.value;
-                    final isLast = index == value!.length - 1;
+                  children:
+                      value!.asMap().entries.map((entry) {
+                        final index = entry.key;
+                        final item = entry.value;
+                        final isLast = index == value!.length - 1;
 
-                    return Padding(
-                      padding: EdgeInsets.only(bottom: isLast ? 0 : Sizes.size4),
-                      child: Text(
-                        item,
-                        textAlign: TextAlign.right,
-                        style: isNumber ? CoconutTypography.body2_14_Number : CoconutTypography.body2_14,
-                      ),
-                    );
-                  }).toList(),
+                        return Padding(
+                          padding: EdgeInsets.only(bottom: isLast ? 0 : Sizes.size4),
+                          child: Text(
+                            item,
+                            textAlign: TextAlign.right,
+                            style: isNumber ? CoconutTypography.body2_14_Number : CoconutTypography.body2_14,
+                          ),
+                        );
+                      }).toList(),
                 ),
               ),
             if (showIcon) rightIcon ?? const Icon(Icons.keyboard_arrow_right_rounded, color: CoconutColors.borderGray),

@@ -43,92 +43,92 @@ class _TutorialScreenState extends State<TutorialScreen> {
         (widget.screenStatus == TutorialScreenStatus.entrance) ? subtitleText.split('\n') : contentText.split('\n');
     return widget.screenStatus == TutorialScreenStatus.entrance
         ? Scaffold(
-            backgroundColor: CoconutColors.white,
-            body: SafeArea(
-              child: Stack(
-                children: [
-                  Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        Text(titleText, style: CoconutTypography.heading3_21_Bold, textAlign: TextAlign.center),
-                        Selector<ConnectivityProvider, bool>(
-                          selector: (context, model) => model.isNetworkOn == true,
-                          builder: (context, networkOn, _) {
-                            if (networkOn) {
-                              // 네트워크 연결 상태일 때
-                              return Column(
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                children: [const SizedBox(height: 26), _browserImage()],
-                              );
-                            }
-
-                            /// 네트워크 연결 되지 않은 상태일 때
+          backgroundColor: CoconutColors.white,
+          body: SafeArea(
+            child: Stack(
+              children: [
+                Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Text(titleText, style: CoconutTypography.heading3_21_Bold, textAlign: TextAlign.center),
+                      Selector<ConnectivityProvider, bool>(
+                        selector: (context, model) => model.isNetworkOn == true,
+                        builder: (context, networkOn, _) {
+                          if (networkOn) {
+                            // 네트워크 연결 상태일 때
                             return Column(
                               crossAxisAlignment: CrossAxisAlignment.center,
-                              children: [
-                                const SizedBox(height: 20),
-                                _splitTextWidget(splitTexts),
-                                const SizedBox(height: 20),
-                                _browserImage(),
-                              ],
+                              children: [const SizedBox(height: 26), _browserImage()],
                             );
-                          },
-                        ),
-                        CoconutLayout.spacing_1500h,
-                      ],
+                          }
+
+                          /// 네트워크 연결 되지 않은 상태일 때
+                          return Column(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              const SizedBox(height: 20),
+                              _splitTextWidget(splitTexts),
+                              const SizedBox(height: 20),
+                              _browserImage(),
+                            ],
+                          );
+                        },
+                      ),
+                      CoconutLayout.spacing_1500h,
+                    ],
+                  ),
+                ),
+                Selector<ConnectivityProvider, bool>(
+                  selector: (context, model) => model.isNetworkOn == true,
+                  builder: (context, networkOn, _) {
+                    return FixedBottomButton(
+                      isActive: networkOn,
+                      onButtonClicked: () => launchURL(COCONUT_TUTORIAL_URL, defaultMode: false),
+                      text: t.view_tutorial,
+                      subWidget: CoconutButton(
+                        onPressed: () => Navigator.pushNamed(context, AppRoutes.welcome),
+                        text: t.skip,
+                        backgroundColor: CoconutColors.white,
+                        foregroundColor: CoconutColors.black,
+                        pressedBackgroundColor: CoconutColors.gray150,
+                        pressedTextColor: CoconutColors.gray400,
+                        textStyle: CoconutTypography.body2_14,
+                      ),
+                    );
+                  },
+                ),
+              ],
+            ),
+          ),
+        )
+        : Scaffold(
+          backgroundColor: Colors.transparent,
+          appBar: CoconutAppBar.build(title: '', context: context, isBottom: true),
+          body: SafeArea(
+            child: Center(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  const SizedBox(height: 80),
+                  Text(
+                    titleText,
+                    style: CoconutTypography.heading3_21.merge(
+                      const TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
                     ),
                   ),
-                  Selector<ConnectivityProvider, bool>(
-                    selector: (context, model) => model.isNetworkOn == true,
-                    builder: (context, networkOn, _) {
-                      return FixedBottomButton(
-                        isActive: networkOn,
-                        onButtonClicked: () => launchURL(COCONUT_TUTORIAL_URL, defaultMode: false),
-                        text: t.view_tutorial,
-                        subWidget: CoconutButton(
-                          onPressed: () => Navigator.pushNamed(context, AppRoutes.welcome),
-                          text: t.skip,
-                          backgroundColor: CoconutColors.white,
-                          foregroundColor: CoconutColors.black,
-                          pressedBackgroundColor: CoconutColors.gray150,
-                          pressedTextColor: CoconutColors.gray400,
-                          textStyle: CoconutTypography.body2_14,
-                        ),
-                      );
-                    },
-                  ),
+                  const SizedBox(height: 10),
+                  Text(subtitleText),
+                  const SizedBox(height: 20),
+                  _browserImage(),
+                  const SizedBox(height: 20),
+                  _splitTextWidget(splitTexts),
                 ],
               ),
             ),
-          )
-        : Scaffold(
-            backgroundColor: Colors.transparent,
-            appBar: CoconutAppBar.build(title: '', context: context, isBottom: true),
-            body: SafeArea(
-              child: Center(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    const SizedBox(height: 80),
-                    Text(
-                      titleText,
-                      style: CoconutTypography.heading3_21.merge(
-                        const TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
-                      ),
-                    ),
-                    const SizedBox(height: 10),
-                    Text(subtitleText),
-                    const SizedBox(height: 20),
-                    _browserImage(),
-                    const SizedBox(height: 20),
-                    _splitTextWidget(splitTexts),
-                  ],
-                ),
-              ),
-            ),
-          );
+          ),
+        );
   }
 
   Widget _splitTextWidget(List<String> splitTexts) {

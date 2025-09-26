@@ -104,24 +104,27 @@ class _ShrinkAnimationButtonState extends State<ShrinkAnimationButton> with Sing
         child: Container(
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(widget.borderRadius + 2),
-            gradient: widget.borderGradientColors != null
-                ? LinearGradient(
-                    colors: widget.borderGradientColors!,
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                    transform: const GradientRotation(math.pi / 10),
-                  )
-                : null,
-            border: widget.borderGradientColors == null
-                ? (widget.border ??
-                    Border.all(
-                      color: widget.isActive
-                          ? _isPressed
-                              ? widget.pressedColor
-                              : widget.defaultColor
-                          : widget.disabledColor,
-                    ))
-                : null,
+            gradient:
+                widget.borderGradientColors != null
+                    ? LinearGradient(
+                      colors: widget.borderGradientColors!,
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                      transform: const GradientRotation(math.pi / 10),
+                    )
+                    : null,
+            border:
+                widget.borderGradientColors == null
+                    ? (widget.border ??
+                        Border.all(
+                          color:
+                              widget.isActive
+                                  ? _isPressed
+                                      ? widget.pressedColor
+                                      : widget.defaultColor
+                                  : widget.disabledColor,
+                        ))
+                    : null,
           ),
           child: AnimatedContainer(
             margin: EdgeInsets.all(widget.borderGradientColors != null ? widget.borderWidth : 0),
@@ -129,11 +132,12 @@ class _ShrinkAnimationButtonState extends State<ShrinkAnimationButton> with Sing
             decoration: BoxDecoration(borderRadius: BorderRadius.circular(widget.borderRadius)),
             child: Container(
               decoration: BoxDecoration(
-                color: widget.isActive
-                    ? _isPressed
-                        ? widget.pressedColor
-                        : widget.defaultColor
-                    : widget.disabledColor,
+                color:
+                    widget.isActive
+                        ? _isPressed
+                            ? widget.pressedColor
+                            : widget.defaultColor
+                        : widget.disabledColor,
                 borderRadius: BorderRadius.circular(widget.borderRadius),
               ),
               child: widget.child,

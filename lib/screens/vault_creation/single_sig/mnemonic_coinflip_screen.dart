@@ -165,10 +165,11 @@ class _FlipCoinState extends State<FlipCoin> {
     stepCount = widget.usePassphrase ? 2 : 1;
     _passphraseController.addListener(() {
       setState(() {
-        invalidPassphraseList = _passphraseController.text.characters
-            .where((char) => !MnemonicWords.validCharSet.contains(char))
-            .toSet()
-            .toList();
+        invalidPassphraseList =
+            _passphraseController.text.characters
+                .where((char) => !MnemonicWords.validCharSet.contains(char))
+                .toSet()
+                .toList();
         _passphrase = utf8.encode(_passphraseController.text);
       });
     });
@@ -253,13 +254,14 @@ class _FlipCoinState extends State<FlipCoin> {
         _buildProgressBar(),
         FixedBottomTweenButton(
           showGradient: false,
-          subWidget: invalidPassphraseList.isNotEmpty
-              ? Text(
-                  t.mnemonic_generate_screen.passphrase_warning(words: invalidPassphraseList.join(", ")),
-                  style: CoconutTypography.body3_12.setColor(CoconutColors.warningText),
-                  textAlign: TextAlign.center,
-                )
-              : null,
+          subWidget:
+              invalidPassphraseList.isNotEmpty
+                  ? Text(
+                    t.mnemonic_generate_screen.passphrase_warning(words: invalidPassphraseList.join(", ")),
+                    style: CoconutTypography.body3_12.setColor(CoconutColors.warningText),
+                    textAlign: TextAlign.center,
+                  )
+                  : null,
           leftButtonRatio: 0.35,
           leftButtonClicked: () {
             _showAllBitsBottomSheet();
@@ -390,15 +392,16 @@ class _FlipCoinState extends State<FlipCoin> {
                           passphraseObscured = !passphraseObscured;
                         });
                       },
-                      child: passphraseObscured
-                          ? Container(
-                              padding: const EdgeInsets.only(right: 16, top: 8, bottom: 8, left: 8),
-                              child: const Icon(CupertinoIcons.eye_slash, color: CoconutColors.gray800, size: 18),
-                            )
-                          : Container(
-                              padding: const EdgeInsets.only(right: 16, top: 8, bottom: 8, left: 8),
-                              child: const Icon(CupertinoIcons.eye, color: CoconutColors.gray800, size: 18),
-                            ),
+                      child:
+                          passphraseObscured
+                              ? Container(
+                                padding: const EdgeInsets.only(right: 16, top: 8, bottom: 8, left: 8),
+                                child: const Icon(CupertinoIcons.eye_slash, color: CoconutColors.gray800, size: 18),
+                              )
+                              : Container(
+                                padding: const EdgeInsets.only(right: 16, top: 8, bottom: 8, left: 8),
+                                child: const Icon(CupertinoIcons.eye, color: CoconutColors.gray800, size: 18),
+                              ),
                     ),
                   ],
                 ),
@@ -489,9 +492,10 @@ class _FlipCoinState extends State<FlipCoin> {
             children: [
               ClipRRect(child: Container(height: 6, color: CoconutColors.black.withOpacity(0.06))),
               ClipRRect(
-                borderRadius: _currentIndex / _totalBits == 1
-                    ? BorderRadius.zero
-                    : const BorderRadius.only(topRight: Radius.circular(6), bottomRight: Radius.circular(6)),
+                borderRadius:
+                    _currentIndex / _totalBits == 1
+                        ? BorderRadius.zero
+                        : const BorderRadius.only(topRight: Radius.circular(6), bottomRight: Radius.circular(6)),
                 child: AnimatedContainer(
                   duration: const Duration(milliseconds: 500),
                   curve: Curves.easeInOut,
@@ -760,8 +764,8 @@ class _FlipCoinState extends State<FlipCoin> {
     MyBottomSheet.showDraggableBottomSheet(
       context: context,
       minChildSize: 0.5,
-      childBuilder: (scrollController) =>
-          BinaryGrid(totalBits: _totalBits, bits: _bits, scrollController: scrollController),
+      childBuilder:
+          (scrollController) => BinaryGrid(totalBits: _totalBits, bits: _bits, scrollController: scrollController),
     );
   }
 }

@@ -77,9 +77,10 @@ class _SelectableButtonState extends State<SelectableButton> {
         decoration: BoxDecoration(
           borderRadius: CoconutBorder.defaultRadius,
           border: Border.all(color: CoconutColors.gray800),
-          color: _isTapped
-              ? CoconutColors.gray800
-              : widget.isPressed
+          color:
+              _isTapped
+                  ? CoconutColors.gray800
+                  : widget.isPressed
                   ? CoconutColors.gray800
                   : Colors.transparent,
         ),
@@ -90,8 +91,8 @@ class _SelectableButtonState extends State<SelectableButton> {
               _isTapped
                   ? CoconutColors.white
                   : widget.isPressed
-                      ? CoconutColors.white
-                      : CoconutColors.gray800,
+                  ? CoconutColors.white
+                  : CoconutColors.gray800,
             ),
             textAlign: TextAlign.center,
           ),

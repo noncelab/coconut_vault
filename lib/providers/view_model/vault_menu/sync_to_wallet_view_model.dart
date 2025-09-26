@@ -51,16 +51,17 @@ class WalletToSyncViewModel extends ChangeNotifier {
       return LegacyAccountDescriptor.buildMultisigCbor(
         requiredSignature: coconutVault.requiredSignature,
         coinType: NetworkType.currentNetworkType.isTestnet ? 1 : 0,
-        cosigners: coconutVault.keyStoreList.map((keyStore) {
-          var signer = multisigListItem.signers[signerIndex++];
-          return Cosigner(
-            label: signer.name ?? signer.memo ?? '',
-            masterFingerprintHex: keyStore.masterFingerprint,
-            parentFingerprintHex: keyStore.extendedPublicKey.parentFingerprint,
-            pubkey33: keyStore.extendedPublicKey.publicKey,
-            chainCode32: keyStore.extendedPublicKey.chainCode,
-          );
-        }).toList(),
+        cosigners:
+            coconutVault.keyStoreList.map((keyStore) {
+              var signer = multisigListItem.signers[signerIndex++];
+              return Cosigner(
+                label: signer.name ?? signer.memo ?? '',
+                masterFingerprintHex: keyStore.masterFingerprint,
+                parentFingerprintHex: keyStore.extendedPublicKey.parentFingerprint,
+                pubkey33: keyStore.extendedPublicKey.publicKey,
+                chainCode32: keyStore.extendedPublicKey.chainCode,
+              );
+            }).toList(),
       );
     } else {
       throw 'Wrong vault type: ${vault.vaultType}';

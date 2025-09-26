@@ -50,7 +50,8 @@ class _TooltipButtonState extends State<TooltipButton> {
             children: [
               Text(
                 widget.text,
-                style: widget.textStyle ??
+                style:
+                    widget.textStyle ??
                     CoconutTypography.body2_14.merge(
                       TextStyle(
                         color: widget.isSelected ? CoconutColors.black : CoconutColors.black.withValues(alpha: 0.3),
@@ -62,7 +63,8 @@ class _TooltipButtonState extends State<TooltipButton> {
               Icon(
                 key: widget.iconkey,
                 Icons.info_outline_rounded,
-                color: widget.iconColor ??
+                color:
+                    widget.iconColor ??
                     (widget.isSelected ? CoconutColors.black : CoconutColors.black.withValues(alpha: 0.3)),
                 size: widget.iconSize ?? 16,
                 weight: widget.isIconBold ? FontWeight.bold.value.toDouble() : FontWeight.normal.value.toDouble(),

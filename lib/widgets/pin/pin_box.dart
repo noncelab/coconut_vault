@@ -18,18 +18,19 @@ class PinBox extends StatelessWidget {
         borderRadius: BorderRadius.circular(14),
         color: disabled ? CoconutColors.black.withValues(alpha: 0.15) : CoconutColors.black.withValues(alpha: 0.06),
       ),
-      child: isSet
-          ? Padding(
-              padding: const EdgeInsets.all(10),
-              child: SvgPicture.asset(
-                'assets/svg/coconut-${NetworkType.currentNetworkType.isTestnet ? "regtest" : "mainnet"}.svg',
-                colorFilter: ColorFilter.mode(
-                  disabled ? CoconutColors.black.withValues(alpha: 0.06) : CoconutColors.gray800,
-                  BlendMode.srcIn,
+      child:
+          isSet
+              ? Padding(
+                padding: const EdgeInsets.all(10),
+                child: SvgPicture.asset(
+                  'assets/svg/coconut-${NetworkType.currentNetworkType.isTestnet ? "regtest" : "mainnet"}.svg',
+                  colorFilter: ColorFilter.mode(
+                    disabled ? CoconutColors.black.withValues(alpha: 0.06) : CoconutColors.gray800,
+                    BlendMode.srcIn,
+                  ),
                 ),
-              ),
-            )
-          : null,
+              )
+              : null,
     );
   }
 }

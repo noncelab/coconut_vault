@@ -137,7 +137,7 @@ class _PsbtScannerScreenState extends State<PsbtScannerScreen> {
         Navigator.pushReplacementNamed(context, AppRoutes.psbtConfirmation, arguments: {'id': 0}); // TODO id 추가
       } else if (Platform.isIOS) {
         Navigator.pushNamed(context, AppRoutes.psbtConfirmation, arguments: {'id': 0}) // TODO id 추가
-            .then((o) {
+        .then((o) {
           // 뒤로가기로 다시 돌아왔을 때
           _isProcessing = false;
           controller?.start();

@@ -38,11 +38,12 @@ class SignerAssignmentViewModel extends ChangeNotifier {
     );
     notifyListeners();
 
-    _singlesigVaultList = _walletProvider
-        .getVaults()
-        .where((vault) => vault.vaultType == WalletType.singleSignature)
-        .map((vault) => vault as SingleSigVaultListItem)
-        .toList();
+    _singlesigVaultList =
+        _walletProvider
+            .getVaults()
+            .where((vault) => vault.vaultType == WalletType.singleSignature)
+            .map((vault) => vault as SingleSigVaultListItem)
+            .toList();
 
     _initSignerOptionList(_singlesigVaultList);
   }

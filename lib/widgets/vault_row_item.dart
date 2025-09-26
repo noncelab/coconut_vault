@@ -190,9 +190,10 @@ class _VaultRowItemState extends State<VaultRowItem> {
     }
     return ShrinkAnimationButton(
       pressedColor: CoconutColors.gray150,
-      borderGradientColors: widget.isKeyBorderVisible
-          ? [CoconutColors.black.withValues(alpha: 0.08), CoconutColors.black.withValues(alpha: 0.08)]
-          : null,
+      borderGradientColors:
+          widget.isKeyBorderVisible
+              ? [CoconutColors.black.withValues(alpha: 0.08), CoconutColors.black.withValues(alpha: 0.08)]
+              : null,
       borderWidth: 1,
       borderRadius: 8,
       onPressed: () {
@@ -300,32 +301,32 @@ class _VaultRowItemState extends State<VaultRowItem> {
             widget.isNextIconVisible
                 ? widget.isEditMode
                     ? ReorderableDragStartListener(
-                        index: index!,
-                        child: GestureDetector(
-                          child: Padding(
-                            padding: const EdgeInsets.only(right: 8),
-                            child: SvgPicture.asset('assets/svg/hamburger.svg'),
-                          ),
+                      index: index!,
+                      child: GestureDetector(
+                        child: Padding(
+                          padding: const EdgeInsets.only(right: 8),
+                          child: SvgPicture.asset('assets/svg/hamburger.svg'),
                         ),
-                      )
+                      ),
+                    )
                     : SvgPicture.asset('assets/svg/chevron-right.svg', width: 6, height: 10)
                 : widget.isSelectable
-                    ? Icon(
-                        Icons.check_rounded,
-                        size: 24,
-                        color: CoconutColors.black.withOpacity(widget.isSelected ? 1 : 0.1),
-                      )
-                    : widget.isEditMode
-                        ? ReorderableDragStartListener(
-                            index: index!,
-                            child: GestureDetector(
-                              child: Padding(
-                                padding: const EdgeInsets.only(right: 8),
-                                child: SvgPicture.asset('assets/svg/hamburger.svg'),
-                              ),
-                            ),
-                          )
-                        : const SizedBox.shrink(),
+                ? Icon(
+                  Icons.check_rounded,
+                  size: 24,
+                  color: CoconutColors.black.withOpacity(widget.isSelected ? 1 : 0.1),
+                )
+                : widget.isEditMode
+                ? ReorderableDragStartListener(
+                  index: index!,
+                  child: GestureDetector(
+                    child: Padding(
+                      padding: const EdgeInsets.only(right: 8),
+                      child: SvgPicture.asset('assets/svg/hamburger.svg'),
+                    ),
+                  ),
+                )
+                : const SizedBox.shrink(),
           ],
         ),
       ),

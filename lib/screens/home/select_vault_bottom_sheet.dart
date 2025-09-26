@@ -42,12 +42,13 @@ class _SelectVaultBottomSheetState extends State<SelectVaultBottomSheet> {
         title: t.select_vault_bottom_sheet.select_wallet,
         context: context,
         onBackPressed: null,
-        subLabel: widget.subLabel != null
-            ? Text(
-                widget.subLabel ?? '',
-                style: CoconutTypography.body3_12.setColor(CoconutColors.black.withValues(alpha: 0.7)),
-              )
-            : null,
+        subLabel:
+            widget.subLabel != null
+                ? Text(
+                  widget.subLabel ?? '',
+                  style: CoconutTypography.body3_12.setColor(CoconutColors.black.withValues(alpha: 0.7)),
+                )
+                : null,
         showSubLabel: widget.subLabel != null,
         isBottom: true,
       ),

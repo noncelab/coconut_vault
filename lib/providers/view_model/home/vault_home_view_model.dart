@@ -79,10 +79,11 @@ class VaultHomeViewModel extends ChangeNotifier {
 
     final ids = _preferenceProvider.favoriteVaultIds;
 
-    final vaults = ids
-        .map((id) => _walletProvider.vaultListNotifier.value.firstWhereOrNull((w) => w.id == id))
-        .whereType<VaultListItemBase>()
-        .toList();
+    final vaults =
+        ids
+            .map((id) => _walletProvider.vaultListNotifier.value.firstWhereOrNull((w) => w.id == id))
+            .whereType<VaultListItemBase>()
+            .toList();
 
     _favoriteVaultIds = vaults.map((v) => v.id).toList();
     notifyListeners();

@@ -66,25 +66,25 @@ class SingleButton extends StatelessWidget {
 
     return enableShrinkAnim
         ? ShrinkAnimationButton(
-            onPressed: onPressed ?? () {},
-            defaultColor: CoconutColors.gray200,
-            pressedColor: CoconutColors.gray300,
-            borderRadius: 24,
-            animationEndValue: animationEndValue,
-            child: Container(
-              decoration: BoxDecoration(borderRadius: buttonPosition.radius),
-              padding: buttonPosition.padding,
-              child: buttonContent,
-            ),
-          )
+          onPressed: onPressed ?? () {},
+          defaultColor: CoconutColors.gray200,
+          pressedColor: CoconutColors.gray300,
+          borderRadius: 24,
+          animationEndValue: animationEndValue,
+          child: Container(
+            decoration: BoxDecoration(borderRadius: buttonPosition.radius),
+            padding: buttonPosition.padding,
+            child: buttonContent,
+          ),
+        )
         : GestureDetector(
-            onTap: onPressed,
-            child: Container(
-              decoration: BoxDecoration(color: CoconutColors.gray200, borderRadius: buttonPosition.radius),
-              padding: buttonPosition.padding,
-              child: buttonContent,
-            ),
-          );
+          onTap: onPressed,
+          child: Container(
+            decoration: BoxDecoration(color: CoconutColors.gray200, borderRadius: buttonPosition.radius),
+            padding: buttonPosition.padding,
+            child: buttonContent,
+          ),
+        );
   }
 
   Widget _buildButtonContent() {

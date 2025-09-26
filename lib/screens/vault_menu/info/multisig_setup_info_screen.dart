@@ -242,18 +242,19 @@ class _MultisigSetupInfoScreenState extends State<MultisigSetupInfoScreen> {
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (context) => MultisigSignerMemoBottomSheet(
-        memo: selectedMemo,
-        autofocus: true,
-        onUpdate: (memo) async {
-          if (selectedMemo == memo) return;
-          final navigator = Navigator.of(context);
-          await viewModel.updateOutsideVaultMemo(index, memo);
-          if (mounted) {
-            navigator.pop();
-          }
-        },
-      ),
+      builder:
+          (context) => MultisigSignerMemoBottomSheet(
+            memo: selectedMemo,
+            autofocus: true,
+            onUpdate: (memo) async {
+              if (selectedMemo == memo) return;
+              final navigator = Navigator.of(context);
+              await viewModel.updateOutsideVaultMemo(index, memo);
+              if (mounted) {
+                navigator.pop();
+              }
+            },
+          ),
     );
   }
 
@@ -367,14 +368,15 @@ class _MultisigSetupInfoScreenState extends State<MultisigSetupInfoScreen> {
     MyBottomSheet.showDraggableBottomSheet(
       context: context,
       minChildSize: 0.5,
-      childBuilder: (scrollController) => SelectSyncOptionBottomSheet(
-        onSyncOptionSelected: (format) {
-          if (!context.mounted) return;
-          Navigator.pop(context);
-          Navigator.pushNamed(context, AppRoutes.syncToWallet, arguments: {'id': walletId, 'syncOption': format});
-        },
-        scrollController: scrollController,
-      ),
+      childBuilder:
+          (scrollController) => SelectSyncOptionBottomSheet(
+            onSyncOptionSelected: (format) {
+              if (!context.mounted) return;
+              Navigator.pop(context);
+              Navigator.pushNamed(context, AppRoutes.syncToWallet, arguments: {'id': walletId, 'syncOption': format});
+            },
+            scrollController: scrollController,
+          ),
     );
   }
 

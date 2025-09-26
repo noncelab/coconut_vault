@@ -137,8 +137,9 @@ Future<void> mnemonicCheckFlow(WidgetTester tester, bool uppercase) async {
 
   for (int i = 0; i < singleSignVaults.length; i++) {
     // Load vault's mnemonicList
-    List<String> vaultMnemonicList =
-        await walletProvider.getSecret(singleSignVaults[i].id).then((mnemonic) => utf8.decode(mnemonic).split(' '));
+    List<String> vaultMnemonicList = await walletProvider
+        .getSecret(singleSignVaults[i].id)
+        .then((mnemonic) => utf8.decode(mnemonic).split(' '));
 
     String title = t.prepare_update.enter_nth_word_of_wallet(
       wallet_name: updatePreparationProvider.walletName,

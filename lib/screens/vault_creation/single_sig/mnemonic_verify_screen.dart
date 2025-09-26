@@ -58,9 +58,10 @@ class _MnemonicVerifyScreenState extends State<MnemonicVerifyScreen> {
     _correctAnswers = _selectedWordPositions.map((index) => _mnemonic[index]).toList();
 
     // 각 퀴즈의 선택지 생성
-    _quizOptions = _selectedWordPositions.map((position) {
-      return _generateQuizOptions(position);
-    }).toList();
+    _quizOptions =
+        _selectedWordPositions.map((position) {
+          return _generateQuizOptions(position);
+        }).toList();
 
     // Answers 초기화
     _userAnswers = List.filled(_totalQuizzes, '');
@@ -139,10 +140,11 @@ class _MnemonicVerifyScreenState extends State<MnemonicVerifyScreen> {
     if (_mnemonic.isEmpty) return;
 
     // 현재 사용 중인 위치들을 제외한 새로운 위치 선택
-    final availablePositions = List<int>.generate(
-      _mnemonic.length,
-      (i) => i,
-    ).where((position) => !_selectedWordPositions.contains(position)).toList();
+    final availablePositions =
+        List<int>.generate(
+          _mnemonic.length,
+          (i) => i,
+        ).where((position) => !_selectedWordPositions.contains(position)).toList();
 
     if (availablePositions.isEmpty) return;
 
@@ -217,9 +219,10 @@ class _MnemonicVerifyScreenState extends State<MnemonicVerifyScreen> {
         children: [
           ClipRRect(child: Container(height: 6, color: CoconutColors.black.withValues(alpha: 0.06))),
           ClipRRect(
-            borderRadius: correctAnswers / _totalQuizzes == 1
-                ? BorderRadius.zero
-                : const BorderRadius.only(topRight: Radius.circular(6), bottomRight: Radius.circular(6)),
+            borderRadius:
+                correctAnswers / _totalQuizzes == 1
+                    ? BorderRadius.zero
+                    : const BorderRadius.only(topRight: Radius.circular(6), bottomRight: Radius.circular(6)),
             child: AnimatedContainer(
               duration: const Duration(milliseconds: 500),
               curve: Curves.easeInOut,
@@ -236,13 +239,13 @@ class _MnemonicVerifyScreenState extends State<MnemonicVerifyScreen> {
   Widget _buildAnswerExplanation() {
     return _showResult && !_isAnswerCorrect
         ? CoconutShakeAnimation(
-            autoStart: true,
-            curve: Curves.easeInOut,
-            child: Text(
-              t.mnemonic_verify_screen.not_correct,
-              style: CoconutTypography.body2_14_Bold.setColor(CoconutColors.warningText),
-            ),
-          )
+          autoStart: true,
+          curve: Curves.easeInOut,
+          child: Text(
+            t.mnemonic_verify_screen.not_correct,
+            style: CoconutTypography.body2_14_Bold.setColor(CoconutColors.warningText),
+          ),
+        )
         : Text('ㅣ', style: CoconutTypography.body2_14_Bold.setColor(CoconutColors.white));
   }
 

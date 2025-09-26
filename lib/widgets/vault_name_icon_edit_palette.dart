@@ -87,51 +87,54 @@ class _VaultNameIconEditPaletteState extends State<VaultNameIconEditPalette> {
                             _updateSelected(index);
                           });
                         },
-                        child: index < 10
-                            ? Stack(
-                                children: [
-                                  Container(
-                                    margin: const EdgeInsets.all(16.0),
-                                    decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(40.0),
-                                      color: _getColorByIndex(index),
-                                    ),
-                                  ),
-                                  Positioned.fill(
-                                    child: Container(
-                                      margin: const EdgeInsets.all(11.5),
+                        child:
+                            index < 10
+                                ? Stack(
+                                  children: [
+                                    Container(
+                                      margin: const EdgeInsets.all(16.0),
                                       decoration: BoxDecoration(
                                         borderRadius: BorderRadius.circular(40.0),
-                                        border: Border.all(
-                                          color: index == _selectedColorIndex
-                                              ? CoconutColors.gray800
-                                              : CoconutColors.white,
-                                          width: 1.8,
+                                        color: _getColorByIndex(index),
+                                      ),
+                                    ),
+                                    Positioned.fill(
+                                      child: Container(
+                                        margin: const EdgeInsets.all(11.5),
+                                        decoration: BoxDecoration(
+                                          borderRadius: BorderRadius.circular(40.0),
+                                          border: Border.all(
+                                            color:
+                                                index == _selectedColorIndex
+                                                    ? CoconutColors.gray800
+                                                    : CoconutColors.white,
+                                            width: 1.8,
+                                          ),
                                         ),
                                       ),
                                     ),
-                                  ),
-                                ],
-                              )
-                            : Stack(
-                                children: [
-                                  Positioned.fill(child: SvgIcon(index: index - 10)),
-                                  Positioned.fill(
-                                    child: Container(
-                                      margin: const EdgeInsets.all(11.5),
-                                      decoration: BoxDecoration(
-                                        borderRadius: BorderRadius.circular(40.0),
-                                        border: Border.all(
-                                          color: index == _selectedIconIndex + 10
-                                              ? CoconutColors.gray800
-                                              : CoconutColors.white,
-                                          width: 1.8,
+                                  ],
+                                )
+                                : Stack(
+                                  children: [
+                                    Positioned.fill(child: SvgIcon(index: index - 10)),
+                                    Positioned.fill(
+                                      child: Container(
+                                        margin: const EdgeInsets.all(11.5),
+                                        decoration: BoxDecoration(
+                                          borderRadius: BorderRadius.circular(40.0),
+                                          border: Border.all(
+                                            color:
+                                                index == _selectedIconIndex + 10
+                                                    ? CoconutColors.gray800
+                                                    : CoconutColors.white,
+                                            width: 1.8,
+                                          ),
                                         ),
                                       ),
                                     ),
-                                  ),
-                                ],
-                              ),
+                                  ],
+                                ),
                       );
                     }, childCount: CoconutColors.colorPalette.length + CustomIcons.totalCount),
                   ),
@@ -179,12 +182,13 @@ class _VaultNameIconEditPaletteState extends State<VaultNameIconEditPalette> {
                           _controller.text = '';
                         });
                       },
-                      icon: _controller.text.isNotEmpty
-                          ? SvgPicture.asset(
-                              'assets/svg/text-field-clear.svg',
-                              colorFilter: const ColorFilter.mode(CoconutColors.gray400, BlendMode.srcIn),
-                            )
-                          : Container(),
+                      icon:
+                          _controller.text.isNotEmpty
+                              ? SvgPicture.asset(
+                                'assets/svg/text-field-clear.svg',
+                                colorFilter: const ColorFilter.mode(CoconutColors.gray400, BlendMode.srcIn),
+                              )
+                              : Container(),
                     ),
                     onChanged: (text) {
                       setState(() {

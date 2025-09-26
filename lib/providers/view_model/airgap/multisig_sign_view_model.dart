@@ -40,9 +40,10 @@ class MultisigSignViewModel extends ChangeNotifier {
   int get requiredSignatureCount => _vaultListItem.requiredSignatureCount;
   String get walletName => _signProvider.vaultListItem!.name;
   List<bool> get signersApproved => _signerApproved;
-  String get firstRecipientAddress => _signProvider.recipientAddress != null
-      ? _signProvider.recipientAddress!
-      : _signProvider.recipientAmounts!.keys.first;
+  String get firstRecipientAddress =>
+      _signProvider.recipientAddress != null
+          ? _signProvider.recipientAddress!
+          : _signProvider.recipientAmounts!.keys.first;
   int get recipientCount => _signProvider.recipientAddress != null ? 1 : _signProvider.recipientAmounts!.length;
   int get sendingAmount => _signProvider.sendingAmount!;
   int get remainingSignatures =>

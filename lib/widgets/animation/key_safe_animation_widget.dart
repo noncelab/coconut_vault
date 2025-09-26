@@ -50,10 +50,10 @@ class _KeySafeAnimationWidgetState extends State<KeySafeAnimationWidget> {
                       _keyActive_1
                           ? SvgPicture.asset('assets/svg/key-icon.svg', width: 20)
                           : SvgPicture.asset(
-                              'assets/svg/key-icon.svg',
-                              width: 20,
-                              colorFilter: const ColorFilter.mode(CoconutColors.gray350, BlendMode.srcIn),
-                            ),
+                            'assets/svg/key-icon.svg',
+                            width: 20,
+                            colorFilter: const ColorFilter.mode(CoconutColors.gray350, BlendMode.srcIn),
+                          ),
                       const SizedBox(width: 30),
                       Expanded(child: _buildProgressBar(0)),
                     ],
@@ -66,10 +66,10 @@ class _KeySafeAnimationWidgetState extends State<KeySafeAnimationWidget> {
                         _keyActive_2
                             ? SvgPicture.asset('assets/svg/key-icon.svg', width: 20)
                             : SvgPicture.asset(
-                                'assets/svg/key-icon.svg',
-                                width: 20,
-                                colorFilter: const ColorFilter.mode(CoconutColors.gray350, BlendMode.srcIn),
-                              ),
+                              'assets/svg/key-icon.svg',
+                              width: 20,
+                              colorFilter: const ColorFilter.mode(CoconutColors.gray350, BlendMode.srcIn),
+                            ),
                         const SizedBox(width: 30),
                         Expanded(child: _buildProgressBar(1)),
                       ],
@@ -81,10 +81,10 @@ class _KeySafeAnimationWidgetState extends State<KeySafeAnimationWidget> {
                       _keyActive_3
                           ? SvgPicture.asset('assets/svg/key-icon.svg', width: 20)
                           : SvgPicture.asset(
-                              'assets/svg/key-icon.svg',
-                              width: 20,
-                              colorFilter: const ColorFilter.mode(CoconutColors.gray350, BlendMode.srcIn),
-                            ),
+                            'assets/svg/key-icon.svg',
+                            width: 20,
+                            colorFilter: const ColorFilter.mode(CoconutColors.gray350, BlendMode.srcIn),
+                          ),
                       const SizedBox(width: 30),
                       Expanded(child: _buildProgressBar(2)),
                     ],
@@ -276,9 +276,10 @@ class _KeySafeAnimationWidgetState extends State<KeySafeAnimationWidget> {
       height: 4,
       child: LinearProgressIndicator(
         borderRadius: BorderRadius.circular(12),
-        value: key == 0
-            ? _progressValue_1
-            : key == 1
+        value:
+            key == 0
+                ? _progressValue_1
+                : key == 1
                 ? _progressValue_2
                 : _progressValue_3,
         color: CoconutColors.gray800,

@@ -52,9 +52,9 @@ class _CoconutQrScannerState extends State<CoconutQrScanner> with SingleTickerPr
         setState(() {
           scannerLoadingVerticalPos =
               ((MediaQuery.of(context).size.width < 400 || MediaQuery.of(context).size.height < 400)
-                      ? 320.0
-                      : MediaQuery.of(context).size.width * 0.85) +
-                  30;
+                  ? 320.0
+                  : MediaQuery.of(context).size.width * 0.85) +
+              30;
         });
       } else {
         Logger.log('QRView position not available yet');
@@ -182,9 +182,10 @@ class _CoconutQrScannerState extends State<CoconutQrScanner> with SingleTickerPr
   }
 
   Widget _buildProgressOverlay(BuildContext context) {
-    final scanAreaSize = (MediaQuery.of(context).size.width < 400 || MediaQuery.of(context).size.height < 400)
-        ? 320.0
-        : MediaQuery.of(context).size.width * 0.85;
+    final scanAreaSize =
+        (MediaQuery.of(context).size.width < 400 || MediaQuery.of(context).size.height < 400)
+            ? 320.0
+            : MediaQuery.of(context).size.width * 0.85;
 
     final scanAreaTop = (MediaQuery.of(context).size.height - scanAreaSize) / 2;
     final scanAreaBottom = scanAreaTop + scanAreaSize;

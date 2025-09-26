@@ -50,17 +50,18 @@ class MultisigVaultListItem extends VaultListItemBase {
 
   @override
   String getWalletSyncString() {
-    final newSigners = signers
-        .map(
-          (signer) => {
-            'innerVaultId': signer.innerVaultId,
-            'name': signer.name,
-            'iconIndex': signer.iconIndex,
-            'colorIndex': signer.colorIndex,
-            'memo': signer.memo,
-          },
-        )
-        .toList();
+    final newSigners =
+        signers
+            .map(
+              (signer) => {
+                'innerVaultId': signer.innerVaultId,
+                'name': signer.name,
+                'iconIndex': signer.iconIndex,
+                'colorIndex': signer.colorIndex,
+                'memo': signer.memo,
+              },
+            )
+            .toList();
 
     Map<String, dynamic> json = {
       'name': name,

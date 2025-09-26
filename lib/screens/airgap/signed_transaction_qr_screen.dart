@@ -92,9 +92,10 @@ class _SignedTransactionQrScreenState extends State<SignedTransactionQrScreen> {
     return [
       TextSpan(text: '[4] ', style: CoconutTypography.body2_14_Bold.copyWith(height: 1.2, color: CoconutColors.black)),
       TextSpan(
-        text: _signProvider.isMultisig!
-            ? t.signed_transaction_qr_screen.guide_multisig
-            : t.signed_transaction_qr_screen.guide_single_sig(name: _signProvider.walletName!),
+        text:
+            _signProvider.isMultisig!
+                ? t.signed_transaction_qr_screen.guide_multisig
+                : t.signed_transaction_qr_screen.guide_single_sig(name: _signProvider.walletName!),
         style: CoconutTypography.body2_14.copyWith(height: 1.2, color: CoconutColors.black),
       ),
     ];

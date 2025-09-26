@@ -24,12 +24,12 @@ class _AppUnavailableNotificationScreenState extends State<AppUnavailableNotific
     SystemChrome.setSystemUIOverlayStyle(
       Platform.isIOS
           ? const SystemUiOverlayStyle(
-              statusBarIconBrightness: Brightness.dark, // iOS → 검정 텍스트
-            )
+            statusBarIconBrightness: Brightness.dark, // iOS → 검정 텍스트
+          )
           : const SystemUiOverlayStyle(
-              statusBarIconBrightness: Brightness.dark, // Android → 검정 텍스트
-              statusBarColor: Colors.transparent,
-            ),
+            statusBarIconBrightness: Brightness.dark, // Android → 검정 텍스트
+            statusBarColor: Colors.transparent,
+          ),
     );
     return Scaffold(
       backgroundColor: CoconutColors.white,

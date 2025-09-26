@@ -229,84 +229,87 @@ class _MultisigSignScreenState extends State<MultisigSignScreen> {
       child: ChangeNotifierProvider<MultisigSignViewModel>(
         create: (_) => _viewModel,
         child: Consumer<MultisigSignViewModel>(
-          builder: (context, viewModel, child) => Scaffold(
-            backgroundColor: CoconutColors.white,
-            appBar: CoconutAppBar.build(
-              title: t.sign,
-              context: context,
-              onBackPressed: _onBackPressed,
-              backgroundColor: CoconutColors.white,
-            ),
-            body: SafeArea(
-              child: Stack(
-                children: [
-                  SingleChildScrollView(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        // progress
-                        TweenAnimationBuilder<double>(
-                          tween: Tween<double>(
-                            begin: 0.0,
-                            end: viewModel.signersApproved.where((item) => item).length /
-                                viewModel.requiredSignatureCount,
-                          ),
-                          duration: const Duration(milliseconds: 1500),
-                          builder: (context, value, child) {
-                            if (value == 1.0) {
-                              _isProgressCompleted = true;
-                            } else {
-                              _isProgressCompleted = false;
-                            }
-                            return Container(
-                              margin: const EdgeInsets.only(top: 8),
-                              child: LinearProgressIndicator(
-                                value: value,
-                                minHeight: 6,
-                                backgroundColor: CoconutColors.black.withOpacity(0.06),
-                                borderRadius: _isProgressCompleted
-                                    ? BorderRadius.zero
-                                    : const BorderRadius.only(
-                                        topRight: Radius.circular(6),
-                                        bottomRight: Radius.circular(6),
-                                      ),
-                                valueColor: const AlwaysStoppedAnimation<Color>(CoconutColors.black),
+          builder:
+              (context, viewModel, child) => Scaffold(
+                backgroundColor: CoconutColors.white,
+                appBar: CoconutAppBar.build(
+                  title: t.sign,
+                  context: context,
+                  onBackPressed: _onBackPressed,
+                  backgroundColor: CoconutColors.white,
+                ),
+                body: SafeArea(
+                  child: Stack(
+                    children: [
+                      SingleChildScrollView(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            // progress
+                            TweenAnimationBuilder<double>(
+                              tween: Tween<double>(
+                                begin: 0.0,
+                                end:
+                                    viewModel.signersApproved.where((item) => item).length /
+                                    viewModel.requiredSignatureCount,
                               ),
-                            );
-                          },
+                              duration: const Duration(milliseconds: 1500),
+                              builder: (context, value, child) {
+                                if (value == 1.0) {
+                                  _isProgressCompleted = true;
+                                } else {
+                                  _isProgressCompleted = false;
+                                }
+                                return Container(
+                                  margin: const EdgeInsets.only(top: 8),
+                                  child: LinearProgressIndicator(
+                                    value: value,
+                                    minHeight: 6,
+                                    backgroundColor: CoconutColors.black.withOpacity(0.06),
+                                    borderRadius:
+                                        _isProgressCompleted
+                                            ? BorderRadius.zero
+                                            : const BorderRadius.only(
+                                              topRight: Radius.circular(6),
+                                              bottomRight: Radius.circular(6),
+                                            ),
+                                    valueColor: const AlwaysStoppedAnimation<Color>(CoconutColors.black),
+                                  ),
+                                );
+                              },
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.only(top: 36),
+                              child: Text(
+                                viewModel.isSignatureComplete
+                                    ? t.sign_completed
+                                    : t.sign_required_amount(n: viewModel.remainingSignatures),
+                                style: CoconutTypography.heading4_18_Bold,
+                              ),
+                            ),
+                            CoconutLayout.spacing_600h,
+                            _buildSendInfo(),
+                            CoconutLayout.spacing_1400h,
+                            _buildSignerList(),
+                            CoconutLayout.spacing_2500h,
+                          ],
                         ),
-                        Padding(
-                          padding: const EdgeInsets.only(top: 36),
-                          child: Text(
-                            viewModel.isSignatureComplete
-                                ? t.sign_completed
-                                : t.sign_required_amount(n: viewModel.remainingSignatures),
-                            style: CoconutTypography.heading4_18_Bold,
-                          ),
+                      ),
+                      _buildBottomButtons(),
+                      _buildProgressIndicator(),
+                      Visibility(
+                        visible: _showLoading,
+                        child: Container(
+                          width: MediaQuery.of(context).size.width,
+                          height: MediaQuery.of(context).size.height,
+                          decoration: BoxDecoration(color: CoconutColors.black.withOpacity(0.3)),
+                          child: const Center(child: CircularProgressIndicator(color: CoconutColors.gray800)),
                         ),
-                        CoconutLayout.spacing_600h,
-                        _buildSendInfo(),
-                        CoconutLayout.spacing_1400h,
-                        _buildSignerList(),
-                        CoconutLayout.spacing_2500h,
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
-                  _buildBottomButtons(),
-                  _buildProgressIndicator(),
-                  Visibility(
-                    visible: _showLoading,
-                    child: Container(
-                      width: MediaQuery.of(context).size.width,
-                      height: MediaQuery.of(context).size.height,
-                      decoration: BoxDecoration(color: CoconutColors.black.withOpacity(0.3)),
-                      child: const Center(child: CircularProgressIndicator(color: CoconutColors.gray800)),
-                    ),
-                  ),
-                ],
+                ),
               ),
-            ),
-          ),
         ),
       ),
     );
@@ -338,9 +341,10 @@ class _MultisigSignScreenState extends State<MultisigSignScreen> {
             value: value,
             minHeight: 6,
             backgroundColor: CoconutColors.black.withOpacity(0.06),
-            borderRadius: _isProgressCompleted
-                ? BorderRadius.zero
-                : const BorderRadius.only(topRight: Radius.circular(6), bottomRight: Radius.circular(6)),
+            borderRadius:
+                _isProgressCompleted
+                    ? BorderRadius.zero
+                    : const BorderRadius.only(topRight: Radius.circular(6), bottomRight: Radius.circular(6)),
             valueColor: const AlwaysStoppedAnimation<Color>(CoconutColors.black),
           );
         },
@@ -403,22 +407,25 @@ class _MultisigSignScreenState extends State<MultisigSignScreen> {
                   }
                   _sign(isInnerWallet, index);
                 },
-                defaultColor: isSignerApproved
-                    ? isInnerWallet
-                        ? CoconutColors.backgroundColorPaletteLight[colorIndex]
-                        : CoconutColors.backgroundColorPaletteLight[8]
-                    : CoconutColors.white,
-                pressedColor: isSignerApproved
-                    ? isInnerWallet
-                        ? CoconutColors.backgroundColorPaletteLight[colorIndex].withAlpha(70)
-                        : CoconutColors.backgroundColorPaletteLight[8].withAlpha(70)
-                    : CoconutColors.gray150,
+                defaultColor:
+                    isSignerApproved
+                        ? isInnerWallet
+                            ? CoconutColors.backgroundColorPaletteLight[colorIndex]
+                            : CoconutColors.backgroundColorPaletteLight[8]
+                        : CoconutColors.white,
+                pressedColor:
+                    isSignerApproved
+                        ? isInnerWallet
+                            ? CoconutColors.backgroundColorPaletteLight[colorIndex].withAlpha(70)
+                            : CoconutColors.backgroundColorPaletteLight[8].withAlpha(70)
+                        : CoconutColors.gray150,
                 borderRadius: 100,
                 borderWidth: 1,
                 border: Border.all(
-                  color: isSignerApproved
-                      ? CoconutColors.backgroundColorPaletteLight[colorIndex].withAlpha(70)
-                      : CoconutColors.gray200,
+                  color:
+                      isSignerApproved
+                          ? CoconutColors.backgroundColorPaletteLight[colorIndex].withAlpha(70)
+                          : CoconutColors.gray200,
                   width: 1,
                 ),
                 child: Container(

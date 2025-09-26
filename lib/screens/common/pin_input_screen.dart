@@ -97,15 +97,16 @@ class PinInputScreenState extends State<PinInputScreen> {
     return Scaffold(
       resizeToAvoidBottomInset: false,
       backgroundColor: Colors.transparent,
-      appBar: widget.appBarVisible
-          ? CoconutAppBar.build(
-              context: context,
-              title: '',
-              backgroundColor: Colors.transparent,
-              height: 62,
-              isBottom: widget.step == 0,
-            )
-          : null,
+      appBar:
+          widget.appBarVisible
+              ? CoconutAppBar.build(
+                context: context,
+                title: '',
+                backgroundColor: Colors.transparent,
+                height: 62,
+                isBottom: widget.step == 0,
+              )
+              : null,
       body: SafeArea(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
@@ -149,17 +150,19 @@ class PinInputScreenState extends State<PinInputScreen> {
                     alignment: Alignment.bottomCenter,
                     child: GridView.count(
                       crossAxisCount: 3,
-                      childAspectRatio: MediaQuery.of(context).size.width > 600
-                          ? 2.5 // 폴드 펼친화면에서는 버튼 사이즈 줄여서 공간 확보
-                          : 2,
+                      childAspectRatio:
+                          MediaQuery.of(context).size.width > 600
+                              ? 2.5 // 폴드 펼친화면에서는 버튼 사이즈 줄여서 공간 확보
+                              : 2,
                       shrinkWrap: true,
                       physics: const NeverScrollableScrollPhysics(),
-                      children: widget.pinShuffleNumbers.map((key) {
-                        return Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 16),
-                          child: KeyButton(keyValue: key, onKeyTap: widget.onKeyTap, disabled: widget.disabled),
-                        );
-                      }).toList(),
+                      children:
+                          widget.pinShuffleNumbers.map((key) {
+                            return Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 16),
+                              child: KeyButton(keyValue: key, onKeyTap: widget.onKeyTap, disabled: widget.disabled),
+                            );
+                          }).toList(),
                     ),
                   ),
                 ),

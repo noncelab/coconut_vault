@@ -131,17 +131,19 @@ class MyBottomSheet {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     GestureDetector(
-                      onTap: isCloseButton
-                          ? () {
-                              Navigator.pop(context);
-                            }
-                          : null,
+                      onTap:
+                          isCloseButton
+                              ? () {
+                                Navigator.pop(context);
+                              }
+                              : null,
                       child: Container(
                         padding: const EdgeInsets.all(4),
                         color: Colors.transparent,
-                        child: isCloseButton
-                            ? const Icon(Icons.close_rounded, color: CoconutColors.black)
-                            : Container(width: 16),
+                        child:
+                            isCloseButton
+                                ? const Icon(Icons.close_rounded, color: CoconutColors.black)
+                                : Container(width: 16),
                       ),
                     ),
                     Text(
@@ -216,83 +218,88 @@ class MyBottomSheet {
                         return hideAppBar
                             ? Container()
                             : CoconutAppBar.build(
-                                context: context,
-                                title: t.key_list, // fixme: 특정 화면 컨텍스트를 포함하고 있음
-                                backgroundColor: CoconutColors.white,
-                                onBackPressed: () => Navigator.pop(context),
-                                actionButtonList: [
-                                  Padding(
-                                    padding: const EdgeInsets.symmetric(vertical: 8),
-                                    child: GestureDetector(
-                                      onTap: isButtonActiveNotifier.value
-                                          ? () {
+                              context: context,
+                              title: t.key_list, // fixme: 특정 화면 컨텍스트를 포함하고 있음
+                              backgroundColor: CoconutColors.white,
+                              onBackPressed: () => Navigator.pop(context),
+                              actionButtonList: [
+                                Padding(
+                                  padding: const EdgeInsets.symmetric(vertical: 8),
+                                  child: GestureDetector(
+                                    onTap:
+                                        isButtonActiveNotifier.value
+                                            ? () {
                                               if (onTopWidgetButtonClicked != null) {
                                                 onTopWidgetButtonClicked();
                                               }
                                               Navigator.pop(context);
                                             }
-                                          : null,
-                                      child: Container(
-                                        padding: const EdgeInsets.symmetric(horizontal: 12.0),
-                                        decoration: BoxDecoration(
-                                          borderRadius: BorderRadius.circular(16.0),
-                                          border: Border.all(
-                                            color: isButtonActiveNotifier.value
-                                                ? Colors.transparent
-                                                : CoconutColors.black.withValues(alpha: 0.06),
-                                          ),
-                                          color: isButtonActiveNotifier.value
-                                              ? CoconutColors.gray800
-                                              : CoconutColors.gray150,
+                                            : null,
+                                    child: Container(
+                                      padding: const EdgeInsets.symmetric(horizontal: 12.0),
+                                      decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.circular(16.0),
+                                        border: Border.all(
+                                          color:
+                                              isButtonActiveNotifier.value
+                                                  ? Colors.transparent
+                                                  : CoconutColors.black.withValues(alpha: 0.06),
                                         ),
-                                        child: Center(
-                                          child: Text(
-                                            t.select,
-                                            style: CoconutTypography.body2_14.merge(
-                                              TextStyle(
-                                                fontSize: 11,
-                                                color: isButtonActiveNotifier.value
-                                                    ? Colors.white
-                                                    : CoconutColors.black.withValues(alpha: 0.3),
-                                                fontWeight:
-                                                    isButtonActiveNotifier.value ? FontWeight.bold : FontWeight.normal,
-                                              ),
+                                        color:
+                                            isButtonActiveNotifier.value
+                                                ? CoconutColors.gray800
+                                                : CoconutColors.gray150,
+                                      ),
+                                      child: Center(
+                                        child: Text(
+                                          t.select,
+                                          style: CoconutTypography.body2_14.merge(
+                                            TextStyle(
+                                              fontSize: 11,
+                                              color:
+                                                  isButtonActiveNotifier.value
+                                                      ? Colors.white
+                                                      : CoconutColors.black.withValues(alpha: 0.3),
+                                              fontWeight:
+                                                  isButtonActiveNotifier.value ? FontWeight.bold : FontWeight.normal,
                                             ),
                                           ),
                                         ),
                                       ),
                                     ),
                                   ),
-                                ],
-                              );
+                                ),
+                              ],
+                            );
                       },
                     )
                   else if (topWidget)
                     hideAppBar
                         ? Container()
                         : CoconutAppBar.build(
-                            isBottom: true,
-                            context: context,
-                            title: t.import,
-                            backgroundColor: CoconutColors.white,
-                            onBackPressed: () {
-                              if (onBackPressed != null) {
-                                onBackPressed();
-                              } else {
-                                Navigator.pop(context);
-                              }
-                            },
-                          ),
+                          isBottom: true,
+                          context: context,
+                          title: t.import,
+                          backgroundColor: CoconutColors.white,
+                          onBackPressed: () {
+                            if (onBackPressed != null) {
+                              onBackPressed();
+                            } else {
+                              Navigator.pop(context);
+                            }
+                          },
+                        ),
                   Expanded(
                     child: Container(
                       color: CoconutColors.white,
-                      child: enableSingleChildScroll
-                          ? SingleChildScrollView(
-                              physics: physics,
-                              controller: controller,
-                              child: childBuilder!(controller),
-                            )
-                          : child,
+                      child:
+                          enableSingleChildScroll
+                              ? SingleChildScrollView(
+                                physics: physics,
+                                controller: controller,
+                                child: childBuilder!(controller),
+                              )
+                              : child,
                     ),
                   ),
                 ],
@@ -342,8 +349,8 @@ class MyBottomSheet {
               draggableController
                   .animateTo(targetExtent, duration: const Duration(milliseconds: 50), curve: Curves.easeOut)
                   .whenComplete(() {
-                isAnimating = false;
-              });
+                    isAnimating = false;
+                  });
             }
 
             return NotificationListener<ScrollNotification>(

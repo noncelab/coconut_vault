@@ -209,9 +209,10 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
         CoconutLayout.spacing_600w,
         Text(
           label,
-          style: isOn
-              ? CoconutTypography.body1_16_Bold.setColor(CoconutColors.hotPink)
-              : CoconutTypography.body1_16_Bold.setColor(CoconutColors.black),
+          style:
+              isOn
+                  ? CoconutTypography.body1_16_Bold.setColor(CoconutColors.hotPink)
+                  : CoconutTypography.body1_16_Bold.setColor(CoconutColors.black),
           maxLines: 2,
         ),
         if (isOn) ...[
@@ -251,7 +252,8 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
     if (_currentScreenIndex == 1) {
       return Consumer<ConnectivityProvider>(
         builder: (context, provider, child) {
-          final isActive = provider.isNetworkOn == false &&
+          final isActive =
+              provider.isNetworkOn == false &&
               provider.isBluetoothOn == false &&
               (!Platform.isAndroid || provider.isDeveloperModeOn == false);
 
@@ -286,66 +288,67 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
   void _showSettingGuide() {
     MyBottomSheet.showDraggableBottomSheet(
       context: context,
-      childBuilder: (controller) => Scaffold(
-        backgroundColor: CoconutColors.white,
-        appBar: CoconutAppBar.build(
-          title: t.welcome_screen.setting_guide,
-          context: context,
-          onBackPressed: null,
-          isBottom: true,
-        ),
-        body: SingleChildScrollView(
-          controller: controller,
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                _buildSettingTitle(
-                  t.welcome_screen.airplane_mode_on.title,
-                  'assets/svg/settings-guide-icons/airplane-mode.svg',
+      childBuilder:
+          (controller) => Scaffold(
+            backgroundColor: CoconutColors.white,
+            appBar: CoconutAppBar.build(
+              title: t.welcome_screen.setting_guide,
+              context: context,
+              onBackPressed: null,
+              isBottom: true,
+            ),
+            body: SingleChildScrollView(
+              controller: controller,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _buildSettingTitle(
+                      t.welcome_screen.airplane_mode_on.title,
+                      'assets/svg/settings-guide-icons/airplane-mode.svg',
+                    ),
+                    _buildSettingDescription(
+                      Platform.isAndroid
+                          ? t.welcome_screen.airplane_mode_on.description_android
+                          : t.welcome_screen.airplane_mode_on.description_ios,
+                    ),
+                    _buildSettingTitle(t.welcome_screen.wifi_off.title, 'assets/svg/settings-guide-icons/wifi.svg'),
+                    _buildSettingDescription(
+                      Platform.isAndroid
+                          ? t.welcome_screen.wifi_off.description_android
+                          : t.welcome_screen.wifi_off.description_ios,
+                    ),
+                    _buildSettingTitle(
+                      t.welcome_screen.mobile_data_off.title,
+                      'assets/svg/settings-guide-icons/mobile-data.svg',
+                    ),
+                    _buildSettingDescription(
+                      Platform.isAndroid
+                          ? t.welcome_screen.mobile_data_off.description_android
+                          : t.welcome_screen.mobile_data_off.description_ios,
+                    ),
+                    _buildSettingTitle(
+                      t.welcome_screen.bluetooth_off.title,
+                      'assets/svg/settings-guide-icons/bluetooth.svg',
+                    ),
+                    _buildSettingDescription(
+                      Platform.isAndroid
+                          ? t.welcome_screen.bluetooth_off.description_android
+                          : t.welcome_screen.bluetooth_off.description_ios,
+                    ),
+                    if (Platform.isAndroid) ...[
+                      _buildSettingTitle(
+                        t.welcome_screen.developer_mode_off,
+                        'assets/svg/settings-guide-icons/developer-mode.svg',
+                      ),
+                      _buildSettingDescription(t.welcome_screen.developer_mode_description),
+                    ],
+                  ],
                 ),
-                _buildSettingDescription(
-                  Platform.isAndroid
-                      ? t.welcome_screen.airplane_mode_on.description_android
-                      : t.welcome_screen.airplane_mode_on.description_ios,
-                ),
-                _buildSettingTitle(t.welcome_screen.wifi_off.title, 'assets/svg/settings-guide-icons/wifi.svg'),
-                _buildSettingDescription(
-                  Platform.isAndroid
-                      ? t.welcome_screen.wifi_off.description_android
-                      : t.welcome_screen.wifi_off.description_ios,
-                ),
-                _buildSettingTitle(
-                  t.welcome_screen.mobile_data_off.title,
-                  'assets/svg/settings-guide-icons/mobile-data.svg',
-                ),
-                _buildSettingDescription(
-                  Platform.isAndroid
-                      ? t.welcome_screen.mobile_data_off.description_android
-                      : t.welcome_screen.mobile_data_off.description_ios,
-                ),
-                _buildSettingTitle(
-                  t.welcome_screen.bluetooth_off.title,
-                  'assets/svg/settings-guide-icons/bluetooth.svg',
-                ),
-                _buildSettingDescription(
-                  Platform.isAndroid
-                      ? t.welcome_screen.bluetooth_off.description_android
-                      : t.welcome_screen.bluetooth_off.description_ios,
-                ),
-                if (Platform.isAndroid) ...[
-                  _buildSettingTitle(
-                    t.welcome_screen.developer_mode_off,
-                    'assets/svg/settings-guide-icons/developer-mode.svg',
-                  ),
-                  _buildSettingDescription(t.welcome_screen.developer_mode_description),
-                ],
-              ],
+              ),
             ),
           ),
-        ),
-      ),
     );
   }
 

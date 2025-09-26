@@ -18,14 +18,15 @@ class VaultIconSmall extends StatelessWidget {
       height: 30,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(10),
-        gradient: gradientColors != null
-            ? LinearGradient(
-                colors: gradientColors!,
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                transform: const GradientRotation(math.pi / 10),
-              )
-            : null,
+        gradient:
+            gradientColors != null
+                ? LinearGradient(
+                  colors: gradientColors!,
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  transform: const GradientRotation(math.pi / 10),
+                )
+                : null,
         border:
             gradientColors == null ? Border.all(color: CoconutColors.backgroundColorPaletteLight[colorIndex]) : null,
       ),

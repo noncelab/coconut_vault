@@ -228,9 +228,10 @@ class _VaultNameAndIconSetupScreenState extends State<VaultNameAndIconSetupScree
             height: MediaQuery.of(context).size.height,
             decoration: BoxDecoration(color: CoconutColors.black.withValues(alpha: 0.3)),
             child: Center(
-              child: _walletProvider.isVaultListLoading
-                  ? MessageActivityIndicator(message: t.vault_name_icon_setup_screen.saving) // 기존 볼트들 불러오는 중
-                  : const CircularProgressIndicator(color: CoconutColors.gray800),
+              child:
+                  _walletProvider.isVaultListLoading
+                      ? MessageActivityIndicator(message: t.vault_name_icon_setup_screen.saving) // 기존 볼트들 불러오는 중
+                      : const CircularProgressIndicator(color: CoconutColors.gray800),
             ),
           ),
         ),

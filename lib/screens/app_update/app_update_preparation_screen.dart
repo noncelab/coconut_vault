@@ -124,14 +124,15 @@ class _AppUpdatePreparationScreenState extends State<AppUpdatePreparationScreen>
               onTap: _closeKeyboard,
               child: Scaffold(
                 backgroundColor: CoconutColors.white,
-                appBar: !_isInProgressStep
-                    ? CoconutAppBar.build(
-                        title: t.settings_screen.prepare_update,
-                        context: context,
-                        onBackPressed: _onBackPressed,
-                        isLeadingVisible: !_isInProgressStep,
-                      )
-                    : null,
+                appBar:
+                    !_isInProgressStep
+                        ? CoconutAppBar.build(
+                          title: t.settings_screen.prepare_update,
+                          context: context,
+                          onBackPressed: _onBackPressed,
+                          isLeadingVisible: !_isInProgressStep,
+                        )
+                        : null,
                 body: SafeArea(
                   child: Container(
                     width: MediaQuery.sizeOf(context).width,
@@ -339,21 +340,22 @@ class _AppUpdatePreparationScreenState extends State<AppUpdatePreparationScreen>
                 isLengthVisible: false,
                 errorText: t.prepare_update.incorrect_input_try_again,
                 placeholderText: t.prepare_update.enter_word,
-                suffix: _mnemonicWordInputController.text.isNotEmpty
-                    ? IconButton(
-                        iconSize: 14,
-                        padding: EdgeInsets.zero,
-                        onPressed: () {
-                          setState(() {
-                            _mnemonicWordInputController.text = '';
-                          });
-                        },
-                        icon: SvgPicture.asset(
-                          'assets/svg/text-field-clear.svg',
-                          colorFilter: const ColorFilter.mode(CoconutColors.gray900, BlendMode.srcIn),
-                        ),
-                      )
-                    : null,
+                suffix:
+                    _mnemonicWordInputController.text.isNotEmpty
+                        ? IconButton(
+                          iconSize: 14,
+                          padding: EdgeInsets.zero,
+                          onPressed: () {
+                            setState(() {
+                              _mnemonicWordInputController.text = '';
+                            });
+                          },
+                          icon: SvgPicture.asset(
+                            'assets/svg/text-field-clear.svg',
+                            colorFilter: const ColorFilter.mode(CoconutColors.gray900, BlendMode.srcIn),
+                          ),
+                        )
+                        : null,
               ),
             ],
           ),
@@ -399,9 +401,10 @@ class _AppUpdatePreparationScreenState extends State<AppUpdatePreparationScreen>
 
   // AppUpdateStep: generateSafetyKey, saveWalletData, verifyBackupFile 상태에서 보여지는 위젯
   Widget _buildUpdateProcessWidget() {
-    int index = _currentStep == AppUpdateStep.generateSafetyKey
-        ? 0
-        : _currentStep == AppUpdateStep.saveWalletData
+    int index =
+        _currentStep == AppUpdateStep.generateSafetyKey
+            ? 0
+            : _currentStep == AppUpdateStep.saveWalletData
             ? 1
             : 2;
     int prevIndex = index - 1;
@@ -414,8 +417,8 @@ class _AppUpdatePreparationScreenState extends State<AppUpdatePreparationScreen>
             top: CoconutLayout.spacing_2500h.height!,
             bottom: 0,
             child:
-                // 이전 위젯 - Slide Out
-                SlideTransition(position: _slideOutAnimation, child: _buildSlideAnimationTitleWidget(prevIndex)),
+            // 이전 위젯 - Slide Out
+            SlideTransition(position: _slideOutAnimation, child: _buildSlideAnimationTitleWidget(prevIndex)),
           ),
         Positioned(
           left: 0,
@@ -423,8 +426,8 @@ class _AppUpdatePreparationScreenState extends State<AppUpdatePreparationScreen>
           top: CoconutLayout.spacing_2500h.height!,
           bottom: 0,
           child:
-              // 현재 위젯 - Scale In
-              AnimatedBuilder(
+          // 현재 위젯 - Scale In
+          AnimatedBuilder(
             animation: _animationController,
             builder: (context, child) {
               final progress = Curves.easeOut.transform(_animationController.value.clamp(0.0, 1.0));

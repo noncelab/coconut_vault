@@ -129,10 +129,13 @@ class AuthProvider extends ChangeNotifier {
     bool authenticated = false;
     try {
       authenticated = await _auth.authenticate(
-        localizedReason: isSaved
-            ? t.permission.biometric.ask_to_use
-            : t.permission.biometric
-                .proceed_biometric_auth, // 이 문구는 aos, iOS(touch ID)에서 사용됩니다. ios face ID는 info.plist string을 사용합니다.
+        localizedReason:
+            isSaved
+                ? t.permission.biometric.ask_to_use
+                : t
+                    .permission
+                    .biometric
+                    .proceed_biometric_auth, // 이 문구는 aos, iOS(touch ID)에서 사용됩니다. ios face ID는 info.plist string을 사용합니다.
         options: const AuthenticationOptions(stickyAuth: true, biometricOnly: true),
       );
 

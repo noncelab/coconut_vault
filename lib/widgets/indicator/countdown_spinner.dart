@@ -20,19 +20,18 @@ class _CountdownSpinnerState extends State<CountdownSpinner> with SingleTickerPr
     super.initState();
     _currentSeconds = widget.startSeconds;
 
-    _controller = AnimationController(vsync: this, duration: const Duration(seconds: 1))
-      ..addStatusListener((status) {
-        if (status == AnimationStatus.completed) {
-          if (_currentSeconds == 1) {
-            widget.onCompleted?.call();
-          } else {
-            setState(() {
-              _currentSeconds--;
-            });
-            _controller.forward(from: 0);
-          }
+    _controller = AnimationController(vsync: this, duration: const Duration(seconds: 1))..addStatusListener((status) {
+      if (status == AnimationStatus.completed) {
+        if (_currentSeconds == 1) {
+          widget.onCompleted?.call();
+        } else {
+          setState(() {
+            _currentSeconds--;
+          });
+          _controller.forward(from: 0);
         }
-      });
+      }
+    });
 
     _controller.forward();
   }

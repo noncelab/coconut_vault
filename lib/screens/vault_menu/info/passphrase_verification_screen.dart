@@ -66,7 +66,8 @@ class _PassphraseVerificationScreenState extends State<PassphraseVerificationScr
   Widget build(BuildContext context) {
     // 기본: 전체 높이 - SafeArea top, bottom - toolbarHeight. 결과 데이터가 보이고 키보드가 열려 있는 경우 추가 height 조절(스크롤 가능 하도록)
     double appbarHeight = 56;
-    final scrollViewHeight = MediaQuery.of(context).size.height -
+    final scrollViewHeight =
+        MediaQuery.of(context).size.height -
         MediaQuery.of(context).padding.top -
         MediaQuery.of(context).padding.bottom -
         appbarHeight +
@@ -115,7 +116,8 @@ class _PassphraseVerificationScreenState extends State<PassphraseVerificationScr
                         onButtonClicked: verifyPassphrase,
                         text: t.verify_passphrase_screen.start_verification,
                         textColor: CoconutColors.white,
-                        isActive: _previousInput != _inputController.text &&
+                        isActive:
+                            _previousInput != _inputController.text &&
                             _inputController.text.isNotEmpty &&
                             !_isSubmitting,
                         backgroundColor: CoconutColors.black,
@@ -232,19 +234,20 @@ class _PassphraseVerificationScreenState extends State<PassphraseVerificationScr
           isLengthVisible: false,
           maxLength: 100,
           placeholderText: t.verify_passphrase_screen.enter_passphrase,
-          suffix: _inputController.text.isNotEmpty
-              ? IconButton(
-                  iconSize: 14,
-                  padding: EdgeInsets.zero,
-                  onPressed: () {
-                    _inputController.text = '';
-                  },
-                  icon: SvgPicture.asset(
-                    'assets/svg/text-field-clear.svg',
-                    colorFilter: const ColorFilter.mode(CoconutColors.gray900, BlendMode.srcIn),
-                  ),
-                )
-              : null,
+          suffix:
+              _inputController.text.isNotEmpty
+                  ? IconButton(
+                    iconSize: 14,
+                    padding: EdgeInsets.zero,
+                    onPressed: () {
+                      _inputController.text = '';
+                    },
+                    icon: SvgPicture.asset(
+                      'assets/svg/text-field-clear.svg',
+                      colorFilter: const ColorFilter.mode(CoconutColors.gray900, BlendMode.srcIn),
+                    ),
+                  )
+                  : null,
         );
       },
     );

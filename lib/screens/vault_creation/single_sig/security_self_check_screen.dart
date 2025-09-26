@@ -45,15 +45,16 @@ class _SecuritySelfCheckScreenState extends State<SecuritySelfCheckScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: CoconutColors.white,
-      appBar: widget.onNextPressed != null
-          ? CoconutAppBar.build(title: t.checklist, context: context)
-          : CoconutAppBar.build(
-              title: t.checklist,
-              context: context,
-              onBackPressed: () {
-                Navigator.of(context).pop();
-              },
-            ),
+      appBar:
+          widget.onNextPressed != null
+              ? CoconutAppBar.build(title: t.checklist, context: context)
+              : CoconutAppBar.build(
+                title: t.checklist,
+                context: context,
+                onBackPressed: () {
+                  Navigator.of(context).pop();
+                },
+              ),
       body: SafeArea(
         child: Stack(
           children: [

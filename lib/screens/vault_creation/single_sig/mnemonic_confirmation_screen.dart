@@ -90,13 +90,13 @@ class _MnemonicConfirmationScreenState extends State<MnemonicConfirmationScreen>
                         ),
                         step == 0
                             ? MnemonicList(
-                                mnemonic: _mnemonic,
-                                onWarningPressed: () {
-                                  setState(() {
-                                    _isWarningVisible = false;
-                                  });
-                                },
-                              )
+                              mnemonic: _mnemonic,
+                              onWarningPressed: () {
+                                setState(() {
+                                  _isWarningVisible = false;
+                                });
+                              },
+                            )
                             : _passphraseGridViewWidget(),
                         const SizedBox(height: 100),
                       ],

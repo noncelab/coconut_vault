@@ -58,24 +58,26 @@ class _VaultItemCardState extends State<VaultItemCard> {
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(14), // defaultRadius로 통일하면 border 넓이가 균일해보이지 않음
         border: isMultisig ? null : Border.all(color: CoconutColors.borderLightGray, width: 1),
-        gradient: isMultisig
-            ? LinearGradient(
-                colors: CustomColorHelper.getGradientColors(signers!),
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                transform: const GradientRotation(math.pi / 10),
-              )
-            : null,
+        gradient:
+            isMultisig
+                ? LinearGradient(
+                  colors: CustomColorHelper.getGradientColors(signers!),
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  transform: const GradientRotation(math.pi / 10),
+                )
+                : null,
       ),
       child: Container(
         margin: isMultisig ? const EdgeInsets.all(2) : null, // 멀티시그의 경우 border 대신
         padding: const EdgeInsets.all(20),
-        decoration: isMultisig
-            ? BoxDecoration(
-                color: CoconutColors.white,
-                borderRadius: BorderRadius.circular(12), // defaultRadius로 통일하면 border 넓이가 균일해보이지 않음
-              )
-            : null,
+        decoration:
+            isMultisig
+                ? BoxDecoration(
+                  color: CoconutColors.white,
+                  borderRadius: BorderRadius.circular(12), // defaultRadius로 통일하면 border 넓이가 균일해보이지 않음
+                )
+                : null,
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [

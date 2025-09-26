@@ -80,7 +80,8 @@ class _AppInfoScreenState extends State<AppInfoScreen> {
 
       if (Platform.isAndroid) {
         AndroidDeviceInfo androidInfo = await deviceInfoPlugin.androidInfo;
-        return info = 'Android Device Info:\n'
+        return info =
+            'Android Device Info:\n'
             'Brand: ${androidInfo.brand}\n'
             'Model: ${androidInfo.model}\n'
             'Android Version: ${androidInfo.version.release}\n'
@@ -92,7 +93,8 @@ class _AppInfoScreenState extends State<AppInfoScreen> {
             '${t.inquiry_details}: \n\n\n\n\n';
       } else if (Platform.isIOS) {
         IosDeviceInfo iosInfo = await deviceInfoPlugin.iosInfo;
-        return info = 'iOS Device Info:\n'
+        return info =
+            'iOS Device Info:\n'
             'Name: ${iosInfo.name}\n'
             'Model: ${iosInfo.model}\n'
             'System Name: ${iosInfo.systemName}\n'
@@ -128,14 +130,15 @@ class _AppInfoScreenState extends State<AppInfoScreen> {
           },
           icon: const Icon(Icons.close_rounded, color: CoconutColors.gray800, size: 22),
         ),
-        flexibleSpace: _isScrollOverTitleHeight
-            ? ClipRect(
-                child: BackdropFilter(
-                  filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-                  child: Container(color: CoconutColors.white.withValues(alpha: 0.06)),
-                ),
-              )
-            : null,
+        flexibleSpace:
+            _isScrollOverTitleHeight
+                ? ClipRect(
+                  child: BackdropFilter(
+                    filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+                    child: Container(color: CoconutColors.white.withValues(alpha: 0.06)),
+                  ),
+                )
+                : null,
         title: AnimatedOpacity(
           duration: const Duration(milliseconds: 200),
           opacity: _appbarTitleVisible ? 1 : 0,
@@ -506,16 +509,16 @@ class _AppInfoScreenState extends State<AppInfoScreen> {
   }
 
   Widget _category(String label) => Container(
-        padding: const EdgeInsets.fromLTRB(8, 20, 0, 12),
-        child: Text(
-          label,
-          style: const TextStyle(
-            fontFamily: 'Pretendard',
-            color: CoconutColors.gray800,
-            fontSize: 16,
-            fontStyle: FontStyle.normal,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-      );
+    padding: const EdgeInsets.fromLTRB(8, 20, 0, 12),
+    child: Text(
+      label,
+      style: const TextStyle(
+        fontFamily: 'Pretendard',
+        color: CoconutColors.gray800,
+        fontSize: 16,
+        fontStyle: FontStyle.normal,
+        fontWeight: FontWeight.bold,
+      ),
+    ),
+  );
 }

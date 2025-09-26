@@ -21,9 +21,10 @@ enum BitcoinUnit {
     if (amount == null) return defaultWhenNull;
     if (shouldCheckZero && amount == 0) return defaultWhenZero;
 
-    String amountText = this == BitcoinUnit.btc
-        ? BalanceFormatUtil.formatSatoshiToReadableBitcoin(amount, forceEightDecimals: forceEightDecimals)
-        : amount.toThousandsSeparatedString();
+    String amountText =
+        this == BitcoinUnit.btc
+            ? BalanceFormatUtil.formatSatoshiToReadableBitcoin(amount, forceEightDecimals: forceEightDecimals)
+            : amount.toThousandsSeparatedString();
 
     return withUnit ? "$amountText $symbol" : amountText;
   }

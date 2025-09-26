@@ -371,10 +371,11 @@ class _MnemonicWordsState extends State<MnemonicWords> {
     });
     _passphraseController.addListener(() {
       setState(() {
-        invalidPassphraseList = _passphraseController.text.characters
-            .where((char) => !MnemonicWords.validCharSet.contains(char))
-            .toSet()
-            .toList();
+        invalidPassphraseList =
+            _passphraseController.text.characters
+                .where((char) => !MnemonicWords.validCharSet.contains(char))
+                .toSet()
+                .toList();
       });
       debugPrint('invalidPassphraseList: $invalidPassphraseList');
 
@@ -470,28 +471,28 @@ class _MnemonicWordsState extends State<MnemonicWords> {
                       step == 0
                           ? t.mnemonic_generate_screen.backup_guide
                           : isPassphraseNotMached
-                              ? t.mnemonic_generate_screen.passphrase_not_matched
-                              : t.mnemonic_generate_screen.enter_passphrase,
+                          ? t.mnemonic_generate_screen.passphrase_not_matched
+                          : t.mnemonic_generate_screen.enter_passphrase,
                       style: CoconutTypography.body1_16_Bold.setColor(
                         step == 0
                             ? CoconutColors.warningText
                             : isPassphraseNotMached
-                                ? CoconutColors.warningText
-                                : CoconutColors.black,
+                            ? CoconutColors.warningText
+                            : CoconutColors.black,
                       ),
                       textAlign: TextAlign.center,
                     ),
                   ),
                   step == 0
                       ? MnemonicList(
-                          mnemonic: _mnemonic,
-                          isLoading: _mnemonic.isEmpty,
-                          onWarningPressed: () {
-                            setState(() {
-                              isMnemonicWarningVisible = false;
-                            });
-                          },
-                        )
+                        mnemonic: _mnemonic,
+                        isLoading: _mnemonic.isEmpty,
+                        onWarningPressed: () {
+                          setState(() {
+                            isMnemonicWarningVisible = false;
+                          });
+                        },
+                      )
                       : _buildPassphraseInput(),
                   const SizedBox(height: 100),
                 ],
@@ -502,13 +503,14 @@ class _MnemonicWordsState extends State<MnemonicWords> {
             isActive: _getNextButtonState().isActive,
             text: _getNextButtonState().text,
             backgroundColor: CoconutColors.black,
-            subWidget: invalidPassphraseList.isNotEmpty
-                ? Text(
-                    t.mnemonic_generate_screen.passphrase_warning(words: invalidPassphraseList.join(", ")),
-                    style: CoconutTypography.body3_12.setColor(CoconutColors.warningText),
-                    textAlign: TextAlign.center,
-                  )
-                : null,
+            subWidget:
+                invalidPassphraseList.isNotEmpty
+                    ? Text(
+                      t.mnemonic_generate_screen.passphrase_warning(words: invalidPassphraseList.join(", ")),
+                      style: CoconutTypography.body3_12.setColor(CoconutColors.warningText),
+                      textAlign: TextAlign.center,
+                    )
+                    : null,
             onButtonClicked: () {
               if (widget.from == MnemonicWordsFrom.coinflip) {
                 widget.onNavigateToNext();
@@ -673,15 +675,16 @@ class _MnemonicWordsState extends State<MnemonicWords> {
                           passphraseObscured = !passphraseObscured;
                         });
                       },
-                      child: passphraseObscured
-                          ? Container(
-                              padding: const EdgeInsets.only(right: 16, top: 8, bottom: 8, left: 8),
-                              child: const Icon(CupertinoIcons.eye_slash, color: CoconutColors.gray800, size: 18),
-                            )
-                          : Container(
-                              padding: const EdgeInsets.only(right: 16, top: 8, bottom: 8, left: 8),
-                              child: const Icon(CupertinoIcons.eye, color: CoconutColors.gray800, size: 18),
-                            ),
+                      child:
+                          passphraseObscured
+                              ? Container(
+                                padding: const EdgeInsets.only(right: 16, top: 8, bottom: 8, left: 8),
+                                child: const Icon(CupertinoIcons.eye_slash, color: CoconutColors.gray800, size: 18),
+                              )
+                              : Container(
+                                padding: const EdgeInsets.only(right: 16, top: 8, bottom: 8, left: 8),
+                                child: const Icon(CupertinoIcons.eye, color: CoconutColors.gray800, size: 18),
+                              ),
                     ),
                   ],
                 ),
@@ -760,20 +763,21 @@ class _NumberWidgetState extends State<NumberWidget> {
             shape: BoxShape.circle,
           ),
           width: widget.selected ? 28 : 12,
-          child: widget.selected
-              ? Center(
-                  child: Padding(
-                    padding: EdgeInsets.all(widget.selected ? 8 : 6),
-                    child: MediaQuery(
-                      data: MediaQuery.of(context).copyWith(textScaler: const TextScaler.linear(1.0)),
-                      child: Text(
-                        widget.number.toString(),
-                        style: CoconutTypography.body3_12_Number.setColor(iconColor),
+          child:
+              widget.selected
+                  ? Center(
+                    child: Padding(
+                      padding: EdgeInsets.all(widget.selected ? 8 : 6),
+                      child: MediaQuery(
+                        data: MediaQuery.of(context).copyWith(textScaler: const TextScaler.linear(1.0)),
+                        child: Text(
+                          widget.number.toString(),
+                          style: CoconutTypography.body3_12_Number.setColor(iconColor),
+                        ),
                       ),
                     ),
-                  ),
-                )
-              : Container(),
+                  )
+                  : Container(),
         ),
       ),
     );
@@ -817,10 +821,11 @@ class DottedLinePainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    final paint = Paint()
-      ..color = color
-      ..strokeWidth = 1.0
-      ..strokeCap = StrokeCap.round;
+    final paint =
+        Paint()
+          ..color = color
+          ..strokeWidth = 1.0
+          ..strokeCap = StrokeCap.round;
 
     double startX = 0;
     while (startX < size.width) {

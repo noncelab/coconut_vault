@@ -53,7 +53,8 @@ class _PinCheckScreenState extends State<PinCheckScreen> with WidgetsBindingObse
     _pin = '';
     _errorMessage = '';
 
-    _isAppLaunched = widget.pinCheckContext == PinCheckContextEnum.appLaunch ||
+    _isAppLaunched =
+        widget.pinCheckContext == PinCheckContextEnum.appLaunch ||
         widget.pinCheckContext == PinCheckContextEnum.restoration;
 
     _authProvider = Provider.of<AuthProvider>(context, listen: false);
@@ -212,9 +213,10 @@ class _PinCheckScreenState extends State<PinCheckScreen> with WidgetsBindingObse
         vibrateLightDouble();
         setState(() {
           final remainingTimes = _authProvider.remainingAttemptCount;
-          _errorMessage = _isLastChanceToTry
-              ? t.errors.remaining_times_away_from_reset_error(count: remainingTimes)
-              : t.errors.pin_incorrect_with_remaining_attempts_error(count: remainingTimes);
+          _errorMessage =
+              _isLastChanceToTry
+                  ? t.errors.remaining_times_away_from_reset_error(count: remainingTimes)
+                  : t.errors.pin_incorrect_with_remaining_attempts_error(count: remainingTimes);
         });
       } else {
         vibrateMedium();
@@ -323,30 +325,30 @@ class _PinCheckScreenState extends State<PinCheckScreen> with WidgetsBindingObse
   Widget build(BuildContext context) {
     return _isAppLaunched
         ? Material(
-            color: CoconutColors.white,
-            child: PopScope(
-              canPop: widget.pinCheckContext == PinCheckContextEnum.restoration,
-              onPopInvokedWithResult: (didPop, _) async {
-                if (Platform.isAndroid && widget.pinCheckContext == PinCheckContextEnum.appLaunch) {
-                  final now = DateTime.now();
-                  if (_lastPressedAt == null || now.difference(_lastPressedAt!) > const Duration(seconds: 3)) {
-                    _lastPressedAt = now;
-                    Fluttertoast.showToast(
-                      backgroundColor: CoconutColors.gray800,
-                      msg: t.toast.back_exit,
-                      toastLength: Toast.LENGTH_SHORT,
-                    );
-                  } else {
-                    SystemNavigator.pop();
-                  }
+          color: CoconutColors.white,
+          child: PopScope(
+            canPop: widget.pinCheckContext == PinCheckContextEnum.restoration,
+            onPopInvokedWithResult: (didPop, _) async {
+              if (Platform.isAndroid && widget.pinCheckContext == PinCheckContextEnum.appLaunch) {
+                final now = DateTime.now();
+                if (_lastPressedAt == null || now.difference(_lastPressedAt!) > const Duration(seconds: 3)) {
+                  _lastPressedAt = now;
+                  Fluttertoast.showToast(
+                    backgroundColor: CoconutColors.gray800,
+                    msg: t.toast.back_exit,
+                    toastLength: Toast.LENGTH_SHORT,
+                  );
+                } else {
+                  SystemNavigator.pop();
                 }
-              },
-              child: Scaffold(
-                backgroundColor: CoconutColors.white,
-                body: Stack(children: [Center(child: _pinInputScreen(isOnReset: true))]),
-              ),
+              }
+            },
+            child: Scaffold(
+              backgroundColor: CoconutColors.white,
+              body: Stack(children: [Center(child: _pinInputScreen(isOnReset: true))]),
             ),
-          )
+          ),
+        )
         : _pinInputScreen();
   }
 

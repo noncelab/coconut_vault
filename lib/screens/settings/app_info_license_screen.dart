@@ -76,17 +76,18 @@ class _LicenseScreenState extends State<LicenseScreen> {
                               style: CoconutTypography.body3_12.merge(
                                 const TextStyle(color: CoconutColors.oceanBlue, decoration: TextDecoration.underline),
                               ),
-                              recognizer: TapGestureRecognizer()
-                                ..onTap = () async {
-                                  MyBottomSheet.showBottomSheet_95(
-                                    context: context,
-                                    child: QrcodeBottomSheet(
-                                      qrData: mitFullTextLink,
-                                      title: t.bottom_sheet.view_mit_license,
-                                      fromAppInfo: true,
-                                    ),
-                                  );
-                                },
+                              recognizer:
+                                  TapGestureRecognizer()
+                                    ..onTap = () async {
+                                      MyBottomSheet.showBottomSheet_95(
+                                        context: context,
+                                        child: QrcodeBottomSheet(
+                                          qrData: mitFullTextLink,
+                                          title: t.bottom_sheet.view_mit_license,
+                                          fromAppInfo: true,
+                                        ),
+                                      );
+                                    },
                             ),
                             TextSpan(text: t.license_screen.text2),
                             TextSpan(
@@ -94,18 +95,19 @@ class _LicenseScreenState extends State<LicenseScreen> {
                               style: CoconutTypography.body3_12.merge(
                                 const TextStyle(color: CoconutColors.oceanBlue, decoration: TextDecoration.underline),
                               ),
-                              recognizer: TapGestureRecognizer()
-                                ..onTap = () async {
-                                  MyBottomSheet.showBottomSheet_95(
-                                    context: context,
-                                    child: QrcodeBottomSheet(
-                                      qrData:
-                                          'mailto:$CONTACT_EMAIL_ADDRESS?subject=${t.bottom_sheet.ask_about_license}',
-                                      title: t.bottom_sheet.contact_by_email,
-                                      fromAppInfo: true,
-                                    ),
-                                  );
-                                },
+                              recognizer:
+                                  TapGestureRecognizer()
+                                    ..onTap = () async {
+                                      MyBottomSheet.showBottomSheet_95(
+                                        context: context,
+                                        child: QrcodeBottomSheet(
+                                          qrData:
+                                              'mailto:$CONTACT_EMAIL_ADDRESS?subject=${t.bottom_sheet.ask_about_license}',
+                                          title: t.bottom_sheet.contact_by_email,
+                                          fromAppInfo: true,
+                                        ),
+                                      );
+                                    },
                             ),
                             TextSpan(
                               text: t.license_screen.text3,

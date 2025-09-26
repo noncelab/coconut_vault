@@ -9,9 +9,10 @@ List<TextSpan> highlightOccurrences(String source, String query, {String? type, 
     return [
       TextSpan(
         text: source,
-        style: isIndex
-            ? CoconutTypography.body1_16_Number.setColor(CoconutColors.gray500)
-            : const TextStyle(color: Colors.black),
+        style:
+            isIndex
+                ? CoconutTypography.body1_16_Number.setColor(CoconutColors.gray500)
+                : const TextStyle(color: Colors.black),
       ),
     ];
   }
@@ -21,9 +22,10 @@ List<TextSpan> highlightOccurrences(String source, String query, {String? type, 
     return [
       TextSpan(
         text: source,
-        style: isIndex
-            ? CoconutTypography.body1_16_Number.setColor(CoconutColors.gray500)
-            : const TextStyle(color: Colors.black),
+        style:
+            isIndex
+                ? CoconutTypography.body1_16_Number.setColor(CoconutColors.gray500)
+                : const TextStyle(color: Colors.black),
       ),
     ];
   }
@@ -37,9 +39,10 @@ List<TextSpan> highlightOccurrences(String source, String query, {String? type, 
       spans.add(
         TextSpan(
           text: source.substring(lastMatchEnd, match.start),
-          style: isIndex
-              ? CoconutTypography.body1_16_Number.setColor(CoconutColors.gray500)
-              : const TextStyle(color: Colors.black),
+          style:
+              isIndex
+                  ? CoconutTypography.body1_16_Number.setColor(CoconutColors.gray500)
+                  : const TextStyle(color: Colors.black),
         ),
       );
     }
@@ -56,9 +59,10 @@ List<TextSpan> highlightOccurrences(String source, String query, {String? type, 
     spans.add(
       TextSpan(
         text: source.substring(lastMatchEnd),
-        style: isIndex
-            ? CoconutTypography.body1_16_Number.setColor(CoconutColors.gray500)
-            : const TextStyle(color: Colors.black),
+        style:
+            isIndex
+                ? CoconutTypography.body1_16_Number.setColor(CoconutColors.gray500)
+                : const TextStyle(color: Colors.black),
       ),
     );
   }

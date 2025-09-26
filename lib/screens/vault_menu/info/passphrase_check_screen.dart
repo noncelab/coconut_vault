@@ -120,19 +120,20 @@ class _PassphraseCheckScreen extends State<PassphraseCheckScreen> {
           isLengthVisible: false,
           maxLength: 100,
           placeholderText: t.passphrase_input_screen.enter_passphrase,
-          suffix: _inputController.text.isNotEmpty
-              ? IconButton(
-                  iconSize: 14,
-                  padding: EdgeInsets.zero,
-                  onPressed: () {
-                    _inputController.text = '';
-                  },
-                  icon: SvgPicture.asset(
-                    'assets/svg/text-field-clear.svg',
-                    colorFilter: const ColorFilter.mode(CoconutColors.gray900, BlendMode.srcIn),
-                  ),
-                )
-              : null,
+          suffix:
+              _inputController.text.isNotEmpty
+                  ? IconButton(
+                    iconSize: 14,
+                    padding: EdgeInsets.zero,
+                    onPressed: () {
+                      _inputController.text = '';
+                    },
+                    icon: SvgPicture.asset(
+                      'assets/svg/text-field-clear.svg',
+                      colorFilter: const ColorFilter.mode(CoconutColors.gray900, BlendMode.srcIn),
+                    ),
+                  )
+                  : null,
         );
       },
     );

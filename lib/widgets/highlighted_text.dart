@@ -8,13 +8,13 @@ class HighLightedText extends StatelessWidget {
   const HighLightedText(this.data, {super.key, required this.color, this.fontSize = 14});
 
   Size getTextSize({required String text, required TextStyle style, required BuildContext context}) {
-    final Size size = (TextPainter(
-      text: TextSpan(text: text, style: style),
-      maxLines: 1,
-      textScaleFactor: MediaQuery.of(context).textScaleFactor, // TODO usage 변경
-      textDirection: TextDirection.ltr,
-    )..layout())
-        .size;
+    final Size size =
+        (TextPainter(
+          text: TextSpan(text: text, style: style),
+          maxLines: 1,
+          textScaleFactor: MediaQuery.of(context).textScaleFactor, // TODO usage 변경
+          textDirection: TextDirection.ltr,
+        )..layout()).size;
     return size;
   }
 
