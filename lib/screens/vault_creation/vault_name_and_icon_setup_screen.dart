@@ -101,14 +101,18 @@ class _VaultNameAndIconSetupScreenState extends State<VaultNameAndIconSetupScree
             _walletCreationProvider.secret,
             _walletCreationProvider.passphrase));
       } else if (_walletCreationProvider.walletType == WalletType.multiSignature) {
-        vault = await _walletProvider.addMultisigVault(inputText, selectedColorIndex, selectedIconIndex,
-            _walletCreationProvider.signers!, _walletCreationProvider.requiredSignatureCount!);
+        vault = await _walletProvider.addMultisigVault(
+            inputText,
+            selectedColorIndex,
+            selectedIconIndex,
+            _walletCreationProvider.signers!,
+            _walletCreationProvider.requiredSignatureCount!);
       }
 
       assert(_walletProvider.isAddVaultCompleted);
       assert(vault != null);
       _walletCreationProvider.resetAll();
-       
+
       if (!context.mounted) return;
       Navigator.pushNamedAndRemoveUntil(context, '/', (Route<dynamic> route) => false,
           arguments: VaultHomeNavArgs(addedWalletId: vault!.id));

@@ -59,7 +59,8 @@ class _MnemonicCoinflipScreenState extends State<MnemonicCoinflipScreen> {
         context: context,
         builder: (BuildContext context) {
           return CoconutPopup(
-            insetPadding: EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width * 0.15),
+            insetPadding:
+                EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width * 0.15),
             title: t.alert.stop_generating_mnemonic.title,
             description: t.alert.stop_generating_mnemonic.description,
             backgroundColor: CoconutColors.white,
@@ -83,7 +84,8 @@ class _MnemonicCoinflipScreenState extends State<MnemonicCoinflipScreen> {
   void initState() {
     super.initState();
     Provider.of<WalletCreationProvider>(context, listen: false).resetAll();
-    _totalStep = Provider.of<VisibilityProvider>(context, listen: false).isPassphraseUseEnabled ? 2 : 1;
+    _totalStep =
+        Provider.of<VisibilityProvider>(context, listen: false).isPassphraseUseEnabled ? 2 : 1;
   }
 
   @override
@@ -223,7 +225,9 @@ class _FlipCoinState extends State<FlipCoin> {
   NextButtonState _getNextButtonState() {
     if (step == 0 && stepCount == 1) {
       // 패스프레이즈 사용 안함 - coinflip 화면
-      return _bits.length >= _totalBits ? NextButtonState.completeActive : NextButtonState.completeInactive;
+      return _bits.length >= _totalBits
+          ? NextButtonState.completeActive
+          : NextButtonState.completeInactive;
     }
 
     if (step == 0 && stepCount == 2) {
@@ -265,7 +269,8 @@ class _FlipCoinState extends State<FlipCoin> {
           showGradient: false,
           subWidget: invalidPassphraseList.isNotEmpty
               ? Text(
-                  t.mnemonic_generate_screen.passphrase_warning(words: invalidPassphraseList.join(", ")),
+                  t.mnemonic_generate_screen
+                      .passphrase_warning(words: invalidPassphraseList.join(", ")),
                   style: CoconutTypography.body3_12.setColor(CoconutColors.warningText),
                   textAlign: TextAlign.center,
                 )
@@ -328,7 +333,8 @@ class _FlipCoinState extends State<FlipCoin> {
                           padding: const EdgeInsets.all(8),
                           child: SvgPicture.asset(
                             'assets/svg/text-field-clear.svg',
-                            colorFilter: const ColorFilter.mode(CoconutColors.gray400, BlendMode.srcIn),
+                            colorFilter:
+                                const ColorFilter.mode(CoconutColors.gray400, BlendMode.srcIn),
                           ),
                         ),
                       ),
@@ -397,7 +403,8 @@ class _FlipCoinState extends State<FlipCoin> {
                             padding: const EdgeInsets.all(8),
                             child: SvgPicture.asset(
                               'assets/svg/text-field-clear.svg',
-                              colorFilter: const ColorFilter.mode(CoconutColors.gray400, BlendMode.srcIn),
+                              colorFilter:
+                                  const ColorFilter.mode(CoconutColors.gray400, BlendMode.srcIn),
                             ),
                           ),
                         ),
@@ -422,7 +429,8 @@ class _FlipCoinState extends State<FlipCoin> {
           Opacity(
             opacity: _bits.isNotEmpty ? 0.0 : 1.0,
             child: Text(t.mnemonic_coin_flip_screen.guide,
-                style: CoconutTypography.body1_16_Bold.setColor(CoconutColors.gray800), textAlign: TextAlign.center),
+                style: CoconutTypography.body1_16_Bold.setColor(CoconutColors.gray800),
+                textAlign: TextAlign.center),
           ),
           CoconutLayout.spacing_400h,
           _buildBitGrid(),
@@ -455,7 +463,8 @@ class _FlipCoinState extends State<FlipCoin> {
             ClipRRect(
               borderRadius: _currentIndex / _totalBits == 1
                   ? BorderRadius.zero
-                  : const BorderRadius.only(topRight: Radius.circular(6), bottomRight: Radius.circular(6)),
+                  : const BorderRadius.only(
+                      topRight: Radius.circular(6), bottomRight: Radius.circular(6)),
               child: AnimatedContainer(
                 duration: const Duration(milliseconds: 500),
                 curve: Curves.easeInOut,
@@ -475,7 +484,8 @@ class _FlipCoinState extends State<FlipCoin> {
     if (step == 0 && stepCount == 1) {
       setState(() {
         if (_generateMnemonicPhrase()) {
-          Provider.of<WalletCreationProvider>(context, listen: false).setSecretAndPassphrase(_mnemonic, _passphrase);
+          Provider.of<WalletCreationProvider>(context, listen: false)
+              .setSecretAndPassphrase(_mnemonic, _passphrase);
           Navigator.pushNamed(context, AppRoutes.mnemonicCoinflipConfirmation);
         }
       });
@@ -505,7 +515,8 @@ class _FlipCoinState extends State<FlipCoin> {
           listEquals(_passphrase, _passphraseConfirm) &&
           _generateMnemonicPhrase()) {
         // 패스프레이즈 입력 완료 | coinflip 데이터로 니모닉 생성 시도 성공
-        Provider.of<WalletCreationProvider>(context, listen: false).setSecretAndPassphrase(_mnemonic, _passphrase);
+        Provider.of<WalletCreationProvider>(context, listen: false)
+            .setSecretAndPassphrase(_mnemonic, _passphrase);
         _passphraseFocusNode.unfocus();
         _passphraseConfirmFocusNode.unfocus();
 
@@ -695,7 +706,9 @@ class _FlipCoinState extends State<FlipCoin> {
                 child: Text(
                   resetText,
                   style: CoconutTypography.body3_12.setColor(
-                    _bits.isEmpty ? CoconutColors.secondaryText : CoconutColors.black.withOpacity(0.7),
+                    _bits.isEmpty
+                        ? CoconutColors.secondaryText
+                        : CoconutColors.black.withOpacity(0.7),
                   ),
                 ),
               ),
@@ -748,7 +761,8 @@ class _FlipCoinState extends State<FlipCoin> {
         context: context,
         builder: (BuildContext context) {
           return CoconutPopup(
-            insetPadding: EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width * 0.15),
+            insetPadding:
+                EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width * 0.15),
             title: title ?? t.delete_all,
             description: message ?? t.alert.erase_all_entered_so_far,
             backgroundColor: CoconutColors.white,

@@ -224,7 +224,8 @@ class _MnemonicListState extends State<MnemonicList> with TickerProviderStateMix
                           final textPainter = TextPainter(
                             text: TextSpan(
                                 text: t.mnemonic_view_screen.warning_title,
-                                style: CoconutTypography.body1_16_Bold.setColor(CoconutColors.white)),
+                                style:
+                                    CoconutTypography.body1_16_Bold.setColor(CoconutColors.white)),
                             maxLines: 1,
                             textDirection: TextDirection.ltr,
                           )..layout(maxWidth: constraints.maxWidth);
@@ -263,7 +264,8 @@ class _MnemonicListState extends State<MnemonicList> with TickerProviderStateMix
                                     width: double.infinity,
                                     child: Text(
                                       t.mnemonic_view_screen.warning_btn,
-                                      style: CoconutTypography.body2_14_Bold.setColor(CoconutColors.hotPink),
+                                      style: CoconutTypography.body2_14_Bold
+                                          .setColor(CoconutColors.hotPink),
                                       textAlign: TextAlign.center,
                                     ),
                                   ),

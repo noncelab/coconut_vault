@@ -122,7 +122,9 @@ class _MnemonicConfirmationScreenState extends State<MnemonicConfirmationScreen>
                       return;
                     }
                     Navigator.pushReplacement(
-                        context, MaterialPageRoute(builder: (context) => const VaultNameAndIconSetupScreen()));
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => const VaultNameAndIconSetupScreen()));
                   },
                 ),
               ],
@@ -222,7 +224,10 @@ class _MnemonicConfirmationScreenState extends State<MnemonicConfirmationScreen>
                     left: 3,
                     child: Text(
                       '${index + 1}',
-                      style: const TextStyle(color: CoconutColors.borderGray, fontWeight: FontWeight.bold, fontSize: 6),
+                      style: const TextStyle(
+                          color: CoconutColors.borderGray,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 6),
                     ),
                   ),
                 ),

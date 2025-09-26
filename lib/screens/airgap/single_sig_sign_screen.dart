@@ -44,8 +44,8 @@ class _SingleSigSignScreenState extends State<SingleSigSignScreen> {
   void initState() {
     super.initState();
     _currentUnit = context.read<VisibilityProvider>().currentUnit;
-    _viewModel = SingleSigSignViewModel(
-        Provider.of<WalletProvider>(context, listen: false), Provider.of<SignProvider>(context, listen: false));
+    _viewModel = SingleSigSignViewModel(Provider.of<WalletProvider>(context, listen: false),
+        Provider.of<SignProvider>(context, listen: false));
 
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       if (_viewModel.isAlreadySigned) {
@@ -133,7 +133,8 @@ class _SingleSigSignScreenState extends State<SingleSigSignScreen> {
         context: context,
         builder: (BuildContext context) {
           return CoconutPopup(
-            insetPadding: EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width * 0.15),
+            insetPadding:
+                EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width * 0.15),
             title: t.alert.exit_sign.title,
             description: t.alert.exit_sign.description,
             backgroundColor: CoconutColors.white,
@@ -236,7 +237,8 @@ class _SingleSigSignScreenState extends State<SingleSigSignScreen> {
             backgroundColor: CoconutColors.black.withOpacity(0.06),
             borderRadius: _isProgressCompleted
                 ? BorderRadius.zero
-                : const BorderRadius.only(topRight: Radius.circular(6), bottomRight: Radius.circular(6)),
+                : const BorderRadius.only(
+                    topRight: Radius.circular(6), bottomRight: Radius.circular(6)),
             valueColor: const AlwaysStoppedAnimation<Color>(CoconutColors.black),
           );
         },
@@ -266,7 +268,9 @@ class _SingleSigSignScreenState extends State<SingleSigSignScreen> {
                 child: Text(
                   textAlign: TextAlign.end,
                   TextUtils.truncateNameMax25(_viewModel.firstRecipientAddress) +
-                      (_viewModel.recipientCount > 1 ? '\n${t.extra_count(count: _viewModel.recipientCount - 1)}' : ''),
+                      (_viewModel.recipientCount > 1
+                          ? '\n${t.extra_count(count: _viewModel.recipientCount - 1)}'
+                          : ''),
                   style: CoconutTypography.body1_16,
                   overflow: TextOverflow.ellipsis,
                   maxLines: 2,

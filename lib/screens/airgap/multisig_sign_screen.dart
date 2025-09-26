@@ -46,8 +46,8 @@ class _MultisigSignScreenState extends State<MultisigSignScreen> {
   void initState() {
     super.initState();
     _currentUnit = context.read<VisibilityProvider>().currentUnit;
-    _viewModel = MultisigSignViewModel(
-        Provider.of<WalletProvider>(context, listen: false), Provider.of<SignProvider>(context, listen: false));
+    _viewModel = MultisigSignViewModel(Provider.of<WalletProvider>(context, listen: false),
+        Provider.of<SignProvider>(context, listen: false));
 
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       _viewModel.initPsbtSignState();
@@ -117,7 +117,8 @@ class _MultisigSignScreenState extends State<MultisigSignScreen> {
           context: context,
           builder: (BuildContext context) {
             return CoconutPopup(
-              insetPadding: EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width * 0.15),
+              insetPadding:
+                  EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width * 0.15),
               title: t.move_to_qr_screen,
               description: t.move_to_qr_screen_description,
               backgroundColor: CoconutColors.white,
@@ -168,7 +169,8 @@ class _MultisigSignScreenState extends State<MultisigSignScreen> {
         context: context,
         builder: (BuildContext context) {
           return CoconutPopup(
-            insetPadding: EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width * 0.15),
+            insetPadding:
+                EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width * 0.15),
             title: t.alert.exit_sign.title,
             description: t.alert.exit_sign.description,
             backgroundColor: CoconutColors.white,
@@ -190,7 +192,8 @@ class _MultisigSignScreenState extends State<MultisigSignScreen> {
         context: context,
         builder: (BuildContext context) {
           return CoconutPopup(
-            insetPadding: EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width * 0.15),
+            insetPadding:
+                EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width * 0.15),
             title: t.alert.stop_sign.title,
             description: t.alert.stop_sign.description,
             backgroundColor: CoconutColors.white,
@@ -294,7 +297,8 @@ class _MultisigSignScreenState extends State<MultisigSignScreen> {
       child: TweenAnimationBuilder<double>(
         tween: Tween<double>(
           begin: 0.0,
-          end: _viewModel.signersApproved.where((item) => item).length / _viewModel.requiredSignatureCount,
+          end: _viewModel.signersApproved.where((item) => item).length /
+              _viewModel.requiredSignatureCount,
         ),
         duration: const Duration(milliseconds: 1500),
         builder: (context, value, child) {
@@ -309,7 +313,8 @@ class _MultisigSignScreenState extends State<MultisigSignScreen> {
             backgroundColor: CoconutColors.black.withOpacity(0.06),
             borderRadius: _isProgressCompleted
                 ? BorderRadius.zero
-                : const BorderRadius.only(topRight: Radius.circular(6), bottomRight: Radius.circular(6)),
+                : const BorderRadius.only(
+                    topRight: Radius.circular(6), bottomRight: Radius.circular(6)),
             valueColor: const AlwaysStoppedAnimation<Color>(CoconutColors.black),
           );
         },
@@ -337,7 +342,9 @@ class _MultisigSignScreenState extends State<MultisigSignScreen> {
               Text(
                 textAlign: TextAlign.end,
                 TextUtils.truncateNameMax25(_viewModel.firstRecipientAddress) +
-                    (_viewModel.recipientCount > 1 ? '\n${t.extra_count(count: _viewModel.recipientCount - 1)}' : ''),
+                    (_viewModel.recipientCount > 1
+                        ? '\n${t.extra_count(count: _viewModel.recipientCount - 1)}'
+                        : ''),
                 style: CoconutTypography.body1_16,
               ),
             ],
@@ -409,9 +416,13 @@ class _MultisigSignScreenState extends State<MultisigSignScreen> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     SvgPicture.asset(
-                      isInnerWallet ? CustomIcons.getPathByIndex(iconIndex) : 'assets/svg/qr-code.svg',
+                      isInnerWallet
+                          ? CustomIcons.getPathByIndex(iconIndex)
+                          : 'assets/svg/qr-code.svg',
                       colorFilter: ColorFilter.mode(
-                        isInnerWallet ? CoconutColors.colorPalette[colorIndex] : CoconutColors.black,
+                        isInnerWallet
+                            ? CoconutColors.colorPalette[colorIndex]
+                            : CoconutColors.black,
                         BlendMode.srcIn,
                       ),
                       width: 14.0,
@@ -420,7 +431,8 @@ class _MultisigSignScreenState extends State<MultisigSignScreen> {
                     Flexible(
                       child: Text(
                         t.multisig.nth_key_with_name(
-                            name: isInnerWallet ? name : memo ?? t.external_wallet, index: index + 1),
+                            name: isInnerWallet ? name : memo ?? t.external_wallet,
+                            index: index + 1),
                         style: CoconutTypography.body1_16,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,

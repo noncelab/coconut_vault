@@ -44,7 +44,8 @@ class _SeedQrConfirmationScreenState extends State<SeedQrConfirmationScreen> {
     super.initState();
     _initListeners();
     _walletProvider = Provider.of<WalletProvider>(context, listen: false);
-    _walletCreationProvider = Provider.of<WalletCreationProvider>(context, listen: false)..resetAll();
+    _walletCreationProvider = Provider.of<WalletCreationProvider>(context, listen: false)
+      ..resetAll();
     _isMnemonicWarningVisible = true;
   }
 
@@ -141,7 +142,8 @@ class _SeedQrConfirmationScreenState extends State<SeedQrConfirmationScreen> {
                   isActive: _isMnemonicWarningVisible ? false : true,
                   backgroundColor: CoconutColors.black,
                   onButtonClicked: _handleNextButton,
-                  gradientPadding: const EdgeInsets.only(left: 16, right: 16, bottom: 40, top: 140)),
+                  gradientPadding:
+                      const EdgeInsets.only(left: 16, right: 16, bottom: 40, top: 140)),
             ],
           ),
         ),
@@ -157,7 +159,8 @@ class _SeedQrConfirmationScreenState extends State<SeedQrConfirmationScreen> {
     final passphrase = utf8.encode(_usePassphrase ? _passphrase : '');
 
     if (_walletProvider.isSeedDuplicated(secret, passphrase)) {
-      CoconutToast.showToast(context: context, text: t.toast.mnemonic_already_added, isVisibleIcon: true);
+      CoconutToast.showToast(
+          context: context, text: t.toast.mnemonic_already_added, isVisibleIcon: true);
       return;
     }
     _walletCreationProvider.setSecretAndPassphrase(secret, passphrase);
@@ -167,7 +170,8 @@ class _SeedQrConfirmationScreenState extends State<SeedQrConfirmationScreen> {
   Widget _buildPassphraseToggle() {
     return Row(
       children: [
-        Text(t.seed_qr_confirmation_screen.passphrase_toggle, style: CoconutTypography.body2_14_Bold),
+        Text(t.seed_qr_confirmation_screen.passphrase_toggle,
+            style: CoconutTypography.body2_14_Bold),
         const Spacer(),
         CupertinoSwitch(
           value: _usePassphrase,
