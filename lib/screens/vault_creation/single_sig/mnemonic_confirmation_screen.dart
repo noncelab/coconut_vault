@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:coconut_design_system/coconut_design_system.dart';
+import 'package:coconut_vault/constants/app_routes.dart';
 import 'package:coconut_vault/extensions/uint8list_extensions.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/providers/wallet_creation_provider.dart';
@@ -115,10 +116,7 @@ class _MnemonicConfirmationScreenState extends State<MnemonicConfirmationScreen>
                       });
                       return;
                     }
-                    Navigator.pushReplacement(
-                      context,
-                      MaterialPageRoute(builder: (context) => const VaultNameAndIconSetupScreen()),
-                    );
+                    Navigator.pushReplacementNamed(context, AppRoutes.vaultNameSetup);
                   },
                 ),
               ],
