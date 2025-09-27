@@ -166,9 +166,6 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> {
 
   @override
   Widget build(BuildContext context) {
-    var visibilityProvider = VisibilityProvider();
-    var preferenceProvider = PreferenceProvider();
-
     CoconutTheme.setTheme(Brightness.light);
     return MultiProvider(
       providers: [
