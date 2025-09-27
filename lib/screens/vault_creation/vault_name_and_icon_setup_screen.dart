@@ -71,7 +71,6 @@ class _VaultNameAndIconSetupScreenState extends State<VaultNameAndIconSetupScree
   }
 
   Future<void> saveNewVaultName(BuildContext context) async {
-    Logger.log('--> ${_walletCreationProvider.secret}');
     try {
       setState(() {
         _showLoading = true;
