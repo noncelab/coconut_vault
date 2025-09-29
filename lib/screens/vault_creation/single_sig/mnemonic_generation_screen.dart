@@ -308,9 +308,11 @@ class _MnemonicWordsState extends State<MnemonicWords> {
     Seed randomSeed = Seed.random(mnemonicLength: widget.wordsCount);
 
     setState(() {
-      _mnemonic = randomSeed.mnemonic;
+      _mnemonic = Uint8List.fromList(randomSeed.mnemonic);
       hasScrolledToBottom = widget.wordsCount == 12;
     });
+
+    randomSeed.wipe();
   }
 
   NextButtonState _getNextButtonState() {
