@@ -62,7 +62,6 @@ class _MnemonicListState extends State<MnemonicList> with TickerProviderStateMix
 
   @override
   void dispose() {
-    widget.mnemonic.wipe();
     _waveAnimationController.dispose();
     super.dispose();
   }
