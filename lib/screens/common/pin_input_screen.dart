@@ -1,5 +1,4 @@
 import 'package:coconut_design_system/coconut_design_system.dart';
-import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/providers/auth_provider.dart';
 import 'package:coconut_vault/widgets/pin/pin_length_toggle_button.dart';
 import 'package:flutter/material.dart';
@@ -15,11 +14,11 @@ class PinInputScreen extends StatefulWidget {
   final String errorMessage;
   final void Function(String) onKeyTap;
   final List<String> pinShuffleNumbers;
-  final Function? onReset;
+  final String? bottomTextButtonLabel;
+  final Function? onPressedBottomTextButton;
   final VoidCallback onPinClear;
   final int step;
   final bool appBarVisible;
-  final bool initOptionVisible;
   final bool lastChance;
   final String? lastChanceMessage;
   final bool disabled;
@@ -35,11 +34,11 @@ class PinInputScreen extends StatefulWidget {
     required this.onKeyTap,
     required this.pinShuffleNumbers,
     required this.onPinClear,
-    this.onReset,
     required this.step,
     required this.canChangePinType,
     this.appBarVisible = true,
-    this.initOptionVisible = false,
+    this.bottomTextButtonLabel,
+    this.onPressedBottomTextButton,
     this.descriptionTextWidget,
     this.lastChance = false,
     this.lastChanceMessage,
@@ -112,7 +111,7 @@ class PinInputScreenState extends State<PinInputScreen> {
           crossAxisAlignment: CrossAxisAlignment.center,
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
-            if (widget.initOptionVisible) const SizedBox(height: 60),
+            if (widget.bottomTextButtonLabel != null) const SizedBox(height: 60),
             Text(widget.title, style: CoconutTypography.body1_16_Bold, textAlign: TextAlign.center),
             const SizedBox(height: 20),
             Align(alignment: Alignment.center, child: widget.descriptionTextWidget ?? const Text('')),
@@ -170,16 +169,16 @@ class PinInputScreenState extends State<PinInputScreen> {
             ),
             const SizedBox(height: 30),
             Visibility(
-              visible: widget.initOptionVisible,
+              visible: widget.bottomTextButtonLabel != null,
               replacement: Container(),
               child: Padding(
                 padding: EdgeInsets.only(bottom: _characterFocusNode.hasFocus ? 30 : 50),
                 child: GestureDetector(
                   onTap: () {
-                    widget.onReset?.call();
+                    widget.onPressedBottomTextButton?.call();
                   },
                   child: Text(
-                    t.forgot_password,
+                    widget.bottomTextButtonLabel ?? '',
                     style: CoconutTypography.body2_14_Bold.setColor(CoconutColors.black.withValues(alpha: 0.5)),
                     textAlign: TextAlign.center,
                   ),

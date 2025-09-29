@@ -165,7 +165,11 @@ ios_bluetooth_auth_notification_screen:
   guide3: "앱을 다시 실행해 주세요"
 pin_check_screen:
   enter_password: "비밀번호를 눌러주세요"
-  warning: "⚠︎ 3회 모두 틀리면 볼트를 초기화해야 합니다"
+  warning: "⚠︎ 3회 모두 틀리면 볼트를 초기화합니다"
+  dialog:
+    restart:
+      title: "다시 시작"
+      description: "볼트를 다시 시작하시겠어요?"
 pin_setting_screen:
   set_password: "안전한 볼트 사용을 위해\n먼저 비밀번호를 설정할게요"
   enter_again: "다시 한번 확인할게요"
@@ -694,7 +698,8 @@ errors:
   pin_processing_error: "처리 중 문제가 발생했어요"
   pin_incorrect_with_remaining_attempts_error: "$count번 다시 시도할 수 있어요"
   remaining_times_away_from_reset_error: "초기화까지 $count번 남았어요"
-  pin_max_attempts_exceeded_error: "볼트를 잠금 해제할 수 없어요\n비밀번호를 초기화 한 후에 이용할 수 있어요"
+  pin_max_attempts_exceeded_error: "볼트를 사용할 수 없어요"
+  restart_vault: "볼트 다시 시작하기"
   retry_after: "$time 후 재시도 할 수 있어요"
   invalid_word_error: "단어를 확인해 주세요 $filter"
   invalid_mnemonic_phrase: "잘못된 니모닉 문구예요"

@@ -271,19 +271,22 @@ class AuthProvider extends ChangeNotifier {
   Future<void> resetPin(PreferenceProvider preferenceProvider) async {
     if (_isDisposed) return;
 
+    await resetData(preferenceProvider);
+    resetAuthenticationState();
+  }
+
+  Future<void> resetData(PreferenceProvider preferenceProvider) async {
     final WalletRepository walletRepository = WalletRepository();
     await walletRepository.resetAll();
 
     _isBiometricEnabled = false;
     _isPinSet = false;
-    await _storageService.delete(key: SecureStorageKeys.kVaultPin);
     await _sharedPrefs.setBool(SharedPrefsKeys.isBiometricEnabled, false);
     await _sharedPrefs.setBool(SharedPrefsKeys.isPinEnabled, false);
+    await _storageService.delete(key: SecureStorageKeys.kVaultPin);
     await _sharedPrefs.setInt(SharedPrefsKeys.vaultListLength, 0);
     await _sharedPrefs.setString(SharedPrefsKeys.kAppVersion, '');
     await preferenceProvider.resetVaultOrderAndFavorites();
-
-    resetAuthenticationState();
   }
 
   // TODO: 딜레이 발생 이유

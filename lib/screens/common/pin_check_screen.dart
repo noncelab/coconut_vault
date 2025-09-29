@@ -67,6 +67,13 @@ class _PinCheckScreenState extends State<PinCheckScreen> with WidgetsBindingObse
 
     WidgetsBinding.instance.addObserver(this);
     WidgetsBinding.instance.addPostFrameCallback((_) async {
+      if (!_isAppLaunched) {
+        setState(() {
+          _isUnlockDisabled = false;
+        });
+        return;
+      }
+
       if (_authProvider.isPermanantlyLocked) {
         setState(() {
           _isUnlockDisabled = true;
@@ -290,7 +297,8 @@ class _PinCheckScreenState extends State<PinCheckScreen> with WidgetsBindingObse
       _isLastChanceToTry = false;
       _errorMessage = t.errors.pin_max_attempts_exceeded_error;
     });
-    _showResetDialog();
+    _authProvider.resetData(context.read<PreferenceProvider>());
+    //_showResetDialog();
   }
 
   void _showResetDialog() {
@@ -299,8 +307,14 @@ class _PinCheckScreenState extends State<PinCheckScreen> with WidgetsBindingObse
       builder: (context) {
         return CoconutPopup(
           insetPadding: EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width * 0.15),
-          title: t.alert.forgot_password.title,
-          description: t.alert.forgot_password.description1,
+          title:
+              !_authProvider.isPermanantlyLocked
+                  ? t.alert.forgot_password.title
+                  : t.pin_check_screen.dialog.restart.title,
+          description:
+              !_authProvider.isPermanantlyLocked
+                  ? t.alert.forgot_password.description1
+                  : t.pin_check_screen.dialog.restart.description,
           leftButtonText: t.no,
           leftButtonColor: CoconutColors.black.withValues(alpha: 0.7),
           rightButtonText: t.yes,
@@ -360,7 +374,6 @@ class _PinCheckScreenState extends State<PinCheckScreen> with WidgetsBindingObse
       canChangePinType: false,
       appBarVisible: _isAppLaunched ? false : true,
       title: _isAppLaunched ? '' : t.pin_check_screen.enter_password,
-      initOptionVisible: _isAppLaunched,
       pin: _pin,
       errorMessage: _errorMessage,
       onKeyTap: _onKeyTap,
@@ -372,7 +385,13 @@ class _PinCheckScreenState extends State<PinCheckScreen> with WidgetsBindingObse
           _errorMessage = '';
         });
       },
-      onReset: isOnReset ? _showResetDialog : null,
+      bottomTextButtonLabel:
+          _isAppLaunched
+              ? _authProvider.isPermanantlyLocked
+                  ? t.errors.restart_vault
+                  : t.forgot_password
+              : null,
+      onPressedBottomTextButton: _showResetDialog,
       step: 0,
       lastChance: _isLastChanceToTry,
       lastChanceMessage: t.pin_check_screen.warning,

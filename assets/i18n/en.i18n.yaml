@@ -164,6 +164,10 @@ ios_bluetooth_auth_notification_screen:
 pin_check_screen:
   enter_password: "Enter password"
   warning: "⚠︎ Vault will be reset after 3 failed attempts"
+  dialog:
+    restart:
+      title: "Restart"
+      description: "Would you like to restart Vault?"
 pin_setting_screen:
   set_password: "Set a password first\nfor safe vault use"
   enter_again: "Confirm again"
@@ -690,7 +694,8 @@ errors:
   pin_processing_error: "Error occurred during processing"
   pin_incorrect_with_remaining_attempts_error: "$count attempts remaining"
   remaining_times_away_from_reset_error: "$count attempts until reset"
-  pin_max_attempts_exceeded_error: "Cannot unlock vault\nUse after resetting password"
+  pin_max_attempts_exceeded_error: "Cannot use vault anymore"
+  restart_vault: "Restart vault"
   retry_after: "Can retry after $time"
   invalid_word_error: "Check the word $filter"
   invalid_mnemonic_phrase: "Invalid mnemonic phrase"
