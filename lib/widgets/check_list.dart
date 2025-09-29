@@ -20,12 +20,12 @@ class ChecklistTile extends StatefulWidget {
 }
 
 class _ChecklistTileState extends State<ChecklistTile> {
-  late bool isChecked;
+  late bool _isChecked;
 
   @override
   void initState() {
     super.initState();
-    isChecked = widget.item.isChecked;
+    _isChecked = widget.item.isChecked;
   }
 
   @override
@@ -33,8 +33,8 @@ class _ChecklistTileState extends State<ChecklistTile> {
     return GestureDetector(
       onTap: () {
         setState(() {
-          isChecked = !isChecked;
-          widget.onChanged(isChecked); // 부모 상태 업데이트
+          _isChecked = !_isChecked;
+          widget.onChanged(_isChecked); // 부모 상태 업데이트
           vibrateExtraLight();
         });
       },
@@ -48,10 +48,10 @@ class _ChecklistTileState extends State<ChecklistTile> {
               height: 20,
               child: Center(
                 child: CoconutCheckbox(
-                  isSelected: isChecked,
+                  isSelected: _isChecked,
                   onChanged: (value) {
                     setState(() {
-                      isChecked = value;
+                      _isChecked = value;
                       widget.onChanged(value);
                       vibrateExtraLight();
                     });
@@ -64,7 +64,9 @@ class _ChecklistTileState extends State<ChecklistTile> {
             Expanded(
               child: Text(
                 widget.item.title,
-                style: CoconutTypography.body1_16_Bold.setColor(CoconutColors.gray800),
+                style: CoconutTypography.body1_16_Bold.setColor(
+                  _isChecked ? CoconutColors.gray800 : CoconutColors.gray400,
+                ),
                 textAlign: TextAlign.start,
               ),
             ),

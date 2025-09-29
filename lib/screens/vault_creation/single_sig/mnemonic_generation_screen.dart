@@ -348,7 +348,7 @@ class _MnemonicWordsState extends State<MnemonicWords> {
       _generateMnemonicPhrase();
     }
     if (widget.from == MnemonicWordsFrom.coinflip) {
-      _mnemonic = _walletCreationProvider.secret;
+      _mnemonic = Uint8List.fromList(_walletCreationProvider.secret);
     }
 
     widget.regenerateNotifier?.addListener(_onRegenerateRequested);

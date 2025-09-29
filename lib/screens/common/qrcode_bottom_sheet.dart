@@ -46,12 +46,14 @@ class _QrcodeBottomSheetState extends State<QrcodeBottomSheet> {
         backgroundColor: CoconutColors.white,
         appBar: CoconutAppBar.build(title: widget.title ?? '', context: context, isBottom: true),
         body: SafeArea(
-          child: Container(
-            width: MediaQuery.of(context).size.width,
-            height: MediaQuery.of(context).size.height * 0.9,
-            padding: CoconutPadding.container,
-            color: CoconutColors.white,
-            child: _buildContent(),
+          child: SingleChildScrollView(
+            child: Container(
+              width: MediaQuery.of(context).size.width,
+              height: MediaQuery.of(context).size.height * 0.9,
+              padding: CoconutPadding.container,
+              color: CoconutColors.white,
+              child: _buildContent(),
+            ),
           ),
         ),
       ),

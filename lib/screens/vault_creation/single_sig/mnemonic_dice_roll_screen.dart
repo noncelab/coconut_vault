@@ -8,6 +8,7 @@ import 'package:coconut_vault/extensions/uint8list_extensions.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/providers/visibility_provider.dart';
 import 'package:coconut_vault/providers/wallet_creation_provider.dart';
+import 'package:coconut_vault/utils/conversion_util.dart';
 import 'package:coconut_vault/utils/logger.dart';
 import 'package:coconut_vault/widgets/button/fixed_bottom_tween_button.dart';
 import 'package:coconut_vault/widgets/button/shrink_animation_button.dart';
@@ -84,7 +85,11 @@ class _MnemonicDiceRollScreenState extends State<MnemonicDiceRollScreen> {
   @override
   void initState() {
     super.initState();
-    Provider.of<WalletCreationProvider>(context, listen: false).resetAll();
+    // 이미 secret이 있으면 리셋하지 않음
+    // final provider = Provider.of<WalletCreationProvider>(context, listen: false);
+    // if (provider.secret.isEmpty) {
+    //   provider.resetAll();
+    // }
     _totalStep = Provider.of<VisibilityProvider>(context, listen: false).isPassphraseUseEnabled ? 2 : 1;
   }
 
@@ -422,7 +427,7 @@ class _DiceRollState extends State<DiceRoll> {
           padding: const EdgeInsets.only(bottom: 16),
           child: Stack(
             children: [
-              ClipRRect(child: Container(height: 6, color: CoconutColors.black.withOpacity(0.06))),
+              ClipRRect(child: Container(height: 6, color: CoconutColors.black.withValues(alpha: 0.06))),
               ClipRRect(
                 borderRadius:
                     _bits.length / (widget.wordsCount == 12 ? 128 : 256) == 1
@@ -545,20 +550,9 @@ class _DiceRollState extends State<DiceRoll> {
   Widget _buildDiceGrid() {
     const int gridElements = 10;
     int start;
-    int end;
     List<int> currentRolls;
 
-    // 현재 인덱스가 마지막 그룹에 있는지 확인
-    // if (_currentIndex >= _totalCount ~/ gridElements * gridElements &&
-    //     _currentIndex < _totalCount) {
-    //   start = _totalCount ~/ gridElements * gridElements;
-    //   end = _totalCount;
-    // } else {
     start = _currentIndex ~/ gridElements * gridElements;
-    end = start + gridElements;
-    currentRolls = _diceNumbers.sublist(start, _currentIndex);
-    // }
-
     currentRolls = _diceNumbers.sublist(start, _currentIndex);
 
     return Column(
@@ -575,7 +569,7 @@ class _DiceRollState extends State<DiceRoll> {
               padding: const EdgeInsets.only(top: 8, bottom: 16),
               margin: const EdgeInsets.all(4),
               decoration: BoxDecoration(
-                border: Border.all(color: CoconutColors.black.withOpacity(0.06)),
+                border: Border.all(color: CoconutColors.black.withValues(alpha: 0.06)),
                 borderRadius: BorderRadius.circular(12),
                 color: CoconutColors.white,
               ),
@@ -719,7 +713,7 @@ class _DiceRollState extends State<DiceRoll> {
           description: message ?? t.alert.erase_all_entered_so_far,
           backgroundColor: CoconutColors.white,
           leftButtonText: t.cancel,
-          leftButtonColor: CoconutColors.black.withOpacity(0.7),
+          leftButtonColor: CoconutColors.black.withValues(alpha: 0.7),
           rightButtonText: t.confirm,
           rightButtonColor: CoconutColors.warningText,
           onTapLeft: () => Navigator.pop(context),
@@ -735,12 +729,9 @@ class _DiceRollState extends State<DiceRoll> {
   bool _generateMnemonicPhrase() {
     try {
       setState(() {
-        int bitsToUse = (_bits.length / 32).floor() * 32;
+        int bitsToUse = widget.wordsCount == 12 ? 128 : 256;
         int start = _bits.length - bitsToUse;
-        Logger.log('diceRolls: ${_diceNumbers.join()}');
-        Logger.log('bits sublist: ${_bits.sublist(start).join()}');
-        // TODO: bitsToBytes랑 Uint8List.fromList 같은지 확인 필요
-        _mnemonic = Seed.fromEntropy(Uint8List.fromList(_bits.sublist(start))).mnemonic;
+        _mnemonic = Seed.fromEntropy(ConversionUtil.bitsToBytes(_bits.sublist(start))).mnemonic;
       });
       return true;
     } catch (e) {
@@ -814,7 +805,7 @@ class BinaryGrid extends StatelessWidget {
   Widget _buildGridItem(int? bit, int index) {
     return Container(
       decoration: BoxDecoration(
-        border: Border.all(color: CoconutColors.black.withOpacity(0.06)),
+        border: Border.all(color: CoconutColors.black.withValues(alpha: 0.06)),
         borderRadius: BorderRadius.circular(8),
       ),
       child: Center(
@@ -823,12 +814,12 @@ class BinaryGrid extends StatelessWidget {
           children: [
             Text(
               (index + 1).toString(),
-              style: CoconutTypography.body3_12_Number.setColor(CoconutColors.black.withOpacity(0.3)),
+              style: CoconutTypography.body3_12_Number.setColor(CoconutColors.black.withValues(alpha: 0.3)),
             ),
             Expanded(
               child: Text(
                 bit == null ? '' : bit.toString(),
-                style: CoconutTypography.heading4_18_NumberBold.setColor(CoconutColors.black.withOpacity(0.7)),
+                style: CoconutTypography.heading4_18_NumberBold.setColor(CoconutColors.black.withValues(alpha: 0.7)),
               ),
             ),
           ],

@@ -116,7 +116,7 @@ class _MnemonicListState extends State<MnemonicList> with TickerProviderStateMix
                           padding: const EdgeInsets.only(left: 24),
                           alignment: Alignment.center,
                           decoration: BoxDecoration(
-                            border: Border.all(color: CoconutColors.black.withOpacity(0.08)),
+                            border: Border.all(color: CoconutColors.black.withValues(alpha: 0.08)),
                             borderRadius: BorderRadius.circular(24),
                           ),
                           child: Row(
@@ -144,7 +144,7 @@ class _MnemonicListState extends State<MnemonicList> with TickerProviderStateMix
                   padding: const EdgeInsets.only(left: 24),
                   alignment: Alignment.center,
                   decoration: BoxDecoration(
-                    border: Border.all(color: CoconutColors.black.withOpacity(0.08)),
+                    border: Border.all(color: CoconutColors.black.withValues(alpha: 0.08)),
                     borderRadius: BorderRadius.circular(24),
                   ),
                   child: Row(
@@ -153,11 +153,11 @@ class _MnemonicListState extends State<MnemonicList> with TickerProviderStateMix
                     children: [
                       Text(
                         (index + 1).toString().padLeft(2, '0'),
-                        style: CoconutTypography.body3_12_Number.setColor(CoconutColors.gray500),
+                        style: CoconutTypography.body2_14.setColor(CoconutColors.gray500),
                       ),
                       CoconutLayout.spacing_300w,
                       Expanded(
-                        child: Text(words[index], style: CoconutTypography.body2_14, overflow: TextOverflow.visible),
+                        child: Text(words[index], style: CoconutTypography.body1_16, overflow: TextOverflow.visible),
                       ),
                     ],
                   ),
@@ -179,25 +179,14 @@ class _MnemonicListState extends State<MnemonicList> with TickerProviderStateMix
                     alignment: Alignment.topCenter,
                     child: Container(
                       decoration: BoxDecoration(borderRadius: BorderRadius.circular(12), color: CoconutColors.hotPink),
-                      padding: const EdgeInsets.only(top: 28, left: 20, right: 20, bottom: 20),
-                      margin: const EdgeInsets.symmetric(horizontal: 68, vertical: 30),
+                      padding: const EdgeInsets.only(top: 28, left: 24, right: 24, bottom: 20),
                       child: LayoutBuilder(
                         builder: (context, constraints) {
                           final text = Text(
                             t.mnemonic_view_screen.warning_title,
-                            style: CoconutTypography.body1_16_Bold.setColor(CoconutColors.white),
+                            style: CoconutTypography.heading3_21_Bold.setColor(CoconutColors.white),
+                            textAlign: TextAlign.center,
                           );
-
-                          final textPainter = TextPainter(
-                            text: TextSpan(
-                              text: t.mnemonic_view_screen.warning_title,
-                              style: CoconutTypography.body1_16_Bold.setColor(CoconutColors.white),
-                            ),
-                            maxLines: 1,
-                            textDirection: TextDirection.ltr,
-                          )..layout(maxWidth: constraints.maxWidth);
-
-                          final textWidth = textPainter.size.width;
 
                           return Column(
                             crossAxisAlignment: CrossAxisAlignment.center,
@@ -209,36 +198,30 @@ class _MnemonicListState extends State<MnemonicList> with TickerProviderStateMix
                               ),
                               CoconutLayout.spacing_300h,
                               text,
-                              //CoconutLayout.spacing_400h,
-                              ConstrainedBox(
-                                constraints: BoxConstraints(maxWidth: textWidth),
-                                child: Text(
-                                  t.mnemonic_view_screen.warning_guide,
-                                  style: CoconutTypography.body2_14.setColor(CoconutColors.white),
-                                  textAlign: TextAlign.start,
-                                ),
+                              CoconutLayout.spacing_300h,
+                              Text(
+                                t.mnemonic_view_screen.warning_guide,
+                                style: CoconutTypography.heading4_18.setColor(CoconutColors.white),
+                                textAlign: TextAlign.center,
                               ),
-                              //CoconutLayout.spacing_500h,
-                              ConstrainedBox(
-                                constraints: BoxConstraints(maxWidth: textWidth),
-                                child: ShrinkAnimationButton(
-                                  borderRadius: 12,
-                                  child: Container(
-                                    padding: const EdgeInsets.symmetric(vertical: 14),
-                                    width: double.infinity,
-                                    child: Text(
-                                      t.mnemonic_view_screen.warning_btn,
-                                      style: CoconutTypography.body2_14_Bold.setColor(CoconutColors.hotPink),
-                                      textAlign: TextAlign.center,
-                                    ),
+                              CoconutLayout.spacing_500h,
+                              ShrinkAnimationButton(
+                                borderRadius: 12,
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(vertical: 14),
+                                  width: double.infinity,
+                                  child: Text(
+                                    t.mnemonic_view_screen.warning_btn,
+                                    style: CoconutTypography.heading4_18_Bold.setColor(CoconutColors.hotPink),
+                                    textAlign: TextAlign.center,
                                   ),
-                                  onPressed: () {
-                                    setState(() {
-                                      _isWarningVisible = false;
-                                    });
-                                    widget.onWarningPressed?.call();
-                                  },
                                 ),
+                                onPressed: () {
+                                  setState(() {
+                                    _isWarningVisible = false;
+                                  });
+                                  widget.onWarningPressed?.call();
+                                },
                               ),
                             ],
                           );
