@@ -85,11 +85,6 @@ class _MnemonicDiceRollScreenState extends State<MnemonicDiceRollScreen> {
   @override
   void initState() {
     super.initState();
-    // 이미 secret이 있으면 리셋하지 않음
-    // final provider = Provider.of<WalletCreationProvider>(context, listen: false);
-    // if (provider.secret.isEmpty) {
-    //   provider.resetAll();
-    // }
     _totalStep = Provider.of<VisibilityProvider>(context, listen: false).isPassphraseUseEnabled ? 2 : 1;
   }
 
@@ -281,91 +276,43 @@ class _DiceRollState extends State<DiceRoll> {
   }
 
   Widget _buildPassphraseInput() {
-    return Container(
-      padding: const EdgeInsets.only(top: 12, left: 16, right: 16),
-      child: Column(
-        children: [
-          Text(
-            t.mnemonic_generate_screen.enter_passphrase,
-            style: CoconutTypography.body1_16_Bold.setColor(
-              step == 0 ? CoconutColors.warningText : CoconutColors.black,
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.only(top: 24),
-            child: SizedBox(
-              child: CoconutTextField(
-                focusNode: _passphraseFocusNode,
-                controller: _passphraseController,
-                placeholderText: t.mnemonic_generate_screen.memorable_passphrase_guide,
-                onEditingComplete: () {
-                  FocusScope.of(context).unfocus();
-                  if (_passphraseController.text.isNotEmpty) {
-                    setState(() {
-                      isPassphraseConfirmVisible = true;
-                    });
-                  }
-                },
-                onChanged: (_) {},
-                maxLines: 1,
-                obscureText: passphraseObscured,
-                suffix: Row(
-                  children: [
-                    if (_passphraseController.text.isNotEmpty)
-                      GestureDetector(
-                        onTap: () {
-                          setState(() {
-                            _passphraseController.text = '';
-                          });
-                        },
-                        child: Container(
-                          padding: const EdgeInsets.all(8),
-                          child: SvgPicture.asset(
-                            'assets/svg/text-field-clear.svg',
-                            colorFilter: const ColorFilter.mode(CoconutColors.gray400, BlendMode.srcIn),
-                          ),
-                        ),
-                      ),
-                    GestureDetector(
-                      onTap: () {
-                        setState(() {
-                          passphraseObscured = !passphraseObscured;
-                        });
-                      },
-                      child:
-                          passphraseObscured
-                              ? Container(
-                                padding: const EdgeInsets.only(right: 16, top: 8, bottom: 8, left: 8),
-                                child: const Icon(CupertinoIcons.eye_slash, color: CoconutColors.gray800, size: 18),
-                              )
-                              : Container(
-                                padding: const EdgeInsets.only(right: 16, top: 8, bottom: 8, left: 8),
-                                child: const Icon(CupertinoIcons.eye, color: CoconutColors.gray800, size: 18),
-                              ),
-                    ),
-                  ],
-                ),
-                maxLength: 100,
+    return MediaQuery(
+      data: MediaQuery.of(context).copyWith(textScaler: const TextScaler.linear(1.0)),
+      child: Container(
+        padding: const EdgeInsets.only(top: 12, left: 16, right: 16),
+        child: Column(
+          children: [
+            Text(
+              t.mnemonic_generate_screen.enter_passphrase,
+              style: CoconutTypography.body1_16_Bold.setColor(
+                step == 0 ? CoconutColors.warningText : CoconutColors.black,
               ),
             ),
-          ),
-          if (isPassphraseConfirmVisible)
             Padding(
-              padding: const EdgeInsets.only(top: 12),
+              padding: const EdgeInsets.only(top: 24),
               child: SizedBox(
                 child: CoconutTextField(
-                  focusNode: _passphraseConfirmFocusNode,
-                  controller: _passphraseConfirmController,
-                  placeholderText: t.mnemonic_generate_screen.passphrase_confirm_guide,
+                  focusNode: _passphraseFocusNode,
+                  controller: _passphraseController,
+                  placeholderText: t.mnemonic_generate_screen.memorable_passphrase_guide,
+                  onEditingComplete: () {
+                    FocusScope.of(context).unfocus();
+                    if (_passphraseController.text.isNotEmpty) {
+                      setState(() {
+                        isPassphraseConfirmVisible = true;
+                      });
+                    }
+                  },
                   onChanged: (_) {},
                   maxLines: 1,
+                  obscureText: passphraseObscured,
                   suffix: Row(
                     children: [
-                      if (_passphraseConfirmController.text.isNotEmpty)
+                      if (_passphraseController.text.isNotEmpty)
                         GestureDetector(
                           onTap: () {
                             setState(() {
-                              _passphraseConfirmController.text = '';
+                              _passphraseController.text = '';
                             });
                           },
                           child: Container(
@@ -376,14 +323,65 @@ class _DiceRollState extends State<DiceRoll> {
                             ),
                           ),
                         ),
+                      GestureDetector(
+                        onTap: () {
+                          setState(() {
+                            passphraseObscured = !passphraseObscured;
+                          });
+                        },
+                        child:
+                            passphraseObscured
+                                ? Container(
+                                  padding: const EdgeInsets.only(right: 16, top: 8, bottom: 8, left: 8),
+                                  child: const Icon(CupertinoIcons.eye_slash, color: CoconutColors.gray800, size: 18),
+                                )
+                                : Container(
+                                  padding: const EdgeInsets.only(right: 16, top: 8, bottom: 8, left: 8),
+                                  child: const Icon(CupertinoIcons.eye, color: CoconutColors.gray800, size: 18),
+                                ),
+                      ),
                     ],
                   ),
                   maxLength: 100,
                 ),
               ),
             ),
-          CoconutLayout.spacing_2500h,
-        ],
+            if (isPassphraseConfirmVisible)
+              Padding(
+                padding: const EdgeInsets.only(top: 12),
+                child: SizedBox(
+                  child: CoconutTextField(
+                    focusNode: _passphraseConfirmFocusNode,
+                    controller: _passphraseConfirmController,
+                    placeholderText: t.mnemonic_generate_screen.passphrase_confirm_guide,
+                    onChanged: (_) {},
+                    maxLines: 1,
+                    suffix: Row(
+                      children: [
+                        if (_passphraseConfirmController.text.isNotEmpty)
+                          GestureDetector(
+                            onTap: () {
+                              setState(() {
+                                _passphraseConfirmController.text = '';
+                              });
+                            },
+                            child: Container(
+                              padding: const EdgeInsets.all(8),
+                              child: SvgPicture.asset(
+                                'assets/svg/text-field-clear.svg',
+                                colorFilter: const ColorFilter.mode(CoconutColors.gray400, BlendMode.srcIn),
+                              ),
+                            ),
+                          ),
+                      ],
+                    ),
+                    maxLength: 100,
+                  ),
+                ),
+              ),
+            CoconutLayout.spacing_2500h,
+          ],
+        ),
       ),
     );
   }
@@ -393,20 +391,23 @@ class _DiceRollState extends State<DiceRoll> {
       padding: const EdgeInsets.symmetric(horizontal: 16.0),
       child: Column(
         children: [
-          CoconutLayout.spacing_500h,
+          CoconutLayout.spacing_200h,
           Opacity(
-            opacity: _diceNumbers.isEmpty || _bits.length >= (widget.wordsCount == 12 ? 128 : 256) ? 1.0 : 0.0,
-            child: Text(
-              _diceNumbers.isEmpty ? t.mnemonic_dice_roll_screen.guide1 : t.mnemonic_dice_roll_screen.guide2,
-              style: CoconutTypography.body1_16_Bold.setColor(CoconutColors.gray800),
-              textAlign: TextAlign.center,
+            opacity: _diceNumbers.isEmpty || _bits.length >= (widget.wordsCount == 12 ? 128 : 256) ? 1 : 0,
+            child: MediaQuery(
+              data: MediaQuery.of(context).copyWith(textScaler: const TextScaler.linear(1.0)),
+              child: Text(
+                _diceNumbers.isEmpty ? t.mnemonic_dice_roll_screen.guide1 : t.mnemonic_dice_roll_screen.guide2,
+                style: CoconutTypography.heading4_18_Bold.setColor(CoconutColors.gray800),
+                textAlign: TextAlign.center,
+              ),
             ),
           ),
-          CoconutLayout.spacing_400h,
-          _buildDiceGrid(),
           CoconutLayout.spacing_200h,
+          _buildDiceGrid(),
           CoconutLayout.spacing_1400h,
           _buildButtons(),
+          CoconutLayout.spacing_2500h,
         ],
       ),
     );
@@ -499,48 +500,53 @@ class _DiceRollState extends State<DiceRoll> {
       maintainSize: true,
       maintainInteractivity: true,
       visible: widget.usePassphrase,
-      child: Stack(
+      child: Column(
         children: [
-          const SizedBox(
-            height: 50,
-            width: 120,
-            child: Center(
-              child: DottedDivider(
-                height: 2.0,
-                width: 100,
-                dashWidth: 2.0,
-                dashSpace: 4.0,
-                color: CoconutColors.gray400,
+          CoconutLayout.spacing_500h,
+          Stack(
+            children: [
+              const SizedBox(
+                height: 50,
+                width: 120,
+                child: Center(
+                  child: DottedDivider(
+                    height: 2.0,
+                    width: 100,
+                    dashWidth: 2.0,
+                    dashSpace: 4.0,
+                    color: CoconutColors.gray400,
+                  ),
+                ),
               ),
-            ),
-          ),
-          Positioned(
-            left: 0,
-            top: 0,
-            bottom: 0,
-            child: NumberWidget(
-              number: 1,
-              selected: step == 0,
-              onSelected: () {
-                setState(() {
-                  step = 0;
-                });
-              },
-            ),
-          ),
-          Positioned(
-            right: 0,
-            top: 0,
-            bottom: 0,
-            child: NumberWidget(
-              number: 2,
-              selected: step == 1,
-              onSelected: () {
-                setState(() {
-                  step = 1;
-                });
-              },
-            ),
+              Positioned(
+                left: 0,
+                top: 0,
+                bottom: 0,
+                child: NumberWidget(
+                  number: 1,
+                  selected: step == 0,
+                  onSelected: () {
+                    setState(() {
+                      step = 0;
+                    });
+                  },
+                ),
+              ),
+              Positioned(
+                right: 0,
+                top: 0,
+                bottom: 0,
+                child: NumberWidget(
+                  number: 2,
+                  selected: step == 1,
+                  onSelected: () {
+                    setState(() {
+                      step = 1;
+                    });
+                  },
+                ),
+              ),
+            ],
           ),
         ],
       ),
@@ -644,10 +650,13 @@ class _DiceRollState extends State<DiceRoll> {
         width: 100,
         height: 40,
         child: Center(
-          child: Text(
-            buttonText,
-            style: CoconutTypography.body3_12.setColor(
-              _diceNumbers.isEmpty ? CoconutColors.secondaryText : CoconutColors.black.withValues(alpha: 0.7),
+          child: MediaQuery(
+            data: MediaQuery.of(context).copyWith(textScaler: const TextScaler.linear(1.0)),
+            child: Text(
+              buttonText,
+              style: CoconutTypography.body2_14.setColor(
+                _diceNumbers.isEmpty ? CoconutColors.secondaryText : CoconutColors.black.withValues(alpha: 0.7),
+              ),
             ),
           ),
         ),

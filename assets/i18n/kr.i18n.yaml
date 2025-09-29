@@ -323,8 +323,8 @@ mnemonic_coin_flip_screen:
   coin_tail: "뒤"
 mnemonic_dice_roll_screen:
   title: "니모닉 문구 만들기"
-  guide1: "주사위를 굴려 나온 면을 선택해 주세요"
-  guide2: "충분한 무작위 값이 모였습니다! 더 이상 주사위를 굴릴 필요가 없어요🎲"
+  guide1: "주사위를 굴린 뒤,\n나온 면을 차례대로 선택해 주세요🎲"
+  guide2: "충분한 무작위 값이 모였습니다!\n더 이상 주사위를 굴릴 필요가 없어요🎲"
   words_passphrase: " 단어, 패스프레이즈 "
   use: "사용"
   do_not: "안함"

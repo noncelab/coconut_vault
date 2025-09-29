@@ -320,7 +320,7 @@ mnemonic_coin_flip_screen:
   coin_tail: "Back"
 mnemonic_dice_roll_screen:
   title: "Create Mnemonic"
-  guide1: "Please select the side that came out after rolling the dice"
+  guide1: "After rolling the dice, please select the number shown on the side🎲"
   guide2: "Enough random values have been collected. No more rolling is needed🎲"
   words_passphrase: " words, passphrase "
   use: "Use"
