@@ -116,7 +116,7 @@ class _MnemonicListState extends State<MnemonicList> with TickerProviderStateMix
                           padding: const EdgeInsets.only(left: 24),
                           alignment: Alignment.center,
                           decoration: BoxDecoration(
-                            border: Border.all(color: CoconutColors.black.withOpacity(0.08)),
+                            border: Border.all(color: CoconutColors.black.withValues(alpha: 0.08)),
                             borderRadius: BorderRadius.circular(24),
                           ),
                           child: Row(
@@ -188,17 +188,6 @@ class _MnemonicListState extends State<MnemonicList> with TickerProviderStateMix
                             textAlign: TextAlign.center,
                           );
 
-                          final textPainter = TextPainter(
-                            text: TextSpan(
-                              text: t.mnemonic_view_screen.warning_title,
-                              style: CoconutTypography.body1_16_Bold.setColor(CoconutColors.white),
-                            ),
-                            maxLines: 1,
-                            textDirection: TextDirection.ltr,
-                          )..layout(maxWidth: constraints.maxWidth);
-                          // TODO: 적용 이유 확인 필요
-                          final textWidth = textPainter.size.width;
-
                           return Column(
                             crossAxisAlignment: CrossAxisAlignment.center,
                             mainAxisSize: MainAxisSize.min,
@@ -210,16 +199,11 @@ class _MnemonicListState extends State<MnemonicList> with TickerProviderStateMix
                               CoconutLayout.spacing_300h,
                               text,
                               CoconutLayout.spacing_300h,
-                              // TODO: 적용 이유 확인 필요
-                              //ConstrainedBox(
-                              //constraints: BoxConstraints(maxWidth: textWidth),
-                              //child:
                               Text(
                                 t.mnemonic_view_screen.warning_guide,
                                 style: CoconutTypography.heading4_18.setColor(CoconutColors.white),
                                 textAlign: TextAlign.center,
                               ),
-                              //),
                               CoconutLayout.spacing_500h,
                               ShrinkAnimationButton(
                                 borderRadius: 12,
