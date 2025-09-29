@@ -316,8 +316,8 @@ mnemonic_coin_flip_screen:
   use: "Use"
   do_not: "Don't"
   enter_passphrase: "Enter passphrase"
-  coin_head: "Front"
-  coin_tail: "Back"
+  coin_head: "Head"
+  coin_tail: "Tail"
 mnemonic_dice_roll_screen:
   title: "Create Mnemonic"
   guide1: "After rolling the dice, please select the number shown on the side🎲"

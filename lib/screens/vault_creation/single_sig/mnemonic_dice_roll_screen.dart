@@ -8,11 +8,14 @@ import 'package:coconut_vault/extensions/uint8list_extensions.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/providers/visibility_provider.dart';
 import 'package:coconut_vault/providers/wallet_creation_provider.dart';
+import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:coconut_vault/utils/conversion_util.dart';
 import 'package:coconut_vault/utils/logger.dart';
 import 'package:coconut_vault/widgets/button/fixed_bottom_tween_button.dart';
 import 'package:coconut_vault/widgets/button/shrink_animation_button.dart';
+import 'package:coconut_vault/widgets/entropy_base/entropy_common_widget.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:coconut_vault/screens/vault_creation/single_sig/mnemonic_generation_screen.dart';
 import 'package:coconut_vault/widgets/bottom_sheet.dart';
@@ -452,12 +455,7 @@ class _DiceRollState extends State<DiceRoll> {
   void _onNextButtonClicked() {
     // 패프 사용안함 | Coinflip 화면
     if (step == 0 && stepCount == 1) {
-      setState(() {
-        if (_generateMnemonicPhrase()) {
-          Provider.of<WalletCreationProvider>(context, listen: false).setSecretAndPassphrase(_mnemonic, _passphrase);
-          Navigator.pushNamed(context, AppRoutes.mnemonicManualEntropyConfirmation);
-        }
-      });
+      _checkDuplicateThenProceed();
       return;
     }
 
@@ -474,83 +472,90 @@ class _DiceRollState extends State<DiceRoll> {
       if (!isPassphraseConfirmVisible && _passphraseController.text.isNotEmpty) {
         // 패스프레이즈 입력 완료 | 패스프레이즈 확인 텍스트필드는 보이지 않을 때
         _passphraseFocusNode.unfocus();
-        _passphraseConfirmFocusNode.unfocus();
+        _passphraseConfirmFocusNode.requestFocus();
         setState(() {
-          _passphrase = utf8.encode(_passphraseController.text);
           isPassphraseConfirmVisible = true;
         });
       } else if (_passphrase.isNotEmpty &&
           _passphraseConfirm.isNotEmpty &&
-          _passphrase == _passphraseConfirm &&
-          _generateMnemonicPhrase()) {
-        // 패스프레이즈 입력 완료 | dice roll 데이터로 니모닉 생성 시도 성공
-        Provider.of<WalletCreationProvider>(context, listen: false).setSecretAndPassphrase(_mnemonic, _passphrase);
+          listEquals(_passphrase, _passphraseConfirm)) {
         _passphraseFocusNode.unfocus();
         _passphraseConfirmFocusNode.unfocus();
 
-        Navigator.pushNamed(context, AppRoutes.mnemonicManualEntropyConfirmation);
+        _checkDuplicateThenProceed();
+      } else if (_passphraseFocusNode.hasFocus) {
+        _passphraseConfirmFocusNode.requestFocus();
       }
     }
   }
 
   Widget _buildStepIndicator() {
-    return Visibility(
-      maintainState: true,
-      maintainAnimation: true,
-      maintainSize: true,
-      maintainInteractivity: true,
-      visible: widget.usePassphrase,
-      child: Column(
-        children: [
-          CoconutLayout.spacing_500h,
-          Stack(
-            children: [
-              const SizedBox(
-                height: 50,
-                width: 120,
-                child: Center(
-                  child: DottedDivider(
-                    height: 2.0,
-                    width: 100,
-                    dashWidth: 2.0,
-                    dashSpace: 4.0,
-                    color: CoconutColors.gray400,
-                  ),
-                ),
-              ),
-              Positioned(
-                left: 0,
-                top: 0,
-                bottom: 0,
-                child: NumberWidget(
-                  number: 1,
-                  selected: step == 0,
-                  onSelected: () {
-                    setState(() {
-                      step = 0;
-                    });
-                  },
-                ),
-              ),
-              Positioned(
-                right: 0,
-                top: 0,
-                bottom: 0,
-                child: NumberWidget(
-                  number: 2,
-                  selected: step == 1,
-                  onSelected: () {
-                    setState(() {
-                      step = 1;
-                    });
-                  },
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
+    return EntropyStepIndicator(
+      usePassphrase: widget.usePassphrase,
+      step: step,
+      onStepSelected: (selectedStep) {
+        setState(() {
+          step = selectedStep;
+        });
+      },
     );
+    // return Visibility(
+    //   maintainState: true,
+    //   maintainAnimation: true,
+    //   maintainSize: true,
+    //   maintainInteractivity: true,
+    //   visible: widget.usePassphrase,
+    //   child: Column(
+    //     children: [
+    //       CoconutLayout.spacing_500h,
+    //       Stack(
+    //         children: [
+    //           const SizedBox(
+    //             height: 50,
+    //             width: 120,
+    //             child: Center(
+    //               child: DottedDivider(
+    //                 height: 2.0,
+    //                 width: 100,
+    //                 dashWidth: 2.0,
+    //                 dashSpace: 4.0,
+    //                 color: CoconutColors.gray400,
+    //               ),
+    //             ),
+    //           ),
+    //           Positioned(
+    //             left: 0,
+    //             top: 0,
+    //             bottom: 0,
+    //             child: NumberWidget(
+    //               number: 1,
+    //               selected: step == 0,
+    //               onSelected: () {
+    //                 setState(() {
+    //                   step = 0;
+    //                 });
+    //               },
+    //             ),
+    //           ),
+    //           Positioned(
+    //             right: 0,
+    //             top: 0,
+    //             bottom: 0,
+    //             child: NumberWidget(
+    //               number: 2,
+    //               selected: step == 1,
+    //               onSelected: () {
+    //                 setState(() {
+    //                   step = 1;
+    //                 });
+    //               },
+    //             ),
+    //           ),
+    //         ],
+    //       ),
+    //     ],
+    //   ),
+    // );
   }
 
   Widget _buildDiceGrid() {
@@ -746,6 +751,18 @@ class _DiceRollState extends State<DiceRoll> {
     } catch (e) {
       Logger.log('error: $e');
       return false;
+    }
+  }
+
+  void _checkDuplicateThenProceed() {
+    if (_generateMnemonicPhrase()) {
+      if (Provider.of<WalletProvider>(context, listen: false).isSeedDuplicated(_mnemonic, _passphrase)) {
+        CoconutToast.showToast(context: context, text: t.toast.mnemonic_already_added, isVisibleIcon: true);
+        return;
+      }
+
+      Provider.of<WalletCreationProvider>(context, listen: false).setSecretAndPassphrase(_mnemonic, _passphrase);
+      Navigator.pushNamed(context, AppRoutes.mnemonicManualEntropyConfirmation);
     }
   }
 

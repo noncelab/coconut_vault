@@ -10,6 +10,7 @@ import 'package:coconut_vault/providers/wallet_creation_provider.dart';
 import 'package:coconut_vault/utils/logger.dart';
 import 'package:coconut_vault/widgets/button/fixed_bottom_button.dart';
 import 'package:coconut_vault/widgets/button/shrink_animation_button.dart';
+import 'package:coconut_vault/widgets/entropy_base/entropy_common_widget.dart';
 import 'package:coconut_vault/widgets/list/mnemonic_list.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
@@ -18,233 +19,234 @@ import 'package:coconut_vault/widgets/check_list.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:provider/provider.dart';
 
-class MnemonicGenerationScreen extends StatefulWidget {
-  const MnemonicGenerationScreen({super.key});
+// class MnemonicGenerationScreen extends StatefulWidget {
+//   const MnemonicGenerationScreen({super.key});
 
-  @override
-  State<MnemonicGenerationScreen> createState() => _MnemonicGenerationScreenState();
-}
+//   @override
+//   State<MnemonicGenerationScreen> createState() => _MnemonicGenerationScreenState();
+// }
 
-class _MnemonicGenerationScreenState extends State<MnemonicGenerationScreen> {
-  late final int _totalStep;
-  int _step = 0;
-  int _selectedWordsCount = 0;
-  bool _usePassphrase = false;
+// class _MnemonicGenerationScreenState extends State<MnemonicGenerationScreen> {
+//   late final int _totalStep;
+//   int _step = 0;
+//   int _selectedWordsCount = 0;
+//   bool _usePassphrase = false;
 
-  final ValueNotifier<bool> _regenerateNotifier = ValueNotifier<bool>(false);
+//   final ValueNotifier<bool> _regenerateNotifier = ValueNotifier<bool>(false);
 
-  void _onRegenerate() {
-    _regenerateNotifier.value = true;
-  }
+//   void _onRegenerate() {
+//     _regenerateNotifier.value = true;
+//   }
 
-  void _onLengthSelected(int wordsCount) {
-    setState(() {
-      _selectedWordsCount = wordsCount;
-      _step = _totalStep == 2 ? 1 : 2;
-    });
-  }
+//   void _onLengthSelected(int wordsCount) {
+//     setState(() {
+//       _selectedWordsCount = wordsCount;
+//       _step = _totalStep == 2 ? 1 : 2;
+//     });
+//   }
 
-  void _onPassphraseSelected(bool selected) {
-    setState(() {
-      _usePassphrase = selected;
-      _step = 2;
-    });
-  }
+//   void _onPassphraseSelected(bool selected) {
+//     setState(() {
+//       _usePassphrase = selected;
+//       _step = 2;
+//     });
+//   }
 
-  void _onReset() {
-    setState(() {
-      _step = 0;
-      _selectedWordsCount = 0;
-      _usePassphrase = false;
-    });
-  }
+//   void _onReset() {
+//     setState(() {
+//       _step = 0;
+//       _selectedWordsCount = 0;
+//       _usePassphrase = false;
+//     });
+//   }
 
-  void _showStopGeneratingMnemonicDialog() {
-    showDialog(
-      context: context,
-      builder: (BuildContext dialogContext) {
-        return CoconutPopup(
-          insetPadding: EdgeInsets.symmetric(horizontal: MediaQuery.of(dialogContext).size.width * 0.15),
-          title: t.alert.stop_generating_mnemonic.title,
-          description: t.alert.stop_generating_mnemonic.description,
-          backgroundColor: CoconutColors.white,
-          rightButtonText: t.yes,
-          rightButtonColor: CoconutColors.gray900,
-          leftButtonText: t.alert.stop_generating_mnemonic.reselect,
-          leftButtonColor: CoconutColors.gray900,
-          onTapLeft: () {
-            Navigator.pop(context);
-            _onReset();
-          },
-          onTapRight: () {
-            Navigator.pop(dialogContext); // 다이얼로그 닫기
-            Navigator.pop(context);
-          },
-        );
-      },
-    );
-  }
+//   void _showStopGeneratingMnemonicDialog() {
+//     showDialog(
+//       context: context,
+//       builder: (BuildContext dialogContext) {
+//         return CoconutPopup(
+//           insetPadding: EdgeInsets.symmetric(horizontal: MediaQuery.of(dialogContext).size.width * 0.15),
+//           title: t.alert.stop_generating_mnemonic.title,
+//           description: t.alert.stop_generating_mnemonic.description,
+//           backgroundColor: CoconutColors.white,
+//           rightButtonText: t.yes,
+//           rightButtonColor: CoconutColors.gray900,
+//           leftButtonText: t.alert.stop_generating_mnemonic.reselect,
+//           leftButtonColor: CoconutColors.gray900,
+//           onTapLeft: () {
+//             Navigator.pop(context);
+//             _onReset();
+//           },
+//           onTapRight: () {
+//             Navigator.pop(dialogContext); // 다이얼로그 닫기
+//             Navigator.pop(context);
+//           },
+//         );
+//       },
+//     );
+//   }
 
-  void _onNavigateToNext() {
-    Navigator.pushNamed(context, AppRoutes.mnemonicVerify);
-  }
+//   void _onNavigateToNext() {
+//     Navigator.pushNamed(context, AppRoutes.mnemonicVerify);
+//   }
 
-  @override
-  void initState() {
-    super.initState();
-    Provider.of<WalletCreationProvider>(context, listen: false).resetAll();
-    _totalStep = Provider.of<VisibilityProvider>(context, listen: false).isPassphraseUseEnabled ? 2 : 1;
-  }
+//   @override
+//   void initState() {
+//     super.initState();
+//     Provider.of<WalletCreationProvider>(context, listen: false).resetAll();
+//     _totalStep = Provider.of<VisibilityProvider>(context, listen: false).isPassphraseUseEnabled ? 2 : 1;
+//   }
 
-  @override
-  Widget build(BuildContext context) {
-    final List<Widget> screens = [
-      WordsLengthSelection(onSelected: _onLengthSelected),
-      PassphraseSelection(onSelected: _onPassphraseSelected),
-      MnemonicWords(
-        wordsCount: _selectedWordsCount,
-        usePassphrase: _usePassphrase,
-        onReset: _onReset,
-        onNavigateToNext: _onNavigateToNext,
-        regenerateNotifier: _regenerateNotifier,
-      ),
-    ];
+//   @override
+//   Widget build(BuildContext context) {
+//     final List<Widget> screens = [
+//       WordsLengthSelection(onSelected: _onLengthSelected),
+//       PassphraseSelection(onSelected: _onPassphraseSelected),
+//       MnemonicWords(
+//         wordsCount: _selectedWordsCount,
+//         usePassphrase: _usePassphrase,
+//         onReset: _onReset,
+//         onNavigateToNext: _onNavigateToNext,
+//         regenerateNotifier: _regenerateNotifier,
+//       ),
+//     ];
 
-    return PopScope(
-      canPop: false,
-      onPopInvokedWithResult: (didPop, _) {
-        if (!didPop) {
-          _showStopGeneratingMnemonicDialog();
-        }
-      },
-      child: GestureDetector(
-        onTap: () {
-          FocusScope.of(context).unfocus();
-        },
-        child: Scaffold(
-          backgroundColor: CoconutColors.white,
-          appBar: CoconutAppBar.build(
-            title: t.mnemonic_generate_screen.title,
-            context: context,
-            onBackPressed: _showStopGeneratingMnemonicDialog,
-            backgroundColor: CoconutColors.white,
-            actionButtonList: [
-              if (_step == 2)
-                IconButton(
-                  onPressed: _onRegenerate,
-                  icon: SvgPicture.asset('assets/svg/refresh.svg', width: 18, height: 18),
-                ),
-            ],
-          ),
-          body: SafeArea(child: screens[_step]),
-        ),
-      ),
-    );
-  }
-}
+//     return PopScope(
+//       canPop: false,
+//       onPopInvokedWithResult: (didPop, _) {
+//         if (!didPop) {
+//           _showStopGeneratingMnemonicDialog();
+//         }
+//       },
+//       child: GestureDetector(
+//         onTap: () {
+//           FocusScope.of(context).unfocus();
+//         },
+//         child: Scaffold(
+//           backgroundColor: CoconutColors.white,
+//           appBar: CoconutAppBar.build(
+//             title: t.mnemonic_generate_screen.title,
+//             context: context,
+//             onBackPressed: _showStopGeneratingMnemonicDialog,
+//             backgroundColor: CoconutColors.white,
+//             actionButtonList: [
+//               if (_step == 2)
+//                 IconButton(
+//                   onPressed: _onRegenerate,
+//                   icon: SvgPicture.asset('assets/svg/refresh.svg', width: 18, height: 18),
+//                 ),
+//             ],
+//           ),
+//           body: SafeArea(child: screens[_step]),
+//         ),
+//       ),
+//     );
+//   }
+// }
 
-class WordsLengthSelection extends StatefulWidget {
-  final void Function(int) onSelected;
+// class WordsLengthSelection extends StatefulWidget {
+//   final void Function(int) onSelected;
 
-  const WordsLengthSelection({super.key, required this.onSelected});
+//   const WordsLengthSelection({super.key, required this.onSelected});
 
-  @override
-  State<WordsLengthSelection> createState() => _WordsLengthSelectionState();
-}
+//   @override
+//   State<WordsLengthSelection> createState() => _WordsLengthSelectionState();
+// }
 
-class _WordsLengthSelectionState extends State<WordsLengthSelection> {
-  int selectedWordsCount = 0;
+// class _WordsLengthSelectionState extends State<WordsLengthSelection> {
+//   int selectedWordsCount = 0;
 
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 32),
-      child: Column(
-        children: [
-          Text(t.mnemonic_generate_screen.select_word_length, style: CoconutTypography.body1_16_Bold),
-          CoconutLayout.spacing_800h,
-          Row(
-            children: [
-              _buildWordCountButton(t.mnemonic_generate_screen.twelve),
-              CoconutLayout.spacing_200w,
-              _buildWordCountButton(t.mnemonic_generate_screen.twenty_four),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
+//   @override
+//   Widget build(BuildContext context) {
+//     return Padding(
+//       padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 32),
+//       child: Column(
+//         children: [
+//           Text(t.mnemonic_generate_screen.select_word_length, style: CoconutTypography.body1_16_Bold),
+//           CoconutLayout.spacing_800h,
+//           Row(
+//             children: [
+//               _buildWordCountButton(t.mnemonic_generate_screen.twelve),
+//               CoconutLayout.spacing_200w,
+//               _buildWordCountButton(t.mnemonic_generate_screen.twenty_four),
+//             ],
+//           ),
+//         ],
+//       ),
+//     );
+//   }
 
-  Widget _buildWordCountButton(String text) {
-    return ShrinkAnimationButton(
-      defaultColor: CoconutColors.gray150,
-      pressedColor: CoconutColors.gray500.withValues(alpha: 0.15),
-      child: Container(
-        width: (MediaQuery.of(context).size.width - 44) / 2,
-        padding: const EdgeInsets.symmetric(vertical: 40.0),
-        child: Center(child: Text(text, style: CoconutTypography.body1_16_Bold)),
-      ),
-      onPressed: () {
-        setState(() {
-          selectedWordsCount = text == t.mnemonic_generate_screen.twelve ? 12 : 24;
-        });
-        widget.onSelected(selectedWordsCount);
-      },
-    );
-  }
-}
+//   Widget _buildWordCountButton(String text) {
+//     return ShrinkAnimationButton(
+//       defaultColor: CoconutColors.gray150,
+//       pressedColor: CoconutColors.gray500.withValues(alpha: 0.15),
+//       child: Container(
+//         width: (MediaQuery.of(context).size.width - 44) / 2,
+//         padding: const EdgeInsets.symmetric(vertical: 40.0),
+//         child: Center(child: Text(text, style: CoconutTypography.body1_16_Bold)),
+//       ),
+//       onPressed: () {
+//         setState(() {
+//           selectedWordsCount = text == t.mnemonic_generate_screen.twelve ? 12 : 24;
+//         });
+//         widget.onSelected(selectedWordsCount);
+//       },
+//     );
+//   }
+// }
 
-class PassphraseSelection extends StatefulWidget {
-  final void Function(bool) onSelected;
+// class PassphraseSelection extends StatefulWidget {
+//   final void Function(bool) onSelected;
 
-  const PassphraseSelection({super.key, required this.onSelected});
+//   const PassphraseSelection({super.key, required this.onSelected});
 
-  @override
-  State<PassphraseSelection> createState() => _PassphraseSelectionState();
-}
+//   @override
+//   State<PassphraseSelection> createState() => _PassphraseSelectionState();
+// }
 
-class _PassphraseSelectionState extends State<PassphraseSelection> {
-  bool usePassphrase = false;
+// class _PassphraseSelectionState extends State<PassphraseSelection> {
+//   bool usePassphrase = false;
 
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 32),
-      child: Column(
-        children: [
-          Text(
-            t.mnemonic_generate_screen.use_passphrase,
-            style: CoconutTypography.body1_16_Bold,
-            textAlign: TextAlign.center,
-          ),
-          CoconutLayout.spacing_800h,
-          Row(
-            children: [_buildPassphraseUseButton(t.no), CoconutLayout.spacing_200w, _buildPassphraseUseButton(t.yes)],
-          ),
-        ],
-      ),
-    );
-  }
+//   @override
+//   Widget build(BuildContext context) {
+//     return Padding(
+//       padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 32),
+//       child: Column(
+//         children: [
+//           Text(
+//             t.mnemonic_generate_screen.use_passphrase,
+//             style: CoconutTypography.body1_16_Bold,
+//             textAlign: TextAlign.center,
+//           ),
+//           CoconutLayout.spacing_800h,
+//           Row(
+//             children: [_buildPassphraseUseButton(t.no), CoconutLayout.spacing_200w, _buildPassphraseUseButton(t.yes)],
+//           ),
+//         ],
+//       ),
+//     );
+//   }
 
-  Widget _buildPassphraseUseButton(String text) {
-    return ShrinkAnimationButton(
-      defaultColor: CoconutColors.gray150,
-      pressedColor: CoconutColors.gray500.withValues(alpha: 0.15),
-      child: Container(
-        width: (MediaQuery.of(context).size.width - 44) / 2,
-        padding: const EdgeInsets.symmetric(vertical: 40.0),
-        child: Center(child: Text(text, style: CoconutTypography.body1_16_Bold)),
-      ),
-      onPressed: () {
-        setState(() {
-          usePassphrase = text == t.no ? false : true;
-        });
-        widget.onSelected(usePassphrase);
-      },
-    );
-  }
-}
+//   Widget _buildPassphraseUseButton(String text) {
+//     return ShrinkAnimationButton(
+//       defaultColor: CoconutColors.gray150,
+//       pressedColor: CoconutColors.gray500.withValues(alpha: 0.15),
+//       child: Container(
+//         width: (MediaQuery.of(context).size.width - 44) / 2,
+//         padding: const EdgeInsets.symmetric(vertical: 40.0),
+//         child: Center(child: Text(text, style: CoconutTypography.body1_16_Bold)),
+//       ),
+//       onPressed: () {
+//         setState(() {
+//           usePassphrase = text == t.no ? false : true;
+//         });
+//         widget.onSelected(usePassphrase);
+//       },
+//     );
+//   }
+// }
 
+// TODO 유사 코드
 enum MnemonicWordsFrom { coinflip, generation }
 
 class MnemonicWords extends StatefulWidget {
@@ -308,9 +310,11 @@ class _MnemonicWordsState extends State<MnemonicWords> {
     Seed randomSeed = Seed.random(mnemonicLength: widget.wordsCount);
 
     setState(() {
-      _mnemonic = randomSeed.mnemonic;
+      _mnemonic = Uint8List.fromList(randomSeed.mnemonic);
       hasScrolledToBottom = widget.wordsCount == 12;
     });
+
+    randomSeed.wipe();
   }
 
   NextButtonState _getNextButtonState() {

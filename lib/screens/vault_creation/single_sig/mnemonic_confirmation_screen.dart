@@ -97,6 +97,7 @@ class _MnemonicConfirmationScreenState extends State<MnemonicConfirmationScreen>
                                   _isWarningVisible = false;
                                 });
                               },
+                              showWarningWidget: false,
                             )
                             : _passphraseGridViewWidget(),
                         const SizedBox(height: 100),

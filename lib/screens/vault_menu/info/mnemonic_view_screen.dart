@@ -81,13 +81,14 @@ class _MnemonicViewScreen extends State<MnemonicViewScreen> with TickerProviderS
                 color: CoconutColors.white,
                 child: Column(
                   children: [
-                    Padding(
-                      padding: const EdgeInsets.only(top: 48, bottom: 24),
-                      child: Text(
-                        t.mnemonic_view_screen.security_guide,
-                        style: CoconutTypography.body1_16_Bold.setColor(CoconutColors.warningText),
-                      ),
-                    ),
+                    // Padding(
+                    //   padding: const EdgeInsets.only(top: 48, bottom: 24),
+                    //   child: Text(
+                    //     t.mnemonic_view_screen.security_guide,
+                    //     style: CoconutTypography.body1_16_Bold.setColor(CoconutColors.warningText),
+                    //   ),
+                    // ),
+                    CoconutLayout.spacing_1200h,
                     MnemonicList(mnemonic: _mnemonic, isLoading: _isLoading),
                     const SizedBox(height: 40),
                   ],

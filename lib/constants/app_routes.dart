@@ -35,4 +35,8 @@ class AppRoutes {
   static const String vaultListRestoration = "/vault-list-restoration";
   static const String vaultList = "/vault-list";
   static const String passphraseVerification = "/passphrase-verification";
+
+  static const String mnemonicDiceRoll2 = '/mnemonic-dice-roll2';
+  static const String mnemonicCoinflip2 = '/mnemonic-coinflip2';
+  static const String mnemonicAutoGen = '/mnemonic-auto-gen';
 }

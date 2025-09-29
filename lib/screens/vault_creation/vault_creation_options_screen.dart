@@ -23,21 +23,24 @@ class VaultCreationOptions extends StatelessWidget {
         name: t.vault_creation_options_screen.coin_flip,
         path: AppRoutes.securitySelfCheck,
         onNextPressed: () {
-          Navigator.pushReplacementNamed(context, AppRoutes.mnemonicCoinflip);
+          Navigator.pushReplacementNamed(context, AppRoutes.mnemonicCoinflip2);
+          // Navigator.pushReplacementNamed(context, AppRoutes.mnemonicCoinflip);
         },
       ),
       Option(
         name: t.vault_creation_options_screen.dice_roll,
         path: AppRoutes.securitySelfCheck,
         onNextPressed: () {
-          Navigator.pushReplacementNamed(context, AppRoutes.mnemonicDiceRoll);
+          // Navigator.pushReplacementNamed(context, AppRoutes.mnemonicDiceRoll);
+          Navigator.pushReplacementNamed(context, AppRoutes.mnemonicDiceRoll2);
         },
       ),
       Option(
         name: t.vault_creation_options_screen.auto_generate,
         path: AppRoutes.securitySelfCheck,
         onNextPressed: () {
-          Navigator.pushReplacementNamed(context, AppRoutes.mnemonicGeneration);
+          // Navigator.pushReplacementNamed(context, AppRoutes.mnemonicGeneration);
+          Navigator.pushReplacementNamed(context, AppRoutes.mnemonicAutoGen);
         },
       ),
       Option(name: t.vault_creation_options_screen.import_mnemonic, path: AppRoutes.mnemonicImport),

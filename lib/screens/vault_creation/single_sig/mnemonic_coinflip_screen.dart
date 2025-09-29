@@ -7,9 +7,11 @@ import 'package:coconut_vault/extensions/uint8list_extensions.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/providers/visibility_provider.dart';
 import 'package:coconut_vault/providers/wallet_creation_provider.dart';
+import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:coconut_vault/utils/conversion_util.dart';
 import 'package:coconut_vault/widgets/button/fixed_bottom_tween_button.dart';
 import 'package:coconut_vault/widgets/button/shrink_animation_button.dart';
+import 'package:coconut_vault/widgets/entropy_base/entropy_common_widget.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -304,9 +306,19 @@ class _FlipCoinState extends State<FlipCoin> {
     return ShrinkAnimationButton(
       onPressed: onPressed,
       pressedColor: CoconutColors.gray200,
-      child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
-        child: Center(child: Text(text)),
+      child: MediaQuery(
+        data: MediaQuery.of(context).copyWith(textScaler: const TextScaler.linear(1.0)),
+        child: Container(
+          padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+          child: Center(
+            child: Text(
+              text,
+              style: CoconutTypography.body2_14.setColor(
+                _bits.isEmpty ? CoconutColors.secondaryText : CoconutColors.black.withValues(alpha: 0.7),
+              ),
+            ),
+          ),
+        ),
       ),
     );
   }
@@ -456,19 +468,25 @@ class _FlipCoinState extends State<FlipCoin> {
       padding: const EdgeInsets.symmetric(horizontal: 16.0),
       child: Column(
         children: [
-          CoconutLayout.spacing_500h,
+          CoconutLayout.spacing_200h,
           Opacity(
             opacity: _bits.isNotEmpty ? 0.0 : 1.0,
-            child: Text(
-              t.mnemonic_coin_flip_screen.guide,
-              style: CoconutTypography.body1_16_Bold.setColor(CoconutColors.gray800),
-              textAlign: TextAlign.center,
+            child: MediaQuery(
+              data: MediaQuery.of(context).copyWith(textScaler: const TextScaler.linear(1.0)),
+              child: Text(
+                t.mnemonic_coin_flip_screen.guide,
+                style: CoconutTypography.heading4_18_Bold.setColor(CoconutColors.gray800),
+                textAlign: TextAlign.center,
+              ),
             ),
           ),
-          CoconutLayout.spacing_400h,
+          CoconutLayout.spacing_200h,
           _buildBitGrid(),
           CoconutLayout.spacing_200h,
-          Text('$_currentIndex/$_totalBits', style: CoconutTypography.heading4_18_Bold),
+          MediaQuery(
+            data: MediaQuery.of(context).copyWith(textScaler: const TextScaler.linear(1.0)),
+            child: Text('$_currentIndex/$_totalBits', style: CoconutTypography.heading4_18_Bold),
+          ),
           CoconutLayout.spacing_1400h,
           _buildCoinflipButtons(),
         ],
@@ -515,12 +533,7 @@ class _FlipCoinState extends State<FlipCoin> {
   void _onNextButtonClicked() {
     // 패프 사용안함 | Coinflip 화면
     if (step == 0 && stepCount == 1) {
-      setState(() {
-        if (_generateMnemonicPhrase()) {
-          Provider.of<WalletCreationProvider>(context, listen: false).setSecretAndPassphrase(_mnemonic, _passphrase);
-          Navigator.pushNamed(context, AppRoutes.mnemonicManualEntropyConfirmation);
-        }
-      });
+      _checkDuplicateThenProceed();
       return;
     }
 
@@ -544,71 +557,82 @@ class _FlipCoinState extends State<FlipCoin> {
         });
       } else if (_passphrase.isNotEmpty &&
           _passphraseConfirm.isNotEmpty &&
-          listEquals(_passphrase, _passphraseConfirm) &&
-          _generateMnemonicPhrase()) {
-        // 패스프레이즈 입력 완료 | coinflip 데이터로 니모닉 생성 시도 성공
-        Provider.of<WalletCreationProvider>(context, listen: false).setSecretAndPassphrase(_mnemonic, _passphrase);
+          listEquals(_passphrase, _passphraseConfirm)) {
         _passphraseFocusNode.unfocus();
         _passphraseConfirmFocusNode.unfocus();
 
-        Navigator.pushNamed(context, AppRoutes.mnemonicManualEntropyConfirmation);
+        _checkDuplicateThenProceed();
       }
     }
   }
 
   Widget _buildStepIndicator() {
-    return Visibility(
-      maintainState: true,
-      maintainAnimation: true,
-      maintainSize: true,
-      maintainInteractivity: true,
-      visible: widget.usePassphrase,
-      child: Stack(
-        children: [
-          const SizedBox(
-            height: 50,
-            width: 120,
-            child: Center(
-              child: DottedDivider(
-                height: 2.0,
-                width: 100,
-                dashWidth: 2.0,
-                dashSpace: 4.0,
-                color: CoconutColors.gray400,
-              ),
-            ),
-          ),
-          Positioned(
-            left: 0,
-            top: 0,
-            bottom: 0,
-            child: NumberWidget(
-              number: 1,
-              selected: step == 0,
-              onSelected: () {
-                setState(() {
-                  step = 0;
-                });
-              },
-            ),
-          ),
-          Positioned(
-            right: 0,
-            top: 0,
-            bottom: 0,
-            child: NumberWidget(
-              number: 2,
-              selected: step == 1,
-              onSelected: () {
-                setState(() {
-                  step = 1;
-                });
-              },
-            ),
-          ),
-        ],
-      ),
+    return EntropyStepIndicator(
+      usePassphrase: widget.usePassphrase,
+      step: step,
+      onStepSelected: (selectedStep) {
+        setState(() {
+          step = selectedStep;
+        });
+      },
     );
+    // return Visibility(
+    //   maintainState: true,
+    //   maintainAnimation: true,
+    //   maintainSize: true,
+    //   maintainInteractivity: true,
+    //   visible: widget.usePassphrase,
+    //   child: Column(
+    //     children: [
+    //       CoconutLayout.spacing_500h,
+    //       Stack(
+    //         children: [
+    //           const SizedBox(
+    //             height: 50,
+    //             width: 120,
+    //             child: Center(
+    //               child: DottedDivider(
+    //                 height: 2.0,
+    //                 width: 100,
+    //                 dashWidth: 2.0,
+    //                 dashSpace: 4.0,
+    //                 color: CoconutColors.gray400,
+    //               ),
+    //             ),
+    //           ),
+    //           Positioned(
+    //             left: 0,
+    //             top: 0,
+    //             bottom: 0,
+    //             child: NumberWidget(
+    //               number: 1,
+    //               selected: step == 0,
+    //               onSelected: () {
+    //                 setState(() {
+    //                   step = 0;
+    //                 });
+    //               },
+    //             ),
+    //           ),
+    //           Positioned(
+    //             right: 0,
+    //             top: 0,
+    //             bottom: 0,
+    //             child: NumberWidget(
+    //               number: 2,
+    //               selected: step == 1,
+    //               onSelected: () {
+    //                 setState(() {
+    //                   step = 1;
+    //                 });
+    //               },
+    //             ),
+    //           ),
+    //         ],
+    //       ),
+    //     ],
+    //   ),
+    // );
   }
 
   Widget _buildBitGrid() {
@@ -735,6 +759,18 @@ class _FlipCoinState extends State<FlipCoin> {
       return true;
     } catch (e) {
       return false;
+    }
+  }
+
+  void _checkDuplicateThenProceed() {
+    if (_generateMnemonicPhrase()) {
+      if (Provider.of<WalletProvider>(context, listen: false).isSeedDuplicated(_mnemonic, _passphrase)) {
+        CoconutToast.showToast(context: context, text: t.toast.mnemonic_already_added, isVisibleIcon: true);
+        return;
+      }
+
+      Provider.of<WalletCreationProvider>(context, listen: false).setSecretAndPassphrase(_mnemonic, _passphrase);
+      Navigator.pushNamed(context, AppRoutes.mnemonicManualEntropyConfirmation);
     }
   }
 
