@@ -94,8 +94,8 @@ class _SingleSigSetupInfoScreenState extends State<SingleSigSetupInfoScreen> {
       },
       child: CustomLoadingOverlay(
         child: ChangeNotifierProvider(
-          create: (context) =>
-              SingleSigSetupInfoViewModel(Provider.of<WalletProvider>(context, listen: false), widget.id),
+          create:
+              (context) => SingleSigSetupInfoViewModel(Provider.of<WalletProvider>(context, listen: false), widget.id),
           child: Consumer<SingleSigSetupInfoViewModel>(
             builder: (context, viewModel, child) {
               final canDelete = viewModel.hasLinkedMultisigVault != true;
@@ -212,16 +212,15 @@ class _SingleSigSetupInfoScreenState extends State<SingleSigSetupInfoScreen> {
   }
 
   void _showSyncOptionBottomSheet(int walletId, BuildContext context) {
-    MyBottomSheet.showDraggableBottomSheet(
+    MyBottomSheet.showBottomSheet_ratio(
       context: context,
-      minChildSize: 0.5,
-      childBuilder: (scrollController) => SelectSyncOptionBottomSheet(
+      ratio: 0.5,
+      child: SelectSyncOptionBottomSheet(
         onSyncOptionSelected: (format) {
           if (!context.mounted) return;
           Navigator.pop(context);
           Navigator.pushNamed(context, AppRoutes.syncToWallet, arguments: {'id': walletId, 'syncOption': format});
         },
-        scrollController: scrollController,
       ),
     );
   }

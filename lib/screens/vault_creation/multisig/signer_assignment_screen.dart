@@ -382,6 +382,7 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
                   maxChildSize: 0.9,
                   showDragHandle: true,
                   context: context,
+                  title: t.assign_signers_screen.use_internal_key_option,
                   childBuilder:
                       (scrollController) => KeyListBottomSheet(
                         // 키 옵션 중 하나 선택했을 때

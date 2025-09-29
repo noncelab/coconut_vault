@@ -222,6 +222,7 @@ class _VaultHomeScreenState extends State<VaultHomeScreen> with TickerProviderSt
                 Navigator.pushNamed(context, AppRoutes.vaultList);
               },
               borderRadius: CoconutStyles.radius_200,
+              pressedColor: CoconutColors.gray100,
               child: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
                 child: Row(
@@ -356,6 +357,7 @@ class _VaultHomeScreenState extends State<VaultHomeScreen> with TickerProviderSt
                       MyBottomSheet.showDraggableBottomSheet(
                         context: context,
                         minChildSize: 0.5,
+                        title: t.select_vault_bottom_sheet.select_wallet,
                         childBuilder:
                             (scrollController) => SelectVaultBottomSheet(
                               vaultList: context.read<WalletProvider>().vaultList,
@@ -384,10 +386,11 @@ class _VaultHomeScreenState extends State<VaultHomeScreen> with TickerProviderSt
                       MyBottomSheet.showDraggableBottomSheet(
                         context: context,
                         minChildSize: 0.5,
+                        title: t.select_vault_bottom_sheet.select_wallet,
+                        subLabel: t.vault_menu_screen.description.export_xpub,
                         childBuilder:
                             (scrollController) => SelectVaultBottomSheet(
                               vaultList: context.read<WalletProvider>().vaultList,
-                              subLabel: t.vault_menu_screen.description.export_xpub,
                               onVaultSelected: (id) async {
                                 bool hasPassphrase = await context.read<VaultHomeViewModel>().hasPassphrase(id);
 
@@ -428,6 +431,8 @@ class _VaultHomeScreenState extends State<VaultHomeScreen> with TickerProviderSt
                     onPressed: () {
                       MyBottomSheet.showDraggableBottomSheet(
                         context: context,
+                        title: t.select_vault_bottom_sheet.select_wallet,
+                        subLabel: t.vault_menu_screen.description.import_bsms,
                         childBuilder:
                             (scrollController) => SelectVaultBottomSheet(
                               vaultList:
@@ -479,18 +484,16 @@ class _VaultHomeScreenState extends State<VaultHomeScreen> with TickerProviderSt
   }
 
   void _showSyncOptionBottomSheet(int walletId, BuildContext context) {
-    MyBottomSheet.showDraggableBottomSheet(
+    MyBottomSheet.showBottomSheet_ratio(
       context: context,
-      minChildSize: 0.5,
-      childBuilder:
-          (scrollController) => SelectSyncOptionBottomSheet(
-            onSyncOptionSelected: (format) {
-              if (!context.mounted) return;
-              Navigator.popUntil(context, (route) => route.isFirst);
-              Navigator.pushNamed(context, AppRoutes.syncToWallet, arguments: {'id': walletId, 'syncOption': format});
-            },
-            scrollController: scrollController,
-          ),
+      ratio: 0.5,
+      child: SelectSyncOptionBottomSheet(
+        onSyncOptionSelected: (format) {
+          if (!context.mounted) return;
+          Navigator.popUntil(context, (route) => route.isFirst);
+          Navigator.pushNamed(context, AppRoutes.syncToWallet, arguments: {'id': walletId, 'syncOption': format});
+        },
+      ),
     );
   }
 

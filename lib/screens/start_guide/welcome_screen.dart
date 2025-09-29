@@ -287,16 +287,11 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
 
   void _showSettingGuide() {
     MyBottomSheet.showDraggableBottomSheet(
+      title: t.welcome_screen.setting_guide,
       context: context,
       childBuilder:
           (controller) => Scaffold(
             backgroundColor: CoconutColors.white,
-            appBar: CoconutAppBar.build(
-              title: t.welcome_screen.setting_guide,
-              context: context,
-              onBackPressed: null,
-              isBottom: true,
-            ),
             body: SingleChildScrollView(
               controller: controller,
               child: Padding(

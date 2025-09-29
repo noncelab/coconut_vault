@@ -323,6 +323,8 @@ class MyBottomSheet {
     double minChildSize = 0.5,
     double maxChildSize = 0.9,
     bool showDragHandle = true,
+    String? title,
+    String? subLabel,
   }) async {
     final draggableController = DraggableScrollableController();
     bool isAnimating = false;
@@ -388,6 +390,37 @@ class MyBottomSheet {
                               borderRadius: BorderRadius.circular(4),
                             ),
                           ),
+                        ),
+                      ),
+                    ),
+                  if (title != null)
+                    GestureDetector(
+                      behavior: HitTestBehavior.opaque,
+                      onVerticalDragUpdate: (details) {
+                        final delta = -details.primaryDelta! / MediaQuery.of(context).size.height;
+                        draggableController.jumpTo(draggableController.size + delta);
+                      },
+                      onVerticalDragEnd: (details) {
+                        handleDrag();
+                      },
+                      onVerticalDragCancel: () {
+                        handleDrag();
+                      },
+                      child: ClipRRect(
+                        borderRadius: const BorderRadius.only(
+                          topLeft: Radius.circular(24),
+                          topRight: Radius.circular(24),
+                        ),
+                        child: CoconutAppBar.build(
+                          title: title,
+                          context: context,
+                          onBackPressed: null,
+                          subLabel: Text(
+                            subLabel ?? '',
+                            style: CoconutTypography.body3_12.setColor(CoconutColors.black.withValues(alpha: 0.7)),
+                          ),
+                          showSubLabel: subLabel != null,
+                          isBottom: true,
                         ),
                       ),
                     ),
