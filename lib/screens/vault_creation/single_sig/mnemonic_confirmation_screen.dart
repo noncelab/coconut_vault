@@ -64,18 +64,14 @@ class _MnemonicConfirmationScreenState extends State<MnemonicConfirmationScreen>
               children: [
                 SingleChildScrollView(
                   controller: _scrollController,
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                    color: CoconutColors.white,
-                    child: Column(
-                      children: [
-                        buildStepIndicator(),
-                        step == 0
-                            ? MnemonicList(mnemonic: _mnemonic, guideText: t.mnemonic_confirm_screen.description)
-                            : _passphraseGridViewWidget(),
-                        const SizedBox(height: 100),
-                      ],
-                    ),
+                  child: Column(
+                    children: [
+                      buildStepIndicator(),
+                      step == 0
+                          ? MnemonicList(mnemonic: _mnemonic, guideText: t.mnemonic_confirm_screen.description)
+                          : _passphraseGridViewWidget(),
+                      const SizedBox(height: 100),
+                    ],
                   ),
                 ),
                 FixedBottomButton(
