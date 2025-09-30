@@ -126,7 +126,7 @@ class _PinCheckScreenState extends State<PinCheckScreen> with WidgetsBindingObse
       /// 생체 인증 시도
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (!mounted) return;
-        if (_authProvider.isBiometricEnabled) {
+        if (_isAppLaunched && _authProvider.isBiometricEnabled) {
           _isLifecycleTriggeredByBio = true;
           _authProvider.authenticateWithBiometrics().then((result) {
             if (result) {

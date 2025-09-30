@@ -67,7 +67,11 @@ class PinInputScreenState extends State<PinInputScreen> {
     }
 
     if (_pinType == PinType.character) {
-      _characterFocusNode.requestFocus();
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        Future.delayed(const Duration(milliseconds: 400), () {
+          _characterFocusNode.requestFocus();
+        });
+      });
     }
   }
 

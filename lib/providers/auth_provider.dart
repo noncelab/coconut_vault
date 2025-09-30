@@ -189,7 +189,7 @@ class AuthProvider extends ChangeNotifier {
       }
     } catch (e) {
       // 생체 인식 기능 비활성화, 사용자가 권한 거부, 기기 하드웨어에 문제가 있는 경우, 기기 호환성 문제, 플랫폼 제한
-      Logger.log(e);
+      Logger.error(e);
       _isBiometricSupportedByDevice = false;
       _isBiometricEnabled = false;
     } finally {
