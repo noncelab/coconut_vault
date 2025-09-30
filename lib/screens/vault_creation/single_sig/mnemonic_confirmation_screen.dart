@@ -69,7 +69,10 @@ class _MnemonicConfirmationScreenState extends State<MnemonicConfirmationScreen>
                       buildStepIndicator(),
                       step == 0
                           ? MnemonicList(mnemonic: _mnemonic, guideText: t.mnemonic_confirm_screen.description)
-                          : _passphraseGridViewWidget(),
+                          : Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                            child: _passphraseGridViewWidget(),
+                          ),
                       const SizedBox(height: 100),
                     ],
                   ),
