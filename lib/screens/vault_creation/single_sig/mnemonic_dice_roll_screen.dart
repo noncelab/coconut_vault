@@ -71,7 +71,7 @@ class _DiceRollState extends BaseEntropyWidgetState<DiceRoll> {
 
   @override
   void onNavigateToNext() {
-    Navigator.pushNamed(context, AppRoutes.mnemonicVerify);
+    Navigator.pushNamed(context, AppRoutes.mnemonicConfirmation, arguments: {'calledFrom': AppRoutes.mnemonicDiceRoll});
   }
 
   @override

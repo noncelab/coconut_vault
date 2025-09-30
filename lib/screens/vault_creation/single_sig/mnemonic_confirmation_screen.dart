@@ -11,8 +11,12 @@ import 'package:coconut_vault/widgets/list/mnemonic_list.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+// 니모닉 확인 및 마지막 확인 화면
+// 니모닉 확인: from dice roll, coin flip
+// 마지막 확인: 그 외
 class MnemonicConfirmationScreen extends StatefulWidget {
-  const MnemonicConfirmationScreen({super.key});
+  final String calledFrom;
+  const MnemonicConfirmationScreen({super.key, required this.calledFrom});
 
   @override
   State<MnemonicConfirmationScreen> createState() => _MnemonicConfirmationScreenState();
@@ -50,6 +54,15 @@ class _MnemonicConfirmationScreenState extends State<MnemonicConfirmationScreen>
 
   @override
   Widget build(BuildContext context) {
+    final screenTitle =
+        widget.calledFrom == AppRoutes.mnemonicCoinflip || widget.calledFrom == AppRoutes.mnemonicDiceRoll
+            ? t.mnemonic_verify_screen.title
+            : t.mnemonic_confirm_screen.title;
+    final screenDescription =
+        widget.calledFrom == AppRoutes.mnemonicCoinflip || widget.calledFrom == AppRoutes.mnemonicDiceRoll
+            ? t.mnemonic_view_screen.security_guide
+            : t.mnemonic_confirm_screen.description;
+
     return PopScope(
       canPop: false,
       child: GestureDetector(
@@ -57,7 +70,7 @@ class _MnemonicConfirmationScreenState extends State<MnemonicConfirmationScreen>
           FocusScope.of(context).unfocus();
         },
         child: Scaffold(
-          appBar: CoconutAppBar.build(title: t.mnemonic_confirm_screen.title, context: context),
+          appBar: CoconutAppBar.build(title: screenTitle, context: context),
           backgroundColor: CoconutColors.white,
           body: SafeArea(
             child: Stack(
@@ -68,7 +81,7 @@ class _MnemonicConfirmationScreenState extends State<MnemonicConfirmationScreen>
                     children: [
                       buildStepIndicator(),
                       step == 0
-                          ? MnemonicList(mnemonic: _mnemonic, guideText: t.mnemonic_confirm_screen.description)
+                          ? MnemonicList(mnemonic: _mnemonic, guideText: screenDescription)
                           : Padding(
                             padding: const EdgeInsets.symmetric(horizontal: 16.0),
                             child: _passphraseGridViewWidget(),
@@ -89,7 +102,12 @@ class _MnemonicConfirmationScreenState extends State<MnemonicConfirmationScreen>
                       });
                       return;
                     }
-                    Navigator.pushReplacementNamed(context, AppRoutes.vaultNameSetup);
+                    if (widget.calledFrom == AppRoutes.mnemonicCoinflip ||
+                        widget.calledFrom == AppRoutes.mnemonicDiceRoll) {
+                      Navigator.pushReplacementNamed(context, AppRoutes.mnemonicVerify);
+                    } else {
+                      Navigator.pushReplacementNamed(context, AppRoutes.vaultNameSetup);
+                    }
                   },
                 ),
                 const WarningWidget(visible: true),

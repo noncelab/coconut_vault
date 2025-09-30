@@ -64,7 +64,7 @@ class _CoinFlipState extends BaseEntropyWidgetState<CoinFlip> {
 
   @override
   void onNavigateToNext() {
-    Navigator.pushNamed(context, AppRoutes.mnemonicVerify, arguments: {'showWarning': true});
+    Navigator.pushNamed(context, AppRoutes.mnemonicConfirmation, arguments: {'calledFrom': AppRoutes.mnemonicCoinflip});
   }
 
   bool _isRightButtonActive() {
