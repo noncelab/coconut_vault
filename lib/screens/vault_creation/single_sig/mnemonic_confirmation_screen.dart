@@ -22,7 +22,6 @@ class _MnemonicConfirmationScreenState extends State<MnemonicConfirmationScreen>
   late WalletCreationProvider _walletCreationProvider;
   late int step;
   final ScrollController _scrollController = ScrollController();
-  late bool _isWarningVisible;
   late Uint8List _mnemonic;
 
   @override
@@ -31,7 +30,6 @@ class _MnemonicConfirmationScreenState extends State<MnemonicConfirmationScreen>
     _walletCreationProvider = Provider.of<WalletCreationProvider>(context, listen: false);
     _mnemonic = Uint8List.fromList(_walletCreationProvider.secret);
     step = 0;
-    _isWarningVisible = true;
   }
 
   @override
@@ -42,16 +40,9 @@ class _MnemonicConfirmationScreenState extends State<MnemonicConfirmationScreen>
 
   NextButtonState _getNextButtonState() {
     if (_walletCreationProvider.passphrase?.isEmpty ?? true) {
-      // 패스프레이즈 사용 안함 - 항상 '완료' 버튼
-      if (_isWarningVisible) {
-        return NextButtonState.completeInactive;
-      }
       return NextButtonState.completeActive;
     }
     if (step == 0) {
-      if (_isWarningVisible) {
-        return NextButtonState.nextInactive;
-      }
       return NextButtonState.nextActive;
     }
     return NextButtonState.completeActive;
@@ -88,15 +79,7 @@ class _MnemonicConfirmationScreenState extends State<MnemonicConfirmationScreen>
                           ),
                         ),
                         step == 0
-                            ? MnemonicList(
-                              mnemonic: _mnemonic,
-                              onWarningPressed: () {
-                                setState(() {
-                                  _isWarningVisible = false;
-                                });
-                              },
-                              showWarningWidget: false,
-                            )
+                            ? MnemonicList(mnemonic: _mnemonic, onWarningPressed: null, showWarningWidget: false)
                             : _passphraseGridViewWidget(),
                         const SizedBox(height: 100),
                       ],
@@ -194,7 +177,7 @@ class _MnemonicConfirmationScreenState extends State<MnemonicConfirmationScreen>
 
 enum NextButtonState {
   completeActive, // '완료' + 활성화
-  completeInactive, // '완료' + 비활성화
+  completeInactive, // '완료' + 비활성화, 더이상 쓰지 않음
   nextActive, // '다음' + 활성화
   nextInactive, // '다음' + 비활성화
 }
