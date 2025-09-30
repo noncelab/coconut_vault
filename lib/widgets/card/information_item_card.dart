@@ -26,30 +26,59 @@ class InformationItemCard extends StatefulWidget {
 }
 
 class _InformationItemCardState extends State<InformationItemCard> {
-  bool _isTextTooWide(String text, TextStyle style, double maxWidth) {
-    final TextPainter textPainter = TextPainter(
-      text: TextSpan(text: text, style: style),
+  bool _isTextTooWide(
+    BuildContext context,
+    String leftText,
+    String rightText,
+    TextStyle leftTextStyle,
+    TextStyle rightTextStyle,
+    double maxLeftWidth,
+    double maxRightWidth,
+  ) {
+    final textScaler = MediaQuery.of(context).textScaler;
+    final TextPainter leftTextPainter = TextPainter(
+      text: TextSpan(text: leftText, style: leftTextStyle),
       maxLines: 1,
       textDirection: TextDirection.ltr,
+      textScaler: textScaler, // 시스템 폰트 크기 반영
     )..layout();
 
-    debugPrint('textPainter.width @@@@@@@@ ${textPainter.width}');
-    debugPrint('maxWidth @@@@@@@@ $maxWidth');
+    final TextPainter rightTextPainter = TextPainter(
+      text: TextSpan(text: rightText, style: rightTextStyle),
+      maxLines: 1,
+      textDirection: TextDirection.ltr,
+      textScaler: textScaler, // 시스템 폰트 크기 반영
+    )..layout();
 
-    return textPainter.width > maxWidth;
+    return leftTextPainter.width + rightTextPainter.width > MediaQuery.of(context).size.width - 90 &&
+        (leftTextPainter.width > maxLeftWidth || rightTextPainter.width > maxRightWidth);
   }
 
   @override
   Widget build(BuildContext context) {
-    final maxWidth = MediaQuery.of(context).size.width * 0.3;
-    final baseStyle = CoconutTypography.body2_14_Bold;
-    final isTooWide = _isTextTooWide(widget.label, baseStyle, maxWidth);
-    debugPrint('isTooWide @@@@@@@@ $isTooWide');
+    const widthRatio = 0.3;
+    final maxLeftWidth = MediaQuery.of(context).size.width * widthRatio;
+    final maxRightWidth = MediaQuery.of(context).size.width * (1 - widthRatio);
+    final leftTextStyle = CoconutTypography.body2_14_Bold;
+    final rightTextStyle = widget.isNumber ? CoconutTypography.body2_14_Number : CoconutTypography.body2_14;
+    final isTooWide = _isTextTooWide(
+      context,
+      widget.label,
+      widget.value?.firstOrNull ?? '',
+      leftTextStyle,
+      rightTextStyle,
+      maxLeftWidth,
+      maxRightWidth,
+    );
+
+    RegExp exp = RegExp(r"^[^(+]+|\([^)]*\)|\+.*$");
+
     return GestureDetector(
       onTap: widget.onPressed,
       child: Container(
         color: Colors.transparent,
         padding: const EdgeInsets.symmetric(vertical: 24),
+        width: MediaQuery.of(context).size.width,
         child:
             isTooWide
                 ? Column(
@@ -61,24 +90,48 @@ class _InformationItemCardState extends State<InformationItemCard> {
                     ),
                     if (widget.value != null) ...[
                       const SizedBox(height: 8),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children:
-                            widget.value!.asMap().entries.map((entry) {
-                              final index = entry.key;
-                              final item = entry.value;
-                              final isLast = index == widget.value!.length - 1;
+                      SizedBox(
+                        width: MediaQuery.of(context).size.width,
+                        child: Column(
+                          crossAxisAlignment:
+                              widget.value!.length > 1
+                                  ? CrossAxisAlignment.start
+                                  : CrossAxisAlignment.end, // recipient만 왼쪽 정렬
+                          children:
+                              widget.value!.asMap().entries.map((entry) {
+                                final index = entry.key;
+                                final item = entry.value;
+                                final isLast = index == widget.value!.length - 1;
+                                debugPrint('item @@@@@@@@ $item');
+                                var tokens = exp.allMatches(item).map((m) => m.group(0)!).toList();
 
-                              return Padding(
-                                padding: EdgeInsets.only(bottom: isLast ? 0 : Sizes.size4),
-                                child: Text(
-                                  item,
-                                  textAlign: TextAlign.left,
-                                  style:
-                                      widget.isNumber ? CoconutTypography.body2_14_Number : CoconutTypography.body2_14,
-                                ),
-                              );
-                            }).toList(),
+                                return Container(
+                                  padding: EdgeInsets.only(bottom: isLast ? 0 : Sizes.size4),
+                                  child: Column(
+                                    children: [
+                                      Text(
+                                        tokens[0],
+                                        style:
+                                            widget.isNumber
+                                                ? CoconutTypography.body2_14_Number
+                                                : CoconutTypography.body2_14,
+                                      ),
+                                      if (tokens.length > 1)
+                                        Container(
+                                          alignment: Alignment.centerRight,
+                                          child: Text(
+                                            tokens[1],
+                                            style:
+                                                widget.isNumber
+                                                    ? CoconutTypography.body2_14_Number
+                                                    : CoconutTypography.body2_14,
+                                          ),
+                                        ),
+                                    ],
+                                  ),
+                                );
+                              }).toList(),
+                        ),
                       ),
                     ],
                     if (widget.showIcon)

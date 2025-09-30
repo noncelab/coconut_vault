@@ -86,6 +86,7 @@ dependencies:
     path: lib/packages/bc-ur-dart
   mobile_scanner: 7.0.1
   qr_code_scanner_plus: ^2.0.12
+  decimal: ^3.0.2
 
 dev_dependencies:
   flutter_oss_licenses: ^3.0.2

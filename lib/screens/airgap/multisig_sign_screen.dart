@@ -252,6 +252,7 @@ class _MultisigSignScreenState extends State<MultisigSignScreen> {
                                     ? t.sign_completed
                                     : t.sign_required_amount(n: viewModel.remainingSignatures),
                                 style: CoconutTypography.heading4_18_Bold,
+                                textAlign: TextAlign.center,
                               ),
                             ),
                             CoconutLayout.spacing_600h,

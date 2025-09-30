@@ -27,8 +27,11 @@ class _PsbtConfirmationScreenState extends State<PsbtConfirmationScreen> {
   @override
   void initState() {
     super.initState();
-    _viewModel = PsbtConfirmationViewModel(Provider.of<SignProvider>(context, listen: false));
-    _currentUnit = context.read<VisibilityProvider>().currentUnit;
+    _viewModel = PsbtConfirmationViewModel(
+      Provider.of<SignProvider>(context, listen: false),
+      Provider.of<VisibilityProvider>(context, listen: false),
+    );
+    _currentUnit = context.read<VisibilityProvider>().isBtcUnit ? BitcoinUnit.btc : BitcoinUnit.sats;
     WidgetsBinding.instance.addPostFrameCallback((_) {
       try {
         _viewModel.setTxInfo();
