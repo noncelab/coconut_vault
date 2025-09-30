@@ -117,65 +117,65 @@ class PinInputScreenState extends State<PinInputScreen> {
               )
               : null,
       body: SafeArea(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          mainAxisAlignment: MainAxisAlignment.start,
-          children: [
-            if (widget.bottomTextButtonLabel != null) const SizedBox(height: 60),
-            if (widget.title.isNotEmpty)
-              FittedBox(
-                fit: BoxFit.scaleDown,
-                alignment: Alignment.center,
+        child: SizedBox(
+          width: MediaQuery.of(context).size.width,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: [
+              if (widget.bottomTextButtonLabel != null) const SizedBox(height: 60),
+              if (widget.title.isNotEmpty)
+                FittedBox(
+                  fit: BoxFit.scaleDown,
+                  alignment: Alignment.center,
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    child: Text(widget.title, style: CoconutTypography.body1_16_Bold, textAlign: TextAlign.center),
+                  ),
+                ),
+              const SizedBox(height: 20),
+              if (widget.descriptionTextWidget != null) ...[
+                Align(alignment: Alignment.center, child: widget.descriptionTextWidget ?? const Text('')),
+                CoconutLayout.spacing_200h,
+              ],
+              SizedBox(height: 56, child: _pinType == PinType.number ? _buildNumberInput() : _buildCharacterInput()),
+              if (widget.canChangePinType && widget.step == 0)
+                Padding(
+                  padding: const EdgeInsets.only(top: 12),
+                  child: SizedBox(
+                    height: 40,
+                    child: PinTypeToggleButton(isActive: true, currentPinType: _pinType, onToggle: _togglePinType),
+                  ),
+                ),
+              Visibility(
+                visible: widget.errorMessage.isNotEmpty,
+                maintainSize: true,
+                maintainAnimation: true,
+                maintainState: true,
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  child: Text(widget.title, style: CoconutTypography.body1_16_Bold, textAlign: TextAlign.center),
+                  padding: const EdgeInsets.only(top: 16),
+                  child: Text(
+                    widget.errorMessage,
+                    style: CoconutTypography.body3_12.setColor(CoconutColors.warningText),
+                    textAlign: TextAlign.center,
+                  ),
                 ),
               ),
-            const SizedBox(height: 20),
-            if (widget.descriptionTextWidget != null) ...[
-              Align(alignment: Alignment.center, child: widget.descriptionTextWidget ?? const Text('')),
-              CoconutLayout.spacing_200h,
-            ],
-            SizedBox(height: 56, child: _pinType == PinType.number ? _buildNumberInput() : _buildCharacterInput()),
-            if (widget.canChangePinType && widget.step == 0)
-              Padding(
-                padding: const EdgeInsets.only(top: 12),
-                child: SizedBox(
-                  height: 40,
-                  child: PinTypeToggleButton(isActive: true, currentPinType: _pinType, onToggle: _togglePinType),
-                ),
-              ),
-            Visibility(
-              visible: widget.errorMessage.isNotEmpty,
-              maintainSize: true,
-              maintainAnimation: true,
-              maintainState: true,
-              child: Padding(
-                padding: const EdgeInsets.only(top: 16),
+              Visibility(
+                visible: widget.lastChance,
                 child: Text(
-                  widget.errorMessage,
+                  widget.lastChanceMessage ?? '',
                   style: CoconutTypography.body3_12.setColor(CoconutColors.warningText),
                   textAlign: TextAlign.center,
                 ),
               ),
-            ),
-            Visibility(
-              visible: widget.lastChance,
-              child: Text(
-                widget.lastChanceMessage ?? '',
-                style: CoconutTypography.body3_12.setColor(CoconutColors.warningText),
-                textAlign: TextAlign.center,
-              ),
-            ),
-            Expanded(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  IgnorePointer(
-                    ignoring: _pinType == PinType.character,
-                    child: Opacity(
-                      opacity: _pinType == PinType.number ? 1.0 : 0.0,
-                      child: Align(
+              Expanded(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    if (_pinType != PinType.character) ...[
+                      Align(
                         alignment: Alignment.bottomCenter,
                         child: GridView.count(
                           crossAxisCount: 3,
@@ -194,44 +194,51 @@ class PinInputScreenState extends State<PinInputScreen> {
                               }).toList(),
                         ),
                       ),
-                    ),
-                  ),
-                  if (widget.bottomTextButtonLabel != null)
-                    Padding(
-                      padding: const EdgeInsets.only(bottom: 50, top: 8),
-                      child: GestureDetector(
-                        onTap: () {
-                          widget.onPressedBottomTextButton?.call();
-                        },
-                        child: Text(
-                          widget.bottomTextButtonLabel ?? '',
-                          style: CoconutTypography.body2_14_Bold.setColor(CoconutColors.black.withValues(alpha: 0.5)),
-                          textAlign: TextAlign.center,
+                    ],
+                    if (widget.bottomTextButtonLabel != null)
+                      SizedBox(
+                        width: MediaQuery.of(context).size.width,
+                        child: Center(
+                          child: Padding(
+                            padding: const EdgeInsets.only(bottom: 50, top: 8),
+                            child: GestureDetector(
+                              onTap: () {
+                                widget.onPressedBottomTextButton?.call();
+                              },
+                              child: Text(
+                                widget.bottomTextButtonLabel ?? '',
+                                style: CoconutTypography.body2_14_Bold.setColor(
+                                  CoconutColors.black.withValues(alpha: 0.5),
+                                ),
+                                textAlign: TextAlign.center,
+                              ),
+                            ),
+                          ),
                         ),
                       ),
-                    ),
-                ],
+                  ],
+                ),
               ),
-            ),
-            // const SizedBox(height: 30),
-            // Visibility(
-            //   visible: widget.initOptionVisible,
-            //   replacement: Container(),
-            //   child: Padding(
-            //     padding: EdgeInsets.only(bottom: _characterFocusNode.hasFocus ? 30 : 50),
-            //     child: GestureDetector(
-            //       onTap: () {
-            //         widget.onReset?.call();
-            //       },
-            //       child: Text(
-            //         t.forgot_password,
-            //         style: CoconutTypography.body2_14_Bold.setColor(CoconutColors.black.withValues(alpha: 0.5)),
-            //         textAlign: TextAlign.center,
-            //       ),
-            //     ),
-            //   ),
-            // ),
-          ],
+              // const SizedBox(height: 30),
+              // Visibility(
+              //   visible: widget.initOptionVisible,
+              //   replacement: Container(),
+              //   child: Padding(
+              //     padding: EdgeInsets.only(bottom: _characterFocusNode.hasFocus ? 30 : 50),
+              //     child: GestureDetector(
+              //       onTap: () {
+              //         widget.onReset?.call();
+              //       },
+              //       child: Text(
+              //         t.forgot_password,
+              //         style: CoconutTypography.body2_14_Bold.setColor(CoconutColors.black.withValues(alpha: 0.5)),
+              //         textAlign: TextAlign.center,
+              //       ),
+              //     ),
+              //   ),
+              // ),
+            ],
+          ),
         ),
       ),
     );
