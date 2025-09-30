@@ -547,3 +547,15 @@ class EntropyProgressBar extends StatelessWidget {
     );
   }
 }
+
+// TODO: Mnemonic List 전 워닝 위젯 분리
+class WarningWidget extends StatelessWidget {
+  final String text;
+
+  const WarningWidget({super.key, required this.text});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container();
+  }
+}
