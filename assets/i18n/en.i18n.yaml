@@ -666,7 +666,7 @@ alert:
     confirm: "Confirm"
   stop_importing_mnemonic:
     title: "Stop Restoring"
-    description: "Really stop restoring?\nTap [Confirm] to stop, or tap [Cancel] to continue."
+    description: "Really stop restoring?"
   erase_all_entered_so_far: "Really delete all info\nentered so far?"
   erase_all_entered_mnemonic: 
     title: "Erase All"
