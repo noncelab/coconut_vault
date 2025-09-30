@@ -37,7 +37,7 @@ class VaultCreationOptions extends StatelessWidget {
         name: t.vault_creation_options_screen.auto_generate,
         path: AppRoutes.securitySelfCheck,
         onNextPressed: () {
-          Navigator.pushReplacementNamed(context, AppRoutes.mnemonicGeneration);
+          Navigator.pushReplacementNamed(context, AppRoutes.mnemonicAutoGen);
         },
       ),
       Option(name: t.vault_creation_options_screen.import_mnemonic, path: AppRoutes.mnemonicImport),
@@ -54,7 +54,7 @@ class VaultCreationOptions extends StatelessWidget {
             top: false,
             minimum: const EdgeInsets.only(top: 10),
             sliver: SliverPadding(
-              padding: const EdgeInsets.fromLTRB(16, 0, 16, 0),
+              padding: const EdgeInsets.fromLTRB(16, 0, 16, 48),
               sliver: SliverList(
                 delegate: SliverChildBuilderDelegate((ctx, index) {
                   return Column(

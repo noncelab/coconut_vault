@@ -39,7 +39,6 @@ class _KeyListBottomSheetState extends State<KeyListBottomSheet> {
             return Column(
               children: [
                 VaultRowItem(
-                  enableShotenName: false,
                   vault: widget.vaultList[index],
                   onSelected: () => _handleSelection(index),
                   isNextIconVisible: false,

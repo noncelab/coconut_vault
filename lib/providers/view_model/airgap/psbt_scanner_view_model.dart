@@ -60,10 +60,9 @@ class PsbtScannerViewModel {
       }
     } else {
       // 멀티시그지갑
-      // if (parsedPsbt.extendedPublicKeyList.isEmpty) {
-      throw ExtendedPublicKeyNotFoundException();
-      // 직접 사용하려는 지갑을 선택해 **다중 서명하기** 기능을 사용해주세요. 팝업
-      // }
+      if (parsedPsbt.extendedPublicKeyList.isEmpty) {
+        throw ExtendedPublicKeyNotFoundException();
+      }
       final psbtMfpSet = parsedPsbt.extendedPublicKeyList.map((e) => e.masterFingerprint).toSet();
       for (final vault in _walletProvider.vaultList) {
         if (vault.vaultType == WalletType.multiSignature) {

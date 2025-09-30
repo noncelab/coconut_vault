@@ -91,21 +91,23 @@ class _PassphraseVerificationScreenState extends State<PassphraseVerificationScr
               height: MediaQuery.of(context).size.height,
               child: Stack(
                 children: [
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: CoconutLayout.defaultPadding),
-                    child: SingleChildScrollView(
-                      child: SizedBox(
-                        height: scrollViewHeight,
-                        child: Column(
-                          children: [
-                            CoconutLayout.spacing_600h,
-                            Text(t.verify_passphrase_screen.description, style: CoconutTypography.body1_16_Bold),
-                            CoconutLayout.spacing_600h,
-                            _buildPassphraseInput(),
-                            CoconutLayout.spacing_1000h,
-                            if (_isPassphraseVerified) _buildVerificationResultCard(),
-                          ],
-                        ),
+                  SingleChildScrollView(
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: CoconutLayout.defaultPadding),
+                      child: Column(
+                        children: [
+                          CoconutLayout.spacing_600h,
+                          Text(
+                            t.verify_passphrase_screen.description,
+                            style: CoconutTypography.body1_16_Bold,
+                            softWrap: true,
+                          ),
+                          CoconutLayout.spacing_600h,
+                          _buildPassphraseInput(),
+                          CoconutLayout.spacing_1000h,
+                          if (_isPassphraseVerified) _buildVerificationResultCard(),
+                          CoconutLayout.spacing_2500h,
+                        ],
                       ),
                     ),
                   ),
@@ -261,6 +263,7 @@ class _PassphraseVerificationScreenState extends State<PassphraseVerificationScr
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
+            mainAxisSize: MainAxisSize.min,
             children: [
               SvgPicture.asset(
                 _isVerificationResultSuccess ? 'assets/svg/green-circle-check.svg' : 'assets/svg/triangle-warning.svg',
@@ -272,6 +275,8 @@ class _PassphraseVerificationScreenState extends State<PassphraseVerificationScr
                     ? t.verify_passphrase_screen.result_title_success
                     : t.verify_passphrase_screen.result_title_failure,
                 style: CoconutTypography.heading4_18_Bold,
+                softWrap: true,
+                overflow: TextOverflow.visible,
               ),
             ],
           ),

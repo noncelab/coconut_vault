@@ -1,20 +1,16 @@
-import 'dart:ui';
 import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
-import 'package:coconut_vault/widgets/button/shrink_animation_button.dart';
-import 'package:coconut_vault/extensions/uint8list_extensions.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/svg.dart';
 
 class MnemonicList extends StatefulWidget {
-  const MnemonicList({super.key, required this.mnemonic, this.isLoading = false, this.onWarningPressed});
+  const MnemonicList({super.key, required this.mnemonic, this.isLoading = false, this.guideText = ''});
 
   final Uint8List mnemonic;
   final bool isLoading;
-  final VoidCallback? onWarningPressed;
+  final String guideText;
 
   @override
   State<MnemonicList> createState() => _MnemonicListState();
@@ -23,7 +19,6 @@ class MnemonicList extends StatefulWidget {
 class _MnemonicListState extends State<MnemonicList> with TickerProviderStateMixin {
   late AnimationController _waveAnimationController;
   late List<Animation<double>> _opacityAnimations;
-  bool _isWarningVisible = true;
 
   @override
   void initState() {
@@ -62,7 +57,6 @@ class _MnemonicListState extends State<MnemonicList> with TickerProviderStateMix
 
   @override
   void dispose() {
-    widget.mnemonic.wipe();
     _waveAnimationController.dispose();
     super.dispose();
   }
@@ -79,157 +73,111 @@ class _MnemonicListState extends State<MnemonicList> with TickerProviderStateMix
       child: Stack(
         children: [
           Padding(
-            padding: const EdgeInsets.only(left: 40.0, right: 40.0),
-            child: GridView.builder(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 2, // 2열로 배치
-                childAspectRatio: 2.5, // 각 아이템의 가로:세로 = 2.5:1
-                crossAxisSpacing: 12, // 열 간격
-                mainAxisSpacing: 8, // 행 간격
-              ),
-              itemCount: itemCount,
-              itemBuilder: (BuildContext context, int index) {
-                // 로딩 중일 때 파도타기 애니메이션 적용
-                if (widget.isLoading && index < _opacityAnimations.length) {
-                  return AnimatedBuilder(
-                    animation: _waveAnimationController,
-                    builder: (context, child) {
-                      final delay = (index / 2).floor() * 0.1;
-                      final progress = _waveAnimationController.value;
-                      final waveProgress = (progress - delay) % 1.0;
+            padding: const EdgeInsets.only(left: 40.0, right: 40.0, top: 32),
+            child: Container(
+              color: CoconutColors.white,
+              child: Column(
+                children: [
+                  CoconutLayout.spacing_200h,
+                  Text(
+                    widget.guideText.isEmpty ? t.mnemonic_generate_screen.backup_guide : widget.guideText,
+                    style: CoconutTypography.body1_16_Bold.setColor(CoconutColors.warningText),
+                    textAlign: TextAlign.center,
+                  ),
+                  CoconutLayout.spacing_400h,
+                  GridView.builder(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 2, // 2열로 배치
+                      childAspectRatio: 2.5, // 각 아이템의 가로:세로 = 2.5:1
+                      crossAxisSpacing: 12, // 열 간격
+                      mainAxisSpacing: 8, // 행 간격
+                    ),
+                    itemCount: itemCount,
+                    itemBuilder: (BuildContext context, int index) {
+                      // 로딩 중일 때 파도타기 애니메이션 적용
+                      if (widget.isLoading && index < _opacityAnimations.length) {
+                        return AnimatedBuilder(
+                          animation: _waveAnimationController,
+                          builder: (context, child) {
+                            final delay = (index / 2).floor() * 0.1;
+                            final progress = _waveAnimationController.value;
+                            final waveProgress = (progress - delay) % 1.0;
 
-                      // 파도 효과: 0.3 -> 1.0 -> 0.3으로 부드럽게 변화
-                      double opacity = 0.3;
-                      if (waveProgress >= 0 && waveProgress <= 0.3) {
-                        final waveValue = waveProgress / 0.3;
-                        opacity = 0.3 + (0.7 * waveValue);
-                      } else if (waveProgress > 0.3 && waveProgress <= 0.6) {
-                        final waveValue = (waveProgress - 0.3) / 0.3;
-                        opacity = 1.0 - (0.7 * waveValue);
+                            // 파도 효과: 0.3 -> 1.0 -> 0.3으로 부드럽게 변화
+                            double opacity = 0.3;
+                            if (waveProgress >= 0 && waveProgress <= 0.3) {
+                              final waveValue = waveProgress / 0.3;
+                              opacity = 0.3 + (0.7 * waveValue);
+                            } else if (waveProgress > 0.3 && waveProgress <= 0.6) {
+                              final waveValue = (waveProgress - 0.3) / 0.3;
+                              opacity = 1.0 - (0.7 * waveValue);
+                            }
+
+                            return Opacity(
+                              opacity: opacity,
+                              child: Container(
+                                padding: const EdgeInsets.only(left: 24),
+                                alignment: Alignment.center,
+                                decoration: BoxDecoration(
+                                  border: Border.all(color: CoconutColors.black.withValues(alpha: 0.08)),
+                                  borderRadius: BorderRadius.circular(24),
+                                ),
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.start,
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Text(
+                                      (index + 1).toString().padLeft(2, '0'),
+                                      style: CoconutTypography.body3_12_Number.setColor(CoconutColors.gray500),
+                                    ),
+                                    CoconutLayout.spacing_300w,
+                                    const Expanded(
+                                      child: Text(
+                                        '',
+                                        style: CoconutTypography.body2_14,
+                                        overflow: TextOverflow.visible,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            );
+                          },
+                        );
                       }
 
-                      return Opacity(
-                        opacity: opacity,
-                        child: Container(
-                          padding: const EdgeInsets.only(left: 24),
-                          alignment: Alignment.center,
-                          decoration: BoxDecoration(
-                            border: Border.all(color: CoconutColors.black.withValues(alpha: 0.08)),
-                            borderRadius: BorderRadius.circular(24),
-                          ),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Text(
-                                (index + 1).toString().padLeft(2, '0'),
-                                style: CoconutTypography.body3_12_Number.setColor(CoconutColors.gray500),
+                      // 로딩 완료 후 정상 표시
+                      return Container(
+                        padding: const EdgeInsets.only(left: 24),
+                        alignment: Alignment.center,
+                        decoration: BoxDecoration(
+                          border: Border.all(color: CoconutColors.black.withValues(alpha: 0.08)),
+                          borderRadius: BorderRadius.circular(24),
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              (index + 1).toString().padLeft(2, '0'),
+                              style: CoconutTypography.body2_14.setColor(CoconutColors.gray500),
+                            ),
+                            CoconutLayout.spacing_300w,
+                            Expanded(
+                              child: Text(
+                                words[index],
+                                style: CoconutTypography.body1_16,
+                                overflow: TextOverflow.visible,
                               ),
-                              CoconutLayout.spacing_300w,
-                              const Expanded(
-                                child: Text('', style: CoconutTypography.body2_14, overflow: TextOverflow.visible),
-                              ),
-                            ],
-                          ),
+                            ),
+                          ],
                         ),
                       );
                     },
-                  );
-                }
-
-                // 로딩 완료 후 정상 표시
-                return Container(
-                  padding: const EdgeInsets.only(left: 24),
-                  alignment: Alignment.center,
-                  decoration: BoxDecoration(
-                    border: Border.all(color: CoconutColors.black.withValues(alpha: 0.08)),
-                    borderRadius: BorderRadius.circular(24),
                   ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(
-                        (index + 1).toString().padLeft(2, '0'),
-                        style: CoconutTypography.body2_14.setColor(CoconutColors.gray500),
-                      ),
-                      CoconutLayout.spacing_300w,
-                      Expanded(
-                        child: Text(words[index], style: CoconutTypography.body1_16, overflow: TextOverflow.visible),
-                      ),
-                    ],
-                  ),
-                );
-              },
-            ),
-          ),
-          Positioned(
-            left: 0,
-            right: 0,
-            top: 0,
-            bottom: 0,
-            child: Visibility(
-              visible: _isWarningVisible,
-              child: ClipRRect(
-                child: BackdropFilter(
-                  filter: ImageFilter.blur(sigmaX: 4, sigmaY: 4),
-                  child: Align(
-                    alignment: Alignment.topCenter,
-                    child: Container(
-                      decoration: BoxDecoration(borderRadius: BorderRadius.circular(12), color: CoconutColors.hotPink),
-                      padding: const EdgeInsets.only(top: 28, left: 24, right: 24, bottom: 20),
-                      child: LayoutBuilder(
-                        builder: (context, constraints) {
-                          final text = Text(
-                            t.mnemonic_view_screen.warning_title,
-                            style: CoconutTypography.heading3_21_Bold.setColor(CoconutColors.white),
-                            textAlign: TextAlign.center,
-                          );
-
-                          return Column(
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              SvgPicture.asset(
-                                'assets/svg/triangle-warning.svg',
-                                colorFilter: const ColorFilter.mode(CoconutColors.white, BlendMode.srcIn),
-                              ),
-                              CoconutLayout.spacing_300h,
-                              text,
-                              CoconutLayout.spacing_300h,
-                              Text(
-                                t.mnemonic_view_screen.warning_guide,
-                                style: CoconutTypography.heading4_18.setColor(CoconutColors.white),
-                                textAlign: TextAlign.center,
-                              ),
-                              CoconutLayout.spacing_500h,
-                              ShrinkAnimationButton(
-                                borderRadius: 12,
-                                child: Container(
-                                  padding: const EdgeInsets.symmetric(vertical: 14),
-                                  width: double.infinity,
-                                  child: Text(
-                                    t.mnemonic_view_screen.warning_btn,
-                                    style: CoconutTypography.heading4_18_Bold.setColor(CoconutColors.hotPink),
-                                    textAlign: TextAlign.center,
-                                  ),
-                                ),
-                                onPressed: () {
-                                  setState(() {
-                                    _isWarningVisible = false;
-                                  });
-                                  widget.onWarningPressed?.call();
-                                },
-                              ),
-                            ],
-                          );
-                        },
-                      ),
-                    ),
-                  ),
-                ),
+                ],
               ),
             ),
           ),

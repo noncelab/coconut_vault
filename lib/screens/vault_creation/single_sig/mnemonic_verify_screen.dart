@@ -49,6 +49,7 @@ class _MnemonicVerifyScreenState extends State<MnemonicVerifyScreen> {
 
   void _initializeQuiz() {
     _mnemonic = utf8.decode(_walletCreationProvider.secret).split(' ');
+    print('1: $_mnemonic');
     if (_mnemonic.isEmpty) return;
 
     // 랜덤하게 n개의 단어 선택 (중복 없이)
@@ -173,8 +174,8 @@ class _MnemonicVerifyScreenState extends State<MnemonicVerifyScreen> {
   }
 
   void _onVerificationSuccess() {
-    // 성공 시 다음 화면으로 이동
-    Navigator.pushReplacementNamed(context, AppRoutes.mnemonicConfirmation);
+    // 성공 시 MnemonicConfirmation(final check) 화면으로 이동, 경고 위젯 노출 안함
+    Navigator.pushReplacementNamed(context, AppRoutes.mnemonicConfirmation, arguments: {'showWarning': false});
   }
 
   @override
