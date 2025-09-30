@@ -45,7 +45,6 @@ class _SeedQrConfirmationScreenState extends State<SeedQrConfirmationScreen> {
     _initListeners();
     _walletProvider = Provider.of<WalletProvider>(context, listen: false);
     _walletCreationProvider = Provider.of<WalletCreationProvider>(context, listen: false)..resetAll();
-    _isMnemonicWarningVisible = true;
   }
 
   @override
