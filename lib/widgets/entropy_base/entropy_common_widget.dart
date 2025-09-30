@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/widgets/button/fixed_bottom_tween_button.dart';
@@ -548,14 +550,93 @@ class EntropyProgressBar extends StatelessWidget {
   }
 }
 
-// TODO: Mnemonic List 전 워닝 위젯 분리
-class WarningWidget extends StatelessWidget {
-  final String text;
+/// MnemonicList를 가리기 위해 사용하는 위젯
+class WarningWidget extends StatefulWidget {
+  final bool visible;
 
-  const WarningWidget({super.key, required this.text});
+  const WarningWidget({super.key, this.visible = true});
+
+  @override
+  State<WarningWidget> createState() => _WarningWidgetState();
+}
+
+class _WarningWidgetState extends State<WarningWidget> {
+  late bool _visible;
+
+  @override
+  void initState() {
+    super.initState();
+    _visible = widget.visible;
+  }
 
   @override
   Widget build(BuildContext context) {
-    return Container();
+    return SizedBox(
+      width: double.infinity,
+      height: double.infinity,
+      child: Visibility(
+        visible: _visible,
+        child: ClipRRect(
+          child: BackdropFilter(
+            filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+            child: Align(
+              alignment: Alignment.center,
+              child: Container(
+                decoration: BoxDecoration(borderRadius: BorderRadius.circular(12), color: CoconutColors.hotPink),
+                padding: const EdgeInsets.only(top: 28, left: 24, right: 24, bottom: 20),
+                margin: const EdgeInsets.symmetric(horizontal: 32, vertical: 24),
+                child: MediaQuery(
+                  data: MediaQuery.of(context).copyWith(textScaler: const TextScaler.linear(1.0)),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      SvgPicture.asset(
+                        'assets/svg/triangle-warning.svg',
+                        width: 32,
+                        colorFilter: const ColorFilter.mode(CoconutColors.white, BlendMode.srcIn),
+                      ),
+                      CoconutLayout.spacing_300h,
+                      Text(
+                        t.mnemonic_view_screen.warning_title,
+                        style: CoconutTypography.heading3_21_Bold.setColor(CoconutColors.white),
+                        textAlign: TextAlign.center,
+                      ),
+                      CoconutLayout.spacing_400h,
+                      Text(
+                        t.mnemonic_view_screen.warning_guide,
+                        style: CoconutTypography.heading4_18.setColor(CoconutColors.white),
+                        textAlign: TextAlign.center,
+                      ),
+
+                      CoconutLayout.spacing_600h,
+                      ShrinkAnimationButton(
+                        borderRadius: 12,
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(vertical: 14),
+                          width: double.infinity,
+                          child: Text(
+                            t.mnemonic_view_screen.warning_btn,
+                            style: CoconutTypography.heading4_18_Bold.setColor(CoconutColors.hotPink),
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
+                        onPressed: () {
+                          setState(() {
+                            _visible = false;
+                          });
+                          // widget.onWarningPressed?.call();
+                        },
+                      ),
+                      CoconutLayout.spacing_300h,
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
   }
 }

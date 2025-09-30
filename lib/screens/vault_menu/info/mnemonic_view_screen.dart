@@ -4,6 +4,7 @@ import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_vault/extensions/uint8list_extensions.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
+import 'package:coconut_vault/widgets/entropy_base/entropy_common_widget.dart';
 import 'package:coconut_vault/widgets/list/mnemonic_list.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -76,25 +77,9 @@ class _MnemonicViewScreen extends State<MnemonicViewScreen> with TickerProviderS
           children: [
             SingleChildScrollView(
               controller: _scrollController,
-              child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                color: CoconutColors.white,
-                child: Column(
-                  children: [
-                    // Padding(
-                    //   padding: const EdgeInsets.only(top: 48, bottom: 24),
-                    //   child: Text(
-                    //     t.mnemonic_view_screen.security_guide,
-                    //     style: CoconutTypography.body1_16_Bold.setColor(CoconutColors.warningText),
-                    //   ),
-                    // ),
-                    CoconutLayout.spacing_1200h,
-                    MnemonicList(mnemonic: _mnemonic, isLoading: _isLoading),
-                    const SizedBox(height: 40),
-                  ],
-                ),
-              ),
+              child: MnemonicList(mnemonic: _mnemonic, isLoading: _isLoading),
             ),
+            const WarningWidget(visible: true),
           ],
         ),
       ),

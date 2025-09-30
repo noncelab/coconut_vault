@@ -7,6 +7,7 @@ import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/providers/wallet_creation_provider.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:coconut_vault/widgets/button/fixed_bottom_button.dart';
+import 'package:coconut_vault/widgets/entropy_base/entropy_common_widget.dart';
 import 'package:coconut_vault/widgets/list/mnemonic_list.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -114,20 +115,7 @@ class _SeedQrConfirmationScreenState extends State<SeedQrConfirmationScreen> {
                   child: Column(
                     children: [
                       CoconutLayout.spacing_1200h,
-                      // TODO: 확인 후 불필요한 문구 삭제
-                      // Text(
-                      //   t.seed_qr_confirmation_screen.check_mnemonic,
-                      //   style: CoconutTypography.body1_16_Bold.setColor(CoconutColors.black),
-                      // ),
-                      // CoconutLayout.spacing_600h,
-                      MnemonicList(
-                        mnemonic: widget.scannedData,
-                        onWarningPressed: () {
-                          setState(() {
-                            _isMnemonicWarningVisible = false;
-                          });
-                        },
-                      ),
+                      MnemonicList(mnemonic: widget.scannedData),
                       CoconutLayout.spacing_600h,
                       _buildPassphraseToggle(),
                       if (_usePassphrase) _buildPassphraseTextField(),
@@ -143,6 +131,7 @@ class _SeedQrConfirmationScreenState extends State<SeedQrConfirmationScreen> {
                 onButtonClicked: _handleNextButton,
                 gradientPadding: const EdgeInsets.only(left: 16, right: 16, bottom: 40, top: 140),
               ),
+              const WarningWidget(visible: true),
             ],
           ),
         ),

@@ -12,7 +12,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 class MnemonicConfirmationScreen extends StatefulWidget {
-  const MnemonicConfirmationScreen({super.key});
+  final bool? showWarning;
+  const MnemonicConfirmationScreen({super.key, this.showWarning = false});
 
   @override
   State<MnemonicConfirmationScreen> createState() => _MnemonicConfirmationScreenState();
@@ -70,16 +71,8 @@ class _MnemonicConfirmationScreenState extends State<MnemonicConfirmationScreen>
                     child: Column(
                       children: [
                         buildStepIndicator(),
-                        Padding(
-                          padding: const EdgeInsets.only(top: 18, bottom: 25),
-                          child: Text(
-                            t.mnemonic_confirm_screen.description,
-                            textAlign: TextAlign.center,
-                            style: CoconutTypography.body1_16_Bold.setColor(CoconutColors.black),
-                          ),
-                        ),
                         step == 0
-                            ? MnemonicList(mnemonic: _mnemonic, onWarningPressed: null, showWarningWidget: false)
+                            ? MnemonicList(mnemonic: _mnemonic, guideText: t.mnemonic_confirm_screen.description)
                             : _passphraseGridViewWidget(),
                         const SizedBox(height: 100),
                       ],
@@ -101,6 +94,7 @@ class _MnemonicConfirmationScreenState extends State<MnemonicConfirmationScreen>
                     Navigator.pushReplacementNamed(context, AppRoutes.vaultNameSetup);
                   },
                 ),
+                if (widget.showWarning == true) const WarningWidget(visible: true),
               ],
             ),
           ),

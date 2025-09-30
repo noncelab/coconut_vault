@@ -3,6 +3,7 @@ import 'package:coconut_vault/constants/app_routes.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/screens/vault_creation/single_sig/base_entropy_screen.dart';
 import 'package:coconut_vault/widgets/entropy_base/base_entropy_widget.dart';
+import 'package:coconut_vault/widgets/entropy_base/entropy_common_widget.dart';
 import 'package:coconut_vault/widgets/list/mnemonic_list.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
@@ -66,12 +67,10 @@ class GeneratedWords extends BaseEntropyWidget {
 
 class _GeneratedWordsState extends BaseEntropyWidgetState<GeneratedWords> {
   bool isPassphraseNotMached = false;
-  late bool _isWarningWidgetVisible = true;
 
   @override
   void initState() {
     super.initState();
-    _isWarningWidgetVisible = true;
     widget.regenerateNotifier?.addListener(_handleRegenerate);
     widget.stepNotifier?.addListener(_handleStep);
   }
@@ -97,21 +96,13 @@ class _GeneratedWordsState extends BaseEntropyWidgetState<GeneratedWords> {
   Widget buildEntropyContent() {
     final Uint8List? finalMnemonic = widget.customMnemonic ?? widget.mnemonic ?? mnemonic;
 
-    return Column(
+    return Stack(
       children: [
         step == 0
-            ? MnemonicList(
-              mnemonic: finalMnemonic ?? Uint8List(0),
-              isLoading: finalMnemonic?.isEmpty ?? true,
-              showWarningWidget: _isWarningWidgetVisible,
-              onWarningPressed: () {
-                setState(() {
-                  _isWarningWidgetVisible = false;
-                });
-              },
-            )
+            ? MnemonicList(mnemonic: finalMnemonic ?? Uint8List(0), isLoading: finalMnemonic?.isEmpty ?? true)
             : Container(),
         CoconutLayout.spacing_2500h,
+        const WarningWidget(visible: true),
       ],
     );
   }
@@ -120,7 +111,7 @@ class _GeneratedWordsState extends BaseEntropyWidgetState<GeneratedWords> {
   bool get isRightButtonActive => _isActive();
 
   bool _isActive() {
-    if (step == 0 && hasScrolledToBottom && !_isWarningWidgetVisible) {
+    if (step == 0 && hasScrolledToBottom) {
       return true;
     }
 
