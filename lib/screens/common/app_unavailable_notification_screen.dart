@@ -72,20 +72,36 @@ class _AppUnavailableNotificationScreenState extends State<AppUnavailableNotific
   }
 
   Widget _buildStep(String text, String description) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Expanded(flex: 1, child: Container()),
-        Container(
-          width: 24,
-          height: 24,
-          decoration: BoxDecoration(color: CoconutColors.black, borderRadius: BorderRadius.circular(12)),
-          child: Center(child: Text(text, style: CoconutTypography.body3_12_Number.setColor(CoconutColors.white))),
-        ),
-        CoconutLayout.spacing_300w,
-        Expanded(flex: 2, child: Text(description, style: CoconutTypography.heading4_18.setColor(CoconutColors.black))),
-        Expanded(flex: 1, child: Container()),
-      ],
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 24),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Expanded(
+            flex: 1,
+            child: Align(
+              alignment: Alignment.centerRight,
+              child: Container(
+                width: 24,
+                height: 24,
+                decoration: const BoxDecoration(color: CoconutColors.black, shape: BoxShape.circle),
+                child: Center(
+                  child: FittedBox(
+                    fit: BoxFit.scaleDown,
+                    child: Text(text, style: CoconutTypography.body3_12_Number.setColor(CoconutColors.white)),
+                  ),
+                ),
+              ),
+            ),
+          ),
+          CoconutLayout.spacing_300w,
+          Expanded(
+            flex: 3,
+            child: Text(description, style: CoconutTypography.heading4_18.setColor(CoconutColors.black)),
+          ),
+        ],
+      ),
     );
   }
 }

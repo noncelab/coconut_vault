@@ -51,6 +51,7 @@ class _SingleSigSetupInfoScreenState extends State<SingleSigSetupInfoScreen> {
   @override
   void initState() {
     super.initState();
+    debugPrint('initState: ${widget.id}');
     checkPassphraseStatus();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _tooltipIconRendBox = _tooltipIconKey.currentContext?.findRenderObject() as RenderBox;

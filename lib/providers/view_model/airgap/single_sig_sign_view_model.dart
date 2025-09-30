@@ -22,7 +22,6 @@ class SingleSigSignViewModel extends ChangeNotifier {
     if (_isAlreadySigned) {
       _signProvider.saveSignedPsbt(_signProvider.unsignedPsbtBase64!);
     }
-
     _checkPassphraseStatus();
   }
 

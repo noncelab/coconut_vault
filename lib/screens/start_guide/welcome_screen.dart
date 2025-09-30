@@ -112,23 +112,42 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
           width: double.infinity,
           child: Stack(
             children: [
-              Center(
+              Positioned.fill(
                 child: Column(
                   children: [
-                    SizedBox(height: MediaQuery.of(context).size.height * 0.2),
-                    Text(
-                      _screenItems[_currentScreenIndex].title,
-                      style: CoconutTypography.heading3_21_Bold,
-                      textAlign: TextAlign.center,
-                    ),
-                    CoconutLayout.spacing_300h,
-                    Text(
-                      _screenItems[_currentScreenIndex].descriptionText,
-                      style: CoconutTypography.body2_14,
-                      textAlign: TextAlign.center,
+                    Flexible(
+                      flex: 1,
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 16),
+                            child: FittedBox(
+                              fit: BoxFit.scaleDown,
+                              child: Text(
+                                _screenItems[_currentScreenIndex].title,
+                                style: CoconutTypography.heading3_21_Bold,
+                                textAlign: TextAlign.center,
+                              ),
+                            ),
+                          ),
+                          CoconutLayout.spacing_300h,
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 16),
+                            child: FittedBox(
+                              fit: BoxFit.scaleDown,
+                              child: Text(
+                                _screenItems[_currentScreenIndex].descriptionText,
+                                style: CoconutTypography.body1_16,
+                                textAlign: TextAlign.center,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                     CoconutLayout.spacing_800h,
-                    _getImage(),
+                    Flexible(flex: 2, child: _getImage()),
                   ],
                 ),
               ),
@@ -163,7 +182,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
             final isDeveloperModeOn = provider.isDeveloperModeOn ?? false;
 
             return Align(
-              alignment: Alignment.center,
+              alignment: Alignment.topCenter,
               child: Padding(
                 padding: const EdgeInsets.all(32.0),
                 child: Container(
@@ -204,47 +223,50 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
   }
 
   Widget _getConnectionState(String label, bool isOn, String stateText) {
-    return Row(
-      children: [
-        CoconutLayout.spacing_600w,
-        Text(
-          label,
-          style:
-              isOn
-                  ? CoconutTypography.body1_16_Bold.setColor(CoconutColors.hotPink)
-                  : CoconutTypography.body1_16_Bold.setColor(CoconutColors.black),
-          maxLines: 2,
-        ),
-        if (isOn) ...[
-          CoconutLayout.spacing_100w,
-          SvgPicture.asset(
-            'assets/svg/triangle-warning.svg',
-            width: 16.0,
-            height: 16.0,
-            colorFilter: const ColorFilter.mode(CoconutColors.hotPink, BlendMode.srcIn),
+    return MediaQuery(
+      data: const MediaQueryData(textScaler: TextScaler.linear(1.0)),
+      child: Row(
+        children: [
+          CoconutLayout.spacing_600w,
+          Text(
+            label,
+            style:
+                isOn
+                    ? CoconutTypography.body1_16_Bold.setColor(CoconutColors.hotPink)
+                    : CoconutTypography.body1_16_Bold.setColor(CoconutColors.black),
+            maxLines: 2,
           ),
-        ],
-        CoconutLayout.spacing_100w,
-        Expanded(
-          flex: 4,
-          child: Align(
-            alignment: Alignment.topRight,
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-              decoration: BoxDecoration(
-                color: isOn ? const Color.fromARGB(255, 236, 39, 35) : const Color.fromARGB(255, 95, 211, 109),
-                borderRadius: BorderRadius.circular(20),
-              ),
-              child: Text(
-                textAlign: TextAlign.center,
-                stateText,
-                style: CoconutTypography.body3_12_Bold.setColor(CoconutColors.white),
+          if (isOn) ...[
+            CoconutLayout.spacing_100w,
+            SvgPicture.asset(
+              'assets/svg/triangle-warning.svg',
+              width: 16.0,
+              height: 16.0,
+              colorFilter: const ColorFilter.mode(CoconutColors.hotPink, BlendMode.srcIn),
+            ),
+          ],
+          CoconutLayout.spacing_100w,
+          Expanded(
+            flex: 4,
+            child: Align(
+              alignment: Alignment.topRight,
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                decoration: BoxDecoration(
+                  color: isOn ? const Color.fromARGB(255, 236, 39, 35) : const Color.fromARGB(255, 95, 211, 109),
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Text(
+                  textAlign: TextAlign.center,
+                  stateText,
+                  style: CoconutTypography.body2_14_Bold.setColor(CoconutColors.white),
+                ),
               ),
             ),
           ),
-        ),
-        CoconutLayout.spacing_600w,
-      ],
+          CoconutLayout.spacing_600w,
+        ],
+      ),
     );
   }
 
@@ -352,7 +374,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
       children: [
         SvgPicture.asset(iconPath, height: 16, fit: BoxFit.fitHeight),
         CoconutLayout.spacing_100w,
-        Text(title, style: CoconutTypography.body1_16_Bold),
+        Expanded(child: Text(title, style: CoconutTypography.heading4_18_Bold)),
       ],
     );
   }
@@ -360,7 +382,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
   Widget _buildSettingDescription(String description) {
     return Padding(
       padding: const EdgeInsets.only(left: 20.0, top: 12, bottom: 24),
-      child: Text(description, style: CoconutTypography.body2_14),
+      child: Text(description, style: CoconutTypography.body1_16),
     );
   }
 }

@@ -66,6 +66,7 @@ class _SignedTransactionQrScreenState extends State<SignedTransactionQrScreen> {
                   context: context,
                   builder: (BuildContext context) {
                     return CoconutPopup(
+                      titlePadding: const EdgeInsets.only(top: 24, bottom: 12, left: 16, right: 16),
                       title: t.alert.finish_signing.title,
                       description: t.alert.finish_signing.description,
                       onTapRight: () {
@@ -90,7 +91,7 @@ class _SignedTransactionQrScreenState extends State<SignedTransactionQrScreen> {
 
   List<TextSpan> _getTooltipRichText() {
     return [
-      TextSpan(text: '[4] ', style: CoconutTypography.body2_14_Bold.copyWith(height: 1.2, color: CoconutColors.black)),
+      TextSpan(text: '[4] ', style: CoconutTypography.body1_16_Bold.copyWith(height: 1.2, color: CoconutColors.black)),
       TextSpan(
         text:
             _signProvider.isMultisig!

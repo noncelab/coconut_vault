@@ -285,11 +285,16 @@ class _FlipCoinState extends State<FlipCoin> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Column(
-            children: [
-              _buildTextButton(t.delete_all, _showConfirmResetDialog),
-              _buildTextButton(t.delete_one, _removeLastBit),
-            ],
+          Expanded(
+            child: FittedBox(
+              fit: BoxFit.scaleDown,
+              child: Column(
+                children: [
+                  _buildTextButton(t.delete_all, _showConfirmResetDialog),
+                  _buildTextButton(t.delete_one, _removeLastBit),
+                ],
+              ),
+            ),
           ),
           CoconutLayout.spacing_300w,
           _buildCoinButton(t.mnemonic_coin_flip_screen.coin_head, () => _currentIndex < _totalBits ? _addBit(1) : null),
@@ -329,10 +334,13 @@ class _FlipCoinState extends State<FlipCoin> {
             border: Border.all(color: CoconutColors.gray300),
           ),
           child: Center(
-            child: Text(
-              text,
-              style: CoconutTypography.heading4_18_Bold.setColor(CoconutColors.black),
-              textAlign: TextAlign.center,
+            child: MediaQuery(
+              data: MediaQuery.of(context).copyWith(textScaler: const TextScaler.linear(1.0)),
+              child: Text(
+                text,
+                style: CoconutTypography.heading4_18_Bold.setColor(CoconutColors.black),
+                textAlign: TextAlign.center,
+              ),
             ),
           ),
         ),

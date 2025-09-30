@@ -107,15 +107,12 @@ class _MultisigSignerBsmsExportScreenState extends State<MultisigSignerBsmsExpor
   }
 
   List<TextSpan> _getTooltipRichText() {
-    final basicStyle = CoconutTypography.body2_14.copyWith(height: 1.2, letterSpacing: 0.5, color: CoconutColors.black);
+    final basicStyle = CoconutTypography.body2_14.setColor(CoconutColors.black);
 
     return [
       TextSpan(text: t.signer_bsms_screen.guide1_1, style: basicStyle),
       const TextSpan(text: ' '),
-      TextSpan(
-        text: t.signer_bsms_screen.guide1_2,
-        style: CoconutTypography.body2_14.copyWith(height: 1.2, color: CoconutColors.black),
-      ),
+      TextSpan(text: t.signer_bsms_screen.guide1_2, style: basicStyle),
     ];
   }
 }

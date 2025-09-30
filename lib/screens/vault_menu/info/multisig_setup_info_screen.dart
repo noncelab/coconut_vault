@@ -44,6 +44,7 @@ class _MultisigSetupInfoScreenState extends State<MultisigSetupInfoScreen> {
   @override
   void initState() {
     super.initState();
+    debugPrint('initState: ${widget.id}');
   }
 
   Future<void> _authenticateAndDelete(BuildContext context) async {
@@ -284,7 +285,12 @@ class _MultisigSetupInfoScreenState extends State<MultisigSetupInfoScreen> {
                   const SizedBox(width: 10),
                   Expanded(child: _buildSignerNameAndMemo(name: signer.name, memo: signer.memo)),
                   // mfp
-                  Text(signer.keyStore.masterFingerprint, style: CoconutTypography.body1_16_Number),
+                  Expanded(
+                    child: FittedBox(
+                      fit: BoxFit.scaleDown,
+                      child: Text(signer.keyStore.masterFingerprint, style: CoconutTypography.body1_16_Number),
+                    ),
+                  ),
                 ],
               ),
             ),

@@ -710,6 +710,7 @@ errors:
   psbt_parsing_error: "PSBT parsing failed: $error"
   not_related_multisig_wallet_error: "This is not a multisig wallet using this wallet as key"
   vault_not_found_error: "No matching vault found"
+  extended_public_key_not_found_error: "Please select the wallet you want to use directly and use the Multisig Signing feature"
 
 tooltip:
   mfp: "Unique value of wallet.\nAlso called Master Fingerprint (MFP)."

@@ -714,6 +714,7 @@ errors:
   psbt_parsing_error: "psbt 파싱 실패: $error"
   not_related_multisig_wallet_error: "이 지갑을 키로 사용한 다중 서명 지갑이 아닙니다"
   vault_not_found_error: "서명할 수 있는 지갑이 없어요"
+  extended_public_key_not_found_error: "직접 사용하려는 지갑을 선택해 다중 서명하기 기능을 사용해주세요"
 
 tooltip:
   mfp: "지갑의 고유 값이에요.\n마스터 핑거프린트(MFP)라고도 해요."

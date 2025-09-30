@@ -54,7 +54,7 @@ class _SignerQrBottomSheetState extends State<SignerQrBottomSheet> {
                   CustomTooltip.buildInfoTooltip(
                     context,
                     richText: RichText(
-                      text: TextSpan(style: CoconutTypography.body3_12, children: _getTooltipRichText()),
+                      text: TextSpan(style: CoconutTypography.body2_14, children: _getTooltipRichText()),
                     ),
                   ),
                   const SizedBox(height: 40),
@@ -77,11 +77,12 @@ class _SignerQrBottomSheetState extends State<SignerQrBottomSheet> {
 
   List<TextSpan> _getTooltipRichText() {
     final textStyle = CoconutTypography.body2_14.copyWith(height: 1.2, color: CoconutColors.black);
+    final textStyleNumberBold = CoconutTypography.body1_16_Bold.copyWith(height: 1.2, color: CoconutColors.black);
     final textStyleBold = CoconutTypography.body2_14_Bold.copyWith(height: 1.2, color: CoconutColors.black);
 
     if (_isEnglish) {
       return [
-        TextSpan(text: '[1] ', style: textStyleBold),
+        TextSpan(text: '[1] ', style: textStyleNumberBold),
         TextSpan(text: t.signer_qr_bottom_sheet.text1, style: textStyle),
         TextSpan(text: widget.keyIndex, style: textStyleBold),
         TextSpan(text: ',', style: textStyle),
@@ -96,7 +97,7 @@ class _SignerQrBottomSheetState extends State<SignerQrBottomSheet> {
     }
 
     return [
-      TextSpan(text: '[1] ${widget.keyIndex}', style: textStyleBold),
+      TextSpan(text: '[1] ${widget.keyIndex}', style: textStyleNumberBold),
       TextSpan(text: t.signer_qr_bottom_sheet.text1, style: textStyle),
       const TextSpan(text: '\n'),
       TextSpan(text: '1. ', style: textStyle),

@@ -35,12 +35,7 @@ class _VaultItemSettingBottomSheetState extends State<VaultItemSettingBottomShee
       padding: const EdgeInsets.only(top: 0, bottom: 80, left: 20, right: 20),
       child: Column(
         children: [
-          Container(
-            width: 55,
-            height: 4,
-            decoration: BoxDecoration(color: CoconutColors.gray400, borderRadius: BorderRadius.circular(4)),
-          ),
-          CoconutLayout.spacing_400h,
+          CoconutLayout.spacing_800h,
           _buildToggleWidget(
             t.vault_list_screen.settings.primary_wallet,
             _isPrimaryWallet
@@ -76,12 +71,14 @@ class _VaultItemSettingBottomSheetState extends State<VaultItemSettingBottomShee
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(title, style: CoconutTypography.body3_12),
-            Text(description, style: CoconutTypography.body3_12.setColor(CoconutColors.gray400)),
-          ],
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(title, style: CoconutTypography.body2_14),
+              Text(description, style: CoconutTypography.body3_12.setColor(CoconutColors.gray400)),
+            ],
+          ),
         ),
         Visibility(
           visible: shouldHideWhenOn ? !value : true,

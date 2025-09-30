@@ -204,7 +204,7 @@ class _CoconutQrScannerState extends State<CoconutQrScanner> with SingleTickerPr
               children: [
                 CoconutLayout.spacing_1300w,
                 if (!_isScanningExtraData) ...[_buildProgressBar(), CoconutLayout.spacing_300w, _buildProgressText()],
-                if (_isScanningExtraData) _buildReadingExtraText(),
+                if (_isScanningExtraData) Expanded(child: _buildReadingExtraText()),
                 CoconutLayout.spacing_1300w,
               ],
             ),

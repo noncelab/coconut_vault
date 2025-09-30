@@ -16,6 +16,7 @@ class CustomTooltip {
         borderColor: isBackgroundWhite ? Colors.transparent : CoconutColors.gray400,
         icon: SvgPicture.asset(
           'assets/svg/circle-info.svg',
+          width: 20,
           colorFilter: const ColorFilter.mode(CoconutColors.black, BlendMode.srcIn),
         ),
         tooltipType: CoconutTooltipType.fixed,

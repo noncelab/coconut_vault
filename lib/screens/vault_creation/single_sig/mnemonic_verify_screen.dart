@@ -262,10 +262,13 @@ class _MnemonicVerifyScreenState extends State<MnemonicVerifyScreen> {
       child: Column(
         children: [
           // 퀴즈 질문
-          Text(
-            t.mnemonic_verify_screen.select_word(index: currentPosition + 1),
-            style: CoconutTypography.body1_16_Bold,
-            textAlign: TextAlign.center,
+          FittedBox(
+            fit: BoxFit.scaleDown,
+            child: Text(
+              t.mnemonic_verify_screen.select_word(index: currentPosition + 1),
+              style: CoconutTypography.body1_16_Bold,
+              textAlign: TextAlign.center,
+            ),
           ),
 
           const SizedBox(height: 40),

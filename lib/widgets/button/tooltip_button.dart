@@ -48,16 +48,22 @@ class _TooltipButtonState extends State<TooltipButton> {
             crossAxisAlignment: CrossAxisAlignment.center,
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Text(
-                widget.text,
-                style:
-                    widget.textStyle ??
-                    CoconutTypography.body2_14.merge(
-                      TextStyle(
-                        color: widget.isSelected ? CoconutColors.black : CoconutColors.black.withValues(alpha: 0.3),
-                        fontWeight: widget.isSelected ? FontWeight.bold : FontWeight.normal,
-                      ),
-                    ),
+              Expanded(
+                child: FittedBox(
+                  fit: BoxFit.scaleDown,
+                  alignment: Alignment.centerRight,
+                  child: Text(
+                    widget.text,
+                    style:
+                        widget.textStyle ??
+                        CoconutTypography.body2_14.merge(
+                          TextStyle(
+                            color: widget.isSelected ? CoconutColors.black : CoconutColors.black.withValues(alpha: 0.3),
+                            fontWeight: widget.isSelected ? FontWeight.bold : FontWeight.normal,
+                          ),
+                        ),
+                  ),
+                ),
               ),
               const SizedBox(width: 4),
               Icon(

@@ -174,38 +174,9 @@ class _SingleSigSignScreenState extends State<SingleSigSignScreen> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
-                          // progress
-                          TweenAnimationBuilder<double>(
-                            tween: Tween<double>(begin: 0.0, end: viewModel.isSignerApproved ? 1.0 : 0.0),
-                            duration: const Duration(milliseconds: 1500),
-                            builder: (context, value, child) {
-                              if (value == 1.0) {
-                                _isProgressCompleted = true;
-                              } else {
-                                _isProgressCompleted = false;
-                              }
-                              return Container(
-                                margin: const EdgeInsets.only(top: 8),
-                                child: LinearProgressIndicator(
-                                  value: value,
-                                  minHeight: 6,
-                                  backgroundColor: CoconutColors.black.withOpacity(0.06),
-                                  borderRadius:
-                                      _isProgressCompleted
-                                          ? BorderRadius.zero
-                                          : const BorderRadius.only(
-                                            topRight: Radius.circular(6),
-                                            bottomRight: Radius.circular(6),
-                                          ),
-                                  valueColor: const AlwaysStoppedAnimation<Color>(CoconutColors.black),
-                                ),
-                              );
-                            },
-                          ),
-
                           // 보낼 수량
                           Padding(
-                            padding: const EdgeInsets.only(top: 36),
+                            padding: const EdgeInsets.only(top: 36, left: 16, right: 16),
                             child: Text(
                               viewModel.isSignerApproved
                                   ? (viewModel.isAlreadySigned ? t.single_sig_sign_screen.text : t.sign_completed)

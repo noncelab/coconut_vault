@@ -89,7 +89,6 @@ class _KeyButtonState extends State<KeyButton> {
       child: Container(
         width: 120,
         height: 60,
-        margin: const EdgeInsets.symmetric(vertical: 8),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(14),
           color:

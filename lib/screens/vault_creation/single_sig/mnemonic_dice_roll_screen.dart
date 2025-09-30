@@ -603,19 +603,21 @@ class _DiceRollState extends State<DiceRoll> {
         diceNumbers.map((diceNumber) {
           if (diceNumber == -100) {
             // delete all
-            return _buildDeleteButton(
-              buttonText: t.delete_all,
-              onButtonPressed:
-                  () => _showConfirmResetDialog(
-                    title: t.delete_all,
-                    message: t.alert.erase_all_entered_so_far,
-                    action: _resetBits,
-                  ),
+            return Expanded(
+              child: _buildDeleteButton(
+                buttonText: t.delete_all,
+                onButtonPressed:
+                    () => _showConfirmResetDialog(
+                      title: t.delete_all,
+                      message: t.alert.erase_all_entered_so_far,
+                      action: _resetBits,
+                    ),
+              ),
             );
           }
           if (diceNumber == -1) {
             // delete one
-            return _buildDeleteButton(buttonText: t.delete_one, onButtonPressed: () => _deleteRoll());
+            return Expanded(child: _buildDeleteButton(buttonText: t.delete_one, onButtonPressed: () => _deleteRoll()));
           }
           return _buildNumberButton(buttonText: diceNumber.toString(), onButtonPressed: () => _addRoll(diceNumber));
         }).toList();
@@ -644,10 +646,13 @@ class _DiceRollState extends State<DiceRoll> {
         width: 100,
         height: 40,
         child: Center(
-          child: Text(
-            buttonText,
-            style: CoconutTypography.body3_12.setColor(
-              _diceNumbers.isEmpty ? CoconutColors.secondaryText : CoconutColors.black.withValues(alpha: 0.7),
+          child: FittedBox(
+            fit: BoxFit.scaleDown,
+            child: Text(
+              buttonText,
+              style: CoconutTypography.body3_12.setColor(
+                _diceNumbers.isEmpty ? CoconutColors.secondaryText : CoconutColors.black.withValues(alpha: 0.7),
+              ),
             ),
           ),
         ),

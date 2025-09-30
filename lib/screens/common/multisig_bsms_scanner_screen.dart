@@ -125,7 +125,7 @@ class _MultisigBsmsScannerScreenState extends State<MultisigBsmsScannerScreen> {
         Container(height: _isSignerAssignmentContext ? 50.1 : 0, color: CoconutColors.black.withValues(alpha: 0.5)),
         CustomTooltip.buildInfoTooltip(
           context,
-          richText: RichText(text: TextSpan(style: CoconutTypography.body3_12, children: _getTooltipRichText())),
+          richText: RichText(text: TextSpan(style: CoconutTypography.body2_14, children: _getTooltipRichText())),
           isBackgroundWhite: false,
         ),
         Visibility(
@@ -238,7 +238,6 @@ class _MultisigBsmsScannerScreenState extends State<MultisigBsmsScannerScreen> {
         text: text,
         style: CoconutTypography.body2_14.copyWith(
           fontWeight: isBold ? FontWeight.bold : FontWeight.normal,
-          height: 1.2,
           color: CoconutColors.black,
         ),
       );
@@ -250,7 +249,7 @@ class _MultisigBsmsScannerScreenState extends State<MultisigBsmsScannerScreen> {
           return [
             TextSpan(
               text: t.signer_scanner_screen.guide1_1,
-              style: CoconutTypography.body2_14.copyWith(height: 1.2, color: CoconutColors.black),
+              style: CoconutTypography.body2_14.setColor(CoconutColors.black),
               children: <TextSpan>[
                 buildTextSpan(' ${t.signer_scanner_screen.guide1_2}'),
                 buildTextSpan('\n'),
@@ -272,7 +271,7 @@ class _MultisigBsmsScannerScreenState extends State<MultisigBsmsScannerScreen> {
           return [
             TextSpan(
               text: t.signer_scanner_screen.guide1_1,
-              style: CoconutTypography.body2_14.copyWith(height: 1.2, color: CoconutColors.black),
+              style: CoconutTypography.body2_14.setColor(CoconutColors.black),
               children: <TextSpan>[
                 buildTextSpan(' ${t.signer_scanner_screen.guide1_2}'),
                 buildTextSpan('\n'),
@@ -296,7 +295,7 @@ class _MultisigBsmsScannerScreenState extends State<MultisigBsmsScannerScreen> {
           return [
             TextSpan(
               text: t.signer_scanner_screen.guide2_1,
-              style: CoconutTypography.body2_14.copyWith(height: 1.2, color: CoconutColors.black),
+              style: CoconutTypography.body2_14.setColor(CoconutColors.black),
               children: <TextSpan>[
                 buildTextSpan('\n'),
                 buildTextSpan('1. '),
@@ -316,7 +315,7 @@ class _MultisigBsmsScannerScreenState extends State<MultisigBsmsScannerScreen> {
           return [
             TextSpan(
               text: t.signer_scanner_screen.guide2_1,
-              style: CoconutTypography.body2_14.copyWith(height: 1.2, color: CoconutColors.black),
+              style: CoconutTypography.body2_14.setColor(CoconutColors.black),
               children: <TextSpan>[
                 buildTextSpan('\n'),
                 buildTextSpan('1. '),

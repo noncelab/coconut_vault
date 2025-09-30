@@ -50,7 +50,7 @@ class _SyncToWalletScreenState extends State<SyncToWalletScreen> {
                     context,
                     richText: RichText(
                       text: TextSpan(
-                        style: CoconutTypography.body3_12.copyWith(color: CoconutColors.black),
+                        style: CoconutTypography.body2_14.copyWith(height: 1.3, color: CoconutColors.black),
                         children: _getGuideTextSpan(),
                       ),
                     ),
@@ -259,5 +259,6 @@ class _SyncToWalletScreenState extends State<SyncToWalletScreen> {
     return [];
   }
 
-  TextSpan _em(String text) => TextSpan(text: text, style: CoconutTypography.body3_12_Bold);
+  TextSpan _em(String text) =>
+      TextSpan(text: text, style: CoconutTypography.body2_14_Bold.setColor(CoconutColors.black));
 }
