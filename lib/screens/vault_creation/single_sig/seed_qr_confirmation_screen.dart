@@ -7,6 +7,7 @@ import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/providers/wallet_creation_provider.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:coconut_vault/widgets/button/fixed_bottom_button.dart';
+import 'package:coconut_vault/widgets/entropy_base/entropy_common_widget.dart';
 import 'package:coconut_vault/widgets/list/mnemonic_list.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -35,7 +36,6 @@ class _SeedQrConfirmationScreenState extends State<SeedQrConfirmationScreen> {
   bool _usePassphrase = false;
   String _passphrase = '';
   bool _passphraseObscured = false;
-  late bool _isMnemonicWarningVisible;
 
   late VoidCallback _passphraseListener;
 
@@ -45,7 +45,6 @@ class _SeedQrConfirmationScreenState extends State<SeedQrConfirmationScreen> {
     _initListeners();
     _walletProvider = Provider.of<WalletProvider>(context, listen: false);
     _walletCreationProvider = Provider.of<WalletCreationProvider>(context, listen: false)..resetAll();
-    _isMnemonicWarningVisible = true;
   }
 
   @override
@@ -109,27 +108,18 @@ class _SeedQrConfirmationScreenState extends State<SeedQrConfirmationScreen> {
               SingleChildScrollView(
                 controller: _scrollController,
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                  //padding: const EdgeInsets.symmetric(horizontal: 16.0),
                   color: CoconutColors.white,
                   child: Column(
                     children: [
-                      CoconutLayout.spacing_1200h,
-                      Text(
-                        t.seed_qr_confirmation_screen.check_mnemonic,
-                        style: CoconutTypography.body1_16_Bold.setColor(CoconutColors.black),
-                      ),
+                      MnemonicList(mnemonic: widget.scannedData),
                       CoconutLayout.spacing_600h,
-                      MnemonicList(
-                        mnemonic: widget.scannedData,
-                        onWarningPressed: () {
-                          setState(() {
-                            _isMnemonicWarningVisible = false;
-                          });
-                        },
-                      ),
-                      CoconutLayout.spacing_600h,
-                      _buildPassphraseToggle(),
-                      if (_usePassphrase) _buildPassphraseTextField(),
+                      Padding(padding: const EdgeInsets.symmetric(horizontal: 16.0), child: _buildPassphraseToggle()),
+                      if (_usePassphrase)
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                          child: _buildPassphraseTextField(),
+                        ),
                       CoconutLayout.spacing_2500h,
                     ],
                   ),
@@ -137,11 +127,12 @@ class _SeedQrConfirmationScreenState extends State<SeedQrConfirmationScreen> {
               ),
               FixedBottomButton(
                 text: t.next,
-                isActive: _isMnemonicWarningVisible ? false : true,
+                isActive: _usePassphrase ? _passphrase.isNotEmpty : true,
                 backgroundColor: CoconutColors.black,
                 onButtonClicked: _handleNextButton,
                 gradientPadding: const EdgeInsets.only(left: 16, right: 16, bottom: 40, top: 140),
               ),
+              const WarningWidget(visible: true),
             ],
           ),
         ),
@@ -167,11 +158,12 @@ class _SeedQrConfirmationScreenState extends State<SeedQrConfirmationScreen> {
   Widget _buildPassphraseToggle() {
     return Row(
       children: [
+        CoconutLayout.spacing_200w,
         Text(t.seed_qr_confirmation_screen.passphrase_toggle, style: CoconutTypography.body2_14_Bold),
         const Spacer(),
         CupertinoSwitch(
           value: _usePassphrase,
-          activeColor: CoconutColors.gray800,
+          activeTrackColor: CoconutColors.gray800,
           onChanged: (value) {
             setState(() {
               _usePassphrase = value;

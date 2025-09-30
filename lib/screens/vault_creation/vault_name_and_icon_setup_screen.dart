@@ -168,7 +168,7 @@ class _VaultNameAndIconSetupScreenState extends State<VaultNameAndIconSetupScree
     return Stack(
       children: [
         PopScope(
-          canPop: true,
+          canPop: !_showLoading,
           onPopInvokedWithResult: (didPop, result) {
             if (_walletCreationProvider.walletType == WalletType.singleSignature) {
               _walletCreationProvider.resetSecretAndPassphrase();

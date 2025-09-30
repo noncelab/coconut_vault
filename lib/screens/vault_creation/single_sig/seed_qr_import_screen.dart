@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:coconut_design_system/coconut_design_system.dart';
@@ -6,11 +7,12 @@ import 'package:coconut_lib/coconut_lib.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/screens/vault_creation/single_sig/seed_qr_confirmation_screen.dart';
 import 'package:coconut_vault/widgets/custom_tooltip.dart';
-import 'package:coconut_vault/widgets/overlays/scanner_overlay.dart';
 import 'package:crypto/crypto.dart';
 import 'package:flutter/material.dart';
-import 'package:mobile_scanner/mobile_scanner.dart';
+import 'package:qr_code_scanner_plus/qr_code_scanner_plus.dart';
 
+/// mobile_scanner 이슈로
+/// 이 화면만 qr_code_scanner_plus 사용
 class SeedQrImportScreen extends StatefulWidget {
   const SeedQrImportScreen({super.key});
 
@@ -20,27 +22,26 @@ class SeedQrImportScreen extends StatefulWidget {
 
 class _SeedQrImportScreenState extends State<SeedQrImportScreen> {
   final GlobalKey qrKey = GlobalKey(debugLabel: 'QR');
-  MobileScannerController? _controller;
+  QRViewController? controller;
   bool _isNavigating = false;
+  Barcode? result;
 
   @override
   void initState() {
     super.initState();
-    _controller = MobileScannerController();
   }
 
   @override
   void reassemble() {
     super.reassemble();
-    if (_controller != null) {
-      _controller!.pause();
-      _controller!.start();
+    if (Platform.isAndroid) {
+      controller!.pauseCamera();
     }
+    controller!.resumeCamera();
   }
 
   @override
   void dispose() {
-    _controller?.dispose();
     super.dispose();
   }
 
@@ -48,11 +49,14 @@ class _SeedQrImportScreenState extends State<SeedQrImportScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: CoconutColors.white,
-      appBar: CoconutAppBar.build(context: context, title: t.seed_qr_import_screen.title),
+      appBar: CoconutAppBar.build(
+        context: context,
+        title: t.seed_qr_import_screen.title,
+        backgroundColor: CoconutColors.white,
+      ),
       body: Stack(
         children: [
-          MobileScanner(controller: _controller, onDetect: _onQRViewCreated),
-          const ScannerOverlay(),
+          _buildQrView(context),
           CustomTooltip.buildInfoTooltip(
             context,
             richText: RichText(
@@ -73,65 +77,89 @@ class _SeedQrImportScreenState extends State<SeedQrImportScreen> {
     );
   }
 
-  void _onQRViewCreated(BarcodeCapture capture) {
-    final codes = capture.barcodes;
-    if (codes.isEmpty) return;
+  Widget _buildQrView(BuildContext context) {
+    // For this example we check how width or tall the device is and change the scanArea and overlay accordingly.
+    var scanArea =
+        (MediaQuery.of(context).size.width < 400 || MediaQuery.of(context).size.height < 400)
+            ? 320.0
+            : MediaQuery.of(context).size.width * 0.85;
 
-    final barcode = codes.first;
-
-    if (_isNavigating) return;
-    var words = <String>[];
-
-    try {
-      if (barcode.rawValue == null && barcode.rawBytes != null) {
-        words = _decodeCompactQR(barcode.rawBytes!);
-      } else if (barcode.rawValue != null && barcode.rawBytes != null) {
-        words = _decodeStandardQR(barcode.rawValue!);
-      }
-    } catch (e) {
-      // FormatException: Invalid radix-10 number 인 경우, rawBytes로 파싱
-      if (e is FormatException && e.message.contains('Invalid radix-10 number')) {
-        words = _decodeCompactQR(barcode.rawBytes!);
-      } else {
-        if (mounted) {
-          showDialog(
-            context: context,
-            builder: (context) {
-              return CoconutPopup(
-                title: t.seed_qr_import_screen.error_title,
-                description: '${t.seed_qr_import_screen.error_message}: $e',
-                leftButtonText: t.cancel,
-                rightButtonText: t.confirm,
-                onTapRight: () => Navigator.of(context).pop(),
-              );
-            },
-          );
-        }
-        return;
-      }
-    }
-
-    if (words.length == 12 || words.length == 24) {
-      if (mounted) {
-        _isNavigating = true;
-
-        // 1. 네비게이션하기 전 카메라 끄기
-        _controller?.pause();
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => SeedQrConfirmationScreen(scannedData: utf8.encode(words.join(' ')))),
-        ).then((_) {
-          // 2. 돌아왔을 때 카메라 재개하기
-          if (mounted) {
-            _controller?.start();
-          }
-          setState(() {
-            _isNavigating = false;
-          });
-        });
-      }
-    }
+    // To ensure the Scanner view is properly sizes after rotation
+    // we need to listen for Flutter SizeChanged notification and update controller
+    return QRView(
+      key: qrKey,
+      onQRViewCreated: _onQRViewCreated,
+      overlay: QrScannerOverlayShape(
+        overlayColor: CoconutColors.black.withValues(alpha: 0.45),
+        borderColor: CoconutColors.white,
+        borderRadius: 10,
+        borderLength: scanArea * 0.5,
+        borderWidth: 10,
+        cutOutSize: scanArea,
+      ),
+      onPermissionSet: (ctrl, p) => _onPermissionSet(context, ctrl, p),
+    );
   }
+
+  void _onQRViewCreated(QRViewController controller) {
+    setState(() {
+      this.controller = controller;
+    });
+    var words = <String>[];
+    controller.scannedDataStream.listen((scanData) {
+      if (_isNavigating) return;
+
+      try {
+        if (scanData.code == null && scanData.rawBytes != null) {
+          words = _decodeCompactQR(scanData.rawBytes!);
+        } else if (scanData.code != null && scanData.rawBytes != null) {
+          words = _decodeStandardQR(scanData.code!);
+        }
+      } catch (e) {
+        if (e is FormatException && e.message.contains('Invalid radix-10 number')) {
+          words = _decodeCompactQR(scanData.rawBytes!);
+        } else {
+          if (mounted) {
+            showDialog(
+              context: context,
+              builder: (context) {
+                return CoconutPopup(
+                  title: t.seed_qr_import_screen.error_title,
+                  description: '${t.seed_qr_import_screen.error_message}: $e',
+                  onTapRight: () => Navigator.of(context).pop(),
+                );
+              },
+            );
+          }
+          return;
+        }
+      }
+
+      if (words.length == 12 || words.length == 24) {
+        if (mounted) {
+          _isNavigating = true;
+          // 1. 네비게이션하기 전 카메라 끄기
+          controller.pauseCamera();
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => SeedQrConfirmationScreen(scannedData: utf8.encode(words.join(' '))),
+            ),
+          ).then((_) {
+            // 2. 돌아왔을 때 카메라 재개하기
+            if (mounted) {
+              controller.resumeCamera();
+            }
+            setState(() {
+              _isNavigating = false;
+            });
+          });
+        }
+      }
+    });
+  }
+
+  void _onPermissionSet(BuildContext context, QRViewController ctrl, bool p) {}
 
   List<String> _decodeStandardQR(String data) {
     final words = <String>[];

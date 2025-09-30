@@ -320,11 +320,11 @@ mnemonic_coin_flip_screen:
   use: "Use"
   do_not: "Don't"
   enter_passphrase: "Enter passphrase"
-  coin_head: "Front"
-  coin_tail: "Back"
+  coin_head: "Head"
+  coin_tail: "Tail"
 mnemonic_dice_roll_screen:
   title: "Create Mnemonic"
-  guide1: "Please select the side that came out after rolling the dice"
+  guide1: "After rolling the dice, please select the number shown on the side🎲"
   guide2: "Enough random values have been collected. No more rolling is needed🎲"
   words_passphrase: " words, passphrase "
   use: "Use"
@@ -356,6 +356,10 @@ mnemonic_generate_screen:
   backup_complete: "Backup Complete"
   warning: "Please be careful with storage and leakage of entered passphrase"
   passphrase_warning: "$words may not be accepted by other wallets. Please be careful."
+passphrase_textfield:
+  title: "Enter passphrase"
+  passphrase_hidden: "Hide passphrase"
+  passphrase_visible: "Show passphrase"
   
 mnemonic_import_screen:
   title: "Restore"

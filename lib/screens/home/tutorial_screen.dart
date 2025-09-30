@@ -135,8 +135,16 @@ class _TutorialScreenState extends State<TutorialScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        Text(splitTexts[0], style: CoconutTypography.body2_14.setColor(CoconutColors.gray800)),
-        Text(splitTexts[1], style: CoconutTypography.body2_14_Bold.setColor(CoconutColors.gray800)),
+        Text(
+          splitTexts[0],
+          style: CoconutTypography.body2_14.setColor(CoconutColors.gray800),
+          textAlign: TextAlign.center,
+        ),
+        Text(
+          splitTexts[1],
+          style: CoconutTypography.body2_14_Bold.setColor(CoconutColors.gray800),
+          textAlign: TextAlign.center,
+        ),
       ],
     );
   }
