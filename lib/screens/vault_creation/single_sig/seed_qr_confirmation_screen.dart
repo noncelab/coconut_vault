@@ -114,11 +114,12 @@ class _SeedQrConfirmationScreenState extends State<SeedQrConfirmationScreen> {
                   child: Column(
                     children: [
                       CoconutLayout.spacing_1200h,
-                      Text(
-                        t.seed_qr_confirmation_screen.check_mnemonic,
-                        style: CoconutTypography.body1_16_Bold.setColor(CoconutColors.black),
-                      ),
-                      CoconutLayout.spacing_600h,
+                      // TODO: 확인 후 불필요한 문구 삭제
+                      // Text(
+                      //   t.seed_qr_confirmation_screen.check_mnemonic,
+                      //   style: CoconutTypography.body1_16_Bold.setColor(CoconutColors.black),
+                      // ),
+                      // CoconutLayout.spacing_600h,
                       MnemonicList(
                         mnemonic: widget.scannedData,
                         onWarningPressed: () {
@@ -167,11 +168,12 @@ class _SeedQrConfirmationScreenState extends State<SeedQrConfirmationScreen> {
   Widget _buildPassphraseToggle() {
     return Row(
       children: [
+        CoconutLayout.spacing_200w,
         Text(t.seed_qr_confirmation_screen.passphrase_toggle, style: CoconutTypography.body2_14_Bold),
         const Spacer(),
         CupertinoSwitch(
           value: _usePassphrase,
-          activeColor: CoconutColors.gray800,
+          activeTrackColor: CoconutColors.gray800,
           onChanged: (value) {
             setState(() {
               _usePassphrase = value;
