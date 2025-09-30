@@ -129,7 +129,7 @@ class _GeneratedWordsState extends BaseEntropyWidgetState<GeneratedWords> {
 
   @override
   void onNavigateToNext() {
-    Navigator.pushNamed(context, AppRoutes.mnemonicVerify, arguments: {'showWarning': false});
+    Navigator.pushNamed(context, AppRoutes.mnemonicVerify);
   }
 
   // 자동 생성되므로 엔트로피 데이터 추가 불필요
