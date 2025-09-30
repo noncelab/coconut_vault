@@ -50,6 +50,7 @@ abstract class BaseEntropyWidgetState<T extends BaseEntropyWidget> extends State
   Uint8List _passphrase = Uint8List(0);
   Uint8List _passphraseConfirm = Uint8List(0);
   bool hasScrolledToBottom = false;
+  bool isWarningVisible = true;
 
   // passphrase 관련 변수
   bool passphraseObscured = false;
@@ -353,6 +354,15 @@ abstract class BaseEntropyWidgetState<T extends BaseEntropyWidget> extends State
               onButtonClicked: _onNextButtonClicked,
               subWidget: _buildButtonSubWidget(),
             ),
+        if (widget.entropyType == EntropyType.auto && step == 0)
+          WarningWidget(
+            visible: isWarningVisible,
+            onWarningDismissed: () {
+              setState(() {
+                isWarningVisible = false;
+              });
+            },
+          ),
       ],
     );
   }

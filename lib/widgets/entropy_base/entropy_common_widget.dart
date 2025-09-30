@@ -553,8 +553,9 @@ class EntropyProgressBar extends StatelessWidget {
 /// MnemonicList를 가리기 위해 사용하는 위젯
 class WarningWidget extends StatefulWidget {
   final bool visible;
+  final VoidCallback? onWarningDismissed;
 
-  const WarningWidget({super.key, this.visible = true});
+  const WarningWidget({super.key, this.visible = true, this.onWarningDismissed});
 
   @override
   State<WarningWidget> createState() => _WarningWidgetState();
@@ -625,7 +626,7 @@ class _WarningWidgetState extends State<WarningWidget> {
                           setState(() {
                             _visible = false;
                           });
-                          // widget.onWarningPressed?.call();
+                          widget.onWarningDismissed?.call();
                         },
                       ),
                       CoconutLayout.spacing_300h,

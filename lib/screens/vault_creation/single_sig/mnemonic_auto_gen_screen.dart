@@ -96,13 +96,12 @@ class _GeneratedWordsState extends BaseEntropyWidgetState<GeneratedWords> {
   Widget buildEntropyContent() {
     final Uint8List? finalMnemonic = widget.customMnemonic ?? widget.mnemonic ?? mnemonic;
 
-    return Stack(
+    return Column(
       children: [
         step == 0
             ? MnemonicList(mnemonic: finalMnemonic ?? Uint8List(0), isLoading: finalMnemonic?.isEmpty ?? true)
             : Container(),
         CoconutLayout.spacing_2500h,
-        const WarningWidget(visible: true),
       ],
     );
   }
