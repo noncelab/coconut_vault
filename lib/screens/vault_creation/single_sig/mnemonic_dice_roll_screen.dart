@@ -46,7 +46,7 @@ class DiceRoll extends BaseEntropyWidget {
 class _DiceRollState extends BaseEntropyWidgetState<DiceRoll> {
   // dice roll 관련 변수
   int diceNumbers = 0;
-  List<int> _bits = [];
+  final List<int> _bits = [];
   final List<int> _diceNumbers = [];
   int _currentIndex = 0;
   bool _showFullBits = false;
@@ -115,9 +115,6 @@ class _DiceRollState extends BaseEntropyWidgetState<DiceRoll> {
     if (_showFullBits) {
       start = start - 10;
     }
-    if (start == _bits.length) {
-      start -= 10;
-    }
 
     currentRolls = _diceNumbers.sublist(start, _currentIndex);
 
@@ -170,15 +167,14 @@ class _DiceRollState extends BaseEntropyWidgetState<DiceRoll> {
           if (diceNumber == -100) {
             // delete all
             return Expanded(
-              child: _buildDeleteButton(
-                buttonText: t.delete_all,
-                onButtonPressed: showConfirmResetDialog
-              ),
+              child: _buildDeleteButton(buttonText: t.delete_all, onButtonPressed: showConfirmResetDialog),
             );
           }
           if (diceNumber == -1) {
             // delete one
-            return Expanded(child: _buildDeleteButton(buttonText: t.delete_one, onButtonPressed: () => removeLastEntropyData()));
+            return Expanded(
+              child: _buildDeleteButton(buttonText: t.delete_one, onButtonPressed: () => removeLastEntropyData()),
+            );
           }
           return _buildNumberButton(
             buttonText: diceNumber.toString(),
