@@ -5,6 +5,7 @@ import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/widgets/button/fixed_bottom_tween_button.dart';
 import 'package:coconut_vault/widgets/button/shrink_animation_button.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 
 class EntropyPassphraseInput extends StatelessWidget {
@@ -13,7 +14,6 @@ class EntropyPassphraseInput extends StatelessWidget {
   final FocusNode passphraseFocusNode;
   final FocusNode passphraseConfirmFocusNode;
   final bool passphraseObscured;
-  // final bool isPassphraseConfirmVisible;
   final int step;
   final Function(bool) onPassphraseObscuredChanged;
   final Function() onPassphraseConfirmVisibilityChanged;
@@ -27,7 +27,6 @@ class EntropyPassphraseInput extends StatelessWidget {
     required this.passphraseFocusNode,
     required this.passphraseConfirmFocusNode,
     required this.passphraseObscured,
-    // required this.isPassphraseConfirmVisible,
     required this.step,
     required this.onPassphraseObscuredChanged,
     required this.onPassphraseConfirmVisibilityChanged,
@@ -48,81 +47,50 @@ class EntropyPassphraseInput extends StatelessWidget {
               style: CoconutTypography.body1_16_Bold.setColor(
                 step == 0 ? CoconutColors.warningText : CoconutColors.black,
               ),
+              textAlign: TextAlign.center,
+            ),
+            CoconutLayout.spacing_400h,
+            // TODO: UI 수정 중
+            Row(
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                CoconutLayout.spacing_200w,
+                Text('입력 패스프레이즈 보이기', style: CoconutTypography.body1_16_Bold.setColor(CoconutColors.black)),
+                const Spacer(),
+                IconButton(
+                  onPressed: () => onPassphraseObscuredChanged(!passphraseObscured),
+                  icon: Icon(
+                    passphraseObscured ? CupertinoIcons.eye_slash : CupertinoIcons.eye,
+                    color: CoconutColors.gray800,
+                    size: 20,
+                  ),
+                ),
+              ],
             ),
             Padding(
-              padding: const EdgeInsets.only(top: 24),
+              padding: const EdgeInsets.only(top: 4),
               child: SizedBox(
-                child: CoconutTextField(
-                  focusNode: passphraseFocusNode,
+                child: _buildPassphraseField(
                   controller: passphraseController,
-                  placeholderText: t.mnemonic_generate_screen.memorable_passphrase_guide,
+                  focusNode: passphraseFocusNode,
+                  placeholder: t.mnemonic_generate_screen.memorable_passphrase_guide,
+                  onClear: onPassphraseClear,
+                  obscure: passphraseObscured,
                   onEditingComplete: () {
-                    FocusScope.of(context).unfocus();
-                    if (passphraseController.text.isNotEmpty) {
-                      onPassphraseConfirmVisibilityChanged();
-                    }
+                    FocusScope.of(context).requestFocus(passphraseConfirmFocusNode);
                   },
-                  onChanged: (_) {},
-                  maxLines: 1,
-                  obscureText: passphraseObscured,
-                  suffix: Row(
-                    children: [
-                      if (passphraseController.text.isNotEmpty)
-                        GestureDetector(
-                          onTap: onPassphraseClear,
-                          child: Container(
-                            padding: const EdgeInsets.all(8),
-                            child: SvgPicture.asset(
-                              'assets/svg/text-field-clear.svg',
-                              colorFilter: const ColorFilter.mode(CoconutColors.gray400, BlendMode.srcIn),
-                            ),
-                          ),
-                        ),
-                      GestureDetector(
-                        onTap: () => onPassphraseObscuredChanged(!passphraseObscured),
-                        child:
-                            passphraseObscured
-                                ? Container(
-                                  padding: const EdgeInsets.only(right: 16, top: 8, bottom: 8, left: 8),
-                                  child: const Icon(CupertinoIcons.eye_slash, color: CoconutColors.gray800, size: 18),
-                                )
-                                : Container(
-                                  padding: const EdgeInsets.only(right: 16, top: 8, bottom: 8, left: 8),
-                                  child: const Icon(CupertinoIcons.eye, color: CoconutColors.gray800, size: 18),
-                                ),
-                      ),
-                    ],
-                  ),
-                  maxLength: 100,
                 ),
               ),
             ),
-            // if (isPassphraseConfirmVisible)
             Padding(
               padding: const EdgeInsets.only(top: 12),
               child: SizedBox(
-                child: CoconutTextField(
-                  focusNode: passphraseConfirmFocusNode,
+                child: _buildPassphraseField(
                   controller: passphraseConfirmController,
-                  placeholderText: t.mnemonic_generate_screen.passphrase_confirm_guide,
-                  onChanged: (_) {},
-                  maxLines: 1,
-                  suffix: Row(
-                    children: [
-                      if (passphraseConfirmController.text.isNotEmpty)
-                        GestureDetector(
-                          onTap: onPassphraseConfirmClear,
-                          child: Container(
-                            padding: const EdgeInsets.all(8),
-                            child: SvgPicture.asset(
-                              'assets/svg/text-field-clear.svg',
-                              colorFilter: const ColorFilter.mode(CoconutColors.gray400, BlendMode.srcIn),
-                            ),
-                          ),
-                        ),
-                    ],
-                  ),
-                  maxLength: 100,
+                  focusNode: passphraseConfirmFocusNode,
+                  placeholder: t.mnemonic_generate_screen.passphrase_confirm_guide,
+                  onClear: onPassphraseConfirmClear,
+                  obscure: passphraseObscured,
                 ),
               ),
             ),
@@ -130,6 +98,54 @@ class EntropyPassphraseInput extends StatelessWidget {
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildPassphraseField({
+    required TextEditingController controller,
+    required FocusNode focusNode,
+    required String placeholder,
+    required VoidCallback onClear,
+    bool obscure = false,
+    bool showToggle = false,
+    VoidCallback? onEditingComplete,
+  }) {
+    return CoconutTextField(
+      focusNode: focusNode,
+      controller: controller,
+      placeholderText: placeholder,
+      onEditingComplete: onEditingComplete,
+      onChanged: (_) {},
+      maxLines: 1,
+      obscureText: obscure,
+      suffix: Row(
+        children: [
+          if (controller.text.isNotEmpty)
+            GestureDetector(
+              onTap: onClear,
+              child: Container(
+                padding: const EdgeInsets.all(8),
+                child: SvgPicture.asset(
+                  'assets/svg/text-field-clear.svg',
+                  colorFilter: const ColorFilter.mode(CoconutColors.gray400, BlendMode.srcIn),
+                ),
+              ),
+            ),
+          // if (showToggle)
+          //   GestureDetector(
+          //     onTap: () => onPassphraseObscuredChanged(!obscure),
+          //     child: Container(
+          //       padding: const EdgeInsets.only(right: 16, top: 8, bottom: 8, left: 8),
+          //       child: Icon(
+          //         obscure ? CupertinoIcons.eye_slash : CupertinoIcons.eye,
+          //         color: CoconutColors.gray800,
+          //         size: 18,
+          //       ),
+          //     ),
+          //   ),
+        ],
+      ),
+      maxLength: 100,
     );
   }
 }

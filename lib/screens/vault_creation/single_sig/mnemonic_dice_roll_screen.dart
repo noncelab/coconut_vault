@@ -71,7 +71,7 @@ class _DiceRollState extends BaseEntropyWidgetState<DiceRoll> {
 
   @override
   void onNavigateToNext() {
-    Navigator.pushNamed(context, AppRoutes.mnemonicConfirmation, arguments: {'showWarning': true});
+    Navigator.pushNamed(context, AppRoutes.mnemonicVerify);
   }
 
   @override
@@ -114,9 +114,6 @@ class _DiceRollState extends BaseEntropyWidgetState<DiceRoll> {
 
     if (_showFullBits) {
       start = start - 10;
-    }
-    if (start == _bits.length) {
-      start -= 10;
     }
 
     currentRolls = _diceNumbers.sublist(start, _currentIndex);

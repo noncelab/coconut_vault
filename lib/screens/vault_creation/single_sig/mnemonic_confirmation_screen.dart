@@ -12,8 +12,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 class MnemonicConfirmationScreen extends StatefulWidget {
-  final bool? showWarning;
-  const MnemonicConfirmationScreen({super.key, this.showWarning = false});
+  const MnemonicConfirmationScreen({super.key});
 
   @override
   State<MnemonicConfirmationScreen> createState() => _MnemonicConfirmationScreenState();
@@ -94,7 +93,7 @@ class _MnemonicConfirmationScreenState extends State<MnemonicConfirmationScreen>
                     Navigator.pushReplacementNamed(context, AppRoutes.vaultNameSetup);
                   },
                 ),
-                if (widget.showWarning == true) const WarningWidget(visible: true),
+                const WarningWidget(visible: true),
               ],
             ),
           ),

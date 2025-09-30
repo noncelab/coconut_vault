@@ -254,11 +254,7 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> {
                           AppRoutes.mnemonicVerify: (context) => const MnemonicVerifyScreen(),
                           AppRoutes.mnemonicImport: (context) => const MnemonicImportScreen(),
                           AppRoutes.seedQrImport: (context) => const SeedQrImportScreen(),
-                          AppRoutes.mnemonicConfirmation:
-                              (context) => buildScreenWithArguments(
-                                context,
-                                (args) => MnemonicConfirmationScreen(showWarning: args['showWarning']),
-                              ),
+                          AppRoutes.mnemonicConfirmation: (context) => const MnemonicConfirmationScreen(),
                           AppRoutes.mnemonicView:
                               (context) =>
                                   buildScreenWithArguments(context, (args) => MnemonicViewScreen(walletId: args['id'])),

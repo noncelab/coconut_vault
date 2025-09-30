@@ -577,7 +577,7 @@ class _MnemonicImportScreenState extends State<MnemonicImportScreen> {
     }
 
     _walletCreationProvider.setSecretAndPassphrase(secret, passphrase);
-    Navigator.pushNamed(context, AppRoutes.mnemonicConfirmation, arguments: {'showWarning': true});
+    Navigator.pushNamed(context, AppRoutes.mnemonicConfirmation);
   }
 
   Uint8List _buildMnemonicSecret() {
