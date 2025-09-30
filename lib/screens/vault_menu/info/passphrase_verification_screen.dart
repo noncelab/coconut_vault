@@ -94,25 +94,20 @@ class _PassphraseVerificationScreenState extends State<PassphraseVerificationScr
                   SingleChildScrollView(
                     child: Padding(
                       padding: const EdgeInsets.symmetric(horizontal: CoconutLayout.defaultPadding),
-                      child: SizedBox(
-                        height: scrollViewHeight,
-                        child: Column(
-                          children: [
-                            CoconutLayout.spacing_600h,
-                            Flexible(
-                              child: Text(
-                                t.verify_passphrase_screen.description,
-                                style: CoconutTypography.body1_16_Bold,
-                                softWrap: true,
-                              ),
-                            ),
-                            CoconutLayout.spacing_600h,
-                            _buildPassphraseInput(),
-                            CoconutLayout.spacing_1000h,
-                            if (_isPassphraseVerified) _buildVerificationResultCard(),
-                            CoconutLayout.spacing_2500h,
-                          ],
-                        ),
+                      child: Column(
+                        children: [
+                          CoconutLayout.spacing_600h,
+                          Text(
+                            t.verify_passphrase_screen.description,
+                            style: CoconutTypography.body1_16_Bold,
+                            softWrap: true,
+                          ),
+                          CoconutLayout.spacing_600h,
+                          _buildPassphraseInput(),
+                          CoconutLayout.spacing_1000h,
+                          if (_isPassphraseVerified) _buildVerificationResultCard(),
+                          CoconutLayout.spacing_2500h,
+                        ],
                       ),
                     ),
                   ),

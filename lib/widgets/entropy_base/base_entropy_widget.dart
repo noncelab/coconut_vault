@@ -7,7 +7,7 @@ import 'package:coconut_vault/extensions/uint8list_extensions.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/providers/wallet_creation_provider.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
-import 'package:coconut_vault/screens/vault_creation/single_sig/base_mnemonic_entropy_screen.dart';
+import 'package:coconut_vault/screens/vault_creation/single_sig/base_entropy_screen.dart';
 import 'package:coconut_vault/utils/conversion_util.dart';
 import 'package:coconut_vault/utils/logger.dart';
 import 'package:coconut_vault/widgets/button/fixed_bottom_button.dart';
@@ -22,6 +22,7 @@ abstract class BaseEntropyWidget extends StatefulWidget {
   final Function() onReset;
   final EntropyType entropyType;
   final Uint8List? mnemonic;
+  final ValueNotifier<int>? stepNotifier; // 니모닉 or 패스프레이즈 입력 단계
 
   const BaseEntropyWidget({
     super.key,
@@ -30,6 +31,7 @@ abstract class BaseEntropyWidget extends StatefulWidget {
     required this.onReset,
     required this.entropyType,
     this.mnemonic,
+    this.stepNotifier,
   });
 }
 
@@ -69,14 +71,15 @@ abstract class BaseEntropyWidgetState<T extends BaseEntropyWidget> extends State
   void initState() {
     super.initState();
     stepCount = widget.usePassphrase ? 2 : 1;
+    widget.stepNotifier?.value = 0; // 니모닉 입력 단계 0
     if (widget.entropyType == EntropyType.auto) {
-      _generateMnemonicWords();
+      generateMnemonicWords();
     }
+
     _passphraseController.addListener(() {
       setState(() {
         invalidPassphraseList =
             _passphraseController.text.characters.where((char) => !validCharSet.contains(char)).toSet().toList();
-        print('invalidPassphraseList: $invalidPassphraseList');
         _passphrase = utf8.encode(_passphraseController.text);
 
         if (_passphrase.isNotEmpty && _passphraseConfirm.isNotEmpty && listEquals(_passphrase, _passphraseConfirm)) {
@@ -114,12 +117,10 @@ abstract class BaseEntropyWidgetState<T extends BaseEntropyWidget> extends State
         final currentScroll = _scrollController.position.pixels;
 
         // 스크롤이 끝에 가까워지면 확인 완료로 표시
-        // print('currentScroll: $currentScroll, maxScroll: $maxScroll');
         if (currentScroll >= maxScroll - 50) {
           if (!hasScrolledToBottom) {
             setState(() {
               hasScrolledToBottom = true;
-              print('hasScrolledToBottom: $hasScrolledToBottom');
             });
           }
         }
@@ -161,15 +162,12 @@ abstract class BaseEntropyWidgetState<T extends BaseEntropyWidget> extends State
     }
 
     passphraseErrorMessage = '';
-    print('???? isPassphraseValid:  $passphraseErrorMessage');
     return true;
   }
 
   void _checkIfInvalidCharactersIncluded() {
     var invalidPassphraseList =
         _passphraseController.text.characters.where((char) => !validCharSet.contains(char)).toSet().toList();
-
-    print('invalidPassphraseList: $invalidPassphraseList');
 
     if (invalidPassphraseList.isEmpty) {
       passphraseErrorMessage = '';
@@ -219,6 +217,7 @@ abstract class BaseEntropyWidgetState<T extends BaseEntropyWidget> extends State
         setState(() {
           step = selectedStep;
         });
+        widget.stepNotifier?.value = selectedStep;
       },
     );
   }
@@ -266,7 +265,7 @@ abstract class BaseEntropyWidgetState<T extends BaseEntropyWidget> extends State
           _setMnemonicFromEntropy();
         }
 
-        print('setSecretAndPassphrase: $_mnemonic, $_passphrase');
+        // print('setSecretAndPassphrase: $_mnemonic, $_passphrase');
         Provider.of<WalletCreationProvider>(context, listen: false).setSecretAndPassphrase(_mnemonic, _passphrase);
         _passphraseFocusNode.unfocus();
         _passphraseConfirmFocusNode.unfocus();
@@ -290,7 +289,7 @@ abstract class BaseEntropyWidgetState<T extends BaseEntropyWidget> extends State
     }
   }
 
-  void _generateMnemonicWords() {
+  void generateMnemonicWords() {
     setState(() {
       _mnemonic = Seed.random(mnemonicLength: widget.wordsCount).mnemonic;
       hasScrolledToBottom = widget.wordsCount == 12;
@@ -337,8 +336,7 @@ abstract class BaseEntropyWidgetState<T extends BaseEntropyWidget> extends State
             children: [_buildStepIndicator(), step == 0 ? buildEntropyContent() : _buildPassphraseInput()],
           ),
         ),
-        // TODO: 자동 생성일 때 프로그레스 필요없음
-        _buildProgressBar(),
+        if (widget.entropyType == EntropyType.manual) ...[_buildProgressBar()],
         leftButtonText.isNotEmpty
             ? EntropyBottomButtons(
               isRightButtonActive: isRightButtonActive,

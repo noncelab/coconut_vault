@@ -3,12 +3,10 @@ import 'dart:typed_data';
 
 import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_vault/constants/app_routes.dart';
-import 'package:coconut_vault/extensions/uint8list_extensions.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/providers/wallet_creation_provider.dart';
-import 'package:coconut_vault/screens/vault_creation/single_sig/mnemonic_generation_screen.dart';
-import 'package:coconut_vault/screens/vault_creation/vault_name_and_icon_setup_screen.dart';
 import 'package:coconut_vault/widgets/button/fixed_bottom_button.dart';
+import 'package:coconut_vault/widgets/entropy_base/entropy_common_widget.dart';
 import 'package:coconut_vault/widgets/list/mnemonic_list.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -129,60 +127,14 @@ class _MnemonicConfirmationScreenState extends State<MnemonicConfirmationScreen>
   }
 
   Widget buildStepIndicator() {
-    return Visibility(
-      maintainState: true,
-      maintainAnimation: true,
-      maintainSize: true,
-      maintainInteractivity: true,
-      visible: _walletCreationProvider.passphrase?.isNotEmpty ?? false,
-      child: Container(
-        padding: const EdgeInsets.only(top: 10),
-        child: Stack(
-          children: [
-            const SizedBox(
-              height: 50,
-              width: 120,
-              child: Center(
-                child: DottedDivider(
-                  height: 2.0,
-                  width: 100,
-                  dashWidth: 2.0,
-                  dashSpace: 4.0,
-                  color: CoconutColors.gray400,
-                ),
-              ),
-            ),
-            Positioned(
-              left: 0,
-              top: 0,
-              bottom: 0,
-              child: NumberWidget(
-                number: 1,
-                selected: step == 0,
-                onSelected: () {
-                  setState(() {
-                    step = 0;
-                  });
-                },
-              ),
-            ),
-            Positioned(
-              right: 0,
-              top: 0,
-              bottom: 0,
-              child: NumberWidget(
-                number: 2,
-                selected: step == 1,
-                onSelected: () {
-                  setState(() {
-                    step = 1;
-                  });
-                },
-              ),
-            ),
-          ],
-        ),
-      ),
+    return EntropyStepIndicator(
+      usePassphrase: _walletCreationProvider.passphrase?.isNotEmpty ?? false,
+      step: step,
+      onStepSelected: (selectedStep) {
+        setState(() {
+          step = selectedStep;
+        });
+      },
     );
   }
 
@@ -237,5 +189,36 @@ class _MnemonicConfirmationScreenState extends State<MnemonicConfirmationScreen>
         }
       }),
     );
+  }
+}
+
+enum NextButtonState {
+  completeActive, // '완료' + 활성화
+  completeInactive, // '완료' + 비활성화
+  nextActive, // '다음' + 활성화
+  nextInactive, // '다음' + 비활성화
+}
+
+extension NextButtonStateExtension on NextButtonState {
+  String get text {
+    switch (this) {
+      case NextButtonState.completeActive:
+      case NextButtonState.completeInactive:
+        return t.complete;
+      case NextButtonState.nextActive:
+      case NextButtonState.nextInactive:
+        return t.next;
+    }
+  }
+
+  bool get isActive {
+    switch (this) {
+      case NextButtonState.completeActive:
+      case NextButtonState.nextActive:
+        return true;
+      case NextButtonState.completeInactive:
+      case NextButtonState.nextInactive:
+        return false;
+    }
   }
 }

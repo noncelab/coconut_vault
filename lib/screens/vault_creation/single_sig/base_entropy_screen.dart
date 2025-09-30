@@ -22,24 +22,44 @@ abstract class BaseMnemonicEntropyScreenState<T extends BaseMnemonicEntropyScree
   bool usePassphrase = false;
   bool finished = false;
   final ValueNotifier<bool> regenerateNotifier = ValueNotifier<bool>(false);
+  final ValueNotifier<int> stepNotifier = ValueNotifier<int>(0);
+  bool showRegenerateButton = true;
 
   // 추상 메서드 (각 구현체에서 정의)
   String get screenTitle;
-  Widget buildEntropyWidget();
+  // notifier is used to regenerate the mnemonic
+  Widget buildEntropyWidget([ValueNotifier<bool>? notifier, ValueNotifier<int>? stepNotifier]);
 
   @override
   void initState() {
     super.initState();
     _totalStep = Provider.of<VisibilityProvider>(context, listen: false).isPassphraseUseEnabled ? 2 : 1;
+    stepNotifier.addListener(_onStepChanged);
+  }
+
+  void _onStepChanged() {
+    // 니모닉 입력 단계 또는 패스프레이즈 입력 단계
+    final currentStep = stepNotifier.value;
+
+    if (currentStep == 1) {
+      // 패스프레이즈 입력 단계
+      setState(() {
+        showRegenerateButton = false;
+      });
+    } else if (currentStep == 0) {
+      // 니모닉 입력 단계
+      setState(() {
+        showRegenerateButton = true;
+      });
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    print('build >>> base mnemonic entropy screen: $screenTitle step: $_step');
     final List<Widget> screens = [
       WordsLengthSelection(onSelected: _onLengthSelected),
       PassphraseSelection(onSelected: _onPassphraseSelected),
-      buildEntropyWidget(),
+      buildEntropyWidget(regenerateNotifier, stepNotifier),
     ];
 
     return PopScope(
@@ -60,7 +80,7 @@ abstract class BaseMnemonicEntropyScreenState<T extends BaseMnemonicEntropyScree
             context: context,
             backgroundColor: CoconutColors.white,
             actionButtonList: [
-              if (widget.entropyType == EntropyType.auto && _step == 2)
+              if (widget.entropyType == EntropyType.auto && _step == 2 && showRegenerateButton)
                 IconButton(
                   onPressed: _onRegenerate,
                   icon: SvgPicture.asset('assets/svg/refresh.svg', width: 18, height: 18),

@@ -175,8 +175,7 @@ class _MnemonicVerifyScreenState extends State<MnemonicVerifyScreen> {
 
   void _onVerificationSuccess() {
     // 성공 시 다음 화면으로 이동
-    // Navigator.pushReplacementNamed(context, AppRoutes.mnemonicConfirmation);
-    Navigator.pushReplacementNamed(context, AppRoutes.vaultNameSetup);
+    Navigator.pushReplacementNamed(context, AppRoutes.mnemonicConfirmation);
   }
 
   @override

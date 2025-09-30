@@ -21,12 +21,10 @@ import 'package:coconut_vault/screens/app_update/vault_list_restoration_screen.d
 import 'package:coconut_vault/screens/home/vault_home_screen.dart';
 import 'package:coconut_vault/screens/home/vault_list_screen.dart';
 import 'package:coconut_vault/screens/app_update/app_update_preparation_screen.dart';
-import 'package:coconut_vault/screens/vault_creation/single_sig/base_mnemonic_entropy_screen.dart';
+import 'package:coconut_vault/screens/vault_creation/single_sig/base_entropy_screen.dart';
 import 'package:coconut_vault/screens/vault_creation/single_sig/mnemonic_auto_gen_screen.dart';
-import 'package:coconut_vault/screens/vault_creation/single_sig/mnemonic_coinflip_screen2.dart';
+import 'package:coconut_vault/screens/vault_creation/single_sig/mnemonic_coinflip_screen.dart';
 import 'package:coconut_vault/screens/vault_creation/single_sig/mnemonic_dice_roll_screen.dart';
-import 'package:coconut_vault/screens/vault_creation/single_sig/mnemonic_dice_roll_screen2.dart';
-import 'package:coconut_vault/screens/vault_creation/single_sig/mnemonic_manual_entropy_confirmation_screen.dart';
 import 'package:coconut_vault/screens/vault_creation/single_sig/mnemonic_confirmation_screen.dart';
 import 'package:coconut_vault/screens/vault_creation/single_sig/mnemonic_import_screen.dart';
 import 'package:coconut_vault/screens/vault_creation/single_sig/mnemonic_verify_screen.dart';
@@ -36,8 +34,6 @@ import 'package:coconut_vault/screens/settings/mnemonic_word_list_screen.dart';
 import 'package:coconut_vault/screens/start_guide/welcome_screen.dart';
 import 'package:coconut_vault/screens/home/tutorial_screen.dart';
 import 'package:coconut_vault/screens/vault_creation/multisig/signer_assignment_screen.dart';
-import 'package:coconut_vault/screens/vault_creation/single_sig/mnemonic_coinflip_screen.dart';
-import 'package:coconut_vault/screens/vault_creation/single_sig/mnemonic_generation_screen.dart';
 import 'package:coconut_vault/screens/vault_creation/multisig/multisig_quorum_selection_screen.dart';
 import 'package:coconut_vault/screens/common/multisig_bsms_scanner_screen.dart';
 import 'package:coconut_vault/screens/vault_creation/single_sig/seed_qr_import_screen.dart';
@@ -259,8 +255,6 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> {
                           AppRoutes.mnemonicImport: (context) => const MnemonicImportScreen(),
                           AppRoutes.seedQrImport: (context) => const SeedQrImportScreen(),
                           AppRoutes.mnemonicConfirmation: (context) => const MnemonicConfirmationScreen(),
-                          AppRoutes.mnemonicManualEntropyConfirmation:
-                              (context) => const MnemonicManualEntropyConfirmationScreen(),
                           AppRoutes.mnemonicView:
                               (context) =>
                                   buildScreenWithArguments(context, (args) => MnemonicViewScreen(walletId: args['id'])),
@@ -314,15 +308,12 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> {
                                 ModalRoute.of(context)?.settings.arguments as VoidCallback?;
                             return SecuritySelfCheckScreen(onNextPressed: onNextPressed);
                           },
-                          // AppRoutes.mnemonicGeneration: (context) => const MnemonicGenerationScreen(),
                           AppRoutes.mnemonicAutoGen:
                               (context) => const MnemonicAutoGenScreen(entropyType: EntropyType.auto),
-                          AppRoutes.mnemonicCoinflip: (context) => const MnemonicCoinflipScreen(),
-                          AppRoutes.mnemonicCoinflip2:
-                              (context) => const MnemonicCoinflipScreen2(entropyType: EntropyType.manual),
-                          AppRoutes.mnemonicDiceRoll: (context) => const MnemonicDiceRollScreen(),
-                          AppRoutes.mnemonicDiceRoll2:
-                              (context) => const MnemonicDiceRollScreen2(entropyType: EntropyType.manual),
+                          AppRoutes.mnemonicCoinflip:
+                              (context) => const MnemonicCoinflipScreen(entropyType: EntropyType.manual),
+                          AppRoutes.mnemonicDiceRoll:
+                              (context) => const MnemonicDiceRollScreen(entropyType: EntropyType.manual),
                           AppRoutes.appInfo: (context) => const AppInfoScreen(),
                           AppRoutes.welcome: (context) {
                             onComplete() {
