@@ -35,7 +35,6 @@ class VaultRowItem extends StatefulWidget {
     this.isNextIconVisible = true,
     this.isKeyBorderVisible = false,
     this.isSelected = false,
-    this.enableShotenName = true,
   });
 
   final VaultListItemBase vault;
@@ -54,7 +53,6 @@ class VaultRowItem extends StatefulWidget {
   final bool isNextIconVisible;
   final bool isKeyBorderVisible;
   final bool isSelected;
-  final bool enableShotenName;
 
   /// 스켈레톤 UI를 반환하는 static 메서드
   static Widget buildSkeleton() {
@@ -256,24 +254,16 @@ class _VaultRowItemState extends State<VaultRowItem> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  FittedBox(
-                    fit: BoxFit.scaleDown,
-                    alignment: Alignment.centerLeft,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          widget.enableShotenName
-                              ? widget.vault.name.length > 8
-                                  ? '${widget.vault.name.substring(0, 8)}...'
-                                  : widget.vault.name
-                              : widget.vault.name,
-                          style: CoconutTypography.body2_14_Bold,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ],
-                    ),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        widget.vault.name,
+                        style: CoconutTypography.body2_14_Bold,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ],
                   ),
                   Row(
                     children: [
@@ -314,7 +304,7 @@ class _VaultRowItemState extends State<VaultRowItem> {
                 ? Icon(
                   Icons.check_rounded,
                   size: 24,
-                  color: CoconutColors.black.withOpacity(widget.isSelected ? 1 : 0.1),
+                  color: CoconutColors.black.withValues(alpha: widget.isSelected ? 1 : 0.1),
                 )
                 : widget.isEditMode
                 ? ReorderableDragStartListener(
