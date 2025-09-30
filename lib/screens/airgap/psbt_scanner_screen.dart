@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_vault/constants/app_routes.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
+import 'package:coconut_vault/model/exception/extended_public_key_not_found_exception.dart';
 import 'package:coconut_vault/model/exception/vault_can_not_sign_exception.dart';
 import 'package:coconut_vault/model/exception/vault_not_found_exception.dart';
 import 'package:coconut_vault/providers/sign_provider.dart';
@@ -122,6 +123,8 @@ class _PsbtScannerScreenState extends State<PsbtScannerScreen> {
         await _showErrorDialog(VaultNotFoundException.defaultErrorMessage);
       } else if (e is VaultSigningNotAllowedException) {
         await _showErrorDialog(VaultSigningNotAllowedException.defaultErrorMessage);
+      } else if (e is ExtendedPublicKeyNotFoundException) {
+        await _showErrorDialog(ExtendedPublicKeyNotFoundException.defaultErrorMessage);
       } else {
         await _showErrorDialog(t.errors.invalid_qr);
       }
@@ -168,7 +171,7 @@ class _PsbtScannerScreenState extends State<PsbtScannerScreen> {
 
   List<TextSpan> _getGuideTextSpan() {
     return [
-      TextSpan(text: '[2] ', style: CoconutTypography.body2_14_Bold.copyWith(height: 1, color: CoconutColors.black)),
+      TextSpan(text: '[2] ', style: CoconutTypography.body1_16_Bold.copyWith(height: 1.2, color: CoconutColors.black)),
       TextSpan(
         text: widget.id == null ? t.psbt_scanner_screen.guide : t.psbt_scanner_screen.guide_single_sig_same_name,
         style: CoconutTypography.body2_14.copyWith(height: 1.2, color: CoconutColors.black),
@@ -194,7 +197,7 @@ class _PsbtScannerScreenState extends State<PsbtScannerScreen> {
             ),
             CustomTooltip.buildInfoTooltip(
               context,
-              richText: RichText(text: TextSpan(style: CoconutTypography.body3_12, children: _getGuideTextSpan())),
+              richText: RichText(text: TextSpan(style: CoconutTypography.body2_14, children: _getGuideTextSpan())),
               isBackgroundWhite: false,
             ),
           ],

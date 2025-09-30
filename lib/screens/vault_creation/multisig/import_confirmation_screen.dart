@@ -193,15 +193,15 @@ class _ImportConfirmationScreenState extends State<ImportConfirmationScreen> wit
     return [
       TextSpan(
         text: t.confirm_importing_screen.guide1,
-        style: CoconutTypography.body2_14_Bold.copyWith(height: 1.2, color: CoconutColors.black),
+        style: CoconutTypography.body2_14_Bold.copyWith(height: 1.3, color: CoconutColors.black),
       ),
       TextSpan(
         text: t.confirm_importing_screen.guide2,
-        style: CoconutTypography.body2_14_Bold.copyWith(height: 1.2, color: CoconutColors.black),
+        style: CoconutTypography.body2_14_Bold.copyWith(height: 1.3, color: CoconutColors.black),
       ),
       TextSpan(
         text: t.confirm_importing_screen.guide3,
-        style: CoconutTypography.body2_14.copyWith(height: 1.2, color: CoconutColors.black),
+        style: CoconutTypography.body2_14.copyWith(height: 1.3, color: CoconutColors.black),
       ),
     ];
   }

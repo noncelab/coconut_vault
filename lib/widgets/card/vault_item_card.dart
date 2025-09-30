@@ -103,7 +103,21 @@ class _VaultItemCardState extends State<VaultItemCard> {
                   children: [
                     _buildIcon(),
                     CoconutLayout.spacing_200w,
-                    Expanded(child: Text(widget.vaultItem.name, style: CoconutTypography.body1_16_Bold, maxLines: 1)),
+                    Expanded(
+                      child: LayoutBuilder(
+                        builder: (context, constraints) {
+                          return ConstrainedBox(
+                            constraints: BoxConstraints(maxWidth: constraints.maxWidth),
+                            child: Text(
+                              widget.vaultItem.name,
+                              style: CoconutTypography.body1_16_Bold,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          );
+                        },
+                      ),
+                    ),
                   ],
                 ),
               ),
@@ -114,30 +128,57 @@ class _VaultItemCardState extends State<VaultItemCard> {
               crossAxisAlignment: CrossAxisAlignment.end,
               mainAxisSize: MainAxisSize.min,
               children: [
-                if (isMultisig) Text(rightText, style: CoconutTypography.heading4_18_NumberBold),
-                if (!isMultisig)
-                  TooltipButton(
-                    isSelected: false,
-                    text: rightText,
-                    isLeft: true,
-                    iconkey: widget.tooltipKey,
-                    containerMargin: EdgeInsets.zero,
-                    onTapDown: (details) {
-                      widget.onTooltipClicked();
+                if (isMultisig)
+                  LayoutBuilder(
+                    builder: (context, constraints) {
+                      return ConstrainedBox(
+                        constraints: const BoxConstraints(maxWidth: 120),
+                        child: FittedBox(
+                          fit: BoxFit.scaleDown,
+                          alignment: Alignment.centerRight,
+                          child: Text(
+                            rightText.replaceAllMapped(RegExp(r'[a-z]+'), (match) => match.group(0)!.toUpperCase()),
+                            style: CoconutTypography.heading4_18_NumberBold,
+                          ),
+                        ),
+                      );
                     },
-                    textStyle: CoconutTypography.heading4_18_NumberBold,
-                    iconColor: CoconutColors.black,
-                    iconSize: 18,
-                    isIconBold: true,
                   ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    Text(
-                      DateFormat('yy.MM.dd HH:mm').format(widget.vaultItem.createdAt),
-                      style: CoconutTypography.body3_12.setColor(CoconutColors.gray600),
-                    ),
-                  ],
+                if (!isMultisig)
+                  LayoutBuilder(
+                    builder: (context, constraints) {
+                      return ConstrainedBox(
+                        constraints: const BoxConstraints(maxWidth: 120),
+                        child: TooltipButton(
+                          isSelected: false,
+                          text: rightText,
+                          isLeft: true,
+                          iconkey: widget.tooltipKey,
+                          containerMargin: EdgeInsets.zero,
+                          onTapDown: (details) {
+                            widget.onTooltipClicked();
+                          },
+                          textStyle: CoconutTypography.heading4_18_NumberBold,
+                          iconColor: CoconutColors.black,
+                          iconSize: 18,
+                          isIconBold: true,
+                        ),
+                      );
+                    },
+                  ),
+                LayoutBuilder(
+                  builder: (context, constraints) {
+                    return ConstrainedBox(
+                      constraints: const BoxConstraints(maxWidth: 120),
+                      child: FittedBox(
+                        fit: BoxFit.scaleDown,
+                        child: Text(
+                          DateFormat('yy.MM.dd HH:mm').format(widget.vaultItem.createdAt),
+                          style: CoconutTypography.body2_14.setColor(CoconutColors.gray600),
+                        ),
+                      ),
+                    );
+                  },
                 ),
               ],
             ),

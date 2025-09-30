@@ -393,12 +393,7 @@ class _VaultListScreenState extends State<VaultListScreen> with TickerProviderSt
       index: index,
       onLongPressed: () {
         vibrateExtraLight();
-        MyBottomSheet.showBottomSheet(
-          title: '',
-          titlePadding: EdgeInsets.zero,
-          context: context,
-          child: VaultItemSettingBottomSheet(id: id),
-        );
+        MyBottomSheet.showBottomSheet_ratio(ratio: 0.3, context: context, child: VaultItemSettingBottomSheet(id: id));
       },
       entryPoint: AppRoutes.vaultList,
     );

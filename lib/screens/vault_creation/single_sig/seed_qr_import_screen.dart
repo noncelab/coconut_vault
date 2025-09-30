@@ -61,11 +61,11 @@ class _SeedQrImportScreenState extends State<SeedQrImportScreen> {
             context,
             richText: RichText(
               text: TextSpan(
-                style: CoconutTypography.body3_12,
+                style: CoconutTypography.body2_14,
                 children: [
                   TextSpan(
                     text: t.seed_qr_import_screen.guide,
-                    style: CoconutTypography.body2_14.copyWith(height: 1.2, color: CoconutColors.black),
+                    style: CoconutTypography.body2_14.copyWith(height: 1.3, color: CoconutColors.black),
                   ),
                 ],
               ),

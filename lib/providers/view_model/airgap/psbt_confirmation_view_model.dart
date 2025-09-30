@@ -1,12 +1,17 @@
 import 'dart:collection';
 
 import 'package:coconut_lib/coconut_lib.dart';
+import 'package:coconut_vault/enums/currency_enum.dart';
+import 'package:coconut_vault/extensions/int_extensions.dart';
+import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/providers/sign_provider.dart';
+import 'package:coconut_vault/providers/visibility_provider.dart';
 import 'package:coconut_vault/utils/unit_utils.dart';
 import 'package:flutter/foundation.dart';
 
 class PsbtConfirmationViewModel extends ChangeNotifier {
   late final SignProvider _signProvider;
+  late final VisibilityProvider _visibilityProvider;
   late final String _unsignedPsbtBase64;
 
   Psbt? _psbt;
@@ -16,7 +21,7 @@ class PsbtConfirmationViewModel extends ChangeNotifier {
   // 현재 사용하지 않지만 관련 UI가 존재
   final bool _hasWarning = false;
 
-  PsbtConfirmationViewModel(this._signProvider) {
+  PsbtConfirmationViewModel(this._signProvider, this._visibilityProvider) {
     _unsignedPsbtBase64 = _signProvider.unsignedPsbtBase64!;
   }
 
@@ -72,7 +77,14 @@ class PsbtConfirmationViewModel extends ChangeNotifier {
         }
       }
       _sendingAmount = _psbt!.sendingAmount;
-      _recipientAddresses.addAll(recipientAmounts.entries.map((e) => '${e.key} (${e.value})'));
+      _recipientAddresses.addAll(
+        recipientAmounts.entries.map((e) {
+          if (_visibilityProvider.isBtcUnit) {
+            return '${e.key} (${e.value} ${t.btc})';
+          }
+          return '${e.key} (${UnitUtil.convertBitcoinToSatoshi(e.value).toThousandsSeparatedString()} ${t.sats})';
+        }),
+      );
       _updateSignProviderForBatch(_psbt!, recipientAmounts, _sendingAmount!);
     } else {
       // 내 지갑의 change address로 보내는 경우 잔액

@@ -44,6 +44,7 @@ class _MultisigSetupInfoScreenState extends State<MultisigSetupInfoScreen> {
   @override
   void initState() {
     super.initState();
+    debugPrint('initState: ${widget.id}');
   }
 
   Future<void> _authenticateAndDelete(BuildContext context) async {
@@ -284,7 +285,12 @@ class _MultisigSetupInfoScreenState extends State<MultisigSetupInfoScreen> {
                   const SizedBox(width: 10),
                   Expanded(child: _buildSignerNameAndMemo(name: signer.name, memo: signer.memo)),
                   // mfp
-                  Text(signer.keyStore.masterFingerprint, style: CoconutTypography.body1_16_Number),
+                  Expanded(
+                    child: FittedBox(
+                      fit: BoxFit.scaleDown,
+                      child: Text(signer.keyStore.masterFingerprint, style: CoconutTypography.body1_16_Number),
+                    ),
+                  ),
                 ],
               ),
             ),
@@ -365,18 +371,16 @@ class _MultisigSetupInfoScreenState extends State<MultisigSetupInfoScreen> {
   }
 
   void _showSyncOptionBottomSheet(int walletId, BuildContext context) {
-    MyBottomSheet.showDraggableBottomSheet(
+    MyBottomSheet.showBottomSheet_ratio(
       context: context,
-      minChildSize: 0.5,
-      childBuilder:
-          (scrollController) => SelectSyncOptionBottomSheet(
-            onSyncOptionSelected: (format) {
-              if (!context.mounted) return;
-              Navigator.pop(context);
-              Navigator.pushNamed(context, AppRoutes.syncToWallet, arguments: {'id': walletId, 'syncOption': format});
-            },
-            scrollController: scrollController,
-          ),
+      ratio: 0.5,
+      child: SelectSyncOptionBottomSheet(
+        onSyncOptionSelected: (format) {
+          if (!context.mounted) return;
+          Navigator.pop(context);
+          Navigator.pushNamed(context, AppRoutes.syncToWallet, arguments: {'id': walletId, 'syncOption': format});
+        },
+      ),
     );
   }
 
@@ -451,8 +455,8 @@ class _MultisigSetupInfoScreenState extends State<MultisigSetupInfoScreen> {
       builder: (BuildContext dialogContext) {
         return CoconutPopup(
           insetPadding: EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width * 0.15),
-          title: t.confirm,
-          description: t.alert.confirm_deletion(name: walletName),
+          title: t.alert.delete_vault.title,
+          description: t.alert.delete_vault.description,
           backgroundColor: CoconutColors.white,
           leftButtonText: t.no,
           leftButtonColor: CoconutColors.black.withValues(alpha: 0.7),

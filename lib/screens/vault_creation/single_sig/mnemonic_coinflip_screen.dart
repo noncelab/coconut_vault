@@ -46,7 +46,7 @@ class CoinFlip extends BaseEntropyWidget {
 class _CoinFlipState extends BaseEntropyWidgetState<CoinFlip> {
   // coinflip 관련 변수
   int numberOfBits = 0;
-  List<int> _bits = [];
+  final List<int> _bits = [];
   late int _totalBits;
   int _currentIndex = 0;
   bool _showFullBits = false;
@@ -122,11 +122,16 @@ class _CoinFlipState extends BaseEntropyWidgetState<CoinFlip> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Column(
-            children: [
-              _buildTextButton(t.delete_all, showConfirmResetDialog),
-              _buildTextButton(t.delete_one, removeLastEntropyData),
-            ],
+          Expanded(
+            child: FittedBox(
+              fit: BoxFit.scaleDown,
+              child: Column(
+                children: [
+                  _buildTextButton(t.delete_all, showConfirmResetDialog),
+                  _buildTextButton(t.delete_one, removeLastEntropyData),
+                ],
+              ),
+            ),
           ),
           CoconutLayout.spacing_300w,
           _buildCoinButton(
@@ -155,7 +160,9 @@ class _CoinFlipState extends BaseEntropyWidgetState<CoinFlip> {
             child: Text(
               text,
               style: CoconutTypography.body2_14.setColor(
-                _bits.isEmpty ? CoconutColors.secondaryText : CoconutColors.black.withValues(alpha: 0.7),
+                _bits.isEmpty
+                    ? CoconutColors.secondaryText
+                    : CoconutColors.black.withValues(alpha: 0.7),
               ),
             ),
           ),
@@ -182,10 +189,13 @@ class _CoinFlipState extends BaseEntropyWidgetState<CoinFlip> {
             border: Border.all(color: CoconutColors.gray300),
           ),
           child: Center(
-            child: Text(
-              text,
-              style: CoconutTypography.heading4_18_Bold.setColor(CoconutColors.black),
-              textAlign: TextAlign.center,
+            child: MediaQuery(
+              data: MediaQuery.of(context).copyWith(textScaler: const TextScaler.linear(1.0)),
+              child: Text(
+                text,
+                style: CoconutTypography.heading4_18_Bold.setColor(CoconutColors.black),
+                textAlign: TextAlign.center,
+              ),
             ),
           ),
         ),
@@ -227,7 +237,8 @@ class _CoinFlipState extends BaseEntropyWidgetState<CoinFlip> {
                 children: [
                   Text(
                     '${start + index + 1}',
-                    style: CoconutTypography.body3_12_Number.setColor(CoconutColors.black.withValues(alpha: 0.3)),
+                    style: CoconutTypography.body3_12_Number
+                        .setColor(CoconutColors.black.withValues(alpha: 0.3)),
                   ),
                   CoconutLayout.spacing_200h,
                   Text(
@@ -254,8 +265,8 @@ class _CoinFlipState extends BaseEntropyWidgetState<CoinFlip> {
     MyBottomSheet.showDraggableBottomSheet(
       context: context,
       minChildSize: 0.5,
-      childBuilder:
-          (scrollController) => BinaryGrid(totalCount: _totalBits, inputs: _bits, scrollController: scrollController),
+      childBuilder: (scrollController) =>
+          BinaryGrid(totalCount: _totalBits, inputs: _bits, scrollController: scrollController),
     );
   }
 

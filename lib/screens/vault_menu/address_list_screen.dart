@@ -76,6 +76,7 @@ class _AddressListScreenState extends State<AddressListScreen> {
                 if (widget.isSpecificVault || viewModel.vaultCount <= 1) return;
                 MyBottomSheet.showDraggableBottomSheet(
                   context: context,
+                  title: t.select_vault_bottom_sheet.select_wallet,
                   childBuilder:
                       (scrollController) => SelectVaultBottomSheet(
                         isNextIconVisible: false,

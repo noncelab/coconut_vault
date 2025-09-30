@@ -207,7 +207,11 @@ class _MultisigQuorumSelectionScreenState extends State<MultisigQuorumSelectionS
       mainAxisAlignment: MainAxisAlignment.center,
       key: key,
       children: [
-        Expanded(child: Center(child: Text(text, style: CoconutTypography.body2_14_Bold))),
+        Expanded(
+          child: Center(
+            child: FittedBox(fit: BoxFit.scaleDown, child: Text(text, style: CoconutTypography.body2_14_Bold)),
+          ),
+        ),
         Expanded(
           child: CoconutStepper(
             key: ValueKey('${key.toString()}_$_totalKeyCount'),

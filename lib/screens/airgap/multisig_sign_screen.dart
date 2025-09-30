@@ -245,39 +245,6 @@ class _MultisigSignScreenState extends State<MultisigSignScreen> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
-                            // progress
-                            TweenAnimationBuilder<double>(
-                              tween: Tween<double>(
-                                begin: 0.0,
-                                end:
-                                    viewModel.signersApproved.where((item) => item).length /
-                                    viewModel.requiredSignatureCount,
-                              ),
-                              duration: const Duration(milliseconds: 1500),
-                              builder: (context, value, child) {
-                                if (value == 1.0) {
-                                  _isProgressCompleted = true;
-                                } else {
-                                  _isProgressCompleted = false;
-                                }
-                                return Container(
-                                  margin: const EdgeInsets.only(top: 8),
-                                  child: LinearProgressIndicator(
-                                    value: value,
-                                    minHeight: 6,
-                                    backgroundColor: CoconutColors.black.withOpacity(0.06),
-                                    borderRadius:
-                                        _isProgressCompleted
-                                            ? BorderRadius.zero
-                                            : const BorderRadius.only(
-                                              topRight: Radius.circular(6),
-                                              bottomRight: Radius.circular(6),
-                                            ),
-                                    valueColor: const AlwaysStoppedAnimation<Color>(CoconutColors.black),
-                                  ),
-                                );
-                              },
-                            ),
                             Padding(
                               padding: const EdgeInsets.only(top: 36),
                               child: Text(
@@ -285,6 +252,7 @@ class _MultisigSignScreenState extends State<MultisigSignScreen> {
                                     ? t.sign_completed
                                     : t.sign_required_amount(n: viewModel.remainingSignatures),
                                 style: CoconutTypography.heading4_18_Bold,
+                                textAlign: TextAlign.center,
                               ),
                             ),
                             CoconutLayout.spacing_600h,

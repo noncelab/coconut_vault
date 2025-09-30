@@ -1,5 +1,4 @@
 import 'package:coconut_design_system/coconut_design_system.dart';
-import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/model/common/vault_list_item_base.dart';
 import 'package:coconut_vault/widgets/vault_row_item.dart';
 import 'package:flutter/material.dart';
@@ -38,20 +37,6 @@ class _SelectVaultBottomSheetState extends State<SelectVaultBottomSheet> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: CoconutColors.white,
-      appBar: CoconutAppBar.build(
-        title: t.select_vault_bottom_sheet.select_wallet,
-        context: context,
-        onBackPressed: null,
-        subLabel:
-            widget.subLabel != null
-                ? Text(
-                  widget.subLabel ?? '',
-                  style: CoconutTypography.body3_12.setColor(CoconutColors.black.withValues(alpha: 0.7)),
-                )
-                : null,
-        showSubLabel: widget.subLabel != null,
-        isBottom: true,
-      ),
       body: Column(
         children: [
           Expanded(

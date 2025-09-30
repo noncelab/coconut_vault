@@ -81,7 +81,7 @@ class MultisigBsmsScreen extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.baseline,
       textBaseline: TextBaseline.alphabetic,
       children: [
-        const Text('•', style: CoconutTypography.body2_14),
+        const Text('•', style: CoconutTypography.body1_16),
         const SizedBox(width: 8),
         Expanded(
           child: RichText(

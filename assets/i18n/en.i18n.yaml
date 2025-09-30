@@ -617,7 +617,9 @@ permission:
     btn_move_to_setting: "Go to Settings"
 
 alert:
-  confirm_deletion: "Really delete $name info from vault?"
+  delete_vault:
+    title: "Delete Vault"
+    description: "If you don't backup mnemonic, your bitcoins will be lost forever.\nReally delete?"
   forgot_password:
     title: "Forgot password?"
     description1: "Resetting password will delete all stored wallets. Still want to reset?"
@@ -717,6 +719,7 @@ errors:
   psbt_parsing_error: "PSBT parsing failed: $error"
   not_related_multisig_wallet_error: "This is not a multisig wallet using this wallet as key"
   vault_not_found_error: "No matching vault found"
+  extended_public_key_not_found_error: "Please select the wallet you want to use directly and use the Multisig Signing feature"
 
 tooltip:
   mfp: "Unique value of wallet.\nAlso called Master Fingerprint (MFP)."

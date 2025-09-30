@@ -27,8 +27,11 @@ class _PsbtConfirmationScreenState extends State<PsbtConfirmationScreen> {
   @override
   void initState() {
     super.initState();
-    _viewModel = PsbtConfirmationViewModel(Provider.of<SignProvider>(context, listen: false));
-    _currentUnit = context.read<VisibilityProvider>().currentUnit;
+    _viewModel = PsbtConfirmationViewModel(
+      Provider.of<SignProvider>(context, listen: false),
+      Provider.of<VisibilityProvider>(context, listen: false),
+    );
+    _currentUnit = context.read<VisibilityProvider>().isBtcUnit ? BitcoinUnit.btc : BitcoinUnit.sats;
     WidgetsBinding.instance.addPostFrameCallback((_) {
       try {
         _viewModel.setTxInfo();
@@ -202,7 +205,7 @@ class _PsbtConfirmationScreenState extends State<PsbtConfirmationScreen> {
 
   List<TextSpan> _getTooltipRichText() {
     return [
-      TextSpan(text: '[3] ', style: CoconutTypography.body2_14_Bold.copyWith(height: 1.2, color: CoconutColors.black)),
+      TextSpan(text: '[3] ', style: CoconutTypography.body1_16_Bold.copyWith(height: 1.2, color: CoconutColors.black)),
       TextSpan(
         text: t.psbt_confirmation_screen.guide,
         style: CoconutTypography.body2_14.copyWith(height: 1.2, color: CoconutColors.black),

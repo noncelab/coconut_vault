@@ -77,14 +77,16 @@ dependencies:
       url: https://github.com/noncelab/coconut_lib.git
       ref: fix/improve-security
   coconut_design_system:
-    git:
-      url: https://github.com/noncelab/coconut_design_system.git
-      ref: main
+    path: ../design_system/coconut_design_system
+    # git:
+    #   url: https://github.com/noncelab/coconut_design_system.git
+    #   ref: main
   cbor: ^6.3.5
   ur:
     path: lib/packages/bc-ur-dart
   mobile_scanner: 7.0.1
   qr_code_scanner_plus: ^2.0.12
+  decimal: ^3.0.2
 
 dev_dependencies:
   flutter_oss_licenses: ^3.0.2

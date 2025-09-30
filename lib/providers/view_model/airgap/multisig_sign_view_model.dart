@@ -57,6 +57,7 @@ class MultisigSignViewModel extends ChangeNotifier {
   void initPsbtSignState() {
     assert(!_signStateInitialized); // 오직 한번만 호출
     _signStateInitialized = true;
+    debugPrint('signnnnnnnnn: ${_signProvider.walletId}');
 
     final psbt = _signProvider.psbt!;
     for (var entry in _coconutVault.keyStoreList.asMap().entries) {
