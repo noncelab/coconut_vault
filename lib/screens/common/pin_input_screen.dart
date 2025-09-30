@@ -25,6 +25,7 @@ class PinInputScreen extends StatefulWidget {
   final bool canChangePinType;
   final PinType pinType; // 문자 또는 6-digit PIN 입력 모드 확인용
   final Function(PinType)? onPinTypeChanged; // 입력 모드 변경 핸들러
+  final FocusNode? characterFocusNode;
 
   const PinInputScreen({
     super.key,
@@ -45,6 +46,7 @@ class PinInputScreen extends StatefulWidget {
     this.disabled = false,
     this.pinType = PinType.number,
     this.onPinTypeChanged,
+    this.characterFocusNode,
   });
 
   @override
@@ -52,13 +54,15 @@ class PinInputScreen extends StatefulWidget {
 }
 
 class PinInputScreenState extends State<PinInputScreen> {
-  final FocusNode _characterFocusNode = FocusNode();
+  late final FocusNode _characterFocusNode;
   final TextEditingController _characterController = TextEditingController();
   late PinType _pinType;
 
   @override
   void initState() {
     super.initState();
+
+    _characterFocusNode = widget.characterFocusNode ?? FocusNode();
 
     _pinType = widget.pinType;
 
@@ -78,7 +82,9 @@ class PinInputScreenState extends State<PinInputScreen> {
   @override
   void dispose() {
     super.dispose();
-    _characterFocusNode.dispose();
+    if (widget.characterFocusNode == null) {
+      _characterFocusNode.dispose();
+    }
     _characterController.dispose();
   }
 

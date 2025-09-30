@@ -68,7 +68,7 @@ class StartViewModel extends ChangeNotifier {
 
     /// PinCheck 화면에서 '다시 시작하기' 버튼을 눌러야 함
     if (_authProvider.isPermanantlyLocked) {
-      return AppEntryFlow.pinCheck;
+      return AppEntryFlow.pinCheckAppLaunched;
     }
 
     // 복원파일이 없는 경우
@@ -76,10 +76,9 @@ class StartViewModel extends ChangeNotifier {
       return AppEntryFlow.vaultHome;
     }
 
-    if (!_authProvider.isPermanantlyLocked && await _authProvider.isBiometricsAuthValid(isSaved: true)) {
+    if (await _authProvider.isBiometricsAuthValid()) {
       return AppEntryFlow.vaultHome;
-    } else {
-      return AppEntryFlow.pinCheck;
     }
+    return AppEntryFlow.pinCheckAppLaunched;
   }
 }

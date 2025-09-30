@@ -32,6 +32,7 @@ class PinCheckScreen extends StatefulWidget {
 
 class _PinCheckScreenState extends State<PinCheckScreen> with WidgetsBindingObserver {
   late final bool _isAppLaunched;
+  late final bool _shouldAttemptBiometricsAuth;
   late String _pin;
   late String _errorMessage;
   late PinType _pinType;
@@ -46,6 +47,11 @@ class _PinCheckScreenState extends State<PinCheckScreen> with WidgetsBindingObse
   // 생체인증으로 인한 applifecycle 이벤트 관련 변수
   bool _isLifecycleTriggeredByBio = false;
 
+  // _shouldAttempBiometricsAuth가 true일 때, 생체인증 실패 후 키보드가 다시 올라오게 하려고
+  // 선언하여 PinInputScreen에 넘겨줌. 하지만 이미 focus상태에서 생태인증 때문에 키보드가 사라져 있는 상태라
+  // 다시 requestFocus 함수 호출로 키보드가 올라오지 않는 상황
+  final FocusNode _characterFocusNode = FocusNode();
+
   @override
   void initState() {
     super.initState();
@@ -55,7 +61,10 @@ class _PinCheckScreenState extends State<PinCheckScreen> with WidgetsBindingObse
 
     _isAppLaunched =
         widget.pinCheckContext == PinCheckContextEnum.appLaunch ||
+        widget.pinCheckContext == PinCheckContextEnum.appResumed ||
         widget.pinCheckContext == PinCheckContextEnum.restoration;
+
+    _shouldAttemptBiometricsAuth = widget.pinCheckContext == PinCheckContextEnum.appResumed;
 
     _authProvider = Provider.of<AuthProvider>(context, listen: false);
     _pinType = _authProvider.isPinCharacter ? PinType.character : PinType.number;
@@ -126,11 +135,14 @@ class _PinCheckScreenState extends State<PinCheckScreen> with WidgetsBindingObse
       /// 생체 인증 시도
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (!mounted) return;
-        if (_isAppLaunched && _authProvider.isBiometricEnabled) {
+        if (_shouldAttemptBiometricsAuth && _authProvider.isBiometricEnabled) {
           _isLifecycleTriggeredByBio = true;
           _authProvider.authenticateWithBiometrics().then((result) {
             if (result) {
               _handleAuthenticationSuccess();
+            } else {
+              // 키보드가 다시 올라오면 좋겠는데 원하는 대로 동작을 안함
+              // _characterFocusNode.requestFocus();
             }
           });
         }
@@ -396,12 +408,14 @@ class _PinCheckScreenState extends State<PinCheckScreen> with WidgetsBindingObse
       lastChance: _isLastChanceToTry,
       lastChanceMessage: t.pin_check_screen.warning,
       disabled: _authProvider.isPermanantlyLocked || _isUnlockDisabled == true,
+      characterFocusNode: _characterFocusNode,
     );
   }
 
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
+    _characterFocusNode.dispose();
     super.dispose();
   }
 }

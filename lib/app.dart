@@ -59,7 +59,8 @@ import 'package:provider/provider.dart';
 enum AppEntryFlow {
   splash,
   tutorial,
-  pinCheck,
+  pinCheckAppLaunched,
+  pinCheckAppResumed,
   vaultHome,
   pinCheckForRestoration, // 복원파일o, 업데이트o 일때 바로 이동하는 핀체크 화면
   foundBackupFile, // 복원파일o, 업데이트x 일때 이동하는 복원파일 발견 화면
@@ -110,16 +111,20 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> {
     });
   }
 
-  Widget _buildPinCheckScreen({required AppEntryFlow nextFlow, VoidCallback? onReset}) {
+  Widget _buildPinCheckScreen({
+    required PinCheckContextEnum pinCheckContext,
+    required AppEntryFlow nextFlow,
+    VoidCallback? onReset,
+  }) {
     return PinCheckScreen(
-      pinCheckContext: PinCheckContextEnum.appLaunch,
+      pinCheckContext: pinCheckContext,
       onSuccess: () => _updateEntryFlow(nextFlow),
       onReset: onReset ?? () async => _updateEntryFlow(AppEntryFlow.vaultHome),
     );
   }
 
-  Widget _getHomeScreenRoute(AppEntryFlow status, BuildContext context) {
-    switch (status) {
+  Widget _getHomeScreenRoute(AppEntryFlow appEntry, BuildContext context) {
+    switch (appEntry) {
       case AppEntryFlow.splash:
         return StartScreen(onComplete: _updateEntryFlow);
 
@@ -134,13 +139,26 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> {
           return WelcomeScreen(onComplete: onComplete);
         }
 
-      case AppEntryFlow.pinCheck:
-        return CustomLoadingOverlay(child: _buildPinCheckScreen(nextFlow: AppEntryFlow.vaultHome));
-
+      case AppEntryFlow.pinCheckAppLaunched:
+        return CustomLoadingOverlay(
+          child: _buildPinCheckScreen(pinCheckContext: PinCheckContextEnum.appLaunch, nextFlow: AppEntryFlow.vaultHome),
+        );
+      case AppEntryFlow.pinCheckAppResumed:
+        return CustomLoadingOverlay(
+          child: _buildPinCheckScreen(
+            pinCheckContext: PinCheckContextEnum.appResumed,
+            nextFlow: AppEntryFlow.vaultHome,
+          ),
+        );
       case AppEntryFlow.pinCheckForRestoration:
 
         /// 복원 파일 o, 업데이트 o 일때 바로 이동하는 핀체크 화면
-        return CustomLoadingOverlay(child: _buildPinCheckScreen(nextFlow: AppEntryFlow.restoration));
+        return CustomLoadingOverlay(
+          child: _buildPinCheckScreen(
+            pinCheckContext: PinCheckContextEnum.restoration, // TODO: 동작 확인 필요
+            nextFlow: AppEntryFlow.restoration,
+          ),
+        );
 
       case AppEntryFlow.foundBackupFile:
 
@@ -195,7 +213,7 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> {
         child:
             _appEntryFlow == AppEntryFlow.vaultHome
                 ? MainRouteGuard(
-                  onAppGoBackground: () => _updateEntryFlow(AppEntryFlow.pinCheck),
+                  onAppGoBackground: () => _updateEntryFlow(AppEntryFlow.pinCheckAppResumed),
                   onAppGoInactive: () {
                     if (Platform.isAndroid) return; // 안드로이드는 Native에서 처리
 
