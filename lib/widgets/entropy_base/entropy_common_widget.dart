@@ -43,19 +43,23 @@ class EntropyPassphraseInput extends StatelessWidget {
         child: Column(
           children: [
             Text(
-              t.mnemonic_generate_screen.enter_passphrase,
+              t.passphrase_textfield.title,
               style: CoconutTypography.body1_16_Bold.setColor(
                 step == 0 ? CoconutColors.warningText : CoconutColors.black,
               ),
               textAlign: TextAlign.center,
             ),
             CoconutLayout.spacing_400h,
-            // TODO: UI 수정 중
             Row(
               mainAxisAlignment: MainAxisAlignment.start,
               children: [
                 CoconutLayout.spacing_200w,
-                Text('입력 패스프레이즈 보이기', style: CoconutTypography.body1_16_Bold.setColor(CoconutColors.black)),
+                Text(
+                  passphraseObscured
+                      ? t.passphrase_textfield.passphrase_visible
+                      : t.passphrase_textfield.passphrase_hidden,
+                  style: CoconutTypography.body1_16_Bold.setColor(CoconutColors.black),
+                ),
                 const Spacer(),
                 IconButton(
                   onPressed: () => onPassphraseObscuredChanged(!passphraseObscured),
@@ -107,7 +111,6 @@ class EntropyPassphraseInput extends StatelessWidget {
     required String placeholder,
     required VoidCallback onClear,
     bool obscure = false,
-    bool showToggle = false,
     VoidCallback? onEditingComplete,
   }) {
     return CoconutTextField(
@@ -131,18 +134,7 @@ class EntropyPassphraseInput extends StatelessWidget {
                 ),
               ),
             ),
-          // if (showToggle)
-          //   GestureDetector(
-          //     onTap: () => onPassphraseObscuredChanged(!obscure),
-          //     child: Container(
-          //       padding: const EdgeInsets.only(right: 16, top: 8, bottom: 8, left: 8),
-          //       child: Icon(
-          //         obscure ? CupertinoIcons.eye_slash : CupertinoIcons.eye,
-          //         color: CoconutColors.gray800,
-          //         size: 18,
-          //       ),
-          //     ),
-          //   ),
+          CoconutLayout.spacing_200w,
         ],
       ),
       maxLength: 100,
