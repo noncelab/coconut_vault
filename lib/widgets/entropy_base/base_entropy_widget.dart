@@ -234,6 +234,7 @@ abstract class BaseEntropyWidgetState<T extends BaseEntropyWidget> extends State
       setState(() {
         step = 1;
       });
+      widget.stepNotifier?.value = 1;
       return;
     }
 
