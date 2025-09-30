@@ -201,7 +201,7 @@ class PinInputScreenState extends State<PinInputScreen> {
                       padding: const EdgeInsets.only(bottom: 50, top: 8),
                       child: GestureDetector(
                         onTap: () {
-                           widget.onPressedBottomTextButton?.call();
+                          widget.onPressedBottomTextButton?.call();
                         },
                         child: Text(
                           widget.bottomTextButtonLabel ?? '',

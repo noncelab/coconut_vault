@@ -160,9 +160,7 @@ class _CoinFlipState extends BaseEntropyWidgetState<CoinFlip> {
             child: Text(
               text,
               style: CoconutTypography.body2_14.setColor(
-                _bits.isEmpty
-                    ? CoconutColors.secondaryText
-                    : CoconutColors.black.withValues(alpha: 0.7),
+                _bits.isEmpty ? CoconutColors.secondaryText : CoconutColors.black.withValues(alpha: 0.7),
               ),
             ),
           ),
@@ -237,8 +235,7 @@ class _CoinFlipState extends BaseEntropyWidgetState<CoinFlip> {
                 children: [
                   Text(
                     '${start + index + 1}',
-                    style: CoconutTypography.body3_12_Number
-                        .setColor(CoconutColors.black.withValues(alpha: 0.3)),
+                    style: CoconutTypography.body3_12_Number.setColor(CoconutColors.black.withValues(alpha: 0.3)),
                   ),
                   CoconutLayout.spacing_200h,
                   Text(
@@ -265,8 +262,8 @@ class _CoinFlipState extends BaseEntropyWidgetState<CoinFlip> {
     MyBottomSheet.showDraggableBottomSheet(
       context: context,
       minChildSize: 0.5,
-      childBuilder: (scrollController) =>
-          BinaryGrid(totalCount: _totalBits, inputs: _bits, scrollController: scrollController),
+      childBuilder:
+          (scrollController) => BinaryGrid(totalCount: _totalBits, inputs: _bits, scrollController: scrollController),
     );
   }
 
