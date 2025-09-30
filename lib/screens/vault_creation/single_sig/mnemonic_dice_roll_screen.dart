@@ -75,7 +75,14 @@ class _DiceRollState extends BaseEntropyWidgetState<DiceRoll> {
   }
 
   @override
-  bool get isRightButtonActive => _bits.length >= (widget.wordsCount == 12 ? 128 : 256);
+  bool get isRightButtonActive {
+    if (step == 0) {
+      return _bits.length >= (widget.wordsCount == 12 ? 128 : 256);
+    } else if (step == 1) {
+      return isPassphraseValid;
+    }
+    return false;
+  }
 
   @override
   Widget buildEntropyContent() {
