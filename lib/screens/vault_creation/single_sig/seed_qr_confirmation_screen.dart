@@ -108,15 +108,18 @@ class _SeedQrConfirmationScreenState extends State<SeedQrConfirmationScreen> {
               SingleChildScrollView(
                 controller: _scrollController,
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                  //padding: const EdgeInsets.symmetric(horizontal: 16.0),
                   color: CoconutColors.white,
                   child: Column(
                     children: [
-                      CoconutLayout.spacing_1200h,
                       MnemonicList(mnemonic: widget.scannedData),
                       CoconutLayout.spacing_600h,
-                      _buildPassphraseToggle(),
-                      if (_usePassphrase) _buildPassphraseTextField(),
+                      Padding(padding: const EdgeInsets.symmetric(horizontal: 16.0), child: _buildPassphraseToggle()),
+                      if (_usePassphrase)
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                          child: _buildPassphraseTextField(),
+                        ),
                       CoconutLayout.spacing_2500h,
                     ],
                   ),

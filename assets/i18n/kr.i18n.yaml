@@ -664,7 +664,7 @@ alert:
     confirm: "확인"
   stop_importing_mnemonic:
     title: "복원 중단"
-    description: "복원을 그만두시겠어요?."
+    description: "복원을 그만두시겠어요?"
   erase_all_entered_so_far: "정말로 지금까지 입력한 정보를\n모두 지우시겠어요?"
   erase_all_entered_mnemonic: 
     title: "모두 지우기"
