@@ -44,14 +44,12 @@ class DiceRoll extends BaseEntropyWidget {
 }
 
 class _DiceRollState extends BaseEntropyWidgetState<DiceRoll> {
-  List<int> _bits = [];
   // dice roll 관련 변수
   int diceNumbers = 0;
-
+  List<int> _bits = [];
   final List<int> _diceNumbers = [];
-
   int _currentIndex = 0;
-
+  bool _showFullBits = false;
   // 이안콜만 방식: 주사위 매핑
   final diceMapping = {
     1: [0, 1],
@@ -113,6 +111,14 @@ class _DiceRollState extends BaseEntropyWidgetState<DiceRoll> {
     List<int> currentRolls;
 
     start = _currentIndex ~/ gridElements * gridElements;
+
+    if (_showFullBits) {
+      start = start - 10;
+    }
+    if (start == _bits.length) {
+      start -= 10;
+    }
+
     currentRolls = _diceNumbers.sublist(start, _currentIndex);
 
     return Column(
@@ -235,12 +241,23 @@ class _DiceRollState extends BaseEntropyWidgetState<DiceRoll> {
   }
 
   @override
-  void addEntropyData(data) {
+  void addEntropyData(data) async {
     setState(() {
       _diceNumbers.add(data);
       _bits.addAll(diceMapping[data] ?? []);
       _currentIndex++;
     });
+
+    if (_currentIndex % 10 == 0 && _currentIndex < (widget.wordsCount == 12 ? 128 : 256)) {
+      setState(() {
+        _showFullBits = true;
+      });
+      await Future.delayed(const Duration(milliseconds: 500));
+      if (_currentIndex < (widget.wordsCount == 12 ? 128 : 256)) {
+        _showFullBits = false;
+        setState(() {});
+      }
+    }
   }
 
   @override

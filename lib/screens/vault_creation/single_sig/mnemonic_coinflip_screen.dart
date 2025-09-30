@@ -271,7 +271,7 @@ class _CoinFlipState extends BaseEntropyWidgetState<CoinFlip> {
       setState(() {
         _showFullBits = true;
       });
-      await Future.delayed(const Duration(seconds: 1));
+      await Future.delayed(const Duration(milliseconds: 500));
       if (_currentIndex < _totalBits) {
         _showFullBits = false;
         setState(() {});
