@@ -589,7 +589,7 @@ class _WarningWidgetState extends State<WarningWidget> {
           child: BackdropFilter(
             filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
             child: Align(
-              alignment: Alignment.center,
+              alignment: const Alignment(0, -0.2),
               child: Container(
                 decoration: BoxDecoration(borderRadius: BorderRadius.circular(12), color: CoconutColors.hotPink),
                 padding: const EdgeInsets.only(top: 28, left: 24, right: 24, bottom: 20),
