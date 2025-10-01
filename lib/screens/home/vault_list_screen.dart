@@ -428,8 +428,8 @@ class _VaultListScreenState extends State<VaultListScreen> with TickerProviderSt
                 return CoconutPopup(
                   title: t.vault_list_screen.edit.finish,
                   description: t.vault_list_screen.edit.unsaved_changes_confirm_exit,
-                  leftButtonText: t.cancel,
-                  rightButtonText: t.confirm,
+                  leftButtonText: t.no,
+                  rightButtonText: t.yes,
                   onTapRight: () {
                     _viewModel.setEditMode(false);
                     Navigator.pop(context);
