@@ -402,7 +402,9 @@ class _MultisigSignScreenState extends State<MultisigSignScreen> {
                 border: Border.all(
                   color:
                       isSignerApproved
-                          ? CoconutColors.backgroundColorPaletteLight[colorIndex].withAlpha(70)
+                          ? isInnerWallet
+                              ? CoconutColors.backgroundColorPaletteLight[colorIndex].withAlpha(70)
+                              : CoconutColors.gray300
                           : CoconutColors.gray200,
                   width: 1,
                 ),

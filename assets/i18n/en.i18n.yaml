@@ -44,7 +44,7 @@ change: "Change"
 receiving: "Receive"
 email_subject: "[Coconut Vault] Inquiry"
 
-sign_completion: "Sign Complete"
+sign_completion: "Signed"
 sign: "Sign"
 signed_tx: "Signed Transaction"
 sign_completed: "Signature completed"

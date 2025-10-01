@@ -220,7 +220,7 @@ signer_qr_bottom_sheet:
   title: "서명 트랜잭션 내보내기"
   text1: "번 키가 보관된 볼트에서,"
   text2: "서명하기"
-  text3: "를 눌러 아래 QR 코드를 스캔해 주세요."
+  text3: "아래 QR 코드를 스캔해 주세요."
   select: " 선택"
 unit_bottom_sheet:
   basic_unit: "기본 단위"
