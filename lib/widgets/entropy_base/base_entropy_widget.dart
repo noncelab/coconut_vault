@@ -161,7 +161,7 @@ abstract class BaseEntropyWidgetState<T extends BaseEntropyWidget> extends State
       return false;
     }
 
-    passphraseErrorMessage = '';
+    _checkIfInvalidCharactersIncluded();
     return true;
   }
 
