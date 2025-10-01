@@ -4,6 +4,7 @@ import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_vault/enums/pin_check_context_enum.dart';
 import 'package:coconut_vault/isolates/wallet_isolates.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
+import 'package:coconut_vault/providers/auth_provider.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:coconut_vault/screens/common/pin_check_screen.dart';
 import 'package:coconut_vault/widgets/bottom_sheet.dart';
@@ -144,17 +145,22 @@ class _PassphraseCheckScreen extends State<PassphraseCheckScreen> {
 
     setState(() {
       _isSubmitting = true;
+      if (_showError) {
+        _showError = false;
+      }
     });
 
-    if (_showError) {
-      setState(() {
-        _showError = false;
-      });
-    }
-
     _closeKeyboard();
-    final pinCheckResult = await _showPinCheckScreen();
-    if (pinCheckResult != true) return;
+    final isBiometricsAuthValid = await context.read<AuthProvider>().isBiometricsAuthValid();
+    if (!isBiometricsAuthValid) {
+      final pinCheckResult = await _showPinCheckScreen();
+      if (pinCheckResult != true) {
+        setState(() {
+          _isSubmitting = false;
+        });
+        return;
+      }
+    }
 
     if (!mounted) return;
 
@@ -200,14 +206,6 @@ class _PassphraseCheckScreen extends State<PassphraseCheckScreen> {
       'valutListItem': walletProvider.getVaultById(widget.id),
     });
 
-    // if (!mounted) return;
-    // Navigator.of(context).pop();
-    // bool success = result['success'];
-    // _showError = !success;
-    // setState(() {});
-    // if (success) {
-    //   Navigator.pop(context, {'success': success, 'passphrase': _inputController.text});
-    // }
     return result['success'];
   }
 }
