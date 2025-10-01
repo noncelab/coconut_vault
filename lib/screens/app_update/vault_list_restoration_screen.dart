@@ -93,9 +93,22 @@ class _VaultListRestorationScreenState extends State<VaultListRestorationScreen>
                 isMultisig && multiSigners != null ? CustomColorHelper.getGradientColors(multiSigners) : null,
           ),
           CoconutLayout.spacing_200w,
-          Text(walletName, style: CoconutTypography.body2_14_Bold),
-          const Spacer(),
-          Text(rightText, style: CoconutTypography.body3_12_Number.setColor(CoconutColors.gray800)),
+          Expanded(
+            child: Text(
+              walletName,
+              style: CoconutTypography.body2_14_Bold,
+              overflow: TextOverflow.ellipsis,
+              textAlign: TextAlign.start,
+              maxLines: 1,
+            ),
+          ),
+          Expanded(
+            child: FittedBox(
+              fit: BoxFit.scaleDown,
+              alignment: Alignment.centerRight,
+              child: Text(rightText, style: CoconutTypography.body3_12_Number.setColor(CoconutColors.gray800)),
+            ),
+          ),
         ],
       ),
     );
@@ -129,9 +142,10 @@ class _VaultListRestorationScreenState extends State<VaultListRestorationScreen>
                               ? t.vault_list_restoration.completed_title
                               : t.vault_list_restoration.in_progress_title,
                           style: CoconutTypography.heading3_21_Bold,
+                          textAlign: TextAlign.center,
                         ),
                         Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 20),
+                          padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 16),
                           child: Text(
                             viewModel.isVaultListRestored
                                 ? t.vault_list_restoration.completed_description(count: viewModel.vaultList.length)

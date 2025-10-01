@@ -50,7 +50,11 @@ class _RestorationInfoScreenState extends State<RestorationInfoScreen> {
             child: Column(
               children: [
                 CoconutLayout.spacing_2500h,
-                Text(t.restoration_info.found_title, style: CoconutTypography.heading3_21_Bold),
+                Text(
+                  t.restoration_info.found_title,
+                  style: CoconutTypography.heading3_21_Bold,
+                  textAlign: TextAlign.center,
+                ),
                 Padding(
                   padding: const EdgeInsets.symmetric(vertical: 20),
                   child: Text(

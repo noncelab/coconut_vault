@@ -182,6 +182,7 @@ class _SingleSigSignScreenState extends State<SingleSigSignScreen> {
                                   ? (viewModel.isAlreadySigned ? t.single_sig_sign_screen.text : t.sign_completed)
                                   : t.one_sign_guide,
                               style: CoconutTypography.heading4_18_Bold,
+                              textAlign: TextAlign.center,
                             ),
                           ),
                           CoconutLayout.spacing_600h,
@@ -365,13 +366,19 @@ class _SingleSigSignScreenState extends State<SingleSigSignScreen> {
                     flex: 1,
                     child: SizedBox(
                       width: MediaQuery.sizeOf(context).width,
+                      height: 50,
                       child: ShrinkAnimationButton(
                         defaultColor: CoconutColors.gray300,
+                        pressedColor: CoconutColors.gray200,
                         onPressed: _askIfSureToQuit,
                         borderRadius: CoconutStyles.radius_200,
                         child: Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 14),
-                          child: Text(t.abort, style: CoconutTypography.body2_14_Bold, textAlign: TextAlign.center),
+                          padding: const EdgeInsets.symmetric(vertical: 12),
+                          child: FittedBox(
+                            fit: BoxFit.scaleDown,
+                            alignment: Alignment.center,
+                            child: Text(t.abort, style: CoconutTypography.body2_14_Bold, textAlign: TextAlign.center),
+                          ),
                         ),
                       ),
                     ),
@@ -381,6 +388,7 @@ class _SingleSigSignScreenState extends State<SingleSigSignScreen> {
                     flex: 2,
                     child: SizedBox(
                       width: MediaQuery.sizeOf(context).width,
+                      height: 50,
                       child: ShrinkAnimationButton(
                         isActive: isSignatureComplete,
                         disabledColor: CoconutColors.gray150,
@@ -388,15 +396,20 @@ class _SingleSigSignScreenState extends State<SingleSigSignScreen> {
                         onPressed: () {
                           Navigator.pushNamed(context, AppRoutes.signedTransaction);
                         },
+                        pressedColor: CoconutColors.gray400,
                         borderRadius: CoconutStyles.radius_200,
                         child: Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 14),
-                          child: Text(
-                            t.next,
-                            style: CoconutTypography.body2_14_Bold.setColor(
-                              isSignatureComplete ? CoconutColors.white : CoconutColors.gray350,
+                          padding: const EdgeInsets.symmetric(vertical: 12),
+                          child: FittedBox(
+                            fit: BoxFit.scaleDown,
+                            alignment: Alignment.center,
+                            child: Text(
+                              t.next,
+                              style: CoconutTypography.body2_14_Bold.setColor(
+                                isSignatureComplete ? CoconutColors.white : CoconutColors.gray350,
+                              ),
+                              textAlign: TextAlign.center,
                             ),
-                            textAlign: TextAlign.center,
                           ),
                         ),
                       ),

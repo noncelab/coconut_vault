@@ -366,17 +366,21 @@ class _AppUpdatePreparationScreenState extends State<AppUpdatePreparationScreen>
 
   // AppUpdateStep.confirmUpdate 상태에서 보여지는 위젯
   Widget _buildConfirmUpdateWidget() {
-    return Center(
+    return SingleChildScrollView(
       child: Column(
         children: [
           Container(height: CoconutLayout.spacing_2500h.height! - kToolbarHeight),
-          Text(t.prepare_update.update_preparing_title, style: CoconutTypography.heading3_21_Bold),
+          Text(
+            t.prepare_update.update_preparing_title,
+            style: CoconutTypography.heading3_21_Bold,
+            textAlign: TextAlign.center,
+          ),
           CoconutLayout.spacing_500h,
-          Expanded(
-            child: ListView.separated(
-              physics: const NeverScrollableScrollPhysics(),
-              itemBuilder: (context, index) {
-                return Container(
+          ...List.generate(
+            t.prepare_update.update_preparing_description.length,
+            (index) => Column(
+              children: [
+                Container(
                   padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
                   width: MediaQuery.sizeOf(context).width,
                   decoration: BoxDecoration(
@@ -388,12 +392,12 @@ class _AppUpdatePreparationScreenState extends State<AppUpdatePreparationScreen>
                     style: CoconutTypography.body2_14,
                     textAlign: TextAlign.center,
                   ),
-                );
-              },
-              separatorBuilder: (context, index) => CoconutLayout.spacing_300h,
-              itemCount: t.prepare_update.update_preparing_description.length,
+                ),
+                if (index < t.prepare_update.update_preparing_description.length - 1) CoconutLayout.spacing_300h,
+              ],
             ),
           ),
+          Container(height: 100),
         ],
       ),
     );
@@ -484,7 +488,7 @@ class _AppUpdatePreparationScreenState extends State<AppUpdatePreparationScreen>
       Platform.isAndroid ? t.prepare_update.step1_android : t.prepare_update.step1_ios,
       t.prepare_update.step2,
     ];
-    return Center(
+    return SingleChildScrollView(
       child: Column(
         children: [
           Container(height: CoconutLayout.spacing_2500h.height!),
@@ -497,41 +501,49 @@ class _AppUpdatePreparationScreenState extends State<AppUpdatePreparationScreen>
             },
             child: Column(
               children: [
-                Text(t.prepare_update.completed_title, style: CoconutTypography.heading3_21_Bold),
+                Text(
+                  t.prepare_update.completed_title,
+                  style: CoconutTypography.heading3_21_Bold,
+                  textAlign: TextAlign.center,
+                ),
                 CoconutLayout.spacing_500h,
-                Text(t.prepare_update.completed_description, style: CoconutTypography.body2_14),
+                Text(
+                  t.prepare_update.completed_description,
+                  style: CoconutTypography.body2_14,
+                  textAlign: TextAlign.center,
+                ),
               ],
             ),
           ),
           CoconutLayout.spacing_800h,
-          Expanded(
-            child: SlideTransition(
-              position: _slideUpAnimation,
-              child: ListView.separated(
-                physics: const NeverScrollableScrollPhysics(),
-                itemBuilder: (context, index) {
-                  return Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
-                    width: MediaQuery.sizeOf(context).width,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(CoconutStyles.radius_200),
-                      color: CoconutColors.gray200,
-                    ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text('${index + 1}.  ', style: CoconutTypography.body2_14_Bold),
-                        Expanded(child: Text(updateInstructions[index], style: CoconutTypography.body2_14_Bold)),
-                      ],
-                    ),
-                  );
-                },
-                separatorBuilder: (context, index) => CoconutLayout.spacing_300h,
-                itemCount: t.prepare_update.update_preparing_description.length,
-              ),
+          SlideTransition(
+            position: _slideUpAnimation,
+            child: ListView.separated(
+              physics: const NeverScrollableScrollPhysics(),
+              shrinkWrap: true,
+              itemBuilder: (context, index) {
+                return Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
+                  width: MediaQuery.sizeOf(context).width,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(CoconutStyles.radius_200),
+                    color: CoconutColors.gray200,
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text('${index + 1}.  ', style: CoconutTypography.body2_14_Bold),
+                      Expanded(child: Text(updateInstructions[index], style: CoconutTypography.body2_14_Bold)),
+                    ],
+                  ),
+                );
+              },
+              separatorBuilder: (context, index) => CoconutLayout.spacing_300h,
+              itemCount: t.prepare_update.update_preparing_description.length,
             ),
           ),
+          Container(height: 100),
         ],
       ),
     );

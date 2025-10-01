@@ -101,6 +101,7 @@ class _PassphraseVerificationScreenState extends State<PassphraseVerificationScr
                             t.verify_passphrase_screen.description,
                             style: CoconutTypography.body1_16_Bold,
                             softWrap: true,
+                            textAlign: TextAlign.center,
                           ),
                           CoconutLayout.spacing_600h,
                           _buildPassphraseInput(),
@@ -270,13 +271,16 @@ class _PassphraseVerificationScreenState extends State<PassphraseVerificationScr
                 width: 28,
               ),
               CoconutLayout.spacing_200w,
-              Text(
-                _isVerificationResultSuccess
-                    ? t.verify_passphrase_screen.result_title_success
-                    : t.verify_passphrase_screen.result_title_failure,
-                style: CoconutTypography.heading4_18_Bold,
-                softWrap: true,
-                overflow: TextOverflow.visible,
+              Expanded(
+                child: Text(
+                  _isVerificationResultSuccess
+                      ? t.verify_passphrase_screen.result_title_success
+                      : t.verify_passphrase_screen.result_title_failure,
+                  style: CoconutTypography.heading4_18_Bold,
+                  softWrap: true,
+                  overflow: TextOverflow.visible,
+                  textAlign: TextAlign.start,
+                ),
               ),
             ],
           ),
@@ -296,22 +300,29 @@ class _PassphraseVerificationScreenState extends State<PassphraseVerificationScr
                 _isVerificationResultSuccess ? t.verify_passphrase_screen.mfp : t.verify_passphrase_screen.saved_mfp,
                 style: CoconutTypography.body2_14.setColor(CoconutColors.gray850),
               ),
-              const Spacer(),
-              Text(_savedMfp ?? '', style: CoconutTypography.body2_14_NumberBold.setColor(CoconutColors.black)),
+              CoconutLayout.spacing_200w,
+              Expanded(
+                child: FittedBox(
+                  fit: BoxFit.scaleDown,
+                  alignment: Alignment.centerRight,
+                  child: Text(
+                    _savedMfp ?? '',
+                    style: CoconutTypography.body2_14_NumberBold.setColor(CoconutColors.black),
+                    textAlign: TextAlign.end,
+                  ),
+                ),
+              ),
             ],
           ),
           CoconutLayout.spacing_400h,
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              SizedBox(
-                width: 90,
-                child: Text(
-                  _isVerificationResultSuccess
-                      ? t.verify_passphrase_screen.xpub
-                      : t.verify_passphrase_screen.recovered_mfp,
-                  style: CoconutTypography.body2_14.setColor(CoconutColors.gray850),
-                ),
+              Text(
+                _isVerificationResultSuccess
+                    ? t.verify_passphrase_screen.xpub
+                    : t.verify_passphrase_screen.recovered_mfp,
+                style: CoconutTypography.body2_14.setColor(CoconutColors.gray850),
               ),
               Expanded(
                 child: Text(
