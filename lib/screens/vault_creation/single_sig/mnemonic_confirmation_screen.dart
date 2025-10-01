@@ -143,37 +143,44 @@ class _MnemonicConfirmationScreenState extends State<MnemonicConfirmationScreen>
       children: List.generate((passphrase.length + 20), (index) {
         // 가장 아래에 빈 공간을 배치하기 위한 조건문
         if (index < passphrase.length) {
-          return Container(
-            alignment: Alignment.center,
-            decoration: BoxDecoration(
-              color: CoconutColors.white,
-              border: Border.all(width: 1, color: CoconutColors.black),
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: Stack(
-              children: [
-                Visibility(
-                  visible: index % 10 == 0,
-                  child: Positioned(
-                    top: 3,
-                    left: 3,
-                    child: Text(
-                      '${index + 1}',
-                      style: const TextStyle(color: CoconutColors.borderGray, fontWeight: FontWeight.bold, fontSize: 6),
+          return MediaQuery(
+            data: const MediaQueryData(textScaler: TextScaler.linear(1.0)),
+            child: Container(
+              alignment: Alignment.center,
+              decoration: BoxDecoration(
+                color: CoconutColors.white,
+                border: Border.all(width: 1, color: CoconutColors.black),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Stack(
+                children: [
+                  Visibility(
+                    visible: index % 10 == 0,
+                    child: Positioned(
+                      top: 3,
+                      left: 3,
+                      child: Text(
+                        '${index + 1}',
+                        style: const TextStyle(
+                          color: CoconutColors.borderGray,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 6,
+                        ),
+                      ),
                     ),
                   ),
-                ),
-                SizedBox(
-                  width: double.infinity,
-                  height: double.infinity,
-                  child: Center(
-                    child: Text(
-                      utf8.decode(passphrase)[index],
-                      style: const TextStyle(color: CoconutColors.black, fontWeight: FontWeight.bold),
+                  SizedBox(
+                    width: double.infinity,
+                    height: double.infinity,
+                    child: Center(
+                      child: Text(
+                        utf8.decode(passphrase)[index],
+                        style: const TextStyle(color: CoconutColors.black, fontWeight: FontWeight.bold),
+                      ),
                     ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           );
         } else {
