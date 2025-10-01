@@ -45,8 +45,9 @@ class _SelectVaultBottomSheetState extends State<SelectVaultBottomSheet> {
               child: Column(
                 children: List.generate(widget.vaultList.length, (index) {
                   int walletId = widget.vaultList[index].id;
-                  return Padding(
+                  return Container(
                     padding: const EdgeInsets.only(bottom: 8),
+                    margin: index == 0 ? const EdgeInsets.only(top: 8) : null,
                     child: Padding(
                       padding: const EdgeInsets.symmetric(horizontal: Sizes.size8),
                       child: VaultRowItem(

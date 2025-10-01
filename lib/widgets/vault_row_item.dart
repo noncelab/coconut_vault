@@ -254,37 +254,39 @@ class _VaultRowItemState extends State<VaultRowItem> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        widget.vault.name,
-                        style: CoconutTypography.body2_14_Bold,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ],
+                  Text(
+                    widget.vault.name,
+                    style: CoconutTypography.body2_14_Bold,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                   ),
                   MediaQuery(
                     data: MediaQuery.of(context).copyWith(textScaler: const TextScaler.linear(1.0)),
-                    child: Row(
-                      children: [
-                        if (_isMultiSig || _isUsedToMultiSig) ...{
-                          Text(_subtitleText, style: CoconutTypography.body2_14.copyWith(color: CoconutColors.gray600)),
-                        },
-                        if (widget.isPrimaryWallet == true) ...[
-                          if (_isMultiSig || _isUsedToMultiSig)
+                    child: FittedBox(
+                      fit: BoxFit.scaleDown,
+                      alignment: Alignment.centerLeft,
+                      child: Row(
+                        children: [
+                          if (_isMultiSig || _isUsedToMultiSig) ...{
                             Text(
-                              ' • ${t.vault_list_screen.primary_wallet}',
-                              style: CoconutTypography.body2_14.setColor(CoconutColors.gray500),
-                            )
-                          else
-                            Text(
-                              t.vault_list_screen.primary_wallet,
-                              style: CoconutTypography.body3_12.setColor(CoconutColors.gray500),
+                              _subtitleText,
+                              style: CoconutTypography.body2_14.copyWith(color: CoconutColors.gray600),
                             ),
+                          },
+                          if (widget.isPrimaryWallet == true) ...[
+                            if (_isMultiSig || _isUsedToMultiSig)
+                              Text(
+                                ' • ${t.vault_list_screen.primary_wallet}',
+                                style: CoconutTypography.body2_14.setColor(CoconutColors.gray500),
+                              )
+                            else
+                              Text(
+                                t.vault_list_screen.primary_wallet,
+                                style: CoconutTypography.body3_12.setColor(CoconutColors.gray500),
+                              ),
+                          ],
                         ],
-                      ],
+                      ),
                     ),
                   ),
                 ],

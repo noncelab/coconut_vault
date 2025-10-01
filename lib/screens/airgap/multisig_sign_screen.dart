@@ -38,6 +38,7 @@ class _MultisigSignScreenState extends State<MultisigSignScreen> {
   late BitcoinUnit _currentUnit;
   bool _showLoading = false;
   bool _isProgressCompleted = false;
+  bool _showFullAddress = false;
 
   @override
   void initState() {
@@ -321,6 +322,13 @@ class _MultisigSignScreenState extends State<MultisigSignScreen> {
   }
 
   Widget _buildSendInfo() {
+    final addressPostfix =
+        _viewModel.recipientCount > 1 ? '\n${t.extra_count(count: _viewModel.recipientCount - 1)}' : '';
+    final address =
+        _showFullAddress
+            ? _viewModel.firstRecipientAddress
+            : '${_viewModel.firstRecipientAddress.substring(0, 6)}...${_viewModel.firstRecipientAddress.substring(_viewModel.firstRecipientAddress.length - 6)}';
+
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: Container(
@@ -334,11 +342,13 @@ class _MultisigSignScreenState extends State<MultisigSignScreen> {
             children: [
               InformationItemCard(
                 label: t.recipient,
-                value: [
-                  TextUtils.truncateNameMax25(_viewModel.firstRecipientAddress) +
-                      (_viewModel.recipientCount > 1 ? '\n${t.extra_count(count: _viewModel.recipientCount - 1)}' : ''),
-                ],
+                value: ['$address$addressPostfix'],
                 isNumber: true,
+                onPressed: () {
+                  setState(() {
+                    _showFullAddress = !_showFullAddress;
+                  });
+                },
               ),
               const Divider(color: CoconutColors.borderLightGray, height: 1),
               InformationItemCard(
