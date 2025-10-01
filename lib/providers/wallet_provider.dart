@@ -308,6 +308,7 @@ class WalletProvider extends ChangeNotifier {
         return;
       }
 
+      _isWalletsLoaded = true;
       vibrateLight();
     } catch (e) {
       Logger.log('[loadVaultList] Exception : ${e.toString()}');
@@ -319,7 +320,6 @@ class WalletProvider extends ChangeNotifier {
       }
       _isVaultListLoading = false;
       isVaultListLoadingNotifier.value = false;
-      _isWalletsLoaded = true;
       notifyListeners();
     }
     return;
