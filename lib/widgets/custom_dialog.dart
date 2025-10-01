@@ -24,7 +24,10 @@ class CustomDialogs {
                     CoconutLayout.spacing_500h,
                     Padding(
                       padding: const EdgeInsets.all(8),
-                      child: Text(textAlign: TextAlign.center, text, style: CoconutTypography.body2_14),
+                      child: MediaQuery(
+                        data: const MediaQueryData(textScaler: TextScaler.linear(1.0)),
+                        child: Text(textAlign: TextAlign.center, text, style: CoconutTypography.body2_14),
+                      ),
                     ),
                   ],
                 ),
