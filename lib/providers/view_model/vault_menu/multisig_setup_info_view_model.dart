@@ -14,9 +14,8 @@ class MultisigSetupInfoViewModel extends VaultSetupInfoViewModelBase<MultisigVau
 
   void _calculateSignAvailableCount() {
     int innerVaultCount = vaultItem.signers.where((signer) => signer.innerVaultId != null).length;
-    signAvailableCount = innerVaultCount > vaultItem.requiredSignatureCount
-        ? vaultItem.requiredSignatureCount
-        : innerVaultCount;
+    signAvailableCount =
+        innerVaultCount > vaultItem.requiredSignatureCount ? vaultItem.requiredSignatureCount : innerVaultCount;
   }
 
   Future<void> updateOutsideVaultMemo(int signerIndex, String? memo) async {

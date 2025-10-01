@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 
 class FixedBottomButton extends StatefulWidget {
   static const fixedBottomButtonDefaultHeight = 50.0;
-  static const fixedBottomButtonDefaultBottomPadding = 30.0;
+  static const fixedBottomButtonDefaultBottomPadding = 16.0;
 
   const FixedBottomButton({
     super.key,
@@ -17,14 +17,16 @@ class FixedBottomButton extends StatefulWidget {
     this.bottomPadding = FixedBottomButton.fixedBottomButtonDefaultBottomPadding,
     this.gradientPadding,
     this.subWidget,
-    this.backgroundColor = CoconutColors.primary,
+    this.backgroundColor = CoconutColors.black,
     this.textColor = CoconutColors.white,
     this.pressedBackgroundColor,
+    this.gradient,
   });
 
   final Function onButtonClicked;
   final String text;
   final bool showGradient;
+  final LinearGradient? gradient;
   final bool isVisibleAboveKeyboard;
   final bool isActive;
   final double? buttonHeight;
@@ -43,8 +45,7 @@ class FixedBottomButton extends StatefulWidget {
 class _FixedBottomButtonState extends State<FixedBottomButton> {
   @override
   Widget build(BuildContext context) {
-    double keyboardHeight =
-        (widget.isVisibleAboveKeyboard ? MediaQuery.of(context).viewInsets.bottom : 0);
+    double keyboardHeight = (widget.isVisibleAboveKeyboard ? MediaQuery.of(context).viewInsets.bottom : 0);
     return SizedBox(
       width: MediaQuery.sizeOf(context).width,
       child: Stack(
@@ -57,17 +58,19 @@ class _FixedBottomButtonState extends State<FixedBottomButton> {
               child: IgnorePointer(
                 ignoring: true,
                 child: Container(
-                  padding: widget.gradientPadding ??
-                      const EdgeInsets.only(left: 16, right: 16, bottom: 40, top: 150),
+                  padding: widget.gradientPadding ?? const EdgeInsets.only(left: 16, right: 16, bottom: 40, top: 150),
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
                       begin: Alignment.topCenter,
                       end: Alignment.bottomCenter,
                       colors: [
-                        CoconutColors.gray100.withOpacity(0.1),
+                        CoconutColors.white.withValues(alpha: 0.0),
+                        CoconutColors.white.withValues(alpha: 0.3),
+                        CoconutColors.white.withValues(alpha: 0.7),
+                        CoconutColors.white.withValues(alpha: 0.9),
                         CoconutColors.white,
                       ],
-                      stops: const [0.0, 1.0],
+                      stops: const [0.0, 0.3, 0.6, 0.85, 1.0],
                     ),
                   ),
                 ),
@@ -86,8 +89,8 @@ class _FixedBottomButtonState extends State<FixedBottomButton> {
                     widget.onButtonClicked();
                   },
                   width: MediaQuery.sizeOf(context).width,
-                  disabledBackgroundColor: CoconutColors.gray400,
-                  disabledForegroundColor: CoconutColors.gray600,
+                  disabledBackgroundColor: CoconutColors.gray150,
+                  disabledForegroundColor: CoconutColors.gray350,
                   isActive: widget.isActive,
                   height: widget.buttonHeight ?? FixedBottomButton.fixedBottomButtonDefaultHeight,
                   backgroundColor: widget.backgroundColor,

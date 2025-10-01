@@ -34,8 +34,7 @@ class ConnectivityProvider extends ChangeNotifier {
 
   static const MethodChannel _channel = MethodChannel(methodChannelOS);
 
-  ConnectivityProvider({required bool hasSeenGuide, this.onConnectivityStateChanged})
-      : _hasSeenGuide = hasSeenGuide {
+  ConnectivityProvider({required bool hasSeenGuide, this.onConnectivityStateChanged}) : _hasSeenGuide = hasSeenGuide {
     if (_hasSeenGuide) {
       setConnectActivity(network: true, bluetooth: true, developerMode: true);
     } else {
@@ -52,16 +51,18 @@ class ConnectivityProvider extends ChangeNotifier {
   ///
   /// * 단, iOS에서는 개발자모드 여부를 제공하지 않기 때문에 제외합니다.
   /// TODO: 리팩토링 필요함
-  void setConnectActivity(
-      {required bool network, required bool bluetooth, required bool developerMode}) {
+  Future<void> setConnectActivity({required bool network, required bool bluetooth, required bool developerMode}) async {
     if (bluetooth) {
-      SharedPrefsRepository().setBool(SharedPrefsKeys.hasAlreadyRequestedBluetoothPermission, true);
+      await SharedPrefsRepository().setBool(SharedPrefsKeys.hasAlreadyRequestedBluetoothPermission, true);
+
+      // 현재 블루투스 상태 즉시 확인
+      await _checkCurrentBluetoothState();
+
       // 블루투스 상태
       if (Platform.isIOS) {
         // showPowerAlert: false 설정 해줘야, 앱 재접속 시 블루투스 권한 없을 때 CBCentralManagerOptionShowPowerAlertKey 관련 prompt가 뜨지 않음
         FlutterBluePlus.setOptions(showPowerAlert: false).then((_) {
-          _bluetoothSubscription =
-              FlutterBluePlus.adapterState.listen((BluetoothAdapterState state) {
+          _bluetoothSubscription = FlutterBluePlus.adapterState.listen((BluetoothAdapterState state) {
             if (state == BluetoothAdapterState.on) {
               _isBluetoothOn = true;
             } else if (state == BluetoothAdapterState.off) {
@@ -87,8 +88,7 @@ class ConnectivityProvider extends ChangeNotifier {
 
     // 네트워크 상태
     if (network) {
-      _networkSubscription =
-          Connectivity().onConnectivityChanged.listen((List<ConnectivityResult> result) {
+      _networkSubscription = Connectivity().onConnectivityChanged.listen((List<ConnectivityResult> result) {
         if (result.contains(ConnectivityResult.none)) {
           _isNetworkOn = false;
         } else {
@@ -125,17 +125,45 @@ class ConnectivityProvider extends ChangeNotifier {
     _onConnectivityChanged();
   }
 
-// TODO: _hasSeenGuide 없이 각 home 화면 별 이벤트 등록/해제하기!!!!!!
+  /// 현재 블루투스 상태를 즉시 확인하는 메서드
+  Future<void> _checkCurrentBluetoothState() async {
+    try {
+      final BluetoothAdapterState state = await FlutterBluePlus.adapterState.first;
+      if (state == BluetoothAdapterState.on) {
+        _isBluetoothOn = true;
+      } else if (state == BluetoothAdapterState.off) {
+        _isBluetoothOn = false;
+      } else if (state == BluetoothAdapterState.unauthorized) {
+        _isBluetoothUnauthorized = true;
+        _isBluetoothOn = false;
+      } else {
+        _isBluetoothOn = false;
+      }
+      // 상태 설정 후 즉시 UI 업데이트
+      notifyListeners();
+    } catch (e) {
+      // 에러 발생 시 블루투스 OFF로 간주
+      _isBluetoothOn = false;
+      notifyListeners();
+    }
+  }
+
+  // TODO: _hasSeenGuide 없이 각 home 화면 별 이벤트 등록/해제하기!!!!!!
   void _onConnectivityChanged() {
     if (Platform.isIOS && _isBluetoothUnauthorized == true) {
-      runApp(const CupertinoApp(
-          debugShowCheckedModeBanner: false, home: IosBluetoothAuthNotificationScreen()));
-    } else if (_isBluetoothOn == true ||
-        _isNetworkOn == true ||
-        (Platform.isAndroid && _isDeveloperModeOn == true)) {
+      runApp(const CupertinoApp(debugShowCheckedModeBanner: false, home: IosBluetoothAuthNotificationScreen()));
+    } else if (_isBluetoothOn == true || _isNetworkOn == true || (Platform.isAndroid && _isDeveloperModeOn == true)) {
       if (_hasSeenGuide) {
-        runApp(const CupertinoApp(
-            debugShowCheckedModeBanner: false, home: AppUnavailableNotificationScreen()));
+        runApp(
+          CupertinoApp(
+            debugShowCheckedModeBanner: false,
+            home: AppUnavailableNotificationScreen(
+              isNetworkOn: _isNetworkOn,
+              isBluetoothOn: _isBluetoothOn,
+              isDeveloperModeOn: _isDeveloperModeOn,
+            ),
+          ),
+        );
       }
     }
     notifyListeners();

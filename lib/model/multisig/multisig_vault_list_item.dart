@@ -5,29 +5,31 @@ import 'package:coconut_vault/isolates/sign_isolates.dart';
 import 'package:coconut_vault/model/multisig/multisig_signer.dart';
 import 'package:coconut_vault/model/common/vault_list_item_base.dart';
 import 'package:coconut_vault/enums/wallet_enums.dart';
-import 'package:coconut_vault/utils/isolate_handler.dart';
+import 'package:flutter/foundation.dart';
 import 'package:json_annotation/json_annotation.dart';
 
 part 'multisig_vault_list_item.g.dart'; // 생성될 파일 이름 $ dart run build_runner build
 
 @JsonSerializable(ignoreUnannotated: true)
 class MultisigVaultListItem extends VaultListItemBase {
-  MultisigVaultListItem(
-      {required super.id,
-      required super.name,
-      required super.colorIndex,
-      required super.iconIndex,
-      required this.signers,
-      required this.requiredSignatureCount,
-      String? coordinatorBsms})
-      : super(vaultType: WalletType.multiSignature) {
+  MultisigVaultListItem({
+    required super.id,
+    required super.name,
+    required super.colorIndex,
+    required super.iconIndex,
+    required this.signers,
+    required this.requiredSignatureCount,
+    String? coordinatorBsms,
+    required super.createdAt,
+  }) : super(vaultType: WalletType.multiSignature) {
     coconutVault = MultisignatureVault.fromKeyStoreList(
-        signers.map((signer) => signer.keyStore).toList(), requiredSignatureCount,
-        addressType: AddressType.p2wsh);
+      signers.map((signer) => signer.keyStore).toList(),
+      requiredSignatureCount,
+      addressType: AddressType.p2wsh,
+    );
 
     name = name.replaceAll('\n', ' ');
-    this.coordinatorBsms =
-        coordinatorBsms ?? (coconutVault as MultisignatureVault).getCoordinatorBsms();
+    this.coordinatorBsms = coordinatorBsms ?? (coconutVault as MultisignatureVault).getCoordinatorBsms();
   }
 
   @JsonKey(name: "signers")
@@ -43,27 +45,23 @@ class MultisigVaultListItem extends VaultListItemBase {
 
   @override
   Future<bool> canSign(String psbt) async {
-    var isolateHandler = IsolateHandler<List<dynamic>, bool>(SignIsolates.canSignToPsbt);
-    try {
-      await isolateHandler.initialize(initialType: InitializeType.canSign);
-      bool canSignToPsbt = await isolateHandler.run([coconutVault, psbt]);
-      return canSignToPsbt;
-    } finally {
-      isolateHandler.dispose();
-    }
+    return await compute(SignIsolates.canSignToPsbt, [coconutVault, psbt]);
   }
 
   @override
   String getWalletSyncString() {
-    final newSigners = signers
-        .map((signer) => {
-              'innerVaultId': signer.innerVaultId,
-              'name': signer.name,
-              'iconIndex': signer.iconIndex,
-              'colorIndex': signer.colorIndex,
-              'memo': signer.memo,
-            })
-        .toList();
+    final newSigners =
+        signers
+            .map(
+              (signer) => {
+                'innerVaultId': signer.innerVaultId,
+                'name': signer.name,
+                'iconIndex': signer.iconIndex,
+                'colorIndex': signer.colorIndex,
+                'memo': signer.memo,
+              },
+            )
+            .toList();
 
     Map<String, dynamic> json = {
       'name': name,

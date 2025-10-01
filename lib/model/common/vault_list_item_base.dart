@@ -16,6 +16,8 @@ abstract class VaultListItemBase {
   int iconIndex;
   @JsonKey(name: vaultTypeField)
   WalletType vaultType;
+  @JsonKey(name: "createdAt")
+  DateTime createdAt;
 
   late WalletBase coconutVault;
 
@@ -25,6 +27,7 @@ abstract class VaultListItemBase {
     required this.colorIndex,
     required this.iconIndex,
     required this.vaultType,
+    required this.createdAt,
   });
 
   Future<bool> canSign(String psbt);
@@ -35,6 +38,5 @@ abstract class VaultListItemBase {
   // factory fromJson은 abstract class에 선언 불가하여 생략했습니다. 하지만 새로운 타입의 지갑 list item class 추가 시 꼭 구현 필요.
 
   @override
-  String toString() =>
-      'Vault($id) / type=$vaultType / name=$name / colorIndex=$colorIndex / iconIndex=$iconIndex';
+  String toString() => 'Vault($id) / type=$vaultType / name=$name / colorIndex=$colorIndex / iconIndex=$iconIndex';
 }

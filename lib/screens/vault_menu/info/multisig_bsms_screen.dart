@@ -2,8 +2,6 @@ import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/providers/view_model/vault_menu/multisig_bsms_view_model.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
-import 'package:coconut_vault/widgets/bottom_sheet.dart';
-import 'package:coconut_vault/widgets/button/copy_text_container.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:qr_flutter/qr_flutter.dart';
@@ -16,97 +14,63 @@ class MultisigBsmsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
-      create: (context) =>
-          MultisigBsmsViewModel(Provider.of<WalletProvider>(context, listen: false), id),
-      child: Consumer<MultisigBsmsViewModel>(builder: (context, viewModel, child) {
-        final qrWidth = MediaQuery.of(context).size.width * 0.76;
+      create: (context) => MultisigBsmsViewModel(Provider.of<WalletProvider>(context, listen: false), id),
+      child: Consumer<MultisigBsmsViewModel>(
+        builder: (context, viewModel, child) {
+          final qrWidth = MediaQuery.of(context).size.width * 0.76;
 
-        return Scaffold(
-          backgroundColor: CoconutColors.white,
-          appBar: CoconutAppBar.build(
-            title: t.multi_sig_bsms_screen.title,
-            context: context,
-            isBottom: false,
-            onBackPressed: () {
-              Navigator.pop(context);
-            },
-          ),
-          body: SingleChildScrollView(
-            child: Column(
-              children: [
-                // Description
-                _buildDescriptionBsms(viewModel),
-                Center(
+          return Scaffold(
+            backgroundColor: CoconutColors.white,
+            appBar: CoconutAppBar.build(
+              title: t.multi_sig_bsms_screen.title,
+              context: context,
+              isBottom: false,
+              onBackPressed: () {
+                Navigator.pop(context);
+              },
+            ),
+            body: SingleChildScrollView(
+              child: Column(
+                children: [
+                  // Description
+                  _buildDescriptionBsms(viewModel),
+                  CoconutLayout.spacing_300h,
+                  Center(
                     child: Container(
-                        width: qrWidth,
-                        decoration: CoconutBoxDecoration.shadowBoxDecoration,
-                        child: QrImageView(
-                          data: viewModel.qrData,
-                        ))),
-                const SizedBox(
-                  height: 30,
-                ),
-                // TODO: 상세 정보 보기
-                GestureDetector(
-                  onTap: () => _showMultisigDetail(context, viewModel.qrData),
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(4.0),
-                      color: CoconutColors.borderGray,
-                    ),
-                    child: Text(
-                      t.multi_sig_bsms_screen.view_detail,
-                      style: CoconutTypography.body2_14.setColor(CoconutColors.white),
+                      width: qrWidth,
+                      decoration: CoconutBoxDecoration.shadowBoxDecoration,
+                      child: QrImageView(data: viewModel.qrData),
                     ),
                   ),
-                ),
-                const SizedBox(
-                  height: 100,
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-        );
-      }),
+          );
+        },
+      ),
     );
   }
 
   Widget _buildDescriptionBsms(MultisigBsmsViewModel viewModel) {
     return Container(
-      decoration: BoxDecoration(
-        color: CoconutColors.white,
-        borderRadius: BorderRadius.circular(10),
-        boxShadow: [
-          BoxShadow(
-            color: CoconutColors.gray500.withOpacity(0.15),
-            spreadRadius: 4,
-            blurRadius: 6,
-            offset: const Offset(0, 3),
-          ),
-        ],
-      ),
+      decoration: BoxDecoration(color: CoconutColors.gray150, borderRadius: BorderRadius.circular(10)),
       margin: const EdgeInsets.all(16),
       padding: const EdgeInsets.all(16),
       child: Column(
         children: [
           _description(t.multi_sig_bsms_screen.guide.text1),
           const SizedBox(height: 4),
+          _description(t.multi_sig_bsms_screen.guide.text2),
+          const SizedBox(height: 4),
           if (viewModel.outsideWalletIdList.isEmpty) ...[
-            _description(t.multi_sig_bsms_screen.guide.text2),
-            const SizedBox(height: 4),
             _description(t.multi_sig_bsms_screen.guide.text3),
           ] else ...{
             _description(
-              t.multi_sig_bsms_screen.guide
-                  .text4(gen: viewModel.generateOutsideWalletDescription(isAnd: true)),
+              t.multi_sig_bsms_screen.guide.text4(gen: viewModel.generateOutsideWalletDescription(isAnd: true)),
             ),
             const SizedBox(height: 4),
-            _description(
-              t.multi_sig_bsms_screen.guide
-                  .text5(gen: viewModel.generateOutsideWalletDescription()),
-            ),
-          }
+            _description(t.multi_sig_bsms_screen.guide.text5(gen: viewModel.generateOutsideWalletDescription())),
+          },
         ],
       ),
     );
@@ -117,7 +81,7 @@ class MultisigBsmsScreen extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.baseline,
       textBaseline: TextBaseline.alphabetic,
       children: [
-        const Text('•', style: CoconutTypography.body2_14),
+        const Text('•', style: CoconutTypography.body1_16),
         const SizedBox(width: 8),
         Expanded(
           child: RichText(
@@ -136,42 +100,9 @@ class MultisigBsmsScreen extends StatelessWidget {
     List<TextSpan> spans = [];
     description.split("**").asMap().forEach((index, part) {
       spans.add(
-        TextSpan(
-          text: part,
-          style: index.isEven ? CoconutTypography.body2_14 : CoconutTypography.body2_14_Bold,
-        ),
+        TextSpan(text: part, style: index.isEven ? CoconutTypography.body2_14 : CoconutTypography.body2_14_Bold),
       );
     });
     return spans;
-  }
-
-  // TODO: 재사용 컴포넌트로 만들어야 하는지 검토
-  void _showMultisigDetail(BuildContext context, String qrData) {
-    MyBottomSheet.showBottomSheet_90(
-      context: context,
-      child: ClipRRect(
-        borderRadius: CoconutBorder.defaultRadius,
-        child: Scaffold(
-          backgroundColor: CoconutColors.white,
-          appBar: CoconutAppBar.build(
-            context: context,
-            title: t.multi_sig_bsms_screen.bottom_sheet.title,
-            backgroundColor: CoconutColors.white,
-            isBottom: true,
-          ),
-          body: SingleChildScrollView(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(
-                horizontal: CoconutLayout.defaultPadding,
-              ),
-              child: CopyTextContainer(
-                text: qrData,
-                toastMsg: t.multi_sig_bsms_screen.bottom_sheet.info_copied,
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
   }
 }

@@ -1,34 +1,42 @@
 import 'package:coconut_design_system/coconut_design_system.dart';
-import 'package:flutter/material.dart';
-
 import 'dart:math' as math;
+import 'package:flutter/material.dart';
 
 class ShrinkAnimationButton extends StatefulWidget {
   final Widget child;
   final VoidCallback onPressed;
-  final Color? pressedColor;
-  final Color? defaultColor;
+  final VoidCallback? onLongPressed;
+  final Color pressedColor;
+  final Color defaultColor;
+  final Color disabledColor;
   final double borderRadius;
+  final Border? border;
   final double borderWidth;
   final List<Color>? borderGradientColors;
+  final double? animationEndValue;
+  final bool isActive;
 
   const ShrinkAnimationButton({
     super.key,
     required this.child,
     required this.onPressed,
+    this.onLongPressed,
     this.pressedColor = CoconutColors.gray150,
     this.defaultColor = CoconutColors.white,
-    this.borderRadius = 28.0,
+    this.borderRadius = 24.0,
     this.borderWidth = 2.0,
+    this.disabledColor = CoconutColors.white,
+    this.border,
     this.borderGradientColors,
+    this.animationEndValue = 0.97,
+    this.isActive = true,
   });
 
   @override
   State<ShrinkAnimationButton> createState() => _ShrinkAnimationButtonState();
 }
 
-class _ShrinkAnimationButtonState extends State<ShrinkAnimationButton>
-    with SingleTickerProviderStateMixin {
+class _ShrinkAnimationButtonState extends State<ShrinkAnimationButton> with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<double> _animation;
   bool _isPressed = false;
@@ -36,12 +44,11 @@ class _ShrinkAnimationButtonState extends State<ShrinkAnimationButton>
   @override
   void initState() {
     super.initState();
-    _controller = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 100),
-    );
-    _animation = Tween<double>(begin: 1.0, end: 0.97)
-        .animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut));
+    _controller = AnimationController(vsync: this, duration: const Duration(milliseconds: 100));
+    _animation = Tween<double>(
+      begin: 1.0,
+      end: widget.animationEndValue,
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut));
   }
 
   @override
@@ -51,6 +58,8 @@ class _ShrinkAnimationButtonState extends State<ShrinkAnimationButton>
   }
 
   void _onTapDown(TapDownDetails details) {
+    if (!widget.isActive) return;
+
     setState(() {
       _isPressed = true;
     });
@@ -58,6 +67,8 @@ class _ShrinkAnimationButtonState extends State<ShrinkAnimationButton>
   }
 
   void _onTapUp(TapUpDetails details) {
+    if (!widget.isActive) return;
+
     _controller.reverse().then((_) {
       widget.onPressed();
       setState(() {
@@ -67,44 +78,73 @@ class _ShrinkAnimationButtonState extends State<ShrinkAnimationButton>
   }
 
   void _onTapCancel() {
+    if (!widget.isActive) return;
+
     _controller.reverse();
     setState(() {
       _isPressed = false;
     });
   }
 
+  void _onLongPress() {
+    if (!widget.isActive || widget.onLongPressed == null) return;
+
+    widget.onLongPressed!();
+  }
+
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-        onTapDown: _onTapDown,
-        onTapUp: _onTapUp,
-        onTapCancel: _onTapCancel,
-        child: ScaleTransition(
-          scale: _animation,
-          child: Container(
-            decoration: BoxDecoration(
-              color: widget.borderGradientColors == null
-                  ? (_isPressed ? widget.pressedColor : widget.defaultColor)
-                  : null,
-              borderRadius: BorderRadius.circular(widget.borderRadius + 2),
-              gradient: widget.borderGradientColors != null
-                  ? LinearGradient(
+      onTapDown: _onTapDown,
+      onTapUp: _onTapUp,
+      onTapCancel: _onTapCancel,
+      onLongPress: widget.onLongPressed != null ? _onLongPress : null,
+      child: ScaleTransition(
+        scale: widget.isActive ? _animation : const AlwaysStoppedAnimation(1.0),
+        child: Container(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(widget.borderRadius + 2),
+            gradient:
+                widget.borderGradientColors != null
+                    ? LinearGradient(
                       colors: widget.borderGradientColors!,
                       begin: Alignment.topLeft,
                       end: Alignment.bottomRight,
-                      transform: const GradientRotation(math.pi / 10))
-                  : null,
-            ),
-            child: AnimatedContainer(
-              margin: EdgeInsets.all(widget.borderWidth),
-              duration: const Duration(milliseconds: 100),
+                      transform: const GradientRotation(math.pi / 10),
+                    )
+                    : null,
+            border:
+                widget.borderGradientColors == null
+                    ? (widget.border ??
+                        Border.all(
+                          color:
+                              widget.isActive
+                                  ? _isPressed
+                                      ? widget.pressedColor
+                                      : widget.defaultColor
+                                  : widget.disabledColor,
+                        ))
+                    : null,
+          ),
+          child: AnimatedContainer(
+            margin: EdgeInsets.all(widget.borderGradientColors != null ? widget.borderWidth : 0),
+            duration: const Duration(milliseconds: 100),
+            decoration: BoxDecoration(borderRadius: BorderRadius.circular(widget.borderRadius)),
+            child: Container(
               decoration: BoxDecoration(
-                color: _isPressed ? widget.pressedColor : widget.defaultColor,
+                color:
+                    widget.isActive
+                        ? _isPressed
+                            ? widget.pressedColor
+                            : widget.defaultColor
+                        : widget.disabledColor,
                 borderRadius: BorderRadius.circular(widget.borderRadius),
               ),
               child: widget.child,
             ),
           ),
-        ));
+        ),
+      ),
+    );
   }
 }

@@ -6,7 +6,7 @@ import 'package:encrypt/encrypt.dart' as encrypt;
 import 'package:coconut_vault/utils/aes_crypto.dart';
 import 'package:coconut_vault/utils/file_storage.dart';
 import 'package:path/path.dart' as path;
-import 'package:coconut_vault/utils/isolate_handler2.dart';
+import 'package:coconut_vault/utils/isolate_handler.dart';
 
 class UpdatePreparation {
   static const String directory = 'backup';
@@ -15,13 +15,11 @@ class UpdatePreparation {
   static const String fileNameFormat = 'coconut_backup_%s.bak';
   static final RegExp regex = RegExp(r'^coconut_backup_.*\.bak$');
 
-  static Future<String> encryptAndSave({
-    required String data,
-  }) async {
+  static Future<String> encryptAndSave({required String data}) async {
     await clearUpdatePreparationStorage();
 
     // Isolate를 사용하여 키 생성과 암호화 수행
-    final encryptor = IsolateHandler2<String, Map<String, String>>((String data) => _encrypt(data));
+    final encryptor = IsolateHandler<String, Map<String, String>>((String data) => _encrypt(data));
     final result = await encryptor.execute(data);
 
     // 암호화된 데이터와 IV를 ':' 로 구분하여 저장
@@ -30,15 +28,10 @@ class UpdatePreparation {
     final timestamp = DateTime.now().toIso8601String();
     final fileName = fileNameFormat.replaceAll('%s', timestamp);
 
-    final savedPath = await FileStorage.saveFile(
-      fileName: fileName,
-      content: fileContent,
-      subDirectory: directory,
-    );
+    final savedPath = await FileStorage.saveFile(fileName: fileName, content: fileContent, subDirectory: directory);
 
     // 암호화에 사용한 key를 저장
-    await SecureStorageRepository()
-        .write(key: SecureStorageKeys.kAes256Key, value: result['key'] as String);
+    await SecureStorageRepository().write(key: SecureStorageKeys.kAes256Key, value: result['key'] as String);
 
     await validatePreparationState();
     return savedPath;
@@ -47,10 +40,7 @@ class UpdatePreparation {
   static Future<String> readAndDecrypt() async {
     await validatePreparationState();
     final file = await _getEncryptedFiles();
-    final fileContent = await FileStorage.readFile(
-      fileName: path.basename(file.first),
-      subDirectory: directory,
-    );
+    final fileContent = await FileStorage.readFile(fileName: path.basename(file.first), subDirectory: directory);
 
     // IV와 암호화된 데이터 분리
     final parts = fileContent.split(':');
@@ -58,17 +48,12 @@ class UpdatePreparation {
       throw const FormatException('Invalid encrypted file format');
     }
 
-    Logger.log(
-        'keyString: ${await SecureStorageRepository().read(key: SecureStorageKeys.kAes256Key)}');
+    Logger.log('keyString: ${await SecureStorageRepository().read(key: SecureStorageKeys.kAes256Key)}');
 
     // 복호화
     final decryptedData = Aes256Crypto.decryptWithIvCbc(
-      encryptedData: {
-        'encrypted': parts[1],
-        'iv': parts[0],
-      },
-      key: encrypt.Key.fromBase64(
-          await SecureStorageRepository().read(key: SecureStorageKeys.kAes256Key) ?? ''),
+      encryptedData: {'encrypted': parts[1], 'iv': parts[0]},
+      key: encrypt.Key.fromBase64(await SecureStorageRepository().read(key: SecureStorageKeys.kAes256Key) ?? ''),
     );
 
     return decryptedData;
@@ -82,10 +67,7 @@ class UpdatePreparation {
   static Future<void> clearUpdatePreparationStorage() async {
     final files = await _getEncryptedFiles();
     for (final file in files) {
-      await FileStorage.deleteFile(
-        fileName: file,
-        subDirectory: directory,
-      );
+      await FileStorage.deleteFile(fileName: file, subDirectory: directory);
     }
 
     await SecureStorageRepository().delete(key: SecureStorageKeys.kAes256Key);
@@ -111,15 +93,9 @@ class UpdatePreparation {
     final String keyString = SecureKeyGenerator.generateSecureKeyWithEntropy();
     final encrypt.Key key = encrypt.Key.fromBase64(keyString);
 
-    final encryptedData = Aes256Crypto.encryptWithIvCbc(
-      data: data,
-      key: key,
-    );
+    final encryptedData = Aes256Crypto.encryptWithIvCbc(data: data, key: key);
 
-    return {
-      ...encryptedData,
-      'key': keyString,
-    };
+    return {...encryptedData, 'key': keyString};
   }
 
   /// 암호화된 데이터가 준비되었는지 확인하는 메소드, 복원 가능 상태 인지 확인

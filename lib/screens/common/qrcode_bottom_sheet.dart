@@ -9,12 +9,13 @@ import 'package:coconut_vault/widgets/qrcode_link_info.dart';
 // 3. vault_menu/info/multisig_setup_info_screen.dart
 // 4. vault_menu/info/single_sig_setup_info_screen.dart
 class QrcodeBottomSheet extends StatefulWidget {
-  const QrcodeBottomSheet(
-      {super.key,
-      required this.qrData,
-      this.qrcodeTopWidget,
-      this.title,
-      this.fromAppInfo = false});
+  const QrcodeBottomSheet({
+    super.key,
+    required this.qrData,
+    this.qrcodeTopWidget,
+    this.title,
+    this.fromAppInfo = false,
+  });
 
   final String qrData;
   final Widget? qrcodeTopWidget;
@@ -33,10 +34,7 @@ class _QrcodeBottomSheetState extends State<QrcodeBottomSheet> {
 
   Widget _buildContent() {
     return widget.fromAppInfo
-        ? QRCodeLinkInfo(
-            qrData: widget.qrData,
-            qrcodeTopWidget: widget.qrcodeTopWidget,
-          )
+        ? QRCodeLinkInfo(qrData: widget.qrData, qrcodeTopWidget: widget.qrcodeTopWidget)
         : QRCodeInfo(qrData: widget.qrData, qrcodeTopWidget: widget.qrcodeTopWidget);
   }
 
@@ -46,11 +44,7 @@ class _QrcodeBottomSheetState extends State<QrcodeBottomSheet> {
       borderRadius: CoconutBorder.defaultRadius,
       child: Scaffold(
         backgroundColor: CoconutColors.white,
-        appBar: CoconutAppBar.build(
-          title: widget.title ?? '',
-          context: context,
-          isBottom: true,
-        ),
+        appBar: CoconutAppBar.build(title: widget.title ?? '', context: context, isBottom: true),
         body: SafeArea(
           child: SingleChildScrollView(
             child: Container(

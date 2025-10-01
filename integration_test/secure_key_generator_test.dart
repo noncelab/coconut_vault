@@ -63,8 +63,7 @@ void main() {
 
         // 실제 디바이스에서는 더 높은 엔트로피를 기대할 수 있음
         // 각 위치에서 최소 30개 이상의 서로 다른 값이 나와야 함
-        expect(uniqueValues.length, greaterThan(30),
-            reason: 'Byte at position $pos should have sufficient variation');
+        expect(uniqueValues.length, greaterThan(30), reason: 'Byte at position $pos should have sufficient variation');
       }
     });
 

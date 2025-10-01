@@ -5,6 +5,7 @@
 
 # common
 coconut_vault: "Coconut Vault"
+coconut: "코코넛"
 vault: "Vault"
 btc: "BTC"
 sats: "sats"
@@ -20,26 +21,20 @@ settings: "설정"
 confirm: "확인"
 complete: "완료"
 cancel: "취소"
+abort: "종료"
 next: "다음"
 save: "저장"
 select: "선택"
+tap: "탭"
 warning: "주의"
 security: "보안"
 yes: "네"
 no: "아니오"
-front: "앞"
-back: "뒤"
 memo: "메모"
-close: "닫기"
-delete: "지우기"
-delete_label: "삭제하기"
 stop: "그만하기"
 start: "시작하기"
 quit: "종료하기"
 import: "가져오기"
-export: "내보내기"
-passphrase: "패스프레이즈"
-mnemonic: "니모닉 문구"
 testnet: "테스트넷"
 license: "라이선스"
 name: "이름"
@@ -47,27 +42,20 @@ skip: "건너뛰기"
 restore: "복원하기"
 change: "잔돈"
 receiving: "입금"
-info: "정보"
-word: "단어"
 email_subject: "[코코넛 볼트] 이용 관련 문의"
 
-signature: "서명"
 sign_completion: "서명 완료"
 sign: "서명하기"
 signed_tx: "서명 트랜잭션"
-sign_completed: "서명을 완료했습니다"
+sign_completed: "서명을 완료했어요"
 stop_sign: "서명 종료하기"
 
 select_completed: "선택 완료"
-checklist: "확인 사항"
-wallet_id: "지갑 ID"
-available_signer_count: 
-  one: "$n개 서명 가능"
-  other: "$n개 서명 가능"
+checklist: "보안 체크리스트"
 mnemonic_wordlist: "니모닉 문구 단어집"
 tool: "도구"
 tutorial: "튜토리얼"
-single_sig_wallet: "일반 지갑"
+single_sig_wallet: "단일 서명 지갑"
 multisig_wallet: "다중 서명 지갑"
 extended_public_key: "확장 공개키"
 app_info : "앱 정보"
@@ -81,22 +69,24 @@ total_amount: "총 소요 수량"
 key_list: "키 목록"
 
 view_mnemonic: "니모닉 문구 보기"
-view_passphrase: "패스프레이즈 보기"
+verify_passphrase: "패스프레이즈 확인하기"
 view_app_info: "앱 정보 보기"
 view_all: "전체 보기"
-view_details_info: "상세 정보 보기"
 view_address: "주소 보기"
 view_tutorial: "튜토리얼 보기"
 delete_all: "모두 지우기"
 delete_one: "하나 지우기"
-re_select: "다시 고르기"
 
-name_info: "$name 정보"
 name_wallet: "$name 지갑"
+one_sign_guide: "버튼을 눌러 서명해 주세요"
 bitcoin_text: "$bitcoin BTC"
-sign_required: 
-  one: "$n 서명이 필요합니다"
-  other: "$n 서명이 필요합니다"
+sign_required: "버튼을 눌러 서명해 주세요"
+sign_required_amount: 
+  one: "$n개의 서명이 필요해요"
+  other: "$n개의 서명이 필요해요"
+move_to_qr_screen: "QR 코드 화면으로 이동"
+move_to_qr_screen_description: "키가 있는 볼트에서 서명하기 위해 QR을 생성합니다."
+
 name_text_count: "($count / 20)"
 wallet_subtitle: "$name의 $index번 키"
 
@@ -108,6 +98,55 @@ advanced_user: "고급 사용자"
 
 extra_count: "외 $count개"
 
+edit: "편집"
+
+descriptor: "디스크립터"
+
+watch_only_options:
+  title: "보기 전용 앱 선택"
+  coconut_wallet: "코코넛 월렛"
+  sparrow: "스패로우"
+  nunchuk: "넌척"
+  bluewallet: "블루월렛"
+
+# 연결 상태
+connectivity_state: 
+  connected: "연결됨"
+  disconnected: "꺼져 있음"
+  enabled: "켜져 있음"
+  disabled: "꺼져 있음"
+  active: "활성화"
+  inactive: "비활성화"
+
+vault_home_screen:
+  view_all_wallets: "지갑 전체보기"
+  wallet_count: "$count개"
+  action_items:
+    sign: "서명하기"
+    view_address: "주소 보기"
+    export_wallet: "보기 전용 앱으로\n내보내기"
+    import_multisig_wallet: "다중 서명 지갑\n가져오기"
+    mnemonic_wordlist: "니모닉 단어집"
+  toast:
+    wallet_added_but_not_favorite: "지갑이 추가 됐어요. 지갑 전체보기에서 확인하세요."
+
+vault_list_screen:
+  primary_wallet: "대표 지갑"
+  settings: 
+    primary_wallet: "대표 지갑 설정"
+    primary_wallet_disabled_description: "홈 화면에서 받기•보내기할 때 기본으로 지정돼요."
+    primary_wallet_abled_description: "다른 지갑을 대표 지갑으로 설정하면, 자동 해제돼요."
+  edit:
+    wallet_list: "지갑 목록 편집"
+    star_description: "을 최대 5개 선택하여 홈 화면에 보이는 지갑을 선택할 수 있어요."
+    order_description: "을 눌러 지갑 순서를 변경할 수 있어요."
+    delete_description: "지갑을 왼쪽으로 스와이프하면 삭제할 수 있어요."
+    finish: "편집 종료"
+    unsaved_changes_confirm_exit: "저장되지 않은 변경 사항이 있어요.\n그래도 나가시겠어요?"
+    
+select_vault_bottom_sheet:
+  select_wallet: "지갑 선택"
+
 # lib
 vault_list_tab:
   add_wallet: "지갑을 추가해 보세요!"
@@ -116,31 +155,29 @@ vault_list_tab:
 
 # lib/screens
 app_unavailable_notification_screen:
-  network_on: "휴대폰이 외부와 연결된 상태예요"
-  text1_1: "안전한 사용을 위해"
-  text1_2: "지금 바로 "
-  text1_3: "앱을 종료"
-  text1_4: "해 주세요"
-  text2: "네트워크 및 블루투스"
-  text3: "개발자 옵션 OFF"
-  check_status: "상태를 확인해 주세요"
+  restart_app: "볼트를 사용하려면\n앱을 다시 시작해야 합니다"
+  step1: "앱을 완전히 종료해 주세요"
+  step2: "연결 상태를 확인해 주세요"
+  step3: "앱을 다시 실행해 주세요"
 ios_bluetooth_auth_notification_screen:
-  allow_permission: "코코넛 볼트에 블루투스 권한을 허용해 주세요"
-  text1_1: "안전한 사용을 위해"
-  text1_2: "지금 바로 앱을 종료하신 후"
-  text1_3: "설정 화면에서"
-  text1_4: "코코넛 볼트의 "
-  text1_5: "블루투스 권한"
-  text1_6: "을"
-  text1_7: "허용해 주세요"
+  allow_permission: "안전한 사용을 위해\n블루투스 권한을 허용해 주세요"
+  guide1: "앱을 완전히 종료해 주세요"
+  guide2: "설정 화면에서 볼트의 블루투스 권한을 허용해 주세요"
+  guide3: "앱을 다시 실행해 주세요"
 pin_check_screen:
   enter_password: "비밀번호를 눌러주세요"
-  warning: "⚠︎ 3회 모두 틀리면 볼트를 초기화해야 합니다"
+  warning: "⚠︎ 3회 모두 틀리면 볼트를 초기화합니다"
+  dialog:
+    restart:
+      title: "다시 시작"
+      description: "볼트를 다시 시작하시겠어요?"
 pin_setting_screen:
   set_password: "안전한 볼트 사용을 위해\n먼저 비밀번호를 설정할게요"
   enter_again: "다시 한번 확인할게요"
   new_password: "새로운 비밀번호를 눌러주세요"
   keep_in_mind: "반드시 기억할 수 있는 비밀번호로 설정해 주세요"
+  character_password_input: "문자 비밀번호 입력"
+  number_password_input: "숫자 비밀번호 입력"
 security_self_check_screen:
   check1: "나의 개인키는 내가 스스로 책임집니다."
   check2: "니모닉 문구 화면을 캡처하거나 촬영하지 않습니다."
@@ -149,9 +186,9 @@ security_self_check_screen:
   check5: "패스프레이즈에 혹시 의도하지 않은 문자가 포함되지는 않았는지 한번 더 확인합니다."
   check6: "니모닉 문구와 패스프레이즈는 아무도 없는 안전한 곳에서 확인합니다."
   check7: "니모닉 문구와 패스프레이즈를 함께 보관하지 않습니다."
-  check8: "소액으로 보내기 테스트를 한 후 지갑 사용을 시작합니다."
+  check8: "소액 전송으로 테스트한 후 지갑을 사용합니다."
   check9: "위 사항을 주기적으로 점검하고, 안전하게 니모닉 문구를 보관하겠습니다."
-  guidance: "아래 자가 점검 항목을 숙지하고 니모닉 문구를 반드시 안전하게 보관합니다."
+  guidance: "니모닉 문구는 스스로 안전하게 보관해야 합니다. 한 문장씩 읽고 눌러, 체크리스트를 완성해 주세요."
 tutorial_screen:
   title1: "튜토리얼을 참고하시면\n더욱 쉽게 사용할 수 있어요"
   title2: "도움이 필요하신가요?"
@@ -160,7 +197,9 @@ tutorial_screen:
 
 multisig:
   nth_key: "$index번 키"
-
+  nth_key_with_name: "$index번 키 - $name"
+  select_nth_key: "$index번 키 고르기"
+  
 # lib/screens/airgap
 account_selection_bottom_sheet_screen:
   text: "서명할 계정을 선택해주세요."
@@ -170,8 +209,8 @@ psbt_confirmation_screen:
   self_sending: "내 지갑으로 보내는 트랜잭션입니다."
   warning: "⚠️ 해당 지갑으로 만든 psbt가 아닐 수 있습니다. 또는 잔액이 없는 트랜잭션일 수 있습니다."
 psbt_scanner_screen:
-  guide_multisig: "월렛에서 만든 보내기 정보 또는 외부 볼트에서 다중 서명 중인 정보를 스캔해주세요."
-  guide_single_sig: "월렛에서 만든 보내기 정보를 스캔해 주세요. 반드시 지갑 이름이 같아야 해요."
+  guide: "월렛에서 만든 보내기 정보 또는 외부 볼트에서 다중 서명 중인 정보를 스캔해 주세요."
+  guide_single_sig_same_name: "월렛에서 만든 보내기 정보를 스캔해 주세요. 반드시 지갑 이름이 같아야 해요."
 signed_transaction_qr_screen:
   guide_multisig: "다중 서명을 완료했어요. 보내기 정보를 생성한 월렛으로 아래 QR 코드를 스캔해 주세요."
   guide_single_sig: "월렛의 '$name 지갑'에서 만든 보내기 정보에 서명을 완료했어요. 월렛으로 아래 QR 코드를 스캔해 주세요."
@@ -179,10 +218,10 @@ single_sig_sign_screen:
   text: "이미 서명된 트랜잭션입니다"
 signer_qr_bottom_sheet:
   title: "서명 트랜잭션 내보내기"
-  text2_1: "번 키가 보관된 볼트에서 다중 서명 지갑 "
-  text2_2: " 선택 - "
-  text2_3: "다중 서명하기"
-  text2_4: "를 눌러 아래 QR 코드를 스캔해 주세요."
+  text1: "번 키가 보관된 볼트에서,"
+  text2: "서명하기"
+  text3: "아래 QR 코드를 스캔해 주세요."
+  select: " 선택"
 unit_bottom_sheet:
   basic_unit: "기본 단위"
   header_text: "1 BTC = 100,000,000 sats"
@@ -221,7 +260,7 @@ license_screen:
   text2: "에서 확인해 주세요.\n\n이 애플리케이션에 포함된 타사 소프트웨어에 대한 저작권을 다음과 같이 명시합니다. 이에 대해 궁금한 사항이 있으시면 "
   text3: "으로 문의해 주시기 바랍니다."
 mnemonic_word_list_screen:
-  search_mnemonic_word: "영문으로 검색해 보세요"
+  search_mnemonic_word: "영문 또는 숫자로 검색해 보세요"
   result: "'$text' 검색 결과"
   such_no_result: "검색 결과가 없어요"
 settings_screen:
@@ -232,45 +271,73 @@ settings_screen:
   prepare_update: "업데이트 준비"
   advanced_user: "고급 사용자"
   use_passphrase: "패스프레이즈 사용하기"
-
+  information: "안내"
+  toast:
+    no_enrolled_biometrics: "기기에 등록된 생체 인증이 없어요"
+  dialog:
+    need_biometrics_setting_title: "생체 인증 허용"
+    need_biometrics_setting_desc: "생체 인증 설정을 확인해주세요."
+    btn_move_to_setting: "설정하러 가기"
+    use_passphrase_title: "패스프레이즈 사용"
+    use_passphrase_description: "패스프레이즈 사용은 새로운 지갑을 만드는 것과 같습니다. 잘못 사용하면 비트코인을 영원히 잃을 수 있습니다."
+    use_passphrase_btn: "이해했습니다"
+  
 # lib/screens/start_guide
-guide_screen:
-  keep_network_off: "안전한 비트코인 보관을 위해,\n항상 연결 상태를 OFF로 유지해주세요"
-  network_status: "네트워크 상태"
-  bluetooth_status: "블루투스 상태"
-  developer_option: "개발자 옵션"
-  turn_off_network_and_bluetooth : "네트워크와 블루투스를 모두 꺼주세요"
-  disable_developer_option: "개발자 옵션을 비활성화 해주세요"
-  on: "ON"
-  off: "OFF"
 welcome_screen:
-  greeting: "원활한 코코넛 볼트 사용을 위해\n잠깐만 시간을 내주세요"
-  guide1_1: "볼트는"
-  guide1_2: "네트워크, 블루투스 연결$suffix이"
-  guide1_3: "꺼져있는 상태"
-  guide1_4: "에서만"
-  guide1_5: "사용하실 수 있어요"
-  guide2_1: "즉,"
-  guide2_2: "연결이 감지되면"
-  guide2_3: "앱을 사용하실 수 없게"
-  guide2_4: "설계되어 있어요"
-  guide3_1: "안전한 사용"
-  guide3_2: "을 위한"
-  guide3_3: "조치이오니"
-  guide3_4: "사용 시 유의해 주세요"
-  understood: "모두 이해했어요"
+  screen_1_title: "안전한 환경에서 시작하세요"
+  screen_1_description: "안전한 사용을 위해\n모든 무선 연결을 차단해야 합니다"
+  screen_1_button: "환경 확인하기"
+  screen_2_title: "보안 체크리스트"
+  screen_2_description: "모든 연결을 차단해야\n코코넛 볼트를 시작할 수 있습니다"
+  screen_2_button: "다음"
+  screen_3_title: "안전한 환경이 준비됐어요"
+  screen_3_description: "지금부터 코코넛 볼트를\n시작하겠습니다"
+  screen_3_button: "시작하기"
+  setting_guide: "설정 방법 보기"
+  bottom_sheet_title: "설정 방법"
+  airplane_mode_on: 
+    title: "비행기 모드 켜키"
+    description_ios: '제어센터 → 비행기 모드 아이콘 탭'
+    description_android: '화면 상단에서 아래로 스와이프 → 빠른 설정 패널 → 비행기 모드 아이콘 탭 눌러 켜기\n※ 네트워크, 블루투스, 통신망이 모두 차단됩니다'
+  wifi_off:
+    title: "네트워크(Wi-Fi) 끄기"
+    description_ios: '화면 오른쪽 상단 → 아래로 스와이프 → 제어센터 → Wi-Fi 아이콘 탭'
+    description_android: '빠른 설정 패널 → Wi-Fi 아이콘을 눌러 끄기'
+  mobile_data_off: 
+    title: "모바일 네트워크(LTE / 5G) 끄기"
+    description_ios: '설정 → 셀룰러 → 셀룰러 데이터 스위치 끄기※ 공기계를 사용을 추천합니다'
+    description_android: '빠른 설정 패널 → 모바일 네트워크 아이콘을 눌러 끄기\n※ 공기계 사용을 추천합니다'
+  bluetooth_off: 
+    title: "Bluetooth 끄기"
+    description_ios: '제어센터 → Bluetooth 아이콘 탭'
+    description_android: '빠른 설정 패널 → Bluetooth 아이콘을 눌러 끄기'
+  developer_mode_off: "개발자 모드 끄기"
+  developer_mode_description: "1. 설정 → 시스템 → 개발자 옵션\n2. 스위치 끄기"
+  network: "네트워크"
+  bluetooth: "블루투스"
+  developer_option: "개발자 옵션"
 
 # lib/screens/vault_creation
 mnemonic_coin_flip_screen:
   title: "니모닉 문구 만들기"
+  guide: "동전을 던진 후 나온 면을 선택해 주세요"
   words_passphrase: " 단어, 패스프레이즈 "
   use: "사용"
   do_not: "안함"
   enter_passphrase: "패스프레이즈를 입력해 주세요"
   coin_head: "앞"
   coin_tail: "뒤"
+mnemonic_dice_roll_screen:
+  title: "니모닉 문구 만들기"
+  guide1: "주사위를 굴린 뒤,\n나온 면을 차례대로 선택해 주세요🎲"
+  guide2: "충분한 무작위 값이 모였습니다!\n더 이상 주사위를 굴릴 필요가 없어요🎲"
+  words_passphrase: " 단어, 패스프레이즈 "
+  use: "사용"
+  do_not: "안함"
+  enter_passphrase: "패스프레이즈를 입력해 주세요"
 mnemonic_confirm_screen:
-  title: "입력하신 정보가 맞는지\n다시 한번 확인해 주세요"
+  title: "최종 확인"
+  description: "이 정보로 지갑을 만들겠습니다"
   passphrase_character_total_count: " (총 $count 글자)"
   warning:
     contains_space_character: "⚠︎ 공백 문자가 포함되어 있습니다"
@@ -287,9 +354,18 @@ mnemonic_generate_screen:
   use: "사용"
   do_not: "안함"
   enter_passphrase: "패스프레이즈를 입력해 주세요"
+  passphrase_not_matched: "패스프레이즈가 일치하지 않아요"
+  memorable_passphrase_guide: "무슨 일이 있어도 기억할 수 있는 패스프레이즈"
+  passphrase_confirm_guide: "패스프레이즈 확인"
   backup_guide: "안전한 장소에서 니모닉 문구를 백업해 주세요"
   backup_complete: "백업 완료"
   warning: "입력하신 패스프레이즈는 보관과 유출에 유의해 주세요"
+  passphrase_warning: "$words 는 다른 하드월렛에서 입력이 안될 수 있어 주의가 필요해요"
+passphrase_textfield:
+  title: "패스프레이즈를 입력해 주세요"
+  passphrase_hidden: "패스프레이즈 숨기기"
+  passphrase_visible: "패스프레이즈 보기"
+  
 mnemonic_import_screen:
   title: "복원하기"
   enter_mnemonic_phrase: "니모닉 문구를 입력해 주세요"
@@ -298,25 +374,56 @@ mnemonic_import_screen:
   enter_passphrase: "패스프레이즈를 입력해 주세요"
   need_advanced_mode: "⚠︎ 패스프레이즈를 사용하시려면 설정 화면으로 이동하여 '패스프레이즈 사용하기'를 켜주세요"
   open_settings: "설정 화면 열기"
+  recommended_words: "추천 단어"
+  words_24: "24 단어"
+  words_12: "12 단어"
+  
+mnemonic_view_screen:
+  security_guide: "안전한 장소에서 니모닉 문구를 확인하세요"
+  warning_title: "니모닉 문구는 지갑의 열쇠입니다"
+  warning_guide: "이 단어를 알면 누구든 당신의 비트코인을 전부 가져갈 수 있습니다. 주변에 다른 사람이나 카메라가 없는지 꼭 확인하세요."
+  warning_btn: "알겠습니다"
+  
+mnemonic_verify_screen:
+  title: "니모닉 확인"
+  select_word: "${index}번째 단어를 선택하세요"
+  not_correct: "일치하지 않아요"
 select_vault_type_screen:
   title: "지갑 만들기"
-  single_sig: "하나의 니모닉 문구를 보관하는 단일 서명 지갑이에요"
+  single_sig: "하나의 니모닉 문구를 보관하는 지갑이에요"
   multisig: "지정한 수의 서명이 필요한 지갑이에요"
   empty_key: "현재 볼트에 사용할 수 있는 키가 없어요"
   loading_keys: "볼트에 보관된 키를 불러오는 중이에요"
 vault_creation_options_screen:
   coin_flip: "동전을 던져 직접 만들게요"
+  dice_roll: "주사위를 굴려 직접 만들게요"
   auto_generate: "앱에서 만들어 주세요"
   import_mnemonic: "사용 중인 니모닉 문구가 있어요"
+  seed_qr: "보관 중인 시드 QR 코드가 있어요"
+seed_qr_import_screen:
+  title: "시드 QR 코드 스캔"
+  error_title: "스캔 오류"
+  error_message: "시드 QR 코드 스캔 중 오류가 발생했어요. 다시 시도해 주세요."
+  guide: "시드 QR 코드를 스캔해 주세요. (21x21 또는 25x25)"
+seed_qr_confirmation_screen:
+  title: "니모닉 문구 확인"
+  check_mnemonic: "니모닉 문구를 확인해 주세요"
+  passphrase_toggle: "패스프레이즈 사용"
+  passphrase_text_field_placeholder: "패스프레이즈를 입력해 주세요"
 vault_name_icon_setup_screen:
   title: "이름 설정"
   saving: "저장 중이에요"
 
 # lib/screens/vault_creation/multisig
 assign_signers_screen:
-  order_keys: "동일한 순서를 유지하도록 키 순서를 정렬 할게요"
+  create_multisig_wallet_by_quorum: "$requiredSignatureCount/$totalSignatureCount 지갑을 생성합니다"
+  order_keys: "동일한 순서를 유지하도록 키 순서를 정렬할게요"
   data_verifying: "데이터 검증 중이에요"
-  use_internal_key: "이 볼트에 있는 키 사용하기"
+  use_internal_key: "이 볼트의 키 사용하기"
+  select_key_option: "키 종류 선택"
+  use_internal_key_option: "키 선택"
+  import_from_other_vault: "다른 볼트에서 가져오기"
+
 confirm_importing_screen:
   guide1: "다른 볼트에서 가져온 "
   guide2: "정보가 일치하는지 "
@@ -328,21 +435,24 @@ select_multisig_quorum_screen:
   total_key_count: "전체 키의 수"
   required_signature_count: "필요한 서명 수"
   one_or_two_of_n: "하나의 키를 분실하거나 키 보관자 중 한 명이 부재중이더라도 비트코인을 보낼 수 있어요."
-  n_of_n: "모든 키가 있어야만 비트코인을 보낼 수 있어요. 단 하나의 키만 잃어버려도 자금에 접근할 수 없게 되니 분실에 각별히 신경써 주세요."
+  n_of_n: "비트코인을 보내려면 모든 키가 필요해요. 키를 하나라도 잃으면 자금에 접근할 수 없으니 주의하세요."
   one_of_n: "하나의 키만 있어도 비트코인을 이동시킬 수 있어요. 상대적으로 보안성이 낮기 때문에 권장하지 않아요."
 signer_scanner_bottom_sheet:
   title: "서명 업데이트"
   guide: "다른 볼트에서 서명을 추가했나요? 정보를 업데이트 하기 위해 추가된 서명 트랜잭션의 QR 코드를 스캔해 주세요."
 signer_scanner_screen:
-  title1: "다중 서명 지갑 가져오기"
-  title2: "외부 지갑 서명하기"
-  guide1_1: "다른 볼트에서 만든 다중 서명 지갑을 추가할 수 있어요. 추가 하시려는 다중 서명 지갑의 "
-  guide1_2: "지갑 설정 정보 "
-  guide1_3: "화면에 나타나는 QR 코드를 스캔해 주세요."
-  guide2_1: "키를 보관 중인 볼트"
-  guide2_2: "의 홈 화면에서 지갑 선택 - "
+  import_bsms: "키 정보 가져오기"
+  import_multisig_wallet: "다중 서명 지갑 가져오기"
+  guide1_1: "다른 볼트에서 만든 다중 서명 지갑을 가져올 수 있어요."
+  guide1_2: "다중 서명이 있는 외부 볼트의 홈 화면에서,"
+  guide1_3: "다중 서명 지갑 "
+  guide1_4: "다중 서명 지갑 내보내기 "
+  guide1_5: "화면에 나타나는 QR 코드를 스캔해 주세요."
+  guide2_1: "사용하려는 키가 있는 볼트의 홈 화면에서 "
+  guide2_2: "지갑 "
   guide2_3: "다중 서명 키로 사용하기 "
-  guide2_4: "메뉴를 선택해 주세요. 화면에 보이는 QR 코드를 스캔합니다."
+  guide2_4: "화면에 보이는 QR 코드를 스캔해 주세요."
+  select: "선택"
 
 # lib/screens/vault_detail
 address_list_screen:
@@ -351,21 +461,17 @@ address_list_screen:
 export_detail_screen:
   title: "내보내기 상세 정보"
   info_copied: "상세 정보가 복사됐어요"
-mnemonic_view_screen:
-  view_passphrase: "패스프레이즈 보기"
-  visible_while_pressing: "누르는 동안 보여요"
-  space_as_blank: " 공백 문자는 빈칸으로 표시됩니다."
 multi_sig_bsms_screen:
   bottom_sheet:
     title: "지갑 상세 정보"
     info_copied: "지갑 상세 정보가 복사됐어요"
-  title: "지갑 설정 정보"
+  title: "다른 볼트로 내보내기"
   guide:
-    text1: "안전한 다중 서명 지갑 관리를 위한 표준에 따라 지갑 설정 정보를 관리하고 공유합니다."
-    text2: "모든 키가 볼트에 저장되어 있습니다."
-    text3: "같은 키를 보관하고 있는 다른 볼트에서도 이 QR을 읽어 다중 서명 지갑을 추가할 수 있습니다."
-    text4: "이 다중 서명 지갑에 지정된 **$gen** 키의 니모닉 문구는 현재 다른 볼트에 있습니다."
-    text5: "**$gen** 키 보관 지갑 - **다중 서명 지갑 가져오기**에서 아래 QR 코드를 읽어 주세요. 다중 서명 트랜잭션에 **$gen** 키로 서명하기 위해 이 절차가 반드시 필요합니다."
+    text1: "동일한 키를 가진 다른 볼트에서도 이 QR 코드를 스캔하여 지갑을 추가할 수 있습니다."
+    text2: "이 지갑은 안전한 다중 서명 관리를 위해 표준(BIP-129, BSMS)을 따릅니다."
+    text3: "서명에 필요한 모든 키가 이 볼트에 안전하게 보관되어 있습니다."
+    text4: "이 다중 서명 지갑에 필요한 **$gen** 키는 현재 다른 볼트에 보관되어 있습니다."
+    text5: "**$gen** 키가 있는 볼트에서 **다중 서명 지갑 가져오기**를 선택한 후, 아래 QR 코드를 스캔하세요."
   first_key: "$first번"
   first_and_last_keys: "$first번과 $last번"
   first_or_last_key: "$first번 또는 $last번"
@@ -376,30 +482,45 @@ multi_sig_memo_bottom_sheet:
 multi_sig_setting_screen:
   edit_memo: "메모 수정"
   add_memo: "메모 추가"
-  view_bsms: "지갑 설정 정보 보기"
+  view_bsms: "다른 볼트로 내보내기"
   tooltip: 
     one: "$total개의 키 중 $n개로 서명해야 하는\n다중 서명 지갑이에요."
     other: "$total개의 키 중 $n개로 서명해야 하는\n다중 서명 지갑이에요."
 select_export_type_screen:
-  title: "내보내기"
+  title: "보기 전용 앱으로 내보내기"
   export_type: "어떤 용도로 사용하시나요?"
   watch_only: "월렛에\n보기 전용 지갑 추가"
   multisig: "다른 볼트에서\n다중 서명 키로 사용"
 signer_bsms_screen:
-  guide1_1: "다른 볼트"
-  guide1_2: "에서 다중 서명 지갑을 생성 중이시군요! 다른 볼트에서 "
-  guide1_3: "가져오기 + 버튼"
-  guide1_4: "을 누른 후 나타난 가져오기 화면에서, 아래 "
-  guide1_5: "QR 코드를 스캔"
-  guide1_6: "해 주세요."
+  guide1_1: "다른 볼트에서 다중 서명 지갑을 생성 중이시군요!"
+  guide1_2: "다른 볼트의 가져오기 화면에서 아래 QR 코드를 스캔해 주세요."
   export_info: "내보낼 정보"
 sync_to_wallet_screen:
   title: "$name 내보내기"
-  guide1_1: "월렛"
-  guide1_2: "에서 + 버튼을 누르고, 아래 "
-  guide1_3: "QR 코드를 스캔"
-  guide1_4: "해 주세요. 안전한 보기 전용 지갑을 사용하실 수 있어요."
-  view_detail: "상세 정보 보기"
+  guide:
+    multisig: "Multisig"
+    coconut: "홈 화면에서 지갑 추가 아이콘 선택"
+    sparrow_singlesig:
+      guide0_1: "메뉴에서"
+      guide1_1: "Import Wallet"
+      guide2_1: "Keystone"
+      guide3_1: "또는 xPub/Watch Only Wallet 버튼 클릭 후 "
+    nunchuk:
+      guide1_1: "하단 메뉴"
+      guide1_2_singlesig: "Keys"
+      guide1_2_multisig: "Home"
+      guide2_1_siglesig: "우측 상단 + 버튼 클릭"
+      guide2_1_multisig: "지갑 추가"
+      guide3_1_singlesig: "Keystone"
+      guide3_1_multisig: "Recover existing wallet"
+      guide4_1_singlesig: "Continue - Scan Qr"
+      guide4_1_multisig: "Recover using QR code"
+    bluewallet:
+      guide1_1: "홈 화면에서 우측 상단 + 클릭"
+      guide2_1: "Import Wallet"
+      guide3_1: "Scan or import a file"
+    common: "아래 QR 코드를 스캔해 주세요"
+
 vault_menu_screen:
   title:  
     view_info: "$name 정보"
@@ -412,7 +533,7 @@ vault_menu_screen:
   description:
     view_single_sig_info: "저장된 니모닉 문구 등을 확인할 수 있어요"
     view_multisig_info: "다중 서명 지갑의 정보를 확인할 수 있어요"
-    import_bsms: "이 키가 포함된 다중 서명 지갑 정보를 추가해요"
+    import_bsms: "키가 포함된 다중 서명 지갑 정보를 추가해요"
     view_address: "$name의 주소를 확인해요"
     export_xpub: "보기 전용 지갑을 월렛에 추가해요"
     sign: "월렛에서 만든 정보를 스캔하고 서명해요"
@@ -422,6 +543,29 @@ vault_settings:
   of: "의 "
   nth: "$index 번"
   key: " 키"
+
+verify_passphrase_screen:
+  title: "패스프레이즈 확인"
+  description: "기억하고 계신 패스프레이즈를 입력해 주세요"
+  enter_passphrase: "패스프레이즈 입력"
+  start_verification: "검사 시작"
+  loading_description: "패스프레이즈가 정확한지\n확인 중이에요"
+  result_title_success: "패스프레이즈가 정확해요!"
+  result_description_success: "입력한 패스프레이즈로 동일한 지갑 정보를 복원했어요."
+  mfp: "MFP"
+  xpub: "확장 공개키"
+  result_title_failure: "패스프레이즈가 달라요"
+  result_description_failure: "입력한 패스프레이즈로는 같은 지갑을 복원할 수 없어요."
+  saved_mfp: "저장된 MFP"
+  recovered_mfp: "복원된 MFP"
+
+passphrase_input_screen:
+  title: "패스프레이즈 입력"
+  enter_passphrase: "패스프레이즈를 입력해 주세요"
+  passphrase_error: "패스프레이즈를 다시 확인해 주세요"
+
+multisig_signer_bsms_export_screen:
+  fail_bsms: "BSMS 로드 실패"
 
 # 업데이트 준비
 prepare_update:
@@ -477,16 +621,13 @@ permission:
     how_to_allow: "생체 인증을 통한 잠금 해제를 하시려면\n설정 > 코코넛 볼트에서 생체 인증 권한을 허용해 주세요."
     btn_move_to_setting: "설정 화면으로 이동"
 
-alert:
-  confirm_deletion: "정말로 볼트에서 $name 정보를 삭제하시겠어요?"
+alert: 
+  delete_vault: 
+    title: "지갑 삭제"
+    description: "니모닉 문구를 백업하지 않으면, 이 지갑의 비트코인은 영원히 복구할 수 없습니다. 정말 삭제하시겠습니까?"
   forgot_password:
     title: "비밀번호를 잊으셨나요?"
-    description1: "[초기화하기]를 눌러 비밀번호를 초기화할 수 있어요.\n"
-    description2: "비밀번호를 초기화하면 저장된 정보가 삭제돼요. 그래도 초기화 하시겠어요?"
-    btn_reset: "초기화하기"
-  unchange_password:
-    title: "비밀번호를 유지하시겠어요?"
-    description: "[그만하기]를 누르면 설정 화면으로 돌아갈게요."
+    description1: "비밀번호를 초기화하면 볼트도 초기화돼요. 그래도 초기화 하시겠어요?"
   exit_sign:
     title: "서명하기 종료"
     description: "서명을 종료하고 홈화면으로 이동해요.\n정말 종료하시겠어요?"
@@ -495,10 +636,13 @@ alert:
     description: "서명 내역이 사라져요.\n정말 그만하시겠어요?"
   reselect:
     title: "다시 고르기"
-    description: "지금까지 입력한 정보가 모두 지워져요.\n정말로 다시 선택하시겠어요?"
+    description: "입력 정보가 모두 사라져요.\n정말 다시 선택하시겠어요?"
+  back:
+    title: "이전 화면으로 돌아가기"
+    description: "입력 정보가 모두 사라져요.\n정말 이전 화면으로 가시겠어요?"
   empty_vault:
     title: "볼트에 저장된 키가 없어요"
-    description: "키를 사용하기 위해 일반 지갑을 먼저 만드시겠어요?"
+    description: "키를 사용하기 위해 단일 서명 지갑을 먼저 만드시겠어요?"
   quit_creating_mutisig_wallet:
     title: "다중 서명 지갑 만들기 중단"
     description: "정말 지갑 생성을 그만하시겠어요?"
@@ -520,28 +664,34 @@ alert:
   wallet_creation_failed:
     title: "지갑 생성 실패"
     description: "유효하지 않은 정보입니다"
-  stop_creating_mnemonic:
-    title: "니모닉 만들기 중단"
-    description: "정말 니모닉 만들기를 그만하시겠어요?"
   stop_generating_mnemonic:
     title: "니모닉 생성 중단"
-    description: "정말 니모닉 생성을 그만하시겠어요?"
+    description: "니모닉 생성을 그만두시겠어요?"
+    reselect: "다시 선택"
+    confirm: "확인"
   stop_importing_mnemonic:
     title: "복원 중단"
-    description: "정말 복원하기를 그만하시겠어요?"
+    description: "복원을 그만두시겠어요?"
   erase_all_entered_so_far: "정말로 지금까지 입력한 정보를\n모두 지우시겠어요?"
+  erase_all_entered_mnemonic: 
+    title: "모두 지우기"
+    description: "지금까지 입력한 니모닉 문구를\n모두 지우시겠어요?"
+  finish_signing:
+    title:  "트랜잭션 서명 마무리"
+    description: "이 화면을 닫으면 서명 정보가 사라져요.\n정말 종료하시겠어요?"
 
 toast:
   clipboard_copied: "클립보드에 복사되었어요"
   back_exit: "뒤로 가기 버튼을 한 번 더 누르면 종료됩니다"
   scroll_down: "스크롤을 내려서 모두 확인해주세요"
-  data_updated: "정보를 수정했어요"
+  data_updated: "정보를 수정했어요! 혼동되지 않도록 월렛과 동기화해 주세요."
   name_already_used: "이미 사용하고 있는 이름으로는 바꿀 수 없어요"
   name_already_used2: "이미 사용 중인 이름은 설정할 수 없어요"
   name_multisig_in_use: "다중 서명 지갑에 사용되고 있어 삭제할 수 없어요"
   mnemonic_already_added: "이미 추가되어 있는 니모닉이에요"
   mnemonic_copied: "니모닉 문구가 복사됐어요"
   multisig_already_added: "이미 추가되어 있는 다중 서명 지갑이에요. ($name)"
+  home_vault_min_one: "홈 화면에 보이는 지갑은 최소 1개는 있어야 해요"
 
 errors:
   invalid_qr: "잘못된 QR 코드예요.\n다시 확인해 주세요."
@@ -555,9 +705,10 @@ errors:
   pin_processing_error: "처리 중 문제가 발생했어요"
   pin_incorrect_with_remaining_attempts_error: "$count번 다시 시도할 수 있어요"
   remaining_times_away_from_reset_error: "초기화까지 $count번 남았어요"
-  pin_max_attempts_exceeded_error: "볼트를 잠금 해제할 수 없어요\n비밀번호를 초기화 한 후에 이용할 수 있어요"
+  pin_max_attempts_exceeded_error: "볼트를 사용할 수 없어요"
+  restart_vault: "볼트 다시 시작하기"
   retry_after: "$time 후 재시도 할 수 있어요"
-  invalid_word_error: "잘못된 단어예요. $filter"
+  invalid_word_error: "단어를 확인해 주세요 $filter"
   invalid_mnemonic_phrase: "잘못된 니모닉 문구예요"
   data_loading_error: "데이터를 불러오는 중 오류가 발생했습니다"
   data_not_found_error: "데이터가 없습니다"
@@ -569,8 +720,11 @@ errors:
   camera_permission_error: "카메라 권한이 없습니다"
   creation_error: "생성 실패"
   export_error: "내보내기 실패"
+  scan_error_title: "스캔 실패"
   psbt_parsing_error: "psbt 파싱 실패: $error"
   not_related_multisig_wallet_error: "이 지갑을 키로 사용한 다중 서명 지갑이 아닙니다"
+  vault_not_found_error: "서명할 수 있는 지갑이 없어요"
+  extended_public_key_not_found_error: "직접 사용하려는 지갑을 선택해 다중 서명하기 기능을 사용해주세요"
 
 tooltip:
   mfp: "지갑의 고유 값이에요.\n마스터 핑거프린트(MFP)라고도 해요."

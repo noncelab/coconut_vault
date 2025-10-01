@@ -1,70 +1,50 @@
 import 'package:coconut_lib/coconut_lib.dart';
 import 'package:coconut_vault/isolates/wallet_isolates.dart';
 import 'package:coconut_vault/model/common/vault_list_item_base.dart';
+import 'package:coconut_vault/model/single_sig/single_sig_vault_list_item.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
-import 'package:coconut_vault/utils/isolate_handler.dart';
-import 'package:flutter/material.dart';
+import 'package:coconut_vault/utils/logger.dart';
+import 'package:flutter/foundation.dart';
 
 class MultisigSignerBsmsExportViewModel extends ChangeNotifier {
   final WalletProvider _walletProvider;
   late String _qrData;
   late String _errorMessage;
   late bool _isLoading;
-  late bool _isSignerBsmsSetFailed;
-  late VaultListItemBase _vaultListItem;
+  late SingleSigVaultListItem _singleSigVaultListItem;
   Bsms? _bsms;
-  IsolateHandler<List<VaultListItemBase>, List<String>> extractBsmsIsolateHandler =
-      IsolateHandler(WalletIsolates.extractSignerBsms);
 
   MultisigSignerBsmsExportViewModel(this._walletProvider, id) {
     _qrData = '';
     _errorMessage = '';
     _isLoading = true;
-    _isSignerBsmsSetFailed = false;
-    _vaultListItem = _walletProvider.getVaultById(id);
-    debugPrint('id:: $id');
-    setSignerBsms();
+    _singleSigVaultListItem = _walletProvider.getVaultById(id) as SingleSigVaultListItem;
+    _setSignerBsms();
   }
-  String get name => _vaultListItem.name;
+  String get name => _singleSigVaultListItem.name;
   String get qrData => _qrData;
   String get errorMessage => _errorMessage;
   bool get isLoading => _isLoading;
-  bool get isSignerBsmsSetFailed => _isSignerBsmsSetFailed;
   Bsms? get bsms => _bsms;
 
-  VaultListItemBase get vaultListItem => _vaultListItem;
+  VaultListItemBase get vaultListItem => _singleSigVaultListItem;
 
-  @override
-  void dispose() {
-    extractBsmsIsolateHandler.dispose();
-    super.dispose();
-  }
-
-  void _setLoading() {
-    _isLoading = _bsms == null;
-    notifyListeners();
-  }
-
-  // _isSignerBsmsSetFailed의 상태를 설정합니다.
-  void setSignerBsmsStatus(bool value) {
-    _isSignerBsmsSetFailed = value;
-    notifyListeners();
-  }
-
-  Future<void> setSignerBsms() async {
-    await extractBsmsIsolateHandler.initialize(initialType: InitializeType.extractSignerBsms);
-
+  Future<void> _setSignerBsms() async {
     try {
-      List<String> bsmses = await extractBsmsIsolateHandler.run([_vaultListItem]);
-
+      List<String> bsmses = await compute(WalletIsolates.extractSignerBsms, [_singleSigVaultListItem]);
       _qrData = bsmses[0];
       _bsms = Bsms.parseSigner(_qrData);
-    } catch (error) {
-      _errorMessage = error.toString();
-      _isSignerBsmsSetFailed = true;
+    } catch (e) {
+      Logger.error('setSignerBsms error: $e');
+      _errorMessage = e.toString();
+      _bsms = null;
     } finally {
-      extractBsmsIsolateHandler.dispose();
-      _setLoading();
+      _setLoading(false);
     }
+  }
+
+  void _setLoading(bool isLoading) {
+    _isLoading = isLoading;
+    notifyListeners();
   }
 }

@@ -24,6 +24,7 @@ class KeySafeAnimationWidget extends StatefulWidget {
 
 class _KeySafeAnimationWidgetState extends State<KeySafeAnimationWidget> {
   final Queue _progressQueue = Queue<QueueDataClass>();
+  final Duration _duration = const Duration(milliseconds: 1000);
   double _animatedOpacityValue = 0.0;
   double _progressValue_1 = 0;
   double _progressValue_2 = 0;
@@ -47,83 +48,54 @@ class _KeySafeAnimationWidgetState extends State<KeySafeAnimationWidget> {
                   Row(
                     children: [
                       _keyActive_1
-                          ? SvgPicture.asset(
-                              'assets/svg/key-icon.svg',
-                              width: 20,
-                            )
+                          ? SvgPicture.asset('assets/svg/key-icon.svg', width: 20)
                           : SvgPicture.asset(
-                              'assets/svg/key-icon.svg',
-                              width: 20,
-                              colorFilter:
-                                  const ColorFilter.mode(CoconutColors.gray350, BlendMode.srcIn),
-                            ),
-                      const SizedBox(
-                        width: 30,
-                      ),
+                            'assets/svg/key-icon.svg',
+                            width: 20,
+                            colorFilter: const ColorFilter.mode(CoconutColors.gray350, BlendMode.srcIn),
+                          ),
+                      const SizedBox(width: 30),
                       Expanded(child: _buildProgressBar(0)),
                     ],
                   ),
-                  const SizedBox(
-                    height: 24,
-                  ),
+                  const SizedBox(height: 24),
                   Visibility(
                     visible: widget.totalCount == 3,
                     child: Row(
                       children: [
                         _keyActive_2
-                            ? SvgPicture.asset(
-                                'assets/svg/key-icon.svg',
-                                width: 20,
-                              )
+                            ? SvgPicture.asset('assets/svg/key-icon.svg', width: 20)
                             : SvgPicture.asset(
-                                'assets/svg/key-icon.svg',
-                                width: 20,
-                                colorFilter:
-                                    const ColorFilter.mode(CoconutColors.gray350, BlendMode.srcIn),
-                              ),
-                        const SizedBox(
-                          width: 30,
-                        ),
+                              'assets/svg/key-icon.svg',
+                              width: 20,
+                              colorFilter: const ColorFilter.mode(CoconutColors.gray350, BlendMode.srcIn),
+                            ),
+                        const SizedBox(width: 30),
                         Expanded(child: _buildProgressBar(1)),
                       ],
                     ),
                   ),
-                  widget.totalCount == 3
-                      ? const SizedBox(
-                          height: 24,
-                        )
-                      : Container(),
+                  widget.totalCount == 3 ? const SizedBox(height: 24) : Container(),
                   Row(
                     children: [
                       _keyActive_3
-                          ? SvgPicture.asset(
-                              'assets/svg/key-icon.svg',
-                              width: 20,
-                            )
+                          ? SvgPicture.asset('assets/svg/key-icon.svg', width: 20)
                           : SvgPicture.asset(
-                              'assets/svg/key-icon.svg',
-                              width: 20,
-                              colorFilter:
-                                  const ColorFilter.mode(CoconutColors.gray350, BlendMode.srcIn),
-                            ),
-                      const SizedBox(
-                        width: 30,
-                      ),
+                            'assets/svg/key-icon.svg',
+                            width: 20,
+                            colorFilter: const ColorFilter.mode(CoconutColors.gray350, BlendMode.srcIn),
+                          ),
+                      const SizedBox(width: 30),
                       Expanded(child: _buildProgressBar(2)),
                     ],
                   ),
                 ],
               ),
             ),
-            const SizedBox(
-              width: 20,
-            ),
+            const SizedBox(width: 20),
             _animatedOpacityValue == 1
-                ? SvgPicture.asset(
-                    'assets/svg/safe-bit.svg',
-                    width: 50,
-                  )
-                : SvgPicture.asset('assets/svg/safe.svg', width: 50)
+                ? SvgPicture.asset('assets/svg/safe-bit.svg', width: 50)
+                : SvgPicture.asset('assets/svg/safe.svg', width: 50),
           ],
         ),
       ),
@@ -137,259 +109,140 @@ class _KeySafeAnimationWidgetState extends State<KeySafeAnimationWidget> {
     // buttonClickedCount가 변경된 경우 애니메이션 초기화
     if (widget.buttonClickedCount != oldWidget.buttonClickedCount) {
       stopAnimationProgress();
-      startAnimationProgress(
-        widget.totalCount,
-        widget.requiredCount,
-        widget.buttonClickedCount,
-      );
+      startAnimationProgress(widget.totalCount, widget.requiredCount, widget.buttonClickedCount);
     }
   }
 
   @override
   void initState() {
     super.initState();
-    startAnimationProgress(
-      widget.totalCount,
-      widget.requiredCount,
-      widget.buttonClickedCount,
-    );
+    startAnimationProgress(widget.totalCount, widget.requiredCount, widget.buttonClickedCount);
   }
 
   void startAnimationProgress(int n, int m, int buttonCountAtStart) async {
     stopAnimationProgress();
-    _progressQueue
-        .add(QueueDataClass(count: widget.buttonClickedCount, entity: _getQueueEntity(n, m)));
+    _progressQueue.add(QueueDataClass(count: widget.buttonClickedCount, entity: _getQueueEntity(n, m)));
 
-    debugPrint(
-        '########buttonClickedCount : ${widget.buttonClickedCount}  << count : ${_progressQueue.last.count}  << current N : $n  << current M : $m  << queueLastEntity : ${_progressQueue.last.entity}  ');
-    if (n == 2 && m == 1) {
-      setState(() {
-        _keyActive_1 = true;
-      });
+    final animationSteps = _getAnimationSteps(n, m);
 
-      await Future.delayed(const Duration(milliseconds: 1000));
-      if (!_canRunCurrentProgress(buttonCountAtStart, QueueEntity.n2m1)) return;
-      // 첫번 째 프로그레스 진행
-      _runProgress(1, QueueEntity.n2m1);
+    for (final step in animationSteps) {
+      if (!_canRunCurrentProgress(buttonCountAtStart, _getQueueEntity(n, m))) return;
 
-      await Future.delayed(const Duration(milliseconds: 1000));
-      if (!_canRunCurrentProgress(buttonCountAtStart, QueueEntity.n2m1)) return;
-      // 1초 대기 후 체크표시
-      _changeOpacityValue(true);
-
-      // 2초 대기 후 체크표시 해제
-      await Future.delayed(const Duration(milliseconds: 2000));
-      if (!_canRunCurrentProgress(buttonCountAtStart, QueueEntity.n2m1)) return;
-      _changeOpacityValue(false);
-
-      setState(() {
-        _keyActive_3 = true;
-      });
-
-      // 1초 대기 후 세번 째 프로그레스 진행
-      await Future.delayed(const Duration(milliseconds: 1000));
-      if (!_canRunCurrentProgress(buttonCountAtStart, QueueEntity.n2m1)) return;
-      _runProgress(3, QueueEntity.n2m1);
-
-      // 1초 대기 후 체크표시
-      await Future.delayed(const Duration(milliseconds: 1000));
-      if (!_canRunCurrentProgress(buttonCountAtStart, QueueEntity.n2m1)) return;
-      _changeOpacityValue(true);
-    } else if (n == 2 && m == 2) {
-      setState(() {
-        _keyActive_1 = true;
-      });
-
-      await Future.delayed(const Duration(milliseconds: 1000));
-      if (!_canRunCurrentProgress(buttonCountAtStart, QueueEntity.n2m2)) return;
-      // 첫번 째 프로그레스 진행
-      _runProgress(1, QueueEntity.n2m2);
-
-      await Future.delayed(const Duration(milliseconds: 1000));
-      if (!_canRunCurrentProgress(buttonCountAtStart, QueueEntity.n2m2)) return;
-      // 1초 대기 후 세 번재 프로그레스 진행
-      setState(() {
-        _keyActive_3 = true;
-      });
-
-      await Future.delayed(const Duration(milliseconds: 1000));
-      if (!_canRunCurrentProgress(buttonCountAtStart, QueueEntity.n2m2)) return;
-      _runProgress(3, QueueEntity.n2m2);
-
-      // 1초 대기 후 체크표시
-      await Future.delayed(const Duration(milliseconds: 1000));
-      if (!_canRunCurrentProgress(buttonCountAtStart, QueueEntity.n2m2)) return;
-      _changeOpacityValue(true);
-    } else if (n == 3 && m == 1) {
-      /// n = 3 , m = 1
-      ///
-      ///
-      setState(() {
-        _keyActive_1 = true;
-      });
-
-      await Future.delayed(const Duration(milliseconds: 1000));
-      if (!_canRunCurrentProgress(buttonCountAtStart, QueueEntity.n3m1)) return;
-
-      // 첫번 째 프로그레스 진행
-      _runProgress(1, QueueEntity.n3m1);
-
-      await Future.delayed(const Duration(milliseconds: 1000));
-      if (!_canRunCurrentProgress(buttonCountAtStart, QueueEntity.n3m1)) return;
-      // 1초 대기 후 체크표시
-      _changeOpacityValue(true);
-
-      // 2초 대기 후 체크표시 해제
-      await Future.delayed(const Duration(milliseconds: 2000));
-      if (!_canRunCurrentProgress(buttonCountAtStart, QueueEntity.n3m1)) return;
-      _keyActive_2 = true;
-      _changeOpacityValue(false);
-
-      // 1초 대기 후 두번 째 프로그레스 진행
-      await Future.delayed(const Duration(milliseconds: 1000));
-      if (!_canRunCurrentProgress(buttonCountAtStart, QueueEntity.n3m1)) return;
-      _runProgress(2, QueueEntity.n3m1);
-
-      // 1초 대기 후 체크표시
-      await Future.delayed(const Duration(milliseconds: 1000));
-      if (!_canRunCurrentProgress(buttonCountAtStart, QueueEntity.n3m1)) return;
-      _changeOpacityValue(true);
-
-      // 2초 대기 후 체크표시 해제
-      await Future.delayed(const Duration(milliseconds: 2000));
-      if (!_canRunCurrentProgress(buttonCountAtStart, QueueEntity.n3m1)) return;
-
-      _keyActive_3 = true;
-      _changeOpacityValue(false);
-
-      // 1초 대기 후 세번 째 프로그레스 진행
-      await Future.delayed(const Duration(milliseconds: 1000));
-      if (!_canRunCurrentProgress(buttonCountAtStart, QueueEntity.n3m1)) return;
-      _runProgress(3, QueueEntity.n3m1);
-
-      // 1초 대기 후 체크표시
-      await Future.delayed(const Duration(milliseconds: 1000));
-      if (!_canRunCurrentProgress(buttonCountAtStart, QueueEntity.n3m1)) return;
-      _changeOpacityValue(true);
-    } else if (n == 3 && m == 2) {
-      /// n = 3 , m = 2
-      ///
-      ///
-      setState(() {
-        _keyActive_1 = true;
-      });
-
-      await Future.delayed(const Duration(milliseconds: 1000));
-      if (!_canRunCurrentProgress(buttonCountAtStart, QueueEntity.n3m2)) return;
-      // 첫 번째 프로그레스 실행
-      _runProgress(1, QueueEntity.n3m2);
-
-      // 1초 대기 후 두 번째 키 활성화
-      await Future.delayed(const Duration(milliseconds: 1000));
-      if (!_canRunCurrentProgress(buttonCountAtStart, QueueEntity.n3m2)) return;
-      _activeKey(2);
-
-      // 1초 대기 후 두번 째 프로그레스 진행
-      await Future.delayed(const Duration(milliseconds: 1000));
-      if (!_canRunCurrentProgress(buttonCountAtStart, QueueEntity.n3m2)) return;
-      _runProgress(2, QueueEntity.n3m2);
-
-      // 1초 대기 후 체크표시
-      await Future.delayed(const Duration(milliseconds: 1000));
-      if (!_canRunCurrentProgress(buttonCountAtStart, QueueEntity.n3m2)) return;
-      _changeOpacityValue(true);
-
-      // 2초 대기 후 체크표시 해제
-      await Future.delayed(const Duration(milliseconds: 2000));
-      if (!_canRunCurrentProgress(buttonCountAtStart, QueueEntity.n3m2)) return;
-
-      _changeOpacityValue(false);
-      _keyActive_1 = true;
-
-      // 1초 대기 후 첫번 째 프로그레스 진행
-      await Future.delayed(const Duration(milliseconds: 1000));
-      if (!_canRunCurrentProgress(buttonCountAtStart, QueueEntity.n3m2)) return;
-      _runProgress(1, QueueEntity.n3m2);
-
-      // 1초 대기 후 세번 키 활성화
-      await Future.delayed(const Duration(milliseconds: 1000));
-      if (!_canRunCurrentProgress(buttonCountAtStart, QueueEntity.n3m2)) return;
-      _activeKey(3);
-
-      // 1초 대기 후 세번 째 프로그레스 진행
-      await Future.delayed(const Duration(milliseconds: 1000));
-      if (!_canRunCurrentProgress(buttonCountAtStart, QueueEntity.n3m2)) return;
-      _runProgress(3, QueueEntity.n3m2);
-
-      // 1초 대기 후 체크표시
-      await Future.delayed(const Duration(milliseconds: 1000));
-      if (!_canRunCurrentProgress(buttonCountAtStart, QueueEntity.n3m2)) return;
-      _changeOpacityValue(true);
-
-      // 2초 대기 후 체크표시 해제
-      await Future.delayed(const Duration(milliseconds: 2000));
-      if (!_canRunCurrentProgress(buttonCountAtStart, QueueEntity.n3m2)) return;
-
-      _changeOpacityValue(false);
-      _keyActive_2 = true;
-
-      // 1초 대기 후 두번 째 프로그레스 진행
-      await Future.delayed(const Duration(milliseconds: 1000));
-      if (!_canRunCurrentProgress(buttonCountAtStart, QueueEntity.n3m2)) return;
-      _runProgress(2, QueueEntity.n3m2);
-
-      // 1초 대기 후 세번 째 키 활성화
-      await Future.delayed(const Duration(milliseconds: 1000));
-      if (!_canRunCurrentProgress(buttonCountAtStart, QueueEntity.n3m2)) return;
-      _activeKey(3);
-
-      // 1초 대기 후 세번 째 프로그레스 진행
-      await Future.delayed(const Duration(milliseconds: 1000));
-      if (!_canRunCurrentProgress(buttonCountAtStart, QueueEntity.n3m2)) return;
-      _runProgress(3, QueueEntity.n3m2);
-
-      // 1초 대기 후 체크표시
-      await Future.delayed(const Duration(milliseconds: 1000));
-      if (!_canRunCurrentProgress(buttonCountAtStart, QueueEntity.n3m2)) return;
-      _changeOpacityValue(true);
-    } else if (n == 3 && m == 3) {
-      /// n = 3 , m = 3
-      ///
-      ///
-      setState(() {
-        _keyActive_1 = true;
-      });
-
-      await Future.delayed(const Duration(milliseconds: 1000));
-      if (!_canRunCurrentProgress(buttonCountAtStart, QueueEntity.n3m3)) return;
-      // 첫 번째 프로그레스 진행
-      _runProgress(1, QueueEntity.n3m3);
-
-      await Future.delayed(const Duration(milliseconds: 1000));
-      if (!_canRunCurrentProgress(buttonCountAtStart, QueueEntity.n3m3)) return;
-      // 1초 대기 후 두 번재 키 활성화
-      _activeKey(2);
-
-      // 1초 대기 후 두 번째 프로그레스 진행
-      await Future.delayed(const Duration(milliseconds: 1000));
-      if (!_canRunCurrentProgress(buttonCountAtStart, QueueEntity.n3m3)) return;
-      _runProgress(2, QueueEntity.n3m3);
-
-      // 1초 대기 후 세 번재 키 활성화
-      await Future.delayed(const Duration(milliseconds: 1000));
-      if (!_canRunCurrentProgress(buttonCountAtStart, QueueEntity.n3m3)) return;
-      _activeKey(3);
-
-      // 1초 대기 후 세 번재 프로그레스 진행
-      await Future.delayed(const Duration(milliseconds: 1000));
-      if (!_canRunCurrentProgress(buttonCountAtStart, QueueEntity.n3m3)) return;
-      _runProgress(3, QueueEntity.n3m3);
-
-      // 1초 대기 후 체크표시
-      await Future.delayed(const Duration(milliseconds: 1000));
-      if (!_canRunCurrentProgress(buttonCountAtStart, QueueEntity.n3m3)) return;
-      _changeOpacityValue(true);
+      if (step.type == AnimationStepType.activateKey) {
+        _activeKey(step.keyIndex!);
+      } else if (step.type == AnimationStepType.runProgress) {
+        _runProgress(step.keyIndex!, _getQueueEntity(n, m));
+      } else if (step.type == AnimationStepType.changeOpacity) {
+        _changeOpacityValue(step.opacityValue!);
+      } else if (step.type == AnimationStepType.delay) {
+        await Future.delayed(step.duration!);
+      }
     }
+  }
+
+  List<AnimationStep> _getAnimationSteps(int n, int m) {
+    if (n == 2 && m == 1) {
+      return [
+        AnimationStep.activateKey(1),
+        AnimationStep.delay(_duration),
+        AnimationStep.runProgress(1),
+        AnimationStep.delay(_duration),
+        AnimationStep.changeOpacity(true),
+        AnimationStep.delay(const Duration(milliseconds: 2000)),
+        AnimationStep.changeOpacity(false),
+        AnimationStep.activateKey(3),
+        AnimationStep.delay(_duration),
+        AnimationStep.runProgress(3),
+        AnimationStep.delay(_duration),
+        AnimationStep.changeOpacity(true),
+      ];
+    } else if (n == 2 && m == 2) {
+      return [
+        AnimationStep.activateKey(1),
+        AnimationStep.delay(_duration),
+        AnimationStep.runProgress(1),
+        AnimationStep.delay(_duration),
+        AnimationStep.activateKey(3),
+        AnimationStep.delay(_duration),
+        AnimationStep.runProgress(3),
+        AnimationStep.delay(_duration),
+        AnimationStep.changeOpacity(true),
+      ];
+    } else if (n == 3 && m == 1) {
+      return [
+        AnimationStep.activateKey(1),
+        AnimationStep.delay(_duration),
+        AnimationStep.runProgress(1),
+        AnimationStep.delay(_duration),
+        AnimationStep.changeOpacity(true),
+        AnimationStep.delay(const Duration(milliseconds: 2000)),
+        AnimationStep.changeOpacity(false),
+        AnimationStep.activateKey(2),
+        AnimationStep.delay(_duration),
+        AnimationStep.runProgress(2),
+        AnimationStep.delay(_duration),
+        AnimationStep.changeOpacity(true),
+        AnimationStep.delay(const Duration(milliseconds: 2000)),
+        AnimationStep.changeOpacity(false),
+        AnimationStep.activateKey(3),
+        AnimationStep.delay(_duration),
+        AnimationStep.runProgress(3),
+        AnimationStep.delay(_duration),
+        AnimationStep.changeOpacity(true),
+      ];
+    } else if (n == 3 && m == 2) {
+      return [
+        AnimationStep.activateKey(1),
+        AnimationStep.delay(_duration),
+        AnimationStep.runProgress(1),
+        AnimationStep.delay(_duration),
+        AnimationStep.activateKey(2),
+        AnimationStep.delay(_duration),
+        AnimationStep.runProgress(2),
+        AnimationStep.delay(_duration),
+        AnimationStep.changeOpacity(true),
+        AnimationStep.delay(const Duration(milliseconds: 1000)),
+        AnimationStep.changeOpacity(false),
+        AnimationStep.activateKey(1),
+        AnimationStep.delay(_duration),
+        AnimationStep.runProgress(1),
+        AnimationStep.delay(_duration),
+        AnimationStep.activateKey(3),
+        AnimationStep.delay(_duration),
+        AnimationStep.runProgress(3),
+        AnimationStep.delay(_duration),
+        AnimationStep.changeOpacity(true),
+        AnimationStep.delay(const Duration(milliseconds: 2000)),
+        AnimationStep.changeOpacity(false),
+        AnimationStep.activateKey(2),
+        AnimationStep.delay(_duration),
+        AnimationStep.runProgress(2),
+        AnimationStep.delay(_duration),
+        AnimationStep.activateKey(3),
+        AnimationStep.delay(_duration),
+        AnimationStep.runProgress(3),
+        AnimationStep.delay(_duration),
+        AnimationStep.changeOpacity(true),
+      ];
+    } else if (n == 3 && m == 3) {
+      return [
+        AnimationStep.activateKey(1),
+        AnimationStep.delay(_duration),
+        AnimationStep.runProgress(1),
+        AnimationStep.delay(_duration),
+        AnimationStep.activateKey(2),
+        AnimationStep.delay(_duration),
+        AnimationStep.runProgress(2),
+        AnimationStep.delay(_duration),
+        AnimationStep.activateKey(3),
+        AnimationStep.delay(_duration),
+        AnimationStep.runProgress(3),
+        AnimationStep.delay(_duration),
+        AnimationStep.changeOpacity(true),
+      ];
+    }
+
+    return [];
   }
 
   void stopAnimationProgress() {
@@ -423,9 +276,10 @@ class _KeySafeAnimationWidgetState extends State<KeySafeAnimationWidget> {
       height: 4,
       child: LinearProgressIndicator(
         borderRadius: BorderRadius.circular(12),
-        value: key == 0
-            ? _progressValue_1
-            : key == 1
+        value:
+            key == 0
+                ? _progressValue_1
+                : key == 1
                 ? _progressValue_2
                 : _progressValue_3,
         color: CoconutColors.gray800,
@@ -473,8 +327,7 @@ class _KeySafeAnimationWidgetState extends State<KeySafeAnimationWidget> {
 
   void _runProgress(int num, QueueEntity queueEntity) {
     if (_progressQueue.isEmpty ||
-        _progressQueue.last.entity != queueEntity &&
-            _progressQueue.last.count != widget.buttonClickedCount) {
+        _progressQueue.last.entity != queueEntity && _progressQueue.last.count != widget.buttonClickedCount) {
       stopAnimationProgress();
       return;
     }
@@ -483,8 +336,7 @@ class _KeySafeAnimationWidgetState extends State<KeySafeAnimationWidget> {
         {
           Timer.periodic(const Duration(milliseconds: 10), (timer) {
             if (_progressQueue.isEmpty ||
-                (_progressQueue.last.entity != queueEntity &&
-                    _progressQueue.last.count != widget.buttonClickedCount)) {
+                (_progressQueue.last.entity != queueEntity && _progressQueue.last.count != widget.buttonClickedCount)) {
               timer.cancel();
               return;
             }
@@ -542,3 +394,25 @@ class _KeySafeAnimationWidgetState extends State<KeySafeAnimationWidget> {
     }
   }
 }
+
+class AnimationStep {
+  final AnimationStepType type;
+  final int? keyIndex;
+  final bool? opacityValue;
+  final Duration? duration;
+
+  const AnimationStep._({required this.type, this.keyIndex, this.opacityValue, this.duration});
+
+  factory AnimationStep.activateKey(int keyIndex) =>
+      AnimationStep._(type: AnimationStepType.activateKey, keyIndex: keyIndex);
+
+  factory AnimationStep.runProgress(int keyIndex) =>
+      AnimationStep._(type: AnimationStepType.runProgress, keyIndex: keyIndex);
+
+  factory AnimationStep.changeOpacity(bool value) =>
+      AnimationStep._(type: AnimationStepType.changeOpacity, opacityValue: value);
+
+  factory AnimationStep.delay(Duration duration) => AnimationStep._(type: AnimationStepType.delay, duration: duration);
+}
+
+enum AnimationStepType { activateKey, runProgress, changeOpacity, delay }

@@ -1,5 +1,6 @@
 import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
+import 'package:coconut_vault/widgets/button/fixed_bottom_button.dart';
 import 'package:coconut_vault/widgets/custom_loading_overlay.dart';
 import 'package:flutter/material.dart';
 import 'package:coconut_vault/widgets/vault_name_icon_edit_palette.dart';
@@ -40,22 +41,16 @@ class _NameAndIconEditBottomSheetState extends State<NameAndIconEditBottomSheet>
 
   @override
   Widget build(BuildContext context) {
-    return CustomLoadingOverlay(
-      child: ClipRRect(
-        borderRadius: CoconutBorder.defaultRadius,
-        child: Stack(
-          children: [
-            Scaffold(
-              backgroundColor: CoconutColors.white,
-              appBar: CoconutAppBar.buildWithNext(
-                context: context,
-                onNextPressed: _onNextPressed,
-                title: _name,
-                nextButtonTitle: t.complete,
-                isBottom: true,
-              ),
-              body: SafeArea(
-                child: NestedScrollView(
+    return ClipRRect(
+      borderRadius: CoconutBorder.defaultRadius,
+      child: CustomLoadingOverlay(
+        child: Scaffold(
+          backgroundColor: CoconutColors.white,
+          appBar: CoconutAppBar.build(context: context, title: _name, isBottom: true),
+          body: SafeArea(
+            child: Stack(
+              children: [
+                NestedScrollView(
                   headerSliverBuilder: (BuildContext context, bool innerBoxIsScrolled) {
                     return [];
                   },
@@ -88,9 +83,10 @@ class _NameAndIconEditBottomSheetState extends State<NameAndIconEditBottomSheet>
                     ),
                   ),
                 ),
-              ),
+                FixedBottomButton(text: t.complete, onButtonClicked: _onNextPressed),
+              ],
             ),
-          ],
+          ),
         ),
       ),
     );
@@ -106,11 +102,15 @@ class _NameAndIconEditBottomSheetState extends State<NameAndIconEditBottomSheet>
     if (hasChanged) {
       context.loaderOverlay.show();
       await Future.delayed(const Duration(seconds: 1));
-      context.loaderOverlay.hide();
+      if (mounted) {
+        context.loaderOverlay.hide();
+      }
     }
 
     widget.onUpdate(_name.isEmpty ? widget.name : _name, _iconIndex, _colorIndex);
-    Navigator.of(context).pop();
+    if (mounted) {
+      Navigator.of(context).pop();
+    }
   }
 
   void _closeKeyboard() {

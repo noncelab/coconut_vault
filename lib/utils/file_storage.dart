@@ -3,11 +3,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as path;
 
 class FileStorage {
-  static Future<String> saveFile({
-    required String fileName,
-    required String content,
-    String? subDirectory,
-  }) async {
+  static Future<String> saveFile({required String fileName, required String content, String? subDirectory}) async {
     final directory = await _getStorageDirectory(subDirectory);
     final file = File(path.join(directory.path, fileName));
     await file.writeAsString(content);
@@ -22,16 +18,13 @@ class FileStorage {
       }
 
       final List<FileSystemEntity> entities = await directory.list().toList();
-      return entities.where((entity) => entity is File).map((entity) => entity.path).toList();
+      return entities.whereType<File>().map((entity) => entity.path).toList();
     } catch (e) {
       return [];
     }
   }
 
-  static Future<String> readFile({
-    required String fileName,
-    String? subDirectory,
-  }) async {
+  static Future<String> readFile({required String fileName, String? subDirectory}) async {
     final directory = await _getStorageDirectory(subDirectory);
     final file = File(path.join(directory.path, fileName));
 
@@ -56,10 +49,7 @@ class FileStorage {
     return directory;
   }
 
-  static Future<void> deleteFile({
-    required String fileName,
-    String? subDirectory,
-  }) async {
+  static Future<void> deleteFile({required String fileName, String? subDirectory}) async {
     final directory = await _getStorageDirectory(subDirectory);
     final file = File(path.join(directory.path, fileName));
 

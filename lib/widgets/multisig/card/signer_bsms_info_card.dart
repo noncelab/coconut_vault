@@ -12,22 +12,20 @@ class SignerBsmsInfoCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: width ?? MediaQuery.of(context).size.width - 30,
+      width: width ?? MediaQuery.of(context).size.width * 0.76,
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(12),
         color: CoconutColors.white,
         boxShadow: [
           BoxShadow(
-            color: CoconutColors.black.withOpacity(0.15),
-            offset: const Offset(4, 4),
-            blurRadius: 30,
+            color: CoconutColors.black.withValues(alpha: 0.15),
+            offset: const Offset(2, 2),
+            blurRadius: 16,
             spreadRadius: 0,
           ),
         ],
       ),
-      padding: const EdgeInsets.all(
-        20,
-      ),
+      padding: const EdgeInsets.all(20),
       child: RichText(
         text: TextSpan(
           text: "${bsms.version}\n${bsms.secretToken}\n[",
@@ -41,9 +39,7 @@ class SignerBsmsInfoCard extends StatelessWidget {
           ),
           children: <TextSpan>[
             TextSpan(text: bsms.signer!.masterFingerPrint, style: _boldTextStyle),
-            TextSpan(
-              text: '/${bsms.signer!.path}]${bsms.signer!.extendedPublicKey.serialize()}\n',
-            ),
+            TextSpan(text: '/${bsms.signer!.path}]${bsms.signer!.extendedPublicKey.serialize()}\n'),
             TextSpan(text: bsms.signer!.description, style: _boldTextStyle),
           ],
         ),

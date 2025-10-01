@@ -4,6 +4,8 @@
 # t.error.pcs_error1(count: kMaxNumberOfAttempts - attempt);
 
 # common
+bitcoin: "Bitcoin"
+coconut: "Coconut"
 coconut_vault: "Coconut Vault"
 vault: "Vault"
 btc: "BTC"
@@ -17,27 +19,22 @@ settings: "Settings"
 confirm: "Confirm"
 complete: "Complete"
 cancel: "Cancel"
+abort: "Abort"
 next: "Next"
 save: "Save"
 select: "Select"
+tap: "Tap"
 warning: "Warning"
 security: "Security"
 unit: "Unit"
 yes: "Yes"
 no: "No"
-front: "Front"
-back: "Back"
 memo: "Memo"
-close: "Close"
-delete: "Delete"
-delete_label: "Delete"
 stop: "Stop"
 start: "Start"
 quit: "Quit"
 import: "Import"
 export: "Export"
-passphrase: "Passphrase"
-mnemonic: "Mnemonic"
 testnet: "Testnet"
 license: "License"
 name: "Name"
@@ -45,28 +42,19 @@ skip: "Skip"
 restore: "Restore"
 change: "Change"
 receiving: "Receive"
-info: "Info"
-word: "Word"
 email_subject: "[Coconut Vault] Inquiry"
-bitcoin: "Bitcoin"
 
-signature: "Signature"
-sign_completion: "Sign Complete"
+sign_completion: "Signed"
 sign: "Sign"
 signed_tx: "Signed Transaction"
 sign_completed: "Signature completed"
 stop_sign: "Stop Signing"
 
 select_completed: "Selection Complete"
-checklist: "Checklist"
-wallet_id: "Wallet ID"
-available_signer_count: 
-  one: $n signer available
-  other: $n signers available
+checklist: "Security Checklist"
 mnemonic_wordlist: "Mnemonic Word List"
-tool: "Tool"
 tutorial: "Tutorial"
-single_sig_wallet: "Single Sig Wallet"
+single_sig_wallet: "Single Signature Wallet"
 multisig_wallet: "Multisig Wallet"
 extended_public_key: "Extended Public Key"
 app_info: "App Info"
@@ -80,22 +68,24 @@ total_amount: "Total Amount"
 key_list: "Key List"
 
 view_mnemonic: "View Mnemonic"
-view_passphrase: "View Passphrase"
+verify_passphrase: "Verify Passphrase"
 view_app_info: "View App Info"
 view_all: "View All"
-view_details_info: "View Details"
 view_address: "View Address"
 view_tutorial: "View Tutorial"
 delete_all: "Delete All"
 delete_one: "Delete One"
-re_select: "Reselect"
 
-name_info: "$name Info"
 name_wallet: "$name Wallet"
+one_sign_guide: "Click the button to sign"
 bitcoin_text: "$bitcoin BTC"
-sign_required: 
+sign_required: "Click the button to sign"
+sign_required_amount: 
   one: "$n signature required"
   other: "$n signatures required"
+move_to_qr_screen: "Move to QR Screen"
+move_to_qr_screen_description: "Generate QR to sign in key-holding vault."
+
 name_text_count: "($count / 20)"
 wallet_subtitle: "$name's key $index"
 
@@ -107,6 +97,54 @@ advanced_user: "Advanced User"
 
 extra_count: "+$count more"
 
+edit: "edit"
+
+descriptor: "Descriptor"
+
+watch_only_options:
+  title: "Select Watch-only Wallet"
+  coconut_wallet: "Coconut Wallet"
+  sparrow: "Sparrow"
+  nunchuk: "Nunchuk"
+  bluewallet: "BlueWallet"
+
+connectivity_state: 
+  connected: "Connected"
+  disconnected: "Disconnected"
+  enabled: "Enabled"
+  disabled: "Disabled"
+  active: "Active"
+  inactive: "Inactive"
+
+vault_home_screen:
+  view_all_wallets: "View My Wallets"
+  wallet_count: "$count Items"
+  action_items:
+    sign: "Sign"
+    view_address: "View Address"
+    export_wallet: "Export to\nWatch-only Wallet"
+    import_multisig_wallet: "Import\nMultisig Wallet"
+    mnemonic_wordlist: "Mnemonic Wordlist"
+  toast:
+    wallet_added_but_not_favorite: "Wallet added. Please check in the View All Wallets screen."
+    
+vault_list_screen:
+  primary_wallet: "Primary Wallet"
+  settings:
+    primary_wallet: "Set as Primary Wallet"
+    primary_wallet_disabled_description: "This wallet is used as default for Send/Receive on the home screen."
+    primary_wallet_abled_description: "Setting another wallet as primary will automatically disable this setting."
+  edit:
+      wallet_list: "Edit Wallet List"
+      star_description: "up to 5 wallets to display on the home screen."
+      order_description: "to change the order of wallets."
+      delete_description: "Swipe left on a wallet to delete it."
+      finish: "Finish Editing"
+      unsaved_changes_confirm_exit: "You have unsaved changes.\nAre you sure you want to exit?"  
+
+select_vault_bottom_sheet:
+  select_wallet: "Select Wallet"
+
 # lib
 vault_list_tab:
   add_wallet: "Add a wallet!"
@@ -115,31 +153,29 @@ vault_list_tab:
 
 # lib/screens
 app_unavailable_notification_screen:
-  network_on: "Phone is connected to external network"
-  text1_1: "For safe use,"
-  text1_2: "please "
-  text1_3: "close the app"
-  text1_4: " now"
-  text2: "Network & Bluetooth"
-  text3: "Developer Option OFF"
-  check_status: "Please check the status"
+  restart_app: "To use Vault,\nyou need to restart the app"
+  step1: "Completely close the app"
+  step2: "Check the connection status"
+  step3: "Restart the app"
 ios_bluetooth_auth_notification_screen:
-  allow_permission: "Please allow Bluetooth permission for Coconut Vault"
-  text1_1: "For safe use,"
-  text1_2: "please close the app now and"
-  text1_3: "in Settings,"
-  text1_4: "allow "
-  text1_5: "Bluetooth permission"
-  text1_6: " for"
-  text1_7: "Coconut Vault"
+  allow_permission: "For safe use,\nplease allow Bluetooth permission"
+  guide1: "Completely close the app"
+  guide2: "Allow Bluetooth permission in Settings"
+  guide3: "Restart the app"
 pin_check_screen:
   enter_password: "Enter password"
   warning: "⚠︎ Vault will be reset after 3 failed attempts"
+  dialog:
+    restart:
+      title: "Restart"
+      description: "Would you like to restart Vault?"
 pin_setting_screen:
   set_password: "Set a password first\nfor safe vault use"
   enter_again: "Confirm again"
   new_password: "Enter new password"
   keep_in_mind: "Please set a password you can definitely remember"
+  character_password_input: "Enter text password"
+  number_password_input: "Enter numeric password"
 security_self_check_screen:
   check1: "I am responsible for my private keys."
   check2: "I do not capture or photograph the mnemonic screen."
@@ -150,7 +186,7 @@ security_self_check_screen:
   check7: "I do not store mnemonics and passphrases together."
   check8: "I test with small amounts before starting wallet use."
   check9: "I will regularly check the above items and safely store my mnemonics."
-  guidance: "Please understand the self-check items below and safely store your mnemonics."
+  guidance: "Keep your mnemonic words safe on your own. Read each sentence carefully and tap to complete the checklist."
 tutorial_screen:
   title1: "Follow the tutorial\nfor easier use"
   title2: "Need help?"
@@ -159,6 +195,8 @@ tutorial_screen:
 
 multisig:
   nth_key: "key $index"
+  nth_key_with_name: "key $index - $name"
+  select_nth_key: "Select key #$index"
 
 # lib/screens/airgap
 account_selection_bottom_sheet_screen:
@@ -169,8 +207,8 @@ psbt_confirmation_screen:
   self_sending: "This is a transaction sending to my own wallet."
   warning: "⚠️ This may not be a psbt created with this wallet. Or it may be a transaction with no balance."
 psbt_scanner_screen:
-  guide_multisig: "Please scan sending info created in wallet or multisig info from external vault."
-  guide_single_sig: "Please scan sending info created in wallet. Wallet names must match."
+  guide: "Please scan sending info created in wallet or multisig info from external vault."
+  guide_single_sig_same_name: "Please scan sending info created in wallet. Wallet names must match."
 signed_transaction_qr_screen:
   guide_multisig: "Multisig completed. Please scan the QR code below in the wallet that created the sending info."
   guide_single_sig: "Signature completed for sending info created in '$name wallet'. Please scan the QR code below in the wallet."
@@ -178,10 +216,10 @@ single_sig_sign_screen:
   text: "This is an already signed transaction"
 signer_qr_bottom_sheet:
   title: "Export Signed Transaction"
-  text2_1: "key vault, select multisig wallet - "
-  text2_2: "Multisig"
-  text2_3: " and scan the QR code below."
-  text2_4: ""
+  text1: "On the vault containing the key "
+  text2: "Sign."
+  text3: "Scan the QR code below."
+  select: "Select "
 unit_bottom_sheet:
   basic_unit: "Basic Unit"
   header_text: "1 BTC = 100,000,000 sats"
@@ -220,7 +258,7 @@ license_screen:
   text2: ".\n\nCopyright for third-party software included in this application is stated as follows. If you have questions about this, please contact "
   text3: "."
 mnemonic_word_list_screen:
-  search_mnemonic_word: "Search in English"
+  search_mnemonic_word: "Search in English or numbers"
   result: "Search results for '$text'"
   such_no_result: "No search results"
 settings_screen:
@@ -231,45 +269,72 @@ settings_screen:
   prepare_update: "Prepare Update"
   advanced_user: "Advanced User"
   use_passphrase: "Use Passphrase"
-
+  information: "Information"
+  toast:
+    no_enrolled_biometrics: "No biometrics are set up on this device"
+  dialog:
+    need_biometrics_setting_title: "Biometrics Allow"
+    need_biometrics_setting_desc: "Please check biometrics settings."
+    btn_move_to_setting: "Go to Settings"
+    use_passphrase_title: "Use Passphrase"
+    use_passphrase_description: "Using passphrase is like creating a new wallet. If used incorrectly, you may lose bitcoins forever."
+    use_passphrase_btn: "I understand"
 # lib/screens/start_guide
-guide_screen:
-  keep_network_off: "For safe Bitcoin storage,\nkeep connection status OFF"
-  network_status: "Network Status"
-  bluetooth_status: "Bluetooth Status"
-  developer_option: "Developer Option"
-  turn_off_network_and_bluetooth: "Turn off Network & Bluetooth"
-  disable_developer_option: "Disable Developer Option"
-  on: "ON"
-  off: "OFF"
 welcome_screen:
-  greeting: "Please take a moment\nfor smooth Coconut Vault use"
-  guide1_1: "Vault can only be used"
-  guide1_2: "when network and Bluetooth$suffix"
-  guide1_3: "are turned OFF"
-  guide1_4: ""
-  guide1_5: ""
-  guide2_1: "That is,"
-  guide2_2: "when connection is detected"
-  guide2_3: "app usage will be disabled"
-  guide2_4: ""
-  guide3_1: "This is a measure"
-  guide3_2: "for"
-  guide3_3: "safe use,"
-  guide3_4: "please be careful when using"
-  understood: "I understand all"
+  screen_1_title: "Start in a safe environment"
+  screen_1_description: "To use safely, you need to\nblock connections with the outside"
+  screen_1_button: "Check environment"
+  screen_2_title: "Security Checklist"
+  screen_2_description: "To start Coconut Vault,\nyou need to block all connections"
+  screen_2_button: "Next"
+  screen_3_title: "Safe environment is ready"
+  screen_3_description: "Let's start Coconut Vault"
+  screen_3_button: "Start"
+  setting_guide: "View setting guide"
+  bottom_sheet_title: "Setting Guide"
+  airplane_mode_on: 
+    title: "Turn on airplane mode"
+    description_ios: 'Control Center → Airplane Mode icon tap'
+    description_android: 'Swipe down from the top of the screen → Quick Settings panel → Airplane Mode icon tap'
+  wifi_off:
+    title: "Turn off Wi-Fi"
+    description_ios: 'Swipe down from the top right corner → Control Center → Wi-Fi icon tap'
+    description_android: 'Quick Settings panel → Wi-Fi icon tap'
+  mobile_data_off: 
+    title: "Turn off mobile data (LTE / 5G)"
+    description_ios: 'Settings → Cellular → Cellular Data switch off\n※ We recommend using a dedicated offline device'
+    description_android: 'Quick Settings panel → Mobile Data icon tap\n※ We recommend using a dedicated offline device'
+  bluetooth_off: 
+    title: "Turn off Bluetooth"
+    description_ios: 'Control Center → Bluetooth icon tap'
+    description_android: 'Quick Settings panel → Bluetooth icon tap'
+  developer_mode_off: "Turn off developer mode"
+  developer_mode_description: "1. Settings → System → Developer Options\n2. Switch off"
+  network: "Network"
+  bluetooth: "Bluetooth"
+  developer_option: "Developer Option"
 
 # lib/screens/vault_creation
 mnemonic_coin_flip_screen:
   title: "Create Mnemonic"
+  guide: "Please select the side that came out after flipping the coin"
   words_passphrase: " words, passphrase "
   use: "Use"
   do_not: "Don't"
   enter_passphrase: "Enter passphrase"
-  coin_head: "Front"
-  coin_tail: "Back"
+  coin_head: "Head"
+  coin_tail: "Tail"
+mnemonic_dice_roll_screen:
+  title: "Create Mnemonic"
+  guide1: "After rolling the dice, please select the number shown on the side🎲"
+  guide2: "Enough random values have been collected. No more rolling is needed🎲"
+  words_passphrase: " words, passphrase "
+  use: "Use"
+  do_not: "Don't"
+  enter_passphrase: "Enter passphrase"
 mnemonic_confirm_screen:
-  title: "Please verify that\nthe entered info is correct"
+  title: "Final Check"
+  description: "This information will be used to create a wallet"
   passphrase_character_total_count: " (Total $count chars)"
   warning:
     contains_space_character: "⚠︎ Contains space characters"
@@ -286,9 +351,18 @@ mnemonic_generate_screen:
   use: "Use"
   do_not: "Don't"
   enter_passphrase: "Enter passphrase"
-  backup_guide: "Please backup mnemonic in a safe place"
+  passphrase_not_matched: "Passphrase does not match"
+  memorable_passphrase_guide: "A passphrase you'll never forget"
+  passphrase_confirm_guide: "Confirm passphrase"
+  backup_guide: "Please backup mnemonic words in a safe place"
   backup_complete: "Backup Complete"
   warning: "Please be careful with storage and leakage of entered passphrase"
+  passphrase_warning: "$words may not be accepted by other wallets. Please be careful."
+passphrase_textfield:
+  title: "Enter passphrase"
+  passphrase_hidden: "Hide passphrase"
+  passphrase_visible: "Show passphrase"
+  
 mnemonic_import_screen:
   title: "Restore"
   enter_mnemonic_phrase: "Enter mnemonic phrase"
@@ -297,6 +371,20 @@ mnemonic_import_screen:
   enter_passphrase: "Enter passphrase"
   need_advanced_mode: "⚠︎ To use passphrase, go to Settings and turn on 'Use Passphrase'"
   open_settings: "Open Settings"
+  recommended_words: "Recommended words"
+  words_24: "24 words"
+  words_12: "12 words"
+
+mnemonic_view_screen:
+  security_guide: "Please check the mnemonic in a safe place"
+  warning_title: "Mnemonic phrase is the key to your wallet"
+  warning_guide: "If you know this word, anyone can take all your bitcoins. Please check if there are any other people or cameras around you."
+  warning_btn: "I understand"
+  
+mnemonic_verify_screen:
+  title: "Verify Mnemonic"
+  select_word: "Select word #${index}"
+  not_correct: "Not correct"
 select_vault_type_screen:
   title: "Create Wallet"
   single_sig: "Single signature wallet storing one mnemonic phrase"
@@ -305,17 +393,34 @@ select_vault_type_screen:
   loading_keys: "Loading keys stored in vault"
 vault_creation_options_screen:
   coin_flip: "Flip coin to create manually"
+  dice_roll: "Roll dice to create manually"
   auto_generate: "Let app create for me"
   import_mnemonic: "I have an existing mnemonic phrase"
+  seed_qr: "I have a seed QR code"
+seed_qr_import_screen:
+  title: "Scan Seed QR Code"
+  error_title: "Scan Error"
+  error_message: "An error occurred while scanning the seed QR code. Please try again."
+  guide: "Please scan the seed QR code. (21x21 또는 25x25)"
+seed_qr_confirmation_screen:
+  title: "Verify Mnemonic"
+  check_mnemonic: "Please check the mnemonic phrase"
+  passphrase_toggle: "Use Passphrase"
+  passphrase_text_field_placeholder: "Enter passphrase"
 vault_name_icon_setup_screen:
   title: "Set Name"
   saving: "Saving..."
 
 # lib/screens/vault_creation/multisig
 assign_signers_screen:
+  create_multisig_wallet_by_quorum: "Create $requiredSignatureCount/$totalSignatureCount wallet"
   order_keys: "I'll sort key order to maintain same sequence"
   data_verifying: "Verifying data..."
   use_internal_key: "Use key in this vault"
+  select_key_option: "Select key type"
+  use_internal_key_option: "Select key"
+  import_from_other_vault: "Import from other vault"
+
 confirm_importing_screen:
   guide1: "Please verify that "
   guide2: "imported info from other vault "
@@ -324,8 +429,8 @@ confirm_importing_screen:
   memo: "Memo"
   placeholder: "Add simple memo for key"
 select_multisig_quorum_screen:
-  total_key_count: "Total Key Count"
-  required_signature_count: "Required Signature Count"
+  total_key_count: "Total Keys"
+  required_signature_count: "Required Signatures"
   one_or_two_of_n: "Can send Bitcoin even if one key is lost or one key holder is absent."
   n_of_n: "All keys are needed to send Bitcoin. If you lose just one key, you cannot access funds, so be very careful about loss."
   one_of_n: "Can move Bitcoin with just one key. Not recommended due to relatively low security."
@@ -333,15 +438,18 @@ signer_scanner_bottom_sheet:
   title: "Signature Update"
   guide: "Did you add signatures from other vault? Please scan QR code of added signed transaction to update info."
 signer_scanner_screen:
-  title1: "Import Multisig Wallet"
-  title2: "Sign External Wallet"
-  guide1_1: "You can add multisig wallets created in other vaults. To add, please scan the QR code that appears on the "
-  guide1_2: "wallet settings info "
-  guide1_3: "screen of the multisig wallet you want to add."
-  guide2_1: "In vault storing keys,"
-  guide2_2: "select wallet - "
-  guide2_3: "Use as Multisig Key "
-  guide2_4: "menu. Scan the QR code shown on screen."
+  import_bsms: "Import BSMS"
+  import_multisig_wallet: "Import Multisig Wallet"
+  guide1_1: "You can import multisig wallet created in other vault."
+  guide1_2: "On the home screen of the vault containing multisig wallet, "
+  guide1_3: "the multisig wallet."
+  guide1_4: "Export Multisig Wallet."
+  guide1_5: "Scan the QR code below on the screen."
+  guide2_1: "On the vault containing a key you want to use, "
+  guide2_2: "the wallet."
+  guide2_3: "Use as Multisig Key."
+  guide2_4: "Scan the QR code shown on the screen."
+  select: "Select "
 
 # lib/screens/vault_detail
 address_list_screen:
@@ -350,21 +458,17 @@ address_list_screen:
 export_detail_screen:
   title: "Export Details"
   info_copied: "Details copied"
-mnemonic_view_screen:
-  view_passphrase: "View Passphrase"
-  visible_while_pressing: "Visible while pressing"
-  space_as_blank: " Space characters are shown as blanks."
 multi_sig_bsms_screen:
   bottom_sheet:
-    title: "Wallet Details"
+    title: "Wallet Details (BSMS)"
     info_copied: "Wallet details copied"
-  title: "Wallet Settings Info"
+  title: "Export to another vault"
   guide:
-    text1: "Manage and share wallet settings info according to standards for safe multisig wallet management."
-    text2: "All keys are stored in vault."
-    text3: "Other vaults storing same keys can also read this QR to add multisig wallet."
-    text4: "Mnemonic phrase of **$gen** key designated for this multisig wallet is currently in another vault."
-    text5: "**$gen** key storage wallet - Please read QR code below in **Import Multisig Wallet**. This procedure is absolutely necessary to sign multisig transactions with **$gen** key."
+    text1: "You can also scan this QR code in another vault with the same key to add the wallet"
+    text2: "This wallet follows the standards (BIP-129, BSMS) for secure multi-signature management."
+    text3: "All the keys required for signing are securely stored in this vault."
+    text4: "The $gen key required for this multi-signature wallet is currently stored in another vault."
+    text5: "In the vault that holds the $gen key, select Import Multi-Signature Wallet and then scan the QR code below."
   first_key: "$first"
   first_and_last_keys: "$first and $last"
   first_or_last_key: "$first or $last"
@@ -375,30 +479,44 @@ multi_sig_memo_bottom_sheet:
 multi_sig_setting_screen:
   edit_memo: "Edit Memo"
   add_memo: "Add Memo"
-  view_bsms: "View Wallet Settings"
+  view_bsms: "Export to another vault"
   tooltip: 
     one: "Multisig wallet requiring $n signature\nout of $total keys."
     other: "Multisig wallet requiring $n signatures\nout of $total keys."
 select_export_type_screen:
-  title: "Export"
+  title: "Export to a watch-only app"
   export_type: "What will you use it for?"
   watch_only: "Add watch-only\nwallet to wallet"
   multisig: "Use as multisig key\nin other vault"
 signer_bsms_screen:
-  guide1_1: "Other vault"
-  guide1_2: " is creating multisig wallet! In other vault, press "
-  guide1_3: "import + button"
-  guide1_4: " then in the import screen that appears, "
-  guide1_5: "scan the QR code"
-  guide1_6: " below."
+  guide1_1: "You are creating a multisig wallet in other vault."
+  guide1_2: "Scan the QR code below on Import BSMS screen."
   export_info: "Export Info"
 sync_to_wallet_screen:
   title: "Export $name"
-  guide1_1: "In wallet"
-  guide1_2: " press + button and "
-  guide1_3: "scan QR code"
-  guide1_4: " below. You can use safe watch-only wallet."
-  view_detail: "View Details"
+  guide:
+    multisig: "Multisig"
+    coconut: "Select the Add Wallet icon on the home screen"
+    sparrow_singlesig:
+      guide0_1: "From the menu"
+      guide1_1: "Import Wallet"
+      guide1_2: "Keystone"
+      guide3_1: "or click the xPub/Watch Only Wallet button and "
+    nunchuk: 
+      guide1_1: "Bottom Menu"
+      guide1_2_singlesig: "Keys"
+      guide1_2_multisig: "Home"
+      guide2_1_siglesig: "Click the + button in the upper right corner"
+      guide2_1_multisig: "Add Wallet"
+      guide3_1_singlesig: "Keystone"
+      guide3_1_multisig: "Recover existing wallet"
+      guide4_1_singlesig: "Continue - Scan Qr"
+      guide4_1_multisig: "Recover using QR code"
+    bluewallet:
+      guide1_1: "Click the + button in the upper right corner on the home screen"
+      guide2_1: "Import Wallet"
+      guide3_1: "Scan or import a file"
+    common: "Scan the QR code below"
 vault_menu_screen:
   title:  
     view_info: "$name Info"
@@ -422,11 +540,34 @@ vault_settings:
   nth: "$index"
   key: " key"
 
+verify_passphrase_screen:
+  title: "Verify Passphrase"
+  description: "Enter the passphrase"
+  enter_passphrase: "Enter Passphrase"
+  start_verification: "Start Verification"
+  loading_description: "Verifying if the passphrase is correct..."
+  result_title_success: "Passphrase is correct!"
+  result_description_success: "The wallet was successfully restored using the entered passphrase."
+  mfp: "MFP"
+  xpub: "XPub"
+  result_title_failure: "Passphrase does not match"
+  result_description_failure: "The wallet could not be restored using the entered passphrase."
+  saved_mfp: "Saved MFP"
+  recovered_mfp: "Recovered MFP"
+
+passphrase_input_screen:
+  title: "Enter Passphrase"
+  enter_passphrase: "Enter Passphrase"
+  passphrase_error: "Please check your passphrase again"
+
+multisig_signer_bsms_export_screen:
+  fail_bsms: "Failed to load BSMS"
+
 # Update Preparation
 prepare_update:
   title: "👉 Let's verify you've backed up your mnemonic well"
   description: "In case of problems during update, you must backup mnemonic words separately"
-  enter_nth_word_of_wallet: "💡 Please enter the $n word of ${wallet_name}"
+  enter_nth_word_of_wallet: "💡 Please enter word #$n of ${wallet_name}"
   enter_word: "Enter word"
   incorrect_input_try_again: "Incorrect. Please try again."
   update_preparing_title: "➡️ Starting update preparation"
@@ -449,16 +590,16 @@ prepare_update:
   
 # Restoration Info Screen
 restoration_info:
-  "found_title": "🔎 Found restoration file"
-  "found_description": "App update was not completed\nPlease update the app,\nor restore wallet to continue"
+  "found_title": "🔎 Found Restoration File"
+  "found_description": "App update was not completed.\nPlease update the app,\nor restore the Vault to continue."
   
 # Vault List Restoration Screen
 vault_list_restoration:
-  "in_progress_title": "⏳ Restoring wallets..."
-  "in_progress_description": "Please wait a moment.\nWill be completed soon!"
-  "completed_title": "🎉 Wallets restored!"
-  "completed_description": "Restored $count wallets"
-  "start_vault": "Start Vault"
+  "in_progress_title": "⏳ Restoring Wallets..."
+  "in_progress_description": "Please wait a moment.\nIt will be completed soon!"
+  "completed_title": "🎉 Wallets Restored!"
+  "completed_description": "Restored $count wallet(s)"
+  "start_vault": "Start Coconut Vault"
 
 bottom_sheet:
   view_mit_license: "View Full MIT License"
@@ -477,15 +618,12 @@ permission:
     btn_move_to_setting: "Go to Settings"
 
 alert:
-  confirm_deletion: "Really delete $name info from vault?"
+  delete_vault:
+    title: "Delete Vault"
+    description: "If you don't backup mnemonic, your bitcoins will be lost forever.\nReally delete?"
   forgot_password:
     title: "Forgot password?"
-    description1: "You can reset password by pressing [Reset].\n"
-    description2: "Resetting password will delete stored info. Still want to reset?"
-    btn_reset: "Reset"
-  unchange_password:
-    title: "Keep current password?"
-    description: "Press [Stop] to return to settings."
+    description1: "Resetting password will delete all stored wallets. Still want to reset?"
   exit_sign:
     title: "Exit Signing"
     description: "Exit signing and go to home screen.\nReally exit?"
@@ -495,9 +633,12 @@ alert:
   reselect:
     title: "Reselect"
     description: "All info entered so far will be deleted.\nReally reselect?"
+  back:
+    title: "Go back"
+    description: "All info entered so far will be deleted.\nReally go back?"
   empty_vault:
     title: "No keys stored in vault"
-    description: "Create single sig wallet first to use keys?"
+    description: "Create single signature wallet first to use keys?"
   quit_creating_mutisig_wallet:
     title: "Stop Creating Multisig Wallet"
     description: "Really stop wallet creation?"
@@ -519,28 +660,34 @@ alert:
   wallet_creation_failed:
     title: "Wallet Creation Failed"
     description: "Invalid information"
-  stop_creating_mnemonic:
-    title: "Stop Creating Mnemonic"
-    description: "Really stop mnemonic creation?"
   stop_generating_mnemonic:
     title: "Stop Generating Mnemonic"
     description: "Really stop mnemonic generation?"
+    reselect: "Select Again"
+    confirm: "Confirm"
   stop_importing_mnemonic:
     title: "Stop Restoring"
     description: "Really stop restoring?"
   erase_all_entered_so_far: "Really delete all info\nentered so far?"
+  erase_all_entered_mnemonic: 
+    title: "Erase All"
+    description: "Really delete all mnemonic\nphrases entered so far?"
+  finish_signing:
+    title:  "Finish Signing"
+    description: "If you exit, the created signing info will be lost.\nReally exit?"
 
 toast:
   clipboard_copied: "Copied to clipboard"
   back_exit: "Press back button once more to exit"
   scroll_down: "Please scroll down to check all"
-  data_updated: "Info updated"
+  data_updated: "Info updated! Please sync with wallet to avoid confusion."
   name_already_used: "Cannot change to already used name"
   name_already_used2: "Cannot set already used name"
   name_multisig_in_use: "Cannot delete as used in multisig wallet"
   mnemonic_already_added: "Already added mnemonic"
   mnemonic_copied: "Mnemonic phrase copied"
   multisig_already_added: "Already added multisig wallet. ($name)"
+  home_vault_min_one: "Home screen displayed wallets must be at least 1"
 
 errors:
   invalid_qr: "Invalid QR code.\nPlease check again."
@@ -554,9 +701,10 @@ errors:
   pin_processing_error: "Error occurred during processing"
   pin_incorrect_with_remaining_attempts_error: "$count attempts remaining"
   remaining_times_away_from_reset_error: "$count attempts until reset"
-  pin_max_attempts_exceeded_error: "Cannot unlock vault\nUse after resetting password"
+  pin_max_attempts_exceeded_error: "Cannot use vault anymore"
+  restart_vault: "Restart vault"
   retry_after: "Can retry after $time"
-  invalid_word_error: "Invalid word. $filter"
+  invalid_word_error: "Check the word $filter"
   invalid_mnemonic_phrase: "Invalid mnemonic phrase"
   data_loading_error: "Error occurred while loading data"
   data_not_found_error: "Data not found"
@@ -568,8 +716,11 @@ errors:
   camera_permission_error: "Camera permission required"
   creation_error: "Creation failed"
   export_error: "Export failed"
+  scan_error_title: "Scan Failed"
   psbt_parsing_error: "PSBT parsing failed: $error"
   not_related_multisig_wallet_error: "This is not a multisig wallet using this wallet as key"
+  vault_not_found_error: "No matching vault found"
+  extended_public_key_not_found_error: "Please select the wallet you want to use directly and use the Multisig Signing feature"
 
 tooltip:
   mfp: "Unique value of wallet.\nAlso called Master Fingerprint (MFP)."

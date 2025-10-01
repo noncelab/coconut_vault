@@ -10,8 +10,7 @@ import 'package:coconut_vault/model/single_sig/single_sig_vault_list_item.dart';
 import 'package:coconut_vault/providers/wallet_creation_provider.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:coconut_vault/screens/vault_creation/multisig/signer_assignment_screen.dart';
-import 'package:coconut_vault/utils/isolate_handler.dart';
-import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 
 class SignerAssignmentViewModel extends ChangeNotifier {
   final WalletProvider _walletProvider;
@@ -24,14 +23,10 @@ class SignerAssignmentViewModel extends ChangeNotifier {
   late List<SignerOption> _signerOptions;
   late List<SignerOption> _unselectedSignerOptions;
   // 내부 지갑 중 Signer 선택하는 순간에만 사용함
-  int? _selectedSignerOptionIndex;
   String _loadingMessage = '';
   MultisignatureVault? _newMultisigVault;
 
   List<MultisigSigner>? _signers;
-
-  IsolateHandler<List<VaultListItemBase>, List<String>>? _extractBsmsIsolateHandler;
-  IsolateHandler<Map<String, dynamic>, MultisignatureVault>? _fromKeyStoreListIsolateHandler;
 
   SignerAssignmentViewModel(this._walletProvider, this._walletCreationProvider) {
     _totalSignatureCount = _walletCreationProvider.totalSignatureCount!;
@@ -39,20 +34,16 @@ class SignerAssignmentViewModel extends ChangeNotifier {
     _signerOptions = [];
     _assignedVaultList = List.generate(
       _totalSignatureCount,
-      (index) => AssignedVaultListItem(
-        item: null,
-        index: index,
-        importKeyType: null,
-      ),
+      (index) => AssignedVaultListItem(item: null, index: index, importKeyType: null),
     );
-    _assignedVaultList[0].isExpanded = true;
     notifyListeners();
 
-    _singlesigVaultList = _walletProvider
-        .getVaults()
-        .where((vault) => vault.vaultType == WalletType.singleSignature)
-        .map((vault) => vault as SingleSigVaultListItem)
-        .toList();
+    _singlesigVaultList =
+        _walletProvider
+            .getVaults()
+            .where((vault) => vault.vaultType == WalletType.singleSignature)
+            .map((vault) => vault as SingleSigVaultListItem)
+            .toList();
 
     _initSignerOptionList(_singlesigVaultList);
   }
@@ -64,22 +55,6 @@ class SignerAssignmentViewModel extends ChangeNotifier {
   List<SignerOption> get unselectedSignerOptions => _unselectedSignerOptions;
   List<AssignedVaultListItem> get assignedVaultList => _assignedVaultList;
   List<SingleSigVaultListItem> get singlesigVaultList => _singlesigVaultList;
-  int? get _nextAvailableIndex {
-    int index = assignedVaultList.indexWhere((item) => item.importKeyType == null);
-    return index == -1 ? null : index;
-  }
-
-  void clearFromKeyStoreListIsolateHandler() {
-    _fromKeyStoreListIsolateHandler!.dispose();
-    _fromKeyStoreListIsolateHandler = null;
-  }
-
-  @override
-  void dispose() {
-    _extractBsmsIsolateHandler?.dispose();
-    _fromKeyStoreListIsolateHandler?.dispose();
-    super.dispose();
-  }
 
   /// bsms를 비교하여 이미 보유한 볼트 지갑 중 하나인 경우 이름을 반환
   String? findVaultNameByBsms(String signerBsms) {
@@ -97,8 +72,9 @@ class SignerAssignmentViewModel extends ChangeNotifier {
   }
 
   bool isAllAssignedFromExternal() {
-    return assignedVaultList.every((vault) =>
-            vault.importKeyType == null || vault.importKeyType == ImportKeyType.external) &&
+    return assignedVaultList.every(
+          (vault) => vault.importKeyType == null || vault.importKeyType == ImportKeyType.external,
+        ) &&
         getAssignedVaultListLength() >= totalSignatureCount - 1;
   }
 
@@ -107,9 +83,7 @@ class SignerAssignmentViewModel extends ChangeNotifier {
     for (int i = 0; i < assignedVaultList.length; i++) {
       if (assignedVaultList[i].bsms == null) continue;
       List<String> splitedTwo = assignedVaultList[i].bsms!.split('\n');
-      if (splitedOne[0] == splitedTwo[0] &&
-          splitedOne[1] == splitedTwo[1] &&
-          splitedOne[2] == splitedTwo[2]) {
+      if (splitedOne[0] == splitedTwo[0] && splitedOne[1] == splitedTwo[1] && splitedOne[2] == splitedTwo[2]) {
         return true;
       }
     }
@@ -133,22 +107,28 @@ class SignerAssignmentViewModel extends ChangeNotifier {
       keyStores.add(KeyStore.fromSignerBsms(_assignedVaultList[i].bsms!));
       switch (_assignedVaultList[i].importKeyType!) {
         case ImportKeyType.internal:
-          signers.add(MultisigSigner(
+          signers.add(
+            MultisigSigner(
               id: i,
               innerVaultId: _assignedVaultList[i].item!.id,
               name: _assignedVaultList[i].item!.name,
               iconIndex: _assignedVaultList[i].item!.iconIndex,
               colorIndex: _assignedVaultList[i].item!.colorIndex,
               signerBsms: _assignedVaultList[i].bsms!,
-              keyStore: keyStores[i]));
+              keyStore: keyStores[i],
+            ),
+          );
           break;
         case ImportKeyType.external:
-          signers.add(MultisigSigner(
+          signers.add(
+            MultisigSigner(
               id: i,
               signerBsms: _assignedVaultList[i].bsms!,
               name: _assignedVaultList[i].bsms?.split('\n')[3] ?? '',
               memo: _assignedVaultList[i].memo,
-              keyStore: keyStores[i]));
+              keyStore: keyStores[i],
+            ),
+          );
           break;
         default:
           throw ArgumentError("wrong importKeyType: ${_assignedVaultList[i].importKeyType!}");
@@ -158,8 +138,7 @@ class SignerAssignmentViewModel extends ChangeNotifier {
     assert(signers.length == _totalSignatureCount);
     // signer mfp 기준으로 재정렬하기
     List<int> indices = List.generate(keyStores.length, (i) => i);
-    indices
-        .sort((a, b) => keyStores[a].masterFingerprint.compareTo(keyStores[b].masterFingerprint));
+    indices.sort((a, b) => keyStores[a].masterFingerprint.compareTo(keyStores[b].masterFingerprint));
 
     keyStores = [for (var i in indices) keyStores[i]];
     signers = [for (var i in indices) signers[i]]..asMap().forEach((i, signer) => signer.id = i);
@@ -181,21 +160,14 @@ class SignerAssignmentViewModel extends ChangeNotifier {
     return signers;
   }
 
-  void assignInternalSigner(int index) {
+  void assignInternalSigner(int vaultIndex, int signerIndex) {
     // 내부 지갑 선택 완료
-    assignedVaultList[index]
-      ..item = unselectedSignerOptions[_selectedSignerOptionIndex!].singlesigVaultListItem
-      ..bsms = unselectedSignerOptions[_selectedSignerOptionIndex!].signerBsms
-      ..isExpanded = false
+    assignedVaultList[signerIndex]
+      ..item = unselectedSignerOptions[vaultIndex].singlesigVaultListItem
+      ..bsms = unselectedSignerOptions[vaultIndex].signerBsms
       ..importKeyType = ImportKeyType.internal;
+    unselectedSignerOptions.removeAt(vaultIndex);
 
-    // 다음 signer 펼치기
-    int? nextIndex = _nextAvailableIndex;
-    if (nextIndex != null) {
-      assignedVaultList[nextIndex].isExpanded = true;
-    }
-
-    unselectedSignerOptions.removeAt(_selectedSignerOptionIndex!);
     notifyListeners();
   }
 
@@ -204,26 +176,20 @@ class SignerAssignmentViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  void setAssignedVaultList(
-      int index, ImportKeyType importKeyType, bool isExpanded, String bsms, String? memo) {
+  void setAssignedVaultList(int index, ImportKeyType importKeyType, bool isExpanded, String bsms, String? memo) {
+    String? normalizedMemo;
+    if (memo != null && memo.trim().isEmpty) {
+      normalizedMemo = null;
+    } else {
+      normalizedMemo = memo;
+    }
     // 외부 지갑 추가
     assignedVaultList[index]
       ..importKeyType = importKeyType
-      ..isExpanded = isExpanded
       ..bsms = bsms
-      ..memo = memo;
-
-    // 다음 signer 펼치기
-    int? nextIndex = _nextAvailableIndex;
-    if (nextIndex != null) {
-      assignedVaultList[nextIndex].isExpanded = true;
-    }
+      ..memo = normalizedMemo;
 
     notifyListeners();
-  }
-
-  void setSelectedSignerOptionIndex(int? value) {
-    _selectedSignerOptionIndex = value;
   }
 
   void setSigners(List<MultisigSigner>? signers) {
@@ -239,41 +205,41 @@ class SignerAssignmentViewModel extends ChangeNotifier {
     _walletCreationProvider.resetAll();
   }
 
-  VaultListItemBase? getWalletByDescriptor() =>
-      _walletProvider.findWalletByDescriptor(newMultisigVault!.descriptor);
+  VaultListItemBase? getWalletByDescriptor() => _walletProvider.findWalletByDescriptor(newMultisigVault!.descriptor);
 
   Future<MultisignatureVault> _createMultisignatureVault(List<KeyStore> keyStores) async {
-    if (_fromKeyStoreListIsolateHandler == null) {
-      _fromKeyStoreListIsolateHandler =
-          IsolateHandler<Map<String, dynamic>, MultisignatureVault>(WalletIsolates.fromKeyStore);
-      await _fromKeyStoreListIsolateHandler!.initialize(initialType: InitializeType.fromKeyStore);
-    }
-
     Map<String, dynamic> data = {
       'keyStores': jsonEncode(keyStores.map((item) => item.toJson()).toList()),
       'requiredSignatureCount': requiredSignatureCount,
     };
-
-    MultisignatureVault multisignatureVault = await _fromKeyStoreListIsolateHandler!.run(data);
+    MultisignatureVault multisignatureVault = await compute(WalletIsolates.fromKeyStores, data);
 
     return multisignatureVault;
   }
 
   Future<void> _initSignerOptionList(List<SingleSigVaultListItem> singlesigVaultList) async {
-    if (_extractBsmsIsolateHandler == null) {
-      _extractBsmsIsolateHandler = IsolateHandler<List<SingleSigVaultListItem>, List<String>>(
-          WalletIsolates.extractSignerBsms);
-      await _extractBsmsIsolateHandler!.initialize(initialType: InitializeType.extractSignerBsms);
-    }
-
-    List<String> bsmses = await _extractBsmsIsolateHandler!.run(singlesigVaultList);
+    List<String> bsmses = await compute(WalletIsolates.extractSignerBsms, singlesigVaultList);
 
     for (int i = 0; i < singlesigVaultList.length; i++) {
       _signerOptions.add(SignerOption(singlesigVaultList[i], bsmses[i]));
     }
 
     _unselectedSignerOptions = _signerOptions.toList();
+  }
 
-    _extractBsmsIsolateHandler!.dispose();
+  String? getExternalSignerDisplayName(int index) {
+    assert(assignedVaultList[index].importKeyType == ImportKeyType.external);
+    assert(assignedVaultList[index].bsms != null);
+
+    if (assignedVaultList[index].memo != null) {
+      return assignedVaultList[index].memo;
+    }
+
+    var splited = assignedVaultList[index].bsms!.split('\n');
+    if (splited.length >= 4) {
+      return splited[3];
+    }
+
+    return null;
   }
 }

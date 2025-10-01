@@ -12,8 +12,7 @@ class AccountSelectionBottomSheetScreen extends StatefulWidget {
   const AccountSelectionBottomSheetScreen({super.key, required this.onSelected});
 
   @override
-  State<AccountSelectionBottomSheetScreen> createState() =>
-      _AccountSelectionBottomSheetScreenState();
+  State<AccountSelectionBottomSheetScreen> createState() => _AccountSelectionBottomSheetScreenState();
 }
 
 class _AccountSelectionBottomSheetScreenState extends State<AccountSelectionBottomSheetScreen> {
@@ -26,10 +25,7 @@ class _AccountSelectionBottomSheetScreenState extends State<AccountSelectionBott
     _vaultList = Provider.of<WalletProvider>(context, listen: false).getVaults();
     List<_SelectionItemParams> selections = [];
     for (var vault in _vaultList) {
-      selections.add(_SelectionItemParams(
-        vaultId: vault.id,
-        name: vault.name,
-      ));
+      selections.add(_SelectionItemParams(vaultId: vault.id, name: vault.name));
     }
 
     _selections = selections;
@@ -38,38 +34,38 @@ class _AccountSelectionBottomSheetScreenState extends State<AccountSelectionBott
   @override
   Widget build(BuildContext context) {
     return ClipRRect(
-        borderRadius: CoconutBorder.defaultRadius,
-        child: Scaffold(
-          body: SafeArea(
-            child: SingleChildScrollView(
-              child: Container(
-                  width: MediaQuery.of(context).size.width,
-                  padding: CoconutPadding.container,
-                  color: CoconutColors.white,
-                  child: Column(children: [
-                    const SizedBox(
-                      height: 10,
+      borderRadius: CoconutBorder.defaultRadius,
+      child: Scaffold(
+        body: SafeArea(
+          child: SingleChildScrollView(
+            child: Container(
+              width: MediaQuery.of(context).size.width,
+              padding: CoconutPadding.container,
+              color: CoconutColors.white,
+              child: Column(
+                children: [
+                  const SizedBox(height: 10),
+                  Text(t.account_selection_bottom_sheet_screen.text),
+                  const SizedBox(height: 10),
+                  ...List.generate(
+                    _selections.length,
+                    (index) => Padding(
+                      padding: const EdgeInsets.only(bottom: 5),
+                      child: _SelectionItem(
+                        params: _selections[index],
+                        onPressed: () {
+                          widget.onSelected(_selections[index].vaultId);
+                        },
+                      ),
                     ),
-                    Text(t.account_selection_bottom_sheet_screen.text),
-                    const SizedBox(
-                      height: 10,
-                    ),
-                    ...List.generate(
-                        _selections.length,
-                        (index) => Padding(
-                              padding: const EdgeInsets.only(bottom: 5),
-                              child: _SelectionItem(
-                                  params: _selections[index],
-                                  onPressed: () {
-                                    widget.onSelected(
-                                      _selections[index].vaultId,
-                                    );
-                                  }),
-                            ))
-                  ])),
+                  ),
+                ],
+              ),
             ),
           ),
-        ));
+        ),
+      ),
+    );
   }
 }
 
@@ -94,14 +90,9 @@ class _SelectionItem extends StatelessWidget {
         alignment: const Alignment(0.0, 0.5),
         height: 60,
         width: double.infinity,
-        decoration: BoxDecoration(
-          borderRadius: CoconutBorder.defaultRadius,
-        ),
+        decoration: BoxDecoration(borderRadius: CoconutBorder.defaultRadius),
         padding: CoconutPadding.widgetContainer,
-        child: Text(
-          t.name_wallet(name: params.name),
-          style: CoconutTypography.heading4_18_Bold,
-        ),
+        child: Text(t.name_wallet(name: params.name), style: CoconutTypography.heading4_18_Bold),
       ),
     );
   }
