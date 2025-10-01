@@ -122,15 +122,13 @@ class _CoinFlipState extends BaseEntropyWidgetState<CoinFlip> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Expanded(
-            child: FittedBox(
-              fit: BoxFit.scaleDown,
-              child: Column(
-                children: [
-                  _buildTextButton(t.delete_all, showConfirmResetDialog),
-                  _buildTextButton(t.delete_one, removeLastEntropyData),
-                ],
-              ),
+          FittedBox(
+            fit: BoxFit.scaleDown,
+            child: Column(
+              children: [
+                _buildTextButton(t.delete_all, showConfirmResetDialog),
+                _buildTextButton(t.delete_one, removeLastEntropyData),
+              ],
             ),
           ),
           CoconutLayout.spacing_300w,
