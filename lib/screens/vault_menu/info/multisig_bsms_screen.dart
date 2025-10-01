@@ -60,9 +60,9 @@ class MultisigBsmsScreen extends StatelessWidget {
         children: [
           _description(t.multi_sig_bsms_screen.guide.text1),
           const SizedBox(height: 4),
+          _description(t.multi_sig_bsms_screen.guide.text2),
+          const SizedBox(height: 4),
           if (viewModel.outsideWalletIdList.isEmpty) ...[
-            _description(t.multi_sig_bsms_screen.guide.text2),
-            const SizedBox(height: 4),
             _description(t.multi_sig_bsms_screen.guide.text3),
           ] else ...{
             _description(
