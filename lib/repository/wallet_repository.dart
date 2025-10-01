@@ -73,9 +73,14 @@ class WalletRepository {
     _vaultList = vaultList;
   }
 
+  Future<void> _loadVaultList() async {
+    final jsonList = await loadVaultListJsonArrayString() ?? [];
+    await loadAndEmitEachWallet(jsonList, (VaultListItemBase wallet) {});
+  }
+
   Future<SingleSigVaultListItem> addSinglesigWallet(SingleSigWalletCreateDto wallet) async {
     if (_vaultList == null) {
-      throw "[wallet_list_manager/addSinglesigWallet()] _vaultList is null. Load first.";
+      await _loadVaultList();
     }
 
     final int nextId = _getNextWalletId();
@@ -161,7 +166,7 @@ class WalletRepository {
 
   Future<MultisigVaultListItem> addMultisigWallet(MultisigWallet wallet) async {
     if (_vaultList == null) {
-      throw "[wallet_list_manager/addMultisigWallet()] _vaultList is null. Load first.";
+      await _loadVaultList();
     }
 
     final int nextId = _getNextWalletId();
