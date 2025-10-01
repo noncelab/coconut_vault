@@ -18,6 +18,8 @@ class VisibilityProvider extends ChangeNotifier {
   int get walletCount => _walletCount;
   bool get isPassphraseUseEnabled => _isPassphraseUseEnabled;
   String get language => _language;
+  bool get isKorean => _language == 'kr';
+  bool get isEnglish => _language == 'en';
 
   bool get isBtcUnit => _isBtcUnit;
   BitcoinUnit get currentUnit => _isBtcUnit ? BitcoinUnit.btc : BitcoinUnit.sats;

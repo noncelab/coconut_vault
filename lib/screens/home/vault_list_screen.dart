@@ -9,6 +9,7 @@ import 'package:coconut_vault/providers/auth_provider.dart';
 import 'package:coconut_vault/providers/connectivity_provider.dart';
 import 'package:coconut_vault/providers/preference_provider.dart';
 import 'package:coconut_vault/providers/view_model/home/vault_list_view_model.dart';
+import 'package:coconut_vault/providers/visibility_provider.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:coconut_vault/screens/common/pin_check_screen.dart';
 import 'package:coconut_vault/screens/home/vault_item_setting_bottom_sheet.dart';
@@ -33,6 +34,7 @@ class VaultListScreen extends StatefulWidget {
 class _VaultListScreenState extends State<VaultListScreen> with TickerProviderStateMixin {
   late ScrollController _scrollController;
   late VaultListViewModel _viewModel;
+  late VisibilityProvider _visibilityProvider;
 
   @override
   Widget build(BuildContext context) {
@@ -155,6 +157,7 @@ class _VaultListScreenState extends State<VaultListScreen> with TickerProviderSt
     super.initState();
 
     _scrollController = ScrollController();
+    _visibilityProvider = Provider.of<VisibilityProvider>(context, listen: false);
   }
 
   @override
@@ -174,6 +177,19 @@ class _VaultListScreenState extends State<VaultListScreen> with TickerProviderSt
   }
 
   Widget _buildEditModeHeader() {
+    SvgPicture starIcon = SvgPicture.asset(
+      'assets/svg/star-small.svg',
+      width: 16,
+      height: 16,
+      colorFilter: const ColorFilter.mode(CoconutColors.gray800, BlendMode.srcIn),
+    );
+    SvgPicture hamburgerIcon = SvgPicture.asset(
+      'assets/svg/hamburger.svg',
+      width: 16,
+      height: 16,
+      colorFilter: const ColorFilter.mode(CoconutColors.gray800, BlendMode.srcIn),
+    );
+    debugPrint('_visibilityProvider.isEnglish: ${_visibilityProvider.isEnglish}');
     return Container(
       width: MediaQuery.sizeOf(context).width,
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -185,28 +201,22 @@ class _VaultListScreenState extends State<VaultListScreen> with TickerProviderSt
       child: Column(
         children: [
           _buildEditModeHeaderLine([
-            WidgetSpan(
-              alignment: PlaceholderAlignment.top,
-              child: SvgPicture.asset(
-                'assets/svg/star-small.svg',
-                width: 12,
-                height: 12,
-                colorFilter: const ColorFilter.mode(CoconutColors.gray800, BlendMode.srcIn),
-              ),
-            ),
+            if (_visibilityProvider.isEnglish) ...[
+              TextSpan(text: '${t.select} '),
+              WidgetSpan(alignment: PlaceholderAlignment.top, child: starIcon),
+              const TextSpan(text: ' '),
+            ],
+            if (_visibilityProvider.isKorean) WidgetSpan(alignment: PlaceholderAlignment.top, child: starIcon),
             TextSpan(text: t.vault_list_screen.edit.star_description),
           ]),
           CoconutLayout.spacing_100h,
           _buildEditModeHeaderLine([
-            WidgetSpan(
-              alignment: PlaceholderAlignment.top,
-              child: SvgPicture.asset(
-                'assets/svg/hamburger.svg',
-                width: 12,
-                height: 12,
-                colorFilter: const ColorFilter.mode(CoconutColors.gray800, BlendMode.srcIn),
-              ),
-            ),
+            if (_visibilityProvider.isEnglish) ...[
+              TextSpan(text: '${t.tap} '),
+              WidgetSpan(alignment: PlaceholderAlignment.top, child: hamburgerIcon),
+              const TextSpan(text: ' '),
+            ],
+            if (_visibilityProvider.isKorean) WidgetSpan(alignment: PlaceholderAlignment.top, child: hamburgerIcon),
             TextSpan(text: t.vault_list_screen.edit.order_description),
           ]),
           CoconutLayout.spacing_100h,
@@ -221,14 +231,14 @@ class _VaultListScreenState extends State<VaultListScreen> with TickerProviderSt
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Container(
-          margin: const EdgeInsets.symmetric(vertical: 7.2, horizontal: 6),
-          height: 2.5,
-          width: 2.5,
+          margin: const EdgeInsets.symmetric(vertical: 8.5, horizontal: 6),
+          height: 3,
+          width: 3,
           decoration: const BoxDecoration(color: CoconutColors.gray800, shape: BoxShape.circle),
         ),
         Expanded(
           child: RichText(
-            text: TextSpan(style: CoconutTypography.body3_12.setColor(CoconutColors.gray800), children: inlineSpan),
+            text: TextSpan(style: CoconutTypography.body2_14.setColor(CoconutColors.gray800), children: inlineSpan),
             overflow: TextOverflow.visible,
             softWrap: true,
           ),
