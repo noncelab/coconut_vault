@@ -91,7 +91,7 @@ class _MnemonicListState extends State<MnemonicList> with TickerProviderStateMix
                     gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                       crossAxisCount: 2, // 2열로 배치
                       childAspectRatio: 2.5, // 각 아이템의 가로:세로 = 2.5:1
-                      crossAxisSpacing: 12, // 열 간격
+                      crossAxisSpacing: 8, // 열 간격
                       mainAxisSpacing: 8, // 행 간격
                     ),
                     itemCount: itemCount,
