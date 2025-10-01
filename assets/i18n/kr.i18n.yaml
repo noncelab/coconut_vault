@@ -293,6 +293,7 @@ welcome_screen:
   screen_3_description: "지금부터 코코넛 볼트를\n시작하겠습니다"
   screen_3_button: "시작하기"
   setting_guide: "설정 방법 보기"
+  bottom_sheet_title: "설정 방법"
   airplane_mode_on: 
     title: "비행기 모드 켜키"
     description_ios: '제어센터 → 비행기 모드 아이콘 탭'

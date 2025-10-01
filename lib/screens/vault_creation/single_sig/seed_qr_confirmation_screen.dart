@@ -108,7 +108,6 @@ class _SeedQrConfirmationScreenState extends State<SeedQrConfirmationScreen> {
               SingleChildScrollView(
                 controller: _scrollController,
                 child: Container(
-                  //padding: const EdgeInsets.symmetric(horizontal: 16.0),
                   color: CoconutColors.white,
                   child: Column(
                     children: [
@@ -151,7 +150,8 @@ class _SeedQrConfirmationScreenState extends State<SeedQrConfirmationScreen> {
       CoconutToast.showToast(context: context, text: t.toast.mnemonic_already_added, isVisibleIcon: true);
       return;
     }
-    _walletCreationProvider.setSecretAndPassphrase(secret, passphrase);
+
+    _walletCreationProvider.setSecretAndPassphrase(Uint8List.fromList(secret), Uint8List.fromList(passphrase));
     Navigator.pushNamed(context, AppRoutes.vaultNameSetup);
   }
 

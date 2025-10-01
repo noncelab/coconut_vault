@@ -309,7 +309,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
 
   void _showSettingGuide() {
     MyBottomSheet.showDraggableBottomSheet(
-      title: t.welcome_screen.setting_guide,
+      title: t.welcome_screen.bottom_sheet_title,
       context: context,
       childBuilder:
           (controller) => Scaffold(

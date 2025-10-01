@@ -290,6 +290,7 @@ welcome_screen:
   screen_3_description: "Let's start Coconut Vault"
   screen_3_button: "Start"
   setting_guide: "View setting guide"
+  bottom_sheet_title: "Setting Guide"
   airplane_mode_on: 
     title: "Turn on airplane mode"
     description_ios: 'Control Center → Airplane Mode icon tap'
