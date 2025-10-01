@@ -80,24 +80,38 @@ class _VaultItemSettingBottomSheetState extends State<VaultItemSettingBottomShee
             ],
           ),
         ),
-        Visibility(
-          visible: shouldHideWhenOn ? !value : true,
-          maintainSize: true,
-          maintainAnimation: true,
-          maintainState: true,
-          child: CoconutSwitch(
-            isOn: value,
-            activeColor: CoconutColors.black,
-            thumbColor: value ? CoconutColors.black : CoconutColors.white,
-            trackColor: CoconutColors.gray300,
-            scale: 0.8,
-            onChanged: (bool newValue) {
-              setState(() {
-                onChanged(newValue);
-              });
-            },
-          ),
-        ),
+        value
+            ? CoconutShakeAnimation(
+              key: _primaryWalletShakeKey,
+              shakeOffset: 3,
+              shakeAmount: 2,
+              direction: Axis.horizontal,
+              curve: Curves.linear,
+              child: CoconutSwitch(
+                isOn: value,
+                activeColor: CoconutColors.gray400,
+                thumbColor: CoconutColors.gray200,
+                trackColor: CoconutColors.gray300,
+                scale: 0.8,
+                onChanged: (bool newValue) {
+                  setState(() {
+                    onChanged(newValue);
+                  });
+                },
+              ),
+            )
+            : CoconutSwitch(
+              isOn: value,
+              activeColor: CoconutColors.gray400,
+              thumbColor: CoconutColors.white,
+              trackColor: CoconutColors.gray300,
+              scale: 0.8,
+              onChanged: (bool newValue) {
+                setState(() {
+                  onChanged(newValue);
+                });
+              },
+            ),
       ],
     );
   }

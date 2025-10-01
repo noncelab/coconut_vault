@@ -120,14 +120,17 @@ class _VaultListScreenState extends State<VaultListScreen> with TickerProviderSt
                             // 일반 모드
                             : Stack(
                               children: [
-                                CustomScrollView(
-                                  controller: _scrollController,
-                                  physics: const AlwaysScrollableScrollPhysics(),
-                                  semanticChildCount: vaultListItem.length,
-                                  slivers: <Widget>[
-                                    // 볼트 목록
-                                    _buildVaultList(vaultListItem, vaultOrder),
-                                  ],
+                                Padding(
+                                  padding: const EdgeInsets.symmetric(horizontal: 8),
+                                  child: CustomScrollView(
+                                    controller: _scrollController,
+                                    physics: const AlwaysScrollableScrollPhysics(),
+                                    semanticChildCount: vaultListItem.length,
+                                    slivers: <Widget>[
+                                      // 볼트 목록
+                                      _buildVaultList(vaultListItem, vaultOrder),
+                                    ],
+                                  ),
                                 ),
                               ],
                             ),
@@ -435,7 +438,7 @@ class _VaultListScreenState extends State<VaultListScreen> with TickerProviderSt
         }
       },
       actionButtonList: [
-        if (!isEditMode)
+        if (!isEditMode) ...[
           CoconutUnderlinedButton(
             isActive: _viewModel.isVaultsLoaded,
             text: t.edit,
@@ -444,6 +447,8 @@ class _VaultListScreenState extends State<VaultListScreen> with TickerProviderSt
               _viewModel.setEditMode(true);
             },
           ),
+          CoconutLayout.spacing_200w,
+        ],
       ],
     );
   }
