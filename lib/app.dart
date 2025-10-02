@@ -191,6 +191,7 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> {
         ChangeNotifierProvider(create: (_) => visibilityProvider),
         ChangeNotifierProvider(create: (_) => AuthProvider()),
         ChangeNotifierProvider(create: (_) => PreferenceProvider()),
+        ChangeNotifierProvider<WalletProvider>(create: (_) => WalletProvider(visibilityProvider, preferenceProvider)),
         ChangeNotifierProxyProvider<VisibilityProvider, ConnectivityProvider>(
           create: (_) => ConnectivityProvider(hasSeenGuide: visibilityProvider.hasSeenGuide),
           update: (_, visibilityProvider, connectivityProvider) {
@@ -201,13 +202,10 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> {
             return connectivityProvider!;
           },
         ),
-        if (_appEntryFlow == AppEntryFlow.vaultHome) ...[
+        if (_appEntryFlow == AppEntryFlow.vaultHome) ...{
           Provider<WalletCreationProvider>(create: (_) => WalletCreationProvider()),
           Provider<SignProvider>(create: (_) => SignProvider()),
-          ChangeNotifierProvider<WalletProvider>(create: (_) => WalletProvider(visibilityProvider, preferenceProvider)),
-        ] else if (_appEntryFlow == AppEntryFlow.restoration) ...[
-          ChangeNotifierProvider<WalletProvider>(create: (_) => WalletProvider(visibilityProvider, preferenceProvider)),
-        ],
+        },
       ],
       child: Directionality(
         textDirection: TextDirection.ltr,

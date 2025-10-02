@@ -17,8 +17,7 @@ class StartViewModel extends ChangeNotifier {
   late final bool _isVaultModeSelected;
   bool? _connectivityState;
 
-  StartViewModel(this._connectivityProvider, this._authProvider, this._hasSeenGuide,
-      this._isVaultModeSelected) {
+  StartViewModel(this._connectivityProvider, this._authProvider, this._hasSeenGuide, this._isVaultModeSelected) {
     if (!_hasSeenGuide) {
       // iOS는 앱을 삭제해도 secure storage에 데이터가 남아있음
       SecureStorageRepository().deleteAll();

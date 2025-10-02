@@ -202,7 +202,6 @@ vault_mode_selection_screen:
   signing_only_mode_description: "Do not store keys in the vault.\nYou need to enter the key every time you run the app."
   start: "Start"
   change: "Change"
-  current_using: "Current Using"
   mode_change_complete: "Mode Change Complete"
   mode_changed_description_secrue_storage: "Secure storage mode has been changed.\nPlease back up the seed stored in the vault regularly!"
   mode_changed_description_signing_only: "Signing-only mode has been changed.\nPlease exit the app safely by pressing the exit button on the home screen!"

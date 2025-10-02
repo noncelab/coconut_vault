@@ -80,14 +80,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
         imagePath: 'assets/png/welcome2.png',
         buttonText: t.welcome_screen.screen_3_button,
         onButtonPressed: () {
-          _connectivityProvider.setHasSeenGuideTrue();
-          _visibilityProvider.setHasSeenGuide().then((_) {
-            widget.onComplete();
-            if (mounted) {
-              Navigator.pushNamed(context, AppRoutes.vaultModeSelection, arguments: {'onComplete': widget.onComplete});
-              //  Navigator.pushNamedAndRemoveUntil(context, '/', (Route<dynamic> route) => false);
-            }
-          });
+          Navigator.pushNamed(context, AppRoutes.vaultModeSelection, arguments: {'onComplete': widget.onComplete});
         },
       ),
     ]);
