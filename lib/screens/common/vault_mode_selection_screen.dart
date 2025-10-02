@@ -154,6 +154,7 @@ class _VaultModeSelectionScreenState extends State<VaultModeSelectionScreen> {
                       context.read<PreferenceProvider>().setVaultMode(selectedVaultMode!);
                       widget.onComplete!();
                     }
+                    return;
                   });
                 }
 

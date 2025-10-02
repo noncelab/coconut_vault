@@ -189,8 +189,8 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => visibilityProvider),
-        ChangeNotifierProvider(create: (_) => AuthProvider()),
-        ChangeNotifierProvider(create: (_) => PreferenceProvider()),
+        ChangeNotifierProvider(create: (_) => authProvider),
+        ChangeNotifierProvider(create: (_) => preferenceProvider),
         ChangeNotifierProvider<WalletProvider>(create: (_) => WalletProvider(visibilityProvider, preferenceProvider)),
         ChangeNotifierProxyProvider<VisibilityProvider, ConnectivityProvider>(
           create: (_) => ConnectivityProvider(hasSeenGuide: visibilityProvider.hasSeenGuide),
