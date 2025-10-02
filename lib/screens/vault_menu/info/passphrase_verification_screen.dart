@@ -1,7 +1,11 @@
+import 'dart:convert';
+
 import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_vault/enums/pin_check_context_enum.dart';
+import 'package:coconut_vault/extensions/uint8list_extensions.dart';
 import 'package:coconut_vault/isolates/wallet_isolates.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
+import 'package:coconut_vault/providers/auth_provider.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:coconut_vault/screens/common/pin_check_screen.dart';
 import 'package:coconut_vault/utils/vibration_util.dart';
@@ -22,8 +26,7 @@ class PassphraseVerificationScreen extends StatefulWidget {
   State<PassphraseVerificationScreen> createState() => _PassphraseVerificationScreenState();
 }
 
-class _PassphraseVerificationScreenState extends State<PassphraseVerificationScreen>
-    with TickerProviderStateMixin {
+class _PassphraseVerificationScreenState extends State<PassphraseVerificationScreen> with TickerProviderStateMixin {
   final TextEditingController _inputController = TextEditingController();
   final FocusNode _inputFocusNode = FocusNode();
   late final AnimationController _progressController;
@@ -63,7 +66,8 @@ class _PassphraseVerificationScreenState extends State<PassphraseVerificationScr
   Widget build(BuildContext context) {
     // 기본: 전체 높이 - SafeArea top, bottom - toolbarHeight. 결과 데이터가 보이고 키보드가 열려 있는 경우 추가 height 조절(스크롤 가능 하도록)
     double appbarHeight = 56;
-    final scrollViewHeight = MediaQuery.of(context).size.height -
+    final scrollViewHeight =
+        MediaQuery.of(context).size.height -
         MediaQuery.of(context).padding.top -
         MediaQuery.of(context).padding.bottom -
         appbarHeight +
@@ -79,56 +83,57 @@ class _PassphraseVerificationScreenState extends State<PassphraseVerificationScr
       child: GestureDetector(
         onTap: _closeKeyboard,
         child: Scaffold(
-            resizeToAvoidBottomInset: false,
-            backgroundColor: CoconutColors.white,
-            appBar: CoconutAppBar.build(
-              title: t.verify_passphrase_screen.title,
-              context: context,
-            ),
-            body: SafeArea(
-              child: SizedBox(
-                height: MediaQuery.of(context).size.height,
-                child: Stack(
-                  children: [
-                    Padding(
+          resizeToAvoidBottomInset: false,
+          backgroundColor: CoconutColors.white,
+          appBar: CoconutAppBar.build(title: t.verify_passphrase_screen.title, context: context),
+          body: SafeArea(
+            child: SizedBox(
+              height: MediaQuery.of(context).size.height,
+              child: Stack(
+                children: [
+                  SingleChildScrollView(
+                    child: Padding(
                       padding: const EdgeInsets.symmetric(horizontal: CoconutLayout.defaultPadding),
-                      child: SingleChildScrollView(
-                        child: SizedBox(
-                          height: scrollViewHeight,
-                          child: Column(
-                            children: [
-                              CoconutLayout.spacing_600h,
-                              Text(t.verify_passphrase_screen.description,
-                                  style: CoconutTypography.body1_16_Bold),
-                              CoconutLayout.spacing_600h,
-                              _buildPassphraseInput(),
-                              CoconutLayout.spacing_1000h,
-                              if (_isPassphraseVerified) _buildVerificationResultCard(),
-                            ],
+                      child: Column(
+                        children: [
+                          CoconutLayout.spacing_600h,
+                          Text(
+                            t.verify_passphrase_screen.description,
+                            style: CoconutTypography.body1_16_Bold,
+                            softWrap: true,
+                            textAlign: TextAlign.center,
                           ),
-                        ),
+                          CoconutLayout.spacing_600h,
+                          _buildPassphraseInput(),
+                          CoconutLayout.spacing_1000h,
+                          if (_isPassphraseVerified) _buildVerificationResultCard(),
+                          CoconutLayout.spacing_2500h,
+                        ],
                       ),
                     ),
-                    ValueListenableBuilder<String>(
-                        valueListenable: _passphraseTextNotifier,
-                        builder: (_, value, child) {
-                          return FixedBottomButton(
-                            onButtonClicked: verifyPassphrase,
-                            text: t.verify_passphrase_screen.start_verification,
-                            textColor: CoconutColors.white,
-                            isActive: _previousInput != _inputController.text &&
-                                _inputController.text.isNotEmpty &&
-                                !_isSubmitting,
-                            backgroundColor: CoconutColors.black,
-                            showGradient: true,
-                            gradientPadding:
-                                const EdgeInsets.only(left: 16, right: 16, bottom: 40, top: 140),
-                          );
-                        }),
-                  ],
-                ),
+                  ),
+                  ValueListenableBuilder<String>(
+                    valueListenable: _passphraseTextNotifier,
+                    builder: (_, value, child) {
+                      return FixedBottomButton(
+                        onButtonClicked: verifyPassphrase,
+                        text: t.verify_passphrase_screen.start_verification,
+                        textColor: CoconutColors.white,
+                        isActive:
+                            _previousInput != _inputController.text &&
+                            _inputController.text.isNotEmpty &&
+                            !_isSubmitting,
+                        backgroundColor: CoconutColors.black,
+                        showGradient: true,
+                        gradientPadding: const EdgeInsets.only(left: 16, right: 16, bottom: 40, top: 140),
+                      );
+                    },
+                  ),
+                ],
               ),
-            )),
+            ),
+          ),
+        ),
       ),
     );
   }
@@ -147,70 +152,94 @@ class _PassphraseVerificationScreenState extends State<PassphraseVerificationScr
     );
   }
 
-  Future<void> verifyPassphrase() async {
-    if (_isSubmitting) return;
-
-    setState(() {
-      _isSubmitting = true;
-    });
-
-    _previousInput = _inputController.text;
-
-    _closeKeyboard();
-    final pinCheckResult = await _showPinCheckScreen();
-    if (pinCheckResult != true) return;
-
-    if (!mounted) return;
-    CustomDialogs.showLoadingDialog(context, t.verify_passphrase_screen.loading_description);
-    _isPassphraseVerified = false;
-    final walletProvider = context.read<WalletProvider>();
-    final result = await compute(WalletIsolates.verifyPassphrase, {
-      'mnemonic': await walletProvider.getSecret(widget.id),
-      'passphrase': _inputController.text,
-      'valutListItem': walletProvider.getVaultById(widget.id)
-    });
-
-    if (result['success']) {
-      vibrateLight();
-    } else {
-      vibrateLightDouble();
+  Future<bool> _authenticateWithBiometricOrPin() async {
+    final authProvider = context.read<AuthProvider>();
+    if (await authProvider.isBiometricsAuthValid()) {
+      return true;
     }
 
-    if (!mounted) return;
-    Navigator.of(context).pop();
-    _isPassphraseVerified = true;
-    _isVerificationResultSuccess = result['success'];
-    _savedMfp = result['savedMfp'];
-    _recoveredMfp = result['recoveredMfp'];
-    _extendedPublicKey = result['extendedPublicKey'] as String?;
-    _isSubmitting = false;
+    final pinCheckResult = await _showPinCheckScreen();
+    if (pinCheckResult == true) return true;
+    return false;
+  }
 
-    setState(() {});
+  Future<void> verifyPassphrase() async {
+    if (_isSubmitting) return;
+    try {
+      setState(() {
+        _isSubmitting = true;
+      });
+
+      _closeKeyboard();
+
+      final authResult = await _authenticateWithBiometricOrPin();
+      if (!authResult) return;
+      if (!mounted) return;
+      CustomDialogs.showLoadingDialog(context, t.verify_passphrase_screen.loading_description);
+      _isPassphraseVerified = false;
+      final walletProvider = context.read<WalletProvider>();
+      final mnemonic = await walletProvider.getSecret(widget.id);
+      final passphrase = utf8.encode(_inputController.text);
+      final vaultListItem = walletProvider.getVaultById(widget.id);
+
+      final result = await compute(WalletIsolates.verifyPassphrase, {
+        'mnemonic': mnemonic,
+        'passphrase': passphrase,
+        'valutListItem': vaultListItem,
+      });
+
+      mnemonic.wipe();
+      if (passphrase.isNotEmpty) {
+        passphrase.wipe();
+      }
+
+      _previousInput = _inputController.text;
+
+      if (result['success']) {
+        vibrateLight();
+      } else {
+        vibrateLightDouble();
+      }
+
+      if (!mounted) return;
+      Navigator.of(context).pop();
+      _isPassphraseVerified = true;
+      _isVerificationResultSuccess = result['success'];
+      _savedMfp = result['savedMfp'];
+      _recoveredMfp = result['recoveredMfp'];
+      _extendedPublicKey = result['extendedPublicKey'] as String?;
+      setState(() {});
+    } finally {
+      setState(() {
+        _isSubmitting = false;
+      });
+    }
   }
 
   Widget _buildPassphraseInput() {
     return ValueListenableBuilder<String>(
-        valueListenable: _passphraseTextNotifier,
-        builder: (context, value, child) {
-          return CoconutTextField(
-            textAlign: TextAlign.left,
-            backgroundColor: CoconutColors.white,
-            cursorColor: CoconutColors.black,
-            activeColor: CoconutColors.black,
-            placeholderColor: CoconutColors.gray350,
-            controller: _inputController,
-            focusNode: _inputFocusNode,
-            maxLines: 4,
-            textInputAction: TextInputAction.done,
-            onChanged: (text) {
-              _passphraseTextNotifier.value = text;
-            },
-            isError: false,
-            isLengthVisible: false,
-            maxLength: 100,
-            placeholderText: t.verify_passphrase_screen.enter_passphrase,
-            suffix: _inputController.text.isNotEmpty
-                ? IconButton(
+      valueListenable: _passphraseTextNotifier,
+      builder: (context, value, child) {
+        return CoconutTextField(
+          textAlign: TextAlign.left,
+          backgroundColor: CoconutColors.white,
+          cursorColor: CoconutColors.black,
+          activeColor: CoconutColors.black,
+          placeholderColor: CoconutColors.gray350,
+          controller: _inputController,
+          focusNode: _inputFocusNode,
+          maxLines: 4,
+          textInputAction: TextInputAction.done,
+          onChanged: (text) {
+            _passphraseTextNotifier.value = text;
+          },
+          isError: false,
+          isLengthVisible: false,
+          maxLength: 100,
+          placeholderText: t.verify_passphrase_screen.enter_passphrase,
+          suffix:
+              _inputController.text.isNotEmpty
+                  ? IconButton(
                     iconSize: 14,
                     padding: EdgeInsets.zero,
                     onPressed: () {
@@ -221,87 +250,94 @@ class _PassphraseVerificationScreenState extends State<PassphraseVerificationScr
                       colorFilter: const ColorFilter.mode(CoconutColors.gray900, BlendMode.srcIn),
                     ),
                   )
-                : null,
-          );
-        });
+                  : null,
+        );
+      },
+    );
   }
 
   Widget _buildVerificationResultCard() {
     return Container(
-        padding: const EdgeInsets.only(left: 20, right: 20, top: 16, bottom: 20),
-        decoration: BoxDecoration(
-          color: CoconutColors.gray150,
-          borderRadius: BorderRadius.circular(12),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                SvgPicture.asset(
+      padding: const EdgeInsets.only(left: 20, right: 20, top: 16, bottom: 20),
+      decoration: BoxDecoration(color: CoconutColors.gray150, borderRadius: BorderRadius.circular(12)),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              SvgPicture.asset(
+                _isVerificationResultSuccess ? 'assets/svg/green-circle-check.svg' : 'assets/svg/triangle-warning.svg',
+                width: 28,
+              ),
+              CoconutLayout.spacing_200w,
+              Expanded(
+                child: Text(
                   _isVerificationResultSuccess
-                      ? 'assets/svg/green-circle-check.svg'
-                      : 'assets/svg/triangle-warning.svg',
-                  width: 28,
+                      ? t.verify_passphrase_screen.result_title_success
+                      : t.verify_passphrase_screen.result_title_failure,
+                  style: CoconutTypography.heading4_18_Bold,
+                  softWrap: true,
+                  overflow: TextOverflow.visible,
+                  textAlign: TextAlign.start,
                 ),
-                CoconutLayout.spacing_200w,
-                Text(
-                    _isVerificationResultSuccess
-                        ? t.verify_passphrase_screen.result_title_success
-                        : t.verify_passphrase_screen.result_title_failure,
-                    style: CoconutTypography.heading4_18_Bold),
-              ],
-            ),
-            CoconutLayout.spacing_300h,
-            Text(
-                _isVerificationResultSuccess
-                    ? t.verify_passphrase_screen.result_description_success
-                    : t.verify_passphrase_screen.result_description_failure,
-                style: CoconutTypography.body2_14),
-            CoconutLayout.spacing_400h,
-            const Divider(
-              color: CoconutColors.gray350,
-              height: 1,
-            ),
-            CoconutLayout.spacing_400h,
-            Row(
-              children: [
-                Text(
-                    _isVerificationResultSuccess
-                        ? t.verify_passphrase_screen.mfp
-                        : t.verify_passphrase_screen.saved_mfp,
-                    style: CoconutTypography.body2_14.setColor(CoconutColors.gray850)),
-                const Spacer(),
-                Text(_savedMfp ?? '',
-                    style: CoconutTypography.body2_14_NumberBold.setColor(CoconutColors.black)),
-              ],
-            ),
-            CoconutLayout.spacing_400h,
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                SizedBox(
-                    width: 90,
-                    child: Text(
-                        _isVerificationResultSuccess
-                            ? t.verify_passphrase_screen.xpub
-                            : t.verify_passphrase_screen.recovered_mfp,
-                        style: CoconutTypography.body2_14.setColor(CoconutColors.gray850))),
-                Expanded(
+              ),
+            ],
+          ),
+          CoconutLayout.spacing_300h,
+          Text(
+            _isVerificationResultSuccess
+                ? t.verify_passphrase_screen.result_description_success
+                : t.verify_passphrase_screen.result_description_failure,
+            style: CoconutTypography.body2_14,
+          ),
+          CoconutLayout.spacing_400h,
+          const Divider(color: CoconutColors.gray350, height: 1),
+          CoconutLayout.spacing_400h,
+          Row(
+            children: [
+              Text(
+                _isVerificationResultSuccess ? t.verify_passphrase_screen.mfp : t.verify_passphrase_screen.saved_mfp,
+                style: CoconutTypography.body2_14.setColor(CoconutColors.gray850),
+              ),
+              CoconutLayout.spacing_200w,
+              Expanded(
+                child: FittedBox(
+                  fit: BoxFit.scaleDown,
+                  alignment: Alignment.centerRight,
                   child: Text(
+                    _savedMfp ?? '',
+                    style: CoconutTypography.body2_14_NumberBold.setColor(CoconutColors.black),
                     textAlign: TextAlign.end,
-                    _isVerificationResultSuccess ? _extendedPublicKey ?? '' : _recoveredMfp ?? '',
-                    style: CoconutTypography.body2_14_Number.copyWith(
-                      color: _isVerificationResultSuccess
-                          ? CoconutColors.black
-                          : CoconutColors.hotPink,
-                      fontWeight: _isVerificationResultSuccess ? FontWeight.w400 : FontWeight.w700,
-                    ),
                   ),
-                )
-              ],
-            ),
-          ],
-        ));
+                ),
+              ),
+            ],
+          ),
+          CoconutLayout.spacing_400h,
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                _isVerificationResultSuccess
+                    ? t.verify_passphrase_screen.xpub
+                    : t.verify_passphrase_screen.recovered_mfp,
+                style: CoconutTypography.body2_14.setColor(CoconutColors.gray850),
+              ),
+              Expanded(
+                child: Text(
+                  textAlign: TextAlign.end,
+                  _isVerificationResultSuccess ? _extendedPublicKey ?? '' : _recoveredMfp ?? '',
+                  style: CoconutTypography.body2_14_Number.copyWith(
+                    color: _isVerificationResultSuccess ? CoconutColors.black : CoconutColors.hotPink,
+                    fontWeight: _isVerificationResultSuccess ? FontWeight.w400 : FontWeight.w700,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
   }
 }

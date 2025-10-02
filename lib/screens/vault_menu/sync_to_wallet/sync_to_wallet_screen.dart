@@ -37,10 +37,7 @@ class _SyncToWalletScreenState extends State<SyncToWalletScreen> {
       },
       child: Scaffold(
         backgroundColor: CoconutColors.white,
-        appBar: CoconutAppBar.build(
-          title: t.sync_to_wallet_screen.title(name: _name),
-          context: context,
-        ),
+        appBar: CoconutAppBar.build(title: t.sync_to_wallet_screen.title(name: _name), context: context),
         body: SafeArea(
           child: SingleChildScrollView(
             child: Container(
@@ -49,31 +46,35 @@ class _SyncToWalletScreenState extends State<SyncToWalletScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  CustomTooltip.buildInfoTooltip(context,
-                      richText: RichText(
-                        text: TextSpan(
-                          style: CoconutTypography.body3_12.copyWith(color: CoconutColors.black),
-                          children: _getGuideTextSpan(),
-                        ),
-                      )),
+                  CustomTooltip.buildInfoTooltip(
+                    context,
+                    richText: RichText(
+                      text: TextSpan(
+                        style: CoconutTypography.body2_14.copyWith(height: 1.3, color: CoconutColors.black),
+                        children: _getGuideTextSpan(),
+                      ),
+                    ),
+                  ),
                   const SizedBox(height: 40),
                   Center(
-                      child: Container(
-                          padding: const EdgeInsets.all(10),
-                          decoration: CoconutBoxDecoration.shadowBoxDecoration,
-                          child: Selector<WalletToSyncViewModel, ({QrData qrData, UrType urType})>(
-                              selector: (context, vm) => (qrData: vm.qrData, urType: vm.urType),
-                              builder: (context, selectedValue, child) {
-                                final qrSize = MediaQuery.of(context).size.width * 0.8;
-                                if (selectedValue.qrData.type == QrType.single) {
-                                  return QrImageView(data: selectedValue.qrData.data, size: qrSize);
-                                }
-                                return AnimatedQrView(
-                                  qrViewDataHandler: BcUrQrViewHandler(
-                                      selectedValue.qrData.data, selectedValue.urType),
-                                  qrSize: qrSize,
-                                );
-                              }))),
+                    child: Container(
+                      padding: const EdgeInsets.all(10),
+                      decoration: CoconutBoxDecoration.shadowBoxDecoration,
+                      child: Selector<WalletToSyncViewModel, ({QrData qrData, UrType urType})>(
+                        selector: (context, vm) => (qrData: vm.qrData, urType: vm.urType),
+                        builder: (context, selectedValue, child) {
+                          final qrSize = MediaQuery.of(context).size.width * 0.8;
+                          if (selectedValue.qrData.type == QrType.single) {
+                            return QrImageView(data: selectedValue.qrData.data, size: qrSize);
+                          }
+                          return AnimatedQrView(
+                            qrViewDataHandler: BcUrQrViewHandler(selectedValue.qrData.data, selectedValue.urType),
+                            qrSize: qrSize,
+                          );
+                        },
+                      ),
+                    ),
+                  ),
                   const SizedBox(height: 32),
                 ],
               ),
@@ -110,6 +111,8 @@ class _SyncToWalletScreenState extends State<SyncToWalletScreen> {
           return [
             _em(t.watch_only_options.sparrow),
             const TextSpan(text: '\n'),
+            TextSpan(text: t.sync_to_wallet_screen.guide.sparrow_singlesig.guide0_1),
+            const TextSpan(text: '\n'),
             const TextSpan(text: '1. '),
             TextSpan(text: t.select),
             _em(" ${t.sync_to_wallet_screen.guide.sparrow_singlesig.guide1_1}"),
@@ -119,12 +122,15 @@ class _SyncToWalletScreenState extends State<SyncToWalletScreen> {
             _em(" ${t.sync_to_wallet_screen.guide.sparrow_singlesig.guide2_1}"),
             if (_isMultisig) _em(' ${t.sync_to_wallet_screen.guide.multisig}'),
             const TextSpan(text: '\n'),
+            TextSpan(text: t.sync_to_wallet_screen.guide.sparrow_singlesig.guide3_1),
             TextSpan(text: t.sync_to_wallet_screen.guide.common),
           ];
         case 'kr':
         default:
           return [
             _em(t.watch_only_options.sparrow),
+            const TextSpan(text: '\n'),
+            TextSpan(text: t.sync_to_wallet_screen.guide.sparrow_singlesig.guide0_1),
             const TextSpan(text: '\n'),
             const TextSpan(text: '1. '),
             _em(t.sync_to_wallet_screen.guide.sparrow_singlesig.guide1_1),
@@ -135,6 +141,7 @@ class _SyncToWalletScreenState extends State<SyncToWalletScreen> {
             if (_isMultisig) _em(' ${t.sync_to_wallet_screen.guide.multisig}'),
             TextSpan(text: ' ${t.select}'),
             const TextSpan(text: '\n'),
+            TextSpan(text: t.sync_to_wallet_screen.guide.sparrow_singlesig.guide3_1),
             TextSpan(text: t.sync_to_wallet_screen.guide.common),
           ];
       }
@@ -146,23 +153,27 @@ class _SyncToWalletScreenState extends State<SyncToWalletScreen> {
             const TextSpan(text: '\n'),
             const TextSpan(text: '1. '),
             TextSpan(text: '${t.sync_to_wallet_screen.guide.nunchuk.guide1_1} - '),
-            _em(!_isMultisig
-                ? t.sync_to_wallet_screen.guide.nunchuk.guide1_2_singlesig
-                : t.sync_to_wallet_screen.guide.nunchuk.guide1_2_multisig),
+            _em(
+              !_isMultisig
+                  ? t.sync_to_wallet_screen.guide.nunchuk.guide1_2_singlesig
+                  : t.sync_to_wallet_screen.guide.nunchuk.guide1_2_multisig,
+            ),
             const TextSpan(text: '\n'),
             TextSpan(
-                text:
-                    '2. ${!_isMultisig ? t.sync_to_wallet_screen.guide.nunchuk.guide2_1_siglesig : t.sync_to_wallet_screen.guide.nunchuk.guide2_1_multisig}'),
+              text:
+                  '2. ${!_isMultisig ? t.sync_to_wallet_screen.guide.nunchuk.guide2_1_siglesig : t.sync_to_wallet_screen.guide.nunchuk.guide2_1_multisig}',
+            ),
             const TextSpan(text: '\n'),
             const TextSpan(text: '3. '),
             TextSpan(text: '${t.select} '),
-            _em(!_isMultisig
-                ? t.sync_to_wallet_screen.guide.nunchuk.guide3_1_singlesig
-                : t.sync_to_wallet_screen.guide.nunchuk.guide3_1_multisig),
+            _em(
+              !_isMultisig
+                  ? t.sync_to_wallet_screen.guide.nunchuk.guide3_1_singlesig
+                  : t.sync_to_wallet_screen.guide.nunchuk.guide3_1_multisig,
+            ),
             const TextSpan(text: '\n'),
             const TextSpan(text: '4. '),
-            if (!_isMultisig)
-              TextSpan(text: t.sync_to_wallet_screen.guide.nunchuk.guide4_1_singlesig),
+            if (!_isMultisig) TextSpan(text: t.sync_to_wallet_screen.guide.nunchuk.guide4_1_singlesig),
             if (_isMultisig) ...[
               TextSpan(text: '${t.select} '),
               _em(t.sync_to_wallet_screen.guide.nunchuk.guide4_1_multisig),
@@ -177,23 +188,27 @@ class _SyncToWalletScreenState extends State<SyncToWalletScreen> {
             const TextSpan(text: '\n'),
             const TextSpan(text: '1. '),
             TextSpan(text: '${t.sync_to_wallet_screen.guide.nunchuk.guide1_1} - '),
-            _em(!_isMultisig
-                ? t.sync_to_wallet_screen.guide.nunchuk.guide1_2_singlesig
-                : t.sync_to_wallet_screen.guide.nunchuk.guide1_2_multisig),
+            _em(
+              !_isMultisig
+                  ? t.sync_to_wallet_screen.guide.nunchuk.guide1_2_singlesig
+                  : t.sync_to_wallet_screen.guide.nunchuk.guide1_2_multisig,
+            ),
             const TextSpan(text: '\n'),
             TextSpan(
-                text:
-                    '2. ${!_isMultisig ? t.sync_to_wallet_screen.guide.nunchuk.guide2_1_siglesig : t.sync_to_wallet_screen.guide.nunchuk.guide2_1_multisig}'),
+              text:
+                  '2. ${!_isMultisig ? t.sync_to_wallet_screen.guide.nunchuk.guide2_1_siglesig : t.sync_to_wallet_screen.guide.nunchuk.guide2_1_multisig}',
+            ),
             const TextSpan(text: '\n'),
             const TextSpan(text: '3. '),
-            _em(!_isMultisig
-                ? t.sync_to_wallet_screen.guide.nunchuk.guide3_1_singlesig
-                : t.sync_to_wallet_screen.guide.nunchuk.guide3_1_multisig),
+            _em(
+              !_isMultisig
+                  ? t.sync_to_wallet_screen.guide.nunchuk.guide3_1_singlesig
+                  : t.sync_to_wallet_screen.guide.nunchuk.guide3_1_multisig,
+            ),
             TextSpan(text: ' ${t.select}'),
             const TextSpan(text: '\n'),
             const TextSpan(text: '4. '),
-            if (!_isMultisig)
-              TextSpan(text: t.sync_to_wallet_screen.guide.nunchuk.guide4_1_singlesig),
+            if (!_isMultisig) TextSpan(text: t.sync_to_wallet_screen.guide.nunchuk.guide4_1_singlesig),
             if (_isMultisig) ...[
               _em(t.sync_to_wallet_screen.guide.nunchuk.guide4_1_multisig),
               TextSpan(text: ' ${t.select}'),
@@ -244,8 +259,6 @@ class _SyncToWalletScreenState extends State<SyncToWalletScreen> {
     return [];
   }
 
-  TextSpan _em(String text) => TextSpan(
-        text: text,
-        style: CoconutTypography.body3_12_Bold,
-      );
+  TextSpan _em(String text) =>
+      TextSpan(text: text, style: CoconutTypography.body2_14_Bold.setColor(CoconutColors.black));
 }

@@ -46,8 +46,9 @@ class ChecksumUtil {
     if (!s.substring(s.length - 8).split('').every((x) => _checksumCharset.contains(x))) {
       return false;
     }
-    var symbols = _transformSymbols(s.substring(0, s.length - 9)).toList()
-      ..addAll(s.substring(s.length - 8).split('').map((x) => _checksumCharset.indexOf(x)));
+    var symbols =
+        _transformSymbols(s.substring(0, s.length - 9)).toList()
+          ..addAll(s.substring(s.length - 8).split('').map((x) => _checksumCharset.indexOf(x)));
     return _calculatePolyMod(symbols) == 1;
   }
 }

@@ -96,15 +96,13 @@ void main() {
     });
 
     // 5. 복원 파일이 존재하고 앱 업데이트가 안됐을 때 RestorationInfoScreen -> PinCheckScreen -> VaultListRestorationScreen -> VaultList으로 진입하는 통합 테스트
-    testWidgets('[Update X] [Wallet O] RestorationInfo-PinCheck-VaultListRestoration-VaultList',
-        (tester) async {
+    testWidgets('[Update X] [Wallet O] RestorationInfo-PinCheck-VaultListRestoration-VaultList', (tester) async {
       await setIsUpdated(false);
       await setWalletData(true);
       await restorationInfoFlow(tester);
     });
 
-    testWidgets('[Update X] [Wallet X] RestorationInfo-PinCheck-VaultListRestoration-VaultList',
-        (tester) async {
+    testWidgets('[Update X] [Wallet X] RestorationInfo-PinCheck-VaultListRestoration-VaultList', (tester) async {
       await setIsUpdated(false);
       await setWalletData(false);
       await restorationInfoFlow(tester);
@@ -118,8 +116,7 @@ Future<void> tutorialFlow(WidgetTester tester) async {
 
   // Check TutorialScreen
   final Finder tutorialScreen = find.byType(TutorialScreen);
-  await waitForWidget(tester, tutorialScreen,
-      timeoutMessage: 'tutorialScreen not found after 60 seconds');
+  await waitForWidget(tester, tutorialScreen, timeoutMessage: 'tutorialScreen not found after 60 seconds');
   await tester.pumpAndSettle();
 }
 
@@ -129,8 +126,7 @@ Future<void> vaultListFlow(WidgetTester tester) async {
 
   // Check VaultListScreen
   final Finder vaultListScreen = find.byType(VaultListScreen);
-  await waitForWidget(tester, vaultListScreen,
-      timeoutMessage: 'VaultListScreen not found after 60 seconds');
+  await waitForWidget(tester, vaultListScreen, timeoutMessage: 'VaultListScreen not found after 60 seconds');
   await tester.pumpAndSettle();
 }
 
@@ -140,8 +136,7 @@ Future<void> pinCheckToVaultListFlow(WidgetTester tester) async {
 
   // Check PinCheckScreen
   final Finder pinCheckScreen = find.byType(PinCheckScreen);
-  await waitForWidget(tester, pinCheckScreen,
-      timeoutMessage: 'pinCheckScreen not found after 60 seconds');
+  await waitForWidget(tester, pinCheckScreen, timeoutMessage: 'pinCheckScreen not found after 60 seconds');
   await tester.pumpAndSettle();
 
   // Input Password 0000
@@ -153,8 +148,7 @@ Future<void> pinCheckToVaultListFlow(WidgetTester tester) async {
 
   // Check VaultListScreen
   final Finder vaultListScreen = find.byType(VaultListScreen);
-  await waitForWidget(tester, vaultListScreen,
-      timeoutMessage: 'VaultListScreen not found after 60 seconds');
+  await waitForWidget(tester, vaultListScreen, timeoutMessage: 'VaultListScreen not found after 60 seconds');
   await tester.pumpAndSettle();
 }
 
@@ -164,8 +158,7 @@ Future<void> pinCheckToVaultListRestorationFlow(WidgetTester tester) async {
 
   // Check PinCheckScreen
   final Finder pinCheckScreen = find.byType(PinCheckScreen);
-  await waitForWidget(tester, pinCheckScreen,
-      timeoutMessage: 'pinCheckScreen not found after 60 seconds');
+  await waitForWidget(tester, pinCheckScreen, timeoutMessage: 'pinCheckScreen not found after 60 seconds');
   await tester.pumpAndSettle();
 
   // Input Password 0000
@@ -177,8 +170,11 @@ Future<void> pinCheckToVaultListRestorationFlow(WidgetTester tester) async {
 
   // Check vaultListRestorationScreen
   final Finder vaultListRestorationScreen = find.byType(VaultListRestorationScreen);
-  await waitForWidget(tester, vaultListRestorationScreen,
-      timeoutMessage: 'vaultListRestorationScreen not found after 60 seconds');
+  await waitForWidget(
+    tester,
+    vaultListRestorationScreen,
+    timeoutMessage: 'vaultListRestorationScreen not found after 60 seconds',
+  );
   await tester.pumpAndSettle();
 
   // Wait for restoration
@@ -187,8 +183,7 @@ Future<void> pinCheckToVaultListRestorationFlow(WidgetTester tester) async {
 
   // Check VaultListScreen
   final Finder vaultListScreen = find.byType(VaultListScreen);
-  await waitForWidget(tester, vaultListScreen,
-      timeoutMessage: 'VaultListScreen not found after 60 seconds');
+  await waitForWidget(tester, vaultListScreen, timeoutMessage: 'VaultListScreen not found after 60 seconds');
   await tester.pumpAndSettle();
 }
 
@@ -198,8 +193,11 @@ Future<void> restorationInfoFlow(WidgetTester tester) async {
 
   // Check RestorationInfoScreen
   final Finder restorationInfoScreen = find.byType(RestorationInfoScreen);
-  await waitForWidget(tester, restorationInfoScreen,
-      timeoutMessage: 'restorationInfoScreen not found after 60 seconds');
+  await waitForWidget(
+    tester,
+    restorationInfoScreen,
+    timeoutMessage: 'restorationInfoScreen not found after 60 seconds',
+  );
   await tester.pumpAndSettle();
 
   // Click CoconutButton
@@ -208,8 +206,7 @@ Future<void> restorationInfoFlow(WidgetTester tester) async {
 
   // Click PinCheckScreen
   final Finder pinCheckScreen = find.byType(PinCheckScreen);
-  await waitForWidget(tester, pinCheckScreen,
-      timeoutMessage: 'pinCheckScreen not found after 60 seconds');
+  await waitForWidget(tester, pinCheckScreen, timeoutMessage: 'pinCheckScreen not found after 60 seconds');
   await tester.pumpAndSettle();
 
   // Input Password 0000
@@ -221,8 +218,11 @@ Future<void> restorationInfoFlow(WidgetTester tester) async {
 
   // Check VaultListRestorationScreen
   final Finder vaultListRestorationScreen = find.byType(VaultListRestorationScreen);
-  await waitForWidget(tester, vaultListRestorationScreen,
-      timeoutMessage: 'vaultListRestorationScreen not found after 60 seconds');
+  await waitForWidget(
+    tester,
+    vaultListRestorationScreen,
+    timeoutMessage: 'vaultListRestorationScreen not found after 60 seconds',
+  );
 
   // Wait for restoration
   final Finder startVaultText = find.text(t.vault_list_restoration.start_vault);
@@ -230,7 +230,6 @@ Future<void> restorationInfoFlow(WidgetTester tester) async {
 
   // Check VaultListScreen
   final Finder vaultListScreen = find.byType(VaultListScreen);
-  await waitForWidget(tester, vaultListScreen,
-      timeoutMessage: 'VaultListScreen not found after 60 seconds');
+  await waitForWidget(tester, vaultListScreen, timeoutMessage: 'VaultListScreen not found after 60 seconds');
   await tester.pumpAndSettle();
 }

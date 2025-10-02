@@ -46,11 +46,7 @@ class _NameAndIconEditBottomSheetState extends State<NameAndIconEditBottomSheet>
       child: CustomLoadingOverlay(
         child: Scaffold(
           backgroundColor: CoconutColors.white,
-          appBar: CoconutAppBar.build(
-            context: context,
-            title: _name,
-            isBottom: true,
-          ),
+          appBar: CoconutAppBar.build(context: context, title: _name, isBottom: true),
           body: SafeArea(
             child: Stack(
               children: [
@@ -87,10 +83,7 @@ class _NameAndIconEditBottomSheetState extends State<NameAndIconEditBottomSheet>
                     ),
                   ),
                 ),
-                FixedBottomButton(
-                  text: t.complete,
-                  onButtonClicked: _onNextPressed,
-                ),
+                FixedBottomButton(text: t.complete, onButtonClicked: _onNextPressed),
               ],
             ),
           ),

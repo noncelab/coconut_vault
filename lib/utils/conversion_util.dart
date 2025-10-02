@@ -29,4 +29,27 @@ class ConversionUtil {
     }
     return upperCase ? buffer.toString().toUpperCase() : buffer.toString();
   }
+
+  static Uint8List bitsToBytes(List<int> bits) {
+    assert(bits.every((bit) => bit == 0 || bit == 1));
+
+    List<int> eightBits = [];
+    if (bits.length < 8) {
+      for (int i = 8 - bits.length; i > 0; i--) {
+        eightBits.add(0);
+      }
+      eightBits.addAll(bits);
+    } else {
+      eightBits.addAll(bits);
+    }
+    Uint8List bytes = Uint8List(eightBits.length ~/ 8);
+    for (int i = 0; i < eightBits.length; i += 8) {
+      int byte = 0;
+      for (int j = 0; j < 8; j++) {
+        byte = (byte << 1) | eightBits[i + j];
+      }
+      bytes[i ~/ 8] = byte;
+    }
+    return bytes;
+  }
 }

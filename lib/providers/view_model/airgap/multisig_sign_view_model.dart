@@ -1,9 +1,11 @@
 import 'package:coconut_lib/coconut_lib.dart';
+import 'package:coconut_vault/extensions/uint8list_extensions.dart';
 import 'package:coconut_vault/isolates/sign_isolates.dart';
 import 'package:coconut_vault/model/multisig/multisig_signer.dart';
 import 'package:coconut_vault/model/multisig/multisig_vault_list_item.dart';
 import 'package:coconut_vault/providers/sign_provider.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
+import 'package:coconut_vault/repository/wallet_repository.dart';
 import 'package:flutter/foundation.dart';
 
 class MultisigSignViewModel extends ChangeNotifier {
@@ -38,15 +40,14 @@ class MultisigSignViewModel extends ChangeNotifier {
   int get requiredSignatureCount => _vaultListItem.requiredSignatureCount;
   String get walletName => _signProvider.vaultListItem!.name;
   List<bool> get signersApproved => _signerApproved;
-  String get firstRecipientAddress => _signProvider.recipientAddress != null
-      ? _signProvider.recipientAddress!
-      : _signProvider.recipientAmounts!.keys.first;
-  int get recipientCount =>
-      _signProvider.recipientAddress != null ? 1 : _signProvider.recipientAmounts!.length;
+  String get firstRecipientAddress =>
+      _signProvider.recipientAddress != null
+          ? _signProvider.recipientAddress!
+          : _signProvider.recipientAmounts!.keys.first;
+  int get recipientCount => _signProvider.recipientAddress != null ? 1 : _signProvider.recipientAmounts!.length;
   int get sendingAmount => _signProvider.sendingAmount!;
   int get remainingSignatures =>
-      _vaultListItem.requiredSignatureCount -
-      _signerApproved.where((bool isApproved) => isApproved).length;
+      _vaultListItem.requiredSignatureCount - _signerApproved.where((bool isApproved) => isApproved).length;
   bool get isSignatureComplete => remainingSignatures <= 0;
   List<MultisigSigner> get signers => _vaultListItem.signers;
   String get psbtForSigning => _psbtForSigning;
@@ -56,6 +57,7 @@ class MultisigSignViewModel extends ChangeNotifier {
   void initPsbtSignState() {
     assert(!_signStateInitialized); // 오직 한번만 호출
     _signStateInitialized = true;
+    debugPrint('signnnnnnnnn: ${_signProvider.walletId}');
 
     final psbt = _signProvider.psbt!;
     for (var entry in _coconutVault.keyStoreList.asMap().entries) {
@@ -74,12 +76,14 @@ class MultisigSignViewModel extends ChangeNotifier {
     return _signProvider.signedPsbtBase64 ?? _signProvider.unsignedPsbtBase64!;
   }
 
-  Future<void> sign(int index, String passphrase) async {
+  Future<void> sign(int index, Uint8List passphrase) async {
     final mnemonic = await _walletProvider.getSecret(_vaultListItem.signers[index].innerVaultId!);
     final seed = Seed.fromMnemonic(mnemonic, passphrase: passphrase);
-    _psbtForSigning =
-        await compute(SignIsolates.addSignatureToPsbtWithMultisigVault, [seed, _psbtForSigning]);
+    _psbtForSigning = await compute(SignIsolates.addSignatureToPsbtWithMultisigVault, [seed, _psbtForSigning]);
     updateSignState(index);
+
+    seed.wipe();
+    mnemonic.wipe();
   }
 
   void saveSignedPsbt() {

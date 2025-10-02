@@ -8,12 +8,7 @@ class KeyListBottomSheet extends StatefulWidget {
   final List<SingleSigVaultListItem> vaultList;
   final void Function(int) onPressed;
   final ScrollController? scrollController;
-  const KeyListBottomSheet({
-    super.key,
-    required this.onPressed,
-    required this.vaultList,
-    this.scrollController,
-  });
+  const KeyListBottomSheet({super.key, required this.onPressed, required this.vaultList, this.scrollController});
 
   @override
   State<KeyListBottomSheet> createState() => _KeyListBottomSheetState();
@@ -33,13 +28,6 @@ class _KeyListBottomSheetState extends State<KeyListBottomSheet> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: CoconutColors.white,
-      appBar: CoconutAppBar.build(
-        context: context,
-        title: t.assign_signers_screen.use_internal_key,
-        onBackPressed: () => Navigator.pop(context),
-        backgroundColor: CoconutColors.white,
-        isBottom: true,
-      ),
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16),
         child: ListView.builder(

@@ -55,12 +55,10 @@ class FixedBottomTweenButton extends StatefulWidget {
 class _FixedBottomTweenButtonState extends State<FixedBottomTweenButton> {
   @override
   Widget build(BuildContext context) {
-    double keyboardHeight =
-        (widget.isVisibleAboveKeyboard ? MediaQuery.of(context).viewInsets.bottom : 0);
+    double keyboardHeight = (widget.isVisibleAboveKeyboard ? MediaQuery.of(context).viewInsets.bottom : 0);
 
     // 전체 너비에서 패딩과 버튼 간격을 제외한 실제 버튼 영역
-    final totalWidth =
-        MediaQuery.sizeOf(context).width - (widget.horizontalPadding * 2) - widget.buttonSpacing;
+    final totalWidth = MediaQuery.sizeOf(context).width - (widget.horizontalPadding * 2) - widget.buttonSpacing;
     final leftButtonWidth = totalWidth * widget.leftButtonRatio;
     final rightButtonWidth = totalWidth * (1 - widget.leftButtonRatio);
 
@@ -76,16 +74,12 @@ class _FixedBottomTweenButtonState extends State<FixedBottomTweenButton> {
               child: IgnorePointer(
                 ignoring: true,
                 child: Container(
-                  padding: widget.gradientPadding ??
-                      const EdgeInsets.only(left: 16, right: 16, bottom: 40, top: 150),
+                  padding: widget.gradientPadding ?? const EdgeInsets.only(left: 16, right: 16, bottom: 40, top: 150),
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
                       begin: Alignment.topCenter,
                       end: Alignment.bottomCenter,
-                      colors: [
-                        CoconutColors.gray100.withOpacity(0.1),
-                        CoconutColors.white,
-                      ],
+                      colors: [CoconutColors.gray100.withValues(alpha: 0.1), CoconutColors.white],
                       stops: const [0.0, 1.0],
                     ),
                   ),
@@ -112,8 +106,7 @@ class _FixedBottomTweenButtonState extends State<FixedBottomTweenButton> {
                         disabledBackgroundColor: CoconutColors.gray150,
                         disabledForegroundColor: CoconutColors.gray350,
                         isActive: widget.isLeftButtonActive,
-                        height: widget.buttonHeight ??
-                            FixedBottomTweenButton.fixedBottomButtonDefaultHeight,
+                        height: widget.buttonHeight ?? FixedBottomTweenButton.fixedBottomButtonDefaultHeight,
                         backgroundColor: widget.leftButtonBackgroundColor,
                         foregroundColor: widget.leftButtonTextColor,
                         pressedTextColor: widget.leftButtonTextColor,
@@ -131,8 +124,7 @@ class _FixedBottomTweenButtonState extends State<FixedBottomTweenButton> {
                         disabledBackgroundColor: CoconutColors.gray150,
                         disabledForegroundColor: CoconutColors.gray350,
                         isActive: widget.isRightButtonActive,
-                        height: widget.buttonHeight ??
-                            FixedBottomTweenButton.fixedBottomButtonDefaultHeight,
+                        height: widget.buttonHeight ?? FixedBottomTweenButton.fixedBottomButtonDefaultHeight,
                         backgroundColor: widget.rightButtonBackgroundColor,
                         foregroundColor: widget.rightButtonTextColor,
                         pressedTextColor: widget.rightButtonTextColor,

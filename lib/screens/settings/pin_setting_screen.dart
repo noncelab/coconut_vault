@@ -10,11 +10,8 @@ import 'package:coconut_vault/widgets/pin/pin_length_toggle_button.dart';
 import 'package:flutter/material.dart';
 import 'package:coconut_vault/utils/vibration_util.dart';
 import 'package:coconut_vault/widgets/animated_dialog.dart';
-import 'package:coconut_vault/widgets/button/custom_buttons.dart';
 import 'package:coconut_vault/screens/common/pin_input_screen.dart';
 import 'package:provider/provider.dart';
-
-import '../../widgets/custom_dialog.dart';
 
 class PinSettingScreen extends StatefulWidget {
   final bool greetingVisible;
@@ -50,8 +47,7 @@ class _PinSettingScreenState extends State<PinSettingScreen> {
     _currentPinType = _authProvider.isPinCharacter ? PinType.character : PinType.number;
   }
 
-  void returnToBackSequence(String message,
-      {bool isError = false, bool firstSequence = false}) async {
+  void returnToBackSequence(String message, {bool isError = false, bool firstSequence = false}) async {
     setState(() {
       errorMessage = message;
       pinConfirm = '';
@@ -155,8 +151,8 @@ class _PinSettingScreenState extends State<PinSettingScreen> {
     // 생체 인증 사용 여부 확인
     bool isPinSet = SharedPrefsRepository().getBool(SharedPrefsKeys.isPinEnabled) ?? false;
     if (!isPinSet &&
-        _authProvider.canCheckBiometrics &&
-        !_authProvider.hasAlreadyRequestedBioPermission &&
+        _authProvider.isBiometricSupportedByDevice &&
+        _authProvider.availableBiometrics.isNotEmpty &&
         mounted) {
       await _authProvider.authenticateWithBiometrics(context: context, isSaved: true);
     }
@@ -223,10 +219,7 @@ class _PinSettingScreenState extends State<PinSettingScreen> {
           position: CurvedAnimation(
             parent: animation,
             curve: Curves.easeInOut,
-          ).drive(Tween<Offset>(
-            begin: const Offset(0, 1),
-            end: const Offset(0, 0),
-          )),
+          ).drive(Tween<Offset>(begin: const Offset(0, 1), end: const Offset(0, 0))),
           child: child,
         );
       },
@@ -251,60 +244,63 @@ class _PinSettingScreenState extends State<PinSettingScreen> {
   Widget build(BuildContext context) {
     if (greeting) {
       return Scaffold(
-          backgroundColor: Colors.transparent,
-          appBar: CoconutAppBar.build(
-            title: '',
-            context: context,
-            isBottom: true,
-          ),
-          body: SafeArea(
-              child: Stack(children: [
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                const SizedBox(height: 120),
-                Center(
+        backgroundColor: Colors.transparent,
+        appBar: CoconutAppBar.build(title: '', context: context, isBottom: true),
+        body: SafeArea(
+          child: Stack(
+            children: [
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  const SizedBox(height: 120),
+                  Center(
                     child: Text(
-                  t.pin_setting_screen.set_password,
-                  style: CoconutTypography.heading3_21_Bold,
-                  textAlign: TextAlign.center,
-                )),
-              ],
-            ),
-            FixedBottomButton(
+                      t.pin_setting_screen.set_password,
+                      style: CoconutTypography.heading3_21_Bold,
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                ],
+              ),
+              FixedBottomButton(
                 onButtonClicked: () {
                   setState(() {
                     greeting = false;
                   });
                 },
-                text: t.confirm),
-          ])));
+                text: t.confirm,
+              ),
+            ],
+          ),
+        ),
+      );
     }
 
     return PinInputScreen(
-        canChangePinType: true,
-        title: step == 0 ? t.pin_setting_screen.new_password : t.pin_setting_screen.enter_again,
-        descriptionTextWidget: Text.rich(
-          TextSpan(
-            text: t.pin_setting_screen.keep_in_mind,
-            style: CoconutTypography.body3_12.setColor(CoconutColors.warningText),
-          ),
-          textAlign: TextAlign.center,
+      canChangePinType: true,
+      title: step == 0 ? t.pin_setting_screen.new_password : t.pin_setting_screen.enter_again,
+      descriptionTextWidget: Text.rich(
+        TextSpan(
+          text: t.pin_setting_screen.keep_in_mind,
+          style: CoconutTypography.body3_12.setColor(CoconutColors.warningText),
         ),
-        pin: step == 0 ? pin : pinConfirm,
-        errorMessage: errorMessage,
-        onKeyTap: _onKeyTap,
-        onPinTypeChanged: _onPinTypeChanged,
-        pinType: _currentPinType,
-        pinShuffleNumbers: _shuffledPinNumbers,
-        onPinClear: () {
-          if (step == 0) {
-            pin = '';
-          } else {
-            pinConfirm = '';
-          }
-          setState(() {});
-        },
-        step: step);
+        textAlign: TextAlign.center,
+      ),
+      pin: step == 0 ? pin : pinConfirm,
+      errorMessage: errorMessage,
+      onKeyTap: _onKeyTap,
+      onPinTypeChanged: _onPinTypeChanged,
+      pinType: _currentPinType,
+      pinShuffleNumbers: _shuffledPinNumbers,
+      onPinClear: () {
+        if (step == 0) {
+          pin = '';
+        } else {
+          pinConfirm = '';
+        }
+        setState(() {});
+      },
+      step: step,
+    );
   }
 }

@@ -8,10 +8,7 @@ import 'package:flutter_svg/svg.dart';
 class VaultAdditionGuideCard extends StatefulWidget {
   final VoidCallback onPressed;
 
-  const VaultAdditionGuideCard({
-    super.key,
-    required this.onPressed,
-  });
+  const VaultAdditionGuideCard({super.key, required this.onPressed});
 
   @override
   State<VaultAdditionGuideCard> createState() => _VaultAdditionGuideCardState();
@@ -28,12 +25,7 @@ class _VaultAdditionGuideCardState extends State<VaultAdditionGuideCard> {
         pressedColor: CoconutColors.gray100,
         defaultColor: CoconutColors.white,
         child: CustomPaint(
-          painter: DashedBorderPainter(
-            dashSpace: 4.0,
-            dashWidth: 4.0,
-            borderRadius: 22,
-            color: CoconutColors.gray600,
-          ),
+          painter: DashedBorderPainter(dashSpace: 4.0, dashWidth: 4.0, borderRadius: 22, color: CoconutColors.gray600),
           child: Container(
             width: MediaQuery.sizeOf(context).width,
             padding: const EdgeInsets.symmetric(vertical: 42),
@@ -42,16 +34,10 @@ class _VaultAdditionGuideCardState extends State<VaultAdditionGuideCard> {
               children: [
                 SvgPicture.asset(
                   'assets/svg/wallet-plus.svg',
-                  colorFilter: const ColorFilter.mode(
-                    CoconutColors.gray800,
-                    BlendMode.srcIn,
-                  ),
+                  colorFilter: const ColorFilter.mode(CoconutColors.gray800, BlendMode.srcIn),
                 ),
                 CoconutLayout.spacing_100w,
-                Text(
-                  t.vault_list_tab.add_wallet,
-                  style: CoconutTypography.body2_14_Bold.setColor(CoconutColors.black),
-                ),
+                Text(t.vault_list_tab.add_wallet, style: CoconutTypography.body2_14_Bold.setColor(CoconutColors.black)),
               ],
             ),
           ),

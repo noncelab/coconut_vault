@@ -9,12 +9,7 @@ class VaultIconSmall extends StatelessWidget {
   final int iconIndex;
   final List<Color>? gradientColors;
 
-  const VaultIconSmall({
-    super.key,
-    this.colorIndex = 0,
-    this.iconIndex = 0,
-    this.gradientColors,
-  });
+  const VaultIconSmall({super.key, this.colorIndex = 0, this.iconIndex = 0, this.gradientColors});
 
   @override
   Widget build(BuildContext context) {
@@ -23,25 +18,21 @@ class VaultIconSmall extends StatelessWidget {
       height: 30,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(10),
-        gradient: gradientColors != null
-            ? LinearGradient(
-                colors: gradientColors!,
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                transform: const GradientRotation(math.pi / 10))
-            : null,
-        border: gradientColors == null
-            ? Border.all(
-                color: CoconutColors.backgroundColorPaletteLight[colorIndex],
-              )
-            : null,
+        gradient:
+            gradientColors != null
+                ? LinearGradient(
+                  colors: gradientColors!,
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  transform: const GradientRotation(math.pi / 10),
+                )
+                : null,
+        border:
+            gradientColors == null ? Border.all(color: CoconutColors.backgroundColorPaletteLight[colorIndex]) : null,
       ),
       child: Container(
         margin: EdgeInsets.all(gradientColors != null ? 1.5 : 0),
-        decoration: BoxDecoration(
-          color: CoconutColors.white,
-          borderRadius: BorderRadius.circular(8),
-        ),
+        decoration: BoxDecoration(color: CoconutColors.white, borderRadius: BorderRadius.circular(8)),
         child: Stack(
           children: [
             Container(
@@ -59,10 +50,7 @@ class VaultIconSmall extends StatelessWidget {
               bottom: 6,
               child: SvgPicture.asset(
                 CustomIcons.getPathByIndex(iconIndex),
-                colorFilter: ColorFilter.mode(
-                  CoconutColors.colorPalette[colorIndex],
-                  BlendMode.srcIn,
-                ),
+                colorFilter: ColorFilter.mode(CoconutColors.colorPalette[colorIndex], BlendMode.srcIn),
                 width: 18.0,
               ),
             ),

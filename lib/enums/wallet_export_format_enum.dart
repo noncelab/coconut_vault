@@ -1,5 +1,1 @@
-enum WalletExportFormatEnum {
-  coconut,
-  bcUr,
-  descriptor,
-}
+enum WalletExportFormatEnum { coconut, bcUr, descriptor }

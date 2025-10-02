@@ -1,10 +1,15 @@
+import 'dart:convert';
+import 'dart:typed_data';
+
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 class SecureStorageRepository {
   SecureStorageRepository._internal();
 
   static final SecureStorageRepository _instance = SecureStorageRepository._internal();
-  static const FlutterSecureStorage _storage = FlutterSecureStorage();
+  static const FlutterSecureStorage _storage = FlutterSecureStorage(
+    aOptions: AndroidOptions(encryptedSharedPreferences: true),
+  );
 
   factory SecureStorageRepository() {
     return _instance;
@@ -16,6 +21,16 @@ class SecureStorageRepository {
 
   Future<String?> read({required String key}) async {
     return await _storage.read(key: key);
+  }
+
+  Future<void> writeBytes({required String key, required Uint8List value}) async {
+    await _storage.write(key: key, value: utf8.decode(value));
+  }
+
+  Future<Uint8List?> readBytes({required String key}) async {
+    String? decoded = await _storage.read(key: key);
+    if (decoded == null) return null;
+    return utf8.encode(decoded);
   }
 
   Future<void> delete({required String key}) async {

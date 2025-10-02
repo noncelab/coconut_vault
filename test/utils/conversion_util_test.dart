@@ -1,6 +1,7 @@
 import 'dart:typed_data';
 
 import 'package:coconut_vault/utils/conversion_util.dart';
+import 'package:coconut_vault/utils/logger.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 /// 검증법: 아래 출력된 hex를 cbor.me의 오른쪽 칸에 붙여넣기 한 후 Diagnostic notation으로 파싱 성공해야 함.
@@ -371,10 +372,10 @@ void main() {
       66,
       90,
       10,
-      10
+      10,
     ]);
-    print(ConversionUtil.bytesToHex(source));
-    print('length: ${source.length}');
+    Logger.log(ConversionUtil.bytesToHex(source));
+    Logger.log('length: ${source.length}');
 
     /// 데이터: 넌척 - 멀티시그지갑 - export wallet config - QR code - BR-UR2
     /// INFO: 지갑의 derivation path를 84'/0'/0'로 보여주고 있음, 48'/0'/0'/2가 표준이다...
@@ -636,9 +637,9 @@ void main() {
       100,
       100,
       101,
-      110
+      110,
     ]);
-    print(ConversionUtil.bytesToHex(source2));
+    Logger.log(ConversionUtil.bytesToHex(source2));
 
     var source3 = Uint8List.fromList([
       217,
@@ -895,10 +896,10 @@ void main() {
       10,
       9,
       97,
-      65
+      65,
     ]);
-    print(ConversionUtil.bytesToHex(source3));
-    print('length: ${source3.length}');
+    Logger.log(ConversionUtil.bytesToHex(source3));
+    Logger.log('length: ${source3.length}');
 
     var source4 = Uint8List.fromList([
       217,
@@ -1158,9 +1159,9 @@ void main() {
       100,
       100,
       101,
-      110
+      110,
     ]);
-    print(ConversionUtil.bytesToHex(source4));
-    print('length: ${source4.length}');
+    Logger.log(ConversionUtil.bytesToHex(source4));
+    Logger.log('length: ${source4.length}');
   });
 }

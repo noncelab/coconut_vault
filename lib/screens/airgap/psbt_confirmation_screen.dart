@@ -27,25 +27,27 @@ class _PsbtConfirmationScreenState extends State<PsbtConfirmationScreen> {
   @override
   void initState() {
     super.initState();
-    _viewModel = PsbtConfirmationViewModel(Provider.of<SignProvider>(context, listen: false));
-    _currentUnit = context.read<VisibilityProvider>().currentUnit;
+    _viewModel = PsbtConfirmationViewModel(
+      Provider.of<SignProvider>(context, listen: false),
+      Provider.of<VisibilityProvider>(context, listen: false),
+    );
+    _currentUnit = context.read<VisibilityProvider>().isBtcUnit ? BitcoinUnit.btc : BitcoinUnit.sats;
     WidgetsBinding.instance.addPostFrameCallback((_) {
       try {
         _viewModel.setTxInfo();
       } catch (e) {
         if (mounted) {
           showAlertDialog(
-              context: context,
-              content: t.errors.psbt_parsing_error(error: e),
-              onConfirmPressed: () {
-                Navigator.pop(context);
-              });
+            context: context,
+            content: t.errors.psbt_parsing_error(error: e),
+            onConfirmPressed: () {
+              Navigator.pop(context);
+            },
+          );
         }
       } finally {
         if (mounted) {
-          setState(
-            () => _showLoading = false,
-          );
+          setState(() => _showLoading = false);
         }
       }
     });
@@ -55,158 +57,143 @@ class _PsbtConfirmationScreenState extends State<PsbtConfirmationScreen> {
   Widget build(BuildContext context) {
     return ChangeNotifierProvider<PsbtConfirmationViewModel>(
       create: (_) => _viewModel,
-      child: Consumer<PsbtConfirmationViewModel>(builder: (context, viewModel, child) {
-        return Scaffold(
-          backgroundColor: CoconutColors.white,
-          appBar: CoconutAppBar.build(
-            title: t.psbt_confirmation_screen.title,
-            context: context,
-            onBackPressed: () {
-              viewModel.resetSignProvider();
-              Navigator.pop(context);
-            },
-            isBottom: true,
-          ),
-          body: SafeArea(
-            child: Stack(
-              children: [
-                SingleChildScrollView(
-                  child: Column(
-                    children: [
-                      CustomTooltip.buildInfoTooltip(context,
+      child: Consumer<PsbtConfirmationViewModel>(
+        builder: (context, viewModel, child) {
+          return Scaffold(
+            backgroundColor: CoconutColors.white,
+            appBar: CoconutAppBar.build(
+              title: t.psbt_confirmation_screen.title,
+              context: context,
+              onBackPressed: () {
+                viewModel.resetSignProvider();
+                Navigator.pop(context);
+              },
+              isBottom: true,
+            ),
+            body: SafeArea(
+              child: Stack(
+                children: [
+                  SingleChildScrollView(
+                    child: Column(
+                      children: [
+                        CustomTooltip.buildInfoTooltip(
+                          context,
                           richText: RichText(
-                            text: TextSpan(
-                              style: CoconutTypography.body3_12,
-                              children: _getTooltipRichText(),
-                            ),
-                          )),
-                      GestureDetector(
-                        onTap: _toggleUnit,
-                        child: Container(
-                          margin: const EdgeInsets.symmetric(vertical: Sizes.size40),
-                          child: Center(
-                            child: Text.rich(
-                              TextSpan(
-                                text: _currentUnit.displayBitcoinAmount(viewModel.sendingAmount),
-                                children: <TextSpan>[
+                            text: TextSpan(style: CoconutTypography.body3_12, children: _getTooltipRichText()),
+                          ),
+                        ),
+                        MediaQuery(
+                          data: MediaQuery.of(context).copyWith(textScaler: const TextScaler.linear(1.0)),
+                          child: GestureDetector(
+                            onTap: _toggleUnit,
+                            child: Container(
+                              margin: const EdgeInsets.symmetric(vertical: Sizes.size40),
+                              child: Center(
+                                child: Text.rich(
                                   TextSpan(
-                                      text: ' ${_currentUnit.symbol}',
-                                      style: CoconutTypography.heading4_18_Number),
+                                    text: _currentUnit.displayBitcoinAmount(viewModel.sendingAmount),
+                                    children: <TextSpan>[
+                                      TextSpan(
+                                        text: ' ${_currentUnit.symbol}',
+                                        style: CoconutTypography.heading4_18_Number,
+                                      ),
+                                    ],
+                                  ),
+                                  style: CoconutTypography.heading1_32_Number.merge(
+                                    const TextStyle(fontSize: 36, fontWeight: FontWeight.w600),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 16),
+                          child: Container(
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(28.0),
+                              color: CoconutColors.black.withOpacity(0.03),
+                            ),
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 24),
+                              child: Column(
+                                children: [
+                                  InformationItemCard(
+                                    label: t.recipient,
+                                    value: viewModel.recipientAddress,
+                                    isNumber: true,
+                                  ),
+                                  const Divider(color: CoconutColors.borderLightGray, height: 1),
+                                  InformationItemCard(
+                                    label: t.estimated_fee,
+                                    value: [_currentUnit.displayBitcoinAmount(viewModel.estimatedFee, withUnit: true)],
+                                    isNumber: true,
+                                  ),
+                                  const Divider(color: CoconutColors.borderLightGray, height: 1),
+                                  InformationItemCard(
+                                    label: t.total_amount,
+                                    value: [_currentUnit.displayBitcoinAmount(viewModel.totalAmount, withUnit: true)],
+                                    isNumber: true,
+                                  ),
                                 ],
                               ),
-                              style: CoconutTypography.heading1_32_Number.merge(
-                                const TextStyle(
-                                  fontSize: 36,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
                             ),
                           ),
                         ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 16),
-                        child: Container(
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(28.0),
-                            color: CoconutColors.black.withOpacity(0.03),
-                          ),
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 24),
-                            child: Column(
-                              children: [
-                                InformationItemCard(
-                                  label: t.recipient,
-                                  value: viewModel.recipientAddress,
-                                  isNumber: true,
-                                ),
-                                const Divider(
-                                  color: CoconutColors.borderLightGray,
-                                  height: 1,
-                                ),
-                                InformationItemCard(
-                                  label: t.estimated_fee,
-                                  value: [
-                                    _currentUnit.displayBitcoinAmount(viewModel.estimatedFee,
-                                        withUnit: true)
-                                  ],
-                                  isNumber: true,
-                                ),
-                                const Divider(
-                                  color: CoconutColors.borderLightGray,
-                                  height: 1,
-                                ),
-                                InformationItemCard(
-                                  label: t.total_amount,
-                                  value: [
-                                    _currentUnit.displayBitcoinAmount(viewModel.totalAmount,
-                                        withUnit: true)
-                                  ],
-                                  isNumber: true,
-                                ),
-                              ],
+                        if (viewModel.isSendingToMyAddress) ...[
+                          const SizedBox(height: 20),
+                          MediaQuery(
+                            data: MediaQuery.of(context).copyWith(textScaler: const TextScaler.linear(1.0)),
+                            child: Text(
+                              t.psbt_confirmation_screen.self_sending,
+                              textAlign: TextAlign.center,
+                              style: CoconutTypography.body3_12.setColor(CoconutColors.gray800),
                             ),
                           ),
-                        ),
-                      ),
-                      if (viewModel.isSendingToMyAddress) ...[
-                        const SizedBox(
-                          height: 20,
-                        ),
-                        Text(
-                          t.psbt_confirmation_screen.self_sending,
-                          textAlign: TextAlign.center,
-                          style: CoconutTypography.body3_12.setColor(
-                            CoconutColors.gray800,
-                          ),
-                        ),
-                      ],
-                      if (viewModel.hasWarning) ...[
-                        const SizedBox(
-                          height: 20,
-                        ),
-                        Container(
-                          padding: CoconutPadding.widgetContainer,
-                          decoration: BoxDecoration(
+                        ],
+                        if (viewModel.hasWarning) ...[
+                          const SizedBox(height: 20),
+                          Container(
+                            padding: CoconutPadding.widgetContainer,
+                            decoration: BoxDecoration(
                               borderRadius: CoconutBorder.defaultRadius,
-                              color: CoconutColors.black.withOpacity(0.3)),
-                          child: Text(
-                            t.psbt_confirmation_screen.warning,
-                            textAlign: TextAlign.center,
+                              color: CoconutColors.black.withOpacity(0.3),
+                            ),
+                            child: MediaQuery(
+                              data: MediaQuery.of(context).copyWith(textScaler: const TextScaler.linear(1.0)),
+                              child: Text(t.psbt_confirmation_screen.warning, textAlign: TextAlign.center),
+                            ),
                           ),
-                        ),
+                        ],
+                        CoconutLayout.spacing_2500h,
                       ],
-                    ],
-                  ),
-                ),
-                FixedBottomButton(
-                  text: t.next,
-                  isActive: !_showLoading && viewModel.totalAmount != null,
-                  onButtonClicked: () {
-                    Navigator.pushNamed(
-                      context,
-                      viewModel.isMultisig ? AppRoutes.multisigSign : AppRoutes.singleSigSign,
-                    );
-                  },
-                ),
-                Visibility(
-                  visible: _showLoading,
-                  child: Container(
-                    width: MediaQuery.of(context).size.width,
-                    height: MediaQuery.of(context).size.height,
-                    decoration: BoxDecoration(color: CoconutColors.black.withOpacity(0.3)),
-                    child: const Center(
-                      child: CircularProgressIndicator(
-                        color: CoconutColors.gray800,
-                      ),
                     ),
                   ),
-                ),
-              ],
+                  FixedBottomButton(
+                    text: t.next,
+                    isActive: !_showLoading && viewModel.totalAmount != null,
+                    onButtonClicked: () {
+                      Navigator.pushNamed(
+                        context,
+                        viewModel.isMultisig ? AppRoutes.multisigSign : AppRoutes.singleSigSign,
+                      );
+                    },
+                  ),
+                  Visibility(
+                    visible: _showLoading,
+                    child: Container(
+                      width: MediaQuery.of(context).size.width,
+                      height: MediaQuery.of(context).size.height,
+                      decoration: BoxDecoration(color: CoconutColors.black.withOpacity(0.3)),
+                      child: const Center(child: CircularProgressIndicator(color: CoconutColors.gray800)),
+                    ),
+                  ),
+                ],
+              ),
             ),
-          ),
-        );
-      }),
+          );
+        },
+      ),
     );
   }
 
@@ -218,10 +205,7 @@ class _PsbtConfirmationScreenState extends State<PsbtConfirmationScreen> {
 
   List<TextSpan> _getTooltipRichText() {
     return [
-      TextSpan(
-        text: '[3] ',
-        style: CoconutTypography.body2_14_Bold.copyWith(height: 1.2, color: CoconutColors.black),
-      ),
+      TextSpan(text: '[3] ', style: CoconutTypography.body1_16_Bold.copyWith(height: 1.2, color: CoconutColors.black)),
       TextSpan(
         text: t.psbt_confirmation_screen.guide,
         style: CoconutTypography.body2_14.copyWith(height: 1.2, color: CoconutColors.black),

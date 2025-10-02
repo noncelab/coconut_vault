@@ -22,8 +22,7 @@ class SingleSigVaultListItem extends VaultListItemBase {
     required super.createdAt,
   }) : super(vaultType: WalletType.singleSignature) {
     final descriptor = Descriptor.parse(this.descriptor);
-    final keyStore =
-        KeyStore.fromExtendedPublicKey(descriptor.getPublicKey(0), descriptor.getFingerprint(0));
+    final keyStore = KeyStore.fromExtendedPublicKey(descriptor.getPublicKey(0), descriptor.getFingerprint(0));
     coconutVault = SingleSignatureVault.fromKeyStore(keyStore);
   }
 
@@ -47,7 +46,7 @@ class SingleSigVaultListItem extends VaultListItemBase {
       'name': name,
       'colorIndex': colorIndex,
       'iconIndex': iconIndex,
-      'descriptor': coconutVault.descriptor
+      'descriptor': coconutVault.descriptor,
     };
 
     return jsonEncode(json);

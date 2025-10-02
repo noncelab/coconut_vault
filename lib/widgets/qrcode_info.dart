@@ -24,22 +24,11 @@ class _QRCodeInfoState extends State<QRCodeInfo> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          if (widget.qrcodeTopWidget != null) ...[
-            widget.qrcodeTopWidget!,
-            const SizedBox(height: 25)
-          ],
+          if (widget.qrcodeTopWidget != null) ...[widget.qrcodeTopWidget!, const SizedBox(height: 25)],
           Stack(
             children: [
-              Container(
-                width: qrSize,
-                height: qrSize,
-                decoration: CoconutBoxDecoration.shadowBoxDecoration,
-              ),
-              QrImageView(
-                data: widget.qrData,
-                version: QrVersions.auto,
-                size: qrSize,
-              ),
+              Container(width: qrSize, height: qrSize, decoration: CoconutBoxDecoration.shadowBoxDecoration),
+              QrImageView(data: widget.qrData, version: QrVersions.auto, size: qrSize),
             ],
           ),
           const SizedBox(height: 32),
