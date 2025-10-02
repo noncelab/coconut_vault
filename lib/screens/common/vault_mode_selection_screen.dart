@@ -215,9 +215,6 @@ class _VaultModeSelectionScreenState extends State<VaultModeSelectionScreen> {
         await sharedPrefsRepository.deleteSharedPrefsWithKey(SharedPrefsKeys.kVaultListField);
         await sharedPrefsRepository.deleteSharedPrefsWithKey(SharedPrefsKeys.vaultListLength);
 
-        if (!mounted) return;
-        debugPrint('vaultList : ${context.read<WalletProvider>().vaultList}');
-
         if (mounted) {
           setState(() {});
           _showModeChangeCompletePopup();
@@ -264,8 +261,6 @@ class _VaultModeSelectionScreenState extends State<VaultModeSelectionScreen> {
   }
 
   void _showModeChangeCompletePopup() {
-    if (!mounted) return;
-
     showDialog(
       context: context,
       builder: (BuildContext context) {
