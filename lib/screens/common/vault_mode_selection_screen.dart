@@ -37,7 +37,6 @@ class _VaultModeSelectionScreenState extends State<VaultModeSelectionScreen> {
   void initState() {
     super.initState();
     selectedVaultMode = context.read<PreferenceProvider>().getVaultMode();
-    debugPrint('selectedVaultMode: ${context.read<PreferenceProvider>().getVaultMode()}');
   }
 
   bool _getActiveState(VaultMode vaultMode) {
@@ -192,8 +191,10 @@ class _VaultModeSelectionScreenState extends State<VaultModeSelectionScreen> {
     // 지갑 있는 경우 저장 --> <5>
 
     // 설정 - 모드 변경으로 진입(widget.onComplete가 null일 경우)
+    if (!mounted) return;
     await context.read<PreferenceProvider>().setVaultMode(selectedVaultMode!);
 
+    if (!mounted) return;
     final currentVaultMode = context.read<PreferenceProvider>().getVaultMode();
 
     final secureStorageRepository = SecureStorageRepository();
@@ -206,23 +207,34 @@ class _VaultModeSelectionScreenState extends State<VaultModeSelectionScreen> {
         // WalletProvider에 시드 관련 데이터는 남겨둠
 
         // <1> 비밀번호 설정 해제
+        if (!mounted) return;
         context.read<AuthProvider>().setPinSet(false);
         // <2> 지갑삭제
         await secureStorageRepository.deleteAll();
         // <3> 관련 shared pref 삭제
         await sharedPrefsRepository.deleteSharedPrefsWithKey(SharedPrefsKeys.kVaultListField);
         await sharedPrefsRepository.deleteSharedPrefsWithKey(SharedPrefsKeys.vaultListLength);
+
+        if (!mounted) return;
         debugPrint('vaultList : ${context.read<WalletProvider>().vaultList}');
-        setState(() {
+
+        if (mounted) {
+          setState(() {});
           _showModeChangeCompletePopup();
-        });
+        }
+        break;
+
       case VaultMode.secureStorage:
         // 서명 전용 모드에서 안전 저장 모드로 바뀐 경우
         // 비밀번호 지정
-        MyBottomSheet.showBottomSheet_90(
+        if (!mounted) return;
+        await MyBottomSheet.showBottomSheet_90(
           context: context,
           child: PinSettingScreen(
             onComplete: () {
+              if (!mounted) return;
+              Navigator.pop(context); // PinSettingScreen 닫기
+
               // 비밀번호 설정 완료, 지갑 있는 경우 저장
               final walletProvider = context.read<WalletProvider>();
               if (walletProvider.vaultList.isNotEmpty) {
@@ -237,18 +249,23 @@ class _VaultModeSelectionScreenState extends State<VaultModeSelectionScreen> {
                 }
               }
 
-              _showModeChangeCompletePopup();
+              if (mounted) {
+                setState(() {});
+                _showModeChangeCompletePopup();
+              }
             },
           ),
         );
-
         break;
+
       default:
         break;
     }
   }
 
   void _showModeChangeCompletePopup() {
+    if (!mounted) return;
+
     showDialog(
       context: context,
       builder: (BuildContext context) {
