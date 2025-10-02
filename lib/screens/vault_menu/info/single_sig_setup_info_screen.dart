@@ -26,8 +26,9 @@ import '../../../providers/wallet_provider.dart';
 
 class SingleSigSetupInfoScreen extends StatefulWidget {
   final int id;
+  final bool hasPassphrase;
   final String? entryPoint;
-  const SingleSigSetupInfoScreen({super.key, required this.id, this.entryPoint});
+  const SingleSigSetupInfoScreen({super.key, required this.id, required this.hasPassphrase, this.entryPoint});
 
   @override
   State<SingleSigSetupInfoScreen> createState() => _SingleSigSetupInfoScreenState();
@@ -41,18 +42,11 @@ class _SingleSigSetupInfoScreenState extends State<SingleSigSetupInfoScreen> {
 
   Timer? _tooltipTimer;
   bool _isTooltipVisible = false;
-  bool hasPassphrase = false;
-
-  Future<void> checkPassphraseStatus() async {
-    hasPassphrase = await context.read<WalletProvider>().hasPassphrase(widget.id);
-    setState(() {});
-  }
 
   @override
   void initState() {
     super.initState();
     debugPrint('initState: ${widget.id}');
-    checkPassphraseStatus();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _tooltipIconRendBox = _tooltipIconKey.currentContext?.findRenderObject() as RenderBox;
       _tooltipIconPosition = _tooltipIconRendBox!.localToGlobal(Offset.zero);
@@ -384,7 +378,7 @@ class _SingleSigSetupInfoScreenState extends State<SingleSigSetupInfoScreen> {
               );
             },
           ),
-          if (hasPassphrase) ...[
+          if (widget.hasPassphrase) ...[
             SingleButton(
               enableShrinkAnim: true,
               title: t.verify_passphrase,

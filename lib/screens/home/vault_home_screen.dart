@@ -305,13 +305,17 @@ class _VaultHomeScreenState extends State<VaultHomeScreen> with TickerProviderSt
             return VaultRowItem(
               vault: vault,
               isSelectable: false,
-              onSelected: () {
+              onSelected: () async {
+                if (vault.vaultType == WalletType.multiSignature) {
+                  Navigator.pushNamed(context, AppRoutes.multisigSetupInfo, arguments: {'id': vault.id});
+                  return;
+                }
+
+                bool hasPassphrase = await _viewModel.hasPassphrase(vault.id);
                 Navigator.pushNamed(
                   context,
-                  vault.vaultType == WalletType.multiSignature
-                      ? AppRoutes.multisigSetupInfo
-                      : AppRoutes.singleSigSetupInfo,
-                  arguments: {'id': vault.id},
+                  AppRoutes.singleSigSetupInfo,
+                  arguments: {'id': vault.id, 'hasPassphrase': hasPassphrase},
                 );
               },
             );

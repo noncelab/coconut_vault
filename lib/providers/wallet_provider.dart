@@ -132,8 +132,8 @@ class WalletProvider extends ChangeNotifier {
     }
   }
 
-  Future<bool> hasPassphrase(int walletId) {
-    return _walletRepository.hasPassphrase(walletId);
+  Future<bool> hasPassphrase(int walletId) async {
+    return await _walletRepository.hasPassphrase(walletId);
   }
 
   Future<MultisigVaultListItem> importMultisigVault(MultisigImportDetail details, int walletId) async {

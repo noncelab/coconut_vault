@@ -284,7 +284,11 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> {
                           AppRoutes.singleSigSetupInfo:
                               (context) => buildScreenWithArguments(
                                 context,
-                                (args) => SingleSigSetupInfoScreen(id: args['id'], entryPoint: args['entryPoint']),
+                                (args) => SingleSigSetupInfoScreen(
+                                  id: args['id'],
+                                  hasPassphrase: args['hasPassphrase'],
+                                  entryPoint: args['entryPoint'],
+                                ),
                               ),
                           AppRoutes.multisigSetupInfo:
                               (context) => buildScreenWithArguments(
