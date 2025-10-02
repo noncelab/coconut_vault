@@ -275,6 +275,12 @@ class AuthProvider extends ChangeNotifier {
     resetAuthenticationState();
   }
 
+  Future<void> setPinSet(bool value) async {
+    _isPinSet = value;
+    await _sharedPrefs.setBool(SharedPrefsKeys.isPinEnabled, value);
+    notifyListeners();
+  }
+
   Future<void> resetData(PreferenceProvider preferenceProvider) async {
     final WalletRepository walletRepository = WalletRepository();
     await walletRepository.resetAll();
