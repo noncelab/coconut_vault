@@ -41,7 +41,7 @@ class _LanguageBottomSheetState extends State<LanguageBottomSheet> {
                   final provider = context.read<VisibilityProvider>();
                   await provider.changeLanguage('kr');
                 }),
-                Divider(color: CoconutColors.white.withValues(alpha: 0.12), height: 1),
+                Divider(color: CoconutColors.black.withValues(alpha: 0.12), height: 1),
                 _buildUnitItem(t.language.english, t.language.english, language == 'en', () async {
                   if (context.mounted) {
                     Navigator.of(context).pop();
@@ -50,6 +50,15 @@ class _LanguageBottomSheetState extends State<LanguageBottomSheet> {
                   // 언어 변경은 BottomSheet가 닫힌 후에 실행
                   final provider = context.read<VisibilityProvider>();
                   await provider.changeLanguage('en');
+                }),
+                Divider(color: CoconutColors.black.withValues(alpha: 0.12), height: 1),
+                _buildUnitItem(t.language.japanese, t.language.japanese, language == 'jp', () async {
+                  if (context.mounted) {
+                    Navigator.of(context).pop();
+                    Navigator.of(context).pop();
+                  }
+                  final provider = context.read<VisibilityProvider>();
+                  await provider.changeLanguage('jp');
                 }),
               ],
             ),
