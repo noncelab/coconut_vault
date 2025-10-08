@@ -334,6 +334,7 @@ abstract class BaseEntropyWidgetState<T extends BaseEntropyWidget> extends State
               onRightButtonPressed: _onNextButtonClicked,
               subWidget: _buildButtonSubWidget(),
             )
+            // 자동 생성인 경우 왼쪽 재생성 버튼, 패스프레이즈 입력 시 재생성 버튼 없음
             : step == 0
             ? EntropyBottomButtons(
               isRightButtonActive: isRightButtonActive,
