@@ -358,6 +358,7 @@ mnemonic_generate_screen:
   backup_complete: "Backup Complete"
   warning: "Please be careful with storage and leakage of entered passphrase"
   passphrase_warning: "$words may not be accepted by other wallets. Please be careful."
+  regenerate: "Regenerate"
 passphrase_textfield:
   title: "Enter passphrase"
   passphrase_hidden: "Hide passphrase"

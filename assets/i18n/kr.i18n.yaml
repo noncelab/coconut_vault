@@ -361,6 +361,7 @@ mnemonic_generate_screen:
   backup_complete: "백업 완료"
   warning: "입력하신 패스프레이즈는 보관과 유출에 유의해 주세요"
   passphrase_warning: "$words 는 다른 하드월렛에서 입력이 안될 수 있어 주의가 필요해요"
+  regenerate: "재생성"
 passphrase_textfield:
   title: "패스프레이즈를 입력해 주세요"
   passphrase_hidden: "패스프레이즈 숨기기"

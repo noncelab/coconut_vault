@@ -184,7 +184,6 @@ abstract class BaseEntropyWidgetState<T extends BaseEntropyWidget> extends State
       passphraseFocusNode: _passphraseFocusNode,
       passphraseConfirmFocusNode: _passphraseConfirmFocusNode,
       passphraseObscured: passphraseObscured,
-      // isPassphraseConfirmVisible: isPassphraseConfirmVisible,
       step: step,
       onPassphraseObscuredChanged: (obscured) {
         setState(() {
@@ -247,17 +246,6 @@ abstract class BaseEntropyWidgetState<T extends BaseEntropyWidget> extends State
 
     // 패스프레이즈 사용함 | 패스프레이즈 입력 화면
     if (widget.usePassphrase && step == 1) {
-      // if (_passphrase.isNotEmpty && _passphraseConfirm.isNotEmpty && listEquals(_passphrase, _passphraseConfirm)) {}
-      // if (!isPassphraseConfirmVisible && _passphraseController.text.isNotEmpty) {
-      //   // 패스프레이즈 입력 완료 | 패스프레이즈 확인 텍스트필드는 보이지 않을 때
-      //   _passphraseFocusNode.unfocus();
-      //   _passphraseConfirmFocusNode.unfocus();
-      //   setState(() {
-      //     _passphrase = utf8.encode(_passphraseController.text);
-      //     isPassphraseConfirmVisible = true;
-      //   });
-      // } else
-
       if (_passphrase.isNotEmpty && _passphraseConfirm.isNotEmpty && listEquals(_passphrase, _passphraseConfirm)) {
         // 패스프레이즈 입력 완료 | 엔트로피 데이터로 니모닉 생성 시도 성공
         _passphrase = utf8.encode(_passphraseController.text);
@@ -266,7 +254,6 @@ abstract class BaseEntropyWidgetState<T extends BaseEntropyWidget> extends State
           _setMnemonicFromEntropy();
         }
 
-        // print('setSecretAndPassphrase: $_mnemonic, $_passphrase');
         Provider.of<WalletCreationProvider>(context, listen: false).setSecretAndPassphrase(_mnemonic, _passphrase);
         _passphraseFocusNode.unfocus();
         _passphraseConfirmFocusNode.unfocus();
@@ -347,6 +334,15 @@ abstract class BaseEntropyWidgetState<T extends BaseEntropyWidget> extends State
               onRightButtonPressed: _onNextButtonClicked,
               subWidget: _buildButtonSubWidget(),
             )
+            : step == 0
+            ? EntropyBottomButtons(
+              isRightButtonActive: isRightButtonActive,
+              leftText: t.mnemonic_generate_screen.regenerate,
+              rightText: rightButtonText,
+              onLeftButtonPressed: _regenerateMnemonic,
+              onRightButtonPressed: _onNextButtonClicked,
+              subWidget: _buildButtonSubWidget(),
+            )
             : FixedBottomButton(
               isActive: isRightButtonActive,
               text: rightButtonText,
@@ -411,5 +407,9 @@ abstract class BaseEntropyWidgetState<T extends BaseEntropyWidget> extends State
             },
           ),
     );
+  }
+
+  void _regenerateMnemonic() {
+    generateMnemonicWords();
   }
 }
