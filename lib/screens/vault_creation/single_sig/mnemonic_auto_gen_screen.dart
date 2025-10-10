@@ -3,7 +3,6 @@ import 'package:coconut_vault/constants/app_routes.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/screens/vault_creation/single_sig/base_entropy_screen.dart';
 import 'package:coconut_vault/widgets/entropy_base/base_entropy_widget.dart';
-import 'package:coconut_vault/widgets/entropy_base/entropy_common_widget.dart';
 import 'package:coconut_vault/widgets/list/mnemonic_list.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
@@ -48,6 +47,7 @@ class _MnemonicAutoGenScreenState extends BaseMnemonicEntropyScreenState<Mnemoni
 class GeneratedWords extends BaseEntropyWidget {
   final Uint8List? customMnemonic;
   final ValueNotifier<bool>? regenerateNotifier;
+  @override
   final ValueNotifier<int>? stepNotifier;
 
   const GeneratedWords({
@@ -107,9 +107,7 @@ class _GeneratedWordsState extends BaseEntropyWidgetState<GeneratedWords> {
   }
 
   @override
-  bool get isRightButtonActive => _isActive();
-
-  bool _isActive() {
+  bool get isRightButtonActiveImpl {
     if (step == 0 && hasScrolledToBottom) {
       return true;
     }

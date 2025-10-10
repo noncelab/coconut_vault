@@ -36,6 +36,7 @@ class _SeedQrConfirmationScreenState extends State<SeedQrConfirmationScreen> {
   bool _usePassphrase = false;
   String _passphrase = '';
   bool _passphraseObscured = false;
+  bool _isWarningVisible = true;
 
   late VoidCallback _passphraseListener;
 
@@ -126,12 +127,19 @@ class _SeedQrConfirmationScreenState extends State<SeedQrConfirmationScreen> {
               ),
               FixedBottomButton(
                 text: t.next,
-                isActive: _usePassphrase ? _passphrase.isNotEmpty : true,
+                isActive: _usePassphrase ? _passphrase.isNotEmpty && !_isWarningVisible : true && !_isWarningVisible,
                 backgroundColor: CoconutColors.black,
                 onButtonClicked: _handleNextButton,
                 gradientPadding: const EdgeInsets.only(left: 16, right: 16, bottom: 40, top: 140),
               ),
-              const WarningWidget(visible: true),
+              WarningWidget(
+                visible: _isWarningVisible,
+                onWarningDismissed: () {
+                  setState(() {
+                    _isWarningVisible = false;
+                  });
+                },
+              ),
             ],
           ),
         ),
