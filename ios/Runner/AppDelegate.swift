@@ -1,5 +1,6 @@
 import UIKit
 import Flutter
+import LocalAuthentication
 
 @main
 @objc class AppDelegate: FlutterAppDelegate {
@@ -13,8 +14,20 @@ import Flutter
     self.window?.makeSecure()   
     #endif
 
-    // 플랫폼 채널 설정 추가
+    // 플랫폼 채널 설정
     let controller : FlutterViewController = window?.rootViewController as! FlutterViewController
+    let osChannel = FlutterMethodChannel(name: "onl.coconut.vault/os",
+                                         binaryMessenger: controller.binaryMessenger)
+    
+    osChannel.setMethodCallHandler({
+      (call: FlutterMethodCall, result: @escaping FlutterResult) -> Void in
+      switch call.method {
+      case "isDeviceSecure":
+        result(isDeviceSecure())
+      default:
+        result(FlutterMethodNotImplemented)
+      }
+    })
 
     // 플러그인 등록
     GeneratedPluginRegistrant.register(with: self)
@@ -33,4 +46,10 @@ extension UIWindow {
         field.leftView = view
         field.leftViewMode = .always
     }
+}
+
+func isDeviceSecure() -> Bool {
+    let context = LAContext()
+    var error: NSError?
+    return context.canEvaluatePolicy(.deviceOwnerAuthentication, error: &error)
 }

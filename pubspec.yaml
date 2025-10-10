@@ -225,6 +225,7 @@ flutter:
     - assets/svg/settings-guide-icons/developer-mode.svg
     - assets/svg/coconut-mainnet.svg
     - assets/svg/coconut-regtest.svg
+    - assets/png/password-required.png
     - assets/png/browser_ko.png
     - assets/png/browser_en.png
 

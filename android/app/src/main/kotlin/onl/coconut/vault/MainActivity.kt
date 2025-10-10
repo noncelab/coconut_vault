@@ -9,6 +9,8 @@ import android.view.WindowManager   // FLAG_SECURE에 필요
 import android.provider.Settings
 import android.provider.Settings.Global.DEVELOPMENT_SETTINGS_ENABLED
 import androidx.annotation.NonNull
+import android.app.KeyguardManager
+import android.content.Context
 import io.flutter.embedding.android.FlutterFragmentActivity
 import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugin.common.MethodChannel
@@ -56,6 +58,9 @@ class MainActivity: FlutterFragmentActivity() {
                     }
                     result.success(null)
                 }
+                "isDeviceSecure" -> { 
+                    result.success(isDeviceSecure())
+                }
                 else -> result.notImplemented()
             }
         }
@@ -77,5 +82,10 @@ class MainActivity: FlutterFragmentActivity() {
             contentResolver,
             Settings.Global.DEVELOPMENT_SETTINGS_ENABLED, 0
         ) != 0
+    }
+
+    private fun isDeviceSecure(): Boolean {
+        val keyguardManager = getSystemService(Context.KEYGUARD_SERVICE) as KeyguardManager
+        return keyguardManager.isDeviceSecure
     }
 }

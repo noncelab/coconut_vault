@@ -159,6 +159,13 @@ app_unavailable_notification_screen:
   step1: "Completely close the app"
   step2: "Check the connection status"
   step3: "Restart the app"
+  signing_only_mode:
+    set_device_password: "To use signing-only mode, please set a device password"
+    step_1: "Completely close the app"
+    step_2: "Set a password"
+    step_3: "For enhanced security, use a password combining letters and numbers instead of PIN"
+    step_4: "To make signing more convenient and secure, please activate biometrics"
+
 ios_bluetooth_auth_notification_screen:
   allow_permission: "For safe use,\nplease allow Bluetooth permission"
   guide1: "Completely close the app"
@@ -206,6 +213,12 @@ vault_mode_selection_screen:
   mode_change_complete: "Mode Change Complete"
   mode_changed_description_secrue_storage: "Secure storage mode has been changed.\nPlease back up the seed stored in the vault regularly!"
   mode_changed_description_signing_only: "Signing-only mode has been changed.\nPlease exit the app safely by pressing the exit button on the home screen!"
+  device_password_setting_guide: "Device Password Setting Guide"
+  device_password_setting_guide_descriptions:
+    - "Signing-only mode requires setting a device password."
+    - "For enhanced security, use a password combining letters and numbers instead of PIN."
+    - "To make signing more convenient and secure, please activate biometrics."
+  device_password_setting_guide_understood: "I understand"
 
 multisig:
   nth_key: "key $index"

@@ -115,6 +115,7 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> {
   final GlobalKey<NavigatorState> _navigatorKey = GlobalKey<NavigatorState>();
   Timer? _longPressTimer;
   final GlobalKey _indicatorKey = GlobalKey();
+  ConnectivityProvider? _connectivityProvider; // 추가
 
   @override
   void dispose() {
@@ -232,14 +233,25 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> {
           ChangeNotifierProvider(create: (_) => authProvider),
           ChangeNotifierProvider(create: (_) => preferenceProvider),
           ChangeNotifierProvider<WalletProvider>(create: (_) => WalletProvider(visibilityProvider, preferenceProvider)),
-          ChangeNotifierProxyProvider<VisibilityProvider, ConnectivityProvider>(
-            create: (_) => ConnectivityProvider(hasSeenGuide: visibilityProvider.hasSeenGuide),
-            update: (_, visibilityProvider, connectivityProvider) {
+          ChangeNotifierProxyProvider2<VisibilityProvider, PreferenceProvider, ConnectivityProvider>(
+            create:
+                (_) => ConnectivityProvider(
+                  hasSeenGuide: visibilityProvider.hasSeenGuide,
+                  isSigningOnlyMode: preferenceProvider.getVaultMode() == VaultMode.signingOnly,
+                ),
+            update: (_, visibilityProvider, preferenceProvider, connectivityProvider) {
               if (visibilityProvider.hasSeenGuide) {
                 connectivityProvider!.setHasSeenGuideTrue();
               }
 
-              return connectivityProvider!;
+              // VaultMode 변경 감지
+              final newIsSigningOnlyMode = preferenceProvider.getVaultMode() == VaultMode.signingOnly;
+              connectivityProvider!.updateSigningOnlyMode(newIsSigningOnlyMode);
+
+              // 인스턴스 저장
+              _connectivityProvider = connectivityProvider;
+
+              return connectivityProvider;
             },
           ),
           if (_appEntryFlow == AppEntryFlow.vaultHome) ...{
@@ -264,8 +276,16 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> {
                       /// 지갑이 0개인 경우에는 pin_check_screen을 거치지 않아서 여기서 생체인증 상태를 업데이트
                       if (_appEntryFlow == AppEntryFlow.vaultHome) {
                         authProvider.updateDeviceBiometricAvailability();
+
+                        // Signing Only Mode일 때 기기 보안 체크 (State 필드 직접 사용)
+                        if (preferenceProvider.getVaultMode() == VaultMode.signingOnly) {
+                          // ConnectivityProvider는 MultiProvider에서 제공되므로
+                          // 여기서는 직접 메서드 호출할 수 없음
+                          // 대신 별도 메서드 생성
+                          _checkDeviceSecurityOnResume();
+                        }
                       }
-                      if (Platform.isAndroid) return; // 안드로이드는 Native에서 처리
+                      if (Platform.isAndroid) return;
 
                       setState(() {
                         _isInactive = false;
@@ -307,10 +327,10 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> {
                             return Stack(
                               children: [
                                 child ?? const SizedBox.shrink(),
-                                Builder(
-                                  builder: (builderContext) {
+                                Consumer<PreferenceProvider>(
+                                  builder: (context, prefProvider, child) {
                                     // Signing Only Mode일 때만 표시
-                                    if (preferenceProvider.getVaultMode() != VaultMode.signingOnly ||
+                                    if (prefProvider.getVaultMode() != VaultMode.signingOnly ||
                                         _appEntryFlow != AppEntryFlow.vaultHome) {
                                       return const SizedBox.shrink();
                                     }
@@ -651,5 +671,9 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> {
   }) {
     final args = ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>? ?? defaultArgs ?? {};
     return builder(args);
+  }
+
+  void _checkDeviceSecurityOnResume() {
+    _connectivityProvider?.checkDeviceSecurityOnResume();
   }
 }

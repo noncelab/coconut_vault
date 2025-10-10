@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 import 'dart:math';
 
+import 'package:coconut_vault/constants/method_channel.dart';
 import 'package:coconut_vault/constants/pin_constants.dart';
 import 'package:coconut_vault/constants/secure_storage_keys.dart';
 import 'package:coconut_vault/constants/shared_preferences_keys.dart';
@@ -22,6 +23,7 @@ class AuthProvider extends ChangeNotifier {
   static String unlockAvailableAtKey = SharedPrefsKeys.kUnlockAvailableAt;
   static String turnKey = SharedPrefsKeys.kPinInputTurn;
   static String currentAttemptKey = SharedPrefsKeys.kPinInputCurrentAttemptCount;
+  static const _osChannel = MethodChannel(methodChannelOS);
 
   final SharedPrefsRepository _sharedPrefs = SharedPrefsRepository();
   final SecureStorageRepository _storageService = SecureStorageRepository();
@@ -92,6 +94,17 @@ class AuthProvider extends ChangeNotifier {
   AuthProvider() {
     updateDeviceBiometricAvailability();
     setInitState();
+  }
+
+  /// 기기가 PIN/패턴/비밀번호로 보안 설정되어 있는지 확인
+  Future<bool> isDeviceSecured() async {
+    try {
+      final bool? isSecure = await _osChannel.invokeMethod('isDeviceSecure');
+      return isSecure ?? false;
+    } catch (e) {
+      Logger.error('Failed to check device security: $e');
+      return false;
+    }
   }
 
   /// 생체인증 성공했는지 여부 반환

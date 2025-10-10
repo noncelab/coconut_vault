@@ -17,6 +17,8 @@ enum ConnectivityState { off, on, bluetoothUnauthorized }
 class ConnectivityProvider extends ChangeNotifier {
   /// 첫 실행 가이드 확인 여부
   late bool _hasSeenGuide;
+  bool _isSigningOnlyMode;
+  bool _isDisposed = false;
 
   bool? _isNetworkOn;
   bool? get isNetworkOn => _isNetworkOn;
@@ -26,6 +28,8 @@ class ConnectivityProvider extends ChangeNotifier {
   bool? get isBluetoothUnauthorized => _isBluetoothUnauthorized;
   bool? _isDeveloperModeOn = Platform.isAndroid && kReleaseMode ? null : false; // Android only
   bool? get isDeveloperModeOn => _isDeveloperModeOn;
+  bool? _isDeviceSecured;
+  bool? get isDeviceSecured => _isDeviceSecured;
 
   void Function(ConnectivityState)? onConnectivityStateChanged;
 
@@ -34,9 +38,14 @@ class ConnectivityProvider extends ChangeNotifier {
 
   static const MethodChannel _channel = MethodChannel(methodChannelOS);
 
-  ConnectivityProvider({required bool hasSeenGuide, this.onConnectivityStateChanged}) : _hasSeenGuide = hasSeenGuide {
+  ConnectivityProvider({required bool hasSeenGuide, required bool isSigningOnlyMode, this.onConnectivityStateChanged})
+    : _hasSeenGuide = hasSeenGuide,
+      _isSigningOnlyMode = isSigningOnlyMode {
     if (_hasSeenGuide) {
       setConnectActivity(network: true, bluetooth: true, developerMode: true);
+      if (_isSigningOnlyMode) {
+        _checkDeviceSecured();
+      }
     } else {
       // 앱 첫 실행인 경우 가이드 화면 끝난 후 welcome_screen에서 bluetooth 권한 요청 후 모니터링 시작.
       setConnectActivity(network: true, bluetooth: false, developerMode: true);
@@ -113,6 +122,8 @@ class ConnectivityProvider extends ChangeNotifier {
   }
 
   Future<void> _checkDeveloperMode() async {
+    if (_isDisposed) return;
+
     bool? developerModeStatus;
     try {
       final bool result = await _channel.invokeMethod('isDeveloperModeEnabled');
@@ -121,12 +132,35 @@ class ConnectivityProvider extends ChangeNotifier {
       // 에러 발생 시 개발자 모드 OFF로 간주
       developerModeStatus = false;
     }
+
+    if (_isDisposed) return; // 비동기 작업 후 다시 체크
+
     _isDeveloperModeOn = developerModeStatus;
     _onConnectivityChanged();
   }
 
+  Future<void> _checkDeviceSecured() async {
+    if (_isDisposed || !_isSigningOnlyMode) return;
+
+    // 기기 비밀번호 설정 여부 확인
+    bool? deviceSecured;
+    try {
+      final bool result = await _channel.invokeMethod('isDeviceSecure');
+      deviceSecured = result;
+    } catch (e) {
+      deviceSecured = false;
+    }
+
+    if (_isDisposed) return;
+
+    _isDeviceSecured = deviceSecured;
+    _onDeviceSecuredChanged();
+  }
+
   /// 현재 블루투스 상태를 즉시 확인하는 메서드
   Future<void> _checkCurrentBluetoothState() async {
+    if (_isDisposed) return;
+
     try {
       final BluetoothAdapterState state = await FlutterBluePlus.adapterState.first;
       if (state == BluetoothAdapterState.on) {
@@ -139,9 +173,14 @@ class ConnectivityProvider extends ChangeNotifier {
       } else {
         _isBluetoothOn = false;
       }
+
+      if (_isDisposed) return; // 비동기 작업 후 다시 체크
+
       // 상태 설정 후 즉시 UI 업데이트
       notifyListeners();
     } catch (e) {
+      if (_isDisposed) return; // 에러 처리 후에도 체크
+
       // 에러 발생 시 블루투스 OFF로 간주
       _isBluetoothOn = false;
       notifyListeners();
@@ -150,6 +189,8 @@ class ConnectivityProvider extends ChangeNotifier {
 
   // TODO: _hasSeenGuide 없이 각 home 화면 별 이벤트 등록/해제하기!!!!!!
   void _onConnectivityChanged() {
+    if (_isDisposed) return;
+
     if (Platform.isIOS && _isBluetoothUnauthorized == true) {
       runApp(const CupertinoApp(debugShowCheckedModeBanner: false, home: IosBluetoothAuthNotificationScreen()));
     } else if (_isBluetoothOn == true || _isNetworkOn == true || (Platform.isAndroid && _isDeveloperModeOn == true)) {
@@ -166,7 +207,49 @@ class ConnectivityProvider extends ChangeNotifier {
         );
       }
     }
+    if (!_isDisposed) {
+      notifyListeners();
+    }
+  }
+
+  void _onDeviceSecuredChanged() {
+    if (_isDisposed) return;
+
+    if (_isDeviceSecured == false) {
+      runApp(
+        const CupertinoApp(
+          debugShowCheckedModeBanner: false,
+          home: AppUnavailableNotificationScreen(isDeviceSecured: false),
+        ),
+      );
+    }
+
+    if (!_isDisposed) {
+      notifyListeners();
+    }
+  }
+
+  void updateSigningOnlyMode(bool isSigningOnlyMode) {
+    if (_isDisposed) return;
+
+    final wasSigningOnlyMode = _isSigningOnlyMode;
+    _isSigningOnlyMode = isSigningOnlyMode;
+
+    if (isSigningOnlyMode && !wasSigningOnlyMode) {
+      // Signing Only Mode로 전환 시 즉시 체크
+      _checkDeviceSecured();
+    } else if (!isSigningOnlyMode) {
+      // Signing Only Mode에서 벗어남
+      _isDeviceSecured = null;
+    }
+
     notifyListeners();
+  }
+
+  /// 앱 resume 시 호출 - 기기 보안 상태 재확인
+  Future<void> checkDeviceSecurityOnResume() async {
+    if (_isDisposed || !_isSigningOnlyMode) return;
+    await _checkDeviceSecured();
   }
 
   void setOnConnectivityStateChanged(void Function(ConnectivityState) onChanged) {
@@ -179,6 +262,7 @@ class ConnectivityProvider extends ChangeNotifier {
 
   @override
   void dispose() {
+    _isDisposed = true;
     _bluetoothSubscription?.cancel();
     _networkSubscription?.cancel();
     super.dispose();
