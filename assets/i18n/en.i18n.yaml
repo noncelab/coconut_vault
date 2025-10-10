@@ -44,6 +44,7 @@ change: "Change"
 receiving: "Receive"
 email_subject: "[Coconut Vault] Inquiry"
 exit_vault: "Exit Vault"
+exit_vault_description: "Exiting the vault will delete the keys.\nAre you sure you want to exit?"
 
 sign_completion: "Signed"
 sign: "Sign"

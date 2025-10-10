@@ -4,6 +4,8 @@ import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_lib/coconut_lib.dart';
 import 'package:coconut_vault/constants/app_routes.dart';
 import 'package:coconut_vault/enums/pin_check_context_enum.dart';
+import 'package:coconut_vault/enums/vault_mode_enum.dart';
+import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/main_route_guard.dart';
 import 'package:coconut_vault/providers/preference_provider.dart';
 import 'package:coconut_vault/providers/sign_provider.dart';
@@ -49,13 +51,17 @@ import 'package:coconut_vault/screens/vault_menu/info/passphrase_verification_sc
 import 'package:coconut_vault/screens/vault_menu/multisig_signer_bsms_export_screen.dart';
 import 'package:coconut_vault/screens/vault_menu/sync_to_wallet/sync_to_wallet_screen.dart';
 import 'package:coconut_vault/screens/vault_menu/info/single_sig_setup_info_screen.dart';
+import 'package:coconut_vault/widgets/button/shrink_animation_button.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:coconut_vault/screens/common/pin_check_screen.dart';
 import 'package:coconut_vault/screens/common/start_screen.dart';
 import 'package:coconut_vault/widgets/custom_loading_overlay.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:provider/provider.dart';
+import 'dart:async';
 
 enum AppEntryFlow {
   splash,
@@ -102,6 +108,19 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> {
   final visibilityProvider = VisibilityProvider();
   final authProvider = AuthProvider();
   final preferenceProvider = PreferenceProvider();
+  double _signingModeIndicatorWidth = 20.0;
+  double _signingModeIndicatorTop = kToolbarHeight + 50;
+  bool _isDraggingVertically = false;
+  bool _isExitDialogOpen = false;
+  final GlobalKey<NavigatorState> _navigatorKey = GlobalKey<NavigatorState>();
+  Timer? _longPressTimer;
+  final GlobalKey _indicatorKey = GlobalKey();
+
+  @override
+  void dispose() {
+    _longPressTimer?.cancel();
+    super.dispose();
+  }
 
   void _updateEntryFlow(AppEntryFlow appEntryFlow) {
     setState(() {
@@ -186,208 +205,441 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> {
   @override
   Widget build(BuildContext context) {
     CoconutTheme.setTheme(Brightness.light);
-    return MultiProvider(
-      providers: [
-        ChangeNotifierProvider(create: (_) => visibilityProvider),
-        ChangeNotifierProvider(create: (_) => authProvider),
-        ChangeNotifierProvider(create: (_) => preferenceProvider),
-        ChangeNotifierProvider<WalletProvider>(create: (_) => WalletProvider(visibilityProvider, preferenceProvider)),
-        ChangeNotifierProxyProvider<VisibilityProvider, ConnectivityProvider>(
-          create: (_) => ConnectivityProvider(hasSeenGuide: visibilityProvider.hasSeenGuide),
-          update: (_, visibilityProvider, connectivityProvider) {
-            if (visibilityProvider.hasSeenGuide) {
-              connectivityProvider!.setHasSeenGuideTrue();
+    return Listener(
+      behavior: HitTestBehavior.translucent,
+      onPointerDown: (event) {
+        if (_signingModeIndicatorWidth == 100.0) {
+          // AnimatedContainer 영역인지 확인
+          final RenderBox? box = _indicatorKey.currentContext?.findRenderObject() as RenderBox?;
+          if (box != null) {
+            final position = box.localToGlobal(Offset.zero);
+            final size = box.size;
+            final indicatorArea = Rect.fromLTWH(position.dx, position.dy, size.width, size.height);
+
+            // 터치 위치가 indicator 영역 밖이면 축소
+            if (!indicatorArea.contains(event.position) && mounted) {
+              setState(() {
+                _signingModeIndicatorWidth = 20.0;
+                _isExitDialogOpen = false;
+              });
             }
+          }
+        }
+      },
+      child: MultiProvider(
+        providers: [
+          ChangeNotifierProvider(create: (_) => visibilityProvider),
+          ChangeNotifierProvider(create: (_) => authProvider),
+          ChangeNotifierProvider(create: (_) => preferenceProvider),
+          ChangeNotifierProvider<WalletProvider>(create: (_) => WalletProvider(visibilityProvider, preferenceProvider)),
+          ChangeNotifierProxyProvider<VisibilityProvider, ConnectivityProvider>(
+            create: (_) => ConnectivityProvider(hasSeenGuide: visibilityProvider.hasSeenGuide),
+            update: (_, visibilityProvider, connectivityProvider) {
+              if (visibilityProvider.hasSeenGuide) {
+                connectivityProvider!.setHasSeenGuideTrue();
+              }
 
-            return connectivityProvider!;
+              return connectivityProvider!;
+            },
+          ),
+          if (_appEntryFlow == AppEntryFlow.vaultHome) ...{
+            Provider<WalletCreationProvider>(create: (_) => WalletCreationProvider()),
+            Provider<SignProvider>(create: (_) => SignProvider()),
           },
-        ),
-        if (_appEntryFlow == AppEntryFlow.vaultHome) ...{
-          Provider<WalletCreationProvider>(create: (_) => WalletCreationProvider()),
-          Provider<SignProvider>(create: (_) => SignProvider()),
-        },
-      ],
-      child: Directionality(
-        textDirection: TextDirection.ltr,
-        child:
-            _appEntryFlow == AppEntryFlow.vaultHome
-                ? MainRouteGuard(
-                  onAppGoBackground: () => _updateEntryFlow(AppEntryFlow.pinCheckAppResumed),
-                  onAppGoInactive: () {
-                    if (Platform.isAndroid) return; // 안드로이드는 Native에서 처리
+        ],
+        child: Directionality(
+          textDirection: TextDirection.ltr,
+          child:
+              _appEntryFlow == AppEntryFlow.vaultHome
+                  ? MainRouteGuard(
+                    onAppGoBackground: () => _updateEntryFlow(AppEntryFlow.pinCheckAppResumed),
+                    onAppGoInactive: () {
+                      if (Platform.isAndroid) return; // 안드로이드는 Native에서 처리
 
-                    setState(() {
-                      _isInactive = true;
-                    });
-                  },
-                  onAppGoActive: () {
-                    /// 지갑이 0개인 경우에는 pin_check_screen을 거치지 않아서 여기서 생체인증 상태를 업데이트
-                    if (_appEntryFlow == AppEntryFlow.vaultHome) {
-                      authProvider.updateDeviceBiometricAvailability();
-                    }
-                    if (Platform.isAndroid) return; // 안드로이드는 Native에서 처리
+                      setState(() {
+                        _isInactive = true;
+                      });
+                    },
+                    onAppGoActive: () {
+                      /// 지갑이 0개인 경우에는 pin_check_screen을 거치지 않아서 여기서 생체인증 상태를 업데이트
+                      if (_appEntryFlow == AppEntryFlow.vaultHome) {
+                        authProvider.updateDeviceBiometricAvailability();
+                      }
+                      if (Platform.isAndroid) return; // 안드로이드는 Native에서 처리
 
-                    setState(() {
-                      _isInactive = false;
-                    });
-                  },
-                  child: Stack(
-                    children: [
-                      CupertinoApp(
-                        debugShowCheckedModeBanner: false,
-                        localizationsDelegates: const [
-                          DefaultMaterialLocalizations.delegate,
-                          DefaultWidgetsLocalizations.delegate,
-                          DefaultCupertinoLocalizations.delegate,
-                        ],
-                        theme: const CupertinoThemeData(
-                          brightness: Brightness.light,
-                          primaryColor: CoconutColors.black, // 기본 색상
-                          scaffoldBackgroundColor: CoconutColors.white, // 배경색
-                          textTheme: CupertinoTextThemeData(
-                            navTitleTextStyle: TextStyle(
-                              fontFamily: 'Pretendard',
-                              fontSize: 14,
-                              fontWeight: FontWeight.w600,
-                              color: CoconutColors.gray800, // 제목 텍스트 색상
+                      setState(() {
+                        _isInactive = false;
+                      });
+                    },
+                    child: Stack(
+                      children: [
+                        CupertinoApp(
+                          navigatorKey: _navigatorKey,
+                          debugShowCheckedModeBanner: false,
+                          localizationsDelegates: const [
+                            DefaultMaterialLocalizations.delegate,
+                            DefaultWidgetsLocalizations.delegate,
+                            DefaultCupertinoLocalizations.delegate,
+                          ],
+                          theme: const CupertinoThemeData(
+                            brightness: Brightness.light,
+                            primaryColor: CoconutColors.black, // 기본 색상
+                            scaffoldBackgroundColor: CoconutColors.white, // 배경색
+                            textTheme: CupertinoTextThemeData(
+                              navTitleTextStyle: TextStyle(
+                                fontFamily: 'Pretendard',
+                                fontSize: 14,
+                                fontWeight: FontWeight.w600,
+                                color: CoconutColors.gray800, // 제목 텍스트 색상
+                              ),
+                              textStyle: TextStyle(
+                                fontFamily: 'Pretendard',
+                                fontSize: 16,
+                                fontWeight: FontWeight.w400,
+                                color: CoconutColors.black, // 기본 텍스트 색상
+                              ),
                             ),
-                            textStyle: TextStyle(
-                              fontFamily: 'Pretendard',
-                              fontSize: 16,
-                              fontWeight: FontWeight.w400,
-                              color: CoconutColors.black, // 기본 텍스트 색상
-                            ),
+                            barBackgroundColor: CoconutColors.white,
                           ),
-                          barBackgroundColor: CoconutColors.white,
-                        ),
-                        color: CoconutColors.white,
-                        home: _getHomeScreenRoute(_appEntryFlow, context),
-                        routes: {
-                          AppRoutes.vaultList: (context) => const VaultListScreen(),
-                          AppRoutes.vaultTypeSelection: (context) => const VaultTypeSelectionScreen(),
-                          AppRoutes.multisigQuorumSelection: (context) => const MultisigQuorumSelectionScreen(),
-                          AppRoutes.signerAssignment: (context) => const SignerAssignmentScreen(),
-                          AppRoutes.vaultCreationOptions: (context) => const VaultCreationOptions(),
-                          AppRoutes.mnemonicVerify: (context) => const MnemonicVerifyScreen(),
-                          AppRoutes.mnemonicImport: (context) => const MnemonicImportScreen(),
-                          AppRoutes.seedQrImport: (context) => const SeedQrImportScreen(),
-                          AppRoutes.mnemonicConfirmation:
-                              (context) => buildScreenWithArguments(
-                                context,
-                                (args) => MnemonicConfirmationScreen(calledFrom: args['calledFrom']),
-                              ),
-                          AppRoutes.mnemonicView:
-                              (context) =>
-                                  buildScreenWithArguments(context, (args) => MnemonicViewScreen(walletId: args['id'])),
-                          AppRoutes.vaultNameSetup: (context) => const VaultNameAndIconSetupScreen(),
-                          AppRoutes.singleSigSetupInfo:
-                              (context) => buildScreenWithArguments(
-                                context,
-                                (args) => SingleSigSetupInfoScreen(id: args['id'], entryPoint: args['entryPoint']),
-                              ),
-                          AppRoutes.multisigSetupInfo:
-                              (context) => buildScreenWithArguments(
-                                context,
-                                (args) => MultisigSetupInfoScreen(id: args['id'], entryPoint: args['entryPoint']),
-                              ),
-                          AppRoutes.multisigBsmsView:
-                              (context) =>
-                                  buildScreenWithArguments(context, (args) => MultisigBsmsScreen(id: args['id'])),
-                          AppRoutes.mnemonicWordList: (context) => const MnemonicWordListScreen(),
-                          AppRoutes.addressList:
-                              (context) => buildScreenWithArguments(
-                                context,
-                                (args) => AddressListScreen(
-                                  id: args['id'],
-                                  isSpecificVault: args['isSpecificVault'] ?? false,
-                                ),
-                              ),
-                          AppRoutes.signerBsmsScanner:
-                              (context) => buildScreenWithArguments(
-                                context,
-                                (args) => MultisigBsmsScannerScreen(id: args['id'], screenType: args['screenType']),
-                              ),
-                          AppRoutes.psbtScanner:
-                              (context) =>
-                                  buildScreenWithArguments(context, (args) => PsbtScannerScreen(id: args['id'])),
-                          AppRoutes.psbtConfirmation: (context) => const PsbtConfirmationScreen(),
-                          AppRoutes.signedTransaction: (context) => const SignedTransactionQrScreen(),
-                          AppRoutes.syncToWallet:
-                              (context) => buildScreenWithArguments(
-                                context,
-                                (args) => SyncToWalletScreen(id: args['id'], syncOption: args['syncOption']),
-                              ),
-                          AppRoutes.multisigSignerBsmsExport:
-                              (context) => buildScreenWithArguments(
-                                context,
-                                (args) => MultisigSignerBsmsExportScreen(id: args['id']),
-                              ),
-                          AppRoutes.multisigSign: (context) => const MultisigSignScreen(),
-                          AppRoutes.singleSigSign: (context) => const SingleSigSignScreen(),
-                          AppRoutes.securitySelfCheck: (context) {
-                            final VoidCallback? onNextPressed =
-                                ModalRoute.of(context)?.settings.arguments as VoidCallback?;
-                            return SecuritySelfCheckScreen(onNextPressed: onNextPressed);
-                          },
-                          AppRoutes.mnemonicAutoGen:
-                              (context) => const MnemonicAutoGenScreen(entropyType: EntropyType.auto),
-                          AppRoutes.mnemonicCoinflip:
-                              (context) => const MnemonicCoinflipScreen(entropyType: EntropyType.manual),
-                          AppRoutes.mnemonicDiceRoll:
-                              (context) => const MnemonicDiceRollScreen(entropyType: EntropyType.manual),
-                          AppRoutes.appInfo: (context) => const AppInfoScreen(),
-                          AppRoutes.welcome: (context) {
-                            onComplete() {
-                              _updateEntryFlow(AppEntryFlow.vaultHome);
-                            }
-
-                            return WelcomeScreen(onComplete: onComplete);
-                          },
-                          AppRoutes.prepareUpdate:
-                              (context) => const CustomLoadingOverlay(child: AppUpdatePreparationScreen()),
-                          AppRoutes.passphraseVerification:
-                              (context) => buildScreenWithArguments(
-                                context,
-                                (args) => PassphraseVerificationScreen(id: args['id']),
-                              ),
-                          AppRoutes.vaultModeSelection: (context) => const VaultModeSelectionScreen(),
-                        },
-                      ),
-                      if (_isInactive)
-                        Container(
                           color: CoconutColors.white,
-                          child: Center(
-                            child: Image.asset(
-                              'assets/png/splash_logo_${NetworkType.currentNetworkType.isTestnet ? "regtest" : "mainnet"}.png',
-                              width: 60,
-                              fit: BoxFit.fitWidth,
+                          home: _getHomeScreenRoute(_appEntryFlow, context),
+                          builder: (context, child) {
+                            return Stack(
+                              children: [
+                                child ?? const SizedBox.shrink(),
+                                Builder(
+                                  builder: (builderContext) {
+                                    // Signing Only Mode일 때만 표시
+                                    if (preferenceProvider.getVaultMode() != VaultMode.signingOnly ||
+                                        _appEntryFlow != AppEntryFlow.vaultHome) {
+                                      return const SizedBox.shrink();
+                                    }
+
+                                    return _floatingExitButton(context);
+                                  },
+                                ),
+                              ],
+                            );
+                          },
+                          routes: {
+                            AppRoutes.vaultList: (context) => const VaultListScreen(),
+                            AppRoutes.vaultTypeSelection: (context) => const VaultTypeSelectionScreen(),
+                            AppRoutes.multisigQuorumSelection: (context) => const MultisigQuorumSelectionScreen(),
+                            AppRoutes.signerAssignment: (context) => const SignerAssignmentScreen(),
+                            AppRoutes.vaultCreationOptions: (context) => const VaultCreationOptions(),
+                            AppRoutes.mnemonicVerify: (context) => const MnemonicVerifyScreen(),
+                            AppRoutes.mnemonicImport: (context) => const MnemonicImportScreen(),
+                            AppRoutes.seedQrImport: (context) => const SeedQrImportScreen(),
+                            AppRoutes.mnemonicConfirmation:
+                                (context) => buildScreenWithArguments(
+                                  context,
+                                  (args) => MnemonicConfirmationScreen(calledFrom: args['calledFrom']),
+                                ),
+                            AppRoutes.mnemonicView:
+                                (context) => buildScreenWithArguments(
+                                  context,
+                                  (args) => MnemonicViewScreen(walletId: args['id']),
+                                ),
+                            AppRoutes.vaultNameSetup: (context) => const VaultNameAndIconSetupScreen(),
+                            AppRoutes.singleSigSetupInfo:
+                                (context) => buildScreenWithArguments(
+                                  context,
+                                  (args) => SingleSigSetupInfoScreen(id: args['id'], entryPoint: args['entryPoint']),
+                                ),
+                            AppRoutes.multisigSetupInfo:
+                                (context) => buildScreenWithArguments(
+                                  context,
+                                  (args) => MultisigSetupInfoScreen(id: args['id'], entryPoint: args['entryPoint']),
+                                ),
+                            AppRoutes.multisigBsmsView:
+                                (context) =>
+                                    buildScreenWithArguments(context, (args) => MultisigBsmsScreen(id: args['id'])),
+                            AppRoutes.mnemonicWordList: (context) => const MnemonicWordListScreen(),
+                            AppRoutes.addressList:
+                                (context) => buildScreenWithArguments(
+                                  context,
+                                  (args) => AddressListScreen(
+                                    id: args['id'],
+                                    isSpecificVault: args['isSpecificVault'] ?? false,
+                                  ),
+                                ),
+                            AppRoutes.signerBsmsScanner:
+                                (context) => buildScreenWithArguments(
+                                  context,
+                                  (args) => MultisigBsmsScannerScreen(id: args['id'], screenType: args['screenType']),
+                                ),
+                            AppRoutes.psbtScanner:
+                                (context) =>
+                                    buildScreenWithArguments(context, (args) => PsbtScannerScreen(id: args['id'])),
+                            AppRoutes.psbtConfirmation: (context) => const PsbtConfirmationScreen(),
+                            AppRoutes.signedTransaction: (context) => const SignedTransactionQrScreen(),
+                            AppRoutes.syncToWallet:
+                                (context) => buildScreenWithArguments(
+                                  context,
+                                  (args) => SyncToWalletScreen(id: args['id'], syncOption: args['syncOption']),
+                                ),
+                            AppRoutes.multisigSignerBsmsExport:
+                                (context) => buildScreenWithArguments(
+                                  context,
+                                  (args) => MultisigSignerBsmsExportScreen(id: args['id']),
+                                ),
+                            AppRoutes.multisigSign: (context) => const MultisigSignScreen(),
+                            AppRoutes.singleSigSign: (context) => const SingleSigSignScreen(),
+                            AppRoutes.securitySelfCheck: (context) {
+                              final VoidCallback? onNextPressed =
+                                  ModalRoute.of(context)?.settings.arguments as VoidCallback?;
+                              return SecuritySelfCheckScreen(onNextPressed: onNextPressed);
+                            },
+                            AppRoutes.mnemonicAutoGen:
+                                (context) => const MnemonicAutoGenScreen(entropyType: EntropyType.auto),
+                            AppRoutes.mnemonicCoinflip:
+                                (context) => const MnemonicCoinflipScreen(entropyType: EntropyType.manual),
+                            AppRoutes.mnemonicDiceRoll:
+                                (context) => const MnemonicDiceRollScreen(entropyType: EntropyType.manual),
+                            AppRoutes.appInfo: (context) => const AppInfoScreen(),
+                            AppRoutes.welcome: (context) {
+                              onComplete() {
+                                _updateEntryFlow(AppEntryFlow.vaultHome);
+                              }
+
+                              return WelcomeScreen(onComplete: onComplete);
+                            },
+                            AppRoutes.prepareUpdate:
+                                (context) => const CustomLoadingOverlay(child: AppUpdatePreparationScreen()),
+                            AppRoutes.passphraseVerification:
+                                (context) => buildScreenWithArguments(
+                                  context,
+                                  (args) => PassphraseVerificationScreen(id: args['id']),
+                                ),
+                            AppRoutes.vaultModeSelection: (context) => const VaultModeSelectionScreen(),
+                          },
+                        ),
+                        if (_isInactive)
+                          Container(
+                            color: CoconutColors.white,
+                            child: Center(
+                              child: Image.asset(
+                                'assets/png/splash_logo_${NetworkType.currentNetworkType.isTestnet ? "regtest" : "mainnet"}.png',
+                                width: 60,
+                                fit: BoxFit.fitWidth,
+                              ),
                             ),
                           ),
-                        ),
+                      ],
+                    ),
+                  )
+                  : CupertinoApp(
+                    debugShowCheckedModeBanner: false,
+                    localizationsDelegates: const [
+                      DefaultMaterialLocalizations.delegate,
+                      DefaultWidgetsLocalizations.delegate,
+                      DefaultCupertinoLocalizations.delegate,
                     ],
+                    theme: cupertinoThemeData,
+                    color: CoconutColors.white,
+                    home: _getHomeScreenRoute(_appEntryFlow, context),
+                    routes: {
+                      AppRoutes.welcome:
+                          (context) => WelcomeScreen(onComplete: () => _updateEntryFlow(AppEntryFlow.vaultHome)),
+                      AppRoutes.vaultModeSelection:
+                          (context) => buildScreenWithArguments(
+                            context,
+                            (args) =>
+                                VaultModeSelectionScreen(onComplete: () => _updateEntryFlow(AppEntryFlow.vaultHome)),
+                          ),
+                    },
                   ),
-                )
-                : CupertinoApp(
-                  debugShowCheckedModeBanner: false,
-                  localizationsDelegates: const [
-                    DefaultMaterialLocalizations.delegate,
-                    DefaultWidgetsLocalizations.delegate,
-                    DefaultCupertinoLocalizations.delegate,
-                  ],
-                  theme: cupertinoThemeData,
-                  color: CoconutColors.white,
-                  home: _getHomeScreenRoute(_appEntryFlow, context),
-                  routes: {
-                    AppRoutes.welcome:
-                        (context) => WelcomeScreen(onComplete: () => _updateEntryFlow(AppEntryFlow.vaultHome)),
-                    AppRoutes.vaultModeSelection:
-                        (context) => buildScreenWithArguments(
-                          context,
-                          (args) =>
-                              VaultModeSelectionScreen(onComplete: () => _updateEntryFlow(AppEntryFlow.vaultHome)),
-                        ),
+        ),
+      ),
+    );
+  }
+
+  Positioned _floatingExitButton(BuildContext context) {
+    return Positioned(
+      top: _signingModeIndicatorTop,
+      right: 0,
+      child: Listener(
+        onPointerDown: (details) {
+          _longPressTimer = Timer(const Duration(milliseconds: 300), () {
+            if (mounted) {
+              setState(() {
+                _isDraggingVertically = true;
+              });
+              HapticFeedback.mediumImpact();
+            }
+          });
+        },
+        onPointerUp: (details) {
+          _longPressTimer?.cancel();
+          if (_isDraggingVertically) {
+            setState(() {
+              _isDraggingVertically = false;
+            });
+          }
+        },
+        onPointerCancel: (details) {
+          _longPressTimer?.cancel();
+          if (_isDraggingVertically) {
+            setState(() {
+              _isDraggingVertically = false;
+            });
+          }
+        },
+        onPointerMove: (details) {
+          if (_isDraggingVertically) {
+            // 수직 드래그
+            setState(() {
+              _signingModeIndicatorTop = details.position.dy - 25;
+              final screenHeight = MediaQuery.of(context).size.height;
+              final topPadding = MediaQuery.of(context).padding.top;
+              _signingModeIndicatorTop = _signingModeIndicatorTop.clamp(
+                topPadding + kToolbarHeight,
+                screenHeight - 100.0,
+              );
+            });
+          }
+        },
+        child: GestureDetector(
+          // 수평 드래그는 GestureDetector로 처리
+          onPanUpdate: (details) {
+            if (!_isDraggingVertically) {
+              setState(() {
+                _signingModeIndicatorWidth -= details.delta.dx;
+                _signingModeIndicatorWidth = _signingModeIndicatorWidth.clamp(20.0, 100.0);
+              });
+            }
+          },
+          onPanEnd: (details) {
+            if (!_isDraggingVertically) {
+              setState(() {
+                if (details.velocity.pixelsPerSecond.dx.abs() > 500) {
+                  if (details.velocity.pixelsPerSecond.dx < 0) {
+                    _signingModeIndicatorWidth = 100.0;
+                  } else {
+                    _signingModeIndicatorWidth = 20.0;
+                  }
+                } else {
+                  _signingModeIndicatorWidth = _signingModeIndicatorWidth > 70 ? 100.0 : 20.0;
+                }
+              });
+            }
+          },
+          child: AnimatedContainer(
+            key: _indicatorKey,
+            duration: const Duration(milliseconds: 200),
+            curve: Curves.easeOut,
+            width: _signingModeIndicatorWidth + 20 + (_isDraggingVertically ? 4 : 0),
+            height: 100,
+            decoration: BoxDecoration(
+              color:
+                  _signingModeIndicatorWidth != 100.0
+                      ? CoconutColors.black.withValues(alpha: 0.8)
+                      : CoconutColors.black,
+              borderRadius: const BorderRadius.only(topLeft: Radius.circular(10), bottomLeft: Radius.circular(10)),
+              border: _isDraggingVertically ? Border.all(color: CoconutColors.white, width: 2) : null,
+            ),
+            child: Row(
+              children: [
+                GestureDetector(
+                  onTap: () {
+                    if (_signingModeIndicatorWidth != 100.0) {
+                      setState(() {
+                        _signingModeIndicatorWidth = 100.0;
+                      });
+                    } else {
+                      setState(() {
+                        _signingModeIndicatorWidth = 20.0;
+                      });
+                    }
                   },
+                  behavior: HitTestBehavior.opaque,
+                  child: SizedBox(
+                    width: 40,
+                    height: double.infinity,
+                    child: Container(
+                      alignment: Alignment.centerLeft,
+                      padding: const EdgeInsets.symmetric(horizontal: 10),
+                      child: AnimatedRotation(
+                        turns: _signingModeIndicatorWidth != 100.0 ? 0.25 : -0.25,
+                        duration: const Duration(milliseconds: 200),
+                        curve: Curves.easeOut,
+                        child: SvgPicture.asset(
+                          'assets/svg/arrow-down.svg',
+                          width: 10,
+                          height: 10,
+                          colorFilter: const ColorFilter.mode(CoconutColors.white, BlendMode.srcIn),
+                        ),
+                      ),
+                    ),
+                  ),
                 ),
+                if (_signingModeIndicatorWidth == 100.0)
+                  Expanded(
+                    child: ShrinkAnimationButton(
+                      onPressed: () {
+                        final navContext = _navigatorKey.currentContext;
+                        if (navContext != null) {
+                          if (_isExitDialogOpen) return;
+                          _isExitDialogOpen = true;
+                          showDialog(
+                            context: navContext,
+                            builder: (BuildContext dialogContext) {
+                              return CoconutPopup(
+                                insetPadding: EdgeInsets.symmetric(
+                                  horizontal: MediaQuery.of(navContext).size.width * 0.15,
+                                ),
+                                title: t.exit_vault,
+                                description: t.exit_vault_description,
+                                backgroundColor: CoconutColors.white,
+                                leftButtonText: t.cancel,
+                                rightButtonText: t.confirm,
+                                rightButtonColor: CoconutColors.black,
+                                onTapLeft: () {
+                                  Navigator.pop(dialogContext);
+                                  _isExitDialogOpen = false;
+                                },
+                                onTapRight: () {
+                                  _isExitDialogOpen = false;
+                                  // TODO: 초기화 작업 수행
+                                  if (Platform.isAndroid) {
+                                    SystemNavigator.pop();
+                                  } else {
+                                    exit(0);
+                                  }
+                                },
+                              );
+                            },
+                          );
+                        }
+                      },
+                      defaultColor: Colors.transparent,
+                      pressedColor: Colors.transparent,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          SvgPicture.asset(
+                            'assets/svg/exit.svg',
+                            width: 24,
+                            height: 24,
+                            colorFilter: const ColorFilter.mode(CoconutColors.white, BlendMode.srcIn),
+                          ),
+                          CoconutLayout.spacing_200h,
+                          FittedBox(
+                            fit: BoxFit.scaleDown,
+                            child: Text(
+                              t.exit_vault,
+                              style: CoconutTypography.body2_14_Bold.copyWith(color: CoconutColors.white),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+          ),
+        ),
       ),
     );
   }
