@@ -10,7 +10,7 @@ import 'package:coconut_vault/providers/auth_provider.dart';
 import 'package:coconut_vault/providers/connectivity_provider.dart';
 import 'package:coconut_vault/providers/preference_provider.dart';
 import 'package:coconut_vault/providers/visibility_provider.dart';
-import 'package:coconut_vault/providers/wallet_provider.dart';
+import 'package:coconut_vault/providers/wallet_provider/wallet_provider.dart';
 import 'package:coconut_vault/repository/secure_storage_repository.dart';
 import 'package:coconut_vault/repository/shared_preferences_repository.dart';
 import 'package:coconut_vault/screens/common/pin_check_screen.dart';

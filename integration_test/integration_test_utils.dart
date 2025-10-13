@@ -8,7 +8,7 @@ import 'package:coconut_vault/repository/wallet_repository.dart';
 import 'package:coconut_vault/model/multisig/multisig_signer.dart';
 import 'package:coconut_vault/model/multisig/multisig_wallet.dart';
 import 'package:coconut_vault/model/single_sig/single_sig_wallet_create_dto.dart';
-import 'package:coconut_vault/providers/wallet_provider.dart';
+import 'package:coconut_vault/providers/wallet_provider/wallet_provider.dart';
 import 'package:coconut_vault/repository/secure_storage_repository.dart';
 import 'package:coconut_vault/repository/shared_preferences_repository.dart';
 import 'package:coconut_vault/utils/coconut/update_preparation.dart';

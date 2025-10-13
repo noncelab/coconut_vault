@@ -54,7 +54,7 @@ import 'package:coconut_vault/screens/vault_menu/info/single_sig_setup_info_scre
 import 'package:coconut_vault/widgets/button/shrink_animation_button.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:coconut_vault/providers/wallet_provider.dart';
+import 'package:coconut_vault/providers/wallet_provider/wallet_provider.dart';
 import 'package:coconut_vault/screens/common/pin_check_screen.dart';
 import 'package:coconut_vault/screens/common/start_screen.dart';
 import 'package:coconut_vault/widgets/custom_loading_overlay.dart';

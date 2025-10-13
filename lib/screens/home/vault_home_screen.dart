@@ -12,7 +12,7 @@ import 'package:coconut_vault/providers/connectivity_provider.dart';
 import 'package:coconut_vault/providers/preference_provider.dart';
 import 'package:coconut_vault/providers/view_model/home/vault_home_view_model.dart';
 import 'package:coconut_vault/providers/visibility_provider.dart';
-import 'package:coconut_vault/providers/wallet_provider.dart';
+import 'package:coconut_vault/providers/wallet_provider/wallet_provider.dart';
 import 'package:coconut_vault/screens/common/multisig_bsms_scanner_screen.dart';
 import 'package:coconut_vault/screens/home/select_sync_option_bottom_sheet.dart';
 import 'package:coconut_vault/screens/home/select_vault_bottom_sheet.dart';

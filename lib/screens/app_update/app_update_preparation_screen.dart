@@ -4,7 +4,7 @@ import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_vault/enums/app_update_step_enum.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/providers/view_model/app_update_preparation_view_model.dart';
-import 'package:coconut_vault/providers/wallet_provider.dart';
+import 'package:coconut_vault/providers/wallet_provider/wallet_provider.dart';
 import 'package:coconut_vault/utils/vibration_util.dart';
 import 'package:coconut_vault/widgets/indicator/countdown_spinner.dart';
 import 'package:coconut_vault/widgets/indicator/percent_progress_indicator.dart';

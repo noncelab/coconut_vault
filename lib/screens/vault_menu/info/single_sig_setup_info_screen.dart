@@ -22,7 +22,7 @@ import 'package:coconut_vault/widgets/custom_loading_overlay.dart';
 import 'package:provider/provider.dart';
 import 'package:shimmer/shimmer.dart';
 
-import '../../../providers/wallet_provider.dart';
+import '../../../providers/wallet_provider/wallet_provider.dart';
 
 class SingleSigSetupInfoScreen extends StatefulWidget {
   final int id;

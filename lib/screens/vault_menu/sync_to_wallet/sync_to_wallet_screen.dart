@@ -3,7 +3,7 @@ import 'package:coconut_vault/enums/wallet_enums.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/providers/view_model/vault_menu/sync_to_wallet_view_model.dart';
 import 'package:coconut_vault/providers/visibility_provider.dart';
-import 'package:coconut_vault/providers/wallet_provider.dart';
+import 'package:coconut_vault/providers/wallet_provider/wallet_provider.dart';
 import 'package:coconut_vault/screens/home/select_sync_option_bottom_sheet.dart';
 import 'package:coconut_vault/services/blockchain_commons/ur_type.dart';
 import 'package:coconut_vault/widgets/animated_qr/animated_qr_view.dart';

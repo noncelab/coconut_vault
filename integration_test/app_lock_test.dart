@@ -4,7 +4,7 @@ import 'dart:typed_data';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/model/single_sig/single_sig_wallet_create_dto.dart';
 import 'package:coconut_vault/providers/auth_provider.dart';
-import 'package:coconut_vault/providers/wallet_provider.dart';
+import 'package:coconut_vault/providers/wallet_provider/wallet_provider.dart';
 import 'package:coconut_vault/repository/secure_storage_repository.dart';
 import 'package:coconut_vault/screens/common/pin_input_screen.dart';
 import 'package:flutter/cupertino.dart';

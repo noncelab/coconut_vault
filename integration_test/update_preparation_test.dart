@@ -6,7 +6,7 @@ import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/model/common/vault_list_item_base.dart';
 import 'package:coconut_vault/providers/auth_provider.dart';
 import 'package:coconut_vault/providers/view_model/app_update_preparation_view_model.dart';
-import 'package:coconut_vault/providers/wallet_provider.dart';
+import 'package:coconut_vault/providers/wallet_provider/wallet_provider.dart';
 import 'package:coconut_vault/repository/secure_storage_repository.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';

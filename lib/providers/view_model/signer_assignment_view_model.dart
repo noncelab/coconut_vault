@@ -8,7 +8,7 @@ import 'package:coconut_vault/model/common/vault_list_item_base.dart';
 import 'package:coconut_vault/model/multisig/multisig_signer.dart';
 import 'package:coconut_vault/model/single_sig/single_sig_vault_list_item.dart';
 import 'package:coconut_vault/providers/wallet_creation_provider.dart';
-import 'package:coconut_vault/providers/wallet_provider.dart';
+import 'package:coconut_vault/providers/wallet_provider/wallet_provider.dart';
 import 'package:coconut_vault/screens/vault_creation/multisig/signer_assignment_screen.dart';
 import 'package:flutter/foundation.dart';
 

@@ -8,7 +8,7 @@ import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/model/common/vault_list_item_base.dart';
 import 'package:coconut_vault/model/single_sig/single_sig_wallet_create_dto.dart';
 import 'package:coconut_vault/providers/wallet_creation_provider.dart';
-import 'package:coconut_vault/providers/wallet_provider.dart';
+import 'package:coconut_vault/providers/wallet_provider/wallet_provider.dart';
 import 'package:coconut_vault/utils/logger.dart';
 import 'package:coconut_vault/widgets/button/fixed_bottom_button.dart';
 import 'package:coconut_vault/widgets/indicator/message_activity_indicator.dart';

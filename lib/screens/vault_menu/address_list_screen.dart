@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/providers/view_model/address_list_view_model.dart';
-import 'package:coconut_vault/providers/wallet_provider.dart';
+import 'package:coconut_vault/providers/wallet_provider/wallet_provider.dart';
 import 'package:coconut_vault/screens/common/qrcode_bottom_sheet.dart';
 import 'package:coconut_vault/screens/home/select_vault_bottom_sheet.dart';
 import 'package:coconut_vault/utils/logger.dart';

@@ -1,5 +1,5 @@
 import 'package:coconut_vault/model/common/vault_list_item_base.dart';
-import 'package:coconut_vault/providers/wallet_provider.dart';
+import 'package:coconut_vault/providers/wallet_provider/wallet_provider.dart';
 import 'package:flutter/material.dart';
 
 abstract class VaultSetupInfoViewModelBase<T extends VaultListItemBase> extends ChangeNotifier {

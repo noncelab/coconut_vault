@@ -4,7 +4,7 @@ import 'package:coconut_vault/model/exception/extended_public_key_not_found_exce
 import 'package:coconut_vault/model/exception/vault_can_not_sign_exception.dart';
 import 'package:coconut_vault/model/exception/vault_not_found_exception.dart';
 import 'package:coconut_vault/providers/sign_provider.dart';
-import 'package:coconut_vault/providers/wallet_provider.dart';
+import 'package:coconut_vault/providers/wallet_provider/wallet_provider.dart';
 import 'package:coconut_vault/utils/logger.dart';
 
 class PsbtScannerViewModel {

@@ -7,7 +7,7 @@ import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/providers/auth_provider.dart';
 import 'package:coconut_vault/providers/preference_provider.dart';
 import 'package:coconut_vault/providers/visibility_provider.dart';
-import 'package:coconut_vault/providers/wallet_provider.dart';
+import 'package:coconut_vault/providers/wallet_provider/wallet_provider.dart';
 import 'package:coconut_vault/screens/settings/language_bottom_sheet.dart';
 import 'package:coconut_vault/screens/settings/unit_bottm_sheet.dart';
 import 'package:coconut_vault/screens/settings/pin_setting_screen.dart';

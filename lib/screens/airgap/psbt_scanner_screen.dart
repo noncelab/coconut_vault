@@ -15,7 +15,7 @@ import 'package:coconut_vault/widgets/animated_qr/scan_data_handler/i_qr_scan_da
 import 'package:coconut_vault/widgets/custom_loading_overlay.dart';
 import 'package:coconut_vault/widgets/custom_tooltip.dart';
 import 'package:flutter/material.dart';
-import 'package:coconut_vault/providers/wallet_provider.dart';
+import 'package:coconut_vault/providers/wallet_provider/wallet_provider.dart';
 import 'package:coconut_vault/utils/vibration_util.dart';
 import 'package:loader_overlay/loader_overlay.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
