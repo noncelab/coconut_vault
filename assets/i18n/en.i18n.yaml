@@ -229,7 +229,7 @@ coconut_qr_scanner:
 
 # lib/screens/setting
 app_info_screen:
-  made_by_team_pow: "Made by POW Team."
+  powered_by_noncelab: "powered by NonceLab."
   category1_ask: "Have questions?"
   go_to_pow: "Go to POW Community"
   ask_to_discord: "Ask via Discord"

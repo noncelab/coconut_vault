@@ -231,7 +231,7 @@ coconut_qr_scanner:
 
 # lib/screens/setting
 app_info_screen:
-  made_by_team_pow: "포우팀이 만듭니다."
+  powered_by_noncelab: "논스랩이 만듭니다."
   category1_ask: "궁금한 점이 있으신가요?"
   go_to_pow: "POW 커뮤니티 바로가기"
   ask_to_discord: "디스코드 채널로 문의하기"

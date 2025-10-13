@@ -213,7 +213,7 @@ class _AppInfoScreenState extends State<AppInfoScreen> {
                       style: CoconutTypography.body2_14_Bold.setColor(CoconutColors.black.withValues(alpha: 0.7)),
                     ),
                     Text(
-                      t.app_info_screen.made_by_team_pow,
+                      t.app_info_screen.powered_by_noncelab,
                       style: CoconutTypography.body2_14.setColor(CoconutColors.black.withValues(alpha: 0.7)),
                     ),
                   ],
