@@ -18,7 +18,6 @@ import 'package:coconut_vault/screens/home/select_sync_option_bottom_sheet.dart'
 import 'package:coconut_vault/screens/home/select_vault_bottom_sheet.dart';
 import 'package:coconut_vault/screens/settings/pin_setting_screen.dart';
 import 'package:coconut_vault/screens/vault_menu/info/passphrase_check_screen.dart';
-import 'package:coconut_vault/utils/logger.dart';
 import 'package:coconut_vault/widgets/button/shrink_animation_button.dart';
 import 'package:coconut_vault/widgets/card/vault_addition_guide_card.dart';
 import 'package:coconut_vault/widgets/vault_row_item.dart';
@@ -312,11 +311,13 @@ class _VaultHomeScreenState extends State<VaultHomeScreen> with TickerProviderSt
                 }
 
                 bool hasPassphrase = await _viewModel.hasPassphrase(vault.id);
-                Navigator.pushNamed(
-                  context,
-                  AppRoutes.singleSigSetupInfo,
-                  arguments: {'id': vault.id, 'hasPassphrase': hasPassphrase},
-                );
+                if (mounted) {
+                  Navigator.pushNamed(
+                    context,
+                    AppRoutes.singleSigSetupInfo,
+                    arguments: {'id': vault.id, 'hasPassphrase': hasPassphrase},
+                  );
+                }
               },
             );
           } else {

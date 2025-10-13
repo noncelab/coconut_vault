@@ -38,47 +38,45 @@ class _SettingsScreenState extends State<SettingsScreen> {
       initialChildSize: 1,
       expand: false,
       builder:
-          (context, scrollController) => SafeArea(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                _buildDraggableHeader(),
-                Expanded(
-                  child: Container(
-                    decoration: const BoxDecoration(color: CoconutColors.white),
-                    child: ListView(
-                      controller: scrollController,
-                      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-                      children: [
-                        _securityPart(context),
-                        CoconutLayout.spacing_1000h,
-                        Selector<WalletProvider, bool>(
-                          selector: (context, provider) => provider.vaultList.isNotEmpty,
-                          builder:
-                              (context, isNotEmpty, _) =>
-                                  isNotEmpty
-                                      ? Column(children: [_updatePart(context), CoconutLayout.spacing_1000h])
-                                      : Container(),
-                        ),
-                        _btcUnitPart(context),
-                        CoconutLayout.spacing_1000h,
-                        _languagePart(context),
-                        CoconutLayout.spacing_1000h,
-                        _advancedUserPart(context),
-                        CoconutLayout.spacing_1000h,
-                        _informationPart(context),
-                        SizedBox(
-                          height:
-                              MediaQuery.of(context).viewPadding.bottom > 0
-                                  ? MediaQuery.of(context).viewPadding.bottom + Sizes.size12
-                                  : Sizes.size36,
-                        ),
-                      ],
-                    ),
+          (context, scrollController) => Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              _buildDraggableHeader(),
+              Expanded(
+                child: Container(
+                  decoration: const BoxDecoration(color: CoconutColors.white),
+                  child: ListView(
+                    controller: scrollController,
+                    padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+                    children: [
+                      _securityPart(context),
+                      CoconutLayout.spacing_1000h,
+                      Selector<WalletProvider, bool>(
+                        selector: (context, provider) => provider.vaultList.isNotEmpty,
+                        builder:
+                            (context, isNotEmpty, _) =>
+                                isNotEmpty
+                                    ? Column(children: [_updatePart(context), CoconutLayout.spacing_1000h])
+                                    : Container(),
+                      ),
+                      _btcUnitPart(context),
+                      CoconutLayout.spacing_1000h,
+                      _languagePart(context),
+                      CoconutLayout.spacing_1000h,
+                      _advancedUserPart(context),
+                      CoconutLayout.spacing_1000h,
+                      _informationPart(context),
+                      SizedBox(
+                        height:
+                            MediaQuery.of(context).viewPadding.bottom > 0
+                                ? MediaQuery.of(context).viewPadding.bottom + Sizes.size12
+                                : Sizes.size36,
+                      ),
+                    ],
                   ),
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
     );
   }
@@ -145,7 +143,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       title: t.settings_screen.use_biometric,
                       rightElement: CupertinoSwitch(
                         value: provider.isBiometricEnabled,
-                        activeColor: CoconutColors.black,
+                        activeTrackColor: CoconutColors.black,
                         onChanged: (isOn) async {
                           assert(provider.isBiometricSupportedByDevice);
 
@@ -224,7 +222,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     title: t.settings_screen.set_password,
                     rightElement: CupertinoSwitch(
                       value: provider.isBiometricEnabled,
-                      activeColor: CoconutColors.black,
+                      activeTrackColor: CoconutColors.black,
                       onChanged: (isOn) async {
                         /// 비밀번호 제거 기능은 제공하지 않음.
                         if (isOn) {
@@ -352,7 +350,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               title: t.settings_screen.use_passphrase,
               rightElement: CupertinoSwitch(
                 value: isPassphraseUseEnabled,
-                activeColor: CoconutColors.black,
+                activeTrackColor: CoconutColors.black,
                 onChanged: (isOn) async {
                   if (!isOn) {
                     await context.read<VisibilityProvider>().setAdvancedMode(isOn);

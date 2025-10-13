@@ -219,24 +219,6 @@ class PinInputScreenState extends State<PinInputScreen> {
                   ],
                 ),
               ),
-              // const SizedBox(height: 30),
-              // Visibility(
-              //   visible: widget.initOptionVisible,
-              //   replacement: Container(),
-              //   child: Padding(
-              //     padding: EdgeInsets.only(bottom: _characterFocusNode.hasFocus ? 30 : 50),
-              //     child: GestureDetector(
-              //       onTap: () {
-              //         widget.onReset?.call();
-              //       },
-              //       child: Text(
-              //         t.forgot_password,
-              //         style: CoconutTypography.body2_14_Bold.setColor(CoconutColors.black.withValues(alpha: 0.5)),
-              //         textAlign: TextAlign.center,
-              //       ),
-              //     ),
-              //   ),
-              // ),
             ],
           ),
         ),
