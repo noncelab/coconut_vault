@@ -23,4 +23,7 @@ class SharedPrefsKeys {
   static const String kFavoriteVaultIds = "FAVORITE_VAULT_IDS"; // 즐겨찾기된 볼트 목록
 
   static const String kVaultMode = "VAULT_MODE"; // 볼트 모드 (Secure Storage Mode, Signing-Only Mode)
+
+  static const String kSigningModeEdgePanelPosX = "SIGNING_MODE_EDGE_PANEL_POS_X"; // 서명 모드 엣지 패널 위치 X
+  static const String kSigningModeEdgePanelPosY = "SIGNING_MODE_EDGE_PANEL_POS_Y"; // 서명 모드 엣지 패널 위치 Y
 }

@@ -332,6 +332,8 @@ class _VaultModeSelectionScreenState extends State<VaultModeSelectionScreen> {
               if (!mounted) return;
               Navigator.pop(context); // PinSettingScreen 닫기
               context.read<PreferenceProvider>().setVaultMode(VaultMode.secureStorage);
+              context.read<PreferenceProvider>().resetSigningModeEdgePanelPos();
+
               // 비밀번호 설정 완료, 지갑 있는 경우 저장
               final walletProvider = context.read<WalletProvider>();
               if (walletProvider.vaultList.isNotEmpty) {

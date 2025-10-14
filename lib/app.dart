@@ -102,24 +102,50 @@ class CoconutVaultApp extends StatefulWidget {
   State<CoconutVaultApp> createState() => _CoconutVaultAppState();
 }
 
-class _CoconutVaultAppState extends State<CoconutVaultApp> {
+class _CoconutVaultAppState extends State<CoconutVaultApp> with SingleTickerProviderStateMixin {
   AppEntryFlow _appEntryFlow = AppEntryFlow.splash;
   bool _isInactive = false;
   final visibilityProvider = VisibilityProvider();
   final authProvider = AuthProvider();
   final preferenceProvider = PreferenceProvider();
-  double _signingModeIndicatorWidth = 20.0;
-  double _signingModeIndicatorTop = kToolbarHeight + 50;
-  bool _isDraggingVertically = false;
+
+  // 엣지 패널 관련 변수
+  double _signingModeEdgePanelWidth = 20.0;
+  double? _signingModeEdgePanelVerticalPos;
+  double? _signingModeEdgePanelHorizontalPos;
+  bool _isDraggingManually = false;
+  bool _isPanningEdgePanel = false; // 패널 확장/축소 중인지 여부
   bool _isExitDialogOpen = false;
   final GlobalKey<NavigatorState> _navigatorKey = GlobalKey<NavigatorState>();
   Timer? _longPressTimer;
   final GlobalKey _indicatorKey = GlobalKey();
-  ConnectivityProvider? _connectivityProvider; // 추가
+  ConnectivityProvider? _connectivityProvider;
+  late AnimationController _edgePanelAnimationController;
+  late Animation<double> _edgePanelAnimation;
+
+  @override
+  @override
+  void initState() {
+    super.initState();
+    // var edgePanelPos = preferenceProvider.getSigningModeEdgePanelPos();
+    // _signingModeEdgePanelHorizontalPos =
+    //     edgePanelPos.$1 ?? MediaQuery.sizeOf(context).width - _signingModeEdgePanelWidth - 20;
+    // _signingModeEdgePanelVerticalPos = edgePanelPos.$2 ?? kToolbarHeight + 50;
+    _edgePanelAnimationController = AnimationController(vsync: this, duration: const Duration(milliseconds: 300));
+    _edgePanelAnimation = Tween<double>(
+      begin: 0,
+      end: 0,
+    ).animate(CurvedAnimation(parent: _edgePanelAnimationController, curve: Curves.easeOut))..addListener(() {
+      setState(() {
+        _signingModeEdgePanelHorizontalPos = _edgePanelAnimation.value;
+      });
+    });
+  }
 
   @override
   void dispose() {
     _longPressTimer?.cancel();
+    _edgePanelAnimationController.dispose();
     super.dispose();
   }
 
@@ -209,7 +235,7 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> {
     return Listener(
       behavior: HitTestBehavior.translucent,
       onPointerDown: (event) {
-        if (_signingModeIndicatorWidth == 100.0) {
+        if (_signingModeEdgePanelWidth == 100.0) {
           // AnimatedContainer 영역인지 확인
           final RenderBox? box = _indicatorKey.currentContext?.findRenderObject() as RenderBox?;
           if (box != null) {
@@ -220,7 +246,7 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> {
             // 터치 위치가 indicator 영역 밖이면 축소
             if (!indicatorArea.contains(event.position) && mounted) {
               setState(() {
-                _signingModeIndicatorWidth = 20.0;
+                _signingModeEdgePanelWidth = 20.0;
                 _isExitDialogOpen = false;
               });
             }
@@ -254,11 +280,19 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> {
               return connectivityProvider;
             },
           ),
-          if (_appEntryFlow == AppEntryFlow.vaultHome) ...{
+          if (_appEntryFlow == AppEntryFlow.vaultHome) ...[
             Provider<WalletCreationProvider>(create: (_) => WalletCreationProvider()),
             Provider<SignProvider>(create: (_) => SignProvider()),
-          },
+            ChangeNotifierProvider<WalletProvider>(
+              create: (_) => WalletProvider(visibilityProvider, preferenceProvider),
+            ),
+          ] else if (_appEntryFlow == AppEntryFlow.restoration) ...[
+            ChangeNotifierProvider<WalletProvider>(
+              create: (_) => WalletProvider(visibilityProvider, preferenceProvider),
+            ),
+          ],
         ],
+
         child: Directionality(
           textDirection: TextDirection.ltr,
           child:
@@ -329,13 +363,32 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> {
                                 child ?? const SizedBox.shrink(),
                                 Consumer<PreferenceProvider>(
                                   builder: (context, prefProvider, child) {
-                                    // Signing Only Mode일 때만 표시
-                                    if (prefProvider.getVaultMode() != VaultMode.signingOnly ||
-                                        _appEntryFlow != AppEntryFlow.vaultHome) {
-                                      return const SizedBox.shrink();
-                                    }
+                                    // 드래그 중이나 패널 확장/축소 중이 아닐 때만 위치 업데이트
+                                    if (!_isDraggingManually && !_isPanningEdgePanel) {
+                                      final savedPosX = prefProvider.signingModeEdgePanelPos.$1;
+                                      final savedPosY = prefProvider.signingModeEdgePanelPos.$2;
 
-                                    return _floatingExitButton(context);
+                                      // provider 값이 null이면 항상 초기값으로 리셋
+                                      if (savedPosX != null) {
+                                        _signingModeEdgePanelHorizontalPos = savedPosX;
+                                      } else {
+                                        _signingModeEdgePanelHorizontalPos =
+                                            _signingModeEdgePanelWidth == 20
+                                                ? MediaQuery.sizeOf(context).width - _signingModeEdgePanelWidth - 20
+                                                : MediaQuery.sizeOf(context).width - _signingModeEdgePanelWidth + 60;
+                                      }
+
+                                      if (savedPosY != null) {
+                                        _signingModeEdgePanelVerticalPos = savedPosY;
+                                      } else {
+                                        _signingModeEdgePanelVerticalPos = kToolbarHeight + 50;
+                                      }
+                                    }
+                                    final isButtonVisible =
+                                        prefProvider.getVaultMode() != VaultMode.signingOnly ||
+                                        _appEntryFlow != AppEntryFlow.vaultHome;
+
+                                    return _floatingExitButton(context, isButtonVisible);
                                   },
                                 ),
                               ],
@@ -474,16 +527,26 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> {
     );
   }
 
-  Positioned _floatingExitButton(BuildContext context) {
+  Widget _floatingExitButton(BuildContext context, bool isButtonVisible) {
+    final halfScreenWidth = MediaQuery.sizeOf(context).width / 2;
+
     return Positioned(
-      top: _signingModeIndicatorTop,
-      right: 0,
+      top: _signingModeEdgePanelVerticalPos,
+      left: _signingModeEdgePanelHorizontalPos! <= halfScreenWidth ? _signingModeEdgePanelHorizontalPos : null,
+      right:
+          _signingModeEdgePanelHorizontalPos! > halfScreenWidth
+              ? _signingModeEdgePanelWidth == 20
+                  ? MediaQuery.sizeOf(context).width -
+                      _signingModeEdgePanelHorizontalPos! -
+                      (_signingModeEdgePanelWidth + 20)
+                  : MediaQuery.sizeOf(context).width - _signingModeEdgePanelHorizontalPos! - 40
+              : null,
       child: Listener(
         onPointerDown: (details) {
           _longPressTimer = Timer(const Duration(milliseconds: 300), () {
             if (mounted) {
               setState(() {
-                _isDraggingVertically = true;
+                _isDraggingManually = true;
               });
               HapticFeedback.mediumImpact();
             }
@@ -491,56 +554,76 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> {
         },
         onPointerUp: (details) {
           _longPressTimer?.cancel();
-          if (_isDraggingVertically) {
+          if (_isDraggingManually) {
             setState(() {
-              _isDraggingVertically = false;
+              _signingModeEdgePanelHorizontalPos = details.position.dx;
             });
+            movePanelToEdge(details);
           }
         },
         onPointerCancel: (details) {
           _longPressTimer?.cancel();
-          if (_isDraggingVertically) {
-            setState(() {
-              _isDraggingVertically = false;
-            });
+          if (_isDraggingManually) {
+            movePanelToEdge(details);
           }
         },
         onPointerMove: (details) {
-          if (_isDraggingVertically) {
-            // 수직 드래그
+          if (_isDraggingManually) {
+            // 엣지 패널 위치 변경 중
             setState(() {
-              _signingModeIndicatorTop = details.position.dy - 25;
               final screenHeight = MediaQuery.of(context).size.height;
               final topPadding = MediaQuery.of(context).padding.top;
-              _signingModeIndicatorTop = _signingModeIndicatorTop.clamp(
+              _signingModeEdgePanelVerticalPos = details.position.dy - (topPadding + kToolbarHeight);
+              _signingModeEdgePanelVerticalPos = _signingModeEdgePanelVerticalPos!.clamp(
                 topPadding + kToolbarHeight,
                 screenHeight - 100.0,
               );
+              _signingModeEdgePanelHorizontalPos = details.position.dx;
             });
           }
         },
         child: GestureDetector(
-          // 수평 드래그는 GestureDetector로 처리
-          onPanUpdate: (details) {
-            if (!_isDraggingVertically) {
+          // 수평 드래그는 GestureDetector로 처리 (패널 확장/축소)
+          onPanStart: (details) {
+            if (!_isDraggingManually) {
               setState(() {
-                _signingModeIndicatorWidth -= details.delta.dx;
-                _signingModeIndicatorWidth = _signingModeIndicatorWidth.clamp(20.0, 100.0);
+                _isPanningEdgePanel = true;
+              });
+            }
+          },
+          onPanUpdate: (details) {
+            if (!_isDraggingManually) {
+              setState(() {
+                _signingModeEdgePanelWidth -= details.delta.dx;
+                _signingModeEdgePanelWidth = _signingModeEdgePanelWidth.clamp(20.0, 100.0);
               });
             }
           },
           onPanEnd: (details) {
-            if (!_isDraggingVertically) {
+            if (!_isDraggingManually) {
               setState(() {
-                if (details.velocity.pixelsPerSecond.dx.abs() > 500) {
-                  if (details.velocity.pixelsPerSecond.dx < 0) {
-                    _signingModeIndicatorWidth = 100.0;
+                if (_signingModeEdgePanelHorizontalPos! > MediaQuery.sizeOf(context).width / 2) {
+                  if (details.velocity.pixelsPerSecond.dx.abs() > 500) {
+                    if (details.velocity.pixelsPerSecond.dx < 0) {
+                      _signingModeEdgePanelWidth = 100.0;
+                    } else {
+                      _signingModeEdgePanelWidth = 20.0;
+                    }
                   } else {
-                    _signingModeIndicatorWidth = 20.0;
+                    _signingModeEdgePanelWidth = _signingModeEdgePanelWidth > 70 ? 100.0 : 20.0;
                   }
                 } else {
-                  _signingModeIndicatorWidth = _signingModeIndicatorWidth > 70 ? 100.0 : 20.0;
+                  if (details.velocity.pixelsPerSecond.dx.abs() > 500) {
+                    if (details.velocity.pixelsPerSecond.dx > 0) {
+                      _signingModeEdgePanelWidth = 100.0;
+                    } else {
+                      _signingModeEdgePanelWidth = 20.0;
+                    }
+                  } else {
+                    _signingModeEdgePanelWidth = _signingModeEdgePanelWidth > 70 ? 100.0 : 20.0;
+                  }
                 }
+                _isPanningEdgePanel = false;
               });
             }
           },
@@ -548,120 +631,180 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> {
             key: _indicatorKey,
             duration: const Duration(milliseconds: 200),
             curve: Curves.easeOut,
-            width: _signingModeIndicatorWidth + 20 + (_isDraggingVertically ? 4 : 0),
-            height: 100,
+            width:
+                !isButtonVisible
+                    ? _isDraggingManually
+                        ? 50
+                        : _signingModeEdgePanelWidth + 20 + (_isDraggingManually ? 4 : 0)
+                    : 0,
+            height: _isDraggingManually ? 50 : 100,
             decoration: BoxDecoration(
               color:
-                  _signingModeIndicatorWidth != 100.0
+                  _signingModeEdgePanelWidth != 100.0
                       ? CoconutColors.black.withValues(alpha: 0.8)
                       : CoconutColors.black,
-              borderRadius: const BorderRadius.only(topLeft: Radius.circular(10), bottomLeft: Radius.circular(10)),
-              border: _isDraggingVertically ? Border.all(color: CoconutColors.white, width: 2) : null,
+              borderRadius: _getEdgePanelBorderRadius(),
+              border: _isDraggingManually ? Border.all(color: CoconutColors.white, width: 2) : null,
             ),
-            child: Row(
-              children: [
-                GestureDetector(
-                  onTap: () {
-                    if (_signingModeIndicatorWidth != 100.0) {
-                      setState(() {
-                        _signingModeIndicatorWidth = 100.0;
-                      });
-                    } else {
-                      setState(() {
-                        _signingModeIndicatorWidth = 20.0;
-                      });
-                    }
-                  },
-                  behavior: HitTestBehavior.opaque,
-                  child: SizedBox(
-                    width: 40,
-                    height: double.infinity,
-                    child: Container(
-                      alignment: Alignment.centerLeft,
-                      padding: const EdgeInsets.symmetric(horizontal: 10),
-                      child: AnimatedRotation(
-                        turns: _signingModeIndicatorWidth != 100.0 ? 0.25 : -0.25,
-                        duration: const Duration(milliseconds: 200),
-                        curve: Curves.easeOut,
+            child:
+                _isDraggingManually
+                    ? SizedBox(
+                      width: 40,
+                      height: double.infinity,
+                      child: Container(
+                        alignment: Alignment.centerLeft,
+                        padding: const EdgeInsets.symmetric(horizontal: 10),
                         child: SvgPicture.asset(
-                          'assets/svg/arrow-down.svg',
-                          width: 10,
-                          height: 10,
+                          'assets/svg/exit.svg',
+                          width: 24,
+                          height: 24,
                           colorFilter: const ColorFilter.mode(CoconutColors.white, BlendMode.srcIn),
                         ),
                       ),
-                    ),
-                  ),
-                ),
-                if (_signingModeIndicatorWidth == 100.0)
-                  Expanded(
-                    child: ShrinkAnimationButton(
-                      onPressed: () {
-                        final navContext = _navigatorKey.currentContext;
-                        if (navContext != null) {
-                          if (_isExitDialogOpen) return;
-                          _isExitDialogOpen = true;
-                          showDialog(
-                            context: navContext,
-                            builder: (BuildContext dialogContext) {
-                              return CoconutPopup(
-                                insetPadding: EdgeInsets.symmetric(
-                                  horizontal: MediaQuery.of(navContext).size.width * 0.15,
+                    )
+                    : Row(
+                      children: [
+                        GestureDetector(
+                          onTap: () {
+                            if (_signingModeEdgePanelWidth != 100.0) {
+                              setState(() {
+                                _signingModeEdgePanelWidth = 100.0;
+                              });
+                            } else {
+                              setState(() {
+                                _signingModeEdgePanelWidth = 20.0;
+                              });
+                            }
+                          },
+                          behavior: HitTestBehavior.opaque,
+                          child: Visibility(
+                            visible: _signingModeEdgePanelWidth != 100.0,
+                            child: Opacity(
+                              opacity: ((100 - _signingModeEdgePanelWidth) / 80).clamp(0.0, 1.0),
+                              child: SizedBox(
+                                width: 40,
+                                height: double.infinity,
+                                child: Container(
+                                  alignment: Alignment.centerLeft,
+                                  padding: const EdgeInsets.symmetric(horizontal: 10),
+                                  child: SvgPicture.asset(
+                                    'assets/svg/exit.svg',
+                                    width: 24,
+                                    height: 24,
+                                    colorFilter: const ColorFilter.mode(CoconutColors.white, BlendMode.srcIn),
+                                  ),
                                 ),
-                                title: t.exit_vault,
-                                description: t.exit_vault_description,
-                                backgroundColor: CoconutColors.white,
-                                leftButtonText: t.cancel,
-                                rightButtonText: t.confirm,
-                                rightButtonColor: CoconutColors.black,
-                                onTapLeft: () {
-                                  Navigator.pop(dialogContext);
-                                  _isExitDialogOpen = false;
-                                },
-                                onTapRight: () {
-                                  _isExitDialogOpen = false;
-                                  // TODO: 초기화 작업 수행
-                                  if (Platform.isAndroid) {
-                                    SystemNavigator.pop();
-                                  } else {
-                                    exit(0);
-                                  }
-                                },
-                              );
-                            },
-                          );
-                        }
-                      },
-                      defaultColor: Colors.transparent,
-                      pressedColor: Colors.transparent,
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          SvgPicture.asset(
-                            'assets/svg/exit.svg',
-                            width: 24,
-                            height: 24,
-                            colorFilter: const ColorFilter.mode(CoconutColors.white, BlendMode.srcIn),
-                          ),
-                          CoconutLayout.spacing_200h,
-                          FittedBox(
-                            fit: BoxFit.scaleDown,
-                            child: Text(
-                              t.exit_vault,
-                              style: CoconutTypography.body2_14_Bold.copyWith(color: CoconutColors.white),
+                              ),
                             ),
                           ),
-                        ],
-                      ),
+                        ),
+                        if (_signingModeEdgePanelWidth == 100.0)
+                          Expanded(
+                            child: ShrinkAnimationButton(
+                              onPressed: () {
+                                final navContext = _navigatorKey.currentContext;
+                                if (navContext != null) {
+                                  if (_isExitDialogOpen) return;
+                                  _isExitDialogOpen = true;
+                                  showDialog(
+                                    context: navContext,
+                                    builder: (BuildContext dialogContext) {
+                                      return CoconutPopup(
+                                        insetPadding: EdgeInsets.symmetric(
+                                          horizontal: MediaQuery.of(navContext).size.width * 0.15,
+                                        ),
+                                        title: t.exit_vault,
+                                        description: t.exit_vault_description,
+                                        backgroundColor: CoconutColors.white,
+                                        leftButtonText: t.cancel,
+                                        rightButtonText: t.confirm,
+                                        rightButtonColor: CoconutColors.black,
+                                        onTapLeft: () {
+                                          Navigator.pop(dialogContext);
+                                          _isExitDialogOpen = false;
+                                        },
+                                        onTapRight: () {
+                                          _isExitDialogOpen = false;
+                                          // TODO: 초기화 작업 수행
+                                          if (Platform.isAndroid) {
+                                            SystemNavigator.pop();
+                                          } else {
+                                            exit(0);
+                                          }
+                                        },
+                                      );
+                                    },
+                                  );
+                                }
+                              },
+                              defaultColor: Colors.transparent,
+                              pressedColor: Colors.transparent,
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  SvgPicture.asset(
+                                    'assets/svg/exit.svg',
+                                    width: 24,
+                                    height: 24,
+                                    colorFilter: const ColorFilter.mode(CoconutColors.white, BlendMode.srcIn),
+                                  ),
+                                  CoconutLayout.spacing_200h,
+                                  FittedBox(
+                                    fit: BoxFit.scaleDown,
+                                    child: Text(
+                                      t.exit_vault,
+                                      style: CoconutTypography.body2_14_Bold.copyWith(color: CoconutColors.white),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                      ],
                     ),
-                  ),
-              ],
-            ),
           ),
         ),
       ),
     );
+  }
+
+  void movePanelToEdge(PointerEvent details) {
+    _signingModeEdgePanelWidth = 20.0;
+    final targetPosition =
+        details.position.dx <= MediaQuery.sizeOf(context).width / 2
+            ? 0.0
+            : MediaQuery.sizeOf(context).width - _signingModeEdgePanelWidth - 20;
+
+    // 애니메이션으로 부드럽게 이동
+    _edgePanelAnimation = Tween<double>(
+      begin: _signingModeEdgePanelHorizontalPos,
+      end: targetPosition,
+    ).animate(CurvedAnimation(parent: _edgePanelAnimationController, curve: Curves.easeOut));
+
+    _edgePanelAnimationController.reset();
+    _edgePanelAnimationController.forward();
+
+    Future.delayed(const Duration(milliseconds: 300), () {
+      if (mounted) {
+        setState(() {
+          _isDraggingManually = false;
+        });
+        preferenceProvider.setSigningModeEdgePanelPos(
+          _signingModeEdgePanelHorizontalPos!,
+          _signingModeEdgePanelVerticalPos!,
+        );
+      }
+    });
+  }
+
+  BorderRadius _getEdgePanelBorderRadius() {
+    final halfScreenWidth = MediaQuery.sizeOf(context).width / 2;
+    return _isDraggingManually
+        ? const BorderRadius.all(Radius.circular(10))
+        : _signingModeEdgePanelHorizontalPos! <= halfScreenWidth
+        ? const BorderRadius.only(topRight: Radius.circular(10), bottomRight: Radius.circular(10))
+        : const BorderRadius.only(topLeft: Radius.circular(10), bottomLeft: Radius.circular(10));
   }
 
   T buildScreenWithArguments<T>(

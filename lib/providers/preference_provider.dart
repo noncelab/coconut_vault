@@ -18,9 +18,13 @@ class PreferenceProvider extends ChangeNotifier {
 
   bool get isSigningOnlyMode => getVaultMode() == VaultMode.signingOnly;
 
+  late (double?, double?) _signingModeEdgePanelPos;
+  (double?, double?) get signingModeEdgePanelPos => _signingModeEdgePanelPos;
+
   PreferenceProvider() {
     _vaultOrder = _getVaultOrder();
     _favoriteVaultIds = _getFavoriteVaultIds();
+    _signingModeEdgePanelPos = getSigningModeEdgePanelPos();
   }
 
   /// 지갑 순서 불러오기
@@ -84,5 +88,26 @@ class PreferenceProvider extends ChangeNotifier {
     final vaultMode = _sharedPrefs.getString(SharedPrefsKeys.kVaultMode);
     if (vaultMode.isEmpty) return null;
     return VaultMode.values.firstWhere((e) => e.name == vaultMode);
+  }
+
+  Future<void> setSigningModeEdgePanelPos(double posX, double posY) async {
+    _signingModeEdgePanelPos = (posX, posY);
+    await _sharedPrefs.setDouble(SharedPrefsKeys.kSigningModeEdgePanelPosX, _signingModeEdgePanelPos.$1!);
+    await _sharedPrefs.setDouble(SharedPrefsKeys.kSigningModeEdgePanelPosY, _signingModeEdgePanelPos.$2!);
+    notifyListeners();
+  }
+
+  (double?, double?) getSigningModeEdgePanelPos() {
+    final posX = _sharedPrefs.getDouble(SharedPrefsKeys.kSigningModeEdgePanelPosX);
+    final posY = _sharedPrefs.getDouble(SharedPrefsKeys.kSigningModeEdgePanelPosY);
+    _signingModeEdgePanelPos = (posX, posY);
+    return _signingModeEdgePanelPos;
+  }
+
+  Future<void> resetSigningModeEdgePanelPos() async {
+    await _sharedPrefs.deleteSharedPrefsWithKey(SharedPrefsKeys.kSigningModeEdgePanelPosX);
+    await _sharedPrefs.deleteSharedPrefsWithKey(SharedPrefsKeys.kSigningModeEdgePanelPosY);
+    _signingModeEdgePanelPos = (null, null);
+    notifyListeners();
   }
 }
