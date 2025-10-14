@@ -49,8 +49,7 @@ void main() {
 
         // 각 위치에서 최소 20개 이상의 서로 다른 값이 나와야 함
         // (완벽한 랜덤이라면 더 많이 나와야 하지만, 테스트의 안정성을 위해 낮게 설정)
-        expect(uniqueValues.length, greaterThan(20),
-            reason: 'Byte at position $pos should have sufficient variation');
+        expect(uniqueValues.length, greaterThan(20), reason: 'Byte at position $pos should have sufficient variation');
       }
     });
 

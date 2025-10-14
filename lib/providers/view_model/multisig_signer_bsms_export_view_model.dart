@@ -31,8 +31,7 @@ class MultisigSignerBsmsExportViewModel extends ChangeNotifier {
 
   Future<void> _setSignerBsms() async {
     try {
-      List<String> bsmses =
-          await compute(WalletIsolates.extractSignerBsms, [_singleSigVaultListItem]);
+      List<String> bsmses = await compute(WalletIsolates.extractSignerBsms, [_singleSigVaultListItem]);
       _qrData = bsmses[0];
       _bsms = Bsms.parseSigner(_qrData);
     } catch (e) {

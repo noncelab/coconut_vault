@@ -17,8 +17,7 @@ class _VaultItemSettingBottomSheetState extends State<VaultItemSettingBottomShee
   late final PreferenceProvider _preferenceProvider;
   late bool _isPrimaryWallet;
 
-  final GlobalKey<CoconutShakeAnimationState> _primaryWalletShakeKey =
-      GlobalKey<CoconutShakeAnimationState>();
+  final GlobalKey<CoconutShakeAnimationState> _primaryWalletShakeKey = GlobalKey<CoconutShakeAnimationState>();
 
   @override
   void initState() {
@@ -31,23 +30,12 @@ class _VaultItemSettingBottomSheetState extends State<VaultItemSettingBottomShee
   Widget build(BuildContext context) {
     return Container(
       decoration: const BoxDecoration(
-        borderRadius: BorderRadius.only(
-          topLeft: Radius.circular(24),
-          topRight: Radius.circular(24),
-        ),
+        borderRadius: BorderRadius.only(topLeft: Radius.circular(24), topRight: Radius.circular(24)),
       ),
       padding: const EdgeInsets.only(top: 0, bottom: 80, left: 20, right: 20),
       child: Column(
         children: [
-          Container(
-            width: 55,
-            height: 4,
-            decoration: BoxDecoration(
-              color: CoconutColors.gray400,
-              borderRadius: BorderRadius.circular(4),
-            ),
-          ),
-          CoconutLayout.spacing_400h,
+          CoconutLayout.spacing_800h,
           _buildToggleWidget(
             t.vault_list_screen.settings.primary_wallet,
             _isPrimaryWallet
@@ -63,10 +51,7 @@ class _VaultItemSettingBottomSheetState extends State<VaultItemSettingBottomShee
               setState(() {
                 _isPrimaryWallet = value;
               });
-              final updatedOrder = [
-                widget.id,
-                ..._preferenceProvider.vaultOrder.where((id) => id != widget.id),
-              ];
+              final updatedOrder = [widget.id, ..._preferenceProvider.vaultOrder.where((id) => id != widget.id)];
               _preferenceProvider.setVaultOrder(updatedOrder);
             },
           ),
@@ -86,34 +71,47 @@ class _VaultItemSettingBottomSheetState extends State<VaultItemSettingBottomShee
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(title, style: CoconutTypography.body3_12),
-            Text(
-              description,
-              style: CoconutTypography.body3_12.setColor(CoconutColors.gray400),
-            ),
-          ],
-        ),
-        Visibility(
-          visible: shouldHideWhenOn ? !value : true,
-          maintainSize: true,
-          maintainAnimation: true,
-          maintainState: true,
-          child: CoconutSwitch(
-            isOn: value,
-            activeColor: CoconutColors.black,
-            thumbColor: value ? CoconutColors.black : CoconutColors.white,
-            trackColor: CoconutColors.gray300,
-            scale: 0.8,
-            onChanged: (bool newValue) {
-              setState(() {
-                onChanged(newValue);
-              });
-            },
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(title, style: CoconutTypography.body2_14),
+              Text(description, style: CoconutTypography.body3_12.setColor(CoconutColors.gray400)),
+            ],
           ),
         ),
+        value
+            ? CoconutShakeAnimation(
+              key: _primaryWalletShakeKey,
+              shakeOffset: 3,
+              shakeAmount: 2,
+              direction: Axis.horizontal,
+              curve: Curves.linear,
+              child: CoconutSwitch(
+                isOn: value,
+                activeColor: CoconutColors.gray400,
+                thumbColor: CoconutColors.gray200,
+                trackColor: CoconutColors.gray300,
+                scale: 0.8,
+                onChanged: (bool newValue) {
+                  setState(() {
+                    onChanged(newValue);
+                  });
+                },
+              ),
+            )
+            : CoconutSwitch(
+              isOn: value,
+              activeColor: CoconutColors.gray400,
+              thumbColor: CoconutColors.white,
+              trackColor: CoconutColors.gray300,
+              scale: 0.8,
+              onChanged: (bool newValue) {
+                setState(() {
+                  onChanged(newValue);
+                });
+              },
+            ),
       ],
     );
   }

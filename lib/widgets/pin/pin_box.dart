@@ -12,24 +12,25 @@ class PinBox extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-        width: 40,
-        height: 40,
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(14),
-          color: disabled
-              ? CoconutColors.black.withOpacity(0.15)
-              : CoconutColors.black.withOpacity(0.06),
-        ),
-        child: isSet
-            ? Padding(
+      width: 40,
+      height: 40,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(14),
+        color: disabled ? CoconutColors.black.withValues(alpha: 0.15) : CoconutColors.black.withValues(alpha: 0.06),
+      ),
+      child:
+          isSet
+              ? Padding(
                 padding: const EdgeInsets.all(10),
                 child: SvgPicture.asset(
                   'assets/svg/coconut-${NetworkType.currentNetworkType.isTestnet ? "regtest" : "mainnet"}.svg',
                   colorFilter: ColorFilter.mode(
-                      disabled ? CoconutColors.black.withOpacity(0.06) : CoconutColors.gray800,
-                      BlendMode.srcIn),
+                    disabled ? CoconutColors.black.withValues(alpha: 0.06) : CoconutColors.gray800,
+                    BlendMode.srcIn,
+                  ),
                 ),
               )
-            : null);
+              : null,
+    );
   }
 }

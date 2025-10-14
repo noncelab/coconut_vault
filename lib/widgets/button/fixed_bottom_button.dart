@@ -45,8 +45,7 @@ class FixedBottomButton extends StatefulWidget {
 class _FixedBottomButtonState extends State<FixedBottomButton> {
   @override
   Widget build(BuildContext context) {
-    double keyboardHeight =
-        (widget.isVisibleAboveKeyboard ? MediaQuery.of(context).viewInsets.bottom : 0);
+    double keyboardHeight = (widget.isVisibleAboveKeyboard ? MediaQuery.of(context).viewInsets.bottom : 0);
     return SizedBox(
       width: MediaQuery.sizeOf(context).width,
       child: Stack(
@@ -59,17 +58,16 @@ class _FixedBottomButtonState extends State<FixedBottomButton> {
               child: IgnorePointer(
                 ignoring: true,
                 child: Container(
-                  padding: widget.gradientPadding ??
-                      const EdgeInsets.only(left: 16, right: 16, bottom: 40, top: 150),
+                  padding: widget.gradientPadding ?? const EdgeInsets.only(left: 16, right: 16, bottom: 40, top: 150),
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
                       begin: Alignment.topCenter,
                       end: Alignment.bottomCenter,
                       colors: [
-                        CoconutColors.white.withOpacity(0.0),
-                        CoconutColors.white.withOpacity(0.3),
-                        CoconutColors.white.withOpacity(0.7),
-                        CoconutColors.white.withOpacity(0.9),
+                        CoconutColors.white.withValues(alpha: 0.0),
+                        CoconutColors.white.withValues(alpha: 0.3),
+                        CoconutColors.white.withValues(alpha: 0.7),
+                        CoconutColors.white.withValues(alpha: 0.9),
                         CoconutColors.white,
                       ],
                       stops: const [0.0, 0.3, 0.6, 0.85, 1.0],

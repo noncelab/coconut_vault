@@ -16,11 +16,7 @@ class Aes256Crypto {
   /// [key]: 암호화 키 (32바이트)
   /// [iv]: 초기화 벡터 (16바이트)
   /// 반환값: Base64로 인코딩된 암호화된 데이터
-  static String encryptCbc({
-    required String data,
-    required Key key,
-    required IV iv,
-  }) {
+  static String encryptCbc({required String data, required Key key, required IV iv}) {
     if (key.length != _keyLength) {
       throw ArgumentError('Invalid key length: ${key.length} bytes. Expected: $_keyLength bytes');
     }
@@ -34,11 +30,7 @@ class Aes256Crypto {
   /// [key]: 복호화 키 (32바이트)
   /// [iv]: 암호화에 사용된 초기화 벡터 (16바이트)
   /// 반환값: 복호화된 데이터
-  static String decryptCbc({
-    required String encryptedData,
-    required Key key,
-    required IV iv,
-  }) {
+  static String decryptCbc({required String encryptedData, required Key key, required IV iv}) {
     if (key.length != _keyLength) {
       throw ArgumentError('Invalid key length: ${key.length} bytes. Expected: $_keyLength bytes');
     }
@@ -51,47 +43,27 @@ class Aes256Crypto {
   /// [data]: 암호화할 데이터
   /// [key]: 암호화 키
   /// 반환값: IV와 암호문이 포함된 맵
-  static Map<String, String> encryptWithIvCbc({
-    required String data,
-    required Key key,
-  }) {
+  static Map<String, String> encryptWithIvCbc({required String data, required Key key}) {
     final iv = generateIv();
-    final encrypted = encryptCbc(
-      data: data,
-      key: key,
-      iv: iv,
-    );
+    final encrypted = encryptCbc(data: data, key: key, iv: iv);
 
-    return {
-      'iv': base64.encode(iv.bytes),
-      'encrypted': encrypted,
-    };
+    return {'iv': base64.encode(iv.bytes), 'encrypted': encrypted};
   }
 
   /// AES-256-CBC 모드로 IV가 포함된 암호화된 데이터를 복호화합니다.
   /// [encryptedData]: encryptWithIvCbc로 암호화된 데이터
   /// [key]: 복호화 키
   /// 반환값: 복호화된 데이터
-  static String decryptWithIvCbc({
-    required Map<String, String> encryptedData,
-    required Key key,
-  }) {
+  static String decryptWithIvCbc({required Map<String, String> encryptedData, required Key key}) {
     final iv = IV(base64.decode(encryptedData['iv']!));
-    return decryptCbc(
-      encryptedData: encryptedData['encrypted']!,
-      key: key,
-      iv: iv,
-    );
+    return decryptCbc(encryptedData: encryptedData['encrypted']!, key: key, iv: iv);
   }
 
   /// IV와 암호문이 결합된 문자열을 복호화합니다.
   /// [combinedData]: IV(16바이트) + 암호문이 결합된 문자열
   /// [key]: 복호화 키 (32바이트)
   /// 반환값: 복호화된 데이터
-  static String decryptWithCombinedIv({
-    required String combinedData,
-    required Key key,
-  }) {
+  static String decryptWithCombinedIv({required String combinedData, required Key key}) {
     // 문자열을 바이트 리스트로 변환
     final List<int> bytes = combinedData.codeUnits;
 
@@ -99,10 +71,6 @@ class Aes256Crypto {
     final iv = IV(Uint8List.fromList(bytes.sublist(0, _ivLength)));
     final encryptedData = String.fromCharCodes(bytes.sublist(_ivLength));
 
-    return decryptCbc(
-      encryptedData: encryptedData,
-      key: key,
-      iv: iv,
-    );
+    return decryptCbc(encryptedData: encryptedData, key: key, iv: iv);
   }
 }

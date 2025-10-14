@@ -111,10 +111,7 @@ class QueueDataClass {
   final int count;
   final QueueEntity entity;
 
-  const QueueDataClass({
-    required this.count,
-    required this.entity,
-  });
+  const QueueDataClass({required this.count, required this.entity});
 }
 
 enum QueueEntity { n2m1, n2m2, n3m1, n3m2, n3m3 }

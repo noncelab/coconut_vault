@@ -1,7 +1,10 @@
+import 'dart:convert';
+
 import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_vault/enums/pin_check_context_enum.dart';
 import 'package:coconut_vault/isolates/wallet_isolates.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
+import 'package:coconut_vault/providers/auth_provider.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:coconut_vault/screens/common/pin_check_screen.dart';
 import 'package:coconut_vault/widgets/bottom_sheet.dart';
@@ -68,27 +71,26 @@ class _PassphraseCheckScreen extends State<PassphraseCheckScreen> {
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
               child: Column(
                 children: [
-                  Expanded(
-                    child: SingleChildScrollView(
-                      child: _buildPassphraseInput(),
-                    ),
-                  ),
+                  Expanded(child: SingleChildScrollView(child: _buildPassphraseInput())),
                   if (_showError) ...[
-                    Text(t.passphrase_input_screen.passphrase_error,
-                        style: CoconutTypography.body3_12.setColor(CoconutColors.hotPink)),
+                    Text(
+                      t.passphrase_input_screen.passphrase_error,
+                      style: CoconutTypography.body3_12.setColor(CoconutColors.hotPink),
+                    ),
                     CoconutLayout.spacing_300h,
                   ],
                   ValueListenableBuilder<String>(
-                      valueListenable: _passphraseTextNotifier,
-                      builder: (context, value, child) {
-                        return CoconutButton(
-                          onPressed: _handleSubmit,
-                          isActive: _inputController.text.isNotEmpty && !_isSubmitting,
-                          width: double.infinity,
-                          height: 52,
-                          text: t.confirm,
-                        );
-                      }),
+                    valueListenable: _passphraseTextNotifier,
+                    builder: (context, value, child) {
+                      return CoconutButton(
+                        onPressed: _handleSubmit,
+                        isActive: _inputController.text.isNotEmpty && !_isSubmitting,
+                        width: double.infinity,
+                        height: 52,
+                        text: t.confirm,
+                      );
+                    },
+                  ),
                 ],
               ),
             ),
@@ -100,27 +102,28 @@ class _PassphraseCheckScreen extends State<PassphraseCheckScreen> {
 
   Widget _buildPassphraseInput() {
     return ValueListenableBuilder<String>(
-        valueListenable: _passphraseTextNotifier,
-        builder: (context, value, child) {
-          return CoconutTextField(
-            textAlign: TextAlign.left,
-            backgroundColor: CoconutColors.white,
-            cursorColor: CoconutColors.black,
-            activeColor: CoconutColors.black,
-            placeholderColor: CoconutColors.gray350,
-            controller: _inputController,
-            focusNode: _inputFocusNode,
-            maxLines: 3,
-            textInputAction: TextInputAction.done,
-            onChanged: (text) {
-              _passphraseTextNotifier.value = text;
-            },
-            isError: false,
-            isLengthVisible: false,
-            maxLength: 100,
-            placeholderText: t.passphrase_input_screen.enter_passphrase,
-            suffix: _inputController.text.isNotEmpty
-                ? IconButton(
+      valueListenable: _passphraseTextNotifier,
+      builder: (context, value, child) {
+        return CoconutTextField(
+          textAlign: TextAlign.left,
+          backgroundColor: CoconutColors.white,
+          cursorColor: CoconutColors.black,
+          activeColor: CoconutColors.black,
+          placeholderColor: CoconutColors.gray350,
+          controller: _inputController,
+          focusNode: _inputFocusNode,
+          maxLines: 3,
+          textInputAction: TextInputAction.done,
+          onChanged: (text) {
+            _passphraseTextNotifier.value = text;
+          },
+          isError: false,
+          isLengthVisible: false,
+          maxLength: 100,
+          placeholderText: t.passphrase_input_screen.enter_passphrase,
+          suffix:
+              _inputController.text.isNotEmpty
+                  ? IconButton(
                     iconSize: 14,
                     padding: EdgeInsets.zero,
                     onPressed: () {
@@ -131,9 +134,10 @@ class _PassphraseCheckScreen extends State<PassphraseCheckScreen> {
                       colorFilter: const ColorFilter.mode(CoconutColors.gray900, BlendMode.srcIn),
                     ),
                   )
-                : null,
-          );
-        });
+                  : null,
+        );
+      },
+    );
   }
 
   Future<void> _handleSubmit() async {
@@ -141,22 +145,27 @@ class _PassphraseCheckScreen extends State<PassphraseCheckScreen> {
 
     setState(() {
       _isSubmitting = true;
+      if (_showError) {
+        _showError = false;
+      }
     });
 
-    if (_showError) {
-      setState(() {
-        _showError = false;
-      });
-    }
-
     _closeKeyboard();
-    final pinCheckResult = await _showPinCheckScreen();
-    if (pinCheckResult != true) return;
+    final isBiometricsAuthValid = await context.read<AuthProvider>().isBiometricsAuthValid();
+    if (!isBiometricsAuthValid) {
+      final pinCheckResult = await _showPinCheckScreen();
+      if (pinCheckResult != true) {
+        setState(() {
+          _isSubmitting = false;
+        });
+        return;
+      }
+    }
 
     if (!mounted) return;
 
     CustomDialogs.showLoadingDialog(context, t.verify_passphrase_screen.loading_description);
-    bool result = await _verifyPassphrase(_inputController.text);
+    bool result = await _verifyPassphrase(utf8.encode(_inputController.text));
 
     if (!mounted) return;
     Navigator.pop(context); // hide loading dialog
@@ -189,22 +198,14 @@ class _PassphraseCheckScreen extends State<PassphraseCheckScreen> {
     );
   }
 
-  Future<bool> _verifyPassphrase(String passphrase) async {
+  Future<bool> _verifyPassphrase(Uint8List passphrase) async {
     final walletProvider = context.read<WalletProvider>();
     final result = await compute(WalletIsolates.verifyPassphrase, {
       'mnemonic': await walletProvider.getSecret(widget.id),
-      'passphrase': _inputController.text,
-      'valutListItem': walletProvider.getVaultById(widget.id)
+      'passphrase': passphrase,
+      'valutListItem': walletProvider.getVaultById(widget.id),
     });
 
-    // if (!mounted) return;
-    // Navigator.of(context).pop();
-    // bool success = result['success'];
-    // _showError = !success;
-    // setState(() {});
-    // if (success) {
-    //   Navigator.pop(context, {'success': success, 'passphrase': _inputController.text});
-    // }
     return result['success'];
   }
 }

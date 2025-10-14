@@ -1,15 +1,16 @@
 import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_lib/coconut_lib.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
+import 'package:coconut_vault/model/multisig/multisig_signer.dart';
 import 'package:coconut_vault/model/multisig/multisig_vault_list_item.dart';
 import 'package:coconut_vault/model/single_sig/single_sig_vault_list_item.dart';
 import 'package:coconut_vault/providers/view_model/vault_list_restoration_view_model.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
-import 'package:coconut_vault/utils/icon_util.dart';
+import 'package:coconut_vault/utils/colors_util.dart';
 import 'package:coconut_vault/widgets/button/fixed_bottom_button.dart';
+import 'package:coconut_vault/widgets/icon/vault_icon_small.dart';
 import 'package:coconut_vault/widgets/indicator/percent_progress_indicator.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/svg.dart';
 import 'package:provider/provider.dart';
 
 class VaultListRestorationScreen extends StatefulWidget {
@@ -20,8 +21,7 @@ class VaultListRestorationScreen extends StatefulWidget {
   State<VaultListRestorationScreen> createState() => _VaultListRestorationScreenState();
 }
 
-class _VaultListRestorationScreenState extends State<VaultListRestorationScreen>
-    with TickerProviderStateMixin {
+class _VaultListRestorationScreenState extends State<VaultListRestorationScreen> with TickerProviderStateMixin {
   late AnimationController _progressController;
 
   @override
@@ -60,48 +60,55 @@ class _VaultListRestorationScreenState extends State<VaultListRestorationScreen>
       debugPrint('viewModel.restoreProgress: $progress');
 
       if (progress == 5 || progress == 50 || progress == 90 || progress == 100) {
-        const duration = Duration(
-          milliseconds: 2000,
-        );
+        const duration = Duration(milliseconds: 2000);
 
-        _progressController.animateTo(
-          progress / 100,
-          duration: duration,
-        );
+        _progressController.animateTo(progress / 100, duration: duration);
       }
     });
   }
 
-  Widget _buildWalletListItem(String walletName, int iconIndex, int colorIndex, String rightText) {
+  Widget _buildWalletListItem(
+    String walletName,
+    int iconIndex,
+    int colorIndex,
+    String rightText,
+    bool isMultisig,
+    List<MultisigSigner>? multiSigners,
+  ) {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
       decoration: BoxDecoration(
         color: CoconutColors.white,
-        borderRadius: const BorderRadius.all(
-          Radius.circular(CoconutStyles.radius_200),
-        ),
-        border: Border.all(
-          color: CoconutColors.gray500.withOpacity(0.18),
-          width: 1,
-        ),
+        borderRadius: const BorderRadius.all(Radius.circular(CoconutStyles.radius_200)),
+        border: Border.all(color: CoconutColors.gray500.withValues(alpha: 0.18), width: 1),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          CoconutIcon(
-            size: 30,
-            backgroundColor: CoconutColors.backgroundColorPaletteLight[colorIndex],
-            child: SvgPicture.asset(
-              CustomIcons.getPathByIndex(iconIndex),
-              colorFilter:
-                  ColorFilter.mode(CoconutColors.colorPalette[colorIndex], BlendMode.srcIn),
-            ),
+          VaultIconSmall(
+            iconIndex: iconIndex,
+            colorIndex: colorIndex,
+            gradientColors:
+                isMultisig && multiSigners != null ? CustomColorHelper.getGradientColors(multiSigners) : null,
           ),
           CoconutLayout.spacing_200w,
-          Text(walletName, style: CoconutTypography.body2_14_Bold),
-          const Spacer(),
-          Text(rightText, style: CoconutTypography.body3_12_Number.setColor(CoconutColors.gray800)),
+          Expanded(
+            child: Text(
+              walletName,
+              style: CoconutTypography.body2_14_Bold,
+              overflow: TextOverflow.ellipsis,
+              textAlign: TextAlign.start,
+              maxLines: 1,
+            ),
+          ),
+          Expanded(
+            child: FittedBox(
+              fit: BoxFit.scaleDown,
+              alignment: Alignment.centerRight,
+              child: Text(rightText, style: CoconutTypography.body3_12_Number.setColor(CoconutColors.gray800)),
+            ),
+          ),
         ],
       ),
     );
@@ -112,113 +119,120 @@ class _VaultListRestorationScreenState extends State<VaultListRestorationScreen>
     return PopScope(
       canPop: false,
       child: ChangeNotifierProvider<VaultListRestorationViewModel>(
-        create: (_) => VaultListRestorationViewModel(
-          Provider.of<WalletProvider>(context, listen: false),
-        ),
-        child: Consumer<VaultListRestorationViewModel>(builder: (context, viewModel, child) {
-          WidgetsBinding.instance.addPostFrameCallback((_) {
-            if (!viewModel.isVaultListRestored && !viewModel.isRestorationProgressing) {
-              // 중복 실행 방지
-              _startProgress(viewModel);
-            }
-          });
+        create: (_) => VaultListRestorationViewModel(Provider.of<WalletProvider>(context, listen: false)),
+        child: Consumer<VaultListRestorationViewModel>(
+          builder: (context, viewModel, child) {
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              if (!viewModel.isVaultListRestored && !viewModel.isRestorationProgressing) {
+                // 중복 실행 방지
+                _startProgress(viewModel);
+              }
+            });
 
-          return Scaffold(
-            backgroundColor: CoconutColors.white,
-            body: SafeArea(
-              child: Stack(
-                children: [
-                  Column(
-                    children: [
-                      CoconutLayout.spacing_2500h,
-                      Text(
-                        viewModel.isVaultListRestored
-                            ? t.vault_list_restoration.completed_title
-                            : t.vault_list_restoration.in_progress_title,
-                        style: CoconutTypography.heading3_21_Bold,
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 20),
-                        child: Text(
+            return Scaffold(
+              backgroundColor: CoconutColors.white,
+              body: SafeArea(
+                child: Stack(
+                  children: [
+                    Column(
+                      children: [
+                        CoconutLayout.spacing_2500h,
+                        Text(
                           viewModel.isVaultListRestored
-                              ? t.vault_list_restoration
-                                  .completed_description(count: viewModel.vaultList.length)
-                              : t.vault_list_restoration.in_progress_description,
-                          style: CoconutTypography.body1_16_Bold,
+                              ? t.vault_list_restoration.completed_title
+                              : t.vault_list_restoration.in_progress_title,
+                          style: CoconutTypography.heading3_21_Bold,
                           textAlign: TextAlign.center,
                         ),
-                      ),
-                      Expanded(
-                        child: AnimatedOpacity(
-                          opacity: viewModel.isVaultListRestored ? 1.0 : 0.0,
-                          duration: const Duration(milliseconds: 500),
-                          child: ListView.builder(
-                            itemCount: viewModel.vaultList.length,
-                            itemBuilder: (context, index) {
-                              var vaultItem = viewModel.vaultList[index];
-                              late int colorIndex;
-                              late int iconIndex;
-                              late String rightText;
-
-                              if (vaultItem is SingleSigVaultListItem) {
-                                SingleSigVaultListItem singleVault = vaultItem;
-                                final singlesigVault =
-                                    singleVault.coconutVault as SingleSignatureVault;
-                                colorIndex = singleVault.colorIndex;
-                                iconIndex = singleVault.iconIndex;
-                                rightText = singlesigVault.keyStore.masterFingerprint;
-                              } else {
-                                MultisigVaultListItem multiVault =
-                                    vaultItem as MultisigVaultListItem;
-                                colorIndex = multiVault.colorIndex;
-                                iconIndex = multiVault.iconIndex;
-
-                                rightText =
-                                    '${multiVault.requiredSignatureCount} / ${multiVault.signers.length}'; // m-of-n
-                              }
-
-                              return Padding(
-                                padding: EdgeInsets.only(
-                                    top: index == 0 ? Sizes.size8 : 0,
-                                    bottom:
-                                        index == viewModel.vaultList.length - 1 ? 190 : Sizes.size8,
-                                    left: CoconutLayout.defaultPadding,
-                                    right: CoconutLayout.defaultPadding),
-                                child: _buildWalletListItem(
-                                    vaultItem.name, iconIndex, colorIndex, rightText),
-                              );
-                            },
+                        Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 16),
+                          child: Text(
+                            viewModel.isVaultListRestored
+                                ? t.vault_list_restoration.completed_description(count: viewModel.vaultList.length)
+                                : t.vault_list_restoration.in_progress_description,
+                            style: CoconutTypography.body1_16_Bold,
+                            textAlign: TextAlign.center,
                           ),
                         ),
-                      ),
-                    ],
-                  ),
-                  if (!viewModel.isVaultListRestored)
-                    Center(
-                      child: PercentProgressIndicator(
-                        progressController: _progressController,
-                        textColor: const Color(0xFF1E88E5),
-                      ),
+                        Expanded(
+                          child: AnimatedOpacity(
+                            opacity: viewModel.isVaultListRestored ? 1.0 : 0.0,
+                            duration: const Duration(milliseconds: 500),
+                            child: ListView.builder(
+                              itemCount: viewModel.vaultList.length,
+                              itemBuilder: (context, index) {
+                                var vaultItem = viewModel.vaultList[index];
+                                late int colorIndex;
+                                late int iconIndex;
+                                late String rightText;
+                                bool isMultisig = false;
+                                List<MultisigSigner>? multiSigners;
+
+                                if (vaultItem is SingleSigVaultListItem) {
+                                  SingleSigVaultListItem singleVault = vaultItem;
+                                  final singlesigVault = singleVault.coconutVault as SingleSignatureVault;
+                                  colorIndex = singleVault.colorIndex;
+                                  iconIndex = singleVault.iconIndex;
+                                  rightText = singlesigVault.keyStore.masterFingerprint;
+                                } else {
+                                  MultisigVaultListItem multiVault = vaultItem as MultisigVaultListItem;
+                                  colorIndex = multiVault.colorIndex;
+                                  iconIndex = multiVault.iconIndex;
+                                  isMultisig = true;
+                                  multiSigners = multiVault.signers;
+
+                                  rightText =
+                                      '${multiVault.requiredSignatureCount} / ${multiVault.signers.length}'; // m-of-n
+                                }
+
+                                return Padding(
+                                  padding: EdgeInsets.only(
+                                    top: index == 0 ? Sizes.size8 : 0,
+                                    bottom: index == viewModel.vaultList.length - 1 ? 190 : Sizes.size8,
+                                    left: CoconutLayout.defaultPadding,
+                                    right: CoconutLayout.defaultPadding,
+                                  ),
+                                  child: _buildWalletListItem(
+                                    vaultItem.name,
+                                    iconIndex,
+                                    colorIndex,
+                                    rightText,
+                                    isMultisig,
+                                    multiSigners,
+                                  ),
+                                );
+                              },
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
-                  if (viewModel.isVaultListRestored) ...{
-                    FixedBottomButton(
-                      onButtonClicked: () {
-                        widget.onComplete();
-                      },
-                      text: t.vault_list_restoration.start_vault,
-                      textColor: CoconutColors.white,
-                      showGradient: true,
-                      gradientPadding:
-                          const EdgeInsets.only(left: 16, right: 16, bottom: 40, top: 110),
-                      isActive: true,
-                      backgroundColor: CoconutColors.black,
-                    )
-                  },
-                ],
+                    if (!viewModel.isVaultListRestored)
+                      Center(
+                        child: PercentProgressIndicator(
+                          progressController: _progressController,
+                          textColor: const Color(0xFF1E88E5),
+                        ),
+                      ),
+                    if (viewModel.isVaultListRestored) ...{
+                      FixedBottomButton(
+                        onButtonClicked: () {
+                          widget.onComplete();
+                        },
+                        text: t.vault_list_restoration.start_vault,
+                        textColor: CoconutColors.white,
+                        showGradient: true,
+                        gradientPadding: const EdgeInsets.only(left: 16, right: 16, bottom: 40, top: 110),
+                        isActive: true,
+                        backgroundColor: CoconutColors.black,
+                      ),
+                    },
+                  ],
+                ),
               ),
-            ),
-          );
-        }),
+            );
+          },
+        ),
       ),
     );
   }

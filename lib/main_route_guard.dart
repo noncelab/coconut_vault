@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:coconut_vault/constants/shared_preferences_keys.dart';
 import 'package:coconut_vault/repository/shared_preferences_repository.dart';
@@ -13,12 +11,13 @@ class MainRouteGuard extends StatefulWidget {
   final VoidCallback? onAppGoInactive;
   final VoidCallback? onAppGoActive;
 
-  const MainRouteGuard(
-      {super.key,
-      required this.child,
-      required this.onAppGoBackground,
-      required this.onAppGoInactive,
-      required this.onAppGoActive});
+  const MainRouteGuard({
+    super.key,
+    required this.child,
+    required this.onAppGoBackground,
+    required this.onAppGoInactive,
+    required this.onAppGoActive,
+  });
 
   @override
   State<MainRouteGuard> createState() => _MainRouteGuardState();
@@ -44,15 +43,13 @@ class _MainRouteGuardState extends State<MainRouteGuard> with WidgetsBindingObse
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    if (Platform.isIOS && state == AppLifecycleState.paused) {
-      final vaultModel = Provider.of<WalletProvider>(
-        context,
-        listen: false,
-      );
+    if (state == AppLifecycleState.paused) {
+      final vaultModel = Provider.of<WalletProvider>(context, listen: false);
       final walletCount = SharedPrefsRepository().getInt(SharedPrefsKeys.vaultListLength) ?? 0;
       if (walletCount > 0 && widget.onAppGoBackground != null) {
         vaultModel.dispose();
         widget.onAppGoBackground!();
+        return;
       }
     }
     if (state == AppLifecycleState.inactive) {

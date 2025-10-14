@@ -1,3 +1,5 @@
+import 'dart:convert';
+import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:coconut_design_system/coconut_design_system.dart';
@@ -6,9 +8,11 @@ import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/screens/vault_creation/single_sig/seed_qr_confirmation_screen.dart';
 import 'package:coconut_vault/widgets/custom_tooltip.dart';
 import 'package:crypto/crypto.dart';
-import 'package:qr_code_scanner/qr_code_scanner.dart';
 import 'package:flutter/material.dart';
+import 'package:qr_code_scanner_plus/qr_code_scanner_plus.dart';
 
+/// mobile_scanner 이슈로
+/// 이 화면만 qr_code_scanner_plus 사용
 class SeedQrImportScreen extends StatefulWidget {
   const SeedQrImportScreen({super.key});
 
@@ -20,6 +24,7 @@ class _SeedQrImportScreenState extends State<SeedQrImportScreen> {
   final GlobalKey qrKey = GlobalKey(debugLabel: 'QR');
   QRViewController? controller;
   bool _isNavigating = false;
+  Barcode? result;
 
   @override
   void initState() {
@@ -29,15 +34,14 @@ class _SeedQrImportScreenState extends State<SeedQrImportScreen> {
   @override
   void reassemble() {
     super.reassemble();
-    if (controller != null) {
+    if (Platform.isAndroid) {
       controller!.pauseCamera();
-      controller!.resumeCamera();
     }
+    controller!.resumeCamera();
   }
 
   @override
   void dispose() {
-    controller?.dispose();
     super.dispose();
   }
 
@@ -45,27 +49,24 @@ class _SeedQrImportScreenState extends State<SeedQrImportScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: CoconutColors.white,
-      appBar: CoconutAppBar.build(context: context, title: t.seed_qr_import_screen.title),
+      appBar: CoconutAppBar.build(
+        context: context,
+        title: t.seed_qr_import_screen.title,
+        backgroundColor: CoconutColors.white,
+      ),
       body: Stack(
         children: [
-          Container(
-            color: CoconutColors.white,
-            child: QRView(
-              key: qrKey,
-              onQRViewCreated: _onQRViewCreated,
-              overlay: _getOverlayShape(),
-            ),
-          ),
+          _buildQrView(context),
           CustomTooltip.buildInfoTooltip(
             context,
             richText: RichText(
               text: TextSpan(
-                style: CoconutTypography.body3_12,
+                style: CoconutTypography.body2_14,
                 children: [
                   TextSpan(
-                      text: t.seed_qr_import_screen.guide,
-                      style: CoconutTypography.body2_14
-                          .copyWith(height: 1.2, color: CoconutColors.black)),
+                    text: t.seed_qr_import_screen.guide,
+                    style: CoconutTypography.body2_14.copyWith(height: 1.3, color: CoconutColors.black),
+                  ),
                 ],
               ),
             ),
@@ -76,27 +77,38 @@ class _SeedQrImportScreenState extends State<SeedQrImportScreen> {
     );
   }
 
-  QrScannerOverlayShape _getOverlayShape() {
-    return QrScannerOverlayShape(
-      borderColor: CoconutColors.white,
-      borderRadius: 8,
-      borderLength:
-          (MediaQuery.of(context).size.width < 400 || MediaQuery.of(context).size.height < 400)
-              ? 160.0
-              : MediaQuery.of(context).size.width * 0.85 / 2,
-      borderWidth: 8,
-      cutOutSize:
-          (MediaQuery.of(context).size.width < 400 || MediaQuery.of(context).size.height < 400)
-              ? 320.0
-              : MediaQuery.of(context).size.width * 0.85,
+  Widget _buildQrView(BuildContext context) {
+    // For this example we check how width or tall the device is and change the scanArea and overlay accordingly.
+    var scanArea =
+        (MediaQuery.of(context).size.width < 400 || MediaQuery.of(context).size.height < 400)
+            ? 320.0
+            : MediaQuery.of(context).size.width * 0.85;
+
+    // To ensure the Scanner view is properly sizes after rotation
+    // we need to listen for Flutter SizeChanged notification and update controller
+    return QRView(
+      key: qrKey,
+      onQRViewCreated: _onQRViewCreated,
+      overlay: QrScannerOverlayShape(
+        overlayColor: CoconutColors.black.withValues(alpha: 0.45),
+        borderColor: CoconutColors.white,
+        borderRadius: 10,
+        borderLength: scanArea * 0.5,
+        borderWidth: 10,
+        cutOutSize: scanArea,
+      ),
+      onPermissionSet: (ctrl, p) => _onPermissionSet(context, ctrl, p),
     );
   }
 
   void _onQRViewCreated(QRViewController controller) {
-    this.controller = controller;
+    setState(() {
+      this.controller = controller;
+    });
+    var words = <String>[];
     controller.scannedDataStream.listen((scanData) {
       if (_isNavigating) return;
-      var words = <String>[];
+
       try {
         if (scanData.code == null && scanData.rawBytes != null) {
           words = _decodeCompactQR(scanData.rawBytes!);
@@ -104,20 +116,20 @@ class _SeedQrImportScreenState extends State<SeedQrImportScreen> {
           words = _decodeStandardQR(scanData.code!);
         }
       } catch (e) {
-        // FormatException: Invalid radix-10 number 인 경우, rawBytes로 파싱
         if (e is FormatException && e.message.contains('Invalid radix-10 number')) {
           words = _decodeCompactQR(scanData.rawBytes!);
         } else {
           if (mounted) {
             showDialog(
-                context: context,
-                builder: (context) {
-                  return CoconutPopup(
-                    title: t.seed_qr_import_screen.error_title,
-                    description: '${t.seed_qr_import_screen.error_message}: $e',
-                    onTapRight: () => Navigator.of(context).pop(),
-                  );
-                });
+              context: context,
+              builder: (context) {
+                return CoconutPopup(
+                  title: t.seed_qr_import_screen.error_title,
+                  description: '${t.seed_qr_import_screen.error_message}: $e',
+                  onTapRight: () => Navigator.of(context).pop(),
+                );
+              },
+            );
           }
           return;
         }
@@ -126,14 +138,14 @@ class _SeedQrImportScreenState extends State<SeedQrImportScreen> {
       if (words.length == 12 || words.length == 24) {
         if (mounted) {
           _isNavigating = true;
-
           // 1. 네비게이션하기 전 카메라 끄기
           controller.pauseCamera();
           Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) => SeedQrConfirmationScreen(scannedData: words.join(' '))))
-              .then((_) {
+            context,
+            MaterialPageRoute(
+              builder: (context) => SeedQrConfirmationScreen(scannedData: utf8.encode(words.join(' '))),
+            ),
+          ).then((_) {
             // 2. 돌아왔을 때 카메라 재개하기
             if (mounted) {
               controller.resumeCamera();
@@ -146,6 +158,8 @@ class _SeedQrImportScreenState extends State<SeedQrImportScreen> {
       }
     });
   }
+
+  void _onPermissionSet(BuildContext context, QRViewController ctrl, bool p) {}
 
   List<String> _decodeStandardQR(String data) {
     final words = <String>[];

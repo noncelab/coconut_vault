@@ -36,8 +36,7 @@ class ShrinkAnimationButton extends StatefulWidget {
   State<ShrinkAnimationButton> createState() => _ShrinkAnimationButtonState();
 }
 
-class _ShrinkAnimationButtonState extends State<ShrinkAnimationButton>
-    with SingleTickerProviderStateMixin {
+class _ShrinkAnimationButtonState extends State<ShrinkAnimationButton> with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<double> _animation;
   bool _isPressed = false;
@@ -45,12 +44,11 @@ class _ShrinkAnimationButtonState extends State<ShrinkAnimationButton>
   @override
   void initState() {
     super.initState();
-    _controller = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 100),
-    );
-    _animation = Tween<double>(begin: 1.0, end: widget.animationEndValue)
-        .animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut));
+    _controller = AnimationController(vsync: this, duration: const Duration(milliseconds: 100));
+    _animation = Tween<double>(
+      begin: 1.0,
+      end: widget.animationEndValue,
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut));
   }
 
   @override
@@ -97,52 +95,56 @@ class _ShrinkAnimationButtonState extends State<ShrinkAnimationButton>
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-        onTapDown: _onTapDown,
-        onTapUp: _onTapUp,
-        onTapCancel: _onTapCancel,
-        onLongPress: widget.onLongPressed != null ? _onLongPress : null,
-        child: ScaleTransition(
-          scale: widget.isActive ? _animation : const AlwaysStoppedAnimation(1.0),
-          child: Container(
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(widget.borderRadius + 2),
-              gradient: widget.borderGradientColors != null
-                  ? LinearGradient(
+      onTapDown: _onTapDown,
+      onTapUp: _onTapUp,
+      onTapCancel: _onTapCancel,
+      onLongPress: widget.onLongPressed != null ? _onLongPress : null,
+      child: ScaleTransition(
+        scale: widget.isActive ? _animation : const AlwaysStoppedAnimation(1.0),
+        child: Container(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(widget.borderRadius + 2),
+            gradient:
+                widget.borderGradientColors != null
+                    ? LinearGradient(
                       colors: widget.borderGradientColors!,
                       begin: Alignment.topLeft,
                       end: Alignment.bottomRight,
-                      transform: const GradientRotation(math.pi / 10))
-                  : null,
-              border: widget.borderGradientColors == null
-                  ? (widget.border ??
-                      Border.all(
-                        color: widget.isActive
-                            ? _isPressed
-                                ? widget.pressedColor
-                                : widget.defaultColor
-                            : widget.disabledColor,
-                      ))
-                  : null,
-            ),
-            child: AnimatedContainer(
-              margin: EdgeInsets.all(widget.borderGradientColors != null ? widget.borderWidth : 0),
-              duration: const Duration(milliseconds: 100),
+                      transform: const GradientRotation(math.pi / 10),
+                    )
+                    : null,
+            border:
+                widget.borderGradientColors == null
+                    ? (widget.border ??
+                        Border.all(
+                          color:
+                              widget.isActive
+                                  ? _isPressed
+                                      ? widget.pressedColor
+                                      : widget.defaultColor
+                                  : widget.disabledColor,
+                        ))
+                    : null,
+          ),
+          child: AnimatedContainer(
+            margin: EdgeInsets.all(widget.borderGradientColors != null ? widget.borderWidth : 0),
+            duration: const Duration(milliseconds: 100),
+            decoration: BoxDecoration(borderRadius: BorderRadius.circular(widget.borderRadius)),
+            child: Container(
               decoration: BoxDecoration(
+                color:
+                    widget.isActive
+                        ? _isPressed
+                            ? widget.pressedColor
+                            : widget.defaultColor
+                        : widget.disabledColor,
                 borderRadius: BorderRadius.circular(widget.borderRadius),
               ),
-              child: Container(
-                decoration: BoxDecoration(
-                  color: widget.isActive
-                      ? _isPressed
-                          ? widget.pressedColor
-                          : widget.defaultColor
-                      : widget.disabledColor,
-                  borderRadius: BorderRadius.circular(widget.borderRadius),
-                ),
-                child: widget.child,
-              ),
+              child: widget.child,
             ),
           ),
-        ));
+        ),
+      ),
+    );
   }
 }

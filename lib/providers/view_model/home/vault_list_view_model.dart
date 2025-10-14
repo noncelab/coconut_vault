@@ -14,8 +14,7 @@ class VaultListViewModel extends ChangeNotifier {
   late final int _initialVaultCount;
   late final PreferenceProvider _preferenceProvider;
 
-  VaultListViewModel(
-      this._authProvider, this._walletProvider, this._preferenceProvider, this._initialVaultCount) {
+  VaultListViewModel(this._authProvider, this._walletProvider, this._preferenceProvider, this._initialVaultCount) {
     _vaultOrder = List.from(_preferenceProvider.vaultOrder);
     _favoriteVaultIds = List.from(_preferenceProvider.favoriteVaultIds);
     _preferenceProvider.addListener(_onPreferenceChanged);
@@ -52,15 +51,10 @@ class VaultListViewModel extends ChangeNotifier {
   bool _isEditMode = false;
   bool get isEditMode => _isEditMode;
 
-  bool get hasFavoriteChanged => !const SetEquality().equals(
-        tempFavoriteVaultIds.toSet(),
-        _preferenceProvider.favoriteVaultIds.toSet(),
-      );
+  bool get hasFavoriteChanged =>
+      !const SetEquality().equals(tempFavoriteVaultIds.toSet(), _preferenceProvider.favoriteVaultIds.toSet());
 
-  bool get hasVaultOrderChanged => !const ListEquality().equals(
-        tempVaultOrder,
-        _preferenceProvider.vaultOrder,
-      );
+  bool get hasVaultOrderChanged => !const ListEquality().equals(tempVaultOrder, _preferenceProvider.vaultOrder);
 
   void reorderTempVaultOrder(int oldIndex, int newIndex) {
     final item = tempVaultOrder.removeAt(oldIndex);
@@ -114,8 +108,7 @@ class VaultListViewModel extends ChangeNotifier {
       // 최신 favoriteVaultIds PreferenceProvider에서 다시 읽어옴
       _favoriteVaultIds = List.from(_preferenceProvider.favoriteVaultIds);
 
-      tempFavoriteVaultIds =
-          vaults.where((w) => favoriteVaultIds.contains(w.id)).map((w) => w.id).toList();
+      tempFavoriteVaultIds = vaults.where((w) => favoriteVaultIds.contains(w.id)).map((w) => w.id).toList();
 
       tempVaultOrder = vaults.map((w) => w.id).toList();
     }
@@ -124,14 +117,13 @@ class VaultListViewModel extends ChangeNotifier {
 
   VoidCallback? _pendingAuthCompleteCallback;
 
-  Future<void> _handleAuthFlow(
-      {required VoidCallback onComplete, required bool hasVaultDeleted}) async {
+  Future<void> _handleAuthFlow({required VoidCallback onComplete, required bool hasVaultDeleted}) async {
     if (!hasVaultDeleted) {
       // 지갑이 삭제된 경우가 아니라면 pinCheck 생략
       onComplete();
       return;
     }
-    if (!_authProvider.isAuthEnabled) {
+    if (!_authProvider.isPinSet) {
       onComplete();
       return;
     }
@@ -175,15 +167,16 @@ class VaultListViewModel extends ChangeNotifier {
     // 삭제 예정 지갑 목록
     // 삭제 예정 지갑에 키로 사용된 SingleSigVaultListItem 이 있는 경우 연결된 MultisigVaultListItem 이 먼저 삭제되어야 하기 때문에 정렬
     final deletedVaultIds =
-        _preferenceProvider.vaultOrder.where((id) => !tempVaultOrder.contains(id)).toList()
-          ..sort((a, b) {
-            final aIsMultisig = _walletProvider.vaultListNotifier.value
-                .any((v) => v.id == a && v.vaultType == WalletType.multiSignature);
-            final bIsMultisig = _walletProvider.vaultListNotifier.value
-                .any((v) => v.id == b && v.vaultType == WalletType.multiSignature);
-            if (aIsMultisig == bIsMultisig) return 0;
-            return aIsMultisig ? -1 : 1;
-          });
+        _preferenceProvider.vaultOrder.where((id) => !tempVaultOrder.contains(id)).toList()..sort((a, b) {
+          final aIsMultisig = _walletProvider.vaultListNotifier.value.any(
+            (v) => v.id == a && v.vaultType == WalletType.multiSignature,
+          );
+          final bIsMultisig = _walletProvider.vaultListNotifier.value.any(
+            (v) => v.id == b && v.vaultType == WalletType.multiSignature,
+          );
+          if (aIsMultisig == bIsMultisig) return 0;
+          return aIsMultisig ? -1 : 1;
+        });
 
     await _handleAuthFlow(
       onComplete: () async {
@@ -219,7 +212,8 @@ class VaultListViewModel extends ChangeNotifier {
       int vaultId = deletedVaultIds[i];
       debugPrint('[delete] vaultId: $vaultId');
       debugPrint(
-          '[delete] vaultsType: ${_walletProvider.vaultListNotifier.value.firstWhere((v) => v.id == vaultId).vaultType}');
+        '[delete] vaultsType: ${_walletProvider.vaultListNotifier.value.firstWhere((v) => v.id == vaultId).vaultType}',
+      );
       await _walletProvider.deleteWallet(vaultId);
     }
     _walletProvider.notifyListeners();

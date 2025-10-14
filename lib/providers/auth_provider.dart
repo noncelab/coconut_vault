@@ -43,23 +43,19 @@ class AuthProvider extends ChangeNotifier {
   bool _hasAlreadyRequestedBioPermission = false;
   bool get hasAlreadyRequestedBioPermission => _hasAlreadyRequestedBioPermission;
 
-  /// 디바이스 생체인증 활성화 여부
-  bool _canCheckBiometrics = false;
-  bool get canCheckBiometrics => _canCheckBiometrics;
+  /// 생체인증 하드웨어가 있는지 확인 (등록 여부 무관)
+  bool _isBiometricSupportedByDevice = false;
+  bool get isBiometricSupportedByDevice => _isBiometricSupportedByDevice;
+
+  List<BiometricType> _availableBiometrics = [];
+  List<BiometricType> get availableBiometrics => _availableBiometrics;
 
   /// 사용자 생체 인증 on/off 여부
   bool _isBiometricEnabled = false;
   bool get isBiometricEnabled => _isBiometricEnabled;
 
-  /// 사용자 생체인증 권한 허용 여부
-  bool _hasBiometricsPermission = false;
-  bool get hasBiometricsPermission => _hasBiometricsPermission;
-
-  /// 인증 활성화 여부
-  bool get isAuthEnabled => _isPinSet;
-
   /// 생체인식 인증 활성화 여부
-  bool get isBiometricsAuthEnabled => _canCheckBiometrics && _isBiometricEnabled;
+  bool get isBiometricsAuthEnabled => _isBiometricSupportedByDevice && _isBiometricEnabled;
 
   /// 잠금 해제 시도 정보
   int _currentTurn = 0;
@@ -87,21 +83,20 @@ class AuthProvider extends ChangeNotifier {
   }
 
   int get remainingAttemptCount => kMaxAttemptPerTurn - _currentAttemptInTurn;
+
   bool get isPermanantlyLocked => _currentTurn == kMaxTurn;
   bool get isUnlockAvailable => unlockAvailableAt?.isBefore(DateTime.now()) ?? true;
 
-  VoidCallback? onRequestShowAuthenticationFailedDialog;
-  VoidCallback? onBiometricAuthFailed; // 현재 사용하는 곳 없음
   VoidCallback? onAuthenticationSuccess;
 
   AuthProvider() {
-    updateBiometricAvailability();
+    updateDeviceBiometricAvailability();
     setInitState();
   }
 
   /// 생체인증 성공했는지 여부 반환
-  Future<bool> isBiometricsAuthValid() async {
-    return isBiometricsAuthEnabled && await authenticateWithBiometrics();
+  Future<bool> isBiometricsAuthValid({bool isSaved = false}) async {
+    return isBiometricsAuthEnabled && await authenticateWithBiometrics(isSaved: isSaved);
   }
 
   void setInitState() {
@@ -116,10 +111,7 @@ class AuthProvider extends ChangeNotifier {
 
   void _loadBiometricState() {
     _isBiometricEnabled = _sharedPrefs.getBool(SharedPrefsKeys.isBiometricEnabled) == true;
-    _hasBiometricsPermission =
-        _sharedPrefs.getBool(SharedPrefsKeys.hasBiometricsPermission) == true;
-    _hasAlreadyRequestedBioPermission =
-        _sharedPrefs.getBool(SharedPrefsKeys.hasAlreadyRequestedBioPermission) == true;
+    _hasAlreadyRequestedBioPermission = _sharedPrefs.getBool(SharedPrefsKeys.hasAlreadyRequestedBioPermission) == true;
   }
 
   void _loadUnlockState() {
@@ -133,28 +125,19 @@ class AuthProvider extends ChangeNotifier {
   }
 
   /// 생체인증 진행 후 성공 여부 반환
-  Future<bool> authenticateWithBiometrics(
-      {BuildContext? context,
-      bool showAuthenticationFailedDialog = true,
-      bool isSaved = false}) async {
+  Future<bool> authenticateWithBiometrics({BuildContext? context, bool isSaved = false}) async {
     bool authenticated = false;
     try {
       authenticated = await _auth.authenticate(
-        localizedReason: isSaved
-            ? t.permission.biometric.ask_to_use
-            : t.permission.biometric
-                .proceed_biometric_auth, // 이 문구는 aos, iOS(touch ID)에서 사용됩니다. ios face ID는 info.plist string을 사용합니다.
-        options: const AuthenticationOptions(
-          stickyAuth: true,
-          biometricOnly: true,
-        ),
+        localizedReason:
+            isSaved
+                ? t.permission.biometric.ask_to_use
+                : t
+                    .permission
+                    .biometric
+                    .proceed_biometric_auth, // 이 문구는 aos, iOS(touch ID)에서 사용됩니다. ios face ID는 info.plist string을 사용합니다.
+        options: const AuthenticationOptions(stickyAuth: true, biometricOnly: true),
       );
-
-      if (Platform.isIOS && !authenticated) {
-        if (context != null && context.mounted && onRequestShowAuthenticationFailedDialog != null) {
-          onRequestShowAuthenticationFailedDialog!();
-        }
-      }
 
       if (isSaved) {
         saveIsBiometricEnabled(authenticated);
@@ -165,18 +148,14 @@ class AuthProvider extends ChangeNotifier {
     } on PlatformException catch (e) {
       Logger.log(e);
 
+      /// iOS는 생체인증 권한을 요청하기 때문에 사용자가 거절할 수 있음
+      /// 거절하면 _auth.getAvailableBiometrics() 결과는 빈 배열이 반환되므로 직접 수정
+      if (Platform.isIOS && !authenticated && e.code == 'NotAvailable' && !_hasAlreadyRequestedBioPermission) {
+        _availableBiometrics = [];
+      }
+
       if (isSaved) {
         saveIsBiometricEnabled(false);
-        if (Platform.isIOS &&
-            !authenticated &&
-            e.message == 'Biometry is not available.' &&
-            showAuthenticationFailedDialog) {
-          if (context != null &&
-              context.mounted &&
-              onRequestShowAuthenticationFailedDialog != null) {
-            onRequestShowAuthenticationFailedDialog!();
-          }
-        }
         _setHasAlreadyRequestedBioPermissionTrue();
       }
     }
@@ -191,30 +170,31 @@ class AuthProvider extends ChangeNotifier {
   }
 
   /// 기기의 생체인증 가능 여부 업데이트
-  /// Shared Preference의 canCheckBiometrics, isBiometricEnabled를 업데이트함
-  Future<void> updateBiometricAvailability() async {
+  Future<void> updateDeviceBiometricAvailability() async {
     try {
+      // 생체인증 지원 여부 (등록과 무관)
       final hasBiometrics = await _auth.canCheckBiometrics;
       if (!hasBiometrics) {
-        _canCheckBiometrics = false;
+        _isBiometricSupportedByDevice = false;
+        _isBiometricEnabled = false;
         return;
       }
+      _isBiometricSupportedByDevice = true;
 
+      // 빈 배열이면 앱 권한을 거부했거나 등록한 생체인증이 없는 경우
       final List<BiometricType> availableBiometrics = await _auth.getAvailableBiometrics();
-      _canCheckBiometrics = availableBiometrics.isNotEmpty;
-
-      if (!_canCheckBiometrics) {
+      _availableBiometrics = availableBiometrics;
+      if (_availableBiometrics.isEmpty) {
         _isBiometricEnabled = false;
       }
-    } on PlatformException catch (e) {
+    } catch (e) {
       // 생체 인식 기능 비활성화, 사용자가 권한 거부, 기기 하드웨어에 문제가 있는 경우, 기기 호환성 문제, 플랫폼 제한
-      Logger.log(e);
-      _canCheckBiometrics = false;
+      Logger.error(e);
+      _isBiometricSupportedByDevice = false;
       _isBiometricEnabled = false;
     } finally {
       // dispose된 상태에서는 notifyListeners 호출하지 않음
       if (!_isDisposed) {
-        _sharedPrefs.setBool(SharedPrefsKeys.canCheckBiometrics, _canCheckBiometrics);
         _sharedPrefs.setBool(SharedPrefsKeys.isBiometricEnabled, _isBiometricEnabled);
         notifyListeners();
       }
@@ -226,17 +206,12 @@ class AuthProvider extends ChangeNotifier {
     if (_isDisposed) return;
 
     _isBiometricEnabled = value;
-    _hasBiometricsPermission = value;
     await _sharedPrefs.setBool(SharedPrefsKeys.isBiometricEnabled, value);
-    await _sharedPrefs.setBool(SharedPrefsKeys.hasBiometricsPermission, value);
     notifyListeners();
   }
 
   void verifyBiometric(BuildContext context) async {
-    bool isAuthenticated = await authenticateWithBiometrics(
-      context: context,
-      showAuthenticationFailedDialog: false,
-    );
+    bool isAuthenticated = await authenticateWithBiometrics(context: context);
     if (isAuthenticated) {
       if (onAuthenticationSuccess != null) {
         onAuthenticationSuccess!();
@@ -250,8 +225,10 @@ class AuthProvider extends ChangeNotifier {
     final random = Random();
     var randomNumberPad = List<String>.generate(10, (index) => index.toString());
     randomNumberPad.shuffle(random);
-    randomNumberPad.insert(randomNumberPad.length - 1,
-        !isPinSettingContext && _isBiometricEnabled ? kBiometricIdentifier : '');
+    randomNumberPad.insert(
+      randomNumberPad.length - 1,
+      !isPinSettingContext && _isBiometricEnabled ? kBiometricIdentifier : '',
+    );
     randomNumberPad.add(kDeleteBtnIdentifier);
     return randomNumberPad;
   }
@@ -276,7 +253,7 @@ class AuthProvider extends ChangeNotifier {
   Future<void> savePin(String pin, bool isCharacter) async {
     if (_isDisposed) return;
 
-    if (_isBiometricEnabled && _canCheckBiometrics && !_isPinSet) {
+    if (_isBiometricEnabled && _isBiometricSupportedByDevice && !_isPinSet) {
       _isBiometricEnabled = true;
       _sharedPrefs.setBool(SharedPrefsKeys.isBiometricEnabled, true);
     }
@@ -294,19 +271,22 @@ class AuthProvider extends ChangeNotifier {
   Future<void> resetPin(PreferenceProvider preferenceProvider) async {
     if (_isDisposed) return;
 
+    await resetData(preferenceProvider);
+    resetAuthenticationState();
+  }
+
+  Future<void> resetData(PreferenceProvider preferenceProvider) async {
     final WalletRepository walletRepository = WalletRepository();
     await walletRepository.resetAll();
 
     _isBiometricEnabled = false;
     _isPinSet = false;
-    await _storageService.delete(key: SecureStorageKeys.kVaultPin);
     await _sharedPrefs.setBool(SharedPrefsKeys.isBiometricEnabled, false);
     await _sharedPrefs.setBool(SharedPrefsKeys.isPinEnabled, false);
+    await _storageService.delete(key: SecureStorageKeys.kVaultPin);
     await _sharedPrefs.setInt(SharedPrefsKeys.vaultListLength, 0);
     await _sharedPrefs.setString(SharedPrefsKeys.kAppVersion, '');
     await preferenceProvider.resetVaultOrderAndFavorites();
-
-    resetAuthenticationState();
   }
 
   // TODO: 딜레이 발생 이유
@@ -322,9 +302,9 @@ class AuthProvider extends ChangeNotifier {
     }
 
     /// INFO: 디버그 모드일 때는 잠금 시도 실패 횟수 별 딜레이를 늘리지 않습니다.
-    final unlockableDateTime = DateTime.now().add(kDebugMode
-        ? const Duration(seconds: kDebugPinInputDelay)
-        : Duration(minutes: kLockoutDurationsPerTurn[turn - 1]));
+    final unlockableDateTime = DateTime.now().add(
+      kDebugMode ? const Duration(seconds: kDebugPinInputDelay) : Duration(minutes: kLockoutDurationsPerTurn[turn - 1]),
+    );
 
     _unlockAvailableAtInString = unlockableDateTime.toIso8601String();
     await _sharedPrefs.setString(unlockAvailableAtKey, _unlockAvailableAtInString);

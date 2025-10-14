@@ -1,3 +1,5 @@
+// ignore_for_file: avoid_print
+
 import 'package:flutter/foundation.dart';
 
 class Logger {
@@ -5,7 +7,6 @@ class Logger {
 
   static void log(Object? object) {
     if (!_isReleaseMode) {
-      // ignore: avoid_print
       print(object);
     }
   }

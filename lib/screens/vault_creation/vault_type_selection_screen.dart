@@ -64,30 +64,33 @@ class _VaultTypeSelectionScreenState extends State<VaultTypeSelectionScreen> {
       builder: (context, model, child) {
         return Scaffold(
           backgroundColor: CoconutColors.white,
-          appBar: CoconutAppBar.build(
-            title: t.select_vault_type_screen.title,
-            context: context,
-          ),
+          appBar: CoconutAppBar.build(title: t.select_vault_type_screen.title, context: context),
           body: SafeArea(
             minimum: const EdgeInsets.only(top: 10, right: 16, left: 16),
             child: Stack(
               children: [
                 Column(
                   children: [
-                    _buildOption(t.single_sig_wallet, t.select_vault_type_screen.single_sig,
-                        onTapSinglesigWallet, true),
+                    _buildOption(
+                      t.single_sig_wallet,
+                      t.select_vault_type_screen.single_sig,
+                      onTapSinglesigWallet,
+                      true,
+                    ),
                     CoconutLayout.spacing_300h,
-                    _buildOption(t.multisig_wallet, t.select_vault_type_screen.multisig,
-                        onTapMultisigWallet, _walletProvider.vaultList.isNotEmpty),
+                    _buildOption(
+                      t.multisig_wallet,
+                      t.select_vault_type_screen.multisig,
+                      onTapMultisigWallet,
+                      _walletProvider.vaultList.isNotEmpty,
+                    ),
                   ],
                 ),
                 Visibility(
                   visible: _showLoading,
                   child: Container(
-                    decoration: BoxDecoration(color: CoconutColors.black.withOpacity(0.3)),
-                    child: Center(
-                        child: MessageActivityIndicator(
-                            message: t.select_vault_type_screen.loading_keys)),
+                    decoration: BoxDecoration(color: CoconutColors.black.withValues(alpha: 0.3)),
+                    child: Center(child: MessageActivityIndicator(message: t.select_vault_type_screen.loading_keys)),
                   ),
                 ),
               ],
@@ -100,50 +103,56 @@ class _VaultTypeSelectionScreenState extends State<VaultTypeSelectionScreen> {
 
   Widget _buildOption(String title, String description, VoidCallback onPressed, bool isSelectable) {
     return ShrinkAnimationButton(
-        defaultColor: CoconutColors.gray150,
-        pressedColor: CoconutColors.gray500.withOpacity(0.1),
-        onPressed: isSelectable ? onPressed : () {},
-        isActive: isSelectable,
-        child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 28.0),
-            child: Row(
-              children: [
-                Expanded(
-                  child: Align(
-                      alignment: Alignment.centerLeft,
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Text(
-                            title,
-                            style: CoconutTypography.body1_16_Bold.copyWith(
-                                color: isSelectable ? CoconutColors.black : CoconutColors.gray400,
-                                letterSpacing: 0.2),
-                          ),
-                          CoconutLayout.spacing_100h,
-                          Flexible(
-                            child: Text(
-                              overflow: TextOverflow.visible,
-                              maxLines: 2,
-                              description,
-                              style: CoconutTypography.body3_12.copyWith(
-                                  color:
-                                      isSelectable ? CoconutColors.gray700 : CoconutColors.gray400,
-                                  letterSpacing: 0.2,
-                                  height: 1.2),
-                            ),
-                          ),
-                        ],
-                      )),
+      defaultColor: CoconutColors.gray150,
+      pressedColor: CoconutColors.gray500.withValues(alpha: 0.1),
+      onPressed: isSelectable ? onPressed : () {},
+      isActive: isSelectable,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 28.0),
+        child: Row(
+          children: [
+            Expanded(
+              child: Align(
+                alignment: Alignment.centerLeft,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      title,
+                      style: CoconutTypography.body1_16_Bold.copyWith(
+                        color: isSelectable ? CoconutColors.black : CoconutColors.gray400,
+                        letterSpacing: 0.2,
+                      ),
+                    ),
+                    CoconutLayout.spacing_100h,
+                    Flexible(
+                      child: Text(
+                        overflow: TextOverflow.visible,
+                        maxLines: 2,
+                        description,
+                        style: CoconutTypography.body2_14.copyWith(
+                          color: isSelectable ? CoconutColors.gray700 : CoconutColors.gray400,
+                          letterSpacing: 0.2,
+                          height: 1.2,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
-                Container(width: 10),
-                SvgPicture.asset('assets/svg/curved-arrow-right.svg',
-                    width: 24,
-                    colorFilter: ColorFilter.mode(
-                        isSelectable ? CoconutColors.black : CoconutColors.gray400,
-                        BlendMode.srcIn))
-              ],
-            )));
+              ),
+            ),
+            Container(width: 10),
+            SvgPicture.asset(
+              'assets/svg/chevron-right.svg',
+              colorFilter: ColorFilter.mode(
+                isSelectable ? CoconutColors.black : CoconutColors.gray400,
+                BlendMode.srcIn,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }

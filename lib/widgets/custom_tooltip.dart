@@ -3,8 +3,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 class CustomTooltip {
-  static Widget buildInfoTooltip(BuildContext context,
-      {required RichText richText, bool isBackgroundWhite = true, double paddingTop = 20}) {
+  static Widget buildInfoTooltip(
+    BuildContext context, {
+    required RichText richText,
+    bool isBackgroundWhite = true,
+    double paddingTop = 20,
+  }) {
     return Padding(
       padding: EdgeInsets.only(top: paddingTop, left: 16, right: 16),
       child: CoconutToolTip(
@@ -12,10 +16,8 @@ class CustomTooltip {
         borderColor: isBackgroundWhite ? Colors.transparent : CoconutColors.gray400,
         icon: SvgPicture.asset(
           'assets/svg/circle-info.svg',
-          colorFilter: const ColorFilter.mode(
-            CoconutColors.black,
-            BlendMode.srcIn,
-          ),
+          width: 20,
+          colorFilter: const ColorFilter.mode(CoconutColors.black, BlendMode.srcIn),
         ),
         tooltipType: CoconutTooltipType.fixed,
         richText: richText,

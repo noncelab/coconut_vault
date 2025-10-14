@@ -1,5 +1,4 @@
 import 'package:coconut_design_system/coconut_design_system.dart';
-import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/model/single_sig/single_sig_vault_list_item.dart';
 import 'package:coconut_vault/widgets/vault_row_item.dart';
 import 'package:flutter/material.dart';
@@ -8,12 +7,7 @@ class KeyListBottomSheet extends StatefulWidget {
   final List<SingleSigVaultListItem> vaultList;
   final void Function(int) onPressed;
   final ScrollController? scrollController;
-  const KeyListBottomSheet({
-    super.key,
-    required this.onPressed,
-    required this.vaultList,
-    this.scrollController,
-  });
+  const KeyListBottomSheet({super.key, required this.onPressed, required this.vaultList, this.scrollController});
 
   @override
   State<KeyListBottomSheet> createState() => _KeyListBottomSheetState();
@@ -33,13 +27,6 @@ class _KeyListBottomSheetState extends State<KeyListBottomSheet> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: CoconutColors.white,
-      appBar: CoconutAppBar.build(
-        context: context,
-        title: t.assign_signers_screen.use_internal_key,
-        onBackPressed: () => Navigator.pop(context),
-        backgroundColor: CoconutColors.white,
-        isBottom: true,
-      ),
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16),
         child: ListView.builder(

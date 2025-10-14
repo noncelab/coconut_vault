@@ -11,11 +11,11 @@ class VaultHomeViewModel extends ChangeNotifier {
   late final PreferenceProvider _preferenceProvider;
   late final int _initialVaultCount;
 
-  VaultHomeViewModel(
-      this._authProvider, this._walletProvider, this._preferenceProvider, this._initialVaultCount) {
+  VaultHomeViewModel(this._authProvider, this._walletProvider, this._preferenceProvider, this._initialVaultCount) {
     _walletProvider.addListener(_onWalletProviderUpdate);
     _walletProvider.vaultListNotifier.addListener(_onVaultListChanged);
     _favoriteVaultIds = _preferenceProvider.favoriteVaultIds;
+    _preferenceProvider.addListener(_onPreferenceProviderUpdated);
   }
 
   List<int> _favoriteVaultIds = [];
@@ -45,6 +45,7 @@ class VaultHomeViewModel extends ChangeNotifier {
   void dispose() {
     _walletProvider.removeListener(_onWalletProviderUpdate);
     _walletProvider.vaultListNotifier.removeListener(_onVaultListChanged);
+    _preferenceProvider.removeListener(_onPreferenceProviderUpdated);
     super.dispose();
   }
 
@@ -64,10 +65,9 @@ class VaultHomeViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  void onPreferenceProviderUpdated() {
+  void _onPreferenceProviderUpdated() {
     /// 지갑 즐겨찾기 변동 체크
-    if (favoriteVaultIds.toString() != _preferenceProvider.favoriteVaultIds.toString() &&
-        vaults.isNotEmpty) {
+    if (favoriteVaultIds.toString() != _preferenceProvider.favoriteVaultIds.toString() && vaults.isNotEmpty) {
       loadFavoriteVaults();
     }
 
@@ -79,10 +79,11 @@ class VaultHomeViewModel extends ChangeNotifier {
 
     final ids = _preferenceProvider.favoriteVaultIds;
 
-    final vaults = ids
-        .map((id) => _walletProvider.vaultListNotifier.value.firstWhereOrNull((w) => w.id == id))
-        .whereType<VaultListItemBase>()
-        .toList();
+    final vaults =
+        ids
+            .map((id) => _walletProvider.vaultListNotifier.value.firstWhereOrNull((w) => w.id == id))
+            .whereType<VaultListItemBase>()
+            .toList();
 
     _favoriteVaultIds = vaults.map((v) => v.id).toList();
     notifyListeners();

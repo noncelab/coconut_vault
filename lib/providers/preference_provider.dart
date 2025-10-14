@@ -7,10 +7,6 @@ import 'package:flutter/material.dart';
 class PreferenceProvider extends ChangeNotifier {
   final SharedPrefsRepository _sharedPrefs = SharedPrefsRepository();
 
-  /// 언어 설정
-  late String _language;
-  String get language => _language;
-
   /// 지갑 순서
   late List<int> _vaultOrder;
   List<int> get vaultOrder => _vaultOrder;

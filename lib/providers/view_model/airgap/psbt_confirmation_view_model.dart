@@ -1,12 +1,16 @@
 import 'dart:collection';
 
 import 'package:coconut_lib/coconut_lib.dart';
+import 'package:coconut_vault/extensions/int_extensions.dart';
+import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/providers/sign_provider.dart';
+import 'package:coconut_vault/providers/visibility_provider.dart';
 import 'package:coconut_vault/utils/unit_utils.dart';
 import 'package:flutter/foundation.dart';
 
 class PsbtConfirmationViewModel extends ChangeNotifier {
   late final SignProvider _signProvider;
+  late final VisibilityProvider _visibilityProvider;
   late final String _unsignedPsbtBase64;
 
   Psbt? _psbt;
@@ -16,7 +20,7 @@ class PsbtConfirmationViewModel extends ChangeNotifier {
   // 현재 사용하지 않지만 관련 UI가 존재
   final bool _hasWarning = false;
 
-  PsbtConfirmationViewModel(this._signProvider) {
+  PsbtConfirmationViewModel(this._signProvider, this._visibilityProvider) {
     _unsignedPsbtBase64 = _signProvider.unsignedPsbtBase64!;
   }
 
@@ -72,7 +76,14 @@ class PsbtConfirmationViewModel extends ChangeNotifier {
         }
       }
       _sendingAmount = _psbt!.sendingAmount;
-      _recipientAddresses.addAll(recipientAmounts.entries.map((e) => '${e.key} (${e.value})'));
+      _recipientAddresses.addAll(
+        recipientAmounts.entries.map((e) {
+          if (_visibilityProvider.isBtcUnit) {
+            return '${e.key} (${e.value} ${t.btc})';
+          }
+          return '${e.key} (${UnitUtil.convertBitcoinToSatoshi(e.value).toThousandsSeparatedString()} ${t.sats})';
+        }),
+      );
       _updateSignProviderForBatch(_psbt!, recipientAmounts, _sendingAmount!);
     } else {
       // 내 지갑의 change address로 보내는 경우 잔액
@@ -105,8 +116,11 @@ class PsbtConfirmationViewModel extends ChangeNotifier {
   }
 
   ///예외: 사용자가 배치 트랜잭션에 '남의 주소 또는 내 Receive 주소 1개'와 '본인 change 주소 1개'를 입력하고, 이 트랜잭션의 잔액이 없는 희박한 상황에서는 배치 트랜잭션임을 구분하지 못함
-  bool _isBatchTransaction(List<PsbtOutput> outputToMyReceivingAddress,
-      List<PsbtOutput> outputToMyChangeAddress, List<PsbtOutput> outputsToOther) {
+  bool _isBatchTransaction(
+    List<PsbtOutput> outputToMyReceivingAddress,
+    List<PsbtOutput> outputToMyChangeAddress,
+    List<PsbtOutput> outputsToOther,
+  ) {
     var countExceptToMyChangeAddress = outputToMyReceivingAddress.length + outputsToOther.length;
     if (countExceptToMyChangeAddress >= 2) {
       return true;

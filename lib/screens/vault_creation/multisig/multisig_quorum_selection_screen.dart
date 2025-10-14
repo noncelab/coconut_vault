@@ -15,12 +15,7 @@ class GradientProgressBar extends StatelessWidget {
   final double height;
   final Gradient gradient;
 
-  const GradientProgressBar({
-    super.key,
-    required this.value,
-    required this.height,
-    required this.gradient,
-  });
+  const GradientProgressBar({super.key, required this.value, required this.height, required this.gradient});
 
   @override
   Widget build(BuildContext context) {
@@ -29,17 +24,10 @@ class GradientProgressBar extends StatelessWidget {
       child: Container(
         width: double.infinity,
         height: height,
-        color: CoconutColors.black.withOpacity(0.06),
+        color: CoconutColors.black.withValues(alpha: 0.06),
         child: Stack(
           children: [
-            FractionallySizedBox(
-              widthFactor: value,
-              child: Container(
-                decoration: BoxDecoration(
-                  gradient: gradient,
-                ),
-              ),
-            ),
+            FractionallySizedBox(widthFactor: value, child: Container(decoration: BoxDecoration(gradient: gradient))),
           ],
         ),
       ),
@@ -60,7 +48,6 @@ class _MultisigQuorumSelectionScreenState extends State<MultisigQuorumSelectionS
   bool _mounted = true;
   int _totalKeyCount = 3;
   int _requiredSignatureCount = 2;
-  bool _isProgressAnimationVisible = true;
 
   @override
   Widget build(BuildContext context) {
@@ -70,10 +57,7 @@ class _MultisigQuorumSelectionScreenState extends State<MultisigQuorumSelectionS
         builder: (context, viewModel, child) {
           return Scaffold(
             backgroundColor: CoconutColors.white,
-            appBar: CoconutAppBar.build(
-              title: t.multisig_wallet,
-              context: context,
-            ),
+            appBar: CoconutAppBar.build(title: t.multisig_wallet, context: context),
             body: SafeArea(
               child: Stack(
                 children: [
@@ -98,9 +82,7 @@ class _MultisigQuorumSelectionScreenState extends State<MultisigQuorumSelectionS
                     isActive: viewModel.isQuorumSettingValid,
                     onButtonClicked: () {
                       viewModel.saveQuorumRequirement();
-                      setState(() {
-                        _isProgressAnimationVisible = false;
-                      });
+
                       _mounted = false;
                       Navigator.pushNamed(context, AppRoutes.signerAssignment);
                     },
@@ -112,27 +94,6 @@ class _MultisigQuorumSelectionScreenState extends State<MultisigQuorumSelectionS
         },
       ),
     );
-  }
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-
-    String? currentRoute = ModalRoute.of(context)?.settings.name;
-    debugPrint('currentRoute: $currentRoute, mounted: $mounted');
-    if (!_mounted &&
-        currentRoute != null &&
-        currentRoute.startsWith(AppRoutes.multisigQuorumSelection)) {
-      setState(() {
-        _isProgressAnimationVisible = false;
-      });
-      Future.delayed(const Duration(milliseconds: 100), () {
-        setState(() {
-          _isProgressAnimationVisible = true;
-        });
-      });
-      _mounted = true;
-    }
   }
 
   @override
@@ -164,47 +125,36 @@ class _MultisigQuorumSelectionScreenState extends State<MultisigQuorumSelectionS
     final buttonClickedCount = viewModel.buttonClickedCount;
 
     return Container(
-        height: 274,
-        margin: const EdgeInsets.symmetric(horizontal: 12),
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
-        decoration: BoxDecoration(
-          borderRadius: CoconutBorder.defaultRadius,
-          color: CoconutColors.gray150,
-        ),
-        alignment: Alignment.center,
+      height: 274,
+      margin: const EdgeInsets.symmetric(horizontal: 12),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
+      decoration: BoxDecoration(borderRadius: CoconutBorder.defaultRadius, color: CoconutColors.gray150),
+      alignment: Alignment.center,
+      child: MediaQuery(
+        data: MediaQuery.of(context).copyWith(textScaler: const TextScaler.linear(1.0)),
         child: Column(
           children: [
-            Center(
-              child: HighLightedText(
-                '$requiredCount/$totalCount',
-                color: CoconutColors.gray800,
-                fontSize: 24,
-              ),
-            ),
+            Center(child: HighLightedText('$requiredCount/$totalCount', color: CoconutColors.gray800, fontSize: 24)),
             const Spacer(),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 24),
               child: Text(
                 quorumMessage,
-                style: CoconutTypography.body2_14_Number.merge(
-                  const TextStyle(
-                    letterSpacing: -0.01,
-                  ),
-                ),
+                style: CoconutTypography.body2_14_Number.merge(const TextStyle(letterSpacing: -0.01)),
                 textAlign: TextAlign.center,
               ),
             ),
             const Spacer(),
-            _isProgressAnimationVisible
-                ? KeySafeAnimationWidget(
-                    requiredCount: requiredCount,
-                    totalCount: totalCount,
-                    buttonClickedCount: buttonClickedCount,
-                  )
-                : Container(),
+            KeySafeAnimationWidget(
+              requiredCount: requiredCount,
+              totalCount: totalCount,
+              buttonClickedCount: buttonClickedCount,
+            ),
             CoconutLayout.spacing_400h,
           ],
-        ));
+        ),
+      ),
+    );
   }
 
   Widget _buildTotalKeyCount(MultisigQuorumSelectionViewModel viewModel) {
@@ -259,10 +209,7 @@ class _MultisigQuorumSelectionScreenState extends State<MultisigQuorumSelectionS
       children: [
         Expanded(
           child: Center(
-            child: Text(
-              text,
-              style: CoconutTypography.body2_14_Bold,
-            ),
+            child: FittedBox(fit: BoxFit.scaleDown, child: Text(text, style: CoconutTypography.body2_14_Bold)),
           ),
         ),
         Expanded(

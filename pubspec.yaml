@@ -17,16 +17,16 @@ publish_to: "none" # Remove this line if you wish to publish to pub.dev
 # In Windows, build-name is used as the major, minor, and patch parts
 # of the product and file versions while build-number is used as the build suffix.
 # iOS Regtest
-version: 2.3.0+2
+#version: 3.0.0+2
 # AOS Regtest
-#version: 2.3.0+33
+#version: 3.0.0+34
 # iOS Mainnet
-#version: 0.0.4+1
+version: 0.1.1+3
 # AOS Mainnet
-#version: 0.0.4+5
+#version: 0.1.1+13
 
 environment:
-  sdk: "3.5.3"
+  sdk: ">=3.7.0 <4.0.0"
 
 # Dependencies specify other packages that your package needs in order to work.
 # To automatically upgrade your package dependencies to the latest versions
@@ -47,10 +47,9 @@ dependencies:
   flutter_secure_storage: ^9.0.0
   json_annotation: ^4.9.0
   shared_preferences: ^2.2.2
-  fluttertoast: ^8.2.4
+  fluttertoast: ^8.2.12
   qr_flutter: ^4.1.0
   flutter_svg: ^2.0.10+1
-  carousel_slider: ^5.0.0
   convert: ^3.1.1
   connectivity_plus: ^6.0.3
   flutter_blue_plus: 1.32.12
@@ -61,26 +60,29 @@ dependencies:
   path_provider: ^2.1.3
   lottie: ^3.1.2
   shimmer: ^3.0.0
-  vibration: ^1.9.0
+  vibration: ^3.1.3
   device_info_plus: ^10.1.1
   package_info_plus: ^8.0.1
   url_launcher: ^6.2.6
   crypto: ^3.0.6
   encrypt: ^5.0.3
-  slang: ^4.4.1
-  slang_flutter: ^4.4.0
+  slang: ^4.6.0
+  slang_flutter: ^4.6.0
   pointycastle: ^3.9.1
   tuple: ^2.0.2
-  coconut_lib: 1.0.1
+  # coconut_lib: 1.0.1
+  coconut_lib: ^1.0.2
   coconut_design_system:
+    # path: ../design_system/coconut_design_system
     git:
       url: https://github.com/noncelab/coconut_design_system.git
       ref: main
   cbor: ^6.3.5
   ur:
     path: lib/packages/bc-ur-dart
-  qr_code_scanner:
-    path: lib/packages/qr-code-scanner
+  mobile_scanner: 7.0.1
+  qr_code_scanner_plus: ^2.0.12
+  decimal: ^3.0.2
 
 dev_dependencies:
   flutter_oss_licenses: ^3.0.2
@@ -118,23 +120,6 @@ flutter:
   assets:
     - assets/png/splash_logo_mainnet.png
     - assets/png/splash_logo_regtest.png
-    - assets/svg/menu/details.svg
-    - assets/svg/menu/2keys.svg
-    - assets/svg/menu/key-outline.svg
-    - assets/svg/menu/key-out.svg
-    - assets/svg/menu/list.svg
-    - assets/svg/menu/address.svg
-    - assets/svg/menu/out.svg
-    - assets/svg/menu/in.svg
-    - assets/svg/number/one.svg
-    - assets/svg/number/two.svg
-    - assets/svg/number/three.svg
-    - assets/svg/number/four.svg
-    - assets/svg/tooltip/info.svg
-    - assets/svg/tooltip/normal.svg
-    - assets/svg/tooltip/success.svg
-    - assets/svg/tooltip/warning.svg
-    - assets/svg/tooltip/error.svg
     - assets/svg/wallet-icons/bank.svg
     - assets/svg/wallet-icons/building.svg
     - assets/svg/wallet-icons/car.svg
@@ -170,31 +155,17 @@ flutter:
     - assets/svg/wallet-icons/squid.svg
     - assets/svg/wallet-icons/dolphin.svg
     - assets/svg/wallet-icons/whale.svg
-    - assets/svg/arrow-right.svg
     - assets/svg/arrow-down.svg
-    - assets/svg/back.svg
-    - assets/svg/coconut-mainnet.svg
-    - assets/svg/coconut-regtest.svg
-    - assets/svg/coconut-security-mainnet.svg
-    - assets/svg/coconut-security-regtest.svg
-    - assets/svg/cross-circle.svg
-    - assets/svg/curved-arrow-right.svg
     - assets/svg/edit-outlined.svg
     - assets/svg/safe.svg
     - assets/svg/safe-bit.svg
-    - assets/svg/stethoscope.svg
-    - assets/svg/scan-vault-qr.svg
     - assets/svg/trash.svg
     - assets/svg/face-id.svg
     - assets/svg/fingerprint.svg
-    - assets/svg/circle-check-gradient.svg
     - assets/svg/key-icon.svg
-    - assets/svg/kebab.svg
     - assets/svg/plus.svg
-    - assets/svg/minus.svg
     - assets/svg/check.svg
     - assets/svg/import-bsms.svg
-    - assets/lottie/loading-coconut.json
     - assets/lottie/loading-gray.json
     - assets/lottie/pin-locked-success.json
     - assets/png/pow-logo.png
@@ -203,20 +174,17 @@ flutter:
     - assets/png/discord-full-logo.png
     - assets/png/discord-logo.png
     - assets/png/mail-icon.png
-    - assets/png/browser_mainnet.png
-    - assets/png/browser_regtest.png
     - assets/png/browser_ko.png
     - assets/png/browser_en.png
-    - assets/png/onboarding_1.png
-    - assets/png/onboarding_2.png
     - assets/png/state/bluetooth_on.png
     - assets/png/state/wifi_on.png
     - assets/png/state/developer_on.png
+    - assets/png/welcome1.png
+    - assets/png/welcome2.png
     - assets/svg/github-logo-white.svg
     - assets/svg/github-logo.svg
     - assets/files/LICENSE
     - assets/files/CONTRIBUTING.md
-    - assets/svg/circle-check.svg
     - assets/svg/vault-grey.svg
     - assets/svg/text-field-clear.svg
     - assets/svg/copy.svg
@@ -227,7 +195,6 @@ flutter:
     - assets/svg/wallet-eyes.svg
     - assets/svg/two-keys.svg
     - assets/svg/font-book.svg
-    - assets/svg/align-center.svg
     - assets/svg/chevron-right.svg
     - assets/svg/green-circle-check.svg
     - assets/svg/triangle-warning.svg
@@ -236,8 +203,28 @@ flutter:
     - assets/svg/star-small.svg
     - assets/svg/hamburger.svg
     - assets/svg/qr-code.svg
+    - assets/svg/refresh.svg
     - assets/svg/circle-info.svg
     - assets/svg/eraser.svg
+    - assets/svg/watch-only-icons/coconut.svg
+    - assets/svg/watch-only-icons/sparrow.svg
+    - assets/svg/watch-only-icons/nunchuk.svg
+    - assets/svg/watch-only-icons/bluewallet.svg
+    - assets/svg/dice/1.svg
+    - assets/svg/dice/2.svg
+    - assets/svg/dice/3.svg
+    - assets/svg/dice/4.svg
+    - assets/svg/dice/5.svg
+    - assets/svg/dice/6.svg
+    - assets/svg/settings-guide-icons/airplane-mode.svg
+    - assets/svg/settings-guide-icons/wifi.svg
+    - assets/svg/settings-guide-icons/mobile-data.svg
+    - assets/svg/settings-guide-icons/bluetooth.svg
+    - assets/svg/settings-guide-icons/developer-mode.svg
+    - assets/svg/coconut-mainnet.svg
+    - assets/svg/coconut-regtest.svg
+    - assets/png/browser_ko.png
+    - assets/png/browser_en.png
 
   fonts:
     - family: SpaceGrotesk

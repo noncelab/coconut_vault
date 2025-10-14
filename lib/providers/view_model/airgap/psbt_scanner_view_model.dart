@@ -1,5 +1,6 @@
 import 'package:coconut_lib/coconut_lib.dart';
 import 'package:coconut_vault/enums/wallet_enums.dart';
+import 'package:coconut_vault/model/exception/extended_public_key_not_found_exception.dart';
 import 'package:coconut_vault/model/exception/vault_can_not_sign_exception.dart';
 import 'package:coconut_vault/model/exception/vault_not_found_exception.dart';
 import 'package:coconut_vault/providers/sign_provider.dart';
@@ -59,18 +60,17 @@ class PsbtScannerViewModel {
       }
     } else {
       // 멀티시그지갑
-      final psbtMfpSet = parsedPsbt.extendedPublicKeyList
-          .map((extendedKey) => extendedKey.masterFingerprint)
-          .toSet();
+      if (parsedPsbt.extendedPublicKeyList.isEmpty) {
+        throw ExtendedPublicKeyNotFoundException();
+      }
+      final psbtMfpSet = parsedPsbt.extendedPublicKeyList.map((e) => e.masterFingerprint).toSet();
       for (final vault in _walletProvider.vaultList) {
         if (vault.vaultType == WalletType.multiSignature) {
           final multisigVault = vault.coconutVault as MultisignatureVault;
-          final vaultMfpSet =
-              multisigVault.keyStoreList.map((keyStore) => keyStore.masterFingerprint).toSet();
+          final vaultMfpSet = multisigVault.keyStoreList.map((keyStore) => keyStore.masterFingerprint).toSet();
 
           // PSBT의 모든 MFP가 vault의 MFP set에 포함되어 있는지 확인
-          if (psbtMfpSet.length == vaultMfpSet.length &&
-              psbtMfpSet.every((psbtMfp) => vaultMfpSet.contains(psbtMfp))) {
+          if (psbtMfpSet.length == vaultMfpSet.length && psbtMfpSet.every((psbtMfp) => vaultMfpSet.contains(psbtMfp))) {
             matchingVaultId = vault.id;
             final canSign = await _walletProvider.getVaultById(matchingVaultId).canSign(psbtBase64);
             if (!canSign) {

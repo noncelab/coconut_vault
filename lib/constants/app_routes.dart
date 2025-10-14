@@ -7,7 +7,6 @@ class AppRoutes {
   static const String seedQrImport = '/seed-qr-import';
   static const String mnemonicVerify = '/mnemonic-verify';
   static const String mnemonicConfirmation = '/mnemonic-confirmation';
-  static const String mnemonicCoinflipConfirmation = '/mnemonic-coinflip-confirmation';
   static const String vaultNameSetup = '/vault-name-setup';
   static const String vaultDetails = '/vault-details';
   static const String mnemonicView = '/mnemonic-view';
@@ -25,8 +24,6 @@ class AppRoutes {
   static const String multisigSign = '/multi-signature';
   static const String singleSigSign = '/single-sig-sign';
   static const String securitySelfCheck = '/security-self-check';
-  static const String mnemonicGeneration = '/mnemonic-generate';
-  static const String mnemonicCoinflip = '/mnemonic-flip-coin';
   static const String appInfo = '/app-info';
   static const String welcome = '/welcome';
   static const String prepareUpdate = '/prepare-update';
@@ -34,4 +31,7 @@ class AppRoutes {
   static const String vaultListRestoration = "/vault-list-restoration";
   static const String vaultList = "/vault-list";
   static const String passphraseVerification = "/passphrase-verification";
+  static const String mnemonicCoinflip = '/mnemonic-coinflip';
+  static const String mnemonicDiceRoll = '/mnemonic-dice-roll';
+  static const String mnemonicAutoGen = '/mnemonic-auto-gen';
 }

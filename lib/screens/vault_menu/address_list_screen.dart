@@ -27,18 +27,18 @@ class _AddressListScreenState extends State<AddressListScreen> {
   bool _isLoadMoreRunning = false;
 
   late ScrollController _controller;
-  AddressListViewModel? _viewModel;
+  late AddressListViewModel _viewModel;
 
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider<AddressListViewModel>(
-      create: (BuildContext context) => _viewModel =
-          AddressListViewModel(Provider.of<WalletProvider>(context, listen: false), widget.id),
+      create: (BuildContext context) {
+        return _viewModel;
+      },
       child: Consumer<AddressListViewModel>(
         builder: (context, viewModel, child) {
-          var addressList = viewModel.isReceivingSelected
-              ? viewModel.receivingAddressList
-              : viewModel.changeAddressList;
+          var addressList =
+              viewModel.isReceivingSelected ? viewModel.receivingAddressList : viewModel.changeAddressList;
 
           return Scaffold(
             backgroundColor: CoconutColors.white,
@@ -62,109 +62,105 @@ class _AddressListScreenState extends State<AddressListScreen> {
                 children: [
                   Text(
                     t.address_list_screen.title(
-                      name: viewModel.name,
+                      name: viewModel.name.length > 6 ? '${viewModel.name.substring(0, 6)}...' : viewModel.name,
                     ),
                     style: CoconutTypography.heading4_18,
                   ),
                   if (!widget.isSpecificVault && viewModel.vaultCount > 1) ...[
                     CoconutLayout.spacing_50w,
-                    const Icon(Icons.keyboard_arrow_down_sharp,
-                        color: CoconutColors.black, size: 16),
+                    const Icon(Icons.keyboard_arrow_down_sharp, color: CoconutColors.black, size: 16),
                   ],
                 ],
               ),
               onTitlePressed: () {
                 if (widget.isSpecificVault || viewModel.vaultCount <= 1) return;
                 MyBottomSheet.showDraggableBottomSheet(
-                    context: context,
-                    childBuilder: (scrollController) => SelectVaultBottomSheet(
-                          isNextIconVisible: false,
-                          vaultList: context
-                              .read<WalletProvider>()
-                              .vaultList
-                              .where((vault) => vault.id != viewModel.vaultId)
-                              .toList(),
-                          onVaultSelected: (id) async {
-                            viewModel.changeVaultById(id);
-                            Navigator.pop(context);
-                          },
-                          scrollController: scrollController,
-                        ));
+                  context: context,
+                  title: t.select_vault_bottom_sheet.select_wallet,
+                  childBuilder:
+                      (scrollController) => SelectVaultBottomSheet(
+                        isNextIconVisible: false,
+                        vaultList: context.read<WalletProvider>().vaultList,
+                        selectedId: viewModel.vaultId,
+                        onVaultSelected: (id) async {
+                          Navigator.pop(context);
+                          setState(() {
+                            _isFirstLoadRunning = true;
+                          });
+                          await viewModel.changeVaultById(id);
+                          setState(() {
+                            _isFirstLoadRunning = false;
+                          });
+                        },
+                        scrollController: scrollController,
+                      ),
+                );
               },
             ),
-            body: _isFirstLoadRunning
-                ? const Center(child: CircularProgressIndicator())
-                : Column(
-                    children: [
-                      Container(
-                        margin: const EdgeInsets.only(
-                          top: 16,
-                          bottom: 12,
-                          left: 16,
-                          right: 16,
+            body:
+                _isFirstLoadRunning
+                    ? const Center(child: CircularProgressIndicator())
+                    : Column(
+                      children: [
+                        Container(
+                          margin: const EdgeInsets.only(top: 16, bottom: 12, left: 16, right: 16),
+                          decoration: BoxDecoration(
+                            borderRadius: CoconutBorder.defaultRadius,
+                            color: CoconutColors.black.withValues(alpha: 0.06),
+                          ),
+                          child: CoconutSegmentedControl(
+                            labels: [t.receiving, t.change],
+                            isSelected: [viewModel.isReceivingSelected, !viewModel.isReceivingSelected],
+                            onPressed: (index) {
+                              viewModel.setReceivingSelected(index == 0);
+                              scrollToTop();
+                            },
+                          ),
                         ),
-                        decoration: BoxDecoration(
-                          borderRadius: CoconutBorder.defaultRadius,
-                          color: CoconutColors.black.withOpacity(0.06),
-                        ),
-                        child: CoconutSegmentedControl(
-                          labels: [t.receiving, t.change],
-                          isSelected: [
-                            viewModel.isReceivingSelected,
-                            !viewModel.isReceivingSelected
-                          ],
-                          onPressed: (index) {
-                            viewModel.setReceivingSelected(index == 0);
-                            scrollToTop();
-                          },
-                        ),
-                      ),
-                      Expanded(
-                        child: Stack(
-                          children: [
-                            Scrollbar(
-                              controller: _controller,
-                              radius: const Radius.circular(12),
-                              child: ListView.builder(
+                        Expanded(
+                          child: Stack(
+                            children: [
+                              Scrollbar(
                                 controller: _controller,
-                                itemCount: addressList.length,
-                                itemBuilder: (context, index) => AddressCard(
-                                  onPressed: () {
-                                    MyBottomSheet.showBottomSheet_90(
-                                      context: context,
-                                      child: QrcodeBottomSheet(
-                                        qrData: addressList[index].address,
-                                        title: t.address_list_screen.address_index(index: index),
-                                        qrcodeTopWidget: Text(
-                                          addressList[index].derivationPath,
-                                          style: CoconutTypography.body2_14
-                                              .setColor(CoconutColors.gray800),
-                                        ),
+                                radius: const Radius.circular(12),
+                                child: ListView.builder(
+                                  controller: _controller,
+                                  itemCount: addressList!.length,
+                                  itemBuilder:
+                                      (context, index) => AddressCard(
+                                        onPressed: () {
+                                          MyBottomSheet.showBottomSheet_90(
+                                            context: context,
+                                            child: QrcodeBottomSheet(
+                                              qrData: addressList[index].address,
+                                              title: t.address_list_screen.address_index(index: index),
+                                              qrcodeTopWidget: Text(
+                                                addressList[index].derivationPath,
+                                                style: CoconutTypography.body2_14.setColor(CoconutColors.gray800),
+                                              ),
+                                            ),
+                                          );
+                                        },
+                                        address: addressList[index].address,
+                                        derivationPath: addressList[index].derivationPath,
                                       ),
-                                    );
-                                  },
-                                  address: addressList[index].address,
-                                  derivationPath: addressList[index].derivationPath,
                                 ),
                               ),
-                            ),
-                            if (_isLoadMoreRunning)
-                              Positioned(
-                                left: 0,
-                                right: 0,
-                                bottom: 40,
-                                child: Container(
-                                  padding: const EdgeInsets.all(30),
-                                  child: const Center(
-                                    child: CircularProgressIndicator(color: CoconutColors.gray800),
+                              if (_isLoadMoreRunning)
+                                Positioned(
+                                  left: 0,
+                                  right: 0,
+                                  bottom: 40,
+                                  child: Container(
+                                    padding: const EdgeInsets.all(30),
+                                    child: const Center(child: CircularProgressIndicator(color: CoconutColors.gray800)),
                                   ),
                                 ),
-                              ),
-                          ],
+                            ],
+                          ),
                         ),
-                      ),
-                    ],
-                  ),
+                      ],
+                    ),
           );
         },
       ),
@@ -180,23 +176,29 @@ class _AddressListScreenState extends State<AddressListScreen> {
   @override
   void initState() {
     super.initState();
+    _viewModel = AddressListViewModel(Provider.of<WalletProvider>(context, listen: false), widget.id);
+    _viewModel.initializeAddress().then((_) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        setState(() {
+          _isFirstLoadRunning = false;
+        });
+      });
+    });
     _controller = ScrollController()..addListener(_nextLoad);
-    _isFirstLoadRunning = false;
   }
 
   void scrollToTop() {
     _controller.animateTo(0, duration: const Duration(milliseconds: 500), curve: Curves.decelerate);
   }
 
-  void _nextLoad() {
+  Future<void> _nextLoad() async {
     if (!_isFirstLoadRunning && !_isLoadMoreRunning && _controller.position.extentAfter < 50) {
       setState(() {
         _isLoadMoreRunning = true;
       });
 
       try {
-        if (_viewModel == null) return;
-        _viewModel!.nextLoad();
+        await _viewModel.nextLoad();
       } catch (e) {
         Logger.log(e.toString());
       } finally {
