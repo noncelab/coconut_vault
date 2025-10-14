@@ -51,7 +51,6 @@ import 'package:coconut_vault/screens/vault_menu/info/passphrase_verification_sc
 import 'package:coconut_vault/screens/vault_menu/multisig_signer_bsms_export_screen.dart';
 import 'package:coconut_vault/screens/vault_menu/sync_to_wallet/sync_to_wallet_screen.dart';
 import 'package:coconut_vault/screens/vault_menu/info/single_sig_setup_info_screen.dart';
-import 'package:coconut_vault/widgets/button/shrink_animation_button.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
@@ -123,14 +122,25 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> with SingleTickerProv
   late AnimationController _edgePanelAnimationController;
   late Animation<double> _edgePanelAnimation;
 
+  // 현재 라우트 추적
+  String? _currentRouteName;
+  late _CustomNavigatorObserver _navigatorObserver;
+
   @override
   @override
   void initState() {
     super.initState();
-    // var edgePanelPos = preferenceProvider.getSigningModeEdgePanelPos();
-    // _signingModeEdgePanelHorizontalPos =
-    //     edgePanelPos.$1 ?? MediaQuery.sizeOf(context).width - _signingModeEdgePanelWidth - 20;
-    // _signingModeEdgePanelVerticalPos = edgePanelPos.$2 ?? kToolbarHeight + 50;
+    _navigatorObserver = _CustomNavigatorObserver(
+      onRouteChanged: (routeName) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (mounted) {
+            setState(() {
+              _currentRouteName = routeName;
+            });
+          }
+        });
+      },
+    );
     _edgePanelAnimationController = AnimationController(vsync: this, duration: const Duration(milliseconds: 300));
     _edgePanelAnimation = Tween<double>(
       begin: 0,
@@ -329,6 +339,7 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> with SingleTickerProv
                       children: [
                         CupertinoApp(
                           navigatorKey: _navigatorKey,
+                          navigatorObservers: [_navigatorObserver],
                           debugShowCheckedModeBanner: false,
                           localizationsDelegates: const [
                             DefaultMaterialLocalizations.delegate,
@@ -384,11 +395,13 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> with SingleTickerProv
                                         _signingModeEdgePanelVerticalPos = kToolbarHeight + 50;
                                       }
                                     }
-                                    final isButtonVisible =
-                                        prefProvider.getVaultMode() != VaultMode.signingOnly ||
-                                        _appEntryFlow != AppEntryFlow.vaultHome;
+                                    final isHomeRoute = _currentRouteName == '/';
+                                    final isEdgePannelVisible =
+                                        prefProvider.getVaultMode() == VaultMode.signingOnly &&
+                                        _appEntryFlow == AppEntryFlow.vaultHome &&
+                                        !isHomeRoute;
 
-                                    return _floatingExitButton(context, isButtonVisible);
+                                    return _floatingExitButton(context, isEdgePannelVisible);
                                   },
                                 ),
                               ],
@@ -527,7 +540,7 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> with SingleTickerProv
     );
   }
 
-  Widget _floatingExitButton(BuildContext context, bool isButtonVisible) {
+  Widget _floatingExitButton(BuildContext context, bool isEdgePannelVisible) {
     final halfScreenWidth = MediaQuery.sizeOf(context).width / 2;
 
     return Positioned(
@@ -632,7 +645,7 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> with SingleTickerProv
             duration: const Duration(milliseconds: 200),
             curve: Curves.easeOut,
             width:
-                !isButtonVisible
+                isEdgePannelVisible
                     ? _isDraggingManually
                         ? 50
                         : _signingModeEdgePanelWidth + 20 + (_isDraggingManually ? 4 : 0)
@@ -662,106 +675,98 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> with SingleTickerProv
                         ),
                       ),
                     )
-                    : Row(
-                      children: [
-                        GestureDetector(
-                          onTap: () {
-                            if (_signingModeEdgePanelWidth != 100.0) {
-                              setState(() {
-                                _signingModeEdgePanelWidth = 100.0;
-                              });
-                            } else {
-                              setState(() {
-                                _signingModeEdgePanelWidth = 20.0;
-                              });
-                            }
-                          },
-                          behavior: HitTestBehavior.opaque,
-                          child: Visibility(
-                            visible: _signingModeEdgePanelWidth != 100.0,
-                            child: Opacity(
-                              opacity: ((100 - _signingModeEdgePanelWidth) / 80).clamp(0.0, 1.0),
-                              child: SizedBox(
-                                width: 40,
-                                height: double.infinity,
-                                child: Container(
-                                  alignment: Alignment.centerLeft,
-                                  padding: const EdgeInsets.symmetric(horizontal: 10),
-                                  child: SvgPicture.asset(
-                                    'assets/svg/exit.svg',
-                                    width: 24,
-                                    height: 24,
-                                    colorFilter: const ColorFilter.mode(CoconutColors.white, BlendMode.srcIn),
+                    : GestureDetector(
+                      onTap: () {
+                        if (_signingModeEdgePanelWidth != 100.0) {
+                          setState(() {
+                            _signingModeEdgePanelWidth = 100.0;
+                          });
+                        } else {
+                          // 패널이 확장된 상태에서 탭하면 exit dialog 표시
+                          final navContext = _navigatorKey.currentContext;
+                          if (navContext != null) {
+                            if (_isExitDialogOpen) return;
+                            _isExitDialogOpen = true;
+                            showDialog(
+                              context: navContext,
+                              builder: (BuildContext dialogContext) {
+                                return CoconutPopup(
+                                  insetPadding: EdgeInsets.symmetric(
+                                    horizontal: MediaQuery.of(navContext).size.width * 0.15,
                                   ),
-                                ),
-                              ),
+                                  title: t.exit_vault,
+                                  description: t.exit_vault_description,
+                                  backgroundColor: CoconutColors.white,
+                                  leftButtonText: t.cancel,
+                                  rightButtonText: t.confirm,
+                                  rightButtonColor: CoconutColors.black,
+                                  onTapLeft: () {
+                                    Navigator.pop(dialogContext);
+                                    _isExitDialogOpen = false;
+                                  },
+                                  onTapRight: () {
+                                    _isExitDialogOpen = false;
+                                    if (Platform.isAndroid) {
+                                      SystemNavigator.pop();
+                                    } else {
+                                      exit(0);
+                                    }
+                                  },
+                                );
+                              },
+                            );
+                          }
+                        }
+                      },
+                      behavior: HitTestBehavior.opaque,
+                      child: Stack(
+                        children: [
+                          // Exit 아이콘 - 위치와 크기 애니메이션
+                          AnimatedPositioned(
+                            duration: const Duration(milliseconds: 200),
+                            curve: Curves.easeOut,
+                            left:
+                                _signingModeEdgePanelHorizontalPos! > MediaQuery.sizeOf(context).width / 2
+                                    ? _signingModeEdgePanelWidth == 100.0
+                                        ? (_signingModeEdgePanelWidth + 20) / 2 - 12
+                                        : 10
+                                    : null,
+                            right:
+                                _signingModeEdgePanelHorizontalPos! <= MediaQuery.sizeOf(context).width / 2
+                                    ? _signingModeEdgePanelWidth == 100.0
+                                        ? (_signingModeEdgePanelWidth + 20) / 2 - 12
+                                        : 10
+                                    : null,
+                            top: _signingModeEdgePanelWidth == 100.0 ? 20 : 50 - 12,
+                            child: SvgPicture.asset(
+                              'assets/svg/exit.svg',
+                              width: 24,
+                              height: 24,
+                              colorFilter: const ColorFilter.mode(CoconutColors.white, BlendMode.srcIn),
                             ),
                           ),
-                        ),
-                        if (_signingModeEdgePanelWidth == 100.0)
-                          Expanded(
-                            child: ShrinkAnimationButton(
-                              onPressed: () {
-                                final navContext = _navigatorKey.currentContext;
-                                if (navContext != null) {
-                                  if (_isExitDialogOpen) return;
-                                  _isExitDialogOpen = true;
-                                  showDialog(
-                                    context: navContext,
-                                    builder: (BuildContext dialogContext) {
-                                      return CoconutPopup(
-                                        insetPadding: EdgeInsets.symmetric(
-                                          horizontal: MediaQuery.of(navContext).size.width * 0.15,
-                                        ),
-                                        title: t.exit_vault,
-                                        description: t.exit_vault_description,
-                                        backgroundColor: CoconutColors.white,
-                                        leftButtonText: t.cancel,
-                                        rightButtonText: t.confirm,
-                                        rightButtonColor: CoconutColors.black,
-                                        onTapLeft: () {
-                                          Navigator.pop(dialogContext);
-                                          _isExitDialogOpen = false;
-                                        },
-                                        onTapRight: () {
-                                          _isExitDialogOpen = false;
-                                          // TODO: 초기화 작업 수행
-                                          if (Platform.isAndroid) {
-                                            SystemNavigator.pop();
-                                          } else {
-                                            exit(0);
-                                          }
-                                        },
-                                      );
-                                    },
-                                  );
-                                }
-                              },
-                              defaultColor: Colors.transparent,
-                              pressedColor: Colors.transparent,
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  SvgPicture.asset(
-                                    'assets/svg/exit.svg',
-                                    width: 24,
-                                    height: 24,
-                                    colorFilter: const ColorFilter.mode(CoconutColors.white, BlendMode.srcIn),
-                                  ),
-                                  CoconutLayout.spacing_200h,
-                                  FittedBox(
+                          // Exit 텍스트 - fade in/out
+                          if (_signingModeEdgePanelWidth == 100.0)
+                            Positioned(
+                              left: 0,
+                              right: 0,
+                              top: 52,
+                              child: AnimatedOpacity(
+                                duration: const Duration(milliseconds: 200),
+                                opacity: _signingModeEdgePanelWidth == 100.0 ? 1.0 : 0.0,
+                                child: Center(
+                                  child: FittedBox(
                                     fit: BoxFit.scaleDown,
                                     child: Text(
                                       t.exit_vault,
                                       style: CoconutTypography.body2_14_Bold.copyWith(color: CoconutColors.white),
                                     ),
                                   ),
-                                ],
+                                ),
                               ),
                             ),
-                          ),
-                      ],
+                        ],
+                      ),
                     ),
           ),
         ),
@@ -818,5 +823,43 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> with SingleTickerProv
 
   void _checkDeviceSecurityOnResume() {
     _connectivityProvider?.checkDeviceSecurityOnResume();
+  }
+}
+
+/// 라우트 변경을 감지하는 NavigatorObserver
+class _CustomNavigatorObserver extends NavigatorObserver {
+  final Function(String?) onRouteChanged;
+
+  _CustomNavigatorObserver({required this.onRouteChanged});
+
+  void _notifyRouteChange(Route<dynamic>? route) {
+    if (route != null) {
+      final routeName = route.settings.name;
+      onRouteChanged(routeName);
+    }
+  }
+
+  @override
+  void didPush(Route<dynamic> route, Route<dynamic>? previousRoute) {
+    super.didPush(route, previousRoute);
+    _notifyRouteChange(route);
+  }
+
+  @override
+  void didPop(Route<dynamic> route, Route<dynamic>? previousRoute) {
+    super.didPop(route, previousRoute);
+    _notifyRouteChange(previousRoute);
+  }
+
+  @override
+  void didReplace({Route<dynamic>? newRoute, Route<dynamic>? oldRoute}) {
+    super.didReplace(newRoute: newRoute, oldRoute: oldRoute);
+    _notifyRouteChange(newRoute);
+  }
+
+  @override
+  void didRemove(Route<dynamic> route, Route<dynamic>? previousRoute) {
+    super.didRemove(route, previousRoute);
+    _notifyRouteChange(previousRoute);
   }
 }
