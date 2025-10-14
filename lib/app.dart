@@ -395,7 +395,8 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> with SingleTickerProv
                                         _signingModeEdgePanelVerticalPos = kToolbarHeight + 50;
                                       }
                                     }
-                                    final isHomeRoute = _currentRouteName == '/';
+                                    final isHomeRoute = _currentRouteName == null || _currentRouteName == '/';
+
                                     final isEdgePannelVisible =
                                         prefProvider.getVaultMode() == VaultMode.signingOnly &&
                                         _appEntryFlow == AppEntryFlow.vaultHome &&
