@@ -158,10 +158,9 @@ app_unavailable_notification_screen:
   step2: "Check the connection status"
   step3: "Restart the app"
 ios_bluetooth_auth_notification_screen:
-  allow_permission: "For safe use,\nplease allow Bluetooth permission"
-  guide1: "Completely close the app"
-  guide2: "Allow Bluetooth permission in Settings"
-  guide3: "Restart the app"
+  allow_permission: "Please allow Bluetooth access to check your connection status."
+  guide1: "Bluetooth permission is required to verify that your device is not connected to other devices"
+  guide2: "Go to Settings and allow Bluetooth access for the Vault app"
 pin_check_screen:
   enter_password: "Enter password"
   warning: "⚠︎ Vault will be reset after 3 failed attempts"
@@ -290,24 +289,38 @@ welcome_screen:
   screen_3_title: "Safe environment is ready"
   screen_3_description: "Let's start Coconut Vault"
   screen_3_button: "Start"
-  setting_guide: "View setting guide"
+  setting_guide: "View setting guide ⓘ"
   bottom_sheet_title: "Setting Guide"
+  recommendation: "We recommend using a dedicated offline device exclusively for the Coconut Vault app"
   airplane_mode_on: 
     title: "Turn on airplane mode"
-    description_ios: 'Control Center → Airplane Mode icon tap'
+    description_ios: 'Swipe down from the top right corner → Control Center → Airplane Mode icon tap'
     description_android: 'Swipe down from the top of the screen → Quick Settings panel → Airplane Mode icon tap'
   wifi_off:
     title: "Turn off Wi-Fi"
-    description_ios: 'Swipe down from the top right corner → Control Center → Wi-Fi icon tap'
+    description_ios: 'Control Center → Wi-Fi icon tap'
     description_android: 'Quick Settings panel → Wi-Fi icon tap'
   mobile_data_off: 
     title: "Turn off mobile data (LTE / 5G)"
-    description_ios: 'Settings → Cellular → Cellular Data switch off\n※ We recommend using a dedicated offline device'
-    description_android: 'Quick Settings panel → Mobile Data icon tap\n※ We recommend using a dedicated offline device'
+    description_ios: 'Settings → Cellular → Cellular Data switch off'
+    description_android: 'Quick Settings panel → Mobile Data icon tap'
   bluetooth_off: 
     title: "Turn off Bluetooth"
-    description_ios: 'Control Center → Bluetooth icon tap'
+    description_ios: 'Settings → Bluetooth → Bluetooth switch off'
     description_android: 'Quick Settings panel → Bluetooth icon tap'
+    additional:
+      title: 'ⓘ Important Notes on iOS Bluetooth Settings'
+      highlight: 
+       - 'NOT ALLOW'
+       - 'Bluetooth OFF'
+       - 'Control Center OFF'
+      description: 'iOS does NOT ALLOW apps to distinguish between Bluetooth OFF and Control Center OFF. To ensure complete isolation from external devices, please turn Bluetooth OFF in Settings.'
+      control_center_off: 
+        title: 'Control Center OFF'
+        description: 'Bluetooth is turned off from Control Center. New connections are blocked, but existing ones may remain active.'
+      absolutely_off: 
+        title: 'Bluetooth OFF (Recommended)'
+        description: 'Bluetooth is turned off from Settings. All external connections are completely blocked.'
   developer_mode_off: "Turn off developer mode"
   developer_mode_description: "1. Settings → System → Developer Options\n2. Switch off"
   network: "Network"
