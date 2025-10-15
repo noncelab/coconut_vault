@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_vault/constants/app_routes.dart';
 import 'package:coconut_vault/enums/pin_check_context_enum.dart';
+import 'package:coconut_vault/enums/vault_mode_enum.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/providers/auth_provider.dart';
 import 'package:coconut_vault/providers/preference_provider.dart';
@@ -20,6 +21,7 @@ import 'package:coconut_vault/screens/common/pin_check_screen.dart';
 import 'package:coconut_vault/widgets/button/multi_button.dart';
 import 'package:coconut_vault/widgets/button/single_button.dart';
 import 'package:provider/provider.dart';
+import 'package:tuple/tuple.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../widgets/bottom_sheet.dart';
@@ -52,13 +54,17 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     children: [
                       _securityPart(context),
                       CoconutLayout.spacing_1000h,
-                      Selector<WalletProvider, bool>(
-                        selector: (context, provider) => provider.vaultList.isNotEmpty,
-                        builder:
-                            (context, isNotEmpty, _) =>
-                                isNotEmpty
-                                    ? Column(children: [_updatePart(context), CoconutLayout.spacing_1000h])
-                                    : Container(),
+                      Selector2<WalletProvider, PreferenceProvider, Tuple2<bool, VaultMode?>>(
+                          selector:
+                              (context, walletProvider, preferenceProvider) =>
+                                  Tuple2(walletProvider.vaultList.isNotEmpty, preferenceProvider.getVaultMode()),
+                          builder: (context, data, vaultMode) {
+                            bool isWalletNotEmpty = data.item1;
+                            VaultMode? vaultMode = data.item2;
+                            return isWalletNotEmpty && vaultMode != VaultMode.signingOnly
+                                ? Column(children: [_updatePart(context), CoconutLayout.spacing_1000h])
+                                : Container();
+                        },
                       ),
                       _btcUnitPart(context),
                       CoconutLayout.spacing_1000h,
