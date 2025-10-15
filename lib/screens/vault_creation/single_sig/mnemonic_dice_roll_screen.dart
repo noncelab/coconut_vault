@@ -76,7 +76,7 @@ class _DiceRollState extends BaseEntropyWidgetState<DiceRoll> {
   }
 
   @override
-  bool get isRightButtonActive {
+  bool get isRightButtonActiveImpl {
     if (step == 0) {
       return _bits.length >= (widget.wordsCount == 12 ? 128 : 256);
     } else if (step == 1) {

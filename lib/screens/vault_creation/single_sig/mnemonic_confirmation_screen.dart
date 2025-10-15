@@ -27,6 +27,7 @@ class _MnemonicConfirmationScreenState extends State<MnemonicConfirmationScreen>
   late int step;
   final ScrollController _scrollController = ScrollController();
   late Uint8List _mnemonic;
+  bool _isWarningVisible = true;
 
   @override
   void initState() {
@@ -91,7 +92,7 @@ class _MnemonicConfirmationScreenState extends State<MnemonicConfirmationScreen>
                   ),
                 ),
                 FixedBottomButton(
-                  isActive: _getNextButtonState().isActive,
+                  isActive: _getNextButtonState().isActive && !_isWarningVisible,
                   text: _getNextButtonState().text,
                   backgroundColor: CoconutColors.black,
                   onButtonClicked: () {
@@ -110,7 +111,14 @@ class _MnemonicConfirmationScreenState extends State<MnemonicConfirmationScreen>
                     }
                   },
                 ),
-                const WarningWidget(visible: true),
+                WarningWidget(
+                  visible: true,
+                  onWarningDismissed: () {
+                    setState(() {
+                      _isWarningVisible = false;
+                    });
+                  },
+                ),
               ],
             ),
           ),

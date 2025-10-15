@@ -156,7 +156,7 @@ class PinInputScreenState extends State<PinInputScreen> {
                   padding: const EdgeInsets.only(top: 16),
                   child: Text(
                     widget.errorMessage,
-                    style: CoconutTypography.body3_12.setColor(CoconutColors.warningText),
+                    style: CoconutTypography.body1_16.setColor(CoconutColors.warningText),
                     textAlign: TextAlign.center,
                   ),
                 ),
@@ -165,7 +165,7 @@ class PinInputScreenState extends State<PinInputScreen> {
                 visible: widget.lastChance,
                 child: Text(
                   widget.lastChanceMessage ?? '',
-                  style: CoconutTypography.body3_12.setColor(CoconutColors.warningText),
+                  style: CoconutTypography.body1_16_Bold.setColor(CoconutColors.warningText),
                   textAlign: TextAlign.center,
                 ),
               ),
@@ -207,7 +207,7 @@ class PinInputScreenState extends State<PinInputScreen> {
                               },
                               child: Text(
                                 widget.bottomTextButtonLabel ?? '',
-                                style: CoconutTypography.body2_14_Bold.setColor(
+                                style: CoconutTypography.body1_16_Bold.setColor(
                                   CoconutColors.black.withValues(alpha: 0.5),
                                 ),
                                 textAlign: TextAlign.center,
@@ -219,24 +219,6 @@ class PinInputScreenState extends State<PinInputScreen> {
                   ],
                 ),
               ),
-              // const SizedBox(height: 30),
-              // Visibility(
-              //   visible: widget.initOptionVisible,
-              //   replacement: Container(),
-              //   child: Padding(
-              //     padding: EdgeInsets.only(bottom: _characterFocusNode.hasFocus ? 30 : 50),
-              //     child: GestureDetector(
-              //       onTap: () {
-              //         widget.onReset?.call();
-              //       },
-              //       child: Text(
-              //         t.forgot_password,
-              //         style: CoconutTypography.body2_14_Bold.setColor(CoconutColors.black.withValues(alpha: 0.5)),
-              //         textAlign: TextAlign.center,
-              //       ),
-              //     ),
-              //   ),
-              // ),
             ],
           ),
         ),

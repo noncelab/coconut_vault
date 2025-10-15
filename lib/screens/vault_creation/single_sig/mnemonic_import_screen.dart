@@ -850,9 +850,9 @@ class _MnemonicImportScreenState extends State<MnemonicImportScreen> {
                                 end: Alignment.bottomCenter,
                                 colors: [
                                   CoconutColors.white,
-                                  CoconutColors.white.withOpacity(0.9),
-                                  CoconutColors.white.withOpacity(0.5),
-                                  CoconutColors.white.withOpacity(0.1),
+                                  CoconutColors.white.withValues(alpha: 0.9),
+                                  CoconutColors.white.withValues(alpha: 0.5),
+                                  CoconutColors.white.withValues(alpha: 0.1),
                                   Colors.transparent,
                                 ],
                                 stops: const [0.0, 0.2, 0.5, 0.8, 1.0],
@@ -1123,7 +1123,7 @@ class _MnemonicImportScreenState extends State<MnemonicImportScreen> {
         const Spacer(),
         CupertinoSwitch(
           value: _usePassphrase,
-          activeColor: CoconutColors.gray800,
+          activeTrackColor: CoconutColors.gray800,
           onChanged: (value) {
             setState(() {
               _usePassphrase = value;

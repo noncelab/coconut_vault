@@ -258,7 +258,7 @@ coconut_qr_scanner:
 
 # lib/screens/setting
 app_info_screen:
-  made_by_team_pow: "포우팀이 만듭니다."
+  powered_by_noncelab: "논스랩이 만듭니다."
   category1_ask: "궁금한 점이 있으신가요?"
   go_to_pow: "POW 커뮤니티 바로가기"
   ask_to_discord: "디스코드 채널로 문의하기"
@@ -332,7 +332,7 @@ welcome_screen:
     description_android: '빠른 설정 패널 → Wi-Fi 아이콘을 눌러 끄기'
   mobile_data_off: 
     title: "모바일 네트워크(LTE / 5G) 끄기"
-    description_ios: '설정 → 셀룰러 → 셀룰러 데이터 스위치 끄기※ 공기계를 사용을 추천합니다'
+    description_ios: '설정 → 셀룰러 → 셀룰러 데이터 스위치 끄기\n※ 공기계 사용을 추천합니다'
     description_android: '빠른 설정 패널 → 모바일 네트워크 아이콘을 눌러 끄기\n※ 공기계 사용을 추천합니다'
   bluetooth_off: 
     title: "Bluetooth 끄기"

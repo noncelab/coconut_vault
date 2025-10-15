@@ -17,7 +17,6 @@ import 'package:coconut_vault/screens/airgap/multisig_signer_qr_bottom_sheet.dar
 import 'package:coconut_vault/screens/vault_menu/info/passphrase_check_screen.dart';
 import 'package:coconut_vault/utils/alert_util.dart';
 import 'package:coconut_vault/utils/icon_util.dart';
-import 'package:coconut_vault/utils/text_utils.dart';
 import 'package:coconut_vault/widgets/bottom_sheet.dart';
 import 'package:coconut_vault/widgets/button/shrink_animation_button.dart';
 import 'package:coconut_vault/widgets/card/information_item_card.dart';
@@ -271,7 +270,7 @@ class _MultisigSignScreenState extends State<MultisigSignScreen> {
                         child: Container(
                           width: MediaQuery.of(context).size.width,
                           height: MediaQuery.of(context).size.height,
-                          decoration: BoxDecoration(color: CoconutColors.black.withOpacity(0.3)),
+                          decoration: BoxDecoration(color: CoconutColors.black.withValues(alpha: 0.3)),
                           child: const Center(child: CircularProgressIndicator(color: CoconutColors.gray800)),
                         ),
                       ),
@@ -309,7 +308,7 @@ class _MultisigSignScreenState extends State<MultisigSignScreen> {
           return LinearProgressIndicator(
             value: value,
             minHeight: 6,
-            backgroundColor: CoconutColors.black.withOpacity(0.06),
+            backgroundColor: CoconutColors.black.withValues(alpha: 0.06),
             borderRadius:
                 _isProgressCompleted
                     ? BorderRadius.zero
@@ -334,7 +333,7 @@ class _MultisigSignScreenState extends State<MultisigSignScreen> {
       child: Container(
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(28.0),
-          color: CoconutColors.black.withOpacity(0.03),
+          color: CoconutColors.black.withValues(alpha: 0.03),
         ),
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 24),

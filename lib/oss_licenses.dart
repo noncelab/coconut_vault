@@ -6747,13 +6747,13 @@ const _scoped_model = Package(
   dependencies: [PackageRef('flutter')],
 );
 
-/// screen_protector 1.4.2+1
+/// screen_protector 1.4.2
 const _screen_protector = Package(
   name: 'screen_protector',
   description: 'Safe Data Leakage via Application Background Screenshot and Prevent Screenshot for Android and iOS.',
   homepage: 'https://github.com/prongbang/screen_protector',
   authors: [],
-  version: '1.4.2+1',
+  version: '1.4.2',
   license: '''MIT License
 
 Copyright (c) 2022 prongbang

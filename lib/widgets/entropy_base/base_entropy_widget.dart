@@ -321,7 +321,16 @@ abstract class BaseEntropyWidgetState<T extends BaseEntropyWidget> extends State
   void onNavigateToNext();
   String get leftButtonText;
   String get rightButtonText;
-  bool get isRightButtonActive;
+  bool get isRightButtonActiveImpl; // 각 구현체에서 정의
+  bool get isRightButtonActive {
+    // WarningWidget이 보이는 조건일 때만 isWarningVisible 체크
+    if (widget.entropyType == EntropyType.auto && step == 0) {
+      return isRightButtonActiveImpl && !isWarningVisible;
+    }
+    // 그 외에는 isRightButtonActiveImpl만 체크
+    return isRightButtonActiveImpl;
+  }
+
   bool get isPassphraseValid => _isPassphraseValid();
 
   List<String> invalidPassphraseList = [];

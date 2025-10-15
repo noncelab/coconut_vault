@@ -57,6 +57,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
       ScreenItem(
         title: t.welcome_screen.screen_1_title,
         descriptionText: t.welcome_screen.screen_1_description,
+        imagePath: 'assets/png/welcome1.png',
         buttonText: t.welcome_screen.screen_1_button,
         onButtonPressed: () {
           setState(() {

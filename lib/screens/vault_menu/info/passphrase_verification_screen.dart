@@ -13,6 +13,7 @@ import 'package:coconut_vault/widgets/bottom_sheet.dart';
 import 'package:coconut_vault/widgets/button/fixed_bottom_button.dart';
 import 'package:coconut_vault/widgets/custom_dialog.dart';
 import 'package:coconut_vault/widgets/custom_loading_overlay.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
@@ -39,6 +40,7 @@ class _PassphraseVerificationScreenState extends State<PassphraseVerificationScr
   String? _extendedPublicKey;
   bool _isSubmitting = false;
   String? _previousInput;
+  bool _passphraseObscured = true;
 
   @override
   void initState() {
@@ -220,37 +222,62 @@ class _PassphraseVerificationScreenState extends State<PassphraseVerificationScr
     return ValueListenableBuilder<String>(
       valueListenable: _passphraseTextNotifier,
       builder: (context, value, child) {
-        return CoconutTextField(
-          textAlign: TextAlign.left,
-          backgroundColor: CoconutColors.white,
-          cursorColor: CoconutColors.black,
-          activeColor: CoconutColors.black,
-          placeholderColor: CoconutColors.gray350,
-          controller: _inputController,
-          focusNode: _inputFocusNode,
-          maxLines: 4,
-          textInputAction: TextInputAction.done,
-          onChanged: (text) {
-            _passphraseTextNotifier.value = text;
-          },
-          isError: false,
-          isLengthVisible: false,
-          maxLength: 100,
-          placeholderText: t.verify_passphrase_screen.enter_passphrase,
-          suffix:
-              _inputController.text.isNotEmpty
-                  ? IconButton(
-                    iconSize: 14,
-                    padding: EdgeInsets.zero,
-                    onPressed: () {
-                      _inputController.text = '';
-                    },
-                    icon: SvgPicture.asset(
-                      'assets/svg/text-field-clear.svg',
-                      colorFilter: const ColorFilter.mode(CoconutColors.gray900, BlendMode.srcIn),
-                    ),
-                  )
-                  : null,
+        return Column(
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                CoconutLayout.spacing_200w,
+                Text(
+                  _passphraseObscured
+                      ? t.passphrase_textfield.passphrase_visible
+                      : t.passphrase_textfield.passphrase_hidden,
+                  style: CoconutTypography.body2_14_Bold.setColor(CoconutColors.black),
+                ),
+                const Spacer(),
+                IconButton(
+                  onPressed: () => setState(() => _passphraseObscured = !_passphraseObscured),
+                  icon: Icon(
+                    _passphraseObscured ? CupertinoIcons.eye_slash : CupertinoIcons.eye,
+                    color: CoconutColors.gray800,
+                    size: 20,
+                  ),
+                ),
+              ],
+            ),
+            CoconutTextField(
+              textAlign: TextAlign.left,
+              backgroundColor: CoconutColors.white,
+              cursorColor: CoconutColors.black,
+              activeColor: CoconutColors.black,
+              placeholderColor: CoconutColors.gray350,
+              controller: _inputController,
+              focusNode: _inputFocusNode,
+              obscureText: _passphraseObscured,
+              textInputAction: TextInputAction.done,
+              onChanged: (text) {
+                _passphraseTextNotifier.value = text;
+              },
+              isError: false,
+              isLengthVisible: false,
+              maxLength: 100,
+              placeholderText: t.verify_passphrase_screen.enter_passphrase,
+              suffix:
+                  _inputController.text.isNotEmpty
+                      ? IconButton(
+                        iconSize: 14,
+                        padding: EdgeInsets.zero,
+                        onPressed: () {
+                          _inputController.text = '';
+                        },
+                        icon: SvgPicture.asset(
+                          'assets/svg/text-field-clear.svg',
+                          colorFilter: const ColorFilter.mode(CoconutColors.gray900, BlendMode.srcIn),
+                        ),
+                      )
+                      : null,
+            ),
+          ],
         );
       },
     );

@@ -322,7 +322,7 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
       right: 0,
       child: Stack(
         children: [
-          ClipRRect(child: Container(height: 6, color: CoconutColors.black.withOpacity(0.06))),
+          ClipRRect(child: Container(height: 6, color: CoconutColors.black.withValues(alpha: 0.06))),
           LayoutBuilder(
             builder: (context, constraints) {
               return ClipRRect(

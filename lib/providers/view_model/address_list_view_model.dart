@@ -4,7 +4,6 @@ import 'package:coconut_vault/model/common/vault_list_item_base.dart';
 import 'package:coconut_vault/model/common/wallet_address.dart';
 import 'package:coconut_vault/providers/wallet_provider/wallet_provider.dart';
 import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
 
 class AddressListViewModel extends ChangeNotifier {
   static const int kAddressFetchCount = 20;
