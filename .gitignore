@@ -12,6 +12,7 @@
 .buildlog/
 .history
 .svn/
+.env
 
 # IntelliJ related
 *.iml
@@ -152,3 +153,6 @@ coconut_lib
 # Generated files
 *.mocks.dart
 *.g.dart
+
+# fastlane
+play_store_credentials.json
