@@ -202,7 +202,6 @@ flutter:
     - assets/svg/star-small.svg
     - assets/svg/hamburger.svg
     - assets/svg/qr-code.svg
-    - assets/svg/refresh.svg
     - assets/svg/circle-info.svg
     - assets/svg/eraser.svg
     - assets/svg/watch-only-icons/coconut.svg

@@ -4,7 +4,6 @@
 # t.error.pcs_error1(count: kMaxNumberOfAttempts - attempt);
 
 # common
-bitcoin: "Bitcoin"
 coconut: "Coconut"
 coconut_vault: "Coconut Vault"
 vault: "Vault"
@@ -279,6 +278,7 @@ settings_screen:
     use_passphrase_title: "Use Passphrase"
     use_passphrase_description: "Using passphrase is like creating a new wallet. If used incorrectly, you may lose bitcoins forever."
     use_passphrase_btn: "I understand"
+
 # lib/screens/start_guide
 welcome_screen:
   screen_1_title: "Start in a safe environment"
@@ -316,7 +316,7 @@ welcome_screen:
 
 # lib/screens/vault_creation
 mnemonic_coin_flip_screen:
-  title: "Create Mnemonic"
+  title: "Mnemonic Generation"
   guide: "Please select the side that came out after flipping the coin"
   words_passphrase: " words, passphrase "
   use: "Use"
@@ -325,7 +325,7 @@ mnemonic_coin_flip_screen:
   coin_head: "Head"
   coin_tail: "Tail"
 mnemonic_dice_roll_screen:
-  title: "Create Mnemonic"
+  title: "Mnemonic Generation"
   guide1: "After rolling the dice, please select the number shown on the side🎲"
   guide2: "Enough random values have been collected. No more rolling is needed🎲"
   words_passphrase: " words, passphrase "
@@ -333,7 +333,7 @@ mnemonic_dice_roll_screen:
   do_not: "Don't"
   enter_passphrase: "Enter passphrase"
 mnemonic_confirm_screen:
-  title: "Final Check"
+  title: "Final Confirmation"
   description: "This information will be used to create a wallet"
   passphrase_character_total_count: " (Total $count chars)"
   warning:
@@ -358,6 +358,7 @@ mnemonic_generate_screen:
   backup_complete: "Backup Complete"
   warning: "Please be careful with storage and leakage of entered passphrase"
   passphrase_warning: "$words may not be accepted by other wallets. Please be careful."
+  regenerate: "Regenerate"
 passphrase_textfield:
   title: "Enter passphrase"
   passphrase_hidden: "Hide passphrase"
@@ -382,11 +383,11 @@ mnemonic_view_screen:
   warning_btn: "I understand"
   
 mnemonic_verify_screen:
-  title: "Verify Mnemonic"
+  title: "Mnemonic Verification"
   select_word: "Select word #${index}"
   not_correct: "Not correct"
 select_vault_type_screen:
-  title: "Create Wallet"
+  title: "Select Wallet Type"
   single_sig: "Single signature wallet storing one mnemonic phrase"
   multisig: "Wallet requiring specified number of signatures"
   empty_key: "No keys available in current vault"
@@ -398,17 +399,17 @@ vault_creation_options_screen:
   import_mnemonic: "I have an existing mnemonic phrase"
   seed_qr: "I have a seed QR code"
 seed_qr_import_screen:
-  title: "Scan Seed QR Code"
+  title: "Seed QR Code Scan"
   error_title: "Scan Error"
   error_message: "An error occurred while scanning the seed QR code. Please try again."
   guide: "Please scan the seed QR code. (21x21 또는 25x25)"
 seed_qr_confirmation_screen:
-  title: "Verify Mnemonic"
+  title: "Mnemonic Confirmation"
   check_mnemonic: "Please check the mnemonic phrase"
   passphrase_toggle: "Use Passphrase"
   passphrase_text_field_placeholder: "Enter passphrase"
 vault_name_icon_setup_screen:
-  title: "Set Name"
+  title: "Name & Icon Setup"
   saving: "Saving..."
 
 # lib/screens/vault_creation/multisig
@@ -453,7 +454,7 @@ signer_scanner_screen:
 
 # lib/screens/vault_detail
 address_list_screen:
-  title: "$name's Address"
+  title: "$name's Addresses"
   address_index: "Address - $index"
 export_detail_screen:
   title: "Export Details"
@@ -462,7 +463,7 @@ multi_sig_bsms_screen:
   bottom_sheet:
     title: "Wallet Details (BSMS)"
     info_copied: "Wallet details copied"
-  title: "Export to another vault"
+  title: "Multisig Wallet Export"
   guide:
     text1: "You can also scan this QR code in another vault with the same key to add the wallet"
     text2: "This wallet follows the standards (BIP-129, BSMS) for secure multi-signature management."
@@ -519,11 +520,11 @@ sync_to_wallet_screen:
     common: "Scan the QR code below"
 vault_menu_screen:
   title:  
-    view_info: "$name Info"
-    view_address: "View Address"
-    export_xpub: "Export Wallet Info"
-    single_sig_sign: "Sign"
-    multisig_sign: "Multisig"
+    view_info: "$name Details"
+    view_address: "View Addresses"
+    export_xpub: "Export Wallet Data"
+    single_sig_sign: "Sign Tx"
+    multisig_sign: "Sign Multisig Tx"
     use_as_multisig_signer: "Use as Multisig Key"
     import_bsms: "Import Multisig Wallet"
   description:
@@ -541,7 +542,7 @@ vault_settings:
   key: " key"
 
 verify_passphrase_screen:
-  title: "Verify Passphrase"
+  title: "Passphrase Verification"
   description: "Enter the passphrase"
   enter_passphrase: "Enter Passphrase"
   start_verification: "Start Verification"
