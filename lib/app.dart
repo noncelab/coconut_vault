@@ -125,21 +125,19 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> with SingleTickerProv
   late Animation<double> _edgePanelAnimation;
 
   // 현재 라우트 추적
-  String? _currentRouteName;
   late _CustomNavigatorObserver _navigatorObserver;
+  final ValueNotifier<bool> _routeNotifierHasShow = ValueNotifier<bool>(false);
 
   @override
   void initState() {
     super.initState();
     _navigatorObserver = _CustomNavigatorObserver(
       onRouteChanged: (routeName) {
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          if (mounted) {
-            setState(() {
-              _currentRouteName = routeName;
-            });
-          }
-        });
+        if (routeName == null || routeName == '/') {
+          _routeNotifierHasShow.value = false;
+        } else {
+          _routeNotifierHasShow.value = true;
+        }
       },
     );
     _edgePanelAnimationController = AnimationController(vsync: this, duration: const Duration(milliseconds: 300));
@@ -158,6 +156,7 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> with SingleTickerProv
     Logger.log("--> app.dart dispose");
     _longPressTimer?.cancel();
     _edgePanelAnimationController.dispose();
+    _routeNotifierHasShow.dispose();
     super.dispose();
   }
 
@@ -407,14 +406,17 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> with SingleTickerProv
                                         _signingModeEdgePanelVerticalPos = kToolbarHeight + 50;
                                       }
                                     }
-                                    final isHomeRoute = _currentRouteName == null || _currentRouteName == '/';
+                                    return ValueListenableBuilder<bool>(
+                                      valueListenable: _routeNotifierHasShow,
+                                      builder: (context, hasShow, child) {
+                                        final isEdgePannelVisible =
+                                            prefProvider.getVaultMode() == VaultMode.signingOnly &&
+                                            _appEntryFlow == AppEntryFlow.vaultHome &&
+                                            hasShow;
 
-                                    final isEdgePannelVisible =
-                                        prefProvider.getVaultMode() == VaultMode.signingOnly &&
-                                        _appEntryFlow == AppEntryFlow.vaultHome &&
-                                        !isHomeRoute;
-
-                                    return _floatingExitButton(context, isEdgePannelVisible);
+                                        return _floatingExitButton(context, isEdgePannelVisible);
+                                      },
+                                    );
                                   },
                                 ),
                               ],
