@@ -5,7 +5,7 @@ import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/model/multisig/multisig_import_detail.dart';
 import 'package:coconut_vault/model/multisig/multisig_signer.dart';
 import 'package:coconut_vault/model/multisig/multisig_vault_list_item.dart';
-import 'package:coconut_vault/providers/wallet_provider/wallet_provider.dart';
+import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:flutter/material.dart';
 
 class MultisigBsmsViewModel extends ChangeNotifier {

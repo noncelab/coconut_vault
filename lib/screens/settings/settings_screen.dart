@@ -8,7 +8,7 @@ import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/providers/auth_provider.dart';
 import 'package:coconut_vault/providers/preference_provider.dart';
 import 'package:coconut_vault/providers/visibility_provider.dart';
-import 'package:coconut_vault/providers/wallet_provider/wallet_provider.dart';
+import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:coconut_vault/screens/settings/language_bottom_sheet.dart';
 import 'package:coconut_vault/screens/settings/unit_bottm_sheet.dart';
 import 'package:coconut_vault/screens/settings/pin_setting_screen.dart';
@@ -55,23 +55,28 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       _securityPart(context),
                       CoconutLayout.spacing_1000h,
                       Selector2<WalletProvider, PreferenceProvider, Tuple2<bool, VaultMode?>>(
-                          selector:
-                              (context, walletProvider, preferenceProvider) =>
-                                  Tuple2(walletProvider.vaultList.isNotEmpty, preferenceProvider.getVaultMode()),
-                          builder: (context, data, vaultMode) {
-                            bool isWalletNotEmpty = data.item1;
-                            VaultMode? vaultMode = data.item2;
-                            return isWalletNotEmpty && vaultMode != VaultMode.signingOnly
-                                ? Column(children: [_updatePart(context), CoconutLayout.spacing_1000h])
-                                : Container();
+                        selector:
+                            (context, walletProvider, preferenceProvider) =>
+                                Tuple2(walletProvider.vaultList.isNotEmpty, preferenceProvider.getVaultMode()),
+                        builder: (context, data, vaultMode) {
+                          bool isWalletNotEmpty = data.item1;
+                          VaultMode? vaultMode = data.item2;
+                          return isWalletNotEmpty && vaultMode != VaultMode.signingOnly
+                              ? Column(children: [_updatePart(context), CoconutLayout.spacing_1000h])
+                              : Container();
                         },
                       ),
                       _btcUnitPart(context),
                       CoconutLayout.spacing_1000h,
                       _languagePart(context),
                       CoconutLayout.spacing_1000h,
-                      _advancedUserPart(context),
-                      CoconutLayout.spacing_1000h,
+                      Selector<PreferenceProvider, bool>(
+                        selector: (context, preferenceProvider) => preferenceProvider.isSigningOnlyMode,
+                        builder: (context, isSigningOnlyMode, child) {
+                          if (isSigningOnlyMode) return const SizedBox.shrink();
+                          return Column(children: [_advancedUserPart(context), CoconutLayout.spacing_1000h]);
+                        },
+                      ),
                       _informationPart(context),
                       SizedBox(
                         height:

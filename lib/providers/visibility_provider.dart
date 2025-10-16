@@ -8,6 +8,7 @@ import 'package:coconut_vault/utils/logger.dart';
 import 'package:flutter/material.dart';
 
 class VisibilityProvider extends ChangeNotifier {
+  late bool _isSigningOnlyMode;
   late bool _hasSeenGuide;
   late int _walletCount;
   late bool _isPassphraseUseEnabled;
@@ -24,11 +25,13 @@ class VisibilityProvider extends ChangeNotifier {
   bool get isBtcUnit => _isBtcUnit;
   BitcoinUnit get currentUnit => _isBtcUnit ? BitcoinUnit.btc : BitcoinUnit.sats;
 
-  VisibilityProvider() {
+  VisibilityProvider({required bool isSigningOnlyMode}) {
     final prefs = SharedPrefsRepository();
     _hasSeenGuide = prefs.getBool(SharedPrefsKeys.hasShownStartGuide) == true;
     _walletCount = prefs.getInt(SharedPrefsKeys.vaultListLength) ?? 0;
-    _isPassphraseUseEnabled = prefs.getBool(SharedPrefsKeys.kPassphraseUseEnabled) ?? false;
+    _isSigningOnlyMode = isSigningOnlyMode;
+    _isPassphraseUseEnabled =
+        isSigningOnlyMode ? true : (prefs.getBool(SharedPrefsKeys.kPassphraseUseEnabled) ?? false);
     _language = _initializeLanguageFromOS(prefs);
     _isBtcUnit = prefs.getBool(SharedPrefsKeys.kIsBtcUnit) ?? true;
     _initializeLanguage();
@@ -36,7 +39,9 @@ class VisibilityProvider extends ChangeNotifier {
 
   Future<void> saveWalletCount(int count) async {
     _walletCount = count;
-    await SharedPrefsRepository().setInt(SharedPrefsKeys.vaultListLength, count);
+    if (!_isSigningOnlyMode) {
+      await SharedPrefsRepository().setInt(SharedPrefsKeys.vaultListLength, count);
+    }
     notifyListeners();
   }
 
@@ -166,5 +171,9 @@ class VisibilityProvider extends ChangeNotifier {
     _isBtcUnit = isBtcUnit;
     SharedPrefsRepository().setBool(SharedPrefsKeys.kIsBtcUnit, isBtcUnit);
     notifyListeners();
+  }
+
+  void updateIsSigningOnlyMode(bool isSigningOnlyMode) {
+    _isSigningOnlyMode = isSigningOnlyMode;
   }
 }

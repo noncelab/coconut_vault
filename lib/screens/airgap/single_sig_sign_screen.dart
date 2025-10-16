@@ -8,10 +8,11 @@ import 'package:coconut_vault/enums/pin_check_context_enum.dart';
 import 'package:coconut_vault/extensions/uint8list_extensions.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/providers/auth_provider.dart';
+import 'package:coconut_vault/providers/preference_provider.dart';
 import 'package:coconut_vault/providers/sign_provider.dart';
 import 'package:coconut_vault/providers/view_model/airgap/single_sig_sign_view_model.dart';
 import 'package:coconut_vault/providers/visibility_provider.dart';
-import 'package:coconut_vault/providers/wallet_provider/wallet_provider.dart';
+import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:coconut_vault/screens/common/pin_check_screen.dart';
 import 'package:coconut_vault/screens/vault_menu/info/passphrase_check_screen.dart';
 import 'package:coconut_vault/utils/alert_util.dart';
@@ -46,6 +47,7 @@ class _SingleSigSignScreenState extends State<SingleSigSignScreen> {
     _viewModel = SingleSigSignViewModel(
       Provider.of<WalletProvider>(context, listen: false),
       Provider.of<SignProvider>(context, listen: false),
+      Provider.of<PreferenceProvider>(context, listen: false).isSigningOnlyMode,
     );
 
     WidgetsBinding.instance.addPostFrameCallback((_) async {
@@ -92,22 +94,28 @@ class _SingleSigSignScreenState extends State<SingleSigSignScreen> {
   }
 
   Future<void> _sign() async {
-    Uint8List validPassphrase = utf8.encode('');
-    if (_viewModel.hasPassphrase) {
-      validPassphrase = utf8.encode(await _authenticateWithPassphrase(context: context) ?? '');
+    if (!_viewModel.isSigningOnlyMode) {
+      // 안전 저장 모드
+      Uint8List validPassphrase = utf8.encode('');
+      if (_viewModel.hasPassphrase) {
+        validPassphrase = utf8.encode(await _authenticateWithPassphrase(context: context) ?? '');
 
-      if (validPassphrase.isEmpty) {
-        return;
+        if (validPassphrase.isEmpty) {
+          return;
+        }
+      } else {
+        final authenticateResult = await _authenticateWithoutPassphrase();
+        if (authenticateResult != true) {
+          return;
+        }
       }
+
+      await _addSignatureToPsbt(validPassphrase);
+      validPassphrase.wipe();
     } else {
-      final authenticateResult = await _authenticateWithoutPassphrase();
-      if (authenticateResult != true) {
-        return;
-      }
+      // 서명 전용 모드
+      await _addSignatureToPsbtInSigningOnlyMode();
     }
-
-    await _addSignatureToPsbt(validPassphrase);
-    validPassphrase.wipe();
   }
 
   Future<void> _addSignatureToPsbt(Uint8List passphrase) async {
@@ -117,6 +125,24 @@ class _SingleSigSignScreenState extends State<SingleSigSignScreen> {
       });
 
       await _viewModel.sign(passphrase: passphrase);
+    } catch (error) {
+      if (mounted) {
+        showAlertDialog(context: context, content: t.errors.sign_error(error: error));
+      }
+    } finally {
+      setState(() {
+        _showLoading = false;
+      });
+    }
+  }
+
+  Future<void> _addSignatureToPsbtInSigningOnlyMode() async {
+    try {
+      setState(() {
+        _showLoading = true;
+      });
+
+      await _viewModel.signPsbtInSigningOnlyMode();
     } catch (error) {
       if (mounted) {
         showAlertDialog(context: context, content: t.errors.sign_error(error: error));

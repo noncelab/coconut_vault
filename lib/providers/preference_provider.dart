@@ -38,7 +38,9 @@ class PreferenceProvider extends ChangeNotifier {
   /// 지갑 순서 설정
   Future<void> setVaultOrder(List<int> vaultOrder) async {
     _vaultOrder = vaultOrder;
-    await _sharedPrefs.setString(SharedPrefsKeys.kVaultOrder, jsonEncode(vaultOrder));
+    if (!isSigningOnlyMode) {
+      await _sharedPrefs.setString(SharedPrefsKeys.kVaultOrder, jsonEncode(vaultOrder));
+    }
     notifyListeners();
   }
 
@@ -60,7 +62,9 @@ class PreferenceProvider extends ChangeNotifier {
   /// 지갑 즐겨찾기 목록 설정
   Future<void> setFavoriteVaultIds(List<int> favoriteVaultIds) async {
     _favoriteVaultIds = favoriteVaultIds;
-    await _sharedPrefs.setString(SharedPrefsKeys.kFavoriteVaultIds, jsonEncode(favoriteVaultIds));
+    if (!isSigningOnlyMode) {
+      await _sharedPrefs.setString(SharedPrefsKeys.kFavoriteVaultIds, jsonEncode(favoriteVaultIds));
+    }
     notifyListeners();
   }
 
@@ -74,8 +78,10 @@ class PreferenceProvider extends ChangeNotifier {
   Future<void> resetVaultOrderAndFavorites() async {
     _vaultOrder = [];
     _favoriteVaultIds = [];
-    await _sharedPrefs.setString(SharedPrefsKeys.kVaultOrder, '');
-    await _sharedPrefs.setString(SharedPrefsKeys.kFavoriteVaultIds, '');
+    if (!isSigningOnlyMode) {
+      await _sharedPrefs.setString(SharedPrefsKeys.kVaultOrder, '');
+      await _sharedPrefs.setString(SharedPrefsKeys.kFavoriteVaultIds, '');
+    }
     notifyListeners();
   }
 

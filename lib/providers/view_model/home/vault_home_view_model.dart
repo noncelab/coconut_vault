@@ -1,7 +1,7 @@
 import 'package:coconut_vault/model/common/vault_list_item_base.dart';
 import 'package:coconut_vault/providers/auth_provider.dart';
 import 'package:coconut_vault/providers/preference_provider.dart';
-import 'package:coconut_vault/providers/wallet_provider/wallet_provider.dart';
+import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:flutter/foundation.dart';
 import 'package:collection/collection.dart';
 
@@ -23,9 +23,10 @@ class VaultHomeViewModel extends ChangeNotifier {
   int get initialVaultCount => _initialVaultCount;
   bool get isPinSet => _authProvider.isPinSet;
   bool get isVaultInitialized => false;
-  bool get isVaultsLoaded => _walletProvider.isVaultsLoaded;
+  bool get isVaultsLoaded => _walletProvider.isVaultLoaded;
   int get vaultCount => _walletProvider.vaultList.length;
   List<int> get favoriteVaultIds => _favoriteVaultIds;
+  bool get isSigningOnlyMode => _preferenceProvider.isSigningOnlyMode;
 
   List<VaultListItemBase> get vaults {
     // 지갑 목록을 가져오고, 순서가 설정되어 있다면 그 순서대로 정렬

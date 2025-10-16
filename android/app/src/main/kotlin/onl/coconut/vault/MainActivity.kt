@@ -29,6 +29,8 @@ class MainActivity: FlutterFragmentActivity() {
 
     override fun configureFlutterEngine(@NonNull flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
+        flutterEngine.plugins.add(StrongBoxKeystorePlugin())
+
         MethodChannel(flutterEngine.dartExecutor.binaryMessenger, CHANNEL).setMethodCallHandler { call, result ->
             when (call.method) {
                 "getPlatformVersion" -> {
@@ -76,7 +78,8 @@ class MainActivity: FlutterFragmentActivity() {
             }
         )
     }
-
+    
+    // TODO: API 17이상 부터는 Settings.Global로 이동됨
     private fun isDeveloperModeEnabled(): Boolean {
         return Settings.Secure.getInt(
             contentResolver,

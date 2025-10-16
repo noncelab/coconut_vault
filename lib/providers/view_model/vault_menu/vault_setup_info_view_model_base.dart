@@ -1,5 +1,5 @@
 import 'package:coconut_vault/model/common/vault_list_item_base.dart';
-import 'package:coconut_vault/providers/wallet_provider/wallet_provider.dart';
+import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:flutter/material.dart';
 
 abstract class VaultSetupInfoViewModelBase<T extends VaultListItemBase> extends ChangeNotifier {
@@ -14,6 +14,7 @@ abstract class VaultSetupInfoViewModelBase<T extends VaultListItemBase> extends 
   int get colorIndex => _vaultListItem.colorIndex;
   int get iconIndex => _vaultListItem.iconIndex;
   DateTime get createdAt => _vaultListItem.createdAt;
+  bool get isSigningOnlyMode => _walletProvider.isSigningOnlyMode;
 
   VaultSetupInfoViewModelBase(this._walletProvider, int id) {
     _vaultListItem = _walletProvider.getVaultById(id) as T;

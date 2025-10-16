@@ -4,8 +4,7 @@ import 'package:coconut_vault/isolates/sign_isolates.dart';
 import 'package:coconut_vault/model/multisig/multisig_signer.dart';
 import 'package:coconut_vault/model/multisig/multisig_vault_list_item.dart';
 import 'package:coconut_vault/providers/sign_provider.dart';
-import 'package:coconut_vault/providers/wallet_provider/wallet_provider.dart';
-import 'package:coconut_vault/repository/wallet_repository.dart';
+import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:flutter/foundation.dart';
 
 class MultisigSignViewModel extends ChangeNotifier {
@@ -17,8 +16,9 @@ class MultisigSignViewModel extends ChangeNotifier {
   late final List<bool> _hasPassphraseList;
   late String _psbtForSigning;
   bool _signStateInitialized = false;
+  final bool _isSigningOnlyMode;
 
-  MultisigSignViewModel(this._walletProvider, this._signProvider) {
+  MultisigSignViewModel(this._walletProvider, this._signProvider, this._isSigningOnlyMode) {
     _vaultListItem = _signProvider.vaultListItem! as MultisigVaultListItem;
     _coconutVault = _vaultListItem.coconutVault as MultisignatureVault;
     _signerApproved = List<bool>.filled(_vaultListItem.signers.length, false);
@@ -53,6 +53,7 @@ class MultisigSignViewModel extends ChangeNotifier {
   String get psbtForSigning => _psbtForSigning;
   int getInnerVaultId(int index) => _vaultListItem.signers[index].innerVaultId!;
   bool getHasPassphrase(int index) => _hasPassphraseList[index];
+  bool get isSigningOnlyMode => _isSigningOnlyMode;
 
   void initPsbtSignState() {
     assert(!_signStateInitialized); // 오직 한번만 호출
@@ -84,6 +85,18 @@ class MultisigSignViewModel extends ChangeNotifier {
 
     seed.wipe();
     mnemonic.wipe();
+  }
+
+  Future<void> signPsbtInSigningOnlyMode(int index) async {
+    assert(_isSigningOnlyMode);
+    Seed? seed;
+    try {
+      seed = await _walletProvider.getSeedInSigningOnlyMode(_vaultListItem.signers[index].innerVaultId!);
+      _psbtForSigning = await compute(SignIsolates.addSignatureToPsbtWithMultisigVault, [seed, _psbtForSigning]);
+      updateSignState(index);
+    } finally {
+      seed?.wipe();
+    }
   }
 
   void saveSignedPsbt() {

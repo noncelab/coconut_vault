@@ -3,7 +3,7 @@ import 'package:coconut_vault/extensions/uint8list_extensions.dart';
 import 'package:coconut_vault/isolates/sign_isolates.dart';
 import 'package:coconut_vault/model/single_sig/single_sig_vault_list_item.dart';
 import 'package:coconut_vault/providers/sign_provider.dart';
-import 'package:coconut_vault/providers/wallet_provider/wallet_provider.dart';
+import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:flutter/foundation.dart';
 
 class SingleSigSignViewModel extends ChangeNotifier {
@@ -14,8 +14,9 @@ class SingleSigSignViewModel extends ChangeNotifier {
   late final bool _isAlreadySigned;
   late bool _isSignerApproved = false;
   bool _hasPassphrase = false;
+  final bool _isSigningOnlyMode;
 
-  SingleSigSignViewModel(this._walletProvider, this._signProvider) {
+  SingleSigSignViewModel(this._walletProvider, this._signProvider, this._isSigningOnlyMode) {
     _coconutVault = (_signProvider.vaultListItem! as SingleSigVaultListItem).coconutVault as SingleSignatureVault;
 
     _isAlreadySigned = _isSigned();
@@ -42,6 +43,7 @@ class SingleSigSignViewModel extends ChangeNotifier {
   int get sendingAmount => _signProvider.sendingAmount!;
   bool get hasPassphrase => _hasPassphrase;
   int get walletId => _signProvider.walletId!;
+  bool get isSigningOnlyMode => _isSigningOnlyMode;
 
   bool _isSigned() {
     return _signProvider.psbt!.isSigned(_coconutVault.keyStore);
@@ -69,6 +71,22 @@ class SingleSigSignViewModel extends ChangeNotifier {
       updateSignState();
     } finally {
       mnemonicBytes?.wipe();
+      seed?.wipe();
+    }
+  }
+
+  Future<void> signPsbtInSigningOnlyMode() async {
+    assert(_isSigningOnlyMode);
+    Seed? seed;
+    try {
+      seed = await _walletProvider.getSeedInSigningOnlyMode(_signProvider.walletId!);
+      final signedTx = await compute(SignIsolates.addSignatureToPsbtWithSingleVault, [
+        seed,
+        _signProvider.unsignedPsbtBase64!,
+      ]);
+      _signProvider.saveSignedPsbt(signedTx);
+      updateSignState();
+    } finally {
       seed?.wipe();
     }
   }

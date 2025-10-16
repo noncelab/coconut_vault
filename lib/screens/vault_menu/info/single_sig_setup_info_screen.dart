@@ -6,6 +6,7 @@ import 'package:coconut_vault/enums/pin_check_context_enum.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/providers/auth_provider.dart';
 import 'package:coconut_vault/providers/view_model/vault_menu/single_sig_setup_info_view_model.dart';
+import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:coconut_vault/screens/home/select_sync_option_bottom_sheet.dart';
 import 'package:coconut_vault/screens/vault_menu/info/name_and_icon_edit_bottom_sheet.dart';
 import 'package:coconut_vault/utils/text_utils.dart';
@@ -21,8 +22,6 @@ import 'package:coconut_vault/widgets/bubble_clipper.dart';
 import 'package:coconut_vault/widgets/custom_loading_overlay.dart';
 import 'package:provider/provider.dart';
 import 'package:shimmer/shimmer.dart';
-
-import '../../../providers/wallet_provider/wallet_provider.dart';
 
 class SingleSigSetupInfoScreen extends StatefulWidget {
   final int id;
@@ -488,11 +487,16 @@ class _SingleSigSetupInfoScreenState extends State<SingleSigSetupInfoScreen> {
           onTapLeft: () => Navigator.pop(context),
           onTapRight: () async {
             if (context.mounted) {
-              await _authenticateWithBiometricOrPin(
-                context,
-                PinCheckContextEnum.seedDeletion,
-                () => _deleteVault(context),
-              );
+              final viewModel = context.read<SingleSigSetupInfoViewModel>();
+              if (!viewModel.isSigningOnlyMode) {
+                await _authenticateWithBiometricOrPin(
+                  context,
+                  PinCheckContextEnum.seedDeletion,
+                  () => _deleteVault(context),
+                );
+              } else {
+                _deleteVault(context);
+              }
             }
           },
         );

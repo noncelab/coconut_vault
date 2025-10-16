@@ -51,9 +51,10 @@ import 'package:coconut_vault/screens/vault_menu/info/passphrase_verification_sc
 import 'package:coconut_vault/screens/vault_menu/multisig_signer_bsms_export_screen.dart';
 import 'package:coconut_vault/screens/vault_menu/sync_to_wallet/sync_to_wallet_screen.dart';
 import 'package:coconut_vault/screens/vault_menu/info/single_sig_setup_info_screen.dart';
+import 'package:coconut_vault/utils/logger.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:coconut_vault/providers/wallet_provider/wallet_provider.dart';
+import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:coconut_vault/screens/common/pin_check_screen.dart';
 import 'package:coconut_vault/screens/common/start_screen.dart';
 import 'package:coconut_vault/widgets/custom_loading_overlay.dart';
@@ -104,9 +105,10 @@ class CoconutVaultApp extends StatefulWidget {
 class _CoconutVaultAppState extends State<CoconutVaultApp> with SingleTickerProviderStateMixin {
   AppEntryFlow _appEntryFlow = AppEntryFlow.splash;
   bool _isInactive = false;
-  final visibilityProvider = VisibilityProvider();
-  final authProvider = AuthProvider();
-  final preferenceProvider = PreferenceProvider();
+  late final authProvider = AuthProvider();
+  late final preferenceProvider = PreferenceProvider();
+  late final visibilityProvider = VisibilityProvider(isSigningOnlyMode: preferenceProvider.isSigningOnlyMode);
+  late final walletProvider = WalletProvider(visibilityProvider, preferenceProvider);
 
   // 엣지 패널 관련 변수
   double _signingModeEdgePanelWidth = 20.0;
@@ -126,7 +128,6 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> with SingleTickerProv
   String? _currentRouteName;
   late _CustomNavigatorObserver _navigatorObserver;
 
-  @override
   @override
   void initState() {
     super.initState();
@@ -154,6 +155,7 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> with SingleTickerProv
 
   @override
   void dispose() {
+    Logger.log("--> app.dart dispose");
     _longPressTimer?.cancel();
     _edgePanelAnimationController.dispose();
     super.dispose();
@@ -265,15 +267,28 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> with SingleTickerProv
       },
       child: MultiProvider(
         providers: [
-          ChangeNotifierProvider(create: (_) => visibilityProvider),
           ChangeNotifierProvider(create: (_) => authProvider),
           ChangeNotifierProvider(create: (_) => preferenceProvider),
-          ChangeNotifierProvider<WalletProvider>(create: (_) => WalletProvider(visibilityProvider, preferenceProvider)),
+          ChangeNotifierProxyProvider<PreferenceProvider, VisibilityProvider>(
+            create: (context) => visibilityProvider,
+            update: (context, preferenceProvider, visibilityProvider) {
+              visibilityProvider!.updateIsSigningOnlyMode(preferenceProvider.isSigningOnlyMode);
+              return visibilityProvider;
+            },
+          ),
+          ChangeNotifierProxyProvider<PreferenceProvider, WalletProvider>(
+            create: (context) => walletProvider,
+            update: (context, preferenceProvider, walletProvider) {
+              walletProvider!.updateIsSigningOnlyMode(preferenceProvider.isSigningOnlyMode);
+              return walletProvider;
+            },
+          ),
+          // TODO: ConnectivityProvider 계속 재생산 되는 것 방지
           ChangeNotifierProxyProvider2<VisibilityProvider, PreferenceProvider, ConnectivityProvider>(
             create:
                 (_) => ConnectivityProvider(
                   hasSeenGuide: visibilityProvider.hasSeenGuide,
-                  isSigningOnlyMode: preferenceProvider.getVaultMode() == VaultMode.signingOnly,
+                  isSigningOnlyMode: preferenceProvider.isSigningOnlyMode,
                 ),
             update: (_, visibilityProvider, preferenceProvider, connectivityProvider) {
               if (visibilityProvider.hasSeenGuide) {
@@ -281,7 +296,7 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> with SingleTickerProv
               }
 
               // VaultMode 변경 감지
-              final newIsSigningOnlyMode = preferenceProvider.getVaultMode() == VaultMode.signingOnly;
+              final newIsSigningOnlyMode = preferenceProvider.isSigningOnlyMode;
               connectivityProvider!.updateSigningOnlyMode(newIsSigningOnlyMode);
 
               // 인스턴스 저장
@@ -293,13 +308,6 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> with SingleTickerProv
           if (_appEntryFlow == AppEntryFlow.vaultHome) ...[
             Provider<WalletCreationProvider>(create: (_) => WalletCreationProvider()),
             Provider<SignProvider>(create: (_) => SignProvider()),
-            ChangeNotifierProvider<WalletProvider>(
-              create: (_) => WalletProvider(visibilityProvider, preferenceProvider),
-            ),
-          ] else if (_appEntryFlow == AppEntryFlow.restoration) ...[
-            ChangeNotifierProvider<WalletProvider>(
-              create: (_) => WalletProvider(visibilityProvider, preferenceProvider),
-            ),
           ],
         ],
 
@@ -308,7 +316,11 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> with SingleTickerProv
           child:
               _appEntryFlow == AppEntryFlow.vaultHome
                   ? MainRouteGuard(
-                    onAppGoBackground: () => _updateEntryFlow(AppEntryFlow.pinCheckAppResumed),
+                    onAppGoBackground: () {
+                      if (!preferenceProvider.isSigningOnlyMode) {
+                        _updateEntryFlow(AppEntryFlow.pinCheckAppResumed);
+                      }
+                    },
                     onAppGoInactive: () {
                       if (Platform.isAndroid) return; // 안드로이드는 Native에서 처리
 
@@ -322,7 +334,7 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> with SingleTickerProv
                         authProvider.updateDeviceBiometricAvailability();
 
                         // Signing Only Mode일 때 기기 보안 체크 (State 필드 직접 사용)
-                        if (preferenceProvider.getVaultMode() == VaultMode.signingOnly) {
+                        if (preferenceProvider.isSigningOnlyMode) {
                           // ConnectivityProvider는 MultiProvider에서 제공되므로
                           // 여기서는 직접 메서드 호출할 수 없음
                           // 대신 별도 메서드 생성
@@ -428,11 +440,17 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> with SingleTickerProv
                                   (args) => MnemonicViewScreen(walletId: args['id']),
                                 ),
                             AppRoutes.vaultNameSetup: (context) => const VaultNameAndIconSetupScreen(),
-                            AppRoutes.singleSigSetupInfo:
-                                (context) => buildScreenWithArguments(
-                                  context,
-                                  (args) => SingleSigSetupInfoScreen(id: args['id'], entryPoint: args['entryPoint']),
+                            AppRoutes.singleSigSetupInfo: (context) {
+                              return buildScreenWithArguments(
+                                context,
+                                (args) => SingleSigSetupInfoScreen(
+                                  id: args['id'],
+                                  entryPoint: args['entryPoint'],
+                                  // 서명 전용 모드일 때는 항상 false
+                                  hasPassphrase: preferenceProvider.isSigningOnlyMode ? false : args['hasPassphrase'],
                                 ),
+                              );
+                            },
                             AppRoutes.multisigSetupInfo:
                                 (context) => buildScreenWithArguments(
                                   context,

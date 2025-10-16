@@ -12,7 +12,7 @@ import 'package:coconut_vault/providers/connectivity_provider.dart';
 import 'package:coconut_vault/providers/preference_provider.dart';
 import 'package:coconut_vault/providers/view_model/home/vault_home_view_model.dart';
 import 'package:coconut_vault/providers/visibility_provider.dart';
-import 'package:coconut_vault/providers/wallet_provider/wallet_provider.dart';
+import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:coconut_vault/screens/common/multisig_bsms_scanner_screen.dart';
 import 'package:coconut_vault/screens/home/select_sync_option_bottom_sheet.dart';
 import 'package:coconut_vault/screens/home/select_vault_bottom_sheet.dart';
@@ -20,6 +20,7 @@ import 'package:coconut_vault/screens/settings/pin_setting_screen.dart';
 import 'package:coconut_vault/screens/vault_menu/info/passphrase_check_screen.dart';
 import 'package:coconut_vault/widgets/button/shrink_animation_button.dart';
 import 'package:coconut_vault/widgets/card/vault_addition_guide_card.dart';
+import 'package:coconut_vault/widgets/tee_smoke_test.dart';
 import 'package:coconut_vault/widgets/vault_row_item.dart';
 import 'package:flutter/material.dart';
 import 'package:coconut_vault/screens/settings/settings_screen.dart';
@@ -261,7 +262,7 @@ class _VaultHomeScreenState extends State<VaultHomeScreen> with TickerProviderSt
           margin: const EdgeInsets.symmetric(vertical: 20),
           child: VaultAdditionGuideCard(
             onPressed: () {
-              if (!viewModel.isPinSet) {
+              if (!viewModel.isSigningOnlyMode && !viewModel.isPinSet) {
                 MyBottomSheet.showBottomSheet_90(
                   context: context,
                   child: const PinSettingScreen(greetingVisible: true),
