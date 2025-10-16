@@ -8,7 +8,6 @@ import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:coconut_vault/utils/app_version_util.dart';
 import 'package:coconut_vault/utils/coconut/update_preparation.dart';
 import 'package:coconut_vault/utils/hash_util.dart';
-import 'package:coconut_vault/utils/logger.dart';
 import 'package:flutter/material.dart';
 
 class MnemonicWordsItem {
@@ -87,7 +86,6 @@ class AppUpdatePreparationViewModel extends ChangeNotifier {
     return await _walletProvider.getSecret(vault.id).then((mnemonic) {
       List<String> mnemonicList = utf8.decode(mnemonic).split(' ');
       int mnemonicIndex = _random.nextInt(mnemonicList.length);
-      Logger.log('-->${vault.name} mnemonicList: $mnemonicList, mnemonicIndex: $mnemonicIndex');
       return MnemonicWordsItem(
         vaultName: vault.name,
         mnemonicWords: hashString(mnemonicList[mnemonicIndex]),
@@ -139,8 +137,7 @@ class AppUpdatePreparationViewModel extends ChangeNotifier {
 
   void saveEncryptedBackupWithData(String data) async {
     _progress80Reached = Completer<void>();
-    final savedPath = await UpdatePreparation.encryptAndSave(data: data);
-    Logger.log('--> savedPath: $savedPath');
+    await UpdatePreparation.encryptAndSave(data: data);
 
     _backupProgress = 80;
     notifyListeners();
