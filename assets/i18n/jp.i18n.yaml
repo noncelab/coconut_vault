@@ -316,12 +316,12 @@ welcome_screen:
         - "Bluetoothオフ"
         - "接続解除"
       description: "iOS のシステム仕様上、「Bluetoothオフ」と「接続解除」の状態は区別されません。安全に使用するために、設定から Bluetooth を完全にオフにすることを推奨します。"
-    control_center_off: 
-      title: "接続解除"
-      description: "コントロールセンターで Bluetooth をオフにした状態では、新しいデバイスとの接続はブロックされますが、既存の接続は維持される場合があります。"
-    absolutely_off:
-      title: "Bluetoothオフ（推奨）" 
-      description: "設定から Bluetooth を完全にオフにした状態です。すべての外部接続が遮断されます。"
+      control_center_off: 
+        title: "接続解除"
+        description: "コントロールセンターで Bluetooth をオフにした状態では、新しいデバイスとの接続はブロックされますが、既存の接続は維持される場合があります。"
+      absolutely_off:
+        title: "Bluetoothオフ（推奨）" 
+        description: "設定から Bluetooth を完全にオフにした状態です。すべての外部接続が遮断されます。"
   developer_mode_off: "開発者モードをオフ"
   developer_mode_description: "1. 設定 → システム → 開発者オプション\n2. スイッチオフ"
   network: "ネットワーク"
