@@ -160,10 +160,9 @@ app_unavailable_notification_screen:
   step2: "연결 상태를 확인해 주세요"
   step3: "앱을 다시 실행해 주세요"
 ios_bluetooth_auth_notification_screen:
-  allow_permission: "안전한 사용을 위해\n블루투스 권한을 허용해 주세요"
-  guide1: "앱을 완전히 종료해 주세요"
-  guide2: "설정 화면에서 볼트의 블루투스 권한을 허용해 주세요"
-  guide3: "앱을 다시 실행해 주세요"
+  allow_permission: "블루투스 상태 확인을 위해\n블루투스 권한을 허용해 주세요"
+  guide1: "다른 기기와 연결되지 않았는지 확인하기 위해 블루투스 권한이 필요합니다"
+  guide2: "설정에서 볼트 앱의 블루투스 권한을 허용해 주세요"
 pin_check_screen:
   enter_password: "비밀번호를 눌러주세요"
   warning: "⚠︎ 3회 모두 틀리면 볼트를 초기화합니다"
@@ -293,24 +292,38 @@ welcome_screen:
   screen_3_title: "안전한 환경이 준비됐어요"
   screen_3_description: "지금부터 코코넛 볼트를\n시작하겠습니다"
   screen_3_button: "시작하기"
-  setting_guide: "설정 방법 보기"
+  setting_guide: "설정 방법 보기 ⓘ"
   bottom_sheet_title: "설정 방법"
+  recommendation: "코코넛 볼트 앱 전용으로 공기계 사용을 권장합니다"
   airplane_mode_on: 
     title: "비행기 모드 켜키"
-    description_ios: '제어센터 → 비행기 모드 아이콘 탭'
+    description_ios: '화면 오른쪽 상단 → 아래로 스와이프 → 제어센터 → 비행기 모드 아이콘 탭'
     description_android: '화면 상단에서 아래로 스와이프 → 빠른 설정 패널 → 비행기 모드 아이콘 탭 눌러 켜기\n※ 네트워크, 블루투스, 통신망이 모두 차단됩니다'
   wifi_off:
     title: "네트워크(Wi-Fi) 끄기"
-    description_ios: '화면 오른쪽 상단 → 아래로 스와이프 → 제어센터 → Wi-Fi 아이콘 탭'
+    description_ios: '제어센터 → Wi-Fi 아이콘 탭'
     description_android: '빠른 설정 패널 → Wi-Fi 아이콘을 눌러 끄기'
   mobile_data_off: 
     title: "모바일 네트워크(LTE / 5G) 끄기"
-    description_ios: '설정 → 셀룰러 → 셀룰러 데이터 스위치 끄기\n※ 공기계 사용을 추천합니다'
-    description_android: '빠른 설정 패널 → 모바일 네트워크 아이콘을 눌러 끄기\n※ 공기계 사용을 추천합니다'
+    description_ios: '설정 → 셀룰러 → 셀룰러 데이터 스위치 끄기\n'
+    description_android: '빠른 설정 패널 → 모바일 네트워크 아이콘을 눌러 끄기\n'
   bluetooth_off: 
     title: "Bluetooth 끄기"
-    description_ios: '제어센터 → Bluetooth 아이콘 탭'
+    description_ios: '설정 → 블루투스 → 블루투스 스위치 끄기'
     description_android: '빠른 설정 패널 → Bluetooth 아이콘을 눌러 끄기'
+    additional:
+      title: 'ⓘ iOS 블루투스 설정 시 유의사항'
+      highlight: 
+       - '구분하지 않습니다'
+       - '블루투스 끄기'
+       - '연결 해제'
+      description: 'iOS 시스템 정책상, 블루투스 블루투스 끄기와 연결 해제 상태를 구분하지 않습니다. 안전한 사용을 위해 설정에서 블루투스를 완전히 꺼두는 것을 권장합니다.'
+      control_center_off: 
+        title: '연결 해제'
+        description: '제어센터에서 블루투스를 끈 상태로, 새 기기와의 연결은 차단되지만 기존 연결은 유지될 수 있습니다'
+      absolutely_off:
+        title: '블루투스 끄기 (권장)' 
+        description: '설정에서 블루투스를 완전히 꺼둔 상태입니다. 모든 외부 연결이 차단됩니다'
   developer_mode_off: "개발자 모드 끄기"
   developer_mode_description: "1. 설정 → 시스템 → 개발자 옵션\n2. 스위치 끄기"
   network: "네트워크"
