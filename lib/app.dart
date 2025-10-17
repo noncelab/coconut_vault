@@ -432,7 +432,11 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> with SingleTickerProv
                             AppRoutes.singleSigSetupInfo:
                                 (context) => buildScreenWithArguments(
                                   context,
-                                  (args) => SingleSigSetupInfoScreen(id: args['id'], entryPoint: args['entryPoint']),
+                                  (args) => SingleSigSetupInfoScreen(
+                                    id: args['id'],
+                                    entryPoint: args['entryPoint'],
+                                    hasPassphrase: args['hasPassphrase'],
+                                  ),
                                 ),
                             AppRoutes.multisigSetupInfo:
                                 (context) => buildScreenWithArguments(

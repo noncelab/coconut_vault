@@ -18,3 +18,10 @@ ios-regtest:
 
 aos-regtest:
 	fvm flutter build appbundle --flavor regtest --release
+
+# fastlane
+pre-deploy: 
+	fastlane pre_deploy
+
+fastlane-mainnet:
+	cd android && caffeinate -dimsu bundle exec fastlane release_android_mainnet && cd .. && cd ios && caffeinate -dimsu bundle exec fastlane release_ios_regtest skip_prep:true

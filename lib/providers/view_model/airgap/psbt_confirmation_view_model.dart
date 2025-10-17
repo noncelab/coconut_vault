@@ -1,7 +1,6 @@
 import 'dart:collection';
 
 import 'package:coconut_lib/coconut_lib.dart';
-import 'package:coconut_vault/enums/currency_enum.dart';
 import 'package:coconut_vault/extensions/int_extensions.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/providers/sign_provider.dart';

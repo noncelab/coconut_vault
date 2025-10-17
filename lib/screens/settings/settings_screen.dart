@@ -40,53 +40,43 @@ class _SettingsScreenState extends State<SettingsScreen> {
       minChildSize: 0.5,
       initialChildSize: 1,
       expand: false,
-      builder:
-          (context, scrollController) => SafeArea(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                _buildDraggableHeader(),
-                Expanded(
-                  child: Container(
-                    decoration: const BoxDecoration(color: CoconutColors.white),
-                    child: ListView(
-                      controller: scrollController,
-                      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-                      children: [
-                        _securityPart(context),
-                        CoconutLayout.spacing_1000h,
-                        Selector2<WalletProvider, PreferenceProvider, Tuple2<bool, VaultMode?>>(
-                          selector:
-                              (context, walletProvider, preferenceProvider) =>
-                                  Tuple2(walletProvider.vaultList.isNotEmpty, preferenceProvider.getVaultMode()),
-                          builder: (context, data, vaultMode) {
-                            bool isWalletNotEmpty = data.item1;
-                            VaultMode? vaultMode = data.item2;
-                            return isWalletNotEmpty && vaultMode != VaultMode.signingOnly
-                                ? Column(children: [_updatePart(context), CoconutLayout.spacing_1000h])
-                                : Container();
-                          },
-                        ),
-                        _btcUnitPart(context),
-                        CoconutLayout.spacing_1000h,
-                        _languagePart(context),
-                        CoconutLayout.spacing_1000h,
-                        _advancedUserPart(context),
-                        CoconutLayout.spacing_1000h,
-                        _informationPart(context),
-                        SizedBox(
-                          height:
-                              MediaQuery.of(context).viewPadding.bottom > 0
-                                  ? MediaQuery.of(context).viewPadding.bottom + Sizes.size12
-                                  : Sizes.size36,
-                        ),
-                      ],
-                    ),
+      builder: (context, scrollController) => Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          _buildDraggableHeader(),
+          Expanded(
+            child: Container(
+              decoration: const BoxDecoration(color: CoconutColors.white),
+              child: ListView(
+                controller: scrollController,
+                padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+                children: [
+                  _securityPart(context),
+                  CoconutLayout.spacing_1000h,
+                  Selector<WalletProvider, bool>(
+                    selector: (context, provider) => provider.vaultList.isNotEmpty,
+                    builder: (context, isNotEmpty, _) => isNotEmpty
+                        ? Column(children: [_updatePart(context), CoconutLayout.spacing_1000h])
+                        : Container(),
                   ),
-                ),
-              ],
+                  _btcUnitPart(context),
+                  CoconutLayout.spacing_1000h,
+                  _languagePart(context),
+                  CoconutLayout.spacing_1000h,
+                  _advancedUserPart(context),
+                  CoconutLayout.spacing_1000h,
+                  _informationPart(context),
+                  SizedBox(
+                    height: MediaQuery.of(context).viewPadding.bottom > 0
+                        ? MediaQuery.of(context).viewPadding.bottom + Sizes.size12
+                        : Sizes.size36,
+                  ),
+                ],
+              ),
             ),
           ),
+        ],
+      ),
     );
   }
 
@@ -94,7 +84,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
     return Container(
       decoration: const BoxDecoration(
         color: CoconutColors.white,
-        borderRadius: BorderRadius.only(topLeft: Radius.circular(24), topRight: Radius.circular(24)),
+        borderRadius:
+            BorderRadius.only(topLeft: Radius.circular(24), topRight: Radius.circular(24)),
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -104,7 +95,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
             margin: const EdgeInsets.only(top: 8, bottom: 8),
             width: 55,
             height: 4,
-            decoration: BoxDecoration(color: CoconutColors.gray400, borderRadius: BorderRadius.circular(4)),
+            decoration:
+                BoxDecoration(color: CoconutColors.gray400, borderRadius: BorderRadius.circular(4)),
           ),
           // Title
           Container(
@@ -115,7 +107,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   onTap: () => Navigator.of(context).pop(),
                   child: const Icon(Icons.close, color: CoconutColors.black, size: 24),
                 ),
-                Expanded(child: Text(t.settings, style: CoconutTypography.body1_16_Bold, textAlign: TextAlign.center)),
+                Expanded(
+                    child: Text(t.settings,
+                        style: CoconutTypography.body1_16_Bold, textAlign: TextAlign.center)),
                 const SizedBox(width: 24), // Balance the close icon
               ],
             ),
@@ -184,10 +178,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                         insetPadding: EdgeInsets.symmetric(
                                           horizontal: MediaQuery.of(context).size.width * 0.15,
                                         ),
-                                        title: t.settings_screen.dialog.need_biometrics_setting_title,
-                                        description: t.settings_screen.dialog.need_biometrics_setting_desc,
+                                        title:
+                                            t.settings_screen.dialog.need_biometrics_setting_title,
+                                        description:
+                                            t.settings_screen.dialog.need_biometrics_setting_desc,
                                         backgroundColor: CoconutColors.white,
-                                        rightButtonText: t.settings_screen.dialog.btn_move_to_setting,
+                                        rightButtonText:
+                                            t.settings_screen.dialog.btn_move_to_setting,
                                         rightButtonColor: CoconutColors.gray900,
                                         leftButtonText: t.cancel,
                                         leftButtonColor: CoconutColors.gray900,
@@ -205,7 +202,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                 return;
                               }
 
-                              if (isOn && await provider.authenticateWithBiometrics(context: context, isSaved: true)) {
+                              if (isOn &&
+                                  await provider.authenticateWithBiometrics(
+                                      context: context, isSaved: true)) {
                                 Logger.log('Biometric authentication success');
                                 provider.saveIsBiometricEnabled(true);
                               } else {
@@ -216,10 +215,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           ),
                         ),
                       SingleButton(
-                        buttonPosition:
-                            provider.isBiometricSupportedByDevice
-                                ? SingleButtonPosition.bottom
-                                : SingleButtonPosition.none,
+                        buttonPosition: provider.isBiometricSupportedByDevice
+                            ? SingleButtonPosition.bottom
+                            : SingleButtonPosition.none,
                         title: t.settings_screen.change_password,
                         enableShrinkAnim: true,
                         animationEndValue: 0.97,
@@ -260,10 +258,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       enableShrinkAnim: true,
                       animationEndValue: 0.97,
                       title: t.vault_mode_selection_screen.change_mode,
-                      subtitle:
-                          context.read<PreferenceProvider>().isSigningOnlyMode
-                              ? t.vault_mode_selection_screen.signing_only_mode
-                              : t.vault_mode_selection_screen.secure_storage_mode,
+                      subtitle: context.read<PreferenceProvider>().isSigningOnlyMode
+                          ? t.vault_mode_selection_screen.signing_only_mode
+                          : t.vault_mode_selection_screen.secure_storage_mode,
                       onPressed: () {
                         Navigator.pushNamed(context, AppRoutes.vaultModeSelection);
                       },
@@ -285,7 +282,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
     }
   }
 
-  Widget _buildAnimatedButton({required String title, required VoidCallback onPressed, String? subtitle}) {
+  Widget _buildAnimatedButton(
+      {required String title, required VoidCallback onPressed, String? subtitle}) {
     return SingleButton(
       enableShrinkAnim: true,
       animationEndValue: 0.97,
@@ -400,7 +398,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       context: context,
                       builder: (BuildContext context) {
                         return CoconutPopup(
-                          insetPadding: EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width * 0.15),
+                          insetPadding: EdgeInsets.symmetric(
+                              horizontal: MediaQuery.of(context).size.width * 0.15),
                           title: t.settings_screen.dialog.use_passphrase_title,
                           description: t.settings_screen.dialog.use_passphrase_description,
                           rightButtonText: t.settings_screen.dialog.use_passphrase_btn,
@@ -462,6 +461,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
         return t.language.korean;
       case 'en':
         return t.language.english;
+      case 'jp':
+        return t.language.japanese;
       default:
         return t.language.english;
     }

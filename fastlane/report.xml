@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites>
+  <testsuite name="fastlane.lanes">
+    
+    
+    
+      
+      <testcase classname="fastlane.lanes" name="0: echo &apos;=== Current Directory ===&apos;; pwd" time="0.024468">
+        
+      </testcase>
+    
+      
+      <testcase classname="fastlane.lanes" name="1: update_app_info" time="0.000827">
+        
+      </testcase>
+    
+      
+      <testcase classname="fastlane.lanes" name="2: fvm flutter pub run flutter_oss_licenses:generate" time="1.428029">
+        
+      </testcase>
+    
+      
+      <testcase classname="fastlane.lanes" name="3: fvm flutter pub run build_runner clean" time="3.391846">
+        
+      </testcase>
+    
+      
+      <testcase classname="fastlane.lanes" name="4: fvm flutter pub run build_runner build --delete-conflicting-outputs" time="21.885267">
+        
+      </testcase>
+    
+      
+      <testcase classname="fastlane.lanes" name="5: pwd" time="0.021534">
+        
+      </testcase>
+    
+      
+      <testcase classname="fastlane.lanes" name="6: fvm flutter pub run slang" time="1.343698">
+        
+      </testcase>
+    
+      
+      <testcase classname="fastlane.lanes" name="7: fvm dart format . --line-length=120" time="2.295986">
+        
+      </testcase>
+    
+  </testsuite>
+</testsuites>

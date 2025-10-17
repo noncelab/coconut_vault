@@ -20,7 +20,7 @@ class _MnemonicDiceRollScreenState extends BaseMnemonicEntropyScreenState<Mnemon
   @override
   String get screenTitle => t.mnemonic_dice_roll_screen.title;
   @override
-  Widget buildEntropyWidget([ValueNotifier<bool>? notifier, ValueNotifier<int>? stepNotifier]) {
+  Widget buildEntropyWidget() {
     return CoinFlip(
       wordsCount: selectedWordsCount,
       usePassphrase: usePassphrase,
@@ -61,20 +61,18 @@ class _CoinFlipState extends BaseEntropyWidgetState<CoinFlip> {
   String get rightButtonText => t.next;
 
   @override
-  bool get isRightButtonActive => _isRightButtonActive();
-
-  @override
-  void onNavigateToNext() {
-    Navigator.pushNamed(context, AppRoutes.mnemonicConfirmation, arguments: {'calledFrom': AppRoutes.mnemonicCoinflip});
-  }
-
-  bool _isRightButtonActive() {
+  bool get isRightButtonActiveImpl {
     if (step == 0) {
       return _bits.length >= (widget.wordsCount == 12 ? 128 : 256);
     } else if (step == 1) {
       return isPassphraseValid;
     }
     return false;
+  }
+
+  @override
+  void onNavigateToNext() {
+    Navigator.pushNamed(context, AppRoutes.mnemonicConfirmation, arguments: {'calledFrom': AppRoutes.mnemonicCoinflip});
   }
 
   @override

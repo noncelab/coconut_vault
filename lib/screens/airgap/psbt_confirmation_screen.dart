@@ -112,7 +112,7 @@ class _PsbtConfirmationScreenState extends State<PsbtConfirmationScreen> {
                           child: Container(
                             decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(28.0),
-                              color: CoconutColors.black.withOpacity(0.03),
+                              color: CoconutColors.black.withValues(alpha: 0.03),
                             ),
                             child: Container(
                               padding: const EdgeInsets.symmetric(horizontal: 24),
@@ -157,7 +157,7 @@ class _PsbtConfirmationScreenState extends State<PsbtConfirmationScreen> {
                             padding: CoconutPadding.widgetContainer,
                             decoration: BoxDecoration(
                               borderRadius: CoconutBorder.defaultRadius,
-                              color: CoconutColors.black.withOpacity(0.3),
+                              color: CoconutColors.black.withValues(alpha: 0.3),
                             ),
                             child: MediaQuery(
                               data: MediaQuery.of(context).copyWith(textScaler: const TextScaler.linear(1.0)),
@@ -184,7 +184,7 @@ class _PsbtConfirmationScreenState extends State<PsbtConfirmationScreen> {
                     child: Container(
                       width: MediaQuery.of(context).size.width,
                       height: MediaQuery.of(context).size.height,
-                      decoration: BoxDecoration(color: CoconutColors.black.withOpacity(0.3)),
+                      decoration: BoxDecoration(color: CoconutColors.black.withValues(alpha: 0.3)),
                       child: const Center(child: CircularProgressIndicator(color: CoconutColors.gray800)),
                     ),
                   ),

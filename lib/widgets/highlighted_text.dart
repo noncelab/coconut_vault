@@ -12,7 +12,7 @@ class HighLightedText extends StatelessWidget {
         (TextPainter(
           text: TextSpan(text: text, style: style),
           maxLines: 1,
-          textScaleFactor: MediaQuery.of(context).textScaleFactor, // TODO usage 변경
+          textScaler: MediaQuery.of(context).textScaler,
           textDirection: TextDirection.ltr,
         )..layout()).size;
     return size;

@@ -76,6 +76,7 @@ class _SingleSigSignScreenState extends State<SingleSigSignScreen> {
       return true;
     }
 
+    if (!mounted) return false;
     return await MyBottomSheet.showBottomSheet_90<bool>(
       context: context,
       child: CustomLoadingOverlay(
@@ -137,7 +138,7 @@ class _SingleSigSignScreenState extends State<SingleSigSignScreen> {
           description: t.alert.exit_sign.description,
           backgroundColor: CoconutColors.white,
           leftButtonText: t.no,
-          leftButtonColor: CoconutColors.black.withOpacity(0.7),
+          leftButtonColor: CoconutColors.black.withValues(alpha: 0.7),
           rightButtonText: t.yes,
           rightButtonColor: CoconutColors.warningText,
           onTapLeft: () => Navigator.pop(context),
@@ -200,7 +201,7 @@ class _SingleSigSignScreenState extends State<SingleSigSignScreen> {
                       child: Container(
                         width: MediaQuery.of(context).size.width,
                         height: MediaQuery.of(context).size.height,
-                        decoration: BoxDecoration(color: CoconutColors.black.withOpacity(0.3)),
+                        decoration: BoxDecoration(color: CoconutColors.black.withValues(alpha: 0.3)),
                         child: const Center(child: CircularProgressIndicator(color: CoconutColors.gray800)),
                       ),
                     ),
@@ -229,7 +230,7 @@ class _SingleSigSignScreenState extends State<SingleSigSignScreen> {
           return LinearProgressIndicator(
             value: value,
             minHeight: 6,
-            backgroundColor: CoconutColors.black.withOpacity(0.06),
+            backgroundColor: CoconutColors.black.withValues(alpha: 0.06),
             borderRadius:
                 _isProgressCompleted
                     ? BorderRadius.zero
@@ -254,7 +255,7 @@ class _SingleSigSignScreenState extends State<SingleSigSignScreen> {
       child: Container(
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(28.0),
-          color: CoconutColors.black.withOpacity(0.03),
+          color: CoconutColors.black.withValues(alpha: 0.03),
         ),
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 24),

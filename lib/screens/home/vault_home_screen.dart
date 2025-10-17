@@ -304,14 +304,20 @@ class _VaultHomeScreenState extends State<VaultHomeScreen> with TickerProviderSt
             return VaultRowItem(
               vault: vault,
               isSelectable: false,
-              onSelected: () {
-                Navigator.pushNamed(
-                  context,
-                  vault.vaultType == WalletType.multiSignature
-                      ? AppRoutes.multisigSetupInfo
-                      : AppRoutes.singleSigSetupInfo,
-                  arguments: {'id': vault.id},
-                );
+              onSelected: () async {
+                if (vault.vaultType == WalletType.multiSignature) {
+                  Navigator.pushNamed(context, AppRoutes.multisigSetupInfo, arguments: {'id': vault.id});
+                  return;
+                }
+
+                bool hasPassphrase = await _viewModel.hasPassphrase(vault.id);
+                if (mounted) {
+                  Navigator.pushNamed(
+                    context,
+                    AppRoutes.singleSigSetupInfo,
+                    arguments: {'id': vault.id, 'hasPassphrase': hasPassphrase},
+                  );
+                }
               },
             );
           } else {
@@ -381,7 +387,19 @@ class _VaultHomeScreenState extends State<VaultHomeScreen> with TickerProviderSt
                     text: t.vault_home_screen.action_items.export_wallet,
                     iconAssetPath: 'assets/svg/wallet-eyes.svg',
                     iconPadding: const EdgeInsets.only(right: 14, bottom: 16),
-                    onPressed: () {
+                    onPressed: () async {
+                      final walletProvider = context.read<WalletProvider>();
+                      final viewModel = context.read<VaultHomeViewModel>();
+                      final walletList = walletProvider.vaultList;
+
+                      // 지갑이 1개만 있는 경우, 지갑 선택을 거치지 않고 보기 전용 앱 선택 화면으로 이동
+                      if (walletList.length == 1) {
+                        final walletId = walletList.first.id;
+                        await _handleWalletSelection(context, walletId, viewModel);
+                        return;
+                      }
+
+                      // 지갑이 여러개인 경우, 지갑 선택 화면으로 이동
                       MyBottomSheet.showDraggableBottomSheet(
                         context: context,
                         minChildSize: 0.5,
@@ -391,23 +409,7 @@ class _VaultHomeScreenState extends State<VaultHomeScreen> with TickerProviderSt
                             (scrollController) => SelectVaultBottomSheet(
                               vaultList: context.read<WalletProvider>().vaultList,
                               onVaultSelected: (id) async {
-                                bool hasPassphrase = await context.read<VaultHomeViewModel>().hasPassphrase(id);
-
-                                if (!context.mounted) return;
-
-                                if (hasPassphrase) {
-                                  final result = await MyBottomSheet.showBottomSheet_ratio<String?>(
-                                    ratio: 0.5,
-                                    context: context,
-                                    child: PassphraseCheckScreen(id: id),
-                                  );
-                                  if (result != null && context.mounted) {
-                                    _showSyncOptionBottomSheet(id, context);
-                                  }
-                                  return;
-                                }
-
-                                _showSyncOptionBottomSheet(id, context);
+                                await _handleWalletSelection(context, id, viewModel);
                               },
                               scrollController: scrollController,
                             ),
@@ -508,6 +510,25 @@ class _VaultHomeScreenState extends State<VaultHomeScreen> with TickerProviderSt
         ),
       ),
     );
+  }
+
+  Future<void> _handleWalletSelection(BuildContext context, int walletId, VaultHomeViewModel viewModel) async {
+    final hasPassphrase = await viewModel.hasPassphrase(walletId);
+    if (!context.mounted) return;
+
+    if (hasPassphrase) {
+      final result = await MyBottomSheet.showBottomSheet_ratio<String?>(
+        ratio: 0.5,
+        context: context,
+        child: PassphraseCheckScreen(id: walletId),
+      );
+
+      if (result != null && context.mounted) {
+        _showSyncOptionBottomSheet(walletId, context);
+      }
+    } else {
+      _showSyncOptionBottomSheet(walletId, context);
+    }
   }
 
   void _showSyncOptionBottomSheet(int walletId, BuildContext context) {

@@ -57,6 +57,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
       ScreenItem(
         title: t.welcome_screen.screen_1_title,
         descriptionText: t.welcome_screen.screen_1_description,
+        imagePath: 'assets/png/welcome1.png',
         buttonText: t.welcome_screen.screen_1_button,
         onButtonPressed: () {
           setState(() {
@@ -133,7 +134,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                               fit: BoxFit.scaleDown,
                               child: Text(
                                 _screenItems[_currentScreenIndex].descriptionText,
-                                style: CoconutTypography.body1_16,
+                                style: CoconutTypography.body1_16.setColor(CoconutColors.black),
                                 textAlign: TextAlign.center,
                               ),
                             ),
@@ -306,6 +307,9 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
     MyBottomSheet.showDraggableBottomSheet(
       title: t.welcome_screen.bottom_sheet_title,
       context: context,
+      minChildSize: 0.5,
+      maxChildSize: 0.9,
+      initialChildSize: 0.9,
       childBuilder:
           (controller) => Scaffold(
             backgroundColor: CoconutColors.white,
@@ -316,6 +320,16 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    Container(
+                      alignment: Alignment.center,
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(color: CoconutColors.hotPink, borderRadius: BorderRadius.circular(10)),
+                      child: Text(
+                        t.welcome_screen.recommendation,
+                        style: CoconutTypography.heading4_18_Bold.setColor(CoconutColors.white),
+                      ),
+                    ),
+                    CoconutLayout.spacing_800h,
                     _buildSettingTitle(
                       t.welcome_screen.airplane_mode_on.title,
                       'assets/svg/settings-guide-icons/airplane-mode.svg',
@@ -349,6 +363,72 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                           ? t.welcome_screen.bluetooth_off.description_android
                           : t.welcome_screen.bluetooth_off.description_ios,
                     ),
+                    if (Platform.isIOS) ...[
+                      Container(
+                        padding: const EdgeInsets.all(16),
+                        decoration: BoxDecoration(
+                          color: CoconutColors.gray150,
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              t.welcome_screen.bluetooth_off.additional.title,
+                              style: CoconutTypography.heading4_18_Bold,
+                            ),
+                            CoconutLayout.spacing_300h,
+                            RichText(
+                              text: TextSpan(
+                                children: _buildHighlightKeywords(
+                                  t.welcome_screen.bluetooth_off.additional.description,
+                                  keywords: t.welcome_screen.bluetooth_off.additional.highlight,
+                                ),
+                                style: CoconutTypography.body1_16.setColor(CoconutColors.black),
+                              ),
+                            ),
+                            CoconutLayout.spacing_300h,
+                            Row(
+                              children: [
+                                SvgPicture.asset(
+                                  'assets/svg/settings-guide-icons/bluetooth-off.svg',
+                                  width: 32,
+                                  height: 32,
+                                ),
+                                CoconutLayout.spacing_100w,
+                                Text(
+                                  t.welcome_screen.bluetooth_off.additional.absolutely_off.title,
+                                  style: CoconutTypography.body1_16_Bold,
+                                ),
+                              ],
+                            ),
+                            Text(
+                              t.welcome_screen.bluetooth_off.additional.absolutely_off.description,
+                              style: CoconutTypography.body1_16,
+                            ),
+                            CoconutLayout.spacing_300h,
+                            Row(
+                              children: [
+                                SvgPicture.asset(
+                                  'assets/svg/settings-guide-icons/not-connected.svg',
+                                  width: 32,
+                                  height: 32,
+                                ),
+                                CoconutLayout.spacing_100w,
+                                Text(
+                                  t.welcome_screen.bluetooth_off.additional.control_center_off.title,
+                                  style: CoconutTypography.body1_16_Bold,
+                                ),
+                              ],
+                            ),
+                            Text(
+                              t.welcome_screen.bluetooth_off.additional.control_center_off.description,
+                              style: CoconutTypography.body1_16,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
                     if (Platform.isAndroid) ...[
                       _buildSettingTitle(
                         t.welcome_screen.developer_mode_off,
@@ -356,6 +436,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                       ),
                       _buildSettingDescription(t.welcome_screen.developer_mode_description),
                     ],
+                    CoconutLayout.spacing_800h,
                   ],
                 ),
               ),
@@ -364,12 +445,40 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
     );
   }
 
+  List<TextSpan> _buildHighlightKeywords(String text, {required List<String> keywords}) {
+    final spans = <TextSpan>[];
+    int start = 0;
+
+    final pattern = RegExp(keywords.map(RegExp.escape).join('|'));
+    final matches = pattern.allMatches(text);
+
+    for (final match in matches) {
+      if (match.start > start) {
+        spans.add(
+          TextSpan(text: text.substring(start, match.start), style: const TextStyle(color: CoconutColors.black)),
+        );
+      }
+
+      final matchedText = text.substring(match.start, match.end);
+      spans.add(
+        TextSpan(text: matchedText, style: const TextStyle(fontWeight: FontWeight.bold, color: CoconutColors.black)),
+      );
+      start = match.end;
+    }
+
+    if (start < text.length) {
+      spans.add(TextSpan(text: text.substring(start), style: const TextStyle(color: CoconutColors.black)));
+    }
+
+    return spans;
+  }
+
   Widget _buildSettingTitle(String title, String iconPath) {
     return Row(
       children: [
         SvgPicture.asset(iconPath, height: 16, fit: BoxFit.fitHeight),
         CoconutLayout.spacing_100w,
-        Expanded(child: Text(title, style: CoconutTypography.heading4_18_Bold)),
+        Expanded(child: Text(title, style: CoconutTypography.heading4_18_Bold.setColor(CoconutColors.black))),
       ],
     );
   }
@@ -377,7 +486,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
   Widget _buildSettingDescription(String description) {
     return Padding(
       padding: const EdgeInsets.only(left: 20.0, top: 12, bottom: 24),
-      child: Text(description, style: CoconutTypography.body1_16),
+      child: Text(description, style: CoconutTypography.body1_16.setColor(CoconutColors.black)),
     );
   }
 }
