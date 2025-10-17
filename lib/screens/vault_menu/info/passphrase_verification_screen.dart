@@ -40,7 +40,9 @@ class _PassphraseVerificationScreenState extends State<PassphraseVerificationScr
   String? _extendedPublicKey;
   bool _isSubmitting = false;
   String? _previousInput;
-  bool _passphraseObscured = true;
+  // 언어 전환이 가능하려면 obscureText가 true여야 함.
+  // 사용자 의도대로 입력할 수 있도록 기본값을 false로 설정함.
+  bool _passphraseObscured = false;
 
   @override
   void initState() {
@@ -66,19 +68,6 @@ class _PassphraseVerificationScreenState extends State<PassphraseVerificationScr
 
   @override
   Widget build(BuildContext context) {
-    // 기본: 전체 높이 - SafeArea top, bottom - toolbarHeight. 결과 데이터가 보이고 키보드가 열려 있는 경우 추가 height 조절(스크롤 가능 하도록)
-    double appbarHeight = 56;
-    final scrollViewHeight =
-        MediaQuery.of(context).size.height -
-        MediaQuery.of(context).padding.top -
-        MediaQuery.of(context).padding.bottom -
-        appbarHeight +
-        ((_isPassphraseVerified && _inputFocusNode.hasFocus)
-            ? FixedBottomButton.fixedBottomButtonDefaultHeight +
-                FixedBottomButton.fixedBottomButtonDefaultBottomPadding +
-                16
-            : 0);
-
     return PopScope(
       canPop: true,
       onPopInvokedWithResult: (didPop, _) {},
@@ -254,6 +243,7 @@ class _PassphraseVerificationScreenState extends State<PassphraseVerificationScr
               controller: _inputController,
               focusNode: _inputFocusNode,
               obscureText: _passphraseObscured,
+              textInputType: TextInputType.text,
               textInputAction: TextInputAction.done,
               onChanged: (text) {
                 _passphraseTextNotifier.value = text;
