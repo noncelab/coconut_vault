@@ -12,6 +12,7 @@ import 'package:flutter/services.dart';
 
 class SecurityPrechecker {
   static final SecurityPrechecker _instance = SecurityPrechecker._internal();
+  static const MethodChannel _osChannel = MethodChannel(methodChannelOS);
   factory SecurityPrechecker() => _instance;
   SecurityPrechecker._internal();
 
@@ -25,8 +26,7 @@ class SecurityPrechecker {
   Future<SecurityCheckResult> checkJailbreakRoot() async {
     try {
       // 네이티브 메서드 채널을 통한 탈옥/루팅 검사
-      const MethodChannel channel = MethodChannel('security_check');
-      final bool isJailbroken = await channel.invokeMethod('isJailbroken') ?? false;
+      final bool isJailbroken = await _osChannel.invokeMethod<bool>('isJailbroken') ?? false;
 
       if (isJailbroken) {
         return SecurityCheckResult(status: SecurityCheckStatus.jailbreakDetected, checkTime: DateTime.now());
@@ -42,8 +42,7 @@ class SecurityPrechecker {
   // 기기 비밀번호 설정 여부 검사
   Future<SecurityCheckResult> checkDevicePassword() async {
     try {
-      const MethodChannel channel = MethodChannel(methodChannelOS);
-      final bool hasDevicePassword = await channel.invokeMethod('isDeviceSecure');
+      final bool hasDevicePassword = await _osChannel.invokeMethod('isDeviceSecure');
 
       if (!hasDevicePassword) {
         return SecurityCheckResult(status: SecurityCheckStatus.devicePasswordRequired, checkTime: DateTime.now());

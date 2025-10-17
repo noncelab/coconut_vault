@@ -15,6 +15,7 @@ import android.content.Intent
 import io.flutter.embedding.android.FlutterFragmentActivity
 import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugin.common.MethodChannel
+import java.io.File
 
 class MainActivity: FlutterFragmentActivity() {
     private val CHANNEL = "onl.coconut.vault/os"
@@ -65,6 +66,9 @@ class MainActivity: FlutterFragmentActivity() {
                 "isDeviceSecure" -> { 
                     result.success(isDeviceSecure())
                 }
+                "isJailbroken" -> {
+                    result.success(isDeviceRooted())
+                }
                 else -> result.notImplemented()
             }
         }
@@ -108,5 +112,30 @@ class MainActivity: FlutterFragmentActivity() {
     private fun isDeviceSecure(): Boolean {
         val keyguardManager = getSystemService(Context.KEYGUARD_SERVICE) as KeyguardManager
         return keyguardManager.isDeviceSecure
+    }
+
+    private fun isDeviceRooted(): Boolean {
+        val buildTags = android.os.Build.TAGS
+        if (buildTags != null && buildTags.contains("test-keys")) return true
+
+        val paths = arrayOf(
+            "/system/app/Superuser.apk",
+            "/sbin/su",
+            "/system/bin/su",
+            "/system/xbin/su",
+            "/data/local/xbin/su",
+            "/data/local/bin/su",
+            "/system/sd/xbin/su",
+            "/system/bin/failsafe/su",
+            "/data/local/su"
+        )
+        if (paths.any { File(it).exists() }) return true
+
+        return try {
+            val process = Runtime.getRuntime().exec(arrayOf("/system/xbin/which", "su"))
+            process.inputStream.bufferedReader().readLine() != null
+        } catch (e: Exception) {
+            false
+        }
     }
 }

@@ -22,6 +22,8 @@ import LocalAuthentication
             switch call.method {
             case "isDeviceSecure":
                 result(isDeviceSecure())
+            case "isJailbroken":
+                result(isDeviceJailbroken())
             default:
                 result(FlutterMethodNotImplemented)
             }
@@ -53,6 +55,46 @@ func isDeviceSecure() -> Bool {
     return context.canEvaluatePolicy(.deviceOwnerAuthentication, error: &error)
 }
 
+func isDeviceJailbroken() -> Bool {
+#if targetEnvironment(simulator)
+    return false
+#else
+    // 탈옥 흔적 파일 확인
+    let jailbreakPaths = [
+        "/Applications/Cydia.app",
+        "/Library/MobileSubstrate/MobileSubstrate.dylib",
+        "/bin/bash",
+        "/usr/sbin/sshd",
+        "/etc/apt",
+        "/private/var/lib/apt/"
+    ]
+    if jailbreakPaths.contains(where: { FileManager.default.fileExists(atPath: $0) }) {
+        return true
+    }
+    
+    // 루트 영역에 쓰기 시도
+    let testPath = "/private/" + UUID().uuidString
+    do {
+        try "test".write(toFile: testPath, atomically: true, encoding: .utf8)
+        try FileManager.default.removeItem(atPath: testPath)
+        return true
+    } catch {
+        // 쓰기 실패는 정상
+    }
+    
+    // URL scheme을 통한 Cydia 등 확인
+    if let url = URL(string: "cydia://package/com.example.package"), UIApplication.shared.canOpenURL(url) {
+        return true
+    }
+    
+    // sandbox 경로가 비정상적인 경우
+    if !FileManager.default.fileExists(atPath: NSHomeDirectory() + "/Library/Preferences") {
+        return true
+    }
+    
+    return false
+#endif
+}
 
 // MARK: - Handler
 func installTEEHandler(_ teeChannel: FlutterMethodChannel) {
