@@ -4,6 +4,7 @@ import 'package:coconut_lib/coconut_lib.dart';
 import 'package:coconut_vault/constants/method_channel.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/repository/shared_preferences_repository.dart';
+import 'package:coconut_vault/services/security_prechecker.dart';
 import 'package:coconut_vault/utils/logger.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
@@ -81,5 +82,19 @@ void main() async {
     },
   );
 
-  return runApp(const CoconutVaultApp());
+  // 보안 검사 수행
+  final securityResult = await SecurityPrechecker().performSecurityCheck();
+
+  switch (securityResult.status) {
+    case SecurityCheckStatus.jailbreakDetected:
+    // return runApp();
+    case SecurityCheckStatus.devicePasswordRequired:
+    // return runApp();
+    case SecurityCheckStatus.devicePasswordChanged:
+    //
+    case SecurityCheckStatus.error:
+    // return runApp(const CoconutVaultApp());
+    case SecurityCheckStatus.secure:
+      return runApp(const CoconutVaultApp());
+  }
 }

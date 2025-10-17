@@ -19,7 +19,19 @@ class SecurityPrechecker {
   // 전체 보안 검사 수행 (1단계부터 시작)
   // Android: 탈옥/루팅 검사 -> 기기 비밀번호 설정 여부 검사
   // iOS: 탈옥/루팅 검사 -> 기기 비밀번호 설정 여부 검사 -> 기기 비밀번호 변경 여부 검사
+  // ------------------------------------------------------------
+  // FIXME: 매번 1단계부터 검사할 지, 아니면 아래 설명처럼 30분 이내 저장된 정보면 비밀번호 설정 여부부터 검사할 지 결정 필요
+  // 탈옥/루팅 감지 화면에서 [그래도 계속하겠습니다] 선택 시,
+  // jailbreakDetectionIgnored 상태와 저장 시간을 저장 후 performSecurityCheck 재호출함.
+  // preformSecurityCheck 메서드에서 30분 이내 저장된 정보면, 비밀번호 설정 여부 검사해야함.
   Future<SecurityCheckResult> performSecurityCheck() async {
+    final sharedPrefs = SharedPrefsRepository();
+    final jailbreakDetectionIgnored = sharedPrefs.getBool(SharedPrefsKeys.jailbreakDetectionIgnored) ?? false;
+    final jailbreakDetectionIgnoredTime = sharedPrefs.getInt(SharedPrefsKeys.jailbreakDetectionIgnoredTime) ?? 0;
+    final now = DateTime.now().millisecondsSinceEpoch;
+    if (jailbreakDetectionIgnored && now - jailbreakDetectionIgnoredTime < 30 * 60 * 1000) {
+      return await checkDevicePassword();
+    }
     return await checkJailbreakRoot();
   }
 
