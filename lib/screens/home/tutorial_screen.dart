@@ -4,6 +4,7 @@ import 'package:coconut_vault/constants/external_links.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/providers/connectivity_provider.dart';
 import 'package:coconut_vault/providers/visibility_provider.dart';
+import 'package:coconut_vault/utils/device_secure_checker.dart';
 import 'package:coconut_vault/utils/uri_launcher.dart';
 import 'package:coconut_vault/widgets/button/fixed_bottom_button.dart';
 import 'package:flutter/material.dart';
@@ -88,7 +89,16 @@ class _TutorialScreenState extends State<TutorialScreen> {
                       onButtonClicked: () => launchURL(COCONUT_TUTORIAL_URL, defaultMode: false),
                       text: t.view_tutorial,
                       subWidget: CoconutButton(
-                        onPressed: () => Navigator.pushNamed(context, AppRoutes.welcome),
+                        onPressed: () async {
+                          bool deviceSecured = await isDeviceSecured();
+                          if (!mounted) return;
+
+                          if (deviceSecured) {
+                            Navigator.pushNamed(context, AppRoutes.welcome);
+                            return;
+                          }
+                          Navigator.pushNamed(context, AppRoutes.devicePasswordCheck);
+                        },
                         text: t.skip,
                         backgroundColor: CoconutColors.white,
                         foregroundColor: CoconutColors.black,

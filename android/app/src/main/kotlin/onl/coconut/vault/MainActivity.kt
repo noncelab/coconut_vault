@@ -11,12 +11,14 @@ import android.provider.Settings.Global.DEVELOPMENT_SETTINGS_ENABLED
 import androidx.annotation.NonNull
 import android.app.KeyguardManager
 import android.content.Context
+import android.content.Intent
 import io.flutter.embedding.android.FlutterFragmentActivity
 import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugin.common.MethodChannel
 
 class MainActivity: FlutterFragmentActivity() {
     private val CHANNEL = "onl.coconut.vault/os"
+    private val SYSTEM_SETTINGS_CHANNEL = "system_settings"
     
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -60,6 +62,22 @@ class MainActivity: FlutterFragmentActivity() {
                 }
                 "isDeviceSecure" -> { 
                     result.success(isDeviceSecure())
+                }
+                else -> result.notImplemented()
+            }
+        }
+
+        MethodChannel(flutterEngine.dartExecutor.binaryMessenger, SYSTEM_SETTINGS_CHANNEL).setMethodCallHandler { call, result ->
+            when (call.method) {
+                "openSecuritySettings" -> {
+                    try {
+                        val intent = Intent(Settings.ACTION_SECURITY_SETTINGS)
+                        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                        startActivity(intent)
+                        result.success(null)
+                    } catch (e: Exception) {
+                        result.error("OPEN_SECURITY_SETTINGS_ERROR", e.message, null)
+                    }
                 }
                 else -> result.notImplemented()
             }
