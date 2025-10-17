@@ -210,10 +210,17 @@ class _MultisigSetupInfoScreenState extends State<MultisigSetupInfoScreen> {
         final signer = viewModel.getSignerInfo(index);
         final isVaultInside = signer.innerVaultId != null;
         return GestureDetector(
-          onTap: () {
+          onTap: () async {
             _removeTooltip();
-            if (isVaultInside) {
-              Navigator.pushNamed(context, AppRoutes.singleSigSetupInfo, arguments: {'id': signer.innerVaultId});
+            if (isVaultInside && signer.innerVaultId != null) {
+              bool hasPassphrase = await context.read<WalletProvider>().hasPassphrase(signer.innerVaultId!);
+              if (context.mounted) {
+                Navigator.pushNamed(
+                  context,
+                  AppRoutes.singleSigSetupInfo,
+                  arguments: {'id': signer.innerVaultId, 'hasPassphrase': hasPassphrase},
+                );
+              }
             } else {
               _showMemoEditBottomSheet(signer, index, viewModel);
             }

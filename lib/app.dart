@@ -24,6 +24,7 @@ import 'package:coconut_vault/screens/common/vault_mode_selection_screen.dart';
 import 'package:coconut_vault/screens/home/vault_home_screen.dart';
 import 'package:coconut_vault/screens/home/vault_list_screen.dart';
 import 'package:coconut_vault/screens/app_update/app_update_preparation_screen.dart';
+import 'package:coconut_vault/screens/precheck/device_password_check_screen.dart';
 import 'package:coconut_vault/screens/vault_creation/single_sig/base_entropy_screen.dart';
 import 'package:coconut_vault/screens/vault_creation/single_sig/mnemonic_auto_gen_screen.dart';
 import 'package:coconut_vault/screens/vault_creation/single_sig/mnemonic_coinflip_screen.dart';
@@ -331,9 +332,9 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> with SingleTickerProv
                       /// 지갑이 0개인 경우에는 pin_check_screen을 거치지 않아서 여기서 생체인증 상태를 업데이트
                       if (_appEntryFlow == AppEntryFlow.vaultHome) {
                         authProvider.updateDeviceBiometricAvailability();
-
-                        // Signing Only Mode일 때 기기 보안 체크 (State 필드 직접 사용)
+                        // TODO: 안전 저장 모드에서도 TEE영역 사용 시 아래 조건문 제거
                         if (preferenceProvider.isSigningOnlyMode) {
+                          // 기기 비밀번호 설정 여부 확인
                           // ConnectivityProvider는 MultiProvider에서 제공되므로
                           // 여기서는 직접 메서드 호출할 수 없음
                           // 대신 별도 메서드 생성
@@ -546,6 +547,7 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> with SingleTickerProv
                     color: CoconutColors.white,
                     home: _getHomeScreenRoute(_appEntryFlow, context),
                     routes: {
+                      AppRoutes.devicePasswordCheck: (context) => const DevicePasswordCheckScreen(),
                       AppRoutes.welcome:
                           (context) => WelcomeScreen(onComplete: () => _updateEntryFlow(AppEntryFlow.vaultHome)),
                       AppRoutes.vaultModeSelection:

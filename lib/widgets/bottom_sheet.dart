@@ -322,12 +322,19 @@ class MyBottomSheet {
     required Widget Function(ScrollController) childBuilder,
     double minChildSize = 0.5,
     double maxChildSize = 0.9,
+    double? initialChildSize,
     bool showDragHandle = true,
     String? title,
     String? subLabel,
   }) async {
     final draggableController = DraggableScrollableController();
     bool isAnimating = false;
+
+    // initialChildSize가 지정되지 않은 경우에만 자동 계산
+    final calculatedInitialSize = initialChildSize ?? (minChildSize <= 0.95 ? minChildSize + 0.05 : minChildSize);
+
+    // initialChildSize가 maxChildSize를 초과하지 않도록 보장
+    final finalInitialSize = calculatedInitialSize > maxChildSize ? maxChildSize : calculatedInitialSize;
 
     return showModalBottomSheet<T>(
       context: context,
@@ -336,7 +343,7 @@ class MyBottomSheet {
       builder: (context) {
         return DraggableScrollableSheet(
           controller: draggableController,
-          initialChildSize: minChildSize <= 0.95 ? minChildSize + 0.05 : minChildSize,
+          initialChildSize: finalInitialSize,
           minChildSize: minChildSize,
           maxChildSize: maxChildSize,
           expand: false,

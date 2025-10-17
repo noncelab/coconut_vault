@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_vault/constants/shared_preferences_keys.dart';
 import 'package:coconut_vault/enums/pin_check_context_enum.dart';
@@ -13,17 +15,16 @@ import 'package:coconut_vault/repository/secure_storage_repository.dart';
 import 'package:coconut_vault/repository/shared_preferences_repository.dart';
 import 'package:coconut_vault/screens/common/pin_check_screen.dart';
 import 'package:coconut_vault/screens/settings/pin_setting_screen.dart';
-import 'package:coconut_vault/utils/vibration_util.dart';
+import 'package:coconut_vault/utils/device_secure_checker.dart' as device_secure_checker;
 import 'package:coconut_vault/widgets/bottom_sheet.dart';
 import 'package:coconut_vault/widgets/button/fixed_bottom_button.dart';
 import 'package:coconut_vault/widgets/button/shrink_animation_button.dart';
 import 'package:coconut_vault/widgets/custom_loading_overlay.dart';
 import 'package:coconut_vault/widgets/entropy_base/entropy_common_widget.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/svg.dart';
-import 'package:provider/provider.dart';
-import 'package:coconut_vault/constants/method_channel.dart';
 import 'package:flutter/services.dart';
+import 'package:provider/provider.dart';
+import 'package:coconut_vault/utils/device_secure_checker.dart';
 
 class VaultModeSelectionScreen extends StatefulWidget {
   final Function()? onComplete; // onComplete이 null일 경우 [설정 - 모드 변경]으로 진입
@@ -35,7 +36,6 @@ class VaultModeSelectionScreen extends StatefulWidget {
 
 class _VaultModeSelectionScreenState extends State<VaultModeSelectionScreen> {
   VaultMode? selectedVaultMode;
-  final GlobalKey<CoconutShakeAnimationState> _deviceSecurityWarningShakeKey = GlobalKey<CoconutShakeAnimationState>();
 
   @override
   void initState() {
@@ -144,6 +144,32 @@ class _VaultModeSelectionScreenState extends State<VaultModeSelectionScreen> {
                       ? selectedVaultMode != null
                       : selectedVaultMode != context.read<PreferenceProvider>().getVaultMode()),
               onButtonClicked: () async {
+                if (widget.onComplete != null) {
+                  // 앱 최초 실행 시 widget.onComplete != null
+
+                  if (!await device_secure_checker.isDeviceSecured()) {
+                    // 기기 비밀번호 설정 안되어 있으면 설정 화면으로 이동
+                    openSystemSecuritySettings(
+                      context,
+                      hasDialogShownForIos: true,
+                      title: t.vault_mode_selection_screen.secure_use_guide_title,
+                      description: t.vault_mode_selection_screen.secure_use_guide_description,
+                      buttonText: t.device_password_check_screen.go_to_settings,
+                    );
+                    return;
+                  }
+
+                  if (context.mounted) {
+                    context.read<ConnectivityProvider>().setHasSeenGuideTrue();
+                    context.read<VisibilityProvider>().setHasSeenGuide().then((_) {
+                      if (context.mounted) {
+                        context.read<PreferenceProvider>().setVaultMode(selectedVaultMode!);
+                        widget.onComplete!();
+                      }
+                      return;
+                    });
+                  }
+                }
                 final shouldProceed = await showDialog<bool>(
                   context: context,
                   barrierDismissible: false, // 외부 클릭 시 닫기 가능
@@ -193,17 +219,6 @@ class _VaultModeSelectionScreenState extends State<VaultModeSelectionScreen> {
                       ),
                       buttonText: t.vault_mode_selection_screen.device_password_setting_guide_understood,
                       onWarningDismissed: () async {
-                        // 기기 비밀번호 설정 여부 확인
-                        final isDeviceSecured = await context.read<AuthProvider>().isDeviceSecured();
-
-                        if (!isDeviceSecured) {
-                          // 기기 비밀번호가 설정되지 않았으면 shake만 실행하고 다이얼로그 유지
-                          _deviceSecurityWarningShakeKey.currentState?.shake();
-                          vibrateExtraLightDouble();
-                          return;
-                        }
-
-                        // 기기 비밀번호가 설정되어 있으면 진행
                         if (!mounted) return;
                         Navigator.pop(context, true);
                       },
@@ -213,18 +228,6 @@ class _VaultModeSelectionScreenState extends State<VaultModeSelectionScreen> {
 
                 // 외부 클릭 또는 취소 시 (null 또는 false) 중단
                 if (shouldProceed != true || !mounted) return;
-
-                if (widget.onComplete != null) {
-                  // 앱 최초 실행 시 widget.onComplete != null
-                  context.read<ConnectivityProvider>().setHasSeenGuideTrue();
-                  context.read<VisibilityProvider>().setHasSeenGuide().then((_) {
-                    if (context.mounted) {
-                      context.read<PreferenceProvider>().setVaultMode(selectedVaultMode!);
-                      widget.onComplete!();
-                    }
-                    return;
-                  });
-                }
 
                 if (context.read<AuthProvider>().isPinSet) {
                   // 앱 비밀번호 확인 먼저 수행

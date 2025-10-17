@@ -167,6 +167,7 @@ flutter:
     - assets/svg/import-bsms.svg
     - assets/lottie/loading-gray.json
     - assets/lottie/pin-locked-success.json
+    - assets/lottie/toggle-switch.json
     - assets/png/pow-logo.png
     - assets/jpg/pow-full-logo.jpg
     - assets/jpg/x-logo.jpg
@@ -202,7 +203,6 @@ flutter:
     - assets/svg/star-small.svg
     - assets/svg/hamburger.svg
     - assets/svg/qr-code.svg
-    - assets/svg/refresh.svg
     - assets/svg/circle-info.svg
     - assets/svg/eraser.svg
     - assets/svg/watch-only-icons/coconut.svg
@@ -221,11 +221,14 @@ flutter:
     - assets/svg/settings-guide-icons/mobile-data.svg
     - assets/svg/settings-guide-icons/bluetooth.svg
     - assets/svg/settings-guide-icons/developer-mode.svg
+    - assets/svg/settings-guide-icons/bluetooth-off.svg
+    - assets/svg/settings-guide-icons/not-connected.svg
     - assets/svg/coconut-mainnet.svg
     - assets/svg/coconut-regtest.svg
     - assets/png/password-required.png
     - assets/png/browser_ko.png
     - assets/png/browser_en.png
+    - assets/svg/bluetooth.svg
 
   fonts:
     - family: SpaceGrotesk

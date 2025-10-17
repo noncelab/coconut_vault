@@ -21,7 +21,7 @@ class _MnemonicDiceRollScreenState extends BaseMnemonicEntropyScreenState<Mnemon
   @override
   String get screenTitle => t.mnemonic_dice_roll_screen.title;
   @override
-  Widget buildEntropyWidget([ValueNotifier<bool>? notifier, ValueNotifier<int>? stepNotifier]) {
+  Widget buildEntropyWidget() {
     return DiceRoll(
       wordsCount: selectedWordsCount,
       usePassphrase: usePassphrase,

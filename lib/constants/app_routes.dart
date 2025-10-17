@@ -25,6 +25,7 @@ class AppRoutes {
   static const String singleSigSign = '/single-sig-sign';
   static const String securitySelfCheck = '/security-self-check';
   static const String appInfo = '/app-info';
+  static const String devicePasswordCheck = '/device-password-check';
   static const String welcome = '/welcome';
   static const String prepareUpdate = '/prepare-update';
   static const String restorationInfo = "/restoration-info";

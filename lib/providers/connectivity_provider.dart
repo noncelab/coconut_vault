@@ -11,6 +11,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
+import 'package:coconut_vault/utils/device_secure_checker.dart' as device_secure_checker;
 
 enum ConnectivityState { off, on, bluetoothUnauthorized }
 
@@ -43,9 +44,7 @@ class ConnectivityProvider extends ChangeNotifier {
       _isSigningOnlyMode = isSigningOnlyMode {
     if (_hasSeenGuide) {
       setConnectActivity(network: true, bluetooth: true, developerMode: true);
-      if (_isSigningOnlyMode) {
-        _checkDeviceSecured();
-      }
+      _checkDeviceSecured();
     } else {
       // 앱 첫 실행인 경우 가이드 화면 끝난 후 welcome_screen에서 bluetooth 권한 요청 후 모니터링 시작.
       setConnectActivity(network: true, bluetooth: false, developerMode: true);
@@ -140,17 +139,10 @@ class ConnectivityProvider extends ChangeNotifier {
   }
 
   Future<void> _checkDeviceSecured() async {
-    if (_isDisposed || !_isSigningOnlyMode) return;
+    if (_isDisposed) return;
 
     // 기기 비밀번호 설정 여부 확인
-    bool? deviceSecured;
-    try {
-      final bool result = await _channel.invokeMethod('isDeviceSecure');
-      deviceSecured = result;
-    } catch (e) {
-      deviceSecured = false;
-    }
-
+    bool deviceSecured = await device_secure_checker.isDeviceSecured();
     if (_isDisposed) return;
 
     _isDeviceSecured = deviceSecured;
@@ -214,7 +206,6 @@ class ConnectivityProvider extends ChangeNotifier {
 
   void _onDeviceSecuredChanged() {
     if (_isDisposed) return;
-
     if (_isDeviceSecured == false) {
       runApp(
         const CupertinoApp(
@@ -248,7 +239,7 @@ class ConnectivityProvider extends ChangeNotifier {
 
   /// 앱 resume 시 호출 - 기기 보안 상태 재확인
   Future<void> checkDeviceSecurityOnResume() async {
-    if (_isDisposed || !_isSigningOnlyMode) return;
+    if (_isDisposed) return;
     await _checkDeviceSecured();
   }
 
