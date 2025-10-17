@@ -47,20 +47,20 @@ class _MultisigSetupInfoScreenState extends State<MultisigSetupInfoScreen> {
     debugPrint('initState: ${widget.id}');
   }
 
-  Future<void> _authenticateAndDelete(BuildContext context) async {
-    void onComplete() {
-      context.read<MultisigSetupInfoViewModel>().deleteVault();
-      vibrateLight();
-      if (widget.entryPoint != null && widget.entryPoint == AppRoutes.vaultList) {
-        Navigator.popUntil(context, (route) {
-          return route.settings.name == AppRoutes.vaultList;
-        });
-      } else {
-        Navigator.popUntil(context, (route) => route.isFirst);
-      }
-      return;
+  void onComplete() {
+    context.read<MultisigSetupInfoViewModel>().deleteVault();
+    vibrateLight();
+    if (widget.entryPoint != null && widget.entryPoint == AppRoutes.vaultList) {
+      Navigator.popUntil(context, (route) {
+        return route.settings.name == AppRoutes.vaultList;
+      });
+    } else {
+      Navigator.popUntil(context, (route) => route.isFirst);
     }
+    return;
+  }
 
+  Future<void> _authenticateAndDelete(BuildContext context) async {
     final authProvider = context.read<AuthProvider>();
     if (await authProvider.isBiometricsAuthValid() && context.mounted) {
       onComplete();
@@ -465,7 +465,14 @@ class _MultisigSetupInfoScreenState extends State<MultisigSetupInfoScreen> {
           onTapLeft: () => Navigator.pop(context),
           onTapRight: () async {
             if (context.mounted) {
-              _authenticateAndDelete(context);
+              final viewModel = context.read<MultisigSetupInfoViewModel>();
+              if (!viewModel.isSigningOnlyMode) {
+                // 안전 저장 모드
+                _authenticateAndDelete(context);
+              } else {
+                // 서명 전용 모드
+                onComplete();
+              }
             }
           },
         );

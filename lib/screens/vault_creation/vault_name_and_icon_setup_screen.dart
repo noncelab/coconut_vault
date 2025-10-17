@@ -1,9 +1,12 @@
+import 'dart:io';
+
 import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_vault/app_routes_params.dart';
 import 'package:coconut_vault/enums/wallet_enums.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/model/common/vault_list_item_base.dart';
 import 'package:coconut_vault/model/single_sig/single_sig_wallet_create_dto.dart';
+import 'package:coconut_vault/providers/auth_provider.dart';
 import 'package:coconut_vault/providers/wallet_creation_provider.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:coconut_vault/utils/logger.dart';
@@ -83,6 +86,13 @@ class _VaultNameAndIconSetupScreenState extends State<VaultNameAndIconSetupScree
 
       VaultListItemBase? vault;
       if (_walletCreationProvider.walletType == WalletType.singleSignature) {
+        if (Platform.isIOS && _walletProvider.isSigningOnlyMode) {
+          final authProvider = Provider.of<AuthProvider>(context, listen: false);
+          if (!authProvider.hasAlreadyRequestedBioPermission && authProvider.availableBiometrics.isNotEmpty) {
+            await authProvider.authenticateWithBiometrics(context: context, isSaved: true);
+          }
+        }
+
         vault = await _walletProvider.addSingleSigVault(
           SingleSigWalletCreateDto(
             null,

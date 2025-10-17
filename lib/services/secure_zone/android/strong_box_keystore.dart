@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:coconut_vault/services/secure_zone/secure_zone_keystore.dart';
 import 'package:flutter/services.dart';
 import 'package:local_auth/local_auth.dart';
@@ -6,6 +8,7 @@ import 'package:local_auth/local_auth.dart';
 class StrongBoxKeystore extends SecureZoneKeystore {
   /// 단말이 StrongBox(하드웨어 SE)를 지원하는지
   Future<bool> isStrongBoxSupported() async {
+    assert(Platform.isAndroid);
     final r = await ch.invokeMethod<bool>('isStrongBoxSupported');
     return r ?? false;
   }
@@ -27,8 +30,8 @@ class StrongBoxKeystore extends SecureZoneKeystore {
     await ch.invokeMethod('deleteKey', {'alias': alias});
   }
 
-  Future<Map<String, dynamic>> _encrypt({required String alias, required Uint8List plaintext, Uint8List? aad}) async {
-    final r = await ch.invokeMethod<Map>('encrypt', {'alias': alias, 'plaintext': plaintext, 'aad': aad});
+  Future<Map<String, dynamic>> _encrypt({required String alias, required Uint8List plaintext}) async {
+    final r = await ch.invokeMethod<Map>('encrypt', {'alias': alias, 'plaintext': plaintext});
     if (r == null) throw "Failed to encrypt";
 
     return {
@@ -43,11 +46,10 @@ class StrongBoxKeystore extends SecureZoneKeystore {
   Future<Map<String, dynamic>> encrypt({
     required String alias,
     required Uint8List plaintext,
-    Uint8List? aad,
     bool isAutoAuthWhenNeeded = true,
   }) async {
     try {
-      return await _encrypt(alias: alias, plaintext: plaintext, aad: aad);
+      return await _encrypt(alias: alias, plaintext: plaintext);
     } on PlatformException catch (e) {
       if (e.code == 'AUTH_NEEDED' && isAutoAuthWhenNeeded) {
         final authenticated = await LocalAuthentication().authenticate(
@@ -57,7 +59,7 @@ class StrongBoxKeystore extends SecureZoneKeystore {
         );
 
         if (authenticated) {
-          return _encrypt(alias: alias, plaintext: plaintext, aad: aad);
+          return _encrypt(alias: alias, plaintext: plaintext);
         }
       } else if (e.code == 'KEY_INVALIDATED') {
         // TODO: UI/UX
@@ -67,18 +69,8 @@ class StrongBoxKeystore extends SecureZoneKeystore {
     }
   }
 
-  Future<Uint8List?> _decrypt({
-    required String alias,
-    required Uint8List ciphertext,
-    required Uint8List iv,
-    Uint8List? aad,
-  }) async {
-    final r = await ch.invokeMethod<Uint8List>('decrypt', {
-      'alias': alias,
-      'ciphertext': ciphertext,
-      'iv': iv,
-      'aad': aad,
-    });
+  Future<Uint8List?> _decrypt({required String alias, required Uint8List ciphertext, required Uint8List iv}) async {
+    final r = await ch.invokeMethod<Uint8List>('decrypt', {'alias': alias, 'ciphertext': ciphertext, 'iv': iv});
 
     if (r == null) return null;
 
@@ -91,11 +83,10 @@ class StrongBoxKeystore extends SecureZoneKeystore {
     required String alias,
     required Uint8List ciphertext,
     required Uint8List iv,
-    Uint8List? aad,
     bool isAutoAuthWhenNeeded = true,
   }) async {
     try {
-      return await _decrypt(alias: alias, ciphertext: ciphertext, iv: iv, aad: aad);
+      return await _decrypt(alias: alias, ciphertext: ciphertext, iv: iv);
     } on PlatformException catch (e) {
       // TODO: e.code == 'KEY_INVALIDATED'
       if (e.code == 'AUTH_NEEDED' && isAutoAuthWhenNeeded) {
@@ -106,7 +97,7 @@ class StrongBoxKeystore extends SecureZoneKeystore {
         );
 
         if (authenticated) {
-          return _decrypt(alias: alias, ciphertext: ciphertext, iv: iv, aad: aad);
+          return _decrypt(alias: alias, ciphertext: ciphertext, iv: iv);
         }
       } else if (e.code == 'KEY_INVALIDATED') {
         // TODO: UI/UX

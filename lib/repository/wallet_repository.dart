@@ -96,6 +96,7 @@ class WalletRepository {
 
     _vaultList!.add(vaultListResult[0]);
 
+    // 안전 저장 모드일 때만 public info 저장
     if (!_isSigningOnlyMode) {
       try {
         await _savePublicInfo();
@@ -180,7 +181,10 @@ class WalletRepository {
     updateLinkedMultisigInfo(wallet.signers!, nextId);
 
     _vaultList!.add(newMultisigVault);
-    await _savePublicInfo();
+    // 안전 저장 모드일 때만 public info 저장
+    if (!_isSigningOnlyMode) {
+      await _savePublicInfo();
+    }
     _recordNextWalletId();
     return newMultisigVault;
   }
@@ -232,25 +236,27 @@ class WalletRepository {
 
   Future<void> _saveSingleSigSecureData(int walletId, Uint8List secret, Uint8List? passphrase) async {
     String keyString = _createWalletKeyString(walletId, WalletType.singleSignature);
+
+    // 안전 저장 모드
     if (!_isSigningOnlyMode) {
-      // 안전 저장 모드
       await _storageService.write(key: keyString, value: utf8.decode(secret));
       String passphraseEnabledKeyString = _createPassphraseEnabledKeyString(keyString);
       await _storageService.write(
         key: passphraseEnabledKeyString,
         value: (passphrase != null && passphrase.isNotEmpty) ? "true" : "false",
       );
-    } else {
-      // 서명 전용 모드
-      await _secureZoneRepository.generateKey(alias: keyString, userAuthRequired: true);
-      EncryptResult result = await _secureZoneRepository.encrypt(
-        alias: keyString,
-        plaintext: SecureZonePayloadCodec.buildPlaintext(secret: secret, passphrase: passphrase),
-      );
-
-      // 반환된 암호문이랑 iv를 _storageService에 저장한다.
-      await _storageService.write(key: keyString, value: result.toCombinedBase64());
+      return;
     }
+
+    // 서명 전용 모드
+    await _secureZoneRepository.generateKey(alias: keyString, userAuthRequired: true);
+    EncryptResult result = await _secureZoneRepository.encrypt(
+      alias: keyString,
+      plaintext: SecureZonePayloadCodec.buildPlaintext(secret: secret, passphrase: passphrase),
+    );
+
+    // 반환된 암호문이랑 iv를 _storageService에 저장한다.
+    await _storageService.write(key: keyString, value: result.toCombinedBase64());
   }
 
   Future<void> _deleteSingleSigSecureData(int walletId) async {

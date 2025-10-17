@@ -8,12 +8,7 @@ abstract class SecureZoneKeystore {
 
   Future<void> deleteKey({required String alias});
 
-  Future<Map<String, dynamic>> encrypt({required String alias, required Uint8List plaintext, Uint8List? aad});
+  Future<Map<String, dynamic>> encrypt({required String alias, required Uint8List plaintext});
 
-  Future<Uint8List?> decrypt({
-    required String alias,
-    required Uint8List ciphertext,
-    required Uint8List iv,
-    Uint8List? aad,
-  });
+  Future<Uint8List?> decrypt({required String alias, required Uint8List ciphertext, required Uint8List iv});
 }

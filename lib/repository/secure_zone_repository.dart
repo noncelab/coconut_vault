@@ -2,8 +2,10 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
 
+import 'package:coconut_vault/services/secure_zone/ios/secure_enclave_keystore.dart';
 import 'package:coconut_vault/services/secure_zone/secure_zone_keystore.dart';
 import 'package:coconut_vault/services/secure_zone/android/strong_box_keystore.dart';
+import 'package:coconut_vault/utils/logger.dart';
 
 class EncryptResult {
   final Uint8List ciphertext;
@@ -72,17 +74,17 @@ class SecureZoneRepository {
   static final SecureZoneRepository _instance = SecureZoneRepository._internal();
   factory SecureZoneRepository() => _instance;
   SecureZoneRepository._internal() {
-    _strongBoxKeystore = Platform.isAndroid ? StrongBoxKeystore() : throw UnsupportedError('No impl yet.');
+    _secureZoneKeystore = Platform.isAndroid ? StrongBoxKeystore() : SecureEnclaveKeystore();
   }
 
-  late final SecureZoneKeystore _strongBoxKeystore;
+  late final SecureZoneKeystore _secureZoneKeystore;
 
   // Getter
-  SecureZoneKeystore get strongBoxKeystore => _strongBoxKeystore;
+  SecureZoneKeystore get strongBoxKeystore => _secureZoneKeystore;
 
   // Public Methods
   Future<void> generateKey({required String alias, bool userAuthRequired = false, bool perUseAuth = false}) async {
-    return await _strongBoxKeystore.generateKey(
+    return await _secureZoneKeystore.generateKey(
       alias: alias,
       userAuthRequired: userAuthRequired,
       perUseAuth: perUseAuth,
@@ -90,11 +92,12 @@ class SecureZoneRepository {
   }
 
   Future<void> deleteKey({required String alias}) async {
-    return await _strongBoxKeystore.deleteKey(alias: alias);
+    return await _secureZoneKeystore.deleteKey(alias: alias);
   }
 
-  Future<EncryptResult> encrypt({required String alias, required Uint8List plaintext, Uint8List? aad}) async {
-    final Map<String, dynamic> result = await _strongBoxKeystore.encrypt(alias: alias, plaintext: plaintext, aad: aad);
+  Future<EncryptResult> encrypt({required String alias, required Uint8List plaintext}) async {
+    final Map<String, dynamic> result = await _secureZoneKeystore.encrypt(alias: alias, plaintext: plaintext);
+    final iv = result['iv'] ?? Uint8List(0);
 
     // ciphertext, iv 제거한 extra 구성
     final extra =
@@ -102,19 +105,10 @@ class SecureZoneRepository {
           ..remove('ciphertext')
           ..remove('iv');
 
-    return EncryptResult(
-      ciphertext: result['ciphertext'] as Uint8List,
-      iv: result['iv'] as Uint8List,
-      extra: extra.isEmpty ? null : Map.unmodifiable(extra),
-    );
+    return EncryptResult(ciphertext: result['ciphertext'] as Uint8List, iv: iv, extra: extra);
   }
 
-  Future<Uint8List?> decrypt({
-    required String alias,
-    required Uint8List ciphertext,
-    required Uint8List iv,
-    Uint8List? aad,
-  }) async {
-    return await _strongBoxKeystore.decrypt(alias: alias, ciphertext: ciphertext, iv: iv, aad: aad);
+  Future<Uint8List?> decrypt({required String alias, required Uint8List ciphertext, required Uint8List iv}) async {
+    return await _secureZoneKeystore.decrypt(alias: alias, ciphertext: ciphertext, iv: iv);
   }
 }

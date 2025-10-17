@@ -31,6 +31,9 @@ class WalletProvider extends ChangeNotifier {
   WalletProvider(this._visibilityProvider, this._preferenceProvider) {
     _isSigningOnlyMode = _preferenceProvider.isSigningOnlyMode;
     _walletRepository = WalletRepository(isSigningOnlyMode: _isSigningOnlyMode);
+    if (_isSigningOnlyMode) {
+      _walletRepository.resetAll();
+    }
     vaultListNotifier = ValueNotifier(_vaultList);
   }
 
