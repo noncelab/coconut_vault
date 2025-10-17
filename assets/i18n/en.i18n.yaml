@@ -204,6 +204,7 @@ tutorial_screen:
 vault_mode_selection_screen:
   select_mode: "Select Mode"
   change_mode: "Change Mode"
+  current_using: "Using"
   secure_storage_mode: "Secure Storage Mode"
   secure_storage_mode_description: "Securely store keys.\nYou can use them immediately after authentication with a password."
   signing_only_mode: "Signing-Only Mode"
@@ -213,11 +214,14 @@ vault_mode_selection_screen:
   mode_change_complete: "Mode Change Complete"
   mode_changed_description_secrue_storage: "Secure storage mode has been changed.\nPlease back up the seed stored in the vault regularly!"
   mode_changed_description_signing_only: "Signing-only mode has been changed.\nPlease exit the app safely by pressing the exit button on the home screen!"
-  device_password_setting_guide: "Device Password Setting Guide"
-  device_password_setting_guide_descriptions:
-    - "Signing-only mode requires setting a device password."
-    - "For enhanced security, use a password combining letters and numbers instead of PIN."
-    - "To make signing more convenient and secure, please activate biometrics."
+  secure_storage_mode_warning_title: "Warning\nSecure Storage Mode Change"
+  secure_storage_mode_warning_descriptions:
+    - "If there are wallets added, it may take time to save information to the device."
+    - "Passphrase is not stored, so please store it safely separately."
+  signing_only_mode_warning_title: "Warning\nSigning-Only Mode Change"
+  signing_only_mode_warning_descriptions:
+    - "All wallet information stored in the vault will be cleared. Please complete backup before switching."
+    - "The vault will be reset after verifying the password in the next step."
   device_password_setting_guide_understood: "I understand"
 
 multisig:

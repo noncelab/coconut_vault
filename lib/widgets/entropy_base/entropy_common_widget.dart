@@ -561,9 +561,21 @@ class EntropyProgressBar extends StatelessWidget {
 /// MnemonicList를 가리기 위해 사용하는 위젯
 class WarningWidget extends StatefulWidget {
   final bool visible;
+  final bool isBackgroundBlur;
   final VoidCallback? onWarningDismissed;
+  final String? title;
+  final Widget? description;
+  final String? buttonText;
 
-  const WarningWidget({super.key, this.visible = true, this.onWarningDismissed});
+  const WarningWidget({
+    super.key,
+    this.visible = true,
+    this.isBackgroundBlur = true,
+    this.onWarningDismissed,
+    this.title,
+    this.description,
+    this.buttonText,
+  });
 
   @override
   State<WarningWidget> createState() => _WarningWidgetState();
@@ -571,79 +583,89 @@ class WarningWidget extends StatefulWidget {
 
 class _WarningWidgetState extends State<WarningWidget> {
   late bool _visible;
+  late String _title;
+  late Widget _description;
+  late String _buttonText;
 
   @override
   void initState() {
     super.initState();
     _visible = widget.visible;
+    _title = widget.title ?? t.mnemonic_view_screen.warning_title;
+    _description =
+        widget.description == null
+            ? Text(
+              t.mnemonic_view_screen.warning_guide,
+              style: CoconutTypography.heading4_18.setColor(CoconutColors.white),
+              textAlign: TextAlign.center,
+            )
+            : widget.description!;
+    _buttonText = widget.buttonText ?? t.mnemonic_view_screen.warning_btn;
   }
 
   @override
   Widget build(BuildContext context) {
+    final child = Align(
+      alignment: const Alignment(0, -0.2),
+      child: Container(
+        decoration: BoxDecoration(borderRadius: BorderRadius.circular(12), color: CoconutColors.hotPink),
+        padding: const EdgeInsets.only(top: 28, left: 24, right: 24, bottom: 20),
+        margin: const EdgeInsets.symmetric(horizontal: 32, vertical: 24),
+        child: MediaQuery(
+          data: MediaQuery.of(context).copyWith(textScaler: const TextScaler.linear(1.0)),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              SvgPicture.asset(
+                'assets/svg/triangle-warning.svg',
+                width: 32,
+                colorFilter: const ColorFilter.mode(CoconutColors.white, BlendMode.srcIn),
+              ),
+              CoconutLayout.spacing_300h,
+              Text(
+                _title,
+                style: CoconutTypography.heading3_21_Bold.setColor(CoconutColors.white),
+                textAlign: TextAlign.center,
+              ),
+              CoconutLayout.spacing_400h,
+              _description,
+              CoconutLayout.spacing_600h,
+              ShrinkAnimationButton(
+                borderRadius: 12,
+                child: Container(
+                  padding: const EdgeInsets.symmetric(vertical: 14),
+                  width: double.infinity,
+                  child: Text(
+                    _buttonText,
+                    style: CoconutTypography.heading4_18_Bold.setColor(CoconutColors.hotPink),
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+                onPressed: () {
+                  setState(() {
+                    _visible = false;
+                  });
+                  widget.onWarningDismissed?.call();
+                },
+              ),
+              CoconutLayout.spacing_300h,
+            ],
+          ),
+        ),
+      ),
+    );
+
     return SizedBox(
       width: double.infinity,
       height: double.infinity,
       child: Visibility(
         visible: _visible,
         child: ClipRRect(
-          child: BackdropFilter(
-            filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-            child: Align(
-              alignment: const Alignment(0, -0.2),
-              child: Container(
-                decoration: BoxDecoration(borderRadius: BorderRadius.circular(12), color: CoconutColors.hotPink),
-                padding: const EdgeInsets.only(top: 28, left: 24, right: 24, bottom: 20),
-                margin: const EdgeInsets.symmetric(horizontal: 32, vertical: 24),
-                child: MediaQuery(
-                  data: MediaQuery.of(context).copyWith(textScaler: const TextScaler.linear(1.0)),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      SvgPicture.asset(
-                        'assets/svg/triangle-warning.svg',
-                        width: 32,
-                        colorFilter: const ColorFilter.mode(CoconutColors.white, BlendMode.srcIn),
-                      ),
-                      CoconutLayout.spacing_300h,
-                      Text(
-                        t.mnemonic_view_screen.warning_title,
-                        style: CoconutTypography.heading3_21_Bold.setColor(CoconutColors.white),
-                        textAlign: TextAlign.center,
-                      ),
-                      CoconutLayout.spacing_400h,
-                      Text(
-                        t.mnemonic_view_screen.warning_guide,
-                        style: CoconutTypography.heading4_18.setColor(CoconutColors.white),
-                        textAlign: TextAlign.center,
-                      ),
-
-                      CoconutLayout.spacing_600h,
-                      ShrinkAnimationButton(
-                        borderRadius: 12,
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(vertical: 14),
-                          width: double.infinity,
-                          child: Text(
-                            t.mnemonic_view_screen.warning_btn,
-                            style: CoconutTypography.heading4_18_Bold.setColor(CoconutColors.hotPink),
-                            textAlign: TextAlign.center,
-                          ),
-                        ),
-                        onPressed: () {
-                          setState(() {
-                            _visible = false;
-                          });
-                          widget.onWarningDismissed?.call();
-                        },
-                      ),
-                      CoconutLayout.spacing_300h,
-                    ],
-                  ),
-                ),
-              ),
-            ),
-          ),
+          child:
+              widget.isBackgroundBlur
+                  ? BackdropFilter(filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10), child: child)
+                  : child,
         ),
       ),
     );
