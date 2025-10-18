@@ -136,6 +136,14 @@ class StrongBoxKeystorePlugin: FlutterPlugin, MethodChannel.MethodCallHandler {
           result.error("ENC_FAIL", "${e::class.java.simpleName}: ${e.message}", null)
         }
       }
+      "deleteAllKeys" -> {
+        try {
+          deleteAllKeys()
+          result.success(null)
+        } catch (e: Exception) {
+          result.error("DEL_ALL_FAIL", e.message, null)
+        }
+      }
       else -> result.notImplemented()
     }
   }
@@ -218,6 +226,19 @@ class StrongBoxKeystorePlugin: FlutterPlugin, MethodChannel.MethodCallHandler {
     val ks = KeyStore.getInstance(ANDROID_KEYSTORE).apply { load(null) }
     // 존재하지 않으면 no-op
     ks.deleteEntry(alias)
+  }
+
+  private fun deleteAllKeys() {
+    val ks = KeyStore.getInstance(ANDROID_KEYSTORE).apply { load(null) }
+    val aliases = ks.aliases()
+    while (aliases.hasMoreElements()) {
+      val alias = aliases.nextElement()
+      try {
+        ks.deleteEntry(alias)
+      } catch (e: Exception) {
+        // no-op: continue deleting others
+      }
+    }
   }
 
   override fun onDetachedFromEngine(@NonNull binding: FlutterPlugin.FlutterPluginBinding) {

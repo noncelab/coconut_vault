@@ -109,7 +109,6 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> with SingleTickerProv
   late final authProvider = AuthProvider();
   late final preferenceProvider = PreferenceProvider();
   late final visibilityProvider = VisibilityProvider(isSigningOnlyMode: preferenceProvider.isSigningOnlyMode);
-  late final walletProvider = WalletProvider(visibilityProvider, preferenceProvider);
 
   // 엣지 패널 관련 변수
   double _signingModeEdgePanelWidth = 20.0;
@@ -276,14 +275,6 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> with SingleTickerProv
               return visibilityProvider;
             },
           ),
-          ChangeNotifierProxyProvider<PreferenceProvider, WalletProvider>(
-            create: (context) => walletProvider,
-            update: (context, preferenceProvider, walletProvider) {
-              walletProvider!.updateIsSigningOnlyMode(preferenceProvider.isSigningOnlyMode);
-              return walletProvider;
-            },
-          ),
-          // TODO: ConnectivityProvider 계속 재생산 되는 것 방지
           ChangeNotifierProxyProvider2<VisibilityProvider, PreferenceProvider, ConnectivityProvider>(
             create:
                 (_) => ConnectivityProvider(
@@ -308,6 +299,21 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> with SingleTickerProv
           if (_appEntryFlow == AppEntryFlow.vaultHome) ...[
             Provider<WalletCreationProvider>(create: (_) => WalletCreationProvider()),
             Provider<SignProvider>(create: (_) => SignProvider()),
+            ChangeNotifierProxyProvider<PreferenceProvider, WalletProvider>(
+              create: (context) => WalletProvider(visibilityProvider, preferenceProvider),
+              update: (context, preferenceProvider, walletProvider) {
+                walletProvider!.updateIsSigningOnlyMode(preferenceProvider.isSigningOnlyMode);
+                return walletProvider;
+              },
+            ),
+          ] else if (_appEntryFlow == AppEntryFlow.restoration) ...[
+            ChangeNotifierProxyProvider<PreferenceProvider, WalletProvider>(
+              create: (context) => WalletProvider(visibilityProvider, preferenceProvider),
+              update: (context, preferenceProvider, walletProvider) {
+                walletProvider!.updateIsSigningOnlyMode(preferenceProvider.isSigningOnlyMode);
+                return walletProvider;
+              },
+            ),
           ],
         ],
 
@@ -358,26 +364,7 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> with SingleTickerProv
                             DefaultWidgetsLocalizations.delegate,
                             DefaultCupertinoLocalizations.delegate,
                           ],
-                          theme: const CupertinoThemeData(
-                            brightness: Brightness.light,
-                            primaryColor: CoconutColors.black, // 기본 색상
-                            scaffoldBackgroundColor: CoconutColors.white, // 배경색
-                            textTheme: CupertinoTextThemeData(
-                              navTitleTextStyle: TextStyle(
-                                fontFamily: 'Pretendard',
-                                fontSize: 14,
-                                fontWeight: FontWeight.w600,
-                                color: CoconutColors.gray800, // 제목 텍스트 색상
-                              ),
-                              textStyle: TextStyle(
-                                fontFamily: 'Pretendard',
-                                fontSize: 16,
-                                fontWeight: FontWeight.w400,
-                                color: CoconutColors.black, // 기본 텍스트 색상
-                              ),
-                            ),
-                            barBackgroundColor: CoconutColors.white,
-                          ),
+                          theme: cupertinoThemeData,
                           color: CoconutColors.white,
                           home: _getHomeScreenRoute(_appEntryFlow, context),
                           builder: (context, child) {

@@ -46,7 +46,7 @@ class WalletProvider extends ChangeNotifier {
   final ValueNotifier<bool> isVaultListLoadingNotifier = ValueNotifier<bool>(false);
   // 리스트 로딩 완료 여부 (로딩작업 완료 후 바로 추가하기 표시)
   // 최초 한번 완료 후 재로드 없음
-  bool _isWalletsLoaded = false;
+  bool _isVaultsLoaded = false;
   late final ValueNotifier<List<VaultListItemBase>> vaultListNotifier;
   bool _isAddVaultCompleted = false;
   String? _waitingForSignaturePsbtBase64;
@@ -56,7 +56,7 @@ class WalletProvider extends ChangeNotifier {
   // 4) Getter
   List<VaultListItemBase> get vaultList => vaultListNotifier.value;
   bool get isVaultListLoading => _isVaultListLoading;
-  bool get isVaultLoaded => _isWalletsLoaded;
+  bool get isVaultsLoaded => _isVaultsLoaded;
   bool get isAddVaultCompleted => _isAddVaultCompleted;
   String? get waitingForSignaturePsbtBase64 => _waitingForSignaturePsbtBase64;
   bool get isSigningOnlyMode => _isSigningOnlyMode;
@@ -297,7 +297,7 @@ class WalletProvider extends ChangeNotifier {
         return;
       }
 
-      _isWalletsLoaded = true;
+      _isVaultsLoaded = true;
       vibrateLight();
     } catch (e) {
       Logger.log('[loadVaultList] Exception : ${e.toString()}');
@@ -365,6 +365,7 @@ class WalletProvider extends ChangeNotifier {
     await _walletRepository.restoreFromBackupData(backupDataMapList);
 
     _setVaultList(_walletRepository.vaultList);
+    _isVaultsLoaded = true;
     notifyListeners();
     await _updateWalletLength();
   }

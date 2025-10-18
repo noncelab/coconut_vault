@@ -306,11 +306,22 @@ class _SettingsScreenState extends State<SettingsScreen> {
         _buildAnimatedButton(
           title: t.settings_screen.prepare_update,
           onPressed: () async {
-            final authProvider = context.read<AuthProvider>();
-            if (await authProvider.isBiometricsAuthValid()) {
+            // INFO: iOS에서 prepareUpdate 화면 진입 시 SecureEnclave의 decrypt 하면서 생체인증/패스코드 확인이 진행되므로
+            // 별도 인증 과정은 생략합니다.
+            if (Platform.isIOS) {
               if (!context.mounted) return;
               Navigator.pushNamed(context, AppRoutes.prepareUpdate);
               return;
+            }
+
+            // TODO: Android의 경우 테스트
+            if (Platform.isAndroid) {
+              final authProvider = context.read<AuthProvider>();
+              if (await authProvider.isBiometricsAuthValid()) {
+                if (!context.mounted) return;
+                Navigator.pushNamed(context, AppRoutes.prepareUpdate);
+                return;
+              }
             }
 
             if (!context.mounted) return;

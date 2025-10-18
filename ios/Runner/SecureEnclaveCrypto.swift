@@ -105,4 +105,20 @@ final class SecureEnclaveCrypto {
         }
         print("✅ [Secure Enclave] 키 삭제 성공: \(label)")
     }
+
+    // Delete all Secure Enclave EC keys owned by this app
+    static func deleteAllKeys() throws {
+        let query: [String: Any] = [
+            kSecClass as String:             kSecClassKey,
+            kSecAttrKeyType as String:        kSecAttrKeyTypeECSECPrimeRandom,
+            kSecAttrTokenID as String:        kSecAttrTokenIDSecureEnclave,
+        ]
+        
+        let status = SecItemDelete(query as CFDictionary)
+        guard status == errSecSuccess || status == errSecItemNotFound else {
+             throw NSError(domain: NSOSStatusErrorDomain, code: Int(status),
+                            userInfo: [NSLocalizedDescriptionKey: "Failed to delete key (\(status))"])
+        }
+        print("✅ [Secure Enclave] 모든 키 삭제 성공")
+    }
 }

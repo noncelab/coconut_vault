@@ -92,7 +92,17 @@ class WalletRepository {
     List<SingleSigVaultListItem> vaultListResult = await compute(WalletIsolates.addVault, vaultData);
 
     _linkNewSinglesigVaultAndMultisigVaults(vaultListResult.first);
-    await _saveSingleSigSecureData(nextId, wallet.mnemonic!, wallet.passphrase);
+    if (!_isSigningOnlyMode) {
+      // 안전 저장 모드
+      _saveSecretAndPassphraseEnabled(
+        nextId,
+        wallet.mnemonic!,
+        wallet.passphrase != null && wallet.passphrase!.isNotEmpty,
+      );
+    } else {
+      // 서명 전용 모드
+      _saveSecretWithPassphrase(nextId, wallet.mnemonic!, wallet.passphrase);
+    }
 
     _vaultList!.add(vaultListResult[0]);
 
@@ -217,8 +227,13 @@ class WalletRepository {
   }
 
   Future<Uint8List> getSecret(int id) async {
-    var secretString = await _storageService.read(key: _createWalletKeyString(id, WalletType.singleSignature));
-    return utf8.encode(secretString!);
+    final key = _createWalletKeyString(id, WalletType.singleSignature);
+    final combinedBase64 = await _storageService.read(key: key);
+    final (Uint8List iv, Uint8List ciphertext) = EncryptResult.fromCombinedBase64(combinedBase64!);
+    final Uint8List? plaintext = await _secureZoneRepository.decrypt(alias: key, iv: iv, ciphertext: ciphertext);
+
+    final parsed = SecureZonePayloadCodec.parsePlaintext(plaintext!);
+    return parsed.secret;
   }
 
   Future<Seed> getSeedInSigningOnlyMode(int id) async {
@@ -234,42 +249,44 @@ class WalletRepository {
     return Seed.fromMnemonic(secret, passphrase: passphrase);
   }
 
-  Future<void> _saveSingleSigSecureData(int walletId, Uint8List secret, Uint8List? passphrase) async {
+  Future<void> _saveSecretWithPassphrase(int walletId, Uint8List secret, Uint8List? passphrase) async {
+    assert(_isSigningOnlyMode);
     String keyString = _createWalletKeyString(walletId, WalletType.singleSignature);
-
-    // 안전 저장 모드
-    if (!_isSigningOnlyMode) {
-      await _storageService.write(key: keyString, value: utf8.decode(secret));
-      String passphraseEnabledKeyString = _createPassphraseEnabledKeyString(keyString);
-      await _storageService.write(
-        key: passphraseEnabledKeyString,
-        value: (passphrase != null && passphrase.isNotEmpty) ? "true" : "false",
-      );
-      return;
-    }
-
-    // 서명 전용 모드
     await _secureZoneRepository.generateKey(alias: keyString, userAuthRequired: true);
-    EncryptResult result = await _secureZoneRepository.encrypt(
-      alias: keyString,
-      plaintext: SecureZonePayloadCodec.buildPlaintext(secret: secret, passphrase: passphrase),
+    Uint8List plainText = SecureZonePayloadCodec.buildPlaintext(
+      secret: secret,
+      // 서명 전용 모드에서만 passphrase 저장
+      passphrase: passphrase,
     );
+    EncryptResult result = await _secureZoneRepository.encrypt(alias: keyString, plaintext: plainText);
+    await _storageService.write(key: keyString, value: result.toCombinedBase64());
+  }
 
+  Future<void> _saveSecretAndPassphraseEnabled(int walletId, Uint8List secret, bool hasPassphrase) async {
+    assert(!_isSigningOnlyMode);
+    String keyString = _createWalletKeyString(walletId, WalletType.singleSignature);
+    await _secureZoneRepository.generateKey(alias: keyString, userAuthRequired: true);
+    Uint8List plainText = SecureZonePayloadCodec.buildPlaintext(
+      secret: secret,
+      // 서명 전용 모드에서만 passphrase 저장
+      passphrase: null,
+    );
+    EncryptResult result = await _secureZoneRepository.encrypt(alias: keyString, plaintext: plainText);
     // 반환된 암호문이랑 iv를 _storageService에 저장한다.
     await _storageService.write(key: keyString, value: result.toCombinedBase64());
+    String passphraseEnabledKeyString = _createPassphraseEnabledKeyString(keyString);
+    await _storageService.write(key: passphraseEnabledKeyString, value: hasPassphrase ? "true" : "false");
   }
 
   Future<void> _deleteSingleSigSecureData(int walletId) async {
     String keyString = _createWalletKeyString(walletId, WalletType.singleSignature);
     await _storageService.delete(key: keyString);
+    await _secureZoneRepository.deleteKey(alias: keyString);
 
     if (!_isSigningOnlyMode) {
       // 안전 저장 모드
       String passphraseEnabledKeyString = _createPassphraseEnabledKeyString(keyString);
       await _storageService.delete(key: passphraseEnabledKeyString);
-    } else {
-      // 서명 전용 모드
-      await _secureZoneRepository.deleteKey(alias: keyString);
     }
   }
 
@@ -390,23 +407,22 @@ class WalletRepository {
 
     await _storageService.deleteAll();
     await _removePublicInfo();
+    await _secureZoneRepository.deleteAllKeys();
   }
 
   Future<void> restoreFromBackupData(List<Map<String, dynamic>> backupData) async {
+    assert(!_isSigningOnlyMode);
+
     final List<VaultListItemBase> vaultList = [];
     for (final data in backupData) {
       VaultListItemBase wallet = await compute(WalletIsolates.initializeWallet, data);
       if (data['vaultType'] == WalletType.singleSignature.name) {
-        String keyString = _createWalletKeyString(wallet.id, WalletType.singleSignature);
-        String passphraseKeyString = _createPassphraseEnabledKeyString(keyString);
-
+        // INFO: JsonDecode는 Uint8List를 반환하지 못하고 List<dynamic>으로 반환하기 때문에 secretBytes가 필요합니다.
         final secret = data['secret'] as List<dynamic>;
         Uint8List secretBytes = Uint8List.fromList(secret.map((e) => e as int).toList());
         secret.fillRange(0, secret.length, 0);
-
-        _storageService.writeBytes(key: keyString, value: secretBytes);
+        await _saveSecretAndPassphraseEnabled(wallet.id, secretBytes, data['hasPassphrase']);
         secretBytes.wipe();
-        _storageService.write(key: passphraseKeyString, value: data['hasPassphrase'] ? "true" : "false");
       }
       vaultList.add(wallet);
     }

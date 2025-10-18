@@ -23,7 +23,7 @@ class VaultHomeViewModel extends ChangeNotifier {
   int get initialVaultCount => _initialVaultCount;
   bool get isPinSet => _authProvider.isPinSet;
   bool get isVaultInitialized => false;
-  bool get isVaultsLoaded => _walletProvider.isVaultLoaded;
+  bool get isVaultsLoaded => _walletProvider.isVaultsLoaded;
   int get vaultCount => _walletProvider.vaultList.length;
   List<int> get favoriteVaultIds => _favoriteVaultIds;
   bool get isSigningOnlyMode => _preferenceProvider.isSigningOnlyMode;

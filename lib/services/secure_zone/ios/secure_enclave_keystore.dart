@@ -20,6 +20,11 @@ class SecureEnclaveKeystore extends SecureZoneKeystore {
     await ch.invokeMethod('deleteKey', {'alias': alias});
   }
 
+  @override
+  Future<void> deleteAllKeys() async {
+    await ch.invokeMethod<void>('deleteAllKeys');
+  }
+
   Future<Map<String, dynamic>> _encrypt({required String alias, required Uint8List plaintext}) async {
     final r = await ch.invokeMethod<Map>('encrypt', {'alias': alias, 'plaintext': plaintext});
     if (r == null) throw "Failed to encrypt";

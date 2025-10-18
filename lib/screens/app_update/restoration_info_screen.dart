@@ -72,6 +72,8 @@ class _RestorationInfoScreenState extends State<RestorationInfoScreen> {
                   onPressed: () async {
                     final authProvider = context.read<AuthProvider>();
                     if (await authProvider.isBiometricsAuthValid()) {
+                      // INFO: 생체 인증 성공 후 바로 VaultListRestorationScreen으로 이동하면 100%된 후에 보일 때가 있어서 딜레이를 줍니다.
+                      await Future.delayed(const Duration(milliseconds: 1200));
                       widget.onComplete();
                       return;
                     }
@@ -88,6 +90,7 @@ class _RestorationInfoScreenState extends State<RestorationInfoScreen> {
                             child: PinCheckScreen(
                               pinCheckContext: PinCheckContextEnum.restoration,
                               onSuccess: () async {
+                                Navigator.pop(context);
                                 widget.onComplete();
                               },
                               onReset: () async {

@@ -78,13 +78,18 @@ class MultisigSignViewModel extends ChangeNotifier {
   }
 
   Future<void> sign(int index, Uint8List passphrase) async {
-    final mnemonic = await _walletProvider.getSecret(_vaultListItem.signers[index].innerVaultId!);
-    final seed = Seed.fromMnemonic(mnemonic, passphrase: passphrase);
-    _psbtForSigning = await compute(SignIsolates.addSignatureToPsbtWithMultisigVault, [seed, _psbtForSigning]);
-    updateSignState(index);
+    Uint8List? mnemonicBytes;
+    Seed? seed;
 
-    seed.wipe();
-    mnemonic.wipe();
+    try {
+      mnemonicBytes = await _walletProvider.getSecret(_vaultListItem.signers[index].innerVaultId!);
+      seed = Seed.fromMnemonic(mnemonicBytes, passphrase: passphrase);
+      _psbtForSigning = await compute(SignIsolates.addSignatureToPsbtWithMultisigVault, [seed, _psbtForSigning]);
+      updateSignState(index);
+    } finally {
+      mnemonicBytes?.wipe();
+      seed?.wipe();
+    }
   }
 
   Future<void> signPsbtInSigningOnlyMode(int index) async {

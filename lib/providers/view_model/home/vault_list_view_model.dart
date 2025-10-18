@@ -22,7 +22,7 @@ class VaultListViewModel extends ChangeNotifier {
 
   int get initialVaultCount => _initialVaultCount;
   bool get isPinSet => _authProvider.isPinSet;
-  bool get isVaultsLoaded => _walletProvider.isVaultLoaded;
+  bool get isVaultsLoaded => _walletProvider.isVaultsLoaded;
   int get vaultCount => _walletProvider.vaultList.length;
 
   late List<int> _vaultOrder = [];
