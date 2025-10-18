@@ -1,4 +1,7 @@
 class SharedPrefsKeys {
+  static const String jailbreakDetectionIgnored = "JAILBREAK_DETECTION_IGNORED";
+  static const String jailbreakDetectionIgnoredTime = "JAILBREAK_DETECTION_IGNORED_TIME";
+
   static const String hasShownStartGuide = "HAS_SHOWN_START_GUIDE";
   static const String isPinEnabled = "IS_PIN_ENABLED";
   static const String isPinCharacter = "IS_PIN_CHARACTER";
