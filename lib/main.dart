@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:coconut_lib/coconut_lib.dart';
 import 'package:coconut_vault/constants/method_channel.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
+import 'package:coconut_vault/repository/secure_storage_migration.dart';
 import 'package:coconut_vault/repository/shared_preferences_repository.dart';
 import 'package:coconut_vault/services/security_prechecker.dart';
 import 'package:coconut_vault/utils/logger.dart';
@@ -82,6 +83,8 @@ void main() async {
     },
   );
 
+  // secure storage 옵션 변경에 따른 마이그레이션
+  await SecureStorageMigration.migrateAllIfNeeded();
   // 보안 검사 수행
   final securityResult = await SecurityPrechecker().performSecurityCheck();
 
