@@ -16,11 +16,13 @@ import 'package:coconut_vault/repository/shared_preferences_repository.dart';
 import 'package:coconut_vault/screens/common/pin_check_screen.dart';
 import 'package:coconut_vault/screens/settings/pin_setting_screen.dart';
 import 'package:coconut_vault/utils/device_secure_checker.dart' as device_secure_checker;
+import 'package:coconut_vault/utils/logger.dart';
 import 'package:coconut_vault/widgets/bottom_sheet.dart';
 import 'package:coconut_vault/widgets/button/fixed_bottom_button.dart';
 import 'package:coconut_vault/widgets/button/shrink_animation_button.dart';
 import 'package:coconut_vault/widgets/custom_loading_overlay.dart';
 import 'package:coconut_vault/widgets/entropy_base/entropy_common_widget.dart';
+import 'package:coconut_vault/widgets/indicator/message_activity_indicator.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
@@ -36,6 +38,7 @@ class VaultModeSelectionScreen extends StatefulWidget {
 
 class _VaultModeSelectionScreenState extends State<VaultModeSelectionScreen> {
   VaultMode? selectedVaultMode;
+  bool _isConvertingToSecureStorageMode = false;
 
   @override
   void initState() {
@@ -231,19 +234,30 @@ class _VaultModeSelectionScreenState extends State<VaultModeSelectionScreen> {
 
                 if (context.read<AuthProvider>().isPinSet) {
                   // 앱 비밀번호 확인 먼저 수행
-                  await _authenticateWithBiometricOrPin(context, PinCheckContextEnum.sensitiveAction, () {
+                  await _authenticateWithBiometricOrPin(context, PinCheckContextEnum.sensitiveAction, () async {
                     // 비밀번호 일치 시 모드 변경 로직 수행
-                    _changeVaultMode();
+                    await _changeVaultMode();
                   });
                 } else {
                   // 비밀번호가 없는 상황
-                  _changeVaultMode();
+                  await _changeVaultMode();
                 }
               },
               text:
                   widget.onComplete != null
                       ? t.vault_mode_selection_screen.start
                       : t.vault_mode_selection_screen.change,
+            ),
+            Visibility(
+              visible: _isConvertingToSecureStorageMode,
+              child: Container(
+                decoration: BoxDecoration(color: CoconutColors.black.withValues(alpha: 0.3)),
+                child: Center(
+                  child: MessageActivityIndicator(
+                    message: t.vault_mode_selection_screen.converting_to_secure_storage_mode,
+                  ),
+                ),
+              ),
             ),
           ],
         ),
@@ -252,81 +266,73 @@ class _VaultModeSelectionScreenState extends State<VaultModeSelectionScreen> {
   }
 
   Future<void> _changeVaultMode() async {
-    // Signing Only Mode 로 변경된 경우
-    // 비밀번호 확인 후 --> 호출 시점에 확인함
-    // 비밀번호 설정 해제 --> <1>
-    // 지갑삭제 --> <2>
-    // 관련 shared pref 삭제 --> <3>
-
-    // Secure Storage Mode 로 변경된 경우
-    // 비밀번호 지정 --> <4>
-    // 지갑 있는 경우 저장 --> <5>
-
-    // 설정 - 모드 변경으로 진입(widget.onComplete가 null일 경우)
-
     if (!mounted) return;
     final currentVaultMode = context.read<PreferenceProvider>().getVaultMode();
-
-    final secureStorageRepository = SecureStorageRepository();
-    final sharedPrefsRepository = SharedPrefsRepository();
 
     switch (currentVaultMode) {
       case VaultMode.signingOnly:
         // 서명 전용 모드에서 안전 저장 모드로 바뀐 경우
+        final preferenceProvider = context.read<PreferenceProvider>();
+        final walletProvider = context.read<WalletProvider>();
+        final visibilityProvider = context.read<VisibilityProvider>();
+        final authProvider = context.read<AuthProvider>();
+
+        // TODO: edgePanel 숨기기
+        //final pos = preferenceProvider.signingModeEdgePanelPos;
+        //await preferenceProvider.resetSigningModeEdgePanelPos();
+        //assert(pos.$1 != null && pos.$2 != null);
+
         // 비밀번호 지정
         if (!mounted) return;
-        await MyBottomSheet.showBottomSheet_90(
-          context: context,
-          child: PinSettingScreen(
-            onComplete: () {
-              if (!mounted) return;
-              Navigator.pop(context); // PinSettingScreen 닫기
-              context.read<PreferenceProvider>().setVaultMode(VaultMode.secureStorage);
-              context.read<PreferenceProvider>().resetSigningModeEdgePanelPos();
+        final result = await MyBottomSheet.showBottomSheet_90(context: context, child: const PinSettingScreen());
 
-              // 비밀번호 설정 완료, 지갑 있는 경우 저장
-              final walletProvider = context.read<WalletProvider>();
-              if (walletProvider.vaultList.isNotEmpty) {
-                for (final vault in walletProvider.vaultList) {
-                  if (vault.vaultType == WalletType.singleSignature) {
-                    // 니모닉, 패프 가져올 방법 구체화 필요
-                    // SingleSigWalletCreateDto(null, vault.name, vault.iconIndex, vault.colorIndex, vault.mnemonic, vault.passphrase);
-                    // walletProvider.addSingleSigVault(singleSigWalletCreateDto);
-                  } else {
-                    // walletProvider.addMultiSigVault(multiSigWalletCreateDto);
-                  }
-                }
-              }
+        if (result) {
+          try {
+            setState(() {
+              _isConvertingToSecureStorageMode = true;
+            });
 
-              if (mounted) {
-                setState(() {});
-                _showModeChangeCompletePopup();
-              }
-            },
-          ),
-        );
+            await Future.delayed(const Duration(seconds: 1));
+
+            await walletProvider.updateIsSigningOnlyMode(false);
+            await preferenceProvider.setVaultMode(VaultMode.secureStorage);
+            visibilityProvider.updateIsSigningOnlyMode(false);
+
+            if (mounted) {
+              setState(() {});
+              _showModeChangeCompletePopup();
+            }
+          } catch (e) {
+            authProvider.resetPinData();
+
+            // preferenceProvider.setSigningModeEdgePanelPos(pos.$1!, pos.$2!);
+            if (!mounted) return;
+            _showModeChangeFailedPopup(e.toString(), VaultMode.signingOnly);
+          } finally {
+            setState(() {
+              _isConvertingToSecureStorageMode = false;
+            });
+          }
+        }
         break;
       case VaultMode.secureStorage:
-        // 안전 저장 모드에서 서명 전용 모드로 바뀐 경우
-        // 먼저 경고 다이얼로그 표시
+        try {
+          final preferenceProvider = context.read<PreferenceProvider>();
+          final walletProvider = context.read<WalletProvider>();
+          final visibilityProvider = context.read<VisibilityProvider>();
+          final authProvider = context.read<AuthProvider>();
 
-        // SecureStorage에서 시드 관련 데이터 모두 삭제
-        // WalletProvider에 시드 관련 데이터는 남겨둠
+          await walletProvider.updateIsSigningOnlyMode(true);
+          await authProvider.setPinSet(false);
+          visibilityProvider.updateIsSigningOnlyMode(true);
+          await preferenceProvider.setVaultMode(VaultMode.signingOnly);
 
-        // <1> 비밀번호 설정 해제
-        if (!mounted) return;
-        context.read<AuthProvider>().setPinSet(false);
-        // <2> 지갑삭제, 비밀번호 삭제
-        await secureStorageRepository.deleteAll();
-
-        // <3> 관련 shared pref 삭제
-        await sharedPrefsRepository.deleteSharedPrefsWithKey(SharedPrefsKeys.kVaultListField);
-        await sharedPrefsRepository.deleteSharedPrefsWithKey(SharedPrefsKeys.vaultListLength);
-
-        if (mounted) {
+          if (!mounted) return;
           setState(() {});
-          context.read<PreferenceProvider>().setVaultMode(VaultMode.signingOnly);
           _showModeChangeCompletePopup();
+        } catch (e) {
+          if (!mounted) return;
+          _showModeChangeFailedPopup(e.toString(), VaultMode.secureStorage);
         }
         break;
       default:
@@ -334,7 +340,31 @@ class _VaultModeSelectionScreenState extends State<VaultModeSelectionScreen> {
     }
   }
 
+  void _showModeChangeFailedPopup(String errorMessage, VaultMode currentVaultMode) {
+    final description =
+        currentVaultMode == VaultMode.secureStorage
+            ? t.vault_mode_selection_screen.signing_only_mode_conversion_failed
+            : t.vault_mode_selection_screen.secure_storage_mode_conversion_failed;
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return CoconutPopup(
+          insetPadding: EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width * 0.15),
+          title: t.vault_mode_selection_screen.mode_change_failed_title,
+          description: "$description\n error: $errorMessage",
+          backgroundColor: CoconutColors.white,
+          rightButtonText: t.confirm,
+          rightButtonColor: CoconutColors.black,
+          onTapRight: () {
+            Navigator.pop(context);
+          },
+        );
+      },
+    );
+  }
+
   void _showModeChangeCompletePopup() {
+    if (!mounted) return;
     showDialog(
       context: context,
       builder: (BuildContext context) {

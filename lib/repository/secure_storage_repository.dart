@@ -8,7 +8,9 @@ class SecureStorageRepository {
   SecureStorageRepository._internal();
 
   static final SecureStorageRepository _instance = SecureStorageRepository._internal();
-
+  // static const FlutterSecureStorage _oldStorage = FlutterSecureStorage(
+  //   aOptions: AndroidOptions(encryptedSharedPreferences: true),
+  // );
   static const FlutterSecureStorage _storage = FlutterSecureStorage(
     aOptions: AndroidOptions(encryptedSharedPreferences: true),
     iOptions: IOSOptions(accessibility: KeychainAccessibility.passcode, synchronizable: false),
@@ -30,6 +32,7 @@ class SecureStorageRepository {
 
       if (e.toString().contains('-25299') || e.toString().contains('already exists')) {
         Logger.log('write: delete: $key');
+        //await _oldStorage.delete(key: key);
         await _storage.delete(key: key);
         var deletedValue = await _storage.read(key: key);
         Logger.log('write: deletedValue: $deletedValue');
@@ -77,5 +80,6 @@ class SecureStorageRepository {
 
   Future<void> deleteAll() async {
     await _storage.deleteAll();
+    //await _oldStorage.deleteAll();
   }
 }

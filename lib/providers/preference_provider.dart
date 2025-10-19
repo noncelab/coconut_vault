@@ -79,13 +79,20 @@ class PreferenceProvider extends ChangeNotifier {
     _vaultOrder = [];
     _favoriteVaultIds = [];
     if (!isSigningOnlyMode) {
-      await _sharedPrefs.setString(SharedPrefsKeys.kVaultOrder, '');
-      await _sharedPrefs.setString(SharedPrefsKeys.kFavoriteVaultIds, '');
+      await _sharedPrefs.deleteSharedPrefsWithKey(SharedPrefsKeys.kVaultOrder);
+      await _sharedPrefs.deleteSharedPrefsWithKey(SharedPrefsKeys.kFavoriteVaultIds);
     }
     notifyListeners();
   }
 
   Future<void> setVaultMode(VaultMode vaultMode) async {
+    if (isSigningOnlyMode && vaultMode == VaultMode.secureStorage) {
+      await _sharedPrefs.setString(SharedPrefsKeys.kVaultOrder, jsonEncode(vaultOrder));
+      await _sharedPrefs.setString(SharedPrefsKeys.kFavoriteVaultIds, jsonEncode(favoriteVaultIds));
+    }
+    if (!isSigningOnlyMode && vaultMode == VaultMode.signingOnly) {
+      await resetVaultOrderAndFavorites();
+    }
     await _sharedPrefs.setString(SharedPrefsKeys.kVaultMode, vaultMode.name);
     notifyListeners();
   }
@@ -103,6 +110,7 @@ class PreferenceProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  // TODO: 호출 시 null인데 확인하기
   (double?, double?) getSigningModeEdgePanelPos() {
     final posX = _sharedPrefs.getDouble(SharedPrefsKeys.kSigningModeEdgePanelPosX);
     final posY = _sharedPrefs.getDouble(SharedPrefsKeys.kSigningModeEdgePanelPosY);

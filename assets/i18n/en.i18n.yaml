@@ -233,6 +233,11 @@ vault_mode_selection_screen:
   device_password_setting_guide_understood: "I understand"
   secure_use_guide_title: "Password Setting Required"
   secure_use_guide_description: "For secure use,\nplease set a device password"
+  mode_change_failed_title: "Mode Change Failed"
+  secure_storage_mode_conversion_failed: "Failed to convert to secure storage mode."
+  signing_only_mode_conversion_failed: "Failed to convert to signing-only mode."
+  converting_to_secure_storage_mode: "We’re securely saving your seed. Please wait a moment."
+
 
 multisig:
   nth_key: "key $index"

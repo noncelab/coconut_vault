@@ -213,12 +213,17 @@ class _MultisigSetupInfoScreenState extends State<MultisigSetupInfoScreen> {
           onTap: () async {
             _removeTooltip();
             if (isVaultInside && signer.innerVaultId != null) {
-              bool hasPassphrase = await context.read<WalletProvider>().hasPassphrase(signer.innerVaultId!);
+              final walletProvider = context.read<WalletProvider>();
+              bool shouldShowPassphraseVerifyMenu =
+                  walletProvider.isSigningOnlyMode ? false : await walletProvider.hasPassphrase(signer.innerVaultId!);
               if (context.mounted) {
                 Navigator.pushNamed(
                   context,
                   AppRoutes.singleSigSetupInfo,
-                  arguments: {'id': signer.innerVaultId, 'hasPassphrase': hasPassphrase},
+                  arguments: {
+                    'id': signer.innerVaultId,
+                    'shouldShowPassphraseVerifyMenu': shouldShowPassphraseVerifyMenu,
+                  },
                 );
               }
             } else {

@@ -203,6 +203,12 @@ class VisibilityProvider extends ChangeNotifier {
   }
 
   void updateIsSigningOnlyMode(bool isSigningOnlyMode) {
+    if (_isSigningOnlyMode == isSigningOnlyMode) return;
+    if (isSigningOnlyMode) {
+      SharedPrefsRepository().deleteSharedPrefsWithKey(SharedPrefsKeys.vaultListLength);
+    } else {
+      SharedPrefsRepository().setInt(SharedPrefsKeys.vaultListLength, _walletCount);
+    }
     _isSigningOnlyMode = isSigningOnlyMode;
   }
 }

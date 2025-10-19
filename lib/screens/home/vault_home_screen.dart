@@ -312,12 +312,13 @@ class _VaultHomeScreenState extends State<VaultHomeScreen> with TickerProviderSt
                   return;
                 }
 
-                bool hasPassphrase = await _viewModel.hasPassphrase(vault.id);
+                bool shouldShowPassphraseVerifyMenu =
+                    _viewModel.isSigningOnlyMode ? false : await _viewModel.hasPassphrase(vault.id);
                 if (mounted) {
                   Navigator.pushNamed(
                     context,
                     AppRoutes.singleSigSetupInfo,
-                    arguments: {'id': vault.id, 'hasPassphrase': hasPassphrase},
+                    arguments: {'id': vault.id, 'hasPassphrase': shouldShowPassphraseVerifyMenu},
                   );
                 }
               },

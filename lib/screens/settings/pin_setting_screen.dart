@@ -233,8 +233,8 @@ class _PinSettingScreenState extends State<PinSettingScreen> {
       return;
     }
 
-    Navigator.pop(context);
-    Navigator.pop(context);
+    Navigator.pop(context); // 자물쇠 lottie 닫기
+    Navigator.pop(context, true); // pin_setting_screen 닫기
     if (widget.greetingVisible) {
       Navigator.pushNamed(context, AppRoutes.vaultTypeSelection);
     }

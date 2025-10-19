@@ -268,13 +268,7 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> with SingleTickerProv
         providers: [
           ChangeNotifierProvider(create: (_) => authProvider),
           ChangeNotifierProvider(create: (_) => preferenceProvider),
-          ChangeNotifierProxyProvider<PreferenceProvider, VisibilityProvider>(
-            create: (context) => visibilityProvider,
-            update: (context, preferenceProvider, visibilityProvider) {
-              visibilityProvider!.updateIsSigningOnlyMode(preferenceProvider.isSigningOnlyMode);
-              return visibilityProvider;
-            },
-          ),
+          ChangeNotifierProvider(create: (_) => visibilityProvider),
           ChangeNotifierProxyProvider2<VisibilityProvider, PreferenceProvider, ConnectivityProvider>(
             create:
                 (_) => ConnectivityProvider(
@@ -299,21 +293,9 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> with SingleTickerProv
           if (_appEntryFlow == AppEntryFlow.vaultHome) ...[
             Provider<WalletCreationProvider>(create: (_) => WalletCreationProvider()),
             Provider<SignProvider>(create: (_) => SignProvider()),
-            ChangeNotifierProxyProvider<PreferenceProvider, WalletProvider>(
-              create: (context) => WalletProvider(visibilityProvider, preferenceProvider),
-              update: (context, preferenceProvider, walletProvider) {
-                walletProvider!.updateIsSigningOnlyMode(preferenceProvider.isSigningOnlyMode);
-                return walletProvider;
-              },
-            ),
+            ChangeNotifierProvider(create: (_) => WalletProvider(visibilityProvider, preferenceProvider)),
           ] else if (_appEntryFlow == AppEntryFlow.restoration) ...[
-            ChangeNotifierProxyProvider<PreferenceProvider, WalletProvider>(
-              create: (context) => WalletProvider(visibilityProvider, preferenceProvider),
-              update: (context, preferenceProvider, walletProvider) {
-                walletProvider!.updateIsSigningOnlyMode(preferenceProvider.isSigningOnlyMode);
-                return walletProvider;
-              },
-            ),
+            ChangeNotifierProvider(create: (_) => WalletProvider(visibilityProvider, preferenceProvider)),
           ],
         ],
 
@@ -437,7 +419,10 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> with SingleTickerProv
                                   id: args['id'],
                                   entryPoint: args['entryPoint'],
                                   // 서명 전용 모드일 때는 항상 false
-                                  hasPassphrase: preferenceProvider.isSigningOnlyMode ? false : args['hasPassphrase'],
+                                  shouldShowPassphraseVerifyMenu:
+                                      preferenceProvider.isSigningOnlyMode
+                                          ? false
+                                          : args['shouldShowPassphraseVerifyMenu'],
                                 ),
                               );
                             },

@@ -308,6 +308,12 @@ class AuthProvider extends ChangeNotifier {
     await preferenceProvider.resetVaultOrderAndFavorites();
   }
 
+  Future<void> resetPinData() async {
+    await _storageService.delete(key: SecureStorageKeys.kVaultPin);
+    _isPinSet = false;
+    _sharedPrefs.setBool(SharedPrefsKeys.isPinEnabled, false);
+  }
+
   // TODO: 딜레이 발생 이유
   /// 총 비밀번호 입력 시도 횟수, 다음 입력 가능 시간 저장
   Future<void> _setTurn(int turn) async {

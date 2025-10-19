@@ -94,14 +94,14 @@ class WalletRepository {
     _linkNewSinglesigVaultAndMultisigVaults(vaultListResult.first);
     if (!_isSigningOnlyMode) {
       // 안전 저장 모드
-      _saveSecretAndPassphraseEnabled(
+      await _saveSecretAndPassphraseEnabled(
         nextId,
         wallet.mnemonic!,
         wallet.passphrase != null && wallet.passphrase!.isNotEmpty,
       );
     } else {
       // 서명 전용 모드
-      _saveSecretWithPassphrase(nextId, wallet.mnemonic!, wallet.passphrase);
+      await _saveSecretWithPassphrase(nextId, wallet.mnemonic!, wallet.passphrase);
     }
 
     _vaultList!.add(vaultListResult[0]);
@@ -291,6 +291,7 @@ class WalletRepository {
   }
 
   Future<bool> hasPassphrase(int walletId) async {
+    assert(!_isSigningOnlyMode);
     String keyString = _createWalletKeyString(walletId, WalletType.singleSignature);
     String passphraseEnabledKeyString = _createPassphraseEnabledKeyString(keyString);
     return await _storageService.read(key: passphraseEnabledKeyString) == "true";
@@ -431,8 +432,30 @@ class WalletRepository {
     await _savePublicInfo();
   }
 
-  void updateIsSigningOnlyMode(bool isSigningOnlyMode) {
+  Future<void> updateIsSigningOnlyMode(bool isSigningOnlyMode) async {
+    if (_isSigningOnlyMode == isSigningOnlyMode) return;
+    if (!isSigningOnlyMode) {
+      await _changeToSecureStorageMode();
+    } else {
+      await resetAll();
+    }
     _isSigningOnlyMode = isSigningOnlyMode;
+  }
+
+  Future<void> _changeToSecureStorageMode() async {
+    assert(_isSigningOnlyMode);
+    if (_vaultList == null || _vaultList!.isEmpty) {
+      return;
+    }
+
+    for (final vault in _vaultList!) {
+      final Seed seed = await getSeedInSigningOnlyMode(vault.id);
+      if (seed.passphrase.isEmpty) return;
+
+      await _saveSecretAndPassphraseEnabled(vault.id, seed.mnemonic, true);
+    }
+
+    await _savePublicInfo();
   }
 
   void dispose() {

@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:coconut_lib/coconut_lib.dart';
+import 'package:coconut_vault/enums/vault_mode_enum.dart';
 import 'package:coconut_vault/extensions/uint8list_extensions.dart';
 import 'package:coconut_vault/providers/preference_provider.dart';
 import 'package:coconut_vault/repository/wallet_repository.dart';
@@ -88,7 +89,7 @@ class WalletProvider extends ChangeNotifier {
 
     final vault = await _walletRepository.addSinglesigWallet(wallet);
     _setVaultList(_walletRepository.vaultList);
-    _preferenceProvider.setVaultOrder(_vaultList.map((e) => e.id).toList());
+    await _preferenceProvider.setVaultOrder(_vaultList.map((e) => e.id).toList());
     _addToFavoriteWalletsIfAvailable(_vaultList.last.id);
 
     _setAddVaultCompleted(true);
@@ -370,9 +371,15 @@ class WalletProvider extends ChangeNotifier {
     await _updateWalletLength();
   }
 
-  void updateIsSigningOnlyMode(bool isSigningOnlyMode) {
+  Future<void> updateIsSigningOnlyMode(bool isSigningOnlyMode) async {
+    if (_isSigningOnlyMode == isSigningOnlyMode) return;
+
+    await _walletRepository.updateIsSigningOnlyMode(isSigningOnlyMode);
+    if (isSigningOnlyMode) {
+      _setVaultList([]);
+    }
     _isSigningOnlyMode = isSigningOnlyMode;
-    _walletRepository.updateIsSigningOnlyMode(isSigningOnlyMode);
+    notifyListeners();
   }
 
   // 6) 프라이빗 메서드

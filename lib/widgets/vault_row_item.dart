@@ -130,16 +130,10 @@ class _VaultRowItemState extends State<VaultRowItem> {
   String _subtitleText = '';
   bool _isUsedToMultiSig = false;
   List<MultisigSigner>? _multiSigners;
-  bool hasPassphrase = false;
-
-  Future<void> checkPassphraseStatus() async {
-    hasPassphrase = await context.read<WalletProvider>().hasPassphrase(widget.vault.id);
-  }
 
   @override
   void initState() {
     super.initState();
-    checkPassphraseStatus();
   }
 
   void _updateVault() {
@@ -194,17 +188,24 @@ class _VaultRowItemState extends State<VaultRowItem> {
               : null,
       borderWidth: 1,
       borderRadius: 8,
-      onPressed: () {
+      onPressed: () async {
         if (widget.onSelected != null) {
           widget.onSelected!();
           return;
         }
+        final walletProvider = context.read<WalletProvider>();
+        bool shouldShowPassphraseVerifyMenu =
+            walletProvider.isSigningOnlyMode ? false : await walletProvider.hasPassphrase(widget.vault.id);
         Navigator.pushNamed(
           context,
           widget.vault.vaultType == WalletType.multiSignature
               ? AppRoutes.multisigSetupInfo
               : AppRoutes.singleSigSetupInfo,
-          arguments: {'id': widget.vault.id, 'entryPoint': widget.entryPoint},
+          arguments: {
+            'id': widget.vault.id,
+            'entryPoint': widget.entryPoint,
+            'shouldShowPassphraseVerifyMenu': shouldShowPassphraseVerifyMenu,
+          },
         );
       },
       onLongPressed: () {

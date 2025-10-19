@@ -25,9 +25,14 @@ import 'package:shimmer/shimmer.dart';
 
 class SingleSigSetupInfoScreen extends StatefulWidget {
   final int id;
-  final bool hasPassphrase;
+  final bool shouldShowPassphraseVerifyMenu;
   final String? entryPoint;
-  const SingleSigSetupInfoScreen({super.key, required this.id, required this.hasPassphrase, this.entryPoint});
+  const SingleSigSetupInfoScreen({
+    super.key,
+    required this.id,
+    required this.shouldShowPassphraseVerifyMenu,
+    this.entryPoint,
+  });
 
   @override
   State<SingleSigSetupInfoScreen> createState() => _SingleSigSetupInfoScreenState();
@@ -377,7 +382,7 @@ class _SingleSigSetupInfoScreenState extends State<SingleSigSetupInfoScreen> {
               );
             },
           ),
-          if (widget.hasPassphrase) ...[
+          if (widget.shouldShowPassphraseVerifyMenu) ...[
             SingleButton(
               enableShrinkAnim: true,
               title: t.verify_passphrase,
