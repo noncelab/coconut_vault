@@ -409,6 +409,7 @@ class WalletRepository {
     await _storageService.deleteAll();
     await _removePublicInfo();
     await _secureZoneRepository.deleteAllKeys();
+    _sharedPrefs.deleteSharedPrefsWithKey(nextIdField);
   }
 
   Future<void> restoreFromBackupData(List<Map<String, dynamic>> backupData) async {
