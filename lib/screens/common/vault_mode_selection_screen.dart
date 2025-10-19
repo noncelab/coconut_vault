@@ -288,11 +288,12 @@ class _VaultModeSelectionScreenState extends State<VaultModeSelectionScreen> {
 
         if (result) {
           try {
-            setState(() {
-              _isConvertingToSecureStorageMode = true;
-            });
-
-            await Future.delayed(const Duration(seconds: 1));
+            if (walletProvider.vaultList.isNotEmpty) {
+              setState(() {
+                _isConvertingToSecureStorageMode = true;
+              });
+              await Future.delayed(const Duration(seconds: 1));
+            }
 
             await walletProvider.updateIsSigningOnlyMode(false);
             await preferenceProvider.setVaultMode(VaultMode.secureStorage);
@@ -309,9 +310,11 @@ class _VaultModeSelectionScreenState extends State<VaultModeSelectionScreen> {
             if (!mounted) return;
             _showModeChangeFailedPopup(e.toString(), VaultMode.signingOnly);
           } finally {
-            setState(() {
-              _isConvertingToSecureStorageMode = false;
-            });
+            if (_isConvertingToSecureStorageMode) {
+              setState(() {
+                _isConvertingToSecureStorageMode = false;
+              });
+            }
           }
         }
         break;

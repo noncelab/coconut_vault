@@ -318,7 +318,7 @@ class _VaultHomeScreenState extends State<VaultHomeScreen> with TickerProviderSt
                   Navigator.pushNamed(
                     context,
                     AppRoutes.singleSigSetupInfo,
-                    arguments: {'id': vault.id, 'hasPassphrase': shouldShowPassphraseVerifyMenu},
+                    arguments: {'id': vault.id, 'shouldShowPassphraseVerifyMenu': shouldShowPassphraseVerifyMenu},
                   );
                 }
               },
