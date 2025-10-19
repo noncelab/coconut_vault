@@ -89,10 +89,6 @@ class _VaultHomeScreenState extends State<VaultHomeScreen> with TickerProviderSt
     }
   }
 
-  bool isEnablePlusButton(bool isWalletsLoaded) {
-    return NetworkType.currentNetworkType.isTestnet || (isWalletsLoaded);
-  }
-
   VaultHomeViewModel _createViewModel() {
     _viewModel = VaultHomeViewModel(
       Provider.of<AuthProvider>(context, listen: false),
@@ -175,7 +171,7 @@ class _VaultHomeScreenState extends State<VaultHomeScreen> with TickerProviderSt
       appTitle: '',
       actionButtonList: [
         Opacity(
-          opacity: isEnablePlusButton(viewModel.isVaultsLoaded) ? 1.0 : 0.2,
+          opacity: viewModel.isVaultsLoaded ? 1.0 : 0.2,
           child: _buildAppBarIconButton(
             key: GlobalKey(),
             icon: SvgPicture.asset(
@@ -183,18 +179,11 @@ class _VaultHomeScreenState extends State<VaultHomeScreen> with TickerProviderSt
               colorFilter: const ColorFilter.mode(CoconutColors.gray800, BlendMode.srcIn),
             ),
             onPressed: () {
-              if (!isEnablePlusButton(viewModel.isVaultsLoaded)) {
+              if (!viewModel.isVaultsLoaded) {
                 return;
               }
 
-              if (viewModel.vaultCount == 0 && !viewModel.isPinSet) {
-                MyBottomSheet.showBottomSheet_90(
-                  context: context,
-                  child: const PinSettingScreen(greetingVisible: true),
-                );
-              } else {
-                Navigator.pushNamed(context, AppRoutes.vaultTypeSelection);
-              }
+              _onPressedWalletAddButton(viewModel);
             },
           ),
         ),
@@ -261,18 +250,7 @@ class _VaultHomeScreenState extends State<VaultHomeScreen> with TickerProviderSt
       return SliverToBoxAdapter(
         child: Container(
           margin: const EdgeInsets.symmetric(vertical: 20),
-          child: VaultAdditionGuideCard(
-            onPressed: () {
-              if (!viewModel.isSigningOnlyMode && !viewModel.isPinSet) {
-                MyBottomSheet.showBottomSheet_90(
-                  context: context,
-                  child: const PinSettingScreen(greetingVisible: true),
-                );
-              } else {
-                Navigator.pushNamed(context, AppRoutes.vaultTypeSelection);
-              }
-            },
-          ),
+          child: VaultAdditionGuideCard(onPressed: () => _onPressedWalletAddButton(viewModel)),
         ),
       );
     }
@@ -282,6 +260,14 @@ class _VaultHomeScreenState extends State<VaultHomeScreen> with TickerProviderSt
         children: [CoconutLayout.spacing_300h, _buildFavoriteWalletList(viewModel.vaults, viewModel.favoriteVaultIds)],
       ),
     );
+  }
+
+  void _onPressedWalletAddButton(VaultHomeViewModel viewModel) {
+    if (!viewModel.isSigningOnlyMode && !viewModel.isPinSet) {
+      MyBottomSheet.showBottomSheet_90(context: context, child: const PinSettingScreen(greetingVisible: true));
+    } else {
+      Navigator.pushNamed(context, AppRoutes.vaultTypeSelection);
+    }
   }
 
   Widget _buildFavoriteWalletList(List<VaultListItemBase> walletList, List<int> favoriteWalletIds) {
