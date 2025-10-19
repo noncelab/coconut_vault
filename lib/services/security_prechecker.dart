@@ -95,9 +95,8 @@ class SecurityPrechecker {
 
       if (!isSecureStorageMode) return false;
 
-      //final walletCount = sharedPrefs.getInt(SharedPrefsKeys.vaultListLength) ?? 0;
-
-      //if (walletCount <= 0) return false;
+      final isPinEnabled = sharedPrefs.getBool(SharedPrefsKeys.isPinEnabled) ?? false;
+      if (!isPinEnabled) return false;
 
       final secureStorageRepository = SecureStorageRepository();
       final vaultPin = await secureStorageRepository.read(key: SecureStorageKeys.kVaultPin);
