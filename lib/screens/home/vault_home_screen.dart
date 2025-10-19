@@ -502,17 +502,17 @@ class _VaultHomeScreenState extends State<VaultHomeScreen> with TickerProviderSt
   }
 
   Future<void> _handleWalletSelection(BuildContext context, int walletId, VaultHomeViewModel viewModel) async {
-    final hasPassphrase = await viewModel.hasPassphrase(walletId);
+    final hasPassphrase = viewModel.isSigningOnlyMode ? false : await viewModel.hasPassphrase(walletId);
     if (!context.mounted) return;
 
     if (hasPassphrase) {
-      final result = await MyBottomSheet.showBottomSheet_ratio<String?>(
+      final passphraseInput = await MyBottomSheet.showBottomSheet_ratio<String?>(
         ratio: 0.5,
         context: context,
         child: PassphraseCheckScreen(id: walletId),
       );
 
-      if (result != null && context.mounted) {
+      if (passphraseInput != null && context.mounted) {
         _showSyncOptionBottomSheet(walletId, context);
       }
     } else {
