@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:coconut_design_system/coconut_design_system.dart';
+import 'package:coconut_vault/constants/secure_storage_keys.dart';
 import 'package:coconut_vault/constants/shared_preferences_keys.dart';
 import 'package:coconut_vault/enums/pin_check_context_enum.dart';
 import 'package:coconut_vault/enums/vault_mode_enum.dart';
@@ -144,6 +145,9 @@ class _VaultModeSelectionScreenState extends State<VaultModeSelectionScreen> {
                       ? selectedVaultMode != null
                       : selectedVaultMode != context.read<PreferenceProvider>().getVaultMode()),
               onButtonClicked: () async {
+                debugPrint(
+                  'selectedVaultMode: ${await SecureStorageRepository().read(key: SecureStorageKeys.kVaultPin)}',
+                );
                 if (widget.onComplete != null) {
                   // 앱 최초 실행 시 widget.onComplete != null
 
@@ -154,7 +158,7 @@ class _VaultModeSelectionScreenState extends State<VaultModeSelectionScreen> {
                       hasDialogShownForIos: true,
                       title: t.vault_mode_selection_screen.secure_use_guide_title,
                       description: t.vault_mode_selection_screen.secure_use_guide_description,
-                      buttonText: t.device_password_check_screen.go_to_settings,
+                      buttonText: t.device_password_detection_screen.go_to_settings,
                     );
                     return;
                   }
@@ -176,6 +180,7 @@ class _VaultModeSelectionScreenState extends State<VaultModeSelectionScreen> {
                   barrierColor: CoconutColors.black.withValues(alpha: 0.1),
                   builder: (BuildContext dialogContext) {
                     bool isSigningOnlyMode = selectedVaultMode == VaultMode.signingOnly;
+                    bool isAndroid = Platform.isAndroid;
                     return WarningWidget(
                       title:
                           isSigningOnlyMode
@@ -186,7 +191,9 @@ class _VaultModeSelectionScreenState extends State<VaultModeSelectionScreen> {
                           ...List.generate(
                             isSigningOnlyMode
                                 ? t.vault_mode_selection_screen.signing_only_mode_warning_descriptions.length
-                                : t.vault_mode_selection_screen.secure_storage_mode_warning_descriptions.length,
+                                : isAndroid
+                                ? t.vault_mode_selection_screen.secure_storage_mode_warning_descriptions_android.length
+                                : t.vault_mode_selection_screen.secure_storage_mode_warning_descriptions_ios.length,
                             (index) {
                               return Padding(
                                 padding: const EdgeInsets.only(bottom: 8),
@@ -204,9 +211,13 @@ class _VaultModeSelectionScreenState extends State<VaultModeSelectionScreen> {
                                             ? t
                                                 .vault_mode_selection_screen
                                                 .signing_only_mode_warning_descriptions[index]
+                                            : isAndroid
+                                            ? t
+                                                .vault_mode_selection_screen
+                                                .secure_storage_mode_warning_descriptions_android[index]
                                             : t
                                                 .vault_mode_selection_screen
-                                                .secure_storage_mode_warning_descriptions[index],
+                                                .secure_storage_mode_warning_descriptions_ios[index],
                                         style: CoconutTypography.heading4_18_Bold.copyWith(color: CoconutColors.white),
                                       ),
                                     ),

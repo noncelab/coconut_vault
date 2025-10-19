@@ -167,12 +167,25 @@ app_unavailable_notification_screen:
     step_3: "For enhanced security, use a password combining letters and numbers instead of PIN."
     step_4: "To make signing more convenient and secure, please activate biometrics."
 
-device_password_check_screen:
-  set_device_password: "To use Vault, please set a device password"
-  set_device_password_description: "For enhanced security, use a password combining letters and numbers instead of PIN.\n\nTo make signing more convenient and secure, please activate biometrics."
+device_password_detection_screen:
+  device_password_required: "To use Vault, please set a device password"
+  device_password_setting_guide: "For enhanced security, use a password combining letters and numbers instead of PIN.\n\nTo make signing more convenient and secure, please activate biometrics."
+  device_password_changed_question: "Have you changed your device password?"
+  device_password_changed_guide: "If you change or turn off your device password, you will no longer be able to use the encrypted vault password stored on your device."
+  reset_vault_to_use: "To use Vault again, please reset it."
   go_to_settings: "Go to Settings"
+  reset_vault: "Reset Vault"
   ios_settings_dialog_title: "Move to Settings"
   ios_settings_dialog_description: "Because of iOS restrictions, the Settings home screen cannot be opened directly. When the Settings page appears, please go to the main Settings screen and set your password there."
+
+jail_break_detection_screen:
+  title: "Jailbreak / Root History Detected"
+  description: "This device is either in a state where security restrictions have been lifted, or has previously been jailbroken / rooted."
+  description2: "On such devices, it may be difficult to securely protect sensitive data such as encryption keys or wallet information."
+  jail_break_guide_title: "What is Jailbreaking / Rooting?"
+  jail_break_guide_description: "Jailbreaking (iOS) or rooting (Android) is the act of removing the operating system’s security restrictions, allowing unrestricted access to system areas.\nWhile this provides higher-level control, it also increases the risk of malware infection or unauthorized access."
+  continue_anyway: "Continue Anyway"
+  exit_app: "Exit App"
 
 ios_bluetooth_auth_notification_screen:
   allow_permission: "Please allow Bluetooth access to check your connection status."
@@ -223,7 +236,11 @@ vault_mode_selection_screen:
   mode_changed_description_secrue_storage: "Secure storage mode has been changed.\nPlease back up the seed stored in the vault regularly!"
   mode_changed_description_signing_only: "Signing-only mode has been changed.\nPlease exit the app safely by pressing the exit button on the home screen!"
   secure_storage_mode_warning_title: "Warning\nSecure Storage Mode Change"
-  secure_storage_mode_warning_descriptions:
+  secure_storage_mode_warning_descriptions_android:
+    - "If there are wallets added, it may take time to save information to the device."
+    - "Passphrase is not stored, so please store it safely separately."
+  secure_storage_mode_warning_descriptions_ios:
+    - "If you change or remove the device password, you will not be able to use the encrypted wallet information stored in the device. Please complete a separate backup before changing the password."
     - "If there are wallets added, it may take time to save information to the device."
     - "Passphrase is not stored, so please store it safely separately."
   signing_only_mode_warning_title: "Warning\nSigning-Only Mode Change"

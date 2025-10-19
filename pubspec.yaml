@@ -229,6 +229,8 @@ flutter:
     - assets/png/browser_ko.png
     - assets/png/browser_en.png
     - assets/svg/bluetooth.svg
+    - assets/png/keychain-inaccessible.png
+    - assets/svg/warning-hexagon.svg
 
   fonts:
     - family: SpaceGrotesk
