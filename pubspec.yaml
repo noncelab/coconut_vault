@@ -16,7 +16,7 @@ publish_to: "none" # Remove this line if you wish to publish to pub.dev
 # https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
 # In Windows, build-name is used as the major, minor, and patch parts
 # of the product and file versions while build-number is used as the build suffix.
-version: 0.1.1+3
+version: 0.1.2+3
 app_versions:
   ios_regtest: 3.0.0+2
   ios_mainnet: 0.1.1+3
@@ -70,7 +70,10 @@ dependencies:
   pointycastle: ^3.9.1
   tuple: ^2.0.2
   # coconut_lib: 1.0.1
-  coconut_lib: ^1.0.2
+  coconut_lib:
+    git:
+      url: https://github.com/noncelab/coconut_lib.git
+      ref: develop
   coconut_design_system:
     # path: ../design_system/coconut_design_system
     git:
