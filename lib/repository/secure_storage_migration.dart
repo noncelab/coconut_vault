@@ -1,5 +1,4 @@
-import 'dart:developer' as Logger;
-
+import 'package:coconut_vault/utils/logger.dart' show Logger;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 class SecureStorageMigration {
