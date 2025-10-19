@@ -60,9 +60,10 @@ class SecurityPrechecker {
         return SecurityCheckResult(status: SecurityCheckStatus.devicePasswordRequired, checkTime: DateTime.now());
       }
 
-      if (Platform.isAndroid) {
-        return SecurityCheckResult(status: SecurityCheckStatus.secure, checkTime: DateTime.now());
-      }
+      // INFO: 안드로이드도 생체 인증 추가하면 저장했던 데이터를 가져올 수 없음
+      // if (Platform.isAndroid) {
+      //   return SecurityCheckResult(status: SecurityCheckStatus.secure, checkTime: DateTime.now());
+      // }
 
       // iOS는 기기 비밀번호 변경 여부 검사: 저장한 정보의 Keychain이 무효화됨
       return await checkDevicePasswordChanged();
@@ -94,9 +95,9 @@ class SecurityPrechecker {
 
       if (!isSecureStorageMode) return false;
 
-      final walletCount = sharedPrefs.getInt(SharedPrefsKeys.vaultListLength) ?? 0;
+      //final walletCount = sharedPrefs.getInt(SharedPrefsKeys.vaultListLength) ?? 0;
 
-      if (walletCount <= 0) return false;
+      //if (walletCount <= 0) return false;
 
       final secureStorageRepository = SecureStorageRepository();
       final vaultPin = await secureStorageRepository.read(key: SecureStorageKeys.kVaultPin);

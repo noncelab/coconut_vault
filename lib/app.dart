@@ -153,7 +153,6 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> with SingleTickerProv
 
   @override
   void dispose() {
-    Logger.log("--> app.dart dispose");
     _longPressTimer?.cancel();
     _edgePanelAnimationController.dispose();
     _routeNotifierHasShow.dispose();

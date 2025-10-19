@@ -20,6 +20,7 @@ import 'package:coconut_vault/utils/coconut/update_preparation.dart';
 import 'package:coconut_vault/utils/hash_util.dart';
 import 'package:coconut_vault/utils/logger.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/services.dart';
 
 /// 지갑의 public 정보는 shared prefs, 비밀 정보는 secure storage에 저장하는 역할을 하는 클래스입니다.
 class WalletRepository {
@@ -263,7 +264,6 @@ class WalletRepository {
   }
 
   Future<void> _saveSecretAndPassphraseEnabled(int walletId, Uint8List secret, bool hasPassphrase) async {
-    assert(!_isSigningOnlyMode);
     String keyString = _createWalletKeyString(walletId, WalletType.singleSignature);
     await _secureZoneRepository.generateKey(alias: keyString, userAuthRequired: true);
     Uint8List plainText = SecureZonePayloadCodec.buildPlaintext(
@@ -406,9 +406,19 @@ class WalletRepository {
 
     await UpdatePreparation.clearUpdatePreparationStorage(); // 비밀번호 초기화시 백업파일도 같이 삭제
 
-    await _storageService.deleteAll();
+    try {
+      await _storageService.deleteAll();
+    } on PlatformException catch (e) {
+      // TODO: preChecker로 미리 걸러져야 함
+      Logger.error('--> 삭제 안됨 FSE ${e.toString()} ');
+    }
     await _removePublicInfo();
-    await _secureZoneRepository.deleteAllKeys();
+    try {
+      await _secureZoneRepository.deleteAllKeys();
+    } on PlatformException catch (e) {
+      // TODO: preChecker로 미리 걸러져야 함
+      Logger.error('--> 삭제 안됨 SZR ${e.toString()} ');
+    }
     _sharedPrefs.deleteSharedPrefsWithKey(nextIdField);
   }
 
@@ -451,7 +461,7 @@ class WalletRepository {
 
     for (final vault in _vaultList!) {
       final Seed seed = await getSeedInSigningOnlyMode(vault.id);
-      if (seed.passphrase.isEmpty) return;
+      if (seed.passphrase.isEmpty) continue;
 
       await _saveSecretAndPassphraseEnabled(vault.id, seed.mnemonic, true);
     }

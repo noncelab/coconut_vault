@@ -312,6 +312,7 @@ class AuthProvider extends ChangeNotifier {
     await _storageService.delete(key: SecureStorageKeys.kVaultPin);
     _isPinSet = false;
     _sharedPrefs.setBool(SharedPrefsKeys.isPinEnabled, false);
+    resetAuthenticationState();
   }
 
   // TODO: 딜레이 발생 이유

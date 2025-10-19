@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:coconut_vault/utils/logger.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 class SecureStorageRepository {
@@ -46,7 +47,12 @@ class SecureStorageRepository {
   }
 
   Future<String?> read({required String key}) async {
-    return await _storage.read(key: key);
+    try {
+      return await _storage.read(key: key);
+    } on PlatformException catch (e) {
+      Logger.error('--> read: error: $e');
+      return null;
+    }
   }
 
   Future<void> writeBytes({required String key, required Uint8List value}) async {
