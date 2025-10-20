@@ -153,7 +153,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                               provider.isBiometricEnabled
                                   ? null
                                   : provider.availableBiometrics.isNotEmpty
-                                  ? t.alert.tee_use_biometrics.description
+                                  ? t.alert.secure_module_use_biometrics.description
                                   : null,
                           rightElement: CupertinoSwitch(
                             value: provider.isBiometricEnabled,

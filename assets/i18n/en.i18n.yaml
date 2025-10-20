@@ -707,9 +707,9 @@ alert:
   finish_signing:
     title:  "Finish Signing"
     description: "If you exit, the created signing info will be lost.\nReally exit?"
-  tee_use_biometrics:
+  secure_module_use_biometrics:
     title: "Biometric Authentication Notice"
-    description: "Biometric authentication is not used when unlocking the app. However, authentication may be automatically requested when accessing information stored in the secure area (TEE)."
+    description: "Biometric authentication is not used to unlock the app. However, it may be automatically requested when accessing data stored in a secure module."
 
 toast:
   clipboard_copied: "Copied to clipboard"

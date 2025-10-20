@@ -710,9 +710,9 @@ alert:
   finish_signing:
     title:  "트랜잭션 서명 마무리"
     description: "이 화면을 닫으면 서명 정보가 사라져요.\n정말 종료하시겠어요?"
-  tee_use_biometrics:
+  secure_module_use_biometrics:
     title: "생체 인증 안내"
-    description: "앱 잠금 해제에는 생체인증이 사용되지 않아요. 단, 보안 영역(TEE)에 저장된 정보에 접근할 때 생체 인증이 자동 요청될 수 있어요. "
+    description: "앱 잠금 해제에는 생체인증이 사용되지 않아요. 단, 보안 모듈에 저장된 정보에 접근할 때 생체 인증이 자동으로 요청될 수 있어요. "
 
 toast:
   clipboard_copied: "클립보드에 복사되었어요"

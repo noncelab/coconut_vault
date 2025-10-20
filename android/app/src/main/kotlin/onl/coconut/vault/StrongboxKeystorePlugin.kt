@@ -34,7 +34,7 @@ class StrongBoxKeystorePlugin: FlutterPlugin, MethodChannel.MethodCallHandler {
   private lateinit var appContext: Context
 
   override fun onAttachedToEngine(@NonNull binding: FlutterPlugin.FlutterPluginBinding) {
-    channel = MethodChannel(binding.binaryMessenger, "onl.coconut.vault/trusted_execution_environment")
+    channel = MethodChannel(binding.binaryMessenger, "onl.coconut.vault/secure_module")
     channel.setMethodCallHandler(this)
   }
 

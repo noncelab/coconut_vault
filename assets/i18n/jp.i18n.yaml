@@ -351,11 +351,11 @@ welcome_screen:
     description_ios: "画面右上から下にスワイプ → コントロールセンター → 飛行機モードアイコンをタップ"
     description_android: "画面上部から下にスワイプ → クイック設定パネル → 飛行機モードアイコンをタップしてオンにする\n※ ネットワーク、Bluetooth、通信網がすべて遮断されます"
   wifi_off:
-    title: "ネットワーク（Wi-Fi）をオフにする"
+    title: "ネットワーク(Wi-Fi)をオフにする"
     description_ios: "画面右上から下にスワイプ → コントロールセンター → Wi-Fiアイコンをタップ"
     description_android: "画面上部から下にスワイプ → クイック設定パネル → Wi-Fiアイコンをタップしてオフにする\n※ ネットワーク、Bluetooth、通信網がすべて遮断されます"
   mobile_data_off: 
-    title: "モバイルネットワーク（LTE / 5G）をオフにする"
+    title: "モバイルネットワーク(LTE / 5G)をオフにする"
     description_ios: "設定 → モバイル通信 → モバイルデータスイッチをオフにする"
     description_android: "クイック設定パネル → モバイルネットワークアイコンをタップしてオフにする\n※ ネットワーク、Bluetooth、通信網がすべて遮断されます"
   bluetooth_off: 
@@ -698,16 +698,16 @@ alert:
   stop_importing_mnemonic:
     title: "復元を停止"
     description: "本当に復元を停止しますか？"
-  erase_all_entered_so_far: "これまでに入力したすべての情報を\n本当に削除しますか？"
+  erase_all_entered_so_far: "これまでに入力したすべての情報を\n本当に削除しますか?"
   erase_all_entered_mnemonic: 
     title: "すべて削除"
-    description: "これまでに入力したすべてのニーモニック\nフレーズを本当に削除しますか？"
+    description: "これまでに入力したすべてのニーモニック\nフレーズを本当に削除しますか?"
   finish_signing:
     title:  "トランザクション署名完了"
-    description: "この画面を閉じると署名情報が失われます。\n本当に終了しますか？"
-  tee_use_biometrics:
+    description: "この画面を閉じると署名情報が失われます。\n本当に終了しますか?"
+  secure_module_use_biometrics:
     title: "生体認証のお知らせ"
-    description: "アプリのロック解除時には生体認証は使用されません。ただし、セキュア領域（TEE）に保存された情報にアクセスする際に自動的に認証が求められる場合があります。"
+    description: "アプリのロック解除には生体認証は使用されません。ただし、セキュアモジュールに保存されたデータにアクセスする際には、自動的に認証が求められる場合があります。"
 
 toast:
   clipboard_copied: "クリップボードにコピーしました"

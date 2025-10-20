@@ -16,7 +16,7 @@ import LocalAuthentication
         
         let controller: FlutterViewController = window?.rootViewController as! FlutterViewController
         let osChannel = FlutterMethodChannel(name: "onl.coconut.vault/os", binaryMessenger: controller.binaryMessenger)
-        let teeChannel = FlutterMethodChannel(name: "onl.coconut.vault/trusted_execution_environment", binaryMessenger: controller.binaryMessenger)
+        let teeChannel = FlutterMethodChannel(name: "onl.coconut.vault/secure_module", binaryMessenger: controller.binaryMessenger)
         
         osChannel.setMethodCallHandler { call, result in
             switch call.method {

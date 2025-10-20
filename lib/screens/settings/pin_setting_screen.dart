@@ -170,8 +170,8 @@ class _PinSettingScreenState extends State<PinSettingScreen> {
       builder: (BuildContext context) {
         return CoconutPopup(
           insetPadding: EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width * 0.15),
-          title: t.alert.tee_use_biometrics.title,
-          description: t.alert.tee_use_biometrics.description,
+          title: t.alert.secure_module_use_biometrics.title,
+          description: t.alert.secure_module_use_biometrics.description,
           backgroundColor: CoconutColors.white,
           rightButtonText: t.confirm,
           onTapRight: () {
