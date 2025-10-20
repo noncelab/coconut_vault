@@ -941,9 +941,9 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> with SingleTickerProv
       // 지갑이 존재하지 않거나 PIN이 설정되지 않은 경우 최초실행으로 간주
       final vaultListLength = SharedPrefsRepository().getInt(SharedPrefsKeys.vaultListLength) ?? 0;
       final hasSeenGuide = SharedPrefsRepository().getBool(SharedPrefsKeys.hasShownStartGuide) ?? false;
-
+      final isPinEnabled = SharedPrefsRepository().getBool(SharedPrefsKeys.isPinEnabled) ?? false;
       // 지갑이 없거나 가이드를 본 적이 없으면 최초실행
-      return vaultListLength == 0 || !hasSeenGuide;
+      return (!isPinEnabled && vaultListLength == 0) || !hasSeenGuide;
     } catch (e) {
       debugPrint('앱 최초실행 여부 확인 실패: $e');
       // 에러 발생 시 최초실행으로 간주
@@ -1051,9 +1051,9 @@ class _SecurityCheckWidgetState extends State<_SecurityCheckWidget> {
       // 지갑이 존재하지 않거나 PIN이 설정되지 않은 경우 최초실행으로 간주
       final vaultListLength = SharedPrefsRepository().getInt(SharedPrefsKeys.vaultListLength) ?? 0;
       final hasSeenGuide = SharedPrefsRepository().getBool(SharedPrefsKeys.hasShownStartGuide) ?? false;
-
+      final isPinEnabled = SharedPrefsRepository().getBool(SharedPrefsKeys.isPinEnabled) ?? false;
       // 지갑이 없거나 가이드를 본 적이 없으면 최초실행
-      return vaultListLength == 0 || !hasSeenGuide;
+      return (!isPinEnabled && vaultListLength == 0) || !hasSeenGuide;
     } catch (e) {
       debugPrint('앱 최초실행 여부 확인 실패: $e');
       // 에러 발생 시 최초실행으로 간주
