@@ -158,6 +158,33 @@ app_unavailable_notification_screen:
   step1: "アプリを完全に閉じる"
   step2: "接続状態を確認"
   step3: "アプリを再起動"
+  device_password_check: 
+    set_device_password: "Vaultを使用するには\nデバイスパスワードを設定してください"
+    step_1: "アプリを完全に閉じる"
+    step_2: "パスワードを設定してください"
+    step_3: "セキュリティを強化するために、文字と数字を組み合わせたパスワードを使用してください"
+    step_4: "サインをより便利かつ安全にするために、生体認証を有効にしてください"
+
+device_password_detection_screen:
+  device_password_required: "Vaultを使用するには\nデバイスパスワードを設定してください"
+  device_password_setting_guide: "セキュリティを強化するために、英字と数字を組み合わせたパスワードを使用してください。\n\n快適で安全にご利用いただくために、生体認証を有効にしてください。" 
+  device_password_changed_question: "もしかして、端末のパスコードを変更しましたか？"
+  device_password_changed_guide: "端末のパスコードを変更または解除すると、暗号化されて保存されているボルトのパスワードは使用できなくなります。"
+  reset_vault_to_use: "ボルトを再び使用するには初期化を行ってください。"
+  go_to_settings: "設定する"
+  reset_vault: "Vaultを初期化する"
+  ios_settings_dialog_title: "設定画面に移動"
+  ios_settings_dialog_description: "iOSの仕様により設定ホーム画面へは直接移動できません。設定画面が開いたら、設定ホームに移動してパスコードを設定してください。"
+
+jail_break_detection_screen:
+  title: "脱獄 / ルート化の履歴が検出されました"
+  description: "このデバイスはセキュリティ制限が解除されているか、過去に脱獄 / ルート化が行われた可能性があります。"
+  description2: "このようなデバイスでは、暗号鍵やウォレット情報などの機密データを安全に保護することが難しい場合があります。"
+  jail_break_guide_title: "脱獄 / ルート化とは？"
+  jail_break_guide_description: "脱獄(iOS)またはルート化(Android)とは、OSのセキュリティ制限を解除し、システム領域に自由にアクセスできるようにする行為です。\nユーザーは高度な操作権限を得られますが、同時にマルウェア感染や不正アクセスのリスクも高まります。"
+  continue_anyway: "それでも続けます"
+  exit_app: "アプリを終了"
+
 ios_bluetooth_auth_notification_screen:
   allow_permission: "接続状況を確認するために、Bluetooth へのアクセスを許可してください。"
   guide1: "他のデバイスに接続されていないことを確認するために、Bluetooth の許可が必要です。"

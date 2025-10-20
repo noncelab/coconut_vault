@@ -37,7 +37,7 @@ class SecurityPrechecker {
 
   Future<SecurityCheckResult> checkJailbreakRoot() async {
     try {
-      // 네이티브 메서드 채널을 통한 탈옥/루팅 검사
+      // 메서드 채널을 통한 탈옥/루팅 검사
       final bool isJailbroken = await _osChannel.invokeMethod<bool>('isJailbroken') ?? false;
 
       if (isJailbroken) {
@@ -76,7 +76,7 @@ class SecurityPrechecker {
   Future<SecurityCheckResult> checkDevicePasswordChanged() async {
     try {
       final isDevicePasswordChanged = await _isDevicePasswordChanged();
-
+      print('isDevicePasswordChanged: $isDevicePasswordChanged');
       if (isDevicePasswordChanged) {
         return SecurityCheckResult(status: SecurityCheckStatus.devicePasswordChanged, checkTime: DateTime.now());
       }
@@ -112,6 +112,8 @@ class SecurityPrechecker {
   Future<bool> deleteStoredData() async {
     try {
       final sharedPrefsRepository = SharedPrefsRepository();
+      final hasSeenGuide = SharedPrefsRepository().getBool(SharedPrefsKeys.hasShownStartGuide) == true;
+      final selectedVaultMode = SharedPrefsRepository().getString(SharedPrefsKeys.kVaultMode);
       await sharedPrefsRepository.clearSharedPref();
       final secureStorageRepository = SecureStorageRepository();
       await secureStorageRepository.deleteAll();
@@ -119,6 +121,14 @@ class SecurityPrechecker {
       for (final file in files) {
         await FileStorage.deleteFile(fileName: file, subDirectory: UpdatePreparation.directory);
       }
+
+      if (hasSeenGuide) {
+        await SharedPrefsRepository().setBool(SharedPrefsKeys.hasShownStartGuide, true);
+      }
+      if (selectedVaultMode != '') {
+        await SharedPrefsRepository().setString(SharedPrefsKeys.kVaultMode, selectedVaultMode);
+      }
+
       return true;
     } catch (e) {
       return false;
