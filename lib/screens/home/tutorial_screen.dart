@@ -5,7 +5,7 @@ import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/providers/connectivity_provider.dart';
 import 'package:coconut_vault/providers/visibility_provider.dart';
 import 'package:coconut_vault/utils/uri_launcher.dart';
-import 'package:coconut_vault/widgets/button/shrink_animation_button.dart';
+import 'package:coconut_vault/widgets/button/fixed_bottom_button.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -16,10 +16,7 @@ enum TutorialScreenStatus {
 
 class TutorialScreen extends StatefulWidget {
   final TutorialScreenStatus screenStatus;
-  const TutorialScreen({
-    super.key,
-    required this.screenStatus,
-  });
+  const TutorialScreen({super.key, required this.screenStatus});
 
   @override
   State<TutorialScreen> createState() => _TutorialScreenState();
@@ -33,171 +30,134 @@ class _TutorialScreenState extends State<TutorialScreen> {
   @override
   void initState() {
     super.initState();
-    titleText = (widget.screenStatus == TutorialScreenStatus.entrance)
-        ? t.tutorial_screen.title1
-        : t.tutorial_screen.title2;
-    subtitleText = (widget.screenStatus == TutorialScreenStatus.entrance)
-        ? t.tutorial_screen.content
-        : t.tutorial_screen.subtitle;
-    contentText =
-        (widget.screenStatus == TutorialScreenStatus.entrance) ? '' : t.tutorial_screen.content;
+    titleText =
+        (widget.screenStatus == TutorialScreenStatus.entrance) ? t.tutorial_screen.title1 : t.tutorial_screen.title2;
+    subtitleText =
+        (widget.screenStatus == TutorialScreenStatus.entrance) ? t.tutorial_screen.content : t.tutorial_screen.subtitle;
+    contentText = (widget.screenStatus == TutorialScreenStatus.entrance) ? '' : t.tutorial_screen.content;
   }
 
   @override
   Widget build(BuildContext context) {
-    List<String> splitTexts = (widget.screenStatus == TutorialScreenStatus.entrance)
-        ? subtitleText.split('\n')
-        : contentText.split('\n');
+    List<String> splitTexts =
+        (widget.screenStatus == TutorialScreenStatus.entrance) ? subtitleText.split('\n') : contentText.split('\n');
     return widget.screenStatus == TutorialScreenStatus.entrance
         ? Scaffold(
-            backgroundColor: CoconutColors.white,
-            body: SafeArea(
-              child: Stack(
+          backgroundColor: CoconutColors.white,
+          body: SafeArea(
+            child: Stack(
+              children: [
+                Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Text(titleText, style: CoconutTypography.heading3_21_Bold, textAlign: TextAlign.center),
+                      Selector<ConnectivityProvider, bool>(
+                        selector: (context, model) => model.isNetworkOn == true,
+                        builder: (context, networkOn, _) {
+                          if (networkOn) {
+                            // 네트워크 연결 상태일 때
+                            return Column(
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [const SizedBox(height: 26), _browserImage()],
+                            );
+                          }
+
+                          /// 네트워크 연결 되지 않은 상태일 때
+                          return Column(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              const SizedBox(height: 20),
+                              _splitTextWidget(splitTexts),
+                              const SizedBox(height: 20),
+                              _browserImage(),
+                            ],
+                          );
+                        },
+                      ),
+                      CoconutLayout.spacing_1500h,
+                    ],
+                  ),
+                ),
+                Selector<ConnectivityProvider, bool>(
+                  selector: (context, model) => model.isNetworkOn == true,
+                  builder: (context, networkOn, _) {
+                    return FixedBottomButton(
+                      isActive: networkOn,
+                      onButtonClicked: () => launchURL(COCONUT_TUTORIAL_URL, defaultMode: false),
+                      text: t.view_tutorial,
+                      subWidget: CoconutButton(
+                        onPressed: () => Navigator.pushNamed(context, AppRoutes.welcome),
+                        text: t.skip,
+                        backgroundColor: CoconutColors.white,
+                        foregroundColor: CoconutColors.black,
+                        pressedBackgroundColor: CoconutColors.gray150,
+                        pressedTextColor: CoconutColors.gray400,
+                        textStyle: CoconutTypography.body2_14,
+                      ),
+                    );
+                  },
+                ),
+              ],
+            ),
+          ),
+        )
+        : Scaffold(
+          backgroundColor: Colors.transparent,
+          appBar: CoconutAppBar.build(title: '', context: context, isBottom: true),
+          body: SafeArea(
+            child: Center(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  Positioned(
-                    right: 16,
-                    top: 30,
-                    child: TextButton(
-                      onPressed: () => Navigator.pushNamed(context, AppRoutes.welcome),
-                      style: TextButton.styleFrom(
-                        foregroundColor: CoconutColors.gray800,
-                      ),
-                      child: Text(
-                        t.skip,
-                        style: CoconutTypography.body3_12.setColor(
-                          CoconutColors.gray800,
-                        ),
-                      ),
+                  const SizedBox(height: 80),
+                  Text(
+                    titleText,
+                    style: CoconutTypography.heading3_21.merge(
+                      const TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
                     ),
                   ),
-                  Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text(
-                          titleText,
-                          style: CoconutTypography.heading3_21.merge(
-                            const TextStyle(
-                              fontSize: 20,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                          textAlign: TextAlign.center,
-                        ),
-                        Selector<ConnectivityProvider, bool>(
-                            selector: (context, model) => model.isNetworkOn == true,
-                            builder: (context, networkOn, _) {
-                              if (networkOn) {
-                                // 네트워크 연결 상태일 때
-                                return Column(
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  children: [
-                                    const SizedBox(height: 26),
-                                    _browserImage(),
-                                    const SizedBox(height: 30),
-                                    ShrinkAnimationButton(
-                                      onPressed: () => launchURL(
-                                        COCONUT_TUTORIAL_URL,
-                                        defaultMode: false,
-                                      ),
-                                      defaultColor: CoconutColors.gray800,
-                                      pressedColor: CoconutColors.borderGray,
-                                      borderRadius: 12,
-                                      child: Padding(
-                                        padding: const EdgeInsets.symmetric(
-                                          horizontal: 40,
-                                          vertical: 12,
-                                        ),
-                                        child: Text(
-                                          t.view_tutorial,
-                                          style: CoconutTypography.body3_12.merge(
-                                            const TextStyle(
-                                                color: CoconutColors.white,
-                                                fontWeight: FontWeight.w700),
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                );
-                              }
-
-                              /// 네트워크 연결 되지 않은 상태일 때
-                              return Column(
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                children: [
-                                  const SizedBox(height: 20),
-                                  _splitTextWidget(splitTexts),
-                                  const SizedBox(height: 20),
-                                  _browserImage(),
-                                ],
-                              );
-                            })
-                      ],
-                    ),
-                  )
+                  const SizedBox(height: 10),
+                  Text(subtitleText),
+                  const SizedBox(height: 20),
+                  _browserImage(),
+                  const SizedBox(height: 20),
+                  _splitTextWidget(splitTexts),
                 ],
               ),
             ),
-          )
-        : Scaffold(
-            backgroundColor: Colors.transparent,
-            appBar: CoconutAppBar.build(title: '', context: context, isBottom: true),
-            body: SafeArea(
-              child: Center(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    const SizedBox(
-                      height: 80,
-                    ),
-                    Text(
-                      titleText,
-                      style: CoconutTypography.heading3_21.merge(
-                        const TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 10),
-                    Text(subtitleText),
-                    const SizedBox(height: 20),
-                    _browserImage(),
-                    const SizedBox(height: 20),
-                    _splitTextWidget(splitTexts),
-                  ],
-                ),
-              ),
-            ),
-          );
+          ),
+        );
   }
 
   Widget _splitTextWidget(List<String> splitTexts) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        Text(
-          splitTexts[0],
-          style: CoconutTypography.body2_14.setColor(
-            CoconutColors.gray800,
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Text(
+            splitTexts[0],
+            style: CoconutTypography.body2_14.setColor(CoconutColors.gray800),
+            textAlign: TextAlign.center,
           ),
-        ),
-        Text(
-          splitTexts[1],
-          style: CoconutTypography.body2_14_Bold.setColor(
-            CoconutColors.gray800,
+          Text(
+            splitTexts[1],
+            style: CoconutTypography.body2_14_Bold.setColor(CoconutColors.gray800),
+            textAlign: TextAlign.center,
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 
   Widget _browserImage() {
-    return Consumer<VisibilityProvider>(builder: (context, visibilityProvider, child) {
-      String languageSuffix = visibilityProvider.language == 'kr' ? 'ko' : 'en';
-      return Image.asset('assets/png/browser_$languageSuffix.png',
-          width: 222, fit: BoxFit.fitWidth);
-    });
+    return Consumer<VisibilityProvider>(
+      builder: (context, visibilityProvider, child) {
+        String languageSuffix = visibilityProvider.language == 'kr' ? 'ko' : 'en';
+        return Image.asset('assets/png/browser_$languageSuffix.png', width: 222, fit: BoxFit.fitWidth);
+      },
+    );
   }
 }

@@ -1,7 +1,10 @@
+import 'dart:ui';
+
 import 'package:coconut_vault/constants/shared_preferences_keys.dart';
 import 'package:coconut_vault/enums/currency_enum.dart';
 import 'package:coconut_vault/repository/shared_preferences_repository.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
+import 'package:coconut_vault/utils/logger.dart';
 import 'package:flutter/material.dart';
 
 class VisibilityProvider extends ChangeNotifier {
@@ -15,13 +18,11 @@ class VisibilityProvider extends ChangeNotifier {
   int get walletCount => _walletCount;
   bool get isPassphraseUseEnabled => _isPassphraseUseEnabled;
   String get language => _language;
+  bool get isKorean => _language == 'kr';
+  bool get isEnglish => _language == 'en';
 
   bool get isBtcUnit => _isBtcUnit;
   BitcoinUnit get currentUnit => _isBtcUnit ? BitcoinUnit.btc : BitcoinUnit.sats;
-
-  /// TODO: 제거
-  bool _isLoading = false;
-  bool get isLoading => _isLoading;
 
   VisibilityProvider() {
     final prefs = SharedPrefsRepository();
@@ -31,16 +32,6 @@ class VisibilityProvider extends ChangeNotifier {
     _language = _initializeLanguageFromOS(prefs);
     _isBtcUnit = prefs.getBool(SharedPrefsKeys.kIsBtcUnit) ?? true;
     _initializeLanguage();
-  }
-
-  void showIndicator() {
-    _isLoading = true;
-    notifyListeners();
-  }
-
-  void hideIndicator() {
-    _isLoading = false;
-    notifyListeners();
   }
 
   Future<void> saveWalletCount(int count) async {
@@ -75,16 +66,18 @@ class VisibilityProvider extends ChangeNotifier {
 
     // OS 언어 감지 (Flutter의 표준 방식 사용)
     try {
-      final String languageCode = WidgetsBinding.instance.window.locale.languageCode.toLowerCase();
-
+      final String languageCode = PlatformDispatcher.instance.locale.languageCode.toLowerCase();
+      print('languageCode: $languageCode');
       // 지원하는 언어인지 확인
       if (languageCode == 'ko' || languageCode == 'kr') {
         return 'kr';
+      } else if (languageCode == 'ja' || languageCode == 'jp') {
+        return 'jp';
       } else if (languageCode == 'en') {
         return 'en';
       }
     } catch (e) {
-      print('OS language detection failed: $e');
+      Logger.error('OS language detection failed: $e');
     }
 
     // 기본값은 영어
@@ -95,28 +88,44 @@ class VisibilityProvider extends ChangeNotifier {
     try {
       if (_language == 'kr') {
         LocaleSettings.setLocaleSync(AppLocale.kr);
-      } else if (_language == 'en') {
-        // 영어 로케일 설정 시 지연 로딩 문제를 방지하기 위해 비동기로 처리
-        LocaleSettings.setLocale(AppLocale.en).catchError((error) {
-          print('English locale initialization failed: $error');
-          // 실패 시 한국어로 폴백
+      } else if (_language == 'jp') {
+        // 일본어 로케일 설정 시 지연 로딩 문제를 방지하기 위해 비동기로 처리
+        LocaleSettings.setLocale(AppLocale.jp).catchError((error) {
+          Logger.error('Japanese locale initialization failed: $error');
+          // 실패 시 영어로 폴백
           try {
             LocaleSettings.setLocaleSync(AppLocale.en);
             _language = 'en';
+            return AppLocale.en;
           } catch (fallbackError) {
-            print('Fallback to Korean locale failed: $fallbackError');
+            Logger.error('Fallback to English locale failed: $fallbackError');
           }
+          return AppLocale.en;
+        });
+      } else if (_language == 'en') {
+        // 영어 로케일 설정 시 지연 로딩 문제를 방지하기 위해 비동기로 처리
+        LocaleSettings.setLocale(AppLocale.en).catchError((error) {
+          Logger.error('English locale initialization failed: $error');
+          // 실패 시 한국어로 폴백 (영어가 실패하면 한국어가 기본)
+          try {
+            LocaleSettings.setLocaleSync(AppLocale.kr);
+            _language = 'kr';
+          } catch (fallbackError) {
+            Logger.error('Fallback to Korean locale failed: $fallbackError');
+            return AppLocale.kr;
+          }
+          return AppLocale.kr;
         });
       }
     } catch (e) {
       // 언어 초기화 실패 시 로그 출력 (선택사항)
-      print('Language initialization failed: $e');
-      // 실패 시 기본값으로 한국어 설정
+      Logger.error('Language initialization failed: $e');
+      // 실패 시 기본값으로 영어 설정
       try {
         LocaleSettings.setLocaleSync(AppLocale.en);
         _language = 'en';
       } catch (fallbackError) {
-        print('Fallback language initialization failed: $fallbackError');
+        Logger.error('Fallback language initialization failed: $fallbackError');
       }
     }
   }
@@ -132,14 +141,26 @@ class VisibilityProvider extends ChangeNotifier {
       if (languageCode == 'kr') {
         await LocaleSettings.setLocale(AppLocale.kr);
         _language = languageCode;
+      } else if (languageCode == 'jp') {
+        try {
+          await LocaleSettings.setLocale(AppLocale.jp);
+          _language = languageCode;
+        } catch (japaneseError) {
+          Logger.error('Japanese locale change failed: $japaneseError');
+          // 일본어 로딩 실패 시 영어로 폴백
+          await LocaleSettings.setLocale(AppLocale.en);
+          _language = 'en';
+          // SharedPreferences도 영어로 업데이트
+          await prefs.setString(SharedPrefsKeys.kLanguage, 'en');
+        }
       } else if (languageCode == 'en') {
         // 영어 로케일 설정 시 지연 로딩 문제를 방지하기 위해 더 안전한 처리
         try {
           await LocaleSettings.setLocale(AppLocale.en);
           _language = languageCode;
         } catch (englishError) {
-          print('English locale change failed: $englishError');
-          // 영어 로딩 실패 시 한국어로 폴백
+          Logger.error('English locale change failed: $englishError');
+          // 영어 로딩 실패 시 한국어로 폴백 (최종 폴백)
           await LocaleSettings.setLocale(AppLocale.kr);
           _language = 'kr';
           // SharedPreferences도 한국어로 업데이트
@@ -155,14 +176,14 @@ class VisibilityProvider extends ChangeNotifier {
         notifyListeners();
       });
     } catch (e) {
-      print('Language change failed: $e');
+      Logger.error('Language change failed: $e');
       // 실패 시 기본 언어로 설정 시도
       try {
         await LocaleSettings.setLocale(AppLocale.en);
         _language = 'en';
         await prefs.setString(SharedPrefsKeys.kLanguage, 'en');
       } catch (fallbackError) {
-        print('Fallback language change failed: $fallbackError');
+        Logger.error('Fallback language change failed: $fallbackError');
         // 최종적으로 상태만 업데이트
         _language = languageCode;
       }

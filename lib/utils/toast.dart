@@ -10,7 +10,7 @@ class MyToast {
         color: CoconutColors.gray200,
         boxShadow: [
           BoxShadow(
-            color: CoconutColors.gray200.withOpacity(0.5),
+            color: CoconutColors.gray200.withValues(alpha: 0.5),
             spreadRadius: 2,
             blurRadius: 15,
             offset: const Offset(-2, 2),
@@ -19,9 +19,7 @@ class MyToast {
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
-        children: [
-          Text(content, style: CoconutTypography.body2_14.setColor(CoconutColors.black)),
-        ],
+        children: [Text(content, style: CoconutTypography.body2_14.setColor(CoconutColors.black))],
       ),
     );
 

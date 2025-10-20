@@ -19,19 +19,15 @@ class MessageActivityIndicator extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          const CircularProgressIndicator(
-            color: CoconutColors.gray800,
-          ),
+          const CircularProgressIndicator(color: CoconutColors.gray800),
           Visibility(
-              visible: message != null,
-              child: Container(
-                  alignment: Alignment.center,
-                  padding: const EdgeInsets.only(top: 20),
-                  child: Text(
-                    message ?? '',
-                    style: CoconutTypography.body1_16,
-                    textAlign: TextAlign.center,
-                  )))
+            visible: message != null,
+            child: Container(
+              alignment: Alignment.center,
+              padding: const EdgeInsets.only(top: 20),
+              child: Text(message ?? '', style: CoconutTypography.body1_16, textAlign: TextAlign.center),
+            ),
+          ),
         ],
       ),
     );

@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:math';
 
 import 'package:coconut_vault/enums/wallet_enums.dart';
@@ -7,7 +8,6 @@ import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:coconut_vault/utils/app_version_util.dart';
 import 'package:coconut_vault/utils/coconut/update_preparation.dart';
 import 'package:coconut_vault/utils/hash_util.dart';
-import 'package:coconut_vault/utils/logger.dart';
 import 'package:flutter/material.dart';
 
 class MnemonicWordsItem {
@@ -65,8 +65,7 @@ class AppUpdatePreparationViewModel extends ChangeNotifier {
     // 모든 볼트가 로드될 때까지 대기
     if (_walletProvider.isVaultListLoadingNotifier.value) return;
 
-    List<VaultListItemBase> filteredList =
-        _walletProvider.getVaultsByWalletType(WalletType.singleSignature);
+    List<VaultListItemBase> filteredList = _walletProvider.getVaultsByWalletType(WalletType.singleSignature);
     if (filteredList.isEmpty) {
       _isMnemonicLoaded = true;
       _isMnemonicValidationFinished = true;
@@ -84,21 +83,20 @@ class AppUpdatePreparationViewModel extends ChangeNotifier {
   }
 
   Future<MnemonicWordsItem> _getMnemonicWordsFromVault(VaultListItemBase vault) async {
-    return await _walletProvider.getSecret(vault.id).then((secret) {
-      List<String> mnemonicList = secret.mnemonic.split(' ');
+    return await _walletProvider.getSecret(vault.id).then((mnemonic) {
+      List<String> mnemonicList = utf8.decode(mnemonic).split(' ');
       int mnemonicIndex = _random.nextInt(mnemonicList.length);
-      Logger.log('-->${vault.name} mnemonicList: $mnemonicList, mnemonicIndex: $mnemonicIndex');
       return MnemonicWordsItem(
-          vaultName: vault.name,
-          mnemonicWords: hashString(mnemonicList[mnemonicIndex]),
-          mnemonicWordLength: mnemonicList[mnemonicIndex].length,
-          mnemonicWordIndex: mnemonicIndex);
+        vaultName: vault.name,
+        mnemonicWords: hashString(mnemonicList[mnemonicIndex]),
+        mnemonicWordLength: mnemonicList[mnemonicIndex].length,
+        mnemonicWordIndex: mnemonicIndex,
+      );
     });
   }
 
   bool isWordMatched(String userInput) {
-    final success = hashString(userInput.toLowerCase()) ==
-        _mnemonicWordsItems[_currentMnemonicIndex].mnemonicWords;
+    final success = hashString(userInput.toLowerCase()) == _mnemonicWordsItems[_currentMnemonicIndex].mnemonicWords;
     if (!success) {
       return false;
     }
@@ -133,20 +131,19 @@ class AppUpdatePreparationViewModel extends ChangeNotifier {
     _backupProgress = 40;
     notifyListeners();
 
-    await _progress40Reached!.future;
     saveEncryptedBackupWithData(result);
+    await _progress40Reached!.future;
   }
 
   void saveEncryptedBackupWithData(String data) async {
     _progress80Reached = Completer<void>();
-    final savedPath = await UpdatePreparation.encryptAndSave(data: data);
-    Logger.log('--> savedPath: $savedPath');
+    await UpdatePreparation.encryptAndSave(data: data);
 
     _backupProgress = 80;
     notifyListeners();
 
-    await _progress80Reached!.future;
     deleteAllWallets();
+    await _progress80Reached!.future;
   }
 
   void deleteAllWallets() async {

@@ -1,0 +1,17 @@
+desc "배포 전에 실행하는 공통 함수"
+lane :pre_deploy do
+    # 현재 디렉토리 확인
+    sh "echo '=== Current Directory ==='; pwd"
+
+    # app_info.dart 파일의 RELEASE_DATE 변경
+    update_app_info()
+
+    Dir.chdir("..") do
+        sh "fvm flutter pub run flutter_oss_licenses:generate"
+        sh "fvm flutter pub run build_runner clean"
+        sh "fvm flutter pub run build_runner build --delete-conflicting-outputs"
+        sh "pwd"
+        sh "fvm flutter pub run slang"
+        sh "fvm dart format . --line-length=120"
+    end
+end

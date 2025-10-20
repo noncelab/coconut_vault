@@ -8,12 +8,7 @@ class MultisigSignerMemoBottomSheet extends StatefulWidget {
   final Function(String) onUpdate;
   final bool? autofocus;
 
-  const MultisigSignerMemoBottomSheet({
-    super.key,
-    required this.onUpdate,
-    required this.memo,
-    this.autofocus = false,
-  });
+  const MultisigSignerMemoBottomSheet({super.key, required this.onUpdate, required this.memo, this.autofocus = false});
 
   @override
   State<MultisigSignerMemoBottomSheet> createState() => _MultisigSignerMemoBottomSheetState();
@@ -54,10 +49,7 @@ class _MultisigSignerMemoBottomSheetState extends State<MultisigSignerMemoBottom
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 Center(
-                  child: Text(
-                    t.multi_sig_memo_bottom_sheet.imported_wallet_memo,
-                    style: CoconutTypography.heading4_18,
-                  ),
+                  child: Text(t.multi_sig_memo_bottom_sheet.imported_wallet_memo, style: CoconutTypography.heading4_18),
                 ),
 
                 const SizedBox(height: 16),
@@ -65,7 +57,7 @@ class _MultisigSignerMemoBottomSheetState extends State<MultisigSignerMemoBottom
                 // TextField
                 Container(
                   decoration: BoxDecoration(
-                    border: Border.all(color: CoconutColors.black.withOpacity(0.06)),
+                    border: Border.all(color: CoconutColors.black.withValues(alpha: 0.06)),
                     borderRadius: BorderRadius.circular(16.0),
                   ),
                   child: CupertinoTextField(
@@ -74,12 +66,8 @@ class _MultisigSignerMemoBottomSheetState extends State<MultisigSignerMemoBottom
                     placeholder: t.multi_sig_memo_bottom_sheet.placeholder,
                     padding: const EdgeInsets.fromLTRB(16, 20, 16, 20),
                     style: CoconutTypography.body1_16,
-                    placeholderStyle: CoconutTypography.body2_14.setColor(
-                      CoconutColors.black.withOpacity(0.3),
-                    ),
-                    decoration: const BoxDecoration(
-                      color: Colors.transparent,
-                    ),
+                    placeholderStyle: CoconutTypography.body2_14.setColor(CoconutColors.black.withValues(alpha: 0.3)),
+                    decoration: const BoxDecoration(color: Colors.transparent),
                     maxLength: 15,
                     clearButtonMode: OverlayVisibilityMode.always,
                     onChanged: (text) {
@@ -99,8 +87,8 @@ class _MultisigSignerMemoBottomSheetState extends State<MultisigSignerMemoBottom
                       '(${_memo.length} / 15)',
                       style: CoconutTypography.body3_12.setColor(
                         _memo.length == 15
-                            ? CoconutColors.black.withOpacity(0.7)
-                            : CoconutColors.black.withOpacity(0.5),
+                            ? CoconutColors.black.withValues(alpha: 0.7)
+                            : CoconutColors.black.withValues(alpha: 0.5),
                       ),
                     ),
                   ),
@@ -126,11 +114,7 @@ class _MultisigSignerMemoBottomSheetState extends State<MultisigSignerMemoBottom
                           child: const Center(
                             child: Text(
                               '닫기',
-                              style: TextStyle(
-                                color: CoconutColors.black,
-                                fontSize: 14,
-                                fontWeight: FontWeight.bold,
-                              ),
+                              style: TextStyle(color: CoconutColors.black, fontSize: 14, fontWeight: FontWeight.bold),
                             ),
                           ),
                         ),
@@ -148,10 +132,7 @@ class _MultisigSignerMemoBottomSheetState extends State<MultisigSignerMemoBottom
                         },
                         child: Container(
                           padding: const EdgeInsets.symmetric(vertical: 16),
-                          decoration: BoxDecoration(
-                            color: CoconutColors.black,
-                            borderRadius: BorderRadius.circular(5),
-                          ),
+                          decoration: BoxDecoration(color: CoconutColors.black, borderRadius: BorderRadius.circular(5)),
                           child: Center(
                             child: Text(
                               t.complete,
@@ -182,19 +163,13 @@ class MemoTextField extends StatelessWidget {
   final TextEditingController controller;
   final ValueChanged<String> onChanged;
 
-  const MemoTextField({
-    super.key,
-    required this.controller,
-    required this.onChanged,
-  });
+  const MemoTextField({super.key, required this.controller, required this.onChanged});
 
   @override
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        border: Border.all(
-          color: CoconutColors.black.withOpacity(0.06),
-        ),
+        border: Border.all(color: CoconutColors.black.withValues(alpha: 0.06)),
         borderRadius: BorderRadius.circular(16),
       ),
       child: CupertinoTextField(
@@ -202,12 +177,8 @@ class MemoTextField extends StatelessWidget {
         placeholder: t.multi_sig_memo_bottom_sheet.placeholder,
         padding: const EdgeInsets.fromLTRB(16, 20, 16, 20),
         style: CoconutTypography.body1_16,
-        placeholderStyle: CoconutTypography.body2_14.setColor(
-          CoconutColors.black.withOpacity(0.3),
-        ),
-        decoration: const BoxDecoration(
-          color: Colors.transparent,
-        ),
+        placeholderStyle: CoconutTypography.body2_14.setColor(CoconutColors.black.withValues(alpha: 0.3)),
+        decoration: const BoxDecoration(color: Colors.transparent),
         maxLength: 100,
         clearButtonMode: OverlayVisibilityMode.always,
         onChanged: onChanged,

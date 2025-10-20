@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites>
+  <testsuite name="fastlane.lanes">
+    
+    
+    
+      
+      <testcase classname="fastlane.lanes" name="0: default_platform" time="0.000279">
+        
+      </testcase>
+    
+      
+      <testcase classname="fastlane.lanes" name="1: 
+        cd /Users/eunjilim/Noncelab/Repositories/coconut_vault &amp;&amp;
+        true &amp;&amp;
+        fvm flutter build ipa           --flavor regtest           --release           --export-method app-store           --build-name=&quot;3.0.0&quot;           --build-number=&quot;5&quot;
+      " time="114.139874">
+        
+      </testcase>
+    
+      
+      <testcase classname="fastlane.lanes" name="2: pilot" time="2826.093762">
+        
+      </testcase>
+    
+  </testsuite>
+</testsuites>

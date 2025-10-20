@@ -17,9 +17,7 @@ class SvgIcon extends StatelessWidget {
       margin: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(30),
-        color: colorIndex == -1
-            ? CoconutColors.gray150
-            : CustomColorHelper.getBackgroundColorByIndex(colorIndex),
+        color: colorIndex == -1 ? CoconutColors.gray150 : CustomColorHelper.getBackgroundColorByIndex(colorIndex),
       ),
       // 배경색 지정
       child: Padding(
@@ -29,9 +27,10 @@ class SvgIcon extends StatelessWidget {
           width: 32,
           height: 32,
           fit: BoxFit.scaleDown,
-          color: colorIndex == -1
-              ? CoconutColors.gray800
-              : CustomColorHelper.getColorByIndex(colorIndex),
+          colorFilter: ColorFilter.mode(
+            colorIndex == -1 ? CoconutColors.gray800 : CustomColorHelper.getColorByIndex(colorIndex),
+            BlendMode.srcIn,
+          ),
         ),
       ),
     );

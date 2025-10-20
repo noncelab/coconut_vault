@@ -15,20 +15,13 @@ void main() {
 
       // 랜덤 IV 생성 및 암호화
       final iv = Aes256Crypto.generateIv();
-      final encrypted = Aes256Crypto.encryptCbc(
-        data: originalData,
-        key: key,
-        iv: iv,
-      );
+      final encrypted = Aes256Crypto.encryptCbc(data: originalData, key: key, iv: iv);
 
       // IV와 암호문 결합 (IV + 암호문)
       final combinedData = String.fromCharCodes(iv.bytes) + encrypted;
 
       // 결합된 데이터 복호화
-      final decrypted = Aes256Crypto.decryptWithCombinedIv(
-        combinedData: combinedData,
-        key: key,
-      );
+      final decrypted = Aes256Crypto.decryptWithCombinedIv(combinedData: combinedData, key: key);
 
       // 원본 데이터와 복호화된 데이터 비교
       expect(decrypted, equals(originalData));
@@ -44,20 +37,13 @@ void main() {
 
       // 암호화
       final iv = Aes256Crypto.generateIv();
-      final encrypted = Aes256Crypto.encryptCbc(
-        data: originalData,
-        key: key,
-        iv: iv,
-      );
+      final encrypted = Aes256Crypto.encryptCbc(data: originalData, key: key, iv: iv);
 
       // IV와 암호문 결합
       final combinedData = String.fromCharCodes(iv.bytes) + encrypted;
 
       // 복호화
-      final decrypted = Aes256Crypto.decryptWithCombinedIv(
-        combinedData: combinedData,
-        key: key,
-      );
+      final decrypted = Aes256Crypto.decryptWithCombinedIv(combinedData: combinedData, key: key);
 
       // 검증
       expect(decrypted, equals(originalData));
@@ -71,11 +57,7 @@ void main() {
       final randomString = SecureKeyGenerator.generateSecureKeyWithEntropy(additionalData: 'test');
       final key1 = Key.fromBase64(randomString);
       final iv = Aes256Crypto.generateIv();
-      final encrypted = Aes256Crypto.encryptCbc(
-        data: originalData,
-        key: key1,
-        iv: iv,
-      );
+      final encrypted = Aes256Crypto.encryptCbc(data: originalData, key: key1, iv: iv);
 
       // IV와 암호문 결합
       final combinedData = String.fromCharCodes(iv.bytes) + encrypted;
@@ -85,17 +67,8 @@ void main() {
 
       // 다른 키로 복호화 시도 시 패딩 오류가 발생해야 함
       expect(
-        () => Aes256Crypto.decryptWithCombinedIv(
-          combinedData: combinedData,
-          key: key2,
-        ),
-        throwsA(
-          isA<ArgumentError>().having(
-            (e) => e.message,
-            'message',
-            'Invalid or corrupted pad block',
-          ),
-        ),
+        () => Aes256Crypto.decryptWithCombinedIv(combinedData: combinedData, key: key2),
+        throwsA(isA<ArgumentError>().having((e) => e.message, 'message', 'Invalid or corrupted pad block')),
       );
     });
   });

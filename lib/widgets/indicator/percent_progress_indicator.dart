@@ -3,13 +3,14 @@ import 'package:coconut_vault/widgets/indicator/gradient_progress_indicator.dart
 import 'package:flutter/material.dart';
 
 class PercentProgressIndicator extends StatefulWidget {
-  const PercentProgressIndicator(
-      {super.key,
-      required this.progressController,
-      this.radius,
-      this.gradientColors,
-      this.strokeWidth,
-      this.textColor});
+  const PercentProgressIndicator({
+    super.key,
+    required this.progressController,
+    this.radius,
+    this.gradientColors,
+    this.strokeWidth,
+    this.textColor,
+  });
 
   final AnimationController progressController;
   final double? radius;
@@ -29,11 +30,7 @@ class _PercentProgressIndicatorState extends State<PercentProgressIndicator> {
       children: [
         GradientCircularProgressIndicator(
           radius: widget.radius ?? 90,
-          gradientColors: widget.gradientColors ??
-              const [
-                CoconutColors.white,
-                Color.fromARGB(255, 164, 214, 250),
-              ],
+          gradientColors: widget.gradientColors ?? const [CoconutColors.white, Color.fromARGB(255, 164, 214, 250)],
           strokeWidth: widget.strokeWidth ?? 36.0,
           progress: widget.progressController.value > 0 ? widget.progressController.value : 0.01,
         ),
@@ -47,11 +44,7 @@ class _PercentProgressIndicatorState extends State<PercentProgressIndicator> {
                   .merge(const TextStyle(fontWeight: FontWeight.w900)),
             ),
             CoconutLayout.spacing_100w,
-            Text(
-              '%',
-              style:
-                  CoconutTypography.body1_16_Bold.setColor(widget.textColor ?? CoconutColors.black),
-            ),
+            Text('%', style: CoconutTypography.body1_16_Bold.setColor(widget.textColor ?? CoconutColors.black)),
           ],
         ),
       ],

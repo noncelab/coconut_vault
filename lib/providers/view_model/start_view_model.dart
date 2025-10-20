@@ -66,15 +66,19 @@ class StartViewModel extends ChangeNotifier {
       }
     }
 
+    /// PinCheck 화면에서 '다시 시작하기' 버튼을 눌러야 함
+    if (_authProvider.isPermanantlyLocked) {
+      return AppEntryFlow.pinCheckAppLaunched;
+    }
+
     // 복원파일이 없는 경우
-    if (!_isWalletExistent() || !_authProvider.isAuthEnabled) {
-      return AppEntryFlow.vaultList;
+    if (!_isWalletExistent() || !_authProvider.isPinSet) {
+      return AppEntryFlow.vaultHome;
     }
 
     if (await _authProvider.isBiometricsAuthValid()) {
-      return AppEntryFlow.vaultList;
-    } else {
-      return AppEntryFlow.pinCheck;
+      return AppEntryFlow.vaultHome;
     }
+    return AppEntryFlow.pinCheckAppLaunched;
   }
 }

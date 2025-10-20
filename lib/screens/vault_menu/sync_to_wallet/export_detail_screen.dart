@@ -28,8 +28,7 @@ class _ExportDetailScreen extends State<ExportDetailScreen> {
           child: SingleChildScrollView(
             child: Container(
               width: MediaQuery.of(context).size.width,
-              padding:
-                  const EdgeInsets.symmetric(horizontal: CoconutLayout.defaultPadding, vertical: 0),
+              padding: const EdgeInsets.symmetric(horizontal: CoconutLayout.defaultPadding, vertical: 0),
               child: Stack(
                 children: [
                   CopyTextContainer(

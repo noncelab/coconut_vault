@@ -20,11 +20,7 @@ class BottomButton extends StatelessWidget {
         child: Center(
           child: Text(
             text,
-            style: const TextStyle(
-              color: CoconutColors.white,
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
-            ),
+            style: const TextStyle(color: CoconutColors.white, fontSize: 16, fontWeight: FontWeight.bold),
           ),
         ),
       ),

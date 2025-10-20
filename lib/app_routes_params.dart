@@ -1,5 +1,5 @@
-class VaultListNavArgs {
-  final bool isWalletAdded;
+class VaultHomeNavArgs {
+  final int addedWalletId;
 
-  VaultListNavArgs({required this.isWalletAdded});
+  VaultHomeNavArgs({required this.addedWalletId});
 }

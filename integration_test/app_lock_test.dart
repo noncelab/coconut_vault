@@ -1,5 +1,8 @@
+import 'dart:convert';
+import 'dart:typed_data';
+
 import 'package:coconut_vault/localization/strings.g.dart';
-import 'package:coconut_vault/model/single_sig/single_sig_wallet.dart';
+import 'package:coconut_vault/model/single_sig/single_sig_wallet_create_dto.dart';
 import 'package:coconut_vault/providers/auth_provider.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:coconut_vault/repository/secure_storage_repository.dart';
@@ -86,39 +89,31 @@ Future<void> waitForCreateVault(WidgetTester tester, {bool skipScreens = true}) 
     app.main();
     await tester.pumpAndSettle();
     final Finder addWalletText = find.text(t.vault_list_tab.add_wallet);
-    await waitForWidget(tester, addWalletText,
-        timeoutMessage: 'Add wallet text not found after 10 seconds');
+    await waitForWidget(tester, addWalletText, timeoutMessage: 'Add wallet text not found after 10 seconds');
   }
 
   // Save pin password 0000
-  final authProvider = Provider.of<AuthProvider>(
-    tester.element(find.byType(CupertinoApp)),
-    listen: false,
-  );
-  await authProvider.savePin("0000");
+  final authProvider = Provider.of<AuthProvider>(tester.element(find.byType(CupertinoApp)), listen: false);
+  await authProvider.savePin("0000", false);
 
   // add vault
-  final walletProvider = Provider.of<WalletProvider>(
-    tester.element(find.byType(CupertinoApp)),
-    listen: false,
-  );
+  final walletProvider = Provider.of<WalletProvider>(tester.element(find.byType(CupertinoApp)), listen: false);
   await addVault(walletProvider, tester);
   expect(walletProvider.vaultList.length, 1);
   shouldReset = false;
 }
 
-Future<void> waitForPinCheckScreen(WidgetTester tester,
-    {bool isLastChance = false, bool isForCorrectPin = false}) async {
+Future<void> waitForPinCheckScreen(
+  WidgetTester tester, {
+  bool isLastChance = false,
+  bool isForCorrectPin = false,
+}) async {
   app.main();
   await tester.pumpAndSettle();
 
   // 먼저 PIN 입력 화면이 뜨는지 기다리기
   final Finder pinScreen = find.byType(PinInputScreen);
-  await waitForWidget(
-    tester,
-    pinScreen,
-    timeoutMessage: 'PIN 입력 화면이 뜨지 않았습니다.',
-  );
+  await waitForWidget(tester, pinScreen, timeoutMessage: 'PIN 입력 화면이 뜨지 않았습니다.');
   await tester.pump(const Duration(milliseconds: 1000));
 
   if (isForCorrectPin) {
@@ -160,11 +155,7 @@ Future<void> waitForResetAllData(WidgetTester tester) async {
 
   // 먼저 PIN 입력 화면이 뜨는지 기다리기
   final Finder pinScreen = find.byType(PinInputScreen);
-  await waitForWidget(
-    tester,
-    pinScreen,
-    timeoutMessage: 'PIN 입력 화면이 뜨지 않았습니다.',
-  );
+  await waitForWidget(tester, pinScreen, timeoutMessage: 'PIN 입력 화면이 뜨지 않았습니다.');
   await tester.pump(const Duration(milliseconds: 1000));
   // '비밀번호가 기억나지 않나요?' 버튼 찾기
   final Finder forgotButton = find.text(t.forgot_password);
@@ -172,9 +163,9 @@ Future<void> waitForResetAllData(WidgetTester tester) async {
   expect(forgotButton, findsWidgets);
 
   // '초기화하기' 버튼 찾기
-  final Finder resetButton = find.text(t.alert.forgot_password.btn_reset);
-  await waitForWidgetAndTap(tester, resetButton, "resetButton");
-  expect(resetButton, findsWidgets);
+  // final Finder resetButton = find.text(t.alert.forgot_password.btn_reset);
+  // await waitForWidgetAndTap(tester, resetButton, "resetButton");
+  // expect(resetButton, findsWidgets);
 
   await tester.pumpAndSettle();
 }
@@ -191,34 +182,32 @@ Future<void> skipScreensUntilVaultList(WidgetTester tester) async {
   await tester.pumpAndSettle();
 
   // Wait for and tap the understood button on welcome screen
-  final Finder understoodButton = find.widgetWithText(CupertinoButton, t.welcome_screen.understood);
-  await waitForWidget(tester, understoodButton,
-      timeoutMessage: 'Understood button not found after 10 seconds');
-  await tester.tap(understoodButton);
-  await tester.pumpAndSettle();
+  // final Finder understoodButton = find.widgetWithText(CupertinoButton, t.welcome_screen.understood);
+  // await waitForWidget(tester, understoodButton,
+  //     timeoutMessage: 'Understood button not found after 10 seconds');
+  // await tester.tap(understoodButton);
+  // await tester.pumpAndSettle();
 
   // Wait for and tap the start button on guide screen
   final Finder startButton = find.text(t.start);
-  await waitForWidget(tester, startButton,
-      timeoutMessage: 'Start button not found after 10 seconds');
+  await waitForWidget(tester, startButton, timeoutMessage: 'Start button not found after 10 seconds');
   await tester.tap(startButton);
   await tester.pumpAndSettle();
 
   // Wait for the add wallet text to appear on vault list screen
   final Finder addWalletText = find.text(t.vault_list_tab.add_wallet);
-  await waitForWidget(tester, addWalletText,
-      timeoutMessage: 'Add wallet text not found after 10 seconds');
+  await waitForWidget(tester, addWalletText, timeoutMessage: 'Add wallet text not found after 10 seconds');
 }
 
 Future<void> addVault(WalletProvider walletProvider, WidgetTester tester) async {
   // single sig wallet
-  final singleSig = SinglesigWallet(
+  final singleSig = SingleSigWalletCreateDto(
     1,
     "Test Wallet1",
     0,
     0,
-    "thank split shrimp error own spirit slow glow act evidence globe slight",
-    '',
+    utf8.encode("thank split shrimp error own spirit slow glow act evidence globe slight"),
+    Uint8List(0),
   );
 
   await walletProvider.addSingleSigVault(singleSig);

@@ -1,19 +1,19 @@
 import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_lib/coconut_lib.dart';
-import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/model/multisig/multisig_signer.dart';
 import 'package:coconut_vault/model/multisig/multisig_vault_list_item.dart';
 import 'package:coconut_vault/model/single_sig/single_sig_vault_list_item.dart';
 import 'package:coconut_vault/model/common/vault_list_item_base.dart';
 import 'package:coconut_vault/utils/colors_util.dart';
-import 'package:coconut_vault/utils/icon_util.dart';
 import 'package:coconut_vault/widgets/button/tooltip_button.dart';
+import 'package:coconut_vault/widgets/icon/vault_icon.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:intl/intl.dart';
 
 import 'dart:math' as math;
 
-class VaultItemCard extends StatelessWidget {
+class VaultItemCard extends StatefulWidget {
   final VaultListItemBase vaultItem;
   final VoidCallback onTooltipClicked;
   final VoidCallback onNameChangeClicked;
@@ -28,136 +28,201 @@ class VaultItemCard extends StatelessWidget {
   });
 
   @override
+  State<VaultItemCard> createState() => _VaultItemCardState();
+}
+
+class _VaultItemCardState extends State<VaultItemCard> {
+  bool isItemTapped = false;
+
+  @override
   Widget build(BuildContext context) {
     List<MultisigSigner>? signers;
     bool isMultisig = false;
-    late int colorIndex;
-    late int iconIndex;
     late String rightText;
-    late String tooltipText;
 
-    if (vaultItem is MultisigVaultListItem) {
+    if (widget.vaultItem is MultisigVaultListItem) {
       /// 멀티 시그
-      MultisigVaultListItem multiVault = vaultItem as MultisigVaultListItem;
+      MultisigVaultListItem multiVault = widget.vaultItem as MultisigVaultListItem;
       signers = multiVault.signers;
-      colorIndex = multiVault.colorIndex;
-      iconIndex = multiVault.iconIndex;
-      int innerSignerCount = multiVault.signers.where((s) => s.innerVaultId != null).length;
-      rightText =
-          '${innerSignerCount > multiVault.requiredSignatureCount ? multiVault.requiredSignatureCount : innerSignerCount}개 서명 가능';
-
-      tooltipText = '${multiVault.requiredSignatureCount}/${multiVault.signers.length}';
+      rightText = '${multiVault.requiredSignatureCount}/${multiVault.signers.length}';
       isMultisig = true;
     } else {
       /// 싱글 시그
-      SingleSigVaultListItem singleVault = vaultItem as SingleSigVaultListItem;
+      SingleSigVaultListItem singleVault = widget.vaultItem as SingleSigVaultListItem;
       final singlesigVault = singleVault.coconutVault as SingleSignatureVault;
-      colorIndex = singleVault.colorIndex;
-      iconIndex = singleVault.iconIndex;
       rightText = singlesigVault.keyStore.masterFingerprint;
-      tooltipText = t.wallet_id;
     }
 
     return Container(
-      margin: isMultisig
-          ? const EdgeInsets.only(top: 20, left: 16, right: 16)
-          : const EdgeInsets.only(bottom: 12, left: 16, right: 16),
+      margin: const EdgeInsets.only(left: 16, right: 16),
       decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(28), // defaultRadius로 통일하면 border 넓이가 균일해보이지 않음
-          border: isMultisig ? null : Border.all(color: CoconutColors.borderLightGray, width: 1),
-          gradient: isMultisig
-              ? LinearGradient(
+        borderRadius: BorderRadius.circular(14), // defaultRadius로 통일하면 border 넓이가 균일해보이지 않음
+        border: isMultisig ? null : Border.all(color: CoconutColors.borderLightGray, width: 1),
+        gradient:
+            isMultisig
+                ? LinearGradient(
                   colors: CustomColorHelper.getGradientColors(signers!),
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
-                  transform: const GradientRotation(math.pi / 10))
-              : null),
+                  transform: const GradientRotation(math.pi / 10),
+                )
+                : null,
+      ),
       child: Container(
-        margin: isMultisig ? const EdgeInsets.all(2) : null,
-        padding: isMultisig ? const EdgeInsets.all(20) : const EdgeInsets.all(24),
-        decoration: isMultisig
-            ? BoxDecoration(
-                color: CoconutColors.white,
-                borderRadius: BorderRadius.circular(26), // defaultRadius로 통일하면 border 넓이가 균일해보이지 않음
-              )
-            : null,
+        margin: isMultisig ? const EdgeInsets.all(2) : null, // 멀티시그의 경우 border 대신
+        padding: const EdgeInsets.all(20),
+        decoration:
+            isMultisig
+                ? BoxDecoration(
+                  color: CoconutColors.white,
+                  borderRadius: BorderRadius.circular(12), // defaultRadius로 통일하면 border 넓이가 균일해보이지 않음
+                )
+                : null,
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: CoconutColors.backgroundColorPaletteLight[colorIndex],
-                  borderRadius: BorderRadius.circular(18.0),
-                ),
-                child: SvgPicture.asset(CustomIcons.getPathByIndex(iconIndex),
-                    colorFilter:
-                        ColorFilter.mode(CoconutColors.colorPalette[colorIndex], BlendMode.srcIn),
-                    width: 28.0)),
-            const SizedBox(width: 8.0),
-            Flexible(
-              flex: 4,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(children: [
-                    Flexible(
-                        child: Text(
-                      vaultItem.name,
-                      style: CoconutTypography.heading4_18_Bold,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    )),
-                    const SizedBox(width: 7),
-                    GestureDetector(
-                        onTap: () {
-                          onNameChangeClicked();
-                        },
-                        child: Container(
-                          decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(8), color: CoconutColors.gray150),
-                          child: const Padding(
-                            padding: EdgeInsets.all(5.0),
-                            child: Icon(
-                              Icons.edit,
-                              color: CoconutColors.gray800,
-                              size: 14,
+            Expanded(
+              child: GestureDetector(
+                onTapDown: (details) {
+                  setState(() {
+                    isItemTapped = true;
+                  });
+                },
+                onTapCancel: () {
+                  setState(() {
+                    isItemTapped = false;
+                  });
+                },
+                onTap: () {
+                  widget.onNameChangeClicked();
+                  setState(() {
+                    isItemTapped = false;
+                  });
+                },
+                child: Row(
+                  children: [
+                    _buildIcon(),
+                    CoconutLayout.spacing_200w,
+                    Expanded(
+                      child: LayoutBuilder(
+                        builder: (context, constraints) {
+                          return ConstrainedBox(
+                            constraints: BoxConstraints(maxWidth: constraints.maxWidth),
+                            child: Text(
+                              widget.vaultItem.name,
+                              style: CoconutTypography.body1_16_Bold,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
                             ),
-                          ),
-                        ))
-                  ]),
-                ],
+                          );
+                        },
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
-            const Spacer(
-              flex: 1,
-            ),
+            CoconutLayout.spacing_200w,
             Column(
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.end,
+              mainAxisSize: MainAxisSize.min,
               children: [
-                Text(
-                  rightText,
-                  style: isMultisig
-                      ? CoconutTypography.body3_12_NumberBold.setColor(CoconutColors.black)
-                      : CoconutTypography.heading4_18_NumberBold,
-                ),
-                TooltipButton(
-                  isSelected: false,
-                  text: tooltipText,
-                  isLeft: true,
-                  iconkey: tooltipKey,
-                  containerMargin: EdgeInsets.zero,
-                  onTap: () {},
-                  onTapDown: (details) {
-                    onTooltipClicked();
+                if (isMultisig)
+                  LayoutBuilder(
+                    builder: (context, constraints) {
+                      return ConstrainedBox(
+                        constraints: const BoxConstraints(maxWidth: 120),
+                        child: FittedBox(
+                          fit: BoxFit.scaleDown,
+                          alignment: Alignment.centerRight,
+                          child: Text(
+                            rightText.replaceAllMapped(RegExp(r'[a-z]+'), (match) => match.group(0)!.toUpperCase()),
+                            style: CoconutTypography.heading4_18_NumberBold,
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                if (!isMultisig)
+                  LayoutBuilder(
+                    builder: (context, constraints) {
+                      return ConstrainedBox(
+                        constraints: const BoxConstraints(maxWidth: 120),
+                        child: TooltipButton(
+                          isSelected: false,
+                          text: rightText,
+                          isLeft: true,
+                          iconkey: widget.tooltipKey,
+                          containerMargin: EdgeInsets.zero,
+                          onTapDown: (details) {
+                            widget.onTooltipClicked();
+                          },
+                          textStyle: CoconutTypography.heading4_18_NumberBold,
+                          iconColor: CoconutColors.black,
+                          iconSize: 18,
+                          isIconBold: true,
+                        ),
+                      );
+                    },
+                  ),
+                LayoutBuilder(
+                  builder: (context, constraints) {
+                    return ConstrainedBox(
+                      constraints: const BoxConstraints(maxWidth: 120),
+                      child: FittedBox(
+                        fit: BoxFit.scaleDown,
+                        child: Text(
+                          DateFormat('yy.MM.dd HH:mm').format(widget.vaultItem.createdAt),
+                          style: CoconutTypography.body2_14.setColor(CoconutColors.gray600),
+                        ),
+                      ),
+                    );
                   },
                 ),
               ],
-            )
+            ),
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildIcon() {
+    int colorIndex = widget.vaultItem.colorIndex;
+    int iconIndex = widget.vaultItem.iconIndex;
+
+    return Stack(
+      clipBehavior: Clip.none,
+      children: [
+        VaultIcon(iconIndex: iconIndex, colorIndex: colorIndex),
+        Positioned(
+          right: -3,
+          bottom: -3,
+          child: Container(
+            padding: const EdgeInsets.all(4.3),
+            decoration: BoxDecoration(
+              color: isItemTapped ? CoconutColors.gray300 : CoconutColors.gray150,
+              shape: BoxShape.circle,
+              boxShadow: const [
+                BoxShadow(color: CoconutColors.gray300, offset: Offset(2, 2), blurRadius: 10, spreadRadius: 0),
+              ],
+            ),
+            child: Container(
+              padding: const EdgeInsets.all(1),
+              decoration: BoxDecoration(
+                color: isItemTapped ? CoconutColors.gray300 : CoconutColors.gray150,
+                shape: BoxShape.circle,
+              ),
+              child: SvgPicture.asset(
+                'assets/svg/edit-outlined.svg',
+                width: 10,
+                colorFilter: const ColorFilter.mode(CoconutColors.gray700, BlendMode.srcIn),
+              ),
+            ),
+          ),
+        ),
+      ],
     );
   }
 }

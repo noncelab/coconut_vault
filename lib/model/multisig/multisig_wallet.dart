@@ -19,8 +19,7 @@ class MultisigWallet {
   @JsonKey(name: "requiredSignatureCount")
   int? requiredSignatureCount;
 
-  MultisigWallet(
-      this.id, this.name, this.icon, this.color, this.signers, this.requiredSignatureCount);
+  MultisigWallet(this.id, this.name, this.icon, this.color, this.signers, this.requiredSignatureCount);
 
   Map<String, dynamic> toJson() => _$MultisigWalletToJson(this);
 

@@ -14,8 +14,7 @@ class CopyTextContainer extends StatefulWidget {
   final String toastMsg;
   final TextAlign? textAlign;
   final TextStyle? textStyle;
-  const CopyTextContainer(
-      {super.key, required this.text, required this.toastMsg, this.textAlign, this.textStyle});
+  const CopyTextContainer({super.key, required this.text, required this.toastMsg, this.textAlign, this.textStyle});
 
   static const MethodChannel _channel = MethodChannel(methodChannelOS);
 
@@ -66,8 +65,7 @@ class _CopyTextContainerState extends State<CopyTextContainer> {
 
         fToast.init(context);
         final toast = MyToast.getToastWidget(widget.toastMsg);
-        fToast.showToast(
-            child: toast, gravity: ToastGravity.BOTTOM, toastDuration: const Duration(seconds: 2));
+        fToast.showToast(child: toast, gravity: ToastGravity.BOTTOM, toastDuration: const Duration(seconds: 2));
       },
       onTapDown: (details) {
         setState(() {
@@ -85,14 +83,9 @@ class _CopyTextContainerState extends State<CopyTextContainer> {
       },
       child: Container(
         width: MediaQuery.sizeOf(context).width,
-        padding: const EdgeInsets.symmetric(
-          horizontal: 24,
-          vertical: 20,
-        ),
+        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(
-            CoconutStyles.radius_400,
-          ),
+          borderRadius: BorderRadius.circular(CoconutStyles.radius_400),
           color: CoconutColors.gray150,
         ),
         child: Row(
@@ -101,27 +94,21 @@ class _CopyTextContainerState extends State<CopyTextContainer> {
               child: Text(
                 widget.text,
                 textAlign: widget.textAlign ?? TextAlign.start,
-                style: widget.textStyle?.setColor(_textColor) ??
-                    CoconutTypography.body1_16_Number.setColor(_textColor),
+                style: widget.textStyle?.setColor(_textColor) ?? CoconutTypography.body1_16_Number.setColor(_textColor),
               ),
             ),
             CoconutLayout.spacing_400w,
             Container(
               padding: const EdgeInsets.all(4),
               decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(
-                  CoconutStyles.radius_100,
-                ),
+                borderRadius: BorderRadius.circular(CoconutStyles.radius_100),
                 color: _buttonColor,
               ),
               child: SvgPicture.asset(
                 'assets/svg/copy.svg',
-                colorFilter: ColorFilter.mode(
-                  _iconColor,
-                  BlendMode.srcIn,
-                ),
+                colorFilter: ColorFilter.mode(_iconColor, BlendMode.srcIn),
               ),
-            )
+            ),
           ],
         ),
       ),

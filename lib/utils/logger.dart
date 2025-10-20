@@ -1,3 +1,5 @@
+// ignore_for_file: avoid_print
+
 import 'package:flutter/foundation.dart';
 
 class Logger {
@@ -5,7 +7,6 @@ class Logger {
 
   static void log(Object? object) {
     if (!_isReleaseMode) {
-      // ignore: avoid_print
       print(object);
     }
   }
@@ -15,6 +16,15 @@ class Logger {
       print('\n************error************\n');
       print(object);
       print('\n************error************\n');
+    }
+  }
+
+  static void logLongString(String str) {
+    if (!_isReleaseMode) {
+      const chunkSize = 800;
+      for (int i = 0; i < str.length; i += chunkSize) {
+        print(str.substring(i, i + chunkSize > str.length ? str.length : i + chunkSize));
+      }
     }
   }
 }

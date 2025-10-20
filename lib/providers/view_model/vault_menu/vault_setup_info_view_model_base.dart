@@ -13,6 +13,7 @@ abstract class VaultSetupInfoViewModelBase<T extends VaultListItemBase> extends 
   String get name => _vaultListItem.name;
   int get colorIndex => _vaultListItem.colorIndex;
   int get iconIndex => _vaultListItem.iconIndex;
+  DateTime get createdAt => _vaultListItem.createdAt;
 
   VaultSetupInfoViewModelBase(this._walletProvider, int id) {
     _vaultListItem = _walletProvider.getVaultById(id) as T;

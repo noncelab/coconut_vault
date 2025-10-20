@@ -96,7 +96,7 @@ class SignProvider {
   }
 
   void resetAll() {
-    _unsignedPsbtBase64 = _vaultListItem =
-        _psbt = _recipientAddress = _recipientAmounts = _sendingAmount = _signedPsbtBase64 = null;
+    _unsignedPsbtBase64 =
+        _vaultListItem = _psbt = _recipientAddress = _recipientAmounts = _sendingAmount = _signedPsbtBase64 = null;
   }
 }
