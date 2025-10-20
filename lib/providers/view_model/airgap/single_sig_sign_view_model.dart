@@ -54,15 +54,8 @@ class SingleSigSignViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> sign({required Uint8List passphrase}) async {
-    Uint8List? mnemonicBytes;
-    Seed? seed;
-
+  Future<void> sign({required Seed seed}) async {
     try {
-      mnemonicBytes = await _walletProvider.getSecret(_signProvider.walletId!);
-
-      seed = Seed.fromMnemonic(mnemonicBytes, passphrase: passphrase);
-
       final signedTx = await compute(SignIsolates.addSignatureToPsbtWithSingleVault, [
         seed,
         _signProvider.unsignedPsbtBase64!,
@@ -70,8 +63,7 @@ class SingleSigSignViewModel extends ChangeNotifier {
       _signProvider.saveSignedPsbt(signedTx);
       updateSignState();
     } finally {
-      mnemonicBytes?.wipe();
-      seed?.wipe();
+      seed.wipe();
     }
   }
 
@@ -93,5 +85,9 @@ class SingleSigSignViewModel extends ChangeNotifier {
 
   void resetSignProvider() {
     _signProvider.resetSignedPsbt();
+  }
+
+  Future<Uint8List> getSecret() async {
+    return await _walletProvider.getSecret(_signProvider.walletId!);
   }
 }

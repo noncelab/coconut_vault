@@ -65,7 +65,7 @@ class _SingleSigSetupInfoScreenState extends State<SingleSigSetupInfoScreen> {
   ) async {
     final authProvider = context.read<AuthProvider>();
 
-    if (await authProvider.isBiometricsAuthValid() && context.mounted) {
+    if (await authProvider.isBiometricsAuthValidToAvoidDoubleAuth() && context.mounted) {
       onSuccess();
       return;
     }

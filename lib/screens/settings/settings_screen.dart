@@ -149,6 +149,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         SingleButton(
                           buttonPosition: SingleButtonPosition.top,
                           title: t.settings_screen.use_biometric,
+                          description:
+                              provider.isBiometricEnabled
+                                  ? null
+                                  : provider.availableBiometrics.isNotEmpty
+                                  ? t.alert.tee_use_biometrics.description
+                                  : null,
                           rightElement: CupertinoSwitch(
                             value: provider.isBiometricEnabled,
                             activeTrackColor: CoconutColors.black,

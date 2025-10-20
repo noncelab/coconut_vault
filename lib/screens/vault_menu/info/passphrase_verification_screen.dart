@@ -145,7 +145,7 @@ class _PassphraseVerificationScreenState extends State<PassphraseVerificationScr
 
   Future<bool> _authenticateWithBiometricOrPin() async {
     final authProvider = context.read<AuthProvider>();
-    if (await authProvider.isBiometricsAuthValid()) {
+    if (await authProvider.isBiometricsAuthValidToAvoidDoubleAuth()) {
       return true;
     }
 

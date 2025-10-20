@@ -706,6 +706,9 @@ alert:
   finish_signing:
     title:  "トランザクション署名完了"
     description: "この画面を閉じると署名情報が失われます。\n本当に終了しますか？"
+  tee_use_biometrics:
+    title: "生体認証のお知らせ"
+    description: "アプリのロック解除時には生体認証は使用されません。ただし、セキュア領域（TEE）に保存された情報にアクセスする際に自動的に認証が求められる場合があります。"
 
 toast:
   clipboard_copied: "クリップボードにコピーしました"

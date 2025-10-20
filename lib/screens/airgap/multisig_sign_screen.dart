@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:coconut_design_system/coconut_design_system.dart';
+import 'package:coconut_lib/coconut_lib.dart';
 import 'package:coconut_vault/constants/app_routes.dart';
 import 'package:coconut_vault/enums/currency_enum.dart';
 import 'package:coconut_vault/enums/pin_check_context_enum.dart';
@@ -62,7 +63,7 @@ class _MultisigSignScreenState extends State<MultisigSignScreen> {
   }
 
   /// PassphraseCheckScreen 내부에서 인증까지 완료함
-  Future<String?> _authenticateWithPassphrase({required BuildContext context, required int index}) async {
+  Future<Seed?> _authenticateWithPassphrase({required BuildContext context, required int index}) async {
     return await MyBottomSheet.showBottomSheet_ratio(
       ratio: 0.5,
       context: context,
@@ -72,7 +73,7 @@ class _MultisigSignScreenState extends State<MultisigSignScreen> {
 
   Future<bool?> _authenticateWithoutPassphrase() async {
     final authProvider = context.read<AuthProvider>();
-    if (await authProvider.isBiometricsAuthValid()) {
+    if (await authProvider.isBiometricsAuthValidToAvoidDoubleAuth()) {
       return true;
     }
     if (mounted) {
@@ -97,11 +98,11 @@ class _MultisigSignScreenState extends State<MultisigSignScreen> {
     if (isKeyInsideVault) {
       if (!_viewModel.isSigningOnlyMode) {
         // 안전 저장 모드
-        Uint8List validPassphrase = utf8.encode('');
+        Seed? seed;
         if (_viewModel.getHasPassphrase(index)) {
-          validPassphrase = utf8.encode(await _authenticateWithPassphrase(context: context, index: index) ?? '');
+          seed = await _authenticateWithPassphrase(context: context, index: index);
 
-          if (validPassphrase.isEmpty) {
+          if (seed == null) {
             return;
           }
         } else {
@@ -109,11 +110,11 @@ class _MultisigSignScreenState extends State<MultisigSignScreen> {
           if (authenticateResult != true) {
             return;
           }
+          seed = Seed.fromMnemonic(await _viewModel.getSecret(index));
         }
 
-        await _addSignatureToPsbt(index, validPassphrase);
-
-        validPassphrase.wipe();
+        await _addSignatureToPsbt(index, seed);
+        seed.wipe();
       } else {
         // 서명 전용 모드
         await _addSignatureToPsbtInSigningOnlyMode(index);
@@ -141,13 +142,13 @@ class _MultisigSignScreenState extends State<MultisigSignScreen> {
   }
 
   /// @param index: signer index
-  Future<void> _addSignatureToPsbt(int index, Uint8List passphrase) async {
+  Future<void> _addSignatureToPsbt(int index, Seed seed) async {
     try {
       setState(() {
         _showLoading = true;
       });
 
-      await _viewModel.sign(index, passphrase);
+      await _viewModel.sign(index, seed);
     } catch (error) {
       if (mounted) {
         showAlertDialog(context: context, content: t.errors.sign_error(error: error));

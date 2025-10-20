@@ -119,6 +119,13 @@ class AuthProvider extends ChangeNotifier {
     return isBiometricsAuthEnabled && await authenticateWithBiometrics(isSaved: isSaved);
   }
 
+  /// 주의: TEE decrypt 직전 사용. 아이폰이거나 생체인증이 켜져 있는 경우 생체인증을 진행하지 않음. TEE decrypt과정에서 생체인증하기 때문
+  Future<bool> isBiometricsAuthValidToAvoidDoubleAuth({bool isSaved = false}) async {
+    if (Platform.isIOS && isBiometricsAuthEnabled) return true;
+
+    return await isBiometricsAuthValid(isSaved: isSaved);
+  }
+
   void setInitState() {
     if (_isDisposed) return;
 

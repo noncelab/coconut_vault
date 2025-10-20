@@ -88,29 +88,39 @@ class SingleButton extends StatelessWidget {
   }
 
   Widget _buildButtonContent() {
-    return Row(
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        if (leftElement != null) ...{Container(child: leftElement), CoconutLayout.spacing_400w},
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
+        Row(
+          children: [
+            if (leftElement != null) ...{Container(child: leftElement), CoconutLayout.spacing_400w},
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  FittedBox(
+                    fit: BoxFit.scaleDown,
+                    child: Text(
+                      title,
+                      style: titleStyle ?? CoconutTypography.body2_14_Bold.setColor(CoconutColors.black),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            if (subtitle != null)
               FittedBox(
                 fit: BoxFit.scaleDown,
-                child: Text(title, style: titleStyle ?? CoconutTypography.body2_14_Bold.setColor(CoconutColors.black)),
+                child: Text(
+                  subtitle!,
+                  style: subtitleStyle ?? CoconutTypography.body3_12_Number.setColor(CoconutColors.gray600),
+                ),
               ),
-            ],
-          ),
+            rightElement ?? _rightArrow(),
+          ],
         ),
-        if (subtitle != null)
-          FittedBox(
-            fit: BoxFit.scaleDown,
-            child: Text(
-              subtitle!,
-              style: subtitleStyle ?? CoconutTypography.body3_12_Number.setColor(CoconutColors.gray600),
-            ),
-          ),
-        rightElement ?? _rightArrow(),
+        if (description != null)
+          Text(description!, style: CoconutTypography.body3_12_Number.setColor(CoconutColors.gray600)),
       ],
     );
   }
