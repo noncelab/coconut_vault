@@ -91,8 +91,10 @@ void main() async {
     await sharedPrefs.setString(SharedPrefsKeys.kVaultMode, VaultMode.secureStorage.name);
   }
 
-  // secure storage 옵션 변경에 따른 삭제
-  await OldSecureStorageCleaner.cleanAll();
+  // iOS secure storage 옵션 변경에 따른 삭제
+  if (Platform.isIOS) {
+    await OldSecureStorageCleaner.cleanAll();
+  }
 
   return runApp(const CoconutVaultApp());
 }
