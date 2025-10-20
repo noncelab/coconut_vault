@@ -92,8 +92,9 @@ void main() async {
     await sharedPrefs.setString(SharedPrefsKeys.kVaultMode, VaultMode.secureStorage.name);
   }
 
-  // secure storage 옵션 변경에 따른 마이그레이션
-  await SecureStorageMigration.migrateAllIfNeeded();
+  // secure storage 옵션 변경에 따른 삭제
+  await OldSecureStorageCleaner.cleanAll();
+
   // 보안 검사 수행
   final securityResult = await SecurityPrechecker().performSecurityCheck();
 
