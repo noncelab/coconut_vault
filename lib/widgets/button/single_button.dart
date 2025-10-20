@@ -62,7 +62,7 @@ class SingleButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final buttonContent = _buildButtonContent();
+    final buttonContent = _buildButtonContent(context);
 
     return enableShrinkAnim
         ? ShrinkAnimationButton(
@@ -87,7 +87,7 @@ class SingleButton extends StatelessWidget {
         );
   }
 
-  Widget _buildButtonContent() {
+  Widget _buildButtonContent(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -109,18 +109,24 @@ class SingleButton extends StatelessWidget {
               ),
             ),
             if (subtitle != null)
-              FittedBox(
-                fit: BoxFit.scaleDown,
-                child: Text(
-                  subtitle!,
-                  style: subtitleStyle ?? CoconutTypography.body3_12_Number.setColor(CoconutColors.gray600),
+              ConstrainedBox(
+                constraints: BoxConstraints(maxWidth: MediaQuery.sizeOf(context).width * 0.3),
+                child: FittedBox(
+                  fit: BoxFit.scaleDown,
+                  child: Text(
+                    subtitle!,
+                    style: subtitleStyle ?? CoconutTypography.body3_12_Number.setColor(CoconutColors.gray600),
+                  ),
                 ),
               ),
             rightElement ?? _rightArrow(),
           ],
         ),
         if (description != null)
-          Text(description!, style: CoconutTypography.body3_12_Number.setColor(CoconutColors.gray600)),
+          FittedBox(
+            fit: BoxFit.scaleDown,
+            child: Text(description!, style: CoconutTypography.body3_12_Number.setColor(CoconutColors.gray600)),
+          ),
       ],
     );
   }

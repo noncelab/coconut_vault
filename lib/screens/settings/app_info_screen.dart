@@ -200,23 +200,26 @@ class _AppInfoScreenState extends State<AppInfoScreen> {
               ),
               const SizedBox(width: 30),
               Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      packageInfo.appName,
-                      maxLines: 2,
-                      style: CoconutTypography.body1_16_Bold.merge(const TextStyle(fontSize: 24)),
-                    ),
-                    Text(
-                      'ver.${packageInfo.version}',
-                      style: CoconutTypography.body2_14_Bold.setColor(CoconutColors.black.withValues(alpha: 0.7)),
-                    ),
-                    Text(
-                      t.app_info_screen.powered_by_noncelab,
-                      style: CoconutTypography.body2_14.setColor(CoconutColors.black.withValues(alpha: 0.7)),
-                    ),
-                  ],
+                child: MediaQuery(
+                  data: MediaQuery.of(context).copyWith(textScaler: const TextScaler.linear(1.0)),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        packageInfo.appName,
+                        maxLines: 2,
+                        style: CoconutTypography.body1_16_Bold.merge(const TextStyle(fontSize: 24)),
+                      ),
+                      Text(
+                        'ver.${packageInfo.version}',
+                        style: CoconutTypography.body2_14_Bold.setColor(CoconutColors.black.withValues(alpha: 0.7)),
+                      ),
+                      Text(
+                        t.app_info_screen.powered_by_noncelab,
+                        style: CoconutTypography.body2_14.setColor(CoconutColors.black.withValues(alpha: 0.7)),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ],
@@ -474,34 +477,37 @@ class _AppInfoScreenState extends State<AppInfoScreen> {
         return Container(
           padding: const EdgeInsets.symmetric(vertical: 50),
           color: CoconutColors.black.withValues(alpha: 0.03),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Align(
-                alignment: Alignment.centerLeft,
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  child: Text(
-                    t.app_info_screen.version_and_date(version: packageInfo.version, releasedAt: RELEASE_DATE),
-                    style: CoconutTypography.body2_14.setColor(CoconutColors.black.withValues(alpha: 0.5)),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 20),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: Text(
-                  COPYRIGHT_TEXT,
-                  style: CoconutTypography.body2_14.merge(
-                    TextStyle(
-                      color: CoconutColors.black.withValues(alpha: 0.5),
-                      decoration: TextDecoration.underline,
-                      decorationColor: CoconutColors.black.withValues(alpha: 0.5),
+          child: MediaQuery(
+            data: MediaQuery.of(context).copyWith(textScaler: const TextScaler.linear(1.0)),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    child: Text(
+                      t.app_info_screen.version_and_date(version: packageInfo.version, releasedAt: RELEASE_DATE),
+                      style: CoconutTypography.body2_14.setColor(CoconutColors.black.withValues(alpha: 0.5)),
                     ),
                   ),
                 ),
-              ),
-            ],
+                const SizedBox(height: 20),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: Text(
+                    COPYRIGHT_TEXT,
+                    style: CoconutTypography.body2_14.merge(
+                      TextStyle(
+                        color: CoconutColors.black.withValues(alpha: 0.5),
+                        decoration: TextDecoration.underline,
+                        decorationColor: CoconutColors.black.withValues(alpha: 0.5),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
         );
       },
