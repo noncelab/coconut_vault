@@ -73,8 +73,7 @@ class _DevicePasswordDetectionScreenState extends State<DevicePasswordDetectionS
                             ),
                             CoconutLayout.spacing_300h,
                             Padding(
-                              padding: EdgeInsets.symmetric(horizontal: MediaQuery.sizeOf(context).width * 0.23),
-
+                              padding: EdgeInsets.symmetric(horizontal: MediaQuery.sizeOf(context).width * 0.16),
                               child: _buildDescriptionTextWidget(),
                             ),
                           ],
@@ -114,31 +113,43 @@ class _DevicePasswordDetectionScreenState extends State<DevicePasswordDetectionS
       case DevicePasswordDetectionScreenState.devicePasswordChanged:
         titleText = t.device_password_detection_screen.device_password_changed_question;
     }
-    return Text(titleText, style: CoconutTypography.heading3_21_Bold, textAlign: TextAlign.center);
+    return MediaQuery(
+      data: MediaQuery.of(context).copyWith(textScaler: const TextScaler.linear(1.0)),
+      child: Text(titleText, style: CoconutTypography.heading3_21_Bold, textAlign: TextAlign.center),
+    );
   }
 
   Widget _buildDescriptionTextWidget() {
     Widget descriptionTextWidget;
     switch (widget.state) {
       case DevicePasswordDetectionScreenState.devicePasswordRequired:
-        descriptionTextWidget = Text(
-          t.device_password_detection_screen.device_password_setting_guide,
-          style: CoconutTypography.body1_16,
-          textAlign: TextAlign.center,
+        descriptionTextWidget = MediaQuery(
+          data: MediaQuery.of(context).copyWith(textScaler: const TextScaler.linear(1.0)),
+          child: Text(
+            t.device_password_detection_screen.device_password_setting_guide,
+            style: CoconutTypography.body1_16,
+            textAlign: TextAlign.center,
+          ),
         );
       case DevicePasswordDetectionScreenState.devicePasswordChanged:
         descriptionTextWidget = Column(
           children: [
-            Text(
-              t.device_password_detection_screen.device_password_changed_guide,
-              style: CoconutTypography.body1_16_Bold,
-              textAlign: TextAlign.center,
+            MediaQuery(
+              data: MediaQuery.of(context).copyWith(textScaler: const TextScaler.linear(1.0)),
+              child: Text(
+                t.device_password_detection_screen.device_password_changed_guide,
+                style: CoconutTypography.body1_16_Bold,
+                textAlign: TextAlign.center,
+              ),
             ),
             CoconutLayout.spacing_200h,
-            Text(
-              t.device_password_detection_screen.reset_vault_to_use,
-              style: CoconutTypography.body1_16_Bold,
-              textAlign: TextAlign.center,
+            MediaQuery(
+              data: MediaQuery.of(context).copyWith(textScaler: const TextScaler.linear(1.0)),
+              child: Text(
+                t.device_password_detection_screen.reset_vault_to_use,
+                style: CoconutTypography.body1_16_Bold,
+                textAlign: TextAlign.center,
+              ),
             ),
           ],
         );

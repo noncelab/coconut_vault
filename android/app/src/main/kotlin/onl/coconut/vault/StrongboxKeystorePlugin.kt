@@ -1,5 +1,6 @@
 package onl.coconut.vault
 
+import android.content.Context
 import android.os.Build
 import androidx.annotation.NonNull
 import io.flutter.embedding.engine.plugins.FlutterPlugin
@@ -19,10 +20,18 @@ import android.security.keystore.KeyPermanentlyInvalidatedException
 import java.security.UnrecoverableKeyException
 import java.security.InvalidKeyException
 
+import android.util.Log
+
 class StrongBoxKeystorePlugin: FlutterPlugin, MethodChannel.MethodCallHandler {
   private lateinit var channel: MethodChannel
   private val ANDROID_KEYSTORE = "AndroidKeyStore"
   private var lastUsedStrongBox = false
+  companion object {
+    private const val TAG = "StrongboxKeystore"
+    private const val ANDROID_KEYSTORE = "AndroidKeyStore"
+  }
+
+  private lateinit var appContext: Context
 
   override fun onAttachedToEngine(@NonNull binding: FlutterPlugin.FlutterPluginBinding) {
     channel = MethodChannel(binding.binaryMessenger, "onl.coconut.vault/trusted_execution_environment")
@@ -174,52 +183,96 @@ class StrongBoxKeystorePlugin: FlutterPlugin, MethodChannel.MethodCallHandler {
    * 잠금화면이 아예 없어지거나(None/Swipe) 기존 인증 방식(패턴 → PIN, PIN → 패턴, 또는 비밀번호 변경)이 바뀐 경우
    */
   private fun generateAesKey(alias: String, userAuthRequired: Boolean, perUseAuth: Boolean) {
+    Log.d(TAG, "generateAesKey() start alias=$alias, userAuthRequired=$userAuthRequired, perUseAuth=$perUseAuth, sdk=${Build.VERSION.SDK_INT}")
+
     val ks = KeyStore.getInstance(ANDROID_KEYSTORE).apply { load(null) }
     // 이미 존재하면 삭제 후 재생성(필요 시 정책 변경 반영)
     if (ks.containsAlias(alias)) {
-      ks.deleteEntry(alias)
+      try {
+        ks.deleteEntry(alias)
+      } catch (e: Exception) {
+        Log.e(TAG, "deleteEntry($alias) failed", e)
+      }
+      
     }
-
+   
     val builder = KeyGenParameterSpec.Builder(
       alias,
       KeyProperties.PURPOSE_ENCRYPT or KeyProperties.PURPOSE_DECRYPT
     ).setBlockModes(KeyProperties.BLOCK_MODE_GCM)
      .setEncryptionPaddings(KeyProperties.ENCRYPTION_PADDING_NONE)
      .setKeySize(256)
-     .setInvalidatedByBiometricEnrollment(false)
+     
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) { // 24+
+      // 생체등록 추가로 키 무효화 방지
+      builder.setInvalidatedByBiometricEnrollment(false)
+      Log.d(TAG, "setInvalidatedByBiometricEnrollment(false) applied (API>=24)")
+    } else {
+      Log.d(TAG, "skip setInvalidatedByBiometricEnrollment (API<24)")
+    }
 
     if (userAuthRequired) {
       builder.setUserAuthenticationRequired(true)
-      // perUseAuth면 매번 인증 요구(-1), 아니면 5분 동안 면제(예: 300초)
-      if (perUseAuth) {
-        builder.setUserAuthenticationValidityDurationSeconds(-1)
-      } else {
-        builder.setUserAuthenticationValidityDurationSeconds(300)
-      }
+      // perUseAuth == true 면 매사용 인증(-1), 아니면 예: 300초 유예
+      builder.setUserAuthenticationValidityDurationSeconds(if (perUseAuth) -1 else 300)
+      Log.d(TAG, "setUserAuthenticationRequired(true), validity=${if (perUseAuth) -1 else 300}s")
+    } else {
+      Log.d(TAG, "userAuthRequired=false (no auth required)")
     }
 
-    val keyGenerator = KeyGenerator.getInstance(
-      KeyProperties.KEY_ALGORITHM_AES, ANDROID_KEYSTORE
-    )
+    val keyGenerator = KeyGenerator.getInstance(KeyProperties.KEY_ALGORITHM_AES, ANDROID_KEYSTORE)
 
     lastUsedStrongBox = false
+
+    // 1) StrongBox가 있으면 먼저 StrongBox로 시도
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-      // StrongBox 시도
-      try {
-        keyGenerator.init(builder.setIsStrongBoxBacked(true).build())
-        keyGenerator.generateKey()
-        lastUsedStrongBox = true
-        return
-      } catch (e: StrongBoxUnavailableException) {
-        // 폴백: TEE
+      val hasStrongBox = try {
+        // 일부 기기는 이 feature flag가 가장 신뢰할 수 있음
+        val pm = appContext.packageManager
+        pm.hasSystemFeature("android.hardware.strongbox_keystore")
       } catch (e: Exception) {
-        // 기기/펌웨어 별 예외 → 폴백
+        Log.w(TAG, "hasSystemFeature(STRONGBOX) check failed, will still try StrongBox", e)
+        true // 체크 실패 시 일단 시도해보고 예외로 판단
       }
+
+      if (hasStrongBox) {
+        try {
+          Log.d(TAG, "Trying StrongBox-backed key generation")
+          keyGenerator.init(builder.setIsStrongBoxBacked(true).build())
+          keyGenerator.generateKey()
+          lastUsedStrongBox = true
+          Log.d(TAG, "StrongBox key generated")
+          return
+        } catch (e: StrongBoxUnavailableException) {
+          Log.w(TAG, "StrongBoxUnavailableException → fallback to TEE", e)
+        } catch (e: Exception) {
+          // 일부 기기/펌웨어는 다른 예외를 던짐 → 폴백
+          Log.w(TAG, "StrongBox failed → fallback to TEE", e)
+        }
+      } else {
+        Log.d(TAG, "Device reports no StrongBox; skip StrongBox init")
+      }
+    } else {
+      Log.d(TAG, "API < 28 → StrongBox not supported; use TEE")
     }
 
-    // TEE 백드 기본 Keystore
-    keyGenerator.init(builder.build())
-    keyGenerator.generateKey()
+    // 2) 확실한 TEE 폴백
+    try {
+      Log.d(TAG, "Generating TEE-backed key")
+      keyGenerator.init(
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P)
+          builder.setIsStrongBoxBacked(false).build()
+        else
+          builder.build()
+      )
+      keyGenerator.generateKey()
+      lastUsedStrongBox = false
+      Log.d(TAG, "TEE key generated")
+    } catch (e: Exception) {
+      Log.e(TAG, "TEE key generation failed", e)
+      throw e
+    }
+   
   }
   
   private fun deleteAesKey(alias: String) {
