@@ -11,6 +11,7 @@ import 'package:coconut_vault/providers/wallet_creation_provider.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:coconut_vault/screens/vault_creation/multisig/signer_assignment_screen.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 
 class SignerAssignmentViewModel extends ChangeNotifier {
   final WalletProvider _walletProvider;
@@ -27,6 +28,7 @@ class SignerAssignmentViewModel extends ChangeNotifier {
   MultisignatureVault? _newMultisigVault;
 
   List<MultisigSigner>? _signers;
+  bool _isInitializing = true;
 
   SignerAssignmentViewModel(this._walletProvider, this._walletCreationProvider) {
     _totalSignatureCount = _walletCreationProvider.totalSignatureCount!;
@@ -45,26 +47,32 @@ class SignerAssignmentViewModel extends ChangeNotifier {
             .map((vault) => vault as SingleSigVaultListItem)
             .toList();
 
-    _initSignerOptionList(_singlesigVaultList);
+    _initSignerOptionList(_singlesigVaultList).whenComplete(() {
+      WidgetsBinding.instance.addPostFrameCallback((_) async {
+        await Future.delayed(const Duration(milliseconds: 1000));
+        _isInitializing = false;
+        notifyListeners();
+      });
+    });
   }
   String get loadingMessage => _loadingMessage;
   int get totalSignatureCount => _totalSignatureCount;
   int get requiredSignatureCount => _requiredSignatureCount;
   MultisignatureVault? get newMultisigVault => _newMultisigVault;
-  List<SignerOption> get signerOptions => _signerOptions;
   List<SignerOption> get unselectedSignerOptions => _unselectedSignerOptions;
   List<AssignedVaultListItem> get assignedVaultList => _assignedVaultList;
   List<SingleSigVaultListItem> get singlesigVaultList => _singlesigVaultList;
+  bool get isInitializing => _isInitializing;
 
   /// bsms를 비교하여 이미 보유한 볼트 지갑 중 하나인 경우 이름을 반환
   String? findVaultNameByBsms(String signerBsms) {
     var mfp = Bsms.parseSigner(signerBsms).signer!.masterFingerPrint;
 
-    int result = signerOptions.indexWhere((element) {
+    int result = _signerOptions.indexWhere((element) {
       return element.masterFingerprint == mfp;
     });
     if (result == -1) return null;
-    return signerOptions[result].singlesigVaultListItem.name;
+    return _signerOptions[result].singlesigVaultListItem.name;
   }
 
   int getAssignedVaultListLength() {
