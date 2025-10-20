@@ -18,7 +18,7 @@ publish_to: "none" # Remove this line if you wish to publish to pub.dev
 # of the product and file versions while build-number is used as the build suffix.
 version: 0.1.1+3
 app_versions:
-  ios_regtest: 3.0.0+4
+  ios_regtest: 3.0.0+5
   ios_mainnet: 0.1.1+3
   aos_regtest: 3.0.0+38
   aos_mainnet: 0.1.1+14
