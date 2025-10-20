@@ -192,7 +192,12 @@ class _VaultHomeScreenState extends State<VaultHomeScreen> with TickerProviderSt
             colorFilter: const ColorFilter.mode(CoconutColors.gray800, BlendMode.srcIn),
           ),
           onPressed: () {
-            MyBottomSheet.showBottomSheet_90(context: context, child: const SettingsScreen());
+            MyBottomSheet.showDraggableBottomSheet(
+              initialChildSize: 0.9,
+              context: context,
+              showDragHandle: true,
+              childBuilder: (scrollController) => SettingsScreen(scrollController: scrollController),
+            );
           },
         ),
       ],
