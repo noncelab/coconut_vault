@@ -267,7 +267,10 @@ class _VaultModeSelectionScreenState extends State<VaultModeSelectionScreen> {
                   decoration: BoxDecoration(color: CoconutColors.black.withValues(alpha: 0.3)),
                   child: Center(
                     child: MessageActivityIndicator(
-                      message: t.vault_mode_selection_screen.converting_to_secure_storage_mode,
+                      message:
+                          Platform.isAndroid
+                              ? t.vault_mode_selection_screen.converting_to_secure_storage_mode_aos
+                              : t.vault_mode_selection_screen.converting_to_secure_storage_mode_ios,
                     ),
                   ),
                 ),
@@ -306,7 +309,7 @@ class _VaultModeSelectionScreenState extends State<VaultModeSelectionScreen> {
               setState(() {
                 _isConvertingToSecureStorageMode = true;
               });
-              await Future.delayed(const Duration(seconds: 1));
+              await Future.delayed(const Duration(seconds: 4));
             }
 
             await walletProvider.updateIsSigningOnlyMode(false);

@@ -251,7 +251,9 @@ vault_mode_selection_screen:
   mode_change_failed_title: "モード切り替えに失敗しました"
   secure_storage_mode_conversion_failed: "安全保存モードへの切り替えに失敗しました。"
   signing_only_mode_conversion_failed: "署名専用モードへの切り替えに失敗しました。"
-  converting_to_secure_storage_mode: "シードを安全に保存しています。しばらくお待ちください。"
+  converting_to_secure_storage_mode_aos: "シードを安全に保存しています。認証が求められた場合は完了してください。"
+  converting_to_secure_storage_mode_ios: "シードを安全に保存します。シングル署名ウォレットの数だけ認証が必要です。"
+
 multisig:
   nth_key: "キー $index"
   nth_key_with_name: "キー $index - $name"

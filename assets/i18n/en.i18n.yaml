@@ -251,7 +251,8 @@ vault_mode_selection_screen:
   mode_change_failed_title: "Mode Change Failed"
   secure_storage_mode_conversion_failed: "Failed to switch to Secure Storage Mode."
   signing_only_mode_conversion_failed: "Failed to switch to Signing-Only Mode."
-  converting_to_secure_storage_mode: "Securely saving your seed. Please wait a moment..."
+  converting_to_secure_storage_mode_aos: "Securely saving the seed. Please complete the authentication when it is requested."
+  converting_to_secure_storage_mode_ios: "Saving the seed securely. Authentication is required for each single-signature wallet."
 
 multisig:
   nth_key: "key $index"

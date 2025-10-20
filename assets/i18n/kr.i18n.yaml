@@ -252,7 +252,8 @@ vault_mode_selection_screen:
   mode_change_failed_title: "모드 전환 실패"
   secure_storage_mode_conversion_failed: "안전 저장 모드로 전환하지 못했어요."
   signing_only_mode_conversion_failed: "서명 전용 모드로 전환하지 못했어요."
-  converting_to_secure_storage_mode: "시드를 안전하게 저장중입니다. 잠시만 기다려 주세요."
+  converting_to_secure_storage_mode_aos: "시드를 안전하게 저장중입니다. 인증이 요청되면 완료해 주세요."
+  converting_to_secure_storage_mode_ios: "시드를 안전하게 저장합니다. 단일 서명 지갑 개수만큼 인증이 필요합니다."
   
 
 multisig:

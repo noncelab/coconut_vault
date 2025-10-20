@@ -461,6 +461,7 @@ class WalletRepository {
     }
 
     for (final vault in _vaultList!) {
+      if (vault.vaultType == WalletType.multiSignature) continue;
       final Seed seed = await getSeedInSigningOnlyMode(vault.id);
       if (seed.passphrase.isEmpty) continue;
 
