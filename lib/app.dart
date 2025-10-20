@@ -18,12 +18,9 @@ import 'package:coconut_vault/screens/airgap/psbt_confirmation_screen.dart';
 import 'package:coconut_vault/screens/airgap/psbt_scanner_screen.dart';
 import 'package:coconut_vault/screens/airgap/signed_transaction_qr_screen.dart';
 import 'package:coconut_vault/screens/airgap/single_sig_sign_screen.dart';
-import 'package:coconut_vault/screens/app_update/restoration_info_screen.dart';
-import 'package:coconut_vault/screens/app_update/vault_list_restoration_screen.dart';
 import 'package:coconut_vault/screens/common/vault_mode_selection_screen.dart';
 import 'package:coconut_vault/screens/home/vault_home_screen.dart';
 import 'package:coconut_vault/screens/home/vault_list_screen.dart';
-import 'package:coconut_vault/screens/app_update/app_update_preparation_screen.dart';
 import 'package:coconut_vault/screens/precheck/device_password_detection_screen.dart';
 import 'package:coconut_vault/screens/precheck/jail_break_detection_screen.dart';
 import 'package:coconut_vault/services/security_prechecker.dart';
@@ -56,7 +53,6 @@ import 'package:coconut_vault/screens/vault_menu/info/passphrase_verification_sc
 import 'package:coconut_vault/screens/vault_menu/multisig_signer_bsms_export_screen.dart';
 import 'package:coconut_vault/screens/vault_menu/sync_to_wallet/sync_to_wallet_screen.dart';
 import 'package:coconut_vault/screens/vault_menu/info/single_sig_setup_info_screen.dart';
-import 'package:coconut_vault/utils/logger.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
@@ -78,9 +74,6 @@ enum AppEntryFlow {
   pinCheckAppLaunched,
   pinCheckAppResumed,
   vaultHome,
-  pinCheckForRestoration, // 복원파일o, 업데이트o 일때 바로 이동하는 핀체크 화면
-  foundBackupFile, // 복원파일o, 업데이트x 일때 이동하는 복원파일 발견 화면
-  restoration, // 복원 진행 화면
 }
 
 const cupertinoThemeData = CupertinoThemeData(
@@ -185,7 +178,6 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> with SingleTickerProv
       onAppGoInactive: () {},
       onAppGoActive: () async {
         final securityResult = await SecurityPrechecker().performSecurityCheck();
-        debugPrint('_buildPinCheckScreen onAppGoActive securityResult: ${securityResult.status}');
 
         // 보안 검사 결과에 따른 처리
         switch (securityResult.status) {
@@ -217,6 +209,8 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> with SingleTickerProv
       ),
     );
   }
+
+  int resuemedCount = 0;
 
   Widget _getHomeScreenRoute(AppEntryFlow appEntry, BuildContext context) {
     switch (appEntry) {
@@ -268,39 +262,13 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> with SingleTickerProv
           child: _buildPinCheckScreen(pinCheckContext: PinCheckContextEnum.appLaunch, nextFlow: AppEntryFlow.vaultHome),
         );
       case AppEntryFlow.pinCheckAppResumed:
+        resuemedCount++;
         return CustomLoadingOverlay(
           child: _buildPinCheckScreen(
             pinCheckContext: PinCheckContextEnum.appResumed,
             nextFlow: AppEntryFlow.vaultHome,
           ),
         );
-      case AppEntryFlow.pinCheckForRestoration:
-
-        /// 복원 파일 o, 업데이트 o 일때 바로 이동하는 핀체크 화면
-        return CustomLoadingOverlay(
-          child: _buildPinCheckScreen(
-            pinCheckContext: PinCheckContextEnum.restoration, // TODO: 동작 확인 필요
-            nextFlow: AppEntryFlow.restoration,
-          ),
-        );
-
-      case AppEntryFlow.foundBackupFile:
-
-        /// 복원파일 o, 업데이트 x 일때 이동하는 복원파일 발견 화면
-        return CustomLoadingOverlay(
-          child: RestorationInfoScreen(
-            onComplete: () => _updateEntryFlow(AppEntryFlow.restoration),
-            onReset: () => _updateEntryFlow(AppEntryFlow.vaultHome),
-          ),
-        );
-
-      case AppEntryFlow.restoration:
-
-        /// 복원 진행 화면
-        return CustomLoadingOverlay(
-          child: VaultListRestorationScreen(onComplete: () => _updateEntryFlow(AppEntryFlow.vaultHome)),
-        );
-
       case AppEntryFlow.vaultHome:
         return const VaultHomeScreen();
     }
@@ -336,28 +304,18 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> with SingleTickerProv
           ChangeNotifierProvider(create: (_) => preferenceProvider),
           ChangeNotifierProvider(create: (_) => visibilityProvider),
           ChangeNotifierProxyProvider2<VisibilityProvider, PreferenceProvider, ConnectivityProvider>(
-            create:
-                (_) => ConnectivityProvider(
-                  hasSeenGuide: visibilityProvider.hasSeenGuide,
-                  isSigningOnlyMode: preferenceProvider.isSigningOnlyMode,
-                ),
+            create: (_) => ConnectivityProvider(hasSeenGuide: visibilityProvider.hasSeenGuide),
             update: (_, visibilityProvider, preferenceProvider, connectivityProvider) {
               if (visibilityProvider.hasSeenGuide) {
                 connectivityProvider!.setHasSeenGuideTrue();
               }
 
-              // VaultMode 변경 감지
-              final newIsSigningOnlyMode = preferenceProvider.isSigningOnlyMode;
-              connectivityProvider!.updateSigningOnlyMode(newIsSigningOnlyMode);
-
-              return connectivityProvider;
+              return connectivityProvider!;
             },
           ),
           if (_appEntryFlow == AppEntryFlow.vaultHome) ...[
             Provider<WalletCreationProvider>(create: (_) => WalletCreationProvider()),
             Provider<SignProvider>(create: (_) => SignProvider()),
-            ChangeNotifierProvider(create: (_) => WalletProvider(visibilityProvider, preferenceProvider)),
-          ] else if (_appEntryFlow == AppEntryFlow.restoration) ...[
             ChangeNotifierProvider(create: (_) => WalletProvider(visibilityProvider, preferenceProvider)),
           ],
         ],
@@ -381,6 +339,10 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> with SingleTickerProv
                       });
                     },
                     onAppGoActive: () {
+                      // 생체인증이 진행 중인 경우 무시
+                      if (authProvider.isBiometricInProgress) {
+                        return;
+                      }
                       _handleAppGoActive(preferenceProvider, authProvider);
                     },
                     child: Stack(
@@ -532,8 +494,6 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> with SingleTickerProv
 
                               return WelcomeScreen(onComplete: onComplete);
                             },
-                            AppRoutes.prepareUpdate:
-                                (context) => const CustomLoadingOverlay(child: AppUpdatePreparationScreen()),
                             AppRoutes.passphraseVerification:
                                 (context) => buildScreenWithArguments(
                                   context,
@@ -874,13 +834,15 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> with SingleTickerProv
   Future<void> _handleAppGoActive(PreferenceProvider preferenceProvider, AuthProvider authProvider) async {
     bool isPinSet = authProvider.isPinSet;
     int vaultListLength = SharedPrefsRepository().getInt(SharedPrefsKeys.vaultListLength) ?? 0;
-    try {
-      // 생체인증 상태 업데이트
-      authProvider.updateDeviceBiometricAvailability();
 
+    if (_isInactive == false && _appEntryFlow == AppEntryFlow.vaultHome) {
+      // 이미 _appEntryFlow가 vaultHome로 이동한 경우
+      return;
+    }
+
+    try {
       // 첫 번째/두 번째 플로우: 보안 검사 수행
       final securityResult = await SecurityPrechecker().performSecurityCheck();
-      debugPrint('onAppGoActive securityResult: ${securityResult.status}');
 
       // 보안 검사 결과에 따른 처리
       switch (securityResult.status) {
@@ -911,6 +873,9 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> with SingleTickerProv
           break;
       }
 
+      // 생체인증 상태 업데이트
+      await authProvider.updateDeviceBiometricAvailability();
+
       if (preferenceProvider.isSigningOnlyMode || (!isPinSet || vaultListLength == 0)) {
         // 서명 전용 모드이거나 지갑이 없으면 vaultHome으로 이동
         _updateEntryFlow(AppEntryFlow.vaultHome);
@@ -918,7 +883,6 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> with SingleTickerProv
         _updateEntryFlow(AppEntryFlow.pinCheckAppResumed);
       }
     } catch (e) {
-      debugPrint('onAppGoActive error: $e');
       // 예외 발생 시
       if (isPinSet || vaultListLength > 0) {
         _updateEntryFlow(AppEntryFlow.pinCheckAppResumed);

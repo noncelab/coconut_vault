@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:coconut_vault/constants/method_channel.dart';
 import 'package:coconut_vault/constants/secure_storage_keys.dart';
 import 'package:coconut_vault/constants/shared_preferences_keys.dart';
@@ -76,7 +74,6 @@ class SecurityPrechecker {
   Future<SecurityCheckResult> checkDevicePasswordChanged() async {
     try {
       final isDevicePasswordChanged = await _isDevicePasswordChanged();
-      print('isDevicePasswordChanged: $isDevicePasswordChanged');
       if (isDevicePasswordChanged) {
         return SecurityCheckResult(status: SecurityCheckStatus.devicePasswordChanged, checkTime: DateTime.now());
       }

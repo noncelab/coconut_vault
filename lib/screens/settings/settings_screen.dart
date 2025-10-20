@@ -3,17 +3,14 @@ import 'dart:io';
 import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_vault/constants/app_routes.dart';
 import 'package:coconut_vault/enums/pin_check_context_enum.dart';
-import 'package:coconut_vault/enums/vault_mode_enum.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/providers/auth_provider.dart';
 import 'package:coconut_vault/providers/preference_provider.dart';
 import 'package:coconut_vault/providers/visibility_provider.dart';
-import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:coconut_vault/screens/settings/language_bottom_sheet.dart';
 import 'package:coconut_vault/screens/settings/unit_bottm_sheet.dart';
 import 'package:coconut_vault/screens/settings/pin_setting_screen.dart';
 import 'package:coconut_vault/utils/logger.dart';
-import 'package:coconut_vault/widgets/custom_loading_overlay.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:loader_overlay/loader_overlay.dart';
@@ -21,7 +18,6 @@ import 'package:coconut_vault/screens/common/pin_check_screen.dart';
 import 'package:coconut_vault/widgets/button/multi_button.dart';
 import 'package:coconut_vault/widgets/button/single_button.dart';
 import 'package:provider/provider.dart';
-import 'package:tuple/tuple.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../widgets/bottom_sheet.dart';
@@ -54,18 +50,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     children: [
                       _securityPart(context),
                       CoconutLayout.spacing_1000h,
-                      Selector2<WalletProvider, PreferenceProvider, Tuple2<bool, VaultMode?>>(
-                        selector:
-                            (context, walletProvider, preferenceProvider) =>
-                                Tuple2(walletProvider.vaultList.isNotEmpty, preferenceProvider.getVaultMode()),
-                        builder: (context, data, vaultMode) {
-                          bool isWalletNotEmpty = data.item1;
-                          VaultMode? vaultMode = data.item2;
-                          return isWalletNotEmpty && vaultMode != VaultMode.signingOnly
-                              ? Column(children: [_updatePart(context), CoconutLayout.spacing_1000h])
-                              : Container();
-                        },
-                      ),
                       _btcUnitPart(context),
                       CoconutLayout.spacing_1000h,
                       _languagePart(context),
@@ -295,51 +279,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
       title: title,
       subtitle: subtitle,
       onPressed: onPressed,
-    );
-  }
-
-  Widget _updatePart(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        _category(t.settings_screen.update),
-        _buildAnimatedButton(
-          title: t.settings_screen.prepare_update,
-          onPressed: () async {
-            // INFO: iOS에서 prepareUpdate 화면 진입 시 SecureEnclave의 decrypt 하면서 생체인증/패스코드 확인이 진행되므로
-            // 별도 인증 과정은 생략합니다.
-            if (Platform.isIOS) {
-              if (!context.mounted) return;
-              Navigator.pushNamed(context, AppRoutes.prepareUpdate);
-              return;
-            }
-
-            // TODO: Android의 경우 테스트
-            if (Platform.isAndroid) {
-              final authProvider = context.read<AuthProvider>();
-              if (await authProvider.isBiometricsAuthValid()) {
-                if (!context.mounted) return;
-                Navigator.pushNamed(context, AppRoutes.prepareUpdate);
-                return;
-              }
-            }
-
-            if (!context.mounted) return;
-            MyBottomSheet.showBottomSheet_90(
-              context: context,
-              child: CustomLoadingOverlay(
-                child: PinCheckScreen(
-                  pinCheckContext: PinCheckContextEnum.sensitiveAction,
-                  onSuccess: () async {
-                    Navigator.pop(context);
-                    Navigator.pushNamed(context, AppRoutes.prepareUpdate);
-                  },
-                ),
-              ),
-            );
-          },
-        ),
-      ],
     );
   }
 

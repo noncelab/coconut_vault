@@ -33,6 +33,10 @@ class AuthProvider extends ChangeNotifier {
   /// dispose 상태 추적
   bool _isDisposed = false;
 
+  /// 생체인증 진행 중인지 여부
+  bool _isBiometricInProgress = false;
+  bool get isBiometricInProgress => _isBiometricInProgress;
+
   /// 비밀번호 설정 여부
   bool _isPinSet = false;
   bool get isPinSet => _isPinSet;
@@ -86,7 +90,7 @@ class AuthProvider extends ChangeNotifier {
 
   int get remainingAttemptCount => kMaxAttemptPerTurn - _currentAttemptInTurn;
 
-  bool get isPermanantlyLocked => _currentTurn == kMaxTurn;
+  bool get isPermanentlyLocked => _currentTurn == kMaxTurn;
   bool get isUnlockAvailable => unlockAvailableAt?.isBefore(DateTime.now()) ?? true;
 
   VoidCallback? onAuthenticationSuccess;
@@ -140,6 +144,9 @@ class AuthProvider extends ChangeNotifier {
   /// 생체인증 진행 후 성공 여부 반환
   Future<bool> authenticateWithBiometrics({BuildContext? context, bool isSaved = false}) async {
     bool authenticated = false;
+    _isBiometricInProgress = true;
+    notifyListeners();
+
     try {
       authenticated = await _auth.authenticate(
         localizedReason:
@@ -156,8 +163,6 @@ class AuthProvider extends ChangeNotifier {
         saveIsBiometricEnabled(authenticated);
         _setHasAlreadyRequestedBioPermissionTrue();
       }
-
-      return authenticated;
     } on PlatformException catch (e) {
       Logger.log(e);
 
@@ -171,8 +176,11 @@ class AuthProvider extends ChangeNotifier {
         saveIsBiometricEnabled(false);
         _setHasAlreadyRequestedBioPermissionTrue();
       }
+    } finally {
+      _isBiometricInProgress = false;
+      notifyListeners();
     }
-    return false;
+    return authenticated;
   }
 
   Future<void> _setHasAlreadyRequestedBioPermissionTrue() async {

@@ -5,9 +5,8 @@ import 'package:coconut_vault/constants/method_channel.dart';
 import 'package:coconut_vault/constants/shared_preferences_keys.dart';
 import 'package:coconut_vault/enums/vault_mode_enum.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
-import 'package:coconut_vault/repository/secure_storage_migration.dart';
+import 'package:coconut_vault/repository/old_secure_storage_cleaner.dart';
 import 'package:coconut_vault/repository/shared_preferences_repository.dart';
-import 'package:coconut_vault/services/security_prechecker.dart';
 import 'package:coconut_vault/utils/logger.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
@@ -95,19 +94,5 @@ void main() async {
   // secure storage 옵션 변경에 따른 삭제
   await OldSecureStorageCleaner.cleanAll();
 
-  // 보안 검사 수행
-  final securityResult = await SecurityPrechecker().performSecurityCheck();
-
-  switch (securityResult.status) {
-    case SecurityCheckStatus.jailbreakDetected:
-    // return runApp();
-    case SecurityCheckStatus.devicePasswordRequired:
-    // return runApp();
-    case SecurityCheckStatus.devicePasswordChanged:
-    //
-    case SecurityCheckStatus.error:
-    // return runApp(const CoconutVaultApp());
-    case SecurityCheckStatus.secure:
-      return runApp(const CoconutVaultApp());
-  }
+  return runApp(const CoconutVaultApp());
 }
