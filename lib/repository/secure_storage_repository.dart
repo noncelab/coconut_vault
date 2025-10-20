@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:typed_data';
 
 import 'package:coconut_vault/utils/logger.dart';
 import 'package:flutter/services.dart';
@@ -9,12 +8,14 @@ class SecureStorageRepository {
   SecureStorageRepository._internal();
 
   static final SecureStorageRepository _instance = SecureStorageRepository._internal();
-  // static const FlutterSecureStorage _oldStorage = FlutterSecureStorage(
-  //   aOptions: AndroidOptions(encryptedSharedPreferences: true),
-  // );
+
   static const FlutterSecureStorage _storage = FlutterSecureStorage(
     aOptions: AndroidOptions(encryptedSharedPreferences: true),
-    iOptions: IOSOptions(accessibility: KeychainAccessibility.passcode, synchronizable: false),
+    iOptions: IOSOptions(
+      groupId: 'group.onl.coconut.vault.secure',
+      accessibility: KeychainAccessibility.passcode,
+      synchronizable: false,
+    ),
   );
   factory SecureStorageRepository() {
     return _instance;
