@@ -4,20 +4,19 @@ import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_svg/svg.dart';
 
 class AppUnavailableNotificationScreen extends StatefulWidget {
   final bool? isNetworkOn;
   final bool? isBluetoothOn;
   final bool? isDeveloperModeOn;
-  final bool? isDeviceSecured;
+  final bool? isVaultReset;
 
   const AppUnavailableNotificationScreen({
     super.key,
     this.isNetworkOn,
     this.isBluetoothOn,
     this.isDeveloperModeOn,
-    this.isDeviceSecured,
+    this.isVaultReset,
   });
 
   @override
@@ -44,26 +43,24 @@ class _AppUnavailableNotificationScreenState extends State<AppUnavailableNotific
       body: SafeArea(
         child: Center(
           child:
-              widget.isDeviceSecured == false
+              widget.isVaultReset == true
                   ? Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       Text(
-                        t.app_unavailable_notification_screen.device_password_check.set_device_password,
+                        t.app_unavailable_notification_screen.vault_reset.reset_completed,
                         style: CoconutTypography.heading3_21_Bold,
                         textAlign: TextAlign.center,
                       ),
                       CoconutLayout.spacing_800h,
                       _buildImage(),
                       CoconutLayout.spacing_800h,
-                      _buildStep('1', t.app_unavailable_notification_screen.device_password_check.step_1),
+                      _buildStep('1', t.app_unavailable_notification_screen.vault_reset.step_1),
                       CoconutLayout.spacing_400h,
-                      _buildStep('2', t.app_unavailable_notification_screen.device_password_check.step_2),
+                      _buildStep('2', t.app_unavailable_notification_screen.vault_reset.step_2),
                       CoconutLayout.spacing_400h,
-                      _buildStep('3', t.app_unavailable_notification_screen.device_password_check.step_3),
-                      CoconutLayout.spacing_400h,
-                      _buildStep('4', t.app_unavailable_notification_screen.device_password_check.step_4),
+                      _buildStep('3', t.app_unavailable_notification_screen.vault_reset.step_3),
                       CoconutLayout.spacing_200h,
                     ],
                   )
@@ -93,10 +90,10 @@ class _AppUnavailableNotificationScreenState extends State<AppUnavailableNotific
   }
 
   Widget _buildImage() {
-    if (widget.isDeviceSecured == false) {
+    if (widget.isVaultReset == true) {
       return Padding(
         padding: const EdgeInsets.symmetric(horizontal: 80),
-        child: Image.asset('assets/png/password-required.png', fit: BoxFit.fitWidth),
+        child: Image.asset('assets/png/erase-secret.png', fit: BoxFit.fitWidth, width: 160),
       );
     }
     if (widget.isNetworkOn == true) {

@@ -37,12 +37,6 @@ class _StartScreenState extends State<StartScreen> {
       Provider.of<PreferenceProvider>(context, listen: false).getVaultMode() != null,
     );
 
-    if (_viewModel.isVaultModeSelected && context.read<PreferenceProvider>().getVaultMode() == VaultMode.signingOnly) {
-      // 서명 전용 모드인 경우 한번 더 초기화 작업을 진행합니다.
-      Logger.log('[서명 전용 모드]인 경우 한번 더 초기화 작업을 진행합니다.');
-      // TODO: 서명 전용 모드 초기화 작업 추가
-    }
-
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       /// Splash 딜레이
       await Future.delayed(const Duration(seconds: 2));

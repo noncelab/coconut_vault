@@ -5,7 +5,7 @@ import 'package:coconut_vault/constants/method_channel.dart';
 import 'package:coconut_vault/constants/shared_preferences_keys.dart';
 import 'package:coconut_vault/enums/vault_mode_enum.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
-import 'package:coconut_vault/repository/secure_storage_migration.dart';
+import 'package:coconut_vault/repository/old_secure_storage_cleaner.dart';
 import 'package:coconut_vault/repository/shared_preferences_repository.dart';
 import 'package:coconut_vault/services/security_prechecker.dart';
 import 'package:coconut_vault/utils/logger.dart';

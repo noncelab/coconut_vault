@@ -43,8 +43,8 @@ restore: "Restore"
 change: "Change"
 receiving: "Receive"
 email_subject: "[Coconut Vault] Inquiry"
-exit_vault: "Exit Vault"
-exit_vault_description: "Exiting the vault will delete the keys.\nAre you sure you want to exit?"
+reset_vault: "Reset Vault"
+reset_vault_description: "Resetting the vault will delete the keys.\nAre you sure you want to reset?"
 
 sign_completion: "Signed"
 sign: "Sign"
@@ -160,12 +160,11 @@ app_unavailable_notification_screen:
   step1: "Completely close the app"
   step2: "Check the connection status"
   step3: "Restart the app"
-  device_password_check:
-    set_device_password: "To use Vault, please set a device password"
-    step_1: "Completely close the app"
-    step_2: "Set a password"
-    step_3: "For enhanced security, use a password combining letters and numbers instead of PIN."
-    step_4: "To make signing more convenient and secure, please activate biometrics."
+  vault_reset:
+    reset_completed: "Reset completed"
+    step_1: "All key information has been deleted"
+    step_2: "To secure the app, completely close the app"
+    step_3: "After closing the app, turn off the device power to be even more secure"
 
 device_password_detection_screen:
   device_password_required: "To use Vault, please set a device password"
@@ -185,7 +184,6 @@ jail_break_detection_screen:
   jail_break_guide_title: "What is Jailbreaking / Rooting?"
   jail_break_guide_description: "Jailbreaking (iOS) or rooting (Android) is the act of removing the operating system’s security restrictions, allowing unrestricted access to system areas.\nWhile this provides higher-level control, it also increases the risk of malware infection or unauthorized access."
   continue_anyway: "Continue Anyway"
-  exit_app: "Exit App"
 
 ios_bluetooth_auth_notification_screen:
   allow_permission: "Please allow Bluetooth access to check your connection status."

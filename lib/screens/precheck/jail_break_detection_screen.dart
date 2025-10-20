@@ -1,15 +1,17 @@
-import 'dart:io';
-
 import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
+import 'package:coconut_vault/providers/preference_provider.dart';
+import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:coconut_vault/widgets/button/fixed_bottom_button.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:provider/provider.dart';
 
 class JailBreakDetectionScreen extends StatefulWidget {
+  final bool hasSeenGuide;
   final VoidCallback onSkip;
-  const JailBreakDetectionScreen({super.key, required this.onSkip});
+  final VoidCallback? onReset;
+  const JailBreakDetectionScreen({super.key, required this.hasSeenGuide, required this.onSkip, this.onReset});
 
   @override
   State<JailBreakDetectionScreen> createState() => _JailBreakDetectionScreenState();
@@ -98,6 +100,22 @@ class _JailBreakDetectionScreenState extends State<JailBreakDetectionScreen> {
   }
 
   Widget _buildBottomButton() {
+    if (!widget.hasSeenGuide) {
+      double bottom = MediaQuery.of(context).viewInsets.bottom + 16;
+      return Positioned(
+        bottom: bottom,
+        left: 0,
+        right: 0,
+        child: Center(
+          child: CoconutUnderlinedButton(
+            padding: const EdgeInsets.all(8),
+            text: t.jail_break_detection_screen.continue_anyway,
+            textStyle: CoconutTypography.body1_16,
+            onTap: () async => widget.onSkip(),
+          ),
+        ),
+      );
+    }
     return FixedBottomButton(
       subWidget: Padding(
         padding: const EdgeInsets.only(bottom: 8),
@@ -108,16 +126,16 @@ class _JailBreakDetectionScreenState extends State<JailBreakDetectionScreen> {
         ),
       ),
       isActive: true,
-      onButtonClicked: () async => _onExitButtonClicked(),
-      text: t.jail_break_detection_screen.exit_app,
-    );
-  }
+      onButtonClicked: () async {
+        final walletProvider = context.read<WalletProvider>();
+        // 볼트 목록 다시 로드
+        await walletProvider.loadVaultList();
+        await walletProvider.deleteAllWallets();
+        await context.read<PreferenceProvider>().resetVaultOrderAndFavorites();
 
-  void _onExitButtonClicked() async {
-    if (Platform.isAndroid) {
-      SystemNavigator.pop();
-    } else {
-      exit(0);
-    }
+        widget.onReset?.call();
+      },
+      text: t.reset_vault,
+    );
   }
 }

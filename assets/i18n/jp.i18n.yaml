@@ -43,6 +43,8 @@ restore: "復元"
 change: "変更"
 receiving: "受信"
 email_subject: "[ココナッツボルト] お問い合わせ"
+reset_vault: "ボルトを初期化"
+reset_vault_description: "ボルトを初期化すると、キーが削除されます。\n本当に初期化しますか？"
 
 sign_completion: "署名完了"
 sign: "署名"
@@ -158,12 +160,11 @@ app_unavailable_notification_screen:
   step1: "アプリを完全に閉じる"
   step2: "接続状態を確認"
   step3: "アプリを再起動"
-  device_password_check: 
-    set_device_password: "Vaultを使用するには\nデバイスパスワードを設定してください"
-    step_1: "アプリを完全に閉じる"
-    step_2: "パスワードを設定してください"
-    step_3: "セキュリティを強化するために、文字と数字を組み合わせたパスワードを使用してください"
-    step_4: "サインをより便利かつ安全にするために、生体認証を有効にしてください"
+  vault_reset: 
+    reset_completed: "初期化が完了しました"
+    step_1: "キー情報がすべて削除されました"
+    step_2: "アプリを完全に閉じる"
+    step_3: "アプリを閉じた後、デバイスの電源を切るとより安全です"
 
 device_password_detection_screen:
   device_password_required: "Vaultを使用するには\nデバイスパスワードを設定してください"
@@ -183,7 +184,6 @@ jail_break_detection_screen:
   jail_break_guide_title: "脱獄 / ルート化とは？"
   jail_break_guide_description: "脱獄(iOS)またはルート化(Android)とは、OSのセキュリティ制限を解除し、システム領域に自由にアクセスできるようにする行為です。\nユーザーは高度な操作権限を得られますが、同時にマルウェア感染や不正アクセスのリスクも高まります。"
   continue_anyway: "それでも続けます"
-  exit_app: "アプリを終了"
 
 ios_bluetooth_auth_notification_screen:
   allow_permission: "接続状況を確認するために、Bluetooth へのアクセスを許可してください。"

@@ -13,6 +13,7 @@ import 'package:coconut_vault/providers/wallet_creation_provider.dart';
 import 'package:coconut_vault/providers/auth_provider.dart';
 import 'package:coconut_vault/providers/connectivity_provider.dart';
 import 'package:coconut_vault/providers/visibility_provider.dart';
+import 'package:coconut_vault/repository/wallet_repository.dart';
 import 'package:coconut_vault/screens/airgap/multisig_sign_screen.dart';
 import 'package:coconut_vault/screens/airgap/psbt_confirmation_screen.dart';
 import 'package:coconut_vault/screens/airgap/psbt_scanner_screen.dart';
@@ -20,6 +21,7 @@ import 'package:coconut_vault/screens/airgap/signed_transaction_qr_screen.dart';
 import 'package:coconut_vault/screens/airgap/single_sig_sign_screen.dart';
 import 'package:coconut_vault/screens/app_update/restoration_info_screen.dart';
 import 'package:coconut_vault/screens/app_update/vault_list_restoration_screen.dart';
+import 'package:coconut_vault/screens/common/app_unavailable_notification_screen.dart';
 import 'package:coconut_vault/screens/common/vault_mode_selection_screen.dart';
 import 'package:coconut_vault/screens/home/vault_home_screen.dart';
 import 'package:coconut_vault/screens/home/vault_list_screen.dart';
@@ -56,7 +58,6 @@ import 'package:coconut_vault/screens/vault_menu/info/passphrase_verification_sc
 import 'package:coconut_vault/screens/vault_menu/multisig_signer_bsms_export_screen.dart';
 import 'package:coconut_vault/screens/vault_menu/sync_to_wallet/sync_to_wallet_screen.dart';
 import 'package:coconut_vault/screens/vault_menu/info/single_sig_setup_info_screen.dart';
-import 'package:coconut_vault/utils/logger.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
@@ -81,6 +82,7 @@ enum AppEntryFlow {
   pinCheckForRestoration, // 복원파일o, 업데이트o 일때 바로 이동하는 핀체크 화면
   foundBackupFile, // 복원파일o, 업데이트x 일때 이동하는 복원파일 발견 화면
   restoration, // 복원 진행 화면
+  vaultResetCompleted, // 볼트 초기화 완료 화면
 }
 
 const cupertinoThemeData = CupertinoThemeData(
@@ -124,7 +126,7 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> with SingleTickerProv
   double? _signingModeEdgePanelHorizontalPos;
   bool _isDraggingManually = false;
   bool _isPanningEdgePanel = false; // 패널 확장/축소 중인지 여부
-  bool _isExitDialogOpen = false;
+  bool _isResetDialogOpen = false;
   final GlobalKey<NavigatorState> _navigatorKey = GlobalKey<NavigatorState>();
   Timer? _longPressTimer;
   final GlobalKey _indicatorKey = GlobalKey();
@@ -223,7 +225,11 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> with SingleTickerProv
       case AppEntryFlow.securityCheck:
         return _SecurityCheckWidget(onComplete: _updateEntryFlow);
       case AppEntryFlow.jailbreakDetected:
-        return JailBreakDetectionScreen(onSkip: () => _updateEntryFlow(AppEntryFlow.splash));
+        return JailBreakDetectionScreen(
+          hasSeenGuide: visibilityProvider.hasSeenGuide,
+          onSkip: () => _updateEntryFlow(AppEntryFlow.splash),
+          onReset: () => _onChangeEntryFlow(),
+        );
       case AppEntryFlow.devicePasswordRequired:
         return DevicePasswordDetectionScreen(
           state: DevicePasswordDetectionScreenState.devicePasswordRequired,
@@ -302,7 +308,14 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> with SingleTickerProv
         );
 
       case AppEntryFlow.vaultHome:
-        return const VaultHomeScreen();
+        return VaultHomeScreen(
+          onChangeEntryFlow: () {
+            _onChangeEntryFlow();
+          },
+        );
+
+      case AppEntryFlow.vaultResetCompleted:
+        return const AppUnavailableNotificationScreen(isVaultReset: true);
     }
   }
 
@@ -324,7 +337,7 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> with SingleTickerProv
             if (!indicatorArea.contains(event.position) && mounted) {
               setState(() {
                 _signingModeEdgePanelWidth = 20.0;
-                _isExitDialogOpen = false;
+                _isResetDialogOpen = false;
               });
             }
           }
@@ -357,7 +370,7 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> with SingleTickerProv
             Provider<WalletCreationProvider>(create: (_) => WalletCreationProvider()),
             Provider<SignProvider>(create: (_) => SignProvider()),
             ChangeNotifierProvider(create: (_) => WalletProvider(visibilityProvider, preferenceProvider)),
-          ] else if (_appEntryFlow == AppEntryFlow.restoration) ...[
+          ] else if (_appEntryFlow == AppEntryFlow.jailbreakDetected) ...[
             ChangeNotifierProvider(create: (_) => WalletProvider(visibilityProvider, preferenceProvider)),
           ],
         ],
@@ -427,12 +440,12 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> with SingleTickerProv
                                     return ValueListenableBuilder<bool>(
                                       valueListenable: _routeNotifierHasShow,
                                       builder: (context, hasShow, child) {
-                                        final isEdgePannelVisible =
+                                        final isEdgePanelVisible =
                                             prefProvider.getVaultMode() == VaultMode.signingOnly &&
                                             _appEntryFlow == AppEntryFlow.vaultHome &&
                                             hasShow;
 
-                                        return _floatingExitButton(context, isEdgePannelVisible);
+                                        return _floatingResetButton(context, isEdgePanelVisible);
                                       },
                                     );
                                   },
@@ -589,7 +602,7 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> with SingleTickerProv
     );
   }
 
-  Widget _floatingExitButton(BuildContext context, bool isEdgePannelVisible) {
+  Widget _floatingResetButton(BuildContext context, bool isEdgePanelVisible) {
     final halfScreenWidth = MediaQuery.sizeOf(context).width / 2;
 
     return Positioned(
@@ -694,7 +707,7 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> with SingleTickerProv
             duration: const Duration(milliseconds: 200),
             curve: Curves.easeOut,
             width:
-                isEdgePannelVisible
+                isEdgePanelVisible
                     ? _isDraggingManually
                         ? 50
                         : _signingModeEdgePanelWidth + 20 + (_isDraggingManually ? 4 : 0)
@@ -717,7 +730,7 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> with SingleTickerProv
                         alignment: Alignment.centerLeft,
                         padding: const EdgeInsets.symmetric(horizontal: 10),
                         child: SvgPicture.asset(
-                          'assets/svg/exit.svg',
+                          'assets/svg/eraser.svg',
                           width: 24,
                           height: 24,
                           colorFilter: const ColorFilter.mode(CoconutColors.white, BlendMode.srcIn),
@@ -734,8 +747,8 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> with SingleTickerProv
                           // 패널이 확장된 상태에서 탭하면 exit dialog 표시
                           final navContext = _navigatorKey.currentContext;
                           if (navContext != null) {
-                            if (_isExitDialogOpen) return;
-                            _isExitDialogOpen = true;
+                            if (_isResetDialogOpen) return;
+                            _isResetDialogOpen = true;
                             showDialog(
                               context: navContext,
                               builder: (BuildContext dialogContext) {
@@ -743,23 +756,22 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> with SingleTickerProv
                                   insetPadding: EdgeInsets.symmetric(
                                     horizontal: MediaQuery.of(navContext).size.width * 0.15,
                                   ),
-                                  title: t.exit_vault,
-                                  description: t.exit_vault_description,
+                                  title: t.reset_vault,
+                                  description: t.reset_vault_description,
                                   backgroundColor: CoconutColors.white,
                                   leftButtonText: t.cancel,
                                   rightButtonText: t.confirm,
                                   rightButtonColor: CoconutColors.black,
                                   onTapLeft: () {
                                     Navigator.pop(dialogContext);
-                                    _isExitDialogOpen = false;
+                                    _isResetDialogOpen = false;
                                   },
-                                  onTapRight: () {
-                                    _isExitDialogOpen = false;
-                                    if (Platform.isAndroid) {
-                                      SystemNavigator.pop();
-                                    } else {
-                                      exit(0);
-                                    }
+                                  onTapRight: () async {
+                                    _isResetDialogOpen = false;
+                                    await context.read<WalletProvider>().deleteAllWallets();
+                                    await preferenceProvider.resetVaultOrderAndFavorites();
+
+                                    _onChangeEntryFlow();
                                   },
                                 );
                               },
@@ -788,7 +800,7 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> with SingleTickerProv
                                     : null,
                             top: _signingModeEdgePanelWidth == 100.0 ? 20 : 50 - 12,
                             child: SvgPicture.asset(
-                              'assets/svg/exit.svg',
+                              'assets/svg/eraser.svg',
                               width: 24,
                               height: 24,
                               colorFilter: const ColorFilter.mode(CoconutColors.white, BlendMode.srcIn),
@@ -799,7 +811,7 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> with SingleTickerProv
                             Positioned(
                               left: 0,
                               right: 0,
-                              top: 52,
+                              bottom: 30,
                               child: AnimatedOpacity(
                                 duration: const Duration(milliseconds: 200),
                                 opacity: _signingModeEdgePanelWidth == 100.0 ? 1.0 : 0.0,
@@ -807,7 +819,7 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> with SingleTickerProv
                                   child: FittedBox(
                                     fit: BoxFit.scaleDown,
                                     child: Text(
-                                      t.exit_vault,
+                                      t.reset_vault,
                                       style: CoconutTypography.body2_14_Bold.copyWith(color: CoconutColors.white),
                                     ),
                                   ),
@@ -821,6 +833,10 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> with SingleTickerProv
         ),
       ),
     );
+  }
+
+  void _onChangeEntryFlow() async {
+    _updateEntryFlow(AppEntryFlow.vaultResetCompleted);
   }
 
   void movePanelToEdge(PointerEvent details) {

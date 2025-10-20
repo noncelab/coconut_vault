@@ -32,7 +32,8 @@ import 'package:provider/provider.dart';
 import 'package:collection/collection.dart';
 
 class VaultHomeScreen extends StatefulWidget {
-  const VaultHomeScreen({super.key});
+  final Function? onChangeEntryFlow;
+  const VaultHomeScreen({super.key, this.onChangeEntryFlow});
 
   @override
   State<VaultHomeScreen> createState() => _VaultHomeScreenState();
@@ -478,16 +479,35 @@ class _VaultHomeScreenState extends State<VaultHomeScreen> with TickerProviderSt
                         iconColor: CoconutColors.white,
                         backgroundColor: CoconutColors.gray800,
                         pressedColor: CoconutColors.gray700,
-                        text: t.exit_vault,
-                        iconAssetPath: 'assets/svg/exit.svg',
+                        text: t.reset_vault,
+                        iconAssetPath: 'assets/svg/eraser.svg',
                         iconPadding: const EdgeInsets.only(right: 18, bottom: 16),
                         onPressed: () async {
-                          // TODO: 초기화 작업 수행
-                          if (Platform.isAndroid) {
-                            SystemNavigator.pop();
-                          } else {
-                            exit(0);
-                          }
+                          showDialog(
+                            context: context,
+                            builder: (BuildContext dialogContext) {
+                              return CoconutPopup(
+                                insetPadding: EdgeInsets.symmetric(
+                                  horizontal: MediaQuery.of(context).size.width * 0.15,
+                                ),
+                                title: t.reset_vault,
+                                description: t.reset_vault_description,
+                                backgroundColor: CoconutColors.white,
+                                leftButtonText: t.cancel,
+                                rightButtonText: t.confirm,
+                                rightButtonColor: CoconutColors.black,
+                                onTapLeft: () {
+                                  Navigator.pop(dialogContext);
+                                },
+                                onTapRight: () async {
+                                  await context.read<WalletProvider>().deleteAllWallets();
+                                  await context.read<PreferenceProvider>().resetVaultOrderAndFavorites();
+
+                                  widget.onChangeEntryFlow?.call();
+                                },
+                              );
+                            },
+                          );
                         },
                       );
                     },
