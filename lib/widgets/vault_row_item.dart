@@ -194,17 +194,19 @@ class _VaultRowItemState extends State<VaultRowItem> {
               : null,
       borderWidth: 1,
       borderRadius: 8,
-      onPressed: () {
+      onPressed: () async {
         if (widget.onSelected != null) {
           widget.onSelected!();
           return;
         }
+
+        final hasPassphrase = _isMultiSig ? false : await context.read<WalletProvider>().hasPassphrase(widget.vault.id);
         Navigator.pushNamed(
           context,
           widget.vault.vaultType == WalletType.multiSignature
               ? AppRoutes.multisigSetupInfo
               : AppRoutes.singleSigSetupInfo,
-          arguments: {'id': widget.vault.id, 'entryPoint': widget.entryPoint},
+          arguments: {'id': widget.vault.id, 'entryPoint': widget.entryPoint, 'hasPassphrase': hasPassphrase},
         );
       },
       onLongPressed: () {
