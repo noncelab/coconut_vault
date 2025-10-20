@@ -10,7 +10,11 @@ class SecureStorageMigration {
   // 새로운 설정 (KeychainAccessibility.passcode 적용)
   static const FlutterSecureStorage _newStorage = FlutterSecureStorage(
     aOptions: AndroidOptions(encryptedSharedPreferences: true),
-    iOptions: IOSOptions(accessibility: KeychainAccessibility.passcode, synchronizable: false),
+    iOptions: IOSOptions(
+      groupId: 'group.onl.coconut.vault.secure',
+      accessibility: KeychainAccessibility.passcode,
+      synchronizable: false,
+    ),
   );
 
   static Future<void> migrateAllIfNeeded() async {
