@@ -2,6 +2,8 @@ import 'dart:io';
 
 import 'package:coconut_lib/coconut_lib.dart';
 import 'package:coconut_vault/constants/method_channel.dart';
+import 'package:coconut_vault/constants/shared_preferences_keys.dart';
+import 'package:coconut_vault/enums/vault_mode_enum.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/repository/secure_storage_migration.dart';
 import 'package:coconut_vault/repository/shared_preferences_repository.dart';
@@ -82,6 +84,13 @@ void main() async {
       return other ?? '';
     },
   );
+
+  // 볼트 모드 마이그레이션
+  SharedPrefsRepository sharedPrefs = SharedPrefsRepository();
+  if (sharedPrefs.getBool(SharedPrefsKeys.hasShownStartGuide) == true &&
+      sharedPrefs.getString(SharedPrefsKeys.kVaultMode).isEmpty) {
+    await sharedPrefs.setString(SharedPrefsKeys.kVaultMode, VaultMode.secureStorage.name);
+  }
 
   // secure storage 옵션 변경에 따른 마이그레이션
   await SecureStorageMigration.migrateAllIfNeeded();
