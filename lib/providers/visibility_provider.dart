@@ -72,7 +72,6 @@ class VisibilityProvider extends ChangeNotifier {
     // OS 언어 감지 (Flutter의 표준 방식 사용)
     try {
       final String languageCode = PlatformDispatcher.instance.locale.languageCode.toLowerCase();
-      print('languageCode: $languageCode');
       // 지원하는 언어인지 확인
       if (languageCode == 'ko' || languageCode == 'kr') {
         return 'kr';
