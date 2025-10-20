@@ -1,7 +1,6 @@
 import 'dart:io';
 
 import 'package:coconut_design_system/coconut_design_system.dart';
-import 'package:coconut_lib/coconut_lib.dart';
 import 'package:coconut_vault/app_routes_params.dart';
 import 'package:coconut_vault/constants/app_routes.dart';
 import 'package:coconut_vault/enums/wallet_enums.dart';
@@ -20,7 +19,6 @@ import 'package:coconut_vault/screens/settings/pin_setting_screen.dart';
 import 'package:coconut_vault/screens/vault_menu/info/passphrase_check_screen.dart';
 import 'package:coconut_vault/widgets/button/shrink_animation_button.dart';
 import 'package:coconut_vault/widgets/card/vault_addition_guide_card.dart';
-import 'package:coconut_vault/widgets/tee_smoke_test.dart';
 import 'package:coconut_vault/widgets/vault_row_item.dart';
 import 'package:flutter/material.dart';
 import 'package:coconut_vault/screens/settings/settings_screen.dart';

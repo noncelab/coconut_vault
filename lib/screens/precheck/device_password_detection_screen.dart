@@ -1,7 +1,4 @@
-import 'dart:io';
-
 import 'package:coconut_design_system/coconut_design_system.dart';
-import 'package:coconut_vault/constants/app_routes.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/main_route_guard.dart';
 import 'package:coconut_vault/services/security_prechecker.dart';
@@ -9,7 +6,6 @@ import 'package:coconut_vault/utils/device_secure_checker.dart';
 import 'package:coconut_vault/utils/device_secure_checker.dart' as DeviceSecureChecker;
 import 'package:coconut_vault/widgets/button/fixed_bottom_button.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/svg.dart';
 
 // devicePasswordRequired: 기기 비밀번호 필요 화면(앱 최초 실행, 진입 후 표시)
 // devicePasswordChanged: 기기 비밀번호 변경 감지 화면(앱 진입 후 표시)

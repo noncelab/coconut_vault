@@ -17,7 +17,6 @@ enum ConnectivityState { off, on, bluetoothUnauthorized }
 class ConnectivityProvider extends ChangeNotifier {
   /// 첫 실행 가이드 확인 여부
   late bool _hasSeenGuide;
-  bool _isSigningOnlyMode;
   bool _isDisposed = false;
 
   bool? _isNetworkOn;
@@ -28,8 +27,6 @@ class ConnectivityProvider extends ChangeNotifier {
   bool? get isBluetoothUnauthorized => _isBluetoothUnauthorized;
   bool? _isDeveloperModeOn = Platform.isAndroid && kReleaseMode ? null : false; // Android only
   bool? get isDeveloperModeOn => _isDeveloperModeOn;
-  bool? _isDeviceSecured;
-  bool? get isDeviceSecured => _isDeviceSecured;
 
   void Function(ConnectivityState)? onConnectivityStateChanged;
 
@@ -38,9 +35,8 @@ class ConnectivityProvider extends ChangeNotifier {
 
   static const MethodChannel _channel = MethodChannel(methodChannelOS);
 
-  ConnectivityProvider({required bool hasSeenGuide, required bool isSigningOnlyMode, this.onConnectivityStateChanged})
-    : _hasSeenGuide = hasSeenGuide,
-      _isSigningOnlyMode = isSigningOnlyMode {
+  ConnectivityProvider({required bool hasSeenGuide, this.onConnectivityStateChanged})
+      : _hasSeenGuide = hasSeenGuide {
     if (_hasSeenGuide) {
       setConnectActivity(network: true, bluetooth: true, developerMode: true);
     } else {
@@ -57,9 +53,11 @@ class ConnectivityProvider extends ChangeNotifier {
   ///
   /// * 단, iOS에서는 개발자모드 여부를 제공하지 않기 때문에 제외합니다.
   /// TODO: 리팩토링 필요함
-  Future<void> setConnectActivity({required bool network, required bool bluetooth, required bool developerMode}) async {
+  Future<void> setConnectActivity(
+      {required bool network, required bool bluetooth, required bool developerMode}) async {
     if (bluetooth) {
-      await SharedPrefsRepository().setBool(SharedPrefsKeys.hasAlreadyRequestedBluetoothPermission, true);
+      await SharedPrefsRepository()
+          .setBool(SharedPrefsKeys.hasAlreadyRequestedBluetoothPermission, true);
 
       // 현재 블루투스 상태 즉시 확인
       await _checkCurrentBluetoothState();
@@ -68,7 +66,8 @@ class ConnectivityProvider extends ChangeNotifier {
       if (Platform.isIOS) {
         // showPowerAlert: false 설정 해줘야, 앱 재접속 시 블루투스 권한 없을 때 CBCentralManagerOptionShowPowerAlertKey 관련 prompt가 뜨지 않음
         FlutterBluePlus.setOptions(showPowerAlert: false).then((_) {
-          _bluetoothSubscription = FlutterBluePlus.adapterState.listen((BluetoothAdapterState state) {
+          _bluetoothSubscription =
+              FlutterBluePlus.adapterState.listen((BluetoothAdapterState state) {
             if (state == BluetoothAdapterState.on) {
               _isBluetoothOn = true;
             } else if (state == BluetoothAdapterState.off) {
@@ -94,7 +93,8 @@ class ConnectivityProvider extends ChangeNotifier {
 
     // 네트워크 상태
     if (network) {
-      _networkSubscription = Connectivity().onConnectivityChanged.listen((List<ConnectivityResult> result) {
+      _networkSubscription =
+          Connectivity().onConnectivityChanged.listen((List<ConnectivityResult> result) {
         if (result.contains(ConnectivityResult.none)) {
           _isNetworkOn = false;
         } else {
@@ -171,8 +171,11 @@ class ConnectivityProvider extends ChangeNotifier {
     if (_isDisposed) return;
 
     if (Platform.isIOS && _isBluetoothUnauthorized == true) {
-      runApp(const CupertinoApp(debugShowCheckedModeBanner: false, home: IosBluetoothAuthNotificationScreen()));
-    } else if (_isBluetoothOn == true || _isNetworkOn == true || (Platform.isAndroid && _isDeveloperModeOn == true)) {
+      runApp(const CupertinoApp(
+          debugShowCheckedModeBanner: false, home: IosBluetoothAuthNotificationScreen()));
+    } else if (_isBluetoothOn == true ||
+        _isNetworkOn == true ||
+        (Platform.isAndroid && _isDeveloperModeOn == true)) {
       if (_hasSeenGuide) {
         runApp(
           CupertinoApp(
@@ -189,14 +192,6 @@ class ConnectivityProvider extends ChangeNotifier {
     if (!_isDisposed) {
       notifyListeners();
     }
-  }
-
-  void updateSigningOnlyMode(bool isSigningOnlyMode) {
-    if (_isDisposed) return;
-
-    _isSigningOnlyMode = isSigningOnlyMode;
-
-    notifyListeners();
   }
 
   void setOnConnectivityStateChanged(void Function(ConnectivityState) onChanged) {

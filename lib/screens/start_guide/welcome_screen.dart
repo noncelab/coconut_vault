@@ -4,7 +4,6 @@ import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_vault/constants/app_routes.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/providers/connectivity_provider.dart';
-import 'package:coconut_vault/providers/visibility_provider.dart';
 import 'package:coconut_vault/widgets/bottom_sheet.dart';
 import 'package:coconut_vault/widgets/button/fixed_bottom_button.dart';
 import 'package:flutter/material.dart';
@@ -37,7 +36,6 @@ class ScreenItem {
 
 class _WelcomeScreenState extends State<WelcomeScreen> {
   late ConnectivityProvider _connectivityProvider;
-  late VisibilityProvider _visibilityProvider;
   int _currentScreenIndex = 0;
 
   final List<ScreenItem> _screenItems = [];
@@ -46,7 +44,6 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
   void initState() {
     super.initState();
     _connectivityProvider = Provider.of<ConnectivityProvider>(context, listen: false);
-    _visibilityProvider = Provider.of<VisibilityProvider>(context, listen: false);
 
     _initScreenItems();
     _initConnectionState();

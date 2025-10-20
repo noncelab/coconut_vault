@@ -61,8 +61,7 @@ class _PinCheckScreenState extends State<PinCheckScreen> with WidgetsBindingObse
 
     _isAppLaunched =
         widget.pinCheckContext == PinCheckContextEnum.appLaunch ||
-        widget.pinCheckContext == PinCheckContextEnum.appResumed ||
-        widget.pinCheckContext == PinCheckContextEnum.restoration;
+        widget.pinCheckContext == PinCheckContextEnum.appResumed;
 
     _shouldAttemptBiometricsAuth = widget.pinCheckContext == PinCheckContextEnum.appResumed;
 
@@ -83,7 +82,7 @@ class _PinCheckScreenState extends State<PinCheckScreen> with WidgetsBindingObse
         return;
       }
 
-      if (_authProvider.isPermanantlyLocked) {
+      if (_authProvider.isPermanentlyLocked) {
         setState(() {
           _isUnlockDisabled = true;
         });
@@ -103,7 +102,7 @@ class _PinCheckScreenState extends State<PinCheckScreen> with WidgetsBindingObse
           _isUnlockDisabled = false;
           _isLastChanceToTry = _authProvider.currentTurn + 1 == kMaxTurn;
 
-          if (!_authProvider.isPermanantlyLocked && _isLastChanceToTry) {
+          if (!_authProvider.isPermanentlyLocked && _isLastChanceToTry) {
             _errorMessage = t.errors.remaining_times_away_from_reset_error(
               count: kMaxAttemptPerTurn - _authProvider.currentAttemptInTurn,
             );
@@ -115,7 +114,7 @@ class _PinCheckScreenState extends State<PinCheckScreen> with WidgetsBindingObse
 
     _shuffledPinNumbers = _authProvider.getShuffledNumberList();
 
-    if (_isAppLaunched && _authProvider.isPermanantlyLocked) {
+    if (_isAppLaunched && _authProvider.isPermanentlyLocked) {
       _errorMessage = t.errors.pin_max_attempts_exceeded_error;
     }
   }
@@ -127,6 +126,12 @@ class _PinCheckScreenState extends State<PinCheckScreen> with WidgetsBindingObse
     if (state == AppLifecycleState.resumed) {
       if (_isLifecycleTriggeredByBio) {
         _isLifecycleTriggeredByBio = false;
+        return;
+      }
+
+      // 생체인증이 진행 중인 경우 무시
+      if (_authProvider.isBiometricInProgress) {
+        debugPrint('didChangeAppLifecycleState: 생체인증 진행 중이므로 무시');
         return;
       }
 
@@ -157,7 +162,7 @@ class _PinCheckScreenState extends State<PinCheckScreen> with WidgetsBindingObse
   }
 
   void _onKeyTap(String value) async {
-    if (_isUnlockDisabled == null || _isUnlockDisabled == true || _isAppLaunched && _authProvider.isPermanantlyLocked) {
+    if (_isUnlockDisabled == null || _isUnlockDisabled == true || _isAppLaunched && _authProvider.isPermanentlyLocked) {
       return;
     }
 
@@ -196,14 +201,11 @@ class _PinCheckScreenState extends State<PinCheckScreen> with WidgetsBindingObse
     _authProvider.resetAuthenticationState();
 
     switch (widget.pinCheckContext) {
-      case PinCheckContextEnum.appLaunch:
-      case PinCheckContextEnum.restoration:
-        widget.onSuccess?.call();
-        break;
       case PinCheckContextEnum.pinChange:
         Navigator.pop(context);
         MyBottomSheet.showBottomSheet_90(context: context, child: const PinSettingScreen());
         break;
+      case PinCheckContextEnum.appLaunch:
       default: // vaultInfo
         widget.onSuccess?.call();
     }
@@ -221,7 +223,7 @@ class _PinCheckScreenState extends State<PinCheckScreen> with WidgetsBindingObse
     }
 
     if (_isAppLaunched) {
-      if (_authProvider.isPermanantlyLocked) {
+      if (_authProvider.isPermanentlyLocked) {
         Logger.log('1 - _handlePermanentLockout');
         vibrateMedium();
         _handlePermanentLockout();
@@ -320,11 +322,11 @@ class _PinCheckScreenState extends State<PinCheckScreen> with WidgetsBindingObse
         return CoconutPopup(
           insetPadding: EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width * 0.15),
           title:
-              !_authProvider.isPermanantlyLocked
+              !_authProvider.isPermanentlyLocked
                   ? t.alert.forgot_password.title
                   : t.pin_check_screen.dialog.restart.title,
           description:
-              !_authProvider.isPermanantlyLocked
+              !_authProvider.isPermanentlyLocked
                   ? t.alert.forgot_password.description1
                   : t.pin_check_screen.dialog.restart.description,
           leftButtonText: t.no,
@@ -353,7 +355,7 @@ class _PinCheckScreenState extends State<PinCheckScreen> with WidgetsBindingObse
         ? Material(
           color: CoconutColors.white,
           child: PopScope(
-            canPop: widget.pinCheckContext == PinCheckContextEnum.restoration,
+            canPop: false,
             onPopInvokedWithResult: (didPop, _) async {
               if (Platform.isAndroid && widget.pinCheckContext == PinCheckContextEnum.appLaunch) {
                 final now = DateTime.now();
@@ -379,9 +381,9 @@ class _PinCheckScreenState extends State<PinCheckScreen> with WidgetsBindingObse
   }
 
   Widget _pinInputScreen({isOnReset = false}) {
-    Logger.log(
-      '--> PinInputScreen isPermanantlyLocked: ${_authProvider.isPermanantlyLocked} / isUnlockDisabled: $_isUnlockDisabled',
-    );
+    // Logger.log(
+    //   '--> PinInputScreen isPermanantlyLocked: ${_authProvider.isPermanentlyLocked} / isUnlockDisabled: $_isUnlockDisabled',
+    // );
     return PinInputScreen(
       canChangePinType: false,
       appBarVisible: _isAppLaunched ? false : true,
@@ -399,7 +401,7 @@ class _PinCheckScreenState extends State<PinCheckScreen> with WidgetsBindingObse
       },
       bottomTextButtonLabel:
           _isAppLaunched
-              ? _authProvider.isPermanantlyLocked
+              ? _authProvider.isPermanentlyLocked
                   ? t.errors.restart_vault
                   : t.forgot_password
               : null,
@@ -407,7 +409,7 @@ class _PinCheckScreenState extends State<PinCheckScreen> with WidgetsBindingObse
       step: 0,
       lastChance: _isLastChanceToTry,
       lastChanceMessage: t.pin_check_screen.warning,
-      disabled: _authProvider.isPermanantlyLocked || _isUnlockDisabled == true,
+      disabled: _authProvider.isPermanentlyLocked || _isUnlockDisabled == true,
       characterFocusNode: _characterFocusNode,
     );
   }

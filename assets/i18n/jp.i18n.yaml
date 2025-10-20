@@ -220,6 +220,38 @@ tutorial_screen:
   title2: "ヘルプが必要ですか？"
   subtitle: "チュートリアルと一緒に使用"
   content: "ブラウザのアドレスバーに\ntutorial.coconut.onl を入力"
+vault_mode_selection_screen:
+  select_mode: "モード選択"
+  change_mode: "モード変更"
+  current_using: "使用中"
+  secure_storage_mode: "安全保存モード"
+  secure_storage_mode_description: "キーを安全に保存します。\nパスワードで認証後すぐに署名に使用できます。"
+  signing_only_mode: "署名専用モード"
+  signing_only_mode_description: "ボルトにキーを保存しません。\nアプリを起動するたびにキーを入力して署名する必要があります。"
+  start: "開始"
+  change: "変更"
+  mode_change_complete: "モード変更完了"
+  mode_changed_description_secrue_storage: "安全保存モードに変更されました。\nボルトに保存されたシードも定期的にバックアップしてください！"
+  mode_changed_description_signing_only: "署名専用モードに変更されました。\n終了ボタンを押して安全に終了してから使用してください！"
+  secure_storage_mode_warning_title: "安全保存モード切り替え時の\n注意事項"
+  secure_storage_mode_warning_descriptions_android:
+    - "現在追加されたウォレットがある場合、デバイスに情報を保存するのに時間がかかる場合があります。"
+    - "パスフレーズは保存されないため、別途安全に保管してください。"
+  secure_storage_mode_warning_descriptions_ios:
+    - "デバイスパスワードを変更または解除すると、暗号化されて保存されたウォレット情報を使用できなくなります。パスワードを変更する前に必ず別途バックアップを完了してください。"
+    - "現在追加されたウォレットがある場合、デバイスに情報を保存するのに時間がかかる場合があります。"
+    - "パスフレーズは保存されないため、別途安全に保管してください。"
+  signing_only_mode_warning_title: "署名専用モード切り替え時の\n注意事項"
+  signing_only_mode_warning_descriptions:
+    - "現在保存されているウォレット情報がすべて初期化されます。切り替え前に必ずバックアップを完了してください。"
+    - "次のステップでパスワードを確認した後、ボルト初期化が開始されます。"
+  device_password_setting_guide_understood: "理解しました"
+  secure_use_guide_title: "パスワード設定が必要"
+  secure_use_guide_description: "安全な使用のために\nデバイスパスワードを設定してください"
+  mode_change_failed_title: "モード切り替え失敗"
+  secure_storage_mode_conversion_failed: "安全保存モードに切り替えできませんでした。"
+  signing_only_mode_conversion_failed: "署名専用モードに切り替えできませんでした。"
+  converting_to_secure_storage_mode: "シードを安全に保存中です。しばらくお待ちください。"
 
 multisig:
   nth_key: "キー $index"
@@ -293,8 +325,6 @@ settings_screen:
   use_biometric: "生体認証を使用"
   change_password: "パスワード変更"
   set_password: "パスワード設定"
-  update: "更新"
-  prepare_update: "更新準備"
   advanced_user: "上級ユーザー"
   use_passphrase: "パスフレーズを使用"
   information: "情報"
@@ -606,44 +636,6 @@ passphrase_input_screen:
 multisig_signer_bsms_export_screen:
   fail_bsms: "BSMSの読み込みに失敗しました"
 
-# Update Preparation
-prepare_update:
-  title: "👉 ニーモニックをバックアップしたかよく確認しましょう"
-  description: "更新中に問題が発生した場合、ニーモニック単語を別途バックアップする必要があります"
-  enter_nth_word_of_wallet: "💡 ${wallet_name}の$n番目の単語を入力してください"
-  enter_word: "単語を入力"
-  incorrect_input_try_again: "間違いです。再度お試しください。"
-  update_preparing_title: "➡️ 更新準備を開始"
-  update_preparing_description: 
-    - "アプリ更新にはネットワーク接続が必要です"
-    - "更新準備により、より安全にニーモニック漏洩リスクをブロックし、安全で便利なウォレット復元を可能にします"
-    - "処理中はアプリを使用できません\n準備が完了するまでアプリを閉じないでください"
-  generating_secure_key: "🔑 セキュアキー生成中..."
-  generating_secure_key_description: "ウォレットデータを保護する\n暗号学的に安全なランダム暗号化キーを生成"
-  saving_wallet_data: "⏳ ウォレットデータを安全に保存中..."
-  waiting_message: "少々お待ちください\nこの処理には数秒かかる場合があります"
-  verifying_safe_storage: "✅ 安全な保存を確認中..."
-  update_recovery_info: "このステップ完了後\nアプリ更新後もウォレットを\n安全で便利に復元できます"
-  completed_title: "🎉 更新準備完了！"
-  completed_description: "今すぐボルトを更新してください"
-  step0: "アプリを閉じてネットワークをオンにしてください。"
-  step1_android: "Google Playストアで更新を進めてください。"
-  step1_ios: "App Storeで更新を進めてください。"
-  step2: "更新完了後、ネットワークをオフにしてボルトをオンにしてください。"
-  
-# Restoration Info Screen
-restoration_info:
-  "found_title": "🔎 復元ファイルが見つかりました"
-  "found_description": "アプリ更新が完了していません\nアプリを更新するか、\nウォレットを復元して続行してください"
-  
-# Vault List Restoration Screen
-vault_list_restoration:
-  "in_progress_title": "⏳ ウォレットを復元中..."
-  "in_progress_description": "少々お待ちください。\nすぐに完了します！"
-  "completed_title": "🎉 ウォレットが復元されました！"
-  "completed_description": "$count個のウォレットを復元しました"
-  "start_vault": "ボルトを開始"
-
 bottom_sheet:
   view_mit_license: "完全なMITライセンスを表示"
   contact_by_email: "メールで連絡"
@@ -705,7 +697,7 @@ alert:
     description: "無効な情報"
   stop_generating_mnemonic:
     title: "ニーモニック生成停止"
-    description: "本当にニーモニック生成を停止しますか？\n[確認]をタップして停止、または[再選択]をタップしてオプションを再選択してください。"
+    description: "ニーモニック生成を停止しますか？"
     reselect: "再選択"
     confirm: "確認"
   stop_importing_mnemonic:
@@ -716,14 +708,14 @@ alert:
     title: "すべて削除"
     description: "これまでに入力したすべてのニーモニック\nフレーズを本当に削除しますか？"
   finish_signing:
-    title:  "署名完了"
-    description: "この画面を閉じると、作成された署名情報が失われます。\n本当に終了しますか？"
+    title:  "トランザクション署名完了"
+    description: "この画面を閉じると署名情報が失われます。\n本当に終了しますか？"
 
 toast:
   clipboard_copied: "クリップボードにコピーしました"
   back_exit: "終了するには戻るボタンを再度押してください"
   scroll_down: "すべて確認するには下にスクロールしてください"
-  data_updated: "情報を更新しました"
+  data_updated: "情報を修正しました！混乱を避けるためウォレットと同期してください。"
   name_already_used: "既に使用されている名前に変更できません"
   name_already_used2: "既に使用されている名前は設定できません"
   name_multisig_in_use: "マルチシグウォレットで使用中のため削除できません"
@@ -744,7 +736,7 @@ errors:
   pin_processing_error: "処理中にエラーが発生しました"
   pin_incorrect_with_remaining_attempts_error: "残り$count回試行可能"
   remaining_times_away_from_reset_error: "リセットまで$count回"
-  pin_max_attempts_exceeded_error: "ボルトをアンロックできません\nパスワードをリセットしてから使用してください"
+  pin_max_attempts_exceeded_error: "ボルトを使用できません"
   restart_vault: "ボルトを再起動"
   retry_after: "$time後に再試行可能"
   invalid_word_error: "無効な単語。$filter"
@@ -762,7 +754,7 @@ errors:
   scan_error_title: "スキャン失敗"
   psbt_parsing_error: "PSBT解析に失敗しました: $error"
   not_related_multisig_wallet_error: "このウォレットをキーとして使用するマルチシグウォレットではありません"
-  vault_not_found_error: "一致するボルトが見つかりません"
+  vault_not_found_error: "署名できるウォレットがありません"
   extended_public_key_not_found_error: "直接使用したいウォレットを選択してマルチシグ機能を使用してください"
 
 tooltip:

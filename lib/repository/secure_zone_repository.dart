@@ -5,7 +5,6 @@ import 'dart:typed_data';
 import 'package:coconut_vault/services/secure_zone/ios/secure_enclave_keystore.dart';
 import 'package:coconut_vault/services/secure_zone/secure_zone_keystore.dart';
 import 'package:coconut_vault/services/secure_zone/android/strong_box_keystore.dart';
-import 'package:coconut_vault/utils/logger.dart';
 
 class EncryptResult {
   final Uint8List ciphertext;
