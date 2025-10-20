@@ -7,6 +7,7 @@ import 'package:coconut_vault/enums/pin_check_context_enum.dart';
 import 'package:coconut_vault/enums/vault_mode_enum.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/main_route_guard.dart';
+import 'package:coconut_vault/providers/app_lifecycle_state_provider.dart';
 import 'package:coconut_vault/providers/preference_provider.dart';
 import 'package:coconut_vault/providers/sign_provider.dart';
 import 'package:coconut_vault/providers/wallet_creation_provider.dart';
@@ -110,6 +111,7 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> with SingleTickerProv
   late final authProvider = AuthProvider();
   late final preferenceProvider = PreferenceProvider();
   late final visibilityProvider = VisibilityProvider(isSigningOnlyMode: preferenceProvider.isSigningOnlyMode);
+  late final lifecycleProvider = AppLifecycleStateProvider();
 
   // 엣지 패널 관련 변수
   double _signingModeEdgePanelWidth = 20.0;
@@ -303,6 +305,7 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> with SingleTickerProv
           ChangeNotifierProvider(create: (_) => authProvider),
           ChangeNotifierProvider(create: (_) => preferenceProvider),
           ChangeNotifierProvider(create: (_) => visibilityProvider),
+          ChangeNotifierProvider(create: (_) => lifecycleProvider),
           ChangeNotifierProxyProvider2<VisibilityProvider, PreferenceProvider, ConnectivityProvider>(
             create: (_) => ConnectivityProvider(hasSeenGuide: visibilityProvider.hasSeenGuide),
             update: (_, visibilityProvider, preferenceProvider, connectivityProvider) {
@@ -316,7 +319,9 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> with SingleTickerProv
           if (_appEntryFlow == AppEntryFlow.vaultHome) ...[
             Provider<WalletCreationProvider>(create: (_) => WalletCreationProvider()),
             Provider<SignProvider>(create: (_) => SignProvider()),
-            ChangeNotifierProvider(create: (_) => WalletProvider(visibilityProvider, preferenceProvider)),
+            ChangeNotifierProvider(
+              create: (_) => WalletProvider(visibilityProvider, preferenceProvider, lifecycleProvider),
+            ),
           ],
         ],
 

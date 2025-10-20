@@ -3,6 +3,7 @@ import 'dart:convert';
 
 import 'package:coconut_lib/coconut_lib.dart';
 import 'package:coconut_vault/extensions/uint8list_extensions.dart';
+import 'package:coconut_vault/providers/app_lifecycle_state_provider.dart';
 import 'package:coconut_vault/providers/preference_provider.dart';
 import 'package:coconut_vault/repository/wallet_repository.dart';
 import 'package:coconut_vault/model/common/vault_list_item_base.dart';
@@ -26,11 +27,13 @@ class WalletProvider extends ChangeNotifier {
   late final VisibilityProvider _visibilityProvider;
   late final WalletRepository _walletRepository;
   late final PreferenceProvider _preferenceProvider;
+  late final AppLifecycleStateProvider _lifecycleProvider;
 
   // 2) 생성자
-  WalletProvider(this._visibilityProvider, this._preferenceProvider) {
+  WalletProvider(this._visibilityProvider, this._preferenceProvider, this._lifecycleProvider) {
     _isSigningOnlyMode = _preferenceProvider.isSigningOnlyMode;
     _walletRepository = WalletRepository(isSigningOnlyMode: _isSigningOnlyMode);
+
     if (_isSigningOnlyMode) {
       _walletRepository.resetAll();
     }
@@ -323,7 +326,18 @@ class WalletProvider extends ChangeNotifier {
   }
 
   Future<Uint8List> getSecret(int id) async {
-    return await _walletRepository.getSecret(id);
+    // TEE 접근 시작 - inactive 상태 전환 무시
+    _lifecycleProvider.startOperation(AppLifecycleOperations.teeDecryption);
+    try {
+      final result = await _walletRepository.getSecret(id);
+
+      // 작업 완료 후 지연을 두어 라이프사이클 이벤트와의 타이밍 조정
+      await Future.delayed(const Duration(milliseconds: 500));
+      return result;
+    } finally {
+      // TEE 접근 완료 - inactive 상태 전환 허용
+      _lifecycleProvider.endOperation(AppLifecycleOperations.teeDecryption);
+    }
   }
 
   // 서명 전용 모드

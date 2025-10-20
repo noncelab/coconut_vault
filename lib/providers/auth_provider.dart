@@ -7,6 +7,7 @@ import 'package:coconut_vault/constants/pin_constants.dart';
 import 'package:coconut_vault/constants/secure_storage_keys.dart';
 import 'package:coconut_vault/constants/shared_preferences_keys.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
+import 'package:coconut_vault/providers/app_lifecycle_state_provider.dart';
 import 'package:coconut_vault/providers/preference_provider.dart';
 import 'package:coconut_vault/repository/wallet_repository.dart';
 import 'package:coconut_vault/repository/secure_storage_repository.dart';
@@ -20,6 +21,8 @@ import 'package:flutter/services.dart';
 import 'package:local_auth/local_auth.dart';
 
 class AuthProvider extends ChangeNotifier {
+  final AppLifecycleStateProvider _lifecycleProvider = AppLifecycleStateProvider();
+
   static String unlockAvailableAtKey = SharedPrefsKeys.kUnlockAvailableAt;
   static String turnKey = SharedPrefsKeys.kPinInputTurn;
   static String currentAttemptKey = SharedPrefsKeys.kPinInputCurrentAttemptCount;
@@ -145,6 +148,8 @@ class AuthProvider extends ChangeNotifier {
   Future<bool> authenticateWithBiometrics({BuildContext? context, bool isSaved = false}) async {
     bool authenticated = false;
     _isBiometricInProgress = true;
+    _lifecycleProvider.startOperation(AppLifecycleOperations.biometricAuthentication);
+
     notifyListeners();
 
     try {
@@ -178,6 +183,7 @@ class AuthProvider extends ChangeNotifier {
       }
     } finally {
       _isBiometricInProgress = false;
+      _lifecycleProvider.endOperation(AppLifecycleOperations.biometricAuthentication);
       notifyListeners();
     }
     return authenticated;
