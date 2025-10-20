@@ -30,6 +30,9 @@ class VisibilityProvider extends ChangeNotifier {
     _hasSeenGuide = prefs.getBool(SharedPrefsKeys.hasShownStartGuide) == true;
     _walletCount = prefs.getInt(SharedPrefsKeys.vaultListLength) ?? 0;
     _isSigningOnlyMode = isSigningOnlyMode;
+    if (_isSigningOnlyMode) {
+      reset();
+    }
     _isPassphraseUseEnabled =
         isSigningOnlyMode ? true : (prefs.getBool(SharedPrefsKeys.kPassphraseUseEnabled) ?? false);
     _language = _initializeLanguageFromOS(prefs);
