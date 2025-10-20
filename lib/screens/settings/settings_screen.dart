@@ -23,7 +23,8 @@ import 'package:url_launcher/url_launcher.dart';
 import '../../widgets/bottom_sheet.dart';
 
 class SettingsScreen extends StatefulWidget {
-  const SettingsScreen({super.key});
+  final ScrollController scrollController;
+  const SettingsScreen({super.key, required this.scrollController});
 
   @override
   State<SettingsScreen> createState() => _SettingsScreenState();
@@ -32,48 +33,42 @@ class SettingsScreen extends StatefulWidget {
 class _SettingsScreenState extends State<SettingsScreen> {
   @override
   Widget build(BuildContext context) {
-    return DraggableScrollableSheet(
-      minChildSize: 0.5,
-      initialChildSize: 1,
-      expand: false,
-      builder:
-          (context, scrollController) => Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              _buildDraggableHeader(),
-              Expanded(
-                child: Container(
-                  decoration: const BoxDecoration(color: CoconutColors.white),
-                  child: ListView(
-                    controller: scrollController,
-                    padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-                    children: [
-                      _securityPart(context),
-                      CoconutLayout.spacing_1000h,
-                      _btcUnitPart(context),
-                      CoconutLayout.spacing_1000h,
-                      _languagePart(context),
-                      CoconutLayout.spacing_1000h,
-                      Selector<PreferenceProvider, bool>(
-                        selector: (context, preferenceProvider) => preferenceProvider.isSigningOnlyMode,
-                        builder: (context, isSigningOnlyMode, child) {
-                          if (isSigningOnlyMode) return const SizedBox.shrink();
-                          return Column(children: [_advancedUserPart(context), CoconutLayout.spacing_1000h]);
-                        },
-                      ),
-                      _informationPart(context),
-                      SizedBox(
-                        height:
-                            MediaQuery.of(context).viewPadding.bottom > 0
-                                ? MediaQuery.of(context).viewPadding.bottom + Sizes.size12
-                                : Sizes.size36,
-                      ),
-                    ],
-                  ),
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        _buildDraggableHeader(),
+        Expanded(
+          child: Container(
+            decoration: const BoxDecoration(color: CoconutColors.white),
+            child: ListView(
+              controller: widget.scrollController,
+              padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+              children: [
+                _securityPart(context),
+                CoconutLayout.spacing_1000h,
+                _btcUnitPart(context),
+                CoconutLayout.spacing_1000h,
+                _languagePart(context),
+                CoconutLayout.spacing_1000h,
+                Selector<PreferenceProvider, bool>(
+                  selector: (context, preferenceProvider) => preferenceProvider.isSigningOnlyMode,
+                  builder: (context, isSigningOnlyMode, child) {
+                    if (isSigningOnlyMode) return const SizedBox.shrink();
+                    return Column(children: [_advancedUserPart(context), CoconutLayout.spacing_1000h]);
+                  },
                 ),
-              ),
-            ],
+                _informationPart(context),
+                SizedBox(
+                  height:
+                      MediaQuery.of(context).viewPadding.bottom > 0
+                          ? MediaQuery.of(context).viewPadding.bottom + Sizes.size12
+                          : Sizes.size36,
+                ),
+              ],
+            ),
           ),
+        ),
+      ],
     );
   }
 
@@ -86,13 +81,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          // Drag handle
-          Container(
-            margin: const EdgeInsets.only(top: 8, bottom: 8),
-            width: 55,
-            height: 4,
-            decoration: BoxDecoration(color: CoconutColors.gray400, borderRadius: BorderRadius.circular(4)),
-          ),
           // Title
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),

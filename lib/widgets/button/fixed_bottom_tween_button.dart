@@ -1,4 +1,7 @@
+import 'dart:io';
+
 import 'package:coconut_design_system/coconut_design_system.dart';
+import 'package:coconut_vault/widgets/button/fixed_bottom_button.dart';
 import 'package:flutter/material.dart';
 
 class FixedBottomTweenButton extends StatefulWidget {
@@ -62,6 +65,12 @@ class _FixedBottomTweenButtonState extends State<FixedBottomTweenButton> {
     final leftButtonWidth = totalWidth * widget.leftButtonRatio;
     final rightButtonWidth = totalWidth * (1 - widget.leftButtonRatio);
 
+    double buttonHeight =
+        widget.buttonHeight ??
+        (Platform.isAndroid
+            ? FixedBottomButton.fixedBottomButtonDefaultHeight
+            : FixedBottomButton.fixedBottomButtonDefaultHeight + 8);
+
     return SizedBox(
       width: MediaQuery.sizeOf(context).width,
       child: Stack(
@@ -106,11 +115,12 @@ class _FixedBottomTweenButtonState extends State<FixedBottomTweenButton> {
                         disabledBackgroundColor: CoconutColors.gray150,
                         disabledForegroundColor: CoconutColors.gray350,
                         isActive: widget.isLeftButtonActive,
-                        height: widget.buttonHeight ?? FixedBottomTweenButton.fixedBottomButtonDefaultHeight,
+                        height: buttonHeight,
                         backgroundColor: widget.leftButtonBackgroundColor,
                         foregroundColor: widget.leftButtonTextColor,
                         pressedTextColor: widget.leftButtonTextColor,
                         text: widget.leftText,
+                        textStyle: CoconutTypography.body1_16_Bold,
                       ),
                     ),
                     SizedBox(width: widget.buttonSpacing),
@@ -124,11 +134,12 @@ class _FixedBottomTweenButtonState extends State<FixedBottomTweenButton> {
                         disabledBackgroundColor: CoconutColors.gray150,
                         disabledForegroundColor: CoconutColors.gray350,
                         isActive: widget.isRightButtonActive,
-                        height: widget.buttonHeight ?? FixedBottomTweenButton.fixedBottomButtonDefaultHeight,
+                        height: buttonHeight,
                         backgroundColor: widget.rightButtonBackgroundColor,
                         foregroundColor: widget.rightButtonTextColor,
                         pressedTextColor: widget.rightButtonTextColor,
                         text: widget.rightText,
+                        textStyle: CoconutTypography.body1_16_Bold,
                       ),
                     ),
                   ],

@@ -334,6 +334,7 @@ class WalletRepository {
   }
 
   Future<void> deleteWallets() async {
+    debugPrint('_vaultList: ${_vaultList?.length}');
     if (_vaultList == null) {
       throw '[wallet_list_manager/deleteWallets]: vaultList is empty';
     }

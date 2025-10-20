@@ -1,11 +1,13 @@
 import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/main_route_guard.dart';
+import 'package:coconut_vault/providers/visibility_provider.dart';
 import 'package:coconut_vault/services/security_prechecker.dart';
 import 'package:coconut_vault/utils/device_secure_checker.dart';
 import 'package:coconut_vault/utils/device_secure_checker.dart' as DeviceSecureChecker;
 import 'package:coconut_vault/widgets/button/fixed_bottom_button.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 // devicePasswordRequired: 기기 비밀번호 필요 화면(앱 최초 실행, 진입 후 표시)
 // devicePasswordChanged: 기기 비밀번호 변경 감지 화면(앱 진입 후 표시)
@@ -22,6 +24,18 @@ class DevicePasswordDetectionScreen extends StatefulWidget {
 
 class _DevicePasswordDetectionScreenState extends State<DevicePasswordDetectionScreen> {
   bool isDeviceSecured = false;
+
+  @override
+  initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      // 화면을 강제로 리빌드하여 최신 언어 설정을 적용
+      if (mounted) {
+        setState(() {});
+      }
+    });
+  }
+
   @override
   void dispose() {
     super.dispose();
@@ -47,51 +61,59 @@ class _DevicePasswordDetectionScreenState extends State<DevicePasswordDetectionS
       },
       onAppGoBackground: () {},
       onAppGoInactive: () {},
-      child: Scaffold(
-        backgroundColor: _getBackgroundColor(),
-        body: SafeArea(
-          child: SizedBox(
-            width: double.infinity,
-            height: MediaQuery.sizeOf(context).height,
-            child: Stack(
-              children: [
-                Positioned(
-                  top: 0,
-                  left: 0,
-                  right: 0,
-                  bottom: 0,
-                  child: Column(
+      child: Consumer<VisibilityProvider>(
+        builder: (context, visibilityProvider, child) {
+          return MediaQuery(
+            data: MediaQuery.of(context).copyWith(textScaler: const TextScaler.linear(1.0)),
+            child: Scaffold(
+              backgroundColor: _getBackgroundColor(),
+              body: SafeArea(
+                child: SizedBox(
+                  width: double.infinity,
+                  height: MediaQuery.sizeOf(context).height,
+                  child: Stack(
                     children: [
-                      Flexible(
-                        flex: 1,
+                      Positioned(
+                        top: 0,
+                        left: 0,
+                        right: 0,
+                        bottom: 0,
                         child: Column(
-                          mainAxisAlignment: MainAxisAlignment.end,
                           children: [
-                            Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 16),
-                              child: FittedBox(fit: BoxFit.scaleDown, child: _buildTitleTextWidget()),
+                            Flexible(
+                              flex: 1,
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.end,
+                                children: [
+                                  Padding(
+                                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                                    child: FittedBox(fit: BoxFit.scaleDown, child: _buildTitleTextWidget()),
+                                  ),
+                                  CoconutLayout.spacing_300h,
+                                  Padding(
+                                    padding: EdgeInsets.symmetric(horizontal: MediaQuery.sizeOf(context).width * 0.23),
+
+                                    child: _buildDescriptionTextWidget(),
+                                  ),
+                                ],
+                              ),
                             ),
-                            CoconutLayout.spacing_300h,
-                            Padding(
-                              padding: EdgeInsets.symmetric(horizontal: MediaQuery.sizeOf(context).width * 0.16),
-                              child: _buildDescriptionTextWidget(),
+                            CoconutLayout.spacing_800h,
+                            Flexible(
+                              flex: 1,
+                              child: Padding(padding: const EdgeInsets.symmetric(horizontal: 80), child: _buildImage()),
                             ),
                           ],
                         ),
                       ),
-                      CoconutLayout.spacing_800h,
-                      Flexible(
-                        flex: 1,
-                        child: Padding(padding: const EdgeInsets.symmetric(horizontal: 80), child: _buildImage()),
-                      ),
+                      _buildBottomButton(),
                     ],
                   ),
                 ),
-                _buildBottomButton(),
-              ],
+              ),
             ),
-          ),
-        ),
+          );
+        },
       ),
     );
   }

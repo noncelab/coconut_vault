@@ -14,11 +14,13 @@ import 'package:coconut_vault/providers/wallet_creation_provider.dart';
 import 'package:coconut_vault/providers/auth_provider.dart';
 import 'package:coconut_vault/providers/connectivity_provider.dart';
 import 'package:coconut_vault/providers/visibility_provider.dart';
+import 'package:coconut_vault/repository/wallet_repository.dart';
 import 'package:coconut_vault/screens/airgap/multisig_sign_screen.dart';
 import 'package:coconut_vault/screens/airgap/psbt_confirmation_screen.dart';
 import 'package:coconut_vault/screens/airgap/psbt_scanner_screen.dart';
 import 'package:coconut_vault/screens/airgap/signed_transaction_qr_screen.dart';
 import 'package:coconut_vault/screens/airgap/single_sig_sign_screen.dart';
+import 'package:coconut_vault/screens/common/app_unavailable_notification_screen.dart';
 import 'package:coconut_vault/screens/common/vault_mode_selection_screen.dart';
 import 'package:coconut_vault/screens/home/vault_home_screen.dart';
 import 'package:coconut_vault/screens/home/vault_list_screen.dart';
@@ -75,6 +77,7 @@ enum AppEntryFlow {
   pinCheckAppLaunched,
   pinCheckAppResumed,
   vaultHome,
+  vaultResetCompleted, // 볼트 초기화 완료 화면
 }
 
 const cupertinoThemeData = CupertinoThemeData(
@@ -119,7 +122,7 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> with SingleTickerProv
   double? _signingModeEdgePanelHorizontalPos;
   bool _isDraggingManually = false;
   bool _isPanningEdgePanel = false; // 패널 확장/축소 중인지 여부
-  bool _isExitDialogOpen = false;
+  bool _isResetDialogOpen = false;
   final GlobalKey<NavigatorState> _navigatorKey = GlobalKey<NavigatorState>();
   Timer? _longPressTimer;
   final GlobalKey _indicatorKey = GlobalKey();
@@ -219,7 +222,19 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> with SingleTickerProv
       case AppEntryFlow.securityCheck:
         return _SecurityCheckWidget(onComplete: _updateEntryFlow);
       case AppEntryFlow.jailbreakDetected:
-        return JailBreakDetectionScreen(onSkip: () => _updateEntryFlow(AppEntryFlow.splash));
+        return JailBreakDetectionScreen(
+          hasSeenGuide: visibilityProvider.hasSeenGuide,
+          onSkip: () async {
+            SharedPrefsRepository sharedPrefs = SharedPrefsRepository();
+            await sharedPrefs.setBool(SharedPrefsKeys.jailbreakDetectionIgnored, true);
+            await sharedPrefs.setInt(
+              SharedPrefsKeys.jailbreakDetectionIgnoredTime,
+              DateTime.now().millisecondsSinceEpoch,
+            );
+            _updateEntryFlow(AppEntryFlow.splash);
+          },
+          onReset: () => _onChangeEntryFlow(),
+        );
       case AppEntryFlow.devicePasswordRequired:
         return DevicePasswordDetectionScreen(
           state: DevicePasswordDetectionScreenState.devicePasswordRequired,
@@ -272,7 +287,14 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> with SingleTickerProv
           ),
         );
       case AppEntryFlow.vaultHome:
-        return const VaultHomeScreen();
+        return VaultHomeScreen(
+          onChangeEntryFlow: () {
+            _onChangeEntryFlow();
+          },
+        );
+
+      case AppEntryFlow.vaultResetCompleted:
+        return const AppUnavailableNotificationScreen(isVaultReset: true);
     }
   }
 
@@ -294,7 +316,7 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> with SingleTickerProv
             if (!indicatorArea.contains(event.position) && mounted) {
               setState(() {
                 _signingModeEdgePanelWidth = 20.0;
-                _isExitDialogOpen = false;
+                _isResetDialogOpen = false;
               });
             }
           }
@@ -322,9 +344,12 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> with SingleTickerProv
             ChangeNotifierProvider(
               create: (_) => WalletProvider(visibilityProvider, preferenceProvider, lifecycleProvider),
             ),
+          ] else if (_appEntryFlow == AppEntryFlow.jailbreakDetected) ...[
+            ChangeNotifierProvider(
+              create: (_) => WalletProvider(visibilityProvider, preferenceProvider, lifecycleProvider),
+            ),
           ],
         ],
-
         child: Directionality(
           textDirection: TextDirection.ltr,
           child:
@@ -394,12 +419,12 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> with SingleTickerProv
                                     return ValueListenableBuilder<bool>(
                                       valueListenable: _routeNotifierHasShow,
                                       builder: (context, hasShow, child) {
-                                        final isEdgePannelVisible =
+                                        final isEdgePanelVisible =
                                             prefProvider.getVaultMode() == VaultMode.signingOnly &&
                                             _appEntryFlow == AppEntryFlow.vaultHome &&
                                             hasShow;
 
-                                        return _floatingExitButton(context, isEdgePannelVisible);
+                                        return _floatingResetButton(context, isEdgePanelVisible);
                                       },
                                     );
                                   },
@@ -554,7 +579,7 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> with SingleTickerProv
     );
   }
 
-  Widget _floatingExitButton(BuildContext context, bool isEdgePannelVisible) {
+  Widget _floatingResetButton(BuildContext context, bool isEdgePanelVisible) {
     final halfScreenWidth = MediaQuery.sizeOf(context).width / 2;
 
     return Positioned(
@@ -659,7 +684,7 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> with SingleTickerProv
             duration: const Duration(milliseconds: 200),
             curve: Curves.easeOut,
             width:
-                isEdgePannelVisible
+                isEdgePanelVisible
                     ? _isDraggingManually
                         ? 50
                         : _signingModeEdgePanelWidth + 20 + (_isDraggingManually ? 4 : 0)
@@ -682,7 +707,7 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> with SingleTickerProv
                         alignment: Alignment.centerLeft,
                         padding: const EdgeInsets.symmetric(horizontal: 10),
                         child: SvgPicture.asset(
-                          'assets/svg/exit.svg',
+                          'assets/svg/eraser.svg',
                           width: 24,
                           height: 24,
                           colorFilter: const ColorFilter.mode(CoconutColors.white, BlendMode.srcIn),
@@ -699,8 +724,8 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> with SingleTickerProv
                           // 패널이 확장된 상태에서 탭하면 exit dialog 표시
                           final navContext = _navigatorKey.currentContext;
                           if (navContext != null) {
-                            if (_isExitDialogOpen) return;
-                            _isExitDialogOpen = true;
+                            if (_isResetDialogOpen) return;
+                            _isResetDialogOpen = true;
                             showDialog(
                               context: navContext,
                               builder: (BuildContext dialogContext) {
@@ -708,23 +733,22 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> with SingleTickerProv
                                   insetPadding: EdgeInsets.symmetric(
                                     horizontal: MediaQuery.of(navContext).size.width * 0.15,
                                   ),
-                                  title: t.exit_vault,
-                                  description: t.exit_vault_description,
+                                  title: t.reset_vault,
+                                  description: t.reset_vault_description,
                                   backgroundColor: CoconutColors.white,
                                   leftButtonText: t.cancel,
                                   rightButtonText: t.confirm,
                                   rightButtonColor: CoconutColors.black,
                                   onTapLeft: () {
                                     Navigator.pop(dialogContext);
-                                    _isExitDialogOpen = false;
+                                    _isResetDialogOpen = false;
                                   },
-                                  onTapRight: () {
-                                    _isExitDialogOpen = false;
-                                    if (Platform.isAndroid) {
-                                      SystemNavigator.pop();
-                                    } else {
-                                      exit(0);
-                                    }
+                                  onTapRight: () async {
+                                    _isResetDialogOpen = false;
+                                    await context.read<WalletProvider>().deleteAllWallets();
+                                    await preferenceProvider.resetVaultOrderAndFavorites();
+
+                                    _onChangeEntryFlow();
                                   },
                                 );
                               },
@@ -753,7 +777,7 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> with SingleTickerProv
                                     : null,
                             top: _signingModeEdgePanelWidth == 100.0 ? 20 : 50 - 12,
                             child: SvgPicture.asset(
-                              'assets/svg/exit.svg',
+                              'assets/svg/eraser.svg',
                               width: 24,
                               height: 24,
                               colorFilter: const ColorFilter.mode(CoconutColors.white, BlendMode.srcIn),
@@ -764,7 +788,7 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> with SingleTickerProv
                             Positioned(
                               left: 0,
                               right: 0,
-                              top: 52,
+                              bottom: 30,
                               child: AnimatedOpacity(
                                 duration: const Duration(milliseconds: 200),
                                 opacity: _signingModeEdgePanelWidth == 100.0 ? 1.0 : 0.0,
@@ -772,7 +796,7 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> with SingleTickerProv
                                   child: FittedBox(
                                     fit: BoxFit.scaleDown,
                                     child: Text(
-                                      t.exit_vault,
+                                      t.reset_vault,
                                       style: CoconutTypography.body2_14_Bold.copyWith(color: CoconutColors.white),
                                     ),
                                   ),
@@ -786,6 +810,10 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> with SingleTickerProv
         ),
       ),
     );
+  }
+
+  void _onChangeEntryFlow() async {
+    _updateEntryFlow(AppEntryFlow.vaultResetCompleted);
   }
 
   void movePanelToEdge(PointerEvent details) {
@@ -920,9 +948,9 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> with SingleTickerProv
       // 지갑이 존재하지 않거나 PIN이 설정되지 않은 경우 최초실행으로 간주
       final vaultListLength = SharedPrefsRepository().getInt(SharedPrefsKeys.vaultListLength) ?? 0;
       final hasSeenGuide = SharedPrefsRepository().getBool(SharedPrefsKeys.hasShownStartGuide) ?? false;
-
+      final isPinEnabled = SharedPrefsRepository().getBool(SharedPrefsKeys.isPinEnabled) ?? false;
       // 지갑이 없거나 가이드를 본 적이 없으면 최초실행
-      return vaultListLength == 0 || !hasSeenGuide;
+      return (!isPinEnabled && vaultListLength == 0) || !hasSeenGuide;
     } catch (e) {
       debugPrint('앱 최초실행 여부 확인 실패: $e');
       // 에러 발생 시 최초실행으로 간주
@@ -1030,9 +1058,9 @@ class _SecurityCheckWidgetState extends State<_SecurityCheckWidget> {
       // 지갑이 존재하지 않거나 PIN이 설정되지 않은 경우 최초실행으로 간주
       final vaultListLength = SharedPrefsRepository().getInt(SharedPrefsKeys.vaultListLength) ?? 0;
       final hasSeenGuide = SharedPrefsRepository().getBool(SharedPrefsKeys.hasShownStartGuide) ?? false;
-
+      final isPinEnabled = SharedPrefsRepository().getBool(SharedPrefsKeys.isPinEnabled) ?? false;
       // 지갑이 없거나 가이드를 본 적이 없으면 최초실행
-      return vaultListLength == 0 || !hasSeenGuide;
+      return (!isPinEnabled && vaultListLength == 0) || !hasSeenGuide;
     } catch (e) {
       debugPrint('앱 최초실행 여부 확인 실패: $e');
       // 에러 발생 시 최초실행으로 간주
