@@ -41,49 +41,52 @@ class _AppUnavailableNotificationScreenState extends State<AppUnavailableNotific
     return Scaffold(
       backgroundColor: CoconutColors.white,
       body: SafeArea(
-        child: Center(
-          child:
-              widget.isVaultReset == true
-                  ? Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      Text(
-                        t.app_unavailable_notification_screen.vault_reset.reset_completed,
-                        style: CoconutTypography.heading3_21_Bold,
-                        textAlign: TextAlign.center,
-                      ),
-                      CoconutLayout.spacing_800h,
-                      _buildImage(),
-                      CoconutLayout.spacing_800h,
-                      _buildStep('1', t.app_unavailable_notification_screen.vault_reset.step_1),
-                      CoconutLayout.spacing_400h,
-                      _buildStep('2', t.app_unavailable_notification_screen.vault_reset.step_2),
-                      CoconutLayout.spacing_400h,
-                      _buildStep('3', t.app_unavailable_notification_screen.vault_reset.step_3),
-                      CoconutLayout.spacing_200h,
-                    ],
-                  )
-                  : Column(
-                    mainAxisAlignment: MainAxisAlignment.center, // Centers the content vertically
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      Text(
-                        t.app_unavailable_notification_screen.restart_app,
-                        style: CoconutTypography.heading3_21_Bold,
-                        textAlign: TextAlign.center,
-                      ),
-                      CoconutLayout.spacing_800h,
-                      _buildImage(),
-                      CoconutLayout.spacing_800h,
-                      _buildStep('1', t.app_unavailable_notification_screen.step1),
-                      CoconutLayout.spacing_400h,
-                      _buildStep('2', t.app_unavailable_notification_screen.step2),
-                      CoconutLayout.spacing_400h,
-                      _buildStep('3', t.app_unavailable_notification_screen.step3),
-                      CoconutLayout.spacing_800h,
-                    ],
-                  ),
+        child: MediaQuery(
+          data: MediaQuery.of(context).copyWith(textScaler: const TextScaler.linear(1.0)),
+          child: Center(
+            child:
+                widget.isVaultReset == true
+                    ? Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Text(
+                          t.app_unavailable_notification_screen.vault_reset.reset_completed,
+                          style: CoconutTypography.heading3_21_Bold,
+                          textAlign: TextAlign.center,
+                        ),
+                        CoconutLayout.spacing_800h,
+                        _buildImage(),
+                        CoconutLayout.spacing_800h,
+                        _buildStep('1', t.app_unavailable_notification_screen.vault_reset.step_1),
+                        CoconutLayout.spacing_400h,
+                        _buildStep('2', t.app_unavailable_notification_screen.vault_reset.step_2),
+                        CoconutLayout.spacing_400h,
+                        _buildStep('3', t.app_unavailable_notification_screen.vault_reset.step_3),
+                        CoconutLayout.spacing_200h,
+                      ],
+                    )
+                    : Column(
+                      mainAxisAlignment: MainAxisAlignment.center, // Centers the content vertically
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Text(
+                          t.app_unavailable_notification_screen.restart_app,
+                          style: CoconutTypography.heading3_21_Bold,
+                          textAlign: TextAlign.center,
+                        ),
+                        CoconutLayout.spacing_800h,
+                        _buildImage(),
+                        CoconutLayout.spacing_800h,
+                        _buildStep('1', t.app_unavailable_notification_screen.step1),
+                        CoconutLayout.spacing_400h,
+                        _buildStep('2', t.app_unavailable_notification_screen.step2),
+                        CoconutLayout.spacing_400h,
+                        _buildStep('3', t.app_unavailable_notification_screen.step3),
+                        CoconutLayout.spacing_800h,
+                      ],
+                    ),
+          ),
         ),
       ),
     );
