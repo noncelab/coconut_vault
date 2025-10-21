@@ -25,12 +25,12 @@ class AppRoutes {
   static const String singleSigSign = '/single-sig-sign';
   static const String securitySelfCheck = '/security-self-check';
   static const String appInfo = '/app-info';
+  static const String devicePasswordDetection = '/device-password-detection';
+  static const String jailBreakDetection = '/jail-break-detection';
   static const String welcome = '/welcome';
-  static const String prepareUpdate = '/prepare-update';
-  static const String restorationInfo = "/restoration-info";
-  static const String vaultListRestoration = "/vault-list-restoration";
   static const String vaultList = "/vault-list";
   static const String passphraseVerification = "/passphrase-verification";
+  static const String vaultModeSelection = "/vault-mode-selection";
   static const String mnemonicCoinflip = '/mnemonic-coinflip';
   static const String mnemonicDiceRoll = '/mnemonic-dice-roll';
   static const String mnemonicAutoGen = '/mnemonic-auto-gen';

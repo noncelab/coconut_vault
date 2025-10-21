@@ -2,4 +2,4 @@ CFBundleDisplayName = "코코넛 볼트";
 NSBluetoothAlwaysUsageDescription = "이 앱은 보안 강화를 위해 Bluetooth가 활성화되어 있는지 감지하고, Bluetooth가 활성화 된 경우 무단 장치와의 연결로 중요 정보가 유출되는 것을 방지하기 위해 앱 기능에 접근을 제한합니다.";
 NSBluetoothPeripheralUsageDescription = "이 앱은 보안 강화를 위해 Bluetooth가 활성화되어 있는지 감지하고, Bluetooth가 활성화 된 경우 무단 장치와의 연결로 중요 정보가 유출되는 것을 방지하기 위해 앱 기능에 접근을 제한합니다.";
 NSCameraUsageDescription = "QR코드 스캔을 위해 카메라 사용이 필요합니다.";
-NSFaceIDUsageDescription = "앱의 잠금을 해제할 때 Face ID를 사용하기 위해 필요합니다.";
+NSFaceIDUsageDescription = "잠금 해제 및 보안 기능 접근을 위해 Face ID를 사용합니다.";

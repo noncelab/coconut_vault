@@ -1,7 +1,6 @@
 import 'dart:io';
 
 import 'package:coconut_design_system/coconut_design_system.dart';
-import 'package:coconut_lib/coconut_lib.dart';
 import 'package:coconut_vault/app_routes_params.dart';
 import 'package:coconut_vault/constants/app_routes.dart';
 import 'package:coconut_vault/enums/wallet_enums.dart';
@@ -31,7 +30,9 @@ import 'package:provider/provider.dart';
 import 'package:collection/collection.dart';
 
 class VaultHomeScreen extends StatefulWidget {
-  const VaultHomeScreen({super.key});
+  final Function? onChangeEntryFlow;
+  final Function? onTeeUnaccessible;
+  const VaultHomeScreen({super.key, this.onChangeEntryFlow, this.onTeeUnaccessible});
 
   @override
   State<VaultHomeScreen> createState() => _VaultHomeScreenState();
@@ -62,8 +63,36 @@ class _VaultHomeScreenState extends State<VaultHomeScreen> with TickerProviderSt
       if (_viewModel.isVaultsLoaded) {
         return;
       }
-      _viewModel.loadVaults();
+      await _viewModel.loadVaults();
+
+      // loadVaults() 완료 후 vaultList가 null이 아닐 때 실행
+      if (Platform.isAndroid) {
+        final walletProvider = context.read<WalletProvider>();
+        if (walletProvider.isVaultsLoaded && walletProvider.vaultList.isNotEmpty) {
+          _isTeeAccessible().then((isTeeAccessible) {
+            debugPrint('isTeeAccessible: $isTeeAccessible');
+            if (!isTeeAccessible) {
+              widget.onTeeUnaccessible?.call();
+            }
+          });
+        }
+      }
     });
+  }
+
+  Future<bool> _isTeeAccessible() async {
+    final firstSingleSignatureWalletId =
+        context
+            .read<WalletProvider>()
+            .vaultList
+            .firstWhere((vault) => vault.vaultType == WalletType.singleSignature)
+            .id;
+    try {
+      await context.read<WalletProvider>().getSecret(firstSingleSignatureWalletId);
+      return true;
+    } catch (e) {
+      return false;
+    }
   }
 
   @override
@@ -86,10 +115,6 @@ class _VaultHomeScreenState extends State<VaultHomeScreen> with TickerProviderSt
         );
       });
     }
-  }
-
-  bool isEnablePlusButton(bool isWalletsLoaded) {
-    return NetworkType.currentNetworkType.isTestnet || (isWalletsLoaded);
   }
 
   VaultHomeViewModel _createViewModel() {
@@ -154,6 +179,7 @@ class _VaultHomeScreenState extends State<VaultHomeScreen> with TickerProviderSt
                       SliverToBoxAdapter(child: Container(color: CoconutColors.gray200, height: 12)),
                       if (wallets.isNotEmpty) ...[_buildViewAll(wallets.length)],
                       _buildWalletList(context),
+                      // TODO: const SliverToBoxAdapter(child: TeeSmokeTest()),
                       SliverToBoxAdapter(child: Container(height: 100)),
                     ],
                   ),
@@ -173,7 +199,7 @@ class _VaultHomeScreenState extends State<VaultHomeScreen> with TickerProviderSt
       appTitle: '',
       actionButtonList: [
         Opacity(
-          opacity: isEnablePlusButton(viewModel.isVaultsLoaded) ? 1.0 : 0.2,
+          opacity: viewModel.isVaultsLoaded ? 1.0 : 0.2,
           child: _buildAppBarIconButton(
             key: GlobalKey(),
             icon: SvgPicture.asset(
@@ -181,18 +207,11 @@ class _VaultHomeScreenState extends State<VaultHomeScreen> with TickerProviderSt
               colorFilter: const ColorFilter.mode(CoconutColors.gray800, BlendMode.srcIn),
             ),
             onPressed: () {
-              if (!isEnablePlusButton(viewModel.isVaultsLoaded)) {
+              if (!viewModel.isVaultsLoaded) {
                 return;
               }
 
-              if (viewModel.vaultCount == 0 && !viewModel.isPinSet) {
-                MyBottomSheet.showBottomSheet_90(
-                  context: context,
-                  child: const PinSettingScreen(greetingVisible: true),
-                );
-              } else {
-                Navigator.pushNamed(context, AppRoutes.vaultTypeSelection);
-              }
+              _onPressedWalletAddButton(viewModel);
             },
           ),
         ),
@@ -202,7 +221,12 @@ class _VaultHomeScreenState extends State<VaultHomeScreen> with TickerProviderSt
             colorFilter: const ColorFilter.mode(CoconutColors.gray800, BlendMode.srcIn),
           ),
           onPressed: () {
-            MyBottomSheet.showBottomSheet_90(context: context, child: const SettingsScreen());
+            MyBottomSheet.showDraggableBottomSheet(
+              initialChildSize: 0.9,
+              context: context,
+              showDragHandle: true,
+              childBuilder: (scrollController) => SettingsScreen(scrollController: scrollController),
+            );
           },
         ),
       ],
@@ -259,18 +283,7 @@ class _VaultHomeScreenState extends State<VaultHomeScreen> with TickerProviderSt
       return SliverToBoxAdapter(
         child: Container(
           margin: const EdgeInsets.symmetric(vertical: 20),
-          child: VaultAdditionGuideCard(
-            onPressed: () {
-              if (!viewModel.isPinSet) {
-                MyBottomSheet.showBottomSheet_90(
-                  context: context,
-                  child: const PinSettingScreen(greetingVisible: true),
-                );
-              } else {
-                Navigator.pushNamed(context, AppRoutes.vaultTypeSelection);
-              }
-            },
-          ),
+          child: VaultAdditionGuideCard(onPressed: () => _onPressedWalletAddButton(viewModel)),
         ),
       );
     }
@@ -280,6 +293,14 @@ class _VaultHomeScreenState extends State<VaultHomeScreen> with TickerProviderSt
         children: [CoconutLayout.spacing_300h, _buildFavoriteWalletList(viewModel.vaults, viewModel.favoriteVaultIds)],
       ),
     );
+  }
+
+  void _onPressedWalletAddButton(VaultHomeViewModel viewModel) {
+    if (!viewModel.isSigningOnlyMode && !viewModel.isPinSet) {
+      MyBottomSheet.showBottomSheet_90(context: context, child: const PinSettingScreen(greetingVisible: true));
+    } else {
+      Navigator.pushNamed(context, AppRoutes.vaultTypeSelection);
+    }
   }
 
   Widget _buildFavoriteWalletList(List<VaultListItemBase> walletList, List<int> favoriteWalletIds) {
@@ -310,12 +331,13 @@ class _VaultHomeScreenState extends State<VaultHomeScreen> with TickerProviderSt
                   return;
                 }
 
-                bool hasPassphrase = await _viewModel.hasPassphrase(vault.id);
+                bool shouldShowPassphraseVerifyMenu =
+                    _viewModel.isSigningOnlyMode ? false : await _viewModel.hasPassphrase(vault.id);
                 if (mounted) {
                   Navigator.pushNamed(
                     context,
                     AppRoutes.singleSigSetupInfo,
-                    arguments: {'id': vault.id, 'hasPassphrase': hasPassphrase},
+                    arguments: {'id': vault.id, 'shouldShowPassphraseVerifyMenu': shouldShowPassphraseVerifyMenu},
                   );
                 }
               },
@@ -475,7 +497,55 @@ class _VaultHomeScreenState extends State<VaultHomeScreen> with TickerProviderSt
                   ),
                 ),
                 CoconutLayout.spacing_200w,
-                const Expanded(child: SizedBox.shrink()),
+                Expanded(
+                  child: Selector<PreferenceProvider, bool>(
+                    selector: (_, provider) => provider.isSigningOnlyMode,
+                    builder: (context, isSigningOnlyMode, child) {
+                      if (!isSigningOnlyMode) {
+                        return const SizedBox.shrink();
+                      }
+
+                      return _buildActionItemButton(
+                        isActive: true,
+                        textColor: CoconutColors.white,
+                        iconColor: CoconutColors.white,
+                        backgroundColor: CoconutColors.gray800,
+                        pressedColor: CoconutColors.gray700,
+                        text: t.reset_vault,
+                        iconAssetPath: 'assets/svg/eraser.svg',
+                        iconPadding: const EdgeInsets.only(right: 18, bottom: 16),
+                        onPressed: () async {
+                          showDialog(
+                            context: context,
+                            builder: (BuildContext dialogContext) {
+                              return CoconutPopup(
+                                insetPadding: EdgeInsets.symmetric(
+                                  horizontal: MediaQuery.of(context).size.width * 0.15,
+                                ),
+                                title: t.reset_vault,
+                                description: t.reset_vault_description,
+                                backgroundColor: CoconutColors.white,
+                                leftButtonText: t.cancel,
+                                rightButtonText: t.confirm,
+                                rightButtonColor: CoconutColors.black,
+                                onTapLeft: () {
+                                  Navigator.pop(dialogContext);
+                                },
+                                onTapRight: () async {
+                                  await context.read<WalletProvider>().deleteAllWallets();
+                                  if (!context.mounted) return;
+                                  await context.read<PreferenceProvider>().resetVaultOrderAndFavorites();
+
+                                  widget.onChangeEntryFlow?.call();
+                                },
+                              );
+                            },
+                          );
+                        },
+                      );
+                    },
+                  ),
+                ),
               ],
             ),
           ],
@@ -485,17 +555,17 @@ class _VaultHomeScreenState extends State<VaultHomeScreen> with TickerProviderSt
   }
 
   Future<void> _handleWalletSelection(BuildContext context, int walletId, VaultHomeViewModel viewModel) async {
-    final hasPassphrase = await viewModel.hasPassphrase(walletId);
+    final hasPassphrase = viewModel.isSigningOnlyMode ? false : await viewModel.hasPassphrase(walletId);
     if (!context.mounted) return;
 
     if (hasPassphrase) {
-      final result = await MyBottomSheet.showBottomSheet_ratio<String?>(
+      final passphraseInput = await MyBottomSheet.showBottomSheet_ratio<String?>(
         ratio: 0.5,
         context: context,
         child: PassphraseCheckScreen(id: walletId),
       );
 
-      if (result != null && context.mounted) {
+      if (passphraseInput != null && context.mounted) {
         _showSyncOptionBottomSheet(walletId, context);
       }
     } else {
@@ -523,11 +593,16 @@ class _VaultHomeScreenState extends State<VaultHomeScreen> with TickerProviderSt
     EdgeInsets? iconPadding,
     bool isActive = false,
     VoidCallback? onPressed,
+    Color pressedColor = CoconutColors.gray100,
+    Color backgroundColor = CoconutColors.white,
+    Color textColor = CoconutColors.gray700,
+    Color iconColor = CoconutColors.gray800,
   }) {
     return ShrinkAnimationButton(
       isActive: isActive,
       onPressed: onPressed ?? () {},
-      pressedColor: CoconutColors.gray100,
+      defaultColor: backgroundColor,
+      pressedColor: pressedColor,
       borderRadius: 12,
       child: SizedBox(
         height: 90,
@@ -541,10 +616,7 @@ class _VaultHomeScreenState extends State<VaultHomeScreen> with TickerProviderSt
                   padding: iconPadding ?? EdgeInsets.zero,
                   child: SvgPicture.asset(
                     iconAssetPath,
-                    colorFilter: ColorFilter.mode(
-                      isActive ? CoconutColors.gray800 : CoconutColors.gray400,
-                      BlendMode.srcIn,
-                    ),
+                    colorFilter: ColorFilter.mode(isActive ? iconColor : CoconutColors.gray400, BlendMode.srcIn),
                   ),
                 ),
               ),
@@ -556,9 +628,7 @@ class _VaultHomeScreenState extends State<VaultHomeScreen> with TickerProviderSt
                 data: MediaQuery.of(context).copyWith(textScaler: const TextScaler.linear(1.0)),
                 child: Text(
                   text,
-                  style: CoconutTypography.body2_14_Bold.setColor(
-                    isActive ? CoconutColors.gray700 : CoconutColors.gray400,
-                  ),
+                  style: CoconutTypography.body2_14_Bold.setColor(isActive ? textColor : CoconutColors.gray400),
                 ),
               ),
             ),

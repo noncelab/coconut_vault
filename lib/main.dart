@@ -2,7 +2,11 @@ import 'dart:io';
 
 import 'package:coconut_lib/coconut_lib.dart';
 import 'package:coconut_vault/constants/method_channel.dart';
+import 'package:coconut_vault/constants/shared_preferences_keys.dart';
+import 'package:coconut_vault/enums/vault_mode_enum.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
+import 'package:coconut_vault/repository/old_secure_storage_cleaner_for_ios.dart';
+import 'package:coconut_vault/repository/secure_storage_repository.dart';
 import 'package:coconut_vault/repository/shared_preferences_repository.dart';
 import 'package:coconut_vault/utils/logger.dart';
 import 'package:flutter/cupertino.dart';
@@ -36,7 +40,7 @@ void main() async {
         SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]);
       }
     } on PlatformException catch (e) {
-      Logger.log("Failed to get platform version: '${e.message}'.");
+      Logger.error("Failed to get platform version: '${e.message}'.");
     }
   } else {
     SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]);
@@ -82,6 +86,18 @@ void main() async {
       return other ?? '';
     },
   );
+
+  // 볼트 모드 마이그레이션
+  SharedPrefsRepository sharedPrefs = SharedPrefsRepository();
+  if (sharedPrefs.getBool(SharedPrefsKeys.hasShownStartGuide) == true &&
+      sharedPrefs.getString(SharedPrefsKeys.kVaultMode).isEmpty) {
+    await sharedPrefs.setString(SharedPrefsKeys.kVaultMode, VaultMode.secureStorage.name);
+  }
+
+  // iOS secure storage 옵션 변경에 따른 삭제
+  if (Platform.isIOS) {
+    await OldSecureStorageCleanerForIos.cleanAll();
+  }
 
   return runApp(const CoconutVaultApp());
 }

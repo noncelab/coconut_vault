@@ -2,10 +2,12 @@ import 'dart:async';
 import 'dart:io';
 import 'dart:math';
 
+import 'package:coconut_vault/constants/method_channel.dart';
 import 'package:coconut_vault/constants/pin_constants.dart';
 import 'package:coconut_vault/constants/secure_storage_keys.dart';
 import 'package:coconut_vault/constants/shared_preferences_keys.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
+import 'package:coconut_vault/providers/app_lifecycle_state_provider.dart';
 import 'package:coconut_vault/providers/preference_provider.dart';
 import 'package:coconut_vault/repository/wallet_repository.dart';
 import 'package:coconut_vault/repository/secure_storage_repository.dart';
@@ -19,9 +21,12 @@ import 'package:flutter/services.dart';
 import 'package:local_auth/local_auth.dart';
 
 class AuthProvider extends ChangeNotifier {
+  final AppLifecycleStateProvider _lifecycleProvider = AppLifecycleStateProvider();
+
   static String unlockAvailableAtKey = SharedPrefsKeys.kUnlockAvailableAt;
   static String turnKey = SharedPrefsKeys.kPinInputTurn;
   static String currentAttemptKey = SharedPrefsKeys.kPinInputCurrentAttemptCount;
+  static const _osChannel = MethodChannel(methodChannelOS);
 
   final SharedPrefsRepository _sharedPrefs = SharedPrefsRepository();
   final SecureStorageRepository _storageService = SecureStorageRepository();
@@ -30,6 +35,10 @@ class AuthProvider extends ChangeNotifier {
 
   /// dispose 상태 추적
   bool _isDisposed = false;
+
+  /// 생체인증 진행 중인지 여부
+  bool _isBiometricInProgress = false;
+  bool get isBiometricInProgress => _isBiometricInProgress;
 
   /// 비밀번호 설정 여부
   bool _isPinSet = false;
@@ -84,7 +93,7 @@ class AuthProvider extends ChangeNotifier {
 
   int get remainingAttemptCount => kMaxAttemptPerTurn - _currentAttemptInTurn;
 
-  bool get isPermanantlyLocked => _currentTurn == kMaxTurn;
+  bool get isPermanentlyLocked => _currentTurn == kMaxTurn;
   bool get isUnlockAvailable => unlockAvailableAt?.isBefore(DateTime.now()) ?? true;
 
   VoidCallback? onAuthenticationSuccess;
@@ -94,9 +103,27 @@ class AuthProvider extends ChangeNotifier {
     setInitState();
   }
 
+  /// 기기가 PIN/패턴/비밀번호로 보안 설정되어 있는지 확인
+  Future<bool> isDeviceSecured() async {
+    try {
+      final bool? isSecure = await _osChannel.invokeMethod('isDeviceSecure');
+      return isSecure ?? false;
+    } catch (e) {
+      Logger.error('Failed to check device security: $e');
+      return false;
+    }
+  }
+
   /// 생체인증 성공했는지 여부 반환
   Future<bool> isBiometricsAuthValid({bool isSaved = false}) async {
     return isBiometricsAuthEnabled && await authenticateWithBiometrics(isSaved: isSaved);
+  }
+
+  /// 주의: TEE decrypt 직전 사용. 아이폰이거나 생체인증이 켜져 있는 경우 생체인증을 진행하지 않음. TEE decrypt과정에서 생체인증하기 때문
+  Future<bool> isBiometricsAuthValidToAvoidDoubleAuth({bool isSaved = false}) async {
+    if (Platform.isIOS && isBiometricsAuthEnabled) return true;
+
+    return await isBiometricsAuthValid(isSaved: isSaved);
   }
 
   void setInitState() {
@@ -127,6 +154,11 @@ class AuthProvider extends ChangeNotifier {
   /// 생체인증 진행 후 성공 여부 반환
   Future<bool> authenticateWithBiometrics({BuildContext? context, bool isSaved = false}) async {
     bool authenticated = false;
+    _isBiometricInProgress = true;
+    _lifecycleProvider.startOperation(AppLifecycleOperations.biometricAuthentication);
+
+    notifyListeners();
+
     try {
       authenticated = await _auth.authenticate(
         localizedReason:
@@ -143,8 +175,6 @@ class AuthProvider extends ChangeNotifier {
         saveIsBiometricEnabled(authenticated);
         _setHasAlreadyRequestedBioPermissionTrue();
       }
-
-      return authenticated;
     } on PlatformException catch (e) {
       Logger.log(e);
 
@@ -158,8 +188,12 @@ class AuthProvider extends ChangeNotifier {
         saveIsBiometricEnabled(false);
         _setHasAlreadyRequestedBioPermissionTrue();
       }
+    } finally {
+      _isBiometricInProgress = false;
+      _lifecycleProvider.endOperation(AppLifecycleOperations.biometricAuthentication);
+      notifyListeners();
     }
-    return false;
+    return authenticated;
   }
 
   Future<void> _setHasAlreadyRequestedBioPermissionTrue() async {
@@ -275,6 +309,12 @@ class AuthProvider extends ChangeNotifier {
     resetAuthenticationState();
   }
 
+  Future<void> setPinSet(bool value) async {
+    _isPinSet = value;
+    await _sharedPrefs.setBool(SharedPrefsKeys.isPinEnabled, value);
+    notifyListeners();
+  }
+
   Future<void> resetData(PreferenceProvider preferenceProvider) async {
     final WalletRepository walletRepository = WalletRepository();
     await walletRepository.resetAll();
@@ -287,6 +327,13 @@ class AuthProvider extends ChangeNotifier {
     await _sharedPrefs.setInt(SharedPrefsKeys.vaultListLength, 0);
     await _sharedPrefs.setString(SharedPrefsKeys.kAppVersion, '');
     await preferenceProvider.resetVaultOrderAndFavorites();
+  }
+
+  Future<void> resetPinData() async {
+    await _storageService.delete(key: SecureStorageKeys.kVaultPin);
+    _isPinSet = false;
+    _sharedPrefs.setBool(SharedPrefsKeys.isPinEnabled, false);
+    resetAuthenticationState();
   }
 
   // TODO: 딜레이 발생 이유

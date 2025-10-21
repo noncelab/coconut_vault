@@ -37,6 +37,7 @@ class _MultisigSetupInfoScreenState extends State<MultisigSetupInfoScreen> {
   final GlobalKey _tooltipIconKey = GlobalKey();
   final Offset _tooltipIconPosition = Offset.zero;
   final double _tooltipTopPadding = 0;
+  late final MultisigSetupInfoViewModel _viewModel;
 
   Timer? _tooltipTimer;
   final int _tooltipRemainingTime = 0;
@@ -44,29 +45,30 @@ class _MultisigSetupInfoScreenState extends State<MultisigSetupInfoScreen> {
   @override
   void initState() {
     super.initState();
-    debugPrint('initState: ${widget.id}');
+    _viewModel = MultisigSetupInfoViewModel(Provider.of<WalletProvider>(context, listen: false), widget.id);
   }
 
-  Future<void> _authenticateAndDelete(BuildContext context) async {
-    void onComplete() {
-      context.read<MultisigSetupInfoViewModel>().deleteVault();
-      vibrateLight();
-      if (widget.entryPoint != null && widget.entryPoint == AppRoutes.vaultList) {
-        Navigator.popUntil(context, (route) {
-          return route.settings.name == AppRoutes.vaultList;
-        });
-      } else {
-        Navigator.popUntil(context, (route) => route.isFirst);
-      }
-      return;
+  void onComplete() {
+    _viewModel.deleteVault();
+    vibrateLight();
+    if (widget.entryPoint != null && widget.entryPoint == AppRoutes.vaultList) {
+      Navigator.popUntil(context, (route) {
+        return route.settings.name == AppRoutes.vaultList;
+      });
+    } else {
+      Navigator.popUntil(context, (route) => route.isFirst);
     }
+    return;
+  }
 
+  Future<void> _authenticateAndDelete() async {
     final authProvider = context.read<AuthProvider>();
     if (await authProvider.isBiometricsAuthValid() && context.mounted) {
       onComplete();
       return;
     }
 
+    if (!mounted) return;
     await MyBottomSheet.showBottomSheet_90(
       context: context,
       child: CustomLoadingOverlay(
@@ -83,8 +85,8 @@ class _MultisigSetupInfoScreenState extends State<MultisigSetupInfoScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-      create: (context) => MultisigSetupInfoViewModel(Provider.of<WalletProvider>(context, listen: false), widget.id),
+    return ChangeNotifierProvider.value(
+      value: _viewModel,
       child: PopScope(
         canPop: true,
         onPopInvokedWithResult: (didPop, _) {
@@ -150,13 +152,12 @@ class _MultisigSetupInfoScreenState extends State<MultisigSetupInfoScreen> {
   }
 
   Widget _buildVaultItemCard(BuildContext context) {
-    final viewModel = context.watch<MultisigSetupInfoViewModel>();
     return VaultItemCard(
-      vaultItem: viewModel.vaultItem,
+      vaultItem: _viewModel.vaultItem,
       onTooltipClicked: () => _showTooltip(context),
       onNameChangeClicked: () {
         _removeTooltip();
-        _showNameAndIconEditBottomSheet(viewModel);
+        _showNameAndIconEditBottomSheet(_viewModel);
       },
       tooltipKey: _tooltipIconKey,
     );
@@ -198,8 +199,7 @@ class _MultisigSetupInfoScreenState extends State<MultisigSetupInfoScreen> {
   }
 
   Widget _buildSignerList(BuildContext context) {
-    final viewModel = context.watch<MultisigSetupInfoViewModel>();
-    final signers = viewModel.signers;
+    final signers = _viewModel.signers;
     return ListView.separated(
       physics: const NeverScrollableScrollPhysics(),
       shrinkWrap: true,
@@ -207,22 +207,27 @@ class _MultisigSetupInfoScreenState extends State<MultisigSetupInfoScreen> {
       itemCount: signers.length,
       separatorBuilder: (context, index) => const SizedBox(height: 8),
       itemBuilder: (context, index) {
-        final signer = viewModel.getSignerInfo(index);
+        final signer = _viewModel.getSignerInfo(index);
         final isVaultInside = signer.innerVaultId != null;
         return GestureDetector(
           onTap: () async {
             _removeTooltip();
             if (isVaultInside && signer.innerVaultId != null) {
-              bool hasPassphrase = await context.read<WalletProvider>().hasPassphrase(signer.innerVaultId!);
+              final walletProvider = context.read<WalletProvider>();
+              bool shouldShowPassphraseVerifyMenu =
+                  walletProvider.isSigningOnlyMode ? false : await walletProvider.hasPassphrase(signer.innerVaultId!);
               if (context.mounted) {
                 Navigator.pushNamed(
                   context,
                   AppRoutes.singleSigSetupInfo,
-                  arguments: {'id': signer.innerVaultId, 'hasPassphrase': hasPassphrase},
+                  arguments: {
+                    'id': signer.innerVaultId,
+                    'shouldShowPassphraseVerifyMenu': shouldShowPassphraseVerifyMenu,
+                  },
                 );
               }
             } else {
-              _showMemoEditBottomSheet(signer, index, viewModel);
+              _showMemoEditBottomSheet(signer, index, _viewModel);
             }
           },
           child: _buildSignerCard(signer, index),
@@ -392,8 +397,8 @@ class _MultisigSetupInfoScreenState extends State<MultisigSetupInfoScreen> {
   }
 
   Widget _buildTooltip(BuildContext context) {
-    final totalSingerCount = context.read<MultisigSetupInfoViewModel>().signers.length;
-    final requiredSignatureCount = context.read<MultisigSetupInfoViewModel>().requiredSignatureCount;
+    final totalSingerCount = _viewModel.signers.length;
+    final requiredSignatureCount = _viewModel.requiredSignatureCount;
     return Visibility(
       visible: _tooltipRemainingTime > 0,
       child: Positioned(
@@ -472,7 +477,13 @@ class _MultisigSetupInfoScreenState extends State<MultisigSetupInfoScreen> {
           onTapLeft: () => Navigator.pop(context),
           onTapRight: () async {
             if (context.mounted) {
-              _authenticateAndDelete(context);
+              if (!_viewModel.isSigningOnlyMode) {
+                // 안전 저장 모드
+                _authenticateAndDelete();
+              } else {
+                // 서명 전용 모드
+                onComplete();
+              }
             }
           },
         );
@@ -483,6 +494,7 @@ class _MultisigSetupInfoScreenState extends State<MultisigSetupInfoScreen> {
   @override
   void dispose() {
     _tooltipTimer?.cancel();
+    _viewModel.dispose();
     super.dispose();
   }
 }

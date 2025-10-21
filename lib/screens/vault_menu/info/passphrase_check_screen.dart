@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:coconut_design_system/coconut_design_system.dart';
+import 'package:coconut_lib/coconut_lib.dart';
 import 'package:coconut_vault/enums/pin_check_context_enum.dart';
 import 'package:coconut_vault/isolates/wallet_isolates.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
@@ -151,7 +152,7 @@ class _PassphraseCheckScreen extends State<PassphraseCheckScreen> {
     });
 
     _closeKeyboard();
-    final isBiometricsAuthValid = await context.read<AuthProvider>().isBiometricsAuthValid();
+    final isBiometricsAuthValid = await context.read<AuthProvider>().isBiometricsAuthValidToAvoidDoubleAuth();
     if (!isBiometricsAuthValid) {
       final pinCheckResult = await _showPinCheckScreen();
       if (pinCheckResult != true) {
@@ -165,13 +166,13 @@ class _PassphraseCheckScreen extends State<PassphraseCheckScreen> {
     if (!mounted) return;
 
     CustomDialogs.showLoadingDialog(context, t.verify_passphrase_screen.loading_description);
-    bool result = await _verifyPassphrase(utf8.encode(_inputController.text));
+    Seed? result = await _verifyPassphrase(utf8.encode(_inputController.text));
 
     if (!mounted) return;
     Navigator.pop(context); // hide loading dialog
 
-    if (result) {
-      Navigator.pop(context, _inputController.text);
+    if (result != null) {
+      Navigator.pop(context, result);
     } else {
       setState(() {
         _showError = true;
@@ -198,14 +199,19 @@ class _PassphraseCheckScreen extends State<PassphraseCheckScreen> {
     );
   }
 
-  Future<bool> _verifyPassphrase(Uint8List passphrase) async {
+  Future<Seed?> _verifyPassphrase(Uint8List passphrase) async {
     final walletProvider = context.read<WalletProvider>();
+    final secret = await walletProvider.getSecret(widget.id);
     final result = await compute(WalletIsolates.verifyPassphrase, {
-      'mnemonic': await walletProvider.getSecret(widget.id),
+      'mnemonic': secret,
       'passphrase': passphrase,
       'valutListItem': walletProvider.getVaultById(widget.id),
     });
 
-    return result['success'];
+    if (result['success'] == true) {
+      return Seed.fromMnemonic(secret, passphrase: passphrase);
+    }
+
+    return null;
   }
 }

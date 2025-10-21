@@ -3,6 +3,7 @@ import 'dart:convert';
 
 import 'package:coconut_lib/coconut_lib.dart';
 import 'package:coconut_vault/extensions/uint8list_extensions.dart';
+import 'package:coconut_vault/providers/app_lifecycle_state_provider.dart';
 import 'package:coconut_vault/providers/preference_provider.dart';
 import 'package:coconut_vault/repository/wallet_repository.dart';
 import 'package:coconut_vault/model/common/vault_list_item_base.dart';
@@ -22,47 +23,48 @@ import 'package:flutter/foundation.dart';
 const kMaxStarLength = 5;
 
 class WalletProvider extends ChangeNotifier {
+  // 1) DI
   late final VisibilityProvider _visibilityProvider;
   late final WalletRepository _walletRepository;
   late final PreferenceProvider _preferenceProvider;
+  late final AppLifecycleStateProvider _lifecycleProvider;
 
-  WalletProvider(this._visibilityProvider, this._preferenceProvider) {
-    _walletRepository = WalletRepository();
+  // 2) 생성자
+  WalletProvider(this._visibilityProvider, this._preferenceProvider, this._lifecycleProvider) {
+    _isSigningOnlyMode = _preferenceProvider.isSigningOnlyMode;
+    _walletRepository = WalletRepository(isSigningOnlyMode: _isSigningOnlyMode);
+
+    if (_isSigningOnlyMode) {
+      _walletRepository.resetAll();
+    }
     vaultListNotifier = ValueNotifier(_vaultList);
   }
 
-  // Vault list
+  // 3) 상태 필드
   List<VaultListItemBase> _vaultList = [];
-  List<VaultListItemBase> get vaultList => vaultListNotifier.value;
   // 리스트 로딩중 여부 (indicator 표시 및 중복 방지)
   bool _isVaultListLoading = false;
-  bool get isVaultListLoading => _isVaultListLoading;
   // vault_type_selection_screen, vault_name_and_icon_setup_screen, app_update_preparation_screen 에서 사용
   // 다음 버튼 클릭시 loadVaultList()가 아직 진행중인 경우 완료 시점을 캐치하기 위함
   final ValueNotifier<bool> isVaultListLoadingNotifier = ValueNotifier<bool>(false);
   // 리스트 로딩 완료 여부 (로딩작업 완료 후 바로 추가하기 표시)
   // 최초 한번 완료 후 재로드 없음
-  bool _isWalletsLoaded = false;
-  bool get isVaultsLoaded => _isWalletsLoaded;
-
+  bool _isVaultsLoaded = false;
   late final ValueNotifier<List<VaultListItemBase>> vaultListNotifier;
-
-  // addVault
   bool _isAddVaultCompleted = false;
-  bool get isAddVaultCompleted => _isAddVaultCompleted;
-
   String? _waitingForSignaturePsbtBase64;
-  String? get waitingForSignaturePsbtBase64 => _waitingForSignaturePsbtBase64;
-
-  String? signedRawTx;
-
   bool _isDisposed = false;
+  late bool _isSigningOnlyMode;
 
-  void _setVaultList(List<VaultListItemBase> value) {
-    _vaultList = value;
-    vaultListNotifier.value = value;
-  }
+  // 4) Getter
+  List<VaultListItemBase> get vaultList => vaultListNotifier.value;
+  bool get isVaultListLoading => _isVaultListLoading;
+  bool get isVaultsLoaded => _isVaultsLoaded;
+  bool get isAddVaultCompleted => _isAddVaultCompleted;
+  String? get waitingForSignaturePsbtBase64 => _waitingForSignaturePsbtBase64;
+  bool get isSigningOnlyMode => _isSigningOnlyMode;
 
+  // 5) 퍼블릭 메서드
   // Returns a copy of the list of vault list.
   List<VaultListItemBase> getVaults() {
     if (_vaultList.isEmpty) {
@@ -89,8 +91,8 @@ class WalletProvider extends ChangeNotifier {
 
     final vault = await _walletRepository.addSinglesigWallet(wallet);
     _setVaultList(_walletRepository.vaultList);
-    _preferenceProvider.setVaultOrder(_vaultList.map((e) => e.id).toList());
-    _addToFavoriteWallets(_vaultList.last.id);
+    await _preferenceProvider.setVaultOrder(_vaultList.map((e) => e.id).toList());
+    _addToFavoriteWalletsIfAvailable(_vaultList.last.id);
 
     _setAddVaultCompleted(true);
     await _updateWalletLength();
@@ -114,22 +116,12 @@ class WalletProvider extends ChangeNotifier {
 
     _setVaultList(_walletRepository.vaultList);
     _preferenceProvider.setVaultOrder(_vaultList.map((e) => e.id).toList());
-    _addToFavoriteWallets(_vaultList.last.id);
+    _addToFavoriteWalletsIfAvailable(_vaultList.last.id);
 
     _setAddVaultCompleted(true);
     await _updateWalletLength();
     notifyListeners();
     return vault;
-  }
-
-  Future<void> _addToFavoriteWallets(int walletId) async {
-    final favoriteWallets = _preferenceProvider.favoriteVaultIds.toList();
-
-    // 즐겨찾기된 지갑이 5개이상이면 등록안함
-    if (favoriteWallets.length < kMaxStarLength && !favoriteWallets.contains(walletId)) {
-      favoriteWallets.add(walletId);
-      await _preferenceProvider.setFavoriteVaultIds(favoriteWallets);
-    }
   }
 
   Future<bool> hasPassphrase(int walletId) async {
@@ -308,7 +300,7 @@ class WalletProvider extends ChangeNotifier {
         return;
       }
 
-      _isWalletsLoaded = true;
+      _isVaultsLoaded = true;
       vibrateLight();
     } catch (e) {
       Logger.log('[loadVaultList] Exception : ${e.toString()}');
@@ -325,10 +317,6 @@ class WalletProvider extends ChangeNotifier {
     return;
   }
 
-  Future<void> _updateWalletLength() async {
-    await _visibilityProvider.saveWalletCount(_vaultList.length);
-  }
-
   void setWaitingForSignaturePsbtBase64(String psbt) {
     _waitingForSignaturePsbtBase64 = psbt;
   }
@@ -337,13 +325,24 @@ class WalletProvider extends ChangeNotifier {
     _waitingForSignaturePsbtBase64 = null;
   }
 
-  void _setAddVaultCompleted(bool value) {
-    _isAddVaultCompleted = value;
-    notifyListeners();
+  Future<Uint8List> getSecret(int id) async {
+    // TEE 접근 시작 - inactive 상태 전환 무시
+    _lifecycleProvider.startOperation(AppLifecycleOperations.teeDecryption);
+    try {
+      final result = await _walletRepository.getSecret(id);
+
+      // 작업 완료 후 지연을 두어 라이프사이클 이벤트와의 타이밍 조정
+      await Future.delayed(const Duration(milliseconds: 500));
+      return result;
+    } finally {
+      // TEE 접근 완료 - inactive 상태 전환 허용
+      _lifecycleProvider.endOperation(AppLifecycleOperations.teeDecryption);
+    }
   }
 
-  Future<Uint8List> getSecret(int id) async {
-    return await _walletRepository.getSecret(id);
+  // 서명 전용 모드
+  Future<Seed> getSeedInSigningOnlyMode(int id) async {
+    return await _walletRepository.getSeedInSigningOnlyMode(id);
   }
 
   Future<String> createBackupData() async {
@@ -380,10 +379,49 @@ class WalletProvider extends ChangeNotifier {
     await _walletRepository.restoreFromBackupData(backupDataMapList);
 
     _setVaultList(_walletRepository.vaultList);
+    _isVaultsLoaded = true;
     notifyListeners();
     await _updateWalletLength();
   }
 
+  Future<void> updateIsSigningOnlyMode(bool isSigningOnlyMode) async {
+    if (_isSigningOnlyMode == isSigningOnlyMode) return;
+    _lifecycleProvider.startOperation(AppLifecycleOperations.teeDecryption);
+    await _walletRepository.updateIsSigningOnlyMode(isSigningOnlyMode);
+    _lifecycleProvider.endOperation(AppLifecycleOperations.teeDecryption);
+    if (isSigningOnlyMode) {
+      _setVaultList([]);
+    }
+    _isSigningOnlyMode = isSigningOnlyMode;
+    notifyListeners();
+  }
+
+  // 6) 프라이빗 메서드
+  void _setVaultList(List<VaultListItemBase> value) {
+    _vaultList = value;
+    vaultListNotifier.value = value;
+  }
+
+  Future<void> _addToFavoriteWalletsIfAvailable(int walletId) async {
+    final currentIds = _preferenceProvider.favoriteVaultIds;
+
+    // 즐겨찾기된 지갑이 5개이상이면 등록안함
+    if (currentIds.length >= kMaxStarLength || currentIds.contains(walletId)) return;
+
+    final updateIds = <int>[...currentIds, walletId];
+    await _preferenceProvider.setFavoriteVaultIds(updateIds);
+  }
+
+  void _setAddVaultCompleted(bool value) {
+    _isAddVaultCompleted = value;
+    notifyListeners();
+  }
+
+  Future<void> _updateWalletLength() async {
+    await _visibilityProvider.saveWalletCount(_vaultList.length);
+  }
+
+  // 7) 오버라이드/생명주기
   @override
   void dispose() {
     if (_isDisposed) return;
@@ -394,7 +432,6 @@ class WalletProvider extends ChangeNotifier {
 
     _vaultList.clear();
     _waitingForSignaturePsbtBase64 = null;
-    signedRawTx = null;
     super.dispose();
   }
 }
