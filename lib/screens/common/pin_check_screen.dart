@@ -129,12 +129,6 @@ class _PinCheckScreenState extends State<PinCheckScreen> with WidgetsBindingObse
         return;
       }
 
-      // 생체인증이 진행 중인 경우 무시
-      if (_authProvider.isBiometricInProgress) {
-        debugPrint('didChangeAppLifecycleState: 생체인증 진행 중이므로 무시');
-        return;
-      }
-
       await _authProvider.updateDeviceBiometricAvailability();
 
       /// 생체 인증 시도
