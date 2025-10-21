@@ -233,7 +233,7 @@ vault_mode_selection_screen:
   change: "변경"
   mode_change_complete: "모드 변경 완료"
   mode_changed_description_secrue_storage: "안전 저장 모드로 변경되었습니다.\n볼트에 저장된 시드라도 주기적으로 백업해 주세요!"
-  mode_changed_description_signing_only: "서명 전용 모드로 변경되었습니다.\n종료 버튼을 눌러 안전하게 종료 후 사용해 주세요!"
+  mode_changed_description_signing_only: "서명 전용 모드로 변경되었습니다.\n사용 후엔 초기화 버튼을 눌러 반드시 초기화 해주세요!"
   secure_storage_mode_warning_title: "안전 저장 모드 전환 시\n주의 사항"
   secure_storage_mode_warning_descriptions_android:
     - "현재 추가된 지갑이 있을 경우, 기기에 정보를 저장하는 데 시간이 소요될 수 있습니다."
