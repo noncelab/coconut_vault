@@ -797,12 +797,15 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> with SingleTickerProv
                               child: AnimatedOpacity(
                                 duration: const Duration(milliseconds: 200),
                                 opacity: _signingModeEdgePanelWidth == 100.0 ? 1.0 : 0.0,
-                                child: Center(
-                                  child: FittedBox(
-                                    fit: BoxFit.scaleDown,
-                                    child: Text(
-                                      t.reset_vault,
-                                      style: CoconutTypography.body2_14_Bold.copyWith(color: CoconutColors.white),
+                                child: MediaQuery(
+                                  data: MediaQuery.of(context).copyWith(textScaler: const TextScaler.linear(1.0)),
+                                  child: Center(
+                                    child: FittedBox(
+                                      fit: BoxFit.scaleDown,
+                                      child: Text(
+                                        t.reset_vault,
+                                        style: CoconutTypography.body2_14_Bold.copyWith(color: CoconutColors.white),
+                                      ),
                                     ),
                                   ),
                                 ),
@@ -872,11 +875,6 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> with SingleTickerProv
   Future<void> _handleAppGoActive(PreferenceProvider preferenceProvider, AuthProvider authProvider) async {
     bool isPinSet = authProvider.isPinSet;
     int vaultListLength = SharedPrefsRepository().getInt(SharedPrefsKeys.vaultListLength) ?? 0;
-
-    if (_isInactive == false && _appEntryFlow == AppEntryFlow.vaultHome) {
-      // 이미 _appEntryFlow가 vaultHome로 이동한 경우
-      return;
-    }
 
     try {
       // 첫 번째/두 번째 플로우: 보안 검사 수행
