@@ -12,7 +12,6 @@ import 'package:coconut_vault/widgets/pin/pin_length_toggle_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:loader_overlay/loader_overlay.dart';
 import 'package:coconut_vault/screens/settings/pin_setting_screen.dart';
 import 'package:coconut_vault/utils/vibration_util.dart';
 import 'package:coconut_vault/widgets/bottom_sheet.dart';
@@ -43,6 +42,7 @@ class _PinCheckScreenState extends State<PinCheckScreen> with WidgetsBindingObse
   DateTime? _lastPressedAt;
   bool? _isUnlockDisabled;
   bool _isLastChanceToTry = false;
+  bool _isVerifyingPin = false;
 
   // 생체인증으로 인한 applifecycle 이벤트 관련 변수
   bool _isLifecycleTriggeredByBio = false;
@@ -206,10 +206,14 @@ class _PinCheckScreenState extends State<PinCheckScreen> with WidgetsBindingObse
   }
 
   void _verifyPin() async {
-    context.loaderOverlay.show();
+    setState(() {
+      _isVerifyingPin = true;
+    });
     bool isAuthenticated = await _authProvider.verifyPin(_pin, isAppLaunchScreen: _isAppLaunched);
     if (mounted) {
-      context.loaderOverlay.hide();
+      setState(() {
+        _isVerifyingPin = false;
+      });
     }
     if (isAuthenticated) {
       _handleAuthenticationSuccess();
@@ -403,8 +407,9 @@ class _PinCheckScreenState extends State<PinCheckScreen> with WidgetsBindingObse
       step: 0,
       lastChance: _isLastChanceToTry,
       lastChanceMessage: t.pin_check_screen.warning,
-      disabled: _authProvider.isPermanentlyLocked || _isUnlockDisabled == true,
+      disabled: _authProvider.isPermanentlyLocked || _isUnlockDisabled == true || _isVerifyingPin,
       characterFocusNode: _characterFocusNode,
+      isLoading: _isVerifyingPin,
     );
   }
 
