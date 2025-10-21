@@ -1,6 +1,7 @@
 import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/main_route_guard.dart';
+import 'package:coconut_vault/providers/auth_provider.dart';
 import 'package:coconut_vault/providers/visibility_provider.dart';
 import 'package:coconut_vault/services/security_prechecker.dart';
 import 'package:coconut_vault/utils/device_secure_checker.dart';
@@ -219,7 +220,8 @@ class _DevicePasswordDetectionScreenState extends State<DevicePasswordDetectionS
         );
         break;
       case DevicePasswordDetectionScreenState.devicePasswordChanged:
-        final result = await SecurityPrechecker().deleteStoredData();
+        final authProvider = Provider.of<AuthProvider>(context, listen: false);
+        final result = await SecurityPrechecker().deleteStoredData(authProvider);
         if (mounted && result) {
           widget.onComplete();
         }

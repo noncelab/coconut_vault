@@ -50,8 +50,8 @@ class VaultHomeViewModel extends ChangeNotifier {
     super.dispose();
   }
 
-  void loadVaults() {
-    _walletProvider.loadVaultList();
+  Future<void> loadVaults() async {
+    await _walletProvider.loadVaultList();
   }
 
   Future<bool> hasPassphrase(int id) async {

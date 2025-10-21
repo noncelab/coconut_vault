@@ -2,6 +2,7 @@ import 'package:coconut_vault/constants/method_channel.dart';
 import 'package:coconut_vault/constants/secure_storage_keys.dart';
 import 'package:coconut_vault/constants/shared_preferences_keys.dart';
 import 'package:coconut_vault/enums/vault_mode_enum.dart';
+import 'package:coconut_vault/providers/auth_provider.dart';
 import 'package:coconut_vault/repository/secure_storage_repository.dart';
 import 'package:coconut_vault/repository/shared_preferences_repository.dart';
 import 'package:flutter/services.dart';
@@ -103,7 +104,7 @@ class SecurityPrechecker {
     }
   }
 
-  Future<bool> deleteStoredData() async {
+  Future<bool> deleteStoredData(AuthProvider authProvider) async {
     try {
       final sharedPrefsRepository = SharedPrefsRepository();
       final hasSeenGuide = SharedPrefsRepository().getBool(SharedPrefsKeys.hasShownStartGuide) == true;
@@ -111,6 +112,7 @@ class SecurityPrechecker {
       await sharedPrefsRepository.clearSharedPref();
       final secureStorageRepository = SecureStorageRepository();
       await secureStorageRepository.deleteAll();
+      await authProvider.resetPinData();
 
       if (hasSeenGuide) {
         await SharedPrefsRepository().setBool(SharedPrefsKeys.hasShownStartGuide, true);
