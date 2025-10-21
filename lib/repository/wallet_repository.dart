@@ -402,21 +402,31 @@ class WalletRepository {
   }
 
   Future<void> resetAll() async {
+    if (_vaultList != null && _vaultList!.isNotEmpty) {
+      try {
+        await _secureZoneRepository.deleteKeys(
+          aliasList:
+              _vaultList!
+                  .map((e) {
+                    if (e.vaultType == WalletType.multiSignature) return null;
+                    return _createWalletKeyString(e.id, WalletType.singleSignature);
+                  })
+                  .whereType<String>()
+                  .toList(),
+        );
+      } on PlatformException catch (e) {
+        Logger.error('--> ❌ SZR deleteAll 실패 ${e.toString()} ');
+      }
+    }
+
     _vaultList?.clear();
 
     try {
       await _storageService.deleteAll();
     } on PlatformException catch (e) {
-      // TODO: preChecker로 미리 걸러져야 함
-      Logger.error('--> 삭제 안됨 FSE ${e.toString()} ');
+      Logger.error('--> ❌ FSS deleteAll 실패 ${e.toString()} ');
     }
     await _removePublicInfo();
-    // try {
-    //   await _secureZoneRepository.deleteAllKeys();
-    // } on PlatformException catch (e) {
-    //   // TODO: preChecker로 미리 걸러져야 함
-    //   Logger.error('--> 삭제 안됨 SZR ${e.toString()} ');
-    // }
     _sharedPrefs.deleteSharedPrefsWithKey(nextIdField);
   }
 

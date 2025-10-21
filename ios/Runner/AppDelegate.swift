@@ -183,12 +183,23 @@ func installTEEHandler(_ teeChannel: FlutterMethodChannel) {
               result(FlutterError(code:"DEL_FAIL", message: error.localizedDescription, details:nil))
             }
         
-        case "deleteAllKeys":
+        case "deleteKeys":
+            guard let args = call.arguments as? [String: Any],
+                  let aliasList = args["aliasList"] as? [String] else {
+                result(FlutterError(code: "ARG", message: "alias list required", details: nil))
+                return
+            }
+
+            guard !aliasList.isEmpty else {
+                result(nil)
+                return
+            }
+            
             do {
-                try SecureEnclaveCrypto.deleteAllKeys()
+                try SecureEnclaveCrypto.deleteKeys(labels: aliasList)
                 result(nil)
             } catch {
-                result(FlutterError(code:"DEL_ALL_FAIL", message: error.localizedDescription, details:nil))
+                result(FlutterError(code:"DEL_KEYS_FAIL", message: error.localizedDescription, details:nil))
             }
             
         default:

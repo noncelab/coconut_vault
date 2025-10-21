@@ -31,8 +31,8 @@ class StrongBoxKeystore extends SecureZoneKeystore {
   }
 
   @override
-  Future<void> deleteAllKeys() async {
-    await ch.invokeMethod<void>('deleteAllKeys');
+  Future<void> deleteKeys({required List<String> aliasList}) async {
+    await ch.invokeMethod<void>('deleteKeys', {'aliasList': aliasList});
   }
 
   Future<Map<String, dynamic>> _encrypt({required String alias, required Uint8List plaintext}) async {

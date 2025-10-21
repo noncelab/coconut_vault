@@ -65,6 +65,16 @@ class StrongBoxKeystorePlugin: FlutterPlugin, MethodChannel.MethodCallHandler {
           result.error("DEL_FAIL", e.message, null)
         }
       }
+       "deleteKeys" -> {
+        val aliasList = call.argument<List<String>>("aliasList")!!
+        
+        try {
+          deleteAesKeys(aliasList)
+          result.success(null)
+        } catch (e: Exception) {
+          result.error("DEL_KEYS_FAIL", e.message, null)
+        }
+      }
       "encrypt" -> {
         val alias = call.argument<String>("alias")!!
         val plaintext = readBytesArg(call, "plaintext")
@@ -144,14 +154,6 @@ class StrongBoxKeystorePlugin: FlutterPlugin, MethodChannel.MethodCallHandler {
         } catch (e: Exception) {
           // 디버깅 편하게 예외 클래스도 함께 전달(개발 중)
           result.error("ENC_FAIL", "${e::class.java.simpleName}: ${e.message}", null)
-        }
-      }
-      "deleteAllKeys" -> {
-        try {
-          deleteAllKeys()
-          result.success(null)
-        } catch (e: Exception) {
-          result.error("DEL_ALL_FAIL", e.message, null)
         }
       }
       else -> result.notImplemented()
@@ -282,14 +284,18 @@ class StrongBoxKeystorePlugin: FlutterPlugin, MethodChannel.MethodCallHandler {
     ks.deleteEntry(alias)
   }
 
-  private fun deleteAllKeys() {
+  private fun deleteAesKeys(aliasList: List<String>) {
     val ks = KeyStore.getInstance(ANDROID_KEYSTORE).apply { load(null) }
-    val aliases = ks.aliases()
-    while (aliases.hasMoreElements()) {
-      val alias = aliases.nextElement()
+    for (alias in aliasList) {
       try {
-        ks.deleteEntry(alias)
+        if (ks.containsAlias(alias)) {
+          ks.deleteEntry(alias)
+          Log.d(TAG, "Deleted key: $alias")
+        } else {
+          Log.d(TAG, "Key not found: $alias")
+        }
       } catch (e: Exception) {
+        Log.e(TAG, "Failed to delete key: $alias", e)
         // no-op: continue deleting others
       }
     }
