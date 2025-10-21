@@ -31,7 +31,8 @@ import 'package:collection/collection.dart';
 
 class VaultHomeScreen extends StatefulWidget {
   final Function? onChangeEntryFlow;
-  const VaultHomeScreen({super.key, this.onChangeEntryFlow});
+  final Function? onTeeUnaccessible;
+  const VaultHomeScreen({super.key, this.onChangeEntryFlow, this.onTeeUnaccessible});
 
   @override
   State<VaultHomeScreen> createState() => _VaultHomeScreenState();
@@ -62,8 +63,36 @@ class _VaultHomeScreenState extends State<VaultHomeScreen> with TickerProviderSt
       if (_viewModel.isVaultsLoaded) {
         return;
       }
-      _viewModel.loadVaults();
+      await _viewModel.loadVaults();
+
+      // loadVaults() 완료 후 vaultList가 null이 아닐 때 실행
+      if (Platform.isAndroid) {
+        final walletProvider = context.read<WalletProvider>();
+        if (walletProvider.isVaultsLoaded && walletProvider.vaultList.isNotEmpty) {
+          _isTeeAccessible().then((isTeeAccessible) {
+            debugPrint('isTeeAccessible: $isTeeAccessible');
+            if (!isTeeAccessible) {
+              widget.onTeeUnaccessible?.call();
+            }
+          });
+        }
+      }
     });
+  }
+
+  Future<bool> _isTeeAccessible() async {
+    final firstSingleSignatureWalletId =
+        context
+            .read<WalletProvider>()
+            .vaultList
+            .firstWhere((vault) => vault.vaultType == WalletType.singleSignature)
+            .id;
+    try {
+      await context.read<WalletProvider>().getSecret(firstSingleSignatureWalletId);
+      return true;
+    } catch (e) {
+      return false;
+    }
   }
 
   @override

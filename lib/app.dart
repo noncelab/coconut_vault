@@ -60,7 +60,6 @@ import 'package:flutter/material.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:coconut_vault/screens/common/pin_check_screen.dart';
 import 'package:coconut_vault/screens/common/start_screen.dart';
-import 'package:coconut_vault/widgets/custom_loading_overlay.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:provider/provider.dart';
@@ -279,11 +278,16 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> with SingleTickerProv
         resuemedCount++;
         return _buildPinCheckScreen(pinCheckContext: PinCheckContextEnum.appResumed, nextFlow: AppEntryFlow.vaultHome);
       case AppEntryFlow.vaultHome:
-        return VaultHomeScreen(
-          onChangeEntryFlow: () {
-            _onChangeEntryFlow();
-          },
-        );
+        {
+          return VaultHomeScreen(
+            onChangeEntryFlow: () {
+              _onChangeEntryFlow();
+            },
+            onTeeUnaccessible: () {
+              _updateEntryFlow(AppEntryFlow.devicePasswordChanged);
+            },
+          );
+        }
 
       case AppEntryFlow.vaultResetCompleted:
         lifecycleProvider.disposeWhenVaultReset();
@@ -936,7 +940,7 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> with SingleTickerProv
   Future<void> _handleDevicePasswordChangedOnResume() async {
     try {
       // 볼트 초기화 (앱 최초실행 여부, 볼트 모드는 유지)
-      await SecurityPrechecker().deleteStoredData();
+      await SecurityPrechecker().deleteStoredData(authProvider);
     } catch (e) {
       debugPrint('볼트 초기화 실패: $e');
       // 볼트 초기화 실패 시에도 계속 진행
