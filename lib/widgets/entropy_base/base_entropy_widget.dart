@@ -184,7 +184,6 @@ abstract class BaseEntropyWidgetState<T extends BaseEntropyWidget> extends State
       passphraseFocusNode: _passphraseFocusNode,
       passphraseConfirmFocusNode: _passphraseConfirmFocusNode,
       passphraseObscured: passphraseObscured,
-      // isPassphraseConfirmVisible: isPassphraseConfirmVisible,
       step: step,
       onPassphraseObscuredChanged: (obscured) {
         setState(() {
@@ -247,17 +246,6 @@ abstract class BaseEntropyWidgetState<T extends BaseEntropyWidget> extends State
 
     // 패스프레이즈 사용함 | 패스프레이즈 입력 화면
     if (widget.usePassphrase && step == 1) {
-      // if (_passphrase.isNotEmpty && _passphraseConfirm.isNotEmpty && listEquals(_passphrase, _passphraseConfirm)) {}
-      // if (!isPassphraseConfirmVisible && _passphraseController.text.isNotEmpty) {
-      //   // 패스프레이즈 입력 완료 | 패스프레이즈 확인 텍스트필드는 보이지 않을 때
-      //   _passphraseFocusNode.unfocus();
-      //   _passphraseConfirmFocusNode.unfocus();
-      //   setState(() {
-      //     _passphrase = utf8.encode(_passphraseController.text);
-      //     isPassphraseConfirmVisible = true;
-      //   });
-      // } else
-
       if (_passphrase.isNotEmpty && _passphraseConfirm.isNotEmpty && listEquals(_passphrase, _passphraseConfirm)) {
         // 패스프레이즈 입력 완료 | 엔트로피 데이터로 니모닉 생성 시도 성공
         _passphrase = utf8.encode(_passphraseController.text);
@@ -266,7 +254,6 @@ abstract class BaseEntropyWidgetState<T extends BaseEntropyWidget> extends State
           _setMnemonicFromEntropy();
         }
 
-        // print('setSecretAndPassphrase: $_mnemonic, $_passphrase');
         Provider.of<WalletCreationProvider>(context, listen: false).setSecretAndPassphrase(_mnemonic, _passphrase);
         _passphraseFocusNode.unfocus();
         _passphraseConfirmFocusNode.unfocus();
@@ -321,7 +308,16 @@ abstract class BaseEntropyWidgetState<T extends BaseEntropyWidget> extends State
   void onNavigateToNext();
   String get leftButtonText;
   String get rightButtonText;
-  bool get isRightButtonActive;
+  bool get isRightButtonActiveImpl; // 각 구현체에서 정의
+  bool get isRightButtonActive {
+    // WarningWidget이 보이는 조건일 때만 isWarningVisible 체크
+    if (widget.entropyType == EntropyType.auto && step == 0) {
+      return isRightButtonActiveImpl && !isWarningVisible;
+    }
+    // 그 외에는 isRightButtonActiveImpl만 체크
+    return isRightButtonActiveImpl;
+  }
+
   bool get isPassphraseValid => _isPassphraseValid();
 
   List<String> invalidPassphraseList = [];
@@ -344,6 +340,16 @@ abstract class BaseEntropyWidgetState<T extends BaseEntropyWidget> extends State
               leftText: leftButtonText,
               rightText: rightButtonText,
               onLeftButtonPressed: showAllBitsBottomSheet,
+              onRightButtonPressed: _onNextButtonClicked,
+              subWidget: _buildButtonSubWidget(),
+            )
+            // 자동 생성인 경우 왼쪽 재생성 버튼, 패스프레이즈 입력 시 재생성 버튼 없음
+            : step == 0
+            ? EntropyBottomButtons(
+              isRightButtonActive: isRightButtonActive,
+              leftText: t.mnemonic_generate_screen.regenerate,
+              rightText: rightButtonText,
+              onLeftButtonPressed: _regenerateMnemonic,
               onRightButtonPressed: _onNextButtonClicked,
               subWidget: _buildButtonSubWidget(),
             )
@@ -411,5 +417,9 @@ abstract class BaseEntropyWidgetState<T extends BaseEntropyWidget> extends State
             },
           ),
     );
+  }
+
+  void _regenerateMnemonic() {
+    generateMnemonicWords();
   }
 }

@@ -6,17 +6,17 @@ import 'package:coconut_vault/providers/auth_provider.dart';
 import 'package:coconut_vault/providers/connectivity_provider.dart';
 import 'package:coconut_vault/repository/secure_storage_repository.dart';
 import 'package:coconut_vault/repository/shared_preferences_repository.dart';
-import 'package:coconut_vault/utils/app_version_util.dart';
-import 'package:coconut_vault/utils/coconut/update_preparation.dart';
+import 'package:coconut_vault/services/security_prechecker.dart';
 import 'package:flutter/foundation.dart';
 
 class StartViewModel extends ChangeNotifier {
   late final bool _hasSeenGuide;
   late final ConnectivityProvider _connectivityProvider;
   late final AuthProvider _authProvider;
+  late final bool _isVaultModeSelected;
   bool? _connectivityState;
 
-  StartViewModel(this._connectivityProvider, this._authProvider, this._hasSeenGuide) {
+  StartViewModel(this._connectivityProvider, this._authProvider, this._hasSeenGuide, this._isVaultModeSelected) {
     if (!_hasSeenGuide) {
       // iOS는 앱을 삭제해도 secure storage에 데이터가 남아있음
       SecureStorageRepository().deleteAll();
@@ -25,6 +25,7 @@ class StartViewModel extends ChangeNotifier {
 
   bool? get connectivityState => _connectivityState;
   bool get hasSeenGuide => _hasSeenGuide;
+  bool get isVaultModeSelected => _isVaultModeSelected;
 
   bool _isWalletExistent() {
     return (SharedPrefsRepository().getInt(SharedPrefsKeys.vaultListLength) ?? 0) > 0;
@@ -53,32 +54,39 @@ class StartViewModel extends ChangeNotifier {
   }
 
   Future<AppEntryFlow> getNextEntryFlow() async {
-    final isRestorationPrepared = await UpdatePreparation.isRestorationPrepared();
-    // 복원파일 유무를 확인합니다.
-    if (isRestorationPrepared) {
-      // 복원파일 있음
-      if (await AppVersionUtil.isAppVersionUpdated()) {
-        // 업데이트 완료
-        return AppEntryFlow.pinCheckForRestoration;
-      } else {
-        // 업데이트 하지 않음
-        return AppEntryFlow.foundBackupFile;
-      }
+    /// 0. 보안 검사 수행
+    /// JailbreakDetection은 이미 거친 상태, checkDevicePassword부터 실행
+
+    final securityResult = await SecurityPrechecker().checkDevicePassword();
+    if (securityResult.status == SecurityCheckStatus.devicePasswordRequired) {
+      return AppEntryFlow.devicePasswordRequired;
+    }
+    if (securityResult.status == SecurityCheckStatus.devicePasswordChanged) {
+      return AppEntryFlow.devicePasswordChanged;
     }
 
-    /// PinCheck 화면에서 '다시 시작하기' 버튼을 눌러야 함
-    if (_authProvider.isPermanantlyLocked) {
+    /// 1. 영구 잠금 상태라면 PinCheck 화면으로보내
+    /// '초기화' 버튼을 누르게 해야함.
+    if (_authProvider.isPermanentlyLocked) {
       return AppEntryFlow.pinCheckAppLaunched;
     }
 
-    // 복원파일이 없는 경우
-    if (!_isWalletExistent() || !_authProvider.isPinSet) {
+    /// 2. 지갑이 없거나 PIN 설정이 되지 않은 경우,
+    /// vaultHome으로 이동
+    final hasWallet = _isWalletExistent();
+    final hasPin = _authProvider.isPinSet;
+
+    if (!hasWallet || !hasPin) {
       return AppEntryFlow.vaultHome;
     }
 
-    if (await _authProvider.isBiometricsAuthValid()) {
+    /// 3. 생체인증 상태가 유효하다면 vaultHome으로 이동
+    final biometricsValid = await _authProvider.isBiometricsAuthValid();
+    if (biometricsValid) {
       return AppEntryFlow.vaultHome;
     }
+
+    /// 4. 그 외의 경우, PinCheck 화면으로 이동
     return AppEntryFlow.pinCheckAppLaunched;
   }
 }

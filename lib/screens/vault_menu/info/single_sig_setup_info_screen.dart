@@ -6,6 +6,7 @@ import 'package:coconut_vault/enums/pin_check_context_enum.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/providers/auth_provider.dart';
 import 'package:coconut_vault/providers/view_model/vault_menu/single_sig_setup_info_view_model.dart';
+import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:coconut_vault/screens/home/select_sync_option_bottom_sheet.dart';
 import 'package:coconut_vault/screens/vault_menu/info/name_and_icon_edit_bottom_sheet.dart';
 import 'package:coconut_vault/utils/text_utils.dart';
@@ -22,12 +23,16 @@ import 'package:coconut_vault/widgets/custom_loading_overlay.dart';
 import 'package:provider/provider.dart';
 import 'package:shimmer/shimmer.dart';
 
-import '../../../providers/wallet_provider.dart';
-
 class SingleSigSetupInfoScreen extends StatefulWidget {
   final int id;
+  final bool shouldShowPassphraseVerifyMenu;
   final String? entryPoint;
-  const SingleSigSetupInfoScreen({super.key, required this.id, this.entryPoint});
+  const SingleSigSetupInfoScreen({
+    super.key,
+    required this.id,
+    required this.shouldShowPassphraseVerifyMenu,
+    this.entryPoint,
+  });
 
   @override
   State<SingleSigSetupInfoScreen> createState() => _SingleSigSetupInfoScreenState();
@@ -41,18 +46,11 @@ class _SingleSigSetupInfoScreenState extends State<SingleSigSetupInfoScreen> {
 
   Timer? _tooltipTimer;
   bool _isTooltipVisible = false;
-  bool hasPassphrase = false;
-
-  Future<void> checkPassphraseStatus() async {
-    hasPassphrase = await context.read<WalletProvider>().hasPassphrase(widget.id);
-    setState(() {});
-  }
 
   @override
   void initState() {
     super.initState();
     debugPrint('initState: ${widget.id}');
-    checkPassphraseStatus();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _tooltipIconRendBox = _tooltipIconKey.currentContext?.findRenderObject() as RenderBox;
       _tooltipIconPosition = _tooltipIconRendBox!.localToGlobal(Offset.zero);
@@ -67,7 +65,7 @@ class _SingleSigSetupInfoScreenState extends State<SingleSigSetupInfoScreen> {
   ) async {
     final authProvider = context.read<AuthProvider>();
 
-    if (await authProvider.isBiometricsAuthValid() && context.mounted) {
+    if (await authProvider.isBiometricsAuthValidToAvoidDoubleAuth() && context.mounted) {
       onSuccess();
       return;
     }
@@ -384,7 +382,7 @@ class _SingleSigSetupInfoScreenState extends State<SingleSigSetupInfoScreen> {
               );
             },
           ),
-          if (hasPassphrase) ...[
+          if (widget.shouldShowPassphraseVerifyMenu) ...[
             SingleButton(
               enableShrinkAnim: true,
               title: t.verify_passphrase,
@@ -494,11 +492,16 @@ class _SingleSigSetupInfoScreenState extends State<SingleSigSetupInfoScreen> {
           onTapLeft: () => Navigator.pop(context),
           onTapRight: () async {
             if (context.mounted) {
-              await _authenticateWithBiometricOrPin(
-                context,
-                PinCheckContextEnum.seedDeletion,
-                () => _deleteVault(context),
-              );
+              final viewModel = context.read<SingleSigSetupInfoViewModel>();
+              if (!viewModel.isSigningOnlyMode) {
+                await _authenticateWithBiometricOrPin(
+                  context,
+                  PinCheckContextEnum.seedDeletion,
+                  () => _deleteVault(context),
+                );
+              } else {
+                _deleteVault(context);
+              }
             }
           },
         );

@@ -84,15 +84,6 @@ class VaultListViewModel extends ChangeNotifier {
     onPreferenceProviderUpdated();
   }
 
-  void loadVaults() {
-    _walletProvider.loadVaultList();
-  }
-
-  // void onWalletProviderUpdated(WalletProvider walletProvider) {
-  //   _walletProvider = walletProvider;
-  //   notifyListeners();
-  // }
-
   void onPreferenceProviderUpdated() {
     /// 지갑 순서 변경 체크
     if (!const ListEquality().equals(_vaultOrder, _preferenceProvider.vaultOrder)) {

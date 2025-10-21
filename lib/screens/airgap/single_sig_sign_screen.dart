@@ -1,13 +1,11 @@
-import 'dart:convert';
-import 'dart:typed_data';
-
 import 'package:coconut_design_system/coconut_design_system.dart';
+import 'package:coconut_lib/coconut_lib.dart';
 import 'package:coconut_vault/constants/app_routes.dart';
 import 'package:coconut_vault/enums/currency_enum.dart';
 import 'package:coconut_vault/enums/pin_check_context_enum.dart';
-import 'package:coconut_vault/extensions/uint8list_extensions.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/providers/auth_provider.dart';
+import 'package:coconut_vault/providers/preference_provider.dart';
 import 'package:coconut_vault/providers/sign_provider.dart';
 import 'package:coconut_vault/providers/view_model/airgap/single_sig_sign_view_model.dart';
 import 'package:coconut_vault/providers/visibility_provider.dart';
@@ -46,6 +44,7 @@ class _SingleSigSignScreenState extends State<SingleSigSignScreen> {
     _viewModel = SingleSigSignViewModel(
       Provider.of<WalletProvider>(context, listen: false),
       Provider.of<SignProvider>(context, listen: false),
+      Provider.of<PreferenceProvider>(context, listen: false).isSigningOnlyMode,
     );
 
     WidgetsBinding.instance.addPostFrameCallback((_) async {
@@ -62,7 +61,7 @@ class _SingleSigSignScreenState extends State<SingleSigSignScreen> {
   }
 
   /// PassphraseCheckScreen 내부에서 인증까지 완료함
-  Future<String?> _authenticateWithPassphrase({required BuildContext context}) async {
+  Future<Seed?> _authenticateWithPassphrase({required BuildContext context}) async {
     return await MyBottomSheet.showBottomSheet_ratio(
       ratio: 0.5,
       context: context,
@@ -72,10 +71,11 @@ class _SingleSigSignScreenState extends State<SingleSigSignScreen> {
 
   Future<bool?> _authenticateWithoutPassphrase() async {
     final authProvider = context.read<AuthProvider>();
-    if (await authProvider.isBiometricsAuthValid()) {
+    if (await authProvider.isBiometricsAuthValidToAvoidDoubleAuth()) {
       return true;
     }
 
+    if (!mounted) return false;
     return await MyBottomSheet.showBottomSheet_90<bool>(
       context: context,
       child: CustomLoadingOverlay(
@@ -91,31 +91,55 @@ class _SingleSigSignScreenState extends State<SingleSigSignScreen> {
   }
 
   Future<void> _sign() async {
-    Uint8List validPassphrase = utf8.encode('');
-    if (_viewModel.hasPassphrase) {
-      validPassphrase = utf8.encode(await _authenticateWithPassphrase(context: context) ?? '');
-
-      if (validPassphrase.isEmpty) {
-        return;
+    if (!_viewModel.isSigningOnlyMode) {
+      // 안전 저장 모드
+      Seed? seed;
+      if (_viewModel.hasPassphrase) {
+        seed = await _authenticateWithPassphrase(context: context);
+        if (seed == null) {
+          return;
+        }
+      } else {
+        final authenticateResult = await _authenticateWithoutPassphrase();
+        if (authenticateResult != true) {
+          return;
+        }
+        seed = Seed.fromMnemonic(await _viewModel.getSecret());
       }
+
+      await _addSignatureToPsbt(seed);
+      seed.wipe();
     } else {
-      final authenticateResult = await _authenticateWithoutPassphrase();
-      if (authenticateResult != true) {
-        return;
-      }
+      // 서명 전용 모드
+      await _addSignatureToPsbtInSigningOnlyMode();
     }
-
-    await _addSignatureToPsbt(validPassphrase);
-    validPassphrase.wipe();
   }
 
-  Future<void> _addSignatureToPsbt(Uint8List passphrase) async {
+  Future<void> _addSignatureToPsbt(Seed seed) async {
     try {
       setState(() {
         _showLoading = true;
       });
 
-      await _viewModel.sign(passphrase: passphrase);
+      await _viewModel.sign(seed: seed);
+    } catch (error) {
+      if (mounted) {
+        showAlertDialog(context: context, content: t.errors.sign_error(error: error));
+      }
+    } finally {
+      setState(() {
+        _showLoading = false;
+      });
+    }
+  }
+
+  Future<void> _addSignatureToPsbtInSigningOnlyMode() async {
+    try {
+      setState(() {
+        _showLoading = true;
+      });
+
+      await _viewModel.signPsbtInSigningOnlyMode();
     } catch (error) {
       if (mounted) {
         showAlertDialog(context: context, content: t.errors.sign_error(error: error));
@@ -137,7 +161,7 @@ class _SingleSigSignScreenState extends State<SingleSigSignScreen> {
           description: t.alert.exit_sign.description,
           backgroundColor: CoconutColors.white,
           leftButtonText: t.no,
-          leftButtonColor: CoconutColors.black.withOpacity(0.7),
+          leftButtonColor: CoconutColors.black.withValues(alpha: 0.7),
           rightButtonText: t.yes,
           rightButtonColor: CoconutColors.warningText,
           onTapLeft: () => Navigator.pop(context),
@@ -200,7 +224,7 @@ class _SingleSigSignScreenState extends State<SingleSigSignScreen> {
                       child: Container(
                         width: MediaQuery.of(context).size.width,
                         height: MediaQuery.of(context).size.height,
-                        decoration: BoxDecoration(color: CoconutColors.black.withOpacity(0.3)),
+                        decoration: BoxDecoration(color: CoconutColors.black.withValues(alpha: 0.3)),
                         child: const Center(child: CircularProgressIndicator(color: CoconutColors.gray800)),
                       ),
                     ),
@@ -229,7 +253,7 @@ class _SingleSigSignScreenState extends State<SingleSigSignScreen> {
           return LinearProgressIndicator(
             value: value,
             minHeight: 6,
-            backgroundColor: CoconutColors.black.withOpacity(0.06),
+            backgroundColor: CoconutColors.black.withValues(alpha: 0.06),
             borderRadius:
                 _isProgressCompleted
                     ? BorderRadius.zero
@@ -254,7 +278,7 @@ class _SingleSigSignScreenState extends State<SingleSigSignScreen> {
       child: Container(
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(28.0),
-          color: CoconutColors.black.withOpacity(0.03),
+          color: CoconutColors.black.withValues(alpha: 0.03),
         ),
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 24),

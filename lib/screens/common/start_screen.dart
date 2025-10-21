@@ -6,6 +6,7 @@ import 'package:coconut_lib/coconut_lib.dart';
 import 'package:coconut_vault/app.dart';
 import 'package:coconut_vault/providers/auth_provider.dart';
 import 'package:coconut_vault/providers/connectivity_provider.dart';
+import 'package:coconut_vault/providers/preference_provider.dart';
 import 'package:coconut_vault/providers/view_model/start_view_model.dart';
 import 'package:coconut_vault/providers/visibility_provider.dart';
 import 'package:flutter/material.dart';
@@ -23,6 +24,7 @@ class StartScreen extends StatefulWidget {
 
 class _StartScreenState extends State<StartScreen> {
   late StartViewModel _viewModel;
+  AppEntryFlow _nextEntryFlow = AppEntryFlow.splash;
 
   @override
   void initState() {
@@ -31,14 +33,25 @@ class _StartScreenState extends State<StartScreen> {
       Provider.of<ConnectivityProvider>(context, listen: false),
       Provider.of<AuthProvider>(context, listen: false),
       Provider.of<VisibilityProvider>(context, listen: false).hasSeenGuide,
+      Provider.of<PreferenceProvider>(context, listen: false).getVaultMode() != null,
     );
 
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       /// Splash 딜레이
       await Future.delayed(const Duration(seconds: 2));
+      _nextEntryFlow = await _viewModel.getNextEntryFlow();
 
-      /// 한번도 튜토리얼을 보지 않은 경우
-      if (!_viewModel.hasSeenGuide) {
+      if (_nextEntryFlow == AppEntryFlow.devicePasswordRequired) {
+        widget.onComplete(AppEntryFlow.devicePasswordRequired);
+        return;
+      }
+      if (_nextEntryFlow == AppEntryFlow.devicePasswordChanged) {
+        widget.onComplete(AppEntryFlow.devicePasswordChanged);
+        return;
+      }
+
+      /// 한번도 튜토리얼을 보지 않은 경우 / 볼트 모드를 선택하지 않은 경우
+      if (!_viewModel.hasSeenGuide || !_viewModel.isVaultModeSelected) {
         _showTutorialScreen();
       }
     });
@@ -51,8 +64,7 @@ class _StartScreenState extends State<StartScreen> {
   Future _determineNextEntryFlow() async {
     await Future.delayed(const Duration(seconds: 2));
 
-    var nextEntryFlow = await _viewModel.getNextEntryFlow();
-    widget.onComplete(nextEntryFlow);
+    widget.onComplete(_nextEntryFlow);
   }
 
   @override

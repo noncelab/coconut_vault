@@ -8,6 +8,7 @@ import 'package:coconut_vault/utils/logger.dart';
 import 'package:flutter/material.dart';
 
 class VisibilityProvider extends ChangeNotifier {
+  late bool _isSigningOnlyMode;
   late bool _hasSeenGuide;
   late int _walletCount;
   late bool _isPassphraseUseEnabled;
@@ -24,11 +25,17 @@ class VisibilityProvider extends ChangeNotifier {
   bool get isBtcUnit => _isBtcUnit;
   BitcoinUnit get currentUnit => _isBtcUnit ? BitcoinUnit.btc : BitcoinUnit.sats;
 
-  VisibilityProvider() {
+  VisibilityProvider({required bool isSigningOnlyMode}) {
     final prefs = SharedPrefsRepository();
+    _isSigningOnlyMode = isSigningOnlyMode;
+    if (_isSigningOnlyMode) {
+      reset();
+    }
     _hasSeenGuide = prefs.getBool(SharedPrefsKeys.hasShownStartGuide) == true;
     _walletCount = prefs.getInt(SharedPrefsKeys.vaultListLength) ?? 0;
-    _isPassphraseUseEnabled = prefs.getBool(SharedPrefsKeys.kPassphraseUseEnabled) ?? false;
+
+    _isPassphraseUseEnabled =
+        isSigningOnlyMode ? true : (prefs.getBool(SharedPrefsKeys.kPassphraseUseEnabled) ?? false);
     _language = _initializeLanguageFromOS(prefs);
     _isBtcUnit = prefs.getBool(SharedPrefsKeys.kIsBtcUnit) ?? true;
     _initializeLanguage();
@@ -36,7 +43,9 @@ class VisibilityProvider extends ChangeNotifier {
 
   Future<void> saveWalletCount(int count) async {
     _walletCount = count;
-    await SharedPrefsRepository().setInt(SharedPrefsKeys.vaultListLength, count);
+    if (!_isSigningOnlyMode) {
+      await SharedPrefsRepository().setInt(SharedPrefsKeys.vaultListLength, count);
+    }
     notifyListeners();
   }
 
@@ -70,6 +79,8 @@ class VisibilityProvider extends ChangeNotifier {
       // 지원하는 언어인지 확인
       if (languageCode == 'ko' || languageCode == 'kr') {
         return 'kr';
+      } else if (languageCode == 'ja' || languageCode == 'jp') {
+        return 'jp';
       } else if (languageCode == 'en') {
         return 'en';
       }
@@ -85,25 +96,39 @@ class VisibilityProvider extends ChangeNotifier {
     try {
       if (_language == 'kr') {
         LocaleSettings.setLocaleSync(AppLocale.kr);
-      } else if (_language == 'en') {
-        // 영어 로케일 설정 시 지연 로딩 문제를 방지하기 위해 비동기로 처리
-        LocaleSettings.setLocale(AppLocale.en).catchError((error) {
-          Logger.error('English locale initialization failed: $error');
-          // 실패 시 한국어로 폴백
+      } else if (_language == 'jp') {
+        // 일본어 로케일 설정 시 지연 로딩 문제를 방지하기 위해 비동기로 처리
+        LocaleSettings.setLocale(AppLocale.jp).catchError((error) {
+          Logger.error('Japanese locale initialization failed: $error');
+          // 실패 시 영어로 폴백
           try {
             LocaleSettings.setLocaleSync(AppLocale.en);
             _language = 'en';
             return AppLocale.en;
           } catch (fallbackError) {
+            Logger.error('Fallback to English locale failed: $fallbackError');
+          }
+          return AppLocale.en;
+        });
+      } else if (_language == 'en') {
+        // 영어 로케일 설정 시 지연 로딩 문제를 방지하기 위해 비동기로 처리
+        LocaleSettings.setLocale(AppLocale.en).catchError((error) {
+          Logger.error('English locale initialization failed: $error');
+          // 실패 시 한국어로 폴백 (영어가 실패하면 한국어가 기본)
+          try {
+            LocaleSettings.setLocaleSync(AppLocale.kr);
+            _language = 'kr';
+          } catch (fallbackError) {
             Logger.error('Fallback to Korean locale failed: $fallbackError');
             return AppLocale.kr;
           }
+          return AppLocale.kr;
         });
       }
     } catch (e) {
       // 언어 초기화 실패 시 로그 출력 (선택사항)
       Logger.error('Language initialization failed: $e');
-      // 실패 시 기본값으로 한국어 설정
+      // 실패 시 기본값으로 영어 설정
       try {
         LocaleSettings.setLocaleSync(AppLocale.en);
         _language = 'en';
@@ -124,6 +149,18 @@ class VisibilityProvider extends ChangeNotifier {
       if (languageCode == 'kr') {
         await LocaleSettings.setLocale(AppLocale.kr);
         _language = languageCode;
+      } else if (languageCode == 'jp') {
+        try {
+          await LocaleSettings.setLocale(AppLocale.jp);
+          _language = languageCode;
+        } catch (japaneseError) {
+          Logger.error('Japanese locale change failed: $japaneseError');
+          // 일본어 로딩 실패 시 영어로 폴백
+          await LocaleSettings.setLocale(AppLocale.en);
+          _language = 'en';
+          // SharedPreferences도 영어로 업데이트
+          await prefs.setString(SharedPrefsKeys.kLanguage, 'en');
+        }
       } else if (languageCode == 'en') {
         // 영어 로케일 설정 시 지연 로딩 문제를 방지하기 위해 더 안전한 처리
         try {
@@ -131,7 +168,7 @@ class VisibilityProvider extends ChangeNotifier {
           _language = languageCode;
         } catch (englishError) {
           Logger.error('English locale change failed: $englishError');
-          // 영어 로딩 실패 시 한국어로 폴백
+          // 영어 로딩 실패 시 한국어로 폴백 (최종 폴백)
           await LocaleSettings.setLocale(AppLocale.kr);
           _language = 'kr';
           // SharedPreferences도 한국어로 업데이트
@@ -166,5 +203,15 @@ class VisibilityProvider extends ChangeNotifier {
     _isBtcUnit = isBtcUnit;
     SharedPrefsRepository().setBool(SharedPrefsKeys.kIsBtcUnit, isBtcUnit);
     notifyListeners();
+  }
+
+  void updateIsSigningOnlyMode(bool isSigningOnlyMode) {
+    if (_isSigningOnlyMode == isSigningOnlyMode) return;
+    if (isSigningOnlyMode) {
+      SharedPrefsRepository().deleteSharedPrefsWithKey(SharedPrefsKeys.vaultListLength);
+    } else {
+      SharedPrefsRepository().setInt(SharedPrefsKeys.vaultListLength, _walletCount);
+    }
+    _isSigningOnlyMode = isSigningOnlyMode;
   }
 }

@@ -1,0 +1,5 @@
+CFBundleDisplayName = "Coconut Vault";
+NSBluetoothAlwaysUsageDescription = "このアプリはセキュリティ強化のため、Bluetoothが有効になっているかを検出し、重要な情報が漏洩する恐れのある不正なデバイス接続を防ぐために、Bluetoothが有効な場合はアプリの機能を制限します。";
+NSBluetoothPeripheralUsageDescription = "このアプリはセキュリティ強化のため、Bluetoothが有効になっているかを検出し、重要な情報が漏洩する恐れのある不正なデバイス接続を防ぐために、Bluetoothが有効な場合はアプリの機能を制限します。";
+NSCameraUsageDescription = "QRコードをスキャンするためにカメラへのアクセスが必要です。";
+NSFaceIDUsageDescription = "Face IDは安全な機能をロック解除およびアクセスするために必要です。";

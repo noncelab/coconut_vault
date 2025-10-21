@@ -52,4 +52,12 @@ class SharedPrefsRepository {
   Future setString(String key, String value) async {
     await _sharedPrefs.setString(key, value);
   }
+
+  double? getDouble(String key) {
+    return _sharedPrefs.getDouble(key);
+  }
+
+  Future setDouble(String key, double value) async {
+    await _sharedPrefs.setDouble(key, value);
+  }
 }

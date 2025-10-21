@@ -20,7 +20,7 @@ class SignerQrBottomSheet extends StatefulWidget {
 }
 
 class _SignerQrBottomSheetState extends State<SignerQrBottomSheet> {
-  VisibilityProvider _visibilityProvider = VisibilityProvider();
+  late VisibilityProvider _visibilityProvider;
 
   bool _isEnglish = true;
 

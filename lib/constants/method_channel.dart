@@ -1,2 +1,2 @@
 const methodChannelOS = 'onl.coconut.vault/os';
-const methodChannelSecureMemory = 'onl.coconut.vault/secure_memory';
+const methodChannelTEE = 'onl.coconut.vault/secure_module';

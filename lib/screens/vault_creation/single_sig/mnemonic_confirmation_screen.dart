@@ -27,6 +27,7 @@ class _MnemonicConfirmationScreenState extends State<MnemonicConfirmationScreen>
   late int step;
   final ScrollController _scrollController = ScrollController();
   late Uint8List _mnemonic;
+  bool _isWarningVisible = true;
 
   @override
   void initState() {
@@ -91,7 +92,7 @@ class _MnemonicConfirmationScreenState extends State<MnemonicConfirmationScreen>
                   ),
                 ),
                 FixedBottomButton(
-                  isActive: _getNextButtonState().isActive,
+                  isActive: _getNextButtonState().isActive && !_isWarningVisible,
                   text: _getNextButtonState().text,
                   backgroundColor: CoconutColors.black,
                   onButtonClicked: () {
@@ -110,7 +111,14 @@ class _MnemonicConfirmationScreenState extends State<MnemonicConfirmationScreen>
                     }
                   },
                 ),
-                const WarningWidget(visible: true),
+                WarningWidget(
+                  visible: true,
+                  onWarningDismissed: () {
+                    setState(() {
+                      _isWarningVisible = false;
+                    });
+                  },
+                ),
               ],
             ),
           ),
@@ -134,15 +142,17 @@ class _MnemonicConfirmationScreenState extends State<MnemonicConfirmationScreen>
   Widget _passphraseGridViewWidget() {
     final passphrase = _walletCreationProvider.passphrase;
     if (passphrase == null) return Container();
+
+    final decodedPassphrase = utf8.decode(passphrase);
     return GridView.count(
       physics: const NeverScrollableScrollPhysics(),
       crossAxisCount: 10,
       crossAxisSpacing: 3.0,
       mainAxisSpacing: 10.0,
       shrinkWrap: true,
-      children: List.generate((passphrase.length + 20), (index) {
+      children: List.generate((decodedPassphrase.length + 20), (index) {
         // 가장 아래에 빈 공간을 배치하기 위한 조건문
-        if (index < passphrase.length) {
+        if (index < decodedPassphrase.length) {
           return MediaQuery(
             data: const MediaQueryData(textScaler: TextScaler.linear(1.0)),
             child: Container(
@@ -174,7 +184,7 @@ class _MnemonicConfirmationScreenState extends State<MnemonicConfirmationScreen>
                     height: double.infinity,
                     child: Center(
                       child: Text(
-                        utf8.decode(passphrase)[index],
+                        decodedPassphrase[index],
                         style: const TextStyle(color: CoconutColors.black, fontWeight: FontWeight.bold),
                       ),
                     ),

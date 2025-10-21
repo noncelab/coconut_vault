@@ -305,6 +305,15 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
                             child: Center(child: MessageActivityIndicator(message: viewModel.loadingMessage)),
                           ),
                         ),
+                        Visibility(
+                          visible: viewModel.isInitializing,
+                          child: Container(
+                            width: MediaQuery.of(context).size.width,
+                            height: MediaQuery.of(context).size.height,
+                            decoration: BoxDecoration(color: CoconutColors.black.withValues(alpha: 0.3)),
+                            child: const Center(child: CircularProgressIndicator(color: CoconutColors.gray800)),
+                          ),
+                        ),
                       ],
                     ),
                   ),
@@ -322,7 +331,7 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
       right: 0,
       child: Stack(
         children: [
-          ClipRRect(child: Container(height: 6, color: CoconutColors.black.withOpacity(0.06))),
+          ClipRRect(child: Container(height: 6, color: CoconutColors.black.withValues(alpha: 0.06))),
           LayoutBuilder(
             builder: (context, constraints) {
               return ClipRRect(

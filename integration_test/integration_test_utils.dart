@@ -11,7 +11,6 @@ import 'package:coconut_vault/model/single_sig/single_sig_wallet_create_dto.dart
 import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:coconut_vault/repository/secure_storage_repository.dart';
 import 'package:coconut_vault/repository/shared_preferences_repository.dart';
-import 'package:coconut_vault/utils/coconut/update_preparation.dart';
 import 'package:coconut_vault/utils/hash_util.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:package_info_plus/package_info_plus.dart';
@@ -149,7 +148,7 @@ Future<void> saveBackupData() async {
     },
   ];
 
-  await UpdatePreparation.encryptAndSave(data: jsonEncode(backupData));
+  // await UpdatePreparation.encryptAndSave(data: jsonEncode(backupData));
 }
 
 Future<int> addSingleSigWallets({WalletProvider? walletProvider}) async {

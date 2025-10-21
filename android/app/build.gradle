@@ -98,7 +98,7 @@ android {
         }
         mainnet {
             dimension "network"
-            applicationIdSuffix ""
+            applicationIdSuffix ".mainnet"
             versionNameSuffix ""
         }
     }

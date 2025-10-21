@@ -1,13 +1,11 @@
-import 'dart:convert';
-import 'dart:typed_data';
-
 import 'package:coconut_design_system/coconut_design_system.dart';
+import 'package:coconut_lib/coconut_lib.dart';
 import 'package:coconut_vault/constants/app_routes.dart';
 import 'package:coconut_vault/enums/currency_enum.dart';
 import 'package:coconut_vault/enums/pin_check_context_enum.dart';
-import 'package:coconut_vault/extensions/uint8list_extensions.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/providers/auth_provider.dart';
+import 'package:coconut_vault/providers/preference_provider.dart';
 import 'package:coconut_vault/providers/sign_provider.dart';
 import 'package:coconut_vault/providers/view_model/airgap/multisig_sign_view_model.dart';
 import 'package:coconut_vault/providers/visibility_provider.dart';
@@ -17,7 +15,6 @@ import 'package:coconut_vault/screens/airgap/multisig_signer_qr_bottom_sheet.dar
 import 'package:coconut_vault/screens/vault_menu/info/passphrase_check_screen.dart';
 import 'package:coconut_vault/utils/alert_util.dart';
 import 'package:coconut_vault/utils/icon_util.dart';
-import 'package:coconut_vault/utils/text_utils.dart';
 import 'package:coconut_vault/widgets/bottom_sheet.dart';
 import 'package:coconut_vault/widgets/button/shrink_animation_button.dart';
 import 'package:coconut_vault/widgets/card/information_item_card.dart';
@@ -47,6 +44,7 @@ class _MultisigSignScreenState extends State<MultisigSignScreen> {
     _viewModel = MultisigSignViewModel(
       Provider.of<WalletProvider>(context, listen: false),
       Provider.of<SignProvider>(context, listen: false),
+      Provider.of<PreferenceProvider>(context, listen: false).isSigningOnlyMode,
     );
 
     WidgetsBinding.instance.addPostFrameCallback((_) async {
@@ -61,7 +59,7 @@ class _MultisigSignScreenState extends State<MultisigSignScreen> {
   }
 
   /// PassphraseCheckScreen 내부에서 인증까지 완료함
-  Future<String?> _authenticateWithPassphrase({required BuildContext context, required int index}) async {
+  Future<Seed?> _authenticateWithPassphrase({required BuildContext context, required int index}) async {
     return await MyBottomSheet.showBottomSheet_ratio(
       ratio: 0.5,
       context: context,
@@ -71,7 +69,7 @@ class _MultisigSignScreenState extends State<MultisigSignScreen> {
 
   Future<bool?> _authenticateWithoutPassphrase() async {
     final authProvider = context.read<AuthProvider>();
-    if (await authProvider.isBiometricsAuthValid()) {
+    if (await authProvider.isBiometricsAuthValidToAvoidDoubleAuth()) {
       return true;
     }
     if (mounted) {
@@ -94,23 +92,29 @@ class _MultisigSignScreenState extends State<MultisigSignScreen> {
 
   Future<void> _sign(bool isKeyInsideVault, int index) async {
     if (isKeyInsideVault) {
-      Uint8List validPassphrase = utf8.encode('');
-      if (_viewModel.getHasPassphrase(index)) {
-        validPassphrase = utf8.encode(await _authenticateWithPassphrase(context: context, index: index) ?? '');
+      if (!_viewModel.isSigningOnlyMode) {
+        // 안전 저장 모드
+        Seed? seed;
+        if (_viewModel.getHasPassphrase(index)) {
+          seed = await _authenticateWithPassphrase(context: context, index: index);
 
-        if (validPassphrase.isEmpty) {
-          return;
+          if (seed == null) {
+            return;
+          }
+        } else {
+          final authenticateResult = await _authenticateWithoutPassphrase();
+          if (authenticateResult != true) {
+            return;
+          }
+          seed = Seed.fromMnemonic(await _viewModel.getSecret(index));
         }
+
+        await _addSignatureToPsbt(index, seed);
+        seed.wipe();
       } else {
-        final authenticateResult = await _authenticateWithoutPassphrase();
-        if (authenticateResult != true) {
-          return;
-        }
+        // 서명 전용 모드
+        await _addSignatureToPsbtInSigningOnlyMode(index);
       }
-
-      await _addSignatureToPsbt(index, validPassphrase);
-
-      validPassphrase.wipe();
     } else {
       showDialog(
         context: context,
@@ -134,13 +138,31 @@ class _MultisigSignScreenState extends State<MultisigSignScreen> {
   }
 
   /// @param index: signer index
-  Future<void> _addSignatureToPsbt(int index, Uint8List passphrase) async {
+  Future<void> _addSignatureToPsbt(int index, Seed seed) async {
     try {
       setState(() {
         _showLoading = true;
       });
 
-      await _viewModel.sign(index, passphrase);
+      await _viewModel.sign(index, seed);
+    } catch (error) {
+      if (mounted) {
+        showAlertDialog(context: context, content: t.errors.sign_error(error: error));
+      }
+    } finally {
+      setState(() {
+        _showLoading = false;
+      });
+    }
+  }
+
+  Future<void> _addSignatureToPsbtInSigningOnlyMode(int index) async {
+    try {
+      setState(() {
+        _showLoading = true;
+      });
+
+      await _viewModel.signPsbtInSigningOnlyMode(index);
     } catch (error) {
       if (mounted) {
         showAlertDialog(context: context, content: t.errors.sign_error(error: error));
@@ -271,7 +293,7 @@ class _MultisigSignScreenState extends State<MultisigSignScreen> {
                         child: Container(
                           width: MediaQuery.of(context).size.width,
                           height: MediaQuery.of(context).size.height,
-                          decoration: BoxDecoration(color: CoconutColors.black.withOpacity(0.3)),
+                          decoration: BoxDecoration(color: CoconutColors.black.withValues(alpha: 0.3)),
                           child: const Center(child: CircularProgressIndicator(color: CoconutColors.gray800)),
                         ),
                       ),
@@ -309,7 +331,7 @@ class _MultisigSignScreenState extends State<MultisigSignScreen> {
           return LinearProgressIndicator(
             value: value,
             minHeight: 6,
-            backgroundColor: CoconutColors.black.withOpacity(0.06),
+            backgroundColor: CoconutColors.black.withValues(alpha: 0.06),
             borderRadius:
                 _isProgressCompleted
                     ? BorderRadius.zero
@@ -334,7 +356,7 @@ class _MultisigSignScreenState extends State<MultisigSignScreen> {
       child: Container(
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(28.0),
-          color: CoconutColors.black.withOpacity(0.03),
+          color: CoconutColors.black.withValues(alpha: 0.03),
         ),
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 24),

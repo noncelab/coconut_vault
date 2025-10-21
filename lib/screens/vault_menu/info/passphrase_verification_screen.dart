@@ -13,6 +13,7 @@ import 'package:coconut_vault/widgets/bottom_sheet.dart';
 import 'package:coconut_vault/widgets/button/fixed_bottom_button.dart';
 import 'package:coconut_vault/widgets/custom_dialog.dart';
 import 'package:coconut_vault/widgets/custom_loading_overlay.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
@@ -39,6 +40,9 @@ class _PassphraseVerificationScreenState extends State<PassphraseVerificationScr
   String? _extendedPublicKey;
   bool _isSubmitting = false;
   String? _previousInput;
+  // 언어 전환이 가능하려면 obscureText가 true여야 함.
+  // 사용자 의도대로 입력할 수 있도록 기본값을 false로 설정함.
+  bool _passphraseObscured = false;
 
   @override
   void initState() {
@@ -64,19 +68,6 @@ class _PassphraseVerificationScreenState extends State<PassphraseVerificationScr
 
   @override
   Widget build(BuildContext context) {
-    // 기본: 전체 높이 - SafeArea top, bottom - toolbarHeight. 결과 데이터가 보이고 키보드가 열려 있는 경우 추가 height 조절(스크롤 가능 하도록)
-    double appbarHeight = 56;
-    final scrollViewHeight =
-        MediaQuery.of(context).size.height -
-        MediaQuery.of(context).padding.top -
-        MediaQuery.of(context).padding.bottom -
-        appbarHeight +
-        ((_isPassphraseVerified && _inputFocusNode.hasFocus)
-            ? FixedBottomButton.fixedBottomButtonDefaultHeight +
-                FixedBottomButton.fixedBottomButtonDefaultBottomPadding +
-                16
-            : 0);
-
     return PopScope(
       canPop: true,
       onPopInvokedWithResult: (didPop, _) {},
@@ -154,7 +145,7 @@ class _PassphraseVerificationScreenState extends State<PassphraseVerificationScr
 
   Future<bool> _authenticateWithBiometricOrPin() async {
     final authProvider = context.read<AuthProvider>();
-    if (await authProvider.isBiometricsAuthValid()) {
+    if (await authProvider.isBiometricsAuthValidToAvoidDoubleAuth()) {
       return true;
     }
 
@@ -220,37 +211,63 @@ class _PassphraseVerificationScreenState extends State<PassphraseVerificationScr
     return ValueListenableBuilder<String>(
       valueListenable: _passphraseTextNotifier,
       builder: (context, value, child) {
-        return CoconutTextField(
-          textAlign: TextAlign.left,
-          backgroundColor: CoconutColors.white,
-          cursorColor: CoconutColors.black,
-          activeColor: CoconutColors.black,
-          placeholderColor: CoconutColors.gray350,
-          controller: _inputController,
-          focusNode: _inputFocusNode,
-          maxLines: 4,
-          textInputAction: TextInputAction.done,
-          onChanged: (text) {
-            _passphraseTextNotifier.value = text;
-          },
-          isError: false,
-          isLengthVisible: false,
-          maxLength: 100,
-          placeholderText: t.verify_passphrase_screen.enter_passphrase,
-          suffix:
-              _inputController.text.isNotEmpty
-                  ? IconButton(
-                    iconSize: 14,
-                    padding: EdgeInsets.zero,
-                    onPressed: () {
-                      _inputController.text = '';
-                    },
-                    icon: SvgPicture.asset(
-                      'assets/svg/text-field-clear.svg',
-                      colorFilter: const ColorFilter.mode(CoconutColors.gray900, BlendMode.srcIn),
-                    ),
-                  )
-                  : null,
+        return Column(
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                CoconutLayout.spacing_200w,
+                Text(
+                  _passphraseObscured
+                      ? t.passphrase_textfield.passphrase_visible
+                      : t.passphrase_textfield.passphrase_hidden,
+                  style: CoconutTypography.body2_14_Bold.setColor(CoconutColors.black),
+                ),
+                const Spacer(),
+                IconButton(
+                  onPressed: () => setState(() => _passphraseObscured = !_passphraseObscured),
+                  icon: Icon(
+                    _passphraseObscured ? CupertinoIcons.eye_slash : CupertinoIcons.eye,
+                    color: CoconutColors.gray800,
+                    size: 20,
+                  ),
+                ),
+              ],
+            ),
+            CoconutTextField(
+              textAlign: TextAlign.left,
+              backgroundColor: CoconutColors.white,
+              cursorColor: CoconutColors.black,
+              activeColor: CoconutColors.black,
+              placeholderColor: CoconutColors.gray350,
+              controller: _inputController,
+              focusNode: _inputFocusNode,
+              obscureText: _passphraseObscured,
+              textInputType: TextInputType.text,
+              textInputAction: TextInputAction.done,
+              onChanged: (text) {
+                _passphraseTextNotifier.value = text;
+              },
+              isError: false,
+              isLengthVisible: false,
+              maxLength: 100,
+              placeholderText: t.verify_passphrase_screen.enter_passphrase,
+              suffix:
+                  _inputController.text.isNotEmpty
+                      ? IconButton(
+                        iconSize: 14,
+                        padding: EdgeInsets.zero,
+                        onPressed: () {
+                          _inputController.text = '';
+                        },
+                        icon: SvgPicture.asset(
+                          'assets/svg/text-field-clear.svg',
+                          colorFilter: const ColorFilter.mode(CoconutColors.gray900, BlendMode.srcIn),
+                        ),
+                      )
+                      : null,
+            ),
+          ],
         );
       },
     );
