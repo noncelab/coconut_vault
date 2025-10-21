@@ -94,9 +94,9 @@ class SecureZoneRepository {
     return await _secureZoneKeystore.deleteKey(alias: alias);
   }
 
-  Future<void> deleteAllKeys() async {
-    return await _secureZoneKeystore.deleteAllKeys();
-  }
+  // Future<void> deleteAllKeys() async {
+  //   return await _secureZoneKeystore.deleteAllKeys();
+  // }
 
   Future<EncryptResult> encrypt({required String alias, required Uint8List plaintext}) async {
     final Map<String, dynamic> result = await _secureZoneKeystore.encrypt(alias: alias, plaintext: plaintext);
