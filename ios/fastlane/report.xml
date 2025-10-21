@@ -5,21 +5,22 @@
     
     
       
-      <testcase classname="fastlane.lanes" name="0: default_platform" time="0.00036">
+      <testcase classname="fastlane.lanes" name="0: default_platform" time="0.000284">
         
       </testcase>
     
       
       <testcase classname="fastlane.lanes" name="1: 
         cd /Users/eunjilim/Noncelab/Repositories/coconut_vault &amp;&amp;
-        true &amp;&amp;
-        fvm flutter build ipa           --flavor regtest           --release           --export-method app-store           --build-name=&quot;3.0.0&quot;           --build-number=&quot;6&quot;
-      " time="119.656199">
+        fvm flutter clean &amp;&amp;
+        fvm flutter pub get &amp;&amp;
+        fvm flutter build ipa           --flavor mainnet           --release           --export-method app-store           --build-name=&quot;1.0.0&quot;           --build-number=&quot;1&quot;
+      " time="140.218789">
         
       </testcase>
     
       
-      <testcase classname="fastlane.lanes" name="2: pilot" time="782.772994">
+      <testcase classname="fastlane.lanes" name="2: pilot" time="493.419652">
         
       </testcase>
     

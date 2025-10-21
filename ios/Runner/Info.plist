@@ -39,7 +39,7 @@
 	<key>NSCameraUsageDescription</key>
 	<string>Camera access is required for QR code scanning.</string>
 	<key>NSFaceIDUsageDescription</key>
-	<string>Face ID is required to unlock the app.</string>
+	<string>Face ID is required to unlock and access secure features.</string>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
 	<key>UILaunchStoryboardName</key>

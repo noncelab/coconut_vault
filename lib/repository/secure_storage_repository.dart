@@ -13,11 +13,7 @@ class SecureStorageRepository {
     sharedPreferencesName: 'SecureStorage_v2',
     preferencesKeyPrefix: 'v2_',
   );
-  static const IOSOptions iosOptions = IOSOptions(
-    groupId: 'group.onl.coconut.vault.secure',
-    accessibility: KeychainAccessibility.passcode,
-    synchronizable: false,
-  );
+  static const IOSOptions iosOptions = IOSOptions(accessibility: KeychainAccessibility.passcode, synchronizable: false);
 
   static const FlutterSecureStorage _storage = FlutterSecureStorage(aOptions: androidOptions, iOptions: iosOptions);
 

@@ -5,42 +5,42 @@
     
     
       
-      <testcase classname="fastlane.lanes" name="0: echo &apos;=== Current Directory ===&apos;; pwd" time="0.024468">
+      <testcase classname="fastlane.lanes" name="0: echo &apos;=== Current Directory ===&apos;; pwd" time="0.024437">
         
       </testcase>
     
       
-      <testcase classname="fastlane.lanes" name="1: update_app_info" time="0.000827">
+      <testcase classname="fastlane.lanes" name="1: update_app_info" time="0.001047">
         
       </testcase>
     
       
-      <testcase classname="fastlane.lanes" name="2: fvm flutter pub run flutter_oss_licenses:generate" time="1.428029">
+      <testcase classname="fastlane.lanes" name="2: fvm flutter pub run flutter_oss_licenses:generate" time="1.392249">
         
       </testcase>
     
       
-      <testcase classname="fastlane.lanes" name="3: fvm flutter pub run build_runner clean" time="3.391846">
+      <testcase classname="fastlane.lanes" name="3: fvm flutter pub run build_runner clean" time="3.117809">
         
       </testcase>
     
       
-      <testcase classname="fastlane.lanes" name="4: fvm flutter pub run build_runner build --delete-conflicting-outputs" time="21.885267">
+      <testcase classname="fastlane.lanes" name="4: fvm flutter pub run build_runner build --delete-conflicting-outputs" time="21.955899">
         
       </testcase>
     
       
-      <testcase classname="fastlane.lanes" name="5: pwd" time="0.021534">
+      <testcase classname="fastlane.lanes" name="5: pwd" time="0.026515">
         
       </testcase>
     
       
-      <testcase classname="fastlane.lanes" name="6: fvm flutter pub run slang" time="1.343698">
+      <testcase classname="fastlane.lanes" name="6: fvm flutter pub run slang" time="1.316782">
         
       </testcase>
     
       
-      <testcase classname="fastlane.lanes" name="7: fvm dart format . --line-length=120" time="2.295986">
+      <testcase classname="fastlane.lanes" name="7: fvm dart format . --line-length=120" time="2.470383">
         
       </testcase>
     
