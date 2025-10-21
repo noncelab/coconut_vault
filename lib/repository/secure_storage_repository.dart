@@ -8,15 +8,18 @@ class SecureStorageRepository {
   SecureStorageRepository._internal();
 
   static final SecureStorageRepository _instance = SecureStorageRepository._internal();
-
-  static const FlutterSecureStorage _storage = FlutterSecureStorage(
-    aOptions: AndroidOptions(encryptedSharedPreferences: true),
-    iOptions: IOSOptions(
-      groupId: 'group.onl.coconut.vault.secure',
-      accessibility: KeychainAccessibility.passcode,
-      synchronizable: false,
-    ),
+  static const AndroidOptions androidOptions = AndroidOptions(
+    encryptedSharedPreferences: true,
+    sharedPreferencesName: 'SecureStorage_v2',
+    preferencesKeyPrefix: 'v2_',
   );
+  static const IOSOptions iosOptions = IOSOptions(
+    groupId: 'group.onl.coconut.vault.secure',
+    accessibility: KeychainAccessibility.passcode,
+    synchronizable: false,
+  );
+
+  static const FlutterSecureStorage _storage = FlutterSecureStorage(aOptions: androidOptions, iOptions: iosOptions);
 
   factory SecureStorageRepository() {
     return _instance;
@@ -76,6 +79,5 @@ class SecureStorageRepository {
 
   Future<void> deleteAll() async {
     await _storage.deleteAll();
-    //await _oldStorage.deleteAll();
   }
 }

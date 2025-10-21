@@ -411,12 +411,12 @@ class WalletRepository {
       Logger.error('--> 삭제 안됨 FSE ${e.toString()} ');
     }
     await _removePublicInfo();
-    try {
-      await _secureZoneRepository.deleteAllKeys();
-    } on PlatformException catch (e) {
-      // TODO: preChecker로 미리 걸러져야 함
-      Logger.error('--> 삭제 안됨 SZR ${e.toString()} ');
-    }
+    // try {
+    //   await _secureZoneRepository.deleteAllKeys();
+    // } on PlatformException catch (e) {
+    //   // TODO: preChecker로 미리 걸러져야 함
+    //   Logger.error('--> 삭제 안됨 SZR ${e.toString()} ');
+    // }
     _sharedPrefs.deleteSharedPrefsWithKey(nextIdField);
   }
 
