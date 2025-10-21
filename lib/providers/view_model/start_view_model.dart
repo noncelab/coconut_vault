@@ -6,6 +6,7 @@ import 'package:coconut_vault/providers/auth_provider.dart';
 import 'package:coconut_vault/providers/connectivity_provider.dart';
 import 'package:coconut_vault/repository/secure_storage_repository.dart';
 import 'package:coconut_vault/repository/shared_preferences_repository.dart';
+import 'package:coconut_vault/services/security_prechecker.dart';
 import 'package:flutter/foundation.dart';
 
 class StartViewModel extends ChangeNotifier {
@@ -53,6 +54,17 @@ class StartViewModel extends ChangeNotifier {
   }
 
   Future<AppEntryFlow> getNextEntryFlow() async {
+    /// 0. 보안 검사 수행
+    /// JailbreakDetection은 이미 거친 상태, checkDevicePassword부터 실행
+
+    final securityResult = await SecurityPrechecker().checkDevicePassword();
+    if (securityResult.status == SecurityCheckStatus.devicePasswordRequired) {
+      return AppEntryFlow.devicePasswordRequired;
+    }
+    if (securityResult.status == SecurityCheckStatus.devicePasswordChanged) {
+      return AppEntryFlow.devicePasswordChanged;
+    }
+
     /// 1. 영구 잠금 상태라면 PinCheck 화면으로보내
     /// '초기화' 버튼을 누르게 해야함.
     if (_authProvider.isPermanentlyLocked) {

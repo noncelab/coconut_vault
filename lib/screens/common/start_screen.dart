@@ -24,6 +24,7 @@ class StartScreen extends StatefulWidget {
 
 class _StartScreenState extends State<StartScreen> {
   late StartViewModel _viewModel;
+  AppEntryFlow _nextEntryFlow = AppEntryFlow.splash;
 
   @override
   void initState() {
@@ -38,6 +39,16 @@ class _StartScreenState extends State<StartScreen> {
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       /// Splash 딜레이
       await Future.delayed(const Duration(seconds: 2));
+      _nextEntryFlow = await _viewModel.getNextEntryFlow();
+
+      if (_nextEntryFlow == AppEntryFlow.devicePasswordRequired) {
+        widget.onComplete(AppEntryFlow.devicePasswordRequired);
+        return;
+      }
+      if (_nextEntryFlow == AppEntryFlow.devicePasswordChanged) {
+        widget.onComplete(AppEntryFlow.devicePasswordChanged);
+        return;
+      }
 
       /// 한번도 튜토리얼을 보지 않은 경우 / 볼트 모드를 선택하지 않은 경우
       if (!_viewModel.hasSeenGuide || !_viewModel.isVaultModeSelected) {
@@ -53,8 +64,7 @@ class _StartScreenState extends State<StartScreen> {
   Future _determineNextEntryFlow() async {
     await Future.delayed(const Duration(seconds: 2));
 
-    var nextEntryFlow = await _viewModel.getNextEntryFlow();
-    widget.onComplete(nextEntryFlow);
+    widget.onComplete(_nextEntryFlow);
   }
 
   @override
