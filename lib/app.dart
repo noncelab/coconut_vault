@@ -286,7 +286,16 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> with SingleTickerProv
         );
 
       case AppEntryFlow.vaultResetCompleted:
-        return const AppUnavailableNotificationScreen(isVaultReset: true);
+        lifecycleProvider.disposeWhenVaultReset();
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          runApp(
+            const CupertinoApp(
+              debugShowCheckedModeBanner: false,
+              home: AppUnavailableNotificationScreen(isVaultReset: true),
+            ),
+          );
+        });
+        return const SizedBox.shrink(); // 빈 위젯 반환
     }
   }
 

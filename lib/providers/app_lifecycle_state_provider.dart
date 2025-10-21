@@ -25,6 +25,8 @@ class AppLifecycleStateProvider extends ChangeNotifier with WidgetsBindingObserv
     WidgetsBinding.instance.addObserver(this);
   }
 
+  bool _isDisposed = false;
+
   // 현재 앱 라이프사이클 상태
   AppLifecycleState _currentState = AppLifecycleState.resumed;
   AppLifecycleState get currentState => _currentState;
@@ -66,6 +68,8 @@ class AppLifecycleStateProvider extends ChangeNotifier with WidgetsBindingObserv
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (_isDisposed) return;
+
     _currentState = state;
 
     switch (state) {
@@ -103,7 +107,13 @@ class AppLifecycleStateProvider extends ChangeNotifier with WidgetsBindingObserv
 
   @override
   void dispose() {
+    _isDisposed = true;
     WidgetsBinding.instance.removeObserver(this);
     super.dispose();
+  }
+
+  void disposeWhenVaultReset() {
+    _isDisposed = true;
+    WidgetsBinding.instance.removeObserver(this);
   }
 }
