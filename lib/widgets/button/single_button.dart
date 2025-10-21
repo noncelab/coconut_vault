@@ -123,8 +123,8 @@ class SingleButton extends StatelessWidget {
           ],
         ),
         if (description != null)
-          FittedBox(
-            fit: BoxFit.scaleDown,
+          MediaQuery(
+            data: MediaQuery.of(context).copyWith(textScaler: const TextScaler.linear(1.0)),
             child: Text(description!, style: CoconutTypography.body3_12_Number.setColor(CoconutColors.gray600)),
           ),
       ],
