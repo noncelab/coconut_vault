@@ -92,24 +92,25 @@ class SingleButton extends StatelessWidget {
       children: [
         if (leftElement != null) ...{Container(child: leftElement), CoconutLayout.spacing_400w},
         Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              FittedBox(
-                fit: BoxFit.scaleDown,
-                child: Text(title, style: titleStyle ?? CoconutTypography.body2_14_Bold.setColor(CoconutColors.black)),
-              ),
-            ],
+          child: FittedBox(
+            fit: BoxFit.scaleDown,
+            alignment: Alignment.centerLeft,
+            child: Text(title, style: titleStyle ?? CoconutTypography.body2_14_Bold.setColor(CoconutColors.black)),
           ),
         ),
-        if (subtitle != null)
-          FittedBox(
-            fit: BoxFit.scaleDown,
-            child: Text(
-              subtitle!,
-              style: subtitleStyle ?? CoconutTypography.body3_12_Number.setColor(CoconutColors.gray600),
+        if (subtitle != null) ...[
+          CoconutLayout.spacing_400w,
+          Expanded(
+            child: FittedBox(
+              fit: BoxFit.scaleDown,
+              alignment: Alignment.centerRight,
+              child: Text(
+                subtitle!,
+                style: subtitleStyle ?? CoconutTypography.body3_12_Number.setColor(CoconutColors.gray600),
+              ),
             ),
           ),
+        ],
         rightElement ?? _rightArrow(),
       ],
     );
