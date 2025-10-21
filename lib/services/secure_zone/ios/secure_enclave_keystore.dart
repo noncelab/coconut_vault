@@ -1,6 +1,5 @@
 import 'package:coconut_vault/services/secure_zone/secure_zone_keystore.dart';
 import 'package:flutter/services.dart';
-import 'package:local_auth/local_auth.dart';
 
 /// iOS only
 class SecureEnclaveKeystore extends SecureZoneKeystore {

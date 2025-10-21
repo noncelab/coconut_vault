@@ -153,6 +153,7 @@ class _VaultModeSelectionScreenState extends State<VaultModeSelectionScreen> {
 
                     if (!await device_secure_checker.isDeviceSecured()) {
                       // 기기 비밀번호 설정 안되어 있으면 설정 화면으로 이동
+                      if (!context.mounted) return;
                       openSystemSecuritySettings(
                         context,
                         hasDialogShownForIos: true,
@@ -174,6 +175,8 @@ class _VaultModeSelectionScreenState extends State<VaultModeSelectionScreen> {
                       });
                     }
                   }
+
+                  if (!context.mounted) return;
                   final shouldProceed = await showDialog<bool>(
                     context: context,
                     barrierDismissible: false, // 외부 클릭 시 닫기 가능
@@ -245,6 +248,7 @@ class _VaultModeSelectionScreenState extends State<VaultModeSelectionScreen> {
                   // 외부 클릭 또는 취소 시 (null 또는 false) 중단
                   if (shouldProceed != true || !mounted) return;
 
+                  if (!context.mounted) return;
                   if (context.read<AuthProvider>().isPinSet) {
                     // 앱 비밀번호 확인 먼저 수행
                     await _authenticateWithBiometricOrPin(context, PinCheckContextEnum.sensitiveAction, () async {

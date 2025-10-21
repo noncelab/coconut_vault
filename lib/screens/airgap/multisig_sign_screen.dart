@@ -1,12 +1,8 @@
-import 'dart:convert';
-import 'dart:typed_data';
-
 import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_lib/coconut_lib.dart';
 import 'package:coconut_vault/constants/app_routes.dart';
 import 'package:coconut_vault/enums/currency_enum.dart';
 import 'package:coconut_vault/enums/pin_check_context_enum.dart';
-import 'package:coconut_vault/extensions/uint8list_extensions.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/providers/auth_provider.dart';
 import 'package:coconut_vault/providers/preference_provider.dart';

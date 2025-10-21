@@ -504,6 +504,7 @@ class _VaultHomeScreenState extends State<VaultHomeScreen> with TickerProviderSt
                                 },
                                 onTapRight: () async {
                                   await context.read<WalletProvider>().deleteAllWallets();
+                                  if (!context.mounted) return;
                                   await context.read<PreferenceProvider>().resetVaultOrderAndFavorites();
 
                                   widget.onChangeEntryFlow?.call();

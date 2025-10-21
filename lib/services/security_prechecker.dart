@@ -4,8 +4,6 @@ import 'package:coconut_vault/constants/shared_preferences_keys.dart';
 import 'package:coconut_vault/enums/vault_mode_enum.dart';
 import 'package:coconut_vault/repository/secure_storage_repository.dart';
 import 'package:coconut_vault/repository/shared_preferences_repository.dart';
-import 'package:coconut_vault/utils/coconut/update_preparation.dart';
-import 'package:coconut_vault/utils/file_storage.dart';
 import 'package:flutter/services.dart';
 
 class SecurityPrechecker {
@@ -18,7 +16,6 @@ class SecurityPrechecker {
   // Android: 탈옥/루팅 검사 -> 기기 비밀번호 설정 여부 검사
   // iOS: 탈옥/루팅 검사 -> 기기 비밀번호 설정 여부 검사 -> 기기 비밀번호 변경 여부 검사
   // ------------------------------------------------------------
-  // FIXME: 매번 1단계부터 검사할 지, 아니면 아래 설명처럼 30분 이내 저장된 정보면 비밀번호 설정 여부부터 검사할 지 결정 필요
   // 탈옥/루팅 감지 화면에서 [그래도 계속하겠습니다] 선택 시,
   // jailbreakDetectionIgnored 상태와 저장 시간을 저장 후 performSecurityCheck 재호출함.
   // preformSecurityCheck 메서드에서 30분 이내 저장된 정보면, 비밀번호 설정 여부 검사해야함.
@@ -114,10 +111,6 @@ class SecurityPrechecker {
       await sharedPrefsRepository.clearSharedPref();
       final secureStorageRepository = SecureStorageRepository();
       await secureStorageRepository.deleteAll();
-      final files = await FileStorage.getFileList(subDirectory: UpdatePreparation.directory);
-      for (final file in files) {
-        await FileStorage.deleteFile(fileName: file, subDirectory: UpdatePreparation.directory);
-      }
 
       if (hasSeenGuide) {
         await SharedPrefsRepository().setBool(SharedPrefsKeys.hasShownStartGuide, true);

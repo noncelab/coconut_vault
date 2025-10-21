@@ -1,5 +1,4 @@
 import 'package:coconut_lib/coconut_lib.dart';
-import 'package:coconut_vault/extensions/uint8list_extensions.dart';
 import 'package:coconut_vault/isolates/sign_isolates.dart';
 import 'package:coconut_vault/model/multisig/multisig_signer.dart';
 import 'package:coconut_vault/model/multisig/multisig_vault_list_item.dart';

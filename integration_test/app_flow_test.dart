@@ -7,7 +7,6 @@ import 'package:coconut_vault/screens/home/tutorial_screen.dart';
 import 'package:coconut_vault/screens/home/vault_list_screen.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
-import 'package:coconut_vault/utils/coconut/update_preparation.dart';
 import 'package:coconut_vault/main.dart' as app;
 
 import 'integration_test_utils.dart';
@@ -31,7 +30,7 @@ void main() {
   });
 
   tearDown(() async {
-    await UpdatePreparation.clearUpdatePreparationStorage();
+    // await UpdatePreparation.clearUpdatePreparationStorage();
   });
 
   group('[BackupFile X]', () {

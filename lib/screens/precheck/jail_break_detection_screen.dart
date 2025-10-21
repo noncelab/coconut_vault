@@ -150,6 +150,7 @@ class _JailBreakDetectionScreenState extends State<JailBreakDetectionScreen> {
         // 볼트 목록 다시 로드
         await walletProvider.loadVaultList();
         await walletProvider.deleteAllWallets();
+        if (!mounted) return;
         await context.read<PreferenceProvider>().resetVaultOrderAndFavorites();
 
         widget.onReset?.call();

@@ -17,30 +17,19 @@ class SecureStorageRepository {
       synchronizable: false,
     ),
   );
+
   factory SecureStorageRepository() {
     return _instance;
   }
 
   Future<void> write({required String key, required String value}) async {
-    // TODO: 마이그레이션 조치 고려
-
     try {
-      // _storage.iOptions
-      Logger.log('write: $key, $value');
       await _storage.write(key: key, value: value);
     } catch (e) {
-      // 키체인에 이미 존재하는 경우 삭제 후 다시 저장
       Logger.log('write: error: $e');
-
       if (e.toString().contains('-25299') || e.toString().contains('already exists')) {
-        Logger.log('write: delete: $key');
-        //await _oldStorage.delete(key: key);
         await _storage.delete(key: key);
-        var deletedValue = await _storage.read(key: key);
-        Logger.log('write: deletedValue: $deletedValue');
-        Logger.log('write: write: $key, $value');
         await _storage.write(key: key, value: value);
-        Logger.log('write: success!');
       } else {
         rethrow; // 다른 에러는 그대로 전파
       }

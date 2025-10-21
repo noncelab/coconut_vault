@@ -68,29 +68,45 @@ class _VaultItemSettingBottomSheetState extends State<VaultItemSettingBottomShee
     bool shouldHideWhenOn,
     ValueChanged<bool> onChanged,
   ) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(title, style: CoconutTypography.body2_14),
-              Text(description, style: CoconutTypography.body3_12.setColor(CoconutColors.gray400)),
-            ],
+    return MediaQuery(
+      data: MediaQuery.of(context).copyWith(textScaler: const TextScaler.linear(1.0)),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(title, style: CoconutTypography.body2_14),
+                Text(description, style: CoconutTypography.body3_12.setColor(CoconutColors.gray400)),
+              ],
+            ),
           ),
-        ),
-        value
-            ? CoconutShakeAnimation(
-              key: _primaryWalletShakeKey,
-              shakeOffset: 3,
-              shakeAmount: 2,
-              direction: Axis.horizontal,
-              curve: Curves.linear,
-              child: CoconutSwitch(
+          CoconutLayout.spacing_100w,
+          value
+              ? CoconutShakeAnimation(
+                key: _primaryWalletShakeKey,
+                shakeOffset: 3,
+                shakeAmount: 2,
+                direction: Axis.horizontal,
+                curve: Curves.linear,
+                child: CoconutSwitch(
+                  isOn: value,
+                  activeColor: CoconutColors.gray400,
+                  thumbColor: CoconutColors.gray200,
+                  trackColor: CoconutColors.gray300,
+                  scale: 0.8,
+                  onChanged: (bool newValue) {
+                    setState(() {
+                      onChanged(newValue);
+                    });
+                  },
+                ),
+              )
+              : CoconutSwitch(
                 isOn: value,
                 activeColor: CoconutColors.gray400,
-                thumbColor: CoconutColors.gray200,
+                thumbColor: CoconutColors.white,
                 trackColor: CoconutColors.gray300,
                 scale: 0.8,
                 onChanged: (bool newValue) {
@@ -99,20 +115,8 @@ class _VaultItemSettingBottomSheetState extends State<VaultItemSettingBottomShee
                   });
                 },
               ),
-            )
-            : CoconutSwitch(
-              isOn: value,
-              activeColor: CoconutColors.gray400,
-              thumbColor: CoconutColors.white,
-              trackColor: CoconutColors.gray300,
-              scale: 0.8,
-              onChanged: (bool newValue) {
-                setState(() {
-                  onChanged(newValue);
-                });
-              },
-            ),
-      ],
+        ],
+      ),
     );
   }
 }
