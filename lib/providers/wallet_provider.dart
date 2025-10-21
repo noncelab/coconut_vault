@@ -386,8 +386,9 @@ class WalletProvider extends ChangeNotifier {
 
   Future<void> updateIsSigningOnlyMode(bool isSigningOnlyMode) async {
     if (_isSigningOnlyMode == isSigningOnlyMode) return;
-
+    _lifecycleProvider.startOperation(AppLifecycleOperations.teeDecryption);
     await _walletRepository.updateIsSigningOnlyMode(isSigningOnlyMode);
+    _lifecycleProvider.endOperation(AppLifecycleOperations.teeDecryption);
     if (isSigningOnlyMode) {
       _setVaultList([]);
     }
