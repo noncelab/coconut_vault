@@ -274,17 +274,10 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> with SingleTickerProv
         }
 
       case AppEntryFlow.pinCheckAppLaunched:
-        return CustomLoadingOverlay(
-          child: _buildPinCheckScreen(pinCheckContext: PinCheckContextEnum.appLaunch, nextFlow: AppEntryFlow.vaultHome),
-        );
+        return _buildPinCheckScreen(pinCheckContext: PinCheckContextEnum.appLaunch, nextFlow: AppEntryFlow.vaultHome);
       case AppEntryFlow.pinCheckAppResumed:
         resuemedCount++;
-        return CustomLoadingOverlay(
-          child: _buildPinCheckScreen(
-            pinCheckContext: PinCheckContextEnum.appResumed,
-            nextFlow: AppEntryFlow.vaultHome,
-          ),
-        );
+        return _buildPinCheckScreen(pinCheckContext: PinCheckContextEnum.appResumed, nextFlow: AppEntryFlow.vaultHome);
       case AppEntryFlow.vaultHome:
         return VaultHomeScreen(
           onChangeEntryFlow: () {
