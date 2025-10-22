@@ -402,7 +402,7 @@ class _VaultModeSelectionScreenState extends State<VaultModeSelectionScreen> {
           rightButtonText: t.confirm,
           rightButtonColor: CoconutColors.black,
           onTapRight: () {
-            Navigator.pop(context);
+            Navigator.popUntil(context, (route) => route.isFirst);
           },
         );
       },
