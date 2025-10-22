@@ -306,8 +306,7 @@ class _VaultModeSelectionScreenState extends State<VaultModeSelectionScreen> {
         // 비밀번호 지정
         if (!mounted) return;
         final result = await MyBottomSheet.showBottomSheet_90(context: context, child: const PinSettingScreen());
-
-        if (result) {
+        if (result == true) {
           try {
             if (walletProvider.vaultList.isNotEmpty) {
               setState(() {
