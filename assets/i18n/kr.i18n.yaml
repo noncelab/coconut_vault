@@ -464,7 +464,7 @@ mnemonic_verify_screen:
   select_word: "${index}번째 단어를 선택하세요"
   not_correct: "일치하지 않아요"
 select_vault_type_screen:
-  title: "지갑 만들기"
+  title: "지갑 추가"
   single_sig: "하나의 니모닉 문구를 보관하는 지갑이에요"
   multisig: "지정한 수의 서명이 필요한 지갑이에요"
   empty_key: "현재 볼트에 사용할 수 있는 키가 없어요"

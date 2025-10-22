@@ -461,7 +461,7 @@ mnemonic_verify_screen:
   select_word: "単語 #${index} を選択"
   not_correct: "正しくありません"
 select_vault_type_screen:
-  title: "ウォレット作成"
+  title: "ウォレット追加"
   single_sig: "1つのニーモニックフレーズを保存するシングル署名ウォレット"
   multisig: "指定された数の署名が必要なウォレット"
   empty_key: "現在のボルトに利用可能なキーがありません"
