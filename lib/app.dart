@@ -876,8 +876,11 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> with SingleTickerProv
     bool isPinSet = authProvider.isPinSet;
     int vaultListLength = SharedPrefsRepository().getInt(SharedPrefsKeys.vaultListLength) ?? 0;
 
-    if (_isInactive == false && _appEntryFlow == AppEntryFlow.vaultHome) {
-      // 이미 _appEntryFlow가 vaultHome로 이동한 경우
+    // 플랫폼별로 다른 로직 적용
+    // iOS: 무한 반복 방지를 위해 inactive 체크 추가
+    // Android: 기기 비밀번호 해제 감지를 위해 항상 실행
+    if (Platform.isIOS && _isInactive == false && _appEntryFlow == AppEntryFlow.vaultHome) {
+      // iOS에서 이미 _appEntryFlow가 vaultHome로 이동한 경우 무한 반복 방지
       return;
     }
 
