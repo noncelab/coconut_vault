@@ -738,8 +738,8 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> with SingleTickerProv
                                   insetPadding: EdgeInsets.symmetric(
                                     horizontal: MediaQuery.of(navContext).size.width * 0.15,
                                   ),
-                                  title: t.reset_vault,
-                                  description: t.reset_vault_description,
+                                  title: t.delete_vault,
+                                  description: t.delete_vault_description,
                                   backgroundColor: CoconutColors.white,
                                   leftButtonText: t.cancel,
                                   rightButtonText: t.confirm,
@@ -803,7 +803,7 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> with SingleTickerProv
                                     child: FittedBox(
                                       fit: BoxFit.scaleDown,
                                       child: Text(
-                                        t.reset_vault,
+                                        t.delete_vault,
                                         style: CoconutTypography.body2_14_Bold.copyWith(color: CoconutColors.white),
                                       ),
                                     ),

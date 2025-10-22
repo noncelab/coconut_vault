@@ -174,7 +174,7 @@ class _VaultHomeScreenState extends State<VaultHomeScreen> with TickerProviderSt
                     // semanticChildCount:
                     //     model.isVaultListLoading ? 1 : vaults.length,
                     slivers: <Widget>[
-                      _buildAppBar(context, viewModel, wallets),
+                      _buildAppBar(context, viewModel, wallets, viewModel.isSigningOnlyMode),
                       _buildWalletActionItems(context),
                       SliverToBoxAdapter(child: Container(color: CoconutColors.gray200, height: 12)),
                       if (wallets.isNotEmpty) ...[_buildViewAll(wallets.length)],
@@ -192,10 +192,32 @@ class _VaultHomeScreenState extends State<VaultHomeScreen> with TickerProviderSt
     );
   }
 
-  SliverAppBar _buildAppBar(BuildContext context, VaultHomeViewModel viewModel, List<VaultListItemBase> wallets) {
+  SliverAppBar _buildAppBar(
+    BuildContext context,
+    VaultHomeViewModel viewModel,
+    List<VaultListItemBase> wallets,
+    bool isSigningOnlyMode,
+  ) {
     return CoconutAppBar.buildHomeAppbar(
       context: context,
-      leadingSvgAsset: const SizedBox.shrink(key: ValueKey('empty')),
+      leadingSvgAsset: Row(
+        children: [
+          SvgPicture.asset(
+            isSigningOnlyMode ? 'assets/svg/signing-mode.svg' : 'assets/svg/storage-mode.svg',
+            height: 20,
+          ),
+          CoconutLayout.spacing_150w,
+          MediaQuery(
+            data: MediaQuery.of(context).copyWith(textScaler: const TextScaler.linear(1.0)),
+            child: Text(
+              isSigningOnlyMode
+                  ? t.vault_mode_selection_screen.signing_only_mode
+                  : t.vault_mode_selection_screen.secure_storage_mode,
+              style: CoconutTypography.heading4_18_Bold.setColor(CoconutColors.gray800),
+            ),
+          ),
+        ],
+      ),
       appTitle: '',
       actionButtonList: [
         Opacity(
@@ -511,7 +533,7 @@ class _VaultHomeScreenState extends State<VaultHomeScreen> with TickerProviderSt
                         iconColor: CoconutColors.white,
                         backgroundColor: CoconutColors.gray800,
                         pressedColor: CoconutColors.gray700,
-                        text: t.reset_vault,
+                        text: t.delete_vault,
                         iconAssetPath: 'assets/svg/eraser.svg',
                         iconPadding: const EdgeInsets.only(right: 18, bottom: 16),
                         onPressed: () async {
@@ -522,8 +544,8 @@ class _VaultHomeScreenState extends State<VaultHomeScreen> with TickerProviderSt
                                 insetPadding: EdgeInsets.symmetric(
                                   horizontal: MediaQuery.of(context).size.width * 0.15,
                                 ),
-                                title: t.reset_vault,
-                                description: t.reset_vault_description,
+                                title: t.delete_vault,
+                                description: t.delete_vault_description,
                                 backgroundColor: CoconutColors.white,
                                 leftButtonText: t.cancel,
                                 rightButtonText: t.confirm,

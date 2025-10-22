@@ -233,6 +233,8 @@ flutter:
     - assets/png/keychain-inaccessible.png
     - assets/svg/warning-hexagon.svg
     - assets/png/erase-secret.png
+    - assets/svg/signing-mode.svg
+    - assets/svg/storage-mode.svg
 
   fonts:
     - family: SpaceGrotesk
