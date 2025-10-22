@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:flutter/material.dart';
 
@@ -46,6 +48,11 @@ class _FixedBottomButtonState extends State<FixedBottomButton> {
   @override
   Widget build(BuildContext context) {
     double keyboardHeight = (widget.isVisibleAboveKeyboard ? MediaQuery.of(context).viewInsets.bottom : 0);
+    double buttonHeight =
+        widget.buttonHeight ??
+        (Platform.isAndroid
+            ? FixedBottomButton.fixedBottomButtonDefaultHeight
+            : FixedBottomButton.fixedBottomButtonDefaultHeight + 8);
     return SizedBox(
       width: MediaQuery.sizeOf(context).width,
       child: Stack(
@@ -92,11 +99,12 @@ class _FixedBottomButtonState extends State<FixedBottomButton> {
                   disabledBackgroundColor: CoconutColors.gray150,
                   disabledForegroundColor: CoconutColors.gray350,
                   isActive: widget.isActive,
-                  height: widget.buttonHeight ?? FixedBottomButton.fixedBottomButtonDefaultHeight,
+                  height: buttonHeight,
                   backgroundColor: widget.backgroundColor,
                   foregroundColor: widget.textColor,
                   pressedTextColor: widget.textColor,
                   text: widget.text,
+                  textStyle: CoconutTypography.body1_16_Bold,
                 ),
               ],
             ),

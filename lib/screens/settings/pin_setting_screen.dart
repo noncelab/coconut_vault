@@ -154,11 +154,32 @@ class _PinSettingScreenState extends State<PinSettingScreen> {
         _authProvider.isBiometricSupportedByDevice &&
         _authProvider.availableBiometrics.isNotEmpty &&
         mounted) {
-      await _authProvider.authenticateWithBiometrics(context: context, isSaved: true);
+      final useBiometrics = await _authProvider.authenticateWithBiometrics(context: context, isSaved: true);
+      if (!useBiometrics) {
+        await _noticeTEEUseBiometrics();
+      }
     }
 
     // 비밀번호 저장 후 화면 이동
     await _savePin();
+  }
+
+  Future<void> _noticeTEEUseBiometrics() async {
+    await showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return CoconutPopup(
+          insetPadding: EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width * 0.15),
+          title: t.alert.secure_module_use_biometrics.title,
+          description: t.alert.secure_module_use_biometrics.description,
+          backgroundColor: CoconutColors.white,
+          rightButtonText: t.confirm,
+          onTapRight: () {
+            Navigator.pop(context);
+          },
+        );
+      },
+    );
   }
 
   // 숫자 모드 PIN 입력 처리
@@ -233,8 +254,8 @@ class _PinSettingScreenState extends State<PinSettingScreen> {
       return;
     }
 
-    Navigator.pop(context);
-    Navigator.pop(context);
+    Navigator.pop(context); // 자물쇠 lottie 닫기
+    Navigator.pop(context, true); // pin_setting_screen 닫기
     if (widget.greetingVisible) {
       Navigator.pushNamed(context, AppRoutes.vaultTypeSelection);
     }

@@ -17,6 +17,7 @@ enum ConnectivityState { off, on, bluetoothUnauthorized }
 class ConnectivityProvider extends ChangeNotifier {
   /// 첫 실행 가이드 확인 여부
   late bool _hasSeenGuide;
+  bool _isDisposed = false;
 
   bool? _isNetworkOn;
   bool? get isNetworkOn => _isNetworkOn;
@@ -113,6 +114,8 @@ class ConnectivityProvider extends ChangeNotifier {
   }
 
   Future<void> _checkDeveloperMode() async {
+    if (_isDisposed) return;
+
     bool? developerModeStatus;
     try {
       final bool result = await _channel.invokeMethod('isDeveloperModeEnabled');
@@ -121,12 +124,17 @@ class ConnectivityProvider extends ChangeNotifier {
       // 에러 발생 시 개발자 모드 OFF로 간주
       developerModeStatus = false;
     }
+
+    if (_isDisposed) return; // 비동기 작업 후 다시 체크
+
     _isDeveloperModeOn = developerModeStatus;
     _onConnectivityChanged();
   }
 
   /// 현재 블루투스 상태를 즉시 확인하는 메서드
   Future<void> _checkCurrentBluetoothState() async {
+    if (_isDisposed) return;
+
     try {
       final BluetoothAdapterState state = await FlutterBluePlus.adapterState.first;
       if (state == BluetoothAdapterState.on) {
@@ -139,9 +147,14 @@ class ConnectivityProvider extends ChangeNotifier {
       } else {
         _isBluetoothOn = false;
       }
+
+      if (_isDisposed) return; // 비동기 작업 후 다시 체크
+
       // 상태 설정 후 즉시 UI 업데이트
       notifyListeners();
     } catch (e) {
+      if (_isDisposed) return; // 에러 처리 후에도 체크
+
       // 에러 발생 시 블루투스 OFF로 간주
       _isBluetoothOn = false;
       notifyListeners();
@@ -150,6 +163,8 @@ class ConnectivityProvider extends ChangeNotifier {
 
   // TODO: _hasSeenGuide 없이 각 home 화면 별 이벤트 등록/해제하기!!!!!!
   void _onConnectivityChanged() {
+    if (_isDisposed) return;
+
     if (Platform.isIOS && _isBluetoothUnauthorized == true) {
       runApp(const CupertinoApp(debugShowCheckedModeBanner: false, home: IosBluetoothAuthNotificationScreen()));
     } else if (_isBluetoothOn == true || _isNetworkOn == true || (Platform.isAndroid && _isDeveloperModeOn == true)) {
@@ -166,7 +181,9 @@ class ConnectivityProvider extends ChangeNotifier {
         );
       }
     }
-    notifyListeners();
+    if (!_isDisposed) {
+      notifyListeners();
+    }
   }
 
   void setOnConnectivityStateChanged(void Function(ConnectivityState) onChanged) {
@@ -179,6 +196,7 @@ class ConnectivityProvider extends ChangeNotifier {
 
   @override
   void dispose() {
+    _isDisposed = true;
     _bluetoothSubscription?.cancel();
     _networkSubscription?.cancel();
     super.dispose();

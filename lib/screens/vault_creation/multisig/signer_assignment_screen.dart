@@ -305,6 +305,15 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
                             child: Center(child: MessageActivityIndicator(message: viewModel.loadingMessage)),
                           ),
                         ),
+                        Visibility(
+                          visible: viewModel.isInitializing,
+                          child: Container(
+                            width: MediaQuery.of(context).size.width,
+                            height: MediaQuery.of(context).size.height,
+                            decoration: BoxDecoration(color: CoconutColors.black.withValues(alpha: 0.3)),
+                            child: const Center(child: CircularProgressIndicator(color: CoconutColors.gray800)),
+                          ),
+                        ),
                       ],
                     ),
                   ),

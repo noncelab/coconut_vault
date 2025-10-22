@@ -43,6 +43,8 @@ restore: "복원하기"
 change: "잔돈"
 receiving: "입금"
 email_subject: "[코코넛 볼트] 이용 관련 문의"
+reset_vault: "볼트 초기화"
+reset_vault_description: "볼트를 초기화하면 키가 삭제됩니다.\n정말로 초기화하시겠어요?"
 
 sign_completion: "서명 완료"
 sign: "서명하기"
@@ -159,11 +161,35 @@ app_unavailable_notification_screen:
   step1: "앱을 완전히 종료해 주세요"
   step2: "연결 상태를 확인해 주세요"
   step3: "앱을 다시 실행해 주세요"
+  vault_reset: 
+    reset_completed: "초기화가 완료되었습니다"
+    step_1: "키 정보를 모두 삭제했습니다"
+    step_2: "보안을 위해 앱을 완전히 종료해 주세요"
+    step_3: "앱 종료 후 기기 전원을 끄면 더 안전합니다 "
+
+device_password_detection_screen:
+  device_password_required: "볼트를 사용하려면\n기기 비밀번호 설정이 필요해요"
+  device_password_setting_guide: "보안을 강화하려면 문자와 숫자를 조합한 비밀번호를 사용하세요\n\n편리하고 안전한 사용을 위해 생체 인증을 활성화해 주세요" 
+  device_password_changed_question: "혹시 기기 비밀번호를\n변경하셨나요?"
+  device_password_changed_guide: "기기 비밀번호를 변경하거나 해제하면, 암호화되어 저장된 볼트 비밀번호를 더 이상 사용할 수 없습니다."
+  reset_vault_to_use: "볼트를 다시 사용하려면 초기화를 진행해 주세요."
+  go_to_settings: "설정하기"
+  reset_vault: "볼트 초기화하기"
+  ios_settings_dialog_title: "설정 화면 이동"
+  ios_settings_dialog_description: "iOS 정책 상 설정 홈으로 이동이 불가능합니다. 설정 창이 열리면 설정 홈으로 이동하여 비밀번호를 설정해 주세요."
+
+jail_break_detection_screen:
+  title: "탈옥 / 루팅 이력이 감지되었습니다"
+  description: "이 기기는 보안 제한이 해제된 상태이거나,\n과거에 탈옥 / 루팅이 이루어진 적이 있습니다."
+  description2: "이러한 기기에서는 암호화 키, 지갑 정보 등\n민감한 데이터를 안전하게 보호하기 어려울 수 있습니다."
+  jail_break_guide_title: "탈옥/루팅이란?"
+  jail_break_guide_description: "탈옥(iOS) 또는 루팅(Android)은 운영체제의 보안 제한을 해제하여,시스템 영역에 자유롭게 접근할 수 있도록 하는 행위입니다.\n사용자는 높은 수준의 제어 권한을 얻을 수 있지만, 동시에 악성코드나 무단 접근에 노출될 위험도 커집니다."
+  continue_anyway: "그래도 계속하겠습니다"
+
 ios_bluetooth_auth_notification_screen:
-  allow_permission: "안전한 사용을 위해\n블루투스 권한을 허용해 주세요"
-  guide1: "앱을 완전히 종료해 주세요"
-  guide2: "설정 화면에서 볼트의 블루투스 권한을 허용해 주세요"
-  guide3: "앱을 다시 실행해 주세요"
+  allow_permission: "블루투스 상태 확인을 위해\n블루투스 권한을 허용해 주세요"
+  guide1: "다른 기기와 연결되지 않았는지 확인하기 위해 블루투스 권한이 필요합니다"
+  guide2: "설정에서 볼트 앱의 블루투스 권한을 허용해 주세요"
 pin_check_screen:
   enter_password: "비밀번호를 눌러주세요"
   warning: "⚠︎ 3회 모두 틀리면 볼트를 초기화합니다"
@@ -188,12 +214,47 @@ security_self_check_screen:
   check7: "니모닉 문구와 패스프레이즈를 함께 보관하지 않습니다."
   check8: "소액 전송으로 테스트한 후 지갑을 사용합니다."
   check9: "위 사항을 주기적으로 점검하고, 안전하게 니모닉 문구를 보관하겠습니다."
+  check10: "위 사항을 모두 숙지하였으며, 캐인키와 니모닉 관리에 대한 모든 책임은 사용자 본인에게 있습니다."
   guidance: "니모닉 문구는 스스로 안전하게 보관해야 합니다. 한 문장씩 읽고 눌러, 체크리스트를 완성해 주세요."
 tutorial_screen:
   title1: "튜토리얼을 참고하시면\n더욱 쉽게 사용할 수 있어요"
   title2: "도움이 필요하신가요?"
   subtitle: "튜토리얼과 함께 사용해 보세요"
   content: "인터넷 주소창에 입력해 주세요\ntutorial.coconut.onl"
+vault_mode_selection_screen:
+  select_mode: "모드 선택"
+  change_mode: "모드 변경"
+  current_using: "사용 중"
+  secure_storage_mode: "안전 저장 모드"
+  secure_storage_mode_description: "키를 안전하게 저장합니다.\n비밀번호로 인증 후 즉시 서명에 사용할 수 있습니다."
+  signing_only_mode: "서명 전용 모드"
+  signing_only_mode_description: "볼트에 키를 저장하지 않습니다.\n앱을 실행할 때마다 키를 입력하여 서명해야 합니다."
+  start: "시작"
+  change: "변경"
+  mode_change_complete: "모드 변경 완료"
+  mode_changed_description_secrue_storage: "안전 저장 모드로 변경되었습니다.\n볼트에 저장된 시드라도 주기적으로 백업해 주세요!"
+  mode_changed_description_signing_only: "서명 전용 모드로 변경되었습니다.\n사용 후엔 초기화 버튼을 눌러 반드시 초기화 해주세요!"
+  secure_storage_mode_warning_title: "안전 저장 모드 전환 시\n주의 사항"
+  secure_storage_mode_warning_descriptions_android:
+    - "현재 추가된 지갑이 있을 경우, 기기에 정보를 저장하는 데 시간이 소요될 수 있습니다."
+    - "패스프레이즈는 저장되지 않으니, 별도로 안전하게 보관해 주세요."
+  secure_storage_mode_warning_descriptions_ios:
+    - "기기 비밀번호를 변경하거나 해제하면, 암호화되어 저장된 지갑 정보를 사용할 수 없게 됩니다. 비밀번호를 변경하기 전 반드시 별도 백업을 완료하세요."
+    - "현재 추가된 지갑이 있을 경우, 기기에 정보를 저장하는 데 시간이 소요될 수 있습니다."
+    - "패스프레이즈는 저장되지 않으니, 별도로 안전하게 보관해 주세요."
+  signing_only_mode_warning_title: "서명 전용 모드 전환 시\n주의 사항"
+  signing_only_mode_warning_descriptions:
+    - "현재 저장된 지갑 정보가 모두 초기화됩니다. 전환 전에 반드시 백업을 완료하세요."
+    - "다음 단계에서 비밀번호를 확인한 후 볼트 초기화가 시작됩니다."
+  device_password_setting_guide_understood: "이해했습니다"
+  secure_use_guide_title: "비밀번호 설정 필요"
+  secure_use_guide_description: "안전한 사용을 위해\n기기 비밀번호를 설정해 주세요"
+  mode_change_failed_title: "모드 전환 실패"
+  secure_storage_mode_conversion_failed: "안전 저장 모드로 전환하지 못했어요."
+  signing_only_mode_conversion_failed: "서명 전용 모드로 전환하지 못했어요."
+  converting_to_secure_storage_mode_aos: "시드를 안전하게 저장중입니다. 인증이 요청되면 완료해 주세요."
+  converting_to_secure_storage_mode_ios: "시드를 안전하게 저장합니다. 단일 서명 지갑 개수만큼 인증이 필요합니다."
+  
 
 multisig:
   nth_key: "$index번 키"
@@ -267,8 +328,6 @@ settings_screen:
   use_biometric: "생체 인증 사용하기"
   change_password: "비밀번호 바꾸기"
   set_password: "비밀번호 설정하기"
-  update: "업데이트"
-  prepare_update: "업데이트 준비"
   advanced_user: "고급 사용자"
   use_passphrase: "패스프레이즈 사용하기"
   information: "안내"
@@ -293,24 +352,38 @@ welcome_screen:
   screen_3_title: "안전한 환경이 준비됐어요"
   screen_3_description: "지금부터 코코넛 볼트를\n시작하겠습니다"
   screen_3_button: "시작하기"
-  setting_guide: "설정 방법 보기"
+  setting_guide: "설정 방법 보기 ⓘ"
   bottom_sheet_title: "설정 방법"
+  recommendation: "코코넛 볼트 앱 전용으로 공기계 사용을 권장합니다"
   airplane_mode_on: 
     title: "비행기 모드 켜키"
-    description_ios: '제어센터 → 비행기 모드 아이콘 탭'
+    description_ios: '화면 오른쪽 상단 → 아래로 스와이프 → 제어센터 → 비행기 모드 아이콘 탭'
     description_android: '화면 상단에서 아래로 스와이프 → 빠른 설정 패널 → 비행기 모드 아이콘 탭 눌러 켜기\n※ 네트워크, 블루투스, 통신망이 모두 차단됩니다'
   wifi_off:
     title: "네트워크(Wi-Fi) 끄기"
-    description_ios: '화면 오른쪽 상단 → 아래로 스와이프 → 제어센터 → Wi-Fi 아이콘 탭'
+    description_ios: '제어센터 → Wi-Fi 아이콘 탭'
     description_android: '빠른 설정 패널 → Wi-Fi 아이콘을 눌러 끄기'
   mobile_data_off: 
     title: "모바일 네트워크(LTE / 5G) 끄기"
-    description_ios: '설정 → 셀룰러 → 셀룰러 데이터 스위치 끄기\n※ 공기계 사용을 추천합니다'
-    description_android: '빠른 설정 패널 → 모바일 네트워크 아이콘을 눌러 끄기\n※ 공기계 사용을 추천합니다'
+    description_ios: '설정 → 셀룰러 → 셀룰러 데이터 스위치 끄기\n'
+    description_android: '빠른 설정 패널 → 모바일 네트워크 아이콘을 눌러 끄기\n'
   bluetooth_off: 
     title: "Bluetooth 끄기"
-    description_ios: '제어센터 → Bluetooth 아이콘 탭'
+    description_ios: '설정 → 블루투스 → 블루투스 스위치 끄기'
     description_android: '빠른 설정 패널 → Bluetooth 아이콘을 눌러 끄기'
+    additional:
+      title: 'ⓘ iOS 블루투스 설정 시 유의사항'
+      highlight: 
+       - '구분하지 않습니다'
+       - '블루투스 끄기'
+       - '연결 해제'
+      description: 'iOS 시스템 정책상, 블루투스 블루투스 끄기와 연결 해제 상태를 구분하지 않습니다. 안전한 사용을 위해 설정에서 블루투스를 완전히 꺼두는 것을 권장합니다.'
+      control_center_off: 
+        title: '연결 해제'
+        description: '제어센터에서 블루투스를 끈 상태로, 새 기기와의 연결은 차단되지만 기존 연결은 유지될 수 있습니다'
+      absolutely_off:
+        title: '블루투스 끄기 (권장)' 
+        description: '설정에서 블루투스를 완전히 꺼둔 상태입니다. 모든 외부 연결이 차단됩니다'
   developer_mode_off: "개발자 모드 끄기"
   developer_mode_description: "1. 설정 → 시스템 → 개발자 옵션\n2. 스위치 끄기"
   network: "네트워크"
@@ -361,6 +434,7 @@ mnemonic_generate_screen:
   backup_complete: "백업 완료"
   warning: "입력하신 패스프레이즈는 보관과 유출에 유의해 주세요"
   passphrase_warning: "$words 는 다른 하드월렛에서 입력이 안될 수 있어 주의가 필요해요"
+  regenerate: "재생성"
 passphrase_textfield:
   title: "패스프레이즈를 입력해 주세요"
   passphrase_hidden: "패스프레이즈 숨기기"
@@ -444,7 +518,7 @@ signer_scanner_screen:
   import_bsms: "키 정보 가져오기"
   import_multisig_wallet: "다중 서명 지갑 가져오기"
   guide1_1: "다른 볼트에서 만든 다중 서명 지갑을 가져올 수 있어요."
-  guide1_2: "다중 서명이 있는 외부 볼트의 홈 화면에서,"
+  guide1_2: "외부 볼트의 홈 화면에서,"
   guide1_3: "다중 서명 지갑 "
   guide1_4: "다중 서명 지갑 내보내기 "
   guide1_5: "화면에 나타나는 QR 코드를 스캔해 주세요."
@@ -567,44 +641,6 @@ passphrase_input_screen:
 multisig_signer_bsms_export_screen:
   fail_bsms: "BSMS 로드 실패"
 
-# 업데이트 준비
-prepare_update:
-  title: "👉 니모닉 문구를 잘 백업했는지 확인할게요"
-  description: "만약 업데이트 중 문제가 생길 경우를 대비하여 니모닉 단어는 별도로 백업을 해두셔야 합니다"
-  enter_nth_word_of_wallet: "💡 ${wallet_name}의 $n번째 단어를 입력해 주세요"
-  enter_word: "단어를 입력해 주세요"
-  incorrect_input_try_again: "틀렸어요. 다시 입력해 주세요."
-  update_preparing_title: "➡️ 업데이트 준비를 시작합니다"
-  update_preparing_description: 
-    - "앱 업데이트에는 네트워크 연결이 필요해요"
-    - "업데이트 준비를 통해 니모닉 문구 노출 위험을 더 확실히 차단하고, 지갑을 안전하고 편리하게 복원할 수 있어요"
-    - "진행 중에는 앱을 사용할 수 없어요\n준비가 완료될 때까지 앱을 종료하지 마세요"
-  generating_secure_key: "🔑 안전한 키를 생성 중이에요"
-  generating_secure_key_description: "지갑 데이터를 보호하기 위해\n보안적으로 안전한 무작위 암호화 키를 생성합니다"
-  saving_wallet_data: "⏳ 지갑 데이터를 안전하게 저장 중이에요"
-  waiting_message: "잠시만 기다려 주세요\n이 과정은 몇 초 정도 걸릴 수 있습니다"
-  verifying_safe_storage: "✅ 안전하게 저장되었는지 확인하고 있어요"
-  update_recovery_info: "이 단계를 마치면\n앱 업데이트 후 지갑을 안전하고 편리하게\n복원할 수 있습니다"
-  completed_title: "🎉 업데이트 준비가 끝났어요!"
-  completed_description: "이제 볼트를 업데이트해 주세요"
-  step0: "앱을 종료하고 네트워크를 켜주세요."
-  step1_android: "구글 플레이스토어에서 업데이트를 진행해 주세요."
-  step1_ios: "앱스토어에서 업데이트를 진행해 주세요."
-  step2: "업데이트가 끝나면 네트워크를 끄고 볼트를 켜세요."
-  
-# 복원 정보 화면
-restoration_info:
-  "found_title": "🔎 복원 파일을 발견했어요"
-  "found_description": "앱 업데이트가 완료되지 않았어요\n앱을 업데이트 하시거나,\n계속 진행하시려면 지갑을 복원해주세요"
-  
-# 볼트 리스트 복원 화면
-vault_list_restoration:
-  "in_progress_title": "⏳ 지갑을 복원 중이에요"
-  "in_progress_description": "잠시만 기다려 주세요.\n곧 완료됩니다!"
-  "completed_title": "🎉 지갑을 복원했어요!"
-  "completed_description": "지갑 $count개를 복원했어요"
-  "start_vault": "볼트 시작하기"
-
 bottom_sheet:
   view_mit_license: "MIT 라이선스 전문 보기"
   contact_by_email: "이메일 문의"
@@ -679,6 +715,9 @@ alert:
   finish_signing:
     title:  "트랜잭션 서명 마무리"
     description: "이 화면을 닫으면 서명 정보가 사라져요.\n정말 종료하시겠어요?"
+  secure_module_use_biometrics:
+    title: "생체 인증 안내"
+    description: "앱 잠금 해제에는 생체인증이 사용되지 않아요. 단, 보안 모듈에 저장된 정보에 접근할 때 생체 인증이 자동으로 요청될 수 있어요. "
 
 toast:
   clipboard_copied: "클립보드에 복사되었어요"

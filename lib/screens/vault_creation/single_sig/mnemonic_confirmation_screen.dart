@@ -142,15 +142,17 @@ class _MnemonicConfirmationScreenState extends State<MnemonicConfirmationScreen>
   Widget _passphraseGridViewWidget() {
     final passphrase = _walletCreationProvider.passphrase;
     if (passphrase == null) return Container();
+
+    final decodedPassphrase = utf8.decode(passphrase);
     return GridView.count(
       physics: const NeverScrollableScrollPhysics(),
       crossAxisCount: 10,
       crossAxisSpacing: 3.0,
       mainAxisSpacing: 10.0,
       shrinkWrap: true,
-      children: List.generate((passphrase.length + 20), (index) {
+      children: List.generate((decodedPassphrase.length + 20), (index) {
         // 가장 아래에 빈 공간을 배치하기 위한 조건문
-        if (index < passphrase.length) {
+        if (index < decodedPassphrase.length) {
           return MediaQuery(
             data: const MediaQueryData(textScaler: TextScaler.linear(1.0)),
             child: Container(
@@ -182,7 +184,7 @@ class _MnemonicConfirmationScreenState extends State<MnemonicConfirmationScreen>
                     height: double.infinity,
                     child: Center(
                       child: Text(
-                        utf8.decode(passphrase)[index],
+                        decodedPassphrase[index],
                         style: const TextStyle(color: CoconutColors.black, fontWeight: FontWeight.bold),
                       ),
                     ),

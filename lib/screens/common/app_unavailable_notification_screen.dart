@@ -9,8 +9,15 @@ class AppUnavailableNotificationScreen extends StatefulWidget {
   final bool? isNetworkOn;
   final bool? isBluetoothOn;
   final bool? isDeveloperModeOn;
+  final bool? isVaultReset;
 
-  const AppUnavailableNotificationScreen({super.key, this.isNetworkOn, this.isBluetoothOn, this.isDeveloperModeOn});
+  const AppUnavailableNotificationScreen({
+    super.key,
+    this.isNetworkOn,
+    this.isBluetoothOn,
+    this.isDeveloperModeOn,
+    this.isVaultReset,
+  });
 
   @override
   State<AppUnavailableNotificationScreen> createState() => _AppUnavailableNotificationScreenState();
@@ -34,26 +41,51 @@ class _AppUnavailableNotificationScreenState extends State<AppUnavailableNotific
     return Scaffold(
       backgroundColor: CoconutColors.white,
       body: SafeArea(
-        child: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center, // Centers the content vertically
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Text(
-                t.app_unavailable_notification_screen.restart_app,
-                style: CoconutTypography.heading3_21_Bold,
-                textAlign: TextAlign.center,
-              ),
-              CoconutLayout.spacing_800h,
-              _buildImage(),
-              CoconutLayout.spacing_800h,
-              _buildStep('1', t.app_unavailable_notification_screen.step1),
-              CoconutLayout.spacing_400h,
-              _buildStep('2', t.app_unavailable_notification_screen.step2),
-              CoconutLayout.spacing_400h,
-              _buildStep('3', t.app_unavailable_notification_screen.step3),
-              CoconutLayout.spacing_800h,
-            ],
+        child: MediaQuery(
+          data: MediaQuery.of(context).copyWith(textScaler: const TextScaler.linear(1.0)),
+          child: Center(
+            child:
+                widget.isVaultReset == true
+                    ? Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Text(
+                          t.app_unavailable_notification_screen.vault_reset.reset_completed,
+                          style: CoconutTypography.heading3_21_Bold,
+                          textAlign: TextAlign.center,
+                        ),
+                        CoconutLayout.spacing_800h,
+                        _buildImage(),
+                        CoconutLayout.spacing_800h,
+                        _buildStep('1', t.app_unavailable_notification_screen.vault_reset.step_1),
+                        CoconutLayout.spacing_400h,
+                        _buildStep('2', t.app_unavailable_notification_screen.vault_reset.step_2),
+                        CoconutLayout.spacing_400h,
+                        _buildStep('3', t.app_unavailable_notification_screen.vault_reset.step_3),
+                        CoconutLayout.spacing_200h,
+                      ],
+                    )
+                    : Column(
+                      mainAxisAlignment: MainAxisAlignment.center, // Centers the content vertically
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Text(
+                          t.app_unavailable_notification_screen.restart_app,
+                          style: CoconutTypography.heading3_21_Bold,
+                          textAlign: TextAlign.center,
+                        ),
+                        CoconutLayout.spacing_800h,
+                        _buildImage(),
+                        CoconutLayout.spacing_800h,
+                        _buildStep('1', t.app_unavailable_notification_screen.step1),
+                        CoconutLayout.spacing_400h,
+                        _buildStep('2', t.app_unavailable_notification_screen.step2),
+                        CoconutLayout.spacing_400h,
+                        _buildStep('3', t.app_unavailable_notification_screen.step3),
+                        CoconutLayout.spacing_800h,
+                      ],
+                    ),
           ),
         ),
       ),
@@ -61,6 +93,12 @@ class _AppUnavailableNotificationScreenState extends State<AppUnavailableNotific
   }
 
   Widget _buildImage() {
+    if (widget.isVaultReset == true) {
+      return Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 80),
+        child: Image.asset('assets/png/erase-secret.png', fit: BoxFit.fitWidth, width: 160),
+      );
+    }
     if (widget.isNetworkOn == true) {
       return Image.asset('assets/png/state/wifi_on.png', width: 140, fit: BoxFit.fitWidth);
     } else if (widget.isBluetoothOn == true) {
@@ -73,32 +111,29 @@ class _AppUnavailableNotificationScreenState extends State<AppUnavailableNotific
 
   Widget _buildStep(String text, String description) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 24),
+      padding: const EdgeInsets.symmetric(horizontal: 80),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
+        mainAxisAlignment: MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Expanded(
-            flex: 1,
-            child: Align(
-              alignment: Alignment.centerRight,
-              child: Container(
-                width: 24,
-                height: 24,
-                decoration: const BoxDecoration(color: CoconutColors.black, shape: BoxShape.circle),
-                child: Center(
-                  child: FittedBox(
-                    fit: BoxFit.scaleDown,
-                    child: Text(text, style: CoconutTypography.body3_12_Number.setColor(CoconutColors.white)),
-                  ),
-                ),
+          Container(
+            width: 24,
+            height: 24,
+            decoration: const BoxDecoration(color: CoconutColors.black, shape: BoxShape.circle),
+            child: Center(
+              child: FittedBox(
+                fit: BoxFit.scaleDown,
+                child: Text(text, style: CoconutTypography.body3_12_Number.setColor(CoconutColors.white)),
               ),
             ),
           ),
           CoconutLayout.spacing_300w,
           Expanded(
-            flex: 3,
-            child: Text(description, style: CoconutTypography.heading4_18.setColor(CoconutColors.black)),
+            child: Text(
+              description,
+              style: CoconutTypography.heading4_18.setColor(CoconutColors.black),
+              textAlign: TextAlign.left,
+            ),
           ),
         ],
       ),

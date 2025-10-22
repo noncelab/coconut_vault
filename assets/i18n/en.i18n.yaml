@@ -4,7 +4,6 @@
 # t.error.pcs_error1(count: kMaxNumberOfAttempts - attempt);
 
 # common
-bitcoin: "Bitcoin"
 coconut: "Coconut"
 coconut_vault: "Coconut Vault"
 vault: "Vault"
@@ -12,6 +11,8 @@ btc: "BTC"
 sats: "sats"
 bitcoin_en: "Bitcoin"
 bitcoin_kr: "비트코인"
+bitcoin: "Bitcoin"
+satoshi: "Satoshi"
 hour: "hour"
 minute: "min"
 second: "sec"
@@ -34,7 +35,6 @@ stop: "Stop"
 start: "Start"
 quit: "Quit"
 import: "Import"
-export: "Export"
 testnet: "Testnet"
 license: "License"
 name: "Name"
@@ -43,6 +43,8 @@ restore: "Restore"
 change: "Change"
 receiving: "Receive"
 email_subject: "[Coconut Vault] Inquiry"
+reset_vault: "Reset Vault"
+reset_vault_description: "Resetting the vault will delete the keys.\nAre you sure you want to reset?"
 
 sign_completion: "Signed"
 sign: "Sign"
@@ -53,6 +55,7 @@ stop_sign: "Stop Signing"
 select_completed: "Selection Complete"
 checklist: "Security Checklist"
 mnemonic_wordlist: "Mnemonic Word List"
+tool: "Tool"
 tutorial: "Tutorial"
 single_sig_wallet: "Single Signature Wallet"
 multisig_wallet: "Multisig Wallet"
@@ -157,11 +160,35 @@ app_unavailable_notification_screen:
   step1: "Completely close the app"
   step2: "Check the connection status"
   step3: "Restart the app"
+  vault_reset:
+    reset_completed: "Reset completed"
+    step_1: "All key information has been deleted"
+    step_2: "To secure the app, completely close the app"
+    step_3: "After closing the app, turn off the device power to be even more secure"
+
+device_password_detection_screen:
+  device_password_required: "To use Vault, please set a device password"
+  device_password_setting_guide: "For enhanced security, use a password combining letters and numbers instead of PIN.\n\nTo make signing more convenient and secure, please activate biometrics."
+  device_password_changed_question: "Have you changed your device password?"
+  device_password_changed_guide: "If you change or turn off your device password, you will no longer be able to use the encrypted vault password stored on your device."
+  reset_vault_to_use: "To use Vault again, please reset it."
+  go_to_settings: "Go to Settings"
+  reset_vault: "Reset Vault"
+  ios_settings_dialog_title: "Move to Settings"
+  ios_settings_dialog_description: "Because of iOS restrictions, the Settings home screen cannot be opened directly. When the Settings page appears, please go to the main Settings screen and set your password there."
+
+jail_break_detection_screen:
+  title: "Jailbreak / Root History Detected"
+  description: "This device is either in a state where security restrictions have been lifted, or has previously been jailbroken / rooted."
+  description2: "On such devices, it may be difficult to securely protect sensitive data such as encryption keys or wallet information."
+  jail_break_guide_title: "What is Jailbreaking / Rooting?"
+  jail_break_guide_description: "Jailbreaking (iOS) or rooting (Android) is the act of removing the operating system’s security restrictions, allowing unrestricted access to system areas.\nWhile this provides higher-level control, it also increases the risk of malware infection or unauthorized access."
+  continue_anyway: "Continue Anyway"
+
 ios_bluetooth_auth_notification_screen:
-  allow_permission: "For safe use,\nplease allow Bluetooth permission"
-  guide1: "Completely close the app"
-  guide2: "Allow Bluetooth permission in Settings"
-  guide3: "Restart the app"
+  allow_permission: "Please allow Bluetooth access to check your connection status."
+  guide1: "Bluetooth permission is required to verify that your device is not connected to other devices"
+  guide2: "Go to Settings and allow Bluetooth access for the Vault app"
 pin_check_screen:
   enter_password: "Enter password"
   warning: "⚠︎ Vault will be reset after 3 failed attempts"
@@ -186,12 +213,46 @@ security_self_check_screen:
   check7: "I do not store mnemonics and passphrases together."
   check8: "I test with small amounts before starting wallet use."
   check9: "I will regularly check the above items and safely store my mnemonics."
+  check10: "I have read and understood all the above items, and I am responsible for my own keys and mnemonics."
   guidance: "Keep your mnemonic words safe on your own. Read each sentence carefully and tap to complete the checklist."
 tutorial_screen:
   title1: "Follow the tutorial\nfor easier use"
   title2: "Need help?"
   subtitle: "Use with the tutorial"
   content: "Enter in browser address bar\ntutorial.coconut.onl"
+vault_mode_selection_screen:
+  select_mode: "Select Mode"
+  change_mode: "Change Mode"
+  current_using: "In Use"
+  secure_storage_mode: "Secure Storage Mode"
+  secure_storage_mode_description: "Store your keys securely.\nYou can sign immediately after password authentication."
+  signing_only_mode: "Signing-Only Mode"
+  signing_only_mode_description: "Keys are not stored in the vault.\nYou’ll need to enter them each time you open the app."
+  start: "Start"
+  change: "Change"
+  mode_change_complete: "Mode Change Complete"
+  mode_changed_description_secrue_storage: "Switched to Secure Storage Mode.\nPlease back up your seed stored in the vault regularly!"
+  mode_changed_description_signing_only: "Switched to Signing-Only Mode.\nPlease make sure to press the reset button to initialize it after use!"
+  secure_storage_mode_warning_title: "Warning\nSwitching to Secure Storage Mode"
+  secure_storage_mode_warning_descriptions_android:
+    - "If there are existing wallets, saving data securely on the device may take some time."
+    - "Passphrases are not stored. Please keep them safe separately."
+  secure_storage_mode_warning_descriptions_ios:
+    - "If you change or remove your device passcode, encrypted wallet data stored on this device will no longer be accessible. Please complete a backup before changing your passcode."
+    - "If there are existing wallets, saving data securely on the device may take some time."
+    - "Passphrases are not stored. Please keep them safe separately."
+  signing_only_mode_warning_title: "Warning\nSwitching to Signing-Only Mode"
+  signing_only_mode_warning_descriptions:
+    - "All wallet data stored in the vault will be deleted. Please complete a backup before switching."
+    - "After verifying your password in the next step, the vault will begin resetting."
+  device_password_setting_guide_understood: "I Understand"
+  secure_use_guide_title: "Device Passcode Required"
+  secure_use_guide_description: "For secure use,\nplease set a device passcode."
+  mode_change_failed_title: "Mode Change Failed"
+  secure_storage_mode_conversion_failed: "Failed to switch to Secure Storage Mode."
+  signing_only_mode_conversion_failed: "Failed to switch to Signing-Only Mode."
+  converting_to_secure_storage_mode_aos: "Securely saving the seed. Please complete the authentication when it is requested."
+  converting_to_secure_storage_mode_ios: "Saving the seed securely. Authentication is required for each single-signature wallet."
 
 multisig:
   nth_key: "key $index"
@@ -265,8 +326,6 @@ settings_screen:
   use_biometric: "Use Biometric"
   change_password: "Change Password"
   set_password: "Set Password"
-  update: "Update"
-  prepare_update: "Prepare Update"
   advanced_user: "Advanced User"
   use_passphrase: "Use Passphrase"
   information: "Information"
@@ -279,6 +338,7 @@ settings_screen:
     use_passphrase_title: "Use Passphrase"
     use_passphrase_description: "Using passphrase is like creating a new wallet. If used incorrectly, you may lose bitcoins forever."
     use_passphrase_btn: "I understand"
+
 # lib/screens/start_guide
 welcome_screen:
   screen_1_title: "Start in a safe environment"
@@ -290,24 +350,38 @@ welcome_screen:
   screen_3_title: "Safe environment is ready"
   screen_3_description: "Let's start Coconut Vault"
   screen_3_button: "Start"
-  setting_guide: "View setting guide"
+  setting_guide: "View setting guide ⓘ"
   bottom_sheet_title: "Setting Guide"
+  recommendation: "We recommend using a dedicated offline device exclusively for the Coconut Vault app"
   airplane_mode_on: 
     title: "Turn on airplane mode"
-    description_ios: 'Control Center → Airplane Mode icon tap'
+    description_ios: 'Swipe down from the top right corner → Control Center → Airplane Mode icon tap'
     description_android: 'Swipe down from the top of the screen → Quick Settings panel → Airplane Mode icon tap'
   wifi_off:
     title: "Turn off Wi-Fi"
-    description_ios: 'Swipe down from the top right corner → Control Center → Wi-Fi icon tap'
+    description_ios: 'Control Center → Wi-Fi icon tap'
     description_android: 'Quick Settings panel → Wi-Fi icon tap'
   mobile_data_off: 
     title: "Turn off mobile data (LTE / 5G)"
-    description_ios: 'Settings → Cellular → Cellular Data switch off\n※ We recommend using a dedicated offline device'
-    description_android: 'Quick Settings panel → Mobile Data icon tap\n※ We recommend using a dedicated offline device'
+    description_ios: 'Settings → Cellular → Cellular Data switch off'
+    description_android: 'Quick Settings panel → Mobile Data icon tap'
   bluetooth_off: 
     title: "Turn off Bluetooth"
-    description_ios: 'Control Center → Bluetooth icon tap'
+    description_ios: 'Settings → Bluetooth → Bluetooth switch off'
     description_android: 'Quick Settings panel → Bluetooth icon tap'
+    additional:
+      title: 'ⓘ Important Notes on iOS Bluetooth Settings'
+      highlight: 
+       - 'NOT ALLOW'
+       - 'Bluetooth OFF'
+       - 'Control Center OFF'
+      description: 'iOS does NOT ALLOW apps to distinguish between Bluetooth OFF and Control Center OFF. To ensure complete isolation from external devices, please turn Bluetooth OFF in Settings.'
+      control_center_off: 
+        title: 'Control Center OFF'
+        description: 'Bluetooth is turned off from Control Center. New connections are blocked, but existing ones may remain active.'
+      absolutely_off: 
+        title: 'Bluetooth OFF (Recommended)'
+        description: 'Bluetooth is turned off from Settings. All external connections are completely blocked.'
   developer_mode_off: "Turn off developer mode"
   developer_mode_description: "1. Settings → System → Developer Options\n2. Switch off"
   network: "Network"
@@ -316,7 +390,7 @@ welcome_screen:
 
 # lib/screens/vault_creation
 mnemonic_coin_flip_screen:
-  title: "Create Mnemonic"
+  title: "Mnemonic Generation"
   guide: "Please select the side that came out after flipping the coin"
   words_passphrase: " words, passphrase "
   use: "Use"
@@ -325,7 +399,7 @@ mnemonic_coin_flip_screen:
   coin_head: "Head"
   coin_tail: "Tail"
 mnemonic_dice_roll_screen:
-  title: "Create Mnemonic"
+  title: "Mnemonic Generation"
   guide1: "After rolling the dice, please select the number shown on the side🎲"
   guide2: "Enough random values have been collected. No more rolling is needed🎲"
   words_passphrase: " words, passphrase "
@@ -333,7 +407,7 @@ mnemonic_dice_roll_screen:
   do_not: "Don't"
   enter_passphrase: "Enter passphrase"
 mnemonic_confirm_screen:
-  title: "Final Check"
+  title: "Final Confirmation"
   description: "This information will be used to create a wallet"
   passphrase_character_total_count: " (Total $count chars)"
   warning:
@@ -358,6 +432,7 @@ mnemonic_generate_screen:
   backup_complete: "Backup Complete"
   warning: "Please be careful with storage and leakage of entered passphrase"
   passphrase_warning: "$words may not be accepted by other wallets. Please be careful."
+  regenerate: "Regenerate"
 passphrase_textfield:
   title: "Enter passphrase"
   passphrase_hidden: "Hide passphrase"
@@ -382,11 +457,11 @@ mnemonic_view_screen:
   warning_btn: "I understand"
   
 mnemonic_verify_screen:
-  title: "Verify Mnemonic"
+  title: "Mnemonic Verification"
   select_word: "Select word #${index}"
   not_correct: "Not correct"
 select_vault_type_screen:
-  title: "Create Wallet"
+  title: "Select Wallet Type"
   single_sig: "Single signature wallet storing one mnemonic phrase"
   multisig: "Wallet requiring specified number of signatures"
   empty_key: "No keys available in current vault"
@@ -398,17 +473,17 @@ vault_creation_options_screen:
   import_mnemonic: "I have an existing mnemonic phrase"
   seed_qr: "I have a seed QR code"
 seed_qr_import_screen:
-  title: "Scan Seed QR Code"
+  title: "Seed QR Code Scan"
   error_title: "Scan Error"
   error_message: "An error occurred while scanning the seed QR code. Please try again."
   guide: "Please scan the seed QR code. (21x21 또는 25x25)"
 seed_qr_confirmation_screen:
-  title: "Verify Mnemonic"
+  title: "Mnemonic Confirmation"
   check_mnemonic: "Please check the mnemonic phrase"
   passphrase_toggle: "Use Passphrase"
   passphrase_text_field_placeholder: "Enter passphrase"
 vault_name_icon_setup_screen:
-  title: "Set Name"
+  title: "Name & Icon Setup"
   saving: "Saving..."
 
 # lib/screens/vault_creation/multisig
@@ -441,7 +516,7 @@ signer_scanner_screen:
   import_bsms: "Import BSMS"
   import_multisig_wallet: "Import Multisig Wallet"
   guide1_1: "You can import multisig wallet created in other vault."
-  guide1_2: "On the home screen of the vault containing multisig wallet, "
+  guide1_2: "On the home screen of the other vault, "
   guide1_3: "the multisig wallet."
   guide1_4: "Export Multisig Wallet."
   guide1_5: "Scan the QR code below on the screen."
@@ -453,7 +528,7 @@ signer_scanner_screen:
 
 # lib/screens/vault_detail
 address_list_screen:
-  title: "$name's Address"
+  title: "$name's Addresses"
   address_index: "Address - $index"
 export_detail_screen:
   title: "Export Details"
@@ -462,7 +537,7 @@ multi_sig_bsms_screen:
   bottom_sheet:
     title: "Wallet Details (BSMS)"
     info_copied: "Wallet details copied"
-  title: "Export to another vault"
+  title: "Multisig Wallet Export"
   guide:
     text1: "You can also scan this QR code in another vault with the same key to add the wallet"
     text2: "This wallet follows the standards (BIP-129, BSMS) for secure multi-signature management."
@@ -519,11 +594,11 @@ sync_to_wallet_screen:
     common: "Scan the QR code below"
 vault_menu_screen:
   title:  
-    view_info: "$name Info"
-    view_address: "View Address"
-    export_xpub: "Export Wallet Info"
-    single_sig_sign: "Sign"
-    multisig_sign: "Multisig"
+    view_info: "$name Details"
+    view_address: "View Addresses"
+    export_xpub: "Export Wallet Data"
+    single_sig_sign: "Sign Tx"
+    multisig_sign: "Sign Multisig Tx"
     use_as_multisig_signer: "Use as Multisig Key"
     import_bsms: "Import Multisig Wallet"
   description:
@@ -541,7 +616,7 @@ vault_settings:
   key: " key"
 
 verify_passphrase_screen:
-  title: "Verify Passphrase"
+  title: "Passphrase Verification"
   description: "Enter the passphrase"
   enter_passphrase: "Enter Passphrase"
   start_verification: "Start Verification"
@@ -562,44 +637,6 @@ passphrase_input_screen:
 
 multisig_signer_bsms_export_screen:
   fail_bsms: "Failed to load BSMS"
-
-# Update Preparation
-prepare_update:
-  title: "👉 Let's verify you've backed up your mnemonic well"
-  description: "In case of problems during update, you must backup mnemonic words separately"
-  enter_nth_word_of_wallet: "💡 Please enter word #$n of ${wallet_name}"
-  enter_word: "Enter word"
-  incorrect_input_try_again: "Incorrect. Please try again."
-  update_preparing_title: "➡️ Starting update preparation"
-  update_preparing_description: 
-    - "App update requires network connection"
-    - "Update preparation more securely blocks mnemonic exposure risk and enables safe and convenient wallet restoration"
-    - "App cannot be used during process\nDo not close app until preparation is complete"
-  generating_secure_key: "🔑 Generating secure key..."
-  generating_secure_key_description: "Generates cryptographically secure\nrandom encryption key to protect wallet data"
-  saving_wallet_data: "⏳ Safely saving wallet data..."
-  waiting_message: "Please wait a moment\nThis process may take a few seconds"
-  verifying_safe_storage: "✅ Verifying safe storage..."
-  update_recovery_info: "After completing this step\nwallet can be safely and conveniently\nrestored after app update"
-  completed_title: "🎉 Update preparation complete!"
-  completed_description: "Now please update the vault"
-  step0: "Close app and turn on network."
-  step1_android: "Proceed with update in Google Play Store."
-  step1_ios: "Proceed with update in App Store."
-  step2: "After update is complete, turn off network and turn on vault."
-  
-# Restoration Info Screen
-restoration_info:
-  "found_title": "🔎 Found Restoration File"
-  "found_description": "App update was not completed.\nPlease update the app,\nor restore the Vault to continue."
-  
-# Vault List Restoration Screen
-vault_list_restoration:
-  "in_progress_title": "⏳ Restoring Wallets..."
-  "in_progress_description": "Please wait a moment.\nIt will be completed soon!"
-  "completed_title": "🎉 Wallets Restored!"
-  "completed_description": "Restored $count wallet(s)"
-  "start_vault": "Start Coconut Vault"
 
 bottom_sheet:
   view_mit_license: "View Full MIT License"
@@ -675,6 +712,9 @@ alert:
   finish_signing:
     title:  "Finish Signing"
     description: "If you exit, the created signing info will be lost.\nReally exit?"
+  secure_module_use_biometrics:
+    title: "Biometric Authentication Notice"
+    description: "Biometric authentication is not used to unlock the app. However, it may be automatically requested when accessing data stored in a secure module."
 
 toast:
   clipboard_copied: "Copied to clipboard"

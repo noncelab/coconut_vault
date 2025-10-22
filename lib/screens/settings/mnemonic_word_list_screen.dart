@@ -4,30 +4,14 @@ import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-List<TextSpan> highlightOccurrences(String source, String query, {String? type, bool isIndex = false}) {
+List<TextSpan> highlightOccurrences(String source, String query, {String? type}) {
   if (query.isEmpty) {
-    return [
-      TextSpan(
-        text: source,
-        style:
-            isIndex
-                ? CoconutTypography.body1_16_Number.setColor(CoconutColors.gray500)
-                : const TextStyle(color: Colors.black),
-      ),
-    ];
+    return [TextSpan(text: source, style: const TextStyle(color: Colors.black))];
   }
 
   final matches = query.allMatches(source);
   if (matches.isEmpty) {
-    return [
-      TextSpan(
-        text: source,
-        style:
-            isIndex
-                ? CoconutTypography.body1_16_Number.setColor(CoconutColors.gray500)
-                : const TextStyle(color: Colors.black),
-      ),
-    ];
+    return [TextSpan(text: source, style: const TextStyle(color: Colors.black))];
   }
 
   const highlightColor = CoconutColors.cyanBlue;
@@ -37,13 +21,7 @@ List<TextSpan> highlightOccurrences(String source, String query, {String? type, 
   for (final match in matches) {
     if (match.start != lastMatchEnd) {
       spans.add(
-        TextSpan(
-          text: source.substring(lastMatchEnd, match.start),
-          style:
-              isIndex
-                  ? CoconutTypography.body1_16_Number.setColor(CoconutColors.gray500)
-                  : const TextStyle(color: Colors.black),
-        ),
+        TextSpan(text: source.substring(lastMatchEnd, match.start), style: const TextStyle(color: Colors.black)),
       );
     }
     spans.add(
@@ -56,15 +34,7 @@ List<TextSpan> highlightOccurrences(String source, String query, {String? type, 
   }
 
   if (lastMatchEnd != source.length) {
-    spans.add(
-      TextSpan(
-        text: source.substring(lastMatchEnd),
-        style:
-            isIndex
-                ? CoconutTypography.body1_16_Number.setColor(CoconutColors.gray500)
-                : const TextStyle(color: Colors.black),
-      ),
-    );
+    spans.add(TextSpan(text: source.substring(lastMatchEnd), style: const TextStyle(color: Colors.black)));
   }
 
   return spans;
@@ -304,25 +274,28 @@ class _MnemonicWordListScreenState extends State<MnemonicWordListScreen> {
 
     return Column(
       children: [
-        ListTile(
-          title: RichText(
-            text: TextSpan(
-              children: highlightOccurrences(item, query, type: type),
-              style: CoconutTypography.heading4_18_Bold,
+        Padding(
+          padding: const EdgeInsets.only(left: 8.0),
+          child: ListTile(
+            title: RichText(
+              text: TextSpan(
+                children: highlightOccurrences(item, query, type: type),
+                style: CoconutTypography.heading4_18_Bold,
+              ),
             ),
-          ),
-          trailing: RichText(
-            text: TextSpan(
-              style: CoconutTypography.body2_14.setColor(CoconutColors.black.withValues(alpha: 0.5)),
-              children: [
-                const TextSpan(text: 'Binary: '),
-                ...highlightOccurrences(
-                  binaryStr,
-                  // numeric이면 전체 이진 문자열 하이라이트
-                  type == 'numeric' ? binaryStr : (type == 'binary' ? query : ''),
-                  type: 'binary',
-                ),
-              ],
+            trailing: RichText(
+              text: TextSpan(
+                style: CoconutTypography.body2_14.setColor(CoconutColors.black.withValues(alpha: 0.5)),
+                children: [
+                  const TextSpan(text: 'Binary: '),
+                  ...highlightOccurrences(
+                    binaryStr,
+                    // numeric이면 전체 이진 문자열 하이라이트
+                    type == 'numeric' ? binaryStr : (type == 'binary' ? query : ''),
+                    type: 'binary',
+                  ),
+                ],
+              ),
             ),
           ),
         ),

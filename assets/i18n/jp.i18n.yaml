@@ -1,0 +1,778 @@
+# flutter pub run slang
+
+# t.glossary
+# t.error.pcs_error1(count: kMaxNumberOfAttempts - attempt);
+
+# common
+coconut: "ココナッツ"
+coconut_vault: "ココナッツボルト"
+vault: "ボルト"
+btc: "BTC"
+sats: "sats"
+bitcoin_en: "Bitcoin"
+bitcoin_kr: "ビットコイン"
+bitcoin: "ビットコイン"
+satoshi: "Satoshi"
+unit: "単位"
+hour: "時間"
+minute: "分"
+second: "秒"
+settings: "設定"
+confirm: "確認"
+complete: "完了"
+cancel: "キャンセル"
+abort: "中止"
+next: "次へ"
+save: "保存"
+select: "選択"
+tap: "タップ"
+warning: "警告"
+security: "セキュリティ"
+yes: "はい"
+no: "いいえ"
+memo: "メモ"
+stop: "停止"
+start: "開始"
+quit: "終了"
+import: "インポート"
+testnet: "テストネット"
+license: "ライセンス"
+name: "名前"
+skip: "スキップ"
+restore: "復元"
+change: "変更"
+receiving: "受信"
+email_subject: "[ココナッツボルト] お問い合わせ"
+reset_vault: "ボルトを初期化"
+reset_vault_description: "ボルトを初期化すると、キーが削除されます。\n本当に初期化しますか？"
+
+sign_completion: "署名完了"
+sign: "署名"
+signed_tx: "署名済みトランザクション"
+sign_completed: "署名が完了しました"
+stop_sign: "署名停止"
+
+select_completed: "選択完了"
+checklist: "チェックリスト"
+mnemonic_wordlist: "ニーモニック単語リスト"
+tool: "ツール"
+tutorial: "チュートリアル"
+single_sig_wallet: "シングル署名ウォレット"
+multisig_wallet: "マルチシグウォレット"
+extended_public_key: "拡張公開鍵"
+app_info: "アプリ情報"
+inquiry_details: "お問い合わせ詳細"
+license_details: "ライセンス情報"
+external_wallet: "外部ウォレット"
+recipient: "受取人"
+send_amount: "送金額"
+estimated_fee: "推定手数料"
+total_amount: "合計金額"
+key_list: "キーリスト"
+
+view_mnemonic: "ニーモニック表示"
+verify_passphrase: "パスフレーズ確認"
+view_app_info: "アプリ情報表示"
+view_all: "すべて表示"
+view_address: "アドレス表示"
+view_tutorial: "チュートリアル表示"
+delete_all: "すべて削除"
+delete_one: "1つ削除"
+
+name_wallet: "$nameウォレット"
+one_sign_guide: "ボタンを押して署名してください"
+bitcoin_text: "$bitcoin BTC"
+sign_required: "ボタンを押して署名してください"
+sign_required_amount:
+  one: "$n個の署名が必要"
+  other: "$n個の署名が必要"
+move_to_qr_screen: "QR画面に移動"
+move_to_qr_screen_description: "キー保持ボルトで署名するためのQRを生成"
+
+name_text_count: "($count / 20)"
+wallet_subtitle: "$nameのキー$index"
+
+forgot_password: "パスワードを忘れましたか？"
+scan_qr_url_link: "ネットワーク対応デバイスでQRコードをスキャンするか、上記URLにアクセスしてください"
+scan_qr_email_link: "ネットワーク対応デバイスでQRコードをスキャンするか、上記アドレスにメールを送信してください"
+developer_option: "開発者オプション"
+advanced_user: "上級ユーザー"
+
+extra_count: "+$count個追加"
+
+edit: "編集"
+
+descriptor: "ディスクリプタ"
+
+watch_only_options:
+  title: "ウォッチオンリーウォレット選択"
+  coconut_wallet: "ココナッツウォレット"
+  sparrow: "Sparrow"
+  nunchuk: "Nunchuk"
+  bluewallet: "BlueWallet"
+
+connectivity_state: 
+  connected: "接続済み"
+  disconnected: "切断"
+  enabled: "有効"
+  disabled: "無効"
+  active: "アクティブ"
+  inactive: "非アクティブ"
+
+vault_home_screen:
+  view_all_wallets: "すべてのウォレット表示"
+  wallet_count: "$count項目"
+  action_items:
+    sign: "署名"
+    view_address: "アドレス表示"
+    export_wallet: "ウォレットエクスポート"
+    import_multisig_wallet: "マルチシグ\nウォレットインポート"
+    mnemonic_wordlist: "ニーモニック単語リスト"
+  toast:
+    wallet_added_but_not_favorite: "ウォレットが追加されました。View All Wallets画面で確認してください。"
+
+vault_list_screen:
+  primary_wallet: "プライマリウォレット"
+  settings:
+    primary_wallet: "プライマリウォレットに設定"
+    primary_wallet_disabled_description: "このウォレットはホーム画面の送信/受信でデフォルトとして使用されます。"
+    primary_wallet_abled_description: "他のウォレットをプライマリに設定すると、この設定は自動的に無効になります。"
+  edit:
+    wallet_list: "ウォレットリスト編集"
+    star_description: "ホーム画面に表示するウォレットを最大5個まで選択できます。"
+    order_description: "タップしてウォレットの順序を変更できます。"
+    delete_description: "ウォレットを左にスワイプして削除できます。"
+    finish: "編集完了"
+    unsaved_changes_confirm_exit: "未保存の変更があります。\n本当に終了しますか？"  
+
+select_vault_bottom_sheet:
+  select_wallet: "ウォレット選択"
+
+# lib
+vault_list_tab:
+  add_wallet: "ウォレットを追加！"
+  top_right_icon: "右上の+ボタンを押しても追加できます"
+  btn_add: "今すぐ追加"
+
+# lib/screens
+app_unavailable_notification_screen:
+  restart_app: "Vaultを使用するには\nアプリを再起動してください"
+  step1: "アプリを完全に閉じる"
+  step2: "接続状態を確認"
+  step3: "アプリを再起動"
+  vault_reset: 
+    reset_completed: "初期化が完了しました"
+    step_1: "キー情報がすべて削除されました"
+    step_2: "アプリを完全に閉じる"
+    step_3: "アプリを閉じた後、デバイスの電源を切るとより安全です"
+
+device_password_detection_screen:
+  device_password_required: "Vaultを使用するには\nデバイスパスワードを設定してください"
+  device_password_setting_guide: "セキュリティを強化するために、英字と数字を組み合わせたパスワードを使用してください。\n\n快適で安全にご利用いただくために、生体認証を有効にしてください。" 
+  device_password_changed_question: "もしかして、端末のパスコードを変更しましたか？"
+  device_password_changed_guide: "端末のパスコードを変更または解除すると、暗号化されて保存されているボルトのパスワードは使用できなくなります。"
+  reset_vault_to_use: "ボルトを再び使用するには初期化を行ってください。"
+  go_to_settings: "設定する"
+  reset_vault: "Vaultを初期化する"
+  ios_settings_dialog_title: "設定画面に移動"
+  ios_settings_dialog_description: "iOSの仕様により設定ホーム画面へは直接移動できません。設定画面が開いたら、設定ホームに移動してパスコードを設定してください。"
+
+jail_break_detection_screen:
+  title: "脱獄 / ルート化の履歴が検出されました"
+  description: "このデバイスはセキュリティ制限が解除されているか、過去に脱獄 / ルート化が行われた可能性があります。"
+  description2: "このようなデバイスでは、暗号鍵やウォレット情報などの機密データを安全に保護することが難しい場合があります。"
+  jail_break_guide_title: "脱獄 / ルート化とは？"
+  jail_break_guide_description: "脱獄(iOS)またはルート化(Android)とは、OSのセキュリティ制限を解除し、システム領域に自由にアクセスできるようにする行為です。\nユーザーは高度な操作権限を得られますが、同時にマルウェア感染や不正アクセスのリスクも高まります。"
+  continue_anyway: "それでも続けます"
+
+ios_bluetooth_auth_notification_screen:
+  allow_permission: "接続状況を確認するために、Bluetooth へのアクセスを許可してください。"
+  guide1: "他のデバイスに接続されていないことを確認するために、Bluetooth の許可が必要です。"
+  guide2: "設定アプリを開き、「Vault」アプリに Bluetooth アクセスを許可してください。"
+pin_check_screen:
+  enter_password: "パスワードを入力"
+  warning: "⚠︎ 3回失敗するとボルトがリセットされます"
+  dialog:
+    restart:
+      title: "再起動"
+      description: "ボルトを再起動しますか？"
+pin_setting_screen:
+  set_password: "安全なボルト使用のため\nまずパスワードを設定してください"
+  enter_again: "再度確認"
+  new_password: "新しいパスワードを入力"
+  keep_in_mind: "必ず覚えられるパスワードを設定してください"
+  character_password_input: "テキストパスワード入力"
+  number_password_input: "数字パスワード入力"
+security_self_check_screen:
+  check1: "私は自分の秘密鍵に責任を持ちます。"
+  check2: "ニーモニック画面を撮影や写真撮影しません。"
+  check3: "ネットワーク接続環境にニーモニックを保存しません。"
+  check4: "ニーモニック単語の順序とスペルを確認します。"
+  check5: "パスフレーズに意図しない文字が含まれていないか二重確認します。"
+  check6: "周りに誰もいない安全な場所でニーモニックとパスフレーズを確認します。"
+  check7: "ニーモニックとパスフレーズを一緒に保存しません。"
+  check8: "ウォレット使用開始前に少額でテストします。"
+  check9: "上記項目を定期的に確認し、ニーモニックを安全に保管します。"
+  check10: "上記項目をすべて理解し、キーとニーモニックの管理に関するすべての責任はユーザー自身にあります。"
+  guidance: "下記の自己チェック項目を理解し、ニーモニックを安全に保管してください。"
+tutorial_screen:
+  title1: "チュートリアルに従って\nより簡単に使用"
+  title2: "ヘルプが必要ですか？"
+  subtitle: "チュートリアルと一緒に使用"
+  content: "ブラウザのアドレスバーに\ntutorial.coconut.onl を入力"
+vault_mode_selection_screen:
+  select_mode: "モード選択"
+  change_mode: "モード変更"
+  current_using: "使用中"
+  secure_storage_mode: "安全保存モード"
+  secure_storage_mode_description: "キーを安全に保存します。\nパスワードで認証後、すぐに署名に使用できます。"
+  signing_only_mode: "署名専用モード"
+  signing_only_mode_description: "ボルトにキーを保存しません。\nアプリを起動するたびにキーを入力して署名する必要があります。"
+  start: "開始"
+  change: "変更"
+  mode_change_complete: "モード変更完了"
+  mode_changed_description_secrue_storage: "安全保存モードに切り替わりました。\nボルトに保存されているシードも定期的にバックアップしてください。"
+  mode_changed_description_signing_only: "署名専用モードに切り替わりました。\n使用後は必ずリセットボタンを押して初期化してください!"
+  secure_storage_mode_warning_title: "安全保存モード切り替え時の\n注意事項"
+  secure_storage_mode_warning_descriptions_android:
+    - "現在追加されているウォレットがある場合、デバイスへの安全な保存に時間がかかることがあります。"
+    - "パスフレーズは保存されません。別途安全な場所に保管してください。"
+  secure_storage_mode_warning_descriptions_ios:
+    - "デバイスのパスコードを変更または解除すると、暗号化されて保存されたウォレット情報が使用できなくなります。変更する前に必ずバックアップを完了してください。"
+    - "現在追加されているウォレットがある場合、デバイスへの安全な保存に時間がかかることがあります。"
+    - "パスフレーズは保存されません。別途安全な場所に保管してください。"
+  signing_only_mode_warning_title: "署名専用モード切り替え時の\n注意事項"
+  signing_only_mode_warning_descriptions:
+    - "現在保存されているウォレット情報はすべて初期化されます。切り替える前に必ずバックアップを完了してください。"
+    - "次のステップでパスワードを確認後、ボルトの初期化が開始されます。"
+  device_password_setting_guide_understood: "理解しました"
+  secure_use_guide_title: "パスコード設定が必要です"
+  secure_use_guide_description: "安全にご利用いただくために、\nデバイスのパスコードを設定してください。"
+  mode_change_failed_title: "モード切り替えに失敗しました"
+  secure_storage_mode_conversion_failed: "安全保存モードへの切り替えに失敗しました。"
+  signing_only_mode_conversion_failed: "署名専用モードへの切り替えに失敗しました。"
+  converting_to_secure_storage_mode_aos: "シードを安全に保存しています。認証が求められた場合は完了してください。"
+  converting_to_secure_storage_mode_ios: "シードを安全に保存します。シングル署名ウォレットの数だけ認証が必要です。"
+
+multisig:
+  nth_key: "キー $index"
+  nth_key_with_name: "キー $index - $name"
+  select_nth_key: "キー #$index を選択"
+
+# lib/screens/airgap
+account_selection_bottom_sheet_screen:
+  text: "署名するアカウントを選択してください。"
+psbt_confirmation_screen:
+  title: "スキャン情報確認"
+  guide: "ウォレットからスキャンした情報が正しいか確認してください。"
+  self_sending: "これは自分のウォレットへの送金トランザクションです。"
+  warning: "⚠️ このウォレットで作成されたPSBTではない可能性があります。または残高のないトランザクションの可能性があります。"
+psbt_scanner_screen:
+  guide: "ウォレットから作成した送金情報または外部ボルトからのマルチシグ情報をスキャンしてください。"
+  guide_single_sig_same_name: "ウォレットで作成した送金情報をスキャンしてください。ウォレット名は一致する必要があります。"
+signed_transaction_qr_screen:
+  guide_multisig: "マルチシグ完了。下記のQRコードを送信情報を作成したウォレットでスキャンしてください。"
+  guide_single_sig: "'$nameウォレット'で作成した送信情報の署名が完了しました。下記のQRコードをウォレットでスキャンしてください。"
+single_sig_sign_screen:
+  text: "これは既に署名済みのトランザクションです"
+signer_qr_bottom_sheet:
+  title: "署名済みトランザクションエクスポート"
+  text1: "キーボルトで、マルチシグウォレットを選択 - "
+  text2: "マルチシグ"
+  text3: " 下記のQRコードをスキャンしてください。"
+  select: " 選択"
+unit_bottom_sheet:
+  basic_unit: "基本単位"
+  header_text: "1 BTC = 100,000,000 sats"
+
+coconut_qr_scanner:
+  reading_extra_data: "収集する追加データを読み取り中\nスキャンを続けてください"
+
+# lib/screens/setting
+app_info_screen:
+  powered_by_noncelab: "powered by NonceLab."
+  category1_ask: "質問がありますか？"
+  go_to_pow: "POWコミュニティへ"
+  ask_to_discord: "Discordで質問"
+  ask_to_x: "Xで質問"
+  ask_to_email: "メールで質問"
+  category2_opensource: 'ココナッツボルトはオープンソースです'
+  mit_license: "MITライセンス"
+  coconut_lib: "coconut_lib"
+  coconut_wallet: "coconut_wallet"
+  coconut_vault: "coconut_vault"
+  github: "Github"
+  contribution: "オープンソースに貢献"
+  tos_and_policy: "利用規約＆ポリシー"
+  terms_of_service: "利用規約"
+  privacy_policy: "プライバシーポリシー"
+  license: "オープンソースライセンス"
+  version_and_date: "ココナッツボルト ver. $version (リリース日: $releasedAt)"
+  inquiry: "お問い合わせ詳細"
+
+read_file_view_screen:
+  mit_license: "MITライセンス"
+  contribution: "オープンソースに貢献"
+
+license_screen:
+  text1: "ココナッツボルトはMITライセンスに従い、著作権は韓国のNonsLab Inc.に帰属します。完全なMITライセンステキストは "
+  text2: " で確認できます。\n\nこのアプリケーションに含まれるサードパーティソフトウェアの著作権は以下の通りです。これについて質問がある場合は "
+  text3: " にお問い合わせください。"
+mnemonic_word_list_screen:
+  search_mnemonic_word: "英語で検索"
+  result: "'$text'の検索結果"
+  such_no_result: "検索結果がありません"
+settings_screen:
+  use_biometric: "生体認証を使用"
+  change_password: "パスワード変更"
+  set_password: "パスワード設定"
+  advanced_user: "上級ユーザー"
+  use_passphrase: "パスフレーズを使用"
+  information: "情報"
+  toast:
+    no_enrolled_biometrics: "生体認証が登録されていません"
+  dialog:
+    need_biometrics_setting_title: "生体認証を使用"
+    need_biometrics_setting_desc: "生体認証を設定してください。"
+    btn_move_to_setting: "設定に移動"
+    use_passphrase_title: "パスフレーズを使用"
+    use_passphrase_description: "パスフレーズを使用すると、新しいウォレットを作成するのと同じです。誤って使用すると、ビットコインを永久に失う可能性があります。"
+    use_passphrase_btn: "理解しました"
+
+# lib/screens/start_guide
+welcome_screen:
+  screen_1_title: "安全な環境で開始"
+  screen_1_description: "安全な使用のため\nネットワークとBluetoothをOFFにしてください"
+  screen_1_button: "環境確認"
+  screen_2_title: "セキュリティチェックリスト"
+  screen_2_description: "安全な使用のため\nネットワークとBluetoothをOFFにしてください"
+  screen_2_button: "次"
+  screen_3_title: "安全な環境が準備されました"
+  screen_3_description: "安全な使用のため\nネットワークとBluetoothをOFFにしてください"
+  screen_3_button: "開始"
+  setting_guide: "設定ガイドを表示 ⓘ"
+  bottom_sheet_title: "設定ガイド"
+  airplane_mode_on: 
+    title: "機内モードをオンにする"
+    description_ios: "画面右上から下にスワイプ → コントロールセンター → 飛行機モードアイコンをタップ"
+    description_android: "画面上部から下にスワイプ → クイック設定パネル → 飛行機モードアイコンをタップしてオンにする\n※ ネットワーク、Bluetooth、通信網がすべて遮断されます"
+  wifi_off:
+    title: "ネットワーク(Wi-Fi)をオフにする"
+    description_ios: "画面右上から下にスワイプ → コントロールセンター → Wi-Fiアイコンをタップ"
+    description_android: "画面上部から下にスワイプ → クイック設定パネル → Wi-Fiアイコンをタップしてオフにする\n※ ネットワーク、Bluetooth、通信網がすべて遮断されます"
+  mobile_data_off: 
+    title: "モバイルネットワーク(LTE / 5G)をオフにする"
+    description_ios: "設定 → モバイル通信 → モバイルデータスイッチをオフにする"
+    description_android: "クイック設定パネル → モバイルネットワークアイコンをタップしてオフにする\n※ ネットワーク、Bluetooth、通信網がすべて遮断されます"
+  bluetooth_off: 
+    title: "Bluetoothをオフにする"
+    description_ios: "設定 → Bluetooth → Bluetoothスイッチをオフにする"
+    description_android: "クイック設定パネル → Bluetoothアイコンをタップしてオフにする"
+    additional:
+      title: "ⓘ iOS の Bluetooth 設定に関する注意事項"
+      highlight: 
+        - "区別しません"
+        - "Bluetoothオフ"
+        - "接続解除"
+      description: "iOS のシステム仕様上、「Bluetoothオフ」と「接続解除」の状態は区別されません。安全に使用するために、設定から Bluetooth を完全にオフにすることを推奨します。"
+      control_center_off: 
+        title: "接続解除"
+        description: "コントロールセンターで Bluetooth をオフにした状態では、新しいデバイスとの接続はブロックされますが、既存の接続は維持される場合があります。"
+      absolutely_off:
+        title: "Bluetoothオフ（推奨）" 
+        description: "設定から Bluetooth を完全にオフにした状態です。すべての外部接続が遮断されます。"
+  developer_mode_off: "開発者モードをオフ"
+  developer_mode_description: "1. 設定 → システム → 開発者オプション\n2. スイッチオフ"
+  network: "ネットワーク"
+  bluetooth: "Bluetooth"
+  developer_option: "開発者オプション"
+
+# lib/screens/vault_creation
+mnemonic_coin_flip_screen:
+  title: "ニーモニック作成"
+  guide: "コインを投げて出た面を選択してください"
+  words_passphrase: " 単語、パスフレーズ "
+  use: "使用"
+  do_not: "使用しない"
+  enter_passphrase: "パスフレーズ入力"
+  coin_head: "表"
+  coin_tail: "裏"
+mnemonic_dice_roll_screen:
+  title: "ニーモニック作成"
+  guide1: "サイコロを振って出た面を順番に選択してください🎲"
+  guide2: "十分なランダムな値が集まりました！サイコロを振る必要はありません🎲"
+  words_passphrase: " 単語、パスフレーズ "
+  use: "使用"
+  do_not: "使用しない"
+  enter_passphrase: "パスフレーズ入力"
+mnemonic_confirm_screen:
+  title: "最終確認"
+  description: "この情報はウォレット作成に使用されます"
+  passphrase_character_total_count: " (合計 $count 文字)"
+  warning:
+    contains_space_character: "⚠︎ スペース文字が含まれています"
+    long_passphrase: "⚠︎ 長いパスフレーズ: すべて確認するには下にスクロール"
+  btn_confirm_completed: "確認完了"
+mnemonic_generate_screen:
+  title: "新しいニーモニック"
+  select_word_length: "単語数を選択"
+  twelve: "12単語"
+  twenty_four: "24単語"
+  use_passphrase: "パスフレーズを使用しますか？"
+  ensure_backup: "ニーモニックを必ずバックアップしました"
+  word_passphrase: " 単語、パスフレーズ "
+  use: "使用"
+  do_not: "使用しない"
+  enter_passphrase: "パスフレーズを入力"
+  passphrase_not_matched: "パスフレーズが一致しません"
+  memorable_passphrase_guide: "絶対に忘れないパスフレーズ"
+  passphrase_confirm_guide: "パスフレーズ確認"
+  backup_guide: "ニーモニックを安全な場所にバックアップしてください"
+  backup_complete: "バックアップ完了"
+  warning: "入力したパスフレーズの保管と漏洩にご注意ください"
+  passphrase_warning: "$words は、保管と漏洩に注意してください"
+  regenerate: "再生成"
+passphrase_textfield:
+  title: "パスフレーズを入力してください"
+  passphrase_hidden: "パスフレーズを隠す"
+  passphrase_visible: "パスフレーズを表示"
+
+mnemonic_import_screen:
+  title: "復元"
+  enter_mnemonic_phrase: "ニーモニックフレーズを入力"
+  put_spaces_between_words: "単語間にスペースを入れてください"
+  use_passphrase: "パスフレーズを使用"
+  enter_passphrase: "パスフレーズを入力"
+  need_advanced_mode: "⚠︎ パスフレーズを使用するには、設定で「パスフレーズを使用」をオンにしてください"
+  open_settings: "設定を開く"
+  recommended_words: "推奨単語"
+  words_24: "24単語"
+  words_12: "12単語"
+
+mnemonic_view_screen:
+  security_guide: "安全な場所でニーモニックを確認してください"
+  warning_title: "ニーモニックフレーズはウォレットの鍵です"
+  warning_guide: "この単語を知っている人は誰でもあなたのビットコインをすべて奪うことができます。周りに他の人やカメラがないか必ず確認してください。"
+  warning_btn: "分かりました"
+
+mnemonic_verify_screen:
+  title: "ニーモニック確認"
+  select_word: "単語 #${index} を選択"
+  not_correct: "正しくありません"
+select_vault_type_screen:
+  title: "ウォレット作成"
+  single_sig: "1つのニーモニックフレーズを保存するシングル署名ウォレット"
+  multisig: "指定された数の署名が必要なウォレット"
+  empty_key: "現在のボルトに利用可能なキーがありません"
+  loading_keys: "ボルトに保存されたキーを読み込み中"
+vault_creation_options_screen:
+  coin_flip: "コイン投げで手動作成"
+  dice_roll: "サイコロで手動作成"
+  auto_generate: "アプリに作成させる"
+  import_mnemonic: "既存のニーモニックフレーズを持っています"
+  seed_qr: "シードQRコードを持っています"
+seed_qr_import_screen:
+  title: "シードQRコードスキャン"
+  error_title: "スキャンエラー"
+  error_message: "シードQRコードのスキャン中にエラーが発生しました。再試行してください。"
+  guide: "シードQRコードをスキャンしてください。"
+seed_qr_confirmation_screen:
+  title: "ニーモニック確認"
+  check_mnemonic: "ニーモニックフレーズを確認してください"
+  passphrase_toggle: "パスフレーズを使用"
+  passphrase_text_field_placeholder: "パスフレーズ入力"
+vault_name_icon_setup_screen:
+  title: "名前設定"
+  saving: "保存中..."
+
+# lib/screens/vault_creation/multisig
+assign_signers_screen:
+  create_multisig_wallet_by_quorum: "$requiredSignatureCount/$totalSignatureCount ウォレット作成"
+  order_keys: "同じ順序を維持するためキー順序を並べ替えます"
+  data_verifying: "データ検証中..."
+  use_internal_key: "このボルトのキーを使用"
+  select_key_option: "キータイプを選択"
+  use_internal_key_option: "キー選択"
+  import_from_other_vault: "他のボルトからインポート"
+
+confirm_importing_screen:
+  guide1: "他のボルトから"
+  guide2: "インポートした情報が"
+  guide3: "一致するか確認してください。"
+  scan_info: "スキャン情報"
+  memo: "メモ"
+  placeholder: "キーの簡単なメモを追加"
+select_multisig_quorum_screen:
+  total_key_count: "総キー数"
+  required_signature_count: "必要署名数"
+  one_or_two_of_n: "1つのキーが失われたり、1つのキー保持者が不在でもビットコインを送信できます。"
+  n_of_n: "ビットコインを送信するにはすべてのキーが必要です。1つのキーを失うだけで資金にアクセスできなくなるため、紛失には十分注意してください。"
+  one_of_n: "1つのキーだけでビットコインを移動できます。セキュリティが比較的低いため推奨されません。"
+signer_scanner_bottom_sheet:
+  title: "署名更新"
+  guide: "他のボルトから署名を追加しましたか？追加された署名済みトランザクションのQRコードをスキャンして情報を更新してください。"
+signer_scanner_screen:
+  import_bsms: "BSMSインポート"
+  import_multisig_wallet: "マルチシグウォレットインポート"
+  guide1_1: "他のボルトで作成されたマルチシグウォレットをインポートできます。"
+  guide1_2: "別のボールトのホーム画面で、"
+  guide1_3: "マルチシグウォレット "
+  guide1_4: "マルチシグウォレットエクスポート "
+  guide1_5: "画面に表示されるQRコードをスキャンしてください。"
+  guide2_1: "使用したいキーがあるボルトのホーム画面で "
+  guide2_2: "ウォレット "
+  guide2_3: "マルチシグキーとして使用 "
+  guide2_4: "画面に表示されるQRコードをスキャンしてください。"
+  select: "選択"
+
+# lib/screens/vault_detail
+address_list_screen:
+  title: "$nameのアドレス"
+  address_index: "アドレス - $index"
+export_detail_screen:
+  title: "エクスポート詳細"
+  info_copied: "詳細をコピーしました"
+multi_sig_bsms_screen:
+  bottom_sheet:
+    title: "ウォレット詳細"
+    info_copied: "ウォレット詳細をコピーしました"
+  title: "ウォレット設定情報"
+  guide:
+    text1: "安全なマルチシグウォレット管理のための標準に従ってウォレット設定情報を管理・共有します。"
+    text2: "すべてのキーはボルトに保存されています。"
+    text3: "同じキーを保存している他のボルトもこのQRを読み取ってマルチシグウォレットを追加できます。"
+    text4: "このマルチシグウォレットに指定された**$gen**キーのニーモニックフレーズは現在他のボルトにあります。"
+    text5: "**$gen**キー保存ウォレット - 下記のQRコードを**マルチシグウォレットインポート**で読み取ってください。この手順は**$gen**キーでマルチシグトランザクションに署名するために絶対に必要です。"
+  first_key: "$first"
+  first_and_last_keys: "$firstと$last"
+  first_or_last_key: "$firstまたは$last"
+  view_detail: "詳細表示"
+multi_sig_memo_bottom_sheet:
+  imported_wallet_memo: "外部ウォレットメモ"
+  placeholder: "メモを書いてください。"
+multi_sig_setting_screen:
+  edit_memo: "メモ編集"
+  add_memo: "メモ追加"
+  view_bsms: "ウォレット設定表示"
+  tooltip: 
+    one: "$total個のキー中$n個の署名が必要なマルチシグウォレット。"
+    other: "$total個のキー中$n個の署名が必要なマルチシグウォレット。"
+select_export_type_screen:
+  title: "エクスポート"
+  export_type: "何に使用しますか？"
+  watch_only: "ウォレットに\nウォッチオンリーウォレットを追加"
+  multisig: "他のボルトで\nマルチシグキーとして使用"
+signer_bsms_screen:
+  guide1_1: "他のボルトでマルチシグウォレットを作成しています！"
+  guide1_2: "下記のQRコードをインポートBSMS画面でスキャンしてください。"
+  export_info: "エクスポート情報"
+sync_to_wallet_screen:
+  title: "$name エクスポート"
+  guide: 
+    multisig: "Multisig"
+    coconut: "ホーム画面でウォレット追加アイコンを選択"
+    sparrow_singlesig:
+      guide0_1: "メニューから"
+      guide1_1: "Import Wallet"
+      guide2_1: "Keystone"
+      guide3_1: "またはxPub/Watch Only Walletボタンをクリックして " 
+    nunchuk:
+      guide1_1: "メニューから"
+      guide1_2_singlesig: "Keys"
+      guide1_2_multisig: "Home"
+      guide2_1_siglesig: "右上の+ボタンをクリック"
+      guide2_1_multisig: "ウォレット追加"
+      guide3_1_singlesig: "Keystone"
+      guide3_1_multisig: "既存のウォレットを復元"
+      guide4_1_singlesig: "続行 - QRコードスキャン"
+      guide4_1_multisig: "QRコードを使用して復元"
+    bluewallet:
+      guide1_1: "右上の+ボタンをクリック"
+      guide2_1: "Import Wallet"
+      guide3_1: "QRコードまたはファイルをスキャン"
+    common: "下記のQRコードをスキャンしてください。"
+vault_menu_screen:
+  title:  
+    view_info: "$name情報"
+    view_address: "アドレス表示"
+    export_xpub: "ウォレット情報エクスポート"
+    single_sig_sign: "署名"
+    multisig_sign: "マルチシグ"
+    use_as_multisig_signer: "マルチシグキーとして使用"
+    import_bsms: "マルチシグウォレットインポート"
+  description:
+    view_single_sig_info: "保存されたニーモニックフレーズなどを確認"
+    view_multisig_info: "マルチシグウォレット情報を確認"
+    import_bsms: "このキーを含むマルチシグウォレット情報を追加"
+    view_address: "$nameのアドレスを確認"
+    export_xpub: "ウォレットにウォッチオンリーウォレットを追加"
+    sign: "ウォレットで作成した情報をスキャンして署名"
+    use_as_multisig_signer: "他のボルトで自分のキーをマルチシグキーとして登録"
+vault_settings:
+  used_in_multisig: "マルチシグウォレットで使用中"
+  of: " の "
+  nth: "$index"
+  key: " キー"
+
+verify_passphrase_screen:
+  title: "パスフレーズ確認"
+  description: "パスフレーズを入力してください"
+  enter_passphrase: "パスフレーズ入力"
+  start_verification: "確認開始"
+  loading_description: "パスフレーズが正しいか確認中..."
+  result_title_success: "パスフレーズが正しいです！"
+  result_description_success: "入力したパスフレーズを使用してウォレットが正常に復元されました。"
+  mfp: "MFP"
+  xpub: "XPub"
+  result_title_failure: "パスフレーズが一致しません"
+  result_description_failure: "入力したパスフレーズを使用してウォレットを復元できませんでした。"
+  saved_mfp: "保存されたMFP"
+  recovered_mfp: "復元されたMFP"
+
+passphrase_input_screen:
+  title: "パスフレーズ入力"
+  enter_passphrase: "パスフレーズ入力"
+  passphrase_error: "パスフレーズを再度確認してください"
+
+multisig_signer_bsms_export_screen:
+  fail_bsms: "BSMSの読み込みに失敗しました"
+
+bottom_sheet:
+  view_mit_license: "完全なMITライセンスを表示"
+  contact_by_email: "メールで連絡"
+  ask_about_license: "[ボルト] ライセンスお問い合わせ"
+  mnemonic_backup: "生成されたニーモニックフレーズを\nバックアップしてください。"
+  mnemonic_backup_and_confirm_passphrase: "生成されたニーモニックフレーズをバックアップし\nパスフレーズを確認してください。"
+
+permission:
+  biometric: 
+    ask_to_use: "アンロックに生体認証を使用しますか？"
+    proceed_biometric_auth: "生体認証を進めてください。"
+    required: "生体認証権限が必要です。"
+    denied: "生体認証権限が拒否されました。"
+    how_to_allow: "生体認証でアンロックするには\n設定 > ココナッツボルトで生体認証権限を許可してください。"
+    btn_move_to_setting: "設定に移動"
+
+alert:
+  delete_vault: 
+    title: "ウォレット削除"
+    description: "ニーモニックフレーズをバックアップしていない場合、このウォレットのビットコインは永遠に復元できません。本当に削除しますか？"
+  forgot_password:
+    title: "パスワードを忘れましたか？"
+    description1: "パスワードをリセットすると、保存されたすべてのウォレットが削除されます。それでもリセットしますか？"
+  exit_sign:
+    title: "署名終了"
+    description: "署名を終了してホーム画面に戻ります。\n本当に終了しますか？"
+  stop_sign:
+    title: "署名を停止"
+    description: "署名履歴が失われます。\n本当に停止しますか？"
+  reselect:
+    title: "再選択"
+    description: "これまでに入力したすべての情報が削除されます。\n本当に再選択しますか？"
+  back:
+    title: "前の画面に戻る"
+    description: "これまでに入力したすべての情報が削除されます。\n本当に前の画面に戻りますか？"
+  empty_vault:
+    title: "ボルトにキーが保存されていません"
+    description: "キーを使用するためにまずシングルシグウォレットを作成しますか？"
+  quit_creating_mutisig_wallet:
+    title: "マルチシグウォレット作成を停止"
+    description: "本当にウォレット作成を停止しますか？"
+  reset_nth_key:
+    title: "$indexキーをリセット"
+    description: "指定されたキー情報を削除しますか？"
+  stop_importing:
+    title: "インポートを停止"
+    description: "スキャンした情報が失われます。\n本当にインポートを停止しますか？"
+  duplicate_key:
+    title: "既に追加されたキー"
+    description: "重複しないキーでインポートしてください"
+  same_wallet:
+    title: "あなたのウォレットの1つ"
+    description: "'$name'と同じウォレット"
+  include_internal_key:
+    title: "外部ウォレット数が超過"
+    description: "このボルトから少なくとも1つのキーを使用してください"
+  wallet_creation_failed:
+    title: "ウォレット作成失敗"
+    description: "無効な情報"
+  stop_generating_mnemonic:
+    title: "ニーモニック生成停止"
+    description: "ニーモニック生成を停止しますか？"
+    reselect: "再選択"
+    confirm: "確認"
+  stop_importing_mnemonic:
+    title: "復元を停止"
+    description: "本当に復元を停止しますか？"
+  erase_all_entered_so_far: "これまでに入力したすべての情報を\n本当に削除しますか?"
+  erase_all_entered_mnemonic: 
+    title: "すべて削除"
+    description: "これまでに入力したすべてのニーモニック\nフレーズを本当に削除しますか?"
+  finish_signing:
+    title:  "トランザクション署名完了"
+    description: "この画面を閉じると署名情報が失われます。\n本当に終了しますか?"
+  secure_module_use_biometrics:
+    title: "生体認証のお知らせ"
+    description: "アプリのロック解除には生体認証は使用されません。ただし、セキュアモジュールに保存されたデータにアクセスする際には、自動的に認証が求められる場合があります。"
+
+toast:
+  clipboard_copied: "クリップボードにコピーしました"
+  back_exit: "終了するには戻るボタンを再度押してください"
+  scroll_down: "すべて確認するには下にスクロールしてください"
+  data_updated: "情報を修正しました！混乱を避けるためウォレットと同期してください。"
+  name_already_used: "既に使用されている名前に変更できません"
+  name_already_used2: "既に使用されている名前は設定できません"
+  name_multisig_in_use: "マルチシグウォレットで使用中のため削除できません"
+  mnemonic_already_added: "既に追加されたニーモニック"
+  mnemonic_copied: "ニーモニックフレーズをコピーしました"
+  multisig_already_added: "既に追加されたマルチシグウォレット。($name)"
+  home_vault_min_one: "ホーム画面に表示されるウォレットは最低1つ必要です"
+
+errors:
+  invalid_qr: "無効なQR。再度お試しください。"
+  invalid_single_sig_qr_error: "無効なQR。再度お試しください。"
+  invalid_multisig_qr_error: "無効なQR。\nマルチシグウォレットの「ウォレット設定表示」画面のQRコードをスキャンしてインポートしてください。"
+  unsupport_bsms_version_error: "サポートされていないBSMSバージョン。BSMS 1.0のみサポートされています。"
+  unsupport_derivation_path_error: "カスタム派生パスはサポートされていません"
+  duplicate_multisig_registered_error: "既に登録されたマルチシグウォレット"
+  pin_incorrect_error: "パスワードが一致しません"
+  duplicate_pin_error: "パスワードは既に使用されています"
+  pin_processing_error: "処理中にエラーが発生しました"
+  pin_incorrect_with_remaining_attempts_error: "残り$count回試行可能"
+  remaining_times_away_from_reset_error: "リセットまで$count回"
+  pin_max_attempts_exceeded_error: "ボルトを使用できません"
+  restart_vault: "ボルトを再起動"
+  retry_after: "$time後に再試行可能"
+  invalid_word_error: "無効な単語。$filter"
+  invalid_mnemonic_phrase: "無効なニーモニックフレーズ"
+  data_loading_error: "データ読み込み中にエラーが発生しました"
+  data_not_found_error: "データが見つかりません"
+  cannot_sign_error: "このトランザクションに署名できません"
+  invalid_sign_error: "無効な署名情報。再度お試しください。"
+  scan_error: "[スキャン失敗] $error"
+  sign_error: "[署名失敗]: $error"
+  device_info_unavailable_error: "デバイス情報を読み込めません: $error"
+  camera_permission_error: "カメラ権限が必要です"
+  creation_error: "作成に失敗しました"
+  export_error: "エクスポートに失敗しました"
+  scan_error_title: "スキャン失敗"
+  psbt_parsing_error: "PSBT解析に失敗しました: $error"
+  not_related_multisig_wallet_error: "このウォレットをキーとして使用するマルチシグウォレットではありません"
+  vault_not_found_error: "署名できるウォレットがありません"
+  extended_public_key_not_found_error: "直接使用したいウォレットを選択してマルチシグ機能を使用してください"
+
+tooltip:
+  mfp: "ウォレットの固有値。\nマスターフィンガープリント(MFP)とも呼ばれます。"
+
+language:
+  language: "言語"
+  korean: "한국어"
+  english: "English"
+  japanese: "日本語"
+  chinese: "中文"
+  spanish: "Español"
+  french: "Français"
+  german: "Deutsch"
+  italian: "Italiano"
+  portuguese: "Português"
+  russian: "Русский"

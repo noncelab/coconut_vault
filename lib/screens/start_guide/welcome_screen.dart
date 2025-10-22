@@ -1,9 +1,9 @@
 import 'dart:io';
 
 import 'package:coconut_design_system/coconut_design_system.dart';
+import 'package:coconut_vault/constants/app_routes.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/providers/connectivity_provider.dart';
-import 'package:coconut_vault/providers/visibility_provider.dart';
 import 'package:coconut_vault/widgets/bottom_sheet.dart';
 import 'package:coconut_vault/widgets/button/fixed_bottom_button.dart';
 import 'package:flutter/material.dart';
@@ -36,7 +36,6 @@ class ScreenItem {
 
 class _WelcomeScreenState extends State<WelcomeScreen> {
   late ConnectivityProvider _connectivityProvider;
-  late VisibilityProvider _visibilityProvider;
   int _currentScreenIndex = 0;
 
   final List<ScreenItem> _screenItems = [];
@@ -45,7 +44,6 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
   void initState() {
     super.initState();
     _connectivityProvider = Provider.of<ConnectivityProvider>(context, listen: false);
-    _visibilityProvider = Provider.of<VisibilityProvider>(context, listen: false);
 
     _initScreenItems();
     _initConnectionState();
@@ -80,13 +78,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
         imagePath: 'assets/png/welcome2.png',
         buttonText: t.welcome_screen.screen_3_button,
         onButtonPressed: () {
-          _connectivityProvider.setHasSeenGuideTrue();
-          _visibilityProvider.setHasSeenGuide().then((_) {
-            widget.onComplete();
-            if (mounted) {
-              Navigator.pushNamedAndRemoveUntil(context, '/', (Route<dynamic> route) => false);
-            }
-          });
+          Navigator.pushNamed(context, AppRoutes.vaultModeSelection, arguments: {'onComplete': widget.onComplete});
         },
       ),
     ]);
@@ -106,54 +98,57 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: CoconutColors.white,
-      body: SafeArea(
-        child: SizedBox(
-          width: double.infinity,
-          child: Stack(
-            children: [
-              Positioned.fill(
-                child: Column(
-                  children: [
-                    Flexible(
-                      flex: 1,
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        children: [
-                          Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 16),
-                            child: FittedBox(
-                              fit: BoxFit.scaleDown,
-                              child: Text(
-                                _screenItems[_currentScreenIndex].title,
-                                style: CoconutTypography.heading3_21_Bold,
-                                textAlign: TextAlign.center,
+    return MediaQuery(
+      data: MediaQuery.of(context).copyWith(textScaler: const TextScaler.linear(1.0)),
+      child: Scaffold(
+        backgroundColor: CoconutColors.white,
+        body: SafeArea(
+          child: SizedBox(
+            width: double.infinity,
+            child: Stack(
+              children: [
+                Positioned.fill(
+                  child: Column(
+                    children: [
+                      Flexible(
+                        flex: 1,
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
+                            Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 16),
+                              child: FittedBox(
+                                fit: BoxFit.scaleDown,
+                                child: Text(
+                                  _screenItems[_currentScreenIndex].title,
+                                  style: CoconutTypography.heading3_21_Bold,
+                                  textAlign: TextAlign.center,
+                                ),
                               ),
                             ),
-                          ),
-                          CoconutLayout.spacing_300h,
-                          Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 16),
-                            child: FittedBox(
-                              fit: BoxFit.scaleDown,
-                              child: Text(
-                                _screenItems[_currentScreenIndex].descriptionText,
-                                style: CoconutTypography.body1_16,
-                                textAlign: TextAlign.center,
+                            CoconutLayout.spacing_300h,
+                            Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 16),
+                              child: FittedBox(
+                                fit: BoxFit.scaleDown,
+                                child: Text(
+                                  _screenItems[_currentScreenIndex].descriptionText,
+                                  style: CoconutTypography.body1_16.setColor(CoconutColors.black),
+                                  textAlign: TextAlign.center,
+                                ),
                               ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
-                    ),
-                    CoconutLayout.spacing_800h,
-                    Flexible(flex: 2, child: _getImage()),
-                  ],
+                      CoconutLayout.spacing_800h,
+                      Flexible(flex: 2, child: _getImage()),
+                    ],
+                  ),
                 ),
-              ),
-              _buildBottomButton(),
-            ],
+                _buildBottomButton(),
+              ],
+            ),
           ),
         ),
       ),
@@ -312,57 +307,143 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
     MyBottomSheet.showDraggableBottomSheet(
       title: t.welcome_screen.bottom_sheet_title,
       context: context,
+      minChildSize: 0.5,
+      maxChildSize: 0.9,
+      initialChildSize: 0.9,
       childBuilder:
-          (controller) => Scaffold(
-            backgroundColor: CoconutColors.white,
-            body: SingleChildScrollView(
-              controller: controller,
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    _buildSettingTitle(
-                      t.welcome_screen.airplane_mode_on.title,
-                      'assets/svg/settings-guide-icons/airplane-mode.svg',
-                    ),
-                    _buildSettingDescription(
-                      Platform.isAndroid
-                          ? t.welcome_screen.airplane_mode_on.description_android
-                          : t.welcome_screen.airplane_mode_on.description_ios,
-                    ),
-                    _buildSettingTitle(t.welcome_screen.wifi_off.title, 'assets/svg/settings-guide-icons/wifi.svg'),
-                    _buildSettingDescription(
-                      Platform.isAndroid
-                          ? t.welcome_screen.wifi_off.description_android
-                          : t.welcome_screen.wifi_off.description_ios,
-                    ),
-                    _buildSettingTitle(
-                      t.welcome_screen.mobile_data_off.title,
-                      'assets/svg/settings-guide-icons/mobile-data.svg',
-                    ),
-                    _buildSettingDescription(
-                      Platform.isAndroid
-                          ? t.welcome_screen.mobile_data_off.description_android
-                          : t.welcome_screen.mobile_data_off.description_ios,
-                    ),
-                    _buildSettingTitle(
-                      t.welcome_screen.bluetooth_off.title,
-                      'assets/svg/settings-guide-icons/bluetooth.svg',
-                    ),
-                    _buildSettingDescription(
-                      Platform.isAndroid
-                          ? t.welcome_screen.bluetooth_off.description_android
-                          : t.welcome_screen.bluetooth_off.description_ios,
-                    ),
-                    if (Platform.isAndroid) ...[
-                      _buildSettingTitle(
-                        t.welcome_screen.developer_mode_off,
-                        'assets/svg/settings-guide-icons/developer-mode.svg',
+          (controller) => MediaQuery(
+            data: MediaQuery.of(context).copyWith(textScaler: const TextScaler.linear(1.0)),
+            child: Scaffold(
+              backgroundColor: CoconutColors.white,
+              body: SingleChildScrollView(
+                controller: controller,
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Container(
+                        alignment: Alignment.center,
+                        padding: const EdgeInsets.all(16),
+                        decoration: BoxDecoration(
+                          color: CoconutColors.hotPink,
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: Text(
+                          t.welcome_screen.recommendation,
+                          style: CoconutTypography.heading4_18_Bold.setColor(CoconutColors.white),
+                        ),
                       ),
-                      _buildSettingDescription(t.welcome_screen.developer_mode_description),
+                      CoconutLayout.spacing_800h,
+                      _buildSettingTitle(
+                        t.welcome_screen.airplane_mode_on.title,
+                        'assets/svg/settings-guide-icons/airplane-mode.svg',
+                      ),
+                      _buildSettingDescription(
+                        Platform.isAndroid
+                            ? t.welcome_screen.airplane_mode_on.description_android
+                            : t.welcome_screen.airplane_mode_on.description_ios,
+                      ),
+                      _buildSettingTitle(t.welcome_screen.wifi_off.title, 'assets/svg/settings-guide-icons/wifi.svg'),
+                      _buildSettingDescription(
+                        Platform.isAndroid
+                            ? t.welcome_screen.wifi_off.description_android
+                            : t.welcome_screen.wifi_off.description_ios,
+                      ),
+                      _buildSettingTitle(
+                        t.welcome_screen.mobile_data_off.title,
+                        'assets/svg/settings-guide-icons/mobile-data.svg',
+                      ),
+                      _buildSettingDescription(
+                        Platform.isAndroid
+                            ? t.welcome_screen.mobile_data_off.description_android
+                            : t.welcome_screen.mobile_data_off.description_ios,
+                      ),
+                      _buildSettingTitle(
+                        t.welcome_screen.bluetooth_off.title,
+                        'assets/svg/settings-guide-icons/bluetooth.svg',
+                      ),
+                      _buildSettingDescription(
+                        Platform.isAndroid
+                            ? t.welcome_screen.bluetooth_off.description_android
+                            : t.welcome_screen.bluetooth_off.description_ios,
+                      ),
+                      if (Platform.isIOS) ...[
+                        Container(
+                          padding: const EdgeInsets.all(16),
+                          decoration: BoxDecoration(
+                            color: CoconutColors.gray150,
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                t.welcome_screen.bluetooth_off.additional.title,
+                                style: CoconutTypography.heading4_18_Bold,
+                              ),
+                              CoconutLayout.spacing_300h,
+                              RichText(
+                                text: TextSpan(
+                                  children: _buildHighlightKeywords(
+                                    t.welcome_screen.bluetooth_off.additional.description,
+                                    keywords: t.welcome_screen.bluetooth_off.additional.highlight,
+                                  ),
+                                  style: CoconutTypography.body1_16.setColor(CoconutColors.black),
+                                ),
+                              ),
+                              CoconutLayout.spacing_300h,
+                              Row(
+                                children: [
+                                  SvgPicture.asset(
+                                    'assets/svg/settings-guide-icons/bluetooth-off.svg',
+                                    width: 32,
+                                    height: 32,
+                                  ),
+                                  CoconutLayout.spacing_100w,
+                                  Text(
+                                    t.welcome_screen.bluetooth_off.additional.absolutely_off.title,
+                                    style: CoconutTypography.body1_16_Bold,
+                                  ),
+                                ],
+                              ),
+                              Text(
+                                t.welcome_screen.bluetooth_off.additional.absolutely_off.description,
+                                style: CoconutTypography.body1_16,
+                              ),
+                              CoconutLayout.spacing_300h,
+                              Row(
+                                children: [
+                                  SvgPicture.asset(
+                                    'assets/svg/settings-guide-icons/not-connected.svg',
+                                    width: 32,
+                                    height: 32,
+                                  ),
+                                  CoconutLayout.spacing_100w,
+                                  Text(
+                                    t.welcome_screen.bluetooth_off.additional.control_center_off.title,
+                                    style: CoconutTypography.body1_16_Bold,
+                                  ),
+                                ],
+                              ),
+                              Text(
+                                t.welcome_screen.bluetooth_off.additional.control_center_off.description,
+                                style: CoconutTypography.body1_16,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                      if (Platform.isAndroid) ...[
+                        _buildSettingTitle(
+                          t.welcome_screen.developer_mode_off,
+                          'assets/svg/settings-guide-icons/developer-mode.svg',
+                        ),
+                        _buildSettingDescription(t.welcome_screen.developer_mode_description),
+                      ],
+                      CoconutLayout.spacing_800h,
                     ],
-                  ],
+                  ),
                 ),
               ),
             ),
@@ -370,12 +451,40 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
     );
   }
 
+  List<TextSpan> _buildHighlightKeywords(String text, {required List<String> keywords}) {
+    final spans = <TextSpan>[];
+    int start = 0;
+
+    final pattern = RegExp(keywords.map(RegExp.escape).join('|'));
+    final matches = pattern.allMatches(text);
+
+    for (final match in matches) {
+      if (match.start > start) {
+        spans.add(
+          TextSpan(text: text.substring(start, match.start), style: const TextStyle(color: CoconutColors.black)),
+        );
+      }
+
+      final matchedText = text.substring(match.start, match.end);
+      spans.add(
+        TextSpan(text: matchedText, style: const TextStyle(fontWeight: FontWeight.bold, color: CoconutColors.black)),
+      );
+      start = match.end;
+    }
+
+    if (start < text.length) {
+      spans.add(TextSpan(text: text.substring(start), style: const TextStyle(color: CoconutColors.black)));
+    }
+
+    return spans;
+  }
+
   Widget _buildSettingTitle(String title, String iconPath) {
     return Row(
       children: [
         SvgPicture.asset(iconPath, height: 16, fit: BoxFit.fitHeight),
         CoconutLayout.spacing_100w,
-        Expanded(child: Text(title, style: CoconutTypography.heading4_18_Bold)),
+        Expanded(child: Text(title, style: CoconutTypography.heading4_18_Bold.setColor(CoconutColors.black))),
       ],
     );
   }
@@ -383,7 +492,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
   Widget _buildSettingDescription(String description) {
     return Padding(
       padding: const EdgeInsets.only(left: 20.0, top: 12, bottom: 24),
-      child: Text(description, style: CoconutTypography.body1_16),
+      child: Text(description, style: CoconutTypography.body1_16.setColor(CoconutColors.black)),
     );
   }
 }

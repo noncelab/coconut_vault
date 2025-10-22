@@ -1,5 +1,4 @@
 import 'package:coconut_lib/coconut_lib.dart';
-import 'package:coconut_vault/extensions/uint8list_extensions.dart';
 import 'package:coconut_vault/isolates/sign_isolates.dart';
 import 'package:coconut_vault/model/multisig/multisig_signer.dart';
 import 'package:coconut_vault/model/multisig/multisig_vault_list_item.dart';
@@ -16,8 +15,9 @@ class MultisigSignViewModel extends ChangeNotifier {
   late final List<bool> _hasPassphraseList;
   late String _psbtForSigning;
   bool _signStateInitialized = false;
+  final bool _isSigningOnlyMode;
 
-  MultisigSignViewModel(this._walletProvider, this._signProvider) {
+  MultisigSignViewModel(this._walletProvider, this._signProvider, this._isSigningOnlyMode) {
     _vaultListItem = _signProvider.vaultListItem! as MultisigVaultListItem;
     _coconutVault = _vaultListItem.coconutVault as MultisignatureVault;
     _signerApproved = List<bool>.filled(_vaultListItem.signers.length, false);
@@ -52,6 +52,7 @@ class MultisigSignViewModel extends ChangeNotifier {
   String get psbtForSigning => _psbtForSigning;
   int getInnerVaultId(int index) => _vaultListItem.signers[index].innerVaultId!;
   bool getHasPassphrase(int index) => _hasPassphraseList[index];
+  bool get isSigningOnlyMode => _isSigningOnlyMode;
 
   void initPsbtSignState() {
     assert(!_signStateInitialized); // 오직 한번만 호출
@@ -75,14 +76,29 @@ class MultisigSignViewModel extends ChangeNotifier {
     return _signProvider.signedPsbtBase64 ?? _signProvider.unsignedPsbtBase64!;
   }
 
-  Future<void> sign(int index, Uint8List passphrase) async {
-    final mnemonic = await _walletProvider.getSecret(_vaultListItem.signers[index].innerVaultId!);
-    final seed = Seed.fromMnemonic(mnemonic, passphrase: passphrase);
-    _psbtForSigning = await compute(SignIsolates.addSignatureToPsbtWithMultisigVault, [seed, _psbtForSigning]);
-    updateSignState(index);
+  Future<Uint8List> getSecret(int index) async {
+    return await _walletProvider.getSecret(_vaultListItem.signers[index].innerVaultId!);
+  }
 
-    seed.wipe();
-    mnemonic.wipe();
+  Future<void> sign(int index, Seed seed) async {
+    try {
+      _psbtForSigning = await compute(SignIsolates.addSignatureToPsbtWithMultisigVault, [seed, _psbtForSigning]);
+      updateSignState(index);
+    } finally {
+      seed.wipe();
+    }
+  }
+
+  Future<void> signPsbtInSigningOnlyMode(int index) async {
+    assert(_isSigningOnlyMode);
+    Seed? seed;
+    try {
+      seed = await _walletProvider.getSeedInSigningOnlyMode(_vaultListItem.signers[index].innerVaultId!);
+      _psbtForSigning = await compute(SignIsolates.addSignatureToPsbtWithMultisigVault, [seed, _psbtForSigning]);
+      updateSignState(index);
+    } finally {
+      seed?.wipe();
+    }
   }
 
   void saveSignedPsbt() {

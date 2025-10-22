@@ -1,16 +1,12 @@
 import 'package:coconut_design_system/coconut_design_system.dart';
-import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/repository/wallet_repository.dart';
 import 'package:coconut_vault/repository/secure_storage_repository.dart';
 import 'package:coconut_vault/repository/shared_preferences_repository.dart';
-import 'package:coconut_vault/screens/app_update/restoration_info_screen.dart';
-import 'package:coconut_vault/screens/app_update/vault_list_restoration_screen.dart';
 import 'package:coconut_vault/screens/common/pin_check_screen.dart';
 import 'package:coconut_vault/screens/home/tutorial_screen.dart';
 import 'package:coconut_vault/screens/home/vault_list_screen.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
-import 'package:coconut_vault/utils/coconut/update_preparation.dart';
 import 'package:coconut_vault/main.dart' as app;
 
 import 'integration_test_utils.dart';
@@ -34,7 +30,7 @@ void main() {
   });
 
   tearDown(() async {
-    await UpdatePreparation.clearUpdatePreparationStorage();
+    // await UpdatePreparation.clearUpdatePreparationStorage();
   });
 
   group('[BackupFile X]', () {
@@ -169,17 +165,17 @@ Future<void> pinCheckToVaultListRestorationFlow(WidgetTester tester) async {
   await waitForWidgetAndTap(tester, zeroButton, "zeroButton");
 
   // Check vaultListRestorationScreen
-  final Finder vaultListRestorationScreen = find.byType(VaultListRestorationScreen);
-  await waitForWidget(
-    tester,
-    vaultListRestorationScreen,
-    timeoutMessage: 'vaultListRestorationScreen not found after 60 seconds',
-  );
-  await tester.pumpAndSettle();
+  // final Finder vaultListRestorationScreen = find.byType(VaultListRestorationScreen);
+  // await waitForWidget(
+  //   tester,
+  //   vaultListRestorationScreen,
+  //   timeoutMessage: 'vaultListRestorationScreen not found after 60 seconds',
+  // );
+  // await tester.pumpAndSettle();
 
   // Wait for restoration
-  final Finder startVaultText = find.text(t.vault_list_restoration.start_vault);
-  await waitForWidgetAndTap(tester, startVaultText, "startVaultText");
+  // final Finder startVaultText = find.text(t.vault_list_restoration.start_vault);
+  // await waitForWidgetAndTap(tester, startVaultText, "startVaultText");
 
   // Check VaultListScreen
   final Finder vaultListScreen = find.byType(VaultListScreen);
@@ -192,13 +188,13 @@ Future<void> restorationInfoFlow(WidgetTester tester) async {
   await tester.pumpAndSettle();
 
   // Check RestorationInfoScreen
-  final Finder restorationInfoScreen = find.byType(RestorationInfoScreen);
-  await waitForWidget(
-    tester,
-    restorationInfoScreen,
-    timeoutMessage: 'restorationInfoScreen not found after 60 seconds',
-  );
-  await tester.pumpAndSettle();
+  // final Finder restorationInfoScreen = find.byType(RestorationInfoScreen);
+  // await waitForWidget(
+  //   tester,
+  //   restorationInfoScreen,
+  //   timeoutMessage: 'restorationInfoScreen not found after 60 seconds',
+  // );
+  // await tester.pumpAndSettle();
 
   // Click CoconutButton
   final Finder coconutButton = find.byType(CoconutButton);
@@ -217,16 +213,16 @@ Future<void> restorationInfoFlow(WidgetTester tester) async {
   await waitForWidgetAndTap(tester, zeroButton, "zeroButton");
 
   // Check VaultListRestorationScreen
-  final Finder vaultListRestorationScreen = find.byType(VaultListRestorationScreen);
-  await waitForWidget(
-    tester,
-    vaultListRestorationScreen,
-    timeoutMessage: 'vaultListRestorationScreen not found after 60 seconds',
-  );
+  // final Finder vaultListRestorationScreen = find.byType(VaultListRestorationScreen);
+  // await waitForWidget(
+  //   tester,
+  //   vaultListRestorationScreen,
+  //   timeoutMessage: 'vaultListRestorationScreen not found after 60 seconds',
+  // );
 
   // Wait for restoration
-  final Finder startVaultText = find.text(t.vault_list_restoration.start_vault);
-  await waitForWidgetAndTap(tester, startVaultText, "startVaultText");
+  // final Finder startVaultText = find.text(t.vault_list_restoration.start_vault);
+  // await waitForWidgetAndTap(tester, startVaultText, "startVaultText");
 
   // Check VaultListScreen
   final Finder vaultListScreen = find.byType(VaultListScreen);

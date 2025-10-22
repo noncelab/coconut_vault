@@ -1146,7 +1146,12 @@ class _MnemonicImportScreenState extends State<MnemonicImportScreen> {
           Text(t.mnemonic_import_screen.need_advanced_mode),
           GestureDetector(
             onTap: () {
-              MyBottomSheet.showBottomSheet_90(context: context, child: const SettingsScreen());
+              MyBottomSheet.showDraggableBottomSheet(
+                context: context,
+                showDragHandle: true,
+                initialChildSize: 0.9,
+                childBuilder: (scrollController) => SettingsScreen(scrollController: scrollController),
+              );
             },
             child: Align(
               alignment: Alignment.centerRight,

@@ -2,7 +2,11 @@ import 'dart:io';
 
 import 'package:coconut_lib/coconut_lib.dart';
 import 'package:coconut_vault/constants/method_channel.dart';
+import 'package:coconut_vault/constants/shared_preferences_keys.dart';
+import 'package:coconut_vault/enums/vault_mode_enum.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
+import 'package:coconut_vault/repository/old_secure_storage_cleaner_for_ios.dart';
+import 'package:coconut_vault/repository/secure_storage_repository.dart';
 import 'package:coconut_vault/repository/shared_preferences_repository.dart';
 import 'package:coconut_vault/utils/logger.dart';
 import 'package:flutter/cupertino.dart';
@@ -10,6 +14,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:coconut_vault/app.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:provider/provider.dart';
 //import 'package:screen_protector/screen_protector.dart';
 
@@ -22,6 +27,7 @@ void main() async {
   // orientations to portrait up and down.
   WidgetsFlutterBinding.ensureInitialized();
   await SharedPrefsRepository().init();
+  deleteAllNewSecureStorageData();
   // Isolate 토큰 생성 및 초기화
   final RootIsolateToken rootIsolateToken = RootIsolateToken.instance!;
   BackgroundIsolateBinaryMessenger.ensureInitialized(rootIsolateToken);
@@ -34,7 +40,7 @@ void main() async {
         SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]);
       }
     } on PlatformException catch (e) {
-      Logger.log("Failed to get platform version: '${e.message}'.");
+      Logger.error("Failed to get platform version: '${e.message}'.");
     }
   } else {
     SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]);
@@ -81,5 +87,28 @@ void main() async {
     },
   );
 
+  // 볼트 모드 마이그레이션
+  SharedPrefsRepository sharedPrefs = SharedPrefsRepository();
+  if (sharedPrefs.getBool(SharedPrefsKeys.hasShownStartGuide) == true &&
+      sharedPrefs.getString(SharedPrefsKeys.kVaultMode).isEmpty) {
+    await sharedPrefs.setString(SharedPrefsKeys.kVaultMode, VaultMode.secureStorage.name);
+  }
+
+  // iOS secure storage 옵션 변경에 따른 삭제
+  if (Platform.isIOS) {
+    await OldSecureStorageCleanerForIos.cleanAll();
+  }
+
   return runApp(const CoconutVaultApp());
+}
+
+/// TODO: 개발자들 테스트 하면서 저장됐던 것 지우기 위한 용도
+/// 서명 전용 모드 기능 머지 후에는 삭제 하기
+Future<void> deleteAllNewSecureStorageData() async {
+  const FlutterSecureStorage newStorage = FlutterSecureStorage(
+    aOptions: AndroidOptions(encryptedSharedPreferences: true),
+    iOptions: IOSOptions(accessibility: KeychainAccessibility.passcode, synchronizable: false),
+  );
+
+  newStorage.deleteAll();
 }

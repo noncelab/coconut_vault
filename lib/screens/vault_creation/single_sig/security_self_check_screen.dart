@@ -25,6 +25,7 @@ class _SecuritySelfCheckScreenState extends State<SecuritySelfCheckScreen> {
     ChecklistItem(title: t.security_self_check_screen.check7),
     ChecklistItem(title: t.security_self_check_screen.check8),
     ChecklistItem(title: t.security_self_check_screen.check9),
+    ChecklistItem(title: t.security_self_check_screen.check10),
   ];
 
   bool get _allItemsChecked {
