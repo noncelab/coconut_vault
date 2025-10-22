@@ -116,7 +116,14 @@ class AuthProvider extends ChangeNotifier {
 
   /// 생체인증 성공했는지 여부 반환
   Future<bool> isBiometricsAuthValid({bool isSaved = false}) async {
-    return isBiometricsAuthEnabled && await authenticateWithBiometrics(isSaved: isSaved);
+    if (!isBiometricEnabled) return false;
+
+    _lifecycleProvider.startOperation(AppLifecycleOperations.biometricAuthentication);
+    try {
+      return await authenticateWithBiometrics(isSaved: isSaved);
+    } finally {
+      _lifecycleProvider.endOperation(AppLifecycleOperations.biometricAuthentication);
+    }
   }
 
   /// 주의: TEE decrypt 직전 사용. 아이폰이거나 생체인증이 켜져 있는 경우 생체인증을 진행하지 않음. TEE decrypt과정에서 생체인증하기 때문

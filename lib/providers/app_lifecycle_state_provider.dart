@@ -48,7 +48,8 @@ class AppLifecycleStateProvider extends ChangeNotifier with WidgetsBindingObserv
   }
 
   // 작업 완료
-  void endOperation(String operationId) {
+  Future<void> endOperation(String operationId) async {
+    await Future.delayed(const Duration(milliseconds: 1000));
     _ignoredOperations.remove(operationId);
     Logger.log('AppLifecycle: 작업 완료 - $operationId (총 ${_ignoredOperations.length}개)');
     notifyListeners();
@@ -92,6 +93,12 @@ class AppLifecycleStateProvider extends ChangeNotifier with WidgetsBindingObserv
 
       case AppLifecycleState.resumed:
         Logger.log('-->AppLifecycle: Resumed');
+        // 무시해야 하는 작업이 진행 중인 경우 inactive 콜백 호출하지 않음
+        if (shouldIgnoreInactiveTransition) {
+          Logger.log('-->AppLifecycle: Resumed 무시 (진행 중인 작업: ${_ignoredOperations.join(", ")})');
+          return;
+        }
+
         onAppGoActive?.call();
         break;
 

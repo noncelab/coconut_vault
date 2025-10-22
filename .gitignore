@@ -156,3 +156,4 @@ coconut_lib
 
 # fastlane
 play_store_credentials.json
+report.xml
