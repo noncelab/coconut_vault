@@ -136,7 +136,7 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> with SingleTickerProv
     super.initState();
     _navigatorObserver = _CustomNavigatorObserver(
       onRouteChanged: (routeName) {
-        if (routeName == null || routeName == '/') {
+        if (routeName == null || routeName == '/' || routeName == AppRoutes.vaultModeSelection) {
           _routeNotifierHasShow.value = false;
         } else {
           _routeNotifierHasShow.value = true;
