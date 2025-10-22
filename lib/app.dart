@@ -876,6 +876,11 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> with SingleTickerProv
     bool isPinSet = authProvider.isPinSet;
     int vaultListLength = SharedPrefsRepository().getInt(SharedPrefsKeys.vaultListLength) ?? 0;
 
+    if (_isInactive == false && _appEntryFlow == AppEntryFlow.vaultHome) {
+      // 이미 _appEntryFlow가 vaultHome로 이동한 경우
+      return;
+    }
+
     try {
       // 첫 번째/두 번째 플로우: 보안 검사 수행
       final securityResult = await SecurityPrechecker().performSecurityCheck();
