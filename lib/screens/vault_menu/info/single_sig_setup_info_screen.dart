@@ -65,11 +65,17 @@ class _SingleSigSetupInfoScreenState extends State<SingleSigSetupInfoScreen> {
   ) async {
     final authProvider = context.read<AuthProvider>();
 
-    if (await authProvider.isBiometricsAuthValid() && context.mounted) {
+    final isBiometricValid =
+        pinCheckContext == PinCheckContextEnum.sensitiveAction
+            ? await authProvider.isBiometricsAuthValidToAvoidDoubleAuth()
+            : await authProvider.isBiometricsAuthValid();
+
+    if (isBiometricValid && context.mounted) {
       onSuccess();
       return;
     }
 
+    if (!context.mounted) return;
     await MyBottomSheet.showBottomSheet_90(
       context: context,
       child: CustomLoadingOverlay(
