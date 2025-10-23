@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/services/secure_zone/secure_zone_keystore.dart';
 import 'package:flutter/services.dart';
 import 'package:local_auth/local_auth.dart';
@@ -58,16 +59,13 @@ class StrongBoxKeystore extends SecureZoneKeystore {
     } on PlatformException catch (e) {
       if (e.code == 'AUTH_NEEDED' && isAutoAuthWhenNeeded) {
         final authenticated = await LocalAuthentication().authenticate(
-          // TODO: localizedReason
-          localizedReason: '인증을 위해 휴대폰의 화면 잠금을 해제해주세요.',
+          localizedReason: t.permission.biometric.proceed_biometric_auth,
           options: const AuthenticationOptions(stickyAuth: true),
         );
 
         if (authenticated) {
           return _encrypt(alias: alias, plaintext: plaintext);
         }
-      } else if (e.code == 'KEY_INVALIDATED') {
-        // TODO: UI/UX
       }
 
       rethrow;
@@ -93,19 +91,15 @@ class StrongBoxKeystore extends SecureZoneKeystore {
     try {
       return await _decrypt(alias: alias, ciphertext: ciphertext, iv: iv);
     } on PlatformException catch (e) {
-      // TODO: e.code == 'KEY_INVALIDATED'
       if (e.code == 'AUTH_NEEDED' && isAutoAuthWhenNeeded) {
         final authenticated = await LocalAuthentication().authenticate(
-          // TODO: localizedReason
-          localizedReason: '인증을 위해 휴대폰의 화면 잠금을 해제해주세요.',
+          localizedReason: t.permission.biometric.proceed_biometric_auth,
           options: const AuthenticationOptions(stickyAuth: true),
         );
 
         if (authenticated) {
           return _decrypt(alias: alias, ciphertext: ciphertext, iv: iv);
         }
-      } else if (e.code == 'KEY_INVALIDATED') {
-        // TODO: UI/UX
       }
 
       rethrow;
