@@ -23,7 +23,7 @@ import 'package:coconut_vault/screens/common/app_unavailable_notification_screen
 import 'package:coconut_vault/screens/common/vault_mode_selection_screen.dart';
 import 'package:coconut_vault/screens/home/vault_home_screen.dart';
 import 'package:coconut_vault/screens/home/vault_list_screen.dart';
-import 'package:coconut_vault/screens/precheck/device_password_detection_screen.dart';
+import 'package:coconut_vault/screens/precheck/device_password_checker_screen.dart';
 import 'package:coconut_vault/screens/precheck/jail_break_detection_screen.dart';
 import 'package:coconut_vault/services/security_prechecker.dart';
 import 'package:coconut_vault/repository/shared_preferences_repository.dart';
@@ -66,16 +66,14 @@ import 'package:provider/provider.dart';
 import 'dart:async';
 
 enum AppEntryFlow {
-  securityCheck,
-  jailbreakDetected, // 탈옥/루팅 감지 화면
-  devicePasswordRequired, // 기기 비밀번호 설정 필요 화면
-  devicePasswordChanged, // 기기 비밀번호 변경 감지 화면
   splash,
-  tutorial,
+  firstLaunch,
+  securityPrecheck, // 보안 검사 실행
   pinCheckAppLaunched,
   pinCheckAppResumed,
   vaultHome,
-  vaultResetCompleted, // 볼트 초기화 완료 화면
+  vaultResetCompleted, // 지갑 초기화 완료 상태
+  cannotAccessToSecureZone, // 보안 영역 접근 불가 상태
 }
 
 const cupertinoThemeData = CupertinoThemeData(
@@ -107,7 +105,7 @@ class CoconutVaultApp extends StatefulWidget {
 }
 
 class _CoconutVaultAppState extends State<CoconutVaultApp> with SingleTickerProviderStateMixin {
-  AppEntryFlow _appEntryFlow = AppEntryFlow.securityCheck;
+  AppEntryFlow _appEntryFlow = AppEntryFlow.splash;
   bool _isInactive = false;
   late final authProvider = AuthProvider();
   late final preferenceProvider = PreferenceProvider();
@@ -171,7 +169,7 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> with SingleTickerProv
     });
   }
 
-  Widget _buildPinCheckScreen({
+  Widget _buildPinCheckScreenAfterSecurityCheck({
     required PinCheckContextEnum pinCheckContext,
     required AppEntryFlow nextFlow,
     VoidCallback? onReset,
@@ -180,30 +178,7 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> with SingleTickerProv
       onAppGoBackground: () {},
       onAppGoInactive: () {},
       onAppGoActive: () async {
-        final securityResult = await SecurityPrechecker().performSecurityCheck();
-
-        // 보안 검사 결과에 따른 처리
-        switch (securityResult.status) {
-          case SecurityCheckStatus.jailbreakDetected:
-            // 탈옥/루팅 감지 시 플로우 변경
-            _updateEntryFlow(AppEntryFlow.jailbreakDetected);
-            return;
-          case SecurityCheckStatus.devicePasswordRequired:
-            // 기기 비밀번호 미설정 시 플로우 변경
-            _updateEntryFlow(AppEntryFlow.devicePasswordRequired);
-            return;
-          case SecurityCheckStatus.devicePasswordChanged:
-            if (Platform.isIOS) {
-              _updateEntryFlow(AppEntryFlow.devicePasswordChanged);
-            }
-            break;
-          case SecurityCheckStatus.secure:
-            // 보안 검사 통과 시 계속 진행
-            break;
-          case SecurityCheckStatus.error:
-            // 에러 발생 시 계속 진행 (에러 무시)
-            break;
-        }
+        _updateEntryFlow(AppEntryFlow.securityPrecheck);
       },
       child: PinCheckScreen(
         pinCheckContext: pinCheckContext,
@@ -217,78 +192,117 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> with SingleTickerProv
 
   Widget _getHomeScreenRoute(AppEntryFlow appEntry, BuildContext context) {
     switch (appEntry) {
-      case AppEntryFlow.securityCheck:
-        return _SecurityCheckWidget(onComplete: _updateEntryFlow);
-      case AppEntryFlow.jailbreakDetected:
-        return JailBreakDetectionScreen(
-          hasSeenGuide: visibilityProvider.hasSeenGuide,
-          onSkip: () async {
-            SharedPrefsRepository sharedPrefs = SharedPrefsRepository();
-            await sharedPrefs.setBool(SharedPrefsKeys.jailbreakDetectionIgnored, true);
-            await sharedPrefs.setInt(
-              SharedPrefsKeys.jailbreakDetectionIgnoredTime,
-              DateTime.now().millisecondsSinceEpoch,
-            );
-            _updateEntryFlow(AppEntryFlow.splash);
-          },
-          onReset: () => _onChangeEntryFlow(),
-        );
-      case AppEntryFlow.devicePasswordRequired:
-        return DevicePasswordDetectionScreen(
-          state: DevicePasswordDetectionScreenState.devicePasswordRequired,
-          onComplete: () {
-            // 앱 최초실행 여부 확인
-            final isInitialLaunch = _isInitialLaunch();
-            if (isInitialLaunch) {
-              // 앱 최초실행인 경우 splash로 이동
-              _updateEntryFlow(AppEntryFlow.splash);
-            } else {
-              // 앱 최초실행이 아닌 경우 devicePasswordChanged 화면으로 이동
-              _updateEntryFlow(AppEntryFlow.devicePasswordChanged);
-            }
-          },
-        );
-      case AppEntryFlow.devicePasswordChanged:
-        return DevicePasswordDetectionScreen(
-          state: DevicePasswordDetectionScreenState.devicePasswordChanged,
-          onComplete: () async {
-            // 볼트 초기화 수행
-            await _handleDevicePasswordChangedOnResume();
-            // 볼트 초기화 후 vaultHome으로 이동
-            _updateEntryFlow(AppEntryFlow.vaultHome);
-          },
-        );
       case AppEntryFlow.splash:
-        return StartScreen(onComplete: _updateEntryFlow);
+        return SplashScreen(onComplete: _updateEntryFlow);
 
-      case AppEntryFlow.tutorial:
+      case AppEntryFlow.securityPrecheck:
+        return FutureBuilder<SecurityCheckResult>(
+          future: Future.delayed(const Duration(milliseconds: 500), () => SecurityPrechecker().performSecurityCheck()),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return _buildSecurityCheckInProgress();
+            }
+
+            if (snapshot.hasData) {
+              final securityResult = snapshot.data!.status;
+
+              switch (securityResult) {
+                case SecurityCheckStatus.jailbreakDetected:
+                  return JailBreakDetectionScreen(
+                    hasSeenGuide: visibilityProvider.hasSeenGuide,
+                    onSkip: () async {
+                      // 첫 실행 화면으로 이동하여 다시 보안 검사 이어서 실행
+                      _updateEntryFlow(AppEntryFlow.splash);
+                    },
+                    onReset: () {
+                      _updateEntryFlow(AppEntryFlow.vaultResetCompleted);
+                    },
+                  );
+                case SecurityCheckStatus.devicePasswordRequired:
+                  return DevicePasswordCheckerScreen(
+                    state: DevicePasswordCheckerScreenState.devicePasswordRequired,
+                    onComplete: () {
+                      // 스플래시 플로우로 이동 후 다시 보안 검사 이어서 실행
+                      _updateEntryFlow(AppEntryFlow.splash);
+                    },
+                  );
+                case SecurityCheckStatus.devicePasswordChanged:
+                  return DevicePasswordCheckerScreen(
+                    state: DevicePasswordCheckerScreenState.devicePasswordChanged,
+                    onComplete: () async {
+                      // 기존 데이터 삭제 후 vaultHome으로 이동
+                      await _handleDevicePasswordChangedOnResume();
+                      _updateEntryFlow(AppEntryFlow.vaultHome);
+                    },
+                  );
+                case SecurityCheckStatus.secure:
+                  WidgetsBinding.instance.addPostFrameCallback((_) {
+                    // 한번도 튜토리얼을 보지 않은 경우
+                    if (!visibilityProvider.hasSeenGuide) {
+                      _updateEntryFlow(AppEntryFlow.firstLaunch);
+                      return;
+                    }
+
+                    // 서명 전용 모드인 경우
+                    if (preferenceProvider.isSigningOnlyMode) {
+                      _updateEntryFlow(AppEntryFlow.vaultHome);
+                      return;
+                    }
+
+                    // 저장 모드 && 지갑이 있는 경우
+                    // visibilityProvider.walletCount 대신 SharedPrefsRepository()에서 가져옴
+                    final walletCount = SharedPrefsRepository().getInt(SharedPrefsKeys.vaultListLength) ?? 0;
+                    if (walletCount > 0) {
+                      _updateEntryFlow(AppEntryFlow.pinCheckAppLaunched);
+                      return;
+                    }
+
+                    _updateEntryFlow(AppEntryFlow.vaultHome);
+                  });
+                case SecurityCheckStatus.error:
+              }
+            }
+            return _buildSecurityCheckInProgress();
+          },
+        );
+      case AppEntryFlow.firstLaunch:
         if (NetworkType.currentNetworkType.isTestnet) {
           return const TutorialScreen(screenStatus: TutorialScreenStatus.entrance);
         } else {
-          onComplete() {
-            _updateEntryFlow(AppEntryFlow.vaultHome);
-          }
-
-          return WelcomeScreen(onComplete: onComplete);
-        }
-
-      case AppEntryFlow.pinCheckAppLaunched:
-        return _buildPinCheckScreen(pinCheckContext: PinCheckContextEnum.appLaunch, nextFlow: AppEntryFlow.vaultHome);
-      case AppEntryFlow.pinCheckAppResumed:
-        resuemedCount++;
-        return _buildPinCheckScreen(pinCheckContext: PinCheckContextEnum.appResumed, nextFlow: AppEntryFlow.vaultHome);
-      case AppEntryFlow.vaultHome:
-        {
-          return VaultHomeScreen(
-            onChangeEntryFlow: () {
-              _onChangeEntryFlow();
-            },
-            onTeeUnaccessible: () {
-              _updateEntryFlow(AppEntryFlow.devicePasswordChanged);
+          return WelcomeScreen(
+            onComplete: () {
+              _updateEntryFlow(AppEntryFlow.vaultHome);
             },
           );
         }
-
+      case AppEntryFlow.pinCheckAppLaunched:
+        return PinCheckScreen(
+          pinCheckContext: PinCheckContextEnum.appLaunch,
+          onSuccess: () => _updateEntryFlow(AppEntryFlow.vaultHome),
+          onReset: () async => _updateEntryFlow(AppEntryFlow.vaultHome),
+        );
+      case AppEntryFlow.pinCheckAppResumed:
+        return _buildPinCheckScreenAfterSecurityCheck(
+          pinCheckContext: PinCheckContextEnum.appResumed,
+          nextFlow: AppEntryFlow.vaultHome,
+        );
+      case AppEntryFlow.vaultHome:
+        return VaultHomeScreen(
+          onChangeEntryFlow: () {
+            _onChangeEntryFlow();
+          },
+          onSecureZoneUnaccessible: () {
+            _updateEntryFlow(AppEntryFlow.cannotAccessToSecureZone);
+          },
+        );
+      case AppEntryFlow.cannotAccessToSecureZone:
+        return DevicePasswordCheckerScreen(
+          state: DevicePasswordCheckerScreenState.devicePasswordChanged,
+          onComplete: () async {
+            await _handleDevicePasswordChangedOnResume();
+            _updateEntryFlow(AppEntryFlow.vaultHome);
+          },
+        );
       case AppEntryFlow.vaultResetCompleted:
         lifecycleProvider.disposeWhenVaultReset();
         WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -301,6 +315,22 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> with SingleTickerProv
         });
         return const SizedBox.shrink(); // 빈 위젯 반환
     }
+  }
+
+  // TODO: 보안 검사 진행 중 화면 필요
+  Widget _buildSecurityCheckInProgress() {
+    return Container(
+      color: Colors.white,
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Text('Checking security...', style: CoconutTypography.body1_16_Bold.setColor(CoconutColors.gray800)),
+          CoconutLayout.spacing_300h,
+          const CircularProgressIndicator(color: CoconutColors.gray800),
+        ],
+      ),
+    );
   }
 
   @override
@@ -346,10 +376,6 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> with SingleTickerProv
           if (_appEntryFlow == AppEntryFlow.vaultHome) ...[
             Provider<WalletCreationProvider>(create: (_) => WalletCreationProvider()),
             Provider<SignProvider>(create: (_) => SignProvider()),
-            ChangeNotifierProvider(
-              create: (_) => WalletProvider(visibilityProvider, preferenceProvider, lifecycleProvider),
-            ),
-          ] else if (_appEntryFlow == AppEntryFlow.jailbreakDetected) ...[
             ChangeNotifierProvider(
               create: (_) => WalletProvider(visibilityProvider, preferenceProvider, lifecycleProvider),
             ),
@@ -562,13 +588,6 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> with SingleTickerProv
                     color: CoconutColors.white,
                     home: _getHomeScreenRoute(_appEntryFlow, context),
                     routes: {
-                      // AppRoutes.devicePasswordDetection:
-                      //     (context) => DevicePasswordDetectionScreen(
-                      //       state: DevicePasswordDetectionScreenState.devicePasswordRequired,
-                      //       onComplete: () => _updateEntryFlow,
-                      //     ),
-                      // AppRoutes.jailBreakDetection:
-                      //     (context) => JailBreakDetectionScreen(onSkip: () => _updateEntryFlow(AppEntryFlow.vaultHome)),
                       AppRoutes.welcome:
                           (context) => WelcomeScreen(onComplete: () => _updateEntryFlow(AppEntryFlow.vaultHome)),
                       AppRoutes.vaultModeSelection:
@@ -872,10 +891,8 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> with SingleTickerProv
   }
 
   /// onAppGoActive에서 실행되는 로직
+  /// 앱 재개시 보안 검사 수행 _updateEntryFlow(AppEntryFlow.securityPrecheck);
   Future<void> _handleAppGoActive(PreferenceProvider preferenceProvider, AuthProvider authProvider) async {
-    bool isPinSet = authProvider.isPinSet;
-    int vaultListLength = SharedPrefsRepository().getInt(SharedPrefsKeys.vaultListLength) ?? 0;
-
     // 플랫폼별로 다른 로직 적용
     // iOS: 무한 반복 방지를 위해 inactive 체크 추가
     // Android: 기기 비밀번호 해제 감지를 위해 항상 실행
@@ -884,56 +901,10 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> with SingleTickerProv
       return;
     }
 
-    try {
-      // 첫 번째/두 번째 플로우: 보안 검사 수행
-      final securityResult = await SecurityPrechecker().performSecurityCheck();
+    _updateEntryFlow(AppEntryFlow.securityPrecheck);
 
-      // 보안 검사 결과에 따른 처리
-      switch (securityResult.status) {
-        case SecurityCheckStatus.jailbreakDetected:
-          // 탈옥/루팅 감지 시 flow 변경
-          _updateEntryFlow(AppEntryFlow.jailbreakDetected);
-          return;
-        case SecurityCheckStatus.devicePasswordRequired:
-          // 기기 비밀번호 미설정 시 flow 변경
-          _updateEntryFlow(AppEntryFlow.devicePasswordRequired);
-          return;
-        case SecurityCheckStatus.devicePasswordChanged:
-          // 앱 최초실행 여부 확인
-          final isInitialLaunch = _isInitialLaunch();
-          if (isInitialLaunch) {
-            // 앱 최초실행인 경우 splash로 이동
-            _updateEntryFlow(AppEntryFlow.splash);
-          } else {
-            // 앱 최초실행이 아닌 경우 devicePasswordChanged 화면으로 이동
-            _updateEntryFlow(AppEntryFlow.devicePasswordChanged);
-          }
-          return;
-        case SecurityCheckStatus.secure:
-          // 보안 검사 통과 시 계속 진행
-          break;
-        case SecurityCheckStatus.error:
-          // 에러 발생 시 계속 진행 (에러 무시)
-          break;
-      }
-
-      // 생체인증 상태 업데이트
-      await authProvider.updateDeviceBiometricAvailability();
-
-      if (preferenceProvider.isSigningOnlyMode || (!isPinSet || vaultListLength == 0)) {
-        // 서명 전용 모드이거나 지갑이 없으면 vaultHome으로 이동
-        _updateEntryFlow(AppEntryFlow.vaultHome);
-      } else {
-        _updateEntryFlow(AppEntryFlow.pinCheckAppResumed);
-      }
-    } catch (e) {
-      // 예외 발생 시
-      if (isPinSet || vaultListLength > 0) {
-        _updateEntryFlow(AppEntryFlow.pinCheckAppResumed);
-      } else {
-        _updateEntryFlow(AppEntryFlow.vaultHome);
-      }
-    }
+    // 생체인증 상태 업데이트 -> TODO:이거 왜하는거지????
+    await authProvider.updateDeviceBiometricAvailability();
 
     // Android가 아닌 경우 inactive 상태 해제
     if (Platform.isAndroid) return;
@@ -950,22 +921,6 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> with SingleTickerProv
     } catch (e) {
       debugPrint('볼트 초기화 실패: $e');
       // 볼트 초기화 실패 시에도 계속 진행
-    }
-  }
-
-  /// 앱 최초실행 여부 확인
-  bool _isInitialLaunch() {
-    try {
-      // 지갑이 존재하지 않거나 PIN이 설정되지 않은 경우 최초실행으로 간주
-      final vaultListLength = SharedPrefsRepository().getInt(SharedPrefsKeys.vaultListLength) ?? 0;
-      final hasSeenGuide = SharedPrefsRepository().getBool(SharedPrefsKeys.hasShownStartGuide) ?? false;
-      final isPinEnabled = SharedPrefsRepository().getBool(SharedPrefsKeys.isPinEnabled) ?? false;
-      // 지갑이 없거나 가이드를 본 적이 없으면 최초실행
-      return (!isPinEnabled && vaultListLength == 0) || !hasSeenGuide;
-    } catch (e) {
-      debugPrint('앱 최초실행 여부 확인 실패: $e');
-      // 에러 발생 시 최초실행으로 간주
-      return true;
     }
   }
 }
@@ -1005,105 +960,5 @@ class _CustomNavigatorObserver extends NavigatorObserver {
   void didRemove(Route<dynamic> route, Route<dynamic>? previousRoute) {
     super.didRemove(route, previousRoute);
     notifyRouteChange(previousRoute);
-  }
-}
-
-class _SecurityCheckWidget extends StatefulWidget {
-  final Function(AppEntryFlow) onComplete;
-
-  const _SecurityCheckWidget({required this.onComplete});
-
-  @override
-  State<_SecurityCheckWidget> createState() => _SecurityCheckWidgetState();
-}
-
-class _SecurityCheckWidgetState extends State<_SecurityCheckWidget> {
-  @override
-  void initState() {
-    super.initState();
-    performSecurityCheck();
-  }
-
-  Future<void> performSecurityCheck() async {
-    try {
-      final securityResult = await SecurityPrechecker().performSecurityCheck();
-      debugPrint('securityResult: ${securityResult.status}');
-      switch (securityResult.status) {
-        case SecurityCheckStatus.jailbreakDetected:
-          // 탈옥/루팅 감지 시 탈옥 감지 화면으로 이동
-          widget.onComplete(AppEntryFlow.jailbreakDetected);
-          break;
-        case SecurityCheckStatus.devicePasswordRequired:
-          // 기기 비밀번호 미설정 시 비밀번호 설정 화면으로 이동
-          widget.onComplete(AppEntryFlow.devicePasswordRequired);
-          break;
-        case SecurityCheckStatus.devicePasswordChanged:
-          // 앱 최초실행 여부 확인
-          final isInitialLaunch = isInitialLaunch0();
-          if (isInitialLaunch) {
-            // 앱 최초실행인 경우 splash로 이동
-            widget.onComplete(AppEntryFlow.splash);
-          } else {
-            // 앱 최초실행이 아닌 경우 devicePasswordChanged 화면으로 이동
-            widget.onComplete(AppEntryFlow.devicePasswordChanged);
-          }
-          break;
-        case SecurityCheckStatus.secure:
-          // 보안 검사 통과 시 스플래시로 이동
-          widget.onComplete(AppEntryFlow.splash);
-          break;
-        case SecurityCheckStatus.error:
-          // 에러 발생 시 스플래시로 이동 (에러 무시)
-          widget.onComplete(AppEntryFlow.splash);
-          break;
-      }
-    } catch (e) {
-      // 예외 발생 시 스플래시로 이동
-      widget.onComplete(AppEntryFlow.splash);
-    }
-  }
-
-  /// 앱 최초실행 여부 확인
-  bool isInitialLaunch0() {
-    try {
-      // 지갑이 존재하지 않거나 PIN이 설정되지 않은 경우 최초실행으로 간주
-      final vaultListLength = SharedPrefsRepository().getInt(SharedPrefsKeys.vaultListLength) ?? 0;
-      final hasSeenGuide = SharedPrefsRepository().getBool(SharedPrefsKeys.hasShownStartGuide) ?? false;
-      final isPinEnabled = SharedPrefsRepository().getBool(SharedPrefsKeys.isPinEnabled) ?? false;
-      // 지갑이 없거나 가이드를 본 적이 없으면 최초실행
-      return (!isPinEnabled && vaultListLength == 0) || !hasSeenGuide;
-    } catch (e) {
-      debugPrint('앱 최초실행 여부 확인 실패: $e');
-      // 에러 발생 시 최초실행으로 간주
-      return true;
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    SystemChrome.setSystemUIOverlayStyle(
-      Platform.isIOS
-          ? const SystemUiOverlayStyle(
-            statusBarIconBrightness: Brightness.dark, // iOS → 검정 텍스트
-          )
-          : const SystemUiOverlayStyle(
-            statusBarIconBrightness: Brightness.dark, // Android → 검정 텍스트
-            statusBarColor: Colors.transparent,
-          ),
-    );
-
-    // 스플래시와 동일한 화면
-    return Scaffold(
-      backgroundColor: CoconutColors.white,
-      body: Container(
-        padding: Platform.isIOS ? null : const EdgeInsets.only(top: Sizes.size48),
-        child: Center(
-          child: Image.asset(
-            'assets/png/splash_logo_${NetworkType.currentNetworkType.isTestnet ? "regtest" : "mainnet"}.png',
-            width: Sizes.size60,
-          ),
-        ),
-      ),
-    );
   }
 }

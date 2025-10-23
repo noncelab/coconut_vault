@@ -5,25 +5,25 @@ import 'package:coconut_vault/providers/auth_provider.dart';
 import 'package:coconut_vault/providers/visibility_provider.dart';
 import 'package:coconut_vault/services/security_prechecker.dart';
 import 'package:coconut_vault/utils/device_secure_checker.dart';
-import 'package:coconut_vault/utils/device_secure_checker.dart' as DeviceSecureChecker;
+import 'package:coconut_vault/utils/device_secure_checker.dart' as device_secure_checker;
 import 'package:coconut_vault/widgets/button/fixed_bottom_button.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 // devicePasswordRequired: 기기 비밀번호 필요 화면(앱 최초 실행, 진입 후 표시)
 // devicePasswordChanged: 기기 비밀번호 변경 감지 화면(앱 진입 후 표시)
-enum DevicePasswordDetectionScreenState { devicePasswordRequired, devicePasswordChanged }
+enum DevicePasswordCheckerScreenState { devicePasswordRequired, devicePasswordChanged }
 
-class DevicePasswordDetectionScreen extends StatefulWidget {
-  final DevicePasswordDetectionScreenState state;
+class DevicePasswordCheckerScreen extends StatefulWidget {
+  final DevicePasswordCheckerScreenState state;
   final VoidCallback onComplete;
-  const DevicePasswordDetectionScreen({super.key, required this.state, required this.onComplete});
+  const DevicePasswordCheckerScreen({super.key, required this.state, required this.onComplete});
 
   @override
-  State<DevicePasswordDetectionScreen> createState() => _DevicePasswordDetectionScreenState();
+  State<DevicePasswordCheckerScreen> createState() => _DevicePasswordCheckerScreenState();
 }
 
-class _DevicePasswordDetectionScreenState extends State<DevicePasswordDetectionScreen> {
+class _DevicePasswordCheckerScreenState extends State<DevicePasswordCheckerScreen> {
   bool isDeviceSecured = false;
 
   @override
@@ -51,8 +51,8 @@ class _DevicePasswordDetectionScreenState extends State<DevicePasswordDetectionS
         // 만약 핀설정이 되어있으면 결국 devicePassword를 설정하더라도 아이폰에서는 devicePasswordChanged 상태로 전환하게 됨
         // -> 자동으로 볼트 초기화를 진행할 것인지?
         // (아이폰은 키체인이 무효화 되기 때문에 이 과정을 거치는데) 안드로이드는 어떻게 되는지 확인이 필요함, 안드로이드는 초기화가 필요 없을 수도 있음
-        if (widget.state == DevicePasswordDetectionScreenState.devicePasswordRequired) {
-          isDeviceSecured = await DeviceSecureChecker.isDeviceSecured();
+        if (widget.state == DevicePasswordCheckerScreenState.devicePasswordRequired) {
+          isDeviceSecured = await device_secure_checker.isDeviceSecured();
           if (isDeviceSecured) {
             if (mounted) {
               widget.onComplete();
@@ -121,9 +121,9 @@ class _DevicePasswordDetectionScreenState extends State<DevicePasswordDetectionS
 
   Color _getBackgroundColor() {
     switch (widget.state) {
-      case DevicePasswordDetectionScreenState.devicePasswordRequired:
+      case DevicePasswordCheckerScreenState.devicePasswordRequired:
         return CoconutColors.white;
-      case DevicePasswordDetectionScreenState.devicePasswordChanged:
+      case DevicePasswordCheckerScreenState.devicePasswordChanged:
         return CoconutColors.gray150;
     }
   }
@@ -131,9 +131,9 @@ class _DevicePasswordDetectionScreenState extends State<DevicePasswordDetectionS
   Widget _buildTitleTextWidget() {
     String titleText = '';
     switch (widget.state) {
-      case DevicePasswordDetectionScreenState.devicePasswordRequired:
+      case DevicePasswordCheckerScreenState.devicePasswordRequired:
         titleText = t.device_password_detection_screen.device_password_required;
-      case DevicePasswordDetectionScreenState.devicePasswordChanged:
+      case DevicePasswordCheckerScreenState.devicePasswordChanged:
         titleText = t.device_password_detection_screen.device_password_changed_question;
     }
     return MediaQuery(
@@ -145,7 +145,7 @@ class _DevicePasswordDetectionScreenState extends State<DevicePasswordDetectionS
   Widget _buildDescriptionTextWidget() {
     Widget descriptionTextWidget;
     switch (widget.state) {
-      case DevicePasswordDetectionScreenState.devicePasswordRequired:
+      case DevicePasswordCheckerScreenState.devicePasswordRequired:
         descriptionTextWidget = MediaQuery(
           data: MediaQuery.of(context).copyWith(textScaler: const TextScaler.linear(1.0)),
           child: Text(
@@ -154,7 +154,7 @@ class _DevicePasswordDetectionScreenState extends State<DevicePasswordDetectionS
             textAlign: TextAlign.center,
           ),
         );
-      case DevicePasswordDetectionScreenState.devicePasswordChanged:
+      case DevicePasswordCheckerScreenState.devicePasswordChanged:
         descriptionTextWidget = Column(
           children: [
             MediaQuery(
@@ -183,9 +183,9 @@ class _DevicePasswordDetectionScreenState extends State<DevicePasswordDetectionS
 
   Widget _buildImage() {
     switch (widget.state) {
-      case DevicePasswordDetectionScreenState.devicePasswordRequired:
+      case DevicePasswordCheckerScreenState.devicePasswordRequired:
         return Image.asset('assets/png/password-required.png', fit: BoxFit.fitWidth);
-      case DevicePasswordDetectionScreenState.devicePasswordChanged:
+      case DevicePasswordCheckerScreenState.devicePasswordChanged:
         return Image.asset('assets/png/keychain-inaccessible.png', fit: BoxFit.fitWidth, width: 100);
     }
   }
@@ -201,16 +201,16 @@ class _DevicePasswordDetectionScreenState extends State<DevicePasswordDetectionS
 
   String _getButtonText() {
     switch (widget.state) {
-      case DevicePasswordDetectionScreenState.devicePasswordRequired:
+      case DevicePasswordCheckerScreenState.devicePasswordRequired:
         return t.device_password_detection_screen.go_to_settings;
-      case DevicePasswordDetectionScreenState.devicePasswordChanged:
+      case DevicePasswordCheckerScreenState.devicePasswordChanged:
         return t.device_password_detection_screen.delete_vault;
     }
   }
 
   void _onButtonClicked() async {
     switch (widget.state) {
-      case DevicePasswordDetectionScreenState.devicePasswordRequired:
+      case DevicePasswordCheckerScreenState.devicePasswordRequired:
         await openSystemSecuritySettings(
           context,
           hasDialogShownForIos: true,
@@ -219,7 +219,7 @@ class _DevicePasswordDetectionScreenState extends State<DevicePasswordDetectionS
           buttonText: t.confirm,
         );
         break;
-      case DevicePasswordDetectionScreenState.devicePasswordChanged:
+      case DevicePasswordCheckerScreenState.devicePasswordChanged:
         final authProvider = Provider.of<AuthProvider>(context, listen: false);
         final result = await SecurityPrechecker().deleteStoredData(authProvider);
         if (mounted && result) {

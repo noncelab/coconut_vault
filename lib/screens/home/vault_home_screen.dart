@@ -31,8 +31,8 @@ import 'package:collection/collection.dart';
 
 class VaultHomeScreen extends StatefulWidget {
   final Function? onChangeEntryFlow;
-  final Function? onTeeUnaccessible;
-  const VaultHomeScreen({super.key, this.onChangeEntryFlow, this.onTeeUnaccessible});
+  final Function? onSecureZoneUnaccessible;
+  const VaultHomeScreen({super.key, this.onChangeEntryFlow, this.onSecureZoneUnaccessible});
 
   @override
   State<VaultHomeScreen> createState() => _VaultHomeScreenState();
@@ -67,12 +67,13 @@ class _VaultHomeScreenState extends State<VaultHomeScreen> with TickerProviderSt
 
       // loadVaults() 완료 후 vaultList가 null이 아닐 때 실행
       if (Platform.isAndroid) {
+        if (!mounted) return;
         final walletProvider = context.read<WalletProvider>();
         if (walletProvider.isVaultsLoaded && walletProvider.vaultList.isNotEmpty) {
-          _isTeeAccessible().then((isTeeAccessible) {
-            debugPrint('isTeeAccessible: $isTeeAccessible');
-            if (!isTeeAccessible) {
-              widget.onTeeUnaccessible?.call();
+          _isSecureZoneAccessible().then((isSecureZoneAccessible) {
+            debugPrint('isSecureZoneAccessible: $isSecureZoneAccessible');
+            if (!isSecureZoneAccessible) {
+              widget.onSecureZoneUnaccessible?.call();
             }
           });
         }
@@ -80,7 +81,7 @@ class _VaultHomeScreenState extends State<VaultHomeScreen> with TickerProviderSt
     });
   }
 
-  Future<bool> _isTeeAccessible() async {
+  Future<bool> _isSecureZoneAccessible() async {
     final firstSingleSignatureWalletId =
         context
             .read<WalletProvider>()

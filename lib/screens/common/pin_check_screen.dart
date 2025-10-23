@@ -121,6 +121,7 @@ class _PinCheckScreenState extends State<PinCheckScreen> with WidgetsBindingObse
 
   /// _authProvider.authenticateWithBiometrics()에 의해 아래 함수가 호출되었는지 여부를 정확히 판단할 수 없는 상황
   /// 우선 단순히 _isLifecycleTriggeredByBio 플래그만 사용하여 생체인증으로 인한 applifecycle 이벤트를 판단
+  /// FIXME: 자동 생체인증 enabled여도, 생체인증하지 않는 경우가 있어 수정 필요
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) async {
     if (state == AppLifecycleState.resumed) {
