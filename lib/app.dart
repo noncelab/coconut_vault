@@ -136,7 +136,7 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> with SingleTickerProv
     super.initState();
     _navigatorObserver = _CustomNavigatorObserver(
       onRouteChanged: (routeName) {
-        if (routeName == null || routeName == '/') {
+        if (routeName == null || routeName == '/' || routeName == AppRoutes.vaultModeSelection) {
           _routeNotifierHasShow.value = false;
         } else {
           _routeNotifierHasShow.value = true;
@@ -738,8 +738,8 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> with SingleTickerProv
                                   insetPadding: EdgeInsets.symmetric(
                                     horizontal: MediaQuery.of(navContext).size.width * 0.15,
                                   ),
-                                  title: t.reset_vault,
-                                  description: t.reset_vault_description,
+                                  title: t.delete_vault,
+                                  description: t.delete_vault_description,
                                   backgroundColor: CoconutColors.white,
                                   leftButtonText: t.cancel,
                                   rightButtonText: t.confirm,
@@ -803,7 +803,7 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> with SingleTickerProv
                                     child: FittedBox(
                                       fit: BoxFit.scaleDown,
                                       child: Text(
-                                        t.reset_vault,
+                                        t.delete_vault,
                                         style: CoconutTypography.body2_14_Bold.copyWith(color: CoconutColors.white),
                                       ),
                                     ),
@@ -876,8 +876,11 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> with SingleTickerProv
     bool isPinSet = authProvider.isPinSet;
     int vaultListLength = SharedPrefsRepository().getInt(SharedPrefsKeys.vaultListLength) ?? 0;
 
-    if (_isInactive == false && _appEntryFlow == AppEntryFlow.vaultHome) {
-      // 이미 _appEntryFlow가 vaultHome로 이동한 경우
+    // 플랫폼별로 다른 로직 적용
+    // iOS: 무한 반복 방지를 위해 inactive 체크 추가
+    // Android: 기기 비밀번호 해제 감지를 위해 항상 실행
+    if (Platform.isIOS && _isInactive == false && _appEntryFlow == AppEntryFlow.vaultHome) {
+      // iOS에서 이미 _appEntryFlow가 vaultHome로 이동한 경우 무한 반복 방지
       return;
     }
 

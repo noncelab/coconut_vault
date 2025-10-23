@@ -101,9 +101,8 @@ class MainActivity: FlutterFragmentActivity() {
         )
     }
     
-    // TODO: API 17이상 부터는 Settings.Global로 이동됨
     private fun isDeveloperModeEnabled(): Boolean {
-        return Settings.Secure.getInt(
+        return Settings.Global.getInt(
             contentResolver,
             Settings.Global.DEVELOPMENT_SETTINGS_ENABLED, 0
         ) != 0

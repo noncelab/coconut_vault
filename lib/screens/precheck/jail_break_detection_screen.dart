@@ -155,7 +155,7 @@ class _JailBreakDetectionScreenState extends State<JailBreakDetectionScreen> {
 
         widget.onReset?.call();
       },
-      text: t.reset_vault,
+      text: t.delete_vault,
     );
   }
 }

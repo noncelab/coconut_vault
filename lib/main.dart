@@ -27,7 +27,6 @@ void main() async {
   // orientations to portrait up and down.
   WidgetsFlutterBinding.ensureInitialized();
   await SharedPrefsRepository().init();
-  deleteAllNewSecureStorageData();
   // Isolate 토큰 생성 및 초기화
   final RootIsolateToken rootIsolateToken = RootIsolateToken.instance!;
   BackgroundIsolateBinaryMessenger.ensureInitialized(rootIsolateToken);
@@ -100,15 +99,4 @@ void main() async {
   }
 
   return runApp(const CoconutVaultApp());
-}
-
-/// TODO: 개발자들 테스트 하면서 저장됐던 것 지우기 위한 용도
-/// 서명 전용 모드 기능 머지 후에는 삭제 하기
-Future<void> deleteAllNewSecureStorageData() async {
-  const FlutterSecureStorage newStorage = FlutterSecureStorage(
-    aOptions: AndroidOptions(encryptedSharedPreferences: true),
-    iOptions: IOSOptions(accessibility: KeychainAccessibility.passcode, synchronizable: false),
-  );
-
-  newStorage.deleteAll();
 }
