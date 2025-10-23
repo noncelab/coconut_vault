@@ -71,6 +71,7 @@ class SecurityPrechecker {
   // 기기 비밀번호 변경 여부 검사
   Future<SecurityCheckResult> checkDevicePasswordChanged() async {
     try {
+      await Future.delayed(const Duration(seconds: 1));
       final isDevicePasswordChanged = await _isDevicePasswordChanged();
       if (isDevicePasswordChanged) {
         return SecurityCheckResult(status: SecurityCheckStatus.devicePasswordChanged, checkTime: DateTime.now());
