@@ -662,10 +662,14 @@ class _WarningWidgetState extends State<WarningWidget> {
       child: Visibility(
         visible: _visible,
         child: ClipRRect(
-          child:
-              widget.isBackgroundBlur
-                  ? BackdropFilter(filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10), child: child)
-                  : child,
+          child: Center(
+            child: SingleChildScrollView(
+              child:
+                  widget.isBackgroundBlur
+                      ? BackdropFilter(filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10), child: child)
+                      : child,
+            ),
+          ),
         ),
       ),
     );

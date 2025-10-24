@@ -166,20 +166,19 @@ class _VaultModeSelectionScreenState extends State<VaultModeSelectionScreen> {
 
                     if (context.mounted) {
                       context.read<ConnectivityProvider>().setHasSeenGuideTrue();
-                      context.read<VisibilityProvider>().setHasSeenGuide().then((_) {
-                        if (context.mounted) {
-                          context.read<PreferenceProvider>().setVaultMode(selectedVaultMode!);
-                          widget.onComplete!();
-                        }
-                        return;
-                      });
+                      await context.read<VisibilityProvider>().setHasSeenGuide();
+                      if (context.mounted) {
+                        bool isDone = await _setVaultMode(selectedVaultMode!);
+                        if (!isDone) return;
+                        widget.onComplete!();
+                      }
+                      return;
                     }
                   }
 
                   if (!context.mounted) return;
                   final shouldProceed = await showDialog<bool>(
                     context: context,
-                    barrierDismissible: false, // 외부 클릭 시 닫기 가능
                     barrierColor: CoconutColors.black.withValues(alpha: 0.1),
                     builder: (BuildContext dialogContext) {
                       bool isSigningOnlyMode = selectedVaultMode == VaultMode.signingOnly;
@@ -289,7 +288,6 @@ class _VaultModeSelectionScreenState extends State<VaultModeSelectionScreen> {
   Future<void> _changeVaultMode() async {
     if (!mounted) return;
     final currentVaultMode = context.read<PreferenceProvider>().getVaultMode();
-
     switch (currentVaultMode) {
       case VaultMode.signingOnly:
         // 서명 전용 모드에서 안전 저장 모드로 바뀐 경우
@@ -361,6 +359,55 @@ class _VaultModeSelectionScreenState extends State<VaultModeSelectionScreen> {
       default:
         break;
     }
+  }
+
+  /// 앱 첫 실행 후 선택 시 호출하는 함수
+  Future<bool> _setVaultMode(VaultMode selectedMode) async {
+    assert(widget.onComplete != null);
+
+    bool isSigningOnlyMode = selectedMode == VaultMode.signingOnly;
+
+    if (!isSigningOnlyMode) {
+      final shouldProceed = await showDialog<bool>(
+        context: context,
+        barrierColor: CoconutColors.black.withValues(alpha: 0.1),
+        builder: (BuildContext dialogContext) {
+          return WarningWidget(
+            title: t.precautions,
+            description: Column(
+              children: [
+                // 현재 보여줄 항목이 1개여서 index 출력도 하던 코드는 지움
+                ...List.generate(
+                  t.vault_mode_selection_screen.secure_storage_mode_precautions_when_first_setting.length,
+                  (index) {
+                    return Padding(
+                      padding: const EdgeInsets.only(bottom: 8),
+                      child: Text(
+                        t.vault_mode_selection_screen.secure_storage_mode_precautions_when_first_setting[index],
+                        style: CoconutTypography.heading4_18_Bold.copyWith(color: CoconutColors.white),
+                        textAlign: TextAlign.center,
+                      ),
+                    );
+                  },
+                ),
+              ],
+            ),
+            buttonText: t.vault_mode_selection_screen.device_password_setting_guide_understood,
+            onWarningDismissed: () async {
+              if (!mounted) return;
+              Navigator.pop(context, true);
+            },
+          );
+        },
+      );
+
+      if (shouldProceed != true || !mounted) return false;
+    }
+
+    context.read<PreferenceProvider>().setVaultMode(selectedMode);
+    context.read<VisibilityProvider>().updateIsSigningOnlyMode(isSigningOnlyMode);
+
+    return true;
   }
 
   void _showModeChangeFailedPopup(String errorMessage, VaultMode currentVaultMode) {

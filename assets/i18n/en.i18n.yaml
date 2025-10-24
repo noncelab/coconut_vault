@@ -103,6 +103,7 @@ extra_count: "+$count more"
 edit: "edit"
 
 descriptor: "Descriptor"
+precautions: "Precautions"
 
 watch_only_options:
   title: "Select Watch-only Wallet"
@@ -242,6 +243,8 @@ vault_mode_selection_screen:
     - "Changing or disabling the device password prevents access to all information stored in the vault."
     - "If there are existing wallets, saving data securely on the device may take some time."
     - "Passphrases are not stored. Please keep them safe separately."
+  secure_storage_mode_precautions_when_first_setting:
+    - "Changing or disabling the device password prevents access to all information stored in the vault."
   signing_only_mode_warning_title: "Warning\nSwitching to Signing-Only Mode"
   signing_only_mode_warning_descriptions:
     - "All wallet data stored in the vault will be deleted. Please complete a backup before switching."
