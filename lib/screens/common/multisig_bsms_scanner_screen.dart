@@ -8,6 +8,7 @@ import 'package:coconut_vault/app_routes_params.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/model/multisig/multisig_import_detail.dart';
 import 'package:coconut_vault/model/exception/not_related_multisig_wallet_exception.dart';
+import 'package:coconut_vault/providers/app_lifecycle_state_provider.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:coconut_vault/providers/visibility_provider.dart';
 import 'package:coconut_vault/utils/alert_util.dart';
@@ -32,12 +33,14 @@ class MultisigBsmsScannerScreen extends StatefulWidget {
 }
 
 class _MultisigBsmsScannerScreenState extends State<MultisigBsmsScannerScreen> {
+  final GlobalKey qrKey = GlobalKey(debugLabel: 'QR');
+
   static String wrongFormatMessage1 = t.errors.invalid_single_sig_qr_error;
   static String wrongFormatMessage2 = t.errors.invalid_multisig_qr_error;
 
   late WalletProvider _walletProvider;
   late VisibilityProvider _visibilityProvider;
-  final GlobalKey qrKey = GlobalKey(debugLabel: 'QR');
+  late AppLifecycleStateProvider _appLifecycleStateProvider;
 
   MobileScannerController? _controller;
   StreamSubscription? _scanSubscription;
@@ -63,8 +66,10 @@ class _MultisigBsmsScannerScreenState extends State<MultisigBsmsScannerScreen> {
     super.initState();
     _walletProvider = Provider.of<WalletProvider>(context, listen: false);
     _visibilityProvider = Provider.of<VisibilityProvider>(context, listen: false);
-    _controller = MobileScannerController();
     _isSignerAssignmentContext = widget.screenType == MultisigBsmsImportType.add;
+    _appLifecycleStateProvider = Provider.of<AppLifecycleStateProvider>(context, listen: false);
+    _appLifecycleStateProvider.startOperation(AppLifecycleOperations.cameraAuthRequest, ignoreNotify: true);
+    _controller = MobileScannerController()..addListener(_onCameraStateChanged);
 
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       await Future.delayed(const Duration(milliseconds: 1000));
@@ -79,7 +84,10 @@ class _MultisigBsmsScannerScreenState extends State<MultisigBsmsScannerScreen> {
   @override
   void dispose() {
     _scanSubscription?.cancel();
-    _controller?.dispose();
+    _controller?.removeListener(_onCameraStateChanged);
+    if (_appLifecycleStateProvider.ignoredOperations.contains(AppLifecycleOperations.cameraAuthRequest)) {
+      _appLifecycleStateProvider.endOperation(AppLifecycleOperations.cameraAuthRequest);
+    }
     super.dispose();
   }
 
@@ -96,6 +104,12 @@ class _MultisigBsmsScannerScreenState extends State<MultisigBsmsScannerScreen> {
         });
       },
     );
+  }
+
+  void _onCameraStateChanged() {
+    if (_controller!.value.isInitialized) {
+      _appLifecycleStateProvider.endOperation(AppLifecycleOperations.cameraAuthRequest);
+    }
   }
 
   @override

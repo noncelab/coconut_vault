@@ -1,5 +1,6 @@
 import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
+import 'package:coconut_vault/providers/app_lifecycle_state_provider.dart';
 import 'package:coconut_vault/utils/logger.dart';
 import 'package:coconut_vault/widgets/animated_qr/scan_data_handler/i_fragmented_qr_scan_data_handler.dart';
 import 'package:coconut_vault/widgets/animated_qr/scan_data_handler/i_qr_scan_data_handler.dart';
@@ -7,6 +8,7 @@ import 'package:coconut_vault/widgets/animated_qr/scan_data_handler/scan_data_ha
 import 'package:coconut_vault/widgets/overlays/scanner_overlay.dart';
 import 'package:flutter/material.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
+import 'package:provider/provider.dart';
 
 class CoconutQrScanner extends StatefulWidget {
   static String qrFormatErrorMessage = 'Invalid QR format.';
@@ -41,11 +43,14 @@ class _CoconutQrScannerState extends State<CoconutQrScanner> with SingleTickerPr
 
   MobileScannerController? _controller;
 
+  late AppLifecycleStateProvider _appLifecycleStateProvider;
+
   @override
   void initState() {
     super.initState();
-    _controller = MobileScannerController();
-
+    _appLifecycleStateProvider = Provider.of<AppLifecycleStateProvider>(context, listen: false);
+    _appLifecycleStateProvider.startOperation(AppLifecycleOperations.cameraAuthRequest, ignoreNotify: true);
+    _controller = MobileScannerController()..addListener(_onCameraStateChanged);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final rect = getQrViewRect();
       if (rect != null) {
@@ -65,12 +70,22 @@ class _CoconutQrScannerState extends State<CoconutQrScanner> with SingleTickerPr
   @override
   void dispose() {
     _progressNotifier.dispose();
+    _controller?.removeListener(_onCameraStateChanged);
+    if (_appLifecycleStateProvider.ignoredOperations.contains(AppLifecycleOperations.cameraAuthRequest)) {
+      _appLifecycleStateProvider.endOperation(AppLifecycleOperations.cameraAuthRequest);
+    }
     super.dispose();
   }
 
   void resetScanState() {
     widget.qrDataHandler.reset();
     _isFirstScanData = true;
+  }
+
+  void _onCameraStateChanged() {
+    if (_controller!.value.isInitialized) {
+      _appLifecycleStateProvider.endOperation(AppLifecycleOperations.cameraAuthRequest);
+    }
   }
 
   void _onDetect(BarcodeCapture capture) {

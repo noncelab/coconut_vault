@@ -43,8 +43,8 @@ restore: "復元"
 change: "変更"
 receiving: "受信"
 email_subject: "[ココナッツボルト] お問い合わせ"
-delete_vault: "ウォレット削除"
-delete_vault_description: "ウォレットを削除すると、保存された情報がすべて削除されます。\n本当に削除しますか？"
+delete_vault: "ウォレットを削除"
+delete_vault_description: "ウォレットを削除すると、すべての情報が初期化されます。\n本当に削除しますか？"
 
 sign_completion: "署名完了"
 sign: "署名"
@@ -103,6 +103,7 @@ extra_count: "+$count個追加"
 edit: "編集"
 
 descriptor: "ディスクリプタ"
+precautions: "注意事項"
 
 watch_only_options:
   title: "ウォッチオンリーウォレット選択"
@@ -242,6 +243,8 @@ vault_mode_selection_screen:
     - "デバイスのパスコードを変更または解除すると、暗号化されて保存されたウォレット情報が使用できなくなります。変更する前に必ずバックアップを完了してください。"
     - "現在追加されているウォレットがある場合、デバイスへの安全な保存に時間がかかることがあります。"
     - "パスフレーズは保存されません。別途安全な場所に保管してください。"
+  secure_storage_mode_precautions_when_first_setting:
+    - "デバイスのパスコードを変更または解除すると、暗号化されて保存されたウォレット情報が使用できなくなります。変更する前に必ずバックアップを完了してください。"
   signing_only_mode_warning_title: "署名専用モード切り替え時の\n注意事項"
   signing_only_mode_warning_descriptions:
     - "現在保存されているウォレット情報はすべて初期化されます。切り替える前に必ずバックアップを完了してください。"
@@ -476,7 +479,7 @@ seed_qr_import_screen:
   title: "シードQRコードスキャン"
   error_title: "スキャンエラー"
   error_message: "シードQRコードのスキャン中にエラーが発生しました。再試行してください。"
-  guide: "シードQRコードをスキャンしてください。"
+  guide: "シードQRコードをスキャンしてください。(21x21または25x25)"
 seed_qr_confirmation_screen:
   title: "ニーモニック確認"
   check_mnemonic: "ニーモニックフレーズを確認してください"

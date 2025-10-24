@@ -43,8 +43,8 @@ restore: "Restore"
 change: "Change"
 receiving: "Receive"
 email_subject: "[Coconut Vault] Inquiry"
-delete_vault: "Delete Vault"
-delete_vault_description: "Deleting the vault will delete all saved information.\nAre you sure you want to delete?"
+delete_vault: "Delete Wallets"
+delete_vault_description: "This will delete all saved wallet information.\nAre you sure you want to delete?"
 
 sign_completion: "Signed"
 sign: "Sign"
@@ -103,6 +103,7 @@ extra_count: "+$count more"
 edit: "edit"
 
 descriptor: "Descriptor"
+precautions: "Precautions"
 
 watch_only_options:
   title: "Select Watch-only Wallet"
@@ -173,7 +174,7 @@ device_password_detection_screen:
   device_password_changed_guide: "Changing or disabling the device password prevents access to all information stored in the vault."
   delete_vault_to_use: "To use Vault again, please delete all wallets."
   go_to_settings: "Go to Settings"
-  delete_vault: "Delete Wallet"
+  delete_vault: "Delete Wallets"
   ios_settings_dialog_title: "Move to Settings"
   ios_settings_dialog_description: "Because of iOS restrictions, the Settings home screen cannot be opened directly. When the Settings page appears, please go to the main Settings screen and set your password there."
 
@@ -242,6 +243,8 @@ vault_mode_selection_screen:
     - "Changing or disabling the device password prevents access to all information stored in the vault."
     - "If there are existing wallets, saving data securely on the device may take some time."
     - "Passphrases are not stored. Please keep them safe separately."
+  secure_storage_mode_precautions_when_first_setting:
+    - "Changing or disabling the device password prevents access to all information stored in the vault."
   signing_only_mode_warning_title: "Warning\nSwitching to Signing-Only Mode"
   signing_only_mode_warning_descriptions:
     - "All wallet data stored in the vault will be deleted. Please complete a backup before switching."
@@ -477,7 +480,7 @@ seed_qr_import_screen:
   title: "Seed QR Code Scan"
   error_title: "Scan Error"
   error_message: "An error occurred while scanning the seed QR code. Please try again."
-  guide: "Please scan the seed QR code. (21x21 또는 25x25)"
+  guide: "Please scan the seed QR code. (21x21 or 25x25)"
 seed_qr_confirmation_screen:
   title: "Mnemonic Confirmation"
   check_mnemonic: "Please check the mnemonic phrase"
