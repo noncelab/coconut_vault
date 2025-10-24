@@ -479,7 +479,7 @@ seed_qr_import_screen:
   title: "シードQRコードスキャン"
   error_title: "スキャンエラー"
   error_message: "シードQRコードのスキャン中にエラーが発生しました。再試行してください。"
-  guide: "シードQRコードをスキャンしてください。"
+  guide: "シードQRコードをスキャンしてください。(21x21または25x25)"
 seed_qr_confirmation_screen:
   title: "ニーモニック確認"
   check_mnemonic: "ニーモニックフレーズを確認してください"

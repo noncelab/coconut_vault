@@ -480,7 +480,7 @@ seed_qr_import_screen:
   title: "Seed QR Code Scan"
   error_title: "Scan Error"
   error_message: "An error occurred while scanning the seed QR code. Please try again."
-  guide: "Please scan the seed QR code. (21x21 또는 25x25)"
+  guide: "Please scan the seed QR code. (21x21 or 25x25)"
 seed_qr_confirmation_screen:
   title: "Mnemonic Confirmation"
   check_mnemonic: "Please check the mnemonic phrase"

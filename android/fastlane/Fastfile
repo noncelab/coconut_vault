@@ -104,7 +104,6 @@ platform :android do
         fvm flutter build appbundle \
           --flavor #{flavor} \
           --release \
-          --dart-define=USE_FIREBASE=true \
           --build-name="#{marketing}" \
           --build-number=#{new_build}
       }
