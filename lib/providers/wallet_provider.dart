@@ -345,32 +345,6 @@ class WalletProvider extends ChangeNotifier {
     return await _walletRepository.getSeedInSigningOnlyMode(id);
   }
 
-  Future<String> createBackupData() async {
-    final List<Map<String, dynamic>> backupData = [];
-
-    try {
-      for (final vault in _vaultList) {
-        final vaultData = vault.toJson();
-
-        if (vault.vaultType == WalletType.singleSignature) {
-          vaultData['secret'] = await getSecret(vault.id);
-          vaultData['hasPassphrase'] = await hasPassphrase(vault.id);
-        }
-
-        backupData.add(vaultData);
-      }
-
-      final jsonData = jsonEncode(backupData);
-      return jsonData;
-    } finally {
-      for (final vault in backupData) {
-        if (vault['vaultType'] == WalletType.singleSignature) {
-          (vault['secret'] as Uint8List).wipe();
-        }
-      }
-    }
-  }
-
   Future<void> restoreFromBackupData(String jsonData) async {
     final List<Map<String, dynamic>> backupDataMapList =
         jsonDecode(jsonData).map<Map<String, dynamic>>((e) => Map<String, dynamic>.from(e)).toList();

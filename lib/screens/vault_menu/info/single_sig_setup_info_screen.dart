@@ -381,6 +381,12 @@ class _SingleSigSetupInfoScreenState extends State<SingleSigSetupInfoScreen> {
             enableShrinkAnim: true,
             onPressed: () {
               _removeTooltip();
+              final viewModel = context.read<SingleSigSetupInfoViewModel>();
+              if (viewModel.isSigningOnlyMode) {
+                Navigator.pushNamed(context, AppRoutes.mnemonicView, arguments: {'id': widget.id});
+                return;
+              }
+
               _authenticateWithBiometricOrPin(
                 context,
                 PinCheckContextEnum.sensitiveAction,

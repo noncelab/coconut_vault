@@ -28,7 +28,10 @@ class _MnemonicViewScreen extends State<MnemonicViewScreen> with TickerProviderS
   void initState() {
     super.initState();
     _walletProvider = Provider.of<WalletProvider>(context, listen: false);
-    _setMnemonic();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      // getSecret하는 동안 생체인증 요청됨 - lifecycle event 호출됨
+      _setMnemonic();
+    });
   }
 
   Future<void> _setMnemonic() async {
@@ -36,20 +39,18 @@ class _MnemonicViewScreen extends State<MnemonicViewScreen> with TickerProviderS
       _mnemonic = await _walletProvider.getSecret(widget.walletId);
     } catch (e) {
       if (!mounted) return;
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        showDialog(
-          context: context,
-          builder:
-              (context) => CoconutPopup(
-                title: 'View Mnemonic',
-                description: 'Failed to load mnemonic\n${e.toString()}',
-                onTapRight: () {
-                  Navigator.pop(context);
-                  Navigator.pop(context);
-                },
-              ),
-        );
-      });
+      showDialog(
+        context: context,
+        builder:
+            (context) => CoconutPopup(
+              title: 'View Mnemonic',
+              description: 'Failed to load mnemonic\n${e.toString()}',
+              onTapRight: () {
+                Navigator.pop(context);
+                Navigator.pop(context);
+              },
+            ),
+      );
     } finally {
       if (mounted) {
         await Future.delayed(const Duration(seconds: 1));

@@ -35,7 +35,6 @@ class CoconutQrScanner extends StatefulWidget {
 class _CoconutQrScannerState extends State<CoconutQrScanner> with SingleTickerProviderStateMixin {
   final GlobalKey qrKey = GlobalKey(debugLabel: 'QR');
   final ValueNotifier<double> _progressNotifier = ValueNotifier(0.0);
-  final double _borderWidth = 8;
   bool _isScanningExtraData = false;
   double scannerLoadingVerticalPos = 0;
   bool _showLoadingBar = false;
