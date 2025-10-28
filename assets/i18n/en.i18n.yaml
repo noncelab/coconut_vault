@@ -236,15 +236,15 @@ vault_mode_selection_screen:
   mode_changed_description_signing_only: "Switched to Signing-Only Mode.\nAfter signing, please press the delete wallet button to safely delete the seed."
   secure_storage_mode_warning_title: "Warning\nSwitching to Secure Storage Mode"
   secure_storage_mode_warning_descriptions_android:
-    - "Changing or disabling the device password prevents access to all information stored in the vault."
+    - "Changing or unlocking your phone password may prevent you from using your saved wallet."
     - "If there are existing wallets, saving data securely on the device may take some time."
     - "Passphrases are not stored. Please keep them safe separately."
   secure_storage_mode_warning_descriptions_ios:
-    - "Changing or disabling the device password prevents access to all information stored in the vault."
+    - "Changing or unlocking your phone password may prevent you from using your saved wallet."
     - "If there are existing wallets, saving data securely on the device may take some time."
     - "Passphrases are not stored. Please keep them safe separately."
   secure_storage_mode_precautions_when_first_setting:
-    - "Changing or disabling the device password prevents access to all information stored in the vault."
+    - "Changing or unlocking your phone password may prevent you from using your saved wallet."
   signing_only_mode_warning_title: "Warning\nSwitching to Signing-Only Mode"
   signing_only_mode_warning_descriptions:
     - "All wallet data stored in the vault will be deleted. Please complete a backup before switching."
