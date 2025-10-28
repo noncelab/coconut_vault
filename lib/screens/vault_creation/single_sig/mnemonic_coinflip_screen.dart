@@ -108,6 +108,7 @@ class _CoinFlipState extends BaseEntropyWidgetState<CoinFlip> {
           ),
           CoconutLayout.spacing_1400h,
           _buildCoinflipButtons(),
+          CoconutLayout.spacing_2500h,
         ],
       ),
     );
