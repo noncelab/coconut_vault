@@ -26,6 +26,7 @@ import 'package:shimmer/shimmer.dart';
 
 class SingleSigSetupInfoScreen extends StatefulWidget {
   final int id;
+  // 서명 전용 모드에서는 항상 false입니다.
   final bool shouldShowPassphraseVerifyMenu;
   final String? entryPoint;
   const SingleSigSetupInfoScreen({

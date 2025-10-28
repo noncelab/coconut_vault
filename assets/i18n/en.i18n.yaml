@@ -719,6 +719,12 @@ alert:
   secure_module_use_biometrics:
     title: "Biometric Authentication Notice"
     description: "Biometric authentication is not used to unlock the app. However, it may be automatically requested when accessing data stored in a secure module."
+  auth_canceled_when_decrypt:
+    title: "Device Authentication Canceled"
+    description: "You need to authenticate your device to retrieve the information."
+  auth_canceled_when_encrypt:
+    title: "Device Authentication Canceled"
+    description: "You need to authenticate your device to store wallet information in the secure area."
 
 toast:
   clipboard_copied: "Copied to clipboard"
@@ -765,6 +771,7 @@ errors:
   not_related_multisig_wallet_error: "This is not a multisig wallet using this wallet as key"
   vault_not_found_error: "No matching vault found"
   extended_public_key_not_found_error: "Please select the wallet you want to use directly and use the Multisig Signing feature"
+  user_cancelled_auth: "User cancelled authentication."
 
 tooltip:
   mfp: "Unique value of wallet.\nAlso called Master Fingerprint (MFP)."

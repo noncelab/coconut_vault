@@ -722,6 +722,12 @@ alert:
   secure_module_use_biometrics:
     title: "생체 인증 안내"
     description: "앱 잠금 해제에는 생체인증이 사용되지 않아요. 단, 보안 모듈에 저장된 정보에 접근할 때 생체 인증이 자동으로 요청될 수 있어요. "
+  auth_canceled_when_decrypt:
+    title: "기기 인증 취소됨"
+    description: "기기 인증을 해야 정보를 가져올 수 있어요."
+  auth_canceled_when_encrypt:
+    title: "기기 인증 취소됨"
+    description: "기기 인증을 해야 지갑 정보를 보안 영역에 저장할 수 있어요."
 
 toast:
   clipboard_copied: "클립보드에 복사되었어요"
@@ -768,6 +774,7 @@ errors:
   not_related_multisig_wallet_error: "이 지갑을 키로 사용한 다중 서명 지갑이 아닙니다"
   vault_not_found_error: "서명할 수 있는 지갑이 없어요"
   extended_public_key_not_found_error: "직접 사용하려는 지갑을 선택해 다중 서명하기 기능을 사용해주세요"
+  user_cancelled_auth: "사용자가 기기 인증을 취소했습니다."
 
 tooltip:
   mfp: "지갑의 고유 값이에요.\n마스터 핑거프린트(MFP)라고도 해요."
