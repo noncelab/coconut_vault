@@ -356,6 +356,7 @@ welcome_screen:
   screen_3_button: "開始"
   setting_guide: "設定ガイドを表示 ⓘ"
   bottom_sheet_title: "設定ガイド"
+  recommendation: "ココナッツボルトアプリ専用で、空の機械の使用をお勧めします"
   airplane_mode_on: 
     title: "機内モードをオンにする"
     description_ios: "画面右上から下にスワイプ → コントロールセンター → 飛行機モードアイコンをタップ"
