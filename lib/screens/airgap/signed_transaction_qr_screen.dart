@@ -34,30 +34,26 @@ class _SignedTransactionQrScreenState extends State<SignedTransactionQrScreen> {
         child: Stack(
           children: [
             SingleChildScrollView(
-              child: Container(
-                height: MediaQuery.of(context).size.height,
-                width: double.infinity,
-                color: CoconutColors.white,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: <Widget>[
-                    CustomTooltip.buildInfoTooltip(
-                      context,
-                      richText: RichText(
-                        text: TextSpan(style: CoconutTypography.body3_12, children: _getTooltipRichText()),
-                      ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: <Widget>[
+                  CustomTooltip.buildInfoTooltip(
+                    context,
+                    richText: RichText(
+                      text: TextSpan(style: CoconutTypography.body3_12, children: _getTooltipRichText()),
                     ),
-                    const SizedBox(height: 40),
-                    Container(
-                      padding: const EdgeInsets.all(10),
-                      decoration: CoconutBoxDecoration.shadowBoxDecoration,
-                      child: AnimatedQrView(
-                        qrViewDataHandler: BcUrQrViewHandler(_signProvider.signedPsbtBase64!, UrType.cryptoPsbt),
-                        qrSize: MediaQuery.of(context).size.width * 0.8,
-                      ),
+                  ),
+                  const SizedBox(height: 40),
+                  Container(
+                    padding: const EdgeInsets.all(10),
+                    decoration: CoconutBoxDecoration.shadowBoxDecoration,
+                    child: AnimatedQrView(
+                      qrViewDataHandler: BcUrQrViewHandler(_signProvider.signedPsbtBase64!, UrType.cryptoPsbt),
+                      qrSize: MediaQuery.of(context).size.width * 0.8,
                     ),
-                  ],
-                ),
+                  ),
+                  CoconutLayout.spacing_2500h,
+                ],
               ),
             ),
             FixedBottomButton(
