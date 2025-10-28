@@ -5,6 +5,7 @@ import 'package:coconut_vault/app_routes_params.dart';
 import 'package:coconut_vault/enums/wallet_enums.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/model/common/vault_list_item_base.dart';
+import 'package:coconut_vault/model/exception/user_canceled_auth_exception.dart';
 import 'package:coconut_vault/model/single_sig/single_sig_wallet_create_dto.dart';
 import 'package:coconut_vault/providers/auth_provider.dart';
 import 'package:coconut_vault/providers/wallet_creation_provider.dart';
@@ -14,6 +15,7 @@ import 'package:coconut_vault/widgets/button/fixed_bottom_button.dart';
 import 'package:coconut_vault/widgets/indicator/message_activity_indicator.dart';
 import 'package:flutter/material.dart';
 import 'package:coconut_vault/widgets/vault_name_icon_edit_palette.dart';
+import 'package:flutter/services.dart' show PlatformException;
 import 'package:provider/provider.dart';
 
 class VaultNameAndIconSetupScreen extends StatefulWidget {
@@ -123,6 +125,21 @@ class _VaultNameAndIconSetupScreenState extends State<VaultNameAndIconSetupScree
         '/',
         (Route<dynamic> route) => false,
         arguments: VaultHomeNavArgs(addedWalletId: vault!.id),
+      );
+    } on UserCanceledAuthException catch (e) {
+      // 사용자가 기기 인증을 취소함
+      Logger.error(e);
+      if (!context.mounted) return;
+      showDialog(
+        context: context,
+        builder: (context) {
+          return CoconutPopup(
+            title: t.errors.creation_error,
+            description: t.alert.auth_canceled_when_encrypt.description,
+            rightButtonText: t.confirm,
+            onTapRight: () => Navigator.of(context).pop(),
+          );
+        },
       );
     } catch (e) {
       Logger.error(e);

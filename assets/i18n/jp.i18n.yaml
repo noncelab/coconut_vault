@@ -719,6 +719,12 @@ alert:
   secure_module_use_biometrics:
     title: "生体認証のお知らせ"
     description: "アプリのロック解除には生体認証は使用されません。ただし、セキュアモジュールに保存されたデータにアクセスする際には、自動的に認証が求められる場合があります。"
+  auth_canceled_when_decrypt:
+    title: "デバイス認証がキャンセルされました"
+    description: "情報を取得するにはデバイスの認証が必要です。"
+  auth_canceled_when_encrypt:
+    title: "デバイス認証がキャンセルされました"
+    description: "ウォレット情報をセキュアエリアに保存するにはデバイスの認証が必要です。"
 
 toast:
   clipboard_copied: "クリップボードにコピーしました"
@@ -765,6 +771,7 @@ errors:
   not_related_multisig_wallet_error: "このウォレットをキーとして使用するマルチシグウォレットではありません"
   vault_not_found_error: "署名できるウォレットがありません"
   extended_public_key_not_found_error: "直接使用したいウォレットを選択してマルチシグ機能を使用してください"
+  user_cancelled_auth: "ユーザーがデバイス認証をキャンセルしました。"
 
 tooltip:
   mfp: "ウォレットの固有値。\nマスターフィンガープリント(MFP)とも呼ばれます。"

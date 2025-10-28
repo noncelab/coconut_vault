@@ -430,27 +430,6 @@ class WalletRepository {
     _sharedPrefs.deleteSharedPrefsWithKey(nextIdField);
   }
 
-  Future<void> restoreFromBackupData(List<Map<String, dynamic>> backupData) async {
-    assert(!_isSigningOnlyMode);
-
-    final List<VaultListItemBase> vaultList = [];
-    for (final data in backupData) {
-      VaultListItemBase wallet = await compute(WalletIsolates.initializeWallet, data);
-      if (data['vaultType'] == WalletType.singleSignature.name) {
-        // INFO: JsonDecode는 Uint8List를 반환하지 못하고 List<dynamic>으로 반환하기 때문에 secretBytes가 필요합니다.
-        final secret = data['secret'] as List<dynamic>;
-        Uint8List secretBytes = Uint8List.fromList(secret.map((e) => e as int).toList());
-        secret.fillRange(0, secret.length, 0);
-        await _saveSecretAndPassphraseEnabled(wallet.id, secretBytes, data['hasPassphrase']);
-        secretBytes.wipe();
-      }
-      vaultList.add(wallet);
-    }
-
-    _vaultList = vaultList;
-    await _savePublicInfo();
-  }
-
   Future<void> updateIsSigningOnlyMode(bool isSigningOnlyMode) async {
     if (_isSigningOnlyMode == isSigningOnlyMode) return;
     if (!isSigningOnlyMode) {
