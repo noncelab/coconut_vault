@@ -35,6 +35,7 @@ class _SignedTransactionQrScreenState extends State<SignedTransactionQrScreen> {
           children: [
             SingleChildScrollView(
               child: Container(
+                height: MediaQuery.of(context).size.height,
                 width: double.infinity,
                 color: CoconutColors.white,
                 child: Column(
