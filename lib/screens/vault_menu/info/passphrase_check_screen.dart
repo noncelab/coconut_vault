@@ -172,7 +172,7 @@ class _PassphraseCheckScreen extends State<PassphraseCheckScreen> {
     Navigator.pop(context); // hide loading dialog
 
     if (result != null) {
-      Navigator.pop(context, result);
+      Navigator.pop(context, utf8.decode(result.mnemonic));
     } else {
       setState(() {
         _showError = true;

@@ -9,6 +9,7 @@ import 'package:coconut_vault/providers/view_model/vault_menu/single_sig_setup_i
 import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:coconut_vault/screens/home/select_sync_option_bottom_sheet.dart';
 import 'package:coconut_vault/screens/vault_menu/info/name_and_icon_edit_bottom_sheet.dart';
+import 'package:coconut_vault/screens/vault_menu/info/passphrase_check_screen.dart';
 import 'package:coconut_vault/utils/text_utils.dart';
 import 'package:coconut_vault/utils/vibration_util.dart';
 import 'package:coconut_vault/widgets/button/button_group.dart';
@@ -209,8 +210,19 @@ class _SingleSigSetupInfoScreenState extends State<SingleSigSetupInfoScreen> {
       child: SingleButton(
         enableShrinkAnim: true,
         title: t.select_export_type_screen.title,
-        onPressed: () {
-          _showSyncOptionBottomSheet(widget.id, context);
+        onPressed: () async {
+          if (widget.shouldShowPassphraseVerifyMenu) {
+            final passphraseInput = await MyBottomSheet.showBottomSheet_ratio<String?>(
+              ratio: 0.5,
+              context: context,
+              child: PassphraseCheckScreen(id: widget.id),
+            );
+            if (passphraseInput != null && mounted) {
+              _showSyncOptionBottomSheet(widget.id, context);
+            }
+          } else {
+            _showSyncOptionBottomSheet(widget.id, context);
+          }
         },
       ),
     );
