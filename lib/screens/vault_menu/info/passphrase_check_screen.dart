@@ -166,13 +166,13 @@ class _PassphraseCheckScreen extends State<PassphraseCheckScreen> {
     if (!mounted) return;
 
     CustomDialogs.showLoadingDialog(context, t.verify_passphrase_screen.loading_description);
-    Seed? result = await _verifyPassphrase(utf8.encode(_inputController.text));
+    Seed? seed = await _verifyPassphrase(utf8.encode(_inputController.text));
 
     if (!mounted) return;
     Navigator.pop(context); // hide loading dialog
 
-    if (result != null) {
-      Navigator.pop(context, utf8.decode(result.mnemonic));
+    if (seed != null) {
+      Navigator.pop(context, seed);
     } else {
       setState(() {
         _showError = true;

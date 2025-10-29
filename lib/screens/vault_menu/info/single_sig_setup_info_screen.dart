@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:coconut_design_system/coconut_design_system.dart';
+import 'package:coconut_lib/coconut_lib.dart';
 import 'package:coconut_vault/constants/app_routes.dart';
 import 'package:coconut_vault/enums/pin_check_context_enum.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
@@ -213,12 +214,17 @@ class _SingleSigSetupInfoScreenState extends State<SingleSigSetupInfoScreen> {
         title: t.select_export_type_screen.title,
         onPressed: () async {
           if (widget.shouldShowPassphraseVerifyMenu) {
-            final passphraseInput = await MyBottomSheet.showBottomSheet_ratio<String?>(
+            Seed? seed = await MyBottomSheet.showBottomSheet_ratio<Seed?>(
               ratio: 0.5,
               context: context,
               child: PassphraseCheckScreen(id: widget.id),
             );
-            if (passphraseInput != null && mounted) {
+
+            if (seed == null) {
+              return;
+            }
+
+            if (mounted) {
               _showSyncOptionBottomSheet(widget.id, context);
             }
           } else {
