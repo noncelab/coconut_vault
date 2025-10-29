@@ -9,6 +9,7 @@ import 'package:coconut_vault/providers/view_model/vault_menu/single_sig_setup_i
 import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:coconut_vault/screens/home/select_sync_option_bottom_sheet.dart';
 import 'package:coconut_vault/screens/vault_menu/info/name_and_icon_edit_bottom_sheet.dart';
+import 'package:coconut_vault/screens/vault_menu/info/passphrase_check_screen.dart';
 import 'package:coconut_vault/utils/text_utils.dart';
 import 'package:coconut_vault/utils/vibration_util.dart';
 import 'package:coconut_vault/widgets/button/button_group.dart';
@@ -25,6 +26,7 @@ import 'package:shimmer/shimmer.dart';
 
 class SingleSigSetupInfoScreen extends StatefulWidget {
   final int id;
+  // 서명 전용 모드에서는 항상 false입니다.
   final bool shouldShowPassphraseVerifyMenu;
   final String? entryPoint;
   const SingleSigSetupInfoScreen({
@@ -209,8 +211,19 @@ class _SingleSigSetupInfoScreenState extends State<SingleSigSetupInfoScreen> {
       child: SingleButton(
         enableShrinkAnim: true,
         title: t.select_export_type_screen.title,
-        onPressed: () {
-          _showSyncOptionBottomSheet(widget.id, context);
+        onPressed: () async {
+          if (widget.shouldShowPassphraseVerifyMenu) {
+            final passphraseInput = await MyBottomSheet.showBottomSheet_ratio<String?>(
+              ratio: 0.5,
+              context: context,
+              child: PassphraseCheckScreen(id: widget.id),
+            );
+            if (passphraseInput != null && mounted) {
+              _showSyncOptionBottomSheet(widget.id, context);
+            }
+          } else {
+            _showSyncOptionBottomSheet(widget.id, context);
+          }
         },
       ),
     );
@@ -381,6 +394,12 @@ class _SingleSigSetupInfoScreenState extends State<SingleSigSetupInfoScreen> {
             enableShrinkAnim: true,
             onPressed: () {
               _removeTooltip();
+              final viewModel = context.read<SingleSigSetupInfoViewModel>();
+              if (viewModel.isSigningOnlyMode) {
+                Navigator.pushNamed(context, AppRoutes.mnemonicView, arguments: {'id': widget.id});
+                return;
+              }
+
               _authenticateWithBiometricOrPin(
                 context,
                 PinCheckContextEnum.sensitiveAction,

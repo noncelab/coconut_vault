@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:coconut_vault/localization/strings.g.dart';
+import 'package:coconut_vault/model/exception/user_canceled_auth_exception.dart';
 import 'package:coconut_vault/services/secure_zone/secure_zone_keystore.dart';
 import 'package:flutter/services.dart';
 import 'package:local_auth/local_auth.dart';
@@ -65,6 +66,8 @@ class StrongBoxKeystore extends SecureZoneKeystore {
 
         if (authenticated) {
           return _encrypt(alias: alias, plaintext: plaintext);
+        } else {
+          throw UserCanceledAuthException();
         }
       }
 

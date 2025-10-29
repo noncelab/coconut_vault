@@ -74,7 +74,7 @@ view_mnemonic: "View Mnemonic"
 verify_passphrase: "Verify Passphrase"
 view_app_info: "View App Info"
 view_all: "View All"
-view_address: "View Address"
+view_address: "View Addresses"
 view_tutorial: "View Tutorial"
 delete_all: "Delete All"
 delete_one: "Delete One"
@@ -125,7 +125,7 @@ vault_home_screen:
   wallet_count: "$count Items"
   action_items:
     sign: "Sign"
-    view_address: "View Address"
+    view_address: "View Addresses"
     export_wallet: "Export to\nWatch-only Wallet"
     import_multisig_wallet: "Import\nMultisig Wallet"
     mnemonic_wordlist: "Mnemonic Wordlist"
@@ -236,15 +236,15 @@ vault_mode_selection_screen:
   mode_changed_description_signing_only: "Switched to Signing-Only Mode.\nAfter signing, please press the delete wallet button to safely delete the seed."
   secure_storage_mode_warning_title: "Warning\nSwitching to Secure Storage Mode"
   secure_storage_mode_warning_descriptions_android:
-    - "Changing or disabling the device password prevents access to all information stored in the vault."
+    - "Changing or unlocking your phone password may prevent you from using your saved wallet."
     - "If there are existing wallets, saving data securely on the device may take some time."
     - "Passphrases are not stored. Please keep them safe separately."
   secure_storage_mode_warning_descriptions_ios:
-    - "Changing or disabling the device password prevents access to all information stored in the vault."
+    - "Changing or unlocking your phone password may prevent you from using your saved wallet."
     - "If there are existing wallets, saving data securely on the device may take some time."
     - "Passphrases are not stored. Please keep them safe separately."
   secure_storage_mode_precautions_when_first_setting:
-    - "Changing or disabling the device password prevents access to all information stored in the vault."
+    - "Changing or unlocking your phone password may prevent you from using your saved wallet."
   signing_only_mode_warning_title: "Warning\nSwitching to Signing-Only Mode"
   signing_only_mode_warning_descriptions:
     - "All wallet data stored in the vault will be deleted. Please complete a backup before switching."
@@ -719,6 +719,12 @@ alert:
   secure_module_use_biometrics:
     title: "Biometric Authentication Notice"
     description: "Biometric authentication is not used to unlock the app. However, it may be automatically requested when accessing data stored in a secure module."
+  auth_canceled_when_decrypt:
+    title: "Device Authentication Canceled"
+    description: "You need to authenticate your device to retrieve the information."
+  auth_canceled_when_encrypt:
+    title: "Device Authentication Canceled"
+    description: "You need to authenticate your device to store wallet information in the secure area."
 
 toast:
   clipboard_copied: "Copied to clipboard"
@@ -765,6 +771,7 @@ errors:
   not_related_multisig_wallet_error: "This is not a multisig wallet using this wallet as key"
   vault_not_found_error: "No matching vault found"
   extended_public_key_not_found_error: "Please select the wallet you want to use directly and use the Multisig Signing feature"
+  user_cancelled_auth: "User cancelled authentication."
 
 tooltip:
   mfp: "Unique value of wallet.\nAlso called Master Fingerprint (MFP)."
