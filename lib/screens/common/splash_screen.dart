@@ -4,7 +4,6 @@ import 'dart:io';
 import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_lib/coconut_lib.dart';
 import 'package:coconut_vault/app.dart';
-import 'package:coconut_vault/providers/auth_provider.dart';
 import 'package:coconut_vault/providers/connectivity_provider.dart';
 import 'package:coconut_vault/providers/preference_provider.dart';
 import 'package:coconut_vault/providers/view_model/start_view_model.dart';
@@ -13,25 +12,26 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
-class StartScreen extends StatefulWidget {
+// 앱 플로우의 진입점으로 스플래시를 띄움
+// 네트워크 연결 상태가 null이 아닐때까지 대기 후
+// 체크 후 보안 검사 플로우로 이동
+class SplashScreen extends StatefulWidget {
   final void Function(AppEntryFlow status) onComplete;
 
-  const StartScreen({super.key, required this.onComplete});
+  const SplashScreen({super.key, required this.onComplete});
 
   @override
-  State<StartScreen> createState() => _StartScreenState();
+  State<SplashScreen> createState() => _SplashScreenState();
 }
 
-class _StartScreenState extends State<StartScreen> {
+class _SplashScreenState extends State<SplashScreen> {
   late StartViewModel _viewModel;
-  AppEntryFlow _nextEntryFlow = AppEntryFlow.splash;
 
   @override
   void initState() {
     super.initState();
     _viewModel = StartViewModel(
       Provider.of<ConnectivityProvider>(context, listen: false),
-      Provider.of<AuthProvider>(context, listen: false),
       Provider.of<VisibilityProvider>(context, listen: false).hasSeenGuide,
       Provider.of<PreferenceProvider>(context, listen: false).getVaultMode() != null,
     );
@@ -39,32 +39,21 @@ class _StartScreenState extends State<StartScreen> {
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       /// Splash 딜레이
       await Future.delayed(const Duration(seconds: 2));
-      _nextEntryFlow = await _viewModel.getNextEntryFlow();
 
-      if (_nextEntryFlow == AppEntryFlow.devicePasswordRequired) {
-        widget.onComplete(AppEntryFlow.devicePasswordRequired);
-        return;
-      }
-      if (_nextEntryFlow == AppEntryFlow.devicePasswordChanged) {
-        widget.onComplete(AppEntryFlow.devicePasswordChanged);
-        return;
-      }
-
-      /// 한번도 튜토리얼을 보지 않은 경우 / 볼트 모드를 선택하지 않은 경우
+      // 한번도 튜토리얼을 보지 않은 경우 / 볼트 모드를 선택하지 않은 경우
+      // firstLaunch 플로우로 이동
       if (!_viewModel.hasSeenGuide || !_viewModel.isVaultModeSelected) {
-        _showTutorialScreen();
+        widget.onComplete(AppEntryFlow.firstLaunch);
+        return;
       }
+
+      // 네트워크 연결 상태 null이 아닐때까지 대기
+      if (_viewModel.connectivityState == null) {
+        return;
+      }
+
+      widget.onComplete(AppEntryFlow.securityPrecheck);
     });
-  }
-
-  Future _showTutorialScreen() async {
-    widget.onComplete(AppEntryFlow.tutorial); // 가이드
-  }
-
-  Future _determineNextEntryFlow() async {
-    await Future.delayed(const Duration(seconds: 2));
-
-    widget.onComplete(_nextEntryFlow);
   }
 
   @override
@@ -103,19 +92,6 @@ class _StartScreenState extends State<StartScreen> {
             },
             child: Consumer<StartViewModel>(
               builder: (context, viewModel, child) {
-                if (!viewModel.hasSeenGuide) {
-                  return Container();
-                }
-
-                // 아직 연결 상태 체크가 완료되지 않음
-                if (viewModel.connectivityState == null) return Container();
-                if (!viewModel.connectivityState!) {
-                  WidgetsBinding.instance.addPostFrameCallback((_) {
-                    _determineNextEntryFlow();
-                  });
-                }
-
-                // 첫 실행이 아닌데 무엇인가 켜져 있는 경우, connectivityProvider에 의해서 알림 화면으로 자동 이동됨.
                 return Container();
               },
             ),

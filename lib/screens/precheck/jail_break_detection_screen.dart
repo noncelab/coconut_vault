@@ -1,8 +1,10 @@
 import 'package:coconut_design_system/coconut_design_system.dart';
+import 'package:coconut_vault/constants/shared_preferences_keys.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/providers/preference_provider.dart';
 import 'package:coconut_vault/providers/visibility_provider.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
+import 'package:coconut_vault/repository/shared_preferences_repository.dart';
 import 'package:coconut_vault/widgets/button/fixed_bottom_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
@@ -118,7 +120,14 @@ class _JailBreakDetectionScreenState extends State<JailBreakDetectionScreen> {
     );
   }
 
+  Future<void> _storeContinueAnywayPressed() async {
+    SharedPrefsRepository sharedPrefs = SharedPrefsRepository();
+    await sharedPrefs.setBool(SharedPrefsKeys.jailbreakDetectionIgnored, true);
+    await sharedPrefs.setInt(SharedPrefsKeys.jailbreakDetectionIgnoredTime, DateTime.now().millisecondsSinceEpoch);
+  }
+
   Widget _buildBottomButton() {
+    // 첫 실행인 경우 [그래도 계속하시겠습니다] 버튼만 표시
     if (!widget.hasSeenGuide) {
       double bottom = MediaQuery.of(context).viewInsets.bottom + 16;
       return Positioned(
@@ -130,18 +139,25 @@ class _JailBreakDetectionScreenState extends State<JailBreakDetectionScreen> {
             padding: const EdgeInsets.all(8),
             text: t.jail_break_detection_screen.continue_anyway,
             textStyle: CoconutTypography.body1_16,
-            onTap: () async => widget.onSkip(),
+            onTap: () async {
+              await _storeContinueAnywayPressed();
+              widget.onSkip();
+            },
           ),
         ),
       );
     }
+    // 첫 실행이 아닌 경우 [그래도 계속하시겠습니다] 버튼과 [초기화하기] 버튼 표시
     return FixedBottomButton(
       subWidget: Padding(
         padding: const EdgeInsets.only(bottom: 8),
         child: CoconutUnderlinedButton(
           text: t.jail_break_detection_screen.continue_anyway,
           textStyle: CoconutTypography.body2_14,
-          onTap: () async => widget.onSkip(),
+          onTap: () async {
+            await _storeContinueAnywayPressed();
+            widget.onSkip();
+          },
         ),
       ),
       isActive: true,
