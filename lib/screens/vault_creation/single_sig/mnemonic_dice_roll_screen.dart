@@ -292,13 +292,15 @@ class _DiceRollState extends BaseEntropyWidgetState<DiceRoll> {
   void showAllBitsBottomSheet() {
     MyBottomSheet.showDraggableBottomSheet(
       context: context,
-      minChildSize: 0.5,
+      initialChildSize: 0.9,
+      showDragHandle: true,
       childBuilder:
           (scrollController) => BinaryGrid(
             totalCount: _diceNumbers.length,
             inputs: _diceNumbers,
             scrollController: scrollController,
             showProgress: false,
+            option: EntropyBitsOption.dice,
           ),
     );
   }

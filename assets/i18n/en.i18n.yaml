@@ -441,6 +441,12 @@ passphrase_textfield:
   title: "Enter passphrase"
   passphrase_hidden: "Hide passphrase"
   passphrase_visible: "Show passphrase"
+entropy_bits_bottom_sheet:
+  iancoleman_guide: "Select option "
+  options:
+    dice: "Dice [1-6] "
+    binary: "Binary [0-1] "
+  select_option: "to check out the Iancolman site."
   
 mnemonic_import_screen:
   title: "Restore"
