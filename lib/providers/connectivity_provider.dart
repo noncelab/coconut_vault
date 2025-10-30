@@ -54,8 +54,6 @@ class ConnectivityProvider extends ChangeNotifier {
   /// TODO: 리팩토링 필요함
   Future<void> setConnectActivity({required bool network, required bool bluetooth, required bool developerMode}) async {
     if (bluetooth) {
-      await SharedPrefsRepository().setBool(SharedPrefsKeys.hasAlreadyRequestedBluetoothPermission, true);
-
       // 현재 블루투스 상태 즉시 확인
       await _checkCurrentBluetoothState();
 
