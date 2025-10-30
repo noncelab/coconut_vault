@@ -30,9 +30,9 @@ import 'package:provider/provider.dart';
 import 'package:collection/collection.dart';
 
 class VaultHomeScreen extends StatefulWidget {
-  final Function? onChangeEntryFlow;
+  final Function onAllWalletDeleted;
   final Function? onSecureZoneUnaccessible;
-  const VaultHomeScreen({super.key, this.onChangeEntryFlow, this.onSecureZoneUnaccessible});
+  const VaultHomeScreen({super.key, required this.onAllWalletDeleted, this.onSecureZoneUnaccessible});
 
   @override
   State<VaultHomeScreen> createState() => _VaultHomeScreenState();
@@ -559,7 +559,7 @@ class _VaultHomeScreenState extends State<VaultHomeScreen> with TickerProviderSt
                                   if (!context.mounted) return;
                                   await context.read<PreferenceProvider>().resetVaultOrderAndFavorites();
 
-                                  widget.onChangeEntryFlow?.call();
+                                  widget.onAllWalletDeleted.call();
                                 },
                               );
                             },

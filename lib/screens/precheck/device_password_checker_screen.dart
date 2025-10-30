@@ -49,8 +49,8 @@ class _DevicePasswordCheckerScreenState extends State<DevicePasswordCheckerScree
         // 자동 화면 전환은 devicePasswordRequired와 devicePasswordTurnedOff 상태에서만 진행
         // devicePasswordTurnedOff 상태에서는 vaultList가 0이고, 볼트 핀 설정이 없을 때만 표시되어야 함
         // 만약 핀설정이 되어있으면 결국 devicePassword를 설정하더라도 아이폰에서는 devicePasswordChanged 상태로 전환하게 됨
-        // -> 자동으로 볼트 초기화를 진행할 것인지?
-        // (아이폰은 키체인이 무효화 되기 때문에 이 과정을 거치는데) 안드로이드는 어떻게 되는지 확인이 필요함, 안드로이드는 초기화가 필요 없을 수도 있음
+        // 1) 아이폰은 최신 모델에서 키체인이 무효화 되기 때문에 이 과정을 거침
+        // 2) 안드로이드는 이걸로 판별이 안되서 vault_home의 _isSecureZoneAccessible함수로 확인함
         if (widget.state == DevicePasswordCheckerScreenState.devicePasswordRequired) {
           isDeviceSecured = await device_secure_checker.isDeviceSecured();
           if (isDeviceSecured) {

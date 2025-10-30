@@ -188,7 +188,7 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> with SingleTickerProv
     );
   }
 
-  int resuemedCount = 0;
+  //int resuemedCount = 0;
 
   Widget _getHomeScreenRoute(AppEntryFlow appEntry, BuildContext context) {
     switch (appEntry) {
@@ -288,8 +288,8 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> with SingleTickerProv
         );
       case AppEntryFlow.vaultHome:
         return VaultHomeScreen(
-          onChangeEntryFlow: () {
-            _onChangeEntryFlow();
+          onAllWalletDeleted: () {
+            _updateEntryFlow(AppEntryFlow.vaultResetCompleted);
           },
           onSecureZoneUnaccessible: () {
             _updateEntryFlow(AppEntryFlow.cannotAccessToSecureZone);
@@ -772,7 +772,7 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> with SingleTickerProv
                                     await context.read<WalletProvider>().deleteAllWallets();
                                     await preferenceProvider.resetVaultOrderAndFavorites();
 
-                                    _onChangeEntryFlow();
+                                    _updateEntryFlow(AppEntryFlow.vaultResetCompleted);
                                   },
                                 );
                               },
@@ -839,10 +839,6 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> with SingleTickerProv
     );
   }
 
-  void _onChangeEntryFlow() async {
-    _updateEntryFlow(AppEntryFlow.vaultResetCompleted);
-  }
-
   void movePanelToEdge(PointerEvent details) {
     _signingModeEdgePanelWidth = 20.0;
     final targetPosition =
@@ -903,7 +899,8 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> with SingleTickerProv
 
     _updateEntryFlow(AppEntryFlow.securityPrecheck);
 
-    // 생체인증 상태 업데이트 -> TODO:이거 왜하는거지????
+    // 생체인증 상태 업데이트: 생체인증 ON 상태에서 백그라운드 나가서 권한을 해제한 경우에 상태값을 변경하기 위해
+    // TODO: 서명 전용 모드에서 불필요. 저장 모드로 '모드 전환'시 한 번 해주면 됨
     await authProvider.updateDeviceBiometricAvailability();
 
     // Android가 아닌 경우 inactive 상태 해제

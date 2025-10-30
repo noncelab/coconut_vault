@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:coconut_vault/constants/method_channel.dart';
 import 'package:coconut_vault/constants/secure_storage_keys.dart';
 import 'package:coconut_vault/constants/shared_preferences_keys.dart';
@@ -71,9 +73,13 @@ class SecurityPrechecker {
   // 기기 비밀번호 변경 여부 검사
   Future<SecurityCheckResult> checkDevicePasswordChanged() async {
     try {
-      final isDevicePasswordChanged = await _isDevicePasswordChanged();
-      if (isDevicePasswordChanged) {
-        return SecurityCheckResult(status: SecurityCheckStatus.devicePasswordChanged, checkTime: DateTime.now());
+      if (Platform.isIOS) {
+        final isDevicePasswordChanged = await _isIosDevicePasswordChanged();
+        if (isDevicePasswordChanged) {
+          return SecurityCheckResult(status: SecurityCheckStatus.devicePasswordChanged, checkTime: DateTime.now());
+        }
+      } else {
+        // INFO: Android는 vault_home_screen의 _isSecureZoneAccessible으로 확인함
       }
 
       // 모든 검사 통과
@@ -83,7 +89,7 @@ class SecurityPrechecker {
     }
   }
 
-  Future<bool> _isDevicePasswordChanged() async {
+  Future<bool> _isIosDevicePasswordChanged() async {
     try {
       final sharedPrefs = SharedPrefsRepository();
       final isSecureStorageMode = sharedPrefs.getString(SharedPrefsKeys.kVaultMode) == VaultMode.secureStorage.name;
