@@ -162,10 +162,10 @@ app_unavailable_notification_screen:
   step2: "연결 상태를 확인해 주세요"
   step3: "앱을 다시 실행해 주세요"
   vault_reset: 
-    reset_completed: "모든 지갑이 삭제되었습니다"
-    step_1: "저장된 정보를 모두 삭제했습니다"
+    reset_completed: "모든 데이터가 삭제되었습니다"
+    step_1: "저장된 데이터를 모두 삭제했습니다"
     step_2: "보안을 위해 앱을 완전히 종료해 주세요"
-    step_3: "앱 종료 후 기기 전원을 끄면 더 안전합니다 "
+    step_3: "앱 종료 후 기기 전원을 끄면 더 안전합니다"
 
 device_password_detection_screen:
   device_password_required: "볼트를 사용하려면\n기기 비밀번호 설정이 필요해요"
@@ -176,7 +176,7 @@ device_password_detection_screen:
   go_to_settings: "설정하기"
   delete_vault: "지갑 삭제"
   ios_settings_dialog_title: "설정 화면 이동"
-  ios_settings_dialog_description: "iOS 정책 상 설정 홈으로 이동이 불가능합니다. 설정 창이 열리면 설정 홈으로 이동하여 비밀번호를 설정해 주세요."
+  ios_settings_dialog_description: "iOS 정책 상 설정 홈으로 이동이 불가능합니다. 설정 창이 열리면 설정 홈으로 이동하여 암호를 설정해 주세요."
 
 jail_break_detection_screen:
   title: "탈옥 / 루팅 이력이 감지되었습니다"
@@ -185,6 +185,7 @@ jail_break_detection_screen:
   jail_break_guide_title: "탈옥/루팅이란?"
   jail_break_guide_description: "탈옥(iOS) 또는 루팅(Android)은 운영체제의 보안 제한을 해제하여,시스템 영역에 자유롭게 접근할 수 있도록 하는 행위입니다.\n사용자는 높은 수준의 제어 권한을 얻을 수 있지만, 동시에 악성코드나 무단 접근에 노출될 위험도 커집니다."
   continue_anyway: "그래도 계속하겠습니다"
+  delete_data: "데이터 삭제"
 
 ios_bluetooth_auth_notification_screen:
   allow_permission: "블루투스 상태 확인을 위해\n블루투스 권한을 허용해 주세요"
