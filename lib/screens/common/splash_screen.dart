@@ -6,7 +6,7 @@ import 'package:coconut_lib/coconut_lib.dart';
 import 'package:coconut_vault/app.dart';
 import 'package:coconut_vault/providers/connectivity_provider.dart';
 import 'package:coconut_vault/providers/preference_provider.dart';
-import 'package:coconut_vault/providers/view_model/start_view_model.dart';
+import 'package:coconut_vault/providers/view_model/splash_view_model.dart';
 import 'package:coconut_vault/providers/visibility_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -25,35 +25,55 @@ class SplashScreen extends StatefulWidget {
 }
 
 class _SplashScreenState extends State<SplashScreen> {
-  late StartViewModel _viewModel;
+  late SplashViewModel _viewModel;
+  bool _hasSplashDelayFinished = false;
+  bool _hasCompleted = false;
 
   @override
   void initState() {
     super.initState();
-    _viewModel = StartViewModel(
+    _viewModel = SplashViewModel(
       Provider.of<ConnectivityProvider>(context, listen: false),
       Provider.of<VisibilityProvider>(context, listen: false).hasSeenGuide,
-      Provider.of<PreferenceProvider>(context, listen: false).getVaultMode() != null,
+      //Provider.of<PreferenceProvider>(context, listen: false).getVaultMode() != null,
     );
+    if (_viewModel.hasSeenGuide) {
+      _viewModel.addListener(_onConnectivityStateChanged);
+    }
 
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       /// Splash 딜레이
       await Future.delayed(const Duration(seconds: 2));
+      if (!_viewModel.hasSeenGuide) {
+        /// iOS 블루투스 권한을 Tutorial 단계에서 확인하므로 그 전까지 connectivityState가 null
+        widget.onComplete(AppEntryFlow.securityPrecheck);
+        return;
+      }
+
+      _hasSplashDelayFinished = true;
+
+      if (_viewModel.connectivityState != null && !_hasCompleted) {
+        _hasCompleted = true;
+        widget.onComplete(AppEntryFlow.securityPrecheck);
+        return;
+      }
+      // 아직 _viewModel.connectivityState가 null이면 이벤트 등록
 
       // 한번도 튜토리얼을 보지 않은 경우 / 볼트 모드를 선택하지 않은 경우
       // firstLaunch 플로우로 이동
-      if (!_viewModel.hasSeenGuide || !_viewModel.isVaultModeSelected) {
-        widget.onComplete(AppEntryFlow.firstLaunch);
-        return;
-      }
-
-      // 네트워크 연결 상태 null이 아닐때까지 대기
-      if (_viewModel.connectivityState == null) {
-        return;
-      }
-
-      widget.onComplete(AppEntryFlow.securityPrecheck);
+      // TODO: 아래 로직을 securityPrecheck 끝나고로 이동해야함!!!!!
+      // if (!_viewModel.hasSeenGuide || !_viewModel.isVaultModeSelected) {
+      //   widget.onComplete(AppEntryFlow.firstLaunch);
+      //   return;
+      // }
     });
+  }
+
+  void _onConnectivityStateChanged() {
+    if (_viewModel.connectivityState != null && _hasSplashDelayFinished && !_hasCompleted) {
+      _hasCompleted = true;
+      widget.onComplete(AppEntryFlow.securityPrecheck);
+    }
   }
 
   @override
@@ -84,13 +104,13 @@ class _SplashScreenState extends State<SplashScreen> {
               ),
             ),
           ),
-          ChangeNotifierProxyProvider<ConnectivityProvider, StartViewModel>(
+          ChangeNotifierProxyProvider<ConnectivityProvider, SplashViewModel>(
             create: (_) => _viewModel,
-            update: (_, connectivityProvider, startViewModel) {
-              startViewModel!.updateConnectivityState();
-              return startViewModel;
+            update: (_, connectivityProvider, splashViewModel) {
+              splashViewModel!.updateConnectivityState();
+              return splashViewModel;
             },
-            child: Consumer<StartViewModel>(
+            child: Consumer<SplashViewModel>(
               builder: (context, viewModel, child) {
                 return Container();
               },
@@ -99,5 +119,11 @@ class _SplashScreenState extends State<SplashScreen> {
         ],
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    _viewModel.removeListener(_onConnectivityStateChanged);
+    super.dispose();
   }
 }

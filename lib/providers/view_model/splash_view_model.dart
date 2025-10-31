@@ -4,22 +4,31 @@ import 'package:coconut_vault/providers/connectivity_provider.dart';
 import 'package:coconut_vault/repository/secure_storage_repository.dart';
 import 'package:flutter/foundation.dart';
 
-class StartViewModel extends ChangeNotifier {
+class SplashViewModel extends ChangeNotifier {
   late final bool _hasSeenGuide;
   late final ConnectivityProvider _connectivityProvider;
-  late final bool _isVaultModeSelected;
+  //late final bool _isVaultModeSelected;
   bool? _connectivityState;
 
-  StartViewModel(this._connectivityProvider, this._hasSeenGuide, this._isVaultModeSelected) {
+  // SplashViewModel(this._connectivityProvider, this._hasSeenGuide, this._isVaultModeSelected) {
+  //   if (!_hasSeenGuide) {
+  //     // iOS는 앱을 삭제해도 secure storage에 데이터가 남아있음
+  //     SecureStorageRepository().deleteAll();
+  //   }
+  // }
+
+  SplashViewModel(this._connectivityProvider, this._hasSeenGuide) {
     if (!_hasSeenGuide) {
       // iOS는 앱을 삭제해도 secure storage에 데이터가 남아있음
       SecureStorageRepository().deleteAll();
     }
+
+    updateConnectivityState();
   }
 
   bool? get connectivityState => _connectivityState;
   bool get hasSeenGuide => _hasSeenGuide;
-  bool get isVaultModeSelected => _isVaultModeSelected;
+  //bool get isVaultModeSelected => _isVaultModeSelected;
 
   void updateConnectivityState() {
     var connectivityState = _getConnectivityState();

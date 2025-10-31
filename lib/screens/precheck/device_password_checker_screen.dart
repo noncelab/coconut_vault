@@ -4,7 +4,6 @@ import 'package:coconut_vault/main_route_guard.dart';
 import 'package:coconut_vault/providers/auth_provider.dart';
 import 'package:coconut_vault/providers/visibility_provider.dart';
 import 'package:coconut_vault/services/security_prechecker.dart';
-import 'package:coconut_vault/utils/device_secure_checker.dart';
 import 'package:coconut_vault/utils/device_secure_checker.dart' as device_secure_checker;
 import 'package:coconut_vault/widgets/button/fixed_bottom_button.dart';
 import 'package:flutter/material.dart';
@@ -23,12 +22,13 @@ class DevicePasswordCheckerScreen extends StatefulWidget {
   State<DevicePasswordCheckerScreen> createState() => _DevicePasswordCheckerScreenState();
 }
 
-class _DevicePasswordCheckerScreenState extends State<DevicePasswordCheckerScreen> {
+class _DevicePasswordCheckerScreenState extends State<DevicePasswordCheckerScreen> with WidgetsBindingObserver {
   bool isDeviceSecured = false;
 
   @override
   initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       // 화면을 강제로 리빌드하여 최신 언어 설정을 적용
       if (mounted) {
@@ -38,84 +38,85 @@ class _DevicePasswordCheckerScreenState extends State<DevicePasswordCheckerScree
   }
 
   @override
+  void didChangeAppLifecycleState(AppLifecycleState state) async {
+    if (state == AppLifecycleState.resumed) {
+      // 자동 화면 전환은 devicePasswordRequired와 devicePasswordTurnedOff 상태에서만 진행
+      // devicePasswordTurnedOff 상태에서는 vaultList가 0이고, 볼트 핀 설정이 없을 때만 표시되어야 함
+      // 만약 핀설정이 되어있으면 결국 devicePassword를 설정하더라도 아이폰에서는 devicePasswordChanged 상태로 전환하게 됨
+      // 1) 아이폰은 최신 모델에서 키체인이 무효화 되기 때문에 이 과정을 거침
+      // 2) 안드로이드는 이걸로 판별이 안되서 vault_home의 _isSecureZoneAccessible함수로 확인함
+      if (widget.state == DevicePasswordCheckerScreenState.devicePasswordRequired) {
+        isDeviceSecured = await device_secure_checker.isDeviceSecured();
+        if (isDeviceSecured) {
+          if (mounted) {
+            widget.onComplete();
+          }
+        }
+      }
+    }
+  }
+
+  @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    return MainRouteGuard(
-      onAppGoActive: () async {
-        // 자동 화면 전환은 devicePasswordRequired와 devicePasswordTurnedOff 상태에서만 진행
-        // devicePasswordTurnedOff 상태에서는 vaultList가 0이고, 볼트 핀 설정이 없을 때만 표시되어야 함
-        // 만약 핀설정이 되어있으면 결국 devicePassword를 설정하더라도 아이폰에서는 devicePasswordChanged 상태로 전환하게 됨
-        // 1) 아이폰은 최신 모델에서 키체인이 무효화 되기 때문에 이 과정을 거침
-        // 2) 안드로이드는 이걸로 판별이 안되서 vault_home의 _isSecureZoneAccessible함수로 확인함
-        if (widget.state == DevicePasswordCheckerScreenState.devicePasswordRequired) {
-          isDeviceSecured = await device_secure_checker.isDeviceSecured();
-          if (isDeviceSecured) {
-            if (mounted) {
-              widget.onComplete();
-            }
-          }
-        }
-      },
-      onAppGoBackground: () {},
-      onAppGoInactive: () {},
-      child: Consumer<VisibilityProvider>(
-        builder: (context, visibilityProvider, child) {
-          return MediaQuery(
-            data: MediaQuery.of(context).copyWith(textScaler: const TextScaler.linear(1.0)),
-            child: Scaffold(
-              backgroundColor: _getBackgroundColor(),
-              body: SafeArea(
-                child: SizedBox(
-                  width: double.infinity,
-                  height: MediaQuery.sizeOf(context).height,
-                  child: Stack(
-                    children: [
-                      Positioned(
-                        top: 0,
-                        left: 0,
-                        right: 0,
-                        bottom: 0,
-                        child: Column(
-                          children: [
-                            Flexible(
-                              flex: 1,
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.end,
-                                children: [
-                                  Padding(
-                                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                                    child: FittedBox(fit: BoxFit.scaleDown, child: _buildTitleTextWidget()),
-                                  ),
-                                  CoconutLayout.spacing_300h,
-                                  Padding(
-                                    padding: EdgeInsets.symmetric(horizontal: MediaQuery.sizeOf(context).width * 0.23),
+    return Consumer<VisibilityProvider>(
+      builder: (context, visibilityProvider, child) {
+        return MediaQuery(
+          data: MediaQuery.of(context).copyWith(textScaler: const TextScaler.linear(1.0)),
+          child: Scaffold(
+            backgroundColor: _getBackgroundColor(),
+            body: SafeArea(
+              child: SizedBox(
+                width: double.infinity,
+                height: MediaQuery.sizeOf(context).height,
+                child: Stack(
+                  children: [
+                    Positioned(
+                      top: 0,
+                      left: 0,
+                      right: 0,
+                      bottom: 0,
+                      child: Column(
+                        children: [
+                          Flexible(
+                            flex: 1,
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.end,
+                              children: [
+                                Padding(
+                                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                                  child: FittedBox(fit: BoxFit.scaleDown, child: _buildTitleTextWidget()),
+                                ),
+                                CoconutLayout.spacing_300h,
+                                Padding(
+                                  padding: EdgeInsets.symmetric(horizontal: MediaQuery.sizeOf(context).width * 0.23),
 
-                                    child: _buildDescriptionTextWidget(),
-                                  ),
-                                ],
-                              ),
+                                  child: _buildDescriptionTextWidget(),
+                                ),
+                              ],
                             ),
-                            CoconutLayout.spacing_800h,
-                            Flexible(
-                              flex: 1,
-                              child: Padding(padding: const EdgeInsets.symmetric(horizontal: 80), child: _buildImage()),
-                            ),
-                          ],
-                        ),
+                          ),
+                          CoconutLayout.spacing_800h,
+                          Flexible(
+                            flex: 1,
+                            child: Padding(padding: const EdgeInsets.symmetric(horizontal: 80), child: _buildImage()),
+                          ),
+                        ],
                       ),
-                      _buildBottomButton(),
-                    ],
-                  ),
+                    ),
+                    _buildBottomButton(),
+                  ],
                 ),
               ),
             ),
-          );
-        },
-      ),
+          ),
+        );
+      },
     );
   }
 
@@ -211,7 +212,7 @@ class _DevicePasswordCheckerScreenState extends State<DevicePasswordCheckerScree
   void _onButtonClicked() async {
     switch (widget.state) {
       case DevicePasswordCheckerScreenState.devicePasswordRequired:
-        await openSystemSecuritySettings(
+        await device_secure_checker.openSystemSecuritySettings(
           context,
           hasDialogShownForIos: true,
           title: t.device_password_detection_screen.ios_settings_dialog_title,
