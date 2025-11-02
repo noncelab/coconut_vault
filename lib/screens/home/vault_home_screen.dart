@@ -17,6 +17,7 @@ import 'package:coconut_vault/screens/home/select_sync_option_bottom_sheet.dart'
 import 'package:coconut_vault/screens/home/select_vault_bottom_sheet.dart';
 import 'package:coconut_vault/screens/settings/pin_setting_screen.dart';
 import 'package:coconut_vault/screens/vault_menu/info/passphrase_check_screen.dart';
+import 'package:coconut_vault/services/secure_zone/secure_zone_availability_checker.dart';
 import 'package:coconut_vault/widgets/button/shrink_animation_button.dart';
 import 'package:coconut_vault/widgets/card/vault_addition_guide_card.dart';
 import 'package:coconut_vault/widgets/vault_row_item.dart';
@@ -67,35 +68,44 @@ class _VaultHomeScreenState extends State<VaultHomeScreen> with TickerProviderSt
 
       // 안드로이드의 경우, _isSecureZoneAccessible 메서드로
       // 보안 영역 접근 가능 여부 확인하여 비밀번호 변경 여부 간접 확인
-      if (Platform.isAndroid && !_viewModel.isSigningOnlyMode && _viewModel.vaultCount > 0) {
-        if (!mounted) return;
-        final walletProvider = context.read<WalletProvider>();
-        if (walletProvider.isVaultsLoaded && walletProvider.vaultList.isNotEmpty) {
-          _isSecureZoneAccessible().then((isSecureZoneAccessible) {
-            debugPrint('isSecureZoneAccessible: $isSecureZoneAccessible');
-            if (!isSecureZoneAccessible) {
-              widget.onSecureZoneUnaccessible?.call();
-            }
-          });
+      // if (Platform.isAndroid && !_viewModel.isSigningOnlyMode && _viewModel.vaultCount > 0) {
+      //   if (!mounted) return;
+      //   final walletProvider = context.read<WalletProvider>();
+      //   if (walletProvider.isVaultsLoaded && walletProvider.vaultList.isNotEmpty) {
+      //     _isSecureZoneAccessible().then((isSecureZoneAccessible) {
+      //       debugPrint('isSecureZoneAccessible: $isSecureZoneAccessible');
+      //       if (!isSecureZoneAccessible) {
+      //         widget.onSecureZoneUnaccessible?.call();
+      //       }
+      //     });
+      //   }
+      // }
+
+      if (!mounted) return;
+      SecureZoneManager().isSecureZoneAccessible(walletProvider: context.read<WalletProvider>()).then((
+        isSecureZoneAccessible,
+      ) {
+        if (!isSecureZoneAccessible) {
+          widget.onSecureZoneUnaccessible?.call();
         }
-      }
+      });
     });
   }
 
-  Future<bool> _isSecureZoneAccessible() async {
-    final firstSingleSignatureWalletId =
-        context
-            .read<WalletProvider>()
-            .vaultList
-            .firstWhere((vault) => vault.vaultType == WalletType.singleSignature)
-            .id;
-    try {
-      await context.read<WalletProvider>().getSecret(firstSingleSignatureWalletId);
-      return true;
-    } catch (e) {
-      return false;
-    }
-  }
+  // Future<bool> _isSecureZoneAccessible() async {
+  //   final firstSingleSignatureWalletId =
+  //       context
+  //           .read<WalletProvider>()
+  //           .vaultList
+  //           .firstWhere((vault) => vault.vaultType == WalletType.singleSignature)
+  //           .id;
+  //   try {
+  //     await context.read<WalletProvider>().getSecret(firstSingleSignatureWalletId);
+  //     return true;
+  //   } catch (e) {
+  //     return false;
+  //   }
+  // }
 
   @override
   void didChangeDependencies() {

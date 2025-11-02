@@ -5,7 +5,6 @@ import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_lib/coconut_lib.dart';
 import 'package:coconut_vault/app.dart';
 import 'package:coconut_vault/providers/connectivity_provider.dart';
-import 'package:coconut_vault/providers/preference_provider.dart';
 import 'package:coconut_vault/providers/view_model/splash_view_model.dart';
 import 'package:coconut_vault/providers/visibility_provider.dart';
 import 'package:flutter/material.dart';

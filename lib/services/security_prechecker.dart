@@ -1,11 +1,5 @@
-import 'dart:io';
-
 import 'package:coconut_vault/constants/method_channel.dart';
-import 'package:coconut_vault/constants/secure_storage_keys.dart';
 import 'package:coconut_vault/constants/shared_preferences_keys.dart';
-import 'package:coconut_vault/enums/vault_mode_enum.dart';
-import 'package:coconut_vault/providers/auth_provider.dart';
-import 'package:coconut_vault/repository/secure_storage_repository.dart';
 import 'package:coconut_vault/repository/shared_preferences_repository.dart';
 import 'package:flutter/services.dart';
 
@@ -16,8 +10,7 @@ class SecurityPrechecker {
   SecurityPrechecker._internal();
 
   // 전체 보안 검사 수행 (1단계부터 시작)
-  // Android: 탈옥/루팅 검사 -> 기기 비밀번호 설정 여부 검사
-  // iOS: 탈옥/루팅 검사 -> 기기 비밀번호 설정 여부 검사 -> 기기 비밀번호 변경 여부 검사
+  // 탈옥/루팅 검사 -> 기기 비밀번호 설정 여부 검사
   // ------------------------------------------------------------
   // 탈옥/루팅 감지 화면에서 [그래도 계속하겠습니다] 선택 시,
   // jailbreakDetectionIgnored 상태와 저장 시간을 저장 후 performSecurityCheck 재호출함.
@@ -58,84 +51,85 @@ class SecurityPrechecker {
         return SecurityCheckResult(status: SecurityCheckStatus.devicePasswordRequired, checkTime: DateTime.now());
       }
 
+      return SecurityCheckResult(status: SecurityCheckStatus.secure, checkTime: DateTime.now());
       // iOS는 기기 비밀번호 변경 여부 검사: 저장한 정보의 Keychain이 무효화됨
-      return await checkDevicePasswordChanged();
+      // return await checkDevicePasswordChanged();
     } catch (e) {
       return SecurityCheckResult(status: SecurityCheckStatus.error, checkTime: DateTime.now());
     }
   }
 
   // 기기 비밀번호 변경 여부 검사
-  Future<SecurityCheckResult> checkDevicePasswordChanged() async {
-    try {
-      if (Platform.isIOS) {
-        final isDevicePasswordChanged = await _isIosDevicePasswordChanged();
-        if (isDevicePasswordChanged) {
-          return SecurityCheckResult(status: SecurityCheckStatus.devicePasswordChanged, checkTime: DateTime.now());
-        }
-      } else {
-        // INFO: Android는 vault_home_screen의 _isSecureZoneAccessible으로 확인함
-      }
+  // Future<SecurityCheckResult> checkDevicePasswordChanged() async {
+  //   try {
+  //     if (Platform.isIOS) {
+  //       final isDevicePasswordChanged = await _isIosDevicePasswordChanged();
+  //       if (isDevicePasswordChanged) {
+  //         return SecurityCheckResult(status: SecurityCheckStatus.devicePasswordChanged, checkTime: DateTime.now());
+  //       }
+  //     } else {
+  //       // INFO: Android는 vault_home_screen의 _isSecureZoneAccessible으로 확인함
+  //     }
 
-      // 모든 검사 통과
-      return SecurityCheckResult(status: SecurityCheckStatus.secure, checkTime: DateTime.now());
-    } catch (e) {
-      return SecurityCheckResult(status: SecurityCheckStatus.error, checkTime: DateTime.now());
-    }
-  }
+  //     // 모든 검사 통과
+  //     return SecurityCheckResult(status: SecurityCheckStatus.secure, checkTime: DateTime.now());
+  //   } catch (e) {
+  //     return SecurityCheckResult(status: SecurityCheckStatus.error, checkTime: DateTime.now());
+  //   }
+  // }
 
-  Future<bool> _isIosDevicePasswordChanged() async {
-    try {
-      final sharedPrefs = SharedPrefsRepository();
-      final vaultMode = sharedPrefs.getString(SharedPrefsKeys.kVaultMode);
+  // Future<bool> _isIosDevicePasswordChanged() async {
+  //   try {
+  //     final sharedPrefs = SharedPrefsRepository();
+  //     final vaultMode = sharedPrefs.getString(SharedPrefsKeys.kVaultMode);
 
-      if (vaultMode.isEmpty || vaultMode == VaultMode.signingOnly.name) return false;
+  //     if (vaultMode.isEmpty || vaultMode == VaultMode.signingOnly.name) return false;
 
-      // 안전 저장 모드: 앱 핀 저장 여부와 가용성 체크
-      // iOS의 경우 Keychain 무효화로 간접 확인 가능
-      final isPinEnabled = sharedPrefs.getBool(SharedPrefsKeys.isPinEnabled) ?? false;
-      if (!isPinEnabled) return false;
+  //     // 안전 저장 모드: 앱 핀 저장 여부와 가용성 체크
+  //     // iOS의 경우 Keychain 무효화로 간접 확인 가능
+  //     final isPinEnabled = sharedPrefs.getBool(SharedPrefsKeys.isPinEnabled) ?? false;
+  //     if (!isPinEnabled) return false;
 
-      final secureStorageRepository = SecureStorageRepository();
-      final vaultPin = await secureStorageRepository.read(key: SecureStorageKeys.kVaultPin);
+  //     final secureStorageRepository = SecureStorageRepository();
+  //     final vaultPin = await secureStorageRepository.read(key: SecureStorageKeys.kVaultPin);
 
-      if (vaultPin == null) return true;
+  //     if (vaultPin == null) return true;
 
-      return false;
-    } catch (e) {
-      return false;
-    }
-  }
+  //     return false;
+  //   } catch (e) {
+  //     return false;
+  //   }
+  // }
 
-  Future<bool> deleteStoredData(AuthProvider authProvider) async {
-    try {
-      final sharedPrefsRepository = SharedPrefsRepository();
-      final hasSeenGuide = SharedPrefsRepository().getBool(SharedPrefsKeys.hasShownStartGuide) == true;
-      final selectedVaultMode = SharedPrefsRepository().getString(SharedPrefsKeys.kVaultMode);
-      await sharedPrefsRepository.clearSharedPref();
-      final secureStorageRepository = SecureStorageRepository();
-      await secureStorageRepository.deleteAll();
-      await authProvider.resetPinData();
+  // Future<bool> deleteStoredData(AuthProvider authProvider) async {
+  //   try {
+  //     final sharedPrefsRepository = SharedPrefsRepository();
+  //     final hasSeenGuide = SharedPrefsRepository().getBool(SharedPrefsKeys.hasShownStartGuide) == true;
+  //     final selectedVaultMode = SharedPrefsRepository().getString(SharedPrefsKeys.kVaultMode);
+  //     await sharedPrefsRepository.clearSharedPref();
+  //     final secureStorageRepository = SecureStorageRepository();
+  //     await secureStorageRepository.deleteAll();
+  //     await authProvider.resetPinData();
 
-      if (hasSeenGuide) {
-        await SharedPrefsRepository().setBool(SharedPrefsKeys.hasShownStartGuide, true);
-      }
-      if (selectedVaultMode != '') {
-        await SharedPrefsRepository().setString(SharedPrefsKeys.kVaultMode, selectedVaultMode);
-      }
+  //     if (hasSeenGuide) {
+  //       await SharedPrefsRepository().setBool(SharedPrefsKeys.hasShownStartGuide, true);
+  //     }
+  //     if (selectedVaultMode != '') {
+  //       await SharedPrefsRepository().setString(SharedPrefsKeys.kVaultMode, selectedVaultMode);
+  //     }
 
-      return true;
-    } catch (e) {
-      return false;
-    }
-  }
+  //     return true;
+  //   } catch (e) {
+  //     return false;
+  //   }
+  // }
 }
 
 enum SecurityCheckStatus {
   secure, // 정상 구동 가능
   jailbreakDetected, // 탈옥/루팅 감지
   devicePasswordRequired, // 기기 비밀번호 필요
-  devicePasswordChanged, // 기기 비밀번호 변경됨
+  // devicePasswordChanged, // 기기 비밀번호 변경됨
   error, // 에러 발생
 }
 
@@ -148,6 +142,6 @@ class SecurityCheckResult {
   bool get isSecure => status == SecurityCheckStatus.secure;
   bool get isJailbreakDetected => status == SecurityCheckStatus.jailbreakDetected;
   bool get isDevicePasswordRequired => status == SecurityCheckStatus.devicePasswordRequired;
-  bool get isDevicePasswordChanged => status == SecurityCheckStatus.devicePasswordChanged;
+  // bool get isDevicePasswordChanged => status == SecurityCheckStatus.devicePasswordChanged;
   bool get hasError => status == SecurityCheckStatus.error;
 }

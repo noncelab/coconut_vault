@@ -25,6 +25,7 @@ import 'package:coconut_vault/screens/home/vault_home_screen.dart';
 import 'package:coconut_vault/screens/home/vault_list_screen.dart';
 import 'package:coconut_vault/screens/precheck/device_password_checker_screen.dart';
 import 'package:coconut_vault/screens/precheck/jail_break_detection_screen.dart';
+import 'package:coconut_vault/services/secure_zone/secure_zone_availability_checker.dart';
 import 'package:coconut_vault/services/security_prechecker.dart';
 import 'package:coconut_vault/repository/shared_preferences_repository.dart';
 import 'package:coconut_vault/constants/shared_preferences_keys.dart';
@@ -226,15 +227,15 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> with SingleTickerProv
                       _updateEntryFlow(AppEntryFlow.splash);
                     },
                   );
-                case SecurityCheckStatus.devicePasswordChanged:
-                  return DevicePasswordCheckerScreen(
-                    state: DevicePasswordCheckerScreenState.devicePasswordChanged,
-                    onComplete: () async {
-                      // 기존 데이터 삭제 후 vaultHome으로 이동
-                      await _handleDevicePasswordChangedOnResume();
-                      _updateEntryFlow(AppEntryFlow.vaultHome);
-                    },
-                  );
+                // case SecurityCheckStatus.devicePasswordChanged:
+                //   return DevicePasswordCheckerScreen(
+                //     state: DevicePasswordCheckerScreenState.devicePasswordChanged,
+                //     onComplete: () async {
+                //       // 기존 데이터 삭제 후 vaultHome으로 이동
+                //       await _handleDevicePasswordChangedOnResume();
+                //       _updateEntryFlow(AppEntryFlow.vaultHome);
+                //     },
+                //   );
                 case SecurityCheckStatus.secure:
                   WidgetsBinding.instance.addPostFrameCallback((_) {
                     // 한번도 튜토리얼을 보지 않은 경우
@@ -914,7 +915,7 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> with SingleTickerProv
   Future<void> _handleDevicePasswordChangedOnResume() async {
     try {
       // 볼트 초기화 (앱 최초실행 여부, 볼트 모드는 유지)
-      await SecurityPrechecker().deleteStoredData(authProvider);
+      await SecureZoneManager().deleteStoredData(authProvider);
     } catch (e) {
       debugPrint('볼트 초기화 실패: $e');
       // 볼트 초기화 실패 시에도 계속 진행

@@ -1,9 +1,8 @@
 import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
-import 'package:coconut_vault/main_route_guard.dart';
 import 'package:coconut_vault/providers/auth_provider.dart';
 import 'package:coconut_vault/providers/visibility_provider.dart';
-import 'package:coconut_vault/services/security_prechecker.dart';
+import 'package:coconut_vault/services/secure_zone/secure_zone_availability_checker.dart';
 import 'package:coconut_vault/utils/device_secure_checker.dart' as device_secure_checker;
 import 'package:coconut_vault/widgets/button/fixed_bottom_button.dart';
 import 'package:flutter/material.dart';
@@ -222,7 +221,7 @@ class _DevicePasswordCheckerScreenState extends State<DevicePasswordCheckerScree
         break;
       case DevicePasswordCheckerScreenState.devicePasswordChanged:
         final authProvider = Provider.of<AuthProvider>(context, listen: false);
-        final result = await SecurityPrechecker().deleteStoredData(authProvider);
+        final result = await SecureZoneManager().deleteStoredData(authProvider);
         if (mounted && result) {
           widget.onComplete();
         }

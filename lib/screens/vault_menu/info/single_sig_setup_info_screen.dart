@@ -375,6 +375,13 @@ class _SingleSigSetupInfoScreenState extends State<SingleSigSetupInfoScreen> {
             enableShrinkAnim: true,
             onPressed: () {
               _removeTooltip();
+
+              // vault mode가 signing only 모드인 경우 인증 없이 진입
+              if (context.read<WalletProvider>().isSigningOnlyMode) {
+                Navigator.pushNamed(context, AppRoutes.mnemonicView, arguments: {'id': widget.id});
+                return;
+              }
+
               _authenticateWithBiometricOrPin(
                 context,
                 PinCheckContextEnum.sensitiveAction,
