@@ -58,11 +58,6 @@ class SecurityPrechecker {
         return SecurityCheckResult(status: SecurityCheckStatus.devicePasswordRequired, checkTime: DateTime.now());
       }
 
-      // INFO: 안드로이드도 생체 인증 추가하면 저장했던 데이터를 가져올 수 없음
-      // if (Platform.isAndroid) {
-      //   return SecurityCheckResult(status: SecurityCheckStatus.secure, checkTime: DateTime.now());
-      // }
-
       // iOS는 기기 비밀번호 변경 여부 검사: 저장한 정보의 Keychain이 무효화됨
       return await checkDevicePasswordChanged();
     } catch (e) {
@@ -92,10 +87,12 @@ class SecurityPrechecker {
   Future<bool> _isIosDevicePasswordChanged() async {
     try {
       final sharedPrefs = SharedPrefsRepository();
-      final isSecureStorageMode = sharedPrefs.getString(SharedPrefsKeys.kVaultMode) == VaultMode.secureStorage.name;
+      final vaultMode = sharedPrefs.getString(SharedPrefsKeys.kVaultMode);
 
-      if (!isSecureStorageMode) return false;
+      if (vaultMode.isEmpty || vaultMode == VaultMode.signingOnly.name) return false;
 
+      // 안전 저장 모드: 앱 핀 저장 여부와 가용성 체크
+      // iOS의 경우 Keychain 무효화로 간접 확인 가능
       final isPinEnabled = sharedPrefs.getBool(SharedPrefsKeys.isPinEnabled) ?? false;
       if (!isPinEnabled) return false;
 

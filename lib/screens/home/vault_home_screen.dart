@@ -65,8 +65,9 @@ class _VaultHomeScreenState extends State<VaultHomeScreen> with TickerProviderSt
       }
       await _viewModel.loadVaults();
 
-      // loadVaults() 완료 후 vaultList가 null이 아닐 때 실행
-      if (Platform.isAndroid) {
+      // 안드로이드의 경우, _isSecureZoneAccessible 메서드로
+      // 보안 영역 접근 가능 여부 확인하여 비밀번호 변경 여부 간접 확인
+      if (Platform.isAndroid && !_viewModel.isSigningOnlyMode && _viewModel.vaultCount > 0) {
         if (!mounted) return;
         final walletProvider = context.read<WalletProvider>();
         if (walletProvider.isVaultsLoaded && walletProvider.vaultList.isNotEmpty) {
