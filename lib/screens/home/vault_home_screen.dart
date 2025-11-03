@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:coconut_design_system/coconut_design_system.dart';
+import 'package:coconut_lib/coconut_lib.dart';
 import 'package:coconut_vault/app_routes_params.dart';
 import 'package:coconut_vault/constants/app_routes.dart';
 import 'package:coconut_vault/enums/wallet_enums.dart';
@@ -593,13 +594,18 @@ class _VaultHomeScreenState extends State<VaultHomeScreen> with TickerProviderSt
     if (!context.mounted) return;
 
     if (hasPassphrase) {
-      final passphraseInput = await MyBottomSheet.showBottomSheet_ratio<String?>(
+      Seed? seed = await MyBottomSheet.showBottomSheet_ratio<Seed?>(
         ratio: 0.5,
         context: context,
         child: PassphraseCheckScreen(id: walletId),
       );
 
-      if (passphraseInput != null && context.mounted) {
+      // 패스프레이즈 입력 안하고 BottomSheet 그냥 닫음
+      if (seed == null) {
+        return;
+      }
+
+      if (context.mounted) {
         _showSyncOptionBottomSheet(walletId, context);
       }
     } else {

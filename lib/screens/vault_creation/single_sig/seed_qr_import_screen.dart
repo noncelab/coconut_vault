@@ -5,10 +5,12 @@ import 'dart:typed_data';
 import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_lib/coconut_lib.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
+import 'package:coconut_vault/providers/app_lifecycle_state_provider.dart';
 import 'package:coconut_vault/screens/vault_creation/single_sig/seed_qr_confirmation_screen.dart';
 import 'package:coconut_vault/widgets/custom_tooltip.dart';
 import 'package:crypto/crypto.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:qr_code_scanner_plus/qr_code_scanner_plus.dart';
 
 /// mobile_scanner 이슈로
@@ -25,10 +27,13 @@ class _SeedQrImportScreenState extends State<SeedQrImportScreen> {
   QRViewController? controller;
   bool _isNavigating = false;
   Barcode? result;
+  late AppLifecycleStateProvider _appLifecycleStateProvider;
 
   @override
   void initState() {
     super.initState();
+    _appLifecycleStateProvider = Provider.of<AppLifecycleStateProvider>(context, listen: false);
+    _appLifecycleStateProvider.startOperation(AppLifecycleOperations.cameraAuthRequest, ignoreNotify: true);
   }
 
   @override
@@ -42,6 +47,9 @@ class _SeedQrImportScreenState extends State<SeedQrImportScreen> {
 
   @override
   void dispose() {
+    if (_appLifecycleStateProvider.ignoredOperations.contains(AppLifecycleOperations.cameraAuthRequest)) {
+      _appLifecycleStateProvider.endOperation(AppLifecycleOperations.cameraAuthRequest);
+    }
     super.dispose();
   }
 
@@ -159,7 +167,9 @@ class _SeedQrImportScreenState extends State<SeedQrImportScreen> {
     });
   }
 
-  void _onPermissionSet(BuildContext context, QRViewController ctrl, bool p) {}
+  void _onPermissionSet(BuildContext context, QRViewController ctrl, bool p) {
+    _appLifecycleStateProvider.endOperation(AppLifecycleOperations.cameraAuthRequest);
+  }
 
   List<String> _decodeStandardQR(String data) {
     final words = <String>[];

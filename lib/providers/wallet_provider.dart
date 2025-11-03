@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:coconut_lib/coconut_lib.dart';
 import 'package:coconut_vault/extensions/uint8list_extensions.dart';
@@ -89,6 +90,9 @@ class WalletProvider extends ChangeNotifier {
   Future<SingleSigVaultListItem> addSingleSigVault(SingleSigWalletCreateDto wallet) async {
     _setAddVaultCompleted(false);
 
+    // StrongBoxKeystore.encrypt 내부에서 AUTH_NEEDED 에러 발생 시 생체인증 시도
+    // 하지만 ios에서도 지갑 저장 중 라이프사이클 이벤트 호출로 중단되는 것을 방지하기 위해 operation 등록
+    _lifecycleProvider.startOperation(AppLifecycleOperations.teeEncryption);
     final vault = await _walletRepository.addSinglesigWallet(wallet);
     _setVaultList(_walletRepository.vaultList);
     await _preferenceProvider.setVaultOrder(_vaultList.map((e) => e.id).toList());
@@ -96,7 +100,7 @@ class WalletProvider extends ChangeNotifier {
 
     _setAddVaultCompleted(true);
     await _updateWalletLength();
-
+    _lifecycleProvider.endOperation(AppLifecycleOperations.teeEncryption);
     notifyListeners();
     return vault;
   }
@@ -343,45 +347,6 @@ class WalletProvider extends ChangeNotifier {
   // 서명 전용 모드
   Future<Seed> getSeedInSigningOnlyMode(int id) async {
     return await _walletRepository.getSeedInSigningOnlyMode(id);
-  }
-
-  Future<String> createBackupData() async {
-    final List<Map<String, dynamic>> backupData = [];
-
-    try {
-      for (final vault in _vaultList) {
-        final vaultData = vault.toJson();
-
-        if (vault.vaultType == WalletType.singleSignature) {
-          vaultData['secret'] = await getSecret(vault.id);
-          vaultData['hasPassphrase'] = await hasPassphrase(vault.id);
-        }
-
-        backupData.add(vaultData);
-      }
-
-      final jsonData = jsonEncode(backupData);
-      return jsonData;
-    } finally {
-      for (final vault in backupData) {
-        if (vault['vaultType'] == WalletType.singleSignature) {
-          (vault['secret'] as Uint8List).wipe();
-        }
-      }
-    }
-  }
-
-  Future<void> restoreFromBackupData(String jsonData) async {
-    final List<Map<String, dynamic>> backupDataMapList =
-        jsonDecode(jsonData).map<Map<String, dynamic>>((e) => Map<String, dynamic>.from(e)).toList();
-
-    /// 아래 restoreFromBackupData 함수 내에서 secret정보는 사라집니다.
-    await _walletRepository.restoreFromBackupData(backupDataMapList);
-
-    _setVaultList(_walletRepository.vaultList);
-    _isVaultsLoaded = true;
-    notifyListeners();
-    await _updateWalletLength();
   }
 
   Future<void> updateIsSigningOnlyMode(bool isSigningOnlyMode) async {

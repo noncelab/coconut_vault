@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:coconut_design_system/coconut_design_system.dart';
+import 'package:coconut_lib/coconut_lib.dart';
 import 'package:coconut_vault/constants/app_routes.dart';
 import 'package:coconut_vault/enums/pin_check_context_enum.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
@@ -9,6 +10,7 @@ import 'package:coconut_vault/providers/view_model/vault_menu/single_sig_setup_i
 import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:coconut_vault/screens/home/select_sync_option_bottom_sheet.dart';
 import 'package:coconut_vault/screens/vault_menu/info/name_and_icon_edit_bottom_sheet.dart';
+import 'package:coconut_vault/screens/vault_menu/info/passphrase_check_screen.dart';
 import 'package:coconut_vault/utils/text_utils.dart';
 import 'package:coconut_vault/utils/vibration_util.dart';
 import 'package:coconut_vault/widgets/button/button_group.dart';
@@ -25,6 +27,7 @@ import 'package:shimmer/shimmer.dart';
 
 class SingleSigSetupInfoScreen extends StatefulWidget {
   final int id;
+  // 서명 전용 모드에서는 항상 false입니다.
   final bool shouldShowPassphraseVerifyMenu;
   final String? entryPoint;
   const SingleSigSetupInfoScreen({
@@ -65,11 +68,17 @@ class _SingleSigSetupInfoScreenState extends State<SingleSigSetupInfoScreen> {
   ) async {
     final authProvider = context.read<AuthProvider>();
 
-    if (await authProvider.isBiometricsAuthValid() && context.mounted) {
+    final isBiometricValid =
+        pinCheckContext == PinCheckContextEnum.sensitiveAction
+            ? await authProvider.isBiometricsAuthValidToAvoidDoubleAuth()
+            : await authProvider.isBiometricsAuthValid();
+
+    if (isBiometricValid && context.mounted) {
       onSuccess();
       return;
     }
 
+    if (!context.mounted) return;
     await MyBottomSheet.showBottomSheet_90(
       context: context,
       child: CustomLoadingOverlay(
@@ -203,8 +212,24 @@ class _SingleSigSetupInfoScreenState extends State<SingleSigSetupInfoScreen> {
       child: SingleButton(
         enableShrinkAnim: true,
         title: t.select_export_type_screen.title,
-        onPressed: () {
-          _showSyncOptionBottomSheet(widget.id, context);
+        onPressed: () async {
+          if (widget.shouldShowPassphraseVerifyMenu) {
+            Seed? seed = await MyBottomSheet.showBottomSheet_ratio<Seed?>(
+              ratio: 0.5,
+              context: context,
+              child: PassphraseCheckScreen(id: widget.id),
+            );
+
+            if (seed == null) {
+              return;
+            }
+
+            if (mounted) {
+              _showSyncOptionBottomSheet(widget.id, context);
+            }
+          } else {
+            _showSyncOptionBottomSheet(widget.id, context);
+          }
         },
       ),
     );
@@ -375,9 +400,8 @@ class _SingleSigSetupInfoScreenState extends State<SingleSigSetupInfoScreen> {
             enableShrinkAnim: true,
             onPressed: () {
               _removeTooltip();
-
-              // vault mode가 signing only 모드인 경우 인증 없이 진입
-              if (context.read<WalletProvider>().isSigningOnlyMode) {
+              final viewModel = context.read<SingleSigSetupInfoViewModel>();
+              if (viewModel.isSigningOnlyMode) {
                 Navigator.pushNamed(context, AppRoutes.mnemonicView, arguments: {'id': widget.id});
                 return;
               }

@@ -80,7 +80,7 @@ platform :android do
     opts ||= {}
     platform_ = "aos"
     flavor    = "mainnet"
-    package   = "onl.coconut.vault"
+    package   = "onl.coconut.vault.mainnet"
 
     skip_prep   = UtilHelper.truthy?(opts[:skip_prep]   || ENV["SKIP_PREP"])
     skip_clean  = UtilHelper.truthy?(opts[:skip_clean]  || ENV["SKIP_CLEAN"])
@@ -104,7 +104,6 @@ platform :android do
         fvm flutter build appbundle \
           --flavor #{flavor} \
           --release \
-          --dart-define=USE_FIREBASE=true \
           --build-name="#{marketing}" \
           --build-number=#{new_build}
       }

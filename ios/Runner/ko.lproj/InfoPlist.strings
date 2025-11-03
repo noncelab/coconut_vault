@@ -1,3 +1,5 @@
+/*아래 값들은 기본값이며 Xcode - Targets(Runner) - Build Phases의 마지막 Run Script에 의해서 최종 생성된 Runner.app 파일의 InfoPlist.strings가 결정됩니다.
+  % plutil -p "build/ios/archive/Runner.xcarchive/Products/Applications/Runner.app/ko.lproj/InfoPlist.strings"*/
 CFBundleDisplayName = "코코넛 볼트";
 NSBluetoothAlwaysUsageDescription = "이 앱은 보안 강화를 위해 Bluetooth가 활성화되어 있는지 감지하고, Bluetooth가 활성화 된 경우 무단 장치와의 연결로 중요 정보가 유출되는 것을 방지하기 위해 앱 기능에 접근을 제한합니다.";
 NSBluetoothPeripheralUsageDescription = "이 앱은 보안 강화를 위해 Bluetooth가 활성화되어 있는지 감지하고, Bluetooth가 활성화 된 경우 무단 장치와의 연결로 중요 정보가 유출되는 것을 방지하기 위해 앱 기능에 접근을 제한합니다.";

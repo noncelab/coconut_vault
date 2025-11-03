@@ -16,6 +16,7 @@ class AppLifecycleOperations {
   // 보안 관련
   static const String secureStorage = 'secure_storage';
   static const String keychainAccess = 'keychain_access';
+  static const String cameraAuthRequest = 'camera_auth_request';
 }
 
 class AppLifecycleStateProvider extends ChangeNotifier with WidgetsBindingObserver {
@@ -33,6 +34,7 @@ class AppLifecycleStateProvider extends ChangeNotifier with WidgetsBindingObserv
 
   // inactive 상태 전환을 무시해야 하는 작업들
   final Set<String> _ignoredOperations = <String>{};
+  Set<String> get ignoredOperations => Set.unmodifiable(_ignoredOperations);
 
   // 특정 작업이 진행 중인지 확인
   bool isOperationInProgress(String operationId) => _ignoredOperations.contains(operationId);
@@ -41,9 +43,10 @@ class AppLifecycleStateProvider extends ChangeNotifier with WidgetsBindingObserv
   bool get shouldIgnoreInactiveTransition => _ignoredOperations.isNotEmpty;
 
   // 작업 시작 (inactive 상태 전환 무시)
-  void startOperation(String operationId) {
+  void startOperation(String operationId, {bool ignoreNotify = false}) {
     _ignoredOperations.add(operationId);
     Logger.log('AppLifecycle: 작업 시작 - $operationId (총 ${_ignoredOperations.length}개)');
+    if (ignoreNotify) return;
     notifyListeners();
   }
 
