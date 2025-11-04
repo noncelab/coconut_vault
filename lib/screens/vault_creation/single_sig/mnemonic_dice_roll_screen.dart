@@ -1,6 +1,7 @@
 import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_vault/constants/app_routes.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
+import 'package:coconut_vault/utils/vibration_util.dart';
 import 'package:coconut_vault/widgets/button/shrink_animation_button.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -252,6 +253,13 @@ class _DiceRollState extends BaseEntropyWidgetState<DiceRoll> {
   @override
   void addEntropyData(data) async {
     setState(() {
+      final int addedBitsLength = diceMapping[data]?.length ?? 0;
+
+      if (widget.wordsCount == 12 && _bits.length + addedBitsLength >= 160 ||
+          widget.wordsCount == 24 && _bits.length + addedBitsLength >= 288) {
+        vibrateLightDouble();
+        return;
+      }
       _diceNumbers.add(data);
       _bits.addAll(diceMapping[data] ?? []);
       _currentIndex++;

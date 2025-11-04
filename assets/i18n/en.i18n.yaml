@@ -442,11 +442,11 @@ passphrase_textfield:
   passphrase_hidden: "Hide passphrase"
   passphrase_visible: "Show passphrase"
 entropy_bits_bottom_sheet:
-  iancoleman_guide: "Select option "
+  iancoleman_guide: "On the Ian Coleman site, select "
   options:
-    dice: "Dice [1-6] "
-    binary: "Binary [0-1] "
-  select_option: "to check out the Iancolman site."
+    dice: "Valid entropy values → Dice [1-6] "
+    binary: "Valid entropy values → Binary [0-1] "
+  select_option: "and verify your values."
   
 mnemonic_import_screen:
   title: "Restore"
