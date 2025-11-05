@@ -6,6 +6,7 @@ import 'package:coconut_vault/utils/logger.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:provider/provider.dart';
 
+/// INFO: vault_home이 최상단인 메인 루트에서만 사용하세요.
 class MainRouteGuard extends StatefulWidget {
   final Widget child;
   final VoidCallback? onAppGoBackground;
@@ -42,10 +43,10 @@ class _MainRouteGuardState extends State<MainRouteGuard> {
   }
 
   void _handleAppGoBackground() {
-    final vaultModel = Provider.of<WalletProvider>(context, listen: false);
+    final walletProvider = Provider.of<WalletProvider>(context, listen: false);
     final walletCount = SharedPrefsRepository().getInt(SharedPrefsKeys.vaultListLength) ?? 0;
     if (walletCount > 0 && widget.onAppGoBackground != null) {
-      vaultModel.dispose();
+      walletProvider.dispose();
       widget.onAppGoBackground!();
     }
   }
@@ -62,5 +63,11 @@ class _MainRouteGuardState extends State<MainRouteGuard> {
       Logger.log('-->Active');
       widget.onAppGoActive!();
     }
+  }
+
+  @override
+  void dispose() {
+    _lifecycleProvider.onAppGoBackground = _lifecycleProvider.onAppGoInactive = _lifecycleProvider.onAppGoActive = null;
+    super.dispose();
   }
 }

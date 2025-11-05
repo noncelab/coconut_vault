@@ -70,8 +70,7 @@ enum AppEntryFlow {
   splash,
   firstLaunch,
   securityPrecheck, // 보안 검사 실행
-  pinCheckAppLaunched,
-  pinCheckAppResumed,
+  pinCheck,
   vaultHome,
   vaultResetCompleted, // 지갑 초기화 완료 상태
   cannotAccessToSecureZone, // 보안 영역 접근 불가 상태
@@ -107,7 +106,7 @@ class CoconutVaultApp extends StatefulWidget {
 
 class _CoconutVaultAppState extends State<CoconutVaultApp> with SingleTickerProviderStateMixin {
   AppEntryFlow _appEntryFlow = AppEntryFlow.splash;
-  bool _isInactive = false;
+  bool _shouldShowPrivacyScreen = false;
   late final authProvider = AuthProvider();
   late final preferenceProvider = PreferenceProvider();
   late final visibilityProvider = VisibilityProvider(isSigningOnlyMode: preferenceProvider.isSigningOnlyMode);
@@ -165,31 +164,10 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> with SingleTickerProv
     setState(() {
       _appEntryFlow = appEntryFlow;
       if (appEntryFlow == AppEntryFlow.vaultHome) {
-        _isInactive = false;
+        _shouldShowPrivacyScreen = false;
       }
     });
   }
-
-  Widget _buildPinCheckScreenAfterSecurityCheck({
-    required PinCheckContextEnum pinCheckContext,
-    required AppEntryFlow nextFlow,
-    VoidCallback? onReset,
-  }) {
-    return MainRouteGuard(
-      onAppGoBackground: () {},
-      onAppGoInactive: () {},
-      onAppGoActive: () async {
-        _updateEntryFlow(AppEntryFlow.securityPrecheck);
-      },
-      child: PinCheckScreen(
-        pinCheckContext: pinCheckContext,
-        onSuccess: () => _updateEntryFlow(nextFlow),
-        onReset: onReset ?? () async => _updateEntryFlow(AppEntryFlow.vaultHome),
-      ),
-    );
-  }
-
-  //int resuemedCount = 0;
 
   Widget _getHomeScreenRoute(AppEntryFlow appEntry, BuildContext context) {
     switch (appEntry) {
@@ -253,8 +231,8 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> with SingleTickerProv
                     // 저장 모드 && 지갑이 있는 경우
                     // visibilityProvider.walletCount 대신 SharedPrefsRepository()에서 가져옴
                     final walletCount = SharedPrefsRepository().getInt(SharedPrefsKeys.vaultListLength) ?? 0;
-                    if (walletCount > 0) {
-                      _updateEntryFlow(AppEntryFlow.pinCheckAppLaunched);
+                    if (walletCount > 0 || authProvider.isPermanentlyLocked) {
+                      _updateEntryFlow(AppEntryFlow.pinCheck);
                       return;
                     }
 
@@ -276,16 +254,18 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> with SingleTickerProv
             },
           );
         }
-      case AppEntryFlow.pinCheckAppLaunched:
+      case AppEntryFlow.pinCheck:
+        if (!authProvider.isPermanentlyLocked) {
+          authProvider.updateDeviceBiometricAvailability();
+          lifecycleProvider.onAppGoActive = () => _updateEntryFlow(AppEntryFlow.securityPrecheck);
+        }
         return PinCheckScreen(
           pinCheckContext: PinCheckContextEnum.appLaunch,
           onSuccess: () => _updateEntryFlow(AppEntryFlow.vaultHome),
-          onReset: () async => _updateEntryFlow(AppEntryFlow.vaultHome),
-        );
-      case AppEntryFlow.pinCheckAppResumed:
-        return _buildPinCheckScreenAfterSecurityCheck(
-          pinCheckContext: PinCheckContextEnum.appResumed,
-          nextFlow: AppEntryFlow.vaultHome,
+          onReset: () => _updateEntryFlow(AppEntryFlow.securityPrecheck),
+          onPermanentlyLocked: () {
+            lifecycleProvider.onAppGoActive = null;
+          },
         );
       case AppEntryFlow.vaultHome:
         return VaultHomeScreen(
@@ -391,21 +371,17 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> with SingleTickerProv
                       if (!preferenceProvider.isSigningOnlyMode &&
                           (authProvider.isPinSet ||
                               (SharedPrefsRepository().getInt(SharedPrefsKeys.vaultListLength) ?? 0) > 0)) {
-                        _updateEntryFlow(AppEntryFlow.pinCheckAppResumed);
+                        _updateEntryFlow(AppEntryFlow.pinCheck);
                       }
                     },
                     onAppGoInactive: () {
                       if (Platform.isAndroid) return; // 안드로이드는 Native에서 처리
                       setState(() {
-                        _isInactive = true;
+                        _shouldShowPrivacyScreen = true;
                       });
                     },
                     onAppGoActive: () {
-                      // 생체인증이 진행 중인 경우 무시
-                      if (authProvider.isBiometricInProgress) {
-                        return;
-                      }
-                      _handleAppGoActive(preferenceProvider, authProvider);
+                      _handleAppGoActive(preferenceProvider, authProvider, lifecycleProvider);
                     },
                     child: Stack(
                       children: [
@@ -564,7 +540,7 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> with SingleTickerProv
                             AppRoutes.vaultModeSelection: (context) => const VaultModeSelectionScreen(),
                           },
                         ),
-                        if (_isInactive)
+                        if (_shouldShowPrivacyScreen)
                           Container(
                             color: CoconutColors.white,
                             child: Center(
@@ -889,12 +865,20 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> with SingleTickerProv
 
   /// onAppGoActive에서 실행되는 로직
   /// 앱 재개시 보안 검사 수행 _updateEntryFlow(AppEntryFlow.securityPrecheck);
-  Future<void> _handleAppGoActive(PreferenceProvider preferenceProvider, AuthProvider authProvider) async {
+  Future<void> _handleAppGoActive(
+    PreferenceProvider preferenceProvider,
+    AuthProvider authProvider,
+    AppLifecycleStateProvider lifecycleProvider,
+  ) async {
     // 플랫폼별로 다른 로직 적용
-    // iOS: 무한 반복 방지를 위해 inactive 체크 추가
+    // iOS: 무한 반복 방지를 위해 _shouldShowPrivacyScreen 체크 추가
     // Android: 기기 비밀번호 해제 감지를 위해 항상 실행
-    if (Platform.isIOS && _isInactive == false && _appEntryFlow == AppEntryFlow.vaultHome) {
+    if (Platform.isIOS && _shouldShowPrivacyScreen == false && _appEntryFlow == AppEntryFlow.vaultHome) {
       // iOS에서 이미 _appEntryFlow가 vaultHome로 이동한 경우 무한 반복 방지
+      return;
+    }
+
+    if (lifecycleProvider.shouldIgnoreInactiveTransition) {
       return;
     }
 
@@ -904,11 +888,11 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> with SingleTickerProv
     // TODO: 서명 전용 모드에서 불필요. 저장 모드로 '모드 전환'시 한 번 해주면 됨
     await authProvider.updateDeviceBiometricAvailability();
 
-    // Android가 아닌 경우 inactive 상태 해제
-    if (Platform.isAndroid) return;
-    setState(() {
-      _isInactive = false;
-    });
+    if (Platform.isIOS) {
+      setState(() {
+        _shouldShowPrivacyScreen = false;
+      });
+    }
   }
 
   /// onAppGoActive에서 기기 비밀번호 변경 시 볼트 초기화 처리
