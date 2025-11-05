@@ -306,6 +306,8 @@ class _VaultModeSelectionScreenState extends State<VaultModeSelectionScreen> {
         final result = await MyBottomSheet.showBottomSheet_90(context: context, child: const PinSettingScreen());
         if (result == true) {
           try {
+            await authProvider.updateDeviceBiometricAvailability();
+
             if (walletProvider.vaultList.isNotEmpty) {
               setState(() {
                 _isConvertingToSecureStorageMode = true;

@@ -53,7 +53,6 @@ class WalletProvider extends ChangeNotifier {
   bool _isVaultsLoaded = false;
   late final ValueNotifier<List<VaultListItemBase>> vaultListNotifier;
   bool _isAddVaultCompleted = false;
-  String? _waitingForSignaturePsbtBase64;
   bool _isDisposed = false;
   late bool _isSigningOnlyMode;
 
@@ -62,7 +61,6 @@ class WalletProvider extends ChangeNotifier {
   bool get isVaultListLoading => _isVaultListLoading;
   bool get isVaultsLoaded => _isVaultsLoaded;
   bool get isAddVaultCompleted => _isAddVaultCompleted;
-  String? get waitingForSignaturePsbtBase64 => _waitingForSignaturePsbtBase64;
   bool get isSigningOnlyMode => _isSigningOnlyMode;
 
   // 5) 퍼블릭 메서드
@@ -321,14 +319,6 @@ class WalletProvider extends ChangeNotifier {
     return;
   }
 
-  void setWaitingForSignaturePsbtBase64(String psbt) {
-    _waitingForSignaturePsbtBase64 = psbt;
-  }
-
-  void clearWaitingForSignaturePsbt() {
-    _waitingForSignaturePsbtBase64 = null;
-  }
-
   Future<Uint8List> getSecret(int id) async {
     // TEE 접근 시작 - inactive 상태 전환 무시
     _lifecycleProvider.startOperation(AppLifecycleOperations.teeDecryption);
@@ -391,12 +381,11 @@ class WalletProvider extends ChangeNotifier {
   void dispose() {
     if (_isDisposed) return;
 
-    // stop if loading
     _isDisposed = true;
+    // stop if loading
     _walletRepository.dispose();
 
     _vaultList.clear();
-    _waitingForSignaturePsbtBase64 = null;
     super.dispose();
   }
 }
