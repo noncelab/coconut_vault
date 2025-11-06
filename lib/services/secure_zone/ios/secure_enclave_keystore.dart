@@ -1,3 +1,4 @@
+import 'package:coconut_vault/model/exception/user_canceled_auth_exception.dart';
 import 'package:coconut_vault/services/secure_zone/secure_zone_keystore.dart';
 import 'package:flutter/services.dart';
 
@@ -63,7 +64,10 @@ class SecureEnclaveKeystore extends SecureZoneKeystore {
   }) async {
     try {
       return await _decrypt(alias: alias, ciphertext: ciphertext, iv: iv);
-    } on PlatformException catch (_) {
+    } on PlatformException catch (e) {
+      if (e.code == 'USER_CANCEL') {
+        throw UserCanceledAuthException();
+      }
       rethrow;
     }
   }

@@ -102,6 +102,8 @@ class StrongBoxKeystore extends SecureZoneKeystore {
 
         if (authenticated) {
           return _decrypt(alias: alias, ciphertext: ciphertext, iv: iv);
+        } else {
+          throw UserCanceledAuthException();
         }
       }
 

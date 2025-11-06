@@ -462,6 +462,9 @@ mnemonic_view_screen:
   warning_title: "ニーモニックフレーズはウォレットの鍵です"
   warning_guide: "この単語を知っている人は誰でもあなたのビットコインをすべて奪うことができます。周りに他の人やカメラがないか必ず確認してください。"
   warning_btn: "分かりました"
+  alert:
+    failed_get_secret:
+      title: "ニーモニック取得失敗"
 
 mnemonic_verify_screen:
   title: "ニーモニック確認"
@@ -637,10 +640,13 @@ verify_passphrase_screen:
   saved_mfp: "保存されたMFP"
   recovered_mfp: "復元されたMFP"
 
-passphrase_input_screen:
+passphrase_check_screen:
   title: "パスフレーズ入力"
   enter_passphrase: "パスフレーズ入力"
   passphrase_error: "パスフレーズを再度確認してください"
+  alert:
+    failed:
+      title: "パスフレーズ確認失敗"
 
 multisig_signer_bsms_export_screen:
   fail_bsms: "BSMSの読み込みに失敗しました"
@@ -724,7 +730,11 @@ alert:
     description: "アプリのロック解除には生体認証は使用されません。ただし、セキュアモジュールに保存されたデータにアクセスする際には、自動的に認証が求められる場合があります。"
   auth_canceled_when_decrypt:
     title: "デバイス認証がキャンセルされました"
-    description: "情報を取得するにはデバイスの認証が必要です。"
+    description_view_mnemonic: "デバイスを認証して、セキュア領域から情報を取得する必要があります。"
+    description_export: "エクスポートするウォレットのパスフレーズが正しいか確認するために、セキュア領域へのアクセスが必要です。誤ったウォレットにビットコインを送ってしまう事故を防ぐための手続きです。"
+    description_passphrase_verify: "入力したパスフレーズが正しいか確認するために、セキュア領域へのアクセスが必要です。"
+    description_sign: "署名を行うにはデバイスの認証が必要です。"
+    description_check_accessibility: "セキュア領域のデータが有効かどうか確認するためには、デバイスの認証が必要です。"
   auth_canceled_when_encrypt:
     title: "デバイス認証がキャンセルされました"
     description: "ウォレット情報をセキュアエリアに保存するにはデバイスの認証が必要です。"

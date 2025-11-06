@@ -463,7 +463,10 @@ mnemonic_view_screen:
   warning_title: "Mnemonic phrase is the key to your wallet"
   warning_guide: "If you know this word, anyone can take all your bitcoins. Please check if there are any other people or cameras around you."
   warning_btn: "I understand"
-  
+  alert:
+    failed_get_secret:
+      title: "Mnemonic Retrieval Failed"
+      
 mnemonic_verify_screen:
   title: "Mnemonic Verification"
   select_word: "Select word #${index}"
@@ -638,10 +641,13 @@ verify_passphrase_screen:
   saved_mfp: "Saved MFP"
   recovered_mfp: "Recovered MFP"
 
-passphrase_input_screen:
+passphrase_check_screen:
   title: "Enter Passphrase"
   enter_passphrase: "Enter Passphrase"
   passphrase_error: "Please check your passphrase again"
+  alert:
+    failed:
+      title: "Passphrase Check Failed"
 
 multisig_signer_bsms_export_screen:
   fail_bsms: "Failed to load BSMS"
@@ -725,7 +731,11 @@ alert:
     description: "Biometric authentication is not used to unlock the app. However, it may be automatically requested when accessing data stored in a secure module."
   auth_canceled_when_decrypt:
     title: "Device Authentication Canceled"
-    description: "You need to authenticate your device to retrieve the information."
+    description_view_mnemonic: "You need to authenticate your device to retrieve the information from the secure area."
+    description_export: "Access to the secure area is required to verify that the passphrase for the wallet you are exporting is correct. This process helps prevent sending Bitcoin to the wrong wallet by mistake."
+    description_passphrase_verify: "Access to the secure area is required to verify that the entered passphrase is correct."
+    description_sign: "You need to authenticate your device to sign."
+    description_check_accessibility: "You need to authenticate your device to verify the validity of the secure area data."
   auth_canceled_when_encrypt:
     title: "Device Authentication Canceled"
     description: "You need to authenticate your device to store wallet information in the secure area."

@@ -217,7 +217,7 @@ class _SingleSigSetupInfoScreenState extends State<SingleSigSetupInfoScreen> {
             Seed? seed = await MyBottomSheet.showBottomSheet_ratio<Seed?>(
               ratio: 0.5,
               context: context,
-              child: PassphraseCheckScreen(id: widget.id),
+              child: PassphraseCheckScreen(id: widget.id, context: PassphraseCheckContext.export),
             );
 
             if (seed == null) {

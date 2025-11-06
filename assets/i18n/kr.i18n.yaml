@@ -463,6 +463,9 @@ mnemonic_view_screen:
   warning_title: "니모닉 문구는 지갑의 열쇠입니다"
   warning_guide: "이 단어를 알면 누구든 당신의 비트코인을 전부 가져갈 수 있습니다. 주변에 다른 사람이나 카메라가 없는지 꼭 확인하세요."
   warning_btn: "알겠습니다"
+  alert:
+    failed_get_secret:
+      title: "니모닉 문구 조회 실패"
   
 mnemonic_verify_screen:
   title: "니모닉 확인"
@@ -639,10 +642,13 @@ verify_passphrase_screen:
   saved_mfp: "저장된 MFP"
   recovered_mfp: "복원된 MFP"
 
-passphrase_input_screen:
+passphrase_check_screen:
   title: "패스프레이즈 입력"
   enter_passphrase: "패스프레이즈를 입력해 주세요"
   passphrase_error: "패스프레이즈를 다시 확인해 주세요"
+  alert:
+    failed: 
+      title: "패스프레이즈 확인 실패"
 
 multisig_signer_bsms_export_screen:
   fail_bsms: "BSMS 로드 실패"
@@ -726,7 +732,11 @@ alert:
     description: "앱 잠금 해제에는 생체인증이 사용되지 않아요. 단, 보안 모듈에 저장된 정보에 접근할 때 생체 인증이 자동으로 요청될 수 있어요. "
   auth_canceled_when_decrypt:
     title: "기기 인증 취소됨"
-    description: "기기 인증을 해야 정보를 가져올 수 있어요."
+    description_view_mnemonic: "기기 인증을 해야 보안 영역에서 정보를 가져올 수 있어요."
+    description_export: "내보내려는 지갑의 패스프레이즈가 올바른지 확인하기 위해 보안 영역 접근이 필요합니다. 잘못된 지갑으로 비트코인을 보내는 사고를 방지하기 위한 과정입니다."
+    description_passphrase_verify: "입력한 패스프레이즈가 올바른지 확인하기 위해 보안 영역 접근이 필요합니다."
+    description_sign: "기기 인증을 해야 서명이 가능해요."
+    description_check_accessibility: "기기 인증을 해야 보안 영역 데이터가 유효한지 확인할 수 있어요."
   auth_canceled_when_encrypt:
     title: "기기 인증 취소됨"
     description: "기기 인증을 해야 지갑 정보를 보안 영역에 저장할 수 있어요."

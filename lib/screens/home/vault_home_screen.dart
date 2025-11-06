@@ -7,6 +7,7 @@ import 'package:coconut_vault/constants/app_routes.dart';
 import 'package:coconut_vault/enums/wallet_enums.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/model/common/vault_list_item_base.dart';
+import 'package:coconut_vault/model/exception/user_canceled_auth_exception.dart';
 import 'package:coconut_vault/providers/auth_provider.dart';
 import 'package:coconut_vault/providers/connectivity_provider.dart';
 import 'package:coconut_vault/providers/preference_provider.dart';
@@ -76,7 +77,7 @@ class _VaultHomeScreenState extends State<VaultHomeScreen> with TickerProviderSt
         setState(() {
           _isAndroidSecureZoneChecking = true;
         });
-        // 안내 문구를 사용자가 충분히 보게 하기 위해
+        // 안내 문구를 사용자가 충분히 보게 하기 위해 1초 지연
         await Future.delayed(const Duration(seconds: 1));
         if (!mounted) {
           setState(() {
@@ -84,12 +85,30 @@ class _VaultHomeScreenState extends State<VaultHomeScreen> with TickerProviderSt
           });
           return;
         }
-        final isAccessible = await SecureZoneManager().isAndroidSecureZoneAccessible(context.read<WalletProvider>());
-        setState(() {
-          _isAndroidSecureZoneChecking = false;
-        });
-        if (!isAccessible) {
-          widget.onSecureZoneUnaccessible?.call();
+        try {
+          final isAccessible = await SecureZoneManager().isAndroidSecureZoneAccessible(context.read<WalletProvider>());
+          setState(() {
+            _isAndroidSecureZoneChecking = false;
+          });
+          if (!isAccessible) {
+            widget.onSecureZoneUnaccessible?.call();
+          }
+        } on UserCanceledAuthException catch (_) {
+          setState(() {
+            _isAndroidSecureZoneChecking = false;
+          });
+          if (!mounted) return;
+          showDialog(
+            context: context,
+            builder:
+                (context) => CoconutPopup(
+                  title: t.alert.auth_canceled_when_decrypt.title,
+                  description: t.alert.auth_canceled_when_decrypt.description_check_accessibility,
+                  onTapRight: () {
+                    Navigator.pop(context);
+                  },
+                ),
+          );
         }
       }
     });
@@ -591,7 +610,7 @@ class _VaultHomeScreenState extends State<VaultHomeScreen> with TickerProviderSt
       Seed? seed = await MyBottomSheet.showBottomSheet_ratio<Seed?>(
         ratio: 0.5,
         context: context,
-        child: PassphraseCheckScreen(id: walletId),
+        child: PassphraseCheckScreen(id: walletId, context: PassphraseCheckContext.export),
       );
 
       // 패스프레이즈 입력 안하고 BottomSheet 그냥 닫음
