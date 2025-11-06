@@ -738,6 +738,8 @@ toast:
   mnemonic_copied: "Mnemonic phrase copied"
   multisig_already_added: "Already added multisig wallet. ($name)"
   home_vault_min_one: "Home screen displayed wallets must be at least 1"
+  wallet_delete_failed: "Wallet deletion failed"
+  no_wallet_to_delete: "No wallet to delete"
 
 errors:
   invalid_qr: "Invalid QR code.\nPlease check again."

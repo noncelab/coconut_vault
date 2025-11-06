@@ -738,6 +738,8 @@ toast:
   mnemonic_copied: "ニーモニックフレーズをコピーしました"
   multisig_already_added: "既に追加されたマルチシグウォレット。($name)"
   home_vault_min_one: "ホーム画面に表示されるウォレットは最低1つ必要です"
+  wallet_delete_failed: "ウォレット削除失敗"
+  no_wallet_to_delete: "削除するウォレットがありません"
 
 errors:
   invalid_qr: "無効なQR。再度お試しください。"

@@ -731,6 +731,30 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> with SingleTickerProv
                           if (navContext != null) {
                             if (_isResetDialogOpen) return;
                             _isResetDialogOpen = true;
+                            if (context.read<WalletProvider>().vaultList.isEmpty) {
+                              showDialog(
+                                context: navContext,
+                                builder: (BuildContext dialogContext) {
+                                  return CoconutPopup(
+                                    insetPadding: EdgeInsets.symmetric(
+                                      horizontal: MediaQuery.of(navContext).size.width * 0.15,
+                                    ),
+                                    title: t.toast.wallet_delete_failed,
+                                    description: t.toast.no_wallet_to_delete,
+                                    backgroundColor: CoconutColors.white,
+                                    rightButtonText: t.confirm,
+                                    rightButtonColor: CoconutColors.black,
+                                    onTapRight: () {
+                                      _isResetDialogOpen = false;
+                                      Navigator.pop(dialogContext);
+                                    },
+                                  );
+                                },
+                              ).then((_) {
+                                _isResetDialogOpen = false;
+                              });
+                              return;
+                            }
                             showDialog(
                               context: navContext,
                               builder: (BuildContext dialogContext) {
