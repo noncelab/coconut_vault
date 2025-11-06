@@ -21,6 +21,7 @@ import 'package:coconut_vault/screens/vault_menu/info/passphrase_check_screen.da
 import 'package:coconut_vault/services/secure_zone/secure_zone_availability_checker.dart';
 import 'package:coconut_vault/widgets/button/shrink_animation_button.dart';
 import 'package:coconut_vault/widgets/card/vault_addition_guide_card.dart';
+import 'package:coconut_vault/widgets/indicator/message_activity_indicator.dart';
 import 'package:coconut_vault/widgets/vault_row_item.dart';
 import 'package:flutter/material.dart';
 import 'package:coconut_vault/screens/settings/settings_screen.dart';
@@ -47,6 +48,7 @@ class _VaultHomeScreenState extends State<VaultHomeScreen> with TickerProviderSt
   bool _handledDidChangeDependencies = false;
 
   late ScrollController _scrollController;
+  bool _isAndroidSecureZoneChecking = false;
 
   @override
   void initState() {
@@ -67,46 +69,31 @@ class _VaultHomeScreenState extends State<VaultHomeScreen> with TickerProviderSt
       }
       await _viewModel.loadVaults();
 
-      // 안드로이드의 경우, _isSecureZoneAccessible 메서드로
-      // 보안 영역 접근 가능 여부 확인하여 비밀번호 변경 여부 간접 확인
-      // if (Platform.isAndroid && !_viewModel.isSigningOnlyMode && _viewModel.vaultCount > 0) {
-      //   if (!mounted) return;
-      //   final walletProvider = context.read<WalletProvider>();
-      //   if (walletProvider.isVaultsLoaded && walletProvider.vaultList.isNotEmpty) {
-      //     _isSecureZoneAccessible().then((isSecureZoneAccessible) {
-      //       debugPrint('isSecureZoneAccessible: $isSecureZoneAccessible');
-      //       if (!isSecureZoneAccessible) {
-      //         widget.onSecureZoneUnaccessible?.call();
-      //       }
-      //     });
-      //   }
-      // }
-
       if (!mounted) return;
-      SecureZoneManager().isSecureZoneAccessible(walletProvider: context.read<WalletProvider>()).then((
-        isSecureZoneAccessible,
-      ) {
-        if (!isSecureZoneAccessible) {
+
+      /// Android 비밀번호 삭제 여부 확인
+      if (Platform.isAndroid && !_viewModel.isSigningOnlyMode && _viewModel.vaultCount > 0) {
+        setState(() {
+          _isAndroidSecureZoneChecking = true;
+        });
+        // 안내 문구를 사용자가 충분히 보게 하기 위해
+        await Future.delayed(const Duration(seconds: 1));
+        if (!mounted) {
+          setState(() {
+            _isAndroidSecureZoneChecking = false;
+          });
+          return;
+        }
+        final isAccessible = await SecureZoneManager().isAndroidSecureZoneAccessible(context.read<WalletProvider>());
+        setState(() {
+          _isAndroidSecureZoneChecking = false;
+        });
+        if (!isAccessible) {
           widget.onSecureZoneUnaccessible?.call();
         }
-      });
+      }
     });
   }
-
-  // Future<bool> _isSecureZoneAccessible() async {
-  //   final firstSingleSignatureWalletId =
-  //       context
-  //           .read<WalletProvider>()
-  //           .vaultList
-  //           .firstWhere((vault) => vault.vaultType == WalletType.singleSignature)
-  //           .id;
-  //   try {
-  //     await context.read<WalletProvider>().getSecret(firstSingleSignatureWalletId);
-  //     return true;
-  //   } catch (e) {
-  //     return false;
-  //   }
-  // }
 
   @override
   void didChangeDependencies() {
@@ -195,6 +182,13 @@ class _VaultHomeScreenState extends State<VaultHomeScreen> with TickerProviderSt
                       // TODO: const SliverToBoxAdapter(child: TeeSmokeTest()),
                       SliverToBoxAdapter(child: Container(height: 100)),
                     ],
+                  ),
+                  Visibility(
+                    visible: _isAndroidSecureZoneChecking,
+                    child: Container(
+                      decoration: BoxDecoration(color: CoconutColors.black.withValues(alpha: 0.3)),
+                      child: Center(child: MessageActivityIndicator(message: t.vault_home_screen.secure_zone_checking)),
+                    ),
                   ),
                 ],
               ),

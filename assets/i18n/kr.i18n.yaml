@@ -132,6 +132,7 @@ vault_home_screen:
     mnemonic_wordlist: "니모닉 단어집"
   toast:
     wallet_added_but_not_favorite: "지갑이 추가 됐어요. 지갑 전체보기에서 확인하세요."
+  secure_zone_checking: "보안 영역에 접근 가능한지 확인 중이에요."
 
 vault_list_screen:
   primary_wallet: "대표 지갑"

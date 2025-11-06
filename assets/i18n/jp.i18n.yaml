@@ -112,6 +112,7 @@ watch_only_options:
   nunchuk: "Nunchuk"
   bluewallet: "BlueWallet"
 
+# 연결 상태
 connectivity_state: 
   connected: "接続済み"
   disconnected: "切断"
@@ -131,6 +132,7 @@ vault_home_screen:
     mnemonic_wordlist: "ニーモニック単語リスト"
   toast:
     wallet_added_but_not_favorite: "ウォレットが追加されました。View All Wallets画面で確認してください。"
+  secure_zone_checking: "セキュリティ領域にアクセスできるか確認しています。"
 
 vault_list_screen:
   primary_wallet: "プライマリウォレット"

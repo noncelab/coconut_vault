@@ -329,7 +329,6 @@ class AuthProvider extends ChangeNotifier {
     await _sharedPrefs.setBool(SharedPrefsKeys.isPinEnabled, false);
     await _storageService.delete(key: SecureStorageKeys.kVaultPin);
     await _sharedPrefs.setInt(SharedPrefsKeys.vaultListLength, 0);
-    await _sharedPrefs.setString(SharedPrefsKeys.kAppVersion, '');
     await preferenceProvider.resetVaultOrderAndFavorites();
   }
 

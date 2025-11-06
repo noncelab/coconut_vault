@@ -13,7 +13,6 @@ import 'package:coconut_vault/repository/secure_storage_repository.dart';
 import 'package:coconut_vault/repository/shared_preferences_repository.dart';
 import 'package:coconut_vault/utils/hash_util.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:package_info_plus/package_info_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 /// Waits for a widget to appear on the screen with a timeout (100초).
@@ -65,15 +64,6 @@ Future<void> setWalletData(bool isEnabled) async {
   await savePinCode("0000");
 }
 
-Future<void> setIsUpdated(bool isUpdated) async {
-  // 업데이트가 되었다면 이전 버전 정보가 저장되어야 한다.
-  if (isUpdated) {
-    await saveAppVersion("1.0.0");
-  } else {
-    await saveCurrentAppVersion();
-  }
-}
-
 Future<void> skipTutorial(bool skip) async {
   final prefs = await SharedPreferences.getInstance();
   prefs.setBool(SharedPrefsKeys.hasShownStartGuide, skip);
@@ -84,16 +74,6 @@ Future<void> savePinCode(String pinCode) async {
   final SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
   await storageService.write(key: SecureStorageKeys.kVaultPin, value: hashString(pinCode));
   await sharedPreferences.setBool(SharedPrefsKeys.isPinEnabled, true);
-}
-
-Future<void> saveAppVersion(String version) async {
-  final prefs = await SharedPreferences.getInstance();
-  await prefs.setString(SharedPrefsKeys.kAppVersion, version);
-}
-
-Future<void> saveCurrentAppVersion() async {
-  final PackageInfo packageInfo = await PackageInfo.fromPlatform();
-  await saveAppVersion(packageInfo.version.split('-').first);
 }
 
 Future<void> saveBackupData() async {

@@ -1,10 +1,13 @@
 import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_vault/constants/shared_preferences_keys.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
+import 'package:coconut_vault/providers/auth_provider.dart';
 import 'package:coconut_vault/providers/preference_provider.dart';
 import 'package:coconut_vault/providers/visibility_provider.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:coconut_vault/repository/shared_preferences_repository.dart';
+import 'package:coconut_vault/services/secure_zone/secure_zone_availability_checker.dart';
+import 'package:coconut_vault/services/security_prechecker.dart';
 import 'package:coconut_vault/widgets/button/fixed_bottom_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
@@ -162,16 +165,11 @@ class _JailBreakDetectionScreenState extends State<JailBreakDetectionScreen> {
       ),
       isActive: true,
       onButtonClicked: () async {
-        final walletProvider = context.read<WalletProvider>();
-        // 볼트 목록 다시 로드
-        await walletProvider.loadVaultList();
-        await walletProvider.deleteAllWallets();
-        if (!mounted) return;
-        await context.read<PreferenceProvider>().resetVaultOrderAndFavorites();
-
+        final result = await SecureZoneManager().deleteStoredData(context.read<AuthProvider>());
+        if (!mounted || !result) return;
         widget.onReset?.call();
       },
-      text: t.delete_vault,
+      text: t.jail_break_detection_screen.delete_data,
     );
   }
 }

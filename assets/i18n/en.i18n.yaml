@@ -112,6 +112,7 @@ watch_only_options:
   nunchuk: "Nunchuk"
   bluewallet: "BlueWallet"
 
+# 연결 상태
 connectivity_state: 
   connected: "Connected"
   disconnected: "Disconnected"
@@ -131,6 +132,8 @@ vault_home_screen:
     mnemonic_wordlist: "Mnemonic Wordlist"
   toast:
     wallet_added_but_not_favorite: "Wallet added. Please check in the View All Wallets screen."
+  secure_zone_checking: "Checking if the secure zone is accessible..."
+
     
 vault_list_screen:
   primary_wallet: "Primary Wallet"

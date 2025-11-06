@@ -275,17 +275,8 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> with SingleTickerProv
                       _updateEntryFlow(AppEntryFlow.splash);
                     },
                   );
-                // case SecurityCheckStatus.devicePasswordChanged:
-                //   return DevicePasswordCheckerScreen(
-                //     state: DevicePasswordCheckerScreenState.devicePasswordChanged,
-                //     onComplete: () async {
-                //       // 기존 데이터 삭제 후 vaultHome으로 이동
-                //       await _handleDevicePasswordChangedOnResume();
-                //       _updateEntryFlow(AppEntryFlow.vaultHome);
-                //     },
-                //   );
                 case SecurityCheckStatus.secure:
-                  WidgetsBinding.instance.addPostFrameCallback((_) {
+                  WidgetsBinding.instance.addPostFrameCallback((_) async {
                     // 한번도 튜토리얼을 보지 않은 경우
                     if (!visibilityProvider.hasSeenGuide) {
                       _updateEntryFlow(AppEntryFlow.firstLaunch);
@@ -298,10 +289,24 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> with SingleTickerProv
                       return;
                     }
 
-                    // 저장 모드 && 지갑이 있는 경우
-                    // visibilityProvider.walletCount 대신 SharedPrefsRepository()에서 가져옴
+                    // 영구 잠금 상태 - 이미 데이터는 초기화되었지만 PinCheck화면에서 t.errors.restart_vault 버튼을 누르지 않고 앱을 종료한 경우
+                    if (authProvider.isPermanentlyLocked) {
+                      _updateEntryFlow(AppEntryFlow.pinCheck);
+                      return;
+                    }
+
+                    // 저장 모드 && PinSet
+                    if (Platform.isIOS && authProvider.isPinSet) {
+                      // 기기 패스코드 삭제 여부 확인
+                      final isKeychainValid = await SecureZoneManager().verifyIosKeychainValidity();
+                      if (!isKeychainValid) {
+                        _updateEntryFlow(AppEntryFlow.cannotAccessToSecureZone);
+                        return;
+                      }
+                    }
+
                     final walletCount = SharedPrefsRepository().getInt(SharedPrefsKeys.vaultListLength) ?? 0;
-                    if (walletCount > 0 || authProvider.isPermanentlyLocked) {
+                    if (walletCount > 0) {
                       _updateEntryFlow(AppEntryFlow.pinCheck);
                       return;
                     }

@@ -50,9 +50,6 @@ class _PinCheckScreenState extends State<PinCheckScreen> with WidgetsBindingObse
   bool _isLastChanceToTry = false;
   bool _isVerifyingPin = false;
 
-  // 생체인증으로 인한 applifecycle 이벤트 관련 변수
-  bool _isBiometricsAuthenticating = false;
-
   // 생체인증 실패 후 키보드가 다시 올라오게 하려고 선언하여 PinInputScreen에 넘겨줌.
   // 하지만 이미 focus상태에서 생태인증 때문에 키보드가 사라져 있는 상태라
   // 다시 requestFocus 함수 호출로 키보드가 올라오지 않는 상황
@@ -136,7 +133,6 @@ class _PinCheckScreenState extends State<PinCheckScreen> with WidgetsBindingObse
       return false;
     }
 
-    _isBiometricsAuthenticating = true;
     return await _authProvider.authenticateWithBiometrics();
   }
 
@@ -295,7 +291,7 @@ class _PinCheckScreenState extends State<PinCheckScreen> with WidgetsBindingObse
       _errorMessage = t.errors.pin_max_attempts_exceeded_error;
     });
     _authProvider.resetData(context.read<PreferenceProvider>());
-    //_showResetDialog();
+    widget.onPermanentlyLocked?.call();
   }
 
   void _showResetDialog() {
