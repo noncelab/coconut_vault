@@ -89,6 +89,9 @@ sign_required_amount:
 move_to_qr_screen: "QR画面に移動"
 move_to_qr_screen_description: "キー保持ボルトで署名するためのQRを生成"
 
+wallet_delete_failed: "削除するウォレットはありません"
+wallet_delete_failed_description: "現在、保存されているウォレットがないため、削除する必要はありません。"
+
 name_text_count: "($count / 20)"
 wallet_subtitle: "$nameのキー$index"
 
@@ -738,7 +741,6 @@ toast:
   mnemonic_copied: "ニーモニックフレーズをコピーしました"
   multisig_already_added: "既に追加されたマルチシグウォレット。($name)"
   home_vault_min_one: "ホーム画面に表示されるウォレットは最低1つ必要です"
-  wallet_delete_failed: "ウォレット削除失敗"
   no_wallet_to_delete: "削除するウォレットがありません"
 
 errors:

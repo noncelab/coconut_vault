@@ -739,8 +739,8 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> with SingleTickerProv
                                     insetPadding: EdgeInsets.symmetric(
                                       horizontal: MediaQuery.of(navContext).size.width * 0.15,
                                     ),
-                                    title: t.toast.wallet_delete_failed,
-                                    description: t.toast.no_wallet_to_delete,
+                                    title: t.wallet_delete_failed,
+                                    description: t.wallet_delete_failed_description,
                                     backgroundColor: CoconutColors.white,
                                     rightButtonText: t.confirm,
                                     rightButtonColor: CoconutColors.black,
