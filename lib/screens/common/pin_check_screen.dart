@@ -41,6 +41,7 @@ class _PinCheckScreenState extends State<PinCheckScreen> with WidgetsBindingObse
   late String _pin;
   late String _errorMessage;
   late PinType _pinType;
+  late bool _shouldDelayKeyboard = false;
 
   late AuthProvider _authProvider;
   late List<String> _shuffledPinNumbers;
@@ -50,9 +51,6 @@ class _PinCheckScreenState extends State<PinCheckScreen> with WidgetsBindingObse
   bool _isLastChanceToTry = false;
   bool _isVerifyingPin = false;
 
-  // 생체인증 실패 후 키보드가 다시 올라오게 하려고 선언하여 PinInputScreen에 넘겨줌.
-  // 하지만 이미 focus상태에서 생태인증 때문에 키보드가 사라져 있는 상태라
-  // 다시 requestFocus 함수 호출로 키보드가 올라오지 않는 상황
   final FocusNode _characterFocusNode = FocusNode();
 
   @override
@@ -65,7 +63,9 @@ class _PinCheckScreenState extends State<PinCheckScreen> with WidgetsBindingObse
     _isAppLaunched = widget.pinCheckContext == PinCheckContextEnum.appLaunch;
     _authProvider = Provider.of<AuthProvider>(context, listen: false);
     _pinType = _authProvider.isPinCharacter ? PinType.character : PinType.number;
-    Logger.log('initState pinType: $_pinType');
+    if (_isAppLaunched && _authProvider.isBiometricEnabled && _pinType == PinType.character) {
+      _shouldDelayKeyboard = true;
+    }
 
     Future.microtask(() {
       _authProvider.onAuthenticationSuccess = _handleAuthenticationSuccess;
@@ -90,7 +90,6 @@ class _PinCheckScreenState extends State<PinCheckScreen> with WidgetsBindingObse
       if (!_authProvider.isUnlockAvailable) {
         setState(() {
           _isPinInputLocked = true;
-          Logger.log('--> set _isPinInputLocked to true');
           if (_authProvider.unlockAvailableAt != null) {
             _startCountdownTimerUntil(_authProvider.unlockAvailableAt!);
           }
@@ -105,7 +104,6 @@ class _PinCheckScreenState extends State<PinCheckScreen> with WidgetsBindingObse
               count: kMaxAttemptPerTurn - _authProvider.currentAttemptInTurn,
             );
           }
-          Logger.log('--> set _isPinInputLocked to false');
         });
       }
 
@@ -113,8 +111,17 @@ class _PinCheckScreenState extends State<PinCheckScreen> with WidgetsBindingObse
       if (authenticated) {
         _handleAuthenticationSuccess();
       } else {
-        // 키보드가 다시 올라오면 좋겠는데 원하는 대로 동작을 안함
-        // _characterFocusNode.requestFocus();
+        if (_shouldDelayKeyboard) {
+          setState(() {
+            _shouldDelayKeyboard = false;
+          });
+
+          if (_pinType == PinType.character) {
+            if (mounted && _characterFocusNode.canRequestFocus) {
+              _characterFocusNode.requestFocus();
+            }
+          }
+        }
       }
     });
 
@@ -394,6 +401,7 @@ class _PinCheckScreenState extends State<PinCheckScreen> with WidgetsBindingObse
           disabled: isPermanentlyLocked || _isPinInputLocked == true || _isVerifyingPin,
           characterFocusNode: _characterFocusNode,
           isLoading: _isVerifyingPin,
+          shouldDelayKeyboard: _shouldDelayKeyboard,
         );
       },
     );

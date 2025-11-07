@@ -27,6 +27,7 @@ class PinInputScreen extends StatefulWidget {
   final Function(PinType)? onPinTypeChanged; // 입력 모드 변경 핸들러
   final FocusNode? characterFocusNode;
   final bool isLoading;
+  final bool shouldDelayKeyboard;
 
   const PinInputScreen({
     super.key,
@@ -49,6 +50,7 @@ class PinInputScreen extends StatefulWidget {
     this.onPinTypeChanged,
     this.characterFocusNode,
     this.isLoading = false,
+    this.shouldDelayKeyboard = false,
   });
 
   @override
@@ -72,7 +74,7 @@ class PinInputScreenState extends State<PinInputScreen> {
       _pinType = PinType.character;
     }
 
-    if (_pinType == PinType.character) {
+    if (_pinType == PinType.character && !widget.shouldDelayKeyboard) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         Future.delayed(const Duration(milliseconds: 400), () {
           _characterFocusNode.requestFocus();
