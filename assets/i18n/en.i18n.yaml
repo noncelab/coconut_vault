@@ -106,7 +106,7 @@ descriptor: "Descriptor"
 precautions: "Precautions"
 
 watch_only_options:
-  title: "Select Watch-only Wallet"
+  title: "Select Watch-Only Wallet"
   coconut_wallet: "Coconut Wallet"
   sparrow: "Sparrow"
   nunchuk: "Nunchuk"
@@ -126,7 +126,7 @@ vault_home_screen:
   action_items:
     sign: "Sign"
     view_address: "View Addresses"
-    export_wallet: "Export to\nWatch-only Wallet"
+    export_wallet: "Export to\nWatch-Only Wallet"
     import_multisig_wallet: "Import\nMultisig Wallet"
     mnemonic_wordlist: "Mnemonic Wordlist"
   toast:
@@ -198,12 +198,12 @@ pin_check_screen:
       title: "Restart"
       description: "Would you like to restart Vault?"
 pin_setting_screen:
-  set_password: "Set a password first\nfor safe vault use"
+  set_password: "For a safe vault experience\nlet’s set a password first"
   enter_again: "Confirm again"
   new_password: "Enter new password"
   keep_in_mind: "Please set a password you can definitely remember"
-  character_password_input: "Enter text password"
-  number_password_input: "Enter numeric password"
+  character_password_input: "Use text password"
+  number_password_input: "Use PIN"
 security_self_check_screen:
   check1: "I am responsible for my private keys."
   check2: "I do not capture or photograph the mnemonic screen."
@@ -474,7 +474,7 @@ vault_creation_options_screen:
   coin_flip: "Flip coin to create manually"
   dice_roll: "Roll dice to create manually"
   auto_generate: "Let app create for me"
-  import_mnemonic: "I have an existing mnemonic phrase"
+  import_mnemonic: "I already have a mnemonic phrase"
   seed_qr: "I have a seed QR code"
 seed_qr_import_screen:
   title: "Seed QR Code Scan"
@@ -563,9 +563,9 @@ multi_sig_setting_screen:
     one: "Multisig wallet requiring $n signature\nout of $total keys."
     other: "Multisig wallet requiring $n signatures\nout of $total keys."
 select_export_type_screen:
-  title: "Export to a watch-only app"
+  title: "Export to Watch-Only Wallet"
   export_type: "What will you use it for?"
-  watch_only: "Add watch-only\nwallet to wallet"
+  watch_only: "Add watch-Only\nwallet to wallet"
   multisig: "Use as multisig key\nin other vault"
 signer_bsms_screen:
   guide1_1: "You are creating a multisig wallet in other vault."
@@ -610,7 +610,7 @@ vault_menu_screen:
     view_multisig_info: "Check multisig wallet info"
     import_bsms: "Add multisig wallet info containing this key"
     view_address: "Check $name's address"
-    export_xpub: "Add watch-only wallet to wallet"
+    export_xpub: "Add Watch-Only wallet to wallet"
     sign: "Scan info created in wallet and sign"
     use_as_multisig_signer: "Register my key as multisig key in other vault"
 vault_settings:

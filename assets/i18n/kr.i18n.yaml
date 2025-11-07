@@ -122,7 +122,7 @@ connectivity_state:
   inactive: "비활성화"
 
 vault_home_screen:
-  view_all_wallets: "지갑 전체보기"
+  view_all_wallets: "지갑 모두 보기"
   wallet_count: "$count개"
   action_items:
     sign: "서명하기"
@@ -131,7 +131,7 @@ vault_home_screen:
     import_multisig_wallet: "다중 서명 지갑\n가져오기"
     mnemonic_wordlist: "니모닉 단어집"
   toast:
-    wallet_added_but_not_favorite: "지갑이 추가 됐어요. 지갑 전체보기에서 확인하세요."
+    wallet_added_but_not_favorite: "지갑이 추가 됐어요. 지갑 모두 보기에서 확인하세요."
 
 vault_list_screen:
   primary_wallet: "대표 지갑"
