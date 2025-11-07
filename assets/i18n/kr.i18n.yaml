@@ -45,6 +45,7 @@ receiving: "입금"
 email_subject: "[코코넛 볼트] 이용 관련 문의"
 delete_vault: "지갑 삭제"
 delete_vault_description: "지갑을 삭제하면 모든 정보가 초기화됩니다.\n정말로 삭제하시겠어요?"
+verify_security: "보안 검사 중..."
 
 sign_completion: "서명 완료"
 sign: "서명하기"

@@ -45,6 +45,7 @@ receiving: "Receive"
 email_subject: "[Coconut Vault] Inquiry"
 delete_vault: "Delete Wallets"
 delete_vault_description: "This will delete all saved wallet information.\nAre you sure you want to delete?"
+verify_security: "Verifying security..."
 
 sign_completion: "Signed"
 sign: "Sign"

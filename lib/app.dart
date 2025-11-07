@@ -373,7 +373,6 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> with SingleTickerProv
     }
   }
 
-  // TODO: 보안 검사 진행 중 화면 필요
   Widget _buildSecurityCheckInProgress() {
     return Container(
       color: Colors.white,
@@ -381,7 +380,7 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> with SingleTickerProv
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          Text('Checking security...', style: CoconutTypography.body1_16_Bold.setColor(CoconutColors.gray800)),
+          Text(t.verify_security, style: CoconutTypography.body1_16_Bold.setColor(CoconutColors.gray800)),
           CoconutLayout.spacing_300h,
           const CircularProgressIndicator(color: CoconutColors.gray800),
         ],
