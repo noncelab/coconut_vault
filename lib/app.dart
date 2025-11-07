@@ -181,6 +181,11 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> with SingleTickerProv
   void _handleAppGoBackgroundOfMainRoute() {
     if (preferenceProvider.isSigningOnlyMode) return;
 
+    if (lifecycleProvider.isOperationInProgress(AppLifecycleOperations.teeEncryption) ||
+        lifecycleProvider.isOperationInProgress(AppLifecycleOperations.teeDecryption)) {
+      return;
+    }
+
     // 안전 저장 모드일 때
     _walletProvider?.dispose();
     final walletCount = SharedPrefsRepository().getInt(SharedPrefsKeys.vaultListLength) ?? 0;
