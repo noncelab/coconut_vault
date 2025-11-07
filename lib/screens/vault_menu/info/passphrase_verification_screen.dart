@@ -50,13 +50,18 @@ class _PassphraseVerificationScreenState extends State<PassphraseVerificationScr
   void initState() {
     super.initState();
     _progressController = AnimationController(vsync: this);
-    _inputFocusNode.addListener(() {
+    _inputFocusNode.addListener(_onFocusChanged);
+  }
+
+  void _onFocusChanged() {
+    if (mounted) {
       setState(() {});
-    });
+    }
   }
 
   @override
   void dispose() {
+    _inputFocusNode.removeListener(_onFocusChanged);
     _inputController.dispose();
     _inputFocusNode.dispose();
     _progressController.dispose();
@@ -176,6 +181,7 @@ class _PassphraseVerificationScreenState extends State<PassphraseVerificationScr
       try {
         mnemonic = await walletProvider.getSecret(widget.id);
       } on UserCanceledAuthException catch (_) {
+        if (!mounted) return;
         Navigator.of(context).pop(); // hide loading dialog
         showDialog(
           context: context,
@@ -191,6 +197,7 @@ class _PassphraseVerificationScreenState extends State<PassphraseVerificationScr
         Vibration.vibrate(duration: 100);
         return;
       } catch (e) {
+        if (!mounted) return;
         Navigator.of(context).pop(); // hide loading dialog
         showDialog(
           context: context,

@@ -8,10 +8,10 @@ class AppLifecycleOperations {
   static const String biometricAuthentication = 'biometric_auth';
   static const String biometricSetup = 'biometric_setup';
 
-  // TEE 관련
-  static const String teeKeyGeneration = 'tee_key_generation';
-  static const String teeEncryption = 'tee_encryption';
-  static const String teeDecryption = 'tee_decryption';
+  // 보안 영역 접근 관련 (TEE / StrongBox / Secure Enclave)
+  static const String hwBasedKeyGeneration = 'hw_based_key_generation';
+  static const String hwBasedEncryption = 'hw_based_encryption';
+  static const String hwBasedDecryption = 'hw_based_decryption';
 
   // 보안 관련
   static const String secureStorage = 'secure_storage';

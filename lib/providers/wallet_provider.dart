@@ -1,9 +1,6 @@
 import 'dart:async';
-import 'dart:convert';
-import 'dart:io';
 
 import 'package:coconut_lib/coconut_lib.dart';
-import 'package:coconut_vault/extensions/uint8list_extensions.dart';
 import 'package:coconut_vault/providers/app_lifecycle_state_provider.dart';
 import 'package:coconut_vault/providers/preference_provider.dart';
 import 'package:coconut_vault/repository/wallet_repository.dart';
@@ -90,7 +87,7 @@ class WalletProvider extends ChangeNotifier {
 
     // StrongBoxKeystore.encrypt 내부에서 AUTH_NEEDED 에러 발생 시 생체인증 시도
     // 하지만 ios에서도 지갑 저장 중 라이프사이클 이벤트 호출로 중단되는 것을 방지하기 위해 operation 등록
-    _lifecycleProvider.startOperation(AppLifecycleOperations.teeEncryption);
+    _lifecycleProvider.startOperation(AppLifecycleOperations.hwBasedEncryption);
     final vault = await _walletRepository.addSinglesigWallet(wallet);
     _setVaultList(_walletRepository.vaultList);
     await _preferenceProvider.setVaultOrder(_vaultList.map((e) => e.id).toList());
@@ -98,7 +95,7 @@ class WalletProvider extends ChangeNotifier {
 
     _setAddVaultCompleted(true);
     await _updateWalletLength();
-    _lifecycleProvider.endOperation(AppLifecycleOperations.teeEncryption);
+    _lifecycleProvider.endOperation(AppLifecycleOperations.hwBasedEncryption);
     notifyListeners();
     return vault;
   }
@@ -321,7 +318,7 @@ class WalletProvider extends ChangeNotifier {
 
   Future<Uint8List> getSecret(int id) async {
     // TEE 접근 시작 - inactive 상태 전환 무시
-    _lifecycleProvider.startOperation(AppLifecycleOperations.teeDecryption);
+    _lifecycleProvider.startOperation(AppLifecycleOperations.hwBasedDecryption);
     try {
       final result = await _walletRepository.getSecret(id);
 
@@ -330,7 +327,7 @@ class WalletProvider extends ChangeNotifier {
       return result;
     } finally {
       // TEE 접근 완료 - inactive 상태 전환 허용
-      _lifecycleProvider.endOperation(AppLifecycleOperations.teeDecryption);
+      _lifecycleProvider.endOperation(AppLifecycleOperations.hwBasedDecryption);
     }
   }
 
@@ -341,9 +338,9 @@ class WalletProvider extends ChangeNotifier {
 
   Future<void> updateIsSigningOnlyMode(bool isSigningOnlyMode) async {
     if (_isSigningOnlyMode == isSigningOnlyMode) return;
-    _lifecycleProvider.startOperation(AppLifecycleOperations.teeDecryption);
+    _lifecycleProvider.startOperation(AppLifecycleOperations.hwBasedDecryption);
     await _walletRepository.updateIsSigningOnlyMode(isSigningOnlyMode);
-    _lifecycleProvider.endOperation(AppLifecycleOperations.teeDecryption);
+    _lifecycleProvider.endOperation(AppLifecycleOperations.hwBasedDecryption);
     if (isSigningOnlyMode) {
       _setVaultList([]);
     }
