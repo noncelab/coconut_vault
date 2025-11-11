@@ -99,17 +99,6 @@ class AuthProvider extends ChangeNotifier {
     setInitState();
   }
 
-  /// 기기가 PIN/패턴/비밀번호로 보안 설정되어 있는지 확인
-  Future<bool> isDeviceSecured() async {
-    try {
-      final bool? isSecure = await _osChannel.invokeMethod('isDeviceSecure');
-      return isSecure ?? false;
-    } catch (e) {
-      Logger.error('Failed to check device security: $e');
-      return false;
-    }
-  }
-
   /// 생체인증 성공했는지 여부 반환
   Future<bool> isBiometricsAuthValid({bool isSaved = false}) async {
     if (!isBiometricEnabled) return false;
@@ -122,7 +111,8 @@ class AuthProvider extends ChangeNotifier {
     }
   }
 
-  /// 주의: TEE decrypt 직전 사용. 아이폰이거나 생체인증이 켜져 있는 경우 생체인증을 진행하지 않음. TEE decrypt과정에서 생체인증하기 때문
+  /// 주의: secure zone의 decrypt 직전 사용. 아이폰이거나 생체인증이 켜져 있는 경우 생체인증을 진행하지 않음.
+  /// secure zone의 decrypt과정에서 생체인증하기 때문에 연달아 2번 인증 되는 것을 방지
   Future<bool> isBiometricsAuthValidToAvoidDoubleAuth({bool isSaved = false}) async {
     if (Platform.isIOS && isBiometricsAuthEnabled) return true;
 

@@ -9,6 +9,7 @@ import 'package:coconut_vault/model/exception/user_canceled_auth_exception.dart'
 import 'package:coconut_vault/providers/auth_provider.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:coconut_vault/screens/common/pin_check_screen.dart';
+import 'package:coconut_vault/utils/logger.dart';
 import 'package:coconut_vault/widgets/bottom_sheet.dart';
 import 'package:coconut_vault/widgets/custom_dialog.dart';
 import 'package:coconut_vault/widgets/custom_loading_overlay.dart';
@@ -193,7 +194,7 @@ class _PassphraseCheckScreen extends State<PassphraseCheckScreen> {
           builder:
               (context) => CoconutPopup(
                 title: t.alert.auth_canceled_when_decrypt.title,
-                description: t.alert.auth_canceled_when_decrypt.description_check_accessibility,
+                description: t.alert.auth_canceled_when_decrypt.description_export,
                 onTapRight: () {
                   Navigator.pop(context);
                 },
@@ -218,6 +219,7 @@ class _PassphraseCheckScreen extends State<PassphraseCheckScreen> {
             ),
       );
       Vibration.vibrate(duration: 100);
+      Logger.error(e);
     } finally {
       setState(() {
         _isSubmitting = false;

@@ -65,6 +65,8 @@ import 'package:flutter_svg/svg.dart';
 import 'package:provider/provider.dart';
 import 'dart:async';
 
+import 'utils/logger.dart';
+
 enum AppEntryFlow {
   splash,
   firstLaunch,
@@ -181,9 +183,7 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> with SingleTickerProv
   void _handleAppGoBackgroundOfMainRoute() {
     if (preferenceProvider.isSigningOnlyMode) return;
 
-    if (lifecycleProvider.isOperationInProgress(AppLifecycleOperations.hwBasedKeyGeneration) ||
-        lifecycleProvider.isOperationInProgress(AppLifecycleOperations.hwBasedEncryption) ||
-        lifecycleProvider.isOperationInProgress(AppLifecycleOperations.hwBasedDecryption)) {
+    if (lifecycleProvider.shouldIgnoreLifecycleEvent) {
       return;
     }
 
@@ -191,6 +191,7 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> with SingleTickerProv
     _walletProvider?.dispose();
     final walletCount = SharedPrefsRepository().getInt(SharedPrefsKeys.vaultListLength) ?? 0;
     if (walletCount > 0) {
+      Logger.log('--> _handleAppGoBackgroundOfMainRoute: walletCount > 0 / pinCheck화면으로 이동');
       _updateEntryFlow(AppEntryFlow.pinCheck);
     }
   }
@@ -283,6 +284,7 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> with SingleTickerProv
                   );
                 case SecurityCheckStatus.secure:
                   WidgetsBinding.instance.addPostFrameCallback((_) async {
+                    Logger.log('--> case SecurityCheckStatus.secure:');
                     // 한번도 튜토리얼을 보지 않은 경우
                     if (!visibilityProvider.hasSeenGuide) {
                       _updateEntryFlow(AppEntryFlow.firstLaunch);
