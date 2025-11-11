@@ -183,9 +183,7 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> with SingleTickerProv
   void _handleAppGoBackgroundOfMainRoute() {
     if (preferenceProvider.isSigningOnlyMode) return;
 
-    if (lifecycleProvider.isOperationInProgress(AppLifecycleOperations.hwBasedKeyGeneration) ||
-        lifecycleProvider.isOperationInProgress(AppLifecycleOperations.hwBasedEncryption) ||
-        lifecycleProvider.isOperationInProgress(AppLifecycleOperations.hwBasedDecryption)) {
+    if (lifecycleProvider.shouldIgnoreLifecycleEvent) {
       return;
     }
 
