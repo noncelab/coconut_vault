@@ -293,9 +293,9 @@ class HardwareBackedKeystorePlugin: FlutterPlugin, MethodChannel.MethodCallHandl
 
     if (userAuthRequired) {
       builder.setUserAuthenticationRequired(true)
-      // perUseAuth == true 면 매사용 인증(-1), 아니면 예: 300초 유예 // TODO: 5초로 설정 후 테스트중
-      builder.setUserAuthenticationValidityDurationSeconds(if (perUseAuth) -1 else 30)
-      Log.d(TAG, "setUserAuthenticationRequired(true), validity=${if (perUseAuth) -1 else 30}s")
+      // perUseAuth == true 면 매사용 인증(-1), 아니면 예: 300초 유예
+      builder.setUserAuthenticationValidityDurationSeconds(if (perUseAuth) -1 else 300)
+      Log.d(TAG, "setUserAuthenticationRequired(true), validity=${if (perUseAuth) -1 else 300}s")
     } else {
       Log.d(TAG, "userAuthRequired=false (no auth required)")
     }
