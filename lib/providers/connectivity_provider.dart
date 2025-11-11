@@ -157,7 +157,6 @@ class ConnectivityProvider extends ChangeNotifier {
     }
   }
 
-  // TODO: _hasSeenGuide 없이 각 home 화면 별 이벤트 등록/해제하기!!!!!!
   void _onConnectivityChanged() {
     if (_isDisposed) return;
 

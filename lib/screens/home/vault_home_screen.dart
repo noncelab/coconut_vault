@@ -198,7 +198,6 @@ class _VaultHomeScreenState extends State<VaultHomeScreen> with TickerProviderSt
                       SliverToBoxAdapter(child: Container(color: CoconutColors.gray200, height: 12)),
                       if (wallets.isNotEmpty) ...[_buildViewAll(wallets.length)],
                       _buildWalletList(context),
-                      // TODO: const SliverToBoxAdapter(child: TeeSmokeTest()),
                       SliverToBoxAdapter(child: Container(height: 100)),
                     ],
                   ),
