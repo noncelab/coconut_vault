@@ -17,7 +17,29 @@ abstract class VaultSetupInfoViewModelBase<T extends VaultListItemBase> extends 
   bool get isSigningOnlyMode => _walletProvider.isSigningOnlyMode;
 
   VaultSetupInfoViewModelBase(this._walletProvider, int id) {
+    if (!_walletProvider.isVaultsLoaded || _walletProvider.vaultList.isEmpty) {
+      _initializeVaultItem(id);
+    } else {
+      _setVaultListItem(id);
+    }
+  }
+
+  /// vaultList가 로드되지 않았을 때 비동기로 초기화
+  Future<void> _initializeVaultItem(int id) async {
+    await _walletProvider.loadVaultList();
+    _setVaultListItem(id);
+  }
+
+  void _setVaultListItem(int id) {
+    _ensureVaultExists(id);
     _vaultListItem = _walletProvider.getVaultById(id) as T;
+  }
+
+  void _ensureVaultExists(int id) {
+    final vaultExists = _walletProvider.vaultList.any((vault) => vault.id == id);
+    if (!vaultExists) {
+      throw StateError('Vault with id $id does not exist in the vault list.');
+    }
   }
 
   Future<bool> updateVault(int id, String name, int colorIndex, int iconIndex) async {

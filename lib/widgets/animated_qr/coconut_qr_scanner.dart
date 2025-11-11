@@ -36,6 +36,7 @@ class _CoconutQrScannerState extends State<CoconutQrScanner> with SingleTickerPr
   final GlobalKey qrKey = GlobalKey(debugLabel: 'QR');
   final ValueNotifier<double> _progressNotifier = ValueNotifier(0.0);
   bool _isScanningExtraData = false;
+  bool _hasBeenScanningExtraData = false;
   double scannerLoadingVerticalPos = 0;
   bool _showLoadingBar = false;
   bool _isFirstScanData = true;
@@ -88,6 +89,8 @@ class _CoconutQrScannerState extends State<CoconutQrScanner> with SingleTickerPr
   }
 
   void _onDetect(BarcodeCapture capture) {
+    if (widget.qrDataHandler.isCompleted()) return;
+
     final codes = capture.barcodes;
     if (codes.isEmpty) return;
 
@@ -130,6 +133,9 @@ class _CoconutQrScannerState extends State<CoconutQrScanner> with SingleTickerPr
       setState(() {
         _progressNotifier.value = handler.progress;
         _isScanningExtraData = handler.progress > 0.98;
+        if (_isScanningExtraData) {
+          _hasBeenScanningExtraData = true;
+        }
         _showLoadingBar = true;
       });
 
@@ -164,31 +170,8 @@ class _CoconutQrScannerState extends State<CoconutQrScanner> with SingleTickerPr
         return Stack(
           children: [
             MobileScanner(controller: _controller, onDetect: _onDetect),
-            // QRView(key: qrKey, onQRViewCreated: _onQrViewCreated, overlay: _getOverlayShape()),
             const ScannerOverlay(),
             _buildProgressOverlay(context),
-            // Positioned(
-            //   top: scannerLoadingVerticalPos + 25,
-            //   left: 0,
-            //   right: 0,
-            //   bottom: 0,
-            //   child: Visibility(
-            //     visible: _showLoadingBar,
-            //     child: Row(
-            //       mainAxisAlignment: MainAxisAlignment.center,
-            //       children: [
-            //         CoconutLayout.spacing_1300w,
-            //         if (!_isScanningExtraData) ...[
-            //           _buildProgressBar(),
-            //           CoconutLayout.spacing_300w,
-            //           _buildProgressText(),
-            //         ],
-            //         if (_isScanningExtraData) _buildReadingExtraText(),
-            //         CoconutLayout.spacing_1300w,
-            //       ],
-            //     ),
-            //   ),
-            // ),
           ],
         );
       },
@@ -217,7 +200,11 @@ class _CoconutQrScannerState extends State<CoconutQrScanner> with SingleTickerPr
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 CoconutLayout.spacing_1300w,
-                if (!_isScanningExtraData) ...[_buildProgressBar(), CoconutLayout.spacing_300w, _buildProgressText()],
+                if (!_isScanningExtraData && !_hasBeenScanningExtraData) ...[
+                  _buildProgressBar(),
+                  CoconutLayout.spacing_300w,
+                  _buildProgressText(),
+                ],
                 if (_isScanningExtraData) Expanded(child: _buildReadingExtraText()),
                 CoconutLayout.spacing_1300w,
               ],
@@ -239,10 +226,13 @@ class _CoconutQrScannerState extends State<CoconutQrScanner> with SingleTickerPr
   }
 
   Widget _buildReadingExtraText() {
-    return Text(
-      textAlign: TextAlign.center,
-      t.coconut_qr_scanner.reading_extra_data,
-      style: CoconutTypography.body2_14_Bold.setColor(CoconutColors.white),
+    return MediaQuery(
+      data: MediaQuery.of(context).copyWith(textScaler: const TextScaler.linear(1.0)),
+      child: Text(
+        textAlign: TextAlign.center,
+        t.coconut_qr_scanner.reading_extra_data,
+        style: CoconutTypography.body2_14_Bold.setColor(CoconutColors.white),
+      ),
     );
   }
 

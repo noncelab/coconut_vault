@@ -276,12 +276,14 @@ class WalletProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
+      _vaultList.clear();
+      _setVaultList([]);
+
       final jsonList = await _walletRepository.loadVaultListJsonArrayString();
 
       if (jsonList != null) {
         if (jsonList.isEmpty) {
           _updateWalletLength();
-
           notifyListeners();
           return;
         }
@@ -300,7 +302,6 @@ class WalletProvider extends ChangeNotifier {
       }
 
       _isVaultsLoaded = true;
-      vibrateLight();
     } catch (e) {
       Logger.log('[loadVaultList] Exception : ${e.toString()}');
       rethrow;
