@@ -1,8 +1,15 @@
+import 'dart:async';
+import 'dart:io';
+
 import 'package:coconut_design_system/coconut_design_system.dart';
+import 'package:coconut_vault/constants/pin_constants.dart';
 import 'package:coconut_vault/providers/auth_provider.dart';
 import 'package:coconut_vault/widgets/pin/pin_length_toggle_button.dart';
 import 'package:flutter/material.dart';
 import 'package:coconut_vault/widgets/button/key_button.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_keyboard_visibility/flutter_keyboard_visibility.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:provider/provider.dart';
 
 import '../../widgets/pin/pin_box.dart';
@@ -61,12 +68,36 @@ class PinInputScreenState extends State<PinInputScreen> {
   late final FocusNode _characterFocusNode;
   final TextEditingController _characterController = TextEditingController();
   late PinType _pinType;
+  bool _hideBottomPadding = false;
+  double get keyboardHeight => MediaQuery.of(context).viewInsets.bottom;
+
+  // 안드로이드 키보드 focus 설정을 IOS스타일과 동일시 하기 위한 코드
+  // ignore: unused_field
+  late final StreamSubscription<bool> _keyboardSubscription;
 
   @override
   void initState() {
     super.initState();
 
     _characterFocusNode = widget.characterFocusNode ?? FocusNode();
+
+    _characterFocusNode.addListener(() {
+      if (_characterFocusNode.hasFocus) {
+        setState(() {
+          _hideBottomPadding = true;
+        });
+      } else {
+        setState(() {
+          _hideBottomPadding = false;
+        });
+      }
+    });
+
+    _keyboardSubscription = KeyboardVisibilityController().onChange.listen((visible) {
+      if (!visible) {
+        FocusScope.of(context).unfocus();
+      }
+    });
 
     _pinType = widget.pinType;
 
@@ -108,7 +139,7 @@ class PinInputScreenState extends State<PinInputScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      resizeToAvoidBottomInset: false,
+      resizeToAvoidBottomInset: true,
       backgroundColor: Colors.transparent,
       appBar:
           widget.appBarVisible
@@ -207,28 +238,46 @@ class PinInputScreenState extends State<PinInputScreen> {
                                   }).toList(),
                             ),
                           ),
-                        ],
-                        if (widget.bottomTextButtonLabel != null)
-                          SizedBox(
-                            width: MediaQuery.of(context).size.width,
-                            child: Center(
-                              child: Padding(
-                                padding: const EdgeInsets.only(bottom: 50, top: 8),
-                                child: GestureDetector(
-                                  onTap: () {
-                                    widget.onPressedBottomTextButton?.call();
-                                  },
-                                  child: Text(
-                                    widget.bottomTextButtonLabel ?? '',
-                                    style: CoconutTypography.body1_16_Bold.setColor(
-                                      CoconutColors.black.withValues(alpha: 0.5),
+                        ] else ...[
+                          if (widget.bottomTextButtonLabel != null) ...[
+                            SizedBox(
+                              width: MediaQuery.of(context).size.width,
+                              child: Center(
+                                child: Padding(
+                                  padding: EdgeInsets.only(bottom: _hideBottomPadding ? 50 : 100, top: 50),
+                                  child: GestureDetector(
+                                    onTap: () {
+                                      widget.onPressedBottomTextButton?.call();
+                                    },
+                                    child: Text(
+                                      widget.bottomTextButtonLabel ?? '',
+                                      style: CoconutTypography.body1_16_Bold.setColor(
+                                        CoconutColors.black.withValues(alpha: 0.5),
+                                      ),
+                                      textAlign: TextAlign.center,
                                     ),
-                                    textAlign: TextAlign.center,
                                   ),
                                 ),
                               ),
                             ),
-                          ),
+                            if (_characterFocusNode.hasFocus) ...[
+                              Container(
+                                color:
+                                    Platform.isIOS
+                                        ? (MediaQuery.of(context).platformBrightness == Brightness.dark
+                                            ? CoconutColors
+                                                .gray750 // iOS 다크
+                                            : CoconutColors.gray300) // iOS 라이트
+                                        : (MediaQuery.of(context).platformBrightness == Brightness.dark
+                                            ? CoconutColors
+                                                .gray900 // Android 다크
+                                            : CoconutColors.whiteLilac), // Android 라이트
+                                width: MediaQuery.of(context).size.width,
+                                child: Align(alignment: Alignment.center, child: _buildBiometricsButton(context)),
+                              ),
+                            ],
+                          ],
+                        ],
                       ],
                     ),
                   ),
@@ -243,6 +292,32 @@ class PinInputScreenState extends State<PinInputScreen> {
               child: const Center(child: CoconutCircularIndicator()),
             ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildBiometricsButton(BuildContext context) {
+    final String iconAsset = Platform.isIOS ? 'assets/svg/face-id.svg' : 'assets/svg/fingerprint.svg';
+
+    return Padding(
+      padding: EdgeInsets.only(bottom: _hideBottomPadding ? keyboardHeight + 8 : 100, top: _hideBottomPadding ? 8 : 8),
+      child: GestureDetector(
+        onTap: () {
+          widget.onKeyTap(kBiometricIdentifier);
+        },
+        child: Container(
+          width: 69,
+          height: 48,
+          decoration: BoxDecoration(
+            color:
+                MediaQuery.of(context).platformBrightness == Brightness.dark
+                    ? (Platform.isIOS ? CoconutColors.gray400 : CoconutColors.gray400)
+                    : CoconutColors.white,
+            border: Border.all(color: CoconutColors.gray350, width: 1),
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Center(child: SvgPicture.asset(iconAsset, width: 24, height: 24, color: CoconutColors.gray800)),
+        ),
       ),
     );
   }

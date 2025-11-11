@@ -77,6 +77,7 @@ dependencies:
   qr_code_scanner_plus: ^2.0.12
   decimal: ^3.0.2
   coconut_design_system: ^0.9.6
+  flutter_keyboard_visibility: ^6.0.0
 
 dev_dependencies:
   flutter_oss_licenses: ^3.0.2
