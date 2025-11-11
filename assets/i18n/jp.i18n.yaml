@@ -564,9 +564,6 @@ multi_sig_setting_screen:
     other: "$total個のキー中$n個の署名が必要なマルチシグウォレット。"
 select_export_type_screen:
   title: "エクスポート"
-  export_type: "何に使用しますか？"
-  watch_only: "ウォレットに\nウォッチオンリーウォレットを追加"
-  multisig: "他のボルトで\nマルチシグキーとして使用"
 signer_bsms_screen:
   guide1_1: "他のボルトでマルチシグウォレットを作成しています！"
   guide1_2: "下記のQRコードをインポートBSMS画面でスキャンしてください。"

@@ -564,9 +564,6 @@ multi_sig_setting_screen:
     other: "Multisig wallet requiring $n signatures\nout of $total keys."
 select_export_type_screen:
   title: "Export to Watch-Only Wallet"
-  export_type: "What will you use it for?"
-  watch_only: "Add watch-Only\nwallet to wallet"
-  multisig: "Use as multisig key\nin other vault"
 signer_bsms_screen:
   guide1_1: "You are creating a multisig wallet in other vault."
   guide1_2: "Scan the QR code below on Import BSMS screen."

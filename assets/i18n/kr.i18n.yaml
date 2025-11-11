@@ -566,9 +566,6 @@ multi_sig_setting_screen:
     other: "$total개의 키 중 $n개로 서명해야 하는\n다중 서명 지갑이에요."
 select_export_type_screen:
   title: "보기 전용 앱으로 내보내기"
-  export_type: "어떤 용도로 사용하시나요?"
-  watch_only: "월렛에\n보기 전용 지갑 추가"
-  multisig: "다른 볼트에서\n다중 서명 키로 사용"
 signer_bsms_screen:
   guide1_1: "다른 볼트에서 다중 서명 지갑을 생성 중이시군요!"
   guide1_2: "다른 볼트의 가져오기 화면에서 아래 QR 코드를 스캔해 주세요."
