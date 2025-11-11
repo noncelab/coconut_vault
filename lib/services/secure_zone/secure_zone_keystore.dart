@@ -2,7 +2,7 @@ import 'package:coconut_vault/constants/method_channel.dart';
 import 'package:flutter/services.dart';
 
 abstract class SecureZoneKeystore {
-  final MethodChannel ch = const MethodChannel(methodChannelTEE);
+  final MethodChannel ch = const MethodChannel(methodChannelSecureModule);
 
   Future<void> generateKey({required String alias, bool userAuthRequired = false, bool perUseAuth = false});
 

@@ -22,13 +22,26 @@ import java.security.InvalidKeyException
 
 import android.util.Log
 
-class StrongBoxKeystorePlugin: FlutterPlugin, MethodChannel.MethodCallHandler {
+import android.app.Activity
+import android.app.KeyguardManager
+import android.content.Intent
+import io.flutter.embedding.engine.plugins.activity.ActivityAware
+import io.flutter.embedding.engine.plugins.activity.ActivityPluginBinding
+import io.flutter.plugin.common.PluginRegistry
+
+class HardwareBackedKeystorePlugin: FlutterPlugin, MethodChannel.MethodCallHandler, ActivityAware, PluginRegistry.ActivityResultListener {
   private lateinit var channel: MethodChannel
-  private val ANDROID_KEYSTORE = "AndroidKeyStore"
   private var lastUsedStrongBox = false
+  private var activity: Activity? = null
+
+  private var pendingResult: MethodChannel.Result? = null
+
   companion object {
-    private const val TAG = "StrongboxKeystore"
+    private const val TAG = "HardwareBackedKeystore"
     private const val ANDROID_KEYSTORE = "AndroidKeyStore"
+
+    // Keyguard 확인용 요청 코드
+    private const val REQ_CONFIRM_DEVICE = 0xC0DE
   }
 
   private lateinit var appContext: Context
@@ -39,10 +52,74 @@ class StrongBoxKeystorePlugin: FlutterPlugin, MethodChannel.MethodCallHandler {
     appContext = binding.applicationContext
   }
 
+  // -------------------- ActivityAware --------------------
+  override fun onAttachedToActivity(binding: ActivityPluginBinding) {
+    activity = binding.activity
+    binding.addActivityResultListener(this)
+  }
+
+  override fun onReattachedToActivityForConfigChanges(binding: ActivityPluginBinding) {
+    activity = binding.activity
+    binding.addActivityResultListener(this)
+  }
+
+  override fun onDetachedFromActivity() {
+    // Activity가 사라졌는데 아직 답을 못 보냈다면 에러로 종료
+    pendingResult?.error("activity_detached", "Activity detached before authentication completed", null)
+    pendingResult = null
+    activity = null
+  }
+
+  override fun onDetachedFromActivityForConfigChanges() {
+    pendingResult?.error("activity_detached", "Activity detached for config changes", null)
+    pendingResult = null
+    activity = null
+  }
+
+  // -------------------- ActivityResultListener --------------------
+  override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?): Boolean {
+    if (requestCode == REQ_CONFIRM_DEVICE) {
+      val res = pendingResult
+      pendingResult = null  // 먼저 비워서 중복 호출/재진입 방지
+      res?.success(resultCode == Activity.RESULT_OK)
+      return true
+    }
+    return false
+  }
+
+  // --------------------- MethodCallHandler ---------------------
   override fun onMethodCall(@NonNull call: MethodCall, @NonNull result: MethodChannel.Result) {
     when (call.method) {
-      "isStrongBoxSupported" -> {
-        result.success(Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) // API 28+
+      // API 28 미만에서는 TEE 접근 시 flutter local_auth로 인증 성공한 토큰을 전달받을 수 없으므로, 아래 함수를 사용해서 인증해야 함
+      // Keystore 토큰을 얻기 위한 DeviceCredential 인증 요청 함수
+      "authenticateForKeystore" -> {
+        if (pendingResult != null) {
+          result.error("in_progress", "Another confirmation is in progress", null)
+          return
+        }
+        val act = activity ?: run {
+          result.error("no_activity", "No foreground activity", null)
+          return
+        }
+
+        val title = call.argument<String>("title") ?: "Device authentication"
+        val description = call.argument<String>("description") ?: "Authentication is required"
+
+        val km = appContext.getSystemService(Context.KEYGUARD_SERVICE) as KeyguardManager
+        if (!km.isKeyguardSecure) {
+          result.error("not_secure", "No secure lock screen set (PIN/Pattern/Password)", null)
+          return
+        }
+
+        val intent = km.createConfirmDeviceCredentialIntent(title, description)
+        if (intent == null) {
+          result.error("intent_null", "Failed to create Keyguard intent", null)
+          return
+        }
+        // 여기서 저장해 두고, 나중에 onActivityResult에서 응답을 보냄
+        pendingResult = result
+        // 인증 화면 띄우기
+        act.startActivityForResult(intent, REQ_CONFIRM_DEVICE)
       }
       "generateKey" -> {
         val alias = call.argument<String>("alias")!!
@@ -51,7 +128,7 @@ class StrongBoxKeystorePlugin: FlutterPlugin, MethodChannel.MethodCallHandler {
 
         try {
           generateAesKey(alias, userAuthRequired, perUseAuth)
-          result.success(null)
+          result.success(mapOf("usedStrongBox" to lastUsedStrongBox))
         } catch (e: Exception) {
           result.error("GEN_FAIL", e.message, null)
         }
@@ -216,9 +293,9 @@ class StrongBoxKeystorePlugin: FlutterPlugin, MethodChannel.MethodCallHandler {
 
     if (userAuthRequired) {
       builder.setUserAuthenticationRequired(true)
-      // perUseAuth == true 면 매사용 인증(-1), 아니면 예: 300초 유예
-      builder.setUserAuthenticationValidityDurationSeconds(if (perUseAuth) -1 else 300)
-      Log.d(TAG, "setUserAuthenticationRequired(true), validity=${if (perUseAuth) -1 else 300}s")
+      // perUseAuth == true 면 매사용 인증(-1), 아니면 예: 300초 유예 // TODO: 5초로 설정 후 테스트중
+      builder.setUserAuthenticationValidityDurationSeconds(if (perUseAuth) -1 else 30)
+      Log.d(TAG, "setUserAuthenticationRequired(true), validity=${if (perUseAuth) -1 else 30}s")
     } else {
       Log.d(TAG, "userAuthRequired=false (no auth required)")
     }
