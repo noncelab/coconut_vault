@@ -144,6 +144,8 @@ class PinInputScreenState extends State<PinInputScreen> {
             ? (isDarkMode ? const Color(0x00000082) : const Color(0xFFCED2D9))
             : (isDarkMode ? CoconutColors.gray400 : CoconutColors.gray150);
 
+    final isBiometricEnabled = Provider.of<AuthProvider>(context, listen: false).isBiometricEnabled;
+
     return Scaffold(
       resizeToAvoidBottomInset: true,
       backgroundColor: Colors.transparent,
@@ -250,7 +252,7 @@ class PinInputScreenState extends State<PinInputScreen> {
                               width: MediaQuery.of(context).size.width,
                               child: Center(
                                 child: Padding(
-                                  padding: EdgeInsets.only(bottom: _hideBottomPadding ? 50 : 100, top: 50),
+                                  padding: EdgeInsets.only(bottom: _hideBottomPadding ? 50 : 100, top: 8),
                                   child: GestureDetector(
                                     onTap: () {
                                       widget.onPressedBottomTextButton?.call();
@@ -266,7 +268,7 @@ class PinInputScreenState extends State<PinInputScreen> {
                                 ),
                               ),
                             ),
-                            if (_characterFocusNode.hasFocus) ...[
+                            if (isBiometricEnabled && _characterFocusNode.hasFocus) ...[
                               Container(
                                 color: keyboardBackgroundColor,
                                 width: MediaQuery.of(context).size.width,
