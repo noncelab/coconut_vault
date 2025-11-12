@@ -17,7 +17,7 @@ class BcUrQrScanDataHandler implements IFragmentedQrScanDataHandler {
 
   @override
   bool isCompleted() {
-    Logger.log('--> BcUrQrScanDataHandler isCompleted: ${_urDecoder.isComplete()}');
+    // Logger.log('--> BcUrQrScanDataHandler isCompleted: ${_urDecoder.isComplete()}');
     return _urDecoder.isComplete();
   }
 
@@ -28,7 +28,7 @@ class BcUrQrScanDataHandler implements IFragmentedQrScanDataHandler {
       if (sequenceLength == null) return false;
       _sequenceLength = sequenceLength;
     }
-    Logger.log('--> [QR] joinData: $data');
+    // Logger.log('--> [QR] joinData: $data');
     final receivePartResult = _urDecoder.receivePart(data);
     if (!receivePartResult && validateFormat(data)) {
       final sequenceValidationResult = validateSequenceLength(data);

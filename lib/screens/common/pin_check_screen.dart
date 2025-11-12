@@ -22,8 +22,15 @@ import 'pin_input_screen.dart';
 class PinCheckScreen extends StatefulWidget {
   final Function? onReset;
   final Function? onSuccess;
+  final Function? onPermanentlyLocked;
   final PinCheckContextEnum pinCheckContext;
-  const PinCheckScreen({super.key, required this.pinCheckContext, this.onReset, this.onSuccess});
+  const PinCheckScreen({
+    super.key,
+    required this.pinCheckContext,
+    this.onReset,
+    this.onSuccess,
+    this.onPermanentlyLocked,
+  });
 
   @override
   State<PinCheckScreen> createState() => _PinCheckScreenState();
@@ -31,25 +38,19 @@ class PinCheckScreen extends StatefulWidget {
 
 class _PinCheckScreenState extends State<PinCheckScreen> with WidgetsBindingObserver {
   late final bool _isAppLaunched;
-  late final bool _shouldAttemptBiometricsAuth;
   late String _pin;
   late String _errorMessage;
   late PinType _pinType;
+  late bool _shouldDelayKeyboard = false;
 
   late AuthProvider _authProvider;
   late List<String> _shuffledPinNumbers;
 
   DateTime? _lastPressedAt;
-  bool? _isUnlockDisabled;
+  bool? _isPinInputLocked;
   bool _isLastChanceToTry = false;
   bool _isVerifyingPin = false;
 
-  // 생체인증으로 인한 applifecycle 이벤트 관련 변수
-  bool _isLifecycleTriggeredByBio = false;
-
-  // _shouldAttempBiometricsAuth가 true일 때, 생체인증 실패 후 키보드가 다시 올라오게 하려고
-  // 선언하여 PinInputScreen에 넘겨줌. 하지만 이미 focus상태에서 생태인증 때문에 키보드가 사라져 있는 상태라
-  // 다시 requestFocus 함수 호출로 키보드가 올라오지 않는 상황
   final FocusNode _characterFocusNode = FocusNode();
 
   @override
@@ -59,15 +60,12 @@ class _PinCheckScreenState extends State<PinCheckScreen> with WidgetsBindingObse
     _pin = '';
     _errorMessage = '';
 
-    _isAppLaunched =
-        widget.pinCheckContext == PinCheckContextEnum.appLaunch ||
-        widget.pinCheckContext == PinCheckContextEnum.appResumed;
-
-    _shouldAttemptBiometricsAuth = widget.pinCheckContext == PinCheckContextEnum.appResumed;
-
+    _isAppLaunched = widget.pinCheckContext == PinCheckContextEnum.appLaunch;
     _authProvider = Provider.of<AuthProvider>(context, listen: false);
     _pinType = _authProvider.isPinCharacter ? PinType.character : PinType.number;
-    Logger.log('initState pinType: $_pinType');
+    if (_isAppLaunched && _authProvider.isBiometricEnabled && _pinType == PinType.character) {
+      _shouldDelayKeyboard = true;
+    }
 
     Future.microtask(() {
       _authProvider.onAuthenticationSuccess = _handleAuthenticationSuccess;
@@ -77,29 +75,28 @@ class _PinCheckScreenState extends State<PinCheckScreen> with WidgetsBindingObse
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       if (!_isAppLaunched) {
         setState(() {
-          _isUnlockDisabled = false;
+          _isPinInputLocked = false;
         });
         return;
       }
 
       if (_authProvider.isPermanentlyLocked) {
         setState(() {
-          _isUnlockDisabled = true;
+          _isPinInputLocked = true;
         });
         return;
       }
 
       if (!_authProvider.isUnlockAvailable) {
         setState(() {
-          _isUnlockDisabled = true;
-          Logger.log('--> set _isUnlockDisabled to true');
+          _isPinInputLocked = true;
           if (_authProvider.unlockAvailableAt != null) {
             _startCountdownTimerUntil(_authProvider.unlockAvailableAt!);
           }
         });
       } else {
         setState(() {
-          _isUnlockDisabled = false;
+          _isPinInputLocked = false;
           _isLastChanceToTry = _authProvider.currentTurn + 1 == kMaxTurn;
 
           if (!_authProvider.isPermanentlyLocked && _isLastChanceToTry) {
@@ -107,8 +104,24 @@ class _PinCheckScreenState extends State<PinCheckScreen> with WidgetsBindingObse
               count: kMaxAttemptPerTurn - _authProvider.currentAttemptInTurn,
             );
           }
-          Logger.log('--> set _isUnlockDisabled to false');
         });
+      }
+
+      final authenticated = await _authenticateWithBiometricsIfEligible();
+      if (authenticated) {
+        _handleAuthenticationSuccess();
+      } else {
+        if (_shouldDelayKeyboard) {
+          setState(() {
+            _shouldDelayKeyboard = false;
+          });
+
+          if (_pinType == PinType.character) {
+            if (mounted && _characterFocusNode.canRequestFocus) {
+              _characterFocusNode.requestFocus();
+            }
+          }
+        }
       }
     });
 
@@ -119,44 +132,19 @@ class _PinCheckScreenState extends State<PinCheckScreen> with WidgetsBindingObse
     }
   }
 
-  /// _authProvider.authenticateWithBiometrics()에 의해 아래 함수가 호출되었는지 여부를 정확히 판단할 수 없는 상황
-  /// 우선 단순히 _isLifecycleTriggeredByBio 플래그만 사용하여 생체인증으로 인한 applifecycle 이벤트를 판단
-  @override
-  void didChangeAppLifecycleState(AppLifecycleState state) async {
-    if (state == AppLifecycleState.resumed) {
-      if (_isLifecycleTriggeredByBio) {
-        _isLifecycleTriggeredByBio = false;
-        return;
-      }
-
-      await _authProvider.updateDeviceBiometricAvailability();
-
-      /// 생체 인증 시도
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (!mounted) return;
-        if (_shouldAttemptBiometricsAuth && _authProvider.isBiometricEnabled) {
-          _isLifecycleTriggeredByBio = true;
-          _authProvider.authenticateWithBiometrics().then((result) {
-            if (result) {
-              _handleAuthenticationSuccess();
-            } else {
-              // 키보드가 다시 올라오면 좋겠는데 원하는 대로 동작을 안함
-              // _characterFocusNode.requestFocus();
-            }
-          });
-        }
-
-        if (_pinType == PinType.number) {
-          setState(() {
-            _shuffledPinNumbers = _authProvider.getShuffledNumberList();
-          });
-        }
-      });
+  Future<bool> _authenticateWithBiometricsIfEligible() async {
+    if (!_isAppLaunched ||
+        _authProvider.isPermanentlyLocked ||
+        _isPinInputLocked == true ||
+        !_authProvider.isBiometricEnabled) {
+      return false;
     }
+
+    return await _authProvider.authenticateWithBiometrics();
   }
 
   void _onKeyTap(String value) async {
-    if (_isUnlockDisabled == null || _isUnlockDisabled == true || _isAppLaunched && _authProvider.isPermanentlyLocked) {
+    if (_isPinInputLocked == null || _isPinInputLocked == true || _isAppLaunched && _authProvider.isPermanentlyLocked) {
       return;
     }
 
@@ -241,8 +229,8 @@ class _PinCheckScreenState extends State<PinCheckScreen> with WidgetsBindingObse
         vibrateMedium();
         setState(() {
           _errorMessage = '';
-          _isUnlockDisabled = true;
-          Logger.log('--> set _isUnlockDisabled to true');
+          _isPinInputLocked = true;
+          Logger.log('--> set _isPinInputLocked to true');
         });
 
         final nextUnlockTime = _authProvider.unlockAvailableAt;
@@ -275,8 +263,8 @@ class _PinCheckScreenState extends State<PinCheckScreen> with WidgetsBindingObse
         timer.cancel();
         setState(() {
           _errorMessage = '';
-          _isUnlockDisabled = false;
-          Logger.log('--> set _isUnlockDisabled to false');
+          _isPinInputLocked = false;
+          Logger.log('--> set _isPinInputLocked to false');
           _isLastChanceToTry = _authProvider.currentTurn + 1 == kMaxTurn;
         });
       } else {
@@ -310,7 +298,7 @@ class _PinCheckScreenState extends State<PinCheckScreen> with WidgetsBindingObse
       _errorMessage = t.errors.pin_max_attempts_exceeded_error;
     });
     _authProvider.resetData(context.read<PreferenceProvider>());
-    //_showResetDialog();
+    widget.onPermanentlyLocked?.call();
   }
 
   void _showResetDialog() {
@@ -379,37 +367,43 @@ class _PinCheckScreenState extends State<PinCheckScreen> with WidgetsBindingObse
   }
 
   Widget _pinInputScreen({isOnReset = false}) {
-    // Logger.log(
-    //   '--> PinInputScreen isPermanantlyLocked: ${_authProvider.isPermanentlyLocked} / isUnlockDisabled: $_isUnlockDisabled',
-    // );
-    return PinInputScreen(
-      canChangePinType: false,
-      appBarVisible: _isAppLaunched ? false : true,
-      title: _isAppLaunched ? '' : t.pin_check_screen.enter_password,
-      pin: _pin,
-      errorMessage: _errorMessage,
-      onKeyTap: _onKeyTap,
-      pinType: PinType.number,
-      pinShuffleNumbers: _shuffledPinNumbers,
-      onPinClear: () {
-        setState(() {
-          _pin = '';
-          _errorMessage = '';
-        });
+    Logger.log(
+      '--> PinInputScreen isPermanantlyLocked: ${_authProvider.isPermanentlyLocked} / isPinInputLocked: $_isPinInputLocked',
+    );
+    return Selector<AuthProvider, bool>(
+      selector: (_, authProvider) => authProvider.isPermanentlyLocked,
+      builder: (context, isPermanentlyLocked, child) {
+        return PinInputScreen(
+          canChangePinType: false,
+          appBarVisible: _isAppLaunched ? false : true,
+          title: _isAppLaunched ? '' : t.pin_check_screen.enter_password,
+          pin: _pin,
+          errorMessage: _errorMessage,
+          onKeyTap: _onKeyTap,
+          pinType: PinType.number,
+          pinShuffleNumbers: _shuffledPinNumbers,
+          onPinClear: () {
+            setState(() {
+              _pin = '';
+              _errorMessage = '';
+            });
+          },
+          bottomTextButtonLabel:
+              _isAppLaunched
+                  ? isPermanentlyLocked
+                      ? t.errors.restart_vault
+                      : t.forgot_password
+                  : null,
+          onPressedBottomTextButton: _showResetDialog,
+          step: 0,
+          lastChance: _isLastChanceToTry,
+          lastChanceMessage: t.pin_check_screen.warning,
+          disabled: isPermanentlyLocked || _isPinInputLocked == true || _isVerifyingPin,
+          characterFocusNode: _characterFocusNode,
+          isLoading: _isVerifyingPin,
+          shouldDelayKeyboard: _shouldDelayKeyboard,
+        );
       },
-      bottomTextButtonLabel:
-          _isAppLaunched
-              ? _authProvider.isPermanentlyLocked
-                  ? t.errors.restart_vault
-                  : t.forgot_password
-              : null,
-      onPressedBottomTextButton: _showResetDialog,
-      step: 0,
-      lastChance: _isLastChanceToTry,
-      lastChanceMessage: t.pin_check_screen.warning,
-      disabled: _authProvider.isPermanentlyLocked || _isUnlockDisabled == true || _isVerifyingPin,
-      characterFocusNode: _characterFocusNode,
-      isLoading: _isVerifyingPin,
     );
   }
 

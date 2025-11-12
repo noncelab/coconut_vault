@@ -45,11 +45,12 @@ receiving: "Receive"
 email_subject: "[Coconut Vault] Inquiry"
 delete_vault: "Delete Wallets"
 delete_vault_description: "This will delete all saved wallet information.\nAre you sure you want to delete?"
+verify_security: "Verifying security..."
 
 sign_completion: "Signed"
 sign: "Sign"
 signed_tx: "Signed Transaction"
-sign_completed: "Signature completed"
+sign_completed: "Signing completed"
 stop_sign: "Stop Signing"
 
 select_completed: "Selection Complete"
@@ -112,6 +113,7 @@ watch_only_options:
   nunchuk: "Nunchuk"
   bluewallet: "BlueWallet"
 
+# 연결 상태
 connectivity_state: 
   connected: "Connected"
   disconnected: "Disconnected"
@@ -131,6 +133,8 @@ vault_home_screen:
     mnemonic_wordlist: "Mnemonic Wordlist"
   toast:
     wallet_added_but_not_favorite: "Wallet added. Please check in the View All Wallets screen."
+  secure_zone_checking: "Checking if the secure zone is accessible..."
+
     
 vault_list_screen:
   primary_wallet: "Primary Wallet"
@@ -162,8 +166,8 @@ app_unavailable_notification_screen:
   step2: "Check the connection status"
   step3: "Restart the app"
   vault_reset:
-    reset_completed: "All wallets have been deleted"
-    step_1: "All saved information has been deleted"
+    reset_completed: "All data has been deleted"
+    step_1: "All saved data has been deleted"
     step_2: "To secure the app, completely close the app"
     step_3: "After closing the app, turn off the device power to be even more secure"
 
@@ -176,7 +180,7 @@ device_password_detection_screen:
   go_to_settings: "Go to Settings"
   delete_vault: "Delete Wallets"
   ios_settings_dialog_title: "Move to Settings"
-  ios_settings_dialog_description: "Because of iOS restrictions, the Settings home screen cannot be opened directly. When the Settings page appears, please go to the main Settings screen and set your password there."
+  ios_settings_dialog_description: "Due to iOS policy, the Settings home screen cannot be opened directly. When the Settings page appears, please go to the main Settings screen and set your passcode."
 
 jail_break_detection_screen:
   title: "Jailbreak / Root History Detected"
@@ -185,6 +189,7 @@ jail_break_detection_screen:
   jail_break_guide_title: "What is Jailbreaking / Rooting?"
   jail_break_guide_description: "Jailbreaking (iOS) or rooting (Android) is the act of removing the operating system’s security restrictions, allowing unrestricted access to system areas.\nWhile this provides higher-level control, it also increases the risk of malware infection or unauthorized access."
   continue_anyway: "Continue Anyway"
+  delete_data: "Delete Data"
 
 ios_bluetooth_auth_notification_screen:
   allow_permission: "Please allow Bluetooth access to check your connection status."
@@ -275,8 +280,8 @@ psbt_scanner_screen:
   guide: "Please scan sending info created in wallet or multisig info from external vault."
   guide_single_sig_same_name: "Please scan sending info created in wallet. Wallet names must match."
 signed_transaction_qr_screen:
-  guide_multisig: "Multisig completed. Please scan the QR code below in the wallet that created the sending info."
-  guide_single_sig: "Signature completed for sending info created in '$name wallet'. Please scan the QR code below in the wallet."
+  guide_multisig: "Multisig signing completed. Please scan the QR code below with the wallet that initiated the transaction."
+  guide_single_sig: "Signing completed for the transaction created in '$name wallet'. Please scan the QR code below with the wallet."
 single_sig_sign_screen:
   text: "This is an already signed transaction"
 signer_qr_bottom_sheet:
@@ -465,7 +470,10 @@ mnemonic_view_screen:
   warning_title: "Mnemonic phrase is the key to your wallet"
   warning_guide: "If you know this word, anyone can take all your bitcoins. Please check if there are any other people or cameras around you."
   warning_btn: "I understand"
-  
+  alert:
+    failed_get_secret:
+      title: "Mnemonic Retrieval Failed"
+      
 mnemonic_verify_screen:
   title: "Mnemonic Verification"
   select_word: "Select word #${index}"
@@ -637,10 +645,13 @@ verify_passphrase_screen:
   saved_mfp: "Saved MFP"
   recovered_mfp: "Recovered MFP"
 
-passphrase_input_screen:
+passphrase_check_screen:
   title: "Enter Passphrase"
   enter_passphrase: "Enter Passphrase"
   passphrase_error: "Please check your passphrase again"
+  alert:
+    failed:
+      title: "Passphrase Check Failed"
 
 multisig_signer_bsms_export_screen:
   fail_bsms: "Failed to load BSMS"
@@ -724,7 +735,11 @@ alert:
     description: "Biometric authentication is not used to unlock the app. However, it may be automatically requested when accessing data stored in a secure module."
   auth_canceled_when_decrypt:
     title: "Device Authentication Canceled"
-    description: "You need to authenticate your device to retrieve the information."
+    description_view_mnemonic: "You need to authenticate your device to retrieve the information from the secure area."
+    description_export: "Access to the secure area is required to verify that the passphrase for the wallet you are exporting is correct. This process helps prevent sending Bitcoin to the wrong wallet by mistake."
+    description_passphrase_verify: "Access to the secure area is required to verify that the entered passphrase is correct."
+    description_sign: "You need to authenticate your device to sign."
+    description_check_accessibility: "You need to authenticate your device to verify the validity of the secure area data."
   auth_canceled_when_encrypt:
     title: "Device Authentication Canceled"
     description: "You need to authenticate your device to store wallet information in the secure area."

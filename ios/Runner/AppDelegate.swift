@@ -166,6 +166,16 @@ func installTEEHandler(_ teeChannel: FlutterMethodChannel) {
                 }
                 let plaintext = try SecureEnclaveCrypto.decrypt(with: privateKey, ciphertext: ciphertext)
                 result(FlutterStandardTypedData(bytes: plaintext))
+            } catch let error as NSError {
+                if error.domain == LAErrorDomain {
+                    switch error.code {
+                        case LAError.userCancel.rawValue:
+                            // 사용자가 생체인증 취소 버튼 클릭
+                            result(FlutterError(code:"USER_CANCEL", message: "User cancelled biometric authentication", details:nil))
+                        default:
+                            result(FlutterError(code:"DEC_FAIL", message: error.localizedDescription, details:nil))
+                    }
+                }
             } catch {
                 result(FlutterError(code:"DEC_FAIL", message: error.localizedDescription, details:nil))
             }

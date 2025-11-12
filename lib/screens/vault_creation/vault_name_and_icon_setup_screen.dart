@@ -15,7 +15,6 @@ import 'package:coconut_vault/widgets/button/fixed_bottom_button.dart';
 import 'package:coconut_vault/widgets/indicator/message_activity_indicator.dart';
 import 'package:flutter/material.dart';
 import 'package:coconut_vault/widgets/vault_name_icon_edit_palette.dart';
-import 'package:flutter/services.dart' show PlatformException;
 import 'package:provider/provider.dart';
 
 class VaultNameAndIconSetupScreen extends StatefulWidget {
@@ -37,7 +36,6 @@ class _VaultNameAndIconSetupScreenState extends State<VaultNameAndIconSetupScree
   late int selectedColorIndex;
   final TextEditingController _controller = TextEditingController();
   bool _showLoading = false;
-  bool _isTextFieldFocused = false;
 
   @override
   void initState() {
@@ -181,12 +179,6 @@ class _VaultNameAndIconSetupScreenState extends State<VaultNameAndIconSetupScree
     });
   }
 
-  void updateFocusState(bool isFocused) {
-    setState(() {
-      _isTextFieldFocused = isFocused;
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
     return Stack(
@@ -220,7 +212,6 @@ class _VaultNameAndIconSetupScreenState extends State<VaultNameAndIconSetupScree
                     onNameChanged: updateName,
                     onIconSelected: updateIcon,
                     onColorSelected: updateColor,
-                    onFocusChanged: updateFocusState,
                   ),
                   FixedBottomButton(
                     showGradient: true,

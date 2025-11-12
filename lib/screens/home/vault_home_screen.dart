@@ -7,6 +7,7 @@ import 'package:coconut_vault/constants/app_routes.dart';
 import 'package:coconut_vault/enums/wallet_enums.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/model/common/vault_list_item_base.dart';
+import 'package:coconut_vault/model/exception/user_canceled_auth_exception.dart';
 import 'package:coconut_vault/providers/auth_provider.dart';
 import 'package:coconut_vault/providers/connectivity_provider.dart';
 import 'package:coconut_vault/providers/preference_provider.dart';
@@ -18,8 +19,10 @@ import 'package:coconut_vault/screens/home/select_sync_option_bottom_sheet.dart'
 import 'package:coconut_vault/screens/home/select_vault_bottom_sheet.dart';
 import 'package:coconut_vault/screens/settings/pin_setting_screen.dart';
 import 'package:coconut_vault/screens/vault_menu/info/passphrase_check_screen.dart';
+import 'package:coconut_vault/services/secure_zone/secure_zone_availability_checker.dart';
 import 'package:coconut_vault/widgets/button/shrink_animation_button.dart';
 import 'package:coconut_vault/widgets/card/vault_addition_guide_card.dart';
+import 'package:coconut_vault/widgets/indicator/message_activity_indicator.dart';
 import 'package:coconut_vault/widgets/vault_row_item.dart';
 import 'package:flutter/material.dart';
 import 'package:coconut_vault/screens/settings/settings_screen.dart';
@@ -31,9 +34,9 @@ import 'package:provider/provider.dart';
 import 'package:collection/collection.dart';
 
 class VaultHomeScreen extends StatefulWidget {
-  final Function? onChangeEntryFlow;
-  final Function? onTeeUnaccessible;
-  const VaultHomeScreen({super.key, this.onChangeEntryFlow, this.onTeeUnaccessible});
+  final Function onAllWalletDeleted;
+  final Function? onSecureZoneUnaccessible;
+  const VaultHomeScreen({super.key, required this.onAllWalletDeleted, this.onSecureZoneUnaccessible});
 
   @override
   State<VaultHomeScreen> createState() => _VaultHomeScreenState();
@@ -46,6 +49,7 @@ class _VaultHomeScreenState extends State<VaultHomeScreen> with TickerProviderSt
   bool _handledDidChangeDependencies = false;
 
   late ScrollController _scrollController;
+  bool _isAndroidSecureZoneChecking = false;
 
   @override
   void initState() {
@@ -66,34 +70,48 @@ class _VaultHomeScreenState extends State<VaultHomeScreen> with TickerProviderSt
       }
       await _viewModel.loadVaults();
 
-      // loadVaults() 완료 후 vaultList가 null이 아닐 때 실행
-      if (Platform.isAndroid) {
-        final walletProvider = context.read<WalletProvider>();
-        if (walletProvider.isVaultsLoaded && walletProvider.vaultList.isNotEmpty) {
-          _isTeeAccessible().then((isTeeAccessible) {
-            debugPrint('isTeeAccessible: $isTeeAccessible');
-            if (!isTeeAccessible) {
-              widget.onTeeUnaccessible?.call();
-            }
+      if (!mounted) return;
+
+      /// Android 비밀번호 삭제 여부 확인
+      if (Platform.isAndroid && !_viewModel.isSigningOnlyMode && _viewModel.vaultCount > 0) {
+        setState(() {
+          _isAndroidSecureZoneChecking = true;
+        });
+        // 안내 문구를 사용자가 충분히 보게 하기 위해 1초 지연
+        await Future.delayed(const Duration(seconds: 1));
+        if (!mounted) {
+          setState(() {
+            _isAndroidSecureZoneChecking = false;
           });
+          return;
+        }
+        try {
+          final isAccessible = await SecureZoneManager().isAndroidSecureZoneAccessible(context.read<WalletProvider>());
+          setState(() {
+            _isAndroidSecureZoneChecking = false;
+          });
+          if (!isAccessible) {
+            widget.onSecureZoneUnaccessible?.call();
+          }
+        } on UserCanceledAuthException catch (_) {
+          setState(() {
+            _isAndroidSecureZoneChecking = false;
+          });
+          if (!mounted) return;
+          showDialog(
+            context: context,
+            builder:
+                (context) => CoconutPopup(
+                  title: t.alert.auth_canceled_when_decrypt.title,
+                  description: t.alert.auth_canceled_when_decrypt.description_check_accessibility,
+                  onTapRight: () {
+                    Navigator.pop(context);
+                  },
+                ),
+          );
         }
       }
     });
-  }
-
-  Future<bool> _isTeeAccessible() async {
-    final firstSingleSignatureWalletId =
-        context
-            .read<WalletProvider>()
-            .vaultList
-            .firstWhere((vault) => vault.vaultType == WalletType.singleSignature)
-            .id;
-    try {
-      await context.read<WalletProvider>().getSecret(firstSingleSignatureWalletId);
-      return true;
-    } catch (e) {
-      return false;
-    }
   }
 
   @override
@@ -183,6 +201,13 @@ class _VaultHomeScreenState extends State<VaultHomeScreen> with TickerProviderSt
                       // TODO: const SliverToBoxAdapter(child: TeeSmokeTest()),
                       SliverToBoxAdapter(child: Container(height: 100)),
                     ],
+                  ),
+                  Visibility(
+                    visible: _isAndroidSecureZoneChecking,
+                    child: Container(
+                      decoration: BoxDecoration(color: CoconutColors.black.withValues(alpha: 0.3)),
+                      child: Center(child: MessageActivityIndicator(message: t.vault_home_screen.secure_zone_checking)),
+                    ),
                   ),
                 ],
               ),
@@ -559,7 +584,7 @@ class _VaultHomeScreenState extends State<VaultHomeScreen> with TickerProviderSt
                                   if (!context.mounted) return;
                                   await context.read<PreferenceProvider>().resetVaultOrderAndFavorites();
 
-                                  widget.onChangeEntryFlow?.call();
+                                  widget.onAllWalletDeleted.call();
                                 },
                               );
                             },
@@ -585,7 +610,7 @@ class _VaultHomeScreenState extends State<VaultHomeScreen> with TickerProviderSt
       Seed? seed = await MyBottomSheet.showBottomSheet_ratio<Seed?>(
         ratio: 0.5,
         context: context,
-        child: PassphraseCheckScreen(id: walletId),
+        child: PassphraseCheckScreen(id: walletId, context: PassphraseCheckContext.export),
       );
 
       // 패스프레이즈 입력 안하고 BottomSheet 그냥 닫음

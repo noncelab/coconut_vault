@@ -1,9 +1,6 @@
 import 'dart:async';
-import 'dart:convert';
-import 'dart:io';
 
 import 'package:coconut_lib/coconut_lib.dart';
-import 'package:coconut_vault/extensions/uint8list_extensions.dart';
 import 'package:coconut_vault/providers/app_lifecycle_state_provider.dart';
 import 'package:coconut_vault/providers/preference_provider.dart';
 import 'package:coconut_vault/repository/wallet_repository.dart';
@@ -16,7 +13,6 @@ import 'package:coconut_vault/model/single_sig/single_sig_vault_list_item.dart';
 import 'package:coconut_vault/model/single_sig/single_sig_wallet_create_dto.dart';
 import 'package:coconut_vault/model/exception/not_related_multisig_wallet_exception.dart';
 import 'package:coconut_vault/providers/visibility_provider.dart';
-import 'package:coconut_vault/utils/vibration_util.dart';
 import 'package:coconut_vault/utils/logger.dart';
 import 'package:coconut_vault/enums/wallet_enums.dart';
 import 'package:flutter/foundation.dart';
@@ -53,7 +49,6 @@ class WalletProvider extends ChangeNotifier {
   bool _isVaultsLoaded = false;
   late final ValueNotifier<List<VaultListItemBase>> vaultListNotifier;
   bool _isAddVaultCompleted = false;
-  String? _waitingForSignaturePsbtBase64;
   bool _isDisposed = false;
   late bool _isSigningOnlyMode;
 
@@ -62,7 +57,6 @@ class WalletProvider extends ChangeNotifier {
   bool get isVaultListLoading => _isVaultListLoading;
   bool get isVaultsLoaded => _isVaultsLoaded;
   bool get isAddVaultCompleted => _isAddVaultCompleted;
-  String? get waitingForSignaturePsbtBase64 => _waitingForSignaturePsbtBase64;
   bool get isSigningOnlyMode => _isSigningOnlyMode;
 
   // 5) 퍼블릭 메서드
@@ -92,7 +86,7 @@ class WalletProvider extends ChangeNotifier {
 
     // StrongBoxKeystore.encrypt 내부에서 AUTH_NEEDED 에러 발생 시 생체인증 시도
     // 하지만 ios에서도 지갑 저장 중 라이프사이클 이벤트 호출로 중단되는 것을 방지하기 위해 operation 등록
-    _lifecycleProvider.startOperation(AppLifecycleOperations.teeEncryption);
+    _lifecycleProvider.startOperation(AppLifecycleOperations.hwBasedEncryption);
     final vault = await _walletRepository.addSinglesigWallet(wallet);
     _setVaultList(_walletRepository.vaultList);
     await _preferenceProvider.setVaultOrder(_vaultList.map((e) => e.id).toList());
@@ -100,7 +94,7 @@ class WalletProvider extends ChangeNotifier {
 
     _setAddVaultCompleted(true);
     await _updateWalletLength();
-    _lifecycleProvider.endOperation(AppLifecycleOperations.teeEncryption);
+    _lifecycleProvider.endOperation(AppLifecycleOperations.hwBasedEncryption);
     notifyListeners();
     return vault;
   }
@@ -281,12 +275,14 @@ class WalletProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
+      _vaultList.clear();
+      _setVaultList([]);
+
       final jsonList = await _walletRepository.loadVaultListJsonArrayString();
 
       if (jsonList != null) {
         if (jsonList.isEmpty) {
           _updateWalletLength();
-
           notifyListeners();
           return;
         }
@@ -305,7 +301,6 @@ class WalletProvider extends ChangeNotifier {
       }
 
       _isVaultsLoaded = true;
-      vibrateLight();
     } catch (e) {
       Logger.log('[loadVaultList] Exception : ${e.toString()}');
       rethrow;
@@ -321,17 +316,9 @@ class WalletProvider extends ChangeNotifier {
     return;
   }
 
-  void setWaitingForSignaturePsbtBase64(String psbt) {
-    _waitingForSignaturePsbtBase64 = psbt;
-  }
-
-  void clearWaitingForSignaturePsbt() {
-    _waitingForSignaturePsbtBase64 = null;
-  }
-
   Future<Uint8List> getSecret(int id) async {
     // TEE 접근 시작 - inactive 상태 전환 무시
-    _lifecycleProvider.startOperation(AppLifecycleOperations.teeDecryption);
+    _lifecycleProvider.startOperation(AppLifecycleOperations.hwBasedDecryption);
     try {
       final result = await _walletRepository.getSecret(id);
 
@@ -340,7 +327,7 @@ class WalletProvider extends ChangeNotifier {
       return result;
     } finally {
       // TEE 접근 완료 - inactive 상태 전환 허용
-      _lifecycleProvider.endOperation(AppLifecycleOperations.teeDecryption);
+      _lifecycleProvider.endOperation(AppLifecycleOperations.hwBasedDecryption);
     }
   }
 
@@ -351,9 +338,9 @@ class WalletProvider extends ChangeNotifier {
 
   Future<void> updateIsSigningOnlyMode(bool isSigningOnlyMode) async {
     if (_isSigningOnlyMode == isSigningOnlyMode) return;
-    _lifecycleProvider.startOperation(AppLifecycleOperations.teeDecryption);
+    _lifecycleProvider.startOperation(AppLifecycleOperations.hwBasedDecryption);
     await _walletRepository.updateIsSigningOnlyMode(isSigningOnlyMode);
-    _lifecycleProvider.endOperation(AppLifecycleOperations.teeDecryption);
+    _lifecycleProvider.endOperation(AppLifecycleOperations.hwBasedDecryption);
     if (isSigningOnlyMode) {
       _setVaultList([]);
     }
@@ -391,12 +378,11 @@ class WalletProvider extends ChangeNotifier {
   void dispose() {
     if (_isDisposed) return;
 
-    // stop if loading
     _isDisposed = true;
+    // stop if loading
     _walletRepository.dispose();
 
     _vaultList.clear();
-    _waitingForSignaturePsbtBase64 = null;
     super.dispose();
   }
 }
