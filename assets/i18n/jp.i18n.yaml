@@ -673,6 +673,9 @@ permission:
     denied: "生体認証権限が拒否されました。"
     how_to_allow: "生体認証でアンロックするには\n設定 > ココナッツボルトで生体認証権限を許可してください。"
     btn_move_to_setting: "設定に移動"
+  secure_zone_authentication:
+    title: "セキュアモジュールへのアクセス"
+    description: "セキュアモジュールにアクセスするには認証が必要です。"
 
 alert:
   delete_vault: 

@@ -675,6 +675,9 @@ permission:
     denied: "생체 인증 권한이 거부되었습니다."
     how_to_allow: "생체 인증을 통한 잠금 해제를 하시려면\n설정 > 코코넛 볼트에서 생체 인증 권한을 허용해 주세요."
     btn_move_to_setting: "설정 화면으로 이동"
+  secure_zone_authentication:
+    title: "보안 모듈 접근"
+    description: "보안 모듈 접근을 위해 인증이 필요해요."
 
 alert: 
   delete_vault: 

@@ -84,7 +84,7 @@ class WalletProvider extends ChangeNotifier {
   Future<SingleSigVaultListItem> addSingleSigVault(SingleSigWalletCreateDto wallet) async {
     _setAddVaultCompleted(false);
 
-    // StrongBoxKeystore.encrypt 내부에서 AUTH_NEEDED 에러 발생 시 생체인증 시도
+    // HardwareBackedKeystorePlugin.encrypt 내부에서 AUTH_NEEDED 에러 발생 시 생체인증 시도
     // 하지만 ios에서도 지갑 저장 중 라이프사이클 이벤트 호출로 중단되는 것을 방지하기 위해 operation 등록
     _lifecycleProvider.startOperation(AppLifecycleOperations.hwBasedEncryption);
     final vault = await _walletRepository.addSinglesigWallet(wallet);
@@ -322,11 +322,11 @@ class WalletProvider extends ChangeNotifier {
     try {
       final result = await _walletRepository.getSecret(id);
 
-      // 작업 완료 후 지연을 두어 라이프사이클 이벤트와의 타이밍 조정
-      await Future.delayed(const Duration(milliseconds: 500));
       return result;
     } finally {
       // TEE 접근 완료 - inactive 상태 전환 허용
+      // 작업 완료 후 지연을 두어 라이프사이클 이벤트와의 타이밍 조정
+      await Future.delayed(const Duration(milliseconds: 100));
       _lifecycleProvider.endOperation(AppLifecycleOperations.hwBasedDecryption);
     }
   }

@@ -56,15 +56,6 @@ class _SplashScreenState extends State<SplashScreen> {
         widget.onComplete(AppEntryFlow.securityPrecheck);
         return;
       }
-      // 아직 _viewModel.connectivityState가 null이면 이벤트 등록
-
-      // 한번도 튜토리얼을 보지 않은 경우 / 볼트 모드를 선택하지 않은 경우
-      // firstLaunch 플로우로 이동
-      // TODO: 아래 로직을 securityPrecheck 끝나고로 이동해야함!!!!!
-      // if (!_viewModel.hasSeenGuide || !_viewModel.isVaultModeSelected) {
-      //   widget.onComplete(AppEntryFlow.firstLaunch);
-      //   return;
-      // }
     });
   }
 

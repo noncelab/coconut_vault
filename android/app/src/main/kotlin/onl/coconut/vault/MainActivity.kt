@@ -17,6 +17,7 @@ import io.flutter.embedding.android.FlutterFragmentActivity
 import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugin.common.MethodChannel
 import java.io.File
+import android.content.pm.ActivityInfo
 
 import android.util.Log
 
@@ -26,6 +27,7 @@ class MainActivity: FlutterFragmentActivity() {
     
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
         // 🔒 앱 화면 스크린샷/최근앱 썸네일 차단
         window.setFlags(
             WindowManager.LayoutParams.FLAG_SECURE,
@@ -35,7 +37,7 @@ class MainActivity: FlutterFragmentActivity() {
 
     override fun configureFlutterEngine(@NonNull flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
-        flutterEngine.plugins.add(StrongBoxKeystorePlugin())
+        flutterEngine.plugins.add(HardwareBackedKeystorePlugin())
 
         MethodChannel(flutterEngine.dartExecutor.binaryMessenger, CHANNEL).setMethodCallHandler { call, result ->
             when (call.method) {

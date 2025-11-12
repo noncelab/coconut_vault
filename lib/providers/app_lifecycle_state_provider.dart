@@ -6,16 +6,12 @@ import 'package:coconut_vault/utils/logger.dart';
 class AppLifecycleOperations {
   // 생체인증 관련
   static const String biometricAuthentication = 'biometric_auth';
-  static const String biometricSetup = 'biometric_setup';
 
   // 보안 영역 접근 관련 (TEE / StrongBox / Secure Enclave)
-  static const String hwBasedKeyGeneration = 'hw_based_key_generation';
   static const String hwBasedEncryption = 'hw_based_encryption';
   static const String hwBasedDecryption = 'hw_based_decryption';
 
   // 보안 관련
-  static const String secureStorage = 'secure_storage';
-  static const String keychainAccess = 'keychain_access';
   static const String cameraAuthRequest = 'camera_auth_request';
 }
 
@@ -103,7 +99,7 @@ class AppLifecycleStateProvider extends ChangeNotifier with WidgetsBindingObserv
 
         // 무시해야 하는 작업이 진행 중인 경우 inactive 콜백 호출하지 않음
         if (shouldIgnoreLifecycleEvent) {
-          Logger.log('-->AppLifecycle: Inactive 무시 (진행 중인 작업: ${_ignoredOperations.join(", ")})');
+          Logger.log('--> ㄴAppLifecycle: Inactive 무시 (진행 중인 작업: ${_ignoredOperations.join(", ")})');
           return;
         }
 
@@ -114,7 +110,7 @@ class AppLifecycleStateProvider extends ChangeNotifier with WidgetsBindingObserv
         Logger.log('-->AppLifecycle: Resumed');
         // 무시해야 하는 작업이 진행 중인 경우 inactive 콜백 호출하지 않음
         if (shouldIgnoreLifecycleEvent) {
-          Logger.log('-->AppLifecycle: Resumed 무시 (진행 중인 작업: ${_ignoredOperations.join(", ")})');
+          Logger.log('--> ㄴAppLifecycle: Resumed 무시 (진행 중인 작업: ${_ignoredOperations.join(", ")})');
           return;
         }
 

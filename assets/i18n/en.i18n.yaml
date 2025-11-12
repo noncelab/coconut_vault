@@ -674,6 +674,9 @@ permission:
     denied: "Biometric permission denied."
     how_to_allow: "To unlock with biometric authentication\nplease allow biometric permission in Settings > Coconut Vault."
     btn_move_to_setting: "Go to Settings"
+  secure_zone_authentication:
+    title: "Secure Module Access"
+    description: "Authentication is required to access the secure module."
 
 alert:
   delete_vault:

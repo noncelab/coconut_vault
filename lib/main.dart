@@ -1,13 +1,11 @@
 import 'dart:io';
 
 import 'package:coconut_lib/coconut_lib.dart';
-import 'package:coconut_vault/constants/method_channel.dart';
 import 'package:coconut_vault/constants/shared_preferences_keys.dart';
 import 'package:coconut_vault/enums/vault_mode_enum.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/repository/old_secure_storage_cleaner_for_ios.dart';
 import 'package:coconut_vault/repository/shared_preferences_repository.dart';
-import 'package:coconut_vault/utils/logger.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
@@ -28,20 +26,6 @@ void main() async {
   // Isolate 토큰 생성 및 초기화
   final RootIsolateToken rootIsolateToken = RootIsolateToken.instance!;
   BackgroundIsolateBinaryMessenger.ensureInitialized(rootIsolateToken);
-  if (Platform.isAndroid) {
-    try {
-      const MethodChannel channel = MethodChannel(methodChannelOS);
-
-      final int version = await channel.invokeMethod('getSdkVersion');
-      if (version != 26) {
-        SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]);
-      }
-    } on PlatformException catch (e) {
-      Logger.error("Failed to get platform version: '${e.message}'.");
-    }
-  } else {
-    SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]);
-  }
 
   Provider.debugCheckInvalidValueType = null;
 
