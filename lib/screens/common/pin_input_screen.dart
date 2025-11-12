@@ -94,7 +94,7 @@ class PinInputScreenState extends State<PinInputScreen> {
     });
 
     _keyboardSubscription = KeyboardVisibilityController().onChange.listen((visible) {
-      if (!visible) {
+      if (!visible && mounted) {
         FocusScope.of(context).unfocus();
       }
     });
@@ -138,6 +138,12 @@ class PinInputScreenState extends State<PinInputScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+    final keyboardBackgroundColor =
+        Platform.isIOS
+            ? (isDarkMode ? const Color(0x00000082) : const Color(0xFFCED2D9))
+            : (isDarkMode ? CoconutColors.gray400 : CoconutColors.gray150);
+
     return Scaffold(
       resizeToAvoidBottomInset: true,
       backgroundColor: Colors.transparent,
@@ -262,16 +268,7 @@ class PinInputScreenState extends State<PinInputScreen> {
                             ),
                             if (_characterFocusNode.hasFocus) ...[
                               Container(
-                                color:
-                                    Platform.isIOS
-                                        ? (MediaQuery.of(context).platformBrightness == Brightness.dark
-                                            ? CoconutColors
-                                                .gray750 // iOS 다크
-                                            : CoconutColors.gray300) // iOS 라이트
-                                        : (MediaQuery.of(context).platformBrightness == Brightness.dark
-                                            ? CoconutColors
-                                                .gray900 // Android 다크
-                                            : CoconutColors.whiteLilac), // Android 라이트
+                                color: keyboardBackgroundColor,
                                 width: MediaQuery.of(context).size.width,
                                 child: Align(alignment: Alignment.center, child: _buildBiometricsButton(context)),
                               ),
