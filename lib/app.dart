@@ -5,6 +5,7 @@ import 'package:coconut_lib/coconut_lib.dart';
 import 'package:coconut_vault/constants/app_routes.dart';
 import 'package:coconut_vault/enums/pin_check_context_enum.dart';
 import 'package:coconut_vault/main_route_guard.dart';
+import 'package:coconut_vault/model/common/vault_list_item_base.dart';
 import 'package:coconut_vault/providers/app_lifecycle_state_provider.dart';
 import 'package:coconut_vault/providers/preference_provider.dart';
 import 'package:coconut_vault/providers/sign_provider.dart';
@@ -322,13 +323,18 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> {
                 return Stack(
                   children: [
                     child ?? const SizedBox.shrink(),
-                    if (context.read<WalletProvider>().vaultList.isNotEmpty)
-                      SigningModeEdgePanel(
-                        navigatorKey: _navigatorKey,
-                        routeVisibilityListenable: _routeNotifierHasShow,
-                        isVaultHome: true,
-                        onResetCompleted: _onChangeEntryFlow,
-                      ),
+                    Selector<WalletProvider, bool>(
+                      selector: (context, walletProvider) => walletProvider.vaultList.isNotEmpty,
+                      builder: (context, vaultListIsNotEmpty, child) {
+                        return vaultListIsNotEmpty
+                            ? SigningModeEdgePanel(
+                              navigatorKey: _navigatorKey,
+                              routeVisibilityListenable: _routeNotifierHasShow,
+                              onResetCompleted: _onChangeEntryFlow,
+                            )
+                            : const SizedBox.shrink();
+                      },
+                    ),
                   ],
                 );
               },

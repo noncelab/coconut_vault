@@ -17,13 +17,11 @@ class SigningModeEdgePanel extends StatefulWidget {
     super.key,
     required this.navigatorKey,
     required this.routeVisibilityListenable,
-    required this.isVaultHome,
     required this.onResetCompleted,
   });
 
   final GlobalKey<NavigatorState> navigatorKey;
   final ValueListenable<bool> routeVisibilityListenable;
-  final bool isVaultHome;
   final VoidCallback onResetCompleted;
 
   @override
@@ -76,7 +74,7 @@ class _SigningModeEdgePanelState extends State<SigningModeEdgePanel> with Single
         return Consumer<PreferenceProvider>(
           builder: (context, prefProvider, child) {
             final isSigningOnly = prefProvider.getVaultMode() == VaultMode.signingOnly;
-            final isVisible = widget.isVaultHome && hasShow && isSigningOnly;
+            final isVisible = hasShow && isSigningOnly;
 
             _initializePanelPositionIfNeeded(context, prefProvider);
             if (_horizontalPos == null || _verticalPos == null) {
