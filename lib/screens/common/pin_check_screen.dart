@@ -117,8 +117,17 @@ class _PinCheckScreenState extends State<PinCheckScreen> with WidgetsBindingObse
           });
 
           if (_pinType == PinType.character) {
-            if (mounted && _characterFocusNode.canRequestFocus) {
-              _characterFocusNode.requestFocus();
+            if (mounted) {
+              FocusScope.of(context).unfocus();
+
+              if (mounted && _characterFocusNode.canRequestFocus) {
+                _characterFocusNode.requestFocus();
+
+                if (Platform.isAndroid) {
+                  await Future.delayed(const Duration(milliseconds: 100));
+                  SystemChannels.textInput.invokeMethod('TextInput.show');
+                }
+              }
             }
           }
         }
