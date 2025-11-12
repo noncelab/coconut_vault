@@ -12,10 +12,13 @@ import androidx.annotation.NonNull
 import android.app.KeyguardManager
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
 import io.flutter.embedding.android.FlutterFragmentActivity
 import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugin.common.MethodChannel
 import java.io.File
+
+import android.util.Log
 
 class MainActivity: FlutterFragmentActivity() {
     private val CHANNEL = "onl.coconut.vault/os"
@@ -114,9 +117,65 @@ class MainActivity: FlutterFragmentActivity() {
     }
 
     private fun isDeviceRooted(): Boolean {
-        val buildTags = android.os.Build.TAGS
-        if (buildTags != null && buildTags.contains("test-keys")) return true
 
+        if (canExecuteSuCommand()) {
+             Log.w("canExecuteSuCommand", "Root check: canExecuteSuCommand")
+            return true
+        }
+
+        val buildTags = android.os.Build.TAGS
+        if (buildTags != null && buildTags.contains("test-keys")) {
+            return true
+        }
+
+        if (isSystemPropertyIndicatingRoot()) {
+            return true
+        }
+
+        if (hasRootPaths()) {
+            return true
+        }
+
+        if (isSELinuxPermissive()) {
+            return true
+        }
+    
+        return false
+    }
+
+    private fun canExecuteSuCommand(): Boolean {
+        return try {
+            val process = Runtime.getRuntime().exec(arrayOf("su", "-c", "id"))
+            val reader = process.inputStream.bufferedReader()
+            val result = reader.readLine()
+            
+            result?.contains("uid=0") == true
+        } catch (e: Exception) {
+            false
+        }
+    }
+
+    private fun isSystemPropertyIndicatingRoot(): Boolean {
+        try {
+            val process = Runtime.getRuntime().exec("getprop ro.debuggable")
+            val reader = process.inputStream.bufferedReader()
+            val debuggable = reader.readLine()
+            if (debuggable == "1") return true
+        } catch (e: Exception) {
+        }
+        
+        try {
+            val process = Runtime.getRuntime().exec("getprop ro.secure")
+            val reader = process.inputStream.bufferedReader()
+            val secure = reader.readLine()
+            if (secure == "0") return true
+        } catch (e: Exception) {
+        }
+        
+        return false
+    }
+
+    private fun hasRootPaths(): Boolean {
         val paths = arrayOf(
             "/system/app/Superuser.apk",
             "/sbin/su",
@@ -126,13 +185,25 @@ class MainActivity: FlutterFragmentActivity() {
             "/data/local/bin/su",
             "/system/sd/xbin/su",
             "/system/bin/failsafe/su",
-            "/data/local/su"
+            "/data/local/su",
+            // Magisk 관련 (일반적인 경로)
+            "/data/adb/magisk",
+            "/sbin/.magisk",
+            "/dev/.magisk",
+            // BusyBox (일반적인 루팅 도구)
+            "/system/xbin/busybox",
+            "/system/bin/busybox",
+            "/data/local/busybox"
         )
-        if (paths.any { File(it).exists() }) return true
+        return paths.any { File(it).exists() }
+    }
 
+    private fun isSELinuxPermissive(): Boolean {
         return try {
-            val process = Runtime.getRuntime().exec(arrayOf("/system/xbin/which", "su"))
-            process.inputStream.bufferedReader().readLine() != null
+            val process = Runtime.getRuntime().exec("getenforce")
+            val reader = process.inputStream.bufferedReader()
+            val selinux = reader.readLine()
+            selinux?.contains("Permissive", ignoreCase = true) == true
         } catch (e: Exception) {
             false
         }
