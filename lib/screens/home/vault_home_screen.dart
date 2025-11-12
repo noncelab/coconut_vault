@@ -563,6 +563,15 @@ class _VaultHomeScreenState extends State<VaultHomeScreen> with TickerProviderSt
                         iconAssetPath: 'assets/svg/eraser.svg',
                         iconPadding: const EdgeInsets.only(right: 18, bottom: 16),
                         onPressed: () async {
+                          if (walletCount == 0) {
+                            CoconutToast.showToast(
+                              isVisibleIcon: true,
+                              context: context,
+                              text: t.toast.no_wallet_to_delete,
+                            );
+                            return;
+                          }
+
                           showDialog(
                             context: context,
                             builder: (BuildContext dialogContext) {

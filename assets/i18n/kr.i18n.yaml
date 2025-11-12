@@ -90,6 +90,9 @@ sign_required_amount:
 move_to_qr_screen: "QR 코드 화면으로 이동"
 move_to_qr_screen_description: "키가 있는 볼트에서 서명하기 위해 QR을 생성합니다."
 
+wallet_delete_failed: "삭제할 지갑 없음"
+wallet_delete_failed_description: "현재 저장된 지갑이 없어 삭제할 필요가 없어요"
+
 name_text_count: "($count / 20)"
 wallet_subtitle: "$name의 $index번 키"
 
@@ -757,6 +760,7 @@ toast:
   mnemonic_copied: "니모닉 문구가 복사됐어요"
   multisig_already_added: "이미 추가되어 있는 다중 서명 지갑이에요. ($name)"
   home_vault_min_one: "홈 화면에 보이는 지갑은 최소 1개는 있어야 해요"
+  no_wallet_to_delete: "삭제할 지갑이 없어요"
 
 errors:
   invalid_qr: "잘못된 QR 코드예요.\n다시 확인해 주세요."
