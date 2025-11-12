@@ -10,6 +10,7 @@ import 'package:coconut_vault/widgets/button/key_button.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_keyboard_visibility/flutter_keyboard_visibility.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:local_auth/local_auth.dart';
 import 'package:provider/provider.dart';
 
 import '../../widgets/pin/pin_box.dart';
@@ -296,7 +297,10 @@ class PinInputScreenState extends State<PinInputScreen> {
   }
 
   Widget _buildBiometricsButton(BuildContext context) {
-    final String iconAsset = Platform.isIOS ? 'assets/svg/face-id.svg' : 'assets/svg/fingerprint.svg';
+    final provider = Provider.of<AuthProvider>(context, listen: false);
+    final bool isFaceRecognition = provider.availableBiometrics.contains(BiometricType.face);
+
+    final String iconAsset = isFaceRecognition ? 'assets/svg/face-id.svg' : 'assets/svg/fingerprint.svg';
 
     return Padding(
       padding: EdgeInsets.only(bottom: _hideBottomPadding ? keyboardHeight + 8 : 100, top: _hideBottomPadding ? 8 : 8),
