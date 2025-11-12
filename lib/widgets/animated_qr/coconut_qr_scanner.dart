@@ -77,7 +77,7 @@ class _CoconutQrScannerState extends State<CoconutQrScanner> with SingleTickerPr
     super.dispose();
   }
 
-  void resetScanState() {
+  void _resetScanState() {
     widget.qrDataHandler.reset();
     _isFirstScanData = true;
   }
@@ -116,7 +116,8 @@ class _CoconutQrScannerState extends State<CoconutQrScanner> with SingleTickerPr
         try {
           bool result = handler.joinData(scanData);
           if (!result && handler is! IFragmentedQrScanDataHandler) {
-            resetScanState();
+            _resetScanState();
+            _resetLoadingBarState();
             widget.onFailed(CoconutQrScanner.qrInvalidErrorMessage);
             return;
           }
@@ -125,7 +126,8 @@ class _CoconutQrScannerState extends State<CoconutQrScanner> with SingleTickerPr
         } on SequenceLengthMismatchException catch (_) {
           // QR Density 변경됨
           assert(handler is IFragmentedQrScanDataHandler);
-          resetScanState();
+          _resetScanState();
+          _resetLoadingBarState();
           return;
         }
       }
@@ -142,13 +144,13 @@ class _CoconutQrScannerState extends State<CoconutQrScanner> with SingleTickerPr
       if (handler.isCompleted()) {
         _resetLoadingBarState();
         final result = handler.result!;
-        resetScanState();
+        _resetScanState();
         widget.onComplete(result);
       }
     } catch (e) {
       Logger.error(e.toString());
       _resetLoadingBarState();
-      resetScanState();
+      _resetScanState();
       widget.onFailed(e.toString());
     }
   }
@@ -157,6 +159,7 @@ class _CoconutQrScannerState extends State<CoconutQrScanner> with SingleTickerPr
     _progressNotifier.value = 0;
     setState(() {
       _isScanningExtraData = false;
+      _hasBeenScanningExtraData = false;
       if (_showLoadingBar) {
         _showLoadingBar = false;
       }

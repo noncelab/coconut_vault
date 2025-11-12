@@ -13,7 +13,6 @@ import 'package:coconut_vault/model/single_sig/single_sig_vault_list_item.dart';
 import 'package:coconut_vault/model/single_sig/single_sig_wallet_create_dto.dart';
 import 'package:coconut_vault/model/exception/not_related_multisig_wallet_exception.dart';
 import 'package:coconut_vault/providers/visibility_provider.dart';
-import 'package:coconut_vault/utils/vibration_util.dart';
 import 'package:coconut_vault/utils/logger.dart';
 import 'package:coconut_vault/enums/wallet_enums.dart';
 import 'package:flutter/foundation.dart';
