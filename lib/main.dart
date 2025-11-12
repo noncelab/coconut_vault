@@ -33,7 +33,7 @@ void main() async {
       String.fromEnvironment('FLUTTER_APP_FLAVOR') != '' ? String.fromEnvironment('FLUTTER_APP_FLAVOR') : null;
   NetworkType.setNetworkType(appFlavor == "mainnet" ? NetworkType.mainnet : NetworkType.regtest);
 
-  /// 현재 MainRouteGuard를 사용하고 있긴 하지만, AppLifecycleState 이벤트가 등록되기 직전 inactive 상태로 전환 시
+  /// AppLifecycleState 이벤트가 등록되기 전에 앱 상태가 inactive/background로 젼환되는 경우 (튜토리얼, 앱 사용 불가 화면)
   /// PrivacyScreen이 보여지지 않는 상황 때문에 ScreenProtector의 PrivacyScreen 기능도 사용합니다.
   await ScreenProtector.protectDataLeakageWithImage(
     'ScreenProtectImage${NetworkType.currentNetworkType.isTestnet ? "Regtest" : ""}',

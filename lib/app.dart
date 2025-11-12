@@ -193,18 +193,12 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> with SingleTickerProv
       return;
     }
 
-    _updateEntryFlow(AppEntryFlow.securityPrecheck);
-
     // 생체인증 상태 업데이트: 생체인증 ON 상태에서 백그라운드 나가서 권한을 해제한 경우에 상태값을 변경하기 위해
     if (!preferenceProvider.isSigningOnlyMode) {
       await authProvider.updateDeviceBiometricAvailability();
     }
 
-    if (Platform.isIOS) {
-      setState(() {
-        _shouldShowPrivacyScreen = false;
-      });
-    }
+    _updateEntryFlow(AppEntryFlow.securityPrecheck);
   }
 
   WalletProvider _ensureWalletProvider(
