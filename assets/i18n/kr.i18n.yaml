@@ -443,6 +443,12 @@ passphrase_textfield:
   title: "패스프레이즈를 입력해 주세요"
   passphrase_hidden: "패스프레이즈 숨기기"
   passphrase_visible: "패스프레이즈 보기"
+entropy_bits_bottom_sheet:
+  iancoleman_guide: "Ian Coleman 사이트에서 "
+  options:
+    dice: "Valid entropy values → Dice [1-6] "
+    binary: "Valid entropy values → Binary [0-1] "
+  select_option: "옵션 선택 후 값을 확인하세요."
   
 mnemonic_import_screen:
   title: "복원하기"

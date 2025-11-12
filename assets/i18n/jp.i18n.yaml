@@ -441,6 +441,12 @@ passphrase_textfield:
   title: "パスフレーズを入力してください"
   passphrase_hidden: "パスフレーズを隠す"
   passphrase_visible: "パスフレーズを表示"
+entropy_bits_bottom_sheet:
+  iancoleman_guide: "Ian Coleman のサイトで "
+  options:
+    dice: "Valid entropy values → Dice [1-6] "
+    binary: "Valid entropy values → Binary [0-1] "
+  select_option: "を選択し、値を確認してください。"
 
 mnemonic_import_screen:
   title: "復元"
