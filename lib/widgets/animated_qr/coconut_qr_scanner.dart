@@ -144,7 +144,6 @@ class _CoconutQrScannerState extends State<CoconutQrScanner> with SingleTickerPr
       if (handler.isCompleted()) {
         _resetLoadingBarState();
         final result = handler.result!;
-        _resetScanState();
         widget.onComplete(result);
       }
     } catch (e) {
