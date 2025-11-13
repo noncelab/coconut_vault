@@ -179,9 +179,9 @@ device_password_detection_screen:
   device_password_setting_guide: "For enhanced security, use a password combining letters and numbers instead of PIN.\n\nTo make signing more convenient and secure, please activate biometrics."
   device_password_changed_question: "Have you changed your device password?"
   device_password_changed_guide: "Changing or disabling the device password prevents access to all information stored in the vault."
-  delete_vault_to_use: "To use Vault again, please delete all wallets."
+  delete_data_to_use: "To use Vault again, please delete all data."
   go_to_settings: "Go to Settings"
-  delete_vault: "Delete Wallets"
+  delete_data: "Delete Data"
   ios_settings_dialog_title: "Move to Settings"
   ios_settings_dialog_description: "Due to iOS policy, the Settings home screen cannot be opened directly. When the Settings page appears, please go to the main Settings screen and set your passcode."
 

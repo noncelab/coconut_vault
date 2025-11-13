@@ -178,9 +178,9 @@ device_password_detection_screen:
   device_password_setting_guide: "セキュリティを強化するために、英字と数字を組み合わせたパスワードを使用してください。\n\n快適で安全にご利用いただくために、生体認証を有効にしてください。" 
   device_password_changed_question: "もしかして、端末のパスコードを変更しましたか？"
   device_password_changed_guide: "端末のパスコードを変更または解除すると、暗号化されて保存されているすべての情報にアクセスできなくなります。"
-  delete_vault_to_use: "ボルトを再び使用するには、すべてのウォレットを削除してください。"
+  delete_data_to_use: "ボールトを再び使用するには、すべてのデータを削除する必要があります。"
   go_to_settings: "設定する"
-  delete_vault: "ウォレット削除"
+  delete_data: "データ削除"
   ios_settings_dialog_title: "設定画面に移動"
   ios_settings_dialog_description: "iOSの仕様により、設定アプリのホーム画面へ移動することはできません。設定画面が開いたら、設定のホーム画面に戻り、パスコードを設定してください。"
 

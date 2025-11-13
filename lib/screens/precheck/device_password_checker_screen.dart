@@ -164,7 +164,7 @@ class _DevicePasswordCheckerScreenState extends State<DevicePasswordCheckerScree
             MediaQuery(
               data: MediaQuery.of(context).copyWith(textScaler: const TextScaler.linear(1.0)),
               child: Text(
-                t.device_password_detection_screen.delete_vault_to_use,
+                t.device_password_detection_screen.delete_data_to_use,
                 style: CoconutTypography.body1_16_Bold,
                 textAlign: TextAlign.center,
               ),
@@ -199,7 +199,7 @@ class _DevicePasswordCheckerScreenState extends State<DevicePasswordCheckerScree
       case DevicePasswordCheckerScreenState.devicePasswordRequired:
         return t.device_password_detection_screen.go_to_settings;
       case DevicePasswordCheckerScreenState.devicePasswordChanged:
-        return t.device_password_detection_screen.delete_vault;
+        return t.device_password_detection_screen.delete_data;
     }
   }
 
