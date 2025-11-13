@@ -743,7 +743,6 @@ alert:
     description_view_mnemonic: "デバイスを認証して、セキュア領域から情報を取得する必要があります。"
     description_export: "エクスポートするウォレットのパスフレーズが正しいか確認するために、セキュア領域へのアクセスが必要です。誤ったウォレットにビットコインを送ってしまう事故を防ぐための手続きです。"
     description_passphrase_verify: "入力したパスフレーズが正しいか確認するために、セキュア領域へのアクセスが必要です。"
-    description_sign: "署名を行うにはデバイスの認証が必要です。"
     description_check_accessibility: "セキュア領域のデータが有効かどうか確認するためには、デバイスの認証が必要です。"
   auth_canceled_when_encrypt:
     title: "デバイス認証がキャンセルされました"

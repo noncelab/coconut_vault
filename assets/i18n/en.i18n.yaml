@@ -744,7 +744,6 @@ alert:
     description_view_mnemonic: "You need to authenticate your device to retrieve the information from the secure area."
     description_export: "Access to the secure area is required to verify that the passphrase for the wallet you are exporting is correct. This process helps prevent sending Bitcoin to the wrong wallet by mistake."
     description_passphrase_verify: "Access to the secure area is required to verify that the entered passphrase is correct."
-    description_sign: "You need to authenticate your device to sign."
     description_check_accessibility: "You need to authenticate your device to verify the validity of the secure area data."
   auth_canceled_when_encrypt:
     title: "Device Authentication Canceled"
