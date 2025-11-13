@@ -326,14 +326,22 @@ class WalletProvider extends ChangeNotifier {
     } finally {
       // TEE 접근 완료 - inactive 상태 전환 허용
       // 작업 완료 후 지연을 두어 라이프사이클 이벤트와의 타이밍 조정
-      await Future.delayed(const Duration(milliseconds: 100));
+      await Future.delayed(const Duration(milliseconds: 500));
       _lifecycleProvider.endOperation(AppLifecycleOperations.hwBasedDecryption);
     }
   }
 
   // 서명 전용 모드
   Future<Seed> getSeedInSigningOnlyMode(int id) async {
-    return await _walletRepository.getSeedInSigningOnlyMode(id);
+    _lifecycleProvider.startOperation(AppLifecycleOperations.hwBasedDecryption);
+    try {
+      return await _walletRepository.getSeedInSigningOnlyMode(id);
+    } finally {
+      // TEE 접근 완료 - inactive 상태 전환 허용
+      // 작업 완료 후 지연을 두어 라이프사이클 이벤트와의 타이밍 조정
+      await Future.delayed(const Duration(milliseconds: 500));
+      _lifecycleProvider.endOperation(AppLifecycleOperations.hwBasedDecryption);
+    }
   }
 
   Future<void> updateIsSigningOnlyMode(bool isSigningOnlyMode) async {
