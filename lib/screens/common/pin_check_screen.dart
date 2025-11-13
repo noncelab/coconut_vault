@@ -389,7 +389,7 @@ class _PinCheckScreenState extends State<PinCheckScreen> with WidgetsBindingObse
           pin: _pin,
           errorMessage: _errorMessage,
           onKeyTap: _onKeyTap,
-          pinType: PinType.number,
+          pinType: context.read<AuthProvider>().isPinCharacter ? PinType.character : PinType.number,
           pinShuffleNumbers: _shuffledPinNumbers,
           onPinClear: () {
             setState(() {

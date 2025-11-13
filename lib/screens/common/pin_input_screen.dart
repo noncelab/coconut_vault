@@ -102,10 +102,6 @@ class PinInputScreenState extends State<PinInputScreen> {
 
     _pinType = widget.pinType;
 
-    if (context.read<AuthProvider>().isPinCharacter) {
-      _pinType = PinType.character;
-    }
-
     if (_pinType == PinType.character && !widget.shouldDelayKeyboard) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         Future.delayed(const Duration(milliseconds: 400), () {
@@ -247,28 +243,10 @@ class PinInputScreenState extends State<PinInputScreen> {
                                   }).toList(),
                             ),
                           ),
+                          if (widget.bottomTextButtonLabel != null) ...[_buildBottomTextButton()],
                         ] else ...[
                           if (widget.bottomTextButtonLabel != null) ...[
-                            SizedBox(
-                              width: MediaQuery.of(context).size.width,
-                              child: Center(
-                                child: Padding(
-                                  padding: EdgeInsets.only(bottom: _hideBottomPadding ? 50 : 100, top: 8),
-                                  child: GestureDetector(
-                                    onTap: () {
-                                      widget.onPressedBottomTextButton?.call();
-                                    },
-                                    child: Text(
-                                      widget.bottomTextButtonLabel ?? '',
-                                      style: CoconutTypography.body1_16_Bold.setColor(
-                                        CoconutColors.black.withValues(alpha: 0.5),
-                                      ),
-                                      textAlign: TextAlign.center,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
+                            _buildBottomTextButton(),
                             if (isBiometricEnabled && _characterFocusNode.hasFocus) ...[
                               Container(
                                 color: keyboardBackgroundColor,
@@ -292,6 +270,27 @@ class PinInputScreenState extends State<PinInputScreen> {
               child: const Center(child: CoconutCircularIndicator()),
             ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildBottomTextButton() {
+    return SizedBox(
+      width: MediaQuery.of(context).size.width,
+      child: Center(
+        child: Padding(
+          padding: EdgeInsets.only(bottom: _hideBottomPadding ? 50 : 30, top: 8),
+          child: GestureDetector(
+            onTap: () {
+              widget.onPressedBottomTextButton?.call();
+            },
+            child: Text(
+              widget.bottomTextButtonLabel ?? '',
+              style: CoconutTypography.body1_16_Bold.setColor(CoconutColors.black.withValues(alpha: 0.5)),
+              textAlign: TextAlign.center,
+            ),
+          ),
+        ),
       ),
     );
   }
