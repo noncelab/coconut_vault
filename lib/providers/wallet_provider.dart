@@ -316,11 +316,11 @@ class WalletProvider extends ChangeNotifier {
     return;
   }
 
-  Future<Uint8List> getSecret(int id) async {
+  Future<Uint8List> getSecret(int id, {bool autoAuth = true}) async {
     // TEE 접근 시작 - inactive 상태 전환 무시
     _lifecycleProvider.startOperation(AppLifecycleOperations.hwBasedDecryption);
     try {
-      final result = await _walletRepository.getSecret(id);
+      final result = await _walletRepository.getSecret(id, autoAuth: autoAuth);
 
       return result;
     } finally {

@@ -93,7 +93,7 @@ class _VaultHomeScreenState extends State<VaultHomeScreen> with TickerProviderSt
           if (!isAccessible) {
             widget.onSecureZoneUnaccessible?.call();
           }
-        } on UserCanceledAuthException catch (_) {
+        } catch (e) {
           setState(() {
             _isAndroidSecureZoneChecking = false;
           });
@@ -102,8 +102,8 @@ class _VaultHomeScreenState extends State<VaultHomeScreen> with TickerProviderSt
             context: context,
             builder:
                 (context) => CoconutPopup(
-                  title: t.alert.auth_canceled_when_decrypt.title,
-                  description: t.alert.auth_canceled_when_decrypt.description_check_accessibility,
+                  title: t.vault_home_screen.secure_zone_check_failed,
+                  description: e.toString(),
                   onTapRight: () {
                     Navigator.pop(context);
                   },

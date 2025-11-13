@@ -137,6 +137,8 @@ vault_home_screen:
   toast:
     wallet_added_but_not_favorite: "ウォレットが追加されました。View All Wallets画面で確認してください。"
   secure_zone_checking: "セキュリティ領域にアクセスできるか確認しています。"
+  secure_zone_check_failed: "セキュリティデータチェックに失敗しました"
+
 
 vault_list_screen:
   primary_wallet: "プライマリウォレット"
@@ -743,7 +745,6 @@ alert:
     description_view_mnemonic: "デバイスを認証して、セキュア領域から情報を取得する必要があります。"
     description_export: "エクスポートするウォレットのパスフレーズが正しいか確認するために、セキュア領域へのアクセスが必要です。誤ったウォレットにビットコインを送ってしまう事故を防ぐための手続きです。"
     description_passphrase_verify: "入力したパスフレーズが正しいか確認するために、セキュア領域へのアクセスが必要です。"
-    description_check_accessibility: "セキュア領域のデータが有効かどうか確認するためには、デバイスの認証が必要です。"
   auth_canceled_when_encrypt:
     title: "デバイス認証がキャンセルされました"
     description: "ウォレット情報をセキュアエリアに保存するにはデバイスの認証が必要です。"

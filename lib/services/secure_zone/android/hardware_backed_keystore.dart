@@ -48,7 +48,7 @@ class HardwareBackedKeystore extends SecureZoneKeystore {
   }) async {
     return await _executeWithAuth(
       operation: () => _encrypt(alias: alias, plaintext: plaintext),
-      isAutoAuthWhenNeeded: isAutoAuthWhenNeeded,
+      autoAuth: isAutoAuthWhenNeeded,
     );
   }
 
@@ -71,20 +71,20 @@ class HardwareBackedKeystore extends SecureZoneKeystore {
     required String alias,
     required Uint8List ciphertext,
     required Uint8List iv,
-    bool isAutoAuthWhenNeeded = true,
+    bool autoAuth = true,
   }) async {
     return await _executeWithAuth(
       operation: () => _decrypt(alias: alias, ciphertext: ciphertext, iv: iv),
-      isAutoAuthWhenNeeded: isAutoAuthWhenNeeded,
+      autoAuth: autoAuth,
     );
   }
 
   /// 인증이 필요한 작업을 실행하고, 필요 시 자동으로 인증 후 재시도
-  Future<T> _executeWithAuth<T>({required Future<T> Function() operation, required bool isAutoAuthWhenNeeded}) async {
+  Future<T> _executeWithAuth<T>({required Future<T> Function() operation, required bool autoAuth}) async {
     try {
       return await operation();
     } on PlatformException catch (e) {
-      if (e.code != 'AUTH_NEEDED' || !isAutoAuthWhenNeeded) {
+      if (e.code != 'AUTH_NEEDED' || !autoAuth) {
         rethrow;
       }
 

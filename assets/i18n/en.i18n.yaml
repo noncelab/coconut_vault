@@ -137,7 +137,7 @@ vault_home_screen:
   toast:
     wallet_added_but_not_favorite: "Wallet added. Please check in the View All Wallets screen."
   secure_zone_checking: "Checking if the secure zone is accessible..."
-
+  secure_zone_check_failed: "Secure Data Check Failed"
     
 vault_list_screen:
   primary_wallet: "Primary Wallet"
@@ -744,7 +744,6 @@ alert:
     description_view_mnemonic: "You need to authenticate your device to retrieve the information from the secure area."
     description_export: "Access to the secure area is required to verify that the passphrase for the wallet you are exporting is correct. This process helps prevent sending Bitcoin to the wrong wallet by mistake."
     description_passphrase_verify: "Access to the secure area is required to verify that the entered passphrase is correct."
-    description_check_accessibility: "You need to authenticate your device to verify the validity of the secure area data."
   auth_canceled_when_encrypt:
     title: "Device Authentication Canceled"
     description: "You need to authenticate your device to store wallet information in the secure area."

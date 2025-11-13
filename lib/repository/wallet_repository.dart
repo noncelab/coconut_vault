@@ -225,11 +225,16 @@ class WalletRepository {
     _sharedPrefs.setInt(nextIdField, nextId + 1);
   }
 
-  Future<Uint8List> getSecret(int id) async {
+  Future<Uint8List> getSecret(int id, {bool autoAuth = true}) async {
     final key = _createWalletKeyString(id, WalletType.singleSignature);
     final combinedBase64 = await _storageService.read(key: key);
     final (Uint8List iv, Uint8List ciphertext) = EncryptResult.fromCombinedBase64(combinedBase64!);
-    final Uint8List? plaintext = await _secureZoneRepository.decrypt(alias: key, iv: iv, ciphertext: ciphertext);
+    final Uint8List? plaintext = await _secureZoneRepository.decrypt(
+      alias: key,
+      iv: iv,
+      ciphertext: ciphertext,
+      autoAuth: autoAuth,
+    );
 
     final parsed = SecureZonePayloadCodec.parsePlaintext(plaintext!);
     return parsed.secret;

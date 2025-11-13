@@ -8,6 +8,7 @@ import 'package:coconut_vault/providers/auth_provider.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:coconut_vault/repository/secure_storage_repository.dart';
 import 'package:coconut_vault/repository/shared_preferences_repository.dart';
+import 'package:flutter/services.dart';
 
 class SecureZoneManager {
   static final SecureZoneManager _instance = SecureZoneManager._internal();
@@ -37,12 +38,16 @@ class SecureZoneManager {
     final firstSingleSignatureWalletId =
         walletProvider.vaultList.firstWhere((vault) => vault.vaultType == WalletType.singleSignature).id;
     try {
-      await walletProvider.getSecret(firstSingleSignatureWalletId);
+      await walletProvider.getSecret(firstSingleSignatureWalletId, autoAuth: false);
       return true;
-    } on UserCanceledAuthException catch (_) {
+    } on PlatformException catch (e) {
+      if (e.code == 'INVALID_KEY' || e.code == 'KEY_INVALIDATED' || e.code == 'KEY_ERROR') {
+        return false;
+      } else if (e.code == 'AUTH_NEEDED') {
+        // AUTH_NEEDED는 키는 유효하지만 기기인증이 필요한 상황
+        return true;
+      }
       rethrow;
-    } catch (e) {
-      return false;
     }
   }
 

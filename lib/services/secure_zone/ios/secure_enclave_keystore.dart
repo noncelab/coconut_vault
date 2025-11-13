@@ -60,7 +60,7 @@ class SecureEnclaveKeystore extends SecureZoneKeystore {
     required String alias,
     required Uint8List ciphertext,
     required Uint8List iv,
-    bool isAutoAuthWhenNeeded = true,
+    bool autoAuth = true, // iOS에서는 사용 안함
   }) async {
     try {
       return await _decrypt(alias: alias, ciphertext: ciphertext, iv: iv);
