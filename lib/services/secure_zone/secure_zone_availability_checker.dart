@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:coconut_vault/constants/secure_storage_keys.dart';
 import 'package:coconut_vault/constants/shared_preferences_keys.dart';
 import 'package:coconut_vault/enums/wallet_enums.dart';
+import 'package:coconut_vault/model/exception/seed_invalidated_exception.dart';
 import 'package:coconut_vault/model/exception/user_canceled_auth_exception.dart';
 import 'package:coconut_vault/providers/auth_provider.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
@@ -40,10 +41,10 @@ class SecureZoneManager {
     try {
       await walletProvider.getSecret(firstSingleSignatureWalletId, autoAuth: false);
       return true;
+    } on SeedInvalidatedException catch (_) {
+      return false;
     } on PlatformException catch (e) {
-      if (e.code == 'INVALID_KEY' || e.code == 'KEY_INVALIDATED' || e.code == 'KEY_ERROR') {
-        return false;
-      } else if (e.code == 'AUTH_NEEDED') {
+      if (e.code == 'AUTH_NEEDED') {
         // AUTH_NEEDED는 키는 유효하지만 기기인증이 필요한 상황
         return true;
       }

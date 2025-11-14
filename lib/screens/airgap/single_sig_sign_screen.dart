@@ -4,6 +4,7 @@ import 'package:coconut_vault/constants/app_routes.dart';
 import 'package:coconut_vault/enums/currency_enum.dart';
 import 'package:coconut_vault/enums/pin_check_context_enum.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
+import 'package:coconut_vault/model/exception/seed_invalidated_exception.dart';
 import 'package:coconut_vault/model/exception/user_canceled_auth_exception.dart';
 import 'package:coconut_vault/providers/auth_provider.dart';
 import 'package:coconut_vault/providers/preference_provider.dart';
@@ -155,6 +156,19 @@ class _SingleSigSignScreenState extends State<SingleSigSignScreen> {
       await _viewModel.signPsbtInSigningOnlyMode();
     } on UserCanceledAuthException catch (_) {
       return;
+    } on SeedInvalidatedException catch (e) {
+      if (!mounted) return;
+      showDialog(
+        context: context,
+        builder:
+            (context) => CoconutPopup(
+              title: t.exceptions.seed_invalidated.title,
+              description: e.message,
+              onTapRight: () {
+                Navigator.pop(context);
+              },
+            ),
+      );
     } catch (error) {
       if (mounted) {
         showAlertDialog(context: context, content: t.errors.sign_error(error: error));

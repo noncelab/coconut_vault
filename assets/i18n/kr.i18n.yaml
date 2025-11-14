@@ -794,6 +794,11 @@ errors:
   extended_public_key_not_found_error: "직접 사용하려는 지갑을 선택해 다중 서명하기 기능을 사용해주세요"
   user_cancelled_auth: "사용자가 기기 인증을 취소했습니다."
 
+exceptions:
+  seed_invalidated: 
+    title: "지갑 사용 불가"
+    description: "저장된 지갑을 더 이상 사용할 수 없습니다. 지갑을 삭제한 뒤, 백업한 니모닉으로 다시 복원해 주세요."
+
 tooltip:
   mfp: "지갑의 고유 값이에요.\n마스터 핑거프린트(MFP)라고도 해요."
 

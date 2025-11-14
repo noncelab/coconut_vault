@@ -792,6 +792,11 @@ errors:
   extended_public_key_not_found_error: "Please select the wallet you want to use directly and use the Multisig Signing feature"
   user_cancelled_auth: "User cancelled authentication."
 
+exceptions:
+  seed_invalidated: 
+    title: "Wallet Unavailable"
+    description: "The saved wallet can no longer be used. Please delete the wallet and restore it using the backed-up mnemonic."
+
 tooltip:
   mfp: "Unique value of wallet.\nAlso called Master Fingerprint (MFP)."
 

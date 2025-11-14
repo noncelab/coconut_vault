@@ -792,6 +792,11 @@ errors:
   vault_not_found_error: "署名できるウォレットがありません"
   extended_public_key_not_found_error: "直接使用したいウォレットを選択してマルチシグ機能を使用してください"
   user_cancelled_auth: "ユーザーがデバイス認証をキャンセルしました。"
+  
+exceptions:
+  seed_invalidated: 
+    title: "ウォレット使用不可"
+    description: "保存されているウォレットはこれ以上使用できません。ウォレットを削除し、バックアップしておいたニーモニックで再度復元してください。"
 
 tooltip:
   mfp: "ウォレットの固有値。\nマスターフィンガープリント(MFP)とも呼ばれます。"
