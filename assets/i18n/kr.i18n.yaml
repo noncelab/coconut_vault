@@ -177,8 +177,8 @@ app_unavailable_notification_screen:
 device_password_detection_screen:
   device_password_required: "볼트를 사용하려면\n기기 비밀번호 설정이 필요해요"
   device_password_setting_guide: "보안을 강화하려면 문자와 숫자를 조합한 비밀번호를 사용하세요\n\n편리하고 안전한 사용을 위해 생체 인증을 활성화해 주세요" 
-  device_password_changed_question: "혹시 기기 비밀번호를\n변경하셨나요?"
-  device_password_changed_guide: "기기 비밀번호를 변경하거나 해제하여 저장된 모든 정보를 사용할 수 없습니다."
+  device_password_changed_question: "혹시 기기 비밀번호를\n삭제 후 재설정하셨나요?"
+  device_password_changed_guide: "기기 비밀번호를 해제하면 저장된 모든 정보를 사용할 수 없습니다."
   delete_data_to_use: "볼트를 다시 사용하기 위해 모든 데이터를 삭제해야 합니다."
   go_to_settings: "설정하기"
   delete_data: "데이터 삭제"
@@ -240,19 +240,15 @@ vault_mode_selection_screen:
   start: "시작"
   change: "변경"
   mode_change_complete: "모드 변경 완료"
-  mode_changed_description_secrue_storage: "안전 저장 모드로 변경되었습니다.\n기기 비밀번호를 변경하면 시드를 사용할 수 없습니다. 안전하게 복구할 수 있도록 니모닉을 백업해 두세요."
+  mode_changed_description_secrue_storage: "안전 저장 모드로 변경되었습니다.\n기기 비밀번호를 해제하면 시드를 사용할 수 없습니다. 안전하게 복구할 수 있도록 니모닉을 백업해 두세요."
   mode_changed_description_signing_only: "서명 전용 모드로 변경되었습니다.\n서명이 끝난 후에는 지갑 삭제 버튼을 눌러 시드를 안전하게 삭제하세요."
   secure_storage_mode_warning_title: "안전 저장 모드 전환 시\n주의 사항"
-  secure_storage_mode_warning_descriptions_android:
-    - "휴대폰 비밀번호를 변경하거나 해제하면, 저장한 지갑을 사용하지 못할 수도 있습니다. 비밀번호 변경 전 반드시 니모닉을 백업하세요."
-    - "현재 추가된 지갑이 있을 경우, 기기에 정보를 저장하는 데 시간이 소요될 수 있습니다."
-    - "패스프레이즈는 저장되지 않으니, 별도로 안전하게 보관해 주세요."
-  secure_storage_mode_warning_descriptions_ios:
-    - "휴대폰 비밀번호를 변경하거나 해제하면, 저장한 지갑을 사용하지 못할 수도 있습니다. 비밀번호 변경 전 반드시 니모닉을 백업하세요."
+  secure_storage_mode_warning_descriptions:
+    - "휴대폰 비밀번호를 해제하면, 저장한 지갑을 사용하지 못합니다. 별도로 니모닉을 백업하세요."
     - "현재 추가된 지갑이 있을 경우, 기기에 정보를 저장하는 데 시간이 소요될 수 있습니다."
     - "패스프레이즈는 저장되지 않으니, 별도로 안전하게 보관해 주세요."
   secure_storage_mode_precautions_when_first_setting:
-    - "휴대폰 비밀번호를 변경하거나 해제하면, 저장한 지갑을 사용하지 못할 수도 있습니다. 비밀번호 변경 전 반드시 니모닉을 백업하세요."
+    - "휴대폰 비밀번호를 해제하면, 저장한 지갑을 사용하지 못합니다. 별도로 니모닉을 백업하세요."
   signing_only_mode_warning_title: "서명 전용 모드 전환 시\n주의 사항"
   signing_only_mode_warning_descriptions:
     - "현재 저장된 지갑 정보가 모두 초기화됩니다. 전환 전에 반드시 백업을 완료하세요."

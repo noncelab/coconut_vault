@@ -178,8 +178,8 @@ app_unavailable_notification_screen:
 device_password_detection_screen:
   device_password_required: "Vaultを使用するには\nデバイスパスワードを設定してください"
   device_password_setting_guide: "セキュリティを強化するために、英字と数字を組み合わせたパスワードを使用してください。\n\n快適で安全にご利用いただくために、生体認証を有効にしてください。" 
-  device_password_changed_question: "もしかして、端末のパスコードを変更しましたか？"
-  device_password_changed_guide: "端末のパスコードを変更または解除すると、暗号化されて保存されているすべての情報にアクセスできなくなります。"
+  device_password_changed_question: "端末のパスコードを削除して、再設定しましたか？"
+  device_password_changed_guide: "端末のパスコードを解除すると、保存されているすべての情報が利用できなくなります。"
   delete_data_to_use: "ボールトを再び使用するには、すべてのデータを削除する必要があります。"
   go_to_settings: "設定する"
   delete_data: "データ削除"
@@ -241,19 +241,15 @@ vault_mode_selection_screen:
   start: "開始"
   change: "変更"
   mode_change_complete: "モード変更完了"
-  mode_changed_description_secrue_storage: "安全保存モードに切り替わりました。\nデバイスのパスコードを変更すると、シードを使用できなくなります。安全に復元できるように、ニーモニックをバックアップしてください。"
+  mode_changed_description_secrue_storage: "セキュアストレージモードに変更されました。\n端末のパスコードを解除すると、シードにはアクセスできなくなります。安全に復元できるよう、ニーモニックを必ずバックアップしてください。"
   mode_changed_description_signing_only: "署名専用モードに切り替えました。 \n署名が完了したら、ウォレット削除ボタンを押してシードを安全に削除してください。"
   secure_storage_mode_warning_title: "安全保存モード切り替え時の\n注意事項"
-  secure_storage_mode_warning_descriptions_android:
-    - "携帯電話のパスワードを変更または解除すると、保存した財布が使用できなくなる可能性があります。 パスワードを変更する前に、必ずニモニックをバックアップしてください。"
-    - "現在追加されているウォレットがある場合、デバイスへの安全な保存に時間がかかることがあります。"
-    - "パスフレーズは保存されません。別途安全な場所に保管してください。"
-  secure_storage_mode_warning_descriptions_ios:
-    - "携帯電話のパスワードを変更または解除すると、保存した財布が使用できなくなる可能性があります。 パスワードを変更する前に、必ずニモニックをバックアップしてください。"
+  secure_storage_mode_warning_descriptions:
+    - "端末のパスコードを解除すると、保存されているウォレットを利用できなくなります。 ニーモニックは必ず別途バックアップしてください。"
     - "現在追加されているウォレットがある場合、デバイスへの安全な保存に時間がかかることがあります。"
     - "パスフレーズは保存されません。別途安全な場所に保管してください。"
   secure_storage_mode_precautions_when_first_setting:
-    - "携帯電話のパスワードを変更または解除すると、保存した財布が使用できなくなる可能性があります。 パスワードを変更する前に、必ずニモニックをバックアップしてください。"
+    - "端末のパスコードを解除すると、保存されているウォレットを利用できなくなります。 ニーモニックは必ず別途バックアップしてください。"
   signing_only_mode_warning_title: "署名専用モード切り替え時の\n注意事項"
   signing_only_mode_warning_descriptions:
     - "現在保存されているウォレット情報はすべて初期化されます。切り替える前に必ずバックアップを完了してください。"

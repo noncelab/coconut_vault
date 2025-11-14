@@ -202,15 +202,7 @@ class _VaultModeSelectionScreenState extends State<VaultModeSelectionScreen> {
                                 ...List.generate(
                                   isSigningOnlyMode
                                       ? t.vault_mode_selection_screen.signing_only_mode_warning_descriptions.length
-                                      : isAndroid
-                                      ? t
-                                          .vault_mode_selection_screen
-                                          .secure_storage_mode_warning_descriptions_android
-                                          .length
-                                      : t
-                                          .vault_mode_selection_screen
-                                          .secure_storage_mode_warning_descriptions_ios
-                                          .length,
+                                      : t.vault_mode_selection_screen.secure_storage_mode_warning_descriptions.length,
                                   (index) {
                                     return Padding(
                                       padding: const EdgeInsets.only(bottom: 8),
@@ -230,13 +222,9 @@ class _VaultModeSelectionScreenState extends State<VaultModeSelectionScreen> {
                                                   ? t
                                                       .vault_mode_selection_screen
                                                       .signing_only_mode_warning_descriptions[index]
-                                                  : isAndroid
-                                                  ? t
-                                                      .vault_mode_selection_screen
-                                                      .secure_storage_mode_warning_descriptions_android[index]
                                                   : t
                                                       .vault_mode_selection_screen
-                                                      .secure_storage_mode_warning_descriptions_ios[index],
+                                                      .secure_storage_mode_warning_descriptions[index],
                                               style: CoconutTypography.heading4_18_Bold.copyWith(
                                                 color: CoconutColors.white,
                                               ),

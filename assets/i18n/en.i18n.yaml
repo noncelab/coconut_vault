@@ -177,8 +177,8 @@ app_unavailable_notification_screen:
 device_password_detection_screen:
   device_password_required: "To use Vault, please set a device password"
   device_password_setting_guide: "For enhanced security, use a password combining letters and numbers instead of PIN.\n\nTo make signing more convenient and secure, please activate biometrics."
-  device_password_changed_question: "Have you changed your device password?"
-  device_password_changed_guide: "Changing or disabling the device password prevents access to all information stored in the vault."
+  device_password_changed_question: "Did you remove and reset your device passcode?"
+  device_password_changed_guide: "If the device passcode is removed, all stored information becomes unusable."
   delete_data_to_use: "To use Vault again, please delete all data."
   go_to_settings: "Go to Settings"
   delete_data: "Delete Data"
@@ -240,19 +240,15 @@ vault_mode_selection_screen:
   start: "Start"
   change: "Change"
   mode_change_complete: "Mode Change Complete"
-  mode_changed_description_secrue_storage: "Switched to Secure Storage Mode.\nChanging the device password prevents access to the seed. Please back up your mnemonic to safely recover it."
+  mode_changed_description_secrue_storage: "Secure Storage mode has been enabled.\nIf you remove your device passcode, your seed will no longer be accessible. Please back up your mnemonic to ensure safe recovery."
   mode_changed_description_signing_only: "Switched to Signing-Only Mode.\nAfter signing, please press the delete wallet button to safely delete the seed."
   secure_storage_mode_warning_title: "Warning\nSwitching to Secure Storage Mode"
-  secure_storage_mode_warning_descriptions_android:
-    - "Changing or unlocking your phone password may prevent you from using your saved wallet."
-    - "If there are existing wallets, saving data securely on the device may take some time."
-    - "Passphrases are not stored. Please keep them safe separately."
-  secure_storage_mode_warning_descriptions_ios:
-    - "Changing or unlocking your phone password may prevent you from using your saved wallet."
+  secure_storage_mode_warning_descriptions:
+    - "If you remove your device passcode, the stored wallet cannot be used. Make sure to back up your mnemonic separately."
     - "If there are existing wallets, saving data securely on the device may take some time."
     - "Passphrases are not stored. Please keep them safe separately."
   secure_storage_mode_precautions_when_first_setting:
-    - "Changing or unlocking your phone password may prevent you from using your saved wallet."
+    - "If you remove your device passcode, the stored wallet cannot be used. Make sure to back up your mnemonic separately."
   signing_only_mode_warning_title: "Warning\nSwitching to Signing-Only Mode"
   signing_only_mode_warning_descriptions:
     - "All wallet data stored in the vault will be deleted. Please complete a backup before switching."
