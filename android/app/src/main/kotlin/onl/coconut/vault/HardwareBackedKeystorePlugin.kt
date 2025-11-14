@@ -216,6 +216,7 @@ class HardwareBackedKeystorePlugin: FlutterPlugin, MethodChannel.MethodCallHandl
           if (e.message?.contains("User not authenticated", ignoreCase = true) == true) {
             result.error("AUTH_NEEDED", "User authentication required", null)
           } else {
+            // 생체 정보를 유지한 채 기기 잠금 설정 해제한 상태
             result.error("KEY_ERROR", e.message, null)
           }
         } catch (e: KeyPermanentlyInvalidatedException) {
@@ -226,6 +227,7 @@ class HardwareBackedKeystorePlugin: FlutterPlugin, MethodChannel.MethodCallHandl
           if (e.cause is KeyPermanentlyInvalidatedException) {
             result.error("KEY_INVALIDATED", "Key permanently invalidated", null)
           } else {
+            // 생체 정보 데이터 삭제와 함께 기기 잠금 설정 해제한 상태
             result.error("INVALID_KEY", e.message, null)
           }
         } catch (e: Exception) {
