@@ -468,7 +468,7 @@ mnemonic_import_screen:
 mnemonic_view_screen:
   security_guide: "安全な場所でニーモニックを確認してください"
   warning_title: "ニーモニックフレーズはウォレットの鍵です"
-  warning_guide: "この単語を知っている人は誰でもあなたのビットコインをすべて奪うことができます。周りに他の人やカメラがないか必ず確認してください。"
+  warning_guide: "この単語を他の人に知られると、あなたのビットコインはすべて盗まれてしまいます。周りに他の人やカメラがないか確認してください。"
   warning_btn: "分かりました"
   alert:
     failed_get_secret:

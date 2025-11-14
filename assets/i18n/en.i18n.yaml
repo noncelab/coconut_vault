@@ -467,7 +467,7 @@ mnemonic_import_screen:
 mnemonic_view_screen:
   security_guide: "Please check the mnemonic in a safe place"
   warning_title: "Mnemonic phrase is the key to your wallet"
-  warning_guide: "If you know this word, anyone can take all your bitcoins. Please check if there are any other people or cameras around you."
+  warning_guide: "If someone knows this word, they can take all your Bitcoin. Please check if there are any other people or cameras around you."
   warning_btn: "I understand"
   alert:
     failed_get_secret:
@@ -746,17 +746,17 @@ alert:
 
 toast:
   clipboard_copied: "Copied to clipboard"
-  back_exit: "Press back button once more to exit"
-  scroll_down: "Please scroll down to check all"
-  data_updated: "Info updated! Please sync with wallet to avoid confusion."
-  name_already_used: "Cannot change to already used name"
-  name_already_used2: "Cannot set already used name"
-  name_multisig_in_use: "Cannot delete as used in multisig wallet"
-  mnemonic_already_added: "Already added mnemonic"
+  back_exit: "Press the back button once more to exit"
+  scroll_down: "Please scroll down to view everything"
+  data_updated: "Information updated! Please sync with your wallet to avoid any confusion."
+  name_already_used: "You can't change to a name that's already in use."
+  name_already_used2: "You can't use a name that's already taken."
+  name_multisig_in_use: "This wallet is used in a multisig wallet and can't be deleted."
+  mnemonic_already_added: "This mnemonic has already been added."
   mnemonic_copied: "Mnemonic phrase copied"
-  multisig_already_added: "Already added multisig wallet. ($name)"
-  home_vault_min_one: "Home screen displayed wallets must be at least 1"
-  no_wallet_to_delete: "No wallet to delete"
+  multisig_already_added: "This multisig wallet has already been added. ($name)"
+  home_vault_min_one: "At least one wallet must remain on the home screen."
+  no_wallet_to_delete: "There is no wallet to delete."
 
 errors:
   invalid_qr: "Invalid QR code.\nPlease check again."
