@@ -1,66 +1,37 @@
-MIT Non-Commercial License (MIT-NC)
+X11 Consortium License (MIT/X)
 
-Copyright (c) 2025 Nonce Lab, Inc.
+Copyright (c) 2024 Nonce Lab, Inc.
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the “Software”), to use,
-copy, modify, merge, publish, and distribute the Software for **non-commercial
-purposes only**, subject to the following conditions:
+of this software and associated documentation files (the "Software"), 
+to deal in the Software without restriction, including without limitation the rights to
+use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software,
+and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, 
+EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+IN NO EVENT SHALL Nonce Lab BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE
+OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-1. The above copyright notice and this permission notice shall be included
-   in all copies or substantial portions of the Software.
+Except as contained in this notice, the name of the Nonce Lab
+shall not be used in advertising or otherwise to promote the sale,
+use or other dealings in this Software without prior written authorization from Nonce Lab.
 
-2. Commercial use of the Software — including but not limited to use in or
-   for a product or service offered for sale, lease, hosting, or any other
-   commercial advantage — is **not permitted** without prior written authorization
-   from Nonce Lab, Inc.
+'Coconut Vault' is a trademark of Nonce Lab, Inc.
 
-3. Except as contained in this notice, the names “Nonce Lab”, “Coconut”,
-   and “Coconut Vault”, and related logos or trademarks shall not be used
-   in advertising, branding, or otherwise to promote the sale, use, or
-   distribution of this Software without prior written authorization
-   from Nonce Lab, Inc.
+[한글 번역]
+이 문서에 기하여, 이 소프트웨어와, 이와 연관된 모든 문서(이하 ‘소프트웨어’라 한다)의 복제본을 보유하게 되는 모든 사용자에 대하여, 다음의 권한이 무상으로 부여된다.
+소프트웨어의 사용, 복제, 변경, 통합, 발행, 배포, 재실시, 판매에 대한 제약을 포함한 어떠한 제약 없이 본 소프트웨어를 취급할 수 있으며,
+이는 제3자에 대한 소프트웨어 지급시에도 동일하게 적용된다. 단, 이 모든 사항은 아래의 조건 하에 적용된다.
+위 저작권 표시와 본 허가조항은 소프트웨어의 모든 복제본 혹은 중요한 부분에 포함되어야 한다.
+소프트웨어는 "있는 그대로" 제공된다. 판매적격성, 특정 용도에 대한 적합성, 준법성, 혹은 그 이상의 범위를 포함한 사항에 있어서, 명시적 혹은 묵시적인 어떠한 보증도 하지 않는다.
+계약, 불법행위등의 과정상의 개입여부에 상관없이 어떠한 상황에서도, 본 소프트웨어의 저작자 혹은 저작권자 Nonce Lab은, 소프트웨어에서 혹은 소프트웨어와 연관되어 발생하는,
+또한 사용 과정 중 혹은 기타 거래도중 발생하는 어떠한 소유권 청구, 피해, 혹은 기타 다른 법적 책임에 대해서도 책임을 지지 않는다.
 
-THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND,
-EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
-OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
-DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
-ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
-DEALINGS IN THE SOFTWARE.
+본 고지에 명시된 경우를 제외하고, 논스랩의 명칭은 본 소프트웨어의
+판매, 사용 또는 기타 거래를 광고하거나 이를 촉진하기 위한 목적으로
+사전 서면 승인 없이 사용될 수 없습니다.
 
-Trademarks:
-“Nonce Lab”, “Coconut”, and “Coconut Vault” are trademarks of Nonce Lab, Inc.
-Use of these marks without written permission is strictly prohibited.
-
-----
-
-MIT 비상업적 사용 허가서 (MIT-NC)
-
-Copyright (c) 2025 Nonce Lab, Inc.
-
-본 소프트웨어 및 관련 문서 파일(이하 “소프트웨어”)의 사본을 취득하는 모든 사용자에게
-다음과 같은 권한이 무상으로 부여됩니다. 단, 아래의 조건을 충족해야 합니다.
-
-사용자는 비상업적 목적(**non-commercial purposes only**)에 한하여
-소프트웨어를 사용, 복제, 수정, 병합, 발행 및 배포할 수 있습니다.
-
-1. 위의 저작권 표시와 본 허가 고지는 소프트웨어의 모든 사본 또는
-   주요 부분에 포함되어야 합니다.
-
-2. 상업적 이용(판매, 임대, 유료 서비스 제공, 호스팅, 기타 금전적 이익을 위한 사용 등)은
-   Nonce Lab, Inc.의 사전 서면 허가 없이는 **허용되지 않습니다.**
-
-3. 본 고지에 명시된 경우를 제외하고, “Nonce Lab”, “Coconut”, “Coconut Vault” 및
-   관련 로고나 상표는 Nonce Lab, Inc.의 사전 서면 승인 없이
-   광고, 홍보, 브랜드, 또는 기타 상업적 목적으로 사용할 수 없습니다.
-
-소프트웨어는 “있는 그대로”(AS IS) 제공되며, 상품성, 특정 목적에의 적합성, 
-비침해 여부에 대한 명시적 또는 묵시적 보증을 포함하되 이에 국한되지 않는 
-어떠한 보증도 제공되지 않습니다. 어떠한 경우에도 저작권자 또는 권리자는 
-계약, 불법행위 또는 기타 행위로 인해 발생하는 손해나 기타 책임에 대해 
-책임을 지지 않습니다.
-
-상표 고지:
-“Nonce Lab”, “Coconut”, “Coconut Vault”는 Nonce Lab, Inc.의 상표입니다.  
-Nonce Lab, Inc.의 명시적 서면 승인 없이 이를 사용하는 것은 금지됩니다.
+'코코넛 볼트(Coconut Vault)'는 논스랩(Nonce Lab, Inc.)의 상표입니다.
