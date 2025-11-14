@@ -237,7 +237,7 @@ class WalletRepository {
 
     final Uint8List? plaintext;
     try {
-      plaintext = await _secureZoneRepository.decrypt(alias: key, iv: iv, ciphertext: ciphertext);
+      plaintext = await _secureZoneRepository.decrypt(alias: key, iv: iv, ciphertext: ciphertext, autoAuth: autoAuth);
     } on PlatformException catch (e) {
       if (Platform.isAndroid && (e.code == 'INVALID_KEY' || e.code == 'KEY_INVALIDATED' || e.code == 'KEY_ERROR')) {
         throw SeedInvalidatedException();
