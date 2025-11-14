@@ -535,7 +535,7 @@ signer_scanner_screen:
   guide1_1: "You can import multisig wallet created in other vault."
   guide1_2: "On the home screen of the other vault, "
   guide1_3: "the multisig wallet."
-  guide1_4: "Export Multisig Wallet."
+  guide1_4: "Export to another vault."
   guide1_5: "Scan the QR code below on the screen."
   guide2_1: "On the vault containing a key you want to use, "
   guide2_2: "the wallet."
