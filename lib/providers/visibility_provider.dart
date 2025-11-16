@@ -211,6 +211,7 @@ class VisibilityProvider extends ChangeNotifier {
       setAdvancedMode(true);
       SharedPrefsRepository().deleteSharedPrefsWithKey(SharedPrefsKeys.vaultListLength);
     } else {
+      setAdvancedMode(false);
       SharedPrefsRepository().setInt(SharedPrefsKeys.vaultListLength, _walletCount);
     }
     _isSigningOnlyMode = isSigningOnlyMode;

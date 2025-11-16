@@ -53,7 +53,6 @@ class _SingleSigSetupInfoScreenState extends State<SingleSigSetupInfoScreen> {
   @override
   void initState() {
     super.initState();
-    debugPrint('initState: ${widget.id}');
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _tooltipIconRendBox = _tooltipIconKey.currentContext?.findRenderObject() as RenderBox;
       _tooltipIconPosition = _tooltipIconRendBox!.localToGlobal(Offset.zero);
@@ -180,15 +179,18 @@ class _SingleSigSetupInfoScreenState extends State<SingleSigSetupInfoScreen> {
   }
 
   Widget _buildVaultItemCard(BuildContext context) {
-    final viewModel = context.watch<SingleSigSetupInfoViewModel>();
-    return VaultItemCard(
-      vaultItem: viewModel.vaultItem,
-      onTooltipClicked: () => _toggleTooltipVisible(context),
-      onNameChangeClicked: () {
-        _removeTooltip();
-        _showModalBottomSheetForEditingNameAndIcon(viewModel);
+    return Consumer<SingleSigSetupInfoViewModel>(
+      builder: (context, viewModel, child) {
+        return VaultItemCard(
+          vaultItem: viewModel.vaultItem,
+          onTooltipClicked: () => _toggleTooltipVisible(context),
+          onNameChangeClicked: () {
+            _removeTooltip();
+            _showModalBottomSheetForEditingNameAndIcon(viewModel);
+          },
+          tooltipKey: _tooltipIconKey,
+        );
       },
-      tooltipKey: _tooltipIconKey,
     );
   }
 
@@ -217,7 +219,7 @@ class _SingleSigSetupInfoScreenState extends State<SingleSigSetupInfoScreen> {
             Seed? seed = await MyBottomSheet.showBottomSheet_ratio<Seed?>(
               ratio: 0.5,
               context: context,
-              child: PassphraseCheckScreen(id: widget.id),
+              child: PassphraseCheckScreen(id: widget.id, context: PassphraseCheckContext.export),
             );
 
             if (seed == null) {
@@ -400,6 +402,7 @@ class _SingleSigSetupInfoScreenState extends State<SingleSigSetupInfoScreen> {
             enableShrinkAnim: true,
             onPressed: () {
               _removeTooltip();
+              if (!mounted) return;
               final viewModel = context.read<SingleSigSetupInfoViewModel>();
               if (viewModel.isSigningOnlyMode) {
                 Navigator.pushNamed(context, AppRoutes.mnemonicView, arguments: {'id': widget.id});
@@ -437,6 +440,7 @@ class _SingleSigSetupInfoScreenState extends State<SingleSigSetupInfoScreen> {
   }
 
   Future<void> _deleteVault(BuildContext context) async {
+    if (!mounted) return;
     final viewModel = context.read<SingleSigSetupInfoViewModel>();
     viewModel.deleteVault();
     vibrateLight();
@@ -522,17 +526,16 @@ class _SingleSigSetupInfoScreenState extends State<SingleSigSetupInfoScreen> {
           rightButtonColor: CoconutColors.warningText,
           onTapLeft: () => Navigator.pop(context),
           onTapRight: () async {
-            if (context.mounted) {
-              final viewModel = context.read<SingleSigSetupInfoViewModel>();
-              if (!viewModel.isSigningOnlyMode) {
-                await _authenticateWithBiometricOrPin(
-                  context,
-                  PinCheckContextEnum.seedDeletion,
-                  () => _deleteVault(context),
-                );
-              } else {
-                _deleteVault(context);
-              }
+            if (!mounted) return;
+            final viewModel = context.read<SingleSigSetupInfoViewModel>();
+            if (!viewModel.isSigningOnlyMode) {
+              await _authenticateWithBiometricOrPin(
+                context,
+                PinCheckContextEnum.seedDeletion,
+                () => _deleteVault(context),
+              );
+            } else {
+              _deleteVault(context);
             }
           },
         );

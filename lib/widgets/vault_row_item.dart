@@ -196,6 +196,7 @@ class _VaultRowItemState extends State<VaultRowItem> {
         final walletProvider = context.read<WalletProvider>();
         bool shouldShowPassphraseVerifyMenu =
             walletProvider.isSigningOnlyMode ? false : await walletProvider.hasPassphrase(widget.vault.id);
+        if (!context.mounted) return;
         Navigator.pushNamed(
           context,
           widget.vault.vaultType == WalletType.multiSignature

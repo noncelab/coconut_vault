@@ -3,6 +3,8 @@ import 'dart:typed_data';
 import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_vault/extensions/uint8list_extensions.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
+import 'package:coconut_vault/model/exception/seed_invalidated_exception.dart';
+import 'package:coconut_vault/model/exception/user_canceled_auth_exception.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:coconut_vault/widgets/entropy_base/entropy_common_widget.dart';
 import 'package:coconut_vault/widgets/list/mnemonic_list.dart';
@@ -37,14 +39,32 @@ class _MnemonicViewScreen extends State<MnemonicViewScreen> with TickerProviderS
   Future<void> _setMnemonic() async {
     try {
       _mnemonic = await _walletProvider.getSecret(widget.walletId);
-    } catch (e) {
+    } on UserCanceledAuthException catch (_) {
       if (!mounted) return;
       showDialog(
         context: context,
         builder:
             (context) => CoconutPopup(
-              title: 'View Mnemonic',
-              description: 'Failed to load mnemonic\n${e.toString()}',
+              title: t.alert.auth_canceled_when_decrypt.title,
+              description: t.alert.auth_canceled_when_decrypt.description_view_mnemonic,
+              onTapRight: () {
+                Navigator.pop(context);
+                Navigator.pop(context);
+              },
+            ),
+      );
+    } catch (e) {
+      if (!mounted) return;
+      String message = e.toString();
+      if (e is SeedInvalidatedException) {
+        message = e.message;
+      }
+      showDialog(
+        context: context,
+        builder:
+            (context) => CoconutPopup(
+              title: t.mnemonic_view_screen.alert.failed_get_secret.title,
+              description: message,
               onTapRight: () {
                 Navigator.pop(context);
                 Navigator.pop(context);

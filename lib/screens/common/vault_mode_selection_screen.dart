@@ -138,131 +138,135 @@ class _VaultModeSelectionScreenState extends State<VaultModeSelectionScreen> {
                   ],
                 ),
               ),
-              FixedBottomButton(
-                isActive:
-                    selectedVaultMode != null &&
-                    (widget.onComplete != null
-                        ? selectedVaultMode != null
-                        : selectedVaultMode != context.read<PreferenceProvider>().getVaultMode()),
-                onButtonClicked: () async {
-                  debugPrint(
-                    'selectedVaultMode: ${await SecureStorageRepository().read(key: SecureStorageKeys.kVaultPin)}',
-                  );
-                  if (widget.onComplete != null) {
-                    // 앱 최초 실행 시 widget.onComplete != null
+              Consumer<ConnectivityProvider>(
+                builder: (context, connectivityProvider, child) {
+                  final isConnectivitySafe =
+                      connectivityProvider.isNetworkOn == false &&
+                      connectivityProvider.isBluetoothOn == false &&
+                      (!Platform.isAndroid || connectivityProvider.isDeveloperModeOn == false);
 
-                    if (!await device_secure_checker.isDeviceSecured()) {
-                      // 기기 비밀번호 설정 안되어 있으면 설정 화면으로 이동
-                      if (!context.mounted) return;
-                      openSystemSecuritySettings(
-                        context,
-                        hasDialogShownForIos: true,
-                        title: t.vault_mode_selection_screen.secure_use_guide_title,
-                        description: t.vault_mode_selection_screen.secure_use_guide_description,
-                        buttonText: t.device_password_detection_screen.go_to_settings,
+                  final isModeSelected =
+                      selectedVaultMode != null &&
+                      (widget.onComplete != null
+                          ? selectedVaultMode != null
+                          : selectedVaultMode != context.read<PreferenceProvider>().getVaultMode());
+
+                  return FixedBottomButton(
+                    isActive: isConnectivitySafe && isModeSelected,
+                    onButtonClicked: () async {
+                      debugPrint(
+                        'selectedVaultMode: ${await SecureStorageRepository().read(key: SecureStorageKeys.kVaultPin)}',
                       );
-                      return;
-                    }
+                      if (widget.onComplete != null) {
+                        // 앱 최초 실행 시 widget.onComplete != null
 
-                    if (context.mounted) {
-                      context.read<ConnectivityProvider>().setHasSeenGuideTrue();
-                      await context.read<VisibilityProvider>().setHasSeenGuide();
-                      if (context.mounted) {
-                        bool isDone = await _setVaultMode(selectedVaultMode!);
-                        if (!isDone) return;
-                        widget.onComplete!();
+                        if (!await device_secure_checker.isDeviceSecured()) {
+                          // 기기 비밀번호 설정 안되어 있으면 설정 화면으로 이동
+                          if (!context.mounted) return;
+                          openSystemSecuritySettings(
+                            context,
+                            hasDialogShownForIos: true,
+                            title: t.vault_mode_selection_screen.secure_use_guide_title,
+                            description: t.vault_mode_selection_screen.secure_use_guide_description,
+                            buttonText: t.device_password_detection_screen.go_to_settings,
+                          );
+                          return;
+                        }
+
+                        if (context.mounted) {
+                          context.read<ConnectivityProvider>().setHasSeenGuideTrue();
+                          await context.read<VisibilityProvider>().setHasSeenGuide();
+                          if (context.mounted) {
+                            bool isDone = await _setVaultMode(selectedVaultMode!);
+                            if (!isDone) return;
+                            widget.onComplete!();
+                          }
+                          return;
+                        }
                       }
-                      return;
-                    }
-                  }
 
-                  if (!context.mounted) return;
-                  final shouldProceed = await showDialog<bool>(
-                    context: context,
-                    barrierColor: CoconutColors.black.withValues(alpha: 0.1),
-                    builder: (BuildContext dialogContext) {
-                      bool isSigningOnlyMode = selectedVaultMode == VaultMode.signingOnly;
-                      bool isAndroid = Platform.isAndroid;
-                      return WarningWidget(
-                        title:
-                            isSigningOnlyMode
-                                ? t.vault_mode_selection_screen.signing_only_mode_warning_title
-                                : t.vault_mode_selection_screen.secure_storage_mode_warning_title,
-                        description: Column(
-                          children: [
-                            ...List.generate(
-                              isSigningOnlyMode
-                                  ? t.vault_mode_selection_screen.signing_only_mode_warning_descriptions.length
-                                  : isAndroid
-                                  ? t
-                                      .vault_mode_selection_screen
-                                      .secure_storage_mode_warning_descriptions_android
-                                      .length
-                                  : t.vault_mode_selection_screen.secure_storage_mode_warning_descriptions_ios.length,
-                              (index) {
-                                return Padding(
-                                  padding: const EdgeInsets.only(bottom: 8),
-                                  child: Row(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        '${index + 1}.',
-                                        style: CoconutTypography.heading4_18_Bold.copyWith(color: CoconutColors.white),
-                                      ),
-                                      CoconutLayout.spacing_200w,
-                                      Expanded(
-                                        child: Text(
-                                          isSigningOnlyMode
-                                              ? t
-                                                  .vault_mode_selection_screen
-                                                  .signing_only_mode_warning_descriptions[index]
-                                              : isAndroid
-                                              ? t
-                                                  .vault_mode_selection_screen
-                                                  .secure_storage_mode_warning_descriptions_android[index]
-                                              : t
-                                                  .vault_mode_selection_screen
-                                                  .secure_storage_mode_warning_descriptions_ios[index],
-                                          style: CoconutTypography.heading4_18_Bold.copyWith(
-                                            color: CoconutColors.white,
+                      if (!context.mounted) return;
+                      final shouldProceed = await showDialog<bool>(
+                        context: context,
+                        barrierColor: CoconutColors.black.withValues(alpha: 0.1),
+                        builder: (BuildContext dialogContext) {
+                          bool isSigningOnlyMode = selectedVaultMode == VaultMode.signingOnly;
+                          bool isAndroid = Platform.isAndroid;
+                          return WarningWidget(
+                            title:
+                                isSigningOnlyMode
+                                    ? t.vault_mode_selection_screen.signing_only_mode_warning_title
+                                    : t.vault_mode_selection_screen.secure_storage_mode_warning_title,
+                            description: Column(
+                              children: [
+                                ...List.generate(
+                                  isSigningOnlyMode
+                                      ? t.vault_mode_selection_screen.signing_only_mode_warning_descriptions.length
+                                      : t.vault_mode_selection_screen.secure_storage_mode_warning_descriptions.length,
+                                  (index) {
+                                    return Padding(
+                                      padding: const EdgeInsets.only(bottom: 8),
+                                      child: Row(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            '${index + 1}.',
+                                            style: CoconutTypography.heading4_18_Bold.copyWith(
+                                              color: CoconutColors.white,
+                                            ),
                                           ),
-                                        ),
+                                          CoconutLayout.spacing_200w,
+                                          Expanded(
+                                            child: Text(
+                                              isSigningOnlyMode
+                                                  ? t
+                                                      .vault_mode_selection_screen
+                                                      .signing_only_mode_warning_descriptions[index]
+                                                  : t
+                                                      .vault_mode_selection_screen
+                                                      .secure_storage_mode_warning_descriptions[index],
+                                              style: CoconutTypography.heading4_18_Bold.copyWith(
+                                                color: CoconutColors.white,
+                                              ),
+                                            ),
+                                          ),
+                                        ],
                                       ),
-                                    ],
-                                  ),
-                                );
-                              },
+                                    );
+                                  },
+                                ),
+                              ],
                             ),
-                          ],
-                        ),
-                        buttonText: t.vault_mode_selection_screen.device_password_setting_guide_understood,
-                        onWarningDismissed: () async {
-                          if (!mounted) return;
-                          Navigator.pop(context, true);
+                            buttonText: t.vault_mode_selection_screen.device_password_setting_guide_understood,
+                            onWarningDismissed: () async {
+                              if (!mounted) return;
+                              Navigator.pop(context, true);
+                            },
+                          );
                         },
                       );
+
+                      // 외부 클릭 또는 취소 시 (null 또는 false) 중단
+                      if (shouldProceed != true || !mounted) return;
+
+                      if (!context.mounted) return;
+                      if (context.read<AuthProvider>().isPinSet) {
+                        // 앱 비밀번호 확인 먼저 수행
+                        await _authenticateWithBiometricOrPin(context, PinCheckContextEnum.sensitiveAction, () async {
+                          // 비밀번호 일치 시 모드 변경 로직 수행
+                          await _changeVaultMode();
+                        });
+                      } else {
+                        // 비밀번호가 없는 상황
+                        await _changeVaultMode();
+                      }
                     },
+                    text:
+                        widget.onComplete != null
+                            ? t.vault_mode_selection_screen.start
+                            : t.vault_mode_selection_screen.change,
                   );
-
-                  // 외부 클릭 또는 취소 시 (null 또는 false) 중단
-                  if (shouldProceed != true || !mounted) return;
-
-                  if (!context.mounted) return;
-                  if (context.read<AuthProvider>().isPinSet) {
-                    // 앱 비밀번호 확인 먼저 수행
-                    await _authenticateWithBiometricOrPin(context, PinCheckContextEnum.sensitiveAction, () async {
-                      // 비밀번호 일치 시 모드 변경 로직 수행
-                      await _changeVaultMode();
-                    });
-                  } else {
-                    // 비밀번호가 없는 상황
-                    await _changeVaultMode();
-                  }
                 },
-                text:
-                    widget.onComplete != null
-                        ? t.vault_mode_selection_screen.start
-                        : t.vault_mode_selection_screen.change,
               ),
               Visibility(
                 visible: _isConvertingToSecureStorageMode,
@@ -306,6 +310,8 @@ class _VaultModeSelectionScreenState extends State<VaultModeSelectionScreen> {
         final result = await MyBottomSheet.showBottomSheet_90(context: context, child: const PinSettingScreen());
         if (result == true) {
           try {
+            await authProvider.updateDeviceBiometricAvailability();
+
             if (walletProvider.vaultList.isNotEmpty) {
               setState(() {
                 _isConvertingToSecureStorageMode = true;

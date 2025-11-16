@@ -2,8 +2,6 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:coconut_vault/constants/method_channel.dart';
-import 'package:coconut_vault/constants/shared_preferences_keys.dart';
-import 'package:coconut_vault/repository/shared_preferences_repository.dart';
 import 'package:coconut_vault/screens/common/app_unavailable_notification_screen.dart';
 import 'package:coconut_vault/screens/common/ios_bluetooth_auth_notification_screen.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
@@ -54,8 +52,6 @@ class ConnectivityProvider extends ChangeNotifier {
   /// TODO: 리팩토링 필요함
   Future<void> setConnectActivity({required bool network, required bool bluetooth, required bool developerMode}) async {
     if (bluetooth) {
-      await SharedPrefsRepository().setBool(SharedPrefsKeys.hasAlreadyRequestedBluetoothPermission, true);
-
       // 현재 블루투스 상태 즉시 확인
       await _checkCurrentBluetoothState();
 
@@ -161,7 +157,6 @@ class ConnectivityProvider extends ChangeNotifier {
     }
   }
 
-  // TODO: _hasSeenGuide 없이 각 home 화면 별 이벤트 등록/해제하기!!!!!!
   void _onConnectivityChanged() {
     if (_isDisposed) return;
 

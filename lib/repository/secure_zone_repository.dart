@@ -4,7 +4,7 @@ import 'dart:typed_data';
 
 import 'package:coconut_vault/services/secure_zone/ios/secure_enclave_keystore.dart';
 import 'package:coconut_vault/services/secure_zone/secure_zone_keystore.dart';
-import 'package:coconut_vault/services/secure_zone/android/strong_box_keystore.dart';
+import 'package:coconut_vault/services/secure_zone/android/hardware_backed_keystore.dart';
 
 class EncryptResult {
   final Uint8List ciphertext;
@@ -73,13 +73,10 @@ class SecureZoneRepository {
   static final SecureZoneRepository _instance = SecureZoneRepository._internal();
   factory SecureZoneRepository() => _instance;
   SecureZoneRepository._internal() {
-    _secureZoneKeystore = Platform.isAndroid ? StrongBoxKeystore() : SecureEnclaveKeystore();
+    _secureZoneKeystore = Platform.isAndroid ? HardwareBackedKeystore() : SecureEnclaveKeystore();
   }
 
   late final SecureZoneKeystore _secureZoneKeystore;
-
-  // Getter
-  SecureZoneKeystore get strongBoxKeystore => _secureZoneKeystore;
 
   // Public Methods
   Future<void> generateKey({required String alias, bool userAuthRequired = false, bool perUseAuth = false}) async {
@@ -111,7 +108,12 @@ class SecureZoneRepository {
     return EncryptResult(ciphertext: result['ciphertext'] as Uint8List, iv: iv, extra: extra);
   }
 
-  Future<Uint8List?> decrypt({required String alias, required Uint8List ciphertext, required Uint8List iv}) async {
-    return await _secureZoneKeystore.decrypt(alias: alias, ciphertext: ciphertext, iv: iv);
+  Future<Uint8List?> decrypt({
+    required String alias,
+    required Uint8List ciphertext,
+    required Uint8List iv,
+    bool autoAuth = true,
+  }) async {
+    return await _secureZoneKeystore.decrypt(alias: alias, ciphertext: ciphertext, iv: iv, autoAuth: autoAuth);
   }
 }

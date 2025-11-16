@@ -8,15 +8,11 @@ class SharedPrefsKeys {
   static const String vaultListLength = "VAULT_LIST_LENGTH";
   static const String kVaultListField = 'VAULT_LIST';
   static const String isBiometricEnabled = "IS_BIOMETRIC_ENABLED";
-  static const String hasAlreadyRequestedBluetoothPermission = "HAS_ALREADY_REQUESTED_BLUETOOTH_PERMISSION";
   static const String hasAlreadyRequestedBioPermission = "HAS_ALREADY_REQUESTED_BIO_PERMISSION";
-  static const String hasBiometricsPermission = "HAS_BIOMETRICS_PERMISSION";
 
   static const String kUnlockAvailableAt = 'LOCKOUT_END_TIME';
   static const String kPinInputTurn = 'TOTAL_PIN_ATTEMPT';
   static const String kPinInputCurrentAttemptCount = 'PIN_ATTEMPT';
-
-  static const String kAppVersion = 'APP_VERSION';
 
   static const String kPassphraseUseEnabled = 'PASSPHRASE_USE_ENABLED';
   static const String kIsBtcUnit = "IS_BTC_UNIT";

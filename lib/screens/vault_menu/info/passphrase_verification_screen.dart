@@ -5,6 +5,7 @@ import 'package:coconut_vault/enums/pin_check_context_enum.dart';
 import 'package:coconut_vault/extensions/uint8list_extensions.dart';
 import 'package:coconut_vault/isolates/wallet_isolates.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
+import 'package:coconut_vault/model/exception/user_canceled_auth_exception.dart';
 import 'package:coconut_vault/providers/auth_provider.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:coconut_vault/screens/common/pin_check_screen.dart';
@@ -18,6 +19,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:provider/provider.dart';
+import 'package:vibration/vibration.dart';
 
 class PassphraseVerificationScreen extends StatefulWidget {
   const PassphraseVerificationScreen({super.key, required this.id});
@@ -48,13 +50,18 @@ class _PassphraseVerificationScreenState extends State<PassphraseVerificationScr
   void initState() {
     super.initState();
     _progressController = AnimationController(vsync: this);
-    _inputFocusNode.addListener(() {
+    _inputFocusNode.addListener(_onFocusChanged);
+  }
+
+  void _onFocusChanged() {
+    if (mounted) {
       setState(() {});
-    });
+    }
   }
 
   @override
   void dispose() {
+    _inputFocusNode.removeListener(_onFocusChanged);
     _inputController.dispose();
     _inputFocusNode.dispose();
     _progressController.dispose();
@@ -169,7 +176,44 @@ class _PassphraseVerificationScreenState extends State<PassphraseVerificationScr
       CustomDialogs.showLoadingDialog(context, t.verify_passphrase_screen.loading_description);
       _isPassphraseVerified = false;
       final walletProvider = context.read<WalletProvider>();
-      final mnemonic = await walletProvider.getSecret(widget.id);
+      Uint8List? mnemonic;
+
+      try {
+        mnemonic = await walletProvider.getSecret(widget.id);
+      } on UserCanceledAuthException catch (_) {
+        if (!mounted) return;
+        Navigator.of(context).pop(); // hide loading dialog
+        showDialog(
+          context: context,
+          builder:
+              (context) => CoconutPopup(
+                title: t.alert.auth_canceled_when_decrypt.title,
+                description: t.alert.auth_canceled_when_decrypt.description_passphrase_verify,
+                onTapRight: () {
+                  Navigator.pop(context);
+                },
+              ),
+        );
+        Vibration.vibrate(duration: 100);
+        return;
+      } catch (e) {
+        if (!mounted) return;
+        Navigator.of(context).pop(); // hide loading dialog
+        showDialog(
+          context: context,
+          builder:
+              (context) => CoconutPopup(
+                title: t.passphrase_check_screen.alert.failed.title,
+                description: e.toString(),
+                onTapRight: () {
+                  Navigator.pop(context);
+                },
+              ),
+        );
+        Vibration.vibrate(duration: 100);
+        return;
+      }
+
       final passphrase = utf8.encode(_inputController.text);
       final vaultListItem = walletProvider.getVaultById(widget.id);
 
@@ -193,7 +237,7 @@ class _PassphraseVerificationScreenState extends State<PassphraseVerificationScr
       }
 
       if (!mounted) return;
-      Navigator.of(context).pop();
+      Navigator.of(context).pop(); // hide loading dialog
       _isPassphraseVerified = true;
       _isVerificationResultSuccess = result['success'];
       _savedMfp = result['savedMfp'];

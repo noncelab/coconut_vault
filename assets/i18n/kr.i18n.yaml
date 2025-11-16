@@ -45,6 +45,7 @@ receiving: "입금"
 email_subject: "[코코넛 볼트] 이용 관련 문의"
 delete_vault: "지갑 삭제"
 delete_vault_description: "지갑을 삭제하면 모든 정보가 초기화됩니다.\n정말로 삭제하시겠어요?"
+verify_security: "보안 검사 중..."
 
 sign_completion: "서명 완료"
 sign: "서명하기"
@@ -89,6 +90,9 @@ sign_required_amount:
 move_to_qr_screen: "QR 코드 화면으로 이동"
 move_to_qr_screen_description: "키가 있는 볼트에서 서명하기 위해 QR을 생성합니다."
 
+wallet_delete_failed: "삭제할 지갑 없음"
+wallet_delete_failed_description: "현재 저장된 지갑이 없어 삭제할 필요가 없어요"
+
 name_text_count: "($count / 20)"
 wallet_subtitle: "$name의 $index번 키"
 
@@ -131,7 +135,9 @@ vault_home_screen:
     import_multisig_wallet: "다중 서명 지갑\n가져오기"
     mnemonic_wordlist: "니모닉 단어집"
   toast:
-    wallet_added_but_not_favorite: "지갑이 추가 됐어요. 지갑 모두 보기에서 확인하세요."
+    wallet_added_but_not_favorite: "지갑이 추가 됐어요. 지갑 전체보기에서 확인하세요."
+  secure_zone_checking: "보안 영역에 접근 가능한지 확인 중이에요."
+  secure_zone_check_failed: "보안 데이터 확인 실패"
 
 vault_list_screen:
   primary_wallet: "대표 지갑"
@@ -163,21 +169,21 @@ app_unavailable_notification_screen:
   step2: "연결 상태를 확인해 주세요"
   step3: "앱을 다시 실행해 주세요"
   vault_reset: 
-    reset_completed: "모든 지갑이 삭제되었습니다"
-    step_1: "저장된 정보를 모두 삭제했습니다"
+    reset_completed: "모든 데이터가 삭제되었습니다"
+    step_1: "저장된 데이터를 모두 삭제했습니다"
     step_2: "보안을 위해 앱을 완전히 종료해 주세요"
-    step_3: "앱 종료 후 기기 전원을 끄면 더 안전합니다 "
+    step_3: "앱 종료 후 기기 전원을 끄면 더 안전합니다"
 
 device_password_detection_screen:
   device_password_required: "볼트를 사용하려면\n기기 비밀번호 설정이 필요해요"
   device_password_setting_guide: "보안을 강화하려면 문자와 숫자를 조합한 비밀번호를 사용하세요\n\n편리하고 안전한 사용을 위해 생체 인증을 활성화해 주세요" 
-  device_password_changed_question: "혹시 기기 비밀번호를\n변경하셨나요?"
-  device_password_changed_guide: "기기 비밀번호를 변경하거나 해제하여 저장된 모든 정보를 사용할 수 없습니다."
-  delete_vault_to_use: "볼트를 다시 사용하기 위해 모든 지갑을 삭제해야 합니다."
+  device_password_changed_question: "혹시 기기 비밀번호를\n삭제 후 재설정하셨나요?"
+  device_password_changed_guide: "기기 비밀번호를 해제하면 저장된 모든 정보를 사용할 수 없습니다."
+  delete_data_to_use: "볼트를 다시 사용하기 위해 모든 데이터를 삭제해야 합니다."
   go_to_settings: "설정하기"
-  delete_vault: "지갑 삭제"
+  delete_data: "데이터 삭제"
   ios_settings_dialog_title: "설정 화면 이동"
-  ios_settings_dialog_description: "iOS 정책 상 설정 홈으로 이동이 불가능합니다. 설정 창이 열리면 설정 홈으로 이동하여 비밀번호를 설정해 주세요."
+  ios_settings_dialog_description: "iOS 정책 상 설정 홈으로 이동이 불가능합니다. 설정 창이 열리면 설정 홈으로 이동하여 암호를 설정해 주세요."
 
 jail_break_detection_screen:
   title: "탈옥 / 루팅 이력이 감지되었습니다"
@@ -186,6 +192,7 @@ jail_break_detection_screen:
   jail_break_guide_title: "탈옥/루팅이란?"
   jail_break_guide_description: "탈옥(iOS) 또는 루팅(Android)은 운영체제의 보안 제한을 해제하여,시스템 영역에 자유롭게 접근할 수 있도록 하는 행위입니다.\n사용자는 높은 수준의 제어 권한을 얻을 수 있지만, 동시에 악성코드나 무단 접근에 노출될 위험도 커집니다."
   continue_anyway: "그래도 계속하겠습니다"
+  delete_data: "데이터 삭제"
 
 ios_bluetooth_auth_notification_screen:
   allow_permission: "블루투스 상태 확인을 위해\n블루투스 권한을 허용해 주세요"
@@ -233,19 +240,15 @@ vault_mode_selection_screen:
   start: "시작"
   change: "변경"
   mode_change_complete: "모드 변경 완료"
-  mode_changed_description_secrue_storage: "안전 저장 모드로 변경되었습니다.\n기기 비밀번호를 변경하면 시드를 사용할 수 없습니다. 안전하게 복구할 수 있도록 니모닉을 백업해 두세요."
+  mode_changed_description_secrue_storage: "안전 저장 모드로 변경되었습니다.\n기기 비밀번호를 해제하면 시드를 사용할 수 없습니다. 안전하게 복구할 수 있도록 니모닉을 백업해 두세요."
   mode_changed_description_signing_only: "서명 전용 모드로 변경되었습니다.\n서명이 끝난 후에는 지갑 삭제 버튼을 눌러 시드를 안전하게 삭제하세요."
   secure_storage_mode_warning_title: "안전 저장 모드 전환 시\n주의 사항"
-  secure_storage_mode_warning_descriptions_android:
-    - "휴대폰 비밀번호를 변경하거나 해제하면, 저장한 지갑을 사용하지 못할 수도 있습니다. 비밀번호 변경 전 반드시 니모닉을 백업하세요."
-    - "현재 추가된 지갑이 있을 경우, 기기에 정보를 저장하는 데 시간이 소요될 수 있습니다."
-    - "패스프레이즈는 저장되지 않으니, 별도로 안전하게 보관해 주세요."
-  secure_storage_mode_warning_descriptions_ios:
-    - "휴대폰 비밀번호를 변경하거나 해제하면, 저장한 지갑을 사용하지 못할 수도 있습니다. 비밀번호 변경 전 반드시 니모닉을 백업하세요."
+  secure_storage_mode_warning_descriptions:
+    - "휴대폰 비밀번호를 해제하면, 저장한 지갑을 사용하지 못합니다. 별도로 니모닉을 백업하세요."
     - "현재 추가된 지갑이 있을 경우, 기기에 정보를 저장하는 데 시간이 소요될 수 있습니다."
     - "패스프레이즈는 저장되지 않으니, 별도로 안전하게 보관해 주세요."
   secure_storage_mode_precautions_when_first_setting:
-    - "휴대폰 비밀번호를 변경하거나 해제하면, 저장한 지갑을 사용하지 못할 수도 있습니다. 비밀번호 변경 전 반드시 니모닉을 백업하세요."
+    - "휴대폰 비밀번호를 해제하면, 저장한 지갑을 사용하지 못합니다. 별도로 니모닉을 백업하세요."
   signing_only_mode_warning_title: "서명 전용 모드 전환 시\n주의 사항"
   signing_only_mode_warning_descriptions:
     - "현재 저장된 지갑 정보가 모두 초기화됩니다. 전환 전에 반드시 백업을 완료하세요."
@@ -443,6 +446,12 @@ passphrase_textfield:
   title: "패스프레이즈를 입력해 주세요"
   passphrase_hidden: "패스프레이즈 숨기기"
   passphrase_visible: "패스프레이즈 보기"
+entropy_bits_bottom_sheet:
+  iancoleman_guide: "Ian Coleman 사이트에서 "
+  options:
+    dice: "Valid entropy values → Dice [1-6] "
+    binary: "Valid entropy values → Binary [0-1] "
+  select_option: "옵션 선택 후 값을 확인하세요."
   
 mnemonic_import_screen:
   title: "복원하기"
@@ -461,6 +470,9 @@ mnemonic_view_screen:
   warning_title: "니모닉 문구는 지갑의 열쇠입니다"
   warning_guide: "이 단어를 알면 누구든 당신의 비트코인을 전부 가져갈 수 있습니다. 주변에 다른 사람이나 카메라가 없는지 꼭 확인하세요."
   warning_btn: "알겠습니다"
+  alert:
+    failed_get_secret:
+      title: "니모닉 문구 조회 실패"
   
 mnemonic_verify_screen:
   title: "니모닉 확인"
@@ -524,7 +536,7 @@ signer_scanner_screen:
   guide1_1: "다른 볼트에서 만든 다중 서명 지갑을 가져올 수 있어요."
   guide1_2: "외부 볼트의 홈 화면에서,"
   guide1_3: "다중 서명 지갑 "
-  guide1_4: "다중 서명 지갑 내보내기 "
+  guide1_4: "다른 볼트로 내보내기 "
   guide1_5: "화면에 나타나는 QR 코드를 스캔해 주세요."
   guide2_1: "사용하려는 키가 있는 볼트의 홈 화면에서 "
   guide2_2: "지갑 "
@@ -634,10 +646,13 @@ verify_passphrase_screen:
   saved_mfp: "저장된 MFP"
   recovered_mfp: "복원된 MFP"
 
-passphrase_input_screen:
+passphrase_check_screen:
   title: "패스프레이즈 입력"
   enter_passphrase: "패스프레이즈를 입력해 주세요"
   passphrase_error: "패스프레이즈를 다시 확인해 주세요"
+  alert:
+    failed: 
+      title: "패스프레이즈 확인 실패"
 
 multisig_signer_bsms_export_screen:
   fail_bsms: "BSMS 로드 실패"
@@ -657,6 +672,9 @@ permission:
     denied: "생체 인증 권한이 거부되었습니다."
     how_to_allow: "생체 인증을 통한 잠금 해제를 하시려면\n설정 > 코코넛 볼트에서 생체 인증 권한을 허용해 주세요."
     btn_move_to_setting: "설정 화면으로 이동"
+  secure_zone_authentication:
+    title: "보안 모듈 접근"
+    description: "보안 모듈 접근을 위해 인증이 필요해요."
 
 alert: 
   delete_vault: 
@@ -721,7 +739,9 @@ alert:
     description: "앱 잠금 해제에는 생체인증이 사용되지 않아요. 단, 보안 모듈에 저장된 정보에 접근할 때 생체 인증이 자동으로 요청될 수 있어요. "
   auth_canceled_when_decrypt:
     title: "기기 인증 취소됨"
-    description: "기기 인증을 해야 정보를 가져올 수 있어요."
+    description_view_mnemonic: "기기 인증을 해야 보안 영역에서 정보를 가져올 수 있어요."
+    description_export: "내보내려는 지갑의 패스프레이즈가 올바른지 확인하기 위해 보안 영역 접근이 필요합니다. 잘못된 지갑으로 비트코인을 보내는 사고를 방지하기 위한 과정입니다."
+    description_passphrase_verify: "입력한 패스프레이즈가 올바른지 확인하기 위해 보안 영역 접근이 필요합니다."
   auth_canceled_when_encrypt:
     title: "기기 인증 취소됨"
     description: "기기 인증을 해야 지갑 정보를 보안 영역에 저장할 수 있어요."
@@ -738,6 +758,7 @@ toast:
   mnemonic_copied: "니모닉 문구가 복사됐어요"
   multisig_already_added: "이미 추가되어 있는 다중 서명 지갑이에요. ($name)"
   home_vault_min_one: "홈 화면에 보이는 지갑은 최소 1개는 있어야 해요"
+  no_wallet_to_delete: "삭제할 지갑이 없어요"
 
 errors:
   invalid_qr: "잘못된 QR 코드예요.\n다시 확인해 주세요."
@@ -772,6 +793,11 @@ errors:
   vault_not_found_error: "서명할 수 있는 지갑이 없어요"
   extended_public_key_not_found_error: "직접 사용하려는 지갑을 선택해 다중 서명하기 기능을 사용해주세요"
   user_cancelled_auth: "사용자가 기기 인증을 취소했습니다."
+
+exceptions:
+  seed_invalidated: 
+    title: "지갑 사용 불가"
+    description: "저장된 지갑을 더 이상 사용할 수 없습니다. 지갑을 삭제한 뒤, 백업한 니모닉으로 다시 복원해 주세요."
 
 tooltip:
   mfp: "지갑의 고유 값이에요.\n마스터 핑거프린트(MFP)라고도 해요."

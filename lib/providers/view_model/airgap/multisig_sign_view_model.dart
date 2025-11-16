@@ -24,7 +24,9 @@ class MultisigSignViewModel extends ChangeNotifier {
     _hasPassphraseList = List<bool>.filled(_vaultListItem.signers.length, false);
 
     _psbtForSigning = _signProvider.unsignedPsbtBase64!;
-    _checkPassphraseStatus();
+    if (!_isSigningOnlyMode) {
+      _checkPassphraseStatus();
+    }
   }
 
   Future<void> _checkPassphraseStatus() async {

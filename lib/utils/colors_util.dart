@@ -26,8 +26,6 @@ class CustomColorHelper {
         return CoconutColors.colorPalette[8];
       case CustomColor.mint:
         return CoconutColors.colorPalette[9];
-      default:
-        return CoconutColors.secondaryText;
     }
   }
 
@@ -53,8 +51,6 @@ class CustomColorHelper {
         return CoconutColors.backgroundColorPaletteLight[8];
       case CustomColor.mint:
         return CoconutColors.backgroundColorPaletteLight[9];
-      default:
-        return CoconutColors.white.withValues(alpha: 0.06);
     }
   }
 
@@ -80,8 +76,6 @@ class CustomColorHelper {
         return 8;
       case CustomColor.mint:
         return 9;
-      default:
-        throw Exception('Invalid color enum: $color');
     }
   }
 

@@ -6,16 +6,12 @@ import 'package:coconut_vault/utils/logger.dart';
 class AppLifecycleOperations {
   // 생체인증 관련
   static const String biometricAuthentication = 'biometric_auth';
-  static const String biometricSetup = 'biometric_setup';
 
-  // TEE 관련
-  static const String teeKeyGeneration = 'tee_key_generation';
-  static const String teeEncryption = 'tee_encryption';
-  static const String teeDecryption = 'tee_decryption';
+  // 보안 영역 접근 관련 (TEE / StrongBox / Secure Enclave)
+  static const String hwBasedEncryption = 'hw_based_encryption';
+  static const String hwBasedDecryption = 'hw_based_decryption';
 
   // 보안 관련
-  static const String secureStorage = 'secure_storage';
-  static const String keychainAccess = 'keychain_access';
   static const String cameraAuthRequest = 'camera_auth_request';
 }
 
@@ -25,6 +21,11 @@ class AppLifecycleStateProvider extends ChangeNotifier with WidgetsBindingObserv
   AppLifecycleStateProvider._internal() {
     WidgetsBinding.instance.addObserver(this);
   }
+
+  // 콜백 함수들
+  VoidCallback? _onAppGoBackground;
+  VoidCallback? _onAppGoInactive;
+  VoidCallback? _onAppGoActive;
 
   bool _isDisposed = false;
 
@@ -40,7 +41,7 @@ class AppLifecycleStateProvider extends ChangeNotifier with WidgetsBindingObserv
   bool isOperationInProgress(String operationId) => _ignoredOperations.contains(operationId);
 
   // 전체적으로 무시해야 하는 작업이 있는지 확인
-  bool get shouldIgnoreInactiveTransition => _ignoredOperations.isNotEmpty;
+  bool get shouldIgnoreLifecycleEvent => _ignoredOperations.isNotEmpty;
 
   // 작업 시작 (inactive 상태 전환 무시)
   void startOperation(String operationId, {bool ignoreNotify = false}) {
@@ -65,10 +66,21 @@ class AppLifecycleStateProvider extends ChangeNotifier with WidgetsBindingObserv
     notifyListeners();
   }
 
-  // 콜백 함수들
-  VoidCallback? onAppGoBackground;
-  VoidCallback? onAppGoInactive;
-  VoidCallback? onAppGoActive;
+  void registerCallbacks({
+    VoidCallback? onAppGoBackground,
+    VoidCallback? onAppGoInactive,
+    VoidCallback? onAppGoActive,
+  }) {
+    _onAppGoBackground = onAppGoBackground;
+    _onAppGoInactive = onAppGoInactive;
+    _onAppGoActive = onAppGoActive;
+  }
+
+  void unregisterAllCallbacks() {
+    _onAppGoBackground = null;
+    _onAppGoInactive = null;
+    _onAppGoActive = null;
+  }
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
@@ -79,30 +91,30 @@ class AppLifecycleStateProvider extends ChangeNotifier with WidgetsBindingObserv
     switch (state) {
       case AppLifecycleState.paused:
         Logger.log('-->AppLifecycle: Paused');
-        onAppGoBackground?.call();
+        _onAppGoBackground?.call();
         break;
 
       case AppLifecycleState.inactive:
         Logger.log('-->AppLifecycle: Inactive');
 
         // 무시해야 하는 작업이 진행 중인 경우 inactive 콜백 호출하지 않음
-        if (shouldIgnoreInactiveTransition) {
-          Logger.log('-->AppLifecycle: Inactive 무시 (진행 중인 작업: ${_ignoredOperations.join(", ")})');
+        if (shouldIgnoreLifecycleEvent) {
+          Logger.log('--> ㄴAppLifecycle: Inactive 무시 (진행 중인 작업: ${_ignoredOperations.join(", ")})');
           return;
         }
 
-        onAppGoInactive?.call();
+        _onAppGoInactive?.call();
         break;
 
       case AppLifecycleState.resumed:
         Logger.log('-->AppLifecycle: Resumed');
         // 무시해야 하는 작업이 진행 중인 경우 inactive 콜백 호출하지 않음
-        if (shouldIgnoreInactiveTransition) {
-          Logger.log('-->AppLifecycle: Resumed 무시 (진행 중인 작업: ${_ignoredOperations.join(", ")})');
+        if (shouldIgnoreLifecycleEvent) {
+          Logger.log('--> ㄴAppLifecycle: Resumed 무시 (진행 중인 작업: ${_ignoredOperations.join(", ")})');
           return;
         }
 
-        onAppGoActive?.call();
+        _onAppGoActive?.call();
         break;
 
       case AppLifecycleState.detached:

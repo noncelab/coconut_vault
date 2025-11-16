@@ -1,8 +1,16 @@
+import 'dart:async';
+import 'dart:io';
+
 import 'package:coconut_design_system/coconut_design_system.dart';
+import 'package:coconut_vault/constants/pin_constants.dart';
 import 'package:coconut_vault/providers/auth_provider.dart';
 import 'package:coconut_vault/widgets/pin/pin_length_toggle_button.dart';
 import 'package:flutter/material.dart';
 import 'package:coconut_vault/widgets/button/key_button.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_keyboard_visibility/flutter_keyboard_visibility.dart';
+import 'package:flutter_svg/svg.dart';
+import 'package:local_auth/local_auth.dart';
 import 'package:provider/provider.dart';
 
 import '../../widgets/pin/pin_box.dart';
@@ -27,6 +35,7 @@ class PinInputScreen extends StatefulWidget {
   final Function(PinType)? onPinTypeChanged; // 입력 모드 변경 핸들러
   final FocusNode? characterFocusNode;
   final bool isLoading;
+  final bool shouldDelayKeyboard;
 
   const PinInputScreen({
     super.key,
@@ -49,6 +58,7 @@ class PinInputScreen extends StatefulWidget {
     this.onPinTypeChanged,
     this.characterFocusNode,
     this.isLoading = false,
+    this.shouldDelayKeyboard = false,
   });
 
   @override
@@ -59,6 +69,12 @@ class PinInputScreenState extends State<PinInputScreen> {
   late final FocusNode _characterFocusNode;
   final TextEditingController _characterController = TextEditingController();
   late PinType _pinType;
+  bool _hideBottomPadding = false;
+  double get keyboardHeight => MediaQuery.of(context).viewInsets.bottom;
+
+  // 안드로이드 키보드 focus 설정을 IOS스타일과 동일시 하기 위한 코드
+  // ignore: unused_field
+  late final StreamSubscription<bool> _keyboardSubscription;
 
   @override
   void initState() {
@@ -66,13 +82,27 @@ class PinInputScreenState extends State<PinInputScreen> {
 
     _characterFocusNode = widget.characterFocusNode ?? FocusNode();
 
+    _characterFocusNode.addListener(() {
+      if (_characterFocusNode.hasFocus) {
+        setState(() {
+          _hideBottomPadding = true;
+        });
+      } else {
+        setState(() {
+          _hideBottomPadding = false;
+        });
+      }
+    });
+
+    _keyboardSubscription = KeyboardVisibilityController().onChange.listen((visible) {
+      if (!visible && mounted) {
+        FocusScope.of(context).unfocus();
+      }
+    });
+
     _pinType = widget.pinType;
 
-    if (context.read<AuthProvider>().isPinCharacter) {
-      _pinType = PinType.character;
-    }
-
-    if (_pinType == PinType.character) {
+    if (_pinType == PinType.character && !widget.shouldDelayKeyboard) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         Future.delayed(const Duration(milliseconds: 400), () {
           _characterFocusNode.requestFocus();
@@ -105,8 +135,16 @@ class PinInputScreenState extends State<PinInputScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final isDarkMode = MediaQuery.of(context).platformBrightness == Brightness.dark;
+    final keyboardBackgroundColor =
+        Platform.isIOS
+            ? (isDarkMode ? const Color(0x00000082) : const Color(0xFFCED2D9))
+            : (isDarkMode ? CoconutColors.gray900 : const Color(0xFFF5F5F5));
+
+    final isBiometricEnabled = Provider.of<AuthProvider>(context, listen: false).isBiometricEnabled;
+
     return Scaffold(
-      resizeToAvoidBottomInset: false,
+      resizeToAvoidBottomInset: true,
       backgroundColor: Colors.transparent,
       appBar:
           widget.appBarVisible
@@ -205,28 +243,19 @@ class PinInputScreenState extends State<PinInputScreen> {
                                   }).toList(),
                             ),
                           ),
-                        ],
-                        if (widget.bottomTextButtonLabel != null)
-                          SizedBox(
-                            width: MediaQuery.of(context).size.width,
-                            child: Center(
-                              child: Padding(
-                                padding: const EdgeInsets.only(bottom: 50, top: 8),
-                                child: GestureDetector(
-                                  onTap: () {
-                                    widget.onPressedBottomTextButton?.call();
-                                  },
-                                  child: Text(
-                                    widget.bottomTextButtonLabel ?? '',
-                                    style: CoconutTypography.body1_16_Bold.setColor(
-                                      CoconutColors.black.withValues(alpha: 0.5),
-                                    ),
-                                    textAlign: TextAlign.center,
-                                  ),
-                                ),
+                          if (widget.bottomTextButtonLabel != null) ...[_buildBottomTextButton()],
+                        ] else ...[
+                          if (widget.bottomTextButtonLabel != null) ...[
+                            _buildBottomTextButton(),
+                            if (isBiometricEnabled && _characterFocusNode.hasFocus) ...[
+                              Container(
+                                color: keyboardBackgroundColor,
+                                width: MediaQuery.of(context).size.width,
+                                child: Align(alignment: Alignment.center, child: _buildBiometricsButton(context)),
                               ),
-                            ),
-                          ),
+                            ],
+                          ],
+                        ],
                       ],
                     ),
                   ),
@@ -241,6 +270,56 @@ class PinInputScreenState extends State<PinInputScreen> {
               child: const Center(child: CoconutCircularIndicator()),
             ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildBottomTextButton() {
+    return SizedBox(
+      width: MediaQuery.of(context).size.width,
+      child: Center(
+        child: Padding(
+          padding: EdgeInsets.only(bottom: _hideBottomPadding ? 50 : 30, top: 8),
+          child: GestureDetector(
+            onTap: () {
+              widget.onPressedBottomTextButton?.call();
+            },
+            child: Text(
+              widget.bottomTextButtonLabel ?? '',
+              style: CoconutTypography.body1_16_Bold.setColor(CoconutColors.black.withValues(alpha: 0.5)),
+              textAlign: TextAlign.center,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildBiometricsButton(BuildContext context) {
+    final provider = Provider.of<AuthProvider>(context, listen: false);
+    final bool isFaceRecognition = provider.availableBiometrics.contains(BiometricType.face);
+
+    final String iconAsset = isFaceRecognition ? 'assets/svg/face-id.svg' : 'assets/svg/fingerprint.svg';
+
+    return Padding(
+      padding: EdgeInsets.only(bottom: _hideBottomPadding ? keyboardHeight + 8 : 100, top: _hideBottomPadding ? 8 : 8),
+      child: GestureDetector(
+        onTap: () {
+          widget.onKeyTap(kBiometricIdentifier);
+        },
+        child: Container(
+          width: 69,
+          height: 48,
+          decoration: BoxDecoration(
+            color:
+                MediaQuery.of(context).platformBrightness == Brightness.dark
+                    ? (Platform.isIOS ? CoconutColors.gray400 : CoconutColors.gray400)
+                    : CoconutColors.white,
+            border: Border.all(color: CoconutColors.gray350, width: 1),
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Center(child: SvgPicture.asset(iconAsset, width: 24, height: 24, color: CoconutColors.gray800)),
+        ),
       ),
     );
   }
