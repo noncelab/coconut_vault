@@ -267,7 +267,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
   }
 
   Widget _buildBottomButton() {
-    if (_currentScreenIndex == 1) {
+    if (_currentScreenIndex == 1 || _currentScreenIndex == 2) {
       return Consumer<ConnectivityProvider>(
         builder: (context, provider, child) {
           final isActive =
@@ -279,11 +279,12 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
             isActive: isActive,
             onButtonClicked: _screenItems[_currentScreenIndex].onButtonPressed,
             text: _screenItems[_currentScreenIndex].buttonText,
-            subWidget: _buildSubButton(),
+            subWidget: _currentScreenIndex == 1 ? _buildSubButton() : null,
           );
         },
       );
     }
+
     return FixedBottomButton(
       isActive: true,
       onButtonClicked: _screenItems[_currentScreenIndex].onButtonPressed,

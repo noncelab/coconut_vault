@@ -1,6 +1,8 @@
 import UIKit
 import Flutter
 import LocalAuthentication
+import Foundation
+import Darwin
 
 @main
 @objc class AppDelegate: FlutterAppDelegate {
@@ -59,37 +61,100 @@ func isDeviceJailbroken() -> Bool {
 #if targetEnvironment(simulator)
     return false
 #else
-    // 탈옥 흔적 파일 확인
-    let jailbreakPaths = [
-        "/Applications/Cydia.app",
-        "/Library/MobileSubstrate/MobileSubstrate.dylib",
-        "/bin/bash",
-        "/usr/sbin/sshd",
-        "/etc/apt",
-        "/private/var/lib/apt/"
-    ]
-    if jailbreakPaths.contains(where: { FileManager.default.fileExists(atPath: $0) }) {
-        return true
-    }
-    
-    // 루트 영역에 쓰기 시도
     let testPath = "/private/" + UUID().uuidString
     do {
         try "test".write(toFile: testPath, atomically: true, encoding: .utf8)
         try FileManager.default.removeItem(atPath: testPath)
         return true
     } catch {
-        // 쓰기 실패는 정상
+        // 정상
     }
-    
-    // URL scheme을 통한 Cydia 등 확인
-    if let url = URL(string: "cydia://package/com.example.package"), UIApplication.shared.canOpenURL(url) {
+
+    let jailbreakPaths = [
+        "/Library/MobileSubstrate/MobileSubstrate.dylib",
+        "/bin/bash",  
+        "/usr/sbin/sshd",  
+        "/etc/apt",  
+        "/private/var/lib/apt/",  
+        "/private/var/lib/cydia",  
+        "/private/var/mobile/Library/SBSettings", 
+        "/private/var/tmp/cydia.log",  
+        "/Applications/RockApp.app", 
+        "/Applications/Icy.app",
+        "/Applications/MxTube.app",
+        "/Applications/IntelliScreen.app",
+        "/Applications/FakeCarrier.app",
+        "/Applications/WinterBoard.app",
+        "/usr/libexec/cydia",
+        "/usr/libexec/ssh-keysign",
+        "/usr/bin/cycript",
+        "/usr/local/bin/cycript",
+        "/usr/lib/libcycript.dylib",
+        "/System/Library/LaunchDaemons/com.ikey.bbot.plist",
+        "/System/Library/LaunchDaemons/com.saurik.Cydia.Startup.plist",
+        "/bin/sh",  
+        "/usr/bin/ssh", 
+        "/var/lib/cydia", 
+        "/var/cache/apt", 
+        "/var/lib/apt", 
+        "/var/log/syslog",
+        "/etc/ssh/sshd_config", 
+        "/private/etc/apt",
+        "/private/var/lib/dpkg",
+        "/private/var/lib/apt", 
+        "/private/var/mobile/Library/SBSettings/Themes",
+        "/private/var/stash",
+        "/private/var/cache/apt",
+        "/private/var/lib/apt",
+        "/private/var/mobile/Library/Caches/com.apple.mobile.installation.plist", 
+        "/private/var/mobile/Library/Preferences/com.saurik.Cydia.plist",
+        "/private/var/root/Library/Caches/com.apple.mobile.installation.plist"
+    ]
+    if jailbreakPaths.contains(where: { FileManager.default.fileExists(atPath: $0) }) {
         return true
     }
     
-    // sandbox 경로가 비정상적인 경우
+    let jailbreakURLs = [
+        "cydia://",  
+        "sileo://",  
+        "zbra://", 
+        "installer://", 
+        "sileo://package"
+    ]
+    for urlString in jailbreakURLs {
+        if let url = URL(string: urlString), UIApplication.shared.canOpenURL(url) {
+            return true
+        }
+    }
+    
     if !FileManager.default.fileExists(atPath: NSHomeDirectory() + "/Library/Preferences") {
         return true
+    }
+
+    let systemPaths = [
+        "/Applications",
+        "/usr/libexec",
+        "/usr/bin",
+        "/bin"
+    ]
+    for path in systemPaths {
+        if FileManager.default.isWritableFile(atPath: path) {
+            return true
+        }
+    }
+
+    let suspiciousLibraries = [
+        "/Library/MobileSubstrate/MobileSubstrate.dylib",
+        "/usr/lib/libsubstrate.dylib",
+        "/usr/lib/libsubstrate.0.dylib"
+    ]
+    for libPath in suspiciousLibraries {
+        if FileManager.default.fileExists(atPath: libPath) {
+            if dlopen(libPath, RTLD_NOW) != nil {
+                dlclose(dlopen(libPath, RTLD_NOW)!)
+                return true
+            }
+        }
     }
     
     return false
@@ -166,6 +231,16 @@ func installTEEHandler(_ teeChannel: FlutterMethodChannel) {
                 }
                 let plaintext = try SecureEnclaveCrypto.decrypt(with: privateKey, ciphertext: ciphertext)
                 result(FlutterStandardTypedData(bytes: plaintext))
+            } catch let error as NSError {
+                if error.domain == LAErrorDomain {
+                    switch error.code {
+                        case LAError.userCancel.rawValue:
+                            // 사용자가 생체인증 취소 버튼 클릭
+                            result(FlutterError(code:"USER_CANCEL", message: "User cancelled biometric authentication", details:nil))
+                        default:
+                            result(FlutterError(code:"DEC_FAIL", message: error.localizedDescription, details:nil))
+                    }
+                }
             } catch {
                 result(FlutterError(code:"DEC_FAIL", message: error.localizedDescription, details:nil))
             }

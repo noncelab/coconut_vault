@@ -138,8 +138,6 @@ class SignerAssignmentViewModel extends ChangeNotifier {
             ),
           );
           break;
-        default:
-          throw ArgumentError("wrong importKeyType: ${_assignedVaultList[i].importKeyType!}");
       }
     }
 

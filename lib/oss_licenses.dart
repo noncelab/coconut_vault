@@ -55,6 +55,12 @@ const allDependencies = <Package>[
   _flat_buffers,
   _flutter,
   _flutter_blue_plus,
+  _flutter_keyboard_visibility,
+  _flutter_keyboard_visibility_linux,
+  _flutter_keyboard_visibility_macos,
+  _flutter_keyboard_visibility_platform_interface,
+  _flutter_keyboard_visibility_web,
+  _flutter_keyboard_visibility_windows,
   _flutter_lints,
   _flutter_oss_licenses,
   _flutter_plugin_android_lifecycle,
@@ -200,6 +206,7 @@ const dependencies = <Package>[
   _encrypt,
   _flutter,
   _flutter_blue_plus,
+  _flutter_keyboard_visibility,
   _flutter_secure_storage,
   _flutter_svg,
   _fluttertoast,
@@ -1385,7 +1392,7 @@ const _clock = Package(
   dependencies: [],
 );
 
-/// coconut_design_system 0.9.6
+/// coconut_design_system 0.9.7
 const _coconut_design_system = Package(
   name: 'coconut_design_system',
   description:
@@ -1393,7 +1400,7 @@ const _coconut_design_system = Package(
   homepage: 'https://www.noncelab.com',
   repository: 'https://github.com/noncelab/coconut_design_system',
   authors: [],
-  version: '0.9.6',
+  version: '0.9.7',
   license: '''MIT License
 
 Copyright 2025 Nonce Lab
@@ -1422,14 +1429,14 @@ Licensor: Nonce Lab''',
   dependencies: [PackageRef('flutter'), PackageRef('provider'), PackageRef('flutter_svg'), PackageRef('lottie')],
 );
 
-/// coconut_lib 1.0.2
+/// coconut_lib 1.0.3
 const _coconut_lib = Package(
   name: 'coconut_lib',
   description:
       'The coconut_lib is a development tool for mobile air gap Bitcoin wallets. It is written in Dart. Coconut Vault and Coconut Wallet were created using this library.',
   repository: 'https://github.com/noncelab/coconut_lib.git',
   authors: [],
-  version: '1.0.2',
+  version: '1.0.3',
   license: '''Copyright 2025 Nonce Lab
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the “Software”), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
@@ -3288,6 +3295,224 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.''',
   isMarkdown: false,
   isSdk: false,
   dependencies: [PackageRef('flutter')],
+);
+
+/// flutter_keyboard_visibility 6.0.0
+const _flutter_keyboard_visibility = Package(
+  name: 'flutter_keyboard_visibility',
+  description: 'Flutter plugin for discovering the state of the soft-keyboard visibility on Android and iOS.',
+  homepage: 'https://github.com/MisterJimson/flutter_keyboard_visibility',
+  repository: 'https://github.com/MisterJimson/flutter_keyboard_visibility',
+  authors: [],
+  version: '6.0.0',
+  license: '''The MIT License
+
+Copyright (c) 2022 Jason Rai
+All rights reserved.
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.''',
+  isMarkdown: false,
+  isSdk: false,
+  dependencies: [
+    PackageRef('meta'),
+    PackageRef('flutter_keyboard_visibility_platform_interface'),
+    PackageRef('flutter_keyboard_visibility_linux'),
+    PackageRef('flutter_keyboard_visibility_macos'),
+    PackageRef('flutter_keyboard_visibility_web'),
+    PackageRef('flutter_keyboard_visibility_windows'),
+    PackageRef('flutter'),
+  ],
+);
+
+/// flutter_keyboard_visibility_linux 1.0.0
+const _flutter_keyboard_visibility_linux = Package(
+  name: 'flutter_keyboard_visibility_linux',
+  description: "An implementation for the linux platform of `flutter_keyboard_visibility'",
+  homepage: 'https://github.com/MisterJimson/flutter_keyboard_visibility',
+  repository: 'https://github.com/MisterJimson/flutter_keyboard_visibility',
+  authors: [],
+  version: '1.0.0',
+  license: '''The MIT License
+
+Copyright (c) 2022 Jason Rai
+All rights reserved.
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.''',
+  isMarkdown: false,
+  isSdk: false,
+  dependencies: [PackageRef('flutter_keyboard_visibility_platform_interface'), PackageRef('flutter')],
+);
+
+/// flutter_keyboard_visibility_macos 1.0.0
+const _flutter_keyboard_visibility_macos = Package(
+  name: 'flutter_keyboard_visibility_macos',
+  description: "An implementation for the macOS platform of `flutter_keyboard_visibility'",
+  homepage: 'https://github.com/MisterJimson/flutter_keyboard_visibility',
+  repository: 'https://github.com/MisterJimson/flutter_keyboard_visibility',
+  authors: [],
+  version: '1.0.0',
+  license: '''The MIT License
+
+Copyright (c) 2022 Jason Rai
+All rights reserved.
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.''',
+  isMarkdown: false,
+  isSdk: false,
+  dependencies: [PackageRef('flutter_keyboard_visibility_platform_interface'), PackageRef('flutter')],
+);
+
+/// flutter_keyboard_visibility_platform_interface 2.0.0
+const _flutter_keyboard_visibility_platform_interface = Package(
+  name: 'flutter_keyboard_visibility_platform_interface',
+  description: 'A common platform interface for the flutter_keyboard_visibility plugin.',
+  homepage: 'https://github.com/MisterJimson/flutter_keyboard_visibility',
+  repository: 'https://github.com/MisterJimson/flutter_keyboard_visibility',
+  authors: [],
+  version: '2.0.0',
+  license: '''The MIT License
+
+Copyright (c) 2006-2020
+All rights reserved.
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.''',
+  isMarkdown: false,
+  isSdk: false,
+  dependencies: [PackageRef('flutter'), PackageRef('meta'), PackageRef('plugin_platform_interface')],
+);
+
+/// flutter_keyboard_visibility_web 2.0.0
+const _flutter_keyboard_visibility_web = Package(
+  name: 'flutter_keyboard_visibility_web',
+  description: "An implementation for the web platform of `flutter_keyboard_visibility'",
+  homepage: 'https://github.com/MisterJimson/flutter_keyboard_visibility',
+  repository: 'https://github.com/MisterJimson/flutter_keyboard_visibility',
+  authors: [],
+  version: '2.0.0',
+  license: '''The MIT License
+
+Copyright (c) 2006-2020
+All rights reserved.
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.''',
+  isMarkdown: false,
+  isSdk: false,
+  dependencies: [PackageRef('flutter_keyboard_visibility_platform_interface'), PackageRef('flutter')],
+);
+
+/// flutter_keyboard_visibility_windows 1.0.0
+const _flutter_keyboard_visibility_windows = Package(
+  name: 'flutter_keyboard_visibility_windows',
+  description: "An implementation for the Windows platform of `flutter_keyboard_visibility'",
+  homepage: 'https://github.com/MisterJimson/flutter_keyboard_visibility',
+  repository: 'https://github.com/MisterJimson/flutter_keyboard_visibility',
+  authors: [],
+  version: '1.0.0',
+  license: '''The MIT License
+
+Copyright (c) 2022 Jason Rai
+All rights reserved.
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.''',
+  isMarkdown: false,
+  isSdk: false,
+  dependencies: [PackageRef('flutter_keyboard_visibility_platform_interface'), PackageRef('flutter')],
 );
 
 /// flutter_lints 3.0.2

@@ -1,20 +1,16 @@
 import 'dart:io';
 
 import 'package:coconut_lib/coconut_lib.dart';
-import 'package:coconut_vault/constants/method_channel.dart';
 import 'package:coconut_vault/constants/shared_preferences_keys.dart';
 import 'package:coconut_vault/enums/vault_mode_enum.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/repository/old_secure_storage_cleaner_for_ios.dart';
-import 'package:coconut_vault/repository/secure_storage_repository.dart';
 import 'package:coconut_vault/repository/shared_preferences_repository.dart';
-import 'package:coconut_vault/utils/logger.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:coconut_vault/app.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:provider/provider.dart';
 //import 'package:screen_protector/screen_protector.dart';
 
@@ -30,20 +26,6 @@ void main() async {
   // Isolate 토큰 생성 및 초기화
   final RootIsolateToken rootIsolateToken = RootIsolateToken.instance!;
   BackgroundIsolateBinaryMessenger.ensureInitialized(rootIsolateToken);
-  if (Platform.isAndroid) {
-    try {
-      const MethodChannel channel = MethodChannel(methodChannelOS);
-
-      final int version = await channel.invokeMethod('getSdkVersion');
-      if (version != 26) {
-        SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]);
-      }
-    } on PlatformException catch (e) {
-      Logger.error("Failed to get platform version: '${e.message}'.");
-    }
-  } else {
-    SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]);
-  }
 
   Provider.debugCheckInvalidValueType = null;
 
@@ -51,7 +33,7 @@ void main() async {
       String.fromEnvironment('FLUTTER_APP_FLAVOR') != '' ? String.fromEnvironment('FLUTTER_APP_FLAVOR') : null;
   NetworkType.setNetworkType(appFlavor == "mainnet" ? NetworkType.mainnet : NetworkType.regtest);
 
-  /// 현재 MainRouteGuard를 사용하고 있긴 하지만, AppLifecycleState 이벤트가 등록되기 직전 inactive 상태로 전환 시
+  /// AppLifecycleState 이벤트가 등록되기 전에 앱 상태가 inactive/background로 젼환되는 경우 (튜토리얼, 앱 사용 불가 화면)
   /// PrivacyScreen이 보여지지 않는 상황 때문에 ScreenProtector의 PrivacyScreen 기능도 사용합니다.
   // await ScreenProtector.protectDataLeakageWithImage(
   //   'ScreenProtectImage${NetworkType.currentNetworkType.isTestnet ? "Regtest" : ""}',

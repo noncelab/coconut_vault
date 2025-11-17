@@ -1,0 +1,226 @@
+import 'package:coconut_design_system/coconut_design_system.dart';
+import 'package:coconut_vault/localization/strings.g.dart';
+import 'package:coconut_vault/providers/auth_provider.dart';
+import 'package:coconut_vault/providers/visibility_provider.dart';
+import 'package:coconut_vault/services/secure_zone/secure_zone_availability_checker.dart';
+import 'package:coconut_vault/utils/device_secure_checker.dart' as device_secure_checker;
+import 'package:coconut_vault/widgets/button/fixed_bottom_button.dart';
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+
+// devicePasswordRequired: 기기 비밀번호 필요 화면(앱 최초 실행, 진입 후 표시)
+// devicePasswordChanged: 기기 비밀번호 변경 감지 화면(앱 진입 후 표시)
+enum DevicePasswordCheckerScreenState { devicePasswordRequired, devicePasswordChanged }
+
+class DevicePasswordCheckerScreen extends StatefulWidget {
+  final DevicePasswordCheckerScreenState state;
+  final VoidCallback onComplete;
+  const DevicePasswordCheckerScreen({super.key, required this.state, required this.onComplete});
+
+  @override
+  State<DevicePasswordCheckerScreen> createState() => _DevicePasswordCheckerScreenState();
+}
+
+class _DevicePasswordCheckerScreenState extends State<DevicePasswordCheckerScreen> with WidgetsBindingObserver {
+  bool isDeviceSecured = false;
+
+  @override
+  initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      // 화면을 강제로 리빌드하여 최신 언어 설정을 적용
+      if (mounted) {
+        setState(() {});
+      }
+    });
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) async {
+    if (state == AppLifecycleState.resumed) {
+      if (widget.state == DevicePasswordCheckerScreenState.devicePasswordRequired) {
+        isDeviceSecured = await device_secure_checker.isDeviceSecured();
+        if (isDeviceSecured) {
+          if (mounted) {
+            widget.onComplete();
+          }
+        }
+      }
+    }
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Consumer<VisibilityProvider>(
+      builder: (context, visibilityProvider, child) {
+        return MediaQuery(
+          data: MediaQuery.of(context).copyWith(textScaler: const TextScaler.linear(1.0)),
+          child: Scaffold(
+            backgroundColor: _getBackgroundColor(),
+            body: SafeArea(
+              child: SizedBox(
+                width: double.infinity,
+                height: MediaQuery.sizeOf(context).height,
+                child: Stack(
+                  children: [
+                    Positioned(
+                      top: 0,
+                      left: 0,
+                      right: 0,
+                      bottom: 0,
+                      child: Column(
+                        children: [
+                          Flexible(
+                            flex: 1,
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.end,
+                              children: [
+                                Padding(
+                                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                                  child: FittedBox(fit: BoxFit.scaleDown, child: _buildTitleTextWidget()),
+                                ),
+                                CoconutLayout.spacing_300h,
+                                Padding(
+                                  padding: EdgeInsets.symmetric(horizontal: MediaQuery.sizeOf(context).width * 0.23),
+
+                                  child: _buildDescriptionTextWidget(),
+                                ),
+                              ],
+                            ),
+                          ),
+                          CoconutLayout.spacing_800h,
+                          Flexible(
+                            flex: 1,
+                            child: Padding(padding: const EdgeInsets.symmetric(horizontal: 80), child: _buildImage()),
+                          ),
+                        ],
+                      ),
+                    ),
+                    _buildBottomButton(),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Color _getBackgroundColor() {
+    switch (widget.state) {
+      case DevicePasswordCheckerScreenState.devicePasswordRequired:
+        return CoconutColors.white;
+      case DevicePasswordCheckerScreenState.devicePasswordChanged:
+        return CoconutColors.gray150;
+    }
+  }
+
+  Widget _buildTitleTextWidget() {
+    String titleText = '';
+    switch (widget.state) {
+      case DevicePasswordCheckerScreenState.devicePasswordRequired:
+        titleText = t.device_password_detection_screen.device_password_required;
+      case DevicePasswordCheckerScreenState.devicePasswordChanged:
+        titleText = t.device_password_detection_screen.device_password_changed_question;
+    }
+    return MediaQuery(
+      data: MediaQuery.of(context).copyWith(textScaler: const TextScaler.linear(1.0)),
+      child: Text(titleText, style: CoconutTypography.heading3_21_Bold, textAlign: TextAlign.center),
+    );
+  }
+
+  Widget _buildDescriptionTextWidget() {
+    Widget descriptionTextWidget;
+    switch (widget.state) {
+      case DevicePasswordCheckerScreenState.devicePasswordRequired:
+        descriptionTextWidget = MediaQuery(
+          data: MediaQuery.of(context).copyWith(textScaler: const TextScaler.linear(1.0)),
+          child: Text(
+            t.device_password_detection_screen.device_password_setting_guide,
+            style: CoconutTypography.body1_16,
+            textAlign: TextAlign.center,
+          ),
+        );
+      case DevicePasswordCheckerScreenState.devicePasswordChanged:
+        descriptionTextWidget = Column(
+          children: [
+            MediaQuery(
+              data: MediaQuery.of(context).copyWith(textScaler: const TextScaler.linear(1.0)),
+              child: Text(
+                t.device_password_detection_screen.device_password_changed_guide,
+                style: CoconutTypography.body1_16_Bold,
+                textAlign: TextAlign.center,
+              ),
+            ),
+            CoconutLayout.spacing_200h,
+            MediaQuery(
+              data: MediaQuery.of(context).copyWith(textScaler: const TextScaler.linear(1.0)),
+              child: Text(
+                t.device_password_detection_screen.delete_data_to_use,
+                style: CoconutTypography.body1_16_Bold,
+                textAlign: TextAlign.center,
+              ),
+            ),
+          ],
+        );
+    }
+
+    return descriptionTextWidget;
+  }
+
+  Widget _buildImage() {
+    switch (widget.state) {
+      case DevicePasswordCheckerScreenState.devicePasswordRequired:
+        return Image.asset('assets/png/password-required.png', fit: BoxFit.fitWidth);
+      case DevicePasswordCheckerScreenState.devicePasswordChanged:
+        return Image.asset('assets/png/keychain-inaccessible.png', fit: BoxFit.fitWidth, width: 100);
+    }
+  }
+
+  Widget _buildBottomButton() {
+    return FixedBottomButton(
+      showGradient: false,
+      isActive: true,
+      onButtonClicked: () async => _onButtonClicked(),
+      text: _getButtonText(),
+    );
+  }
+
+  String _getButtonText() {
+    switch (widget.state) {
+      case DevicePasswordCheckerScreenState.devicePasswordRequired:
+        return t.device_password_detection_screen.go_to_settings;
+      case DevicePasswordCheckerScreenState.devicePasswordChanged:
+        return t.device_password_detection_screen.delete_data;
+    }
+  }
+
+  void _onButtonClicked() async {
+    switch (widget.state) {
+      case DevicePasswordCheckerScreenState.devicePasswordRequired:
+        await device_secure_checker.openSystemSecuritySettings(
+          context,
+          hasDialogShownForIos: true,
+          title: t.device_password_detection_screen.ios_settings_dialog_title,
+          description: t.device_password_detection_screen.ios_settings_dialog_description,
+          buttonText: t.confirm,
+        );
+        break;
+      case DevicePasswordCheckerScreenState.devicePasswordChanged:
+        final authProvider = Provider.of<AuthProvider>(context, listen: false);
+        final result = await SecureZoneManager().deleteStoredData(authProvider);
+        if (mounted && result) {
+          widget.onComplete();
+        }
+        break;
+    }
+  }
+}

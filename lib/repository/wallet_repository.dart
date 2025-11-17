@@ -1,10 +1,11 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:coconut_lib/coconut_lib.dart';
 import 'package:coconut_vault/constants/shared_preferences_keys.dart';
-import 'package:coconut_vault/extensions/uint8list_extensions.dart';
 import 'package:coconut_vault/isolates/wallet_isolates.dart';
+import 'package:coconut_vault/model/exception/seed_invalidated_exception.dart';
 import 'package:coconut_vault/model/multisig/multisig_signer.dart';
 import 'package:coconut_vault/model/multisig/multisig_vault_list_item.dart';
 import 'package:coconut_vault/model/single_sig/single_sig_vault_list_item.dart';
@@ -226,23 +227,35 @@ class WalletRepository {
     _sharedPrefs.setInt(nextIdField, nextId + 1);
   }
 
-  Future<Uint8List> getSecret(int id) async {
+  Future<({Uint8List secret, Uint8List? passphrase})> _decryptSecret(int id, {bool autoAuth = true}) async {
     final key = _createWalletKeyString(id, WalletType.singleSignature);
     final combinedBase64 = await _storageService.read(key: key);
+    if (combinedBase64 == null && Platform.isIOS) {
+      throw SeedInvalidatedException();
+    }
     final (Uint8List iv, Uint8List ciphertext) = EncryptResult.fromCombinedBase64(combinedBase64!);
-    final Uint8List? plaintext = await _secureZoneRepository.decrypt(alias: key, iv: iv, ciphertext: ciphertext);
+
+    final Uint8List? plaintext;
+    try {
+      plaintext = await _secureZoneRepository.decrypt(alias: key, iv: iv, ciphertext: ciphertext, autoAuth: autoAuth);
+    } on PlatformException catch (e) {
+      if (Platform.isAndroid && (e.code == 'INVALID_KEY' || e.code == 'KEY_INVALIDATED' || e.code == 'KEY_ERROR')) {
+        throw SeedInvalidatedException();
+      }
+      rethrow;
+    }
 
     final parsed = SecureZonePayloadCodec.parsePlaintext(plaintext!);
+    return parsed;
+  }
+
+  Future<Uint8List> getSecret(int id, {bool autoAuth = true}) async {
+    final parsed = await _decryptSecret(id, autoAuth: autoAuth);
     return parsed.secret;
   }
 
   Future<Seed> getSeedInSigningOnlyMode(int id) async {
-    final key = _createWalletKeyString(id, WalletType.singleSignature);
-    final combinedBase64 = await _storageService.read(key: key);
-    final (Uint8List iv, Uint8List ciphertext) = EncryptResult.fromCombinedBase64(combinedBase64!);
-    final Uint8List? plaintext = await _secureZoneRepository.decrypt(alias: key, iv: iv, ciphertext: ciphertext);
-
-    final parsed = SecureZonePayloadCodec.parsePlaintext(plaintext!);
+    final parsed = await _decryptSecret(id);
     final Uint8List secret = parsed.secret;
     final Uint8List? passphrase = parsed.passphrase;
 
@@ -428,27 +441,6 @@ class WalletRepository {
     }
     await _removePublicInfo();
     _sharedPrefs.deleteSharedPrefsWithKey(nextIdField);
-  }
-
-  Future<void> restoreFromBackupData(List<Map<String, dynamic>> backupData) async {
-    assert(!_isSigningOnlyMode);
-
-    final List<VaultListItemBase> vaultList = [];
-    for (final data in backupData) {
-      VaultListItemBase wallet = await compute(WalletIsolates.initializeWallet, data);
-      if (data['vaultType'] == WalletType.singleSignature.name) {
-        // INFO: JsonDecode는 Uint8List를 반환하지 못하고 List<dynamic>으로 반환하기 때문에 secretBytes가 필요합니다.
-        final secret = data['secret'] as List<dynamic>;
-        Uint8List secretBytes = Uint8List.fromList(secret.map((e) => e as int).toList());
-        secret.fillRange(0, secret.length, 0);
-        await _saveSecretAndPassphraseEnabled(wallet.id, secretBytes, data['hasPassphrase']);
-        secretBytes.wipe();
-      }
-      vaultList.add(wallet);
-    }
-
-    _vaultList = vaultList;
-    await _savePublicInfo();
   }
 
   Future<void> updateIsSigningOnlyMode(bool isSigningOnlyMode) async {

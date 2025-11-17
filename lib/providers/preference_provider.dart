@@ -117,11 +117,4 @@ class PreferenceProvider extends ChangeNotifier {
     _signingModeEdgePanelPos = (posX, posY);
     return _signingModeEdgePanelPos;
   }
-
-  Future<void> resetSigningModeEdgePanelPos() async {
-    await _sharedPrefs.deleteSharedPrefsWithKey(SharedPrefsKeys.kSigningModeEdgePanelPosX);
-    await _sharedPrefs.deleteSharedPrefsWithKey(SharedPrefsKeys.kSigningModeEdgePanelPosY);
-    _signingModeEdgePanelPos = (null, null);
-    notifyListeners();
-  }
 }

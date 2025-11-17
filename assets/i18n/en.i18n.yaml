@@ -43,13 +43,14 @@ restore: "Restore"
 change: "Change"
 receiving: "Receive"
 email_subject: "[Coconut Vault] Inquiry"
-delete_vault: "Delete Vault"
-delete_vault_description: "Deleting the vault will delete all saved information.\nAre you sure you want to delete?"
+delete_vault: "Delete Wallets"
+delete_vault_description: "This will delete all saved wallet information.\nAre you sure you want to delete?"
+verify_security: "Verifying security..."
 
 sign_completion: "Signed"
 sign: "Sign"
 signed_tx: "Signed Transaction"
-sign_completed: "Signature completed"
+sign_completed: "Signing completed"
 stop_sign: "Stop Signing"
 
 select_completed: "Selection Complete"
@@ -74,7 +75,7 @@ view_mnemonic: "View Mnemonic"
 verify_passphrase: "Verify Passphrase"
 view_app_info: "View App Info"
 view_all: "View All"
-view_address: "View Address"
+view_address: "View Addresses"
 view_tutorial: "View Tutorial"
 delete_all: "Delete All"
 delete_one: "Delete One"
@@ -88,6 +89,9 @@ sign_required_amount:
   other: "$n signatures required"
 move_to_qr_screen: "Move to QR Screen"
 move_to_qr_screen_description: "Generate QR to sign in key-holding vault."
+
+wallet_delete_failed: "No wallets to delete"
+wallet_delete_failed_description: "No wallets are currently saved, so deletion isn’t necessary"
 
 name_text_count: "($count / 20)"
 wallet_subtitle: "$name's key $index"
@@ -103,14 +107,16 @@ extra_count: "+$count more"
 edit: "edit"
 
 descriptor: "Descriptor"
+precautions: "Precautions"
 
 watch_only_options:
-  title: "Select Watch-only Wallet"
+  title: "Select Watch-Only Wallet"
   coconut_wallet: "Coconut Wallet"
   sparrow: "Sparrow"
   nunchuk: "Nunchuk"
   bluewallet: "BlueWallet"
 
+# 연결 상태
 connectivity_state: 
   connected: "Connected"
   disconnected: "Disconnected"
@@ -124,12 +130,14 @@ vault_home_screen:
   wallet_count: "$count Items"
   action_items:
     sign: "Sign"
-    view_address: "View Address"
-    export_wallet: "Export to\nWatch-only Wallet"
+    view_address: "View Addresses"
+    export_wallet: "Export to\nWatch-Only Wallet"
     import_multisig_wallet: "Import\nMultisig Wallet"
     mnemonic_wordlist: "Mnemonic Wordlist"
   toast:
     wallet_added_but_not_favorite: "Wallet added. Please check in the View All Wallets screen."
+  secure_zone_checking: "Checking if the secure zone is accessible..."
+  secure_zone_check_failed: "Secure Data Check Failed"
     
 vault_list_screen:
   primary_wallet: "Primary Wallet"
@@ -161,21 +169,21 @@ app_unavailable_notification_screen:
   step2: "Check the connection status"
   step3: "Restart the app"
   vault_reset:
-    reset_completed: "All wallets have been deleted"
-    step_1: "All saved information has been deleted"
+    reset_completed: "All data has been deleted"
+    step_1: "All saved data has been deleted"
     step_2: "To secure the app, completely close the app"
     step_3: "After closing the app, turn off the device power to be even more secure"
 
 device_password_detection_screen:
   device_password_required: "To use Vault, please set a device password"
   device_password_setting_guide: "For enhanced security, use a password combining letters and numbers instead of PIN.\n\nTo make signing more convenient and secure, please activate biometrics."
-  device_password_changed_question: "Have you changed your device password?"
-  device_password_changed_guide: "Changing or disabling the device password prevents access to all information stored in the vault."
-  delete_vault_to_use: "To use Vault again, please delete all wallets."
+  device_password_changed_question: "Did you remove and reset your device passcode?"
+  device_password_changed_guide: "If the device passcode is removed, all stored information becomes unusable."
+  delete_data_to_use: "To use Vault again, please delete all data."
   go_to_settings: "Go to Settings"
-  delete_vault: "Delete Wallet"
+  delete_data: "Delete Data"
   ios_settings_dialog_title: "Move to Settings"
-  ios_settings_dialog_description: "Because of iOS restrictions, the Settings home screen cannot be opened directly. When the Settings page appears, please go to the main Settings screen and set your password there."
+  ios_settings_dialog_description: "Due to iOS policy, the Settings home screen cannot be opened directly. When the Settings page appears, please go to the main Settings screen and set your passcode."
 
 jail_break_detection_screen:
   title: "Jailbreak / Root History Detected"
@@ -184,6 +192,7 @@ jail_break_detection_screen:
   jail_break_guide_title: "What is Jailbreaking / Rooting?"
   jail_break_guide_description: "Jailbreaking (iOS) or rooting (Android) is the act of removing the operating system’s security restrictions, allowing unrestricted access to system areas.\nWhile this provides higher-level control, it also increases the risk of malware infection or unauthorized access."
   continue_anyway: "Continue Anyway"
+  delete_data: "Delete Data"
 
 ios_bluetooth_auth_notification_screen:
   allow_permission: "Please allow Bluetooth access to check your connection status."
@@ -197,12 +206,12 @@ pin_check_screen:
       title: "Restart"
       description: "Would you like to restart Vault?"
 pin_setting_screen:
-  set_password: "Set a password first\nfor safe vault use"
+  set_password: "For a safe vault experience\nlet’s set a password first"
   enter_again: "Confirm again"
   new_password: "Enter new password"
   keep_in_mind: "Please set a password you can definitely remember"
-  character_password_input: "Enter text password"
-  number_password_input: "Enter numeric password"
+  character_password_input: "Use text password"
+  number_password_input: "Use PIN"
 security_self_check_screen:
   check1: "I am responsible for my private keys."
   check2: "I do not capture or photograph the mnemonic screen."
@@ -231,17 +240,15 @@ vault_mode_selection_screen:
   start: "Start"
   change: "Change"
   mode_change_complete: "Mode Change Complete"
-  mode_changed_description_secrue_storage: "Switched to Secure Storage Mode.\nChanging the device password prevents access to the seed. Please back up your mnemonic to safely recover it."
+  mode_changed_description_secrue_storage: "Secure Storage mode has been enabled.\nIf you remove your device passcode, your seed will no longer be accessible. Please back up your mnemonic to ensure safe recovery."
   mode_changed_description_signing_only: "Switched to Signing-Only Mode.\nAfter signing, please press the delete wallet button to safely delete the seed."
   secure_storage_mode_warning_title: "Warning\nSwitching to Secure Storage Mode"
-  secure_storage_mode_warning_descriptions_android:
-    - "Changing or disabling the device password prevents access to all information stored in the vault."
+  secure_storage_mode_warning_descriptions:
+    - "If you remove your device passcode, the stored wallet cannot be used. Make sure to back up your mnemonic separately."
     - "If there are existing wallets, saving data securely on the device may take some time."
     - "Passphrases are not stored. Please keep them safe separately."
-  secure_storage_mode_warning_descriptions_ios:
-    - "Changing or disabling the device password prevents access to all information stored in the vault."
-    - "If there are existing wallets, saving data securely on the device may take some time."
-    - "Passphrases are not stored. Please keep them safe separately."
+  secure_storage_mode_precautions_when_first_setting:
+    - "If you remove your device passcode, the stored wallet cannot be used. Make sure to back up your mnemonic separately."
   signing_only_mode_warning_title: "Warning\nSwitching to Signing-Only Mode"
   signing_only_mode_warning_descriptions:
     - "All wallet data stored in the vault will be deleted. Please complete a backup before switching."
@@ -272,8 +279,8 @@ psbt_scanner_screen:
   guide: "Please scan sending info created in wallet or multisig info from external vault."
   guide_single_sig_same_name: "Please scan sending info created in wallet. Wallet names must match."
 signed_transaction_qr_screen:
-  guide_multisig: "Multisig completed. Please scan the QR code below in the wallet that created the sending info."
-  guide_single_sig: "Signature completed for sending info created in '$name wallet'. Please scan the QR code below in the wallet."
+  guide_multisig: "Multisig signing completed. Please scan the QR code below with the wallet that initiated the transaction."
+  guide_single_sig: "Signing completed for the transaction created in '$name wallet'. Please scan the QR code below with the wallet."
 single_sig_sign_screen:
   text: "This is an already signed transaction"
 signer_qr_bottom_sheet:
@@ -438,6 +445,12 @@ passphrase_textfield:
   title: "Enter passphrase"
   passphrase_hidden: "Hide passphrase"
   passphrase_visible: "Show passphrase"
+entropy_bits_bottom_sheet:
+  iancoleman_guide: "On the Ian Coleman site, select "
+  options:
+    dice: "Valid entropy values → Dice [1-6] "
+    binary: "Valid entropy values → Binary [0-1] "
+  select_option: "and verify your values."
   
 mnemonic_import_screen:
   title: "Restore"
@@ -454,9 +467,12 @@ mnemonic_import_screen:
 mnemonic_view_screen:
   security_guide: "Please check the mnemonic in a safe place"
   warning_title: "Mnemonic phrase is the key to your wallet"
-  warning_guide: "If you know this word, anyone can take all your bitcoins. Please check if there are any other people or cameras around you."
+  warning_guide: "If someone knows this word, they can take all your Bitcoin. Please check if there are any other people or cameras around you."
   warning_btn: "I understand"
-  
+  alert:
+    failed_get_secret:
+      title: "Mnemonic Retrieval Failed"
+      
 mnemonic_verify_screen:
   title: "Mnemonic Verification"
   select_word: "Select word #${index}"
@@ -471,13 +487,13 @@ vault_creation_options_screen:
   coin_flip: "Flip coin to create manually"
   dice_roll: "Roll dice to create manually"
   auto_generate: "Let app create for me"
-  import_mnemonic: "I have an existing mnemonic phrase"
+  import_mnemonic: "I already have a mnemonic phrase"
   seed_qr: "I have a seed QR code"
 seed_qr_import_screen:
   title: "Seed QR Code Scan"
   error_title: "Scan Error"
   error_message: "An error occurred while scanning the seed QR code. Please try again."
-  guide: "Please scan the seed QR code. (21x21 또는 25x25)"
+  guide: "Please scan the seed QR code. (21x21 or 25x25)"
 seed_qr_confirmation_screen:
   title: "Mnemonic Confirmation"
   check_mnemonic: "Please check the mnemonic phrase"
@@ -519,7 +535,7 @@ signer_scanner_screen:
   guide1_1: "You can import multisig wallet created in other vault."
   guide1_2: "On the home screen of the other vault, "
   guide1_3: "the multisig wallet."
-  guide1_4: "Export Multisig Wallet."
+  guide1_4: "Export to another vault."
   guide1_5: "Scan the QR code below on the screen."
   guide2_1: "On the vault containing a key you want to use, "
   guide2_2: "the wallet."
@@ -560,10 +576,7 @@ multi_sig_setting_screen:
     one: "Multisig wallet requiring $n signature\nout of $total keys."
     other: "Multisig wallet requiring $n signatures\nout of $total keys."
 select_export_type_screen:
-  title: "Export to a watch-only app"
-  export_type: "What will you use it for?"
-  watch_only: "Add watch-only\nwallet to wallet"
-  multisig: "Use as multisig key\nin other vault"
+  title: "Export to Watch-Only Wallet"
 signer_bsms_screen:
   guide1_1: "You are creating a multisig wallet in other vault."
   guide1_2: "Scan the QR code below on Import BSMS screen."
@@ -607,7 +620,7 @@ vault_menu_screen:
     view_multisig_info: "Check multisig wallet info"
     import_bsms: "Add multisig wallet info containing this key"
     view_address: "Check $name's address"
-    export_xpub: "Add watch-only wallet to wallet"
+    export_xpub: "Add Watch-Only wallet to wallet"
     sign: "Scan info created in wallet and sign"
     use_as_multisig_signer: "Register my key as multisig key in other vault"
 vault_settings:
@@ -631,10 +644,13 @@ verify_passphrase_screen:
   saved_mfp: "Saved MFP"
   recovered_mfp: "Recovered MFP"
 
-passphrase_input_screen:
+passphrase_check_screen:
   title: "Enter Passphrase"
   enter_passphrase: "Enter Passphrase"
   passphrase_error: "Please check your passphrase again"
+  alert:
+    failed:
+      title: "Passphrase Check Failed"
 
 multisig_signer_bsms_export_screen:
   fail_bsms: "Failed to load BSMS"
@@ -654,6 +670,9 @@ permission:
     denied: "Biometric permission denied."
     how_to_allow: "To unlock with biometric authentication\nplease allow biometric permission in Settings > Coconut Vault."
     btn_move_to_setting: "Go to Settings"
+  secure_zone_authentication:
+    title: "Secure Module Access"
+    description: "Authentication is required to access the secure module."
 
 alert:
   delete_vault:
@@ -716,19 +735,28 @@ alert:
   secure_module_use_biometrics:
     title: "Biometric Authentication Notice"
     description: "Biometric authentication is not used to unlock the app. However, it may be automatically requested when accessing data stored in a secure module."
+  auth_canceled_when_decrypt:
+    title: "Device Authentication Canceled"
+    description_view_mnemonic: "You need to authenticate your device to retrieve the information from the secure area."
+    description_export: "Access to the secure area is required to verify that the passphrase for the wallet you are exporting is correct. This process helps prevent sending Bitcoin to the wrong wallet by mistake."
+    description_passphrase_verify: "Access to the secure area is required to verify that the entered passphrase is correct."
+  auth_canceled_when_encrypt:
+    title: "Device Authentication Canceled"
+    description: "You need to authenticate your device to store wallet information in the secure area."
 
 toast:
   clipboard_copied: "Copied to clipboard"
-  back_exit: "Press back button once more to exit"
-  scroll_down: "Please scroll down to check all"
-  data_updated: "Info updated! Please sync with wallet to avoid confusion."
-  name_already_used: "Cannot change to already used name"
-  name_already_used2: "Cannot set already used name"
-  name_multisig_in_use: "Cannot delete as used in multisig wallet"
-  mnemonic_already_added: "Already added mnemonic"
+  back_exit: "Press the back button once more to exit"
+  scroll_down: "Please scroll down to view everything"
+  data_updated: "Information updated! Please sync with your wallet to avoid any confusion."
+  name_already_used: "You can't change to a name that's already in use."
+  name_already_used2: "You can't use a name that's already taken."
+  name_multisig_in_use: "This wallet is used in a multisig wallet and can't be deleted."
+  mnemonic_already_added: "This mnemonic has already been added."
   mnemonic_copied: "Mnemonic phrase copied"
-  multisig_already_added: "Already added multisig wallet. ($name)"
-  home_vault_min_one: "Home screen displayed wallets must be at least 1"
+  multisig_already_added: "This multisig wallet has already been added. ($name)"
+  home_vault_min_one: "At least one wallet must remain on the home screen."
+  no_wallet_to_delete: "There is no wallet to delete."
 
 errors:
   invalid_qr: "Invalid QR code.\nPlease check again."
@@ -762,6 +790,12 @@ errors:
   not_related_multisig_wallet_error: "This is not a multisig wallet using this wallet as key"
   vault_not_found_error: "No matching vault found"
   extended_public_key_not_found_error: "Please select the wallet you want to use directly and use the Multisig Signing feature"
+  user_cancelled_auth: "User cancelled authentication."
+
+exceptions:
+  seed_invalidated: 
+    title: "Wallet Unavailable"
+    description: "The saved wallet can no longer be used. Please delete the wallet and restore it using the backed-up mnemonic."
 
 tooltip:
   mfp: "Unique value of wallet.\nAlso called Master Fingerprint (MFP)."

@@ -4,6 +4,8 @@ import 'package:coconut_vault/constants/app_routes.dart';
 import 'package:coconut_vault/enums/currency_enum.dart';
 import 'package:coconut_vault/enums/pin_check_context_enum.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
+import 'package:coconut_vault/model/exception/seed_invalidated_exception.dart';
+import 'package:coconut_vault/model/exception/user_canceled_auth_exception.dart';
 import 'package:coconut_vault/providers/auth_provider.dart';
 import 'package:coconut_vault/providers/preference_provider.dart';
 import 'package:coconut_vault/providers/sign_provider.dart';
@@ -65,7 +67,7 @@ class _SingleSigSignScreenState extends State<SingleSigSignScreen> {
     return await MyBottomSheet.showBottomSheet_ratio(
       ratio: 0.5,
       context: context,
-      child: PassphraseCheckScreen(id: _viewModel.walletId),
+      child: PassphraseCheckScreen(id: _viewModel.walletId, context: PassphraseCheckContext.sign),
     );
   }
 
@@ -93,26 +95,38 @@ class _SingleSigSignScreenState extends State<SingleSigSignScreen> {
   Future<void> _sign() async {
     if (!_viewModel.isSigningOnlyMode) {
       // 안전 저장 모드
-      Seed? seed;
-      if (_viewModel.hasPassphrase) {
-        seed = await _authenticateWithPassphrase(context: context);
-        if (seed == null) {
-          return;
-        }
-      } else {
-        final authenticateResult = await _authenticateWithoutPassphrase();
-        if (authenticateResult != true) {
-          return;
-        }
-        seed = Seed.fromMnemonic(await _viewModel.getSecret());
-      }
-
-      await _addSignatureToPsbt(seed);
-      seed.wipe();
+      await _addSignatureToPsbtInStorageMode();
     } else {
       // 서명 전용 모드
       await _addSignatureToPsbtInSigningOnlyMode();
     }
+  }
+
+  Future<void> _addSignatureToPsbtInStorageMode() async {
+    Seed? seed;
+    if (_viewModel.hasPassphrase) {
+      seed = await _authenticateWithPassphrase(context: context);
+      if (seed == null) {
+        return;
+      }
+    } else {
+      final authenticateResult = await _authenticateWithoutPassphrase();
+      if (authenticateResult != true) {
+        return;
+      }
+      try {
+        seed = Seed.fromMnemonic(await _viewModel.getSecret());
+      } on UserCanceledAuthException catch (_) {
+        return;
+      } catch (e) {
+        if (!mounted) return;
+        showAlertDialog(context: context, content: t.errors.sign_error(error: e));
+        return;
+      }
+    }
+
+    await _addSignatureToPsbt(seed);
+    seed.wipe();
   }
 
   Future<void> _addSignatureToPsbt(Seed seed) async {
@@ -140,6 +154,21 @@ class _SingleSigSignScreenState extends State<SingleSigSignScreen> {
       });
 
       await _viewModel.signPsbtInSigningOnlyMode();
+    } on UserCanceledAuthException catch (_) {
+      return;
+    } on SeedInvalidatedException catch (e) {
+      if (!mounted) return;
+      showDialog(
+        context: context,
+        builder:
+            (context) => CoconutPopup(
+              title: t.exceptions.seed_invalidated.title,
+              description: e.message,
+              onTapRight: () {
+                Navigator.pop(context);
+              },
+            ),
+      );
     } catch (error) {
       if (mounted) {
         showAlertDialog(context: context, content: t.errors.sign_error(error: error));

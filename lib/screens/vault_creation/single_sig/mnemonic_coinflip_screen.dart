@@ -108,6 +108,7 @@ class _CoinFlipState extends BaseEntropyWidgetState<CoinFlip> {
           ),
           CoconutLayout.spacing_1400h,
           _buildCoinflipButtons(),
+          CoconutLayout.spacing_2500h,
         ],
       ),
     );
@@ -257,9 +258,15 @@ class _CoinFlipState extends BaseEntropyWidgetState<CoinFlip> {
   void showAllBitsBottomSheet() {
     MyBottomSheet.showDraggableBottomSheet(
       context: context,
-      minChildSize: 0.5,
+      initialChildSize: 0.9,
+      showDragHandle: true,
       childBuilder:
-          (scrollController) => BinaryGrid(totalCount: _totalBits, inputs: _bits, scrollController: scrollController),
+          (scrollController) => BinaryGrid(
+            totalCount: _totalBits,
+            inputs: _bits,
+            scrollController: scrollController,
+            option: EntropyBitsOption.coinflip,
+          ),
     );
   }
 

@@ -43,8 +43,9 @@ restore: "復元"
 change: "変更"
 receiving: "受信"
 email_subject: "[ココナッツボルト] お問い合わせ"
-delete_vault: "ウォレット削除"
-delete_vault_description: "ウォレットを削除すると、保存された情報がすべて削除されます。\n本当に削除しますか？"
+delete_vault: "ウォレットを削除"
+delete_vault_description: "ウォレットを削除すると、すべての情報が初期化されます。\n本当に削除しますか？"
+verify_security: "セキュリティチェック中..."
 
 sign_completion: "署名完了"
 sign: "署名"
@@ -89,6 +90,9 @@ sign_required_amount:
 move_to_qr_screen: "QR画面に移動"
 move_to_qr_screen_description: "キー保持ボルトで署名するためのQRを生成"
 
+wallet_delete_failed: "削除するウォレットはありません"
+wallet_delete_failed_description: "現在、保存されているウォレットがないため、削除する必要はありません。"
+
 name_text_count: "($count / 20)"
 wallet_subtitle: "$nameのキー$index"
 
@@ -103,6 +107,7 @@ extra_count: "+$count個追加"
 edit: "編集"
 
 descriptor: "ディスクリプタ"
+precautions: "注意事項"
 
 watch_only_options:
   title: "ウォッチオンリーウォレット選択"
@@ -111,6 +116,7 @@ watch_only_options:
   nunchuk: "Nunchuk"
   bluewallet: "BlueWallet"
 
+# 연결 상태
 connectivity_state: 
   connected: "接続済み"
   disconnected: "切断"
@@ -130,6 +136,9 @@ vault_home_screen:
     mnemonic_wordlist: "ニーモニック単語リスト"
   toast:
     wallet_added_but_not_favorite: "ウォレットが追加されました。View All Wallets画面で確認してください。"
+  secure_zone_checking: "セキュリティ領域にアクセスできるか確認しています。"
+  secure_zone_check_failed: "セキュリティデータチェックに失敗しました"
+
 
 vault_list_screen:
   primary_wallet: "プライマリウォレット"
@@ -161,21 +170,21 @@ app_unavailable_notification_screen:
   step2: "接続状態を確認"
   step3: "アプリを再起動"
   vault_reset: 
-    reset_completed: "すべてのウォレットが削除されました"
-    step_1: "保存された情報がすべて削除されました"
+    reset_completed: "すべてのデータが削除されました"
+    step_1: "保存されたすべてのデータが削除されました"
     step_2: "アプリを完全に閉じる"
     step_3: "アプリを閉じた後、デバイスの電源を切るとより安全です"
 
 device_password_detection_screen:
   device_password_required: "Vaultを使用するには\nデバイスパスワードを設定してください"
   device_password_setting_guide: "セキュリティを強化するために、英字と数字を組み合わせたパスワードを使用してください。\n\n快適で安全にご利用いただくために、生体認証を有効にしてください。" 
-  device_password_changed_question: "もしかして、端末のパスコードを変更しましたか？"
-  device_password_changed_guide: "端末のパスコードを変更または解除すると、暗号化されて保存されているすべての情報にアクセスできなくなります。"
-  delete_vault_to_use: "ボルトを再び使用するには、すべてのウォレットを削除してください。"
+  device_password_changed_question: "端末のパスコードを削除して、再設定しましたか？"
+  device_password_changed_guide: "端末のパスコードを解除すると、保存されているすべての情報が利用できなくなります。"
+  delete_data_to_use: "ボールトを再び使用するには、すべてのデータを削除する必要があります。"
   go_to_settings: "設定する"
-  delete_vault: "ウォレット削除"
+  delete_data: "データ削除"
   ios_settings_dialog_title: "設定画面に移動"
-  ios_settings_dialog_description: "iOSの仕様により設定ホーム画面へは直接移動できません。設定画面が開いたら、設定ホームに移動してパスコードを設定してください。"
+  ios_settings_dialog_description: "iOSの仕様により、設定アプリのホーム画面へ移動することはできません。設定画面が開いたら、設定のホーム画面に戻り、パスコードを設定してください。"
 
 jail_break_detection_screen:
   title: "脱獄 / ルート化の履歴が検出されました"
@@ -184,6 +193,7 @@ jail_break_detection_screen:
   jail_break_guide_title: "脱獄 / ルート化とは？"
   jail_break_guide_description: "脱獄(iOS)またはルート化(Android)とは、OSのセキュリティ制限を解除し、システム領域に自由にアクセスできるようにする行為です。\nユーザーは高度な操作権限を得られますが、同時にマルウェア感染や不正アクセスのリスクも高まります。"
   continue_anyway: "それでも続けます"
+  delete_data: "データ削除"
 
 ios_bluetooth_auth_notification_screen:
   allow_permission: "接続状況を確認するために、Bluetooth へのアクセスを許可してください。"
@@ -231,17 +241,15 @@ vault_mode_selection_screen:
   start: "開始"
   change: "変更"
   mode_change_complete: "モード変更完了"
-  mode_changed_description_secrue_storage: "安全保存モードに切り替わりました。\nデバイスのパスコードを変更すると、シードを使用できなくなります。安全に復元できるように、ニーモニックをバックアップしてください。"
+  mode_changed_description_secrue_storage: "セキュアストレージモードに変更されました。\n端末のパスコードを解除すると、シードにはアクセスできなくなります。安全に復元できるよう、ニーモニックを必ずバックアップしてください。"
   mode_changed_description_signing_only: "署名専用モードに切り替えました。 \n署名が完了したら、ウォレット削除ボタンを押してシードを安全に削除してください。"
   secure_storage_mode_warning_title: "安全保存モード切り替え時の\n注意事項"
-  secure_storage_mode_warning_descriptions_android:
-    - "デバイスのパスコードを変更または解除すると、暗号化されて保存されたウォレット情報が使用できなくなります。変更する前に必ずバックアップを完了してください。"
+  secure_storage_mode_warning_descriptions:
+    - "端末のパスコードを解除すると、保存されているウォレットを利用できなくなります。 ニーモニックは必ず別途バックアップしてください。"
     - "現在追加されているウォレットがある場合、デバイスへの安全な保存に時間がかかることがあります。"
     - "パスフレーズは保存されません。別途安全な場所に保管してください。"
-  secure_storage_mode_warning_descriptions_ios:
-    - "デバイスのパスコードを変更または解除すると、暗号化されて保存されたウォレット情報が使用できなくなります。変更する前に必ずバックアップを完了してください。"
-    - "現在追加されているウォレットがある場合、デバイスへの安全な保存に時間がかかることがあります。"
-    - "パスフレーズは保存されません。別途安全な場所に保管してください。"
+  secure_storage_mode_precautions_when_first_setting:
+    - "端末のパスコードを解除すると、保存されているウォレットを利用できなくなります。 ニーモニックは必ず別途バックアップしてください。"
   signing_only_mode_warning_title: "署名専用モード切り替え時の\n注意事項"
   signing_only_mode_warning_descriptions:
     - "現在保存されているウォレット情報はすべて初期化されます。切り替える前に必ずバックアップを完了してください。"
@@ -353,6 +361,7 @@ welcome_screen:
   screen_3_button: "開始"
   setting_guide: "設定ガイドを表示 ⓘ"
   bottom_sheet_title: "設定ガイド"
+  recommendation: "ココナッツボルトアプリ専用で、空の機械の使用をお勧めします"
   airplane_mode_on: 
     title: "機内モードをオンにする"
     description_ios: "画面右上から下にスワイプ → コントロールセンター → 飛行機モードアイコンをタップ"
@@ -437,6 +446,12 @@ passphrase_textfield:
   title: "パスフレーズを入力してください"
   passphrase_hidden: "パスフレーズを隠す"
   passphrase_visible: "パスフレーズを表示"
+entropy_bits_bottom_sheet:
+  iancoleman_guide: "Ian Coleman のサイトで "
+  options:
+    dice: "Valid entropy values → Dice [1-6] "
+    binary: "Valid entropy values → Binary [0-1] "
+  select_option: "を選択し、値を確認してください。"
 
 mnemonic_import_screen:
   title: "復元"
@@ -453,8 +468,11 @@ mnemonic_import_screen:
 mnemonic_view_screen:
   security_guide: "安全な場所でニーモニックを確認してください"
   warning_title: "ニーモニックフレーズはウォレットの鍵です"
-  warning_guide: "この単語を知っている人は誰でもあなたのビットコインをすべて奪うことができます。周りに他の人やカメラがないか必ず確認してください。"
+  warning_guide: "この単語を他の人に知られると、あなたのビットコインはすべて盗まれてしまいます。周りに他の人やカメラがないか確認してください。"
   warning_btn: "分かりました"
+  alert:
+    failed_get_secret:
+      title: "ニーモニック取得失敗"
 
 mnemonic_verify_screen:
   title: "ニーモニック確認"
@@ -476,7 +494,7 @@ seed_qr_import_screen:
   title: "シードQRコードスキャン"
   error_title: "スキャンエラー"
   error_message: "シードQRコードのスキャン中にエラーが発生しました。再試行してください。"
-  guide: "シードQRコードをスキャンしてください。"
+  guide: "シードQRコードをスキャンしてください。(21x21または25x25)"
 seed_qr_confirmation_screen:
   title: "ニーモニック確認"
   check_mnemonic: "ニーモニックフレーズを確認してください"
@@ -518,7 +536,7 @@ signer_scanner_screen:
   guide1_1: "他のボルトで作成されたマルチシグウォレットをインポートできます。"
   guide1_2: "別のボールトのホーム画面で、"
   guide1_3: "マルチシグウォレット "
-  guide1_4: "マルチシグウォレットエクスポート "
+  guide1_4: "ウォレット設定表示を選択 "
   guide1_5: "画面に表示されるQRコードをスキャンしてください。"
   guide2_1: "使用したいキーがあるボルトのホーム画面で "
   guide2_2: "ウォレット "
@@ -560,9 +578,6 @@ multi_sig_setting_screen:
     other: "$total個のキー中$n個の署名が必要なマルチシグウォレット。"
 select_export_type_screen:
   title: "エクスポート"
-  export_type: "何に使用しますか？"
-  watch_only: "ウォレットに\nウォッチオンリーウォレットを追加"
-  multisig: "他のボルトで\nマルチシグキーとして使用"
 signer_bsms_screen:
   guide1_1: "他のボルトでマルチシグウォレットを作成しています！"
   guide1_2: "下記のQRコードをインポートBSMS画面でスキャンしてください。"
@@ -630,10 +645,13 @@ verify_passphrase_screen:
   saved_mfp: "保存されたMFP"
   recovered_mfp: "復元されたMFP"
 
-passphrase_input_screen:
+passphrase_check_screen:
   title: "パスフレーズ入力"
   enter_passphrase: "パスフレーズ入力"
   passphrase_error: "パスフレーズを再度確認してください"
+  alert:
+    failed:
+      title: "パスフレーズ確認失敗"
 
 multisig_signer_bsms_export_screen:
   fail_bsms: "BSMSの読み込みに失敗しました"
@@ -653,6 +671,9 @@ permission:
     denied: "生体認証権限が拒否されました。"
     how_to_allow: "生体認証でアンロックするには\n設定 > ココナッツボルトで生体認証権限を許可してください。"
     btn_move_to_setting: "設定に移動"
+  secure_zone_authentication:
+    title: "セキュアモジュールへのアクセス"
+    description: "セキュアモジュールにアクセスするには認証が必要です。"
 
 alert:
   delete_vault: 
@@ -715,6 +736,14 @@ alert:
   secure_module_use_biometrics:
     title: "生体認証のお知らせ"
     description: "アプリのロック解除には生体認証は使用されません。ただし、セキュアモジュールに保存されたデータにアクセスする際には、自動的に認証が求められる場合があります。"
+  auth_canceled_when_decrypt:
+    title: "デバイス認証がキャンセルされました"
+    description_view_mnemonic: "デバイスを認証して、セキュア領域から情報を取得する必要があります。"
+    description_export: "エクスポートするウォレットのパスフレーズが正しいか確認するために、セキュア領域へのアクセスが必要です。誤ったウォレットにビットコインを送ってしまう事故を防ぐための手続きです。"
+    description_passphrase_verify: "入力したパスフレーズが正しいか確認するために、セキュア領域へのアクセスが必要です。"
+  auth_canceled_when_encrypt:
+    title: "デバイス認証がキャンセルされました"
+    description: "ウォレット情報をセキュアエリアに保存するにはデバイスの認証が必要です。"
 
 toast:
   clipboard_copied: "クリップボードにコピーしました"
@@ -728,6 +757,7 @@ toast:
   mnemonic_copied: "ニーモニックフレーズをコピーしました"
   multisig_already_added: "既に追加されたマルチシグウォレット。($name)"
   home_vault_min_one: "ホーム画面に表示されるウォレットは最低1つ必要です"
+  no_wallet_to_delete: "削除するウォレットがありません"
 
 errors:
   invalid_qr: "無効なQR。再度お試しください。"
@@ -761,6 +791,12 @@ errors:
   not_related_multisig_wallet_error: "このウォレットをキーとして使用するマルチシグウォレットではありません"
   vault_not_found_error: "署名できるウォレットがありません"
   extended_public_key_not_found_error: "直接使用したいウォレットを選択してマルチシグ機能を使用してください"
+  user_cancelled_auth: "ユーザーがデバイス認証をキャンセルしました。"
+  
+exceptions:
+  seed_invalidated: 
+    title: "ウォレット使用不可"
+    description: "保存されているウォレットはこれ以上使用できません。ウォレットを削除し、バックアップしておいたニーモニックで再度復元してください。"
 
 tooltip:
   mfp: "ウォレットの固有値。\nマスターフィンガープリント(MFP)とも呼ばれます。"

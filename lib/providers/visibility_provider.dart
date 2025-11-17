@@ -208,8 +208,10 @@ class VisibilityProvider extends ChangeNotifier {
   void updateIsSigningOnlyMode(bool isSigningOnlyMode) {
     if (_isSigningOnlyMode == isSigningOnlyMode) return;
     if (isSigningOnlyMode) {
+      setAdvancedMode(true);
       SharedPrefsRepository().deleteSharedPrefsWithKey(SharedPrefsKeys.vaultListLength);
     } else {
+      setAdvancedMode(false);
       SharedPrefsRepository().setInt(SharedPrefsKeys.vaultListLength, _walletCount);
     }
     _isSigningOnlyMode = isSigningOnlyMode;

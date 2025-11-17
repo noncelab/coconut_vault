@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:coconut_design_system/coconut_design_system.dart';
+import 'package:coconut_lib/coconut_lib.dart';
 import 'package:coconut_vault/constants/app_routes.dart';
 import 'package:coconut_vault/enums/pin_check_context_enum.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
@@ -9,6 +10,7 @@ import 'package:coconut_vault/providers/view_model/vault_menu/single_sig_setup_i
 import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:coconut_vault/screens/home/select_sync_option_bottom_sheet.dart';
 import 'package:coconut_vault/screens/vault_menu/info/name_and_icon_edit_bottom_sheet.dart';
+import 'package:coconut_vault/screens/vault_menu/info/passphrase_check_screen.dart';
 import 'package:coconut_vault/utils/text_utils.dart';
 import 'package:coconut_vault/utils/vibration_util.dart';
 import 'package:coconut_vault/widgets/button/button_group.dart';
@@ -25,6 +27,7 @@ import 'package:shimmer/shimmer.dart';
 
 class SingleSigSetupInfoScreen extends StatefulWidget {
   final int id;
+  // 서명 전용 모드에서는 항상 false입니다.
   final bool shouldShowPassphraseVerifyMenu;
   final String? entryPoint;
   const SingleSigSetupInfoScreen({
@@ -50,7 +53,6 @@ class _SingleSigSetupInfoScreenState extends State<SingleSigSetupInfoScreen> {
   @override
   void initState() {
     super.initState();
-    debugPrint('initState: ${widget.id}');
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _tooltipIconRendBox = _tooltipIconKey.currentContext?.findRenderObject() as RenderBox;
       _tooltipIconPosition = _tooltipIconRendBox!.localToGlobal(Offset.zero);
@@ -65,11 +67,17 @@ class _SingleSigSetupInfoScreenState extends State<SingleSigSetupInfoScreen> {
   ) async {
     final authProvider = context.read<AuthProvider>();
 
-    if (await authProvider.isBiometricsAuthValid() && context.mounted) {
+    final isBiometricValid =
+        pinCheckContext == PinCheckContextEnum.sensitiveAction
+            ? await authProvider.isBiometricsAuthValidToAvoidDoubleAuth()
+            : await authProvider.isBiometricsAuthValid();
+
+    if (isBiometricValid && context.mounted) {
       onSuccess();
       return;
     }
 
+    if (!context.mounted) return;
     await MyBottomSheet.showBottomSheet_90(
       context: context,
       child: CustomLoadingOverlay(
@@ -171,15 +179,18 @@ class _SingleSigSetupInfoScreenState extends State<SingleSigSetupInfoScreen> {
   }
 
   Widget _buildVaultItemCard(BuildContext context) {
-    final viewModel = context.watch<SingleSigSetupInfoViewModel>();
-    return VaultItemCard(
-      vaultItem: viewModel.vaultItem,
-      onTooltipClicked: () => _toggleTooltipVisible(context),
-      onNameChangeClicked: () {
-        _removeTooltip();
-        _showModalBottomSheetForEditingNameAndIcon(viewModel);
+    return Consumer<SingleSigSetupInfoViewModel>(
+      builder: (context, viewModel, child) {
+        return VaultItemCard(
+          vaultItem: viewModel.vaultItem,
+          onTooltipClicked: () => _toggleTooltipVisible(context),
+          onNameChangeClicked: () {
+            _removeTooltip();
+            _showModalBottomSheetForEditingNameAndIcon(viewModel);
+          },
+          tooltipKey: _tooltipIconKey,
+        );
       },
-      tooltipKey: _tooltipIconKey,
     );
   }
 
@@ -203,8 +214,24 @@ class _SingleSigSetupInfoScreenState extends State<SingleSigSetupInfoScreen> {
       child: SingleButton(
         enableShrinkAnim: true,
         title: t.select_export_type_screen.title,
-        onPressed: () {
-          _showSyncOptionBottomSheet(widget.id, context);
+        onPressed: () async {
+          if (widget.shouldShowPassphraseVerifyMenu) {
+            Seed? seed = await MyBottomSheet.showBottomSheet_ratio<Seed?>(
+              ratio: 0.5,
+              context: context,
+              child: PassphraseCheckScreen(id: widget.id, context: PassphraseCheckContext.export),
+            );
+
+            if (seed == null) {
+              return;
+            }
+
+            if (mounted) {
+              _showSyncOptionBottomSheet(widget.id, context);
+            }
+          } else {
+            _showSyncOptionBottomSheet(widget.id, context);
+          }
         },
       ),
     );
@@ -375,6 +402,13 @@ class _SingleSigSetupInfoScreenState extends State<SingleSigSetupInfoScreen> {
             enableShrinkAnim: true,
             onPressed: () {
               _removeTooltip();
+              if (!mounted) return;
+              final viewModel = context.read<SingleSigSetupInfoViewModel>();
+              if (viewModel.isSigningOnlyMode) {
+                Navigator.pushNamed(context, AppRoutes.mnemonicView, arguments: {'id': widget.id});
+                return;
+              }
+
               _authenticateWithBiometricOrPin(
                 context,
                 PinCheckContextEnum.sensitiveAction,
@@ -406,6 +440,7 @@ class _SingleSigSetupInfoScreenState extends State<SingleSigSetupInfoScreen> {
   }
 
   Future<void> _deleteVault(BuildContext context) async {
+    if (!mounted) return;
     final viewModel = context.read<SingleSigSetupInfoViewModel>();
     viewModel.deleteVault();
     vibrateLight();
@@ -491,17 +526,16 @@ class _SingleSigSetupInfoScreenState extends State<SingleSigSetupInfoScreen> {
           rightButtonColor: CoconutColors.warningText,
           onTapLeft: () => Navigator.pop(context),
           onTapRight: () async {
-            if (context.mounted) {
-              final viewModel = context.read<SingleSigSetupInfoViewModel>();
-              if (!viewModel.isSigningOnlyMode) {
-                await _authenticateWithBiometricOrPin(
-                  context,
-                  PinCheckContextEnum.seedDeletion,
-                  () => _deleteVault(context),
-                );
-              } else {
-                _deleteVault(context);
-              }
+            if (!mounted) return;
+            final viewModel = context.read<SingleSigSetupInfoViewModel>();
+            if (!viewModel.isSigningOnlyMode) {
+              await _authenticateWithBiometricOrPin(
+                context,
+                PinCheckContextEnum.seedDeletion,
+                () => _deleteVault(context),
+              );
+            } else {
+              _deleteVault(context);
             }
           },
         );

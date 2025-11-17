@@ -47,26 +47,22 @@ void main() {
 
     // 2. 추가된 지갑이 있을 때 PinCheckScreen -> VaultListScreen으로 진입하는 통합테스트
     testWidgets('[Update O] [Wallet O] PinCheck-VaultList', (tester) async {
-      await setIsUpdated(true);
       await setWalletData(true);
       await pinCheckToVaultListFlow(tester);
     });
 
     testWidgets('[Update X] [Wallet O] PinCheck-VaultList', (tester) async {
-      await setIsUpdated(false);
       await setWalletData(true);
       await pinCheckToVaultListFlow(tester);
     });
 
     // 3. 추가된 지갑이 없을 때 PinCheckScreen을 거치지 않고 바로 VaultListScreen으로 진입하는 통합테스트
     testWidgets('[Update O] [Wallet X] VaultList', (tester) async {
-      await setIsUpdated(true);
       await setWalletData(false);
       await vaultListFlow(tester);
     });
 
     testWidgets('[Update X] [Wallet X] VaultList', (tester) async {
-      await setIsUpdated(false);
       await setWalletData(false);
       await vaultListFlow(tester);
     });
@@ -80,26 +76,22 @@ void main() {
 
     // 4. 복원 파일이 존재하고 앱 업데이트가 완료됐을 때 PinCheckScreen -> VaultListRestorationScreen -> VaultListScreen으로 진입하는 통합테스트
     testWidgets('[Update O] [Wallet O] PinCheck-VaultListRestoration-VaultList', (tester) async {
-      await setIsUpdated(true);
       await setWalletData(true);
       await pinCheckToVaultListRestorationFlow(tester);
     });
 
     testWidgets('[Update O] [Wallet X] PinCheck-VaultListRestoration-VaultList', (tester) async {
-      await setIsUpdated(true);
       await setWalletData(false);
       await pinCheckToVaultListRestorationFlow(tester);
     });
 
     // 5. 복원 파일이 존재하고 앱 업데이트가 안됐을 때 RestorationInfoScreen -> PinCheckScreen -> VaultListRestorationScreen -> VaultList으로 진입하는 통합 테스트
     testWidgets('[Update X] [Wallet O] RestorationInfo-PinCheck-VaultListRestoration-VaultList', (tester) async {
-      await setIsUpdated(false);
       await setWalletData(true);
       await restorationInfoFlow(tester);
     });
 
     testWidgets('[Update X] [Wallet X] RestorationInfo-PinCheck-VaultListRestoration-VaultList', (tester) async {
-      await setIsUpdated(false);
       await setWalletData(false);
       await restorationInfoFlow(tester);
     });

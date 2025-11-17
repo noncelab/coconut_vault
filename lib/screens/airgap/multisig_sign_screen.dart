@@ -4,6 +4,8 @@ import 'package:coconut_vault/constants/app_routes.dart';
 import 'package:coconut_vault/enums/currency_enum.dart';
 import 'package:coconut_vault/enums/pin_check_context_enum.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
+import 'package:coconut_vault/model/exception/seed_invalidated_exception.dart';
+import 'package:coconut_vault/model/exception/user_canceled_auth_exception.dart';
 import 'package:coconut_vault/providers/auth_provider.dart';
 import 'package:coconut_vault/providers/preference_provider.dart';
 import 'package:coconut_vault/providers/sign_provider.dart';
@@ -63,7 +65,7 @@ class _MultisigSignScreenState extends State<MultisigSignScreen> {
     return await MyBottomSheet.showBottomSheet_ratio(
       ratio: 0.5,
       context: context,
-      child: PassphraseCheckScreen(id: _viewModel.getInnerVaultId(index)),
+      child: PassphraseCheckScreen(id: _viewModel.getInnerVaultId(index), context: PassphraseCheckContext.sign),
     );
   }
 
@@ -94,23 +96,7 @@ class _MultisigSignScreenState extends State<MultisigSignScreen> {
     if (isKeyInsideVault) {
       if (!_viewModel.isSigningOnlyMode) {
         // 안전 저장 모드
-        Seed? seed;
-        if (_viewModel.getHasPassphrase(index)) {
-          seed = await _authenticateWithPassphrase(context: context, index: index);
-
-          if (seed == null) {
-            return;
-          }
-        } else {
-          final authenticateResult = await _authenticateWithoutPassphrase();
-          if (authenticateResult != true) {
-            return;
-          }
-          seed = Seed.fromMnemonic(await _viewModel.getSecret(index));
-        }
-
-        await _addSignatureToPsbt(index, seed);
-        seed.wipe();
+        await _addSignatureToPsbtInStorageMode(index);
       } else {
         // 서명 전용 모드
         await _addSignatureToPsbtInSigningOnlyMode(index);
@@ -135,6 +121,34 @@ class _MultisigSignScreenState extends State<MultisigSignScreen> {
         },
       );
     }
+  }
+
+  Future<void> _addSignatureToPsbtInStorageMode(int index) async {
+    Seed? seed;
+    if (_viewModel.getHasPassphrase(index)) {
+      seed = await _authenticateWithPassphrase(context: context, index: index);
+
+      if (seed == null) {
+        return;
+      }
+    } else {
+      final authenticateResult = await _authenticateWithoutPassphrase();
+      if (authenticateResult != true) {
+        return;
+      }
+      try {
+        seed = Seed.fromMnemonic(await _viewModel.getSecret(index));
+      } on UserCanceledAuthException catch (_) {
+        return;
+      } catch (e) {
+        if (!mounted) return;
+        showAlertDialog(context: context, content: t.errors.sign_error(error: e));
+        return;
+      }
+    }
+
+    await _addSignatureToPsbt(index, seed);
+    seed.wipe();
   }
 
   /// @param index: signer index
@@ -163,6 +177,21 @@ class _MultisigSignScreenState extends State<MultisigSignScreen> {
       });
 
       await _viewModel.signPsbtInSigningOnlyMode(index);
+    } on UserCanceledAuthException catch (_) {
+      return;
+    } on SeedInvalidatedException catch (e) {
+      if (!mounted) return;
+      showDialog(
+        context: context,
+        builder:
+            (context) => CoconutPopup(
+              title: t.exceptions.seed_invalidated.title,
+              description: e.message,
+              onTapRight: () {
+                Navigator.pop(context);
+              },
+            ),
+      );
     } catch (error) {
       if (mounted) {
         showAlertDialog(context: context, content: t.errors.sign_error(error: error));

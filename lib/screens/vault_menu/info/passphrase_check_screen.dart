@@ -5,9 +5,11 @@ import 'package:coconut_lib/coconut_lib.dart';
 import 'package:coconut_vault/enums/pin_check_context_enum.dart';
 import 'package:coconut_vault/isolates/wallet_isolates.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
+import 'package:coconut_vault/model/exception/user_canceled_auth_exception.dart';
 import 'package:coconut_vault/providers/auth_provider.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:coconut_vault/screens/common/pin_check_screen.dart';
+import 'package:coconut_vault/utils/logger.dart';
 import 'package:coconut_vault/widgets/bottom_sheet.dart';
 import 'package:coconut_vault/widgets/custom_dialog.dart';
 import 'package:coconut_vault/widgets/custom_loading_overlay.dart';
@@ -17,9 +19,12 @@ import 'package:flutter_svg/svg.dart';
 import 'package:provider/provider.dart';
 import 'package:vibration/vibration.dart';
 
+enum PassphraseCheckContext { export, sign }
+
 class PassphraseCheckScreen extends StatefulWidget {
-  const PassphraseCheckScreen({super.key, required this.id});
+  const PassphraseCheckScreen({super.key, required this.id, required this.context});
   final int id;
+  final PassphraseCheckContext context;
 
   @override
   State<PassphraseCheckScreen> createState() => _PassphraseCheckScreen();
@@ -62,7 +67,7 @@ class _PassphraseCheckScreen extends State<PassphraseCheckScreen> {
           backgroundColor: CoconutColors.white,
           appBar: CoconutAppBar.build(
             context: context,
-            title: t.passphrase_input_screen.title,
+            title: t.passphrase_check_screen.title,
             backgroundColor: CoconutColors.white,
             isBottom: true,
           ),
@@ -75,7 +80,7 @@ class _PassphraseCheckScreen extends State<PassphraseCheckScreen> {
                   Expanded(child: SingleChildScrollView(child: _buildPassphraseInput())),
                   if (_showError) ...[
                     Text(
-                      t.passphrase_input_screen.passphrase_error,
+                      t.passphrase_check_screen.passphrase_error,
                       style: CoconutTypography.body3_12.setColor(CoconutColors.hotPink),
                     ),
                     CoconutLayout.spacing_300h,
@@ -121,7 +126,7 @@ class _PassphraseCheckScreen extends State<PassphraseCheckScreen> {
           isError: false,
           isLengthVisible: false,
           maxLength: 100,
-          placeholderText: t.passphrase_input_screen.enter_passphrase,
+          placeholderText: t.passphrase_check_screen.enter_passphrase,
           suffix:
               _inputController.text.isNotEmpty
                   ? IconButton(
@@ -166,23 +171,60 @@ class _PassphraseCheckScreen extends State<PassphraseCheckScreen> {
     if (!mounted) return;
 
     CustomDialogs.showLoadingDialog(context, t.verify_passphrase_screen.loading_description);
-    Seed? result = await _verifyPassphrase(utf8.encode(_inputController.text));
 
-    if (!mounted) return;
-    Navigator.pop(context); // hide loading dialog
+    try {
+      Seed? seed = await _verifyPassphrase(utf8.encode(_inputController.text));
+      if (!mounted) return;
+      Navigator.pop(context); // hide loading dialog
 
-    if (result != null) {
-      Navigator.pop(context, result);
-    } else {
-      setState(() {
-        _showError = true;
-      });
+      if (seed != null) {
+        Navigator.pop(context, seed);
+      } else {
+        setState(() {
+          _showError = true;
+        });
+        Vibration.vibrate(duration: 100);
+      }
+    } on UserCanceledAuthException catch (_) {
+      if (!mounted) return;
+      Navigator.pop(context); // hide loading dialog
+      if (widget.context == PassphraseCheckContext.export) {
+        showDialog(
+          context: context,
+          builder:
+              (context) => CoconutPopup(
+                title: t.alert.auth_canceled_when_decrypt.title,
+                description: t.alert.auth_canceled_when_decrypt.description_export,
+                onTapRight: () {
+                  Navigator.pop(context);
+                },
+              ),
+        );
+        Vibration.vibrate(duration: 100);
+      } else {
+        Navigator.pop(context);
+      }
+    } catch (e) {
+      if (!mounted) return;
+      Navigator.pop(context); // hide loading dialog
+      showDialog(
+        context: context,
+        builder:
+            (context) => CoconutPopup(
+              title: t.passphrase_check_screen.alert.failed.title,
+              description: e.toString(),
+              onTapRight: () {
+                Navigator.pop(context);
+              },
+            ),
+      );
       Vibration.vibrate(duration: 100);
+      Logger.error(e);
+    } finally {
+      setState(() {
+        _isSubmitting = false;
+      });
     }
-
-    setState(() {
-      _isSubmitting = false;
-    });
   }
 
   Future<bool?> _showPinCheckScreen() async {

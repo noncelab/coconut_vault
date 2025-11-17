@@ -4,6 +4,7 @@ import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/widgets/button/fixed_bottom_tween_button.dart';
 import 'package:coconut_vault/widgets/button/shrink_animation_button.dart';
+import 'package:coconut_vault/widgets/custom_tooltip.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
@@ -439,33 +440,58 @@ class _PassphraseSelectionState extends State<PassphraseSelection> {
   }
 }
 
+enum EntropyBitsOption { dice, coinflip }
+
 class BinaryGrid extends StatelessWidget {
   final int totalCount;
   final List<int> inputs;
   final ScrollController scrollController;
   final bool showProgress;
+  final EntropyBitsOption option;
 
   const BinaryGrid({
     super.key,
     required this.totalCount,
     required this.inputs,
     required this.scrollController,
+    required this.option,
     this.showProgress = true,
   });
 
   @override
   Widget build(BuildContext context) {
     return SafeArea(
-      child: Container(
-        padding: const EdgeInsets.all(8.0),
-        child: Column(
-          children: [
-            Text(
-              '${t.view_all}${showProgress ? '(${inputs.length}/$totalCount)' : ''}',
-              style: CoconutTypography.body2_14_Bold,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          CoconutLayout.spacing_200h,
+          Text(
+            '${t.view_all}${showProgress ? '(${inputs.length}/$totalCount)' : ''}',
+            style: CoconutTypography.body2_14_Bold,
+          ),
+          CustomTooltip.buildInfoTooltip(
+            context,
+            richText: RichText(
+              text: TextSpan(
+                style: CoconutTypography.body2_14.copyWith(height: 1.3, color: CoconutColors.black),
+                children: [
+                  TextSpan(text: t.entropy_bits_bottom_sheet.iancoleman_guide),
+                  TextSpan(
+                    text:
+                        option == EntropyBitsOption.dice
+                            ? t.entropy_bits_bottom_sheet.options.dice
+                            : t.entropy_bits_bottom_sheet.options.binary,
+                    style: CoconutTypography.body2_14_Bold.copyWith(height: 1.3, color: CoconutColors.black),
+                  ),
+                  TextSpan(text: t.entropy_bits_bottom_sheet.select_option),
+                ],
+              ),
             ),
-            CoconutLayout.spacing_400h,
-            Expanded(
+          ),
+          CoconutLayout.spacing_400h,
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.only(left: 16, right: 16, bottom: 16),
               child: MediaQuery(
                 data: MediaQuery.of(context).copyWith(textScaler: const TextScaler.linear(1.0)),
                 child: GridView.count(
@@ -480,8 +506,8 @@ class BinaryGrid extends StatelessWidget {
                 ),
               ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
@@ -662,10 +688,14 @@ class _WarningWidgetState extends State<WarningWidget> {
       child: Visibility(
         visible: _visible,
         child: ClipRRect(
-          child:
-              widget.isBackgroundBlur
-                  ? BackdropFilter(filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10), child: child)
-                  : child,
+          child: Center(
+            child: SingleChildScrollView(
+              child:
+                  widget.isBackgroundBlur
+                      ? BackdropFilter(filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10), child: child)
+                      : child,
+            ),
+          ),
         ),
       ),
     );

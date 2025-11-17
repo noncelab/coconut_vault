@@ -62,7 +62,7 @@ android {
 
     defaultConfig {
         applicationId "onl.coconut.vault"
-        minSdkVersion 23
+        minSdkVersion 26
         targetSdkVersion 35
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName
@@ -102,6 +102,12 @@ android {
             versionNameSuffix ""
         }
     }
+
+    packagingOptions {
+      jniLibs {
+        useLegacyPackaging true
+      }
+  }
 }
 
 flutter {

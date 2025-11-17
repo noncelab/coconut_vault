@@ -1,5 +1,6 @@
 import 'package:coconut_lib/coconut_lib.dart';
 import 'package:coconut_vault/enums/wallet_enums.dart';
+import 'package:coconut_vault/model/common/vault_list_item_base.dart';
 import 'package:coconut_vault/model/exception/extended_public_key_not_found_exception.dart';
 import 'package:coconut_vault/model/exception/vault_can_not_sign_exception.dart';
 import 'package:coconut_vault/model/exception/vault_not_found_exception.dart';
@@ -20,6 +21,9 @@ class PsbtScannerViewModel {
   }
 
   Future<Psbt> parseBase64EncodedToPsbt(int vaultId, String signedPsbtBase64Encoded) async {
+    if (!_walletProvider.isVaultsLoaded || _walletProvider.vaultList.isEmpty) {
+      await _walletProvider.loadVaultList();
+    }
     _signProvider.setVaultListItem(_walletProvider.getVaultById(vaultId));
     final canSign = await _walletProvider.getVaultById(vaultId).canSign(signedPsbtBase64Encoded);
     if (!canSign) {
@@ -29,6 +33,9 @@ class PsbtScannerViewModel {
   }
 
   Future<void> setMatchingVault(String psbtBase64) async {
+    if (!_walletProvider.isVaultsLoaded || _walletProvider.vaultList.isEmpty) {
+      await _walletProvider.loadVaultList();
+    }
     final parsedPsbt = _parseBase64EncodedToPsbt(psbtBase64);
     // parsedPsbt.extendedPublicKeyList가
     // 한 개만 있는 경우 - 싱글 시그 지갑이므로 vaultList에서 바로 찾기
@@ -41,7 +48,9 @@ class PsbtScannerViewModel {
       // 싱글시그지갑
       // 싱글시그는 MFP 일치 여부로 판단
       final psbtMfp = parsedPsbt.extendedPublicKeyList.first.masterFingerprint;
-      for (final vault in _walletProvider.vaultList) {
+      final vaultList = List<VaultListItemBase>.from(_walletProvider.vaultList);
+
+      for (final vault in vaultList) {
         if (vault.vaultType == WalletType.singleSignature) {
           final singleSigVault = vault.coconutVault as SingleSignatureVault;
           if (singleSigVault.keyStore.masterFingerprint == psbtMfp) {
