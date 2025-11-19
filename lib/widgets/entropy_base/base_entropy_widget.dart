@@ -61,8 +61,8 @@ abstract class BaseEntropyWidgetState<T extends BaseEntropyWidget> extends State
     ...List.generate(26, (i) => String.fromCharCode('a'.codeUnitAt(0) + i)), // a-z
     ...List.generate(26, (i) => String.fromCharCode('A'.codeUnitAt(0) + i)), // A-Z
     ...List.generate(10, (i) => i.toString()), // 0-9
-    '[', ']', '{', '}', '#', '%', '^', '*', '+', '=', '_', '\\', '|', '~',
-    '<', '>', '-', '/', ':', ';', '(', ')', r'$', '&', '"', '`', '.', ',', '?', '!', '\'', '@',
+    '[', ']', '{', '}', '#', '%', '^', '*', '+', '=', '_', '\\', '|', '~', '×', '÷',
+    '<', '>', '-', '/', ':', ';', '(', ')', r'$', '&', '"', '`', '.', ',', '?', '!', '\'', '@', ' ',
   };
 
   String passphraseErrorMessage = '';
