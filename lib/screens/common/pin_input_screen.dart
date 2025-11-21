@@ -135,11 +135,11 @@ class PinInputScreenState extends State<PinInputScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final isDarkMode = MediaQuery.of(context).platformBrightness == Brightness.dark;
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
     final keyboardBackgroundColor =
         Platform.isIOS
-            ? (isDarkMode ? CoconutColors.gray750 : CoconutColors.gray300)
-            : (isDarkMode ? CoconutColors.gray900 : CoconutColors.whiteLilac);
+            ? (isDarkMode ? const Color(0x00000082) : const Color(0xFFCED2D9))
+            : (isDarkMode ? CoconutColors.gray400 : CoconutColors.gray150);
 
     final isBiometricEnabled = Provider.of<AuthProvider>(context, listen: false).isBiometricEnabled;
 
