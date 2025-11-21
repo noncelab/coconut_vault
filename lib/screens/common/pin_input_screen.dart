@@ -138,8 +138,8 @@ class PinInputScreenState extends State<PinInputScreen> {
     final isDarkMode = MediaQuery.of(context).platformBrightness == Brightness.dark;
     final keyboardBackgroundColor =
         Platform.isIOS
-            ? (isDarkMode ? const Color(0x00000082) : const Color(0xFFCED2D9))
-            : (isDarkMode ? CoconutColors.gray900 : const Color(0xFFF5F5F5));
+            ? (isDarkMode ? CoconutColors.gray750 : CoconutColors.gray300)
+            : (isDarkMode ? CoconutColors.gray900 : CoconutColors.whiteLilac);
 
     final isBiometricEnabled = Provider.of<AuthProvider>(context, listen: false).isBiometricEnabled;
 
