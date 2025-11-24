@@ -22,18 +22,21 @@ class _ScannerOverlayPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    // saveLayer를 사용해야 BlendMode.clear 제대로 작동
     final layerRect = Offset.zero & size;
     canvas.saveLayer(layerRect, Paint());
 
-    final paint = Paint()..color = Colors.black.withValues(alpha: 0.45);
+    final rect = Rect.fromCenter(center: Offset(size.width / 2, size.height / 2), width: scanSize, height: scanSize);
+    final rrect = RRect.fromRectAndRadius(rect, const Radius.circular(8));
+    final paint = Paint()..color = Colors.black.withValues(alpha: 0.25);
     canvas.drawRect(layerRect, paint);
 
-    final rect = Rect.fromCenter(center: Offset(size.width / 2, size.height / 2), width: scanSize, height: scanSize);
-
-    final clearPaint = Paint()..blendMode = BlendMode.clear;
-    final rrect = RRect.fromRectAndRadius(rect, const Radius.circular(8));
-    canvas.drawRRect(rrect, clearPaint);
+    final bgPath =
+        Path()
+          ..fillType = PathFillType.evenOdd
+          ..addRect(layerRect)
+          ..addRRect(rrect);
+    final bgPaint = Paint()..color = Colors.black.withValues(alpha: 0.45);
+    canvas.drawPath(bgPath, bgPaint);
 
     canvas.restore();
 

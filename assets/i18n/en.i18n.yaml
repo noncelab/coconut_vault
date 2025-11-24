@@ -529,7 +529,7 @@ select_multisig_quorum_screen:
 signer_scanner_bottom_sheet:
   title: "Signature Update"
   guide: "Did you add signatures from other vault? Please scan QR code of added signed transaction to update info."
-signer_scanner_screen:
+bsms_scanner_screen:
   import_bsms: "Import BSMS"
   import_multisig_wallet: "Import Multisig Wallet"
   guide1_1: "You can import multisig wallet created in other vault."
@@ -761,6 +761,7 @@ toast:
 errors:
   invalid_qr: "Invalid QR code.\nPlease check again."
   invalid_single_sig_qr_error: "Invalid QR. Please try again."
+  invalid_network_type_error: "Extended public key is not compatible with the network type"
   invalid_multisig_qr_error: "Invalid QR.\nPlease scan QR code from \"View Wallet Settings\" screen of multisig wallet to import."
   unsupport_bsms_version_error: "Unsupported BSMS version. Only BSMS 1.0 is supported."
   unsupport_derivation_path_error: "Custom derivation paths not supported"

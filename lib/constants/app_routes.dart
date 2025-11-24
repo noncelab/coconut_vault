@@ -1,6 +1,5 @@
 class AppRoutes {
   static const String vaultTypeSelection = '/select-vault-type';
-  static const String multisigQuorumSelection = '/select-multisig-quorum';
   static const String signerAssignment = '/assign-signers';
   static const String vaultCreationOptions = '/vault-creation-options';
   static const String mnemonicImport = '/mnemonic-import';
@@ -15,6 +14,9 @@ class AppRoutes {
   static const String multisigBsmsView = '/multisig-bsms';
   static const String mnemonicWordList = '/mnemonic-word-list';
   static const String addressList = '/address-list';
+  static const String multisigCreationOptions = '/multisig-creation-options';
+  static const String multisigQuorumSelection = '/select-multisig-quorum';
+  static const String coordinatorBsmsConfigScanner = '/coordinator-bsms-config-scanner';
   static const String signerBsmsScanner = '/signer-scanner';
   static const String psbtScanner = '/psbt-scanner';
   static const String psbtConfirmation = '/psbt-confirmation';

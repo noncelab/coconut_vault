@@ -530,7 +530,7 @@ select_multisig_quorum_screen:
 signer_scanner_bottom_sheet:
   title: "署名更新"
   guide: "他のボルトから署名を追加しましたか？追加された署名済みトランザクションのQRコードをスキャンして情報を更新してください。"
-signer_scanner_screen:
+bsms_scanner_screen:
   import_bsms: "BSMSインポート"
   import_multisig_wallet: "マルチシグウォレットインポート"
   guide1_1: "他のボルトで作成されたマルチシグウォレットをインポートできます。"
@@ -762,6 +762,7 @@ toast:
 errors:
   invalid_qr: "無効なQR。再度お試しください。"
   invalid_single_sig_qr_error: "無効なQR。再度お試しください。"
+  invalid_network_type_error: "拡張公開鍵のネットワークタイプが一致しません"
   invalid_multisig_qr_error: "無効なQR。\nマルチシグウォレットの「ウォレット設定表示」画面のQRコードをスキャンしてインポートしてください。"
   unsupport_bsms_version_error: "サポートされていないBSMSバージョン。BSMS 1.0のみサポートされています。"
   unsupport_derivation_path_error: "カスタム派生パスはサポートされていません"

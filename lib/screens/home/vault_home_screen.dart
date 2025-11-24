@@ -7,14 +7,12 @@ import 'package:coconut_vault/constants/app_routes.dart';
 import 'package:coconut_vault/enums/wallet_enums.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/model/common/vault_list_item_base.dart';
-import 'package:coconut_vault/model/exception/user_canceled_auth_exception.dart';
 import 'package:coconut_vault/providers/auth_provider.dart';
 import 'package:coconut_vault/providers/connectivity_provider.dart';
 import 'package:coconut_vault/providers/preference_provider.dart';
 import 'package:coconut_vault/providers/view_model/home/vault_home_view_model.dart';
 import 'package:coconut_vault/providers/visibility_provider.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
-import 'package:coconut_vault/screens/common/multisig_bsms_scanner_screen.dart';
 import 'package:coconut_vault/screens/home/select_sync_option_bottom_sheet.dart';
 import 'package:coconut_vault/screens/home/select_vault_bottom_sheet.dart';
 import 'package:coconut_vault/screens/settings/pin_setting_screen.dart';
@@ -516,8 +514,8 @@ class _VaultHomeScreenState extends State<VaultHomeScreen> with TickerProviderSt
                                 if (mounted) {
                                   Navigator.pushNamed(
                                     context,
-                                    AppRoutes.signerBsmsScanner,
-                                    arguments: {'id': id, 'screenType': MultisigBsmsImportType.copy},
+                                    AppRoutes.coordinatorBsmsConfigScanner,
+                                    arguments: {'id': id},
                                   );
                                 }
                               },

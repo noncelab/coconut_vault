@@ -23,6 +23,8 @@ import 'package:coconut_vault/screens/home/vault_home_screen.dart';
 import 'package:coconut_vault/screens/home/vault_list_screen.dart';
 import 'package:coconut_vault/screens/precheck/device_password_checker_screen.dart';
 import 'package:coconut_vault/screens/precheck/jail_break_detection_screen.dart';
+import 'package:coconut_vault/screens/vault_creation/multisig/coordinator_bsms_config_scanner_screen.dart';
+import 'package:coconut_vault/screens/vault_creation/multisig/multisig_creation_options_screen.dart';
 import 'package:coconut_vault/services/secure_zone/secure_zone_availability_checker.dart';
 import 'package:coconut_vault/services/security_prechecker.dart';
 import 'package:coconut_vault/repository/shared_preferences_repository.dart';
@@ -41,7 +43,7 @@ import 'package:coconut_vault/screens/start_guide/welcome_screen.dart';
 import 'package:coconut_vault/screens/home/tutorial_screen.dart';
 import 'package:coconut_vault/screens/vault_creation/multisig/signer_assignment_screen.dart';
 import 'package:coconut_vault/screens/vault_creation/multisig/multisig_quorum_selection_screen.dart';
-import 'package:coconut_vault/screens/common/multisig_bsms_scanner_screen.dart';
+import 'package:coconut_vault/screens/vault_creation/multisig/signer_bsms_scanner_screen.dart';
 import 'package:coconut_vault/screens/vault_creation/single_sig/seed_qr_import_screen.dart';
 import 'package:coconut_vault/screens/vault_creation/vault_type_selection_screen.dart';
 import 'package:coconut_vault/screens/vault_creation/vault_creation_options_screen.dart';
@@ -60,7 +62,6 @@ import 'package:flutter/material.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:coconut_vault/screens/common/pin_check_screen.dart';
 import 'package:coconut_vault/screens/common/splash_screen.dart';
-import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'dart:async';
 
@@ -434,7 +435,6 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> with SingleTickerProv
                       routes: {
                         AppRoutes.vaultList: (context) => const VaultListScreen(),
                         AppRoutes.vaultTypeSelection: (context) => const VaultTypeSelectionScreen(),
-                        AppRoutes.multisigQuorumSelection: (context) => const MultisigQuorumSelectionScreen(),
                         AppRoutes.signerAssignment: (context) => const SignerAssignmentScreen(),
                         AppRoutes.vaultCreationOptions: (context) => const VaultCreationOptions(),
                         AppRoutes.mnemonicVerify: (context) => const MnemonicVerifyScreen(),
@@ -476,11 +476,12 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> with SingleTickerProv
                               (args) =>
                                   AddressListScreen(id: args['id'], isSpecificVault: args['isSpecificVault'] ?? false),
                             ),
+                        AppRoutes.multisigCreationOptions: (context) => const MultisigCreationOptionsScreen(),
+                        AppRoutes.multisigQuorumSelection: (context) => const MultisigQuorumSelectionScreen(),
+                        AppRoutes.coordinatorBsmsConfigScanner: (context) => const CoordinatorBsmsConfigScannerScreen(),
                         AppRoutes.signerBsmsScanner:
-                            (context) => buildScreenWithArguments(
-                              context,
-                              (args) => MultisigBsmsScannerScreen(id: args['id'], screenType: args['screenType']),
-                            ),
+                            (context) =>
+                                buildScreenWithArguments(context, (args) => SignerBsmsScannerScreen(id: args['id'])),
                         AppRoutes.psbtScanner:
                             (context) => buildScreenWithArguments(context, (args) => PsbtScannerScreen(id: args['id'])),
                         AppRoutes.psbtConfirmation: (context) => const PsbtConfirmationScreen(),

@@ -530,7 +530,7 @@ select_multisig_quorum_screen:
 signer_scanner_bottom_sheet:
   title: "서명 업데이트"
   guide: "다른 볼트에서 서명을 추가했나요? 정보를 업데이트 하기 위해 추가된 서명 트랜잭션의 QR 코드를 스캔해 주세요."
-signer_scanner_screen:
+bsms_scanner_screen:
   import_bsms: "키 정보 가져오기"
   import_multisig_wallet: "다중 서명 지갑 가져오기"
   guide1_1: "다른 볼트에서 만든 다중 서명 지갑을 가져올 수 있어요."
@@ -763,6 +763,7 @@ toast:
 errors:
   invalid_qr: "잘못된 QR 코드예요.\n다시 확인해 주세요."
   invalid_single_sig_qr_error: "잘못된 QR이에요. 다시 시도해 주세요."
+  invalid_network_type_error: "확장 공개키의 네트워크 타입이 일치하지 않아요"
   invalid_multisig_qr_error: "잘못된 QR이에요.\n가져올 다중 서명 지갑의 정보 화면에서 \"지갑 설정 정보 보기\"에 나오는 QR 코드를 스캔해 주세요."
   unsupport_bsms_version_error: "지원하지 않는 BSMS 버전이에요. BSMS 1.0만 지원됩니다."
   unsupport_derivation_path_error: "커스텀 파생 경로는 지원되지 않아요"
