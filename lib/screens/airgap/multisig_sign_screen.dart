@@ -425,7 +425,8 @@ class _MultisigSignScreenState extends State<MultisigSignScreen> {
               final isInnerWallet = signer.innerVaultId != null;
               final name = signer.name ?? t.external_wallet;
               final nameText = name.length > 6 ? '${name.substring(0, 6)}...' : name;
-              final memo = signer.memo;
+              final signerName = signer.signerName;
+              final signerSource = signer.signerSource;
               final iconIndex = signer.iconIndex ?? 0;
               final colorIndex = _viewModel.signers[index].colorIndex ?? 0;
               final isSignerApproved = _viewModel.signersApproved[index];
@@ -479,7 +480,7 @@ class _MultisigSignScreenState extends State<MultisigSignScreen> {
                         child: MediaQuery(
                           data: MediaQuery.of(context).copyWith(textScaler: const TextScaler.linear(1.0)),
                           child: Text(
-                            '${isInnerWallet ? nameText : memo ?? t.external_wallet} - ${isSignerApproved ? t.sign_completion : t.sign}',
+                            '${isInnerWallet ? nameText : signerName ?? t.external_wallet} - ${isSignerApproved ? t.sign_completion : t.sign}',
                             style: CoconutTypography.body1_16,
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,

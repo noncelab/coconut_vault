@@ -25,16 +25,18 @@ class AssignedVaultListItem {
   int index;
   String? bsms;
   SingleSigVaultListItem? item;
-  String? memo;
+  String? signerName;
+  SignerSource? signerSource;
   ImportKeyType? importKeyType;
 
   AssignedVaultListItem({required this.index, required this.importKeyType, required this.item, this.bsms});
   void reset() {
-    bsms = item = importKeyType = memo = null;
+    bsms = item = importKeyType = signerName = signerSource = null;
   }
 
   @override
-  String toString() => '[index]: ${t.multisig.nth_key(index: index + 1)}\n[item]: ${item.toString()}\nmemo: $memo';
+  String toString() =>
+      '[index]: ${t.multisig.nth_key(index: index + 1)}\n[item]: ${item.toString()}\nsignerName: $signerName\nsignerSource: $signerSource';
 }
 
 enum DialogType {
@@ -471,6 +473,7 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
                       false,
                       externalImported,
                       bsmsAndMemo['memo'],
+                      null, // TODO: SignerSource 추가
                     );
                     if (!mounted) return;
                     Navigator.pop(context); // 키 종류 선택 다이얼로그 닫기

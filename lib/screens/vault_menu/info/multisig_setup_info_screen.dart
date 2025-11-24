@@ -227,7 +227,7 @@ class _MultisigSetupInfoScreenState extends State<MultisigSetupInfoScreen> {
                 );
               }
             } else {
-              _showMemoEditBottomSheet(signer, index, _viewModel);
+              _showNameEditBottomSheet(signer, index, _viewModel);
             }
           },
           child: _buildSignerCard(signer, index),
@@ -249,20 +249,20 @@ class _MultisigSetupInfoScreenState extends State<MultisigSetupInfoScreen> {
     );
   }
 
-  void _showMemoEditBottomSheet(MultisigSigner signer, int index, MultisigSetupInfoViewModel viewModel) {
-    final selectedMemo = signer.memo ?? '';
+  void _showNameEditBottomSheet(MultisigSigner signer, int index, MultisigSetupInfoViewModel viewModel) {
+    final selectedName = signer.signerName ?? '';
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder:
           (context) => MultisigSignerMemoBottomSheet(
-            memo: selectedMemo,
+            name: selectedName,
             autofocus: true,
             onUpdate: (memo) async {
-              if (selectedMemo == memo) return;
+              if (selectedName == memo) return;
               final navigator = Navigator.of(context);
-              await viewModel.updateOutsideVaultMemo(index, memo);
+              await viewModel.updateOutsideVaultName(index, memo);
               if (mounted) {
                 navigator.pop();
               }
@@ -295,7 +295,7 @@ class _MultisigSetupInfoScreenState extends State<MultisigSetupInfoScreen> {
                     size: 20,
                   ),
                   const SizedBox(width: 10),
-                  Expanded(child: _buildSignerNameAndMemo(name: signer.name, memo: signer.memo)),
+                  Expanded(child: _buildSignerNameAndMemo(name: signer.name, memo: signer.signerSource?.name)),
                   // mfp
                   Expanded(
                     child: FittedBox(

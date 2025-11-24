@@ -58,7 +58,8 @@ class MultisigVaultListItem extends VaultListItemBase {
                 'name': signer.name,
                 'iconIndex': signer.iconIndex,
                 'colorIndex': signer.colorIndex,
-                'memo': signer.memo,
+                'signerSource': signer.signerSource,
+                'signerName': signer.signerName,
               },
             )
             .toList();

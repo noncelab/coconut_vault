@@ -55,7 +55,7 @@ class WalletToSyncViewModel extends ChangeNotifier {
             coconutVault.keyStoreList.map((keyStore) {
               var signer = multisigListItem.signers[signerIndex++];
               return Cosigner(
-                label: signer.name ?? signer.memo ?? '',
+                label: signer.name ?? signer.signerName ?? '',
                 masterFingerprintHex: keyStore.masterFingerprint,
                 parentFingerprintHex: keyStore.extendedPublicKey.parentFingerprint,
                 pubkey33: keyStore.extendedPublicKey.publicKey,

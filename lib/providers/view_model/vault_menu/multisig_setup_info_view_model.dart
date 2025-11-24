@@ -18,9 +18,16 @@ class MultisigSetupInfoViewModel extends VaultSetupInfoViewModelBase<MultisigVau
         innerVaultCount > vaultItem.requiredSignatureCount ? vaultItem.requiredSignatureCount : innerVaultCount;
   }
 
-  Future<void> updateOutsideVaultMemo(int signerIndex, String? memo) async {
-    if (vaultItem.signers[signerIndex].memo != memo) {
-      await walletProvider.updateMemo(vaultItem.id, signerIndex, memo);
+  Future<void> updateOutsideVaultName(int signerIndex, String? name) async {
+    if (vaultItem.signers[signerIndex].signerName != name) {
+      await walletProvider.updateExternalSignerName(vaultItem.id, signerIndex, name);
+      notifyListeners();
+    }
+  }
+
+  Future<void> updateSignerSource(int signerIndex, SignerSource source) async {
+    if (vaultItem.signers[signerIndex].signerSource != source) {
+      await walletProvider.updateExternalSignerSource(vaultItem.id, signerIndex, source);
       notifyListeners();
     }
   }
