@@ -568,7 +568,15 @@ multi_sig_name_bottom_sheet:
   imported_wallet_name: "External Wallet Name"
   placeholder: "Write name."
 multi_sig_setting_screen:
-  view_bsms: "Export to another vault"
+  export_menu: 
+    export_wallet: "Export Wallet"
+    view_bsms: "Export to Other Vault"
+    share_bsms: "Share with Other Vault"
+    share_bsms_description: "Share this wallet with other vaults."
+    export_watch_only_wallet: "Export to Watch-Only Wallet"
+    export_watch_only_wallet_description: "Export a watch-only wallet that only allows viewing balances and addresses."
+    backup_wallet_data: "Backup Wallet Data"
+    backup_wallet_data_description: "Backup the BSMS data required for wallet recovery in case of loss or device change."
   tooltip: 
     one: "Multisig wallet requiring $n signature\nout of $total keys."
     other: "Multisig wallet requiring $n signatures\nout of $total keys."

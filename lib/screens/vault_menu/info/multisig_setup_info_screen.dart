@@ -163,11 +163,7 @@ class _MultisigSetupInfoScreenState extends State<MultisigSetupInfoScreen> {
                             _buildVaultItemCard(context, viewModel),
                             _buildSignerList(context, viewModel),
                             CoconutLayout.spacing_500h,
-                            _buildSignMenu(),
-                            CoconutLayout.spacing_500h,
                             _buildMenuList(context),
-                            CoconutLayout.spacing_500h,
-                            _buildExportWalletMenu(),
                             CoconutLayout.spacing_1500h,
                           ],
                         ),
@@ -455,6 +451,13 @@ class _MultisigSetupInfoScreenState extends State<MultisigSetupInfoScreen> {
       child: ButtonGroup(
         buttons: [
           SingleButton(
+            enableShrinkAnim: true,
+            title: t.vault_menu_screen.title.multisig_sign,
+            onPressed: () {
+              Navigator.pushNamed(context, AppRoutes.psbtScanner, arguments: {'id': widget.id});
+            },
+          ),
+          SingleButton(
             title: t.view_address,
             enableShrinkAnim: true,
             onPressed: () {
@@ -468,40 +471,13 @@ class _MultisigSetupInfoScreenState extends State<MultisigSetupInfoScreen> {
           ),
           SingleButton(
             enableShrinkAnim: true,
-            title: t.multi_sig_setting_screen.view_bsms,
+            title: t.multi_sig_setting_screen.export_menu.export_wallet,
             onPressed: () {
               _removeTooltip();
-              Navigator.pushNamed(context, AppRoutes.multisigBsmsView, arguments: {'id': widget.id});
+              Navigator.pushNamed(context, AppRoutes.multisigExportOptions, arguments: {'id': widget.id});
             },
           ),
         ],
-      ),
-    );
-  }
-
-  Widget _buildExportWalletMenu() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      child: SingleButton(
-        enableShrinkAnim: true,
-        title: t.select_export_type_screen.title,
-        onPressed: () {
-          _showSyncOptionBottomSheet(widget.id, context);
-        },
-      ),
-    );
-  }
-
-  void _showSyncOptionBottomSheet(int walletId, BuildContext context) {
-    MyBottomSheet.showBottomSheet_ratio(
-      context: context,
-      ratio: 0.5,
-      child: SelectSyncOptionBottomSheet(
-        onSyncOptionSelected: (format) {
-          if (!context.mounted) return;
-          Navigator.pop(context);
-          Navigator.pushNamed(context, AppRoutes.syncToWallet, arguments: {'id': walletId, 'syncOption': format});
-        },
       ),
     );
   }

@@ -23,6 +23,7 @@ import 'package:coconut_vault/screens/home/vault_home_screen.dart';
 import 'package:coconut_vault/screens/home/vault_list_screen.dart';
 import 'package:coconut_vault/screens/precheck/device_password_checker_screen.dart';
 import 'package:coconut_vault/screens/precheck/jail_break_detection_screen.dart';
+import 'package:coconut_vault/screens/vault_menu/info/multisig_export_options_screen.dart';
 import 'package:coconut_vault/services/secure_zone/secure_zone_availability_checker.dart';
 import 'package:coconut_vault/services/security_prechecker.dart';
 import 'package:coconut_vault/repository/shared_preferences_repository.dart';
@@ -502,6 +503,11 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> with SingleTickerProv
                             (context) => buildScreenWithArguments(
                               context,
                               (args) => MultisigSignerBsmsExportScreen(id: args['id']),
+                            ),
+                        AppRoutes.multisigExportOptions:
+                            (context) => buildScreenWithArguments(
+                              context,
+                              (args) => MultisigExportOptionsScreen(id: args['id']),
                             ),
                         AppRoutes.multisigSign: (context) => const MultisigSignScreen(),
                         AppRoutes.singleSigSign: (context) => const SingleSigSignScreen(),

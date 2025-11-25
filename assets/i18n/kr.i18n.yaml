@@ -569,7 +569,15 @@ multi_sig_name_bottom_sheet:
   imported_wallet_name: "외부 지갑 이름"
   placeholder: "이름을 작성해주세요."
 multi_sig_setting_screen:
-  view_bsms: "다른 볼트로 내보내기"
+  export_menu: 
+    export_wallet: "지갑 내보내기"
+    view_bsms: "다른 볼트로 내보내기"
+    share_bsms: "다른 볼트와 공유하기"
+    share_bsms_description: "다른 볼트에서 이 지갑을 사용할 수 있도록 공유합니다."
+    export_watch_only_wallet: "보기 전용 앱으로 내보내기"
+    export_watch_only_wallet_description: "잔액/주소 조회만 가능한 앱으로 내보냅니다"
+    backup_wallet_data: "지갑 데이터 백업하기"
+    backup_wallet_data_description: "분실이나 기기 변경에 대비하여, 지갑 복구에 필요한 BSMS 백업 데이터를 내보냅니다"
   tooltip: 
     one: "$total개의 키 중 $n개로 서명해야 하는\n다중 서명 지갑이에요."
     other: "$total개의 키 중 $n개로 서명해야 하는\n다중 서명 지갑이에요."
