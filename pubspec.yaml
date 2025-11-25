@@ -78,6 +78,7 @@ dependencies:
   decimal: ^3.0.2
   coconut_design_system: ^0.9.7
   flutter_keyboard_visibility: ^6.0.0
+  base32: ^2.2.0
 
 dev_dependencies:
   flutter_oss_licenses: ^3.0.2
