@@ -556,7 +556,7 @@ multi_sig_bsms_screen:
     info_copied: "ウォレット詳細をコピーしました"
   title: "ウォレット設定情報"
   guide:
-    text1: "安全なマルチシグウォレット管理のための標準に従ってウォレット設定情報を管理・共有します。"
+    text1: "他のボルトにこのウォレットを共有します。"
     text2: "すべてのキーはボルトに保存されています。"
     text3: "同じキーを保存している他のボルトもこのQRを読み取ってマルチシグウォレットを追加できます。"
     text4: "このマルチシグウォレットに指定された**$gen**キーのニーモニックフレーズは現在他のボルトにあります。"
@@ -571,7 +571,6 @@ multi_sig_name_bottom_sheet:
 multi_sig_setting_screen:
   export_menu: 
     export_wallet: "ウォレットエクスポート"
-    view_bsms: "他のボルトにエクスポート"
     share_bsms: "他のボルトと共有"
     share_bsms_description: "他のボルトにこのウォレットを共有します。"
     export_watch_only_wallet: "ウォッチオンリーウォレットにエクスポート"

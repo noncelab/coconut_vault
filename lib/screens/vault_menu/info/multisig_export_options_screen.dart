@@ -50,7 +50,11 @@ class _MultisigExportOptionsScreenState extends State<MultisigExportOptionsScree
         onSyncOptionSelected: (format) {
           if (!context.mounted) return;
           Navigator.pop(context);
-          Navigator.pushNamed(context, AppRoutes.syncToWallet, arguments: {'id': walletId, 'syncOption': format});
+          Navigator.pushReplacementNamed(
+            context,
+            AppRoutes.syncToWallet,
+            arguments: {'id': walletId, 'syncOption': format},
+          );
         },
       ),
     );

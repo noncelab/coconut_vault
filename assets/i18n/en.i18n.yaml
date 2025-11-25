@@ -555,7 +555,7 @@ multi_sig_bsms_screen:
     info_copied: "Wallet details copied"
   title: "Multisig Wallet Export"
   guide:
-    text1: "You can also scan this QR code in another vault with the same key to add the wallet"
+    text1: "Share this wallet with other vaults."
     text2: "This wallet follows the standards (BIP-129, BSMS) for secure multi-signature management."
     text3: "All the keys required for signing are securely stored in this vault."
     text4: "The $gen key required for this multi-signature wallet is currently stored in another vault."
@@ -570,7 +570,6 @@ multi_sig_name_bottom_sheet:
 multi_sig_setting_screen:
   export_menu: 
     export_wallet: "Export Wallet"
-    view_bsms: "Export to Other Vault"
     share_bsms: "Share with Other Vault"
     share_bsms_description: "Share this wallet with other vaults."
     export_watch_only_wallet: "Export to Watch-Only Wallet"
