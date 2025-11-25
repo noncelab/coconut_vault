@@ -205,10 +205,16 @@ class WalletProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// 다중서명 지갑의 [singerIndex]번째 키로 사용한 외부 지갑의 메모를 업데이트
-  Future updateMemo(int id, int signerIndex, String? newMemo) async {
+  /// 다중서명 지갑의 [singerIndex]번째 키로 사용한 외부 지갑의 이름을 업데이트
+  Future updateExternalSignerName(int id, int signerIndex, String? newName) async {
     int index = _vaultList.indexWhere((wallet) => wallet.id == id);
-    _vaultList[index] = await _walletRepository.updateMemo(id, signerIndex, newMemo);
+    _vaultList[index] = await _walletRepository.updateExternalSignerName(id, signerIndex, newName);
+  }
+
+  /// 다중서명 지갑의 [singerIndex]번째 키로 사용한 외부 지갑의 출처를 업데이트
+  Future updateExternalSignerSource(int id, int signerIndex, SignerSource newSignerSource) async {
+    int index = _vaultList.indexWhere((wallet) => wallet.id == id);
+    _vaultList[index] = await _walletRepository.updateExternalSignerSource(id, signerIndex, newSignerSource);
   }
 
   /// SiglesigVaultListItem의 seed 중복 여부 확인

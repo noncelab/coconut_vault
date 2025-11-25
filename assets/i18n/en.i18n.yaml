@@ -30,7 +30,6 @@ security: "Security"
 unit: "Unit"
 yes: "Yes"
 no: "No"
-memo: "Memo"
 stop: "Stop"
 start: "Start"
 quit: "Quit"
@@ -565,16 +564,28 @@ multi_sig_bsms_screen:
   first_and_last_keys: "$first and $last"
   first_or_last_key: "$first or $last"
   view_detail: "View Details"
-multi_sig_memo_bottom_sheet:
-  imported_wallet_memo: "External Wallet Memo"
-  placeholder: "Write memo."
+multi_sig_name_bottom_sheet:
+  imported_wallet_name: "External Wallet Name"
+  placeholder: "Write name."
 multi_sig_setting_screen:
-  edit_memo: "Edit Memo"
-  add_memo: "Add Memo"
   view_bsms: "Export to another vault"
   tooltip: 
     one: "Multisig wallet requiring $n signature\nout of $total keys."
     other: "Multisig wallet requiring $n signatures\nout of $total keys."
+  add_key: "Add Key"
+  add_key_option: "Add Key Option"
+  input_mnemonic_word: "Input Mnemonic Word"
+  scan_seed_qr: "Scan Seed QR"
+  add_icon:
+    title: "Input Icon"
+    coconut_vault: "Coconut Vault"
+    keystone3pro: "Keystone 3 Pro"
+    seed_signer: "Seed Signer"
+    jade: "Jade"
+    cold_card: "ColdCard"
+    krux: "Krux"
+  add_icon_complete: "Icon Input Complete"
+  add_icon_complete_description: "The multisig wallet will guide you based on the $name setting when signing."
 select_export_type_screen:
   title: "Export to Watch-Only Wallet"
 signer_bsms_screen:

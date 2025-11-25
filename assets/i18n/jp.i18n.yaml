@@ -30,7 +30,6 @@ warning: "警告"
 security: "セキュリティ"
 yes: "はい"
 no: "いいえ"
-memo: "メモ"
 stop: "停止"
 start: "開始"
 quit: "終了"
@@ -566,16 +565,28 @@ multi_sig_bsms_screen:
   first_and_last_keys: "$firstと$last"
   first_or_last_key: "$firstまたは$last"
   view_detail: "詳細表示"
-multi_sig_memo_bottom_sheet:
-  imported_wallet_memo: "外部ウォレットメモ"
-  placeholder: "メモを書いてください。"
+multi_sig_name_bottom_sheet:
+  imported_wallet_name: "外部ウォレット名前"
+  placeholder: "名前を書いてください。"
 multi_sig_setting_screen:
-  edit_memo: "メモ編集"
-  add_memo: "メモ追加"
   view_bsms: "ウォレット設定表示"
   tooltip: 
     one: "$total個のキー中$n個の署名が必要なマルチシグウォレット。"
     other: "$total個のキー中$n個の署名が必要なマルチシグウォレット。"
+  add_key: "キー追加"
+  add_key_option: "キー追加オプション"
+  input_mnemonic_word: "ニーモニックフレーズ入力"
+  scan_seed_qr: "シードQRスキャン"
+  add_icon:
+    title: "アイコン入力"
+    coconut_vault: "Coconut Vault"
+    keystone3pro: "Keystone 3 Pro"
+    seed_signer: "Seed Signer"
+    jade: "Jade"
+    cold_card: "ColdCard"
+    krux: "Krux"
+  add_icon_complete: "アイコン入力完了"
+  add_icon_complete_description: "マルチシグウォレットで署名する際に$nameの設定に従って案内します。"
 select_export_type_screen:
   title: "エクスポート"
 signer_bsms_screen:

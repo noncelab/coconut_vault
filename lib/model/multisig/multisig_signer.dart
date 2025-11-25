@@ -1,6 +1,7 @@
 import 'dart:core';
 
 import 'package:coconut_lib/coconut_lib.dart';
+import 'package:coconut_vault/constants/icon_path.dart';
 import 'package:json_annotation/json_annotation.dart';
 
 part 'multisig_signer.g.dart'; // 생성될 파일 이름 $ dart run build_runner build
@@ -52,6 +53,45 @@ class MultisigSigner {
       return signerName!;
     }
     return signerSource?.name ?? '';
+  }
+
+  String getSignerDerivationPath() {
+    if (signerBsms == null) {
+      return '';
+    }
+    try {
+      final bsms = Bsms.parseSigner(signerBsms!);
+      return bsms.signer?.path ?? '';
+    } catch (_) {
+      return '';
+    }
+  }
+
+  String getSignerIconSource() {
+    String iconPath = '';
+    switch (signerSource) {
+      case SignerSource.coconutvault:
+        iconPath = kCoconutVaultIconPath;
+        break;
+      case SignerSource.keystone3pro:
+        iconPath = kKeystoneIconPath;
+        break;
+      case SignerSource.seedsigner:
+        iconPath = kSeedSignerIconPath;
+        break;
+      case SignerSource.jade:
+        iconPath = kJadeIconPath;
+        break;
+      case SignerSource.coldcard:
+        iconPath = kColdCardIconPath;
+        break;
+      case SignerSource.krux:
+        iconPath = kKruxIconPath;
+        break;
+      default:
+        iconPath = kAddCircleOutlinedIconPath;
+    }
+    return iconPath;
   }
 }
 

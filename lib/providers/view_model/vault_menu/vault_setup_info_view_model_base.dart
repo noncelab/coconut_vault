@@ -7,20 +7,29 @@ abstract class VaultSetupInfoViewModelBase<T extends VaultListItemBase> extends 
   @protected
   WalletProvider get walletProvider => _walletProvider;
 
-  late final T _vaultListItem;
+  T? _vaultListItem;
+  bool _isInitialized = false;
 
-  T get vaultItem => _vaultListItem;
-  String get name => _vaultListItem.name;
-  int get colorIndex => _vaultListItem.colorIndex;
-  int get iconIndex => _vaultListItem.iconIndex;
-  DateTime get createdAt => _vaultListItem.createdAt;
+  T get vaultItem {
+    if (_vaultListItem == null) {
+      throw StateError('VaultListItem is not initialized yet');
+    }
+    return _vaultListItem!;
+  }
+
+  String get name => vaultItem.name;
+  int get colorIndex => vaultItem.colorIndex;
+  int get iconIndex => vaultItem.iconIndex;
+  DateTime get createdAt => vaultItem.createdAt;
   bool get isSigningOnlyMode => _walletProvider.isSigningOnlyMode;
+  bool get isInitialized => _isInitialized;
 
   VaultSetupInfoViewModelBase(this._walletProvider, int id) {
     if (!_walletProvider.isVaultsLoaded || _walletProvider.vaultList.isEmpty) {
       _initializeVaultItem(id);
     } else {
       _setVaultListItem(id);
+      _isInitialized = true;
     }
   }
 
@@ -28,6 +37,11 @@ abstract class VaultSetupInfoViewModelBase<T extends VaultListItemBase> extends 
   Future<void> _initializeVaultItem(int id) async {
     await _walletProvider.loadVaultList();
     _setVaultListItem(id);
+    _isInitialized = true;
+    // build 중이 아닐 때만 notifyListeners 호출하도록 첫 프레임 이후에 실행
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      notifyListeners();
+    });
   }
 
   void _setVaultListItem(int id) {
@@ -43,13 +57,16 @@ abstract class VaultSetupInfoViewModelBase<T extends VaultListItemBase> extends 
   }
 
   Future<bool> updateVault(int id, String name, int colorIndex, int iconIndex) async {
-    if (name == _vaultListItem.name &&
-        colorIndex == _vaultListItem.colorIndex &&
-        iconIndex == _vaultListItem.iconIndex) {
+    if (_vaultListItem == null) {
+      return false;
+    }
+    if (name == _vaultListItem!.name &&
+        colorIndex == _vaultListItem!.colorIndex &&
+        iconIndex == _vaultListItem!.iconIndex) {
       return false;
     }
 
-    if (name != _vaultListItem.name && _walletProvider.isNameDuplicated(name)) {
+    if (name != _vaultListItem!.name && _walletProvider.isNameDuplicated(name)) {
       return false;
     }
 
@@ -59,6 +76,9 @@ abstract class VaultSetupInfoViewModelBase<T extends VaultListItemBase> extends 
   }
 
   Future<void> deleteVault() async {
-    await _walletProvider.deleteWallet(_vaultListItem.id);
+    if (_vaultListItem == null) {
+      return;
+    }
+    await _walletProvider.deleteWallet(_vaultListItem!.id);
   }
 }

@@ -10,12 +10,15 @@ import 'package:coconut_vault/providers/view_model/vault_menu/multisig_setup_inf
 import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:coconut_vault/screens/common/pin_check_screen.dart';
 import 'package:coconut_vault/screens/home/select_sync_option_bottom_sheet.dart';
+import 'package:coconut_vault/screens/vault_menu/info/multisig_add_icon_bottom_sheet.dart';
+import 'package:coconut_vault/screens/vault_menu/info/multisig_add_key_option_bottom_sheet.dart';
 import 'package:coconut_vault/screens/vault_menu/info/multisig_signer_memo_bottom_sheet.dart';
 import 'package:coconut_vault/screens/vault_menu/info/name_and_icon_edit_bottom_sheet.dart';
 import 'package:coconut_vault/utils/vibration_util.dart';
 import 'package:coconut_vault/widgets/bottom_sheet.dart';
 import 'package:coconut_vault/widgets/bubble_clipper.dart';
 import 'package:coconut_vault/widgets/button/button_group.dart';
+import 'package:coconut_vault/widgets/button/shrink_animation_button.dart';
 import 'package:coconut_vault/widgets/button/single_button.dart';
 import 'package:coconut_vault/widgets/card/vault_item_card.dart';
 import 'package:coconut_vault/widgets/custom_loading_overlay.dart';
@@ -94,6 +97,12 @@ class _MultisigSetupInfoScreenState extends State<MultisigSetupInfoScreen> {
         },
         child: Consumer<MultisigSetupInfoViewModel>(
           builder: (context, viewModel, child) {
+            if (!viewModel.isInitialized) {
+              return const Scaffold(
+                backgroundColor: CoconutColors.white,
+                body: Center(child: CircularProgressIndicator()),
+              );
+            }
             final walletName = viewModel.name;
             return GestureDetector(
               onTapDown: (details) => _removeTooltip(),
@@ -127,8 +136,8 @@ class _MultisigSetupInfoScreenState extends State<MultisigSetupInfoScreen> {
                         Column(
                           children: [
                             CoconutLayout.spacing_500h,
-                            _buildVaultItemCard(context),
-                            _buildSignerList(context),
+                            _buildVaultItemCard(context, viewModel),
+                            _buildSignerList(context, viewModel),
                             CoconutLayout.spacing_500h,
                             _buildSignMenu(),
                             CoconutLayout.spacing_500h,
@@ -138,7 +147,7 @@ class _MultisigSetupInfoScreenState extends State<MultisigSetupInfoScreen> {
                             CoconutLayout.spacing_1500h,
                           ],
                         ),
-                        _buildTooltip(context),
+                        _buildTooltip(context, viewModel),
                       ],
                     ),
                   ),
@@ -151,13 +160,13 @@ class _MultisigSetupInfoScreenState extends State<MultisigSetupInfoScreen> {
     );
   }
 
-  Widget _buildVaultItemCard(BuildContext context) {
+  Widget _buildVaultItemCard(BuildContext context, MultisigSetupInfoViewModel viewModel) {
     return VaultItemCard(
-      vaultItem: _viewModel.vaultItem,
+      vaultItem: viewModel.vaultItem,
       onTooltipClicked: () => _showTooltip(context),
       onNameChangeClicked: () {
         _removeTooltip();
-        _showNameAndIconEditBottomSheet(_viewModel);
+        _showNameAndIconEditBottomSheet(viewModel);
       },
       tooltipKey: _tooltipIconKey,
     );
@@ -198,8 +207,8 @@ class _MultisigSetupInfoScreenState extends State<MultisigSetupInfoScreen> {
     }
   }
 
-  Widget _buildSignerList(BuildContext context) {
-    final signers = _viewModel.signers;
+  Widget _buildSignerList(BuildContext context, MultisigSetupInfoViewModel viewModel) {
+    final signers = viewModel.signers;
     return ListView.separated(
       physics: const NeverScrollableScrollPhysics(),
       shrinkWrap: true,
@@ -207,7 +216,7 @@ class _MultisigSetupInfoScreenState extends State<MultisigSetupInfoScreen> {
       itemCount: signers.length,
       separatorBuilder: (context, index) => const SizedBox(height: 8),
       itemBuilder: (context, index) {
-        final signer = _viewModel.getSignerInfo(index);
+        final signer = viewModel.getSignerInfo(index);
         final isVaultInside = signer.innerVaultId != null;
         return GestureDetector(
           onTap: () async {
@@ -227,7 +236,7 @@ class _MultisigSetupInfoScreenState extends State<MultisigSetupInfoScreen> {
                 );
               }
             } else {
-              _showNameEditBottomSheet(signer, index, _viewModel);
+              _showNameEditBottomSheet(signer, index, viewModel);
             }
           },
           child: _buildSignerCard(signer, index),
@@ -256,13 +265,14 @@ class _MultisigSetupInfoScreenState extends State<MultisigSetupInfoScreen> {
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder:
-          (context) => MultisigSignerMemoBottomSheet(
+          (context) => MultisigSignerNameBottomSheet(
             name: selectedName,
             autofocus: true,
-            onUpdate: (memo) async {
-              if (selectedName == memo) return;
+            onUpdate: (newName) async {
               final navigator = Navigator.of(context);
-              await viewModel.updateOutsideVaultName(index, memo);
+              if (newName.trim() != selectedName.trim()) {
+                await viewModel.updateOutsideVaultName(index, newName.trim());
+              }
               if (mounted) {
                 navigator.pop();
               }
@@ -273,41 +283,74 @@ class _MultisigSetupInfoScreenState extends State<MultisigSetupInfoScreen> {
 
   Widget _buildSignerCard(MultisigSigner signer, int index) {
     final isVaultInside = signer.innerVaultId != null;
-    return Container(
-      color: Colors.transparent,
-      child: Row(
-        children: [
-          _buildIndex(index + 1),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Container(
-              padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                color: CoconutColors.white,
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: CoconutColors.gray200),
-              ),
-              child: Row(
-                children: [
-                  VaultIcon(
-                    iconIndex: isVaultInside ? signer.iconIndex! : null,
-                    colorIndex: isVaultInside ? signer.colorIndex! : null,
-                    size: 20,
-                  ),
-                  const SizedBox(width: 10),
-                  Expanded(child: _buildSignerNameAndMemo(name: signer.name, memo: signer.signerSource?.name)),
-                  // mfp
-                  Expanded(
-                    child: FittedBox(
-                      fit: BoxFit.scaleDown,
-                      child: Text(signer.keyStore.masterFingerprint, style: CoconutTypography.body1_16_Number),
+    return MediaQuery(
+      data: MediaQuery.of(context).copyWith(textScaler: const TextScaler.linear(1.0)),
+      child: Container(
+        color: Colors.transparent,
+        child: Row(
+          children: [
+            _buildIndex(index + 1),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Container(
+                padding: const EdgeInsets.all(20),
+                decoration: BoxDecoration(
+                  color: CoconutColors.white,
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: CoconutColors.gray200),
+                ),
+                child: Row(
+                  children: [
+                    VaultIcon(
+                      iconIndex: isVaultInside ? signer.iconIndex! : null,
+                      colorIndex: isVaultInside ? signer.colorIndex! : null,
+                      customIconSource: isVaultInside ? null : signer.getSignerIconSource(),
+                      size: 20,
+                      onPressed:
+                          isVaultInside
+                              ? null
+                              : () {
+                                _showAddIconBottomSheet(signer.getSignerIconSource(), index);
+                              },
                     ),
-                  ),
-                ],
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child:
+                          isVaultInside
+                              ? Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  _buildSignerName(name: signer.name),
+                                  FittedBox(
+                                    fit: BoxFit.scaleDown,
+                                    child: _buildMfpAndDerivationPath(
+                                      signer.keyStore.masterFingerprint,
+                                      signer.getSignerDerivationPath(),
+                                    ),
+                                  ),
+                                ],
+                              )
+                              : Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Expanded(
+                                    child: _buildMfpAndDerivationPath(
+                                      signer.keyStore.masterFingerprint,
+                                      signer.getSignerDerivationPath(),
+                                      name: signer.getSignerName(),
+                                      isLeftAlign: true,
+                                    ),
+                                  ),
+                                  _buildAddKeyButton(),
+                                ],
+                              ),
+                    ),
+                  ],
+                ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -319,23 +362,66 @@ class _MultisigSetupInfoScreenState extends State<MultisigSetupInfoScreen> {
     );
   }
 
-  Widget _buildSignerNameAndMemo({String? name, String? memo}) {
+  Widget _buildSignerName({String? name}) {
+    return Text(name ?? '', style: CoconutTypography.body2_14, maxLines: 1, overflow: TextOverflow.ellipsis);
+  }
+
+  Widget _buildMfpAndDerivationPath(String mfp, String derivationPath, {String? name, bool isLeftAlign = false}) {
     return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      crossAxisAlignment: CrossAxisAlignment.start,
+      crossAxisAlignment: isLeftAlign ? CrossAxisAlignment.start : CrossAxisAlignment.end,
       children: [
-        // 이름
-        Text(name ?? '', style: CoconutTypography.body2_14, maxLines: 1, overflow: TextOverflow.ellipsis),
-        Visibility(
-          visible: memo != null && memo.isNotEmpty,
-          child: Text(
-            memo ?? '',
-            style: CoconutTypography.body3_12.merge(const TextStyle(color: CoconutColors.searchbarHint, fontSize: 10)),
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
-          ),
-        ),
+        Text(mfp, style: CoconutTypography.body2_14_Number),
+        name != null
+            ? Row(
+              mainAxisAlignment: isLeftAlign ? MainAxisAlignment.start : MainAxisAlignment.end,
+              children: [
+                Text('$derivationPath • ', style: CoconutTypography.body3_12.setColor(CoconutColors.gray600)),
+                Expanded(
+                  child: Text(
+                    name,
+                    style: CoconutTypography.body3_12.setColor(CoconutColors.gray600),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    textAlign: isLeftAlign ? TextAlign.left : TextAlign.right,
+                  ),
+                ),
+              ],
+            )
+            : Text(
+              derivationPath,
+              style: CoconutTypography.body3_12.setColor(CoconutColors.gray600),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
       ],
+    );
+  }
+
+  Widget _buildAddKeyButton() {
+    return ShrinkAnimationButton(
+      borderWidth: 1.4,
+      borderGradientColors: const [CoconutColors.gray350, CoconutColors.gray350],
+      borderRadius: 8,
+      onPressed: () async {
+        final result = await MyBottomSheet.showDraggableBottomSheet<SignerSource?>(
+          context: context,
+          showDragHandle: false,
+          maxChildSize: 0.45,
+          minChildSize: 0.2,
+          initialChildSize: 0.45,
+          childBuilder: (context) => const MultisigAddKeyOptionBottomSheet(),
+        );
+        if (result != null) {
+          debugPrint('result: $result');
+        }
+      },
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        child: Text(
+          t.multi_sig_setting_screen.add_key,
+          style: CoconutTypography.body3_12_Bold.setColor(CoconutColors.black),
+        ),
+      ),
     );
   }
 
@@ -396,9 +482,9 @@ class _MultisigSetupInfoScreenState extends State<MultisigSetupInfoScreen> {
     );
   }
 
-  Widget _buildTooltip(BuildContext context) {
-    final totalSingerCount = _viewModel.signers.length;
-    final requiredSignatureCount = _viewModel.requiredSignatureCount;
+  Widget _buildTooltip(BuildContext context, MultisigSetupInfoViewModel viewModel) {
+    final totalSingerCount = viewModel.signers.length;
+    final requiredSignatureCount = viewModel.requiredSignatureCount;
     return Visibility(
       visible: _tooltipRemainingTime > 0,
       child: Positioned(
@@ -425,6 +511,20 @@ class _MultisigSetupInfoScreenState extends State<MultisigSetupInfoScreen> {
         ),
       ),
     );
+  }
+
+  void _showAddIconBottomSheet(String? iconSource, int index) async {
+    final result = await MyBottomSheet.showDraggableBottomSheet<SignerSource?>(
+      context: context,
+      showDragHandle: false,
+      maxChildSize: 0.45,
+      minChildSize: 0.2,
+      initialChildSize: 0.45,
+      childBuilder: (context) => MultisigAddIconBottomSheet(iconSource: iconSource),
+    );
+    if (result != null) {
+      _viewModel.updateSignerSource(index, result);
+    }
   }
 
   /// 25.09.04 변경으로 멀티시그 지갑 상세화면에는 툴팁 없음

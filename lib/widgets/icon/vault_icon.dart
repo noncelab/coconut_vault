@@ -1,5 +1,6 @@
 import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_vault/utils/icon_util.dart';
+import 'package:coconut_vault/widgets/button/shrink_animation_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 
@@ -9,19 +10,51 @@ class VaultIcon extends StatelessWidget {
   late final Color iconColor;
   late final String iconPath;
   late final double size;
-  VaultIcon({super.key, required int? iconIndex, required int? colorIndex, this.size = 22}) {
+  late final String? customIconSource;
+  late final VoidCallback? onPressed;
+  VaultIcon({
+    super.key,
+    required int? iconIndex,
+    required int? colorIndex,
+    this.size = 22,
+    this.customIconSource,
+    this.onPressed,
+  }) {
     backgroundColor =
-        colorIndex == null ? CoconutColors.gray150 : CoconutColors.backgroundColorPaletteLight[colorIndex];
+        customIconSource != null
+            ? CoconutColors.gray150
+            : colorIndex == null
+            ? CoconutColors.gray150
+            : CoconutColors.backgroundColorPaletteLight[colorIndex];
     iconColor = colorIndex == null ? CoconutColors.gray500 : CoconutColors.colorPalette[colorIndex];
-    iconPath = iconIndex == null ? 'assets/svg/import-bsms.svg' : CustomIcons.getPathByIndex(iconIndex);
+    iconPath =
+        customIconSource != null
+            ? customIconSource!
+            : iconIndex == null
+            ? 'assets/svg/import-bsms.svg'
+            : CustomIcons.getPathByIndex(iconIndex);
   }
 
   @override
   Widget build(BuildContext context) {
+    return onPressed != null
+        ? ShrinkAnimationButton(onPressed: onPressed!, child: _buildContainer())
+        : _buildContainer();
+  }
+
+  Widget _buildContainer() {
     return Container(
       padding: const EdgeInsets.all(10),
       decoration: BoxDecoration(color: backgroundColor, borderRadius: BorderRadius.circular(12)),
-      child: SvgPicture.asset(iconPath, colorFilter: ColorFilter.mode(iconColor, BlendMode.srcIn), width: size),
+      child: SizedBox(
+        width: size,
+        height: size,
+        child: SvgPicture.asset(
+          iconPath,
+          colorFilter: ColorFilter.mode(iconColor, BlendMode.srcIn),
+          fit: BoxFit.contain,
+        ),
+      ),
     );
   }
 }

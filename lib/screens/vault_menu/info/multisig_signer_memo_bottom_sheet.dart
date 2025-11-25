@@ -3,26 +3,26 @@ import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
-class MultisigSignerMemoBottomSheet extends StatefulWidget {
-  final String? memo;
+class MultisigSignerNameBottomSheet extends StatefulWidget {
+  final String? name;
   final Function(String) onUpdate;
   final bool? autofocus;
 
-  const MultisigSignerMemoBottomSheet({super.key, required this.onUpdate, required this.memo, this.autofocus = false});
+  const MultisigSignerNameBottomSheet({super.key, required this.onUpdate, required this.name, this.autofocus = false});
 
   @override
-  State<MultisigSignerMemoBottomSheet> createState() => _MultisigSignerMemoBottomSheetState();
+  State<MultisigSignerNameBottomSheet> createState() => _MultisigSignerNameBottomSheetState();
 }
 
-class _MultisigSignerMemoBottomSheetState extends State<MultisigSignerMemoBottomSheet> {
-  late String _memo;
+class _MultisigSignerNameBottomSheetState extends State<MultisigSignerNameBottomSheet> {
+  late String _name;
   bool hasChanged = false;
   final TextEditingController _controller = TextEditingController();
 
   @override
   void initState() {
-    _controller.text = widget.memo ?? '';
-    _memo = widget.memo ?? '';
+    _controller.text = widget.name ?? '';
+    _name = widget.name ?? '';
     super.initState();
   }
 
@@ -49,7 +49,7 @@ class _MultisigSignerMemoBottomSheetState extends State<MultisigSignerMemoBottom
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 Center(
-                  child: Text(t.multi_sig_memo_bottom_sheet.imported_wallet_memo, style: CoconutTypography.heading4_18),
+                  child: Text(t.multi_sig_name_bottom_sheet.imported_wallet_name, style: CoconutTypography.heading4_18),
                 ),
 
                 const SizedBox(height: 16),
@@ -63,16 +63,16 @@ class _MultisigSignerMemoBottomSheetState extends State<MultisigSignerMemoBottom
                   child: CupertinoTextField(
                     autofocus: widget.autofocus ?? false,
                     controller: _controller,
-                    placeholder: t.multi_sig_memo_bottom_sheet.placeholder,
+                    placeholder: t.multi_sig_name_bottom_sheet.placeholder,
                     padding: const EdgeInsets.fromLTRB(16, 20, 16, 20),
                     style: CoconutTypography.body1_16,
                     placeholderStyle: CoconutTypography.body2_14.setColor(CoconutColors.black.withValues(alpha: 0.3)),
                     decoration: const BoxDecoration(color: Colors.transparent),
-                    maxLength: 15,
+                    maxLength: 20,
                     clearButtonMode: OverlayVisibilityMode.always,
                     onChanged: (text) {
                       setState(() {
-                        _memo = text;
+                        _name = text;
                       });
                     },
                   ),
@@ -84,9 +84,9 @@ class _MultisigSignerMemoBottomSheetState extends State<MultisigSignerMemoBottom
                   child: Padding(
                     padding: const EdgeInsets.only(top: 4, right: 4),
                     child: Text(
-                      '(${_memo.length} / 15)',
+                      '(${_name.length} / 20)',
                       style: CoconutTypography.body3_12.setColor(
-                        _memo.length == 15
+                        _name.length == 20
                             ? CoconutColors.black.withValues(alpha: 0.7)
                             : CoconutColors.black.withValues(alpha: 0.5),
                       ),
@@ -128,7 +128,7 @@ class _MultisigSignerMemoBottomSheetState extends State<MultisigSignerMemoBottom
                       child: GestureDetector(
                         onTap: () {
                           FocusScope.of(context).unfocus();
-                          widget.onUpdate(_memo);
+                          widget.onUpdate(_name);
                         },
                         child: Container(
                           padding: const EdgeInsets.symmetric(vertical: 16),
@@ -139,7 +139,7 @@ class _MultisigSignerMemoBottomSheetState extends State<MultisigSignerMemoBottom
                               style: TextStyle(
                                 color: CoconutColors.white,
                                 fontSize: 14,
-                                fontWeight: _memo.isNotEmpty ? FontWeight.bold : FontWeight.normal,
+                                fontWeight: _name.isNotEmpty ? FontWeight.bold : FontWeight.normal,
                               ),
                             ),
                           ),
@@ -174,7 +174,7 @@ class MemoTextField extends StatelessWidget {
       ),
       child: CupertinoTextField(
         controller: controller,
-        placeholder: t.multi_sig_memo_bottom_sheet.placeholder,
+        placeholder: t.multi_sig_name_bottom_sheet.placeholder,
         padding: const EdgeInsets.fromLTRB(16, 20, 16, 20),
         style: CoconutTypography.body1_16,
         placeholderStyle: CoconutTypography.body2_14.setColor(CoconutColors.black.withValues(alpha: 0.3)),

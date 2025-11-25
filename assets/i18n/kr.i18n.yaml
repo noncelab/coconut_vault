@@ -30,7 +30,6 @@ warning: "주의"
 security: "보안"
 yes: "네"
 no: "아니오"
-memo: "메모"
 stop: "그만하기"
 start: "시작하기"
 quit: "종료하기"
@@ -566,16 +565,28 @@ multi_sig_bsms_screen:
   first_and_last_keys: "$first번과 $last번"
   first_or_last_key: "$first번 또는 $last번"
   view_detail: "상세 정보 보기"
-multi_sig_memo_bottom_sheet:
-  imported_wallet_memo: "외부 지갑 메모"
-  placeholder: "메모를 작성해주세요."
+multi_sig_name_bottom_sheet:
+  imported_wallet_name: "외부 지갑 이름"
+  placeholder: "이름을 작성해주세요."
 multi_sig_setting_screen:
-  edit_memo: "메모 수정"
-  add_memo: "메모 추가"
   view_bsms: "다른 볼트로 내보내기"
   tooltip: 
     one: "$total개의 키 중 $n개로 서명해야 하는\n다중 서명 지갑이에요."
     other: "$total개의 키 중 $n개로 서명해야 하는\n다중 서명 지갑이에요."
+  add_key: "키 추가"
+  add_key_option: "키 추가 옵션"
+  input_mnemonic_word: "니모닉 문구 입력하기"
+  scan_seed_qr: "시드 QR 스캔하기"
+  add_icon:
+    title: "아이콘 입력"
+    coconut_vault: "코코넛 볼트"
+    keystone3pro: "키스톤 3 프로"
+    seed_signer: "시드사이너"
+    jade: "제이드"
+    cold_card: "콜드카드"
+    krux: "크럭스"
+  add_icon_complete: "아이콘 입력 완료"
+  add_icon_complete_description: "다중 서명 지갑에 서명할 때 $name 설정에 따라 안내할게요."
 select_export_type_screen:
   title: "보기 전용 앱으로 내보내기"
 signer_bsms_screen:
