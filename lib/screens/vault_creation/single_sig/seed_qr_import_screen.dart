@@ -5,6 +5,7 @@ import 'dart:typed_data';
 import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_lib/coconut_lib.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
+import 'package:coconut_vault/model/multisig/multisig_signer.dart';
 import 'package:coconut_vault/providers/app_lifecycle_state_provider.dart';
 import 'package:coconut_vault/screens/vault_creation/single_sig/seed_qr_confirmation_screen.dart';
 import 'package:coconut_vault/widgets/custom_tooltip.dart';
@@ -16,7 +17,8 @@ import 'package:qr_code_scanner_plus/qr_code_scanner_plus.dart';
 /// mobile_scanner 이슈로
 /// 이 화면만 qr_code_scanner_plus 사용
 class SeedQrImportScreen extends StatefulWidget {
-  const SeedQrImportScreen({super.key});
+  final MultisigSigner? externalSigner;
+  const SeedQrImportScreen({super.key, this.externalSigner});
 
   @override
   State<SeedQrImportScreen> createState() => _SeedQrImportScreenState();
@@ -148,10 +150,15 @@ class _SeedQrImportScreenState extends State<SeedQrImportScreen> {
           _isNavigating = true;
           // 1. 네비게이션하기 전 카메라 끄기
           controller.pauseCamera();
+
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => SeedQrConfirmationScreen(scannedData: utf8.encode(words.join(' '))),
+              builder:
+                  (context) => SeedQrConfirmationScreen(
+                    scannedData: utf8.encode(words.join(' ')),
+                    externalSigner: widget.externalSigner,
+                  ),
             ),
           ).then((_) {
             // 2. 돌아왔을 때 카메라 재개하기

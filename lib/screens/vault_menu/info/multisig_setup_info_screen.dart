@@ -4,6 +4,7 @@ import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_vault/constants/app_routes.dart';
 import 'package:coconut_vault/enums/pin_check_context_enum.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
+import 'package:coconut_vault/model/common/vault_list_item_base.dart';
 import 'package:coconut_vault/model/multisig/multisig_signer.dart';
 import 'package:coconut_vault/providers/auth_provider.dart';
 import 'package:coconut_vault/providers/view_model/vault_menu/multisig_setup_info_view_model.dart';
@@ -42,6 +43,8 @@ class _MultisigSetupInfoScreenState extends State<MultisigSetupInfoScreen> {
   final double _tooltipTopPadding = 0;
   late final MultisigSetupInfoViewModel _viewModel;
   late final WalletProvider _walletProvider;
+  ValueNotifier<List<VaultListItemBase>>? _vaultListNotifier;
+  bool _isVaultListListenerAttached = false;
 
   Timer? _tooltipTimer;
   final int _tooltipRemainingTime = 0;
@@ -51,14 +54,25 @@ class _MultisigSetupInfoScreenState extends State<MultisigSetupInfoScreen> {
     super.initState();
     _walletProvider = Provider.of<WalletProvider>(context, listen: false);
     _viewModel = MultisigSetupInfoViewModel(_walletProvider, widget.id);
-    // vaultList 변경 시 signer 정보 갱신
-    _walletProvider.vaultListNotifier.addListener(_onVaultListChanged);
+    _vaultListNotifier = _walletProvider.vaultListNotifier;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted || _vaultListNotifier == null || _isVaultListListenerAttached) return;
+      _vaultListNotifier!.addListener(_onVaultListChanged);
+      _isVaultListListenerAttached = true;
+    });
   }
 
   void _onVaultListChanged() {
-    if (mounted) {
-      _viewModel.refreshVaultItem(widget.id);
+    if (!mounted) return;
+    final exists = _walletProvider.vaultList.any((vault) => vault.id == widget.id);
+    if (!exists) {
+      if (_isVaultListListenerAttached) {
+        _vaultListNotifier?.removeListener(_onVaultListChanged);
+        _isVaultListListenerAttached = false;
+      }
+      return;
     }
+    _viewModel.refreshVaultItem(widget.id);
   }
 
   void onComplete() {
@@ -603,7 +617,9 @@ class _MultisigSetupInfoScreenState extends State<MultisigSetupInfoScreen> {
 
   @override
   void dispose() {
-    _walletProvider.vaultListNotifier.removeListener(_onVaultListChanged);
+    if (_isVaultListListenerAttached && _vaultListNotifier != null) {
+      _vaultListNotifier!.removeListener(_onVaultListChanged);
+    }
     _tooltipTimer?.cancel();
     _viewModel.dispose();
     super.dispose();

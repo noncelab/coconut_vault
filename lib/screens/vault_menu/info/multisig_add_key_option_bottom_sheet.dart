@@ -50,7 +50,7 @@ class MultisigAddKeyOptionBottomSheet extends StatelessWidget {
                 borderRadius: 12,
                 onPressed: () {
                   Navigator.pop(context);
-                  Navigator.pushNamed(context, AppRoutes.seedQrImport);
+                  Navigator.pushNamed(context, AppRoutes.seedQrImport, arguments: {'externalSigner': signer});
                 },
                 child: Container(
                   width: double.infinity,
