@@ -1,11 +1,9 @@
-import 'dart:convert';
-
 import 'package:coconut_design_system/coconut_design_system.dart';
-import 'package:coconut_lib/coconut_lib.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/model/exception/not_related_multisig_wallet_exception.dart';
-import 'package:coconut_vault/model/multisig/multisig_import_detail.dart';
 import 'package:coconut_vault/screens/vault_creation/multisig/bsms_scanner_base.dart';
+import 'package:coconut_vault/utils/bip/multisig_normalizer.dart';
+import 'package:coconut_vault/utils/logger.dart';
 import 'package:coconut_vault/widgets/animated_qr/scan_data_handler/coordinator_bsms_qr_data_handler.dart';
 import 'package:flutter/material.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
@@ -20,7 +18,7 @@ class CoordinatorBsmsConfigScannerScreen extends StatefulWidget {
 
 class _CoordinatorBsmsConfigScannerScreenState extends BsmsScannerBase<CoordinatorBsmsConfigScannerScreen> {
   static String wrongFormatMessage = t.errors.invalid_multisig_qr_error;
-  CoordinatorBsmsQrDataHandler _coordinatorBsmsQrDataHandler;
+  final CoordinatorBsmsQrDataHandler _coordinatorBsmsQrDataHandler;
 
   _CoordinatorBsmsConfigScannerScreenState() : _coordinatorBsmsQrDataHandler = CoordinatorBsmsQrDataHandler();
 
@@ -97,7 +95,6 @@ class _CoordinatorBsmsConfigScannerScreenState extends BsmsScannerBase<Coordinat
   /// TODO: 외부에서 만들어진 Coordinator BSMS를 스캔해서 멀티시그 지갑 생성하는 로직 추가
   @override
   void onBarcodeDetected(BarcodeCapture capture) async {
-    print('--> onBarcodeDetected');
     final codes = capture.barcodes;
     if (codes.isEmpty) {
       setState(() => isProcessing = false);
@@ -120,8 +117,6 @@ class _CoordinatorBsmsConfigScannerScreenState extends BsmsScannerBase<Coordinat
     controller?.pause();
 
     final result = _coordinatorBsmsQrDataHandler.result;
-    print('\t progress: ${_coordinatorBsmsQrDataHandler.progress}');
-    print('\t result: $result');
 
     if (result == null) {
       onFailedScanning(wrongFormatMessage);
@@ -129,20 +124,10 @@ class _CoordinatorBsmsConfigScannerScreenState extends BsmsScannerBase<Coordinat
       return;
     }
 
-    // TODO: 멀티시그 지갑 생성 형식에 맞게 저장 후 화면 이동
-    // MultisigImportDetail decodedData;
-    // String coordinatorBsms;
-    // Map<String, dynamic> decodedJson;
-
-    // try {
-    //   decodedJson = jsonDecode(scanData);
-    //   decodedData = MultisigImportDetail.fromJson(decodedJson);
-    //   coordinatorBsms = decodedData.coordinatorBsms;
-    //   Bsms.parseCoordinator(coordinatorBsms);
-    // } catch (_) {
-    //   onFailedScanning(wrongFormatMessage);
-    //   return;
-    // }
+    final normalizedMultisigConfig = MultisigNormalizer.fromCoordinatorResult(result);
+    Logger.log(
+      '\t normalizedMultisigConfig: \n name: ${normalizedMultisigConfig.name}\n requiredCount: ${normalizedMultisigConfig.requiredCount}\n signerBsms: [\n${normalizedMultisigConfig.signerBsms.join(',\n')}\n]',
+    );
 
     // if (walletProvider.findMultisigWalletByCoordinatorBsms(coordinatorBsms) != null) {
     //   onFailedScanning(t.errors.duplicate_multisig_registered_error);
@@ -171,6 +156,7 @@ class _CoordinatorBsmsConfigScannerScreenState extends BsmsScannerBase<Coordinat
         return;
       }
       onFailedScanning(e.toString());
+      controller?.start();
     }
   }
 }
