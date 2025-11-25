@@ -5,6 +5,7 @@ import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_lib/coconut_lib.dart';
 import 'package:coconut_vault/constants/app_routes.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
+import 'package:coconut_vault/model/multisig/multisig_signer.dart';
 import 'package:coconut_vault/providers/visibility_provider.dart';
 import 'package:coconut_vault/providers/wallet_creation_provider.dart';
 import 'package:coconut_vault/screens/settings/settings_screen.dart';
@@ -12,14 +13,19 @@ import 'package:coconut_vault/widgets/button/fixed_bottom_button.dart';
 import 'package:coconut_vault/widgets/button/shrink_animation_button.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:coconut_vault/isolates/wallet_isolates.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:coconut_vault/widgets/bottom_sheet.dart';
+import 'package:coconut_vault/widgets/custom_loading_overlay.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:loader_overlay/loader_overlay.dart';
 import 'package:provider/provider.dart';
 
 class MnemonicImportScreen extends StatefulWidget {
-  const MnemonicImportScreen({super.key});
+  final MultisigSigner? externalSigner;
+  const MnemonicImportScreen({super.key, this.externalSigner});
 
   @override
   State<MnemonicImportScreen> createState() => _MnemonicImportScreenState();
@@ -571,6 +577,12 @@ class _MnemonicImportScreenState extends State<MnemonicImportScreen> {
     final secret = _buildMnemonicSecret();
     final passphrase = utf8.encode(_usePassphrase ? _passphrase : '');
 
+    if (widget.externalSigner != null) {
+      // externalSigner가 있는 경우 MFP 비교
+      _verifyMnemonicMfp(secret, passphrase);
+      return;
+    }
+
     if (_walletProvider.isSeedDuplicated(secret, passphrase)) {
       CoconutToast.showToast(context: context, text: t.toast.mnemonic_already_added, isVisibleIcon: true);
       return;
@@ -578,6 +590,46 @@ class _MnemonicImportScreenState extends State<MnemonicImportScreen> {
 
     _walletCreationProvider.setSecretAndPassphrase(secret, passphrase);
     Navigator.pushNamed(context, AppRoutes.mnemonicConfirmation, arguments: {'calledFrom': AppRoutes.mnemonicImport});
+  }
+
+  Future<void> _verifyMnemonicMfp(Uint8List mnemonicBytes, Uint8List passphraseBytes) async {
+    if (!mounted) return;
+    context.loaderOverlay.show();
+    try {
+      final passphrase = passphraseBytes.isEmpty ? null : passphraseBytes;
+      final expectedMfp = widget.externalSigner!.keyStore.masterFingerprint;
+
+      final result = await compute(WalletIsolates.verifyMnemonicMfp, {
+        'mnemonic': mnemonicBytes,
+        'passphrase': passphrase,
+        'expectedMfp': expectedMfp,
+        'addressTypeName': AddressType.p2wsh.name,
+      });
+
+      if (mounted) {
+        context.loaderOverlay.hide();
+        if (result['success'] as bool) {
+          if (_walletProvider.isSeedDuplicated(mnemonicBytes, passphraseBytes)) {
+            CoconutToast.showToast(context: context, text: t.toast.mnemonic_already_added, isVisibleIcon: true);
+            return;
+          }
+          _walletCreationProvider.setExternalSigner(widget.externalSigner!);
+          _walletCreationProvider.setSecretAndPassphrase(mnemonicBytes, passphraseBytes);
+          Navigator.pushNamed(
+            context,
+            AppRoutes.mnemonicConfirmation,
+            arguments: {'calledFrom': AppRoutes.mnemonicImport},
+          );
+        } else {
+          CoconutToast.showToast(context: context, text: t.errors.different_wallet, isVisibleIcon: true);
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        context.loaderOverlay.hide();
+        CoconutToast.showToast(context: context, text: t.errors.different_wallet, isVisibleIcon: true);
+      }
+    }
   }
 
   Uint8List _buildMnemonicSecret() {
@@ -680,20 +732,22 @@ class _MnemonicImportScreenState extends State<MnemonicImportScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: _handleGlobalTap,
-      child: PopScope(
-        canPop: false,
-        onPopInvokedWithResult: (didPop, _) async {
-          if (!didPop) {
-            await _handleBackNavigation();
-          }
-        },
-        child: Scaffold(
-          resizeToAvoidBottomInset: true,
-          backgroundColor: CoconutColors.white,
-          appBar: _buildAppBar(),
-          body: _buildBody(),
+    return CustomLoadingOverlay(
+      child: GestureDetector(
+        onTap: _handleGlobalTap,
+        child: PopScope(
+          canPop: false,
+          onPopInvokedWithResult: (didPop, _) async {
+            if (!didPop) {
+              await _handleBackNavigation();
+            }
+          },
+          child: Scaffold(
+            resizeToAvoidBottomInset: true,
+            backgroundColor: CoconutColors.white,
+            appBar: _buildAppBar(),
+            body: _buildBody(),
+          ),
         ),
       ),
     );

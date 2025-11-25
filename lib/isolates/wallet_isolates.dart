@@ -176,4 +176,39 @@ class WalletIsolates {
 
     return addressList;
   }
+
+  /// 니모닉으로부터 KeyStore를 생성하고 masterFingerprint를 반환
+  static Future<Map<String, dynamic>> verifyMnemonicMfp(Map<String, dynamic> args) async {
+    setNetworkType();
+
+    final Uint8List mnemonic = args['mnemonic'];
+    final Uint8List? passphrase = args['passphrase'];
+    final String expectedMfp = args['expectedMfp'];
+    final String addressTypeName = args['addressTypeName'];
+    final AddressType addressType = AddressType.getAddressTypeFromName(addressTypeName);
+
+    KeyStore? keyStore;
+    Seed? seed;
+
+    try {
+      seed = Seed.fromMnemonic(mnemonic, passphrase: passphrase);
+      keyStore = KeyStore.fromSeed(seed, addressType);
+
+      final actualMfp = keyStore.masterFingerprint;
+      final success = expectedMfp == actualMfp;
+
+      return {"success": success, "actualMfp": actualMfp};
+    } finally {
+      if (keyStore != null) {
+        keyStore.wipeSeed();
+      }
+      if (seed != null) {
+        seed.wipe();
+      }
+      mnemonic.wipe();
+      if (passphrase != null) {
+        passphrase.wipe();
+      }
+    }
+  }
 }

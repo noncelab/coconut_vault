@@ -41,6 +41,7 @@ class _MultisigSetupInfoScreenState extends State<MultisigSetupInfoScreen> {
   final Offset _tooltipIconPosition = Offset.zero;
   final double _tooltipTopPadding = 0;
   late final MultisigSetupInfoViewModel _viewModel;
+  late final WalletProvider _walletProvider;
 
   Timer? _tooltipTimer;
   final int _tooltipRemainingTime = 0;
@@ -48,7 +49,16 @@ class _MultisigSetupInfoScreenState extends State<MultisigSetupInfoScreen> {
   @override
   void initState() {
     super.initState();
-    _viewModel = MultisigSetupInfoViewModel(Provider.of<WalletProvider>(context, listen: false), widget.id);
+    _walletProvider = Provider.of<WalletProvider>(context, listen: false);
+    _viewModel = MultisigSetupInfoViewModel(_walletProvider, widget.id);
+    // vaultList 변경 시 signer 정보 갱신
+    _walletProvider.vaultListNotifier.addListener(_onVaultListChanged);
+  }
+
+  void _onVaultListChanged() {
+    if (mounted) {
+      _viewModel.refreshVaultItem(widget.id);
+    }
   }
 
   void onComplete() {
@@ -341,7 +351,7 @@ class _MultisigSetupInfoScreenState extends State<MultisigSetupInfoScreen> {
                                       isLeftAlign: true,
                                     ),
                                   ),
-                                  _buildAddKeyButton(),
+                                  _buildAddKeyButton(signer),
                                 ],
                               ),
                     ),
@@ -397,7 +407,7 @@ class _MultisigSetupInfoScreenState extends State<MultisigSetupInfoScreen> {
     );
   }
 
-  Widget _buildAddKeyButton() {
+  Widget _buildAddKeyButton(MultisigSigner signer) {
     return ShrinkAnimationButton(
       borderWidth: 1.4,
       borderGradientColors: const [CoconutColors.gray350, CoconutColors.gray350],
@@ -409,7 +419,7 @@ class _MultisigSetupInfoScreenState extends State<MultisigSetupInfoScreen> {
           maxChildSize: 0.45,
           minChildSize: 0.2,
           initialChildSize: 0.45,
-          childBuilder: (context) => const MultisigAddKeyOptionBottomSheet(),
+          childBuilder: (context) => MultisigAddKeyOptionBottomSheet(signer: signer),
         );
         if (result != null) {
           debugPrint('result: $result');
@@ -593,6 +603,7 @@ class _MultisigSetupInfoScreenState extends State<MultisigSetupInfoScreen> {
 
   @override
   void dispose() {
+    _walletProvider.vaultListNotifier.removeListener(_onVaultListChanged);
     _tooltipTimer?.cancel();
     _viewModel.dispose();
     super.dispose();

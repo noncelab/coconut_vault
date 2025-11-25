@@ -786,6 +786,7 @@ errors:
   retry_after: "Can retry after $time"
   invalid_word_error: "Check the word $filter"
   invalid_mnemonic_phrase: "Invalid mnemonic phrase"
+  different_wallet: "Not the same wallet"
   data_loading_error: "Error occurred while loading data"
   data_not_found_error: "Data not found"
   cannot_sign_error: "Cannot sign this transaction"

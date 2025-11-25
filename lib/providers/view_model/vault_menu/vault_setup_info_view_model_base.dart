@@ -49,6 +49,12 @@ abstract class VaultSetupInfoViewModelBase<T extends VaultListItemBase> extends 
     _vaultListItem = _walletProvider.getVaultById(id) as T;
   }
 
+  void refreshVaultItem(int id) {
+    _setVaultListItem(id);
+    _isInitialized = true;
+    notifyListeners();
+  }
+
   void _ensureVaultExists(int id) {
     final vaultExists = _walletProvider.vaultList.any((vault) => vault.id == id);
     if (!vaultExists) {

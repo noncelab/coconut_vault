@@ -787,6 +787,7 @@ errors:
   retry_after: "$time後に再試行可能"
   invalid_word_error: "無効な単語。$filter"
   invalid_mnemonic_phrase: "無効なニーモニックフレーズ"
+  different_wallet: "同じ財布ではありません"
   data_loading_error: "データ読み込み中にエラーが発生しました"
   data_not_found_error: "データが見つかりません"
   cannot_sign_error: "このトランザクションに署名できません"

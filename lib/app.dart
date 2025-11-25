@@ -438,7 +438,11 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> with SingleTickerProv
                         AppRoutes.signerAssignment: (context) => const SignerAssignmentScreen(),
                         AppRoutes.vaultCreationOptions: (context) => const VaultCreationOptions(),
                         AppRoutes.mnemonicVerify: (context) => const MnemonicVerifyScreen(),
-                        AppRoutes.mnemonicImport: (context) => const MnemonicImportScreen(),
+                        AppRoutes.mnemonicImport:
+                            (context) => buildScreenWithArguments(
+                              context,
+                              (args) => MnemonicImportScreen(externalSigner: args['externalSigner']),
+                            ),
                         AppRoutes.seedQrImport: (context) => const SeedQrImportScreen(),
                         AppRoutes.mnemonicConfirmation:
                             (context) => buildScreenWithArguments(

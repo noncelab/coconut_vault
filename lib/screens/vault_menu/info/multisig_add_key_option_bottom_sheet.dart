@@ -1,12 +1,13 @@
 import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_vault/constants/app_routes.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
+import 'package:coconut_vault/model/multisig/multisig_signer.dart';
 import 'package:coconut_vault/widgets/button/shrink_animation_button.dart';
 import 'package:flutter/material.dart';
 
 class MultisigAddKeyOptionBottomSheet extends StatelessWidget {
-  final String? iconSource;
-  const MultisigAddKeyOptionBottomSheet({super.key, this.iconSource});
+  final MultisigSigner signer;
+  const MultisigAddKeyOptionBottomSheet({super.key, required this.signer});
 
   @override
   Widget build(BuildContext context) {
@@ -31,7 +32,7 @@ class MultisigAddKeyOptionBottomSheet extends StatelessWidget {
                 borderRadius: 12,
                 onPressed: () {
                   Navigator.pop(context);
-                  Navigator.pushNamed(context, AppRoutes.mnemonicImport);
+                  Navigator.pushNamed(context, AppRoutes.mnemonicImport, arguments: {'externalSigner': signer});
                 },
                 child: Container(
                   width: double.infinity,

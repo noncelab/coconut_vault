@@ -788,6 +788,7 @@ errors:
   retry_after: "$time 후 재시도 할 수 있어요"
   invalid_word_error: "단어를 확인해 주세요 $filter"
   invalid_mnemonic_phrase: "잘못된 니모닉 문구예요"
+  different_wallet: "동일한 지갑이 아니에요"
   data_loading_error: "데이터를 불러오는 중 오류가 발생했습니다"
   data_not_found_error: "데이터가 없습니다"
   cannot_sign_error: "서명할 수 없는 트랜잭션이에요"

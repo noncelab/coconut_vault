@@ -12,6 +12,12 @@ class MultisigSetupInfoViewModel extends VaultSetupInfoViewModelBase<MultisigVau
     _calculateSignAvailableCount();
   }
 
+  @override
+  void refreshVaultItem(int id) {
+    super.refreshVaultItem(id);
+    _calculateSignAvailableCount();
+  }
+
   void _calculateSignAvailableCount() {
     int innerVaultCount = vaultItem.signers.where((signer) => signer.innerVaultId != null).length;
     signAvailableCount =
