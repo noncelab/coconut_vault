@@ -36,7 +36,7 @@ class WalletIsolates {
       derivationPath,
       keyStore.masterFingerprint,
     );
-    final signerBsms = SingleSignatureVault.fromKeyStore(keyStore).getSignerBsms(AddressType.p2wsh, wallet.name!);
+    final signerBsms = SingleSignatureVault.fromKeyStore(keyStore).getSignerBsms(AddressType.p2wsh, '');
     SingleSigVaultListItem newItem = SingleSigVaultListItem(
       id: wallet.id!,
       name: wallet.name!,

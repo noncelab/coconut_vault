@@ -4,6 +4,7 @@ import 'package:coconut_lib/coconut_lib.dart';
 import 'package:coconut_vault/isolates/sign_isolates.dart';
 import 'package:coconut_vault/model/common/vault_list_item_base.dart';
 import 'package:coconut_vault/enums/wallet_enums.dart';
+import 'package:coconut_vault/utils/logger.dart';
 import 'package:flutter/foundation.dart';
 import 'package:json_annotation/json_annotation.dart';
 
@@ -44,8 +45,9 @@ class SingleSigVaultListItem extends VaultListItemBase {
 
   String getSignerBsmsByAddressType(AddressType addressType, {bool withLabel = true}) {
     final signerBsms = signerBsmsByAddressType[addressType]!;
+    assert(signerBsms.endsWith('\n'), 'signerBsms should end with newline');
     if (withLabel) {
-      return "$signerBsms\n$name";
+      return "$signerBsms$name";
     }
     return signerBsms;
   }
