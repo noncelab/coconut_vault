@@ -15,7 +15,7 @@ import 'package:coconut_vault/utils/text_utils.dart';
 import 'package:coconut_vault/utils/vibration_util.dart';
 import 'package:coconut_vault/widgets/button/button_group.dart';
 import 'package:coconut_vault/widgets/button/single_button.dart';
-import 'package:coconut_vault/widgets/card/vault_item_card.dart';
+import 'package:coconut_vault/widgets/setup_info/setup_info_layout.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:coconut_vault/screens/common/pin_check_screen.dart';
@@ -142,32 +142,29 @@ class _SingleSigSetupInfoScreenState extends State<SingleSigSetupInfoScreen> {
                       ),
                     ],
                   ),
-                  body: SafeArea(
-                    child: SingleChildScrollView(
-                      child: Stack(
-                        children: [
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              CoconutLayout.spacing_500h,
-                              _buildVaultItemCard(context),
-                              if (viewModel.hasLinkedMultisigVault == true) ...[
-                                CoconutLayout.spacing_300h,
-                                _buildLinkedMultisigVaultInfoCard(context),
-                              ],
-                              CoconutLayout.spacing_500h,
-                              _buildSignMenu(),
-                              CoconutLayout.spacing_500h,
-                              _buildMenuList(context),
-                              CoconutLayout.spacing_500h,
-                              _buildExportWalletMenu(),
-                              CoconutLayout.spacing_1500h,
-                            ],
-                          ),
-                          _buildTooltip(context),
-                        ],
-                      ),
-                    ),
+                  body: SetupInfoLayout<SingleSigSetupInfoViewModel>(
+                    tooltipKey: _tooltipIconKey,
+                    onTooltipClicked: () => _toggleTooltipVisible(context),
+                    onNameChangeClicked: (viewModel) {
+                      _removeTooltip();
+                      _showModalBottomSheetForEditingNameAndIcon(viewModel);
+                    },
+                    linkedInfoBuilder:
+                        (viewModel) =>
+                            viewModel.hasLinkedMultisigVault == true
+                                ? _buildLinkedMultisigVaultInfoCard(context)
+                                : null,
+                    menuListBuilder:
+                        (viewModel) => Column(
+                          children: [
+                            _buildSignMenu(),
+                            CoconutLayout.spacing_500h,
+                            _buildMenuList(context),
+                            CoconutLayout.spacing_500h,
+                            _buildExportWalletMenu(),
+                          ],
+                        ),
+                    tooltipBuilder: (viewModel) => _buildTooltip(context),
                   ),
                 ),
               );
@@ -175,22 +172,6 @@ class _SingleSigSetupInfoScreenState extends State<SingleSigSetupInfoScreen> {
           ),
         ),
       ),
-    );
-  }
-
-  Widget _buildVaultItemCard(BuildContext context) {
-    return Consumer<SingleSigSetupInfoViewModel>(
-      builder: (context, viewModel, child) {
-        return VaultItemCard(
-          vaultItem: viewModel.vaultItem,
-          onTooltipClicked: () => _toggleTooltipVisible(context),
-          onNameChangeClicked: () {
-            _removeTooltip();
-            _showModalBottomSheetForEditingNameAndIcon(viewModel);
-          },
-          tooltipKey: _tooltipIconKey,
-        );
-      },
     );
   }
 

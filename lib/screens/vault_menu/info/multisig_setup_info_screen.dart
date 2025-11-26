@@ -21,7 +21,7 @@ import 'package:coconut_vault/widgets/bubble_clipper.dart';
 import 'package:coconut_vault/widgets/button/button_group.dart';
 import 'package:coconut_vault/widgets/button/shrink_animation_button.dart';
 import 'package:coconut_vault/widgets/button/single_button.dart';
-import 'package:coconut_vault/widgets/card/vault_item_card.dart';
+import 'package:coconut_vault/widgets/setup_info/setup_info_layout.dart';
 import 'package:coconut_vault/widgets/custom_loading_overlay.dart';
 import 'package:coconut_vault/widgets/icon/vault_icon.dart';
 import 'package:flutter/material.dart';
@@ -153,42 +153,22 @@ class _MultisigSetupInfoScreenState extends State<MultisigSetupInfoScreen> {
                     ),
                   ],
                 ),
-                body: SingleChildScrollView(
-                  child: SafeArea(
-                    child: Stack(
-                      children: [
-                        Column(
-                          children: [
-                            CoconutLayout.spacing_500h,
-                            _buildVaultItemCard(context, viewModel),
-                            _buildSignerList(context, viewModel),
-                            CoconutLayout.spacing_500h,
-                            _buildMenuList(context),
-                            CoconutLayout.spacing_1500h,
-                          ],
-                        ),
-                        _buildTooltip(context, viewModel),
-                      ],
-                    ),
-                  ),
+                body: SetupInfoLayout<MultisigSetupInfoViewModel>(
+                  tooltipKey: _tooltipIconKey,
+                  onTooltipClicked: () => _showTooltip(context),
+                  onNameChangeClicked: (viewModel) {
+                    _removeTooltip();
+                    _showNameAndIconEditBottomSheet(viewModel);
+                  },
+                  contentBuilder: (viewModel) => _buildSignerList(context, viewModel),
+                  menuListBuilder: (viewModel) => _buildMenuList(context),
+                  tooltipBuilder: (viewModel) => _buildTooltip(context, viewModel),
                 ),
               ),
             );
           },
         ),
       ),
-    );
-  }
-
-  Widget _buildVaultItemCard(BuildContext context, MultisigSetupInfoViewModel viewModel) {
-    return VaultItemCard(
-      vaultItem: viewModel.vaultItem,
-      onTooltipClicked: () => _showTooltip(context),
-      onNameChangeClicked: () {
-        _removeTooltip();
-        _showNameAndIconEditBottomSheet(viewModel);
-      },
-      tooltipKey: _tooltipIconKey,
     );
   }
 
