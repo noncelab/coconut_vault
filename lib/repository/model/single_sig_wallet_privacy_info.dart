@@ -2,7 +2,7 @@ import 'package:coconut_lib/coconut_lib.dart';
 import 'package:coconut_vault/repository/model/wallet_privacy_info.dart';
 import 'package:json_annotation/json_annotation.dart';
 
-part 'single_sig_wallet_privacy_data.g.dart';
+part 'single_sig_wallet_privacy_info.g.dart';
 
 @JsonSerializable()
 class SingleSigWalletPrivacyInfo extends WalletPrivacyInfo {
@@ -14,10 +14,10 @@ class SingleSigWalletPrivacyInfo extends WalletPrivacyInfo {
   SingleSigWalletPrivacyInfo({required this.descriptor, required Map<String, String> signerBsmsByAddressTypeName})
     : signerBsmsByAddressTypeName = validateSignerBsms(signerBsmsByAddressTypeName);
 
-  factory SingleSigWalletPrivacyInfo.fromJson(Map<String, dynamic> json) => _$SingleSigWalletPrivacyDataFromJson(json);
+  factory SingleSigWalletPrivacyInfo.fromJson(Map<String, dynamic> json) => _$SingleSigWalletPrivacyInfoFromJson(json);
 
   @override
-  Map<String, dynamic> toJson() => _$SingleSigWalletPrivacyDataToJson(this);
+  Map<String, dynamic> toJson() => _$SingleSigWalletPrivacyInfoToJson(this);
 
   static Map<String, String> validateSignerBsms(Map<String, String> signerBsmsByAddressTypeName) {
     if (signerBsmsByAddressTypeName.length != validAddressTypes.length) {
