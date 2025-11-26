@@ -40,6 +40,11 @@ class MultisigNormalizer {
         }
       }
     }
+    // json 형식
+    final coordinatorBsms = result['coordinatorBsms'] as String?;
+    if (coordinatorBsms != null) {
+      return _normalizeCoconutText(result.toString().trim());
+    }
     return _normalizeJson(result as Map<String, dynamic>);
   }
 
