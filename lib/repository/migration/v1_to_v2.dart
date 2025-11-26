@@ -56,7 +56,7 @@ Future<void> migrateV1toV2(
                     keyStoreToJson: signer.keyStore.toJson(),
                   );
                 } else {
-                  // 다른 볼트에서 다중서명지갑 추가했고, 모든 키가 내부에 없는 경우
+                  // 다른 볼트에서 다중서명지갑 추가했고, 외부 키가 있는 경우
                   final extendedPublicKey = signer.keyStore.extendedPublicKey.toString().toLowerCase();
                   final coinType =
                       (extendedPublicKey.startsWith('xpub') || extendedPublicKey.startsWith('zpub')) ? "0'" : "1'";
