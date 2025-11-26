@@ -277,14 +277,9 @@ class WalletProvider extends ChangeNotifier {
       _vaultList.clear();
       _setVaultList([]);
 
+      // []일 때도 null이 반환됨. []가 반환되는 경우가 없음
       final jsonList = await _walletRepository.loadVaultListJsonArrayString();
       if (jsonList != null) {
-        if (jsonList.isEmpty) {
-          _updateWalletLength();
-          notifyListeners();
-          return;
-        }
-
         await _walletRepository.loadAndEmitEachWallet(jsonList, (VaultListItemBase wallet) {
           if (_isDisposed) {
             return;
