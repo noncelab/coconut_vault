@@ -514,6 +514,10 @@ assign_signers_screen:
   use_internal_key_option: "キー選択"
   import_from_other_vault: "他のボルトからインポート"
 
+multisig_creation_options_screen:
+  quorum: "新しいウォレットを作成"
+  bsms: "ウォレットのバックアップデータあり"
+
 confirm_importing_screen:
   guide1: "他のボルトから"
   guide2: "インポートした情報が"
@@ -530,6 +534,11 @@ select_multisig_quorum_screen:
 signer_scanner_bottom_sheet:
   title: "署名更新"
   guide: "他のボルトから署名を追加しましたか？追加された署名済みトランザクションのQRコードをスキャンして情報を更新してください。"
+
+coordinator_bsms_config_scanner_screen:
+  guide1: "Coconut Vault は、安全なマルチシグ管理標準である BSMS（BIP-129） をサポートしています。"
+  guide2: "BSMS QRコードをスキャンしてください。"
+
 bsms_scanner_screen:
   import_bsms: "BSMSインポート"
   import_multisig_wallet: "マルチシグウォレットインポート"

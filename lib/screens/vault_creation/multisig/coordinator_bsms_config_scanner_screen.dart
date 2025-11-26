@@ -1,12 +1,15 @@
 import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/model/exception/not_related_multisig_wallet_exception.dart';
+import 'package:coconut_vault/providers/visibility_provider.dart';
 import 'package:coconut_vault/screens/vault_creation/multisig/bsms_scanner_base.dart';
 import 'package:coconut_vault/utils/bip/multisig_normalizer.dart';
 import 'package:coconut_vault/utils/logger.dart';
 import 'package:coconut_vault/widgets/animated_qr/scan_data_handler/coordinator_bsms_qr_data_handler.dart';
+import 'package:coconut_vault/widgets/custom_tooltip.dart';
 import 'package:flutter/material.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
+import 'package:qr_code_scanner_plus/qr_code_scanner_plus.dart';
 
 // 다중 서명 지갑 생성 시 외부에서 Coordinator BSMS를 스캔하는 화면
 class CoordinatorBsmsConfigScannerScreen extends StatefulWidget {
@@ -31,64 +34,128 @@ class _CoordinatorBsmsConfigScannerScreenState extends BsmsScannerBase<Coordinat
   @override
   String get appBarTitle => t.bsms_scanner_screen.import_multisig_wallet;
 
-  // TODO: figma 참고해서 수정 / 일본어 누락
   @override
   List<TextSpan> buildTooltipRichText(BuildContext context, visibilityProvider) {
-    TextSpan buildTextSpan(String text, {bool isBold = false}) {
-      return TextSpan(
-        text: text,
-        style: CoconutTypography.body2_14.copyWith(
-          fontWeight: isBold ? FontWeight.bold : FontWeight.normal,
-          color: CoconutColors.black,
-        ),
-      );
-    }
+    return [
+      TextSpan(
+        text: t.coordinator_bsms_config_scanner_screen.guide1,
+        style: CoconutTypography.body2_14.copyWith(height: 1.3, color: CoconutColors.black),
+      ),
+      TextSpan(
+        text: t.coordinator_bsms_config_scanner_screen.guide2,
+        style: CoconutTypography.body2_14.copyWith(height: 1.3, color: CoconutColors.black),
+      ),
+    ];
+  }
 
-    switch (visibilityProvider.language) {
-      case 'en':
-        return [
-          TextSpan(
-            text: t.bsms_scanner_screen.guide1_1,
-            style: CoconutTypography.body2_14.setColor(CoconutColors.black),
-            children: <TextSpan>[
-              buildTextSpan(' ${t.bsms_scanner_screen.guide1_2}'),
-              buildTextSpan('\n'),
-              buildTextSpan('1. '),
-              buildTextSpan(t.bsms_scanner_screen.select),
-              buildTextSpan(t.bsms_scanner_screen.guide1_3, isBold: true),
-              buildTextSpan('\n'),
-              buildTextSpan('2. '),
-              buildTextSpan(t.bsms_scanner_screen.select),
-              buildTextSpan(t.bsms_scanner_screen.guide1_4),
-              buildTextSpan('\n'),
-              buildTextSpan('3. '),
-              buildTextSpan(t.bsms_scanner_screen.guide1_5),
-            ],
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: CoconutColors.white,
+      appBar: CoconutAppBar.build(
+        context: context,
+        title: t.bsms_scanner_screen.import_multisig_wallet,
+        backgroundColor: CoconutColors.white,
+      ),
+      body: Stack(
+        children: [
+          _buildBSMSView(context),
+          CustomTooltip.buildInfoTooltip(
+            context,
+            richText: RichText(
+              text: TextSpan(
+                style: CoconutTypography.body2_14,
+                children: buildTooltipRichText(context, visibilityProvider),
+              ),
+            ),
+            isBackgroundWhite: false,
           ),
-        ];
-      case 'kr':
-      default:
-        return [
-          TextSpan(
-            text: t.bsms_scanner_screen.guide1_1,
-            style: CoconutTypography.body2_14.setColor(CoconutColors.black),
-            children: <TextSpan>[
-              buildTextSpan(' ${t.bsms_scanner_screen.guide1_2}'),
-              buildTextSpan('\n'),
-              buildTextSpan('1. '),
-              buildTextSpan(t.bsms_scanner_screen.guide1_3, isBold: true),
-              buildTextSpan(t.bsms_scanner_screen.select),
-              buildTextSpan('\n'),
-              buildTextSpan('2. '),
-              buildTextSpan(t.bsms_scanner_screen.guide1_4),
-              buildTextSpan(t.bsms_scanner_screen.select),
-              buildTextSpan('\n'),
-              buildTextSpan('3. '),
-              buildTextSpan(t.bsms_scanner_screen.guide1_5),
-            ],
-          ),
-        ];
-    }
+        ],
+      ),
+    );
+  }
+
+  Widget _buildBSMSView(BuildContext context) {
+    var scanArea =
+        (MediaQuery.of(context).size.width < 400 || MediaQuery.of(context).size.height < 400)
+            ? 320.0
+            : MediaQuery.of(context).size.width * 0.85;
+
+    return QRView(
+      key: qrKey,
+      onQRViewCreated: _onQRViewCreated,
+      overlay: QrScannerOverlayShape(
+        overlayColor: CoconutColors.black.withValues(alpha: 0.45),
+        borderColor: CoconutColors.white,
+        borderRadius: 10,
+        borderLength: scanArea * 0.5,
+        borderWidth: 10,
+        cutOutSize: scanArea,
+      ),
+      onPermissionSet: (ctrl, p) => _onPermissionSet(context, ctrl, p),
+    );
+  }
+
+  void _onQRViewCreated(QRViewController controller) {
+    // setState(() {
+    //   this.controller = controller;
+    // });
+    // var words = <String>[];
+    // controller.scannedDataStream.listen((scanData) {
+    //   if (_isNavigating) return;
+
+    //   try {
+    //     if (scanData.code == null && scanData.rawBytes != null) {
+    //       words = _decodeCompactQR(scanData.rawBytes!);
+    //     } else if (scanData.code != null && scanData.rawBytes != null) {
+    //       words = _decodeStandardQR(scanData.code!);
+    //     }
+    //   } catch (e) {
+    //     if (e is FormatException && e.message.contains('Invalid radix-10 number')) {
+    //       words = _decodeCompactQR(scanData.rawBytes!);
+    //     } else {
+    //       if (mounted) {
+    //         showDialog(
+    //           context: context,
+    //           builder: (context) {
+    //             return CoconutPopup(
+    //               title: t.seed_qr_import_screen.error_title,
+    //               description: '${t.seed_qr_import_screen.error_message}: $e',
+    //               onTapRight: () => Navigator.of(context).pop(),
+    //             );
+    //           },
+    //         );
+    //       }
+    //       return;
+    //     }
+    //   }
+
+    //   if (words.length == 12 || words.length == 24) {
+    //     if (mounted) {
+    //       _isNavigating = true;
+    //       // 1. 네비게이션하기 전 카메라 끄기
+    //       controller.pauseCamera();
+    //       Navigator.push(
+    //         context,
+    //         MaterialPageRoute(
+    //           builder: (context) => SeedQrConfirmationScreen(scannedData: utf8.encode(words.join(' '))),
+    //         ),
+    //       ).then((_) {
+    //         // 2. 돌아왔을 때 카메라 재개하기
+    //         if (mounted) {
+    //           controller.resumeCamera();
+    //         }
+    //         setState(() {
+    //           _isNavigating = false;
+    //         });
+    //       });
+    //     }
+    //   }
+    // });
+  }
+
+  void _onPermissionSet(BuildContext context, QRViewController ctrl, bool p) {
+    // _appLifecycleStateProvider.endOperation(AppLifecycleOperations.cameraAuthRequest);
   }
 
   /// 외부 Vault의 Coordinator BSMS를 스캔해서 멀티시그 지갑 복사
