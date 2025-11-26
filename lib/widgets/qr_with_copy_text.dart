@@ -4,17 +4,17 @@ import 'package:coconut_vault/widgets/button/copy_text_container.dart';
 import 'package:flutter/material.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 
-class ExportWalletScreen extends StatelessWidget {
+class QrWithCopyTextScreen extends StatelessWidget {
   final String title;
-  final Widget description;
+  final Widget? tooltipDescription;
   final String qrData;
   final Widget Function(BuildContext context, double qrWidth)? bottomBuilder;
   final Widget? footer;
 
-  const ExportWalletScreen({
+  const QrWithCopyTextScreen({
     super.key,
     required this.title,
-    required this.description,
+    this.tooltipDescription,
     required this.qrData,
     this.bottomBuilder,
     this.footer,
@@ -44,7 +44,7 @@ class ExportWalletScreen extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 16),
           child: Column(
             children: [
-              description,
+              if (tooltipDescription != null) ...[tooltipDescription!],
               CoconutLayout.spacing_300h,
               Center(
                 child: Container(

@@ -15,13 +15,14 @@ class AppRoutes {
   static const String multisigBsmsView = '/multisig-bsms';
   static const String mnemonicWordList = '/mnemonic-word-list';
   static const String addressList = '/address-list';
+  static const String viewXpub = '/view-xpub';
   static const String signerBsmsScanner = '/signer-scanner';
   static const String psbtScanner = '/psbt-scanner';
   static const String psbtConfirmation = '/psbt-confirmation';
   static const String signedTransaction = '/signed-transaction';
   static const String syncToWallet = '/sync-to-wallet';
   static const String multisigSignerBsmsExport = '/signer-bsms';
-  static const String multisigExportOptions = '/multisig-export-options';
+  static const String vaultExportOptions = '/vault-export-options';
   static const String multisigSign = '/multi-signature';
   static const String singleSigSign = '/single-sig-sign';
   static const String securitySelfCheck = '/security-self-check';

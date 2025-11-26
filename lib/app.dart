@@ -23,6 +23,7 @@ import 'package:coconut_vault/screens/home/vault_home_screen.dart';
 import 'package:coconut_vault/screens/home/vault_list_screen.dart';
 import 'package:coconut_vault/screens/precheck/device_password_checker_screen.dart';
 import 'package:coconut_vault/screens/precheck/jail_break_detection_screen.dart';
+import 'package:coconut_vault/screens/vault_menu/info/extended_pub_key_screen.dart';
 import 'package:coconut_vault/screens/vault_menu/info/multisig_export_options_screen.dart';
 import 'package:coconut_vault/services/secure_zone/secure_zone_availability_checker.dart';
 import 'package:coconut_vault/services/security_prechecker.dart';
@@ -478,6 +479,9 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> with SingleTickerProv
                         AppRoutes.multisigBsmsView:
                             (context) =>
                                 buildScreenWithArguments(context, (args) => MultisigBsmsScreen(id: args['id'])),
+                        AppRoutes.viewXpub:
+                            (context) =>
+                                buildScreenWithArguments(context, (args) => ExtendedPubKeyScreen(id: args['id'])),
                         AppRoutes.mnemonicWordList: (context) => const MnemonicWordListScreen(),
                         AppRoutes.addressList:
                             (context) => buildScreenWithArguments(
@@ -504,10 +508,10 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> with SingleTickerProv
                               context,
                               (args) => MultisigSignerBsmsExportScreen(id: args['id']),
                             ),
-                        AppRoutes.multisigExportOptions:
+                        AppRoutes.vaultExportOptions:
                             (context) => buildScreenWithArguments(
                               context,
-                              (args) => MultisigExportOptionsScreen(id: args['id']),
+                              (args) => VaultExportOptionsScreen(id: args['id'], walletType: args['walletType']),
                             ),
                         AppRoutes.multisigSign: (context) => const MultisigSignScreen(),
                         AppRoutes.singleSigSign: (context) => const SingleSigSignScreen(),

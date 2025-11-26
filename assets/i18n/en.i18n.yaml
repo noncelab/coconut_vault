@@ -625,6 +625,8 @@ sync_to_wallet_screen:
       guide3_1: "Scan or import a file"
     common: "Scan the QR code below"
 vault_menu_screen:
+  export_wallet: "Export Wallet"
+  view_xpub: "View Extended Public Key"
   title:  
     view_info: "$name Details"
     view_address: "View Addresses"
@@ -640,7 +642,7 @@ vault_menu_screen:
     view_address: "Check $name's address"
     export_xpub: "Add Watch-Only wallet to wallet"
     sign: "Scan info created in wallet and sign"
-    use_as_multisig_signer: "Register my key as multisig key in other vault"
+    use_as_multisig_signer: "Use this key to configure a multisig wallet in other vault"
 vault_settings:
   used_in_multisig: "Used in multisig wallet"
   of: " of "

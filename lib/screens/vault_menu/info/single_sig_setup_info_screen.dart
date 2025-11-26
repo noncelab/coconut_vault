@@ -4,6 +4,7 @@ import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_lib/coconut_lib.dart';
 import 'package:coconut_vault/constants/app_routes.dart';
 import 'package:coconut_vault/enums/pin_check_context_enum.dart';
+import 'package:coconut_vault/enums/wallet_enums.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/providers/auth_provider.dart';
 import 'package:coconut_vault/providers/view_model/vault_menu/single_sig_setup_info_view_model.dart';
@@ -154,16 +155,7 @@ class _SingleSigSetupInfoScreenState extends State<SingleSigSetupInfoScreen> {
                             viewModel.hasLinkedMultisigVault == true
                                 ? _buildLinkedMultisigVaultInfoCard(context)
                                 : null,
-                    menuListBuilder:
-                        (viewModel) => Column(
-                          children: [
-                            _buildSignMenu(),
-                            CoconutLayout.spacing_500h,
-                            _buildMenuList(context),
-                            CoconutLayout.spacing_500h,
-                            _buildExportWalletMenu(),
-                          ],
-                        ),
+                    menuListBuilder: (viewModel) => _buildMenuList(context),
                     tooltipBuilder: (viewModel) => _buildTooltip(context),
                   ),
                 ),
@@ -175,45 +167,111 @@ class _SingleSigSetupInfoScreenState extends State<SingleSigSetupInfoScreen> {
     );
   }
 
-  Widget _buildSignMenu() {
+  Widget _buildMenuList(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
-      child: SingleButton(
-        enableShrinkAnim: true,
-        title: t.vault_menu_screen.title.single_sig_sign,
-        onPressed: () {
-          _removeTooltip();
-          Navigator.pushNamed(context, AppRoutes.psbtScanner, arguments: {'id': widget.id});
-        },
-      ),
-    );
-  }
+      child: ButtonGroup(
+        buttons: [
+          SingleButton(
+            enableShrinkAnim: true,
+            title: t.vault_menu_screen.title.single_sig_sign,
+            onPressed: () {
+              _removeTooltip();
+              Navigator.pushNamed(context, AppRoutes.psbtScanner, arguments: {'id': widget.id});
+            },
+          ),
+          SingleButton(
+            title: t.view_address,
+            enableShrinkAnim: true,
+            onPressed: () {
+              _removeTooltip();
+              Navigator.pushNamed(
+                context,
+                AppRoutes.addressList,
+                arguments: {'id': widget.id, 'isSpecificVault': true},
+              );
+            },
+          ),
+          SingleButton(
+            title: t.vault_menu_screen.view_xpub,
+            enableShrinkAnim: true,
+            onPressed: () {
+              _removeTooltip();
+              Navigator.pushNamed(context, AppRoutes.viewXpub, arguments: {'id': widget.id});
+            },
+          ),
+          SingleButton(
+            title: t.view_mnemonic,
+            enableShrinkAnim: true,
+            onPressed: () {
+              _removeTooltip();
+              if (!mounted) return;
+              final viewModel = context.read<SingleSigSetupInfoViewModel>();
+              if (viewModel.isSigningOnlyMode) {
+                Navigator.pushNamed(context, AppRoutes.mnemonicView, arguments: {'id': widget.id});
+                return;
+              }
 
-  Widget _buildExportWalletMenu() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      child: SingleButton(
-        enableShrinkAnim: true,
-        title: t.select_export_type_screen.title,
-        onPressed: () async {
-          if (widget.shouldShowPassphraseVerifyMenu) {
-            Seed? seed = await MyBottomSheet.showBottomSheet_ratio<Seed?>(
-              ratio: 0.5,
-              context: context,
-              child: PassphraseCheckScreen(id: widget.id, context: PassphraseCheckContext.export),
-            );
+              _authenticateWithBiometricOrPin(
+                context,
+                PinCheckContextEnum.sensitiveAction,
+                () => Navigator.pushNamed(context, AppRoutes.mnemonicView, arguments: {'id': widget.id}),
+              );
+            },
+          ),
+          if (widget.shouldShowPassphraseVerifyMenu) ...[
+            SingleButton(
+              enableShrinkAnim: true,
+              title: t.verify_passphrase,
+              onPressed: () {
+                _removeTooltip();
+                Navigator.of(context).pushNamed(AppRoutes.passphraseVerification, arguments: {'id': widget.id});
+              },
+            ),
+          ],
+          SingleButton(
+            title: t.vault_menu_screen.export_wallet,
+            onPressed: () {
+              _removeTooltip();
+              Navigator.pushNamed(
+                context,
+                AppRoutes.vaultExportOptions,
+                arguments: {'id': widget.id, 'walletType': WalletType.singleSignature},
+              );
+            },
+          ),
+          // SingleButton(
+          //   title: t.vault_menu_screen.title.use_as_multisig_signer,
+          //   enableShrinkAnim: true,
+          //   onPressed: () {
+          //     _removeTooltip();
+          //     Navigator.pushNamed(context, AppRoutes.multisigSignerBsmsExport, arguments: {'id': widget.id});
+          //   },
+          // ),
+          // SingleButton(
+          //   enableShrinkAnim: true,
+          //   title: t.select_export_type_screen.title,
+          //   onPressed: () async {
+          //     if (widget.shouldShowPassphraseVerifyMenu) {
+          //       Seed? seed = await MyBottomSheet.showBottomSheet_ratio<Seed?>(
+          //         ratio: 0.5,
+          //         context: context,
+          //         child: PassphraseCheckScreen(id: widget.id, context: PassphraseCheckContext.export),
+          //       );
 
-            if (seed == null) {
-              return;
-            }
+          //       if (seed == null) {
+          //         return;
+          //       }
 
-            if (mounted) {
-              _showSyncOptionBottomSheet(widget.id, context);
-            }
-          } else {
-            _showSyncOptionBottomSheet(widget.id, context);
-          }
-        },
+          //       if (mounted) {
+          //         _showSyncOptionBottomSheet(widget.id, context);
+          //       }
+          //     } else {
+          //       _showSyncOptionBottomSheet(widget.id, context);
+          //     }
+          //   },
+          // ),
+        ],
       ),
     );
   }
@@ -357,65 +415,6 @@ class _SingleSigSetupInfoScreenState extends State<SingleSigSetupInfoScreen> {
             ),
           ],
         ),
-      ),
-    );
-  }
-
-  Widget _buildMenuList(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      child: ButtonGroup(
-        buttons: [
-          SingleButton(
-            title: t.view_address,
-            enableShrinkAnim: true,
-            onPressed: () {
-              _removeTooltip();
-              Navigator.pushNamed(
-                context,
-                AppRoutes.addressList,
-                arguments: {'id': widget.id, 'isSpecificVault': true},
-              );
-            },
-          ),
-          SingleButton(
-            title: t.view_mnemonic,
-            enableShrinkAnim: true,
-            onPressed: () {
-              _removeTooltip();
-              if (!mounted) return;
-              final viewModel = context.read<SingleSigSetupInfoViewModel>();
-              if (viewModel.isSigningOnlyMode) {
-                Navigator.pushNamed(context, AppRoutes.mnemonicView, arguments: {'id': widget.id});
-                return;
-              }
-
-              _authenticateWithBiometricOrPin(
-                context,
-                PinCheckContextEnum.sensitiveAction,
-                () => Navigator.pushNamed(context, AppRoutes.mnemonicView, arguments: {'id': widget.id}),
-              );
-            },
-          ),
-          if (widget.shouldShowPassphraseVerifyMenu) ...[
-            SingleButton(
-              enableShrinkAnim: true,
-              title: t.verify_passphrase,
-              onPressed: () {
-                _removeTooltip();
-                Navigator.of(context).pushNamed(AppRoutes.passphraseVerification, arguments: {'id': widget.id});
-              },
-            ),
-          ],
-          SingleButton(
-            title: t.vault_menu_screen.title.use_as_multisig_signer,
-            enableShrinkAnim: true,
-            onPressed: () {
-              _removeTooltip();
-              Navigator.pushNamed(context, AppRoutes.multisigSignerBsmsExport, arguments: {'id': widget.id});
-            },
-          ),
-        ],
       ),
     );
   }

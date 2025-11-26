@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_vault/constants/app_routes.dart';
 import 'package:coconut_vault/enums/pin_check_context_enum.dart';
+import 'package:coconut_vault/enums/wallet_enums.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/model/common/vault_list_item_base.dart';
 import 'package:coconut_vault/model/multisig/multisig_signer.dart';
@@ -454,7 +455,11 @@ class _MultisigSetupInfoScreenState extends State<MultisigSetupInfoScreen> {
             title: t.multi_sig_setting_screen.export_menu.export_wallet,
             onPressed: () {
               _removeTooltip();
-              Navigator.pushNamed(context, AppRoutes.multisigExportOptions, arguments: {'id': widget.id});
+              Navigator.pushNamed(
+                context,
+                AppRoutes.vaultExportOptions,
+                arguments: {'id': widget.id, 'walletType': WalletType.multiSignature},
+              );
             },
           ),
         ],

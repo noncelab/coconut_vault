@@ -1,25 +1,25 @@
 import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_vault/constants/app_routes.dart';
+import 'package:coconut_vault/enums/wallet_enums.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:coconut_vault/screens/home/select_sync_option_bottom_sheet.dart';
 import 'package:coconut_vault/widgets/bottom_sheet.dart';
 import 'package:coconut_vault/widgets/button/shrink_animation_button.dart';
-import 'package:coconut_vault/widgets/indicator/message_activity_indicator.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:provider/provider.dart';
 
-class MultisigExportOptionsScreen extends StatefulWidget {
-  const MultisigExportOptionsScreen({super.key, required this.id});
+class VaultExportOptionsScreen extends StatefulWidget {
+  const VaultExportOptionsScreen({super.key, required this.id, required this.walletType});
   final int id;
+  final WalletType walletType;
 
   @override
-  State<MultisigExportOptionsScreen> createState() => _MultisigExportOptionsScreenState();
+  State<VaultExportOptionsScreen> createState() => _VaultExportOptionsScreenState();
 }
 
-class _MultisigExportOptionsScreenState extends State<MultisigExportOptionsScreen> {
+class _VaultExportOptionsScreenState extends State<VaultExportOptionsScreen> {
   @override
   void initState() {
     super.initState();
@@ -40,6 +40,10 @@ class _MultisigExportOptionsScreenState extends State<MultisigExportOptionsScree
 
   void onTapBackupWalletData() {
     debugPrint('onTapBackupWalletData');
+  }
+
+  void onTapUseAsMultisigSigner() {
+    Navigator.pushNamed(context, AppRoutes.multisigSignerBsmsExport, arguments: {'id': widget.id});
   }
 
   void _showSyncOptionBottomSheet(int walletId, BuildContext context) {
@@ -71,13 +75,26 @@ class _MultisigExportOptionsScreenState extends State<MultisigExportOptionsScree
             minimum: const EdgeInsets.only(top: 10, right: 16, left: 16),
             child: Column(
               children: [
-                _buildOption(
-                  t.multi_sig_setting_screen.export_menu.share_bsms,
-                  t.multi_sig_setting_screen.export_menu.share_bsms_description,
-                  onTapShareWithOtherVault,
-                  true,
-                ),
+                if (widget.walletType == WalletType.multiSignature) ...[
+                  // 다른 볼트와 공유하기 (멀티시그)
+                  _buildOption(
+                    t.multi_sig_setting_screen.export_menu.share_bsms,
+                    t.multi_sig_setting_screen.export_menu.share_bsms_description,
+                    onTapShareWithOtherVault,
+                    true,
+                  ),
+                ],
+                if (widget.walletType == WalletType.singleSignature) ...[
+                  // 다중 서명키로 사용하기 (싱글시그)
+                  _buildOption(
+                    t.vault_menu_screen.title.use_as_multisig_signer,
+                    t.vault_menu_screen.description.use_as_multisig_signer,
+                    onTapUseAsMultisigSigner,
+                    true,
+                  ),
+                ],
                 CoconutLayout.spacing_300h,
+                // 보기 전용 앱으로 내보내기 (공용)
                 _buildOption(
                   t.multi_sig_setting_screen.export_menu.export_watch_only_wallet,
                   t.multi_sig_setting_screen.export_menu.export_watch_only_wallet_description,
@@ -85,12 +102,15 @@ class _MultisigExportOptionsScreenState extends State<MultisigExportOptionsScree
                   true,
                 ),
                 CoconutLayout.spacing_300h,
-                _buildOption(
-                  t.multi_sig_setting_screen.export_menu.backup_wallet_data,
-                  t.multi_sig_setting_screen.export_menu.backup_wallet_data_description,
-                  onTapBackupWalletData,
-                  true,
-                ),
+                if (widget.walletType == WalletType.multiSignature) ...[
+                  // 지갑 데이터 백업하기 (멀티시그)
+                  _buildOption(
+                    t.multi_sig_setting_screen.export_menu.backup_wallet_data,
+                    t.multi_sig_setting_screen.export_menu.backup_wallet_data_description,
+                    onTapBackupWalletData,
+                    true,
+                  ),
+                ],
               ],
             ),
           ),

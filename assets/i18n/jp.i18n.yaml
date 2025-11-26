@@ -626,6 +626,8 @@ sync_to_wallet_screen:
       guide3_1: "QRコードまたはファイルをスキャン"
     common: "下記のQRコードをスキャンしてください。"
 vault_menu_screen:
+  export_wallet: "ウォレットエクスポート"
+  view_xpub: "XPub表示"
   title:  
     view_info: "$name情報"
     view_address: "アドレス表示"
@@ -641,7 +643,7 @@ vault_menu_screen:
     view_address: "$nameのアドレスを確認"
     export_xpub: "ウォレットにウォッチオンリーウォレットを追加"
     sign: "ウォレットで作成した情報をスキャンして署名"
-    use_as_multisig_signer: "他のボルトで自分のキーをマルチシグキーとして登録"
+    use_as_multisig_signer: "このキーを使用して他のボルトでマルチシグウォレットを構成します"
 vault_settings:
   used_in_multisig: "マルチシグウォレットで使用中"
   of: " の "

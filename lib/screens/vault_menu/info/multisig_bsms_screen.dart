@@ -18,9 +18,9 @@ class MultisigBsmsScreen extends StatelessWidget {
       create: (context) => MultisigBsmsViewModel(Provider.of<WalletProvider>(context, listen: false), id),
       child: Consumer<MultisigBsmsViewModel>(
         builder: (context, viewModel, child) {
-          return ExportWalletScreen(
+          return QrWithCopyTextScreen(
             title: t.multi_sig_setting_screen.export_menu.share_bsms,
-            description: _buildDescriptionBsms(viewModel),
+            tooltipDescription: _buildDescriptionBsms(viewModel),
             qrData: viewModel.qrData,
           );
         },
