@@ -4,7 +4,7 @@ import 'package:coconut_vault/utils/bip/multisig_normalizer.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  group('MultisigNormalizer', () {
+  group('MultisigNormalizer.fromCoordinatorResult', () {
     test('Sparrow/Blue Wallet 스타일 텍스트를 정상 파싱한다', () {
       const input = '''
 # Blue Wallet Vault Multisig setup file (created by Sparrow)
@@ -72,22 +72,22 @@ bcrt1qe9kjcm3ydmwu90jqaj5tx257jq9gnvm2zxr2whu0ttreqgruj5mqvx499u}
       expect(config.signerBsms[0], contains("test1"));
       expect(config.signerBsms[1], contains("test2"));
     });
-  });
 
-  test('JSON String 형식을 정상 파싱한다 - no double quotes', () {
-    const input = '''
+    test('JSON String 형식을 정상 파싱한다 - no double quotes', () {
+      const input = '''
 {label: multisig2, blockheight: 140309, descriptor: wsh(sortedmulti(2,[73c5da0a/48h/1h/0h/2h]tpubDFH9dgzveyD8zTbPUFuLrGmCydNvxehyNdUXKJAQN8x4aZ4j6UZqGfnqFrD4NqyaTVGKbvEW54tsvPTK2UoSbCC1PJY8iCNiwTL3RWZEheQ,[a0f6ba00/48h/1h/0h/2h]tpubDFX3DiBn9TanpuwxEbfBfPoRDtfGuwRNpkCFf4Yq22SMSGhr4zLhMBFSbTR7jFnLbNdqvtLUyuSAYk4jR8vSa4h2m8qL6zxwU4bYE1wGmDF,[a3b2eb70/48h/1h/0h/2h]tpubDFXHjN6AZbhZd5H6XhMWAKjoCn9r9Uj6sMtyXKTkN3HAaYEMEGKzU836gkxcF7PUT3BgMUj8KPmU447kzo1naMetkyWNRoBapfAbqWqUuzQ))#pmgfjdf3}
 ''';
 
-    final config = MultisigNormalizer.fromCoordinatorResult(input);
+      final config = MultisigNormalizer.fromCoordinatorResult(input);
 
-    expect(config.name, 'multisig2');
-    expect(config.requiredCount, 2);
-    expect(config.signerBsms, hasLength(3));
-    expect(config.signerBsms[0], contains('73c5da0a'.toUpperCase()));
-    expect(config.signerBsms[1], contains('a0f6ba00'.toUpperCase()));
-    expect(config.signerBsms[2], contains('a3b2eb70'.toUpperCase()));
+      expect(config.name, 'multisig2');
+      expect(config.requiredCount, 2);
+      expect(config.signerBsms, hasLength(3));
+      expect(config.signerBsms[0], contains('73c5da0a'.toUpperCase()));
+      expect(config.signerBsms[1], contains('a0f6ba00'.toUpperCase()));
+      expect(config.signerBsms[2], contains('a3b2eb70'.toUpperCase()));
 
-    print('--> config: ${config.signerBsms.join('\n')}');
+      print('--> config: ${config.signerBsms.join('\n')}');
+    });
   });
 }

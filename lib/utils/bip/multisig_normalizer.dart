@@ -1,4 +1,6 @@
 import 'dart:convert';
+import 'dart:typed_data';
+import 'package:coconut_lib/coconut_lib.dart';
 import 'package:coconut_vault/utils/bip/normalized_multisig_config.dart';
 
 /// CoordinatorBsmsQrDataHandler.result -> NormalizedMultisigConfig
@@ -29,8 +31,13 @@ class MultisigNormalizer {
 
       // 4) JSON Sparrow descriptor export 등
       if (trimmed.startsWith('{')) {
-        final map = jsonDecode(trimmed) as Map<String, dynamic>;
-        return _normalizeJson(map);
+        try {
+          final map = jsonDecode(trimmed) as Map<String, dynamic>;
+          return _normalizeJson(map);
+        } on FormatException catch (_) {
+          final map = _parseLooseJsonLikeMap(trimmed);
+          return _normalizeJson(map);
+        }
       }
     }
     return _normalizeJson(result as Map<String, dynamic>);
@@ -236,6 +243,35 @@ class MultisigNormalizer {
     return NormalizedMultisigConfig(name: name, requiredCount: requiredCount, signerBsms: signerBsms);
   }
 
+  static Map<String, dynamic> _parseLooseJsonLikeMap(String input) {
+    var body = input.trim();
+
+    if (body.startsWith('{')) {
+      body = body.substring(1);
+    }
+    if (body.endsWith('}')) {
+      body = body.substring(0, body.length - 1);
+    }
+    body = body.trim();
+
+    final labelMatch = RegExp(r'label\s*:\s*([^,}]+)').firstMatch(body);
+    if (labelMatch == null) {
+      throw const FormatException('label not found in loose json-like string');
+    }
+    final label = labelMatch.group(1)!.trim();
+
+    final descIndex = body.indexOf('descriptor:');
+    if (descIndex < 0) {
+      throw const FormatException('descriptor not found in loose json-like string');
+    }
+    var descriptor = body.substring(descIndex + 'descriptor:'.length).trim();
+    if (descriptor.endsWith(',')) {
+      descriptor = descriptor.substring(0, descriptor.length - 1).trim();
+    }
+
+    return <String, dynamic>{'label': label, 'descriptor': descriptor};
+  }
+
   static String _normalizeFingerprint(String fp) {
     return fp.trim().toUpperCase();
   }
@@ -275,5 +311,153 @@ class MultisigNormalizer {
     }
 
     return buffer.toString();
+  }
+
+  /// keystone, jade 결과를 signer BSMS 형식으로 변환
+  static String fromUrResult(Map<dynamic, dynamic> map) {
+    Map<String, dynamic> jsonCompatibleMap = _convertKeysToString(map);
+
+    final accounts = jsonCompatibleMap['2'];
+    if (accounts == null || accounts is! List) {
+      throw const FormatException('UR result does not contain key "2" (accounts list)');
+    }
+
+    final coin = NetworkType.currentNetworkType == NetworkType.mainnet ? 0 : 1;
+    final targetPath1 = <dynamic>[48, true, coin, true, 0, true, 2, true];
+    final targetPath2 = <dynamic>[48, 21, coin, 21, 0, 21, 2, 21];
+    Map<String, dynamic>? targetEntry;
+    for (final item in accounts) {
+      if (item is! Map) continue;
+      final m = _convertKeysToString(item);
+      final origin = m['6'];
+      if (origin == null || origin is! Map) continue;
+      // final originMap = _convertKeysToString(origin);
+      final pathList = origin['1'];
+      if (pathList == null || pathList is! List) continue;
+
+      if (_listEquals(pathList, targetPath1) || _listEquals(pathList, targetPath2)) {
+        targetEntry = m;
+        break;
+      }
+    }
+
+    if (targetEntry == null) {
+      throw const FormatException('Required derivation path not found in UR result');
+    }
+
+    final origin = _convertKeysToString(targetEntry['6']);
+    final rawPathList = origin['1'];
+    if (rawPathList == null || rawPathList is! List) {
+      throw const FormatException('Origin path ["6"]["1"] is missing or invalid');
+    }
+    final derivationPath = _derivationPathFromComponents(rawPathList);
+
+    final mfpDec = origin['2'].value;
+    if (mfpDec == null || mfpDec is! int) {
+      throw const FormatException('Master fingerprint ["6"]["2"] is missing or invalid');
+    }
+
+    final mfp = Codec.decodeHex(Converter.decToHex(mfpDec));
+    final pubKey = Uint8List.fromList(targetEntry['3'].bytes);
+    final chainCode = Uint8List.fromList(targetEntry['4'].bytes);
+    HDWallet wallet = HDWallet.fromPublicKey(pubKey, chainCode);
+    int version =
+        NetworkType.currentNetworkType == NetworkType.mainnet
+            ? AddressType.p2wsh.versionForMainnet
+            : AddressType.p2wsh.versionForTestnet;
+    final extendedPublicKey = ExtendedPublicKey.fromHdWallet(wallet, version, mfp);
+
+    return _buildSignerBsms(
+      fingerprint: mfpDec.toRadixString(16).padLeft(8, '0').toUpperCase(),
+      derivationPath: derivationPath,
+      extendedKey: extendedPublicKey.serialize(),
+    );
+  }
+
+  static bool _listEquals(List<dynamic> a, List<dynamic> b) {
+    if (identical(a, b)) return true;
+    if (a.length != b.length) return false;
+    for (var i = 0; i < a.length; i++) {
+      if (a[i].value != b[i]) return false;
+    }
+    return true;
+  }
+
+  static String _derivationPathFromComponents(List<dynamic> components) {
+    if (components.length.isOdd) {
+      throw FormatException('Unexpected derivation path format: $components');
+    }
+
+    final segments = <String>[];
+
+    for (var i = 0; i < components.length; i += 2) {
+      final value = components[i];
+      final hardened = components[i + 1];
+
+      if (value.value is! int ||
+          hardened.value is bool && hardened.value == false ||
+          hardened.value is int && hardened.value != 21) {
+        throw FormatException('Invalid derivation path component at [$i,$i+1]: $components');
+      }
+
+      segments.add(hardened.value ? "$value'" : '$value');
+    }
+
+    // 여기서는 "48'/1'/0'/2'" 형태로만 반환 (m/ 붙이는건 상위 로직에서)
+    return segments.join('/');
+  }
+
+  static Map<String, dynamic> _convertKeysToString(Map<dynamic, dynamic> map) {
+    return map.map((key, value) {
+      String newKey = key.toString();
+      dynamic newValue;
+      if (value is Map) {
+        newValue = _convertKeysToString(value);
+      } else if (value is List) {
+        newValue =
+            value.map((item) {
+              if (item is Map) {
+                return _convertKeysToString(item);
+              } else {
+                return item;
+              }
+            }).toList();
+      } else {
+        newValue = value;
+      }
+      return MapEntry(newKey, newValue);
+    });
+  }
+
+  static String fromBbQrResult(dynamic result) {
+    final xpub = result['p2wsh'];
+    final descriptor = result['p2wsh_desc'];
+    final match = RegExp(r'\[[0-9a-fA-F]{8}/[^\]]+\]').firstMatch(descriptor);
+    if (match == null) {
+      throw const FormatException('Descriptor does not contain a valid [mfp/path] block');
+    }
+    final bracketContent = match.group(0)!; // [a0f6ba00/48'/1'/0'/2']
+    final cleanedBracketContent = bracketContent.substring(1, bracketContent.length - 1);
+    final fingerprint = _normalizeFingerprint(cleanedBracketContent.split('/')[0]);
+    final derivationPath = _normalizeHardenedPath(cleanedBracketContent.split('/').sublist(1).join('/'));
+
+    return _buildSignerBsms(fingerprint: fingerprint, derivationPath: derivationPath, extendedKey: xpub);
+  }
+
+  static String fromTextResult(String result) {
+    final matches = RegExp(r'\[([^\]]+)\]([A-Za-z0-9]+)').allMatches(result);
+    if (matches.isEmpty) {
+      throw const FormatException('No matches found in text result');
+    }
+    final bracketContent = matches.first.group(1)!;
+    final fingerprint = bracketContent.split('/')[0];
+    final derivationPath = bracketContent.split('/').sublist(1).join('/');
+    final xpub = matches.first.group(2)!;
+
+    return _buildSignerBsms(
+      fingerprint: _normalizeFingerprint(fingerprint),
+      derivationPath: _normalizeHardenedPath(derivationPath),
+      extendedKey: xpub,
+    );
   }
 }
