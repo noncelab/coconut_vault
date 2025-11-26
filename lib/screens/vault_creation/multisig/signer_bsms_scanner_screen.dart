@@ -1,17 +1,22 @@
 import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_lib/coconut_lib.dart';
+import 'package:coconut_vault/enums/wallet_enums.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:coconut_vault/providers/visibility_provider.dart';
 import 'package:coconut_vault/screens/vault_creation/multisig/bsms_scanner_base.dart';
+import 'package:coconut_vault/utils/bip/multisig_normalizer.dart';
+import 'package:coconut_vault/utils/logger.dart';
+import 'package:coconut_vault/widgets/animated_qr/scan_data_handler/signer_bsms_qr_data_handler.dart';
 import 'package:flutter/material.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 
-// Signer bsms 및 descriptor 스캐너 화면
+// 멀티시그 서명 지갑 생성 시 HWW으로부터
+// Signer bsms 및 descriptor 정보를 스캔합니다.
 class SignerBsmsScannerScreen extends StatefulWidget {
   final int? id;
-  // final MultisigBsmsImportType screenType;
-  const SignerBsmsScannerScreen({super.key, this.id});
+  final HarewareWalletType? harewareWalletType;
+  const SignerBsmsScannerScreen({super.key, this.id, this.harewareWalletType = HarewareWalletType.vault});
 
   @override
   State<SignerBsmsScannerScreen> createState() => _SignerBsmsScannerScreenState();
@@ -20,6 +25,13 @@ class SignerBsmsScannerScreen extends StatefulWidget {
 class _SignerBsmsScannerScreenState extends BsmsScannerBase<SignerBsmsScannerScreen> {
   static String wrongFormatMessage1 = t.errors.invalid_single_sig_qr_error; // TODO 리네이밍
   static final String networkMismatchMessage = t.errors.invalid_network_type_error;
+  late final SignerBsmsQrDataHandler _signerBsmsQrDataHandler;
+
+  @override
+  void initState() {
+    super.initState();
+    _signerBsmsQrDataHandler = SignerBsmsQrDataHandler(harewareWalletType: widget.harewareWalletType);
+  }
 
   @override
   bool get useBottomAppBar => true;
@@ -28,27 +40,66 @@ class _SignerBsmsScannerScreenState extends BsmsScannerBase<SignerBsmsScannerScr
   double get topMaskHeight => 50.0;
 
   @override
-  String get appBarTitle => t.bsms_scanner_screen.import_bsms; // TODO 문맥에 맞게 바꾸기
+  String get appBarTitle => widget.harewareWalletType!.displayName;
 
-  /// 다중서명지갑 생성 시 외부에서 Signer를 스캔합니다.
   @override
   void onBarcodeDetected(BarcodeCapture capture) {
-    controller?.pause();
-
     final codes = capture.barcodes;
-    if (codes.isEmpty) return;
+    if (codes.isEmpty) {
+      setState(() => isProcessing = false);
+      return;
+    }
 
     final barcode = codes.first;
-    if (barcode.rawValue == null) return;
+    if (barcode.rawValue == null) {
+      setState(() => isProcessing = false);
+      return;
+    }
 
     final scanData = barcode.rawValue!;
+    String? scanResult;
 
     try {
-      // Signer 형식이 맞는지 체크
-      Bsms.parseSigner(scanData);
+      _signerBsmsQrDataHandler.joinData(scanData);
+      if (!_signerBsmsQrDataHandler.isCompleted()) {
+        setState(() => isProcessing = false);
+        return;
+      }
+
+      controller?.pause();
+
+      final result = _signerBsmsQrDataHandler.result;
+      if (result == null) {
+        onFailedScanning(wrongFormatMessage1);
+        setState(() => isProcessing = false);
+        return;
+      }
+
+      Logger.log('--> SignerBsmsScannerScreen: result: $result');
+
+      switch (widget.harewareWalletType) {
+        case HarewareWalletType.vault:
+          Bsms.parseSigner(scanData);
+          scanResult = scanData;
+          break;
+        case HarewareWalletType.keystone:
+        case HarewareWalletType.jade:
+          scanResult = MultisigNormalizer.fromUrResult(result as Map<dynamic, dynamic>);
+          break;
+        case HarewareWalletType.coldcard:
+          scanResult = MultisigNormalizer.fromBbQrResult(result);
+          break;
+        case HarewareWalletType.seesigner:
+        case HarewareWalletType.krux:
+          scanResult = MultisigNormalizer.fromTextResult(result);
+          break;
+        default:
+          break;
+      }
     } catch (e) {
       // TODO: 상태에 따른 에러 메시지 처리
       final message = e.toString();
+      Logger.log('--> SignerBsmsScannerScreen: message: $message');
       final isNetworkMismatch = message.contains('Extended public key is not compatible with the network type');
 
       onFailedScanning(isNetworkMismatch ? networkMismatchMessage : wrongFormatMessage1);
@@ -56,7 +107,9 @@ class _SignerBsmsScannerScreenState extends BsmsScannerBase<SignerBsmsScannerScr
     }
 
     if (!mounted) return;
-    Navigator.pop(context, scanData);
+    // TODO: bsms 정보로 반환하기
+    Logger.log('--> scanResult: $scanResult');
+    Navigator.pop(context, scanResult);
     return;
   }
 

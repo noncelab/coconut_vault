@@ -513,6 +513,15 @@ assign_signers_screen:
   select_key_option: "キータイプを選択"
   use_internal_key_option: "キー選択"
   import_from_other_vault: "他のボルトからインポート"
+  import_from_hww: "ハードウェアウォレットからインポート"
+
+hardware_wallet_type:
+  vault: "ココナッツボルト"
+  keystone: "Keystone 3 Pro"
+  seesigner: "SeedSigner"
+  jade: "Jade"
+  coldcard: "Coldcard"
+  krux: "Krux"
 
 multisig_creation_options_screen:
   quorum: "新しいウォレットを作成"

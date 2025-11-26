@@ -513,6 +513,15 @@ assign_signers_screen:
   select_key_option: "키 종류 선택"
   use_internal_key_option: "키 선택"
   import_from_other_vault: "다른 볼트에서 가져오기"
+  import_from_hww: "하드월렛에서 가져오기"
+
+hardware_wallet_type:
+  vault: "코코넛 볼트"
+  keystone: "키스톤 3 프로"
+  seesigner: "시드사이너"
+  jade: "제이드"
+  coldcard: "콜드카드"
+  krux: "크럭스"
 
 multisig_creation_options_screen:
   quorum: "새로운 지갑을 만들게요"
