@@ -6,9 +6,12 @@ import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/providers/app_lifecycle_state_provider.dart';
 import 'package:coconut_vault/providers/visibility_provider.dart';
 import 'package:coconut_vault/utils/alert_util.dart';
+import 'package:coconut_vault/widgets/bottom_button.dart';
+import 'package:coconut_vault/widgets/button/fixed_bottom_button.dart';
 import 'package:coconut_vault/widgets/custom_tooltip.dart';
 import 'package:coconut_vault/widgets/overlays/scanner_overlay.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:provider/provider.dart';
 
@@ -29,6 +32,9 @@ abstract class BsmsScannerBase<T extends StatefulWidget> extends State<T> {
   String get appBarTitle => t.bsms_scanner_screen.import_bsms;
   bool get useBottomAppBar => false;
   bool get showBackButton => true;
+  List<IconButton> get icon => [
+    IconButton(onPressed: () {}, icon: SvgPicture.asset('assets/svg/paste.svg', width: 18, height: 18)),
+  ];
 
   /// 툴팁 RichText
   List<TextSpan> buildTooltipRichText(BuildContext context, VisibilityProvider visibilityProvider);
@@ -112,6 +118,7 @@ abstract class BsmsScannerBase<T extends StatefulWidget> extends State<T> {
         context: context,
         isBackButton: showBackButton,
         isBottom: useBottomAppBar,
+        actionButtonList: icon,
       ),
       body: SafeArea(top: false, child: _buildStack(context)),
     );
@@ -144,6 +151,7 @@ abstract class BsmsScannerBase<T extends StatefulWidget> extends State<T> {
           isBackgroundWhite: false,
         ),
         _buildLoadingOverlay(context),
+        _buildFixedBottomButton(context),
       ],
     );
   }
@@ -161,6 +169,16 @@ abstract class BsmsScannerBase<T extends StatefulWidget> extends State<T> {
           child: const Center(child: CircularProgressIndicator(color: CoconutColors.gray800)),
         ),
       ),
+    );
+  }
+
+  Widget _buildFixedBottomButton(BuildContext context) {
+    return FixedBottomButton(
+      onButtonClicked: () {},
+      text: t.bsms_scanner_base.paste,
+      showGradient: false,
+      backgroundColor: CoconutColors.white,
+      textColor: CoconutColors.black,
     );
   }
 }

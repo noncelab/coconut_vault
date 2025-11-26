@@ -16,19 +16,18 @@ class Option {
 class MultisigCreationOptionsScreen extends StatelessWidget {
   const MultisigCreationOptionsScreen({super.key});
 
-  // TODO i18n 적용
   @override
   Widget build(BuildContext context) {
     final List<Option> options = [
       Option(
-        name: '새로운 지갑을 만들게요',
+        name: t.multisig_creation_options_screen.quorum,
         path: AppRoutes.multisigQuorumSelection,
         onNextPressed: () {
           Navigator.pushReplacementNamed(context, AppRoutes.multisigQuorumSelection);
         },
       ),
       Option(
-        name: '지갑 백업 데이터가 있어요',
+        name: t.multisig_creation_options_screen.bsms,
         path: AppRoutes.coordinatorBsmsConfigScanner,
         onNextPressed: () {
           Navigator.pushReplacementNamed(context, AppRoutes.coordinatorBsmsConfigScanner);

@@ -1,12 +1,15 @@
 import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/model/exception/not_related_multisig_wallet_exception.dart';
+import 'package:coconut_vault/providers/visibility_provider.dart';
 import 'package:coconut_vault/screens/vault_creation/multisig/bsms_scanner_base.dart';
 import 'package:coconut_vault/utils/bip/multisig_normalizer.dart';
 import 'package:coconut_vault/utils/logger.dart';
 import 'package:coconut_vault/widgets/animated_qr/scan_data_handler/coordinator_bsms_qr_data_handler.dart';
+import 'package:coconut_vault/widgets/custom_tooltip.dart';
 import 'package:flutter/material.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
+import 'package:qr_code_scanner_plus/qr_code_scanner_plus.dart';
 
 // 다중 서명 지갑 생성 시 외부에서 Coordinator BSMS를 스캔하는 화면
 class CoordinatorBsmsConfigScannerScreen extends StatefulWidget {
@@ -31,64 +34,18 @@ class _CoordinatorBsmsConfigScannerScreenState extends BsmsScannerBase<Coordinat
   @override
   String get appBarTitle => t.bsms_scanner_screen.import_multisig_wallet;
 
-  // TODO: figma 참고해서 수정 / 일본어 누락
   @override
   List<TextSpan> buildTooltipRichText(BuildContext context, visibilityProvider) {
-    TextSpan buildTextSpan(String text, {bool isBold = false}) {
-      return TextSpan(
-        text: text,
-        style: CoconutTypography.body2_14.copyWith(
-          fontWeight: isBold ? FontWeight.bold : FontWeight.normal,
-          color: CoconutColors.black,
-        ),
-      );
-    }
-
-    switch (visibilityProvider.language) {
-      case 'en':
-        return [
-          TextSpan(
-            text: t.bsms_scanner_screen.guide1_1,
-            style: CoconutTypography.body2_14.setColor(CoconutColors.black),
-            children: <TextSpan>[
-              buildTextSpan(' ${t.bsms_scanner_screen.guide1_2}'),
-              buildTextSpan('\n'),
-              buildTextSpan('1. '),
-              buildTextSpan(t.bsms_scanner_screen.select),
-              buildTextSpan(t.bsms_scanner_screen.guide1_3, isBold: true),
-              buildTextSpan('\n'),
-              buildTextSpan('2. '),
-              buildTextSpan(t.bsms_scanner_screen.select),
-              buildTextSpan(t.bsms_scanner_screen.guide1_4),
-              buildTextSpan('\n'),
-              buildTextSpan('3. '),
-              buildTextSpan(t.bsms_scanner_screen.guide1_5),
-            ],
-          ),
-        ];
-      case 'kr':
-      default:
-        return [
-          TextSpan(
-            text: t.bsms_scanner_screen.guide1_1,
-            style: CoconutTypography.body2_14.setColor(CoconutColors.black),
-            children: <TextSpan>[
-              buildTextSpan(' ${t.bsms_scanner_screen.guide1_2}'),
-              buildTextSpan('\n'),
-              buildTextSpan('1. '),
-              buildTextSpan(t.bsms_scanner_screen.guide1_3, isBold: true),
-              buildTextSpan(t.bsms_scanner_screen.select),
-              buildTextSpan('\n'),
-              buildTextSpan('2. '),
-              buildTextSpan(t.bsms_scanner_screen.guide1_4),
-              buildTextSpan(t.bsms_scanner_screen.select),
-              buildTextSpan('\n'),
-              buildTextSpan('3. '),
-              buildTextSpan(t.bsms_scanner_screen.guide1_5),
-            ],
-          ),
-        ];
-    }
+    return [
+      TextSpan(
+        text: t.coordinator_bsms_config_scanner_screen.guide1,
+        style: CoconutTypography.body2_14.copyWith(height: 1.3, color: CoconutColors.black),
+      ),
+      TextSpan(
+        text: t.coordinator_bsms_config_scanner_screen.guide2,
+        style: CoconutTypography.body2_14.copyWith(height: 1.3, color: CoconutColors.black),
+      ),
+    ];
   }
 
   /// 외부 Vault의 Coordinator BSMS를 스캔해서 멀티시그 지갑 복사
