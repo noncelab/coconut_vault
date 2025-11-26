@@ -535,6 +535,9 @@ signer_scanner_bottom_sheet:
   title: "署名更新"
   guide: "他のボルトから署名を追加しましたか？追加された署名済みトランザクションのQRコードをスキャンして情報を更新してください。"
 
+bsms_scanner_base:
+  paste: "ペーストからインポート"
+
 coordinator_bsms_config_scanner_screen:
   guide1: "Coconut Vault は、安全なマルチシグ管理標準である BSMS（BIP-129） をサポートしています。"
   guide2: "BSMS QRコードをスキャンしてください。"

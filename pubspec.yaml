@@ -230,6 +230,7 @@ flutter:
     - assets/png/erase-secret.png
     - assets/svg/signing-mode.svg
     - assets/svg/storage-mode.svg
+    - assets/svg/paste.svg
 
   fonts:
     - family: SpaceGrotesk
