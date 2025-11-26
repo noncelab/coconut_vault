@@ -43,7 +43,7 @@ class WalletIsolates {
       colorIndex: wallet.color!,
       iconIndex: wallet.icon!,
       descriptor: descriptor.serialize(),
-      signerBsms: signerBsms,
+      signerBsmsByAddressType: {AddressType.p2wsh: signerBsms},
       createdAt: DateTime.now(),
     );
 
@@ -103,18 +103,6 @@ class WalletIsolates {
     );
 
     return multiSignatureVault;
-  }
-
-  static Future<List<String>> extractSignerBsms(List<SingleSigVaultListItem> vaultList) async {
-    setNetworkType();
-
-    List<String> bsmses = [];
-
-    for (int i = 0; i < vaultList.length; i++) {
-      bsmses.add(vaultList[i].signerBsms);
-    }
-
-    return bsmses;
   }
 
   static Future<Map<String, dynamic>> verifyPassphrase(Map<String, dynamic> args) async {

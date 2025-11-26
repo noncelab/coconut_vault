@@ -174,9 +174,8 @@ class WalletProvider extends ChangeNotifier {
         signers.add(
           MultisigSigner(
             id: i,
-            signerBsms: linkedWalletList[i]!.signerBsms,
             innerVaultId: linkedWalletList[i]!.id,
-            keyStore: KeyStore.fromSignerBsms(linkedWalletList[i]!.signerBsms),
+            keyStore: KeyStore.fromSignerBsms(linkedWalletList[i]!.getSignerBsmsByAddressType(AddressType.p2wsh)),
             name: linkedWalletList[i]!.name,
             iconIndex: linkedWalletList[i]!.iconIndex,
             colorIndex: linkedWalletList[i]!.colorIndex,
@@ -279,7 +278,6 @@ class WalletProvider extends ChangeNotifier {
       _setVaultList([]);
 
       final jsonList = await _walletRepository.loadVaultListJsonArrayString();
-
       if (jsonList != null) {
         if (jsonList.isEmpty) {
           _updateWalletLength();

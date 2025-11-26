@@ -224,10 +224,10 @@ class SignerAssignmentViewModel extends ChangeNotifier {
   }
 
   Future<void> _initSignerOptionList(List<SingleSigVaultListItem> singlesigVaultList) async {
-    List<String> bsmses = await compute(WalletIsolates.extractSignerBsms, singlesigVaultList);
-
     for (int i = 0; i < singlesigVaultList.length; i++) {
-      _signerOptions.add(SignerOption(singlesigVaultList[i], bsmses[i]));
+      _signerOptions.add(
+        SignerOption(singlesigVaultList[i], singlesigVaultList[i].getSignerBsmsByAddressType(AddressType.p2wsh)),
+      );
     }
 
     _unselectedSignerOptions = _signerOptions.toList();

@@ -12,6 +12,9 @@ part 'multisig_vault_list_item.g.dart'; // 생성될 파일 이름 $ dart run bu
 
 @JsonSerializable(ignoreUnannotated: true)
 class MultisigVaultListItem extends VaultListItemBase {
+  static const fieldSigners = 'signers';
+  static const fieldCoordinatorBsms = 'coordinatorBsms';
+
   MultisigVaultListItem({
     required super.id,
     required super.name,
@@ -32,11 +35,11 @@ class MultisigVaultListItem extends VaultListItemBase {
     this.coordinatorBsms = coordinatorBsms ?? (coconutVault as MultisignatureVault).getCoordinatorBsms();
   }
 
-  @JsonKey(name: "signers")
+  @JsonKey(name: fieldSigners)
   final List<MultisigSigner> signers;
 
-  @JsonKey(name: "coordinatorBsms", includeIfNull: false)
-  late final String? coordinatorBsms;
+  @JsonKey(name: fieldCoordinatorBsms, includeIfNull: false)
+  late final String coordinatorBsms;
 
   // json_serialization가 기본 생성자를 사용해서 추가함
   // 필요 서명 개수
@@ -77,6 +80,14 @@ class MultisigVaultListItem extends VaultListItemBase {
 
   @override
   Map<String, dynamic> toJson() => _$MultisigVaultListItemToJson(this);
+
+  @override
+  Map<String, dynamic> toPublicJson() {
+    final json = toJson();
+    json.remove(fieldCoordinatorBsms);
+    json[fieldSigners] = signers.map((signer) => signer.toPublicJson()).toList();
+    return json;
+  }
 
   factory MultisigVaultListItem.fromJson(Map<String, dynamic> json) {
     json['vaultType'] = _$WalletTypeEnumMap[WalletType.multiSignature];
