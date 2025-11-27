@@ -1,15 +1,12 @@
 import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/model/exception/not_related_multisig_wallet_exception.dart';
-import 'package:coconut_vault/providers/visibility_provider.dart';
 import 'package:coconut_vault/screens/vault_creation/multisig/bsms_scanner_base.dart';
 import 'package:coconut_vault/utils/bip/multisig_normalizer.dart';
 import 'package:coconut_vault/utils/logger.dart';
 import 'package:coconut_vault/widgets/animated_qr/scan_data_handler/coordinator_bsms_qr_data_handler.dart';
-import 'package:coconut_vault/widgets/custom_tooltip.dart';
 import 'package:flutter/material.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
-import 'package:qr_code_scanner_plus/qr_code_scanner_plus.dart';
 
 // 다중 서명 지갑 생성 시 외부에서 Coordinator BSMS를 스캔하는 화면
 class CoordinatorBsmsConfigScannerScreen extends StatefulWidget {
@@ -41,6 +38,7 @@ class _CoordinatorBsmsConfigScannerScreenState extends BsmsScannerBase<Coordinat
         text: t.coordinator_bsms_config_scanner_screen.guide1,
         style: CoconutTypography.body2_14.copyWith(height: 1.3, color: CoconutColors.black),
       ),
+      const TextSpan(text: ' '),
       TextSpan(
         text: t.coordinator_bsms_config_scanner_screen.guide2,
         style: CoconutTypography.body2_14.copyWith(height: 1.3, color: CoconutColors.black),

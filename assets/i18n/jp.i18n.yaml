@@ -556,6 +556,10 @@ bsms_scanner_screen:
   guide2_4: "画面に表示されるQRコードをスキャンしてください。"
   select: "選択"
 
+bsms_paste_screen:
+  import_bsms: "BSMS文字列を入力してください。"
+  back_scan: "QRスキャンに戻る。"
+
 # lib/screens/vault_detail
 address_list_screen:
   title: "$nameのアドレス"

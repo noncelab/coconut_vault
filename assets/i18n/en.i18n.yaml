@@ -555,6 +555,10 @@ bsms_scanner_screen:
   guide2_4: "Scan the QR code shown on the screen."
   select: "Select "
 
+bsms_paste_screen:
+  import_bsms: "Please enter the BSMS string."
+  back_scan: "Go back to QR scan."
+
 # lib/screens/vault_detail
 address_list_screen:
   title: "$name's Addresses"

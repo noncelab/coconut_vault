@@ -556,6 +556,10 @@ bsms_scanner_screen:
   guide2_4: "화면에 보이는 QR 코드를 스캔해 주세요."
   select: "선택"
 
+bsms_paste_screen:
+  import_bsms: "BSMS 문자열을 입력해주세요"
+  back_scan: "QR 스캔으로 돌아가기"
+
 # lib/screens/vault_detail
 address_list_screen:
   title: "$name의 주소"
