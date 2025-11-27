@@ -1,32 +1,28 @@
 import 'package:coconut_vault/model/common/vault_list_item_base.dart';
-import 'package:coconut_vault/providers/view_model/wallet_info/vault_setup_info_view_model_base.dart';
 import 'package:coconut_vault/widgets/card/vault_item_card.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 
-class WalletInfoItemCard<T extends VaultSetupInfoViewModelBase<VaultListItemBase>> extends StatelessWidget {
+class WalletInfoItemCard extends StatelessWidget {
   final GlobalKey tooltipKey;
   final VoidCallback onTooltipClicked;
-  final void Function(T viewModel) onNameChangeClicked;
+  final void Function() onNameChangeClicked;
+  final VaultListItemBase vaultItem;
 
   const WalletInfoItemCard({
     super.key,
     required this.tooltipKey,
     required this.onTooltipClicked,
     required this.onNameChangeClicked,
+    required this.vaultItem,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<T>(
-      builder: (context, viewModel, child) {
-        return VaultItemCard(
-          vaultItem: viewModel.vaultItem,
-          onTooltipClicked: onTooltipClicked,
-          onNameChangeClicked: () => onNameChangeClicked(viewModel),
-          tooltipKey: tooltipKey,
-        );
-      },
+    return VaultItemCard(
+      vaultItem: vaultItem,
+      onTooltipClicked: onTooltipClicked,
+      onNameChangeClicked: () => onNameChangeClicked(),
+      tooltipKey: tooltipKey,
     );
   }
 }

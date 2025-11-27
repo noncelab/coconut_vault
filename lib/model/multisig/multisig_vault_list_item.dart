@@ -58,7 +58,8 @@ class MultisigVaultListItem extends VaultListItemBase {
                 'name': signer.name,
                 'iconIndex': signer.iconIndex,
                 'colorIndex': signer.colorIndex,
-                'signerSource': signer.signerSource,
+                // enum은 그대로 jsonEncode 할 수 없으므로 문자열로 변환
+                'signerSource': signer.signerSource?.name,
                 'signerName': signer.signerName,
               },
             )

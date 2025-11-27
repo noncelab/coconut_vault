@@ -36,7 +36,6 @@ class QrWithCopyTextScreen extends StatelessWidget {
         isBottom: false,
         onBackPressed: () {
           Navigator.pop(context);
-          Navigator.pop(context);
         },
       ),
       body: SafeArea(
