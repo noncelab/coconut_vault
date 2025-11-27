@@ -1,22 +1,20 @@
 import 'dart:async';
 
 import 'package:coconut_design_system/coconut_design_system.dart';
-import 'package:coconut_lib/coconut_lib.dart';
 import 'package:coconut_vault/constants/app_routes.dart';
 import 'package:coconut_vault/enums/pin_check_context_enum.dart';
 import 'package:coconut_vault/enums/wallet_enums.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/providers/auth_provider.dart';
-import 'package:coconut_vault/providers/view_model/vault_menu/single_sig_setup_info_view_model.dart';
+import 'package:coconut_vault/providers/view_model/wallet_info/single_sig_wallet_info_view_model.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:coconut_vault/screens/home/select_sync_option_bottom_sheet.dart';
-import 'package:coconut_vault/screens/vault_menu/info/name_and_icon_edit_bottom_sheet.dart';
-import 'package:coconut_vault/screens/vault_menu/info/passphrase_check_screen.dart';
+import 'package:coconut_vault/screens/wallet_info/name_and_icon_edit_bottom_sheet.dart';
 import 'package:coconut_vault/utils/text_utils.dart';
 import 'package:coconut_vault/utils/vibration_util.dart';
 import 'package:coconut_vault/widgets/button/button_group.dart';
 import 'package:coconut_vault/widgets/button/single_button.dart';
-import 'package:coconut_vault/widgets/setup_info/setup_info_layout.dart';
+import 'package:coconut_vault/widgets/wallet_info/wallet_info_layout.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:coconut_vault/screens/common/pin_check_screen.dart';
@@ -26,12 +24,12 @@ import 'package:coconut_vault/widgets/custom_loading_overlay.dart';
 import 'package:provider/provider.dart';
 import 'package:shimmer/shimmer.dart';
 
-class SingleSigSetupInfoScreen extends StatefulWidget {
+class SingleSigWalletInfoScreen extends StatefulWidget {
   final int id;
   // 서명 전용 모드에서는 항상 false입니다.
   final bool shouldShowPassphraseVerifyMenu;
   final String? entryPoint;
-  const SingleSigSetupInfoScreen({
+  const SingleSigWalletInfoScreen({
     super.key,
     required this.id,
     required this.shouldShowPassphraseVerifyMenu,
@@ -39,10 +37,10 @@ class SingleSigSetupInfoScreen extends StatefulWidget {
   });
 
   @override
-  State<SingleSigSetupInfoScreen> createState() => _SingleSigSetupInfoScreenState();
+  State<SingleSigWalletInfoScreen> createState() => _SingleSigWalletInfoScreenState();
 }
 
-class _SingleSigSetupInfoScreenState extends State<SingleSigSetupInfoScreen> {
+class _SingleSigWalletInfoScreenState extends State<SingleSigWalletInfoScreen> {
   final GlobalKey _tooltipIconKey = GlobalKey();
   RenderBox? _tooltipIconRendBox;
   Offset _tooltipIconPosition = Offset.zero;
@@ -103,8 +101,8 @@ class _SingleSigSetupInfoScreenState extends State<SingleSigSetupInfoScreen> {
       child: CustomLoadingOverlay(
         child: ChangeNotifierProvider(
           create:
-              (context) => SingleSigSetupInfoViewModel(Provider.of<WalletProvider>(context, listen: false), widget.id),
-          child: Consumer<SingleSigSetupInfoViewModel>(
+              (context) => SingleSigWalletInfoViewModel(Provider.of<WalletProvider>(context, listen: false), widget.id),
+          child: Consumer<SingleSigWalletInfoViewModel>(
             builder: (context, viewModel, child) {
               final canDelete = viewModel.hasLinkedMultisigVault != true;
               final walletName = viewModel.name;
@@ -143,7 +141,7 @@ class _SingleSigSetupInfoScreenState extends State<SingleSigSetupInfoScreen> {
                       ),
                     ],
                   ),
-                  body: SetupInfoLayout<SingleSigSetupInfoViewModel>(
+                  body: WalletInfoLayout<SingleSigWalletInfoViewModel>(
                     tooltipKey: _tooltipIconKey,
                     onTooltipClicked: () => _toggleTooltipVisible(context),
                     onNameChangeClicked: (viewModel) {
@@ -206,7 +204,7 @@ class _SingleSigSetupInfoScreenState extends State<SingleSigSetupInfoScreen> {
             onPressed: () {
               _removeTooltip();
               if (!mounted) return;
-              final viewModel = context.read<SingleSigSetupInfoViewModel>();
+              final viewModel = context.read<SingleSigWalletInfoViewModel>();
               if (viewModel.isSigningOnlyMode) {
                 Navigator.pushNamed(context, AppRoutes.mnemonicView, arguments: {'id': widget.id});
                 return;
@@ -290,7 +288,7 @@ class _SingleSigSetupInfoScreenState extends State<SingleSigSetupInfoScreen> {
     );
   }
 
-  void _showModalBottomSheetForEditingNameAndIcon(SingleSigSetupInfoViewModel viewModel) {
+  void _showModalBottomSheetForEditingNameAndIcon(SingleSigWalletInfoViewModel viewModel) {
     MyBottomSheet.showBottomSheet_90(
       context: context,
       child: NameAndIconEditBottomSheet(
@@ -310,7 +308,7 @@ class _SingleSigSetupInfoScreenState extends State<SingleSigSetupInfoScreen> {
     String newName,
     int newColorIndex,
     int newIconIndex,
-    SingleSigSetupInfoViewModel viewModel,
+    SingleSigWalletInfoViewModel viewModel,
   ) async {
     // 변경 사항이 없는 경우
     if (newName == viewModel.name && newIconIndex == viewModel.iconIndex && newColorIndex == viewModel.colorIndex) {
@@ -360,7 +358,7 @@ class _SingleSigSetupInfoScreenState extends State<SingleSigSetupInfoScreen> {
             const Padding(padding: EdgeInsets.only(top: 4, bottom: 4, left: 28), child: Divider()),
 
             // Linked multisig vaults
-            Consumer<SingleSigSetupInfoViewModel>(
+            Consumer<SingleSigWalletInfoViewModel>(
               builder: (context, viewModel, child) {
                 return ListView.builder(
                   physics: const NeverScrollableScrollPhysics(),
@@ -421,7 +419,7 @@ class _SingleSigSetupInfoScreenState extends State<SingleSigSetupInfoScreen> {
 
   Future<void> _deleteVault(BuildContext context) async {
     if (!mounted) return;
-    final viewModel = context.read<SingleSigSetupInfoViewModel>();
+    final viewModel = context.read<SingleSigWalletInfoViewModel>();
     viewModel.deleteVault();
     vibrateLight();
     if (widget.entryPoint != null && widget.entryPoint == AppRoutes.vaultList) {
@@ -507,7 +505,7 @@ class _SingleSigSetupInfoScreenState extends State<SingleSigSetupInfoScreen> {
           onTapLeft: () => Navigator.pop(context),
           onTapRight: () async {
             if (!mounted) return;
-            final viewModel = context.read<SingleSigSetupInfoViewModel>();
+            final viewModel = context.read<SingleSigWalletInfoViewModel>();
             if (!viewModel.isSigningOnlyMode) {
               await _authenticateWithBiometricOrPin(
                 context,

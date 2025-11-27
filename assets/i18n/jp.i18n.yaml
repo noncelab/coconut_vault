@@ -550,7 +550,7 @@ address_list_screen:
 export_detail_screen:
   title: "エクスポート詳細"
   info_copied: "詳細をコピーしました"
-multi_sig_bsms_screen:
+coordinator_bsms_qr_screen:
   bottom_sheet:
     title: "ウォレット詳細"
     info_copied: "ウォレット詳細をコピーしました"

@@ -549,7 +549,7 @@ address_list_screen:
 export_detail_screen:
   title: "Export Details"
   info_copied: "Details copied"
-multi_sig_bsms_screen:
+coordinator_bsms_qr_screen:
   bottom_sheet:
     title: "Wallet Details (BSMS)"
     info_copied: "Wallet details copied"

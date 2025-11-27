@@ -8,41 +8,40 @@ import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/model/common/vault_list_item_base.dart';
 import 'package:coconut_vault/model/multisig/multisig_signer.dart';
 import 'package:coconut_vault/providers/auth_provider.dart';
-import 'package:coconut_vault/providers/view_model/vault_menu/multisig_setup_info_view_model.dart';
+import 'package:coconut_vault/providers/view_model/wallet_info/multisig_wallet_info_view_model.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:coconut_vault/screens/common/pin_check_screen.dart';
-import 'package:coconut_vault/screens/home/select_sync_option_bottom_sheet.dart';
-import 'package:coconut_vault/screens/vault_menu/info/multisig_add_icon_bottom_sheet.dart';
-import 'package:coconut_vault/screens/vault_menu/info/multisig_add_key_option_bottom_sheet.dart';
-import 'package:coconut_vault/screens/vault_menu/info/multisig_signer_memo_bottom_sheet.dart';
-import 'package:coconut_vault/screens/vault_menu/info/name_and_icon_edit_bottom_sheet.dart';
+import 'package:coconut_vault/screens/wallet_info/multisig_menu/multisig_add_icon_bottom_sheet.dart';
+import 'package:coconut_vault/screens/wallet_info/multisig_menu/multisig_add_key_option_bottom_sheet.dart';
+import 'package:coconut_vault/screens/wallet_info/multisig_menu/multisig_signer_name_bottom_sheet.dart';
+import 'package:coconut_vault/screens/wallet_info/name_and_icon_edit_bottom_sheet.dart';
 import 'package:coconut_vault/utils/vibration_util.dart';
 import 'package:coconut_vault/widgets/bottom_sheet.dart';
 import 'package:coconut_vault/widgets/bubble_clipper.dart';
 import 'package:coconut_vault/widgets/button/button_group.dart';
 import 'package:coconut_vault/widgets/button/shrink_animation_button.dart';
 import 'package:coconut_vault/widgets/button/single_button.dart';
-import 'package:coconut_vault/widgets/setup_info/setup_info_layout.dart';
+import 'package:coconut_vault/widgets/wallet_info/wallet_info_layout.dart';
 import 'package:coconut_vault/widgets/custom_loading_overlay.dart';
 import 'package:coconut_vault/widgets/icon/vault_icon.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
 
-class MultisigSetupInfoScreen extends StatefulWidget {
+class MultisigWalletInfoScreen extends StatefulWidget {
   final int id;
   final String? entryPoint;
-  const MultisigSetupInfoScreen({super.key, required this.id, this.entryPoint});
+  const MultisigWalletInfoScreen({super.key, required this.id, this.entryPoint});
 
   @override
-  State<MultisigSetupInfoScreen> createState() => _MultisigSetupInfoScreenState();
+  State<MultisigWalletInfoScreen> createState() => _MultisigWalletInfoScreenState();
 }
 
-class _MultisigSetupInfoScreenState extends State<MultisigSetupInfoScreen> {
+class _MultisigWalletInfoScreenState extends State<MultisigWalletInfoScreen> {
   final GlobalKey _tooltipIconKey = GlobalKey();
   final Offset _tooltipIconPosition = Offset.zero;
   final double _tooltipTopPadding = 0;
-  late final MultisigSetupInfoViewModel _viewModel;
+  late final MultisigWalletInfoViewModel _viewModel;
   late final WalletProvider _walletProvider;
   ValueNotifier<List<VaultListItemBase>>? _vaultListNotifier;
   bool _isVaultListListenerAttached = false;
@@ -54,7 +53,7 @@ class _MultisigSetupInfoScreenState extends State<MultisigSetupInfoScreen> {
   void initState() {
     super.initState();
     _walletProvider = Provider.of<WalletProvider>(context, listen: false);
-    _viewModel = MultisigSetupInfoViewModel(_walletProvider, widget.id);
+    _viewModel = MultisigWalletInfoViewModel(_walletProvider, widget.id);
     _vaultListNotifier = _walletProvider.vaultListNotifier;
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted || _vaultListNotifier == null || _isVaultListListenerAttached) return;
@@ -120,7 +119,7 @@ class _MultisigSetupInfoScreenState extends State<MultisigSetupInfoScreen> {
         onPopInvokedWithResult: (didPop, _) {
           _removeTooltip();
         },
-        child: Consumer<MultisigSetupInfoViewModel>(
+        child: Consumer<MultisigWalletInfoViewModel>(
           builder: (context, viewModel, child) {
             if (!viewModel.isInitialized) {
               return const Scaffold(
@@ -154,7 +153,7 @@ class _MultisigSetupInfoScreenState extends State<MultisigSetupInfoScreen> {
                     ),
                   ],
                 ),
-                body: SetupInfoLayout<MultisigSetupInfoViewModel>(
+                body: WalletInfoLayout<MultisigWalletInfoViewModel>(
                   tooltipKey: _tooltipIconKey,
                   onTooltipClicked: () => _showTooltip(context),
                   onNameChangeClicked: (viewModel) {
@@ -173,7 +172,7 @@ class _MultisigSetupInfoScreenState extends State<MultisigSetupInfoScreen> {
     );
   }
 
-  void _showNameAndIconEditBottomSheet(MultisigSetupInfoViewModel viewModel) {
+  void _showNameAndIconEditBottomSheet(MultisigWalletInfoViewModel viewModel) {
     MyBottomSheet.showBottomSheet_90(
       context: context,
       child: NameAndIconEditBottomSheet(
@@ -191,7 +190,7 @@ class _MultisigSetupInfoScreenState extends State<MultisigSetupInfoScreen> {
     String newName,
     int newColorIndex,
     int newIconIndex,
-    MultisigSetupInfoViewModel viewModel,
+    MultisigWalletInfoViewModel viewModel,
   ) async {
     if (newName == viewModel.name && newIconIndex == viewModel.iconIndex && newColorIndex == viewModel.colorIndex) {
       return;
@@ -208,7 +207,7 @@ class _MultisigSetupInfoScreenState extends State<MultisigSetupInfoScreen> {
     }
   }
 
-  Widget _buildSignerList(BuildContext context, MultisigSetupInfoViewModel viewModel) {
+  Widget _buildSignerList(BuildContext context, MultisigWalletInfoViewModel viewModel) {
     final signers = viewModel.signers;
     return ListView.separated(
       physics: const NeverScrollableScrollPhysics(),
@@ -259,7 +258,7 @@ class _MultisigSetupInfoScreenState extends State<MultisigSetupInfoScreen> {
     );
   }
 
-  void _showNameEditBottomSheet(MultisigSigner signer, int index, MultisigSetupInfoViewModel viewModel) {
+  void _showNameEditBottomSheet(MultisigSigner signer, int index, MultisigWalletInfoViewModel viewModel) {
     final selectedName = signer.signerName ?? '';
     showModalBottomSheet(
       context: context,
@@ -467,7 +466,7 @@ class _MultisigSetupInfoScreenState extends State<MultisigSetupInfoScreen> {
     );
   }
 
-  Widget _buildTooltip(BuildContext context, MultisigSetupInfoViewModel viewModel) {
+  Widget _buildTooltip(BuildContext context, MultisigWalletInfoViewModel viewModel) {
     final totalSingerCount = viewModel.signers.length;
     final requiredSignatureCount = viewModel.requiredSignatureCount;
     return Visibility(

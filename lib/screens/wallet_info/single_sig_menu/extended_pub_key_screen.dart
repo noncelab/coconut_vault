@@ -2,7 +2,7 @@ import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_lib/coconut_lib.dart';
 import 'package:coconut_vault/model/single_sig/single_sig_vault_list_item.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
-import 'package:coconut_vault/widgets/export_wallet_screen.dart';
+import 'package:coconut_vault/widgets/qr_with_copy_text.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 

@@ -8,16 +8,16 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 
-class MultisigSignerBsmsExportScreen extends StatefulWidget {
+class SignerBsmsQrScreen extends StatefulWidget {
   final int id;
 
-  const MultisigSignerBsmsExportScreen({super.key, required this.id});
+  const SignerBsmsQrScreen({super.key, required this.id});
 
   @override
-  State<MultisigSignerBsmsExportScreen> createState() => _MultisigSignerBsmsExportScreenState();
+  State<SignerBsmsQrScreen> createState() => _SignerBsmsQrScreenState();
 }
 
-class _MultisigSignerBsmsExportScreenState extends State<MultisigSignerBsmsExportScreen> {
+class _SignerBsmsQrScreenState extends State<SignerBsmsQrScreen> {
   late MultisigSignerBsmsExportViewModel _viewModel;
 
   @override

@@ -550,7 +550,7 @@ address_list_screen:
 export_detail_screen:
   title: "내보내기 상세 정보"
   info_copied: "상세 정보가 복사됐어요"
-multi_sig_bsms_screen:
+coordinator_bsms_qr_screen:
   bottom_sheet:
     title: "지갑 상세 정보"
     info_copied: "지갑 상세 정보가 복사됐어요"

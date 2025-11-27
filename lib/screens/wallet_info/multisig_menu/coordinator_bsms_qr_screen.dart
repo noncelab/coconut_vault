@@ -1,22 +1,22 @@
 import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
-import 'package:coconut_vault/providers/view_model/vault_menu/multisig_bsms_view_model.dart';
+import 'package:coconut_vault/providers/view_model/wallet_info/coordinator_bsms_qr_view_model.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
-import 'package:coconut_vault/widgets/export_wallet_screen.dart';
+import 'package:coconut_vault/widgets/qr_with_copy_text.dart';
 import 'package:coconut_vault/widgets/tooltip_description.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-class MultisigBsmsScreen extends StatelessWidget {
+class CoordinatorBsmsQrScreen extends StatelessWidget {
   final int id;
 
-  const MultisigBsmsScreen({super.key, required this.id});
+  const CoordinatorBsmsQrScreen({super.key, required this.id});
 
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
-      create: (context) => MultisigBsmsViewModel(Provider.of<WalletProvider>(context, listen: false), id),
-      child: Consumer<MultisigBsmsViewModel>(
+      create: (context) => CoordinatorBsmsQrViewModel(Provider.of<WalletProvider>(context, listen: false), id),
+      child: Consumer<CoordinatorBsmsQrViewModel>(
         builder: (context, viewModel, child) {
           return QrWithCopyTextScreen(
             title: t.multi_sig_setting_screen.export_menu.share_bsms,
@@ -28,25 +28,27 @@ class MultisigBsmsScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildDescriptionBsms(MultisigBsmsViewModel viewModel) {
+  Widget _buildDescriptionBsms(CoordinatorBsmsQrViewModel viewModel) {
     return Container(
       decoration: BoxDecoration(color: CoconutColors.gray150, borderRadius: BorderRadius.circular(10)),
       margin: const EdgeInsets.all(16),
       padding: const EdgeInsets.all(16),
       child: Column(
         children: [
-          tooltipDescription(t.multi_sig_bsms_screen.guide.text1),
+          tooltipDescription(t.coordinator_bsms_qr_screen.guide.text1),
           const SizedBox(height: 4),
-          tooltipDescription(t.multi_sig_bsms_screen.guide.text2),
+          tooltipDescription(t.coordinator_bsms_qr_screen.guide.text2),
           const SizedBox(height: 4),
           if (viewModel.outsideWalletIdList.isEmpty) ...[
-            tooltipDescription(t.multi_sig_bsms_screen.guide.text3),
+            tooltipDescription(t.coordinator_bsms_qr_screen.guide.text3),
           ] else ...{
             tooltipDescription(
-              t.multi_sig_bsms_screen.guide.text4(gen: viewModel.generateOutsideWalletDescription(isAnd: true)),
+              t.coordinator_bsms_qr_screen.guide.text4(gen: viewModel.generateOutsideWalletDescription(isAnd: true)),
             ),
             const SizedBox(height: 4),
-            tooltipDescription(t.multi_sig_bsms_screen.guide.text5(gen: viewModel.generateOutsideWalletDescription())),
+            tooltipDescription(
+              t.coordinator_bsms_qr_screen.guide.text5(gen: viewModel.generateOutsideWalletDescription()),
+            ),
           },
         ],
       ),

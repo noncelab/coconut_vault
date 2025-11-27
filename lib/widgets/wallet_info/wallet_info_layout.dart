@@ -1,11 +1,11 @@
 import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_vault/model/common/vault_list_item_base.dart';
-import 'package:coconut_vault/providers/view_model/vault_menu/vault_setup_info_view_model_base.dart';
-import 'package:coconut_vault/widgets/setup_info/setup_info_vault_item_card.dart';
+import 'package:coconut_vault/providers/view_model/wallet_info/vault_setup_info_view_model_base.dart';
+import 'package:coconut_vault/widgets/wallet_info/wallet_info_item_card.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-class SetupInfoLayout<T extends VaultSetupInfoViewModelBase<VaultListItemBase>> extends StatelessWidget {
+class WalletInfoLayout<T extends VaultSetupInfoViewModelBase<VaultListItemBase>> extends StatelessWidget {
   final GlobalKey tooltipKey;
   final VoidCallback onTooltipClicked;
   final void Function(T viewModel) onNameChangeClicked;
@@ -14,7 +14,7 @@ class SetupInfoLayout<T extends VaultSetupInfoViewModelBase<VaultListItemBase>> 
   final Widget Function(T viewModel) menuListBuilder;
   final Widget Function(T viewModel) tooltipBuilder;
 
-  const SetupInfoLayout({
+  const WalletInfoLayout({
     super.key,
     required this.tooltipKey,
     required this.onTooltipClicked,
@@ -37,7 +37,7 @@ class SetupInfoLayout<T extends VaultSetupInfoViewModelBase<VaultListItemBase>> 
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     CoconutLayout.spacing_500h,
-                    SetupInfoVaultItemCard<T>(
+                    WalletInfoItemCard<T>(
                       tooltipKey: tooltipKey,
                       onTooltipClicked: onTooltipClicked,
                       onNameChangeClicked: onNameChangeClicked,

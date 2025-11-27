@@ -31,7 +31,7 @@ class _VaultExportOptionsScreenState extends State<VaultExportOptionsScreen> {
   }
 
   void onTapShareWithOtherVault() {
-    Navigator.pushNamed(context, AppRoutes.multisigBsmsView, arguments: {'id': widget.id});
+    Navigator.pushReplacementNamed(context, AppRoutes.multisigBsmsView, arguments: {'id': widget.id});
   }
 
   void onTapExportWatchOnlyWallet() {
@@ -43,7 +43,7 @@ class _VaultExportOptionsScreenState extends State<VaultExportOptionsScreen> {
   }
 
   void onTapUseAsMultisigSigner() {
-    Navigator.pushNamed(context, AppRoutes.multisigSignerBsmsExport, arguments: {'id': widget.id});
+    Navigator.pushReplacementNamed(context, AppRoutes.multisigSignerBsmsExport, arguments: {'id': widget.id});
   }
 
   void _showSyncOptionBottomSheet(int walletId, BuildContext context) {
