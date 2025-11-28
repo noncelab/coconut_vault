@@ -36,14 +36,14 @@ class WalletIsolates {
       derivationPath,
       keyStore.masterFingerprint,
     );
-    final signerBsms = SingleSignatureVault.fromKeyStore(keyStore).getSignerBsms(AddressType.p2wsh, wallet.name!);
+    final signerBsms = SingleSignatureVault.fromKeyStore(keyStore).getSignerBsms(AddressType.p2wsh, '');
     SingleSigVaultListItem newItem = SingleSigVaultListItem(
       id: wallet.id!,
       name: wallet.name!,
       colorIndex: wallet.color!,
       iconIndex: wallet.icon!,
       descriptor: descriptor.serialize(),
-      signerBsms: signerBsms,
+      signerBsmsByAddressType: {AddressType.p2wsh: signerBsms},
       createdAt: DateTime.now(),
     );
 
@@ -103,18 +103,6 @@ class WalletIsolates {
     );
 
     return multiSignatureVault;
-  }
-
-  static Future<List<String>> extractSignerBsms(List<SingleSigVaultListItem> vaultList) async {
-    setNetworkType();
-
-    List<String> bsmses = [];
-
-    for (int i = 0; i < vaultList.length; i++) {
-      bsmses.add(vaultList[i].signerBsms);
-    }
-
-    return bsmses;
   }
 
   static Future<Map<String, dynamic>> verifyPassphrase(Map<String, dynamic> args) async {

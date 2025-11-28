@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:core';
 import 'dart:io';
 
 import 'package:coconut_lib/coconut_lib.dart';
@@ -13,17 +14,23 @@ import 'package:coconut_vault/model/common/vault_list_item_base.dart';
 import 'package:coconut_vault/enums/wallet_enums.dart';
 import 'package:coconut_vault/model/multisig/multisig_wallet.dart';
 import 'package:coconut_vault/model/single_sig/single_sig_wallet_create_dto.dart';
+import 'package:coconut_vault/repository/migration/data_schema_migration_runner.dart';
+import 'package:coconut_vault/repository/model/multisig_wallet_privacy_info.dart';
+import 'package:coconut_vault/repository/model/single_sig_wallet_privacy_info.dart';
+import 'package:coconut_vault/repository/model/wallet_privacy_info.dart';
 import 'package:coconut_vault/repository/secure_storage_repository.dart';
 import 'package:coconut_vault/repository/secure_zone_repository.dart';
 import 'package:coconut_vault/repository/shared_preferences_repository.dart';
 import 'package:coconut_vault/services/secure_zone/secure_zone_payload_codec.dart';
 import 'package:coconut_vault/utils/hash_util.dart';
 import 'package:coconut_vault/utils/logger.dart';
+import 'package:coconut_vault/utils/print_util.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 
 /// 지갑의 public 정보는 shared prefs, 비밀 정보는 secure storage에 저장하는 역할을 하는 클래스입니다.
 class WalletRepository {
+  static const int currentDataSchemeVersion = 2;
   static String nextIdField = 'nextId';
   static String vaultTypeField = VaultListItemBase.vaultTypeField;
 
@@ -41,15 +48,44 @@ class WalletRepository {
     _isSigningOnlyMode = isSigningOnlyMode;
   }
 
+  int? _getSavedDataSchemeVersion() {
+    return _sharedPrefs.getInt(SharedPrefsKeys.kDataSchemeVersion);
+  }
+
+  Future<void> updateDataSchemeVersion(int version) async {
+    await _sharedPrefs.setInt(SharedPrefsKeys.kDataSchemeVersion, version);
+  }
+
   Future<List<dynamic>?> loadVaultListJsonArrayString() async {
     String? jsonArrayString;
 
     jsonArrayString = _sharedPrefs.getString(SharedPrefsKeys.kVaultListField);
+    int? savedDataSchemeVersion = _getSavedDataSchemeVersion();
 
     //printLongString('--> $jsonArrayString');
     if (jsonArrayString.isEmpty || jsonArrayString == '[]') {
       _vaultList = [];
+
+      if (savedDataSchemeVersion == null || currentDataSchemeVersion > savedDataSchemeVersion) {
+        await updateDataSchemeVersion(currentDataSchemeVersion);
+      }
       return null;
+    }
+
+    int previousDataSchemeVersion = savedDataSchemeVersion ?? 1;
+    if (previousDataSchemeVersion < currentDataSchemeVersion) {
+      Logger.log('✅ 마이그레이션 시작: $savedDataSchemeVersion to $currentDataSchemeVersion');
+      printLongString('--> jsonArrayString: $jsonArrayString');
+      await DataSchemaMigrationRunner.runDataSchemaMigrations(
+        previousDataSchemeVersion,
+        currentDataSchemeVersion,
+        jsonDecode(jsonArrayString),
+        _sharedPrefs,
+        _savePrivacyInfo,
+        _walletLoadCancelToken,
+      );
+      await updateDataSchemeVersion(currentDataSchemeVersion);
+      jsonArrayString = _sharedPrefs.getString(SharedPrefsKeys.kVaultListField);
     }
 
     return jsonDecode(jsonArrayString);
@@ -58,14 +94,17 @@ class WalletRepository {
   Future<void> loadAndEmitEachWallet(List<dynamic> jsonList, Function(VaultListItemBase wallet) emitOneItem) async {
     _walletLoadCancelToken = Completer<void>();
 
-    List<VaultListItemBase> vaultList = [];
+    final vaultList = <VaultListItemBase>[];
 
-    for (int i = 0; i < jsonList.length; i++) {
+    for (final raw in jsonList) {
+      final enrichedJson = await _enrichVaultJsonWithPrivacy(raw as Map<String, dynamic>);
+
       VaultListItemBase item = await compute<Map<String, dynamic>, VaultListItemBase>(
         WalletIsolates.initializeWallet,
-        jsonList[i],
+        enrichedJson,
       );
 
+      // 지갑 로드 중 앱 백그라운드 이동 시 로드 중단
       if (_walletLoadCancelToken?.isCompleted == true) {
         return;
       }
@@ -75,6 +114,43 @@ class WalletRepository {
     }
 
     _vaultList = vaultList;
+  }
+
+  Future<Map<String, dynamic>> _enrichVaultJsonWithPrivacy(Map<String, dynamic> json) async {
+    final vaultTypeName = json[VaultListItemBase.vaultTypeField] as String;
+    final walletType = WalletType.values.firstWhere((e) => e.name == vaultTypeName);
+    final walletId = json['id'] as int;
+
+    final privacyInfo = await _getPrivacyInfo(walletId, walletType);
+
+    switch (walletType) {
+      case WalletType.singleSignature:
+        _applySingleSigPrivacyToJson(json, privacyInfo as SingleSigWalletPrivacyInfo);
+        break;
+      case WalletType.multiSignature:
+        _applyMultisigPrivacyToJson(json, privacyInfo as MultisigWalletPrivacyInfo);
+        break;
+    }
+
+    return json;
+  }
+
+  void _applySingleSigPrivacyToJson(Map<String, dynamic> json, SingleSigWalletPrivacyInfo privacyInfo) {
+    json[SingleSigVaultListItem.fieldDescriptor] = privacyInfo.descriptor;
+    json[SingleSigVaultListItem.fieldSignerBsmsByAddressType] = privacyInfo.signerBsmsByAddressTypeName;
+  }
+
+  void _applyMultisigPrivacyToJson(Map<String, dynamic> json, MultisigWalletPrivacyInfo privacyInfo) {
+    json[MultisigVaultListItem.fieldCoordinatorBsms] = privacyInfo.coordinatorBsms;
+
+    // signers 리스트 요소들의 signerBsms, keyStore 비어있는 상태
+    final List<dynamic> signersToPublicJson = json[MultisigVaultListItem.fieldSigners];
+    for (int signerIndex = 0; signerIndex < signersToPublicJson.length; signerIndex++) {
+      signersToPublicJson[signerIndex][MultisigSigner.fieldSignerBsms] =
+          privacyInfo.signersPrivacyInfo[signerIndex].signerBsms;
+      signersToPublicJson[signerIndex][MultisigSigner.fieldKeyStore] =
+          privacyInfo.signersPrivacyInfo[signerIndex].keyStoreToJson;
+    }
   }
 
   Future<void> _loadVaultList() async {
@@ -107,9 +183,17 @@ class WalletRepository {
 
     _vaultList!.add(vaultListResult[0]);
 
-    // 안전 저장 모드일 때만 public info 저장
+    // 안전 저장 모드일 때만 저장
     if (!_isSigningOnlyMode) {
       try {
+        await _savePrivacyInfo(
+          nextId,
+          WalletType.singleSignature,
+          SingleSigWalletPrivacyInfo.fromAddressTypeMap(
+            descriptor: vaultListResult[0].descriptor,
+            signerBsmsByAddressType: vaultListResult[0].signerBsmsByAddressType,
+          ),
+        );
         await _savePublicInfo();
       } catch (error) {
         _deleteSingleSigSecureData(nextId);
@@ -128,10 +212,37 @@ class WalletRepository {
     return hashString("$walletKeyString - passphraseEnabled");
   }
 
+  String _createPrivacyInfoKey(String walletKeyString) {
+    return "privacy_${hashString(walletKeyString)}";
+  }
+
+  Future<WalletPrivacyInfo> _getPrivacyInfo(int id, WalletType walletType) async {
+    final key = _createPrivacyInfoKey(_createWalletKeyString(id, walletType));
+    final String? privacyInfoString = await _storageService.read(key: key);
+    if (privacyInfoString == null) {
+      throw "Privacy data cannot be found";
+    }
+
+    if (walletType == WalletType.singleSignature) {
+      return SingleSigWalletPrivacyInfo.fromJson(jsonDecode(privacyInfoString));
+    } else if (walletType == WalletType.multiSignature) {
+      return MultisigWalletPrivacyInfo.fromJson(jsonDecode(privacyInfoString));
+    }
+    throw "Unsupported wallet type";
+  }
+
   Future<void> _savePublicInfo() async {
     if (_vaultList == null) return;
 
-    final jsonString = jsonEncode(_vaultList!.map((item) => item.toJson()).toList());
+    final jsonString = jsonEncode(_vaultList!.map((item) => item.toPublicJson()).toList());
+    printLongString("--> 저장: $jsonString");
+    assert(
+      !jsonString.contains(SingleSigVaultListItem.fieldDescriptor) &&
+          !jsonString.contains(SingleSigVaultListItem.fieldSignerBsmsByAddressType) &&
+          !jsonString.contains(MultisigVaultListItem.fieldCoordinatorBsms) &&
+          !jsonString.contains(MultisigSigner.fieldSignerBsms) &&
+          !jsonString.contains(MultisigSigner.fieldKeyStore),
+    );
 
     //printLongString("--> 저장: $jsonString");
     await _sharedPrefs.setString(SharedPrefsKeys.kVaultListField, jsonString);
@@ -139,6 +250,16 @@ class WalletRepository {
 
   Future<void> _removePublicInfo() async {
     await _sharedPrefs.deleteSharedPrefsWithKey(SharedPrefsKeys.kVaultListField);
+  }
+
+  Future<void> _savePrivacyInfo(int id, WalletType walletType, WalletPrivacyInfo privacyInfo) async {
+    final walletKeyString = _createWalletKeyString(id, walletType);
+    await _storageService.write(key: _createPrivacyInfoKey(walletKeyString), value: jsonEncode(privacyInfo.toJson()));
+  }
+
+  Future<void> _deletePrivacyInfo(int id, WalletType walletType) async {
+    final walletKeyString = _createWalletKeyString(id, walletType);
+    await _storageService.delete(key: _createPrivacyInfoKey(walletKeyString));
   }
 
   void _linkNewSinglesigVaultAndMultisigVaults(SingleSigVaultListItem singlesigItem) {
@@ -194,6 +315,31 @@ class WalletRepository {
     _vaultList!.add(newMultisigVault);
     // 안전 저장 모드일 때만 public info 저장
     if (!_isSigningOnlyMode) {
+      final signersPrivacyInfo =
+          wallet.signers!
+              .map(
+                (signer) => SignerPrivacyInfo(signerBsms: signer.signerBsms!, keyStoreToJson: signer.keyStore.toJson()),
+              )
+              .toList();
+      // Logger.log('--> newMultisigVault: ${jsonEncode(newMultisigVault.toJson())}');
+      // Logger.log('-------------------------------------------');
+      // Logger.log('--> signersPrivacyInfo: ${jsonEncode(signersPrivacyInfo)}');
+      // Logger.log('-------------------------------------------');
+      // Logger.log(
+      //   '--> signersPrivacyInfo: ${jsonEncode(MultisigWalletPrivacyInfo(coordinatorBsms: newMultisigVault.coordinatorBsms, signersPrivacyInfo: signersPrivacyInfo).toJson())}',
+      // );
+      // Logger.log('-------------------------------------------');
+      // Logger.log('--> publicJson: ${jsonEncode(newMultisigVault.toPublicJson())}');
+      // Logger.log('-------------------------------------------');
+
+      await _savePrivacyInfo(
+        nextId,
+        WalletType.multiSignature,
+        MultisigWalletPrivacyInfo(
+          coordinatorBsms: newMultisigVault.coordinatorBsms,
+          signersPrivacyInfo: signersPrivacyInfo,
+        ),
+      );
       await _savePublicInfo();
     }
     _recordNextWalletId();
@@ -334,11 +480,13 @@ class WalletRepository {
         }
       }
     }
-
     _vaultList!.removeAt(index);
 
     if (vaultType == WalletType.singleSignature) {
       _deleteSingleSigSecureData(id);
+    }
+    if (!_isSigningOnlyMode) {
+      _deletePrivacyInfo(id, vaultType);
     }
     await _savePublicInfo();
 
@@ -354,6 +502,9 @@ class WalletRepository {
     for (var vault in _vaultList!) {
       if (vault.vaultType == WalletType.singleSignature) {
         _deleteSingleSigSecureData(vault.id);
+      }
+      if (!_isSigningOnlyMode) {
+        _deletePrivacyInfo(vault.id, vault.vaultType);
       }
     }
     _vaultList!.clear();
