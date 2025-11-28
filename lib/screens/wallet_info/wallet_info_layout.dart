@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_vault/constants/app_routes.dart';
+import 'package:coconut_vault/constants/icon_path.dart';
 import 'package:coconut_vault/enums/pin_check_context_enum.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/model/multisig/multisig_signer.dart';
@@ -9,7 +10,7 @@ import 'package:coconut_vault/providers/auth_provider.dart';
 import 'package:coconut_vault/providers/view_model/wallet_info/wallet_info_view_model.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:coconut_vault/screens/common/pin_check_screen.dart';
-import 'package:coconut_vault/screens/wallet_info/multisig_menu/multisig_add_icon_bottom_sheet.dart';
+import 'package:coconut_vault/screens/common/select_external_wallet_bottom_sheet.dart';
 import 'package:coconut_vault/screens/wallet_info/multisig_menu/multisig_add_key_option_bottom_sheet.dart';
 import 'package:coconut_vault/screens/wallet_info/multisig_menu/multisig_signer_name_bottom_sheet.dart';
 import 'package:coconut_vault/screens/wallet_info/name_and_icon_edit_bottom_sheet.dart';
@@ -262,13 +263,34 @@ class _WalletInfoLayoutState extends State<WalletInfoLayout> {
 
   void _showAddIconBottomSheet(String? iconSource, int index) async {
     final viewModel = context.read<WalletInfoViewModel>();
+    final iconSourceList = [
+      kCoconutVaultIconPath,
+      kKeystoneIconPath,
+      kSeedSignerIconPath,
+      kJadeIconPath,
+      kColdCardIconPath,
+      kKruxIconPath,
+    ];
+    final externalWalletButtonList = [
+      ExternalWalletButton(name: t.multi_sig_setting_screen.add_icon.coconut_vault, iconSource: iconSourceList[0]),
+      ExternalWalletButton(name: t.multi_sig_setting_screen.add_icon.keystone3pro, iconSource: iconSourceList[1]),
+      ExternalWalletButton(name: t.multi_sig_setting_screen.add_icon.seed_signer, iconSource: iconSourceList[2]),
+      ExternalWalletButton(name: t.multi_sig_setting_screen.add_icon.jade, iconSource: iconSourceList[3]),
+      ExternalWalletButton(name: t.multi_sig_setting_screen.add_icon.cold_card, iconSource: iconSourceList[4]),
+      ExternalWalletButton(name: t.multi_sig_setting_screen.add_icon.krux, iconSource: iconSourceList[5]),
+    ];
+    final selectedIndex = iconSource != null ? iconSourceList.indexOf(iconSource) : null;
     final result = await MyBottomSheet.showDraggableBottomSheet<SignerSource?>(
       context: context,
       showDragHandle: false,
       maxChildSize: 0.45,
       minChildSize: 0.2,
       initialChildSize: 0.45,
-      childBuilder: (context) => MultisigAddIconBottomSheet(iconSource: iconSource),
+      childBuilder:
+          (context) => SelectExternalWalletBottomSheet(
+            externalWalletButtonList: externalWalletButtonList,
+            selectedIndex: selectedIndex,
+          ),
     );
     if (result != null) {
       viewModel.updateSignerSource(index, result);
