@@ -1,6 +1,8 @@
 // test/utils/multisig_normalizer_test.dart
 
+import 'package:coconut_lib/coconut_lib.dart';
 import 'package:coconut_vault/utils/bip/multisig_normalizer.dart';
+import 'package:coconut_vault/utils/bip/normalized_multisig_config.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
@@ -88,6 +90,100 @@ bcrt1qe9kjcm3ydmwu90jqaj5tx257jq9gnvm2zxr2whu0ttreqgruj5mqvx499u}
       expect(config.signerBsms[2], contains('a3b2eb70'.toUpperCase()));
 
       print('--> config: ${config.signerBsms.join('\n')}');
+    });
+  });
+
+  group('NormalizedMultisigConfig.getMultisigConfigString', () {
+    test('regtest: 생성된 문자열이 Keystone 포맷과 일치해야 한다', () {
+      // given
+      const bsms1 = '''
+BSMS 1.0
+00
+[73c5da0a/48'/0'/0'/2']xpub6E9t6eQGiTVTG99xWo6KEdYAVyGtrmkCNgbTPVPSEvA6wgAS2irZxLdvbLBTz5XURtLSB2LPMZHf85CJxapgr8NpYcdDX56UKpVvZ5qxu9k
+mother
+''';
+
+      const bsms2 = '''
+BSMS 1.0
+00
+[a0f6ba00/48'/0'/0'/2']xpub6Dtc8ee6APa87VBy7LoZo6RfdGY3k8gnPzT1TYvHygVPJhur24RgEk9FftpzcvPhQgk9j5WKr5jkxs1Lhew25ffN5tLQfkcdE6Lz5DosnsT
+father
+''';
+
+      // 네트워크 타입을 regtest로 설정
+      NetworkType.setNetworkType(NetworkType.regtest);
+
+      const config = NormalizedMultisigConfig(name: 'family-multisig', requiredCount: 2, signerBsms: [bsms1, bsms2]);
+
+      // when
+      final result = config.getMultisigConfigString();
+
+      // then
+      final expected =
+          StringBuffer()
+            ..writeln('# Keystone Multisig setup file (created by Coconut Vault)')
+            ..writeln('#')
+            ..writeln()
+            ..writeln('Name: family-multisig')
+            ..writeln('Policy: 2 of 2')
+            ..writeln("Derivation: m/48'/1'/0'/2'")
+            ..writeln('Format: P2WSH')
+            ..writeln()
+            ..writeln(
+              '73C5DA0A: xpub6E9t6eQGiTVTG99xWo6KEdYAVyGtrmkCNgbTPVPSEvA6wgAS2irZxLdvbLBTz5XURtLSB2LPMZHf85CJxapgr8NpYcdDX56UKpVvZ5qxu9k',
+            )
+            ..writeln(
+              'A0F6BA00: xpub6Dtc8ee6APa87VBy7LoZo6RfdGY3k8gnPzT1TYvHygVPJhur24RgEk9FftpzcvPhQgk9j5WKr5jkxs1Lhew25ffN5tLQfkcdE6Lz5DosnsT',
+            );
+
+      expect(result, expected.toString());
+      print('--> result: \n$result');
+    });
+
+    test('mainnet: 생성된 문자열이 Keystone 포맷과 일치해야 한다', () {
+      // given
+      const bsms1 = '''
+BSMS 1.0
+00
+[73c5da0a/48'/0'/0'/2']xpub6E9t6eQGiTVTG99xWo6KEdYAVyGtrmkCNgbTPVPSEvA6wgAS2irZxLdvbLBTz5XURtLSB2LPMZHf85CJxapgr8NpYcdDX56UKpVvZ5qxu9k
+mother
+''';
+
+      const bsms2 = '''
+BSMS 1.0
+00
+[a0f6ba00/48'/0'/0'/2']xpub6Dtc8ee6APa87VBy7LoZo6RfdGY3k8gnPzT1TYvHygVPJhur24RgEk9FftpzcvPhQgk9j5WKr5jkxs1Lhew25ffN5tLQfkcdE6Lz5DosnsT
+father
+''';
+
+      // 네트워크 타입을 mainnet으로 설정
+      NetworkType.setNetworkType(NetworkType.mainnet);
+
+      const config = NormalizedMultisigConfig(name: 'family-multisig', requiredCount: 2, signerBsms: [bsms1, bsms2]);
+
+      // when
+      final result = config.getMultisigConfigString();
+
+      // then
+      final expected =
+          StringBuffer()
+            ..writeln('# Keystone Multisig setup file (created by Coconut Vault)')
+            ..writeln('#')
+            ..writeln()
+            ..writeln('Name: family-multisig')
+            ..writeln('Policy: 2 of 2')
+            ..writeln("Derivation: m/48'/0'/0'/2'")
+            ..writeln('Format: P2WSH')
+            ..writeln()
+            ..writeln(
+              '73C5DA0A: xpub6E9t6eQGiTVTG99xWo6KEdYAVyGtrmkCNgbTPVPSEvA6wgAS2irZxLdvbLBTz5XURtLSB2LPMZHf85CJxapgr8NpYcdDX56UKpVvZ5qxu9k',
+            )
+            ..writeln(
+              'A0F6BA00: xpub6Dtc8ee6APa87VBy7LoZo6RfdGY3k8gnPzT1TYvHygVPJhur24RgEk9FftpzcvPhQgk9j5WKr5jkxs1Lhew25ffN5tLQfkcdE6Lz5DosnsT',
+            );
+
+      expect(result, expected.toString());
+      print('--> result: \n$result');
     });
   });
 }

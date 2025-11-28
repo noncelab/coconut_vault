@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:coconut_lib/coconut_lib.dart';
 import 'package:coconut_vault/enums/wallet_enums.dart';
 import 'package:coconut_vault/isolates/sign_isolates.dart';
@@ -5,6 +7,8 @@ import 'package:coconut_vault/model/multisig/multisig_signer.dart';
 import 'package:coconut_vault/model/multisig/multisig_vault_list_item.dart';
 import 'package:coconut_vault/providers/sign_provider.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
+import 'package:coconut_vault/utils/bip/normalized_multisig_config.dart';
+import 'package:coconut_vault/utils/bip/signer_bsms.dart';
 import 'package:flutter/foundation.dart';
 
 class MultisigSignViewModel extends ChangeNotifier {
@@ -127,7 +131,47 @@ class MultisigSignViewModel extends ChangeNotifier {
   }
 
   // TODO: signers[index]의 hww type에 따라 다른 정보를 반환하도록 구현
-  String getMultisigInfoQrData(int index) {
-    return '';
+  String? getMultisigInfoQrData(int index, HardwareWalletType hwwType) {
+    if (hwwType == HardwareWalletType.keystone) {
+      return _getKeystoneMultisigInfoQrData(index);
+    } else if (hwwType == HardwareWalletType.krux) {
+      return _getKruxMultisigInfoQrData(index);
+    }
+    return null;
+  }
+
+  // {
+  //   "label": "multisig2",
+  //   "blockheight": 140309,
+  //   "descriptor": "wsh(sortedmulti(2,[73c5da0a/48h/1h/0h/2h]tpubDFH9dgzveyD8zTbPUFuLrGmCydNvxehyNdUXKJAQN8x4aZ4j6UZqGfnqFrD4NqyaTVGKbvEW54tsvPTK2UoSbCC1PJY8iCNiwTL3RWZEheQ,[a0f6ba00/48h/1h/0h/2h]tpubDFX3DiBn9TanpuwxEbfBfPoRDtfGuwRNpkCFf4Yq22SMSGhr4zLhMBFSbTR7jFnLbNdqvtLUyuSAYk4jR8vSa4h2m8qL6zxwU4bYE1wGmDF,[a3b2eb70/48h/1h/0h/2h]tpubDFXHjN6AZbhZd5H6XhMWAKjoCn9r9Uj6sMtyXKTkN3HAaYEMEGKzU836gkxcF7PUT3BgMUj8KPmU447kzo1naMetkyWNRoBapfAbqWqUuzQ))#pmgfjdf3"
+  // }
+  String _getKruxMultisigInfoQrData(int index) {
+    final name = _vaultListItem.name;
+    final coordinatorBsms = _vaultListItem.coordinatorBsms;
+    if (coordinatorBsms == null) {
+      throw Exception('coordinatorBsms is null');
+    }
+
+    final lines = coordinatorBsms.split('\n');
+    if (lines.length < 4) {
+      throw FormatException('Coordinator BSMS block too short: ${lines.length}');
+    }
+
+    final descriptorLine = lines[1].replaceAll("'", "h");
+
+    final coordinatorBsmsJson = {'label': name, 'blockheight': 0, 'descriptor': descriptorLine};
+
+    return jsonEncode(coordinatorBsmsJson);
+  }
+
+  String _getKeystoneMultisigInfoQrData(int index) {
+    final name = _vaultListItem.name;
+    final config = NormalizedMultisigConfig(
+      name: name,
+      requiredCount: _vaultListItem.requiredSignatureCount,
+      signerBsms: _vaultListItem.signers.map((signer) => signer.signerBsms!).toList(),
+    );
+
+    return config.getMultisigConfigString();
   }
 }

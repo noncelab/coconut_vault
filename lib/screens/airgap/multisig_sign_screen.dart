@@ -482,7 +482,10 @@ class _MultisigSignScreenState extends State<MultisigSignScreen> {
                   switch (hwwType) {
                     case HardwareWalletType.krux:
                     case HardwareWalletType.keystone:
-                      final multisigInfoQrData = _viewModel.getMultisigInfoQrData(index);
+                      final multisigInfoQrData = _viewModel.getMultisigInfoQrData(index, hwwType!);
+                      if (multisigInfoQrData == null) {
+                        return;
+                      }
                       _showDialogToMultisigInfoQrCode(index, hwwType!, multisigInfoQrData);
                       break;
                     case HardwareWalletType.vault:
