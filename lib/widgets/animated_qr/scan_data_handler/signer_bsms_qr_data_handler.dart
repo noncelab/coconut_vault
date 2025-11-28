@@ -6,31 +6,31 @@ import 'package:coconut_vault/utils/ur_bytes_converter.dart';
 import 'package:coconut_vault/widgets/animated_qr/scan_data_handler/i_qr_scan_data_handler.dart';
 
 class SignerBsmsQrDataHandler implements IQrScanDataHandler {
-  final HarewareWalletType? harewareWalletType;
+  final HardwareWalletType? harewareWalletType;
   URDecoder _urDecoder;
   BbQrDecoder _bbQrDecoder;
 
   StringBuffer? _textBuffer;
 
-  SignerBsmsQrDataHandler({this.harewareWalletType = HarewareWalletType.vault})
+  SignerBsmsQrDataHandler({this.harewareWalletType = HardwareWalletType.vault})
     : _urDecoder = URDecoder(),
       _bbQrDecoder = BbQrDecoder();
 
   @override
   dynamic get result {
     switch (harewareWalletType) {
-      case HarewareWalletType.keystone:
-      case HarewareWalletType.jade:
+      case HardwareWalletType.keystone:
+      case HardwareWalletType.jade:
         return UrBytesConverter.convertToMap(_urDecoder.result);
-      case HarewareWalletType.coldcard:
+      case HardwareWalletType.coldcard:
         if (!_bbQrDecoder.isComplete) return null;
         if (_bbQrDecoder.dataType == 'J') {
           return _bbQrDecoder.parseJson();
         }
         return _bbQrDecoder.getCombinedText();
-      case HarewareWalletType.seesigner:
-      case HarewareWalletType.krux:
-      case HarewareWalletType.vault:
+      case HardwareWalletType.seesigner:
+      case HardwareWalletType.krux:
+      case HardwareWalletType.vault:
         return _textBuffer?.toString();
       default:
         return null;
@@ -40,14 +40,14 @@ class SignerBsmsQrDataHandler implements IQrScanDataHandler {
   @override
   double get progress {
     switch (harewareWalletType) {
-      case HarewareWalletType.keystone:
-      case HarewareWalletType.jade:
+      case HardwareWalletType.keystone:
+      case HardwareWalletType.jade:
         return _urDecoder.estimatedPercentComplete();
-      case HarewareWalletType.coldcard:
+      case HardwareWalletType.coldcard:
         return _bbQrDecoder.progress;
-      case HarewareWalletType.seesigner:
-      case HarewareWalletType.krux:
-      case HarewareWalletType.vault:
+      case HardwareWalletType.seesigner:
+      case HardwareWalletType.krux:
+      case HardwareWalletType.vault:
         return isCompleted() ? 1.0 : 0.0;
       default:
         return 0.0;
@@ -61,14 +61,14 @@ class SignerBsmsQrDataHandler implements IQrScanDataHandler {
     }
 
     switch (harewareWalletType) {
-      case HarewareWalletType.keystone:
-      case HarewareWalletType.jade:
+      case HardwareWalletType.keystone:
+      case HardwareWalletType.jade:
         return _urDecoder.receivePart(data);
-      case HarewareWalletType.coldcard:
+      case HardwareWalletType.coldcard:
         return _bbQrDecoder.receivePart(data);
-      case HarewareWalletType.seesigner:
-      case HarewareWalletType.krux:
-      case HarewareWalletType.vault:
+      case HardwareWalletType.seesigner:
+      case HardwareWalletType.krux:
+      case HardwareWalletType.vault:
         _textBuffer ??= StringBuffer();
         _textBuffer!.write(data);
         return true;
@@ -83,14 +83,14 @@ class SignerBsmsQrDataHandler implements IQrScanDataHandler {
 
     try {
       switch (harewareWalletType) {
-        case HarewareWalletType.keystone:
-        case HarewareWalletType.jade:
+        case HardwareWalletType.keystone:
+        case HardwareWalletType.jade:
           return normalized.startsWith('ur:crypto-account/');
-        case HarewareWalletType.coldcard:
+        case HardwareWalletType.coldcard:
           return normalized.startsWith('b\$');
-        case HarewareWalletType.vault:
-        case HarewareWalletType.seesigner:
-        case HarewareWalletType.krux:
+        case HardwareWalletType.vault:
+        case HardwareWalletType.seesigner:
+        case HardwareWalletType.krux:
           return _isValidSignerDescriptor(normalized);
         default:
           return false;
@@ -103,14 +103,14 @@ class SignerBsmsQrDataHandler implements IQrScanDataHandler {
   @override
   bool isCompleted() {
     switch (harewareWalletType) {
-      case HarewareWalletType.keystone:
-      case HarewareWalletType.jade:
+      case HardwareWalletType.keystone:
+      case HardwareWalletType.jade:
         return _urDecoder.isComplete();
-      case HarewareWalletType.coldcard:
+      case HardwareWalletType.coldcard:
         return _bbQrDecoder.isComplete;
-      case HarewareWalletType.vault:
-      case HarewareWalletType.seesigner:
-      case HarewareWalletType.krux:
+      case HardwareWalletType.vault:
+      case HardwareWalletType.seesigner:
+      case HardwareWalletType.krux:
         return _textBuffer != null && _textBuffer!.isNotEmpty;
       default:
         return false;

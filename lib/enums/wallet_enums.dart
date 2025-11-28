@@ -16,22 +16,22 @@ enum WalletType {
   }
 }
 
-enum HarewareWalletType { vault, keystone, seesigner, jade, coldcard, krux }
+enum HardwareWalletType { vault, keystone, seesigner, jade, coldcard, krux }
 
-extension HarewareWalletTypeExtension on HarewareWalletType {
+extension HarewareWalletTypeExtension on HardwareWalletType {
   String get displayName {
     switch (this) {
-      case HarewareWalletType.vault:
+      case HardwareWalletType.vault:
         return t.hardware_wallet_type.vault;
-      case HarewareWalletType.keystone:
+      case HardwareWalletType.keystone:
         return t.hardware_wallet_type.keystone;
-      case HarewareWalletType.seesigner:
+      case HardwareWalletType.seesigner:
         return t.hardware_wallet_type.seesigner;
-      case HarewareWalletType.jade:
+      case HardwareWalletType.jade:
         return t.hardware_wallet_type.jade;
-      case HarewareWalletType.coldcard:
+      case HardwareWalletType.coldcard:
         return t.hardware_wallet_type.coldcard;
-      case HarewareWalletType.krux:
+      case HardwareWalletType.krux:
         return t.hardware_wallet_type.krux;
     }
   }

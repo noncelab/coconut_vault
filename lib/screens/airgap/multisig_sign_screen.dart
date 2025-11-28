@@ -3,6 +3,7 @@ import 'package:coconut_lib/coconut_lib.dart';
 import 'package:coconut_vault/constants/app_routes.dart';
 import 'package:coconut_vault/enums/currency_enum.dart';
 import 'package:coconut_vault/enums/pin_check_context_enum.dart';
+import 'package:coconut_vault/enums/wallet_enums.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/model/exception/seed_invalidated_exception.dart';
 import 'package:coconut_vault/model/exception/user_canceled_auth_exception.dart';
@@ -12,8 +13,9 @@ import 'package:coconut_vault/providers/sign_provider.dart';
 import 'package:coconut_vault/providers/view_model/airgap/multisig_sign_view_model.dart';
 import 'package:coconut_vault/providers/visibility_provider.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
+import 'package:coconut_vault/screens/airgap/multisig_info_qr_code_screen.dart';
 import 'package:coconut_vault/screens/common/pin_check_screen.dart';
-import 'package:coconut_vault/screens/airgap/multisig_signer_qr_bottom_sheet.dart';
+import 'package:coconut_vault/screens/airgap/multisig_psbt_qr_code_screen.dart';
 import 'package:coconut_vault/screens/vault_menu/info/passphrase_check_screen.dart';
 import 'package:coconut_vault/utils/alert_util.dart';
 import 'package:coconut_vault/utils/icon_util.dart';
@@ -92,34 +94,13 @@ class _MultisigSignScreenState extends State<MultisigSignScreen> {
     return false;
   }
 
-  Future<void> _sign(bool isKeyInsideVault, int index) async {
-    if (isKeyInsideVault) {
-      if (!_viewModel.isSigningOnlyMode) {
-        // 안전 저장 모드
-        await _addSignatureToPsbtInStorageMode(index);
-      } else {
-        // 서명 전용 모드
-        await _addSignatureToPsbtInSigningOnlyMode(index);
-      }
+  Future<void> _sign(int index) async {
+    if (!_viewModel.isSigningOnlyMode) {
+      // 안전 저장 모드
+      await _addSignatureToPsbtInStorageMode(index);
     } else {
-      showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return CoconutPopup(
-            insetPadding: EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width * 0.15),
-            title: t.move_to_qr_screen,
-            description: t.move_to_qr_screen_description,
-            backgroundColor: CoconutColors.white,
-            leftButtonText: t.cancel,
-            rightButtonText: t.confirm,
-            rightButtonColor: CoconutColors.black,
-            onTapRight: () {
-              Navigator.pop(context);
-              _showQrBottomSheet(index);
-            },
-          );
-        },
-      );
+      // 서명 전용 모드
+      await _addSignatureToPsbtInSigningOnlyMode(index);
     }
   }
 
@@ -203,15 +184,62 @@ class _MultisigSignScreenState extends State<MultisigSignScreen> {
     }
   }
 
-  void _showQrBottomSheet(int index) {
-    MyBottomSheet.showBottomSheet_90(
+  // TODO
+  void _showDialogToMultisigInfoQrCode(int index, HardwareWalletType hwwType, String multisigInfoQrData) {
+    showDialog(
       context: context,
-      child: SignerQrBottomSheet(
+      builder: (BuildContext context) {
+        return CoconutPopup(
+          insetPadding: EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width * 0.15),
+          title: t.multisig_sign_screen.dialog.title(name: hwwType.displayName),
+          description: t.multisig_sign_screen.dialog.description(name: hwwType.displayName),
+          backgroundColor: CoconutColors.white,
+          leftButtonText: t.skip,
+          rightButtonText: t.confirm,
+          rightButtonColor: CoconutColors.black,
+          onTapRight: () {
+            Navigator.pop(context);
+            // 하드월렛 추가 정보 QR 뷰 보여주기
+            _showMultisigInfoQrCodeBottomSheet(index, hwwType, multisigInfoQrData);
+          },
+          onTapLeft: () {
+            Navigator.pop(context);
+            // PSBT QR 뷰 보여주기
+            _showPsbtQrCodeBottomSheet(index, hwwType);
+          },
+        );
+      },
+    );
+  }
+
+  void _showMultisigInfoQrCodeBottomSheet(int index, HardwareWalletType hwwType, String multisigInfoQrData) {
+    MyBottomSheet.showBottomSheet_95(
+      context: context,
+      child: MultisigQrCodeViewScreen(
         multisigName: _viewModel.walletName,
         keyIndex: '${index + 1}',
         signedRawTx: _viewModel.psbtForSigning,
+        hardwareWalletType: hwwType,
+        qrData: multisigInfoQrData,
       ),
     );
+  }
+
+  // TODO
+  void _showPsbtQrCodeBottomSheet(int index, HardwareWalletType hwwType) {
+    MyBottomSheet.showBottomSheet_95(
+      context: context,
+      child: PsbtQrCodeViewScreen(
+        multisigName: _viewModel.walletName,
+        keyIndex: '${index + 1}',
+        signedRawTx: _viewModel.psbtForSigning,
+        hardwareWalletType: hwwType,
+      ),
+    );
+  }
+
+  void _showHardwareSelectionBottomSheet() {
+    // TODO: 하드웨어 선택 bottom sheet 보여주기
   }
 
   void _askIfSureToQuit() {
@@ -429,12 +457,46 @@ class _MultisigSignScreenState extends State<MultisigSignScreen> {
               final iconIndex = signer.iconIndex ?? 0;
               final colorIndex = _viewModel.signers[index].colorIndex ?? 0;
               final isSignerApproved = _viewModel.signersApproved[index];
+              var hwwType = _viewModel.getSignerHwwType(index);
+
               return ShrinkAnimationButton(
                 onPressed: () {
                   if (isSignerApproved) {
                     return;
                   }
-                  _sign(isInnerWallet, index);
+
+                  if (isInnerWallet) {
+                    _sign(index);
+                    return;
+                  }
+
+                  // TODO:
+                  // 외부에서 서명을 진행해야 하는 경우
+                  if (hwwType == null) {
+                    // 지정되어 있지 않으면 하드월렛 선택
+                    _showHardwareSelectionBottomSheet();
+                    // 화면 pop하면서 hww type 전달받기
+                    hwwType ??= HardwareWalletType.vault;
+                  }
+
+                  switch (hwwType) {
+                    case HardwareWalletType.krux:
+                    case HardwareWalletType.keystone:
+                      final multisigInfoQrData = _viewModel.getMultisigInfoQrData(index);
+                      _showDialogToMultisigInfoQrCode(index, hwwType!, multisigInfoQrData);
+                      break;
+                    case HardwareWalletType.vault:
+                    case HardwareWalletType.seesigner:
+                    case HardwareWalletType.jade:
+                    case HardwareWalletType.coldcard:
+                      // TODO: 로딩 오버레이('다른 기기에서 서명을 시작합니다...') 2s 보여준 후
+                      // t.multisig_sign_screen.loading_overlay 문구 사용
+                      _showPsbtQrCodeBottomSheet(index, hwwType!);
+                      break;
+                    case null:
+                      // TODO: Handle this case.
+                      throw UnimplementedError();
+                  }
                 },
                 defaultColor:
                     isSignerApproved

@@ -87,8 +87,6 @@ sign_required: "Click the button to sign"
 sign_required_amount: 
   one: "$n signature required"
   other: "$n signatures required"
-move_to_qr_screen: "Move to QR Screen"
-move_to_qr_screen_description: "Generate QR to sign in key-holding vault."
 
 wallet_delete_failed: "No wallets to delete"
 wallet_delete_failed_description: "No wallets are currently saved, so deletion isn’t necessary"
@@ -525,6 +523,12 @@ hardware_wallet_type:
 multisig_creation_options_screen:
   quorum: "Create a new wallet"
   bsms: "Have wallet backup data"
+
+multisig_sign_screen:
+  loading_overlay: "Signing from another device..."
+  dialog:
+    title: 'Prepare $name'
+    description: 'To sign with $name, you need to set up in advance. Would you like to go to the setup screen?'
 
 confirm_importing_screen:
   guide1: "Please verify that "

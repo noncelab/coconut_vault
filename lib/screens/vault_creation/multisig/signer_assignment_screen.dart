@@ -451,7 +451,7 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
       physics: const ClampingScrollPhysics(),
       enableSingleChildScroll: false,
       hideAppBar: true,
-      child: const SignerBsmsScannerScreen(harewareWalletType: HarewareWalletType.vault),
+      child: const SignerBsmsScannerScreen(harewareWalletType: HardwareWalletType.vault),
     );
 
     if (externalImported != null) {
@@ -494,7 +494,7 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
               enableSingleChildScroll: false,
               hideAppBar: true,
               child: const SignerBsmsScannerScreen(
-                harewareWalletType: HarewareWalletType.coldcard,
+                harewareWalletType: HardwareWalletType.coldcard,
               ), // TODO: 선택한 결과에 맞게 harewareWalletType 변경하기
             );
 

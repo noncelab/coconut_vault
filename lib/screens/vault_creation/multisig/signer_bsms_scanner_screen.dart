@@ -15,8 +15,8 @@ import 'package:mobile_scanner/mobile_scanner.dart';
 // Signer bsms 및 descriptor 정보를 스캔합니다.
 class SignerBsmsScannerScreen extends StatefulWidget {
   final int? id;
-  final HarewareWalletType? harewareWalletType;
-  const SignerBsmsScannerScreen({super.key, this.id, this.harewareWalletType = HarewareWalletType.vault});
+  final HardwareWalletType? harewareWalletType;
+  const SignerBsmsScannerScreen({super.key, this.id, this.harewareWalletType = HardwareWalletType.vault});
 
   @override
   State<SignerBsmsScannerScreen> createState() => _SignerBsmsScannerScreenState();
@@ -78,19 +78,19 @@ class _SignerBsmsScannerScreenState extends BsmsScannerBase<SignerBsmsScannerScr
       Logger.log('--> SignerBsmsScannerScreen: result: $result');
 
       switch (widget.harewareWalletType) {
-        case HarewareWalletType.vault:
+        case HardwareWalletType.vault:
           Bsms.parseSigner(scanData);
           scanResult = scanData;
           break;
-        case HarewareWalletType.keystone:
-        case HarewareWalletType.jade:
+        case HardwareWalletType.keystone:
+        case HardwareWalletType.jade:
           scanResult = MultisigNormalizer.fromUrResult(result as Map<dynamic, dynamic>);
           break;
-        case HarewareWalletType.coldcard:
+        case HardwareWalletType.coldcard:
           scanResult = MultisigNormalizer.fromBbQrResult(result);
           break;
-        case HarewareWalletType.seesigner:
-        case HarewareWalletType.krux:
+        case HardwareWalletType.seesigner:
+        case HardwareWalletType.krux:
           scanResult = MultisigNormalizer.fromTextResult(result);
           break;
         default:
