@@ -526,7 +526,7 @@ multisig_creation_options_screen:
   bsms: "지갑 백업 데이터가 있어요"
 
 multisig_sign_screen:
-  loading_overlay: "다른 기기에서 서명을 시작합니다..."
+  loading_overlay: "서명 정보를 생성합니다"
   dialog:
     title: '$name 준비하기'
     description: '$name로 서명을 하기 위해 사전 설정이 필요합니다. 사전 설정 화면으로 가시겠어요?'
