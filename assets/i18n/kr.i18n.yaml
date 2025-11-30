@@ -21,6 +21,7 @@ settings: "설정"
 confirm: "확인"
 complete: "완료"
 cancel: "취소"
+close: "닫기"
 abort: "종료"
 next: "다음"
 save: "저장"
@@ -30,6 +31,7 @@ warning: "주의"
 security: "보안"
 yes: "네"
 no: "아니오"
+memo: "메모"
 stop: "그만하기"
 start: "시작하기"
 quit: "종료하기"
@@ -565,10 +567,12 @@ coordinator_bsms_qr_screen:
   first_and_last_keys: "$first번과 $last번"
   first_or_last_key: "$first번 또는 $last번"
   view_detail: "상세 정보 보기"
-multi_sig_name_bottom_sheet:
-  imported_wallet_name: "외부 지갑 이름"
-  placeholder: "이름을 작성해주세요."
+multi_sig_memo_bottom_sheet:
+  imported_wallet_memo: "외부 지갑 메모"
+  placeholder: "메모를 작성해주세요."
 multi_sig_setting_screen:
+  edit_memo: "메모 수정"
+  add_memo: "메모 추가"
   export_menu: 
     export_wallet: "지갑 내보내기"
     share_bsms: "다른 볼트와 공유하기"
@@ -592,8 +596,10 @@ multi_sig_setting_screen:
     jade: "제이드"
     cold_card: "콜드카드"
     krux: "크럭스"
-  add_icon_complete: "아이콘 입력 완료"
-  add_icon_complete_description: "다중 서명 지갑에 서명할 때 $name 설정에 따라 안내할게요."
+  popup:
+    title: "$name 선택 완료"
+    description: "다중 서명 지갑에 서명할 때 $name 설정에 따라 안내할게요."
+    button: "알겠습니다"
 select_export_type_screen:
   title: "보기 전용 앱으로 내보내기"
 signer_bsms_screen:

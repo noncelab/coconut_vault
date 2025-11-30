@@ -1,7 +1,5 @@
 import 'package:coconut_design_system/coconut_design_system.dart';
-import 'package:coconut_vault/constants/icon_path.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
-import 'package:coconut_vault/model/multisig/multisig_signer.dart';
 import 'package:coconut_vault/widgets/button/fixed_bottom_button.dart';
 import 'package:coconut_vault/widgets/button/shrink_animation_button.dart';
 import 'package:flutter/material.dart';
@@ -10,7 +8,13 @@ import 'package:flutter_svg/svg.dart';
 class SelectExternalWalletBottomSheet extends StatefulWidget {
   final List<ExternalWalletButton> externalWalletButtonList;
   final int? selectedIndex;
-  const SelectExternalWalletBottomSheet({super.key, required this.externalWalletButtonList, this.selectedIndex});
+  final Function(int) onSelected;
+  const SelectExternalWalletBottomSheet({
+    super.key,
+    required this.externalWalletButtonList,
+    this.selectedIndex,
+    required this.onSelected,
+  });
 
   @override
   State<SelectExternalWalletBottomSheet> createState() => _SelectExternalWalletBottomSheetState();
@@ -18,11 +22,13 @@ class SelectExternalWalletBottomSheet extends StatefulWidget {
 
 class _SelectExternalWalletBottomSheetState extends State<SelectExternalWalletBottomSheet> {
   int? selectedIndex;
+  int? _committedIndex;
 
   @override
   void initState() {
     super.initState();
     selectedIndex = widget.selectedIndex;
+    _committedIndex = widget.selectedIndex;
   }
 
   @override
@@ -49,27 +55,31 @@ class _SelectExternalWalletBottomSheetState extends State<SelectExternalWalletBo
             FixedBottomButton(
               text: t.complete,
               showGradient: false,
-              isActive: selectedIndex != widget.selectedIndex,
+              isActive: selectedIndex != _committedIndex,
               onButtonClicked: () {
                 if (selectedIndex == null || selectedIndex! >= widget.externalWalletButtonList.length) {
                   return;
                 }
 
-                final signerSource = _getSignerSourceByIconSource();
                 final selectedButton = widget.externalWalletButtonList[selectedIndex!];
                 final hwwName = selectedButton.name;
+                // 선택 확정 및 콜백 호출을 다이얼로그보다 먼저 실행
+                setState(() {
+                  _committedIndex = selectedIndex;
+                  widget.onSelected(selectedIndex!);
+                });
 
                 showDialog(
                   context: context,
                   builder: (BuildContext context) {
                     return CoconutPopup(
                       insetPadding: EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width * 0.15),
-                      title: t.multi_sig_setting_screen.add_icon_complete,
-                      description: t.multi_sig_setting_screen.add_icon_complete_description(name: hwwName),
-                      rightButtonText: t.confirm,
+                      title: t.multi_sig_setting_screen.popup.title(name: hwwName),
+                      description: t.multi_sig_setting_screen.popup.description(name: hwwName),
+                      rightButtonText: t.multi_sig_setting_screen.popup.button,
                       onTapRight: () {
                         Navigator.pop(context);
-                        Navigator.pop(context, signerSource);
+                        Navigator.pop(context);
                       },
                     );
                   },
@@ -80,32 +90,6 @@ class _SelectExternalWalletBottomSheetState extends State<SelectExternalWalletBo
         ),
       ),
     );
-  }
-
-  SignerSource? _getSignerSourceByIconSource() {
-    if (selectedIndex == null || selectedIndex! >= widget.externalWalletButtonList.length) {
-      return null;
-    }
-
-    final selectedButton = widget.externalWalletButtonList[selectedIndex!];
-    final iconSource = selectedButton.iconSource;
-
-    switch (iconSource) {
-      case kCoconutVaultIconPath:
-        return SignerSource.coconutvault;
-      case kKeystoneIconPath:
-        return SignerSource.keystone3pro;
-      case kSeedSignerIconPath:
-        return SignerSource.seedsigner;
-      case kJadeIconPath:
-        return SignerSource.jade;
-      case kColdCardIconPath:
-        return SignerSource.coldcard;
-      case kKruxIconPath:
-        return SignerSource.krux;
-      default:
-        return null;
-    }
   }
 
   List<Widget> _buildWalletButtonRows() {
@@ -150,7 +134,11 @@ class _SelectExternalWalletBottomSheetState extends State<SelectExternalWalletBo
             CoconutLayout.spacing_100h,
             MediaQuery(
               data: MediaQuery.of(context).copyWith(textScaler: const TextScaler.linear(1.0)),
-              child: Text(button.name, style: CoconutTypography.body2_14, textAlign: TextAlign.center),
+              child: Text(
+                button.name,
+                style: CoconutTypography.body2_14.merge(const TextStyle(height: 1.2)),
+                textAlign: TextAlign.center,
+              ),
             ),
           ],
         ),

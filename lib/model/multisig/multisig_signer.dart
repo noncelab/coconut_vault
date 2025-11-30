@@ -21,9 +21,9 @@ class MultisigSigner {
   @JsonKey()
   String? signerBsms; // 외부에서 import
   @JsonKey()
-  SignerSource? signerSource; // 외부지갑 기기 종류
+  String? memo; // 외부 지갑에 설정되는 메모
   @JsonKey()
-  String? signerName; // 외부 지갑 이름
+  SignerSource? signerSource; // 외부지갑 기기 종류
 
   @JsonKey(toJson: _customKeyStoreToJson)
   final KeyStore keyStore;
@@ -37,8 +37,8 @@ class MultisigSigner {
     this.iconIndex,
     this.colorIndex,
     this.signerBsms,
+    this.memo,
     this.signerSource,
-    this.signerName,
     required this.keyStore,
   }) {
     name = name?.replaceAll('\n', ' ');
@@ -47,13 +47,6 @@ class MultisigSigner {
   Map<String, dynamic> toJson() => _$MultisigSignerToJson(this);
 
   factory MultisigSigner.fromJson(Map<String, dynamic> json) => _$MultisigSignerFromJson(json);
-
-  String getSignerName() {
-    if (signerName != null) {
-      return signerName!;
-    }
-    return signerSource?.name ?? '';
-  }
 
   String getSignerDerivationPath() {
     if (signerBsms == null) {

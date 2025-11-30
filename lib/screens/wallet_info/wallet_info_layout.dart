@@ -12,7 +12,7 @@ import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:coconut_vault/screens/common/pin_check_screen.dart';
 import 'package:coconut_vault/screens/common/select_external_wallet_bottom_sheet.dart';
 import 'package:coconut_vault/screens/wallet_info/multisig_menu/multisig_add_key_option_bottom_sheet.dart';
-import 'package:coconut_vault/screens/wallet_info/multisig_menu/multisig_signer_name_bottom_sheet.dart';
+import 'package:coconut_vault/screens/wallet_info/multisig_menu/multisig_signer_memo_bottom_sheet.dart';
 import 'package:coconut_vault/screens/wallet_info/name_and_icon_edit_bottom_sheet.dart';
 import 'package:coconut_vault/utils/text_utils.dart';
 import 'package:coconut_vault/utils/vibration_util.dart';
@@ -237,21 +237,21 @@ class _WalletInfoLayoutState extends State<WalletInfoLayout> {
     return;
   }
 
-  void _showNameEditBottomSheet(MultisigSigner signer, int index) {
+  void _showMemoEditBottomSheet(MultisigSigner signer, int index) {
     final viewModel = context.read<WalletInfoViewModel>();
-    final selectedName = signer.signerName ?? '';
+    final selectedMemo = signer.memo ?? '';
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder:
           (context) => MultisigSignerNameBottomSheet(
-            name: selectedName,
+            memo: selectedMemo,
             autofocus: true,
-            onUpdate: (newName) async {
+            onUpdate: (newMemo) async {
               final navigator = Navigator.of(context);
-              if (newName.trim() != selectedName.trim()) {
-                await viewModel.updateOutsideVaultName(index, newName.trim());
+              if (newMemo.trim() != selectedMemo.trim()) {
+                await viewModel.updateOutsideVaultMemo(index, newMemo.trim());
               }
               if (mounted) {
                 navigator.pop();
@@ -280,7 +280,8 @@ class _WalletInfoLayoutState extends State<WalletInfoLayout> {
       ExternalWalletButton(name: t.multi_sig_setting_screen.add_icon.krux, iconSource: iconSourceList[5]),
     ];
     final selectedIndex = iconSource != null ? iconSourceList.indexOf(iconSource) : null;
-    final result = await MyBottomSheet.showDraggableBottomSheet<SignerSource?>(
+    SignerSource? result;
+    await MyBottomSheet.showDraggableBottomSheet<SignerSource?>(
       context: context,
       showDragHandle: false,
       maxChildSize: 0.45,
@@ -290,10 +291,41 @@ class _WalletInfoLayoutState extends State<WalletInfoLayout> {
           (context) => SelectExternalWalletBottomSheet(
             externalWalletButtonList: externalWalletButtonList,
             selectedIndex: selectedIndex,
+            onSelected: (selectedIndex) {
+              result = _getSignerSourceByIconSource(externalWalletButtonList, selectedIndex);
+
+              if (result == null) {
+                return;
+              }
+              viewModel.updateSignerSource(index, result!);
+            },
           ),
     );
-    if (result != null) {
-      viewModel.updateSignerSource(index, result);
+  }
+
+  SignerSource? _getSignerSourceByIconSource(List<ExternalWalletButton> externalWalletButtonList, int selectedIndex) {
+    if (selectedIndex >= externalWalletButtonList.length) {
+      return null;
+    }
+
+    final selectedButton = externalWalletButtonList[selectedIndex];
+    final iconSource = selectedButton.iconSource;
+
+    switch (iconSource) {
+      case kCoconutVaultIconPath:
+        return SignerSource.coconutvault;
+      case kKeystoneIconPath:
+        return SignerSource.keystone3pro;
+      case kSeedSignerIconPath:
+        return SignerSource.seedsigner;
+      case kJadeIconPath:
+        return SignerSource.jade;
+      case kColdCardIconPath:
+        return SignerSource.coldcard;
+      case kKruxIconPath:
+        return SignerSource.krux;
+      default:
+        return null;
     }
   }
 
@@ -572,7 +604,7 @@ class _WalletInfoLayoutState extends State<WalletInfoLayout> {
                 );
               }
             } else {
-              _showNameEditBottomSheet(signer, index);
+              _showMemoEditBottomSheet(signer, index);
             }
           },
           child: _buildSignerCard(signer, index),
@@ -640,7 +672,7 @@ class _WalletInfoLayoutState extends State<WalletInfoLayout> {
                                     child: _buildMfpAndDerivationPath(
                                       signer.keyStore.masterFingerprint,
                                       signer.getSignerDerivationPath(),
-                                      name: signer.getSignerName(),
+                                      memo: signer.memo,
                                       isLeftAlign: true,
                                     ),
                                   ),
@@ -662,19 +694,19 @@ class _WalletInfoLayoutState extends State<WalletInfoLayout> {
     return Text(name ?? '', style: CoconutTypography.body2_14, maxLines: 1, overflow: TextOverflow.ellipsis);
   }
 
-  Widget _buildMfpAndDerivationPath(String mfp, String derivationPath, {String? name, bool isLeftAlign = false}) {
+  Widget _buildMfpAndDerivationPath(String mfp, String derivationPath, {String? memo, bool isLeftAlign = false}) {
     return Column(
       crossAxisAlignment: isLeftAlign ? CrossAxisAlignment.start : CrossAxisAlignment.end,
       children: [
         Text(mfp, style: CoconutTypography.body2_14_Number),
-        name != null
+        memo != null && memo.isNotEmpty
             ? Row(
               mainAxisAlignment: isLeftAlign ? MainAxisAlignment.start : MainAxisAlignment.end,
               children: [
                 Text('$derivationPath • ', style: CoconutTypography.body3_12.setColor(CoconutColors.gray600)),
                 Expanded(
                   child: Text(
-                    name,
+                    memo,
                     style: CoconutTypography.body3_12.setColor(CoconutColors.gray600),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,

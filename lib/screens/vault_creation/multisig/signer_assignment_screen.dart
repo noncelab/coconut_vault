@@ -25,18 +25,18 @@ class AssignedVaultListItem {
   int index;
   String? bsms;
   SingleSigVaultListItem? item;
-  String? signerName;
+  String? memo;
   SignerSource? signerSource;
   ImportKeyType? importKeyType;
 
   AssignedVaultListItem({required this.index, required this.importKeyType, required this.item, this.bsms});
   void reset() {
-    bsms = item = importKeyType = signerName = signerSource = null;
+    bsms = item = importKeyType = memo = signerSource = null;
   }
 
   @override
   String toString() =>
-      '[index]: ${t.multisig.nth_key(index: index + 1)}\n[item]: ${item.toString()}\nsignerName: $signerName\nsignerSource: $signerSource';
+      '[index]: ${t.multisig.nth_key(index: index + 1)}\n[item]: ${item.toString()}\nmemo: $memo\nsignerSource: $signerSource';
 }
 
 enum DialogType {
@@ -245,7 +245,7 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
                                                                   viewModel.assignedVaultList[i].importKeyType ==
                                                                           ImportKeyType.internal
                                                                       ? _viewModel.assignedVaultList[i].item!.name
-                                                                      : _viewModel.getExternalSignerDisplayName(i) ??
+                                                                      : _viewModel.getExternalSignerMemo(i) ??
                                                                           t.external_wallet,
                                                               index: _viewModel.assignedVaultList[i].index + 1,
                                                             ),

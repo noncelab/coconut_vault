@@ -46,7 +46,7 @@ class _VaultNameAndIconSetupScreenState extends State<VaultNameAndIconSetupScree
     _walletProvider = Provider.of<WalletProvider>(context, listen: false);
     _walletProvider.isVaultListLoadingNotifier.addListener(_onVaultListLoading);
     _walletCreationProvider = Provider.of<WalletCreationProvider>(context, listen: false);
-    inputText = _walletCreationProvider.externalSigner?.signerName ?? widget.name;
+    inputText = widget.name;
     selectedIconIndex = widget.iconIndex;
     selectedColorIndex = widget.colorIndex;
     _controller.text = inputText;

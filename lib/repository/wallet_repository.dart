@@ -178,7 +178,7 @@ class WalletRepository {
             ..name = singlesigItem.name
             ..iconIndex = singlesigItem.iconIndex
             ..colorIndex = singlesigItem.colorIndex
-            ..signerName = null
+            ..memo = null
             ..signerSource = null;
 
           // 싱글시그 지갑 정보 변경
@@ -421,10 +421,10 @@ class WalletRepository {
     return list[idx];
   }
 
-  Future<MultisigVaultListItem> updateExternalSignerName(int walletId, int signerIndex, String? newName) async {
+  Future<MultisigVaultListItem> updateExternalSignerMemo(int walletId, int signerIndex, String? newMemo) async {
     var wallet = getVaultById(walletId);
     assert(wallet != null);
-    (wallet as MultisigVaultListItem).signers[signerIndex].signerName = newName;
+    (wallet as MultisigVaultListItem).signers[signerIndex].memo = newMemo;
 
     await _savePublicInfo();
     return wallet;

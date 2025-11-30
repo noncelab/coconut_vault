@@ -133,7 +133,7 @@ class SignerAssignmentViewModel extends ChangeNotifier {
               id: i,
               signerBsms: _assignedVaultList[i].bsms!,
               name: _assignedVaultList[i].bsms?.split('\n')[3] ?? '',
-              signerName: _assignedVaultList[i].signerName,
+              memo: _assignedVaultList[i].memo,
               signerSource: _assignedVaultList[i].signerSource,
               keyStore: keyStores[i],
             ),
@@ -188,20 +188,20 @@ class SignerAssignmentViewModel extends ChangeNotifier {
     ImportKeyType importKeyType,
     bool isExpanded,
     String bsms,
-    String? signerName,
+    String? memo,
     SignerSource? signerSource,
   ) {
-    String? normalizedName;
-    if (signerName != null && signerName.trim().isEmpty) {
-      normalizedName = null;
+    String? normalizedMemo;
+    if (memo != null && memo.trim().isEmpty) {
+      normalizedMemo = null;
     } else {
-      normalizedName = signerName;
+      normalizedMemo = memo;
     }
     // 외부 지갑 추가
     assignedVaultList[index]
       ..importKeyType = importKeyType
       ..bsms = bsms
-      ..signerName = normalizedName
+      ..memo = normalizedMemo
       ..signerSource = signerSource;
 
     notifyListeners();
@@ -242,12 +242,12 @@ class SignerAssignmentViewModel extends ChangeNotifier {
     _unselectedSignerOptions = _signerOptions.toList();
   }
 
-  String? getExternalSignerDisplayName(int index) {
+  String? getExternalSignerMemo(int index) {
     assert(assignedVaultList[index].importKeyType == ImportKeyType.external);
     assert(assignedVaultList[index].bsms != null);
 
-    if (assignedVaultList[index].signerName != null) {
-      return assignedVaultList[index].signerName;
+    if (assignedVaultList[index].memo != null) {
+      return assignedVaultList[index].memo;
     }
 
     var splited = assignedVaultList[index].bsms!.split('\n');

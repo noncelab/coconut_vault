@@ -4,25 +4,25 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class MultisigSignerNameBottomSheet extends StatefulWidget {
-  final String? name;
+  final String? memo;
   final Function(String) onUpdate;
   final bool? autofocus;
 
-  const MultisigSignerNameBottomSheet({super.key, required this.onUpdate, required this.name, this.autofocus = false});
+  const MultisigSignerNameBottomSheet({super.key, required this.onUpdate, required this.memo, this.autofocus = false});
 
   @override
   State<MultisigSignerNameBottomSheet> createState() => _MultisigSignerNameBottomSheetState();
 }
 
 class _MultisigSignerNameBottomSheetState extends State<MultisigSignerNameBottomSheet> {
-  late String _name;
+  late String _memo;
   bool hasChanged = false;
   final TextEditingController _controller = TextEditingController();
 
   @override
   void initState() {
-    _controller.text = widget.name ?? '';
-    _name = widget.name ?? '';
+    _controller.text = widget.memo ?? '';
+    _memo = widget.memo ?? '';
     super.initState();
   }
 
@@ -49,10 +49,10 @@ class _MultisigSignerNameBottomSheetState extends State<MultisigSignerNameBottom
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 Center(
-                  child: Text(t.multi_sig_name_bottom_sheet.imported_wallet_name, style: CoconutTypography.heading4_18),
+                  child: Text(t.multi_sig_memo_bottom_sheet.imported_wallet_memo, style: CoconutTypography.heading4_18),
                 ),
 
-                const SizedBox(height: 16),
+                CoconutLayout.spacing_500h,
 
                 // TextField
                 Container(
@@ -63,7 +63,7 @@ class _MultisigSignerNameBottomSheetState extends State<MultisigSignerNameBottom
                   child: CupertinoTextField(
                     autofocus: widget.autofocus ?? false,
                     controller: _controller,
-                    placeholder: t.multi_sig_name_bottom_sheet.placeholder,
+                    placeholder: t.multi_sig_memo_bottom_sheet.placeholder,
                     padding: const EdgeInsets.fromLTRB(16, 20, 16, 20),
                     style: CoconutTypography.body1_16,
                     placeholderStyle: CoconutTypography.body2_14.setColor(CoconutColors.black.withValues(alpha: 0.3)),
@@ -72,7 +72,7 @@ class _MultisigSignerNameBottomSheetState extends State<MultisigSignerNameBottom
                     clearButtonMode: OverlayVisibilityMode.always,
                     onChanged: (text) {
                       setState(() {
-                        _name = text;
+                        _memo = text;
                       });
                     },
                   ),
@@ -84,9 +84,9 @@ class _MultisigSignerNameBottomSheetState extends State<MultisigSignerNameBottom
                   child: Padding(
                     padding: const EdgeInsets.only(top: 4, right: 4),
                     child: Text(
-                      '(${_name.length} / 20)',
+                      '${_memo.length} / 20',
                       style: CoconutTypography.body3_12.setColor(
-                        _name.length == 20
+                        _memo.length == 20
                             ? CoconutColors.black.withValues(alpha: 0.7)
                             : CoconutColors.black.withValues(alpha: 0.5),
                       ),
@@ -111,24 +111,26 @@ class _MultisigSignerNameBottomSheetState extends State<MultisigSignerNameBottom
                             color: CoconutColors.gray150,
                             borderRadius: BorderRadius.circular(5),
                           ),
-                          child: const Center(
+                          child: Center(
                             child: Text(
-                              '닫기',
-                              style: TextStyle(color: CoconutColors.black, fontSize: 14, fontWeight: FontWeight.bold),
+                              t.close,
+                              style: const TextStyle(
+                                color: CoconutColors.black,
+                                fontSize: 14,
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
                           ),
                         ),
                       ),
                     ),
-
                     const SizedBox(width: 8),
-
                     // 완료 버튼
                     Expanded(
                       child: GestureDetector(
                         onTap: () {
                           FocusScope.of(context).unfocus();
-                          widget.onUpdate(_name);
+                          widget.onUpdate(_memo);
                         },
                         child: Container(
                           padding: const EdgeInsets.symmetric(vertical: 16),
@@ -139,7 +141,7 @@ class _MultisigSignerNameBottomSheetState extends State<MultisigSignerNameBottom
                               style: TextStyle(
                                 color: CoconutColors.white,
                                 fontSize: 14,
-                                fontWeight: _name.isNotEmpty ? FontWeight.bold : FontWeight.normal,
+                                fontWeight: _memo.isNotEmpty ? FontWeight.bold : FontWeight.normal,
                               ),
                             ),
                           ),
@@ -174,7 +176,7 @@ class MemoTextField extends StatelessWidget {
       ),
       child: CupertinoTextField(
         controller: controller,
-        placeholder: t.multi_sig_name_bottom_sheet.placeholder,
+        placeholder: t.multi_sig_memo_bottom_sheet.placeholder,
         padding: const EdgeInsets.fromLTRB(16, 20, 16, 20),
         style: CoconutTypography.body1_16,
         placeholderStyle: CoconutTypography.body2_14.setColor(CoconutColors.black.withValues(alpha: 0.3)),

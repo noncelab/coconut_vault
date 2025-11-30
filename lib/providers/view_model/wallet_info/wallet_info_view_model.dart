@@ -138,9 +138,9 @@ class WalletInfoViewModel extends ChangeNotifier {
             : innerVaultCount;
   }
 
-  Future<void> updateOutsideVaultName(int signerIndex, String? name) async {
-    if ((vaultItem as MultisigVaultListItem).signers[signerIndex].signerName != name) {
-      await walletProvider.updateExternalSignerName(vaultItem.id, signerIndex, name);
+  Future<void> updateOutsideVaultMemo(int signerIndex, String? memo) async {
+    if ((vaultItem as MultisigVaultListItem).signers[signerIndex].memo != memo) {
+      await walletProvider.updateExternalSignerMemo(vaultItem.id, signerIndex, memo);
       notifyListeners();
     }
   }

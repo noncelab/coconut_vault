@@ -206,9 +206,9 @@ class WalletProvider extends ChangeNotifier {
   }
 
   /// 다중서명 지갑의 [singerIndex]번째 키로 사용한 외부 지갑의 이름을 업데이트
-  Future updateExternalSignerName(int id, int signerIndex, String? newName) async {
+  Future updateExternalSignerMemo(int id, int signerIndex, String? newMemo) async {
     int index = _vaultList.indexWhere((wallet) => wallet.id == id);
-    _vaultList[index] = await _walletRepository.updateExternalSignerName(id, signerIndex, newName);
+    _vaultList[index] = await _walletRepository.updateExternalSignerMemo(id, signerIndex, newMemo);
   }
 
   /// 다중서명 지갑의 [singerIndex]번째 키로 사용한 외부 지갑의 출처를 업데이트
