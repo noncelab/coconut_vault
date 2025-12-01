@@ -553,20 +553,9 @@ export_detail_screen:
   title: "エクスポート詳細"
   info_copied: "詳細をコピーしました"
 coordinator_bsms_qr_screen:
-  bottom_sheet:
-    title: "ウォレット詳細"
-    info_copied: "ウォレット詳細をコピーしました"
-  title: "ウォレット設定情報"
   guide:
     text1: "他のボルトにこのウォレットを共有します。"
     text2: "すべてのキーはボルトに保存されています。"
-    text3: "同じキーを保存している他のボルトもこのQRを読み取ってマルチシグウォレットを追加できます。"
-    text4: "このマルチシグウォレットに指定された**$gen**キーのニーモニックフレーズは現在他のボルトにあります。"
-    text5: "**$gen**キー保存ウォレット - 下記のQRコードを**マルチシグウォレットインポート**で読み取ってください。この手順は**$gen**キーでマルチシグトランザクションに署名するために絶対に必要です。"
-  first_key: "$first"
-  first_and_last_keys: "$firstと$last"
-  first_or_last_key: "$firstまたは$last"
-  view_detail: "詳細表示"
 multi_sig_memo_bottom_sheet:
   imported_wallet_memo: "外部ウォレットメモ"
   placeholder: "メモを書いてください。"
@@ -610,7 +599,7 @@ sync_to_wallet_screen:
   title: "$name エクスポート"
   guide: 
     multisig: "Multisig"
-    coconut: "ホーム画面でウォレット追加アイコンを選択"
+    coconut: "ウォレット追加アイコン"
     sparrow_singlesig:
       guide0_1: "メニューから"
       guide1_1: "Import Wallet"

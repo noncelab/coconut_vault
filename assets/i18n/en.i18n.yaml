@@ -552,20 +552,9 @@ export_detail_screen:
   title: "Export Details"
   info_copied: "Details copied"
 coordinator_bsms_qr_screen:
-  bottom_sheet:
-    title: "Wallet Details (BSMS)"
-    info_copied: "Wallet details copied"
-  title: "Multisig Wallet Export"
   guide:
-    text1: "Share this wallet with other vaults."
+    text1: "Share this wallet so it can be used on other vaults."
     text2: "This wallet follows the standards (BIP-129, BSMS) for secure multi-signature management."
-    text3: "All the keys required for signing are securely stored in this vault."
-    text4: "The $gen key required for this multi-signature wallet is currently stored in another vault."
-    text5: "In the vault that holds the $gen key, select Import Multi-Signature Wallet and then scan the QR code below."
-  first_key: "$first"
-  first_and_last_keys: "$first and $last"
-  first_or_last_key: "$first or $last"
-  view_detail: "View Details"
 multi_sig_memo_bottom_sheet:
   imported_wallet_memo: "External Wallet Memo"
   placeholder: "Write memo."
@@ -574,12 +563,12 @@ multi_sig_setting_screen:
   add_memo: "Add Memo"
   export_menu: 
     export_wallet: "Export Wallet"
-    share_bsms: "Share with Other Vault"
-    share_bsms_description: "Share this wallet with other vaults."
+    share_bsms: "Share with Other Vaults"
+    share_bsms_description: "Share this wallet with other vaults"
     export_watch_only_wallet: "Export to Watch-Only Wallet"
-    export_watch_only_wallet_description: "Export a watch-only wallet that only allows viewing balances and addresses."
+    export_watch_only_wallet_description: "Export a watch-only wallet that can view balances and addresses only"
     backup_wallet_data: "Backup Wallet Data"
-    backup_wallet_data_description: "Backup the BSMS data required for wallet recovery in case of loss or device change."
+    backup_wallet_data_description: "Back up the BSMS data needed to recover your wallet in case of loss or device change"
   tooltip: 
     one: "Multisig wallet requiring $n signature\nout of $total keys."
     other: "Multisig wallet requiring $n signatures\nout of $total keys."
@@ -609,7 +598,7 @@ sync_to_wallet_screen:
   title: "Export $name"
   guide:
     multisig: "Multisig"
-    coconut: "Select the Add Wallet icon on the home screen"
+    coconut: " the Add Wallet icon on the home screen"
     sparrow_singlesig:
       guide0_1: "From the menu"
       guide1_1: "Import Wallet"
@@ -629,7 +618,7 @@ sync_to_wallet_screen:
       guide1_1: "Click the + button in the upper right corner on the home screen"
       guide2_1: "Import Wallet"
       guide3_1: "Scan or import a file"
-    common: "Scan the QR code below"
+    common: "Scan the QR code below."
 vault_menu_screen:
   export_wallet: "Export Wallet"
   view_xpub: "View Extended Public Key"

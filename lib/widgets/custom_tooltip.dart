@@ -7,7 +7,7 @@ class CustomTooltip {
     BuildContext context, {
     required RichText richText,
     bool isBackgroundWhite = true,
-    double paddingTop = 20,
+    double paddingTop = 4,
   }) {
     return Padding(
       padding: EdgeInsets.only(top: paddingTop, left: 16, right: 16),

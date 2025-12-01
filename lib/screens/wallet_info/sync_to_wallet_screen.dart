@@ -113,13 +113,29 @@ class _SyncToWalletScreenState extends State<SyncToWalletScreen> {
     final language = Provider.of<VisibilityProvider>(context, listen: false).language;
 
     if (widget.syncOption.title == t.coconut) {
-      return [
-        em(t.watch_only_options.coconut_wallet),
-        const TextSpan(text: '\n'),
-        em(t.sync_to_wallet_screen.guide.coconut),
-        const TextSpan(text: '\n'),
-        TextSpan(text: t.sync_to_wallet_screen.guide.common),
-      ];
+      switch (language) {
+        case 'en':
+          return [
+            em(t.watch_only_options.coconut_wallet),
+            const TextSpan(text: '\n'),
+            const TextSpan(text: '1. '),
+            TextSpan(text: t.select),
+            em(t.sync_to_wallet_screen.guide.coconut),
+            const TextSpan(text: '\n'),
+            TextSpan(text: t.sync_to_wallet_screen.guide.common),
+          ];
+        case 'kr':
+        default:
+          return [
+            em(t.watch_only_options.coconut_wallet),
+            const TextSpan(text: '\n'),
+            const TextSpan(text: '1. '),
+            em(t.sync_to_wallet_screen.guide.coconut),
+            TextSpan(text: t.select),
+            const TextSpan(text: '\n'),
+            TextSpan(text: t.sync_to_wallet_screen.guide.common),
+          ];
+      }
     } else if (widget.syncOption.title == t.watch_only_options.sparrow) {
       switch (language) {
         case 'en':

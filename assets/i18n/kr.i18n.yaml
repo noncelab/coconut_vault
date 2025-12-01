@@ -553,20 +553,11 @@ export_detail_screen:
   title: "내보내기 상세 정보"
   info_copied: "상세 정보가 복사됐어요"
 coordinator_bsms_qr_screen:
-  bottom_sheet:
-    title: "지갑 상세 정보"
-    info_copied: "지갑 상세 정보가 복사됐어요"
-  title: "다른 볼트로 내보내기"
   guide:
     text1: "다른 볼트에서 이 지갑을 사용할 수 있도록 공유합니다."
     text2: "이 지갑은 안전한 다중 서명 관리를 위해 표준(BIP-129, BSMS)을 따릅니다."
     text3: "서명에 필요한 모든 키가 이 볼트에 안전하게 보관되어 있습니다."
     text4: "이 다중 서명 지갑에 필요한 **$gen** 키는 현재 다른 볼트에 보관되어 있습니다."
-    text5: "**$gen** 키가 있는 볼트에서 **다중 서명 지갑 가져오기**를 선택한 후, 아래 QR 코드를 스캔하세요."
-  first_key: "$first번"
-  first_and_last_keys: "$first번과 $last번"
-  first_or_last_key: "$first번 또는 $last번"
-  view_detail: "상세 정보 보기"
 multi_sig_memo_bottom_sheet:
   imported_wallet_memo: "외부 지갑 메모"
   placeholder: "메모를 작성해주세요."
@@ -610,7 +601,7 @@ sync_to_wallet_screen:
   title: "$name 내보내기"
   guide:
     multisig: "Multisig"
-    coconut: "홈 화면에서 지갑 추가 아이콘 선택"
+    coconut: "홈 화면에서 지갑 추가 아이콘 "
     sparrow_singlesig:
       guide0_1: "메뉴에서"
       guide1_1: "Import Wallet"
@@ -630,7 +621,7 @@ sync_to_wallet_screen:
       guide1_1: "홈 화면에서 우측 상단 + 클릭"
       guide2_1: "Import Wallet"
       guide3_1: "Scan or import a file"
-    common: "아래 QR 코드를 스캔해 주세요"
+    common: "아래 QR 코드를 스캔해 주세요."
 
 vault_menu_screen:
   export_wallet: "지갑 내보내기"

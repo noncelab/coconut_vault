@@ -31,25 +31,13 @@ class CoordinatorBsmsQrScreen extends StatelessWidget {
   Widget _buildDescriptionBsms(CoordinatorBsmsQrViewModel viewModel) {
     return Container(
       decoration: BoxDecoration(color: CoconutColors.gray150, borderRadius: BorderRadius.circular(10)),
-      margin: const EdgeInsets.all(16),
+      margin: const EdgeInsets.only(top: 4, bottom: 16),
       padding: const EdgeInsets.all(16),
       child: Column(
         children: [
           tooltipDescription(t.coordinator_bsms_qr_screen.guide.text1),
           const SizedBox(height: 4),
           tooltipDescription(t.coordinator_bsms_qr_screen.guide.text2),
-          const SizedBox(height: 4),
-          if (viewModel.outsideWalletIdList.isEmpty) ...[
-            tooltipDescription(t.coordinator_bsms_qr_screen.guide.text3),
-          ] else ...{
-            tooltipDescription(
-              t.coordinator_bsms_qr_screen.guide.text4(gen: viewModel.generateOutsideWalletDescription(isAnd: true)),
-            ),
-            const SizedBox(height: 4),
-            tooltipDescription(
-              t.coordinator_bsms_qr_screen.guide.text5(gen: viewModel.generateOutsideWalletDescription()),
-            ),
-          },
         ],
       ),
     );
