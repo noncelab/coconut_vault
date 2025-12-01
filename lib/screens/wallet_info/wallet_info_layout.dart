@@ -247,7 +247,6 @@ class _WalletInfoLayoutState extends State<WalletInfoLayout> {
       builder:
           (context) => MultisigSignerNameBottomSheet(
             memo: selectedMemo,
-            autofocus: true,
             onUpdate: (newMemo) async {
               final navigator = Navigator.of(context);
               if (newMemo.trim() != selectedMemo.trim()) {
