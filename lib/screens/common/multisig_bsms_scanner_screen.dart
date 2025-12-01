@@ -11,7 +11,6 @@ import 'package:coconut_vault/model/exception/not_related_multisig_wallet_except
 import 'package:coconut_vault/providers/app_lifecycle_state_provider.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:coconut_vault/providers/visibility_provider.dart';
-import 'package:coconut_vault/utils/alert_util.dart';
 import 'package:coconut_vault/widgets/custom_tooltip.dart';
 import 'package:coconut_vault/widgets/overlays/scanner_overlay.dart';
 import 'package:flutter/material.dart';
@@ -85,6 +84,7 @@ class _MultisigBsmsScannerScreenState extends State<MultisigBsmsScannerScreen> {
   void dispose() {
     _scanSubscription?.cancel();
     _controller?.removeListener(_onCameraStateChanged);
+    _controller?.dispose();
     if (_appLifecycleStateProvider.ignoredOperations.contains(AppLifecycleOperations.cameraAuthRequest)) {
       _appLifecycleStateProvider.endOperation(AppLifecycleOperations.cameraAuthRequest);
     }
@@ -92,17 +92,21 @@ class _MultisigBsmsScannerScreenState extends State<MultisigBsmsScannerScreen> {
   }
 
   void onFailedScanning(String message) {
-    showAlertDialog(
+    showDialog(
       context: context,
-      content: message,
-      onConfirmPressed: () {
-        _controller?.start().then((_) {
-          if (!mounted) return;
-          setState(() {
-            _isProcessing = false;
-          });
-        });
-      },
+      builder:
+          (context) => CoconutPopup(
+            title: t.errors.scan_error_title,
+            description: message,
+            rightButtonText: t.confirm,
+            onTapRight: () {
+              Navigator.pop(context);
+              if (!mounted) return;
+              setState(() {
+                _isProcessing = false;
+              });
+            },
+          ),
     );
   }
 
@@ -164,8 +168,6 @@ class _MultisigBsmsScannerScreenState extends State<MultisigBsmsScannerScreen> {
       _isProcessing = true;
     });
 
-    _controller?.pause();
-
     final codes = capture.barcodes;
     if (codes.isEmpty) return;
 
@@ -195,8 +197,6 @@ class _MultisigBsmsScannerScreenState extends State<MultisigBsmsScannerScreen> {
     setState(() {
       _isProcessing = true;
     });
-
-    _controller?.pause();
 
     final codes = capture.barcodes;
     if (codes.isEmpty) return;
