@@ -51,7 +51,7 @@ class _MultisigSignerNameBottomSheetState extends State<MultisigSignerNameBottom
           child: Padding(
             padding: const EdgeInsets.all(16),
             child: Column(
-              mainAxisSize: MainAxisSize.min, // 컨텐츠 크기에 맞추기
+              mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 Center(

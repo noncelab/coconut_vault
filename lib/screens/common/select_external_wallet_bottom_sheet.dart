@@ -39,6 +39,7 @@ class _SelectExternalWalletBottomSheetState extends State<SelectExternalWalletBo
         customTitle: Text(t.multi_sig_setting_screen.add_icon.title, style: CoconutTypography.body1_16_Bold),
         context: context,
         isBottom: true,
+        height: kToolbarHeight,
         backgroundColor: CoconutColors.white,
       ),
       body: SafeArea(
