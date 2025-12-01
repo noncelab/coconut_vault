@@ -122,8 +122,8 @@ class _MultisigBsmsScannerScreenState extends State<MultisigBsmsScannerScreen> {
       appBar: CoconutAppBar.build(
         title:
             _isSignerAssignmentContext
-                ? t.signer_scanner_screen.import_bsms
-                : t.signer_scanner_screen.import_multisig_wallet,
+                ? t.bsms_scanner_screen.import_bsms
+                : t.bsms_scanner_screen.import_multisig_wallet,
         context: context,
         isBottom: true,
         isBackButton: widget.screenType == MultisigBsmsImportType.copy,
@@ -262,21 +262,21 @@ class _MultisigBsmsScannerScreenState extends State<MultisigBsmsScannerScreen> {
         case 'en':
           return [
             TextSpan(
-              text: t.signer_scanner_screen.guide1_1,
+              text: t.bsms_scanner_screen.guide1_1,
               style: CoconutTypography.body2_14.setColor(CoconutColors.black),
               children: <TextSpan>[
-                buildTextSpan(' ${t.signer_scanner_screen.guide1_2}'),
+                buildTextSpan(' ${t.bsms_scanner_screen.guide1_2}'),
                 buildTextSpan('\n'),
                 buildTextSpan('1. '),
-                buildTextSpan(t.signer_scanner_screen.select),
-                buildTextSpan(t.signer_scanner_screen.guide1_3, isBold: true),
+                buildTextSpan(t.bsms_scanner_screen.select),
+                buildTextSpan(t.bsms_scanner_screen.guide1_3, isBold: true),
                 buildTextSpan('\n'),
                 buildTextSpan('2. '),
-                buildTextSpan(t.signer_scanner_screen.select),
-                buildTextSpan(t.signer_scanner_screen.guide1_4),
+                buildTextSpan(t.bsms_scanner_screen.select),
+                buildTextSpan(t.bsms_scanner_screen.guide1_4),
                 buildTextSpan('\n'),
                 buildTextSpan('3. '),
-                buildTextSpan(t.signer_scanner_screen.guide1_5),
+                buildTextSpan(t.bsms_scanner_screen.guide1_5),
               ],
             ),
           ];
@@ -284,21 +284,21 @@ class _MultisigBsmsScannerScreenState extends State<MultisigBsmsScannerScreen> {
         default:
           return [
             TextSpan(
-              text: t.signer_scanner_screen.guide1_1,
+              text: t.bsms_scanner_screen.guide1_1,
               style: CoconutTypography.body2_14.setColor(CoconutColors.black),
               children: <TextSpan>[
-                buildTextSpan(' ${t.signer_scanner_screen.guide1_2}'),
+                buildTextSpan(' ${t.bsms_scanner_screen.guide1_2}'),
                 buildTextSpan('\n'),
                 buildTextSpan('1. '),
-                buildTextSpan(t.signer_scanner_screen.guide1_3, isBold: true),
-                buildTextSpan(t.signer_scanner_screen.select),
+                buildTextSpan(t.bsms_scanner_screen.guide1_3, isBold: true),
+                buildTextSpan(t.bsms_scanner_screen.select),
                 buildTextSpan('\n'),
                 buildTextSpan('2. '),
-                buildTextSpan(t.signer_scanner_screen.guide1_4),
-                buildTextSpan(t.signer_scanner_screen.select),
+                buildTextSpan(t.bsms_scanner_screen.guide1_4),
+                buildTextSpan(t.bsms_scanner_screen.select),
                 buildTextSpan('\n'),
                 buildTextSpan('3. '),
-                buildTextSpan(t.signer_scanner_screen.guide1_5),
+                buildTextSpan(t.bsms_scanner_screen.guide1_5),
               ],
             ),
           ];
@@ -308,19 +308,19 @@ class _MultisigBsmsScannerScreenState extends State<MultisigBsmsScannerScreen> {
         case 'en':
           return [
             TextSpan(
-              text: t.signer_scanner_screen.guide2_1,
+              text: t.bsms_scanner_screen.guide2_1,
               style: CoconutTypography.body2_14.setColor(CoconutColors.black),
               children: <TextSpan>[
                 buildTextSpan('\n'),
                 buildTextSpan('1. '),
-                buildTextSpan(t.signer_scanner_screen.select),
-                buildTextSpan(t.signer_scanner_screen.guide2_2),
+                buildTextSpan(t.bsms_scanner_screen.select),
+                buildTextSpan(t.bsms_scanner_screen.guide2_2),
                 buildTextSpan('\n'),
                 buildTextSpan('2. '),
-                buildTextSpan(t.signer_scanner_screen.select),
-                buildTextSpan(t.signer_scanner_screen.guide2_3, isBold: true),
+                buildTextSpan(t.bsms_scanner_screen.select),
+                buildTextSpan(t.bsms_scanner_screen.guide2_3, isBold: true),
                 buildTextSpan('\n'),
-                buildTextSpan(t.signer_scanner_screen.guide2_4),
+                buildTextSpan(t.bsms_scanner_screen.guide2_4),
               ],
             ),
           ];
@@ -328,19 +328,19 @@ class _MultisigBsmsScannerScreenState extends State<MultisigBsmsScannerScreen> {
         default:
           return [
             TextSpan(
-              text: t.signer_scanner_screen.guide2_1,
+              text: t.bsms_scanner_screen.guide2_1,
               style: CoconutTypography.body2_14.setColor(CoconutColors.black),
               children: <TextSpan>[
                 buildTextSpan('\n'),
                 buildTextSpan('1. '),
-                buildTextSpan(t.signer_scanner_screen.guide2_2),
-                buildTextSpan(t.signer_scanner_screen.select),
+                buildTextSpan(t.bsms_scanner_screen.guide2_2),
+                buildTextSpan(t.bsms_scanner_screen.select),
                 buildTextSpan('\n'),
                 buildTextSpan('2. '),
-                buildTextSpan(t.signer_scanner_screen.guide2_3, isBold: true),
-                buildTextSpan(t.signer_scanner_screen.select),
+                buildTextSpan(t.bsms_scanner_screen.guide2_3, isBold: true),
+                buildTextSpan(t.bsms_scanner_screen.select),
                 buildTextSpan('\n'),
-                buildTextSpan(t.signer_scanner_screen.guide2_4),
+                buildTextSpan(t.bsms_scanner_screen.guide2_4),
               ],
             ),
           ];
