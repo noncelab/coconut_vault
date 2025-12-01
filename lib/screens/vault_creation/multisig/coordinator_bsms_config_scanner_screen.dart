@@ -89,6 +89,22 @@ class _CoordinatorBsmsConfigScannerScreenState extends BsmsScannerBase<Coordinat
     //   return;
     // }
 
+    // if (normalizedMultisigConfig.name == 'mt') {
+    //   Navigator.pushReplacementNamed(context, AppRoutes.multisigSetupInfo, arguments: {'id': 6});
+    // } else {
+    //   await showDialog(
+    //     context: context,
+    //     builder:
+    //         (context) => CoconutPopup(
+    //           title: t.coordinator_bsms_config_scanner_screen.error_title,
+    //           description: t.coordinator_bsms_config_scanner_screen.error_message,
+    //           onTapRight: () {
+    //             Navigator.of(context).pop();
+    //           },
+    //         ),
+    //   );
+    // }
+
     try {
       // 이 화면이 어느 Vault에 속한 건지에 대한 id는
       // 라우팅 아규먼트나 Provider 등으로 주입해야 함.
@@ -105,6 +121,9 @@ class _CoordinatorBsmsConfigScannerScreenState extends BsmsScannerBase<Coordinat
       //   (Route<dynamic> route) => false,
       //   arguments: VaultHomeNavArgs(addedWalletId: vault.id),
       // );
+
+      // final args = ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
+      // final currentVaultId = args?['vaultId'] as int? ?? 1;
     } catch (e) {
       if (e is NotRelatedMultisigWalletException) {
         onFailedScanning(e.message);

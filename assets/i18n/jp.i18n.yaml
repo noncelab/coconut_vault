@@ -541,6 +541,8 @@ bsms_scanner_base:
 coordinator_bsms_config_scanner_screen:
   guide1: "Coconut Vault は、安全なマルチシグ管理標準である BSMS（BIP-129） をサポートしています。"
   guide2: "BSMS QRコードをスキャンしてください。"
+  error_title: "形式が正しくありません"
+  error_message: "BSMSデータが無効です。正しいQRコードを再度スキャンしてください。"
 
 bsms_scanner_screen:
   import_bsms: "BSMSインポート"
