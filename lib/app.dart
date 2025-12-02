@@ -445,7 +445,7 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> with SingleTickerProv
                               context,
                               (args) => MnemonicImportScreen(
                                 externalSigner: args['externalSigner'],
-                                callBackFromVaultId: args['callBackFromVaultId'],
+                                multisigVaultIdOfExternalSigner: args['multisigVaultIdOfExternalSigner'],
                               ),
                             ),
                         AppRoutes.seedQrImport:
@@ -453,7 +453,7 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> with SingleTickerProv
                               context,
                               (args) => SeedQrImportScreen(
                                 externalSigner: args['externalSigner'],
-                                callBackFromVaultId: args['callBackFromVaultId'],
+                                multisigVaultIdOfExternalSigner: args['multisigVaultIdOfExternalSigner'],
                               ),
                             ),
                         AppRoutes.mnemonicConfirmation:

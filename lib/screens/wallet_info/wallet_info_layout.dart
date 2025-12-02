@@ -736,7 +736,8 @@ class _WalletInfoLayoutState extends State<WalletInfoLayout> {
           maxChildSize: 0.45,
           minChildSize: 0.2,
           initialChildSize: 0.45,
-          childBuilder: (context) => MultisigAddKeyOptionBottomSheet(signer: signer, callBackFromVaultId: widget.id),
+          childBuilder:
+              (context) => MultisigAddKeyOptionBottomSheet(signer: signer, multisigVaultIdOfExternalSigner: widget.id),
         );
 
         if (result != null) {
@@ -744,7 +745,10 @@ class _WalletInfoLayoutState extends State<WalletInfoLayout> {
           Navigator.pushNamed(
             context,
             result.nextRoute,
-            arguments: {'externalSigner': result.externalSigner, 'callBackFromVaultId': result.callBackFromVaultId},
+            arguments: {
+              'externalSigner': result.externalSigner,
+              'multisigVaultIdOfExternalSigner': result.multisigVaultIdOfExternalSigner,
+            },
           );
         }
       },
@@ -788,8 +792,8 @@ class SingleButtonData {
 
 class AddKeyArgs {
   final MultisigSigner externalSigner;
-  final int? callBackFromVaultId;
+  final int? multisigVaultIdOfExternalSigner;
   final String nextRoute;
 
-  const AddKeyArgs({required this.externalSigner, this.callBackFromVaultId, required this.nextRoute});
+  const AddKeyArgs({required this.externalSigner, this.multisigVaultIdOfExternalSigner, required this.nextRoute});
 }

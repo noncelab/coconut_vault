@@ -25,8 +25,8 @@ import 'package:provider/provider.dart';
 
 class MnemonicImportScreen extends StatefulWidget {
   final MultisigSigner? externalSigner;
-  final int? callBackFromVaultId;
-  const MnemonicImportScreen({super.key, this.externalSigner, this.callBackFromVaultId});
+  final int? multisigVaultIdOfExternalSigner;
+  const MnemonicImportScreen({super.key, this.externalSigner, this.multisigVaultIdOfExternalSigner});
 
   @override
   State<MnemonicImportScreen> createState() => _MnemonicImportScreenState();
@@ -615,7 +615,7 @@ class _MnemonicImportScreenState extends State<MnemonicImportScreen> {
             return;
           }
           _walletCreationProvider.setExternalSigner(widget.externalSigner!);
-          _walletCreationProvider.setCallBackFromVaultId(widget.callBackFromVaultId);
+          _walletCreationProvider.setMultisigVaultIdOfExternalSigner(widget.multisigVaultIdOfExternalSigner);
           _walletCreationProvider.setSecretAndPassphrase(mnemonicBytes, passphraseBytes);
           Navigator.pushNamed(
             context,

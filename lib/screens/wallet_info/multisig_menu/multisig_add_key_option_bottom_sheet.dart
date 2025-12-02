@@ -8,8 +8,8 @@ import 'package:flutter/material.dart';
 
 class MultisigAddKeyOptionBottomSheet extends StatelessWidget {
   final MultisigSigner signer;
-  final int? callBackFromVaultId;
-  const MultisigAddKeyOptionBottomSheet({super.key, required this.signer, this.callBackFromVaultId});
+  final int? multisigVaultIdOfExternalSigner;
+  const MultisigAddKeyOptionBottomSheet({super.key, required this.signer, this.multisigVaultIdOfExternalSigner});
 
   @override
   Widget build(BuildContext context) {
@@ -37,7 +37,7 @@ class MultisigAddKeyOptionBottomSheet extends StatelessWidget {
                     context,
                     AddKeyArgs(
                       externalSigner: signer,
-                      callBackFromVaultId: callBackFromVaultId,
+                      multisigVaultIdOfExternalSigner: multisigVaultIdOfExternalSigner,
                       nextRoute: AppRoutes.mnemonicImport,
                     ),
                   );
@@ -61,7 +61,7 @@ class MultisigAddKeyOptionBottomSheet extends StatelessWidget {
                     context,
                     AddKeyArgs(
                       externalSigner: signer,
-                      callBackFromVaultId: callBackFromVaultId,
+                      multisigVaultIdOfExternalSigner: multisigVaultIdOfExternalSigner,
                       nextRoute: AppRoutes.seedQrImport,
                     ),
                   );

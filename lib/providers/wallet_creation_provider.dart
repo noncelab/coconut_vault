@@ -61,7 +61,7 @@ class WalletCreationProvider {
     _externalSigner = externalSigner;
   }
 
-  void setCallBackFromVaultId(int? vaultId) {
+  void setMultisigVaultIdOfExternalSigner(int? vaultId) {
     _multisigVaultIdOfExternalSigner = vaultId;
   }
 
