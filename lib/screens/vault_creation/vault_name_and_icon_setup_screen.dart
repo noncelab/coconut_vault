@@ -39,6 +39,8 @@ class _VaultNameAndIconSetupScreenState extends State<VaultNameAndIconSetupScree
 
   // 초기화 여부 체크 플래그 (키보드가 올라올 때 등 화면이 갱신될 때 데이터가 리셋되는 것을 방지)
   bool _isInitialized = false;
+  // 자동 저장 실행 여부 플래그
+  bool _isAutoSaving = false;
 
   @override
   void initState() {
@@ -61,7 +63,7 @@ class _VaultNameAndIconSetupScreenState extends State<VaultNameAndIconSetupScree
 
     if (!_isInitialized) {
       final args = ModalRoute.of(context)?.settings.arguments;
-      bool shouldAutoSave = false; // 자동 저장 여부 플래그
+      bool shouldAutoSave = false;
 
       if (args != null && args is Map<String, dynamic>) {
         if (args.containsKey('name')) {
@@ -75,7 +77,7 @@ class _VaultNameAndIconSetupScreenState extends State<VaultNameAndIconSetupScree
           selectedColorIndex = args['colorIndex'] as int;
         }
 
-        // 이름이 비어있지 않다면 자동 저장을 수행하도록 설정
+        // 이름이 있으면 자동 저장 플래그 설정
         if (inputText.trim().isNotEmpty) {
           shouldAutoSave = true;
         }
@@ -83,23 +85,13 @@ class _VaultNameAndIconSetupScreenState extends State<VaultNameAndIconSetupScree
 
       _isInitialized = true;
 
-      // 자동 저장 로직 실행
       if (shouldAutoSave) {
-        // 현재 프레임(화면 그리기)이 끝난 직후 실행
+        _isAutoSaving = true;
+        // 화면이 다 그려진 직후 저장 로직 실행
         WidgetsBinding.instance.addPostFrameCallback((_) {
-          // 버튼 클릭 시의 로직과 동일하게 처리
           _closeKeyboard();
-
-          if (_walletProvider.isVaultListLoading) {
-            // 아직 지갑 목록을 불러오는 중이라면 로딩 화면만 띄우고
-            // 실제 저장은 _onVaultListLoading 리스너에서 처리됨
-            setState(() {
-              _showLoading = true;
-            });
-          } else {
-            // 로딩이 끝난 상태라면 즉시 저장 시도
-            saveNewVaultName(context);
-          }
+          // 여기서 saveNewVaultName을 호출하면 내부에서 _showLoading = true가 되면서 로딩 화면이 뜸
+          saveNewVaultName(context);
         });
       }
     }
@@ -137,6 +129,7 @@ class _VaultNameAndIconSetupScreenState extends State<VaultNameAndIconSetupScree
         CoconutToast.showToast(text: t.toast.name_already_used2, context: context, isVisibleIcon: true);
         setState(() {
           _showLoading = false;
+          _isAutoSaving = false;
         });
         return;
       }
@@ -213,6 +206,7 @@ class _VaultNameAndIconSetupScreenState extends State<VaultNameAndIconSetupScree
     } finally {
       setState(() {
         _showLoading = false;
+        _isAutoSaving = false;
       });
     }
   }
@@ -299,7 +293,7 @@ class _VaultNameAndIconSetupScreenState extends State<VaultNameAndIconSetupScree
             decoration: BoxDecoration(color: CoconutColors.black.withValues(alpha: 0.3)),
             child: Center(
               child:
-                  _walletProvider.isVaultListLoading
+                  _walletProvider.isVaultListLoading || _isAutoSaving
                       ? MessageActivityIndicator(message: t.vault_name_icon_setup_screen.saving)
                       : const CircularProgressIndicator(color: CoconutColors.gray800),
             ),
