@@ -15,7 +15,7 @@ class WalletCreationProvider {
   Uint8List _secret = Uint8List(0); // utf8.encode(mnemonicWordsString)
   Uint8List _passphrase = Uint8List(0); // utf8.encode(passphraseString)
   MultisigSigner? _externalSigner; // 멀티시그 지갑에서 외부지갑 키 추가 시
-  int? _callBackFromVaultId; // 멀티시그 지갑에서 외부지갑 키 추가 시 호출한 화면의 vault id
+  int? _multisigVaultIdOfExternalSigner; // 멀티시그 지갑에서 외부지갑 키 추가 시 호출한 화면의 vault id
 
   /// multisig
   int? get requiredSignatureCount => _requiredSignatureCount;
@@ -26,7 +26,7 @@ class WalletCreationProvider {
   Uint8List get secret => _secret;
   Uint8List? get passphrase => _passphrase.isNotEmpty ? _passphrase : null;
   MultisigSigner? get externalSigner => _externalSigner;
-  int? get callBackFromVaultId => _callBackFromVaultId;
+  int? get multisigVaultIdOfExternalSigner => _multisigVaultIdOfExternalSigner;
 
   WalletType get walletType {
     if (_requiredSignatureCount != null &&
@@ -62,7 +62,7 @@ class WalletCreationProvider {
   }
 
   void setCallBackFromVaultId(int? vaultId) {
-    _callBackFromVaultId = vaultId;
+    _multisigVaultIdOfExternalSigner = vaultId;
   }
 
   /// SingleSig
@@ -89,6 +89,7 @@ class WalletCreationProvider {
     resetSecretAndPassphrase();
 
     /// multisig
-    _requiredSignatureCount = _totalSignatureCount = _signers = _externalSigner = _callBackFromVaultId = null;
+    _requiredSignatureCount =
+        _totalSignatureCount = _signers = _externalSigner = _multisigVaultIdOfExternalSigner = null;
   }
 }
