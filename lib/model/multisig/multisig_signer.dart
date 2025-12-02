@@ -1,8 +1,10 @@
 import 'dart:core';
 
 import 'package:coconut_lib/coconut_lib.dart';
-import 'package:coconut_vault/constants/icon_path.dart';
+import 'package:coconut_vault/enums/signer_source_enum.dart';
 import 'package:json_annotation/json_annotation.dart';
+
+export 'package:coconut_vault/enums/signer_source_enum.dart';
 
 part 'multisig_signer.g.dart'; // 생성될 파일 이름 $ dart run build_runner build
 
@@ -61,31 +63,6 @@ class MultisigSigner {
   }
 
   String getSignerIconSource() {
-    String iconPath = '';
-    switch (signerSource) {
-      case SignerSource.coconutvault:
-        iconPath = kCoconutVaultIconPath;
-        break;
-      case SignerSource.keystone3pro:
-        iconPath = kKeystoneIconPath;
-        break;
-      case SignerSource.seedsigner:
-        iconPath = kSeedSignerIconPath;
-        break;
-      case SignerSource.jade:
-        iconPath = kJadeIconPath;
-        break;
-      case SignerSource.coldcard:
-        iconPath = kColdCardIconPath;
-        break;
-      case SignerSource.krux:
-        iconPath = kKruxIconPath;
-        break;
-      default:
-        iconPath = kAddCircleOutlinedIconPath;
-    }
-    return iconPath;
+    return SignerSourceIconMap.getIconSource(signerSource);
   }
 }
-
-enum SignerSource { coconutvault, keystone3pro, seedsigner, jade, coldcard, krux }
