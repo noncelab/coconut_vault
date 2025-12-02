@@ -573,63 +573,75 @@ class _MnemonicImportScreenState extends State<MnemonicImportScreen> {
     return _controllers.every((controller) => controller.text.isEmpty) && _passphrase.isEmpty && mounted;
   }
 
-  void _handleNextButton() {
-    final secret = _buildMnemonicSecret();
-    final passphrase = utf8.encode(_usePassphrase ? _passphrase : '');
-
-    if (widget.externalSigner != null) {
-      // externalSigner가 있는 경우 MFP 비교
-      _verifyMnemonicMfp(secret, passphrase);
-      return;
-    }
-
-    if (_walletProvider.isSeedDuplicated(secret, passphrase)) {
-      CoconutToast.showToast(context: context, text: t.toast.mnemonic_already_added, isVisibleIcon: true);
-      return;
-    }
-
-    _walletCreationProvider.setSecretAndPassphrase(secret, passphrase);
-    Navigator.pushNamed(context, AppRoutes.mnemonicConfirmation, arguments: {'calledFrom': AppRoutes.mnemonicImport});
-  }
-
-  Future<void> _verifyMnemonicMfp(Uint8List mnemonicBytes, Uint8List passphraseBytes) async {
-    if (!mounted) return;
-    context.loaderOverlay.show();
+  Future<void> _handleNextButton() async {
     try {
-      final passphrase = passphraseBytes.isEmpty ? null : passphraseBytes;
-      final expectedMfp = widget.externalSigner!.keyStore.masterFingerprint;
-
-      final result = await compute(WalletIsolates.verifyMnemonicMfp, {
-        'mnemonic': mnemonicBytes,
-        'passphrase': passphrase,
-        'expectedMfp': expectedMfp,
-        'addressTypeName': AddressType.p2wsh.name,
-      });
-
-      if (mounted) {
-        context.loaderOverlay.hide();
-        if (result['success'] as bool) {
-          if (_walletProvider.isSeedDuplicated(mnemonicBytes, passphraseBytes)) {
-            CoconutToast.showToast(context: context, text: t.toast.mnemonic_already_added, isVisibleIcon: true);
+      final secret = _buildMnemonicSecret();
+      final passphrase = utf8.encode(_usePassphrase ? _passphrase : '');
+      final externalSigner = widget.externalSigner;
+      if (externalSigner != null) {
+        if (!mounted) return;
+        //context.loaderOverlay.show();
+        try {
+          final isMfpMatched = await _isSignerMfpMatched(externalSigner, secret, passphrase);
+          if (!isMfpMatched) {
+            if (!mounted) return;
+            CoconutToast.showToast(context: context, text: t.errors.different_wallet, isVisibleIcon: true);
             return;
           }
-          _walletCreationProvider.setExternalSigner(widget.externalSigner!);
-          _walletCreationProvider.setSecretAndPassphrase(mnemonicBytes, passphraseBytes);
-          Navigator.pushNamed(
-            context,
-            AppRoutes.mnemonicConfirmation,
-            arguments: {'calledFrom': AppRoutes.mnemonicImport},
-          );
-        } else {
-          CoconutToast.showToast(context: context, text: t.errors.different_wallet, isVisibleIcon: true);
+        } finally {
+          if (mounted) {
+            context.loaderOverlay.hide();
+          }
         }
       }
-    } catch (e) {
+
+      if (_walletProvider.isSeedDuplicated(secret, passphrase)) {
+        CoconutToast.showToast(context: context, text: t.toast.mnemonic_already_added, isVisibleIcon: true);
+        return;
+      }
+
+      _walletCreationProvider.setSecretAndPassphrase(secret, passphrase);
+      if (externalSigner != null) {
+        _walletCreationProvider.setExternalSigner(externalSigner);
+      }
+
       if (mounted) {
         context.loaderOverlay.hide();
-        CoconutToast.showToast(context: context, text: t.errors.different_wallet, isVisibleIcon: true);
+        Navigator.pushNamed(
+          context,
+          AppRoutes.mnemonicConfirmation,
+          arguments: {'calledFrom': AppRoutes.mnemonicImport},
+        );
       }
+    } catch (e) {
+      if (!mounted) return;
+      context.loaderOverlay.hide();
+      showDialog(
+        context: context,
+        builder:
+            (context) => CoconutPopup(
+              title: t.errors.creation_error,
+              description: e.toString(),
+              onTapRight: () {
+                Navigator.pop(context);
+              },
+            ),
+      );
     }
+  }
+
+  Future<bool> _isSignerMfpMatched(MultisigSigner signer, Uint8List mnemonicBytes, Uint8List passphraseBytes) async {
+    final passphrase = passphraseBytes.isEmpty ? null : passphraseBytes;
+    final expectedMfp = signer.keyStore.masterFingerprint;
+
+    final result = await compute(WalletIsolates.verifyMnemonicMfp, {
+      'mnemonic': mnemonicBytes,
+      'passphrase': passphrase,
+      'expectedMfp': expectedMfp,
+      'addressTypeName': AddressType.p2wsh.name,
+    });
+
+    return result['success'] as bool;
   }
 
   Uint8List _buildMnemonicSecret() {
