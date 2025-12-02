@@ -134,6 +134,7 @@ class SignerAssignmentViewModel extends ChangeNotifier {
               signerBsms: _assignedVaultList[i].bsms!,
               name: _assignedVaultList[i].bsms?.split('\n')[3] ?? '',
               memo: _assignedVaultList[i].memo,
+              signerSource: _assignedVaultList[i].signerSource,
               keyStore: keyStores[i],
             ),
           );
@@ -182,7 +183,14 @@ class SignerAssignmentViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  void setAssignedVaultList(int index, ImportKeyType importKeyType, bool isExpanded, String bsms, String? memo) {
+  void setAssignedVaultList(
+    int index,
+    ImportKeyType importKeyType,
+    bool isExpanded,
+    String bsms,
+    String? memo,
+    SignerSource? signerSource,
+  ) {
     String? normalizedMemo;
     if (memo != null && memo.trim().isEmpty) {
       normalizedMemo = null;
@@ -193,7 +201,8 @@ class SignerAssignmentViewModel extends ChangeNotifier {
     assignedVaultList[index]
       ..importKeyType = importKeyType
       ..bsms = bsms
-      ..memo = normalizedMemo;
+      ..memo = normalizedMemo
+      ..signerSource = signerSource;
 
     notifyListeners();
   }
@@ -233,7 +242,7 @@ class SignerAssignmentViewModel extends ChangeNotifier {
     _unselectedSignerOptions = _signerOptions.toList();
   }
 
-  String? getExternalSignerDisplayName(int index) {
+  String? getExternalSignerMemo(int index) {
     assert(assignedVaultList[index].importKeyType == ImportKeyType.external);
     assert(assignedVaultList[index].bsms != null);
 

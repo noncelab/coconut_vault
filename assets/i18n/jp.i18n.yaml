@@ -21,6 +21,7 @@ settings: "設定"
 confirm: "確認"
 complete: "完了"
 cancel: "キャンセル"
+close: "閉じる"
 abort: "中止"
 next: "次へ"
 save: "保存"
@@ -563,42 +564,53 @@ address_list_screen:
 export_detail_screen:
   title: "エクスポート詳細"
   info_copied: "詳細をコピーしました"
-multi_sig_bsms_screen:
-  bottom_sheet:
-    title: "ウォレット詳細"
-    info_copied: "ウォレット詳細をコピーしました"
-  title: "ウォレット設定情報"
+coordinator_bsms_qr_screen:
   guide:
-    text1: "安全なマルチシグウォレット管理のための標準に従ってウォレット設定情報を管理・共有します。"
+    text1: "他のボルトにこのウォレットを共有します。"
     text2: "すべてのキーはボルトに保存されています。"
-    text3: "同じキーを保存している他のボルトもこのQRを読み取ってマルチシグウォレットを追加できます。"
-    text4: "このマルチシグウォレットに指定された**$gen**キーのニーモニックフレーズは現在他のボルトにあります。"
-    text5: "**$gen**キー保存ウォレット - 下記のQRコードを**マルチシグウォレットインポート**で読み取ってください。この手順は**$gen**キーでマルチシグトランザクションに署名するために絶対に必要です。"
-  first_key: "$first"
-  first_and_last_keys: "$firstと$last"
-  first_or_last_key: "$firstまたは$last"
-  view_detail: "詳細表示"
 multi_sig_memo_bottom_sheet:
   imported_wallet_memo: "外部ウォレットメモ"
   placeholder: "メモを書いてください。"
 multi_sig_setting_screen:
   edit_memo: "メモ編集"
   add_memo: "メモ追加"
-  view_bsms: "ウォレット設定表示"
+  export_menu: 
+    export_wallet: "ウォレットエクスポート"
+    share_bsms: "他のボルトと共有"
+    share_bsms_description: "他のボルトにこのウォレットを共有します。"
+    export_watch_only_wallet: "ウォッチオンリーウォレットにエクスポート"
+    export_watch_only_wallet_description: "残高/アドレスの表示のみ可能なウォッチオンリーウォレットにエクスポートします。"
+    backup_wallet_data: "ウォレットデータバックアップ"
+    backup_wallet_data_description: "損失やデバイス変更に備えて、ウォレット復元に必要なBSMSデータをバックアップします。"
   tooltip: 
     one: "$total個のキー中$n個の署名が必要なマルチシグウォレット。"
     other: "$total個のキー中$n個の署名が必要なマルチシグウォレット。"
+  add_key: "キー追加"
+  add_key_option: "キー追加オプション"
+  input_mnemonic_word: "ニーモニックフレーズ入力"
+  scan_seed_qr: "シードQRスキャン"
+  add_icon:
+    title: "アイコン選択"
+    coconut_vault: "Coconut Vault"
+    keystone3pro: "Keystone 3 Pro"
+    seed_signer: "Seed Signer"
+    jade: "Jade"
+    cold_card: "ColdCard"
+    krux: "Krux"
+  popup:  
+    title: "$name 選択完了"
+    description: "マルチシグ時に、$nameの設定に基づいて案内します"
+    button: "了解致しました"
 select_export_type_screen:
   title: "エクスポート"
 signer_bsms_screen:
   guide1_1: "他のボルトでマルチシグウォレットを作成しています！"
   guide1_2: "下記のQRコードをインポートBSMS画面でスキャンしてください。"
-  export_info: "エクスポート情報"
 sync_to_wallet_screen:
   title: "$name エクスポート"
   guide: 
     multisig: "Multisig"
-    coconut: "ホーム画面でウォレット追加アイコンを選択"
+    coconut: "ウォレット追加アイコン"
     sparrow_singlesig:
       guide0_1: "メニューから"
       guide1_1: "Import Wallet"
@@ -620,6 +632,8 @@ sync_to_wallet_screen:
       guide3_1: "QRコードまたはファイルをスキャン"
     common: "下記のQRコードをスキャンしてください。"
 vault_menu_screen:
+  export_wallet: "ウォレットエクスポート"
+  view_xpub: "XPub表示"
   title:  
     view_info: "$name情報"
     view_address: "アドレス表示"
@@ -635,7 +649,7 @@ vault_menu_screen:
     view_address: "$nameのアドレスを確認"
     export_xpub: "ウォレットにウォッチオンリーウォレットを追加"
     sign: "ウォレットで作成した情報をスキャンして署名"
-    use_as_multisig_signer: "他のボルトで自分のキーをマルチシグキーとして登録"
+    use_as_multisig_signer: "このキーを使用して他のボルトでマルチシグウォレットを構成します"
 vault_settings:
   used_in_multisig: "マルチシグウォレットで使用中"
   of: " の "
@@ -789,6 +803,7 @@ errors:
   retry_after: "$time後に再試行可能"
   invalid_word_error: "無効な単語。$filter"
   invalid_mnemonic_phrase: "無効なニーモニックフレーズ"
+  different_wallet: "同じ財布ではありません"
   data_loading_error: "データ読み込み中にエラーが発生しました"
   data_not_found_error: "データが見つかりません"
   cannot_sign_error: "このトランザクションに署名できません"

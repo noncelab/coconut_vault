@@ -272,10 +272,25 @@ class WalletRepository {
       List<MultisigSigner> signers = (vault as MultisigVaultListItem).signers;
       // 멀티 시그만 판단
       String importedMfp = (singlesigItem.coconutVault as SingleSignatureVault).keyStore.masterFingerprint;
+
+      // singlesigItem의 p2wsh용 derivationPath 가져오기 (BSMS에서)
+      String? importedDerivationPath;
+      try {
+        final bsms = Bsms.parseSigner(singlesigItem.signerBsms);
+        importedDerivationPath = bsms.signer?.path;
+      } catch (_) {
+        // BSMS 파싱 실패 시 스킵
+      }
+
       for (int j = 0; j < signers.length; j++) {
         String signerMfp = signers[j].keyStore.masterFingerprint;
+        String signerDerivationPath = signers[j].getSignerDerivationPath();
 
-        if (signerMfp == importedMfp) {
+        // masterFingerprint와 derivationPath 모두 일치해야 함
+        if (signerMfp == importedMfp &&
+            (signerDerivationPath.isEmpty ||
+                importedDerivationPath == null ||
+                signerDerivationPath == importedDerivationPath)) {
           // 다중 서명 지갑에서 signer로 사용되고 있는 mfp와 새로 추가된 볼트의 mfp가 같으면 정보를 변경
           // 멀티시그 지갑 정보 변경
           final signer = (_vaultList![i] as MultisigVaultListItem).signers[j];
@@ -284,7 +299,8 @@ class WalletRepository {
             ..name = singlesigItem.name
             ..iconIndex = singlesigItem.iconIndex
             ..colorIndex = singlesigItem.colorIndex
-            ..memo = null;
+            ..memo = null
+            ..signerSource = null;
 
           // 싱글시그 지갑 정보 변경
           Map<int, int> linkedMultisigInfo = {vault.id: j};
@@ -556,10 +572,23 @@ class WalletRepository {
     return list[idx];
   }
 
-  Future<MultisigVaultListItem> updateMemo(int walletId, int signerIndex, String? newMemo) async {
+  Future<MultisigVaultListItem> updateExternalSignerMemo(int walletId, int signerIndex, String? newMemo) async {
     var wallet = getVaultById(walletId);
     assert(wallet != null);
     (wallet as MultisigVaultListItem).signers[signerIndex].memo = newMemo;
+
+    await _savePublicInfo();
+    return wallet;
+  }
+
+  Future<MultisigVaultListItem> updateExternalSignerSource(
+    int walletId,
+    int signerIndex,
+    SignerSource newSignerSource,
+  ) async {
+    var wallet = getVaultById(walletId);
+    assert(wallet != null);
+    (wallet as MultisigVaultListItem).signers[signerIndex].signerSource = newSignerSource;
 
     await _savePublicInfo();
     return wallet;

@@ -14,7 +14,7 @@ import 'package:coconut_vault/providers/visibility_provider.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:coconut_vault/screens/common/pin_check_screen.dart';
 import 'package:coconut_vault/screens/airgap/multisig_signer_qr_bottom_sheet.dart';
-import 'package:coconut_vault/screens/vault_menu/info/passphrase_check_screen.dart';
+import 'package:coconut_vault/screens/wallet_info/single_sig_menu/passphrase_check_screen.dart';
 import 'package:coconut_vault/utils/alert_util.dart';
 import 'package:coconut_vault/utils/icon_util.dart';
 import 'package:coconut_vault/widgets/bottom_sheet.dart';
@@ -426,6 +426,7 @@ class _MultisigSignScreenState extends State<MultisigSignScreen> {
               final name = signer.name ?? t.external_wallet;
               final nameText = name.length > 6 ? '${name.substring(0, 6)}...' : name;
               final memo = signer.memo;
+              final signerSource = signer.signerSource;
               final iconIndex = signer.iconIndex ?? 0;
               final colorIndex = _viewModel.signers[index].colorIndex ?? 0;
               final isSignerApproved = _viewModel.signersApproved[index];

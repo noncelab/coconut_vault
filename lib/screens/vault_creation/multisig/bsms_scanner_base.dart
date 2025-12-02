@@ -149,6 +149,7 @@ abstract class BsmsScannerBase<T extends StatefulWidget> extends State<T> {
             ),
           ),
           isBackgroundWhite: false,
+          paddingTop: 20,
         ),
         _buildLoadingOverlay(context),
         _buildFixedBottomButton(context),

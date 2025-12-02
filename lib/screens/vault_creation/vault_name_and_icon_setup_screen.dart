@@ -2,8 +2,11 @@ import 'dart:io';
 
 import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_vault/app_routes_params.dart';
+import 'package:coconut_vault/constants/app_routes.dart';
 import 'package:coconut_vault/enums/wallet_enums.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
+import 'package:coconut_vault/model/multisig/multisig_signer.dart';
+import 'package:coconut_vault/model/multisig/multisig_vault_list_item.dart';
 import 'package:coconut_vault/model/common/vault_list_item_base.dart';
 import 'package:coconut_vault/model/exception/user_canceled_auth_exception.dart';
 import 'package:coconut_vault/model/single_sig/single_sig_wallet_create_dto.dart';
@@ -61,7 +64,7 @@ class _VaultNameAndIconSetupScreenState extends State<VaultNameAndIconSetupScree
 
     if (!_walletProvider.isVaultListLoadingNotifier.value) {
       if (_showLoading) {
-        saveNewVaultName(context);
+        // saveNewVaultName(context);
       }
     }
   }
@@ -85,6 +88,8 @@ class _VaultNameAndIconSetupScreenState extends State<VaultNameAndIconSetupScree
       }
 
       VaultListItemBase? vault;
+      MultisigSigner? externalSigner = _walletCreationProvider.externalSigner;
+
       if (_walletCreationProvider.walletType == WalletType.singleSignature) {
         if (Platform.isIOS && _walletProvider.isSigningOnlyMode) {
           final authProvider = Provider.of<AuthProvider>(context, listen: false);
@@ -103,6 +108,24 @@ class _VaultNameAndIconSetupScreenState extends State<VaultNameAndIconSetupScree
             _walletCreationProvider.passphrase,
           ),
         );
+
+        // externalSigner가 있는 경우, 해당 signer를 찾아서 업데이트하고 MultisigSetupInfoScreen으로 돌아가기
+        if (externalSigner != null) {
+          final multisigVaultId = _walletCreationProvider.multisigVaultIdOfExternalSigner;
+          // _linkNewSinglesigVaultAndMultisigVaults가 이미 자동으로 실행되었지만,
+          // 명시적으로 MultisigSetupInfoScreen으로 돌아가기 위해 vaultList를 다시 로드
+          // await _walletProvider.loadVaultList();
+          _walletCreationProvider.resetAll();
+
+          if (!context.mounted) return;
+          Navigator.pushNamedAndRemoveUntil(
+            context,
+            AppRoutes.multisigSetupInfo,
+            (Route<dynamic> route) => route.settings.name == '/',
+            arguments: {'id': multisigVaultId},
+          );
+          return;
+        }
       } else if (_walletCreationProvider.walletType == WalletType.multiSignature) {
         vault = await _walletProvider.addMultisigVault(
           inputText,

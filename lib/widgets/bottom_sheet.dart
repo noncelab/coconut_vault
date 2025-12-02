@@ -422,6 +422,7 @@ class MyBottomSheet {
                           title: title,
                           context: context,
                           onBackPressed: null,
+                          height: kToolbarHeight,
                           subLabel: Text(
                             subLabel ?? '',
                             style: CoconutTypography.body3_12.setColor(CoconutColors.black.withValues(alpha: 0.7)),
