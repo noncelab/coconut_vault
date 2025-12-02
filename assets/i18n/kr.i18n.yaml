@@ -561,6 +561,7 @@ bsms_scanner_screen:
 bsms_paste_screen:
   import_bsms: "BSMS 문자열을 입력해주세요"
   back_scan: "QR 스캔으로 돌아가기"
+  error_message: "올바른 BSMS 문자열을 입력해 주세요."
 
 # lib/screens/vault_detail
 address_list_screen:

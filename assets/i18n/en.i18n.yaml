@@ -560,6 +560,7 @@ bsms_scanner_screen:
 bsms_paste_screen:
   import_bsms: "Please enter the BSMS string."
   back_scan: "Go back to QR scan."
+  error_message: "Please enter a valid BSMS string."
 
 # lib/screens/vault_detail
 address_list_screen:
