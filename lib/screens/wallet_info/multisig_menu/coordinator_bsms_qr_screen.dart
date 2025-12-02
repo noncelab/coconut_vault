@@ -34,7 +34,7 @@ class CoordinatorBsmsQrScreen extends StatelessWidget {
 
   Widget _buildDescriptionBsms(CoordinatorBsmsQrViewModel viewModel) {
     return Container(
-      decoration: BoxDecoration(color: CoconutColors.gray150, borderRadius: BorderRadius.circular(10)),
+      decoration: BoxDecoration(color: CoconutColors.gray150, borderRadius: BorderRadius.circular(16)),
       margin: const EdgeInsets.only(top: 4, bottom: 16),
       padding: const EdgeInsets.all(16),
       child: Column(
