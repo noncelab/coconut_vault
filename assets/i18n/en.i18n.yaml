@@ -524,12 +524,19 @@ confirm_importing_screen:
   scan_info: "Scanned Info"
   memo: "Memo"
   placeholder: "Add simple memo for key"
-select_multisig_quorum_screen:
+multisig_wallet_creation: "Create Multisig Wallet"
+multisig_quorum_selection_screen:
   total_key_count: "Total Keys"
   required_signature_count: "Required Signatures"
-  one_or_two_of_n: "Can send Bitcoin even if one key is lost or one key holder is absent."
-  n_of_n: "All keys are needed to send Bitcoin. If you lose just one key, you cannot access funds, so be very careful about loss."
-  one_of_n: "Can move Bitcoin with just one key. Not recommended due to relatively low security."
+  quorum_category:
+    loss_tolerant: "Loss Tolerant"
+    balanced: "Balanced"
+    high_security: "High Security"
+  quorum_message:
+    loss_tolerant: "You can send funds with just a single key.\nIt’s resilient against loss, but if that one key is leaked, all funds become vulnerable."
+    balanced: "A recommended option strong against both loss and theft.\nYou only need $m keys to send funds."
+    high_security: "You need $m keys to send funds.\nHighly resistant to theft, but requires careful key management."
+    highest_security: "All keys are required to send funds.\nProvides the strongest protection against theft but demands the strictest key management."
 signer_scanner_bottom_sheet:
   title: "Signature Update"
   guide: "Did you add signatures from other vault? Please scan QR code of added signed transaction to update info."

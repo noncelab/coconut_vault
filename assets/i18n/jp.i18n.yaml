@@ -525,12 +525,19 @@ confirm_importing_screen:
   scan_info: "スキャン情報"
   memo: "メモ"
   placeholder: "キーの簡単なメモを追加"
-select_multisig_quorum_screen:
+multisig_wallet_creation: "マルチシグウォレット作成"
+multisig_quorum_selection_screen:
   total_key_count: "総キー数"
   required_signature_count: "必要署名数"
-  one_or_two_of_n: "1つのキーが失われたり、1つのキー保持者が不在でもビットコインを送信できます。"
-  n_of_n: "ビットコインを送信するにはすべてのキーが必要です。1つのキーを失うだけで資金にアクセスできなくなるため、紛失には十分注意してください。"
-  one_of_n: "1つのキーだけでビットコインを移動できます。セキュリティが比較的低いため推奨されません。"
+  quorum_category:
+    loss_tolerant: "紛失耐性型"
+    balanced: "バランス型"
+    high_security: "高セキュリティ型"
+  quorum_message:
+    loss_tolerant: "1つの鍵だけで送金できます。\n紛失には強いですが、その鍵が漏洩すると全資金が危険になります。"
+    balanced: "紛失・盗難の両方に強いおすすめの構成です。\n送金には$m個の鍵だけが必要です。"
+    high_security: "送金には$m個の鍵が必要です。\n盗難に強い一方、鍵の管理には注意が必要です。"
+    highest_security: "送金にはすべての鍵が必要です。\n盗難に対して最も高い保護を提供しますが、管理の難易度も高くなります。"
 signer_scanner_bottom_sheet:
   title: "署名更新"
   guide: "他のボルトから署名を追加しましたか？追加された署名済みトランザクションのQRコードをスキャンして情報を更新してください。"

@@ -14,3 +14,5 @@ enum WalletType {
     }
   }
 }
+
+enum MultisigCategory { lossTolerant, balanced, highSecurity, highestSecurity }

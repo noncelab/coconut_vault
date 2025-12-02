@@ -525,12 +525,19 @@ confirm_importing_screen:
   scan_info: "스캔한 정보"
   memo: "메모"
   placeholder: "키에 대한 간단한 메모를 추가하세요"
-select_multisig_quorum_screen:
+multisig_wallet_creation: "다중 서명 지갑 만들기"
+multisig_quorum_selection_screen:
   total_key_count: "전체 키의 수"
   required_signature_count: "필요한 서명 수"
-  one_or_two_of_n: "하나의 키를 분실하거나 키 보관자 중 한 명이 부재중이더라도 비트코인을 보낼 수 있어요."
-  n_of_n: "비트코인을 보내려면 모든 키가 필요해요. 키를 하나라도 잃으면 자금에 접근할 수 없으니 주의하세요."
-  one_of_n: "하나의 키만 있어도 비트코인을 이동시킬 수 있어요. 상대적으로 보안성이 낮기 때문에 권장하지 않아요."
+  quorum_category:
+    loss_tolerant: "분실 대비형"
+    balanced: "균형형"
+    high_security: "고보안형"
+  quorum_message:
+    loss_tolerant: "하나의 키만 있어도 송금이 가능해요.\n분실에 강하지만, 하나만 유출돼도 전체 자금이 위험해지는 방식이에요."
+    balanced: "분실과 탈취 모두에 강한 추천 구성\n$m개 키만 있어도 송금할 수 있어요."
+    high_security: "$m개 키가 있어야만 송금이 가능해요.\n탈취에 안전하지만 관리 난이도가 높아요."
+    highest_security: "모든 키가 있어야만 송금이 가능해요.\n탈취에 가장 안전하지만 관리 난이도가 높아요."
 signer_scanner_bottom_sheet:
   title: "서명 업데이트"
   guide: "다른 볼트에서 서명을 추가했나요? 정보를 업데이트 하기 위해 추가된 서명 트랜잭션의 QR 코드를 스캔해 주세요."
