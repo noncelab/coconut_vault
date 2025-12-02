@@ -67,7 +67,7 @@ class _BSMSPasteScreenState extends State<BSMSPasteScreen> {
               ),
               FixedBottomButton(
                 onButtonClicked: () {
-                  Navigator.pushReplacementNamed(context, AppRoutes.bsmsPaste);
+                  Navigator.pushReplacementNamed(context, AppRoutes.vaultNameSetup);
                 },
                 text: t.complete,
                 showGradient: false,

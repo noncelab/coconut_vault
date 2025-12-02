@@ -31,6 +31,9 @@ class _CoordinatorBsmsConfigScannerScreenState extends BsmsScannerBase<Coordinat
   bool get showBackButton => true;
 
   @override
+  bool get showBottomButton => true;
+
+  @override
   double get topMaskHeight => 0.0;
 
   @override

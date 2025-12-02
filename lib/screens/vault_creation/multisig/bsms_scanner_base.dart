@@ -32,6 +32,7 @@ abstract class BsmsScannerBase<T extends StatefulWidget> extends State<T> {
   String get appBarTitle => t.bsms_scanner_screen.import_bsms;
   bool get useBottomAppBar => false;
   bool get showBackButton => true;
+  bool get showBottomButton => false;
   List<IconButton> get icon => [
     IconButton(onPressed: () {}, icon: SvgPicture.asset('assets/svg/paste.svg', width: 18, height: 18)),
   ];
@@ -151,7 +152,16 @@ abstract class BsmsScannerBase<T extends StatefulWidget> extends State<T> {
           isBackgroundWhite: false,
         ),
         _buildLoadingOverlay(context),
-        _buildFixedBottomButton(context),
+        if (showBottomButton)
+          FixedBottomButton(
+            onButtonClicked: () {
+              Navigator.pushReplacementNamed(context, AppRoutes.bsmsPaste);
+            },
+            text: t.bsms_scanner_base.paste,
+            showGradient: false,
+            backgroundColor: CoconutColors.white,
+            textColor: CoconutColors.black,
+          ),
       ],
     );
   }
@@ -169,18 +179,6 @@ abstract class BsmsScannerBase<T extends StatefulWidget> extends State<T> {
           child: const Center(child: CircularProgressIndicator(color: CoconutColors.gray800)),
         ),
       ),
-    );
-  }
-
-  Widget _buildFixedBottomButton(BuildContext context) {
-    return FixedBottomButton(
-      onButtonClicked: () {
-        Navigator.pushReplacementNamed(context, AppRoutes.bsmsPaste);
-      },
-      text: t.bsms_scanner_base.paste,
-      showGradient: false,
-      backgroundColor: CoconutColors.white,
-      textColor: CoconutColors.black,
     );
   }
 }
