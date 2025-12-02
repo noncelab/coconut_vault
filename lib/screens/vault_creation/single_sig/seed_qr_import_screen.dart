@@ -80,6 +80,7 @@ class _SeedQrImportScreenState extends State<SeedQrImportScreen> {
                 ],
               ),
             ),
+            paddingTop: 20,
             isBackgroundWhite: false,
           ),
         ],

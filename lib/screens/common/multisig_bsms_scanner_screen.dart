@@ -141,6 +141,7 @@ class _MultisigBsmsScannerScreenState extends State<MultisigBsmsScannerScreen> {
           context,
           richText: RichText(text: TextSpan(style: CoconutTypography.body2_14, children: _getTooltipRichText())),
           isBackgroundWhite: false,
+          paddingTop: 20,
         ),
         Visibility(
           visible: _isProcessing,
