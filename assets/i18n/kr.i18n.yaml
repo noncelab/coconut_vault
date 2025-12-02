@@ -589,7 +589,7 @@ multi_sig_setting_screen:
     krux: "크럭스"
   popup:
     title: "$name 선택 완료"
-    description: "다중 서명 지갑에 서명할 때 $name 설정에 따라 안내할게요."
+    description: "다중 서명 시 $name 설정에 따라 안내할게요."
     button: "알겠습니다"
 select_export_type_screen:
   title: "보기 전용 앱으로 내보내기"

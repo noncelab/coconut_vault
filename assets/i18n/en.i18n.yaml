@@ -586,7 +586,7 @@ multi_sig_setting_screen:
     krux: "Krux"
   popup:
     title: "$name Selected"
-    description: "When signing, the $name guide will be shown."
+    description: "We’ll guide you based on $name settings during multisig signing."
     button: "I understand"
 select_export_type_screen:
   title: "Export to Watch-Only Wallet"

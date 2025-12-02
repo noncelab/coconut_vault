@@ -587,7 +587,7 @@ multi_sig_setting_screen:
     krux: "Krux"
   popup:  
     title: "$name 選択完了"
-    description: "マルチシグウォレットで署名する際に$nameの設定に従って案内します。"
+    description: "マルチシグ時に、$nameの設定に基づいて案内します"
     button: "了解致しました"
 select_export_type_screen:
   title: "エクスポート"
