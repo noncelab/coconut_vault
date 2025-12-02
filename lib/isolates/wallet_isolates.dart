@@ -194,10 +194,11 @@ class WalletIsolates {
       seed = Seed.fromMnemonic(mnemonic, passphrase: passphrase);
       keyStore = KeyStore.fromSeed(seed, addressType);
 
-      final actualMfp = keyStore.masterFingerprint;
-      final success = expectedMfp == actualMfp;
+      final expectedMfpToUpper = expectedMfp.toUpperCase();
+      final actualMfpToUpper = keyStore.masterFingerprint.toUpperCase();
+      final success = expectedMfpToUpper == actualMfpToUpper;
 
-      return {"success": success, "actualMfp": actualMfp};
+      return {"success": success, "actualMfp": actualMfpToUpper};
     } finally {
       if (keyStore != null) {
         keyStore.wipeSeed();
