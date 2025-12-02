@@ -88,22 +88,6 @@ class _CoordinatorBsmsConfigScannerScreenState extends BsmsScannerBase<Coordinat
     }
 
     try {
-      // 이 화면이 어느 Vault에 속한 건지에 대한 id는
-      // 라우팅 아규먼트나 Provider 등으로 주입해야 함.
-      // 예시로 id를 arguments에서 꺼낸다고 가정:
-      // final args = ModalRoute.of(context)!.settings.arguments as VaultHomeNavArgs;
-      // final vault = await walletProvider.importMultisigVault(decodedData, args.vaultId);
-
-      // assert(walletProvider.isAddVaultCompleted);
-
-      // if (!mounted) return;
-      // Navigator.pushNamedAndRemoveUntil(
-      //   context,
-      //   '/',
-      //   (Route<dynamic> route) => false,
-      //   arguments: VaultHomeNavArgs(addedWalletId: vault.id),
-      // );
-
       final normalizedMultisigConfig = MultisigNormalizer.fromCoordinatorResult(result);
       Logger.log(
         '\t normalizedMultisigConfig: \n name: ${normalizedMultisigConfig.name}\n requiredCount: ${normalizedMultisigConfig.requiredCount}\n signerBsms: [\n${normalizedMultisigConfig.signerBsms.join(',\n')}\n]',
@@ -138,10 +122,24 @@ class _CoordinatorBsmsConfigScannerScreenState extends BsmsScannerBase<Coordinat
 
         creationProvider.setSigners(signers);
 
+        int colorIndex = 0;
+        int iconIndex = 0;
+
+        if (result is Map<String, dynamic>) {
+          if (result.containsKey('colorIndex')) {
+            colorIndex =
+                result['colorIndex'] is int ? result['colorIndex'] : int.tryParse(result['colorIndex'].toString()) ?? 0;
+          }
+          if (result.containsKey('iconIndex')) {
+            iconIndex =
+                result['iconIndex'] is int ? result['iconIndex'] : int.tryParse(result['iconIndex'].toString()) ?? 0;
+          }
+        }
+
         Navigator.pushReplacementNamed(
           context,
           AppRoutes.vaultNameSetup,
-          arguments: {'name': normalizedMultisigConfig.name},
+          arguments: {'name': normalizedMultisigConfig.name, 'colorIndex': colorIndex, 'iconIndex': iconIndex},
         );
       } else {
         await showDialog(

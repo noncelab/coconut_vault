@@ -37,22 +37,79 @@ class _VaultNameAndIconSetupScreenState extends State<VaultNameAndIconSetupScree
   final TextEditingController _controller = TextEditingController();
   bool _showLoading = false;
 
+  // 초기화 여부 체크 플래그 (키보드가 올라올 때 등 화면이 갱신될 때 데이터가 리셋되는 것을 방지)
+  bool _isInitialized = false;
+
   @override
   void initState() {
     super.initState();
     _walletProvider = Provider.of<WalletProvider>(context, listen: false);
     _walletProvider.isVaultListLoadingNotifier.addListener(_onVaultListLoading);
     _walletCreationProvider = Provider.of<WalletCreationProvider>(context, listen: false);
+
+    // 기본값 설정 (arguments가 있으면 didChangeDependencies에서 덮어씌워짐)
     inputText = widget.name;
     selectedIconIndex = widget.iconIndex;
     selectedColorIndex = widget.colorIndex;
     _controller.text = inputText;
   }
 
+  // Arguments 처리 로직
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+
+    if (!_isInitialized) {
+      final args = ModalRoute.of(context)?.settings.arguments;
+      bool shouldAutoSave = false; // 자동 저장 여부 플래그
+
+      if (args != null && args is Map<String, dynamic>) {
+        if (args.containsKey('name')) {
+          inputText = args['name'] as String;
+          _controller.text = inputText;
+        }
+        if (args.containsKey('iconIndex')) {
+          selectedIconIndex = args['iconIndex'] as int;
+        }
+        if (args.containsKey('colorIndex')) {
+          selectedColorIndex = args['colorIndex'] as int;
+        }
+
+        // 이름이 비어있지 않다면 자동 저장을 수행하도록 설정
+        if (inputText.trim().isNotEmpty) {
+          shouldAutoSave = true;
+        }
+      }
+
+      _isInitialized = true;
+
+      // 자동 저장 로직 실행
+      if (shouldAutoSave) {
+        // 현재 프레임(화면 그리기)이 끝난 직후 실행
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          // 버튼 클릭 시의 로직과 동일하게 처리
+          _closeKeyboard();
+
+          if (_walletProvider.isVaultListLoading) {
+            // 아직 지갑 목록을 불러오는 중이라면 로딩 화면만 띄우고
+            // 실제 저장은 _onVaultListLoading 리스너에서 처리됨
+            setState(() {
+              _showLoading = true;
+            });
+          } else {
+            // 로딩이 끝난 상태라면 즉시 저장 시도
+            saveNewVaultName(context);
+          }
+        });
+      }
+    }
+  }
+
   @override
   void dispose() {
     _walletProvider.isVaultListLoadingNotifier.removeListener(_onVaultListLoading);
     _walletCreationProvider.resetAll();
+    _controller.dispose();
     super.dispose();
   }
 
@@ -125,7 +182,6 @@ class _VaultNameAndIconSetupScreenState extends State<VaultNameAndIconSetupScree
         arguments: VaultHomeNavArgs(addedWalletId: vault!.id),
       );
     } on UserCanceledAuthException catch (e) {
-      // 사용자가 기기 인증을 취소함
       Logger.error(e);
       if (!context.mounted) return;
       showDialog(
@@ -244,7 +300,7 @@ class _VaultNameAndIconSetupScreenState extends State<VaultNameAndIconSetupScree
             child: Center(
               child:
                   _walletProvider.isVaultListLoading
-                      ? MessageActivityIndicator(message: t.vault_name_icon_setup_screen.saving) // 기존 볼트들 불러오는 중
+                      ? MessageActivityIndicator(message: t.vault_name_icon_setup_screen.saving)
                       : const CircularProgressIndicator(color: CoconutColors.gray800),
             ),
           ),
