@@ -112,22 +112,20 @@ class _VaultNameAndIconSetupScreenState extends State<VaultNameAndIconSetupScree
         // externalSigner가 있는 경우, 해당 signer를 찾아서 업데이트하고 MultisigSetupInfoScreen으로 돌아가기
         if (externalSigner != null) {
           final multisigVaultId = _walletCreationProvider.callBackFromVaultId;
-          if (multisigVaultId != null) {
-            // _linkNewSinglesigVaultAndMultisigVaults가 이미 자동으로 실행되었지만,
-            // 명시적으로 MultisigSetupInfoScreen으로 돌아가기 위해 vaultList를 다시 로드
-            await _walletProvider.loadVaultList();
-            _walletCreationProvider.resetAll();
+          // _linkNewSinglesigVaultAndMultisigVaults가 이미 자동으로 실행되었지만,
+          // 명시적으로 MultisigSetupInfoScreen으로 돌아가기 위해 vaultList를 다시 로드
+          await _walletProvider.loadVaultList();
+          _walletCreationProvider.resetAll();
 
-            if (!context.mounted) return;
-            Navigator.pushNamedAndRemoveUntil(
-              context,
-              AppRoutes.multisigSetupInfo,
-              (Route<dynamic> route) => route.settings.name == '/',
-              arguments: {'id': multisigVaultId},
-            );
-            return;
-          }
+          if (!context.mounted) return;
+          Navigator.pushNamedAndRemoveUntil(
+            context,
+            AppRoutes.multisigSetupInfo,
+            (Route<dynamic> route) => route.settings.name == '/',
+            arguments: {'id': multisigVaultId},
+          );
         }
+        return;
       } else if (_walletCreationProvider.walletType == WalletType.multiSignature) {
         vault = await _walletProvider.addMultisigVault(
           inputText,
