@@ -2,6 +2,7 @@ import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_vault/constants/app_routes.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/model/multisig/multisig_signer.dart';
+import 'package:coconut_vault/screens/wallet_info/wallet_info_layout.dart';
 import 'package:coconut_vault/widgets/button/shrink_animation_button.dart';
 import 'package:flutter/material.dart';
 
@@ -32,11 +33,13 @@ class MultisigAddKeyOptionBottomSheet extends StatelessWidget {
                 border: Border.all(color: CoconutColors.gray300, width: 1),
                 borderRadius: 12,
                 onPressed: () {
-                  Navigator.pop(context);
-                  Navigator.pushNamed(
+                  Navigator.pop(
                     context,
-                    AppRoutes.mnemonicImport,
-                    arguments: {'externalSigner': signer, 'callBackFromVaultId': callBackFromVaultId},
+                    AddKeyArgs(
+                      externalSigner: signer,
+                      callBackFromVaultId: callBackFromVaultId,
+                      nextRoute: AppRoutes.mnemonicImport,
+                    ),
                   );
                 },
                 child: Container(
@@ -54,11 +57,13 @@ class MultisigAddKeyOptionBottomSheet extends StatelessWidget {
                 border: Border.all(color: CoconutColors.gray300, width: 1),
                 borderRadius: 12,
                 onPressed: () {
-                  Navigator.pop(context);
-                  Navigator.pushNamed(
+                  Navigator.pop(
                     context,
-                    AppRoutes.seedQrImport,
-                    arguments: {'externalSigner': signer, 'callBackFromVaultId': callBackFromVaultId},
+                    AddKeyArgs(
+                      externalSigner: signer,
+                      callBackFromVaultId: callBackFromVaultId,
+                      nextRoute: AppRoutes.seedQrImport,
+                    ),
                   );
                 },
                 child: Container(

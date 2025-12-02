@@ -730,7 +730,7 @@ class _WalletInfoLayoutState extends State<WalletInfoLayout> {
       borderGradientColors: const [CoconutColors.gray350, CoconutColors.gray350],
       borderRadius: 8,
       onPressed: () async {
-        final result = await MyBottomSheet.showDraggableBottomSheet<SignerSource?>(
+        final result = await MyBottomSheet.showDraggableBottomSheet<AddKeyArgs?>(
           context: context,
           showDragHandle: false,
           maxChildSize: 0.45,
@@ -738,8 +738,15 @@ class _WalletInfoLayoutState extends State<WalletInfoLayout> {
           initialChildSize: 0.45,
           childBuilder: (context) => MultisigAddKeyOptionBottomSheet(signer: signer, callBackFromVaultId: widget.id),
         );
+        debugPrint('result1111: ${result?.nextRoute ?? 'null'}');
+
         if (result != null) {
-          debugPrint('result: $result');
+          if (!mounted) return;
+          Navigator.pushNamed(
+            context,
+            result.nextRoute,
+            arguments: {'externalSigner': result.externalSigner, 'callBackFromVaultId': result.callBackFromVaultId},
+          );
         }
       },
       child: Padding(
@@ -778,4 +785,12 @@ class SingleButtonData {
   final bool enableShrinkAnim;
 
   SingleButtonData({required this.title, required this.onPressed, required this.enableShrinkAnim});
+}
+
+class AddKeyArgs {
+  final MultisigSigner externalSigner;
+  final int? callBackFromVaultId;
+  final String nextRoute;
+
+  const AddKeyArgs({required this.externalSigner, this.callBackFromVaultId, required this.nextRoute});
 }
