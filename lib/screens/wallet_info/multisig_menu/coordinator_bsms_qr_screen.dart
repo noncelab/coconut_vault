@@ -18,10 +18,14 @@ class CoordinatorBsmsQrScreen extends StatelessWidget {
       create: (context) => CoordinatorBsmsQrViewModel(Provider.of<WalletProvider>(context, listen: false), id),
       child: Consumer<CoordinatorBsmsQrViewModel>(
         builder: (context, viewModel, child) {
-          return QrWithCopyTextScreen(
-            title: t.multi_sig_setting_screen.export_menu.share_bsms,
-            tooltipDescription: _buildDescriptionBsms(viewModel),
-            qrData: viewModel.qrData,
+          return Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            color: CoconutColors.white,
+            child: QrWithCopyTextScreen(
+              title: t.multi_sig_setting_screen.export_menu.share_bsms,
+              tooltipDescription: _buildDescriptionBsms(viewModel),
+              qrData: viewModel.qrData,
+            ),
           );
         },
       ),

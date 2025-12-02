@@ -593,7 +593,6 @@ select_export_type_screen:
 signer_bsms_screen:
   guide1_1: "You are creating a multisig wallet in other vault."
   guide1_2: "Scan the QR code below on Import BSMS screen."
-  export_info: "Export Info"
 sync_to_wallet_screen:
   title: "Export $name"
   guide:

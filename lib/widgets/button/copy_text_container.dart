@@ -14,7 +14,15 @@ class CopyTextContainer extends StatefulWidget {
   final String toastMsg;
   final TextAlign? textAlign;
   final TextStyle? textStyle;
-  const CopyTextContainer({super.key, required this.text, required this.toastMsg, this.textAlign, this.textStyle});
+  final RichText? textRichText;
+  const CopyTextContainer({
+    super.key,
+    required this.text,
+    required this.toastMsg,
+    this.textAlign,
+    this.textStyle,
+    this.textRichText,
+  });
 
   static const MethodChannel _channel = MethodChannel(methodChannelOS);
 
@@ -91,11 +99,16 @@ class _CopyTextContainerState extends State<CopyTextContainer> {
         child: Row(
           children: [
             Expanded(
-              child: Text(
-                widget.text,
-                textAlign: widget.textAlign ?? TextAlign.start,
-                style: widget.textStyle?.setColor(_textColor) ?? CoconutTypography.body1_16_Number.setColor(_textColor),
-              ),
+              child:
+                  widget.textRichText != null
+                      ? RichText(text: widget.textRichText!.text)
+                      : Text(
+                        widget.text,
+                        textAlign: widget.textAlign ?? TextAlign.start,
+                        style:
+                            widget.textStyle?.setColor(_textColor) ??
+                            CoconutTypography.body1_16_Number.setColor(_textColor),
+                      ),
             ),
             CoconutLayout.spacing_400w,
             Container(

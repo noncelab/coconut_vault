@@ -8,7 +8,7 @@ class QrWithCopyTextScreen extends StatelessWidget {
   final String title;
   final Widget? tooltipDescription;
   final String qrData;
-  final Widget Function(BuildContext context, double qrWidth)? bottomBuilder;
+  final RichText? textRichText;
   final Widget? footer;
 
   const QrWithCopyTextScreen({
@@ -16,7 +16,7 @@ class QrWithCopyTextScreen extends StatelessWidget {
     required this.title,
     this.tooltipDescription,
     required this.qrData,
-    this.bottomBuilder,
+    this.textRichText,
     this.footer,
   });
 
@@ -40,21 +40,27 @@ class QrWithCopyTextScreen extends StatelessWidget {
       ),
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
           child: Column(
             children: [
               if (tooltipDescription != null) ...[tooltipDescription!],
-              CoconutLayout.spacing_300h,
-              Center(
-                child: Container(
-                  width: qrWidth,
-                  decoration: CoconutBoxDecoration.shadowBoxDecoration,
-                  child: QrImageView(data: qrData),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: Column(
+                  children: [
+                    CoconutLayout.spacing_300h,
+                    Center(
+                      child: Container(
+                        width: qrWidth,
+                        decoration: CoconutBoxDecoration.shadowBoxDecoration,
+                        child: QrImageView(data: qrData),
+                      ),
+                    ),
+                    CoconutLayout.spacing_500h,
+                    _buildCopyButton(qrData, qrWidth),
+                    CoconutLayout.spacing_1500h,
+                  ],
                 ),
               ),
-              CoconutLayout.spacing_500h,
-              _buildCopyButton(qrData, qrWidth),
-              CoconutLayout.spacing_1500h,
             ],
           ),
         ),
@@ -69,6 +75,7 @@ class QrWithCopyTextScreen extends StatelessWidget {
         text: qrData,
         textStyle: CoconutTypography.body2_14_Number,
         toastMsg: t.toast.clipboard_copied,
+        textRichText: textRichText,
       ),
     );
   }

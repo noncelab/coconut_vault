@@ -594,7 +594,6 @@ select_export_type_screen:
 signer_bsms_screen:
   guide1_1: "他のボルトでマルチシグウォレットを作成しています！"
   guide1_2: "下記のQRコードをインポートBSMS画面でスキャンしてください。"
-  export_info: "エクスポート情報"
 sync_to_wallet_screen:
   title: "$name エクスポート"
   guide: 

@@ -596,7 +596,6 @@ select_export_type_screen:
 signer_bsms_screen:
   guide1_1: "다른 볼트에서 다중 서명 지갑을 생성 중이시군요!"
   guide1_2: "다른 볼트의 가져오기 화면에서 아래 QR 코드를 스캔해 주세요."
-  export_info: "내보낼 정보"
 sync_to_wallet_screen:
   title: "$name 내보내기"
   guide:
