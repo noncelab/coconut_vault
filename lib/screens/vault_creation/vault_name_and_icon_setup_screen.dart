@@ -64,7 +64,7 @@ class _VaultNameAndIconSetupScreenState extends State<VaultNameAndIconSetupScree
 
     if (!_walletProvider.isVaultListLoadingNotifier.value) {
       if (_showLoading) {
-        saveNewVaultName(context);
+        // saveNewVaultName(context);
       }
     }
   }
@@ -111,7 +111,7 @@ class _VaultNameAndIconSetupScreenState extends State<VaultNameAndIconSetupScree
 
         // externalSigner가 있는 경우, 해당 signer를 찾아서 업데이트하고 MultisigSetupInfoScreen으로 돌아가기
         if (externalSigner != null) {
-          final multisigVaultId = _findMultisigVaultIdBySigner(externalSigner);
+          final multisigVaultId = _walletCreationProvider.callBackFromVaultId;
           if (multisigVaultId != null) {
             // _linkNewSinglesigVaultAndMultisigVaults가 이미 자동으로 실행되었지만,
             // 명시적으로 MultisigSetupInfoScreen으로 돌아가기 위해 vaultList를 다시 로드
@@ -202,27 +202,6 @@ class _VaultNameAndIconSetupScreenState extends State<VaultNameAndIconSetupScree
     setState(() {
       selectedColorIndex = index;
     });
-  }
-
-  /// externalSigner의 MFP를 사용해서 해당하는 멀티시그 지갑의 ID를 찾습니다.
-  int? _findMultisigVaultIdBySigner(MultisigSigner externalSigner) {
-    final signerMfp = externalSigner.keyStore.masterFingerprint;
-    final signerDerivationPath = externalSigner.getSignerDerivationPath();
-
-    for (final vault in _walletProvider.vaultList) {
-      if (vault.vaultType == WalletType.multiSignature) {
-        final multisigVault = vault as MultisigVaultListItem;
-        for (final signer in multisigVault.signers) {
-          final currentSignerMfp = signer.keyStore.masterFingerprint;
-
-          // MFP가 일치하는 경우
-          if (currentSignerMfp == signerMfp && signerDerivationPath.isEmpty) {
-            return vault.id;
-          }
-        }
-      }
-    }
-    return null;
   }
 
   @override

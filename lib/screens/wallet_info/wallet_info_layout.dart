@@ -736,7 +736,7 @@ class _WalletInfoLayoutState extends State<WalletInfoLayout> {
           maxChildSize: 0.45,
           minChildSize: 0.2,
           initialChildSize: 0.45,
-          childBuilder: (context) => MultisigAddKeyOptionBottomSheet(signer: signer),
+          childBuilder: (context) => MultisigAddKeyOptionBottomSheet(signer: signer, callBackFromVaultId: widget.id),
         );
         if (result != null) {
           debugPrint('result: $result');

@@ -18,7 +18,8 @@ import 'package:qr_code_scanner_plus/qr_code_scanner_plus.dart';
 /// 이 화면만 qr_code_scanner_plus 사용
 class SeedQrImportScreen extends StatefulWidget {
   final MultisigSigner? externalSigner;
-  const SeedQrImportScreen({super.key, this.externalSigner});
+  final int? callBackFromVaultId;
+  const SeedQrImportScreen({super.key, this.externalSigner, this.callBackFromVaultId});
 
   @override
   State<SeedQrImportScreen> createState() => _SeedQrImportScreenState();
@@ -159,6 +160,7 @@ class _SeedQrImportScreenState extends State<SeedQrImportScreen> {
                   (context) => SeedQrConfirmationScreen(
                     scannedData: utf8.encode(words.join(' ')),
                     externalSigner: widget.externalSigner,
+                    callBackFromVaultId: widget.callBackFromVaultId,
                   ),
             ),
           ).then((_) {

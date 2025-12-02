@@ -22,11 +22,13 @@ import 'package:provider/provider.dart';
 class SeedQrConfirmationScreen extends StatefulWidget {
   final Uint8List scannedData;
   final MultisigSigner? externalSigner;
+  final int? callBackFromVaultId;
 
   const SeedQrConfirmationScreen({
     super.key,
     required this.scannedData, // 필수 매개변수로 설정
     this.externalSigner,
+    this.callBackFromVaultId,
   });
 
   @override
@@ -56,6 +58,9 @@ class _SeedQrConfirmationScreenState extends State<SeedQrConfirmationScreen> {
     _walletCreationProvider = Provider.of<WalletCreationProvider>(context, listen: false)..resetAll();
     if (widget.externalSigner != null) {
       _walletCreationProvider.setExternalSigner(widget.externalSigner!);
+    }
+    if (widget.callBackFromVaultId != null) {
+      _walletCreationProvider.setCallBackFromVaultId(widget.callBackFromVaultId);
     }
   }
 

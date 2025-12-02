@@ -443,12 +443,18 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> with SingleTickerProv
                         AppRoutes.mnemonicImport:
                             (context) => buildScreenWithArguments(
                               context,
-                              (args) => MnemonicImportScreen(externalSigner: args['externalSigner']),
+                              (args) => MnemonicImportScreen(
+                                externalSigner: args['externalSigner'],
+                                callBackFromVaultId: args['callBackFromVaultId'],
+                              ),
                             ),
                         AppRoutes.seedQrImport:
                             (context) => buildScreenWithArguments(
                               context,
-                              (args) => SeedQrImportScreen(externalSigner: args['externalSigner']),
+                              (args) => SeedQrImportScreen(
+                                externalSigner: args['externalSigner'],
+                                callBackFromVaultId: args['callBackFromVaultId'],
+                              ),
                             ),
                         AppRoutes.mnemonicConfirmation:
                             (context) => buildScreenWithArguments(
