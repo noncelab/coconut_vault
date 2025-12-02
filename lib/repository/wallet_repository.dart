@@ -276,7 +276,7 @@ class WalletRepository {
       // singlesigItem의 p2wsh용 derivationPath 가져오기 (BSMS에서)
       String? importedDerivationPath;
       try {
-        final bsms = Bsms.parseSigner(singlesigItem.signerBsms);
+        final bsms = Bsms.parseSigner(singlesigItem.signerBsmsByAddressType[AddressType.p2wsh]!);
         importedDerivationPath = bsms.signer?.path;
       } catch (_) {
         // BSMS 파싱 실패 시 스킵
