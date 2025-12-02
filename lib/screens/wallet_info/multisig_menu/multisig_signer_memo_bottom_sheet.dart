@@ -1,5 +1,6 @@
 import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
+import 'package:coconut_vault/widgets/button/fixed_bottom_button.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
@@ -38,136 +39,108 @@ class _MultisigSignerNameBottomSheetState extends State<MultisigSignerNameBottom
     super.dispose();
   }
 
+  void _onComplete() {
+    FocusScope.of(context).unfocus();
+    widget.onUpdate(_memo);
+  }
+
   @override
   Widget build(BuildContext context) {
+    final keyboardHeight = MediaQuery.of(context).viewInsets.bottom;
     return Padding(
-      padding: MediaQuery.of(context).viewInsets,
-      child: Container(
-        decoration: const BoxDecoration(
+      padding: EdgeInsets.only(bottom: keyboardHeight),
+      child: ClipRRect(
+        borderRadius: const BorderRadius.only(topLeft: Radius.circular(24), topRight: Radius.circular(24)),
+        child: Container(
           color: CoconutColors.white,
-          borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-        ),
-        child: SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Center(
-                  child: Text(t.multi_sig_memo_bottom_sheet.imported_wallet_memo, style: CoconutTypography.heading4_18),
-                ),
-
-                CoconutLayout.spacing_500h,
-
-                // TextField
-                CoconutTextField(
-                  isLengthVisible: false,
-                  placeholderColor: CoconutColors.gray400,
-                  placeholderText: t.memo,
-                  maxLength: 20,
-                  maxLines: 1,
-                  controller: _controller,
-                  focusNode: _focusNode,
-                  suffix: IconButton(
-                    highlightColor: CoconutColors.gray200,
-                    iconSize: 14,
-                    padding: EdgeInsets.zero,
-                    onPressed: () {
-                      setState(() {
-                        _controller.text = '';
-                      });
-                    },
-                    icon:
-                        _controller.text.isNotEmpty
-                            ? SvgPicture.asset(
-                              'assets/svg/text-field-clear.svg',
-                              colorFilter: const ColorFilter.mode(CoconutColors.gray400, BlendMode.srcIn),
-                            )
-                            : Container(),
-                  ),
-                  onChanged: (text) {
-                    setState(() {
-                      _memo = text;
-                    });
-                  },
-                ),
-
-                // 글자 수 표시
-                Align(
-                  alignment: Alignment.centerRight,
-                  child: Padding(
-                    padding: const EdgeInsets.only(top: 4, right: 4),
-                    child: Text(
-                      '${_memo.length} / 20',
-                      style: CoconutTypography.body3_12.setColor(
-                        _memo.length == 20
-                            ? CoconutColors.black.withValues(alpha: 0.7)
-                            : CoconutColors.black.withValues(alpha: 0.5),
+          child: SafeArea(
+            child: IntrinsicHeight(
+              child: Stack(
+                fit: StackFit.loose,
+                children: [
+                  Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      CoconutAppBar.build(
+                        customTitle: Text(
+                          t.multi_sig_memo_bottom_sheet.imported_wallet_memo,
+                          style: CoconutTypography.body1_16_Bold,
+                        ),
+                        context: context,
+                        isBottom: true,
+                        height: kToolbarHeight,
+                        backgroundColor: CoconutColors.white,
                       ),
-                    ),
-                  ),
-                ),
+                      Padding(
+                        padding: const EdgeInsets.all(16),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            CoconutLayout.spacing_500h,
+                            CoconutTextField(
+                              isLengthVisible: false,
+                              placeholderColor: CoconutColors.gray400,
+                              placeholderText: t.memo,
+                              maxLength: 20,
+                              maxLines: 1,
+                              controller: _controller,
+                              focusNode: _focusNode,
+                              suffix: IconButton(
+                                highlightColor: CoconutColors.gray200,
+                                iconSize: 14,
+                                padding: EdgeInsets.zero,
+                                onPressed: () {
+                                  setState(() {
+                                    _controller.text = '';
+                                  });
+                                },
+                                icon:
+                                    _controller.text.isNotEmpty
+                                        ? SvgPicture.asset(
+                                          'assets/svg/text-field-clear.svg',
+                                          colorFilter: const ColorFilter.mode(CoconutColors.gray400, BlendMode.srcIn),
+                                        )
+                                        : Container(),
+                              ),
+                              onChanged: (text) {
+                                setState(() {
+                                  _memo = text;
+                                });
+                              },
+                            ),
 
-                const SizedBox(height: 32),
-
-                // 취소/완료 버튼
-                Row(
-                  children: [
-                    // 취소 버튼
-                    Expanded(
-                      child: GestureDetector(
-                        onTap: () {
-                          Navigator.pop(context);
-                        },
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(vertical: 16),
-                          decoration: BoxDecoration(
-                            color: CoconutColors.gray150,
-                            borderRadius: BorderRadius.circular(5),
-                          ),
-                          child: Center(
-                            child: Text(
-                              t.close,
-                              style: const TextStyle(
-                                color: CoconutColors.black,
-                                fontSize: 14,
-                                fontWeight: FontWeight.bold,
+                            // 글자 수 표시
+                            Align(
+                              alignment: Alignment.centerRight,
+                              child: Padding(
+                                padding: const EdgeInsets.only(top: 4, right: 4),
+                                child: Text(
+                                  '${_memo.length} / 20',
+                                  style: CoconutTypography.body3_12_Number.setColor(CoconutColors.gray500),
+                                ),
                               ),
                             ),
-                          ),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    // 완료 버튼
-                    Expanded(
-                      child: GestureDetector(
-                        onTap: () {
-                          FocusScope.of(context).unfocus();
-                          widget.onUpdate(_memo);
-                        },
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(vertical: 16),
-                          decoration: BoxDecoration(color: CoconutColors.black, borderRadius: BorderRadius.circular(5)),
-                          child: Center(
-                            child: Text(
-                              t.complete,
-                              style: TextStyle(
-                                color: CoconutColors.white,
-                                fontSize: 14,
-                                fontWeight: _memo.isNotEmpty ? FontWeight.bold : FontWeight.normal,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
 
-                const SizedBox(height: 8),
-              ],
+                            // FixedBottomButton 공간 확보 (버튼 높이 + 하단 패딩)
+                            const SizedBox(
+                              height:
+                                  FixedBottomButton.fixedBottomButtonDefaultHeight +
+                                  FixedBottomButton.fixedBottomButtonDefaultBottomPadding +
+                                  16,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                  FixedBottomButton(
+                    text: t.complete,
+                    onButtonClicked: _onComplete,
+                    isVisibleAboveKeyboard: false,
+                    bottomPadding: 16,
+                  ),
+                ],
+              ),
             ),
           ),
         ),
