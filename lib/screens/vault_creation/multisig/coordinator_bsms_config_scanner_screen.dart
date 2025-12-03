@@ -80,7 +80,8 @@ class _CoordinatorBsmsConfigScannerScreenState extends BsmsScannerBase<Coordinat
       return;
     }
 
-    controller?.pause();
+    await controller?.stop();
+    if (!mounted) return;
 
     final result = _coordinatorBsmsQrDataHandler.result;
 
@@ -93,18 +94,18 @@ class _CoordinatorBsmsConfigScannerScreenState extends BsmsScannerBase<Coordinat
     try {
       final normalizedMultisigConfig = MultisigNormalizer.fromCoordinatorResult(result);
       Logger.log(
-        '\t normalizedMultisigConfig: \n name: ${normalizedMultisigConfig.name}\n requiredCount: ${normalizedMultisigConfig.requiredCount}\n signerBsms: [\n${normalizedMultisigConfig.signerBsms.join(',\n')}\n]',
+        '\t 🛑normalizedMultisigConfig: \n name: ${normalizedMultisigConfig.name}\n requiredCount: ${normalizedMultisigConfig.requiredCount}\n signerBsms: [\n${normalizedMultisigConfig.signerBsms.join(',\n')}\n]',
       );
 
-      final bool isValidMultisig = _coordinatorBsmsQrDataHandler.validateFormat(scanData);
+      final int m = normalizedMultisigConfig.requiredCount;
+      final int n = normalizedMultisigConfig.signerBsms.length;
+
+      final bool isValidMultisig = n >= 2 && m > 0 && m <= n;
 
       if (isValidMultisig) {
         final creationProvider = Provider.of<WalletCreationProvider>(context, listen: false);
 
         creationProvider.resetAll();
-
-        final int m = normalizedMultisigConfig.requiredCount;
-        final int n = normalizedMultisigConfig.signerBsms.length;
 
         creationProvider.setQuorumRequirement(m, n);
         List<MultisigSigner> signers =
@@ -112,7 +113,47 @@ class _CoordinatorBsmsConfigScannerScreenState extends BsmsScannerBase<Coordinat
               int index = entry.key;
               String bsmsString = entry.value;
 
-              KeyStore generatedKeyStore = KeyStore.fromSignerBsms(bsmsString);
+              KeyStore generatedKeyStore;
+
+              try {
+                // 1차 시도: 원본으로 시도
+                generatedKeyStore = KeyStore.fromSignerBsms(bsmsString);
+              } catch (e) {
+                Logger.log('⚠️ 1차 파싱 실패. 데이터 복구 시도 중...');
+
+                // 줄 단위로 분리 (공백 제거)
+                List<String> lines = bsmsString.split('\n').map((s) => s.trim()).where((s) => s.isNotEmpty).toList();
+
+                // Case A: 3줄만 있는 경우 (Label 누락) -> 임시 라벨 추가
+                if (lines.length == 3 && lines[0].startsWith('BSMS')) {
+                  // 4번째 줄에 'Imported'라는 라벨을 강제로 추가
+                  String repairedBsms = '${lines.join('\n')}\nImported';
+
+                  Logger.log('🔧 데이터 복구 (Label 추가): \n$repairedBsms');
+
+                  try {
+                    generatedKeyStore = KeyStore.fromSignerBsms(repairedBsms);
+                  } catch (e2) {
+                    // Case B: 복구 실패 시, 최후의 수단으로 Descriptor(3번째 줄)만 추출해서 시도
+                    Logger.log('⚠️ 2차 복구 실패. Descriptor만 추출 시도.');
+                    String descriptorLine = lines.firstWhere(
+                      (line) => line.startsWith('[') && line.contains('pub'),
+                      orElse: () => bsmsString,
+                    );
+                    generatedKeyStore = KeyStore.fromSignerBsms(descriptorLine);
+                  }
+                } else {
+                  // Case C: 그 외 포맷 에러 시 Descriptor만 추출
+                  String descriptorLine = bsmsString;
+                  if (lines.isNotEmpty) {
+                    descriptorLine = lines.firstWhere(
+                      (line) => line.startsWith('[') && line.contains('pub'),
+                      orElse: () => bsmsString,
+                    );
+                  }
+                  generatedKeyStore = KeyStore.fromSignerBsms(descriptorLine);
+                }
+              }
 
               return MultisigSigner(
                 id: 0,
@@ -158,12 +199,14 @@ class _CoordinatorBsmsConfigScannerScreenState extends BsmsScannerBase<Coordinat
         );
       }
     } catch (e) {
+      Logger.log('🛑 에러 발생: $e');
+
       if (e is NotRelatedMultisigWalletException) {
         onFailedScanning(e.message);
         return;
       }
       onFailedScanning(e.toString());
-      controller?.start();
+      await controller?.start();
     }
   }
 }
