@@ -7,7 +7,7 @@ extension HardwareWalletTypeExtension on HardwareWalletType {
   static final Map<HardwareWalletType, String> _names = {
     HardwareWalletType.coconutVault: t.hardware_wallet_type.vault,
     HardwareWalletType.keystone3Pro: t.hardware_wallet_type.keystone,
-    HardwareWalletType.seedSigner: t.hardware_wallet_type.seesigner,
+    HardwareWalletType.seedSigner: t.hardware_wallet_type.seedsigner,
     HardwareWalletType.jade: t.hardware_wallet_type.jade,
     HardwareWalletType.coldcard: t.hardware_wallet_type.coldcard,
     HardwareWalletType.krux: t.hardware_wallet_type.krux,

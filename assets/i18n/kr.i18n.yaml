@@ -517,7 +517,7 @@ assign_signers_screen:
 hardware_wallet_type:
   vault: "코코넛 볼트"
   keystone: "키스톤 3 프로"
-  seesigner: "시드사이너"
+  seedsigner: "시드사이너"
   jade: "제이드"
   coldcard: "콜드카드"
   krux: "크럭스"
