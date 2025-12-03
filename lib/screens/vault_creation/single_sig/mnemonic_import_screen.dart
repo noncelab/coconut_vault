@@ -579,20 +579,16 @@ class _MnemonicImportScreenState extends State<MnemonicImportScreen> {
       final secret = _buildMnemonicSecret();
       final passphrase = utf8.encode(_usePassphrase ? _passphrase : '');
       final externalSigner = widget.externalSigner;
+
       if (externalSigner != null) {
         if (!mounted) return;
-        //context.loaderOverlay.show();
-        try {
-          final isMfpMatched = await _isSignerMfpMatched(externalSigner, secret, passphrase);
-          if (!isMfpMatched) {
-            if (!mounted) return;
-            CoconutToast.showToast(context: context, text: t.errors.different_wallet, isVisibleIcon: true);
-            return;
-          }
-        } finally {
-          if (mounted) {
-            context.loaderOverlay.hide();
-          }
+        context.loaderOverlay.show();
+        final isMfpMatched = await _isSignerMfpMatched(externalSigner, secret, passphrase);
+        if (!isMfpMatched) {
+          if (!mounted) return;
+          context.loaderOverlay.hide();
+          CoconutToast.showToast(context: context, text: t.errors.different_wallet, isVisibleIcon: true);
+          return;
         }
       }
 

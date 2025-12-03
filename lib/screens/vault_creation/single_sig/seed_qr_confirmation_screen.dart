@@ -179,18 +179,12 @@ class _SeedQrConfirmationScreenState extends State<SeedQrConfirmationScreen> {
       if (externalSigner != null) {
         if (!mounted) return;
         context.loaderOverlay.show();
-        try {
-          final isMfpMatched = await _isSignerMfpMatched(externalSigner, secret, passphrase);
-          if (!isMfpMatched) {
-            if (!mounted) return;
-            CoconutToast.showToast(context: context, text: t.errors.different_wallet, isVisibleIcon: true);
-            return;
-          }
-        } finally {
-          if (mounted) {
-            context.loaderOverlay.hide();
-            await Future.delayed(const Duration(milliseconds: 5000), null);
-          }
+        final isMfpMatched = await _isSignerMfpMatched(externalSigner, secret, passphrase);
+        if (!isMfpMatched) {
+          if (!mounted) return;
+          context.loaderOverlay.hide();
+          CoconutToast.showToast(context: context, text: t.errors.different_wallet, isVisibleIcon: true);
+          return;
         }
       }
 
