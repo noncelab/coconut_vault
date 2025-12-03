@@ -16,7 +16,7 @@ import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:coconut_vault/screens/home/select_sync_option_bottom_sheet.dart';
 import 'package:coconut_vault/screens/home/select_vault_bottom_sheet.dart';
 import 'package:coconut_vault/screens/settings/pin_setting_screen.dart';
-import 'package:coconut_vault/screens/vault_menu/info/passphrase_check_screen.dart';
+import 'package:coconut_vault/screens/wallet_info/single_sig_menu/passphrase_check_screen.dart';
 import 'package:coconut_vault/services/secure_zone/secure_zone_availability_checker.dart';
 import 'package:coconut_vault/widgets/button/shrink_animation_button.dart';
 import 'package:coconut_vault/widgets/card/vault_addition_guide_card.dart';

@@ -198,6 +198,7 @@ class _PsbtScannerScreenState extends State<PsbtScannerScreen> {
               context,
               richText: RichText(text: TextSpan(style: CoconutTypography.body2_14, children: _getGuideTextSpan())),
               isBackgroundWhite: false,
+              paddingTop: 20,
             ),
           ],
         ),

@@ -1,4 +1,5 @@
 import 'package:coconut_design_system/coconut_design_system.dart';
+import 'package:coconut_vault/enums/hardware_wallet_type_enum.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/providers/visibility_provider.dart';
 import 'package:coconut_vault/services/blockchain_commons/ur_type.dart';
@@ -8,18 +9,27 @@ import 'package:coconut_vault/widgets/custom_tooltip.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-class SignerQrBottomSheet extends StatefulWidget {
+class MultisigQrCodeViewScreen extends StatefulWidget {
   final String multisigName;
   final String keyIndex;
   final String signedRawTx;
+  final HardwareWalletType hardwareWalletType;
+  final String qrData;
 
-  const SignerQrBottomSheet({super.key, required this.multisigName, required this.keyIndex, required this.signedRawTx});
+  const MultisigQrCodeViewScreen({
+    super.key,
+    required this.multisigName,
+    required this.keyIndex,
+    required this.signedRawTx,
+    required this.hardwareWalletType,
+    required this.qrData,
+  });
 
   @override
-  State<SignerQrBottomSheet> createState() => _SignerQrBottomSheetState();
+  State<MultisigQrCodeViewScreen> createState() => _MultisigQrCodeViewScreenState();
 }
 
-class _SignerQrBottomSheetState extends State<SignerQrBottomSheet> {
+class _MultisigQrCodeViewScreenState extends State<MultisigQrCodeViewScreen> {
   late VisibilityProvider _visibilityProvider;
 
   bool _isEnglish = true;

@@ -174,9 +174,8 @@ class WalletProvider extends ChangeNotifier {
         signers.add(
           MultisigSigner(
             id: i,
-            signerBsms: linkedWalletList[i]!.signerBsms,
             innerVaultId: linkedWalletList[i]!.id,
-            keyStore: KeyStore.fromSignerBsms(linkedWalletList[i]!.signerBsms),
+            keyStore: KeyStore.fromSignerBsms(linkedWalletList[i]!.getSignerBsmsByAddressType(AddressType.p2wsh)),
             name: linkedWalletList[i]!.name,
             iconIndex: linkedWalletList[i]!.iconIndex,
             colorIndex: linkedWalletList[i]!.colorIndex,
@@ -205,10 +204,16 @@ class WalletProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// 다중서명 지갑의 [singerIndex]번째 키로 사용한 외부 지갑의 메모를 업데이트
-  Future updateMemo(int id, int signerIndex, String? newMemo) async {
+  /// 다중서명 지갑의 [singerIndex]번째 키로 사용한 외부 지갑의 이름을 업데이트
+  Future updateExternalSignerMemo(int id, int signerIndex, String? newMemo) async {
     int index = _vaultList.indexWhere((wallet) => wallet.id == id);
-    _vaultList[index] = await _walletRepository.updateMemo(id, signerIndex, newMemo);
+    _vaultList[index] = await _walletRepository.updateExternalSignerMemo(id, signerIndex, newMemo);
+  }
+
+  /// 다중서명 지갑의 [singerIndex]번째 키로 사용한 외부 지갑의 출처를 업데이트
+  Future updateExternalSignerSource(int id, int signerIndex, HardwareWalletType newSignerSource) async {
+    int index = _vaultList.indexWhere((wallet) => wallet.id == id);
+    _vaultList[index] = await _walletRepository.updateExternalSignerSource(id, signerIndex, newSignerSource);
   }
 
   /// SiglesigVaultListItem의 seed 중복 여부 확인
@@ -278,15 +283,9 @@ class WalletProvider extends ChangeNotifier {
       _vaultList.clear();
       _setVaultList([]);
 
+      // []일 때도 null이 반환됨. []가 반환되는 경우가 없음
       final jsonList = await _walletRepository.loadVaultListJsonArrayString();
-
       if (jsonList != null) {
-        if (jsonList.isEmpty) {
-          _updateWalletLength();
-          notifyListeners();
-          return;
-        }
-
         await _walletRepository.loadAndEmitEachWallet(jsonList, (VaultListItemBase wallet) {
           if (_isDisposed) {
             return;
