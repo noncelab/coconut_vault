@@ -3,6 +3,7 @@ import 'package:coconut_vault/enums/hardware_wallet_type_enum.dart';
 import 'package:coconut_vault/enums/wallet_enums.dart';
 import 'package:coconut_vault/packages/bc-ur-dart/lib/ur_decoder.dart';
 import 'package:coconut_vault/utils/bb_qr/bb_qr_decoder.dart';
+import 'package:coconut_vault/utils/bip/signer_bsms.dart';
 import 'package:coconut_vault/utils/ur_bytes_converter.dart';
 import 'package:coconut_vault/widgets/animated_qr/scan_data_handler/i_qr_scan_data_handler.dart';
 
@@ -90,8 +91,12 @@ class SignerBsmsQrDataHandler implements IQrScanDataHandler {
         case HardwareWalletType.coldcard:
           return normalized.startsWith('b\$');
         case HardwareWalletType.coconutVault:
-          return true;
-        // final SignerBsms = SignerBsms.parse(normalized); return SignerBsms != null;
+          try {
+            SignerBsms.parse(normalized);
+            return true;
+          } catch (_) {
+            return false;
+          }
         case HardwareWalletType.seedSigner:
         case HardwareWalletType.krux:
           return _isValidSignerDescriptor(normalized);
