@@ -88,8 +88,6 @@ sign_required: "Click the button to sign"
 sign_required_amount: 
   one: "$n signature required"
   other: "$n signatures required"
-move_to_qr_screen: "Move to QR Screen"
-move_to_qr_screen_description: "Generate QR to sign in key-holding vault."
 
 wallet_delete_failed: "No wallets to delete"
 wallet_delete_failed_description: "No wallets are currently saved, so deletion isn’t necessary"
@@ -513,10 +511,25 @@ assign_signers_screen:
   select_key_option: "Select key type"
   use_internal_key_option: "Select key"
   import_from_other_vault: "Import from other vault"
+  import_from_hww: "Import from hardware wallet"
+
+hardware_wallet_type:
+  vault: "Coconut Vault"
+  keystone: "Keystone 3 Pro"
+  seesigner: "SeedSigner"
+  jade: "Jade"
+  coldcard: "Coldcard"
+  krux: "Krux"
 
 multisig_creation_options_screen:
   quorum: "Create a new wallet"
   bsms: "Have wallet backup data"
+
+multisig_sign_screen:
+  loading_overlay: "Signing from another device..."
+  dialog:
+    title: 'Prepare $name'
+    description: 'To sign with $name, you need to set up in advance. Would you like to go to the setup screen?'
 
 confirm_importing_screen:
   guide1: "Please verify that "

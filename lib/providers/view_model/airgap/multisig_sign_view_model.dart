@@ -1,4 +1,5 @@
 import 'package:coconut_lib/coconut_lib.dart';
+import 'package:coconut_vault/enums/wallet_enums.dart';
 import 'package:coconut_vault/isolates/sign_isolates.dart';
 import 'package:coconut_vault/model/multisig/multisig_signer.dart';
 import 'package:coconut_vault/model/multisig/multisig_vault_list_item.dart';
@@ -117,5 +118,16 @@ class MultisigSignViewModel extends ChangeNotifier {
     _signProvider.resetRecipientAmounts();
     _signProvider.resetSendingAmount();
     _signProvider.resetSignedPsbt();
+  }
+
+  // TODO: signers[index]의 hww type 가져오기
+  HardwareWalletType? getSignerHwwType(int index) {
+    // return _vaultListItem.signers[index].hardwareWalletType ?? HarewareWalletType.vault;
+    return null;
+  }
+
+  // TODO: signers[index]의 hww type에 따라 다른 정보를 반환하도록 구현
+  String getMultisigInfoQrData(int index) {
+    return '';
   }
 }

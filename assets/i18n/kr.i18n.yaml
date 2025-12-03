@@ -88,8 +88,6 @@ sign_required: "버튼을 눌러 서명해 주세요"
 sign_required_amount: 
   one: "$n개의 서명이 필요해요"
   other: "$n개의 서명이 필요해요"
-move_to_qr_screen: "QR 코드 화면으로 이동"
-move_to_qr_screen_description: "키가 있는 볼트에서 서명하기 위해 QR을 생성합니다."
 
 wallet_delete_failed: "삭제할 지갑 없음"
 wallet_delete_failed_description: "현재 저장된 지갑이 없어 삭제할 필요가 없어요"
@@ -514,10 +512,25 @@ assign_signers_screen:
   select_key_option: "키 종류 선택"
   use_internal_key_option: "키 선택"
   import_from_other_vault: "다른 볼트에서 가져오기"
+  import_from_hww: "하드월렛에서 가져오기"
+
+hardware_wallet_type:
+  vault: "코코넛 볼트"
+  keystone: "키스톤 3 프로"
+  seesigner: "시드사이너"
+  jade: "제이드"
+  coldcard: "콜드카드"
+  krux: "크럭스"
 
 multisig_creation_options_screen:
   quorum: "새로운 지갑을 만들게요"
   bsms: "지갑 백업 데이터가 있어요"
+
+multisig_sign_screen:
+  loading_overlay: "다른 기기에서 서명을 시작합니다..."
+  dialog:
+    title: '$name 준비하기'
+    description: '$name로 서명을 하기 위해 사전 설정이 필요합니다. 사전 설정 화면으로 가시겠어요?'
 
 confirm_importing_screen:
   guide1: "다른 볼트에서 가져온 "
