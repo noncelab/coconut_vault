@@ -526,7 +526,7 @@ multisig_creation_options_screen:
   bsms: "Have wallet backup data"
 
 multisig_sign_screen:
-  loading_overlay: "Signing from another device..."
+  loading_overlay: "Generating signing info"
   dialog:
     title: 'Prepare $name'
     description: 'To sign with $name, you need to set up in advance. Would you like to go to the setup screen?'
