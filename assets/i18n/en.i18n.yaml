@@ -561,6 +561,8 @@ bsms_scanner_base:
 coordinator_bsms_config_scanner_screen:
   guide1: "Coconut Vault supports BSMS (BIP-129), a secure multisignature management standard."
   guide2: "Please scan the BSMS QR code."
+  error_title: "Invalid Format"
+  error_message: "BSMS data is invalid. Please scan the correct QR code again."
 
 bsms_scanner_screen:
   import_bsms: "Import BSMS"
@@ -575,6 +577,11 @@ bsms_scanner_screen:
   guide2_3: "Use as Multisig Key."
   guide2_4: "Scan the QR code shown on the screen."
   select: "Select "
+
+bsms_paste_screen:
+  import_bsms: "Please enter the BSMS string."
+  back_scan: "Go back to QR scan."
+  error_message: "Please enter a valid BSMS string."
 
 # lib/screens/vault_detail
 address_list_screen:
