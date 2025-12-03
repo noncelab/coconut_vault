@@ -101,7 +101,7 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
               (context, viewModel, child) => Scaffold(
                 backgroundColor: CoconutColors.white,
                 appBar: CoconutAppBar.build(
-                  title: t.multisig_wallet,
+                  title: t.multisig_wallet_creation,
                   context: context,
                   onBackPressed: () => _onBackPressed(context),
                   backgroundColor: CoconutColors.white,

@@ -52,7 +52,7 @@ class WalletCreationProvider {
 
   /// multisig
   void setSigners(List<MultisigSigner> signers) {
-    assert(MultisigUtils.validateQuorumRequirement(_requiredSignatureCount!, _totalSignatureCount!));
+    assert(MultisigUtils.isValidQuorum(_requiredSignatureCount!, _totalSignatureCount!));
 
     _signers = signers;
   }

@@ -153,12 +153,9 @@ flutter:
     - assets/svg/wallet-icons/whale.svg
     - assets/svg/arrow-down.svg
     - assets/svg/edit-outlined.svg
-    - assets/svg/safe.svg
-    - assets/svg/safe-bit.svg
     - assets/svg/trash.svg
     - assets/svg/face-id.svg
     - assets/svg/fingerprint.svg
-    - assets/svg/key-icon.svg
     - assets/svg/plus.svg
     - assets/svg/check.svg
     - assets/svg/import-bsms.svg
@@ -231,6 +228,9 @@ flutter:
     - assets/svg/signing-mode.svg
     - assets/svg/storage-mode.svg
     - assets/svg/paste.svg
+    - assets/svg/multisig-category/loss-tolerant.svg
+    - assets/svg/multisig-category/balanced.svg
+    - assets/svg/multisig-category/high-security.svg
     - assets/svg/add-circle-outlined.svg
     - assets/svg/coconut-vault.svg
     - assets/svg/keystone.svg
