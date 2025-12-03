@@ -71,7 +71,10 @@ class _VaultHomeScreenState extends State<VaultHomeScreen> with TickerProviderSt
       if (!mounted) return;
 
       /// Android 비밀번호 삭제 여부 확인
-      if (Platform.isAndroid && !_viewModel.isSigningOnlyMode && _viewModel.vaultCount > 0) {
+      if (Platform.isAndroid &&
+          !_viewModel.isSigningOnlyMode &&
+          _viewModel.vaultCount > 0 &&
+          _viewModel.hasSingleSigVault) {
         setState(() {
           _isAndroidSecureZoneChecking = true;
         });
