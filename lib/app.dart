@@ -60,6 +60,7 @@ import 'package:coconut_vault/screens/wallet_info/sync_to_wallet_screen.dart';
 import 'package:coconut_vault/screens/wallet_info/single_sig_wallet_info_screen.dart';
 import 'package:coconut_vault/widgets/overlays/signing_mode_edge_panel.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:coconut_vault/screens/common/pin_check_screen.dart';
@@ -121,6 +122,9 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> with SingleTickerProv
   // 현재 라우트 추적
   late _CustomNavigatorObserver _navigatorObserver;
   final ValueNotifier<bool> _routeNotifierHasShow = ValueNotifier<bool>(false);
+
+  // only used debug mode
+  bool _wasHotReloaded = false;
 
   @override
   void initState() {
@@ -213,6 +217,11 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> with SingleTickerProv
       // 서명 전용 모드: 재사용
       _walletProvider ??= WalletProvider(visibilityProvider, preferenceProvider, lifecycleProvider);
     } else {
+      if (kDebugMode && _wasHotReloaded && _walletProvider != null) {
+        _wasHotReloaded = false;
+        return _walletProvider!;
+      }
+
       // 안전 저장 모드: 매번 새로 생성
       _walletProvider = WalletProvider(visibilityProvider, preferenceProvider, lifecycleProvider);
     }
@@ -603,6 +612,13 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> with SingleTickerProv
       debugPrint('볼트 초기화 실패: $e');
       // 볼트 초기화 실패 시에도 계속 진행
     }
+  }
+
+  @override
+  void reassemble() {
+    super.reassemble();
+    // debug 모드에서 hot reload 시에만 호출됨
+    _wasHotReloaded = true;
   }
 }
 
