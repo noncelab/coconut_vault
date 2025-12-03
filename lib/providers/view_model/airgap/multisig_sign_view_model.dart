@@ -118,4 +118,15 @@ class MultisigSignViewModel extends ChangeNotifier {
     _signProvider.resetSendingAmount();
     _signProvider.resetSignedPsbt();
   }
+
+  // TODO: signers[index]의 hww type 가져오기
+  HardwareWalletType? getSignerHwwType(int index) {
+    // return _vaultListItem.signers[index].hardwareWalletType ?? HarewareWalletType.vault;
+    return null;
+  }
+
+  // TODO: signers[index]의 hww type에 따라 다른 정보를 반환하도록 구현
+  String getMultisigInfoQrData(int index) {
+    return '';
+  }
 }

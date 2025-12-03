@@ -20,6 +20,7 @@ settings: "Settings"
 confirm: "Confirm"
 complete: "Complete"
 cancel: "Cancel"
+close: "Close"
 abort: "Abort"
 next: "Next"
 save: "Save"
@@ -87,8 +88,6 @@ sign_required: "Click the button to sign"
 sign_required_amount: 
   one: "$n signature required"
   other: "$n signatures required"
-move_to_qr_screen: "Move to QR Screen"
-move_to_qr_screen_description: "Generate QR to sign in key-holding vault."
 
 wallet_delete_failed: "No wallets to delete"
 wallet_delete_failed_description: "No wallets are currently saved, so deletion isn’t necessary"
@@ -512,10 +511,25 @@ assign_signers_screen:
   select_key_option: "Select key type"
   use_internal_key_option: "Select key"
   import_from_other_vault: "Import from other vault"
+  import_from_hww: "Import from hardware wallet"
+
+hardware_wallet_type:
+  vault: "Coconut Vault"
+  keystone: "Keystone 3 Pro"
+  seedsigner: "SeedSigner"
+  jade: "Jade"
+  coldcard: "Coldcard"
+  krux: "Krux"
 
 multisig_creation_options_screen:
   quorum: "Create a new wallet"
   bsms: "Have wallet backup data"
+
+multisig_sign_screen:
+  loading_overlay: "Signing from another device..."
+  dialog:
+    title: 'Prepare $name'
+    description: 'To sign with $name, you need to set up in advance. Would you like to go to the setup screen?'
 
 confirm_importing_screen:
   guide1: "Please verify that "
@@ -569,42 +583,53 @@ address_list_screen:
 export_detail_screen:
   title: "Export Details"
   info_copied: "Details copied"
-multi_sig_bsms_screen:
-  bottom_sheet:
-    title: "Wallet Details (BSMS)"
-    info_copied: "Wallet details copied"
-  title: "Multisig Wallet Export"
+coordinator_bsms_qr_screen:
   guide:
-    text1: "You can also scan this QR code in another vault with the same key to add the wallet"
+    text1: "Share this wallet so it can be used on other vaults."
     text2: "This wallet follows the standards (BIP-129, BSMS) for secure multi-signature management."
-    text3: "All the keys required for signing are securely stored in this vault."
-    text4: "The $gen key required for this multi-signature wallet is currently stored in another vault."
-    text5: "In the vault that holds the $gen key, select Import Multi-Signature Wallet and then scan the QR code below."
-  first_key: "$first"
-  first_and_last_keys: "$first and $last"
-  first_or_last_key: "$first or $last"
-  view_detail: "View Details"
 multi_sig_memo_bottom_sheet:
   imported_wallet_memo: "External Wallet Memo"
   placeholder: "Write memo."
 multi_sig_setting_screen:
   edit_memo: "Edit Memo"
   add_memo: "Add Memo"
-  view_bsms: "Export to another vault"
+  export_menu: 
+    export_wallet: "Export Wallet"
+    share_bsms: "Share with Other Vaults"
+    share_bsms_description: "Share this wallet with other vaults"
+    export_watch_only_wallet: "Export to Watch-Only Wallet"
+    export_watch_only_wallet_description: "Export a watch-only wallet that can view balances and addresses only"
+    backup_wallet_data: "Backup Wallet Data"
+    backup_wallet_data_description: "Back up the BSMS data needed to recover your wallet in case of loss or device change"
   tooltip: 
     one: "Multisig wallet requiring $n signature\nout of $total keys."
     other: "Multisig wallet requiring $n signatures\nout of $total keys."
+  add_key: "Add Key"
+  add_key_option: "Add Key Option"
+  input_mnemonic_word: "Input Mnemonic Word"
+  scan_seed_qr: "Scan Seed QR"
+  add_icon:
+    title: "Select Icon"
+    coconut_vault: "Coconut Vault"
+    keystone3pro: "Keystone 3 Pro"
+    seed_signer: "Seed Signer"
+    jade: "Jade"
+    cold_card: "ColdCard"
+    krux: "Krux"
+  popup:
+    title: "$name Selected"
+    description: "We’ll guide you based on $name settings during multisig signing."
+    button: "I understand"
 select_export_type_screen:
   title: "Export to Watch-Only Wallet"
 signer_bsms_screen:
   guide1_1: "You are creating a multisig wallet in other vault."
   guide1_2: "Scan the QR code below on Import BSMS screen."
-  export_info: "Export Info"
 sync_to_wallet_screen:
   title: "Export $name"
   guide:
     multisig: "Multisig"
-    coconut: "Select the Add Wallet icon on the home screen"
+    coconut: " the Add Wallet icon on the home screen"
     sparrow_singlesig:
       guide0_1: "From the menu"
       guide1_1: "Import Wallet"
@@ -624,8 +649,10 @@ sync_to_wallet_screen:
       guide1_1: "Click the + button in the upper right corner on the home screen"
       guide2_1: "Import Wallet"
       guide3_1: "Scan or import a file"
-    common: "Scan the QR code below"
+    common: "Scan the QR code below."
 vault_menu_screen:
+  export_wallet: "Export Wallet"
+  view_xpub: "View Extended Public Key"
   title:  
     view_info: "$name Details"
     view_address: "View Addresses"
@@ -641,7 +668,7 @@ vault_menu_screen:
     view_address: "Check $name's address"
     export_xpub: "Add Watch-Only wallet to wallet"
     sign: "Scan info created in wallet and sign"
-    use_as_multisig_signer: "Register my key as multisig key in other vault"
+    use_as_multisig_signer: "Use this key to configure a multisig wallet in other vault"
 vault_settings:
   used_in_multisig: "Used in multisig wallet"
   of: " of "
@@ -795,6 +822,7 @@ errors:
   retry_after: "Can retry after $time"
   invalid_word_error: "Check the word $filter"
   invalid_mnemonic_phrase: "Invalid mnemonic phrase"
+  different_wallet: "Not the same wallet"
   data_loading_error: "Error occurred while loading data"
   data_not_found_error: "Data not found"
   cannot_sign_error: "Cannot sign this transaction"

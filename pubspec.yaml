@@ -231,6 +231,13 @@ flutter:
     - assets/svg/multisig-category/loss-tolerant.svg
     - assets/svg/multisig-category/balanced.svg
     - assets/svg/multisig-category/high-security.svg
+    - assets/svg/add-circle-outlined.svg
+    - assets/svg/coconut-vault.svg
+    - assets/svg/keystone.svg
+    - assets/svg/seed-signer.svg
+    - assets/svg/jade.svg
+    - assets/svg/coldcard.svg
+    - assets/svg/krux.svg
 
   fonts:
     - family: SpaceGrotesk
