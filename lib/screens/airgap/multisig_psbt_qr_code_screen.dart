@@ -1,5 +1,5 @@
 import 'package:coconut_design_system/coconut_design_system.dart';
-import 'package:coconut_vault/enums/wallet_enums.dart';
+import 'package:coconut_vault/enums/hardware_wallet_type_enum.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/providers/visibility_provider.dart';
 import 'package:coconut_vault/services/blockchain_commons/ur_type.dart';

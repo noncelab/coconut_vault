@@ -3,7 +3,7 @@ import 'package:coconut_lib/coconut_lib.dart';
 import 'package:coconut_vault/constants/app_routes.dart';
 import 'package:coconut_vault/enums/currency_enum.dart';
 import 'package:coconut_vault/enums/pin_check_context_enum.dart';
-import 'package:coconut_vault/enums/wallet_enums.dart';
+import 'package:coconut_vault/enums/hardware_wallet_type_enum.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/model/exception/seed_invalidated_exception.dart';
 import 'package:coconut_vault/model/exception/user_canceled_auth_exception.dart';
@@ -477,17 +477,17 @@ class _MultisigSignScreenState extends State<MultisigSignScreen> {
                     // 지정되어 있지 않으면 하드월렛 선택
                     _showHardwareSelectionBottomSheet();
                     // 화면 pop하면서 hww type 전달받기
-                    hwwType ??= HardwareWalletType.vault;
+                    hwwType ??= HardwareWalletType.coconutVault;
                   }
 
                   switch (hwwType) {
                     case HardwareWalletType.krux:
-                    case HardwareWalletType.keystone:
+                    case HardwareWalletType.keystone3Pro:
                       final multisigInfoQrData = _viewModel.getMultisigInfoQrData(index);
                       _showDialogToMultisigInfoQrCode(index, hwwType!, multisigInfoQrData);
                       break;
-                    case HardwareWalletType.vault:
-                    case HardwareWalletType.seesigner:
+                    case HardwareWalletType.coconutVault:
+                    case HardwareWalletType.seedSigner:
                     case HardwareWalletType.jade:
                     case HardwareWalletType.coldcard:
                       // TODO: 로딩 오버레이('다른 기기에서 서명을 시작합니다...') 2s 보여준 후

@@ -584,7 +584,7 @@ class WalletRepository {
   Future<MultisigVaultListItem> updateExternalSignerSource(
     int walletId,
     int signerIndex,
-    SignerSource newSignerSource,
+    HardwareWalletType newSignerSource,
   ) async {
     var wallet = getVaultById(walletId);
     assert(wallet != null);

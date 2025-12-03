@@ -1,4 +1,5 @@
 import 'package:coconut_lib/coconut_lib.dart';
+import 'package:coconut_vault/enums/hardware_wallet_type_enum.dart';
 import 'package:coconut_vault/enums/wallet_enums.dart';
 import 'package:coconut_vault/packages/bc-ur-dart/lib/ur_decoder.dart';
 import 'package:coconut_vault/utils/bb_qr/bb_qr_decoder.dart';
@@ -12,14 +13,14 @@ class SignerBsmsQrDataHandler implements IQrScanDataHandler {
 
   StringBuffer? _textBuffer;
 
-  SignerBsmsQrDataHandler({this.harewareWalletType = HardwareWalletType.vault})
+  SignerBsmsQrDataHandler({this.harewareWalletType = HardwareWalletType.coconutVault})
     : _urDecoder = URDecoder(),
       _bbQrDecoder = BbQrDecoder();
 
   @override
   dynamic get result {
     switch (harewareWalletType) {
-      case HardwareWalletType.keystone:
+      case HardwareWalletType.keystone3Pro:
       case HardwareWalletType.jade:
         return UrBytesConverter.convertToMap(_urDecoder.result);
       case HardwareWalletType.coldcard:
@@ -28,9 +29,9 @@ class SignerBsmsQrDataHandler implements IQrScanDataHandler {
           return _bbQrDecoder.parseJson();
         }
         return _bbQrDecoder.getCombinedText();
-      case HardwareWalletType.seesigner:
+      case HardwareWalletType.seedSigner:
       case HardwareWalletType.krux:
-      case HardwareWalletType.vault:
+      case HardwareWalletType.coconutVault:
         return _textBuffer?.toString();
       default:
         return null;
@@ -40,14 +41,14 @@ class SignerBsmsQrDataHandler implements IQrScanDataHandler {
   @override
   double get progress {
     switch (harewareWalletType) {
-      case HardwareWalletType.keystone:
+      case HardwareWalletType.keystone3Pro:
       case HardwareWalletType.jade:
         return _urDecoder.estimatedPercentComplete();
       case HardwareWalletType.coldcard:
         return _bbQrDecoder.progress;
-      case HardwareWalletType.seesigner:
+      case HardwareWalletType.seedSigner:
       case HardwareWalletType.krux:
-      case HardwareWalletType.vault:
+      case HardwareWalletType.coconutVault:
         return isCompleted() ? 1.0 : 0.0;
       default:
         return 0.0;
@@ -61,14 +62,14 @@ class SignerBsmsQrDataHandler implements IQrScanDataHandler {
     }
 
     switch (harewareWalletType) {
-      case HardwareWalletType.keystone:
+      case HardwareWalletType.keystone3Pro:
       case HardwareWalletType.jade:
         return _urDecoder.receivePart(data);
       case HardwareWalletType.coldcard:
         return _bbQrDecoder.receivePart(data);
-      case HardwareWalletType.seesigner:
+      case HardwareWalletType.seedSigner:
       case HardwareWalletType.krux:
-      case HardwareWalletType.vault:
+      case HardwareWalletType.coconutVault:
         _textBuffer ??= StringBuffer();
         _textBuffer!.write(data);
         return true;
@@ -83,13 +84,13 @@ class SignerBsmsQrDataHandler implements IQrScanDataHandler {
 
     try {
       switch (harewareWalletType) {
-        case HardwareWalletType.keystone:
+        case HardwareWalletType.keystone3Pro:
         case HardwareWalletType.jade:
           return normalized.startsWith('ur:crypto-account/');
         case HardwareWalletType.coldcard:
           return normalized.startsWith('b\$');
-        case HardwareWalletType.vault:
-        case HardwareWalletType.seesigner:
+        case HardwareWalletType.coconutVault:
+        case HardwareWalletType.seedSigner:
         case HardwareWalletType.krux:
           return _isValidSignerDescriptor(normalized);
         default:
@@ -103,13 +104,13 @@ class SignerBsmsQrDataHandler implements IQrScanDataHandler {
   @override
   bool isCompleted() {
     switch (harewareWalletType) {
-      case HardwareWalletType.keystone:
+      case HardwareWalletType.keystone3Pro:
       case HardwareWalletType.jade:
         return _urDecoder.isComplete();
       case HardwareWalletType.coldcard:
         return _bbQrDecoder.isComplete;
-      case HardwareWalletType.vault:
-      case HardwareWalletType.seesigner:
+      case HardwareWalletType.coconutVault:
+      case HardwareWalletType.seedSigner:
       case HardwareWalletType.krux:
         return _textBuffer != null && _textBuffer!.isNotEmpty;
       default:

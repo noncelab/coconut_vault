@@ -1,10 +1,10 @@
 import 'dart:core';
 
 import 'package:coconut_lib/coconut_lib.dart';
-import 'package:coconut_vault/enums/signer_source_enum.dart';
+import 'package:coconut_vault/enums/hardware_wallet_type_enum.dart';
 import 'package:json_annotation/json_annotation.dart';
 
-export 'package:coconut_vault/enums/signer_source_enum.dart';
+export 'package:coconut_vault/enums/hardware_wallet_type_enum.dart';
 
 part 'multisig_signer.g.dart'; // 생성될 파일 이름 $ dart run build_runner build
 
@@ -28,7 +28,7 @@ class MultisigSigner {
   @JsonKey()
   String? memo; // 외부 지갑에 설정되는 메모
   @JsonKey()
-  SignerSource? signerSource; // 외부지갑 기기 종류
+  HardwareWalletType? signerSource; // 외부지갑 기기 종류
 
   @JsonKey(name: fieldKeyStore, toJson: _customKeyStoreToJson)
   final KeyStore keyStore;
@@ -70,9 +70,5 @@ class MultisigSigner {
     } catch (_) {
       return '';
     }
-  }
-
-  String getSignerIconSource() {
-    return SignerSourceIconMap.getIconSource(signerSource);
   }
 }

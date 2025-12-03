@@ -279,8 +279,8 @@ class _WalletInfoLayoutState extends State<WalletInfoLayout> {
       ExternalWalletButton(name: t.multi_sig_setting_screen.add_icon.krux, iconSource: iconSourceList[5]),
     ];
     final selectedIndex = iconSource != null ? iconSourceList.indexOf(iconSource) : null;
-    SignerSource? result;
-    await MyBottomSheet.showDraggableBottomSheet<SignerSource?>(
+    HardwareWalletType? result;
+    await MyBottomSheet.showDraggableBottomSheet<HardwareWalletType?>(
       context: context,
       showDragHandle: false,
       maxChildSize: 0.45,
@@ -302,7 +302,10 @@ class _WalletInfoLayoutState extends State<WalletInfoLayout> {
     );
   }
 
-  SignerSource? _getSignerSourceByIconSource(List<ExternalWalletButton> externalWalletButtonList, int selectedIndex) {
+  HardwareWalletType? _getSignerSourceByIconSource(
+    List<ExternalWalletButton> externalWalletButtonList,
+    int selectedIndex,
+  ) {
     if (selectedIndex >= externalWalletButtonList.length) {
       return null;
     }
@@ -312,17 +315,17 @@ class _WalletInfoLayoutState extends State<WalletInfoLayout> {
 
     switch (iconSource) {
       case kCoconutVaultIconPath:
-        return SignerSource.coconutvault;
+        return HardwareWalletType.coconutVault;
       case kKeystoneIconPath:
-        return SignerSource.keystone3pro;
+        return HardwareWalletType.keystone3Pro;
       case kSeedSignerIconPath:
-        return SignerSource.seedsigner;
+        return HardwareWalletType.seedSigner;
       case kJadeIconPath:
-        return SignerSource.jade;
+        return HardwareWalletType.jade;
       case kColdCardIconPath:
-        return SignerSource.coldcard;
+        return HardwareWalletType.coldcard;
       case kKruxIconPath:
-        return SignerSource.krux;
+        return HardwareWalletType.krux;
       default:
         return null;
     }
@@ -638,13 +641,13 @@ class _WalletInfoLayoutState extends State<WalletInfoLayout> {
                     VaultIcon(
                       iconIndex: isVaultInside ? signer.iconIndex! : null,
                       colorIndex: isVaultInside ? signer.colorIndex! : null,
-                      customIconSource: isVaultInside ? null : signer.getSignerIconSource(),
+                      customIconSource: isVaultInside ? null : signer.signerSource!.iconPath,
                       size: 20,
                       onPressed:
                           isVaultInside
                               ? null
                               : () {
-                                _showAddIconBottomSheet(signer.getSignerIconSource(), index);
+                                _showAddIconBottomSheet(signer.signerSource!.iconPath, index);
                               },
                     ),
                     const SizedBox(width: 10),

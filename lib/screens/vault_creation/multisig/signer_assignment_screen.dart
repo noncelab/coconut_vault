@@ -28,7 +28,7 @@ class AssignedVaultListItem {
   String? bsms;
   SingleSigVaultListItem? item;
   String? memo;
-  SignerSource? signerSource;
+  HardwareWalletType? signerSource;
   ImportKeyType? importKeyType;
 
   AssignedVaultListItem({required this.index, required this.importKeyType, required this.item, this.bsms});
@@ -453,7 +453,7 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
       physics: const ClampingScrollPhysics(),
       enableSingleChildScroll: false,
       hideAppBar: true,
-      child: const SignerBsmsScannerScreen(hardwareWalletType: HardwareWalletType.vault),
+      child: const SignerBsmsScannerScreen(hardwareWalletType: HardwareWalletType.coconutVault),
     );
 
     if (externalImported != null) {
@@ -480,7 +480,7 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
           false,
           externalImported,
           bsmsAndMemo['memo'],
-          SignerSource.coconutvault,
+          HardwareWalletType.coconutVault,
         );
         if (!mounted) return;
         Navigator.pop(context); // 키 종류 선택 다이얼로그 닫기

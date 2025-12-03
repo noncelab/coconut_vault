@@ -189,7 +189,7 @@ class SignerAssignmentViewModel extends ChangeNotifier {
     bool isExpanded,
     String bsms,
     String? memo,
-    SignerSource? signerSource,
+    HardwareWalletType? signerSource,
   ) {
     String? normalizedMemo;
     if (memo != null && memo.trim().isEmpty) {

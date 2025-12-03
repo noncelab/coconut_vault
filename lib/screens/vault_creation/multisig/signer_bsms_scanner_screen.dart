@@ -1,5 +1,6 @@
 import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_lib/coconut_lib.dart';
+import 'package:coconut_vault/enums/hardware_wallet_type_enum.dart';
 import 'package:coconut_vault/enums/wallet_enums.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
@@ -16,7 +17,7 @@ import 'package:mobile_scanner/mobile_scanner.dart';
 class SignerBsmsScannerScreen extends StatefulWidget {
   final int? id;
   final HardwareWalletType? hardwareWalletType;
-  const SignerBsmsScannerScreen({super.key, this.id, this.hardwareWalletType = HardwareWalletType.vault});
+  const SignerBsmsScannerScreen({super.key, this.id, this.hardwareWalletType = HardwareWalletType.coconutVault});
 
   @override
   State<SignerBsmsScannerScreen> createState() => _SignerBsmsScannerScreenState();
@@ -78,18 +79,18 @@ class _SignerBsmsScannerScreenState extends BsmsScannerBase<SignerBsmsScannerScr
       Logger.log('--> SignerBsmsScannerScreen: result: $result');
 
       switch (widget.hardwareWalletType) {
-        case HardwareWalletType.vault:
+        case HardwareWalletType.coconutVault:
           Bsms.parseSigner(scanData);
           scanResult = scanData;
           break;
-        case HardwareWalletType.keystone:
+        case HardwareWalletType.keystone3Pro:
         case HardwareWalletType.jade:
           scanResult = MultisigNormalizer.fromUrResult(result as Map<dynamic, dynamic>);
           break;
         case HardwareWalletType.coldcard:
           scanResult = MultisigNormalizer.fromBbQrResult(result);
           break;
-        case HardwareWalletType.seesigner:
+        case HardwareWalletType.seedSigner:
         case HardwareWalletType.krux:
           scanResult = MultisigNormalizer.fromTextResult(result);
           break;

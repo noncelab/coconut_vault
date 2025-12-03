@@ -145,7 +145,7 @@ class WalletInfoViewModel extends ChangeNotifier {
     }
   }
 
-  Future<void> updateSignerSource(int signerIndex, SignerSource source) async {
+  Future<void> updateSignerSource(int signerIndex, HardwareWalletType source) async {
     if ((vaultItem as MultisigVaultListItem).signers[signerIndex].signerSource != source) {
       await walletProvider.updateExternalSignerSource(vaultItem.id, signerIndex, source);
       notifyListeners();
