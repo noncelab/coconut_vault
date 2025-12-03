@@ -131,7 +131,7 @@ class MultisigSignViewModel extends ChangeNotifier {
 
   // TODO: signers[index]의 hww type에 따라 다른 정보를 반환하도록 구현
   String? getMultisigInfoQrData(int index, HardwareWalletType hwwType) {
-    if (hwwType == HardwareWalletType.keystone) {
+    if (hwwType == HardwareWalletType.keystone3Pro) {
       return _getKeystoneMultisigInfoQrData(index);
     } else if (hwwType == HardwareWalletType.krux) {
       return _getKruxMultisigInfoQrData(index);
