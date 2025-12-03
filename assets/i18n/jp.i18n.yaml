@@ -502,6 +502,9 @@ seed_qr_confirmation_screen:
 vault_name_icon_setup_screen:
   title: "名前設定"
   saving: "保存中..."
+  dialog:
+    title: "ニーモニック情報リセット"
+    description: "今すぐ戻ると、ニーモニック情報がリセットされます。本当に戻りますか？"
 
 # lib/screens/vault_creation/multisig
 assign_signers_screen:
@@ -804,6 +807,7 @@ toast:
   multisig_already_added: "既に追加されたマルチシグウォレット。($name)"
   home_vault_min_one: "ホーム画面に表示されるウォレットは最低1つ必要です"
   no_wallet_to_delete: "削除するウォレットがありません"
+  mnemonic_has_been_regenerated: "ニーモニックフレーズが再生成されました。再度バックアップしてください。"
 
 errors:
   invalid_qr: "無効なQR。再度お試しください。"

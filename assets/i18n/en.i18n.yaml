@@ -501,6 +501,9 @@ seed_qr_confirmation_screen:
 vault_name_icon_setup_screen:
   title: "Name & Icon Setup"
   saving: "Saving..."
+  dialog:
+    title: "Mnemonic Information Reset"
+    description: "If you go back, the mnemonic will be reset. Continue?"
 
 # lib/screens/vault_creation/multisig
 assign_signers_screen:
@@ -803,6 +806,7 @@ toast:
   multisig_already_added: "This multisig wallet has already been added. ($name)"
   home_vault_min_one: "At least one wallet must remain on the home screen."
   no_wallet_to_delete: "There is no wallet to delete."
+  mnemonic_has_been_regenerated: "Mnemonic phrase has been regenerated. Please backup again."
 
 errors:
   invalid_qr: "Invalid QR code.\nPlease check again."

@@ -56,6 +56,7 @@ abstract class BaseEntropyWidgetState<T extends BaseEntropyWidget> extends State
   bool isPassphraseConfirmVisible = false;
 
   Uint8List? get mnemonic => _mnemonic;
+  Uint8List get passphrase => _passphrase;
 
   static final Set<String> validCharSet = {
     ...List.generate(26, (i) => String.fromCharCode('a'.codeUnitAt(0) + i)), // a-z

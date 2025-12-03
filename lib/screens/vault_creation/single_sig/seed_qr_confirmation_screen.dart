@@ -201,7 +201,11 @@ class _SeedQrConfirmationScreenState extends State<SeedQrConfirmationScreen> {
 
       if (mounted) {
         context.loaderOverlay.hide();
-        Navigator.pushNamed(context, AppRoutes.vaultNameSetup);
+        Navigator.pushReplacementNamed(
+          context,
+          AppRoutes.vaultNameSetup,
+          arguments: {'calledFrom': AppRoutes.seedQrImport},
+        );
       }
     } catch (e) {
       if (!mounted) return;

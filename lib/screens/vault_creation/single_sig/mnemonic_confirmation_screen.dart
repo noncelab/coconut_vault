@@ -16,7 +16,9 @@ import 'package:provider/provider.dart';
 // 마지막 확인: 그 외
 class MnemonicConfirmationScreen extends StatefulWidget {
   final String calledFrom;
-  const MnemonicConfirmationScreen({super.key, required this.calledFrom});
+  final bool fromVerify; // 퀴즈(MnemonicVerify)를 이미 거쳐서 온 최종 확인 단계인지 여부
+
+  const MnemonicConfirmationScreen({super.key, required this.calledFrom, this.fromVerify = false});
 
   @override
   State<MnemonicConfirmationScreen> createState() => _MnemonicConfirmationScreenState();
@@ -55,12 +57,18 @@ class _MnemonicConfirmationScreenState extends State<MnemonicConfirmationScreen>
 
   @override
   Widget build(BuildContext context) {
+    final isFromCoinOrDice =
+        widget.calledFrom == AppRoutes.mnemonicCoinflip || widget.calledFrom == AppRoutes.mnemonicDiceRoll;
     final screenTitle =
-        widget.calledFrom == AppRoutes.mnemonicCoinflip || widget.calledFrom == AppRoutes.mnemonicDiceRoll
+        widget.fromVerify
+            ? t.mnemonic_confirm_screen.title
+            : isFromCoinOrDice
             ? t.mnemonic_verify_screen.title
             : t.mnemonic_confirm_screen.title;
     final screenDescription =
-        widget.calledFrom == AppRoutes.mnemonicCoinflip || widget.calledFrom == AppRoutes.mnemonicDiceRoll
+        widget.fromVerify
+            ? t.mnemonic_confirm_screen.description
+            : isFromCoinOrDice
             ? t.mnemonic_view_screen.security_guide
             : t.mnemonic_confirm_screen.description;
 
@@ -103,11 +111,22 @@ class _MnemonicConfirmationScreenState extends State<MnemonicConfirmationScreen>
                       });
                       return;
                     }
-                    if (widget.calledFrom == AppRoutes.mnemonicCoinflip ||
-                        widget.calledFrom == AppRoutes.mnemonicDiceRoll) {
-                      Navigator.pushReplacementNamed(context, AppRoutes.mnemonicVerify);
+                    final isFromCoinOrDice =
+                        widget.calledFrom == AppRoutes.mnemonicCoinflip ||
+                        widget.calledFrom == AppRoutes.mnemonicDiceRoll;
+
+                    if (!widget.fromVerify && isFromCoinOrDice) {
+                      Navigator.pushReplacementNamed(
+                        context,
+                        AppRoutes.mnemonicVerify,
+                        arguments: {'calledFrom': widget.calledFrom},
+                      );
                     } else {
-                      Navigator.pushReplacementNamed(context, AppRoutes.vaultNameSetup);
+                      Navigator.pushReplacementNamed(
+                        context,
+                        AppRoutes.vaultNameSetup,
+                        arguments: {'calledFrom': widget.calledFrom},
+                      );
                     }
                   },
                 ),

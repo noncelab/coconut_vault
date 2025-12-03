@@ -70,6 +70,9 @@ import 'dart:async';
 
 import 'utils/logger.dart';
 
+/// 라우트 변화를 감지하기 위한 전역 RouteObserver
+final RouteObserver<PageRoute<dynamic>> routeObserver = RouteObserver<PageRoute<dynamic>>();
+
 enum AppEntryFlow {
   splash,
   firstLaunch,
@@ -414,7 +417,7 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> with SingleTickerProv
                   children: [
                     CupertinoApp(
                       navigatorKey: _navigatorKey,
-                      navigatorObservers: [_navigatorObserver],
+                      navigatorObservers: [_navigatorObserver, routeObserver],
                       debugShowCheckedModeBanner: false,
                       localizationsDelegates: const [
                         DefaultMaterialLocalizations.delegate,
@@ -448,7 +451,11 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> with SingleTickerProv
                         AppRoutes.vaultTypeSelection: (context) => const VaultTypeSelectionScreen(),
                         AppRoutes.signerAssignment: (context) => const SignerAssignmentScreen(),
                         AppRoutes.vaultCreationOptions: (context) => const VaultCreationOptions(),
-                        AppRoutes.mnemonicVerify: (context) => const MnemonicVerifyScreen(),
+                        AppRoutes.mnemonicVerify:
+                            (context) => buildScreenWithArguments(
+                              context,
+                              (args) => MnemonicVerifyScreen(calledFrom: args['calledFrom'] ?? ''),
+                            ),
                         AppRoutes.mnemonicImport:
                             (context) => buildScreenWithArguments(
                               context,
@@ -468,12 +475,19 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> with SingleTickerProv
                         AppRoutes.mnemonicConfirmation:
                             (context) => buildScreenWithArguments(
                               context,
-                              (args) => MnemonicConfirmationScreen(calledFrom: args['calledFrom']),
+                              (args) => MnemonicConfirmationScreen(
+                                calledFrom: args['calledFrom'] ?? '',
+                                fromVerify: args['fromVerify'] ?? false,
+                              ),
                             ),
                         AppRoutes.mnemonicView:
                             (context) =>
                                 buildScreenWithArguments(context, (args) => MnemonicViewScreen(walletId: args['id'])),
-                        AppRoutes.vaultNameSetup: (context) => const VaultNameAndIconSetupScreen(),
+                        AppRoutes.vaultNameSetup:
+                            (context) => buildScreenWithArguments(
+                              context,
+                              (args) => VaultNameAndIconSetupScreen(calledFrom: args['calledFrom'] ?? ''),
+                            ),
                         AppRoutes.singleSigSetupInfo: (context) {
                           return buildScreenWithArguments(
                             context,

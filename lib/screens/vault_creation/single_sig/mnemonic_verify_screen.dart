@@ -10,7 +10,9 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 class MnemonicVerifyScreen extends StatefulWidget {
-  const MnemonicVerifyScreen({super.key});
+  final String calledFrom;
+
+  const MnemonicVerifyScreen({super.key, required this.calledFrom});
 
   @override
   State<MnemonicVerifyScreen> createState() => _MnemonicVerifyScreenState();
@@ -177,7 +179,7 @@ class _MnemonicVerifyScreenState extends State<MnemonicVerifyScreen> {
     Navigator.pushReplacementNamed(
       context,
       AppRoutes.mnemonicConfirmation,
-      arguments: {'calledFrom': AppRoutes.mnemonicVerify},
+      arguments: {'calledFrom': widget.calledFrom, 'fromVerify': true},
     );
   }
 

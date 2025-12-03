@@ -6,7 +6,6 @@ import 'package:coconut_vault/constants/app_routes.dart';
 import 'package:coconut_vault/enums/wallet_enums.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/model/multisig/multisig_signer.dart';
-import 'package:coconut_vault/model/multisig/multisig_vault_list_item.dart';
 import 'package:coconut_vault/model/common/vault_list_item_base.dart';
 import 'package:coconut_vault/model/exception/user_canceled_auth_exception.dart';
 import 'package:coconut_vault/model/single_sig/single_sig_wallet_create_dto.dart';
@@ -24,8 +23,15 @@ class VaultNameAndIconSetupScreen extends StatefulWidget {
   final String name;
   final int iconIndex;
   final int colorIndex;
+  final String calledFrom;
 
-  const VaultNameAndIconSetupScreen({super.key, this.name = '', this.iconIndex = 0, this.colorIndex = 0});
+  const VaultNameAndIconSetupScreen({
+    super.key,
+    this.name = '',
+    this.iconIndex = 0,
+    this.colorIndex = 0,
+    this.calledFrom = '',
+  });
 
   @override
   State<VaultNameAndIconSetupScreen> createState() => _VaultNameAndIconSetupScreenState();
@@ -204,10 +210,11 @@ class _VaultNameAndIconSetupScreenState extends State<VaultNameAndIconSetupScree
 
   @override
   Widget build(BuildContext context) {
+    debugPrint('--> calledFrom: ${widget.calledFrom}');
     return Stack(
       children: [
         PopScope(
-          canPop: !_showLoading,
+          canPop: !_showLoading && widget.calledFrom != AppRoutes.mnemonicAutoGen,
           onPopInvokedWithResult: (didPop, result) {
             if (_walletCreationProvider.walletType == WalletType.singleSignature) {
               _walletCreationProvider.resetSecretAndPassphrase();
@@ -221,7 +228,27 @@ class _VaultNameAndIconSetupScreenState extends State<VaultNameAndIconSetupScree
               title: t.vault_name_icon_setup_screen.title,
               context: context,
               onBackPressed: () {
-                Navigator.pop(context);
+                if (widget.calledFrom == AppRoutes.mnemonicCoinflip ||
+                    widget.calledFrom == AppRoutes.mnemonicDiceRoll ||
+                    widget.calledFrom == AppRoutes.mnemonicImport) {
+                  Navigator.pop(context);
+                } else {
+                  showDialog(
+                    context: context,
+                    builder:
+                        (context) => CoconutPopup(
+                          title: t.vault_name_icon_setup_screen.dialog.title,
+                          description: t.vault_name_icon_setup_screen.dialog.description,
+                          rightButtonText: t.confirm,
+                          leftButtonText: t.cancel,
+                          onTapRight: () {
+                            Navigator.of(context).pop();
+                            Navigator.of(context).pop();
+                          },
+                          onTapLeft: () => Navigator.of(context).pop(),
+                        ),
+                  );
+                }
               },
               backgroundColor: CoconutColors.white,
             ),
