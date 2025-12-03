@@ -90,6 +90,8 @@ class SignerBsmsQrDataHandler implements IQrScanDataHandler {
         case HardwareWalletType.coldcard:
           return normalized.startsWith('b\$');
         case HardwareWalletType.coconutVault:
+          return true;
+        // final SignerBsms = SignerBsms.parse(normalized); return SignerBsms != null;
         case HardwareWalletType.seedSigner:
         case HardwareWalletType.krux:
           return _isValidSignerDescriptor(normalized);
