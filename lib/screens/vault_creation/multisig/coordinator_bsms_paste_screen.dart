@@ -14,14 +14,14 @@ import 'package:coconut_vault/widgets/button/fixed_bottom_button.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-class BSMSPasteScreen extends StatefulWidget {
-  const BSMSPasteScreen({super.key});
+class CoordinatorBsmsPasteScreen extends StatefulWidget {
+  const CoordinatorBsmsPasteScreen({super.key});
 
   @override
-  State<BSMSPasteScreen> createState() => _BSMSPasteScreenState();
+  State<CoordinatorBsmsPasteScreen> createState() => _CoordinatorBsmsPasteScreenState();
 }
 
-class _BSMSPasteScreenState extends State<BSMSPasteScreen> {
+class _CoordinatorBsmsPasteScreenState extends State<CoordinatorBsmsPasteScreen> {
   final FocusNode _bsmsFocusNode = FocusNode();
   final TextEditingController _bsmsController = TextEditingController();
 
