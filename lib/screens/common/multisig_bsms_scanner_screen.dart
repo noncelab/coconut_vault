@@ -308,19 +308,19 @@ class _MultisigBsmsScannerScreenState extends State<MultisigBsmsScannerScreen> {
         case 'en':
           return [
             TextSpan(
-              text: t.bsms_scanner_screen.guide2_1,
+              text: t.bsms_scanner_screen.coconut_vault.guide2_1,
               style: CoconutTypography.body2_14.setColor(CoconutColors.black),
               children: <TextSpan>[
                 buildTextSpan('\n'),
                 buildTextSpan('1. '),
                 buildTextSpan(t.bsms_scanner_screen.select),
-                buildTextSpan(t.bsms_scanner_screen.guide2_2),
+                buildTextSpan(t.bsms_scanner_screen.coconut_vault.guide2_2),
                 buildTextSpan('\n'),
                 buildTextSpan('2. '),
                 buildTextSpan(t.bsms_scanner_screen.select),
-                buildTextSpan(t.bsms_scanner_screen.guide2_3, isBold: true),
+                buildTextSpan(t.bsms_scanner_screen.coconut_vault.guide2_3, isBold: true),
                 buildTextSpan('\n'),
-                buildTextSpan(t.bsms_scanner_screen.guide2_4),
+                buildTextSpan(t.bsms_scanner_screen.coconut_vault.guide2_4),
               ],
             ),
           ];
@@ -328,19 +328,19 @@ class _MultisigBsmsScannerScreenState extends State<MultisigBsmsScannerScreen> {
         default:
           return [
             TextSpan(
-              text: t.bsms_scanner_screen.guide2_1,
+              text: t.bsms_scanner_screen.coconut_vault.guide2_1,
               style: CoconutTypography.body2_14.setColor(CoconutColors.black),
               children: <TextSpan>[
                 buildTextSpan('\n'),
                 buildTextSpan('1. '),
-                buildTextSpan(t.bsms_scanner_screen.guide2_2),
+                buildTextSpan(t.bsms_scanner_screen.coconut_vault.guide2_2),
                 buildTextSpan(t.bsms_scanner_screen.select),
                 buildTextSpan('\n'),
                 buildTextSpan('2. '),
-                buildTextSpan(t.bsms_scanner_screen.guide2_3, isBold: true),
+                buildTextSpan(t.bsms_scanner_screen.coconut_vault.guide2_3, isBold: true),
                 buildTextSpan(t.bsms_scanner_screen.select),
                 buildTextSpan('\n'),
-                buildTextSpan(t.bsms_scanner_screen.guide2_4),
+                buildTextSpan(t.bsms_scanner_screen.coconut_vault.guide2_4),
               ],
             ),
           ];

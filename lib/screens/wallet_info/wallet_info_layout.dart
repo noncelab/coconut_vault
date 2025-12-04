@@ -288,6 +288,7 @@ class _WalletInfoLayoutState extends State<WalletInfoLayout> {
       initialChildSize: 0.45,
       childBuilder:
           (context) => SelectExternalWalletBottomSheet(
+            title: t.multi_sig_setting_screen.add_icon.title,
             externalWalletButtonList: externalWalletButtonList,
             selectedIndex: selectedIndex,
             onSelected: (selectedIndex) {

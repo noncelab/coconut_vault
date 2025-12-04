@@ -1,6 +1,7 @@
 import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_lib/coconut_lib.dart';
 import 'package:coconut_vault/constants/app_routes.dart';
+import 'package:coconut_vault/constants/icon_path.dart';
 import 'package:coconut_vault/enums/wallet_enums.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/model/common/vault_list_item_base.dart';
@@ -9,6 +10,7 @@ import 'package:coconut_vault/model/single_sig/single_sig_vault_list_item.dart';
 import 'package:coconut_vault/providers/view_model/signer_assignment_view_model.dart';
 import 'package:coconut_vault/providers/wallet_creation_provider.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
+import 'package:coconut_vault/screens/common/select_external_wallet_bottom_sheet.dart';
 import 'package:coconut_vault/screens/vault_creation/multisig/signer_bsms_scanner_screen.dart';
 import 'package:coconut_vault/screens/vault_creation/multisig/import_confirmation_screen.dart';
 import 'package:coconut_vault/screens/vault_creation/multisig/signer_assignment_key_list_bottom_sheet.dart';
@@ -488,30 +490,72 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
     }
   }
 
-  // TODO: 하드월렛 선택 바텀싯
   void _onImportFromHwwPressed() async {
-    MyBottomSheet.showBottomSheet_ratio(
-      context: context,
-      child: Center(
-        child: GestureDetector(
-          child: Text('하드월렛 선택'),
-          onTap: () async {
-            final externalImported = await MyBottomSheet.showDraggableScrollableSheet(
-              topWidget: true,
-              context: context,
-              physics: const ClampingScrollPhysics(),
-              enableSingleChildScroll: false,
-              hideAppBar: true,
-              child: const SignerBsmsScannerScreen(
-                hardwareWalletType: HardwareWalletType.coldcard,
-              ), // TODO: 선택한 결과에 맞게 harewareWalletType 변경하기
-            );
+    HardwareWalletType? selectedWalletType;
 
-            Logger.log('--> SignerAssignmentScreen: externalImported: $externalImported');
-          },
-        ),
+    final iconSourceList = [
+      kCoconutVaultIconPath,
+      kKeystoneIconPath,
+      kSeedSignerIconPath,
+      kJadeIconPath,
+      kColdCardIconPath,
+      kKruxIconPath,
+    ];
+
+    final List<ExternalWalletButton> walletButtons = [
+      ExternalWalletButton(name: t.multi_sig_setting_screen.add_icon.coconut_vault, iconSource: iconSourceList[0]),
+      ExternalWalletButton(name: t.multi_sig_setting_screen.add_icon.keystone3pro, iconSource: iconSourceList[1]),
+      ExternalWalletButton(name: t.multi_sig_setting_screen.add_icon.seed_signer, iconSource: iconSourceList[2]),
+      ExternalWalletButton(name: t.multi_sig_setting_screen.add_icon.jade, iconSource: iconSourceList[3]),
+      ExternalWalletButton(name: t.multi_sig_setting_screen.add_icon.cold_card, iconSource: iconSourceList[4]),
+      ExternalWalletButton(name: t.multi_sig_setting_screen.add_icon.krux, iconSource: iconSourceList[5]),
+    ];
+
+    await MyBottomSheet.showBottomSheet_ratio(
+      context: context,
+      child: SelectExternalWalletBottomSheet(
+        title: t.assign_signers_screen.hardware_wallet_type_selection,
+        externalWalletButtonList: walletButtons,
+        onSelected: (index) {
+          switch (index) {
+            case 0:
+              selectedWalletType = HardwareWalletType.coconutVault;
+              break;
+            case 1:
+              selectedWalletType = HardwareWalletType.keystone3Pro;
+              break;
+            case 2:
+              selectedWalletType = HardwareWalletType.seedSigner;
+              break;
+            case 3:
+              selectedWalletType = HardwareWalletType.jade;
+              break;
+            case 4:
+              selectedWalletType = HardwareWalletType.coldcard;
+              break;
+            case 5:
+              selectedWalletType = HardwareWalletType.krux;
+              break;
+
+            default:
+              selectedWalletType = HardwareWalletType.coldcard;
+          }
+        },
       ),
     );
+
+    if (selectedWalletType != null && mounted) {
+      final externalImported = await MyBottomSheet.showDraggableScrollableSheet(
+        topWidget: true,
+        context: context,
+        physics: const ClampingScrollPhysics(),
+        enableSingleChildScroll: false,
+        hideAppBar: true,
+        child: SignerBsmsScannerScreen(hardwareWalletType: selectedWalletType!),
+      );
+
+      Logger.log('--> SignerAssignmentScreen: externalImported: $externalImported');
+    }
   }
 
   @override
