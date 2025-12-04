@@ -13,6 +13,7 @@ import 'package:coconut_vault/model/single_sig/single_sig_vault_list_item.dart';
 import 'package:coconut_vault/model/single_sig/single_sig_wallet_create_dto.dart';
 import 'package:coconut_vault/model/exception/not_related_multisig_wallet_exception.dart';
 import 'package:coconut_vault/providers/visibility_provider.dart';
+import 'package:coconut_vault/utils/bip/normalized_multisig_config.dart';
 import 'package:coconut_vault/utils/logger.dart';
 import 'package:coconut_vault/enums/wallet_enums.dart';
 import 'package:flutter/foundation.dart';
@@ -233,6 +234,18 @@ class WalletProvider extends ChangeNotifier {
     });
 
     return vaultIndex != -1;
+  }
+
+  MultisigVaultListItem? findSameMultisigWallet(NormalizedMultisigConfig config) {
+    final vaultIndex = _vaultList.indexWhere((element) {
+      if (element is SingleSigVaultListItem) return false;
+      final wallet = element as MultisigVaultListItem;
+      return wallet.requiredSignatureCount == config.requiredCount &&
+          wallet.signers.length == config.totalSigners &&
+          setEquals(wallet.signerFingerprints, config.signerFingerprints);
+    });
+
+    return vaultIndex != -1 ? _vaultList[vaultIndex] as MultisigVaultListItem : null;
   }
 
   /// MultisigVaultListItem의 coordinatorBsms 중복 여부 확인

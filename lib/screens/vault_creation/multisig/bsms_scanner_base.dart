@@ -18,6 +18,7 @@ import 'package:provider/provider.dart';
 
 /// BSMS 스캐너 공통 베이스
 abstract class BsmsScannerBase<T extends StatefulWidget> extends State<T> {
+  final String wrongFormatMessage = t.coordinator_bsms_config_scanner_screen.error_message;
   final GlobalKey qrKey = GlobalKey(debugLabel: 'QR');
 
   late VisibilityProvider visibilityProvider;

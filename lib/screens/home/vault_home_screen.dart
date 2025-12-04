@@ -18,6 +18,7 @@ import 'package:coconut_vault/screens/home/select_vault_bottom_sheet.dart';
 import 'package:coconut_vault/screens/settings/pin_setting_screen.dart';
 import 'package:coconut_vault/screens/wallet_info/single_sig_menu/passphrase_check_screen.dart';
 import 'package:coconut_vault/services/secure_zone/secure_zone_availability_checker.dart';
+import 'package:coconut_vault/utils/popup_util.dart';
 import 'package:coconut_vault/widgets/button/shrink_animation_button.dart';
 import 'package:coconut_vault/widgets/card/vault_addition_guide_card.dart';
 import 'package:coconut_vault/widgets/indicator/message_activity_indicator.dart';
@@ -99,17 +100,7 @@ class _VaultHomeScreenState extends State<VaultHomeScreen> with TickerProviderSt
             _isAndroidSecureZoneChecking = false;
           });
           if (!mounted) return;
-          showDialog(
-            context: context,
-            builder:
-                (context) => CoconutPopup(
-                  title: t.vault_home_screen.secure_zone_check_failed,
-                  description: e.toString(),
-                  onTapRight: () {
-                    Navigator.pop(context);
-                  },
-                ),
-          );
+          showInfoPopup(context, t.vault_home_screen.secure_zone_check_failed, e.toString());
         }
       }
     });

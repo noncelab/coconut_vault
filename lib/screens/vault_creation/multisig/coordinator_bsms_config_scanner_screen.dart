@@ -13,6 +13,7 @@ import 'package:coconut_vault/screens/vault_creation/multisig/bsms_scanner_base.
 import 'package:coconut_vault/utils/bip/multisig_normalizer.dart';
 import 'package:coconut_vault/utils/bip/normalized_multisig_config.dart';
 import 'package:coconut_vault/utils/logger.dart';
+import 'package:coconut_vault/utils/popup_util.dart';
 import 'package:coconut_vault/widgets/animated_qr/scan_data_handler/coordinator_bsms_qr_data_handler.dart';
 import 'package:flutter/material.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
@@ -27,7 +28,6 @@ class CoordinatorBsmsConfigScannerScreen extends StatefulWidget {
 }
 
 class _CoordinatorBsmsConfigScannerScreenState extends BsmsScannerBase<CoordinatorBsmsConfigScannerScreen> {
-  static String wrongFormatMessage = t.errors.invalid_multisig_qr_error; // TODO:
   final CoordinatorBsmsQrDataHandler _coordinatorBsmsQrDataHandler;
   late final ImportCoordinatorBsmsViewModel _viewModel;
 
@@ -87,7 +87,8 @@ class _CoordinatorBsmsConfigScannerScreenState extends BsmsScannerBase<Coordinat
     try {
       _coordinatorBsmsQrDataHandler.joinData(scanData);
     } catch (e) {
-      onFailedScanning('${t.coordinator_bsms_config_scanner_screen.error_message}\n${e.toString()}');
+      _coordinatorBsmsQrDataHandler.reset();
+      onFailedScanning('$wrongFormatMessage\n${e.toString()}');
       return;
     }
 
@@ -107,7 +108,7 @@ class _CoordinatorBsmsConfigScannerScreenState extends BsmsScannerBase<Coordinat
     final result = _coordinatorBsmsQrDataHandler.result;
 
     if (result == null) {
-      // TODO: 안내 메시지 변경
+      _coordinatorBsmsQrDataHandler.reset();
       onFailedScanning(wrongFormatMessage);
       setState(() => isProcessing = false);
       return;
@@ -120,14 +121,23 @@ class _CoordinatorBsmsConfigScannerScreenState extends BsmsScannerBase<Coordinat
         '\t normalizedMultisigConfig: \n name: ${normalizedMultisigConfig.name}\n requiredCount: ${normalizedMultisigConfig.requiredCount}\n signerBsms: [\n${normalizedMultisigConfig.signerBsms.join(',\n')}\n]',
       );
     } catch (e) {
-      onFailedScanning('${t.coordinator_bsms_config_scanner_screen.error_message}\n${e.toString()}');
+      _coordinatorBsmsQrDataHandler.reset();
+      onFailedScanning('$wrongFormatMessage\n${e.toString()}');
       Logger.error('🛑 MultisigNormalizer.fromCoordinatorResult 에러 발생: $e');
       await controller?.start();
       return;
     }
 
     try {
-      final creationProvider = Provider.of<WalletCreationProvider>(context, listen: false)..resetAll();
+      final sameWalletName = _viewModel.findSameWalletName(normalizedMultisigConfig);
+      if (sameWalletName != null) {
+        if (!mounted) return;
+        _coordinatorBsmsQrDataHandler.reset();
+        await showInfoPopup(context, t.alert.same_wallet.title, t.alert.same_wallet.description(name: sameWalletName));
+        await controller?.start();
+        return;
+      }
+
       // TODO: coconut multisig text를 normalized 한 경우를 알 수 있어야 함.
       bool isCoconutMultisigConfig = _viewModel.isCoconutMultisigConfig(result);
       List<MultisigSigner> signers = normalizedMultisigConfig.getMultisigSigners();
@@ -144,6 +154,7 @@ class _CoordinatorBsmsConfigScannerScreenState extends BsmsScannerBase<Coordinat
           arguments: VaultHomeNavArgs(addedWalletId: vault.id),
         );
       } else {
+        final creationProvider = Provider.of<WalletCreationProvider>(context, listen: false)..resetAll();
         creationProvider.setQuorumRequirement(
           normalizedMultisigConfig.requiredCount,
           normalizedMultisigConfig.signerBsms.length,
@@ -170,7 +181,7 @@ class _CoordinatorBsmsConfigScannerScreenState extends BsmsScannerBase<Coordinat
       // );
     } catch (e) {
       Logger.error('🛑: $e');
-
+      _coordinatorBsmsQrDataHandler.reset();
       // TODO: NotRelatedMultisigWalletException 삭제 필요한지 확인
       // if (e is NotRelatedMultisigWalletException) {
       //   onFailedScanning(e.message);

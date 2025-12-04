@@ -21,6 +21,11 @@ class ImportCoordinatorBsmsViewModel {
         multisigWalletInfo.containsKey(VaultListItemBase.fieldIconIndex);
   }
 
+  String? findSameWalletName(NormalizedMultisigConfig multisigConfig) {
+    final result = _walletProvider.findSameMultisigWallet(multisigConfig);
+    return result?.name;
+  }
+
   Future<MultisigVaultListItem> addMultisigVault(
     NormalizedMultisigConfig multisigConfig,
     int color,

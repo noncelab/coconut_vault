@@ -131,4 +131,7 @@ class NormalizedMultisigConfig {
       );
     }).toList();
   }
+
+  // TODO: signerBsms 리스트의 타입이 변경되면 필요 없어질 수도 있음.
+  Set<String> get signerFingerprints => signerBsms.map((bsms) => SignerBsms.parse(bsms).fingerprint).toSet();
 }

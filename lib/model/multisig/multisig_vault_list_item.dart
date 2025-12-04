@@ -95,4 +95,6 @@ class MultisigVaultListItem extends VaultListItemBase {
     json['vaultType'] = _$WalletTypeEnumMap[WalletType.multiSignature];
     return _$MultisigVaultListItemFromJson(json);
   }
+
+  Set<String> get signerFingerprints => signers.map((s) => s.keyStore.masterFingerprint).toSet();
 }
