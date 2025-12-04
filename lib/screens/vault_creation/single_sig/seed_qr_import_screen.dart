@@ -29,6 +29,7 @@ class _SeedQrImportScreenState extends State<SeedQrImportScreen> {
   final GlobalKey qrKey = GlobalKey(debugLabel: 'QR');
   QRViewController? controller;
   bool _isNavigating = false;
+  bool _isProcessing = false;
   Barcode? result;
   late AppLifecycleStateProvider _appLifecycleStateProvider;
 
@@ -117,9 +118,10 @@ class _SeedQrImportScreenState extends State<SeedQrImportScreen> {
     setState(() {
       this.controller = controller;
     });
-    var words = <String>[];
+    List<String>? words;
     controller.scannedDataStream.listen((scanData) {
-      if (_isNavigating) return;
+      if (_isNavigating || _isProcessing) return;
+      _isProcessing = true;
 
       try {
         if (scanData.code == null && scanData.rawBytes != null) {
@@ -130,6 +132,23 @@ class _SeedQrImportScreenState extends State<SeedQrImportScreen> {
       } catch (e) {
         if (e is FormatException && e.message.contains('Invalid radix-10 number')) {
           words = _decodeCompactQR(scanData.rawBytes!);
+          if (words == null) {
+            if (mounted) {
+              showDialog(
+                context: context,
+                builder: (context) {
+                  return CoconutPopup(
+                    title: t.seed_qr_import_screen.format_error_title,
+                    description: t.seed_qr_import_screen.format_error_message,
+                    onTapRight: () {
+                      _isProcessing = false;
+                      Navigator.of(context).pop();
+                    },
+                  );
+                },
+              );
+            }
+          }
         } else {
           if (mounted) {
             showDialog(
@@ -138,7 +157,10 @@ class _SeedQrImportScreenState extends State<SeedQrImportScreen> {
                 return CoconutPopup(
                   title: t.seed_qr_import_screen.error_title,
                   description: '${t.seed_qr_import_screen.error_message}: $e',
-                  onTapRight: () => Navigator.of(context).pop(),
+                  onTapRight: () {
+                    _isProcessing = false;
+                    Navigator.of(context).pop();
+                  },
                 );
               },
             );
@@ -147,7 +169,7 @@ class _SeedQrImportScreenState extends State<SeedQrImportScreen> {
         }
       }
 
-      if (words.length == 12 || words.length == 24) {
+      if (words != null && (words!.length == 12 || words!.length == 24)) {
         if (mounted) {
           _isNavigating = true;
           // 1. 네비게이션하기 전 카메라 끄기
@@ -158,7 +180,7 @@ class _SeedQrImportScreenState extends State<SeedQrImportScreen> {
             MaterialPageRoute(
               builder:
                   (context) => SeedQrConfirmationScreen(
-                    scannedData: utf8.encode(words.join(' ')),
+                    scannedData: utf8.encode(words!.join(' ')),
                     externalSigner: widget.externalSigner,
                     multisigVaultIdOfExternalSigner: widget.multisigVaultIdOfExternalSigner,
                   ),
@@ -170,6 +192,7 @@ class _SeedQrImportScreenState extends State<SeedQrImportScreen> {
             }
             setState(() {
               _isNavigating = false;
+              _isProcessing = false;
             });
           });
         }
@@ -192,8 +215,13 @@ class _SeedQrImportScreenState extends State<SeedQrImportScreen> {
     return words;
   }
 
-  List<String> _decodeCompactQR(List<int> bytes) {
-    final wordCount = _detectMnemonicWords(bytes);
+  List<String>? _decodeCompactQR(List<int> bytes) {
+    var wordCount = 0;
+    try {
+      wordCount = _detectMnemonicWords(bytes);
+    } catch (e) {
+      return null;
+    }
     // 12-word: 128 bits, 24-word: 256 bits
     List<int> usefulBits = _getUsefulBits(bytes, wordCount);
 

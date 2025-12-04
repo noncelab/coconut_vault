@@ -493,6 +493,8 @@ seed_qr_import_screen:
   title: "시드 QR 코드 스캔"
   error_title: "스캔 오류"
   error_message: "시드 QR 코드 스캔 중 오류가 발생했어요. 다시 시도해 주세요."
+  format_error_title: "형식 오류"
+  format_error_message: "시드 QR 코드 형식이 올바르지 않아요. 다시 시도해 주세요."
   guide: "시드 QR 코드를 스캔해 주세요. (21x21 또는 25x25)"
 seed_qr_confirmation_screen:
   title: "니모닉 문구 확인"

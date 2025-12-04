@@ -493,6 +493,8 @@ seed_qr_import_screen:
   title: "シードQRコードスキャン"
   error_title: "スキャンエラー"
   error_message: "シードQRコードのスキャン中にエラーが発生しました。再試行してください。"
+  format_error_title: "フォーマットエラー"
+  format_error_message: "シードQRコードのフォーマットが正しくありません。再試行してください。"
   guide: "シードQRコードをスキャンしてください。(21x21または25x25)"
 seed_qr_confirmation_screen:
   title: "ニーモニック確認"
