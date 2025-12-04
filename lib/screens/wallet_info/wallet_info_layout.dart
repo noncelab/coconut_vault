@@ -641,13 +641,14 @@ class _WalletInfoLayoutState extends State<WalletInfoLayout> {
                     VaultIcon(
                       iconIndex: isVaultInside ? signer.iconIndex! : null,
                       colorIndex: isVaultInside ? signer.colorIndex! : null,
-                      customIconSource: isVaultInside ? null : signer.signerSource!.iconPath,
+                      customIconSource:
+                          isVaultInside ? null : signer.signerSource?.iconPath ?? kAddCircleOutlinedIconPath,
                       size: 20,
                       onPressed:
                           isVaultInside
                               ? null
                               : () {
-                                _showAddIconBottomSheet(signer.signerSource!.iconPath, index);
+                                _showAddIconBottomSheet(signer.signerSource?.iconPath, index);
                               },
                     ),
                     const SizedBox(width: 10),
