@@ -59,8 +59,8 @@ class MultisigVaultListItem extends VaultListItemBase {
               (signer) => {
                 'innerVaultId': signer.innerVaultId,
                 'name': signer.name,
-                'iconIndex': signer.iconIndex,
-                'colorIndex': signer.colorIndex,
+                VaultListItemBase.fieldIconIndex: signer.iconIndex,
+                VaultListItemBase.fieldColorIndex: signer.colorIndex,
                 'memo': signer.memo,
                 // enum은 그대로 jsonEncode 할 수 없으므로 문자열로 변환
                 'signerSource': signer.signerSource?.name,
@@ -70,8 +70,8 @@ class MultisigVaultListItem extends VaultListItemBase {
 
     Map<String, dynamic> json = {
       'name': name,
-      'colorIndex': colorIndex,
-      'iconIndex': iconIndex,
+      VaultListItemBase.fieldColorIndex: colorIndex,
+      VaultListItemBase.fieldIconIndex: iconIndex,
       'descriptor': coconutVault.descriptor,
       'requiredSignatureCount': requiredSignatureCount,
       'signers': newSigners,

@@ -4,7 +4,9 @@ import 'package:coconut_vault/constants/app_routes.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/model/exception/not_related_multisig_wallet_exception.dart';
 import 'package:coconut_vault/model/multisig/multisig_signer.dart';
+import 'package:coconut_vault/providers/view_model/vault_creation/multisig/import_coordinator_bsms_view_model.dart';
 import 'package:coconut_vault/providers/wallet_creation_provider.dart';
+import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:coconut_vault/utils/bip/multisig_normalizer.dart';
 import 'package:coconut_vault/utils/logger.dart';
 import 'package:coconut_vault/widgets/animated_qr/scan_data_handler/coordinator_bsms_qr_data_handler.dart';
@@ -24,6 +26,7 @@ class _BSMSPasteScreenState extends State<BSMSPasteScreen> {
   final TextEditingController _bsmsController = TextEditingController();
 
   final CoordinatorBsmsQrDataHandler _handler = CoordinatorBsmsQrDataHandler();
+  late final ImportCoordinatorBsmsViewModel _viewModel;
 
   String _bsms = '';
   bool _bsmsObscured = false;
@@ -42,6 +45,11 @@ class _BSMSPasteScreenState extends State<BSMSPasteScreen> {
         }
       });
     });
+
+    _viewModel = ImportCoordinatorBsmsViewModel(
+      Provider.of<WalletProvider>(context, listen: false),
+      Provider.of<WalletCreationProvider>(context, listen: false),
+    );
   }
 
   @override

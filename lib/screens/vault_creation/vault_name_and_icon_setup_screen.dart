@@ -59,6 +59,7 @@ class _VaultNameAndIconSetupScreenState extends State<VaultNameAndIconSetupScree
     _controller.text = inputText;
   }
 
+  // TODO: 아래 이벤트 함수 삭제 가능한지 확인
   // Arguments 처리 로직
   @override
   void didChangeDependencies() {
@@ -66,7 +67,7 @@ class _VaultNameAndIconSetupScreenState extends State<VaultNameAndIconSetupScree
 
     if (!_isInitialized) {
       final args = ModalRoute.of(context)?.settings.arguments;
-      bool shouldAutoSave = false;
+      // bool shouldAutoSave = false;
 
       if (args != null && args is Map<String, dynamic>) {
         if (args.containsKey('name')) {
@@ -81,22 +82,22 @@ class _VaultNameAndIconSetupScreenState extends State<VaultNameAndIconSetupScree
         }
 
         // 이름이 있으면 자동 저장 플래그 설정
-        if (inputText.trim().isNotEmpty) {
-          shouldAutoSave = true;
-        }
+        //if (inputText.trim().isNotEmpty) {
+        //shouldAutoSave = true;
+        //}
       }
 
       _isInitialized = true;
 
-      if (shouldAutoSave) {
-        _isAutoSaving = true;
-        // 화면이 다 그려진 직후 저장 로직 실행
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          _closeKeyboard();
-          // 여기서 saveNewVaultName을 호출하면 내부에서 _showLoading = true가 되면서 로딩 화면이 뜸
-          saveNewVaultName(context);
-        });
-      }
+      // if (shouldAutoSave) {
+      //   _isAutoSaving = true;
+      //   // 화면이 다 그려진 직후 저장 로직 실행
+      //   WidgetsBinding.instance.addPostFrameCallback((_) {
+      //     _closeKeyboard();
+      //     // 여기서 saveNewVaultName을 호출하면 내부에서 _showLoading = true가 되면서 로딩 화면이 뜸
+      //     saveNewVaultName(context);
+      //   });
+      // }
     }
   }
 
@@ -120,6 +121,11 @@ class _VaultNameAndIconSetupScreenState extends State<VaultNameAndIconSetupScree
 
   void _closeKeyboard() {
     FocusScope.of(context).unfocus();
+  }
+
+  void _removeTrim() {
+    inputText = inputText.trim();
+    _controller.text = inputText;
   }
 
   Future<void> saveNewVaultName(BuildContext context) async {
@@ -297,6 +303,7 @@ class _VaultNameAndIconSetupScreenState extends State<VaultNameAndIconSetupScree
                           _showLoading = true;
                         });
                       } else {
+                        _removeTrim(); // TODO: 테스트 필요
                         saveNewVaultName(context);
                       }
                     },

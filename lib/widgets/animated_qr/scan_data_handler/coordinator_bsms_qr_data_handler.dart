@@ -87,11 +87,7 @@ class CoordinatorBsmsQrDataHandler implements IQrScanDataHandler {
       case CoordinatorBsmsQrDataFormat.json:
         _jsonBuffer ??= StringBuffer();
         _jsonBuffer!.write(data);
-        try {
-          _jsonParsed = json.decode(_jsonBuffer.toString());
-        } catch (_) {
-          // 파싱 실패시 무시
-        }
+        _jsonParsed = json.decode(_jsonBuffer.toString());
         return true;
       case CoordinatorBsmsQrDataFormat.text:
         _textBuffer ??= StringBuffer();
