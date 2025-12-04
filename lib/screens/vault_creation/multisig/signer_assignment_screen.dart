@@ -493,22 +493,14 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
   void _onImportFromHwwPressed() async {
     HardwareWalletType? selectedWalletType;
 
-    final iconSourceList = [
-      kCoconutVaultIconPath,
-      kKeystoneIconPath,
-      kSeedSignerIconPath,
-      kJadeIconPath,
-      kColdCardIconPath,
-      kKruxIconPath,
-    ];
+    final iconSourceList = [kKeystoneIconPath, kSeedSignerIconPath, kJadeIconPath, kColdCardIconPath, kKruxIconPath];
 
     final List<ExternalWalletButton> walletButtons = [
-      ExternalWalletButton(name: t.multi_sig_setting_screen.add_icon.coconut_vault, iconSource: iconSourceList[0]),
-      ExternalWalletButton(name: t.multi_sig_setting_screen.add_icon.keystone3pro, iconSource: iconSourceList[1]),
-      ExternalWalletButton(name: t.multi_sig_setting_screen.add_icon.seed_signer, iconSource: iconSourceList[2]),
-      ExternalWalletButton(name: t.multi_sig_setting_screen.add_icon.jade, iconSource: iconSourceList[3]),
-      ExternalWalletButton(name: t.multi_sig_setting_screen.add_icon.cold_card, iconSource: iconSourceList[4]),
-      ExternalWalletButton(name: t.multi_sig_setting_screen.add_icon.krux, iconSource: iconSourceList[5]),
+      ExternalWalletButton(name: t.multi_sig_setting_screen.add_icon.keystone3pro, iconSource: iconSourceList[0]),
+      ExternalWalletButton(name: t.multi_sig_setting_screen.add_icon.seed_signer, iconSource: iconSourceList[1]),
+      ExternalWalletButton(name: t.multi_sig_setting_screen.add_icon.jade, iconSource: iconSourceList[2]),
+      ExternalWalletButton(name: t.multi_sig_setting_screen.add_icon.cold_card, iconSource: iconSourceList[3]),
+      ExternalWalletButton(name: t.multi_sig_setting_screen.add_icon.krux, iconSource: iconSourceList[4]),
     ];
 
     await MyBottomSheet.showBottomSheet_ratio(
@@ -519,26 +511,23 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
         onSelected: (index) {
           switch (index) {
             case 0:
-              selectedWalletType = HardwareWalletType.coconutVault;
-              break;
-            case 1:
               selectedWalletType = HardwareWalletType.keystone3Pro;
               break;
-            case 2:
+            case 1:
               selectedWalletType = HardwareWalletType.seedSigner;
               break;
-            case 3:
+            case 2:
               selectedWalletType = HardwareWalletType.jade;
               break;
-            case 4:
+            case 3:
               selectedWalletType = HardwareWalletType.coldcard;
               break;
-            case 5:
+            case 4:
               selectedWalletType = HardwareWalletType.krux;
               break;
 
             default:
-              selectedWalletType = HardwareWalletType.coldcard;
+              selectedWalletType = HardwareWalletType.coconutVault;
           }
         },
       ),
