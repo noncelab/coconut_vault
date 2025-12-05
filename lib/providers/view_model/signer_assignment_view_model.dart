@@ -10,6 +10,7 @@ import 'package:coconut_vault/model/single_sig/single_sig_vault_list_item.dart';
 import 'package:coconut_vault/providers/wallet_creation_provider.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:coconut_vault/screens/vault_creation/multisig/signer_assignment_screen.dart';
+import 'package:coconut_vault/utils/logger.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
@@ -66,11 +67,29 @@ class SignerAssignmentViewModel extends ChangeNotifier {
 
   /// bsms를 비교하여 이미 보유한 볼트 지갑 중 하나인 경우 이름을 반환
   String? findVaultNameByBsms(String signerBsms) {
-    var mfp = Bsms.parseSigner(signerBsms).signer!.masterFingerPrint;
+    String? targetMfp;
+
+    try {
+      targetMfp = Bsms.parseSigner(signerBsms).signer!.masterFingerPrint;
+    } catch (e) {
+      final RegExp regex = RegExp(r'\[([0-9A-Fa-f]{8})');
+      final match = regex.firstMatch(signerBsms);
+
+      if (match != null) {
+        targetMfp = match.group(1);
+        Logger.log('Parsing failed but MFP extracted via Regex: $targetMfp');
+      } else {
+        Logger.log('Failed to extract MFP from raw data: $e');
+        return null;
+      }
+    }
+
+    if (targetMfp == null) return null;
 
     int result = _signerOptions.indexWhere((element) {
-      return element.masterFingerprint == mfp;
+      return element.masterFingerprint.toLowerCase() == targetMfp!.toLowerCase();
     });
+
     if (result == -1) return null;
     return _signerOptions[result].singlesigVaultListItem.name;
   }
@@ -128,11 +147,41 @@ class SignerAssignmentViewModel extends ChangeNotifier {
           );
           break;
         case ImportKeyType.external:
+          List<String> bsmsLines = _assignedVaultList[i].bsms?.split('\n') ?? [];
+          String signerName = '';
+          if (bsmsLines.length > 3 && bsmsLines[3].isNotEmpty) {
+            signerName = bsmsLines[3];
+          } else {
+            switch (_assignedVaultList[i].signerSource) {
+              case HardwareWalletType.keystone3Pro:
+                signerName = 'Keystone 3 Pro';
+                break;
+              case HardwareWalletType.jade:
+                signerName = 'Blockstream Jade';
+                break;
+              case HardwareWalletType.coldcard:
+                signerName = 'Coldcard';
+                break;
+              case HardwareWalletType.seedSigner:
+                signerName = 'SeedSigner';
+                break;
+              case HardwareWalletType.krux:
+                signerName = 'Krux';
+                break;
+              case HardwareWalletType.coconutVault:
+                signerName = 'Coconut Vault';
+                break;
+              default:
+                signerName = 'External Signer ${i + 1}';
+                break;
+            }
+          }
+
           signers.add(
             MultisigSigner(
               id: i,
               signerBsms: _assignedVaultList[i].bsms!,
-              name: _assignedVaultList[i].bsms?.split('\n')[3] ?? '',
+              name: signerName,
               memo: _assignedVaultList[i].memo,
               signerSource: _assignedVaultList[i].signerSource,
               keyStore: keyStores[i],

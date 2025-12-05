@@ -89,6 +89,8 @@ class _SignerBsmsScannerScreenState extends BsmsScannerBase<SignerBsmsScannerScr
           scanResult = MultisigNormalizer.fromBbQrResult(result);
           break;
         case HardwareWalletType.seedSigner:
+          scanResult = MultisigNormalizer.fromTextResult(result);
+          break;
         case HardwareWalletType.krux:
           scanResult = MultisigNormalizer.fromTextResult(result);
           break;
