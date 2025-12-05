@@ -93,12 +93,6 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
       return item.item?.name ?? '';
     }
 
-    // 메모가 있으면 최우선으로 표시
-    if (item.memo != null && item.memo!.isNotEmpty) {
-      return item.memo!;
-    }
-
-    // 메모가 없을 경우 MFP 표시
     if (item.importKeyType == ImportKeyType.external && item.bsms != null) {
       final match = RegExp(r'\[([0-9a-fA-F]{8})').firstMatch(item.bsms!);
 
