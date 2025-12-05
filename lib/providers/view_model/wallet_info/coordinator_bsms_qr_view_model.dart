@@ -21,6 +21,7 @@ class CoordinatorBsmsQrViewModel extends ChangeNotifier {
 
     Map<String, String> namesMap = {};
     for (var signer in vaultListItem.signers) {
+      if (signer.name == null) continue;
       namesMap[signer.keyStore.masterFingerprint] = signer.name!;
     }
 
