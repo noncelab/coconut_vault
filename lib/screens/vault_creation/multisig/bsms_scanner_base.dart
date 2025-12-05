@@ -8,6 +8,7 @@ import 'package:coconut_vault/providers/app_lifecycle_state_provider.dart';
 import 'package:coconut_vault/providers/visibility_provider.dart';
 import 'package:coconut_vault/utils/alert_util.dart';
 import 'package:coconut_vault/widgets/button/fixed_bottom_button.dart';
+import 'package:coconut_vault/widgets/custom_loading_overlay.dart';
 import 'package:coconut_vault/widgets/custom_tooltip.dart';
 import 'package:coconut_vault/widgets/overlays/scanner_overlay.dart';
 import 'package:flutter/material.dart';
@@ -17,6 +18,7 @@ import 'package:provider/provider.dart';
 
 /// BSMS 스캐너 공통 베이스
 abstract class BsmsScannerBase<T extends StatefulWidget> extends State<T> {
+  final String wrongFormatMessage = t.coordinator_bsms_config_scanner_screen.error_message;
   final GlobalKey qrKey = GlobalKey(debugLabel: 'QR');
 
   late VisibilityProvider visibilityProvider;
@@ -112,16 +114,18 @@ abstract class BsmsScannerBase<T extends StatefulWidget> extends State<T> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: CoconutAppBar.build(
-        title: appBarTitle,
-        backgroundColor: CoconutColors.white,
-        context: context,
-        isBackButton: showBackButton,
-        isBottom: useBottomAppBar,
-        actionButtonList: icon,
+    return CustomLoadingOverlay(
+      child: Scaffold(
+        appBar: CoconutAppBar.build(
+          title: appBarTitle,
+          backgroundColor: CoconutColors.white,
+          context: context,
+          isBackButton: showBackButton,
+          isBottom: useBottomAppBar,
+          actionButtonList: icon,
+        ),
+        body: SafeArea(top: false, child: _buildStack(context)),
       ),
-      body: SafeArea(top: false, child: _buildStack(context)),
     );
   }
 

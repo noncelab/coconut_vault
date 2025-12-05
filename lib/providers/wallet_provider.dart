@@ -13,6 +13,7 @@ import 'package:coconut_vault/model/single_sig/single_sig_vault_list_item.dart';
 import 'package:coconut_vault/model/single_sig/single_sig_wallet_create_dto.dart';
 import 'package:coconut_vault/model/exception/not_related_multisig_wallet_exception.dart';
 import 'package:coconut_vault/providers/visibility_provider.dart';
+import 'package:coconut_vault/utils/bip/normalized_multisig_config.dart';
 import 'package:coconut_vault/utils/logger.dart';
 import 'package:coconut_vault/enums/wallet_enums.dart';
 import 'package:flutter/foundation.dart';
@@ -87,6 +88,7 @@ class WalletProvider extends ChangeNotifier {
     // HardwareBackedKeystorePlugin.encrypt 내부에서 AUTH_NEEDED 에러 발생 시 생체인증 시도
     // 하지만 ios에서도 지갑 저장 중 라이프사이클 이벤트 호출로 중단되는 것을 방지하기 위해 operation 등록
     _lifecycleProvider.startOperation(AppLifecycleOperations.hwBasedEncryption);
+    wallet.name = _getUnduplicatedName(wallet.name!);
     final vault = await _walletRepository.addSinglesigWallet(wallet);
     _setVaultList(_walletRepository.vaultList);
     await _preferenceProvider.setVaultOrder(_vaultList.map((e) => e.id).toList());
@@ -109,13 +111,13 @@ class WalletProvider extends ChangeNotifier {
     _setAddVaultCompleted(false);
 
     final vault = await _walletRepository.addMultisigWallet(
-      MultisigWallet(null, name, icon, color, signers, requiredSignatureCount),
+      MultisigWallet(null, _getUnduplicatedName(name), icon, color, signers, requiredSignatureCount),
     );
-
     _setVaultList(_walletRepository.vaultList);
     _preferenceProvider.setVaultOrder(_vaultList.map((e) => e.id).toList());
     _addToFavoriteWalletsIfAvailable(_vaultList.last.id);
 
+    // TODO: 기존 존재하는 지갑과의 link 로직이 필요 (importMultisigVault 함수 참고하기)
     _setAddVaultCompleted(true);
     await _updateWalletLength();
     notifyListeners();
@@ -232,6 +234,18 @@ class WalletProvider extends ChangeNotifier {
     });
 
     return vaultIndex != -1;
+  }
+
+  MultisigVaultListItem? findSameMultisigWallet(NormalizedMultisigConfig config) {
+    final vaultIndex = _vaultList.indexWhere((element) {
+      if (element is SingleSigVaultListItem) return false;
+      final wallet = element as MultisigVaultListItem;
+      return wallet.requiredSignatureCount == config.requiredCount &&
+          wallet.signers.length == config.totalSigners &&
+          setEquals(wallet.signerFingerprints, config.signerFingerprints);
+    });
+
+    return vaultIndex != -1 ? _vaultList[vaultIndex] as MultisigVaultListItem : null;
   }
 
   /// MultisigVaultListItem의 coordinatorBsms 중복 여부 확인
@@ -378,6 +392,17 @@ class WalletProvider extends ChangeNotifier {
 
   Future<void> _updateWalletLength() async {
     await _visibilityProvider.saveWalletCount(_vaultList.length);
+  }
+
+  /// 이름 중복이면 겹치지 않게 숫자 접미사를 붙여서 반환
+  String _getUnduplicatedName(String name) {
+    String target = name.trim();
+    int count = 2;
+    while (isNameDuplicated(target)) {
+      target = '$name $count';
+      count++;
+    }
+    return target;
   }
 
   // 7) 오버라이드/생명주기

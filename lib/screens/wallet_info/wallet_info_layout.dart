@@ -642,7 +642,7 @@ class _WalletInfoLayoutState extends State<WalletInfoLayout> {
                     VaultIcon(
                       iconIndex: isVaultInside ? signer.iconIndex! : null,
                       colorIndex: isVaultInside ? signer.colorIndex! : null,
-                      customIconSource: isVaultInside ? null : signer.signerSource!.iconPath,
+                      customIconSource: isVaultInside ? null : signer.signerSource?.iconPath,
                       size: 20,
                       onPressed:
                           isVaultInside
