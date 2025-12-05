@@ -591,11 +591,10 @@ bsms_scanner_screen:
   seedsigner:
     guide2_1: "シードを追加した後、"
     guide2_2: "Export Xpub "
-    guide2_3: "Multisig"
-    guide2_4: "Native Segwit"
-    guide2_5: "BlueWallet"
-    guide2_6: "案内メッセージを確認した後"
-    guide2_7: "I Understand > Export Xpub"
+    guide2_3: "Multisig - Native Segwit"
+    guide2_4: "BlueWallet"
+    guide2_5: "案内メッセージを確認した後"
+    guide2_6: "I Understand > Export Xpub"
   jade:
     guide2_1: "Active"
     guide2_2: "状態で"

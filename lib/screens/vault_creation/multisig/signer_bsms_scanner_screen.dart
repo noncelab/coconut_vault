@@ -36,9 +36,6 @@ class _SignerBsmsScannerScreenState extends BsmsScannerBase<SignerBsmsScannerScr
   bool get useBottomAppBar => true;
 
   @override
-  double get topMaskHeight => 50.0;
-
-  @override
   String get appBarTitle => widget.hardwareWalletType!.displayName;
 
   @override
@@ -146,8 +143,6 @@ class _SignerBsmsScannerScreenState extends BsmsScannerBase<SignerBsmsScannerScr
         children.add(buildTextSpan(suffix));
       }
 
-      children.add(buildTextSpan('\n'));
-
       return TextSpan(children: children);
     }
 
@@ -159,8 +154,11 @@ class _SignerBsmsScannerScreenState extends BsmsScannerBase<SignerBsmsScannerScr
             style: CoconutTypography.body2_14.setColor(CoconutColors.black),
             children: <TextSpan>[
               buildStep('1. ', t.bsms_scanner_screen.keystone3pro.guide2_3, t.bsms_scanner_screen.select, suffix: null),
+              buildTextSpan('\n'),
               buildStep('2. ', t.bsms_scanner_screen.keystone3pro.guide2_4, t.bsms_scanner_screen.select),
+              buildTextSpan('\n'),
               buildStep('3. ', t.bsms_scanner_screen.keystone3pro.guide2_5, t.bsms_scanner_screen.select),
+              buildTextSpan('\n'),
               buildTextSpan('4. '),
               if (isReversedOrder) ...[
                 buildTextSpan('${t.bsms_scanner_screen.keystone3pro.guide2_7} '),
@@ -180,12 +178,14 @@ class _SignerBsmsScannerScreenState extends BsmsScannerBase<SignerBsmsScannerScr
             style: CoconutTypography.body2_14.setColor(CoconutColors.black),
             children: <TextSpan>[
               buildStep('1. ', t.bsms_scanner_screen.seedsigner.guide2_2, t.bsms_scanner_screen.select),
+              buildTextSpan('\n'),
               buildStep('2. ', t.bsms_scanner_screen.seedsigner.guide2_3, t.bsms_scanner_screen.select),
+              buildTextSpan('\n'),
               buildStep('3. ', t.bsms_scanner_screen.seedsigner.guide2_4, t.bsms_scanner_screen.select),
-              buildStep('4. ', t.bsms_scanner_screen.seedsigner.guide2_5, t.bsms_scanner_screen.select),
-              buildTextSpan('5. '),
-              buildTextSpan('${t.bsms_scanner_screen.seedsigner.guide2_6} '),
-              buildTextSpan(t.bsms_scanner_screen.seedsigner.guide2_7, isBold: true),
+              buildTextSpan('\n'),
+              buildTextSpan('4. '),
+              buildTextSpan('${t.bsms_scanner_screen.seedsigner.guide2_5} '),
+              buildTextSpan(t.bsms_scanner_screen.seedsigner.guide2_6, isBold: true),
             ],
           ),
         ];
@@ -205,9 +205,13 @@ class _SignerBsmsScannerScreenState extends BsmsScannerBase<SignerBsmsScannerScr
               ],
               buildTextSpan('\n'),
               buildStep('1. ', t.bsms_scanner_screen.jade.guide2_3, t.bsms_scanner_screen.select),
+              buildTextSpan('\n'),
               buildStep('2. ', t.bsms_scanner_screen.jade.guide2_4, t.bsms_scanner_screen.select),
+              buildTextSpan('\n'),
               buildStep('3. ', t.bsms_scanner_screen.jade.guide2_5, t.bsms_scanner_screen.select),
+              buildTextSpan('\n'),
               buildStep('4. ', t.bsms_scanner_screen.jade.guide2_6, t.bsms_scanner_screen.select),
+              buildTextSpan('\n'),
               buildTextSpan('5. '),
               if (isReversedOrder) ...[
                 buildTextSpan('${t.bsms_scanner_screen.jade.guide2_8} '),
@@ -228,10 +232,15 @@ class _SignerBsmsScannerScreenState extends BsmsScannerBase<SignerBsmsScannerScr
             style: CoconutTypography.body2_14.setColor(CoconutColors.black),
             children: <TextSpan>[
               buildStep('1. ', t.bsms_scanner_screen.cold_card.guide2_1, t.bsms_scanner_screen.select),
+              buildTextSpan('\n'),
               buildStep('2. ', t.bsms_scanner_screen.cold_card.guide2_2, t.bsms_scanner_screen.select),
+              buildTextSpan('\n'),
               buildStep('3. ', t.bsms_scanner_screen.cold_card.guide2_3, t.bsms_scanner_screen.select),
+              buildTextSpan('\n'),
               buildStep('4. ', t.bsms_scanner_screen.cold_card.guide2_4, pressBtn),
+              buildTextSpan('\n'),
               buildStep('5. ', t.bsms_scanner_screen.cold_card.guide2_5, pressBtn),
+              buildTextSpan('\n'),
               buildStep('6. ', t.bsms_scanner_screen.cold_card.guide2_6, pressBtn),
             ],
           ),
@@ -255,11 +264,13 @@ class _SignerBsmsScannerScreenState extends BsmsScannerBase<SignerBsmsScannerScr
               ],
               buildTextSpan('\n'),
               buildStep('2. ', t.bsms_scanner_screen.krux.guide2_4, t.bsms_scanner_screen.select),
+              buildTextSpan('\n'),
               buildTextSpan('3. '),
               buildTextSpan('${t.bsms_scanner_screen.krux.guide2_5} '),
               buildTextSpan(t.bsms_scanner_screen.krux.guide2_6, isBold: true),
               buildTextSpan('\n'),
               buildStep('4. ', t.bsms_scanner_screen.krux.guide2_7, t.bsms_scanner_screen.select),
+              buildTextSpan('\n'),
               buildTextSpan('5. '),
               isReversedOrder ? buildTextSpan('${t.bsms_scanner_screen.select} ') : buildTextSpan(''),
               buildTextSpan(t.bsms_scanner_screen.krux.guide2_8, isBold: true),
@@ -272,7 +283,7 @@ class _SignerBsmsScannerScreenState extends BsmsScannerBase<SignerBsmsScannerScr
       default:
         return [
           TextSpan(
-            text: t.bsms_scanner_screen.coconut_vault.guide2_1 + '\n',
+            text: '${t.bsms_scanner_screen.coconut_vault.guide2_1}\n',
             style: CoconutTypography.body2_14.setColor(CoconutColors.black),
             children: <TextSpan>[
               buildTextSpan('1. '),

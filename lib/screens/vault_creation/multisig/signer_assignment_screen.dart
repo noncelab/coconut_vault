@@ -131,7 +131,7 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
       case HardwareWalletType.coconutVault:
       default:
         // 기본 외부 지갑 아이콘 (코코넛 볼트 포함)
-        return 'assets/svg/import-bsms.svg';
+        return kCoconutVaultIconPath;
     }
   }
 

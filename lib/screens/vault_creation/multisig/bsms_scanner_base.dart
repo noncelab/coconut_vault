@@ -12,7 +12,6 @@ import 'package:coconut_vault/widgets/custom_loading_overlay.dart';
 import 'package:coconut_vault/widgets/custom_tooltip.dart';
 import 'package:coconut_vault/widgets/overlays/scanner_overlay.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:provider/provider.dart';
 
@@ -27,17 +26,11 @@ abstract class BsmsScannerBase<T extends StatefulWidget> extends State<T> {
   MobileScannerController? controller;
   bool isProcessing = false;
 
-  /// 상단 어둡게 가리는 영역 높이 ??? (Signer: 50, Coordinator: 0) TODO: 뭔지 알아내기
-  double get topMaskHeight => 50.0;
-
   /// AppBar 타이틀
   String get appBarTitle => t.bsms_scanner_screen.import_bsms;
   bool get useBottomAppBar => false;
   bool get showBackButton => true;
   bool get showBottomButton => false;
-  List<IconButton> get icon => [
-    IconButton(onPressed: () {}, icon: SvgPicture.asset('assets/svg/paste.svg', width: 18, height: 18)),
-  ];
 
   /// 툴팁 RichText
   List<TextSpan> buildTooltipRichText(BuildContext context, VisibilityProvider visibilityProvider);
@@ -122,7 +115,6 @@ abstract class BsmsScannerBase<T extends StatefulWidget> extends State<T> {
           context: context,
           isBackButton: showBackButton,
           isBottom: useBottomAppBar,
-          actionButtonList: icon,
         ),
         body: SafeArea(top: false, child: _buildStack(context)),
       ),
@@ -144,7 +136,6 @@ abstract class BsmsScannerBase<T extends StatefulWidget> extends State<T> {
           },
         ),
         const ScannerOverlay(),
-        Container(height: topMaskHeight, color: CoconutColors.black.withValues(alpha: 0.5)),
         CustomTooltip.buildInfoTooltip(
           context,
           richText: RichText(

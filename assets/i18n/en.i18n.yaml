@@ -591,11 +591,10 @@ bsms_scanner_screen:
   seedsigner:
     guide2_1: "After adding a seed,"
     guide2_2: "Export Xpub"
-    guide2_3: "Multisig"
-    guide2_4: "Native Segwit"
-    guide2_5: "BlueWallet"
-    guide2_6: "Check the prompt message then"
-    guide2_7: "I Understand > Export Xpub"
+    guide2_3: "Multisig - Native Segwit"
+    guide2_4: "BlueWallet"
+    guide2_5: "Check the prompt message then"
+    guide2_6: "I Understand > Export Xpub"
   jade:
     guide2_1: "In"
     guide2_2: "Active state,"
