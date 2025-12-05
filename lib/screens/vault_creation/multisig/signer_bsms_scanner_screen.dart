@@ -79,6 +79,8 @@ class _SignerBsmsScannerScreenState extends BsmsScannerBase<SignerBsmsScannerScr
           scanResult = scanData;
           break;
         case HardwareWalletType.keystone3Pro:
+          scanResult = MultisigNormalizer.fromUrResult(result as Map<dynamic, dynamic>);
+          break;
         case HardwareWalletType.jade:
           scanResult = MultisigNormalizer.fromUrResult(result as Map<dynamic, dynamic>);
           break;

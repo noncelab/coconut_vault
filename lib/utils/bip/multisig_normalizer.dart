@@ -366,11 +366,14 @@ class MultisigNormalizer {
     final pubKey = Uint8List.fromList(targetEntry['3'].bytes);
     final chainCode = Uint8List.fromList(targetEntry['4'].bytes);
     HDWallet wallet = HDWallet.fromPublicKey(pubKey, chainCode);
+    wallet.depth = 3; //
     int version =
         NetworkType.currentNetworkType == NetworkType.mainnet
             ? AddressType.p2wsh.versionForMainnet
             : AddressType.p2wsh.versionForTestnet;
     final extendedPublicKey = ExtendedPublicKey.fromHdWallet(wallet, version, mfp);
+
+    print('derived xpub: ${extendedPublicKey.serialize()}');
 
     return _buildSignerBsms(
       fingerprint: mfpDec.toRadixString(16).padLeft(8, '0').toUpperCase(),
