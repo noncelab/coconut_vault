@@ -106,12 +106,14 @@ class WalletProvider extends ChangeNotifier {
     int color,
     int icon,
     List<MultisigSigner> signers,
-    int requiredSignatureCount,
-  ) async {
+    int requiredSignatureCount, {
+    bool isImported = false,
+  }) async {
     _setAddVaultCompleted(false);
 
     final vault = await _walletRepository.addMultisigWallet(
       MultisigWallet(null, _getUnduplicatedName(name), icon, color, signers, requiredSignatureCount),
+      shouldAttachInnerVaultMetadata: isImported,
     );
     _setVaultList(_walletRepository.vaultList);
     _preferenceProvider.setVaultOrder(_vaultList.map((e) => e.id).toList());

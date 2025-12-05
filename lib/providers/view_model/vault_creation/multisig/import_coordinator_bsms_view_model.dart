@@ -38,6 +38,7 @@ class ImportCoordinatorBsmsViewModel {
       icon,
       signers,
       multisigConfig.requiredCount,
+      isImported: true,
     );
   }
 }
