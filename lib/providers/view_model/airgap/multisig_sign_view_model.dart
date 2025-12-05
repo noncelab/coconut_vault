@@ -107,6 +107,13 @@ class MultisigSignViewModel extends ChangeNotifier {
     }
   }
 
+  Future<void> updateSignerSource(int signerIndex, HardwareWalletType source) async {
+    if (_vaultListItem.signers[signerIndex].signerSource != source) {
+      await _walletProvider.updateExternalSignerSource(_vaultListItem.id, signerIndex, source);
+      notifyListeners();
+    }
+  }
+
   void saveSignedPsbt() {
     _signProvider.saveSignedPsbt(_psbtForSigning);
   }
@@ -125,8 +132,7 @@ class MultisigSignViewModel extends ChangeNotifier {
 
   // TODO: signers[index]의 hww type 가져오기
   HardwareWalletType? getSignerHwwType(int index) {
-    // return _vaultListItem.signers[index].hardwareWalletType ?? HarewareWalletType.vault;
-    return null;
+    return _vaultListItem.signers[index].signerSource;
   }
 
   // TODO: signers[index]의 hww type에 따라 다른 정보를 반환하도록 구현
@@ -147,9 +153,6 @@ class MultisigSignViewModel extends ChangeNotifier {
   String _getKruxMultisigInfoQrData(int index) {
     final name = _vaultListItem.name;
     final coordinatorBsms = _vaultListItem.coordinatorBsms;
-    if (coordinatorBsms == null) {
-      throw Exception('coordinatorBsms is null');
-    }
 
     final lines = coordinatorBsms.split('\n');
     if (lines.length < 4) {

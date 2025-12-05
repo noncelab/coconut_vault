@@ -24,4 +24,8 @@ extension HardwareWalletTypeExtension on HardwareWalletType {
 
   String get displayName => _names[this]!;
   String get iconPath => _icons[this]!;
+
+  static HardwareWalletType? getHardwareWalletTypeByIconPath(String iconPath) {
+    return _icons.entries.firstWhere((element) => element.value == iconPath).key as HardwareWalletType?;
+  }
 }
