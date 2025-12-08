@@ -94,12 +94,21 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
     }
 
     if (item.importKeyType == ImportKeyType.external && item.bsms != null) {
-      final match = RegExp(r'\[([0-9a-fA-F]{8})').firstMatch(item.bsms!);
+      final lines = item.bsms!.split(RegExp(r'\r?\n'));
 
+      if (lines.length >= 4) {
+        final labelFromBsms = lines[3].trim();
+        if (labelFromBsms.isNotEmpty) {
+          return labelFromBsms;
+        }
+      }
+
+      final match = RegExp(r'\[([0-9a-fA-F]{8})').firstMatch(item.bsms!);
       if (match != null) {
         return match.group(1)?.toUpperCase() ?? t.external_wallet;
       }
     }
+
     return t.external_wallet;
   }
 
