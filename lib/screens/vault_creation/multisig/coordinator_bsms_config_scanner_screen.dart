@@ -92,11 +92,6 @@ class _CoordinatorBsmsConfigScannerScreenState extends BsmsScannerBase<Coordinat
       return;
     }
 
-    if (!_dataHandler.isCompleted()) {
-      setState(() => isProcessing = false);
-      return;
-    }
-
     await controller?.stop();
     if (!mounted) return;
 
