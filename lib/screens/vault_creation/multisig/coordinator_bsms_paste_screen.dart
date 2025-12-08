@@ -1,14 +1,16 @@
 import 'package:coconut_design_system/coconut_design_system.dart';
-import 'package:coconut_lib/coconut_lib.dart';
+import 'package:coconut_vault/app_routes_params.dart';
 import 'package:coconut_vault/constants/app_routes.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
-import 'package:coconut_vault/model/exception/not_related_multisig_wallet_exception.dart';
+import 'package:coconut_vault/model/common/vault_list_item_base.dart';
 import 'package:coconut_vault/model/multisig/multisig_signer.dart';
 import 'package:coconut_vault/providers/view_model/vault_creation/multisig/import_coordinator_bsms_view_model.dart';
 import 'package:coconut_vault/providers/wallet_creation_provider.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:coconut_vault/utils/bip/multisig_normalizer.dart';
+import 'package:coconut_vault/utils/bip/normalized_multisig_config.dart';
 import 'package:coconut_vault/utils/logger.dart';
+import 'package:coconut_vault/utils/popup_util.dart';
 import 'package:coconut_vault/widgets/animated_qr/scan_data_handler/coordinator_bsms_qr_data_handler.dart';
 import 'package:coconut_vault/widgets/button/fixed_bottom_button.dart';
 import 'package:flutter/material.dart';
@@ -25,31 +27,21 @@ class _CoordinatorBsmsPasteScreenState extends State<CoordinatorBsmsPasteScreen>
   final FocusNode _bsmsFocusNode = FocusNode();
   final TextEditingController _bsmsController = TextEditingController();
 
-  final CoordinatorBsmsQrDataHandler _handler = CoordinatorBsmsQrDataHandler();
+  final CoordinatorBsmsQrDataHandler _dataHandler = CoordinatorBsmsQrDataHandler();
   late final ImportCoordinatorBsmsViewModel _viewModel;
 
-  String _bsms = '';
   bool _bsmsObscured = false;
   bool _isProcessing = false;
+  NormalizedMultisigConfig? _normalizedMultisigConfig;
 
   String? _errorMessage;
 
   @override
   void initState() {
     super.initState();
-    _bsmsController.addListener(() {
-      setState(() {
-        _bsms = _bsmsController.text;
-        if (_errorMessage != null) {
-          _errorMessage = null;
-        }
-      });
-    });
+    _bsmsController.addListener(_onInputChanged);
 
-    _viewModel = ImportCoordinatorBsmsViewModel(
-      Provider.of<WalletProvider>(context, listen: false),
-      Provider.of<WalletCreationProvider>(context, listen: false),
-    );
+    _viewModel = ImportCoordinatorBsmsViewModel(Provider.of<WalletProvider>(context, listen: false));
   }
 
   @override
@@ -59,98 +51,99 @@ class _CoordinatorBsmsPasteScreenState extends State<CoordinatorBsmsPasteScreen>
     super.dispose();
   }
 
-  Future<void> _onCompletePressed() async {
-    final inputData = _bsms.trim();
-    if (inputData.isEmpty) return;
-
-    setState(() {
-      _isProcessing = true;
-      _errorMessage = null; // 로직 시작 전 기존 에러 문구 초기화
-    });
-
+  void _onInputChanged() {
     try {
-      // 1. 핸들러 초기화 및 데이터 주입
-      _handler.reset();
-      _handler.joinData(inputData);
-
-      // 포맷 확인
-      if (!_handler.isCompleted()) {
-        throw Exception("Incomplete data");
+      if (_bsmsController.text.isEmpty) {
+        setState(() {
+          _normalizedMultisigConfig = null;
+          _errorMessage = null;
+        });
+        return;
       }
-
-      final result = _handler.result;
-      if (result == null) {
-        throw Exception("Null result");
+      setState(() {
+        _normalizedMultisigConfig = _normalizeCoordinatorBsms(_bsmsController.text);
+      });
+      if (_errorMessage != null) {
+        setState(() {
+          // 변경되면 검증 로직을 타야 함
+          _errorMessage = null;
+        });
       }
+    } catch (e) {
+      _onFailedNormalization(e);
+    }
+  }
 
-      // 2. Normalizer 추출
-      final normalizedMultisigConfig = MultisigNormalizer.fromCoordinatorResult(result);
+  // INFO: e.toString를 화면에 보여줘야 하는 경우를 대비
+  void _onFailedNormalization(Object? e) {
+    setState(() {
+      _normalizedMultisigConfig = null;
+      _errorMessage = t.bsms_paste_screen.error_message;
+    });
+  }
 
-      // 3. 멀티시그 유효성 검사
-      final int m = normalizedMultisigConfig.requiredCount;
-      final int n = normalizedMultisigConfig.signerBsms.length;
-      final bool isValidMultisig = n >= 2 && m > 0 && m <= n;
+  NormalizedMultisigConfig _normalizeCoordinatorBsms(String bsms) {
+    _dataHandler.reset();
+    _dataHandler.joinData(bsms.trim());
+    if (!_dataHandler.isCompleted()) {
+      throw Exception("Incomplete data");
+    }
 
-      if (isValidMultisig) {
-        final creationProvider = Provider.of<WalletCreationProvider>(context, listen: false);
+    NormalizedMultisigConfig normalizedMultisigConfig = MultisigNormalizer.fromCoordinatorResult(_dataHandler.result);
+    Logger.log(
+      '\t normalizedMultisigConfig: \n name: ${normalizedMultisigConfig.name}\n requiredCount: ${normalizedMultisigConfig.requiredCount}\n signerBsms: [\n${normalizedMultisigConfig.signerBsms.join(',\n')}\n]',
+    );
+    return normalizedMultisigConfig;
+  }
 
-        creationProvider.resetAll();
-        creationProvider.setQuorumRequirement(m, n);
-
-        List<MultisigSigner> signers =
-            normalizedMultisigConfig.signerBsms.asMap().entries.map((entry) {
-              int index = entry.key;
-              String bsmsString = entry.value;
-              KeyStore generatedKeyStore = KeyStore.fromSignerBsms(bsmsString);
-
-              return MultisigSigner(
-                id: 0,
-                keyStore: generatedKeyStore,
-                signerBsms: bsmsString,
-                name: 'Signer ${index + 1}',
-                innerVaultId: null,
-              );
-            }).toList();
-
-        creationProvider.setSigners(signers);
-
-        int colorIndex = 0;
-        int iconIndex = 0;
-
-        if (result is Map<String, dynamic>) {
-          if (result.containsKey('colorIndex')) {
-            colorIndex =
-                result['colorIndex'] is int ? result['colorIndex'] : int.tryParse(result['colorIndex'].toString()) ?? 0;
-          }
-          if (result.containsKey('iconIndex')) {
-            iconIndex =
-                result['iconIndex'] is int ? result['iconIndex'] : int.tryParse(result['iconIndex'].toString()) ?? 0;
-          }
-        }
-
+  Future<void> _onCompletePressed() async {
+    try {
+      setState(() {
+        _isProcessing = true;
+      });
+      final sameWalletName = _viewModel.findSameWalletName(_normalizedMultisigConfig!);
+      if (sameWalletName != null) {
         if (!mounted) return;
+        await showInfoPopup(context, t.alert.same_wallet.title, t.alert.same_wallet.description(name: sameWalletName));
+        return;
+      }
+
+      final result = _dataHandler.result;
+      bool isCoconutMultisigConfig = _viewModel.isCoconutMultisigConfig(result);
+      List<MultisigSigner> signers = _viewModel.getMultisigSignersFromMultisigConfig(_normalizedMultisigConfig!);
+      if (isCoconutMultisigConfig) {
+        final colorIndex = result[VaultListItemBase.fieldColorIndex] as int;
+        final iconIndex = result[VaultListItemBase.fieldIconIndex] as int;
+        final vault = await _viewModel.addMultisigVault(_normalizedMultisigConfig!, colorIndex, iconIndex, signers);
+        if (!mounted) return;
+        //Logger.log('---> Homeroute = ${HomeScreenStatus().screenStatus}');
+        Navigator.pushNamedAndRemoveUntil(
+          context,
+          '/',
+          (Route<dynamic> route) => false,
+          arguments: VaultHomeNavArgs(addedWalletId: vault.id),
+        );
+      } else {
+        final creationProvider = Provider.of<WalletCreationProvider>(context, listen: false)..resetAll();
+        creationProvider.setQuorumRequirement(
+          _normalizedMultisigConfig!.requiredCount,
+          _normalizedMultisigConfig!.signerBsms.length,
+        );
+        creationProvider.setSigners(signers);
         Navigator.pushReplacementNamed(
           context,
           AppRoutes.vaultNameSetup,
-          arguments: {'name': normalizedMultisigConfig.name, 'colorIndex': colorIndex, 'iconIndex': iconIndex},
+          arguments: {'name': _normalizedMultisigConfig!.name},
         );
-      } else {
-        throw Exception("Invalid multisig logic");
       }
     } catch (e) {
-      Logger.error(e);
-
-      if (mounted) {
-        setState(() {
-          _errorMessage = t.bsms_paste_screen.error_message;
-        });
-      }
+      Logger.error('🛑: $e');
+      _dataHandler.reset();
+      await showInfoPopup(context, t.alert.wallet_creation_failed.title, e.toString());
     } finally {
-      if (mounted) {
-        setState(() {
-          _isProcessing = false;
-        });
-      }
+      setState(() {
+        _isProcessing = false;
+      });
     }
   }
 
@@ -206,7 +199,7 @@ class _CoordinatorBsmsPasteScreenState extends State<CoordinatorBsmsPasteScreen>
                 onButtonClicked: _onCompletePressed,
                 text: t.complete,
                 showGradient: false,
-                isActive: _bsms.isNotEmpty && !_isProcessing,
+                isActive: _normalizedMultisigConfig != null && !_isProcessing,
               ),
             ],
           ),
@@ -228,18 +221,11 @@ class _CoordinatorBsmsPasteScreenState extends State<CoordinatorBsmsPasteScreen>
               maxLines: 5,
               isLengthVisible: false,
               obscureText: _bsmsObscured,
+              isError: _errorMessage != null,
+              errorText: _errorMessage,
             ),
           ),
         ),
-        if (_errorMessage != null)
-          Padding(
-            padding: const EdgeInsets.only(top: 8.0),
-            child: Text(
-              _errorMessage!,
-              style: CoconutTypography.body3_12.copyWith(color: CoconutColors.red, fontWeight: FontWeight.w500),
-              textAlign: TextAlign.center,
-            ),
-          ),
       ],
     );
   }

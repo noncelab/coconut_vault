@@ -4,7 +4,44 @@ class SignerBsms {
   final String extendedKey;
   final String? label;
 
-  SignerBsms({required this.fingerprint, required this.derivationPath, required this.extendedKey, this.label});
+  SignerBsms._({required this.fingerprint, required this.derivationPath, required this.extendedKey, this.label});
+
+  factory SignerBsms({
+    required String fingerprint,
+    required String derivationPath,
+    required String extendedKey,
+    String? label,
+  }) {
+    // 여기서 FormatException 던지기
+    final fpReg = RegExp(r'^[0-9a-fA-F]{8}$');
+    if (!fpReg.hasMatch(fingerprint)) {
+      throw FormatException('Invalid fingerprint: $fingerprint');
+    }
+
+    if (derivationPath.isEmpty) {
+      throw FormatException('Invalid derivation path: $derivationPath');
+    }
+    final splitedPath = derivationPath.split('/');
+    if (splitedPath.length < 4) {
+      throw FormatException('Invalidnvalid derivation path: $derivationPath');
+    }
+
+    if (extendedKey.isEmpty) {
+      throw FormatException('Invalid extended key: $extendedKey');
+    }
+    // 일반적인 mainnet/testnet + SLIP-132 prefix들
+    final xkeyReg = RegExp(r'^[a-zA-Z]pub[1-9A-HJ-NP-Za-km-z]+$');
+    if (!xkeyReg.hasMatch(extendedKey)) {
+      throw FormatException('Invalid extended key: $extendedKey');
+    }
+
+    return SignerBsms._(
+      fingerprint: fingerprint,
+      derivationPath: derivationPath,
+      extendedKey: extendedKey,
+      label: label,
+    );
+  }
 
   String get derivationPathForDescriptor => derivationPath.replaceAll("'", "h");
 
@@ -12,7 +49,7 @@ class SignerBsms {
     final lines = raw.split(RegExp(r'\r?\n')).map((l) => l.trim()).where((l) => l.isNotEmpty).toList();
 
     if (lines.length < 3) {
-      throw FormatException('BSMS block tooㄴshort: ${lines.length}');
+      throw FormatException('BSMS block too short: ${lines.length}');
     }
 
     final descLine = lines[2];
@@ -29,5 +66,15 @@ class SignerBsms {
     final xpub = m.group(3)!.trim();
 
     return SignerBsms(fingerprint: fp, derivationPath: path, extendedKey: xpub, label: label);
+  }
+
+  @override
+  String toString() {
+    final descLine = '[$fingerprint/$derivationPath]$extendedKey';
+    if (label == null || label!.isEmpty) {
+      return 'BSMS 1.0\n00\n$descLine';
+    }
+
+    return 'BSMS 1.0\n00\n$descLine\n$label';
   }
 }

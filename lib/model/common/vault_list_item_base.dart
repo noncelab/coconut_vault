@@ -5,12 +5,13 @@ import 'package:json_annotation/json_annotation.dart';
 @JsonSerializable(ignoreUnannotated: true)
 abstract class VaultListItemBase {
   static const String vaultTypeField = 'vaultType';
+  static const String fieldName = 'name';
   static const String fieldIconIndex = 'iconIndex';
   static const String fieldColorIndex = 'colorIndex';
 
   @JsonKey(name: "id")
   final int id;
-  @JsonKey(name: "name")
+  @JsonKey(name: fieldName)
   String name;
   @JsonKey(name: fieldColorIndex)
   int colorIndex;

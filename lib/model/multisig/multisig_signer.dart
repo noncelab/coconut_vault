@@ -23,8 +23,9 @@ class MultisigSigner {
   int? iconIndex; // 내부 지갑이 Key로 사용된 경우 앱 내 iconIndex
   @JsonKey()
   int? colorIndex; // 내부 지갑이 Key로 사용된 경우 앱 내 colorIndex
+  // INFO: scheme v1(optional) -> v2(required)
   @JsonKey(name: fieldSignerBsms)
-  String? signerBsms; // 외부에서 import
+  String? signerBsms;
   @JsonKey()
   String? memo; // 외부 지갑에 설정되는 메모
   @JsonKey()

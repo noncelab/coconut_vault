@@ -1,22 +1,18 @@
 import 'package:coconut_lib/coconut_lib.dart';
-import 'package:coconut_vault/isolates/wallet_isolates.dart';
 import 'package:coconut_vault/model/common/vault_list_item_base.dart';
-import 'package:coconut_vault/model/common/wallet_address.dart';
 import 'package:coconut_vault/model/multisig/multisig_signer.dart';
 import 'package:coconut_vault/model/multisig/multisig_vault_list_item.dart';
-import 'package:coconut_vault/providers/wallet_creation_provider.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:coconut_vault/utils/bip/normalized_multisig_config.dart';
-import 'package:flutter/foundation.dart';
 
 class ImportCoordinatorBsmsViewModel {
   final WalletProvider _walletProvider;
-  final WalletCreationProvider _walletCreationProvider;
 
-  ImportCoordinatorBsmsViewModel(this._walletProvider, this._walletCreationProvider);
+  ImportCoordinatorBsmsViewModel(this._walletProvider);
 
   bool isCoconutMultisigConfig(dynamic multisigWalletInfo) {
     return multisigWalletInfo is Map<String, dynamic> &&
+        multisigWalletInfo.containsKey(VaultListItemBase.fieldName) &&
         multisigWalletInfo.containsKey(VaultListItemBase.fieldColorIndex) &&
         multisigWalletInfo.containsKey(VaultListItemBase.fieldIconIndex);
   }
@@ -38,6 +34,23 @@ class ImportCoordinatorBsmsViewModel {
       icon,
       signers,
       multisigConfig.requiredCount,
+      isImported: true,
     );
+  }
+
+  List<MultisigSigner> getMultisigSignersFromMultisigConfig(NormalizedMultisigConfig multisigConfig) {
+    return multisigConfig.signerBsms.asMap().entries.map((entry) {
+      int index = entry.key;
+      String signerBsms = entry.value.toString();
+      KeyStore keystore = KeyStore.fromSignerBsms(signerBsms);
+
+      return MultisigSigner(
+        id: index,
+        keyStore: keystore,
+        signerBsms: signerBsms,
+        innerVaultId: null,
+        memo: entry.value.label,
+      );
+    }).toList();
   }
 }
