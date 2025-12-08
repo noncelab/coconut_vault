@@ -1,6 +1,8 @@
 import 'dart:async';
 
 import 'package:coconut_lib/coconut_lib.dart';
+import 'package:coconut_vault/localization/strings.g.dart';
+import 'package:coconut_vault/model/exception/network_mismatch_exception.dart';
 import 'package:coconut_vault/providers/app_lifecycle_state_provider.dart';
 import 'package:coconut_vault/providers/preference_provider.dart';
 import 'package:coconut_vault/repository/wallet_repository.dart';
@@ -14,6 +16,7 @@ import 'package:coconut_vault/model/single_sig/single_sig_wallet_create_dto.dart
 import 'package:coconut_vault/model/exception/not_related_multisig_wallet_exception.dart';
 import 'package:coconut_vault/providers/visibility_provider.dart';
 import 'package:coconut_vault/utils/bip/normalized_multisig_config.dart';
+import 'package:coconut_vault/utils/bip/signer_bsms.dart';
 import 'package:coconut_vault/utils/logger.dart';
 import 'package:coconut_vault/enums/wallet_enums.dart';
 import 'package:flutter/foundation.dart';
@@ -21,6 +24,8 @@ import 'package:flutter/foundation.dart';
 const kMaxStarLength = 5;
 
 class WalletProvider extends ChangeNotifier {
+  static List<AddressType> allowedMultisigAddressTypes = [AddressType.p2wsh];
+
   // 1) DI
   late final VisibilityProvider _visibilityProvider;
   late final WalletRepository _walletRepository;
@@ -111,6 +116,8 @@ class WalletProvider extends ChangeNotifier {
   }) async {
     _setAddVaultCompleted(false);
 
+    validateSigners(signers);
+
     final vault = await _walletRepository.addMultisigWallet(
       MultisigWallet(null, _getUnduplicatedName(name), icon, color, signers, requiredSignatureCount),
       shouldAttachInnerVaultMetadata: isImported,
@@ -118,12 +125,54 @@ class WalletProvider extends ChangeNotifier {
     _setVaultList(_walletRepository.vaultList);
     _preferenceProvider.setVaultOrder(_vaultList.map((e) => e.id).toList());
     _addToFavoriteWalletsIfAvailable(_vaultList.last.id);
-
-    // TODO: 기존 존재하는 지갑과의 link 로직이 필요 (importMultisigVault 함수 참고하기)
     _setAddVaultCompleted(true);
     await _updateWalletLength();
     notifyListeners();
     return vault;
+  }
+
+  void validateSigners(List<MultisigSigner> signers) {
+    String? firstPath;
+    for (var signer in signers) {
+      if (signer.signerBsms == null) ArgumentError('signerBsms is null');
+
+      final signerBsms = SignerBsms.parse(signer.signerBsms!);
+      final splitedPath = signerBsms.derivationPath.split('/');
+      // purpose Index check
+      try {
+        final purposeIndex = int.parse(splitedPath[0].split("'")[0]);
+        final isAllowedPurpose = allowedMultisigAddressTypes.any((addressType) {
+          return addressType.purposeIndex == purposeIndex;
+        });
+        if (!isAllowedPurpose) {
+          throw FormatException('Signer purpose index is not allowed : ${signerBsms.derivationPath}');
+        }
+
+        // coinType check
+        final coinType = int.parse(splitedPath[1].split("'")[0]);
+        final isAllowedCoinType = NetworkType.currentNetworkType.isTestnet ? coinType == 1 : coinType == 0;
+        if (!isAllowedCoinType) {
+          throw NetworkMismatchException(
+            message:
+                NetworkType.currentNetworkType.isTestnet
+                    ? t.alert.bsms_network_mismatch.description_when_testnet
+                    : t.alert.bsms_network_mismatch.description_when_mainnet,
+          );
+        }
+      } catch (e) {
+        if (e is Exception) rethrow;
+        throw ArgumentError('Invalid derivation path: ${signerBsms.derivationPath} ${e.toString()}');
+      }
+
+      // path consistency check
+      if (firstPath == null) {
+        firstPath = signerBsms.derivationPath;
+      } else {
+        if (firstPath != signerBsms.derivationPath) {
+          throw FormatException('Signer derivation path is not consistent : ${signerBsms.derivationPath}');
+        }
+      }
+    }
   }
 
   Future<bool> hasPassphrase(int walletId) async {

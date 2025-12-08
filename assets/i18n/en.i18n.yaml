@@ -796,6 +796,10 @@ alert:
   auth_canceled_when_encrypt:
     title: "Device Authentication Canceled"
     description: "You need to authenticate your device to store wallet information in the secure area."
+  bsms_network_mismatch:
+    title: "Invalid BSMS"
+    description_when_mainnet: "This BSMS is for testnet."
+    description_when_testnet: "This BSMS is for mainnet."
 
 toast:
   clipboard_copied: "Copied to clipboard"
