@@ -797,7 +797,7 @@ alert:
   auth_canceled_when_encrypt:
     title: "デバイス認証がキャンセルされました"
     description: "ウォレット情報をセキュアエリアに保存するにはデバイスの認証が必要です。"
-  bsms_network_mistmatch:
+  bsms_network_mismatch:
     title: "無効なBSMSです"
     description_when_mainnet: "このBSMSはテストネット用です。"
     description_when_testnet: "このBSMSはメインネット用です。"
