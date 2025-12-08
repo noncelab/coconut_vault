@@ -58,7 +58,7 @@ class MultisigVaultListItem extends VaultListItemBase {
             .map(
               (signer) => {
                 'innerVaultId': signer.innerVaultId,
-                'name': signer.name,
+                VaultListItemBase.fieldName: signer.name,
                 VaultListItemBase.fieldIconIndex: signer.iconIndex,
                 VaultListItemBase.fieldColorIndex: signer.colorIndex,
                 'memo': signer.memo,

@@ -1,10 +1,8 @@
 import 'package:coconut_design_system/coconut_design_system.dart';
-import 'package:coconut_lib/coconut_lib.dart';
 import 'package:coconut_vault/app_routes_params.dart';
 import 'package:coconut_vault/constants/app_routes.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/model/common/vault_list_item_base.dart';
-import 'package:coconut_vault/model/exception/not_related_multisig_wallet_exception.dart';
 import 'package:coconut_vault/model/multisig/multisig_signer.dart';
 import 'package:coconut_vault/providers/view_model/vault_creation/multisig/import_coordinator_bsms_view_model.dart';
 import 'package:coconut_vault/providers/wallet_creation_provider.dart';
@@ -28,18 +26,15 @@ class CoordinatorBsmsConfigScannerScreen extends StatefulWidget {
 }
 
 class _CoordinatorBsmsConfigScannerScreenState extends BsmsScannerBase<CoordinatorBsmsConfigScannerScreen> {
-  final CoordinatorBsmsQrDataHandler _coordinatorBsmsQrDataHandler;
+  final CoordinatorBsmsQrDataHandler _dataHandler;
   late final ImportCoordinatorBsmsViewModel _viewModel;
 
-  _CoordinatorBsmsConfigScannerScreenState() : _coordinatorBsmsQrDataHandler = CoordinatorBsmsQrDataHandler();
+  _CoordinatorBsmsConfigScannerScreenState() : _dataHandler = CoordinatorBsmsQrDataHandler();
 
   @override
   void initState() {
     super.initState();
-    _viewModel = ImportCoordinatorBsmsViewModel(
-      Provider.of<WalletProvider>(context, listen: false),
-      Provider.of<WalletCreationProvider>(context, listen: false),
-    );
+    _viewModel = ImportCoordinatorBsmsViewModel(Provider.of<WalletProvider>(context, listen: false));
   }
 
   @override
@@ -85,19 +80,19 @@ class _CoordinatorBsmsConfigScannerScreenState extends BsmsScannerBase<Coordinat
 
     final scanData = barcode.rawValue!;
     try {
-      _coordinatorBsmsQrDataHandler.joinData(scanData);
+      _dataHandler.joinData(scanData);
     } catch (e) {
-      _coordinatorBsmsQrDataHandler.reset();
+      _dataHandler.reset();
       onFailedScanning('$wrongFormatMessage\n${e.toString()}');
       return;
     }
 
-    if (!_coordinatorBsmsQrDataHandler.isCompleted()) {
+    if (!_dataHandler.isCompleted()) {
       setState(() => isProcessing = false);
       return;
     }
 
-    if (!_coordinatorBsmsQrDataHandler.isCompleted()) {
+    if (!_dataHandler.isCompleted()) {
       setState(() => isProcessing = false);
       return;
     }
@@ -105,10 +100,10 @@ class _CoordinatorBsmsConfigScannerScreenState extends BsmsScannerBase<Coordinat
     await controller?.stop();
     if (!mounted) return;
 
-    final result = _coordinatorBsmsQrDataHandler.result;
+    final result = _dataHandler.result;
 
     if (result == null) {
-      _coordinatorBsmsQrDataHandler.reset();
+      _dataHandler.reset();
       onFailedScanning(wrongFormatMessage);
       setState(() => isProcessing = false);
       return;
@@ -121,7 +116,7 @@ class _CoordinatorBsmsConfigScannerScreenState extends BsmsScannerBase<Coordinat
         '\t normalizedMultisigConfig: \n name: ${normalizedMultisigConfig.name}\n requiredCount: ${normalizedMultisigConfig.requiredCount}\n signerBsms: [\n${normalizedMultisigConfig.signerBsms.join(',\n')}\n]',
       );
     } catch (e) {
-      _coordinatorBsmsQrDataHandler.reset();
+      _dataHandler.reset();
       onFailedScanning('$wrongFormatMessage\n${e.toString()}');
       Logger.error('🛑 MultisigNormalizer.fromCoordinatorResult 에러 발생: $e');
       await controller?.start();
@@ -132,15 +127,14 @@ class _CoordinatorBsmsConfigScannerScreenState extends BsmsScannerBase<Coordinat
       final sameWalletName = _viewModel.findSameWalletName(normalizedMultisigConfig);
       if (sameWalletName != null) {
         if (!mounted) return;
-        _coordinatorBsmsQrDataHandler.reset();
+        _dataHandler.reset();
         await showInfoPopup(context, t.alert.same_wallet.title, t.alert.same_wallet.description(name: sameWalletName));
         await controller?.start();
         return;
       }
 
-      // TODO: coconut multisig text를 normalized 한 경우를 알 수 있어야 함.
       bool isCoconutMultisigConfig = _viewModel.isCoconutMultisigConfig(result);
-      List<MultisigSigner> signers = normalizedMultisigConfig.getMultisigSigners();
+      List<MultisigSigner> signers = _viewModel.getMultisigSignersFromMultisigConfig(normalizedMultisigConfig);
       if (isCoconutMultisigConfig) {
         final colorIndex = result[VaultListItemBase.fieldColorIndex] as int;
         final iconIndex = result[VaultListItemBase.fieldIconIndex] as int;
@@ -166,22 +160,9 @@ class _CoordinatorBsmsConfigScannerScreenState extends BsmsScannerBase<Coordinat
           arguments: {'name': normalizedMultisigConfig.name},
         );
       }
-
-      // TODO:
-      // await showDialog(
-      //   context: context,
-      //   builder:
-      //       (context) => CoconutPopup(
-      //         title: t.coordinator_bsms_config_scanner_screen.error_title,
-      //         description: t.coordinator_bsms_config_scanner_screen.error_message,
-      //         onTapRight: () {
-      //           Navigator.of(context).pop();
-      //         },
-      //       ),
-      // );
     } catch (e) {
       Logger.error('🛑: $e');
-      _coordinatorBsmsQrDataHandler.reset();
+      _dataHandler.reset();
       // TODO: NotRelatedMultisigWalletException 삭제 필요한지 확인
       // if (e is NotRelatedMultisigWalletException) {
       //   onFailedScanning(e.message);
