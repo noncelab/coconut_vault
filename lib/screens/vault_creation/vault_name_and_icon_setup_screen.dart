@@ -75,7 +75,7 @@ class _VaultNameAndIconSetupScreenState extends State<VaultNameAndIconSetupScree
     FocusScope.of(context).unfocus();
   }
 
-  void _removeTrim() {
+  void _trimInput() {
     inputText = inputText.trim();
     _controller.text = inputText;
   }
@@ -253,7 +253,7 @@ class _VaultNameAndIconSetupScreenState extends State<VaultNameAndIconSetupScree
                           _showLoading = true;
                         });
                       } else {
-                        _removeTrim(); // TODO: 테스트 필요
+                        _trimInput();
                         saveNewVaultName(context);
                       }
                     },

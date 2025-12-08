@@ -149,6 +149,7 @@ class _CoordinatorBsmsConfigScannerScreenState extends BsmsScannerBase<Coordinat
           normalizedMultisigConfig.signerBsms.length,
         );
         creationProvider.setSigners(signers);
+        if (!context.mounted) return;
         Navigator.pushReplacementNamed(
           context,
           AppRoutes.vaultNameSetup,
@@ -158,11 +159,6 @@ class _CoordinatorBsmsConfigScannerScreenState extends BsmsScannerBase<Coordinat
     } catch (e) {
       Logger.error('🛑: $e');
       _dataHandler.reset();
-      // TODO: NotRelatedMultisigWalletException 삭제 필요한지 확인
-      // if (e is NotRelatedMultisigWalletException) {
-      //   onFailedScanning(e.message);
-      //   return;
-      // }
       onFailedScanning("${t.alert.wallet_creation_failed.title}\n${e.toString()}");
       await controller?.start();
     }
