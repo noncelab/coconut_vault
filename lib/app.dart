@@ -474,7 +474,15 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> with SingleTickerProv
                         AppRoutes.mnemonicView:
                             (context) =>
                                 buildScreenWithArguments(context, (args) => MnemonicViewScreen(walletId: args['id'])),
-                        AppRoutes.vaultNameSetup: (context) => const VaultNameAndIconSetupScreen(),
+                        AppRoutes.vaultNameSetup:
+                            (context) => buildScreenWithArguments(
+                              context,
+                              (args) => VaultNameAndIconSetupScreen(
+                                name: args['name'],
+                                iconIndex: args['iconIndex'],
+                                colorIndex: args['colorIndex'],
+                              ),
+                            ),
                         AppRoutes.singleSigSetupInfo: (context) {
                           return buildScreenWithArguments(
                             context,

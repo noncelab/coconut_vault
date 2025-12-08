@@ -843,6 +843,11 @@ alert:
   auth_canceled_when_encrypt:
     title: "기기 인증 취소됨"
     description: "기기 인증을 해야 지갑 정보를 보안 영역에 저장할 수 있어요."
+  bsms_network_mismatch:
+    title: "유효하지 않은 BSMS"
+    description_when_mainnet: "테스트넷용 BSMS입니다."
+    description_when_testnet: "메인넷용 BSMS입니다."
+    
 
 toast:
   clipboard_copied: "클립보드에 복사되었어요"

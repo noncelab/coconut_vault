@@ -6,7 +6,6 @@ import 'package:coconut_vault/constants/app_routes.dart';
 import 'package:coconut_vault/enums/wallet_enums.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/model/multisig/multisig_signer.dart';
-import 'package:coconut_vault/model/multisig/multisig_vault_list_item.dart';
 import 'package:coconut_vault/model/common/vault_list_item_base.dart';
 import 'package:coconut_vault/model/exception/user_canceled_auth_exception.dart';
 import 'package:coconut_vault/model/single_sig/single_sig_wallet_create_dto.dart';
@@ -21,11 +20,11 @@ import 'package:coconut_vault/widgets/vault_name_icon_edit_palette.dart';
 import 'package:provider/provider.dart';
 
 class VaultNameAndIconSetupScreen extends StatefulWidget {
-  final String name;
-  final int iconIndex;
-  final int colorIndex;
+  final String? name;
+  final int? iconIndex;
+  final int? colorIndex;
 
-  const VaultNameAndIconSetupScreen({super.key, this.name = '', this.iconIndex = 0, this.colorIndex = 0});
+  const VaultNameAndIconSetupScreen({super.key, this.name, this.iconIndex, this.colorIndex});
 
   @override
   State<VaultNameAndIconSetupScreen> createState() => _VaultNameAndIconSetupScreenState();
@@ -40,11 +39,6 @@ class _VaultNameAndIconSetupScreenState extends State<VaultNameAndIconSetupScree
   final TextEditingController _controller = TextEditingController();
   bool _showLoading = false;
 
-  // 초기화 여부 체크 플래그 (키보드가 올라올 때 등 화면이 갱신될 때 데이터가 리셋되는 것을 방지)
-  bool _isInitialized = false;
-  // 자동 저장 실행 여부 플래그
-  bool _isAutoSaving = false;
-
   @override
   void initState() {
     super.initState();
@@ -53,52 +47,10 @@ class _VaultNameAndIconSetupScreenState extends State<VaultNameAndIconSetupScree
     _walletCreationProvider = Provider.of<WalletCreationProvider>(context, listen: false);
 
     // 기본값 설정 (arguments가 있으면 didChangeDependencies에서 덮어씌워짐)
-    inputText = widget.name;
-    selectedIconIndex = widget.iconIndex;
-    selectedColorIndex = widget.colorIndex;
+    inputText = widget.name ?? '';
+    selectedIconIndex = widget.iconIndex ?? 0;
+    selectedColorIndex = widget.colorIndex ?? 0;
     _controller.text = inputText;
-  }
-
-  // TODO: 아래 이벤트 함수 삭제 가능한지 확인
-  // Arguments 처리 로직
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-
-    if (!_isInitialized) {
-      final args = ModalRoute.of(context)?.settings.arguments;
-      // bool shouldAutoSave = false;
-
-      if (args != null && args is Map<String, dynamic>) {
-        if (args.containsKey('name')) {
-          inputText = args['name'] as String;
-          _controller.text = inputText;
-        }
-        if (args.containsKey('iconIndex')) {
-          selectedIconIndex = args['iconIndex'] as int;
-        }
-        if (args.containsKey('colorIndex')) {
-          selectedColorIndex = args['colorIndex'] as int;
-        }
-
-        // 이름이 있으면 자동 저장 플래그 설정
-        //if (inputText.trim().isNotEmpty) {
-        //shouldAutoSave = true;
-        //}
-      }
-
-      _isInitialized = true;
-
-      // if (shouldAutoSave) {
-      //   _isAutoSaving = true;
-      //   // 화면이 다 그려진 직후 저장 로직 실행
-      //   WidgetsBinding.instance.addPostFrameCallback((_) {
-      //     _closeKeyboard();
-      //     // 여기서 saveNewVaultName을 호출하면 내부에서 _showLoading = true가 되면서 로딩 화면이 뜸
-      //     saveNewVaultName(context);
-      //   });
-      // }
-    }
   }
 
   @override
@@ -123,7 +75,7 @@ class _VaultNameAndIconSetupScreenState extends State<VaultNameAndIconSetupScree
     FocusScope.of(context).unfocus();
   }
 
-  void _removeTrim() {
+  void _trimInput() {
     inputText = inputText.trim();
     _controller.text = inputText;
   }
@@ -138,7 +90,6 @@ class _VaultNameAndIconSetupScreenState extends State<VaultNameAndIconSetupScree
         CoconutToast.showToast(text: t.toast.name_already_used2, context: context, isVisibleIcon: true);
         setState(() {
           _showLoading = false;
-          _isAutoSaving = false;
         });
         return;
       }
@@ -235,7 +186,6 @@ class _VaultNameAndIconSetupScreenState extends State<VaultNameAndIconSetupScree
     } finally {
       setState(() {
         _showLoading = false;
-        _isAutoSaving = false;
       });
     }
   }
@@ -303,7 +253,7 @@ class _VaultNameAndIconSetupScreenState extends State<VaultNameAndIconSetupScree
                           _showLoading = true;
                         });
                       } else {
-                        _removeTrim(); // TODO: 테스트 필요
+                        _trimInput();
                         saveNewVaultName(context);
                       }
                     },
@@ -323,7 +273,7 @@ class _VaultNameAndIconSetupScreenState extends State<VaultNameAndIconSetupScree
             decoration: BoxDecoration(color: CoconutColors.black.withValues(alpha: 0.3)),
             child: Center(
               child:
-                  _walletProvider.isVaultListLoading || _isAutoSaving
+                  _walletProvider.isVaultListLoading
                       ? MessageActivityIndicator(message: t.vault_name_icon_setup_screen.saving)
                       : const CircularProgressIndicator(color: CoconutColors.gray800),
             ),
