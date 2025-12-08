@@ -62,7 +62,7 @@ abstract class BaseEntropyWidgetState<T extends BaseEntropyWidget> extends State
     ...List.generate(26, (i) => String.fromCharCode('A'.codeUnitAt(0) + i)), // A-Z
     ...List.generate(10, (i) => i.toString()), // 0-9
     '[', ']', '{', '}', '#', '%', '^', '*', '+', '=', '_', '\\', '|', '~',
-    '<', '>', '-', '/', ':', ';', '(', ')', r'$', '&', '"', '`', '.', ',', '?', '!', '\'', '@', ' ',
+    '<', '>', '-', '/', ':', ';', '(', ')', r'$', '&', '"', '`', '.', ',', '?', '!', '\'', '@',
   };
 
   String passphraseErrorMessage = '';
@@ -78,24 +78,33 @@ abstract class BaseEntropyWidgetState<T extends BaseEntropyWidget> extends State
 
     _passphraseController.addListener(() {
       setState(() {
+        final text = _passphraseController.text;
+        _passphrase = utf8.encode(text);
+
+        if (_passphraseController.text.contains(' ')) {
+          passphraseErrorMessage = t.mnemonic_generate_screen.passphrase_warning_space;
+          return;
+        }
         invalidPassphraseList =
             _passphraseController.text.characters.where((char) => !validCharSet.contains(char)).toSet().toList();
-        _passphrase = utf8.encode(_passphraseController.text);
 
-        if (_passphrase.isNotEmpty && _passphraseConfirm.isNotEmpty && listEquals(_passphrase, _passphraseConfirm)) {
+        if (invalidPassphraseList.isNotEmpty) {
           passphraseErrorMessage = t.mnemonic_generate_screen.passphrase_warning(
             words: invalidPassphraseList.join(", "),
           );
-        } else {
-          passphraseErrorMessage = '';
+          return;
         }
+
+        passphraseErrorMessage = '';
       });
     });
+
     _passphraseConfirmController.addListener(() {
       setState(() {
         _passphraseConfirm = utf8.encode(_passphraseConfirmController.text);
       });
     });
+
     _passphraseConfirmFocusNode.addListener(() {
       if (_passphraseConfirmFocusNode.hasFocus) {
         WidgetsBinding.instance.addPostFrameCallback((_) async {
@@ -116,7 +125,6 @@ abstract class BaseEntropyWidgetState<T extends BaseEntropyWidget> extends State
         final maxScroll = _scrollController.position.maxScrollExtent;
         final currentScroll = _scrollController.position.pixels;
 
-        // 스크롤이 끝에 가까워지면 확인 완료로 표시
         if (currentScroll >= maxScroll - 50) {
           if (!hasScrolledToBottom) {
             setState(() {
@@ -152,6 +160,10 @@ abstract class BaseEntropyWidgetState<T extends BaseEntropyWidget> extends State
 
     _checkIfInvalidCharactersIncluded();
 
+    if (passphraseErrorMessage.isNotEmpty) {
+      return false;
+    }
+
     if (_passphraseConfirm.isEmpty) {
       return false;
     }
@@ -161,18 +173,23 @@ abstract class BaseEntropyWidgetState<T extends BaseEntropyWidget> extends State
       return false;
     }
 
-    _checkIfInvalidCharactersIncluded();
     return true;
   }
 
   void _checkIfInvalidCharactersIncluded() {
-    var invalidPassphraseList =
-        _passphraseController.text.characters.where((char) => !validCharSet.contains(char)).toSet().toList();
+    final text = _passphraseController.text;
 
-    if (invalidPassphraseList.isEmpty) {
-      passphraseErrorMessage = '';
+    if (text.contains(' ')) {
+      passphraseErrorMessage = t.mnemonic_generate_screen.passphrase_warning_space;
+      return;
+    }
+
+    var invalidList = text.characters.where((char) => !validCharSet.contains(char)).toSet().toList();
+
+    if (invalidList.isNotEmpty) {
+      passphraseErrorMessage = t.mnemonic_generate_screen.passphrase_warning(words: invalidList.join(", "));
     } else {
-      passphraseErrorMessage = t.mnemonic_generate_screen.passphrase_warning(words: invalidPassphraseList.join(", "));
+      passphraseErrorMessage = '';
     }
   }
 
@@ -247,7 +264,10 @@ abstract class BaseEntropyWidgetState<T extends BaseEntropyWidget> extends State
     // 패스프레이즈 사용함 | 패스프레이즈 입력 화면
     if (widget.usePassphrase && step == 1) {
       if (_passphrase.isNotEmpty && _passphraseConfirm.isNotEmpty && listEquals(_passphrase, _passphraseConfirm)) {
-        // 패스프레이즈 입력 완료 | 엔트로피 데이터로 니모닉 생성 시도 성공
+        if (!_isPassphraseValid()) {
+          return;
+        }
+
         _passphrase = utf8.encode(_passphraseController.text);
 
         if (widget.entropyType == EntropyType.manual) {
