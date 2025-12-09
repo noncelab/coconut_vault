@@ -192,8 +192,8 @@ class _SeedQrConfirmationScreenState extends State<SeedQrConfirmationScreen> {
         CoconutToast.showToast(context: context, text: t.toast.mnemonic_already_added, isVisibleIcon: true);
         return;
       }
-
-      _walletCreationProvider.setSecretAndPassphrase(secret, passphrase);
+      // INFO: secret, passphrase 복제해서 넣어줘야 뒤로가기로 화면 재진입 시 값 유지 가능
+      _walletCreationProvider.setSecretAndPassphrase(Uint8List.fromList(secret), Uint8List.fromList(passphrase));
       if (externalSigner != null) {
         _walletCreationProvider.setExternalSigner(externalSigner);
         _walletCreationProvider.setMultisigVaultIdOfExternalSigner(widget.multisigVaultIdOfExternalSigner);

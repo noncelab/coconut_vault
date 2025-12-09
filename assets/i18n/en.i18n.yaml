@@ -492,6 +492,8 @@ seed_qr_import_screen:
   title: "Seed QR Code Scan"
   error_title: "Scan Error"
   error_message: "An error occurred while scanning the seed QR code. Please try again."
+  format_error_title: "Format Error"
+  format_error_message: "The format of the seed QR code is incorrect. Please try again."
   guide: "Please scan the seed QR code. (21x21 or 25x25)"
 seed_qr_confirmation_screen:
   title: "Mnemonic Confirmation"

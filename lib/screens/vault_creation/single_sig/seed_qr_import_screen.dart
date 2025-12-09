@@ -8,6 +8,7 @@ import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/model/multisig/multisig_signer.dart';
 import 'package:coconut_vault/providers/app_lifecycle_state_provider.dart';
 import 'package:coconut_vault/screens/vault_creation/single_sig/seed_qr_confirmation_screen.dart';
+import 'package:coconut_vault/utils/popup_util.dart';
 import 'package:coconut_vault/widgets/custom_tooltip.dart';
 import 'package:crypto/crypto.dart';
 import 'package:flutter/material.dart';
@@ -29,6 +30,7 @@ class _SeedQrImportScreenState extends State<SeedQrImportScreen> {
   final GlobalKey qrKey = GlobalKey(debugLabel: 'QR');
   QRViewController? controller;
   bool _isNavigating = false;
+  bool _isProcessing = false;
   Barcode? result;
   late AppLifecycleStateProvider _appLifecycleStateProvider;
 
@@ -117,9 +119,10 @@ class _SeedQrImportScreenState extends State<SeedQrImportScreen> {
     setState(() {
       this.controller = controller;
     });
-    var words = <String>[];
-    controller.scannedDataStream.listen((scanData) {
-      if (_isNavigating) return;
+    List<String>? words;
+    controller.scannedDataStream.listen((scanData) async {
+      if (_isNavigating || _isProcessing) return;
+      _isProcessing = true;
 
       try {
         if (scanData.code == null && scanData.rawBytes != null) {
@@ -138,7 +141,10 @@ class _SeedQrImportScreenState extends State<SeedQrImportScreen> {
                 return CoconutPopup(
                   title: t.seed_qr_import_screen.error_title,
                   description: '${t.seed_qr_import_screen.error_message}: $e',
-                  onTapRight: () => Navigator.of(context).pop(),
+                  onTapRight: () {
+                    _isProcessing = false;
+                    Navigator.of(context).pop();
+                  },
                 );
               },
             );
@@ -147,7 +153,18 @@ class _SeedQrImportScreenState extends State<SeedQrImportScreen> {
         }
       }
 
-      if (words.length == 12 || words.length == 24) {
+      if (words == null || (words != null && words!.length != 12 && words!.length != 24)) {
+        if (!mounted) return;
+        await showInfoPopup(
+          context,
+          t.seed_qr_import_screen.format_error_title,
+          t.seed_qr_import_screen.format_error_message,
+        );
+        _isProcessing = false;
+        return;
+      }
+
+      if (words!.length == 12 || words!.length == 24) {
         if (mounted) {
           _isNavigating = true;
           // 1. 네비게이션하기 전 카메라 끄기
@@ -158,7 +175,7 @@ class _SeedQrImportScreenState extends State<SeedQrImportScreen> {
             MaterialPageRoute(
               builder:
                   (context) => SeedQrConfirmationScreen(
-                    scannedData: utf8.encode(words.join(' ')),
+                    scannedData: utf8.encode(words!.join(' ')),
                     externalSigner: widget.externalSigner,
                     multisigVaultIdOfExternalSigner: widget.multisigVaultIdOfExternalSigner,
                   ),
@@ -168,9 +185,8 @@ class _SeedQrImportScreenState extends State<SeedQrImportScreen> {
             if (mounted) {
               controller.resumeCamera();
             }
-            setState(() {
-              _isNavigating = false;
-            });
+            _isNavigating = false;
+            _isProcessing = false;
           });
         }
       }
@@ -192,39 +208,44 @@ class _SeedQrImportScreenState extends State<SeedQrImportScreen> {
     return words;
   }
 
-  List<String> _decodeCompactQR(List<int> bytes) {
-    final wordCount = _detectMnemonicWords(bytes);
-    // 12-word: 128 bits, 24-word: 256 bits
-    List<int> usefulBits = _getUsefulBits(bytes, wordCount);
+  List<String>? _decodeCompactQR(List<int> bytes) {
+    var wordCount = 0;
+    try {
+      wordCount = _detectMnemonicWords(bytes);
+      // 12-word: 128 bits, 24-word: 256 bits
+      List<int> usefulBits = _getUsefulBits(bytes, wordCount);
 
-    // 12-word: 132 bits (checksum: 4 bits), 24-word: 264 bits (checksum: 8 bits)
-    int expectedLength = wordCount == 12 ? 132 : 264;
+      // 12-word: 132 bits (checksum: 4 bits), 24-word: 264 bits (checksum: 8 bits)
+      int expectedLength = wordCount == 12 ? 132 : 264;
 
-    // 부족한 비트 0으로 채우고 초과하는 비트는 자름
-    List<int> paddedBits = List.from(usefulBits);
-    while (paddedBits.length < expectedLength) {
-      paddedBits.add(0);
+      // 부족한 비트 0으로 채우고 초과하는 비트는 자름
+      List<int> paddedBits = List.from(usefulBits);
+      while (paddedBits.length < expectedLength) {
+        paddedBits.add(0);
+      }
+      if (paddedBits.length > expectedLength) {
+        paddedBits = paddedBits.sublist(0, expectedLength);
+      }
+
+      // 11 bit로 끊어 인덱스 계산
+      final indices = <int>[];
+      List<String> words = [];
+      for (var i = 0; i < paddedBits.length; i += 11) {
+        final index = _bitsToInt(paddedBits.sublist(i, i + 11));
+        indices.add(index);
+        words.add(wordList[index]);
+      }
+
+      // 체크섬 계산
+      int checksum = _computeChecksum(paddedBits, wordCount);
+      // 마지막 단어 인덱스 계산
+      int lastIndex = indices[indices.length - 1] + checksum;
+
+      words.replaceRange(words.length - 1, words.length, [wordList[lastIndex]]);
+      return words;
+    } catch (_) {
+      return null;
     }
-    if (paddedBits.length > expectedLength) {
-      paddedBits = paddedBits.sublist(0, expectedLength);
-    }
-
-    // 11 bit로 끊어 인덱스 계산
-    final indices = <int>[];
-    List<String> words = [];
-    for (var i = 0; i < paddedBits.length; i += 11) {
-      final index = _bitsToInt(paddedBits.sublist(i, i + 11));
-      indices.add(index);
-      words.add(wordList[index]);
-    }
-
-    // 체크섬 계산
-    int checksum = _computeChecksum(paddedBits, wordCount);
-    // 마지막 단어 인덱스 계산
-    int lastIndex = indices[indices.length - 1] + checksum;
-
-    words.replaceRange(words.length - 1, words.length, [wordList[lastIndex]]);
-    return words;
   }
 
   int _detectMnemonicWords(List<int> rawBytes) {
