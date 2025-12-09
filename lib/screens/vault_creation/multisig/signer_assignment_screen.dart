@@ -553,16 +553,11 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
 
   void _onImportFromHwwPressed(int index) async {
     HardwareWalletType? selectedWalletType;
-
-    final iconSourceList = [kKeystoneIconPath, kSeedSignerIconPath, kJadeIconPath, kColdCardIconPath, kKruxIconPath];
-
-    final List<ExternalWalletButton> walletButtons = [
-      ExternalWalletButton(name: t.multi_sig_setting_screen.add_icon.keystone3pro, iconSource: iconSourceList[0]),
-      ExternalWalletButton(name: t.multi_sig_setting_screen.add_icon.seed_signer, iconSource: iconSourceList[1]),
-      ExternalWalletButton(name: t.multi_sig_setting_screen.add_icon.jade, iconSource: iconSourceList[2]),
-      ExternalWalletButton(name: t.multi_sig_setting_screen.add_icon.cold_card, iconSource: iconSourceList[3]),
-      ExternalWalletButton(name: t.multi_sig_setting_screen.add_icon.krux, iconSource: iconSourceList[4]),
-    ];
+    final List<ExternalWalletButton> walletButtons = [];
+    for (final walletType in HardwareWalletType.values) {
+      if (walletType == HardwareWalletType.coconutVault) continue;
+      walletButtons.add(ExternalWalletButton(name: walletType.displayName, iconSource: walletType.iconPath));
+    }
 
     await MyBottomSheet.showBottomSheet_ratio(
       context: context,
@@ -570,26 +565,7 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
         title: t.assign_signers_screen.hardware_wallet_type_selection,
         externalWalletButtonList: walletButtons,
         onSelected: (index) {
-          switch (index) {
-            case 0:
-              selectedWalletType = HardwareWalletType.keystone3Pro;
-              break;
-            case 1:
-              selectedWalletType = HardwareWalletType.seedSigner;
-              break;
-            case 2:
-              selectedWalletType = HardwareWalletType.jade;
-              break;
-            case 3:
-              selectedWalletType = HardwareWalletType.coldcard;
-              break;
-            case 4:
-              selectedWalletType = HardwareWalletType.krux;
-              break;
-
-            default:
-              selectedWalletType = HardwareWalletType.coconutVault;
-          }
+          selectedWalletType = HardwareWalletTypeExtension.fromDisplayName(walletButtons[index].name);
         },
       ),
     );
@@ -605,41 +581,40 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
       );
 
       Logger.log('--> SignerAssignmentScreen: externalImported: $externalImported');
+      if (externalImported == null) return;
 
-      if (externalImported != null) {
-        if (_viewModel.isAlreadyImported(externalImported)) {
-          return _showDialog(DialogType.alreadyExist);
-        }
+      if (_viewModel.isAlreadyImported(externalImported)) {
+        return _showDialog(DialogType.alreadyExist);
+      }
 
-        String? sameVaultName = _viewModel.findVaultNameByBsms(externalImported);
+      String? sameVaultName = _viewModel.findVaultNameByBsms(externalImported);
 
-        if (sameVaultName != null) {
-          _showDialog(DialogType.sameWithInternalOne, vaultName: sameVaultName);
-          return;
-        }
+      if (sameVaultName != null) {
+        _showDialog(DialogType.sameWithInternalOne, vaultName: sameVaultName);
+        return;
+      }
 
-        if (!mounted) return;
+      if (!mounted) return;
 
-        final Map<String, String>? bsmsAndMemo = await MyBottomSheet.showBottomSheet_90(
-          context: context,
-          child: ImportConfirmationScreen(importingBsms: externalImported),
+      final Map<String, String>? bsmsAndMemo = await MyBottomSheet.showBottomSheet_90(
+        context: context,
+        child: ImportConfirmationScreen(importingBsms: externalImported),
+      );
+
+      if (bsmsAndMemo != null) {
+        assert(bsmsAndMemo['bsms']!.isNotEmpty);
+
+        _viewModel.setAssignedVaultList(
+          index,
+          ImportKeyType.external,
+          false,
+          externalImported,
+          bsmsAndMemo['memo'],
+          selectedWalletType,
         );
 
-        if (bsmsAndMemo != null) {
-          assert(bsmsAndMemo['bsms']!.isNotEmpty);
-
-          _viewModel.setAssignedVaultList(
-            index,
-            ImportKeyType.external,
-            false,
-            externalImported,
-            bsmsAndMemo['memo'],
-            selectedWalletType,
-          );
-
-          if (!mounted) return;
-          Navigator.pop(context);
-        }
+        if (!mounted) return;
+        Navigator.pop(context);
       }
     }
   }
