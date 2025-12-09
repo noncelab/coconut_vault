@@ -7,7 +7,6 @@ import 'package:coconut_vault/model/multisig/multisig_vault_list_item.dart';
 import 'package:coconut_vault/providers/sign_provider.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:coconut_vault/utils/bip/normalized_multisig_config.dart';
-import 'package:coconut_vault/utils/bip/signer_bsms.dart';
 import 'package:flutter/foundation.dart';
 
 class MultisigSignViewModel extends ChangeNotifier {
@@ -42,6 +41,7 @@ class MultisigSignViewModel extends ChangeNotifier {
     }
   }
 
+  int get vaultId => _vaultListItem.id;
   int get requiredSignatureCount => _vaultListItem.requiredSignatureCount;
   String get walletName => _signProvider.vaultListItem!.name;
   List<bool> get signersApproved => _signerApproved;
@@ -63,7 +63,6 @@ class MultisigSignViewModel extends ChangeNotifier {
   void initPsbtSignState() {
     assert(!_signStateInitialized); // 오직 한번만 호출
     _signStateInitialized = true;
-    debugPrint('signnnnnnnnn: ${_signProvider.walletId}');
 
     final psbt = _signProvider.psbt!;
     for (var entry in _coconutVault.keyStoreList.asMap().entries) {
@@ -136,11 +135,11 @@ class MultisigSignViewModel extends ChangeNotifier {
   }
 
   // TODO: signers[index]의 hww type에 따라 다른 정보를 반환하도록 구현
-  String? getMultisigInfoQrData(int index, HardwareWalletType hwwType) {
+  String? getMultisigInfoQrData(HardwareWalletType hwwType) {
     if (hwwType == HardwareWalletType.keystone3Pro) {
-      return _getKeystoneMultisigInfoQrData(index);
+      return _getKeystoneMultisigInfoQrData();
     } else if (hwwType == HardwareWalletType.krux) {
-      return _getKruxMultisigInfoQrData(index);
+      return _getKruxMultisigInfoQrData();
     }
     return null;
   }
@@ -150,7 +149,7 @@ class MultisigSignViewModel extends ChangeNotifier {
   //   "blockheight": 140309,
   //   "descriptor": "wsh(sortedmulti(2,[73c5da0a/48h/1h/0h/2h]tpubDFH9dgzveyD8zTbPUFuLrGmCydNvxehyNdUXKJAQN8x4aZ4j6UZqGfnqFrD4NqyaTVGKbvEW54tsvPTK2UoSbCC1PJY8iCNiwTL3RWZEheQ,[a0f6ba00/48h/1h/0h/2h]tpubDFX3DiBn9TanpuwxEbfBfPoRDtfGuwRNpkCFf4Yq22SMSGhr4zLhMBFSbTR7jFnLbNdqvtLUyuSAYk4jR8vSa4h2m8qL6zxwU4bYE1wGmDF,[a3b2eb70/48h/1h/0h/2h]tpubDFXHjN6AZbhZd5H6XhMWAKjoCn9r9Uj6sMtyXKTkN3HAaYEMEGKzU836gkxcF7PUT3BgMUj8KPmU447kzo1naMetkyWNRoBapfAbqWqUuzQ))#pmgfjdf3"
   // }
-  String _getKruxMultisigInfoQrData(int index) {
+  String _getKruxMultisigInfoQrData() {
     final name = _vaultListItem.name;
     final coordinatorBsms = _vaultListItem.coordinatorBsms;
 
@@ -166,7 +165,7 @@ class MultisigSignViewModel extends ChangeNotifier {
     return jsonEncode(coordinatorBsmsJson);
   }
 
-  String _getKeystoneMultisigInfoQrData(int index) {
+  String _getKeystoneMultisigInfoQrData() {
     final name = _vaultListItem.name;
     final config = NormalizedMultisigConfig(
       name: name,

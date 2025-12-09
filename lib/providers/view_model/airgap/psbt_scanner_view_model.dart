@@ -12,8 +12,10 @@ class PsbtScannerViewModel {
   late final WalletProvider _walletProvider;
   late final SignProvider _signProvider;
 
-  PsbtScannerViewModel(this._walletProvider, this._signProvider) {
-    _signProvider.resetAll();
+  PsbtScannerViewModel(this._walletProvider, this._signProvider, {bool shouldResetAll = true}) {
+    if (shouldResetAll) {
+      _signProvider.resetAll();
+    }
   }
 
   void saveUnsignedPsbt(String psbtBase64) {

@@ -511,7 +511,11 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> with SingleTickerProv
                             (context) =>
                                 buildScreenWithArguments(context, (args) => SignerBsmsScannerScreen(id: args['id'])),
                         AppRoutes.psbtScanner:
-                            (context) => buildScreenWithArguments(context, (args) => PsbtScannerScreen(id: args['id'])),
+                            (context) => buildScreenWithArguments(
+                              context,
+                              (args) =>
+                                  PsbtScannerScreen(id: args['id'], hardwareWalletType: args['hardwareWalletType']),
+                            ),
                         AppRoutes.psbtConfirmation: (context) => const PsbtConfirmationScreen(),
                         AppRoutes.signedTransaction: (context) => const SignedTransactionQrScreen(),
                         AppRoutes.syncToWallet:

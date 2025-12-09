@@ -3,12 +3,14 @@ import 'dart:io';
 
 import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_vault/constants/app_routes.dart';
+import 'package:coconut_vault/enums/hardware_wallet_type_enum.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/model/exception/extended_public_key_not_found_exception.dart';
 import 'package:coconut_vault/model/exception/vault_can_not_sign_exception.dart';
 import 'package:coconut_vault/model/exception/vault_not_found_exception.dart';
 import 'package:coconut_vault/providers/sign_provider.dart';
 import 'package:coconut_vault/providers/view_model/airgap/psbt_scanner_view_model.dart';
+import 'package:coconut_vault/providers/visibility_provider.dart';
 import 'package:coconut_vault/widgets/animated_qr/coconut_qr_scanner.dart';
 import 'package:coconut_vault/widgets/animated_qr/scan_data_handler/bc_ur_qr_scan_data_handler.dart';
 import 'package:coconut_vault/widgets/animated_qr/scan_data_handler/i_qr_scan_data_handler.dart';
@@ -25,7 +27,8 @@ import 'package:cbor/cbor.dart';
 
 class PsbtScannerScreen extends StatefulWidget {
   final int? id;
-  const PsbtScannerScreen({super.key, this.id});
+  final HardwareWalletType? hardwareWalletType;
+  const PsbtScannerScreen({super.key, this.id, this.hardwareWalletType});
 
   @override
   State<PsbtScannerScreen> createState() => _PsbtScannerScreenState();
@@ -44,9 +47,11 @@ class _PsbtScannerScreenState extends State<PsbtScannerScreen> {
   @override
   void initState() {
     super.initState();
+    final shouldResetAll = widget.id == null;
     _viewModel = PsbtScannerViewModel(
       Provider.of<WalletProvider>(context, listen: false),
       Provider.of<SignProvider>(context, listen: false),
+      shouldResetAll: shouldResetAll,
     );
 
     _scanDataHandler = BcUrQrScanDataHandler();
@@ -169,13 +174,152 @@ class _PsbtScannerScreenState extends State<PsbtScannerScreen> {
   }
 
   List<TextSpan> _getGuideTextSpan() {
-    return [
-      TextSpan(text: '[2] ', style: CoconutTypography.body1_16_Bold.copyWith(height: 1.2, color: CoconutColors.black)),
-      TextSpan(
-        text: widget.id == null ? t.psbt_scanner_screen.guide : t.psbt_scanner_screen.guide_single_sig_same_name,
-        style: CoconutTypography.body2_14.copyWith(height: 1.2, color: CoconutColors.black),
-      ),
-    ];
+    final textStyle = CoconutTypography.body2_14.copyWith(height: 1.3, color: CoconutColors.black);
+    final textStyleBold = CoconutTypography.body2_14_Bold.copyWith(height: 1.3, color: CoconutColors.black);
+    final hwwType = widget.hardwareWalletType ?? HardwareWalletType.coconutVault;
+
+    final visibilityProvider = Provider.of<VisibilityProvider>(context, listen: false);
+    final isEnglish = visibilityProvider.language == 'en';
+
+    switch (hwwType) {
+      case HardwareWalletType.coconutVault:
+        // TODO: 숫자 빼기
+        return [
+          TextSpan(
+            text: '[2] ',
+            style: CoconutTypography.body1_16_Bold.copyWith(height: 1.2, color: CoconutColors.black),
+          ),
+          TextSpan(
+            text: widget.id == null ? t.psbt_scanner_screen.guide : t.psbt_scanner_screen.guide_single_sig_same_name,
+            style: CoconutTypography.body2_14.copyWith(height: 1.2, color: CoconutColors.black),
+          ),
+        ];
+      case HardwareWalletType.seedSigner:
+        return [
+          if (isEnglish) ...[
+            TextSpan(text: '1. ', style: textStyle),
+            TextSpan(text: t.psbt_scanner_screen.tooltip.confirm_sign_info, style: textStyle),
+            const TextSpan(text: '\n'),
+            TextSpan(text: '2. ', style: textStyle),
+            TextSpan(text: t.psbt_scanner_screen.tooltip.press_the_en, style: textStyle),
+            TextSpan(text: t.psbt_scanner_screen.tooltip.seed_signer_text1, style: textStyleBold),
+            TextSpan(text: t.psbt_scanner_screen.tooltip.button_en, style: textStyle),
+          ] else ...[
+            TextSpan(text: '1. ', style: textStyle),
+            TextSpan(text: t.psbt_scanner_screen.tooltip.confirm_sign_info, style: textStyle),
+            const TextSpan(text: '\n'),
+            TextSpan(text: '2. ', style: textStyle),
+            TextSpan(text: t.psbt_scanner_screen.tooltip.seed_signer_text1, style: textStyleBold),
+            TextSpan(text: t.psbt_scanner_screen.tooltip.click_button, style: textStyle),
+          ],
+          const TextSpan(text: '\n'),
+          TextSpan(
+            text: t.psbt_scanner_screen.tooltip.scan_QR_code(name: t.hardware_wallet_type.seedsigner),
+            style: textStyle,
+          ),
+        ];
+      case HardwareWalletType.jade:
+        return [
+          if (isEnglish) ...[
+            TextSpan(text: '1. ', style: textStyle),
+            TextSpan(text: t.psbt_scanner_screen.tooltip.confirm_sign_info, style: textStyle),
+            const TextSpan(text: '\n'),
+            TextSpan(text: '2. ', style: textStyle),
+            TextSpan(text: t.psbt_scanner_screen.tooltip.press_the_en, style: textStyle),
+            TextSpan(text: t.psbt_scanner_screen.tooltip.jade_text1, style: textStyleBold),
+            TextSpan(text: t.psbt_scanner_screen.tooltip.button_en, style: textStyle),
+          ] else ...[
+            TextSpan(text: '1. ', style: textStyle),
+            TextSpan(text: t.psbt_scanner_screen.tooltip.confirm_sign_info, style: textStyle),
+            const TextSpan(text: '\n'),
+            TextSpan(text: '2. ', style: textStyle),
+            TextSpan(text: t.psbt_scanner_screen.tooltip.jade_text1, style: textStyleBold),
+            TextSpan(text: t.psbt_scanner_screen.tooltip.click_button, style: textStyle),
+          ],
+          const TextSpan(text: '\n'),
+          TextSpan(
+            text: t.psbt_scanner_screen.tooltip.scan_QR_code(name: t.hardware_wallet_type.jade),
+            style: textStyle,
+          ),
+        ];
+      case HardwareWalletType.coldcard:
+        return [
+          if (isEnglish) ...[
+            TextSpan(text: '1. ', style: textStyle),
+            TextSpan(text: t.psbt_scanner_screen.tooltip.coldcard_text1, style: textStyle),
+            TextSpan(text: t.psbt_scanner_screen.tooltip.press_the_en, style: textStyle),
+            TextSpan(text: t.psbt_scanner_screen.tooltip.coldcard_text2, style: textStyleBold),
+            TextSpan(text: t.psbt_scanner_screen.tooltip.button_en, style: textStyle),
+            const TextSpan(text: '\n'),
+            TextSpan(text: '2. ', style: textStyle),
+            TextSpan(text: t.psbt_scanner_screen.tooltip.press_the_en, style: textStyle),
+            TextSpan(text: t.psbt_scanner_screen.tooltip.coldcard_text3, style: textStyleBold),
+            TextSpan(text: t.psbt_scanner_screen.tooltip.button_en, style: textStyle),
+            const TextSpan(text: '\n'),
+            TextSpan(text: '3. ', style: textStyle),
+            TextSpan(text: t.psbt_scanner_screen.tooltip.coldcard_text4, style: textStyle),
+            TextSpan(text: t.psbt_scanner_screen.tooltip.press_the_en, style: textStyle),
+            TextSpan(text: t.psbt_scanner_screen.tooltip.coldcard_text5, style: textStyleBold),
+            TextSpan(text: t.psbt_scanner_screen.tooltip.button_en, style: textStyle),
+          ] else ...[
+            TextSpan(text: '1. ', style: textStyle),
+            TextSpan(text: t.psbt_scanner_screen.tooltip.coldcard_text1, style: textStyle),
+            TextSpan(text: t.psbt_scanner_screen.tooltip.coldcard_text2, style: textStyleBold),
+            TextSpan(text: t.psbt_scanner_screen.tooltip.press_button, style: textStyle),
+            const TextSpan(text: '\n'),
+            TextSpan(text: '2. ', style: textStyle),
+            TextSpan(text: t.psbt_scanner_screen.tooltip.coldcard_text3, style: textStyleBold),
+            TextSpan(text: t.psbt_scanner_screen.tooltip.press_button, style: textStyle),
+            const TextSpan(text: '\n'),
+            TextSpan(text: '3. ', style: textStyle),
+            TextSpan(text: t.psbt_scanner_screen.tooltip.coldcard_text4, style: textStyle),
+            TextSpan(text: t.psbt_scanner_screen.tooltip.coldcard_text5, style: textStyleBold),
+            TextSpan(text: t.psbt_scanner_screen.tooltip.press_button, style: textStyle),
+          ],
+          const TextSpan(text: '\n'),
+          TextSpan(
+            text: t.psbt_scanner_screen.tooltip.scan_QR_code(name: t.hardware_wallet_type.coldcard),
+            style: textStyle,
+          ),
+        ];
+      case HardwareWalletType.keystone3Pro:
+        return [
+          TextSpan(text: '1. ', style: textStyle),
+          TextSpan(text: t.psbt_scanner_screen.tooltip.confirm_sign_info, style: textStyle),
+          const TextSpan(text: '\n'),
+          TextSpan(text: '2. ', style: textStyle),
+          TextSpan(text: t.psbt_scanner_screen.tooltip.keystone_text1, style: textStyle),
+          const TextSpan(text: '\n'),
+          TextSpan(text: '3. ', style: textStyle),
+          TextSpan(text: t.psbt_scanner_screen.tooltip.keystone_text2, style: textStyle),
+          const TextSpan(text: '\n'),
+          TextSpan(
+            text: t.psbt_scanner_screen.tooltip.scan_QR_code(name: t.hardware_wallet_type.keystone),
+            style: textStyle,
+          ),
+        ];
+      case HardwareWalletType.krux:
+        return [
+          TextSpan(text: '1. ', style: textStyle),
+          TextSpan(text: t.psbt_scanner_screen.tooltip.krux_text1, style: textStyle),
+          const TextSpan(text: '\n'),
+          TextSpan(text: '2. ', style: textStyle),
+          if (isEnglish) ...[
+            TextSpan(text: t.psbt_scanner_screen.tooltip.krux_text3, style: textStyle),
+            TextSpan(text: t.psbt_scanner_screen.tooltip.krux_text2, style: textStyleBold),
+          ] else ...[
+            TextSpan(text: t.psbt_scanner_screen.tooltip.krux_text2, style: textStyleBold),
+            TextSpan(text: t.psbt_scanner_screen.tooltip.krux_text3, style: textStyle),
+          ],
+          const TextSpan(text: '\n'),
+          TextSpan(
+            text: t.psbt_scanner_screen.tooltip.scan_QR_code(name: t.hardware_wallet_type.krux),
+            style: textStyle,
+          ),
+        ];
+      case HardwareWalletType.auto:
+        return [TextSpan(text: t.psbt_scanner_screen.tooltip.auto_text, style: textStyle)];
+    }
   }
 
   @override

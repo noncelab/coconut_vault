@@ -1,7 +1,8 @@
 import 'package:coconut_vault/constants/icon_path.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
+import 'package:coconut_vault/screens/airgap/multisig_sign_screen.dart';
 
-enum HardwareWalletType { coconutVault, keystone3Pro, seedSigner, jade, coldcard, krux }
+enum HardwareWalletType { coconutVault, keystone3Pro, seedSigner, jade, coldcard, krux, auto }
 
 extension HardwareWalletTypeExtension on HardwareWalletType {
   static final Map<HardwareWalletType, String> _names = {

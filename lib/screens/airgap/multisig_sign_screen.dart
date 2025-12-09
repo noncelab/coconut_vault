@@ -1,11 +1,9 @@
 import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_lib/coconut_lib.dart';
-import 'package:coconut_vault/constants/app_routes.dart';
 import 'package:coconut_vault/constants/icon_path.dart';
 import 'package:coconut_vault/enums/currency_enum.dart';
 import 'package:coconut_vault/enums/pin_check_context_enum.dart';
 import 'package:coconut_vault/enums/hardware_wallet_type_enum.dart';
-import 'package:coconut_vault/enums/signer_source_enum.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/model/exception/seed_invalidated_exception.dart';
 import 'package:coconut_vault/model/exception/user_canceled_auth_exception.dart';
@@ -16,16 +14,15 @@ import 'package:coconut_vault/providers/view_model/airgap/multisig_sign_view_mod
 import 'package:coconut_vault/providers/visibility_provider.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:coconut_vault/screens/airgap/multisig_info_qr_code_screen.dart';
+import 'package:coconut_vault/screens/airgap/psbt_scanner_screen.dart';
 import 'package:coconut_vault/screens/common/pin_check_screen.dart';
 import 'package:coconut_vault/screens/common/select_external_wallet_bottom_sheet.dart';
 import 'package:coconut_vault/screens/wallet_info/single_sig_menu/passphrase_check_screen.dart';
 import 'package:coconut_vault/screens/airgap/multisig_psbt_qr_code_screen.dart';
 import 'package:coconut_vault/utils/alert_util.dart';
-import 'package:coconut_vault/utils/icon_util.dart';
 import 'package:coconut_vault/widgets/bottom_sheet.dart';
 import 'package:coconut_vault/widgets/button/fixed_bottom_tween_button.dart';
 import 'package:coconut_vault/widgets/button/shrink_animation_button.dart';
-import 'package:coconut_vault/widgets/card/information_item_card.dart';
 import 'package:coconut_vault/widgets/custom_loading_overlay.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -224,11 +221,15 @@ class _MultisigSignScreenState extends State<MultisigSignScreen> {
         signedRawTx: _viewModel.psbtForSigning,
         hardwareWalletType: hwwType,
         qrData: multisigInfoQrData,
+        onNextPressed: () async {
+          await Future.delayed(const Duration(milliseconds: 300));
+          if (!mounted) return;
+          _showPsbtQrCodeBottomSheet(index, hwwType);
+        },
       ),
     );
   }
 
-  // TODO
   void _showPsbtQrCodeBottomSheet(int index, HardwareWalletType hwwType) {
     MyBottomSheet.showBottomSheet_95(
       context: context,
@@ -237,6 +238,23 @@ class _MultisigSignScreenState extends State<MultisigSignScreen> {
         keyIndex: '${index + 1}',
         signedRawTx: _viewModel.psbtForSigning,
         hardwareWalletType: hwwType,
+        onNextPressed: () async {
+          Navigator.pop(context); // 현재 다이얼로그 닫기
+
+          await Future.delayed(const Duration(milliseconds: 300));
+          if (!mounted) return;
+          _showPsbtScannerBottomSheet(hwwType);
+        },
+      ),
+    );
+  }
+
+  void _showPsbtScannerBottomSheet(HardwareWalletType hwwType) {
+    MyBottomSheet.showBottomSheet_95(
+      context: context,
+      child: ClipRRect(
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+        child: PsbtScannerScreen(id: _viewModel.vaultId, hardwareWalletType: hwwType),
       ),
     );
   }
@@ -535,16 +553,16 @@ class _MultisigSignScreenState extends State<MultisigSignScreen> {
                   // 지정되어 있지 않으면 하드월렛 선택
                   hwwType = await _showHardwareSelectionBottomSheet(index);
                   // 화면 pop하면서 hww type 전달받기
-                  debugPrint('--> hwwType: $hwwType');
                   // }
 
                   switch (hwwType) {
                     case HardwareWalletType.krux:
                     case HardwareWalletType.keystone3Pro:
-                      final multisigInfoQrData = _viewModel.getMultisigInfoQrData(index, hwwType!);
+                      final multisigInfoQrData = _viewModel.getMultisigInfoQrData(hwwType!);
                       if (multisigInfoQrData == null) {
                         return;
                       }
+                      debugPrint('--> multisigInfoQrData: $multisigInfoQrData');
                       _showDialogToMultisigInfoQrCode(index, hwwType!, multisigInfoQrData);
                       break;
                     case HardwareWalletType.coconutVault:
@@ -555,8 +573,7 @@ class _MultisigSignScreenState extends State<MultisigSignScreen> {
                       // t.multisig_sign_screen.loading_overlay 문구 사용
                       _showPsbtQrCodeBottomSheet(index, hwwType!);
                       break;
-                    case null:
-                      // null 인 경우는 바텀시트를 그냥 닫은 경우만 해당하므로 아무것도 하지 않음
+                    default:
                       return;
                   }
                 },
@@ -610,8 +627,28 @@ class _MultisigSignScreenState extends State<MultisigSignScreen> {
       selector: (_, viewModel) => viewModel.isSignatureComplete,
       builder: (context, isSignatureComplete, child) {
         return FixedBottomTweenButton(
-          leftButtonClicked: () {},
-          rightButtonClicked: () {},
+          leftButtonClicked: () {
+            showDialog(
+              context: context,
+              builder:
+                  (context) => CoconutPopup(
+                    title: t.alert.exit_sign.title,
+                    description: t.alert.exit_sign.description,
+                    backgroundColor: CoconutColors.white,
+                    leftButtonText: t.no,
+                    leftButtonColor: CoconutColors.black.withValues(alpha: 0.7),
+                    rightButtonText: t.yes,
+                    rightButtonColor: CoconutColors.warningText,
+                    onTapLeft: () => Navigator.pop(context),
+                    onTapRight: () {
+                      Navigator.popUntil(context, (route) => route.isFirst);
+                    },
+                  ),
+            );
+          },
+          rightButtonClicked: () {
+            _showPsbtScannerBottomSheet(HardwareWalletType.auto);
+          },
           leftText: t.abort_sign,
           rightText: t.scan_qr,
           leftButtonBackgroundColor: CoconutColors.white,
