@@ -468,4 +468,12 @@ class WalletProvider extends ChangeNotifier {
     _vaultList.clear();
     super.dispose();
   }
+
+  Future<void> unlinkInternalSigner(int multisigVaultId, int signerIndex) async {
+    final vault = getVaultById(multisigVaultId) as MultisigVaultListItem;
+
+    vault.signers[signerIndex].unlinkInternalWallet();
+
+    notifyListeners();
+  }
 }

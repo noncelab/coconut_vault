@@ -72,4 +72,11 @@ class MultisigSigner {
       return '';
     }
   }
+
+  void unlinkInternalWallet() {
+    innerVaultId = null;
+    iconIndex = null;
+    colorIndex = null;
+    name = null;
+  }
 }

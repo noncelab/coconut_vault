@@ -161,4 +161,19 @@ class WalletInfoViewModel extends ChangeNotifier {
   }
 
   ///----------------------------------------------------
+
+  Future<void> unlinkLinkedMultisigWallets() async {
+    if (linkedMultisigInfo == null || linkedMultisigInfo!.isEmpty) {
+      return;
+    }
+
+    // 연결된 모든 멀티시그 지갑에 대해 반복
+    for (var entry in linkedMultisigInfo!.entries) {
+      int multisigId = entry.key;
+      int signerIndex = entry.value;
+
+      // Provider를 통해 연결 해제 수행 (BSMS는 남기고 innerVaultId 등은 null 처리됨)
+      await _walletProvider.unlinkInternalSigner(multisigId, signerIndex);
+    }
+  }
 }
