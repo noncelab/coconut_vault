@@ -303,7 +303,7 @@ psbt_scanner_screen:
     button_en: ""
     auto_text: "다중 서명 중인 트랜잭션의 QR 코드를 스캔해 주세요."
 signed_transaction_qr_screen:
-  guide_multisig: "다중 서명을 완료했어요. 보내기 정보를 생성한 월렛으로 아래 QR 코드를 스캔해 주세요."
+  guide_multisig: "다중 서명을 완료했어요. 트랜잭션 정보를 생성한 월렛으로 아래 QR 코드를 스캔해 주세요."
   guide_single_sig: "월렛의 '$name 지갑'에서 만든 보내기 정보에 서명을 완료했어요. 월렛으로 아래 QR 코드를 스캔해 주세요."
 single_sig_sign_screen:
   text: "이미 서명된 트랜잭션입니다"
@@ -623,6 +623,7 @@ multisig_sign_screen:
   dialog:
     title: '$name 준비하기'
     description: '$name(으)로 서명을 하기 위해 사전 설정이 필요합니다. 사전 설정 화면으로 가시겠어요?'
+  creating_qr_code: "QR 코드를 생성합니다"
 
 confirm_importing_screen:
   guide1: "다른 볼트에서 가져온 "

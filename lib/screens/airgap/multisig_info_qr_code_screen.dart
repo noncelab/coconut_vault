@@ -103,20 +103,9 @@ class _MultisigQrCodeViewScreenState extends State<MultisigQrCodeViewScreen> {
     );
   }
 
-  /// QR 코드 위젯 빌드
-  /// Keystone은 다중 프래그먼트 UR을 인식하지 못하므로,
-  /// 단일 프래그먼트로 생성되도록 maxFragmentLen을 충분히 크게 설정합니다.
-  /// 단일 프래그먼트인 경우 QrImageView를 직접 사용하고,
-  /// 다중 프래그먼트인 경우에만 AnimatedQrView를 사용합니다.
   Widget _buildQrView() {
     final qrSize = MediaQuery.of(context).size.width * 0.8;
-    // Sparrow는 UR:BYTES/ 형식을 사용하므로, Keystone도 동일하게 bytes 형식 사용
-    // 단일 프래그먼트로 생성되도록 충분히 큰 값 설정
-    final handler = BcUrQrViewHandler(
-      widget.qrData,
-      UrType.bytes, // Sparrow와 동일하게 bytes 형식 사용
-      maxFragmentLen: 10000, // 충분히 크게 설정하여 단일 프래그먼트로 생성
-    );
+    final handler = BcUrQrViewHandler(widget.qrData, UrType.bytes, maxFragmentLen: 10000);
 
     final qrData = handler.nextPart();
     debugPrint('--> MultisigInfoQrCodeScreen: Generated UR: ${qrData.toUpperCase()}');

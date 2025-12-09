@@ -37,10 +37,7 @@ class BcUrQrViewHandler implements IQrViewDataHandler {
         }
         break;
       case UrType.bytes:
-        // String 또는 Uint8List 모두 처리 가능
-        // Sparrow와 호환성을 위해 String인 경우 CBOR로 인코딩 (Sparrow 방식)
         if (_source is String) {
-          // Sparrow는 텍스트를 CBOR bytes로 인코딩함
           final sourceBytes = utf8.encode(_source);
           cborEncoder.encodeBytes(sourceBytes);
           ur = UR(_urType, cborEncoder.getBytes());
@@ -65,7 +62,6 @@ class BcUrQrViewHandler implements IQrViewDataHandler {
 
   @override
   String nextPart() {
-    print('--> BcUrQrViewHandler nextPart: ${_urEncoder.nextPart()}');
     return _urEncoder.nextPart();
   }
 

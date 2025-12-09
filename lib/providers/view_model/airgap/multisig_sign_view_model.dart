@@ -72,9 +72,29 @@ class MultisigSignViewModel extends ChangeNotifier {
     }
   }
 
-  void updateSignState(int index) {
-    _signerApproved[index] = true;
-    notifyListeners();
+  void updateSignState(int? index) {
+    if (index != null) {
+      _signerApproved[index] = true;
+      notifyListeners();
+    }
+  }
+
+  /// 스캔된 PSBT에서 실제로 서명한 signer index를 찾습니다.
+  /// 외부 하드웨어 지갑에서 서명한 경우, psbt.isSigned()를 사용하여 어떤 signer가 서명했는지 확인합니다.
+  int? findSignerIndexByMfp(String psbtBase64) {
+    try {
+      final psbt = Psbt.parse(psbtBase64);
+
+      // signers 리스트를 순회하며 실제로 서명한 signer를 찾습니다.
+      for (int i = 0; i < _vaultListItem.signers.length; i++) {
+        if (psbt.isSigned(_vaultListItem.signers[i].keyStore)) {
+          return i;
+        }
+      }
+      return null;
+    } catch (e) {
+      return null;
+    }
   }
 
   String getPsbtBase64() {

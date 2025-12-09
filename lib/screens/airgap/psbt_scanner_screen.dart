@@ -28,7 +28,8 @@ import 'package:cbor/cbor.dart';
 class PsbtScannerScreen extends StatefulWidget {
   final int? id;
   final HardwareWalletType? hardwareWalletType;
-  const PsbtScannerScreen({super.key, this.id, this.hardwareWalletType});
+  final void Function(String psbtBase64)? onMultisigSignCompleted;
+  const PsbtScannerScreen({super.key, this.id, this.hardwareWalletType, this.onMultisigSignCompleted});
 
   @override
   State<PsbtScannerScreen> createState() => _PsbtScannerScreenState();
@@ -140,6 +141,12 @@ class _PsbtScannerScreenState extends State<PsbtScannerScreen> {
     _viewModel.saveUnsignedPsbt(psbtBase64);
 
     if (mounted) {
+      if (widget.hardwareWalletType != null) {
+        widget.onMultisigSignCompleted?.call(psbtBase64);
+        Navigator.pop(context);
+        return;
+      }
+
       /// Go-router 제거 이후로 ios에서는 정상 작동하지만 안드로이드에서는 pushNamed로 화면 이동 시 카메라 컨트롤러 남아있는 이슈
       if (Platform.isAndroid) {
         Navigator.pushReplacementNamed(context, AppRoutes.psbtConfirmation);

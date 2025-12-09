@@ -1,5 +1,6 @@
 import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_lib/coconut_lib.dart';
+import 'package:coconut_vault/constants/app_routes.dart';
 import 'package:coconut_vault/constants/icon_path.dart';
 import 'package:coconut_vault/enums/currency_enum.dart';
 import 'package:coconut_vault/enums/pin_check_context_enum.dart';
@@ -24,6 +25,7 @@ import 'package:coconut_vault/widgets/bottom_sheet.dart';
 import 'package:coconut_vault/widgets/button/fixed_bottom_tween_button.dart';
 import 'package:coconut_vault/widgets/button/shrink_animation_button.dart';
 import 'package:coconut_vault/widgets/custom_loading_overlay.dart';
+import 'package:coconut_vault/widgets/indicator/message_activity_indicator.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
@@ -40,6 +42,7 @@ class _MultisigSignScreenState extends State<MultisigSignScreen> {
   late BitcoinUnit _currentUnit;
   bool _showLoading = false;
   bool _showFullAddress = false;
+  bool _isCreatingQrCode = false;
 
   @override
   void initState() {
@@ -140,6 +143,7 @@ class _MultisigSignScreenState extends State<MultisigSignScreen> {
       });
 
       await _viewModel.sign(index, seed);
+      await _checkAndShowCreatingQrCode();
     } catch (error) {
       if (mounted) {
         showAlertDialog(context: context, content: t.errors.sign_error(error: error));
@@ -158,6 +162,7 @@ class _MultisigSignScreenState extends State<MultisigSignScreen> {
       });
 
       await _viewModel.signPsbtInSigningOnlyMode(index);
+      await _checkAndShowCreatingQrCode();
     } on UserCanceledAuthException catch (_) {
       return;
     } on SeedInvalidatedException catch (e) {
@@ -184,10 +189,29 @@ class _MultisigSignScreenState extends State<MultisigSignScreen> {
     }
   }
 
+  Future<void> _checkAndShowCreatingQrCode() async {
+    await Future.delayed(const Duration(milliseconds: 100));
+    if (mounted && _viewModel.isSignatureComplete) {
+      _viewModel.saveSignedPsbt();
+
+      setState(() {
+        _isCreatingQrCode = true;
+      });
+      await Future.delayed(const Duration(seconds: 2));
+      if (mounted) {
+        setState(() {
+          _isCreatingQrCode = false;
+        });
+        Navigator.pushReplacementNamed(context, AppRoutes.signedTransaction);
+      }
+    }
+  }
+
   // TODO
   void _showDialogToMultisigInfoQrCode(int index, HardwareWalletType hwwType, String multisigInfoQrData) {
     showDialog(
       context: context,
+      barrierDismissible: false,
       builder: (BuildContext context) {
         return CoconutPopup(
           insetPadding: EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width * 0.15),
@@ -243,18 +267,27 @@ class _MultisigSignScreenState extends State<MultisigSignScreen> {
 
           await Future.delayed(const Duration(milliseconds: 300));
           if (!mounted) return;
-          _showPsbtScannerBottomSheet(hwwType);
+          _showPsbtScannerBottomSheet(index, hwwType);
         },
       ),
     );
   }
 
-  void _showPsbtScannerBottomSheet(HardwareWalletType hwwType) {
+  void _showPsbtScannerBottomSheet(int? index, HardwareWalletType hwwType) {
     MyBottomSheet.showBottomSheet_95(
       context: context,
       child: ClipRRect(
         borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
-        child: PsbtScannerScreen(id: _viewModel.vaultId, hardwareWalletType: hwwType),
+        child: PsbtScannerScreen(
+          id: _viewModel.vaultId,
+          hardwareWalletType: hwwType,
+          onMultisigSignCompleted: (psbtBase64) async {
+            final signerIndex = index ?? _viewModel.findSignerIndexByMfp(psbtBase64);
+
+            _viewModel.updateSignState(signerIndex);
+            await _checkAndShowCreatingQrCode();
+          },
+        ),
       ),
     );
   }
@@ -409,6 +442,19 @@ class _MultisigSignScreenState extends State<MultisigSignScreen> {
                           child: const Center(child: CircularProgressIndicator(color: CoconutColors.gray800)),
                         ),
                       ),
+                      Visibility(
+                        visible: _isCreatingQrCode,
+                        child: Container(
+                          decoration: BoxDecoration(color: CoconutColors.black.withValues(alpha: 0.3)),
+                          child: Center(
+                            child: MessageActivityIndicator(
+                              message: t.multisig_sign_screen.creating_qr_code,
+                              isCupertinoIndicator: true,
+                              padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 45),
+                            ),
+                          ),
+                        ),
+                      ),
                     ],
                   ),
                 ),
@@ -559,6 +605,7 @@ class _MultisigSignScreenState extends State<MultisigSignScreen> {
                     case HardwareWalletType.krux:
                     case HardwareWalletType.keystone3Pro:
                       final multisigInfoQrData = _viewModel.getMultisigInfoQrData(hwwType!);
+                      debugPrint('index: $index');
                       if (multisigInfoQrData == null) {
                         return;
                       }
@@ -647,7 +694,7 @@ class _MultisigSignScreenState extends State<MultisigSignScreen> {
             );
           },
           rightButtonClicked: () {
-            _showPsbtScannerBottomSheet(HardwareWalletType.auto);
+            _showPsbtScannerBottomSheet(null, HardwareWalletType.auto);
           },
           leftText: t.abort_sign,
           rightText: t.scan_qr,

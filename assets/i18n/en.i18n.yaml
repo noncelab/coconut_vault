@@ -302,7 +302,7 @@ psbt_scanner_screen:
     button_en: "button."
     auto_text: "Scan the QR code of the multisignature transaction."
 signed_transaction_qr_screen:
-  guide_multisig: "Multisig signing completed. Please scan the QR code below with the wallet that initiated the transaction."
+  guide_multisig: "Multisig signing completed. Please scan the QR code below with the wallet that created the transaction."
   guide_single_sig: "Signing completed for the transaction created in '$name wallet'. Please scan the QR code below with the wallet."
 single_sig_sign_screen:
   text: "This is an already signed transaction"
@@ -621,7 +621,7 @@ multisig_sign_screen:
   dialog:
     title: 'Prepare $name'
     description: 'To sign with $name, you need to set up in advance. Would you like to go to the setup screen?'
-
+  creating_qr_code: "Creating QR code"
 confirm_importing_screen:
   guide1: "Please verify that "
   guide2: "imported info from other vault "

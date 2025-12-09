@@ -72,6 +72,7 @@ class _SelectExternalWalletBottomSheetState extends State<SelectExternalWalletBo
 
                 showDialog(
                   context: context,
+                  barrierDismissible: false,
                   builder: (BuildContext context) {
                     return CoconutPopup(
                       insetPadding: EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width * 0.15),
