@@ -503,7 +503,7 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
               enableSingleChildScroll: false,
               hideAppBar: true,
               child: const SignerBsmsScannerScreen(
-                hardwareWalletType: HardwareWalletType.coldcard,
+                hardwareWalletType: HardwareWalletType.krux,
               ), // TODO: 선택한 결과에 맞게 harewareWalletType 변경하기
             );
 

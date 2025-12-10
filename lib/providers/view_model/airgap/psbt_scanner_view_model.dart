@@ -22,12 +22,13 @@ class PsbtScannerViewModel {
     _signProvider.saveUnsignedPsbt(psbtBase64);
   }
 
-  Future<Psbt> parseBase64EncodedToPsbt(int vaultId, String signedPsbtBase64Encoded) async {
+  Future<Psbt> parseBase64EncodedToPsbt(int vaultId, String signedPsbtBase64Encoded, {bool isKrux = false}) async {
+    // Krux는 derivation path를 넘기지 않기 때문에, canSign 검사 불가
     if (!_walletProvider.isVaultsLoaded || _walletProvider.vaultList.isEmpty) {
       await _walletProvider.loadVaultList();
     }
     _signProvider.setVaultListItem(_walletProvider.getVaultById(vaultId));
-    final canSign = await _walletProvider.getVaultById(vaultId).canSign(signedPsbtBase64Encoded);
+    final canSign = isKrux ? true : await _walletProvider.getVaultById(vaultId).canSign(signedPsbtBase64Encoded);
     if (!canSign) {
       throw VaultSigningNotAllowedException();
     }

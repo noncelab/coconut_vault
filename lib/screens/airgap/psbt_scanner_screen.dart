@@ -121,10 +121,16 @@ class _PsbtScannerScreenState extends State<PsbtScannerScreen> {
         await _viewModel.setMatchingVault(psbtBase64);
       } else {
         // id를 이용해 특정 지갑에 대해 psbt 파싱
-        await _viewModel.parseBase64EncodedToPsbt(widget.id!, psbtBase64);
+        await _viewModel.parseBase64EncodedToPsbt(
+          widget.id!,
+          psbtBase64,
+          isKrux: widget.hardwareWalletType == HardwareWalletType.krux,
+        );
       }
     } catch (e) {
       vibrateExtraLightDouble();
+      debugPrint('e: ${e.toString()}');
+
       if (e is VaultNotFoundException) {
         await _showErrorDialog(VaultNotFoundException.defaultErrorMessage);
       } else if (e is VaultSigningNotAllowedException) {
@@ -134,6 +140,7 @@ class _PsbtScannerScreenState extends State<PsbtScannerScreen> {
       } else {
         await _showErrorDialog(t.errors.invalid_qr);
       }
+      _isProcessing = true;
       return;
     }
 

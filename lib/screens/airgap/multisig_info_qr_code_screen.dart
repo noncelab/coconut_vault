@@ -105,14 +105,14 @@ class _MultisigQrCodeViewScreenState extends State<MultisigQrCodeViewScreen> {
 
   Widget _buildQrView() {
     final qrSize = MediaQuery.of(context).size.width * 0.8;
-    final handler = BcUrQrViewHandler(widget.qrData, UrType.bytes, maxFragmentLen: 10000);
+    final handler = BcUrQrViewHandler(widget.qrData, UrType.bytes, maxFragmentLen: 50); // TODO: 키스톤: 10000
 
     final qrData = handler.nextPart();
     debugPrint('--> MultisigInfoQrCodeScreen: Generated UR: ${qrData.toUpperCase()}');
     debugPrint('--> MultisigInfoQrCodeScreen: isSinglePart: ${handler.isSinglePart}');
     debugPrint('--> MultisigInfoQrCodeScreen: qrData type: ${widget.qrData.runtimeType}');
     debugPrint(
-      '--> MultisigInfoQrCodeScreen: qrData preview: ${widget.qrData.toString().substring(0, widget.qrData.toString().length > 200 ? 200 : widget.qrData.toString().length)}...',
+      '-->${widget.qrData.toString().substring(0, widget.qrData.toString().length > 200 ? 200 : widget.qrData.toString().length)}...',
     );
 
     // 단일 프래그먼트인 경우 QrImageView 직접 사용 (애니메이션 불필요)
@@ -121,7 +121,8 @@ class _MultisigQrCodeViewScreenState extends State<MultisigQrCodeViewScreen> {
     }
 
     // 다중 프래그먼트인 경우에만 AnimatedQrView 사용
-    return AnimatedQrView(qrViewDataHandler: handler, qrScanDensity: QrScanDensity.normal, qrSize: qrSize);
+    // return AnimatedQrView(qrViewDataHandler: handler, qrScanDensity: QrScanDensity.normal, qrSize: qrSize);
+    return AnimatedQrView(qrViewDataHandler: handler, qrSize: qrSize);
   }
 
   List<TextSpan> _getTooltipRichText() {

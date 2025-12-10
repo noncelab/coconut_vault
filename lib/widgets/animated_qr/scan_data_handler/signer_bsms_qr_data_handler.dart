@@ -8,19 +8,19 @@ import 'package:coconut_vault/utils/ur_bytes_converter.dart';
 import 'package:coconut_vault/widgets/animated_qr/scan_data_handler/i_qr_scan_data_handler.dart';
 
 class SignerBsmsQrDataHandler implements IQrScanDataHandler {
-  final HardwareWalletType? harewareWalletType;
+  final HardwareWalletType? hardwareWalletType;
   URDecoder _urDecoder;
   BbQrDecoder _bbQrDecoder;
 
   StringBuffer? _textBuffer;
 
-  SignerBsmsQrDataHandler({this.harewareWalletType = HardwareWalletType.coconutVault})
+  SignerBsmsQrDataHandler({this.hardwareWalletType = HardwareWalletType.coconutVault})
     : _urDecoder = URDecoder(),
       _bbQrDecoder = BbQrDecoder();
 
   @override
   dynamic get result {
-    switch (harewareWalletType) {
+    switch (hardwareWalletType) {
       case HardwareWalletType.keystone3Pro:
       case HardwareWalletType.jade:
         return UrBytesConverter.convertToMap(_urDecoder.result);
@@ -41,7 +41,7 @@ class SignerBsmsQrDataHandler implements IQrScanDataHandler {
 
   @override
   double get progress {
-    switch (harewareWalletType) {
+    switch (hardwareWalletType) {
       case HardwareWalletType.keystone3Pro:
       case HardwareWalletType.jade:
         return _urDecoder.estimatedPercentComplete();
@@ -62,7 +62,7 @@ class SignerBsmsQrDataHandler implements IQrScanDataHandler {
       return false;
     }
 
-    switch (harewareWalletType) {
+    switch (hardwareWalletType) {
       case HardwareWalletType.keystone3Pro:
       case HardwareWalletType.jade:
         return _urDecoder.receivePart(data);
@@ -84,7 +84,7 @@ class SignerBsmsQrDataHandler implements IQrScanDataHandler {
     final normalized = data.trim().toLowerCase();
 
     try {
-      switch (harewareWalletType) {
+      switch (hardwareWalletType) {
         case HardwareWalletType.keystone3Pro:
         case HardwareWalletType.jade:
           return normalized.startsWith('ur:crypto-account/');
@@ -110,7 +110,7 @@ class SignerBsmsQrDataHandler implements IQrScanDataHandler {
 
   @override
   bool isCompleted() {
-    switch (harewareWalletType) {
+    switch (hardwareWalletType) {
       case HardwareWalletType.keystone3Pro:
       case HardwareWalletType.jade:
         return _urDecoder.isComplete();

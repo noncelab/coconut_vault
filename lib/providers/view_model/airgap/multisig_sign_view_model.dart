@@ -133,6 +133,38 @@ class MultisigSignViewModel extends ChangeNotifier {
     }
   }
 
+  /// 외부 하드웨어 지갑에서 서명한 PSBT를 현재 PSBT와 병합합니다.
+  /// 스캔한 PSBT가 더 많은 서명을 포함하고 있으면 스캔한 PSBT를 사용합니다.
+  void mergeSignedPsbt(String signedPsbtBase64) {
+    try {
+      final currentPsbt = Psbt.parse(_psbtForSigning);
+      final scannedPsbt = Psbt.parse(signedPsbtBase64);
+
+      // 각 PSBT의 서명 수를 확인
+      int currentSignatureCount = 0;
+      int scannedSignatureCount = 0;
+
+      for (var keyStore in _coconutVault.keyStoreList) {
+        if (currentPsbt.isSigned(keyStore)) {
+          currentSignatureCount++;
+        }
+        if (scannedPsbt.isSigned(keyStore)) {
+          scannedSignatureCount++;
+        }
+      }
+
+      // 스캔한 PSBT가 더 많은 서명을 포함하고 있으면 스캔한 PSBT를 사용
+      // 또는 스캔한 PSBT가 모든 필요한 서명을 포함하고 있으면 사용
+      if (scannedSignatureCount >= currentSignatureCount || scannedSignatureCount >= requiredSignatureCount) {
+        _psbtForSigning = signedPsbtBase64;
+      }
+      // 그렇지 않으면 현재 PSBT를 유지 (이미 더 많은 서명을 포함하고 있음)
+    } catch (e) {
+      // 파싱 실패 시, 스캔한 PSBT를 그대로 사용
+      _psbtForSigning = signedPsbtBase64;
+    }
+  }
+
   void saveSignedPsbt() {
     _signProvider.saveSignedPsbt(_psbtForSigning);
   }
@@ -149,12 +181,10 @@ class MultisigSignViewModel extends ChangeNotifier {
     _signProvider.resetSignedPsbt();
   }
 
-  // TODO: signers[index]의 hww type 가져오기
   HardwareWalletType? getSignerHwwType(int index) {
     return _vaultListItem.signers[index].signerSource;
   }
 
-  // TODO: signers[index]의 hww type에 따라 다른 정보를 반환하도록 구현
   String? getMultisigInfoQrData(HardwareWalletType hwwType) {
     if (hwwType == HardwareWalletType.keystone3Pro) {
       return _getKeystoneMultisigInfoQrData();
@@ -180,7 +210,7 @@ class MultisigSignViewModel extends ChangeNotifier {
 
     final descriptorLine = lines[1].replaceAll("'", "h");
 
-    final coordinatorBsmsJson = {'label': name, 'blockheight': 0, 'descriptor': descriptorLine};
+    final coordinatorBsmsJson = {'label': name, 'blockheight': 927230, 'descriptor': descriptorLine};
 
     return jsonEncode(coordinatorBsmsJson);
   }

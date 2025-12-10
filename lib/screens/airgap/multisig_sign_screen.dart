@@ -42,7 +42,8 @@ class _MultisigSignScreenState extends State<MultisigSignScreen> {
   late BitcoinUnit _currentUnit;
   bool _showLoading = false;
   bool _showFullAddress = false;
-  bool _isCreatingQrCode = false;
+  bool _isCupertinoLoadingShown = false;
+  String _cupertinoLoadingMessage = '';
 
   @override
   void initState() {
@@ -195,19 +196,19 @@ class _MultisigSignScreenState extends State<MultisigSignScreen> {
       _viewModel.saveSignedPsbt();
 
       setState(() {
-        _isCreatingQrCode = true;
+        _cupertinoLoadingMessage = t.multisig_sign_screen.creating_qr_code;
+        _isCupertinoLoadingShown = true;
       });
       await Future.delayed(const Duration(seconds: 2));
       if (mounted) {
         setState(() {
-          _isCreatingQrCode = false;
+          _isCupertinoLoadingShown = false;
         });
         Navigator.pushReplacementNamed(context, AppRoutes.signedTransaction);
       }
     }
   }
 
-  // TODO
   void _showDialogToMultisigInfoQrCode(int index, HardwareWalletType hwwType, String multisigInfoQrData) {
     showDialog(
       context: context,
@@ -284,6 +285,8 @@ class _MultisigSignScreenState extends State<MultisigSignScreen> {
           onMultisigSignCompleted: (psbtBase64) async {
             final signerIndex = index ?? _viewModel.findSignerIndexByMfp(psbtBase64);
 
+            // 외부 하드웨어 지갑에서 서명한 PSBT를 현재 PSBT와 병합
+            _viewModel.mergeSignedPsbt(psbtBase64);
             _viewModel.updateSignState(signerIndex);
             await _checkAndShowCreatingQrCode();
           },
@@ -443,12 +446,12 @@ class _MultisigSignScreenState extends State<MultisigSignScreen> {
                         ),
                       ),
                       Visibility(
-                        visible: _isCreatingQrCode,
+                        visible: _isCupertinoLoadingShown,
                         child: Container(
                           decoration: BoxDecoration(color: CoconutColors.black.withValues(alpha: 0.3)),
                           child: Center(
                             child: MessageActivityIndicator(
-                              message: t.multisig_sign_screen.creating_qr_code,
+                              message: _cupertinoLoadingMessage,
                               isCupertinoIndicator: true,
                               padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 45),
                             ),
@@ -605,6 +608,7 @@ class _MultisigSignScreenState extends State<MultisigSignScreen> {
                     case HardwareWalletType.krux:
                     case HardwareWalletType.keystone3Pro:
                       final multisigInfoQrData = _viewModel.getMultisigInfoQrData(hwwType!);
+                      debugPrint('--> hwwType: $hwwType');
                       debugPrint('index: $index');
                       if (multisigInfoQrData == null) {
                         return;
@@ -616,8 +620,16 @@ class _MultisigSignScreenState extends State<MultisigSignScreen> {
                     case HardwareWalletType.seedSigner:
                     case HardwareWalletType.jade:
                     case HardwareWalletType.coldcard:
-                      // TODO: 로딩 오버레이('다른 기기에서 서명을 시작합니다...') 2s 보여준 후
-                      // t.multisig_sign_screen.loading_overlay 문구 사용
+                      setState(() {
+                        _cupertinoLoadingMessage = t.multisig_sign_screen.loading_overlay;
+                        _isCupertinoLoadingShown = true;
+                      });
+                      await Future.delayed(const Duration(seconds: 2));
+                      if (mounted) {
+                        setState(() {
+                          _isCupertinoLoadingShown = false;
+                        });
+                      }
                       _showPsbtQrCodeBottomSheet(index, hwwType!);
                       break;
                     default:

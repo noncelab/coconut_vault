@@ -31,7 +31,7 @@ class _SignerBsmsScannerScreenState extends BsmsScannerBase<SignerBsmsScannerScr
   @override
   void initState() {
     super.initState();
-    _signerBsmsQrDataHandler = SignerBsmsQrDataHandler(harewareWalletType: widget.hardwareWalletType);
+    _signerBsmsQrDataHandler = SignerBsmsQrDataHandler(hardwareWalletType: widget.hardwareWalletType);
   }
 
   @override
