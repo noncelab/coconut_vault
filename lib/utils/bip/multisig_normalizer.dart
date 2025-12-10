@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:typed_data';
 import 'package:coconut_lib/coconut_lib.dart';
+import 'package:coconut_vault/model/exception/network_mismatch_exception.dart';
 import 'package:coconut_vault/utils/bip/normalized_multisig_config.dart';
 
 /// CoordinatorBsmsQrDataHandler.result -> NormalizedMultisigConfig
@@ -319,7 +320,7 @@ class MultisigNormalizer {
   }
 
   /// keystone, jade 결과를 signer BSMS 형식으로 변환
-  static String fromUrResult(Map<dynamic, dynamic> map) {
+  static String signerBsmsFromUrResult(Map<dynamic, dynamic> map) {
     Map<String, dynamic> jsonCompatibleMap = _convertKeysToString(map);
 
     final accounts = jsonCompatibleMap['2'];
@@ -340,6 +341,9 @@ class MultisigNormalizer {
       final pathList = origin['1'];
       if (pathList == null || pathList is! List) continue;
 
+      if (pathList.length == targetPath1.length && pathList[2] != targetPath1[2]) {
+        throw NetworkMismatchException();
+      }
       if (_listEquals(pathList, targetPath1) || _listEquals(pathList, targetPath2)) {
         targetEntry = m;
         break;
@@ -372,8 +376,6 @@ class MultisigNormalizer {
             ? AddressType.p2wsh.versionForMainnet
             : AddressType.p2wsh.versionForTestnet;
     final extendedPublicKey = ExtendedPublicKey.fromHdWallet(wallet, version, mfp);
-
-    print('derived xpub: ${extendedPublicKey.serialize()}');
 
     return _buildSignerBsms(
       fingerprint: mfpDec.toRadixString(16).padLeft(8, '0').toUpperCase(),
@@ -437,9 +439,9 @@ class MultisigNormalizer {
     });
   }
 
-  static String fromBbQrResult(dynamic result) {
-    final xpub = result['p2wsh'];
-    final descriptor = result['p2wsh_desc'];
+  static String signerBsmsFromBbQr(dynamic keyInfo) {
+    final xpub = keyInfo['p2wsh'];
+    final descriptor = keyInfo['p2wsh_desc'];
     final match = RegExp(r'\[[0-9a-fA-F]{8}/[^\]]+\]').firstMatch(descriptor);
     if (match == null) {
       throw const FormatException('Descriptor does not contain a valid [mfp/path] block');
@@ -452,8 +454,8 @@ class MultisigNormalizer {
     return _buildSignerBsms(fingerprint: fingerprint, derivationPath: derivationPath, extendedKey: xpub);
   }
 
-  static String fromTextResult(String result) {
-    final matches = RegExp(r'\[([^\]]+)\]([A-Za-z0-9]+)').allMatches(result);
+  static String signerBsmsFromKeyInfo(String keyInfo) {
+    final matches = RegExp(r'\[([^\]]+)\]([A-Za-z0-9]+)').allMatches(keyInfo);
     if (matches.isEmpty) {
       throw const FormatException('No matches found in text result');
     }

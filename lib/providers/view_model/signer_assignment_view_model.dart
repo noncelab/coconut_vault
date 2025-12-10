@@ -10,6 +10,8 @@ import 'package:coconut_vault/model/single_sig/single_sig_vault_list_item.dart';
 import 'package:coconut_vault/providers/wallet_creation_provider.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:coconut_vault/screens/vault_creation/multisig/signer_assignment_screen.dart';
+import 'package:coconut_vault/utils/bip/signer_bsms.dart';
+import 'package:coconut_vault/utils/coconut/extended_pubkey_utils.dart';
 import 'package:coconut_vault/utils/logger.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -66,28 +68,10 @@ class SignerAssignmentViewModel extends ChangeNotifier {
   bool get isInitializing => _isInitializing;
 
   /// bsms를 비교하여 이미 보유한 볼트 지갑 중 하나인 경우 이름을 반환
-  String? findVaultNameByBsms(String signerBsms) {
-    String? targetMfp;
-
-    try {
-      targetMfp = Bsms.parseSigner(signerBsms).signer!.masterFingerPrint;
-    } catch (e) {
-      final RegExp regex = RegExp(r'\[([0-9A-Fa-f]{8})');
-      final match = regex.firstMatch(signerBsms);
-
-      if (match != null) {
-        targetMfp = match.group(1);
-        Logger.log('Parsing failed but MFP extracted via Regex: $targetMfp');
-      } else {
-        Logger.log('Failed to extract MFP from raw data: $e');
-        return null;
-      }
-    }
-
-    if (targetMfp == null) return null;
-
+  String? findVaultNameByBsms(SignerBsms signerBsms) {
+    String targetMfp = signerBsms.fingerprint;
     int result = _signerOptions.indexWhere((element) {
-      return element.masterFingerprint.toLowerCase() == targetMfp!.toLowerCase();
+      return element.masterFingerprint.toLowerCase() == targetMfp.toLowerCase();
     });
 
     if (result == -1) return null;
@@ -105,12 +89,11 @@ class SignerAssignmentViewModel extends ChangeNotifier {
         getAssignedVaultListLength() >= totalSignatureCount - 1;
   }
 
-  bool isAlreadyImported(String signerBsms) {
-    List<String> splitedOne = signerBsms.split('\n');
+  bool isAlreadyImported(SignerBsms signerBsms) {
     for (int i = 0; i < assignedVaultList.length; i++) {
       if (assignedVaultList[i].bsms == null) continue;
-      List<String> splitedTwo = assignedVaultList[i].bsms!.split('\n');
-      if (splitedOne[0] == splitedTwo[0] && splitedOne[1] == splitedTwo[1] && splitedOne[2] == splitedTwo[2]) {
+      SignerBsms target = SignerBsms.parse(assignedVaultList[i].bsms!);
+      if (isEquivalentExtendedPubKey(signerBsms.extendedKey, target.extendedKey)) {
         return true;
       }
     }

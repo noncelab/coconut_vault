@@ -1,6 +1,5 @@
 import 'package:coconut_lib/coconut_lib.dart';
 import 'package:coconut_vault/enums/hardware_wallet_type_enum.dart';
-import 'package:coconut_vault/enums/wallet_enums.dart';
 import 'package:coconut_vault/packages/bc-ur-dart/lib/ur_decoder.dart';
 import 'package:coconut_vault/utils/bb_qr/bb_qr_decoder.dart';
 import 'package:coconut_vault/utils/bip/signer_bsms.dart';
@@ -14,9 +13,22 @@ class SignerBsmsQrDataHandler implements IQrScanDataHandler {
 
   StringBuffer? _textBuffer;
 
+  late bool _isFragmentedDataScanned;
+  bool get isFragmentedDataScanned => _isFragmentedDataScanned;
+
   SignerBsmsQrDataHandler({this.harewareWalletType = HardwareWalletType.coconutVault})
     : _urDecoder = URDecoder(),
-      _bbQrDecoder = BbQrDecoder();
+      _bbQrDecoder = BbQrDecoder() {
+    switch (harewareWalletType) {
+      case HardwareWalletType.seedSigner:
+      case HardwareWalletType.krux:
+      case HardwareWalletType.coconutVault:
+        _isFragmentedDataScanned = false;
+        break;
+      default:
+        _isFragmentedDataScanned = true;
+    }
+  }
 
   @override
   dynamic get result {
@@ -81,25 +93,25 @@ class SignerBsmsQrDataHandler implements IQrScanDataHandler {
 
   @override
   bool validateFormat(String data) {
-    final normalized = data.trim().toLowerCase();
+    final lowerCased = data.trim().toLowerCase();
 
     try {
       switch (harewareWalletType) {
         case HardwareWalletType.keystone3Pro:
         case HardwareWalletType.jade:
-          return normalized.startsWith('ur:crypto-account/');
+          return lowerCased.startsWith('ur:crypto-account/');
         case HardwareWalletType.coldcard:
-          return normalized.startsWith('b\$');
+          return lowerCased.startsWith('b\$');
         case HardwareWalletType.coconutVault:
           try {
-            SignerBsms.parse(normalized);
+            SignerBsms.parse(data);
             return true;
           } catch (_) {
             return false;
           }
         case HardwareWalletType.seedSigner:
         case HardwareWalletType.krux:
-          return _isValidSignerDescriptor(normalized);
+          return _isValidSignerDescriptor(data);
         default:
           return false;
       }

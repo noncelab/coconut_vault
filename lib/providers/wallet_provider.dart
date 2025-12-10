@@ -137,33 +137,7 @@ class WalletProvider extends ChangeNotifier {
       if (signer.signerBsms == null) ArgumentError('signerBsms is null');
 
       final signerBsms = SignerBsms.parse(signer.signerBsms!);
-      final splitedPath = signerBsms.derivationPath.split('/');
-      // purpose Index check
-      try {
-        final purposeIndex = int.parse(splitedPath[0].split("'")[0]);
-        final isAllowedPurpose = allowedMultisigAddressTypes.any((addressType) {
-          return addressType.purposeIndex == purposeIndex;
-        });
-        if (!isAllowedPurpose) {
-          throw FormatException('Signer purpose index is not allowed : ${signerBsms.derivationPath}');
-        }
-
-        // coinType check
-        final coinType = int.parse(splitedPath[1].split("'")[0]);
-        final isAllowedCoinType = NetworkType.currentNetworkType.isTestnet ? coinType == 1 : coinType == 0;
-        if (!isAllowedCoinType) {
-          throw NetworkMismatchException(
-            message:
-                NetworkType.currentNetworkType.isTestnet
-                    ? t.alert.bsms_network_mismatch.description_when_testnet
-                    : t.alert.bsms_network_mismatch.description_when_mainnet,
-          );
-        }
-      } catch (e) {
-        if (e is Exception) rethrow;
-        throw ArgumentError('Invalid derivation path: ${signerBsms.derivationPath} ${e.toString()}');
-      }
-
+      validateSignerDerivationPath(signerBsms.derivationPath);
       // path consistency check
       if (firstPath == null) {
         firstPath = signerBsms.derivationPath;
@@ -172,6 +146,43 @@ class WalletProvider extends ChangeNotifier {
           throw FormatException('Signer derivation path is not consistent : ${signerBsms.derivationPath}');
         }
       }
+    }
+  }
+
+  /// hardened가 '일 때와 h일 때 모두 허용
+  void validateSignerDerivationPath(String path) {
+    try {
+      final normalizedPath = path.replaceAll("h", "'");
+      final splitedPath = normalizedPath.split('/');
+      // purpose index check
+      final String purpose = splitedPath[0];
+      final allowedAddressTypeIndex = allowedMultisigAddressTypes.indexWhere((addressType) {
+        return ("${addressType.purposeIndex}'" == purpose);
+      });
+      if (allowedAddressTypeIndex < 0) {
+        throw FormatException('Signer purpose index is not allowed : $path');
+      }
+
+      // coinType check
+      final String coinType = splitedPath[1];
+      final isValidCoinType = NetworkType.currentNetworkType.isTestnet ? coinType == "1'" : coinType == "0'";
+      if (!isValidCoinType) {
+        throw NetworkMismatchException(
+          message:
+              NetworkType.currentNetworkType.isTestnet
+                  ? t.alert.bsms_network_mismatch.description_when_testnet
+                  : t.alert.bsms_network_mismatch.description_when_mainnet,
+        );
+      }
+
+      if (allowedMultisigAddressTypes[allowedAddressTypeIndex] == AddressType.p2wsh) {
+        if (splitedPath[2] != "0'" || splitedPath[3] != "2'") {
+          throw FormatException('Signer derivation path is not allowed : $path');
+        }
+      }
+    } catch (e) {
+      if (e is Exception) rethrow;
+      throw FormatException('Invalid derivation path: $path ${e.toString()}');
     }
   }
 

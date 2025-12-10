@@ -39,8 +39,8 @@ abstract class BsmsScannerBase<T extends StatefulWidget> extends State<T> {
   void onBarcodeDetected(BarcodeCapture capture);
 
   /// 스캔 실패 시 다이얼로그 + 카메라 재시작
-  void onFailedScanning(String message) {
-    showAlertDialog(
+  Future<void> onFailedScanning(String message) async {
+    await showAlertDialog(
       context: context,
       content: message,
       onConfirmPressed: () {
@@ -129,9 +129,9 @@ abstract class BsmsScannerBase<T extends StatefulWidget> extends State<T> {
           onDetect: (capture) {
             if (isProcessing) return;
             if (!mounted) return;
-            setState(() {
-              isProcessing = true;
-            });
+            // setState(() {
+            //   isProcessing = true;
+            // });
             onBarcodeDetected(capture);
           },
         ),

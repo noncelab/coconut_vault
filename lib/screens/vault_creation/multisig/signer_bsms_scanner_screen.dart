@@ -2,13 +2,17 @@ import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_lib/coconut_lib.dart';
 import 'package:coconut_vault/enums/hardware_wallet_type_enum.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
+import 'package:coconut_vault/model/exception/network_mismatch_exception.dart';
 import 'package:coconut_vault/providers/visibility_provider.dart';
+import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:coconut_vault/screens/vault_creation/multisig/bsms_scanner_base.dart';
 import 'package:coconut_vault/utils/bip/multisig_normalizer.dart';
+import 'package:coconut_vault/utils/bip/signer_bsms.dart';
 import 'package:coconut_vault/utils/logger.dart';
 import 'package:coconut_vault/widgets/animated_qr/scan_data_handler/signer_bsms_qr_data_handler.dart';
 import 'package:flutter/material.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
+import 'package:provider/provider.dart';
 
 // 멀티시그 서명 지갑 생성 시 HWW으로부터
 // Signer bsms 및 descriptor 정보를 스캔합니다.
@@ -22,14 +26,14 @@ class SignerBsmsScannerScreen extends StatefulWidget {
 }
 
 class _SignerBsmsScannerScreenState extends BsmsScannerBase<SignerBsmsScannerScreen> {
-  static String wrongFormatMessage1 = t.errors.invalid_single_sig_qr_error; // TODO 리네이밍
   static final String networkMismatchMessage = t.errors.invalid_network_type_error;
-  late final SignerBsmsQrDataHandler _signerBsmsQrDataHandler;
+  late final SignerBsmsQrDataHandler _qrDataHandler;
+  bool _isFirstScanData = true;
 
   @override
   void initState() {
     super.initState();
-    _signerBsmsQrDataHandler = SignerBsmsQrDataHandler(harewareWalletType: widget.hardwareWalletType);
+    _qrDataHandler = SignerBsmsQrDataHandler(harewareWalletType: widget.hardwareWalletType);
   }
 
   @override
@@ -39,7 +43,7 @@ class _SignerBsmsScannerScreenState extends BsmsScannerBase<SignerBsmsScannerScr
   String get appBarTitle => widget.hardwareWalletType!.displayName;
 
   @override
-  void onBarcodeDetected(BarcodeCapture capture) {
+  void onBarcodeDetected(BarcodeCapture capture) async {
     final codes = capture.barcodes;
     if (codes.isEmpty) {
       setState(() => isProcessing = false);
@@ -53,21 +57,36 @@ class _SignerBsmsScannerScreenState extends BsmsScannerBase<SignerBsmsScannerScr
     }
 
     final scanData = barcode.rawValue!;
+    SignerBsms? signerBsms;
     String? scanResult;
 
     try {
-      _signerBsmsQrDataHandler.joinData(scanData);
-      if (!_signerBsmsQrDataHandler.isCompleted()) {
-        setState(() => isProcessing = false);
+      if (_isFirstScanData) {
+        if (!_qrDataHandler.validateFormat(scanData)) {
+          onFailedScanning(wrongFormatMessage);
+          return;
+        }
+        _isFirstScanData = false;
+      }
+
+      final joinResult = _qrDataHandler.joinData(scanData);
+      if (joinResult == false && !_qrDataHandler.isFragmentedDataScanned) {
+        //_qrDataHandler.reset();
+        onFailedScanning(wrongFormatMessage);
         return;
       }
 
+      if (!_qrDataHandler.isCompleted()) {
+        //setState(() => isProcessing = false);
+        return;
+      }
+
+      setState(() => isProcessing = true);
       controller?.pause();
 
-      final result = _signerBsmsQrDataHandler.result;
+      final result = _qrDataHandler.result;
       if (result == null) {
-        onFailedScanning(wrongFormatMessage1);
-        setState(() => isProcessing = false);
+        onFailedScanning(wrongFormatMessage);
         return;
       }
 
@@ -75,41 +94,49 @@ class _SignerBsmsScannerScreenState extends BsmsScannerBase<SignerBsmsScannerScr
 
       switch (widget.hardwareWalletType) {
         case HardwareWalletType.coconutVault:
-          Bsms.parseSigner(scanData);
+          Bsms.parseSigner(result);
           scanResult = scanData;
           break;
         case HardwareWalletType.keystone3Pro:
-          scanResult = MultisigNormalizer.fromUrResult(result as Map<dynamic, dynamic>);
-          break;
         case HardwareWalletType.jade:
-          scanResult = MultisigNormalizer.fromUrResult(result as Map<dynamic, dynamic>);
+          scanResult = MultisigNormalizer.signerBsmsFromUrResult(result as Map<dynamic, dynamic>);
           break;
         case HardwareWalletType.coldcard:
-          scanResult = MultisigNormalizer.fromBbQrResult(result);
+          scanResult = MultisigNormalizer.signerBsmsFromBbQr(result);
           break;
         case HardwareWalletType.seedSigner:
-          scanResult = MultisigNormalizer.fromTextResult(result);
-          break;
         case HardwareWalletType.krux:
-          scanResult = MultisigNormalizer.fromTextResult(result);
+          scanResult = MultisigNormalizer.signerBsmsFromKeyInfo(result);
           break;
         default:
-          break;
+          throw UnimplementedError('missed hardware type: ${widget.hardwareWalletType}');
       }
     } catch (e) {
-      // TODO: 상태에 따른 에러 메시지 처리
-      final message = e.toString();
-      Logger.log('--> SignerBsmsScannerScreen: message: $message');
-      final isNetworkMismatch = message.contains('Extended public key is not compatible with the network type');
+      if (e is UnimplementedError) rethrow;
+      if (e is NetworkMismatchException) {
+        onFailedScanning(
+          NetworkType.currentNetworkType.isTestnet
+              ? t.alert.bsms_network_mismatch.description_when_testnet
+              : t.alert.bsms_network_mismatch.description_when_mainnet,
+        );
+        return;
+      }
 
-      onFailedScanning(isNetworkMismatch ? networkMismatchMessage : wrongFormatMessage1);
+      final isNetworkMismatch = e.toString().contains('Extended public key is not compatible with the network type');
+      onFailedScanning(isNetworkMismatch ? networkMismatchMessage : wrongFormatMessage);
+      return;
+    }
+
+    try {
+      signerBsms = SignerBsms.parse(scanResult);
+      Provider.of<WalletProvider>(context, listen: false).validateSignerDerivationPath(signerBsms.derivationPath);
+    } catch (e) {
+      onFailedScanning(e.toString());
       return;
     }
 
     if (!mounted) return;
-    // TODO: bsms 정보로 반환하기
-    Logger.log('--> scanResult: $scanResult');
-    Navigator.pop(context, scanResult);
+    Navigator.pop(context, signerBsms);
     return;
   }
 

@@ -14,6 +14,7 @@ import 'package:coconut_vault/screens/vault_creation/multisig/signer_bsms_scanne
 import 'package:coconut_vault/screens/vault_creation/multisig/import_confirmation_screen.dart';
 import 'package:coconut_vault/screens/vault_creation/multisig/signer_assignment_key_list_bottom_sheet.dart';
 import 'package:coconut_vault/utils/alert_util.dart';
+import 'package:coconut_vault/utils/bip/signer_bsms.dart';
 import 'package:coconut_vault/utils/icon_util.dart';
 import 'package:coconut_vault/utils/logger.dart';
 import 'package:coconut_vault/widgets/bottom_sheet.dart';
@@ -505,12 +506,7 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
   }
 
   void _onImportFromOtherVaultPressed(int index) async {
-    // if (_viewModel.isAllAssignedFromExternal()) {
-    //   _showDialog(DialogType.alert);
-    //   return;
-    // }
-
-    final externalImported = await MyBottomSheet.showDraggableScrollableSheet(
+    final SignerBsms? externalImported = await MyBottomSheet.showDraggableScrollableSheet(
       topWidget: true,
       context: context,
       physics: const ClampingScrollPhysics(),
@@ -533,7 +529,7 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
       if (!mounted) return;
       final Map<String, String>? bsmsAndMemo = await MyBottomSheet.showBottomSheet_90(
         context: context,
-        child: ImportConfirmationScreen(importingBsms: externalImported),
+        child: ImportConfirmationScreen(importingBsms: externalImported.toString()),
       );
       if (bsmsAndMemo != null) {
         assert(bsmsAndMemo['bsms']!.isNotEmpty);
@@ -541,7 +537,7 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
           index,
           ImportKeyType.external,
           false,
-          externalImported,
+          externalImported.toString(),
           bsmsAndMemo['memo'],
           HardwareWalletType.coconutVault,
         );
@@ -570,52 +566,53 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
       ),
     );
 
-    if (selectedWalletType != null && mounted) {
-      final externalImported = await MyBottomSheet.showDraggableScrollableSheet(
-        topWidget: true,
-        context: context,
-        physics: const ClampingScrollPhysics(),
-        enableSingleChildScroll: false,
-        hideAppBar: true,
-        child: SignerBsmsScannerScreen(hardwareWalletType: selectedWalletType!),
+    if (selectedWalletType == null) return;
+
+    if (!mounted) return;
+    final SignerBsms? externalImported = await MyBottomSheet.showDraggableScrollableSheet(
+      topWidget: true,
+      context: context,
+      physics: const ClampingScrollPhysics(),
+      enableSingleChildScroll: false,
+      hideAppBar: true,
+      child: SignerBsmsScannerScreen(hardwareWalletType: selectedWalletType!),
+    );
+
+    Logger.log('--> SignerAssignmentScreen: externalImported: $externalImported');
+    if (externalImported == null) return;
+
+    if (_viewModel.isAlreadyImported(externalImported)) {
+      return _showDialog(DialogType.alreadyExist);
+    }
+
+    String? sameVaultName = _viewModel.findVaultNameByBsms(externalImported);
+
+    if (sameVaultName != null) {
+      _showDialog(DialogType.sameWithInternalOne, vaultName: sameVaultName);
+      return;
+    }
+
+    if (!mounted) return;
+
+    final Map<String, String>? bsmsAndMemo = await MyBottomSheet.showBottomSheet_90(
+      context: context,
+      child: ImportConfirmationScreen(importingBsms: externalImported.toString()),
+    );
+
+    if (bsmsAndMemo != null) {
+      assert(bsmsAndMemo['bsms']!.isNotEmpty);
+
+      _viewModel.setAssignedVaultList(
+        index,
+        ImportKeyType.external,
+        false,
+        externalImported.toString(),
+        bsmsAndMemo['memo'],
+        selectedWalletType,
       );
-
-      Logger.log('--> SignerAssignmentScreen: externalImported: $externalImported');
-      if (externalImported == null) return;
-
-      if (_viewModel.isAlreadyImported(externalImported)) {
-        return _showDialog(DialogType.alreadyExist);
-      }
-
-      String? sameVaultName = _viewModel.findVaultNameByBsms(externalImported);
-
-      if (sameVaultName != null) {
-        _showDialog(DialogType.sameWithInternalOne, vaultName: sameVaultName);
-        return;
-      }
 
       if (!mounted) return;
-
-      final Map<String, String>? bsmsAndMemo = await MyBottomSheet.showBottomSheet_90(
-        context: context,
-        child: ImportConfirmationScreen(importingBsms: externalImported),
-      );
-
-      if (bsmsAndMemo != null) {
-        assert(bsmsAndMemo['bsms']!.isNotEmpty);
-
-        _viewModel.setAssignedVaultList(
-          index,
-          ImportKeyType.external,
-          false,
-          externalImported,
-          bsmsAndMemo['memo'],
-          selectedWalletType,
-        );
-
-        if (!mounted) return;
-        Navigator.pop(context);
-      }
+      Navigator.pop(context);
     }
   }
 
