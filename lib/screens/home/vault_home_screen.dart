@@ -482,11 +482,15 @@ class _VaultHomeScreenState extends State<VaultHomeScreen> with TickerProviderSt
                 Expanded(
                   child: _buildActionItemButton(
                     // 다중서명 지갑 가져오기 버튼
-                    isActive: true,
+                    isActive: _viewModel.isVaultsLoaded,
                     text: t.vault_home_screen.action_items.import_multisig_wallet,
                     iconAssetPath: 'assets/svg/two-keys.svg',
                     iconPadding: const EdgeInsets.only(right: 15, bottom: 9),
                     onPressed: () {
+                      if (!_viewModel.isVaultsLoaded) {
+                        return;
+                      }
+
                       Navigator.pushNamed(context, AppRoutes.coordinatorBsmsConfigScanner);
                     },
                   ),
