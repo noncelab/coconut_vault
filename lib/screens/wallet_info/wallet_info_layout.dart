@@ -207,24 +207,14 @@ class _WalletInfoLayoutState extends State<WalletInfoLayout> {
 
             if (!mounted) return;
 
-            Future<void> performDeleteAction() async {
-              if (viewModel.hasLinkedMultisigVault) {
-                await viewModel.unlinkLinkedMultisigWallets();
-              }
-
-              if (!mounted) return;
-
-              await _deleteVault(context);
-            }
-
             if (!viewModel.isSigningOnlyMode) {
               await _authenticateWithBiometricOrPin(
                 context,
                 PinCheckContextEnum.seedDeletion,
-                () => performDeleteAction(),
+                () => _deleteVault(context),
               );
             } else {
-              performDeleteAction();
+              _deleteVault(context);
             }
           },
         );
@@ -236,9 +226,13 @@ class _WalletInfoLayoutState extends State<WalletInfoLayout> {
 
   Future<void> _deleteVault(BuildContext context) async {
     if (!mounted) return;
-    final viewModel = context.read<WalletInfoViewModel>();
-    viewModel.deleteVault();
+
+    await context.read<WalletInfoViewModel>().deleteVault();
+
+    if (!mounted) return;
+
     vibrateLight();
+
     if (widget.entryPoint != null && widget.entryPoint == AppRoutes.vaultList) {
       Navigator.popUntil(context, (route) {
         return route.settings.name == AppRoutes.vaultList;
@@ -246,7 +240,6 @@ class _WalletInfoLayoutState extends State<WalletInfoLayout> {
     } else {
       Navigator.popUntil(context, (route) => route.isFirst);
     }
-    return;
   }
 
   void _showMemoEditBottomSheet(MultisigSigner signer, int index) {

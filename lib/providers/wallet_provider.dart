@@ -321,6 +321,22 @@ class WalletProvider extends ChangeNotifier {
   }
 
   Future<void> deleteWallet(int id) async {
+    final vaultIndex = _vaultList.indexWhere((element) => element.id == id);
+    if (vaultIndex == -1) return;
+
+    final vault = _vaultList[vaultIndex];
+
+    if (vault is SingleSigVaultListItem && vault.linkedMultisigInfo?.isNotEmpty == true) {
+      final linkedInfo = Map<int, int>.from(vault.linkedMultisigInfo!);
+
+      for (var entry in linkedInfo.entries) {
+        int multisigId = entry.key;
+        int signerIndex = entry.value;
+
+        await unlinkInternalSigner(multisigId, signerIndex);
+      }
+    }
+
     if (await _walletRepository.deleteWallet(id)) {
       _setVaultList(_walletRepository.vaultList);
       await _preferenceProvider.removeVaultOrder(id);
