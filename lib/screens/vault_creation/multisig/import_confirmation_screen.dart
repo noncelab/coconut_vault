@@ -38,15 +38,12 @@ class _ImportConfirmationScreenState extends State<ImportConfirmationScreen> wit
 
   void _onFocusChange() {
     if (_focusNode.hasFocus) {
-      Future.delayed(const Duration(milliseconds: 300), () {
+      Future.delayed(const Duration(milliseconds: 1000), () {
         if (_scrollController.hasClients) {
           final currentPosition = _scrollController.position.pixels;
-          final maxScrollExtent = _scrollController.position.maxScrollExtent;
-          final targetPosition = currentPosition + 200;
-
-          final finalPosition = targetPosition.clamp(0.0, maxScrollExtent);
+          final halfKeyBoardHeight = MediaQuery.of(context).viewInsets.bottom / 2;
           _scrollController.animateTo(
-            finalPosition,
+            currentPosition + halfKeyBoardHeight,
             duration: const Duration(milliseconds: 300),
             curve: Curves.easeOut,
           );

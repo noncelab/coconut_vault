@@ -582,6 +582,8 @@ seed_qr_import_screen:
   title: "Seed QR Code Scan"
   error_title: "Scan Error"
   error_message: "An error occurred while scanning the seed QR code. Please try again."
+  format_error_title: "Format Error"
+  format_error_message: "The format of the seed QR code is incorrect. Please try again."
   guide: "Please scan the seed QR code. (21x21 or 25x25)"
 seed_qr_confirmation_screen:
   title: "Mnemonic Confirmation"
@@ -652,6 +654,8 @@ bsms_scanner_base:
 coordinator_bsms_config_scanner_screen:
   guide1: "Coconut Vault supports BSMS (BIP-129), a secure multisignature management standard."
   guide2: "Please scan the BSMS QR code."
+  error_title: "Invalid Format"
+  error_message: "BSMS data is invalid. Please scan the correct QR code again."
 
 bsms_scanner_screen:
   import_bsms: "Import BSMS"
@@ -666,6 +670,11 @@ bsms_scanner_screen:
   guide2_3: "Use as Multisig Key."
   guide2_4: "Scan the QR code shown on the screen."
   select: "Select "
+
+bsms_paste_screen:
+  import_bsms: "Please enter the BSMS string."
+  back_scan: "Go back to QR scan."
+  error_message: "Please enter a valid BSMS string."
 
 # lib/screens/vault_detail
 address_list_screen:
@@ -880,6 +889,10 @@ alert:
   auth_canceled_when_encrypt:
     title: "Device Authentication Canceled"
     description: "You need to authenticate your device to store wallet information in the secure area."
+  bsms_network_mismatch:
+    title: "Invalid BSMS"
+    description_when_mainnet: "This BSMS is for testnet."
+    description_when_testnet: "This BSMS is for mainnet."
 
 toast:
   clipboard_copied: "Copied to clipboard"

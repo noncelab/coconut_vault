@@ -1,6 +1,8 @@
 import 'dart:async';
 
 import 'package:coconut_lib/coconut_lib.dart';
+import 'package:coconut_vault/localization/strings.g.dart';
+import 'package:coconut_vault/model/exception/network_mismatch_exception.dart';
 import 'package:coconut_vault/providers/app_lifecycle_state_provider.dart';
 import 'package:coconut_vault/providers/preference_provider.dart';
 import 'package:coconut_vault/repository/wallet_repository.dart';
@@ -13,6 +15,8 @@ import 'package:coconut_vault/model/single_sig/single_sig_vault_list_item.dart';
 import 'package:coconut_vault/model/single_sig/single_sig_wallet_create_dto.dart';
 import 'package:coconut_vault/model/exception/not_related_multisig_wallet_exception.dart';
 import 'package:coconut_vault/providers/visibility_provider.dart';
+import 'package:coconut_vault/utils/bip/normalized_multisig_config.dart';
+import 'package:coconut_vault/utils/bip/signer_bsms.dart';
 import 'package:coconut_vault/utils/logger.dart';
 import 'package:coconut_vault/enums/wallet_enums.dart';
 import 'package:flutter/foundation.dart';
@@ -20,6 +24,8 @@ import 'package:flutter/foundation.dart';
 const kMaxStarLength = 5;
 
 class WalletProvider extends ChangeNotifier {
+  static List<AddressType> allowedMultisigAddressTypes = [AddressType.p2wsh];
+
   // 1) DI
   late final VisibilityProvider _visibilityProvider;
   late final WalletRepository _walletRepository;
@@ -87,6 +93,7 @@ class WalletProvider extends ChangeNotifier {
     // HardwareBackedKeystorePlugin.encrypt 내부에서 AUTH_NEEDED 에러 발생 시 생체인증 시도
     // 하지만 ios에서도 지갑 저장 중 라이프사이클 이벤트 호출로 중단되는 것을 방지하기 위해 operation 등록
     _lifecycleProvider.startOperation(AppLifecycleOperations.hwBasedEncryption);
+    wallet.name = _getUnduplicatedName(wallet.name!);
     final vault = await _walletRepository.addSinglesigWallet(wallet);
     _setVaultList(_walletRepository.vaultList);
     await _preferenceProvider.setVaultOrder(_vaultList.map((e) => e.id).toList());
@@ -104,22 +111,68 @@ class WalletProvider extends ChangeNotifier {
     int color,
     int icon,
     List<MultisigSigner> signers,
-    int requiredSignatureCount,
-  ) async {
+    int requiredSignatureCount, {
+    bool isImported = false,
+  }) async {
     _setAddVaultCompleted(false);
 
-    final vault = await _walletRepository.addMultisigWallet(
-      MultisigWallet(null, name, icon, color, signers, requiredSignatureCount),
-    );
+    validateSigners(signers);
 
+    final vault = await _walletRepository.addMultisigWallet(
+      MultisigWallet(null, _getUnduplicatedName(name), icon, color, signers, requiredSignatureCount),
+      shouldAttachInnerVaultMetadata: isImported,
+    );
     _setVaultList(_walletRepository.vaultList);
     _preferenceProvider.setVaultOrder(_vaultList.map((e) => e.id).toList());
     _addToFavoriteWalletsIfAvailable(_vaultList.last.id);
-
     _setAddVaultCompleted(true);
     await _updateWalletLength();
     notifyListeners();
     return vault;
+  }
+
+  void validateSigners(List<MultisigSigner> signers) {
+    String? firstPath;
+    for (var signer in signers) {
+      if (signer.signerBsms == null) ArgumentError('signerBsms is null');
+
+      final signerBsms = SignerBsms.parse(signer.signerBsms!);
+      final splitedPath = signerBsms.derivationPath.split('/');
+      // purpose Index check
+      try {
+        final purposeIndex = int.parse(splitedPath[0].split("'")[0]);
+        final isAllowedPurpose = allowedMultisigAddressTypes.any((addressType) {
+          return addressType.purposeIndex == purposeIndex;
+        });
+        if (!isAllowedPurpose) {
+          throw FormatException('Signer purpose index is not allowed : ${signerBsms.derivationPath}');
+        }
+
+        // coinType check
+        final coinType = int.parse(splitedPath[1].split("'")[0]);
+        final isAllowedCoinType = NetworkType.currentNetworkType.isTestnet ? coinType == 1 : coinType == 0;
+        if (!isAllowedCoinType) {
+          throw NetworkMismatchException(
+            message:
+                NetworkType.currentNetworkType.isTestnet
+                    ? t.alert.bsms_network_mismatch.description_when_testnet
+                    : t.alert.bsms_network_mismatch.description_when_mainnet,
+          );
+        }
+      } catch (e) {
+        if (e is Exception) rethrow;
+        throw ArgumentError('Invalid derivation path: ${signerBsms.derivationPath} ${e.toString()}');
+      }
+
+      // path consistency check
+      if (firstPath == null) {
+        firstPath = signerBsms.derivationPath;
+      } else {
+        if (firstPath != signerBsms.derivationPath) {
+          throw FormatException('Signer derivation path is not consistent : ${signerBsms.derivationPath}');
+        }
+      }
+    }
   }
 
   Future<bool> hasPassphrase(int walletId) async {
@@ -232,6 +285,18 @@ class WalletProvider extends ChangeNotifier {
     });
 
     return vaultIndex != -1;
+  }
+
+  MultisigVaultListItem? findSameMultisigWallet(NormalizedMultisigConfig config) {
+    final vaultIndex = _vaultList.indexWhere((element) {
+      if (element is SingleSigVaultListItem) return false;
+      final wallet = element as MultisigVaultListItem;
+      return wallet.requiredSignatureCount == config.requiredCount &&
+          wallet.signers.length == config.totalSigners &&
+          setEquals(wallet.signerFingerprints, config.signerFingerprints);
+    });
+
+    return vaultIndex != -1 ? _vaultList[vaultIndex] as MultisigVaultListItem : null;
   }
 
   /// MultisigVaultListItem의 coordinatorBsms 중복 여부 확인
@@ -378,6 +443,17 @@ class WalletProvider extends ChangeNotifier {
 
   Future<void> _updateWalletLength() async {
     await _visibilityProvider.saveWalletCount(_vaultList.length);
+  }
+
+  /// 이름 중복이면 겹치지 않게 숫자 접미사를 붙여서 반환
+  String _getUnduplicatedName(String name) {
+    String target = name.trim();
+    int count = 2;
+    while (isNameDuplicated(target)) {
+      target = '$name $count';
+      count++;
+    }
+    return target;
   }
 
   // 7) 오버라이드/생명주기

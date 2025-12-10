@@ -480,7 +480,7 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
           false,
           externalImported,
           bsmsAndMemo['memo'],
-          HardwareWalletType.coconutVault,
+          null,
         );
         if (!mounted) return;
         Navigator.pop(context); // 키 종류 선택 다이얼로그 닫기
@@ -494,7 +494,7 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
       context: context,
       child: Center(
         child: GestureDetector(
-          child: Text('하드월렛 선택'),
+          child: const Text('하드월렛 선택'),
           onTap: () async {
             final externalImported = await MyBottomSheet.showDraggableScrollableSheet(
               topWidget: true,

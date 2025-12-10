@@ -584,6 +584,8 @@ seed_qr_import_screen:
   title: "シードQRコードスキャン"
   error_title: "スキャンエラー"
   error_message: "シードQRコードのスキャン中にエラーが発生しました。再試行してください。"
+  format_error_title: "フォーマットエラー"
+  format_error_message: "シードQRコードのフォーマットが正しくありません。再試行してください。"
   guide: "シードQRコードをスキャンしてください。(21x21または25x25)"
 seed_qr_confirmation_screen:
   title: "ニーモニック確認"
@@ -655,6 +657,8 @@ bsms_scanner_base:
 coordinator_bsms_config_scanner_screen:
   guide1: "Coconut Vault は、安全なマルチシグ管理標準である BSMS（BIP-129） をサポートしています。"
   guide2: "BSMS QRコードをスキャンしてください。"
+  error_title: "形式が正しくありません"
+  error_message: "BSMSデータが無効です。正しいQRコードを再度スキャンしてください。"
 
 bsms_scanner_screen:
   import_bsms: "BSMSインポート"
@@ -669,6 +673,11 @@ bsms_scanner_screen:
   guide2_3: "マルチシグキーとして使用 "
   guide2_4: "画面に表示されるQRコードをスキャンしてください。"
   select: "選択"
+
+bsms_paste_screen:
+  import_bsms: "BSMS文字列を入力してください。"
+  back_scan: "QRスキャンに戻る。"
+  error_message: "正しいBSMS文字列を入力してください。"
 
 # lib/screens/vault_detail
 address_list_screen:
@@ -883,6 +892,10 @@ alert:
   auth_canceled_when_encrypt:
     title: "デバイス認証がキャンセルされました"
     description: "ウォレット情報をセキュアエリアに保存するにはデバイスの認証が必要です。"
+  bsms_network_mismatch:
+    title: "無効なBSMSです"
+    description_when_mainnet: "このBSMSはテストネット用です。"
+    description_when_testnet: "このBSMSはメインネット用です。"
 
 toast:
   clipboard_copied: "クリップボードにコピーしました"

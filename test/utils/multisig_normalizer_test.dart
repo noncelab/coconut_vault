@@ -113,7 +113,7 @@ father
       // 네트워크 타입을 regtest로 설정
       NetworkType.setNetworkType(NetworkType.regtest);
 
-      const config = NormalizedMultisigConfig(name: 'family-multisig', requiredCount: 2, signerBsms: [bsms1, bsms2]);
+      final config = NormalizedMultisigConfig(name: 'family-multisig', requiredCount: 2, signerBsms: [bsms1, bsms2]);
 
       // when
       final result = config.getMultisigConfigString();
@@ -159,7 +159,7 @@ father
       // 네트워크 타입을 mainnet으로 설정
       NetworkType.setNetworkType(NetworkType.mainnet);
 
-      const config = NormalizedMultisigConfig(name: 'family-multisig', requiredCount: 2, signerBsms: [bsms1, bsms2]);
+      final config = NormalizedMultisigConfig(name: 'family-multisig', requiredCount: 2, signerBsms: [bsms1, bsms2]);
 
       // when
       final result = config.getMultisigConfigString();

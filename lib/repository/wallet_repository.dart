@@ -22,6 +22,7 @@ import 'package:coconut_vault/repository/secure_storage_repository.dart';
 import 'package:coconut_vault/repository/secure_zone_repository.dart';
 import 'package:coconut_vault/repository/shared_preferences_repository.dart';
 import 'package:coconut_vault/services/secure_zone/secure_zone_payload_codec.dart';
+import 'package:coconut_vault/utils/bip/signer_bsms.dart';
 import 'package:coconut_vault/utils/hash_util.dart';
 import 'package:coconut_vault/utils/logger.dart';
 import 'package:coconut_vault/utils/print_util.dart';
@@ -168,7 +169,7 @@ class WalletRepository {
     final Map<String, dynamic> vaultData = wallet.toJson();
     List<SingleSigVaultListItem> vaultListResult = await compute(WalletIsolates.addVault, vaultData);
 
-    _linkNewSinglesigVaultAndMultisigVaults(vaultListResult.first);
+    _linkNewSinglesigVaultToMultisigVaults(vaultListResult.first);
     if (!_isSigningOnlyMode) {
       // 안전 저장 모드
       await _saveSecretAndPassphraseEnabled(
@@ -262,7 +263,7 @@ class WalletRepository {
     await _storageService.delete(key: _createPrivacyInfoKey(walletKeyString));
   }
 
-  void _linkNewSinglesigVaultAndMultisigVaults(SingleSigVaultListItem singlesigItem) {
+  void _linkNewSinglesigVaultToMultisigVaults(SingleSigVaultListItem singlesigItem) {
     outerLoop:
     for (int i = 0; i < _vaultList!.length; i++) {
       VaultListItemBase vault = _vaultList![i];
@@ -315,19 +316,24 @@ class WalletRepository {
     }
   }
 
-  Future<MultisigVaultListItem> addMultisigWallet(MultisigWallet wallet) async {
+  Future<MultisigVaultListItem> addMultisigWallet(
+    MultisigWallet wallet, {
+    bool shouldAttachInnerVaultMetadata = false,
+  }) async {
     if (_vaultList == null) {
       await _loadVaultList();
     }
 
     final int nextId = _getNextWalletId();
     wallet.id = nextId;
+    if (shouldAttachInnerVaultMetadata) {
+      for (final signer in wallet.signers!) {
+        _attachInnerVaultMetadata(multisigSigner: signer);
+      }
+    }
     final Map<String, dynamic> data = wallet.toJson();
     MultisigVaultListItem newMultisigVault = await compute(WalletIsolates.addMultisigVault, data);
     Logger.logLongString('${newMultisigVault.toJson()}');
-    // for SinglesigVaultListItem multsig key map update
-    updateLinkedMultisigInfo(wallet.signers!, nextId);
-
     _vaultList!.add(newMultisigVault);
     // 안전 저장 모드일 때만 public info 저장
     if (!_isSigningOnlyMode) {
@@ -359,11 +365,34 @@ class WalletRepository {
       await _savePublicInfo();
     }
     _recordNextWalletId();
+    // update SinglesigVaultListItem multsig key map
+    _addLinkedMultisigOfSingleSig(wallet.signers!, nextId);
     return newMultisigVault;
   }
 
+  void _attachInnerVaultMetadata({required MultisigSigner multisigSigner}) {
+    assert(_vaultList != null);
+    assert(multisigSigner.signerBsms != null && multisigSigner.signerBsms!.isNotEmpty);
+
+    final parsedSignerBsms = SignerBsms.parse(multisigSigner.signerBsms!);
+    final vaultIndex = _vaultList!.indexWhere((element) {
+      if (element is MultisigVaultListItem) return false;
+
+      final mfp = (element.coconutVault as SingleSignatureVault).keyStore.masterFingerprint;
+      return parsedSignerBsms.fingerprint.toUpperCase() == mfp.toUpperCase();
+    });
+    if (vaultIndex == -1) return;
+
+    // set metadata
+    final vault = _vaultList![vaultIndex];
+    multisigSigner.innerVaultId = vault.id;
+    multisigSigner.name = vault.name;
+    multisigSigner.colorIndex = vault.colorIndex;
+    multisigSigner.iconIndex = vault.iconIndex;
+  }
+
   /// 멀티시그 지갑이 추가될 때 (생성 또는 복사) 사용된 싱글시그 지갑들의 linkedMultisigInfo를 업데이트 합니다.
-  void updateLinkedMultisigInfo(List<MultisigSigner> signers, int newWalletId) {
+  void _addLinkedMultisigOfSingleSig(List<MultisigSigner> signers, int newWalletId) {
     // for SinglesigVaultListItem multsig key map update
     for (int i = 0; i < signers.length; i++) {
       var signer = signers[i];

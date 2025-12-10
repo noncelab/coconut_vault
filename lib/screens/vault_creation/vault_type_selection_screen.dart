@@ -53,9 +53,7 @@ class _VaultTypeSelectionScreenState extends State<VaultTypeSelectionScreen> {
   }
 
   void onTapMultisigWallet() {
-    if (_walletProvider.vaultList.isNotEmpty) {
-      Navigator.pushNamed(context, routesOptions[1]);
-    }
+    Navigator.pushNamed(context, routesOptions[1]);
   }
 
   @override
@@ -78,12 +76,7 @@ class _VaultTypeSelectionScreenState extends State<VaultTypeSelectionScreen> {
                       true,
                     ),
                     CoconutLayout.spacing_300h,
-                    _buildOption(
-                      t.multisig_wallet,
-                      t.select_vault_type_screen.multisig,
-                      onTapMultisigWallet,
-                      _walletProvider.vaultList.isNotEmpty,
-                    ),
+                    _buildOption(t.multisig_wallet, t.select_vault_type_screen.multisig, onTapMultisigWallet, true),
                   ],
                 ),
                 Visibility(

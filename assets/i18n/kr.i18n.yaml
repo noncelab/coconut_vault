@@ -584,6 +584,8 @@ seed_qr_import_screen:
   title: "시드 QR 코드 스캔"
   error_title: "스캔 오류"
   error_message: "시드 QR 코드 스캔 중 오류가 발생했어요. 다시 시도해 주세요."
+  format_error_title: "형식 오류"
+  format_error_message: "시드 QR 코드 형식이 올바르지 않아요. 다시 시도해 주세요."
   guide: "시드 QR 코드를 스캔해 주세요. (21x21 또는 25x25)"
 seed_qr_confirmation_screen:
   title: "니모닉 문구 확인"
@@ -655,6 +657,8 @@ bsms_scanner_base:
 coordinator_bsms_config_scanner_screen:
   guide1: "코코넛 볼트는 안전한 다중 서명 관리 표준인 BSMS(BIP-129)를 허용합니다."
   guide2: "BSMS QR 코드를 스캔해 주세요."
+  error_title: "잘못된 형식"
+  error_message: "BSMS 데이터가 유효하지 않습니다. 올바른 QR을 다시 스캔해 주세요."
 
 bsms_scanner_screen:
   import_bsms: "키 정보 가져오기"
@@ -669,6 +673,11 @@ bsms_scanner_screen:
   guide2_3: "다중 서명 키로 사용하기 "
   guide2_4: "화면에 보이는 QR 코드를 스캔해 주세요."
   select: "선택"
+
+bsms_paste_screen:
+  import_bsms: "BSMS 문자열을 입력해주세요"
+  back_scan: "QR 스캔으로 돌아가기"
+  error_message: "올바른 BSMS 문자열을 입력해 주세요."
 
 # lib/screens/vault_detail
 address_list_screen:
@@ -886,6 +895,11 @@ alert:
   auth_canceled_when_encrypt:
     title: "기기 인증 취소됨"
     description: "기기 인증을 해야 지갑 정보를 보안 영역에 저장할 수 있어요."
+  bsms_network_mismatch:
+    title: "유효하지 않은 BSMS"
+    description_when_mainnet: "테스트넷용 BSMS입니다."
+    description_when_testnet: "메인넷용 BSMS입니다."
+    
 
 toast:
   clipboard_copied: "클립보드에 복사되었어요"

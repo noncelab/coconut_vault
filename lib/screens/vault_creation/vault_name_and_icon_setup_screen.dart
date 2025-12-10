@@ -6,7 +6,6 @@ import 'package:coconut_vault/constants/app_routes.dart';
 import 'package:coconut_vault/enums/wallet_enums.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/model/multisig/multisig_signer.dart';
-import 'package:coconut_vault/model/multisig/multisig_vault_list_item.dart';
 import 'package:coconut_vault/model/common/vault_list_item_base.dart';
 import 'package:coconut_vault/model/exception/user_canceled_auth_exception.dart';
 import 'package:coconut_vault/model/single_sig/single_sig_wallet_create_dto.dart';
@@ -21,11 +20,11 @@ import 'package:coconut_vault/widgets/vault_name_icon_edit_palette.dart';
 import 'package:provider/provider.dart';
 
 class VaultNameAndIconSetupScreen extends StatefulWidget {
-  final String name;
-  final int iconIndex;
-  final int colorIndex;
+  final String? name;
+  final int? iconIndex;
+  final int? colorIndex;
 
-  const VaultNameAndIconSetupScreen({super.key, this.name = '', this.iconIndex = 0, this.colorIndex = 0});
+  const VaultNameAndIconSetupScreen({super.key, this.name, this.iconIndex, this.colorIndex});
 
   @override
   State<VaultNameAndIconSetupScreen> createState() => _VaultNameAndIconSetupScreenState();
@@ -46,9 +45,11 @@ class _VaultNameAndIconSetupScreenState extends State<VaultNameAndIconSetupScree
     _walletProvider = Provider.of<WalletProvider>(context, listen: false);
     _walletProvider.isVaultListLoadingNotifier.addListener(_onVaultListLoading);
     _walletCreationProvider = Provider.of<WalletCreationProvider>(context, listen: false);
-    inputText = widget.name;
-    selectedIconIndex = widget.iconIndex;
-    selectedColorIndex = widget.colorIndex;
+
+    // 기본값 설정 (arguments가 있으면 didChangeDependencies에서 덮어씌워짐)
+    inputText = widget.name ?? '';
+    selectedIconIndex = widget.iconIndex ?? 0;
+    selectedColorIndex = widget.colorIndex ?? 0;
     _controller.text = inputText;
   }
 
@@ -56,6 +57,7 @@ class _VaultNameAndIconSetupScreenState extends State<VaultNameAndIconSetupScree
   void dispose() {
     _walletProvider.isVaultListLoadingNotifier.removeListener(_onVaultListLoading);
     _walletCreationProvider.resetAll();
+    _controller.dispose();
     super.dispose();
   }
 
@@ -71,6 +73,11 @@ class _VaultNameAndIconSetupScreenState extends State<VaultNameAndIconSetupScree
 
   void _closeKeyboard() {
     FocusScope.of(context).unfocus();
+  }
+
+  void _trimInput() {
+    inputText = inputText.trim();
+    _controller.text = inputText;
   }
 
   Future<void> saveNewVaultName(BuildContext context) async {
@@ -112,7 +119,7 @@ class _VaultNameAndIconSetupScreenState extends State<VaultNameAndIconSetupScree
         // externalSigner가 있는 경우, 해당 signer를 찾아서 업데이트하고 MultisigSetupInfoScreen으로 돌아가기
         if (externalSigner != null) {
           final multisigVaultId = _walletCreationProvider.multisigVaultIdOfExternalSigner;
-          // _linkNewSinglesigVaultAndMultisigVaults가 이미 자동으로 실행되었지만,
+          // _linkNewSinglesigVaultToMultisigVaults가 이미 자동으로 실행되었지만,
           // 명시적으로 MultisigSetupInfoScreen으로 돌아가기 위해 vaultList를 다시 로드
           // await _walletProvider.loadVaultList();
           _walletCreationProvider.resetAll();
@@ -148,7 +155,6 @@ class _VaultNameAndIconSetupScreenState extends State<VaultNameAndIconSetupScree
         arguments: VaultHomeNavArgs(addedWalletId: vault!.id),
       );
     } on UserCanceledAuthException catch (e) {
-      // 사용자가 기기 인증을 취소함
       Logger.error(e);
       if (!context.mounted) return;
       showDialog(
@@ -247,6 +253,7 @@ class _VaultNameAndIconSetupScreenState extends State<VaultNameAndIconSetupScree
                           _showLoading = true;
                         });
                       } else {
+                        _trimInput();
                         saveNewVaultName(context);
                       }
                     },
@@ -267,7 +274,7 @@ class _VaultNameAndIconSetupScreenState extends State<VaultNameAndIconSetupScree
             child: Center(
               child:
                   _walletProvider.isVaultListLoading
-                      ? MessageActivityIndicator(message: t.vault_name_icon_setup_screen.saving) // 기존 볼트들 불러오는 중
+                      ? MessageActivityIndicator(message: t.vault_name_icon_setup_screen.saving)
                       : const CircularProgressIndicator(color: CoconutColors.gray800),
             ),
           ),

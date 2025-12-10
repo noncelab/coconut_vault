@@ -38,4 +38,5 @@ class AppRoutes {
   static const String mnemonicCoinflip = '/mnemonic-coinflip';
   static const String mnemonicDiceRoll = '/mnemonic-dice-roll';
   static const String mnemonicAutoGen = '/mnemonic-auto-gen';
+  static const String bsmsPaste = '/bsms-paste';
 }
