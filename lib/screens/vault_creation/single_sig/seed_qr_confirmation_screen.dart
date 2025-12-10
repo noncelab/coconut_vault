@@ -150,7 +150,7 @@ class _SeedQrConfirmationScreenState extends State<SeedQrConfirmationScreen> {
                   text: t.next,
                   isActive: _usePassphrase ? _passphrase.isNotEmpty && !_isWarningVisible : true && !_isWarningVisible,
                   backgroundColor: CoconutColors.black,
-                  onButtonClicked: () => _handleNextButton(context),
+                  onButtonClicked: () => _handleNextButton(),
                   gradientPadding: const EdgeInsets.only(left: 16, right: 16, bottom: 40, top: 140),
                 ),
                 WarningWidget(
@@ -169,9 +169,8 @@ class _SeedQrConfirmationScreenState extends State<SeedQrConfirmationScreen> {
     );
   }
 
-  Future<void> _handleNextButton(BuildContext context) async {
+  Future<void> _handleNextButton() async {
     try {
-      _passphraseFocusNode.unfocus();
       final secret = widget.scannedData;
       final passphrase = utf8.encode(_usePassphrase ? _passphrase : '');
       final externalSigner = widget.externalSigner;
