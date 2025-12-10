@@ -210,9 +210,76 @@ class MultisigSignViewModel extends ChangeNotifier {
 
     final descriptorLine = lines[1].replaceAll("'", "h");
 
-    final coordinatorBsmsJson = {'label': name, 'blockheight': 927230, 'descriptor': descriptorLine};
+    // Zpub, Vpub 형식인 경우 xpub, tpub으로 변환
+    if (descriptorLine.contains('Zpub') || descriptorLine.contains('Vpub')) {
+      final quorumM = _extractQuorumM(descriptorLine);
+      final fingerprintZpubMap = _extractFingerprintZpubMap(descriptorLine);
+      final Map<String, String> xpubMap = {};
+
+      for (var entry in fingerprintZpubMap.entries) {
+        final extendedPublicKey = ExtendedPublicKey.parse(entry.value);
+        final xpub = extendedPublicKey.serialize(toXpub: true);
+        xpubMap[entry.key] = xpub;
+      }
+
+      final wshSortedMultiDescriptor = _buildWshSortedMultiDescriptor(m: quorumM, fpXpubMap: xpubMap);
+
+      final coordinatorBsmsJson = {'label': name, 'blockheight': 0, 'descriptor': wshSortedMultiDescriptor};
+      return jsonEncode(coordinatorBsmsJson);
+    }
+
+    final coordinatorBsmsJson = {'label': name, 'blockheight': 0, 'descriptor': descriptorLine};
 
     return jsonEncode(coordinatorBsmsJson);
+  }
+
+  int _extractQuorumM(String descriptor) {
+    final regex = RegExp(r'sortedmulti\s*\(\s*(\d+)\s*,', caseSensitive: false);
+    final match = regex.firstMatch(descriptor);
+
+    if (match == null) {
+      throw const FormatException('sortedmulti(m, ...) block not found in descriptor');
+    }
+
+    return int.parse(match.group(1)!);
+  }
+
+  Map<String, String> _extractFingerprintZpubMap(String descriptor) {
+    final regex = RegExp(r'\[([0-9A-Fa-f]{8})/[^\]]+\](Zpub[A-Za-z0-9]+)');
+
+    final result = <String, String>{};
+
+    for (final match in regex.allMatches(descriptor)) {
+      final fp = match.group(1)!.toUpperCase(); // fingerprint
+      final zpub = match.group(2)!; // Zpub...
+      result[fp] = zpub;
+    }
+
+    return result;
+  }
+
+  String _buildWshSortedMultiDescriptor({required int m, required Map<String, String> fpXpubMap}) {
+    if (fpXpubMap.isEmpty) {
+      throw ArgumentError('Signer map cannot be empty');
+    }
+    if (m <= 0 || m > fpXpubMap.length) {
+      throw ArgumentError('Invalid quorum: $m-of-${fpXpubMap.length}');
+    }
+
+    final coin = NetworkType.currentNetworkType == NetworkType.mainnet ? 0 : 1;
+    final derivationPath = "48h/${coin}h/0h/2h";
+
+    final sortedEntries = fpXpubMap.entries.toList()..sort((a, b) => a.key.compareTo(b.key));
+
+    final signerParts = sortedEntries
+        .map((e) {
+          final fp = e.key;
+          final xpub = e.value;
+          return '[$fp/$derivationPath]$xpub';
+        })
+        .join(',');
+
+    return 'wsh(sortedmulti($m,$signerParts))';
   }
 
   String _getKeystoneMultisigInfoQrData() {
