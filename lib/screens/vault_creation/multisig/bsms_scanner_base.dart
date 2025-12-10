@@ -26,6 +26,11 @@ abstract class BsmsScannerBase<T extends StatefulWidget> extends State<T> {
   MobileScannerController? controller;
   bool isProcessing = false;
 
+  final ValueNotifier<double> _progressNotifier = ValueNotifier(0.0);
+  bool _showLoadingBar = false;
+  bool _isScanningExtraData = false;
+  bool _hasBeenScanningExtraData = false;
+
   /// AppBar 타이틀
   String get appBarTitle => t.bsms_scanner_screen.import_bsms;
   bool get useBottomAppBar => false;
@@ -52,6 +57,29 @@ abstract class BsmsScannerBase<T extends StatefulWidget> extends State<T> {
         });
       },
     );
+  }
+
+  void updateScanProgress(double progress) {
+    _progressNotifier.value = progress;
+    setState(() {
+      _showLoadingBar = true;
+      _isScanningExtraData = progress > 0.98;
+      if (_isScanningExtraData) {
+        _hasBeenScanningExtraData = true;
+      }
+    });
+  }
+
+  /// [추가] 프로그레스 바 초기화 및 숨김
+  void resetScanProgress() {
+    _progressNotifier.value = 0;
+    setState(() {
+      _isScanningExtraData = false;
+      _hasBeenScanningExtraData = false;
+      if (_showLoadingBar) {
+        _showLoadingBar = false;
+      }
+    });
   }
 
   void _onCameraStateChanged() {
@@ -97,6 +125,7 @@ abstract class BsmsScannerBase<T extends StatefulWidget> extends State<T> {
 
   @override
   void dispose() {
+    _progressNotifier.dispose();
     controller?.removeListener(_onCameraStateChanged);
     controller?.dispose();
     if (appLifecycleStateProvider.ignoredOperations.contains(AppLifecycleOperations.cameraAuthRequest)) {
@@ -127,7 +156,7 @@ abstract class BsmsScannerBase<T extends StatefulWidget> extends State<T> {
         MobileScanner(
           controller: controller,
           onDetect: (capture) {
-            if (isProcessing) return;
+            if (isProcessing && !_showLoadingBar) return;
             if (!mounted) return;
             // setState(() {
             //   isProcessing = true;
@@ -136,6 +165,9 @@ abstract class BsmsScannerBase<T extends StatefulWidget> extends State<T> {
           },
         ),
         const ScannerOverlay(),
+
+        _buildProgressOverlay(context),
+
         CustomTooltip.buildInfoTooltip(
           context,
           richText: RichText(
@@ -174,6 +206,109 @@ abstract class BsmsScannerBase<T extends StatefulWidget> extends State<T> {
           decoration: BoxDecoration(color: CoconutColors.black.withValues(alpha: 0.3)),
           child: const Center(child: CircularProgressIndicator(color: CoconutColors.gray800)),
         ),
+      ),
+    );
+  }
+
+  Widget _buildProgressOverlay(BuildContext context) {
+    final scanAreaSize =
+        (MediaQuery.of(context).size.width < 400 || MediaQuery.of(context).size.height < 400)
+            ? 320.0
+            : MediaQuery.of(context).size.width * 0.85;
+
+    final scanAreaTop = (MediaQuery.of(context).size.height - scanAreaSize) / 2;
+    final scanAreaBottom = scanAreaTop + scanAreaSize;
+
+    return Stack(
+      children: [
+        Positioned(
+          top: scanAreaBottom - 24,
+          left: 0,
+          right: 0,
+          child: Visibility(
+            visible: _showLoadingBar,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                CoconutLayout.spacing_1300w,
+                if (!_isScanningExtraData && !_hasBeenScanningExtraData) ...[
+                  _buildProgressBar(),
+                  CoconutLayout.spacing_300w,
+                  _buildProgressText(),
+                ],
+                if (_isScanningExtraData) Expanded(child: _buildReadingExtraText()),
+                CoconutLayout.spacing_1300w,
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildReadingExtraText() {
+    return MediaQuery(
+      data: MediaQuery.of(context).copyWith(textScaler: const TextScaler.linear(1.0)),
+      child: Text(
+        textAlign: TextAlign.center,
+        t.coconut_qr_scanner.reading_extra_data, // strings.g.dart에 해당 키가 있어야 합니다.
+        style: CoconutTypography.body2_14_Bold.setColor(CoconutColors.white),
+      ),
+    );
+  }
+
+  Widget _buildProgressText() {
+    return ValueListenableBuilder<double>(
+      valueListenable: _progressNotifier,
+      builder: (context, value, _) {
+        return SizedBox(
+          width: 35,
+          child: MediaQuery(
+            data: MediaQuery.of(context).copyWith(textScaler: const TextScaler.linear(1.0)),
+            child: Text(
+              textAlign: TextAlign.center,
+              "${(value * 100).toInt()}%",
+              style: CoconutTypography.body2_14_Bold.setColor(CoconutColors.white),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildProgressBar() {
+    return Expanded(
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final double maxWidth = constraints.maxWidth;
+          return Stack(
+            children: [
+              Container(
+                width: maxWidth,
+                height: 8,
+                decoration: const BoxDecoration(
+                  borderRadius: BorderRadius.all(Radius.circular(20)),
+                  color: CoconutColors.gray350,
+                ),
+              ),
+              ValueListenableBuilder<double>(
+                valueListenable: _progressNotifier,
+                builder: (context, value, _) {
+                  return AnimatedContainer(
+                    duration: const Duration(milliseconds: 150),
+                    width: maxWidth * _progressNotifier.value,
+                    height: 6,
+                    margin: const EdgeInsets.all(1),
+                    decoration: const BoxDecoration(
+                      borderRadius: BorderRadius.all(Radius.circular(20)),
+                      color: Colors.black, // 기존 코드의 디자인 유지
+                    ),
+                  );
+                },
+              ),
+            ],
+          );
+        },
       ),
     );
   }

@@ -70,6 +70,9 @@ class _SignerBsmsScannerScreenState extends BsmsScannerBase<SignerBsmsScannerScr
       }
 
       final joinResult = _qrDataHandler.joinData(scanData);
+
+      updateScanProgress(_qrDataHandler.progress);
+
       if (joinResult == false && !_qrDataHandler.isFragmentedDataScanned) {
         //_qrDataHandler.reset();
         onFailedScanning(wrongFormatMessage);
