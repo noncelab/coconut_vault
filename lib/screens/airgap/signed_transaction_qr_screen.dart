@@ -58,7 +58,7 @@ class _SignedTransactionQrScreenState extends State<SignedTransactionQrScreen> {
                       qrViewDataHandler: BcUrQrViewHandler(
                         _signProvider.signedPsbtBase64!,
                         UrType.cryptoPsbt,
-                        maxFragmentLen: 50,
+                        maxFragmentLen: 40,
                       ),
                       qrScanDensity: QrScanDensity.normal,
                       qrSize: MediaQuery.of(context).size.width * 0.8,

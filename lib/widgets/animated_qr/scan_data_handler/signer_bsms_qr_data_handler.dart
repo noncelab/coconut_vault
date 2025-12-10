@@ -33,6 +33,7 @@ class SignerBsmsQrDataHandler implements IQrScanDataHandler {
       case HardwareWalletType.seedSigner:
       case HardwareWalletType.krux:
       case HardwareWalletType.coconutVault:
+        print('result: ${_textBuffer?.toString()}');
         return _textBuffer?.toString();
       default:
         return null;
@@ -92,14 +93,14 @@ class SignerBsmsQrDataHandler implements IQrScanDataHandler {
           return normalized.startsWith('b\$');
         case HardwareWalletType.coconutVault:
           try {
-            SignerBsms.parse(normalized);
+            SignerBsms.parse(data.trim());
             return true;
           } catch (_) {
             return false;
           }
         case HardwareWalletType.seedSigner:
         case HardwareWalletType.krux:
-          return _isValidSignerDescriptor(normalized);
+          return _isValidSignerDescriptor(data.trim());
         default:
           return false;
       }

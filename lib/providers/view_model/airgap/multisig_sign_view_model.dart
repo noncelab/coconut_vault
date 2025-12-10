@@ -133,33 +133,35 @@ class MultisigSignViewModel extends ChangeNotifier {
     }
   }
 
-  /// 외부 하드웨어 지갑에서 서명한 PSBT를 현재 PSBT와 병합합니다.
-  /// 스캔한 PSBT가 더 많은 서명을 포함하고 있으면 스캔한 PSBT를 사용합니다.
-  void mergeSignedPsbt(String signedPsbtBase64) {
+  /// [Krux, Keystone]외부 하드웨어 지갑에서 서명한 PSBT를 현재 PSBT에 추가합니다.
+  void addSignSignature(String signedPsbtBase64) {
     try {
       final currentPsbt = Psbt.parse(_psbtForSigning);
       final scannedPsbt = Psbt.parse(signedPsbtBase64);
 
-      // 각 PSBT의 서명 수를 확인
-      int currentSignatureCount = 0;
-      int scannedSignatureCount = 0;
+      // 각 input에 대해 스캔한 PSBT의 서명을 현재 PSBT에 추가
+      for (int i = 0; i < currentPsbt.inputs.length && i < scannedPsbt.inputs.length; i++) {
+        final scannedInput = scannedPsbt.inputs[i];
+        final currentInput = currentPsbt.inputs[i];
 
-      for (var keyStore in _coconutVault.keyStoreList) {
-        if (currentPsbt.isSigned(keyStore)) {
-          currentSignatureCount++;
-        }
-        if (scannedPsbt.isSigned(keyStore)) {
-          scannedSignatureCount++;
+        // 스캔한 input의 모든 partialSig를 현재 input에 추가
+        if (scannedInput.partialSig != null && scannedInput.partialSig!.isNotEmpty) {
+          for (var sig in scannedInput.partialSig!) {
+            // 이미 존재하는 서명인지 확인 (중복 방지)
+            bool alreadyExists =
+                currentInput.partialSig?.any((existingSig) => existingSig.publicKey == sig.publicKey) ?? false;
+
+            if (!alreadyExists) {
+              currentInput.addPartialSig(sig.signature, sig.publicKey);
+            }
+          }
         }
       }
 
-      // 스캔한 PSBT가 더 많은 서명을 포함하고 있으면 스캔한 PSBT를 사용
-      // 또는 스캔한 PSBT가 모든 필요한 서명을 포함하고 있으면 사용
-      if (scannedSignatureCount >= currentSignatureCount || scannedSignatureCount >= requiredSignatureCount) {
-        _psbtForSigning = signedPsbtBase64;
-      }
-      // 그렇지 않으면 현재 PSBT를 유지 (이미 더 많은 서명을 포함하고 있음)
+      // 서명을 추가한 후 PSBT를 base64로 변환하여 저장
+      _psbtForSigning = currentPsbt.serialize();
     } catch (e) {
+      debugPrint('addSignSignature error: $e');
       // 파싱 실패 시, 스캔한 PSBT를 그대로 사용
       _psbtForSigning = signedPsbtBase64;
     }

@@ -286,7 +286,10 @@ class _MultisigSignScreenState extends State<MultisigSignScreen> {
             final signerIndex = index ?? _viewModel.findSignerIndexByMfp(psbtBase64);
 
             // 외부 하드웨어 지갑에서 서명한 PSBT를 현재 PSBT와 병합
-            _viewModel.mergeSignedPsbt(psbtBase64);
+            if (hwwType == HardwareWalletType.krux || hwwType == HardwareWalletType.keystone3Pro) {
+              debugPrint('hwwType == HardwareWalletType.krux ');
+              _viewModel.addSignSignature(psbtBase64);
+            }
             _viewModel.updateSignState(signerIndex);
             await _checkAndShowCreatingQrCode();
           },
