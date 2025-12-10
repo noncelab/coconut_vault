@@ -440,7 +440,7 @@ mnemonic_generate_screen:
   backup_complete: "Backup Complete"
   warning: "Keep your passphrase safe and private"
   passphrase_warning: "$words may not be accepted by other wallets."
-  passphrase_warning_space: "Spaces are included"
+  passphrase_warning_space: "Spaces are included."
   regenerate: "Regenerate"
 passphrase_textfield:
   title: "Enter passphrase"

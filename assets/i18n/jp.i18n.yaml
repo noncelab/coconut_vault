@@ -441,7 +441,7 @@ mnemonic_generate_screen:
   backup_complete: "バックアップ完了"
   warning: "パスフレーズの保管・流出にご注意ください"
   passphrase_warning: "$words は他のウォレットで利用できない可能性があります。"
-  passphrase_warning_space: "スペースが含まれています"
+  passphrase_warning_space: "スペースが含まれています。"
   regenerate: "再生成"
 passphrase_textfield:
   title: "パスフレーズを入力してください"

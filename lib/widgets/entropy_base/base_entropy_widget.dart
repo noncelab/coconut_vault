@@ -76,35 +76,8 @@ abstract class BaseEntropyWidgetState<T extends BaseEntropyWidget> extends State
       generateMnemonicWords();
     }
 
-    _passphraseController.addListener(() {
-      setState(() {
-        final text = _passphraseController.text;
-        _passphrase = utf8.encode(text);
-
-        if (_passphraseController.text.contains(' ')) {
-          passphraseErrorMessage = t.mnemonic_generate_screen.passphrase_warning_space;
-          return;
-        }
-        invalidPassphraseList =
-            _passphraseController.text.characters.where((char) => !validCharSet.contains(char)).toSet().toList();
-
-        if (invalidPassphraseList.isNotEmpty) {
-          passphraseErrorMessage = t.mnemonic_generate_screen.passphrase_warning(
-            words: invalidPassphraseList.join(", "),
-          );
-          return;
-        }
-
-        passphraseErrorMessage = '';
-      });
-    });
-
-    _passphraseConfirmController.addListener(() {
-      setState(() {
-        _passphraseConfirm = utf8.encode(_passphraseConfirmController.text);
-      });
-    });
-
+    _passphraseController.addListener(_updateWarningMessage);
+    _passphraseConfirmController.addListener(_updateWarningMessage);
     _passphraseConfirmFocusNode.addListener(() {
       if (_passphraseConfirmFocusNode.hasFocus) {
         WidgetsBinding.instance.addPostFrameCallback((_) async {
@@ -119,7 +92,6 @@ abstract class BaseEntropyWidgetState<T extends BaseEntropyWidget> extends State
         });
       }
     });
-
     _scrollController.addListener(() {
       if (_scrollController.hasClients) {
         final maxScroll = _scrollController.position.maxScrollExtent;
@@ -152,45 +124,61 @@ abstract class BaseEntropyWidgetState<T extends BaseEntropyWidget> extends State
     super.dispose();
   }
 
-  bool _isPassphraseValid() {
-    if (_passphrase.isEmpty) {
-      passphraseErrorMessage = '';
-      return false;
-    }
+  void _updateWarningMessage() {
+    String passphrase = _passphraseController.text;
+    String confirm = _passphraseConfirmController.text;
 
-    _checkIfInvalidCharactersIncluded();
-
-    if (passphraseErrorMessage.isNotEmpty) {
-      return false;
-    }
-
-    if (_passphraseConfirm.isEmpty) {
-      return false;
-    }
-
-    if (!listEquals(_passphrase, _passphraseConfirm)) {
-      passphraseErrorMessage = t.mnemonic_generate_screen.passphrase_not_matched;
-      return false;
-    }
-
-    return true;
-  }
-
-  void _checkIfInvalidCharactersIncluded() {
-    final text = _passphraseController.text;
-
-    if (text.contains(' ')) {
-      passphraseErrorMessage = t.mnemonic_generate_screen.passphrase_warning_space;
+    if (passphrase.isEmpty && confirm.isEmpty) {
+      if (passphraseErrorMessage.isNotEmpty) {
+        setState(() {
+          passphraseErrorMessage = '';
+        });
+      }
       return;
     }
 
-    var invalidList = text.characters.where((char) => !validCharSet.contains(char)).toSet().toList();
-
-    if (invalidList.isNotEmpty) {
-      passphraseErrorMessage = t.mnemonic_generate_screen.passphrase_warning(words: invalidList.join(", "));
-    } else {
-      passphraseErrorMessage = '';
+    if (passphrase.isNotEmpty ^ confirm.isNotEmpty) {
+      final input = passphrase.isNotEmpty ? passphrase : confirm;
+      final message = _getWarningMessage(input);
+      setState(() {
+        passphraseErrorMessage = message;
+      });
+      return;
     }
+
+    if (!listEquals(utf8.encode(passphrase), utf8.encode(confirm))) {
+      setState(() {
+        passphraseErrorMessage = t.mnemonic_generate_screen.passphrase_not_matched;
+      });
+      return;
+    }
+
+    setState(() {
+      passphraseErrorMessage = _getWarningMessage(passphrase);
+    });
+  }
+
+  bool _isPassphraseValid() {
+    String passphrase = _passphraseController.text;
+    String confirm = _passphraseConfirmController.text;
+
+    return passphrase.isNotEmpty && confirm.isNotEmpty && listEquals(utf8.encode(passphrase), utf8.encode(confirm));
+  }
+
+  String _getWarningMessage(String passphrase) {
+    String warningMessage = '';
+    if (passphrase.contains(' ')) {
+      warningMessage = t.mnemonic_generate_screen.passphrase_warning_space;
+    }
+
+    var invalidList = passphrase.characters.where((char) => !validCharSet.contains(char)).toSet().toList();
+    invalidList.remove(' ');
+    if (invalidList.isNotEmpty) {
+      warningMessage +=
+          "${warningMessage.isEmpty ? '' : '\n'}${t.mnemonic_generate_screen.passphrase_warning(words: invalidList.join(", "))}";
+    }
+
+    return warningMessage;
   }
 
   // 공통 메서드
@@ -263,23 +251,21 @@ abstract class BaseEntropyWidgetState<T extends BaseEntropyWidget> extends State
 
     // 패스프레이즈 사용함 | 패스프레이즈 입력 화면
     if (widget.usePassphrase && step == 1) {
-      if (_passphrase.isNotEmpty && _passphraseConfirm.isNotEmpty && listEquals(_passphrase, _passphraseConfirm)) {
-        if (!_isPassphraseValid()) {
-          return;
-        }
+      _passphrase = utf8.encode(_passphraseController.text);
+      _passphraseConfirm = utf8.encode(_passphraseConfirmController.text);
+      assert(_passphrase.isNotEmpty);
+      assert(_passphraseConfirm.isNotEmpty);
+      assert(listEquals(_passphrase, _passphraseConfirm));
 
-        _passphrase = utf8.encode(_passphraseController.text);
-
-        if (widget.entropyType == EntropyType.manual) {
-          _setMnemonicFromEntropy();
-        }
-
-        Provider.of<WalletCreationProvider>(context, listen: false).setSecretAndPassphrase(_mnemonic, _passphrase);
-        _passphraseFocusNode.unfocus();
-        _passphraseConfirmFocusNode.unfocus();
-
-        _checkDuplicateThenProceed();
+      if (widget.entropyType == EntropyType.manual) {
+        _setMnemonicFromEntropy();
       }
+
+      Provider.of<WalletCreationProvider>(context, listen: false).setSecretAndPassphrase(_mnemonic, _passphrase);
+      _passphraseFocusNode.unfocus();
+      _passphraseConfirmFocusNode.unfocus();
+
+      _checkDuplicateThenProceed();
     }
   }
 
