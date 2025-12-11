@@ -1,7 +1,7 @@
 import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_lib/coconut_lib.dart';
 import 'package:coconut_vault/constants/app_routes.dart';
-import 'package:coconut_vault/enums/wallet_enums.dart';
+import 'package:coconut_vault/constants/icon_path.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/model/common/vault_list_item_base.dart';
 import 'package:coconut_vault/model/multisig/multisig_signer.dart';
@@ -9,10 +9,12 @@ import 'package:coconut_vault/model/single_sig/single_sig_vault_list_item.dart';
 import 'package:coconut_vault/providers/view_model/signer_assignment_view_model.dart';
 import 'package:coconut_vault/providers/wallet_creation_provider.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
+import 'package:coconut_vault/screens/common/select_external_wallet_bottom_sheet.dart';
 import 'package:coconut_vault/screens/vault_creation/multisig/signer_bsms_scanner_screen.dart';
 import 'package:coconut_vault/screens/vault_creation/multisig/import_confirmation_screen.dart';
 import 'package:coconut_vault/screens/vault_creation/multisig/signer_assignment_key_list_bottom_sheet.dart';
 import 'package:coconut_vault/utils/alert_util.dart';
+import 'package:coconut_vault/utils/bip/signer_bsms.dart';
 import 'package:coconut_vault/utils/icon_util.dart';
 import 'package:coconut_vault/utils/logger.dart';
 import 'package:coconut_vault/widgets/bottom_sheet.dart';
@@ -80,6 +82,52 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
   late SignerAssignmentViewModel _viewModel;
   late DraggableScrollableController _draggableController;
   final ValueNotifier<bool> _isButtonActiveNotifier = ValueNotifier<bool>(false);
+
+  // 내부 지갑 여부
+  bool _isInternal(AssignedVaultListItem item) {
+    return item.importKeyType == ImportKeyType.internal;
+  }
+
+  String _getDisplayName(AssignedVaultListItem item) {
+    if (_isInternal(item)) {
+      return item.item?.name ?? '';
+    }
+
+    if (item.importKeyType == ImportKeyType.external && item.bsms != null) {
+      final match = RegExp(r'\[([0-9a-fA-F]{8})').firstMatch(item.bsms!);
+      if (match != null) {
+        return match.group(1)?.toUpperCase() ?? t.external_wallet;
+      }
+    }
+
+    return t.external_wallet;
+  }
+
+  // 아이콘 경로를 결정하는 헬퍼 함수
+  String _getIconPath(AssignedVaultListItem item) {
+    // 1. 내부 지갑인 경우
+    if (item.importKeyType == ImportKeyType.internal) {
+      return CustomIcons.getPathByIndex(item.item!.iconIndex);
+    }
+
+    // 2. 외부 지갑인 경우 (signerSource에 따라 분기)
+    switch (item.signerSource) {
+      case HardwareWalletType.keystone3Pro:
+        return kKeystoneIconPath; // constant/icon_path.dart에 정의된 상수 사용
+      case HardwareWalletType.seedSigner:
+        return kSeedSignerIconPath;
+      case HardwareWalletType.jade:
+        return kJadeIconPath;
+      case HardwareWalletType.coldcard:
+        return kColdCardIconPath;
+      case HardwareWalletType.krux:
+        return kKruxIconPath;
+      case HardwareWalletType.coconutVault:
+      default:
+        // 기본 외부 지갑 아이콘 (코코넛 볼트 포함)
+        return kCoconutVaultIconPath;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -160,114 +208,118 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
                                       ),
                                       CoconutLayout.spacing_900h,
                                       for (int i = 0; i < viewModel.assignedVaultList.length; i++) ...[
-                                        ShrinkAnimationButton(
-                                          onPressed: () {
-                                            if (viewModel.assignedVaultList[i].importKeyType != null) {
-                                              _showDialog(DialogType.deleteKey, keyIndex: i);
-                                              return;
-                                            }
-                                            MyBottomSheet.showBottomSheet_ratio(
-                                              showDragHandle: false,
-                                              context: context,
-                                              child: _buildSelectKeyOptionBottomSheet(i),
+                                        Builder(
+                                          builder: (context) {
+                                            final item = viewModel.assignedVaultList[i];
+
+                                            return Column(
+                                              children: [
+                                                ShrinkAnimationButton(
+                                                  onPressed: () {
+                                                    if (viewModel.assignedVaultList[i].importKeyType != null) {
+                                                      _showDialog(DialogType.deleteKey, keyIndex: i);
+                                                      return;
+                                                    }
+                                                    MyBottomSheet.showBottomSheet_ratio(
+                                                      showDragHandle: false,
+                                                      context: context,
+                                                      child: _buildSelectKeyOptionBottomSheet(i),
+                                                    );
+                                                  },
+                                                  defaultColor:
+                                                      viewModel.assignedVaultList[i].importKeyType != null
+                                                          ? viewModel.assignedVaultList[i].importKeyType ==
+                                                                  ImportKeyType.internal
+                                                              ? CoconutColors.backgroundColorPaletteLight[viewModel
+                                                                  .assignedVaultList[i]
+                                                                  .item!
+                                                                  .colorIndex]
+                                                              : CoconutColors.backgroundColorPaletteLight[8]
+                                                          : CoconutColors.white,
+                                                  pressedColor:
+                                                      viewModel.assignedVaultList[i].importKeyType != null
+                                                          ? viewModel.assignedVaultList[i].importKeyType ==
+                                                                  ImportKeyType.internal
+                                                              ? CoconutColors
+                                                                  .backgroundColorPaletteLight[viewModel
+                                                                      .assignedVaultList[i]
+                                                                      .item!
+                                                                      .colorIndex]
+                                                                  .withAlpha(70)
+                                                              : CoconutColors.backgroundColorPaletteLight[8].withAlpha(
+                                                                70,
+                                                              )
+                                                          : CoconutColors.gray150,
+                                                  borderRadius: 100,
+                                                  borderWidth: 1,
+                                                  border: Border.all(
+                                                    color:
+                                                        viewModel.assignedVaultList[i].importKeyType != null
+                                                            ? CoconutColors
+                                                                .backgroundColorPaletteLight[viewModel
+                                                                        .assignedVaultList[i]
+                                                                        .item
+                                                                        ?.colorIndex ??
+                                                                    8]
+                                                                .withAlpha(70)
+                                                            : CoconutColors.gray200,
+                                                    width: 1,
+                                                  ),
+                                                  child: Container(
+                                                    width: 210,
+                                                    height: 64,
+                                                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                                                    child:
+                                                        viewModel.assignedVaultList[i].importKeyType != null
+                                                            ? Row(
+                                                              mainAxisAlignment: MainAxisAlignment.center,
+                                                              children: [
+                                                                SvgPicture.asset(
+                                                                  _getIconPath(item),
+                                                                  colorFilter: ColorFilter.mode(
+                                                                    viewModel.assignedVaultList[i].importKeyType ==
+                                                                            ImportKeyType.internal
+                                                                        ? CoconutColors.colorPalette[viewModel
+                                                                            .assignedVaultList[i]
+                                                                            .item!
+                                                                            .colorIndex]
+                                                                        : CoconutColors.black,
+                                                                    BlendMode.srcIn,
+                                                                  ),
+                                                                  width: 14.0,
+                                                                ),
+                                                                CoconutLayout.spacing_200w,
+                                                                Flexible(
+                                                                  child: Text(
+                                                                    t.multisig.nth_key_with_name(
+                                                                      name: _getDisplayName(
+                                                                        viewModel.assignedVaultList[i],
+                                                                      ),
+                                                                      index: _viewModel.assignedVaultList[i].index + 1,
+                                                                    ),
+                                                                    style: CoconutTypography.body1_16,
+                                                                    maxLines: 1,
+                                                                    overflow: TextOverflow.ellipsis,
+                                                                    textAlign: TextAlign.center,
+                                                                  ),
+                                                                ),
+                                                              ],
+                                                            )
+                                                            : Center(
+                                                              child: Text(
+                                                                t.multisig.select_nth_key(
+                                                                  index: _viewModel.assignedVaultList[i].index + 1,
+                                                                ),
+                                                                style: CoconutTypography.body1_16,
+                                                              ),
+                                                            ),
+                                                  ),
+                                                ),
+                                                CoconutLayout.spacing_500h,
+                                              ],
                                             );
                                           },
-                                          defaultColor:
-                                              viewModel.assignedVaultList[i].importKeyType != null
-                                                  ? viewModel.assignedVaultList[i].importKeyType ==
-                                                          ImportKeyType.internal
-                                                      ? CoconutColors.backgroundColorPaletteLight[viewModel
-                                                          .assignedVaultList[i]
-                                                          .item!
-                                                          .colorIndex]
-                                                      : CoconutColors.backgroundColorPaletteLight[8]
-                                                  : CoconutColors.white,
-                                          pressedColor:
-                                              viewModel.assignedVaultList[i].importKeyType != null
-                                                  ? viewModel.assignedVaultList[i].importKeyType ==
-                                                          ImportKeyType.internal
-                                                      ? CoconutColors
-                                                          .backgroundColorPaletteLight[viewModel
-                                                              .assignedVaultList[i]
-                                                              .item!
-                                                              .colorIndex]
-                                                          .withAlpha(70)
-                                                      : CoconutColors.backgroundColorPaletteLight[8].withAlpha(70)
-                                                  : CoconutColors.gray150,
-                                          borderRadius: 100,
-                                          borderWidth: 1,
-                                          border: Border.all(
-                                            color:
-                                                viewModel.assignedVaultList[i].importKeyType != null
-                                                    ? CoconutColors
-                                                        .backgroundColorPaletteLight[viewModel
-                                                                .assignedVaultList[i]
-                                                                .item
-                                                                ?.colorIndex ??
-                                                            8]
-                                                        .withAlpha(70)
-                                                    : CoconutColors.gray200,
-                                            width: 1,
-                                          ),
-                                          child: Container(
-                                            width: 210,
-                                            height: 64,
-                                            padding: const EdgeInsets.symmetric(horizontal: 16),
-                                            child:
-                                                viewModel.assignedVaultList[i].importKeyType != null
-                                                    ? Row(
-                                                      mainAxisAlignment: MainAxisAlignment.center,
-                                                      children: [
-                                                        SvgPicture.asset(
-                                                          viewModel.assignedVaultList[i].importKeyType ==
-                                                                  ImportKeyType.internal
-                                                              ? CustomIcons.getPathByIndex(
-                                                                viewModel.assignedVaultList[i].item!.iconIndex,
-                                                              )
-                                                              : 'assets/svg/import-bsms.svg',
-                                                          colorFilter: ColorFilter.mode(
-                                                            viewModel.assignedVaultList[i].importKeyType ==
-                                                                    ImportKeyType.internal
-                                                                ? CoconutColors.colorPalette[viewModel
-                                                                    .assignedVaultList[i]
-                                                                    .item!
-                                                                    .colorIndex]
-                                                                : CoconutColors.black,
-                                                            BlendMode.srcIn,
-                                                          ),
-                                                          width: 14.0,
-                                                        ),
-                                                        CoconutLayout.spacing_200w,
-                                                        Flexible(
-                                                          child: Text(
-                                                            t.multisig.nth_key_with_name(
-                                                              name:
-                                                                  viewModel.assignedVaultList[i].importKeyType ==
-                                                                          ImportKeyType.internal
-                                                                      ? _viewModel.assignedVaultList[i].item!.name
-                                                                      : _viewModel.getExternalSignerMemo(i) ??
-                                                                          t.external_wallet,
-                                                              index: _viewModel.assignedVaultList[i].index + 1,
-                                                            ),
-                                                            style: CoconutTypography.body1_16,
-                                                            maxLines: 1,
-                                                            overflow: TextOverflow.ellipsis,
-                                                            textAlign: TextAlign.center,
-                                                          ),
-                                                        ),
-                                                      ],
-                                                    )
-                                                    : Center(
-                                                      child: Text(
-                                                        t.multisig.select_nth_key(
-                                                          index: _viewModel.assignedVaultList[i].index + 1,
-                                                        ),
-                                                        style: CoconutTypography.body1_16,
-                                                      ),
-                                                    ),
-                                          ),
                                         ),
-                                        CoconutLayout.spacing_500h,
                                       ],
                                     ],
                                   ),
@@ -385,7 +437,10 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
               onPressed: () => _onImportFromOtherVaultPressed(index),
             ),
             CoconutLayout.spacing_300h,
-            _buildKeyOptionButton(title: t.assign_signers_screen.import_from_hww, onPressed: _onImportFromHwwPressed),
+            _buildKeyOptionButton(
+              title: t.assign_signers_screen.import_from_hww,
+              onPressed: () => _onImportFromHwwPressed(index),
+            ),
           ],
         ),
       ),
@@ -441,12 +496,7 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
   }
 
   void _onImportFromOtherVaultPressed(int index) async {
-    // if (_viewModel.isAllAssignedFromExternal()) {
-    //   _showDialog(DialogType.alert);
-    //   return;
-    // }
-
-    final externalImported = await MyBottomSheet.showDraggableScrollableSheet(
+    final SignerBsms? externalImported = await MyBottomSheet.showDraggableScrollableSheet(
       topWidget: true,
       context: context,
       physics: const ClampingScrollPhysics(),
@@ -469,7 +519,7 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
       if (!mounted) return;
       final Map<String, String>? bsmsAndMemo = await MyBottomSheet.showBottomSheet_90(
         context: context,
-        child: ImportConfirmationScreen(importingBsms: externalImported),
+        child: ImportConfirmationScreen(importingBsms: externalImported.toString()),
       );
       if (bsmsAndMemo != null) {
         assert(bsmsAndMemo['bsms']!.isNotEmpty);
@@ -477,7 +527,7 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
           index,
           ImportKeyType.external,
           false,
-          externalImported, // TODO: memo 제외한 bsms만 저장
+          externalImported.getSignerBsms(includesLabel: false),
           bsmsAndMemo['memo'],
           null,
         );
@@ -487,30 +537,73 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
     }
   }
 
-  // TODO: 하드월렛 선택 바텀싯
-  void _onImportFromHwwPressed() async {
-    MyBottomSheet.showBottomSheet_ratio(
-      context: context,
-      child: Center(
-        child: GestureDetector(
-          child: const Text('하드월렛 선택'),
-          onTap: () async {
-            final externalImported = await MyBottomSheet.showDraggableScrollableSheet(
-              topWidget: true,
-              context: context,
-              physics: const ClampingScrollPhysics(),
-              enableSingleChildScroll: false,
-              hideAppBar: true,
-              child: const SignerBsmsScannerScreen(
-                hardwareWalletType: HardwareWalletType.coldcard,
-              ), // TODO: 선택한 결과에 맞게 harewareWalletType 변경하기
-            );
+  void _onImportFromHwwPressed(int index) async {
+    HardwareWalletType? selectedWalletType;
+    final List<ExternalWalletButton> walletButtons = [];
+    for (final walletType in HardwareWalletType.values) {
+      if (walletType == HardwareWalletType.coconutVault) continue;
+      walletButtons.add(ExternalWalletButton(name: walletType.displayName, iconSource: walletType.iconPath));
+    }
 
-            Logger.log('--> SignerAssignmentScreen: externalImported: $externalImported');
-          },
-        ),
+    await MyBottomSheet.showBottomSheet_ratio(
+      context: context,
+      child: SelectExternalWalletBottomSheet(
+        title: t.assign_signers_screen.hardware_wallet_type_selection,
+        externalWalletButtonList: walletButtons,
+        onSelected: (index) {
+          selectedWalletType = HardwareWalletTypeExtension.fromDisplayName(walletButtons[index].name);
+        },
       ),
     );
+
+    if (selectedWalletType == null) return;
+
+    if (!mounted) return;
+    final SignerBsms? externalImported = await MyBottomSheet.showDraggableScrollableSheet(
+      topWidget: true,
+      context: context,
+      physics: const ClampingScrollPhysics(),
+      enableSingleChildScroll: false,
+      hideAppBar: true,
+      child: SignerBsmsScannerScreen(hardwareWalletType: selectedWalletType!),
+    );
+
+    Logger.log('--> SignerAssignmentScreen: externalImported: $externalImported');
+    if (externalImported == null) return;
+
+    if (_viewModel.isAlreadyImported(externalImported)) {
+      return _showDialog(DialogType.alreadyExist);
+    }
+
+    String? sameVaultName = _viewModel.findVaultNameByBsms(externalImported);
+
+    if (sameVaultName != null) {
+      _showDialog(DialogType.sameWithInternalOne, vaultName: sameVaultName);
+      return;
+    }
+
+    if (!mounted) return;
+
+    final Map<String, String>? bsmsAndMemo = await MyBottomSheet.showBottomSheet_90(
+      context: context,
+      child: ImportConfirmationScreen(importingBsms: externalImported.toString()),
+    );
+
+    if (bsmsAndMemo != null) {
+      assert(bsmsAndMemo['bsms']!.isNotEmpty);
+
+      _viewModel.setAssignedVaultList(
+        index,
+        ImportKeyType.external,
+        false,
+        externalImported.toString(),
+        bsmsAndMemo['memo'],
+        selectedWalletType,
+      );
+
+      if (!mounted) return;
+      Navigator.pop(context);
+    }
   }
 
   @override

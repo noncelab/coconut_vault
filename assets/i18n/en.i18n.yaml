@@ -514,6 +514,7 @@ assign_signers_screen:
   use_internal_key_option: "Select key"
   import_from_other_vault: "Import from other vault"
   import_from_hww: "Import from hardware wallet"
+  hardware_wallet_type_selection: "Hardware Wallet Selection"
 
 hardware_wallet_type:
   vault: "Coconut Vault"
@@ -569,16 +570,59 @@ coordinator_bsms_config_scanner_screen:
 bsms_scanner_screen:
   import_bsms: "Import BSMS"
   import_multisig_wallet: "Import Multisig Wallet"
+  select: "Select -"
+  press_button: "Press Button -"
   guide1_1: "You can import multisig wallet created in other vault."
-  guide1_2: "On the home screen of the other vault, "
+  guide1_2: "On the home screen of the other vault,"
   guide1_3: "the multisig wallet."
   guide1_4: "Export to another vault."
   guide1_5: "Scan the QR code below on the screen."
-  guide2_1: "On the vault containing a key you want to use, "
-  guide2_2: "the wallet."
-  guide2_3: "Use as Multisig Key."
-  guide2_4: "Scan the QR code shown on the screen."
-  select: "Select "
+  coconut_vault:
+    guide2_1: "On the vault containing a key you want to use,"
+    guide2_2: "the wallet."
+    guide2_3: "Use as Multisig Key."
+    guide2_4: "Scan the QR code shown on the screen."
+  keystone3pro:
+    guide2_1: "Compatible with Keystone 3 Pro."
+    guide2_2: "From the Home screen"
+    guide2_3: "Top-left Wallet Icon"
+    guide2_4: "Show/Export xPub"
+    guide2_5: "Multisig Wallet"
+    guide2_6: "Native Segwit option"
+    guide2_7: "Scan QR of"
+  seedsigner:
+    guide2_1: "After adding a seed,"
+    guide2_2: "Export Xpub"
+    guide2_3: "Multisig - Native Segwit"
+    guide2_4: "BlueWallet"
+    guide2_5: "Check the prompt message then"
+    guide2_6: "I Understand > Export Xpub"
+  jade:
+    guide2_1: "In"
+    guide2_2: "Active state,"
+    guide2_3: "Options"
+    guide2_4: "Wallet"
+    guide2_5: "Export Xpub"
+    guide2_6: "Wallet: Singlesig"
+    guide2_7: "Multisig"
+    guide2_8: "Change to"
+  cold_card:
+    guide2_1: "Settings"
+    guide2_2: "Multisig Wallets"
+    guide2_3: "Export XPUB"
+    guide2_4: "Enter"
+    guide2_5: "0 then Enter"
+    guide2_6: "QR"
+  krux:
+    guide2_1: "Guide based on wonderMV."
+    guide2_2: "After adding Mnemonic,"
+    guide2_3: "Custom"
+    guide2_4: "Policy Type > Multisig"
+    guide2_5: "Check P2WSH at top then"
+    guide2_6: "Load as is"
+    guide2_7: "Export XPUB"
+    guide2_8: "XPUB - QR"
+  
 
 bsms_paste_screen:
   import_bsms: "Please enter the BSMS string."

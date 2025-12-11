@@ -20,6 +20,11 @@ class CoordinatorBsmsQrDataHandler implements IQrScanDataHandler {
 
   CoordinatorBsmsQrDataFormat? _dataFormat;
 
+  bool? get isFragmentedDataScanned =>
+      _dataFormat == null
+          ? null
+          : (_dataFormat == CoordinatorBsmsQrDataFormat.ur || _dataFormat == CoordinatorBsmsQrDataFormat.bbqr);
+
   CoordinatorBsmsQrDataHandler() : _urDecoder = URDecoder(), _bbQrDecoder = BbQrDecoder();
 
   @override

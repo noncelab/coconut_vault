@@ -313,7 +313,7 @@ class MyBottomSheet {
       isScrollControlled: isScrollControlled,
       enableDrag: enableDrag,
       useSafeArea: useSafeArea,
-      constraints: BoxConstraints(maxHeight: MediaQuery.of(context).size.height * 0.9),
+      constraints: BoxConstraints(maxHeight: MediaQuery.of(context).size.height),
     );
   }
 

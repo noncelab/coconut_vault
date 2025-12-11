@@ -12,7 +12,6 @@ import 'package:coconut_vault/widgets/custom_loading_overlay.dart';
 import 'package:coconut_vault/widgets/custom_tooltip.dart';
 import 'package:coconut_vault/widgets/overlays/scanner_overlay.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:provider/provider.dart';
 
@@ -27,17 +26,15 @@ abstract class BsmsScannerBase<T extends StatefulWidget> extends State<T> {
   MobileScannerController? controller;
   bool isProcessing = false;
 
-  /// 상단 어둡게 가리는 영역 높이 ??? (Signer: 50, Coordinator: 0) TODO: 뭔지 알아내기
-  double get topMaskHeight => 50.0;
+  final ValueNotifier<double> _progressNotifier = ValueNotifier(0.0);
+  bool showProgressBar = false;
+  bool _isScanningExtraData = false;
 
   /// AppBar 타이틀
   String get appBarTitle => t.bsms_scanner_screen.import_bsms;
   bool get useBottomAppBar => false;
   bool get showBackButton => true;
   bool get showBottomButton => false;
-  List<IconButton> get icon => [
-    IconButton(onPressed: () {}, icon: SvgPicture.asset('assets/svg/paste.svg', width: 18, height: 18)),
-  ];
 
   /// 툴팁 RichText
   List<TextSpan> buildTooltipRichText(BuildContext context, VisibilityProvider visibilityProvider);
@@ -46,23 +43,46 @@ abstract class BsmsScannerBase<T extends StatefulWidget> extends State<T> {
   void onBarcodeDetected(BarcodeCapture capture);
 
   /// 스캔 실패 시 다이얼로그 + 카메라 재시작
-  void onFailedScanning(String message) {
-    showAlertDialog(
+  Future<void> onFailedScanning(String message) async {
+    if (!isProcessing) {
+      // INFO: 꼭 로딩 UI가 보일 필요는 없지만 프롬프트가 닫히기 전까지 onBarcodeDetected 방지
+      isProcessing = true;
+    }
+    await showAlertDialog(
       context: context,
       content: message,
       onConfirmPressed: () {
-        controller?.start().then((_) {
-          if (!mounted) return;
+        if (!mounted) return;
+        if (isProcessing) {
           setState(() {
             isProcessing = false;
           });
-        });
+        }
       },
     );
   }
 
+  void updateScanProgress(double progress) {
+    _progressNotifier.value = progress;
+    setState(() {
+      showProgressBar = true;
+      _isScanningExtraData = progress > 0.98;
+    });
+  }
+
+  /// [추가] 프로그레스 바 초기화 및 숨김
+  void resetScanProgress() {
+    _progressNotifier.value = 0;
+    setState(() {
+      _isScanningExtraData = false;
+      if (showProgressBar) {
+        showProgressBar = false;
+      }
+    });
+  }
+
   void _onCameraStateChanged() {
-    if (controller!.value.isInitialized) {
+    if (controller?.value.isInitialized ?? false) {
       appLifecycleStateProvider.endOperation(AppLifecycleOperations.cameraAuthRequest);
 
       if (isProcessing) {
@@ -90,8 +110,6 @@ abstract class BsmsScannerBase<T extends StatefulWidget> extends State<T> {
     appLifecycleStateProvider = Provider.of<AppLifecycleStateProvider>(context, listen: false);
     appLifecycleStateProvider.startOperation(AppLifecycleOperations.cameraAuthRequest, ignoreNotify: true);
 
-    controller = MobileScannerController()..addListener(_onCameraStateChanged);
-
     // WidgetsBinding.instance.addPostFrameCallback((_) async {
     //   await Future.delayed(const Duration(milliseconds: 1000));
     //   // fixme 추후 QRCodeScanner가 개선되면 QRCodeScanner 의 카메라 뷰 생성 완료된 콜백 찾아 progress hide 합니다. 현재는 1초 후 hide
@@ -100,10 +118,18 @@ abstract class BsmsScannerBase<T extends StatefulWidget> extends State<T> {
     //     isProcessing = false;
     //   });
     // });
+
+    controller = MobileScannerController(
+      // 1. 중복 인식 방지
+      detectionSpeed: DetectionSpeed.noDuplicates,
+      // 2. 해상도를 HD급 이상으로 설정
+      cameraResolution: const Size(1280, 720),
+    )..addListener(_onCameraStateChanged);
   }
 
   @override
   void dispose() {
+    _progressNotifier.dispose();
     controller?.removeListener(_onCameraStateChanged);
     controller?.dispose();
     if (appLifecycleStateProvider.ignoredOperations.contains(AppLifecycleOperations.cameraAuthRequest)) {
@@ -122,7 +148,6 @@ abstract class BsmsScannerBase<T extends StatefulWidget> extends State<T> {
           context: context,
           isBackButton: showBackButton,
           isBottom: useBottomAppBar,
-          actionButtonList: icon,
         ),
         body: SafeArea(top: false, child: _buildStack(context)),
       ),
@@ -137,14 +162,13 @@ abstract class BsmsScannerBase<T extends StatefulWidget> extends State<T> {
           onDetect: (capture) {
             if (isProcessing) return;
             if (!mounted) return;
-            setState(() {
-              isProcessing = true;
-            });
             onBarcodeDetected(capture);
           },
         ),
         const ScannerOverlay(),
-        Container(height: topMaskHeight, color: CoconutColors.black.withValues(alpha: 0.5)),
+
+        _buildProgressOverlay(context),
+
         CustomTooltip.buildInfoTooltip(
           context,
           richText: RichText(
@@ -183,6 +207,105 @@ abstract class BsmsScannerBase<T extends StatefulWidget> extends State<T> {
           decoration: BoxDecoration(color: CoconutColors.black.withValues(alpha: 0.3)),
           child: const Center(child: CircularProgressIndicator(color: CoconutColors.gray800)),
         ),
+      ),
+    );
+  }
+
+  Widget _buildProgressOverlay(BuildContext context) {
+    final scanAreaSize =
+        (MediaQuery.of(context).size.width < 400 || MediaQuery.of(context).size.height < 400)
+            ? 320.0
+            : MediaQuery.of(context).size.width * 0.85;
+
+    final scanAreaTop = (MediaQuery.of(context).size.height - scanAreaSize) / 2;
+    final scanAreaBottom = scanAreaTop + scanAreaSize;
+
+    return Stack(
+      children: [
+        Positioned(
+          top: scanAreaBottom - 24,
+          left: 0,
+          right: 0,
+          child: Visibility(
+            visible: showProgressBar,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                CoconutLayout.spacing_1300w,
+                if (!_isScanningExtraData) ...[_buildProgressBar(), CoconutLayout.spacing_300w, _buildProgressText()],
+                if (_isScanningExtraData) Expanded(child: _buildReadingExtraText()),
+                CoconutLayout.spacing_1300w,
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildReadingExtraText() {
+    return MediaQuery(
+      data: MediaQuery.of(context).copyWith(textScaler: const TextScaler.linear(1.0)),
+      child: Text(
+        textAlign: TextAlign.center,
+        t.coconut_qr_scanner.reading_extra_data, // strings.g.dart에 해당 키가 있어야 합니다.
+        style: CoconutTypography.body2_14_Bold.setColor(CoconutColors.white),
+      ),
+    );
+  }
+
+  Widget _buildProgressText() {
+    return ValueListenableBuilder<double>(
+      valueListenable: _progressNotifier,
+      builder: (context, value, _) {
+        return SizedBox(
+          width: 35,
+          child: MediaQuery(
+            data: MediaQuery.of(context).copyWith(textScaler: const TextScaler.linear(1.0)),
+            child: Text(
+              textAlign: TextAlign.center,
+              "${(value * 100).toInt()}%",
+              style: CoconutTypography.body2_14_Bold.setColor(CoconutColors.white),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildProgressBar() {
+    return Expanded(
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final double maxWidth = constraints.maxWidth;
+          return Stack(
+            children: [
+              Container(
+                width: maxWidth,
+                height: 8,
+                decoration: const BoxDecoration(
+                  borderRadius: BorderRadius.all(Radius.circular(20)),
+                  color: CoconutColors.gray350,
+                ),
+              ),
+              ValueListenableBuilder<double>(
+                valueListenable: _progressNotifier,
+                builder: (context, value, _) {
+                  return AnimatedContainer(
+                    duration: const Duration(milliseconds: 150),
+                    width: maxWidth * _progressNotifier.value,
+                    height: 6,
+                    margin: const EdgeInsets.all(1),
+                    decoration: const BoxDecoration(
+                      borderRadius: BorderRadius.all(Radius.circular(20)),
+                      color: Colors.black, // 기존 코드의 디자인 유지
+                    ),
+                  );
+                },
+              ),
+            ],
+          );
+        },
       ),
     );
   }

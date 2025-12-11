@@ -31,7 +31,7 @@ class VaultIcon extends StatelessWidget {
         customIconSource != null
             ? customIconSource!
             : iconIndex == null
-            ? 'assets/svg/import-bsms.svg'
+            ? 'assets/svg/arrow-circle-down.svg'
             : CustomIcons.getPathByIndex(iconIndex);
   }
 
