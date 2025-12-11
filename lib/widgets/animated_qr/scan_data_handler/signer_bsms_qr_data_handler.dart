@@ -20,13 +20,12 @@ class SignerBsmsQrDataHandler implements IQrScanDataHandler {
     : _urDecoder = URDecoder(),
       _bbQrDecoder = BbQrDecoder() {
     switch (harewareWalletType) {
-      case HardwareWalletType.seedSigner:
-      case HardwareWalletType.krux:
-      case HardwareWalletType.coconutVault:
-        _isFragmentedDataScanned = false;
+      case HardwareWalletType.jade:
+      case HardwareWalletType.coldcard:
+        _isFragmentedDataScanned = true;
         break;
       default:
-        _isFragmentedDataScanned = true;
+        _isFragmentedDataScanned = false;
     }
   }
 

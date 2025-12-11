@@ -27,9 +27,8 @@ abstract class BsmsScannerBase<T extends StatefulWidget> extends State<T> {
   bool isProcessing = false;
 
   final ValueNotifier<double> _progressNotifier = ValueNotifier(0.0);
-  bool _showLoadingBar = false;
+  bool showProgressBar = false;
   bool _isScanningExtraData = false;
-  bool _hasBeenScanningExtraData = false;
 
   /// AppBar 타이틀
   String get appBarTitle => t.bsms_scanner_screen.import_bsms;
@@ -45,16 +44,20 @@ abstract class BsmsScannerBase<T extends StatefulWidget> extends State<T> {
 
   /// 스캔 실패 시 다이얼로그 + 카메라 재시작
   Future<void> onFailedScanning(String message) async {
+    if (!isProcessing) {
+      // INFO: 꼭 로딩 UI가 보일 필요는 없지만 프롬프트가 닫히기 전까지 onBarcodeDetected 방지
+      isProcessing = true;
+    }
     await showAlertDialog(
       context: context,
       content: message,
       onConfirmPressed: () {
-        controller?.start().then((_) {
-          if (!mounted) return;
+        if (!mounted) return;
+        if (isProcessing) {
           setState(() {
             isProcessing = false;
           });
-        });
+        }
       },
     );
   }
@@ -62,11 +65,8 @@ abstract class BsmsScannerBase<T extends StatefulWidget> extends State<T> {
   void updateScanProgress(double progress) {
     _progressNotifier.value = progress;
     setState(() {
-      _showLoadingBar = true;
+      showProgressBar = true;
       _isScanningExtraData = progress > 0.98;
-      if (_isScanningExtraData) {
-        _hasBeenScanningExtraData = true;
-      }
     });
   }
 
@@ -75,15 +75,14 @@ abstract class BsmsScannerBase<T extends StatefulWidget> extends State<T> {
     _progressNotifier.value = 0;
     setState(() {
       _isScanningExtraData = false;
-      _hasBeenScanningExtraData = false;
-      if (_showLoadingBar) {
-        _showLoadingBar = false;
+      if (showProgressBar) {
+        showProgressBar = false;
       }
     });
   }
 
   void _onCameraStateChanged() {
-    if (controller!.value.isInitialized) {
+    if (controller?.value.isInitialized ?? false) {
       appLifecycleStateProvider.endOperation(AppLifecycleOperations.cameraAuthRequest);
 
       if (isProcessing) {
@@ -92,9 +91,11 @@ abstract class BsmsScannerBase<T extends StatefulWidget> extends State<T> {
         });
       }
     }
-    if (controller!.value.zoomScale < 0.1) {
-      controller!.setZoomScale(0.15); // 약 15% 줌
-    }
+    final zoomScale = controller?.value.zoomScale;
+    // TODO: The MobileScannerController has not been initialized. Call start() before using it.
+    // if (zoomScale != null && zoomScale < 0.1) {
+    //   controller?.setZoomScale(0.15); // 약 15% 줌
+    // }
   }
 
   @override
@@ -166,11 +167,8 @@ abstract class BsmsScannerBase<T extends StatefulWidget> extends State<T> {
         MobileScanner(
           controller: controller,
           onDetect: (capture) {
-            if (isProcessing && !_showLoadingBar) return;
+            if (isProcessing) return;
             if (!mounted) return;
-            // setState(() {
-            //   isProcessing = true;
-            // });
             onBarcodeDetected(capture);
           },
         ),
@@ -236,16 +234,12 @@ abstract class BsmsScannerBase<T extends StatefulWidget> extends State<T> {
           left: 0,
           right: 0,
           child: Visibility(
-            visible: _showLoadingBar,
+            visible: showProgressBar,
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 CoconutLayout.spacing_1300w,
-                if (!_isScanningExtraData && !_hasBeenScanningExtraData) ...[
-                  _buildProgressBar(),
-                  CoconutLayout.spacing_300w,
-                  _buildProgressText(),
-                ],
+                if (!_isScanningExtraData) ...[_buildProgressBar(), CoconutLayout.spacing_300w, _buildProgressText()],
                 if (_isScanningExtraData) Expanded(child: _buildReadingExtraText()),
                 CoconutLayout.spacing_1300w,
               ],

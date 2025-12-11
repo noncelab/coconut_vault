@@ -34,6 +34,9 @@ class _SignerBsmsScannerScreenState extends BsmsScannerBase<SignerBsmsScannerScr
   void initState() {
     super.initState();
     _qrDataHandler = SignerBsmsQrDataHandler(harewareWalletType: widget.hardwareWalletType);
+    if (_qrDataHandler.isFragmentedDataScanned) {
+      showProgressBar = true;
+    }
   }
 
   @override
@@ -46,17 +49,15 @@ class _SignerBsmsScannerScreenState extends BsmsScannerBase<SignerBsmsScannerScr
   void onBarcodeDetected(BarcodeCapture capture) async {
     final codes = capture.barcodes;
     if (codes.isEmpty) {
-      setState(() => isProcessing = false);
       return;
     }
-
     final barcode = codes.first;
     if (barcode.rawValue == null) {
-      setState(() => isProcessing = false);
       return;
     }
 
     final scanData = barcode.rawValue!;
+
     SignerBsms? signerBsms;
     String? scanResult;
 
@@ -71,25 +72,24 @@ class _SignerBsmsScannerScreenState extends BsmsScannerBase<SignerBsmsScannerScr
 
       final joinResult = _qrDataHandler.joinData(scanData);
 
-      updateScanProgress(_qrDataHandler.progress);
-
       if (joinResult == false && !_qrDataHandler.isFragmentedDataScanned) {
-        //_qrDataHandler.reset();
-        onFailedScanning(wrongFormatMessage);
+        _handleScanFailure(wrongFormatMessage);
         return;
       }
 
+      if (_qrDataHandler.isFragmentedDataScanned) {
+        updateScanProgress(_qrDataHandler.progress);
+      }
+
       if (!_qrDataHandler.isCompleted()) {
-        //setState(() => isProcessing = false);
         return;
       }
 
       setState(() => isProcessing = true);
-      controller?.pause();
 
       final result = _qrDataHandler.result;
       if (result == null) {
-        onFailedScanning(wrongFormatMessage);
+        _handleScanFailure(wrongFormatMessage);
         return;
       }
 
@@ -116,17 +116,17 @@ class _SignerBsmsScannerScreenState extends BsmsScannerBase<SignerBsmsScannerScr
       }
     } catch (e) {
       if (e is UnimplementedError) rethrow;
-      if (e is NetworkMismatchException) {
-        onFailedScanning(
-          NetworkType.currentNetworkType.isTestnet
-              ? t.alert.bsms_network_mismatch.description_when_testnet
-              : t.alert.bsms_network_mismatch.description_when_mainnet,
-        );
-        return;
-      }
 
-      final isNetworkMismatch = e.toString().contains('Extended public key is not compatible with the network type');
-      onFailedScanning(isNetworkMismatch ? networkMismatchMessage : wrongFormatMessage);
+      String errorMessage = wrongFormatMessage;
+      if (e is NetworkMismatchException) {
+        errorMessage =
+            NetworkType.currentNetworkType.isTestnet
+                ? t.alert.bsms_network_mismatch.description_when_testnet
+                : t.alert.bsms_network_mismatch.description_when_mainnet;
+      } else if (e.toString().contains('Extended public key is not compatible with the network type')) {
+        errorMessage = networkMismatchMessage;
+      }
+      _handleScanFailure(errorMessage);
       return;
     }
 
@@ -134,13 +134,24 @@ class _SignerBsmsScannerScreenState extends BsmsScannerBase<SignerBsmsScannerScr
       signerBsms = SignerBsms.parse(scanResult);
       Provider.of<WalletProvider>(context, listen: false).validateSignerDerivationPath(signerBsms.derivationPath);
     } catch (e) {
-      onFailedScanning(e.toString());
+      _handleScanFailure(e.toString());
       return;
     }
 
     if (!mounted) return;
     Navigator.pop(context, signerBsms);
     return;
+  }
+
+  void _handleScanFailure(String message) {
+    _isFirstScanData = true;
+    _qrDataHandler.reset();
+
+    if (_qrDataHandler.isFragmentedDataScanned) {
+      updateScanProgress(_qrDataHandler.progress);
+    }
+
+    onFailedScanning(message);
   }
 
   @override
