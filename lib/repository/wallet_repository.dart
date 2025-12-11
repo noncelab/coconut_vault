@@ -275,22 +275,21 @@ class WalletRepository {
       String importedMfp = (singlesigItem.coconutVault as SingleSignatureVault).keyStore.masterFingerprint;
 
       // singlesigItem의 p2wsh용 derivationPath 가져오기 (BSMS에서)
-      String? importedDerivationPath;
-      try {
-        final bsms = Bsms.parseSigner(singlesigItem.signerBsmsByAddressType[AddressType.p2wsh]!);
-        importedDerivationPath = bsms.signer?.path;
-      } catch (_) {
-        // BSMS 파싱 실패 시 스킵
-      }
+      final bsms = Bsms.parseSigner(singlesigItem.signerBsmsByAddressType[AddressType.p2wsh]!);
+      String importedDerivationPath = bsms.signer!.path;
+      //Logger.log('1️⃣ signer bsms: ${singlesigItem.signerBsmsByAddressType[AddressType.p2wsh]!}');
+      //Logger.log('2️⃣  importedDerivationPath: $importedDerivationPath');
 
       for (int j = 0; j < signers.length; j++) {
         String signerMfp = signers[j].keyStore.masterFingerprint;
         String signerDerivationPath = signers[j].getSignerDerivationPath();
 
+        //Logger.log("1️⃣ ${signers[j].signerBsms!}");
+        //Logger.log("2️⃣ ${singlesigItem.signerBsmsByAddressType[AddressType.p2wsh]!}");
         // masterFingerprint와 derivationPath 모두 일치해야 함
         if (signerMfp == importedMfp &&
-                importedDerivationPath == null ||
-                signerDerivationPath == importedDerivationPath)) {
+            signerDerivationPath == importedDerivationPath &&
+            signers[j].signerBsms! == singlesigItem.signerBsmsByAddressType[AddressType.p2wsh]!) {
           // 다중 서명 지갑에서 signer로 사용되고 있는 mfp와 새로 추가된 볼트의 mfp가 같으면 정보를 변경
           // 멀티시그 지갑 정보 변경
           final signer = (_vaultList![i] as MultisigVaultListItem).signers[j];
