@@ -39,7 +39,7 @@ class _VaultExportOptionsScreenState extends State<VaultExportOptionsScreen> {
   }
 
   void onTapBackupWalletData() {
-    debugPrint('onTapBackupWalletData');
+    Navigator.pushReplacementNamed(context, AppRoutes.backupWalletData, arguments: {'id': widget.id});
   }
 
   void onTapUseAsMultisigSigner() {

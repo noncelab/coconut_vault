@@ -613,6 +613,9 @@ multi_sig_setting_screen:
     export_watch_only_wallet_description: "잔액/주소 조회만 가능한 앱으로 내보냅니다"
     backup_wallet_data: "지갑 데이터 백업하기"
     backup_wallet_data_description: "분실이나 기기 변경에 대비하여, 지갑 복구에 필요한 BSMS 백업 데이터를 내보냅니다"
+    guide:
+      text1: "분실이나 기기 변경에 대비한 지갑 복구용 BSMS 백업 데이터입니다."
+      text2: "코코넛 월렛에 bb 지갑을 추가한 뒤, 지갑 상세 화면의 '지갑 백업 데이터 보기'에서 동일한 정보를 확인할 수 있습니다."
   tooltip: 
     one: "$total개의 키 중 $n개로 서명해야 하는\n다중 서명 지갑이에요."
     other: "$total개의 키 중 $n개로 서명해야 하는\n다중 서명 지갑이에요."
