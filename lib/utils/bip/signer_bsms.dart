@@ -77,8 +77,12 @@ class SignerBsms {
 
   @override
   String toString() {
+    return getSignerBsms();
+  }
+
+  String getSignerBsms({bool includesLabel = true}) {
     final descLine = '[$fingerprint/$derivationPath]$extendedKey';
-    if (label == null || label!.isEmpty) {
+    if (!includesLabel || (label == null || label!.isEmpty)) {
       return 'BSMS 1.0\n00\n$descLine';
     }
 
