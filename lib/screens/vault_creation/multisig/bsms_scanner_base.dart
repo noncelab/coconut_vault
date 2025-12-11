@@ -91,11 +91,6 @@ abstract class BsmsScannerBase<T extends StatefulWidget> extends State<T> {
         });
       }
     }
-    final zoomScale = controller?.value.zoomScale;
-    // TODO: The MobileScannerController has not been initialized. Call start() before using it.
-    // if (zoomScale != null && zoomScale < 0.1) {
-    //   controller?.setZoomScale(0.15); // 약 15% 줌
-    // }
   }
 
   @override
@@ -114,8 +109,6 @@ abstract class BsmsScannerBase<T extends StatefulWidget> extends State<T> {
     visibilityProvider = Provider.of<VisibilityProvider>(context, listen: false);
     appLifecycleStateProvider = Provider.of<AppLifecycleStateProvider>(context, listen: false);
     appLifecycleStateProvider.startOperation(AppLifecycleOperations.cameraAuthRequest, ignoreNotify: true);
-
-    controller = MobileScannerController()..addListener(_onCameraStateChanged);
 
     // WidgetsBinding.instance.addPostFrameCallback((_) async {
     //   await Future.delayed(const Duration(milliseconds: 1000));
