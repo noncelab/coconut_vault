@@ -45,7 +45,6 @@ enum DialogType {
   reselectQuorum,
   quit,
   back,
-  alert,
   notAvailable,
   deleteKey,
   alreadyExist,
@@ -478,7 +477,7 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
           index,
           ImportKeyType.external,
           false,
-          externalImported,
+          externalImported, // TODO: memo 제외한 bsms만 저장
           bsmsAndMemo['memo'],
           null,
         );
@@ -744,7 +743,7 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
           };
           break;
         }
-      default:
+      default: // TODO: remove
         {
           title = t.alert.include_internal_key.title;
           message = t.alert.include_internal_key.description;
@@ -773,7 +772,7 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
           leftButtonColor: CoconutColors.black.withValues(alpha: 0.7),
           onTapRight: onConfirm,
           onTapLeft:
-              (type == DialogType.alert || type == DialogType.alreadyExist || type == DialogType.sameWithInternalOne)
+              (type == DialogType.alreadyExist || type == DialogType.sameWithInternalOne)
                   ? null
                   : onCancel ?? () => Navigator.pop(context),
         );

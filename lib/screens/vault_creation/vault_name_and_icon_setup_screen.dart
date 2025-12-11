@@ -13,6 +13,7 @@ import 'package:coconut_vault/providers/auth_provider.dart';
 import 'package:coconut_vault/providers/wallet_creation_provider.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:coconut_vault/utils/logger.dart';
+import 'package:coconut_vault/utils/popup_util.dart';
 import 'package:coconut_vault/widgets/button/fixed_bottom_button.dart';
 import 'package:coconut_vault/widgets/indicator/message_activity_indicator.dart';
 import 'package:flutter/material.dart';
@@ -171,18 +172,7 @@ class _VaultNameAndIconSetupScreenState extends State<VaultNameAndIconSetupScree
     } catch (e) {
       Logger.error(e);
       if (!context.mounted) return;
-      showDialog(
-        context: context,
-        builder: (context) {
-          return CoconutPopup(
-            title: t.errors.creation_error,
-            description: e.toString(),
-            leftButtonText: t.cancel,
-            rightButtonText: t.confirm,
-            onTapRight: () => Navigator.of(context).pop(),
-          );
-        },
-      );
+      showInfoPopup(context, t.errors.creation_error, e.toString());
     } finally {
       setState(() {
         _showLoading = false;

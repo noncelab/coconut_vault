@@ -62,14 +62,14 @@ class MultisigSigner {
   factory MultisigSigner.fromJson(Map<String, dynamic> json) => _$MultisigSignerFromJson(json);
 
   String getSignerDerivationPath() {
-    if (signerBsms == null) {
-      return '';
-    }
-    try {
-      final bsms = Bsms.parseSigner(signerBsms!);
-      return bsms.signer?.path ?? '';
-    } catch (_) {
-      return '';
-    }
+    assert(signerBsms != null && signerBsms!.isNotEmpty);
+    return Bsms.parseSigner(signerBsms!).signer!.path;
+  }
+
+  void unlinkInternalWallet() {
+    innerVaultId = null;
+    iconIndex = null;
+    colorIndex = null;
+    name = null;
   }
 }

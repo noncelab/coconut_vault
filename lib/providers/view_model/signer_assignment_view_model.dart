@@ -235,7 +235,7 @@ class SignerAssignmentViewModel extends ChangeNotifier {
   Future<void> _initSignerOptionList(List<SingleSigVaultListItem> singlesigVaultList) async {
     for (int i = 0; i < singlesigVaultList.length; i++) {
       _signerOptions.add(
-        SignerOption(singlesigVaultList[i], singlesigVaultList[i].getSignerBsmsByAddressType(AddressType.p2wsh)),
+        SignerOption(singlesigVaultList[i], singlesigVaultList[i].signerBsmsByAddressType[AddressType.p2wsh]!),
       );
     }
 

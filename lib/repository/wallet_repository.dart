@@ -275,23 +275,21 @@ class WalletRepository {
       String importedMfp = (singlesigItem.coconutVault as SingleSignatureVault).keyStore.masterFingerprint;
 
       // singlesigItem의 p2wsh용 derivationPath 가져오기 (BSMS에서)
-      String? importedDerivationPath;
-      try {
-        final bsms = Bsms.parseSigner(singlesigItem.signerBsmsByAddressType[AddressType.p2wsh]!);
-        importedDerivationPath = bsms.signer?.path;
-      } catch (_) {
-        // BSMS 파싱 실패 시 스킵
-      }
+      final bsms = Bsms.parseSigner(singlesigItem.signerBsmsByAddressType[AddressType.p2wsh]!);
+      String importedDerivationPath = bsms.signer!.path;
+      //Logger.log('1️⃣ signer bsms: ${singlesigItem.signerBsmsByAddressType[AddressType.p2wsh]!}');
+      //Logger.log('2️⃣  importedDerivationPath: $importedDerivationPath');
 
       for (int j = 0; j < signers.length; j++) {
         String signerMfp = signers[j].keyStore.masterFingerprint;
         String signerDerivationPath = signers[j].getSignerDerivationPath();
 
+        //Logger.log("1️⃣ ${signers[j].signerBsms!}");
+        //Logger.log("2️⃣ ${singlesigItem.signerBsmsByAddressType[AddressType.p2wsh]!}");
         // masterFingerprint와 derivationPath 모두 일치해야 함
         if (signerMfp == importedMfp &&
-            (signerDerivationPath.isEmpty ||
-                importedDerivationPath == null ||
-                signerDerivationPath == importedDerivationPath)) {
+            signerDerivationPath == importedDerivationPath &&
+            signers[j].signerBsms! == singlesigItem.signerBsmsByAddressType[AddressType.p2wsh]!) {
           // 다중 서명 지갑에서 signer로 사용되고 있는 mfp와 새로 추가된 볼트의 mfp가 같으면 정보를 변경
           // 멀티시그 지갑 정보 변경
           final signer = (_vaultList![i] as MultisigVaultListItem).signers[j];
@@ -510,17 +508,25 @@ class WalletRepository {
       // 이미 삭제되었거나 존재하지 않음
       return false;
     }
-    final vaultType = _vaultList![index].vaultType;
-
+    final vault = _vaultList![index];
+    final vaultType = vault.vaultType;
+    if (vaultType == WalletType.singleSignature) {
+      final single = vault as SingleSigVaultListItem;
+      if (single.linkedMultisigInfo?.isNotEmpty == true) {
+        for (var entry in single.linkedMultisigInfo!.entries) {
+          final multisig = getVaultById(entry.key) as MultisigVaultListItem;
+          multisig.signers[entry.value].unlinkInternalWallet();
+          assert(multisig.signers[entry.value].signerBsms != null);
+        }
+      }
+    }
     if (vaultType == WalletType.multiSignature) {
-      final multi = getVaultById(id);
-      if (multi is MultisigVaultListItem) {
-        for (var signer in multi.signers) {
-          if (signer.innerVaultId != null) {
-            final ssv = getVaultById(signer.innerVaultId!);
-            if (ssv is SingleSigVaultListItem) {
-              ssv.linkedMultisigInfo?.remove(id);
-            }
+      final multi = vault as MultisigVaultListItem;
+      for (var signer in multi.signers) {
+        if (signer.innerVaultId != null) {
+          final ssv = getVaultById(signer.innerVaultId!);
+          if (ssv is SingleSigVaultListItem) {
+            ssv.linkedMultisigInfo?.remove(id);
           }
         }
       }

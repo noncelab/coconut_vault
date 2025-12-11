@@ -190,6 +190,8 @@ class _WalletInfoLayoutState extends State<WalletInfoLayout> {
           rightButtonColor: CoconutColors.warningText,
           onTapLeft: () => Navigator.pop(context),
           onTapRight: () async {
+            final viewModel = context.read<WalletInfoViewModel>();
+
             if (widget.isMultisig) {
               if (context.mounted) {
                 if (!context.read<WalletInfoViewModel>().isSigningOnlyMode) {
@@ -204,7 +206,7 @@ class _WalletInfoLayoutState extends State<WalletInfoLayout> {
             }
 
             if (!mounted) return;
-            final viewModel = context.read<WalletInfoViewModel>();
+
             if (!viewModel.isSigningOnlyMode) {
               await _authenticateWithBiometricOrPin(
                 context,
@@ -224,9 +226,13 @@ class _WalletInfoLayoutState extends State<WalletInfoLayout> {
 
   Future<void> _deleteVault(BuildContext context) async {
     if (!mounted) return;
-    final viewModel = context.read<WalletInfoViewModel>();
-    viewModel.deleteVault();
+
+    await context.read<WalletInfoViewModel>().deleteVault();
+
+    if (!mounted) return;
+
     vibrateLight();
+
     if (widget.entryPoint != null && widget.entryPoint == AppRoutes.vaultList) {
       Navigator.popUntil(context, (route) {
         return route.settings.name == AppRoutes.vaultList;
@@ -234,7 +240,6 @@ class _WalletInfoLayoutState extends State<WalletInfoLayout> {
     } else {
       Navigator.popUntil(context, (route) => route.isFirst);
     }
-    return;
   }
 
   void _showMemoEditBottomSheet(MultisigSigner signer, int index) {
@@ -382,7 +387,6 @@ class _WalletInfoLayoutState extends State<WalletInfoLayout> {
                 body: Center(child: CircularProgressIndicator()),
               );
             }
-            final canDelete = viewModel.isMultisig ? true : viewModel.hasLinkedMultisigVault != true;
             final walletName = viewModel.name;
             final isMultisig = viewModel.isMultisig;
             return Scaffold(
@@ -395,23 +399,12 @@ class _WalletInfoLayoutState extends State<WalletInfoLayout> {
                   IconButton(
                     onPressed: () {
                       _removeTooltip();
-                      if (!canDelete) {
-                        CoconutToast.showToast(
-                          context: context,
-                          text: t.toast.name_multisig_in_use,
-                          isVisibleIcon: true,
-                        );
-                        return;
-                      }
                       _showDeleteDialog(context, walletName);
                     },
                     icon: SvgPicture.asset(
                       'assets/svg/trash.svg',
                       width: 20,
-                      colorFilter: ColorFilter.mode(
-                        canDelete ? CoconutColors.red : CoconutColors.gray850.withValues(alpha: 0.15),
-                        BlendMode.srcIn,
-                      ),
+                      colorFilter: const ColorFilter.mode(CoconutColors.red, BlendMode.srcIn),
                     ),
                   ),
                 ],

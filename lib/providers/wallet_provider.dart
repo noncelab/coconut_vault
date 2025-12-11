@@ -321,6 +321,9 @@ class WalletProvider extends ChangeNotifier {
   }
 
   Future<void> deleteWallet(int id) async {
+    final vaultIndex = _vaultList.indexWhere((element) => element.id == id);
+    if (vaultIndex == -1) return;
+
     if (await _walletRepository.deleteWallet(id)) {
       _setVaultList(_walletRepository.vaultList);
       await _preferenceProvider.removeVaultOrder(id);
