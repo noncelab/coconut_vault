@@ -289,7 +289,6 @@ class WalletRepository {
 
         // masterFingerprint와 derivationPath 모두 일치해야 함
         if (signerMfp == importedMfp &&
-            (signerDerivationPath.isEmpty ||
                 importedDerivationPath == null ||
                 signerDerivationPath == importedDerivationPath)) {
           // 다중 서명 지갑에서 signer로 사용되고 있는 mfp와 새로 추가된 볼트의 mfp가 같으면 정보를 변경
@@ -510,17 +509,25 @@ class WalletRepository {
       // 이미 삭제되었거나 존재하지 않음
       return false;
     }
-    final vaultType = _vaultList![index].vaultType;
-
+    final vault = _vaultList![index];
+    final vaultType = vault.vaultType;
+    if (vaultType == WalletType.singleSignature) {
+      final single = vault as SingleSigVaultListItem;
+      if (single.linkedMultisigInfo?.isNotEmpty == true) {
+        for (var entry in single.linkedMultisigInfo!.entries) {
+          final multisig = getVaultById(entry.key) as MultisigVaultListItem;
+          multisig.signers[entry.value].unlinkInternalWallet();
+          assert(multisig.signers[entry.value].signerBsms != null);
+        }
+      }
+    }
     if (vaultType == WalletType.multiSignature) {
-      final multi = getVaultById(id);
-      if (multi is MultisigVaultListItem) {
-        for (var signer in multi.signers) {
-          if (signer.innerVaultId != null) {
-            final ssv = getVaultById(signer.innerVaultId!);
-            if (ssv is SingleSigVaultListItem) {
-              ssv.linkedMultisigInfo?.remove(id);
-            }
+      final multi = vault as MultisigVaultListItem;
+      for (var signer in multi.signers) {
+        if (signer.innerVaultId != null) {
+          final ssv = getVaultById(signer.innerVaultId!);
+          if (ssv is SingleSigVaultListItem) {
+            ssv.linkedMultisigInfo?.remove(id);
           }
         }
       }
