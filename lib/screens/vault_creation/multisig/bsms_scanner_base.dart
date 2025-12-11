@@ -92,6 +92,9 @@ abstract class BsmsScannerBase<T extends StatefulWidget> extends State<T> {
         });
       }
     }
+    if (controller!.value.zoomScale < 0.1) {
+      controller!.setZoomScale(0.15); // 약 15% 줌
+    }
   }
 
   @override
@@ -121,6 +124,13 @@ abstract class BsmsScannerBase<T extends StatefulWidget> extends State<T> {
     //     isProcessing = false;
     //   });
     // });
+
+    controller = MobileScannerController(
+      // 1. 중복 인식 방지
+      detectionSpeed: DetectionSpeed.noDuplicates,
+      // 2. 해상도를 HD급 이상으로 설정
+      cameraResolution: const Size(1280, 720),
+    )..addListener(_onCameraStateChanged);
   }
 
   @override
