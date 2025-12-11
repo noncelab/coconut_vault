@@ -124,7 +124,9 @@ class _PsbtScannerScreenState extends State<PsbtScannerScreen> {
         await _viewModel.parseBase64EncodedToPsbt(
           widget.id!,
           psbtBase64,
-          isKrux: widget.hardwareWalletType == HardwareWalletType.krux,
+          hasDerivationPath:
+              widget.hardwareWalletType != HardwareWalletType.krux &&
+              widget.hardwareWalletType != HardwareWalletType.seedSigner,
         );
       }
     } catch (e) {
