@@ -130,41 +130,11 @@ class SignerAssignmentViewModel extends ChangeNotifier {
           );
           break;
         case ImportKeyType.external:
-          List<String> bsmsLines = _assignedVaultList[i].bsms?.split('\n') ?? [];
-          String signerName = '';
-          if (bsmsLines.length > 3 && bsmsLines[3].isNotEmpty) {
-            signerName = bsmsLines[3];
-          } else {
-            switch (_assignedVaultList[i].signerSource) {
-              case HardwareWalletType.keystone3Pro:
-                signerName = 'Keystone 3 Pro';
-                break;
-              case HardwareWalletType.jade:
-                signerName = 'Blockstream Jade';
-                break;
-              case HardwareWalletType.coldcard:
-                signerName = 'Coldcard';
-                break;
-              case HardwareWalletType.seedSigner:
-                signerName = 'SeedSigner';
-                break;
-              case HardwareWalletType.krux:
-                signerName = 'Krux';
-                break;
-              case HardwareWalletType.coconutVault:
-                signerName = 'Coconut Vault';
-                break;
-              default:
-                signerName = 'External Signer ${i + 1}';
-                break;
-            }
-          }
-
           signers.add(
             MultisigSigner(
               id: i,
               signerBsms: _assignedVaultList[i].bsms!,
-              name: signerName,
+              name: null,
               memo: _assignedVaultList[i].memo,
               signerSource: _assignedVaultList[i].signerSource,
               keyStore: keyStores[i],
