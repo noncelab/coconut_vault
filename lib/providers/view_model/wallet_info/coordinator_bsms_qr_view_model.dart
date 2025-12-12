@@ -56,6 +56,7 @@ class CoordinatorBsmsQrViewModel extends ChangeNotifier {
     buffer.writeln("# Blue Wallet Vault Multisig setup file (created by Coconut Vault)\n#");
     buffer.writeln("Name: ${vault.name}");
     buffer.writeln("Policy: ${vault.requiredSignatureCount} of ${vault.signers.length}");
+    buffer.writeln("Derivation: ${vault.signers.first.getSignerDerivationPath()}");
     buffer.writeln("Format: P2WSH\n");
 
     for (var signer in vault.signers) {
