@@ -491,7 +491,7 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
           false,
           externalImported,
           bsmsAndMemo['memo'],
-          null,
+          HardwareWalletType.coconutVault,
         );
         if (!mounted) return;
         Navigator.pop(context); // 키 종류 선택 다이얼로그 닫기
