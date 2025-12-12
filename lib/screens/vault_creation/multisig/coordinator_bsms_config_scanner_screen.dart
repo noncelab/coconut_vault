@@ -88,7 +88,6 @@ class _CoordinatorBsmsConfigScannerScreenState extends BsmsScannerBase<Coordinat
 
     try {
       final joinResult = _dataHandler.joinData(scanData);
-
       if (joinResult == false && _dataHandler.isFragmentedDataScanned == false) {
         _handleScanFailure(wrongFormatMessage);
         return;
@@ -151,7 +150,7 @@ class _CoordinatorBsmsConfigScannerScreenState extends BsmsScannerBase<Coordinat
         Navigator.pushReplacementNamed(
           context,
           AppRoutes.vaultNameSetup,
-          arguments: {'name': normalizedMultisigConfig.name},
+          arguments: {'name': normalizedMultisigConfig.name, 'isImported': true},
         );
       }
     } catch (e) {
