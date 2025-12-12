@@ -1,9 +1,7 @@
 import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_lib/coconut_lib.dart';
 import 'package:coconut_vault/constants/app_routes.dart';
-import 'package:coconut_vault/constants/icon_path.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
-import 'package:coconut_vault/model/common/vault_list_item_base.dart';
 import 'package:coconut_vault/model/multisig/multisig_signer.dart';
 import 'package:coconut_vault/model/multisig/multisig_vault_list_item.dart';
 import 'package:coconut_vault/model/single_sig/single_sig_vault_list_item.dart';
@@ -194,13 +192,13 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
                                       for (int i = 0; i < viewModel.assignedVaultList.length; i++) ...[
                                         Builder(
                                           builder: (context) {
-                                            final item = viewModel.assignedVaultList[i];
+                                            final signer = viewModel.assignedVaultList[i];
 
                                             return Column(
                                               children: [
                                                 ShrinkAnimationButton(
                                                   onPressed: () {
-                                                    if (viewModel.assignedVaultList[i].importKeyType != null) {
+                                                    if (signer.importKeyType != null) {
                                                       _showDialog(DialogType.deleteKey, keyIndex: i);
                                                       return;
                                                     }
@@ -211,22 +209,18 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
                                                     );
                                                   },
                                                   defaultColor:
-                                                      viewModel.assignedVaultList[i].importKeyType != null
-                                                          ? viewModel.assignedVaultList[i].importKeyType ==
-                                                                  ImportKeyType.internal
-                                                              ? CoconutColors.backgroundColorPaletteLight[viewModel
-                                                                  .assignedVaultList[i]
+                                                      signer.importKeyType != null
+                                                          ? signer.importKeyType == ImportKeyType.internal
+                                                              ? CoconutColors.backgroundColorPaletteLight[signer
                                                                   .singleSigVaultListItem!
                                                                   .colorIndex]
                                                               : CoconutColors.backgroundColorPaletteLight[8]
                                                           : CoconutColors.white,
                                                   pressedColor:
-                                                      viewModel.assignedVaultList[i].importKeyType != null
-                                                          ? viewModel.assignedVaultList[i].importKeyType ==
-                                                                  ImportKeyType.internal
+                                                      signer.importKeyType != null
+                                                          ? signer.importKeyType == ImportKeyType.internal
                                                               ? CoconutColors
-                                                                  .backgroundColorPaletteLight[viewModel
-                                                                      .assignedVaultList[i]
+                                                                  .backgroundColorPaletteLight[signer
                                                                       .singleSigVaultListItem!
                                                                       .colorIndex]
                                                                   .withAlpha(70)
@@ -238,10 +232,9 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
                                                   borderWidth: 1,
                                                   border: Border.all(
                                                     color:
-                                                        viewModel.assignedVaultList[i].importKeyType != null
+                                                        signer.importKeyType != null
                                                             ? CoconutColors
-                                                                .backgroundColorPaletteLight[viewModel
-                                                                        .assignedVaultList[i]
+                                                                .backgroundColorPaletteLight[signer
                                                                         .singleSigVaultListItem
                                                                         ?.colorIndex ??
                                                                     8]
@@ -254,17 +247,15 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
                                                     height: 64,
                                                     padding: const EdgeInsets.symmetric(horizontal: 16),
                                                     child:
-                                                        viewModel.assignedVaultList[i].importKeyType != null
+                                                        signer.importKeyType != null
                                                             ? Row(
                                                               mainAxisAlignment: MainAxisAlignment.center,
                                                               children: [
                                                                 SvgPicture.asset(
-                                                                  _getIconPath(item),
+                                                                  _getIconPath(signer),
                                                                   colorFilter: ColorFilter.mode(
-                                                                    viewModel.assignedVaultList[i].importKeyType ==
-                                                                            ImportKeyType.internal
-                                                                        ? CoconutColors.colorPalette[viewModel
-                                                                            .assignedVaultList[i]
+                                                                    signer.importKeyType == ImportKeyType.internal
+                                                                        ? CoconutColors.colorPalette[signer
                                                                             .singleSigVaultListItem!
                                                                             .colorIndex]
                                                                         : CoconutColors.black,
@@ -276,10 +267,8 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
                                                                 Flexible(
                                                                   child: Text(
                                                                     t.multisig.nth_key_with_name(
-                                                                      name: _getDisplayName(
-                                                                        viewModel.assignedVaultList[i],
-                                                                      ),
-                                                                      index: _viewModel.assignedVaultList[i].index + 1,
+                                                                      name: _getDisplayName(signer),
+                                                                      index: signer.index + 1,
                                                                     ),
                                                                     style: CoconutTypography.body1_16,
                                                                     maxLines: 1,
@@ -291,9 +280,7 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
                                                             )
                                                             : Center(
                                                               child: Text(
-                                                                t.multisig.select_nth_key(
-                                                                  index: _viewModel.assignedVaultList[i].index + 1,
-                                                                ),
+                                                                t.multisig.select_nth_key(index: signer.index + 1),
                                                                 style: CoconutTypography.body1_16,
                                                               ),
                                                             ),
@@ -738,26 +725,24 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
           message = t.alert.reset_nth_key.description;
           confirmButtonColor = CoconutColors.warningText;
           onConfirm = () {
+            final signer = _viewModel.assignedVaultList[keyIndex];
             // 내부 지갑인 경우
-            if (_viewModel.assignedVaultList[keyIndex].importKeyType == ImportKeyType.internal) {
+            if (signer.importKeyType == ImportKeyType.internal) {
               int insertIndex = 0;
               for (int i = 0; i < _viewModel.unselectedSignerOptions.length; i++) {
-                if (_viewModel.assignedVaultList[keyIndex].singleSigVaultListItem!.id >
+                if (signer.singleSigVaultListItem!.id >
                     _viewModel.unselectedSignerOptions[i].singlesigVaultListItem.id) {
                   insertIndex++;
                 }
               }
               _viewModel.unselectedSignerOptions.insert(
                 insertIndex,
-                SignerOption(
-                  _viewModel.assignedVaultList[keyIndex].singleSigVaultListItem!,
-                  _viewModel.assignedVaultList[keyIndex].bsms!,
-                ),
+                SignerOption(signer.singleSigVaultListItem!, signer.bsms!),
               );
             }
 
             setState(() {
-              _viewModel.assignedVaultList[keyIndex].reset();
+              signer.reset();
             });
             Navigator.pop(context);
           };

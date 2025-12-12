@@ -3,7 +3,6 @@ import 'dart:convert';
 import 'package:coconut_lib/coconut_lib.dart';
 import 'package:coconut_vault/enums/wallet_enums.dart';
 import 'package:coconut_vault/isolates/wallet_isolates.dart';
-import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/model/common/vault_list_item_base.dart';
 import 'package:coconut_vault/model/multisig/multisig_signer.dart';
 import 'package:coconut_vault/model/multisig/multisig_vault_list_item.dart';
@@ -14,7 +13,6 @@ import 'package:coconut_vault/screens/vault_creation/multisig/signer_assignment_
 import 'package:coconut_vault/utils/bip/normalized_multisig_config.dart';
 import 'package:coconut_vault/utils/bip/signer_bsms.dart';
 import 'package:coconut_vault/utils/coconut/extended_pubkey_utils.dart';
-import 'package:coconut_vault/utils/logger.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
@@ -31,8 +29,6 @@ class SignerAssignmentViewModel extends ChangeNotifier {
   // 내부 지갑 중 Signer 선택하는 순간에만 사용함
   String _loadingMessage = '';
   MultisignatureVault? _newMultisigVault;
-
-  List<MultisigSigner>? _signers;
   bool _isInitializing = true;
 
   SignerAssignmentViewModel(this._walletProvider, this._walletCreationProvider) {
@@ -81,13 +77,13 @@ class SignerAssignmentViewModel extends ChangeNotifier {
   }
 
   int getAssignedVaultListLength() {
-    return assignedVaultList.where((e) => e.importKeyType != null).length;
+    return _assignedVaultList.where((e) => e.importKeyType != null).length;
   }
 
   bool isAlreadyImported(SignerBsms signerBsms) {
-    for (int i = 0; i < assignedVaultList.length; i++) {
-      if (assignedVaultList[i].bsms == null) continue;
-      if (isEquivalentExtendedPubKey(signerBsms.extendedKey, assignedVaultList[i].bsms!.extendedKey)) {
+    for (int i = 0; i < _assignedVaultList.length; i++) {
+      if (_assignedVaultList[i].bsms == null) continue;
+      if (isEquivalentExtendedPubKey(signerBsms.extendedKey, _assignedVaultList[i].bsms!.extendedKey)) {
         return true;
       }
     }
@@ -150,7 +146,7 @@ class SignerAssignmentViewModel extends ChangeNotifier {
 
   void assignInternalSigner(int vaultIndex, int signerIndex) {
     // 내부 지갑 선택 완료
-    assignedVaultList[signerIndex]
+    _assignedVaultList[signerIndex]
       ..singleSigVaultListItem = unselectedSignerOptions[vaultIndex].singlesigVaultListItem
       ..bsms = unselectedSignerOptions[vaultIndex].signerBsms
       ..importKeyType = ImportKeyType.internal;
@@ -179,7 +175,7 @@ class SignerAssignmentViewModel extends ChangeNotifier {
       normalizedMemo = memo;
     }
     // 외부 지갑 추가
-    assignedVaultList[index]
+    _assignedVaultList[index]
       ..importKeyType = importKeyType
       ..bsms = bsms
       ..memo = normalizedMemo
@@ -226,13 +222,13 @@ class SignerAssignmentViewModel extends ChangeNotifier {
   }
 
   String? getExternalSignerMemo(int index) {
-    assert(assignedVaultList[index].importKeyType == ImportKeyType.external);
-    assert(assignedVaultList[index].bsms != null);
+    assert(_assignedVaultList[index].importKeyType == ImportKeyType.external);
+    assert(_assignedVaultList[index].bsms != null);
 
-    if (assignedVaultList[index].memo != null) {
-      return assignedVaultList[index].memo;
+    if (_assignedVaultList[index].memo != null) {
+      return _assignedVaultList[index].memo;
     }
 
-    return assignedVaultList[index].bsms!.label;
+    return _assignedVaultList[index].bsms!.label;
   }
 }
