@@ -438,8 +438,9 @@ mnemonic_generate_screen:
   passphrase_confirm_guide: "Confirm passphrase"
   backup_guide: "Please backup mnemonic words in a safe place"
   backup_complete: "Backup Complete"
-  warning: "Please be careful with storage and leakage of entered passphrase"
-  passphrase_warning: "$words may not be accepted by other wallets. Please be careful."
+  warning: "Keep your passphrase safe and private"
+  passphrase_warning: "$words may not be accepted by other wallets."
+  passphrase_warning_space: "Spaces are included."
   regenerate: "Regenerate"
 passphrase_textfield:
   title: "Enter passphrase"
