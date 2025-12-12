@@ -10,6 +10,7 @@ class QrWithCopyTextScreen extends StatefulWidget {
   final String qrData;
   final RichText? textRichText;
   final Widget? footer;
+  final bool showPulldownMenu;
 
   const QrWithCopyTextScreen({
     super.key,
@@ -18,6 +19,7 @@ class QrWithCopyTextScreen extends StatefulWidget {
     required this.qrData,
     this.textRichText,
     this.footer,
+    this.showPulldownMenu = false,
   });
 
   @override
@@ -131,25 +133,26 @@ class _QrWithCopyTextScreenState extends State<QrWithCopyTextScreen> {
           child: Column(
             children: [
               if (widget.tooltipDescription != null) ...[widget.tooltipDescription!],
-              Align(
-                alignment: Alignment.centerRight,
-                child: Container(
-                  key: _pulldownKey,
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                  margin: const EdgeInsets.only(bottom: 8),
-                  decoration: BoxDecoration(color: CoconutColors.gray150, borderRadius: BorderRadius.circular(8)),
-                  child: CoconutPulldown(
-                    title: _displayTitle,
-                    isOpen: _isPulldownOpen,
-                    onChanged: (isOpen) {
-                      setState(() {
-                        _isPulldownOpen = true;
-                      });
-                      _showDropdownMenu();
-                    },
+              if (widget.showPulldownMenu)
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: Container(
+                    key: _pulldownKey,
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                    margin: const EdgeInsets.only(bottom: 8),
+                    decoration: BoxDecoration(color: CoconutColors.gray150, borderRadius: BorderRadius.circular(8)),
+                    child: CoconutPulldown(
+                      title: _displayTitle,
+                      isOpen: _isPulldownOpen,
+                      onChanged: (isOpen) {
+                        setState(() {
+                          _isPulldownOpen = true;
+                        });
+                        _showDropdownMenu();
+                      },
+                    ),
                   ),
                 ),
-              ),
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 child: Column(

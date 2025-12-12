@@ -25,6 +25,7 @@ class BackupWalletDataScreen extends StatelessWidget {
               title: t.multi_sig_setting_screen.export_menu.backup_wallet_data,
               tooltipDescription: _buildDescriptionBsms(viewModel),
               qrData: viewModel.qrData,
+              showPulldownMenu: true,
             ),
           );
         },
