@@ -378,7 +378,7 @@ class _PsbtQrCodeViewScreenState extends State<PsbtQrCodeViewScreen> {
   /// QR 버전에 따른 maxFragmentLen 계산
   /// QR 버전별 최대 데이터 크기 (alphanumeric 모드, Error Correction Level M 기준):
   /// - Version 5: 약 108 characters = 864 bits
-  /// - Version 7: 약 180 characters = 1440 bits
+  /// - Version 7: 약 180 characters = 1440 bits (실제 최대: 1248 bits)
   /// - Version 9: 약 272 characters = 2176 bits
   /// UR 헤더 길이: 약 20-30자 (실제로는 더 클 수 있음)
   /// 데이터: Bytewords.minimal로 인코딩(1바이트 -> 2자)
@@ -389,8 +389,9 @@ class _PsbtQrCodeViewScreenState extends State<PsbtQrCodeViewScreen> {
         // Version 9: (272 - 30) / 2 = 121, 안전하게 80 사용
         return 80;
       case QrScanDensity.normal:
-        // Version 7: (180 - 30) / 2 = 75, 안전하게 50 사용
-        return 50;
+        // Version 7: 실제 최대 1248 bits, 약 156 characters
+        // (156 - 35 헤더 여유) / 2 = 60.5, 더 보수적으로 40 사용
+        return 40;
       case QrScanDensity.slow:
         // Version 5: (108 - 30) / 2 = 39, 실제 테스트 결과 940 bits > 864 bits 에러 발생
         // 더 보수적으로 20으로 설정하여 864 bits 제한을 확실히 준수

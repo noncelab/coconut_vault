@@ -12,6 +12,7 @@ import 'package:coconut_vault/providers/sign_provider.dart';
 import 'package:coconut_vault/providers/view_model/airgap/psbt_scanner_view_model.dart';
 import 'package:coconut_vault/providers/visibility_provider.dart';
 import 'package:coconut_vault/widgets/animated_qr/coconut_qr_scanner.dart';
+import 'package:coconut_vault/widgets/animated_qr/scan_data_handler/bb_qr_scan_data_handler.dart';
 import 'package:coconut_vault/widgets/animated_qr/scan_data_handler/bc_ur_qr_scan_data_handler.dart';
 import 'package:coconut_vault/widgets/animated_qr/scan_data_handler/i_qr_scan_data_handler.dart';
 import 'package:coconut_vault/widgets/custom_loading_overlay.dart';
@@ -55,7 +56,8 @@ class _PsbtScannerScreenState extends State<PsbtScannerScreen> {
       shouldResetAll: shouldResetAll,
     );
 
-    _scanDataHandler = BcUrQrScanDataHandler();
+    _initializeQrScanDataHandler();
+
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       context.loaderOverlay.show();
 
@@ -72,6 +74,16 @@ class _PsbtScannerScreenState extends State<PsbtScannerScreen> {
   void dispose() {
     controller?.dispose();
     super.dispose();
+  }
+
+  void _initializeQrScanDataHandler() {
+    // ColdCard는 BBQR 핸들러로 시작 (Raw 데이터와 BBQR 모두 처리 가능)
+    if (widget.hardwareWalletType == HardwareWalletType.coldcard) {
+      _scanDataHandler = BbQrScanDataHandler();
+    } else {
+      // 다른 하드웨어 지갑은 BcUr 핸들러 사용
+      _scanDataHandler = BcUrQrScanDataHandler();
+    }
   }
 
   void _setQRViewController(MobileScannerController qrViewcontroller) {
@@ -102,20 +114,25 @@ class _PsbtScannerScreenState extends State<PsbtScannerScreen> {
   }
 
   Future<void> _onCompletedScanningForBcUr(dynamic signedPsbt) async {
-    assert(signedPsbt is UR);
     await stopCamera();
-
     if (_isProcessing) return;
     _isProcessing = true;
 
     String psbtBase64;
     try {
-      final ur = signedPsbt as UR;
-      final cborBytes = ur.cbor;
-      final decodedCbor = cbor.decode(cborBytes) as CborBytes;
-
-      psbtBase64 = base64Encode(decodedCbor.bytes);
-
+      // UR 형식인 경우
+      if (signedPsbt is UR) {
+        final ur = signedPsbt;
+        final cborBytes = ur.cbor;
+        final decodedCbor = cbor.decode(cborBytes) as CborBytes;
+        psbtBase64 = base64Encode(decodedCbor.bytes);
+      }
+      // BBQR 형식인 경우 (base64 문자열)
+      else if (signedPsbt is String) {
+        psbtBase64 = signedPsbt;
+      } else {
+        throw FormatException('Unsupported PSBT format: ${signedPsbt.runtimeType}');
+      }
       if (widget.id == null) {
         // 스캔된 MFP를 이용해 유효한 볼트를 찾고, SignProvider에 저장
         await _viewModel.setMatchingVault(psbtBase64);
@@ -126,7 +143,8 @@ class _PsbtScannerScreenState extends State<PsbtScannerScreen> {
           psbtBase64,
           hasDerivationPath:
               widget.hardwareWalletType != HardwareWalletType.krux &&
-              widget.hardwareWalletType != HardwareWalletType.seedSigner,
+              widget.hardwareWalletType != HardwareWalletType.seedSigner &&
+              widget.hardwareWalletType != HardwareWalletType.auto,
         );
       }
     } catch (e) {

@@ -8,17 +8,17 @@ import 'package:flutter/cupertino.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 
 class AnimatedQrView extends StatefulWidget {
-  final QrScanDensity? qrScanDensity;
-  final double qrSize;
   final int milliSeconds;
+  final double qrSize;
+  final QrScanDensity qrScanDensity;
   final IQrViewDataHandler qrViewDataHandler;
 
   const AnimatedQrView({
     super.key,
-    required this.qrSize,
     required this.qrViewDataHandler,
     this.qrScanDensity = QrScanDensity.normal,
-    this.milliSeconds = 500,
+    this.milliSeconds = 600,
+    required this.qrSize,
   });
 
   @override
@@ -56,7 +56,15 @@ class _AnimatedQrViewState extends State<AnimatedQrView> {
       final next = widget.qrViewDataHandler.nextPart();
       final int estimatedBits = next.runes.fold<int>(0, (prev, c) => prev + c.bitLength);
 
-      if (estimatedBits <= maxBits) {
+      final int maxCharsForVersion =
+          _qrVersion == 5
+              ? 100
+              : _qrVersion == 7
+              ? 150
+              : 250;
+      final bool isWithinVersionLimit = next.length <= maxCharsForVersion;
+
+      if (estimatedBits <= maxBits && isWithinVersionLimit) {
         setState(() {
           _qrData = next;
         });
@@ -67,11 +75,19 @@ class _AnimatedQrViewState extends State<AnimatedQrView> {
   @override
   Widget build(BuildContext context) {
     final int estimatedBits = _qrData.runes.fold<int>(0, (prev, c) => prev + (c.bitLength));
-    if (_qrData.isEmpty || estimatedBits > maxBits) {
+
+    final int maxCharsForVersion =
+        _qrVersion == 5
+            ? 100
+            : _qrVersion == 7
+            ? 150
+            : 250;
+
+    if (_qrData.isEmpty || estimatedBits > maxBits || _qrData.length > maxCharsForVersion) {
       // QR 전환이 바로 안될 때를 대비한 위젯 - 실제로는 렌더링 되지 않을 가능성 높음
       return Stack(
         children: [
-          QrImageView(data: _qrData, version: _qrVersion),
+          QrImageView(data: _qrData, version: QrVersions.auto),
           Positioned(
             left: 70,
             right: 70,
@@ -94,6 +110,11 @@ class _AnimatedQrViewState extends State<AnimatedQrView> {
     // 시드사이너가 QR version 11 이상 인식 못하므로 10 이하로 설정해야 합니다.
     // 시드사이너가 QR version 10 인 경우 빠르게 인식이 안되어 9로 설정합니다.
     // 아래 QrImageView의 maxInputLength는 2192bits(274bytes)
+    if (_qrData.length > maxCharsForVersion) {
+      // 데이터가 버전별 최대 길이를 초과하면 QrVersions.auto 사용
+      return QrImageView(data: _qrData, size: widget.qrSize, version: QrVersions.auto);
+    }
+
     return QrImageView(data: _qrData, size: widget.qrSize, version: _qrVersion);
   }
 
