@@ -161,7 +161,7 @@ flutter:
     - assets/svg/fingerprint.svg
     - assets/svg/plus.svg
     - assets/svg/check.svg
-    - assets/svg/import-bsms.svg
+    - assets/svg/arrow-circle-down.svg
     - assets/lottie/loading-gray.json
     - assets/lottie/pin-locked-success.json
     - assets/lottie/toggle-switch.json

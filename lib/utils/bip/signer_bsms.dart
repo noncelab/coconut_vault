@@ -1,3 +1,5 @@
+import 'package:coconut_lib/coconut_lib.dart';
+
 class SignerBsms {
   final String fingerprint;
   final String derivationPath;
@@ -32,6 +34,11 @@ class SignerBsms {
     // 일반적인 mainnet/testnet + SLIP-132 prefix들
     final xkeyReg = RegExp(r'^[a-zA-Z]pub[1-9A-HJ-NP-Za-km-z]+$');
     if (!xkeyReg.hasMatch(extendedKey)) {
+      throw FormatException('Invalid extended key: $extendedKey');
+    }
+    try {
+      ExtendedPublicKey.parse(extendedKey);
+    } catch (e) {
       throw FormatException('Invalid extended key: $extendedKey');
     }
 
@@ -70,8 +77,12 @@ class SignerBsms {
 
   @override
   String toString() {
+    return getSignerBsms();
+  }
+
+  String getSignerBsms({bool includesLabel = true}) {
     final descLine = '[$fingerprint/$derivationPath]$extendedKey';
-    if (label == null || label!.isEmpty) {
+    if (!includesLabel || (label == null || label!.isEmpty)) {
       return 'BSMS 1.0\n00\n$descLine';
     }
 
