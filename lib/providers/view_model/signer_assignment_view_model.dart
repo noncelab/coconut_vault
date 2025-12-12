@@ -6,10 +6,12 @@ import 'package:coconut_vault/isolates/wallet_isolates.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/model/common/vault_list_item_base.dart';
 import 'package:coconut_vault/model/multisig/multisig_signer.dart';
+import 'package:coconut_vault/model/multisig/multisig_vault_list_item.dart';
 import 'package:coconut_vault/model/single_sig/single_sig_vault_list_item.dart';
 import 'package:coconut_vault/providers/wallet_creation_provider.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:coconut_vault/screens/vault_creation/multisig/signer_assignment_screen.dart';
+import 'package:coconut_vault/utils/bip/normalized_multisig_config.dart';
 import 'package:coconut_vault/utils/bip/signer_bsms.dart';
 import 'package:coconut_vault/utils/coconut/extended_pubkey_utils.dart';
 import 'package:coconut_vault/utils/logger.dart';
@@ -39,7 +41,7 @@ class SignerAssignmentViewModel extends ChangeNotifier {
     _signerOptions = [];
     _assignedVaultList = List.generate(
       _totalSignatureCount,
-      (index) => AssignedVaultListItem(item: null, index: index, importKeyType: null),
+      (index) => AssignedVaultListItem(singleSigVaultListItem: null, index: index, importKeyType: null),
     );
     notifyListeners();
 
@@ -82,18 +84,10 @@ class SignerAssignmentViewModel extends ChangeNotifier {
     return assignedVaultList.where((e) => e.importKeyType != null).length;
   }
 
-  bool isAllAssignedFromExternal() {
-    return assignedVaultList.every(
-          (vault) => vault.importKeyType == null || vault.importKeyType == ImportKeyType.external,
-        ) &&
-        getAssignedVaultListLength() >= totalSignatureCount - 1;
-  }
-
   bool isAlreadyImported(SignerBsms signerBsms) {
     for (int i = 0; i < assignedVaultList.length; i++) {
       if (assignedVaultList[i].bsms == null) continue;
-      SignerBsms target = SignerBsms.parse(assignedVaultList[i].bsms!);
-      if (isEquivalentExtendedPubKey(signerBsms.extendedKey, target.extendedKey)) {
+      if (isEquivalentExtendedPubKey(signerBsms.extendedKey, assignedVaultList[i].bsms!.extendedKey)) {
         return true;
       }
     }
@@ -114,17 +108,17 @@ class SignerAssignmentViewModel extends ChangeNotifier {
     List<MultisigSigner> signers = [];
 
     for (int i = 0; i < _assignedVaultList.length; i++) {
-      keyStores.add(KeyStore.fromSignerBsms(_assignedVaultList[i].bsms!));
+      keyStores.add(KeyStore.fromSignerBsms(_assignedVaultList[i].bsms!.getSignerBsms(includesLabel: false)));
       switch (_assignedVaultList[i].importKeyType!) {
         case ImportKeyType.internal:
           signers.add(
             MultisigSigner(
               id: i,
-              innerVaultId: _assignedVaultList[i].item!.id,
-              name: _assignedVaultList[i].item!.name,
-              iconIndex: _assignedVaultList[i].item!.iconIndex,
-              colorIndex: _assignedVaultList[i].item!.colorIndex,
-              signerBsms: _assignedVaultList[i].bsms!,
+              innerVaultId: _assignedVaultList[i].singleSigVaultListItem!.id,
+              name: _assignedVaultList[i].singleSigVaultListItem!.name,
+              iconIndex: _assignedVaultList[i].singleSigVaultListItem!.iconIndex,
+              colorIndex: _assignedVaultList[i].singleSigVaultListItem!.colorIndex,
+              signerBsms: _assignedVaultList[i].bsms!.getSignerBsms(includesLabel: false),
               keyStore: keyStores[i],
             ),
           );
@@ -133,8 +127,8 @@ class SignerAssignmentViewModel extends ChangeNotifier {
           signers.add(
             MultisigSigner(
               id: i,
-              signerBsms: _assignedVaultList[i].bsms!,
               name: null,
+              signerBsms: _assignedVaultList[i].bsms!.getSignerBsms(includesLabel: false),
               memo: _assignedVaultList[i].memo,
               signerSource: _assignedVaultList[i].signerSource,
               keyStore: keyStores[i],
@@ -145,22 +139,7 @@ class SignerAssignmentViewModel extends ChangeNotifier {
     }
 
     assert(signers.length == _totalSignatureCount);
-    // signer mfp 기준으로 재정렬하기
-    List<int> indices = List.generate(keyStores.length, (i) => i);
-    indices.sort((a, b) => keyStores[a].masterFingerprint.compareTo(keyStores[b].masterFingerprint));
-
-    keyStores = [for (var i in indices) keyStores[i]];
-    signers = [for (var i in indices) signers[i]]..asMap().forEach((i, signer) => signer.id = i);
-
-    _assignedVaultList = [for (var i in indices) assignedVaultList[i]];
-
-    for (int i = 0; i < assignedVaultList.length; i++) {
-      assignedVaultList[i].index = i;
-    }
-    setLoadingMessage(t.assign_signers_screen.data_verifying);
-
     // 검증: 올바른 Signer 정보를 받았는지 확인합니다.
-
     try {
       _newMultisigVault = await _createMultisignatureVault(keyStores);
     } catch (error) {
@@ -172,7 +151,7 @@ class SignerAssignmentViewModel extends ChangeNotifier {
   void assignInternalSigner(int vaultIndex, int signerIndex) {
     // 내부 지갑 선택 완료
     assignedVaultList[signerIndex]
-      ..item = unselectedSignerOptions[vaultIndex].singlesigVaultListItem
+      ..singleSigVaultListItem = unselectedSignerOptions[vaultIndex].singlesigVaultListItem
       ..bsms = unselectedSignerOptions[vaultIndex].signerBsms
       ..importKeyType = ImportKeyType.internal;
     unselectedSignerOptions.removeAt(vaultIndex);
@@ -189,7 +168,7 @@ class SignerAssignmentViewModel extends ChangeNotifier {
     int index,
     ImportKeyType importKeyType,
     bool isExpanded,
-    String bsms,
+    SignerBsms bsms,
     String? memo,
     HardwareWalletType? signerSource,
   ) {
@@ -209,17 +188,16 @@ class SignerAssignmentViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  void setSigners(List<MultisigSigner>? signers) {
-    _signers = signers;
-  }
-
-  void saveSignersToProvider() {
-    assert(_signers != null);
-    _walletCreationProvider.setSigners(_signers!);
+  void saveSignersToProvider(List<MultisigSigner> signers) {
+    _walletCreationProvider.setSigners(signers);
   }
 
   void resetWalletCreationProvider() {
     _walletCreationProvider.resetAll();
+  }
+
+  MultisigVaultListItem? findSameWallet(NormalizedMultisigConfig config) {
+    return _walletProvider.findSameMultisigWallet(config);
   }
 
   VaultListItemBase? getWalletByDescriptor() => _walletProvider.findWalletByDescriptor(newMultisigVault!.descriptor);
@@ -237,7 +215,10 @@ class SignerAssignmentViewModel extends ChangeNotifier {
   Future<void> _initSignerOptionList(List<SingleSigVaultListItem> singlesigVaultList) async {
     for (int i = 0; i < singlesigVaultList.length; i++) {
       _signerOptions.add(
-        SignerOption(singlesigVaultList[i], singlesigVaultList[i].signerBsmsByAddressType[AddressType.p2wsh]!),
+        SignerOption(
+          singlesigVaultList[i],
+          SignerBsms.parse(singlesigVaultList[i].signerBsmsByAddressType[AddressType.p2wsh]!),
+        ),
       );
     }
 
@@ -252,11 +233,6 @@ class SignerAssignmentViewModel extends ChangeNotifier {
       return assignedVaultList[index].memo;
     }
 
-    var splited = assignedVaultList[index].bsms!.split('\n');
-    if (splited.length >= 4) {
-      return splited[3];
-    }
-
-    return null;
+    return assignedVaultList[index].bsms!.label;
   }
 }

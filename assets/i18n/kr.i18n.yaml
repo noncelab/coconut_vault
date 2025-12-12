@@ -54,7 +54,6 @@ signed_tx: "서명 트랜잭션"
 sign_completed: "서명을 완료했어요"
 stop_sign: "서명 종료하기"
 
-select_completed: "선택 완료"
 checklist: "보안 체크리스트"
 mnemonic_wordlist: "니모닉 문구 단어집"
 tool: "도구"
@@ -508,7 +507,6 @@ vault_name_icon_setup_screen:
 # lib/screens/vault_creation/multisig
 assign_signers_screen:
   create_multisig_wallet_by_quorum: "$requiredSignatureCount/$totalSignatureCount 지갑을 생성합니다"
-  order_keys: "동일한 순서를 유지하도록 키 순서를 정렬할게요"
   data_verifying: "데이터 검증 중이에요"
   use_internal_key: "이 볼트의 키 사용하기"
   select_key_option: "키 종류 선택"

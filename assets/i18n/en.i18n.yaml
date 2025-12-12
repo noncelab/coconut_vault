@@ -54,7 +54,6 @@ signed_tx: "Signed Transaction"
 sign_completed: "Signing completed"
 stop_sign: "Stop Signing"
 
-select_completed: "Selection Complete"
 checklist: "Security Checklist"
 mnemonic_wordlist: "Mnemonic Word List"
 tool: "Tool"
@@ -507,7 +506,6 @@ vault_name_icon_setup_screen:
 # lib/screens/vault_creation/multisig
 assign_signers_screen:
   create_multisig_wallet_by_quorum: "Create $requiredSignatureCount/$totalSignatureCount wallet"
-  order_keys: "I'll sort key order to maintain same sequence"
   data_verifying: "Verifying data..."
   use_internal_key: "Use key in this vault"
   select_key_option: "Select key type"
