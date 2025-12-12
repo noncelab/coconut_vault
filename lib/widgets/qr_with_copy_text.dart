@@ -8,6 +8,7 @@ class QrWithCopyTextScreen extends StatefulWidget {
   final String title;
   final Widget? tooltipDescription;
   final String qrData;
+  final Map<String, String>? qrDataMap;
   final RichText? textRichText;
   final Widget? footer;
   final bool showPulldownMenu;
@@ -17,6 +18,7 @@ class QrWithCopyTextScreen extends StatefulWidget {
     required this.title,
     this.tooltipDescription,
     required this.qrData,
+    this.qrDataMap,
     this.textRichText,
     this.footer,
     this.showPulldownMenu = false,
@@ -50,6 +52,18 @@ class _QrWithCopyTextScreenState extends State<QrWithCopyTextScreen> {
 
   double _calcQrWidth(BuildContext context) {
     return MediaQuery.of(context).size.width * 0.76;
+  }
+
+  String get _currentQrData {
+    if (!widget.showPulldownMenu) {
+      return widget.qrData;
+    }
+
+    if (widget.qrDataMap == null) {
+      return widget.qrData;
+    }
+
+    return widget.qrDataMap![_selectedKey] ?? widget.qrData;
   }
 
   void _showDropdownMenu() {
@@ -117,6 +131,7 @@ class _QrWithCopyTextScreenState extends State<QrWithCopyTextScreen> {
   @override
   Widget build(BuildContext context) {
     final qrWidth = _calcQrWidth(context);
+    final displayData = _currentQrData;
 
     return Scaffold(
       backgroundColor: CoconutColors.white,
@@ -162,11 +177,11 @@ class _QrWithCopyTextScreenState extends State<QrWithCopyTextScreen> {
                       child: Container(
                         width: qrWidth,
                         decoration: CoconutBoxDecoration.shadowBoxDecoration,
-                        child: QrImageView(data: widget.qrData),
+                        child: QrImageView(data: displayData),
                       ),
                     ),
                     CoconutLayout.spacing_500h,
-                    _buildCopyButton(widget.qrData, qrWidth),
+                    _buildCopyButton(displayData, qrWidth),
                     CoconutLayout.spacing_1500h,
                   ],
                 ),

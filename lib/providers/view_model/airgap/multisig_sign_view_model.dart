@@ -146,9 +146,6 @@ class MultisigSignViewModel extends ChangeNotifier {
   String _getKruxMultisigInfoQrData(int index) {
     final name = _vaultListItem.name;
     final coordinatorBsms = _vaultListItem.coordinatorBsms;
-    if (coordinatorBsms == null) {
-      throw Exception('coordinatorBsms is null');
-    }
 
     final lines = coordinatorBsms.split('\n');
     if (lines.length < 4) {
