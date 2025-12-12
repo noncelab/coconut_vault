@@ -217,7 +217,6 @@ class MultisigSignViewModel extends ChangeNotifier {
       final quorumM = _extractQuorumM(descriptorLine);
       final fingerprintZpubMap = _extractFingerprintZpubMap(descriptorLine);
       final Map<String, String> xpubMap = {};
-
       for (var entry in fingerprintZpubMap.entries) {
         final extendedPublicKey = ExtendedPublicKey.parse(entry.value);
         final xpub = extendedPublicKey.serialize(toXpub: true);
@@ -247,14 +246,14 @@ class MultisigSignViewModel extends ChangeNotifier {
   }
 
   Map<String, String> _extractFingerprintZpubMap(String descriptor) {
-    final regex = RegExp(r'\[([0-9A-Fa-f]{8})/[^\]]+\](Zpub[A-Za-z0-9]+)');
+    final regex = RegExp(r'\[([0-9A-Fa-f]{8})/[^\]]+\]((?:Z|V)pub[A-Za-z0-9]+)');
 
     final result = <String, String>{};
 
     for (final match in regex.allMatches(descriptor)) {
       final fp = match.group(1)!.toUpperCase(); // fingerprint
-      final zpub = match.group(2)!; // Zpub...
-      result[fp] = zpub;
+      final xpub = match.group(2)!; // Zpub or Vpub...
+      result[fp] = xpub;
     }
 
     return result;
