@@ -1,12 +1,9 @@
 import 'dart:convert';
-import 'dart:io';
-import 'dart:typed_data';
 
-import 'package:coconut_lib/coconut_lib.dart';
 import 'package:coconut_vault/model/multisig/multisig_import_detail.dart';
 import 'package:coconut_vault/model/multisig/multisig_vault_list_item.dart';
-import 'package:coconut_vault/packages/bc-ur-dart/lib/bytewords.dart' as base32;
 import 'package:coconut_vault/providers/wallet_provider.dart';
+import 'package:coconut_vault/utils/bb_qr/bb_qr_encoder.dart';
 import 'package:flutter/material.dart';
 
 class CoordinatorBsmsQrViewModel extends ChangeNotifier {
@@ -19,7 +16,7 @@ class CoordinatorBsmsQrViewModel extends ChangeNotifier {
 
   void _init(WalletProvider walletProvider, int id) {
     final vaultListItem = walletProvider.getVaultById(id) as MultisigVaultListItem;
-    String coordinatorBsms = vaultListItem.coordinatorBsms;
+    String generatedBsms = _generateBsmsFormat(vaultListItem);
     Map<String, dynamic> walletSyncString = jsonDecode(vaultListItem.getWalletSyncString());
 
     Map<String, String> namesMap = {};
@@ -34,20 +31,28 @@ class CoordinatorBsmsQrViewModel extends ChangeNotifier {
         colorIndex: walletSyncString['colorIndex'],
         iconIndex: walletSyncString['iconIndex'],
         namesMap: namesMap,
-        coordinatorBsms: coordinatorBsms,
+        coordinatorBsms: generatedBsms,
       ),
     );
 
     walletQrDataMap = {
-      'BSMS': coordinatorBsms,
+      'BSMS': generatedBsms,
       'BlueWallet Vault Multisig': _generateBlueWalletFormat(vaultListItem),
       'Coldcard Multisig': _generateColdcardCompressedFormat(vaultListItem),
-      'Keystone Multisig': coordinatorBsms,
+      'Keystone Multisig': generatedBsms,
       'Output Descriptor': _generateDescriptor(vaultListItem),
       'Specter Desktop': _generateSpecterFormat(vaultListItem),
     };
 
     notifyListeners();
+  }
+
+  String _generateBsmsFormat(MultisigVaultListItem vault) {
+    StringBuffer buffer = StringBuffer();
+    buffer.writeln("BSMS 1.0");
+    buffer.writeln("Descriptor: ${_generateDescriptor(vault)}");
+    buffer.writeln("Derivation: ${vault.signers.first.getSignerDerivationPath()}");
+    return buffer.toString();
   }
 
   String _generateBlueWalletFormat(MultisigVaultListItem vault) {
@@ -60,7 +65,8 @@ class CoordinatorBsmsQrViewModel extends ChangeNotifier {
     buffer.writeln("Format: P2WSH\n");
 
     for (var signer in vault.signers) {
-      buffer.writeln("${signer.keyStore.masterFingerprint}: ${signer.keyStore.extendedPublicKey}");
+      String xpub = signer.keyStore.extendedPublicKey.serialize(toXpub: true);
+      buffer.writeln("${signer.keyStore.masterFingerprint}: $xpub");
     }
 
     return buffer.toString();
@@ -68,42 +74,44 @@ class CoordinatorBsmsQrViewModel extends ChangeNotifier {
 
   String _generateColdcardCompressedFormat(MultisigVaultListItem vault) {
     try {
-      String textConfig = _generateBlueWalletFormat(vault);
+      StringBuffer buffer = StringBuffer();
 
-      List<int> bytes = utf8.encode(textConfig);
+      String safeName = vault.name.replaceAll(RegExp(r'[^a-zA-Z0-9]'), '_');
+      if (safeName.isEmpty) safeName = "Multisig";
+      if (safeName.length > 20) safeName = safeName.substring(0, 20);
+      buffer.writeln("Name: $safeName");
 
-      List<int> compressedBytes = gzip.encode(bytes);
+      buffer.writeln("Policy: ${vault.requiredSignatureCount} of ${vault.signers.length}");
 
-      String base32String = _encodeBase32(compressedBytes);
+      buffer.writeln("Format: P2WSH");
 
-      return "B\$$base32String";
+      String path = vault.signers.first.getSignerDerivationPath();
+
+      if (!path.startsWith('m/')) path = 'm/$path';
+      path = path.trim();
+      buffer.writeln("Derivation: $path");
+
+      for (var signer in vault.signers) {
+        String xpub = signer.keyStore.extendedPublicKey.serialize(toXpub: true);
+
+        String fingerprint = signer.keyStore.masterFingerprint.toUpperCase();
+
+        buffer.writeln("$fingerprint: $xpub");
+      }
+
+      String configText = buffer.toString().trim();
+
+      List<String> qrFragments = BbQrEncoder.encode(data: configText);
+
+      if (qrFragments.isNotEmpty) {
+        return qrFragments.first;
+      } else {
+        return "error: empty result";
+      }
     } catch (e) {
-      print("Coldcard compression failed: $e");
-
+      print("Coldcard encoding failed: $e");
       return "error";
     }
-  }
-
-  String _encodeBase32(List<int> bytes) {
-    const String alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ234567';
-    var output = StringBuffer();
-    int buffer = 0;
-    int bitsLeft = 0;
-
-    for (var byte in bytes) {
-      buffer = (buffer << 8) | byte;
-      bitsLeft += 8;
-      while (bitsLeft >= 5) {
-        output.write(alphabet[(buffer >> (bitsLeft - 5)) & 0x1F]);
-        bitsLeft -= 5;
-      }
-    }
-
-    if (bitsLeft > 0) {
-      output.write(alphabet[(buffer << (5 - bitsLeft)) & 0x1F]);
-    }
-
-    return output.toString();
   }
 
   String _generateDescriptor(MultisigVaultListItem vault) {
@@ -111,9 +119,9 @@ class CoordinatorBsmsQrViewModel extends ChangeNotifier {
         vault.signers.map((signer) {
           String path = signer.getSignerDerivationPath().replaceAll('m/', '').replaceAll("'", "h");
           String fingerprint = signer.keyStore.masterFingerprint;
-          String xpub = signer.keyStore.extendedPublicKey.toString();
+          String xpub = signer.keyStore.extendedPublicKey.serialize(toXpub: true);
 
-          return "[$fingerprint/$path]$xpub";
+          return "[$fingerprint/$path]$xpub/<0;1>/*";
         }).toList();
 
     keyItems.sort();
