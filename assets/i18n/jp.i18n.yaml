@@ -54,7 +54,6 @@ signed_tx: "署名済みトランザクション"
 sign_completed: "署名が完了しました"
 stop_sign: "署名停止"
 
-select_completed: "選択完了"
 checklist: "チェックリスト"
 mnemonic_wordlist: "ニーモニック単語リスト"
 tool: "ツール"
@@ -508,7 +507,6 @@ vault_name_icon_setup_screen:
 # lib/screens/vault_creation/multisig
 assign_signers_screen:
   create_multisig_wallet_by_quorum: "$requiredSignatureCount/$totalSignatureCount ウォレット作成"
-  order_keys: "同じ順序を維持するためキー順序を並べ替えます"
   data_verifying: "データ検証中..."
   use_internal_key: "このボルトのキーを使用"
   select_key_option: "キータイプを選択"

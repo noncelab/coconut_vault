@@ -170,7 +170,6 @@ class _PsbtScannerScreenState extends State<PsbtScannerScreen> {
 
   List<TextSpan> _getGuideTextSpan() {
     return [
-      TextSpan(text: '[2] ', style: CoconutTypography.body1_16_Bold.copyWith(height: 1.2, color: CoconutColors.black)),
       TextSpan(
         text: widget.id == null ? t.psbt_scanner_screen.guide : t.psbt_scanner_screen.guide_single_sig_same_name,
         style: CoconutTypography.body2_14.copyWith(height: 1.2, color: CoconutColors.black),

@@ -24,8 +24,9 @@ class VaultNameAndIconSetupScreen extends StatefulWidget {
   final String? name;
   final int? iconIndex;
   final int? colorIndex;
+  final bool? isImported;
 
-  const VaultNameAndIconSetupScreen({super.key, this.name, this.iconIndex, this.colorIndex});
+  const VaultNameAndIconSetupScreen({super.key, this.name, this.iconIndex, this.colorIndex, this.isImported});
 
   @override
   State<VaultNameAndIconSetupScreen> createState() => _VaultNameAndIconSetupScreenState();
@@ -47,7 +48,6 @@ class _VaultNameAndIconSetupScreenState extends State<VaultNameAndIconSetupScree
     _walletProvider.isVaultListLoadingNotifier.addListener(_onVaultListLoading);
     _walletCreationProvider = Provider.of<WalletCreationProvider>(context, listen: false);
 
-    // 기본값 설정 (arguments가 있으면 didChangeDependencies에서 덮어씌워짐)
     inputText = widget.name ?? '';
     selectedIconIndex = widget.iconIndex ?? 0;
     selectedColorIndex = widget.colorIndex ?? 0;
@@ -141,6 +141,7 @@ class _VaultNameAndIconSetupScreenState extends State<VaultNameAndIconSetupScree
           selectedIconIndex,
           _walletCreationProvider.signers!,
           _walletCreationProvider.requiredSignatureCount!,
+          isImported: widget.isImported == true,
         );
       }
 

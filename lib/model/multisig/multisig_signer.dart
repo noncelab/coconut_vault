@@ -2,6 +2,7 @@ import 'dart:core';
 
 import 'package:coconut_lib/coconut_lib.dart';
 import 'package:coconut_vault/enums/hardware_wallet_type_enum.dart';
+import 'package:coconut_vault/model/single_sig/single_sig_vault_list_item.dart';
 import 'package:json_annotation/json_annotation.dart';
 
 export 'package:coconut_vault/enums/hardware_wallet_type_enum.dart';
@@ -71,5 +72,14 @@ class MultisigSigner {
     iconIndex = null;
     colorIndex = null;
     name = null;
+  }
+
+  void linkInternalWallet(SingleSigVaultListItem singleSigVaultListItem) {
+    innerVaultId = singleSigVaultListItem.id;
+    name = singleSigVaultListItem.name;
+    iconIndex = singleSigVaultListItem.iconIndex;
+    colorIndex = singleSigVaultListItem.colorIndex;
+    memo = null;
+    signerSource = null;
   }
 }

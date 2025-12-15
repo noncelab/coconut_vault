@@ -482,6 +482,7 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> with SingleTickerProv
                                 name: args['name'],
                                 iconIndex: args['iconIndex'],
                                 colorIndex: args['colorIndex'],
+                                isImported: args['isImported'],
                               ),
                             ),
                         AppRoutes.singleSigSetupInfo: (context) {
