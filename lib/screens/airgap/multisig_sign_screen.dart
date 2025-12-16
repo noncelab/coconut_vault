@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_lib/coconut_lib.dart';
 import 'package:coconut_vault/constants/app_routes.dart';
@@ -216,8 +218,8 @@ class _MultisigSignScreenState extends State<MultisigSignScreen> {
       builder: (BuildContext context) {
         return CoconutPopup(
           insetPadding: EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width * 0.15),
-          title: t.multisig_sign_screen.dialog.title(name: hwwType.displayName),
-          description: t.multisig_sign_screen.dialog.description(name: hwwType.displayName),
+          title: t.multisig_sign_screen.dialog.preparation.title(name: hwwType.displayName),
+          description: t.multisig_sign_screen.dialog.preparation.description(name: hwwType.displayName),
           backgroundColor: CoconutColors.white,
           leftButtonText: t.skip,
           rightButtonText: t.confirm,
@@ -283,16 +285,57 @@ class _MultisigSignScreenState extends State<MultisigSignScreen> {
           id: _viewModel.vaultId,
           hardwareWalletType: hwwType,
           onMultisigSignCompleted: (psbtBase64) async {
-            final signerIndex = index ?? _viewModel.findSignerIndexByMfp(psbtBase64);
+            final signingPublicKey = _viewModel.signingPublicKey;
+
+            final signedPsbt = Psbt.parse(psbtBase64);
+            bool canSign = false;
+
+            // PSBT inputs의 derivationPathList에서 masterFingerprint와 publicKey를 추출하여 signedInputsMap 생성
+            final signedInputsMap = <String, String>{};
+            if (signedPsbt.inputs.isNotEmpty) {
+              final input = signedPsbt.inputs[0];
+              if (input.partialSig != null && input.partialSig!.isNotEmpty) {
+                for (var sig in input.partialSig!) {
+                  final pubKey = sig.publicKey;
+
+                  if (index != null) {
+                    // HardwareWalletType.auto가 아닌 경우
+                    canSign = signingPublicKey == pubKey;
+                  }
+                }
+              }
+            }
+            if (!canSign) {
+              debugPrint('1003!@#!@!@#!@# $canSign ~~~~~~');
+              await showDialog(
+                context: context,
+                builder: (BuildContext context) {
+                  return CoconutPopup(
+                    title: t.multisig_sign_screen.dialog.sign_error.title,
+                    description: t.multisig_sign_screen.dialog.sign_error.description,
+                    onTapRight: () {
+                      Navigator.of(context).pop();
+                      Navigator.of(context).pop();
+                    },
+                  );
+                },
+              );
+              return;
+            }
+
+            _viewModel.saveSignedInputsMap(signedInputsMap);
 
             // 외부 하드웨어 지갑에서 서명한 PSBT를 현재 PSBT와 병합
-            if (hwwType == HardwareWalletType.krux ||
-                hwwType == HardwareWalletType.keystone3Pro ||
-                hwwType == HardwareWalletType.auto) {
-              _viewModel.addSignSignature(psbtBase64);
-            }
-            _viewModel.updateSignState(signerIndex);
+            // if (hwwType == HardwareWalletType.krux ||
+            //     hwwType == HardwareWalletType.keystone3Pro ||
+            //     hwwType == HardwareWalletType.auto) {
+            //   _viewModel.addSignSignature(psbtBase64);
+            // }
+            _viewModel.addSignSignature(psbtBase64);
+            _viewModel.updateSignState(index);
             await _checkAndShowCreatingQrCode();
+            if (!mounted) return;
+            Navigator.pop(context);
           },
         ),
       ),
@@ -340,28 +383,28 @@ class _MultisigSignScreenState extends State<MultisigSignScreen> {
     return hwwType;
   }
 
-  void _askIfSureToQuit() {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return CoconutPopup(
-          insetPadding: EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width * 0.15),
-          title: t.alert.exit_sign.title,
-          description: t.alert.exit_sign.description,
-          backgroundColor: CoconutColors.white,
-          leftButtonText: t.no,
-          leftButtonColor: CoconutColors.black.withValues(alpha: 0.7),
-          rightButtonText: t.yes,
-          rightButtonColor: CoconutColors.warningText,
-          onTapLeft: () => Navigator.pop(context),
-          onTapRight: () {
-            _viewModel.resetAll();
-            Navigator.popUntil(context, (route) => route.isFirst);
-          },
-        );
-      },
-    );
-  }
+  // void _askIfSureToQuit() {
+  //   showDialog(
+  //     context: context,
+  //     builder: (BuildContext context) {
+  //       return CoconutPopup(
+  //         insetPadding: EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width * 0.15),
+  //         title: t.alert.exit_sign.title,
+  //         description: t.alert.exit_sign.description,
+  //         backgroundColor: CoconutColors.white,
+  //         leftButtonText: t.no,
+  //         leftButtonColor: CoconutColors.black.withValues(alpha: 0.7),
+  //         rightButtonText: t.yes,
+  //         rightButtonColor: CoconutColors.warningText,
+  //         onTapLeft: () => Navigator.pop(context),
+  //         onTapRight: () {
+  //           _viewModel.resetAll();
+  //           Navigator.popUntil(context, (route) => route.isFirst);
+  //         },
+  //       );
+  //     },
+  //   );
+  // }
 
   void _askIfSureToGoBack() {
     showDialog(
@@ -585,7 +628,7 @@ class _MultisigSignScreenState extends State<MultisigSignScreen> {
               final isInnerWallet = signer.innerVaultId != null;
               final name = signer.name ?? t.external_wallet;
               final nameText = name.length > 6 ? '${name.substring(0, 6)}...' : name;
-              final colorIndex = _viewModel.signers[index].colorIndex ?? 0;
+              // final colorIndex = _viewModel.signers[index].colorIndex ?? 0;
               final isSignerApproved = _viewModel.signersApproved[index];
               var hwwType = _viewModel.getSignerHwwType(index);
 
@@ -607,6 +650,26 @@ class _MultisigSignScreenState extends State<MultisigSignScreen> {
                   hwwType = await _showHardwareSelectionBottomSheet(index);
                   // 화면 pop하면서 hww type 전달받기
                   // }
+
+                  Uint8List? publicKey;
+
+                  try {
+                    // ExtendedPublicKey에서 HDWallet을 생성하여 derivation 수행
+                    final extXpub = signer.keyStore.extendedPublicKey;
+                    // derivationPath에서 index 값을 추출
+                    final addressIndex = int.parse(
+                      _viewModel.unsignedInputsMap?[signer.keyStore.masterFingerprint]?.split('/').last ?? '0',
+                    );
+
+                    HDWallet wallet = HDWallet.fromPublicKey(extXpub.publicKey, extXpub.chainCode);
+                    wallet = wallet.derive(0).derive(addressIndex);
+                    publicKey = wallet.publicKey;
+                  } catch (e) {
+                    // derive가 실패하면 원본 extended public key의 publicKey 사용
+                    publicKey = signer.keyStore.extendedPublicKey.publicKey;
+                  }
+                  final publicKeyHex = Codec.encodeHex(publicKey);
+                  _viewModel.saveSigningPublicKey(publicKeyHex);
 
                   switch (hwwType) {
                     case HardwareWalletType.krux:

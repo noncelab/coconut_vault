@@ -7,6 +7,7 @@ import 'package:coconut_vault/model/multisig/multisig_vault_list_item.dart';
 import 'package:coconut_vault/providers/sign_provider.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:coconut_vault/utils/bip/normalized_multisig_config.dart';
+import 'package:coconut_vault/utils/print_util.dart';
 import 'package:flutter/foundation.dart';
 
 class MultisigSignViewModel extends ChangeNotifier {
@@ -59,7 +60,10 @@ class MultisigSignViewModel extends ChangeNotifier {
   int getInnerVaultId(int index) => _vaultListItem.signers[index].innerVaultId!;
   bool getHasPassphrase(int index) => _hasPassphraseList[index];
   bool get isSigningOnlyMode => _isSigningOnlyMode;
-
+  String get unsignedPsbtBase64 => _signProvider.unsignedPsbtBase64!;
+  Map<String, String>? get unsignedInputsMap => _signProvider.unsignedInputsMap;
+  Map<String, String>? get signedInputsMap => _signProvider.signedInputsMap;
+  String get signingPublicKey => _signProvider.signingPublicKey!;
   void initPsbtSignState() {
     assert(!_signStateInitialized); // 오직 한번만 호출
     _signStateInitialized = true;
@@ -69,6 +73,20 @@ class MultisigSignViewModel extends ChangeNotifier {
       if (psbt.isSigned(entry.value) && !_signerApproved[entry.key]) {
         updateSignState(entry.key);
       }
+    }
+
+    // multisig sign인 경우, 서명 시 각 지갑에 대한 서명이 맞는지 확인하기 위해 inputsMap을 저장합니다.
+    if (_signProvider.isMultisig == true) {
+      printLongString('1000!@#!@!@#!@# $unsignedPsbtBase64');
+      // {mfp, derivationPath}
+      Map<String, String> inputsMap = {};
+      final unsignedPsbt = Psbt.parse(unsignedPsbtBase64);
+
+      for (int i = 0; i < unsignedPsbt.extendedPublicKeyList.length; i++) {
+        inputsMap[unsignedPsbt.extendedPublicKeyList[i].masterFingerprint] =
+            unsignedPsbt.inputs[0].derivationPathList[i].path.toString();
+      }
+      saveUnsignedInputsMap(inputsMap);
     }
   }
 
@@ -88,6 +106,7 @@ class MultisigSignViewModel extends ChangeNotifier {
       // signers 리스트를 순회하며 실제로 서명한 signer를 찾습니다.
       for (int i = 0; i < _vaultListItem.signers.length; i++) {
         if (psbt.isSigned(_vaultListItem.signers[i].keyStore)) {
+          // TODO: 순서상으로는 정확하지 않을 수도 있음. 개선/검증 필요해보임
           return i;
         }
       }
@@ -171,6 +190,18 @@ class MultisigSignViewModel extends ChangeNotifier {
     _signProvider.saveSignedPsbt(_psbtForSigning);
   }
 
+  void saveUnsignedInputsMap(Map<String, String> inputsMap) {
+    _signProvider.saveUnsignedInputsMap(inputsMap);
+  }
+
+  void saveSignedInputsMap(Map<String, String> signedInputsMap) {
+    _signProvider.saveSignedInputsMap(signedInputsMap);
+  }
+
+  void saveSigningPublicKey(String publicKey) {
+    _signProvider.saveSigningPublicKey(publicKey);
+  }
+
   void reset() {
     _signProvider.resetSignedPsbt();
   }
@@ -181,6 +212,9 @@ class MultisigSignViewModel extends ChangeNotifier {
     _signProvider.resetRecipientAmounts();
     _signProvider.resetSendingAmount();
     _signProvider.resetSignedPsbt();
+    _signProvider.resetUnsignedInputsMap();
+    _signProvider.resetSignedInputsMap();
+    _signProvider.resetSigningPublicKey();
   }
 
   HardwareWalletType? getSignerHwwType(int index) {

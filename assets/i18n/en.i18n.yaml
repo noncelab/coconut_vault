@@ -621,8 +621,12 @@ multisig_creation_options_screen:
 multisig_sign_screen:
   loading_overlay: "Generating signing info"
   dialog:
-    title: 'Prepare $name'
-    description: 'To sign with $name, you need to set up in advance. Would you like to go to the setup screen?'
+    preparation:
+      title: 'Prepare $name'
+      description: 'To sign with $name, you need to set up in advance. Would you like to go to the setup screen?'
+    sign_error:
+      title: "Sign Failed"
+      description: "Please check the MFP you tried to sign with."
   creating_qr_code: "Creating QR code"
 confirm_importing_screen:
   guide1: "Please verify that "

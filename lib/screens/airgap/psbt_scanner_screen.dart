@@ -11,6 +11,7 @@ import 'package:coconut_vault/model/exception/vault_not_found_exception.dart';
 import 'package:coconut_vault/providers/sign_provider.dart';
 import 'package:coconut_vault/providers/view_model/airgap/psbt_scanner_view_model.dart';
 import 'package:coconut_vault/providers/visibility_provider.dart';
+import 'package:coconut_vault/utils/print_util.dart';
 import 'package:coconut_vault/widgets/animated_qr/coconut_qr_scanner.dart';
 import 'package:coconut_vault/widgets/animated_qr/scan_data_handler/bb_qr_scan_data_handler.dart';
 import 'package:coconut_vault/widgets/animated_qr/scan_data_handler/bc_ur_qr_scan_data_handler.dart';
@@ -165,12 +166,15 @@ class _PsbtScannerScreenState extends State<PsbtScannerScreen> {
     }
 
     vibrateLight();
-    _viewModel.saveUnsignedPsbt(psbtBase64);
+    if (widget.onMultisigSignCompleted == null) {
+      // 멀티시그 서명 스캐너가 아닌 상황
+      _viewModel.saveUnsignedPsbt(psbtBase64);
+    }
 
     if (mounted) {
       if (widget.hardwareWalletType != null) {
-        widget.onMultisigSignCompleted?.call(psbtBase64);
-        Navigator.pop(context);
+        widget.onMultisigSignCompleted!(psbtBase64);
+        // Navigator.pop(context);
         return;
       }
 

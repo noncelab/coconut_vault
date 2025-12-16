@@ -623,8 +623,12 @@ multisig_creation_options_screen:
 multisig_sign_screen:
   loading_overlay: "서명 정보를 생성합니다"
   dialog:
-    title: '$name 준비하기'
-    description: '$name(으)로 서명을 하기 위해 사전 설정이 필요합니다. 사전 설정 화면으로 가시겠어요?'
+    preparation:
+      title: '$name 준비하기'
+      description: '$name(으)로 서명을 하기 위해 사전 설정이 필요합니다. 사전 설정 화면으로 가시겠어요?'
+    sign_error:
+      title: "서명 실패"
+      description: "서명에 실패했어요. 서명에 시도한 MFP를 확인해주세요."
   creating_qr_code: "QR 코드를 생성합니다"
 
 confirm_importing_screen:
