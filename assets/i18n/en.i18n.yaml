@@ -307,7 +307,7 @@ signed_transaction_qr_screen:
 single_sig_sign_screen:
   text: "This is an already signed transaction"
 signer_qr_bottom_sheet:
-  title: "Export Signed Transaction"
+  title: "Export to $name"
   vault_text1: "On the vault containing the key "
   vault_text2: "Sign."
   vault_text3: "Scan the QR code below."
@@ -629,7 +629,7 @@ multisig_sign_screen:
       description: "Please check the MFP you tried to sign with."
   creating_qr_code: "Creating QR code"
   select_signer_hardware_wallet: "Select Signer Hardware Wallet"
-  
+
 confirm_importing_screen:
   guide1: "Please verify that "
   guide2: "imported info from other vault "

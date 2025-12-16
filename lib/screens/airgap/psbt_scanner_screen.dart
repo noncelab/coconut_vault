@@ -364,7 +364,11 @@ class _PsbtScannerScreenState extends State<PsbtScannerScreen> {
   Widget build(BuildContext context) {
     return CustomLoadingOverlay(
       child: Scaffold(
-        appBar: CoconutAppBar.build(title: t.sign, context: context, backgroundColor: CoconutColors.white),
+        appBar: CoconutAppBar.build(
+          title: widget.hardwareWalletType?.displayName ?? t.sign,
+          context: context,
+          backgroundColor: CoconutColors.white,
+        ),
         body: Stack(
           children: [
             Container(

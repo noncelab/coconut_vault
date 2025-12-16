@@ -308,7 +308,7 @@ signed_transaction_qr_screen:
 single_sig_sign_screen:
   text: "이미 서명된 트랜잭션입니다"
 signer_qr_bottom_sheet:
-  title: "서명 트랜잭션 내보내기"
+  title: "$name로 내보내기"
   vault_text1: "번 키가 보관된 볼트에서"
   vault_text2: "서명하기 "
   vault_text3: "아래 QR 코드를 스캔해 주세요."

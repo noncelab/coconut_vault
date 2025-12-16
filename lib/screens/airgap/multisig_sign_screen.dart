@@ -661,13 +661,7 @@ class _MultisigSignScreenState extends State<MultisigSignScreen> {
                     return;
                   }
 
-                  // TODO:
-                  // 외부에서 서명을 진행해야 하는 경우
-                  // if (hwwType == null) {
-                  // 지정되어 있지 않으면 하드월렛 선택
-                  hwwType = await _showHardwareSelectionBottomSheet(index: index);
-                  // 화면 pop하면서 hww type 전달받기
-                  // }
+                  hwwType ??= await _showHardwareSelectionBottomSheet(index: index);
 
                   Uint8List? publicKey;
 
@@ -688,33 +682,29 @@ class _MultisigSignScreenState extends State<MultisigSignScreen> {
                   }
                   final publicKeyHex = Codec.encodeHex(publicKey);
                   _viewModel.saveSigningPublicKey(publicKeyHex);
-
+                  setState(() {
+                    _cupertinoLoadingMessage = t.multisig_sign_screen.loading_overlay;
+                    _isCupertinoLoadingShown = true;
+                  });
+                  await Future.delayed(const Duration(seconds: 2));
+                  if (mounted) {
+                    setState(() {
+                      _isCupertinoLoadingShown = false;
+                    });
+                  }
                   switch (hwwType) {
                     case HardwareWalletType.krux:
                     case HardwareWalletType.keystone3Pro:
                       final multisigInfoQrData = _viewModel.getMultisigInfoQrData(hwwType!);
-                      debugPrint('--> hwwType: $hwwType');
-                      debugPrint('index: $index');
                       if (multisigInfoQrData == null) {
                         return;
                       }
-                      debugPrint('--> multisigInfoQrData: $multisigInfoQrData');
                       _showDialogToMultisigInfoQrCode(index, hwwType!, multisigInfoQrData);
                       break;
                     case HardwareWalletType.coconutVault:
                     case HardwareWalletType.seedSigner:
                     case HardwareWalletType.jade:
                     case HardwareWalletType.coldcard:
-                      setState(() {
-                        _cupertinoLoadingMessage = t.multisig_sign_screen.loading_overlay;
-                        _isCupertinoLoadingShown = true;
-                      });
-                      await Future.delayed(const Duration(seconds: 2));
-                      if (mounted) {
-                        setState(() {
-                          _isCupertinoLoadingShown = false;
-                        });
-                      }
                       _showPsbtQrCodeBottomSheet(index, hwwType!);
                       break;
                     default:

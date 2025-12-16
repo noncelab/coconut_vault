@@ -114,7 +114,17 @@ class _PsbtQrCodeViewScreenState extends State<PsbtQrCodeViewScreen> {
       borderRadius: CoconutBorder.defaultRadius,
       child: Scaffold(
         backgroundColor: CoconutColors.white,
-        appBar: CoconutAppBar.build(context: context, title: t.signer_qr_bottom_sheet.title, isBottom: true),
+        appBar: CoconutAppBar.build(
+          context: context,
+          title: t.signer_qr_bottom_sheet.title(
+            name:
+                widget.hardwareWalletType.displayName +
+                (_visibilityProvider.language == 'kr' && widget.hardwareWalletType == HardwareWalletType.keystone3Pro
+                    ? '으'
+                    : ''),
+          ),
+          isBottom: true,
+        ),
         body: SafeArea(
           child: Stack(
             children: [

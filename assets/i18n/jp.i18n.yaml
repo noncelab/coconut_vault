@@ -308,7 +308,7 @@ signed_transaction_qr_screen:
 single_sig_sign_screen:
   text: "これは既に署名済みのトランザクションです"
 signer_qr_bottom_sheet:
-  title: "署名済みトランザクションエクスポート"
+  title: "$nameにトランザクションをエクスポート"
   vault_text1: "番鍵が保管されているボルトから"
   vault_text2: "マルチシグ"
   vault_text3: " 下記のQRコードをスキャンしてください。"
