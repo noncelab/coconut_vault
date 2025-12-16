@@ -392,9 +392,10 @@ class _MultisigSignScreenState extends State<MultisigSignScreen> {
             selectedIndex: null,
             onSelected: (selectedIndex) {
               hwwType = HardwareWalletTypeExtension.getHardwareWalletTypeByIconPath(iconSourceList[selectedIndex]);
-              if (hwwType != null && index != null) {
-                _viewModel.updateSignerSource(index, hwwType!);
-              }
+              // if (hwwType != null && index != null) {
+              //   // 선택 후 볼트 정보에서도 아이콘을 적용합니다
+              //   _viewModel.updateSignerSource(index, hwwType!);
+              // }
             },
           ),
     );
@@ -682,10 +683,14 @@ class _MultisigSignScreenState extends State<MultisigSignScreen> {
                   }
                   final publicKeyHex = Codec.encodeHex(publicKey);
                   _viewModel.saveSigningPublicKey(publicKeyHex);
-                  setState(() {
-                    _cupertinoLoadingMessage = t.multisig_sign_screen.loading_overlay;
-                    _isCupertinoLoadingShown = true;
-                  });
+
+                  if (hwwType != null) {
+                    setState(() {
+                      _cupertinoLoadingMessage = t.multisig_sign_screen.loading_overlay;
+                      _isCupertinoLoadingShown = true;
+                    });
+                  }
+
                   await Future.delayed(const Duration(seconds: 2));
                   if (mounted) {
                     setState(() {
