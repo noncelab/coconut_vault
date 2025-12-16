@@ -7,11 +7,13 @@ import 'package:flutter_svg/svg.dart';
 
 class SelectExternalWalletBottomSheet extends StatefulWidget {
   final List<ExternalWalletButton> externalWalletButtonList;
+  final String? title;
   final int? selectedIndex;
   final Function(int) onSelected;
   const SelectExternalWalletBottomSheet({
     super.key,
     required this.externalWalletButtonList,
+    this.title,
     this.selectedIndex,
     required this.onSelected,
   });
@@ -36,7 +38,10 @@ class _SelectExternalWalletBottomSheetState extends State<SelectExternalWalletBo
     return Scaffold(
       backgroundColor: CoconutColors.white,
       appBar: CoconutAppBar.build(
-        customTitle: Text(t.multi_sig_setting_screen.add_icon.title, style: CoconutTypography.body1_16_Bold),
+        customTitle: Text(
+          widget.title ?? t.multi_sig_setting_screen.add_icon.title,
+          style: CoconutTypography.body1_16_Bold,
+        ),
         context: context,
         isBottom: true,
         height: kToolbarHeight,

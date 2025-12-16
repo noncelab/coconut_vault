@@ -628,6 +628,8 @@ multisig_sign_screen:
       title: "Sign Failed"
       description: "Please check the MFP you tried to sign with."
   creating_qr_code: "Creating QR code"
+  select_signer_hardware_wallet: "Select Signer Hardware Wallet"
+  
 confirm_importing_screen:
   guide1: "Please verify that "
   guide2: "imported info from other vault "

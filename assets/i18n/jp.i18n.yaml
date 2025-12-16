@@ -630,6 +630,7 @@ multisig_sign_screen:
       title: "署名失敗"
       description: "署名に失敗しました。署名に使用したMFPを確認してください。"
   creating_qr_code: "QRコードを生成します"
+  select_signer_hardware_wallet: "署名者ハードウェアウォレットを選択"
 
 confirm_importing_screen:
   guide1: "他のボルトから"

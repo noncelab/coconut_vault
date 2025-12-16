@@ -23,6 +23,7 @@ import 'package:coconut_vault/screens/common/select_external_wallet_bottom_sheet
 import 'package:coconut_vault/screens/wallet_info/single_sig_menu/passphrase_check_screen.dart';
 import 'package:coconut_vault/screens/airgap/multisig_psbt_qr_code_screen.dart';
 import 'package:coconut_vault/utils/alert_util.dart';
+import 'package:coconut_vault/utils/print_util.dart';
 import 'package:coconut_vault/widgets/bottom_sheet.dart';
 import 'package:coconut_vault/widgets/button/fixed_bottom_tween_button.dart';
 import 'package:coconut_vault/widgets/button/shrink_animation_button.dart';
@@ -192,11 +193,12 @@ class _MultisigSignScreenState extends State<MultisigSignScreen> {
     }
   }
 
-  Future<void> _checkAndShowCreatingQrCode() async {
+  Future<bool> _checkAndShowCreatingQrCode() async {
     await Future.delayed(const Duration(milliseconds: 100));
     if (mounted && _viewModel.isSignatureComplete) {
       _viewModel.saveSignedPsbt();
 
+      Navigator.pop(context);
       setState(() {
         _cupertinoLoadingMessage = t.multisig_sign_screen.creating_qr_code;
         _isCupertinoLoadingShown = true;
@@ -207,8 +209,10 @@ class _MultisigSignScreenState extends State<MultisigSignScreen> {
           _isCupertinoLoadingShown = false;
         });
         Navigator.pushReplacementNamed(context, AppRoutes.signedTransaction);
+        return true;
       }
     }
+    return false;
   }
 
   void _showDialogToMultisigInfoQrCode(int index, HardwareWalletType hwwType, String multisigInfoQrData) {
@@ -286,27 +290,34 @@ class _MultisigSignScreenState extends State<MultisigSignScreen> {
           hardwareWalletType: hwwType,
           onMultisigSignCompleted: (psbtBase64) async {
             final signingPublicKey = _viewModel.signingPublicKey;
-
+            int? signerIndex = index;
             final signedPsbt = Psbt.parse(psbtBase64);
             bool canSign = false;
 
             // PSBT inputs의 derivationPathList에서 masterFingerprint와 publicKey를 추출하여 signedInputsMap 생성
-            final signedInputsMap = <String, String>{};
             if (signedPsbt.inputs.isNotEmpty) {
               final input = signedPsbt.inputs[0];
               if (input.partialSig != null && input.partialSig!.isNotEmpty) {
                 for (var sig in input.partialSig!) {
                   final pubKey = sig.publicKey;
-
                   if (index != null) {
-                    // HardwareWalletType.auto가 아닌 경우
                     canSign = signingPublicKey == pubKey;
+                  } else {
+                    final pubKey = sig.publicKey;
+                    final mfp =
+                        _viewModel.unsignedPubkeyMap?.entries
+                            .firstWhere(
+                              (e) => e.value == pubKey.toString(),
+                              orElse: () => const MapEntry<String, String>('', ''),
+                            )
+                            .key;
+                    signerIndex = _viewModel.signers.indexWhere((signer) => signer.keyStore.masterFingerprint == mfp);
+                    canSign = signerIndex != -1;
                   }
                 }
               }
             }
             if (!canSign) {
-              debugPrint('1003!@#!@!@#!@# $canSign ~~~~~~');
               await showDialog(
                 context: context,
                 builder: (BuildContext context) {
@@ -323,17 +334,18 @@ class _MultisigSignScreenState extends State<MultisigSignScreen> {
               return;
             }
 
-            _viewModel.saveSignedInputsMap(signedInputsMap);
-
-            // 외부 하드웨어 지갑에서 서명한 PSBT를 현재 PSBT와 병합
-            // if (hwwType == HardwareWalletType.krux ||
-            //     hwwType == HardwareWalletType.keystone3Pro ||
-            //     hwwType == HardwareWalletType.auto) {
-            //   _viewModel.addSignSignature(psbtBase64);
-            // }
             _viewModel.addSignSignature(psbtBase64);
-            _viewModel.updateSignState(index);
-            await _checkAndShowCreatingQrCode();
+
+            _viewModel.updateSignState(signerIndex);
+
+            final navigated = await _checkAndShowCreatingQrCode();
+
+            // 서명이 모두 완료되어 _checkAndShowCreatingQrCode 안에서 화면 전환이 일어난 경우
+            // (Navigator.pushReplacementNamed 호출)에는 추가 pop을 하지 않는다.
+            if (navigated) {
+              return;
+            }
+
             if (!mounted) return;
             Navigator.pop(context);
           },
@@ -342,7 +354,9 @@ class _MultisigSignScreenState extends State<MultisigSignScreen> {
     );
   }
 
-  Future<HardwareWalletType?> _showHardwareSelectionBottomSheet(int index) async {
+  Future<HardwareWalletType?> _showHardwareSelectionBottomSheet({int? index}) async {
+    // 하단의 'QR 스캔하기'로 들어온 경우 index는 null
+
     HardwareWalletType? hwwType;
 
     final iconSourceList = [
@@ -370,11 +384,15 @@ class _MultisigSignScreenState extends State<MultisigSignScreen> {
       initialChildSize: 0.45,
       childBuilder:
           (context) => SelectExternalWalletBottomSheet(
+            title:
+                index == null
+                    ? t.multisig_sign_screen.select_signer_hardware_wallet
+                    : t.multi_sig_setting_screen.add_icon.title,
             externalWalletButtonList: externalWalletButtonList,
             selectedIndex: null,
             onSelected: (selectedIndex) {
               hwwType = HardwareWalletTypeExtension.getHardwareWalletTypeByIconPath(iconSourceList[selectedIndex]);
-              if (hwwType != null) {
+              if (hwwType != null && index != null) {
                 _viewModel.updateSignerSource(index, hwwType!);
               }
             },
@@ -647,7 +665,7 @@ class _MultisigSignScreenState extends State<MultisigSignScreen> {
                   // 외부에서 서명을 진행해야 하는 경우
                   // if (hwwType == null) {
                   // 지정되어 있지 않으면 하드월렛 선택
-                  hwwType = await _showHardwareSelectionBottomSheet(index);
+                  hwwType = await _showHardwareSelectionBottomSheet(index: index);
                   // 화면 pop하면서 hww type 전달받기
                   // }
 
@@ -784,8 +802,11 @@ class _MultisigSignScreenState extends State<MultisigSignScreen> {
                   ),
             );
           },
-          rightButtonClicked: () {
-            _showPsbtScannerBottomSheet(null, HardwareWalletType.auto);
+          rightButtonClicked: () async {
+            final hwwType = await _showHardwareSelectionBottomSheet();
+            if (hwwType != null) {
+              _showPsbtScannerBottomSheet(null, hwwType);
+            }
           },
           leftText: t.abort_sign,
           rightText: t.scan_qr,

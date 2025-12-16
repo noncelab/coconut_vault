@@ -62,6 +62,7 @@ class MultisigSignViewModel extends ChangeNotifier {
   bool get isSigningOnlyMode => _isSigningOnlyMode;
   String get unsignedPsbtBase64 => _signProvider.unsignedPsbtBase64!;
   Map<String, String>? get unsignedInputsMap => _signProvider.unsignedInputsMap;
+  Map<String, String>? get unsignedPubkeyMap => _signProvider.unsignedPubkeyMap;
   Map<String, String>? get signedInputsMap => _signProvider.signedInputsMap;
   String get signingPublicKey => _signProvider.signingPublicKey!;
   void initPsbtSignState() {
@@ -77,16 +78,19 @@ class MultisigSignViewModel extends ChangeNotifier {
 
     // multisig sign인 경우, 서명 시 각 지갑에 대한 서명이 맞는지 확인하기 위해 inputsMap을 저장합니다.
     if (_signProvider.isMultisig == true) {
-      printLongString('1000!@#!@!@#!@# $unsignedPsbtBase64');
       // {mfp, derivationPath}
       Map<String, String> inputsMap = {};
+      Map<String, String> pubkeyMap = {};
       final unsignedPsbt = Psbt.parse(unsignedPsbtBase64);
 
       for (int i = 0; i < unsignedPsbt.extendedPublicKeyList.length; i++) {
         inputsMap[unsignedPsbt.extendedPublicKeyList[i].masterFingerprint] =
             unsignedPsbt.inputs[0].derivationPathList[i].path.toString();
+        pubkeyMap[unsignedPsbt.extendedPublicKeyList[i].masterFingerprint] =
+            unsignedPsbt.inputs[0].bip32Derivation![i].publicKey.toString();
       }
       saveUnsignedInputsMap(inputsMap);
+      saveUnsignedPubkeyMap(pubkeyMap);
     }
   }
 
@@ -194,6 +198,10 @@ class MultisigSignViewModel extends ChangeNotifier {
     _signProvider.saveUnsignedInputsMap(inputsMap);
   }
 
+  void saveUnsignedPubkeyMap(Map<String, String> pubkeyMap) {
+    _signProvider.saveUnsignedPubkeyMap(pubkeyMap);
+  }
+
   void saveSignedInputsMap(Map<String, String> signedInputsMap) {
     _signProvider.saveSignedInputsMap(signedInputsMap);
   }
@@ -213,6 +221,7 @@ class MultisigSignViewModel extends ChangeNotifier {
     _signProvider.resetSendingAmount();
     _signProvider.resetSignedPsbt();
     _signProvider.resetUnsignedInputsMap();
+    _signProvider.resetUnsignedPubkeyMap();
     _signProvider.resetSignedInputsMap();
     _signProvider.resetSigningPublicKey();
   }
