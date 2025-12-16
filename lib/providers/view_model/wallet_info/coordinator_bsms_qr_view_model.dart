@@ -1,10 +1,13 @@
 import 'dart:convert';
-
+import 'dart:typed_data';
 import 'package:coconut_vault/model/multisig/multisig_import_detail.dart';
 import 'package:coconut_vault/model/multisig/multisig_vault_list_item.dart';
+import 'package:coconut_vault/packages/bc-ur-dart/lib/cbor_lite.dart';
+import 'package:coconut_vault/packages/bc-ur-dart/lib/ur_encoder.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:coconut_vault/utils/bb_qr/bb_qr_encoder.dart';
 import 'package:flutter/material.dart';
+import 'package:ur/ur.dart';
 
 class CoordinatorBsmsQrViewModel extends ChangeNotifier {
   late String qrData;
@@ -39,7 +42,7 @@ class CoordinatorBsmsQrViewModel extends ChangeNotifier {
       'BSMS': generatedBsms,
       'BlueWallet Vault Multisig': _generateBlueWalletFormat(vaultListItem),
       'Coldcard Multisig': _generateColdcardCompressedFormat(vaultListItem),
-      'Keystone Multisig': generatedBsms,
+      'Keystone Multisig': _generateKeystoneFormat(vaultListItem),
       'Output Descriptor': _generateDescriptor(vaultListItem),
       'Specter Desktop': _generateSpecterFormat(vaultListItem),
     };
@@ -48,11 +51,27 @@ class CoordinatorBsmsQrViewModel extends ChangeNotifier {
   }
 
   String _generateBsmsFormat(MultisigVaultListItem vault) {
-    StringBuffer buffer = StringBuffer();
-    buffer.writeln("BSMS 1.0");
-    buffer.writeln("Descriptor: ${_generateDescriptor(vault)}");
-    buffer.writeln("Derivation: ${vault.signers.first.getSignerDerivationPath()}");
-    return buffer.toString();
+    try {
+      StringBuffer buffer = StringBuffer();
+      buffer.writeln("BSMS 1.0");
+      buffer.writeln("Descriptor: ${_generateDescriptor(vault)}");
+      buffer.writeln("Derivation: ${vault.signers.first.getSignerDerivationPath()}");
+
+      String bsmsText = buffer.toString();
+
+      Uint8List utf8Data = Uint8List.fromList(utf8.encode(bsmsText));
+
+      final cborEncoder = CBOREncoder();
+      cborEncoder.encodeBytes(utf8Data);
+
+      final ur = UR('bytes', cborEncoder.getBytes());
+
+      final urEncoder = UREncoder(ur, 2000);
+
+      return urEncoder.nextPart();
+    } catch (e) {
+      return "Error generating BSMS QR: $e";
+    }
   }
 
   String _generateBlueWalletFormat(MultisigVaultListItem vault) {
@@ -109,8 +128,51 @@ class CoordinatorBsmsQrViewModel extends ChangeNotifier {
         return "error: empty result";
       }
     } catch (e) {
-      print("Coldcard encoding failed: $e");
       return "error";
+    }
+  }
+
+  String _generateKeystoneFormat(MultisigVaultListItem vault) {
+    try {
+      StringBuffer buffer = StringBuffer();
+
+      buffer.writeln("# Keystone Multisig setup file (created by Coconut Vault)");
+      buffer.writeln("#");
+      buffer.writeln();
+
+      String safeName = vault.name.replaceAll(RegExp(r'[^a-zA-Z0-9]'), '-');
+      if (safeName.isEmpty) safeName = "Multisig";
+      buffer.writeln("Name: $safeName");
+
+      buffer.writeln("Policy: ${vault.requiredSignatureCount} of ${vault.signers.length}");
+
+      String derivation = vault.signers.first.getSignerDerivationPath();
+      if (!derivation.startsWith("m/")) derivation = "m/$derivation";
+      buffer.writeln("Derivation: $derivation");
+
+      buffer.writeln("Format: P2WSH");
+      buffer.writeln();
+
+      for (var signer in vault.signers) {
+        String fingerprint = signer.keyStore.masterFingerprint.toUpperCase();
+        String xpub = signer.keyStore.extendedPublicKey.serialize(toXpub: true);
+        buffer.writeln("$fingerprint: $xpub");
+      }
+
+      String keystoneText = buffer.toString();
+
+      Uint8List utf8Data = Uint8List.fromList(utf8.encode(keystoneText));
+
+      final cborEncoder = CBOREncoder();
+      cborEncoder.encodeBytes(utf8Data);
+
+      final ur = UR('bytes', cborEncoder.getBytes());
+
+      final urEncoder = UREncoder(ur, 2000);
+
+      return urEncoder.nextPart();
+    } catch (e) {
+      return "Error generating Keystone QR: $e";
     }
   }
 
