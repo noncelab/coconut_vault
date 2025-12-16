@@ -715,9 +715,21 @@ class _MultisigSignScreenState extends State<MultisigSignScreen> {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      SvgPicture.asset(
-                        isSignerApproved ? 'assets/svg/check-circle-green.svg' : 'assets/svg/check-circle-outlined.svg',
-                        width: 24.0,
+                      AnimatedSwitcher(
+                        duration: const Duration(milliseconds: 300),
+                        transitionBuilder: (Widget child, Animation<double> animation) {
+                          return ScaleTransition(
+                            scale: animation,
+                            child: FadeTransition(opacity: animation, child: child),
+                          );
+                        },
+                        child: SvgPicture.asset(
+                          isSignerApproved
+                              ? 'assets/svg/check-circle-green.svg'
+                              : 'assets/svg/check-circle-outlined.svg',
+                          width: 24.0,
+                          key: ValueKey<bool>(isSignerApproved),
+                        ),
                       ),
                       CoconutLayout.spacing_300w,
                       Flexible(
