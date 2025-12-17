@@ -223,7 +223,10 @@ class _PsbtScannerScreenState extends State<PsbtScannerScreen> {
         // TODO: 숫자 빼기
         return [
           TextSpan(
-            text: widget.id == null ? t.psbt_scanner_screen.guide : t.psbt_scanner_screen.guide_single_sig_same_name,
+            text:
+                widget.onMultisigSignCompleted != null
+                    ? t.psbt_scanner_screen.guide
+                    : t.psbt_scanner_screen.guide_single_sig_same_name,
             style: CoconutTypography.body2_14.copyWith(height: 1.2, color: CoconutColors.black),
           ),
         ];

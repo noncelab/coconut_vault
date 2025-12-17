@@ -246,7 +246,6 @@ class _MultisigSignScreenState extends State<MultisigSignScreen> {
   }
 
   void _showMultisigInfoQrCodeBottomSheet(int index, HardwareWalletType hwwType, String multisigInfoQrData) {
-    printLongString('qrData: $multisigInfoQrData');
     MyBottomSheet.showBottomSheet_95(
       context: context,
       child: MultisigQrCodeViewScreen(
