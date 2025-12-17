@@ -147,7 +147,7 @@ class _MultisigSignScreenState extends State<MultisigSignScreen> {
       });
 
       await _viewModel.sign(index, seed);
-      await _checkAndShowCreatingQrCode();
+      await _checkAndShowCreatingQrCode(shouldPop: false);
     } catch (error) {
       if (mounted) {
         showAlertDialog(context: context, content: t.errors.sign_error(error: error));
@@ -166,7 +166,7 @@ class _MultisigSignScreenState extends State<MultisigSignScreen> {
       });
 
       await _viewModel.signPsbtInSigningOnlyMode(index);
-      await _checkAndShowCreatingQrCode();
+      await _checkAndShowCreatingQrCode(shouldPop: false);
     } on UserCanceledAuthException catch (_) {
       return;
     } on SeedInvalidatedException catch (e) {
@@ -193,12 +193,14 @@ class _MultisigSignScreenState extends State<MultisigSignScreen> {
     }
   }
 
-  Future<bool> _checkAndShowCreatingQrCode() async {
+  Future<bool> _checkAndShowCreatingQrCode({bool shouldPop = false}) async {
     await Future.delayed(const Duration(milliseconds: 100));
     if (mounted && _viewModel.isSignatureComplete) {
       _viewModel.saveSignedPsbt();
 
-      Navigator.pop(context);
+      if (shouldPop) {
+        Navigator.pop(context);
+      }
       setState(() {
         _cupertinoLoadingMessage = t.multisig_sign_screen.creating_qr_code;
         _isCupertinoLoadingShown = true;
@@ -338,7 +340,7 @@ class _MultisigSignScreenState extends State<MultisigSignScreen> {
 
             _viewModel.updateSignState(signerIndex);
 
-            final navigated = await _checkAndShowCreatingQrCode();
+            final navigated = await _checkAndShowCreatingQrCode(shouldPop: true);
 
             // 서명이 모두 완료되어 _checkAndShowCreatingQrCode 안에서 화면 전환이 일어난 경우
             // (Navigator.pushReplacementNamed 호출)에는 추가 pop을 하지 않는다.
