@@ -1,5 +1,6 @@
 import 'package:coconut_lib/coconut_lib.dart';
 import 'package:coconut_vault/enums/hardware_wallet_type_enum.dart';
+import 'package:coconut_vault/model/exception/network_mismatch_exception.dart';
 import 'package:coconut_vault/packages/bc-ur-dart/lib/ur_decoder.dart';
 import 'package:coconut_vault/utils/bb_qr/bb_qr_decoder.dart';
 import 'package:coconut_vault/utils/bip/signer_bsms.dart';
@@ -161,13 +162,9 @@ class SignerBsmsQrDataHandler implements IQrScanDataHandler {
     final mfp = match.group(1)!;
     final path = match.group(2)!;
     final xpub = match.group(3)!;
-    try {
-      _validateFingerprint(mfp);
-      _validateDerivationPath(path);
-      _validateXpubPrefix(xpub);
-    } catch (e) {
-      rethrow;
-    }
+    _validateFingerprint(mfp);
+    _validateDerivationPath(path);
+    _validateXpubPrefix(xpub);
 
     return true;
   }
@@ -189,7 +186,7 @@ class SignerBsmsQrDataHandler implements IQrScanDataHandler {
     if (NetworkType.currentNetworkType.isTestnet
         ? coin != '1\'' && coin != '1h' && coin != '1H'
         : coin != '0\'' && coin != '0h' && coin != '0H') {
-      throw FormatException('Network mismatch: $path');
+      throw NetworkMismatchException();
     }
     final account = pathSegments[2];
     if (account != '0\'' && account != '0h' && account != '0H') {
