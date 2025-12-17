@@ -28,6 +28,7 @@ class CoordinatorBsmsConfigScannerScreen extends StatefulWidget {
 class _CoordinatorBsmsConfigScannerScreenState extends BsmsScannerBase<CoordinatorBsmsConfigScannerScreen> {
   final CoordinatorBsmsQrDataHandler _dataHandler;
   late final ImportCoordinatorBsmsViewModel _viewModel;
+  bool _isFirstScanData = true;
 
   _CoordinatorBsmsConfigScannerScreenState() : _dataHandler = CoordinatorBsmsQrDataHandler();
 
@@ -68,63 +69,59 @@ class _CoordinatorBsmsConfigScannerScreenState extends BsmsScannerBase<Coordinat
   void onBarcodeDetected(BarcodeCapture capture) async {
     final codes = capture.barcodes;
     if (codes.isEmpty) {
-      setState(() => isProcessing = false);
       return;
     }
-
     final barcode = codes.first;
     if (barcode.rawValue == null) {
-      setState(() => isProcessing = false);
       return;
     }
 
     final scanData = barcode.rawValue!;
+
+    if (_isFirstScanData) {
+      if (!_dataHandler.validateFormat(scanData)) {
+        onFailedScanning(wrongFormatMessage);
+        return;
+      }
+      _isFirstScanData = false;
+    }
+
     try {
-      _dataHandler.joinData(scanData);
-    } catch (e) {
-      _dataHandler.reset();
-      onFailedScanning('$wrongFormatMessage\n${e.toString()}');
-      return;
-    }
+      final joinResult = _dataHandler.joinData(scanData);
+      if (joinResult == false && _dataHandler.isFragmentedDataScanned == false) {
+        _handleScanFailure(wrongFormatMessage);
+        return;
+      }
 
-    if (!_dataHandler.isCompleted()) {
-      setState(() => isProcessing = false);
-      return;
-    }
+      if (_dataHandler.isFragmentedDataScanned == true) {
+        updateScanProgress(_dataHandler.progress);
+      }
 
-    await controller?.stop();
-    if (!mounted) return;
+      if (!_dataHandler.isCompleted()) {
+        return;
+      }
 
-    final result = _dataHandler.result;
+      setState(() => isProcessing = true);
 
-    if (result == null) {
-      _dataHandler.reset();
-      onFailedScanning(wrongFormatMessage);
-      setState(() => isProcessing = false);
-      return;
-    }
+      final result = _dataHandler.result;
+      if (result == null) {
+        _handleScanFailure(wrongFormatMessage);
+        return;
+      }
 
-    NormalizedMultisigConfig? normalizedMultisigConfig;
-    try {
-      normalizedMultisigConfig = MultisigNormalizer.fromCoordinatorResult(result);
+      NormalizedMultisigConfig normalizedMultisigConfig = MultisigNormalizer.fromCoordinatorResult(result);
       Logger.log(
         '\t normalizedMultisigConfig: \n name: ${normalizedMultisigConfig.name}\n requiredCount: ${normalizedMultisigConfig.requiredCount}\n signerBsms: [\n${normalizedMultisigConfig.signerBsms.join(',\n')}\n]',
       );
-    } catch (e) {
-      _dataHandler.reset();
-      onFailedScanning('$wrongFormatMessage\n${e.toString()}');
-      Logger.error('🛑 MultisigNormalizer.fromCoordinatorResult 에러 발생: $e');
-      await controller?.start();
-      return;
-    }
 
-    try {
       final sameWalletName = _viewModel.findSameWalletName(normalizedMultisigConfig);
       if (sameWalletName != null) {
         if (!mounted) return;
-        _dataHandler.reset();
+        _reset();
         await showInfoPopup(context, t.alert.same_wallet.title, t.alert.same_wallet.description(name: sameWalletName));
-        await controller?.start();
+        setState(() {
+          isProcessing = false;
+        });
         return;
       }
 
@@ -153,14 +150,24 @@ class _CoordinatorBsmsConfigScannerScreenState extends BsmsScannerBase<Coordinat
         Navigator.pushReplacementNamed(
           context,
           AppRoutes.vaultNameSetup,
-          arguments: {'name': normalizedMultisigConfig.name},
+          arguments: {'name': normalizedMultisigConfig.name, 'isImported': true},
         );
       }
     } catch (e) {
       Logger.error('🛑: $e');
-      _dataHandler.reset();
-      onFailedScanning("${t.alert.wallet_creation_failed.title}\n${e.toString()}");
-      await controller?.start();
+      _handleScanFailure("${t.alert.wallet_creation_failed.title}\n${e.toString()}");
     }
+  }
+
+  void _reset() {
+    _isFirstScanData = true;
+    _dataHandler.reset();
+
+    resetScanProgress();
+  }
+
+  void _handleScanFailure(String message) {
+    _reset();
+    onFailedScanning(message);
   }
 }

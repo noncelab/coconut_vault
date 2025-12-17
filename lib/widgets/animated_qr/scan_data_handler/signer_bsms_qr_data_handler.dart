@@ -1,6 +1,5 @@
 import 'package:coconut_lib/coconut_lib.dart';
 import 'package:coconut_vault/enums/hardware_wallet_type_enum.dart';
-import 'package:coconut_vault/enums/wallet_enums.dart';
 import 'package:coconut_vault/packages/bc-ur-dart/lib/ur_decoder.dart';
 import 'package:coconut_vault/utils/bb_qr/bb_qr_decoder.dart';
 import 'package:coconut_vault/utils/bip/signer_bsms.dart';
@@ -14,9 +13,21 @@ class SignerBsmsQrDataHandler implements IQrScanDataHandler {
 
   StringBuffer? _textBuffer;
 
+  late bool _isFragmentedDataScanned;
+  bool get isFragmentedDataScanned => _isFragmentedDataScanned;
+
   SignerBsmsQrDataHandler({this.hardwareWalletType = HardwareWalletType.coconutVault})
     : _urDecoder = URDecoder(),
-      _bbQrDecoder = BbQrDecoder();
+      _bbQrDecoder = BbQrDecoder() {
+    switch (hardwareWalletType) {
+      case HardwareWalletType.jade:
+      case HardwareWalletType.coldcard:
+        _isFragmentedDataScanned = true;
+        break;
+      default:
+        _isFragmentedDataScanned = false;
+    }
+  }
 
   @override
   dynamic get result {
@@ -82,15 +93,15 @@ class SignerBsmsQrDataHandler implements IQrScanDataHandler {
 
   @override
   bool validateFormat(String data) {
-    final normalized = data.trim().toLowerCase();
+    final lowerCased = data.trim().toLowerCase();
 
     try {
       switch (hardwareWalletType) {
         case HardwareWalletType.keystone3Pro:
         case HardwareWalletType.jade:
-          return normalized.startsWith('ur:crypto-account/');
+          return lowerCased.startsWith('ur:crypto-account/');
         case HardwareWalletType.coldcard:
-          return normalized.startsWith('b\$');
+          return lowerCased.startsWith('b\$');
         case HardwareWalletType.coconutVault:
           try {
             SignerBsms.parse(data.trim());
@@ -207,7 +218,9 @@ class SignerBsmsQrDataHandler implements IQrScanDataHandler {
     final match = validPrefixes.any((p) => lower.startsWith(p.toLowerCase()));
 
     if (!match) {
-      throw FormatException('Invalid extended key prefix for ${isMainnet ? "mainnet" : "testnet"}: $xpub');
+      throw FormatException(
+        'Invalid extended key prefix for ${isMainnet ? "mainnet" : "testnet"}: $xpub',
+      );
     }
   }
 }

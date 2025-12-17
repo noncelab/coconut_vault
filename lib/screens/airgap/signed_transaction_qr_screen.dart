@@ -104,7 +104,6 @@ class _SignedTransactionQrScreenState extends State<SignedTransactionQrScreen> {
 
   List<TextSpan> _getTooltipRichText() {
     return [
-      TextSpan(text: '[4] ', style: CoconutTypography.body1_16_Bold.copyWith(height: 1.2, color: CoconutColors.black)),
       TextSpan(
         text:
             _signProvider.isMultisig!

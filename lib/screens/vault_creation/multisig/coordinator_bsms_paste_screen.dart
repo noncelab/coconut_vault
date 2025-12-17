@@ -133,7 +133,7 @@ class _CoordinatorBsmsPasteScreenState extends State<CoordinatorBsmsPasteScreen>
         Navigator.pushReplacementNamed(
           context,
           AppRoutes.vaultNameSetup,
-          arguments: {'name': _normalizedMultisigConfig!.name},
+          arguments: {'name': _normalizedMultisigConfig!.name, 'isImported': true},
         );
       }
     } catch (e) {

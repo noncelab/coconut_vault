@@ -13,6 +13,7 @@ import 'package:coconut_vault/providers/auth_provider.dart';
 import 'package:coconut_vault/providers/wallet_creation_provider.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:coconut_vault/utils/logger.dart';
+import 'package:coconut_vault/utils/popup_util.dart';
 import 'package:coconut_vault/widgets/button/fixed_bottom_button.dart';
 import 'package:coconut_vault/widgets/indicator/message_activity_indicator.dart';
 import 'package:flutter/material.dart';
@@ -23,8 +24,9 @@ class VaultNameAndIconSetupScreen extends StatefulWidget {
   final String? name;
   final int? iconIndex;
   final int? colorIndex;
+  final bool? isImported;
 
-  const VaultNameAndIconSetupScreen({super.key, this.name, this.iconIndex, this.colorIndex});
+  const VaultNameAndIconSetupScreen({super.key, this.name, this.iconIndex, this.colorIndex, this.isImported});
 
   @override
   State<VaultNameAndIconSetupScreen> createState() => _VaultNameAndIconSetupScreenState();
@@ -46,7 +48,6 @@ class _VaultNameAndIconSetupScreenState extends State<VaultNameAndIconSetupScree
     _walletProvider.isVaultListLoadingNotifier.addListener(_onVaultListLoading);
     _walletCreationProvider = Provider.of<WalletCreationProvider>(context, listen: false);
 
-    // 기본값 설정 (arguments가 있으면 didChangeDependencies에서 덮어씌워짐)
     inputText = widget.name ?? '';
     selectedIconIndex = widget.iconIndex ?? 0;
     selectedColorIndex = widget.colorIndex ?? 0;
@@ -140,6 +141,7 @@ class _VaultNameAndIconSetupScreenState extends State<VaultNameAndIconSetupScree
           selectedIconIndex,
           _walletCreationProvider.signers!,
           _walletCreationProvider.requiredSignatureCount!,
+          isImported: widget.isImported == true,
         );
       }
 
@@ -171,18 +173,7 @@ class _VaultNameAndIconSetupScreenState extends State<VaultNameAndIconSetupScree
     } catch (e) {
       Logger.error(e);
       if (!context.mounted) return;
-      showDialog(
-        context: context,
-        builder: (context) {
-          return CoconutPopup(
-            title: t.errors.creation_error,
-            description: e.toString(),
-            leftButtonText: t.cancel,
-            rightButtonText: t.confirm,
-            onTapRight: () => Navigator.of(context).pop(),
-          );
-        },
-      );
+      showInfoPopup(context, t.errors.creation_error, e.toString());
     } finally {
       setState(() {
         _showLoading = false;

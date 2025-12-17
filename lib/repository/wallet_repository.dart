@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:core';
 import 'dart:io';
+import 'dart:math';
 
 import 'package:coconut_lib/coconut_lib.dart';
 import 'package:coconut_vault/constants/shared_preferences_keys.dart';
@@ -169,7 +170,6 @@ class WalletRepository {
     final Map<String, dynamic> vaultData = wallet.toJson();
     List<SingleSigVaultListItem> vaultListResult = await compute(WalletIsolates.addVault, vaultData);
 
-    _linkNewSinglesigVaultToMultisigVaults(vaultListResult.first);
     if (!_isSigningOnlyMode) {
       // 안전 저장 모드
       await _saveSecretAndPassphraseEnabled(
@@ -182,8 +182,8 @@ class WalletRepository {
       await _saveSecretWithPassphrase(nextId, wallet.mnemonic!, wallet.passphrase);
     }
 
+    _linkNewSinglesigVaultToMultisigVaults(vaultListResult.first);
     _vaultList!.add(vaultListResult[0]);
-
     // 안전 저장 모드일 때만 저장
     if (!_isSigningOnlyMode) {
       try {
@@ -197,7 +197,10 @@ class WalletRepository {
         );
         await _savePublicInfo();
       } catch (error) {
-        _deleteSingleSigSecureData(nextId);
+        _vaultList!.removeLast();
+        _unlinkSinglesigVaultFromMultisigVaults(vaultListResult.first.id);
+        await _deletePrivacyInfo(nextId, WalletType.singleSignature);
+        await _deleteSingleSigSecureData(nextId);
         rethrow;
       }
     }
@@ -272,37 +275,23 @@ class WalletRepository {
 
       List<MultisigSigner> signers = (vault as MultisigVaultListItem).signers;
       // 멀티 시그만 판단
-      String importedMfp = (singlesigItem.coconutVault as SingleSignatureVault).keyStore.masterFingerprint;
+      String expectedMfp = (singlesigItem.coconutVault as SingleSignatureVault).keyStore.masterFingerprint;
 
       // singlesigItem의 p2wsh용 derivationPath 가져오기 (BSMS에서)
-      String? importedDerivationPath;
-      try {
-        final bsms = Bsms.parseSigner(singlesigItem.signerBsmsByAddressType[AddressType.p2wsh]!);
-        importedDerivationPath = bsms.signer?.path;
-      } catch (_) {
-        // BSMS 파싱 실패 시 스킵
-      }
-
+      final bsms = Bsms.parseSigner(singlesigItem.signerBsmsByAddressType[AddressType.p2wsh]!);
+      String expectedDerivationPath = bsms.signer!.path;
+      String expectedXpub = bsms.signer!.extendedPublicKey.serialize(toXpub: true);
       for (int j = 0; j < signers.length; j++) {
         String signerMfp = signers[j].keyStore.masterFingerprint;
         String signerDerivationPath = signers[j].getSignerDerivationPath();
-
+        String signerXpub = Bsms.parseSigner(signers[j].signerBsms!).signer!.extendedPublicKey.serialize(toXpub: true);
         // masterFingerprint와 derivationPath 모두 일치해야 함
-        if (signerMfp == importedMfp &&
-            (signerDerivationPath.isEmpty ||
-                importedDerivationPath == null ||
-                signerDerivationPath == importedDerivationPath)) {
+        if (signerMfp.toUpperCase() == expectedMfp.toUpperCase() &&
+            signerDerivationPath == expectedDerivationPath &&
+            signerXpub == expectedXpub) {
           // 다중 서명 지갑에서 signer로 사용되고 있는 mfp와 새로 추가된 볼트의 mfp가 같으면 정보를 변경
           // 멀티시그 지갑 정보 변경
-          final signer = (_vaultList![i] as MultisigVaultListItem).signers[j];
-          signer
-            ..innerVaultId = singlesigItem.id
-            ..name = singlesigItem.name
-            ..iconIndex = singlesigItem.iconIndex
-            ..colorIndex = singlesigItem.colorIndex
-            ..memo = null
-            ..signerSource = null;
-
+          (_vaultList![i] as MultisigVaultListItem).signers[j].linkInternalWallet(singlesigItem);
           // 싱글시그 지갑 정보 변경
           Map<int, int> linkedMultisigInfo = {vault.id: j};
           if (singlesigItem.linkedMultisigInfo == null) {
@@ -311,6 +300,23 @@ class WalletRepository {
             singlesigItem.linkedMultisigInfo!.addAll(linkedMultisigInfo);
           }
           continue outerLoop; // 같은 singlesig가 하나의 multisig 지갑에 2번 이상 signer로 등록될 수 없으므로
+        }
+      }
+    }
+  }
+
+  void _unlinkSinglesigVaultFromMultisigVaults(int singleSigWalletId) {
+    outerLoop:
+    for (int i = 0; i < _vaultList!.length; i++) {
+      VaultListItemBase vault = _vaultList![i];
+      // 싱글 시그는 스킵
+      if (vault.vaultType == WalletType.singleSignature) continue;
+
+      List<MultisigSigner> signers = (vault as MultisigVaultListItem).signers;
+      for (int j = 0; j < signers.length; j++) {
+        if (signers[j].innerVaultId == singleSigWalletId) {
+          signers[j].unlinkInternalWallet();
+          continue outerLoop;
         }
       }
     }
@@ -343,17 +349,6 @@ class WalletRepository {
                 (signer) => SignerPrivacyInfo(signerBsms: signer.signerBsms!, keyStoreToJson: signer.keyStore.toJson()),
               )
               .toList();
-      // Logger.log('--> newMultisigVault: ${jsonEncode(newMultisigVault.toJson())}');
-      // Logger.log('-------------------------------------------');
-      // Logger.log('--> signersPrivacyInfo: ${jsonEncode(signersPrivacyInfo)}');
-      // Logger.log('-------------------------------------------');
-      // Logger.log(
-      //   '--> signersPrivacyInfo: ${jsonEncode(MultisigWalletPrivacyInfo(coordinatorBsms: newMultisigVault.coordinatorBsms, signersPrivacyInfo: signersPrivacyInfo).toJson())}',
-      // );
-      // Logger.log('-------------------------------------------');
-      // Logger.log('--> publicJson: ${jsonEncode(newMultisigVault.toPublicJson())}');
-      // Logger.log('-------------------------------------------');
-
       await _savePrivacyInfo(
         nextId,
         WalletType.multiSignature,
@@ -375,11 +370,12 @@ class WalletRepository {
     assert(multisigSigner.signerBsms != null && multisigSigner.signerBsms!.isNotEmpty);
 
     final parsedSignerBsms = SignerBsms.parse(multisigSigner.signerBsms!);
+    final expectedMfp = parsedSignerBsms.fingerprint.toUpperCase();
     final vaultIndex = _vaultList!.indexWhere((element) {
       if (element is MultisigVaultListItem) return false;
 
       final mfp = (element.coconutVault as SingleSignatureVault).keyStore.masterFingerprint;
-      return parsedSignerBsms.fingerprint.toUpperCase() == mfp.toUpperCase();
+      return expectedMfp == mfp.toUpperCase();
     });
     if (vaultIndex == -1) return;
 
@@ -510,17 +506,25 @@ class WalletRepository {
       // 이미 삭제되었거나 존재하지 않음
       return false;
     }
-    final vaultType = _vaultList![index].vaultType;
-
+    final vault = _vaultList![index];
+    final vaultType = vault.vaultType;
+    if (vaultType == WalletType.singleSignature) {
+      final single = vault as SingleSigVaultListItem;
+      if (single.linkedMultisigInfo?.isNotEmpty == true) {
+        for (var entry in single.linkedMultisigInfo!.entries) {
+          final multisig = getVaultById(entry.key) as MultisigVaultListItem;
+          multisig.signers[entry.value].unlinkInternalWallet();
+          assert(multisig.signers[entry.value].signerBsms != null);
+        }
+      }
+    }
     if (vaultType == WalletType.multiSignature) {
-      final multi = getVaultById(id);
-      if (multi is MultisigVaultListItem) {
-        for (var signer in multi.signers) {
-          if (signer.innerVaultId != null) {
-            final ssv = getVaultById(signer.innerVaultId!);
-            if (ssv is SingleSigVaultListItem) {
-              ssv.linkedMultisigInfo?.remove(id);
-            }
+      final multi = vault as MultisigVaultListItem;
+      for (var signer in multi.signers) {
+        if (signer.innerVaultId != null) {
+          final ssv = getVaultById(signer.innerVaultId!);
+          if (ssv is SingleSigVaultListItem) {
+            ssv.linkedMultisigInfo?.remove(id);
           }
         }
       }

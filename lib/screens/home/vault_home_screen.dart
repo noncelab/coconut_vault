@@ -482,40 +482,16 @@ class _VaultHomeScreenState extends State<VaultHomeScreen> with TickerProviderSt
                 Expanded(
                   child: _buildActionItemButton(
                     // 다중서명 지갑 가져오기 버튼
-                    isActive:
-                        walletCount > 0 &&
-                        context.watch<WalletProvider>().vaultList.any(
-                          (vault) => vault.vaultType == WalletType.singleSignature,
-                        ),
+                    isActive: _viewModel.isVaultsLoaded,
                     text: t.vault_home_screen.action_items.import_multisig_wallet,
                     iconAssetPath: 'assets/svg/two-keys.svg',
                     iconPadding: const EdgeInsets.only(right: 15, bottom: 9),
                     onPressed: () {
-                      MyBottomSheet.showDraggableBottomSheet(
-                        context: context,
-                        title: t.select_vault_bottom_sheet.select_wallet,
-                        subLabel: t.vault_menu_screen.description.import_bsms,
-                        childBuilder:
-                            (scrollController) => SelectVaultBottomSheet(
-                              vaultList:
-                                  context
-                                      .read<WalletProvider>()
-                                      .vaultList
-                                      .where((vault) => vault.vaultType == WalletType.singleSignature)
-                                      .toList(),
-                              subLabel: t.vault_menu_screen.description.import_bsms,
-                              onVaultSelected: (id) async {
-                                if (mounted) {
-                                  Navigator.pushNamed(
-                                    context,
-                                    AppRoutes.coordinatorBsmsConfigScanner,
-                                    arguments: {'id': id},
-                                  );
-                                }
-                              },
-                              scrollController: scrollController,
-                            ),
-                      );
+                      if (!_viewModel.isVaultsLoaded) {
+                        return;
+                      }
+
+                      Navigator.pushNamed(context, AppRoutes.coordinatorBsmsConfigScanner);
                     },
                   ),
                 ),

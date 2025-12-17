@@ -2,6 +2,7 @@ import 'dart:core';
 
 import 'package:coconut_lib/coconut_lib.dart';
 import 'package:coconut_vault/enums/hardware_wallet_type_enum.dart';
+import 'package:coconut_vault/model/single_sig/single_sig_vault_list_item.dart';
 import 'package:json_annotation/json_annotation.dart';
 
 export 'package:coconut_vault/enums/hardware_wallet_type_enum.dart';
@@ -62,14 +63,23 @@ class MultisigSigner {
   factory MultisigSigner.fromJson(Map<String, dynamic> json) => _$MultisigSignerFromJson(json);
 
   String getSignerDerivationPath() {
-    if (signerBsms == null) {
-      return '';
-    }
-    try {
-      final bsms = Bsms.parseSigner(signerBsms!);
-      return bsms.signer?.path ?? '';
-    } catch (_) {
-      return '';
-    }
+    assert(signerBsms != null && signerBsms!.isNotEmpty);
+    return Bsms.parseSigner(signerBsms!).signer!.path;
+  }
+
+  void unlinkInternalWallet() {
+    innerVaultId = null;
+    iconIndex = null;
+    colorIndex = null;
+    name = null;
+  }
+
+  void linkInternalWallet(SingleSigVaultListItem singleSigVaultListItem) {
+    innerVaultId = singleSigVaultListItem.id;
+    name = singleSigVaultListItem.name;
+    iconIndex = singleSigVaultListItem.iconIndex;
+    colorIndex = singleSigVaultListItem.colorIndex;
+    memo = null;
+    signerSource = null;
   }
 }

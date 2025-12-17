@@ -114,6 +114,7 @@ class WalletInfoViewModel extends ChangeNotifier {
     if (_vaultListItem == null) {
       return;
     }
+
     await _walletProvider.deleteWallet(_vaultListItem!.id);
   }
 
