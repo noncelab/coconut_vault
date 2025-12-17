@@ -26,6 +26,7 @@ class BackupWalletDataScreen extends StatelessWidget {
               tooltipDescription: _buildDescriptionBsms(viewModel),
               qrData: viewModel.qrData,
               qrDataMap: viewModel.walletQrDataMap,
+              textDataMap: viewModel.walletTextDataMap,
               showPulldownMenu: true,
             ),
           );
