@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:coconut_lib/coconut_lib.dart';
 import 'package:coconut_vault/isolates/sign_isolates.dart';
+import 'package:coconut_vault/model/multisig/multisig_import_detail.dart';
 import 'package:coconut_vault/model/multisig/multisig_signer.dart';
 import 'package:coconut_vault/model/multisig/multisig_vault_list_item.dart';
 import 'package:coconut_vault/providers/sign_provider.dart';
@@ -231,12 +232,16 @@ class MultisigSignViewModel extends ChangeNotifier {
   }
 
   String? getMultisigInfoQrData(HardwareWalletType hwwType) {
-    if (hwwType == HardwareWalletType.keystone3Pro) {
-      return _getKeystoneMultisigInfoQrData();
-    } else if (hwwType == HardwareWalletType.krux) {
-      return _getKruxMultisigInfoQrData();
+    switch (hwwType) {
+      case HardwareWalletType.keystone3Pro:
+        return _getKeystoneMultisigInfoQrData();
+      case HardwareWalletType.krux:
+        return _getKruxMultisigInfoQrData();
+      case HardwareWalletType.coconutVault:
+        return _getCoconutVaultMultisigInfoQrData();
+      default:
+        return null;
     }
-    return null;
   }
 
   // {
@@ -335,5 +340,29 @@ class MultisigSignViewModel extends ChangeNotifier {
     );
 
     return config.getMultisigConfigString();
+  }
+
+  String _getCoconutVaultMultisigInfoQrData() {
+    final vaultListItem = _walletProvider.getVaultById(_vaultListItem.id) as MultisigVaultListItem;
+    String coordinatorBsms = vaultListItem.coordinatorBsms;
+    Map<String, dynamic> walletSyncString = jsonDecode(vaultListItem.getWalletSyncString());
+
+    Map<String, String> namesMap = {};
+    for (var signer in vaultListItem.signers) {
+      if (signer.name == null) continue;
+      namesMap[signer.keyStore.masterFingerprint] = signer.name!;
+    }
+
+    final qrData = jsonEncode(
+      MultisigImportDetail(
+        name: walletSyncString['name'],
+        colorIndex: walletSyncString['colorIndex'],
+        iconIndex: walletSyncString['iconIndex'],
+        namesMap: namesMap,
+        coordinatorBsms: coordinatorBsms,
+      ),
+    );
+
+    return qrData;
   }
 }

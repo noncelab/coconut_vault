@@ -105,9 +105,9 @@ class _MultisigQrCodeViewScreenState extends State<MultisigQrCodeViewScreen> {
 
   Widget _buildQrView() {
     final qrSize = MediaQuery.of(context).size.width * 0.8;
-    final handler = BcUrQrViewHandler(widget.qrData, UrType.bytes, maxFragmentLen: 50); // TODO: 키스톤: 10000
+    final handler = BcUrQrViewHandler(widget.qrData, UrType.bytes, maxFragmentLen: 50);
 
-    final qrData = handler.nextPart();
+    final qrData = widget.hardwareWalletType == HardwareWalletType.coconutVault ? widget.qrData : handler.nextPart();
     debugPrint('--> MultisigInfoQrCodeScreen: Generated UR: ${qrData.toUpperCase()}');
     debugPrint('--> MultisigInfoQrCodeScreen: isSinglePart: ${handler.isSinglePart}');
     debugPrint('--> MultisigInfoQrCodeScreen: qrData type: ${widget.qrData.runtimeType}');
@@ -116,8 +116,8 @@ class _MultisigQrCodeViewScreenState extends State<MultisigQrCodeViewScreen> {
     );
 
     // 단일 프래그먼트인 경우 QrImageView 직접 사용 (애니메이션 불필요)
-    if (handler.isSinglePart) {
-      return QrImageView(data: qrData.toUpperCase(), size: qrSize, version: QrVersions.auto);
+    if (handler.isSinglePart || widget.hardwareWalletType == HardwareWalletType.coconutVault) {
+      return QrImageView(data: qrData, size: qrSize);
     }
 
     // 다중 프래그먼트인 경우에만 AnimatedQrView 사용
@@ -190,7 +190,7 @@ class _MultisigQrCodeViewScreenState extends State<MultisigQrCodeViewScreen> {
         TextSpan(text: t.signer_qr_bottom_sheet.add_to_hww.keystone_text9, style: textStyleBold),
         TextSpan(text: t.signer_qr_bottom_sheet.select, style: textStyle),
       ];
-    } else {
+    } else if (widget.hardwareWalletType == HardwareWalletType.krux) {
       if (_isEnglish) {
         return [
           TextSpan(text: t.signer_qr_bottom_sheet.add_to_hww.krux_text0_en, style: textStyle),
@@ -218,7 +218,6 @@ class _MultisigQrCodeViewScreenState extends State<MultisigQrCodeViewScreen> {
         TextSpan(text: '1. ', style: textStyle),
         TextSpan(text: t.signer_qr_bottom_sheet.add_to_hww.krux_text1, style: textStyleBold),
         TextSpan(text: t.signer_qr_bottom_sheet.select, style: textStyle),
-
         const TextSpan(text: '\n'),
         TextSpan(text: '2. ', style: textStyle),
         TextSpan(text: t.signer_qr_bottom_sheet.add_to_hww.krux_text2, style: textStyleBold),
@@ -232,6 +231,43 @@ class _MultisigQrCodeViewScreenState extends State<MultisigQrCodeViewScreen> {
         TextSpan(text: '4. ', style: textStyle),
         TextSpan(text: t.signer_qr_bottom_sheet.add_to_hww.krux_text5, style: textStyleBold),
         TextSpan(text: t.signer_qr_bottom_sheet.select, style: textStyle),
+      ];
+    } else {
+      if (_isEnglish) {
+        return [
+          TextSpan(text: t.signer_qr_bottom_sheet.add_to_hww.vault_text0_en, style: textStyle),
+          TextSpan(text: '1. ', style: textStyle),
+          TextSpan(text: t.signer_qr_bottom_sheet.select, style: textStyle),
+          TextSpan(text: t.signer_qr_bottom_sheet.add_to_hww.vault_text1_en, style: textStyle),
+          const TextSpan(text: '\n'),
+          TextSpan(text: '2. ', style: textStyle),
+          TextSpan(text: t.signer_qr_bottom_sheet.select, style: textStyle),
+          TextSpan(text: t.signer_qr_bottom_sheet.add_to_hww.vault_text2_en, style: textStyleBold),
+          const TextSpan(text: '\n'),
+          TextSpan(text: '3. ', style: textStyle),
+          TextSpan(text: t.signer_qr_bottom_sheet.select, style: textStyle),
+          TextSpan(text: t.signer_qr_bottom_sheet.add_to_hww.vault_text3_en, style: textStyleBold),
+          const TextSpan(text: '\n'),
+          TextSpan(text: '4. ', style: textStyle),
+          TextSpan(text: t.signer_qr_bottom_sheet.add_to_hww.vault_text4_en, style: textStyle),
+        ];
+      }
+      return [
+        TextSpan(text: t.signer_qr_bottom_sheet.add_to_hww.vault_text0, style: textStyle),
+        TextSpan(text: '1. ', style: textStyle),
+        TextSpan(text: t.signer_qr_bottom_sheet.add_to_hww.vault_text1, style: textStyle),
+        TextSpan(text: t.signer_qr_bottom_sheet.select, style: textStyle),
+        const TextSpan(text: '\n'),
+        TextSpan(text: '2. ', style: textStyle),
+        TextSpan(text: t.signer_qr_bottom_sheet.add_to_hww.vault_text2, style: textStyleBold),
+        TextSpan(text: t.signer_qr_bottom_sheet.select, style: textStyle),
+        const TextSpan(text: '\n'),
+        TextSpan(text: '3. ', style: textStyle),
+        TextSpan(text: t.signer_qr_bottom_sheet.add_to_hww.vault_text3, style: textStyleBold),
+        TextSpan(text: t.signer_qr_bottom_sheet.select, style: textStyle),
+        const TextSpan(text: '\n'),
+        TextSpan(text: '4. ', style: textStyle),
+        TextSpan(text: t.signer_qr_bottom_sheet.add_to_hww.vault_text4, style: textStyle),
       ];
     }
   }

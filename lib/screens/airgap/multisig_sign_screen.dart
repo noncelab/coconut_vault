@@ -246,6 +246,7 @@ class _MultisigSignScreenState extends State<MultisigSignScreen> {
   }
 
   void _showMultisigInfoQrCodeBottomSheet(int index, HardwareWalletType hwwType, String multisigInfoQrData) {
+    printLongString('qrData: $multisigInfoQrData');
     MyBottomSheet.showBottomSheet_95(
       context: context,
       child: MultisigQrCodeViewScreen(
@@ -704,13 +705,13 @@ class _MultisigSignScreenState extends State<MultisigSignScreen> {
                   switch (hwwType) {
                     case HardwareWalletType.krux:
                     case HardwareWalletType.keystone3Pro:
+                    case HardwareWalletType.coconutVault:
                       final multisigInfoQrData = _viewModel.getMultisigInfoQrData(hwwType!);
                       if (multisigInfoQrData == null) {
                         return;
                       }
                       _showDialogToMultisigInfoQrCode(index, hwwType!, multisigInfoQrData);
                       break;
-                    case HardwareWalletType.coconutVault:
                     case HardwareWalletType.seedSigner:
                     case HardwareWalletType.jade:
                     case HardwareWalletType.coldcard:

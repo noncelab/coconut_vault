@@ -378,6 +378,16 @@ signer_qr_bottom_sheet:
     krux_text3_en: ""
     krux_text4_en: ""
     krux_text5_en: ""
+    vault_text0: "他のデバイスのココナッツボルトから\n"
+    vault_text1: "ホーム画面のウォレット追加ボタン "
+    vault_text2: "マルチシグ ウォレット "
+    vault_text3: "ウォレットのバックアップデータがあります "
+    vault_text4: "下記のQRコードをスキャンしてウォレット追加完了"
+    vault_text0_en: ""
+    vault_text1_en: ""
+    vault_text2_en: ""
+    vault_text3_en: ""
+    vault_text4_en: ""
 
 unit_bottom_sheet:
   basic_unit: "基本単位"

@@ -378,7 +378,16 @@ signer_qr_bottom_sheet:
     krux_text3_en: ""
     krux_text4_en: ""
     krux_text5_en: ""
-    
+    vault_text0: "다른 기기의 코코넛 볼트에서\n"
+    vault_text1: "홈 화면 상단의 지갑 추가 버튼 "
+    vault_text2: "다중 서명 지갑 "
+    vault_text3: "지갑 백업 데이터가 있어요 "
+    vault_text4: "아래 QR 코드 스캔 후 지갑 추가 완료"
+    vault_text0_en: ""
+    vault_text1_en: ""
+    vault_text2_en: ""
+    vault_text3_en: ""
+    vault_text4_en: ""
 unit_bottom_sheet:
   basic_unit: "기본 단위"
   header_text: "1 BTC = 100,000,000 sats"
