@@ -31,12 +31,7 @@ class PsbtScannerScreen extends StatefulWidget {
   final int? id;
   final HardwareWalletType? hardwareWalletType;
   final void Function(String psbtBase64)? onMultisigSignCompleted;
-  const PsbtScannerScreen({
-    super.key,
-    this.id,
-    this.hardwareWalletType,
-    this.onMultisigSignCompleted,
-  });
+  const PsbtScannerScreen({super.key, this.id, this.hardwareWalletType, this.onMultisigSignCompleted});
 
   @override
   State<PsbtScannerScreen> createState() => _PsbtScannerScreenState();
@@ -149,8 +144,7 @@ class _PsbtScannerScreenState extends State<PsbtScannerScreen> {
           psbtBase64,
           hasDerivationPath:
               widget.hardwareWalletType != HardwareWalletType.krux &&
-              widget.hardwareWalletType != HardwareWalletType.seedSigner &&
-              widget.hardwareWalletType != HardwareWalletType.auto,
+              widget.hardwareWalletType != HardwareWalletType.seedSigner,
         );
       }
     } catch (e) {
@@ -218,10 +212,7 @@ class _PsbtScannerScreenState extends State<PsbtScannerScreen> {
 
   List<TextSpan> _getGuideTextSpan() {
     final textStyle = CoconutTypography.body2_14.copyWith(height: 1.3, color: CoconutColors.black);
-    final textStyleBold = CoconutTypography.body2_14_Bold.copyWith(
-      height: 1.3,
-      color: CoconutColors.black,
-    );
+    final textStyleBold = CoconutTypography.body2_14_Bold.copyWith(height: 1.3, color: CoconutColors.black);
     final hwwType = widget.hardwareWalletType ?? HardwareWalletType.coconutVault;
 
     final visibilityProvider = Provider.of<VisibilityProvider>(context, listen: false);
@@ -232,10 +223,7 @@ class _PsbtScannerScreenState extends State<PsbtScannerScreen> {
         // TODO: 숫자 빼기
         return [
           TextSpan(
-            text:
-                widget.id == null
-                    ? t.psbt_scanner_screen.guide
-                    : t.psbt_scanner_screen.guide_single_sig_same_name,
+            text: widget.id == null ? t.psbt_scanner_screen.guide : t.psbt_scanner_screen.guide_single_sig_same_name,
             style: CoconutTypography.body2_14.copyWith(height: 1.2, color: CoconutColors.black),
           ),
         ];
@@ -259,9 +247,7 @@ class _PsbtScannerScreenState extends State<PsbtScannerScreen> {
           ],
           const TextSpan(text: '\n'),
           TextSpan(
-            text: t.psbt_scanner_screen.tooltip.scan_QR_code(
-              name: t.hardware_wallet_type.seedsigner,
-            ),
+            text: t.psbt_scanner_screen.tooltip.scan_QR_code(name: t.hardware_wallet_type.seedsigner),
             style: textStyle,
           ),
         ];
@@ -364,8 +350,6 @@ class _PsbtScannerScreenState extends State<PsbtScannerScreen> {
             style: textStyle,
           ),
         ];
-      case HardwareWalletType.auto:
-        return [TextSpan(text: t.psbt_scanner_screen.tooltip.auto_text, style: textStyle)];
     }
   }
 
@@ -391,9 +375,7 @@ class _PsbtScannerScreenState extends State<PsbtScannerScreen> {
             ),
             CustomTooltip.buildInfoTooltip(
               context,
-              richText: RichText(
-                text: TextSpan(style: CoconutTypography.body2_14, children: _getGuideTextSpan()),
-              ),
+              richText: RichText(text: TextSpan(style: CoconutTypography.body2_14, children: _getGuideTextSpan())),
               isBackgroundWhite: false,
               paddingTop: 20,
             ),

@@ -1,7 +1,7 @@
 import 'package:coconut_vault/constants/icon_path.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 
-enum HardwareWalletType { coconutVault, keystone3Pro, seedSigner, jade, coldcard, krux, auto }
+enum HardwareWalletType { coconutVault, keystone3Pro, seedSigner, jade, coldcard, krux }
 
 extension HardwareWalletTypeExtension on HardwareWalletType {
   static final Map<HardwareWalletType, String> _names = {
@@ -26,8 +26,7 @@ extension HardwareWalletTypeExtension on HardwareWalletType {
   String get iconPath => _icons[this]!;
 
   static HardwareWalletType? getHardwareWalletTypeByIconPath(String iconPath) {
-    return _icons.entries.firstWhere((element) => element.value == iconPath).key
-        as HardwareWalletType?;
+    return _icons.entries.firstWhere((element) => element.value == iconPath).key as HardwareWalletType?;
   }
 
   static HardwareWalletType? fromDisplayName(String name) {
