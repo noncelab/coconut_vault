@@ -341,7 +341,7 @@ class MultisigNormalizer {
       final pathList = origin['1'];
       if (pathList == null || pathList is! List) continue;
 
-      if (pathList.length == targetPath1.length && pathList[2] != targetPath1[2]) {
+      if (pathList.length == targetPath1.length && pathList[2].value != targetPath1[2]) {
         throw NetworkMismatchException();
       }
       if (_listEquals(pathList, targetPath1) || _listEquals(pathList, targetPath2)) {
