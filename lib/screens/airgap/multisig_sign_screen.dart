@@ -23,7 +23,6 @@ import 'package:coconut_vault/screens/common/select_external_wallet_bottom_sheet
 import 'package:coconut_vault/screens/wallet_info/single_sig_menu/passphrase_check_screen.dart';
 import 'package:coconut_vault/screens/airgap/multisig_psbt_qr_code_screen.dart';
 import 'package:coconut_vault/utils/alert_util.dart';
-import 'package:coconut_vault/utils/print_util.dart';
 import 'package:coconut_vault/widgets/bottom_sheet.dart';
 import 'package:coconut_vault/widgets/button/fixed_bottom_tween_button.dart';
 import 'package:coconut_vault/widgets/button/shrink_animation_button.dart';
@@ -263,23 +262,25 @@ class _MultisigSignScreenState extends State<MultisigSignScreen> {
     );
   }
 
-  void _showPsbtQrCodeBottomSheet(int index, HardwareWalletType hwwType) {
-    final masterFingerprint = _viewModel.signers[index].keyStore.masterFingerprint;
+  void _showPsbtQrCodeBottomSheet(int? index, HardwareWalletType hwwType, {VoidCallback? onNextPressed}) {
+    final masterFingerprint = index != null ? _viewModel.signers[index].keyStore.masterFingerprint : null;
     MyBottomSheet.showBottomSheet_95(
       context: context,
       child: PsbtQrCodeViewScreen(
         multisigName: _viewModel.walletName,
-        keyIndex: '${index + 1}',
+        keyIndex: index != null ? '${index + 1}' : '',
         signedRawTx: _viewModel.psbtForSigning,
         hardwareWalletType: hwwType,
         masterFingerprint: masterFingerprint,
-        onNextPressed: () async {
-          Navigator.pop(context); // 현재 다이얼로그 닫기
+        onNextPressed:
+            onNextPressed ??
+            () async {
+              Navigator.pop(context); // 현재 다이얼로그 닫기
 
-          await Future.delayed(const Duration(milliseconds: 300));
-          if (!mounted) return;
-          _showPsbtScannerBottomSheet(index, hwwType);
-        },
+              await Future.delayed(const Duration(milliseconds: 300));
+              if (!mounted) return;
+              _showPsbtScannerBottomSheet(index, hwwType);
+            },
       ),
     );
   }
@@ -481,6 +482,36 @@ class _MultisigSignScreenState extends State<MultisigSignScreen> {
                   context: context,
                   onBackPressed: _onBackPressed,
                   backgroundColor: CoconutColors.white,
+                  actionButtonList: [
+                    SizedBox(
+                      height: 40,
+                      width: 40,
+                      child: IconButton(
+                        icon: SvgPicture.asset('assets/svg/log-out.svg'),
+                        highlightColor: CoconutColors.gray200,
+                        onPressed: () {
+                          showDialog(
+                            context: context,
+                            builder:
+                                (context) => CoconutPopup(
+                                  title: t.alert.exit_sign.title,
+                                  description: t.alert.exit_sign.description,
+                                  backgroundColor: CoconutColors.white,
+                                  leftButtonText: t.no,
+                                  leftButtonColor: CoconutColors.black.withValues(alpha: 0.7),
+                                  rightButtonText: t.yes,
+                                  rightButtonColor: CoconutColors.warningText,
+                                  onTapLeft: () => Navigator.pop(context),
+                                  onTapRight: () {
+                                    Navigator.popUntil(context, (route) => route.isFirst);
+                                  },
+                                ),
+                          );
+                        },
+                        color: CoconutColors.white,
+                      ),
+                    ),
+                  ],
                 ),
                 body: SafeArea(
                   child: Stack(
@@ -741,10 +772,10 @@ class _MultisigSignScreenState extends State<MultisigSignScreen> {
                           );
                         },
                         child: SvgPicture.asset(
-                          isSignerApproved
-                              ? 'assets/svg/check-circle-green.svg'
-                              : 'assets/svg/check-circle-outlined.svg',
+                          isSignerApproved ? 'assets/svg/check-circle-green.svg' : _getHardwareWalletIconPath(hwwType),
                           width: 24.0,
+                          colorFilter:
+                              isSignerApproved ? null : const ColorFilter.mode(CoconutColors.gray300, BlendMode.srcIn),
                           key: ValueKey<bool>(isSignerApproved),
                         ),
                       ),
@@ -777,29 +808,24 @@ class _MultisigSignScreenState extends State<MultisigSignScreen> {
     );
   }
 
+  String _getHardwareWalletIconPath(HardwareWalletType? hwwType) {
+    debugPrint('hwwType: $hwwType');
+    if (hwwType == null) {
+      return 'assets/svg/check-circle-outlined.svg';
+    }
+    return hwwType.iconPath;
+  }
+
   Widget _buildBottomButtons() {
     return Selector<MultisigSignViewModel, bool>(
       selector: (_, viewModel) => viewModel.isSignatureComplete,
       builder: (context, isSignatureComplete, child) {
         return FixedBottomTweenButton(
-          leftButtonClicked: () {
-            showDialog(
-              context: context,
-              builder:
-                  (context) => CoconutPopup(
-                    title: t.alert.exit_sign.title,
-                    description: t.alert.exit_sign.description,
-                    backgroundColor: CoconutColors.white,
-                    leftButtonText: t.no,
-                    leftButtonColor: CoconutColors.black.withValues(alpha: 0.7),
-                    rightButtonText: t.yes,
-                    rightButtonColor: CoconutColors.warningText,
-                    onTapLeft: () => Navigator.pop(context),
-                    onTapRight: () {
-                      Navigator.popUntil(context, (route) => route.isFirst);
-                    },
-                  ),
-            );
+          leftButtonClicked: () async {
+            final hwwType = await _showHardwareSelectionBottomSheet();
+            if (hwwType != null) {
+              _showPsbtQrCodeBottomSheet(null, hwwType);
+            }
           },
           rightButtonClicked: () async {
             final hwwType = await _showHardwareSelectionBottomSheet();
@@ -807,7 +833,7 @@ class _MultisigSignScreenState extends State<MultisigSignScreen> {
               _showPsbtScannerBottomSheet(null, hwwType);
             }
           },
-          leftText: t.abort_sign,
+          leftText: t.export_qr,
           rightText: t.scan_qr,
           leftButtonBackgroundColor: CoconutColors.white,
           rightButtonBackgroundColor: CoconutColors.white,

@@ -247,6 +247,7 @@ flutter:
     - assets/svg/jade.svg
     - assets/svg/coldcard.svg
     - assets/svg/krux.svg
+    - assets/svg/log-out.svg
 
   fonts:
     - family: SpaceGrotesk

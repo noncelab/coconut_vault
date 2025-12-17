@@ -166,23 +166,25 @@ class _PsbtQrCodeViewScreenState extends State<PsbtQrCodeViewScreen> {
                   ),
                 ),
               ),
-              FixedBottomButton(
-                onButtonClicked: () {
-                  widget.onNextPressed();
-                },
-                subWidget: CoconutUnderlinedButton(
-                  text: _isBbqrType ? t.signer_qr_bottom_sheet.view_ur : t.signer_qr_bottom_sheet.view_bbqr,
-                  onTap: () {
-                    if (_bbqrParts.isEmpty) {
-                      _bbqrParts = BbQrEncoder().encodeBase64(widget.signedRawTx);
-                    }
-                    setState(() {
-                      _isBbqrType = !_isBbqrType;
-                    });
+              if (widget.keyIndex.isNotEmpty && widget.masterFingerprint != null) ...[
+                FixedBottomButton(
+                  onButtonClicked: () {
+                    widget.onNextPressed();
                   },
+                  subWidget: CoconutUnderlinedButton(
+                    text: _isBbqrType ? t.signer_qr_bottom_sheet.view_ur : t.signer_qr_bottom_sheet.view_bbqr,
+                    onTap: () {
+                      if (_bbqrParts.isEmpty) {
+                        _bbqrParts = BbQrEncoder().encodeBase64(widget.signedRawTx);
+                      }
+                      setState(() {
+                        _isBbqrType = !_isBbqrType;
+                      });
+                    },
+                  ),
+                  text: t.next,
                 ),
-                text: t.next,
-              ),
+              ],
             ],
           ),
         ),
