@@ -75,8 +75,7 @@ class SignerOption {
   late final String masterFingerprint;
 
   SignerOption(this.singlesigVaultListItem, this.signerBsms) {
-    masterFingerprint =
-        (singlesigVaultListItem.coconutVault as SingleSignatureVault).keyStore.masterFingerprint;
+    masterFingerprint = (singlesigVaultListItem.coconutVault as SingleSignatureVault).keyStore.masterFingerprint;
   }
 }
 
@@ -138,10 +137,7 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
                 ),
                 body: SafeArea(
                   child: SizedBox(
-                    height:
-                        MediaQuery.of(context).size.height -
-                        kToolbarHeight -
-                        MediaQuery.of(context).padding.top,
+                    height: MediaQuery.of(context).size.height - kToolbarHeight - MediaQuery.of(context).padding.top,
                     child: Stack(
                       children: [
                         SingleChildScrollView(
@@ -150,18 +146,13 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
                               Stack(
                                 children: [
                                   ClipRRect(
-                                    child: Container(
-                                      height: 6,
-                                      color: CoconutColors.black.withValues(alpha: 0.06),
-                                    ),
+                                    child: Container(height: 6, color: CoconutColors.black.withValues(alpha: 0.06)),
                                   ),
                                   LayoutBuilder(
                                     builder: (context, constraints) {
                                       return ClipRRect(
                                         borderRadius:
-                                            viewModel.getAssignedVaultListLength() /
-                                                        viewModel.totalSignatureCount ==
-                                                    1
+                                            viewModel.getAssignedVaultListLength() / viewModel.totalSignatureCount == 1
                                                 ? BorderRadius.zero
                                                 : const BorderRadius.only(
                                                   topRight: Radius.circular(6),
@@ -186,10 +177,7 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
                               ),
                               SingleChildScrollView(
                                 child: Padding(
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 16.0,
-                                    vertical: 78,
-                                  ),
+                                  padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 78),
                                   child: Column(
                                     crossAxisAlignment: CrossAxisAlignment.center,
                                     children: [
@@ -201,11 +189,7 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
                                         style: CoconutTypography.heading4_18_Bold,
                                       ),
                                       CoconutLayout.spacing_900h,
-                                      for (
-                                        int i = 0;
-                                        i < viewModel.assignedVaultList.length;
-                                        i++
-                                      ) ...[
+                                      for (int i = 0; i < viewModel.assignedVaultList.length; i++) ...[
                                         Builder(
                                           builder: (context) {
                                             final signer = viewModel.assignedVaultList[i];
@@ -215,10 +199,7 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
                                                 ShrinkAnimationButton(
                                                   onPressed: () {
                                                     if (signer.importKeyType != null) {
-                                                      _showDialog(
-                                                        DialogType.deleteKey,
-                                                        keyIndex: i,
-                                                      );
+                                                      _showDialog(DialogType.deleteKey, keyIndex: i);
                                                       return;
                                                     }
                                                     MyBottomSheet.showBottomSheet_ratio(
@@ -229,27 +210,23 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
                                                   },
                                                   defaultColor:
                                                       signer.importKeyType != null
-                                                          ? signer.importKeyType ==
-                                                                  ImportKeyType.internal
-                                                              ? CoconutColors
-                                                                  .backgroundColorPaletteLight[signer
+                                                          ? signer.importKeyType == ImportKeyType.internal
+                                                              ? CoconutColors.backgroundColorPaletteLight[signer
                                                                   .singleSigVaultListItem!
                                                                   .colorIndex]
-                                                              : CoconutColors
-                                                                  .backgroundColorPaletteLight[8]
+                                                              : CoconutColors.backgroundColorPaletteLight[8]
                                                           : CoconutColors.white,
                                                   pressedColor:
                                                       signer.importKeyType != null
-                                                          ? signer.importKeyType ==
-                                                                  ImportKeyType.internal
+                                                          ? signer.importKeyType == ImportKeyType.internal
                                                               ? CoconutColors
                                                                   .backgroundColorPaletteLight[signer
                                                                       .singleSigVaultListItem!
                                                                       .colorIndex]
                                                                   .withAlpha(70)
-                                                              : CoconutColors
-                                                                  .backgroundColorPaletteLight[8]
-                                                                  .withAlpha(70)
+                                                              : CoconutColors.backgroundColorPaletteLight[8].withAlpha(
+                                                                70,
+                                                              )
                                                           : CoconutColors.gray150,
                                                   borderRadius: 100,
                                                   borderWidth: 1,
@@ -268,22 +245,17 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
                                                   child: Container(
                                                     width: 210,
                                                     height: 64,
-                                                    padding: const EdgeInsets.symmetric(
-                                                      horizontal: 16,
-                                                    ),
+                                                    padding: const EdgeInsets.symmetric(horizontal: 16),
                                                     child:
                                                         signer.importKeyType != null
                                                             ? Row(
-                                                              mainAxisAlignment:
-                                                                  MainAxisAlignment.center,
+                                                              mainAxisAlignment: MainAxisAlignment.center,
                                                               children: [
                                                                 SvgPicture.asset(
                                                                   _getIconPath(signer),
                                                                   colorFilter: ColorFilter.mode(
-                                                                    signer.importKeyType ==
-                                                                            ImportKeyType.internal
-                                                                        ? CoconutColors
-                                                                            .colorPalette[signer
+                                                                    signer.importKeyType == ImportKeyType.internal
+                                                                        ? CoconutColors.colorPalette[signer
                                                                             .singleSigVaultListItem!
                                                                             .colorIndex]
                                                                         : CoconutColors.black,
@@ -298,8 +270,7 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
                                                                       name: _getDisplayName(signer),
                                                                       index: signer.index + 1,
                                                                     ),
-                                                                    style:
-                                                                        CoconutTypography.body1_16,
+                                                                    style: CoconutTypography.body1_16,
                                                                     maxLines: 1,
                                                                     overflow: TextOverflow.ellipsis,
                                                                     textAlign: TextAlign.center,
@@ -309,9 +280,7 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
                                                             )
                                                             : Center(
                                                               child: Text(
-                                                                t.multisig.select_nth_key(
-                                                                  index: signer.index + 1,
-                                                                ),
+                                                                t.multisig.select_nth_key(index: signer.index + 1),
                                                                 style: CoconutTypography.body1_16,
                                                               ),
                                                             ),
@@ -348,12 +317,8 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
                         Visibility(
                           visible: _isNextProcessing,
                           child: Container(
-                            decoration: BoxDecoration(
-                              color: CoconutColors.black.withValues(alpha: 0.3),
-                            ),
-                            child: Center(
-                              child: MessageActivityIndicator(message: viewModel.loadingMessage),
-                            ),
+                            decoration: BoxDecoration(color: CoconutColors.black.withValues(alpha: 0.3)),
+                            child: Center(child: MessageActivityIndicator(message: viewModel.loadingMessage)),
                           ),
                         ),
                         Visibility(
@@ -361,12 +326,8 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
                           child: Container(
                             width: MediaQuery.of(context).size.width,
                             height: MediaQuery.of(context).size.height,
-                            decoration: BoxDecoration(
-                              color: CoconutColors.black.withValues(alpha: 0.3),
-                            ),
-                            child: const Center(
-                              child: CircularProgressIndicator(color: CoconutColors.gray800),
-                            ),
+                            decoration: BoxDecoration(color: CoconutColors.black.withValues(alpha: 0.3)),
+                            child: const Center(child: CircularProgressIndicator(color: CoconutColors.gray800)),
                           ),
                         ),
                       ],
@@ -386,19 +347,14 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
       right: 0,
       child: Stack(
         children: [
-          ClipRRect(
-            child: Container(height: 6, color: CoconutColors.black.withValues(alpha: 0.06)),
-          ),
+          ClipRRect(child: Container(height: 6, color: CoconutColors.black.withValues(alpha: 0.06))),
           LayoutBuilder(
             builder: (context, constraints) {
               return ClipRRect(
                 borderRadius:
                     _viewModel.getAssignedVaultListLength() / _viewModel.totalSignatureCount == 1
                         ? BorderRadius.zero
-                        : const BorderRadius.only(
-                          topRight: Radius.circular(6),
-                          bottomRight: Radius.circular(6),
-                        ),
+                        : const BorderRadius.only(topRight: Radius.circular(6), bottomRight: Radius.circular(6)),
                 child: AnimatedContainer(
                   duration: const Duration(milliseconds: 500),
                   curve: Curves.easeInOut,
@@ -407,8 +363,7 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
                       (constraints.maxWidth) *
                       (_viewModel.getAssignedVaultListLength() == 0
                           ? 0
-                          : _viewModel.getAssignedVaultListLength() /
-                              _viewModel.totalSignatureCount),
+                          : _viewModel.getAssignedVaultListLength() / _viewModel.totalSignatureCount),
                   color: CoconutColors.black,
                 ),
               );
@@ -456,10 +411,7 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
 
   Widget _buildKeyOptionButton({required String title, required VoidCallback onPressed}) {
     return ShrinkAnimationButton(
-      borderGradientColors: [
-        CoconutColors.black.withValues(alpha: 0.08),
-        CoconutColors.black.withValues(alpha: 0.08),
-      ],
+      borderGradientColors: [CoconutColors.black.withValues(alpha: 0.08), CoconutColors.black.withValues(alpha: 0.08)],
       borderWidth: 1,
       borderRadius: 12,
       onPressed: onPressed,
@@ -499,8 +451,7 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
               Navigator.pop(context); // 이 볼트에 있는 키 사용하기 다이얼로그 닫기
               Navigator.pop(context); // 키 종류 선택 다이얼로그 닫기
             },
-            vaultList:
-                _viewModel.unselectedSignerOptions.map((o) => o.singlesigVaultListItem).toList(),
+            vaultList: _viewModel.unselectedSignerOptions.map((o) => o.singlesigVaultListItem).toList(),
             scrollController: scrollController,
           ),
     );
@@ -553,9 +504,7 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
     final List<ExternalWalletButton> walletButtons = [];
     for (final walletType in HardwareWalletType.values) {
       if (walletType == HardwareWalletType.coconutVault) continue;
-      walletButtons.add(
-        ExternalWalletButton(name: walletType.displayName, iconSource: walletType.iconPath),
-      );
+      walletButtons.add(ExternalWalletButton(name: walletType.displayName, iconSource: walletType.iconPath));
     }
 
     await MyBottomSheet.showBottomSheet_ratio(
@@ -564,9 +513,7 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
         title: t.assign_signers_screen.hardware_wallet_type_selection,
         externalWalletButtonList: walletButtons,
         onSelected: (index) {
-          selectedWalletType = HardwareWalletTypeExtension.fromDisplayName(
-            walletButtons[index].name,
-          );
+          selectedWalletType = HardwareWalletTypeExtension.fromDisplayName(walletButtons[index].name);
         },
       ),
     );
@@ -730,10 +677,7 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
           onConfirm = () {
             _viewModel.resetWalletCreationProvider();
             _isFinishing = true;
-            Navigator.popUntil(
-              context,
-              (route) => route.settings.name == AppRoutes.multisigQuorumSelection,
-            );
+            Navigator.popUntil(context, (route) => route.settings.name == AppRoutes.multisigQuorumSelection);
           };
           break;
         }
@@ -745,10 +689,7 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
           onConfirm = () {
             _viewModel.resetWalletCreationProvider();
             _isFinishing = true;
-            Navigator.popUntil(
-              context,
-              (route) => route.settings.name == AppRoutes.multisigQuorumSelection,
-            );
+            Navigator.popUntil(context, (route) => route.settings.name == AppRoutes.multisigQuorumSelection);
           };
           break;
         }
@@ -815,11 +756,7 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
           confirmButtonColor = CoconutColors.warningText;
           barrierDismissible = false;
           onCancel = () {
-            _draggableController.animateTo(
-              1,
-              duration: const Duration(milliseconds: 300),
-              curve: Curves.easeInOut,
-            );
+            _draggableController.animateTo(1, duration: const Duration(milliseconds: 300), curve: Curves.easeInOut);
 
             Navigator.pop(context);
             Future.delayed(const Duration(milliseconds: 300), () {

@@ -218,9 +218,7 @@ class SignerBsmsQrDataHandler implements IQrScanDataHandler {
     final match = validPrefixes.any((p) => lower.startsWith(p.toLowerCase()));
 
     if (!match) {
-      throw FormatException(
-        'Invalid extended key prefix for ${isMainnet ? "mainnet" : "testnet"}: $xpub',
-      );
+      throw FormatException('Invalid extended key prefix for ${isMainnet ? "mainnet" : "testnet"}: $xpub');
     }
   }
 }

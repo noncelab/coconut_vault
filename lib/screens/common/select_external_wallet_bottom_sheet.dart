@@ -63,8 +63,7 @@ class _SelectExternalWalletBottomSheetState extends State<SelectExternalWalletBo
               showGradient: false,
               isActive: selectedIndex != _committedIndex,
               onButtonClicked: () {
-                if (selectedIndex == null ||
-                    selectedIndex! >= widget.externalWalletButtonList.length) {
+                if (selectedIndex == null || selectedIndex! >= widget.externalWalletButtonList.length) {
                   return;
                 }
 
@@ -81,9 +80,7 @@ class _SelectExternalWalletBottomSheetState extends State<SelectExternalWalletBo
                   barrierDismissible: false,
                   builder: (BuildContext context) {
                     return CoconutPopup(
-                      insetPadding: EdgeInsets.symmetric(
-                        horizontal: MediaQuery.of(context).size.width * 0.15,
-                      ),
+                      insetPadding: EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width * 0.15),
                       title: t.multi_sig_setting_screen.popup.title(name: hwwName),
                       description: t.multi_sig_setting_screen.popup.description(name: hwwName),
                       rightButtonText: t.multi_sig_setting_screen.popup.button,
@@ -114,9 +111,7 @@ class _SelectExternalWalletBottomSheetState extends State<SelectExternalWalletBo
 
       final List<Widget> rowChildren = [];
       for (int j = i; j < endIndex; j++) {
-        rowChildren.add(
-          Expanded(child: _buildWalletIconShrinkButton(widget.externalWalletButtonList[j], j)),
-        );
+        rowChildren.add(Expanded(child: _buildWalletIconShrinkButton(widget.externalWalletButtonList[j], j)));
       }
 
       while (rowChildren.length < itemsPerRow) {
@@ -135,10 +130,7 @@ class _SelectExternalWalletBottomSheetState extends State<SelectExternalWalletBo
 
   Widget _buildWalletIconShrinkButton(ExternalWalletButton button, int index) {
     return ShrinkAnimationButton(
-      border: Border.all(
-        color: selectedIndex == index ? CoconutColors.gray700 : CoconutColors.white,
-        width: 1.5,
-      ),
+      border: Border.all(color: selectedIndex == index ? CoconutColors.gray700 : CoconutColors.white, width: 1.5),
       borderRadius: 12,
       onPressed: () => setState(() => selectedIndex = index),
       child: Padding(
