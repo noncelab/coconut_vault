@@ -33,7 +33,7 @@ class _SignerBsmsScannerScreenState extends BsmsScannerBase<SignerBsmsScannerScr
   @override
   void initState() {
     super.initState();
-    _qrDataHandler = SignerBsmsQrDataHandler(harewareWalletType: widget.hardwareWalletType);
+    _qrDataHandler = SignerBsmsQrDataHandler(hardwareWalletType: widget.hardwareWalletType);
     if (_qrDataHandler.isFragmentedDataScanned) {
       showProgressBar = true;
     }
