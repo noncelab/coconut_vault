@@ -24,6 +24,7 @@ class PsbtQrCodeViewScreen extends StatefulWidget {
   final String signedRawTx;
   final HardwareWalletType hardwareWalletType;
   final VoidCallback onNextPressed;
+  final String? masterFingerprint;
 
   const PsbtQrCodeViewScreen({
     super.key,
@@ -32,6 +33,7 @@ class PsbtQrCodeViewScreen extends StatefulWidget {
     required this.signedRawTx,
     required this.hardwareWalletType,
     required this.onNextPressed,
+    this.masterFingerprint,
   });
 
   @override
@@ -109,7 +111,6 @@ class _PsbtQrCodeViewScreenState extends State<PsbtQrCodeViewScreen> {
   @override
   Widget build(BuildContext context) {
     final psbt = Psbt.parse(widget.signedRawTx);
-
     return ClipRRect(
       borderRadius: CoconutBorder.defaultRadius,
       child: Scaffold(
@@ -210,7 +211,10 @@ class _PsbtQrCodeViewScreenState extends State<PsbtQrCodeViewScreen> {
           ];
         case HardwareWalletType.seedSigner:
           return [
-            TextSpan(text: t.signer_qr_bottom_sheet.seedsigner_text0, style: textStyle),
+            TextSpan(
+              text: t.signer_qr_bottom_sheet.seedsigner_text0(mfp: widget.masterFingerprint ?? ''),
+              style: textStyle,
+            ),
             TextSpan(text: '1. ', style: textStyle),
             TextSpan(text: t.signer_qr_bottom_sheet.select, style: textStyle),
             TextSpan(text: t.signer_qr_bottom_sheet.seedsigner_text1, style: textStyle),
@@ -222,7 +226,7 @@ class _PsbtQrCodeViewScreenState extends State<PsbtQrCodeViewScreen> {
           ];
         case HardwareWalletType.jade:
           return [
-            TextSpan(text: t.signer_qr_bottom_sheet.jade_text0, style: textStyle),
+            TextSpan(text: t.signer_qr_bottom_sheet.jade_text0(mfp: widget.masterFingerprint ?? ''), style: textStyle),
             TextSpan(text: '1. ', style: textStyle),
             TextSpan(text: t.signer_qr_bottom_sheet.select, style: textStyle),
             TextSpan(text: t.signer_qr_bottom_sheet.jade_text1, style: textStyle),
@@ -276,8 +280,6 @@ class _PsbtQrCodeViewScreenState extends State<PsbtQrCodeViewScreen> {
             TextSpan(text: t.signer_qr_bottom_sheet.krux_text5, style: textStyleBold),
             TextSpan(text: t.signer_qr_bottom_sheet.krux_text6, style: textStyle),
           ];
-        default:
-          return [];
       }
     }
     switch (widget.hardwareWalletType) {
@@ -296,7 +298,10 @@ class _PsbtQrCodeViewScreenState extends State<PsbtQrCodeViewScreen> {
         ];
       case HardwareWalletType.seedSigner:
         return [
-          TextSpan(text: t.signer_qr_bottom_sheet.seedsigner_text0, style: textStyle),
+          TextSpan(
+            text: t.signer_qr_bottom_sheet.seedsigner_text0(mfp: widget.masterFingerprint ?? ''),
+            style: textStyle,
+          ),
           TextSpan(text: '1. ', style: textStyle),
           TextSpan(text: t.signer_qr_bottom_sheet.seedsigner_text1, style: textStyleBold),
           TextSpan(text: t.signer_qr_bottom_sheet.select, style: textStyle),
@@ -308,7 +313,7 @@ class _PsbtQrCodeViewScreenState extends State<PsbtQrCodeViewScreen> {
         ];
       case HardwareWalletType.jade:
         return [
-          TextSpan(text: t.signer_qr_bottom_sheet.jade_text0, style: textStyle),
+          TextSpan(text: t.signer_qr_bottom_sheet.jade_text0(mfp: widget.masterFingerprint ?? ''), style: textStyle),
           TextSpan(text: '1. ', style: textStyle),
           TextSpan(text: t.signer_qr_bottom_sheet.jade_text1, style: textStyleBold),
           TextSpan(text: t.signer_qr_bottom_sheet.select, style: textStyle),
@@ -362,8 +367,6 @@ class _PsbtQrCodeViewScreenState extends State<PsbtQrCodeViewScreen> {
           TextSpan(text: t.signer_qr_bottom_sheet.krux_text5, style: textStyleBold),
           TextSpan(text: t.signer_qr_bottom_sheet.krux_text6, style: textStyle),
         ];
-      default:
-        return [];
     }
   }
 

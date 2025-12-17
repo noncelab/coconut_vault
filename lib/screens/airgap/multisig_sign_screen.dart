@@ -264,6 +264,7 @@ class _MultisigSignScreenState extends State<MultisigSignScreen> {
   }
 
   void _showPsbtQrCodeBottomSheet(int index, HardwareWalletType hwwType) {
+    final masterFingerprint = _viewModel.signers[index].keyStore.masterFingerprint;
     MyBottomSheet.showBottomSheet_95(
       context: context,
       child: PsbtQrCodeViewScreen(
@@ -271,6 +272,7 @@ class _MultisigSignScreenState extends State<MultisigSignScreen> {
         keyIndex: '${index + 1}',
         signedRawTx: _viewModel.psbtForSigning,
         hardwareWalletType: hwwType,
+        masterFingerprint: masterFingerprint,
         onNextPressed: () async {
           Navigator.pop(context); // 현재 다이얼로그 닫기
 
