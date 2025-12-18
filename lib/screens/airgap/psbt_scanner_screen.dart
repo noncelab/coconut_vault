@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'dart:io';
 
 import 'package:coconut_design_system/coconut_design_system.dart';
@@ -6,12 +5,12 @@ import 'package:coconut_vault/constants/app_routes.dart';
 import 'package:coconut_vault/enums/hardware_wallet_type_enum.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/model/exception/extended_public_key_not_found_exception.dart';
+import 'package:coconut_vault/model/exception/needs_multisig_setup_exception.dart';
 import 'package:coconut_vault/model/exception/vault_can_not_sign_exception.dart';
 import 'package:coconut_vault/model/exception/vault_not_found_exception.dart';
 import 'package:coconut_vault/providers/sign_provider.dart';
 import 'package:coconut_vault/providers/view_model/airgap/psbt_scanner_view_model.dart';
 import 'package:coconut_vault/providers/visibility_provider.dart';
-import 'package:coconut_vault/utils/print_util.dart';
 import 'package:coconut_vault/widgets/animated_qr/coconut_qr_scanner.dart';
 import 'package:coconut_vault/widgets/animated_qr/scan_data_handler/bb_qr_scan_data_handler.dart';
 import 'package:coconut_vault/widgets/animated_qr/scan_data_handler/bc_ur_qr_scan_data_handler.dart';
@@ -24,8 +23,6 @@ import 'package:coconut_vault/utils/vibration_util.dart';
 import 'package:loader_overlay/loader_overlay.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:provider/provider.dart';
-import 'package:ur/ur.dart';
-import 'package:cbor/cbor.dart';
 
 class PsbtScannerScreen extends StatefulWidget {
   final int? id;
@@ -105,6 +102,7 @@ class _PsbtScannerScreenState extends State<PsbtScannerScreen> {
           rightButtonText: t.confirm,
           rightButtonColor: CoconutColors.black.withValues(alpha: 0.7),
           onTapRight: () {
+            _scanDataHandler.reset();
             _isProcessing = false;
             controller?.start();
             Navigator.pop(context);
@@ -114,21 +112,21 @@ class _PsbtScannerScreenState extends State<PsbtScannerScreen> {
     );
   }
 
-  Future<void> _onCompletedScanning(dynamic signedPsbt) async {
+  Future<void> _onCompletedScanning(dynamic psbt) async {
     await stopCamera();
     if (_isProcessing) return;
     _isProcessing = true;
 
     String? psbtBase64;
     try {
-      psbtBase64 = _viewModel.normalizePsbtToBase64(signedPsbt);
+      psbtBase64 = _viewModel.normalizePsbtToBase64(psbt);
 
       if (widget.id == null) {
         // 스캔된 MFP를 이용해 유효한 볼트를 찾고, SignProvider에 저장
         await _viewModel.setMatchingVault(psbtBase64);
       } else {
         // id를 이용해 특정 지갑에 대해 psbt 파싱
-        await _viewModel.parseBase64EncodedToPsbt(
+        await _viewModel.preparePsbtForVault(
           widget.id!,
           psbtBase64,
           hasDerivationPath:
@@ -146,10 +144,11 @@ class _PsbtScannerScreenState extends State<PsbtScannerScreen> {
         await _showErrorDialog(e.message);
       } else if (e is ExtendedPublicKeyNotFoundException) {
         await _showErrorDialog(e.message);
+      } else if (e is NeedsMultisigSetupException) {
+        await _showErrorDialog(e.message);
       } else {
         await _showErrorDialog(t.errors.invalid_qr);
       }
-      _isProcessing = true;
       return;
     }
 

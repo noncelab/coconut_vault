@@ -1011,6 +1011,7 @@ exceptions:
   seed_invalidated: 
     title: "지갑 사용 불가"
     description: "저장된 지갑을 더 이상 사용할 수 없습니다. 지갑을 삭제한 뒤, 백업한 니모닉으로 다시 복원해 주세요."
+  needs_multisig_setup: "$name 지갑으로 서명하려면 다중 서명 지갑을 먼저 추가해 주세요."
 
 tooltip:
   mfp: "지갑의 고유 값이에요.\n마스터 핑거프린트(MFP)라고도 해요."
