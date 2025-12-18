@@ -287,6 +287,11 @@ class _MultisigSignScreenState extends State<MultisigSignScreen> {
   }
 
   void _showPsbtScannerBottomSheet(int? index, HardwareWalletType hwwType) {
+    if (index == null) {
+      // 하단 버튼의 'QR 스캔하기'를 통해 들어왔을 때
+      _showImportPsbtScannerBottomSheet(hwwType);
+      return;
+    }
     MyBottomSheet.showBottomSheet_95(
       context: context,
       child: ClipRRect(
@@ -306,20 +311,7 @@ class _MultisigSignScreenState extends State<MultisigSignScreen> {
               if (input.partialSig != null && input.partialSig!.isNotEmpty) {
                 for (var sig in input.partialSig!) {
                   final pubKey = sig.publicKey;
-                  if (index != null) {
-                    canSign = signingPublicKey == pubKey;
-                  } else {
-                    final pubKey = sig.publicKey;
-                    final mfp =
-                        _viewModel.unsignedPubkeyMap?.entries
-                            .firstWhere(
-                              (e) => e.value == pubKey.toString(),
-                              orElse: () => const MapEntry<String, String>('', ''),
-                            )
-                            .key;
-                    signerIndex = _viewModel.signers.indexWhere((signer) => signer.keyStore.masterFingerprint == mfp);
-                    canSign = signerIndex != -1;
-                  }
+                  canSign = signingPublicKey == pubKey;
                 }
               }
             }
@@ -354,6 +346,22 @@ class _MultisigSignScreenState extends State<MultisigSignScreen> {
 
             if (!mounted) return;
             Navigator.pop(context);
+          },
+        ),
+      ),
+    );
+  }
+
+  void _showImportPsbtScannerBottomSheet(HardwareWalletType hwwType) {
+    MyBottomSheet.showBottomSheet_95(
+      context: context,
+      child: ClipRRect(
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+        child: PsbtScannerScreen(
+          id: _viewModel.vaultId,
+          hardwareWalletType: hwwType,
+          onMultisigSignCompleted: (psbtBase64) async {
+            debugPrint('canUpdatePsbt: ${_viewModel.canUpdatePsbt(psbtBase64)}');
           },
         ),
       ),

@@ -470,4 +470,26 @@ class MultisigNormalizer {
       extendedKey: xpub,
     );
   }
+
+  /// derivation path 표기 차이를 흡수하기 위한 정규화 함수
+  /// 예) m/48h/1h/0h/2h/0/1, m/48'/1'/0'/2'/0/1, m/48H/1H/... 등을 동일하게 취급
+  static String normalizeDerivationPath(String path) {
+    var p = path.trim();
+    if (p.isEmpty) return p;
+
+    p = p.replaceAll("'", 'h');
+    p = p.replaceAll('H', 'h');
+
+    p = p.replaceAll(RegExp(r'\s+'), '');
+    p = p.replaceAll(RegExp(r'/+'), '/');
+
+    if (!p.startsWith('m/')) {
+      if (p.startsWith('/')) {
+        p = 'm$p';
+      } else {
+        p = 'm/$p';
+      }
+    }
+    return p;
+  }
 }

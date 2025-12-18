@@ -7,6 +7,7 @@ import 'package:coconut_vault/model/multisig/multisig_signer.dart';
 import 'package:coconut_vault/model/multisig/multisig_vault_list_item.dart';
 import 'package:coconut_vault/providers/sign_provider.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
+import 'package:coconut_vault/utils/bip/multisig_normalizer.dart';
 import 'package:coconut_vault/utils/bip/normalized_multisig_config.dart';
 import 'package:coconut_vault/utils/print_util.dart';
 import 'package:flutter/foundation.dart';
@@ -364,5 +365,158 @@ class MultisigSignViewModel extends ChangeNotifier {
     );
 
     return qrData;
+  }
+
+  /// 스캔된 PSBT로 현재 SigningPsbt를 교체 할 수 있는지 체크하는 함수
+  /// 비교 항목: [Inputs,PubKey Map], [MFP Set], [각 MFP별 derivation path, pubkey], Signer 수
+  bool canUpdatePsbt(String scannedPsbt) {
+    try {
+      final currentPsbt = Psbt.parse(_psbtForSigning);
+      final nextPsbt = Psbt.parse(scannedPsbt);
+
+      // 기준(원본) 맵: initPsbtSignState()에서 저장해둔 값이 있으면 그 값을 우선 사용
+      final expectedPathMap = _signProvider.unsignedInputsMap ?? _extractMfpPathMapFromPsbt(currentPsbt);
+      final expectedPubkeyMap = _signProvider.unsignedPubkeyMap ?? _extractMfpPubkeyMapFromPsbt(currentPsbt);
+
+      // 스캔된 PSBT에서 추출
+      final scannedPathMap = _extractMfpPathMapFromPsbt(nextPsbt);
+      final scannedPubkeyMap = _extractMfpPubkeyMapFromPsbt(nextPsbt);
+
+      // 1) 코사이너 수가 동일해야 함
+      if (expectedPathMap.isEmpty || expectedPubkeyMap.isEmpty) {
+        debugPrint('canUpdatePsbt: expected maps are empty');
+        return false;
+      }
+      if (scannedPathMap.isEmpty || scannedPubkeyMap.isEmpty) {
+        debugPrint('canUpdatePsbt: scanned maps are empty');
+        return false;
+      }
+
+      // 2) MFP 집합이 동일해야 함
+      final expectedMfps = expectedPathMap.keys.toSet();
+      final scannedMfps = scannedPathMap.keys.toSet();
+      if (expectedMfps.length != scannedMfps.length) {
+        debugPrint('canUpdatePsbt: mfp length mismatch');
+        return false;
+      }
+      if (!expectedMfps.containsAll(scannedMfps) || !scannedMfps.containsAll(expectedMfps)) {
+        debugPrint('canUpdatePsbt: mfp set mismatch');
+        return false;
+      }
+
+      // 3) 각 MFP별 derivation path가 동일해야 함
+      for (final mfp in expectedMfps) {
+        final expectedPath = MultisigNormalizer.normalizeDerivationPath(expectedPathMap[mfp] ?? '');
+        final scannedPath = MultisigNormalizer.normalizeDerivationPath(scannedPathMap[mfp] ?? '');
+        if (expectedPath.isEmpty || scannedPath.isEmpty) {
+          debugPrint('canUpdatePsbt: empty path for mfp=$mfp');
+          return false;
+        }
+        if (expectedPath != scannedPath) {
+          debugPrint('canUpdatePsbt: path mismatch for mfp=$mfp expected=$expectedPath scanned=$scannedPath');
+          return false;
+        }
+      }
+
+      // 4) 각 MFP별 pubkey가 동일해야 함
+      for (final mfp in expectedMfps) {
+        final expectedPub = (expectedPubkeyMap[mfp] ?? '').toLowerCase();
+        final scannedPub = (scannedPubkeyMap[mfp] ?? '').toLowerCase();
+        if (expectedPub.isEmpty || scannedPub.isEmpty) {
+          debugPrint('canUpdatePsbt: empty pubkey for mfp=$mfp');
+          return false;
+        }
+        if (expectedPub != scannedPub) {
+          debugPrint('canUpdatePsbt: pubkey mismatch for mfp=$mfp');
+          return false;
+        }
+      }
+
+      // 지갑에 등록된 signer 수와도 일치하는지 체크
+      if (_vaultListItem.signers.isNotEmpty && expectedMfps.length != _vaultListItem.signers.length) {
+        debugPrint(
+          'canUpdatePsbt: signer count mismatch expectedMfps=${expectedMfps.length} signers=${_vaultListItem.signers.length}',
+        );
+        return false;
+      }
+
+      return true;
+    } catch (e) {
+      debugPrint('canUpdatePsbt error: $e');
+      return false;
+    }
+  }
+
+  /// PSBT에서 {mfp -> derivation path}를 추출합니다.
+  Map<String, String> _extractMfpPathMapFromPsbt(Psbt psbt) {
+    final Map<String, String> map = {};
+    try {
+      if (psbt.inputs.isEmpty) return map;
+
+      final input0 = psbt.inputs[0];
+      final xpubs = psbt.extendedPublicKeyList;
+      final paths = input0.derivationPathList;
+
+      final len = (xpubs.length < paths.length) ? xpubs.length : paths.length;
+      for (int i = 0; i < len; i++) {
+        final mfp = xpubs[i].masterFingerprint;
+        final path = paths[i].path.toString();
+        if (mfp.isNotEmpty) {
+          map[mfp] = path;
+        }
+      }
+
+      // 일부 구현에서는 extendedPublicKeyList가 비어있을 수 있어, bip32Derivation에서 보조 추출
+      if (map.isEmpty && input0.bip32Derivation != null) {
+        for (final d in input0.bip32Derivation!) {
+          final mfp = d.masterFingerprint;
+          final path = d.path.toString();
+          if (mfp.isNotEmpty) {
+            map[mfp] = path;
+          }
+        }
+      }
+    } catch (_) {
+      // ignore
+    }
+    return map;
+  }
+
+  /// PSBT에서 {mfp -> pubkey}를 추출합니다.
+  Map<String, String> _extractMfpPubkeyMapFromPsbt(Psbt psbt) {
+    final Map<String, String> map = {};
+    try {
+      if (psbt.inputs.isEmpty) return map;
+
+      final input0 = psbt.inputs[0];
+      final xpubs = psbt.extendedPublicKeyList;
+
+      // initPsbtSignState()에서 사용한 방식과 동일하게: xpub 인덱스와 bip32Derivation 인덱스가 대응
+      if (input0.bip32Derivation != null && input0.bip32Derivation!.isNotEmpty) {
+        final derivs = input0.bip32Derivation!;
+        final len = (xpubs.length < derivs.length) ? xpubs.length : derivs.length;
+        for (int i = 0; i < len; i++) {
+          final mfp = xpubs.isNotEmpty ? xpubs[i].masterFingerprint : derivs[i].masterFingerprint;
+          final pub = derivs[i].publicKey.toString();
+          if (mfp.isNotEmpty) {
+            map[mfp] = pub;
+          }
+        }
+      }
+
+      // fallback: bip32Derivation만으로도 추출
+      if (map.isEmpty && input0.bip32Derivation != null) {
+        for (final d in input0.bip32Derivation!) {
+          final mfp = d.masterFingerprint;
+          final pub = d.publicKey.toString();
+          if (mfp.isNotEmpty) {
+            map[mfp] = pub;
+          }
+        }
+      }
+    } catch (_) {
+      // ignore
+    }
+    return map;
   }
 }
