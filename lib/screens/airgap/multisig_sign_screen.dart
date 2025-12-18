@@ -23,6 +23,7 @@ import 'package:coconut_vault/screens/common/select_external_wallet_bottom_sheet
 import 'package:coconut_vault/screens/wallet_info/single_sig_menu/passphrase_check_screen.dart';
 import 'package:coconut_vault/screens/airgap/multisig_psbt_qr_code_screen.dart';
 import 'package:coconut_vault/utils/alert_util.dart';
+import 'package:coconut_vault/utils/icon_util.dart';
 import 'package:coconut_vault/widgets/bottom_sheet.dart';
 import 'package:coconut_vault/widgets/button/fixed_bottom_tween_button.dart';
 import 'package:coconut_vault/widgets/button/shrink_animation_button.dart';
@@ -682,6 +683,7 @@ class _MultisigSignScreenState extends State<MultisigSignScreen> {
               final isInnerWallet = signer.innerVaultId != null;
               final name = signer.name ?? t.external_wallet;
               final nameText = name.length > 6 ? '${name.substring(0, 6)}...' : name;
+              final iconIndex = _viewModel.signers[index].iconIndex ?? 0;
               // final colorIndex = _viewModel.signers[index].colorIndex ?? 0;
               final isSignerApproved = _viewModel.signersApproved[index];
               var hwwType = _viewModel.getSignerHwwType(index);
@@ -772,7 +774,9 @@ class _MultisigSignScreenState extends State<MultisigSignScreen> {
                           );
                         },
                         child: SvgPicture.asset(
-                          isSignerApproved ? 'assets/svg/check-circle-green.svg' : _getHardwareWalletIconPath(hwwType),
+                          isSignerApproved
+                              ? 'assets/svg/check-circle-green.svg'
+                              : _getHardwareWalletIconPath(hwwType, isInnerWallet, iconIndex: iconIndex),
                           width: 24.0,
                           colorFilter:
                               isSignerApproved ? null : const ColorFilter.mode(CoconutColors.gray300, BlendMode.srcIn),
@@ -808,8 +812,11 @@ class _MultisigSignScreenState extends State<MultisigSignScreen> {
     );
   }
 
-  String _getHardwareWalletIconPath(HardwareWalletType? hwwType) {
+  String _getHardwareWalletIconPath(HardwareWalletType? hwwType, bool isInnerWallet, {int? iconIndex}) {
     debugPrint('hwwType: $hwwType');
+    if (isInnerWallet) {
+      return CustomIcons.getPathByIndex(iconIndex ?? 0);
+    }
     if (hwwType == null) {
       return 'assets/svg/check-circle-outlined.svg';
     }
