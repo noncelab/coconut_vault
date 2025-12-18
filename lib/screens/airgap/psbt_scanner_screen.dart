@@ -114,26 +114,15 @@ class _PsbtScannerScreenState extends State<PsbtScannerScreen> {
     );
   }
 
-  Future<void> _onCompletedScanningForBcUr(dynamic signedPsbt) async {
+  Future<void> _onCompletedScanning(dynamic signedPsbt) async {
     await stopCamera();
     if (_isProcessing) return;
     _isProcessing = true;
 
-    String psbtBase64;
+    String? psbtBase64;
     try {
-      // UR 형식인 경우
-      if (signedPsbt is UR) {
-        final ur = signedPsbt;
-        final cborBytes = ur.cbor;
-        final decodedCbor = cbor.decode(cborBytes) as CborBytes;
-        psbtBase64 = base64Encode(decodedCbor.bytes);
-      }
-      // BBQR 형식인 경우 (base64 문자열)
-      else if (signedPsbt is String) {
-        psbtBase64 = signedPsbt;
-      } else {
-        throw FormatException('Unsupported PSBT format: ${signedPsbt.runtimeType}');
-      }
+      psbtBase64 = _viewModel.normalizePsbtToBase64(signedPsbt);
+
       if (widget.id == null) {
         // 스캔된 MFP를 이용해 유효한 볼트를 찾고, SignProvider에 저장
         await _viewModel.setMatchingVault(psbtBase64);
@@ -152,11 +141,11 @@ class _PsbtScannerScreenState extends State<PsbtScannerScreen> {
       debugPrint('e: ${e.toString()}');
 
       if (e is VaultNotFoundException) {
-        await _showErrorDialog(VaultNotFoundException.defaultErrorMessage);
+        await _showErrorDialog(e.message);
       } else if (e is VaultSigningNotAllowedException) {
-        await _showErrorDialog(VaultSigningNotAllowedException.defaultErrorMessage);
+        await _showErrorDialog(e.message);
       } else if (e is ExtendedPublicKeyNotFoundException) {
-        await _showErrorDialog(ExtendedPublicKeyNotFoundException.defaultErrorMessage);
+        await _showErrorDialog(e.message);
       } else {
         await _showErrorDialog(t.errors.invalid_qr);
       }
@@ -170,13 +159,12 @@ class _PsbtScannerScreenState extends State<PsbtScannerScreen> {
       _viewModel.saveUnsignedPsbt(psbtBase64);
     }
 
-    if (mounted) {
-      if (widget.hardwareWalletType != null) {
-        widget.onMultisigSignCompleted!(psbtBase64);
-        // Navigator.pop(context);
-        return;
-      }
+    if (widget.hardwareWalletType != null) {
+      widget.onMultisigSignCompleted!(psbtBase64);
+      return;
+    }
 
+    if (mounted) {
       /// Go-router 제거 이후로 ios에서는 정상 작동하지만 안드로이드에서는 pushNamed로 화면 이동 시 카메라 컨트롤러 남아있는 이슈
       if (Platform.isAndroid) {
         Navigator.pushReplacementNamed(context, AppRoutes.psbtConfirmation);
@@ -220,7 +208,6 @@ class _PsbtScannerScreenState extends State<PsbtScannerScreen> {
 
     switch (hwwType) {
       case HardwareWalletType.coconutVault:
-        // TODO: 숫자 빼기
         return [
           TextSpan(
             text:
@@ -371,7 +358,7 @@ class _PsbtScannerScreenState extends State<PsbtScannerScreen> {
               color: CoconutColors.white,
               child: CoconutQrScanner(
                 setQrViewController: _setQRViewController,
-                onComplete: _onCompletedScanningForBcUr,
+                onComplete: _onCompletedScanning,
                 onFailed: onFailedScanning,
                 qrDataHandler: _scanDataHandler,
               ),

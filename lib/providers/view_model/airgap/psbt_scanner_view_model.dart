@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:coconut_lib/coconut_lib.dart';
 import 'package:coconut_vault/enums/wallet_enums.dart';
 import 'package:coconut_vault/model/common/vault_list_item_base.dart';
@@ -7,6 +9,8 @@ import 'package:coconut_vault/model/exception/vault_not_found_exception.dart';
 import 'package:coconut_vault/providers/sign_provider.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:coconut_vault/utils/logger.dart';
+import 'package:ur/ur.dart';
+import 'package:cbor/cbor.dart';
 
 class PsbtScannerViewModel {
   late final WalletProvider _walletProvider;
@@ -22,12 +26,26 @@ class PsbtScannerViewModel {
     _signProvider.saveUnsignedPsbt(psbtBase64);
   }
 
+  String normalizePsbtToBase64(dynamic psbt) {
+    if (psbt is UR) {
+      final ur = psbt;
+      final cborBytes = ur.cbor;
+      final decodedCbor = cbor.decode(cborBytes) as CborBytes;
+      return base64Encode(decodedCbor.bytes);
+    } else if (psbt is String) {
+      // BBQR (base64 문자열)
+      return psbt;
+    } else {
+      throw FormatException('Unsupported PSBT format: ${psbt.runtimeType}');
+    }
+  }
+
   Future<Psbt> parseBase64EncodedToPsbt(
     int vaultId,
     String signedPsbtBase64Encoded, {
     bool hasDerivationPath = false,
   }) async {
-    // Krux는 derivation path를 넘기지 않기 때문에, canSign 검사 불가
+    // Krux, SeedSigner는 derivation path를 넘기지 않기 때문에, canSign 검사 불가
     if (!_walletProvider.isVaultsLoaded || _walletProvider.vaultList.isEmpty) {
       await _walletProvider.loadVaultList();
     }
