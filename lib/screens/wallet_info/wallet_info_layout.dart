@@ -323,13 +323,13 @@ class _WalletInfoLayoutState extends State<WalletInfoLayout> {
       case kCoconutVaultIconPath:
         return HardwareWalletType.coconutVault;
       case kKeystoneIconPath:
-        return HardwareWalletType.keystone3Pro;
+        return HardwareWalletType.keystone;
       case kSeedSignerIconPath:
         return HardwareWalletType.seedSigner;
       case kJadeIconPath:
         return HardwareWalletType.jade;
       case kColdCardIconPath:
-        return HardwareWalletType.coldcard;
+        return HardwareWalletType.coldCard;
       case kKruxIconPath:
         return HardwareWalletType.krux;
       default:

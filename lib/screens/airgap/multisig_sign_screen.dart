@@ -482,7 +482,7 @@ class _MultisigSignScreenState extends State<MultisigSignScreen> {
 
                   switch (hwwType) {
                     case HardwareWalletType.krux:
-                    case HardwareWalletType.keystone3Pro:
+                    case HardwareWalletType.keystone:
                       final multisigInfoQrData = _viewModel.getMultisigInfoQrData(index, hwwType!);
                       if (multisigInfoQrData == null) {
                         return;
@@ -492,7 +492,7 @@ class _MultisigSignScreenState extends State<MultisigSignScreen> {
                     case HardwareWalletType.coconutVault:
                     case HardwareWalletType.seedSigner:
                     case HardwareWalletType.jade:
-                    case HardwareWalletType.coldcard:
+                    case HardwareWalletType.coldCard:
                       // TODO: 로딩 오버레이('다른 기기에서 서명을 시작합니다...') 2s 보여준 후
                       // t.multisig_sign_screen.loading_overlay 문구 사용
                       _showPsbtQrCodeBottomSheet(index, hwwType!);

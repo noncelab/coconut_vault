@@ -21,7 +21,7 @@ class SignerBsmsQrDataHandler implements IQrScanDataHandler {
       _bbQrDecoder = BbQrDecoder() {
     switch (harewareWalletType) {
       case HardwareWalletType.jade:
-      case HardwareWalletType.coldcard:
+      case HardwareWalletType.coldCard:
         _isFragmentedDataScanned = true;
         break;
       default:
@@ -32,10 +32,10 @@ class SignerBsmsQrDataHandler implements IQrScanDataHandler {
   @override
   dynamic get result {
     switch (harewareWalletType) {
-      case HardwareWalletType.keystone3Pro:
+      case HardwareWalletType.keystone:
       case HardwareWalletType.jade:
         return UrBytesConverter.convertToMap(_urDecoder.result);
-      case HardwareWalletType.coldcard:
+      case HardwareWalletType.coldCard:
         if (!_bbQrDecoder.isComplete) return null;
         if (_bbQrDecoder.dataType == 'J') {
           return _bbQrDecoder.parseJson();
@@ -53,10 +53,10 @@ class SignerBsmsQrDataHandler implements IQrScanDataHandler {
   @override
   double get progress {
     switch (harewareWalletType) {
-      case HardwareWalletType.keystone3Pro:
+      case HardwareWalletType.keystone:
       case HardwareWalletType.jade:
         return _urDecoder.estimatedPercentComplete();
-      case HardwareWalletType.coldcard:
+      case HardwareWalletType.coldCard:
         return _bbQrDecoder.progress;
       case HardwareWalletType.seedSigner:
       case HardwareWalletType.krux:
@@ -74,10 +74,10 @@ class SignerBsmsQrDataHandler implements IQrScanDataHandler {
     }
 
     switch (harewareWalletType) {
-      case HardwareWalletType.keystone3Pro:
+      case HardwareWalletType.keystone:
       case HardwareWalletType.jade:
         return _urDecoder.receivePart(data);
-      case HardwareWalletType.coldcard:
+      case HardwareWalletType.coldCard:
         return _bbQrDecoder.receivePart(data);
       case HardwareWalletType.seedSigner:
       case HardwareWalletType.krux:
@@ -96,10 +96,10 @@ class SignerBsmsQrDataHandler implements IQrScanDataHandler {
 
     try {
       switch (harewareWalletType) {
-        case HardwareWalletType.keystone3Pro:
+        case HardwareWalletType.keystone:
         case HardwareWalletType.jade:
           return lowerCased.startsWith('ur:crypto-account/');
-        case HardwareWalletType.coldcard:
+        case HardwareWalletType.coldCard:
           return lowerCased.startsWith('b\$');
         case HardwareWalletType.coconutVault:
           try {
@@ -122,10 +122,10 @@ class SignerBsmsQrDataHandler implements IQrScanDataHandler {
   @override
   bool isCompleted() {
     switch (harewareWalletType) {
-      case HardwareWalletType.keystone3Pro:
+      case HardwareWalletType.keystone:
       case HardwareWalletType.jade:
         return _urDecoder.isComplete();
-      case HardwareWalletType.coldcard:
+      case HardwareWalletType.coldCard:
         return _bbQrDecoder.isComplete;
       case HardwareWalletType.coconutVault:
       case HardwareWalletType.seedSigner:

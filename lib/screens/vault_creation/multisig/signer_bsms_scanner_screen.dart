@@ -100,11 +100,11 @@ class _SignerBsmsScannerScreenState extends BsmsScannerBase<SignerBsmsScannerScr
           Bsms.parseSigner(result);
           scanResult = scanData;
           break;
-        case HardwareWalletType.keystone3Pro:
+        case HardwareWalletType.keystone:
         case HardwareWalletType.jade:
           scanResult = MultisigNormalizer.signerBsmsFromUrResult(result as Map<dynamic, dynamic>);
           break;
-        case HardwareWalletType.coldcard:
+        case HardwareWalletType.coldCard:
           scanResult = MultisigNormalizer.signerBsmsFromBbQr(result);
           break;
         case HardwareWalletType.seedSigner:
@@ -190,7 +190,7 @@ class _SignerBsmsScannerScreenState extends BsmsScannerBase<SignerBsmsScannerScr
     }
 
     switch (widget.hardwareWalletType) {
-      case HardwareWalletType.keystone3Pro:
+      case HardwareWalletType.keystone:
         return [
           TextSpan(
             text: '${t.bsms_scanner_screen.keystone3pro.guide2_1}\n',
@@ -267,7 +267,7 @@ class _SignerBsmsScannerScreenState extends BsmsScannerBase<SignerBsmsScannerScr
           ),
         ];
 
-      case HardwareWalletType.coldcard:
+      case HardwareWalletType.coldCard:
         final pressBtn = t.bsms_scanner_screen.press_button;
         return [
           TextSpan(
