@@ -9,12 +9,14 @@ class SelectExternalWalletBottomSheet extends StatefulWidget {
   final List<ExternalWalletButton> externalWalletButtonList;
   final String? title;
   final int? selectedIndex;
+  final bool showConfirmDialog;
   final Function(int) onSelected;
   const SelectExternalWalletBottomSheet({
     super.key,
     required this.externalWalletButtonList,
     this.title,
     this.selectedIndex,
+    this.showConfirmDialog = true,
     required this.onSelected,
   });
 
@@ -74,6 +76,11 @@ class _SelectExternalWalletBottomSheetState extends State<SelectExternalWalletBo
                   _committedIndex = selectedIndex;
                   widget.onSelected(selectedIndex!);
                 });
+
+                if (!widget.showConfirmDialog) {
+                  Navigator.pop(context);
+                  return;
+                }
 
                 showDialog(
                   context: context,

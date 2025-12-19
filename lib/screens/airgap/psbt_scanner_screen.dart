@@ -11,7 +11,6 @@ import 'package:coconut_vault/model/exception/vault_not_found_exception.dart';
 import 'package:coconut_vault/providers/sign_provider.dart';
 import 'package:coconut_vault/providers/view_model/airgap/psbt_scanner_view_model.dart';
 import 'package:coconut_vault/providers/visibility_provider.dart';
-import 'package:coconut_vault/utils/print_util.dart';
 import 'package:coconut_vault/widgets/animated_qr/coconut_qr_scanner.dart';
 import 'package:coconut_vault/widgets/animated_qr/scan_data_handler/bb_qr_scan_data_handler.dart';
 import 'package:coconut_vault/widgets/animated_qr/scan_data_handler/bc_ur_qr_scan_data_handler.dart';
@@ -24,14 +23,19 @@ import 'package:coconut_vault/utils/vibration_util.dart';
 import 'package:loader_overlay/loader_overlay.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:provider/provider.dart';
-import 'package:ur/ur.dart';
-import 'package:cbor/cbor.dart';
 
 class PsbtScannerScreen extends StatefulWidget {
   final int? id;
   final HardwareWalletType? hardwareWalletType;
+  final bool isFromBottomButton;
   final void Function(String psbtBase64)? onMultisigSignCompleted;
-  const PsbtScannerScreen({super.key, this.id, this.hardwareWalletType, this.onMultisigSignCompleted});
+  const PsbtScannerScreen({
+    super.key,
+    this.id,
+    this.hardwareWalletType,
+    this.isFromBottomButton = false,
+    this.onMultisigSignCompleted,
+  });
 
   @override
   State<PsbtScannerScreen> createState() => _PsbtScannerScreenState();
@@ -208,13 +212,19 @@ class _PsbtScannerScreenState extends State<PsbtScannerScreen> {
     switch (hwwType) {
       case HardwareWalletType.coconutVault:
         return [
-          TextSpan(
-            text:
-                widget.onMultisigSignCompleted != null
-                    ? t.psbt_scanner_screen.guide
-                    : t.psbt_scanner_screen.guide_single_sig_same_name,
-            style: CoconutTypography.body2_14.copyWith(height: 1.2, color: CoconutColors.black),
-          ),
+          if (widget.isFromBottomButton) ...[
+            TextSpan(text: t.psbt_scanner_screen.guide_import_psbt_0, style: textStyle),
+            if (!isEnglish) ...[TextSpan(text: t.export_qr, style: textStyleBold)],
+            TextSpan(text: t.psbt_scanner_screen.guide_import_psbt_1, style: textStyle),
+          ] else ...[
+            TextSpan(
+              text:
+                  widget.onMultisigSignCompleted != null
+                      ? t.psbt_scanner_screen.guide
+                      : t.psbt_scanner_screen.guide_single_sig_same_name,
+              style: CoconutTypography.body2_14.copyWith(height: 1.2, color: CoconutColors.black),
+            ),
+          ],
         ];
       case HardwareWalletType.seedSigner:
         return [

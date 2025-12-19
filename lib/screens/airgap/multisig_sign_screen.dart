@@ -24,7 +24,6 @@ import 'package:coconut_vault/screens/wallet_info/single_sig_menu/passphrase_che
 import 'package:coconut_vault/screens/airgap/multisig_psbt_qr_code_screen.dart';
 import 'package:coconut_vault/utils/alert_util.dart';
 import 'package:coconut_vault/utils/icon_util.dart';
-import 'package:coconut_vault/utils/print_util.dart';
 import 'package:coconut_vault/widgets/bottom_sheet.dart';
 import 'package:coconut_vault/widgets/button/fixed_bottom_tween_button.dart';
 import 'package:coconut_vault/widgets/button/shrink_animation_button.dart';
@@ -239,7 +238,7 @@ class _MultisigSignScreenState extends State<MultisigSignScreen> {
           onTapLeft: () {
             Navigator.pop(context);
             // PSBT QR 뷰 보여주기
-            _showPsbtQrCodeBottomSheet(index, hwwType);
+            _showPsbtQrCodeBottomSheet(hwwType, index: index);
           },
         );
       },
@@ -258,19 +257,19 @@ class _MultisigSignScreenState extends State<MultisigSignScreen> {
         onNextPressed: () async {
           await Future.delayed(const Duration(milliseconds: 300));
           if (!mounted) return;
-          _showPsbtQrCodeBottomSheet(index, hwwType);
+          _showPsbtQrCodeBottomSheet(hwwType, index: index);
         },
       ),
     );
   }
 
-  void _showPsbtQrCodeBottomSheet(int? index, HardwareWalletType hwwType, {VoidCallback? onNextPressed}) {
+  void _showPsbtQrCodeBottomSheet(HardwareWalletType hwwType, {int? index, VoidCallback? onNextPressed}) {
     final masterFingerprint = index != null ? _viewModel.signers[index].keyStore.masterFingerprint : null;
     MyBottomSheet.showBottomSheet_95(
       context: context,
       child: PsbtQrCodeViewScreen(
         multisigName: _viewModel.walletName,
-        keyIndex: index != null ? '${index + 1}' : '',
+        index: index,
         signedRawTx: _viewModel.psbtForSigning,
         hardwareWalletType: hwwType,
         masterFingerprint: masterFingerprint,
@@ -281,13 +280,13 @@ class _MultisigSignScreenState extends State<MultisigSignScreen> {
 
               await Future.delayed(const Duration(milliseconds: 300));
               if (!mounted) return;
-              _showPsbtScannerBottomSheet(index, hwwType);
+              _showPsbtScannerBottomSheet(hwwType, index: index);
             },
       ),
     );
   }
 
-  void _showPsbtScannerBottomSheet(int? index, HardwareWalletType hwwType) {
+  void _showPsbtScannerBottomSheet(HardwareWalletType hwwType, {int? index}) {
     if (index == null) {
       // 하단 버튼의 'QR 스캔하기'를 통해 들어왔을 때
       _showImportPsbtScannerBottomSheet(hwwType);
@@ -361,6 +360,7 @@ class _MultisigSignScreenState extends State<MultisigSignScreen> {
         child: PsbtScannerScreen(
           id: _viewModel.vaultId,
           hardwareWalletType: hwwType,
+          isFromBottomButton: true,
           onMultisigSignCompleted: (psbtBase64) async {
             if (!_viewModel.canUpdatePsbt(psbtBase64)) {
               await showDialog(
@@ -410,7 +410,7 @@ class _MultisigSignScreenState extends State<MultisigSignScreen> {
     );
   }
 
-  Future<HardwareWalletType?> _showHardwareSelectionBottomSheet({int? index}) async {
+  Future<HardwareWalletType?> _showHardwareSelectionBottomSheet({int? index, bool isFromBottomButton = false}) async {
     // 하단의 'QR 스캔하기'로 들어온 경우 index는 null
 
     HardwareWalletType? hwwType;
@@ -445,6 +445,7 @@ class _MultisigSignScreenState extends State<MultisigSignScreen> {
                     ? t.multisig_sign_screen.select_signer_hardware_wallet
                     : t.multi_sig_setting_screen.add_icon.title,
             externalWalletButtonList: externalWalletButtonList,
+            showConfirmDialog: !isFromBottomButton,
             selectedIndex: null,
             onSelected: (selectedIndex) {
               hwwType = HardwareWalletTypeExtension.getHardwareWalletTypeByIconPath(iconSourceList[selectedIndex]);
@@ -457,29 +458,6 @@ class _MultisigSignScreenState extends State<MultisigSignScreen> {
     );
     return hwwType;
   }
-
-  // void _askIfSureToQuit() {
-  //   showDialog(
-  //     context: context,
-  //     builder: (BuildContext context) {
-  //       return CoconutPopup(
-  //         insetPadding: EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width * 0.15),
-  //         title: t.alert.exit_sign.title,
-  //         description: t.alert.exit_sign.description,
-  //         backgroundColor: CoconutColors.white,
-  //         leftButtonText: t.no,
-  //         leftButtonColor: CoconutColors.black.withValues(alpha: 0.7),
-  //         rightButtonText: t.yes,
-  //         rightButtonColor: CoconutColors.warningText,
-  //         onTapLeft: () => Navigator.pop(context),
-  //         onTapRight: () {
-  //           _viewModel.resetAll();
-  //           Navigator.popUntil(context, (route) => route.isFirst);
-  //         },
-  //       );
-  //     },
-  //   );
-  // }
 
   void _askIfSureToGoBack() {
     showDialog(
@@ -797,7 +775,7 @@ class _MultisigSignScreenState extends State<MultisigSignScreen> {
                     case HardwareWalletType.seedSigner:
                     case HardwareWalletType.jade:
                     case HardwareWalletType.coldcard:
-                      _showPsbtQrCodeBottomSheet(index, hwwType!);
+                      _showPsbtQrCodeBottomSheet(hwwType!, index: index);
                       break;
                     default:
                       return;
@@ -879,15 +857,15 @@ class _MultisigSignScreenState extends State<MultisigSignScreen> {
       builder: (context, isSignatureComplete, child) {
         return FixedBottomTweenButton(
           leftButtonClicked: () async {
-            final hwwType = await _showHardwareSelectionBottomSheet();
+            final hwwType = await _showHardwareSelectionBottomSheet(isFromBottomButton: true);
             if (hwwType != null) {
-              _showPsbtQrCodeBottomSheet(null, hwwType);
+              _showPsbtQrCodeBottomSheet(hwwType);
             }
           },
           rightButtonClicked: () async {
-            final hwwType = await _showHardwareSelectionBottomSheet();
+            final hwwType = await _showHardwareSelectionBottomSheet(isFromBottomButton: true);
             if (hwwType != null) {
-              _showPsbtScannerBottomSheet(null, hwwType);
+              _showPsbtScannerBottomSheet(hwwType);
             }
           },
           leftText: t.export_qr,
@@ -899,72 +877,6 @@ class _MultisigSignScreenState extends State<MultisigSignScreen> {
           leftButtonBorderColor: CoconutColors.gray400,
           rightButtonBorderColor: CoconutColors.gray400,
         );
-        // return Align(
-        //   alignment: Alignment.bottomCenter,
-        //   child: Padding(
-        //     padding: const EdgeInsets.only(bottom: 16, left: 16, right: 16),
-        //     child: SizedBox(
-        //       width: MediaQuery.sizeOf(context).width,
-        //       child: Row(
-        //         children: [
-        //           Flexible(
-        //             flex: 1,
-        //             child: SizedBox(
-        //               width: MediaQuery.sizeOf(context).width,
-        //               height: 50,
-        //               child: ShrinkAnimationButton(
-        //                 defaultColor: CoconutColors.gray300,
-        //                 onPressed: _askIfSureToQuit,
-        //                 borderRadius: CoconutStyles.radius_200,
-        //                 child: Padding(
-        //                   padding: const EdgeInsets.symmetric(vertical: 12),
-        //                   child: FittedBox(
-        //                     fit: BoxFit.scaleDown,
-        //                     alignment: Alignment.center,
-        //                     child: Text(t.abort, style: CoconutTypography.body2_14_Bold, textAlign: TextAlign.center),
-        //                   ),
-        //                 ),
-        //               ),
-        //             ),
-        //           ),
-        //           CoconutLayout.spacing_200w,
-        //           Flexible(
-        //             flex: 2,
-        //             child: SizedBox(
-        //               width: MediaQuery.sizeOf(context).width,
-        //               height: 50,
-        //               child: ShrinkAnimationButton(
-        //                 isActive: isSignatureComplete,
-        //                 disabledColor: CoconutColors.gray150,
-        //                 defaultColor: CoconutColors.black,
-        //                 onPressed: () {
-        //                   _viewModel.saveSignedPsbt();
-        //                   Navigator.pushNamed(context, AppRoutes.signedTransaction);
-        //                 },
-        //                 pressedColor: CoconutColors.gray400,
-        //                 borderRadius: CoconutStyles.radius_200,
-        //                 child: Padding(
-        //                   padding: const EdgeInsets.symmetric(vertical: 12),
-        //                   child: FittedBox(
-        //                     fit: BoxFit.scaleDown,
-        //                     alignment: Alignment.center,
-        //                     child: Text(
-        //                       t.next,
-        //                       style: CoconutTypography.body2_14_Bold.setColor(
-        //                         isSignatureComplete ? CoconutColors.white : CoconutColors.gray350,
-        //                       ),
-        //                       textAlign: TextAlign.center,
-        //                     ),
-        //                   ),
-        //                 ),
-        //               ),
-        //             ),
-        //           ),
-        //         ],
-        //       ),
-        //     ),
-        //   ),
-        // );
       },
     );
   }

@@ -7,9 +7,7 @@ import 'package:coconut_vault/model/multisig/multisig_signer.dart';
 import 'package:coconut_vault/model/multisig/multisig_vault_list_item.dart';
 import 'package:coconut_vault/providers/sign_provider.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
-import 'package:coconut_vault/utils/bip/multisig_normalizer.dart';
 import 'package:coconut_vault/utils/bip/normalized_multisig_config.dart';
-import 'package:coconut_vault/utils/print_util.dart';
 import 'package:flutter/foundation.dart';
 
 class MultisigSignViewModel extends ChangeNotifier {
@@ -374,20 +372,16 @@ class MultisigSignViewModel extends ChangeNotifier {
   }
 
   /// 스캔된 PSBT의 partial signature를 기반으로 서명 상태를 동기화합니다.
-  /// 변경된 signer의 개수를 반환합니다.
-  int syncImportedPartialSigs(String psbtBase64) {
+  void syncImportedPartialSigs(String psbtBase64) {
     final scannedPsbtPartialSigsMap =
         Psbt.parse(psbtBase64).inputs[0].partialSig?.map((e) => e.publicKey).toList() ?? [];
-    final originalSignerApproved = List<bool>.from(_signerApproved);
     _signerApproved.fillRange(0, _signerApproved.length, false);
 
     if (scannedPsbtPartialSigsMap.isEmpty) {
       // partialSig가 비어있는 경우 = 서명이 하나도 안된 경우
       debugPrint('scannedPsbtPartialSigsMap is empty');
-      // 원본과 비교하여 변경된 개수 계산 (모두 false가 되었으므로 원래 true였던 것들의 개수)
-      int changedCount = originalSignerApproved.where((approved) => approved).length;
       notifyListeners();
-      return changedCount;
+      return;
     }
 
     for (var signer in signers) {
@@ -400,15 +394,7 @@ class MultisigSignViewModel extends ChangeNotifier {
       }
     }
 
-    // 원본 상태와 비교하여 변경된 개수 계산
-    int changedCount = 0;
-    for (int i = 0; i < _signerApproved.length; i++) {
-      if (originalSignerApproved[i] != _signerApproved[i]) {
-        changedCount++;
-      }
-    }
     notifyListeners();
-    return changedCount;
   }
 
   /// 스캔된 PSBT로 현재 SigningPsbt를 교체 할 수 있는지 체크하는 함수(UnsignedTransaction 비교)
