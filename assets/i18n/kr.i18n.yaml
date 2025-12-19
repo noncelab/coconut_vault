@@ -638,6 +638,9 @@ multisig_sign_screen:
     sign_error:
       title: "서명 실패"
       description: "서명에 실패했어요. 서명을 시도한 MFP를 확인해주세요."
+    signature_update:
+      title: "서명 업데이트"
+      description: "서명이 업데이트되었어요."
   creating_qr_code: "QR 코드를 생성합니다"
   select_signer_hardware_wallet: "서명기기 선택"
 

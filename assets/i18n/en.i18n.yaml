@@ -637,6 +637,9 @@ multisig_sign_screen:
     sign_error:
       title: "Sign Failed"
       description: "Please check the MFP you tried to sign with."
+    signature_update:
+      title: "Signature Update"
+      description: "Signature has been updated."
   creating_qr_code: "Creating QR code"
   select_signer_hardware_wallet: "Select Signer Hardware Wallet"
 

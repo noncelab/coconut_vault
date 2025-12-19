@@ -122,7 +122,6 @@ class _PsbtScannerScreenState extends State<PsbtScannerScreen> {
     String? psbtBase64;
     try {
       psbtBase64 = _viewModel.normalizePsbtToBase64(signedPsbt);
-
       if (widget.id == null) {
         // 스캔된 MFP를 이용해 유효한 볼트를 찾고, SignProvider에 저장
         await _viewModel.setMatchingVault(psbtBase64);

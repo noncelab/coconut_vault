@@ -24,6 +24,7 @@ import 'package:coconut_vault/screens/wallet_info/single_sig_menu/passphrase_che
 import 'package:coconut_vault/screens/airgap/multisig_psbt_qr_code_screen.dart';
 import 'package:coconut_vault/utils/alert_util.dart';
 import 'package:coconut_vault/utils/icon_util.dart';
+import 'package:coconut_vault/utils/print_util.dart';
 import 'package:coconut_vault/widgets/bottom_sheet.dart';
 import 'package:coconut_vault/widgets/button/fixed_bottom_tween_button.dart';
 import 'package:coconut_vault/widgets/button/shrink_animation_button.dart';
@@ -361,7 +362,48 @@ class _MultisigSignScreenState extends State<MultisigSignScreen> {
           id: _viewModel.vaultId,
           hardwareWalletType: hwwType,
           onMultisigSignCompleted: (psbtBase64) async {
-            debugPrint('canUpdatePsbt: ${_viewModel.canUpdatePsbt(psbtBase64)}');
+            if (!_viewModel.canUpdatePsbt(psbtBase64)) {
+              await showDialog(
+                context: context,
+                builder:
+                    (context) => CoconutPopup(
+                      title: t.errors.scan_error_title,
+                      description: t.errors.cannot_sign_error,
+                      onTapRight: () {
+                        Navigator.pop(context);
+                        Navigator.pop(context);
+                      },
+                    ),
+              );
+              return;
+            }
+            _viewModel.updatePsbt(psbtBase64);
+
+            if (_viewModel.isSignatureComplete) {
+              // 서명이 완료된 상태라면 서명 완료 플로우로 진행
+              await _checkAndShowCreatingQrCode(shouldPop: true);
+              return;
+            }
+
+            _viewModel.syncImportedPartialSigs(psbtBase64);
+
+            Navigator.pop(context);
+
+            // 바텀시트가 닫힌 후 팝업 표시
+            if (mounted) {
+              await showDialog(
+                context: context,
+                builder: (BuildContext context) {
+                  return CoconutPopup(
+                    title: t.multisig_sign_screen.dialog.signature_update.title,
+                    description: t.multisig_sign_screen.dialog.signature_update.description,
+                    onTapRight: () {
+                      Navigator.pop(context);
+                    },
+                  );
+                },
+              );
+            }
           },
         ),
       ),
