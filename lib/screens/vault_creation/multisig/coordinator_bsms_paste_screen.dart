@@ -1,8 +1,10 @@
 import 'package:coconut_design_system/coconut_design_system.dart';
+import 'package:coconut_lib/coconut_lib.dart';
 import 'package:coconut_vault/app_routes_params.dart';
 import 'package:coconut_vault/constants/app_routes.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/model/common/vault_list_item_base.dart';
+import 'package:coconut_vault/model/exception/network_mismatch_exception.dart';
 import 'package:coconut_vault/model/multisig/multisig_signer.dart';
 import 'package:coconut_vault/providers/view_model/vault_creation/multisig/import_coordinator_bsms_view_model.dart';
 import 'package:coconut_vault/providers/wallet_creation_provider.dart';
@@ -76,9 +78,17 @@ class _CoordinatorBsmsPasteScreenState extends State<CoordinatorBsmsPasteScreen>
 
   // INFO: e.toString를 화면에 보여줘야 하는 경우를 대비
   void _onFailedNormalization(Object? e) {
+    String message;
+
+    if (e is NetworkMismatchException) {
+      message = e.message;
+    } else {
+      message = t.bsms_paste_screen.error_message;
+    }
+
     setState(() {
       _normalizedMultisigConfig = null;
-      _errorMessage = t.bsms_paste_screen.error_message;
+      _errorMessage = message;
     });
   }
 
@@ -87,6 +97,23 @@ class _CoordinatorBsmsPasteScreenState extends State<CoordinatorBsmsPasteScreen>
     _dataHandler.joinData(bsms.trim());
     if (!_dataHandler.isCompleted()) {
       throw Exception("Incomplete data");
+    }
+
+    final bool isAppMainnet = NetworkType.currentNetworkType == NetworkType.mainnet;
+
+    final String rawData = bsms.toLowerCase();
+
+    final bool isDataTestnet = rawData.contains('tpub') || rawData.contains('vpub') || rawData.contains('upub');
+    final bool isDataMainnet = rawData.contains('xpub') || rawData.contains('zpub') || rawData.contains('ypub');
+
+    if (isDataTestnet || isDataMainnet) {
+      if (isAppMainnet && isDataTestnet && !isDataMainnet) {
+        throw NetworkMismatchException(message: t.alert.bsms_network_mismatch.description_when_mainnet);
+      }
+
+      if (!isAppMainnet && isDataMainnet && !isDataTestnet) {
+        throw NetworkMismatchException(message: t.alert.bsms_network_mismatch.description_when_testnet);
+      }
     }
 
     NormalizedMultisigConfig normalizedMultisigConfig = MultisigNormalizer.fromCoordinatorResult(_dataHandler.result);

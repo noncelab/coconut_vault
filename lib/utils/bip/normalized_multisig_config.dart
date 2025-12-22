@@ -1,5 +1,4 @@
 import 'package:coconut_lib/coconut_lib.dart';
-import 'package:coconut_vault/model/exception/network_mismatch_exception.dart';
 import 'package:coconut_vault/utils/bip/signer_bsms.dart';
 
 class NormalizedMultisigConfig {

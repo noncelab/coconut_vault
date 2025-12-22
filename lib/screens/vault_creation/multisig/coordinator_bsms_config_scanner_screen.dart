@@ -4,6 +4,7 @@ import 'package:coconut_vault/app_routes_params.dart';
 import 'package:coconut_vault/constants/app_routes.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/model/common/vault_list_item_base.dart';
+import 'package:coconut_vault/model/exception/network_mismatch_exception.dart';
 import 'package:coconut_vault/model/multisig/multisig_signer.dart';
 import 'package:coconut_vault/providers/view_model/vault_creation/multisig/import_coordinator_bsms_view_model.dart';
 import 'package:coconut_vault/providers/wallet_creation_provider.dart';
@@ -109,6 +110,26 @@ class _CoordinatorBsmsConfigScannerScreenState extends BsmsScannerBase<Coordinat
         return;
       }
 
+      final bool isAppMainnet = NetworkType.currentNetworkType == NetworkType.mainnet;
+
+      final String resultString = result.toString().toLowerCase();
+
+      final bool isDataTestnet =
+          resultString.contains('tpub') || resultString.contains('vpub') || resultString.contains('upub');
+
+      final bool isDataMainnet =
+          resultString.contains('xpub') || resultString.contains('zpub') || resultString.contains('ypub');
+
+      if (isDataTestnet || isDataMainnet) {
+        if (isAppMainnet && isDataTestnet && !isDataMainnet) {
+          throw NetworkMismatchException();
+        }
+
+        if (!isAppMainnet && isDataMainnet && !isDataTestnet) {
+          throw NetworkMismatchException();
+        }
+      }
+
       NormalizedMultisigConfig normalizedMultisigConfig = MultisigNormalizer.fromCoordinatorResult(result);
       Logger.log(
         '\t normalizedMultisigConfig: \n name: ${normalizedMultisigConfig.name}\n requiredCount: ${normalizedMultisigConfig.requiredCount}\n signerBsms: [\n${normalizedMultisigConfig.signerBsms.join(',\n')}\n]',
@@ -157,7 +178,7 @@ class _CoordinatorBsmsConfigScannerScreenState extends BsmsScannerBase<Coordinat
       Logger.error('🛑: $e');
       String failureMessage;
 
-      if (e is FormatException) {
+      if (e is NetworkMismatchException) {
         if (NetworkType.currentNetworkType == NetworkType.mainnet) {
           failureMessage =
               "${t.alert.bsms_network_mismatch.title}\n\n${t.alert.bsms_network_mismatch.description_when_mainnet}";
