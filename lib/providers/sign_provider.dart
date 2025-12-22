@@ -16,6 +16,11 @@ class SignProvider {
   // for batch tx
   Map<String, double>? _recipientAmounts;
 
+  // for multisig sign
+  Map<String, String>? _unsignedInputsMap;
+  Map<String, String>? _unsignedPubkeyMap;
+  Map<String, String>? _signedInputsMap;
+  String? _signingPublicKey;
   String? _signedPsbtBase64;
 
   int? get walletId => _vaultListItem?.id;
@@ -28,6 +33,11 @@ class SignProvider {
   String? get recipientAddress => _recipientAddress;
   Map<String, double>? get recipientAmounts =>
       _recipientAmounts == null ? null : UnmodifiableMapView(_recipientAmounts!);
+
+  Map<String, String>? get unsignedInputsMap => _unsignedInputsMap;
+  Map<String, String>? get unsignedPubkeyMap => _unsignedPubkeyMap;
+  Map<String, String>? get signedInputsMap => _signedInputsMap;
+  String? get signingPublicKey => _signingPublicKey;
 
   int? get sendingAmount => _sendingAmount;
 
@@ -95,8 +105,54 @@ class SignProvider {
     _signedPsbtBase64 = null;
   }
 
+  // 3-2. multisig_sign
+  void saveUnsignedInputsMap(Map<String, String> inputsMap) {
+    _unsignedInputsMap = inputsMap;
+  }
+
+  // 3-2. multisig_sign
+  void resetUnsignedInputsMap() {
+    _unsignedInputsMap = null;
+  }
+
+  // 3-2. multisig_sign
+  void saveUnsignedPubkeyMap(Map<String, String> pubkeyMap) {
+    _unsignedPubkeyMap = pubkeyMap;
+  }
+
+  // 3-2. multisig_sign
+  void resetUnsignedPubkeyMap() {
+    _unsignedPubkeyMap = null;
+  }
+
+  // 3-2. multisig_sign
+  void saveSignedInputsMap(Map<String, String> signedInputsMap) {
+    _signedInputsMap = signedInputsMap;
+  }
+
+  // 3-2. multisig_sign
+  void resetSignedInputsMap() {
+    _signedInputsMap = null;
+  }
+
+  // 3-2. multisig_sign
+  void saveSigningPublicKey(String publicKey) {
+    _signingPublicKey = publicKey;
+  }
+
+  // 3-2. multisig_sign
+  void resetSigningPublicKey() {
+    _signingPublicKey = null;
+  }
+
   void resetAll() {
     _unsignedPsbtBase64 =
-        _vaultListItem = _psbt = _recipientAddress = _recipientAmounts = _sendingAmount = _signedPsbtBase64 = null;
+        _vaultListItem =
+            _psbt =
+                _recipientAddress =
+                    _recipientAmounts =
+                        _sendingAmount =
+                            _signedPsbtBase64 =
+                                _unsignedInputsMap = _unsignedPubkeyMap = _signedInputsMap = _signingPublicKey = null;
   }
 }

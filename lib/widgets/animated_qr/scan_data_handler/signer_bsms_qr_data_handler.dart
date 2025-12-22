@@ -1,5 +1,6 @@
 import 'package:coconut_lib/coconut_lib.dart';
 import 'package:coconut_vault/enums/hardware_wallet_type_enum.dart';
+import 'package:coconut_vault/model/exception/network_mismatch_exception.dart';
 import 'package:coconut_vault/packages/bc-ur-dart/lib/ur_decoder.dart';
 import 'package:coconut_vault/utils/bb_qr/bb_qr_decoder.dart';
 import 'package:coconut_vault/utils/bip/signer_bsms.dart';
@@ -7,7 +8,7 @@ import 'package:coconut_vault/utils/ur_bytes_converter.dart';
 import 'package:coconut_vault/widgets/animated_qr/scan_data_handler/i_qr_scan_data_handler.dart';
 
 class SignerBsmsQrDataHandler implements IQrScanDataHandler {
-  final HardwareWalletType? harewareWalletType;
+  final HardwareWalletType? hardwareWalletType;
   URDecoder _urDecoder;
   BbQrDecoder _bbQrDecoder;
 
@@ -16,10 +17,10 @@ class SignerBsmsQrDataHandler implements IQrScanDataHandler {
   late bool _isFragmentedDataScanned;
   bool get isFragmentedDataScanned => _isFragmentedDataScanned;
 
-  SignerBsmsQrDataHandler({this.harewareWalletType = HardwareWalletType.coconutVault})
+  SignerBsmsQrDataHandler({this.hardwareWalletType = HardwareWalletType.coconutVault})
     : _urDecoder = URDecoder(),
       _bbQrDecoder = BbQrDecoder() {
-    switch (harewareWalletType) {
+    switch (hardwareWalletType) {
       case HardwareWalletType.jade:
       case HardwareWalletType.coldCard:
         _isFragmentedDataScanned = true;
@@ -31,7 +32,7 @@ class SignerBsmsQrDataHandler implements IQrScanDataHandler {
 
   @override
   dynamic get result {
-    switch (harewareWalletType) {
+    switch (hardwareWalletType) {
       case HardwareWalletType.keystone:
       case HardwareWalletType.jade:
         return UrBytesConverter.convertToMap(_urDecoder.result);
@@ -44,6 +45,7 @@ class SignerBsmsQrDataHandler implements IQrScanDataHandler {
       case HardwareWalletType.seedSigner:
       case HardwareWalletType.krux:
       case HardwareWalletType.coconutVault:
+        print('result: ${_textBuffer?.toString()}');
         return _textBuffer?.toString();
       default:
         return null;
@@ -52,7 +54,7 @@ class SignerBsmsQrDataHandler implements IQrScanDataHandler {
 
   @override
   double get progress {
-    switch (harewareWalletType) {
+    switch (hardwareWalletType) {
       case HardwareWalletType.keystone:
       case HardwareWalletType.jade:
         return _urDecoder.estimatedPercentComplete();
@@ -73,7 +75,7 @@ class SignerBsmsQrDataHandler implements IQrScanDataHandler {
       return false;
     }
 
-    switch (harewareWalletType) {
+    switch (hardwareWalletType) {
       case HardwareWalletType.keystone:
       case HardwareWalletType.jade:
         return _urDecoder.receivePart(data);
@@ -95,7 +97,7 @@ class SignerBsmsQrDataHandler implements IQrScanDataHandler {
     final lowerCased = data.trim().toLowerCase();
 
     try {
-      switch (harewareWalletType) {
+      switch (hardwareWalletType) {
         case HardwareWalletType.keystone:
         case HardwareWalletType.jade:
           return lowerCased.startsWith('ur:crypto-account/');
@@ -103,14 +105,14 @@ class SignerBsmsQrDataHandler implements IQrScanDataHandler {
           return lowerCased.startsWith('b\$');
         case HardwareWalletType.coconutVault:
           try {
-            SignerBsms.parse(data);
+            SignerBsms.parse(data.trim());
             return true;
           } catch (_) {
             return false;
           }
         case HardwareWalletType.seedSigner:
         case HardwareWalletType.krux:
-          return _isValidSignerDescriptor(data);
+          return _isValidSignerDescriptor(data.trim());
         default:
           return false;
       }
@@ -121,7 +123,7 @@ class SignerBsmsQrDataHandler implements IQrScanDataHandler {
 
   @override
   bool isCompleted() {
-    switch (harewareWalletType) {
+    switch (hardwareWalletType) {
       case HardwareWalletType.keystone:
       case HardwareWalletType.jade:
         return _urDecoder.isComplete();
@@ -160,13 +162,9 @@ class SignerBsmsQrDataHandler implements IQrScanDataHandler {
     final mfp = match.group(1)!;
     final path = match.group(2)!;
     final xpub = match.group(3)!;
-    try {
-      _validateFingerprint(mfp);
-      _validateDerivationPath(path);
-      _validateXpubPrefix(xpub);
-    } catch (e) {
-      rethrow;
-    }
+    _validateFingerprint(mfp);
+    _validateDerivationPath(path);
+    _validateXpubPrefix(xpub);
 
     return true;
   }
@@ -188,7 +186,7 @@ class SignerBsmsQrDataHandler implements IQrScanDataHandler {
     if (NetworkType.currentNetworkType.isTestnet
         ? coin != '1\'' && coin != '1h' && coin != '1H'
         : coin != '0\'' && coin != '0h' && coin != '0H') {
-      throw FormatException('Network mismatch: $path');
+      throw NetworkMismatchException();
     }
     final account = pathSegments[2];
     if (account != '0\'' && account != '0h' && account != '0H') {

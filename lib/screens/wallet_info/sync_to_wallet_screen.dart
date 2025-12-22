@@ -69,22 +69,20 @@ class _SyncToWalletScreenState extends State<SyncToWalletScreen> {
                         ),
                       ),
                       const SizedBox(height: 40),
-                      Center(
-                        child: Container(
-                          padding: const EdgeInsets.all(10),
-                          decoration: CoconutBoxDecoration.shadowBoxDecoration,
-                          child: Selector<WalletToSyncViewModel, ({QrData qrData, UrType urType})>(
-                            selector: (context, vm) => (qrData: vm.qrData, urType: vm.urType),
-                            builder: (context, selectedValue, child) {
-                              if (selectedValue.qrData.type == QrType.single) {
-                                return QrImageView(data: selectedValue.qrData.data, size: qrSize);
-                              }
-                              return AnimatedQrView(
-                                qrViewDataHandler: BcUrQrViewHandler(selectedValue.qrData.data, selectedValue.urType),
-                                qrSize: qrSize,
-                              );
-                            },
-                          ),
+                      Container(
+                        padding: const EdgeInsets.all(10),
+                        decoration: CoconutBoxDecoration.shadowBoxDecoration,
+                        child: Selector<WalletToSyncViewModel, ({QrData qrData, UrType urType})>(
+                          selector: (context, vm) => (qrData: vm.qrData, urType: vm.urType),
+                          builder: (context, selectedValue, child) {
+                            if (selectedValue.qrData.type == QrType.single) {
+                              return QrImageView(data: selectedValue.qrData.data, size: qrSize);
+                            }
+                            return AnimatedQrView(
+                              qrViewDataHandler: BcUrQrViewHandler(selectedValue.qrData.data, selectedValue.urType),
+                              qrSize: qrSize,
+                            );
+                          },
                         ),
                       ),
                       const SizedBox(height: 32),

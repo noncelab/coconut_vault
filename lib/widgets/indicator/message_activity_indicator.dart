@@ -1,10 +1,13 @@
 import 'package:coconut_design_system/coconut_design_system.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class MessageActivityIndicator extends StatelessWidget {
   final String? message;
+  final bool isCupertinoIndicator;
+  final EdgeInsets? padding;
 
-  const MessageActivityIndicator({super.key, this.message});
+  const MessageActivityIndicator({super.key, this.message, this.isCupertinoIndicator = false, this.padding});
 
   @override
   Widget build(BuildContext context) {
@@ -13,13 +16,15 @@ class MessageActivityIndicator extends StatelessWidget {
         borderRadius: CoconutBorder.defaultRadius,
         color: message != null ? CoconutColors.white : null,
       ),
-      width: MediaQuery.of(context).size.width / 2 + 30,
-      padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 25),
+      width: MediaQuery.of(context).size.width / 2,
+      padding: padding ?? const EdgeInsets.symmetric(horizontal: 15, vertical: 25),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          const CircularProgressIndicator(color: CoconutColors.gray800),
+          isCupertinoIndicator
+              ? const CupertinoActivityIndicator(color: CoconutColors.black, radius: 24)
+              : const CircularProgressIndicator(color: CoconutColors.gray800),
           Visibility(
             visible: message != null,
             child: Container(

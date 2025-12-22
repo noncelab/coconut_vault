@@ -57,7 +57,7 @@ Future<void> migrateV1toV2(
                   );
                 } else {
                   // 다른 볼트에서 다중서명지갑 추가했고, 외부 키가 있는 경우
-                  final extendedPublicKey = signer.keyStore.extendedPublicKey.toString().toLowerCase();
+                  final extendedPublicKey = signer.keyStore.extendedPublicKey.toString();
                   final coinType =
                       (extendedPublicKey.startsWith('xpub') || extendedPublicKey.startsWith('zpub')) ? "0'" : "1'";
                   return SignerPrivacyInfo(

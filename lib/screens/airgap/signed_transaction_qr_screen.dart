@@ -1,6 +1,7 @@
 import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/providers/sign_provider.dart';
+import 'package:coconut_vault/screens/airgap/multisig_psbt_qr_code_screen.dart';
 import 'package:coconut_vault/services/blockchain_commons/ur_type.dart';
 import 'package:coconut_vault/widgets/animated_qr/animated_qr_view.dart';
 import 'package:coconut_vault/widgets/animated_qr/view_data_handler/bc_ur_qr_view_handler.dart';
@@ -29,7 +30,13 @@ class _SignedTransactionQrScreenState extends State<SignedTransactionQrScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: CoconutColors.white,
-      appBar: CoconutAppBar.build(title: t.signed_tx, context: context),
+      appBar: CoconutAppBar.build(
+        title: t.signed_tx,
+        context: context,
+        onBackPressed: () {
+          _onFinishing();
+        },
+      ),
       body: SafeArea(
         child: Stack(
           children: [
@@ -48,7 +55,12 @@ class _SignedTransactionQrScreenState extends State<SignedTransactionQrScreen> {
                     padding: const EdgeInsets.all(10),
                     decoration: CoconutBoxDecoration.shadowBoxDecoration,
                     child: AnimatedQrView(
-                      qrViewDataHandler: BcUrQrViewHandler(_signProvider.signedPsbtBase64!, UrType.cryptoPsbt),
+                      qrViewDataHandler: BcUrQrViewHandler(
+                        _signProvider.signedPsbtBase64!,
+                        UrType.cryptoPsbt,
+                        maxFragmentLen: 40,
+                      ),
+                      qrScanDensity: QrScanDensity.normal,
                       qrSize: MediaQuery.of(context).size.width * 0.8,
                     ),
                   ),
@@ -59,30 +71,34 @@ class _SignedTransactionQrScreenState extends State<SignedTransactionQrScreen> {
             FixedBottomButton(
               text: t.complete,
               onButtonClicked: () {
-                showDialog(
-                  context: context,
-                  builder: (BuildContext context) {
-                    return CoconutPopup(
-                      titlePadding: const EdgeInsets.only(top: 24, bottom: 12, left: 16, right: 16),
-                      title: t.alert.finish_signing.title,
-                      description: t.alert.finish_signing.description,
-                      onTapRight: () {
-                        _signProvider.resetAll();
-                        Navigator.pushNamedAndRemoveUntil(context, '/', (Route<dynamic> route) => false);
-                      },
-                      onTapLeft: () {
-                        Navigator.pop(context);
-                      },
-                      leftButtonText: t.no,
-                      rightButtonText: t.yes,
-                    );
-                  },
-                );
+                _onFinishing();
               },
             ),
           ],
         ),
       ),
+    );
+  }
+
+  void _onFinishing() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return CoconutPopup(
+          titlePadding: const EdgeInsets.only(top: 24, bottom: 12, left: 16, right: 16),
+          title: t.alert.finish_signing.title,
+          description: t.alert.finish_signing.description,
+          onTapRight: () {
+            _signProvider.resetAll();
+            Navigator.pushNamedAndRemoveUntil(context, '/', (Route<dynamic> route) => false);
+          },
+          onTapLeft: () {
+            Navigator.pop(context);
+          },
+          leftButtonText: t.no,
+          rightButtonText: t.yes,
+        );
+      },
     );
   }
 

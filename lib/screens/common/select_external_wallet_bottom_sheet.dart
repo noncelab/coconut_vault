@@ -6,15 +6,17 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 
 class SelectExternalWalletBottomSheet extends StatefulWidget {
-  final String title;
   final List<ExternalWalletButton> externalWalletButtonList;
+  final String? title;
   final int? selectedIndex;
+  final bool showConfirmDialog;
   final Function(int) onSelected;
   const SelectExternalWalletBottomSheet({
     super.key,
-    required this.title,
     required this.externalWalletButtonList,
+    this.title,
     this.selectedIndex,
+    this.showConfirmDialog = true,
     required this.onSelected,
   });
 
@@ -38,7 +40,10 @@ class _SelectExternalWalletBottomSheetState extends State<SelectExternalWalletBo
     return Scaffold(
       backgroundColor: CoconutColors.white,
       appBar: CoconutAppBar.build(
-        customTitle: Text(widget.title, style: CoconutTypography.body1_16_Bold),
+        customTitle: Text(
+          widget.title ?? t.multi_sig_setting_screen.add_icon.title,
+          style: CoconutTypography.body1_16_Bold,
+        ),
         context: context,
         isBottom: true,
         height: kToolbarHeight,
@@ -72,8 +77,14 @@ class _SelectExternalWalletBottomSheetState extends State<SelectExternalWalletBo
                   widget.onSelected(selectedIndex!);
                 });
 
+                if (!widget.showConfirmDialog) {
+                  Navigator.pop(context);
+                  return;
+                }
+
                 showDialog(
                   context: context,
+                  barrierDismissible: false,
                   builder: (BuildContext context) {
                     return CoconutPopup(
                       insetPadding: EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width * 0.15),
