@@ -1,8 +1,10 @@
 import 'package:coconut_design_system/coconut_design_system.dart';
+import 'package:coconut_lib/coconut_lib.dart';
 import 'package:coconut_vault/app_routes_params.dart';
 import 'package:coconut_vault/constants/app_routes.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/model/common/vault_list_item_base.dart';
+import 'package:coconut_vault/model/exception/network_mismatch_exception.dart';
 import 'package:coconut_vault/model/multisig/multisig_signer.dart';
 import 'package:coconut_vault/providers/view_model/vault_creation/multisig/import_coordinator_bsms_view_model.dart';
 import 'package:coconut_vault/providers/wallet_creation_provider.dart';
@@ -44,7 +46,6 @@ class _CoordinatorBsmsConfigScannerScreenState extends BsmsScannerBase<Coordinat
   @override
   bool get showBottomButton => true;
 
-  @override
   double get topMaskHeight => 0.0;
 
   @override
@@ -155,7 +156,21 @@ class _CoordinatorBsmsConfigScannerScreenState extends BsmsScannerBase<Coordinat
       }
     } catch (e) {
       Logger.error('🛑: $e');
-      _handleScanFailure("${t.alert.wallet_creation_failed.title}\n${e.toString()}");
+      String failureMessage;
+
+      if (e is FormatException && e.message == 'NETWORK_MISMATCH') {
+        if (NetworkType.currentNetworkType == NetworkType.mainnet) {
+          failureMessage =
+              "${t.alert.wallet_creation_failed.title}\n\n${t.alert.wallet_creation_failed.mainnet_failure1}\n${t.alert.wallet_creation_failed.mainnet_failure2}";
+        } else {
+          failureMessage =
+              "${t.alert.wallet_creation_failed.title}\n\n${t.alert.wallet_creation_failed.testnet_failure1}\n${t.alert.wallet_creation_failed.testnet_failure2}";
+        }
+      } else {
+        failureMessage = "${t.alert.wallet_creation_failed.title}\n\n${t.alert.wallet_creation_failed.description}";
+      }
+
+      _handleScanFailure(failureMessage);
     }
   }
 

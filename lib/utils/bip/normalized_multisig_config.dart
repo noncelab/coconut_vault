@@ -1,4 +1,5 @@
 import 'package:coconut_lib/coconut_lib.dart';
+import 'package:coconut_vault/model/exception/network_mismatch_exception.dart';
 import 'package:coconut_vault/utils/bip/signer_bsms.dart';
 
 class NormalizedMultisigConfig {
@@ -21,6 +22,22 @@ class NormalizedMultisigConfig {
     }
     if (requiredCount > signerBsms.length) {
       throw ArgumentError('requiredCount ($requiredCount) cannot be greater than total signers (${signerBsms.length})');
+    }
+
+    final isMainnetApp = NetworkType.currentNetworkType == NetworkType.mainnet;
+
+    for (final rawString in signerBsms) {
+      final lowerRaw = rawString.toLowerCase();
+      final hasTestnetKey = lowerRaw.contains('tpub') || lowerRaw.contains('vpub') || lowerRaw.contains('upub');
+
+      if (isMainnetApp && hasTestnetKey) {
+        throw const FormatException('NETWORK_MISMATCH');
+      }
+
+      final hasMainnetKey = lowerRaw.contains('xpub') || lowerRaw.contains('zpub') || lowerRaw.contains('ypub');
+      if (!isMainnetApp && hasMainnetKey) {
+        throw const FormatException('NETWORK_MISMATCH');
+      }
     }
 
     List<SignerBsms> signerBsmsList = [];

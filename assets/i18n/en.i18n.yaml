@@ -937,6 +937,10 @@ alert:
   wallet_creation_failed:
     title: "Wallet Creation Failed"
     description: "Invalid information"
+    mainnet_failure1: "In the Mainnet app,"
+    mainnet_failure2: "Testnet keys cannot be used."
+    testnet_failure1: "In the Testnet app,"
+    testnet_failure2: "Mainnet keys cannot be used."
   stop_generating_mnemonic:
     title: "Stop Generating Mnemonic"
     description: "Really stop mnemonic generation?"
