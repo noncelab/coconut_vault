@@ -177,6 +177,7 @@ class _PsbtScannerScreenState extends State<PsbtScannerScreen> {
       } else if (Platform.isIOS) {
         Navigator.pushNamed(context, AppRoutes.psbtConfirmation).then((o) {
           // 뒤로가기로 다시 돌아왔을 때
+          _scanDataHandler.reset();
           _isProcessing = false;
           controller?.start();
         });
