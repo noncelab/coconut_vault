@@ -23,7 +23,7 @@ class CoordinatorBsmsQrScreen extends StatelessWidget {
             color: CoconutColors.white,
             child: QrWithCopyTextScreen(
               title: t.multi_sig_setting_screen.export_menu.share_bsms,
-              tooltipDescription: _buildDescriptionBsms(viewModel),
+              tooltipDescription: _buildDescriptionBsms(),
               qrData: viewModel.qrData,
             ),
           );
@@ -32,7 +32,7 @@ class CoordinatorBsmsQrScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildDescriptionBsms(CoordinatorBsmsQrViewModel viewModel) {
+  Widget _buildDescriptionBsms() {
     return Container(
       decoration: BoxDecoration(color: CoconutColors.gray150, borderRadius: BorderRadius.circular(16)),
       margin: const EdgeInsets.only(top: 4, bottom: 16),

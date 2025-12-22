@@ -1019,6 +1019,7 @@ exceptions:
   seed_invalidated: 
     title: "Wallet Unavailable"
     description: "The saved wallet can no longer be used. Please delete the wallet and restore it using the backed-up mnemonic."
+  needs_multisig_setup: "Please add a multisig wallet first in order to sign with $name."
 
 tooltip:
   mfp: "Unique value of wallet.\nAlso called Master Fingerprint (MFP)."
