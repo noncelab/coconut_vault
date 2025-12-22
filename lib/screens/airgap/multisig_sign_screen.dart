@@ -378,15 +378,13 @@ class _MultisigSignScreenState extends State<MultisigSignScreen> {
               return;
             }
             _viewModel.updatePsbt(psbtBase64);
+            _viewModel.syncImportedPartialSigs(psbtBase64);
 
             if (_viewModel.isSignatureComplete) {
               // 서명이 완료된 상태라면 서명 완료 플로우로 진행
               await _checkAndShowCreatingQrCode(shouldPop: true);
               return;
             }
-
-            _viewModel.syncImportedPartialSigs(psbtBase64);
-
             Navigator.pop(context);
 
             // 바텀시트가 닫힌 후 팝업 표시
