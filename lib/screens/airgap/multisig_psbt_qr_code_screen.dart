@@ -59,10 +59,10 @@ class _PsbtQrCodeViewScreenState extends State<PsbtQrCodeViewScreen> {
     super.initState();
     _visibilityProvider = Provider.of<VisibilityProvider>(context, listen: false);
     _isEnglish = _visibilityProvider.language == 'en';
-    _isBbqrType = widget.hardwareWalletType == HardwareWalletType.coldcard;
+    _isBbqrType = widget.hardwareWalletType == HardwareWalletType.coldCard;
     _keyIndex = widget.index != null ? '${widget.index! + 1}' : ''; // 다중서명 화면 하단의 QR 내보내기를 통해 들어온 경우 index가 null
 
-    if (widget.hardwareWalletType == HardwareWalletType.coldcard) {
+    if (widget.hardwareWalletType == HardwareWalletType.coldCard) {
       _bbqrParts = BbQrEncoder().encodeBase64(widget.signedRawTx);
       _bbqrTimer = Timer.periodic(const Duration(milliseconds: 600), (timer) {
         if (mounted) {
@@ -91,7 +91,7 @@ class _PsbtQrCodeViewScreenState extends State<PsbtQrCodeViewScreen> {
 
     switch (widget.hardwareWalletType) {
       case HardwareWalletType.coconutVault:
-      case HardwareWalletType.keystone3Pro:
+      case HardwareWalletType.keystone:
         // 볼트와 키스톤은 스캔 성능이 우수하기 때문에 일반/좁은 화면 모두 _qrScanDensity: fast, padding: 16으로 설정
         _qrScanDensity = QrScanDensity.fast;
         break;
@@ -122,7 +122,7 @@ class _PsbtQrCodeViewScreenState extends State<PsbtQrCodeViewScreen> {
           title: t.signer_qr_bottom_sheet.title(
             name:
                 widget.hardwareWalletType.displayName +
-                (_visibilityProvider.language == 'kr' && widget.hardwareWalletType == HardwareWalletType.keystone3Pro
+                (_visibilityProvider.language == 'kr' && widget.hardwareWalletType == HardwareWalletType.keystone
                     ? '으'
                     : ''),
           ),
@@ -294,7 +294,7 @@ class _PsbtQrCodeViewScreenState extends State<PsbtQrCodeViewScreen> {
               ),
             ],
           ];
-        case HardwareWalletType.coldcard:
+        case HardwareWalletType.coldCard:
           return [
             TextSpan(text: t.signer_qr_bottom_sheet.coldcard_text0, style: textStyle),
             TextSpan(text: '1. ', style: textStyle),
@@ -317,7 +317,7 @@ class _PsbtQrCodeViewScreenState extends State<PsbtQrCodeViewScreen> {
               ),
             ],
           ];
-        case HardwareWalletType.keystone3Pro:
+        case HardwareWalletType.keystone:
           return [
             TextSpan(text: t.signer_qr_bottom_sheet.keystone_text0, style: textStyle),
             TextSpan(text: '1. ', style: textStyle),
@@ -464,7 +464,7 @@ class _PsbtQrCodeViewScreenState extends State<PsbtQrCodeViewScreen> {
             TextSpan(text: t.signer_qr_bottom_sheet.scan_the_qr, style: textStyle),
           ],
         ];
-      case HardwareWalletType.coldcard:
+      case HardwareWalletType.coldCard:
         return [
           TextSpan(text: t.signer_qr_bottom_sheet.coldcard_text0, style: textStyle),
           TextSpan(text: '1. ', style: textStyle),
@@ -487,7 +487,7 @@ class _PsbtQrCodeViewScreenState extends State<PsbtQrCodeViewScreen> {
             TextSpan(text: t.signer_qr_bottom_sheet.scan_the_qr, style: textStyle),
           ],
         ];
-      case HardwareWalletType.keystone3Pro:
+      case HardwareWalletType.keystone:
         return [
           TextSpan(text: t.signer_qr_bottom_sheet.keystone_text0, style: textStyle),
           TextSpan(text: '1. ', style: textStyle),

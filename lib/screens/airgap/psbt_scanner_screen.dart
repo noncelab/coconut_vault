@@ -83,7 +83,7 @@ class _PsbtScannerScreenState extends State<PsbtScannerScreen> {
 
   void _initializeQrScanDataHandler() {
     // ColdCard는 BBQR 핸들러로 시작 (Raw 데이터와 BBQR 모두 처리 가능)
-    if (widget.hardwareWalletType == HardwareWalletType.coldcard) {
+    if (widget.hardwareWalletType == HardwareWalletType.coldCard) {
       _scanDataHandler = BbQrScanDataHandler();
     } else {
       // 다른 하드웨어 지갑은 BcUr 핸들러 사용
@@ -277,7 +277,7 @@ class _PsbtScannerScreenState extends State<PsbtScannerScreen> {
             style: textStyle,
           ),
         ];
-      case HardwareWalletType.coldcard:
+      case HardwareWalletType.coldCard:
         return [
           if (isEnglish) ...[
             TextSpan(text: '1. ', style: textStyle),
@@ -317,7 +317,7 @@ class _PsbtScannerScreenState extends State<PsbtScannerScreen> {
             style: textStyle,
           ),
         ];
-      case HardwareWalletType.keystone3Pro:
+      case HardwareWalletType.keystone:
         return [
           TextSpan(text: '1. ', style: textStyle),
           TextSpan(text: t.psbt_scanner_screen.tooltip.confirm_sign_info, style: textStyle),

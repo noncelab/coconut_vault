@@ -129,7 +129,7 @@ class _MultisigQrCodeViewScreenState extends State<MultisigQrCodeViewScreen> {
     final textStyle = CoconutTypography.body2_14.copyWith(height: 1.2, color: CoconutColors.black);
     final textStyleBold = CoconutTypography.body2_14_Bold.copyWith(height: 1.2, color: CoconutColors.black);
 
-    if (widget.hardwareWalletType == HardwareWalletType.keystone3Pro) {
+    if (widget.hardwareWalletType == HardwareWalletType.keystone) {
       if (_isEnglish) {
         return [
           TextSpan(text: '1. ', style: textStyle),

@@ -772,6 +772,9 @@ multi_sig_setting_screen:
     export_watch_only_wallet_description: "Export a watch-only wallet that can view balances and addresses only"
     backup_wallet_data: "Backup Wallet Data"
     backup_wallet_data_description: "Back up the BSMS data needed to recover your wallet in case of loss or device change"
+    guide:
+      text1: "This is BSMS backup data for wallet recovery in case of loss or device change."
+      text2: "After adding the bb wallet to Coconut Wallet, you can check the same information in 'View Wallet Backup Data' on the wallet details screen."
   tooltip: 
     one: "Multisig wallet requiring $n signature\nout of $total keys."
     other: "Multisig wallet requiring $n signatures\nout of $total keys."

@@ -25,6 +25,7 @@ class AppRoutes {
   static const String syncToWallet = '/sync-to-wallet';
   static const String multisigSignerBsmsExport = '/signer-bsms';
   static const String vaultExportOptions = '/vault-export-options';
+  static const String backupWalletData = '/backup-wallet-data';
   static const String multisigSign = '/multi-signature';
   static const String singleSigSign = '/single-sig-sign';
   static const String securitySelfCheck = '/security-self-check';

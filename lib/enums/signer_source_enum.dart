@@ -1,6 +1,6 @@
 import 'package:coconut_vault/constants/icon_path.dart';
 
-enum SignerSource { coconutvault, keystone3pro, seedsigner, jade, coldcard, krux }
+enum SignerSource { coconutvault, keystone3pro, seedsigner, jade, coldCard, krux }
 
 /// 외부지갑 기기 종류에 따른 아이콘 경로 매핑
 class SignerSourceIconMap {
@@ -9,7 +9,7 @@ class SignerSourceIconMap {
     SignerSource.keystone3pro: kKeystoneIconPath,
     SignerSource.seedsigner: kSeedSignerIconPath,
     SignerSource.jade: kJadeIconPath,
-    SignerSource.coldcard: kColdCardIconPath,
+    SignerSource.coldCard: kColdCardIconPath,
     SignerSource.krux: kKruxIconPath,
   };
 
