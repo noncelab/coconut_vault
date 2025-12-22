@@ -24,22 +24,6 @@ class NormalizedMultisigConfig {
       throw ArgumentError('requiredCount ($requiredCount) cannot be greater than total signers (${signerBsms.length})');
     }
 
-    final isMainnetApp = NetworkType.currentNetworkType == NetworkType.mainnet;
-
-    for (final rawString in signerBsms) {
-      final lowerRaw = rawString.toLowerCase();
-      final hasTestnetKey = lowerRaw.contains('tpub') || lowerRaw.contains('vpub') || lowerRaw.contains('upub');
-
-      if (isMainnetApp && hasTestnetKey) {
-        throw const FormatException('NETWORK_MISMATCH');
-      }
-
-      final hasMainnetKey = lowerRaw.contains('xpub') || lowerRaw.contains('zpub') || lowerRaw.contains('ypub');
-      if (!isMainnetApp && hasMainnetKey) {
-        throw const FormatException('NETWORK_MISMATCH');
-      }
-    }
-
     List<SignerBsms> signerBsmsList = [];
     try {
       signerBsmsList = signerBsms.map((sb) => SignerBsms.parse(sb)).toList();

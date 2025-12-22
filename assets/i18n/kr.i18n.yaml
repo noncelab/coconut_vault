@@ -940,8 +940,6 @@ alert:
   wallet_creation_failed:
     title: "지갑 생성 실패"
     description: "유효하지 않은 정보입니다"
-    mainnet_failure: "메인넷 용 BSMS입니다"
-    testnet_failure: "테스트넷 용 BSMS입니다."
   stop_generating_mnemonic:
     title: "니모닉 생성 중단"
     description: "니모닉 생성을 그만두시겠어요?"
