@@ -166,7 +166,8 @@ class _CoordinatorBsmsConfigScannerScreenState extends BsmsScannerBase<Coordinat
               "${t.alert.bsms_network_mismatch.title}\n\n${t.alert.bsms_network_mismatch.description_when_testnet}";
         }
       } else {
-        failureMessage = "${t.alert.wallet_creation_failed.title}\n\n${t.alert.wallet_creation_failed.description}";
+        failureMessage =
+            "${t.coordinator_bsms_config_scanner_screen.error_title}\n\n${t.coordinator_bsms_config_scanner_screen.error_message}";
       }
 
       _handleScanFailure(failureMessage);
