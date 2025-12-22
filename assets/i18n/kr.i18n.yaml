@@ -940,10 +940,8 @@ alert:
   wallet_creation_failed:
     title: "지갑 생성 실패"
     description: "유효하지 않은 정보입니다"
-    mainnet_failure1: "메인넷 앱에서는"
-    mainnet_failure2: "테스트넷 키를 사용할 수 없습니다."
-    testnet_failure1: "테스트넷 앱에서는"
-    testnet_failure2: "메인넷 키를 사용할 수 없습니다."
+    mainnet_failure: "메인넷 용 BSMS입니다"
+    testnet_failure: "테스트넷 용 BSMS입니다."
   stop_generating_mnemonic:
     title: "니모닉 생성 중단"
     description: "니모닉 생성을 그만두시겠어요?"

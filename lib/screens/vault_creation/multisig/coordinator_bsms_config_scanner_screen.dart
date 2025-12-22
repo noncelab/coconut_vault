@@ -161,10 +161,10 @@ class _CoordinatorBsmsConfigScannerScreenState extends BsmsScannerBase<Coordinat
       if (e is FormatException && e.message == 'NETWORK_MISMATCH') {
         if (NetworkType.currentNetworkType == NetworkType.mainnet) {
           failureMessage =
-              "${t.alert.wallet_creation_failed.title}\n\n${t.alert.wallet_creation_failed.mainnet_failure1}\n${t.alert.wallet_creation_failed.mainnet_failure2}";
+              "${t.alert.wallet_creation_failed.title}\n\n${t.alert.wallet_creation_failed.mainnet_failure}";
         } else {
           failureMessage =
-              "${t.alert.wallet_creation_failed.title}\n\n${t.alert.wallet_creation_failed.testnet_failure1}\n${t.alert.wallet_creation_failed.testnet_failure2}";
+              "${t.alert.wallet_creation_failed.title}\n\n${t.alert.wallet_creation_failed.testnet_failure}";
         }
       } else {
         failureMessage = "${t.alert.wallet_creation_failed.title}\n\n${t.alert.wallet_creation_failed.description}";

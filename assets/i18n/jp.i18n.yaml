@@ -935,10 +935,8 @@ alert:
   wallet_creation_failed:
     title: "ウォレット作成失敗"
     description: "無効な情報"
-    mainnet_failure1: "メインネットアプリでは、"
-    mainnet_failure2: "テストネットのキーは使用できません。"
-    testnet_failure1: "テストネットアプリでは、"
-    testnet_failure2: "メインネットのキーは使用できません。"
+    mainnet_failure: "メインネット用のBSMSです。"
+    testnet_failure: "テストネット用のBSMSです。"
   stop_generating_mnemonic:
     title: "ニーモニック生成停止"
     description: "ニーモニック生成を停止しますか？"
